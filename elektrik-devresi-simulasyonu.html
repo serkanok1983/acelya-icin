@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elektrik Devresi Simülasyonu</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+  <style>
+    body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+    canvas { background: #222; display: block; margin: auto; }
+    .controls { margin-top: 15px; }
+    button { font-size: 16px; padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
+    button:hover { background: #0056b3; }
+    .slider-container { margin: 10px; }
+    .slider-container input { width: 300px; }
+  </style>
+</head>
+<body>
+
+<h1>Elektrik Devresi Simülasyonu ⚡💡</h1>
+<p>Basit devreyi aç/kapat ve seri & paralel bağlantıları keşfet!</p>
+<canvas id="circuitCanvas" width="600" height="400"></canvas>
+
+<div id="info">
+  <p>Gerilim (V): <span id="voltageDisplay">9</span> V</p>
+  <p>Akım (I): <span id="currentDisplay">0</span> A</p>
+  <p>Toplam Direnç (R): <span id="resistanceDisplay">1000</span> Ω</p>
+</div>
+
+<div class="controls">
+  <button onclick="toggleSwitch()">Devreyi Aç/Kapat</button>
+  <button onclick="switchToSeries()">Seri Devre</button>
+  <button onclick="switchToParallel()">Paralel Devre</button>
+</div>
+
+<div class="slider-container">
+  <label for="resistanceSlider">Direnç (Ω):</label>
+  <input type="range" id="resistanceSlider" min="100" max="5000" step="100" value="1000">
+</div>
+
+<canvas id="currentChart" width="600" height="200"></canvas>
+
+<script>
+  const canvas = document.getElementById("circuitCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let voltage = 9;
+  let resistance1 = 1000;
+  let resistance2 = 1000;
+  let current = 0;
+  let circuitClosed = false;
+  let circuitType = "series"; 
+
+  let time = 0;
+  let timeValues = [];
+  let currentValues = [];
+
+  const chartCtx = document.getElementById("currentChart").getContext("2d");
+  const currentChart = new Chart(chartCtx, {
+    type: "line",
+    data: { labels: timeValues, datasets: [{ label: "Akım (I) - Zaman", data: currentValues, borderColor: "cyan", borderWidth: 2, fill: false }] },
+    options: { scales: { x: { title: { display: true, text: "Zaman (s)" } }, y: { title: { display: true, text: "Akım (A)" } } } }
+  });
+
+  function drawCircuit() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "red";
+    ctx.fillRect(50, 150, 30, 80);
+    ctx.fillStyle = "black";
+    ctx.fillRect(50, 180, 30, 10);
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(80, 190);
+    ctx.lineTo(200, 190);
+    ctx.stroke();
+
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(180, 175, 40, 30);
+    ctx.fillStyle = "black";
+    ctx.fillText("R₁", 190, 195);
+
+    ctx.beginPath();
+    ctx.moveTo(200, 190);
+    ctx.lineTo(300, circuitClosed ? 190 : 160);
+    ctx.stroke();
+
+    if (circuitType === "series") {
+      ctx.beginPath();
+      ctx.moveTo(300, 190);
+      ctx.lineTo(400, 190);
+      ctx.stroke();
+      ctx.fillStyle = circuitClosed ? "cyan" : "gray";
+      ctx.beginPath();
+      ctx.arc(400, 190, 10, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(300, 190);
+      ctx.lineTo(350, 160);
+      ctx.lineTo(400, 190);
+      ctx.stroke();
+      ctx.fillStyle = circuitClosed ? "cyan" : "gray";
+      ctx.beginPath();
+      ctx.arc(350, 160, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(400, 190, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.strokeStyle = "white";
+    ctx.beginPath();
+    ctx.moveTo(400, 190);
+    ctx.lineTo(400, 250);
+    ctx.lineTo(50, 250);
+    ctx.lineTo(50, 230);
+    ctx.stroke();
+  }
+
+  function updateCircuit() {
+    let totalResistance;
+    if (circuitType === "series") {
+      totalResistance = resistance1 + resistance2;
+    } else {
+      totalResistance = (resistance1 * resistance2) / (resistance1 + resistance2);
+    }
+
+    if (circuitClosed) {
+      current = voltage / totalResistance;
+    } else {
+      current = 0;
+    }
+
+    document.getElementById("voltageDisplay").innerText = voltage;
+    document.getElementById("currentDisplay").innerText = current.toFixed(4);
+    document.getElementById("resistanceDisplay").innerText = totalResistance.toFixed(0);
+
+    time += 0.1;
+    if (timeValues.length > 50) {
+      timeValues.shift();
+      currentValues.shift();
+    }
+    timeValues.push(time.toFixed(1));
+    currentValues.push(current.toFixed(4));
+
+    currentChart.update();
+  }
+
+  function toggleSwitch() {
+    circuitClosed = !circuitClosed;
+    drawCircuit();
+  }
+
+  function switchToSeries() {
+    circuitType = "series";
+    drawCircuit();
+  }
+
+  function switchToParallel() {
+    circuitType = "parallel";
+    drawCircuit();
+  }
+
+  document.getElementById("resistanceSlider").addEventListener("input", function() {
+    resistance1 = parseInt(this.value);
+    resistance2 = parseInt(this.value);
+    updateCircuit();
+  });
+
+  function animate() {
+    updateCircuit();
+    drawCircuit();
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+
+</body>
+</html>
