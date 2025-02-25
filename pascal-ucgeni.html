@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pascal Üçgeni & Sierpiński Fraktali</title>
+
+  <!-- Chart.js ve jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    canvas {
+      max-width: 80%;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Pascal Üçgeni & Sierpiński Fraktali</h2>
+
+  <label for="triangleRows">Kaç Satır Çizilsin? </label>
+  <input type="number" id="triangleRows" value="10" min="1" max="20"/>
+  <button onclick="startPascal()">Hesapla ve Çiz</button>
+  <button onclick="downloadPDF()">PDF İndir</button>
+
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>Satır</th>
+        <th>Değerler</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <canvas id="chartCanvas"></canvas>
+  <canvas id="sierpinskiCanvas" width="500" height="500"></canvas>
+
+  <script>
+    let chart = null;
+    let ctxSierpinski;
+
+    function startPascal() {
+      resetTableAndChart();
+
+      let rows = parseInt(document.getElementById("triangleRows").value);
+      if (isNaN(rows) || rows < 1 || rows > 20) {
+        alert("Lütfen 1 ile 20 arasında bir satır girin!");
+        return;
+      }
+
+      const pascalTriangle = generatePascal(rows);
+      drawSierpinski(pascalTriangle);
+
+      let i = 0;
+      const tableBody = document.querySelector("#resultTable tbody");
+
+      let animationInterval = setInterval(() => {
+        if (i >= pascalTriangle.length) {
+          clearInterval(animationInterval);
+          return;
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${i}</td><td>${pascalTriangle[i].join(" ")}</td>`;
+        tableBody.appendChild(row);
+
+        chart.data.labels.push(i);
+        chart.data.datasets[0].data.push(pascalTriangle[i].reduce((a, b) => a + b, 0));
+        chart.update();
+
+        i++;
+      }, 500);
+    }
+
+    function generatePascal(n) {
+      let triangle = [[1]];
+
+      for (let i = 1; i < n; i++) {
+        let row = [1];
+        for (let j = 1; j < i; j++) {
+          row.push(triangle[i - 1][j - 1] + triangle[i - 1][j]);
+        }
+        row.push(1);
+        triangle.push(row);
+      }
+
+      return triangle;
+    }
+
+    function drawSierpinski(triangle) {
+      const canvas = document.getElementById("sierpinskiCanvas");
+      ctxSierpinski = canvas.getContext("2d");
+      ctxSierpinski.clearRect(0, 0, canvas.width, canvas.height);
+
+      const cellSize = 20;
+      const offsetX = canvas.width / 2;
+
+      for (let i = 0; i < triangle.length; i++) {
+        for (let j = 0; j < triangle[i].length; j++) {
+          const x = offsetX - (i * cellSize / 2) + j * cellSize;
+          const y = i * cellSize;
+          if (triangle[i][j] % 2 === 1) {
+            ctxSierpinski.fillStyle = "black";
+          } else {
+            ctxSierpinski.fillStyle = "white";
+          }
+          ctxSierpinski.fillRect(x, y, cellSize, cellSize);
+        }
+      }
+    }
+
+    function resetTableAndChart() {
+      document.querySelector("#resultTable tbody").innerHTML = "";
+      if (chart) {
+        chart.destroy();
+        chart = null;
+      }
+      initChart();
+    }
+
+    function initChart() {
+      const ctx = document.getElementById("chartCanvas").getContext("2d");
+      if (chart) {
+        chart.destroy();
+      }
+      chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [{
+            label: "Pascal Üçgeni Satır Toplamları",
+            data: [],
+            borderColor: "blue",
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 3,
+            tension: 0.2
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { title: { display: true, text: "Satır" } },
+            y: { title: { display: true, text: "Toplam" } }
+          }
+        }
+      });
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.text("Pascal Üçgeni & Sierpiński Fraktali", 10, 10);
+
+      let rows = [];
+      document.querySelectorAll("#resultTable tbody tr").forEach(tr => {
+        let row = [];
+        tr.querySelectorAll("td").forEach(td => row.push(td.textContent));
+        rows.push(row);
+      });
+
+      doc.autoTable({
+        startY: 20,
+        head: [["Satır", "Değerler"]],
+        body: rows
+      });
+
+      const chartCanvas = document.getElementById("chartCanvas");
+      const chartImgData = chartCanvas.toDataURL("image/png");
+      doc.addImage(chartImgData, "PNG", 10, doc.autoTable.previous.finalY + 10, 180, 90);
+
+      const sierpinskiCanvas = document.getElementById("sierpinskiCanvas");
+      const sierpinskiImgData = sierpinskiCanvas.toDataURL("image/png");
+      doc.addImage(sierpinskiImgData, "PNG", 10, doc.autoTable.previous.finalY + 110, 180, 90);
+
+      doc.save("Pascal_Sierpinski.pdf");
+    }
+  </script>
+
+</body>
+</html>

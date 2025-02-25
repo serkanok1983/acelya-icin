@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fibonacci Spiral (Animasyonlu)</title>
+
+  <!-- Chart.js ve jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    table {
+      width: 60%;
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    canvas {
+      max-width: 80%;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Fibonacci Spiral (Adım Adım Animasyon)</h2>
+
+  <label for="fibCount">Kaç Fibonacci Sayısı Çizilsin? </label>
+  <input type="number" id="fibCount" value="10" min="1" max="20"/>
+  <button onclick="startFibonacci()">Hesapla ve Çiz</button>
+  <button onclick="downloadPDF()">PDF İndir</button>
+
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>Adım</th>
+        <th>Fibonacci Sayısı</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <canvas id="chartCanvas"></canvas>
+  <canvas id="spiralCanvas" width="500" height="500"></canvas>
+
+  <script>
+    let chart = null;
+    let animationInterval;
+    let ctxSpiral;
+
+    function startFibonacci() {
+      clearInterval(animationInterval);
+      resetTableAndChart();
+
+      let count = parseInt(document.getElementById("fibCount").value);
+      if (isNaN(count) || count < 1 || count > 20) {
+        alert("Lütfen 1 ile 20 arasında bir sayı girin!");
+        return;
+      }
+
+      const { steps, values } = generateFibonacci(count);
+      initChart();
+      initSpiral();
+
+      let i = 0;
+      const tableBody = document.querySelector("#resultTable tbody");
+
+      animationInterval = setInterval(() => {
+        if (i >= steps.length) {
+          clearInterval(animationInterval);
+          drawSpiral(values); // Tamamlandığında spirali çiz
+          return;
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${steps[i]}</td><td>${values[i]}</td>`;
+        tableBody.appendChild(row);
+
+        chart.data.labels.push(steps[i]);
+        chart.data.datasets[0].data.push(values[i]);
+        chart.update();
+
+        i++;
+      }, 500);
+    }
+
+    function generateFibonacci(n) {
+      let steps = [];
+      let values = [0, 1];
+
+      for (let i = 2; i < n; i++) {
+        values.push(values[i - 1] + values[i - 2]);
+      }
+
+      steps = values.map((_, i) => i);
+      return { steps, values };
+    }
+
+    function initChart() {
+      const ctx = document.getElementById("chartCanvas").getContext("2d");
+      if (chart) {
+        chart.destroy();
+      }
+      chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [{
+            label: "Fibonacci Serisi",
+            data: [],
+            borderColor: "blue",
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 3,
+            tension: 0.2
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { title: { display: true, text: "Adım" } },
+            y: { title: { display: true, text: "Fibonacci Sayısı" } }
+          }
+        }
+      });
+    }
+
+    function initSpiral() {
+      const canvas = document.getElementById("spiralCanvas");
+      ctxSpiral = canvas.getContext("2d");
+      ctxSpiral.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawSpiral(fibValues) {
+      let x = 250, y = 250;
+      let angle = 0;
+      let directions = [
+        [1, 0], [0, -1], [-1, 0], [0, 1]
+      ];
+      let dirIndex = 0;
+
+      ctxSpiral.strokeStyle = "red";
+      ctxSpiral.lineWidth = 2;
+      ctxSpiral.beginPath();
+      ctxSpiral.moveTo(x, y);
+
+      for (let i = 1; i < fibValues.length; i++) {
+        let step = fibValues[i] * 10;
+        let dx = directions[dirIndex][0] * step;
+        let dy = directions[dirIndex][1] * step;
+
+        x += dx;
+        y += dy;
+        ctxSpiral.lineTo(x, y);
+        dirIndex = (dirIndex + 1) % 4;
+      }
+
+      ctxSpiral.stroke();
+    }
+
+    function resetTableAndChart() {
+      document.querySelector("#resultTable tbody").innerHTML = "";
+      if (chart) {
+        chart.destroy();
+        chart = null;
+      }
+      initSpiral();
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.text("Fibonacci Spiral ve Serisi", 10, 10);
+
+      let rows = [];
+      document.querySelectorAll("#resultTable tbody tr").forEach(tr => {
+        let row = [];
+        tr.querySelectorAll("td").forEach(td => row.push(td.textContent));
+        rows.push(row);
+      });
+
+      doc.autoTable({
+        startY: 20,
+        head: [["Adım", "Fibonacci Sayısı"]],
+        body: rows
+      });
+
+      const chartCanvas = document.getElementById("chartCanvas");
+      const chartImgData = chartCanvas.toDataURL("image/png");
+      doc.addImage(chartImgData, "PNG", 10, doc.autoTable.previous.finalY + 10, 180, 90);
+
+      const spiralCanvas = document.getElementById("spiralCanvas");
+      const spiralImgData = spiralCanvas.toDataURL("image/png");
+      doc.addImage(spiralImgData, "PNG", 10, doc.autoTable.previous.finalY + 110, 180, 90);
+
+      doc.save("Fibonacci_Spiral.pdf");
+    }
+  </script>
+
+</body>
+</html>

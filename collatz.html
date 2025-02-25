@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Collatz Dizisi (3n+1) Animasyonlu</title>
+
+  <!-- Chart.js ve jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    table {
+      width: 60%;
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    canvas {
+      max-width: 80%;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Collatz Dizisi (3n+1) - Adım Adım Animasyon</h2>
+
+  <label for="startNumber">Başlangıç Sayısı: </label>
+  <input type="number" id="startNumber" value="27" min="1"/>
+  <button onclick="startCollatz()">Hesapla ve Başlat</button>
+  <button onclick="downloadPDF()">PDF İndir</button>
+
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>Adım</th>
+        <th>Sayı</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <canvas id="chartCanvas"></canvas>
+
+  <script>
+    let chart = null;
+    let animationInterval;
+
+    function startCollatz() {
+      clearInterval(animationInterval);
+      resetTableAndChart();
+
+      let n = parseInt(document.getElementById("startNumber").value);
+      if (isNaN(n) || n < 1) {
+        alert("Lütfen geçerli bir pozitif sayı girin!");
+        return;
+      }
+
+      const { steps, values } = generateCollatz(n);
+      initChart();
+
+      let i = 0;
+      const tableBody = document.querySelector("#resultTable tbody");
+
+      animationInterval = setInterval(() => {
+        if (i >= steps.length) {
+          clearInterval(animationInterval);
+          return;
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${steps[i]}</td>
+          <td>${values[i]}</td>
+        `;
+        tableBody.appendChild(row);
+
+        chart.data.labels.push(steps[i]);
+        chart.data.datasets[0].data.push(values[i]);
+        chart.update();
+
+        i++;
+      }, 500);
+    }
+
+    function generateCollatz(n) {
+      let steps = [];
+      let values = [];
+      let step = 0;
+
+      while (n !== 1) {
+        steps.push(step);
+        values.push(n);
+        n = n % 2 === 0 ? n / 2 : 3 * n + 1;
+        step++;
+      }
+
+      steps.push(step);
+      values.push(1);
+      return { steps, values };
+    }
+
+    function initChart() {
+      const ctx = document.getElementById("chartCanvas").getContext("2d");
+      if (chart) {
+        chart.destroy();
+      }
+      chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [{
+            label: "Collatz Dizisi",
+            data: [],
+            borderColor: "blue",
+            borderWidth: 2,
+            fill: false,
+            pointRadius: 3,
+            tension: 0.2
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: { display: true, text: "Adım Sayısı" }
+            },
+            y: {
+              title: { display: true, text: "Sayı Değeri" }
+            }
+          }
+        }
+      });
+    }
+
+    function resetTableAndChart() {
+      document.querySelector("#resultTable tbody").innerHTML = "";
+      if (chart) {
+        chart.destroy();
+        chart = null;
+      }
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.text("Collatz Dizisi (3n+1)", 10, 10);
+
+      let rows = [];
+      document.querySelectorAll("#resultTable tbody tr").forEach(tr => {
+        let row = [];
+        tr.querySelectorAll("td").forEach(td => row.push(td.textContent));
+        rows.push(row);
+      });
+
+      let colWidths = [40, 50];
+      doc.autoTable({
+        startY: 20,
+        head: [["Adım", "Sayı"]],
+        body: rows,
+        columnStyles: { 0: { cellWidth: colWidths[0] }, 1: { cellWidth: colWidths[1] } }
+      });
+
+      const canvas = document.getElementById("chartCanvas");
+      const imgData = canvas.toDataURL("image/png");
+      doc.addImage(imgData, "PNG", 10, doc.autoTable.previous.finalY + 10, 180, 90);
+
+      doc.save("Collatz_Dizisi.pdf");
+    }
+  </script>
+
+</body>
+</html>
