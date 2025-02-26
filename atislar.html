@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Atış Hareketi - Yer & Gök Ayrımı + Sesler</title>
+  <style>
+    html, body {
+      margin: 0; 
+      padding: 0; 
+      width: 100%; 
+      height: 100%; 
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      overflow: hidden; /* Scroll olmasın */
+    }
+    #container {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 100%;
+    }
+    /* Sol panel: kontroller */
+    #leftPane {
+      flex: 0 0 250px; 
+      background: #fff;
+      border-right: 1px solid #ccc;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    #leftPane label,
+    #leftPane input {
+      display: block;
+      margin: 0.8rem 0;
+    }
+    #leftPane button {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: #0066cc; 
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      border-radius: 4px;
+    }
+    #leftPane button:hover {
+      background: #0055aa;
+    }
+    /* Sağ panel: 3D sahne tüm alanı kaplasın */
+    #canvasPane {
+      flex: 1; 
+      position: relative;
+      overflow: hidden;
+    }
+    #threeContainer {
+      width: 100%;
+      height: 100%;
+    }
+    /* Responsive: dar ekranda kontroller yukarı, sahne aşağı */
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+      }
+      #leftPane {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ccc;
+      }
+      #canvasPane {
+        flex: 1;
+      }
+    }
+  </style>
+
+  <!-- Three.js ve OrbitControls (CDN’den) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+
+<body>
+<div id="container">
+  <!-- Soldaki Kontroller -->
+  <div id="leftPane">
+    <label for="angleRange"><strong>Atış Açısı (°):</strong></label>
+    <input type="range" id="angleRange" min="0" max="80" step="1" value="45" />
+    <p id="angleVal"></p>
+
+    <label for="speedRange"><strong>Başlangıç Hızı (m/s):</strong></label>
+    <input type="range" id="speedRange" min="1" max="50" step="1" value="20" />
+    <p id="speedVal"></p>
+
+    <label for="gravRange"><strong>Yerçekimi (m/s²):</strong></label>
+    <input type="range" id="gravRange" min="1" max="20" step="1" value="10" />
+    <p id="gravVal"></p>
+
+    <button id="launchBtn">Fırlat!</button>
+    <p id="infoLaunch" style="margin-top:1rem; color:#006600; font-weight:bold;"></p>
+  </div>
+
+  <!-- Sağdaki 3D Sahne -->
+  <div id="canvasPane">
+    <div id="threeContainer"></div>
+  </div>
+</div>
+
+<script>
+// --------------------------
+// 1) Ses Dosyaları Hazırla
+// --------------------------
+const launchSound = new Audio('explode.m4a');
+const hitSound    = new Audio('hit.m4a');
+
+// --------------------------
+// 2) Slider Değerleri
+// --------------------------
+const angleRange = document.getElementById('angleRange');
+const speedRange = document.getElementById('speedRange');
+const gravRange  = document.getElementById('gravRange');
+const angleVal   = document.getElementById('angleVal');
+const speedVal   = document.getElementById('speedVal');
+const gravVal    = document.getElementById('gravVal');
+const launchBtn  = document.getElementById('launchBtn');
+const infoLaunch = document.getElementById('infoLaunch');
+
+angleVal.textContent = `Açı: ${angleRange.value}°`;
+speedVal.textContent = `Hız: ${speedRange.value} m/s`;
+gravVal.textContent  = `g: ${gravRange.value} m/s²`;
+
+// Animasyon parametreleri
+let isLaunched = false;
+let launchTime = 0;
+let angleDeg   = parseFloat(angleRange.value);
+let speed      = parseFloat(speedRange.value);
+let gravity    = parseFloat(gravRange.value);
+let x0 = 0, y0 = 0, z0 = 0;
+
+// --------------------------
+// 3) THREE.js Sahne
+// --------------------------
+let scene, camera, renderer, controls, sphere, floorObj;
+initScene();
+animate();
+
+function initScene(){
+  const container = document.getElementById('threeContainer');
+
+  // Sahne
+  scene = new THREE.Scene();
+  // Gökyüzü: Mavi
+  scene.background = new THREE.Color(0x87CEEB); // "skyblue"
+
+  // Kamera
+  camera = new THREE.PerspectiveCamera(
+    60,
+    container.clientWidth / container.clientHeight,
+    0.1, 1000
+  );
+  // Uzak bir konum, horizon'u görelim
+  camera.position.set(40, 25, 40);
+  camera.lookAt(20, 0, 0);
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(renderer.domElement);
+
+  // OrbitControls
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+  // Işıklar
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(10, 20, 10);
+  scene.add(dirLight);
+
+  const ambLight = new THREE.AmbientLight(0xffffff, 0.3);
+  scene.add(ambLight);
+
+  // Zemin (XZ düzlemi), yeşil ve çok geniş (1000x1000)
+  const floorGeom = new THREE.PlaneGeometry(1000, 1000);
+  floorGeom.rotateX(-Math.PI / 2);
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x00cc00 });
+  floorObj = new THREE.Mesh(floorGeom, floorMat);
+  floorObj.position.y = 0;
+  scene.add(floorObj);
+
+  // Küre (top)
+  const sphereGeom = new THREE.SphereGeometry(0.4, 32, 32);
+  const sphereMat  = new THREE.MeshStandardMaterial({ color: 0xdd3333 });
+  sphere = new THREE.Mesh(sphereGeom, sphereMat);
+  sphere.position.set(0, 0.4, 0);
+  scene.add(sphere);
+
+  // Ekran yeniden boyutlanınca
+  window.addEventListener('resize', onWindowResize);
+}
+
+function onWindowResize(){
+  const container = document.getElementById('threeContainer');
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
+}
+
+// --------------------------
+// 4) Animasyon Döngüsü
+// --------------------------
+function animate(){
+  requestAnimationFrame(animate);
+
+  if(isLaunched) {
+    updateMotion();
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+// --------------------------
+// 5) Hareket Güncelleme
+// --------------------------
+function updateMotion(){
+  let timeNow = performance.now() / 1000;
+  let t = timeNow - launchTime;
+
+  // Atış denklemleri:
+  // x(t) = v cos(a) * t
+  // y(t) = v sin(a) * t - 0.5 * g * t^2
+  let rad = THREE.MathUtils.degToRad(angleDeg);
+  let xPos = x0 + speed * Math.cos(rad) * t;
+  let yPos = y0 + speed * Math.sin(rad) * t - 0.5 * gravity * t * t;
+
+  // Yere çarpma
+  if(yPos <= 0){
+    yPos = 0;
+    if(isLaunched){
+      // Henüz çarpmamışken çarptı, o an "hit" sesi çalsın
+      hitSound.play();
+      infoLaunch.textContent = "Top yere düştü!";
+    }
+    isLaunched = false;
+  }
+  sphere.position.set(xPos, yPos + 0.4, z0);
+}
+
+// --------------------------
+// 6) Etkileşim
+// --------------------------
+angleRange.addEventListener('input', () => {
+  angleDeg = parseFloat(angleRange.value);
+  angleVal.textContent = `Açı: ${angleDeg}°`;
+});
+speedRange.addEventListener('input', () => {
+  speed = parseFloat(speedRange.value);
+  speedVal.textContent = `Hız: ${speed} m/s`;
+});
+gravRange.addEventListener('input', () => {
+  gravity = parseFloat(gravRange.value);
+  gravVal.textContent = `g: ${gravity} m/s²`;
+});
+
+launchBtn.addEventListener('click', () => {
+  // Topu orijine al
+  sphere.position.set(0,0.4,0);
+  x0 = 0; y0 = 0; z0 = 0;
+
+  // Başlat
+  isLaunched = true;
+  launchTime = performance.now() / 1000;
+  infoLaunch.textContent = "Fırlatıldı!";
+
+  // Fırlatınca "explode.m4a" çalsın
+  launchSound.play();
+});
+</script>
+</body>
+</html>
