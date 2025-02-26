@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Güneş Sistemi</title>
+  <style>
+    html, body {
+      margin: 0; 
+      padding: 0; 
+      width: 100%; 
+      height: 100%; 
+      font-family: Arial, sans-serif;
+      background: #000; 
+      overflow: hidden;
+    }
+    #container {
+      display: flex;
+      width: 100%; 
+      height: 100%;
+    }
+    #leftPane {
+      flex: 0 0 300px;
+      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,0.1);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 1rem;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    #leftPane label, #leftPane input {
+      display: block;
+      margin: 0.6rem 0;
+    }
+    #leftPane input[type="range"] {
+      width: 80%;
+    }
+    #planetInfo {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      line-height: 1.4em;
+      color: #ddd;
+    }
+    #threeContainer {
+      flex: 1;
+      position: relative;
+      background: #000;
+    }
+    @media (max-width: 768px){
+      #container {
+        flex-direction: column;
+      }
+      #leftPane {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        height: auto;
+      }
+    }
+  </style>
+
+  <!-- Three.js + OrbitControls (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+<div id="container">
+  <!-- Sol Panel -->
+  <div id="leftPane">
+    <h2 style="text-align:center;">Güneş Sistemi</h2>
+    <label><strong>Zaman Hızı:</strong></label>
+    <input type="range" id="speedRange" min="0" max="50" step="1" value="10" />
+    <p id="speedVal"></p>
+
+    <label>
+      <input type="checkbox" id="orbitToggle" checked />
+      Yörüngeleri Göster
+    </label>
+
+    <div id="planetInfo">
+      <h3 id="planetName">Seçili Gezegen Yok</h3>
+      <p id="planetDesc">
+        Gezegen veya uyduya tıklayabilirsiniz.
+      </p>
+    </div>
+  </div>
+
+  <!-- Sağ: 3D Sahne -->
+  <div id="threeContainer"></div>
+</div>
+
+<script>
+/*
+  Güneş Sistemi benzeri model:
+  - Programatik "yıldız alanı" (rastgele Points).
+  - Güneş'e "glow" sprite: Canvas radial gradient.
+  - Gezegenler, yörünge daireleri, tıklayınca bilgi.
+*/
+
+// ========== 1) Veri ==============
+let scene, camera, renderer, controls;
+let speed = 10;
+let showOrbits = true;
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+
+// Gezegen verisi
+const planetData = [
+  { name:"Merkür", desc:"Yakın gezegen", color:0xa9a9a9, radius:2, distance:15, orbitPeriod:88 },
+  { name:"Venüs",  desc:"Çok sıcak", color:0xffcc99, radius:3.5, distance:20, orbitPeriod:225 },
+  { name:"Dünya",  desc:"Yaşam", color:0x2255ff, radius:4, distance:28, orbitPeriod:365,
+    moons:[
+      { name:"Ay", color:0xffffff, radius:1, distance:6, orbitPeriod:27 }
+    ]
+  },
+  { name:"Mars", desc:"Kızıl gezegen", color:0xff5533, radius:3, distance:35, orbitPeriod:687 },
+  { name:"Jüpiter", desc:"Dev gaz gezegen", color:0xc1977e, radius:8, distance:45, orbitPeriod:4333 },
+  { name:"Satürn", desc:"Halkalı gezegen", color:0xf9d29d, radius:7, distance:55, orbitPeriod:10759, ring:true },
+  { name:"Uranüs", desc:"Soğuk buz devi", color:0x88ffff, radius:6, distance:65, orbitPeriod:30660 },
+  { name:"Neptün", desc:"En dıştaki klasik gezegen", color:0x3366ff, radius:6, distance:75, orbitPeriod:60190 },
+  { name:"Plüton (Cüce)", desc:"Artık cüce gezegen", color:0xcccccc, radius:2, distance:85, orbitPeriod:90560 }
+];
+
+let solarObjects = []; // {mesh, data, angle, orbitLine, moons: [...]}
+
+// ========== 2) Başlat ==============
+init();
+animate();
+
+// ========== 3) Scene Fonksiyonları ==============
+function init(){
+  const container = document.getElementById('threeContainer');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+
+  camera = new THREE.PerspectiveCamera(
+    60,
+    container.clientWidth / container.clientHeight,
+    0.1,
+    2000
+  );
+  camera.position.set(0,100,180);
+
+  renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(renderer.domElement);
+
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+  // Işıklar
+  let sunLight = new THREE.PointLight(0xffffff, 2, 5000);
+  sunLight.position.set(0,0,0);
+  scene.add(sunLight);
+
+  let ambient = new THREE.AmbientLight(0xffffff, 0.02);
+  scene.add(ambient);
+
+  // Rastgele yıldız alanı
+  createStarField(2000, 800); // 2000 yıldız, ~800 yarıçap
+
+  // Güneş
+  createSun();
+
+  // Gezegenler
+  planetData.forEach(pd => createPlanet(pd));
+
+  // Olaylar
+  window.addEventListener('resize', onResize);
+  document.addEventListener('mousedown', onMouseDown);
+}
+
+function onResize(){
+  const cont = document.getElementById('threeContainer');
+  camera.aspect = cont.clientWidth / cont.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(cont.clientWidth, cont.clientHeight);
+}
+
+// ========== 4) Rastgele Yıldız Alanı (Points) ==========
+function createStarField(starCount, radius){
+  let geo = new THREE.BufferGeometry();
+  let positions = new Float32Array(starCount*3);
+  for(let i=0; i<starCount; i++){
+    // Rastgele küresel dağılım
+    let r = Math.random()*radius;
+    let theta = Math.random()*Math.PI*2;
+    let phi = Math.random()*Math.PI - (Math.PI/2); // -pi/2..pi/2
+
+    // 3D konum
+    let x = r * Math.cos(theta)*Math.cos(phi);
+    let y = r * Math.sin(phi);
+    let z = r * Math.sin(theta)*Math.cos(phi);
+
+    positions[i*3+0] = x;
+    positions[i*3+1] = y;
+    positions[i*3+2] = z;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  
+  let mat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.8,
+    sizeAttenuation: true
+  });
+  let points = new THREE.Points(geo, mat);
+  scene.add(points);
+}
+
+// ========== 5) Güneş ve Glow ==========
+function createSun(){
+  // Güneş küresi
+  let sunGeo = new THREE.SphereGeometry(12,32,32);
+  let sunMat = new THREE.MeshBasicMaterial({ color:0xffff33 });
+  let sunMesh = new THREE.Mesh(sunGeo, sunMat);
+  sunMesh.name = "Güneş";
+  scene.add(sunMesh);
+
+  // Glow sprite (programatik radial gradient)
+  let glowTex = createRadialGradientTexture(256, 0xffff33);
+  let spriteMat = new THREE.SpriteMaterial({
+    map: glowTex,
+    color: 0xffffff,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    opacity: 0.7,
+    depthWrite: false
+  });
+  let glowSprite = new THREE.Sprite(spriteMat);
+  glowSprite.scale.set(100,100,1);
+  sunMesh.add(glowSprite);
+}
+
+// Canvas'ta radyal gradient -> Texture
+function createRadialGradientTexture(size, color){
+  let canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height= size;
+  let ctx = canvas.getContext('2d');
+
+  let gradient = ctx.createRadialGradient(
+    size/2, size/2, 0,
+    size/2, size/2, size/2
+  );
+  // Rengi -> alpha degrade
+  let col = new THREE.Color(color);
+  let colString = 'rgba('+Math.floor(col.r*255)+','+Math.floor(col.g*255)+','+Math.floor(col.b*255)+',';
+  gradient.addColorStop(0, colString+'1)');
+  gradient.addColorStop(0.5, colString+'0.2)');
+  gradient.addColorStop(1, colString+'0)');
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0,0,size,size);
+
+  let texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  return texture;
+}
+
+// ========== 6) Gezegenler ========== 
+function createPlanet(pd){
+  let geo = new THREE.SphereGeometry(pd.radius,16,16);
+  let mat = new THREE.MeshPhongMaterial({ color: pd.color });
+  let mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(pd.distance,0,0);
+  mesh.name = pd.name;
+  scene.add(mesh);
+
+  // Yörünge
+  let orbitLine = createOrbitCircle(pd.distance);
+  scene.add(orbitLine);
+
+  // Halka (örnek: Satürn)
+  if(pd.ring){
+    let ringGeo = new THREE.RingGeometry(pd.radius*1.5, pd.radius*2.2, 32);
+    // ringGeo.rotateX(-Math.PI/2);
+    let ringMat = new THREE.MeshPhongMaterial({
+      color:0xccccaa,
+      side:THREE.DoubleSide,
+      transparent:true,
+      opacity:0.6
+    });
+    let ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.position.set(0,0,0);
+    mesh.add(ringMesh);
+  }
+
+  let moonObjs = [];
+  if(pd.moons){
+    pd.moons.forEach(md=>{
+      let mg = new THREE.SphereGeometry(md.radius,8,8);
+      let mm = new THREE.MeshPhongMaterial({ color:md.color });
+      let mo = new THREE.Mesh(mg, mm);
+      mo.position.set(md.distance,0,0);
+      mo.name = md.name;
+      mesh.add(mo);
+      moonObjs.push({
+        mesh: mo,
+        data: md,
+        angle:0
+      });
+    });
+  }
+
+  solarObjects.push({
+    mesh,
+    data: pd,
+    angle:0,
+    orbitLine,
+    moons: moonObjs
+  });
+}
+
+function createOrbitCircle(dist){
+  let seg=64;
+  let mat=new THREE.LineBasicMaterial({color:0xffffff,opacity:0.4,transparent:true});
+  let geo=new THREE.BufferGeometry();
+  let pos=[];
+  for(let i=0;i<=seg;i++){
+    let th=(i/seg)*2*Math.PI;
+    let x=dist*Math.cos(th);
+    let z=dist*Math.sin(th);
+    pos.push(x,0,z);
+  }
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  let line=new THREE.LineLoop(geo,mat);
+  return line;
+}
+
+// ========== 7) Animasyon ========== 
+function animate(){
+  requestAnimationFrame(animate);
+
+  let delta=0.01*speed;
+  solarObjects.forEach(obj=>{
+    let factor=365/obj.data.orbitPeriod;
+    obj.angle+=delta*factor;
+    let x=obj.data.distance*Math.cos(obj.angle);
+    let z=obj.data.distance*Math.sin(obj.angle);
+    obj.mesh.position.set(x,0,z);
+
+    if(obj.orbitLine) obj.orbitLine.visible=showOrbits;
+
+    // Uydular
+    obj.moons.forEach(m=>{
+      let mf=27/m.data.orbitPeriod;
+      m.angle+=delta*mf;
+      let mx=m.data.distance*Math.cos(m.angle);
+      let mz=m.data.distance*Math.sin(m.angle);
+      m.mesh.position.set(mx,0,mz);
+    });
+  });
+
+  controls.update();
+  renderer.render(scene,camera);
+}
+
+// ========== 8) Tıklama ========== 
+function onMouseDown(e){
+  const rect=renderer.domElement.getBoundingClientRect();
+  let mx=e.clientX-rect.left;
+  let my=e.clientY-rect.top;
+  mouse.x=(mx/rect.width)*2-1;
+  mouse.y=-(my/rect.height)*2+1;
+
+  raycaster.setFromCamera(mouse,camera);
+  let intersects=raycaster.intersectObjects(scene.children,true);
+  if(intersects.length>0){
+    let obj=intersects[0].object;
+    if(obj.name) showPlanetInfo(obj.name);
+  }
+}
+
+function showPlanetInfo(name){
+  const planetName=document.getElementById('planetName');
+  const planetDesc=document.getElementById('planetDesc');
+  if(name==="Güneş"){
+    planetName.textContent="Güneş";
+    planetDesc.textContent="Merkezdeki dev yıldız, tüm gezegenleri aydınlatır.";
+    return;
+  }
+  let found = planetData.find(p=>p.name===name);
+  if(found){
+    planetName.textContent=found.name;
+    planetDesc.textContent=found.desc;
+    return;
+  }
+  if(name==="Ay"){
+    planetName.textContent="Ay (Dünya Uydusu)";
+    planetDesc.textContent="Dünya'nın doğal uydusu. ~27 günde yörüngeyi tamamlar.";
+    return;
+  }
+  planetName.textContent=name;
+  planetDesc.textContent="Bilinmeyen gökcismi.";
+}
+
+// ========== 9) Kontroller ========== 
+const speedRange=document.getElementById('speedRange');
+const speedVal=document.getElementById('speedVal');
+
+speedRange.addEventListener('input',()=>{
+  speed = parseFloat(speedRange.value);
+  speedVal.textContent = `x${speed}`;
+});
+speedVal.textContent = `x${speed}`;
+
+const orbitToggle = document.getElementById('orbitToggle');
+orbitToggle.addEventListener('change',()=>{
+  showOrbits = orbitToggle.checked;
+});
+</script>
+</body>
+</html>

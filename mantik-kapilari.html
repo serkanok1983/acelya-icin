@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mantık Kapıları</title>
+  <style>
+    body {
+      margin: 0; 
+      padding: 0; 
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+    }
+    header {
+      text-align: center;
+      background: #eee;
+      padding: 1rem;
+      border-bottom: 1px solid #ccc;
+    }
+    h1, h2, p {
+      margin: 0.5rem auto;
+      max-width: 900px;
+      color: #333;
+    }
+
+    /* Üst kısım: kontroller, kapı çizimi, tablo */
+    #container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 1rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Soldaki Kontroller */
+    #leftPane {
+      flex: 0 0 200px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    #leftPane label, #leftPane select {
+      display: block;
+      margin: 0.5rem 0;
+    }
+
+    #leftPane input[type="checkbox"] {
+      margin-right: 0.3rem;
+    }
+
+    /* Ortada Kapı Sembolü */
+    #gatePane {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      min-width: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    #gateCanvas {
+      background: #fafafa;
+      border: 1px solid #999;
+    }
+
+    /* Sağda Doğruluk Tablosu */
+    #tablePane {
+      flex: 0 0 200px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 1rem;
+      box-sizing: border-box;
+      min-width: 200px;
+    }
+    table {
+      border-collapse: collapse;
+      margin: 0.5rem 0;
+      width: 100%;
+    }
+    table, th, td {
+      border: 1px solid #aaa;
+      padding: 0.4rem;
+      text-align: center;
+    }
+    tr.highlight {
+      background: #e0f0ff; /* vurgulu satır */
+    }
+
+    /* Çıkış LED benzeri */
+    #led {
+      margin-top: 1rem;
+      width: 40px; 
+      height: 40px;
+      border-radius: 50%;
+      background: gray;
+      border: 2px solid #666;
+      margin: 0 auto;
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+      }
+      #gateCanvas {
+        width: 90% !important;
+        height: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Mantık Kapıları</h1>
+</header>
+
+<div id="container">
+
+  <!-- Sol: Kapı Seçimi, Giriş A/B -->
+  <div id="leftPane">
+    <label for="gateSelect"><strong>Kapı Türü:</strong></label>
+    <select id="gateSelect">
+      <option value="AND">AND</option>
+      <option value="OR">OR</option>
+      <option value="NOT">NOT (tek giriş)</option>
+      <option value="XOR">XOR</option>
+      <option value="NAND">NAND</option>
+      <option value="NOR">NOR</option>
+      <option value="XNOR">XNOR</option>
+    </select>
+
+    <label>
+      <input type="checkbox" id="inputA" />
+      Giriş A
+    </label>
+    <label>
+      <input type="checkbox" id="inputB" />
+      Giriş B
+    </label>
+
+    <div id="led"></div>
+  </div>
+
+  <!-- Orta: Kapının çizimi (Canvas) -->
+  <div id="gatePane">
+    <canvas id="gateCanvas" width="300" height="200"></canvas>
+  </div>
+
+  <!-- Sağ: Doğruluk Tablosu -->
+  <div id="tablePane">
+    <h3>Doğruluk Tablosu</h3>
+    <table id="truthTable">
+      <thead>
+        <tr>
+          <th>A</th>
+          <th>B</th>
+          <th>Çıkış</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- dinamik satırlar eklenecek -->
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+/*
+1) Gate Fonksiyonu:
+   - 2 girişli kapılar (AND, OR, XOR, NAND, NOR, XNOR)
+   - 1 girişli kapı (NOT)
+2) Canvas'ta sembolik çizim
+3) Truth Table: (A,B=0/1) -> Output
+   - NOT'ta B yok, tablo 2 satır
+   - Diğer kapılarda 4 satır
+4) LED benzeri div -> background: green if output=1, gray if 0
+*/
+
+// Seçiciler
+const gateSelect = document.getElementById('gateSelect');
+const inputA = document.getElementById('inputA');
+const inputB = document.getElementById('inputB');
+const gateCanvas = document.getElementById('gateCanvas');
+const ctx = gateCanvas.getContext('2d');
+const truthTableBody = document.querySelector('#truthTable tbody');
+const ledDiv = document.getElementById('led');
+
+// Mantık fonksiyonları
+function logicGate(gateType, a, b){
+  switch(gateType){
+    case "AND":  return (a && b) ? 1 : 0;
+    case "OR":   return (a || b) ? 1 : 0;
+    case "NOT":  return (a ? 0 : 1);
+    case "XOR":  return (a ^ b) ? 1 : 0;
+    case "NAND": return ! (a && b) ? 1 : 0;
+    case "NOR":  return ! (a || b) ? 1 : 0;
+    case "XNOR": return (a ^ b) ? 0 : 1;
+  }
+  return 0;
+}
+
+// Kapı çizimi
+function drawGate(gateType, valA, valB, outVal){
+  ctx.clearRect(0,0, gateCanvas.width, gateCanvas.height);
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+
+  let w = gateCanvas.width;
+  let h = gateCanvas.height;
+
+  // 1) Giriş çizgileri A(0,80) B(0,120) => kapıya => (150,100)
+  // 2) Kapı gövdesi => basit. NAND/NOR/XNOR'a extra daire
+  // 3) Çıkış => (300,100) ?
+
+  // eğer NOT ise tek giriş: A(0,100)
+  let gateX = 100; // kapının sol
+  let gateW = 80;  // kapı genişliği
+  let midY = 100;
+
+  // Giriş A
+  let Ax = 10, Ay = gateType==="NOT" ? 100 : 80;
+  ctx.beginPath();
+  ctx.moveTo(Ax, Ay);
+  ctx.lineTo(gateX, Ay);
+  ctx.stroke();
+
+  // Giriş B (NOT'ta yok)
+  if(gateType!=="NOT"){
+    let Bx = 10, By = 120;
+    ctx.beginPath();
+    ctx.moveTo(Bx, By);
+    ctx.lineTo(gateX, By);
+    ctx.stroke();
+  }
+
+  // Kapı gövdesi kabaca
+  ctx.beginPath();
+  switch(gateType){
+    case "AND":
+    case "NAND":
+      // Dikdörtgen+yarım daire
+      ctx.moveTo(gateX,60);
+      ctx.lineTo(gateX+30,60);
+      ctx.arc(gateX+30,100,40,-Math.PI/2,Math.PI/2,false);
+      ctx.lineTo(gateX,140);
+      break;
+    case "OR":
+    case "NOR":
+      // "OR" shape
+      ctx.moveTo(gateX,60);
+      ctx.quadraticCurveTo(gateX+20,100, gateX,140);
+      ctx.quadraticCurveTo(gateX+40,100, gateX,60);
+      break;
+    case "XOR":
+    case "XNOR":
+      // OR + ek bir yay
+      // Bir yay offset
+      ctx.moveTo(gateX-10,60);
+      ctx.quadraticCurveTo(gateX+10,100, gateX-10,140);
+      ctx.stroke();
+      // Asıl OR
+      ctx.beginPath();
+      ctx.moveTo(gateX,60);
+      ctx.quadraticCurveTo(gateX+20,100, gateX,140);
+      ctx.quadraticCurveTo(gateX+40,100, gateX,60);
+      break;
+    case "NOT":
+      // Üçgen
+      let topY=60, botY=140;
+      ctx.moveTo(gateX,topY);
+      ctx.lineTo(gateX,botY);
+      ctx.lineTo(gateX+50,midY);
+      ctx.closePath();
+      break;
+  }
+  ctx.stroke();
+
+  // "Inverter" dairesi eklenecek mi?
+  let invert = false;
+  if(gateType==="NOT" || gateType==="NAND" || gateType==="NOR" || gateType==="XNOR"){
+    invert = true;
+  }
+
+  if(gateType!=="XOR" && gateType!=="XNOR" && gateType!=="NOT"){
+    // Tek kapı çiziminde "AND"/"OR" bitti, kapatalım
+    ctx.stroke();
+  }
+
+  // invert dairesi
+  if(invert){
+    let circleX, circleY = midY;
+    if(gateType==="NOT"){
+      circleX = gateX+50;
+    }
+    else if(gateType==="NAND" || gateType==="AND"){
+      circleX = gateX+40;
+    }
+    else {
+      // OR, NOR, XOR, XNOR
+      circleX = gateX+0; 
+    }
+
+    // ama OR, XOR kapısında tam nereye eklenecek net; kabaca yapalım
+    if(gateType==="NAND"){
+      // "AND" shape yarım daire => son x = gateX+30 + 40 = gateX+70
+      circleX = gateX+70;
+    }
+    else if(gateType==="NOR"){
+      circleX = gateX+40;
+    }
+    else if(gateType==="XOR"){
+      circleX = gateX+40;
+    }
+    else if(gateType==="XNOR"){
+      circleX = gateX+40;
+    }
+
+    ctx.beginPath();
+    ctx.arc(circleX, circleY, 5, 0, 2*Math.PI);
+    ctx.stroke();
+  }
+
+  // Çıkış çizgisi
+  let outX = gateType==="NOT" ? gateX+60 : gateX+80;
+  ctx.beginPath();
+  ctx.moveTo(outX, midY);
+  ctx.lineTo(290, midY);
+  ctx.stroke();
+
+  // Metin
+  ctx.fillStyle = "#000";
+  ctx.font = "14px Arial";
+  ctx.fillText("A="+(valA?"1":"0"), Ax+5, Ay-5);
+  if(gateType!=="NOT"){
+    ctx.fillText("B="+(valB?"1":"0"), 10+5, 120-5);
+  }
+  ctx.fillText("Çıkış="+outVal, 295, midY+5);
+}
+
+// Tablonun satırlarını oluştur
+function buildTruthTable(gateType){
+  // Temizle
+  truthTableBody.innerHTML = "";
+
+  let combos;
+  if(gateType==="NOT"){
+    combos = [
+      {A:0,B:null},
+      {A:1,B:null}
+    ];
+  } else {
+    // 2 giriş => 4 kombine
+    combos = [
+      {A:0,B:0},
+      {A:0,B:1},
+      {A:1,B:0},
+      {A:1,B:1}
+    ];
+  }
+
+  combos.forEach((c)=>{
+    let out = logicGate(gateType, c.A, c.B||0);
+    let tr = document.createElement('tr');
+    let tdA = document.createElement('td');
+    let tdB = document.createElement('td');
+    let tdO = document.createElement('td');
+
+    tdA.textContent = c.A;
+    tdB.textContent = (c.B===null) ? "-" : c.B;
+    tdO.textContent = out;
+
+    tr.appendChild(tdA);
+    tr.appendChild(tdB);
+    tr.appendChild(tdO);
+    truthTableBody.appendChild(tr);
+  });
+}
+
+// Tablodaki satırları highlight
+function highlightRow(gateType, valA, valB, outVal){
+  let rows = truthTableBody.querySelectorAll("tr");
+  rows.forEach((row)=>{
+    row.classList.remove("highlight");
+    let tds = row.querySelectorAll("td");
+    let rowA = parseInt(tds[0].textContent);
+    let rowB = (tds[1].textContent==="-" ? null : parseInt(tds[1].textContent));
+    let rowO = parseInt(tds[2].textContent);
+
+    if(gateType==="NOT"){
+      if(rowA===valA && rowO===outVal){
+        row.classList.add("highlight");
+      }
+    } else {
+      if(rowA===valA && rowB===valB && rowO===outVal){
+        row.classList.add("highlight");
+      }
+    }
+  });
+}
+
+// LED rengi ayarla
+function updateLED(outVal){
+  ledDiv.style.background = outVal===1 ? "green" : "gray";
+}
+
+// Mevcut inputlara göre güncelle
+function updateGate(){
+  let gateType = gateSelect.value;
+  let a = inputA.checked ? 1 : 0;
+  let b = inputB.checked ? 1 : 0;
+  if(gateType==="NOT"){
+    // B devre dışı
+    b = 0;
+  }
+  let out = logicGate(gateType, a,b);
+
+  // Kapı çiz
+  drawGate(gateType, a,b, out);
+
+  // LED
+  updateLED(out);
+
+  // Doğruluk tablosunu yeniden kur? Yalnızca kapı türü değişince yapacağız.
+  // Onun yerine "satır highlight" yeterli
+  highlightRow(gateType, a,b, out);
+}
+
+// Olaylar
+gateSelect.addEventListener('change', ()=>{
+  buildTruthTable(gateSelect.value);
+  updateGate();
+});
+inputA.addEventListener('change', updateGate);
+inputB.addEventListener('change', updateGate);
+
+// Başlangıç
+buildTruthTable("AND");
+updateGate();
+</script>
+
+</body>
+</html>

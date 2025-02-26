@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Elektronik Devre - RC Şarj/Deşarj Simülasyonu</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: Arial, sans-serif;
+      background: #fdfdfd;
+    }
+    header {
+      text-align: center;
+      background: #eee;
+      padding: 1rem;
+      border-bottom: 1px solid #ccc;
+    }
+    h1, h2, p {
+      margin: 0.5rem auto;
+      max-width: 900px;
+      color: #333;
+    }
+
+    /* Üst kısım: kontroller + devre çizimi + grafik */
+    #container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 1rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    /* Solda kontroller */
+    #leftPane {
+      flex: 0 0 220px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 1rem;
+      box-sizing: border-box;
+      min-width: 220px;
+    }
+    #leftPane label, #leftPane input, #leftPane select, #leftPane button {
+      display: block;
+      margin: 0.5rem 0;
+    }
+    #leftPane button {
+      padding: 0.4rem 0.6rem;
+      cursor: pointer;
+      border-radius: 4px;
+      border: 1px solid #888;
+      background: #eee;
+    }
+
+    /* Ortada devre şeması */
+    #circuitPane {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 300px;
+      position: relative;
+    }
+    #circuitCanvas {
+      background: #fafafa;
+      border: 1px solid #999;
+    }
+
+    /* Sağda grafik (voltaj-zaman) */
+    #graphPane {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 300px;
+    }
+    #graphCanvas {
+      background: #fafafa;
+      border: 1px solid #999;
+    }
+
+    /* Alt kısım: konu anlatımı */
+    #infoPane {
+      max-width: 900px;
+      margin: 1rem auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 1rem;
+      line-height: 1.6em;
+    }
+
+    /* Responsive ayarlar */
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+      }
+      #circuitPane, #graphPane {
+        margin-top: 1rem;
+      }
+      #circuitCanvas, #graphCanvas {
+        width: 90% !important;
+        height: auto !important;
+      }
+    }
+  </style>
+
+  <!-- MathJax: LaTeX ifadelerini güzel göstermek için -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$','$$'], ['\\[','\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>RC Devresi (Şarj-Deşarj) Simülasyonu</h1>
+</header>
+
+<div id="container">
+
+  <!-- SOL: Kontroller -->
+  <div id="leftPane">
+    <label for="voltRange"><strong>Besleme Voltajı (V):</strong></label>
+    <input type="range" id="voltRange" min="1" max="20" step="1" value="5" />
+    <p id="voltVal"></p>
+
+    <label for="resRange"><strong>Direnç (R, kΩ):</strong></label>
+    <input type="range" id="resRange" min="1" max="100" step="1" value="10" />
+    <p id="resVal"></p>
+
+    <label for="capRange"><strong>Kapasitans (C, µF):</strong></label>
+    <input type="range" id="capRange" min="1" max="1000" step="1" value="100" />
+    <p id="capVal"></p>
+
+    <label for="inputWave"><strong>Giriş Sinyali:</strong></label>
+    <select id="inputWave">
+      <option value="DC" selected>DC (Sabit Voltaj)</option>
+      <option value="square">Kare Dalga</option>
+    </select>
+
+    <button id="btnStart">Başlat / Sıfırla</button>
+    <p id="msg" style="color:#006600; font-weight:bold; margin-top:1rem;"></p>
+  </div>
+
+  <!-- ORTA: Devre Şeması -->
+  <div id="circuitPane">
+    <canvas id="circuitCanvas" width="400" height="300"></canvas>
+  </div>
+
+  <!-- SAĞ: Zaman Grafiği -->
+  <div id="graphPane">
+    <canvas id="graphCanvas" width="400" height="300"></canvas>
+  </div>
+
+</div>
+
+<!-- ALT: Konu Anlatımı -->
+<div id="infoPane">
+  <h2>RC Devresinde Şarj ve Deşarj</h2>
+  <p>
+    Direnç \(R\) ve Kondansatör \(C\) seri bağlandığında, 
+    besleme gerilimi uygulandığında kondansatör <em>zamanla</em> 
+    şarj olmaya başlar. Aşağıdaki denklem şarjı gösterir:
+  </p>
+  $$V_C(t) \;=\; V \,\bigl(1 - \mathrm{e}^{-\,t/(R\,C)}\bigr).$$
+  <p>
+    Bu denklemde zaman sabiti:
+  </p>
+  $$\tau \;=\; R \cdot C.$$
+  <p>
+    Bu örnekte <strong>kare dalga</strong> seçersen, 
+    giriş sinyali belirli aralıklarla \(0\) V ile 
+    ayarlanan \(V\) değeri arasında gidip gelir. Bu durumda 
+    kondansatör, sinyal \(0\) olduğunda deşarj olmaya başlar.
+  </p>
+  <p>
+    Grafikte <em>mavi çizgi</em> \(V_C\) (kondansatör voltajı), 
+    <em>kırmızı çizgi</em> ise \(V_R\) (direnç üzerindeki voltaj) 
+    gösterilir. Zaman ilerledikçe (sağ yöne doğru) gerilimlerin 
+    nasıl değiştiğini görebilirsin.
+  </p>
+</div>
+
+<script>
+//============================
+// 1) Genel Değişkenler
+//============================
+const circuitCanvas = document.getElementById('circuitCanvas');
+const ctxCircuit = circuitCanvas.getContext('2d');
+
+const graphCanvas = document.getElementById('graphCanvas');
+const ctxGraph = graphCanvas.getContext('2d');
+
+const voltRange  = document.getElementById('voltRange');
+const resRange   = document.getElementById('resRange');
+const capRange   = document.getElementById('capRange');
+const inputWave  = document.getElementById('inputWave');
+const btnStart   = document.getElementById('btnStart');
+const msg        = document.getElementById('msg');
+
+const voltValP = document.getElementById('voltVal');
+const resValP  = document.getElementById('resVal');
+const capValP  = document.getElementById('capVal');
+
+let V = parseFloat(voltRange.value);   // volt
+let R = parseFloat(resRange.value)*1000; // kΩ -> ohm
+let C = parseFloat(capRange.value)/1000000; // µF -> Farad
+let waveType = inputWave.value; // DC veya square
+
+// Simülasyon parametreleri
+let t = 0;          // zaman (saniye)
+let dt = 0.001;     // zaman adımı
+let simRunning = false;
+
+let VC = 0;         // kondansatör voltajı
+let VR = 0;         // direnç voltajı
+let I  = 0;         // akım
+
+let graphData = []; // zaman serisi
+
+// Kare dalga parametresi
+let period = 2; // 2 sn
+let halfPeriod = 1; 
+let waveV = 0; // anlık besleme gerilimi
+
+//============================
+// 2) Ekrana Yaz
+//============================
+function updateLabels(){
+  V = parseFloat(voltRange.value);
+  R = parseFloat(resRange.value)*1000; // ohm
+  C = parseFloat(capRange.value)/1e6;  // F
+  waveType = inputWave.value;
+
+  voltValP.textContent = `V = ${V.toFixed(1)} V`;
+  resValP.textContent  = `R = ${(R/1000).toFixed(1)} kΩ`;
+  capValP.textContent  = `C = ${(C*1e6).toFixed(1)} µF`;
+}
+
+//============================
+// 3) Devre Çizimi
+//============================
+function drawCircuit(VC, VR){
+  ctxCircuit.clearRect(0,0,circuitCanvas.width,circuitCanvas.height);
+
+  // Basit RC devresi:
+  // [ V_in ] -- R -- C -- to GND
+  //                |
+  //               GND
+
+  // Pil
+  ctxCircuit.strokeStyle = "#000";
+  ctxCircuit.lineWidth = 2;
+
+  // Pilin + plakası
+  ctxCircuit.beginPath();
+  ctxCircuit.moveTo(60,130);
+  ctxCircuit.lineTo(60,170);
+  ctxCircuit.stroke();
+
+  // Pilin - plakası
+  ctxCircuit.beginPath();
+  ctxCircuit.moveTo(75,120);
+  ctxCircuit.lineTo(75,180);
+  ctxCircuit.stroke();
+
+  // R (zigzag)
+  ctxCircuit.beginPath();
+  // Soldan kablo
+  ctxCircuit.moveTo(75,150);
+  ctxCircuit.lineTo(120,150);
+  // Zigzag
+  let xStart = 120;
+  for(let i=0; i<5; i++){
+    let yOff = (i%2 === 0) ? -10 : 10;
+    ctxCircuit.lineTo(xStart+10,150+yOff);
+    xStart += 10;
+  }
+  // Direncin sonu
+  ctxCircuit.lineTo(170,150);
+  ctxCircuit.stroke();
+
+  // Kondansatör (iki dikey plak)
+  ctxCircuit.beginPath();
+  ctxCircuit.moveTo(170,130);
+  ctxCircuit.lineTo(170,170);
+  ctxCircuit.moveTo(180,130);
+  ctxCircuit.lineTo(180,170);
+  ctxCircuit.stroke();
+
+  // Alt kablo ve toprağa
+  ctxCircuit.beginPath();
+  ctxCircuit.moveTo(180,150);
+  ctxCircuit.lineTo(220,150);
+  ctxCircuit.lineTo(220,180);
+  // GND sembolü
+  ctxCircuit.moveTo(210,180);
+  ctxCircuit.lineTo(230,180);
+  ctxCircuit.moveTo(212,185);
+  ctxCircuit.lineTo(228,185);
+  ctxCircuit.moveTo(214,190);
+  ctxCircuit.lineTo(226,190);
+  ctxCircuit.stroke();
+
+  // Yukarıdan geri pilin eksi
+  ctxCircuit.beginPath();
+  ctxCircuit.moveTo(60,150);
+  ctxCircuit.lineTo(60,100);
+  ctxCircuit.lineTo(220,100);
+  ctxCircuit.lineTo(220,150);
+  ctxCircuit.stroke();
+
+  // Yazılar
+  ctxCircuit.fillStyle = "#000";
+  ctxCircuit.fillText(`V_in = ${waveV.toFixed(2)}V`, 40, 90);
+  ctxCircuit.fillText(`R = ${(R/1000).toFixed(1)}kΩ`, 125, 120);
+  ctxCircuit.fillText("C", 175, 125);
+
+  // Direnç üzerindeki voltaj
+  ctxCircuit.fillStyle = "red";
+  ctxCircuit.fillText(`V_R = ${VR.toFixed(2)}V`, 105, 165);
+
+  // Kapasitör üzerindeki voltaj
+  ctxCircuit.fillStyle = "blue";
+  ctxCircuit.fillText(`V_C = ${VC.toFixed(2)}V`, 185, 165);
+}
+
+//============================
+// 4) Grafik Çizimi
+//============================
+function drawGraph(){
+  // Her framede yeni nokta eklendi, en fazla ~500 nokta tut
+  ctxGraph.clearRect(0,0,graphCanvas.width,graphCanvas.height);
+
+  // Eksen
+  ctxGraph.strokeStyle = "#888";
+  ctxGraph.beginPath();
+  ctxGraph.moveTo(40, graphCanvas.height-40);
+  ctxGraph.lineTo(40, 20);
+  ctxGraph.stroke();
+  ctxGraph.beginPath();
+  ctxGraph.moveTo(40, graphCanvas.height-40);
+  ctxGraph.lineTo(graphCanvas.width-20, graphCanvas.height-40);
+  ctxGraph.stroke();
+
+  let W = graphCanvas.width;
+  let H = graphCanvas.height;
+
+  // Vmax ~ voltRange max. Kare dalga V max = slider. 
+  let Vmax = Math.max(V, 20);
+
+  // Zaman penceresi => son 2s'yi gösterelim
+  let Tspan = 2;
+
+  function mapX(tval){
+    return 40 + (tval/Tspan)*(W - 60);
+  }
+  function mapY(vval){
+    // 0->H-40, Vmax->20
+    return (H-40) - (vval/Vmax)*(H-60);
+  }
+
+  // VR (kırmızı)
+  ctxGraph.strokeStyle = "red";
+  ctxGraph.beginPath();
+  graphData.forEach((pt, idx)=>{
+    let px = mapX(pt.time);
+    let py = mapY(pt.VR);
+    if(idx===0) ctxGraph.moveTo(px,py);
+    else ctxGraph.lineTo(px,py);
+  });
+  ctxGraph.stroke();
+
+  // VC (mavi)
+  ctxGraph.strokeStyle = "blue";
+  ctxGraph.beginPath();
+  graphData.forEach((pt, idx)=>{
+    let px = mapX(pt.time);
+    let py = mapY(pt.VC);
+    if(idx===0) ctxGraph.moveTo(px,py);
+    else ctxGraph.lineTo(px,py);
+  });
+  ctxGraph.stroke();
+}
+
+//============================
+// 5) Simülasyon İlerlemesi
+//============================
+function stepSimulation(){
+  // Giriş sinyali (DC veya kare)
+  if(waveType==="DC"){
+    waveV = V;
+  } else {
+    // kare dalga
+    let phase = (t % period);
+    if(phase < halfPeriod) waveV = V; 
+    else waveV = 0;
+  }
+
+  // dVC/dt = (1/(R*C)) * (waveV - VC)
+  let dVC = (1/(R*C)) * (waveV - VC) * dt;
+  VC += dVC;
+
+  // Direnç voltajı VR = waveV - VC
+  VR = waveV - VC;
+  I  = VR / R; // ohm kanunu
+
+  // Zamanı ilerlet
+  t += dt;
+
+  // Grafik datasına ekle
+  graphData.push({ time:t, VR, VC });
+  if(graphData.length>500){
+    graphData.shift();
+  }
+}
+
+//============================
+// 6) Ana Döngü
+//============================
+function animate(){
+  if(simRunning){
+    stepSimulation();
+  }
+  drawCircuit(VC, VR);
+  drawGraph();
+  requestAnimationFrame(animate);
+}
+
+//============================
+// 7) Etkileşim
+//============================
+function updateLabels(){
+  V = parseFloat(voltRange.value);
+  R = parseFloat(resRange.value)*1000;
+  C = parseFloat(capRange.value)/1e6;
+  waveType = inputWave.value;
+
+  voltValP.textContent = `V = ${V.toFixed(1)} V`;
+  resValP.textContent  = `R = ${(R/1000).toFixed(1)} kΩ`;
+  capValP.textContent  = `C = ${(C*1e6).toFixed(1)} µF`;
+}
+
+voltRange.addEventListener('input', updateLabels);
+resRange.addEventListener('input', updateLabels);
+capRange.addEventListener('input', updateLabels);
+inputWave.addEventListener('change', updateLabels);
+
+btnStart.addEventListener('click', ()=>{
+  // Sıfırla
+  t = 0;
+  VC=0;
+  VR=0;
+  I=0;
+  graphData = [];
+  simRunning = true;
+  msg.textContent = "Simülasyon başladı!";
+});
+
+updateLabels();
+animate();
+</script>
+
+</body>
+</html>
