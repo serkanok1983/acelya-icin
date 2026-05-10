@@ -2,47 +2,103 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Pong AI (Uzay Temalı)</title>
   <style>
-    body {
-      text-align: center;
-      background-color: black;
-      color: white;
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background-color: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
       overflow: hidden;
+      touch-action: none;
     }
-    canvas {
-      display: block;
-      margin: auto;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      min-height: 100dvh;
     }
-    #score {
-      font-size: 24px;
+    #starCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .hud {
       position: relative;
       z-index: 2;
-      margin-top: 10px;
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-weight: 600;
+    }
+    #score {
+      font-size: clamp(0.85rem, 3.5vw, 1.15rem);
+      opacity: 0.95;
+    }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #pongCanvas {
+      display: block;
+      max-width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      touch-action: none;
+    }
+    .hint {
+      margin-top: 6px;
+      font-size: clamp(0.7rem, 2.8vw, 0.8rem);
+      opacity: 0.65;
     }
     #gameOverScreen {
       display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.8);
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
-      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.55);
+    }
+    #gameOverScreen.is-open {
+      display: flex;
+    }
+    .game-over-card {
+      background: rgba(0, 0, 0, 0.88);
+      padding: 24px 28px;
+      border-radius: 12px;
       text-align: center;
-      z-index: 3;
+      max-width: 90vw;
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
     button {
       font-size: 18px;
-      padding: 10px 15px;
+      padding: 10px 18px;
+      margin-top: 16px;
       background: #007bff;
-      color: white;
+      color: #fff;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
     button:hover {
@@ -52,37 +108,60 @@
 </head>
 <body>
 
-<h1>Pong AI 🌌</h1>
-<div id="score">Sen: <span id="playerScore">0</span> | Bilgisayar: <span id="computerScore">0</span></div>
+<canvas id="starCanvas" aria-hidden="true"></canvas>
 
-<canvas id="starCanvas"></canvas>
-<canvas id="pongCanvas" width="800" height="400"></canvas>
+<header class="hud">
+  <h1>Pong AI 🌌</h1>
+  <div id="score">Sen: <span id="playerScore">0</span> | Bilgisayar: <span id="computerScore">0</span></div>
+  <p class="hint">Masaüstü: ↑ ↓ &nbsp;·&nbsp; Mobil: parmağınızı oyun alanında yukarı/aşağı kaydırın</p>
+</header>
 
-<div id="gameOverScreen">
-  <h2 id="gameOverMessage"></h2>
-  <button onclick="restartGame()">Tekrar Oyna</button>
+<div class="game-stage">
+  <canvas id="pongCanvas" width="800" height="400" role="img" aria-label="Pong oyun alanı"></canvas>
+</div>
+
+<div id="gameOverScreen" role="dialog" aria-modal="true" aria-labelledby="gameOverMessage">
+  <div class="game-over-card">
+    <h2 id="gameOverMessage"></h2>
+    <button type="button" onclick="restartGame()">Tekrar Oyna</button>
+  </div>
 </div>
 
 <script>
+  const GAME_W = 800;
+  const GAME_H = 400;
+
   const starCanvas = document.getElementById("starCanvas");
   const starCtx = starCanvas.getContext("2d");
-  starCanvas.width = window.innerWidth;
-  starCanvas.height = window.innerHeight;
+
+  function syncStarCanvasSize() {
+    starCanvas.width = window.innerWidth;
+    starCanvas.height = window.innerHeight;
+    stars.forEach((star) => {
+      star.x = Math.min(star.x, starCanvas.width);
+      star.y = Math.min(star.y, starCanvas.height);
+    });
+  }
 
   let stars = [];
-  for (let i = 0; i < 100; i++) {
-    stars.push({
-      x: Math.random() * starCanvas.width,
-      y: Math.random() * starCanvas.height,
-      size: Math.random() * 2,
-      speed: Math.random() * 1.5 + 0.5
-    });
+
+  function initStars() {
+    stars = [];
+    const n = Math.min(140, Math.floor((starCanvas.width * starCanvas.height) / 12000));
+    for (let i = 0; i < n; i++) {
+      stars.push({
+        x: Math.random() * starCanvas.width,
+        y: Math.random() * starCanvas.height,
+        size: Math.random() * 1.8 + 0.3,
+        speed: Math.random() * 1.2 + 0.4,
+      });
+    }
   }
 
   function animateStars() {
     starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
-    starCtx.fillStyle = "white";
-    stars.forEach(star => {
+    starCtx.fillStyle = "#fff";
+    stars.forEach((star) => {
       starCtx.beginPath();
       starCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
       starCtx.fill();
@@ -91,25 +170,74 @@
     });
     requestAnimationFrame(animateStars);
   }
+
+  syncStarCanvasSize();
+  initStars();
   animateStars();
 
   const canvas = document.getElementById("pongCanvas");
   const ctx = canvas.getContext("2d");
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
 
-  let paddleHeight = 80, paddleWidth = 10;
-  let playerY = canvas.height / 2 - paddleHeight / 2;
-  let computerY = canvas.height / 2 - paddleHeight / 2;
-  let ballX = canvas.width / 2, ballY = canvas.height / 2, ballDX = 3, ballDY = 2;
-  let paddleSpeed = 8, ballSpeed = 3;
-  let playerScore = 0, computerScore = 0;
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(280, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+
+  window.addEventListener("resize", () => {
+    syncStarCanvasSize();
+    initStars();
+    resizeGame();
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", resizeGame);
+  }
+
+  resizeGame();
+
+  const paddleHeight = 80;
+  const paddleWidth = 10;
+
+  let playerY = GAME_H / 2 - paddleHeight / 2;
+  let computerY = GAME_H / 2 - paddleHeight / 2;
+  let ballX = GAME_W / 2;
+  let ballY = GAME_H / 2;
+  let ballDX = 3;
+  let ballDY = 2;
+  let paddleSpeed = 8;
+  let ballSpeed = 3;
+  let playerScore = 0;
+  let computerScore = 0;
   const maxScore = 20;
-  let upPressed = false, downPressed = false;
+  let upPressed = false;
+  let downPressed = false;
 
-  let hitSound = new Audio("hit.m4a"); // 🎵 Paddle'a çarpınca çalacak ses
+  let hitSound = new Audio("hit.m4a");
+  hitSound.volume = 0.6;
+
+  let gameEnded = false;
+  let animationStarted = false;
+  let prevTotalScore = 0;
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp") upPressed = true;
-    if (e.key === "ArrowDown") downPressed = true;
+    if (e.key === "ArrowUp") {
+      upPressed = true;
+      e.preventDefault();
+    }
+    if (e.key === "ArrowDown") {
+      downPressed = true;
+      e.preventDefault();
+    }
   });
 
   document.addEventListener("keyup", (e) => {
@@ -117,51 +245,89 @@
     if (e.key === "ArrowDown") downPressed = false;
   });
 
+  function canvasCssToGameY(clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const t = (clientY - rect.top) / rect.height;
+    return t * GAME_H;
+  }
+
+  canvas.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      if (e.touches.length) {
+        const y = canvasCssToGameY(e.touches[0].clientY);
+        playerY = Math.max(0, Math.min(GAME_H - paddleHeight, y - paddleHeight / 2));
+      }
+    },
+    { passive: false }
+  );
+
+  canvas.addEventListener(
+    "touchmove",
+    (e) => {
+      e.preventDefault();
+      if (e.touches.length) {
+        const y = canvasCssToGameY(e.touches[0].clientY);
+        playerY = Math.max(0, Math.min(GAME_H - paddleHeight, y - paddleHeight / 2));
+      }
+    },
+    { passive: false }
+  );
+
   function drawPaddle(x, y) {
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "#fff";
     ctx.fillRect(x, y, paddleWidth, paddleHeight);
   }
 
   function drawBall() {
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "#fff";
     ctx.beginPath();
     ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
   }
 
+  function playHit() {
+    hitSound.play().catch(() => {});
+  }
+
   function update() {
+    if (gameEnded) return;
+
     if (playerScore >= maxScore || computerScore >= maxScore) {
       endGame();
       return;
     }
 
     if (upPressed && playerY > 0) playerY -= paddleSpeed;
-    if (downPressed && playerY < canvas.height - paddleHeight) playerY += paddleSpeed;
+    if (downPressed && playerY < GAME_H - paddleHeight) playerY += paddleSpeed;
 
     if (computerY + paddleHeight / 2 < ballY - 20) computerY += paddleSpeed * 0.7;
     else if (computerY + paddleHeight / 2 > ballY + 20) computerY -= paddleSpeed * 0.7;
 
+    computerY = Math.max(0, Math.min(GAME_H - paddleHeight, computerY));
+
     ballX += ballDX;
     ballY += ballDY;
 
-    if (ballY < 0 || ballY > canvas.height) ballDY *= -1;
+    if (ballY < 0 || ballY > GAME_H) ballDY *= -1;
 
     if (ballX < paddleWidth && ballY > playerY && ballY < playerY + paddleHeight) {
-      ballDX *= -1;
-      hitSound.play(); // 🎵 Ses çalıyor
+      ballDX = Math.abs(ballDX);
+      playHit();
     }
 
-    if (ballX > canvas.width - paddleWidth && ballY > computerY && ballY < computerY + paddleHeight) {
-      ballDX *= -1;
-      hitSound.play(); // 🎵 Ses çalıyor
+    if (ballX > GAME_W - paddleWidth && ballY > computerY && ballY < computerY + paddleHeight) {
+      ballDX = -Math.abs(ballDX);
+      playHit();
     }
 
     if (ballX < 0) {
       computerScore++;
       resetBall();
     }
-    if (ballX > canvas.width) {
+    if (ballX > GAME_W) {
       playerScore++;
       resetBall();
     }
@@ -169,24 +335,28 @@
     document.getElementById("playerScore").innerText = playerScore;
     document.getElementById("computerScore").innerText = computerScore;
 
-    if ((playerScore + computerScore) % 5 === 0 && ballSpeed < 10) {
-      ballDX *= 1.1;
-      ballDY *= 1.1;
-      ballSpeed *= 1.1;
+    const totalScore = playerScore + computerScore;
+    if (totalScore > prevTotalScore) {
+      prevTotalScore = totalScore;
+      if (totalScore > 0 && totalScore % 5 === 0 && ballSpeed < 10) {
+        ballDX *= 1.1;
+        ballDY *= 1.1;
+        ballSpeed *= 1.1;
+      }
     }
   }
 
   function resetBall() {
-    ballX = canvas.width / 2;
-    ballY = canvas.height / 2;
+    ballX = GAME_W / 2;
+    ballY = GAME_H / 2;
     ballDX = ballSpeed * (Math.random() > 0.5 ? 1 : -1);
     ballDY = ballSpeed * (Math.random() > 0.5 ? 1 : -1);
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, GAME_W, GAME_H);
     drawPaddle(0, playerY);
-    drawPaddle(canvas.width - paddleWidth, computerY);
+    drawPaddle(GAME_W - paddleWidth, computerY);
     drawBall();
   }
 
@@ -197,19 +367,33 @@
   }
 
   function endGame() {
-    document.getElementById("gameOverScreen").style.display = "block";
-    document.getElementById("gameOverMessage").innerText = playerScore >= maxScore ? "🎉 You Win! 🎉" : "💀 Game Over!";
+    gameEnded = true;
+    const screen = document.getElementById("gameOverScreen");
+    screen.classList.add("is-open");
+    document.getElementById("gameOverMessage").innerText =
+      playerScore >= maxScore ? "🎉 Kazandın! 🎉" : "💀 Bilgisayar kazandı!";
   }
 
   function restartGame() {
     playerScore = 0;
     computerScore = 0;
+    prevTotalScore = 0;
     ballSpeed = 3;
-    document.getElementById("gameOverScreen").style.display = "none";
-    gameLoop();
+    ballDX = 3 * (Math.random() > 0.5 ? 1 : -1);
+    ballDY = 2 * (Math.random() > 0.5 ? 1 : -1);
+    playerY = GAME_H / 2 - paddleHeight / 2;
+    computerY = GAME_H / 2 - paddleHeight / 2;
+    resetBall();
+    gameEnded = false;
+    document.getElementById("gameOverScreen").classList.remove("is-open");
+    document.getElementById("playerScore").innerText = "0";
+    document.getElementById("computerScore").innerText = "0";
   }
 
-  gameLoop();
+  if (!animationStarted) {
+    animationStarted = true;
+    gameLoop();
+  }
 </script>
 
 </body>
