@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tork ve Denge — Kaldıraç</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 34rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; touch-action: none; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; }
+    input[type="range"] { width: 130px; accent-color: #ffa657; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 38rem; }
+  </style>
+</head>
+<body>
+  <h1>Tork ve Denge</h1>
+  <p class="sub">Στ = 0 olduğunda denge. Ağırlıkları sürükleyin; destek noktasını kaydırın.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Destek konumu <input type="range" id="fulcrum" min="25" max="75" value="50"></label>
+    <label>Sol kütle (kg) <input type="range" id="m1" min="1" max="15" value="5"></label>
+    <label>Sağ kütle (kg) <input type="range" id="m2" min="1" max="15" value="3"></label>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, beamY, fulcrumPct = 50;
+let leftPos = 0.22, rightPos = 0.78;
+let drag = null;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(760, innerWidth - 24); H = Math.min(400, innerHeight * 0.5);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  beamY = H * 0.55;
+}
+window.addEventListener('resize', resize);
+
+document.getElementById('fulcrum').oninput = e => { fulcrumPct = +e.target.value; draw(); };
+document.getElementById('m1').oninput = draw;
+document.getElementById('m2').oninput = draw;
+
+function ptr(e) {
+  const r = cv.getBoundingClientRect();
+  return { x: (e.clientX - r.left), y: (e.clientY - r.top) };
+}
+
+cv.addEventListener('pointerdown', e => {
+  const p = ptr(e);
+  const lx = leftPos * W, rx = rightPos * W;
+  if (Math.hypot(p.x - lx, p.y - (beamY - 40)) < 35) drag = 'left';
+  else if (Math.hypot(p.x - rx, p.y - (beamY - 40)) < 35) drag = 'right';
+});
+cv.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const p = ptr(e);
+  const f = fulcrumPct / 100;
+  if (drag === 'left') leftPos = Math.max(0.05, Math.min(f - 0.05, p.x / W));
+  else rightPos = Math.max(f + 0.05, Math.min(0.95, p.x / W));
+  draw();
+});
+cv.addEventListener('pointerup', () => drag = null);
+
+function draw() {
+  const m1 = +document.getElementById('m1').value;
+  const m2 = +document.getElementById('m2').value;
+  const fx = fulcrumPct / 100 * W;
+  const lx = leftPos * W, rx = rightPos * W;
+  const d1 = (fx - lx) / 100;
+  const d2 = (rx - fx) / 100;
+  const t1 = m1 * 9.8 * d1;
+  const t2 = m2 * 9.8 * d2;
+  const balanced = Math.abs(t1 - t2) < 0.5;
+  const tilt = Math.max(-0.12, Math.min(0.12, (t2 - t1) * 0.008));
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#30363d';
+  ctx.beginPath();
+  ctx.moveTo(fx - 20, beamY + 30);
+  ctx.lineTo(fx, beamY + 70);
+  ctx.lineTo(fx + 20, beamY + 30);
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(fx, beamY);
+  ctx.rotate(tilt);
+  ctx.translate(-fx, -beamY);
+
+  ctx.strokeStyle = '#8b949e';
+  ctx.lineWidth = 10;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(W * 0.05, beamY);
+  ctx.lineTo(W * 0.95, beamY);
+  ctx.stroke();
+
+  function weight(x, m, color) {
+    const size = 18 + m * 2;
+    ctx.fillStyle = color;
+    ctx.fillRect(x - size / 2, beamY - size - 8, size, size);
+    ctx.fillStyle = '#e6edf3';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(m + ' kg', x, beamY - size - 14);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x, beamY);
+    ctx.lineTo(fx, beamY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  weight(lx, m1, '#58a6ff');
+  weight(rx, m2, '#f0883e');
+  ctx.restore();
+
+  ctx.fillStyle = balanced ? '#3fb950' : '#f85149';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(balanced ? '✓ Denge' : '↻ Dönüyor', W / 2, 36);
+
+  document.getElementById('info').textContent =
+    `τ_sol = m₁g·d₁ = ${t1.toFixed(1)} N·m  |  τ_sağ = m₂g·d₂ = ${t2.toFixed(1)} N·m  |  Fark: ${(t1 - t2).toFixed(1)} N·m`;
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

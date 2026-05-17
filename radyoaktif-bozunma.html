@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radyoaktif Bozunma — Yarı Ömür</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; touch-action: none; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 150px; accent-color: #7ee787; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 40rem; }
+  </style>
+</head>
+<body>
+  <h1>Radyoaktif Bozunma</h1>
+  <p class="sub">N = N₀·(1/2)^(t/T₁/₂). Grafikte zamanı sürükleyin; parçacık modelinde rastgele bozunma.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Yarı ömür T₁/₂ <input type="range" id="halfLife" min="1" max="20" value="5"></label>
+    <label>Başlangıç N₀ <input type="range" id="n0" min="50" max="400" value="200"></label>
+    <label>Zaman t <input type="range" id="time" min="0" max="60" value="10"></label>
+    <button id="animBtn">Simülasyon</button>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, simTime = 0, simulating = false, particles = [];
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(800, innerWidth - 24); H = Math.min(480, innerHeight * 0.58);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+function decay(N0, t, T) {
+  return N0 * Math.pow(0.5, t / T);
+}
+
+function initParticles() {
+  const N0 = +document.getElementById('n0').value;
+  particles = [];
+  const cols = Math.ceil(Math.sqrt(N0));
+  for (let i = 0; i < N0; i++) {
+    particles.push({
+      alive: true,
+      col: i % cols,
+      row: Math.floor(i / cols),
+      decayAt: -1
+    });
+  }
+}
+
+document.getElementById('halfLife').oninput = draw;
+document.getElementById('n0').oninput = () => { initParticles(); simTime = 0; draw(); };
+document.getElementById('time').oninput = draw;
+
+document.getElementById('animBtn').onclick = function() {
+  simulating = !simulating;
+  this.textContent = simulating ? 'Durdur' : 'Simülasyon';
+  if (simulating) loop();
+};
+
+function draw() {
+  const T = +document.getElementById('halfLife').value;
+  const N0 = +document.getElementById('n0').value;
+  const t = simulating ? simTime : +document.getElementById('time').value;
+  const N = decay(N0, t, T);
+  const lambda = Math.LN2 / T;
+
+  const gx = W * 0.48, gy = H * 0.1, gw = W * 0.48, gh = H * 0.42;
+  const maxT = 60;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#21262d';
+  ctx.fillRect(20, 20, W * 0.42 - 30, H - 50);
+
+  const cols = Math.ceil(Math.sqrt(N0));
+  const cell = Math.min(12, (H - 80) / cols);
+  const ox = 35, oy = 40;
+
+  if (particles.length !== N0) initParticles();
+
+  particles.forEach((p, i) => {
+    if (p.decayAt < 0 && simulating) {
+      const prob = 1 - Math.exp(-lambda * 0.05);
+      if (Math.random() < prob) p.decayAt = simTime;
+    }
+    const alive = simulating ? (p.decayAt < 0 || p.decayAt > simTime) : (i < N);
+    if (alive) {
+      ctx.fillStyle = '#7ee787';
+      ctx.beginPath();
+      ctx.arc(ox + p.col * cell, oy + p.row * cell, cell * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = '#30363d';
+      ctx.beginPath();
+      ctx.arc(ox + p.col * cell, oy + p.row * cell, cell * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  ctx.strokeStyle = '#484f58';
+  ctx.strokeRect(gx, gy, gw, gh);
+  ctx.beginPath();
+  ctx.moveTo(gx, gy + gh);
+  ctx.lineTo(gx + gw, gy + gh);
+  ctx.moveTo(gx, gy);
+  ctx.lineTo(gx, gy + gh);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#7ee787';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let tt = 0; tt <= maxT; tt += 0.5) {
+    const nx = gx + (tt / maxT) * gw;
+    const ny = gy + gh - (decay(N0, tt, T) / N0) * gh;
+    if (tt === 0) ctx.moveTo(nx, ny);
+    else ctx.lineTo(nx, ny);
+  }
+  ctx.stroke();
+  ctx.lineWidth = 1;
+
+  const tx = gx + (t / maxT) * gw;
+  const ty = gy + gh - (N / N0) * gh;
+  ctx.fillStyle = '#ffa657';
+  ctx.beginPath();
+  ctx.arc(tx, ty, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  for (let n = 1; n <= 4; n++) {
+    const th = n * T;
+    if (th > maxT) break;
+    const x = gx + (th / maxT) * gw;
+    ctx.strokeStyle = '#484f58';
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(x, gy);
+    ctx.lineTo(x, gy + gh);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '10px sans-serif';
+    ctx.fillText(n + 'T½', x - 10, gy + gh + 14);
+  }
+
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px sans-serif';
+  ctx.fillText('t', gx + gw / 2, gy + gh + 28);
+  ctx.save();
+  ctx.translate(gx - 14, gy + gh / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('N', 0, 0);
+  ctx.restore();
+
+  if (!simulating) document.getElementById('time').value = t;
+
+  document.getElementById('info').textContent =
+    `N = N₀·(1/2)^(t/T) = ${Math.round(N)} / ${N0}  |  t = ${t.toFixed(1)} birim, T₁/₂ = ${T}  |  λ = ln2/T = ${lambda.toFixed(3)}`;
+}
+
+function loop() {
+  if (!simulating) return;
+  simTime += 0.08;
+  if (simTime > 60) simTime = 0;
+  document.getElementById('time').value = simTime;
+  draw();
+  requestAnimationFrame(loop);
+}
+
+initParticles();
+resize();
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Optik: Yansıma ve Kırılma</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; line-height: 1.55; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 12px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    .hint { text-align: center; font-size: 0.72rem; opacity: 0.55; margin: 0 0 8px; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Yansıma ve Kırılma (Snell)</h1>
+  <div class="readout" id="readout"></div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="720" height="420" role="img" aria-label="Işın diyagramı"></canvas>
+</div>
+<div class="controls">
+  <p class="hint">n₁ sin θ₁ = n₂ sin θ₂</p>
+  <div class="control-row">
+    <label>Geliş açısı θ₁ <span id="thetaVal">45°</span></label>
+    <input type="range" id="theta" min="5" max="85" value="45" step="1">
+  </div>
+  <div class="control-row">
+    <label>Üst ortam n₁ <span id="n1Val">1.00</span></label>
+    <input type="range" id="n1" min="100" max="250" value="100" step="1">
+  </div>
+  <div class="control-row">
+    <label>Alt ortam n₂ <span id="n2Val">1.50</span></label>
+    <input type="range" id="n2" min="100" max="250" value="150" step="1">
+  </div>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 720, H = 420;
+  const readout = document.getElementById("readout");
+  const thetaSl = document.getElementById("theta");
+  const n1Sl = document.getElementById("n1");
+  const n2Sl = document.getElementById("n2");
+
+  function getN1() { return n1Sl.value / 100; }
+  function getN2() { return n2Sl.value / 100; }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const availW = window.innerWidth - pad;
+    const availH = Math.max(200, bottom - top - pad);
+    const scale = Math.min(availW / W, availH / H, 1.2);
+    canvas.style.width = Math.floor(W * scale) + "px";
+    canvas.style.height = Math.floor(H * scale) + "px";
+  }
+
+  function drawRay(x0, y0, angleDeg, len, color, dash) {
+    const rad = angleDeg * Math.PI / 180;
+    const dx = Math.sin(rad) * len;
+    const dy = -Math.cos(rad) * len;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    if (dash) ctx.setLineDash([8, 6]);
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x0 + dx, y0 + dy);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const cx = W / 2, cy = H / 2;
+    const n1 = getN1(), n2 = getN2();
+    const t1 = +thetaSl.value;
+    const t1r = t1 * Math.PI / 180;
+    const sinT2 = n1 * Math.sin(t1r) / n2;
+    const tir = Math.abs(sinT2) > 1;
+    const t2 = tir ? null : Math.asin(sinT2) * 180 / Math.PI;
+
+    document.getElementById("thetaVal").textContent = t1 + "°";
+    document.getElementById("n1Val").textContent = n1.toFixed(2);
+    document.getElementById("n2Val").textContent = n2.toFixed(2);
+
+    let html = `θ₁ = <span>${t1}°</span> · θᵣ = <span>${t1}°</span>`;
+    if (tir) html += ` · <span style="color:#ff9f6b">Tam iç yansıma</span>`;
+    else html += ` · θ₂ = <span>${t2.toFixed(1)}°</span>`;
+    html += `<br>n₁ = <span>${n1.toFixed(2)}</span> → n₂ = <span>${n2.toFixed(2)}</span>`;
+    readout.innerHTML = html;
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(90, 140, 255, 0.12)";
+    ctx.fillRect(0, 0, W, cy);
+    ctx.fillStyle = "rgba(255, 160, 90, 0.1)";
+    ctx.fillRect(0, cy, W, H - cy);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(40, cy);
+    ctx.lineTo(W - 40, cy);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cx, 30);
+    ctx.lineTo(cx, H - 30);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const L = 165;
+    drawRay(cx, cy, -t1, L, "#7ec8ff", false);
+    drawRay(cx, cy, t1, L, "#a8b4ff", false);
+    if (!tir) drawRay(cx, cy, t2, L, "#ff9f6b", false);
+    else drawRay(cx, cy, t1, L, "#ff9f6b", true);
+
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.font = "13px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillText("n₁", 50, cy - 20);
+    ctx.fillText("n₂", 50, cy + 30);
+
+    const arcR = 36;
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, arcR, -Math.PI / 2 - t1r, -Math.PI / 2, false);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.fillText("θ₁", cx + 14, cy - arcR - 4);
+    if (!tir) {
+      const t2r = t2 * Math.PI / 180;
+      ctx.beginPath();
+      ctx.arc(cx, cy, arcR, Math.PI / 2 - t2r, Math.PI / 2, false);
+      ctx.stroke();
+      ctx.fillText("θ₂", cx + 14, cy + arcR + 14);
+    }
+  }
+
+  [thetaSl, n1Sl, n2Sl].forEach(el => el.addEventListener("input", draw));
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>

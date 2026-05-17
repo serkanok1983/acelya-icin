@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Tetris</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0a0a14;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: none;
+    }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); }
+    #status { font-size: clamp(0.85rem, 3.5vw, 1.05rem); }
+    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.8rem); opacity: 0.65; }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 6px; }
+    button {
+      font-size: 14px;
+      padding: 8px 12px;
+      background: #5b4dff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.1); }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #gameCanvas {
+      display: block;
+      max-width: 100%;
+      background: #111;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+
+<header class="hud">
+  <h1>Tetris</h1>
+  <div id="status">Skor: <span id="score">0</span> · Satır: <span id="lines">0</span> · Seviye: <span id="level">1</span></div>
+  <div class="controls">
+    <button type="button" id="btnNew">Yeni Oyun</button>
+  </div>
+  <p class="hint">← → hareket · ↑ döndür · ↓ hızlı düşür · Space: anında düşür</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="gameCanvas" width="400" height="720" role="img" aria-label="Tetris oyun alanı"></canvas>
+</div>
+
+<script>
+  const GAME_W = 400;
+  const GAME_H = 720;
+  const COLS = 10;
+  const ROWS = 20;
+  const CELL = 32;
+  const BOARD_W = COLS * CELL;
+  const BOARD_H = ROWS * CELL;
+  const OFFSET_X = (GAME_W - BOARD_W) / 2;
+
+  const SHAPES = {
+    I: { color: "#00f0f0", m: [[1,1,1,1]] },
+    O: { color: "#f0f000", m: [[1,1],[1,1]] },
+    T: { color: "#a000f0", m: [[0,1,0],[1,1,1]] },
+    S: { color: "#00f000", m: [[0,1,1],[1,1,0]] },
+    Z: { color: "#f00000", m: [[1,1,0],[0,1,1]] },
+    J: { color: "#0000f0", m: [[1,0,0],[1,1,1]] },
+    L: { color: "#f0a000", m: [[0,0,1],[1,1,1]] },
+  };
+  const KEYS = Object.keys(SHAPES);
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  const scoreEl = document.getElementById("score");
+  const linesEl = document.getElementById("lines");
+  const levelEl = document.getElementById("level");
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(220, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+  window.addEventListener("resize", resizeGame);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
+  resizeGame();
+
+  let board, piece, score, lines, level, dropMs, lastDrop, gameOver;
+
+  function emptyBoard() {
+    return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  }
+
+  function randomPiece() {
+    const k = KEYS[Math.floor(Math.random() * KEYS.length)];
+    const s = SHAPES[k];
+    return { key: k, color: s.color, matrix: s.m.map((r) => r.slice()), x: 3, y: 0 };
+  }
+
+  function rotate(m) {
+    const rows = m.length, cols = m[0].length;
+    const out = Array.from({ length: cols }, () => Array(rows).fill(0));
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++) out[c][rows - 1 - r] = m[r][c];
+    return out;
+  }
+
+  function collides(px, py, matrix) {
+    for (let r = 0; r < matrix.length; r++)
+      for (let c = 0; c < matrix[r].length; c++) {
+        if (!matrix[r][c]) continue;
+        const br = py + r, bc = px + c;
+        if (bc < 0 || bc >= COLS || br >= ROWS) return true;
+        if (br >= 0 && board[br][bc]) return true;
+      }
+    return false;
+  }
+
+  function mergePiece() {
+    const m = piece.matrix;
+    for (let r = 0; r < m.length; r++)
+      for (let c = 0; c < m[r].length; c++)
+        if (m[r][c] && piece.y + r >= 0)
+          board[piece.y + r][piece.x + c] = piece.color;
+  }
+
+  function clearLines() {
+    let cleared = 0;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (board[r].every((cell) => cell)) {
+        board.splice(r, 1);
+        board.unshift(Array(COLS).fill(0));
+        cleared++;
+        r++;
+      }
+    }
+    if (cleared) {
+      const pts = [0, 100, 300, 500, 800][cleared] * level;
+      score += pts;
+      lines += cleared;
+      level = 1 + Math.floor(lines / 10);
+      dropMs = Math.max(80, 600 - (level - 1) * 50);
+      scoreEl.textContent = score;
+      linesEl.textContent = lines;
+      levelEl.textContent = level;
+    }
+  }
+
+  function spawn() {
+    piece = randomPiece();
+    if (collides(piece.x, piece.y, piece.matrix)) {
+      gameOver = true;
+    }
+  }
+
+  function hardDrop() {
+    while (!collides(piece.x, piece.y + 1, piece.matrix)) piece.y++;
+    lock();
+  }
+
+  function lock() {
+    mergePiece();
+    clearLines();
+    spawn();
+  }
+
+  function tryMove(dx, dy, matrix) {
+    const m = matrix || piece.matrix;
+    if (!collides(piece.x + dx, piece.y + dy, m)) {
+      piece.x += dx;
+      piece.y += dy;
+      return true;
+    }
+    return false;
+  }
+
+  function tick() {
+    if (gameOver) return;
+    if (!tryMove(0, 1)) lock();
+    draw();
+  }
+
+  function drawCell(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(OFFSET_X + x * CELL, y * CELL, CELL - 1, CELL - 1);
+  }
+
+  function draw() {
+    ctx.fillStyle = "#0a0a14";
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.strokeRect(OFFSET_X + 0.5, 0.5, BOARD_W - 1, BOARD_H - 1);
+
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (board[r][c]) drawCell(c, r, board[r][c]);
+
+    const m = piece.matrix;
+    for (let r = 0; r < m.length; r++)
+      for (let c = 0; c < m[r].length; c++)
+        if (m[r][c] && piece.y + r >= 0)
+          drawCell(piece.x + c, piece.y + r, piece.color);
+
+    if (gameOver) {
+      ctx.fillStyle = "rgba(0,0,0,0.65)";
+      ctx.fillRect(OFFSET_X, 0, BOARD_W, BOARD_H);
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 28px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText("Oyun Bitti", GAME_W / 2, BOARD_H / 2);
+    }
+  }
+
+  function newGame() {
+    board = emptyBoard();
+    score = 0;
+    lines = 0;
+    level = 1;
+    dropMs = 600;
+    gameOver = false;
+    scoreEl.textContent = "0";
+    linesEl.textContent = "0";
+    levelEl.textContent = "1";
+    spawn();
+    lastDrop = performance.now();
+    draw();
+  }
+
+  function loop(now) {
+    if (!gameOver && now - lastDrop > dropMs) {
+      lastDrop = now;
+      tick();
+    } else draw();
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (gameOver) return;
+    if (e.key === "ArrowLeft") { tryMove(-1, 0); draw(); e.preventDefault(); }
+    if (e.key === "ArrowRight") { tryMove(1, 0); draw(); e.preventDefault(); }
+    if (e.key === "ArrowDown") { tick(); e.preventDefault(); }
+    if (e.key === "ArrowUp") {
+      const rot = rotate(piece.matrix);
+      if (!collides(piece.x, piece.y, rot)) piece.matrix = rot;
+      draw();
+      e.preventDefault();
+    }
+    if (e.code === "Space") { hardDrop(); draw(); e.preventDefault(); }
+  });
+
+  let touchX = 0;
+  canvas.addEventListener("touchstart", (e) => {
+    touchX = e.touches[0].clientX;
+    e.preventDefault();
+  }, { passive: false });
+  canvas.addEventListener("touchend", (e) => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) < 30) {
+      const rot = rotate(piece.matrix);
+      if (!collides(piece.x, piece.y, rot)) piece.matrix = rot;
+    } else if (dx > 40) tryMove(1, 0);
+    else if (dx < -40) tryMove(-1, 0);
+    draw();
+    e.preventDefault();
+  }, { passive: false });
+
+  document.getElementById("btnNew").addEventListener("click", newGame);
+  newGame();
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>

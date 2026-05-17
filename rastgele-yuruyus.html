@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Rastgele Yürüyüş</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    button {
+      width: 100%; padding: 9px; margin-top: 4px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 6px 0 0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>2B Rastgele Yürüyüş</h1>
+  <div class="readout" id="readout">Ortalama uzaklık √n ile büyür</div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="520" height="520" role="img" aria-label="Çok parçacıklı rastgele yürüyüş"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label>Parçacık sayısı <span id="countVal">80</span></label>
+    <input type="range" id="countSl" min="10" max="300" value="80" step="10">
+  </div>
+  <div class="control-row">
+    <label>Adım hızı <span id="speedVal">1.0</span></label>
+    <input type="range" id="speedSl" min="0.3" max="3" value="1" step="0.1">
+  </div>
+  <button type="button" id="resetBtn">Yeniden başlat</button>
+  <p class="hint">Her adımda yukarı / aşağı / sol / sağ eşit olasılık</p>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 520, H = 520;
+  const cx = W / 2, cy = H / 2;
+  const readout = document.getElementById("readout");
+
+  let particles = [];
+  let steps = 0;
+  let running = true;
+  let rafId = 0;
+  let lastT = 0;
+  let accum = 0;
+
+  const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+  const hueBase = 200;
+
+  function initParticles() {
+    const n = +document.getElementById("countSl").value;
+    document.getElementById("countVal").textContent = n;
+    particles = [];
+    for (let i = 0; i < n; i++) {
+      particles.push({
+        x: 0, y: 0,
+        trail: [{ x: 0, y: 0 }],
+        hue: (hueBase + (360 / n) * i) % 360,
+      });
+    }
+    steps = 0;
+  }
+
+  function stepWalk() {
+    const step = +document.getElementById("speedSl").value;
+    for (let s = 0; s < Math.ceil(step); s++) {
+      particles.forEach(p => {
+        const d = dirs[Math.floor(Math.random() * 4)];
+        p.x += d[0];
+        p.y += d[1];
+        p.trail.push({ x: p.x, y: p.y });
+        if (p.trail.length > 400) p.trail.shift();
+      });
+      steps++;
+    }
+    let sumR = 0;
+    particles.forEach(p => { sumR += Math.hypot(p.x, p.y); });
+    const avgR = sumR / particles.length;
+    const theory = Math.sqrt(steps);
+    readout.innerHTML =
+      `Adım <span>${steps}</span> · Ort. |r| ≈ <span>${avgR.toFixed(1)}</span> · √n ≈ <span>${theory.toFixed(1)}</span>`;
+  }
+
+  function scale() {
+    let maxD = 8;
+    particles.forEach(p => {
+      maxD = Math.max(maxD, Math.abs(p.x), Math.abs(p.y));
+    });
+    return (W * 0.42) / maxD;
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const sc = scale();
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 1;
+    for (let g = -4; g <= 4; g++) {
+      const off = g * sc * 20;
+      ctx.beginPath();
+      ctx.moveTo(cx + off, 0);
+      ctx.lineTo(cx + off, H);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, cy + off);
+      ctx.lineTo(W, cy + off);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, cy);
+    ctx.lineTo(W, cy);
+    ctx.moveTo(cx, 0);
+    ctx.lineTo(cx, H);
+    ctx.stroke();
+
+    particles.forEach(p => {
+      ctx.beginPath();
+      const t0 = p.trail[0];
+      ctx.moveTo(cx + t0.x * sc, cy + t0.y * sc);
+      for (let i = 1; i < p.trail.length; i++) {
+        const t = p.trail[i];
+        ctx.lineTo(cx + t.x * sc, cy + t.y * sc);
+      }
+      ctx.strokeStyle = `hsla(${p.hue}, 70%, 65%, 0.45)`;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      const px = cx + p.x * sc, py = cy + p.y * sc;
+      ctx.fillStyle = `hsl(${p.hue}, 75%, 62%)`;
+      ctx.beginPath();
+      ctx.arc(px, py, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.fillStyle = "rgba(255,200,100,0.9)";
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const avail = Math.min(window.innerWidth - pad, Math.max(200, bottom - top - pad));
+    const s = Math.floor(Math.min(avail, W) * Math.min(avail / W, 1.15));
+    canvas.style.width = s + "px";
+    canvas.style.height = s + "px";
+  }
+
+  function loop(t) {
+    rafId = requestAnimationFrame(loop);
+    if (!running) return;
+    const speed = +document.getElementById("speedSl").value;
+    document.getElementById("speedVal").textContent = speed.toFixed(1);
+    const dt = Math.min(50, t - lastT || 16);
+    lastT = t;
+    accum += dt;
+    const interval = 80 / speed;
+    while (accum >= interval) {
+      stepWalk();
+      accum -= interval;
+    }
+    draw();
+  }
+
+  document.getElementById("countSl").addEventListener("input", () => { initParticles(); draw(); });
+  document.getElementById("resetBtn").addEventListener("click", () => { initParticles(); draw(); });
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  initParticles();
+  resize();
+  draw();
+  rafId = requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

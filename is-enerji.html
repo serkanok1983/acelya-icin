@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İş–Enerji İlkesi</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 34rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 140px; accent-color: #3fb950; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>İş–Enerji</h1>
+  <p class="sub">W = ΔE_mek: Kinetik, potansiyel ve yapılan iş çubuk grafikte. Eğimli düzlemde kayan kütle.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Eğim açısı (°) <input type="range" id="angle" min="5" max="45" value="25"></label>
+    <label>Sürtünme μ <input type="range" id="friction" min="0" max="0.4" step="0.02" value="0.1"></label>
+    <button id="runBtn">Başlat</button>
+    <button id="resetBtn">Sıfırla</button>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, s = 0, v = 0, running = false, m = 2, g = 9.8, dt = 1/60;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(800, innerWidth - 24); H = Math.min(460, innerHeight * 0.58);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+document.getElementById('runBtn').onclick = () => { running = !running; document.getElementById('runBtn').textContent = running ? 'Duraklat' : 'Başlat'; };
+document.getElementById('resetBtn').onclick = () => { s = 0; v = 0; running = false; document.getElementById('runBtn').textContent = 'Başlat'; draw(); };
+
+function draw() {
+  const deg = +document.getElementById('angle').value;
+  const mu = +document.getElementById('friction').value;
+  const rad = deg * Math.PI / 180;
+  const rampLen = W * 0.55;
+  const h0 = rampLen * Math.sin(rad);
+  const h = Math.max(0, h0 - s * Math.sin(rad));
+  const PE = m * g * h;
+  const KE = 0.5 * m * v * v;
+  const Wgrav = m * g * (h0 - h);
+  const Wfric = mu * m * g * Math.cos(rad) * s;
+
+  if (running && s < rampLen - 20) {
+    const a = g * (Math.sin(rad) - mu * Math.cos(rad));
+    v += a * dt;
+    s += v * dt;
+    if (s > rampLen - 20) { s = rampLen - 20; v = 0; running = false; }
+  }
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  const x0 = 60, y0 = H * 0.75;
+  const x1 = x0 + rampLen * Math.cos(rad);
+  const y1 = y0 - rampLen * Math.sin(rad);
+
+  ctx.fillStyle = '#21262d';
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x1, y1);
+  ctx.lineTo(x1, y0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#484f58';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  const bx = x0 + s * Math.cos(rad);
+  const by = y0 - s * Math.sin(rad);
+  ctx.fillStyle = '#58a6ff';
+  ctx.beginPath();
+  ctx.arc(bx, by - 16, 16, 0, Math.PI * 2);
+  ctx.fill();
+
+  const barX = W * 0.62, barW = 28, maxE = m * g * h0 * 1.1 || 1;
+  const bars = [
+    { label: 'KE', val: KE, color: '#3fb950' },
+    { label: 'PE', val: PE, color: '#58a6ff' },
+    { label: 'W', val: Wgrav - Wfric, color: '#ffa657' }
+  ];
+  bars.forEach((b, i) => {
+    const bh = (b.val / maxE) * (H * 0.35);
+    const x = barX + i * (barW + 24);
+    ctx.fillStyle = '#30363d';
+    ctx.fillRect(x, H * 0.35, barW, H * 0.35);
+    ctx.fillStyle = b.color;
+    ctx.fillRect(x, H * 0.7 - bh, barW, bh);
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.label, x + barW / 2, H * 0.28);
+    ctx.fillText(b.val.toFixed(0) + ' J', x + barW / 2, H * 0.75);
+  });
+
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('E_mek = KE + PE = ' + (KE + PE).toFixed(1) + ' J', 16, 24);
+
+  document.getElementById('info').textContent =
+    `ΔE = W_net  →  Yerçekimi işi: ${Wgrav.toFixed(0)} J, sürtünme: -${Wfric.toFixed(0)} J, hız: ${v.toFixed(2)} m/s`;
+  if (running) requestAnimationFrame(draw);
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

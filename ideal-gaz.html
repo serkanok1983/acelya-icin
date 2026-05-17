@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İdeal Gaz — PV = nRT</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 140px; accent-color: #79c0ff; }
+    #info { font-size: 0.9rem; color: #8b949e; text-align: center; max-width: 42rem; line-height: 1.6; }
+    #info strong { color: #79c0ff; }
+    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>İdeal Gaz Yasası</h1>
+  <p class="sub">PV = nRT · R ≈ 8,314 J/(mol·K). Piston simülasyonunda kaydırıcıları değiştirin.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>P (kPa) <input type="range" id="P" min="50" max="300" value="101"></label>
+    <label>V (L) <input type="range" id="V" min="1" max="30" value="10"></label>
+    <label>n (mol) <input type="range" id="n" min="0.1" max="5" step="0.1" value="1"></label>
+    <label>T (K) <input type="range" id="T" min="200" max="500" value="298"></label>
+  </div>
+  <p id="info"></p>
+  <a class="back" href="index.html">← Ana menü</a>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const R = 8.314;
+let W, H;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(720, innerWidth - 24); H = Math.min(400, innerHeight * 0.5);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+window.addEventListener('resize', resize);
+
+['P','V','n','T'].forEach(id => document.getElementById(id).oninput = draw);
+
+function draw() {
+  const Pk = +document.getElementById('P').value;
+  const Vl = +document.getElementById('V').value;
+  const n = +document.getElementById('n').value;
+  const T = +document.getElementById('T').value;
+  const P = Pk * 1000;
+  const V = Vl / 1000;
+  const PV = P * V;
+  const nRT = n * R * T;
+  const calcP = nRT / V / 1000;
+  const calcV = nRT / P * 1000;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  const cylX = W * 0.12, cylY = H * 0.15, cylW = W * 0.42, cylH = H * 0.7;
+  const pistonH = cylH * (0.25 + 0.55 * (Vl / 30));
+
+  ctx.fillStyle = '#21262d';
+  ctx.fillRect(cylX, cylY, cylW, cylH);
+  ctx.strokeStyle = '#484f58';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(cylX, cylY, cylW, cylH);
+
+  const gasTop = cylY + cylH - pistonH;
+  const grad = ctx.createLinearGradient(0, gasTop, 0, cylY + cylH);
+  grad.addColorStop(0, 'rgba(121,192,255,0.15)');
+  grad.addColorStop(1, 'rgba(121,192,255,0.45)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(cylX + 4, gasTop, cylW - 8, pistonH - 4);
+
+  for (let i = 0; i < Math.floor(n * 12); i++) {
+    const px = cylX + 20 + Math.random() * (cylW - 40);
+    const py = gasTop + 15 + Math.random() * (pistonH - 30);
+    ctx.fillStyle = 'rgba(121,192,255,0.7)';
+    ctx.beginPath();
+    ctx.arc(px, py, 3 + Math.random() * 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#484f58';
+  ctx.fillRect(cylX, gasTop - 12, cylW, 14);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '12px system-ui';
+  ctx.fillText('Piston', cylX + cylW / 2 - 22, gasTop - 18);
+
+  const gx = W * 0.62, gy = H * 0.12, gw = W * 0.32, gh = H * 0.76;
+  ctx.strokeStyle = '#30363d';
+  ctx.strokeRect(gx, gy, gw, gh);
+  const maxPV = 5000;
+  const barH = Math.min(gh - 40, (PV / maxPV) * (gh - 60));
+  ctx.fillStyle = '#388bfd';
+  ctx.fillRect(gx + 20, gy + gh - 20 - barH, gw * 0.35, barH);
+  ctx.fillStyle = '#3fb950';
+  const barH2 = Math.min(gh - 40, (nRT / maxPV) * (gh - 60));
+  ctx.fillRect(gx + gw * 0.55, gy + gh - 20 - barH2, gw * 0.35, barH2);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px system-ui';
+  ctx.fillText('PV', gx + 25, gy + 16);
+  ctx.fillText('nRT', gx + gw * 0.55, gy + 16);
+
+  document.getElementById('info').innerHTML =
+    `<strong>P</strong> = ${Pk} kPa &nbsp;·&nbsp; <strong>V</strong> = ${Vl} L &nbsp;·&nbsp; <strong>n</strong> = ${n} mol &nbsp;·&nbsp; <strong>T</strong> = ${T} K<br>
+    PV = ${(PV).toFixed(0)} J &nbsp;|&nbsp; nRT = ${nRT.toFixed(0)} J &nbsp;|&nbsp; Fark: ${Math.abs(PV - nRT).toFixed(0)} J<br>
+  Sabit T,n iken V=${calcV.toFixed(1)} L olmalı · Sabit P,n iken hesap tutarlılığı için kaydırıcıları deneyin.`;
+}
+resize();
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bayes Olasılığı</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; max-width: 680px; margin: 0 auto; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .sub { font-size: 0.8rem; opacity: 0.7; margin: 0; }
+    main { flex: 1; padding: 14px 16px; }
+    .formula-box {
+      background: #12121c; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 14px; text-align: center;
+      margin-bottom: 14px; font-size: clamp(0.9rem, 3.5vw, 1.05rem);
+    }
+    .formula-box .eq {
+      font-family: ui-monospace, "Cambria Math", serif;
+      margin: 8px 0; line-height: 1.6;
+    }
+    .formula-box .result {
+      font-size: 1.35rem; color: #7eb6ff; font-weight: 600;
+      margin-top: 10px;
+    }
+    .panel {
+      background: #12121c; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 14px; margin-bottom: 14px;
+    }
+    .panel h2 {
+      margin: 0 0 10px; font-size: 0.88rem;
+      color: #7eb6ff; font-weight: 600;
+    }
+    .control-row { margin-bottom: 12px; }
+    .control-row:last-child { margin-bottom: 0; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    .viz {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-top: 12px;
+    }
+    @media (max-width: 420px) { .viz { grid-template-columns: 1fr; } }
+    .tree {
+      background: #0e0e16; border-radius: 8px;
+      padding: 12px; font-size: 0.78rem; line-height: 1.7;
+    }
+    .tree .branch { padding-left: 12px; border-left: 2px solid rgba(91,156,255,0.35); margin: 4px 0; }
+    .tree strong { color: #9ec8ff; }
+    #bayesCanvas {
+      width: 100%; height: 160px; display: block;
+      background: #0e0e16; border-radius: 8px;
+    }
+    .scenario-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .scenario-btns button {
+      flex: 1; min-width: 90px; padding: 8px 6px;
+      background: #14141f; color: #aaa; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px; cursor: pointer; font-size: 0.75rem;
+    }
+    .scenario-btns button.active {
+      background: #2a4a8a; color: #fff; border-color: transparent;
+    }
+    .hint {
+      font-size: 0.72rem; opacity: 0.55; text-align: center;
+      padding: 0 16px max(14px, env(safe-area-inset-bottom));
+    }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Bayes Teoremi</h1>
+  <p class="sub">P(A|B) — B gözlemlendiğinde A'nın olasılığı</p>
+</header>
+<main>
+  <div class="panel">
+    <h2>Senaryo</h2>
+    <div class="scenario-btns">
+      <button type="button" class="scenario active" data-p="0.01" data-sens="0.95" data-spec="0.90"
+        data-a="Hastalık" data-b="Pozitif test">Tıbbi test</button>
+      <button type="button" class="scenario" data-p="0.30" data-sens="0.80" data-spec="0.85"
+        data-a="Yağmur" data-b="Bulutlu gökyüzü">Hava durumu</button>
+      <button type="button" class="scenario" data-p="0.05" data-sens="0.99" data-spec="0.95"
+        data-a="Hileli zar" data-b="6 gelmesi">Zar (hile)</button>
+    </div>
+    <p style="font-size:0.82rem;opacity:0.85;margin:0" id="scenarioText">
+      Nadir bir hastalık (%1) ve bir test: duyarlılık %95, özgüllük %90.
+    </p>
+  </div>
+
+  <div class="panel">
+    <h2>Parametreler</h2>
+    <div class="control-row">
+      <label>Önsel P(A) — <span id="labelA">Hastalık</span> <span id="priorVal">%1.0</span></label>
+      <input type="range" id="prior" min="0.1" max="50" value="1" step="0.1">
+    </div>
+    <div class="control-row">
+      <label>Olasılık P(B|A) — duyarlılık <span id="sensVal">%95</span></label>
+      <input type="range" id="sens" min="50" max="100" value="95" step="1">
+    </div>
+    <div class="control-row">
+      <label>Olasılık P(B|¬A) — yanlış pozitif <span id="fprVal">%10</span></label>
+      <input type="range" id="fpr" min="0" max="50" value="10" step="1">
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="eq" id="eqText">P(A|B) = P(B|A)·P(A) / P(B)</div>
+    <div class="result" id="posterior">P(A|B) ≈ %8.8</div>
+    <div style="font-size:0.78rem;opacity:0.7;margin-top:6px" id="pbText">P(B) = %10.45</div>
+  </div>
+
+  <div class="viz">
+    <div class="tree" id="tree"></div>
+    <canvas id="bayesCanvas" role="img" aria-label="Önsel ve sonsal olasılık karşılaştırması"></canvas>
+  </div>
+</main>
+<p class="hint">P(B) = P(B|A)P(A) + P(B|¬A)P(¬A). Kaydırıcılarla önsel ve kanıt gücünü değiştir.</p>
+<script>
+(function () {
+  const priorSl = document.getElementById("prior");
+  const sensSl = document.getElementById("sens");
+  const fprSl = document.getElementById("fpr");
+  const priorVal = document.getElementById("priorVal");
+  const sensVal = document.getElementById("sensVal");
+  const fprVal = document.getElementById("fprVal");
+  const posteriorEl = document.getElementById("posterior");
+  const pbText = document.getElementById("pbText");
+  const eqText = document.getElementById("eqText");
+  const tree = document.getElementById("tree");
+  const labelA = document.getElementById("labelA");
+  const scenarioText = document.getElementById("scenarioText");
+  const canvas = document.getElementById("bayesCanvas");
+  const ctx = canvas.getContext("2d");
+  const scenarios = document.querySelectorAll(".scenario");
+
+  let labelAtext = "Hastalık";
+  let labelBtext = "Pozitif test";
+
+  function pct(x, d) {
+    if (x < 0.001) return (x * 100).toFixed(3) + "%";
+    if (x < 0.01) return (x * 100).toFixed(2) + "%";
+    return (x * 100).toFixed(d ?? 1) + "%";
+  }
+
+  function compute() {
+    const pA = +priorSl.value / 100;
+    const pNotA = 1 - pA;
+    const pBgA = +sensSl.value / 100;
+    const pBgNotA = +fprSl.value / 100;
+    const pB = pBgA * pA + pBgNotA * pNotA;
+    const pAgB = pB > 0 ? (pBgA * pA) / pB : 0;
+
+    priorVal.textContent = pct(pA);
+    sensVal.textContent = pct(pBgA, 0);
+    fprVal.textContent = pct(pBgNotA, 0);
+    posteriorEl.textContent = "P(A|B) ≈ " + pct(pAgB);
+    pbText.textContent = "P(B) = " + pct(pB, 2);
+
+    eqText.innerHTML =
+      `P(A|${labelBtext}) = ` +
+      `<span style="color:#9ec8ff">${pct(pBgA,0)}×${pct(pA)}</span> / ` +
+      `<span style="color:#ffb07e">${pct(pB,2)}</span>`;
+
+    tree.innerHTML =
+      `<strong>${labelAtext} (A)</strong> ${pct(pA)}<br>` +
+      `<div class="branch">→ ${labelBtext}: ${pct(pBgA)} · birleşik: ${pct(pA * pBgA, 2)}</div>` +
+      `<strong>¬A</strong> ${pct(pNotA)}<br>` +
+      `<div class="branch">→ ${labelBtext}: ${pct(pBgNotA)} · birleşik: ${pct(pNotA * pBgNotA, 2)}</div>`;
+
+    drawBars(pA, pAgB);
+    return { pA, pAgB, pB };
+  }
+
+  function drawBars(prior, post) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = rect.width, h = rect.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const labels = ["P(A)", "P(A|B)"];
+    const vals = [prior, post];
+    const colors = ["#3a5a8a", "#5b9cff"];
+    const barW = w * 0.32;
+    const gap = w * 0.18;
+    const baseX = (w - 2 * barW - gap) / 2;
+    const maxH = h - 36;
+
+    vals.forEach((v, i) => {
+      const x = baseX + i * (barW + gap);
+      const barH = Math.max(4, v * maxH);
+      const y = h - 24 - barH;
+      ctx.fillStyle = colors[i];
+      ctx.fillRect(x, y, barW, barH);
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = "12px system-ui,sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(labels[i], x + barW / 2, h - 6);
+      ctx.fillText(pct(v), x + barW / 2, y - 6);
+    });
+  }
+
+  scenarios.forEach(btn => {
+    btn.addEventListener("click", () => {
+      scenarios.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      labelAtext = btn.dataset.a;
+      labelBtext = btn.dataset.b;
+      labelA.textContent = labelAtext;
+      priorSl.value = (+btn.dataset.p * 100).toFixed(1);
+      sensSl.value = Math.round(+btn.dataset.sens * 100);
+      const spec = +btn.dataset.spec;
+      fprSl.value = Math.round((1 - spec) * 100);
+      if (btn.dataset.a === "Hastalık") {
+        scenarioText.textContent = "Nadir bir hastalık ve test: duyarlılık yüksek olsa bile önsel düşükse sonuç şaşırtıcı olabilir.";
+      } else if (btn.dataset.a === "Yağmur") {
+        scenarioText.textContent = "Bulut gördün — yağmur olasılığı önselden ne kadar artar?";
+      } else {
+        scenarioText.textContent = "Zar 6 verdi: hileli mi, şans mı? Önsel düşükse hâlâ şüpheli kalır.";
+      }
+      compute();
+    });
+  });
+
+  [priorSl, sensSl, fprSl].forEach(el => el.addEventListener("input", compute));
+  window.addEventListener("resize", compute);
+  compute();
+})();
+</script>
+</body>
+</html>

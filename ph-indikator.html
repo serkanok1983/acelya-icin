@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pH ve İndikatör</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; touch-action: none; }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 280px; accent-color: #ffa657; }
+    select { padding: 0.5rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; }
+    #info { font-size: 0.9rem; color: #8b949e; text-align: center; max-width: 40rem; }
+    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>pH Ölçeği ve İndikatör</h1>
+  <p class="sub">pH = −log₁₀[H⁺]. Kaydırıcıyı veya ölçeğe tıklayarak çözelti asitliğini değiştirin.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>pH = <span id="phVal">7.0</span>
+      <input type="range" id="ph" min="0" max="14" step="0.1" value="7">
+    </label>
+    <label>İndikatör
+      <select id="ind">
+        <option value="universal">Evrensel indikatör</option>
+        <option value="litmus">Turnusol (litmus)</option>
+        <option value="phenol">Fenolftalein</option>
+        <option value="methyl">Metil turuncu</option>
+      </select>
+    </label>
+  </div>
+  <p id="info"></p>
+  <a class="back" href="index.html">← Ana menü</a>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(760, innerWidth - 24); H = Math.min(420, innerHeight * 0.52);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+window.addEventListener('resize', resize);
+
+function universalColor(ph) {
+  if (ph < 3) return '#ff4444';
+  if (ph < 5) return '#ff8844';
+  if (ph < 6) return '#ffcc44';
+  if (ph < 7) return '#aaff44';
+  if (ph < 8) return '#44ff88';
+  if (ph < 10) return '#44ccff';
+  if (ph < 12) return '#4488ff';
+  return '#8844ff';
+}
+
+function indicatorColor(type, ph) {
+  if (type === 'litmus') return ph < 8.3 ? '#c0392b' : '#2980b9';
+  if (type === 'phenol') return ph > 8.2 ? '#e056fd' : '#f5f5f5';
+  if (type === 'methyl') {
+    if (ph < 3.1) return '#e74c3c';
+    if (ph > 4.4) return '#f1c40f';
+    return '#e67e22';
+  }
+  return universalColor(ph);
+}
+
+function draw() {
+  const ph = +document.getElementById('ph').value;
+  const ind = document.getElementById('ind').value;
+  document.getElementById('phVal').textContent = ph.toFixed(1);
+  const hConc = Math.pow(10, -ph);
+  const color = indicatorColor(ind, ph);
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  const barX = 40, barY = H * 0.12, barW = W - 80, barH = 28;
+  const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+  for (let i = 0; i <= 14; i++) grad.addColorStop(i / 14, universalColor(i));
+  ctx.fillStyle = grad;
+  ctx.fillRect(barX, barY, barW, barH);
+  ctx.strokeStyle = '#30363d';
+  ctx.strokeRect(barX, barY, barW, barH);
+
+  const mx = barX + (ph / 14) * barW;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.moveTo(mx, barY + barH + 4);
+  ctx.lineTo(mx - 8, barY + barH + 18);
+  ctx.lineTo(mx + 8, barY + barH + 18);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px system-ui';
+  for (let i = 0; i <= 14; i += 2) {
+    const x = barX + (i / 14) * barW;
+    ctx.fillText(i, x - 4, barY - 6);
+  }
+  ctx.fillText('Asit', barX, barY + barH + 36);
+  ctx.fillText('Baz', barX + barW - 24, barY + barH + 36);
+
+  const bx = W * 0.35, by = H * 0.42, bw = W * 0.3, bh = H * 0.38;
+  ctx.fillStyle = '#30363d';
+  ctx.beginPath();
+  ctx.moveTo(bx, by + bh);
+  ctx.lineTo(bx + 15, by);
+  ctx.lineTo(bx + bw - 15, by);
+  ctx.lineTo(bx + bw, by + bh);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = color;
+  ctx.fillRect(bx + 8, by + 20, bw - 16, bh - 28);
+  ctx.strokeStyle = '#484f58';
+  ctx.strokeRect(bx + 8, by + 20, bw - 16, bh - 28);
+
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = 'bold 22px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('pH ' + ph.toFixed(1), W / 2, by + bh + 50);
+  ctx.textAlign = 'left';
+
+  const labels = { universal: 'Evrensel', litmus: 'Turnusol', phenol: 'Fenolftalein', methyl: 'Metil turuncu' };
+  let note = ph < 7 ? 'Asidik ortam' : ph > 7 ? 'Bazik ortam' : 'Nötr';
+  if (ind === 'phenol' && ph <= 8.2) note += ' — fenolftalein renksiz';
+  if (ind === 'litmus' && ph >= 8.3) note += ' — turnusol mavi';
+
+  document.getElementById('info').textContent =
+    `${labels[ind]} · [H⁺] ≈ ${hConc.toExponential(2)} mol/L · ${note}`;
+}
+
+document.getElementById('ph').oninput = draw;
+document.getElementById('ind').onchange = draw;
+cv.onclick = e => {
+  const r = cv.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width;
+  const barX = 40 / W, barW = (W - 80) / W;
+  if (x >= barX && x <= barX + barW) {
+    document.getElementById('ph').value = ((x - barX) / barW * 14).toFixed(1);
+    draw();
+  }
+};
+resize();
+</script>
+</body>
+</html>

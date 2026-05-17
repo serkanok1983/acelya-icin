@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Besin Ağı</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 38rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; touch-action: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Besin Ağı</h1>
+  <p class="sub">Canlılara tıklayın: enerji akışını izleyin. Oklar “yenen → yiyen” yönündedir.</p>
+  <canvas id="cv"></canvas>
+  <p id="info" style="color:#8b949e;font-size:0.9rem;text-align:center;max-width:40rem;"></p>
+  <a href="index.html" style="color:#58a6ff;font-size:0.85rem;margin-top:0.5rem;text-decoration:none;">← Ana menü</a>
+<script>
+const NODES = [
+  { id:'gunes', label:'Güneş', x:0.5, y:0.08, r:28, col:'#e3b341', role:'Enerji kaynağı' },
+  { id:'ot', label:'Ot', x:0.5, y:0.28, r:24, col:'#3fb950', role:'Üretici' },
+  { id:'tavsan', label:'Tavşan', x:0.28, y:0.48, r:22, col:'#8b949e', role:'Birincil tüketici' },
+  { id:'geyik', label:'Geyik', x:0.72, y:0.48, r:22, col:'#8b949e', role:'Birincil tüketici' },
+  { id:'tilki', label:'Tilki', x:0.38, y:0.68, r:22, col:'#ffa657', role:'İkincil tüketici' },
+  { id:'kurt', label:'Kurt', x:0.62, y:0.68, r:22, col:'#ffa657', role:'İkincil tüketici' },
+  { id:'kartal', label:'Kartal', x:0.5, y:0.88, r:24, col:'#f85149', role:'Apex yırtıcı' }
+];
+const LINKS = [
+  ['gunes','ot'],['ot','tavsan'],['ot','geyik'],
+  ['tavsan','tilki'],['geyik','kurt'],['tavsan','kurt'],
+  ['tilki','kartal'],['kurt','kartal'],['geyik','kartal']
+];
+
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, selected = null, highlight = new Set(), dragNode = null;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(720, innerWidth - 24); H = Math.min(520, innerHeight * 0.58);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+window.addEventListener('resize', resize);
+
+function pos(n) { return { x: n.x * W, y: n.y * H }; }
+
+function getNodeAt(mx, my) {
+  for (let i = NODES.length - 1; i >= 0; i--) {
+    const n = NODES[i], p = pos(n);
+    if (Math.hypot(mx - p.x, my - p.y) < n.r + 8) return n;
+  }
+  return null;
+}
+
+function traceChain(id) {
+  const chain = new Set([id]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    LINKS.forEach(([a, b]) => {
+      if (chain.has(b) && !chain.has(a)) { chain.add(a); changed = true; }
+      if (chain.has(a) && !chain.has(b)) { chain.add(b); changed = true; }
+    });
+  }
+  return chain;
+}
+
+function drawArrow(x1, y1, x2, y2, active) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  const ux = dx / len, uy = dy / len;
+  const ex = x2 - ux * 28, ey = y2 - uy * 28;
+  const sx = x1 + ux * 28, sy = y1 + uy * 28;
+  ctx.strokeStyle = active ? '#79c0ff' : '#30363d';
+  ctx.lineWidth = active ? 2.5 : 1.5;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex, ey);
+  ctx.stroke();
+  const ang = Math.atan2(ey - sy, ex - sx);
+  ctx.fillStyle = active ? '#79c0ff' : '#484f58';
+  ctx.beginPath();
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - 10 * Math.cos(ang - 0.35), ey - 10 * Math.sin(ang - 0.35));
+  ctx.lineTo(ex - 10 * Math.cos(ang + 0.35), ey - 10 * Math.sin(ang + 0.35));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function draw() {
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  const nodeMap = Object.fromEntries(NODES.map(n => [n.id, n]));
+
+  LINKS.forEach(([a, b]) => {
+    const na = nodeMap[a], nb = nodeMap[b];
+    const pa = pos(na), pb = pos(nb);
+    const active = selected && highlight.has(a) && highlight.has(b);
+    drawArrow(pa.x, pa.y, pb.x, pb.y, active);
+  });
+
+  NODES.forEach(n => {
+    const p = pos(n);
+    const on = highlight.has(n.id);
+    ctx.fillStyle = on ? n.col : n.col + '99';
+    ctx.strokeStyle = selected === n.id ? '#fff' : on ? '#79c0ff' : '#30363d';
+    ctx.lineWidth = selected === n.id ? 3 : 1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, n.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#e6edf3';
+    ctx.font = 'bold 11px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.label, p.x, p.y + n.r + 14);
+  });
+  ctx.textAlign = 'left';
+}
+
+cv.onpointerdown = e => {
+  const r = cv.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (W / r.width);
+  const my = (e.clientY - r.top) * (H / r.height);
+  const n = getNodeAt(mx, my);
+  if (n) {
+    selected = n.id;
+    highlight = traceChain(n.id);
+    dragNode = n;
+    document.getElementById('info').innerHTML =
+      `<strong>${n.label}</strong> — ${n.role}. Bağlı canlılar ve enerji yolları vurgulandı.`;
+    draw();
+  }
+};
+
+cv.onpointermove = e => {
+  if (!dragNode) return;
+  const r = cv.getBoundingClientRect();
+  dragNode.x = Math.max(0.08, Math.min(0.92, (e.clientX - r.left) / r.width));
+  dragNode.y = Math.max(0.06, Math.min(0.94, (e.clientY - r.top) / r.height));
+  draw();
+};
+
+cv.onpointerup = () => { dragNode = null; };
+
+resize();
+document.getElementById('info').textContent = 'Bir canlıya tıklayın veya sürükleyerek konumunu değiştirin.';
+</script>
+</body>
+</html>

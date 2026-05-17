@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Pisagor Teoremi</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; line-height: 1.55; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+      touch-action: none;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+      cursor: grab;
+    }
+    #simCanvas.dragging { cursor: grabbing; }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    button {
+      width: 100%; padding: 8px; margin-top: 4px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 6px 0 0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Pisagor Teoremi</h1>
+  <div class="readout" id="readout"></div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="520" height="520" role="img" aria-label="Pisagor görsel kanıtı"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label>Dik kenar a <span id="aVal">3</span></label>
+    <input type="range" id="aSl" min="2" max="5" value="3" step="0.1">
+  </div>
+  <div class="control-row">
+    <label>Dik kenar b <span id="bVal">4</span></label>
+    <input type="range" id="bSl" min="2" max="5" value="4" step="0.1">
+  </div>
+  <button type="button" id="resetBtn">Kareleri yerleştir</button>
+  <p class="hint">Renkli kareleri sürükleyerek c² alanına yerleştir — a² + b² = c²</p>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 520, H = 520;
+  const readout = document.getElementById("readout");
+  const unit = 52;
+
+  let a = 3, b = 4;
+  let squares = [];
+  let drag = null;
+
+  function cLen() { return Math.sqrt(a * a + b * b); }
+
+  function triVerts() {
+    const ox = 120, oy = H - 120;
+    return {
+      A: { x: ox, y: oy },
+      B: { x: ox + a * unit, y: oy },
+      C: { x: ox, y: oy - b * unit },
+    };
+  }
+
+  function initSquares() {
+    const { A, B, C } = triVerts();
+    const c = cLen();
+    const sA = a * unit, sB = b * unit, sC = c * unit;
+    const hypAngle = Math.atan2(B.y - C.y, B.x - C.x);
+    squares = [
+      {
+        id: "a",
+        label: "a²",
+        color: "rgba(126, 200, 255, 0.6)",
+        stroke: "#7ec8ff",
+        w: sA, h: sA,
+        x: B.x, y: B.y - sA,
+      },
+      {
+        id: "b",
+        label: "b²",
+        color: "rgba(200, 255, 126, 0.6)",
+        stroke: "#c8ff7e",
+        w: sB, h: sB,
+        x: A.x - sB, y: A.y - sB,
+      },
+      {
+        id: "c",
+        label: "c²",
+        color: "rgba(255, 159, 107, 0.25)",
+        stroke: "#ff9f6b",
+        w: sC, h: sC,
+        x: C.x + Math.cos(hypAngle + Math.PI / 2) * 4,
+        y: C.y + Math.sin(hypAngle + Math.PI / 2) * 4,
+        targetOnly: true,
+      },
+    ];
+  }
+
+  function drawSquare(sq) {
+    ctx.save();
+    ctx.translate(sq.x + sq.w / 2, sq.y + sq.h / 2);
+    ctx.rotate(sq.angle || 0);
+    ctx.fillStyle = sq.color;
+    ctx.strokeStyle = sq.stroke || "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 2;
+    ctx.fillRect(-sq.w / 2, -sq.h / 2, sq.w, sq.h);
+    ctx.strokeRect(-sq.w / 2, -sq.h / 2, sq.w, sq.h);
+    if (sq.label) {
+      ctx.fillStyle = "#e8e8f0";
+      ctx.font = "bold 14px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText(sq.label, 0, 5);
+    }
+    ctx.restore();
+  }
+
+  function hitTest(mx, my) {
+    for (let i = squares.length - 1; i >= 0; i--) {
+      const sq = squares[i];
+      if (sq.targetOnly) continue;
+      if (mx >= sq.x && mx <= sq.x + sq.w && my >= sq.y && my <= sq.y + sq.h) return i;
+    }
+    return -1;
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    a = +document.getElementById("aSl").value;
+    b = +document.getElementById("bSl").value;
+    document.getElementById("aVal").textContent = a.toFixed(1);
+    document.getElementById("bVal").textContent = b.toFixed(1);
+    const c = cLen();
+    const a2 = a * a, b2 = b * b, c2 = c * c;
+
+    readout.innerHTML =
+      `a² + b² = <span>${a2.toFixed(2)}</span> + <span>${b2.toFixed(2)}</span> = <span>${(a2 + b2).toFixed(2)}</span> · c² = <span>${c2.toFixed(2)}</span>`;
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+
+    const { A, B, C } = triVerts();
+    const cSq = squares.find(s => s.id === "c");
+    const aSq = squares.find(s => s.id === "a");
+    const bSq = squares.find(s => s.id === "b");
+    if (cSq) {
+      cSq.w = cSq.h = c * unit;
+      const hypAngle = Math.atan2(B.y - C.y, B.x - C.x);
+      if (!drag || squares[drag.idx]?.id === "c") {
+        cSq.x = C.x + Math.cos(hypAngle + Math.PI / 2) * 4;
+        cSq.y = C.y + Math.sin(hypAngle + Math.PI / 2) * 4;
+      }
+    }
+    if (aSq && (!drag || squares[drag.idx]?.id !== "a")) {
+      aSq.w = aSq.h = a * unit;
+    }
+    if (bSq && (!drag || squares[drag.idx]?.id !== "b")) {
+      bSq.w = bSq.h = b * unit;
+    }
+
+    if (cSq) drawSquare(cSq);
+
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.lineTo(C.x, C.y);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(255,255,255,0.85)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.lineTo(C.x, C.y);
+    ctx.closePath();
+    ctx.stroke();
+
+    const r = 14;
+    ctx.strokeStyle = "rgba(255,159,107,0.8)";
+    ctx.beginPath();
+    ctx.moveTo(A.x + r, A.y);
+    ctx.lineTo(A.x + r, A.y - r);
+    ctx.lineTo(A.x, A.y - r);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.font = "13px system-ui";
+    ctx.fillText("a", (A.x + B.x) / 2, A.y + 20);
+    ctx.fillText("b", A.x - 18, (A.y + C.y) / 2);
+    ctx.fillText("c", (B.x + C.x) / 2 + 12, (B.y + C.y) / 2);
+
+    squares.filter(s => s.id !== "c").forEach(drawSquare);
+    if (cSq) {
+      ctx.strokeStyle = "rgba(255,159,107,0.5)";
+      ctx.setLineDash([6, 4]);
+      ctx.strokeRect(cSq.x, cSq.y, cSq.w, cSq.h);
+      ctx.setLineDash([]);
+    }
+  }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const avail = Math.min(window.innerWidth - pad, Math.max(200, bottom - top - pad));
+    const s = Math.floor(Math.min(avail, W) * Math.min(avail / W, 1.15));
+    canvas.style.width = s + "px";
+    canvas.style.height = s + "px";
+  }
+
+  function canvasPos(e) {
+    const r = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (W / r.width),
+      y: (e.clientY - r.top) * (H / r.height),
+    };
+  }
+
+  canvas.addEventListener("pointerdown", e => {
+    const p = canvasPos(e);
+    const idx = hitTest(p.x, p.y);
+    if (idx < 0) return;
+    drag = { idx, ox: p.x - squares[idx].x, oy: p.y - squares[idx].y };
+    canvas.classList.add("dragging");
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", e => {
+    if (!drag) return;
+    const p = canvasPos(e);
+    const sq = squares[drag.idx];
+    sq.x = p.x - drag.ox;
+    sq.y = p.y - drag.oy;
+    draw();
+  });
+  canvas.addEventListener("pointerup", () => {
+    drag = null;
+    canvas.classList.remove("dragging");
+  });
+
+  document.getElementById("aSl").addEventListener("input", () => { initSquares(); draw(); });
+  document.getElementById("bSl").addEventListener("input", () => { initSquares(); draw(); });
+  document.getElementById("resetBtn").addEventListener("click", () => { initSquares(); draw(); });
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  initSquares();
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>

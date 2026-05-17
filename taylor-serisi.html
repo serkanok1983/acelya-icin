@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Taylor Serisi</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; line-height: 1.5; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    select, input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    select {
+      padding: 8px; background: #14141f; color: #e8e8f0;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+    }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Taylor Serisi</h1>
+  <div class="readout" id="readout"></div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="720" height="400" role="img" aria-label="Taylor polinomu yaklaşımı"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label for="fn">Fonksiyon</label>
+    <select id="fn">
+      <option value="sin">sin(x)</option>
+      <option value="cos">cos(x)</option>
+    </select>
+  </div>
+  <div class="control-row">
+    <label>Terim sayısı n <span id="nVal">5</span></label>
+    <input type="range" id="nSl" min="1" max="15" value="5" step="1">
+  </div>
+  <p class="hint">Maclaurin (x=0 civarı): n arttıkça yaklaşım iyileşir</p>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 720, H = 400;
+  const readout = document.getElementById("readout");
+  const xMin = -2 * Math.PI, xMax = 2 * Math.PI;
+
+  function factorial(n) {
+    let r = 1;
+    for (let i = 2; i <= n; i++) r *= i;
+    return r;
+  }
+
+  function taylorSin(x, n) {
+    let sum = 0;
+    for (let k = 0; k < n; k++) {
+      const sign = k % 2 === 0 ? 1 : -1;
+      const pow = 2 * k + 1;
+      sum += sign * Math.pow(x, pow) / factorial(pow);
+    }
+    return sum;
+  }
+
+  function taylorCos(x, n) {
+    let sum = 0;
+    for (let k = 0; k < n; k++) {
+      const sign = k % 2 === 0 ? 1 : -1;
+      const pow = 2 * k;
+      sum += sign * Math.pow(x, pow) / factorial(pow);
+    }
+    return sum;
+  }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const scale = Math.min((window.innerWidth - pad) / W, Math.max(200, bottom - top - pad) / H, 1.15);
+    canvas.style.width = Math.floor(W * scale) + "px";
+    canvas.style.height = Math.floor(H * scale) + "px";
+  }
+
+  function toScreen(x, y) {
+    const padL = 40, padR = 20, padT = 20, padB = 36;
+    const pw = W - padL - padR, ph = H - padT - padB;
+    const yR = 1.4;
+    return {
+      sx: padL + (x - xMin) / (xMax - xMin) * pw,
+      sy: padT + ph / 2 - (y / yR) * (ph / 2),
+    };
+  }
+
+  function plotCurve(fn, color, width) {
+    const samples = 500;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= samples; i++) {
+      const x = xMin + (xMax - xMin) * i / samples;
+      const y = fn(x);
+      if (!Number.isFinite(y) || Math.abs(y) > 3) { started = false; continue; }
+      const p = toScreen(x, y);
+      if (!started) { ctx.moveTo(p.sx, p.sy); started = true; }
+      else ctx.lineTo(p.sx, p.sy);
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.stroke();
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const key = document.getElementById("fn").value;
+    const n = +document.getElementById("nSl").value;
+    document.getElementById("nVal").textContent = n;
+
+    const exact = key === "sin" ? Math.sin : Math.cos;
+    const approx = key === "sin" ? x => taylorSin(x, n) : x => taylorCos(x, n);
+    const label = key === "sin" ? "sin(x)" : "cos(x)";
+
+    let maxErr = 0;
+    for (let i = 0; i <= 200; i++) {
+      const x = xMin + (xMax - xMin) * i / 200;
+      maxErr = Math.max(maxErr, Math.abs(exact(x) - approx(x)));
+    }
+
+    readout.innerHTML =
+      `${label} vs Taylor(n=${n}) · max |hata| ≈ <span>${maxErr.toFixed(4)}</span> · x ∈ [−2π, 2π]`;
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+
+    const origin = toScreen(0, 0);
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    for (let k = -2; k <= 2; k++) {
+      const p = toScreen(k * Math.PI, 0);
+      ctx.beginPath();
+      ctx.moveTo(p.sx, 20);
+      ctx.lineTo(p.sx, H - 36);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.beginPath();
+    ctx.moveTo(40, origin.sy);
+    ctx.lineTo(W - 20, origin.sy);
+    ctx.stroke();
+
+    plotCurve(approx, "rgba(255, 159, 107, 0.95)", 2.5);
+    plotCurve(exact, "#7ec8ff", 2);
+
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.font = "11px system-ui";
+    ctx.fillText("— gerçek", W - 130, 28);
+    ctx.strokeStyle = "#7ec8ff";
+    ctx.beginPath();
+    ctx.moveTo(W - 150, 24);
+    ctx.lineTo(W - 135, 24);
+    ctx.stroke();
+    ctx.fillText("— Taylor", W - 130, 44);
+    ctx.strokeStyle = "#ff9f6b";
+    ctx.beginPath();
+    ctx.moveTo(W - 150, 40);
+    ctx.lineTo(W - 135, 40);
+    ctx.stroke();
+  }
+
+  document.getElementById("fn").addEventListener("change", draw);
+  document.getElementById("nSl").addEventListener("input", draw);
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>

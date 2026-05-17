@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Yay–Kütle (SHM)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; line-height: 1.55; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 10px 12px; gap: 8px;
+    }
+    #simCanvas, #graphCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    #graphCanvas { display: none; }
+    #graphCanvas.show { display: block; }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    .toggle-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.84rem; margin-top: 4px;
+    }
+    .toggle-row input { accent-color: #5b9cff; width: auto; }
+    button {
+      margin-top: 6px; padding: 8px 14px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Yay–Kütle (Basit Harmonik Hareket)</h1>
+  <div class="readout" id="readout"></div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="640" height="220" role="img" aria-label="Yay kütle animasyonu"></canvas>
+  <canvas id="graphCanvas" class="show" width="640" height="140" role="img" aria-label="Konum ve hız grafiği"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label>Kütle m <span id="massVal">1.0 kg</span></label>
+    <input type="range" id="mass" min="5" max="50" value="10" step="1">
+  </div>
+  <div class="control-row">
+    <label>Yay sabiti k <span id="kVal">20 N/m</span></label>
+    <input type="range" id="k" min="5" max="80" value="20" step="1">
+  </div>
+  <label class="toggle-row">
+    <input type="checkbox" id="showGraph" checked>
+    Konum / hız grafiği
+  </label>
+  <button type="button" id="resetBtn">Sıfırla</button>
+</div>
+<script>
+(function () {
+  const simCanvas = document.getElementById("simCanvas");
+  const graphCanvas = document.getElementById("graphCanvas");
+  const sctx = simCanvas.getContext("2d");
+  const gctx = graphCanvas.getContext("2d");
+  const W = 640, H = 220, GW = 640, GH = 140;
+  const readout = document.getElementById("readout");
+  const massSl = document.getElementById("mass");
+  const kSl = document.getElementById("k");
+  const showGraphCb = document.getElementById("showGraph");
+
+  let t = 0;
+  let A = 0.8;
+  const history = [];
+  const maxHist = 280;
+
+  function mass() { return massSl.value / 10; }
+  function k() { return +kSl.value; }
+  function omega() { return Math.sqrt(k() / mass()); }
+  function period() { return (2 * Math.PI / omega()).toFixed(2); }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 20;
+    const availW = window.innerWidth - pad;
+    const graphH = showGraphCb.checked ? GH + 8 : 0;
+    const totalH = H + graphH;
+    const availH = Math.max(180, bottom - top - pad);
+    const scale = Math.min(availW / W, availH / totalH, 1.1);
+    simCanvas.style.width = Math.floor(W * scale) + "px";
+    simCanvas.style.height = Math.floor(H * scale) + "px";
+    if (showGraphCb.checked) {
+      graphCanvas.style.width = Math.floor(GW * scale) + "px";
+      graphCanvas.style.height = Math.floor(GH * scale) + "px";
+    }
+  }
+
+  function drawSpring(x0, x1, y, coils) {
+    const n = coils || 14;
+    const amp = 12;
+    sctx.strokeStyle = "#8ab4ff";
+    sctx.lineWidth = 2;
+    sctx.beginPath();
+    sctx.moveTo(x0, y);
+    const len = x1 - x0;
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      const x = x0 + len * t;
+      const off = (i === 0 || i === n) ? 0 : (i % 2 ? amp : -amp);
+      sctx.lineTo(x, y + off);
+    }
+    sctx.stroke();
+  }
+
+  function drawSim(x, v) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    simCanvas.width = W * dpr;
+    simCanvas.height = H * dpr;
+    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    sctx.fillStyle = "#12121c";
+    sctx.fillRect(0, 0, W, H);
+
+    const wallX = 50;
+    const eqX = 320;
+    const pixPerM = 120;
+    const blockX = eqX + x * pixPerM;
+    const y = H / 2;
+
+    sctx.strokeStyle = "rgba(255,255,255,0.25)";
+    sctx.setLineDash([4, 4]);
+    sctx.beginPath();
+    sctx.moveTo(eqX, 30);
+    sctx.lineTo(eqX, H - 30);
+    sctx.stroke();
+    sctx.setLineDash([]);
+
+    sctx.fillStyle = "#555";
+    sctx.fillRect(wallX - 14, y - 50, 14, 100);
+
+    drawSpring(wallX, blockX - 28, y);
+    sctx.fillStyle = "#ff9f6b";
+    sctx.fillRect(blockX - 28, y - 24, 56, 48);
+    sctx.strokeStyle = "rgba(255,255,255,0.5)";
+    sctx.strokeRect(blockX - 28, y - 24, 56, 48);
+
+    sctx.fillStyle = "rgba(255,255,255,0.7)";
+    sctx.font = "12px system-ui, sans-serif";
+    sctx.fillText("denge", eqX - 18, 24);
+    sctx.fillText("x = " + x.toFixed(2) + " m", blockX - 40, H - 18);
+  }
+
+  function drawGraph() {
+    if (!showGraphCb.checked) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    graphCanvas.width = GW * dpr;
+    graphCanvas.height = GH * dpr;
+    gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    gctx.fillStyle = "#12121c";
+    gctx.fillRect(0, 0, GW, GH);
+
+    const mid = GH / 2;
+    gctx.strokeStyle = "rgba(255,255,255,0.2)";
+    gctx.beginPath();
+    gctx.moveTo(0, mid);
+    gctx.lineTo(GW, mid);
+    gctx.stroke();
+
+    if (history.length < 2) return;
+    gctx.beginPath();
+    history.forEach((p, i) => {
+      const px = (i / maxHist) * GW;
+      const py = mid - p.x * 50;
+      if (i === 0) gctx.moveTo(px, py);
+      else gctx.lineTo(px, py);
+    });
+    gctx.strokeStyle = "#7ec8ff";
+    gctx.lineWidth = 1.8;
+    gctx.stroke();
+
+    gctx.beginPath();
+    history.forEach((p, i) => {
+      const px = (i / maxHist) * GW;
+      const py = mid - p.v * 8;
+      if (i === 0) gctx.moveTo(px, py);
+      else gctx.lineTo(px, py);
+    });
+    gctx.strokeStyle = "#ff9f6b";
+    gctx.lineWidth = 1.5;
+    gctx.stroke();
+
+    gctx.font = "11px system-ui, sans-serif";
+    gctx.fillStyle = "#7ec8ff";
+    gctx.fillText("x", 8, 14);
+    gctx.fillStyle = "#ff9f6b";
+    gctx.fillText("v", 24, 14);
+  }
+
+  function tick() {
+    const w = omega();
+    const x = A * Math.cos(w * t);
+    const v = -A * w * Math.sin(w * t);
+    t += 0.016;
+
+    const m = mass();
+    document.getElementById("massVal").textContent = m.toFixed(1) + " kg";
+    document.getElementById("kVal").textContent = k() + " N/m";
+    readout.innerHTML =
+      `ω = <span>${w.toFixed(2)}</span> rad/s · T = <span>${period()}</span> s · ` +
+      `x = <span>${x.toFixed(3)}</span> m · v = <span>${v.toFixed(3)}</span> m/s`;
+
+    history.push({ x, v });
+    if (history.length > maxHist) history.shift();
+
+    drawSim(x, v);
+    drawGraph();
+    requestAnimationFrame(tick);
+  }
+
+  function reset() {
+    t = 0;
+    history.length = 0;
+  }
+
+  showGraphCb.addEventListener("change", () => {
+    graphCanvas.classList.toggle("show", showGraphCb.checked);
+    resize();
+  });
+  [massSl, kSl].forEach(el => el.addEventListener("input", reset));
+  document.getElementById("resetBtn").addEventListener("click", reset);
+  window.addEventListener("resize", resize);
+
+  resize();
+  tick();
+})();
+</script>
+</body>
+</html>

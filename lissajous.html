@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lissajous Eğrileri</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    button {
+      width: 100%; padding: 8px; margin-top: 4px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 6px 0 0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Lissajous Eğrileri</h1>
+  <div class="readout" id="readout">x = sin(a·t) · y = sin(b·t + δ)</div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="480" height="480" role="img" aria-label="Lissajous eğrisi"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label>Frekans a <span id="aVal">3</span></label>
+    <input type="range" id="aSl" min="1" max="8" value="3" step="1">
+  </div>
+  <div class="control-row">
+    <label>Frekans b <span id="bVal">2</span></label>
+    <input type="range" id="bSl" min="1" max="8" value="2" step="1">
+  </div>
+  <div class="control-row">
+    <label>Faz δ (°) <span id="dVal">90</span></label>
+    <input type="range" id="dSl" min="0" max="360" value="90" step="5">
+  </div>
+  <button type="button" id="pauseBtn">Duraklat</button>
+  <p class="hint">a:b rasyonel ise kapalı eğri; δ fazı şekli değiştirir</p>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 480, H = 480;
+  const cx = W / 2, cy = H / 2;
+  const R = 190;
+  const readout = document.getElementById("readout");
+
+  let t = 0;
+  let trail = [];
+  let paused = false;
+  let rafId = 0;
+
+  function params() {
+    const a = +document.getElementById("aSl").value;
+    const b = +document.getElementById("bSl").value;
+    const deg = +document.getElementById("dSl").value;
+    document.getElementById("aVal").textContent = a;
+    document.getElementById("bVal").textContent = b;
+    document.getElementById("dVal").textContent = deg;
+    return { a, b, delta: deg * Math.PI / 180 };
+  }
+
+  function point(tt, a, b, delta) {
+    return {
+      x: cx + R * Math.sin(a * tt),
+      y: cy - R * Math.sin(b * tt + delta),
+    };
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const { a, b, delta } = params();
+    readout.innerHTML =
+      `x = sin(<span>${a}</span>·t) · y = sin(<span>${b}</span>·t + <span>${(delta * 180 / Math.PI).toFixed(0)}°</span>) · oran <span>${a}:${b}</span>`;
+
+    ctx.fillStyle = "rgba(18,18,28,0.25)";
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(255,255,255,0.25)";
+    ctx.beginPath();
+    ctx.moveTo(0, cy);
+    ctx.lineTo(W, cy);
+    ctx.moveTo(cx, 0);
+    ctx.lineTo(cx, H);
+    ctx.stroke();
+
+    if (trail.length > 1) {
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0, "rgba(126, 200, 255, 0.15)");
+      grad.addColorStop(1, "rgba(200, 140, 255, 0.85)");
+      ctx.beginPath();
+      ctx.moveTo(trail[0].x, trail[0].y);
+      for (let i = 1; i < trail.length; i++) ctx.lineTo(trail[i].x, trail[i].y);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    const p = point(t, a, b, delta);
+    ctx.fillStyle = "#ff9f6b";
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    const px = point(t, a, 0, 0);
+    const py = point(t, 0, b, delta);
+    ctx.strokeStyle = "rgba(126,200,255,0.5)";
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(px.x, cy);
+    ctx.lineTo(px.x, p.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.lineTo(p.x, py.y);
+    ctx.lineTo(cx, py.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const avail = Math.min(window.innerWidth - pad, Math.max(200, bottom - top - pad));
+    const s = Math.floor(Math.min(avail, W) * Math.min(avail / W, 1.15));
+    canvas.style.width = s + "px";
+    canvas.style.height = s + "px";
+  }
+
+  function loop() {
+    if (!paused) {
+      const { a, b, delta } = params();
+      t += 0.04;
+      const p = point(t, a, b, delta);
+      trail.push(p);
+      const period = Math.PI * 2 * Math.max(a, b) * 4;
+      const maxPts = Math.min(2500, Math.floor(period * 12));
+      if (trail.length > maxPts) trail.shift();
+    }
+    draw();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function resetTrail() {
+    t = 0;
+    trail = [];
+    const { a, b, delta } = params();
+    trail.push(point(0, a, b, delta));
+  }
+
+  ["aSl", "bSl", "dSl"].forEach(id =>
+    document.getElementById(id).addEventListener("input", resetTrail)
+  );
+
+  document.getElementById("pauseBtn").onclick = () => {
+    paused = !paused;
+    document.getElementById("pauseBtn").textContent = paused ? "Devam" : "Duraklat";
+  };
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resetTrail();
+  resize();
+  rafId = requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

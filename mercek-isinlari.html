@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mercek Işın Diyagramı</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh;
+      background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 1rem;
+    }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); margin: 0.5rem 0; }
+    p.sub { color: #8b949e; font-size: 0.9rem; margin: 0 0 1rem; max-width: 36rem; text-align: center; }
+    canvas {
+      background: #121820; border-radius: 8px;
+      max-width: 100%; height: auto; touch-action: none;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+    }
+    .panel {
+      display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem;
+      justify-content: center; align-items: center;
+      margin: 1rem 0; max-width: 720px;
+    }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 140px; accent-color: #58a6ff; }
+    select, button {
+      padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d;
+      background: #21262d; color: #e6edf3; font-size: 0.9rem; cursor: pointer;
+    }
+    button:hover { background: #30363d; }
+    button.active { background: #238636; border-color: #238636; }
+    .legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.8rem; margin-top: 0.5rem; }
+    .legend span::before { content: ''; display: inline-block; width: 12px; height: 3px; margin-right: 6px; vertical-align: middle; }
+    .l-inc::before { background: #f0883e; }
+    .l-par::before { background: #58a6ff; }
+    .l-foc::before { background: #3fb950; }
+    .l-cen::before { background: #d2a8ff; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 32rem; }
+  </style>
+</head>
+<body>
+  <h1>Mercek Işın Diyagramı</h1>
+  <p class="sub">İnce ve kalın merceklerde üç temel ışın kuralını keşfedin. Nesneyi sürükleyin veya kaydırıcıyı kullanın.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <button id="btnConvex" class="active">İnce (Toplayıcı)</button>
+    <button id="btnConcave">Kalın (Dağıtıcı)</button>
+    <label>Nesne konumu (s)
+      <input type="range" id="objPos" min="-180" max="-40" value="-120">
+    </label>
+    <label>Mercek odak uzaklığı (f)
+      <input type="range" id="focal" min="60" max="140" value="90">
+    </label>
+  </div>
+  <div class="legend">
+    <span class="l-inc">Gelen ışın</span>
+    <span class="l-par">Paralel kural</span>
+    <span class="l-foc">Odak kuralı</span>
+    <span class="l-cen">Merkez kuralı</span>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W, H, cx, cy, f, convex = true, objX;
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.min(800, window.innerWidth - 24);
+  const h = Math.min(420, window.innerHeight * 0.55);
+  cv.width = w * dpr; cv.height = h * dpr;
+  cv.style.width = w + 'px'; cv.style.height = h + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  W = w; H = h; cx = W / 2; cy = H / 2;
+  draw();
+}
+window.addEventListener('resize', resize);
+
+document.getElementById('btnConvex').onclick = () => { convex = true; updateBtns(); draw(); };
+document.getElementById('btnConcave').onclick = () => { convex = false; updateBtns(); draw(); };
+function updateBtns() {
+  document.getElementById('btnConvex').classList.toggle('active', convex);
+  document.getElementById('btnConcave').classList.toggle('active', !convex);
+}
+document.getElementById('objPos').oninput = draw;
+document.getElementById('focal').oninput = draw;
+
+let drag = false;
+cv.addEventListener('pointerdown', e => { drag = true; moveObj(e); });
+cv.addEventListener('pointermove', e => { if (drag) moveObj(e); });
+cv.addEventListener('pointerup', () => drag = false);
+
+function moveObj(e) {
+  const r = cv.getBoundingClientRect();
+  objX = Math.max(40, Math.min(cx - 30, e.clientX - r.left));
+  document.getElementById('objPos').value = objX - cx;
+  draw();
+}
+
+function line(x1, y1, x2, y2, color, dash) {
+  ctx.strokeStyle = color;
+  ctx.setLineDash(dash || []);
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function extend(x1, y1, x2, y2, color, dash) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  line(x1, y1, x1 + (dx / len) * 500, y1 + (dy / len) * 500, color, dash);
+}
+
+function drawRays(oy) {
+  const F = { x: cx + f, y: cy };
+  const Fv = { x: cx - f, y: cy };
+  const hitY = oy;
+
+  line(objX, oy, cx, hitY, '#f0883e', []);
+
+  if (convex) {
+    line(objX, oy, cx, oy, '#58a6ff', []);
+    extend(cx, oy, F.x, F.y, '#58a6ff', [5, 4]);
+    line(objX, oy, F.x, F.y, '#3fb950', []);
+    line(cx, hitY, cx + 200, hitY, '#3fb950', [5, 4]);
+    line(objX, oy, cx + 200, cy + (oy - cy) * (200 / (cx - objX)), '#d2a8ff', [5, 4]);
+  } else {
+    line(objX, oy, cx, oy, '#58a6ff', []);
+    extend(cx, oy, Fv.x, Fv.y, '#58a6ff', [5, 4]);
+    line(objX, oy, Fv.x, Fv.y, '#3fb950', []);
+    extend(cx, hitY, cx - 200, hitY, '#3fb950', [5, 4]);
+    line(objX, oy, cx - 200, cy + (oy - cy) * (-200 / (cx - objX)), '#d2a8ff', [5, 4]);
+  }
+}
+
+function imagePoint() {
+  const s = cx - objX;
+  if (convex) {
+    const sp = 1 / (1 / f - 1 / s);
+    return { x: cx + sp, mag: -sp / s, real: sp > 0 };
+  }
+  const sp = 1 / (-1 / f - 1 / s);
+  return { x: cx + sp, mag: -sp / s, real: false };
+}
+
+function draw() {
+  f = +document.getElementById('focal').value;
+  objX = cx + (+document.getElementById('objPos').value);
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#30363d';
+  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+
+  ctx.strokeStyle = '#484f58'; ctx.setLineDash([4, 6]);
+  ctx.beginPath(); ctx.moveTo(cx + f, 0); ctx.lineTo(cx + f, H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - f, 0); ctx.lineTo(cx - f, H); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#8b949e'; ctx.font = '11px sans-serif';
+  ctx.fillText('F', cx + f - 4, cy + 16);
+  ctx.fillText("F'", cx - f - 10, cy + 16);
+
+  const lensH = H * 0.7;
+  ctx.strokeStyle = convex ? '#58a6ff' : '#f85149';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  if (convex) {
+    ctx.moveTo(cx, cy - lensH / 2);
+    ctx.quadraticCurveTo(cx - 18, cy, cx, cy + lensH / 2);
+    ctx.quadraticCurveTo(cx + 18, cy, cx, cy - lensH / 2);
+  } else {
+    ctx.moveTo(cx, cy - lensH / 2);
+    ctx.quadraticCurveTo(cx + 18, cy, cx, cy + lensH / 2);
+    ctx.quadraticCurveTo(cx - 18, cy, cx, cy - lensH / 2);
+  }
+  ctx.stroke();
+
+  const objTop = cy - 50;
+  drawRays(objTop);
+
+  const img = imagePoint();
+  const h = 50 * img.mag;
+
+  ctx.fillStyle = '#f0883e';
+  ctx.fillRect(objX - 4, cy - 55, 8, 55);
+  ctx.strokeStyle = '#f0883e';
+  ctx.beginPath(); ctx.moveTo(objX, objTop); ctx.lineTo(objX, cy); ctx.stroke();
+
+  if (img.real && img.x > cx && img.x < W) {
+    ctx.fillStyle = '#3fb950';
+    ctx.fillRect(img.x - 3, cy - h, 6, h);
+    ctx.beginPath(); ctx.moveTo(img.x, cy - h); ctx.lineTo(img.x, cy); ctx.stroke();
+  } else {
+    ctx.strokeStyle = '#3fb950'; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(cx - 60, cy - h * 0.65); ctx.lineTo(W - 20, cy - h * 0.65); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#3fb950'; ctx.font = '12px sans-serif';
+    ctx.fillText('Sanal görüntü', cx + 10, cy - h * 0.65 - 8);
+  }
+
+  document.getElementById('info').textContent = convex
+    ? `İnce mercek: 1/f = 1/s + 1/s′ — Görüntü ${img.real ? 'gerçek' : 'sanal'}, |m| ≈ ${Math.abs(img.mag).toFixed(2)}`
+    : `Kalın mercek: sanal, düz, küçük görüntü — |m| ≈ ${Math.abs(img.mag).toFixed(2)}`;
+}
+
+resize();
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basınç — Derinlik ve Pascal</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 150px; accent-color: #79c0ff; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 42rem; }
+  </style>
+</head>
+<body>
+  <h1>Basınç</h1>
+  <p class="sub">P = P₀ + ρgh (hidrostatik) ve Pascal ilkesi: kapalı akışkanda basınç her yöne aynı iletilir.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Derinlik h (m) <input type="range" id="depth" min="0" max="15" value="8"></label>
+    <label>Yoğunluk ρ (kg/m³) <input type="range" id="density" min="800" max="1200" value="1000"></label>
+    <label>Küçük piston F₁ (N) <input type="range" id="force1" min="10" max="200" value="80"></label>
+    <label>Alan oranı A₂/A₁ <input type="range" id="areaRatio" min="2" max="12" value="5"></label>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(820, innerWidth - 24); H = Math.min(460, innerHeight * 0.58);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+['depth','density','force1','areaRatio'].forEach(id => document.getElementById(id).oninput = draw);
+
+function pressureColor(P, Pmax) {
+  const t = Math.min(1, P / Pmax);
+  const r = Math.round(30 + t * 40);
+  const g = Math.round(80 + t * 100);
+  const b = Math.round(180 + t * 75);
+  return `rgb(${r},${g},${b})`;
+}
+
+function draw() {
+  const h = +document.getElementById('depth').value;
+  const rho = +document.getElementById('density').value;
+  const F1 = +document.getElementById('force1').value;
+  const ratio = +document.getElementById('areaRatio').value;
+  const g = 9.8, P0 = 101325;
+  const P = P0 + rho * g * h;
+  const F2 = F1 * ratio;
+  const Pmax = P0 + rho * g * 15;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  const tankX = W * 0.08, tankW = W * 0.38, tankTop = H * 0.12, tankBot = H * 0.88;
+  const waterSurf = tankTop + 40;
+  const depthPx = (h / 15) * (tankBot - waterSurf);
+
+  ctx.strokeStyle = '#484f58';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(tankX, tankTop, tankW, tankBot - tankTop);
+
+  for (let y = waterSurf; y < tankBot; y += 4) {
+    const dh = (y - waterSurf) / (tankBot - waterSurf) * 15;
+    const p = P0 + rho * g * dh;
+    ctx.fillStyle = pressureColor(p, Pmax);
+    ctx.globalAlpha = 0.7;
+    ctx.fillRect(tankX + 2, y, tankW - 4, 4);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.strokeStyle = '#58a6ff';
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(tankX, waterSurf + depthPx);
+  ctx.lineTo(tankX + tankW + 30, waterSurf + depthPx);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('h = ' + h + ' m', tankX + tankW + 35, waterSurf + depthPx + 4);
+
+  const probeY = waterSurf + depthPx;
+  ctx.fillStyle = '#ffa657';
+  ctx.beginPath();
+  ctx.arc(tankX + tankW / 2, probeY, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#8b949e';
+  ctx.fillText('P = ' + (P / 1000).toFixed(1) + ' kPa', tankX + tankW / 2 - 40, probeY - 18);
+
+  const px = W * 0.58, py = H * 0.35, ph = H * 0.45;
+  const w1 = 35, w2 = 35 * Math.sqrt(ratio);
+  ctx.fillStyle = '#21262d';
+  ctx.fillRect(px, py, w1 + w2 + 80, ph);
+  ctx.fillStyle = 'rgba(88,166,255,0.3)';
+  ctx.fillRect(px + 4, py + ph * 0.4, w1 + w2 + 72, ph * 0.55);
+
+  ctx.fillStyle = '#484f58';
+  ctx.fillRect(px + 10, py + 20, w1, 30);
+  ctx.fillRect(px + 10 + w1 + 40, py + 20, w2, 30);
+
+  ctx.fillStyle = '#f0883e';
+  ctx.fillRect(px + 10 + 4, py + 5, w1 - 8, 18);
+  ctx.fillRect(px + 10 + w1 + 40 + 4, py + 5, w2 - 8, 18);
+
+  ctx.strokeStyle = '#e6edf3';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(px + 10 + w1 / 2, py - 5);
+  ctx.lineTo(px + 10 + w1 / 2, py - 35);
+  ctx.stroke();
+  ctx.fillText('F₁=' + F1 + 'N', px + 10 + w1 / 2 - 20, py - 42);
+
+  ctx.beginPath();
+  ctx.moveTo(px + 10 + w1 + 40 + w2 / 2, py - 5);
+  ctx.lineTo(px + 10 + w1 + 40 + w2 / 2, py - 55);
+  ctx.stroke();
+  ctx.fillText('F₂=' + F2.toFixed(0) + 'N', px + 10 + w1 + 40 + w2 / 2 - 20, py - 62);
+
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px sans-serif';
+  ctx.fillText('Pascal: F₁/A₁ = F₂/A₂', px, py + ph + 24);
+
+  document.getElementById('info').textContent =
+    `Hidrostatik: P = P₀ + ρgh = ${(P / 1000).toFixed(2)} kPa  |  Pascal: F₂ = F₁·(A₂/A₁) = ${F2.toFixed(0)} N`;
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

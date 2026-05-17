@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Vektörler</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.7rem, 2.6vw, 0.86rem); opacity: 0.92; line-height: 1.5; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.82rem; margin-bottom: 4px;
+    }
+    input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    .vec-a input { accent-color: #7ec8ff; }
+    .vec-b input { accent-color: #ff9f6b; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Vektör Toplama</h1>
+  <div class="readout" id="readout"></div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="560" height="480" role="img" aria-label="Vektör toplama diyagramı"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row vec-a">
+    <label>→ A: |A| <span id="magAVal">3.0</span> · açı <span id="angAVal">30°</span></label>
+    <input type="range" id="magA" min="5" max="50" value="30">
+    <input type="range" id="angA" min="0" max="360" value="30">
+  </div>
+  <div class="control-row vec-b">
+    <label>→ B: |B| <span id="magBVal">2.0</span> · açı <span id="angBVal">120°</span></label>
+    <input type="range" id="magB" min="5" max="50" value="20">
+    <input type="range" id="angB" min="0" max="360" value="120">
+  </div>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 560, H = 480;
+  const ox = 80, oy = H - 80;
+  const scale = 28;
+  const readout = document.getElementById("readout");
+  const ids = ["magA", "angA", "magB", "angB"];
+
+  function vec(magSl, angSl) {
+    const m = +document.getElementById(magSl).value / 10;
+    const a = +document.getElementById(angSl).value * Math.PI / 180;
+    return { x: m * Math.cos(a), y: m * Math.sin(a), m, deg: +document.getElementById(angSl).value };
+  }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const availW = window.innerWidth - pad;
+    const availH = Math.max(200, bottom - top - pad);
+    const s = Math.min(availW / W, availH / H, 1.15);
+    canvas.style.width = Math.floor(W * s) + "px";
+    canvas.style.height = Math.floor(H * s) + "px";
+  }
+
+  function arrow(x1, y1, x2, y2, color, width) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len, uy = dy / len;
+    const head = 10;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = width || 2.5;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - ux * head - uy * 5, y2 - uy * head + ux * 5);
+    ctx.lineTo(x2 - ux * head + uy * 5, y2 - uy * head - ux * 5);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function toScreen(vx, vy) {
+    return { x: ox + vx * scale, y: oy - vy * scale };
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const A = vec("magA", "angA");
+    const B = vec("magB", "angB");
+    const R = { x: A.x + B.x, y: A.y + B.y };
+    const magR = Math.hypot(R.x, R.y);
+    const angR = Math.atan2(R.y, R.x) * 180 / Math.PI;
+
+    document.getElementById("magAVal").textContent = A.m.toFixed(1);
+    document.getElementById("angAVal").textContent = A.deg + "°";
+    document.getElementById("magBVal").textContent = B.m.toFixed(1);
+    document.getElementById("angBVal").textContent = B.deg + "°";
+
+    readout.innerHTML =
+      `A = (<span>${A.x.toFixed(2)}</span>, <span>${A.y.toFixed(2)}</span>) · ` +
+      `B = (<span>${B.x.toFixed(2)}</span>, <span>${B.y.toFixed(2)}</span>)<br>` +
+      `A + B = (<span>${R.x.toFixed(2)}</span>, <span>${R.y.toFixed(2)}</span>) · |A+B| = <span>${magR.toFixed(2)}</span> · θ ≈ <span>${angR.toFixed(0)}°</span>`;
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 1;
+    for (let g = -2; g <= 8; g++) {
+      const x = ox + g * scale;
+      ctx.beginPath();
+      ctx.moveTo(x, 20);
+      ctx.lineTo(x, H - 20);
+      ctx.stroke();
+    }
+    for (let g = -1; g <= 6; g++) {
+      const y = oy - g * scale;
+      ctx.beginPath();
+      ctx.moveTo(40, y);
+      ctx.lineTo(W - 20, y);
+      ctx.stroke();
+    }
+
+    const O = toScreen(0, 0);
+    const pA = toScreen(A.x, A.y);
+    const pB = toScreen(B.x, B.y);
+    const pR = toScreen(R.x, R.y);
+    const pAB = toScreen(A.x + B.x, A.y + B.y);
+
+    ctx.setLineDash([6, 5]);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(255,255,255,0.25)";
+    ctx.beginPath();
+    ctx.moveTo(pA.x, pA.y);
+    ctx.lineTo(pAB.x, pAB.y);
+    ctx.lineTo(pR.x, pR.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    arrow(O.x, O.y, pA.x, pA.y, "#7ec8ff", 3);
+    arrow(O.x, O.y, pB.x, pB.y, "#ff9f6b", 3);
+    arrow(O.x, O.y, pR.x, pR.y, "#c8ff7e", 3.5);
+
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.font = "13px system-ui, sans-serif";
+    ctx.fillText("A", pA.x + 8, pA.y - 6);
+    ctx.fillText("B", pB.x + 8, pB.y - 6);
+    ctx.fillText("A+B", pR.x + 8, pR.y - 6);
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(O.x, O.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ids.forEach(id => document.getElementById(id).addEventListener("input", draw));
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>

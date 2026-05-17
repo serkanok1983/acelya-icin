@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Riemann Toplamları</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; line-height: 1.5; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    select, input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    select {
+      padding: 8px; background: #14141f; color: #e8e8f0;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+    }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Riemann Toplamları</h1>
+  <div class="readout" id="readout"></div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="720" height="400" role="img" aria-label="Riemann toplamı dikdörtgenleri"></canvas>
+</div>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label for="fn">f(x)</label>
+    <select id="fn">
+      <option value="sin">sin(x)</option>
+      <option value="x2">x²</option>
+      <option value="sqrt">√x</option>
+    </select>
+  </div>
+  <div class="control-row">
+    <label for="method">Yöntem</label>
+    <select id="method">
+      <option value="left">Sol uç</option>
+      <option value="right">Sağ uç</option>
+      <option value="mid">Orta nokta</option>
+    </select>
+  </div>
+  <div class="control-row">
+    <label>Dikdörtgen sayısı n <span id="nVal">8</span></label>
+    <input type="range" id="nSl" min="2" max="80" value="8" step="1">
+  </div>
+  <p class="hint">∫₀² f(x) dx — n arttıkça Riemann toplamı gerçek alana yaklaşır</p>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 720, H = 400;
+  const readout = document.getElementById("readout");
+  const a = 0, b = 2;
+
+  const fns = {
+    sin: { f: x => Math.sin(x), label: "sin(x)", exact: () => 1 - Math.cos(2), color: "#7ec8ff" },
+    x2: { f: x => x * x, label: "x²", exact: () => 8 / 3, color: "#ff9f6b" },
+    sqrt: { f: x => Math.sqrt(Math.max(0, x)), label: "√x", exact: () => (4 * Math.sqrt(2)) / 3, color: "#c8ff7e" },
+  };
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const scale = Math.min((window.innerWidth - pad) / W, Math.max(200, bottom - top - pad) / H, 1.15);
+    canvas.style.width = Math.floor(W * scale) + "px";
+    canvas.style.height = Math.floor(H * scale) + "px";
+  }
+
+  function worldToScreen(x, y) {
+    const padL = 56, padR = 24, padT = 24, padB = 48;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const yMax = 2.2;
+    return {
+      sx: padL + (x - a) / (b - a) * plotW,
+      sy: padT + plotH - (y / yMax) * plotH,
+    };
+  }
+
+  function riemannSum(n, method) {
+    const spec = fns[document.getElementById("fn").value];
+    const dx = (b - a) / n;
+    let sum = 0;
+    for (let i = 0; i < n; i++) {
+      const x0 = a + i * dx;
+      let xi;
+      if (method === "left") xi = x0;
+      else if (method === "right") xi = x0 + dx;
+      else xi = x0 + dx / 2;
+      sum += spec.f(xi) * dx;
+    }
+    return sum;
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const key = document.getElementById("fn").value;
+    const method = document.getElementById("method").value;
+    const n = +document.getElementById("nSl").value;
+    const spec = fns[key];
+    document.getElementById("nVal").textContent = n;
+
+    const approx = riemannSum(n, method);
+    const exact = spec.exact();
+    const err = Math.abs(approx - exact);
+
+    readout.innerHTML =
+      `S<sub>n</sub> ≈ <span>${approx.toFixed(4)}</span> · Gerçek alan ≈ <span>${exact.toFixed(4)}</span> · |hata| = <span>${err.toFixed(4)}</span>`;
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+
+    const padL = 56, padR = 24, padT = 24, padB = 48;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const yMax = 2.2;
+    const origin = worldToScreen(0, 0);
+    const topRight = worldToScreen(b, yMax);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const x = a + (b - a) * i / 4;
+      const p = worldToScreen(x, 0);
+      ctx.beginPath();
+      ctx.moveTo(p.sx, padT);
+      ctx.lineTo(p.sx, padT + plotH);
+      ctx.stroke();
+    }
+    for (let j = 0; j <= 4; j++) {
+      const y = yMax * j / 4;
+      const p = worldToScreen(0, y);
+      ctx.beginPath();
+      ctx.moveTo(padL, p.sy);
+      ctx.lineTo(padL + plotW, p.sy);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = "rgba(255,255,255,0.45)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padL, origin.sy);
+    ctx.lineTo(padL + plotW, origin.sy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(origin.sx, padT);
+    ctx.lineTo(origin.sx, padT + plotH);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = "11px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("x", padL + plotW / 2, H - 12);
+    ctx.save();
+    ctx.translate(14, padT + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("y", 0, 0);
+    ctx.restore();
+    ctx.fillText("0", origin.sx - 8, origin.sy + 14);
+    ctx.fillText("2", worldToScreen(b, 0).sx, origin.sy + 14);
+
+    const dx = (b - a) / n;
+    for (let i = 0; i < n; i++) {
+      const x0 = a + i * dx;
+      let xi;
+      if (method === "left") xi = x0;
+      else if (method === "right") xi = x0 + dx;
+      else xi = x0 + dx / 2;
+      const h = spec.f(xi);
+      const p0 = worldToScreen(x0, 0);
+      const p1 = worldToScreen(x0 + dx, h);
+      const w = p1.sx - p0.sx;
+      const rectH = origin.sy - p1.sy;
+      ctx.fillStyle = "rgba(91, 156, 255, 0.35)";
+      ctx.fillRect(p0.sx, p1.sy, w, rectH);
+      ctx.strokeStyle = "rgba(91, 156, 255, 0.7)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(p0.sx, p1.sy, w, rectH);
+    }
+
+    const samples = 400;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= samples; i++) {
+      const x = a + (b - a) * i / samples;
+      const y = spec.f(x);
+      const p = worldToScreen(x, y);
+      if (!started) { ctx.moveTo(p.sx, p.sy); started = true; }
+      else ctx.lineTo(p.sx, p.sy);
+    }
+    ctx.strokeStyle = spec.color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(126, 200, 255, 0.15)";
+    ctx.beginPath();
+    started = false;
+    for (let i = 0; i <= samples; i++) {
+      const x = a + (b - a) * i / samples;
+      const y = spec.f(x);
+      const p = worldToScreen(x, y);
+      if (!started) { ctx.moveTo(p.sx, origin.sy); ctx.lineTo(p.sx, p.sy); started = true; }
+      else ctx.lineTo(p.sx, p.sy);
+    }
+    ctx.lineTo(worldToScreen(b, 0).sx, origin.sy);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ["fn", "method", "nSl"].forEach(id => document.getElementById(id).addEventListener("input", draw));
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>

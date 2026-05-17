@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klasik Girişim — Çift Yarık</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column;
+      align-items: center; padding: 1rem;
+    }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); margin: 0.5rem 0; }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem 0; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 150px; accent-color: #a371f7; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    button:hover { background: #30363d; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Klasik Girişim (Çift Yarık)</h1>
+  <p class="sub">Young deneyi: iki koherent kaynaktan ekranda yapı ve yokum deseni. Δy = λL/d</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Dalga boyu λ (nm) <input type="range" id="lambda" min="400" max="700" value="550"></label>
+    <label>Yarık aralığı d (μm) <input type="range" id="slitSep" min="20" max="120" value="60"></label>
+    <label>Ekran uzaklığı L <input type="range" id="distL" min="80" max="200" value="140"></label>
+    <button id="toggleAnim">Animasyon: Açık</button>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W, H, anim = true, phase = 0;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(820, innerWidth - 24);
+  H = Math.min(440, innerHeight * 0.55);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+const lambdaEl = document.getElementById('lambda');
+const slitEl = document.getElementById('slitSep');
+const distEl = document.getElementById('distL');
+[lambdaEl, slitEl, distEl].forEach(el => el.oninput = () => { if (!anim) draw(); });
+document.getElementById('toggleAnim').onclick = function() {
+  anim = !anim;
+  this.textContent = 'Animasyon: ' + (anim ? 'Açık' : 'Kapalı');
+  if (anim) loop(); else draw();
+};
+
+function wavelengthColor(nm) {
+  const t = (nm - 400) / 300;
+  const r = Math.round(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t - 0.8) * 3)));
+  const g = Math.round(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t - 0.5) * 3)));
+  const b = Math.round(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t - 0.2) * 3)));
+  return `rgb(${r},${g},${b})`;
+}
+
+function intensity(y, lam, d, L) {
+  const beta = Math.PI * d * y / (lam * L * 1e-6);
+  return Math.pow(Math.cos(beta), 2);
+}
+
+function draw() {
+  const lam = +lambdaEl.value;
+  const d = +slitEl.value;
+  const L = +distEl.value;
+  const col = wavelengthColor(lam);
+  const slitX = W * 0.35, screenX = W * 0.82, midY = H / 2;
+  const slitGap = d * 0.35;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#21262d';
+  ctx.fillRect(slitX - 8, 20, 16, H - 40);
+  ctx.fillStyle = '#0a0e14';
+  ctx.fillRect(slitX - 5, midY - slitGap / 2 - 14, 10, 12);
+  ctx.fillRect(slitX - 5, midY + slitGap / 2 + 2, 10, 12);
+
+  const srcX = 50;
+  ctx.fillStyle = col;
+  ctx.globalAlpha = 0.6;
+  for (let i = 0; i < 12; i++) {
+    const ang = -0.4 + i * 0.08;
+    const y1 = midY - slitGap / 2, y2 = midY + slitGap / 2;
+    [y1, y2].forEach(sy => {
+      ctx.beginPath();
+      ctx.moveTo(srcX, midY);
+      ctx.lineTo(slitX, sy);
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+  }
+  ctx.globalAlpha = 1;
+
+  const waveScale = 0.025;
+  for (let x = slitX; x < screenX; x += 3) {
+    for (let y = 30; y < H - 30; y += 3) {
+      const r1 = Math.hypot(x - slitX, y - (midY - slitGap / 2));
+      const r2 = Math.hypot(x - slitX, y - (midY + slitGap / 2));
+      const p = Math.sin((r1 + r2) * waveScale * (700 / lam) + phase) * 0.5 + 0.5;
+      if (p > 0.55) {
+        ctx.fillStyle = col;
+        ctx.globalAlpha = (p - 0.5) * 0.15;
+        ctx.fillRect(x, y, 3, 3);
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = '#30363d';
+  ctx.fillRect(screenX, 20, 12, H - 40);
+
+  const fringe = lam * L * 1e3 / (d * 1e3);
+  for (let y = 30; y < H - 30; y++) {
+    const yy = y - midY;
+    const I = intensity(yy, lam, d, L);
+    ctx.fillStyle = col;
+    ctx.globalAlpha = I;
+    ctx.fillRect(screenX + 14, y, 8, 2);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.strokeStyle = '#484f58';
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(screenX + 30, midY - fringe * 0.4);
+  ctx.lineTo(screenX + 30, midY + fringe * 0.4);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px sans-serif';
+  ctx.fillText('Δy', screenX + 34, midY);
+
+  document.getElementById('info').textContent =
+    `Saçak aralığı Δy ≈ ${fringe.toFixed(2)} mm (λ=${lam} nm, d=${d} μm, L=${L} cm) — Merkezde yapıcı girişim`;
+}
+
+function loop() {
+  if (!anim) return;
+  phase += 0.12;
+  draw();
+  requestAnimationFrame(loop);
+}
+
+resize();
+loop();
+</script>
+</body>
+</html>

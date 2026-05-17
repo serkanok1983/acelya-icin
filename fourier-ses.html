@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Fourier: Ses Analizi</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; }
+    .readout span { color: #7eb6ff; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #spectrum {
+      display: block; width: 100%; max-width: 720px;
+      height: min(52vh, 380px); min-height: 200px;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    select, input[type="range"] {
+      width: 100%; accent-color: #5b9cff;
+    }
+    select {
+      padding: 8px; background: #14141f; color: #e8e8f0;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      flex: 1; min-width: 120px; padding: 10px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.danger { background: #6a2a3a; }
+    button.danger:hover { background: #8a3a4a; }
+    button.active { background: #1a6a4a; }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 8px 0 0; }
+    .warn { font-size: 0.75rem; color: #ffb07e; text-align: center; margin: 6px 0 0; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Fourier: Ses Analizi</h1>
+  <div class="readout" id="readout">Kaynak: <span>Osilatör</span> · Baskın frekans: <span id="peakHz">—</span></div>
+</header>
+<div class="stage">
+  <canvas id="spectrum" role="img" aria-label="Frekans spektrumu çubuk grafiği"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label for="source">Kaynak</label>
+    <select id="source">
+      <option value="osc">Osilatör (sentez)</option>
+      <option value="mic">Mikrofon</option>
+    </select>
+  </div>
+  <div class="control-row" id="oscControls">
+    <label>Frekans (Hz) <span id="freqVal">440</span></label>
+    <input type="range" id="freq" min="55" max="1760" value="440" step="1">
+  </div>
+  <div class="control-row" id="waveControl">
+    <label for="wave">Dalga biçimi</label>
+    <select id="wave">
+      <option value="sine">Sinüs</option>
+      <option value="square">Kare</option>
+      <option value="sawtooth">Testere</option>
+      <option value="triangle">Üçgen</option>
+    </select>
+  </div>
+  <div class="btn-row">
+    <button type="button" id="toggleBtn">Başlat</button>
+    <button type="button" id="harmBtn" class="">Harmonik karışım</button>
+  </div>
+  <p class="warn" id="status"></p>
+  <p class="hint">FFT ile ses frekans bileşenlerini çubuklar halinde görürsün. Mikrofon için tarayıcı izni gerekir.</p>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("spectrum");
+  const ctx = canvas.getContext("2d");
+  const sourceSel = document.getElementById("source");
+  const freqSl = document.getElementById("freq");
+  const freqVal = document.getElementById("freqVal");
+  const waveSel = document.getElementById("wave");
+  const toggleBtn = document.getElementById("toggleBtn");
+  const harmBtn = document.getElementById("harmBtn");
+  const peakHzEl = document.getElementById("peakHz");
+  const statusEl = document.getElementById("status");
+  const oscControls = document.getElementById("oscControls");
+  const waveControl = document.getElementById("waveControl");
+  const readoutSpan = document.querySelector(".readout span");
+
+  let audioCtx = null;
+  let analyser = null;
+  let dataArray = null;
+  let oscillator = null;
+  let gainNode = null;
+  let micStream = null;
+  let micSource = null;
+  let running = false;
+  let harmonics = false;
+  let harmNodes = [];
+  let rafId = 0;
+
+  const BAR_COUNT = 96;
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function ensureContext() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.82;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      gainNode = audioCtx.createGain();
+      gainNode.gain.value = 0.35;
+      gainNode.connect(analyser);
+    }
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  }
+
+  function stopOsc() {
+    if (oscillator) {
+      try { oscillator.stop(); } catch (_) {}
+      oscillator.disconnect();
+      oscillator = null;
+    }
+    harmNodes.forEach(n => { try { n.stop(); } catch (_) {} n.disconnect(); });
+    harmNodes = [];
+  }
+
+  function stopMic() {
+    if (micSource) { micSource.disconnect(); micSource = null; }
+    if (micStream) {
+      micStream.getTracks().forEach(t => t.stop());
+      micStream = null;
+    }
+  }
+
+  function buildOsc() {
+    stopOsc();
+    const freq = +freqSl.value;
+    if (!harmonics) {
+      oscillator = audioCtx.createOscillator();
+      oscillator.type = waveSel.value;
+      oscillator.frequency.value = freq;
+      oscillator.connect(gainNode);
+      oscillator.start();
+    } else {
+      const waves = [1, 2, 3, 4, 5];
+      const amps = [1, 0.5, 0.33, 0.25, 0.2];
+      waves.forEach((n, i) => {
+        const o = audioCtx.createOscillator();
+        o.type = "sine";
+        o.frequency.value = freq * n;
+        const g = audioCtx.createGain();
+        g.gain.value = amps[i] * 0.18;
+        o.connect(g);
+        g.connect(gainNode);
+        o.start();
+        harmNodes.push(o);
+      });
+    }
+  }
+
+  async function startMic() {
+    stopMic();
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      micSource = audioCtx.createMediaStreamSource(micStream);
+      micSource.connect(analyser);
+      statusEl.textContent = "";
+    } catch (e) {
+      statusEl.textContent = "Mikrofon izni alınamadı: " + (e.message || "erişim reddedildi");
+      running = false;
+      updateUI();
+    }
+  }
+
+  function updateUI() {
+    const isMic = sourceSel.value === "mic";
+    oscControls.style.display = isMic ? "none" : "";
+    waveControl.style.display = isMic || harmonics ? "none" : "";
+    harmBtn.style.display = isMic ? "none" : "";
+    toggleBtn.textContent = running ? "Durdur" : "Başlat";
+    toggleBtn.classList.toggle("active", running);
+    harmBtn.classList.toggle("active", harmonics);
+    readoutSpan.textContent = isMic ? "Mikrofon" : (harmonics ? "Harmonikler" : "Osilatör");
+  }
+
+  function draw() {
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, w, h);
+
+    if (!analyser || !running) {
+      ctx.fillStyle = "rgba(255,255,255,0.25)";
+      ctx.font = "14px system-ui,sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Başlat'a basarak spektrumu gör", w / 2, h / 2);
+      rafId = requestAnimationFrame(draw);
+      return;
+    }
+
+    analyser.getByteFrequencyData(dataArray);
+    const binCount = dataArray.length;
+    const step = Math.floor(binCount / BAR_COUNT);
+    const barW = w / BAR_COUNT;
+    const nyquist = audioCtx.sampleRate / 2;
+    let peakBin = 0;
+    let peakVal = 0;
+
+    for (let i = 0; i < BAR_COUNT; i++) {
+      let sum = 0;
+      const start = i * step;
+      for (let j = 0; j < step; j++) sum += dataArray[start + j];
+      const v = sum / step / 255;
+      if (v > peakVal) { peakVal = v; peakBin = i; }
+      const barH = v * h * 0.92;
+      const x = i * barW + 1;
+      const hue = 200 + (i / BAR_COUNT) * 80;
+      const grad = ctx.createLinearGradient(0, h, 0, h - barH);
+      grad.addColorStop(0, `hsla(${hue}, 75%, 55%, 0.35)`);
+      grad.addColorStop(1, `hsla(${hue}, 90%, 70%, 0.95)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, h - barH, Math.max(1, barW - 2), barH);
+    }
+
+    const peakFreq = ((peakBin * step) / binCount) * nyquist;
+    if (peakVal > 0.08) {
+      peakHzEl.textContent = peakFreq < 1000
+        ? peakFreq.toFixed(0) + " Hz"
+        : (peakFreq / 1000).toFixed(2) + " kHz";
+    } else {
+      peakHzEl.textContent = "—";
+    }
+
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.beginPath();
+  for (let f = 200; f < nyquist; f *= 2) {
+    const x = (f / nyquist) * w;
+    ctx.moveTo(x, 0); ctx.lineTo(x, h);
+  }
+  ctx.stroke();
+
+    rafId = requestAnimationFrame(draw);
+  }
+
+  function routeOutput() {
+    try { analyser.disconnect(audioCtx.destination); } catch (_) {}
+    if (sourceSel.value === "osc") analyser.connect(audioCtx.destination);
+  }
+
+  async function start() {
+    ensureContext();
+    running = true;
+    updateUI();
+    if (sourceSel.value === "osc") {
+      stopMic();
+      routeOutput();
+      buildOsc();
+    } else {
+      stopOsc();
+      routeOutput();
+      await startMic();
+    }
+  }
+
+  function stop() {
+    running = false;
+    stopOsc();
+    stopMic();
+    peakHzEl.textContent = "—";
+    updateUI();
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    if (running) stop();
+    else start();
+  });
+
+  sourceSel.addEventListener("change", () => {
+    if (running) { stop(); start(); }
+    else updateUI();
+  });
+
+  freqSl.addEventListener("input", () => {
+    freqVal.textContent = freqSl.value;
+    if (running && sourceSel.value === "osc") buildOsc();
+  });
+
+  waveSel.addEventListener("change", () => {
+    if (running && sourceSel.value === "osc" && !harmonics) buildOsc();
+  });
+
+  harmBtn.addEventListener("click", () => {
+    harmonics = !harmonics;
+    if (running && sourceSel.value === "osc") buildOsc();
+    updateUI();
+  });
+
+  window.addEventListener("resize", resize);
+  resize();
+  updateUI();
+  draw();
+
+  window.addEventListener("beforeunload", () => {
+    cancelAnimationFrame(rafId);
+    stop();
+    if (audioCtx) audioCtx.close();
+  });
+})();
+</script>
+</body>
+</html>

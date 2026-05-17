@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Formül Hafıza</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0f1419;
+      color: #e8eef4;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: none;
+    }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); }
+    #status { font-size: clamp(0.85rem, 3.5vw, 1.05rem); }
+    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.8rem); opacity: 0.65; }
+    .controls { margin-top: 6px; }
+    button {
+      font-size: 14px;
+      padding: 8px 14px;
+      background: #2d6a4f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #gameCanvas {
+      display: block;
+      max-width: 100%;
+      border-radius: 6px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+
+<header class="hud">
+  <h1>Formül Hafıza</h1>
+  <div id="status">Hamle: <span id="moves">0</span> · Eşleşen: <span id="matched">0</span> / 8</div>
+  <div class="controls">
+    <button type="button" id="btnNew">Yeni Oyun</button>
+  </div>
+  <p class="hint">Kartlara tıkla · Aynı fizik formülünü eşleştir (ad + denklem)</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="gameCanvas" width="720" height="640" role="img" aria-label="Formül hafıza kartları"></canvas>
+</div>
+
+<script>
+  const GAME_W = 720;
+  const GAME_H = 640;
+  const COLS = 4;
+  const ROWS = 4;
+  const PAIRS = [
+    { name: "Newton II", formula: "F = m·a" },
+    { name: "Kinetik Enerji", formula: "Eₖ = ½mv²" },
+    { name: "Ohm Kanunu", formula: "V = I·R" },
+    { name: "Basınç", formula: "P = F/A" },
+    { name: "İş", formula: "W = F·d" },
+    { name: "Yerçekimi", formula: "F = Gm₁m₂/r²" },
+    { name: "Dalga Hızı", formula: "v = f·λ" },
+    { name: "Momentum", formula: "p = m·v" },
+  ];
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  const movesEl = document.getElementById("moves");
+  const matchedEl = document.getElementById("matched");
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(280, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+  window.addEventListener("resize", resizeGame);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
+  resizeGame();
+
+  const PAD = 16;
+  const GAP = 12;
+  let cards = [];
+  let flipped = [];
+  let moves = 0;
+  let matched = 0;
+  let lock = false;
+  let won = false;
+
+  function cardW() { return (GAME_W - PAD * 2 - GAP * (COLS - 1)) / COLS; }
+  function cardH() { return (GAME_H - PAD * 2 - GAP * (ROWS - 1)) / ROWS; }
+
+  function cardRect(i) {
+    const c = i % COLS;
+    const r = Math.floor(i / COLS);
+    const w = cardW();
+    const h = cardH();
+    return { x: PAD + c * (w + GAP), y: PAD + r * (h + GAP), w, h };
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function newGame() {
+    const deck = [];
+    PAIRS.forEach((p, id) => {
+      deck.push({ pairId: id, kind: "name", text: p.name, face: false, matched: false });
+      deck.push({ pairId: id, kind: "formula", text: p.formula, face: false, matched: false });
+    });
+    shuffle(deck);
+    cards = deck;
+    flipped = [];
+    moves = 0;
+    matched = 0;
+    lock = false;
+    won = false;
+    movesEl.textContent = "0";
+    matchedEl.textContent = "0";
+    draw();
+  }
+
+  function drawCard(rect, card, highlight) {
+    const faceUp = card.face || card.matched;
+    ctx.fillStyle = faceUp ? (card.kind === "name" ? "#1b4332" : "#1d3557") : "#343a40";
+    roundRect(rect.x, rect.y, rect.w, rect.h, 10);
+    ctx.fill();
+    if (highlight) {
+      ctx.strokeStyle = "#ffd166";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    } else {
+      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    ctx.fillStyle = faceUp ? "#f8f9fa" : "#6c757d";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    if (faceUp) {
+      ctx.font = `600 ${Math.min(rect.w * 0.14, 18)}px system-ui`;
+      wrapText(card.text, rect.x + rect.w / 2, rect.y + rect.h / 2, rect.w - 16, Math.min(rect.h * 0.22, 22));
+    } else {
+      ctx.font = `bold ${rect.w * 0.2}px system-ui`;
+      ctx.fillText("?", rect.x + rect.w / 2, rect.y + rect.h / 2);
+    }
+  }
+
+  function wrapText(text, x, y, maxW, lineH) {
+    const words = text.split(" ");
+    let line = "";
+    const lines = [];
+    for (const w of words) {
+      const test = line ? line + " " + w : w;
+      if (ctx.measureText(test).width > maxW && line) {
+        lines.push(line);
+        line = w;
+      } else line = test;
+    }
+    if (line) lines.push(line);
+    const startY = y - ((lines.length - 1) * lineH) / 2;
+    lines.forEach((ln, i) => ctx.fillText(ln, x, startY + i * lineH));
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function draw() {
+    ctx.fillStyle = "#0f1419";
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+    cards.forEach((card, i) => {
+      const rect = cardRect(i);
+      drawCard(rect, card, flipped.includes(i));
+    });
+    if (won) {
+      ctx.fillStyle = "rgba(15,20,25,0.75)";
+      ctx.fillRect(0, 0, GAME_W, GAME_H);
+      ctx.fillStyle = "#95d5b2";
+      ctx.font = "bold 32px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText("Tebrikler! 🎉", GAME_W / 2, GAME_H / 2 - 12);
+      ctx.font = "18px system-ui";
+      ctx.fillStyle = "#e8eef4";
+      ctx.fillText(`${moves} hamlede tamamladın`, GAME_W / 2, GAME_H / 2 + 28);
+    }
+  }
+
+  function pickCard(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (clientX - rect.left) / rect.width * GAME_W;
+    const y = (clientY - rect.top) / rect.height * GAME_H;
+    for (let i = 0; i < cards.length; i++) {
+      const r = cardRect(i);
+      if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return i;
+    }
+    return -1;
+  }
+
+  function onPick(idx) {
+    if (lock || won || idx < 0) return;
+    const card = cards[idx];
+    if (card.matched || card.face || flipped.includes(idx)) return;
+    card.face = true;
+    flipped.push(idx);
+    draw();
+    if (flipped.length < 2) return;
+    lock = true;
+    moves++;
+    movesEl.textContent = moves;
+    const [a, b] = flipped;
+    const ca = cards[a], cb = cards[b];
+    const ok = ca.pairId === cb.pairId && ca.kind !== cb.kind;
+    setTimeout(() => {
+      if (ok) {
+        ca.matched = cb.matched = true;
+        ca.face = cb.face = true;
+        matched++;
+        matchedEl.textContent = matched;
+        if (matched === PAIRS.length) won = true;
+      } else {
+        ca.face = cb.face = false;
+      }
+      flipped = [];
+      lock = false;
+      draw();
+    }, 700);
+  }
+
+  canvas.addEventListener("click", (e) => onPick(pickCard(e.clientX, e.clientY)));
+  canvas.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    onPick(pickCard(t.clientX, t.clientY));
+  }, { passive: false });
+
+  document.getElementById("btnNew").addEventListener("click", newGame);
+  newGame();
+</script>
+</body>
+</html>

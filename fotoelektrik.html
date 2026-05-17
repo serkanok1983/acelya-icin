@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fotoelektrik Olay</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 160px; accent-color: #d2a8ff; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 40rem; }
+  </style>
+</head>
+<body>
+  <h1>Fotoelektrik Olay</h1>
+  <p class="sub">Einstein: K_max = hf − φ. Eşik frekansının altında fotoelektron yok; üstünde frekans arttıkça enerji artar.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Işık frekansı f (×10¹⁴ Hz) <input type="range" id="freq" min="4" max="12" step="0.1" value="7"></label>
+    <label>İş fonksiyonu φ (eV) <input type="range" id="workFn" min="1" max="5" step="0.1" value="2.3"></label>
+    <label>Işık şiddeti <input type="range" id="intensity" min="1" max="10" value="6"></label>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const h = 4.136e-15;
+let W, H, electrons = [];
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(780, innerWidth - 24); H = Math.min(440, innerHeight * 0.55);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+function lightColor(f14) {
+  const nm = 3e8 / (f14 * 1e14);
+  return nm < 450 ? '#79c0ff' : nm < 550 ? '#3fb950' : nm < 600 ? '#ffa657' : '#f85149';
+}
+
+['freq','workFn','intensity'].forEach(id => document.getElementById(id).oninput = () => { electrons = []; draw(); });
+
+function spawn() {
+  const f = +document.getElementById('freq').value * 1e14;
+  const phi = +document.getElementById('workFn').value;
+  const Ephot = h * f * 6.242e18;
+  if (Ephot <= phi) return;
+  const K = Ephot - phi;
+  const n = +document.getElementById('intensity').value;
+  for (let i = 0; i < n; i++) {
+    electrons.push({
+      x: W * 0.28 + Math.random() * 40,
+      y: H * 0.55 + Math.random() * 60,
+      vx: 1 + K * 0.8 + Math.random(),
+      vy: (Math.random() - 0.5) * 2,
+      life: 120
+    });
+  }
+}
+
+function draw() {
+  const f14 = +document.getElementById('freq').value;
+  const phi = +document.getElementById('workFn').value;
+  const f = f14 * 1e14;
+  const Ephot = h * f * 6.242e18;
+  const Kmax = Math.max(0, Ephot - phi);
+  const f0 = phi / (h * 6.242e18) / 1e14;
+  const emits = Ephot > phi;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#30363d';
+  ctx.fillRect(W * 0.15, H * 0.35, W * 0.25, H * 0.45);
+  ctx.fillStyle = emits ? '#484f58' : '#21262d';
+  ctx.fillRect(W * 0.15, H * 0.35, W * 0.25, 8);
+
+  const col = lightColor(f14);
+  if (emits) {
+    ctx.strokeStyle = col;
+    ctx.globalAlpha = 0.5;
+    for (let i = 0; i < 8; i++) {
+      ctx.beginPath();
+      ctx.moveTo(40, H * 0.45 + i * 12);
+      ctx.lineTo(W * 0.15, H * 0.5 + i * 8);
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    if (Math.random() < 0.3) spawn();
+  }
+
+  electrons = electrons.filter(e => {
+    e.x += e.vx; e.y += e.vy; e.life--;
+    if (e.life > 0 && e.x < W - 40) {
+      ctx.fillStyle = '#79c0ff';
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      return true;
+    }
+    return false;
+  });
+
+  const gx = W * 0.72, gy = H * 0.2, gw = W * 0.22, gh = H * 0.55;
+  ctx.strokeStyle = '#30363d';
+  ctx.strokeRect(gx, gy, gw, gh);
+  ctx.strokeStyle = '#58a6ff';
+  ctx.beginPath();
+  ctx.moveTo(gx, gy + gh);
+  ctx.lineTo(gx + gw, gy);
+  const f0x = gx + ((f0 - 4) / 8) * gw;
+  ctx.lineTo(f0x, gy + gh);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(88,166,255,0.15)';
+  ctx.fill();
+
+  const px = gx + ((f14 - 4) / 8) * gw;
+  const py = gy + gh - (Kmax / 5) * gh;
+  ctx.fillStyle = emits ? '#3fb950' : '#f85149';
+  ctx.beginPath();
+  ctx.arc(px, py, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '10px sans-serif';
+  ctx.fillText('f₀', f0x - 6, gy + gh + 14);
+  ctx.fillText('K', px + 10, py);
+
+  ctx.fillStyle = col;
+  ctx.font = '13px sans-serif';
+  ctx.fillText('f = ' + f14.toFixed(1) + '×10¹⁴ Hz', 16, 28);
+
+  document.getElementById('info').textContent = emits
+    ? `K_max = hf − φ = ${Kmax.toFixed(2)} eV — Elektron salınımı var (şiddet akımı artırır, K_max değiştirmez)`
+    : `f < f₀ = ${f0.toFixed(2)}×10¹⁴ Hz — Eşik altı, fotoelektron YOK (klasik öngörüyle çelişir)`;
+
+  requestAnimationFrame(draw);
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

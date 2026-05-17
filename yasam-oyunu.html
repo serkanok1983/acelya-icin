@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Yaşam Oyunu</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: none;
+    }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); }
+    #info { font-size: clamp(0.85rem, 3.5vw, 1.05rem); opacity: 0.9; }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+    button {
+      font-size: 14px;
+      padding: 8px 12px;
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button.secondary { background: #30363d; }
+    button.active { background: #1f6feb; }
+    button:hover { filter: brightness(1.08); }
+    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.8rem); opacity: 0.65; }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #gameCanvas {
+      display: block;
+      max-width: 100%;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      touch-action: none;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+
+<header class="hud">
+  <h1>Conway Yaşam Oyunu</h1>
+  <div id="info">Nesil: <span id="gen">0</span> · Canlı: <span id="alive">0</span></div>
+  <div class="controls">
+    <button type="button" id="btnDraw" class="active">Çiz</button>
+    <button type="button" id="btnPlay">Oynat</button>
+    <button type="button" id="btnStep" class="secondary">Adım</button>
+    <button type="button" id="btnClear" class="secondary">Temizle</button>
+    <button type="button" id="btnRandom" class="secondary">Rastgele</button>
+  </div>
+  <p class="hint">Çiz modunda hücrelere tıkla · Oynat: otomatik nesil · Adım: tek nesil</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="gameCanvas" width="800" height="500" role="img" aria-label="Yaşam oyunu ızgarası"></canvas>
+</div>
+
+<script>
+  const GAME_W = 800;
+  const GAME_H = 500;
+  const COLS = 80;
+  const ROWS = 50;
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  const genEl = document.getElementById("gen");
+  const aliveEl = document.getElementById("alive");
+  const btnDraw = document.getElementById("btnDraw");
+  const btnPlay = document.getElementById("btnPlay");
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(280, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+  window.addEventListener("resize", resizeGame);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
+  resizeGame();
+
+  let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  let next = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  let generation = 0;
+  let drawMode = true;
+  let playing = false;
+  let intervalId = null;
+  let painting = 1;
+
+  const cellW = GAME_W / COLS;
+  const cellH = GAME_H / ROWS;
+
+  function countAlive() {
+    let n = 0;
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++) if (grid[r][c]) n++;
+    return n;
+  }
+
+  function neighbors(r, c) {
+    let n = 0;
+    for (let dr = -1; dr <= 1; dr++)
+      for (let dc = -1; dc <= 1; dc++) {
+        if (!dr && !dc) continue;
+        const rr = (r + dr + ROWS) % ROWS;
+        const cc = (c + dc + COLS) % COLS;
+        n += grid[rr][cc];
+      }
+    return n;
+  }
+
+  function stepOnce() {
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++) {
+        const alive = grid[r][c];
+        const n = neighbors(r, c);
+        next[r][c] = alive ? (n === 2 || n === 3 ? 1 : 0) : n === 3 ? 1 : 0;
+      }
+    const tmp = grid;
+    grid = next;
+    next = tmp;
+    generation++;
+    updateHud();
+    draw();
+  }
+
+  function updateHud() {
+    genEl.textContent = generation;
+    aliveEl.textContent = countAlive();
+  }
+
+  function draw() {
+    ctx.fillStyle = "#161b22";
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+    ctx.fillStyle = "#3fb950";
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (grid[r][c])
+          ctx.fillRect(c * cellW, r * cellH, cellW - 0.5, cellH - 0.5);
+    if (drawMode && !playing) {
+      ctx.strokeStyle = "rgba(88, 166, 255, 0.35)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, GAME_W - 2, GAME_H - 2);
+    }
+  }
+
+  function cellFromEvent(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX ?? e.touches?.[0]?.clientX) - rect.left) / rect.width;
+    const y = ((e.clientY ?? e.touches?.[0]?.clientY) - rect.top) / rect.height;
+    const c = Math.floor(x * COLS);
+    const r = Math.floor(y * ROWS);
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return null;
+    return { r, c };
+  }
+
+  function toggleCell(r, c, force) {
+    grid[r][c] = force !== undefined ? force : grid[r][c] ? 0 : 1;
+    updateHud();
+    draw();
+  }
+
+  function pointerDown(e) {
+    if (!drawMode || playing) return;
+    e.preventDefault();
+    const cell = cellFromEvent(e);
+    if (!cell) return;
+    painting = grid[cell.r][cell.c] ? 0 : 1;
+    toggleCell(cell.r, cell.c, painting);
+  }
+
+  function pointerMove(e) {
+    if (!drawMode || playing) return;
+    e.preventDefault();
+    const cell = cellFromEvent(e);
+    if (cell) toggleCell(cell.r, cell.c, painting);
+  }
+
+  canvas.addEventListener("mousedown", pointerDown);
+  canvas.addEventListener("mousemove", (e) => { if (e.buttons === 1) pointerMove(e); });
+  canvas.addEventListener("touchstart", pointerDown, { passive: false });
+  canvas.addEventListener("touchmove", pointerMove, { passive: false });
+
+  btnDraw.addEventListener("click", () => {
+    drawMode = true;
+    playing = false;
+    clearInterval(intervalId);
+    btnDraw.classList.add("active");
+    btnPlay.classList.remove("active");
+    btnPlay.textContent = "Oynat";
+    draw();
+  });
+
+  btnPlay.addEventListener("click", () => {
+    if (playing) {
+      playing = false;
+      drawMode = true;
+      clearInterval(intervalId);
+      btnPlay.textContent = "Oynat";
+      btnPlay.classList.remove("active");
+      btnDraw.classList.add("active");
+    } else {
+      playing = true;
+      drawMode = false;
+      btnPlay.textContent = "Durdur";
+      btnPlay.classList.add("active");
+      btnDraw.classList.remove("active");
+      intervalId = setInterval(stepOnce, 120);
+    }
+    draw();
+  });
+
+  document.getElementById("btnStep").addEventListener("click", () => {
+    if (!playing) stepOnce();
+  });
+
+  document.getElementById("btnClear").addEventListener("click", () => {
+    grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    generation = 0;
+    updateHud();
+    draw();
+  });
+
+  document.getElementById("btnRandom").addEventListener("click", () => {
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++) grid[r][c] = Math.random() < 0.28 ? 1 : 0;
+    generation = 0;
+    updateHud();
+    draw();
+  });
+
+  updateHud();
+  draw();
+</script>
+</body>
+</html>

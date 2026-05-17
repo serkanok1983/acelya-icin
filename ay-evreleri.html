@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ay Evreleri ve Mevsimler</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 38rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 160px; accent-color: #ffa657; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 42rem; }
+  </style>
+</head>
+<body>
+  <h1>Ay Evreleri ve Mevsimler</h1>
+  <p class="sub">Ay'ın evreleri Güneş–Dünya–Ay geometrisine bağlıdır. Dünya eksen eğikliği (23,5°) mevsimleri belirler.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Ay konumu (evre) <input type="range" id="moonAngle" min="0" max="360" value="45"></label>
+    <label>Dünya yörünge konumu (mevsim) <input type="range" id="seasonAngle" min="0" max="360" value="80"></label>
+    <button id="playBtn">Otomatik</button>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, auto = false;
+
+const phases = ['Yeni Ay','Hilal','İlk Dördün','Şişkin Ay','Dolunay','Şişkin Ay','Son Dördün','Hilal'];
+const seasons = ['İlkbahar','Yaz','Sonbahar','Kış'];
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(860, innerWidth - 24); H = Math.min(500, innerHeight * 0.6);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+document.getElementById('moonAngle').oninput = draw;
+document.getElementById('seasonAngle').oninput = draw;
+document.getElementById('playBtn').onclick = function() {
+  auto = !auto;
+  this.textContent = auto ? 'Durdur' : 'Otomatik';
+  if (auto) tick();
+};
+
+function drawMoonPhase(cx, cy, r, angleDeg) {
+  const a = angleDeg * Math.PI / 180;
+  const illum = (1 - Math.cos(a)) / 2;
+  ctx.fillStyle = '#8b949e';
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#e6edf3';
+  if (illum < 0.5) {
+    const w = r * 2 * Math.abs(1 - 2 * illum);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2);
+    ctx.ellipse(cx + (illum < 0.25 ? -1 : 1) * (r - w / 2), cy, Math.abs(r - w / 2) || 0.1, r, 0, -Math.PI / 2, Math.PI / 2, illum > 0.25);
+    ctx.fill();
+  } else {
+    const w = r * 2 * Math.abs(1 - 2 * illum);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI / 2, -Math.PI / 2);
+    ctx.ellipse(cx + (illum < 0.75 ? 1 : -1) * (r - w / 2), cy, Math.abs(r - w / 2) || 0.1, r, 0, Math.PI / 2, -Math.PI / 2, illum < 0.75);
+    ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    if (illum < 1) {
+      ctx.fillStyle = '#8b949e';
+      ctx.beginPath();
+      ctx.ellipse(cx - (r - w / 2), cy, Math.abs(r - w / 2) || 0.1, r, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function phaseName(deg) {
+  const idx = Math.round(((deg % 360) / 360) * 8) % 8;
+  return phases[idx];
+}
+
+function seasonName(deg) {
+  const idx = Math.floor(((deg + 90) % 360) / 360 * 4) % 4;
+  return seasons[idx];
+}
+
+function draw() {
+  const moonA = +document.getElementById('moonAngle').value;
+  const seasonA = +document.getElementById('seasonAngle').value * Math.PI / 180;
+  const tilt = 23.5 * Math.PI / 180;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  const sunX = 50, sunY = H / 2;
+  const earthX = W * 0.38, earthY = H * 0.45;
+  const orbitR = H * 0.32;
+
+  const grad = ctx.createRadialGradient(sunX, sunY, 5, sunX, sunY, 50);
+  grad.addColorStop(0, '#fff8e7');
+  grad.addColorStop(1, '#ffa657');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(sunX, sunY, 28, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ffa657';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('Güneş', sunX - 16, sunY + 48);
+
+  ctx.strokeStyle = '#30363d';
+  ctx.setLineDash([4, 6]);
+  ctx.beginPath();
+  ctx.moveTo(sunX + 30, sunY);
+  ctx.lineTo(earthX + 40, earthY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = '#484f58';
+  ctx.beginPath();
+  ctx.ellipse(earthX, earthY, orbitR * 1.1, orbitR * 0.35, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  const mx = earthX + orbitR * Math.cos(moonA * Math.PI / 180);
+  const my = earthY + orbitR * 0.35 * Math.sin(moonA * Math.PI / 180);
+
+  ctx.fillStyle = '#58a6ff';
+  ctx.beginPath(); ctx.arc(earthX, earthY, 22, 0, Math.PI * 2); ctx.fill();
+  ctx.save();
+  ctx.translate(earthX, earthY);
+  ctx.rotate(tilt);
+  ctx.strokeStyle = '#3fb950';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, -30); ctx.lineTo(0, 30);
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('Dünya', earthX - 18, earthY + 40);
+
+  ctx.fillStyle = '#8b949e';
+  ctx.beginPath(); ctx.arc(mx, my, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#484f58';
+  ctx.beginPath();
+  ctx.moveTo(earthX, earthY);
+  ctx.lineTo(mx, my);
+  ctx.stroke();
+
+  const viewX = W * 0.72, viewY = H * 0.35;
+  drawMoonPhase(viewX, viewY, 45, moonA);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(phaseName(moonA), viewX, viewY + 70);
+
+  const earth2X = W * 0.72, earth2Y = H * 0.78, orbit2 = 55;
+  ctx.strokeStyle = '#484f58';
+  ctx.beginPath();
+  ctx.ellipse(earth2X, earth2Y, orbit2 + 10, orbit2 * 0.4, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  const ex = earth2X + orbit2 * Math.cos(seasonA);
+  const ey = earth2Y + orbit2 * 0.4 * Math.sin(seasonA);
+  ctx.fillStyle = '#58a6ff';
+  ctx.beginPath(); ctx.arc(earth2X, earth2Y, 14, 0, Math.PI * 2); ctx.fill();
+
+  ctx.save();
+  ctx.translate(ex, ey);
+  ctx.rotate(tilt * Math.cos(seasonA));
+  ctx.fillStyle = '#3fb950';
+  ctx.fillRect(-3, -18, 6, 36);
+  ctx.restore();
+
+  ctx.fillStyle = '#ffa657';
+  ctx.beginPath(); ctx.arc(earth2X - orbit2 - 30, earth2Y, 12, 0, Math.PI * 2); ctx.fill();
+
+  ctx.fillStyle = '#e6edf3';
+  ctx.fillText('Mevsim: ' + seasonName(seasonA * 180 / Math.PI), earth2X, earth2Y + orbit2 + 36);
+
+  document.getElementById('info').textContent =
+    `Evre: ${phaseName(moonA)} — Ay'ın aydınlık yüzü Dünya'dan görünen kısım. Eksen eğikliği 23,5° → ${seasonName(seasonA * 180 / Math.PI)} (Kuzey yarımküre için)`;
+}
+
+function tick() {
+  if (!auto) return;
+  const m = document.getElementById('moonAngle');
+  const s = document.getElementById('seasonAngle');
+  m.value = (+m.value + 0.4) % 360;
+  s.value = (+s.value + 0.15) % 360;
+  draw();
+  requestAnimationFrame(tick);
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

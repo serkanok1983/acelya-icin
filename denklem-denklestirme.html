@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Denklem Denkleştirme</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    #eq { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem;
+      font-size: clamp(1.2rem, 4vw, 1.8rem); margin: 1.5rem 0; padding: 1rem; background: #161b22;
+      border-radius: 12px; border: 1px solid #30363d; max-width: 100%; }
+    .coef { min-width: 2.2rem; height: 2.2rem; display: inline-flex; align-items: center; justify-content: center;
+      background: #388bfd; color: #fff; border-radius: 8px; cursor: grab; user-select: none; font-weight: bold;
+      touch-action: none; border: 2px solid #58a6ff; }
+    .coef:active { cursor: grabbing; }
+    .coef.wrong { background: #da3633; border-color: #f85149; }
+    .coef.ok { background: #238636; border-color: #3fb950; }
+    .plus { color: #8b949e; margin: 0 0.2rem; }
+    .arrow { color: #ffa657; margin: 0 0.5rem; }
+    .panel { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 1rem; }
+    button, select { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    #msg { font-size: 0.95rem; min-height: 1.5rem; text-align: center; }
+    #msg.ok { color: #3fb950; } #msg.err { color: #f85149; }
+    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 1rem; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>Kimyasal Denklem Denkleştirme</h1>
+  <p class="sub">Mavi katsayıları sürükleyerek değiştirin (1–9). Her denklemde atom sayıları eşit olmalı.</p>
+  <div id="eq"></div>
+  <div class="panel">
+    <select id="pickEq"></select>
+    <button id="checkBtn">Kontrol Et</button>
+    <button id="hintBtn">İpucu</button>
+    <button id="resetBtn">Sıfırla</button>
+  </div>
+  <p id="msg"></p>
+  <a class="back" href="index.html">← Ana menü</a>
+<script>
+const EQUATIONS = [
+  { name: 'H₂ + O₂ → H₂O', sides: [
+    [{ label: 'H₂', atoms: { H: 2 } }, { label: 'O₂', atoms: { O: 2 } }],
+    [{ label: 'H₂O', atoms: { H: 2, O: 1 } }]
+  ], ans: [2, 1, 2] },
+  { name: 'CH₄ + O₂ → CO₂ + H₂O', sides: [
+    [{ label: 'CH₄', atoms: { C: 1, H: 4 } }, { label: 'O₂', atoms: { O: 2 } }],
+    [{ label: 'CO₂', atoms: { C: 1, O: 2 } }, { label: 'H₂O', atoms: { H: 2, O: 1 } }]
+  ], ans: [1, 2, 1, 2] },
+  { name: 'Fe + O₂ → Fe₂O₃', sides: [
+    [{ label: 'Fe', atoms: { Fe: 1 } }, { label: 'O₂', atoms: { O: 2 } }],
+    [{ label: 'Fe₂O₃', atoms: { Fe: 2, O: 3 } }]
+  ], ans: [4, 3, 2] },
+  { name: 'Na + Cl₂ → NaCl', sides: [
+    [{ label: 'Na', atoms: { Na: 1 } }, { label: 'Cl₂', atoms: { Cl: 2 } }],
+    [{ label: 'NaCl', atoms: { Na: 1, Cl: 1 } }]
+  ], ans: [2, 1, 2] },
+  { name: 'C₃H₈ + O₂ → CO₂ + H₂O', sides: [
+    [{ label: 'C₃H₈', atoms: { C: 3, H: 8 } }, { label: 'O₂', atoms: { O: 2 } }],
+    [{ label: 'CO₂', atoms: { C: 1, O: 2 } }, { label: 'H₂O', atoms: { H: 2, O: 1 } }]
+  ], ans: [1, 5, 3, 4] }
+];
+
+let eqIdx = 0, coefs = [], dragIdx = null, dragY = 0;
+
+const pick = document.getElementById('pickEq');
+EQUATIONS.forEach((e, i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = e.name;
+  pick.appendChild(o);
+});
+pick.onchange = () => { eqIdx = +pick.value; reset(); };
+
+function countAtoms(side, coefList) {
+  const atoms = {};
+  side.forEach((term, i) => {
+    const c = coefList[i] || 1;
+    Object.entries(term.atoms).forEach(([el, n]) => {
+      atoms[el] = (atoms[el] || 0) + n * c;
+    });
+  });
+  return atoms;
+}
+
+function reset() {
+  const eq = EQUATIONS[eqIdx];
+  coefs = eq.ans.map(() => 1);
+  document.getElementById('msg').textContent = '';
+  document.getElementById('msg').className = '';
+  render();
+}
+
+function render() {
+  const eq = EQUATIONS[eqIdx];
+  const el = document.getElementById('eq');
+  el.innerHTML = '';
+  let idx = 0;
+  eq.sides.forEach((side, si) => {
+    if (si > 0) {
+      const arr = document.createElement('span');
+      arr.className = 'arrow'; arr.textContent = '→';
+      el.appendChild(arr);
+    }
+    side.forEach((term, ti) => {
+      if (ti > 0) { const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+'; el.appendChild(p); }
+      const box = document.createElement('span');
+      box.className = 'coef';
+      box.textContent = coefs[idx];
+      box.dataset.i = idx;
+      box.onpointerdown = startDrag;
+      el.appendChild(box);
+      el.appendChild(document.createTextNode(term.label));
+      idx++;
+    });
+  });
+}
+
+function startDrag(e) {
+  dragIdx = +e.target.dataset.i;
+  dragY = e.clientY;
+  e.target.setPointerCapture(e.pointerId);
+  e.target.onpointermove = moveDrag;
+  e.target.onpointerup = endDrag;
+}
+
+function moveDrag(e) {
+  const dy = dragY - e.clientY;
+  if (Math.abs(dy) > 28) {
+    coefs[dragIdx] = Math.max(1, Math.min(9, coefs[dragIdx] + (dy > 0 ? 1 : -1)));
+    dragY = e.clientY;
+    render();
+    const boxes = document.querySelectorAll('.coef');
+    if (boxes[dragIdx]) boxes[dragIdx].setPointerCapture(e.pointerId);
+  }
+}
+
+function endDrag(e) {
+  e.target.onpointermove = null;
+  e.target.onpointerup = null;
+  dragIdx = null;
+}
+
+document.getElementById('checkBtn').onclick = () => {
+  const eq = EQUATIONS[eqIdx];
+  const left = countAtoms(eq.sides[0], coefs.slice(0, eq.sides[0].length));
+  const right = countAtoms(eq.sides[1], coefs.slice(eq.sides[0].length));
+  const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+  let ok = true;
+  keys.forEach(k => { if ((left[k]||0) !== (right[k]||0)) ok = false; });
+  const msg = document.getElementById('msg');
+  document.querySelectorAll('.coef').forEach(b => { b.classList.toggle('ok', ok); b.classList.toggle('wrong', !ok); });
+  if (ok) { msg.textContent = '✓ Denklem dengede! Harika iş.'; msg.className = 'ok'; }
+  else { msg.textContent = 'Atom sayıları eşit değil — katsayıları ayarlayın.'; msg.className = 'err'; }
+};
+
+document.getElementById('hintBtn').onclick = () => {
+  const ans = EQUATIONS[eqIdx].ans;
+  const msg = document.getElementById('msg');
+  msg.className = '';
+  msg.textContent = 'Doğru oran (en küçük tam sayılar): ' + ans.join(' : ');
+};
+
+document.getElementById('resetBtn').onclick = reset;
+reset();
+</script>
+</body>
+</html>

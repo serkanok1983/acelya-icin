@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitoz & Mayoz</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 38rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; }
+    .panel { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 1rem; align-items: center; }
+    button, .toggle { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    .toggle.active { background: #a371f7; border-color: #d2a8ff; }
+    #phaseInfo { font-size: 0.95rem; color: #79c0ff; text-align: center; max-width: 40rem; }
+    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>Hücre Bölünmesi</h1>
+  <p class="sub">Mitoz: 2 özdeş diploid hücre. Mayoz: 4 haploid gamet — krossing-over ve homolog ayrılma.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <button class="toggle active" id="mitozBtn">Mitoz</button>
+    <button class="toggle" id="mayozBtn">Mayoz</button>
+    <button id="prevBtn">← Önceki</button>
+    <button id="nextBtn">Sonraki →</button>
+    <button id="playBtn">Oynat</button>
+  </div>
+  <p id="phaseInfo"></p>
+  <a class="back" href="index.html">← Ana menü</a>
+<script>
+const MITOZ = [
+  { n:'İnterfaz', d:'DNA replikasyonu; kromozomlar görünmez halde.' },
+  { n:'Profaz', d:'Kromozomlar yoğunlaşır, çekirdek zarı erir, iğ iplikleri oluşur.' },
+  { n:'Metafaz', d:'Kromozomlar ekvator düzleminde hizalanır.' },
+  { n:'Anafaz', d:'Kardeş kromatidler kutuplara çekilir.' },
+  { n:'Telofaz', d:'İki çekirdek oluşur; sitokinez ile 2 hücre.' }
+];
+const MAYOZ = [
+  { n:'Mayoz I — Profaz I', d:'Homolog kromozomlar eşleşir; krossing-over olabilir.' },
+  { n:'Mayoz I — Metafaz I', d:'Homolog çiftler ekvatorda.' },
+  { n:'Mayoz I — Anafaz I', d:'Homolog kromozomlar ayrılır.' },
+  { n:'Mayoz II — Metafaz II', d:'İki hücrede kromozomlar tekrar hizalanır.' },
+  { n:'Mayoz II — Sonuç', d:'4 haploid gamet (n kromozom).' }
+];
+
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, mode = 'mitoz', phase = 0, playing = false, t = 0;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(640, innerWidth - 24); H = Math.min(440, innerHeight * 0.52);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+window.addEventListener('resize', resize);
+
+function phases() { return mode === 'mitoz' ? MITOZ : MAYOZ; }
+
+function updateInfo() {
+  const p = phases()[phase];
+  document.getElementById('phaseInfo').innerHTML = `<strong>${p.n}</strong> — ${p.d}`;
+}
+
+document.getElementById('mitozBtn').onclick = () => { mode = 'mitoz'; phase = 0; syncToggle(); updateInfo(); draw(); };
+document.getElementById('mayozBtn').onclick = () => { mode = 'mayoz'; phase = 0; syncToggle(); updateInfo(); draw(); };
+document.getElementById('prevBtn').onclick = () => { phase = (phase - 1 + phases().length) % phases().length; updateInfo(); draw(); };
+document.getElementById('nextBtn').onclick = () => { phase = (phase + 1) % phases().length; updateInfo(); draw(); };
+document.getElementById('playBtn').onclick = () => {
+  playing = !playing;
+  document.getElementById('playBtn').textContent = playing ? 'Durdur' : 'Oynat';
+  if (playing) loop();
+};
+
+function syncToggle() {
+  document.getElementById('mitozBtn').classList.toggle('active', mode === 'mitoz');
+  document.getElementById('mayozBtn').classList.toggle('active', mode === 'mayoz');
+}
+
+function drawChrom(x, y, len, angle, col) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(-len/2, 0);
+  ctx.lineTo(len/2, 0);
+  ctx.stroke();
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.arc(-len/2, 0, 5, 0, Math.PI * 2);
+  ctx.arc(len/2, 0, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function draw() {
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+  const cx = W/2, cy = H/2;
+  const r = Math.min(W, H) * 0.32;
+
+  ctx.strokeStyle = '#30363d';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 15, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(33,38,45,0.5)';
+  ctx.fill();
+
+  const nCells = mode === 'mayoz' && phase >= 3 ? (phase >= 4 ? 4 : 2) : 1;
+  const spread = phase >= 2 ? (phase >= 3 ? 0.55 : 0.35) : 0;
+
+  for (let c = 0; c < nCells; c++) {
+    let ox = cx, oy = cy;
+    if (nCells === 2) ox = cx + (c ? spread : -spread) * W * 0.25;
+    if (nCells === 4) {
+      ox = cx + (c % 2 ? 1 : -1) * W * 0.22;
+      oy = cy + (c < 2 ? -1 : 1) * H * 0.18;
+    }
+
+    const chrCount = mode === 'mayoz' ? 2 : 4;
+    for (let i = 0; i < chrCount; i++) {
+      let ang = (i / chrCount) * Math.PI;
+      let clen = 50;
+      let col = i % 2 ? '#58a6ff' : '#f85149';
+      if (phase === 0) { clen = 20; ctx.globalAlpha = 0.3; }
+      else ctx.globalAlpha = 1;
+      if (phase === 2) ang = Math.PI / 2 + (i - chrCount/2) * 0.4;
+      if (phase >= 3) ang = (i < chrCount/2 ? -0.6 : 0.6) + (c * 0.1);
+      if (phase === 1 && mode === 'mayoz' && i < 2) {
+        ctx.strokeStyle = '#ffa657';
+        ctx.setLineDash([4,4]);
+        ctx.beginPath();
+        ctx.moveTo(ox - 20, oy);
+        ctx.lineTo(ox + 20, oy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      drawChrom(ox + Math.cos(ang) * 30, oy + Math.sin(ang) * 20, clen, ang, col);
+    }
+    if (phase >= 4 || (mode === 'mitoz' && phase === 4)) {
+      ctx.strokeStyle = '#484f58';
+      ctx.beginPath();
+      ctx.ellipse(ox, oy, r * 0.5, r * 0.35, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  if (phase >= 1 && phase <= 3) {
+    ctx.strokeStyle = '#8b949e';
+    ctx.setLineDash([3, 5]);
+    for (let a = 0; a < 8; a++) {
+      const ang = t + a * Math.PI / 4;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(ang) * r * 0.9, cy + Math.sin(ang) * r * 0.9);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(mode === 'mitoz' ? '2n → 2n (2 hücre)' : '2n → n (4 gamet)', cx, H - 20);
+  ctx.textAlign = 'left';
+}
+
+function loop() {
+  if (!playing) return;
+  t += 0.04;
+  if (Math.floor(t * 2) % 3 === 0) {
+    phase = (phase + 1) % phases().length;
+    updateInfo();
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+
+resize();
+syncToggle();
+updateInfo();
+</script>
+</body>
+</html>

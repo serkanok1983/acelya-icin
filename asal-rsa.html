@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Asal Sayılar & RSA Fikri</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.7rem, 2.6vw, 0.85rem); opacity: 0.92; line-height: 1.55; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    input[type="range"], input[type="number"] {
+      width: 100%; accent-color: #5b9cff;
+    }
+    input[type="number"] {
+      padding: 8px; background: #14141f; color: #e8e8f0;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+    }
+    button {
+      width: 100%; padding: 9px; margin-top: 4px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+    .tabs button { flex: 1; margin: 0; }
+    .tabs button.active { background: #5b9cff; }
+    .rsa-panel { font-size: 0.8rem; line-height: 1.6; opacity: 0.9; }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 8px 0 0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Asal Sayılar & RSA Fikri</h1>
+  <div class="readout" id="readout">Eratosthenes eleği — 2’den N’e kadar asalları işaretle</div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="640" height="420" role="img" aria-label="Asal elek veya RSA"></canvas>
+</div>
+<div class="controls">
+  <div class="tabs">
+    <button type="button" id="tabSieve" class="active">Asal Elek</button>
+    <button type="button" id="tabRsa">RSA Demosu</button>
+  </div>
+  <div id="sieveControls">
+    <div class="control-row">
+      <label>Üst sınır N <span id="nVal">100</span></label>
+      <input type="range" id="nSl" min="30" max="200" value="100" step="10">
+    </div>
+    <button type="button" id="sieveStep">Bir adım</button>
+    <button type="button" id="sieveRun">Otomatik çalıştır</button>
+    <button type="button" id="sieveReset">Sıfırla</button>
+    <p class="hint">Her adımda en küçük işaretlenmemiş sayının katlarını çiz</p>
+  </div>
+  <div id="rsaControls" style="display:none">
+    <div class="rsa-panel" id="rsaText"></div>
+    <div class="control-row">
+      <label>Asal p</label>
+      <input type="number" id="primeP" min="2" max="97" value="3">
+    </div>
+    <div class="control-row">
+      <label>Asal q</label>
+      <input type="number" id="primeQ" min="2" max="97" value="11">
+    </div>
+    <div class="control-row">
+      <label>Mesaj m (sayı)</label>
+      <input type="number" id="msgM" min="1" max="50" value="5">
+    </div>
+    <button type="button" id="rsaCalc">Şifrele / Çöz</button>
+    <p class="hint">Küçük asallarla eğitim amaçlı; gerçek RSA çok daha büyük anahtar kullanır</p>
+  </div>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 640, H = 420;
+  const readout = document.getElementById("readout");
+
+  let mode = "sieve";
+  let N = 100;
+  let composite = new Uint8Array(201);
+  let sieveP = 2;
+  let sieveDone = false;
+  let animTimer = null;
+
+  function gcd(a, b) { while (b) { const t = b; b = a % b; a = t; } return a; }
+  function modPow(base, exp, mod) {
+    let r = 1n, b = BigInt(base) % BigInt(mod), e = BigInt(exp);
+    while (e > 0n) {
+      if (e & 1n) r = (r * b) % BigInt(mod);
+      b = (b * b) % BigInt(mod);
+      e >>= 1n;
+    }
+    return Number(r);
+  }
+  function isPrime(n) {
+    if (n < 2) return false;
+    for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
+    return true;
+  }
+
+  function resetSieve() {
+    N = +document.getElementById("nSl").value;
+    composite = new Uint8Array(N + 1);
+    composite[0] = composite[1] = 1;
+    sieveP = 2;
+    sieveDone = false;
+    document.getElementById("nVal").textContent = N;
+    readout.innerHTML = `2 … ${N} aralığında Eratosthenes eleği`;
+    draw();
+  }
+
+  function sieveOneStep() {
+    if (sieveDone) return;
+    while (sieveP <= N && composite[sieveP]) sieveP++;
+    if (sieveP > N) {
+      sieveDone = true;
+      const count = [...Array(N + 1).keys()].filter(i => i >= 2 && !composite[i]).length;
+      readout.innerHTML = `Tamamlandı — <span>${count}</span> asal sayı bulundu`;
+      stopAnim();
+      draw();
+      return;
+    }
+    const p = sieveP;
+    for (let k = p * p; k <= N; k += p) composite[k] = 1;
+    readout.innerHTML = `<span>${p}</span> asal — katları (${p}·k) elendi`;
+    sieveP++;
+    draw();
+  }
+
+  function stopAnim() {
+    if (animTimer) { clearInterval(animTimer); animTimer = null; }
+    document.getElementById("sieveRun").textContent = "Otomatik çalıştır";
+  }
+
+  function drawSieve() {
+    const cols = window.innerWidth < 400 ? 10 : 14;
+    const cell = Math.min((W - 40) / cols, (H - 50) / Math.ceil(N / cols), 36);
+    const rows = Math.ceil(N / cols);
+    const gridW = cols * cell;
+    const ox = (W - gridW) / 2;
+    const oy = 28;
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.font = "12px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("Mavi: asal · Gri: bileşik · Turuncu: şu anki eleme", W / 2, 16);
+
+    let curP = sieveP;
+    while (curP <= N && composite[curP]) curP++;
+
+    for (let num = 2; num <= N; num++) {
+      const i = num - 2;
+      const c = i % cols, r = Math.floor(i / cols);
+      const x = ox + c * cell, y = oy + r * cell;
+      const isComp = composite[num];
+      const isCurrent = !sieveDone && num === curP;
+
+      if (isCurrent) ctx.fillStyle = "rgba(255, 159, 107, 0.85)";
+      else if (isComp) ctx.fillStyle = "rgba(80, 80, 100, 0.5)";
+      else ctx.fillStyle = "rgba(91, 156, 255, 0.55)";
+
+      ctx.fillRect(x + 2, y + 2, cell - 4, cell - 4);
+      ctx.strokeStyle = isCurrent ? "#ff9f6b" : "rgba(255,255,255,0.12)";
+      ctx.lineWidth = isCurrent ? 2 : 1;
+      ctx.strokeRect(x + 2, y + 2, cell - 4, cell - 4);
+
+      ctx.fillStyle = isComp ? "rgba(255,255,255,0.35)" : "#e8e8f0";
+      ctx.font = `${Math.max(10, cell * 0.38)}px system-ui`;
+      ctx.fillText(String(num), x + cell / 2, y + cell / 2 + 4);
+    }
+  }
+
+  function drawRsa() {
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+
+    const p = +document.getElementById("primeP").value;
+    const q = +document.getElementById("primeQ").value;
+    const m = +document.getElementById("msgM").value;
+    const panel = document.getElementById("rsaText");
+
+    if (!isPrime(p) || !isPrime(q) || p === q) {
+      panel.innerHTML = "p ve q farklı asal sayılar olmalı.";
+      ctx.fillStyle = "rgba(255,120,120,0.9)";
+      ctx.font = "14px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText("Geçerli asal p, q seçin", W / 2, H / 2);
+      return;
+    }
+
+    const n = p * q;
+    const phi = (p - 1) * (q - 1);
+    let e = 3;
+    while (e < phi && gcd(e, phi) !== 1) e++;
+    let d = 1;
+    while ((e * d) % phi !== 1) d++;
+    if (d === 1 && e * d % phi !== 1) {
+      for (d = 2; d < phi; d++) if ((e * d) % phi === 1) break;
+    }
+
+    const c = m < n ? modPow(m, e, n) : NaN;
+    const m2 = Number.isFinite(c) ? modPow(c, d, n) : NaN;
+
+    panel.innerHTML =
+      `n = p·q = <span>${n}</span> · φ(n) = <span>${phi}</span><br>` +
+      `Açık anahtar (e,n) = (<span>${e}</span>, <span>${n}</span>) · Gizli d = <span>${d}</span><br>` +
+      `Şifre: c = m<sup>e</sup> mod n = <span>${c}</span> · Çözüm: m' = <span>${m2}</span>`;
+
+    readout.innerHTML = m >= n
+      ? `m &lt; n (${n}) olmalı`
+      : `Mesaj <span>${m}</span> → şifreli <span>${c}</span> → geri <span>${m2}</span>`;
+
+    const cx = W / 2, cy = H / 2 + 10;
+    const boxes = [
+      { label: "p", val: p, x: cx - 180, color: "#7ec8ff" },
+      { label: "q", val: q, x: cx - 60, color: "#a8b4ff" },
+      { label: "n", val: n, x: cx + 60, color: "#ff9f6b" },
+      { label: "m→c", val: `${m}→${c}`, x: cx + 180, color: "#c8ff7e" },
+    ];
+
+    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cx - 120, cy);
+    ctx.lineTo(cx + 120, cy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    boxes.forEach(b => {
+      ctx.fillStyle = b.color + "44";
+      ctx.strokeStyle = b.color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(b.x - 50, cy - 40, 100, 80, 8);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#e8e8f0";
+      ctx.font = "bold 13px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText(b.label, b.x, cy - 12);
+      ctx.font = "15px system-ui";
+      ctx.fillText(String(b.val), b.x, cy + 18);
+    });
+
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = "11px system-ui";
+    ctx.fillText("RSA: büyük asallarla n hesaplanır; çarpanlara ayırmak zordur", W / 2, H - 16);
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (mode === "sieve") drawSieve();
+    else drawRsa();
+  }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const scale = Math.min((window.innerWidth - pad) / W, Math.max(180, bottom - top - pad) / H, 1.15);
+    canvas.style.width = Math.floor(W * scale) + "px";
+    canvas.style.height = Math.floor(H * scale) + "px";
+  }
+
+  document.getElementById("tabSieve").onclick = () => {
+    mode = "sieve";
+    document.getElementById("tabSieve").classList.add("active");
+    document.getElementById("tabRsa").classList.remove("active");
+    document.getElementById("sieveControls").style.display = "";
+    document.getElementById("rsaControls").style.display = "none";
+    stopAnim();
+    draw();
+  };
+  document.getElementById("tabRsa").onclick = () => {
+    mode = "rsa";
+    document.getElementById("tabRsa").classList.add("active");
+    document.getElementById("tabSieve").classList.remove("active");
+    document.getElementById("sieveControls").style.display = "none";
+    document.getElementById("rsaControls").style.display = "";
+    stopAnim();
+    drawRsa();
+    draw();
+  };
+
+  document.getElementById("nSl").addEventListener("input", resetSieve);
+  document.getElementById("sieveStep").onclick = sieveOneStep;
+  document.getElementById("sieveReset").onclick = () => { stopAnim(); resetSieve(); };
+  document.getElementById("sieveRun").onclick = () => {
+    if (animTimer) { stopAnim(); return; }
+    document.getElementById("sieveRun").textContent = "Durdur";
+    animTimer = setInterval(() => {
+      if (sieveDone) stopAnim();
+      else sieveOneStep();
+    }, 120);
+  };
+  ["primeP", "primeQ", "msgM"].forEach(id =>
+    document.getElementById(id).addEventListener("input", () => { if (mode === "rsa") draw(); })
+  );
+  document.getElementById("rsaCalc").onclick = draw;
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resetSieve();
+  resize();
+})();
+</script>
+</body>
+</html>

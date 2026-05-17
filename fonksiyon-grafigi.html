@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Fonksiyon Grafiği</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; }
+    .readout span { color: #7eb6ff; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+      touch-action: none;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+      cursor: grab;
+    }
+    #simCanvas.dragging { cursor: grabbing; }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    select, input[type="range"] {
+      width: 100%; accent-color: #5b9cff;
+    }
+    select {
+      padding: 8px; background: #14141f; color: #e8e8f0;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+    }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 0 0 8px; }
+    button {
+      width: 100%; padding: 8px; margin-top: 4px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Fonksiyon Grafiği</h1>
+  <div class="readout" id="readout">y = sin(x)</div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="720" height="400" role="img" aria-label="Fonksiyon grafiği"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label for="fn">Fonksiyon</label>
+    <select id="fn">
+      <option value="sin">y = sin(x)</option>
+      <option value="cos">y = cos(x)</option>
+      <option value="x2">y = x²</option>
+      <option value="exp">y = eˣ</option>
+      <option value="log">y = ln(x)</option>
+    </select>
+  </div>
+  <div class="control-row">
+    <label>Görünen x aralığı (yarıçap) <span id="rangeVal">2π</span></label>
+    <input type="range" id="xRange" min="2" max="20" value="6" step="0.5">
+  </div>
+  <p class="hint">Sürükleyerek kaydır · İki parmak veya tekerlek ile yakınlaştır</p>
+  <button type="button" id="resetView">Görünümü sıfırla</button>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 720, H = 400;
+  const fnSel = document.getElementById("fn");
+  const xRangeSl = document.getElementById("xRange");
+  const readout = document.getElementById("readout");
+
+  let centerX = 0, centerY = 0;
+  let spanX = Math.PI * 2;
+  let spanY = 4;
+  let dragging = false;
+  let lastX = 0, lastY = 0;
+
+  const fns = {
+    sin: { label: "y = sin(x)", f: x => Math.sin(x), color: "#7ec8ff" },
+    cos: { label: "y = cos(x)", f: x => Math.cos(x), color: "#a8b4ff" },
+    x2: { label: "y = x²", f: x => x * x, color: "#ff9f6b" },
+    exp: { label: "y = eˣ", f: x => Math.exp(x), color: "#c8ff7e" },
+    log: { label: "y = ln(x)", f: x => x > 0 ? Math.log(x) : NaN, color: "#ffb07e" },
+  };
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const availW = window.innerWidth - pad;
+    const availH = Math.max(200, bottom - top - pad);
+    const scale = Math.min(availW / W, availH / H, 1.15);
+    canvas.style.width = Math.floor(W * scale) + "px";
+    canvas.style.height = Math.floor(H * scale) + "px";
+  }
+
+  function worldToScreen(x, y) {
+    return {
+      sx: W / 2 + ((x - centerX) / spanX) * (W * 0.45),
+      sy: H / 2 - ((y - centerY) / spanY) * (H * 0.42),
+    };
+  }
+
+  function screenToWorld(sx, sy) {
+    return {
+      x: centerX + ((sx - W / 2) / (W * 0.45)) * spanX,
+      y: centerY - ((sy - H / 2) / (H * 0.42)) * spanY,
+    };
+  }
+
+  function drawGrid() {
+    const stepX = spanX > 8 ? 1 : spanX > 3 ? 0.5 : 0.25;
+    const stepY = spanY > 8 ? 2 : spanY > 3 ? 1 : 0.5;
+    const x0 = Math.floor((centerX - spanX) / stepX) * stepX;
+    const x1 = centerX + spanX;
+    const y0 = Math.floor((centerY - spanY) / stepY) * stepY;
+    const y1 = centerY + spanY;
+
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.lineWidth = 1;
+    for (let x = x0; x <= x1; x += stepX) {
+      const p = worldToScreen(x, 0);
+      ctx.beginPath();
+      ctx.moveTo(p.sx, 0);
+      ctx.lineTo(p.sx, H);
+      ctx.stroke();
+    }
+    for (let y = y0; y <= y1; y += stepY) {
+      const p = worldToScreen(0, y);
+      ctx.beginPath();
+      ctx.moveTo(0, p.sy);
+      ctx.lineTo(W, p.sy);
+      ctx.stroke();
+    }
+
+    const ax = worldToScreen(0, 0);
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, ax.sy);
+    ctx.lineTo(W, ax.sy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ax.sx, 0);
+    ctx.lineTo(ax.sx, H);
+    ctx.stroke();
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const key = fnSel.value;
+    const spec = fns[key];
+    readout.innerHTML = `<span>${spec.label}</span> · x ∈ [${(centerX - spanX).toFixed(1)}, ${(centerX + spanX).toFixed(1)}]`;
+
+    document.getElementById("rangeVal").textContent =
+      spanX >= Math.PI * 1.9 ? "2π" : spanX.toFixed(1);
+    xRangeSl.value = Math.min(20, Math.max(2, spanX));
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+    drawGrid();
+
+    const samples = Math.floor(W * 1.2);
+    const xMin = centerX - spanX * 1.05;
+    const xMax = centerX + spanX * 1.05;
+    const dx = (xMax - xMin) / samples;
+
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= samples; i++) {
+      const x = xMin + i * dx;
+      const y = spec.f(x);
+      if (!Number.isFinite(y)) { started = false; continue; }
+      const p = worldToScreen(x, y);
+      if (!started) { ctx.moveTo(p.sx, p.sy); started = true; }
+      else ctx.lineTo(p.sx, p.sy);
+    }
+    ctx.strokeStyle = spec.color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+  }
+
+  fnSel.addEventListener("change", () => {
+    const key = fnSel.value;
+    if (key === "log") { centerX = 3; centerY = 0; spanY = 3; }
+    else if (key === "exp") { centerX = 0; centerY = 2; spanY = 6; }
+    else if (key === "x2") { centerX = 0; centerY = 2; spanY = 5; }
+    else { centerX = 0; centerY = 0; spanY = 2.5; }
+    draw();
+  });
+
+  xRangeSl.addEventListener("input", () => {
+    spanX = +xRangeSl.value;
+    draw();
+  });
+
+  canvas.addEventListener("pointerdown", e => {
+    dragging = true;
+    canvas.classList.add("dragging");
+    lastX = e.clientX;
+    lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    const dx = (e.clientX - lastX) * scaleX;
+    const dy = (e.clientY - lastY) * scaleY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    centerX -= (dx / (W * 0.45)) * spanX;
+    centerY += (dy / (H * 0.42)) * spanY;
+    draw();
+  });
+  canvas.addEventListener("pointerup", () => {
+    dragging = false;
+    canvas.classList.remove("dragging");
+  });
+  canvas.addEventListener("wheel", e => {
+    e.preventDefault();
+    const factor = e.deltaY > 0 ? 1.08 : 0.92;
+    spanX *= factor;
+    spanY *= factor;
+    spanX = Math.max(0.5, Math.min(30, spanX));
+    spanY = Math.max(0.5, Math.min(30, spanY));
+    xRangeSl.value = Math.min(20, Math.max(2, spanX));
+    draw();
+  }, { passive: false });
+
+  document.getElementById("resetView").addEventListener("click", () => {
+    centerX = 0; centerY = 0;
+    spanX = +xRangeSl.value;
+    spanY = fnSel.value === "exp" ? 6 : fnSel.value === "x2" ? 5 : 2.5;
+    fnSel.dispatchEvent(new Event("change"));
+  });
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaldırma Kuvveti — Arşimet</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; touch-action: none; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 150px; accent-color: #58a6ff; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 40rem; }
+  </style>
+</head>
+<body>
+  <h1>Kaldırma Kuvveti (Arşimet)</h1>
+  <p class="sub">F_k = ρ_sıvı · g · V_batan. Cismi sürükleyerek batma hacmini değiştirin.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Cisim yoğunluğu ρ_c (g/cm³) <input type="range" id="rhoObj" min="0.3" max="8" step="0.1" value="2.7"></label>
+    <label>Sıvı yoğunluğu ρ_s (g/cm³) <input type="range" id="rhoFl" min="0.5" max="2" step="0.05" value="1"></label>
+    <label>Hacim (cm³) <input type="range" id="volume" min="20" max="120" value="60"></label>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, submerge = 0.5;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(720, innerWidth - 24); H = Math.min(440, innerHeight * 0.55);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+['rhoObj','rhoFl','volume'].forEach(id => document.getElementById(id).oninput = draw);
+
+cv.addEventListener('pointermove', e => {
+  if (e.buttons !== 1) return;
+  const r = cv.getBoundingClientRect();
+  submerge = Math.max(0, Math.min(1, (e.clientY - r.top - H * 0.25) / (H * 0.45)));
+  draw();
+});
+
+function arrow(x, y, len, dir, color, label) {
+  const dy = dir * len;
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + dy); ctx.stroke();
+  const tip = y + dy;
+  ctx.beginPath();
+  ctx.moveTo(x, tip);
+  ctx.lineTo(x - 6, tip - dir * 10);
+  ctx.lineTo(x + 6, tip - dir * 10);
+  ctx.closePath(); ctx.fill();
+  ctx.font = '12px sans-serif';
+  ctx.fillText(label, x + 10, tip - dir * 5);
+}
+
+function draw() {
+  const rhoO = +document.getElementById('rhoObj').value;
+  const rhoF = +document.getElementById('rhoFl').value;
+  const V = +document.getElementById('volume').value;
+  const g = 9.8;
+  const side = Math.cbrt(V) * 4;
+  const Vsub = V * submerge;
+  const Fb = rhoF * 1000 * g * (Vsub / 1e6);
+  const Wobj = rhoO * 1000 * g * (V / 1e6);
+  const net = Fb - Wobj;
+
+  const tankL = W * 0.2, tankR = W * 0.8, waterY = H * 0.42;
+  const objTop = waterY - side * submerge;
+  const cx = W / 2;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#484f58';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(tankL, H * 0.15, tankR - tankL, H * 0.7);
+
+  ctx.fillStyle = 'rgba(88,166,255,0.25)';
+  ctx.fillRect(tankL + 3, waterY, tankR - tankL - 6, H * 0.85 - waterY);
+  ctx.strokeStyle = '#58a6ff';
+  ctx.setLineDash([8, 6]);
+  ctx.beginPath(); ctx.moveTo(tankL, waterY); ctx.lineTo(tankR, waterY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#58a6ff';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('Sıvı yüzeyi', tankR + 8, waterY + 4);
+
+  ctx.fillStyle = '#a371f7';
+  ctx.fillRect(cx - side / 2, objTop, side, side);
+  ctx.strokeStyle = '#d2a8ff';
+  ctx.strokeRect(cx - side / 2, objTop, side, side);
+
+  const submergedH = Math.min(side, Math.max(0, waterY + side * 0 - objTop));
+  const bat = Math.max(0, Math.min(side, waterY - objTop + side));
+  ctx.fillStyle = 'rgba(88,166,255,0.35)';
+  ctx.fillRect(cx - side / 2, Math.max(objTop, waterY - bat), side, bat);
+
+  const oy = objTop + side / 2;
+  arrow(cx + side / 2 + 20, oy, 50 + Wobj * 8, 1, '#f85149', 'G');
+  arrow(cx + side / 2 + 50, oy, 50 + Fb * 8, -1, '#3fb950', 'F_k');
+
+  const floats = Fb >= Wobj;
+  ctx.fillStyle = floats ? '#3fb950' : '#f85149';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(floats ? 'Yüzer / Askıda' : 'Batar', W / 2, H * 0.1);
+
+  document.getElementById('info').textContent =
+    `V_batan = ${Vsub.toFixed(0)} cm³  |  F_k = ${Fb.toFixed(2)} N  |  G = ${Wobj.toFixed(2)} N  |  Net: ${net.toFixed(2)} N  (ρ_c=${rhoO}, ρ_s=${rhoF})`;
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

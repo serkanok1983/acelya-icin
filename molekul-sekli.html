@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molekül Şekli (VSEPR)</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 36rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; cursor: grab; touch-action: none; }
+    .panel { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 1rem; }
+    select, button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; }
+    #info { font-size: 0.9rem; color: #8b949e; text-align: center; max-width: 40rem; line-height: 1.5; }
+    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>VSEPR — Molekül Geometrisi</h1>
+  <p class="sub">Bağ açıları ve elektron çifti itmesi molekül şeklini belirler. Sürükleyerek döndürün.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <select id="mol"></select>
+    <button id="toggle3d">2D / 3D</button>
+  </div>
+  <p id="info"></p>
+  <a class="back" href="index.html">← Ana menü</a>
+<script>
+const MOLECULES = [
+  { id:'ch4', name:'CH₄ — Metan', geom:'Tetrahedral', angle:'109,5°', bonds:[
+    {dx:0,dy:-1,dz:0},{dx:0.94,dy:0.33,dz:0.33},{dx:-0.47,dy:0.33,dz:0.82},{dx:-0.47,dy:0.33,dz:-0.82}
+  ], lone:0 },
+  { id:'nh3', name:'NH₃ — Amonyak', geom:'Üçgen piramit', angle:'107°', bonds:[
+    {dx:0,dy:-1,dz:0},{dx:0.94,dy:0.33,dz:0},{dx:-0.94,dy:0.33,dz:0}
+  ], lone:1 },
+  { id:'h2o', name:'H₂O — Su', geom:'Açısal (kıvrık)', angle:'104,5°', bonds:[
+    {dx:0.85,dy:-0.35,dz:0},{dx:-0.85,dy:-0.35,dz:0}
+  ], lone:2 },
+  { id:'co2', name:'CO₂ — Karbondioksit', geom:'Doğrusal', angle:'180°', bonds:[
+    {dx:-1,dy:0,dz:0},{dx:1,dy:0,dz:0}
+  ], lone:0 },
+  { id:'bf3', name:'BF₃ — Bor triflorür', geom:'Düzlemsel üçgen', angle:'120°', bonds:[
+    {dx:0,dy:-1,dz:0},{dx:0.87,dy:0.5,dz:0},{dx:-0.87,dy:0.5,dz:0}
+  ], lone:0 },
+  { id:'sf6', name:'SF₆ — Kükürt hekzaflorür', geom:'Oktahedral', angle:'90°', bonds:[
+    {dx:0,dy:-1,dz:0},{dx:0,dy:1,dz:0},{dx:1,dy:0,dz:0},{dx:-1,dy:0,dz:0},{dx:0,dy:0,dz:1},{dx:0,dy:0,dz:-1}
+  ], lone:0 }
+];
+
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, rotY = 0.6, rotX = 0.3, dragging = false, lastX, lastY, mode3d = true;
+
+const sel = document.getElementById('mol');
+MOLECULES.forEach((m, i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = m.name;
+  sel.appendChild(o);
+});
+sel.onchange = draw;
+document.getElementById('toggle3d').onclick = () => { mode3d = !mode3d; draw(); };
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(560, innerWidth - 24); H = Math.min(480, innerHeight * 0.55);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+window.addEventListener('resize', resize);
+
+cv.onpointerdown = e => { dragging = true; lastX = e.clientX; lastY = e.clientY; cv.setPointerCapture(e.pointerId); };
+cv.onpointermove = e => {
+  if (!dragging) return;
+  rotY += (e.clientX - lastX) * 0.01;
+  rotX += (e.clientY - lastY) * 0.01;
+  lastX = e.clientX; lastY = e.clientY;
+  draw();
+};
+cv.onpointerup = () => dragging = false;
+
+function project(x, y, z) {
+  if (!mode3d) return { x: W/2 + x * 90, y: H/2 + y * 90, z: 0 };
+  const cy = Math.cos(rotY), sy = Math.sin(rotY);
+  const cx = Math.cos(rotX), sx = Math.sin(rotX);
+  const x1 = x * cy - z * sy;
+  const z1 = x * sy + z * cy;
+  const y1 = y * cx - z1 * sx;
+  const z2 = y * sx + z1 * cx;
+  return { x: W/2 + x1 * 100, y: H/2 + y1 * 100, z: z2 };
+}
+
+function draw() {
+  const m = MOLECULES[+sel.value];
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  const center = { x: 0, y: 0, z: 0 };
+  const atoms = [{ ...center, type: 'C', label: m.id.includes('h2o') ? 'O' : m.id.includes('nh3') ? 'N' : m.id.includes('bf3') ? 'B' : m.id.includes('sf6') ? 'S' : 'C' }];
+  m.bonds.forEach(b => atoms.push({ x: b.dx, y: b.dy, z: b.dz, type: 'H' }));
+
+  const projected = atoms.map((a, i) => {
+    const p = project(a.x || 0, a.y || 0, a.z || 0);
+    return { ...p, i, type: a.type, label: i === 0 ? atoms[0].label : 'H' };
+  });
+  projected.sort((a, b) => a.z - b.z);
+
+  projected.forEach((p, idx) => {
+    if (p.i > 0) {
+      const c = projected.find(x => x.i === 0);
+      ctx.strokeStyle = '#58a6ff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(c.x, c.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+  });
+
+  if (m.lone > 0 && mode3d) {
+    const c = projected.find(x => x.i === 0);
+    ctx.fillStyle = 'rgba(210,168,255,0.35)';
+    ctx.beginPath();
+    ctx.arc(c.x, c.y - 35, 18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#d2a8ff';
+    ctx.font = '10px system-ui';
+    ctx.fillText('İzole çift', c.x - 28, c.y - 50);
+  }
+
+  projected.forEach(p => {
+    const r = p.i === 0 ? 22 : 14;
+    ctx.fillStyle = p.i === 0 ? '#f85149' : '#79c0ff';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.label, p.x, p.y + 5);
+    ctx.textAlign = 'left';
+  });
+
+  document.getElementById('info').innerHTML =
+    `<strong>${m.geom}</strong> · Bağ açısı ≈ ${m.angle} · Bağ sayısı: ${m.bonds.length}` +
+    (m.lone ? ` · İzole çift: ${m.lone}` : '') +
+    (mode3d ? ' · Fare/sürükle ile döndürün' : ' · 2D görünüm');
+}
+resize();
+</script>
+</body>
+</html>

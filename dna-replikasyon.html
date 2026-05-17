@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNA Replikasyonu</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 38rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; }
+    .panel { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 1rem; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    button.active { background: #388bfd; border-color: #58a6ff; }
+    #stepInfo { font-size: 0.95rem; color: #79c0ff; text-align: center; max-width: 40rem; min-height: 2.5rem; }
+    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>DNA Replikasyonu</h1>
+  <p class="sub">Yarı korunumlu kopyalama: çift sarmal açılır, primer bağlanır, DNA polimeraz yeni zincir sentezler.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <button class="step-btn active" data-s="0">1. Açılma</button>
+    <button class="step-btn" data-s="1">2. Primer</button>
+    <button class="step-btn" data-s="2">3. Sentez</button>
+    <button class="step-btn" data-s="3">4. Tamamlanma</button>
+    <button id="playBtn">Oynat</button>
+  </div>
+  <p id="stepInfo"></p>
+  <a class="back" href="index.html">← Ana menü</a>
+<script>
+const STEPS = [
+  { title: 'Helikaz — çift sarmal açılır', desc: 'DNA helikaz hidrojen bağlarını kopararak replikasyon çatalı oluşur.' },
+  { title: 'Primer RNA bağlanır', desc: 'Primaz kısa RNA primerleri sentezler; DNA polimeraz III buradan başlar.' },
+  { title: 'DNA polimeraz — yeni iplik', desc: '5\'→3\' yönünde komplementer nükleotidler eklenir (A-T, G-C).' },
+  { title: 'İki özdeş DNA molekülü', desc: 'Her yeni çift sarmalda bir eski (ana), bir yeni iplik bulunur — yarı korunumlu.' }
+];
+const BASE_COL = { A:'#f85149', T:'#58a6ff', G:'#3fb950', C:'#ffa657' };
+const PAIR = { A:'T', T:'A', G:'C', C:'G' };
+const SEQ = 'ATGCGATACGTA';
+
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, step = 0, anim = 0, playing = false;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(800, innerWidth - 24); H = Math.min(400, innerHeight * 0.5);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+document.querySelectorAll('.step-btn').forEach(b => {
+  b.onclick = () => setStep(+b.dataset.s);
+});
+document.getElementById('playBtn').onclick = () => {
+  playing = !playing;
+  document.getElementById('playBtn').textContent = playing ? 'Durdur' : 'Oynat';
+  if (playing) tick();
+};
+
+function setStep(s) {
+  step = s; anim = 0;
+  document.querySelectorAll('.step-btn').forEach(b => b.classList.toggle('active', +b.dataset.s === s));
+  const st = STEPS[s];
+  document.getElementById('stepInfo').innerHTML = `<strong>${st.title}</strong><br>${st.desc}`;
+  draw();
+}
+
+function drawStrand(y, bases, flip, progress, isNew) {
+  const n = bases.length;
+  const spacing = Math.min(28, (W - 120) / n);
+  const startX = (W - spacing * (n - 1)) / 2;
+  const fork = step >= 1 ? Math.min(1, anim) * 40 : 0;
+  const yOff = flip ? fork : -fork;
+
+  for (let i = 0; i < n; i++) {
+    const show = step < 2 ? 1 : Math.min(1, (anim * n - i) / 2);
+    if (show <= 0) continue;
+    const x = startX + i * spacing + (flip ? fork * 0.3 : -fork * 0.3);
+    const b = bases[i];
+    ctx.globalAlpha = isNew ? show : 1;
+    ctx.fillStyle = BASE_COL[b];
+    ctx.beginPath();
+    ctx.arc(x, y + yOff, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#e6edf3';
+    ctx.font = '10px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText(b, x, y + yOff + 4);
+    if (step >= 1 && i < 2 && step < 3) {
+      ctx.fillStyle = '#d2a8ff';
+      ctx.fillRect(x - 4, y + yOff - 18, 8, 6);
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (step >= 1) {
+    ctx.strokeStyle = '#484f58';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(startX - 20, y);
+    for (let i = 0; i < n; i++) {
+      const x = startX + i * spacing + (flip ? fork * 0.3 : -fork * 0.3);
+      ctx.lineTo(x, y + yOff);
+    }
+    ctx.stroke();
+  }
+}
+
+function draw() {
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+  const mid = H / 2;
+  const top = SEQ.split('');
+  const bot = top.map(b => PAIR[b]);
+  const newTop = step >= 2 ? bot : [];
+  const newBot = step >= 2 ? top : [];
+
+  if (step === 0) {
+    drawStrand(mid - 50, top, false, 0, false);
+    drawStrand(mid + 50, bot, true, 0, false);
+  } else {
+    drawStrand(mid - 70, top, false, anim, false);
+    drawStrand(mid + 70, bot, true, anim, false);
+    if (step >= 2) {
+      drawStrand(mid - 70, newTop.length ? newTop : bot, false, anim, true);
+      drawStrand(mid + 70, newBot.length ? newBot : top, true, anim, true);
+    }
+  }
+
+  if (step >= 1) {
+    ctx.fillStyle = '#ffa657';
+    ctx.font = '11px system-ui';
+    ctx.fillText('Helikaz', W/2 - 24, mid - 8);
+    if (step >= 2) {
+      ctx.fillStyle = '#3fb950';
+      ctx.fillText('DNA Pol III →', W * 0.72, mid - 55);
+      ctx.fillText('← DNA Pol III', W * 0.12, mid + 65);
+    }
+  }
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '10px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('5\'', 30, mid - 70);
+  ctx.fillText('3\'', W - 30, mid + 70);
+  ctx.textAlign = 'left';
+}
+
+function tick() {
+  if (!playing) return;
+  anim += 0.02;
+  if (anim >= 1.2) {
+    anim = 0;
+    step = (step + 1) % 4;
+    document.querySelectorAll('.step-btn').forEach(b => b.classList.toggle('active', +b.dataset.s === step));
+    const st = STEPS[step];
+    document.getElementById('stepInfo').innerHTML = `<strong>${st.title}</strong><br>${st.desc}`;
+  }
+  draw();
+  requestAnimationFrame(tick);
+}
+
+resize();
+setStep(0);
+</script>
+</body>
+</html>

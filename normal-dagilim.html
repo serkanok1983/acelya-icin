@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Normal Dağılım</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; line-height: 1.5; }
+    .readout span { color: #7eb6ff; font-variant-numeric: tabular-nums; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #simCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    input[type="range"] { width: 100%; accent-color: #5b9cff; }
+    button {
+      width: 100%; padding: 8px; margin-top: 4px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 6px 0 0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Normal Dağılım</h1>
+  <div class="readout" id="readout"></div>
+</header>
+<div class="stage">
+  <canvas id="simCanvas" width="720" height="400" role="img" aria-label="Normal dağılım çan eğrisi"></canvas>
+</div>
+<div class="controls">
+  <div class="control-row">
+    <label>Ortalama μ <span id="muVal">0</span></label>
+    <input type="range" id="muSl" min="-3" max="3" value="0" step="0.1">
+  </div>
+  <div class="control-row">
+    <label>Standart sapma σ <span id="sigmaVal">1.0</span></label>
+    <input type="range" id="sigmaSl" min="0.3" max="2.5" value="1" step="0.05">
+  </div>
+  <button type="button" id="sampleBtn">1000 örnek çek (histogram)</button>
+  <p class="hint">f(x) = (1/σ√2π) e^{−(x−μ)²/(2σ²)}</p>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 720, H = 400;
+  const readout = document.getElementById("readout");
+  const xMin = -6, xMax = 6;
+
+  let histogram = null;
+
+  function pdf(x, mu, sigma) {
+    const z = (x - mu) / sigma;
+    return Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
+  }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const scale = Math.min((window.innerWidth - pad) / W, Math.max(200, bottom - top - pad) / H, 1.15);
+    canvas.style.width = Math.floor(W * scale) + "px";
+    canvas.style.height = Math.floor(H * scale) + "px";
+  }
+
+  function toScreen(x, y, yMax) {
+    const padL = 48, padR = 24, padT = 28, padB = 44;
+    const pw = W - padL - padR, ph = H - padT - padB;
+    return {
+      sx: padL + (x - xMin) / (xMax - xMin) * pw,
+      sy: padT + ph - (y / yMax) * ph,
+    };
+  }
+
+  function gaussSample(mu, sigma) {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return mu + sigma * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const mu = +document.getElementById("muSl").value;
+    const sigma = +document.getElementById("sigmaSl").value;
+    document.getElementById("muVal").textContent = mu.toFixed(1);
+    document.getElementById("sigmaVal").textContent = sigma.toFixed(2);
+
+    const yMax = pdf(mu, mu, sigma) * 1.15;
+    readout.innerHTML =
+      `μ = <span>${mu.toFixed(1)}</span> · σ = <span>${sigma.toFixed(2)}</span> · %68 aralık [μ−σ, μ+σ] = [${(mu - sigma).toFixed(1)}, ${(mu + sigma).toFixed(1)}]`;
+
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, W, H);
+
+    const padL = 48, padT = 28, padB = 44;
+    const origin = toScreen(0, 0, yMax);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.1)";
+    for (let x = -6; x <= 6; x += 1) {
+      const p = toScreen(x, 0, yMax);
+      ctx.beginPath();
+      ctx.moveTo(p.sx, padT);
+      ctx.lineTo(p.sx, H - padB);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.beginPath();
+    ctx.moveTo(padL, origin.sy);
+    ctx.lineTo(W - 24, origin.sy);
+    ctx.stroke();
+
+    if (histogram) {
+      const { counts, total } = histogram;
+      const bins = counts.length;
+      const bw = (xMax - xMin) / bins;
+      for (let i = 0; i < bins; i++) {
+        const x0 = xMin + i * bw;
+        const h = counts[i] / (total * bw);
+        const p0 = toScreen(x0, 0, yMax);
+        const p1 = toScreen(x0 + bw, h, yMax);
+        ctx.fillStyle = "rgba(168, 180, 255, 0.35)";
+        ctx.fillRect(p0.sx, p1.sy, p1.sx - p0.sx, origin.sy - p1.sy);
+      }
+    }
+
+    const samples = 400;
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= samples; i++) {
+      const x = xMin + (xMax - xMin) * i / samples;
+      const y = pdf(x, mu, sigma);
+      const p = toScreen(x, y, yMax);
+      if (!started) { ctx.moveTo(p.sx, p.sy); started = true; }
+      else ctx.lineTo(p.sx, p.sy);
+    }
+    const pEnd = toScreen(xMax, 0, yMax);
+    const pStart = toScreen(xMin, 0, yMax);
+    ctx.lineTo(pEnd.sx, origin.sy);
+    ctx.lineTo(pStart.sx, origin.sy);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(91, 156, 255, 0.2)";
+    ctx.fill();
+    ctx.strokeStyle = "#7ec8ff";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    started = false;
+    for (let i = 0; i <= samples; i++) {
+      const x = xMin + (xMax - xMin) * i / samples;
+      const y = pdf(x, mu, sigma);
+      const p = toScreen(x, y, yMax);
+      if (!started) { ctx.moveTo(p.sx, p.sy); started = true; }
+      else ctx.lineTo(p.sx, p.sy);
+    }
+    ctx.stroke();
+
+    const muP = toScreen(mu, 0, yMax);
+    const s1 = toScreen(mu - sigma, 0, yMax);
+    const s2 = toScreen(mu + sigma, 0, yMax);
+    ctx.fillStyle = "rgba(255, 159, 107, 0.12)";
+    ctx.fillRect(s1.sx, padT, s2.sx - s1.sx, origin.sy - padT);
+    ctx.strokeStyle = "#ff9f6b";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(muP.sx, padT);
+    ctx.lineTo(muP.sx, origin.sy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.font = "11px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("μ", muP.sx, H - 14);
+    ctx.fillText("μ−σ", s1.sx, H - 14);
+    ctx.fillText("μ+σ", s2.sx, H - 14);
+  }
+
+  document.getElementById("sampleBtn").onclick = () => {
+    const mu = +document.getElementById("muSl").value;
+    const sigma = +document.getElementById("sigmaSl").value;
+    const bins = 40;
+    const counts = new Array(bins).fill(0);
+    const N = 1000;
+    let inRange = 0;
+    for (let i = 0; i < N; i++) {
+      const x = gaussSample(mu, sigma);
+      if (x < xMin || x > xMax) continue;
+      inRange++;
+      const bi = Math.floor((x - xMin) / (xMax - xMin) * bins);
+      counts[Math.min(bins - 1, Math.max(0, bi))]++;
+    }
+    histogram = { counts, total: inRange || 1 };
+    draw();
+  };
+
+  ["muSl", "sigmaSl"].forEach(id =>
+    document.getElementById(id).addEventListener("input", () => { histogram = null; draw(); })
+  );
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalp & Dolaşım</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 38rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 160px; accent-color: #f85149; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    #info { font-size: 0.9rem; color: #8b949e; text-align: center; max-width: 40rem; }
+    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>Kalp ve Kan Dolaşımı</h1>
+  <p class="sub">Kalp atışı: sistol (kasılma) ve diyastol (gevşeme). Oksijenli ve oksijensiz kan yolları.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Nabız (atım/dk) <input type="range" id="bpm" min="40" max="120" value="72"></label>
+    <button id="pauseBtn">Duraklat</button>
+  </div>
+  <p id="info"></p>
+  <a class="back" href="index.html">← Ana menü</a>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, t = 0, paused = false;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(700, innerWidth - 24); H = Math.min(460, innerHeight * 0.55);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+document.getElementById('bpm').oninput = () => {};
+document.getElementById('pauseBtn').onclick = function() {
+  paused = !paused;
+  this.textContent = paused ? 'Devam' : 'Duraklat';
+};
+
+function heartPath(cx, cy, scale) {
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + 20 * scale);
+  ctx.bezierCurveTo(cx - 60*scale, cy - 20*scale, cx - 50*scale, cy - 70*scale, cx, cy - 45*scale);
+  ctx.bezierCurveTo(cx + 50*scale, cy - 70*scale, cx + 60*scale, cy - 20*scale, cx, cy + 20*scale);
+  ctx.closePath();
+}
+
+function drawArrow(x1, y1, x2, y2, col, prog) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  const px = x1 + (dx / len) * len * prog;
+  const py = y1 + (dy / len) * len * prog;
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(px, py);
+  ctx.stroke();
+  const ang = Math.atan2(dy, dx);
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.moveTo(px, py);
+  ctx.lineTo(px - 8 * Math.cos(ang - 0.4), py - 8 * Math.sin(ang - 0.4));
+  ctx.lineTo(px - 8 * Math.cos(ang + 0.4), py - 8 * Math.sin(ang + 0.4));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function draw() {
+  const bpm = +document.getElementById('bpm').value;
+  if (!paused) t += bpm / 60 / 60;
+  const beat = (Math.sin(t * Math.PI * 2) + 1) / 2;
+  const systole = beat > 0.6;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  const cx = W * 0.42, cy = H * 0.48;
+  const scale = 0.9 + beat * 0.08;
+
+  ctx.fillStyle = '#3d2028';
+  heartPath(cx - 35, cy, scale * 0.85);
+  ctx.fill();
+  ctx.fillStyle = '#2d1a48';
+  heartPath(cx + 35, cy, scale * 0.85);
+  ctx.fill();
+
+  ctx.fillStyle = systole ? '#6e3030' : '#4a2828';
+  heartPath(cx - 35, cy, scale * 0.85);
+  ctx.fill();
+  ctx.strokeStyle = '#f85149';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = systole ? '#4a3060' : '#352050';
+  heartPath(cx + 35, cy, scale * 0.85);
+  ctx.fill();
+  ctx.strokeStyle = '#a371f7';
+  ctx.stroke();
+
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = '11px system-ui';
+  ctx.fillText('Sağ (oksijensiz)', cx - 75, cy + 55);
+  ctx.fillText('Sol (oksijenli)', cx + 5, cy + 55);
+
+  const flow = (t * 2) % 1;
+  drawArrow(W * 0.08, H * 0.35, cx - 60, cy - 20, '#58a6ff', flow);
+  drawArrow(cx + 60, cy - 20, W * 0.88, H * 0.35, '#f85149', flow);
+  drawArrow(W * 0.88, H * 0.65, cx + 60, cy + 30, '#79c0ff', (flow + 0.5) % 1);
+  drawArrow(cx - 60, cy + 30, W * 0.08, H * 0.65, '#8b949e', (flow + 0.5) % 1);
+
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '10px system-ui';
+  ctx.fillText('V. kava', W * 0.05, H * 0.3);
+  ctx.fillText('A. pulmonaris', W * 0.78, H * 0.3);
+  ctx.fillText('V. pulmonaris', W * 0.78, H * 0.7);
+  ctx.fillText('A. aorta', W * 0.05, H * 0.7);
+
+  ctx.fillStyle = '#21262d';
+  ctx.fillRect(W * 0.55, H * 0.12, W * 0.38, H * 0.35);
+  ctx.strokeStyle = '#30363d';
+  ctx.strokeRect(W * 0.55, H * 0.12, W * 0.38, H * 0.35);
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = '12px system-ui';
+  ctx.fillText(systole ? 'Sistol — kasılma' : 'Diyastol — gevşeme', W * 0.58, H * 0.2);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px system-ui';
+  ctx.fillText('• Sağ kalp → akciğer', W * 0.58, H * 0.28);
+  ctx.fillText('• Sol kalp → vücut', W * 0.58, H * 0.34);
+  ctx.fillText('• Kapakçıklar tek yön', W * 0.58, H * 0.4);
+
+  document.getElementById('info').textContent =
+    `Nabız: ${bpm} atım/dk · ${systole ? 'Kan damarlara pompalanıyor (sistol)' : 'Kalp gevşiyor, kan dolar (diyastol)'}`;
+
+  requestAnimationFrame(draw);
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dairesel Hareket — Merkezcil Kuvvet</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 34rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 150px; accent-color: #58a6ff; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 36rem; }
+    .legend { display: flex; gap: 1.2rem; font-size: 0.8rem; flex-wrap: wrap; justify-content: center; }
+    .legend i { display: inline-block; width: 14px; height: 3px; margin-right: 5px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <h1>Dairesel Hareket</h1>
+  <p class="sub">Hız teğete, merkezcil ivme ve kuvvet merkeze doğru: F = mv²/r</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Yarıçap r (m) <input type="range" id="radius" min="60" max="160" value="110"></label>
+    <label>Hız v (m/s) <input type="range" id="speed" min="1" max="12" value="6"></label>
+    <label>Kütle m (kg) <input type="range" id="mass" min="1" max="10" value="2"></label>
+    <button id="playBtn">Duraklat</button>
+  </div>
+  <div class="legend">
+    <span><i style="background:#3fb950"></i>v (teğet)</span>
+    <span><i style="background:#f85149"></i>a_c, F_c (merkez)</span>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, cx, cy, angle = 0, playing = true;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(700, innerWidth - 24); H = Math.min(480, innerHeight * 0.55);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cx = W / 2; cy = H / 2;
+}
+window.addEventListener('resize', resize);
+
+['radius','speed','mass'].forEach(id => document.getElementById(id).oninput = () => {});
+document.getElementById('playBtn').onclick = function() {
+  playing = !playing;
+  this.textContent = playing ? 'Duraklat' : 'Devam';
+};
+
+function arrow(x, y, dx, dy, color, label) {
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  const L = Math.min(len, 90);
+  const ex = x + ux * L, ey = y + uy * L;
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
+  const ah = 10;
+  ctx.beginPath();
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - ux * ah - uy * 5, ey - uy * ah + ux * 5);
+  ctx.lineTo(ex - ux * ah + uy * 5, ey - uy * ah - ux * 5);
+  ctx.closePath(); ctx.fill();
+  if (label) { ctx.font = 'bold 13px sans-serif'; ctx.fillText(label, ex + 8, ey); }
+}
+
+function draw() {
+  const r = +document.getElementById('radius').value;
+  const v = +document.getElementById('speed').value;
+  const m = +document.getElementById('mass').value;
+  const scale = r / 110;
+  const R = r;
+  const ac = v * v / R;
+  const Fc = m * ac;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 2;
+  ctx.setLineDash([6, 8]);
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const px = cx + R * Math.cos(angle);
+  const py = cy + R * Math.sin(angle);
+  const tx = -Math.sin(angle), ty = Math.cos(angle);
+  const rx = cx - px, ry = cy - py;
+
+  ctx.fillStyle = '#58a6ff';
+  ctx.beginPath(); ctx.arc(px, py, 14, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+
+  arrow(px, py, tx * v * 8, ty * v * 8, '#3fb950', 'v');
+  arrow(px, py, rx * 0.35, ry * 0.35, '#f85149', 'a_c');
+  arrow(px, py, rx * 0.28 * (Fc / 20), ry * 0.28 * (Fc / 20), '#ffa657', 'F');
+
+  ctx.fillStyle = '#8b949e'; ctx.font = '12px sans-serif';
+  ctx.fillText('ω = v/r = ' + (v / R).toFixed(2) + ' rad/s', 16, 28);
+  ctx.fillText('T = 2πr/v = ' + (2 * Math.PI * R / v).toFixed(2) + ' s', 16, 48);
+
+  document.getElementById('info').textContent =
+    `a_c = v²/r = ${ac.toFixed(2)} m/s²  |  F_c = ma_c = ${Fc.toFixed(2)} N  (m=${m} kg, v=${v} m/s, r=${R} m)`;
+
+  if (playing) angle += v / R * 0.04;
+  requestAnimationFrame(draw);
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

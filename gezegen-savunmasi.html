@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gezegen Savunması</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: none;
+    }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); }
+    #status { font-size: clamp(0.85rem, 3.5vw, 1.05rem); }
+    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.8rem); opacity: 0.65; }
+    .controls { margin-top: 6px; }
+    button {
+      font-size: 14px;
+      padding: 8px 14px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #gameCanvas {
+      display: block;
+      max-width: 100%;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+
+<header class="hud">
+  <h1>Gezegen Savunması</h1>
+  <div id="status">Skor: <span id="score">0</span> · Can: <span id="lives">3</span></div>
+  <div class="controls">
+    <button type="button" id="btnNew">Yeni Oyun</button>
+  </div>
+  <p class="hint">← → nişan · Space ateş · Gezegenlerin çekimi mermileri ve düşmanları eğer</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="gameCanvas" width="800" height="600" role="img" aria-label="Gezegen savunması"></canvas>
+</div>
+
+<script>
+  const GAME_W = 800;
+  const GAME_H = 600;
+  const CX = GAME_W / 2;
+  const CY = GAME_H / 2;
+  const G = 1200;
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  const scoreEl = document.getElementById("score");
+  const livesEl = document.getElementById("lives");
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(280, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+  window.addEventListener("resize", resizeGame);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
+  resizeGame();
+
+  const planets = [
+    { x: CX, y: CY, r: 42, mass: 8000, color: "#4a90d9", name: "Ana gezegen" },
+    { x: CX + 140, y: CY - 60, r: 18, mass: 900, color: "#c9a86c", orbit: 140, angle: 0, speed: 0.012 },
+    { x: CX - 120, y: CY + 90, r: 14, mass: 600, color: "#9b7bb8", orbit: 120, angle: 2.1, speed: -0.018 },
+  ];
+
+  let turretAngle = -Math.PI / 2;
+  let bullets = [];
+  let enemies = [];
+  let particles = [];
+  let score = 0;
+  let lives = 3;
+  let spawnTimer = 0;
+  let gameOver = false;
+  let left = false, right = false, firing = false;
+
+  function resetGame() {
+    bullets = [];
+    enemies = [];
+    particles = [];
+    score = 0;
+    lives = 3;
+    spawnTimer = 0;
+    gameOver = false;
+    scoreEl.textContent = "0";
+    livesEl.textContent = "3";
+  }
+
+  function applyGravity(obj) {
+    for (const p of planets) {
+      const dx = p.x - obj.x;
+      const dy = p.y - obj.y;
+      const d2 = dx * dx + dy * dy + 80;
+      const d = Math.sqrt(d2);
+      const f = (G * p.mass) / d2;
+      obj.vx += (dx / d) * f * 0.016;
+      obj.vy += (dy / d) * f * 0.016;
+    }
+  }
+
+  function spawnEnemy() {
+    const edge = Math.floor(Math.random() * 4);
+    let x, y, vx, vy;
+    const speed = 1.2 + Math.random() * 1.5;
+    if (edge === 0) { x = Math.random() * GAME_W; y = -20; vx = (CX - x) * 0.002; vy = speed; }
+    else if (edge === 1) { x = GAME_W + 20; y = Math.random() * GAME_H; vx = -speed; vy = (CY - y) * 0.002; }
+    else if (edge === 2) { x = Math.random() * GAME_W; y = GAME_H + 20; vx = (CX - x) * 0.002; vy = -speed; }
+    else { x = -20; y = Math.random() * GAME_H; vx = speed; vy = (CY - y) * 0.002; }
+    enemies.push({ x, y, vx, vy, r: 10 + Math.random() * 8, hp: 1 });
+  }
+
+  function fire() {
+    const spd = 9;
+    bullets.push({
+      x: CX + Math.cos(turretAngle) * 52,
+      y: CY + Math.sin(turretAngle) * 52,
+      vx: Math.cos(turretAngle) * spd,
+      vy: Math.sin(turretAngle) * spd,
+      life: 120,
+    });
+  }
+
+  function dist(a, b) {
+    const dx = a.x - b.x, dy = a.y - b.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function update(dt) {
+    if (gameOver) return;
+
+    planets[1].angle += planets[1].speed;
+    planets[1].x = CX + Math.cos(planets[1].angle) * planets[1].orbit;
+    planets[1].y = CY + Math.sin(planets[1].angle) * planets[1].orbit * 0.55;
+    planets[2].angle += planets[2].speed;
+    planets[2].x = CX + Math.cos(planets[2].angle) * planets[2].orbit;
+    planets[2].y = CY + Math.sin(planets[2].angle) * planets[2].orbit * 0.7;
+
+    if (left) turretAngle -= 0.05;
+    if (right) turretAngle += 0.05;
+    if (firing && spawnTimer % 8 === 0) fire();
+
+    spawnTimer++;
+    if (spawnTimer % 55 === 0) spawnEnemy();
+
+    for (const b of bullets) {
+      applyGravity(b);
+      b.x += b.vx;
+      b.y += b.vy;
+      b.life--;
+    }
+    bullets = bullets.filter((b) => b.life > 0 && b.x > -40 && b.x < GAME_W + 40 && b.y > -40 && b.y < GAME_H + 40);
+
+    for (const e of enemies) {
+      applyGravity(e);
+      e.x += e.vx;
+      e.y += e.vy;
+    }
+
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const e = enemies[i];
+      for (let j = bullets.length - 1; j >= 0; j--) {
+        if (dist(e, bullets[j]) < e.r + 4) {
+          enemies.splice(i, 1);
+          bullets.splice(j, 1);
+          score += 10;
+          scoreEl.textContent = score;
+          for (let k = 0; k < 6; k++)
+            particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4, life: 25 });
+          break;
+        }
+      }
+    }
+
+    const home = planets[0];
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const e = enemies[i];
+      if (dist(e, home) < home.r + e.r * 0.5) {
+        enemies.splice(i, 1);
+        lives--;
+        livesEl.textContent = lives;
+        for (let k = 0; k < 12; k++)
+          particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 35, color: "#f66" });
+        if (lives <= 0) gameOver = true;
+      }
+    }
+
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life--;
+    }
+    particles = particles.filter((p) => p.life > 0);
+  }
+
+  function drawPlanet(p) {
+    const grd = ctx.createRadialGradient(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.1, p.x, p.y, p.r);
+    grd.addColorStop(0, "#fff");
+    grd.addColorStop(0.35, p.color);
+    grd.addColorStop(1, "#111");
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function draw() {
+    ctx.fillStyle = "#020208";
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+    ctx.fillStyle = "#fff";
+    for (let i = 0; i < 60; i++) {
+      const sx = (i * 97) % GAME_W;
+      const sy = (i * 53) % GAME_H;
+      ctx.globalAlpha = 0.3 + (i % 5) * 0.12;
+      ctx.fillRect(sx, sy, 1.5, 1.5);
+    }
+    ctx.globalAlpha = 1;
+
+    for (const p of planets) {
+      if (p.orbit) {
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.beginPath();
+        ctx.ellipse(CX, CY, p.orbit, p.orbit * (p === planets[1] ? 0.55 : 0.7), 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      drawPlanet(p);
+    }
+
+    ctx.strokeStyle = "rgba(200,220,255,0.5)";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.lineTo(CX + Math.cos(turretAngle) * 56, CY + Math.sin(turretAngle) * 56);
+    ctx.stroke();
+
+    ctx.fillStyle = "#8cf";
+    for (const b of bullets) {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = "#f84";
+    for (const e of enemies) {
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (const p of particles) {
+      ctx.fillStyle = p.color || "#fc6";
+      ctx.globalAlpha = p.life / 35;
+      ctx.fillRect(p.x, p.y, 3, 3);
+    }
+    ctx.globalAlpha = 1;
+
+    if (gameOver) {
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0, 0, GAME_W, GAME_H);
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 32px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText("Gezegen düştü!", GAME_W / 2, GAME_H / 2);
+      ctx.font = "18px system-ui";
+      ctx.fillText(`Skor: ${score}`, GAME_W / 2, GAME_H / 2 + 36);
+    }
+  }
+
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(32, now - last);
+    last = now;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") { left = true; e.preventDefault(); }
+    if (e.key === "ArrowRight") { right = true; e.preventDefault(); }
+    if (e.code === "Space") { firing = true; e.preventDefault(); }
+  });
+  document.addEventListener("keyup", (e) => {
+    if (e.key === "ArrowLeft") left = false;
+    if (e.key === "ArrowRight") right = false;
+    if (e.code === "Space") firing = false;
+  });
+
+  canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.touches[0].clientX - rect.left) / rect.width * GAME_W;
+    const y = (e.touches[0].clientY - rect.top) / rect.height * GAME_H;
+    turretAngle = Math.atan2(y - CY, x - CX);
+  }, { passive: false });
+  canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    firing = true;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.touches[0].clientX - rect.left) / rect.width * GAME_W;
+    const y = (e.touches[0].clientY - rect.top) / rect.height * GAME_H;
+    turretAngle = Math.atan2(y - CY, x - CX);
+    fire();
+  }, { passive: false });
+  canvas.addEventListener("touchend", () => { firing = false; });
+
+  document.getElementById("btnNew").addEventListener("click", resetGame);
+  resetGame();
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>

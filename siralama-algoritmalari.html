@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sıralama Algoritmaları</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout { font-size: clamp(0.72rem, 2.8vw, 0.88rem); opacity: 0.92; }
+    .readout span { color: #7eb6ff; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px;
+    }
+    #bars {
+      display: block; width: 100%; max-width: 720px;
+      height: min(50vh, 360px); min-height: 200px;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.84rem; margin-bottom: 5px;
+    }
+    select, input[type="range"] {
+      width: 100%; accent-color: #5b9cff;
+    }
+    select {
+      padding: 8px; background: #14141f; color: #e8e8f0;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      flex: 1; min-width: 90px; padding: 10px;
+      background: #2a4a8a; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { background: #3a5ca0; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.secondary { background: #1e2a3a; }
+    button.secondary:hover { background: #2a3a4a; }
+    .legend {
+      display: flex; gap: 12px; justify-content: center;
+      flex-wrap: wrap; font-size: 0.72rem; margin-bottom: 8px;
+    }
+    .legend i {
+      display: inline-block; width: 10px; height: 10px;
+      border-radius: 2px; margin-right: 4px; vertical-align: middle;
+    }
+    .hint { font-size: 0.72rem; opacity: 0.55; text-align: center; margin: 8px 0 0; }
+  </style>
+</head>
+<body>
+<header class="hud">
+  <h1>Sıralama Algoritmaları</h1>
+  <div class="readout" id="readout">Algoritma: <span>Kabarcık</span> · Adım: <span id="stepCount">0</span></div>
+</header>
+<div class="stage">
+  <canvas id="bars" role="img" aria-label="Sıralama çubuk görselleştirmesi"></canvas>
+</div>
+<div class="controls">
+  <div class="legend">
+    <span><i style="background:#5b9cff"></i>Karşılaştır</span>
+    <span><i style="background:#ffb07e"></i>Takas</span>
+    <span><i style="background:#7ec87e"></i>Sıralı</span>
+  </div>
+  <div class="control-row">
+    <label for="algo">Algoritma</label>
+    <select id="algo">
+      <option value="bubble">Kabarcık (Bubble)</option>
+      <option value="selection">Seçmeli (Selection)</option>
+      <option value="insertion">Eklemeli (Insertion)</option>
+    </select>
+  </div>
+  <div class="control-row">
+    <label>Hız <span id="speedVal">Orta</span></label>
+    <input type="range" id="speed" min="1" max="10" value="5" step="1">
+  </div>
+  <div class="control-row">
+    <label>Çubuk sayısı <span id="sizeVal">32</span></label>
+    <input type="range" id="size" min="8" max="64" value="32" step="1">
+  </div>
+  <div class="btn-row">
+    <button type="button" id="playBtn">Oynat</button>
+    <button type="button" id="stepBtn" class="secondary">Tek adım</button>
+    <button type="button" id="resetBtn" class="secondary">Yenile</button>
+  </div>
+  <p class="hint">Kabarcık: komşu takas · Seçmeli: en küçüğü seç · Eklemeli: sıralı bölüme ekle</p>
+</div>
+<script>
+(function () {
+  const canvas = document.getElementById("bars");
+  const ctx = canvas.getContext("2d");
+  const algoSel = document.getElementById("algo");
+  const speedSl = document.getElementById("speed");
+  const speedVal = document.getElementById("speedVal");
+  const sizeSl = document.getElementById("size");
+  const sizeVal = document.getElementById("sizeVal");
+  const playBtn = document.getElementById("playBtn");
+  const stepBtn = document.getElementById("stepBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const stepCountEl = document.getElementById("stepCount");
+  const readoutSpan = document.querySelector(".readout > span");
+
+  const SPEED_LABELS = ["", "Çok yavaş", "Yavaş", "", "Orta", "", "Hızlı", "", "Çok hızlı", "", "Anlık"];
+  const ALGO_NAMES = { bubble: "Kabarcık", selection: "Seçmeli", insertion: "Eklemeli" };
+
+  let arr = [];
+  let steps = [];
+  let stepIdx = 0;
+  let playing = false;
+  let timer = null;
+  let highlight = { compare: [], swap: [], sorted: [] };
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  function randomArray(n) {
+    return Array.from({ length: n }, () => Math.floor(Math.random() * 95) + 5);
+  }
+
+  function pushStep(compare, swap, sorted, copy) {
+    steps.push({
+      arr: copy ? [...arr] : null,
+      compare: compare ? [...compare] : [],
+      swap: swap ? [...swap] : [],
+      sorted: sorted ? [...sorted] : [],
+    });
+  }
+
+  function genBubble() {
+    const n = arr.length;
+    const sortedIdx = new Set();
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = 0; j < n - i - 1; j++) {
+        pushStep([j, j + 1], [], [...sortedIdx]);
+        if (arr[j] > arr[j + 1]) {
+          [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+          pushStep([j, j + 1], [j, j + 1], [...sortedIdx], true);
+        }
+      }
+      sortedIdx.add(n - i - 1);
+    }
+    for (let k = 0; k < n; k++) sortedIdx.add(k);
+    pushStep([], [], [...sortedIdx], true);
+  }
+
+  function genSelection() {
+    const n = arr.length;
+    const sortedIdx = new Set();
+    for (let i = 0; i < n - 1; i++) {
+      let minIdx = i;
+      for (let j = i + 1; j < n; j++) {
+        pushStep([minIdx, j], [], [...sortedIdx]);
+        if (arr[j] < arr[minIdx]) minIdx = j;
+      }
+      if (minIdx !== i) {
+        [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+        pushStep([i, minIdx], [i, minIdx], [...sortedIdx], true);
+      } else {
+        pushStep([i], [], [...sortedIdx]);
+      }
+      sortedIdx.add(i);
+    }
+    sortedIdx.add(n - 1);
+    pushStep([], [], [...sortedIdx], true);
+  }
+
+  function genInsertion() {
+    const n = arr.length;
+    const sortedIdx = new Set([0]);
+    pushStep([], [], [0]);
+    for (let i = 1; i < n; i++) {
+      let j = i;
+      while (j > 0 && arr[j - 1] > arr[j]) {
+        pushStep([j - 1, j], [j - 1, j], [...sortedIdx]);
+        [arr[j - 1], arr[j]] = [arr[j], arr[j - 1]];
+        pushStep([j - 1, j], [j - 1, j], [...sortedIdx], true);
+        j--;
+      }
+      if (j > 0) pushStep([j - 1, j], [], [...sortedIdx]);
+      for (let k = 0; k <= i; k++) sortedIdx.add(k);
+      pushStep([], [], [...sortedIdx]);
+    }
+    for (let k = 0; k < n; k++) sortedIdx.add(k);
+    pushStep([], [], [...sortedIdx], true);
+  }
+
+  function buildSteps() {
+    arr = randomArray(+sizeSl.value);
+    steps = [{ arr: [...arr], compare: [], swap: [], sorted: [] }];
+    const algo = algoSel.value;
+    if (algo === "bubble") genBubble();
+    else if (algo === "selection") genSelection();
+    else genInsertion();
+    stepIdx = 0;
+    stepCountEl.textContent = "0 / " + steps.length;
+    readoutSpan.textContent = ALGO_NAMES[algo];
+    applyStep(0);
+  }
+
+  function applyStep(idx) {
+    if (idx >= steps.length) {
+      stepIdx = steps.length;
+      highlight = { compare: [], swap: [], sorted: Array.from({ length: arr.length }, (_, i) => i) };
+      stepCountEl.textContent = steps.length + " / " + steps.length;
+      draw();
+      stopPlay();
+      return;
+    }
+    const s = steps[idx];
+    if (s.arr) arr = s.arr;
+    highlight = { compare: s.compare, swap: s.swap, sorted: s.sorted };
+    stepIdx = idx + 1;
+    stepCountEl.textContent = stepIdx + " / " + steps.length;
+    draw();
+  }
+
+  function draw() {
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+    ctx.fillStyle = "#12121c";
+    ctx.fillRect(0, 0, w, h);
+    if (!arr.length) return;
+    const n = arr.length;
+    const gap = 2;
+    const barW = (w - gap * (n + 1)) / n;
+    const maxV = Math.max(...arr, 100);
+
+    for (let i = 0; i < n; i++) {
+      const barH = (arr[i] / maxV) * (h - 20);
+      const x = gap + i * (barW + gap);
+      const y = h - 10 - barH;
+      let color = "#3a5a9a";
+      if (highlight.sorted.includes(i)) color = "#5a9a6a";
+      else if (highlight.swap.includes(i)) color = "#c88a50";
+      else if (highlight.compare.includes(i)) color = "#5b9cff";
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, barW, barH);
+    }
+  }
+
+  function delayMs() {
+    const v = +speedSl.value;
+    if (v >= 10) return 0;
+    return Math.round(550 - v * 50);
+  }
+
+  function stopPlay() {
+    playing = false;
+    playBtn.textContent = "Oynat";
+    clearInterval(timer);
+    timer = null;
+    stepBtn.disabled = false;
+    sizeSl.disabled = false;
+    algoSel.disabled = false;
+  }
+
+  function playLoop() {
+    if (stepIdx >= steps.length) {
+      stopPlay();
+      return;
+    }
+    applyStep(stepIdx);
+    if (delayMs() === 0) {
+      while (stepIdx < steps.length) applyStep(stepIdx);
+      stopPlay();
+    }
+  }
+
+  function startPlay() {
+    if (stepIdx >= steps.length) buildSteps();
+    playing = true;
+    playBtn.textContent = "Duraklat";
+    stepBtn.disabled = true;
+    sizeSl.disabled = true;
+    algoSel.disabled = true;
+    if (delayMs() === 0) {
+      playLoop();
+      return;
+    }
+    timer = setInterval(playLoop, delayMs());
+  }
+
+  playBtn.addEventListener("click", () => {
+    if (playing) stopPlay();
+    else startPlay();
+  });
+
+  stepBtn.addEventListener("click", () => {
+    if (stepIdx >= steps.length) buildSteps();
+    else applyStep(stepIdx);
+  });
+
+  resetBtn.addEventListener("click", () => {
+    stopPlay();
+    buildSteps();
+  });
+
+  algoSel.addEventListener("change", () => { stopPlay(); buildSteps(); });
+  sizeSl.addEventListener("input", () => {
+    sizeVal.textContent = sizeSl.value;
+    if (!playing) { stopPlay(); buildSteps(); }
+  });
+  sizeSl.addEventListener("change", () => { if (!playing) buildSteps(); });
+
+  speedSl.addEventListener("input", () => {
+    speedVal.textContent = SPEED_LABELS[+speedSl.value] || "Orta";
+    if (playing) {
+      clearInterval(timer);
+      timer = setInterval(playLoop, delayMs());
+    }
+  });
+
+  window.addEventListener("resize", resize);
+  buildSteps();
+  resize();
+})();
+</script>
+</body>
+</html>
