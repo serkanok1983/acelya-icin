@@ -358,7 +358,7 @@
   function enhanceHints() {
     const g = getGuide(pageId);
     let hint = document.querySelector(".hint");
-    const hud = document.querySelector(".hud, header");
+    const hud = document.querySelector(".hud, .app-content, main");
     if (!hint && hud) {
       hint = document.createElement("p");
       hint.className = "hint app-auto-hint";

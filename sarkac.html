@@ -2,154 +2,145 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sarkaç Hareketi Animasyonu</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Grafik için -->
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sarkaç Hareketi</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="shared/chart-safe.js"></script>
+
   <style>
-    body {
-      text-align: center;
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    canvas {
-      background: #222;
-      display: block;
-      margin: auto;
-    }
-    #info {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-    .controls {
-      margin-top: 15px;
-    }
-    button {
-      font-size: 16px;
-      padding: 10px 15px;
-      margin: 5px;
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    button:hover {
-      background: #0056b3;
-    }
+    .sim-canvas { background: #12121c; display: block; margin: 0 auto; max-width: 100%; border-radius: 8px; }
+    .chart-canvas { background: #161b22; display: block; margin: 12px auto 0; max-width: 100%; border-radius: 8px; }
+    #info { margin: 12px 0; font-size: 0.9rem; }
+    #info p { margin: 4px 0; }
+    .controls { margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .chart-fallback { color: var(--text-muted); font-size: 0.85rem; }
+    .hidden { display: none; }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="sarkac">
 
-<h1>Sarkaç Hareketi Animasyonu</h1>
-<p>Basit harmonik hareket: Sarkaç sağa sola salınıyor!</p>
-<canvas id="pendulumCanvas" width="600" height="400"></canvas>
+<div class="app-content">
+  <h1>Sarkaç — Basit Harmonik Hareket</h1>
+  <p class="hint">Küçük açılarda sarkaç periyodu T ≈ 2π√(L/g) formülüne yaklaşır.</p>
 
-<!-- Canlı hesapları göstermek için -->
-<div id="info">
-  <p>Açı (θ): <span id="angleDisplay">0</span>°</p>
-  <p>Açısal Hız (ω): <span id="angularVelocityDisplay">0</span> rad/s</p>
-  <p>Açısal İvme (α): <span id="angularAccelerationDisplay">0</span> rad/s²</p>
-  <p>Periyot (T): <span id="periodDisplay">0</span> s</p>
+  <canvas id="pendulumCanvas" class="sim-canvas" width="600" height="400" role="img" aria-label="Sarkaç animasyonu"></canvas>
+
+  <div id="info">
+    <p>Açı (θ): <span id="angleDisplay">0</span>°</p>
+    <p>Açısal hız (ω): <span id="angularVelocityDisplay">0</span> rad/s</p>
+    <p>Açısal ivme (α): <span id="angularAccelerationDisplay">0</span> rad/s²</p>
+    <p>Periyot (T): <span id="periodDisplay">0</span> s</p>
+  </div>
+
+  <div class="controls">
+    <button type="button" onclick="resetPendulum()">Tekrarla</button>
+    <button type="button" onclick="location.href='cift-sarkac.html'">Çift Sarkaca Geç</button>
+  </div>
+
+  <canvas id="angleChart" class="chart-canvas" width="600" height="200" aria-label="Açı-zaman grafiği"></canvas>
+  <p id="chartMsg" class="chart-fallback hidden"></p>
 </div>
-
-<!-- Kontroller -->
-<div class="controls">
-  <button onclick="resetPendulum()">Tekrarla</button>
-  <button onclick="window.location.href='cift-sarkac.html'">İki Sarkaca Geç</button>
-</div>
-
-<!-- Grafik -->
-<canvas id="angleChart" width="600" height="200"></canvas>
 
 <script>
+(function () {
   const canvas = document.getElementById("pendulumCanvas");
   const ctx = canvas.getContext("2d");
-
   const originX = canvas.width / 2;
   const originY = 50;
-  let length = 200;
+  const length = 200;
   let angle = Math.PI / 4;
   let angleVelocity = 0;
-  let angleAcceleration = 0;
   const gravity = 9.8;
+  const damping = 0.999;
 
   let time = 0;
-  let timeValues = [];
-  let angleValues = [];
+  const timeValues = [];
+  const angleValues = [];
+  let angleChart = null;
 
-  // **GRAFİK OLUŞTURMA (Y ekseni sabitlendi)**
-  const chartCtx = document.getElementById("angleChart").getContext("2d");
-  let angleChart = new Chart(chartCtx, {
-    type: "line",
-    data: {
-      labels: timeValues,
-      datasets: [{
-        label: "Açı (θ) - Zaman",
-        data: angleValues,
-        borderColor: "red",
-        borderWidth: 2,
-        fill: false
-      }]
-    },
-    options: {
-      responsive: true,
-      animation: false,
-      scales: {
-        x: { title: { display: true, text: "Zaman (s)" } },
-        y: { 
-          title: { display: true, text: "Açı (°)" },
-          suggestedMin: -10, // **Sabit alt sınır**
-          suggestedMax: 10   // **Sabit üst sınır**
-        }
-      }
+  function initChart() {
+    if (typeof Chart === "undefined") {
+      document.getElementById("chartMsg").textContent = "Grafik yüklenemedi; animasyon çalışıyor.";
+      document.getElementById("chartMsg").classList.remove("hidden");
+      return;
     }
-  });
+    try {
+      const chartCtx = document.getElementById("angleChart").getContext("2d");
+      angleChart = createSafeChart(chartCtx, {
+        type: "line",
+        data: {
+          labels: timeValues,
+          datasets: [{
+            label: "θ (°)",
+            data: angleValues,
+            borderColor: "#f87171",
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1,
+          }],
+        },
+        options: {
+          responsive: false,
+          animation: false,
+          scales: {
+            x: { title: { display: true, text: "Zaman (s)" } },
+            y: { title: { display: true, text: "Açı (°)" }, suggestedMin: -60, suggestedMax: 60 },
+          },
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      document.getElementById("chartMsg").textContent = "Grafik oluşturulamadı; animasyon aktif.";
+      document.getElementById("chartMsg").classList.remove("hidden");
+    }
+  }
 
   function drawPendulum() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let x = originX + length * Math.sin(angle);
-    let y = originY + length * Math.cos(angle);
-
-    ctx.strokeStyle = "white";
+    const x = originX + length * Math.sin(angle);
+    const y = originY + length * Math.cos(angle);
+    ctx.strokeStyle = "#e8ecf4";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(originX, originY);
     ctx.lineTo(x, y);
     ctx.stroke();
-
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "#f87171";
     ctx.beginPath();
-    ctx.arc(x, y, 15, 0, Math.PI * 2);
+    ctx.arc(x, y, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#5eead4";
+    ctx.beginPath();
+    ctx.arc(originX, originY, 5, 0, Math.PI * 2);
     ctx.fill();
   }
 
   function updatePendulum() {
-    angleAcceleration = (-gravity / length) * Math.sin(angle);
-    angleVelocity += angleAcceleration;
-    angle += angleVelocity;
-    angleVelocity *= 0.99;
+    const angleAcceleration = (-gravity / length) * Math.sin(angle);
+    angleVelocity += angleAcceleration * 0.05;
+    angle += angleVelocity * 0.05;
+    angleVelocity *= damping;
 
-    document.getElementById("angleDisplay").innerText = (angle * (180 / Math.PI)).toFixed(2);
-    document.getElementById("angularVelocityDisplay").innerText = angleVelocity.toFixed(4);
-    document.getElementById("angularAccelerationDisplay").innerText = angleAcceleration.toFixed(4);
-
-    let period = 2 * Math.PI * Math.sqrt(length / gravity);
-    document.getElementById("periodDisplay").innerText = period.toFixed(2);
+    document.getElementById("angleDisplay").textContent = (angle * (180 / Math.PI)).toFixed(1);
+    document.getElementById("angularVelocityDisplay").textContent = angleVelocity.toFixed(4);
+    document.getElementById("angularAccelerationDisplay").textContent = angleAcceleration.toFixed(4);
+    document.getElementById("periodDisplay").textContent = (2 * Math.PI * Math.sqrt(length / gravity)).toFixed(2);
 
     time += 0.1;
-    if (timeValues.length > 100) {
+    if (timeValues.length > 80) {
       timeValues.shift();
       angleValues.shift();
     }
     timeValues.push(time.toFixed(1));
-    angleValues.push((angle * (180 / Math.PI)).toFixed(2));
+    angleValues.push(angle * (180 / Math.PI));
 
-    angleChart.data.labels = timeValues;
-    angleChart.data.datasets[0].data = angleValues;
-    angleChart.update();
+    if (angleChart) {
+      angleChart.data.labels = timeValues.slice();
+      angleChart.data.datasets[0].data = angleValues.slice();
+      angleChart.update("none");
+    }
   }
 
   function animate() {
@@ -158,16 +149,18 @@
     requestAnimationFrame(animate);
   }
 
-  function resetPendulum() {
+  window.resetPendulum = function () {
     angle = Math.PI / 4;
     angleVelocity = 0;
-    angleAcceleration = 0;
     time = 0;
-    timeValues = [];
-    angleValues = [];
-    angleChart.update();
-  }
+    timeValues.length = 0;
+    angleValues.length = 0;
+    if (angleChart) angleChart.update("none");
+  };
 
+  initChart();
   animate();
-</script></body>
+})();
+</script>
+</body>
 </html>

@@ -2,141 +2,112 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Çift Sarkacın Kaotik Hareketi</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Grafik için -->
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Çift Sarkaç (Kaos)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="shared/chart-safe.js"></script>
+
   <style>
-    body {
-      text-align: center;
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    canvas {
-      background: #222;
-      display: block;
-      margin: auto;
-    }
-    #info {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-    .controls {
-      margin-top: 15px;
-    }
-    button {
-      font-size: 16px;
-      padding: 10px 15px;
-      margin: 5px;
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    button:hover {
-      background: #0056b3;
-    }
+    .sim-canvas { background: #12121c; display: block; margin: 0 auto; max-width: 100%; border-radius: 8px; }
+    .chart-canvas { background: #161b22; display: block; margin: 12px auto 0; max-width: 100%; border-radius: 8px; }
+    #info { margin: 12px 0; font-size: 0.9rem; }
+    #info p { margin: 4px 0; }
+    .controls { margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .chart-fallback { color: var(--text-muted); font-size: 0.85rem; padding: 8px; }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="cift-sarkac">
 
-<h1>Çift Sarkacın Kaotik Hareketi</h1>
-<p>Kaos teorisi: Küçük başlangıç farklılıkları bile büyük değişimlere neden olabilir!</p>
-<canvas id="doublePendulumCanvas" width="600" height="500"></canvas>
+<div class="app-content">
+  <h1>Çift Sarkaç — Kaotik Hareket</h1>
+  <p class="hint">İki bağlı sarkaç: küçük başlangıç farkları bile tamamen farklı yörüngelere yol açabilir (kaos).</p>
 
-<!-- Canlı hesapları göstermek için -->
-<div id="info">
-  <p>Açı 1 (θ₁): <span id="angle1Display">0</span>°</p>
-  <p>Açısal Hız 1 (ω₁): <span id="angularVelocity1Display">0</span> rad/s</p>
-  <p>Açı 2 (θ₂): <span id="angle2Display">0</span>°</p>
-  <p>Açısal Hız 2 (ω₂): <span id="angularVelocity2Display">0</span> rad/s</p>
+  <canvas id="doublePendulumCanvas" class="sim-canvas" width="600" height="500" role="img" aria-label="Çift sarkaç animasyonu"></canvas>
+
+  <div id="info">
+    <p>Açı 1 (θ₁): <span id="angle1Display">0</span>°</p>
+    <p>Açısal hız 1 (ω₁): <span id="angularVelocity1Display">0</span> rad/s</p>
+    <p>Açı 2 (θ₂): <span id="angle2Display">0</span>°</p>
+    <p>Açısal hız 2 (ω₂): <span id="angularVelocity2Display">0</span> rad/s</p>
+  </div>
+
+  <div class="controls">
+    <button type="button" onclick="resetDoublePendulum()">Tekrarla</button>
+    <button type="button" onclick="location.href='sarkac.html'">Tek Sarkaca Dön</button>
+  </div>
+
+  <canvas id="doubleAngleChart" class="chart-canvas" width="600" height="200" aria-label="Açı-zaman grafiği"></canvas>
+  <p id="chartMsg" class="chart-fallback hidden"></p>
 </div>
-
-<!-- Kontroller -->
-<div class="controls">
-  <button onclick="resetDoublePendulum()">Tekrarla</button>
-  <button onclick="window.location.href='sarkac.html'">Tek Sarkaca Dön</button>
-</div>
-
-<!-- Grafik -->
-<canvas id="doubleAngleChart" width="600" height="200"></canvas>
 
 <script>
+(function () {
   const canvas = document.getElementById("doublePendulumCanvas");
   const ctx = canvas.getContext("2d");
-
   const originX = canvas.width / 2;
   const originY = 100;
-  let length1 = 120, length2 = 120;
-  let mass1 = 10, mass2 = 10;
+  const length1 = 120, length2 = 120;
+  const mass1 = 10, mass2 = 10;
   let angle1 = Math.PI / 3, angle2 = Math.PI / 4;
   let angleVelocity1 = 0, angleVelocity2 = 0;
-  let angleAcceleration1 = 0, angleAcceleration2 = 0;
   const gravity = 9.8;
 
   let time = 0;
-  let timeValues = [];
-  let angle1Values = [];
-  let angle2Values = [];
+  const timeValues = [];
+  const angle1Values = [];
+  const angle2Values = [];
+  let doubleAngleChart = null;
 
-  // **GRAFİK OLUŞTURMA (Y ekseni sabitlendi)**
-  const chartCtx = document.getElementById("doubleAngleChart").getContext("2d");
-  let doubleAngleChart = new Chart(chartCtx, {
-    type: "line",
-    data: {
-      labels: timeValues,
-      datasets: [
-        {
-          label: "Açı 1 (θ₁) - Zaman",
-          data: angle1Values,
-          borderColor: "red",
-          borderWidth: 2,
-          fill: false
-        },
-        {
-          label: "Açı 2 (θ₂) - Zaman",
-          data: angle2Values,
-          borderColor: "blue",
-          borderWidth: 2,
-          fill: false
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      animation: false,
-      scales: {
-        x: { title: { display: true, text: "Zaman (s)" } },
-        y: { 
-          title: { display: true, text: "Açı (°)" },
-          suggestedMin: -180, // **Sabit alt sınır**
-          suggestedMax: 180   // **Sabit üst sınır**
-        }
-      }
+  function initChart() {
+    if (typeof Chart === "undefined") {
+      document.getElementById("chartMsg").textContent = "Grafik kütüphanesi yüklenemedi; animasyon çalışmaya devam ediyor.";
+      document.getElementById("chartMsg").classList.remove("hidden");
+      return;
     }
-  });
+    try {
+      const chartCtx = document.getElementById("doubleAngleChart").getContext("2d");
+      doubleAngleChart = createSafeChart(chartCtx, {
+        type: "line",
+        data: {
+          labels: timeValues,
+          datasets: [
+            { label: "θ₁ (°)", data: angle1Values, borderColor: "#f87171", borderWidth: 2, fill: false, tension: 0.1 },
+            { label: "θ₂ (°)", data: angle2Values, borderColor: "#60a5fa", borderWidth: 2, fill: false, tension: 0.1 },
+          ],
+        },
+        options: {
+          responsive: false,
+          animation: false,
+          scales: {
+            x: { title: { display: true, text: "Zaman (s)" } },
+            y: { title: { display: true, text: "Açı (°)" }, min: -180, max: 180 },
+          },
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      document.getElementById("chartMsg").textContent = "Grafik oluşturulamadı; animasyon aktif.";
+      document.getElementById("chartMsg").classList.remove("hidden");
+    }
+  }
 
   function drawDoublePendulum() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const x1 = originX + length1 * Math.sin(angle1);
+    const y1 = originY + length1 * Math.cos(angle1);
+    const x2 = x1 + length2 * Math.sin(angle2);
+    const y2 = y1 + length2 * Math.cos(angle2);
 
-    let x1 = originX + length1 * Math.sin(angle1);
-    let y1 = originY + length1 * Math.cos(angle1);
-
-    let x2 = x1 + length2 * Math.sin(angle2);
-    let y2 = y1 + length2 * Math.cos(angle2);
-
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = "#e8ecf4";
     ctx.lineWidth = 2;
-
     ctx.beginPath();
     ctx.moveTo(originX, originY);
     ctx.lineTo(x1, y1);
     ctx.stroke();
 
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "#f87171";
     ctx.beginPath();
     ctx.arc(x1, y1, 10, 0, Math.PI * 2);
     ctx.fill();
@@ -146,51 +117,56 @@
     ctx.lineTo(x2, y2);
     ctx.stroke();
 
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = "#60a5fa";
     ctx.beginPath();
     ctx.arc(x2, y2, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#5eead4";
+    ctx.beginPath();
+    ctx.arc(originX, originY, 5, 0, Math.PI * 2);
     ctx.fill();
   }
 
   function updateDoublePendulum() {
-    let num1 = -gravity * (2 * mass1 + mass2) * Math.sin(angle1);
-    let num2 = -mass2 * gravity * Math.sin(angle1 - 2 * angle2);
-    let num3 = -2 * Math.sin(angle1 - angle2) * mass2;
-    let num4 = angleVelocity2 * angleVelocity2 * length2 + angleVelocity1 * angleVelocity1 * length1 * Math.cos(angle1 - angle2);
-    let den1 = length1 * (2 * mass1 + mass2 - mass2 * Math.cos(2 * angle1 - 2 * angle2));
+    const num1 = -gravity * (2 * mass1 + mass2) * Math.sin(angle1);
+    const num2 = -mass2 * gravity * Math.sin(angle1 - 2 * angle2);
+    const num3 = -2 * Math.sin(angle1 - angle2) * mass2;
+    const num4 = angleVelocity2 * angleVelocity2 * length2 + angleVelocity1 * angleVelocity1 * length1 * Math.cos(angle1 - angle2);
+    const den1 = length1 * (2 * mass1 + mass2 - mass2 * Math.cos(2 * angle1 - 2 * angle2));
+    const angleAcceleration1 = (num1 + num2 + num3 * num4) / den1;
 
-    angleAcceleration1 = (num1 + num2 + num3 * num4) / den1;
+    const num5 = 2 * Math.sin(angle1 - angle2);
+    const num6 = angleVelocity1 * angleVelocity1 * length1 * (mass1 + mass2) + gravity * (mass1 + mass2) * Math.cos(angle1) + angleVelocity2 * angleVelocity2 * length2 * mass2 * Math.cos(angle1 - angle2);
+    const den2 = length2 * (2 * mass1 + mass2 - mass2 * Math.cos(2 * angle1 - 2 * angle2));
+    const angleAcceleration2 = (num5 * num6) / den2;
 
-    let num5 = 2 * Math.sin(angle1 - angle2);
-    let num6 = (angleVelocity1 * angleVelocity1 * length1 * (mass1 + mass2)) + (gravity * (mass1 + mass2) * Math.cos(angle1)) + (angleVelocity2 * angleVelocity2 * length2 * mass2 * Math.cos(angle1 - angle2));
-    let den2 = length2 * (2 * mass1 + mass2 - mass2 * Math.cos(2 * angle1 - 2 * angle2));
+    angleVelocity1 += angleAcceleration1 * 0.16;
+    angleVelocity2 += angleAcceleration2 * 0.16;
+    angle1 += angleVelocity1 * 0.16;
+    angle2 += angleVelocity2 * 0.16;
 
-    angleAcceleration2 = (num5 * num6) / den2;
-
-    angleVelocity1 += angleAcceleration1;
-    angleVelocity2 += angleAcceleration2;
-    angle1 += angleVelocity1;
-    angle2 += angleVelocity2;
-
-    document.getElementById("angle1Display").innerText = (angle1 * (180 / Math.PI)).toFixed(2);
-    document.getElementById("angularVelocity1Display").innerText = angleVelocity1.toFixed(4);
-    document.getElementById("angle2Display").innerText = (angle2 * (180 / Math.PI)).toFixed(2);
-    document.getElementById("angularVelocity2Display").innerText = angleVelocity2.toFixed(4);
+    document.getElementById("angle1Display").textContent = (angle1 * (180 / Math.PI)).toFixed(1);
+    document.getElementById("angularVelocity1Display").textContent = angleVelocity1.toFixed(3);
+    document.getElementById("angle2Display").textContent = (angle2 * (180 / Math.PI)).toFixed(1);
+    document.getElementById("angularVelocity2Display").textContent = angleVelocity2.toFixed(3);
 
     time += 0.1;
-    if (timeValues.length > 100) {
+    if (timeValues.length > 80) {
       timeValues.shift();
       angle1Values.shift();
       angle2Values.shift();
     }
     timeValues.push(time.toFixed(1));
-    angle1Values.push((angle1 * (180 / Math.PI)).toFixed(2));
-    angle2Values.push((angle2 * (180 / Math.PI)).toFixed(2));
+    angle1Values.push(angle1 * (180 / Math.PI));
+    angle2Values.push(angle2 * (180 / Math.PI));
 
-    doubleAngleChart.data.labels = timeValues;
-    doubleAngleChart.data.datasets[0].data = angle1Values;
-    doubleAngleChart.data.datasets[1].data = angle2Values;
-    doubleAngleChart.update();
+    if (doubleAngleChart) {
+      doubleAngleChart.data.labels = timeValues.slice();
+      doubleAngleChart.data.datasets[0].data = angle1Values.slice();
+      doubleAngleChart.data.datasets[1].data = angle2Values.slice();
+      doubleAngleChart.update("none");
+    }
   }
 
   function animate() {
@@ -199,13 +175,21 @@
     requestAnimationFrame(animate);
   }
 
-  function resetDoublePendulum() {
+  window.resetDoublePendulum = function () {
     angle1 = Math.PI / 3;
     angle2 = Math.PI / 4;
     angleVelocity1 = 0;
     angleVelocity2 = 0;
-  }
+    time = 0;
+    timeValues.length = 0;
+    angle1Values.length = 0;
+    angle2Values.length = 0;
+    if (doubleAngleChart) doubleAngleChart.update("none");
+  };
 
+  initChart();
   animate();
-</script></body>
+})();
+</script>
+</body>
 </html>
