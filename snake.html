@@ -2,40 +2,111 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Snake 🐍</title>
   <style>
-    body {
-      text-align: center;
-      background-color: black;
-      color: white;
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: none;
     }
-    canvas {
-      background: darkgreen;
-      display: block;
-      margin: auto;
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      min-height: 100dvh;
+    }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-weight: 600;
     }
     #score {
-      font-size: 24px;
-      margin-top: 10px;
+      font-size: clamp(0.85rem, 3.5vw, 1.15rem);
+      opacity: 0.95;
+    }
+    .hint {
+      margin: 6px 0 0;
+      font-size: clamp(0.7rem, 2.8vw, 0.8rem);
+      opacity: 0.65;
+    }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #snakeCanvas {
+      display: block;
+      max-width: 100%;
+      background: darkgreen;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      touch-action: none;
     }
   </style>
 </head>
 <body>
 
-<h1>Snake 🐍</h1>
-<div id="score">Skor: <span id="scoreValue">0</span></div>
-<canvas id="snakeCanvas" width="800" height="800"></canvas>
+<header class="hud">
+  <h1>Snake 🐍</h1>
+  <div id="score">Skor: <span id="scoreValue">0</span></div>
+  <p class="hint">Ok tuşları · Mobil: kaydırarak yön değiştir</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="snakeCanvas" width="800" height="800" role="img" aria-label="Yılan oyun alanı"></canvas>
+</div>
 
 <script>
+  const GAME_W = 800;
+  const GAME_H = 800;
+  const CELL = 20;
+  const GRID = GAME_W / CELL;
+
   const canvas = document.getElementById("snakeCanvas");
   const ctx = canvas.getContext("2d");
-  let snake = [{ x: 400, y: 400 }];
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(280, GAME_W * scale);
+    const h = w;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+
+  window.addEventListener("resize", resizeGame);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", resizeGame);
+  }
+  resizeGame();
+
+  let snake = [{ x: GAME_W / 2, y: GAME_H / 2 }];
   let food = randomFood();
   let direction = "RIGHT";
   let speed = 120;
   let score = 0;
-  let hitSound = new Audio("hit.m4a"); // 🎵 Yem yendiğinde çalan ses
+  let hitSound = new Audio("hit.m4a");
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
@@ -44,38 +115,73 @@
     if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
   });
 
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  canvas.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      if (e.touches.length) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    },
+    { passive: false }
+  );
+
+  canvas.addEventListener(
+    "touchmove",
+    (e) => {
+      e.preventDefault();
+      if (!e.touches.length) return;
+      const dx = e.touches[0].clientX - touchStartX;
+      const dy = e.touches[0].clientY - touchStartY;
+      if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0 && direction !== "LEFT") direction = "RIGHT";
+        else if (dx < 0 && direction !== "RIGHT") direction = "LEFT";
+      } else {
+        if (dy > 0 && direction !== "UP") direction = "DOWN";
+        else if (dy < 0 && direction !== "DOWN") direction = "UP";
+      }
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    },
+    { passive: false }
+  );
+
   function randomFood() {
     return {
-      x: Math.floor(Math.random() * 40) * 20,
-      y: Math.floor(Math.random() * 40) * 20,
-      color: `hsl(${Math.random() * 360}, 100%, 50%)`
+      x: Math.floor(Math.random() * GRID) * CELL,
+      y: Math.floor(Math.random() * GRID) * CELL,
+      color: `hsl(${Math.random() * 360}, 100%, 50%)`,
     };
   }
 
   function update() {
-    let head = { ...snake[0] };
-    if (direction === "UP") head.y -= 20;
-    if (direction === "DOWN") head.y += 20;
-    if (direction === "LEFT") head.x -= 20;
-    if (direction === "RIGHT") head.x += 20;
+    const head = { ...snake[0] };
+    if (direction === "UP") head.y -= CELL;
+    if (direction === "DOWN") head.y += CELL;
+    if (direction === "LEFT") head.x -= CELL;
+    if (direction === "RIGHT") head.x += CELL;
 
-    // Duvarlardan geçme
-    if (head.x < 0) head.x = canvas.width - 20;
-    if (head.x >= canvas.width) head.x = 0;
-    if (head.y < 0) head.y = canvas.height - 20;
-    if (head.y >= canvas.height) head.y = 0;
+    if (head.x < 0) head.x = GAME_W - CELL;
+    if (head.x >= GAME_W) head.x = 0;
+    if (head.y < 0) head.y = GAME_H - CELL;
+    if (head.y >= GAME_H) head.y = 0;
 
     if (head.x === food.x && head.y === food.y) {
       food = randomFood();
       score += 10;
       document.getElementById("scoreValue").innerText = score;
-      hitSound.play(); // Yem yendiğinde sesi çal
+      hitSound.play().catch(() => {});
       if (score % 100 === 0 && speed > 50) speed -= 10;
     } else {
       snake.pop();
     }
 
-    if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+    if (snake.some((seg) => seg.x === head.x && seg.y === head.y)) {
       alert(`GAME OVER! Skor: ${score}`);
       location.reload();
     }
@@ -84,11 +190,11 @@
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, GAME_W, GAME_H);
     ctx.fillStyle = food.color;
-    ctx.fillRect(food.x, food.y, 20, 20);
+    ctx.fillRect(food.x, food.y, CELL, CELL);
     ctx.fillStyle = "lime";
-    snake.forEach(part => ctx.fillRect(part.x, part.y, 20, 20));
+    snake.forEach((part) => ctx.fillRect(part.x, part.y, CELL, CELL));
   }
 
   function gameLoop() {

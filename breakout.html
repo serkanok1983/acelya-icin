@@ -2,34 +2,102 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Breakout 🧱</title>
   <style>
-    body {
-      text-align: center;
-      background-color: black;
-      color: white;
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: none;
     }
-    canvas {
-      display: block;
-      margin: auto;
-      background: darkblue;
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      min-height: 100dvh;
+    }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-weight: 600;
     }
     #score {
-      font-size: 24px;
-      margin-top: 10px;
+      font-size: clamp(0.85rem, 3.5vw, 1.15rem);
+      opacity: 0.95;
+    }
+    .hint {
+      margin: 6px 0 0;
+      font-size: clamp(0.7rem, 2.8vw, 0.8rem);
+      opacity: 0.65;
+    }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #breakoutCanvas {
+      display: block;
+      max-width: 100%;
+      background: darkblue;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      touch-action: none;
     }
   </style>
 </head>
 <body>
 
-<h1>Breakout 🧱</h1>
-<div id="score">Skor: <span id="scoreValue">0</span></div>
-<canvas id="breakoutCanvas" width="800" height="500"></canvas>
+<header class="hud">
+  <h1>Breakout 🧱</h1>
+  <div id="score">Skor: <span id="scoreValue">0</span></div>
+  <p class="hint">← → veya parmağınızı yatay kaydırın</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="breakoutCanvas" width="800" height="500" role="img" aria-label="Breakout oyun alanı"></canvas>
+</div>
 
 <script>
+  const GAME_W = 800;
+  const GAME_H = 500;
+
   const canvas = document.getElementById("breakoutCanvas");
   const ctx = canvas.getContext("2d");
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(280, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+
+  window.addEventListener("resize", resizeGame);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", resizeGame);
+  }
+  resizeGame();
 
   let paddle = { x: 350, y: 480, width: 100, height: 10, speed: 50 };
   let ball = { x: 400, y: 250, dx: 4, dy: -4, radius: 8 };
@@ -38,13 +106,43 @@
   let gameOver = false;
   let bricksDestroyed = 0;
 
-  let hitSound = new Audio("hit.m4a"); // Paddle'a çarpınca çalacak ses
-  let explodeSound = new Audio("explode.m4a"); // Tuğla kırıldığında çalacak ses
+  let hitSound = new Audio("hit.m4a");
+  let explodeSound = new Audio("explode.m4a");
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft" && paddle.x > 0) paddle.x -= paddle.speed;
-    if (e.key === "ArrowRight" && paddle.x < canvas.width - paddle.width) paddle.x += paddle.speed;
+    if (e.key === "ArrowRight" && paddle.x < GAME_W - paddle.width) paddle.x += paddle.speed;
   });
+
+  function canvasCssToGameX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const t = (clientX - rect.left) / rect.width;
+    return t * GAME_W;
+  }
+
+  canvas.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      if (e.touches.length) {
+        const x = canvasCssToGameX(e.touches[0].clientX);
+        paddle.x = Math.max(0, Math.min(GAME_W - paddle.width, x - paddle.width / 2));
+      }
+    },
+    { passive: false }
+  );
+
+  canvas.addEventListener(
+    "touchmove",
+    (e) => {
+      e.preventDefault();
+      if (e.touches.length) {
+        const x = canvasCssToGameX(e.touches[0].clientX);
+        paddle.x = Math.max(0, Math.min(GAME_W - paddle.width, x - paddle.width / 2));
+      }
+    },
+    { passive: false }
+  );
 
   function createBricks() {
     bricks = [];
@@ -56,7 +154,7 @@
           width: 80,
           height: 20,
           color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-          status: 1
+          status: 1,
         });
       }
     }
@@ -67,29 +165,38 @@
     ball.x += ball.dx;
     ball.y += ball.dy;
 
-    if (ball.x < 0 || ball.x > canvas.width) ball.dx *= -1;
+    if (ball.x < 0 || ball.x > GAME_W) ball.dx *= -1;
     if (ball.y < 0) ball.dy *= -1;
-    if (ball.y > canvas.height) {
+    if (ball.y > GAME_H) {
       gameOver = true;
       alert("GAME OVER!");
       return;
     }
 
-    if (ball.y > paddle.y - ball.radius && ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+    if (
+      ball.y > paddle.y - ball.radius &&
+      ball.x > paddle.x &&
+      ball.x < paddle.x + paddle.width
+    ) {
       ball.dy *= -1;
-      hitSound.play(); // 🔊 Top paddle'a çarptığında sesi çal
+      hitSound.play().catch(() => {});
     }
 
-    bricks.forEach((b, i) => {
-      if (b.status && ball.x > b.x && ball.x < b.x + b.width && ball.y > b.y && ball.y < b.y + b.height) {
+    bricks.forEach((b) => {
+      if (
+        b.status &&
+        ball.x > b.x &&
+        ball.x < b.x + b.width &&
+        ball.y > b.y &&
+        ball.y < b.y + b.height
+      ) {
         ball.dy *= -1;
         b.status = 0;
         bricksDestroyed++;
-        explodeSound.play(); // 🔊 Tuğla kırıldığında sesi çal
+        explodeSound.play().catch(() => {});
         score += 10;
         document.getElementById("scoreValue").innerText = score;
 
-        // 🔥 Her 10 tuğlada top hızlanıyor
         if (bricksDestroyed % 10 === 0) {
           ball.dx *= 1.1;
           ball.dy *= 1.1;
@@ -97,20 +204,20 @@
       }
     });
 
-    if (bricks.every(b => !b.status)) {
+    if (bricks.every((b) => !b.status)) {
       alert("Tebrikler! Tüm tuğlaları kırdın! 🎉");
       gameOver = true;
     }
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, GAME_W, GAME_H);
     ctx.fillStyle = "red";
     ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
     ctx.fill();
-    bricks.forEach(b => {
+    bricks.forEach((b) => {
       if (b.status) {
         ctx.fillStyle = b.color;
         ctx.fillRect(b.x, b.y, b.width, b.height);
