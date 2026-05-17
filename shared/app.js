@@ -166,9 +166,15 @@
     },
     "kuantum-mekanigi": {
       type: "Fizik",
-      intro: "Çift yarık deneyi: Elektron hem parçacık hem dalga. Gözlem yapılınca girişim deseni bozulur.",
-      controls: ["Yarık aralığı, dalga boyu", "Gözlem aç/kapa"],
-      learn: "Kuantum süperpozisyonu ve ölçümün sistemi değiştirmesi.",
+      intro:
+        "Tek tek elektronlar çift yarıktan geçer. Ölçüm yokken ekranda girişim deseni (dalga) birikir; hangi yarıktan geçtiğini ölçersen desen kaybolur ve iki şerit görürsün (parçacık).",
+      controls: [
+        "Otomatik ateş — sürekli elektron",
+        "Gözlemci — hangi yarık ölçümü",
+        "Tek yarık — difraksiyon karşılaştırması",
+        "λ, d, L kaydırıcıları",
+      ],
+      learn: "Born yorumu: |ψ|² olasılık. Ölçüm süperpozisyonu çökertir — complementarity.",
     },
     "newton-hareket-yasalari": {
       type: "Fizik",

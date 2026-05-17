@@ -2,113 +2,463 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Çift Yarık Deneyi - 3D Simülasyon</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dat.gui"></script>
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kuantum Çift Yarık Deneyi</title>
   <style>
-    body { margin: 0; overflow: hidden; background-color: black; color: white; }
-    canvas { display: block; }
+    .app-content { max-width: 960px; }
+    .sim-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    #simCanvas {
+      display: block;
+      width: 100%;
+      background: #0c1018;
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    .readout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+      font-size: 0.82rem;
+    }
+    .readout span {
+      display: block;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      justify-content: center;
+      align-items: flex-end;
+      padding: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+    }
+    .controls label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      min-width: 120px;
+    }
+    .controls input[type="range"] { width: 140px; accent-color: var(--accent-2); }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .btn-toggle {
+      padding: 0.5rem 0.9rem;
+      font: inherit;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .btn-toggle.active {
+      background: rgba(167, 139, 250, 0.25);
+      border-color: rgba(167, 139, 250, 0.5);
+      color: #e9d5ff;
+    }
+    .btn-toggle:hover { border-color: var(--border-hover); }
+    .note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      text-align: center;
+      max-width: 42rem;
+      margin: 0 auto 12px;
+    }
+    .note a { color: var(--accent); }
+    .mode-badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    .mode-badge.wave { background: rgba(94, 234, 212, 0.15); color: var(--accent); }
+    .mode-badge.particle { background: rgba(251, 191, 36, 0.15); color: var(--accent-warm); }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="kuantum-mekanigi">
 
+<div class="app-content">
+  <h1>Kuantum Çift Yarık Deneyi</h1>
+  <p class="hint">
+    Tek tek elektronlar gönderilir; ölçüm yokken ekranda <strong>girişim deseni</strong> oluşur.
+    Hangi yarıktan geçtiğini ölçersen desen kaybolur — <strong>parçacık</strong> gibi iki şerit kalır.
+  </p>
+
+  <div class="sim-wrap">
+    <canvas id="simCanvas" width="900" height="480" role="img" aria-label="Çift yarık deneyi simülasyonu"></canvas>
+  </div>
+
+  <div class="readout" id="readout">
+    <div>Mod <span id="modeLabel">Dalga</span></div>
+    <div>Atış <span id="shotCount">0</span></div>
+    <div>Saçak Δy <span id="fringeLabel">—</span></div>
+    <div>λ <span id="lambdaLabel">550 nm</span></div>
+  </div>
+
+  <div class="controls">
+    <label>Dalga boyu λ (nm)
+      <input type="range" id="lambda" min="400" max="700" value="550" step="5">
+    </label>
+    <label>Yarık aralığı d (μm)
+      <input type="range" id="slitSep" min="25" max="120" value="60" step="1">
+    </label>
+    <label>Ekran uzaklığı L (cm)
+      <input type="range" id="distL" min="80" max="220" value="150" step="5">
+    </label>
+    <label>Atış hızı
+      <input type="range" id="rate" min="1" max="30" value="12" step="1">
+    </label>
+    <div class="btn-row">
+      <button type="button" class="btn-toggle active" id="btnAuto">Otomatik ateş: Açık</button>
+      <button type="button" class="btn-toggle" id="btnObserve">Gözlemci: Kapalı</button>
+      <button type="button" class="btn-toggle" id="btnSingle">Tek yarık</button>
+      <button type="button" class="btn-toggle" id="btnClear">Ekranı temizle</button>
+    </div>
+  </div>
+
+  <p class="note" id="explain">
+    Ölçüm yokken her elektron her iki yarıktan «geçmiş gibi» davranır; birikimli desen girişimdir.
+    <a href="klasik-girisim.html">Klasik girişim (dalga)</a> sayfasıyla karşılaştır.
+  </p>
+</div>
+
 <script>
-  let scene, camera, renderer;
-  let electronParticles = [];
-  let slit1, slit2, screen;
-  let observerActive = false;
-  let waveAmplitude = 2;
+(function () {
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 900, H = 480;
 
-  function init() {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+  const lambdaEl = document.getElementById("lambda");
+  const slitEl = document.getElementById("slitSep");
+  const distEl = document.getElementById("distL");
+  const rateEl = document.getElementById("rate");
 
-    // Işık ekleme
-    const light = new THREE.PointLight(0xffffff, 1, 100);
-    light.position.set(0, 5, 5);
-    scene.add(light);
+  let autoFire = true;
+  let observerOn = false;
+  let singleSlit = false;
+  let phase = 0;
+  let shotCount = 0;
+  let fireAcc = 0;
 
-    // Çift Yarık
-    slit1 = createSlit(-0.5);
-    slit2 = createSlit(0.5);
-    scene.add(slit1, slit2);
+  const BINS = 120;
+  const hits = new Float32Array(BINS);
 
-    // Elektron Ekranı
-    screen = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), new THREE.MeshBasicMaterial({ color: 0x2222ff, side: THREE.DoubleSide, transparent: true, opacity: 0.3 }));
-    screen.position.z = -5;
-    scene.add(screen);
+  const layout = {
+    gunX: 55,
+    barrierX: 320,
+    screenX: 720,
+    midY: H / 2,
+    screenTop: 50,
+    screenBot: H - 50,
+  };
 
-    // Kamera pozisyonu
-    camera.position.z = 3;
-
-    animate();
+  function params() {
+    const lam = +lambdaEl.value;
+    const d = +slitEl.value;
+    const L = +distEl.value;
+    const slitGapPx = d * 0.42;
+    const y1 = layout.midY - slitGapPx / 2;
+    const y2 = layout.midY + slitGapPx / 2;
+    const fringeMm = (lam * 1e-6 * L * 0.01) / (d * 1e-6) * 1000;
+    return { lam, d, L, y1, y2, slitGapPx, fringeMm };
   }
 
-  function createSlit(positionX) {
-    let slit = new THREE.Mesh(
-      new THREE.BoxGeometry(0.1, 1, 0.1),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
-    slit.position.set(positionX, 0, -2);
-    return slit;
+  function wavelengthColor(nm) {
+    const t = (nm - 400) / 300;
+    const r = Math.round(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t - 0.8) * 3)));
+    const g = Math.round(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t - 0.5) * 3)));
+    const b = Math.round(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t - 0.2) * 3)));
+    return `rgb(${r},${g},${b})`;
   }
 
-  function addElectron() {
-    let electron = new THREE.Mesh(
-      new THREE.SphereGeometry(0.05, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-    );
-    electron.position.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 1.5, 0);
-    electron.velocity = { x: 0, y: 0, z: -0.02 };
-    electron.wavePhase = Math.random() * Math.PI * 2;
-    electronParticles.push(electron);
-    scene.add(electron);
+  /** Girişim yoğunluğu (çift yarık, küçük açı) */
+  function interferenceIntensity(yNorm, d, lam, L) {
+    const beta = (Math.PI * d * 1e-6 * yNorm) / (lam * 1e-9 * L * 0.01);
+    return Math.max(0, Math.cos(beta) ** 2);
   }
 
-  function updateElectrons() {
-    electronParticles.forEach((electron, index) => {
-      electron.position.z += electron.velocity.z;
-      if (Math.abs(electron.position.x) < 0.5) {
-        electron.position.y += waveAmplitude * Math.sin(electron.wavePhase) * 0.01;
+  /** Tek yarık difraksiyon (basitleştirilmiş sinc²) */
+  function singleSlitIntensity(yNorm, slitWidth, lam, L) {
+    const beta = (Math.PI * slitWidth * 1e-6 * yNorm) / (lam * 1e-9 * L * 0.01);
+    if (Math.abs(beta) < 1e-6) return 1;
+    return Math.max(0, (Math.sin(beta) / beta) ** 2);
+  }
+
+  function sampleLandingY(p) {
+    const screenH = layout.screenBot - layout.screenTop;
+    const maxTries = 48;
+    for (let t = 0; t < maxTries; t++) {
+      const y = layout.screenTop + Math.random() * screenH;
+      const yNorm = (y - layout.midY) / (screenH * 0.45);
+      let prob;
+
+      if (observerOn) {
+        const slit = Math.random() < 0.5 ? p.y1 : p.y2;
+        const spread = p.slitGapPx * 0.35;
+        const target = slit + (Math.random() - 0.5) * spread;
+        if (Math.abs(y - target) < spread * 0.55) return y;
+        continue;
       }
-      electron.wavePhase += 0.1;
 
-      if (electron.position.z < -5) {
-        scene.remove(electron);
-        electronParticles.splice(index, 1);
+      if (singleSlit) {
+        prob = singleSlitIntensity(yNorm, p.d * 0.4, p.lam, p.L);
+      } else {
+        prob = interferenceIntensity(yNorm, p.d, p.lam, p.L);
       }
-    });
+      if (Math.random() < prob) return y;
+    }
+    return layout.midY + (Math.random() - 0.5) * screenH * 0.3;
   }
 
-  function animate() {
-    requestAnimationFrame(animate);
-    updateElectrons();
-    renderer.render(scene, camera);
+  function addHit(y) {
+    const i = Math.floor(((y - layout.screenTop) / (layout.screenBot - layout.screenTop)) * BINS);
+    if (i >= 0 && i < BINS) hits[i] += 1;
+    shotCount++;
+    document.getElementById("shotCount").textContent = String(shotCount);
+    if (window.AcelyaSounds && shotCount % 8 === 0) window.AcelyaSounds.hit();
   }
 
-  function toggleObserver() {
-    observerActive = !observerActive;
-    if (observerActive) {
-      screen.material.opacity = 0.8;
+  function fireElectron() {
+    const p = params();
+    const y = sampleLandingY(p);
+    addHit(y);
+  }
+
+  function drawBarrier(p, col) {
+    const { barrierX, midY, screenTop, screenBot } = layout;
+    ctx.fillStyle = "#2a3142";
+    ctx.fillRect(barrierX - 10, screenTop - 10, 20, screenBot - screenTop + 20);
+
+    ctx.fillStyle = "#06080f";
+    if (singleSlit) {
+      const gap = p.slitGapPx * 0.5;
+      ctx.fillRect(barrierX - 6, midY - gap / 2, 12, gap);
     } else {
-      screen.material.opacity = 0.3;
+      const half = p.slitGapPx * 0.22;
+      ctx.fillRect(barrierX - 6, p.y1 - half, 12, half * 2);
+      ctx.fillRect(barrierX - 6, p.y2 - half, 12, half * 2);
+    }
+
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.5;
+    if (!singleSlit) {
+      [p.y1, p.y2].forEach((sy) => {
+        ctx.beginPath();
+        ctx.arc(barrierX, sy, 4, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawWaveField(p, col) {
+    if (observerOn) return;
+    const { gunX, barrierX, screenX, screenTop, screenBot } = layout;
+    const k = (2 * Math.PI / p.lam) * 0.012;
+
+    for (let x = gunX + 20; x < screenX; x += 4) {
+      for (let y = screenTop; y < screenBot; y += 4) {
+        const r1 = Math.hypot(x - barrierX, y - p.y1);
+        const r2 = singleSlit
+          ? r1
+          : Math.hypot(x - barrierX, y - p.y2);
+        const amp = singleSlit
+          ? Math.sin(r1 * k - phase)
+          : Math.sin(r1 * k - phase) + Math.sin(r2 * k - phase * 0.97);
+        const v = amp * amp * 0.04;
+        if (v > 0.02) {
+          ctx.fillStyle = col;
+          ctx.globalAlpha = Math.min(0.2, v);
+          ctx.fillRect(x, y, 3, 3);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawHistogram(p, col) {
+    const { screenX, screenTop, screenBot } = layout;
+    const maxH = screenBot - screenTop;
+    let maxCount = 1;
+    for (let i = 0; i < BINS; i++) maxCount = Math.max(maxCount, hits[i]);
+
+    ctx.fillStyle = "#1a2233";
+    ctx.fillRect(screenX, screenTop - 8, 28, maxH + 16);
+
+    for (let i = 0; i < BINS; i++) {
+      if (hits[i] <= 0) continue;
+      const y = screenTop + (i / BINS) * maxH;
+      const barW = (hits[i] / maxCount) * 22;
+      ctx.fillStyle = col;
+      ctx.globalAlpha = 0.35 + 0.65 * (hits[i] / maxCount);
+      ctx.fillRect(screenX + 4, y, barW, Math.max(2, maxH / BINS));
+    }
+    ctx.globalAlpha = 1;
+
+    if (!observerOn && !singleSlit && shotCount > 30) {
+      ctx.strokeStyle = "rgba(167, 139, 250, 0.6)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let i = 0; i <= 80; i++) {
+        const yNorm = (i / 40 - 1) * 0.95;
+        const y = layout.midY + yNorm * maxH * 0.45;
+        const I = interferenceIntensity(yNorm, p.d, p.lam, p.L);
+        const x = screenX + 30 + I * 40;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
     }
   }
 
-  function setupGUI() {
-    const gui = new dat.GUI();
-    gui.add({ addElectron }, 'addElectron').name('Elektron Gönder');
-    gui.add({ toggleObserver }, 'toggleObserver').name('Gözlemci Aç/Kapat');
-    gui.add({ waveAmplitude }, 'waveAmplitude', 0, 5).name('Dalga Genliği');
+  function drawGun(col) {
+    const { gunX, midY } = layout;
+    ctx.fillStyle = "#3d4a5c";
+    ctx.beginPath();
+    ctx.moveTo(gunX - 25, midY + 12);
+    ctx.lineTo(gunX + 5, midY + 8);
+    ctx.lineTo(gunX + 5, midY - 8);
+    ctx.lineTo(gunX - 25, midY - 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.arc(gunX + 8, midY, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#8b949e";
+    ctx.font = "11px Outfit, sans-serif";
+    ctx.fillText("e⁻", gunX - 18, midY + 4);
   }
 
-  init();
-  setupGUI();
-</script></body>
+  function drawLabels(p) {
+    ctx.fillStyle = "#8b949e";
+    ctx.font = "12px Outfit, sans-serif";
+    ctx.fillText("Elektron kaynağı", 12, H - 18);
+    ctx.fillText("Engel", layout.barrierX - 22, H - 18);
+    ctx.fillText("Algılama ekranı", layout.screenX - 10, H - 18);
+
+    const modeEl = document.getElementById("modeLabel");
+    if (observerOn) {
+      modeEl.innerHTML = 'Parçacık <span class="mode-badge particle">ölçülüyor</span>';
+      document.getElementById("explain").innerHTML =
+        "<strong>Gözlemci açık:</strong> Hangi yarıktan geçtiği biliniyor → girişim yok, iki ayrı şerit. Bu, Born yorumu ve ölçüm problemiyle ilişkilidir.";
+    } else if (singleSlit) {
+      modeEl.innerHTML = 'Tek yarık <span class="mode-badge wave">difraksiyon</span>';
+      document.getElementById("explain").innerHTML =
+        "Tek yarıkta girişim yok; <strong>sinc²</strong> difraksiyon deseni oluşur. Çift yarığa geçerek girişimi karşılaştır.";
+    } else {
+      modeEl.innerHTML = 'Dalga <span class="mode-badge wave">süperpozisyon</span>';
+      document.getElementById("explain").innerHTML =
+        'Ölçüm yokken elektron «her iki yarıktan geçmiş» gibi davranır; binlerce atış sonunda <strong>cos²</strong> girişim deseni belirir. ' +
+        '<a href="klasik-girisim.html">Klasik dalga girişimi</a> ile karşılaştır.';
+    }
+
+    document.getElementById("fringeLabel").textContent =
+      p.fringeMm.toFixed(2) + " mm (yaklaşık)";
+    document.getElementById("lambdaLabel").textContent = p.lam + " nm";
+  }
+
+  function draw() {
+    const p = params();
+    const col = wavelengthColor(p.lam);
+
+    ctx.fillStyle = "#0c1018";
+    ctx.fillRect(0, 0, W, H);
+
+    drawWaveField(p, col);
+    drawGun(col);
+    drawBarrier(p, col);
+    drawHistogram(p, col);
+    drawLabels(p);
+
+    if (observerOn) {
+      ctx.fillStyle = "rgba(251, 191, 36, 0.12)";
+      ctx.fillRect(layout.barrierX - 60, 30, 120, H - 60);
+      ctx.fillStyle = "#fbbf24";
+      ctx.font = "11px Outfit, sans-serif";
+      ctx.fillText("👁 Ölçüm cihazı", layout.barrierX - 42, 42);
+    }
+  }
+
+  function loop(t) {
+    requestAnimationFrame(loop);
+    phase += 0.14;
+
+    if (autoFire) {
+      fireAcc += +rateEl.value * 0.0016;
+      while (fireAcc >= 1) {
+        fireElectron();
+        fireAcc -= 1;
+      }
+    }
+    draw();
+  }
+
+  document.getElementById("btnAuto").onclick = function () {
+    autoFire = !autoFire;
+    this.classList.toggle("active", autoFire);
+    this.textContent = "Otomatik ateş: " + (autoFire ? "Açık" : "Kapalı");
+  };
+
+  document.getElementById("btnObserve").onclick = function () {
+    observerOn = !observerOn;
+    this.classList.toggle("active", observerOn);
+    this.textContent = "Gözlemci: " + (observerOn ? "Açık" : "Kapalı");
+    if (observerOn && window.AcelyaSounds) window.AcelyaSounds.explode();
+  };
+
+  document.getElementById("btnSingle").onclick = function () {
+    singleSlit = !singleSlit;
+    this.classList.toggle("active", singleSlit);
+    clearHits();
+  };
+
+  document.getElementById("btnClear").onclick = clearHits;
+
+  function clearHits() {
+    hits.fill(0);
+    shotCount = 0;
+    document.getElementById("shotCount").textContent = "0";
+  }
+
+  [lambdaEl, slitEl, distEl].forEach((el) => el.addEventListener("input", draw));
+
+  function resize() {
+    const wrap = canvas.parentElement;
+    const w = Math.min(900, wrap.clientWidth);
+    canvas.style.width = w + "px";
+    canvas.style.height = w * (H / W) + "px";
+  }
+  window.addEventListener("resize", resize);
+  resize();
+  loop();
+})();
+</script>
+</body>
 </html>
