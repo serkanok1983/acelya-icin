@@ -379,6 +379,44 @@
     }
   }
 
+  function ensureFavicon() {
+    if (document.querySelector('link[rel="icon"]')) return;
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.type = "image/svg+xml";
+    link.href = "favicon.svg";
+    document.head.appendChild(link);
+  }
+
+  function loadScriptOnce(src, onload) {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      onload();
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = onload;
+    document.head.appendChild(s);
+  }
+
+  function loadActivityTracker() {
+    loadScriptOnce("shared/firebase-config.js", () => {
+      loadScriptOnce("shared/activity.js", trackActivityVisit);
+    });
+  }
+
+  function trackActivityVisit() {
+    if (pageId === "bilgi") return;
+    const u =
+      window.AcelyaAuth?.getCurrentUser?.() ||
+      sessionStorage.getItem("acelya-user") ||
+      localStorage.getItem("acelya-user");
+    if (u === "acelya" && window.AcelyaActivity) {
+      const title = document.title.split("|")[0].trim();
+      AcelyaActivity.logPageVisit(pageId, title);
+    }
+  }
+
   function loadGameKit() {
     const s = document.createElement("script");
     s.src = "shared/game-kit.js";
@@ -394,9 +432,11 @@
     pageId = body.dataset.page || location.pathname.replace(/.*\//, "").replace(/\.html$/, "");
     document.documentElement.classList.add("app-root");
     body.classList.add("app-page");
+    ensureFavicon();
     initStars();
     initTopbar();
     enhanceHints();
+    loadActivityTracker();
     loadGameKit();
     setTimeout(() => showIntro(false), 120);
   }

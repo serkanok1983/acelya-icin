@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bilgi — Açelya Aktivitesi</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="shared/theme.css">
+  <style>
+    .bilgi-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1rem 1rem 2.5rem;
+    }
+    .bilgi-wrap h1 {
+      font-size: 1.5rem;
+      margin: 0 0 0.35rem;
+      color: var(--accent);
+    }
+    .bilgi-wrap .lead {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0 0 1.25rem;
+      line-height: 1.5;
+    }
+    .bilgi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .bilgi-card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      color: var(--text);
+    }
+    .bilgi-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .bilgi-list li {
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .bilgi-list li:last-child { border-bottom: none; }
+    .bilgi-list .time { color: var(--accent-2); white-space: nowrap; }
+    .day-group { margin-bottom: 1rem; }
+    .day-group h3 {
+      margin: 0 0 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .summary-table th,
+    .summary-table td {
+      padding: 0.5rem 0.4rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary-table th {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .summary-table td { color: var(--text-muted); }
+    .summary-table .num { text-align: center; color: var(--text); }
+    .empty {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-style: italic;
+    }
+    .loading { color: var(--text-muted); padding: 2rem; text-align: center; }
+    .back-row { margin-bottom: 1rem; }
+    .back-row a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .back-row a:hover { text-decoration: underline; }
+  </style>
+  <script src="shared/auth.js"></script>
+  <script src="shared/firebase-config.js"></script>
+  <script src="shared/activity.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="bilgi">
+
+<div class="bilgi-wrap app-content">
+  <p class="back-row"><a href="index.html">← Ana sayfa</a></p>
+  <h1>📋 Bilgi — Açelya</h1>
+  <p class="lead">Açelya kullanıcısının siteye girişleri ve ziyaret ettiği sayfaların özeti.</p>
+
+  <div id="bilgiContent" class="loading">Yükleniyor…</div>
+</div>
+
+<script>
+  (function () {
+    if (!window.AcelyaAuth || AcelyaAuth.getCurrentUser() !== "serkan") {
+      location.replace("index.html");
+      return;
+    }
+
+    const root = document.getElementById("bilgiContent");
+
+    function escapeHtml(s) {
+      const el = document.createElement("div");
+      el.textContent = s;
+      return el.innerHTML;
+    }
+
+    AcelyaActivity.fetchReport().then((report) => {
+      root.className = "";
+      const { loginDays, pageSummary, logins, pages } = report;
+
+      let loginHtml = "";
+      if (!logins.length) {
+        loginHtml = '<p class="empty">Henüz kayıtlı giriş yok.</p>';
+      } else {
+        loginDays.forEach((times, day) => {
+          loginHtml += `<div class="day-group"><h3>${day}</h3><ul class="bilgi-list">`;
+          times.forEach((item) => {
+            loginHtml += `<li><span>Giriş</span><span class="time">${AcelyaActivity.formatTr(item.t)}</span></li>`;
+          });
+          loginHtml += "</ul></div>";
+        });
+      }
+
+      let summaryHtml = "";
+      if (!pageSummary.length) {
+        summaryHtml = '<p class="empty">Henüz sayfa gezintisi kaydı yok.</p>';
+      } else {
+        summaryHtml = `<table class="summary-table"><thead><tr>
+          <th>Sayfa</th><th class="num">Ziyaret</th><th>Son ziyaret</th>
+        </tr></thead><tbody>`;
+        pageSummary.forEach((row) => {
+          summaryHtml += `<tr>
+            <td>${escapeHtml(row.title)}</td>
+            <td class="num">${row.count}</td>
+            <td>${AcelyaActivity.formatTr(row.last)}</td>
+          </tr>`;
+        });
+        summaryHtml += "</tbody></table>";
+      }
+
+      let recentHtml = "";
+      const recent = pages.slice(0, 40);
+      if (!recent.length) {
+        recentHtml = '<p class="empty">Kayıt yok.</p>';
+      } else {
+        recentHtml = '<ul class="bilgi-list">';
+        recent.forEach((p) => {
+          recentHtml += `<li><span>${escapeHtml(p.title || p.page)}</span><span class="time">${AcelyaActivity.formatTr(p.t)}</span></li>`;
+        });
+        recentHtml += "</ul>";
+      }
+
+      root.innerHTML = `
+        <section class="bilgi-card">
+          <h2>🕐 Girişler (${logins.length})</h2>
+          ${loginHtml}
+        </section>
+        <section class="bilgi-card">
+          <h2>📊 Sayfa özeti</h2>
+          ${summaryHtml}
+        </section>
+        <section class="bilgi-card">
+          <h2>🧭 Son gezintiler</h2>
+          ${recentHtml}
+        </section>`;
+    }).catch(() => {
+      root.className = "";
+      root.innerHTML = '<p class="empty">Veriler yüklenemedi.</p>';
+    });
+  })();
+</script>
+</body>
+</html>
