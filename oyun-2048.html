@@ -88,8 +88,20 @@
 
   const scoreEl = document.getElementById("score");
   const bestEl = document.getElementById("best");
-  let best = Number(localStorage.getItem("acelya-2048-best") || 0);
-  bestEl.textContent = best;
+  let best = 0;
+  let gameOverRecorded = false;
+
+  let fx = { burst() {}, pop() {}, shake() {}, flash() {}, update() {}, draw() {} };
+  window.addEventListener("acelya-game-ready", () => {
+    if (window.AcelyaHooks) fx = AcelyaHooks.bindJuice(canvas);
+    const user = window.AcelyaAuth?.getCurrentUser();
+    if (user && window.AcelyaLeaderboard) {
+      AcelyaLeaderboard.fetch("oyun-2048").then((s) => {
+        best = s[user] || 0;
+        bestEl.textContent = best;
+      });
+    }
+  });
 
   function resizeGame() {
     const hud = document.querySelector(".hud");
@@ -151,6 +163,7 @@
     score = 0;
     won = false;
     over = false;
+    gameOverRecorded = false;
     scoreEl.textContent = "0";
     spawn();
     spawn();
@@ -196,7 +209,10 @@
     for (let i = 0; i < (4 - rotations) % 4; i++) g = rotateRight(g);
     if (!moved) {
       if (!canMove()) {
-        if (!over) playGameOver();
+        if (!over) {
+          playGameOver();
+          record2048End();
+        }
         over = true;
       }
       draw();
@@ -204,19 +220,32 @@
     }
     grid = g;
     score += gained;
-    if (gained > 0) playMerge();
+    if (gained > 0) {
+      playMerge();
+      fx.shake(3);
+      fx.flash(0.08);
+    }
     scoreEl.textContent = score;
     if (score > best) {
       best = score;
       bestEl.textContent = best;
-      localStorage.setItem("acelya-2048-best", String(best));
     }
     spawn();
     if (!canMove()) {
-      if (!over) playGameOver();
+      if (!over) {
+        playGameOver();
+        record2048End();
+      }
       over = true;
     }
     draw();
+  }
+
+  function record2048End() {
+    if (gameOverRecorded) return;
+    gameOverRecorded = true;
+    fx.shake(10);
+    window.AcelyaHooks?.recordScore(score);
   }
 
   function canMove() {
@@ -261,7 +290,11 @@
       ctx.fillText(won ? "2048’e ulaştın! 🎉" : "Oyun Bitti", GAME_W / 2, GAME_H / 2 - 20);
       ctx.font = "18px system-ui";
       ctx.fillText("Yeni Oyun’a bas", GAME_W / 2, GAME_H / 2 + 24);
-    } else if (won) {
+    }
+    fx.update();
+    fx.draw(ctx, GAME_W, GAME_H);
+    if (over) return;
+    if (won) {
       ctx.fillStyle = "rgba(237, 194, 46, 0.35)";
       ctx.fillRect(PAD, PAD, GAME_W - PAD * 2, 28);
       ctx.fillStyle = "#776e65";

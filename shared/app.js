@@ -379,6 +379,15 @@
     }
   }
 
+  function loadGameKit() {
+    const s = document.createElement("script");
+    s.src = "shared/game-kit.js";
+    s.onload = () => {
+      if (window.AcelyaGameKit) AcelyaGameKit.initGamePage(pageId);
+    };
+    document.head.appendChild(s);
+  }
+
   function init() {
     const body = document.body;
     if (!body || body.dataset.page === "index") return;
@@ -388,6 +397,7 @@
     initStars();
     initTopbar();
     enhanceHints();
+    loadGameKit();
     setTimeout(() => showIntro(false), 120);
   }
 
