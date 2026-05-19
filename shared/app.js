@@ -380,12 +380,14 @@
   }
 
   function ensureFavicon() {
-    if (document.querySelector('link[rel="icon"]')) return;
-    const link = document.createElement("link");
-    link.rel = "icon";
-    link.type = "image/svg+xml";
-    link.href = "favicon.svg";
-    document.head.appendChild(link);
+    if (window.AcelyaIcons) {
+      AcelyaIcons.ensureIcons();
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = "shared/icons.js";
+    s.onload = () => window.AcelyaIcons?.ensureIcons();
+    document.head.appendChild(s);
   }
 
   function loadScriptOnce(src, onload) {
