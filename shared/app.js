@@ -6,7 +6,7 @@
 (function initSounds() {
   const SOUND_FILES = { hit: "hit.m4a", explode: "explode.m4a", laser: "laser.m4a", thrust: "thrust.m4a" };
   const soundCache = {};
-  let unlocked = true;
+  let unlocked = false;
   function getSound(name) {
     if (!SOUND_FILES[name]) return null;
     if (!soundCache[name]) {
@@ -18,6 +18,7 @@
   }
   window.AcelyaSounds = {
     play(name) {
+      if (!unlocked) return;
       const s = getSound(name);
       if (!s) return;
       try {
@@ -38,6 +39,18 @@
   function unlockAudio() {
     if (unlocked) return;
     unlocked = true;
+    const first = getSound("hit");
+    if (first) {
+      const prev = first.volume;
+      first.volume = 0;
+      first.play().then(() => {
+        first.pause();
+        first.currentTime = 0;
+        first.volume = prev;
+      }).catch(() => {
+        first.volume = prev;
+      });
+    }
     Object.keys(SOUND_FILES).forEach((key) => {
       const s = getSound(key);
       if (!s) return;
