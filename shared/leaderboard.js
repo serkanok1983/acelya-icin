@@ -23,7 +23,17 @@
   }
 
   async function initDb() {
-    if (dbReady) return dbReady;
+    if (dbReady) {
+      try {
+        return await Promise.race([
+          dbReady,
+          new Promise((_, rej) => setTimeout(() => rej(new Error("firebase-timeout")), 8000)),
+        ]);
+      } catch {
+        dbReady = null;
+        return null;
+      }
+    }
     dbReady = (async () => {
       const cfg = window.ACELYA_FIREBASE;
       if (!cfg || !cfg.apiKey || !cfg.databaseURL) return null;
@@ -37,7 +47,15 @@
         return null;
       }
     })();
-    return dbReady;
+    try {
+      return await Promise.race([
+        dbReady,
+        new Promise((_, rej) => setTimeout(() => rej(new Error("firebase-timeout")), 8000)),
+      ]);
+    } catch {
+      dbReady = null;
+      return null;
+    }
   }
 
   function readLocal() {
