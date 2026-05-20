@@ -6,7 +6,7 @@
 (function initSounds() {
   const SOUND_FILES = { hit: "hit.m4a", explode: "explode.m4a", laser: "laser.m4a", thrust: "thrust.m4a" };
   const soundCache = {};
-  let unlocked = false;
+  let unlocked = true;
   function getSound(name) {
     if (!SOUND_FILES[name]) return null;
     if (!soundCache[name]) {
@@ -18,12 +18,16 @@
   }
   window.AcelyaSounds = {
     play(name) {
-      if (!unlocked) return;
       const s = getSound(name);
       if (!s) return;
-      const c = s.cloneNode();
-      c.volume = s.volume;
-      c.play().catch(() => {});
+      try {
+        s.currentTime = 0;
+      } catch (_) {}
+      s.play().catch(() => {
+        const c = new Audio(SOUND_FILES[name]);
+        c.volume = s.volume;
+        c.play().catch(() => {});
+      });
     },
     hit() { window.AcelyaSounds.play("hit"); },
     explode() { window.AcelyaSounds.play("explode"); },
