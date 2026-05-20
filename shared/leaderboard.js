@@ -92,11 +92,16 @@
     return window.AcelyaAuth?.getCurrentUser?.() || null;
   }
 
-  async function fetchGame(gameId) {
+  function getLocalScores(gameId) {
     const out = {};
     PLAYERS.forEach((p) => {
       out[p] = getLocalBest(gameId, p);
     });
+    return out;
+  }
+
+  async function fetchGame(gameId) {
+    const out = getLocalScores(gameId);
 
     const database = await initDb();
     if (!database) return out;
@@ -167,15 +172,25 @@
     else hud.appendChild(board);
 
     async function refresh() {
-      const scores = await fetchGame(gameId);
       const scoresEl = document.getElementById("acelyaLbScores");
       const youEl = document.getElementById("acelyaLbYou");
       if (!scoresEl) return;
-      scoresEl.textContent = formatScores(scores);
+      const localScores = getLocalScores(gameId);
+      scoresEl.textContent = formatScores(localScores);
       const user = getCurrentUser();
       if (user && youEl) {
         const name = user === "acelya" ? "Açelya" : "Serkan";
-        youEl.textContent = `Sen (${name}): ${scores[user] ?? 0}`;
+        youEl.textContent = `Sen (${name}): ${localScores[user] ?? 0}`;
+      }
+
+      const scores = await fetchGame(gameId);
+      const scoresEl2 = document.getElementById("acelyaLbScores");
+      const youEl2 = document.getElementById("acelyaLbYou");
+      if (!scoresEl2) return;
+      scoresEl2.textContent = formatScores(scores);
+      if (user && youEl2) {
+        const name = user === "acelya" ? "Açelya" : "Serkan";
+        youEl2.textContent = `Sen (${name}): ${scores[user] ?? 0}`;
       }
     }
 

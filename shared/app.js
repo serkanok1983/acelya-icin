@@ -6,6 +6,7 @@
 (function initSounds() {
   const SOUND_FILES = { hit: "hit.m4a", explode: "explode.m4a", laser: "laser.m4a", thrust: "thrust.m4a" };
   const soundCache = {};
+  let unlocked = false;
   function getSound(name) {
     if (!SOUND_FILES[name]) return null;
     if (!soundCache[name]) {
@@ -17,6 +18,7 @@
   }
   window.AcelyaSounds = {
     play(name) {
+      if (!unlocked) return;
       const s = getSound(name);
       if (!s) return;
       const c = s.cloneNode();
@@ -28,12 +30,83 @@
     laser() { window.AcelyaSounds.play("laser"); },
     thrust() { window.AcelyaSounds.play("thrust"); },
   };
+
+  function unlockAudio() {
+    if (unlocked) return;
+    unlocked = true;
+    Object.keys(SOUND_FILES).forEach((key) => {
+      const s = getSound(key);
+      if (!s) return;
+      s.volume = 0;
+      s.play().then(() => {
+        s.pause();
+        s.currentTime = 0;
+        s.volume = key === "thrust" ? 0.35 : 0.55;
+      }).catch(() => {
+        s.volume = key === "thrust" ? 0.35 : 0.55;
+      });
+    });
+    window.removeEventListener("pointerdown", unlockAudio);
+    window.removeEventListener("keydown", unlockAudio);
+    window.removeEventListener("touchstart", unlockAudio);
+  }
+
+  window.addEventListener("pointerdown", unlockAudio, { once: true });
+  window.addEventListener("keydown", unlockAudio, { once: true });
+  window.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
 })();
 
 (function () {
   "use strict";
 
   let pageId = "";
+  const PauseState = { paused: false };
+
+  (function installPauseAwareSchedulers() {
+    if (window.AcelyaPause) return;
+    const rawSetInterval = window.setInterval.bind(window);
+    const rawSetTimeout = window.setTimeout.bind(window);
+    const rawRaf = window.requestAnimationFrame.bind(window);
+
+    window.setInterval = function wrappedSetInterval(fn, ms, ...args) {
+      if (typeof fn !== "function") return rawSetInterval(fn, ms, ...args);
+      return rawSetInterval(function intervalProxy(...inner) {
+        if (PauseState.paused) return;
+        fn(...inner);
+      }, ms, ...args);
+    };
+
+    window.setTimeout = function wrappedSetTimeout(fn, ms, ...args) {
+      if (typeof fn !== "function") return rawSetTimeout(fn, ms, ...args);
+      return rawSetTimeout(function timeoutProxy(...inner) {
+        if (PauseState.paused) {
+          rawSetTimeout(timeoutProxy, 50, ...inner);
+          return;
+        }
+        fn(...inner);
+      }, ms, ...args);
+    };
+
+    window.requestAnimationFrame = function wrappedRaf(cb) {
+      if (typeof cb !== "function") return rawRaf(cb);
+      function rafProxy(ts) {
+        if (PauseState.paused) {
+          rawRaf(rafProxy);
+          return;
+        }
+        cb(ts);
+      }
+      return rawRaf(rafProxy);
+    };
+
+    window.AcelyaPause = {
+      isPaused() { return PauseState.paused; },
+      setPaused(v) {
+        PauseState.paused = !!v;
+        window.dispatchEvent(new CustomEvent("acelya-pause-change", { detail: { paused: PauseState.paused } }));
+      },
+    };
+  })();
 
   /* —— Sayfa rehberleri —— */
   const GUIDES = {
@@ -337,6 +410,7 @@
       document.body.appendChild(overlay);
     }
     overlay.classList.remove("is-hidden");
+    window.AcelyaPause?.setPaused(true);
 
     overlay.innerHTML = `
       <div class="app-intro-card" role="dialog" aria-labelledby="appIntroTitle">
@@ -354,10 +428,12 @@
 
     document.getElementById("appIntroStart").onclick = () => {
       overlay.classList.add("is-hidden");
+      window.AcelyaPause?.setPaused(false);
     };
     document.getElementById("appIntroAgain").onclick = () => {
       localStorage.setItem(key, "1");
       overlay.classList.add("is-hidden");
+      window.AcelyaPause?.setPaused(false);
     };
   }
 
