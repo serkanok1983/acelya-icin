@@ -729,7 +729,7 @@
             <input
               type="search"
               id="searchInput"
-              placeholder="Sayfa ara… (ör. fraktal, optik, 2048)"
+              placeholder="Sayfa ara… (ör. fraktal, optik, 2048, 'fbo' → Fibonacci)"
               autocomplete="off"
             />
           </div>
@@ -926,10 +926,38 @@
         return s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
       }
 
+      /* Fuzzy arama: sorgudaki karakterler sırayla hedefte bulunuyorsa eşleşir.
+         Daha kısa bitişik eşleşmeler daha yüksek skor alır. */
+      function fuzzyScore(query, target) {
+        if (!query) return 100;
+        const q = normalize(query);
+        const t = normalize(target);
+        // Tam substring eşleşmesi
+        const idx = t.indexOf(q);
+        if (idx !== -1) return 100 - idx;
+        // Fuzzy karakter eşleşmesi
+        let qi = 0;
+        let lastMatch = -1;
+        let gaps = 0;
+        for (let i = 0; i < t.length && qi < q.length; i++) {
+          if (t[i] === q[qi]) {
+            if (lastMatch !== -1 && i - lastMatch > 1) gaps += i - lastMatch - 1;
+            lastMatch = i;
+            qi++;
+          }
+        }
+        if (qi < q.length) return -1; // Tüm karakterler bulunamadı
+        // Skor: karakterlerin ne kadar bitişik olduğu + başlangıç pozisyonu
+        return Math.max(0, 80 - gaps * 8 - lastMatch * 0.1);
+      }
+
       function matches(item, cat) {
-        const q = normalize(searchQuery.trim());
-        if (!q) return true;
-        return normalize(item.label).includes(q) || normalize(cat.title).includes(q);
+        const q = searchQuery.trim();
+        if (!q) return { match: true, score: 100 };
+        const labelScore = fuzzyScore(q, item.label);
+        const catScore = fuzzyScore(q, cat.title);
+        const best = Math.max(labelScore, catScore);
+        return { match: best >= 0, score: best };
       }
 
       function renderMenu() {
@@ -939,7 +967,11 @@
 
         MENU.forEach((cat) => {
           if (activeCategory !== "all" && activeCategory !== cat.id) return;
-          const items = cat.items.filter((it) => matches(it, cat));
+          const items = cat.items
+            .map((it) => ({ item: it, result: matches(it, cat) }))
+            .filter((x) => x.result.match)
+            .sort((a, b) => b.result.score - a.result.score)
+            .map((x) => x.item);
           if (!items.length) return;
           any = true;
 
