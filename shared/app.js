@@ -455,6 +455,9 @@
         "yol-bulma-algoritmalari",
         "siralama-yarisi",
         "mantik-devresi",
+        "enigma-makinesi",
+        "ses-sentezleyici",
+        "renk-teorisi",
       ].includes(slug)
     )
       return "Simülasyon";
