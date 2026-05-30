@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Av-Avcı Modeli (Lotka-Volterra)</title>
+  <link rel="stylesheet" href="shared/theme.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    .app-content {
+      max-width: 960px !important;
+      margin: 0 auto;
+      padding: 0 12px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .page-header {
+      text-align: center;
+      padding-top: 8px;
+    }
+    .page-header h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 4.5vw, 1.6rem);
+      font-weight: 600;
+      color: var(--text);
+    }
+    .page-header .sub {
+      margin: 4px 0 0;
+      font-size: clamp(0.78rem, 3vw, 0.88rem);
+      color: var(--text-muted);
+    }
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 720px) {
+      .sim-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+    .panel h3 {
+      margin: 0 0 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .panel canvas {
+      width: 100%;
+      display: block;
+      border-radius: 6px;
+      background: var(--bg-deep);
+    }
+    .readout-row {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .readout {
+      text-align: center;
+      min-width: 90px;
+    }
+    .readout .val {
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .readout .val.prey { color: #5eead4; }
+    .readout .val.pred { color: #f87171; }
+    .readout .lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .params {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      justify-content: center;
+      align-items: center;
+    }
+    .param {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-width: 60px;
+    }
+    .param label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .param .pv {
+      font-size: 0.78rem;
+      color: var(--text);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .param input[type="range"] {
+      width: 72px;
+      accent-color: var(--accent-2);
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-row button {
+      padding: 8px 18px;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: filter 0.15s;
+    }
+    .btn-row button:hover { filter: brightness(1.1); }
+    .btn-start {
+      background: linear-gradient(135deg, var(--accent), #2dd4bf);
+      color: #041016;
+    }
+    .btn-stop {
+      background: #f87171;
+      color: #041016;
+    }
+    .btn-reset {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--border) !important;
+    }
+    .eq-box {
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: "Courier New", monospace;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .eq-box span { color: var(--accent); }
+    .eq-box span.pred { color: #f87171; }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="av-avci-lotka-volterra">
+
+<div class="app-content">
+  <div class="page-header">
+    <h1>🦊 Av-Avcı Modeli (Lotka-Volterra)</h1>
+    <p class="sub">Tavşan (av) ve tilki (avcı) popülasyonlarının döngüsel salınımı</p>
+  </div>
+
+  <div class="eq-box">
+    <span>dP/dt = αP − βPV</span>&emsp;&emsp;
+    <span class="pred">dV/dt = δPV − γV</span>
+    &emsp;P = Av&ensp;V = Avcı
+  </div>
+
+  <div class="readout-row">
+    <div class="readout">
+      <div class="lbl">🐰 Av (Tavşan)</div>
+      <div class="val prey" id="preyVal">120</div>
+    </div>
+    <div class="readout">
+      <div class="lbl">🦊 Avcı (Tilki)</div>
+      <div class="val pred" id="predVal">40</div>
+    </div>
+    <div class="readout">
+      <div class="lbl">⏱️ Zaman</div>
+      <div class="val" style="color:var(--text);" id="timeVal">0.0</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>🌿 Ekosistem</h3>
+    <canvas id="ecoCanvas" width="800" height="320"></canvas>
+  </div>
+
+  <div class="sim-grid">
+    <div class="panel">
+      <h3>📈 Zaman Serisi</h3>
+      <canvas id="timeCanvas" width="400" height="260"></canvas>
+    </div>
+    <div class="panel">
+      <h3>🔄 Faz Diyagramı</h3>
+      <canvas id="phaseCanvas" width="400" height="260"></canvas>
+    </div>
+  </div>
+
+  <div class="params">
+    <div class="param">
+      <label>α (av büyüme)</label>
+      <input type="range" id="alpha" min="0.2" max="2.0" step="0.02" value="0.8">
+      <span class="pv" id="alphaVal">0.80</span>
+    </div>
+    <div class="param">
+      <label>β (avlanma)</label>
+      <input type="range" id="beta" min="0.01" max="0.15" step="0.005" value="0.06">
+      <span class="pv" id="betaVal">0.06</span>
+    </div>
+    <div class="param">
+      <label>δ (avcı büyüme)</label>
+      <input type="range" id="delta" min="0.01" max="0.10" step="0.005" value="0.04">
+      <span class="pv" id="deltaVal">0.04</span>
+    </div>
+    <div class="param">
+      <label>γ (avcı ölüm)</label>
+      <input type="range" id="gamma" min="0.1" max="1.5" step="0.02" value="0.5">
+      <span class="pv" id="gammaVal">0.50</span>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-start" id="btnStart">▶ Başlat</button>
+    <button class="btn-stop hidden" id="btnStop">⏸ Durdur</button>
+    <button class="btn-reset" id="btnReset">↺ Sıfırla</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  /* ── Canvas elemanları ── */
+  const ecoCv = document.getElementById("ecoCanvas");
+  const ecoCtx = ecoCv.getContext("2d");
+  const timeCv = document.getElementById("timeCanvas");
+  const timeCtx = timeCv.getContext("2d");
+  const phaseCv = document.getElementById("phaseCanvas");
+  const phaseCtx = phaseCv.getContext("2d");
+
+  /* ── Parametreler ── */
+  let alpha = 0.8, beta = 0.06, delta = 0.04, gamma = 0.5;
+  let P = 120, V = 40;    // av, avcı popülasyonları
+  let t = 0;
+  let running = false;
+  let animId = null;
+  const history = [];     // { t, P, V }
+  const MAX_HIST = 600;
+
+  /* ── Ekosistem parçacıkları ── */
+  const PREY_COUNT  = 120;
+  const PRED_COUNT  = 40;
+  let preyParticles  = [];
+  let predParticles  = [];
+
+  function seedParticles() {
+    preyParticles = [];
+    predParticles = [];
+    for (let i = 0; i < PREY_COUNT; i++) {
+      preyParticles.push({
+        x: Math.random() * 0.9 + 0.05,
+        y: Math.random() * 0.9 + 0.05,
+        vx: (Math.random() - 0.5) * 0.003,
+        vy: (Math.random() - 0.5) * 0.003,
+      });
+    }
+    for (let i = 0; i < PRED_COUNT; i++) {
+      predParticles.push({
+        x: Math.random() * 0.9 + 0.05,
+        y: Math.random() * 0.9 + 0.05,
+        vx: (Math.random() - 0.5) * 0.004,
+        vy: (Math.random() - 0.5) * 0.004,
+      });
+    }
+  }
+
+  function syncParticleCounts() {
+    const pTarget = Math.round(P);
+    const vTarget = Math.round(V);
+    while (preyParticles.length > pTarget) preyParticles.pop();
+    while (preyParticles.length < pTarget) {
+      preyParticles.push({
+        x: Math.random() * 0.9 + 0.05,
+        y: Math.random() * 0.9 + 0.05,
+        vx: (Math.random() - 0.5) * 0.003,
+        vy: (Math.random() - 0.5) * 0.003,
+      });
+    }
+    while (predParticles.length > vTarget) predParticles.pop();
+    while (predParticles.length < vTarget) {
+      predParticles.push({
+        x: Math.random() * 0.9 + 0.05,
+        y: Math.random() * 0.9 + 0.05,
+        vx: (Math.random() - 0.5) * 0.004,
+        vy: (Math.random() - 0.5) * 0.004,
+      });
+    }
+  }
+
+  function updateParticles() {
+    const W = 1, H = 1;
+    for (const p of preyParticles) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0.02) { p.x = 0.02; p.vx *= -0.8; }
+      if (p.x > 0.98) { p.x = 0.98; p.vx *= -0.8; }
+      if (p.y < 0.02) { p.y = 0.02; p.vy *= -0.8; }
+      if (p.y > 0.98) { p.y = 0.98; p.vy *= -0.8; }
+      p.vx += (Math.random() - 0.5) * 0.0008;
+      p.vy += (Math.random() - 0.5) * 0.0008;
+      const speed = Math.hypot(p.vx, p.vy);
+      const maxSp = 0.008;
+      if (speed > maxSp) { p.vx *= maxSp / speed; p.vy *= maxSp / speed; }
+    }
+    for (const p of predParticles) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0.02) { p.x = 0.02; p.vx *= -0.8; }
+      if (p.x > 0.98) { p.x = 0.98; p.vx *= -0.8; }
+      if (p.y < 0.02) { p.y = 0.02; p.vy *= -0.8; }
+      if (p.y > 0.98) { p.y = 0.98; p.vy *= -0.8; }
+      p.vx += (Math.random() - 0.5) * 0.0006;
+      p.vy += (Math.random() - 0.5) * 0.0006;
+      const speed = Math.hypot(p.vx, p.vy);
+      const maxSp = 0.006;
+      if (speed > maxSp) { p.vx *= maxSp / speed; p.vy *= maxSp / speed; }
+    }
+  }
+
+  /* ── ODE (RK4) ── */
+  function dPdt(p, v) { return alpha * p - beta * p * v; }
+  function dVdt(p, v) { return delta * p * v - gamma * v; }
+
+  function rk4Step(h) {
+    const k1p = dPdt(P, V);
+    const k1v = dVdt(P, V);
+    const k2p = dPdt(P + 0.5 * h * k1p, V + 0.5 * h * k1v);
+    const k2v = dVdt(P + 0.5 * h * k1p, V + 0.5 * h * k1v);
+    const k3p = dPdt(P + 0.5 * h * k2p, V + 0.5 * h * k2v);
+    const k3v = dVdt(P + 0.5 * h * k2p, V + 0.5 * h * k2v);
+    const k4p = dPdt(P + h * k3p, V + h * k3v);
+    const k4v = dVdt(P + h * k3p, V + h * k3v);
+    P += (h / 6) * (k1p + 2 * k2p + 2 * k3p + k4p);
+    V += (h / 6) * (k1v + 2 * k2v + 2 * k3v + k4v);
+    if (P < 1) P = 1;
+    if (V < 0.5) V = 0.5;
+  }
+
+  /* ── Çizim ── */
+  function drawEcosystem(dpr) {
+    const cw = ecoCv.width / dpr;
+    const ch = ecoCv.height / dpr;
+    ecoCtx.clearRect(0, 0, cw, ch);
+
+    /* zemin */
+    ecoCtx.fillStyle = "#0c1418";
+    ecoCtx.fillRect(0, 0, cw, ch);
+
+    /* çim dokusu */
+    ecoCtx.fillStyle = "#1a3320";
+    for (let i = 0; i < 60; i++) {
+      const gx = (Math.sin(i * 127.1 + t * 0.3) * 0.5 + 0.5) * cw;
+      const gy = ch * 0.55 + (Math.cos(i * 83.7 + t * 0.2) * 0.5 + 0.5) * ch * 0.4;
+      ecoCtx.beginPath();
+      ecoCtx.arc(gx, gy, 2 + Math.random() * 2, 0, Math.PI * 2);
+      ecoCtx.fill();
+    }
+
+    /* av (tavşan) */
+    for (const p of preyParticles) {
+      const x = p.x * cw;
+      const y = p.y * ch;
+      ecoCtx.fillStyle = "#5eead4";
+      ecoCtx.beginPath();
+      ecoCtx.arc(x, y, 3.2, 0, Math.PI * 2);
+      ecoCtx.fill();
+      ecoCtx.fillStyle = "#5eead466";
+      ecoCtx.beginPath();
+      ecoCtx.arc(x, y, 5.5, 0, Math.PI * 2);
+      ecoCtx.fill();
+    }
+
+    /* avcı (tilki) */
+    for (const p of predParticles) {
+      const x = p.x * cw;
+      const y = p.y * ch;
+      ecoCtx.fillStyle = "#f87171";
+      ecoCtx.beginPath();
+      ecoCtx.arc(x, y, 4.5, 0, Math.PI * 2);
+      ecoCtx.fill();
+      ecoCtx.fillStyle = "#f8717166";
+      ecoCtx.beginPath();
+      ecoCtx.arc(x, y, 7, 0, Math.PI * 2);
+      ecoCtx.fill();
+    }
+  }
+
+  function drawTimeSeries(dpr) {
+    const cw = timeCv.width / dpr;
+    const ch = timeCv.height / dpr;
+    const ctx = timeCtx;
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.fillStyle = "#0c1418";
+    ctx.fillRect(0, 0, cw, ch);
+
+    if (history.length < 2) return;
+
+    const margin = { l: 38, r: 10, t: 10, b: 22 };
+    const pw = cw - margin.l - margin.r;
+    const ph = ch - margin.t - margin.b;
+    let Pmax = 1, Vmax = 1;
+    for (const h of history) {
+      if (h.P > Pmax) Pmax = h.P;
+      if (h.V > Vmax) Vmax = h.V;
+    }
+    const yMax = Math.max(Pmax, Vmax) * 1.15;
+
+    function tx(i) { return margin.l + (i / (history.length - 1)) * pw; }
+    function ty(v) { return margin.t + ph - (v / yMax) * ph; }
+
+    /* ızgara */
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    ctx.lineWidth = 1 * dpr;
+    for (let i = 0; i <= 4; i++) {
+      const y = margin.t + (ph * i) / 4;
+      ctx.beginPath(); ctx.moveTo(margin.l, y); ctx.lineTo(cw - margin.r, y); ctx.stroke();
+    }
+    /* eksen */
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.beginPath();
+    ctx.moveTo(margin.l, margin.t); ctx.lineTo(margin.l, margin.t + ph);
+    ctx.moveTo(margin.l, margin.t + ph); ctx.lineTo(cw - margin.r, margin.t + ph);
+    ctx.stroke();
+
+    ctx.font = `${9 * dpr}px Outfit, sans-serif`;
+    ctx.fillStyle = "#8b95a8";
+    ctx.textAlign = "right";
+    for (let i = 0; i <= 4; i++) {
+      const v = (yMax * i) / 4;
+      ctx.fillText(Math.round(v), margin.l - 4, margin.t + ph - (ph * i) / 4 + 3 * dpr);
+    }
+    ctx.textAlign = "center";
+    ctx.fillText("Zaman", cw / 2, ch - 2 * dpr);
+
+    /* av eğrisi */
+    ctx.strokeStyle = "#5eead4";
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    for (let i = 0; i < history.length; i++) {
+      const x = tx(i), y = ty(history[i].P);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    /* avcı eğrisi */
+    ctx.strokeStyle = "#f87171";
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    for (let i = 0; i < history.length; i++) {
+      const x = tx(i), y = ty(history[i].V);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    /* lejant */
+    ctx.fillStyle = "#5eead4";
+    ctx.textAlign = "left";
+    ctx.fillText("Av", margin.l + 4, margin.t + 12 * dpr);
+    ctx.fillStyle = "#f87171";
+    ctx.fillText("Avcı", margin.l + 34, margin.t + 12 * dpr);
+  }
+
+  function drawPhaseDiagram(dpr) {
+    const cw = phaseCv.width / dpr;
+    const ch = phaseCv.height / dpr;
+    const ctx = phaseCtx;
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.fillStyle = "#0c1418";
+    ctx.fillRect(0, 0, cw, ch);
+
+    if (history.length < 2) return;
+
+    const margin = { l: 38, r: 10, t: 10, b: 22 };
+    const pw = cw - margin.l - margin.r;
+    const ph = ch - margin.t - margin.b;
+    let Pmax = 1, Vmax = 1;
+    for (const h of history) {
+      if (h.P > Pmax) Pmax = h.P;
+      if (h.V > Vmax) Vmax = h.V;
+    }
+    const xMax = Pmax * 1.15;
+    const yMax = Vmax * 1.15;
+
+    function tx(v) { return margin.l + (v / xMax) * pw; }
+    function ty(v) { return margin.t + ph - (v / yMax) * ph; }
+
+    /* ızgara */
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    ctx.lineWidth = 1 * dpr;
+    for (let i = 0; i <= 4; i++) {
+      const x = margin.l + (pw * i) / 4;
+      ctx.beginPath(); ctx.moveTo(x, margin.t); ctx.lineTo(x, margin.t + ph); ctx.stroke();
+    }
+    for (let i = 0; i <= 4; i++) {
+      const y = margin.t + (ph * i) / 4;
+      ctx.beginPath(); ctx.moveTo(margin.l, y); ctx.lineTo(cw - margin.r, y); ctx.stroke();
+    }
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.beginPath();
+    ctx.moveTo(margin.l, margin.t); ctx.lineTo(margin.l, margin.t + ph);
+    ctx.moveTo(margin.l, margin.t + ph); ctx.lineTo(cw - margin.r, margin.t + ph);
+    ctx.stroke();
+
+    ctx.font = `${9 * dpr}px Outfit, sans-serif`;
+    ctx.fillStyle = "#8b95a8";
+    ctx.textAlign = "center";
+    ctx.fillText("Av (P)", cw / 2, ch - 2 * dpr);
+    ctx.save();
+    ctx.translate(6 * dpr, ch / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Avcı (V)", 0, 0);
+    ctx.restore();
+
+    /* faz eğrisi */
+    const grad = ctx.createLinearGradient(margin.l, 0, cw - margin.r, 0);
+    grad.addColorStop(0, "#5eead4");
+    grad.addColorStop(0.5, "#a78bfa");
+    grad.addColorStop(1, "#f87171");
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    for (let i = 0; i < history.length; i++) {
+      const x = tx(history[i].P), y = ty(history[i].V);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    /* denge noktası */
+    const Peq = gamma / delta;
+    const Veq = alpha / beta;
+    const ex = tx(Peq), ey = ty(Veq);
+    if (ex >= margin.l && ex <= cw - margin.r && ey >= margin.t && ey <= margin.t + ph) {
+      ctx.fillStyle = "#a78bfa";
+      ctx.beginPath();
+      ctx.arc(ex, ey, 4 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#a78bfa66";
+      ctx.lineWidth = 1 * dpr;
+      ctx.beginPath();
+      ctx.arc(ex, ey, 8 * dpr, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  /* ── HUD güncelleme ── */
+  function updateHud() {
+    document.getElementById("preyVal").textContent = Math.round(P);
+    document.getElementById("predVal").textContent = Math.round(V);
+    document.getElementById("timeVal").textContent = t.toFixed(1);
+  }
+
+  /* ── Ana döngü ── */
+  function tick(ts) {
+    if (!running) return;
+    const h = 0.05;
+    rk4Step(h);
+    t += h;
+    syncParticleCounts();
+    updateParticles();
+    history.push({ t, P, V });
+    if (history.length > MAX_HIST) history.shift();
+    updateHud();
+    drawAll();
+    animId = requestAnimationFrame(tick);
+  }
+
+  function drawAll() {
+    const dprEco = Math.min(window.devicePixelRatio || 1, 2);
+    const dprSmall = Math.min(window.devicePixelRatio || 1, 2);
+
+    const ecoW = ecoCv.clientWidth;
+    const ecoH = ecoCv.clientHeight;
+    ecoCv.width = ecoW * dprEco;
+    ecoCv.height = ecoH * dprEco;
+    ecoCtx.setTransform(dprEco, 0, 0, dprEco, 0, 0);
+    drawEcosystem(dprEco);
+
+    const tw = timeCv.clientWidth;
+    const th = timeCv.clientHeight;
+    timeCv.width = tw * dprSmall;
+    timeCv.height = th * dprSmall;
+    timeCtx.setTransform(dprSmall, 0, 0, dprSmall, 0, 0);
+    drawTimeSeries(dprSmall);
+
+    const pw = phaseCv.clientWidth;
+    const ph = phaseCv.clientHeight;
+    phaseCv.width = pw * dprSmall;
+    phaseCv.height = ph * dprSmall;
+    phaseCtx.setTransform(dprSmall, 0, 0, dprSmall, 0, 0);
+    drawPhaseDiagram(dprSmall);
+  }
+
+  function startSim() {
+    if (running) return;
+    running = true;
+    document.getElementById("btnStart").classList.add("hidden");
+    document.getElementById("btnStop").classList.remove("hidden");
+    animId = requestAnimationFrame(tick);
+  }
+
+  function stopSim() {
+    running = false;
+    if (animId) cancelAnimationFrame(animId);
+    document.getElementById("btnStart").classList.remove("hidden");
+    document.getElementById("btnStop").classList.add("hidden");
+  }
+
+  function resetSim() {
+    stopSim();
+    P = 120;
+    V = 40;
+    t = 0;
+    history.length = 0;
+    history.push({ t: 0, P: 120, V: 40 });
+    seedParticles();
+    syncParticleCounts();
+    updateHud();
+    drawAll();
+  }
+
+  /* ── Event bağlantıları ── */
+  document.getElementById("btnStart").addEventListener("click", startSim);
+  document.getElementById("btnStop").addEventListener("click", stopSim);
+  document.getElementById("btnReset").addEventListener("click", resetSim);
+
+  function bindSlider(id, valId, fmt, setter) {
+    const sl = document.getElementById(id);
+    const disp = document.getElementById(valId);
+    sl.addEventListener("input", () => {
+      const v = parseFloat(sl.value);
+      disp.textContent = v.toFixed(fmt);
+      setter(v);
+    });
+  }
+  bindSlider("alpha", "alphaVal", 2, v => { alpha = v; });
+  bindSlider("beta",  "betaVal",  3, v => { beta  = v; });
+  bindSlider("delta", "deltaVal", 3, v => { delta = v; });
+  bindSlider("gamma", "gammaVal", 2, v => { gamma = v; });
+
+  /* ── Responsive: resize canvas'ları yenile ── */
+  window.addEventListener("resize", () => { if (!running) drawAll(); });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", () => { if (!running) drawAll(); });
+  }
+
+  /* ── Başlangıç ── */
+  seedParticles();
+  syncParticleCounts();
+  history.push({ t: 0, P: 120, V: 40 });
+  updateHud();
+  /* İlk çizimi biraz geciktir ki canvas boyutları otursun */
+  setTimeout(drawAll, 100);
+})();
+</script>
+</body>
+</html>

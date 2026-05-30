@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="shared/theme.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Genetik Çaprazlama (Punnett) | Açelya</title>
+    <style>
+      .punnett-stage { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin: 12px 0; }
+      .punnett-stage canvas { background: var(--bg-card); border-radius: var(--radius); box-shadow: 0 0 0 1px var(--border); }
+      .panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 240px; }
+      .panel label { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); display: flex; flex-direction: column; gap: 3px; }
+      .panel select { padding: 6px 8px; font: inherit; font-size: 0.85rem; background: var(--bg-input); color: var(--text); border: 1px solid var(--border); border-radius: 6px; }
+      .panel button { padding: 8px 14px; font: inherit; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; color: #041016; background: linear-gradient(135deg, var(--accent), #2dd4bf); }
+      .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 6px; margin-top: 8px; }
+      .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; text-align: center; }
+      .result-card .genotype { font-size: 1.1rem; font-weight: 600; color: var(--accent); }
+      .result-card .phenotype { font-size: 0.75rem; color: var(--text-muted); }
+      .result-card .ratio { font-size: 0.72rem; color: var(--accent-2); }
+      .gamete-tag { display: inline-block; padding: 4px 10px; margin: 2px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; background: rgba(167,139,250,0.2); color: var(--accent-2); }
+      @media (max-width: 600px) { .punnett-stage { flex-direction: column; align-items: center; } }
+    </style>
+    <script src="shared/app.js"></script>
+  </head>
+  <body class="app-page" data-page="genetik-caprazlama">
+    <div class="app-content">
+      <h1>🧬 Genetik Çaprazlama (Punnett Karesi)</h1>
+      <p class="hint">Mendel genetiği: Baskın (A) ve çekinik (a) alellerle çaprazlama sonuçlarını keşfedin.</p>
+
+      <div class="punnett-stage">
+        <canvas id="peaCanvas" width="280" height="200"></canvas>
+        <div class="panel">
+          <label>Ebeveyn 1 genotipi
+            <select id="parent1Select">
+              <option value="AA">AA (Homozigot baskın)</option>
+              <option value="Aa">Aa (Heterozigot)</option>
+              <option value="aa">aa (Homozigot çekinik)</option>
+            </select>
+          </label>
+          <label>Ebeveyn 2 genotipi
+            <select id="parent2Select">
+              <option value="AA">AA (Homozigot baskın)</option>
+              <option value="Aa" selected>Aa (Heterozigot)</option>
+              <option value="aa">aa (Homozigot çekinik)</option>
+            </select>
+          </label>
+          <button id="crossBtn">🔄 Çaprazla</button>
+        </div>
+      </div>
+
+      <div id="punnettSquare" style="overflow-x:auto;"></div>
+      <div id="results" class="result-grid"></div>
+
+      <p style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-top:10px">
+        💡 Baskın alel (A) fenotipte kendini gösterir. Çekinik alel (a) sadece homozigot durumda (aa) görünür.
+      </p>
+      <p style="text-align:center;font-size:0.78rem;color:var(--text-muted)">
+        Monohibrit çaprazlama: Tek bir gen lokusu üzerinden kalıtım.
+      </p>
+    </div>
+
+    <script>
+      (function () {
+        const peaCanvas = document.getElementById("peaCanvas");
+        const pctx = peaCanvas.getContext("2d");
+
+        const TRAITS = {
+          color: { name: "Bezelye rengi", dom: "Sarı", rec: "Yeşil", domColor: "#e8c840", recColor: "#40c840" },
+          shape: { name: "Bezelye şekli", dom: "Düzgün", rec: "Buruşuk" },
+          height: { name: "Bitki boyu", dom: "Uzun", rec: "Kısa" },
+        };
+
+        let currentTrait = TRAITS.color;
+
+        function getGametes(genotype) {
+          if (genotype === "AA") return ["A", "A"];
+          if (genotype === "Aa" || genotype === "aA") return ["A", "a"];
+          return ["a", "a"];
+        }
+
+        function cross(parent1, parent2) {
+          const g1 = getGametes(parent1);
+          const g2 = getGametes(parent2);
+          const offspring = {};
+          const grid = [];
+          g1.forEach((a1) => {
+            const row = [];
+            g2.forEach((a2) => {
+              let gt = [a1, a2].sort().join("");
+              if (gt === "Aa" || gt === "aA") gt = "Aa";
+              row.push(gt);
+              offspring[gt] = (offspring[gt] || 0) + 1;
+            });
+            grid.push(row);
+          });
+
+          const total = g1.length * g2.length;
+          const ratios = {};
+          Object.keys(offspring).forEach((gt) => {
+            ratios[gt] = { count: offspring[gt], ratio: `${offspring[gt]}/${total}` };
+          });
+
+          return { grid, ratios, g1, g2 };
+        }
+
+        function drawPeas(parent1, parent2) {
+          const w = peaCanvas.width, h = peaCanvas.height;
+          pctx.clearRect(0, 0, w, h);
+          pctx.fillStyle = "rgba(14,20,36,0.5)";
+          pctx.fillRect(0, 0, w, h);
+
+          const isDom1 = parent1.includes("A");
+          const isDom2 = parent2.includes("A");
+
+          // Ebeveyn 1 (sol)
+          drawPea(65, 100, isDom1, "P₁");
+          pctx.fillStyle = "rgba(255,255,255,0.6)";
+          pctx.font = "12px Outfit, sans-serif";
+          pctx.fillText(parent1, 55, 145);
+
+          // Ebeveyn 2 (sağ)
+          drawPea(215, 100, isDom2, "P₂");
+          pctx.fillText(parent2, 205, 145);
+
+          // Artı işareti
+          pctx.fillStyle = "rgba(255,255,255,0.4)";
+          pctx.font = "18px Outfit, sans-serif";
+          pctx.fillText("×", 134, 108);
+
+          // Yavru (alt)
+          const childDom = isDom1 || isDom2;
+          drawPea(140, 175, childDom, "F₁", true);
+          pctx.fillText("?", 132, 195);
+        }
+
+        function drawPea(x, y, dominant, label, small) {
+          const r = small ? 8 : 14;
+          pctx.beginPath();
+          pctx.arc(x, y, r, 0, Math.PI * 2);
+          pctx.fillStyle = dominant ? currentTrait.domColor : currentTrait.recColor;
+          pctx.fill();
+          pctx.strokeStyle = "rgba(255,255,255,0.3)";
+          pctx.lineWidth = 1;
+          pctx.stroke();
+
+          if (label) {
+            pctx.fillStyle = "rgba(255,255,255,0.7)";
+            pctx.font = "10px Outfit, sans-serif";
+            pctx.fillText(label, x - 21, y - 16);
+          }
+        }
+
+        function render() {
+          const p1 = document.getElementById("parent1Select").value;
+          const p2 = document.getElementById("parent2Select").value;
+          const result = cross(p1, p2);
+
+          drawPeas(p1, p2);
+
+          // Punnett karesi HTML tablosu
+          const square = document.getElementById("punnettSquare");
+          let html = '<table style="margin:12px auto;border-collapse:collapse;">';
+          html += '<tr><th style="padding:6px 12px;"></th>';
+          result.g2.forEach((g) => { html += `<th class="gamete-tag" style="margin:0;border-radius:0;">${g}</th>`; });
+          html += '</tr>';
+          result.grid.forEach((row, i) => {
+            html += '<tr>';
+            html += `<th class="gamete-tag" style="margin:0;border-radius:0;">${result.g1[i]}</th>`;
+            row.forEach((gt) => {
+              const isDom = gt.includes("A");
+              html += `<td style="padding:8px 14px;text-align:center;font-weight:600;font-size:1rem;
+                color:${isDom ? currentTrait.domColor : currentTrait.recColor};
+                background:rgba(255,255,255,0.03);border:1px solid var(--border);">${gt}</td>`;
+            });
+            html += '</tr>';
+          });
+          html += '</table>';
+          square.innerHTML = html;
+
+          // Sonuç kartları
+          const resultsDiv = document.getElementById("results");
+          const phenoCount = { dom: 0, rec: 0 };
+          const total = result.g1.length * result.g2.length;
+          Object.entries(result.ratios).forEach(([gt, info]) => {
+            if (gt.includes("A")) phenoCount.dom += info.count;
+            else phenoCount.rec += info.count;
+          });
+
+          resultsDiv.innerHTML = '';
+          Object.entries(result.ratios).forEach(([gt, info]) => {
+            const isDom = gt.includes("A");
+            const card = document.createElement("div");
+            card.className = "result-card";
+            card.innerHTML = `
+              <div class="genotype" style="color:${isDom ? currentTrait.domColor : currentTrait.recColor}">${gt}</div>
+              <div class="phenotype">${isDom ? currentTrait.dom : currentTrait.rec}</div>
+              <div class="ratio">${info.ratio} (%${Math.round(info.count/total*100)})</div>`;
+            resultsDiv.appendChild(card);
+          });
+
+          // Fenotip oranı
+          const ratioCard = document.createElement("div");
+          ratioCard.className = "result-card";
+          ratioCard.innerHTML = `
+            <div class="genotype">📊 Fenotip</div>
+            <div class="phenotype">${phenoCount.dom} ${currentTrait.dom} : ${phenoCount.rec} ${currentTrait.rec}</div>
+            <div class="ratio">Oran ${phenoCount.dom}:${phenoCount.rec}</div>`;
+          resultsDiv.appendChild(ratioCard);
+        }
+
+        document.getElementById("crossBtn").addEventListener("click", render);
+        document.getElementById("parent1Select").addEventListener("change", render);
+        document.getElementById("parent2Select").addEventListener("change", render);
+
+        render();
+      })();
+    </script>
+  </body>
+</html>

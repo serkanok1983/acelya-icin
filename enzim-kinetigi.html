@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="shared/theme.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Enzim Kinetiği (Michaelis-Menten) | Açelya</title>
+    <style>
+      .stage {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: center;
+        margin: 12px 0;
+      }
+      .stage canvas {
+        background: var(--bg-card);
+        border-radius: var(--radius);
+        box-shadow: 0 0 0 1px var(--border);
+        max-width: 100%;
+      }
+      .panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 230px;
+        max-width: 280px;
+      }
+      .panel label {
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .panel label .val {
+        font-size: 0.7rem;
+        color: var(--accent);
+        text-align: right;
+      }
+      .panel input[type="range"] { accent-color: var(--accent-2); width: 100%; }
+      .panel select {
+        background: var(--bg-input);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 6px 8px;
+        font-family: var(--font);
+        font-size: 0.82rem;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--bg-input);
+        color: var(--text);
+        cursor: pointer;
+        font-family: var(--font);
+        font-size: 0.82rem;
+        transition: background 0.2s;
+      }
+      button:hover { background: rgba(94,234,212,0.1); }
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin: 8px 0;
+      }
+      .stat-box {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 14px;
+        text-align: center;
+        min-width: 80px;
+      }
+      .stat-box .val { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+      .stat-box .lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+      .stat-box.alt .val { color: var(--accent-2); }
+      .diagram-note {
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+      @media (max-width: 700px) {
+        .stage { flex-direction: column; align-items: center; }
+        .panel { max-width: 100%; }
+      }
+    </style>
+    <script src="shared/app.js"></script>
+  </head>
+  <body class="app-page" data-page="enzim-kinetigi">
+    <div class="app-content">
+      <h1>🧪 Enzim Kinetiği (Michaelis-Menten)</h1>
+      <p class="hint">
+        Enzimler substratla geçici olarak bağlanarak reaksiyonu hızlandırır. V<sub>max</sub> maksimum hız, K<sub>m</sub> ise yarı maksimum hızdaki substrat derişimidir.
+      </p>
+
+      <div class="stats">
+        <div class="stat-box"><div class="val" id="vmaxDisplay">1.0</div><div class="lbl">V<sub>max</sub> (µM/s)</div></div>
+        <div class="stat-box alt"><div class="val" id="kmDisplay">0.5</div><div class="lbl">K<sub>m</sub> (mM)</div></div>
+        <div class="stat-box"><div class="val" id="vDisplay">—</div><div class="lbl">V (µM/s)</div></div>
+        <div class="stat-box alt"><div class="val" id="sDisplay">—</div><div class="lbl">[S] (mM)</div></div>
+      </div>
+
+      <div class="stage">
+        <!-- Michaelis-Menten grafiği -->
+        <canvas id="graphCanvas" width="460" height="340"></canvas>
+
+        <!-- Enzim-substrat bağlanma diyagramı -->
+        <canvas id="diagramCanvas" width="260" height="340"></canvas>
+
+        <div class="panel">
+          <label>V<sub>max</sub> <span class="val" id="vmaxVal">1.0 µM/s</span>
+            <input type="range" id="vmaxSlider" min="0.2" max="2.0" value="1.0" step="0.05" />
+          </label>
+          <label>K<sub>m</sub> <span class="val" id="kmVal">0.5 mM</span>
+            <input type="range" id="kmSlider" min="0.05" max="1.5" value="0.5" step="0.05" />
+          </label>
+          <label>İnhibitör modu
+            <select id="inhibitorSelect">
+              <option value="none">Yok</option>
+              <option value="competitive">Yarışmalı (Competitive)</option>
+              <option value="noncompetitive">Yarışmasız (Non-competitive)</option>
+            </select>
+          </label>
+          <label>Substrat [S] <span class="val" id="sVal">0.50 mM</span>
+            <input type="range" id="sSlider" min="0" max="2.5" value="0.5" step="0.05" />
+          </label>
+        </div>
+      </div>
+
+      <p class="diagram-note">
+        Michaelis-Menten denklemi: V = V<sub>max</sub> · [S] / (K<sub>m</sub> + [S]) &nbsp;|&nbsp;
+        Yarışmalı inhibitör: K<sub>m</sub>↑ &nbsp;|&nbsp; Yarışmasız: V<sub>max</sub>↓
+      </p>
+    </div>
+
+    <script>
+      (function () {
+        const graphCanvas = document.getElementById("graphCanvas");
+        const diagramCanvas = document.getElementById("diagramCanvas");
+        const gctx = graphCanvas.getContext("2d");
+        const dctx = diagramCanvas.getContext("2d");
+
+        let Vmax = 1.0;
+        let Km = 0.5;
+        let inhibitorMode = "none";
+        let substrateS = 0.5;
+
+        // İnhibitör etkileri
+        function effectiveVmax() {
+          if (inhibitorMode === "noncompetitive") return Vmax * 0.45;
+          return Vmax;
+        }
+        function effectiveKm() {
+          if (inhibitorMode === "competitive") return Km * 2.2;
+          return Km;
+        }
+
+        function michaelisMenten(S) {
+          const v = effectiveVmax();
+          const k = effectiveKm();
+          return v * S / (k + S);
+        }
+
+        function updateDisplays() {
+          const eVmax = effectiveVmax();
+          const eKm = effectiveKm();
+          const V = michaelisMenten(substrateS);
+          document.getElementById("vmaxDisplay").textContent = eVmax.toFixed(2);
+          document.getElementById("kmDisplay").textContent = eKm.toFixed(3);
+          document.getElementById("vDisplay").textContent = V.toFixed(3);
+          document.getElementById("sDisplay").textContent = substrateS.toFixed(2);
+          document.getElementById("vmaxVal").textContent = Vmax.toFixed(2) + " µM/s";
+          document.getElementById("kmVal").textContent = Km.toFixed(2) + " mM";
+          document.getElementById("sVal").textContent = substrateS.toFixed(2) + " mM";
+        }
+
+        function drawGraph() {
+          const W = graphCanvas.width, H = graphCanvas.height;
+          gctx.clearRect(0, 0, W, H);
+
+          // Arka plan
+          gctx.fillStyle = "var(--bg-card)";
+          gctx.fillRect(0, 0, W, H);
+
+          const margin = { top: 18, right: 22, bottom: 32, left: 44 };
+          const pw = W - margin.left - margin.right;
+          const ph = H - margin.top - margin.bottom;
+
+          const eVmax = effectiveVmax();
+          const eKm = effectiveKm();
+
+          // Grid
+          gctx.strokeStyle = "rgba(255,255,255,0.04)";
+          gctx.lineWidth = 0.5;
+          for (let i = 0; i <= 5; i++) {
+            const y = margin.top + (ph * i / 5);
+            gctx.beginPath();
+            gctx.moveTo(margin.left, y);
+            gctx.lineTo(W - margin.right, y);
+            gctx.stroke();
+            const x = margin.left + (pw * i / 5);
+            gctx.beginPath();
+            gctx.moveTo(x, margin.top);
+            gctx.lineTo(x, H - margin.bottom);
+            gctx.stroke();
+          }
+
+          // Eksenler
+          gctx.strokeStyle = "rgba(255,255,255,0.18)";
+          gctx.lineWidth = 1.2;
+          gctx.beginPath();
+          gctx.moveTo(margin.left, margin.top);
+          gctx.lineTo(margin.left, H - margin.bottom);
+          gctx.lineTo(W - margin.right, H - margin.bottom);
+          gctx.stroke();
+
+          const maxS = 2.5;
+          const yMax = Math.max(Vmax * 1.15, effectiveVmax() * 1.15);
+
+          // Michaelis-Menten eğrisi
+          gctx.strokeStyle = "#5eead4";
+          gctx.lineWidth = 2.5;
+          gctx.beginPath();
+          let first = true;
+          for (let s = 0; s <= maxS; s += 0.02) {
+            const v = michaelisMenten(s);
+            const x = margin.left + (pw * s / maxS);
+            const y = margin.top + ph - (ph * v / yMax);
+            if (first) { gctx.moveTo(x, y); first = false; }
+            else gctx.lineTo(x, y);
+          }
+          gctx.stroke();
+
+          // Vmax ve Km çizgileri
+          // Vmax yatay kesikli
+          const vmaxY = margin.top + ph - (ph * eVmax / yMax);
+          gctx.strokeStyle = "rgba(94,234,212,0.35)";
+          gctx.lineWidth = 1;
+          gctx.setLineDash([4, 4]);
+          gctx.beginPath();
+          gctx.moveTo(margin.left, vmaxY);
+          gctx.lineTo(W - margin.right, vmaxY);
+          gctx.stroke();
+          gctx.setLineDash([]);
+
+          // Km dikey kesikli
+          const kmX = margin.left + (pw * eKm / maxS);
+          gctx.strokeStyle = "rgba(167,139,250,0.35)";
+          gctx.setLineDash([3, 5]);
+          gctx.beginPath();
+          gctx.moveTo(kmX, margin.top);
+          gctx.lineTo(kmX, H - margin.bottom);
+          gctx.stroke();
+          gctx.setLineDash([]);
+
+          // Km noktası (Vmax/2 noktası)
+          const kmY = margin.top + ph - (ph * (eVmax / 2) / yMax);
+          gctx.fillStyle = "#a78bfa";
+          gctx.beginPath();
+          gctx.arc(kmX, kmY, 5, 0, Math.PI * 2);
+          gctx.fill();
+
+          // Seçili [S] noktası
+          const sX = margin.left + (pw * substrateS / maxS);
+          const currentV = michaelisMenten(substrateS);
+          const sY = margin.top + ph - (ph * currentV / yMax);
+          gctx.fillStyle = "#fbbf24";
+          gctx.beginPath();
+          gctx.arc(sX, sY, 6, 0, Math.PI * 2);
+          gctx.fill();
+          gctx.strokeStyle = "rgba(251,191,36,0.5)";
+          gctx.lineWidth = 2;
+          gctx.stroke();
+
+          // Etiketler
+          gctx.fillStyle = "rgba(255,255,255,0.4)";
+          gctx.font = "11px Outfit, sans-serif";
+          gctx.textAlign = "center";
+          gctx.fillText("[S] (mM)", margin.left + pw / 2, H - 4);
+          gctx.save();
+          gctx.translate(10, margin.top + ph / 2 + 22);
+          gctx.rotate(-Math.PI / 2);
+          gctx.fillText("V (µM/s)", 0, 0);
+          gctx.restore();
+
+          // Vmax etiketi
+          gctx.fillStyle = "rgba(94,234,212,0.6)";
+          gctx.font = "10px Outfit, sans-serif";
+          gctx.textAlign = "right";
+          gctx.fillText("Vmax", W - margin.right - 4, vmaxY - 4);
+
+          // Km etiketi
+          gctx.fillStyle = "rgba(167,139,250,0.6)";
+          gctx.textAlign = "center";
+          gctx.fillText("Km = " + eKm.toFixed(2), kmX, H - margin.bottom + 16);
+
+          // Eksende sayısal değerler
+          gctx.fillStyle = "rgba(255,255,255,0.3)";
+          gctx.font = "9px Outfit, sans-serif";
+          gctx.textAlign = "right";
+          for (let i = 0; i <= 4; i++) {
+            const val = (yMax * i / 4).toFixed(1);
+            const y = margin.top + ph - (ph * i / 4);
+            gctx.fillText(val, margin.left - 6, y + 3);
+          }
+          gctx.textAlign = "center";
+          for (let i = 0; i <= 5; i++) {
+            const val = (maxS * i / 5).toFixed(1);
+            const x = margin.left + (pw * i / 5);
+            gctx.fillText(val, x, H - margin.bottom + 14);
+          }
+        }
+
+        function drawDiagram() {
+          const W = diagramCanvas.width, H = diagramCanvas.height;
+          dctx.clearRect(0, 0, W, H);
+
+          // Arka plan
+          dctx.fillStyle = "var(--bg-card)";
+          dctx.fillRect(0, 0, W, H);
+
+          const cx = W / 2;
+          const topY = 48;
+          const botY = 260;
+          const midY = 154;
+
+          // Başlık: Enzim-Substrat Bağlanması
+          dctx.fillStyle = "rgba(255,255,255,0.7)";
+          dctx.font = "11px Outfit, sans-serif";
+          dctx.textAlign = "center";
+          dctx.fillText("Enzim-Substrat Kompleksi", cx, 22);
+
+          // ---------- ENZİM ----------
+          // Enzim gövdesi (büyük şekil)
+          dctx.fillStyle = "rgba(94,234,212,0.15)";
+          dctx.strokeStyle = "rgba(94,234,212,0.5)";
+          dctx.lineWidth = 2;
+          dctx.beginPath();
+          dctx.moveTo(cx - 55, topY + 50);
+          dctx.quadraticCurveTo(cx - 20, topY - 5, cx + 20, topY + 10);
+          dctx.quadraticCurveTo(cx + 55, topY + 5, cx + 50, topY + 60);
+          dctx.quadraticCurveTo(cx + 15, topY + 75, cx, topY + 55);
+          dctx.quadraticCurveTo(cx - 10, topY + 80, cx - 35, topY + 70);
+          dctx.quadraticCurveTo(cx - 60, topY + 70, cx - 55, topY + 50);
+          dctx.closePath();
+          dctx.fill();
+          dctx.stroke();
+
+          // Aktif bölge (enzimin içinde oyuk)
+          dctx.fillStyle = "rgba(0,0,0,0.25)";
+          dctx.beginPath();
+          dctx.ellipse(cx + 2, topY + 28, 18, 11, 0, 0, Math.PI * 2);
+          dctx.fill();
+          dctx.strokeStyle = "rgba(94,234,212,0.35)";
+          dctx.stroke();
+
+          // Enzim etiketi
+          dctx.fillStyle = "rgba(94,234,212,0.7)";
+          dctx.font = "bold 12px Outfit, sans-serif";
+          dctx.fillText("ENZİM", cx, topY + 44);
+
+          // ---------- SUBSTRAT ----------
+          // Substrat molekülü
+          dctx.fillStyle = "rgba(251,191,36,0.2)";
+          dctx.strokeStyle = "rgba(251,191,36,0.6)";
+          dctx.lineWidth = 2;
+          dctx.beginPath();
+          dctx.arc(cx + 2, topY + 28, 10, 0, Math.PI * 2);
+          dctx.fill();
+          dctx.stroke();
+
+          // Substrat etiketi
+          dctx.fillStyle = "rgba(251,191,36,0.9)";
+          dctx.font = "bold 10px Outfit, sans-serif";
+          dctx.fillText("S", cx + 2, topY + 32);
+
+          // Ok: substrat → enzim
+          dctx.strokeStyle = "rgba(255,255,255,0.25)";
+          dctx.lineWidth = 1;
+          dctx.setLineDash([3, 2]);
+          dctx.beginPath();
+          dctx.moveTo(cx - 24, topY + 12);
+          dctx.lineTo(cx - 14, topY + 22);
+          dctx.stroke();
+          dctx.setLineDash([]);
+
+          // ---------- ES KOMPLEKSİ ETİKETİ ----------
+          dctx.fillStyle = "rgba(255,255,255,0.45)";
+          dctx.font = "9px Outfit, sans-serif";
+          dctx.fillText("ES Kompleksi", cx, topY + 62);
+
+          // ---------- OK: ES → E + ÜRÜN ----------
+          const arrowX = cx;
+          const arrowStartY = 108;
+          const arrowEndY = 134;
+
+          dctx.strokeStyle = "rgba(94,234,212,0.5)";
+          dctx.lineWidth = 2;
+          dctx.beginPath();
+          dctx.moveTo(arrowX, arrowStartY);
+          dctx.lineTo(arrowX, arrowEndY - 4);
+          dctx.stroke();
+          // Ok ucu
+          dctx.fillStyle = "rgba(94,234,212,0.5)";
+          dctx.beginPath();
+          dctx.moveTo(arrowX, arrowEndY);
+          dctx.lineTo(arrowX - 6, arrowEndY - 10);
+          dctx.lineTo(arrowX + 6, arrowEndY - 10);
+          dctx.closePath();
+          dctx.fill();
+
+          // ---------- ÜRÜNLER ----------
+          // Enzim (serbest)
+          dctx.fillStyle = "rgba(94,234,212,0.12)";
+          dctx.strokeStyle = "rgba(94,234,212,0.4)";
+          dctx.lineWidth = 2;
+          dctx.beginPath();
+          dctx.moveTo(cx - 55, botY - 10);
+          dctx.quadraticCurveTo(cx - 35, botY - 40, cx - 8, botY - 38);
+          dctx.quadraticCurveTo(cx + 15, botY - 45, cx + 30, botY - 10);
+          dctx.quadraticCurveTo(cx + 20, botY + 15, cx, botY + 8);
+          dctx.quadraticCurveTo(cx - 20, botY + 20, cx - 50, botY + 5);
+          dctx.closePath();
+          dctx.fill();
+          dctx.stroke();
+
+          dctx.fillStyle = "rgba(94,234,212,0.7)";
+          dctx.font = "bold 11px Outfit, sans-serif";
+          dctx.fillText("ENZİM", cx, botY - 2);
+
+          // Ürün molekülü
+          dctx.fillStyle = "rgba(59,201,112,0.2)";
+          dctx.strokeStyle = "rgba(59,201,112,0.6)";
+          dctx.lineWidth = 2;
+          dctx.beginPath();
+          dctx.arc(cx - 46, botY - 10, 9, 0, Math.PI * 2);
+          dctx.fill();
+          dctx.stroke();
+
+          dctx.fillStyle = "rgba(59,201,112,0.9)";
+          dctx.font = "bold 10px Outfit, sans-serif";
+          dctx.fillText("P", cx - 46, botY - 6);
+
+          // ---------- İNHİBİTÖR GÖSTERGESİ ----------
+          if (inhibitorMode === "competitive") {
+            // Yarışmalı inhibitör: aktif bölgeye bağlanır
+            dctx.fillStyle = "rgba(248,113,113,0.25)";
+            dctx.strokeStyle = "rgba(248,113,113,0.7)";
+            dctx.lineWidth = 2;
+            dctx.setLineDash([4, 2]);
+            dctx.beginPath();
+            dctx.arc(cx + 22, topY + 18, 8, 0, Math.PI * 2);
+            dctx.fill();
+            dctx.stroke();
+            dctx.setLineDash([]);
+            dctx.fillStyle = "rgba(248,113,113,0.9)";
+            dctx.font = "bold 9px Outfit, sans-serif";
+            dctx.fillText("I", cx + 22, topY + 21);
+
+            dctx.fillStyle = "rgba(248,113,113,0.5)";
+            dctx.font = "8px Outfit, sans-serif";
+            dctx.textAlign = "center";
+            dctx.fillText("Aktif bölgeyi bloklar → Km↑", cx, topY + 82);
+          } else if (inhibitorMode === "noncompetitive") {
+            // Yarışmasız: allosterik bölge
+            dctx.fillStyle = "rgba(248,113,113,0.25)";
+            dctx.strokeStyle = "rgba(248,113,113,0.7)";
+            dctx.lineWidth = 2;
+            dctx.setLineDash([4, 2]);
+            dctx.beginPath();
+            dctx.arc(cx - 45, topY + 35, 7, 0, Math.PI * 2);
+            dctx.fill();
+            dctx.stroke();
+            dctx.setLineDash([]);
+            dctx.fillStyle = "rgba(248,113,113,0.9)";
+            dctx.font = "bold 9px Outfit, sans-serif";
+            dctx.fillText("I", cx - 45, topY + 38);
+
+            dctx.fillStyle = "rgba(248,113,113,0.5)";
+            dctx.font = "8px Outfit, sans-serif";
+            dctx.textAlign = "center";
+            dctx.fillText("Allosterik bölge → Vmax↓", cx, topY + 82);
+          }
+
+          dctx.textAlign = "start";
+        }
+
+        function redraw() {
+          updateDisplays();
+          drawGraph();
+          drawDiagram();
+        }
+
+        document.getElementById("vmaxSlider").addEventListener("input", function () {
+          Vmax = parseFloat(this.value);
+          redraw();
+        });
+        document.getElementById("kmSlider").addEventListener("input", function () {
+          Km = parseFloat(this.value);
+          redraw();
+        });
+        document.getElementById("inhibitorSelect").addEventListener("change", function () {
+          inhibitorMode = this.value;
+          redraw();
+        });
+        document.getElementById("sSlider").addEventListener("input", function () {
+          substrateS = parseFloat(this.value);
+          redraw();
+        });
+
+        redraw();
+      })();
+    </script>
+  </body>
+</html>

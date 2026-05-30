@@ -426,7 +426,17 @@
     )
       return "Kimya";
     if (
-      ["dna-replikasyon", "mitoz-mayoz", "kalp-dolasim", "besin-agi"].includes(slug)
+      [
+        "dna-replikasyon",
+        "mitoz-mayoz",
+        "kalp-dolasim",
+        "besin-agi",
+        "av-avci-lotka-volterra",
+        "dogal-secilim",
+        "enzim-kinetigi",
+        "fotosentez-solunum",
+        "genetik-caprazlama",
+      ].includes(slug)
     )
       return "Biyoloji";
     if (
