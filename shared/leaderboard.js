@@ -5,6 +5,8 @@
   "use strict";
 
   const LOCAL_KEY = "acelya-leaderboard-v1";
+  const HISTORY_KEY = "acelya-history-v1";
+  const MAX_HISTORY = 20;
   const PLAYERS = ["acelya", "serkan"];
   let dbReady = null;
 
@@ -27,7 +29,9 @@
       try {
         return await Promise.race([
           dbReady,
-          new Promise((_, rej) => setTimeout(() => rej(new Error("firebase-timeout")), 8000)),
+          new Promise((_, rej) =>
+            setTimeout(() => rej(new Error("firebase-timeout")), 8000),
+          ),
         ]);
       } catch {
         dbReady = null;
@@ -38,8 +42,12 @@
       const cfg = window.ACELYA_FIREBASE;
       if (!cfg || !cfg.apiKey || !cfg.databaseURL) return null;
       try {
-        await loadScript("https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js");
-        await loadScript("https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js");
+        await loadScript(
+          "https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js",
+        );
+        await loadScript(
+          "https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js",
+        );
         if (!firebase.apps.length) firebase.initializeApp(cfg);
         return firebase.database();
       } catch (e) {
@@ -50,7 +58,9 @@
     try {
       return await Promise.race([
         dbReady,
-        new Promise((_, rej) => setTimeout(() => rej(new Error("firebase-timeout")), 8000)),
+        new Promise((_, rej) =>
+          setTimeout(() => rej(new Error("firebase-timeout")), 8000),
+        ),
       ]);
     } catch {
       dbReady = null;
@@ -126,6 +136,9 @@
     const s = Math.round(score);
     const improved = setLocalBest(gameId, user, s, higherBetter);
 
+    // Skor geçmişine ekle
+    addToHistory(gameId, user, s, higherBetter);
+
     const database = await initDb();
     if (database && improved) {
       try {
@@ -155,6 +168,61 @@
     }).join(" · ");
   }
 
+  /* —— Skor geçmişi —— */
+  function readHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function writeHistory(data) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(data));
+  }
+
+  function getHistory(gameId, user) {
+    const data = readHistory();
+    const key = `${gameId}_${user}`;
+    return data[key] || [];
+  }
+
+  function addToHistory(gameId, user, score, higherBetter) {
+    const data = readHistory();
+    const key = `${gameId}_${user}`;
+    if (!data[key]) data[key] = [];
+    data[key].push({ score, date: Date.now() });
+    if (data[key].length > MAX_HISTORY) data[key] = data[key].slice(-MAX_HISTORY);
+    writeHistory(data);
+    return data[key];
+  }
+
+  function getHistoryStats(gameId, user) {
+    const history = getHistory(gameId, user);
+    if (!history.length) return null;
+    const scores = history.map((h) => h.score);
+    return {
+      last: scores[scores.length - 1],
+      best: Math.max(...scores),
+      avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
+      total: scores.length,
+      trend:
+        scores.length >= 2
+          ? scores[scores.length - 1] - scores[scores.length - 2]
+          : 0,
+    };
+  }
+
+  function getHistoryHTML(gameId, user) {
+    const stats = getHistoryStats(gameId, user);
+    if (!stats) return "";
+    const trendIcon = stats.trend > 0 ? "📈" : stats.trend < 0 ? "📉" : "➡️";
+    const name = user === "acelya" ? "Açelya" : "Serkan";
+    return `<div class="acelya-history" style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">
+      ${name} · Son: ${stats.last} · En iyi: ${stats.best} · Ort: ${stats.avg} ${trendIcon}
+    </div>`;
+  }
+
   function mount(gameId) {
     const hud = document.querySelector(".hud");
     if (!hud || document.getElementById("acelyaLeaderboard")) return null;
@@ -165,7 +233,8 @@
     board.innerHTML = `
       <span class="acelya-lb-label">🏆 Rekorlar</span>
       <span class="acelya-lb-scores" id="acelyaLbScores">yükleniyor…</span>
-      <span class="acelya-lb-you" id="acelyaLbYou"></span>`;
+      <span class="acelya-lb-you" id="acelyaLbYou"></span>
+      <span class="acelya-lb-history" id="acelyaLbHistory"></span>`;
 
     const status = hud.querySelector("#status, #score, #info");
     if (status && status.nextSibling) hud.insertBefore(board, status.nextSibling);
@@ -174,6 +243,7 @@
     async function refresh() {
       const scoresEl = document.getElementById("acelyaLbScores");
       const youEl = document.getElementById("acelyaLbYou");
+      const historyEl = document.getElementById("acelyaLbHistory");
       if (!scoresEl) return;
       const localScores = getLocalScores(gameId);
       scoresEl.textContent = formatScores(localScores);
@@ -181,6 +251,9 @@
       if (user && youEl) {
         const name = user === "acelya" ? "Açelya" : "Serkan";
         youEl.textContent = `Sen (${name}): ${localScores[user] ?? 0}`;
+      }
+      if (user && historyEl) {
+        historyEl.innerHTML = getHistoryHTML(gameId, user);
       }
 
       const scores = await fetchGame(gameId);
@@ -207,5 +280,9 @@
     fetch: fetchGame,
     mount,
     getLocalBest,
+    getHistory,
+    addToHistory,
+    getHistoryStats,
+    getHistoryHTML,
   };
 })();
