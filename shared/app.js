@@ -4,7 +4,12 @@
 
 /* Sesler — sayfa scriptlerinden önce kullanılabilir */
 (function initSounds() {
-  const SOUND_FILES = { hit: "hit.m4a", explode: "explode.m4a", laser: "laser.m4a", thrust: "thrust.m4a" };
+  const SOUND_FILES = {
+    hit: "hit.m4a",
+    explode: "explode.m4a",
+    laser: "laser.m4a",
+    thrust: "thrust.m4a",
+  };
   const soundCache = {};
   let unlocked = false;
   function getSound(name) {
@@ -30,10 +35,18 @@
         c.play().catch(() => {});
       });
     },
-    hit() { window.AcelyaSounds.play("hit"); },
-    explode() { window.AcelyaSounds.play("explode"); },
-    laser() { window.AcelyaSounds.play("laser"); },
-    thrust() { window.AcelyaSounds.play("thrust"); },
+    hit() {
+      window.AcelyaSounds.play("hit");
+    },
+    explode() {
+      window.AcelyaSounds.play("explode");
+    },
+    laser() {
+      window.AcelyaSounds.play("laser");
+    },
+    thrust() {
+      window.AcelyaSounds.play("thrust");
+    },
   };
 
   function unlockAudio() {
@@ -43,25 +56,30 @@
     if (first) {
       const prev = first.volume;
       first.volume = 0;
-      first.play().then(() => {
-        first.pause();
-        first.currentTime = 0;
-        first.volume = prev;
-      }).catch(() => {
-        first.volume = prev;
-      });
+      first
+        .play()
+        .then(() => {
+          first.pause();
+          first.currentTime = 0;
+          first.volume = prev;
+        })
+        .catch(() => {
+          first.volume = prev;
+        });
     }
     Object.keys(SOUND_FILES).forEach((key) => {
       const s = getSound(key);
       if (!s) return;
       s.volume = 0;
-      s.play().then(() => {
-        s.pause();
-        s.currentTime = 0;
-        s.volume = key === "thrust" ? 0.35 : 0.55;
-      }).catch(() => {
-        s.volume = key === "thrust" ? 0.35 : 0.55;
-      });
+      s.play()
+        .then(() => {
+          s.pause();
+          s.currentTime = 0;
+          s.volume = key === "thrust" ? 0.35 : 0.55;
+        })
+        .catch(() => {
+          s.volume = key === "thrust" ? 0.35 : 0.55;
+        });
     });
     window.removeEventListener("pointerdown", unlockAudio);
     window.removeEventListener("keydown", unlockAudio);
@@ -87,21 +105,29 @@
 
     window.setInterval = function wrappedSetInterval(fn, ms, ...args) {
       if (typeof fn !== "function") return rawSetInterval(fn, ms, ...args);
-      return rawSetInterval(function intervalProxy(...inner) {
-        if (PauseState.paused) return;
-        fn(...inner);
-      }, ms, ...args);
+      return rawSetInterval(
+        function intervalProxy(...inner) {
+          if (PauseState.paused) return;
+          fn(...inner);
+        },
+        ms,
+        ...args,
+      );
     };
 
     window.setTimeout = function wrappedSetTimeout(fn, ms, ...args) {
       if (typeof fn !== "function") return rawSetTimeout(fn, ms, ...args);
-      return rawSetTimeout(function timeoutProxy(...inner) {
-        if (PauseState.paused) {
-          rawSetTimeout(timeoutProxy, 50, ...inner);
-          return;
-        }
-        fn(...inner);
-      }, ms, ...args);
+      return rawSetTimeout(
+        function timeoutProxy(...inner) {
+          if (PauseState.paused) {
+            rawSetTimeout(timeoutProxy, 50, ...inner);
+            return;
+          }
+          fn(...inner);
+        },
+        ms,
+        ...args,
+      );
     };
 
     window.requestAnimationFrame = function wrappedRaf(cb) {
@@ -117,10 +143,16 @@
     };
 
     window.AcelyaPause = {
-      isPaused() { return PauseState.paused; },
+      isPaused() {
+        return PauseState.paused;
+      },
       setPaused(v) {
         PauseState.paused = !!v;
-        window.dispatchEvent(new CustomEvent("acelya-pause-change", { detail: { paused: PauseState.paused } }));
+        window.dispatchEvent(
+          new CustomEvent("acelya-pause-change", {
+            detail: { paused: PauseState.paused },
+          }),
+        );
       },
     };
   })();
@@ -143,19 +175,22 @@
     },
     snake: {
       type: "Oyun",
-      intro: "Yılanı ok tuşlarıyla yönlendir; renkli yemi ye, uzat. Kendine veya duvara çarparsan oyun biter. Duvarlardan geçebilirsin.",
+      intro:
+        "Yılanı ok tuşlarıyla yönlendir; renkli yemi ye, uzat. Kendine veya duvara çarparsan oyun biter. Duvarlardan geçebilirsin.",
       controls: ["Ok tuşları veya kaydırma — yön", "Her yem +10 puan, hız artar"],
       learn: "Kuyruk takibi: baş hareket eder, son segment eski konuma gelir.",
     },
     breakout: {
       type: "Oyun",
-      intro: "Topu raketle sektir, renkli tuğlaları kır. Top aşağı düşerse kaybedersin. Her 10 tuğlada top hızlanır.",
+      intro:
+        "Topu raketle sektir, renkli tuğlaları kır. Top aşağı düşerse kaybedersin. Her 10 tuğlada top hızlanır.",
       controls: ["← → veya yatay kaydırma — raket"],
       learn: "Çarpışma açısı topun yansıma yönünü belirler.",
     },
     "oyun-2048": {
       type: "Oyun",
-      intro: "Aynı sayıları birleştirerek 2048’e ulaşmaya çalış. Ok tuşları veya kaydırma ile kutular kayar; boş yerde yeni 2 veya 4 belirir.",
+      intro:
+        "Aynı sayıları birleştirerek 2048’e ulaşmaya çalış. Ok tuşları veya kaydırma ile kutular kayar; boş yerde yeni 2 veya 4 belirir.",
       controls: ["Ok / kaydır — dört yön"],
       learn: "Üsler ve 2’nin kuvvetleri; strateji köşede büyük karo tutmaktır.",
     },
@@ -168,19 +203,22 @@
     },
     tetris: {
       type: "Oyun",
-      intro: "Düşen blokları döndür ve satır doldur. Tam satır silinir; seviye arttıkça hız artar.",
+      intro:
+        "Düşen blokları döndür ve satır doldur. Tam satır silinir; seviye arttıkça hız artar.",
       controls: ["← → — hareket", "↑ — döndür", "↓ — hızlı düşür"],
       learn: "Uzamsal örüntü ve planlama becerisi.",
     },
     "gezegen-savunmasi": {
       type: "Oyun",
-      intro: "Merkez gezegenin etrafında yörüngeye giren düşmanları vur. Yerçekimi mermi yolunu eğer.",
+      intro:
+        "Merkez gezegenin etrafında yörüngeye giren düşmanları vur. Yerçekimi mermi yolunu eğer.",
       controls: ["← → — nişan", "Space / dokun — ateş"],
       learn: "Yörünge hareketi ve merkezcil kuvvet sezgisini pekiştirir.",
     },
     "formul-hafiza": {
       type: "Oyun",
-      intro: "Fizik formüllerini eşleştir: kartları çevir, çiftleri bul. Az hamlede bitirmeye çalış.",
+      intro:
+        "Fizik formüllerini eşleştir: kartları çevir, çiftleri bul. Az hamlede bitirmeye çalış.",
       controls: ["Karta tıkla — çevir"],
       learn: "Formül adı ile denklemi ilişkilendirerek sınav öncesi tekrar.",
     },
@@ -200,7 +238,8 @@
     },
     "yay-kutle": {
       type: "Fizik",
-      intro: "Yay–kütle sistemi basit harmonik hareket yapar. Kütle ve yay sabiti değiştir; konum/hız grafiğini incele.",
+      intro:
+        "Yay–kütle sistemi basit harmonik hareket yapar. Kütle ve yay sabiti değiştir; konum/hız grafiğini incele.",
       controls: ["m ve k kaydırıcıları", "Grafik aç/kapa"],
       learn: "T = 2π√(m/k); enerji KE ile PE arasında sürekli dönüşür.",
     },
@@ -213,7 +252,8 @@
     },
     "cift-sarkac": {
       type: "Fizik",
-      intro: "Çift sarkaç kaotiktir: çok küçük başlangıç farkı bile büyük yörünge değişimine yol açar.",
+      intro:
+        "Çift sarkaç kaotiktir: çok küçük başlangıç farkı bile büyük yörünge değişimine yol açar.",
       controls: ["Tekrarla", "Grafik modu"],
       learn: "Kaos teorisi; deterministik ama öngörülemez uzun vadeli davranış.",
     },
@@ -226,31 +266,38 @@
     },
     integral: {
       type: "Matematik",
-      intro: "İntegral, eğri altındaki alanı sonsuz ince dikdörtgenlerin toplamı olarak görülür.",
+      intro:
+        "İntegral, eğri altındaki alanı sonsuz ince dikdörtgenlerin toplamı olarak görülür.",
       controls: ["Fonksiyon ve sınırlar", "Dikdörtgen sayısı n"],
       learn: "Riemann toplamı → belirli integral; alan ve birikim yorumu.",
     },
     "periyodik-tablo": {
       type: "Kimya",
-      intro: "118 element periyot ve gruplara göre düzenlenir. Grup düğmeleriyle metal/ametal vb. vurgula.",
+      intro:
+        "118 element periyot ve gruplara göre düzenlenir. Grup düğmeleriyle metal/ametal vb. vurgula.",
       controls: ["Grup filtresi", "Elemente tıkla — detay"],
-      learn: "Periyotta soldan sağa atom numarası artar; gruplar benzer kimyasal özellik.",
+      learn:
+        "Periyotta soldan sağa atom numarası artar; gruplar benzer kimyasal özellik.",
     },
     vektorler: {
       type: "Matematik",
-      intro: "İki vektörü uç uca veya paralelkenar yöntemiyle topla. Bileşenler ve sonuç vektörün büyüklüğü anlık hesaplanır.",
+      intro:
+        "İki vektörü uç uca veya paralelkenar yöntemiyle topla. Bileşenler ve sonuç vektörün büyüklüğü anlık hesaplanır.",
       controls: ["Kaydırıcılar — büyüklük ve açı", "Sonucu ok ve bileşenlerle izle"],
-      learn: "Fizikte kuvvet, hız ve ivme vektörel büyülerdir; skaler toplama yapılmaz.",
+      learn:
+        "Fizikte kuvvet, hız ve ivme vektörel büyülerdir; skaler toplama yapılmaz.",
     },
     "birim-cember": {
       type: "Matematik",
-      intro: "Birim çemberde açı θ için sin θ ve cos θ, yatay ve dikey projeksiyonlardır.",
+      intro:
+        "Birim çemberde açı θ için sin θ ve cos θ, yatay ve dikey projeksiyonlardır.",
       controls: ["Açı kaydırıcısı", "Projeksiyon çizgilerini takip et"],
       learn: "sin²θ + cos²θ = 1; trigonometri TYT’nin temel taşıdır.",
     },
     "mandelbrot-fraktali": {
       type: "Matematik",
-      intro: "Mandelbrot kümesi: zₙ₊₁ = zₙ² + c ile üretilir. Karmaşık düzlemde hangi c noktalarının patlamadığını renklendirir.",
+      intro:
+        "Mandelbrot kümesi: zₙ₊₁ = zₙ² + c ile üretilir. Karmaşık düzlemde hangi c noktalarının patlamadığını renklendirir.",
       controls: ["Fare ile yakınlaştır", "Renk paleti / iterasyon"],
       learn: "Fraktal: parça büyütüldüğünde bütüne benzer yapı; sonsuz detay.",
     },
@@ -264,11 +311,13 @@
         "Tek yarık — difraksiyon karşılaştırması",
         "λ, d, L kaydırıcıları",
       ],
-      learn: "Born yorumu: |ψ|² olasılık. Ölçüm süperpozisyonu çökertir — complementarity.",
+      learn:
+        "Born yorumu: |ψ|² olasılık. Ölçüm süperpozisyonu çökertir — complementarity.",
     },
     "newton-hareket-yasalari": {
       type: "Fizik",
-      intro: "Cisimlere kuvvet uygula: F=ma ile ivme, sürtünme ve çarpışmaları gözle.",
+      intro:
+        "Cisimlere kuvvet uygula: F=ma ile ivme, sürtünme ve çarpışmaları gözle.",
       controls: ["Kuvvet ekle", "Sürtünme katsayısı", "Çarpışma modu"],
       learn: "I. yasa: dengede net kuvvet sıfır; II: ivme kuvvetle orantılı.",
     },
@@ -292,13 +341,21 @@
     },
     "fourier-ses": {
       type: "Simülasyon",
-      intro: "Her ses birçok sinüs dalgasının toplamıdır. FFT ile frekans bileşenlerini gör.",
+      intro:
+        "Her ses birçok sinüs dalgasının toplamıdır. FFT ile frekans bileşenlerini gör.",
       controls: ["Osilatör veya mikrofon", "Dalga tipi seç"],
       learn: "Müzik ve konuşma — farklı frekansların süperpozisyonu.",
     },
   };
 
-  const TYPE_LABELS = { Oyun: "🎮", Fizik: "⚛️", Matematik: "📐", Kimya: "🧪", Biyoloji: "🧬", Simülasyon: "🔬" };
+  const TYPE_LABELS = {
+    Oyun: "🎮",
+    Fizik: "⚛️",
+    Matematik: "📐",
+    Kimya: "🧪",
+    Biyoloji: "🧬",
+    Simülasyon: "🔬",
+  };
 
   function slugToTitle(slug) {
     return slug
@@ -308,13 +365,61 @@
   }
 
   function inferType(slug) {
-    if (["pong", "asteroids", "snake", "breakout", "tetris", "oyun-2048", "yasam-oyunu", "gezegen-savunmasi", "formul-hafiza", "mayin-tarlasi"].includes(slug))
+    if (
+      [
+        "pong",
+        "asteroids",
+        "snake",
+        "breakout",
+        "tetris",
+        "oyun-2048",
+        "yasam-oyunu",
+        "gezegen-savunmasi",
+        "formul-hafiza",
+        "mayin-tarlasi",
+      ].includes(slug)
+    )
       return "Oyun";
-    if (slug.includes("fraktal") || slug.includes("fibo") || slug.includes("collatz") || slug.includes("lorenz") || slug.includes("mandelbrot") || slug.includes("julia") || slug.includes("pascal") || slug.includes("hilbert") || slug.includes("penrose") || slug.includes("sierpinski") || slug.includes("koch") || slug.includes("barnsley") || slug.includes("altin") || slug.includes("tek-sayi"))
+    if (
+      slug.includes("fraktal") ||
+      slug.includes("fibo") ||
+      slug.includes("collatz") ||
+      slug.includes("lorenz") ||
+      slug.includes("mandelbrot") ||
+      slug.includes("julia") ||
+      slug.includes("pascal") ||
+      slug.includes("hilbert") ||
+      slug.includes("penrose") ||
+      slug.includes("sierpinski") ||
+      slug.includes("koch") ||
+      slug.includes("barnsley") ||
+      slug.includes("altin") ||
+      slug.includes("tek-sayi")
+    )
       return "Matematik";
-    if (["periyodik-tablo", "denklem-denklestirme", "ideal-gaz", "ph-indikator", "molekul-sekli"].includes(slug)) return "Kimya";
-    if (["dna-replikasyon", "mitoz-mayoz", "kalp-dolasim", "besin-agi"].includes(slug)) return "Biyoloji";
-    if (["fourier-ses", "sezar-sifre", "siralama-algoritmalari", "bayes-olasilik"].includes(slug)) return "Simülasyon";
+    if (
+      [
+        "periyodik-tablo",
+        "denklem-denklestirme",
+        "ideal-gaz",
+        "ph-indikator",
+        "molekul-sekli",
+      ].includes(slug)
+    )
+      return "Kimya";
+    if (
+      ["dna-replikasyon", "mitoz-mayoz", "kalp-dolasim", "besin-agi"].includes(slug)
+    )
+      return "Biyoloji";
+    if (
+      [
+        "fourier-ses",
+        "sezar-sifre",
+        "siralama-algoritmalari",
+        "bayes-olasilik",
+      ].includes(slug)
+    )
+      return "Simülasyon";
     return "Fizik";
   }
 
@@ -325,7 +430,10 @@
     return {
       type,
       intro: `${title} sayfasındaki simülasyonu keşfet. Kaydırıcıları ve düğmeleri dene; grafik veya animasyon anında güncellenir.`,
-      controls: ["Sayfadaki kaydırıcı ve düğmeleri kullan", "ℹ️ düğmesiyle bu paneli tekrar aç"],
+      controls: [
+        "Sayfadaki kaydırıcı ve düğmeleri kullan",
+        "ℹ️ düğmesiyle bu paneli tekrar aç",
+      ],
       learn: `${type} dersindeki kavramları görsel olarak pekiştirmek için tasarlandı.`,
     };
   }
@@ -393,9 +501,42 @@
     });
   }
 
+  /* —— Tema —— */
+  const THEME_KEY = "acelya-theme";
+
+  function getSavedTheme() {
+    return localStorage.getItem(THEME_KEY) || "dark";
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_KEY, theme);
+    updateThemeIcon(theme);
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    applyTheme(current === "dark" ? "light" : "dark");
+  }
+
+  function updateThemeIcon(theme) {
+    const btn = document.getElementById("appThemeBtn");
+    if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  }
+
+  function initTheme() {
+    const saved = getSavedTheme();
+    if (saved === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  }
+
   /* —— Üst çubuk —— */
   function initTopbar() {
     if (document.querySelector(".app-topbar")) return;
+
+    const currentTheme = getSavedTheme();
+    const themeIcon = currentTheme === "dark" ? "☀️" : "🌙";
 
     const title = document.title.split("|")[0].trim() || slugToTitle(pageId);
     const bar = document.createElement("header");
@@ -404,11 +545,15 @@
       <a class="app-home" href="index.html">← Ana sayfa</a>
       <span class="app-topbar-title">${title}</span>
       <div class="app-topbar-actions">
+        <button type="button" class="app-btn-theme" id="appThemeBtn" title="Tema değiştir">${themeIcon}</button>
         <button type="button" class="app-btn-icon" id="appHelpBtn" title="Yardım">ℹ️</button>
       </div>`;
     document.body.prepend(bar);
 
-    document.getElementById("appHelpBtn").addEventListener("click", () => showIntro(true));
+    document.getElementById("appThemeBtn").addEventListener("click", toggleTheme);
+    document
+      .getElementById("appHelpBtn")
+      .addEventListener("click", () => showIntro(true));
   }
 
   /* —— Giriş paneli —— */
@@ -524,9 +669,12 @@
   function init() {
     const body = document.body;
     if (!body || body.dataset.page === "index") return;
-    pageId = body.dataset.page || location.pathname.replace(/.*\//, "").replace(/\.html$/, "");
+    pageId =
+      body.dataset.page ||
+      location.pathname.replace(/.*\//, "").replace(/\.html$/, "");
     document.documentElement.classList.add("app-root");
     body.classList.add("app-page");
+    initTheme();
     ensureFavicon();
     initStars();
     initTopbar();
