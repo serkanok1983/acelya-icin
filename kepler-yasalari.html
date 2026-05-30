@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kepler Yasaları — Gezegen Yörüngeleri</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100dvh; }
+    .app-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 12px 36px;
+    }
+    h1 { text-align: center; margin-bottom: 4px; font-size: clamp(1.2rem, 4vw, 1.6rem); color: var(--text); }
+    .sub { color: var(--text-muted); font-size: 0.88rem; text-align: center; max-width: 40rem; margin: 0 auto 16px; line-height: 1.5; }
+    .law-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .law-section h2 { margin: 0 0 8px; font-size: 1.1rem; color: var(--accent); }
+    .law-section p { margin: 0 0 10px; color: var(--text-muted); font-size: 0.85rem; line-height: 1.45; }
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      background: #0c1018;
+      border-radius: var(--radius);
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      justify-content: center;
+      align-items: center;
+      margin: 14px 0;
+    }
+    label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+    }
+    input[type="range"] { width: 130px; accent-color: var(--accent); }
+    select {
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.82rem;
+    }
+    button {
+      padding: 6px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(94,234,212,0.12);
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+    button:hover { background: rgba(94,234,212,0.2); }
+    .info-row {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .info-row span { color: var(--accent); font-weight: 600; }
+    .legend {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .legend i {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="kepler-yasalari">
+<div class="app-content">
+  <h1>🪐 Kepler Yasaları</h1>
+  <p class="sub">Gezegenlerin Güneş etrafındaki hareketini yöneten üç temel yasa. Elips yörüngeler, eşit alan taraması ve periyot-yarı büyük eksen bağıntısı.</p>
+
+  <!-- Canvas: Ana simülasyon -->
+  <canvas id="orbitCanvas" width="700" height="400" role="img" aria-label="Kepler yasaları gezegen yörünge animasyonu"></canvas>
+
+  <div class="legend">
+    <span><i style="background:#fbbf24"></i> Güneş (odak)</span>
+    <span><i style="background:#58a6ff"></i> Gezegen</span>
+    <span><i style="background:rgba(94,234,212,0.5)"></i> Taranan Alan</span>
+    <span><i style="background:#f87171"></i> Hız Vektörü</span>
+  </div>
+
+  <div class="controls">
+    <label>Eksantriklik (e)
+      <input type="range" id="eccSlider" min="0" max="0.35" step="0.005" value="0.21">
+      <span id="eccVal">0.21</span>
+    </label>
+    <label>Gezegen
+      <select id="planetSelect">
+        <option value="merkur">Merkür (a=0.387, e=0.206)</option>
+        <option value="venus">Venüs (a=0.723, e=0.007)</option>
+        <option value="dunya" selected>Dünya (a=1.0, e=0.017)</option>
+        <option value="mars">Mars (a=1.524, e=0.093)</option>
+      </select>
+    </label>
+    <button id="playBtn">⏸ Duraklat</button>
+  </div>
+
+  <div class="info-row">
+    T²/ a³ = <span id="ratioDisplay">1.00</span> (sabit)
+  </div>
+
+  <!-- 1. Yasa açıklaması -->
+  <div class="law-section">
+    <h2>📐 1. Yasa — Elips Yörünge</h2>
+    <p>Her gezegen, Güneş'in odaklarından birinde bulunduğu bir elips üzerinde dolanır. Eksantriklik (e) sıfıra yaklaştıkça yörünge daireye yaklaşır. Kaydırıcı ile eksantrikliği değiştirerek yörüngenin nasıl basıklaştığını gözlemleyin.</p>
+  </div>
+
+  <!-- 2. Yasa açıklaması -->
+  <div class="law-section">
+    <h2>⏱ 2. Yasa — Eşit Alanlar</h2>
+    <p>Gezegeni Güneş'e birleştiren yarıçap vektörü eşit zaman aralıklarında eşit alanlar tarar. Gezegen Güneş'e yaklaştıkça (günberi) hızlanır, uzaklaştıkça (günöte) yavaşlar. Turuncu bölge taranan alanı gösterir.</p>
+  </div>
+
+  <!-- 3. Yasa bağıntısı -->
+  <div class="law-section">
+    <h2>📊 3. Yasa — T² ∝ a³</h2>
+    <p>Bir gezegenin dolanma periyodunun karesi (T²), yörüngesinin yarı büyük eksen uzunluğunun küpü (a³) ile orantılıdır. Yukarıdaki T²/a³ değeri tüm gezegenler için yaklaşık sabittir (kütleçekim sabiti ve Güneş kütlesine bağlı).</p>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('orbitCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy, scale, playing = true, angle = 0;
+let sweepStartAngle = 0;
+const SWEEP_SPAN = 0.5; // rad
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const maxW = Math.min(700, innerWidth - 20);
+  const maxH = Math.min(400, innerHeight * 0.5);
+  W = maxW; H = maxH;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cx = W * 0.38; cy = H / 2;
+  scale = Math.min(W, H) * 0.38;
+}
+window.addEventListener('resize', resize);
+
+const eccSlider = document.getElementById('eccSlider');
+const eccVal = document.getElementById('eccVal');
+const planetSelect = document.getElementById('planetSelect');
+const playBtn = document.getElementById('playBtn');
+const ratioDisplay = document.getElementById('ratioDisplay');
+
+const planets = {
+  merkur: { a: 0.387, e: 0.206, name: 'Merkür' },
+  venus:   { a: 0.723, e: 0.007, name: 'Venüs' },
+  dunya:   { a: 1.0,   e: 0.017, name: 'Dünya' },
+  mars:    { a: 1.524, e: 0.093, name: 'Mars' }
+};
+
+let currentEcc = parseFloat(eccSlider.value);
+let currentPlanet = planetSelect.value;
+
+eccSlider.oninput = () => {
+  currentEcc = parseFloat(eccSlider.value);
+  eccVal.textContent = currentEcc.toFixed(3);
+  angle = sweepStartAngle = 0;
+};
+planetSelect.onchange = () => {
+  currentPlanet = planetSelect.value;
+  const p = planets[currentPlanet];
+  currentEcc = p.e;
+  eccSlider.value = currentEcc;
+  eccVal.textContent = currentEcc.toFixed(3);
+  angle = sweepStartAngle = 0;
+};
+playBtn.onclick = () => {
+  playing = !playing;
+  playBtn.textContent = playing ? '⏸ Duraklat' : '▶ Oynat';
+};
+
+function ellipsePoint(a, e, theta, cx, cy, scale, semiMajorAU) {
+  const b = a * Math.sqrt(1 - e * e);
+  const c = a * e;
+  const rPx = scale * semiMajorAU;
+  const sx = cx - c * rPx;
+  const x = sx + a * Math.cos(theta) * rPx;
+  const y = cy + b * Math.sin(theta) * rPx;
+  return { x, y, r: Math.hypot(x - cx, y - cy) };
+}
+
+function drawArrow(x1, y1, x2, y2, color, w) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  if (len < 0.5) return;
+  const ux = dx / len, uy = dy / len;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = w || 2;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  const ah = 8;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - ux * ah - uy * 5, y2 - uy * ah + ux * 5);
+  ctx.lineTo(x2 - ux * ah + uy * 5, y2 - uy * ah - ux * 5);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function draw() {
+  const aAU = planets[currentPlanet].a;
+  const ecc = currentEcc;
+  const semiMajorPx = scale;
+  const aEll = semiMajorPx;
+  const bEll = aEll * Math.sqrt(1 - ecc * ecc);
+  const cEll = aEll * ecc;
+
+  ctx.fillStyle = '#0c1018';
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars bg
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  const starSeed = 42;
+  for (let i = 0; i < 80; i++) {
+    const sx = ((i * 137 + starSeed) % W);
+    const sy = ((i * 251 + starSeed * 3) % H);
+    const sr = 0.5 + (i % 3) * 0.6;
+    ctx.beginPath();
+    ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Draw orbit ellipse
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 8]);
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, aEll, bEll, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Sun at focus
+  const sunGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 14);
+  sunGrad.addColorStop(0, '#fff7b0');
+  sunGrad.addColorStop(0.4, '#fbbf24');
+  sunGrad.addColorStop(1, 'rgba(251,191,36,0)');
+  ctx.fillStyle = sunGrad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Current planet position
+  const p = ellipsePoint(aEll, ecc, angle, cx, cy, scale, aAU);
+  const px = p.x, py = p.y;
+  const pr = p.r;
+
+  // Sweep area
+  const sweepEnd = sweepStartAngle + SWEEP_SPAN;
+  ctx.fillStyle = 'rgba(94,234,212,0.12)';
+  ctx.strokeStyle = 'rgba(94,234,212,0.45)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  const sweepSteps = 60;
+  for (let i = 0; i <= sweepSteps; i++) {
+    const ta = sweepStartAngle + (SWEEP_SPAN * i / sweepSteps);
+    const sp = ellipsePoint(aEll, ecc, ta, cx, cy, scale, aAU);
+    ctx.lineTo(sp.x, sp.y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Planet
+  const planetGrad = ctx.createRadialGradient(px, py, 1, px, py, 9);
+  planetGrad.addColorStop(0, '#a0d8ff');
+  planetGrad.addColorStop(0.5, '#58a6ff');
+  planetGrad.addColorStop(1, 'rgba(88,166,255,0)');
+  ctx.fillStyle = planetGrad;
+  ctx.beginPath();
+  ctx.arc(px, py, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#58a6ff';
+  ctx.beginPath();
+  ctx.arc(px, py, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Orbital radius line
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 5]);
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(px, py);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Velocity vector (tangential direction)
+  const dt = 0.02;
+  const pNext = ellipsePoint(aEll, ecc, angle + dt, cx, cy, scale, aAU);
+  const vx = (pNext.x - px) / dt;
+  const vy = (pNext.y - py) / dt;
+  const vMag = Math.hypot(vx, vy) || 1;
+  const vScale = 0.15;
+  drawArrow(px, py, px + vx * vScale, py + vy * vScale, '#f87171', 2.5);
+
+  // Semi-major axis line (dashed)
+  const focusX = cx - cEll;
+  const aphelionX = focusX + aEll; // actually this is the perihelion/aphelion along major axis
+  // Draw a line from leftmost to rightmost point of ellipse
+  ctx.strokeStyle = 'rgba(167,139,250,0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 6]);
+  ctx.beginPath();
+  ctx.moveTo(cx + aEll - cEll, cy);
+  ctx.lineTo(cx - aEll - cEll, cy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = 'var(--text-muted)';
+  ctx.font = '11px Outfit, system-ui, sans-serif';
+  ctx.fillStyle = '#8b95a8';
+  ctx.fillText('Güneş (odak)', cx + 16, cy - 12);
+  ctx.fillText('a (yarı büyük eksen)', cx - aEll / 2 - cEll, cy - 14);
+  ctx.fillText('Günberi', cx + aEll - cEll - 30, cy - 16);
+  ctx.fillText('Günöte', cx - aEll - cEll + 10, cy - 16);
+
+  // Info
+  ctx.fillStyle = '#e8ecf4';
+  ctx.font = '12px Outfit, system-ui, sans-serif';
+  ctx.fillText('e = ' + ecc.toFixed(3), W - 100, 24);
+  ctx.fillText('a = ' + aAU.toFixed(3) + ' AU', W - 100, 42);
+
+  // T²/a³ ratio
+  const period = 2 * Math.PI * Math.sqrt(aAU * aAU * aAU);
+  const T2a3 = (period * period) / (aAU * aAU * aAU);
+  ratioDisplay.textContent = T2a3.toFixed(2);
+
+  // Advance
+  if (playing) {
+    // Angular speed: Kepler equation approximated (faster near perihelion)
+    const rNorm = pr / scale;
+    const baseSpeed = 0.015 / (aAU * Math.sqrt(aAU));
+    const keplerSpeed = baseSpeed / (rNorm * rNorm);
+    angle += keplerSpeed;
+    sweepStartAngle += keplerSpeed;
+    if (angle > Math.PI * 20) { angle -= Math.PI * 2; sweepStartAngle -= Math.PI * 2; }
+  }
+
+  requestAnimationFrame(draw);
+}
+
+resize();
+draw();
+</script>
+</body>
+</html>

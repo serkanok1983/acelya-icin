@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Nükleer Fizik — Bağlanma Enerjisi</title>
+  <style>
+    .app-content { max-width: 960px; }
+    h1 { text-align: center; margin-bottom: 4px; }
+    .sub { color: var(--text-muted); font-size: 0.9rem; text-align: center; max-width: 44rem; margin: 0 auto 16px; }
+
+    #bindingCanvas {
+      display: block;
+      width: 100%;
+      background: #0c1018;
+      border-radius: var(--radius);
+      box-shadow: 0 0 0 1px var(--border);
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin: 12px 0;
+    }
+
+    .isotope-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .isotope-chip {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font);
+    }
+    .isotope-chip:hover {
+      border-color: var(--accent);
+      background: rgba(94,234,212,0.08);
+    }
+    .isotope-chip.active {
+      border-color: var(--accent);
+      background: rgba(94,234,212,0.18);
+      color: var(--accent);
+    }
+
+    .readout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+      font-size: 0.82rem;
+    }
+    .readout .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .readout .card .label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .readout .card .value {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 2px;
+    }
+
+    .detail-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 12px 0;
+      display: none;
+    }
+    .detail-panel.visible { display: block; }
+    .detail-panel h3 {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 1rem;
+    }
+    .detail-panel table {
+      width: 100%;
+      font-size: 0.82rem;
+      border-collapse: collapse;
+    }
+    .detail-panel table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .detail-panel table td + td {
+      color: var(--text);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 44rem;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="nukleer-fizik">
+
+<div class="app-content">
+  <h1>Nükleer Fizik — Bağlanma Enerjisi</h1>
+  <p class="sub">
+    Nükleon başına bağlanma enerjisi eğrisi. Hafif çekirdeklerin füzyonu ve
+    ağır çekirdeklerin fisyonu enerji açığa çıkarır — Demir-56 en kararlı çekirdektir.
+  </p>
+
+  <canvas id="bindingCanvas" width="900" height="480" role="img" aria-label="Nükleon başına bağlanma enerjisi eğrisi"></canvas>
+
+  <div class="readout">
+    <div class="card">
+      <div class="label">Seçili İzotop</div>
+      <div class="value" id="selIsotope">—</div>
+    </div>
+    <div class="card">
+      <div class="label">A (Kütle Numarası)</div>
+      <div class="value" id="selA">—</div>
+    </div>
+    <div class="card">
+      <div class="label">B/A (MeV/nükleon)</div>
+      <div class="value" id="selBE">—</div>
+    </div>
+    <div class="card">
+      <div class="label">Toplam BE (MeV)</div>
+      <div class="value" id="selTotalBE">—</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="isotope-chips" id="isotopeChips">
+      <!-- JS ile doldurulacak -->
+    </div>
+  </div>
+
+  <div class="detail-panel" id="detailPanel">
+    <h3 id="detailTitle">İzotop Detayı</h3>
+    <table id="detailTable"></table>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--accent);"></span> Bağlanma enerjisi / nükleon</span>
+    <span><span class="dot" style="background:#fbbf24;"></span> Füzyon bölgesi (enerji kazançlı)</span>
+    <span><span class="dot" style="background:#f87171;"></span> Fisyon bölgesi (enerji kazançlı)</span>
+    <span><span class="dot" style="background:#a78bfa;width:12px;height:12px;"></span> Demir-56 zirvesi</span>
+  </div>
+
+  <p class="note">
+    Bağlanma enerjisi: B = [Z·mₚ + N·mₙ − m(çekirdek)]·c².
+    E = mc² — kütle eksiği (Δm) enerjiye dönüşür. Füzyon H → Fe,
+    fisyon U → orta kütleli çekirdekler.
+  </p>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById("bindingCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 900, H = 480;
+
+  // Sabitler (MeV/c²)
+  const mp = 938.272;   // proton kütlesi
+  const mn = 939.565;   // nötron kütlesi
+  const uToMeV = 931.494; // 1 u = 931.494 MeV/c²
+
+  // Deneysel bağlanma enerjisi verileri (A, Z, B/A yaklaşık MeV)
+  // Gerçek verilere yakın değerler
+  const isotopeData = [
+    { name: "¹H",   A: 1,  Z: 0,  BE_A: 0,     mass_u: 1.007825 },
+    { name: "²H",   A: 2,  Z: 1,  BE_A: 1.112, mass_u: 2.014102 },
+    { name: "³H",   A: 3,  Z: 1,  BE_A: 2.827, mass_u: 3.016049 },
+    { name: "³He",  A: 3,  Z: 2,  BE_A: 2.573, mass_u: 3.016029 },
+    { name: "⁴He",  A: 4,  Z: 2,  BE_A: 7.074, mass_u: 4.002603 },
+    { name: "⁶Li",  A: 6,  Z: 3,  BE_A: 5.332, mass_u: 6.015122 },
+    { name: "⁷Li",  A: 7,  Z: 3,  BE_A: 5.606, mass_u: 7.016004 },
+    { name: "⁹Be",  A: 9,  Z: 4,  BE_A: 6.463, mass_u: 9.012182 },
+    { name: "¹²C",  A: 12, Z: 6,  BE_A: 7.680, mass_u: 12.000000 },
+    { name: "¹⁴N",  A: 14, Z: 7,  BE_A: 7.476, mass_u: 14.003074 },
+    { name: "¹⁶O",  A: 16, Z: 8,  BE_A: 7.976, mass_u: 15.994915 },
+    { name: "²⁰Ne", A: 20, Z: 10, BE_A: 8.032, mass_u: 19.992440 },
+    { name: "²³Na", A: 23, Z: 11, BE_A: 8.112, mass_u: 22.989770 },
+    { name: "²⁴Mg", A: 24, Z: 12, BE_A: 8.261, mass_u: 23.985042 },
+    { name: "²⁸Si", A: 28, Z: 14, BE_A: 8.448, mass_u: 27.976927 },
+    { name: "³²S",  A: 32, Z: 16, BE_A: 8.493, mass_u: 31.972071 },
+    { name: "⁴⁰Ca", A: 40, Z: 20, BE_A: 8.551, mass_u: 39.962591 },
+    { name: "⁴⁸Ti", A: 48, Z: 22, BE_A: 8.600, mass_u: 47.947947 },
+    { name: "⁵²Cr", A: 52, Z: 24, BE_A: 8.694, mass_u: 51.940510 },
+    { name: "⁵⁶Fe", A: 56, Z: 26, BE_A: 8.790, mass_u: 55.934936 },
+    { name: "⁵⁸Ni", A: 58, Z: 28, BE_A: 8.732, mass_u: 57.935347 },
+    { name: "⁶⁴Zn", A: 64, Z: 30, BE_A: 8.670, mass_u: 63.929147 },
+    { name: "⁸⁴Kr", A: 84, Z: 36, BE_A: 8.610, mass_u: 83.911507 },
+    { name: "⁹⁰Zr", A: 90, Z: 40, BE_A: 8.689, mass_u: 89.904703 },
+    { name: "¹⁰⁸Ag",A: 108,Z: 47, BE_A: 8.522, mass_u: 107.905950 },
+    { name: "¹²⁰Sn",A: 120,Z: 50, BE_A: 8.505, mass_u: 119.902199 },
+    { name: "¹⁴⁴Nd",A: 144,Z: 60, BE_A: 8.324, mass_u: 143.910087 },
+    { name: "¹⁸⁴W", A: 184,Z: 74, BE_A: 8.062, mass_u: 183.950933 },
+    { name: "¹⁹⁷Au",A: 197,Z: 79, BE_A: 7.915, mass_u: 196.966569 },
+    { name: "²⁰⁸Pb",A: 208,Z: 82, BE_A: 7.867, mass_u: 207.976652 },
+    { name: "²³²Th",A: 232,Z: 90, BE_A: 7.614, mass_u: 232.038055 },
+    { name: "²³⁵U", A: 235,Z: 92, BE_A: 7.591, mass_u: 235.043930 },
+    { name: "²³⁸U", A: 238,Z: 92, BE_A: 7.570, mass_u: 238.050788 },
+  ];
+
+  // Daha detaylı eğri için ek veri noktaları
+  const curvePoints = [
+    {A:1,Z:0,BE_A:0},{A:2,Z:1,BE_A:1.11},{A:3,Z:1,BE_A:2.83},{A:4,Z:2,BE_A:7.07},
+    {A:6,Z:3,BE_A:5.33},{A:7,Z:3,BE_A:5.61},{A:9,Z:4,BE_A:6.46},{A:10,Z:5,BE_A:6.23},
+    {A:11,Z:5,BE_A:6.67},{A:12,Z:6,BE_A:7.68},{A:13,Z:6,BE_A:7.47},{A:14,Z:7,BE_A:7.48},
+    {A:15,Z:7,BE_A:7.70},{A:16,Z:8,BE_A:7.98},{A:18,Z:8,BE_A:7.92},{A:19,Z:9,BE_A:7.69},
+    {A:20,Z:10,BE_A:8.03},{A:22,Z:11,BE_A:8.01},{A:23,Z:11,BE_A:8.11},{A:24,Z:12,BE_A:8.26},
+    {A:26,Z:12,BE_A:8.30},{A:27,Z:13,BE_A:8.33},{A:28,Z:14,BE_A:8.45},{A:30,Z:14,BE_A:8.45},
+    {A:31,Z:15,BE_A:8.48},{A:32,Z:16,BE_A:8.49},{A:34,Z:16,BE_A:8.47},{A:36,Z:18,BE_A:8.49},
+    {A:39,Z:19,BE_A:8.53},{A:40,Z:20,BE_A:8.55},{A:42,Z:20,BE_A:8.58},{A:44,Z:22,BE_A:8.57},
+    {A:46,Z:22,BE_A:8.59},{A:48,Z:22,BE_A:8.60},{A:50,Z:23,BE_A:8.62},{A:52,Z:24,BE_A:8.69},
+    {A:54,Z:26,BE_A:8.73},{A:56,Z:26,BE_A:8.79},{A:58,Z:28,BE_A:8.73},{A:60,Z:28,BE_A:8.72},
+    {A:62,Z:28,BE_A:8.70},{A:64,Z:28,BE_A:8.67},{A:70,Z:30,BE_A:8.65},{A:75,Z:33,BE_A:8.63},
+    {A:80,Z:34,BE_A:8.61},{A:84,Z:36,BE_A:8.61},{A:90,Z:40,BE_A:8.69},{A:96,Z:42,BE_A:8.60},
+    {A:100,Z:44,BE_A:8.55},{A:108,Z:47,BE_A:8.52},{A:115,Z:49,BE_A:8.51},{A:120,Z:50,BE_A:8.50},
+    {A:127,Z:53,BE_A:8.44},{A:132,Z:54,BE_A:8.41},{A:140,Z:58,BE_A:8.35},{A:144,Z:60,BE_A:8.32},
+    {A:150,Z:62,BE_A:8.25},{A:157,Z:64,BE_A:8.20},{A:165,Z:67,BE_A:8.15},{A:172,Z:70,BE_A:8.10},
+    {A:180,Z:72,BE_A:8.05},{A:184,Z:74,BE_A:8.06},{A:190,Z:76,BE_A:8.00},{A:197,Z:79,BE_A:7.91},
+    {A:200,Z:80,BE_A:7.90},{A:208,Z:82,BE_A:7.87},{A:215,Z:87,BE_A:7.75},{A:225,Z:89,BE_A:7.66},
+    {A:232,Z:90,BE_A:7.61},{A:235,Z:92,BE_A:7.59},{A:238,Z:92,BE_A:7.57},{A:242,Z:94,BE_A:7.51},
+  ];
+
+  let selectedIsotope = isotopeData.find(d => d.name === "⁵⁶Fe");
+  let hoveredPoint = null;
+
+  function setupChips() {
+    const container = document.getElementById("isotopeChips");
+    const keyIsotopes = ["¹H", "²H", "⁴He", "¹²C", "¹⁶O", "⁵⁶Fe", "²³⁵U", "²³⁸U"];
+    keyIsotopes.forEach(name => {
+      const d = isotopeData.find(i => i.name === name);
+      if (!d) return;
+      const chip = document.createElement("button");
+      chip.className = "isotope-chip" + (selectedIsotope && selectedIsotope.name === name ? " active" : "");
+      chip.textContent = d.name;
+      chip.addEventListener("click", () => selectIsotope(d));
+      container.appendChild(chip);
+    });
+  }
+
+  function selectIsotope(d) {
+    selectedIsotope = d;
+    document.querySelectorAll(".isotope-chip").forEach(c => {
+      c.classList.toggle("active", c.textContent === d.name);
+    });
+    updateDetailPanel();
+    draw();
+  }
+
+  function findClosestIsotope(mx, my, pad, pw, ph) {
+    let closest = null;
+    let minDist = 25; // piksel yakalama yarıçapı
+    isotopeData.forEach(d => {
+      if (d.BE_A <= 0) return;
+      const x = pad.left + ((d.A - 1) / 238) * pw;
+      const y = pad.top + ph - ((d.BE_A - 0) / 9) * ph;
+      const dist = Math.hypot(mx - x, my - y);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = d;
+      }
+    });
+    return closest;
+  }
+
+  function updateDetailPanel() {
+    if (!selectedIsotope) {
+      document.getElementById("detailPanel").classList.remove("visible");
+      return;
+    }
+    const d = selectedIsotope;
+    const N = d.A - d.Z;
+    const totalBE = d.BE_A * d.A;
+    // Kütle eksiği (Δm)
+    const massConstituents = d.Z * mp + N * mn;
+    const massActual = d.mass_u * uToMeV;
+    const deltaM = massConstituents - massActual;
+    // E=mc²: enerji karşılığı
+    const energyJ = deltaM * 1.602e-13; // MeV → Joule
+
+    document.getElementById("selIsotope").textContent = d.name;
+    document.getElementById("selA").textContent = d.A;
+    document.getElementById("selBE").textContent = d.BE_A.toFixed(3) + " MeV";
+    document.getElementById("selTotalBE").textContent = totalBE.toFixed(1) + " MeV";
+
+    document.getElementById("detailTitle").textContent = d.name + " — İzotop Detayı";
+    const table = document.getElementById("detailTable");
+    table.innerHTML = `
+      <tr><td>Proton sayısı (Z)</td><td>${d.Z}</td></tr>
+      <tr><td>Nötron sayısı (N)</td><td>${N}</td></tr>
+      <tr><td>Kütle numarası (A)</td><td>${d.A}</td></tr>
+      <tr><td>Atom kütlesi</td><td>${d.mass_u.toFixed(6)} u</td></tr>
+      <tr><td>Nükleon başına BE</td><td>${d.BE_A.toFixed(3)} MeV</td></tr>
+      <tr><td>Toplam bağlanma enerjisi</td><td>${totalBE.toFixed(1)} MeV</td></tr>
+      <tr><td>Kütle eksiği (Δm)</td><td>${deltaM.toFixed(2)} MeV/c² (${(deltaM / uToMeV).toFixed(5)} u)</td></tr>
+      <tr><td>E = mc² karşılığı</td><td>${(deltaM / uToMeV * 1.660539e-27 * 9e16).toExponential(3)} J</td></tr>
+    `;
+    document.getElementById("detailPanel").classList.add("visible");
+  }
+
+  function draw() {
+    ctx.fillStyle = "#0c1018";
+    ctx.fillRect(0, 0, W, H);
+
+    const pad = { top: 40, right: 40, bottom: 52, left: 64 };
+    const pw = W - pad.left - pad.right;
+    const ph = H - pad.top - pad.bottom;
+
+    // Bölge renklendirmeleri
+    // Füzyon bölgesi (A=1..56): açık renkli alan
+    const fe56A = 56;
+    const fe56X = pad.left + ((fe56A - 1) / 238) * pw;
+    ctx.fillStyle = "rgba(251,191,36,0.06)";
+    ctx.fillRect(pad.left, pad.top, fe56X - pad.left, ph);
+    // Fisyon bölgesi (A=56..238)
+    ctx.fillStyle = "rgba(248,113,113,0.06)";
+    ctx.fillRect(fe56X, pad.top, pad.left + pw - fe56X, ph);
+
+    // Bölge etiketleri
+    ctx.fillStyle = "rgba(251,191,36,0.5)";
+    ctx.font = "11px Outfit, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Füzyon →", pad.left + fe56X / 2 - pad.left / 2, pad.top + 18);
+    ctx.fillStyle = "rgba(248,113,113,0.5)";
+    ctx.fillText("← Fisyon", fe56X + (pad.left + pw - fe56X) / 2, pad.top + 18);
+
+    // Izgara çizgileri
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    ctx.lineWidth = 1;
+    for (let be = 0; be <= 9; be += 1) {
+      const y = pad.top + ph - (be / 9) * ph;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(pad.left + pw, y);
+      ctx.stroke();
+    }
+    for (let a = 0; a <= 240; a += 40) {
+      const x = pad.left + (a / 238) * pw;
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, pad.top + ph);
+      ctx.stroke();
+    }
+
+    // Eğri çizimi
+    ctx.beginPath();
+    let first = true;
+    curvePoints.forEach((pt, i) => {
+      const x = pad.left + ((pt.A - 1) / 238) * pw;
+      const y = pad.top + ph - ((pt.BE_A - 0) / 9) * ph;
+      if (first) { ctx.moveTo(x, y); first = false; }
+      else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = "var(--accent)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Eğri altı dolgu
+    ctx.lineTo(pad.left + pw, pad.top + ph);
+    ctx.lineTo(pad.left, pad.top + ph);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(94,234,212,0.07)";
+    ctx.fill();
+
+    // Veri noktaları
+    isotopeData.forEach(d => {
+      if (d.BE_A <= 0) return;
+      const x = pad.left + ((d.A - 1) / 238) * pw;
+      const y = pad.top + ph - ((d.BE_A - 0) / 9) * ph;
+      const isFe = d.name === "⁵⁶Fe";
+      const isSel = selectedIsotope && selectedIsotope.name === d.name;
+      const isHover = hoveredPoint && hoveredPoint.name === d.name;
+
+      if (isFe) {
+        // Demir-56 özel işaret
+        ctx.fillStyle = "#a78bfa";
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(167,139,250,0.6)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, 12, 0, Math.PI * 2);
+        ctx.stroke();
+        // Parlama efekti
+        ctx.fillStyle = "rgba(167,139,250,0.12)";
+        ctx.beginPath();
+        ctx.arc(x, y, 18, 0, Math.PI * 2);
+        ctx.fill();
+        // Etiket
+        ctx.fillStyle = "#a78bfa";
+        ctx.font = "bold 12px Outfit, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("⁵⁶Fe", x, y - 16);
+        ctx.fillText("8.79 MeV", x, y + 24);
+      } else if (isSel || isHover) {
+        ctx.fillStyle = isSel ? "var(--accent)" : "rgba(94,234,212,0.6)";
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(94,234,212,0.5)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.stroke();
+        if (isSel) {
+          ctx.fillStyle = "var(--accent)";
+          ctx.font = "10px Outfit, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(d.name, x, y - 12);
+        }
+      } else {
+        // Normal noktalar
+        ctx.fillStyle = "rgba(94,234,212,0.35)";
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+
+    // Eksenler
+    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top + ph);
+    ctx.lineTo(pad.left + pw, pad.top + ph);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top);
+    ctx.lineTo(pad.left, pad.top + ph);
+    ctx.stroke();
+
+    // X ekseni etiketleri
+    ctx.fillStyle = "var(--text-muted)";
+    ctx.font = "10px Outfit, sans-serif";
+    ctx.textAlign = "center";
+    for (let a = 0; a <= 240; a += 40) {
+      const x = pad.left + (a / 238) * pw;
+      ctx.fillText(a === 0 ? "1" : String(a), x, pad.top + ph + 16);
+    }
+    ctx.fillText("Kütle numarası A", pad.left + pw / 2, pad.top + ph + 34);
+
+    // Y ekseni etiketleri
+    ctx.textAlign = "right";
+    for (let be = 0; be <= 9; be += 1) {
+      const y = pad.top + ph - (be / 9) * ph;
+      ctx.fillText(be.toFixed(0), pad.left - 8, y + 4);
+    }
+    ctx.save();
+    ctx.translate(pad.left - 18, pad.top + ph / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("B/A (MeV/nükleon)", 0, 0);
+    ctx.restore();
+    ctx.textAlign = "start";
+
+    // Açıklama
+    ctx.fillStyle = "var(--text-muted)";
+    ctx.font = "10px Outfit, sans-serif";
+    ctx.fillText("Füzyon (H → Fe)", pad.left + 20, pad.top + 16);
+    ctx.fillText("Fisyon (U → orta)", pad.left + pw - 100, pad.top + 16);
+  }
+
+  // Canvas tıklama / hover
+  canvas.addEventListener("mousemove", function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    const pad = { top: 40, right: 40, bottom: 52, left: 64 };
+    const pw = W - pad.left - pad.right;
+    const ph = H - pad.top - pad.bottom;
+
+    const found = findClosestIsotope(mx, my, pad, pw, ph);
+    if (found !== hoveredPoint) {
+      hoveredPoint = found;
+      canvas.style.cursor = found ? "pointer" : "default";
+      draw();
+    }
+  });
+
+  canvas.addEventListener("click", function(e) {
+    if (hoveredPoint) {
+      selectIsotope(hoveredPoint);
+      if (window.AcelyaSounds) window.AcelyaSounds.hit();
+    }
+  });
+
+  // Mobil dokunmatik
+  canvas.addEventListener("touchstart", function(e) {
+    if (e.touches.length === 1) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = W / rect.width;
+      const scaleY = H / rect.height;
+      const mx = (e.touches[0].clientX - rect.left) * scaleX;
+      const my = (e.touches[0].clientY - rect.top) * scaleY;
+
+      const pad = { top: 40, right: 40, bottom: 52, left: 64 };
+      const pw = W - pad.left - pad.right;
+      const ph = H - pad.top - pad.bottom;
+
+      const found = findClosestIsotope(mx, my, pad, pw, ph);
+      if (found) {
+        selectIsotope(found);
+        if (window.AcelyaSounds) window.AcelyaSounds.hit();
+        e.preventDefault();
+      }
+    }
+  }, { passive: false });
+
+  function resize() {
+    const wrap = canvas.parentElement;
+    const w = Math.min(900, wrap.clientWidth - 24);
+    canvas.style.width = w + "px";
+    canvas.style.height = (w * (H / W)) + "px";
+  }
+  window.addEventListener("resize", resize);
+
+  setupChips();
+  updateDetailPanel();
+  resize();
+  draw();
+})();
+</script>
+</body>
+</html>
