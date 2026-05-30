@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Uzay Koşucusu 🚀</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="shared/theme.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #06080f;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); font-weight: 600; }
+    .hud .info { font-size: clamp(0.8rem, 3.5vw, 1rem); opacity: 0.9; }
+    .hud .info span { color: #5eead4; font-weight: 600; }
+    .hud .warn { color: #f87171 !important; }
+    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.78rem); opacity: 0.6; }
+    button {
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      background: rgba(94,234,212,0.15);
+      color: #5eead4;
+      border: 1px solid rgba(94,234,212,0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+    button:hover { background: rgba(94,234,212,0.25); border-color: rgba(94,234,212,0.5); }
+    button:active { transform: scale(0.96); }
+    .game-stage {
+      flex: 1;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+      position: relative;
+      z-index: 3;
+    }
+    #gameCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px rgba(94,234,212,0.18), 0 8px 36px rgba(0,0,0,0.5);
+      touch-action: manipulation;
+    }
+  </style>
+  <script src="shared/icons.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="uzay-kosucusu">
+
+<header class="hud">
+  <h1>Uzay Koşucusu 🚀</h1>
+  <div class="info">Skor: <span id="scoreVal">0</span> &nbsp;·&nbsp; En yüksek: <span id="bestVal">0</span></div>
+  <button type="button" id="btnStart">Başlat</button>
+  <p class="hint">Tıkla / Space / ↑ zıpla · Asteroitlerden kaç · Hız gitgide artar</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="gameCanvas" width="800" height="400" role="img" aria-label="Uzay koşucusu oyun alanı"></canvas>
+</div>
+
+<script>
+  const GAME_W = 800;
+  const GAME_H = 400;
+  const GROUND_Y = GAME_H - 50;
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas desteklenmiyor");
+
+  let fx = window.AcelyaHooks?.noop || { get:()=>null, burst(){}, pop(){}, shake(){}, flash(){}, update(){}, draw(){} };
+  window.addEventListener("acelya-game-ready", () => {
+    if (window.AcelyaHooks) fx = AcelyaHooks.bindJuice(canvas);
+    resizeGame();
+  });
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    if (!hud) return;
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.95;
+    const w = Math.max(300, GAME_W * scale);
+    const h = Math.max(160, GAME_H * scale);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+  window.addEventListener("resize", resizeGame);
+  window.addEventListener("load", resizeGame);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
+
+  let player = { x: 100, y: GROUND_Y - 44, vy: 0, w: 44, h: 44, onGround: true, trail: [] };
+  let obstacles = [];
+  let stars = [];
+  let score = 0;
+  let bestScore = 0;
+  let gameSpeed = 4;
+  let gameRunning = false;
+  let gameOver = false;
+  let tick = 0;
+  let spawnTimer = 0;
+  let spawnInterval = 90;
+  let groundOffset = 0;
+
+  for (let i = 0; i < 60; i++) {
+    stars.push({
+      x: Math.random() * GAME_W,
+      y: Math.random() * GAME_H,
+      r: Math.random() * 1.5 + 0.3,
+      sp: Math.random() * 0.4 + 0.1,
+      a: Math.random() * 0.5 + 0.3,
+    });
+  }
+
+  function resetGame() {
+    player.y = GROUND_Y - 44;
+    player.vy = 0;
+    player.onGround = true;
+    player.trail = [];
+    obstacles = [];
+    score = 0;
+    gameSpeed = 4;
+    spawnTimer = 0;
+    spawnInterval = 90;
+    groundOffset = 0;
+    gameOver = false;
+    document.getElementById("scoreVal").textContent = "0";
+    document.getElementById("btnStart").textContent = "Başlat";
+  }
+
+  function jump() {
+    if (!gameRunning || gameOver) return;
+    if (player.onGround) {
+      player.vy = -14;
+      player.onGround = false;
+      fx.burst(player.x + player.w/2, player.y + player.h, "#5eead4", 8, 3);
+    }
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === " " || e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+      e.preventDefault();
+      jump();
+    }
+  });
+
+  canvas.addEventListener("mousedown", (e) => { e.preventDefault(); jump(); });
+  canvas.addEventListener("touchstart", (e) => { e.preventDefault(); jump(); }, { passive: false });
+
+  document.getElementById("btnStart").addEventListener("click", () => {
+    if (!gameRunning) {
+      resetGame();
+      gameRunning = true;
+      document.getElementById("btnStart").textContent = "Devam";
+    } else if (gameOver) {
+      resetGame();
+      gameRunning = true;
+      document.getElementById("btnStart").textContent = "Devam";
+    }
+  });
+
+  function spawnObstacle() {
+    const types = ["asteroid", "double", "kucuk"];
+    const type = types[Math.floor(Math.random() * types.length)];
+
+    if (type === "asteroid") {
+      const h = 32 + Math.random() * 36;
+      obstacles.push({
+        x: GAME_W + 20,
+        y: GROUND_Y - h,
+        w: 28 + Math.random() * 20,
+        h,
+        type: "asteroid",
+        color: `hsl(${20 + Math.random() * 30}, 60%, ${45 + Math.random() * 25}%)`,
+      });
+    } else if (type === "double") {
+      const gap = 90 + Math.random() * 50;
+      const topH = 50 + Math.random() * 80;
+      obstacles.push({
+        x: GAME_W + 20,
+        y: 0,
+        w: 22,
+        h: topH,
+        type: "crystal-top",
+        color: "#a78bfa",
+      });
+      obstacles.push({
+        x: GAME_W + 20,
+        y: topH + gap,
+        w: 22,
+        h: GAME_H - topH - gap,
+        type: "crystal-bot",
+        color: "#a78bfa",
+      });
+    } else {
+      obstacles.push({
+        x: GAME_W + 20,
+        y: GROUND_Y - 24,
+        w: 18,
+        h: 24,
+        type: "kucuk",
+        color: "#fbbf24",
+      });
+    }
+  }
+
+  function update() {
+    if (!gameRunning || gameOver) return;
+    tick++;
+
+    stars.forEach((s) => {
+      s.x -= gameSpeed * s.sp;
+      if (s.x < -5) { s.x = GAME_W + 5; s.y = Math.random() * GAME_H; }
+    });
+
+    groundOffset = (groundOffset + gameSpeed) % 30;
+
+    player.vy += 0.8;
+    player.y += player.vy;
+    if (player.y >= GROUND_Y - player.h) {
+      player.y = GROUND_Y - player.h;
+      player.vy = 0;
+      player.onGround = true;
+    }
+
+    player.trail.push({ x: player.x + 10, y: player.y + player.h/2, life: 12 });
+    player.trail = player.trail.filter(t => { t.life--; return t.life > 0; });
+
+    obstacles.forEach(o => o.x -= gameSpeed);
+
+    score += 1;
+    document.getElementById("scoreVal").textContent = score;
+
+    spawnTimer++;
+    if (spawnTimer >= spawnInterval) {
+      spawnTimer = 0;
+      spawnInterval = Math.max(35, spawnInterval - 1);
+      if (Math.random() < 0.7) spawnObstacle();
+    }
+
+    gameSpeed = 4 + score / 250;
+    if (gameSpeed > 12) gameSpeed = 12;
+
+    const px = player.x + 8;
+    const py = player.y + 8;
+    const pw = player.w - 16;
+    const ph = player.h - 12;
+
+    for (const o of obstacles) {
+      if (
+        px < o.x + o.w &&
+        px + pw > o.x &&
+        py < o.y + o.h &&
+        py + ph > o.y
+      ) {
+        gameOver = true;
+        gameRunning = false;
+        fx.burst(player.x + player.w/2, player.y + player.h/2, "#f87171", 30, 7);
+        fx.burst(player.x, player.y, "#fbbf24", 18, 5);
+        fx.shake(14);
+        fx.flash(0.3);
+        if (score > bestScore) {
+          bestScore = score;
+          document.getElementById("bestVal").textContent = bestScore;
+        }
+        window.AcelyaHooks?.recordScore(score);
+        document.getElementById("btnStart").textContent = "Tekrar Oyna";
+        break;
+      }
+    }
+
+    obstacles = obstacles.filter(o => o.x > -60);
+  }
+
+  function drawBackground() {
+    ctx.fillStyle = "#040614";
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+
+    stars.forEach(s => {
+      ctx.fillStyle = `rgba(255,255,255,${s.a})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.strokeStyle = "rgba(94, 234, 212, 0.12)";
+    ctx.lineWidth = 1;
+    for (let x = -groundOffset % 30; x < GAME_W; x += 30) {
+      ctx.beginPath();
+      ctx.moveTo(x, GROUND_Y);
+      ctx.lineTo(x + 15, GROUND_Y - 4);
+      ctx.lineTo(x + 30, GROUND_Y);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "rgba(94, 234, 212, 0.08)";
+    ctx.fillRect(0, GROUND_Y, GAME_W, GAME_H - GROUND_Y);
+    ctx.strokeStyle = "rgba(94, 234, 212, 0.2)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, GROUND_Y);
+    ctx.lineTo(GAME_W, GROUND_Y);
+    ctx.stroke();
+  }
+
+  function drawPlayer() {
+    const px = player.x;
+    const py = player.y;
+    const pw = player.w;
+    const ph = player.h;
+
+    // iz
+    for (const t of player.trail) {
+      ctx.fillStyle = `rgba(94, 234, 212, ${t.life / 30})`;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, 2 + t.life/6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.save();
+    ctx.translate(px + pw/2, py + ph/2);
+
+    const tilt = player.onGround ? 0 : player.vy * 0.03;
+    ctx.rotate(tilt);
+
+    // gövde
+    const bodyGrad = ctx.createLinearGradient(-pw/2, -ph/2, pw/2, ph/2);
+    bodyGrad.addColorStop(0, "#5eead4");
+    bodyGrad.addColorStop(0.5, "#2dd4bf");
+    bodyGrad.addColorStop(1, "#0d9488");
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, -ph/2);
+    ctx.lineTo(pw/2, ph/4);
+    ctx.lineTo(pw/2 + 6, ph/2);
+    ctx.lineTo(-pw/2 - 6, ph/2);
+    ctx.lineTo(-pw/2, ph/4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // ateş
+    if (!player.onGround) {
+      ctx.fillStyle = "#fbbf24";
+      ctx.beginPath();
+      ctx.moveTo(-8, ph/2);
+      ctx.lineTo(8, ph/2);
+      ctx.lineTo(2, ph/2 + 10 + Math.random() * 8);
+      ctx.lineTo(-2, ph/2 + 6 + Math.random() * 6);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // pencere
+    ctx.fillStyle = "#041016";
+    ctx.beginPath();
+    ctx.arc(0, -ph*0.1, ph*0.22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(94, 234, 212, 0.6)";
+    ctx.beginPath();
+    ctx.arc(0, -ph*0.1, ph*0.12, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawObstacles() {
+    for (const o of obstacles) {
+      ctx.save();
+      if (o.type === "asteroid") {
+        ctx.fillStyle = o.color;
+        ctx.beginPath();
+        ctx.moveTo(o.x + o.w/2, o.y);
+        ctx.lineTo(o.x + o.w, o.y + o.h*0.4);
+        ctx.lineTo(o.x + o.w*0.85, o.y + o.h);
+        ctx.lineTo(o.x + o.w*0.15, o.y + o.h);
+        ctx.lineTo(o.x, o.y + o.h*0.4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.2)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(255,255,255,0.15)";
+        ctx.beginPath();
+        ctx.arc(o.x + o.w*0.3, o.y + o.h*0.35, o.w*0.12, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(o.x + o.w*0.65, o.y + o.h*0.25, o.w*0.08, 0, Math.PI*2);
+        ctx.fill();
+      } else if (o.type === "crystal-top" || o.type === "crystal-bot") {
+        const grad = ctx.createLinearGradient(o.x, o.y, o.x + o.w, o.y + o.h);
+        grad.addColorStop(0, "#a78bfa");
+        grad.addColorStop(1, "#7c3aed");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.roundRect(o.x, o.y, o.w, o.h, 5);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.25)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,255,0.2)";
+        ctx.beginPath();
+        ctx.roundRect(o.x + 4, o.y + 6, o.w - 8, o.h - 12, 3);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = "#fbbf24";
+        ctx.shadowColor = "#fbbf24";
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(o.x + o.w/2, o.y + o.h/2, o.w/2, 0, Math.PI*2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(o.x + o.w/2, o.y + o.h/2, o.w/4, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  function draw() {
+    drawBackground();
+    drawObstacles();
+    drawPlayer();
+
+    if (gameOver) {
+      ctx.fillStyle = "rgba(4, 6, 20, 0.55)";
+      ctx.fillRect(0, 0, GAME_W, GAME_H);
+      ctx.fillStyle = "#f87171";
+      ctx.font = "bold 36px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("💥 Oyun Bitti", GAME_W/2, GAME_H/2 - 30);
+      ctx.fillStyle = "#fff";
+      ctx.font = "20px system-ui, sans-serif";
+      ctx.fillText(`Skor: ${score}`, GAME_W/2, GAME_H/2 + 10);
+      if (score >= bestScore && score > 0) {
+        ctx.fillStyle = "#fbbf24";
+        ctx.font = "bold 18px system-ui, sans-serif";
+        ctx.fillText("🏆 Yeni Rekor!", GAME_W/2, GAME_H/2 + 40);
+      }
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.font = "15px system-ui, sans-serif";
+      ctx.fillText("Tekrar oynamak için butona tıkla", GAME_W/2, GAME_H/2 + 68);
+    } else if (!gameRunning && obstacles.length === 0) {
+      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.font = "bold 24px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("🚀 Başlamak için tıkla!", GAME_W/2, GAME_H/2 - 10);
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.font = "16px system-ui, sans-serif";
+      ctx.fillText("Uzayda asteroitlerden kaç", GAME_W/2, GAME_H/2 + 26);
+    }
+
+    fx.update();
+    fx.draw(ctx, GAME_W, GAME_H);
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  resetGame();
+  resizeGame();
+  requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>

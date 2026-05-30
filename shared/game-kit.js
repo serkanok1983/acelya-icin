@@ -15,11 +15,16 @@
     "gezegen-savunmasi",
     "formul-hafiza",
     "mayin-tarlasi",
+    "hanoi-kuleleri",
+    "uzay-kosucusu",
+    "isik-sondurme",
   ]);
 
   const SCORE_OPTS = {
     "formul-hafiza": { higherBetter: true },
     "mayin-tarlasi": { higherBetter: true },
+    "hanoi-kuleleri": { higherBetter: false },
+    "isik-sondurme": { higherBetter: false },
   };
 
   function loadScript(src) {

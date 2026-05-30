@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Hanoi Kuleleri 🗼</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="shared/theme.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #06080f;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); font-weight: 600; }
+    .hud .info { font-size: clamp(0.8rem, 3.5vw, 1rem); opacity: 0.9; }
+    .hud .info span { color: #5eead4; font-weight: 600; }
+    .hud .best { font-size: 0.75rem; opacity: 0.55; margin-top: 2px; }
+    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.78rem); opacity: 0.6; }
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .disk-select {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .disk-select label { font-size: 0.78rem; opacity: 0.7; }
+    .disk-select select {
+      padding: 5px 8px;
+      font-size: 0.82rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+      color: #e8ecf4;
+      border: 1px solid rgba(255,255,255,0.15);
+      outline: none;
+    }
+    .disk-select select:focus { border-color: #5eead4; }
+    button {
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      background: rgba(94,234,212,0.15);
+      color: #5eead4;
+      border: 1px solid rgba(94,234,212,0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    button:hover { background: rgba(94,234,212,0.25); border-color: rgba(94,234,212,0.5); }
+    button:active { transform: scale(0.96); }
+    .game-stage {
+      flex: 1;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+      position: relative;
+      z-index: 3;
+    }
+    #hanoiCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px rgba(94,234,212,0.18), 0 8px 36px rgba(0,0,0,0.5);
+      touch-action: manipulation;
+    }
+  </style>
+  <script src="shared/icons.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="hanoi-kuleleri">
+
+<header class="hud">
+  <h1>Hanoi Kuleleri 🗼</h1>
+  <div class="info">Hamle: <span id="moveCount">0</span> &nbsp;·&nbsp; Minimum: <span id="minMoves">0</span></div>
+  <div class="best" id="bestScore"></div>
+  <div class="controls-row">
+    <div class="disk-select">
+      <label for="diskCount">Disk:</label>
+      <select id="diskCount">
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+      </select>
+    </div>
+    <button type="button" id="btnNew">Yeni Oyun</button>
+    <button type="button" id="btnUndo">↩ Geri Al</button>
+    <button type="button" id="btnSolve">✨ Çöz</button>
+  </div>
+  <p class="hint">Tıkla: seç/koy · Tüm diskleri sağ kuleye taşı · Büyük disk küçüğün üstüne gelemez</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="hanoiCanvas" width="900" height="500" role="img" aria-label="Hanoi Kuleleri oyun alanı"></canvas>
+</div>
+
+<script>
+  const GAME_W = 900;
+  const GAME_H = 500;
+
+  const canvas = document.getElementById("hanoiCanvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas desteklenmiyor");
+
+  let fx = window.AcelyaHooks?.noop || { get:()=>null, burst(){}, pop(){}, shake(){}, flash(){}, update(){}, draw(){} };
+  window.addEventListener("acelya-game-ready", () => {
+    if (window.AcelyaHooks) fx = AcelyaHooks.bindJuice(canvas);
+    resizeGame();
+  });
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    if (!hud) return;
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.95;
+    const w = Math.max(300, GAME_W * scale);
+    const h = Math.max(180, GAME_H * scale);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+  window.addEventListener("resize", resizeGame);
+  window.addEventListener("load", resizeGame);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
+
+  const PEG_X = [GAME_W * 0.2, GAME_W * 0.5, GAME_W * 0.8];
+  const PEG_Y = GAME_H * 0.72;
+  const PEG_H = GAME_H * 0.38;
+  const BASE_Y = PEG_Y + 12;
+
+  const DISK_COLORS = [
+    "#f87171", "#fb923c", "#fbbf24", "#a3e635",
+    "#34d399", "#5eead4", "#60a5fa", "#a78bfa",
+  ];
+
+  let diskCount = 4;
+  let pegs = [[], [], []];
+  let moves = 0;
+  let selectedPeg = -1;
+  let gameWon = false;
+  let history = [];
+  let autoSolving = false;
+  let autoTimer = null;
+
+  function initGame() {
+    if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+    autoSolving = false;
+    gameWon = false;
+    moves = 0;
+    selectedPeg = -1;
+    history = [];
+    pegs = [[], [], []];
+    for (let i = diskCount; i >= 1; i--) {
+      pegs[0].push(i);
+    }
+    updateUI();
+  }
+
+  function minMoves(n) { return Math.pow(2, n) - 1; }
+
+  function updateUI() {
+    document.getElementById("moveCount").textContent = moves;
+    document.getElementById("minMoves").textContent = minMoves(diskCount);
+    const best = document.getElementById("bestScore");
+    if (moves > 0 && !gameWon) {
+      const diff = moves - minMoves(diskCount);
+      best.textContent = diff === 0 ? "🔥 Mükemmel gidiyorsun!" : diff <= 2 ? "👍 Çok iyi!" : diff <= 5 ? "👌 İyi gidiyor" : "";
+    } else if (gameWon) {
+      const diff = moves - minMoves(diskCount);
+      best.textContent = diff === 0 ? "🏆 Mükemmel! Tam minimum hamlede!" : `✅ Tamamlandı! (+${diff} fazla hamle)`;
+    } else {
+      best.textContent = "";
+    }
+  }
+
+  function canPlace(pegIdx, disk) {
+    const peg = pegs[pegIdx];
+    return peg.length === 0 || peg[peg.length - 1] > disk;
+  }
+
+  function moveDisk(from, to) {
+    if (from === to) return false;
+    if (pegs[from].length === 0) return false;
+    const disk = pegs[from][pegs[from].length - 1];
+    if (!canPlace(to, disk)) return false;
+    history.push({ from, to, disk });
+    pegs[to].push(pegs[from].pop());
+    moves++;
+    return true;
+  }
+
+  function undo() {
+    if (autoSolving || history.length === 0) return;
+    const last = history.pop();
+    pegs[last.from].push(pegs[last.to].pop());
+    moves--;
+    if (gameWon) gameWon = false;
+    updateUI();
+  }
+
+  function checkWin() {
+    if (pegs[2].length === diskCount) {
+      gameWon = true;
+      fx.burst(PEG_X[2], PEG_Y - PEG_H, "#fbbf24", 30, 6);
+      fx.burst(PEG_X[2] - 30, PEG_Y - PEG_H + 20, "#5eead4", 20, 5);
+      fx.burst(PEG_X[2] + 30, PEG_Y - PEG_H + 20, "#a78bfa", 20, 5);
+      fx.pop(PEG_X[2], PEG_Y - PEG_H - 50, "🏆", "#fbbf24");
+      fx.flash(0.2);
+      updateUI();
+      window.AcelyaHooks?.recordScore(moves, { higherBetter: false });
+      autoSolving = false;
+      if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+    }
+  }
+
+  function handleClick(pegIdx) {
+    if (gameWon || autoSolving) return;
+    if (selectedPeg === -1) {
+      if (pegs[pegIdx].length > 0) {
+        selectedPeg = pegIdx;
+      }
+    } else {
+      if (moveDisk(selectedPeg, pegIdx)) {
+        selectedPeg = -1;
+        updateUI();
+        checkWin();
+      } else {
+        fx.shake(3);
+        selectedPeg = -1;
+        if (pegs[pegIdx].length > 0 && pegIdx !== selectedPeg) {
+          selectedPeg = pegIdx;
+        }
+      }
+    }
+  }
+
+  canvas.addEventListener("click", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = GAME_W / rect.width;
+    const scaleY = GAME_H / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+    const closest = PEG_X.reduce((best, x, i) => {
+      const d = Math.abs(mx - x);
+      return d < best.d ? { i, d } : best;
+    }, { i: 0, d: Infinity });
+    if (closest.d < GAME_W * 0.13) handleClick(closest.i);
+  });
+
+  canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = GAME_W / rect.width;
+    const scaleY = GAME_H / rect.height;
+    const mx = (t.clientX - rect.left) * scaleX;
+    const my = (t.clientY - rect.top) * scaleY;
+    const closest = PEG_X.reduce((best, x, i) => {
+      const d = Math.abs(mx - x);
+      return d < best.d ? { i, d } : best;
+    }, { i: 0, d: Infinity });
+    if (closest.d < GAME_W * 0.15) handleClick(closest.i);
+  }, { passive: false });
+
+  async function autoSolve(n, from, to, aux) {
+    if (n === 0 || !autoSolving) return;
+    await autoSolve(n - 1, from, aux, to);
+    if (!autoSolving) return;
+    moveDisk(from, to);
+    updateUI();
+    draw();
+    checkWin();
+    await new Promise(r => { autoTimer = setTimeout(r, 400); });
+    if (!autoSolving || gameWon) return;
+    await autoSolve(n - 1, aux, to, from);
+  }
+
+  function startAutoSolve() {
+    if (autoSolving) { autoSolving = false; if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; } return; }
+    if (gameWon) { initGame(); draw(); }
+    autoSolving = true;
+    autoSolve(diskCount, 0, 2, 1);
+  }
+
+  document.getElementById("btnNew").addEventListener("click", () => { initGame(); draw(); });
+  document.getElementById("btnUndo").addEventListener("click", () => { undo(); draw(); });
+  document.getElementById("btnSolve").addEventListener("click", startAutoSolve);
+  document.getElementById("diskCount").addEventListener("change", (e) => {
+    diskCount = parseInt(e.target.value);
+    initGame();
+    draw();
+  });
+
+  function drawBackground() {
+    ctx.fillStyle = "#080d18";
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+
+    ctx.strokeStyle = "rgba(94, 234, 212, 0.06)";
+    ctx.lineWidth = 1;
+    for (let y = 0; y < GAME_H; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(GAME_W, y);
+      ctx.stroke();
+    }
+
+    PEG_X.forEach((px) => {
+      const grad = ctx.createLinearGradient(px, BASE_Y, px, PEG_Y - PEG_H);
+      grad.addColorStop(0, "rgba(94, 234, 212, 0.5)");
+      grad.addColorStop(0.4, "rgba(167, 139, 250, 0.35)");
+      grad.addColorStop(1, "rgba(94, 234, 212, 0.1)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect(px - 5, PEG_Y - PEG_H, 10, PEG_H, 5);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(94, 234, 212, 0.2)";
+      ctx.beginPath();
+      ctx.roundRect(px - 70, BASE_Y, 140, 10, 5);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(94, 234, 212, 0.08)";
+      ctx.beginPath();
+      ctx.arc(px, PEG_Y - PEG_H, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(94, 234, 212, 0.35)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(94, 234, 212, 0.15)";
+      ctx.font = "bold 13px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(["A", "B", "C"][PEG_X.indexOf(px)], px, BASE_Y + 26);
+    });
+  }
+
+  function drawDisks() {
+    pegs.forEach((peg, pegIdx) => {
+      const px = PEG_X[pegIdx];
+      peg.forEach((disk, i) => {
+        const w = 30 + disk * 22;
+        const h = 24;
+        const y = BASE_Y - (i + 1) * h;
+        const color = DISK_COLORS[(disk - 1) % DISK_COLORS.length];
+
+        const isTop = i === peg.length - 1 && selectedPeg === pegIdx;
+        const liftY = isTop ? -18 : 0;
+        const glow = isTop ? 16 : 0;
+
+        if (glow) {
+          ctx.shadowColor = color;
+          ctx.shadowBlur = glow;
+        }
+
+        const grad = ctx.createLinearGradient(px - w/2, y + liftY, px + w/2, y + liftY + h);
+        grad.addColorStop(0, color);
+        grad.addColorStop(0.4, color);
+        grad.addColorStop(1, "rgba(0,0,0,0.3)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.roundRect(px - w/2, y + liftY, w, h, 7);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255,255,255,0.2)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(px - w/2, y + liftY, w, h, 7);
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(255,255,255,0.25)";
+        ctx.beginPath();
+        ctx.roundRect(px - w/2 + 6, y + liftY + 4, w - 12, h/2 - 2, 4);
+        ctx.fill();
+
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = "#041016";
+        ctx.font = "bold 11px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(disk, px, y + liftY + h/2);
+      });
+    });
+  }
+
+  function drawSelectionIndicator() {
+    if (selectedPeg === -1) return;
+    const px = PEG_X[selectedPeg];
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([6, 3]);
+    ctx.beginPath();
+    ctx.roundRect(px - 78, BASE_Y - (pegs[selectedPeg].length + 1) * 24 - 8, 156, 28, 8);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "#fbbf24";
+    ctx.font = "bold 12px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("↑ seçili", px, BASE_Y - (pegs[selectedPeg].length + 1) * 24 - 18);
+  }
+
+  function draw() {
+    drawBackground();
+    drawDisks();
+    drawSelectionIndicator();
+
+    if (gameWon) {
+      ctx.fillStyle = "rgba(0,0,0,0.4)";
+      ctx.fillRect(0, 0, GAME_W, GAME_H);
+      ctx.fillStyle = "#fbbf24";
+      ctx.font = "bold 38px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("🏆 Tamamlandı!", GAME_W/2, GAME_H/2 - 20);
+      ctx.fillStyle = "#fff";
+      ctx.font = "20px system-ui, sans-serif";
+      const diff = moves - minMoves(diskCount);
+      ctx.fillText(`${moves} hamle (min: ${minMoves(diskCount)}, +${diff})`, GAME_W/2, GAME_H/2 + 28);
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.font = "15px system-ui, sans-serif";
+      ctx.fillText("Yeni oyun için butona tıkla", GAME_W/2, GAME_H/2 + 58);
+    }
+
+    fx.update();
+    fx.draw(ctx, GAME_W, GAME_H);
+  }
+
+  function gameLoop() {
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  initGame();
+  resizeGame();
+  requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>

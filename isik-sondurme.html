@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Işık Söndürme 💡</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="shared/theme.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #06080f;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); font-weight: 600; }
+    .hud .info { font-size: clamp(0.8rem, 3.5vw, 1rem); opacity: 0.9; }
+    .hud .info span { color: #5eead4; font-weight: 600; }
+    .hud .best { font-size: 0.75rem; opacity: 0.55; margin-top: 2px; }
+    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.78rem); opacity: 0.6; }
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .size-select {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .size-select label { font-size: 0.78rem; opacity: 0.7; }
+    .size-select select {
+      padding: 5px 8px;
+      font-size: 0.82rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+      color: #e8ecf4;
+      border: 1px solid rgba(255,255,255,0.15);
+      outline: none;
+    }
+    .size-select select:focus { border-color: #5eead4; }
+    button {
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      background: rgba(94,234,212,0.15);
+      color: #5eead4;
+      border: 1px solid rgba(94,234,212,0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    button:hover { background: rgba(94,234,212,0.25); border-color: rgba(94,234,212,0.5); }
+    button:active { transform: scale(0.96); }
+    .game-stage {
+      flex: 1;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+      position: relative;
+      z-index: 3;
+    }
+    #gameCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      box-shadow: 0 0 0 1px rgba(94,234,212,0.18), 0 8px 36px rgba(0,0,0,0.5);
+      touch-action: manipulation;
+    }
+  </style>
+  <script src="shared/icons.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="isik-sondurme">
+
+<header class="hud">
+  <h1>Işık Söndürme 💡</h1>
+  <div class="info">Hamle: <span id="moveCount">0</span> &nbsp;·&nbsp; Hedef: <span id="goalInfo">Tüm ışıkları SÖNDÜR</span></div>
+  <div class="best" id="bestScore"></div>
+  <div class="controls-row">
+    <div class="size-select">
+      <label for="gridSize">Izgara:</label>
+      <select id="gridSize">
+        <option value="3">3×3</option>
+        <option value="4">4×4</option>
+        <option value="5" selected>5×5</option>
+        <option value="6">6×6</option>
+        <option value="7">7×7</option>
+      </select>
+    </div>
+    <button type="button" id="btnNew">Yeni Oyun</button>
+    <button type="button" id="btnUndo">↩ Geri Al</button>
+    <button type="button" id="btnHint">💡 İpucu</button>
+  </div>
+  <p class="hint">Bir ışığa tıkla — kendisi ve komşuları (↑↓←→) terslenir. Tümünü söndürmeye çalış.</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="gameCanvas" width="600" height="600" role="img" aria-label="Işık söndürme oyun alanı"></canvas>
+</div>
+
+<script>
+  const BASE_SIZE = 600;
+  let gridSize = 5;
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas desteklenmiyor");
+
+  let fx = window.AcelyaHooks?.noop || { get:()=>null, burst(){}, pop(){}, shake(){}, flash(){}, update(){}, draw(){} };
+  window.addEventListener("acelya-game-ready", () => {
+    if (window.AcelyaHooks) fx = AcelyaHooks.bindJuice(canvas);
+    resizeGame();
+  });
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    if (!hud) return;
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const pad = 20;
+    const availW = window.innerWidth - pad;
+    const availH = window.innerHeight - hudBottom - pad;
+    const size = Math.min(availW, availH, 600);
+    canvas.style.width = `${size}px`;
+    canvas.style.height = `${size}px`;
+  }
+  window.addEventListener("resize", resizeGame);
+  window.addEventListener("load", resizeGame);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
+
+  let grid = [];
+  let moves = 0;
+  let history = [];
+  let gameWon = false;
+
+  function initGrid() {
+    grid = [];
+    for (let r = 0; r < gridSize; r++) {
+      grid[r] = [];
+      for (let c = 0; c < gridSize; c++) {
+        grid[r][c] = false;
+      }
+    }
+  }
+
+  function scramble() {
+    initGrid();
+    for (let i = 0; i < gridSize * gridSize * 2; i++) {
+      const r = Math.floor(Math.random() * gridSize);
+      const c = Math.floor(Math.random() * gridSize);
+      toggleCell(r, c, true);
+    }
+    moves = 0;
+    history = [];
+    gameWon = false;
+    document.getElementById("moveCount").textContent = "0";
+    document.getElementById("bestScore").textContent = "";
+  }
+
+  function toggleCell(r, c, silent) {
+    if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) return;
+    grid[r][c] = !grid[r][c];
+    const dirs = [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]];
+    for (const [dr, dc] of dirs) {
+      const nr = r + dr;
+      const nc = c + dc;
+      if (nr >= 0 && nr < gridSize && nc >= 0 && nc < gridSize) {
+        grid[nr][nc] = !grid[nr][nc];
+      }
+    }
+  }
+
+  function handleCell(r, c) {
+    if (gameWon) return;
+    history.push({ grid: grid.map(row => [...row]), moves });
+    toggleCell(r, c);
+    moves++;
+    document.getElementById("moveCount").textContent = moves;
+    checkWin();
+  }
+
+  function undo() {
+    if (history.length === 0 || gameWon) return;
+    const prev = history.pop();
+    grid = prev.grid;
+    moves = prev.moves;
+    document.getElementById("moveCount").textContent = moves;
+    document.getElementById("bestScore").textContent = "";
+  }
+
+  function checkWin() {
+    const anyOn = grid.some(row => row.some(cell => cell));
+    if (!anyOn) {
+      gameWon = true;
+      fx.flash(0.15);
+      for (let i = 0; i < 12; i++) {
+        setTimeout(() => {
+          const rx = Math.random() * BASE_SIZE;
+          const ry = Math.random() * BASE_SIZE;
+          fx.burst(rx, ry, "#fbbf24", 8, 4);
+          fx.burst(rx + 30, ry - 10, "#5eead4", 6, 3);
+        }, i * 80);
+      }
+      fx.pop(BASE_SIZE/2, BASE_SIZE/2 - 80, "🏆", "#fbbf24");
+      document.getElementById("goalInfo").textContent = "✅ Tüm ışıklar söndü!";
+      document.getElementById("bestScore").textContent = `🔥 ${moves} hamlede tamamlandı!`;
+      window.AcelyaHooks?.recordScore(moves, { higherBetter: false });
+    }
+  }
+
+  function giveHint() {
+    if (gameWon) return;
+    const anyOn = grid.some(row => row.some(cell => cell));
+    if (!anyOn) return;
+
+    let bestR = -1, bestC = -1;
+    let maxOff = -1;
+
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
+        const backup = grid.map(row => [...row]);
+        toggleCell(r, c, true);
+        const offCount = grid.flat().filter(v => !v).length;
+        grid = backup;
+        if (offCount > maxOff) {
+          maxOff = offCount;
+          bestR = r;
+          bestC = c;
+        }
+      }
+    }
+
+    if (bestR >= 0 && bestC >= 0) {
+      const cs = BASE_SIZE / gridSize;
+      const cx = bestC * cs + cs/2;
+      const cy = bestR * cs + cs/2;
+      fx.burst(cx, cy, "#fbbf24", 10, 3);
+    }
+  }
+
+  canvas.addEventListener("click", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = BASE_SIZE / rect.width;
+    const scaleY = BASE_SIZE / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+    const cs = BASE_SIZE / gridSize;
+    const c = Math.floor(mx / cs);
+    const r = Math.floor(my / cs);
+    if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) handleCell(r, c);
+  });
+
+  canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = BASE_SIZE / rect.width;
+    const scaleY = BASE_SIZE / rect.height;
+    const mx = (t.clientX - rect.left) * scaleX;
+    const my = (t.clientY - rect.top) * scaleY;
+    const cs = BASE_SIZE / gridSize;
+    const c = Math.floor(mx / cs);
+    const r = Math.floor(my / cs);
+    if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) handleCell(r, c);
+  }, { passive: false });
+
+  document.getElementById("btnNew").addEventListener("click", () => { scramble(); draw(); });
+  document.getElementById("btnUndo").addEventListener("click", () => { undo(); draw(); });
+  document.getElementById("btnHint").addEventListener("click", giveHint);
+  document.getElementById("gridSize").addEventListener("change", (e) => {
+    gridSize = parseInt(e.target.value);
+    scramble();
+    draw();
+  });
+
+  function draw() {
+    ctx.fillStyle = "#080d18";
+    ctx.fillRect(0, 0, BASE_SIZE, BASE_SIZE);
+
+    const cs = BASE_SIZE / gridSize;
+    const mid = cs / 2;
+
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
+        const cx = c * cs + mid;
+        const cy = r * cs + mid;
+        const isOn = grid[r][c];
+        const rad = cs * 0.35;
+
+        // hücre arka planı
+        ctx.fillStyle = isOn ? "rgba(94, 234, 212, 0.06)" : "rgba(255, 255, 255, 0.02)";
+        ctx.beginPath();
+        ctx.roundRect(c * cs + 2, r * cs + 2, cs - 4, cs - 4, 6);
+        ctx.fill();
+
+        // ampul
+        ctx.save();
+        if (isOn) {
+          ctx.shadowColor = "#5eead4";
+          ctx.shadowBlur = 20;
+        }
+
+        const grad = ctx.createRadialGradient(cx, cy, rad * 0.1, cx, cy, rad);
+        if (isOn) {
+          grad.addColorStop(0, "#fff");
+          grad.addColorStop(0.3, "#5eead4");
+          grad.addColorStop(0.7, "#0d9488");
+          grad.addColorStop(1, "rgba(13, 148, 136, 0.15)");
+        } else {
+          grad.addColorStop(0, "rgba(255, 255, 255, 0.15)");
+          grad.addColorStop(0.5, "rgba(255, 255, 255, 0.06)");
+          grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+        }
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+
+        // çerçeve
+        if (isOn) {
+          ctx.strokeStyle = "rgba(94, 234, 212, 0.35)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // grid çizgileri
+    ctx.strokeStyle = "rgba(94, 234, 212, 0.08)";
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i <= gridSize; i++) {
+      const p = i * cs;
+      ctx.beginPath();
+      ctx.moveTo(p, 0);
+      ctx.lineTo(p, BASE_SIZE);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, p);
+      ctx.lineTo(BASE_SIZE, p);
+      ctx.stroke();
+    }
+
+    if (gameWon) {
+      ctx.fillStyle = "rgba(4, 6, 20, 0.5)";
+      ctx.fillRect(0, 0, BASE_SIZE, BASE_SIZE);
+      ctx.fillStyle = "#fbbf24";
+      ctx.font = "bold 36px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("🏆 Tamamlandı!", BASE_SIZE/2, BASE_SIZE/2 - 18);
+      ctx.fillStyle = "#fff";
+      ctx.font = "18px system-ui, sans-serif";
+      ctx.fillText(`${moves} hamle`, BASE_SIZE/2, BASE_SIZE/2 + 24);
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.font = "14px system-ui, sans-serif";
+      ctx.fillText("Yeni oyun için butona tıkla", BASE_SIZE/2, BASE_SIZE/2 + 52);
+    }
+
+    fx.update();
+    fx.draw(ctx, BASE_SIZE, BASE_SIZE);
+  }
+
+  function gameLoop() {
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  scramble();
+  resizeGame();
+  requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
