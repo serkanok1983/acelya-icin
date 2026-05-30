@@ -333,6 +333,19 @@
       controls: ["Adım adım ilerle", "Oynat"],
       learn: "Helikaz, primaz, polimeraz rolleri; hücre bölünmesi öncesi şart.",
     },
+    "atom-orbitalleri": {
+      type: "Kimya",
+      intro:
+        "s, p, d orbitallerinin 3B şekillerini görselleştir. Kuantum sayıları (n, ℓ, mℓ) ile orbital geometrisini keşfet.",
+      controls: [
+        "Fare / dokunmatik ile 3B döndürme",
+        "s, p, d sekmeleri ve alt orbitaller",
+        "Enerji seviyesi diyagramı",
+        "Otomatik döndürme / üstten / yandan görünüm",
+      ],
+      learn:
+        "s küresel (ℓ=0), p dambıl (ℓ=1), d yonca (ℓ=2). Açısal dalga fonksiyonu |Y(θ,φ)|² orbital şeklini belirler.",
+    },
     "ideal-gaz": {
       type: "Kimya",
       intro: "İdeal gaz denklemi PV = nRT: basınç, hacim, mol ve sıcaklık ilişkisi.",
@@ -401,6 +414,11 @@
       [
         "periyodik-tablo",
         "denklem-denklestirme",
+        "asit-baz-titrasyonu",
+        "kimyasal-kinetik",
+        "atom-orbitalleri",
+        "kristal-yapilar",
+        "elektrokimya",
         "ideal-gaz",
         "ph-indikator",
         "molekul-sekli",
