@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="shared/theme.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Kimyasal Kinetik | Açelya</title>
+    <style>
+      .kinetic-stage {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: center;
+        margin: 12px 0;
+      }
+      .kinetic-stage canvas {
+        background: var(--bg-card);
+        border-radius: var(--radius);
+        box-shadow: 0 0 0 1px var(--border);
+      }
+      .panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 240px;
+      }
+      .panel label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .panel input[type="range"] { accent-color: var(--accent-2); width: 100%; }
+      .panel .val { font-size: 0.72rem; color: var(--accent); text-align: right; }
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin: 8px 0;
+      }
+      .stat-box {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 14px;
+        text-align: center;
+      }
+      .stat-box .val { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+      .stat-box .lbl { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+      @media (max-width: 600px) {
+        .kinetic-stage { flex-direction: column; align-items: center; }
+      }
+    </style>
+    <script src="shared/app.js"></script>
+  </head>
+  <body class="app-page" data-page="kimyasal-kinetik">
+    <div class="app-content">
+      <h1>⚡ Kimyasal Kinetik</h1>
+      <p class="hint">A + B → C reaksiyonunun hızını etkileyen faktörleri keşfedin. Parçacıklar çarpıştıkça ürün oluşur.</p>
+
+      <div class="stats">
+        <div class="stat-box"><div class="val" id="timeDisplay">0.0</div><div class="lbl">Zaman (s)</div></div>
+        <div class="stat-box"><div class="val" id="rateDisplay">0</div><div class="lbl">Hız (mol/L·s)</div></div>
+        <div class="stat-box"><div class="val" id="aDisplay">100</div><div class="lbl">A (%)</div></div>
+        <div class="stat-box"><div class="val" id="cDisplay">0</div><div class="lbl">C (%)</div></div>
+      </div>
+
+      <div class="kinetic-stage">
+        <canvas id="simCanvas" width="420" height="360"></canvas>
+        <canvas id="graphCanvas" width="380" height="360"></canvas>
+        <div class="panel">
+          <label>Sıcaklık (°C) <span class="val" id="tempVal">25</span>
+            <input type="range" id="tempSlider" min="0" max="100" value="25" step="1" />
+          </label>
+          <label>Başlangıç konsantrasyonu [A]₀ (mol/L) <span class="val" id="concVal">1.0</span>
+            <input type="range" id="concSlider" min="0.1" max="2.0" value="1.0" step="0.1" />
+          </label>
+          <label>Katalizör <span class="val" id="catVal">Yok</span>
+            <input type="range" id="catSlider" min="0" max="2" value="0" step="1" />
+          </label>
+          <button id="resetBtn">🔄 Baştan başlat</button>
+          <button id="pauseBtn">⏯️ Duraklat</button>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:0.78rem;color:var(--text-muted)">
+        Arrhenius: k = A·e⁻ᴱᵃ/ᴿᵀ — Sıcaklık arttıkça hız üstel olarak artar.
+      </p>
+    </div>
+
+    <script>
+      (function () {
+        const simCanvas = document.getElementById("simCanvas");
+        const graphCanvas = document.getElementById("graphCanvas");
+        const sctx = simCanvas.getContext("2d");
+        const gctx = graphCanvas.getContext("2d");
+
+        // Reaksiyon: A + B → C (B sabit varsayılıyor, tek moleküllü hız)
+        let temp = 25;        // °C
+        let concA0 = 1.0;    // mol/L
+        let catalyst = 0;    // 0=yok, 1=enzim, 2=metal
+        let concA, concC;
+        let time = 0;
+        let paused = false;
+        let history = [];     // { time, concA }
+        const Ea = 50000;    // J/mol (aktivasyon enerjisi)
+        const R = 8.314;     // J/mol·K
+        const A = 1e8;       // frekans faktörü (s⁻¹)
+
+        // Parçacık simülasyonu için
+        let particles = [];
+        const NUM_PARTICLES = 60;
+
+        function initParticles() {
+          particles = [];
+          for (let i = 0; i < NUM_PARTICLES; i++) {
+            particles.push({
+              x: Math.random() * (simCanvas.width - 10) + 5,
+              y: Math.random() * (simCanvas.height - 10) + 5,
+              vx: (Math.random() - 0.5) * 40,
+              vy: (Math.random() - 0.5) * 40,
+              active: true,
+            });
+          }
+        }
+
+        function getRateConstant() {
+          const T = temp + 273.15;
+          let k = A * Math.exp(-Ea / (R * T));
+          if (catalyst === 1) k *= 10;     // Enzim: ~10× hızlanma
+          if (catalyst === 2) k *= 50;     // Metal katalizör: ~50×
+          return k;
+        }
+
+        function reset() {
+          time = 0;
+          concA = concA0;
+          concC = 0;
+          history = [{ time: 0, concA: concA0 }];
+          initParticles();
+          updateDisplays();
+          drawSim();
+          drawGraph();
+        }
+
+        function update(dt) {
+          if (paused) return;
+          const k = getRateConstant();
+          const rate = k * concA; // Birinci derece: hız = k[A]
+          const da = rate * dt;
+          concA = Math.max(0, concA - da);
+          concC = Math.min(concA0, concC + da);
+          time += dt;
+
+          // Parçacıkları hareket ettir
+          const w = simCanvas.width, h = simCanvas.height;
+          const activeFrac = concA / concA0;
+          particles.forEach((p) => {
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            if (p.x < 5 || p.x > w - 5) p.vx *= -1;
+            if (p.y < 5 || p.y > h - 5) p.vy *= -1;
+            p.active = Math.random() < activeFrac;
+          });
+
+          // Geçmişe ekle
+          if (history.length === 0 || time - history[history.length - 1].time > 0.05) {
+            history.push({ time, concA });
+            if (history.length > 500) history.shift();
+          }
+
+          updateDisplays();
+        }
+
+        function updateDisplays() {
+          const k = getRateConstant();
+          const rate = k * concA;
+          document.getElementById("timeDisplay").textContent = time.toFixed(1);
+          document.getElementById("rateDisplay").textContent = rate.toExponential(2);
+          document.getElementById("aDisplay").textContent = Math.round(concA / concA0 * 100);
+          document.getElementById("cDisplay").textContent = Math.round(concC / concA0 * 100);
+          document.getElementById("tempVal").textContent = temp;
+          document.getElementById("concVal").textContent = concA0.toFixed(1);
+          const catNames = ["Yok", "Enzim", "Metal"];
+          document.getElementById("catVal").textContent = catNames[catalyst];
+        }
+
+        function drawSim() {
+          const w = simCanvas.width, h = simCanvas.height;
+          sctx.clearRect(0, 0, w, h);
+          sctx.fillStyle = "rgba(14,20,36,0.5)";
+          sctx.fillRect(0, 0, w, h);
+
+          // Kap çerçevesi
+          sctx.strokeStyle = "rgba(255,255,255,0.1)";
+          sctx.lineWidth = 2;
+          sctx.strokeRect(2, 2, w - 4, h - 4);
+
+          // Parçacıklar
+          particles.forEach((p) => {
+            if (p.active) {
+              // A (reaktan) — mavi
+              sctx.fillStyle = "rgba(94,148,234,0.7)";
+              sctx.beginPath();
+              sctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+              sctx.fill();
+            } else {
+              // C (ürün) — yeşil
+              sctx.fillStyle = "rgba(94,234,148,0.7)";
+              sctx.beginPath();
+              sctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+              sctx.fill();
+            }
+          });
+
+          // Etiket
+          sctx.fillStyle = "rgba(255,255,255,0.5)";
+          sctx.font = "10px Outfit, sans-serif";
+          sctx.fillText(`🔵 A (${Math.round(concA/concA0*100)}%)  🟢 C (${Math.round(concC/concA0*100)}%)`, 10, h - 8);
+        }
+
+        function drawGraph() {
+          const W = graphCanvas.width, H = graphCanvas.height;
+          gctx.clearRect(0, 0, W, H);
+          gctx.fillStyle = "rgba(14,20,36,0.5)";
+          gctx.fillRect(0, 0, W, H);
+
+          const margin = { top: 16, right: 16, bottom: 28, left: 40 };
+          const pw = W - margin.left - margin.right;
+          const ph = H - margin.top - margin.bottom;
+
+          // Eksenler
+          gctx.strokeStyle = "rgba(255,255,255,0.15)";
+          gctx.beginPath();
+          gctx.moveTo(margin.left, margin.top);
+          gctx.lineTo(margin.left, H - margin.bottom);
+          gctx.lineTo(W - margin.right, H - margin.bottom);
+          gctx.stroke();
+
+          // Grid
+          gctx.strokeStyle = "rgba(255,255,255,0.04)";
+          gctx.lineWidth = 0.5;
+          for (let i = 0; i <= 5; i++) {
+            const y = margin.top + (ph * i / 5);
+            gctx.beginPath();
+            gctx.moveTo(margin.left, y);
+            gctx.lineTo(W - margin.right, y);
+            gctx.stroke();
+          }
+
+          // Eğri
+          if (history.length > 1) {
+            const maxT = history[history.length - 1].time || 5;
+            gctx.strokeStyle = "#5eead4";
+            gctx.lineWidth = 2;
+            gctx.beginPath();
+            let first = true;
+            history.forEach((pt) => {
+              const x = margin.left + (pw * pt.time / Math.max(maxT, 5));
+              const y = margin.top + ph - (ph * pt.concA / concA0);
+              if (first) { gctx.moveTo(x, y); first = false; }
+              else gctx.lineTo(x, y);
+            });
+            gctx.stroke();
+
+            // Teorik eğri (tahmini)
+            const k = getRateConstant();
+            gctx.strokeStyle = "rgba(167,139,250,0.25)";
+            gctx.lineWidth = 1;
+            gctx.setLineDash([3, 4]);
+            gctx.beginPath();
+            first = true;
+            for (let t = 0; t <= maxT + 2; t += 0.1) {
+              const ca = concA0 * Math.exp(-k * t);
+              const x = margin.left + (pw * t / Math.max(maxT + 2, 5));
+              const y = margin.top + ph - (ph * ca / concA0);
+              if (first) { gctx.moveTo(x, y); first = false; }
+              else gctx.lineTo(x, y);
+            }
+            gctx.stroke();
+            gctx.setLineDash([]);
+          }
+
+          // Eksen etiketleri
+          gctx.fillStyle = "rgba(255,255,255,0.4)";
+          gctx.font = "10px Outfit, sans-serif";
+          gctx.fillText("Zaman (s)", margin.left + pw / 2 - 20, H - 4);
+          gctx.save();
+          gctx.translate(10, margin.top + ph / 2);
+          gctx.rotate(-Math.PI / 2);
+          gctx.fillText("[A]", 0, 0);
+          gctx.restore();
+        }
+
+        function gameLoop(ts) {
+          const dt = 0.016; // ~60 FPS
+          update(dt);
+          drawSim();
+          drawGraph();
+          requestAnimationFrame(gameLoop);
+        }
+
+        document.getElementById("tempSlider").addEventListener("input", function () {
+          temp = parseInt(this.value);
+          updateDisplays();
+        });
+        document.getElementById("concSlider").addEventListener("input", function () {
+          concA0 = parseFloat(this.value);
+          reset();
+        });
+        document.getElementById("catSlider").addEventListener("input", function () {
+          catalyst = parseInt(this.value);
+          updateDisplays();
+        });
+        document.getElementById("resetBtn").addEventListener("click", reset);
+        document.getElementById("pauseBtn").addEventListener("click", function () {
+          paused = !paused;
+          this.textContent = paused ? "▶️ Devam et" : "⏯️ Duraklat";
+        });
+
+        reset();
+        requestAnimationFrame(gameLoop);
+      })();
+    </script>
+  </body>
+</html>
