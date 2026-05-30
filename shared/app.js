@@ -531,6 +531,35 @@
     }
   }
 
+  /* —— PWA —— */
+  function initPWA() {
+    // Manifest linki
+    if (!document.querySelector("link[rel='manifest']")) {
+      const manifest = document.createElement("link");
+      manifest.rel = "manifest";
+      manifest.href = "manifest.json";
+      document.head.appendChild(manifest);
+    }
+    // Tema rengi
+    if (!document.querySelector("meta[name='theme-color']")) {
+      const tc = document.createElement("meta");
+      tc.name = "theme-color";
+      tc.content = "#06080f";
+      document.head.appendChild(tc);
+    }
+    // Apple web app
+    if (!document.querySelector("meta[name='apple-mobile-web-app-capable']")) {
+      const apple = document.createElement("meta");
+      apple.name = "apple-mobile-web-app-capable";
+      apple.content = "yes";
+      document.head.appendChild(apple);
+    }
+    // Service Worker
+    if ("serviceWorker" in navigator && !navigator.serviceWorker.controller) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+  }
+
   /* —— Üst çubuk —— */
   function initTopbar() {
     if (document.querySelector(".app-topbar")) return;
@@ -675,6 +704,7 @@
     document.documentElement.classList.add("app-root");
     body.classList.add("app-page");
     initTheme();
+    initPWA();
     ensureFavicon();
     initStars();
     initTopbar();
