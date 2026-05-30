@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Konik Kesitler</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; min-height: 100dvh; }
+    .app-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 12px 24px;
+    }
+    .hud {
+      text-align: center;
+      padding: 10px 14px 4px;
+    }
+    .hud h1 {
+      margin: 0;
+      font-size: clamp(1.05rem, 3.8vw, 1.35rem);
+      font-weight: 600;
+      color: var(--text);
+    }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin: 8px 0 4px;
+      flex-wrap: wrap;
+    }
+    .tabs button {
+      padding: 6px 18px;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tabs button.active {
+      background: rgba(94,234,212,0.15);
+      border-color: rgba(94,234,212,0.35);
+      color: var(--accent);
+    }
+    .tabs button:hover { border-color: var(--border-hover); }
+    .stage {
+      display: flex;
+      justify-content: center;
+      padding: 6px 0;
+    }
+    .stage canvas {
+      background: #0a0f1a;
+      border-radius: var(--radius);
+      box-shadow: 0 0 0 1px var(--border);
+      max-width: 100%;
+      cursor: grab;
+    }
+    .stage canvas.dragging { cursor: grabbing; }
+    .equation {
+      text-align: center;
+      font-size: clamp(0.8rem, 2.6vw, 0.92rem);
+      color: var(--accent);
+      padding: 4px 0 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .sliders {
+      max-width: 520px;
+      margin: 0 auto 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .slider-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      flex: 1 1 140px;
+      min-width: 120px;
+    }
+    .slider-item input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-2);
+      min-width: 60px;
+    }
+    .slider-item span {
+      color: var(--accent);
+      font-weight: 600;
+      min-width: 28px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .info-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .info-card {
+      flex: 1 1 160px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      text-align: center;
+    }
+    .info-card h3 {
+      margin: 0 0 4px;
+      font-size: 0.78rem;
+      color: var(--accent-2);
+    }
+    .info-card p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--text);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .hint {
+      text-align: center;
+      font-size: 0.72rem;
+      opacity: 0.5;
+      margin: 6px 0;
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="konik-kesitler">
+<div class="app-content">
+<div class="hud">
+  <h1>Konik Kesitler</h1>
+</div>
+
+<div class="tabs">
+  <button class="active" data-tab="ellipse">Elips</button>
+  <button data-tab="parabola">Parabol</button>
+  <button data-tab="hyperbola">Hiperbol</button>
+</div>
+
+<div class="equation" id="eqDisplay"></div>
+
+<div class="stage">
+  <canvas id="conicCanvas" width="600" height="450" role="img" aria-label="Konik kesit çizimi"></canvas>
+</div>
+
+<div class="sliders" id="sliderPanel"></div>
+
+<div class="info-row">
+  <div class="info-card">
+    <h3>Eksantriklik (e)</h3>
+    <p id="eccVal">—</p>
+  </div>
+  <div class="info-card">
+    <h3>Denklem</h3>
+    <p id="eqText">—</p>
+  </div>
+  <div class="info-card">
+    <h3>Odak(lar)</h3>
+    <p id="focusVal">—</p>
+  </div>
+</div>
+<p class="hint">Odak noktalarını fare ile sürükleyebilirsiniz</p>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById("conicCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = 600, H = 450;
+
+  let tab = "ellipse";
+
+  // Ellipse params: center, a (semi-major), b (semi-minor), focus distance c
+  let centerX = W / 2, centerY = H / 2;
+  let a = 160, b = 100;
+
+  // Parabola params: focus at (fx, fy), directrix x = dx or y = dy
+  let pFocusX = W / 2, pFocusY = H / 2 - 60;
+  let pDir = 120; // distance from vertex to directrix (along y)
+
+  // Hyperbola params
+  let hA = 100, hB = 70;
+
+  // Dragging state
+  let dragging = null; // 'focus1' | 'focus2' | 'parabola-focus'
+  let dragOffsetX = 0, dragOffsetY = 0;
+
+  function getEllipseFoci() {
+    const c = Math.sqrt(Math.max(0, a * a - b * b));
+    return [
+      { x: centerX - c, y: centerY },
+      { x: centerX + c, y: centerY },
+    ];
+  }
+
+  function ellipsePoint(t) {
+    return { x: centerX + a * Math.cos(t), y: centerY + b * Math.sin(t) };
+  }
+
+  function parabolaPoint(t) {
+    // y = (1/(4p)) * (x - pFocusX)^2 + (pFocusY - pDir)  where p = pDir
+    const p = pDir;
+    const x = t;
+    const y = (1 / (4 * p)) * (x - pFocusX) * (x - pFocusX) + (pFocusY - p);
+    return { x, y };
+  }
+
+  function hyperbolaBranch(t, sign) {
+    return {
+      x: centerX + sign * hA * Math.cosh(t),
+      y: centerY + hB * Math.sinh(t),
+    };
+  }
+
+  function drawGrid() {
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.lineWidth = 0.5;
+    const step = 40;
+    for (let x = step; x < W; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+    for (let y = step; y < H; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W / 2, 0);
+    ctx.lineTo(W / 2, H);
+    ctx.moveTo(0, H / 2);
+    ctx.lineTo(W, H / 2);
+    ctx.stroke();
+  }
+
+  function drawEllipse() {
+    drawGrid();
+
+    // Ellipse curve
+    ctx.strokeStyle = "rgba(94,234,212,0.8)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let i = 0; i <= 200; i++) {
+      const t = (i / 200) * Math.PI * 2;
+      const p = ellipsePoint(t);
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+
+    const foci = getEllipseFoci();
+    const c = Math.sqrt(Math.max(0, a * a - b * b));
+
+    // Axes
+    ctx.setLineDash([4, 6]);
+    ctx.strokeStyle = "rgba(167,139,250,0.4)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(centerX - a, centerY);
+    ctx.lineTo(centerX + a, centerY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - b);
+    ctx.lineTo(centerX, centerY + b);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Foci
+    foci.forEach((f, i) => {
+      ctx.fillStyle = "rgba(251,191,36,0.9)";
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(251,191,36,0.6)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = "rgba(251,191,36,0.9)";
+      ctx.font = "12px system-ui";
+      ctx.fillText("F" + (i + 1), f.x + 10, f.y - 8);
+    });
+
+    // Center
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    const e = c / a;
+    document.getElementById("eccVal").textContent = e.toFixed(4) + " (elips için 0 ≤ e < 1)";
+    document.getElementById("eqText").textContent = "x²/" + (a * a).toFixed(0) + " + y²/" + (b * b).toFixed(0) + " = 1";
+    document.getElementById("focusVal").textContent = "F₁(" + (-c).toFixed(1) + ",0)  F₂(" + c.toFixed(1) + ",0)";
+    document.getElementById("eqDisplay").textContent = "x²/a² + y²/b² = 1,  a=" + a.toFixed(0) + "  b=" + b.toFixed(0) + "  c=" + c.toFixed(1);
+  }
+
+  function drawParabola() {
+    drawGrid();
+
+    const p = pDir;
+    const vertexX = pFocusX;
+    const vertexY = pFocusY - p;
+
+    // Parabola curve
+    ctx.strokeStyle = "rgba(94,234,212,0.8)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    const xRange = Math.max(300, p * 4);
+    for (let i = 0; i <= 300; i++) {
+      const x = vertexX - xRange + (2 * xRange * i) / 300;
+      const y = (1 / (4 * p)) * (x - vertexX) * (x - vertexX) + vertexY;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Focus
+    ctx.fillStyle = "rgba(251,191,36,0.9)";
+    ctx.beginPath();
+    ctx.arc(pFocusX, pFocusY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(251,191,36,0.6)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "rgba(251,191,36,0.9)";
+    ctx.font = "12px system-ui";
+    ctx.fillText("F", pFocusX + 10, pFocusY - 8);
+
+    // Vertex
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.beginPath();
+    ctx.arc(vertexX, vertexY, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = "11px system-ui";
+    ctx.fillText("Tepe", vertexX + 8, vertexY - 8);
+
+    // Directrix
+    const dirY = pFocusY - 2 * p;
+    ctx.setLineDash([6, 4]);
+    ctx.strokeStyle = "rgba(248,113,113,0.5)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(vertexX - xRange, dirY);
+    ctx.lineTo(vertexX + xRange, dirY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(248,113,113,0.7)";
+    ctx.font = "11px system-ui";
+    ctx.fillText("Doğrultman", vertexX + xRange - 90, dirY - 6);
+
+    document.getElementById("eccVal").textContent = "1 (parabol için e = 1)";
+    document.getElementById("eqText").textContent = "y = (x − " + vertexX.toFixed(0) + ")² / " + (4 * p).toFixed(1) + " + " + vertexY.toFixed(0);
+    document.getElementById("focusVal").textContent = "F(" + pFocusX.toFixed(0) + ", " + pFocusY.toFixed(0) + ")";
+    document.getElementById("eqDisplay").textContent = "y = (1/4p)·(x − h)² + k,  p=" + p.toFixed(1);
+  }
+
+  function drawHyperbola() {
+    drawGrid();
+
+    const c = Math.sqrt(hA * hA + hB * hB);
+
+    // Asymptotes
+    ctx.setLineDash([5, 8]);
+    ctx.strokeStyle = "rgba(167,139,250,0.35)";
+    ctx.lineWidth = 1;
+    for (let s = -1; s <= 1; s += 2) {
+      ctx.beginPath();
+      ctx.moveTo(centerX - 280, centerY + s * (-280) * hB / hA);
+      ctx.lineTo(centerX + 280, centerY + s * 280 * hB / hA);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Hyperbola branches
+    ctx.strokeStyle = "rgba(94,234,212,0.8)";
+    ctx.lineWidth = 2.5;
+    for (let sign = -1; sign <= 1; sign += 2) {
+      ctx.beginPath();
+      const maxT = Math.acosh(3);
+      for (let i = 0; i <= 200; i++) {
+        const t = -maxT + (2 * maxT * i) / 200;
+        const p = hyperbolaBranch(t, sign);
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+    }
+
+    // Foci
+    const foci = [
+      { x: centerX - c, y: centerY },
+      { x: centerX + c, y: centerY },
+    ];
+    foci.forEach((f, i) => {
+      ctx.fillStyle = "rgba(251,191,36,0.9)";
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(251,191,36,0.6)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = "rgba(251,191,36,0.9)";
+      ctx.font = "12px system-ui";
+      ctx.fillText("F" + (i + 1), f.x + 10, f.y - 8);
+    });
+
+    // Center
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Vertices
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.beginPath();
+    ctx.arc(centerX - hA, centerY, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(centerX + hA, centerY, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    const e = c / hA;
+    document.getElementById("eccVal").textContent = e.toFixed(4) + " (hiperbol için e > 1)";
+    document.getElementById("eqText").textContent = "x²/" + (hA * hA).toFixed(0) + " − y²/" + (hB * hB).toFixed(0) + " = 1";
+    document.getElementById("focusVal").textContent = "F₁(" + (-c).toFixed(1) + ",0)  F₂(" + c.toFixed(1) + ",0)";
+    document.getElementById("eqDisplay").textContent = "x²/a² − y²/b² = 1,  a=" + hA.toFixed(0) + "  b=" + hB.toFixed(0) + "  c=" + c.toFixed(1);
+  }
+
+  function buildSliders() {
+    const panel = document.getElementById("sliderPanel");
+    if (tab === "ellipse") {
+      panel.innerHTML = `
+        <div class="slider-item">
+          <label>Büyük yarı eksen (a)</label>
+          <input type="range" id="aSl" min="40" max="240" value="${a}">
+          <span id="aVal">${a}</span>
+        </div>
+        <div class="slider-item">
+          <label>Küçük yarı eksen (b)</label>
+          <input type="range" id="bSl" min="20" max="${a - 1}" value="${Math.min(b, a - 1)}">
+          <span id="bVal">${Math.min(b, a - 1)}</span>
+        </div>
+      `;
+      document.getElementById("aSl").addEventListener("input", function () {
+        a = +this.value;
+        document.getElementById("aVal").textContent = a;
+        const bSl = document.getElementById("bSl");
+        bSl.max = a - 1;
+        if (b > a - 1) { b = a - 1; bSl.value = b; document.getElementById("bVal").textContent = b; }
+        drawEllipse();
+      });
+      document.getElementById("bSl").addEventListener("input", function () {
+        b = +this.value;
+        document.getElementById("bVal").textContent = b;
+        drawEllipse();
+      });
+    } else if (tab === "parabola") {
+      panel.innerHTML = `
+        <div class="slider-item">
+          <label>Odak uzaklığı (p)</label>
+          <input type="range" id="pSl" min="20" max="180" value="${pDir}">
+          <span id="pVal">${pDir}</span>
+        </div>
+        <div class="slider-item">
+          <label>Odak X</label>
+          <input type="range" id="fxSl" min="100" max="500" value="${pFocusX}">
+          <span id="fxVal">${pFocusX}</span>
+        </div>
+      `;
+      document.getElementById("pSl").addEventListener("input", function () {
+        pDir = +this.value;
+        document.getElementById("pVal").textContent = pDir;
+        drawParabola();
+      });
+      document.getElementById("fxSl").addEventListener("input", function () {
+        pFocusX = +this.value;
+        document.getElementById("fxVal").textContent = pFocusX;
+        drawParabola();
+      });
+    } else if (tab === "hyperbola") {
+      panel.innerHTML = `
+        <div class="slider-item">
+          <label>Yarı eksen (a)</label>
+          <input type="range" id="haSl" min="30" max="200" value="${hA}">
+          <span id="haVal">${hA}</span>
+        </div>
+        <div class="slider-item">
+          <label>Yarı eksen (b)</label>
+          <input type="range" id="hbSl" min="20" max="180" value="${hB}">
+          <span id="hbVal">${hB}</span>
+        </div>
+      `;
+      document.getElementById("haSl").addEventListener("input", function () {
+        hA = +this.value;
+        document.getElementById("haVal").textContent = hA;
+        drawHyperbola();
+      });
+      document.getElementById("hbSl").addEventListener("input", function () {
+        hB = +this.value;
+        document.getElementById("hbVal").textContent = hB;
+        drawHyperbola();
+      });
+    }
+  }
+
+  function draw() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#0a0f1a";
+    ctx.fillRect(0, 0, W, H);
+
+    if (tab === "ellipse") drawEllipse();
+    else if (tab === "parabola") drawParabola();
+    else if (tab === "hyperbola") drawHyperbola();
+  }
+
+  function switchTab(t) {
+    tab = t;
+    document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
+    document.querySelector(`[data-tab="${t}"]`).classList.add("active");
+    buildSliders();
+    draw();
+  }
+
+  // Tab clicks
+  document.querySelectorAll(".tabs button").forEach(btn => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  });
+
+  // Drag handling
+  canvas.addEventListener("pointerdown", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    if (tab === "ellipse") {
+      const foci = getEllipseFoci();
+      for (let i = 0; i < foci.length; i++) {
+        const dx = mx - foci[i].x;
+        const dy = my - foci[i].y;
+        if (Math.sqrt(dx * dx + dy * dy) < 16) {
+          dragging = "focus" + (i + 1);
+          dragOffsetX = foci[i].x - mx;
+          dragOffsetY = foci[i].y - my;
+          canvas.classList.add("dragging");
+          canvas.setPointerCapture(e.pointerId);
+          return;
+        }
+      }
+    } else if (tab === "parabola") {
+      const dx = mx - pFocusX;
+      const dy = my - pFocusY;
+      if (Math.sqrt(dx * dx + dy * dy) < 16) {
+        dragging = "parabola-focus";
+        dragOffsetX = pFocusX - mx;
+        dragOffsetY = pFocusY - my;
+        canvas.classList.add("dragging");
+        canvas.setPointerCapture(e.pointerId);
+        return;
+      }
+    } else if (tab === "hyperbola") {
+      const c = Math.sqrt(hA * hA + hB * hB);
+      const foci = [
+        { x: centerX - c, y: centerY },
+        { x: centerX + c, y: centerY },
+      ];
+      for (let i = 0; i < foci.length; i++) {
+        const dx = mx - foci[i].x;
+        const dy = my - foci[i].y;
+        if (Math.sqrt(dx * dx + dy * dy) < 16) {
+          dragging = "focus" + (i + 1);
+          dragOffsetX = foci[i].x - mx;
+          dragOffsetY = foci[i].y - my;
+          canvas.classList.add("dragging");
+          canvas.setPointerCapture(e.pointerId);
+          return;
+        }
+      }
+    }
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    if (tab === "ellipse" && dragging) {
+      const newFocusX = mx + dragOffsetX;
+      // c = |focusX - centerX|
+      const c = Math.abs(newFocusX - centerX);
+      const newA = Math.sqrt(c * c + b * b);
+      a = Math.max(b + 1, newA);
+      centerX = newFocusX > centerX ? newFocusX - c : newFocusX + c;
+      a = Math.min(240, Math.max(40, a));
+      buildSliders();
+    } else if (tab === "parabola" && dragging === "parabola-focus") {
+      pFocusX = mx + dragOffsetX;
+      pFocusY = Math.min(H - 40, Math.max(40, my + dragOffsetY));
+      pDir = Math.abs(pFocusY - (pFocusY - 120));
+      pDir = Math.min(180, Math.max(20, pDir));
+      buildSliders();
+    } else if (tab === "hyperbola" && dragging) {
+      const newFocusX = mx + dragOffsetX;
+      const c = Math.abs(newFocusX - centerX);
+      const newA = Math.sqrt(Math.max(1, c * c - hB * hB));
+      hA = Math.max(30, Math.min(200, newA));
+      buildSliders();
+    }
+    draw();
+  });
+
+  canvas.addEventListener("pointerup", () => {
+    dragging = null;
+    canvas.classList.remove("dragging");
+  });
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".sliders");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const availW = window.innerWidth - pad;
+    const scale = Math.min(availW / W, 1);
+    canvas.style.width = Math.floor(W * scale) + "px";
+    canvas.style.height = Math.floor(H * scale) + "px";
+    draw();
+  }
+
+  window.addEventListener("resize", resize);
+
+  // Init
+  buildSliders();
+  draw();
+  resize();
+})();
+</script>
+</body>
+</html>

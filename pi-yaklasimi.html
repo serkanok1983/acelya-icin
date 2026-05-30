@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>π Sayısının Yaklaşık Hesaplanması</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; min-height: 100dvh; }
+    .app-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 12px 24px;
+    }
+    .hud {
+      text-align: center;
+      padding: 10px 14px 4px;
+    }
+    .hud h1 {
+      margin: 0;
+      font-size: clamp(1.05rem, 3.8vw, 1.35rem);
+      font-weight: 600;
+      color: var(--text);
+    }
+    .pi-live {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 8px 0 2px;
+      font-size: clamp(0.78rem, 2.6vw, 0.9rem);
+    }
+    .pi-live .val {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 12px;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .pi-live .err {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 12px;
+      color: var(--danger);
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .stage-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .stage-row canvas {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: 0 0 0 1px var(--border);
+      max-width: 100%;
+    }
+    .controls {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 8px 0 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+    .controls button {
+      padding: 8px 16px;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #2dd4bf);
+      color: var(--btn-text);
+    }
+    .controls button:hover { filter: brightness(1.08); }
+    .controls button.danger {
+      background: linear-gradient(135deg, var(--danger), #ef4444);
+    }
+    .controls label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .controls input[type="range"] {
+      width: 100px;
+      accent-color: var(--accent-2);
+    }
+    .info-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 720px;
+      margin: 0 auto 12px;
+    }
+    .info-card {
+      flex: 1 1 180px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+    }
+    .info-card h3 {
+      margin: 0 0 6px;
+      font-size: 0.82rem;
+      color: var(--accent-2);
+    }
+    .info-card p {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--text);
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="pi-yaklasimi">
+<div class="app-content">
+<div class="hud">
+  <h1>π Sayısının Yaklaşık Hesaplanması</h1>
+  <div class="pi-live">
+    <span>Monte Carlo π ≈</span><span class="val" id="mcPi">—</span>
+    <span>Hata</span><span class="err" id="mcErr">—</span>
+    <span>Leibniz π ≈</span><span class="val" id="leibPi">—</span>
+    <span>Hata</span><span class="err" id="leibErr">—</span>
+  </div>
+</div>
+
+<div class="stage-row">
+  <canvas id="mcCanvas" width="420" height="420" role="img" aria-label="Monte Carlo simülasyonu: birim kare ve çeyrek çember"></canvas>
+  <canvas id="graphCanvas" width="400" height="300" role="img" aria-label="Yakınsama grafiği"></canvas>
+</div>
+
+<div class="controls">
+  <button id="btnStart">Başlat</button>
+  <button id="btnStop" class="danger">Durdur</button>
+  <button id="btnReset">Sıfırla</button>
+  <label>Hız <input type="range" id="speedSl" min="1" max="20" value="5"></label>
+</div>
+
+<div class="info-row">
+  <div class="info-card">
+    <h3>Monte Carlo Yöntemi</h3>
+    <p>Birim kare içinde rastgele noktalar üretilir. Çeyrek çember (r=1) içine düşenler sayılır.<br>π ≈ 4 × (içerideki / toplam)</p>
+  </div>
+  <div class="info-card">
+    <h3>Leibniz Serisi</h3>
+    <p>π/4 = 1 − 1/3 + 1/5 − 1/7 + 1/9 − …<br>Terim sayısı arttıkça gerçek değere yaklaşır.</p>
+  </div>
+  <div class="info-card">
+    <h3>Toplam Nokta</h3>
+    <p id="totalPoints">0</p>
+  </div>
+</div>
+</div>
+
+<script>
+(function () {
+  const mcCanvas = document.getElementById("mcCanvas");
+  const mcCtx = mcCanvas.getContext("2d");
+  const graphCanvas = document.getElementById("graphCanvas");
+  const graphCtx = graphCanvas.getContext("2d");
+
+  const W = 420, H = 420;
+  const margin = 40;
+  const drawW = W - margin * 2;
+  const cx = margin, cy = H - margin;
+
+  // Monte Carlo state
+  let total = 0, inside = 0;
+  let running = false;
+  let speed = 5;
+  let rafId = null;
+
+  // Leibniz state
+  let leibSum = 0;
+  let leibN = 0;
+
+  // History for graph
+  let mcHistory = [];
+  let leibHistory = [];
+  let pointHistory = [];
+
+  const TRUE_PI = Math.PI;
+
+  function worldToPixel(x, y) {
+    return { px: cx + x * drawW, py: cy - y * drawW };
+  }
+
+  function drawMC() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    mcCanvas.width = W * dpr;
+    mcCanvas.height = H * dpr;
+    mcCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    mcCtx.fillStyle = "var(--bg-card)";
+    mcCtx.fillStyle = "#0a0f1a";
+    mcCtx.fillRect(0, 0, W, H);
+
+    // Unit square
+    mcCtx.strokeStyle = "rgba(255,255,255,0.15)";
+    mcCtx.lineWidth = 1;
+    mcCtx.strokeRect(cx, cy - drawW, drawW, drawW);
+
+    // Quarter circle
+    mcCtx.strokeStyle = "rgba(94,234,212,0.5)";
+    mcCtx.lineWidth = 2;
+    mcCtx.beginPath();
+    mcCtx.arc(cx, cy, drawW, -Math.PI / 2, 0);
+    mcCtx.stroke();
+
+    // Axes
+    mcCtx.strokeStyle = "rgba(255,255,255,0.2)";
+    mcCtx.lineWidth = 1;
+    mcCtx.beginPath();
+    mcCtx.moveTo(cx, cy);
+    mcCtx.lineTo(cx + drawW + 10, cy);
+    mcCtx.moveTo(cx, cy);
+    mcCtx.lineTo(cx, cy - drawW - 10);
+    mcCtx.stroke();
+
+    // Labels
+    mcCtx.fillStyle = "rgba(255,255,255,0.5)";
+    mcCtx.font = "11px system-ui";
+    mcCtx.fillText("1", cx + drawW / 2 - 8, cy + 16);
+    mcCtx.fillText("1", cx - 18, cy - drawW / 2);
+    mcCtx.fillText("0", cx - 14, cy + 14);
+
+    // Draw recent points (store last 2000)
+    const stored = window._mcPoints || [];
+    for (let i = Math.max(0, stored.length - 2000); i < stored.length; i++) {
+      const pt = stored[i];
+      const p = worldToPixel(pt.x, pt.y);
+      mcCtx.fillStyle = pt.inside ? "rgba(94,234,212,0.7)" : "rgba(248,113,113,0.5)";
+      mcCtx.fillRect(p.px - 1, p.py - 1, 2, 2);
+    }
+  }
+
+  function drawGraph() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    graphCanvas.width = 400 * dpr;
+    graphCanvas.height = 300 * dpr;
+    graphCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const gW = 400, gH = 300;
+    const gM = { top: 24, right: 20, bottom: 32, left: 50 };
+    const pw = gW - gM.left - gM.right;
+    const ph = gH - gM.top - gM.bottom;
+
+    graphCtx.fillStyle = "#0a0f1a";
+    graphCtx.fillRect(0, 0, gW, gH);
+
+    // True pi line
+    if (pointHistory.length > 0) {
+      const maxX = pointHistory[pointHistory.length - 1] || 100;
+      graphCtx.strokeStyle = "rgba(255,255,255,0.2)";
+      graphCtx.setLineDash([3, 4]);
+      graphCtx.lineWidth = 1;
+      graphCtx.beginPath();
+      graphCtx.moveTo(gM.left, gM.top);
+      graphCtx.lineTo(gM.left + pw, gM.top);
+      graphCtx.stroke();
+      graphCtx.setLineDash([]);
+
+      graphCtx.fillStyle = "rgba(255,255,255,0.4)";
+      graphCtx.font = "10px system-ui";
+      graphCtx.fillText("π = " + TRUE_PI.toFixed(6), gM.left + pw - 80, gM.top - 4);
+
+      const yPi = gM.top;
+
+      const plot = (history, color) => {
+        if (history.length < 2) return;
+        graphCtx.strokeStyle = color;
+        graphCtx.lineWidth = 2;
+        graphCtx.beginPath();
+        for (let i = 0; i < history.length; i++) {
+          const x = gM.left + (pointHistory[i] / maxX) * pw;
+          const y = gM.top + ph * (1 - Math.min(1, Math.max(0, (TRUE_PI - history[i]) / (TRUE_PI * 0.02 + 0.0001) + 0.5)));
+          if (i === 0) graphCtx.moveTo(x, y);
+          else graphCtx.lineTo(x, y);
+        }
+        graphCtx.stroke();
+      };
+
+      plot(mcHistory, "rgba(94,234,212,0.8)");
+      plot(leibHistory, "rgba(167,139,250,0.8)");
+
+      // Legend
+      graphCtx.fillStyle = "rgba(94,234,212,0.9)";
+      graphCtx.fillRect(gM.left + 10, gH - 22, 10, 4);
+      graphCtx.fillStyle = "rgba(255,255,255,0.7)";
+      graphCtx.font = "10px system-ui";
+      graphCtx.fillText("Monte Carlo", gM.left + 26, gH - 18);
+
+      graphCtx.fillStyle = "rgba(167,139,250,0.9)";
+      graphCtx.fillRect(gM.left + 130, gH - 22, 10, 4);
+      graphCtx.fillText("Leibniz", gM.left + 146, gH - 18);
+    }
+
+    // Axes
+    graphCtx.strokeStyle = "rgba(255,255,255,0.2)";
+    graphCtx.lineWidth = 1;
+    graphCtx.beginPath();
+    graphCtx.moveTo(gM.left, gM.top);
+    graphCtx.lineTo(gM.left, gH - gM.bottom);
+    graphCtx.lineTo(gW - gM.right, gH - gM.bottom);
+    graphCtx.stroke();
+
+    graphCtx.fillStyle = "rgba(255,255,255,0.5)";
+    graphCtx.font = "10px system-ui";
+    graphCtx.fillText("İterasyon →", gW - gM.right - 80, gH - 6);
+    graphCtx.save();
+    graphCtx.translate(12, gH / 2);
+    graphCtx.rotate(-Math.PI / 2);
+    graphCtx.fillText("π değeri", -20, 0);
+    graphCtx.restore();
+  }
+
+  function updateUI() {
+    const mcPi = total > 0 ? (4 * inside / total) : 0;
+    const mcErr = total > 0 ? Math.abs(mcPi - TRUE_PI) : 0;
+    const leibPi = leibN > 0 ? 4 * leibSum : 0;
+    const leibErr = leibN > 0 ? Math.abs(leibPi - TRUE_PI) : 0;
+
+    document.getElementById("mcPi").textContent = mcPi.toFixed(8);
+    document.getElementById("mcErr").textContent = mcErr.toExponential(4);
+    document.getElementById("leibPi").textContent = leibPi.toFixed(8);
+    document.getElementById("leibErr").textContent = leibErr.toExponential(4);
+    document.getElementById("totalPoints").textContent = total + " nokta, " + inside + " içeride";
+  }
+
+  function addPoint() {
+    const x = Math.random();
+    const y = Math.random();
+    const dist = x * x + y * y;
+    const isInside = dist <= 1;
+
+    total++;
+    if (isInside) inside++;
+
+    // Store visual point
+    if (!window._mcPoints) window._mcPoints = [];
+    window._mcPoints.push({ x, y, inside: isInside });
+
+    // Leibniz step
+    const k = leibN;
+    const term = (k % 2 === 0 ? 1 : -1) / (2 * k + 1);
+    leibSum += term;
+    leibN++;
+
+    // History (sample every N points to keep arrays small)
+    if (total % Math.max(1, Math.floor(speed / 2)) === 0 || total <= 100) {
+      const mcPi = 4 * inside / total;
+      const leibPi = 4 * leibSum;
+      mcHistory.push(mcPi);
+      leibHistory.push(leibPi);
+      pointHistory.push(total);
+    }
+  }
+
+  function tick() {
+    if (!running) return;
+    for (let i = 0; i < speed; i++) {
+      addPoint();
+    }
+    drawMC();
+    drawGraph();
+    updateUI();
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    document.getElementById("btnStart").disabled = true;
+    document.getElementById("btnStop").disabled = false;
+    tick();
+  }
+
+  function stop() {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    document.getElementById("btnStart").disabled = false;
+    document.getElementById("btnStop").disabled = true;
+  }
+
+  function reset() {
+    stop();
+    total = 0;
+    inside = 0;
+    leibSum = 0;
+    leibN = 0;
+    mcHistory = [];
+    leibHistory = [];
+    pointHistory = [];
+    window._mcPoints = [];
+    drawMC();
+    drawGraph();
+    updateUI();
+  }
+
+  function resize() {
+    const hud = document.querySelector(".hud");
+    const controls = document.querySelector(".controls");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = controls.getBoundingClientRect().top;
+    const pad = 24;
+    const availW = window.innerWidth - pad;
+
+    const mcScale = Math.min(availW / W, 1);
+    mcCanvas.style.width = Math.floor(W * mcScale) + "px";
+    mcCanvas.style.height = Math.floor(H * mcScale) + "px";
+
+    const gScale = Math.min(availW / 400, 1);
+    graphCanvas.style.width = Math.floor(400 * gScale) + "px";
+    graphCanvas.style.height = Math.floor(300 * gScale) + "px";
+
+    drawMC();
+    drawGraph();
+  }
+
+  document.getElementById("btnStart").addEventListener("click", start);
+  document.getElementById("btnStop").addEventListener("click", stop);
+  document.getElementById("btnReset").addEventListener("click", reset);
+  document.getElementById("speedSl").addEventListener("input", function () {
+    speed = +this.value;
+  });
+
+  window.addEventListener("resize", resize);
+
+  // Initial draw
+  drawMC();
+  drawGraph();
+  updateUI();
+  resize();
+
+  // Auto-start after a short delay
+  setTimeout(start, 600);
+})();
+</script>
+</body>
+</html>

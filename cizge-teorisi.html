@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Çizge Teorisi (Graph Theory)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: #0a0a12; color: #e8e8f0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    body { display: flex; flex-direction: column; }
+
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 600; }
+    .readout {
+      font-size: clamp(0.68rem, 2.6vw, 0.82rem);
+      opacity: 0.88;
+      line-height: 1.5;
+      min-height: 1.3em;
+    }
+    .readout span { color: var(--accent, #5eead4); font-variant-numeric: tabular-nums; }
+
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 8px 10px;
+      touch-action: none;
+    }
+    #graphCanvas {
+      display: block; max-width: 100%;
+      background: #12121c; border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1);
+      cursor: crosshair;
+    }
+
+    .panel {
+      flex-shrink: 0;
+      padding: 10px 14px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+
+    .btn-row {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
+    }
+    .btn-row button {
+      flex: 1; min-width: 0;
+      padding: 8px 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: none; border-radius: 8px;
+      cursor: pointer;
+      background: rgba(94, 234, 212, 0.15);
+      color: var(--accent, #5eead4);
+      border: 1px solid rgba(94, 234, 212, 0.30);
+      transition: background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .btn-row button:hover {
+      background: rgba(94, 234, 212, 0.25);
+      border-color: rgba(94, 234, 212, 0.55);
+    }
+    .btn-row button.active-mode {
+      background: rgba(94, 234, 212, 0.35);
+      border-color: rgba(94, 234, 212, 0.7);
+      box-shadow: 0 0 12px rgba(94, 234, 212, 0.25);
+    }
+    .btn-row button.danger {
+      background: rgba(248, 113, 113, 0.12);
+      color: var(--danger, #f87171);
+      border-color: rgba(248, 113, 113, 0.25);
+    }
+    .btn-row button.danger:hover {
+      background: rgba(248, 113, 113, 0.22);
+      border-color: rgba(248, 113, 113, 0.45);
+    }
+
+    .example-row {
+      display: flex; flex-wrap: wrap; gap: 5px;
+    }
+    .example-row button {
+      flex: 1; min-width: 0;
+      padding: 7px 5px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      border-radius: 6px;
+      cursor: pointer;
+      background: rgba(167, 139, 250, 0.08);
+      color: var(--accent-2, #a78bfa);
+      transition: background 0.2s;
+    }
+    .example-row button:hover {
+      background: rgba(167, 139, 250, 0.18);
+    }
+
+    .algo-select {
+      display: flex; gap: 6px; margin-bottom: 6px; align-items: center;
+      flex-wrap: wrap;
+    }
+    .algo-select label {
+      font-size: 0.78rem; color: var(--text-muted, #8b95a8);
+    }
+    .algo-select select {
+      background: rgba(0,0,0,0.35); color: var(--text, #e8ecf4);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px; padding: 5px 8px;
+      font-size: 0.78rem;
+    }
+
+    .dijkstra-row {
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    }
+    .dijkstra-row label {
+      font-size: 0.76rem; color: var(--text-muted, #8b95a8);
+    }
+    .dijkstra-row input {
+      width: 50px;
+      background: rgba(0,0,0,0.35); color: var(--text, #e8ecf4);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px; padding: 4px 6px;
+      font-size: 0.78rem; text-align: center;
+    }
+    .dijkstra-row button {
+      padding: 6px 12px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      border: none; border-radius: 6px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent, #5eead4), #2dd4bf);
+      color: #041016;
+    }
+    .dijkstra-row button:hover { filter: brightness(1.08); }
+
+    .hint {
+      font-size: 0.68rem; opacity: 0.5; text-align: center; margin: 4px 0 0;
+    }
+
+    @media (max-width: 420px) {
+      .btn-row button { font-size: 0.7rem; padding: 7px 4px; }
+      .example-row button { font-size: 0.65rem; padding: 6px 3px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="cizge-teorisi">
+<header class="hud">
+  <h1>Çizge Teorisi (Graph Theory)</h1>
+  <div class="readout" id="readout">Düğüm eklemek için tıklayın · Kenar için iki düğüme tıklayın</div>
+</header>
+<div class="stage">
+  <canvas id="graphCanvas" width="560" height="480" role="img" aria-label="Etkileşimli çizge tuvali"></canvas>
+</div>
+<div class="panel">
+  <div class="btn-row">
+    <button id="btnNodeMode" class="active-mode" title="Tıklayarak düğüm ekle">➕ Düğüm Ekle</button>
+    <button id="btnEdgeMode" title="İki düğüme tıklayarak kenar ekle">🔗 Kenar Ekle</button>
+    <button id="btnDeleteMode" title="Düğüm veya kenarı sil">🗑️ Sil</button>
+  </div>
+  <div class="algo-select">
+    <label for="algoSelect">Algoritma:</label>
+    <select id="algoSelect">
+      <option value="bfs">BFS (Genişlik Öncelikli)</option>
+      <option value="dfs">DFS (Derinlik Öncelikli)</option>
+    </select>
+    <button id="btnRunAlgo" style="padding:5px 12px;font-size:0.75rem;font-weight:600;border:none;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,var(--accent-2,#a78bfa),#8b5cf6);color:#fff;">▶ Çalıştır</button>
+    <button id="btnEuler" style="padding:5px 10px;font-size:0.75rem;font-weight:600;border:1px solid rgba(251,191,36,0.35);border-radius:6px;cursor:pointer;background:rgba(251,191,36,0.1);color:var(--accent-warm,#fbbf24);">🔍 Euler</button>
+  </div>
+  <div class="dijkstra-row">
+    <label>En Kısa Yol:</label>
+    <span style="font-size:0.72rem;color:var(--text-muted)">Başlangıç</span>
+    <input type="number" id="dijkstraStart" value="0" min="0" max="99">
+    <span style="font-size:0.72rem;color:var(--text-muted)">Hedef</span>
+    <input type="number" id="dijkstraEnd" value="1" min="0" max="99">
+    <button id="btnDijkstra">🔢 Dijkstra</button>
+  </div>
+  <div class="example-row" style="margin-top:8px;">
+    <button id="btnEx1">📐 Üçgen</button>
+    <button id="btnEx2">🏠 Ev Çizgesi</button>
+    <button id="btnEx3">⭐ Yıldız</button>
+    <button id="btnEx4">🔷 Königsberg</button>
+    <button id="btnEx5">🌉 Ağırlıklı</button>
+  </div>
+  <div class="btn-row" style="margin-top:6px;">
+    <button id="btnClear" class="danger">🧹 Temizle</button>
+  </div>
+  <p class="hint">İpucu: Düğümleri sürükleyerek taşıyabilirsiniz.</p>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById("graphCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  const readout = document.getElementById("readout");
+
+  // ── State ──────────────────────────────────────────
+  let nodes = [];           // { id, x, y }
+  let edges = [];           // { from, to, weight }
+  let nextId = 0;
+  let mode = "node";        // "node" | "edge" | "delete"
+  let edgeFirst = null;     // first node id selected for edge
+  let dragNode = null;
+  let dragOffX = 0, dragOffY = 0;
+  let algoResult = null;    // { paths, visited }
+  let algoAni = null;       // animation timer
+  let dijkstraPath = null;  // array of node ids
+  let eulerResult = null;   // string
+  let edgeWeightDefault = 1;
+
+  // Colors
+  const C = {
+    node:       "#5eead4",
+    nodeHover:  "#a5f3fc",
+    nodeSelect: "#fbbf24",
+    nodePath:   "#a78bfa",
+    edge:       "rgba(148,163,184,0.55)",
+    edgePath:   "#a78bfa",
+    edgeWeight: "#fbbf24",
+    bg:         "#12121c",
+    grid:       "rgba(255,255,255,0.04)",
+    visited:    "rgba(167,139,250,0.25)",
+  };
+
+  const NODE_R = 18;
+
+  // ── Helpers ────────────────────────────────────────
+  function nodeAt(mx, my) {
+    for (let i = nodes.length - 1; i >= 0; i--) {
+      const n = nodes[i];
+      const dx = mx - n.x, dy = my - n.y;
+      if (dx * dx + dy * dy <= NODE_R * NODE_R) return i;
+    }
+    return -1;
+  }
+
+  function edgeAt(mx, my) {
+    const hitDist = 10;
+    for (let i = 0; i < edges.length; i++) {
+      const e = edges[i];
+      const a = nodes.find(n => n.id === e.from);
+      const b = nodes.find(n => n.id === e.to);
+      if (!a || !b) continue;
+      // distance from point to line segment
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const len2 = dx * dx + dy * dy;
+      if (len2 === 0) continue;
+      let t = ((mx - a.x) * dx + (my - a.y) * dy) / len2;
+      t = Math.max(0, Math.min(1, t));
+      const px = a.x + t * dx, py = a.y + t * dy;
+      const dist = Math.hypot(mx - px, my - py);
+      if (dist <= hitDist) return i;
+    }
+    return -1;
+  }
+
+  function setReadout(msg) {
+    readout.innerHTML = msg;
+  }
+
+  // ── Drawing ─────────────────────────────────────────
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // Grid
+    ctx.strokeStyle = C.grid;
+    ctx.lineWidth = 0.5;
+    const gs = 40;
+    for (let x = gs; x < W; x += gs) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = gs; y < H; y += gs) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Highlight visited nodes
+    if (algoResult) {
+      for (const vid of algoResult.visited) {
+        const n = nodes.find(nd => nd.id === vid);
+        if (n) {
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, NODE_R + 6, 0, Math.PI * 2);
+          ctx.fillStyle = C.visited;
+          ctx.fill();
+        }
+      }
+    }
+
+    // Draw edges
+    for (const e of edges) {
+      const a = nodes.find(n => n.id === e.from);
+      const b = nodes.find(n => n.id === e.to);
+      if (!a || !b) continue;
+
+      const onPath = dijkstraPath && dijkstraPath.includes(e.from) && dijkstraPath.includes(e.to) &&
+        Math.abs(dijkstraPath.indexOf(e.from) - dijkstraPath.indexOf(e.to)) === 1;
+
+      // Edge highlight (BFS/DFS tree)
+      let isTreeEdge = false;
+      if (algoResult && algoResult.paths) {
+        for (const p of algoResult.paths) {
+          if ((p.from === e.from && p.to === e.to) || (p.from === e.to && p.to === e.from)) {
+            isTreeEdge = true; break;
+          }
+        }
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = onPath ? C.edgePath : (isTreeEdge ? C.edgePath : C.edge);
+      ctx.lineWidth = (onPath || isTreeEdge) ? 2.5 : 1.5;
+      ctx.stroke();
+
+      // Weight label
+      if (e.weight !== undefined) {
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const ang = Math.atan2(b.y - a.y, b.x - a.x);
+        const offX = -Math.sin(ang) * 14, offY = Math.cos(ang) * 14;
+        ctx.fillStyle = C.edgeWeight;
+        ctx.font = "bold 12px system-ui";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(e.weight, mx + offX, my + offY);
+      }
+
+      // Arrow for directed edges (optional — we keep undirected for simplicity)
+    }
+
+    // Draw nodes
+    for (const n of nodes) {
+      const onPath = dijkstraPath && dijkstraPath.includes(n.id);
+      const isFirst = edgeFirst === n.id;
+
+      // Outer glow
+      if (onPath || isFirst) {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, NODE_R + 5, 0, Math.PI * 2);
+        ctx.fillStyle = onPath ? "rgba(167,139,250,0.3)" : "rgba(251,191,36,0.3)";
+        ctx.fill();
+      }
+
+      // Circle
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, NODE_R, 0, Math.PI * 2);
+      ctx.fillStyle = isFirst ? C.nodeSelect : (onPath ? C.nodePath : C.node);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.3)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = "#041016";
+      ctx.font = "bold 13px system-ui";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(n.id, n.x, n.y + 1);
+    }
+  }
+
+  // ── Graph ops ───────────────────────────────────────
+  function addNode(x, y) {
+    const id = nextId++;
+    nodes.push({ id, x, y });
+    updateDijkstraInputs();
+    draw();
+    setReadout(`Düğüm ${id} eklendi (${Math.round(x)}, ${Math.round(y)}).`);
+  }
+
+  function addEdge(from, to, weight) {
+    // Check duplicate
+    if (edges.some(e => (e.from === from && e.to === to) || (e.from === to && e.to === from))) {
+      setReadout(`⚠️ ${from} ↔ ${to} kenarı zaten var.`);
+      return;
+    }
+    edges.push({ from, to, weight: weight ?? edgeWeightDefault });
+    dijkstraPath = null;
+    algoResult = null;
+    draw();
+    setReadout(`Kenar eklendi: ${from} ↔ ${to} (ağırlık: ${weight ?? edgeWeightDefault}).`);
+  }
+
+  function removeNode(id) {
+    nodes = nodes.filter(n => n.id !== id);
+    edges = edges.filter(e => e.from !== id && e.to !== id);
+    dijkstraPath = null;
+    algoResult = null;
+    if (edgeFirst === id) edgeFirst = null;
+    updateDijkstraInputs();
+    draw();
+    setReadout(`Düğüm ${id} ve bağlı kenarlar silindi.`);
+  }
+
+  function removeEdge(idx) {
+    const e = edges[idx];
+    edges.splice(idx, 1);
+    dijkstraPath = null;
+    algoResult = null;
+    draw();
+    setReadout(`${e.from} ↔ ${e.to} kenarı silindi.`);
+  }
+
+  function clearAll() {
+    nodes = [];
+    edges = [];
+    nextId = 0;
+    edgeFirst = null;
+    dijkstraPath = null;
+    algoResult = null;
+    eulerResult = null;
+    if (algoAni) { clearInterval(algoAni); algoAni = null; }
+    updateDijkstraInputs();
+    draw();
+    setReadout("Çizge temizlendi. Düğüm eklemek için tıklayın.");
+  }
+
+  function updateDijkstraInputs() {
+    document.getElementById("dijkstraStart").max = Math.max(0, nextId - 1);
+    document.getElementById("dijkstraEnd").max = Math.max(0, nextId - 1);
+  }
+
+  // ── Euler ───────────────────────────────────────────
+  function checkEuler() {
+    if (nodes.length === 0) {
+      setReadout("⚠️ Çizge boş.");
+      return;
+    }
+    const degree = {};
+    for (const n of nodes) degree[n.id] = 0;
+    for (const e of edges) {
+      degree[e.from] = (degree[e.from] || 0) + 1;
+      degree[e.to] = (degree[e.to] || 0) + 1;
+    }
+    let odd = 0;
+    const oddNodes = [];
+    for (const n of nodes) {
+      if (degree[n.id] % 2 !== 0) { odd++; oddNodes.push(n.id); }
+    }
+
+    // Check connectivity via BFS
+    if (nodes.length > 0 && !isConnected()) {
+      setReadout("⚠️ Çizge bağlantılı değil — Euler yolu/devresi yoktur.");
+      return;
+    }
+
+    if (odd === 0) {
+      setReadout(`✅ <strong>Euler Devresi</strong> var! Tüm düğümlerin derecesi çift. Her kenardan tam bir kez geçip başlangıca dönebilirsiniz.`);
+    } else if (odd === 2) {
+      setReadout(`🔷 <strong>Euler Yolu</strong> var! Tek dereceli düğümler: ${oddNodes.join(', ')}. Bu ikisi arasında her kenardan tam bir kez geçen yol bulunur.`);
+    } else {
+      setReadout(`❌ Euler yolu <strong>yok</strong>. ${odd} düğümün derecesi tek (${oddNodes.join(', ')}). Euler yolu için en fazla 2 tek dereceli düğüm olmalı.`);
+    }
+  }
+
+  function isConnected() {
+    if (nodes.length === 0) return true;
+    const visited = new Set();
+    const q = [nodes[0].id];
+    visited.add(nodes[0].id);
+    while (q.length) {
+      const u = q.shift();
+      for (const e of edges) {
+        const v = e.from === u ? e.to : (e.to === u ? e.from : null);
+        if (v !== null && !visited.has(v)) {
+          visited.add(v); q.push(v);
+        }
+      }
+    }
+    return visited.size === nodes.length;
+  }
+
+  // ── BFS / DFS ───────────────────────────────────────
+  function runTraversal(algo) {
+    if (nodes.length === 0) {
+      setReadout("⚠️ Çizge boş.");
+      return;
+    }
+    if (algoAni) { clearInterval(algoAni); algoAni = null; }
+    dijkstraPath = null;
+
+    const start = nodes[0].id;
+    const visited = [];
+    const treeEdges = [];
+    const q = [start];
+    const parent = {};
+    const seen = new Set();
+    seen.add(start);
+
+    while (q.length) {
+      const u = algo === "bfs" ? q.shift() : q.pop();
+      visited.push(u);
+      const neighbors = [];
+      for (const e of edges) {
+        const v = e.from === u ? e.to : (e.to === u ? e.from : null);
+        if (v !== null && !seen.has(v)) {
+          seen.add(v);
+          q.push(v);
+          parent[v] = u;
+          neighbors.push(v);
+        }
+      }
+      for (const v of neighbors) {
+        treeEdges.push({ from: u, to: v });
+      }
+    }
+
+    algoResult = { visited: [], paths: treeEdges };
+    // Animate
+    let i = 0;
+    function step() {
+      if (i >= visited.length) {
+        clearInterval(algoAni);
+        algoAni = null;
+        const name = algo.toUpperCase();
+        setReadout(`✅ ${name} tamamlandı. Ziyaret sırası: <span>${visited.join(' → ')}</span>`);
+        return;
+      }
+      algoResult.visited.push(visited[i]);
+      draw();
+      i++;
+    }
+    step();
+    algoAni = setInterval(step, 350);
+  }
+
+  // ── Dijkstra ────────────────────────────────────────
+  function runDijkstra(startId, endId) {
+    if (algoAni) { clearInterval(algoAni); algoAni = null; }
+    algoResult = null;
+    dijkstraPath = null;
+
+    const sn = nodes.find(n => n.id === startId);
+    const en = nodes.find(n => n.id === endId);
+    if (!sn || !en) {
+      setReadout("⚠️ Başlangıç veya hedef düğüm bulunamadı.");
+      return;
+    }
+    if (startId === endId) {
+      setReadout("⚠️ Başlangıç ve hedef aynı.");
+      return;
+    }
+
+    // Build adjacency
+    const adj = {};
+    for (const n of nodes) adj[n.id] = [];
+    for (const e of edges) {
+      const w = e.weight ?? 1;
+      adj[e.from].push({ to: e.to, weight: w });
+      adj[e.to].push({ to: e.from, weight: w });
+    }
+
+    const dist = {};
+    const prev = {};
+    const unvisited = new Set();
+    for (const n of nodes) { dist[n.id] = Infinity; unvisited.add(n.id); }
+    dist[startId] = 0;
+
+    while (unvisited.size) {
+      let u = null, minD = Infinity;
+      for (const id of unvisited) {
+        if (dist[id] < minD) { minD = dist[id]; u = id; }
+      }
+      if (u === null || dist[u] === Infinity) break;
+      if (u === endId) break;
+      unvisited.delete(u);
+
+      for (const nb of adj[u] || []) {
+        if (!unvisited.has(nb.to)) continue;
+        const alt = dist[u] + nb.weight;
+        if (alt < dist[nb.to]) {
+          dist[nb.to] = alt;
+          prev[nb.to] = u;
+        }
+      }
+    }
+
+    if (dist[endId] === Infinity) {
+      setReadout(`❌ ${startId} → ${endId}: Yol bulunamadı (bağlantı yok).`);
+      return;
+    }
+
+    // Reconstruct path
+    const path = [];
+    let cur = endId;
+    while (cur !== undefined) {
+      path.unshift(cur);
+      cur = prev[cur];
+    }
+    dijkstraPath = path;
+
+    draw();
+    setReadout(`✅ En kısa yol ${startId} → ${endId}: <span>${path.join(' → ')}</span> · Toplam ağırlık: <span>${dist[endId].toFixed(1)}</span>`);
+  }
+
+  // ── Examples ────────────────────────────────────────
+  function loadExample(type) {
+    clearAll();
+    const cx = W / 2, cy = H / 2;
+    if (type === "triangle") {
+      nodes = [
+        { id: 0, x: cx, y: cy - 140 },
+        { id: 1, x: cx - 130, y: cy + 80 },
+        { id: 2, x: cx + 130, y: cy + 80 },
+      ];
+      edges = [{ from: 0, to: 1, weight: 3 }, { from: 1, to: 2, weight: 4 }, { from: 2, to: 0, weight: 5 }];
+      nextId = 3;
+    } else if (type === "house") {
+      nodes = [
+        { id: 0, x: cx - 90, y: cy + 100 },
+        { id: 1, x: cx + 90, y: cy + 100 },
+        { id: 2, x: cx + 90, y: cy - 40 },
+        { id: 3, x: cx, y: cy - 150 },
+        { id: 4, x: cx - 90, y: cy - 40 },
+      ];
+      edges = [
+        { from: 0, to: 1, weight: 4 }, { from: 1, to: 2, weight: 2 },
+        { from: 2, to: 3, weight: 3 }, { from: 3, to: 4, weight: 3 },
+        { from: 4, to: 0, weight: 2 }, { from: 4, to: 2, weight: 5 },
+      ];
+      nextId = 5;
+    } else if (type === "star") {
+      nodes = [{ id: 0, x: cx, y: cy }];
+      const pts = 6;
+      for (let i = 0; i < pts; i++) {
+        const ang = (Math.PI * 2 / pts) * i - Math.PI / 2;
+        nodes.push({ id: i + 1, x: cx + Math.cos(ang) * 170, y: cy + Math.sin(ang) * 170 });
+        edges.push({ from: 0, to: i + 1, weight: 2 });
+      }
+      nextId = pts + 1;
+    } else if (type === "konigsberg") {
+      // Königsberg bridges graph — 4 nodes, 7 edges — no Euler path
+      nodes = [
+        { id: 0, x: cx - 120, y: cy - 80 },
+        { id: 1, x: cx + 120, y: cy - 80 },
+        { id: 2, x: cx - 120, y: cy + 80 },
+        { id: 3, x: cx + 120, y: cy + 80 },
+      ];
+      edges = [
+        { from: 0, to: 1, weight: 1 }, { from: 0, to: 1, weight: 1 },
+        { from: 0, to: 2, weight: 1 }, { from: 0, to: 3, weight: 1 },
+        { from: 1, to: 2, weight: 1 }, { from: 1, to: 3, weight: 1 },
+        { from: 2, to: 3, weight: 1 },
+      ];
+      nextId = 4;
+    } else if (type === "weighted") {
+      nodes = [
+        { id: 0, x: cx - 180, y: cy },
+        { id: 1, x: cx - 60, y: cy - 120 },
+        { id: 2, x: cx + 60, y: cy - 80 },
+        { id: 3, x: cx + 150, y: cy + 30 },
+        { id: 4, x: cx + 30, y: cy + 130 },
+        { id: 5, x: cx - 120, y: cy + 100 },
+      ];
+      edges = [
+        { from: 0, to: 1, weight: 7 }, { from: 0, to: 5, weight: 14 },
+        { from: 1, to: 2, weight: 10 }, { from: 1, to: 5, weight: 9 },
+        { from: 2, to: 3, weight: 11 }, { from: 2, to: 5, weight: 2 },
+        { from: 3, to: 4, weight: 6 }, { from: 4, to: 5, weight: 15 },
+        { from: 4, to: 2, weight: 8 },
+      ];
+      nextId = 6;
+    }
+    updateDijkstraInputs();
+    draw();
+    setReadout("Örnek çizge yüklendi. Düğümleri sürükleyebilir, kenar ekleyebilirsiniz.");
+  }
+
+  // ── Event handlers ──────────────────────────────────
+  canvas.addEventListener("mousedown", function (e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    // Dragging
+    const ni = nodeAt(mx, my);
+    if (ni >= 0) {
+      const n = nodes[ni];
+      if (mode === "delete") {
+        removeNode(n.id);
+        return;
+      }
+      if (mode === "edge") {
+        if (edgeFirst === null) {
+          edgeFirst = n.id;
+          draw();
+          setReadout(`Başlangıç düğümü ${n.id} seçildi. Hedef düğüme tıklayın.`);
+        } else if (edgeFirst === n.id) {
+          setReadout(`⚠️ Aynı düğüm seçilemez. Başka bir düğüm seçin.`);
+        } else {
+          addEdge(edgeFirst, n.id);
+          edgeFirst = null;
+        }
+        return;
+      }
+      // Start drag
+      dragNode = ni;
+      dragOffX = mx - n.x;
+      dragOffY = my - n.y;
+      return;
+    }
+
+    // Edge hit for delete
+    if (mode === "delete") {
+      const ei = edgeAt(mx, my);
+      if (ei >= 0) { removeEdge(ei); return; }
+    }
+
+    // Add node
+    if (mode === "node") {
+      addNode(mx, my);
+    }
+  });
+
+  canvas.addEventListener("mousemove", function (e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    if (dragNode !== null) {
+      const n = nodes[dragNode];
+      n.x = Math.max(NODE_R, Math.min(W - NODE_R, mx - dragOffX));
+      n.y = Math.max(NODE_R, Math.min(H - NODE_R, my - dragOffY));
+      draw();
+    }
+  });
+
+  canvas.addEventListener("mouseup", function () {
+    if (dragNode !== null) {
+      dragNode = null;
+      dijkstraPath = null; algoResult = null;
+      draw();
+    }
+  });
+
+  canvas.addEventListener("mouseleave", function () {
+    if (dragNode !== null) {
+      dragNode = null;
+      draw();
+    }
+  });
+
+  // Touch events
+  canvas.addEventListener("touchstart", function (e) {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    const touch = e.touches[0];
+    const mx = (touch.clientX - rect.left) * scaleX;
+    const my = (touch.clientY - rect.top) * scaleY;
+
+    const ni = nodeAt(mx, my);
+    if (ni >= 0) {
+      const n = nodes[ni];
+      if (mode === "delete") { removeNode(n.id); return; }
+      if (mode === "edge") {
+        if (edgeFirst === null) {
+          edgeFirst = n.id; draw();
+          setReadout(`Başlangıç düğümü ${n.id} seçildi. Hedef düğüme tıklayın.`);
+        } else if (edgeFirst !== n.id) {
+          addEdge(edgeFirst, n.id);
+          edgeFirst = null;
+        }
+        return;
+      }
+      dragNode = ni;
+      dragOffX = mx - n.x;
+      dragOffY = my - n.y;
+      return;
+    }
+    if (mode === "delete") {
+      const ei = edgeAt(mx, my);
+      if (ei >= 0) { removeEdge(ei); return; }
+    }
+    if (mode === "node") addNode(mx, my);
+  }, { passive: false });
+
+  canvas.addEventListener("touchmove", function (e) {
+    e.preventDefault();
+    if (dragNode === null) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    const touch = e.touches[0];
+    const mx = (touch.clientX - rect.left) * scaleX;
+    const my = (touch.clientY - rect.top) * scaleY;
+    const n = nodes[dragNode];
+    n.x = Math.max(NODE_R, Math.min(W - NODE_R, mx - dragOffX));
+    n.y = Math.max(NODE_R, Math.min(H - NODE_R, my - dragOffY));
+    draw();
+  }, { passive: false });
+
+  canvas.addEventListener("touchend", function () {
+    if (dragNode !== null) { dragNode = null; dijkstraPath = null; algoResult = null; draw(); }
+  });
+
+  // ── Button bindings ─────────────────────────────────
+  document.getElementById("btnNodeMode").addEventListener("click", function () {
+    mode = "node"; edgeFirst = null;
+    document.querySelectorAll(".btn-row button").forEach(b => b.classList.remove("active-mode"));
+    this.classList.add("active-mode");
+    setReadout("Mod: Düğüm Ekle — tuvale tıklayarak düğüm ekleyin.");
+  });
+
+  document.getElementById("btnEdgeMode").addEventListener("click", function () {
+    mode = "edge"; edgeFirst = null;
+    document.querySelectorAll(".btn-row button").forEach(b => b.classList.remove("active-mode"));
+    this.classList.add("active-mode");
+    setReadout("Mod: Kenar Ekle — iki düğüme sırayla tıklayın.");
+  });
+
+  document.getElementById("btnDeleteMode").addEventListener("click", function () {
+    mode = "delete"; edgeFirst = null;
+    document.querySelectorAll(".btn-row button").forEach(b => b.classList.remove("active-mode"));
+    this.classList.add("active-mode");
+    setReadout("Mod: Sil — düğüm veya kenara tıklayarak silin.");
+  });
+
+  document.getElementById("btnRunAlgo").addEventListener("click", function () {
+    const algo = document.getElementById("algoSelect").value;
+    runTraversal(algo);
+  });
+
+  document.getElementById("btnEuler").addEventListener("click", checkEuler);
+
+  document.getElementById("btnDijkstra").addEventListener("click", function () {
+    const start = parseInt(document.getElementById("dijkstraStart").value);
+    const end = parseInt(document.getElementById("dijkstraEnd").value);
+    runDijkstra(start, end);
+  });
+
+  document.getElementById("btnClear").addEventListener("click", clearAll);
+
+  document.getElementById("btnEx1").addEventListener("click", () => loadExample("triangle"));
+  document.getElementById("btnEx2").addEventListener("click", () => loadExample("house"));
+  document.getElementById("btnEx3").addEventListener("click", () => loadExample("star"));
+  document.getElementById("btnEx4").addEventListener("click", () => loadExample("konigsberg"));
+  document.getElementById("btnEx5").addEventListener("click", () => loadExample("weighted"));
+
+  // ── Resize canvas ───────────────────────────────────
+  function resizeCanvas() {
+    const hud = document.querySelector(".hud");
+    const panel = document.querySelector(".panel");
+    const top = hud.getBoundingClientRect().bottom;
+    const bottom = panel.getBoundingClientRect().top;
+    const pad = 16;
+    const availW = window.innerWidth - pad;
+    const availH = Math.max(200, bottom - top - pad);
+    const s = Math.min(availW / W, availH / H, 1.15);
+    canvas.style.width = Math.floor(W * s) + "px";
+    canvas.style.height = Math.floor(H * s) + "px";
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  // ── Init ────────────────────────────────────────────
+  draw();
+})();
+</script>
+</body>
+</html>

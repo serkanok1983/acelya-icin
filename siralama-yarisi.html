@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sıralama Algoritması Yarışı</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: var(--bg-deep); color: var(--text);
+      font-family: var(--font);
+    }
+    body { display: flex; flex-direction: column; padding-top: 0; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1.05rem, 4vw, 1.4rem); font-weight: 600; }
+    .race-stage {
+      flex: 1; min-height: 0;
+      display: flex; gap: 10px; padding: 10px;
+      overflow-x: auto;
+    }
+    .lane {
+      flex: 1; min-width: 160px;
+      display: flex; flex-direction: column;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .lane-header {
+      padding: 8px 10px;
+      font-size: clamp(0.72rem, 2.5vw, 0.85rem);
+      font-weight: 600;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .lane-header .algo-label { color: var(--accent); }
+    .lane-header .lane-stats {
+      font-size: 0.68rem; font-weight: 400; color: var(--text-muted);
+    }
+    .lane-header .lane-stats span { color: var(--accent-warm); }
+    .lane-canvas-wrap {
+      flex: 1; min-height: 0; padding: 4px;
+      display: flex; align-items: stretch;
+    }
+    .lane canvas {
+      display: block; width: 100%; height: 100%;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.2);
+    }
+    .lane-footer {
+      padding: 6px 8px;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .lane-footer .done-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-weight: 600; font-size: 0.64rem;
+    }
+    .done-badge.running { background: var(--accent); color: var(--btn-text, #041016); }
+    .done-badge.finished { background: #22c55e; color: #000; }
+    .done-badge.waiting { background: transparent; color: var(--text-muted); }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border);
+      max-width: 600px; margin: 0 auto; width: 100%;
+    }
+    .control-row { margin-bottom: 10px; }
+    .control-row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      flex: 1; min-width: 80px; padding: 10px 12px;
+      background: var(--accent); color: var(--btn-text, #041016);
+      border: none; border-radius: var(--radius);
+      cursor: pointer; font-size: 0.84rem; font-weight: 600;
+      font-family: var(--font); transition: filter 0.15s;
+    }
+    button:hover { filter: brightness(1.1); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+    button.secondary { background: var(--bg-input); color: var(--text); border: 1px solid var(--border); }
+    button.danger { background: var(--danger); }
+    .legend {
+      display: flex; gap: 14px; justify-content: center;
+      flex-wrap: wrap; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px;
+    }
+    .legend i {
+      display: inline-block; width: 10px; height: 10px;
+      border-radius: 2px; margin-right: 4px; vertical-align: middle;
+    }
+    .hint { font-size: 0.68rem; opacity: 0.5; text-align: center; margin: 6px 0 0; color: var(--text-muted); }
+    @media (max-width: 520px) {
+      .race-stage { flex-direction: column; }
+      .lane { min-height: 140px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="siralama-yarisi">
+
+<div class="hud">
+  <h1>🏁 Sıralama Algoritması Yarışı</h1>
+</div>
+
+<div class="race-stage">
+  <div class="lane" id="lane-bubble">
+    <div class="lane-header">
+      <span class="algo-label">🫧 Kabarcık (Bubble)</span>
+      <span class="lane-stats">Adım: <span class="step">0</span> · Süre: <span class="time">0ms</span></span>
+    </div>
+    <div class="lane-canvas-wrap"><canvas></canvas></div>
+    <div class="lane-footer"><span class="done-badge waiting">Bekliyor</span></div>
+  </div>
+  <div class="lane" id="lane-quick">
+    <div class="lane-header">
+      <span class="algo-label">⚡ Hızlı (Quick)</span>
+      <span class="lane-stats">Adım: <span class="step">0</span> · Süre: <span class="time">0ms</span></span>
+    </div>
+    <div class="lane-canvas-wrap"><canvas></canvas></div>
+    <div class="lane-footer"><span class="done-badge waiting">Bekliyor</span></div>
+  </div>
+  <div class="lane" id="lane-merge">
+    <div class="lane-header">
+      <span class="algo-label">🔗 Birleştirmeli (Merge)</span>
+      <span class="lane-stats">Adım: <span class="step">0</span> · Süre: <span class="time">0ms</span></span>
+    </div>
+    <div class="lane-canvas-wrap"><canvas></canvas></div>
+    <div class="lane-footer"><span class="done-badge waiting">Bekliyor</span></div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="legend">
+    <span><i style="background:var(--accent)"></i>Karşılaştırma</span>
+    <span><i style="background:var(--accent-warm)"></i>Takas</span>
+    <span><i style="background:#22c55e"></i>Sıralı</span>
+  </div>
+  <div class="control-row">
+    <label>Dizi Boyutu <span id="sizeVal">32</span></label>
+    <input type="range" id="sizeSlider" min="8" max="64" value="32" step="1">
+  </div>
+  <div class="control-row">
+    <label>Hız <span id="speedVal">Orta</span></label>
+    <input type="range" id="speedSlider" min="1" max="10" value="5" step="1">
+  </div>
+  <div class="btn-row">
+    <button id="startBtn">▶ Başlat</button>
+    <button id="shuffleBtn" class="secondary">🔀 Karıştır</button>
+    <button id="resetBtn" class="secondary">🔄 Sıfırla</button>
+  </div>
+  <p class="hint">Üç algoritma aynı dizi üzerinde yan yana çalışır. En hızlı bitiren kazanır!</p>
+</div>
+
+<script>
+(function () {
+  const lanes = [
+    { id: "bubble", el: document.getElementById("lane-bubble"), canvas: null, ctx: null, name: "Kabarcık" },
+    { id: "quick",  el: document.getElementById("lane-quick"),  canvas: null, ctx: null, name: "Hızlı" },
+    { id: "merge",  el: document.getElementById("lane-merge"),  canvas: null, ctx: null, name: "Birleştirmeli" },
+  ];
+  lanes.forEach(l => { l.canvas = l.el.querySelector("canvas"); l.ctx = l.canvas.getContext("2d"); });
+
+  const sizeSlider = document.getElementById("sizeSlider");
+  const sizeVal = document.getElementById("sizeVal");
+  const speedSlider = document.getElementById("speedSlider");
+  const speedVal = document.getElementById("speedVal");
+  const startBtn = document.getElementById("startBtn");
+  const shuffleBtn = document.getElementById("shuffleBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  const SPEED_LABELS = ["", "Çok yavaş", "Yavaş", "", "Orta", "", "Hızlı", "", "Çok hızlı", "", "Anlık"];
+  const ACCENT = "#5eead4";
+  const WARM = "#fbbf24";
+  const GREEN = "#22c55e";
+
+  let originalArr = [];
+  let running = false;
+  let size = 32;
+  let speed = 5;
+
+  function getDelay() {
+    if (speed >= 10) return 0;
+    return Math.floor(200 / speed);
+  }
+
+  function randomArray(n) {
+    return Array.from({ length: n }, () => Math.floor(Math.random() * 95) + 5);
+  }
+
+  function resizeCanvases() {
+    lanes.forEach(l => {
+      const rect = l.canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      l.canvas.width = Math.floor(rect.width * dpr);
+      l.canvas.height = Math.floor(rect.height * dpr);
+      l.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    });
+    drawAll();
+  }
+
+  function drawLane(lane, arr, highlight) {
+    const ctx = lane.ctx;
+    const w = lane.canvas.width / (window.devicePixelRatio || 1);
+    const h = lane.canvas.height / (window.devicePixelRatio || 1);
+    ctx.clearRect(0, 0, w, h);
+    if (!arr.length) return;
+    const barW = Math.max(2, (w / arr.length) - 1);
+    const maxVal = 100;
+    arr.forEach((v, i) => {
+      const x = i * (barW + 1);
+      const barH = (v / maxVal) * (h - 4);
+      let color = "rgba(100,116,139,0.7)";
+      if (highlight) {
+        if (highlight.sorted && highlight.sorted.includes(i)) color = GREEN;
+        if (highlight.swap && highlight.swap.includes(i)) color = WARM;
+        if (highlight.compare && highlight.compare.includes(i)) color = ACCENT;
+      }
+      ctx.fillStyle = color;
+      ctx.fillRect(x, h - barH - 2, barW, barH);
+    });
+  }
+
+  function drawAll() {
+    // Each lane draws its own snapshot (stored on lane._arr, lane._highlight)
+    lanes.forEach(l => {
+      drawLane(l, l._arr || originalArr, l._highlight || null);
+    });
+  }
+
+  function setLaneStatus(laneId, status) {
+    const lane = lanes.find(l => l.id === laneId);
+    if (!lane) return;
+    const badge = lane.el.querySelector(".done-badge");
+    badge.textContent = status === "running" ? "Çalışıyor" : status === "finished" ? "✓ Tamamlandı" : "Bekliyor";
+    badge.className = "done-badge " + status;
+  }
+
+  function setLaneStats(laneId, step, timeMs) {
+    const lane = lanes.find(l => l.id === laneId);
+    if (!lane) return;
+    lane.el.querySelector(".step").textContent = step;
+    lane.el.querySelector(".time").textContent = timeMs + "ms";
+  }
+
+  // ---- Sorting generators ----
+  function* bubbleSortGen(arr) {
+    const a = [...arr];
+    const n = a.length;
+    let steps = 0;
+    const sorted = new Set();
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = 0; j < n - i - 1; j++) {
+        steps++;
+        yield { arr: [...a], compare: [j, j+1], swap: [], sorted: [...sorted], step: steps };
+        if (a[j] > a[j + 1]) {
+          [a[j], a[j + 1]] = [a[j + 1], a[j]];
+          steps++;
+          yield { arr: [...a], compare: [], swap: [j, j+1], sorted: [...sorted], step: steps };
+        }
+      }
+      sorted.add(n - i - 1);
+    }
+    for (let k = 0; k < n; k++) sorted.add(k);
+    yield { arr: [...a], compare: [], swap: [], sorted: [...sorted], step: steps };
+  }
+
+  function* quickSortGen(arr) {
+    const a = [...arr];
+    let steps = 0;
+    const sorted = new Set();
+
+    function* qs(lo, hi) {
+      if (lo >= hi) { if (lo >= 0 && lo < a.length) sorted.add(lo); return; }
+      const pivot = a[hi];
+      let pi = lo;
+      for (let i = lo; i < hi; i++) {
+        steps++;
+        yield { arr: [...a], compare: [i, hi], swap: [], sorted: [...sorted], step: steps };
+        if (a[i] < pivot) {
+          [a[i], a[pi]] = [a[pi], a[i]];
+          steps++;
+          yield { arr: [...a], compare: [], swap: [i, pi], sorted: [...sorted], step: steps };
+          pi++;
+        }
+      }
+      [a[pi], a[hi]] = [a[hi], a[pi]];
+      steps++;
+      yield { arr: [...a], compare: [], swap: [pi, hi], sorted: [...sorted], step: steps };
+      sorted.add(pi);
+      yield* qs(lo, pi - 1);
+      yield* qs(pi + 1, hi);
+    }
+    yield* qs(0, a.length - 1);
+    for (let k = 0; k < a.length; k++) sorted.add(k);
+    yield { arr: [...a], compare: [], swap: [], sorted: [...sorted], step: steps };
+  }
+
+  function* mergeSortGen(arr) {
+    const a = [...arr];
+    let steps = 0;
+    const sorted = new Set();
+
+    function* ms(lo, hi) {
+      if (hi - lo <= 1) { sorted.add(lo); return; }
+      const mid = Math.floor((lo + hi) / 2);
+      yield* ms(lo, mid);
+      yield* ms(mid, hi);
+      const left = a.slice(lo, mid);
+      const right = a.slice(mid, hi);
+      let i = 0, j = 0, k = lo;
+      while (i < left.length && j < right.length) {
+        steps++;
+        yield { arr: [...a], compare: [lo + i, mid + j], swap: [], sorted: [...sorted], step: steps };
+        if (left[i] <= right[j]) {
+          a[k++] = left[i++];
+        } else {
+          a[k++] = right[j++];
+        }
+        steps++;
+        yield { arr: [...a], compare: [], swap: [k - 1], sorted: [...sorted], step: steps };
+      }
+      while (i < left.length) { a[k++] = left[i++]; steps++; yield { arr: [...a], compare: [], swap: [k-1], sorted: [...sorted], step: steps }; }
+      while (j < right.length) { a[k++] = right[j++]; steps++; yield { arr: [...a], compare: [], swap: [k-1], sorted: [...sorted], step: steps }; }
+      for (let x = lo; x < hi; x++) sorted.add(x);
+      yield { arr: [...a], compare: [], swap: [], sorted: [...sorted], step: steps };
+    }
+    yield* ms(0, a.length);
+    yield { arr: [...a], compare: [], swap: [], sorted: [...sorted], step: steps };
+  }
+
+  function getGenerator(algoId, arr) {
+    if (algoId === "bubble") return bubbleSortGen(arr);
+    if (algoId === "quick") return quickSortGen(arr);
+    if (algoId === "merge") return mergeSortGen(arr);
+    return null;
+  }
+
+  // ---- Race execution ----
+  async function runRace() {
+    if (running) return;
+    running = true;
+    startBtn.disabled = true;
+    startBtn.textContent = "⏳ Yarışıyor...";
+    const delay = getDelay();
+
+    // Reset all lanes
+    lanes.forEach(l => {
+      l._arr = [...originalArr];
+      l._highlight = null;
+      setLaneStatus(l.id, "running");
+      setLaneStats(l.id, 0, 0);
+    });
+    drawAll();
+
+    const generators = lanes.map(l => ({
+      lane: l,
+      gen: getGenerator(l.id, originalArr),
+      done: false,
+      startTime: performance.now(),
+      stepCount: 0,
+    }));
+
+    function tick() {
+      if (!running) return;
+      let allDone = true;
+
+      generators.forEach(g => {
+        if (g.done) return;
+        const result = g.gen.next();
+        if (result.done) {
+          g.done = true;
+          const elapsed = Math.round(performance.now() - g.startTime);
+          setLaneStatus(g.lane.id, "finished");
+          setLaneStats(g.lane.id, g.stepCount, elapsed);
+          // Final sorted state
+          g.lane._arr = [...originalArr].sort((a,b) => a - b);
+          g.lane._highlight = { sorted: Array.from({length: originalArr.length}, (_, i) => i), compare: [], swap: [] };
+        } else {
+          allDone = false;
+          const state = result.value;
+          g.lane._arr = state.arr;
+          g.lane._highlight = { compare: state.compare, swap: state.swap, sorted: state.sorted };
+          g.stepCount = state.step;
+          const elapsed = Math.round(performance.now() - g.startTime);
+          setLaneStats(g.lane.id, g.stepCount, elapsed);
+        }
+      });
+
+      drawAll();
+
+      if (allDone) {
+        stop();
+        return;
+      }
+
+      if (delay > 0) {
+        setTimeout(tick, delay);
+      } else {
+        requestAnimationFrame(tick);
+      }
+    }
+
+    tick();
+  }
+
+  function stop() {
+    running = false;
+    startBtn.disabled = false;
+    startBtn.textContent = "▶ Başlat";
+  }
+
+  function shuffle() {
+    if (running) return;
+    originalArr = randomArray(size);
+    lanes.forEach(l => {
+      l._arr = [...originalArr];
+      l._highlight = null;
+      setLaneStatus(l.id, "waiting");
+      setLaneStats(l.id, 0, 0);
+    });
+    drawAll();
+  }
+
+  function resetAll() {
+    stop();
+    originalArr = randomArray(size);
+    lanes.forEach(l => {
+      l._arr = [...originalArr];
+      l._highlight = null;
+      setLaneStatus(l.id, "waiting");
+      setLaneStats(l.id, 0, 0);
+    });
+    drawAll();
+  }
+
+  // ---- Events ----
+  sizeSlider.addEventListener("input", () => {
+    if (running) return;
+    size = parseInt(sizeSlider.value);
+    sizeVal.textContent = size;
+    originalArr = randomArray(size);
+    lanes.forEach(l => {
+      l._arr = [...originalArr];
+      l._highlight = null;
+      setLaneStatus(l.id, "waiting");
+      setLaneStats(l.id, 0, 0);
+    });
+    resizeCanvases();
+  });
+
+  speedSlider.addEventListener("input", () => {
+    speed = parseInt(speedSlider.value);
+    speedVal.textContent = SPEED_LABELS[speed] || speed;
+  });
+
+  startBtn.addEventListener("click", () => {
+    if (running) { stop(); return; }
+    runRace();
+  });
+
+  shuffleBtn.addEventListener("click", shuffle);
+  resetBtn.addEventListener("click", resetAll);
+
+  window.addEventListener("resize", resizeCanvases);
+
+  // Init
+  size = parseInt(sizeSlider.value);
+  originalArr = randomArray(size);
+  lanes.forEach(l => { l._arr = [...originalArr]; l._highlight = null; });
+  resizeCanvases();
+})();
+</script>
+
+</body>
+</html>

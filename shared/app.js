@@ -407,7 +407,14 @@
       slug.includes("koch") ||
       slug.includes("barnsley") ||
       slug.includes("altin") ||
-      slug.includes("tek-sayi")
+      slug.includes("tek-sayi") ||
+      [
+        "cizge-teorisi",
+        "karmasik-sayilar",
+        "pi-yaklasimi",
+        "konik-kesitler",
+        "matris-donusumleri",
+      ].includes(slug)
     )
       return "Matematik";
     if (
@@ -445,6 +452,9 @@
         "sezar-sifre",
         "siralama-algoritmalari",
         "bayes-olasilik",
+        "yol-bulma-algoritmalari",
+        "siralama-yarisi",
+        "mantik-devresi",
       ].includes(slug)
     )
       return "Simülasyon";
