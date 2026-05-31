@@ -50,34 +50,21 @@
   };
 
   function unlockAudio() {
-    if (unlocked) return;
     unlocked = true;
-    const first = getSound("hit");
-    if (first) {
-      const prev = first.volume;
-      first.volume = 0;
-      first
-        .play()
-        .then(() => {
-          first.pause();
-          first.currentTime = 0;
-          first.volume = prev;
-        })
-        .catch(() => {
-          first.volume = prev;
-        });
-    }
+    // Ses bağlamını açmak için sessizce dene — muted ile garantili sessiz
     Object.keys(SOUND_FILES).forEach((key) => {
       const s = getSound(key);
       if (!s) return;
-      s.volume = 0;
+      s.muted = true;
       s.play()
         .then(() => {
           s.pause();
           s.currentTime = 0;
+          s.muted = false;
           s.volume = key === "thrust" ? 0.35 : 0.55;
         })
         .catch(() => {
+          s.muted = false;
           s.volume = key === "thrust" ? 0.35 : 0.55;
         });
     });
