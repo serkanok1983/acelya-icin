@@ -690,30 +690,35 @@
   /* ── Temel Bilgi paneli ── */
   function initInfoPanel() {
     if (typeof PAGE_INFO === "undefined") return;
-    let container = document.querySelector(".app-content");
-    if (!container) container = document.body;
-    if (!container || document.getElementById("appInfoToggle")) return;
     const info = PAGE_INFO[pageId];
-    if (!info) return;
-    const wrap = document.createElement("div");
-    wrap.style.cssText = "max-width:680px;margin:24px auto 0;padding:0 12px;";
-    const toggle = document.createElement("button");
-    toggle.type = "button";
-    toggle.id = "appInfoToggle";
-    toggle.className = "app-info-toggle";
-    toggle.innerHTML = `📚 Temel Bilgi <span class="arrow">▾</span>`;
-    const card = document.createElement("div");
-    card.id = "appInfoCard";
-    card.className = "app-info-card collapsed";
-    card.innerHTML = `<h3>${info.title}</h3>${info.text}`;
-    toggle.addEventListener("click", () => {
-      const open = card.classList.toggle("collapsed");
-      toggle.classList.toggle("open", !open);
-      toggle.querySelector(".arrow").textContent = open ? "▾" : "▴";
+    if (!info || document.getElementById("appInfoFAB")) return;
+
+    // Yüzen buton (FAB)
+    const fab = document.createElement("button");
+    fab.id = "appInfoFAB";
+    fab.className = "app-info-fab";
+    fab.innerHTML = "📚";
+    fab.title = "Temel Bilgi";
+
+    // Modal overlay
+    const overlay = document.createElement("div");
+    overlay.id = "appInfoOverlay";
+    overlay.className = "app-info-overlay hidden";
+    overlay.innerHTML = `
+      <div class="app-info-modal">
+        <button class="app-info-close" id="appInfoClose">✕</button>
+        <h3>${info.title}</h3>
+        ${info.text}
+      </div>`;
+
+    fab.addEventListener("click", () => overlay.classList.remove("hidden"));
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay || e.target.id === "appInfoClose")
+        overlay.classList.add("hidden");
     });
-    wrap.appendChild(toggle);
-    wrap.appendChild(card);
-    container.appendChild(wrap);
+
+    document.body.appendChild(fab);
+    document.body.appendChild(overlay);
   }
 
   function ensureFavicon() {
