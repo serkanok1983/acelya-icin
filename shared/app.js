@@ -624,23 +624,30 @@
   function showInfoOverlay() {
     const info = PAGE_INFO[pageId];
     if (!info) return;
+
     let overlay = document.getElementById("appInfoOverlay");
     if (!overlay) {
       overlay = document.createElement("div");
       overlay.id = "appInfoOverlay";
-      overlay.className = "app-info-overlay";
+      overlay.className = "app-intro-overlay";
       document.body.appendChild(overlay);
     }
+    overlay.classList.remove("is-hidden");
+    window.AcelyaPause?.setPaused(true);
+
     overlay.innerHTML = `
-      <div class="app-info-modal">
-        <button class="app-info-close" id="appInfoClose">✕</button>
-        <h3>${info.title}</h3>
+      <div class="app-intro-card" role="dialog">
+        <span class="badge">📚 Temel Bilgi</span>
+        <h2>${info.title}</h2>
         ${info.text}
+        <div class="app-intro-actions">
+          <button type="button" class="app-btn-primary" id="appInfoCloseBtn">Anladım</button>
+        </div>
       </div>`;
-    overlay.classList.remove("hidden");
-    overlay.onclick = (e) => {
-      if (e.target === overlay || e.target.id === "appInfoClose")
-        overlay.classList.add("hidden");
+
+    document.getElementById("appInfoCloseBtn").onclick = () => {
+      overlay.classList.add("is-hidden");
+      window.AcelyaPause?.setPaused(false);
     };
   }
 
