@@ -594,6 +594,7 @@
 
     const currentTheme = getSavedTheme();
     const themeIcon = currentTheme === "dark" ? "☀️" : "🌙";
+    const hasInfo = typeof PAGE_INFO !== "undefined" && PAGE_INFO[pageId];
 
     const title = document.title.split("|")[0].trim() || slugToTitle(pageId);
     const bar = document.createElement("header");
@@ -602,15 +603,45 @@
       <a class="app-home" href="index.html">← Ana sayfa</a>
       <span class="app-topbar-title">${title}</span>
       <div class="app-topbar-actions">
+        ${hasInfo ? '<button type="button" class="app-btn-icon" id="appInfoBtn" title="Temel Bilgi">📚</button>' : ""}
         <button type="button" class="app-btn-theme" id="appThemeBtn" title="Tema değiştir">${themeIcon}</button>
         <button type="button" class="app-btn-icon" id="appHelpBtn" title="Yardım">ℹ️</button>
       </div>`;
     document.body.prepend(bar);
 
+    if (hasInfo) {
+      document
+        .getElementById("appInfoBtn")
+        .addEventListener("click", showInfoOverlay);
+    }
     document.getElementById("appThemeBtn").addEventListener("click", toggleTheme);
     document
       .getElementById("appHelpBtn")
       .addEventListener("click", () => showIntro(true));
+  }
+
+  /* ── Temel Bilgi overlay ── */
+  function showInfoOverlay() {
+    const info = PAGE_INFO[pageId];
+    if (!info) return;
+    let overlay = document.getElementById("appInfoOverlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "appInfoOverlay";
+      overlay.className = "app-info-overlay";
+      document.body.appendChild(overlay);
+    }
+    overlay.innerHTML = `
+      <div class="app-info-modal">
+        <button class="app-info-close" id="appInfoClose">✕</button>
+        <h3>${info.title}</h3>
+        ${info.text}
+      </div>`;
+    overlay.classList.remove("hidden");
+    overlay.onclick = (e) => {
+      if (e.target === overlay || e.target.id === "appInfoClose")
+        overlay.classList.add("hidden");
+    };
   }
 
   /* —— Giriş paneli —— */
@@ -674,45 +705,6 @@
     }
   }
 
-  /* ── Temel Bilgi paneli ── */
-  function initInfoPanel() {
-    if (typeof PAGE_INFO === "undefined") return;
-    const info = PAGE_INFO[pageId];
-    if (!info || document.getElementById("appInfoFAB")) return;
-
-    // Canvas sayfalarında (Three.js vb) FAB'ın canvas'tan sonra render edilmesi için hafif gecikme
-    const appendFAB = () => {
-      if (document.getElementById("appInfoFAB")) return;
-
-      const fab = document.createElement("button");
-      fab.id = "appInfoFAB";
-      fab.className = "app-info-fab";
-      fab.innerHTML = "📚 Temel Bilgi";
-      fab.title = "Bu konu hakkında temel bilgi";
-
-      const overlay = document.createElement("div");
-      overlay.id = "appInfoOverlay";
-      overlay.className = "app-info-overlay hidden";
-      overlay.innerHTML = `
-        <div class="app-info-modal">
-          <button class="app-info-close" id="appInfoClose">✕</button>
-          <h3>${info.title}</h3>
-          ${info.text}
-        </div>`;
-
-      fab.addEventListener("click", () => overlay.classList.remove("hidden"));
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay || e.target.id === "appInfoClose")
-          overlay.classList.add("hidden");
-      });
-
-      document.body.appendChild(fab);
-      document.body.appendChild(overlay);
-    };
-
-    setTimeout(appendFAB, 200);
-  }
-
   function ensureFavicon() {
     if (window.AcelyaIcons) {
       AcelyaIcons.ensureIcons();
@@ -773,27 +765,36 @@
     initTheme();
     initPWA();
     ensureFavicon();
+    // page-info.js'i yükle (topbar'daki bilgi butonu için gerekli)
+    if (
+      !document.querySelector("script[src='shared/page-info.js']") &&
+      typeof PAGE_INFO === "undefined"
+    ) {
+      const s = document.createElement("script");
+      s.src = "shared/page-info.js";
+      s.onload = function () {
+        // PAGE_INFO yüklendikten sonra topbar'a bilgi butonu ekle
+        const actions = document.querySelector(".app-topbar-actions");
+        const info = PAGE_INFO[pageId];
+        if (actions && info && !document.getElementById("appInfoBtn")) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "app-btn-icon";
+          btn.id = "appInfoBtn";
+          btn.title = "Temel Bilgi";
+          btn.textContent = "📚";
+          btn.addEventListener("click", showInfoOverlay);
+          actions.insertBefore(btn, actions.firstChild);
+        }
+      };
+      document.head.appendChild(s);
+    }
     initStars();
     initTopbar();
     enhanceHints();
-    loadPageInfo();
     loadActivityTracker();
     loadGameKit();
     setTimeout(() => showIntro(false), 120);
-  }
-
-  function loadPageInfo() {
-    if (typeof PAGE_INFO !== "undefined") {
-      initInfoPanel();
-      return;
-    }
-    const s = document.createElement("script");
-    s.src = "shared/page-info.js";
-    s.onload = initInfoPanel;
-    s.onerror = function () {
-      console.warn("page-info.js yüklenemedi");
-    };
-    document.head.appendChild(s);
   }
 
   if (document.readyState === "loading") {
