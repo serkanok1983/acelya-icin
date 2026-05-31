@@ -693,32 +693,37 @@
     const info = PAGE_INFO[pageId];
     if (!info || document.getElementById("appInfoFAB")) return;
 
-    // Yüzen buton (FAB)
-    const fab = document.createElement("button");
-    fab.id = "appInfoFAB";
-    fab.className = "app-info-fab";
-    fab.innerHTML = "📚";
-    fab.title = "Temel Bilgi";
+    // Canvas sayfalarında (Three.js vb) FAB'ın canvas'tan sonra render edilmesi için hafif gecikme
+    const appendFAB = () => {
+      if (document.getElementById("appInfoFAB")) return;
 
-    // Modal overlay
-    const overlay = document.createElement("div");
-    overlay.id = "appInfoOverlay";
-    overlay.className = "app-info-overlay hidden";
-    overlay.innerHTML = `
-      <div class="app-info-modal">
-        <button class="app-info-close" id="appInfoClose">✕</button>
-        <h3>${info.title}</h3>
-        ${info.text}
-      </div>`;
+      const fab = document.createElement("button");
+      fab.id = "appInfoFAB";
+      fab.className = "app-info-fab";
+      fab.innerHTML = "📚 Temel Bilgi";
+      fab.title = "Bu konu hakkında temel bilgi";
 
-    fab.addEventListener("click", () => overlay.classList.remove("hidden"));
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay || e.target.id === "appInfoClose")
-        overlay.classList.add("hidden");
-    });
+      const overlay = document.createElement("div");
+      overlay.id = "appInfoOverlay";
+      overlay.className = "app-info-overlay hidden";
+      overlay.innerHTML = `
+        <div class="app-info-modal">
+          <button class="app-info-close" id="appInfoClose">✕</button>
+          <h3>${info.title}</h3>
+          ${info.text}
+        </div>`;
 
-    document.body.appendChild(fab);
-    document.body.appendChild(overlay);
+      fab.addEventListener("click", () => overlay.classList.remove("hidden"));
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay || e.target.id === "appInfoClose")
+          overlay.classList.add("hidden");
+      });
+
+      document.body.appendChild(fab);
+      document.body.appendChild(overlay);
+    };
+
+    setTimeout(appendFAB, 200);
   }
 
   function ensureFavicon() {
