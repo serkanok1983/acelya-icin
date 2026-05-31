@@ -837,26 +837,40 @@
 
   /* ── Temel Bilgi paneli ── */
   function initInfoPanel() {
-    const content = document.querySelector(".app-content");
-    if (!content || document.getElementById("appInfoToggle")) return;
+    let container = document.querySelector(".app-content");
+    if (!container) {
+      // Eski sayfalar için body'ye ekle
+      container = document.body;
+    }
+    if (!container || document.getElementById("appInfoToggle")) return;
+
     const info = PAGE_INFO[pageId];
     if (!info) return;
+
+    // Panel için wrapper
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "max-width:680px;margin:24px auto 0;padding:0 12px;";
+
     const toggle = document.createElement("button");
     toggle.type = "button";
     toggle.id = "appInfoToggle";
     toggle.className = "app-info-toggle";
     toggle.innerHTML = `📚 Temel Bilgi <span class="arrow">▾</span>`;
+
     const card = document.createElement("div");
     card.id = "appInfoCard";
     card.className = "app-info-card collapsed";
     card.innerHTML = `<h3>${info.title}</h3>${info.text}`;
+
     toggle.addEventListener("click", () => {
       const open = card.classList.toggle("collapsed");
       toggle.classList.toggle("open", !open);
       toggle.querySelector(".arrow").textContent = open ? "▾" : "▴";
     });
-    content.appendChild(toggle);
-    content.appendChild(card);
+
+    wrap.appendChild(toggle);
+    wrap.appendChild(card);
+    container.appendChild(wrap);
   }
 
   function ensureFavicon() {
