@@ -82,6 +82,21 @@
   "use strict";
 
   let pageId = "";
+  const GAME_IDS = new Set([
+    "pong",
+    "asteroids",
+    "snake",
+    "breakout",
+    "oyun-2048",
+    "yasam-oyunu",
+    "tetris",
+    "gezegen-savunmasi",
+    "formul-hafiza",
+    "mayin-tarlasi",
+    "hanoi-kuleleri",
+    "uzay-kosucusu",
+    "isik-sondurme",
+  ]);
   const PauseState = { paused: false };
 
   (function installPauseAwareSchedulers() {
@@ -595,6 +610,7 @@
     const currentTheme = getSavedTheme();
     const themeIcon = currentTheme === "dark" ? "☀️" : "🌙";
     const hasInfo = typeof PAGE_INFO !== "undefined" && PAGE_INFO[pageId];
+    const isGame = GAME_IDS.has(pageId);
 
     const title = document.title.split("|")[0].trim() || slugToTitle(pageId);
     const bar = document.createElement("header");
@@ -604,6 +620,7 @@
       <span class="app-topbar-title">${title}</span>
       <div class="app-topbar-actions">
         ${hasInfo ? '<button type="button" class="app-btn-icon" id="appInfoBtn" title="Temel Bilgi">📚</button>' : ""}
+        ${isGame ? '<button type="button" class="app-btn-icon" id="appPauseBtn" title="Duraklat (P)">⏯️</button>' : ""}
         <button type="button" class="app-btn-theme" id="appThemeBtn" title="Tema değiştir">${themeIcon}</button>
         <button type="button" class="app-btn-icon" id="appHelpBtn" title="Yardım">ℹ️</button>
       </div>`;
@@ -614,11 +631,54 @@
         .getElementById("appInfoBtn")
         .addEventListener("click", showInfoOverlay);
     }
+    if (isGame) {
+      document.getElementById("appPauseBtn").addEventListener("click", togglePause);
+    }
     document.getElementById("appThemeBtn").addEventListener("click", toggleTheme);
     document
       .getElementById("appHelpBtn")
       .addEventListener("click", () => showIntro(true));
   }
+
+  /* ── Pause ── */
+  function togglePause() {
+    const paused = !window.AcelyaPause?.isPaused();
+    window.AcelyaPause?.setPaused(paused);
+    updatePauseUI(paused);
+  }
+
+  function updatePauseUI(paused) {
+    const btn = document.getElementById("appPauseBtn");
+    if (btn) btn.textContent = paused ? "▶️" : "⏯️";
+    let overlay = document.getElementById("appPauseOverlay");
+    if (paused) {
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "appPauseOverlay";
+        overlay.className = "app-pause-overlay";
+        overlay.innerHTML =
+          '<div class="app-pause-text">⏸ Duraklatıldı</div><div class="app-pause-hint">Devam etmek için P tuşuna bas</div>';
+        document.body.appendChild(overlay);
+      }
+      overlay.classList.remove("hidden");
+    } else {
+      if (overlay) overlay.classList.add("hidden");
+    }
+  }
+
+  // Klavye: P tuşu ile pause toggle (sadece oyun sayfalarında)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "p" || e.key === "P") {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      )
+        return;
+      if (!GAME_IDS.has(pageId)) return;
+      e.preventDefault();
+      togglePause();
+    }
+  });
 
   /* ── Temel Bilgi overlay ── */
   function showInfoOverlay() {
