@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Uçak Mühendisliği ve Aerodinamik</title>
+  <style>
+    * { box-sizing: border-box; }
+    .app-content { max-width: 920px; }
+    .panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .panel .desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5; }
+
+    /* ═══════ Airfoil Canvas ═══════ */
+    #airfoilCanvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1a2d 0%, #060d1a 100%);
+      border:1px solid var(--border);
+    }
+
+    /* ═══════ Topic Grid ═══════ */
+    .topic-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:8px;
+    }
+    .topic-card {
+      padding:12px; border-radius:8px; border:1px solid var(--border);
+      cursor:pointer; text-align:center; transition:all 0.2s;
+      background:rgba(255,255,255,0.02);
+    }
+    .topic-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
+    .topic-card .tc-icon { font-size:1.3rem; }
+    .topic-card .tc-name { font-size:0.75rem; font-weight:700; color:var(--text); margin:4px 0; }
+    .topic-detail {
+      font-size:0.7rem; color:var(--text-muted); line-height:1.5;
+      padding:10px 14px; background:rgba(94,234,212,0.04);
+      border:1px solid rgba(94,234,212,0.12); border-radius:8px;
+      margin-top:10px; min-height:36px;
+    }
+    .topic-detail strong { color:var(--accent); }
+
+    /* ═══════ Structure Grid ═══════ */
+    .struct-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:6px;
+    }
+    .struct-card {
+      padding:10px; border-radius:6px; border:1px solid var(--border);
+      text-align:center; background:rgba(255,255,255,0.02);
+      transition:all 0.2s;
+    }
+    .struct-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
+    .struct-card .st-icon { font-size:1.2rem; }
+    .struct-card .st-name { font-size:0.72rem; font-weight:700; color:var(--text); margin:3px 0; }
+    .struct-card .st-desc { font-size:0.58rem; color:var(--text-muted); line-height:1.3; }
+
+    @media (max-width:500px) {
+      .panel { padding:12px 14px; }
+    }
+  </style>
+  <script src="shared/page-info.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="ucak-muhendisligi-ve-aerodinamik">
+<div class="app-content">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 1. AERODİNAMİK CANVAS — AIRFOIL & AKIŞ                     -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🌬️ Aerodinamik — Kanat Profili (Airfoil) ve Akış</h2>
+    <p class="desc">
+      <strong>Aerodinamik</strong> havanın cisimlerle etkileşimini inceler. <strong>Bernoulli Prensibi:</strong> Hız↑ → Basınç↓. Kanat üst yüzeyinde hızlanan hava düşük basınç, alt yüzeyde yavaşlayan hava yüksek basınç oluşturur → <strong>Kaldırma Kuvveti (L)</strong>. <strong>Hücum Açısı (α)</strong> arttıkça kaldırma artar, ancak ~15-16°'de akış ayrılır → <strong>Stall (tutunma kaybı)</strong>. NACA 4-haneli profiller (örn. 2412) endüstride standarttır.
+    </p>
+    <canvas id="airfoilCanvas"></canvas>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn-send" id="btnAoAUp" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">⬆ Hücum Açısını Artır</button>
+      <button class="btn-ghost2" id="btnAoADown" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">⬇ Hücum Açısını Azalt</button>
+      <button class="btn-ghost2" id="btnAoAReset" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">↺ Sıfırla (0°)</button>
+    </div>
+    <div style="font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:6px" id="airfoilInfo">
+      α=0° · C<sub>L</sub>≈0.2 · Akış: Tutunmuş (laminer) · L = ½ρv²SC<sub>L</sub>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 2. UÇUŞ DİNAMİĞİ & KONTROL YÜZEYLERİ                       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🕹️ Uçuş Dinamiği ve Kontrol Yüzeyleri</h2>
+    <p class="desc">
+      Uçağın 3 eksen etrafındaki hareketi (<strong>yunuslama/pitch, yuvarlanma/roll, sapma/yaw</strong>) kontrol yüzeyleriyle sağlanır. <strong>Statik kararlılık:</strong> Bozucudan sonra başlangıç eğiliminin düzeltici yönde olması. <strong>Dinamik kararlılık:</strong> Salınımların zamanla sönümlenmesi.
+    </p>
+    <div class="topic-grid" id="controlGrid"></div>
+    <div class="topic-detail" id="controlDetail">🖱️ Bir kontrol yüzeyine tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3. İTKİ SİSTEMLERİ                                         -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🚀 İtki Sistemleri — Jet Motorları ve Pervaneler</h2>
+    <p class="desc">
+      <strong>İtki (Thrust):</strong> Newton'un 3. yasası — kütlenin geriye atılmasıyla ileri kuvvet. <strong>Temel denklem:</strong> F = ṁ<sub>çıkış</sub>V<sub>çıkış</sub> − ṁ<sub>giriş</sub>V<sub>giriş</sub> + (P<sub>çıkış</sub>−P<sub>ortam</sub>)A<sub>çıkış</sub>. Modern motorlarda bypass oranı (BPR) yakıt verimliliğinin anahtarıdır.
+    </p>
+    <div class="topic-grid" id="engineGrid"></div>
+    <div class="topic-detail" id="engineDetail">🖱️ Bir motor tipine tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 4. UÇAK YAPISI & MALZEMELER                                -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🛡️ Uçak Yapısı ve Havacılık Malzemeleri</h2>
+    <p class="desc">
+      Uçak gövdesi hafiflik ve dayanım arasında optimum denge gerektirir. <strong>Monokok:</strong> Yükü dış kabuk taşır. <strong>Semi-monokok:</strong> Stringer + frame + skin birlikte taşır (modern standart). Gerilme analizi: σ = M·y/I, burulma: τ = T·r/J.
+    </p>
+    <div class="struct-grid" id="structGrid"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 5. UÇUŞ PERFORMANSI                                        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>📈 Uçuş Performansı — Menzil, Tırmanış ve Breguet</h2>
+    <p class="desc">
+      Uçuş performansı kalkış, tırmanış, seyir ve iniş safhalarını kapsar. <strong>Breguet Menzil Denklemi:</strong> R = (V/C<sub>j</sub>)·(L/D)·ln(W<sub>0</sub>/W<sub>1</sub>). Menzili artırmak için aerodinamik verim (L/D), yakıt verimliliği (C<sub>j</sub>) ve yapısal hafiflik kritiktir.
+    </p>
+    <div class="topic-grid" id="perfGrid"></div>
+    <div class="topic-detail" id="perfDetail">🖱️ Bir performans parametresine tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 6. AVİYONİK & NAVİGASYON                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🛰️ Aviyonik Sistemler ve Navigasyon</h2>
+    <p class="desc">
+      Modern uçaklar <strong>fly-by-wire</strong> ile pilot komutlarını elektrik sinyallerine çevirir, uçuş bilgisayarı kararlılığı sağlar. Navigasyon sistemleri konum, hız ve yön bilgisini sürekli günceller.
+    </p>
+    <div class="topic-grid" id="avionicsGrid"></div>
+    <div class="topic-detail" id="avionicsDetail">🖱️ Bir sisteme tıklayın.</div>
+  </div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  1. AIRFOIL CANVAS — Aerodinamik Akış Simülasyonu           ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas=document.getElementById("airfoilCanvas");
+  const ctx=canvas.getContext("2d");
+  let W,H;
+  let aoa=0; // angle of attack in degrees
+
+  function resize(){
+    const rect=canvas.parentElement.getBoundingClientRect();
+    W=canvas.width=rect.width-36; H=canvas.height=320;
+    const dpr=window.devicePixelRatio||1;
+    canvas.width=W*dpr; canvas.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function drawAirfoilShape(cx,cy,chord,alphaRad,thickness){
+    // NACA-like airfoil using bezier curves (simplified 4-digit shape)
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(-alphaRad);
+
+    const halfChord=chord/2;
+    const maxThick=thickness*chord*0.18; // ~max thickness at 30% chord
+    const camber=0.02*chord; // 2% camber (like NACA 24xx)
+
+    ctx.beginPath();
+    // Upper surface — from trailing edge to leading edge and back
+    ctx.moveTo(halfChord,0); // trailing edge upper
+    ctx.bezierCurveTo(
+      halfChord*0.4, -maxThick*0.4,  // control 1
+      -halfChord*0.5, -maxThick*1.0,  // control 2 (leading edge top)
+      -halfChord, -camber*0.3          // leading edge
+    );
+    // Lower surface
+    ctx.bezierCurveTo(
+      -halfChord*0.5, maxThick*0.7,   // control 3 (leading edge bottom)
+      halfChord*0.4, maxThick*0.3,    // control 4
+      halfChord, camber*0.3            // back to trailing edge
+    );
+    ctx.closePath();
+
+    // Fill and stroke
+    const grad=ctx.createLinearGradient(-halfChord,0,halfChord,0);
+    grad.addColorStop(0,"rgba(148,163,184,0.25)");
+    grad.addColorStop(1,"rgba(148,163,184,0.15)");
+    ctx.fillStyle=grad;
+    ctx.fill();
+    ctx.strokeStyle="rgba(148,163,184,0.7)"; ctx.lineWidth=1.5; ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawStreamlines(cx,cy,chord,alphaRad){
+    const halfChord=chord/2;
+    const nStreamlines=9;
+    const offsets=[-0.8,-0.55,-0.35,-0.2,0,0,0.2,0.35,0.55,0.8];
+    // Heights above/below airfoil (fraction of chord)
+    const heights=[0.5,0.3,0.18,0.1,0.01,-0.01,-0.1,-0.18,-0.3,-0.5];
+
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(-alphaRad);
+
+    // If stalled, draw separation region
+    const stalled=Math.abs(aoa)>14;
+
+    for(let i=0;i<nStreamlines;i++){
+      const h=heights[i]*chord;
+      const isUpper=h>0;
+      const farY=h*1.8; // far upstream
+
+      ctx.beginPath();
+      ctx.moveTo(halfChord+60, farY);
+
+      if(!stalled || Math.abs(aoa)<=14){
+        // Attached flow — smooth curve following airfoil contour
+        const midX=halfChord*0.3;
+        const midY=h*0.7;
+        ctx.bezierCurveTo(halfChord+20, farY*0.7, midX, midY, -halfChord-60, farY*0.8);
+      } else {
+        // Separated flow — streamlines detach after ~30% chord
+        const sepX=halfChord*0.2; // separation point
+        const sepY=h*0.6;
+        ctx.bezierCurveTo(halfChord+20, farY*0.7, sepX, sepY, sepX-20, sepY+15*(isUpper?1:-1));
+        ctx.lineTo(-halfChord-60, sepY+40*(isUpper?1:-1));
+      }
+
+      const alpha=0.15+0.05*(i%3);
+      ctx.strokeStyle=`rgba(96,165,250,${alpha})`;
+      ctx.lineWidth=0.8; ctx.stroke();
+    }
+
+    // If stalled, draw turbulent wake
+    if(stalled){
+      for(let i=0;i<5;i++){
+        const yOff=(i-2)*15;
+        ctx.beginPath();
+        ctx.moveTo(halfChord*0.1, yOff);
+        for(let j=0;j<8;j++){
+          const tx=-halfChord*0.3-j*18;
+          const ty=yOff+Math.sin(j*1.5+i*0.7)*12;
+          ctx.lineTo(tx+Math.random()*6, ty);
+        }
+        ctx.strokeStyle=`rgba(248,113,113,${0.08+i*0.02})`;
+        ctx.lineWidth=1; ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawPressureDist(cx,cy,chord,alphaRad){
+    const halfChord=chord/2;
+    const nPts=18;
+    const color=Math.abs(aoa)>14?"rgba(248,113,113,0.5)":"rgba(96,165,250,0.45)";
+    const colorNeg="rgba(94,234,212,0.45)";
+
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(-alphaRad);
+
+    // Pressure distribution arrows on upper surface (suction)
+    ctx.strokeStyle=colorNeg; ctx.lineWidth=1.2;
+    for(let i=0;i<nPts;i++){
+      const frac=i/(nPts-1);
+      const x=-halfChord+frac*chord;
+      const dist=1-Math.abs(frac-0.3)*1.5; // peak suction at ~30% chord
+      const arrowLen=-Math.max(0,dist)*35;
+      if(arrowLen<-3){
+        const baseY=-4-Math.sin(frac*Math.PI)*12;
+        ctx.beginPath();
+        ctx.moveTo(x,baseY);
+        ctx.lineTo(x,baseY+arrowLen);
+        ctx.stroke();
+        // arrowhead
+        ctx.beginPath();
+        ctx.moveTo(x,baseY+arrowLen);
+        ctx.lineTo(x-3,baseY+arrowLen+5);
+        ctx.lineTo(x+3,baseY+arrowLen+5);
+        ctx.closePath(); ctx.fillStyle=colorNeg; ctx.fill();
+      }
+    }
+
+    // Lower surface pressure
+    ctx.strokeStyle=color; ctx.lineWidth=1.2;
+    for(let i=0;i<nPts;i++){
+      const frac=i/(nPts-1);
+      const x=-halfChord+frac*chord;
+      const dist=(1-Math.abs(frac-0.3)*1.5)*0.5;
+      const arrowLen=Math.max(0,dist)*18;
+      if(arrowLen>2){
+        const baseY=4+Math.sin(frac*Math.PI)*8;
+        ctx.beginPath();
+        ctx.moveTo(x,baseY);
+        ctx.lineTo(x,baseY+arrowLen);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x,baseY+arrowLen);
+        ctx.lineTo(x-3,baseY+arrowLen-5);
+        ctx.lineTo(x+3,baseY+arrowLen-5);
+        ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    const cx=W/2, cy=H/2-10, chord=Math.min(W*0.7,380);
+    const alphaRad=aoa*Math.PI/180;
+
+    // Grid lines
+    ctx.strokeStyle="rgba(148,163,184,0.04)"; ctx.lineWidth=0.5;
+    for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+    // Draw streamlines first (behind airfoil)
+    drawStreamlines(cx,cy,chord,alphaRad);
+
+    // Freestream indicators
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(-alphaRad);
+    const farLeft=-chord/2-70;
+    ctx.strokeStyle="rgba(96,165,250,0.3)"; ctx.lineWidth=1;
+    for(let y=-60;y<=60;y+=30){
+      ctx.beginPath();
+      ctx.moveTo(farLeft+10,y);
+      ctx.lineTo(farLeft+45,y);
+      ctx.stroke();
+      // arrowhead
+      ctx.beginPath();
+      ctx.moveTo(farLeft+45,y);
+      ctx.lineTo(farLeft+38,y-4);
+      ctx.lineTo(farLeft+38,y+4);
+      ctx.fillStyle="rgba(96,165,250,0.3)"; ctx.fill();
+    }
+    ctx.restore();
+
+    drawPressureDist(cx,cy,chord,alphaRad);
+    drawAirfoilShape(cx,cy,chord,alphaRad,0.12);
+
+    // Lift and Drag arrows (in world coordinates, not rotated)
+    const arrowLen=Math.min(110,30+Math.abs(aoa)*5);
+    const liftLen=Math.min(arrowLen*1.2, 120);
+    const dragLen=Math.min(arrowLen*0.6, 50);
+
+    // Lift arrow (perpendicular to freestream)
+    const liftAngle=alphaRad+Math.PI/2;
+    const lx=cx+Math.cos(liftAngle)*liftLen*0.6;
+    const ly=cy-Math.sin(liftAngle)*liftLen*0.6;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(lx,ly);
+    ctx.strokeStyle="#5eead4"; ctx.lineWidth=2; ctx.setLineDash([]); ctx.stroke();
+    // Arrowhead
+    ctx.beginPath();
+    ctx.moveTo(lx,ly);
+    ctx.lineTo(lx-Math.cos(liftAngle-0.5)*10, ly+Math.sin(liftAngle-0.5)*10);
+    ctx.lineTo(lx-Math.cos(liftAngle+0.5)*10, ly+Math.sin(liftAngle+0.5)*10);
+    ctx.closePath(); ctx.fillStyle="#5eead4"; ctx.fill();
+
+    // Drag arrow (parallel to freestream, backwards)
+    const dragAngle=alphaRad+Math.PI;
+    const dx=cx+Math.cos(dragAngle)*dragLen;
+    const dy=cy-Math.sin(dragAngle)*dragLen;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(dx,dy);
+    ctx.strokeStyle="#f87171"; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(dx,dy);
+    ctx.lineTo(dx-Math.cos(dragAngle-0.5)*8, dy+Math.sin(dragAngle-0.5)*8);
+    ctx.lineTo(dx-Math.cos(dragAngle+0.5)*8, dy+Math.sin(dragAngle+0.5)*8);
+    ctx.closePath(); ctx.fillStyle="#f87171"; ctx.fill();
+
+    // Labels
+    ctx.fillStyle="#5eead4"; ctx.font="bold 11px system-ui";
+    ctx.fillText("L (Kaldırma)", lx+8, ly-4);
+    ctx.fillStyle="#f87171"; ctx.font="bold 11px system-ui";
+    ctx.fillText("D (Sürükleme)", dx-65, dy+14);
+
+    // AoA indicator
+    const indLen=60;
+    const indX=cx-Math.cos(alphaRad)*indLen;
+    const indY=cy+Math.sin(alphaRad)*indLen;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(indX,indY);
+    ctx.strokeStyle="#fbbf24"; ctx.lineWidth=1; ctx.setLineDash([4,3]); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle="#fbbf24"; ctx.font="10px system-ui";
+    ctx.fillText(`α=${aoa}°`, indX-35, indY+4);
+
+    // Update info
+    const clApprox=Math.max(0.1,0.25+aoa*0.09-(aoa>14?0.3:0));
+    let flowDesc;
+    if(aoa<4) flowDesc="Tutunmuş (laminer)";
+    else if(aoa<10) flowDesc="Tutunmuş (türbülansa geçiş)";
+    else if(aoa<14) flowDesc="Sınır tabaka kalınlaşıyor";
+    else if(aoa<17) flowDesc="⚠️ Akış ayrılması — STALL başlangıcı";
+    else flowDesc="❌ Derin STALL — Tutunma tamamen kayboldu";
+    document.getElementById("airfoilInfo").innerHTML=
+      `α=${aoa}° · C<sub>L</sub>≈${clApprox.toFixed(2)} · Akış: ${flowDesc} · L = ½ρv²SC<sub>L</sub>`;
+  }
+
+  document.getElementById("btnAoAUp").addEventListener("click",()=>{
+    aoa=Math.min(aoa+2,22); draw();
+  });
+  document.getElementById("btnAoADown").addEventListener("click",()=>{
+    aoa=Math.max(aoa-2,-2); draw();
+  });
+  document.getElementById("btnAoAReset").addEventListener("click",()=>{
+    aoa=0; draw();
+  });
+
+  window.addEventListener("resize",()=>{resize();draw();});
+  resize();draw();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  2. CONTROL SURFACES                                        ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🛗", name:"Elevator (İrtifa Dümeni)", color:"#5eead4",
+      detail:"<strong>Yatay stabilize üzerinde, pitch kontrolü.</strong> Lövye ileri/geri → Elevator aşağı/yukarı → burun aşağı/yukarı. <strong>Trimm:</strong> Sabit uçuş için trim tab'ları kuvveti dengeler. Boeing 737'de hareketli horizontal stabilizer (stabilizer trim) kullanılır." },
+    { icon:"🔄", name:"Aileron (Kanatçık)", color:"#60a5fa",
+      detail:"<strong>Roll kontrolü.</strong> Lövye sola/sağa → sol aileron yukarı, sağ aşağı → sol kanat alçalır. <strong>Adverse yaw:</strong> Aşağı inen aileron daha fazla sürükleme yaratır → ters sapma. <strong>Diferansiyel aileron:</strong> Yukarı hareket aşağıdan fazla → ters sapma azalır. Frise tipi aileronlar daha da etkili." },
+    { icon:"🧭", name:"Rudder (İstikamet Dümeni)", color:"#a78bfa",
+      detail:"<strong>Dikey stabilize (fin) üzerinde, yaw kontrolü.</strong> Pedallar ile kontrol. <strong>Koordineli dönüş:</strong> Aileron ile birlikte rudder kullanımı → kayma/savrulma önlenir. <strong>Dutch roll:</strong> Swept-wing uçaklarda yaw damperi ile bastırılan doğal osilasyon. <strong>Motor arızasında:</strong> Asimetrik itkiyi rudder karşılar (V<sub>MC</sub>)." },
+    { icon:"🪽", name:"Flap ve Slat (Yüksek Kaldırma)", color:"#f472b6",
+      detail:"<strong>Flap (arka kenar):</strong> Fowler (geri+aşağı), plain, split, slotted. Camber ve alan artışı → C<sub>L_max</sub>↑ → düşük stall hızı. <strong>Slat (ön kenar):</strong> Hücum açısını artırmadan akış enerjisi verir. <strong>Kalkışta:</strong> Az flap (kaldırma+düşük drag). <strong>İnişte:</strong> Tam flap (max kaldırma+yüksek drag)." },
+    { icon:"📐", name:"Kararlılık ve Denge", color:"#fbbf24",
+      detail:"<strong>Boyuna Kararlılık (Longitudinal):</strong> CG, Aerodinamik Merkez (AC) önünde olmalı. Statik marj: (x_AC−x_CG)/MAC. Pozitif → kararlı. <strong>Yanal Kararlılık (Lateral):</strong> Dihedral açısı (kanatlar yukarı eğimli) → bozucu etkide düzeltici moment. <strong>Yön Kararlılığı (Directional):</strong> Dikey stabilize → rüzgar gülü etkisi." },
+  ];
+
+  const grid=document.getElementById("controlGrid"), detail=document.getElementById("controlDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  3. PROPULSION SYSTEMS                                      ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🌀", name:"Turbojet", color:"#f87171",
+      detail:"<strong>En basit gaz türbini.</strong> Hava→Kompresör→Yanma Odası→Türbin→Egzoz (nozzle). <strong>İtki:</strong> Tamamen egzoz jetinden. Yüksek hızda verimli, düşük hızda gürültülü ve verimsiz. <strong>Örnek:</strong> Concorde (Olympus 593), erken savaş uçakları (MiG-15, F-86)." },
+    { icon:"💨", name:"Turbofan", color:"#60a5fa",
+      detail:"<strong>Modern yolcu uçaklarının standardı.</strong> Fan öne eklenir → havanın çoğu core'dan geçmez (bypass). <strong>Bypass Oranı (BPR):</strong> Bypass akışı / Core akışı. B737 CFM56: BPR~5.5, B777 GE90: BPR~9. <strong>Yüksek BPR:</strong> Daha sessiz, daha verimli (düşük TSFC). <strong>Düşük BPR:</strong> Askeri (F119-PW-100: BPR~0.3, afterburner ile)." },
+    { icon:"⚙️", name:"Turboprop", color:"#fbbf24",
+      detail:"<strong>Gaz türbini + pervane.</strong> Türbin şaftı pervaneyi çevirir. <strong>Düşük irtifa ve hızda (Mach<0.6)</strong> en verimli. <strong>Örnek:</strong> ATR 72, C-130 Hercules, Dash 8. <strong>Avantaj:</strong> Kısa pist (STOL), düşük yakıt. <strong>Dezavantaj:</strong> Düşük hız, pervane gürültüsü." },
+    { icon:"🔧", name:"Piston Motor (Reciprocating)", color:"#a78bfa",
+      detail:"<strong>4 zamanlı Otto/Diesel çevrimi.</strong> Hafif uçaklarda (Cessna 172, Piper PA-28) kullanılır. <strong>Boxer tipi (horizontally opposed):</strong> Düşük CG, kompakt. <strong>Lycoming IO-360:</strong> 180 HP, hava soğutmalı. <strong>Manyeto:</strong> Elektrik sisteminden bağımsız ateşleme. Karışım (mixture) kolu irtifaya göre ayarlanır." },
+    { icon:"🔥", name:"Ramjet & Scramjet", color:"#f472b6",
+      detail:"<strong>Ramjet:</strong> Dönen parça yok! Yüksek hızda hava ram etkisiyle sıkışır. <strong>Mach 3+</strong> çalışır, Mach 0'da çalışmaz (booster gerekir). <strong>Scramjet (Supersonic Combustion):</strong> Yanma odasında akış süpersonik kalır → Mach 5+. <strong>Uygulama:</strong> X-43A (Mach 9.6 rekor), hipersonik füzeler, uzay uçağı konseptleri." },
+  ];
+
+  const grid=document.getElementById("engineGrid"), detail=document.getElementById("engineDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  4. STRUCTURE & MATERIALS                                   ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const structs=[
+    { icon:"🪶", name:"Al 2024-T3", desc:"Al-Cu alaşımı. Yüksek dayanım/ağırlık, yorulma direnci. <strong>Fuselage skin</strong> standardı. Bakır içeriği korozyona hassas → Alclad kaplama (saf Al yüzey). σ_y≈345 MPa." },
+    { icon:"🔩", name:"Al 7075-T6", desc:"Al-Zn-Mg-Cu alaşımı. 2024'ten %50 daha güçlü. <strong>Kanat sparları, bulkhead'ler.</strong> σ_y≈503 MPa. Gerilme korozyonuna dikkat. Boeing yapısal elemanlarda yaygın." },
+    { icon:"🧬", name:"CFRP (Karbon Fiber)", desc:"Karbon fiber + epoksi matris. <strong>Yüksek dayanım, ultra hafif.</strong> Boeing 787 gövdesinin %50'si, A350'nin %53'ü. E-modül: yöne bağlı (anizotropik). Otoklavda kürlenir." },
+    { icon:"🪟", name:"GFRP (Cam Elyaf)", desc:"Cam fiber + polyester/epoksi. CFRP'den ucuz, radar geçirgen. <strong>Radom, fairing, iç kabin.</strong> Düşük modül (~40 GPa vs CFRP~130 GPa). Tekne ve küçük uçak gövdelerinde." },
+    { icon:"🔪", name:"Ti-6Al-4V", desc:"Titanyum alaşımı. <strong>Yüksek sıcaklık dayanımı (400°C+).</strong> Motor parçaları, iniş takımı, bağlantı elemanları. σ_y≈880 MPa, ρ≈4.43 g/cm³. Galvanik korozyon: CFRP ile temas edince izole edilmeli." },
+    { icon:"🍯", name:"Bal Peteği (Honeycomb)", desc:"Alüminyum veya Nomex (aramid) petek + ince yüzey levhaları. <strong>Sandviç panel:</strong> Çok hafif, yüksek eğilme rijitliği. <strong>Kullanım:</strong> Zemin panelleri, kontrol yüzeyleri, jet motoru nacelle." },
+    { icon:"🏗️", name:"Monokok Yapı", desc:"Yükü tamamen dış kabuk (skin) taşır. İç iskelet yok. <strong>Erken uçaklar (ahşap/fiberglas).</strong> Burulma altında zayıf. Artık sadece küçük parçalarda (radom, fairing) veya kompozit gövdelerde kullanılır." },
+    { icon:"🏛️", name:"Semi-Monokok Yapı", desc:"<strong>Modern standart.</strong> Stringer (boyuna) + Frame/Former (enine) + Skin birlikte taşır. Yük paylaşımı: skin kesme (shear), stringer eksenel. Hasar toleransı: bir eleman çatlasa bile yük yeniden dağılır → fail-safe tasarım." },
+  ];
+
+  document.getElementById("structGrid").innerHTML=structs.map(s=>`
+    <div class="struct-card">
+      <div class="st-icon">${s.icon}</div>
+      <div class="st-name">${s.name}</div>
+      <div class="st-desc">${s.desc}</div>
+    </div>
+  `).join("");
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  5. FLIGHT PERFORMANCE                                      ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🛫", name:"Kalkış Performansı", color:"#5eead4",
+      detail:"<strong>Kalkış mesafesi (TODR):</strong> V₁ (karar hızı), V_R (rotasyon), V₂ (güvenli tırmanış). <strong>Denge alan uzunluğu (BFL):</strong> Motor arızasında durma veya kalkışa devam mesafesi. <strong>Etkileyenler:</strong> Ağırlık, irtifa (DA↑ → performans↓), sıcaklık, rüzgar, pist eğimi, flap ayarı." },
+    { icon:"⬆️", name:"Tırmanış (Climb)", color:"#60a5fa",
+      detail:"<strong>Tırmanış açısı (γ):</strong> sin(γ) = (T−D)/W. <strong>Maksimum tırmanma oranı (ROC):</strong> Fazla gücün maksimum olduğu hızda. <strong>Servis tavanı:</strong> ROC=100 ft/dk'daki irtifa. <strong>Mutlak tavan:</strong> ROC=0. <strong>Step climb:</strong> Yakıt azaldıkça irtifa artırma." },
+    { icon:"✈️", name:"Seyir — Breguet Denklemi", color:"#fbbf24",
+      detail:"<strong>Breguet Menzil (Jet):</strong> R = (V/Cⱼ)·(L/D)·ln(W₀/W₁). <strong>Max menzil için:</strong> L/D maksimum hızda uç. <strong>Max havada kalma (Endurance):</strong> Minimum yakıt debisi hızı. <strong>TSFC (Thrust Specific Fuel Consumption):</strong> lb/(lbf·h) veya g/(kN·s). CFM LEAP-1B: TSFC~0.53." },
+    { icon:"🛬", name:"İniş Performansı", color:"#f472b6",
+      detail:"<strong>İniş mesafesi:</strong> Yaklaşma (50 ft → pist) + flare + yerde durma. <strong>V_ref (V_AT):</strong> 1.3 × V_SO (tam flap stall hızı). <strong>Reverse thrust:</strong> İnişten sonra ters itki. <strong>Otopilot (Autoland):</strong> CAT III ILS ile sıfır görüşte iniş (Decision Height < 100 ft veya 0). Spoiler/speedbrake: inişte lift dump." },
+    { icon:"📊", name:"Yük-Taşıma-Menzil Diyagramı", color:"#a78bfa",
+      detail:"<strong>Payload-Range diyagramı:</strong> Maksimum yapısal yük (MZFW−OEW) → yakıt artınca yük azalır (değiş-tokuş). <strong>Harmon noktası:</strong> MZFW ve MTOW'da maksimum menzil. <strong>Ferry range:</strong> Sıfır yük, maksimum yakıt. <strong>Örnek B787-9:</strong> ~290 yolcu, 14.140 km menzil, MTOW 254 ton, OEW ~128 ton." },
+  ];
+
+  const grid=document.getElementById("perfGrid"), detail=document.getElementById("perfDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  6. AVIONICS & NAVIGATION                                   ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🌡️", name:"Pitot-Statik Sistem", color:"#5eead4",
+      detail:"<strong>Pitot tüpü:</strong> Toplam basınç (Pₜ=P_statik+½ρv²). <strong>Statik port:</strong> Ortam basıncı. <strong>Hava Hız Göstergesi (ASI):</strong> IAS (belirtilen) → CAS (kalibre) → TAS (gerçek). <strong>İrtifa (Altimetre):</strong> P_statik azaldıkça irtifa artar. <strong>Variometre (VSI):</strong> P_statik değişim oranı. Pitot-stat ikaz: Pitot tıkanması Air France 447 kazasının ana nedeni." },
+    { icon:"🧭", name:"INS/IRS (Ataletsel)", color:"#60a5fa",
+      detail:"<strong>Ring Lazer Jiroskop (RLG) veya Fiber Optik Jiroskop (FOG) + ivmeölçerler.</strong> GPS'ten bağımsız, harici sinyal gerektirmez. <strong>Alignment (hizalama):</strong> Yerde ~10 dk (GPS ile hızlı ~30 sn). <strong>Sapma (drift):</strong> 0.4-0.8 NM/saat. <strong>IRU:</strong> Ataletsel Referans Birimi. Ticari uçaklarda 3 IRU + GPS hibrit navigasyon." },
+    { icon:"🛰️", name:"GPS/GNSS Navigasyon", color:"#a78bfa",
+      detail:"<strong>GPS (ABD), GLONASS (Rusya), Galileo (AB), BeiDou (Çin).</strong> 24+ uydu, L1/L2/L5 frekansları. <strong>WAAS/EGNOS:</strong> Diferansiyel düzeltme ile hassasiyet <3m. <strong>RAIM:</strong> Alıcı Otonom Bütünlük İzleme — uydu arızasını tespit. <strong>RNAV/RNP:</strong> Alan navigasyonu, Required Navigation Performance (RNP 0.3 → ±0.3 NM koridor)." },
+    { icon:"💻", name:"Fly-by-Wire (FBW)", color:"#f472b6",
+      detail:"<strong>Mekanik bağlantı yok.</strong> Pilot input → Transdüser → Uçuş Bilgisayarı (FCC) → Aktüatör. <strong>Uçuş Zarfı Koruması (Flight Envelope Protection):</strong> Stall, overspeed, aşırı bank açısını engeller. <strong>Airbus (1988 A320):</strong> İlk tam FBW yolcu uçağı. <strong>Boeing 777 (1995):</strong> FBW + mekanik backup. <strong>Redundans:</strong> 3-4 kanallı bilgisayar, dissimilar software." },
+    { icon:"🖥️", name:"FADEC (Motor Kontrol)", color:"#fbbf24",
+      detail:"<strong>Full Authority Digital Engine Control:</strong> Motorun tüm parametrelerini (yakıt debisi, değişken stator kanatçıkları, bleed valfleri) dijital olarak kontrol eder. Pilot itki kolunu pozisyonlar, FADEC optimize eder. <strong>Otomatik başlatma, sağlık izleme, exceedance kaydı.</strong> Çift kanallı (dual channel)." },
+    { icon:"📺", name:"EFIS & Glass Cockpit", color:"#94a3b8",
+      detail:"<strong>Electronic Flight Instrument System:</strong> CRT/LCD/OLED ekranlarda uçuş verileri. <strong>PFD (Primary Flight Display):</strong> Suni ufuk, hız, irtifa, VSI, heading. <strong>ND (Navigation Display):</strong> Rota, waypoint, hava durumu radarı. <strong>EICAS/ECAM:</strong> Motor ve sistem uyarıları. <strong>B787/A350:</strong> Tamamen glass, head-up display (HUD) opsiyonu." },
+  ];
+
+  const grid=document.getElementById("avionicsGrid"), detail=document.getElementById("avionicsDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+</script>
+
+</body>
+</html>
