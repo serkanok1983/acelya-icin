@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Elektrik Mühendisliği</title>
+  <style>
+    * { box-sizing: border-box; }
+    .app-content { max-width: 920px; }
+    .panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .panel .desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5; }
+
+    /* ═══════ Circuit Canvas ═══════ */
+    #circuitCanvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
+      border:1px solid var(--border);
+    }
+
+    /* ═══════ Power System ═══════ */
+    .power-flow {
+      display:flex; gap:6px; flex-wrap:wrap; align-items:center; justify-content:center; margin:8px 0;
+    }
+    .power-step {
+      padding:10px 14px; border-radius:8px; text-align:center; border:1px solid var(--border);
+      background:rgba(255,255,255,0.02); font-size:0.68rem; cursor:pointer; transition:all 0.2s;
+    }
+    .power-step:hover { border-color:var(--accent); }
+    .power-step .pw-icon { font-size:1.3rem; }
+    .power-step .pw-name { font-weight:700; color:var(--text); margin-top:3px; }
+    .power-arrow { color:var(--accent); font-size:1rem; }
+
+    /* ═══════ Topic Grid ═══════ */
+    .topic-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:8px;
+    }
+    .topic-card {
+      padding:12px; border-radius:8px; border:1px solid var(--border);
+      cursor:pointer; text-align:center; transition:all 0.2s;
+      background:rgba(255,255,255,0.02);
+    }
+    .topic-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
+    .topic-card .tc-icon { font-size:1.3rem; }
+    .topic-card .tc-name { font-size:0.75rem; font-weight:700; color:var(--text); margin:4px 0; }
+    .topic-detail {
+      font-size:0.7rem; color:var(--text-muted); line-height:1.5;
+      padding:10px 14px; background:rgba(94,234,212,0.04);
+      border:1px solid rgba(94,234,212,0.12); border-radius:8px;
+      margin-top:10px; min-height:36px;
+    }
+    .topic-detail strong { color:var(--accent); }
+
+    /* ═══════ Machines ═══════ */
+    .machine-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:8px;
+    }
+    .machine-card {
+      padding:12px; border-radius:8px; border:1px solid var(--border);
+      background:rgba(255,255,255,0.02);
+    }
+    .machine-card .mc-icon { font-size:1.3rem; }
+    .machine-card .mc-name { font-weight:700; font-size:0.78rem; color:var(--text); margin:4px 0; }
+    .machine-card .mc-desc { font-size:0.62rem; color:var(--text-muted); line-height:1.4; }
+
+    @media (max-width:500px) {
+      .panel { padding:12px 14px; }
+    }
+  </style>
+  <script src="shared/page-info.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="elektrik-muhendisligi">
+<div class="app-content">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 1. DEVRE TEMELLERİ CANVAS                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>⚡ Elektrik Devre Temelleri — Ohm & Kirchhoff</h2>
+    <p class="desc">
+      Basit bir DC devresinde <strong>Ohm Kanunu (V=I·R)</strong> ve <strong>Kirchhoff Kanunları</strong> (KVL: ΣV=0, KCL: ΣI=0)
+      ile akım ve gerilim dağılımını inceleyin. Direnç değerlerini değiştirip devrenin nasıl tepki verdiğini görün.
+    </p>
+    <canvas id="circuitCanvas"></canvas>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn-send" id="btnR1Up" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">R₁ Artır</button>
+      <button class="btn-ghost2" id="btnR1Down" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">R₁ Azalt</button>
+      <button class="btn-ghost2" id="btnCircReset" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">↺ Sıfırla</button>
+    </div>
+    <div style="font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:6px" id="circuitInfo">
+      V=12V · R₁=4Ω, R₂=2Ω, R₃=6Ω · I_toplam=1.09A
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 2. GÜÇ SİSTEMLERİ                                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🏭 Güç Sistemleri — Üretimden Prize</h2>
+    <p class="desc">
+      Elektrik enerjisi üretimden tüketime kadar dört aşamadan geçer. Her aşamada gerilim seviyesi değişir.
+      Türkiye'de santralden çıkan elektrik <strong>380 kV</strong> ile taşınır, evinize <strong>220V</strong> olarak ulaşır.
+    </p>
+    <div class="power-flow">
+      <div class="power-step" style="border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.04)">
+        <div class="pw-icon">🏭</div><div class="pw-name">Üretim</div>
+        <div style="font-size:0.55rem;color:var(--text-muted);margin-top:2px">10-25 kV<br>Santral</div>
+      </div><span class="power-arrow">→</span>
+      <div class="power-step" style="border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.04)">
+        <div class="pw-icon">⚡</div><div class="pw-name">İletim</div>
+        <div style="font-size:0.55rem;color:var(--text-muted);margin-top:2px">154-380 kV<br>Yüksek Gerilim</div>
+      </div><span class="power-arrow">→</span>
+      <div class="power-step" style="border-color:rgba(96,165,250,0.3);background:rgba(96,165,250,0.04)">
+        <div class="pw-icon">🏘️</div><div class="pw-name">Dağıtım</div>
+        <div style="font-size:0.55rem;color:var(--text-muted);margin-top:2px">34.5-0.4 kV<br>Trafo</div>
+      </div><span class="power-arrow">→</span>
+      <div class="power-step" style="border-color:rgba(94,234,212,0.3);background:rgba(94,234,212,0.04)">
+        <div class="pw-icon">🏠</div><div class="pw-name">Tüketim</div>
+        <div style="font-size:0.55rem;color:var(--text-muted);margin-top:2px">220/380V<br>Ev/İşyeri</div>
+      </div>
+    </div>
+    <div style="font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:6px;line-height:1.5">
+      <strong>Türkiye kurulu gücü:</strong> ~106 GW (2024). <strong>Kaynak dağılımı:</strong> Hidrolik ~%30, Doğalgaz ~%25, Kömür ~%20, Rüzgar ~%11, Güneş ~%10, Jeotermal+Diğer.
+      <strong>TEİAŞ</strong> iletim, <strong>EDAŞ</strong>'lar dağıtım yapar. <strong>EPDK</strong> düzenleyici kurumdur.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3. ELEKTRİK MAKİNELERİ                                      -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🔌 Elektrik Makineleri — Motorlar ve Transformatörler</h2>
+    <p class="desc">
+      Elektrik enerjisini mekanik enerjiye (motor) veya mekanik enerjiyi elektriğe (jeneratör) dönüştüren makineler.
+      Transformatörler ise gerilim seviyesini değiştirir. Faraday'ın indüksiyon kanunu hepsinin temelidir.
+    </p>
+    <div class="machine-grid" id="machineGrid"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 4. GÜÇ ELEKTRONİĞİ & KONTROL                                -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>⚙️ Güç Elektroniği ve Kontrol Sistemleri</h2>
+    <p class="desc">
+      Güç elektroniği, elektrik enerjisini verimli şekilde dönüştüren ve kontrol eden devrelerin bilimidir.
+      Her karta tıklayarak detaylı açıklamayı görün.
+    </p>
+    <div class="topic-grid" id="peGrid"></div>
+    <div class="topic-detail" id="peDetail">🖱️ Bir konuya tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 5. YENİLENEBİLİR ENERJİ                                      -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🌱 Yenilenebilir Enerji Teknolojileri</h2>
+    <p class="desc">
+      Karbonsuz geleceğin temel taşları. Her teknoloji farklı bir fiziksel prensiple çalışır.
+    </p>
+    <div class="topic-grid" id="renewGrid"></div>
+    <div class="topic-detail" id="renewDetail">🖱️ Bir teknolojiye tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 6. MODERN KONULAR                                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🔮 Elektrik Mühendisliğinde Modern Konular</h2>
+    <p class="desc">21. yüzyılda elektrik mühendisliğini şekillendiren yeni teknolojiler.</p>
+    <div class="topic-grid" id="modernGrid"></div>
+    <div class="topic-detail" id="modernDetail">🖱️ Bir konuya tıklayın.</div>
+  </div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  1. CIRCUIT CANVAS                                          ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas = document.getElementById("circuitCanvas");
+  const ctx = canvas.getContext("2d");
+  let W = 500, H = 260;
+  let r1 = 4, r2 = 2, r3 = 6;
+  const V = 12;
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = Math.max(340, rect.width);
+    H = Math.max(220, Math.min(280, W * 0.5));
+    canvas.width = W;
+    canvas.height = H;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const cx = W/2, cy = H/2;
+
+    // Basit devre: V kaynağı + R1 seri + (R2 // R3) paralel
+    // R2//R3 = 2*6/(2+6)=1.5Ω, R_toplam=4+1.5=5.5Ω, I_toplam=12/5.5=2.18A
+    // Aslında daha basit: Seri devre R1+R2
+    const rPar = (r2*r3)/(r2+r3);
+    const rTotal = r1 + rPar;
+    const iTotal = V / rTotal;
+    const v1 = iTotal * r1;
+    const vPar = V - v1;
+    const i2 = vPar / r2;
+    const i3 = vPar / r3;
+
+    // Akü sembolü
+    ctx.fillStyle = "var(--accent)";
+    ctx.font = "bold 12px 'Outfit',sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(`⚡ ${V}V DC`, cx, cy-80);
+
+    // Devre çizgileri
+    ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 2;
+    // Üst hat
+    ctx.beginPath(); ctx.moveTo(cx, cy-60); ctx.lineTo(cx-120, cy-60); ctx.lineTo(cx-120, cy-20); ctx.stroke();
+    // R1
+    ctx.fillStyle = "var(--text-muted)"; ctx.font = "bold 10px 'Outfit',sans-serif"; ctx.textAlign = "center";
+    drawResistor(cx-120, cy-20, cx-120, cy+30, "#60a5fa");
+    ctx.fillText(`R₁=${r1}Ω`, cx-120, cy+48);
+
+    // Alt hat sola
+    ctx.beginPath(); ctx.moveTo(cx-120, cy+30); ctx.lineTo(cx-160, cy+30); ctx.lineTo(cx-160, cy+80); ctx.stroke();
+    // Alt hat merkez
+    ctx.beginPath(); ctx.moveTo(cx-120, cy+30); ctx.lineTo(cx-80, cy+30); ctx.lineTo(cx-80, cy+80); ctx.stroke();
+
+    // R2 (üst paralel)
+    drawResistor(cx-160, cy+80, cx-80, cy+80, "var(--accent-2)");
+    ctx.fillText(`R₂=${r2}Ω`, cx-120, cy+98);
+
+    // Devam
+    ctx.beginPath(); ctx.moveTo(cx-80, cy+80); ctx.lineTo(cx-80, cy+110); ctx.lineTo(cx, cy+110); ctx.lineTo(cx, cy+80); ctx.stroke();
+
+    // R3
+    drawResistor(cx, cy+80, cx+80, cy+80, "#fbbf24");
+    ctx.fillText(`R₃=${r3}Ω`, cx+40, cy+98);
+
+    // Kapanış
+    ctx.beginPath(); ctx.moveTo(cx-160, cy+80); ctx.lineTo(cx-160, cy+110); ctx.lineTo(cx-200, cy+110); ctx.lineTo(cx-200, cy+60); ctx.lineTo(cx, cy+60); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy-60); ctx.lineTo(cx+120, cy-60); ctx.lineTo(cx+120, cy+30); ctx.stroke();
+
+    // Akım okları (basit)
+    ctx.fillStyle = "var(--accent)"; ctx.font = "bold 9px 'Outfit',sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(`I= ${iTotal.toFixed(2)}A`, cx-200, cy-20);
+    ctx.fillText(`I₂= ${i2.toFixed(2)}A`, cx-120, cy+125);
+    ctx.fillText(`I₃= ${i3.toFixed(2)}A`, cx+20, cy+125);
+
+    document.getElementById("circuitInfo").textContent =
+      `V=${V}V · R₁=${r1}Ω, R₂=${r2}Ω, R₃=${r3}Ω · R₂//R₃=${rPar.toFixed(1)}Ω · R_toplam=${rTotal.toFixed(1)}Ω · I=${iTotal.toFixed(2)}A`;
+  }
+
+  function drawResistor(x1, y1, x2, y2, color) {
+    const midX = (x1+x2)/2, midY = (y1+y2)/2;
+    const dx = x2-x1, dy = y2-y1;
+    const len = Math.sqrt(dx*dx+dy*dy);
+    const perpX = -dy/len, perpY = dx/len;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    const segs = 5;
+    for (let i = 1; i <= segs*2; i++) {
+      const t = i/(segs*2);
+      const x = x1 + dx*t + perpX*8*(i%2);
+      const y = y1 + dy*t + perpY*8*(i%2);
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+  }
+
+  document.getElementById("btnR1Up").addEventListener("click", () => { r1 = Math.min(20, r1+2); draw(); });
+  document.getElementById("btnR1Down").addEventListener("click", () => { r1 = Math.max(1, r1-2); draw(); });
+  document.getElementById("btnCircReset").addEventListener("click", () => { r1=4; r2=2; r3=6; draw(); });
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize(); draw();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  3. MACHINES                                                ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const machines = [
+    { icon:"🔄", name:"DC Motor", desc:"Fırçalı/fırçasız. <strong>Hız kontrolü:</strong> PWM ile kolay. <strong>E=T·ω, T=Kₜ·I.</strong> Elektrikli araçlarda, robotikte, ev aletlerinde. Fırçasız (BLDC) drone'larda standart." },
+    { icon:"⚡", name:"Asenkron Motor (Indüksiyon)", desc:"En yaygın motor tipi (%90+). Rotorda indüklenen akımlarla döner. <strong>Kayma (s):</strong> Senkron hızdan farkı. 3 fazlı, sağlam yapılı. <strong>Yol verme:</strong> Yıldız-üçgen, soft starter, VFD." },
+    { icon:"🔄", name:"Senkron Motor / Jeneratör", desc:"Rotor hızı stator alanıyla tam senkron. <strong>Jeneratör olarak:</strong> Tüm santrallerde (termik, hidro, nükleer). <strong>Güç faktörü düzeltme:</strong> Senkron kondansatör." },
+    { icon:"🔌", name:"Transformatör", desc:"Faraday kanunu: V₁/V₂ = N₁/N₂. <strong>Güç trafosu:</strong> İletim/dağıtım. <strong>Dağıtım trafosu:</strong> 34.5kV→400V. <strong>Kayıplar:</strong> Bakır (I²R), demir (histerisiz+eddy). Verim %95-99." },
+    { icon:"⚙️", name:"Step Motor", desc:"Açık çevrim pozisyon kontrolü. <strong>Tam adım / yarım adım / mikro adım.</strong> 3B yazıcılar, CNC, robotik. Sürücü devresi (A4988, DRV8825) ile kontrol." },
+    { icon:"🔋", name:"Servo Motor", desc:"Kapalı çevrim kontrol (enkoder geri beslemesi). <strong>Yüksek tork, hassas pozisyon.</strong> Endüstriyel robotlar, otomasyon. AC ve DC servo tipleri." },
+  ];
+
+  document.getElementById("machineGrid").innerHTML = machines.map(m => `
+    <div class="machine-card">
+      <div class="mc-icon">${m.icon}</div>
+      <div class="mc-name">${m.name}</div>
+      <div class="mc-desc">${m.desc}</div>
+    </div>
+  `).join("");
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  4. POWER ELECTRONICS                                       ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics = [
+    { icon:"🔀", name:"Doğrultucu (Rectifier)", color:"#5eead4",
+      detail:"<strong>AC → DC dönüşümü:</strong> Diyot veya tristör köprüleri. <strong>Yarım dalga:</strong> Tek diyot, düşük verim. <strong>Tam dalga:</strong> 4 diyotlu köprü. <strong>Kontrollü:</strong> Tristör ile çıkış gerilimi ayarlanabilir. <strong>Uygulama:</strong> Telefon şarjı, DC motor sürücü, HVDC." },
+    { icon:"⚡", name:"Evirici (Inverter)", color:"#60a5fa",
+      detail:"<strong>DC → AC dönüşümü:</strong> IGBT/MOSFET anahtarlama. <strong>PWM:</strong> Sinüs dalgası sentezi. <strong>VFD (Variable Frequency Drive):</strong> Motor hız kontrolü. <strong>UPS, güneş enerjisi inverteri.</strong> Çıkış filtresi ile harmonik temizliği." },
+    { icon:"📊", name:"DC-DC Dönüştürücü", color:"#a78bfa",
+      detail:"<strong>Gerilim seviyesi değiştirme:</strong> Buck (düşürücü), Boost (yükseltici), Buck-Boost. <strong>SMPS (Switch Mode):</strong> Yüksek verim (%85-95). <strong>Uygulama:</strong> Bilgisayar güç kaynağı, LED sürücü, batarya şarj." },
+    { icon:"🎛️", name:"Kontrol Sistemleri", color:"#fbbf24",
+      detail:"<strong>PID Kontrol (Oransal-Integral-Türev):</strong> Endüstride en yaygın denetleyici. <strong>Transfer fonksiyonu:</strong> G(s) = Y(s)/U(s). <strong>Kararlılık:</strong> Routh-Hurwitz, Bode, Nyquist. <strong>PLC:</strong> Programlanabilir Lojik Kontrol — ladder diyagramı, endüstri standardı." },
+  ];
+
+  const grid = document.getElementById("peGrid");
+  const detail = document.getElementById("peDetail");
+
+  topics.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "topic-card";
+    card.style.borderLeft = `3px solid ${t.color}`;
+    card.innerHTML = `<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click", () => { detail.innerHTML = t.detail; });
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  5. RENEWABLE                                               ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics = [
+    { icon:"☀️", name:"Güneş Enerjisi (PV)", color:"#fbbf24",
+      detail:"<strong>Fotovoltaik (PV):</strong> Yarı iletken PN eklemi ile foton→elektron. <strong>Monokristal (%22 verim) / Polikristal / İnce film.</strong> Inverter ile DC→AC. <strong>Türkiye:</strong> Yıllık ~1500 kWh/m² güneşlenme, Konya-Karapınar (1.35 GW) en büyük santral. Çatı GES yaygınlaşıyor." },
+    { icon:"💨", name:"Rüzgar Enerjisi", color:"#60a5fa",
+      detail:"<strong>Rüzgar Türbini:</strong> Betz limiti (max %59.3). <strong>Kanat → Dişli Kutusu → Jeneratör (DFIG/PMSG) → Trafo → Şebeke.</strong> <strong>Türkiye:</strong> ~12 GW kurulu güç. Ege ve Marmara en rüzgarlı bölgeler. RES (Rüzgar Enerji Santrali)." },
+    { icon:"💧", name:"Hidroelektrik", color:"#5eead4",
+      detail:"<strong>Barajlı HES:</strong> Atatürk Barajı (2.4 GW). <strong>Nehir tipi:</strong> Daha az çevresel etki. <strong>Pompaj depolamalı:</strong> Enerji depolama — fazla elektrikle suyu yukarı pompalar, talep anında türbine verir. <strong>Türkiye:</strong> ~32 GW hidro kurulu güç, en büyük yenilenebilir kaynak." },
+    { icon:"🌋", name:"Jeotermal Enerji", color:"#f87171",
+      detail:"<strong>Jeotermal:</strong> Yer altı sıcak su/buharı ile türbin çevirme. <strong>Türkiye:</strong> ~1.7 GW kurulu güç, dünya 4.'sü. Aydın-Germencik, Denizli-Sarayköy, Manisa-Alaşehir. <strong>Kojenerasyon:</strong> Elektrik + ısıtma (seracılık, konut)." },
+    { icon:"🔋", name:"Enerji Depolama", color:"#a78bfa",
+      detail:"<strong>Batarya (BESS):</strong> Lityum-iyon, LFP. Frekans regülasyonu, peak shaving. <strong>Türkiye:</strong> Ön lisanslı ~25 GW depolama projesi. <strong>Hidrojen:</strong> Elektroliz ile yeşil hidrojen — uzun vadeli depolama. <strong>Volan (flywheel), CAES (basınçlı hava).</strong>" },
+  ];
+
+  const grid = document.getElementById("renewGrid");
+  const detail = document.getElementById("renewDetail");
+
+  topics.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "topic-card";
+    card.style.borderLeft = `3px solid ${t.color}`;
+    card.innerHTML = `<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click", () => { detail.innerHTML = t.detail; });
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  6. MODERN                                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics = [
+    { icon:"🏙️", name:"Akıllı Şebeke (Smart Grid)", color:"#5eead4",
+      detail:"<strong>Smart Grid:</strong> İki yönlü enerji ve veri akışı. Akıllı sayaçlar (AMR/AMI), dağıtık üretim yönetimi. <strong>Talep tarafı yönetimi (DSM):</strong> Tüketimi fiyat sinyalleriyle şekillendirme. <strong>Self-healing:</strong> Arıza durumunda otomatik yeniden yapılandırma." },
+    { icon:"🚗", name:"Elektrikli Araç & Şarj", color:"#60a5fa",
+      detail:"<strong>EV Şarj Seviyeleri:</strong> L1 (AC 120V, 1.4kW), L2 (AC 240V, 7-22kW), DC Hızlı Şarj (50-350kW). <strong>V2G (Vehicle-to-Grid):</strong> Araç bataryası şebekeye enerji verir. <strong>Türkiye:</strong> TOGG, Tesla Supercharger, ZES, Eşarj ağları." },
+    { icon:"⚛️", name:"HVDC İletim", color:"#a78bfa",
+      detail:"<strong>Yüksek Gerilim Doğru Akım:</strong> Uzun mesafe (>600 km) ve deniz altı kablolarında AC'den avantajlı. <strong>LCC (Tristör) / VSC (IGBT).</strong> Asenkron şebekeleri bağlar. Türkiye'de yok, Avrupa-Çin arası projeler var." },
+    { icon:"📡", name:"Haberleşme & IoT", color:"#f472b6",
+      detail:"<strong>SCADA Protokolleri:</strong> IEC 61850 (substation automation), DNP3, Modbus. <strong>IoT sensörler:</strong> Trafo sıcaklık, kısmi deşarj izleme. <strong>PMU (Phasor Measurement Unit):</strong> Senkrofazör ile geniş alan izleme (WAMS)." },
+  ];
+
+  const grid = document.getElementById("modernGrid");
+  const detail = document.getElementById("modernDetail");
+
+  topics.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "topic-card";
+    card.style.borderLeft = `3px solid ${t.color}`;
+    card.innerHTML = `<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click", () => { detail.innerHTML = t.detail; });
+    grid.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>
