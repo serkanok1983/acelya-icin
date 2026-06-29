@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kimya Mühendisliği</title>
+  <style>
+    * { box-sizing: border-box; }
+    .app-content { max-width: 920px; }
+    .panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .panel .desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5; }
+
+    .topic-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:8px;
+    }
+    .topic-card {
+      padding:12px; border-radius:8px; border:1px solid var(--border);
+      cursor:pointer; text-align:center; transition:all 0.2s;
+      background:rgba(255,255,255,0.02);
+    }
+    .topic-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
+    .topic-card .tc-icon { font-size:1.3rem; }
+    .topic-card .tc-name { font-size:0.75rem; font-weight:700; color:var(--text); margin:4px 0; }
+    .topic-detail {
+      font-size:0.7rem; color:var(--text-muted); line-height:1.5;
+      padding:10px 14px; background:rgba(94,234,212,0.04);
+      border:1px solid rgba(94,234,212,0.12); border-radius:8px;
+      margin-top:10px; min-height:36px;
+    }
+    .topic-detail strong { color:var(--accent); }
+
+    /* ═══════ Reactor Canvas ═══════ */
+    #reactorCanvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
+      border:1px solid var(--border);
+    }
+    .reactor-tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; }
+    .reactor-tab {
+      padding:6px 14px; font:inherit; font-size:0.72rem; font-weight:600;
+      border:1px solid var(--border); border-radius:6px; cursor:pointer;
+      background:transparent; color:var(--text-muted); transition:all 0.2s;
+    }
+    .reactor-tab.active { background:rgba(94,234,212,0.15); border-color:var(--accent); color:var(--accent); }
+    .reactor-tab:hover { border-color:var(--border-hover); color:var(--text); }
+
+    /* ═══════ Distillation Canvas ═══════ */
+    #distCanvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
+      border:1px solid var(--border);
+    }
+
+    /* ═══════ PFD blocks ═══════ */
+    .pfd-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:6px;
+    }
+    .pfd-card {
+      padding:8px; border-radius:6px; border:1px solid var(--border);
+      text-align:center; background:rgba(255,255,255,0.02);
+    }
+    .pfd-card .pf-icon { font-size:1.1rem; }
+    .pfd-card .pf-name { font-size:0.68rem; font-weight:700; color:var(--text); margin:2px 0; }
+    .pfd-card .pf-example { font-size:0.55rem; color:var(--text-muted); }
+
+    @media (max-width:500px) {
+      .panel { padding:12px 14px; }
+    }
+  </style>
+  <script src="shared/page-info.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="kimya-muhendisligi">
+<div class="app-content">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 1. ÜNİTE OPERASYONLAR & PROSES AKIŞ DİYAGRAMI               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🏭 Kimya Mühendisliği — Birim İşlemler (Unit Operations)</h2>
+    <p class="desc">
+      Kimya mühendisliği, ham maddeleri kimyasal/fiziksel işlemlerle değerli ürünlere dönüştürme bilimidir.
+      Tüm süreçler <strong>birim işlemler (unit operations)</strong> adı verilen yapı taşlarından oluşur.
+    </p>
+    <div class="pfd-grid" id="pfdGrid"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 2. REAKTÖR TASARIMI CANVAS                                  -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>⚗️ Kimyasal Reaktörler — Dönüşümün Kalbi</h2>
+    <p class="desc">
+      Reaktör, ham maddelerin ürüne dönüştüğü yerdir. Tasarım denklemi: Giren - Çıkan + Üretilen = Biriken.
+      Farklı reaktör tipleri farklı dönüşüm ve seçicilik profilleri sunar.
+    </p>
+    <div class="reactor-tabs">
+      <button class="reactor-tab active" data-reactor="batch">🧪 Kesikli (Batch)</button>
+      <button class="reactor-tab" data-reactor="cstr">🔄 CSTR (Sürekli Karıştırmalı)</button>
+      <button class="reactor-tab" data-reactor="pfr">📏 PFR (Tıkaç Akışlı)</button>
+    </div>
+    <canvas id="reactorCanvas"></canvas>
+    <div style="font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:6px" id="reactorInfo">
+      Batch: Tüm reaktanlar baştan konur, reaksiyon bitince boşaltılır. İlaç, özel kimyasallar.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3. DİSTİLASYON CANVAS                                       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🍶 Distilasyon (Damıtma) — En Yaygın Ayırma İşlemi</h2>
+    <p class="desc">
+      Sıvı karışımları kaynama noktası farkına göre ayıran ısıl işlem. Petrol rafinerisinden içki üretimine her yerde.
+      <strong>Raoult Yasası:</strong> pᵢ = xᵢ·Pᵢ^sat. <strong>Bağıl uçuculuk (α):</strong> Ayırma kolaylığının ölçüsü.
+    </p>
+    <canvas id="distCanvas"></canvas>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn-send" id="btnRefluxUp" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">⬆ Geri Akış (Reflux)</button>
+      <button class="btn-ghost2" id="btnRefluxDown" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">⬇ Geri Akış</button>
+      <button class="btn-ghost2" id="btnDistReset" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">↺ Sıfırla</button>
+    </div>
+    <div style="font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:6px" id="distInfo">
+      R=2 · Raf sayısı: 8 · Üst ürün: %95 A · Alt ürün: %95 B
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 4. ISI & KÜTLE TRANSFERİ                                    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🌡️ Isı ve Kütle Transferi</h2>
+    <p class="desc">
+      Isı transferi (kondüksiyon, konveksiyon, radyasyon) ve kütle transferi (difüzyon, konveksiyon),
+      kimya mühendisliğinin iki temel taşınım olayıdır.
+    </p>
+    <div class="topic-grid" id="transferGrid"></div>
+    <div class="topic-detail" id="transferDetail">🖱️ Bir konuya tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 5. PROSES KONTROL                                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🎛️ Proses Kontrol ve Enstrümantasyon</h2>
+    <p class="desc">
+      Kimyasal proseslerin güvenli, kararlı ve verimli çalışması için sıcaklık, basınç, seviye ve debi kontrolü şarttır.
+    </p>
+    <div class="topic-grid" id="controlGrid"></div>
+    <div class="topic-detail" id="controlDetail">🖱️ Bir konuya tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 6. ENDÜSTRİYEL UYGULAMALAR                                  -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🏗️ Endüstriyel Uygulama Alanları</h2>
+    <p class="desc">Kimya mühendisliğinin sektörel uygulamaları.</p>
+    <div class="topic-grid" id="indGrid"></div>
+    <div class="topic-detail" id="indDetail">🖱️ Bir sektöre tıklayın.</div>
+  </div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  1. UNIT OPERATIONS                                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const ops=[
+    { icon:"⚗️", name:"Reaktör", example:"CSTR, PFR, batch, fixed-bed" },
+    { icon:"🍶", name:"Distilasyon", example:"Ham petrol ayrıştırma, etanol" },
+    { icon:"💨", name:"Absorpsiyon", example:"CO₂ tutma (amin scrubber)" },
+    { icon:"🔬", name:"Ekstraksiyon", example:"Sıvı-sıvı, katı-sıvı (liç)" },
+    { icon:"🧊", name:"Kristalizasyon", example:"Şeker, tuz, ilaç saflaştırma" },
+    { icon:"🫧", name:"Filtrasyon", example:"Katı-sıvı ayırma, membran" },
+    { icon:"🌡️", name:"Isı Değiştirici", example:"Shell&Tube, plakalı, hava soğutmalı" },
+    { icon:"💧", name:"Pompa & Kompresör", example:"Santrifüj, pozitif deplasmanlı" },
+    { icon:"📦", name:"Kurutma", example:"Spray dryer, rotary, freeze drying" },
+    { icon:"🧪", name:"Karıştırma", example:"Impeller, statik mikser" },
+  ];
+
+  document.getElementById("pfdGrid").innerHTML=ops.map(o=>`
+    <div class="pfd-card">
+      <div class="pf-icon">${o.icon}</div>
+      <div class="pf-name">${o.name}</div>
+      <div class="pf-example">${o.example}</div>
+    </div>
+  `).join("");
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  2. REACTOR CANVAS                                          ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas=document.getElementById("reactorCanvas");
+  const ctx=canvas.getContext("2d");
+  let W=500,H=240, rtype="batch";
+
+  function resize(){
+    const rect=canvas.parentElement.getBoundingClientRect();
+    W=Math.max(340,rect.width); H=Math.max(200,Math.min(250,W*0.48));
+    canvas.width=W; canvas.height=H;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle="var(--text-muted)"; ctx.font="bold 11px 'Outfit',sans-serif"; ctx.textAlign="center";
+
+    if(rtype==="batch"){
+      // Tank
+      const cx=W/2,cy=H/2+10,r=50;
+      ctx.beginPath(); ctx.arc(cx,cy-r+10,r,Math.PI,0); ctx.lineTo(cx+r,cy+10); ctx.lineTo(cx-r,cy+10);
+      ctx.fillStyle="rgba(167,139,250,0.06)"; ctx.fill();
+      ctx.strokeStyle="var(--accent-2)"; ctx.lineWidth=2.5; ctx.stroke();
+      // Karıştırıcı
+      ctx.beginPath(); ctx.moveTo(cx,cy-60); ctx.lineTo(cx,cy+5); ctx.strokeStyle="var(--text-muted)"; ctx.lineWidth=2; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-35,cy-10); ctx.lineTo(cx+35,cy-10); ctx.stroke();
+      ctx.fillStyle="var(--accent-2)"; ctx.fillText("Batch Reaktör",cx,cy+40);
+      document.getElementById("reactorInfo").textContent="Batch: C_A(t)=C₀·e^(−kt) (1.derece). t=0'da şarj, reaksiyon bitince boşalt. İlaç, özel kimyasallar. Esnek ama düşük kapasite.";
+    } else if(rtype==="cstr"){
+      const cx=W/2,cy=H/2+10,r=45;
+      ctx.beginPath(); ctx.arc(cx,cy-r+10,r,Math.PI,0); ctx.lineTo(cx+r,cy+15); ctx.lineTo(cx-r,cy+15);
+      ctx.fillStyle="rgba(94,234,212,0.06)"; ctx.fill();
+      ctx.strokeStyle="var(--accent)"; ctx.lineWidth=2.5; ctx.stroke();
+      // Giriş oku
+      ctx.beginPath(); ctx.moveTo(cx-100,cy-30); ctx.lineTo(cx-r,cy-30); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-r,cy-30); ctx.lineTo(cx-r-8,cy-22); ctx.lineTo(cx-r-8,cy-38); ctx.fillStyle="var(--accent)"; ctx.fill();
+      // Çıkış oku
+      ctx.beginPath(); ctx.moveTo(cx+r,cy-30); ctx.lineTo(cx+100,cy-30); ctx.stroke();
+      ctx.fillStyle="var(--accent)"; ctx.fillText("CSTR",cx,cy+40);
+      document.getElementById("reactorInfo").textContent="CSTR: Anlık karışım, çıkış konsantrasyonu = tank konsantrasyonu. τ=V/Q. Sürekli üretim, kolay sıcaklık kontrolü.";
+    } else if(rtype==="pfr"){
+      // Boru
+      const bx=60,by=H/2-20,bw=W-120,bh=30;
+      ctx.fillStyle="rgba(96,165,250,0.08)"; ctx.fillRect(bx,by,bw,bh);
+      ctx.strokeStyle="#60a5fa"; ctx.lineWidth=2; ctx.strokeRect(bx,by,bw,bh);
+      // Eksenel konsantrasyon profili
+      for(let x=bx;x<bx+bw;x+=4){
+        const t=(x-bx)/bw, c=1-t*0.8;
+        ctx.beginPath(); ctx.moveTo(x,by); ctx.lineTo(x,by+bh);
+        ctx.strokeStyle=`rgba(251,191,36,${c*0.5+0.1})`; ctx.lineWidth=3; ctx.stroke();
+      }
+      ctx.fillStyle="#60a5fa"; ctx.fillText("PFR (Tıkaç Akışlı)",bx+bw/2,by+bh+24);
+      document.getElementById("reactorInfo").textContent="PFR: Eksenel karışım yok, radyal mükemmel karışım. Konsantrasyon boru boyunca azalır. CSTR'den daha az hacimle aynı dönüşüm.";
+    }
+  }
+
+  document.querySelectorAll(".reactor-tab").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      document.querySelectorAll(".reactor-tab").forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active"); rtype=tab.dataset.reactor; draw();
+    });
+  });
+
+  window.addEventListener("resize",()=>{resize();draw();});
+  resize();draw();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  3. DISTILLATION CANVAS                                     ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas=document.getElementById("distCanvas");
+  const ctx=canvas.getContext("2d");
+  let W=500,H=260, trays=6;
+
+  function resize(){
+    const rect=canvas.parentElement.getBoundingClientRect();
+    W=Math.max(340,rect.width); H=Math.max(220,Math.min(280,W*0.52));
+    canvas.width=W; canvas.height=H;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2, th=20, tgap=22, ty=30;
+
+    // Kolon gövdesi
+    const ch=ty+trays*tgap+20;
+    ctx.strokeStyle="rgba(255,255,255,0.3)"; ctx.lineWidth=3;
+    ctx.strokeRect(cx-25,ty,50,ch);
+
+    // Raflar
+    for(let i=0;i<trays;i++){
+      const y=ty+20+i*tgap;
+      ctx.fillStyle="rgba(255,255,255,0.05)"; ctx.fillRect(cx-20,y,40,4);
+      // Sıvı seviyesi
+      ctx.fillStyle="rgba(94,234,212,0.15)"; ctx.fillRect(cx-18,y,10,3);
+    }
+
+    // Kazan (reboiler)
+    ctx.beginPath(); ctx.arc(cx,ty+ch+15,22,Math.PI,0); ctx.fillStyle="rgba(248,113,113,0.08)"; ctx.fill();
+    ctx.strokeStyle="rgba(248,113,113,0.4)"; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle="var(--danger)"; ctx.font="bold 9px 'Outfit',sans-serif"; ctx.textAlign="center";
+    ctx.fillText("Kazan",cx,ty+ch+35);
+
+    // Kondenser
+    ctx.beginPath(); ctx.arc(cx,ty-15,18,Math.PI,0); ctx.fillStyle="rgba(96,165,250,0.08)"; ctx.fill();
+    ctx.strokeStyle="rgba(96,165,250,0.4)"; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle="#60a5fa"; ctx.fillText("Kondenser",cx,ty-30);
+
+    // Akış okları
+    ctx.fillStyle="var(--text-muted)"; ctx.font="bold 9px 'Outfit',sans-serif";
+    ctx.textAlign="left"; ctx.fillText("Besleme →",cx+30,ty+ch/2);
+    ctx.fillText("← Distilat (Üst)",cx+30,ty+10);
+    ctx.textAlign="right"; ctx.fillText("Dip Ürün →",cx-30,ty+ch+15);
+
+    document.getElementById("distInfo").textContent=
+      `Geri akış oranı: R=${trays>5?'3':'1'} · Teorik raf sayısı: ${trays} · McCabe-Thiele: İşletme doğrusu eğimi = R/(R+1)`;
+  }
+
+  document.getElementById("btnRefluxUp").addEventListener("click",()=>{trays=Math.min(12,trays+1);draw();});
+  document.getElementById("btnRefluxDown").addEventListener("click",()=>{trays=Math.max(3,trays-1);draw();});
+  document.getElementById("btnDistReset").addEventListener("click",()=>{trays=6;draw();});
+
+  window.addEventListener("resize",()=>{resize();draw();});
+  resize();draw();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  4. HEAT & MASS TRANSFER                                    ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🔥", name:"Isı İletimi (Kondüksiyon)", color:"#f87171",
+      detail:"<strong>Fourier Yasası:</strong> q = −k·A·dT/dx. Isı sıcaktan soğuğa akar. <strong>Isıl iletkenlik (k):</strong> Bakır 400, çelik 50, su 0.6, hava 0.026 W/mK. <strong>Yalıtım:</strong> Düşük k değeri — cam yünü, poliüretan, aerogel." },
+    { icon:"🌊", name:"Taşınım (Konveksiyon)", color:"#60a5fa",
+      detail:"<strong>Newton'un Soğuma Yasası:</strong> q = h·A·(T_yüzey − T_akışkan). <strong>Nusselt sayısı (Nu = hL/k):</strong> Boyutsuz ısı transfer katsayısı. <strong>Doğal konveksiyon:</strong> Yoğunluk farkı. <strong>Zorlanmış:</strong> Pompa/fan. Dittus-Boelter: Nu=0.023·Re^0.8·Pr^0.4." },
+    { icon:"☀️", name:"Işınım (Radyasyon)", color:"#fbbf24",
+      detail:"<strong>Stefan-Boltzmann:</strong> q = ε·σ·A·T⁴ (σ=5.67×10⁻⁸). <strong>Mutlak sıcaklığın 4. kuvveti!</strong> Yüksek sıcaklıkta baskın. Güneş, fırın, kazan. <strong>Emisivite (ε):</strong> 0 (parlak) − 1 (siyah cisim)." },
+    { icon:"🧪", name:"Difüzyon (Fick Yasası)", color:"#a78bfa",
+      detail:"<strong>Fick'in 1. Yasası:</strong> J = −D·dC/dx. <strong>Difüzyon katsayısı (D):</strong> Gazlarda ~10⁻⁵, sıvılarda ~10⁻⁹, katılarda ~10⁻¹² m²/s. <strong>Uygulama:</strong> Katalizör içi difüzyon, membran ayırma, ilaç salınımı." },
+    { icon:"🔄", name:"Isı Değiştirici Tasarımı", color:"#5eead4",
+      detail:"<strong>Q = U·A·ΔT_lm.</strong> <strong>U:</strong> Toplam ısı transfer katsayısı. <strong>LMTD (Log Mean Temp Diff):</strong> Karşıt akış > paralel akış. <strong>TEMA standartları:</strong> Shell&Tube tipleri (AES, BEM...). <strong>Fouling faktörü:</strong> Kirlenme direnci — tasarımda emniyet payı." },
+  ];
+
+  const grid=document.getElementById("transferGrid"), detail=document.getElementById("transferDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  5. PROCESS CONTROL                                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🌡️", name:"Sıcaklık Kontrolü", color:"#f87171",
+      detail:"<strong>Termokupl/RTD → Transmitter (4-20mA) → PLC/DCS → Kontrol Vanası → Isıtıcı/Soğutucu.</strong> PID parametreleri: Kc (oransal kazanç), τᵢ (integral zaman), τ_d (türev). Ziegler-Nichols ayar metodu." },
+    { icon:"📊", name:"Seviye Kontrolü", color:"#60a5fa",
+      detail:"<strong>Seviye transmiteri:</strong> Diferansiyel basınç, radar, ultrasonik. <strong>Vana pozisyoneri:</strong> 4-20mA sinyalle vana açıklığını ayarlar. Tank seviyesi → çıkış debisi. Kaskad kontrolde yaygın." },
+    { icon:"💧", name:"Debi Kontrolü", color:"#5eead4",
+      detail:"<strong>Orifis plakası → ΔP → debi (Bernoulli).</strong> Vorteks, Coriolis (kütlesel debi, en hassas), manyetik (iletken sıvılar). <strong>Kontrol vanası karakteristikleri:</strong> Lineer, eşit yüzde (equal %), hızlı açılan." },
+    { icon:"⚠️", name:"Güvenlik & Alarm", color:"#fbbf24",
+      detail:"<strong>HAZOP (Hazard and Operability):</strong> Sistematik risk analizi. <strong>SIL (Safety Integrity Level):</strong> 1-4, ESD (Emergency Shutdown) sistemleri. <strong>Patlama proof (Ex-proof):</strong> ATEX/Ex d standartları. Kimya tesislerinde güvenlik her şeyden önce gelir." },
+  ];
+
+  const grid=document.getElementById("controlGrid"), detail=document.getElementById("controlDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  6. INDUSTRIAL APPLICATIONS                                 ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const ind=[
+    { icon:"🛢️", name:"Petrokimya", color:"#f87171",
+      detail:"<strong>Nafta kraking → etilen, propilen.</strong> Polietilen (PE), polipropilen (PP), PVC, benzen, toluen, ksilen (BTX). Steam cracking (850°C, ms residence time). Dünyanın en büyük kimya sektörü." },
+    { icon:"💊", name:"İlaç (Farmasötik)", color:"#a78bfa",
+      detail:"<strong>GMP (Good Manufacturing Practice):</strong> Sıkı kalite kontrol. <strong>Kesikli (batch) üretim</strong> hakim. API (Active Pharmaceutical Ingredient) sentezi. Kristalizasyon ile saflaştırma. FDA/EMA onay süreçleri." },
+    { icon:"🍞", name:"Gıda Prosesleri", color:"#fbbf24",
+      detail:"<strong>Pastörizasyon, sterilizasyon, ekstrüzyon.</strong> Süt tozu (spray drying), meyve suyu konsantresi (evaporasyon), bira (fermantasyon+distilasyon). HACCP gıda güvenliği standardı." },
+    { icon:"⚡", name:"Enerji & Yakıt", color:"#60a5fa",
+      detail:"<strong>Ham petrol distilasyonu:</strong> LPG → Nafta → Benzin → Gazyağı → Dizel → Fuel oil. <strong>Katalitik kraking (FCC):</strong> Ağır fraksiyonları hafif ürünlere dönüştürür. Hidrojen üretimi: Steam methane reforming (SMR)." },
+    { icon:"🧪", name:"Polimer Mühendisliği", color:"#5eead4",
+      detail:"<strong>Polimerizasyon reaktörleri:</strong> Kütle (bulk), çözelti, süspansiyon, emülsiyon. <strong>Termoplastik:</strong> PE, PP, PS, PET, PVC. <strong>Termoset:</strong> Epoksi, fenolik. Ekstrüder, enjeksiyon kalıplama. Geri dönüşüm (mekanik/kimyasal)." },
+    { icon:"🌱", name:"Yeşil Kimya", color:"#a3e635",
+      detail:"<strong>12 prensip (Anastas & Warner):</strong> Atık önleme, atom ekonomisi, yenilenebilir hammadde, enerji verimliliği. <strong>Karbon yakalama (CCS/CCUS):</strong> Post-combustion MEA scrubber. <strong>Biyorafineri:</strong> Biyokütle → kimyasallar (etanol, laktik asit)." },
+  ];
+
+  const grid=document.getElementById("indGrid"), detail=document.getElementById("indDetail");
+  ind.forEach(i=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${i.color}`;
+    card.innerHTML=`<div class="tc-icon">${i.icon}</div><div class="tc-name">${i.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=i.detail;});
+    grid.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>
