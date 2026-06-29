@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>İşletim Sistemleri ve Linux</title>
+  <style>
+    * { box-sizing: border-box; }
+    .app-content { max-width: 860px; }
+
+    .panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .panel .desc {
+      font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5;
+    }
+
+    .btn-send {
+      flex: 1; min-width: 90px; padding: 9px 12px; font: inherit; font-size: 0.82rem;
+      font-weight: 600; border: none; border-radius: 8px; cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #2dd4bf);
+      color: var(--btn-text); transition: filter 0.2s, transform 0.15s;
+    }
+    .btn-send:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-ghost2 {
+      background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+      font: inherit; font-size: 0.82rem; font-weight: 500; padding: 9px 12px;
+      border-radius: 8px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-ghost2:hover { color: var(--text); border-color: var(--border-hover); }
+
+    /* ═════════════════ OS Mimarisi ═════════════════ */
+    .os-layers {
+      display: flex; flex-direction: column; gap: 2px; max-width: 520px; margin: 0 auto;
+    }
+    .os-layer {
+      display: flex; align-items: center; gap: 10px; padding: 7px 12px;
+      border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
+      font-size: 0.76rem;
+    }
+    .os-layer:hover { filter: brightness(1.15); }
+    .os-layer.active { border-color: rgba(255,255,255,0.3); transform: scale(1.02); }
+    .os-layer .os-lnum {
+      width: 24px; height: 24px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-weight: 700; font-size: 0.68rem; flex-shrink: 0;
+    }
+    .os-layer .os-lname { flex: 1; font-weight: 600; }
+    .os-detail {
+      font-size: 0.74rem; color: var(--text-muted); line-height: 1.5;
+      padding: 8px 12px; background: rgba(94,234,212,0.04);
+      border: 1px solid rgba(94,234,212,0.1); border-radius: 8px;
+      min-height: 36px; max-width: 520px; margin: 6px auto 0;
+    }
+    .os-detail strong { color: var(--accent); }
+
+    .l-user { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.22); }
+    .l-user .os-lnum { background: rgba(251,191,36,0.3); color: #fbbf24; }
+    .l-shell { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.22); }
+    .l-shell .os-lnum { background: rgba(167,139,250,0.3); color: #a78bfa; }
+    .l-syscall { background: rgba(94,234,212,0.1); border-color: rgba(94,234,212,0.2); }
+    .l-syscall .os-lnum { background: rgba(94,234,212,0.28); color: #5eead4; }
+    .l-kernel { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.2); }
+    .l-kernel .os-lnum { background: rgba(96,165,250,0.3); color: #60a5fa; }
+    .l-drv { background: rgba(244,114,182,0.1); border-color: rgba(244,114,182,0.2); }
+    .l-drv .os-lnum { background: rgba(244,114,182,0.28); color: #f472b6; }
+    .l-hw { background: rgba(163,230,53,0.08); border-color: rgba(163,230,53,0.18); }
+    .l-hw .os-lnum { background: rgba(163,230,53,0.22); color: #a3e635; }
+
+    /* ═════════════════ Süreç Yaşam Döngüsü ═════════════════ */
+    #procCanvas {
+      display: block; width: 100%; border-radius: 10px;
+      background: radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
+      border: 1px solid var(--border);
+    }
+    .proc-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .proc-info {
+      display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px;
+      font-size: 0.74rem; font-variant-numeric: tabular-nums;
+    }
+    .proc-info .pstat { color: var(--text-muted); }
+    .proc-info .pstat strong { color: var(--accent); font-weight: 600; }
+
+    /* ═════════════════ Terminal ═════════════════ */
+    .terminal {
+      background: #0a0c14; border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden; font-family: ui-monospace, 'SF Mono', 'Cascadia Code', monospace;
+    }
+    .term-header {
+      display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+      background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border);
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-dot.r { background: #f87171; }
+    .term-dot.y { background: #fbbf24; }
+    .term-dot.g { background: #a3e635; }
+    .term-title { font-size: 0.7rem; color: var(--text-muted); margin-left: 6px; }
+    .term-body {
+      padding: 10px 12px; max-height: 260px; overflow-y: auto;
+      font-size: 0.74rem; line-height: 1.6; color: #c0c8d4;
+    }
+    .term-body .prompt { color: var(--accent); }
+    .term-body .cmd { color: #e8ecf4; }
+    .term-body .output { color: #8b95a8; white-space: pre-wrap; }
+    .term-body .err { color: var(--danger); }
+    .term-input-row {
+      display: flex; align-items: center; padding: 6px 12px;
+      border-top: 1px solid var(--border); gap: 6px;
+    }
+    .term-input-row .prompt { color: var(--accent); font-size: 0.74rem; white-space: nowrap; }
+    .term-input-row input {
+      flex: 1; background: transparent; border: none; color: #e8ecf4;
+      font: inherit; font-size: 0.74rem; outline: none; caret-color: var(--accent);
+    }
+
+    /* ═════════════════ Dosya Sistemi ═════════════════ */
+    .fs-tree {
+      font-family: ui-monospace, 'SF Mono', monospace; font-size: 0.72rem;
+      line-height: 1.7; padding: 8px 12px;
+      background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+      border-radius: 8px; max-height: 320px; overflow-y: auto;
+    }
+    .fs-tree .dir { color: var(--accent-2); cursor: pointer; font-weight: 600; }
+    .fs-tree .dir:hover { text-decoration: underline; }
+    .fs-tree .file { color: var(--text-muted); }
+    .fs-tree .desc { color: var(--text-muted); font-size: 0.65rem; margin-left: 4px; opacity: 0.5; }
+    .fs-tree .children { padding-left: 16px; }
+
+    /* ═════════════════ Scheduler ═════════════════ */
+    .sched-grid {
+      display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0;
+    }
+    .sched-proc {
+      padding: 8px 12px; border-radius: 8px; text-align: center;
+      min-width: 70px; flex: 1; font-size: 0.72rem;
+      border: 1px solid var(--border); transition: all 0.3s;
+    }
+    .sched-proc.running {
+      border-color: var(--accent); box-shadow: 0 0 16px rgba(94,234,212,0.25);
+      background: rgba(94,234,212,0.12);
+    }
+    .sched-proc.ready { background: rgba(167,139,250,0.08); border-color: rgba(167,139,250,0.3); }
+    .sched-proc.waiting { background: rgba(248,113,113,0.06); border-color: rgba(248,113,113,0.2); opacity: 0.6; }
+    .sched-proc .sp-name { font-weight: 600; color: var(--text); }
+    .sched-proc .sp-state { font-size: 0.63rem; color: var(--text-muted); margin-top: 2px; }
+    .sched-timeline {
+      display: flex; gap: 2px; margin-top: 8px; flex-wrap: wrap; font-size: 0.62rem;
+    }
+    .sched-timeline .slot {
+      width: 16px; height: 16px; border-radius: 2px;
+    }
+    .sched-timeline .slot.p1 { background: #5eead4; }
+    .sched-timeline .slot.p2 { background: #a78bfa; }
+    .sched-timeline .slot.p3 { background: #fbbf24; }
+    .sched-timeline .slot.p4 { background: #f472b6; }
+    .sched-timeline .slot.idle { background: rgba(255,255,255,0.06); }
+
+    /* ═════════════════ Kernel vs Userspace ═════════════════ */
+    .kv-diagram {
+      display: flex; flex-direction: column; gap: 4px; max-width: 480px; margin: 0 auto;
+    }
+    .kv-space {
+      padding: 12px; border-radius: 8px; text-align: center; font-size: 0.76rem;
+    }
+    .kv-userspace {
+      background: rgba(251,191,36,0.08); border: 1px dashed rgba(251,191,36,0.3);
+      display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+    }
+    .kv-kernel {
+      background: rgba(96,165,250,0.08); border: 1px dashed rgba(96,165,250,0.3);
+      display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+    }
+    .kv-hw {
+      background: rgba(163,230,53,0.06); border: 1px dashed rgba(163,230,53,0.2);
+      display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+    }
+    .kv-badge {
+      padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 600;
+    }
+    .kv-arrow {
+      text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 2px 0;
+    }
+
+    .kv-syscall {
+      display: flex; align-items: center; gap: 8px; justify-content: center;
+      padding: 6px 12px; margin: 4px auto; max-width: 420px;
+      background: rgba(94,234,212,0.06); border: 1px solid rgba(94,234,212,0.15);
+      border-radius: 6px; font-size: 0.7rem;
+    }
+    .kv-syscall .arrow { color: var(--accent); font-weight: 700; }
+    .kv-syscall .label { color: var(--text-muted); font-size: 0.65rem; }
+
+    /* ═════════════════ Dağıtım Kartları ═════════════════ */
+    .distro-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;
+    }
+    .distro-card {
+      padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s;
+    }
+    .distro-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .distro-card .d-icon { font-size: 1.3rem; margin-bottom: 4px; }
+    .distro-card .d-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
+    .distro-card .d-based { font-size: 0.62rem; color: var(--text-muted); }
+    .distro-detail {
+      font-size: 0.76rem; color: var(--text-muted); line-height: 1.5;
+      padding: 10px 14px; background: rgba(167,139,250,0.06);
+      border: 1px solid rgba(167,139,250,0.15); border-radius: 8px;
+      margin-top: 10px; min-height: 36px;
+    }
+    .distro-detail strong { color: var(--accent-2); }
+
+    @media (max-width: 500px) {
+      .panel { padding: 12px 14px; }
+      .fs-tree { font-size: 0.65rem; }
+      .term-body { font-size: 0.68rem; max-height: 200px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="isletim-sistemleri-ve-linux">
+<div class="app-content">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 1. İŞLETİM SİSTEMİ MİMARİSİ                               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🏗️ İşletim Sistemi Mimarisi</h2>
+    <p class="desc">
+      Bir işletim sistemi, donanım ile kullanıcı uygulamaları arasında <strong>soyutlama katmanı</strong> görevi görür.
+      Her katman bir üstteki katmana hizmet sunar. Kullanıcıdan donanıma doğru katmanlara tıklayarak detayları inceleyin.
+    </p>
+    <div class="os-layers" id="osStack"></div>
+    <div class="os-detail" id="osDetail">👆 Katmanlara tıklayarak görevlerini görün.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 2. SÜREÇ YAŞAM DÖNGÜSÜ                                    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🔄 Süreç Yaşam Döngüsü</h2>
+    <p class="desc">
+      Bir süreç (process) yaşamı boyunca <strong>5 durum</strong> arasında geçiş yapar:
+      Yeni (New) → Hazır (Ready) → Çalışıyor (Running) → Bekliyor (Waiting) → Sonlandı (Terminated).
+      Zamanlayıcı (scheduler), CPU'yu paylaştırmak için süreçleri bu durumlar arasında taşır.
+    </p>
+    <canvas id="procCanvas"></canvas>
+    <div class="proc-controls">
+      <button class="btn-send" id="btnNewProc">🆕 Yeni Süreç Oluştur</button>
+      <button class="btn-ghost2" id="btnSchedule">⏭️ Zamanlayıcıyı Çalıştır</button>
+      <button class="btn-ghost2" id="btnResetProc">↺ Sıfırla</button>
+    </div>
+    <div class="proc-info" id="procInfo"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3. LINUX TERMİNAL SİMÜLATÖRÜ                               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>💻 Linux Terminal Simülatörü</h2>
+    <p class="desc">
+      Linux'un kalbi <strong>komut satırı</strong>dır. Aşağıdaki terminalde temel komutları deneyerek çıktılarını görün.
+      <code>ls</code>, <code>pwd</code>, <code>whoami</code>, <code>uname -a</code>, <code>df -h</code>,
+      <code>ps</code>, <code>echo</code>, <code>cat /proc/cpuinfo</code>, <code>free -h</code>, <code>uptime</code>,
+      <code>clear</code>, <code>help</code> komutlarını deneyin.
+    </p>
+    <div class="terminal">
+      <div class="term-header">
+        <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+        <span class="term-title">serkan@linux:~</span>
+      </div>
+      <div class="term-body" id="termBody"></div>
+      <div class="term-input-row">
+        <span class="prompt">$</span>
+        <input type="text" id="termInput" placeholder="Komut yazın…" spellcheck="false" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 4. LINUX DOSYA SİSTEMİ HİYERARŞİSİ                         -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>📁 Linux Dosya Sistemi Hiyerarşisi (FHS)</h2>
+    <p class="desc">
+      Linux'ta her şey bir dosyadır — aygıtlar, süreçler, ağ soketleri bile.
+      <strong>Filesystem Hierarchy Standard (FHS)</strong>, dizin yapısını standartlaştırır.
+      Her dizine tıklayarak ne işe yaradığını görün.
+    </p>
+    <div class="fs-tree" id="fsTree"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 5. CPU ZAMANLAYICI (SCHEDULER)                             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>⏱️ CPU Zamanlayıcı — Round-Robin</h2>
+    <p class="desc">
+      Linux'un CFS (Completely Fair Scheduler) zamanlayıcısı, süreçlere adil CPU zamanı dağıtır.
+      Aşağıda basitleştirilmiş bir <strong>Round-Robin</strong> simülasyonu izliyorsunuz.
+      Her süreç sırayla 1 zaman dilimi (quantum) CPU kullanır.
+    </p>
+    <div class="sched-grid" id="schedGrid"></div>
+    <div class="sched-timeline" id="schedTimeline"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn-send" id="btnSchedStep">⏭️ 1 Quantum İlerle</button>
+      <button class="btn-ghost2" id="btnSchedAuto">▶️ Otomatik</button>
+      <button class="btn-ghost2" id="btnSchedReset">↺ Sıfırla</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 6. ÇEKİRDEK vs KULLANICI ALANI                             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🧠 Çekirdek (Kernel) ve Kullanıcı Alanı</h2>
+    <p class="desc">
+      Modern işletim sistemleri belleği <strong>kernel space</strong> ve <strong>user space</strong> olarak ikiye ayırır.
+      Kullanıcı programları donanıma doğrudan erişemez; <strong>sistem çağrıları (syscall)</strong> aracılığıyla
+      çekirdekten hizmet talep eder. Bu ayrım güvenlik ve kararlılığın temelidir.
+    </p>
+    <div class="kv-diagram">
+      <div class="kv-space kv-userspace">
+        <span style="width:100%;font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">Kullanıcı Alanı (Ring 3)</span>
+        <span class="kv-badge" style="background:rgba(251,191,36,0.18);color:#fbbf24">bash</span>
+        <span class="kv-badge" style="background:rgba(251,191,36,0.18);color:#fbbf24">vim</span>
+        <span class="kv-badge" style="background:rgba(251,191,36,0.18);color:#fbbf24">firefox</span>
+        <span class="kv-badge" style="background:rgba(251,191,36,0.18);color:#fbbf24">gcc</span>
+        <span class="kv-badge" style="background:rgba(251,191,36,0.18);color:#fbbf24">python</span>
+      </div>
+      <div class="kv-arrow">↓ sistem çağrıları (syscall) ↓</div>
+      <div class="kv-syscall">
+        <span style="color:var(--accent);font-weight:600">open()</span>
+        <span class="arrow">→</span>
+        <span style="color:var(--accent);font-weight:600">read()</span>
+        <span class="arrow">→</span>
+        <span style="color:var(--accent);font-weight:600">write()</span>
+        <span class="arrow">→</span>
+        <span style="color:var(--accent);font-weight:600">fork()</span>
+        <span class="arrow">→</span>
+        <span style="color:var(--accent);font-weight:600">mmap()</span>
+      </div>
+      <div class="kv-arrow">↓ çekirdek işler, donanımı yönetir ↓</div>
+      <div class="kv-space kv-kernel">
+        <span style="width:100%;font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">Çekirdek Alanı (Ring 0)</span>
+        <span class="kv-badge" style="background:rgba(96,165,250,0.18);color:#60a5fa">Süreç Yöneticisi</span>
+        <span class="kv-badge" style="background:rgba(96,165,250,0.18);color:#60a5fa">Bellek Yöneticisi</span>
+        <span class="kv-badge" style="background:rgba(96,165,250,0.18);color:#60a5fa">Dosya Sistemleri</span>
+        <span class="kv-badge" style="background:rgba(96,165,250,0.18);color:#60a5fa">Ağ Yığını</span>
+        <span class="kv-badge" style="background:rgba(96,165,250,0.18);color:#60a5fa">Aygıt Sürücüleri</span>
+      </div>
+      <div class="kv-arrow">↓ kesmeler (IRQ), DMA, I/O portları ↓</div>
+      <div class="kv-space kv-hw">
+        <span style="width:100%;font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">Donanım</span>
+        <span class="kv-badge" style="background:rgba(163,230,53,0.14);color:#a3e635">CPU</span>
+        <span class="kv-badge" style="background:rgba(163,230,53,0.14);color:#a3e635">RAM</span>
+        <span class="kv-badge" style="background:rgba(163,230,53,0.14);color:#a3e635">Disk</span>
+        <span class="kv-badge" style="background:rgba(163,230,53,0.14);color:#a3e635">NIC</span>
+        <span class="kv-badge" style="background:rgba(163,230,53,0.14);color:#a3e635">GPU</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 7. LINUX DAĞITIM KARTLARI                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🐧 Linux Dağıtımları</h2>
+    <p class="desc">
+      Linux bir çekirdektir; dağıtımlar (distro) bu çekirdeği paket yöneticisi, kütüphaneler ve uygulamalarla birleştirir.
+      Her kartta dağıtımın kullanım alanı ve paket yöneticisi bilgisi yer alır.
+    </p>
+    <div class="distro-grid" id="distroGrid"></div>
+    <div class="distro-detail" id="distroDetail">🖱️ Bir dağıtım kartına tıklayarak detayları görün.</div>
+  </div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  1. OS MİMARİSİ                                             ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const layers = [
+    { name: "Kullanıcı Uygulamaları", icon: "🖥️", cls: "l-user",
+      detail: "<strong>Web tarayıcı, metin editörü, oyunlar, veritabanları…</strong> Kullanıcının doğrudan etkileşimde bulunduğu programlar. İşletim sisteminin sunduğu API'ler (POSIX, Win32) üzerinden çalışır. Uygulamalar <strong>user space</strong>'te, sınırlı yetkilerle (Ring 3) çalışır." },
+    { name: "Kabuk (Shell) / GUI", icon: "💬", cls: "l-shell",
+      detail: "<strong>bash, zsh, fish, GNOME, KDE, Windows Explorer…</strong> Kullanıcı ile işletim sistemi arasındaki arayüzdür. Komut yorumlayıcısı (CLI) veya grafiksel masaüstü (GUI) olabilir. Kullanıcı komutlarını alır, sistem çağrılarına dönüştürür." },
+    { name: "Sistem Çağrıları (Syscall)", icon: "🔗", cls: "l-syscall",
+      detail: "<strong>open(), read(), write(), fork(), exec(), mmap(), socket()…</strong> Kullanıcı programlarının çekirdekten hizmet talep ettiği kontrollü geçiş noktaları. Linux'ta ~350 sistem çağrısı vardır. Her syscall, CPU'yu Ring 3'ten Ring 0'a geçirir (context switch)." },
+    { name: "Çekirdek (Kernel)", icon: "🧠", cls: "l-kernel",
+      detail: "<strong>Süreç yönetimi, bellek yönetimi, dosya sistemleri, ağ yığını, IPC…</strong> İşletim sisteminin kalbi. CPU, RAM, disk gibi donanım kaynaklarını yönetir. Linux çekirdeği monolitik yapıdadır ama modül desteğiyle esneklik kazanır. ~30 milyon satır C kodu." },
+    { name: "Aygıt Sürücüleri", icon: "🔌", cls: "l-drv",
+      detail: "<strong>GPU sürücüsü, disk sürücüsü, ağ kartı sürücüsü, USB denetleyici…</strong> Donanım ile çekirdek arasında çevirmenlik yapar. Her donanım parçasının kendine özgü bir sürücüsü vardır. Linux çekirdeğinin yaklaşık %70'i aygıt sürücülerinden oluşur!" },
+    { name: "Donanım (Hardware)", icon: "⚡", cls: "l-hw",
+      detail: "<strong>CPU, RAM, SSD/HDD, GPU, ağ kartı, anakart, USB denetleyici…</strong> Bilgisayarın fiziksel bileşenleri. İşletim sistemi bu kaynakları soyutlayarak programlara sanal bir makine sunar. CPU halkaları (Ring 0-3) ile yetki seviyeleri donanım tarafından zorlanır." },
+  ];
+
+  const stack = document.getElementById("osStack");
+  const detail = document.getElementById("osDetail");
+
+  layers.forEach((l, i) => {
+    const div = document.createElement("div");
+    div.className = "os-layer " + l.cls;
+    div.innerHTML = `<span class="os-lnum">${i+1}</span><span>${l.icon}</span><span class="os-lname">${l.name}</span>`;
+    div.addEventListener("click", () => {
+      document.querySelectorAll(".os-layer").forEach(el => el.classList.remove("active"));
+      div.classList.add("active");
+      detail.innerHTML = l.detail;
+    });
+    stack.appendChild(div);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  2. SÜREÇ YAŞAM DÖNGÜSÜ                                    ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas = document.getElementById("procCanvas");
+  const ctx = canvas.getContext("2d");
+
+  // Durumlar: new, ready, running, waiting, terminated
+  const statePos = {
+    new:    { x: 0.15, y: 0.65 },
+    ready:  { x: 0.35, y: 0.65 },
+    running:{ x: 0.50, y: 0.30 },
+    waiting:{ x: 0.65, y: 0.65 },
+    terminated:{ x: 0.85, y: 0.65 },
+  };
+
+  const stateColors = {
+    new:    "#fbbf24",
+    ready:  "#a78bfa",
+    running:"#5eead4",
+    waiting:"#f87171",
+    terminated:"#8b95a8",
+  };
+
+  const stateLabels = {
+    new: "Yeni", ready: "Hazır", running: "Çalışıyor", waiting: "Bekliyor", terminated: "Sonlandı",
+  };
+
+  // Yönlü kenarlar
+  const edges = [
+    { from: "new", to: "ready", label: "kabul" },
+    { from: "ready", to: "running", label: "zamanlayıcı seçti" },
+    { from: "running", to: "ready", label: "zaman dilimi bitti" },
+    { from: "running", to: "waiting", label: "I/O bekle" },
+    { from: "waiting", to: "ready", label: "I/O tamam" },
+    { from: "running", to: "terminated", label: "çıkış" },
+  ];
+
+  let W = 500, H = 240;
+  let processes = []; // { id, state, label }
+  let nextPid = 1;
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = Math.max(340, rect.width);
+    H = Math.max(220, Math.min(280, W * 0.52));
+    canvas.width = W;
+    canvas.height = H;
+  }
+
+  function pos(s) { return { x: statePos[s].x * W, y: statePos[s].y * H }; }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Izgara
+    ctx.strokeStyle = "rgba(255,255,255,0.02)";
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+    // Kenarlar
+    edges.forEach(e => {
+      const p1 = pos(e.from), p2 = pos(e.to);
+      ctx.beginPath();
+      // Hafif eğri
+      const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2 - 18;
+      ctx.moveTo(p1.x, p1.y);
+      ctx.quadraticCurveTo(mx, my, p2.x, p2.y);
+      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Ok ucu
+      const t = 0.85;
+      const bx = (1-t)*(1-t)*p1.x + 2*(1-t)*t*mx + t*t*p2.x;
+      const by = (1-t)*(1-t)*p1.y + 2*(1-t)*t*my + t*t*p2.y;
+      const tx = (1-0.9)*(1-0.9)*p1.x + 2*(1-0.9)*0.9*mx + 0.9*0.9*p2.x;
+      const ty = (1-0.9)*(1-0.9)*p1.y + 2*(1-0.9)*0.9*my + 0.9*0.9*p2.y;
+      const angle = Math.atan2(ty - by, tx - bx);
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(tx - 6 * Math.cos(angle - 1), ty - 6 * Math.sin(angle - 1));
+      ctx.lineTo(tx - 6 * Math.cos(angle + 1), ty - 6 * Math.sin(angle + 1));
+      ctx.fillStyle = "rgba(255,255,255,0.25)";
+      ctx.fill();
+
+      // Etiket
+      ctx.fillStyle = "rgba(255,255,255,0.35)";
+      ctx.font = "8px 'Outfit', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(e.label, mx, my - 6);
+    });
+
+    // Durum düğümleri
+    Object.entries(statePos).forEach(([s, sp]) => {
+      const p = pos(s);
+      const count = processes.filter(pr => pr.state === s).length;
+
+      // Glow
+      const glow = ctx.createRadialGradient(p.x, p.y, 14, p.x, p.y, 38);
+      glow.addColorStop(0, stateColors[s] + "33");
+      glow.addColorStop(1, "transparent");
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 38, 0, Math.PI*2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+
+      // Daire
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 22, 0, Math.PI*2);
+      ctx.fillStyle = stateColors[s] + "15";
+      ctx.fill();
+      ctx.strokeStyle = stateColors[s] + "50";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // İç nokta
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+      ctx.fillStyle = stateColors[s];
+      ctx.fill();
+
+      // Etiket
+      ctx.fillStyle = stateColors[s];
+      ctx.font = "bold 10px 'Outfit', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(stateLabels[s], p.x, p.y - 30);
+      ctx.fillStyle = "rgba(255,255,255,0.6)";
+      ctx.font = "9px 'Outfit', sans-serif";
+      ctx.fillText(count + " süreç", p.x, p.y + 34);
+    });
+
+    // Süreçleri durumların içinde göster (küçük noktalar)
+    const perState = {};
+    processes.forEach(p => {
+      if (!perState[p.state]) perState[p.state] = [];
+      perState[p.state].push(p);
+    });
+    Object.entries(perState).forEach(([s, procs]) => {
+      const p = pos(s);
+      const r = 16;
+      procs.forEach((pr, i) => {
+        const angle = (i / Math.max(1, procs.length)) * Math.PI * 2 - Math.PI/2;
+        const px = p.x + Math.cos(angle) * r;
+        const py = p.y + Math.sin(angle) * r;
+        ctx.beginPath();
+        ctx.arc(px, py, 3.5, 0, Math.PI*2);
+        ctx.fillStyle = stateColors[s];
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.font = "6px ui-monospace, monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(pr.label, px, py - 7);
+      });
+    });
+  }
+
+  function updateInfo() {
+    const info = document.getElementById("procInfo");
+    const counts = {};
+    processes.forEach(p => {
+      counts[p.state] = (counts[p.state] || 0) + 1;
+    });
+    info.innerHTML = Object.entries(stateLabels).map(([s, lbl]) =>
+      `<span class="pstat">${lbl}: <strong>${counts[s] || 0}</strong></span>`
+    ).join("");
+  }
+
+  function addProcess() {
+    processes.push({ id: nextPid++, state: "new", label: "P" + nextPid });
+    updateInfo();
+    draw();
+  }
+
+  function schedule() {
+    // Yeni → Hazır
+    processes.filter(p => p.state === "new").forEach(p => { p.state = "ready"; });
+
+    // Çalışan → rastgele: ya zaman dilimi bitti (ready) ya da I/O (waiting)
+    const running = processes.filter(p => p.state === "running");
+    running.forEach(p => {
+      p.state = Math.random() < 0.6 ? "ready" : "waiting";
+    });
+
+    // Bekleyenlerin bir kısmı hazır olsun
+    processes.filter(p => p.state === "waiting").forEach(p => {
+      if (Math.random() < 0.5) p.state = "ready";
+    });
+
+    // Hazırdan birini çalıştır
+    const ready = processes.filter(p => p.state === "ready");
+    if (ready.length > 0) {
+      ready[0].state = "running";
+    }
+
+    // Sonlanmışları temizle
+    processes = processes.filter(p => p.state !== "terminated");
+
+    // Çalışanın bir kısmı sonlansın
+    const running2 = processes.filter(p => p.state === "running");
+    running2.forEach(p => {
+      if (Math.random() < 0.2) p.state = "terminated";
+    });
+
+    updateInfo();
+    draw();
+  }
+
+  document.getElementById("btnNewProc").addEventListener("click", addProcess);
+  document.getElementById("btnSchedule").addEventListener("click", schedule);
+  document.getElementById("btnResetProc").addEventListener("click", () => {
+    processes = [];
+    nextPid = 1;
+    updateInfo();
+    draw();
+  });
+
+  // Başlangıç süreçleri
+  processes.push({ id: 1, state: "running", label: "init" });
+  processes.push({ id: 2, state: "ready", label: "bash" });
+  processes.push({ id: 3, state: "waiting", label: "nginx" });
+  nextPid = 4;
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+  updateInfo();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  3. TERMİNAL SİMÜLATÖRÜ                                     ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const body = document.getElementById("termBody");
+  const input = document.getElementById("termInput");
+  let cmdHistory = [];
+  let histIdx = -1;
+
+  const filesystem = {
+    "/": { type: "dir" },
+    "/home": { type: "dir" },
+    "/home/serkan": { type: "dir" },
+    "/home/serkan/belgeler": { type: "dir" },
+    "/home/serkan/belgeler/not.txt": { type: "file", content: "Linux öğreniyorum!\nÇok eğlenceli." },
+    "/home/serkan/.bashrc": { type: "file", content: "export PATH=/usr/local/bin:$PATH\nalias ll='ls -la'" },
+    "/etc": { type: "dir" },
+    "/etc/hostname": { type: "file", content: "linux-server" },
+    "/var": { type: "dir" },
+    "/var/log": { type: "dir" },
+    "/var/log/syslog": { type: "file", content: "kernel: [0.000000] Linux version 6.1.0..." },
+    "/tmp": { type: "dir" },
+    "/usr": { type: "dir" },
+    "/usr/bin": { type: "dir" },
+    "/proc": { type: "dir" },
+  };
+
+  let cwd = "/home/serkan";
+
+  function resolve(path) {
+    if (path === "/") return "/";
+    let parts;
+    if (path.startsWith("/")) {
+      parts = path.split("/").filter(Boolean);
+    } else {
+      parts = (cwd === "/" ? "" : cwd).split("/").filter(Boolean).concat(path.split("/").filter(Boolean));
+    }
+    const resolved = [];
+    for (const p of parts) {
+      if (p === "..") { resolved.pop(); }
+      else if (p !== ".") { resolved.push(p); }
+    }
+    return "/" + resolved.join("/") || "/";
+  }
+
+  function appendLine(cls, text) {
+    const div = document.createElement("div");
+    div.className = cls;
+    div.textContent = text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function appendHTML(cls, html) {
+    const div = document.createElement("div");
+    div.className = cls;
+    div.innerHTML = html;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function execute(cmdStr) {
+    appendHTML("prompt", `$ <span class="cmd">${cmdStr}</span>`);
+
+    const parts = cmdStr.trim().split(/\s+/);
+    const cmd = parts[0];
+    const args = parts.slice(1);
+
+    switch (cmd) {
+      case "help":
+        appendLine("output", "Kullanılabilir komutlar:");
+        appendLine("output", "  ls [dizin]    Dizin içeriğini listele");
+        appendLine("output", "  pwd           Çalışma dizinini göster");
+        appendLine("output", "  cd <dizin>    Dizin değiştir");
+        appendLine("output", "  cat <dosya>   Dosya içeriğini göster");
+        appendLine("output", "  whoami        Kullanıcı adı");
+        appendLine("output", "  uname -a      Sistem bilgisi");
+        appendLine("output", "  echo <metin>  Metni yazdır");
+        appendLine("output", "  df -h         Disk kullanımı");
+        appendLine("output", "  free -h       Bellek kullanımı");
+        appendLine("output", "  ps            Süreç listesi");
+        appendLine("output", "  uptime        Sistem çalışma süresi");
+        appendLine("output", "  clear         Ekranı temizle");
+        break;
+
+      case "clear":
+        body.innerHTML = "";
+        break;
+
+      case "pwd":
+        appendLine("output", cwd);
+        break;
+
+      case "whoami":
+        appendLine("output", "serkan");
+        break;
+
+      case "uname":
+        if (args[0] === "-a") {
+          appendLine("output", "Linux linux-server 6.1.0-17-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.69-1 (2024-01-01) x86_64 GNU/Linux");
+        } else {
+          appendLine("output", "Linux");
+        }
+        break;
+
+      case "echo":
+        appendLine("output", args.join(" "));
+        break;
+
+      case "df":
+        if (args[0] === "-h") {
+          appendLine("output", "Dosya sistemi    Boyut  Kullan.  Müsait  %Kull  Bağ. noktası");
+          appendLine("output", "/dev/sda1         476G     128G     324G    %29  /");
+          appendLine("output", "/dev/sdb1         1.8T     892G     812G    %53  /data");
+          appendLine("output", "tmpfs              16G     2.1M      16G     %1  /tmp");
+        }
+        break;
+
+      case "free":
+        if (args[0] === "-h") {
+          appendLine("output", "              toplam   kullanılan   boş   paylaşılan  tampon   kullanılabilir");
+          appendLine("output", "Bellek:        15Gi        4.2Gi    8.1Gi     389Mi    2.7Gi        10Gi");
+          appendLine("output", "Swap:         8.0Gi        512Mi    7.5Gi");
+        }
+        break;
+
+      case "ps":
+        appendLine("output", "  PID TTY          TIME CMD");
+        appendLine("output", "    1 ?        00:00:02 systemd");
+        appendLine("output", "  423 ?        00:00:00 nginx");
+        appendLine("output", "  512 pts/0    00:00:00 bash");
+        appendLine("output", "  891 ?        00:00:05 sshd");
+        appendLine("output", " 1024 pts/0    00:00:00 ps");
+        break;
+
+      case "uptime":
+        appendLine("output", " 14:32:17 up 47 gün,  3:14,  2 kullanıcı,  yük ortalaması: 0.12, 0.08, 0.05");
+        break;
+
+      case "cat":
+        if (!args[0]) { appendLine("err", "cat: dosya adı gerekli"); break; }
+        const catPath = resolve(args[0]);
+        const catEntry = filesystem[catPath];
+        if (!catEntry) { appendLine("err", `cat: ${args[0]}: Böyle bir dosya yok`); break; }
+        if (catEntry.type !== "file") { appendLine("err", `cat: ${args[0]}: Bu bir dizin`); break; }
+        catEntry.content.split("\n").forEach(line => appendLine("output", line));
+        break;
+
+      case "cd":
+        if (!args[0]) {
+          cwd = "/home/serkan";
+        } else {
+          const target = resolve(args[0]);
+          if (filesystem[target] && filesystem[target].type === "dir") {
+            cwd = target;
+          } else {
+            appendLine("err", `cd: ${args[0]}: Böyle bir dizin yok`);
+          }
+        }
+        break;
+
+      case "ls":
+        const lsPath = args[0] ? resolve(args[0]) : cwd;
+        if (!filesystem[lsPath] || filesystem[lsPath].type !== "dir") {
+          appendLine("err", `ls: ${args[0] || lsPath}: Böyle bir dizin yok`);
+          break;
+        }
+        const prefix = lsPath === "/" ? "/" : lsPath + "/";
+        const entries = Object.keys(filesystem).filter(k => k.startsWith(prefix) && k !== prefix);
+        const children = new Set();
+        entries.forEach(e => {
+          const rel = e.slice(prefix.length).split("/")[0];
+          children.add(rel);
+        });
+        const sorted = [...children].sort();
+        let lsOut = "";
+        sorted.forEach(c => {
+          const full = prefix + c;
+          if (filesystem[full] && filesystem[full].type === "dir") {
+            lsOut += `<span style="color:var(--accent-2);font-weight:600">${c}/</span>  `;
+          } else {
+            lsOut += `<span style="color:#c0c8d4">${c}</span>  `;
+          }
+        });
+        if (lsOut) appendHTML("output", lsOut);
+        else appendLine("output", "(boş)");
+        break;
+
+      default:
+        appendLine("err", `bash: ${cmd}: komut bulunamadı. 'help' yazarak komut listesini görün.`);
+    }
+  }
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const val = input.value.trim();
+      if (val) {
+        cmdHistory.push(val);
+        histIdx = cmdHistory.length;
+        execute(val);
+      }
+      input.value = "";
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (cmdHistory.length > 0) {
+        histIdx = Math.max(0, histIdx - 1);
+        input.value = cmdHistory[histIdx] || "";
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (histIdx < cmdHistory.length - 1) {
+        histIdx++;
+        input.value = cmdHistory[histIdx];
+      } else {
+        histIdx = cmdHistory.length;
+        input.value = "";
+      }
+    }
+  });
+
+  // Karşılama mesajı
+  appendLine("output", "Linux terminal simülatörüne hoş geldiniz! 🐧");
+  appendLine("output", "Komut denemek için 'help' yazın.");
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  4. DOSYA SİSTEMİ HİYERARŞİSİ (FHS)                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const fhs = {
+    "/": { desc: "Kök dizin — tüm dosya sisteminin başlangıcı", children: {
+      "bin": { desc: "Temel kullanıcı komutları (ls, cp, mv, cat…)", children: {} },
+      "boot": { desc: "Çekirdek ve bootloader dosyaları (vmlinuz, initrd)", children: {} },
+      "dev": { desc: "Aygıt dosyaları (sda, tty, null, random…)", children: {} },
+      "etc": { desc: "Sistem geneli yapılandırma dosyaları", children: {
+        "hostname": { desc: "Bilgisayarın ağ adı" },
+        "passwd": { desc: "Kullanıcı hesap bilgileri" },
+        "ssh/": { desc: "SSH sunucu/istemci yapılandırması" },
+        "systemd/": { desc: "systemd servis tanımları" },
+        "nginx/": { desc: "Nginx web sunucusu yapılandırması" },
+      }},
+      "home": { desc: "Kullanıcı ev dizinleri (~/.bashrc, Belgeler…)", children: {
+        "serkan/": { desc: "serkan kullanıcısının ev dizini" },
+      }},
+      "lib": { desc: "Paylaşılan kütüphaneler (.so) ve çekirdek modülleri", children: {} },
+      "media": { desc: "Çıkarılabilir medya bağlama noktası (USB, CD-ROM)", children: {} },
+      "mnt": { desc: "Geçici bağlama noktası", children: {} },
+      "opt": { desc: "Üçüncü parti / isteğe bağlı yazılımlar", children: {} },
+      "proc": { desc: "Süreç ve sistem bilgisi sanal dosya sistemi (cpuinfo, meminfo…)", children: {} },
+      "root": { desc: "root kullanıcısının ev dizini", children: {} },
+      "run": { desc: "Çalışma zamanı değişken verileri (PID dosyaları, soketler)", children: {} },
+      "sbin": { desc: "Sistem yönetim komutları (fdisk, mkfs, iptables…)", children: {} },
+      "sys": { desc: "Çekirdek ve aygıt bilgisi sanal dosya sistemi", children: {} },
+      "tmp": { desc: "Geçici dosyalar — genelde her boot'ta temizlenir", children: {} },
+      "usr": { desc: "Kullanıcı programları ve verileri (Unix System Resources)", children: {
+        "bin/": { desc: "Kullanıcı komutlarının çoğu" },
+        "lib/": { desc: "Kütüphaneler" },
+        "local/": { desc: "Yerel olarak derlenmiş yazılımlar" },
+        "share/": { desc: "Mimariden bağımsız veriler (dokümantasyon, simgeler…)" },
+      }},
+      "var": { desc: "Değişken veriler (loglar, kuyruklar, önbellekler)", children: {
+        "log/": { desc: "Sistem günlük dosyaları (syslog, auth.log…)" },
+        "spool/": { desc: "Kuyruk dosyaları (yazıcı, e-posta…)" },
+        "cache/": { desc: "Uygulama önbellek verileri" },
+      }},
+    }},
+  };
+
+  function renderFHS(node, path, depth) {
+    let html = "";
+    const indent = "&nbsp;&nbsp;".repeat(depth);
+    const prefix = depth > 0 ? "├─ " : "";
+
+    if (depth > 0) {
+      const isDir = path.endsWith("/") || Object.keys(node.children || {}).length > 0;
+      html += `<div style="padding-left:${depth*14}px">`;
+      html += `<span class="${isDir ? 'dir' : 'file'}" data-path="${path}">${prefix}${path.split("/").filter(Boolean).pop() || "/"}</span>`;
+      html += `<span class="desc">${node.desc}</span>`;
+      html += `</div>`;
+    } else {
+      html += `<div><span class="dir" data-path="/">/</span><span class="desc">${node.desc}</span></div>`;
+    }
+
+    if (node.children) {
+      Object.entries(node.children).forEach(([name, child]) => {
+        html += renderFHS(child, path + name, depth + 1);
+      });
+    }
+    return html;
+  }
+
+  const fsTree = document.getElementById("fsTree");
+  fsTree.innerHTML = renderFHS(fhs, "/", 0);
+
+  fsTree.addEventListener("click", (e) => {
+    const el = e.target.closest(".dir");
+    if (!el) return;
+    const path = el.dataset.path;
+    const parts = path.split("/").filter(Boolean);
+    let node = fhs["/"];
+    for (const p of parts) {
+      const key = p.endsWith("/") ? p : p + (node.children?.[p + "/"] ? "/" : "");
+      if (node.children?.[p]) node = node.children[p];
+      else if (node.children?.[p + "/"]) node = node.children[p + "/"];
+      else { node = null; break; }
+    }
+    if (node) {
+      el.style.background = "rgba(167,139,250,0.2)";
+      setTimeout(() => { el.style.background = ""; }, 800);
+    }
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  5. CPU ZAMANLAYICI (SCHEDULER)                             ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const procs = [
+    { id: 1, name: "firefox", color: "#5eead4", cls: "p1", remaining: 6, state: "ready" },
+    { id: 2, name: "gcc",     color: "#a78bfa", cls: "p2", remaining: 4, state: "ready" },
+    { id: 3, name: "python",  color: "#fbbf24", cls: "p3", remaining: 3, state: "ready" },
+    { id: 4, name: "mysqld",  color: "#f472b6", cls: "p4", remaining: 5, state: "ready" },
+  ];
+  let currentIdx = -1;
+  let timeline = [];
+  let autoInterval = null;
+
+  function render() {
+    const grid = document.getElementById("schedGrid");
+    grid.innerHTML = procs.map(p => {
+      let stateClass = p.state;
+      if (p.state === "done") stateClass = "waiting";
+      return `<div class="sched-proc ${stateClass === 'running' ? 'running' : stateClass === 'ready' ? 'ready' : 'waiting'}">
+        <div class="sp-name">${p.name}</div>
+        <div class="sp-state">${p.state === 'running' ? '⚡ Çalışıyor' : p.state === 'ready' ? '⏳ Hazır (' + p.remaining + ' q)' : p.state === 'done' ? '✅ Tamam' : '⏸️ Bekliyor'}</div>
+      </div>`;
+    }).join("");
+
+    const timelineEl = document.getElementById("schedTimeline");
+    timelineEl.innerHTML = timeline.map(s => `<span class="slot ${s.cls}"></span>`).join("");
+  }
+
+  function step() {
+    // Şu anki running'i ready yap veya bitir
+    if (currentIdx >= 0) {
+      const cp = procs[currentIdx];
+      cp.remaining--;
+      if (cp.remaining <= 0) {
+        cp.state = "done";
+      } else {
+        cp.state = "ready";
+      }
+    }
+
+    // Sonraki hazır süreci bul (round-robin)
+    const readyProcs = procs.filter(p => p.state === "ready");
+    if (readyProcs.length === 0) {
+      timeline.push({ cls: "idle" });
+      currentIdx = -1;
+      render();
+      return;
+    }
+
+    // Round-robin: currentIdx'den sonraki ilk ready
+    let next = -1;
+    for (let i = 1; i <= procs.length; i++) {
+      const idx = (currentIdx + i) % procs.length;
+      if (procs[idx].state === "ready") { next = idx; break; }
+    }
+    if (next === -1) {
+      for (let i = 0; i < procs.length; i++) {
+        if (procs[i].state === "ready") { next = i; break; }
+      }
+    }
+
+    if (next >= 0) {
+      procs[next].state = "running";
+      timeline.push({ cls: procs[next].cls });
+      currentIdx = next;
+    } else {
+      timeline.push({ cls: "idle" });
+      currentIdx = -1;
+    }
+
+    render();
+
+    // Hepsi bitti mi?
+    if (procs.every(p => p.state === "done") && autoInterval) {
+      clearInterval(autoInterval);
+      autoInterval = null;
+      document.getElementById("btnSchedAuto").textContent = "▶️ Otomatik";
+    }
+  }
+
+  document.getElementById("btnSchedStep").addEventListener("click", step);
+  document.getElementById("btnSchedAuto").addEventListener("click", function() {
+    if (autoInterval) {
+      clearInterval(autoInterval);
+      autoInterval = null;
+      this.textContent = "▶️ Otomatik";
+    } else {
+      if (procs.every(p => p.state === "done")) {
+        procs.forEach(p => { p.state = "ready"; p.remaining = [6,4,3,5][p.id-1]; });
+        currentIdx = -1;
+        timeline = [];
+      }
+      autoInterval = setInterval(step, 400);
+      this.textContent = "⏸️ Durdur";
+    }
+  });
+  document.getElementById("btnSchedReset").addEventListener("click", () => {
+    if (autoInterval) { clearInterval(autoInterval); autoInterval = null; document.getElementById("btnSchedAuto").textContent = "▶️ Otomatik"; }
+    procs.forEach((p, i) => { p.state = "ready"; p.remaining = [6,4,3,5][i]; });
+    currentIdx = -1;
+    timeline = [];
+    render();
+  });
+
+  render();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  6. LINUX DAĞITIM KARTLARI                                   ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const distros = [
+    { icon: "🐧", name: "Debian", based: "Bağımsız", pkg: "apt / .deb",
+      detail: "<strong>Debian</strong> — 1993'te Ian Murdock tarafından başlatılan, kararlılık odaklı efsanevi dağıtım. <strong>apt</strong> paket yöneticisi ve <strong>.deb</strong> paket formatının yaratıcısı. Stable, Testing ve Unstable olmak üzere üç dalı vardır. Ubuntu, Mint, Kali Linux ve Raspberry Pi OS gibi onlarca dağıtım Debiana dayanır." },
+    { icon: "🟠", name: "Ubuntu", based: "Debian", pkg: "apt / snap",
+      detail: "<strong>Ubuntu</strong> — Canonical tarafından geliştirilen, dünyanın en popüler Linux dağıtımı. 6 ayda bir sürüm, 2 yılda bir LTS (Uzun Süreli Destek) yayınlanır. Snap paket sistemi, GNOME masaüstü ve geniş topluluk desteği ile masaüstü ve sunucuda yaygındır." },
+    { icon: "🔴", name: "Fedora", based: "Bağımsız", pkg: "dnf / .rpm",
+      detail: "<strong>Fedora</strong> — Red Hat sponsorluğunda, en yeni teknolojileri cesurca sunan öncü dağıtım. <strong>dnf</strong> paket yöneticisi ve <strong>.rpm</strong> paket formatı kullanır. GNOME'un en saf halini sunar. Red Hat Enterprise Linux (RHEL) için test alanıdır. Wayland, PipeWire, systemd gibi teknolojilerin öncüsüdür." },
+    { icon: "🎩", name: "Red Hat / RHEL", based: "Bağımsız", pkg: "dnf / .rpm",
+      detail: "<strong>RHEL (Red Hat Enterprise Linux)</strong> — Kurumsal dünyanın standardı. 10 yıl destek süresi, sıkı test süreçleri ve profesyonel destek ile finans, sağlık ve devlet sektörlerinde yaygındır. IBM tarafından 2019'da 34 milyar dolara satın alınmıştır. <strong>CentOS Stream</strong> ve Rocky Linux RHEL türevleridir." },
+    { icon: "🌿", name: "Linux Mint", based: "Ubuntu/Debian", pkg: "apt",
+      detail: "<strong>Linux Mint</strong> — Kullanıcı dostu, Windows'tan geçiş yapanlar için ideal. Cinnamon masaüstü ortamı ile tanınır. Ubuntu tabanlı olması sayesinde geniş paket desteğine sahiptir. Varsayılan olarak multimedya codecleri yüklü gelir." },
+    { icon: "🔷", name: "Arch Linux", based: "Bağımsız", pkg: "pacman",
+      detail: "<strong>Arch Linux</strong> — Minimalist, rolling-release (sürekli güncel), DIY felsefesiyle ünlü. <strong>pacman</strong> paket yöneticisi ve <strong>AUR</strong> (Arch User Repository) ile neredeyse her yazılıma erişim. Kurulumu manuel ve CLI tabanlıdır; kullanıcı sistemini sıfırdan inşa eder. Arch Wiki, tüm Linux dünyasının başvuru kaynağıdır." },
+    { icon: "🛡️", name: "Kali Linux", based: "Debian", pkg: "apt",
+      detail: "<strong>Kali Linux</strong> — Offensive Security tarafından geliştirilen penetrasyon testi ve etik hackleme dağıtımı. 600'den fazla ön yüklü güvenlik aracı içerir: nmap, Wireshark, Metasploit, Aircrack-ng, John the Ripper. Adli bilişim (forensics) modu vardır. Raspberry Pi'de bile çalışır." },
+    { icon: "🦎", name: "openSUSE", based: "Bağımsız", pkg: "zypper / .rpm",
+      detail: "<strong>openSUSE</strong> — Almanya merkezli, YaST (Yet another Setup Tool) yapılandırma aracıyla ünlü. Tumbleweed (rolling) ve Leap (sabit sürüm) olarak iki dalı vardır. KDE Plasma için en iyi deneyimi sunan dağıtımlardan biridir. SUSE Linux Enterprise'ın topluluk sürümüdür." },
+    { icon: "🐳", name: "Alpine Linux", based: "Bağımsız", pkg: "apk",
+      detail: "<strong>Alpine Linux</strong> — Güvenlik ve minimalizm odaklı, Docker konteynerlarının favorisi. <strong>musl libc</strong> ve <strong>BusyBox</strong> kullanarak yalnızca ~5 MB boyutundadır. PaX ve grsecurity yamalarıyla güçlendirilmiştir. Çoğu resmi Docker imajının temelidir." },
+    { icon: "🔄", name: "Gentoo", based: "Bağımsız", pkg: "portage / emerge",
+      detail: "<strong>Gentoo Linux</strong> — Kaynak kod tabanlı, her paketin kullanıcının sisteminde derlendiği ultra özelleştirilebilir dağıtım. <strong>USE flag</strong> sistemiyle her paketin hangi özelliklerle derleneceği kontrol edilir. Chromium OS ve CoreOS'un temelidir. Öğrenme eğrisi diktir ama kontrol manyağıdır." },
+    { icon: "🐧", name: "Slackware", based: "Bağımsız", pkg: "pkgtool / .tgz",
+      detail: "<strong>Slackware</strong> — 1993'te Patrick Volkerding tarafından başlatılan, hâlâ aktif en eski Linux dağıtımı. KISS (Keep It Simple, Stupid) felsefesini takip eder. Bağımlılık çözümü yapmaz; sistem yöneticisi ne yaptığını bilmelidir. BSD tarzı init sistemi, vanilya paketler." },
+  ];
+
+  const grid = document.getElementById("distroGrid");
+  const detail = document.getElementById("distroDetail");
+
+  distros.forEach(d => {
+    const card = document.createElement("div");
+    card.className = "distro-card";
+    card.innerHTML = `<div class="d-icon">${d.icon}</div><div class="d-name">${d.name}</div><div class="d-based">${d.based} · ${d.pkg}</div>`;
+    card.addEventListener("click", () => {
+      detail.innerHTML = d.detail;
+      document.querySelectorAll(".distro-card").forEach(c => c.style.borderColor = "var(--border)");
+      card.style.borderColor = "var(--accent-2)";
+    });
+    grid.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>
