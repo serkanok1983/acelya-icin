@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>İşaretçiler ve Bellek Yönetimi</title>
+  <style>
+    * { box-sizing: border-box; }
+    .app-content { max-width: 860px; }
+    .panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .panel .desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5; }
+    .btn-send {
+      flex:1; min-width:90px; padding:9px 12px; font:inherit; font-size:0.82rem;
+      font-weight:600; border:none; border-radius:8px; cursor:pointer;
+      background:linear-gradient(135deg, var(--accent), #2dd4bf);
+      color:var(--btn-text); transition:filter 0.2s,transform 0.15s;
+    }
+    .btn-send:hover { filter:brightness(1.1); transform:translateY(-1px); }
+    .btn-ghost2 {
+      background:transparent; color:var(--text-muted); border:1px solid var(--border);
+      font:inherit; font-size:0.82rem; font-weight:500; padding:9px 12px;
+      border-radius:8px; cursor:pointer; transition:all 0.2s;
+    }
+    .btn-ghost2:hover { color:var(--text); border-color:var(--border-hover); }
+
+    /* ═══════ Bellek Modeli Canvas ═══════ */
+    .mem-canvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
+      border:1px solid var(--border);
+    }
+    .mem-tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; }
+    .mem-tab {
+      padding:6px 14px; font:inherit; font-size:0.75rem; font-weight:600;
+      border:1px solid var(--border); border-radius:6px; cursor:pointer;
+      background:transparent; color:var(--text-muted); transition:all 0.2s;
+    }
+    .mem-tab.active { background:rgba(94,234,212,0.15); border-color:var(--accent); color:var(--accent); }
+    .mem-tab:hover { border-color:var(--border-hover); color:var(--text); }
+
+    /* ═══════ İşaretçi Görsel ═══════ */
+    .ptr-viz {
+      display:flex; gap:4px; align-items:center; flex-wrap:wrap; justify-content:center;
+      font-family:ui-monospace,'SF Mono',monospace; margin:8px 0;
+    }
+    .ptr-cell {
+      width:50px; height:50px; border-radius:6px; display:flex; align-items:center;
+      justify-content:center; font-weight:700; font-size:0.75rem;
+      border:2px solid var(--border); background:rgba(255,255,255,0.03);
+      transition:all 0.3s; position:relative;
+    }
+    .ptr-cell.var { border-color:var(--accent); background:rgba(94,234,212,0.08); }
+    .ptr-cell.ptr { border-color:var(--accent-2); background:rgba(167,139,250,0.08); }
+    .ptr-cell.free { border-color:var(--border); background:rgba(255,255,255,0.02); color:var(--text-muted); font-size:0.55rem; }
+    .ptr-cell.highlight { border-color:var(--accent-warm); box-shadow:0 0 16px rgba(251,191,36,0.3); transform:translateY(-4px); }
+    .ptr-cell.leak { border-color:var(--danger); background:rgba(248,113,113,0.1); animation:pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .ptr-addr {
+      position:absolute; top:-14px; font-size:0.52rem; color:var(--text-muted);
+      white-space:nowrap;
+    }
+    .ptr-controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .ptr-info { font-size:0.68rem; color:var(--text-muted); margin-top:6px; line-height:1.5; }
+
+    /* ═══════ Stack Frame Canvas ═══════ */
+    #stackCanvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
+      border:1px solid var(--border);
+    }
+
+    /* ═══════ Smart Pointer Cards ═══════ */
+    .smart-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:10px;
+    }
+    .smart-card {
+      padding:14px; border-radius:10px; border:1px solid var(--border);
+      background:rgba(255,255,255,0.02); transition:all 0.2s;
+    }
+    .smart-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
+    .smart-card .sc-icon { font-size:1.5rem; margin-bottom:6px; }
+    .smart-card .sc-name { font-size:0.82rem; font-weight:700; color:var(--text); }
+    .smart-card .sc-type { font-size:0.65rem; color:var(--text-muted); margin-bottom:6px; }
+    .smart-card .sc-desc { font-size:0.68rem; color:var(--text-muted); line-height:1.5; }
+    .smart-card .sc-code {
+      font-family:ui-monospace,monospace; font-size:0.62rem;
+      padding:6px 8px; background:rgba(0,0,0,0.3); border-radius:4px;
+      color:var(--accent); margin-top:6px; line-height:1.4; white-space:pre;
+    }
+
+    /* ═══════ Byte Grid ═══════ */
+    .byte-grid {
+      display:flex; gap:2px; flex-wrap:wrap; justify-content:center; margin:10px 0;
+    }
+    .byte-cell {
+      width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+      border-radius:4px; font-family:ui-monospace,monospace; font-size:0.62rem;
+      border:2px solid var(--border); background:rgba(255,255,255,0.03);
+      color:var(--text-muted); transition:all 0.3s;
+    }
+    .byte-cell.highlight { border-color:var(--accent); background:rgba(94,234,212,0.12); color:var(--accent); }
+
+    /* ═══════ Leak Demo ═══════ */
+    .leak-heap {
+      display:flex; gap:4px; flex-wrap:wrap; margin:8px 0; min-height:60px;
+    }
+    .leak-block {
+      padding:6px 10px; border-radius:6px; font-size:0.68rem;
+      font-family:ui-monospace,monospace; transition:all 0.5s;
+    }
+    .leak-block.alloc { background:rgba(94,234,212,0.12); border:1px solid var(--accent); color:var(--accent); }
+    .leak-block.leaked { background:rgba(248,113,113,0.15); border:1px solid var(--danger); color:var(--danger); animation:pulse 1.5s infinite; }
+    .leak-block.freed { animation:fadeOut 0.5s forwards; }
+    @keyframes fadeOut { to { opacity:0; transform:scale(0.8); } }
+
+    @media (max-width:500px) {
+      .panel { padding:12px 14px; }
+      .ptr-cell { width:38px; height:38px; font-size:0.62rem; }
+      .smart-grid { grid-template-columns:1fr; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="isaretciler-ve-bellek-yonetimi">
+<div class="app-content">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 1. BELLEK MODELİ                                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🧠 Bellek Modeli — Süreç Adres Alanı</h2>
+    <p class="desc">
+      Bir sürecin sanal adres alanı 4 ana bölgeye ayrılır. <strong>Stack</strong> aşağı doğru büyür (yerel değişkenler, fonksiyon çağrıları),
+      <strong>Heap</strong> yukarı doğru büyür (malloc/new). Aralarında büyüme payı vardır.
+      <strong>Data segment</strong> global/static değişkenleri, <strong>Text segment</strong> ise makine kodunu içerir.
+    </p>
+    <div class="mem-tabs">
+      <button class="mem-tab active" data-viz="overview">🗺️ Genel Görünüm</button>
+      <button class="mem-tab" data-viz="stack">📚 Stack</button>
+      <button class="mem-tab" data-viz="heap">📦 Heap</button>
+    </div>
+    <canvas class="mem-canvas" id="memCanvas"></canvas>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;text-align:center" id="memInfo"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 2. İŞARETÇİ GÖRSELLEŞTİRME                                  -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>👉 İşaretçi (Pointer) Simülatörü</h2>
+    <p class="desc">
+      İşaretçi, başka bir değişkenin <strong>bellek adresini</strong> tutan değişkendir. <code>int x = 42;</code> bellekte bir yerde saklanır.
+      <code>int *p = &x;</code> ise x'in adresini tutar. <code>*p</code> ile bu adresteki değere erişilir (dereferencing).
+      Aşağıda bellek hücrelerini ve işaretçi ilişkilerini interaktif olarak inceleyin.
+    </p>
+    <div class="ptr-viz" id="ptrViz"></div>
+    <div class="ptr-controls">
+      <button class="btn-send" id="btnDeclare">📝 int x = 42</button>
+      <button class="btn-send" id="btnPointer" style="background:linear-gradient(135deg,var(--accent-2),#7c3aed)">🎯 int *p = &x</button>
+      <button class="btn-send" id="btnDeref" style="background:linear-gradient(135deg,#fbbf24,#d97706)">👁️ y = *p (deref)</button>
+      <button class="btn-ghost2" id="btnPtrArith">➕ p++ (aritmetik)</button>
+      <button class="btn-ghost2" id="btnPtrNull">🚫 p = NULL</button>
+      <button class="btn-ghost2" id="btnPtrReset">↺ Sıfırla</button>
+    </div>
+    <div class="ptr-info" id="ptrInfo"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3. STACK FRAME                                             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>📚 Çağrı Yığını (Call Stack) — Stack Frame'ler</h2>
+    <p class="desc">
+      Her fonksiyon çağrısı stack'te bir <strong>stack frame</strong> oluşturur. Frame; dönüş adresi, parametreler,
+      yerel değişkenler ve saklanan register'ları içerir. Fonksiyon döndüğünde frame yok edilir. <strong>Stack overflow</strong>,
+      çok fazla iç içe çağrı olduğunda (sonsuz özyineleme) stack'in taşmasıdır.
+    </p>
+    <canvas id="stackCanvas"></canvas>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn-send" id="btnCallA">📞 main() → factorial(5)</button>
+      <button class="btn-send" id="btnCallB" style="background:linear-gradient(135deg,var(--accent-2),#7c3aed)">📞 factorial(5) → factorial(4)</button>
+      <button class="btn-ghost2" id="btnReturn">↩️ Return (geri dön)</button>
+      <button class="btn-ghost2" id="btnStackReset">↺ Sıfırla</button>
+    </div>
+    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;text-align:center" id="stackInfo">
+      Stack: boş — Çağrı başlatmak için butona tıklayın.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 4. BELLEK SIZINTISI DEMO                                    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>💧 Bellek Sızıntısı (Memory Leak) Simülasyonu</h2>
+    <p class="desc">
+      <code>malloc()</code> ile heap'ten ayrılan bellek, işaretçi kaybolduğunda <strong>sızıntıya</strong> uğrar —
+      bellek artık kullanılamaz ama geri de verilemez. <code>free()</code> çağrısı belleği geri verir.
+      Uzun süre çalışan programlarda biriken sızıntılar sistemin çökmesine yol açar.
+    </p>
+    <div class="leak-heap" id="leakHeap"></div>
+    <div class="ptr-controls">
+      <button class="btn-send" id="btnMalloc">📦 malloc(16)</button>
+      <button class="btn-ghost2" id="btnFree">🗑️ free() — son bloğu serbest bırak</button>
+      <button class="btn-ghost2" id="btnLosePtr">💧 İşaretçiyi Kaybet (Sızıntı!)</button>
+      <button class="btn-ghost2" id="btnLeakReset">↺ Sıfırla</button>
+    </div>
+    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:6px;text-align:center" id="leakInfo">
+      Heap boş. <strong>malloc()</strong> ile bellek ayırın.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 5. C++ AKILLI İŞARETÇİLER                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🧠 C++ Akıllı İşaretçiler (Smart Pointers)</h2>
+    <p class="desc">
+      Modern C++ (C++11 ve sonrası), ham işaretçilerin yol açtığı bellek sızıntılarını ve dangling pointer hatalarını
+      önlemek için <strong>akıllı işaretçiler</strong> sunar. RAII (Resource Acquisition Is Initialization) prensibiyle
+      bellek otomatik yönetilir.
+    </p>
+    <div class="smart-grid">
+      <div class="smart-card">
+        <div class="sc-icon">🔒</div>
+        <div class="sc-name">unique_ptr</div>
+        <div class="sc-type">Tek sahiplik (exclusive ownership)</div>
+        <div class="sc-desc">Bir kaynağın sadece bir sahibi olabilir. Kopyalanamaz, sadece <strong>move</strong> edilebilir. Scope dışına çıkınca otomatik silinir.</div>
+        <div class="sc-code">auto p = make_unique&lt;int&gt;(42);
+// p kopyalanamaz
+auto q = move(p); // sahiplik q'ya geçti
+// p artık nullptr</div>
+      </div>
+      <div class="smart-card">
+        <div class="sc-icon">👥</div>
+        <div class="sc-name">shared_ptr</div>
+        <div class="sc-type">Paylaşımlı sahiplik (reference counting)</div>
+        <div class="sc-desc">Birden çok işaretçi aynı kaynağı paylaşabilir. <strong>Referans sayacı</strong> sıfırlanınca kaynak otomatik silinir. Döngüsel referanslar sızıntıya yol açar.</div>
+        <div class="sc-code">auto p = make_shared&lt;int&gt;(42);
+auto q = p; // ref count = 2
+p.reset(); // ref count = 1
+q.reset(); // ref count = 0 → silindi</div>
+      </div>
+      <div class="smart-card">
+        <div class="sc-icon">👀</div>
+        <div class="sc-name">weak_ptr</div>
+        <div class="sc-type">Zayıf referans (no ownership)</div>
+        <div class="sc-desc">shared_ptr'in işaret ettiği nesneyi <strong>sahiplenmeden</strong> gözlemler. Döngüsel referansları kırmak için kullanılır. Kullanmadan önce <code>lock()</code> ile shared_ptr'e dönüştürülmelidir.</div>
+        <div class="sc-code">auto s = make_shared&lt;Node&gt;();
+weak_ptr&lt;Node&gt; w = s;
+if (auto sp = w.lock()) {
+  // sp geçerli, kullanabiliriz
+} // sp burada yok olur</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 6. ENDIANNESS & BELLEK DÜZENİ                               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🔄 Endianness — Byte Sıralaması</h2>
+    <p class="desc">
+      Çok baytlı sayılar bellekte iki farklı sırada saklanabilir. <strong>Little-endian</strong> (x86, ARM): en önemsiz byte en düşük adreste.
+      <strong>Big-endian</strong> (ağ protokolleri, bazı gömülü sistemler): en anlamlı byte en düşük adreste.
+      Ağ programlamada <code>htonl()</code>/<code>ntohl()</code> ile dönüşüm yapılır.
+    </p>
+    <div style="font-size:0.8rem;color:var(--text);text-align:center;margin-bottom:6px">
+      0x<span style="color:var(--accent)">0A</span><span style="color:var(--accent-2)">0B</span><span style="color:#fbbf24">0C</span><span style="color:#f472b6">0D</span> sayısının bellekteki dizilimi:
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+      <div style="text-align:center">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--accent);margin-bottom:6px">🟢 Little-Endian (x86, ARM)</div>
+        <div class="byte-grid">
+          <div class="byte-cell">0x100</div>
+          <div class="byte-cell highlight">0D</div>
+          <div class="byte-cell highlight" style="border-color:#fbbf24;background:rgba(251,191,36,0.12);color:#fbbf24">0C</div>
+          <div class="byte-cell highlight" style="border-color:var(--accent-2);background:rgba(167,139,250,0.12);color:var(--accent-2)">0B</div>
+          <div class="byte-cell highlight" style="border-color:var(--accent);background:rgba(94,234,212,0.12);color:var(--accent)">0A</div>
+          <div class="byte-cell">0x104</div>
+        </div>
+        <div style="font-size:0.6rem;color:var(--text-muted)">En önemsiz byte (0D) en düşük adreste</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--accent-2);margin-bottom:6px">🔵 Big-Endian (Ağ, SPARC)</div>
+        <div class="byte-grid">
+          <div class="byte-cell">0x100</div>
+          <div class="byte-cell highlight" style="border-color:var(--accent);background:rgba(94,234,212,0.12);color:var(--accent)">0A</div>
+          <div class="byte-cell highlight" style="border-color:var(--accent-2);background:rgba(167,139,250,0.12);color:var(--accent-2)">0B</div>
+          <div class="byte-cell highlight" style="border-color:#fbbf24;background:rgba(251,191,36,0.12);color:#fbbf24">0C</div>
+          <div class="byte-cell highlight">0D</div>
+          <div class="byte-cell">0x104</div>
+        </div>
+        <div style="font-size:0.6rem;color:var(--text-muted)">En anlamlı byte (0A) en düşük adreste</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 7. İŞARETÇİ TEHLİKELERİ KARTLARI                             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>⚠️ İşaretçi Hataları ve Tehlikeleri</h2>
+    <p class="desc">
+      İşaretçiler güçlüdür ama tehlikelidir. Aşağıdaki yaygın hataları anlamak,
+      C/C++'da güvenli kod yazmanın ilk adımıdır.
+    </p>
+    <div class="smart-grid" id="dangerGrid"></div>
+  </div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  1. BELLEK MODELİ CANVAS                                    ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas = document.getElementById("memCanvas");
+  const ctx = canvas.getContext("2d");
+  let W = 500, H = 360;
+  let vizMode = "overview";
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = Math.max(340, rect.width);
+    H = Math.max(300, Math.min(400, W * 0.75));
+    canvas.width = W;
+    canvas.height = H;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const w = W - 120, x0 = 60;
+    const segs = [
+      { label:"Stack (Yığın)", y:0.06, h:0.20, color:"#5eead4", desc:"Yerel değişkenler\nFonksiyon çağrıları\n↓ aşağı büyür" },
+      { label:"↓↓ Boşluk ↓↓", y:0.26, h:0.10, color:"rgba(255,255,255,0.05)", desc:"Stack ve Heap\nbirbirine doğru büyür" },
+      { label:"Heap (Öbek)", y:0.36, h:0.22, color:"#a78bfa", desc:"malloc / new\nDinamik bellek\n↑ yukarı büyür" },
+      { label:"BSS (Sıfırlanmamış)", y:0.58, h:0.06, color:"#fbbf24", desc:"Global değişkenler\n(başlangıç değeri 0)" },
+      { label:"Data (Veri)", y:0.64, h:0.06, color:"#f472b6", desc:"static değişkenler\nsabit string'ler" },
+      { label:"Text (Kod)", y:0.70, h:0.22, color:"#60a5fa", desc:"Makine kodu\nSalt okunur" },
+      { label:"İşletim Sistemi", y:0.92, h:0.08, color:"#f87171", desc:"Çekirdek alanı\nErişilemez" },
+    ];
+
+    segs.forEach(s => {
+      const y = s.y * H;
+      const h = s.h * H;
+      ctx.fillStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? s.color : s.color + "11";
+      ctx.fillRect(x0, y, w, h);
+      ctx.strokeStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? "rgba(255,255,255,0.05)" : s.color + "44";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x0, y, w, h);
+
+      ctx.fillStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? "var(--text-muted)" : s.color;
+      ctx.font = "bold 11px 'Outfit', sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(s.label, x0 - 8, y + h / 2 + 4);
+
+      ctx.fillStyle = "var(--text-muted)";
+      ctx.font = "8px 'Outfit', sans-serif";
+      ctx.textAlign = "left";
+      s.desc.split("\n").forEach((line, i) => {
+        ctx.fillText(line, x0 + w + 10, y + h/3 + i * 12);
+      });
+    });
+
+    // Adres göstergeleri
+    ctx.fillStyle = "var(--text-muted)";
+    ctx.font = "9px ui-monospace, monospace";
+    ctx.textAlign = "right";
+    ctx.fillText("0xFFFFFFFF", x0 + w, 12);
+    ctx.fillText("0x00000000", x0 + w, H - 4);
+
+    // Yüksek/Düşük adres okları
+    ctx.fillStyle = "var(--text-muted)";
+    ctx.font = "8px 'Outfit', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Yüksek adres", x0 + w / 2, 12);
+    ctx.fillText("Düşük adres", x0 + w / 2, H - 4);
+
+    document.getElementById("memInfo").textContent =
+      "Sanal adres alanı — her süreç kendi izole adres alanında çalışır. 64-bit sistemlerde teorik limit 16 EB, pratikte 48-bit (256 TB) kullanılır.";
+  }
+
+  document.querySelectorAll("[data-viz]").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll("[data-viz]").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      vizMode = tab.dataset.viz;
+      draw();
+    });
+  });
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  2. İŞARETÇİ SİMÜLATÖRÜ                                     ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  // Bellek modeli: adres → { value, type: 'int'|'ptr', pointsTo }
+  const mem = {};
+  const vars = {}; // isim → adres
+  let nextAddr = 0x100;
+
+  function alloc(name, value, type) {
+    const addr = nextAddr;
+    nextAddr += 4;
+    vars[name] = addr;
+    mem[addr] = { value, type: type || "int", pointsTo: null };
+    return addr;
+  }
+
+  function set(addr, value) {
+    if (mem[addr]) mem[addr].value = value;
+  }
+
+  function render() {
+    const viz = document.getElementById("ptrViz");
+    const addrs = Object.keys(mem).map(Number).sort((a,b) => a-b);
+
+    viz.innerHTML = addrs.map(addr => {
+      const cell = mem[addr];
+      const varName = Object.entries(vars).find(([,a]) => a === addr)?.[0] || "";
+      let cls = "ptr-cell";
+      if (cell.type === "ptr") cls += " ptr";
+      else cls += " var";
+      if (cell.leak) cls += " leak";
+
+      let label = cell.value;
+      if (cell.type === "ptr" && cell.pointsTo !== null) {
+        label = "→" + cell.pointsTo.toString(16);
+      }
+      if (cell.type === "ptr" && cell.value === 0) {
+        label = "NULL";
+      }
+
+      return `<div class="${cls}">
+        <span class="ptr-addr">0x${addr.toString(16)}</span>
+        ${label}
+        ${varName ? `<div style="font-size:0.5rem;color:var(--accent-warm);margin-top:-4px">${varName}</div>` : ""}
+      </div>`;
+    }).join("");
+
+    // İşaretçi okları için metinsel gösterim
+    const info = document.getElementById("ptrInfo");
+    let infoText = "";
+    addrs.forEach(addr => {
+      const cell = mem[addr];
+      const varName = Object.entries(vars).find(([,a]) => a === addr)?.[0] || `0x${addr.toString(16)}`;
+      if (cell.type === "ptr") {
+        infoText += `${varName} → `;
+        if (cell.pointsTo !== null) {
+          const target = mem[cell.pointsTo];
+          const tName = Object.entries(vars).find(([,a]) => a === cell.pointsTo)?.[0] || `0x${cell.pointsTo.toString(16)}`;
+          infoText += `${tName} (değer: ${target?.value ?? "?"})`;
+        } else if (cell.value === 0) {
+          infoText += `NULL (geçersiz!)`;
+        }
+        infoText += "<br>";
+      }
+    });
+    info.innerHTML = infoText || "Henüz değişken tanımlanmadı.";
+  }
+
+  function reset() {
+    Object.keys(mem).forEach(k => delete mem[k]);
+    Object.keys(vars).forEach(k => delete vars[k]);
+    nextAddr = 0x100;
+    alloc("x", 42, "int");
+    render();
+    document.getElementById("ptrInfo").innerHTML = "x = 42 — Bellekte 0x100 adresinde.";
+  }
+
+  document.getElementById("btnDeclare").addEventListener("click", () => {
+    reset();
+  });
+
+  document.getElementById("btnPointer").addEventListener("click", () => {
+    if (!vars["x"]) reset();
+    const pAddr = alloc("p", 0, "ptr");
+    mem[pAddr].pointsTo = vars["x"];
+    mem[pAddr].value = vars["x"];
+    render();
+    document.getElementById("ptrInfo").innerHTML = "p = &x — p, x'in adresini (0x100) tutuyor. *p ile x'in değerine (42) erişilebilir.";
+  });
+
+  document.getElementById("btnDeref").addEventListener("click", () => {
+    if (!vars["p"]) {
+      document.getElementById("ptrInfo").innerHTML = "Önce p işaretçisini tanımlayın!";
+      return;
+    }
+    const pAddr = vars["p"];
+    const target = mem[pAddr]?.pointsTo;
+    if (target && mem[target]) {
+      alloc("y", mem[target].value, "int");
+      render();
+      document.getElementById("ptrInfo").innerHTML = `y = *p — p'nin gösterdiği adresteki değer (${mem[target].value}) y'ye kopyalandı.`;
+    }
+  });
+
+  document.getElementById("btnPtrArith").addEventListener("click", () => {
+    if (!vars["p"]) {
+      document.getElementById("ptrInfo").innerHTML = "Önce p işaretçisini tanımlayın!";
+      return;
+    }
+    const pAddr = vars["p"];
+    if (mem[pAddr].pointsTo !== null && mem[pAddr].value > 0) {
+      mem[pAddr].value += 4;
+      mem[pAddr].pointsTo += 4;
+      render();
+      document.getElementById("ptrInfo").innerHTML = "p++ — İşaretçi 4 byte ilerledi (int boyutu kadar). Şimdi sonraki bellek hücresini gösteriyor.";
+    }
+  });
+
+  document.getElementById("btnPtrNull").addEventListener("click", () => {
+    if (!vars["p"]) {
+      document.getElementById("ptrInfo").innerHTML = "Önce p işaretçisini tanımlayın!";
+      return;
+    }
+    const pAddr = vars["p"];
+    mem[pAddr].value = 0;
+    mem[pAddr].pointsTo = null;
+    render();
+    document.getElementById("ptrInfo").innerHTML = "⚠️ p = NULL — İşaretçi artık hiçbir yeri göstermiyor. Dereference edilirse segmentation fault!";
+  });
+
+  document.getElementById("btnPtrReset").addEventListener("click", reset);
+
+  reset();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  3. STACK FRAME CANVAS                                      ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas = document.getElementById("stackCanvas");
+  const ctx = canvas.getContext("2d");
+  let W = 500, H = 280;
+  let frames = []; // [{ name, params, locals, returnAddr }]
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = Math.max(340, rect.width);
+    H = Math.max(220, Math.min(300, W * 0.52));
+    canvas.width = W;
+    canvas.height = H;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const fw = W - 150, fx = 130, gap = 4;
+
+    if (frames.length === 0) {
+      ctx.fillStyle = "var(--text-muted)";
+      ctx.font = "12px 'Outfit', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Stack boş. Çağrı başlatın.", W / 2, H / 2);
+      return;
+    }
+
+    const colors = ["#5eead4","#60a5fa","#a78bfa","#f472b6","#fbbf24"];
+    const totalH = Math.min(H - 40, frames.length * 80);
+    const fh = Math.min(70, totalH / frames.length - gap);
+
+    // Stack tabanı
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(fx, H - 15); ctx.lineTo(fx + fw, H - 15); ctx.stroke();
+    ctx.fillStyle = "var(--text-muted)";
+    ctx.font = "9px 'Outfit', sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("← Stack Pointer (SP)", fx + fw + 6, H - 12);
+
+    frames.forEach((f, i) => {
+      const y = H - 20 - (i + 1) * (fh + gap);
+      const color = colors[i % colors.length];
+
+      ctx.fillStyle = color + "11";
+      ctx.strokeStyle = color + "55";
+      ctx.lineWidth = 2;
+      ctx.beginPath(); roundRect(fx, y, fw, fh, 8);
+      ctx.fill(); ctx.stroke();
+
+      // Frame başlığı
+      ctx.fillStyle = color;
+      ctx.font = "bold 11px 'Outfit', sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(f.name + "()", fx + 12, y + 16);
+
+      // Frame içeriği
+      ctx.fillStyle = "var(--text-muted)";
+      ctx.font = "8px ui-monospace, monospace";
+      let detailY = y + 34;
+      if (f.params) {
+        ctx.fillText(`param: ${f.params}`, fx + 12, detailY);
+        detailY += 14;
+      }
+      if (f.locals) {
+        ctx.fillText(`locals: ${f.locals}`, fx + 12, detailY);
+        detailY += 14;
+      }
+      ctx.fillText(`dönüş: 0x${(0x4000 + i * 16).toString(16)}`, fx + 12, detailY);
+
+      // Çerçeve etiketi
+      ctx.fillStyle = color;
+      ctx.textAlign = "right";
+      ctx.fillText(`Frame ${frames.length - i}`, fx - 10, y + fh / 2 + 3);
+    });
+
+    // Yukarı ok
+    ctx.fillStyle = "var(--accent)";
+    ctx.font = "9px 'Outfit', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("↓ Stack büyüme yönü ↓", fx + fw / 2, 14);
+
+    document.getElementById("stackInfo").textContent =
+      `${frames.length} frame stack'te — Stack Pointer: 0x${(0x7FF0 - frames.length * 64).toString(16)}`;
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x, y + r);
+    ctx.closePath();
+  }
+
+  document.getElementById("btnCallA").addEventListener("click", () => {
+    if (frames.length === 0) {
+      frames.push({ name:"main", params:"argc=1, argv", locals:"result (int)", returnAddr:"_start" });
+      draw();
+    }
+    if (frames.length === 1) {
+      frames.push({ name:"factorial", params:"n=5", locals:"—", returnAddr:"main+0x14" });
+      draw();
+    }
+  });
+  document.getElementById("btnCallB").addEventListener("click", () => {
+    const last = frames[frames.length - 1];
+    if (!last || !last.name.includes("factorial")) return;
+    const n = parseInt(last.params?.match(/n=(\d+)/)?.[1] || "5");
+    if (n <= 1) return;
+    frames.push({ name:"factorial", params:`n=${n-1}`, locals:"—", returnAddr:`factorial(${n})+0x0C` });
+    draw();
+  });
+  document.getElementById("btnReturn").addEventListener("click", () => {
+    if (frames.length > 0) {
+      frames.pop();
+      draw();
+    }
+  });
+  document.getElementById("btnStackReset").addEventListener("click", () => {
+    frames = [];
+    draw();
+    document.getElementById("stackInfo").textContent = "Stack: boş — Çağrı başlatmak için butona tıklayın.";
+  });
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize();
+  draw();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  4. MEMORY LEAK DEMO                                        ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  let blocks = []; // { id, size, leaked }
+  let nextId = 1;
+
+  function render() {
+    const heap = document.getElementById("leakHeap");
+    heap.innerHTML = blocks.map(b => {
+      let cls = b.leaked ? "leak-block leaked" : "leak-block alloc";
+      return `<div class="${cls}">[${b.id}] ${b.size}B ${b.leaked ? '💧' : '✓'}</div>`;
+    }).join("");
+    const totalAlloc = blocks.filter(b => !b.leaked).reduce((s,b) => s + b.size, 0);
+    const totalLeaked = blocks.filter(b => b.leaked).reduce((s,b) => s + b.size, 0);
+    document.getElementById("leakInfo").innerHTML =
+      `Ayrılan: <strong>${totalAlloc} B</strong> | Sızan: <strong style="color:var(--danger)">${totalLeaked} B</strong> | Toplam blok: ${blocks.length}`;
+  }
+
+  document.getElementById("btnMalloc").addEventListener("click", () => {
+    blocks.push({ id:nextId++, size:16, leaked:false });
+    render();
+  });
+  document.getElementById("btnFree").addEventListener("click", () => {
+    const valid = blocks.filter(b => !b.leaked);
+    if (valid.length > 0) {
+      const last = valid[valid.length - 1];
+      last._freed = true;
+      blocks = blocks.filter(b => !b._freed);
+      render();
+    }
+  });
+  document.getElementById("btnLosePtr").addEventListener("click", () => {
+    const valid = blocks.filter(b => !b.leaked);
+    if (valid.length > 0) {
+      valid[valid.length - 1].leaked = true;
+      render();
+    }
+  });
+  document.getElementById("btnLeakReset").addEventListener("click", () => {
+    blocks = [];
+    nextId = 1;
+    render();
+  });
+
+  render();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  5. İŞARETÇİ TEHLİKELERİ KARTLARI                            ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const dangers = [
+    { icon:"💀", name:"Dangling Pointer", desc:"free() edilmiş belleği gösteren işaretçi. Dereference edilirse <strong>undefined behavior</strong>. Çözüm: free()'den sonra ptr = NULL yapmak.", code:"int *p = malloc(4);\nfree(p);\n*p = 42; // TEHLİKE!" },
+    { icon:"💧", name:"Memory Leak", desc:"Ayrılan belleğin işaretçisi kaybolduğunda bellek geri verilemez. Uzun çalışan programlarda birikerek sistemi çökertir.", code:"void loop() {\n  int *p = malloc(1024);\n  // free(p) UNUTULDU!\n}" },
+    { icon:"💥", name:"Buffer Overflow", desc:"Dizinin sınırlarını aşan yazma. Stack'te dönüş adresinin üzerine yazarak saldırgana kod çalıştırtabilir.", code:"char buf[8];\nstrcpy(buf, \"çok uzun metin\");\n// 8 byte'lık buf taştı!" },
+    { icon:"🔄", name:"Double Free", desc:"Aynı belleği iki kez free() etmek. Heap yapısını bozar, çökmelere veya güvenlik açıklarına yol açar.", code:"int *p = malloc(4);\nfree(p);\nfree(p); // double free!" },
+    { icon:"⚡", name:"Use After Free", desc:"free() edilmiş belleği okumak/yazmak. Bellek başka bir değişkene tahsis edilmiş olabilir.", code:"int *p = malloc(4);\nfree(p);\nprintf(\"%d\", *p); // UAF!" },
+    { icon:"🎯", name:"Wild Pointer", desc:"İlk değer atanmamış (uninitialized) işaretçi. Rastgele bir adresi gösterir, dereference edilirse segmentation fault.", code:"int *p; // wild!\n*p = 42; // nereye yazıyor?" },
+  ];
+
+  const grid = document.getElementById("dangerGrid");
+  grid.innerHTML = dangers.map(d => `
+    <div class="smart-card">
+      <div class="sc-icon">${d.icon}</div>
+      <div class="sc-name">${d.name}</div>
+      <div class="sc-desc">${d.desc}</div>
+      <div class="sc-code">${d.code}</div>
+    </div>
+  `).join("");
+})();
+</script>
+</body>
+</html>
