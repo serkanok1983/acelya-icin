@@ -439,4 +439,8 @@ const PAGE_INFO = {
     title: "Algoritmalar",
     text: `<p>Algoritmalar, belirli bir problemi çözmek için izlenen adım adım yöntemlerdir. Bilgisayar biliminin kalbinde yer alır; aynı problemi çözen farklı algoritmaların verimliliği, <strong>Big-O notasyonu</strong> ile karşılaştırılır. O(n), O(n²), O(log n) gibi karmaşıklık sınıfları, girdi büyüdükçe performansın nasıl ölçeklendiğini gösterir.</p><p>Sayfada 5 farklı <strong>sıralama algoritması</strong> (Bubble, Selection, Insertion, Merge, Quick) animasyonlu çubuklarla karşılaştırılır. Doğrusal ve ikili arama algoritmaları adım adım görselleştirilir. Özyineleme (recursion) çağrı ağacı, <strong>dinamik programlama vs naif özyineleme</strong> hız karşılaştırması ve BFS/DFS graf keşif animasyonu da sayfada yer alır. Big-O büyüme eğrileri grafiği ve 8 algoritma paradigması kartı temel stratejileri özetler.</p>`,
   },
+  "veri-yapilari": {
+    title: "Veri Yapıları",
+    text: `<p>Veri yapıları, bilgisayar belleğinde veriyi düzenli ve verimli şekilde saklamanın yöntemleridir. Doğru veri yapısı seçimi, algoritmanın performansını <strong>katlanarak</strong> değiştirebilir. Diziler O(1) erişim sunarken, bağlı listeler dinamik ekleme/çıkarmada üstündür; hash tabloları ortalama O(1) arama performansıyla öne çıkar.</p><p>Sayfada <strong>diziler, bağlı listeler, stack, queue ve deque</strong> yapılarını interaktif olarak deneyebilirsiniz. Hash tablosu (chaining ile çakışma çözümü), BST (ekleme/silme/arama) Canvas animasyonu ve <strong>min-heap</strong> (dizi + ağaç görünümü) görselleştirmeleri yer alır. Kapsamlı bir karşılaştırma tablosu ve Trie, Skip List, Union-Find, Fenwick/Segment Tree gibi ileri seviye yapıları içeren 12 detaylı kart sayfayı tamamlar.</p>`,
+  },
 };
