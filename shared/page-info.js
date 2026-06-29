@@ -443,4 +443,8 @@ const PAGE_INFO = {
     title: "Veri Yapıları",
     text: `<p>Veri yapıları, bilgisayar belleğinde veriyi düzenli ve verimli şekilde saklamanın yöntemleridir. Doğru veri yapısı seçimi, algoritmanın performansını <strong>katlanarak</strong> değiştirebilir. Diziler O(1) erişim sunarken, bağlı listeler dinamik ekleme/çıkarmada üstündür; hash tabloları ortalama O(1) arama performansıyla öne çıkar.</p><p>Sayfada <strong>diziler, bağlı listeler, stack, queue ve deque</strong> yapılarını interaktif olarak deneyebilirsiniz. Hash tablosu (chaining ile çakışma çözümü), BST (ekleme/silme/arama) Canvas animasyonu ve <strong>min-heap</strong> (dizi + ağaç görünümü) görselleştirmeleri yer alır. Kapsamlı bir karşılaştırma tablosu ve Trie, Skip List, Union-Find, Fenwick/Segment Tree gibi ileri seviye yapıları içeren 12 detaylı kart sayfayı tamamlar.</p>`,
   },
+  veritabanlari: {
+    title: "Veritabanları",
+    text: `<p>Veritabanları, yapılandırılmış veriyi kalıcı olarak saklayan ve sorgulayan sistemlerdir. <strong>İlişkisel veritabanları</strong> (SQL) tablo, satır ve sütunlardan oluşur; ACID (Atomicity, Consistency, Isolation, Durability) garantileriyle işlem bütünlüğünü sağlar. <strong>NoSQL</strong> ise şemasız yapısıyla büyük veri ve yatay ölçekleme için idealdir.</p><p>Sayfada interaktif bir <strong>SQL sorgu alanı</strong> ile SELECT, JOIN, GROUP BY, WHERE, ORDER BY sorguları çalıştırabilirsiniz. JOIN türleri (INNER, LEFT, RIGHT, FULL OUTER, CROSS) Venn şeması ve canlı sonuç tablosuyla görselleştirilir. Normalizasyon aşamaları (1NF→BCNF) adım adım gösterilir. ACID prensipleri kartları, B+Tree indeks görselleştirmesi ve MongoDB, Redis, PostgreSQL gibi 8 NoSQL/ilişkisel veritabanı kartı sayfayı tamamlar.</p>`,
+  },
 };
