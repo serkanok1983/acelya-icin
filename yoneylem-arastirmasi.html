@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Yöneylem Araştırması</title>
+  <style>
+    * { box-sizing: border-box; }
+    .app-content { max-width: 920px; }
+    .panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .panel .desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5; }
+
+    /* ═══════ LP Canvas ═══════ */
+    #lpCanvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
+      border:1px solid var(--border);
+    }
+
+    /* ═══════ Simplex Table ═══════ */
+    .simplex-table {
+      border-collapse:collapse; margin:8px auto; font-size:0.68rem;
+      font-family:ui-monospace,monospace;
+    }
+    .simplex-table th, .simplex-table td {
+      padding:6px 10px; text-align:center; border:1px solid var(--border);
+    }
+    .simplex-table th { background:rgba(94,234,212,0.06); color:var(--accent); }
+    .simplex-table td { color:var(--text-muted); }
+    .simplex-table td.pivot { background:rgba(251,191,36,0.15); color:#fbbf24; font-weight:700; }
+    .simplex-table td.bv { color:var(--accent-2); font-weight:700; }
+
+    /* ═══════ Network Canvas ═══════ */
+    #networkCanvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
+      border:1px solid var(--border);
+    }
+
+    /* ═══════ Topic Cards ═══════ */
+    .topic-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:8px;
+    }
+    .topic-card {
+      padding:12px; border-radius:8px; border:1px solid var(--border);
+      cursor:pointer; text-align:center; transition:all 0.2s;
+      background:rgba(255,255,255,0.02);
+    }
+    .topic-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
+    .topic-card .tc-icon { font-size:1.3rem; }
+    .topic-card .tc-name { font-size:0.75rem; font-weight:700; color:var(--text); margin:4px 0; }
+    .topic-detail {
+      font-size:0.7rem; color:var(--text-muted); line-height:1.5;
+      padding:10px 14px; background:rgba(94,234,212,0.04);
+      border:1px solid rgba(94,234,212,0.12); border-radius:8px;
+      margin-top:10px; min-height:36px;
+    }
+    .topic-detail strong { color:var(--accent); }
+
+    /* ═══════ Queue Model ═══════ */
+    .queue-viz {
+      display:flex; gap:4px; align-items:flex-end; min-height:80px; margin:8px 0; justify-content:center;
+    }
+    .queue-server {
+      width:50px; height:50px; border-radius:8px; display:flex; align-items:center;
+      justify-content:center; border:2px solid var(--accent); font-weight:700;
+      background:rgba(94,234,212,0.08); font-size:0.7rem;
+    }
+    .queue-customer {
+      width:20px; height:20px; border-radius:50%; transition:all 0.5s;
+      background:var(--accent-2); opacity:0.7;
+    }
+
+    @media (max-width:500px) {
+      .panel { padding:12px 14px; }
+      .simplex-table th, .simplex-table td { padding:4px 6px; font-size:0.58rem; }
+    }
+  </style>
+  <script src="shared/page-info.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="yoneylem-arastirmasi">
+<div class="app-content">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 1. LP GRAFİKSEL ÇÖZÜM                                       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>📐 Doğrusal Programlama — Grafiksel Çözüm</h2>
+    <p class="desc">
+      İki değişkenli doğrusal programlama problemleri grafiksel olarak çözülebilir.
+      Amaç: <strong>Max Z = 3x₁ + 2x₂</strong>. Kısıtlar: x₁ + x₂ ≤ 4, 2x₁ + x₂ ≤ 5, x₁,x₂ ≥ 0.
+      Taralı bölge <strong>uygun çözüm alanı</strong>, kırmızı nokta <strong>optimum çözüm</strong>.
+    </p>
+    <canvas id="lpCanvas"></canvas>
+    <div style="font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:6px" id="lpInfo">
+      Optimum: x₁ = 1, x₂ = 3 · Zmax = 9
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 2. SIMPLEX TABLEAU                                         -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>📊 Simpleks Algoritması — Adım Adım</h2>
+    <p class="desc">
+      Simpleks yöntemi, doğrusal programlama problemlerini sistematik olarak çözen <strong>Dantzig (1947)</strong> tarafından geliştirilmiş
+      bir algoritmadır. Aşağıda Max Z = 3x₁ + 2x₂ probleminin simpleks tablosu iterasyonlarını inceleyin.
+    </p>
+    <table class="simplex-table" id="simplexTable"></table>
+    <div style="display:flex;gap:8px;margin-top:8px;justify-content:center">
+      <button class="btn-send" id="btnSimplexStep" style="flex:0 0 auto;min-width:auto;padding:7px 14px;font-size:0.72rem">⏭️ Sonraki İterasyon</button>
+      <button class="btn-ghost2" id="btnSimplexReset" style="flex:0 0 auto;min-width:auto;padding:7px 12px;font-size:0.7rem">↺ Başa Dön</button>
+    </div>
+    <div style="font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:6px" id="simplexInfo">
+      İterasyon 0 — Başlangıç tablosu
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3. ŞEBEKE ANALİZİ (CPM) CANVAS                             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🕸️ Şebeke Analizi — Kritik Yol Metodu (CPM)</h2>
+    <p class="desc">
+      Proje yönetiminde hangi faaliyetlerin gecikmesinin tüm projeyi geciktireceğini belirleyen yöntem.
+      <strong>Kritik yol (critical path):</strong> Üzerinde hiç boşluk (slack) olmayan, projenin toplam süresini belirleyen yol.
+    </p>
+    <canvas id="networkCanvas"></canvas>
+    <div style="font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:6px" id="networkInfo">
+      Kritik Yol: A → B → D → F · Proje Süresi: 14 gün
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 4. KONU KARTLARI                                            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🧮 Yöneylem Araştırması Konuları</h2>
+    <p class="desc">Her karta tıklayarak temel kavramları, formülleri ve uygulama alanlarını görün.</p>
+    <div class="topic-grid" id="topicGrid"></div>
+    <div class="topic-detail" id="topicDetail">🖱️ Bir konuya tıklayın.</div>
+  </div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  1. LP GRAPHICAL                                            ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas = document.getElementById("lpCanvas");
+  const ctx = canvas.getContext("2d");
+  let W = 500, H = 300;
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = Math.max(340, rect.width);
+    H = Math.max(260, Math.min(320, W * 0.58));
+    canvas.width = W;
+    canvas.height = H;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const pad = { l:55, r:20, t:25, b:40 };
+    const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+    const cx = pad.l, cy = pad.t;
+    const scale = 5.5; // grafik ölçeği (max x,y = 5)
+
+    // Izgara
+    ctx.strokeStyle = "rgba(255,255,255,0.03)"; ctx.lineWidth = 0.5;
+    for (let i = 0; i <= scale; i++) {
+      const x = cx + (i/scale)*pw;
+      ctx.beginPath(); ctx.moveTo(x, cy); ctx.lineTo(x, cy+ph); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy+(i/scale)*ph); ctx.lineTo(cx+pw, cy+(i/scale)*ph); ctx.stroke();
+    }
+
+    // Eksen
+    ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy+ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy+ph); ctx.lineTo(cx+pw, cy+ph); ctx.stroke();
+    ctx.fillStyle = "var(--text-muted)"; ctx.font = "8px 'Outfit',sans-serif"; ctx.textAlign = "center";
+    for (let i = 1; i <= scale; i++) {
+      ctx.fillText(i, cx+(i/scale)*pw, cy+ph+14);
+      ctx.fillText(i, cx-14, cy+ph-(i/scale)*ph+3);
+    }
+
+    // Kısıt doğruları
+    const constraints = [
+      { a:1, b:1, c:4, color:"#60a5fa", label:"x₁ + x₂ ≤ 4" },
+      { a:2, b:1, c:5, color:"var(--accent-2)", label:"2x₁ + x₂ ≤ 5" },
+    ];
+
+    // Uygun çözüm alanı (taralı)
+    const feasible = [
+      [0,0], [2.5,0], [1,3], [0,4]
+    ];
+    ctx.beginPath();
+    ctx.moveTo(cx + (0/scale)*pw, cy + ph - (0/scale)*ph);
+    feasible.forEach(([x,y]) => {
+      ctx.lineTo(cx + (x/scale)*pw, cy + ph - (y/scale)*ph);
+    });
+    ctx.closePath();
+    ctx.fillStyle = "rgba(94,234,212,0.08)"; ctx.fill();
+    ctx.strokeStyle = "rgba(94,234,212,0.3)"; ctx.lineWidth = 1; ctx.stroke();
+
+    // Kısıt doğruları
+    constraints.forEach(k => {
+      const x1 = k.c/k.a, y1 = 0;
+      const x2 = 0, y2 = k.c/k.b;
+      ctx.beginPath();
+      ctx.moveTo(cx+(x1/scale)*pw, cy+ph);
+      ctx.lineTo(cx, cy+ph-(y2/scale)*ph);
+      ctx.strokeStyle = k.color; ctx.lineWidth = 2; ctx.setLineDash([5,3]);
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = k.color; ctx.font = "bold 9px 'Outfit',sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(k.label, cx+(x1/scale)*pw+4, cy+ph-8);
+    });
+
+    // Optimum nokta (x1=1, x2=3)
+    const ox = 1, oy = 3;
+    const px = cx + (ox/scale)*pw, py = cy + ph - (oy/scale)*ph;
+    // Z = 3x1 + 2x2 doğrusu
+    const zx = 3/scale*pw, zy = 3/scale*ph;
+    ctx.beginPath();
+    ctx.moveTo(px - zx*0.4, py + zy*0.4);
+    ctx.lineTo(px + zx*0.4, py - zy*0.4);
+    ctx.strokeStyle = "var(--accent-warm)"; ctx.lineWidth = 2; ctx.setLineDash([3,5]);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI*2);
+    ctx.fillStyle = "var(--accent-warm)"; ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = "var(--accent-warm)"; ctx.font = "bold 10px 'Outfit',sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("Opt (1,3) Z=9", px+12, py-4);
+
+    document.getElementById("lpInfo").textContent =
+      "Optimum: x₁ = 1, x₂ = 3 · Zmax = 3×1 + 2×3 = 9 · Kısıtlar tam olarak sağlanıyor.";
+  }
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize(); draw();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  2. SIMPLEX TABLEAU                                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const tables = [
+    { // İterasyon 0: Başlangıç
+      z: [1, -3, -2, 0, 0, 0],
+      rows: [
+        { bv:"s₁", vals:[0, 1, 1, 1, 0, 4], rhs:4 },
+        { bv:"s₂", vals:[0, 2, 1, 0, 1, 5], rhs:5 },
+      ],
+      info:"Başlangıç tablosu · Pivot: x₁ sütunu (en negatif: -3), s₂ satırı (min oran: 5/2=2.5)"
+    },
+    { // İterasyon 1: x₁ girer, s₂ çıkar
+      z: [1, 0, -0.5, 0, 1.5, 7.5],
+      rows: [
+        { bv:"s₁", vals:[0, 0, 0.5, 1, -0.5, 1.5], rhs:1.5 },
+        { bv:"x₁", vals:[0, 1, 0.5, 0, 0.5, 2.5], rhs:2.5 },
+      ],
+      info:"İterasyon 1 · Pivot: x₂ sütunu (negatif: -0.5), s₁ satırı (min oran: 1.5/0.5=3)"
+    },
+    { // İterasyon 2: x₂ girer, s₁ çıkar → OPTİMAL
+      z: [1, 0, 0, 1, 1, 9],
+      rows: [
+        { bv:"x₂", vals:[0, 0, 1, 2, -1, 3], rhs:3 },
+        { bv:"x₁", vals:[0, 1, 0, -1, 1, 1], rhs:1 },
+      ],
+      info:"✅ OPTİMAL! Z satırında negatif değer kalmadı. x₁=1, x₂=3, Zmax=9. x₃ ve x₄ temelde değil → slack değişkenler sıfır."
+    },
+  ];
+
+  let iter = 0;
+
+  function render() {
+    const t = tables[iter];
+    let html = '<tr><th></th><th>Z</th><th>x₁</th><th>x₂</th><th>s₁</th><th>s₂</th><th>RHS</th></tr>';
+    html += `<tr><td class="bv">Z</td>${t.z.map((v,i) => {
+      const isPivot = iter < 2 && ((iter===0 && i===1) || (iter===1 && i===2));
+      return `<td class="${isPivot?'pivot':''}">${v}</td>`;
+    }).join("")}</tr>`;
+    t.rows.forEach(r => {
+      const isPivotRow = (iter===0 && r.bv==="s₂") || (iter===1 && r.bv==="s₁");
+      html += `<tr><td class="bv">${r.bv}</td>${r.vals.map(v => `<td>${v}</td>`).join("")}<td>${r.rhs}</td></tr>`;
+    });
+    document.getElementById("simplexTable").innerHTML = html;
+    document.getElementById("simplexInfo").textContent = `İterasyon ${iter} — ${t.info}`;
+  }
+
+  document.getElementById("btnSimplexStep").addEventListener("click", () => {
+    iter = Math.min(2, iter + 1); render();
+  });
+  document.getElementById("btnSimplexReset").addEventListener("click", () => {
+    iter = 0; render();
+  });
+  render();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  3. NETWORK (CPM) CANVAS                                    ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas = document.getElementById("networkCanvas");
+  const ctx = canvas.getContext("2d");
+  let W = 500, H = 260;
+
+  const nodes = [
+    { id:1, x:0.08, y:0.50, label:"Başla" },
+    { id:2, x:0.30, y:0.25, label:"B" },
+    { id:3, x:0.30, y:0.75, label:"C" },
+    { id:4, x:0.55, y:0.50, label:"D" },
+    { id:5, x:0.80, y:0.25, label:"E" },
+    { id:6, x:0.92, y:0.50, label:"Bitir" },
+  ];
+  // [from, to, duration]
+  const edges = [
+    [1,2,3,"A"], [1,3,4,"C"], [2,4,5,"B"], [3,4,2,"D"], [3,5,3,"E"], [4,5,4,"F"], [4,6,3,"G"], [5,6,5,"H"]
+  ];
+  const critical = [1,2,4,5,6]; // A-B-F-H kritik yol değil, A-B-F? hadi hesaplayalım
+  // Basit olsun: Path A→B→F→H = 3+5+4+5 = 17? Hayır.
+  // Aslında A(1→2,3), B(2→4,5), F(4→5,4), H(5→6,5) = 3+5+4+5=17
+  // A(1→2,3) → C(2→4? yok) → ...
+  // Basitleştirelim: kritik = A(1→2) → B(2→4) → F(4→5) → H(5→6) = 3+5+4+5 = 17
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = Math.max(340, rect.width);
+    H = Math.max(220, Math.min(280, W * 0.5));
+    canvas.width = W;
+    canvas.height = H;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const cpEdges = [[1,2],[2,4],[4,5],[5,6]];
+
+    edges.forEach(([from,to,dur,label]) => {
+      const fn = nodes.find(n=>n.id===from), tn = nodes.find(n=>n.id===to);
+      const x1 = fn.x*W, y1 = fn.y*H, x2 = tn.x*W, y2 = tn.y*H;
+      const isCP = cpEdges.some(([a,b]) => a===from && b===to);
+
+      // Eğri
+      const mx = (x1+x2)/2, my = (y1+y2)/2 - 20;
+      ctx.beginPath(); ctx.moveTo(x1, y1);
+      ctx.quadraticCurveTo(mx, my, x2, y2);
+      ctx.strokeStyle = isCP ? "var(--danger)" : "rgba(255,255,255,0.15)";
+      ctx.lineWidth = isCP ? 3 : 2;
+      ctx.stroke();
+
+      ctx.fillStyle = isCP ? "var(--danger)" : "var(--text-muted)";
+      ctx.font = "bold 10px 'Outfit',sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(`${label}(${dur})`, mx, my-4);
+    });
+
+    nodes.forEach(n => {
+      const x = n.x*W, y = n.y*H, r = 20;
+      const glow = ctx.createRadialGradient(x,y,r*0.3,x,y,r*2.5);
+      glow.addColorStop(0, "rgba(94,234,212,0.2)"); glow.addColorStop(1, "transparent");
+      ctx.beginPath(); ctx.arc(x,y,r*2.5,0,Math.PI*2); ctx.fillStyle = glow; ctx.fill();
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle = "rgba(94,234,212,0.12)"; ctx.fill();
+      ctx.strokeStyle = "var(--accent)"; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = "#fff"; ctx.font = "bold 11px 'Outfit',sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(n.label, x, y);
+    });
+
+    document.getElementById("networkInfo").textContent =
+      "Kritik Yol: A → B → F → H · Proje Süresi: 3+5+4+5 = 17 gün · Kritik olmayan faaliyetlerde bolluk (slack) var.";
+  }
+
+  window.addEventListener("resize", () => { resize(); draw(); });
+  resize(); draw();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  4. TOPICS                                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics = [
+    { icon:"📐", name:"Doğrusal Programlama", color:"#5eead4",
+      detail:"<strong>LP (Linear Programming):</strong> Doğrusal amaç fonksiyonunu doğrusal kısıtlar altında maksimize/minimize etme. <strong>Çözüm yöntemleri:</strong> Grafik (2 değişken), <strong>Simpleks (Dantzig 1947)</strong>, İç Nokta (Karmarkar 1984). <strong>Duality:</strong> Her LP'nin bir dual problemi vardır — primal max ise dual min. <strong>Duyarlılık analizi:</strong> Parametre değişimlerinin optimuma etkisi." },
+    { icon:"🚚", name:"Ulaştırma Problemi", color:"#60a5fa",
+      detail:"<strong>Transportation Problem:</strong> m kaynaktan n hedefe minimum maliyetle taşıma. <strong>Çözüm:</strong> Başlangıç çözümü (Kuzeybatı Köşesi, En Düşük Maliyet, Vogel — VAM), optimallik testi (MODI, stepping stone). <strong>Dengeli:</strong> Toplam arz = toplam talep. Değilse dummy kaynak/hedef eklenir." },
+    { icon:"🎯", name:"Atama Problemi", color:"#a78bfa",
+      detail:"<strong>Assignment Problem:</strong> n işi n işçiye minimum maliyetle atama. Ulaştırma probleminin özel hali (arz=talep=1). <strong>Macar Algoritması (Hungarian, Kuhn 1955):</strong> O(n³) ile optimum atamayı bulur. Satır/sütun indirgeme, sıfırları kapatma." },
+    { icon:"🕸️", name:"Şebeke Modelleri", color:"#fbbf24",
+      detail:"<strong>Network Models:</strong> <strong>En Kısa Yol:</strong> Dijkstra, Floyd-Warshall. <strong>Maksimum Akış:</strong> Ford-Fulkerson, min-cut max-flow teoremi. <strong>Minimum Yayılan Ağaç:</strong> Prim, Kruskal. <strong>Gezgin Satıcı (TSP):</strong> NP-zor, heuristic çözümler (en yakın komşu, 2-opt)." },
+    { icon:"📅", name:"Proje Yönetimi (CPM/PERT)", color:"#f472b6",
+      detail:"<strong>CPM (Critical Path Method):</strong> Deterministik süreler, kritik yol, bolluk (slack) hesabı. <strong>PERT (Program Evaluation):</strong> Olasılıksal süreler: iyimser (a), kötümser (b), en olası (m). Beklenen süre = (a+4m+b)/6. <strong>Zaman-maliyet ödünleşimi:</strong> Crash cost ile süre kısaltma." },
+    { icon:"📦", name:"Stok Yönetimi", color:"#a3e635",
+      detail:"<strong>EOQ (Economic Order Quantity):</strong> Q* = √(2DS/H). D=yıllık talep, S=sipariş maliyeti, H=elde tutma maliyeti. <strong>ROP (Re-order Point):</strong> Talep × Teslim Süresi. <strong>Emniyet Stoğu:</strong> Belirsizliğe karşı tampon. <strong>ABC Analizi:</strong> Pareto — %20 ürün %80 değer." },
+    { icon:"⏳", name:"Kuyruk Teorisi", color:"#60a5fa",
+      detail:"<strong>Queueing Theory (Erlang, 1909):</strong> <strong>Kendall notasyonu:</strong> A/B/c/K (M/M/1 en temel). M=Markov (Poisson geliş, üstel servis). <strong>Little Kanunu:</strong> L = λ·W. L=kuyruktaki ortalama müşteri, λ=geliş hızı, W=ortalama bekleme. <strong>Performans ölçütleri:</strong> Lq, Wq, ρ (kullanım oranı)." },
+    { icon:"🌳", name:"Karar Teorisi", color:"#fbbf24",
+      detail:"<strong>Decision Analysis:</strong> Belirsizlik altında karar verme. <strong>Kriterler:</strong> Maximin (kötümser/Wald), Maximax (iyimser), Minimax Regret (Savage), Laplace (eşit olasılık). <strong>EMV (Expected Monetary Value):</strong> Olasılıklarla ağırlıklı ortalama. <strong>EVPI:</strong> Perfect information'ın değeri. <strong>Karar ağaçları:</strong> Şans düğümleri (○) ve karar düğümleri (□)." },
+    { icon:"🎮", name:"Oyun Teorisi", color:"#a78bfa",
+      detail:"<strong>Game Theory (von Neumann, Morgenstern 1944):</strong> <strong>Sıfır toplamlı oyunlar:</strong> Bir oyuncunun kazancı diğerinin kaybı. <strong>Minimax teoremi:</strong> Maximin = Minimax (saddle point). <strong>Karma strateji:</strong> Saf strateji saddle point yoksa, olasılıklı stratejiler. <strong>LP ile çözüm:</strong> Her oyun bir LP olarak formüle edilebilir." },
+    { icon:"🔮", name:"Simülasyon", color:"#c084fc",
+      detail:"<strong>Monte Carlo Simülasyonu:</strong> Rastgele sayılarla sistem davranışını modelleme. <strong>Kullanım:</strong> Kuyruk sistemleri, stok, risk analizi. <strong>@Risk, Crystal Ball, Arena</strong> gibi araçlar. <strong>Metodoloji:</strong> Rastgele değişken üret → modeli çalıştır → istatistik topla → tekrarla." },
+    { icon:"⚡", name:"Tamsayılı Programlama", color:"var(--accent-warm)",
+      detail:"<strong>Integer Programming (IP):</strong> Bazı veya tüm değişkenler tamsayı olmak zorunda. <strong>Çözüm yöntemleri:</strong> Branch & Bound (dal-sınır), Cutting Plane (Gomory kesme düzlemi). <strong>0-1 IP:</strong> İkili karar değişkenleri — tesis yerleştirme, sırt çantası (knapsack). <strong>NP-zor:</strong> Büyük problemlerde heuristic şart." },
+  ];
+
+  const grid = document.getElementById("topicGrid");
+  const detail = document.getElementById("topicDetail");
+
+  topics.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "topic-card";
+    card.style.borderLeft = `3px solid ${t.color}`;
+    card.innerHTML = `<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click", () => { detail.innerHTML = t.detail; });
+    grid.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>
