@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Elektrikli Araçlar</title>
+  <style>
+    * { box-sizing: border-box; }
+    .app-content { max-width: 920px; }
+    .panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .panel .desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5; }
+
+    /* ═══════ Battery Canvas ═══════ */
+    #batteryCanvas {
+      display:block; width:100%; border-radius:10px;
+      background:radial-gradient(ellipse at center, #0d1a20 0%, #060e14 100%);
+      border:1px solid var(--border);
+    }
+
+    /* ═══════ Topic Grid ═══════ */
+    .topic-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:8px;
+    }
+    .topic-card {
+      padding:12px; border-radius:8px; border:1px solid var(--border);
+      cursor:pointer; text-align:center; transition:all 0.2s;
+      background:rgba(255,255,255,0.02);
+    }
+    .topic-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
+    .topic-card .tc-icon { font-size:1.3rem; }
+    .topic-card .tc-name { font-size:0.75rem; font-weight:700; color:var(--text); margin:4px 0; }
+    .topic-detail {
+      font-size:0.7rem; color:var(--text-muted); line-height:1.5;
+      padding:10px 14px; background:rgba(94,234,212,0.04);
+      border:1px solid rgba(94,234,212,0.12); border-radius:8px;
+      margin-top:10px; min-height:36px;
+    }
+    .topic-detail strong { color:var(--accent); }
+
+    /* ═══════ Spec Grid ═══════ */
+    .spec-grid {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:6px;
+    }
+    .spec-card {
+      padding:10px; border-radius:6px; border:1px solid var(--border);
+      text-align:center; background:rgba(255,255,255,0.02);
+      transition:all 0.2s;
+    }
+    .spec-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
+    .spec-card .sp-icon { font-size:1.2rem; }
+    .spec-card .sp-name { font-size:0.72rem; font-weight:700; color:var(--text); margin:3px 0; }
+    .spec-card .sp-desc { font-size:0.58rem; color:var(--text-muted); line-height:1.3; }
+
+    @media (max-width:500px) {
+      .panel { padding:12px 14px; }
+    }
+  </style>
+  <script src="shared/page-info.js"></script>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="elektrikli-araclar">
+<div class="app-content">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 1. BATARYA CANVAS — Hücre Yapısı & Çalışma Prensibi        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🔋 Lityum-İyon Batarya — Hücre Yapısı ve Çalışma Prensibi</h2>
+    <p class="desc">
+      <strong>Li-iyon hücrenin temel çalışması:</strong> Deşarjda Li⁺ iyonları anottan (grafit) katoda (NMC/NCA/LFP) elektrolit üzerinden göç eder, elektronlar dış devreden geçerek iş yapar. Şarjda bu süreç tersine döner. <strong>Nominal voltaj:</strong> NMC/NCA ~3.6-3.7V, LFP ~3.2V. Hücreler seri bağlanarak modül (ör. 12 hücre → 44V), modüller seri-paralel bağlanarak paket (Tesla Model 3: 96s46p ~400V, ~75 kWh) oluşturulur. Aşağıda deşarj/şarj animasyonunu izleyin.
+    </p>
+    <canvas id="batteryCanvas"></canvas>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn-send" id="btnDischarge" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">⚡ Deşarj (Sürüş)</button>
+      <button class="btn-ghost2" id="btnCharge" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">🔌 Şarj (Regen)</button>
+      <button class="btn-ghost2" id="btnPause" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">⏸ Durdur</button>
+    </div>
+    <div style="font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:6px" id="batteryInfo">
+      SoC: %80 · Deşarj oluyor · Li⁺ iyonları: Anot → Katot · Elektronlar: Dış devre (motoru çalıştırıyor)
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 2. BATARYA TEKNOLOJİLERİ                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🧪 Batarya Kimyası ve Teknolojileri</h2>
+    <p class="desc">
+      Batarya elektrikli aracın en kritik ve en pahalı bileşenidir (~%30-40 maliyet). <strong>Enerji yoğunluğu (Wh/kg)</strong> menzili, <strong>güç yoğunluğu (W/kg)</strong> performansı, <strong>çevrim ömrü</strong> dayanıklılığı belirler. Katı hal bataryaları (solid-state) sektörün bir sonraki büyük sıçraması olarak görülüyor.
+    </p>
+    <div class="topic-grid" id="batteryGrid"></div>
+    <div class="topic-detail" id="batteryDetail">🖱️ Bir batarya teknolojisine tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3. ELEKTRİK MOTORLARI                                      -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>⚙️ Elektrik Motorları — Türleri ve Karakteristikleri</h2>
+    <p class="desc">
+      Elektrik motorları %85-95 verimle elektrik enerjisini mekanik enerjiye çevirir (içten yanmalı motor %25-40). <strong>Tork-hız eğrisi:</strong> 0 RPM'de bile maksimum tork — bu yüzden EV'ler kalkışta çok hızlıdır. Modern EV'lerde en yaygın tip <strong>PMSM (Kalıcı Mıknatıslı Senkron Motor)</strong>'dur.
+    </p>
+    <div class="topic-grid" id="motorGrid"></div>
+    <div class="topic-detail" id="motorDetail">🖱️ Bir motor tipine tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 4. GÜÇ ELEKTRONİĞİ                                         -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🔌 Güç Elektroniği — İnverter, Dönüştürücüler ve BMS</h2>
+    <p class="desc">
+      <strong>İnverter:</strong> Bataryanın DC gücünü motor için AC'ye çevirir (ve rejeneratif frende tersi). Modern inverterler <strong>SiC (Silisyum Karbür)</strong> veya <strong>GaN (Galyum Nitrür)</strong> yarı iletkenlerle %98+ verime ulaşır. <strong>BMS (Battery Management System):</strong> Hücre voltajı, sıcaklık ve SoC izleme + dengeleme + güvenlik.
+    </p>
+    <div class="topic-grid" id="pwrGrid"></div>
+    <div class="topic-detail" id="pwrDetail">🖱️ Bir bileşene tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 5. ŞARJ SİSTEMLERİ & ALTYAPI                               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🔌 Şarj Sistemleri, Standartlar ve Altyapı</h2>
+    <p class="desc">
+      Şarj hızı kW cinsinden ifade edilir: <strong>Seviye 1 (AC 120V, ~1.4 kW)</strong> ev prizi, <strong>Seviye 2 (AC 240V, 7-22 kW)</strong> wallbox, <strong>Seviye 3 (DC hızlı, 50-350 kW)</strong> halka açık istasyonlar. 800V mimari (Porsche Taycan, Hyundai E-GMP) 350 kW ile 10→%80 şarjı ~18 dakikaya indirir.
+    </p>
+    <div class="topic-grid" id="chargeGrid"></div>
+    <div class="topic-detail" id="chargeDetail">🖱️ Bir şarj sistemine tıklayın.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 6. ARAÇ MİMARİSİ & TERMAL YÖNETİM                          -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="panel">
+    <h2>🏗️ EV Platform Mimarisi ve Termal Yönetim</h2>
+    <p class="desc">
+      <strong>Skateboard platform:</strong> Batarya paketi tabanda düz bir plaka halinde → düşük ağırlık merkezi, geniş iç hacim. Termal yönetim batarya (20-40°C optimum), motor, inverter ve kabin iklimlendirmesini entegre yönetir. Isı pompası (heat pump) kış menzil kaybını azaltır.
+    </p>
+    <div class="spec-grid" id="archGrid"></div>
+  </div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  1. BATTERY CANVAS — Li-İyon Hücre Animasyonu               ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const canvas=document.getElementById("batteryCanvas");
+  const ctx=canvas.getContext("2d");
+  let W,H;
+  let soc=80; // State of Charge %
+  let mode="discharge"; // "discharge" | "charge" | "pause"
+  let ions=[]; // particle positions
+  let animId;
+
+  function resize(){
+    const rect=canvas.parentElement.getBoundingClientRect();
+    W=canvas.width=rect.width-36; H=canvas.height=340;
+    const dpr=window.devicePixelRatio||1;
+    canvas.width=W*dpr; canvas.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function initIons(){
+    ions=[];
+    for(let i=0;i<60;i++){
+      const inAnode=(soc<50&&mode==="charge")||(soc>50&&mode==="discharge");
+      const startX=inAnode?80+Math.random()*60:W-140+Math.random()*60;
+      const startY=H/2-40+Math.random()*80;
+      ions.push({
+        x:startX, y:startY,
+        targetX:inAnode?W-140+Math.random()*60:80+Math.random()*60,
+        targetY:H/2-40+Math.random()*80,
+        phase:Math.random()*Math.PI*2,
+        speed:0.2+Math.random()*0.6,
+        size:2+Math.random()*3,
+        color:mode==="charge"?"#5eead4":"#fbbf24"
+      });
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // Grid
+    ctx.strokeStyle="rgba(94,234,212,0.03)"; ctx.lineWidth=0.5;
+    for(let x=0;x<W;x+=35){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=35){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+    // Labels at top
+    ctx.fillStyle="#94a3b8"; ctx.font="bold 13px system-ui"; ctx.textAlign="center";
+    ctx.fillText("ANOT (Grafit)", W*0.2, 30);
+    ctx.fillText("KATOT (NMC/LFP)", W*0.8, 30);
+    ctx.textAlign="left";
+
+    // Anode block
+    const aX=60, aW=100, aH=200, aY=H/2-aH/2;
+    const gradA=ctx.createLinearGradient(aX,0,aX+aW,0);
+    gradA.addColorStop(0,"rgba(71,85,105,0.8)"); gradA.addColorStop(1,"rgba(51,65,85,0.6)");
+    ctx.fillStyle=gradA;
+    ctx.beginPath(); ctx.roundRect(aX,aY,aW,aH,10); ctx.fill();
+    ctx.strokeStyle="rgba(148,163,184,0.4)"; ctx.lineWidth=2; ctx.stroke();
+    // Graphite layers (horizontal lines)
+    ctx.strokeStyle="rgba(148,163,184,0.15)"; ctx.lineWidth=1;
+    for(let y=aY+10;y<aY+aH;y+=12){
+      ctx.beginPath(); ctx.moveTo(aX+5,y); ctx.lineTo(aX+aW-5,y); ctx.stroke();
+    }
+
+    // Cathode block
+    const cX=W-160, cW=100, cH=200, cY=H/2-cH/2;
+    const gradC=ctx.createLinearGradient(cX,0,cX+cW,0);
+    gradC.addColorStop(0,"rgba(96,165,250,0.3)"); gradC.addColorStop(1,"rgba(59,130,246,0.5)");
+    ctx.fillStyle=gradC;
+    ctx.beginPath(); ctx.roundRect(cX,cY,cW,cH,10); ctx.fill();
+    ctx.strokeStyle="rgba(96,165,250,0.5)"; ctx.lineWidth=2; ctx.stroke();
+    // Cathode layers
+    ctx.strokeStyle="rgba(96,165,250,0.1)"; ctx.lineWidth=1;
+    for(let y=cY+10;y<cY+cH;y+=12){
+      ctx.beginPath(); ctx.moveTo(cX+5,y); ctx.lineTo(cX+cW-5,y); ctx.stroke();
+    }
+
+    // Separator / Electrolyte region
+    const sepX=aX+aW+5, sepW=cX-sepX-5;
+    ctx.fillStyle="rgba(148,163,184,0.03)";
+    ctx.beginPath(); ctx.roundRect(sepX,aY,sepW,aH,6); ctx.fill();
+    ctx.setLineDash([3,5]);
+    ctx.strokeStyle="rgba(148,163,184,0.15)"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.roundRect(sepX,aY,sepW,aH,6); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle="#64748b"; ctx.font="9px system-ui"; ctx.textAlign="center";
+    ctx.fillText("ELEKTROLİT + SEPARATÖR", sepX+sepW/2,aY-10);
+    ctx.textAlign="left";
+
+    // External circuit (top)
+    const topY=aY-25;
+    ctx.strokeStyle="#94a3b8"; ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(aX+aW/2,aY); ctx.lineTo(aX+aW/2,topY);
+    ctx.lineTo(cX+cW/2,topY); ctx.lineTo(cX+cW/2,cY);
+    ctx.stroke();
+
+    // Motor load symbol on external circuit
+    const loadCX=(aX+aW/2+cX+cW/2)/2;
+    ctx.beginPath(); ctx.arc(loadCX,topY,14,0,Math.PI*2);
+    ctx.strokeStyle="#fbbf24"; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle="#fbbf24"; ctx.font="bold 10px system-ui"; ctx.textAlign="center";
+    const loadLabel=mode==="discharge"?"MOTOR ⚡":"ŞARJ CİHAZI 🔌";
+    ctx.fillText(loadLabel,loadCX,topY-20);
+
+    // Electron flow arrows on external circuit
+    const eDir=mode==="discharge"?1:-1; // discharge: anode→cathode through ext circuit (electrons opposite to current)
+    for(let i=0;i<6;i++){
+      const tx=aX+aW/2+(cX+cW/2-aX-aW/2)*(i/6+eDir*0.03);
+      const ty=topY+4*(i%2?-1:1);
+      ctx.beginPath(); ctx.arc(tx,ty,2.5,0,Math.PI*2);
+      ctx.fillStyle="#fbbf24"; ctx.fill();
+    }
+
+    // Ion particles
+    ions.forEach((ion,i)=>{
+      ion.phase+=ion.speed*0.03;
+      if(ion.phase>1){ion.phase=0; ion.x=ion.targetX===cX+cW/2?80+Math.random()*60:W-140+Math.random()*60;}
+      const prog=ion.phase;
+      const dx=ion.targetX-ion.x;
+      const dy=ion.targetY-ion.y;
+      const cx=ion.x+dx*prog+Math.sin(prog*Math.PI*3+i)*12;
+      const cy=ion.y+dy*prog;
+
+      // Glow
+      ctx.beginPath(); ctx.arc(cx,cy,ion.size+3,0,Math.PI*2);
+      ctx.fillStyle=`rgba(94,234,212,0.08)`; ctx.fill();
+      // Core
+      ctx.beginPath(); ctx.arc(cx,cy,ion.size,0,Math.PI*2);
+      ctx.fillStyle=ion.color; ctx.fill();
+      // Label
+      if(i%8===0){
+        ctx.fillStyle=ion.color; ctx.font="bold 7px system-ui"; ctx.textAlign="center";
+        ctx.fillText("Li⁺",cx,cy-8);
+        ctx.textAlign="left";
+      }
+    });
+
+    // SoC gauge on right
+    const gx=W-42, gy=60, gw=20, gh=H-120;
+    ctx.strokeStyle="rgba(148,163,184,0.2)"; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(gx,gy,gw,gh,8); ctx.stroke();
+    const fillH=gh*soc/100;
+    const gradFill=ctx.createLinearGradient(0,gy+gh,0,gy+gh-fillH);
+    const gColor=soc>50?"#5eead4":soc>20?"#fbbf24":"#f87171";
+    gradFill.addColorStop(0,"rgba(94,234,212,0.2)"); gradFill.addColorStop(1,gColor);
+    ctx.fillStyle=gradFill;
+    ctx.beginPath(); ctx.roundRect(gx+2,gy+gh-fillH,gw-4,fillH-2,6); ctx.fill();
+    ctx.fillStyle="#fff"; ctx.font="bold 11px system-ui"; ctx.textAlign="center";
+    ctx.fillText(`SoC`,gx+gw/2,gy-10);
+    ctx.fillText(`${soc}%`,gx+gw/2,gy+gh+18);
+    ctx.textAlign="left";
+
+    // Info line
+    const mLabel=mode==="discharge"?"Deşarj oluyor · Li⁺ iyonları: Anot → Katot · Elektronlar: Dış devre (motoru çalıştırıyor)":
+                mode==="charge"?"Şarj oluyor · Li⁺ iyonları: Katot → Anot · Elektronlar: Dış devre (şarj cihazından geliyor)":"Durduruldu";
+    document.getElementById("batteryInfo").innerHTML=`SoC: %${soc} · ${mLabel}`;
+  }
+
+  function animate(){
+    if(mode!=="pause"){
+      if(mode==="discharge") soc=Math.max(5,soc-0.15);
+      else soc=Math.min(98,soc+0.2);
+      // Re-init ions on mode change
+      if(Math.random()<0.01) initIons();
+    }
+    draw();
+    animId=requestAnimationFrame(animate);
+  }
+
+  document.getElementById("btnDischarge").addEventListener("click",()=>{mode="discharge";initIons();});
+  document.getElementById("btnCharge").addEventListener("click",()=>{mode="charge";initIons();});
+  document.getElementById("btnPause").addEventListener("click",()=>{mode="pause";});
+
+  window.addEventListener("resize",()=>{resize();draw();});
+  resize();initIons();draw();animate();
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  2. BATTERY TECHNOLOGIES                                    ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🔋", name:"NMC (Nikel Manganez Kobalt)", color:"#5eead4",
+      detail:"<strong>LiNiₓMnᵧCo_zO₂, en yaygın EV kimyası.</strong> Yüksek enerji yoğunluğu (200-260 Wh/kg), iyi güç yoğunluğu. <strong>NMC 811</strong> (80% Ni, 10% Mn, 10% Co) kobaltı azaltma trendi. <strong>Kullanan:</strong> Tesla (Model 3/Y LR), VW MEB, BMW i4, Hyundai E-GMP. <strong>Dezavantaj:</strong> Kobalt etik ve maliyet sorunu, termal kaçak riski. 1000-2000 çevrim ömrü (%80 kapasiteye)." },
+    { icon:"⚡", name:"LFP (Lityum Demir Fosfat)", color:"#60a5fa",
+      detail:"<strong>LiFePO₄, kobalt içermez.</strong> Daha düşük enerji yoğunluğu (140-160 Wh/kg) ama çok daha uzun ömür (3000-6000 çevrim), üstün güvenlik (termal kaçak yok denecek kadar az), daha ucuz. <strong>BYD Blade Battery:</strong> Hücreden pakete (CTP) tasarım, ~160 Wh/kg paket seviyesi. <strong>Kullanan:</strong> Tesla Model 3/Y SR, BYD tüm modeller, MG4. <strong>Dezavantaj:</strong> Düşük enerji yoğunluğu, soğuk hava performansı zayıf." },
+    { icon:"🧊", name:"Katı Hal Bataryası (Solid-State)", color:"#a78bfa",
+      detail:"<strong>Sıvı elektrolit yerine katı seramik/polimer elektrolit.</strong> Lityum metal anot kullanımına izin verir → teorik enerji yoğunluğu 400-500+ Wh/kg. <strong>Avantaj:</strong> Yanmaz (termal kaçak yok), hızlı şarj, uzun ömür, geniş sıcaklık aralığı. <strong>Toyota hedefi 2027-28</strong> seri üretim. <strong>QuantumScape, Solid Power</strong> önde gelen girişimler. <strong>Zorluk:</strong> Dendrit büyümesi, ara yüzey direnci, üretim maliyeti." },
+    { icon:"📊", name:"Na-iyon & Lityum-Sülfür", color:"#f472b6",
+      detail:"<strong>Sodyum-İyon:</strong> Lityum yerine bol ve ucuz sodyum. CATL 160 Wh/kg Na-iyon hücre duyurdu. Düşük enerji ama ultra ucuz → şehir içi küçük EV'ler, şebeke depolama. <strong>Li-S (Lityum-Sülfür):</strong> Teorik 2600 Wh/kg! Bol kükürt, düşük maliyet. <strong>Sorun:</strong> Polisülfür shuttle etkisi → hızlı kapasite kaybı, hacim değişimi. Henüz ticari değil. Her ikisi de 2028-2030 sonrası için aday." },
+    { icon:"📐", name:"Hücreden Pakete (CTP & CTC)", color:"#fbbf24",
+      detail:"<strong>CTP (Cell-to-Pack):</strong> Modül yok, hücreler doğrudan pakete. %20-30 hacim verimliliği artışı. BYD Blade, CATL Qilin. <strong>CTC (Cell-to-Chassis):</strong> Batarya paketi gövdenin yapısal parçası → aşırı entegrasyon. Tesla 4680 Structural Pack. <strong>Form faktörleri:</strong> Silindirik (18650, 21700, 4680), prizmatik, pouch. 4680: 46mm çap, 80mm boy, tabless tasarım, daha iyi soğutma." },
+  ];
+
+  const grid=document.getElementById("batteryGrid"), detail=document.getElementById("batteryDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  3. ELECTRIC MOTORS                                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🧲", name:"PMSM (Kalıcı Mıknatıslı Senkron)", color:"#5eead4",
+      detail:"<strong>En yaygın EV motor tipi.</strong> Rotorda neodimyum (NdFeB) kalıcı mıknatıslar, statorda 3 faz sargı. <strong>IPM (Interior PM):</strong> Mıknatıslar rotor içine gömülü → relüktans torku + manyetik tork → yüksek verim. <strong>Tesla Model 3/Y, Hyundai E-GMP, VW MEB.</strong> %93-97 verim. Zayıf alan kontrolü (field weakening) ile yüksek devir. <strong>Dezavantaj:</strong> Nadir toprak bağımlılığı (Nd, Dy), yüksek devirde demir kayıpları." },
+    { icon:"🔄", name:"Asenkron Motor (Induction)", color:"#60a5fa",
+      detail:"<strong>AC indüksiyon motoru — Tesla'nın ilk tercihi.</strong> Rotorda mıknatıs yok, sincap kafesi; stator döner alanı rotor akımını indükler → kayma (slip) ile tork. <strong>Avantaj:</strong> Nadir toprak içermez, ucuz, yüksek hız. <strong>Dezavantaj:</strong> PMSM'ye göre ~2-5% daha düşük verim. <strong>Kullanım:</strong> Tesla Model S/X ön motor (performans versiyonda), Audi e-tron arka. Boşta dönebilir (freewheeling) → 2. aks avantajı." },
+    { icon:"🎯", name:"SRM (Anahtarlamalı Relüktans)", color:"#fbbf24",
+      detail:"<strong>En basit yapı, en ucuz.</strong> Rotor sadece çelik laminasyon (mıknatıs ve sargı yok). Stator sargıları sırayla enerjilendirilir, rotor relüktansı minimize edecek pozisyona hareket eder. <strong>Avantaj:</strong> Aşırı dayanıklı, yüksek sıcaklık, nadir toprak yok. <strong>Dezavantaj:</strong> Tork dalgalanması (ripple), akustik gürültü, karmaşık kontrol. <strong>Renault Zoe (eski nesil),</strong> bazı ticari araçlar, Dyson projesi kullandı." },
+    { icon:"🥞", name:"Aksiyal Akı Motoru (Yokeless)", color:"#a78bfa",
+      detail:"<strong>Disk şeklinde, radyal değil eksenel akı yolu.</strong> Çok ince → tekerlek içi (in-wheel) veya aksa entegre ideal. <strong>YASA (İngiliz):</strong> Yokeless And Segmented Armature — toroidal sargı, çift rotor. <strong>Avantaj:</strong> Yüksek tork yoğunluğu (Nm/kg), kompakt. <strong>Dezavantaj:</strong> Üretim zorluğu, soğutma güçlüğü. <strong>Ferrari SF90, McLaren Artura, Mercedes AMG</strong> performans hibritlerinde kullanılıyor." },
+    { icon:"🔧", name:"E-Aks (eAxle) — Entegre Çözüm", color:"#f472b6",
+      detail:"<strong>Motor + inverter + redüktör tek ünitede.</strong> Dişli redüksiyonu (genelde 9:1-10:1) ile motor devri tekerlek devrine düşürülür. <strong>Örnek:</strong> Bosch eAxle, VW MEB APP310 (310 Nm, 150 kW), Hyundai E-GMP. <strong>Yağ soğutmalı</strong> rotor (direkt yağ spreyi) → yüksek sürekli güç. <strong>Trend:</strong> 2 vitesli eAks (Porsche Taycan Turbo S arkada 2 vites: kalkış dişlisi + seyir dişlisi)." },
+  ];
+
+  const grid=document.getElementById("motorGrid"), detail=document.getElementById("motorDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  4. POWER ELECTRONICS                                       ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🔄", name:"İnverter (DC→AC)", color:"#5eead4",
+      detail:"<strong>Batarya DC'sini motor için 3-faz AC'ye çevirir.</strong> IGBT (eski nesil) veya SiC MOSFET (yeni nesil) anahtarlama elemanları. <strong>SiC (Silisyum Karbür):</strong> Daha yüksek frekans, daha düşük kayıp → %5-10 menzil artışı. Tesla Model 3 (2018) ilk SiC inverter. <strong>SVPWM (Space Vector PWM):</strong> Optimal anahtarlama deseni. Rejeneratif frende AC→DC dönüşüm (doğrultucu modu) yapar." },
+    { icon:"🔌", name:"DC-DC Dönüştürücü", color:"#60a5fa",
+      detail:"<strong>Yüksek voltaj (~400V/800V) → 12V/48V.</strong> 12V akü şarjı + araç elektroniği (farlar, ECU, bilgi-eğlence). <strong>İzoleli (tam köprü LLC rezonans):</strong> HV-LV galvanik izolasyon. Güç: 1.5-3.5 kW. <strong>48V mild hybrid:</strong> MHEV'lerde ek 48V bus, elektrikli turbo, aktif süspansiyon. <strong>800V→400V dönüştürücü:</strong> Eski 400V şarj istasyonlarında 800V araçları şarj etmek için (Hyundai E-GMP'de onboard boost)." },
+    { icon:"🔋", name:"Onboard Şarj Cihazı (OBC)", color:"#fbbf24",
+      detail:"<strong>AC şebeke → DC batarya şarjı.</strong> Evde/wallbox'ta AC'yi DC'ye çevirir, batarya voltajına uyarlar. <strong>Güç:</strong> Tipik 7.2-11 kW (1 faz 32A) veya 22 kW (3 faz). <strong>PFC (Power Factor Correction):</strong> Şebekeden sinüzoidal akım çekimi. <strong>Trend:</strong> OBC'yi invertere entegre etme (motor sargıları boost endüktansı olarak kullanılır). Renault Zoe'de Chameleon charger (43 kW AC)." },
+    { icon:"🧠", name:"BMS (Batarya Yönetim Sistemi)", color:"#a78bfa",
+      detail:"<strong>Bataryanın beyni ve koruyucusu.</strong> <strong>İzleme:</strong> Her hücre grubunun voltajı (±5 mV), sıcaklık (NTC termistör), akım (shunt veya Hall etkili sensör). <strong>SoC Tahmini:</strong> Coulomb sayımı + voltaj tabanlı düzeltme + Kalman filtresi. <strong>SoH (Sağlık Durumu):</strong> İç direnç artışı ve kapasite azalması takibi. <strong>Dengeleme:</strong> Pasif (dirençle fazla enerjiyi ısıya çevirme) veya aktif (kapasitör/indüktörle enerji transferi). <strong>Koruma:</strong> Aşırı şarj/deşarj, aşırı akım, aşırı/düşük sıcaklık → kontaktörleri açar." },
+    { icon:"📡", name:"HV Dağıtım & Kontaktörler", color:"#f87171",
+      detail:"<strong>HV Junction Box:</strong> Batarya çıkışında sigorta (pyro fuse), kontaktörler (ana + ön şarj), izolasyon izleme (IT şebeke, topraksız). <strong>Ön şarj devresi:</strong> Ana kontaktör kapanmadan önce küçük direnç üzerinden inverter kapasitörleri şarj edilir (ani akımı önler). <strong>İzolasyon direnci:</strong> >100 Ω/V (örn. 400V sistemde >40 kΩ). Manuel servis ayırıcı (MSD) ile servis güvenliği." },
+  ];
+
+  const grid=document.getElementById("pwrGrid"), detail=document.getElementById("pwrDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  5. CHARGING SYSTEMS                                        ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const topics=[
+    { icon:"🏠", name:"AC Şarj (Seviye 1 & 2)", color:"#5eead4",
+      detail:"<strong>Seviye 1 (120V/16A, ~1.9 kW):</strong> Standart ev prizi. Tam şarj 30-50 saat. <strong>Seviye 2 (240V/32A, ~7.7 kW):</strong> Wallbox. Gece şarjı için ideal, %80 şarj 6-8 saat. <strong>3 faz Seviye 2 (400V/32A, ~22 kW):</strong> Avrupa'da yaygın. <strong>Konnektör:</strong> Tip 2 (Mennekes, Avrupa standardı), Tip 1 (J1772, eski). <strong>Protokol:</strong> PWM pilot sinyali (CP) ile şarj akımı müzakere edilir, Proximity (PP) ile kablo kapasitesi algılanır." },
+    { icon:"⚡", name:"DC Hızlı Şarj (Seviye 3)", color:"#60a5fa",
+      detail:"<strong>Doğrudan bataryaya DC.</strong> OBC by-pass edilir. <strong>50 kW:</strong> Eski standart, %80 şarj ~45-60 dk. <strong>150-350 kW (HPC):</strong> Ionity, Tesla Supercharger V3/V4, Electrify America. %10→%80 ~15-25 dk. <strong>Şarj eğrisi:</strong> Düşük SoC'de yüksek güç → ~%50-60 SoC'de güç düşüşü (Li-iyon difüzyon limiti). <strong>800V sistemler</strong> (Taycan, E-GMP) 350 kW ile 10→%80 ~18 dk." },
+    { icon:"🔌", name:"CCS & CHAdeMO & NACS", color:"#a78bfa",
+      detail:"<strong>CCS (Combined Charging System):</strong> Tip 2'ye ek DC pinleri. Avrupa/ABD standardı. <strong>CCS1 (ABD), CCS2 (Avrupa).</strong> 350 kW'a kadar. <strong>CHAdeMO (Japonya):</strong> Nissan Leaf, Mitsubishi. 62.5 kW'a kadar (CHAdeMO 2.0: 400 kW teorik). Ayrı konnektör, bidireksiyonel (V2G) doğal desteği. <strong>NACS (Tesla, eski adıyla):</strong> 2024'ten itibaren SAE J3400 standardı. Ford, GM, Rivian, Volvo NACS'e geçiyor. 1 MW'a kadar (Semi)." },
+    { icon:"🔄", name:"V2G / V2H / V2X", color:"#f472b6",
+      detail:"<strong>Vehicle-to-Grid:</strong> Araç bataryası şebekeye enerji satabilir. <strong>V2H (Vehicle-to-Home):</strong> Eve enerji verme (yedek güç, tarife arbitrajı). <strong>Ford F-150 Lightning:</strong> 9.6 kW V2H. <strong>Nissan Leaf,</strong> CHAdeMO üzerinden V2G. <strong>ISO 15118-20:</strong> Plug & Charge + bidireksiyonel şarj standardı. <strong>Engeller:</strong> Batarya çevrim ömrü endişesi, regülasyon, şebeke operatörü uyumu." },
+    { icon:"🛣️", name:"Kablosuz Şarj & MegaWatt", color:"#fbbf24",
+      detail:"<strong>Kablosuz (Inductive):</strong> SAE J2954 standardı. 3.7-11 kW. Park halinde veya dinamik (yolda giderken). <strong>MCS (Megawatt Charging System):</strong> Ağır vasıtalar için 1-3.75 MW. Soğutmalı konnektör/kablo. Tesla Semi, Volvo FH Electric. <strong>Batarya değişim (NIO):</strong> 3-5 dk'da tam dolu batarya. Çin'de NIO 2000+ istasyon. <strong>Robot şarj:</strong> Otonom robot kol park halindeyken fişi takar (VW, Hyundai konseptleri)." },
+  ];
+
+  const grid=document.getElementById("chargeGrid"), detail=document.getElementById("chargeDetail");
+  topics.forEach(t=>{
+    const card=document.createElement("div"); card.className="topic-card";
+    card.style.borderLeft=`3px solid ${t.color}`;
+    card.innerHTML=`<div class="tc-icon">${t.icon}</div><div class="tc-name">${t.name}</div>`;
+    card.addEventListener("click",()=>{detail.innerHTML=t.detail;});
+    grid.appendChild(card);
+  });
+})();
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  6. EV ARCHITECTURE & THERMAL                               ║
+// ╚══════════════════════════════════════════════════════════════╝
+(function(){
+  const specs=[
+    { icon:"🛹", name:"Skateboard Platformu", desc:"<strong>Batarya taban plakası.</strong> Tüm EV bileşenleri düz zemin altında. Ultra düşük CG, 50:50 ağırlık dağılımı, maksimum iç hacim. VW MEB, Hyundai E-GMP, Tesla tüm modeller. Modüler: farklı dingil mesafesi ve batarya boyutları aynı platformda." },
+    { icon:"🌡️", name:"Batarya Termal Yönetimi", desc:"<strong>Sıvı soğutmalı plakalar + ısı pompası.</strong> Optimum 20-40°C. Soğukta: PTC rezistans veya ısı pompası ile ön ısıtma (preconditioning) → DC hızlı şarj öncesi batarya ısıtılır. Sıcakta: chiller + AC kompresörü ile soğutma. Tesla Octovalve: 8 portlu süper manifold." },
+    { icon:"🔥", name:"Isı Pompası (Heat Pump)", desc:"<strong>Kış menzilini kurtarır.</strong> Rezistanslı ısıtma COP=1 iken, ısı pompası COP=2-4 (1 kW elektrik → 2-4 kW ısı). Batarya, motor ve inverter atık ısısını kabin ısıtmada kullanır. Tesla Model Y heat pump sistemi -10°C'de bile verimli. Kış menzil kaybı %30→%15 azalır." },
+    { icon:"💨", name:"Aerodinamik Optimizasyon", desc:"<strong>C_d (drag katsayısı) EV'lerde kritik.</strong> İçten yanmalı araçlar atık ısıyı kabin ısıtmada kullanırken EV'lerde her watt menzilden yer. Tesla Model S C_d=0.208 (en iyilerden), Mercedes EQS C_d=0.20 (rekor). Aktif hava giriş kapakları, düz alt panel, aero jantlar." },
+    { icon:"⏱️", name:"Reküperasyon Stratejileri", desc:"<strong>Fren enerjisi geri kazanımı.</strong> 0.1-0.3g yavaşlamaya kadar sadece rejeneratif fren (hidrolik devreye girmez). <strong>One-pedal driving:</strong> Gaz pedalı bırakılınca 0.2g'ye kadar rejenerasyon. Kamera/radar ile adaptif rejenerasyon (ön araç mesafesine göre). %15-30 enerji geri kazanımı." },
+    { icon:"⚖️", name:"Ağırlık & Yapısal Batarya", desc:"<strong>Batarya paketi yapısal eleman.</strong> Tesla 4680 Structural Pack: batarya hücreleri doğrudan yapıştırıcı ile gövdeye bağlanır, alt ve üst plaka gövdenin parçası → %10 ağırlık azalması, %14 menzil artışı. Ön/arka gigacasting (tek parça alüminyum döküm) + yapısal batarya = devrimsel üretim." },
+  ];
+
+  document.getElementById("archGrid").innerHTML=specs.map(s=>`
+    <div class="spec-card">
+      <div class="sp-icon">${s.icon}</div>
+      <div class="sp-name">${s.name}</div>
+      <div class="sp-desc">${s.desc}</div>
+    </div>
+  `).join("");
+})();
+</script>
+
+</body>
+</html>
