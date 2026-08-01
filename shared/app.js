@@ -161,6 +161,54 @@
 
   /* —— Sayfa rehberleri —— */
   const GUIDES = {
+    "bilim-atlasi": {
+      type: "Simülasyon",
+      intro:
+        "Temel bilimleri birbirine bağlayan ana keşif haritası. Konu dünyalarını incele, ön koşullu rotayı izle ve tamamladığın durakları cihazında sakla.",
+      controls: [
+        "Arama alanına kavram, düzey veya anahtar sözcük yaz",
+        "Konu kartlarından anlatıma ya da laboratuvara geç",
+        "Duraklardaki onay kutularıyla ilerlemeni kaydet",
+      ],
+      learn:
+        "Bilimsel yöntemden matematiksel modellere, fizikten canlı sistemlere uzanan kavram bağlarını ve öğrenme sırasını görürsün.",
+    },
+    "bilimsel-yontem-olcme-ve-belirsizlik": {
+      type: "Simülasyon",
+      intro:
+        "İyi bir bilimsel iddiayı sınanabilir yapan öğeleri ve her ölçümde bulunan belirsizliği keşfet. Sanal cetvelle veri topla; çözünürlük, rastgele değişim ve sistematik kaymayı ayır.",
+      controls: [
+        "Önce tahminini yaz, sonra cetvel ayarlarını değiştir",
+        "Ölçüm Al ile tekrarlı veri topla; ortalama ve aralığı karşılaştır",
+        "Görev panosunu Tahmin → Test → Gözle → Açıkla sırasıyla tamamla",
+      ],
+      learn:
+        "Değişken, kontrol, tekrarlı ölçüm, doğruluk, kesinlik, çözünürlük ve ölçüm belirsizliği kavramlarını kanıta dayalı bir deney akışı içinde kullanırsın.",
+    },
+    "hareket-ve-grafikler": {
+      type: "Fizik",
+      intro:
+        "Konum-zaman grafiğinin eğimini hıza, hız-zaman grafiğinin alanını yer değiştirmeye bağlayan hareket laboratuvarı.",
+      controls: [
+        "Başlangıç konumu, ilk hız, ivme ve süreyi ayarla",
+        "Oynat ile hareketi ve iki grafiği eş zamanlı izle",
+        "Tahminini sonuçlarla karşılaştırıp görev açıklamasını yaz",
+      ],
+      learn:
+        "Referans noktası, yer değiştirme, hız, ivme, grafik eğimi ve grafik altında kalan alan arasındaki ilişkileri kurarsın.",
+    },
+    "momentum-itme-ve-carpismalar": {
+      type: "Fizik",
+      intro:
+        "İki arabanın bir boyutlu çarpışmasında toplam momentumu, kinetik enerjiyi ve esneklik katsayısını karşılaştır.",
+      controls: [
+        "Kütleleri, başlangıç hızlarını ve esneklik katsayısını ayarla",
+        "Çarpıştır ile sistemi çalıştır; önce/sonra değerlerini oku",
+        "Sistem sınırını belirleyip Tahmin → Test → Gözle → Açıkla görevini tamamla",
+      ],
+      learn:
+        "Momentum korunumu ile kinetik enerji korunumunun aynı iddia olmadığını; itmenin momentum değişimine eşitliğini gözlemlersin.",
+    },
     pong: {
       type: "Oyun",
       intro:
@@ -483,6 +531,7 @@
 
   /* —— Yıldız arka planı —— */
   function initStars() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (document.getElementById("starCanvas")) return;
     const canvas = document.createElement("canvas");
     canvas.id = "starCanvas";
@@ -680,6 +729,82 @@
     }
   });
 
+  function activateAccessibleDialog(overlay, initialFocus, onDismiss) {
+    const dialog = overlay.querySelector('[role="dialog"]');
+    if (!dialog) return () => {};
+
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const changedSiblings = Array.from(document.body.children).filter(
+      (element) => element !== overlay && !element.inert,
+    );
+    const previousOverflow = document.body.style.overflow;
+    let closed = false;
+
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("tabindex", "-1");
+    changedSiblings.forEach((element) => {
+      element.inert = true;
+    });
+    document.body.style.overflow = "hidden";
+
+    const getFocusable = () =>
+      Array.from(
+        dialog.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element instanceof HTMLElement);
+
+    const dismiss = (reason = "action") => {
+      if (closed) return;
+      closed = true;
+      overlay.removeEventListener("keydown", handleKeydown);
+      changedSiblings.forEach((element) => {
+        element.inert = false;
+      });
+      document.body.style.overflow = previousOverflow;
+      onDismiss(reason);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+
+    function handleKeydown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        dismiss("escape");
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = getFocusable();
+      if (!focusable.length) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (
+        event.shiftKey &&
+        (document.activeElement === first || !dialog.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    overlay.addEventListener("keydown", handleKeydown);
+    queueMicrotask(() => {
+      const target = initialFocus || getFocusable()[0] || dialog;
+      target.focus();
+    });
+    return dismiss;
+  }
+
   /* ── Temel Bilgi overlay ── */
   function showInfoOverlay() {
     const info = PAGE_INFO[pageId];
@@ -696,25 +821,36 @@
     window.AcelyaPause?.setPaused(true);
 
     overlay.innerHTML = `
-      <div class="app-intro-card" role="dialog">
+      <div class="app-intro-card" role="dialog" aria-labelledby="appInfoTitle">
         <span class="badge">📚 Temel Bilgi</span>
-        <h2>${info.title}</h2>
+        <h2 id="appInfoTitle">${info.title}</h2>
         ${info.text}
         <div class="app-intro-actions">
           <button type="button" class="app-btn-primary" id="appInfoCloseBtn">Anladım</button>
         </div>
       </div>`;
 
-    document.getElementById("appInfoCloseBtn").onclick = () => {
+    const closeButton = document.getElementById("appInfoCloseBtn");
+    const dismiss = activateAccessibleDialog(overlay, closeButton, () => {
       overlay.classList.add("is-hidden");
       window.AcelyaPause?.setPaused(false);
-    };
+    });
+    closeButton.onclick = () => dismiss();
   }
 
   /* —— Giriş paneli —— */
   function showIntro(force) {
     const key = `acelya-guide-${pageId}`;
-    if (!force && localStorage.getItem(key) === "1") return;
+    const sessionKey = `${key}-session`;
+    let guideAlreadySeen = false;
+    try {
+      guideAlreadySeen =
+        localStorage.getItem(key) === "1" ||
+        sessionStorage.getItem(sessionKey) === "1";
+    } catch (_) {
+      // Depolama kapalıysa rehber yine çalışır; yalnızca tercih saklanmaz.
+    }
+    if (!force && guideAlreadySeen) return;
 
     const g = getGuide(pageId);
     const badge = TYPE_LABELS[g.type] || "📖";
@@ -729,10 +865,11 @@
     overlay.classList.remove("is-hidden");
     window.AcelyaPause?.setPaused(true);
 
+    const guideTitle = document.title.split("|")[0].trim() || slugToTitle(pageId);
     overlay.innerHTML = `
       <div class="app-intro-card" role="dialog" aria-labelledby="appIntroTitle">
         <span class="badge">${badge} ${g.type}</span>
-        <h2 id="appIntroTitle">${slugToTitle(pageId)}</h2>
+        <h2 id="appIntroTitle">${guideTitle}</h2>
         <p><strong>Ne yapıyorsun?</strong> ${g.intro}</p>
         <p><strong>Kontroller</strong></p>
         <ul>${g.controls.map((c) => `<li>${c}</li>`).join("")}</ul>
@@ -743,14 +880,34 @@
         </div>
       </div>`;
 
-    document.getElementById("appIntroStart").onclick = () => {
+    const rememberSession = () => {
+      try {
+        sessionStorage.setItem(sessionKey, "1");
+      } catch (_) {
+        // Tercihin saklanamaması rehberi kapatmayı engellememeli.
+      }
+    };
+    const rememberPermanently = () => {
+      try {
+        localStorage.setItem(key, "1");
+        sessionStorage.setItem(sessionKey, "1");
+      } catch (_) {
+        // Tercihin saklanamaması rehberi kapatmayı engellememeli.
+      }
+    };
+    const startButton = document.getElementById("appIntroStart");
+    const dismiss = activateAccessibleDialog(overlay, startButton, (reason) => {
+      if (reason === "escape") rememberSession();
       overlay.classList.add("is-hidden");
       window.AcelyaPause?.setPaused(false);
+    });
+    startButton.onclick = () => {
+      rememberSession();
+      dismiss();
     };
     document.getElementById("appIntroAgain").onclick = () => {
-      localStorage.setItem(key, "1");
-      overlay.classList.add("is-hidden");
-      window.AcelyaPause?.setPaused(false);
+      rememberPermanently();
+      dismiss();
     };
   }
 
@@ -762,8 +919,11 @@
       hint = document.createElement("p");
       hint.className = "hint app-auto-hint";
       const h1 = hud.querySelector("h1");
-      if (h1 && h1.nextSibling) hud.insertBefore(hint, h1.nextSibling);
-      else hud.appendChild(hint);
+      if (h1 && h1.parentNode) {
+        h1.parentNode.insertBefore(hint, h1.nextSibling);
+      } else {
+        hud.appendChild(hint);
+      }
     }
     if (hint && !hint.dataset.enhanced) {
       hint.dataset.enhanced = "1";

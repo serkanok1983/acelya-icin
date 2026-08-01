@@ -2,11 +2,17 @@
  * Açelya'nın Yeri — Service Worker
  * Çevrimdışı kullanım için önbellekleme
  */
-const CACHE_NAME = "acelya-v2";
+const CACHE_NAME = "acelya-v8-atlas";
 const STATIC_ASSETS = [
   "index.html",
+  "bilim-atlasi.html",
+  "bilimsel-yontem-olcme-ve-belirsizlik.html",
+  "hareket-ve-grafikler.html",
+  "momentum-itme-ve-carpismalar.html",
   "shared/theme.css",
+  "shared/atlas.css",
   "shared/app.js",
+  "shared/atlas.js",
   "shared/auth.js",
   "shared/icons.js",
   "shared/game-kit.js",
@@ -26,7 +32,10 @@ const STATIC_ASSETS = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch((err) => {
+      const freshRequests = STATIC_ASSETS.map(
+        (asset) => new Request(asset, { cache: "reload" })
+      );
+      return cache.addAll(freshRequests).catch((err) => {
         console.warn("SW önbellek kurulum hatası (bazı dosyalar eksik olabilir):", err);
       });
     })
