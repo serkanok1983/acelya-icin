@@ -660,6 +660,7 @@
     const themeIcon = currentTheme === "dark" ? "☀️" : "🌙";
     const hasInfo = typeof PAGE_INFO !== "undefined" && PAGE_INFO[pageId];
     const isGame = GAME_IDS.has(pageId);
+    const hasNotebook = hasInfo || isGame;
 
     const title = document.title.split("|")[0].trim() || slugToTitle(pageId);
     const bar = document.createElement("header");
@@ -668,14 +669,14 @@
       <a class="app-home" href="index.html">← Ana sayfa</a>
       <span class="app-topbar-title">${title}</span>
       <div class="app-topbar-actions">
-        ${hasInfo ? '<button type="button" class="app-btn-icon" id="appInfoBtn" title="Temel Bilgi">📚</button>' : ""}
+        ${hasNotebook ? '<button type="button" class="app-btn-icon" id="appInfoBtn" title="Araştırma defterini aç" aria-label="Araştırma defterini aç">📓</button>' : ""}
         ${isGame ? '<button type="button" class="app-btn-icon" id="appPauseBtn" title="Duraklat (P)">⏯️</button>' : ""}
         <button type="button" class="app-btn-theme" id="appThemeBtn" title="Tema değiştir">${themeIcon}</button>
         <button type="button" class="app-btn-icon" id="appHelpBtn" title="Yardım">ℹ️</button>
       </div>`;
     document.body.prepend(bar);
 
-    if (hasInfo) {
+    if (hasNotebook) {
       document
         .getElementById("appInfoBtn")
         .addEventListener("click", showInfoOverlay);
@@ -807,8 +808,17 @@
 
   /* ── Temel Bilgi overlay ── */
   function showInfoOverlay() {
-    const info = PAGE_INFO[pageId];
-    if (!info) return;
+    if (window.AcelyaEncyclopedia?.open) {
+      window.AcelyaEncyclopedia.open();
+      return;
+    }
+
+    const info = typeof PAGE_INFO !== "undefined" ? PAGE_INFO[pageId] : null;
+    if (!info) {
+      // Oyunlarda ansiklopedi betiği henüz yüklenmediyse rehber güvenli geri dönüştür.
+      showIntro(true);
+      return;
+    }
 
     let overlay = document.getElementById("appInfoOverlay");
     if (!overlay) {
@@ -954,6 +964,71 @@
     document.head.appendChild(s);
   }
 
+  function loadStylesheetOnce(href) {
+    if (document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    document.head.appendChild(link);
+  }
+
+  function ensureNotebookButton() {
+    if (pageId === "bilgi" || document.body.classList.contains("atlas-experience")) return null;
+    let button = document.getElementById("appInfoBtn");
+    if (button) return button;
+    const actions = document.querySelector(".app-topbar-actions");
+    if (!actions) return null;
+    button = document.createElement("button");
+    button.type = "button";
+    button.className = "app-btn-icon";
+    button.id = "appInfoBtn";
+    button.title = "Araştırma defterini aç";
+    button.setAttribute("aria-label", "Araştırma defterini aç");
+    button.textContent = "📓";
+    button.addEventListener("click", showInfoOverlay);
+    actions.insertBefore(button, actions.firstChild);
+    return button;
+  }
+
+  function initEncyclopediaLayer() {
+    const body = document.body;
+    if (
+      !body ||
+      pageId === "bilgi" ||
+      body.classList.contains("atlas-experience") ||
+      body.dataset.encyclopedia === "ready"
+    ) {
+      return;
+    }
+
+    const allInfo = typeof PAGE_INFO !== "undefined" ? PAGE_INFO : {};
+    const guide = getGuide(pageId);
+    const info =
+      allInfo[pageId] ||
+      (GAME_IDS.has(pageId)
+        ? {
+            title: document.title.split("|")[0].trim() || slugToTitle(pageId),
+            text: `<p>${guide.intro}</p><p>${guide.learn}</p>`,
+          }
+        : null);
+    if (!info) return;
+
+    const trigger = ensureNotebookButton();
+    if (!trigger) return;
+    loadStylesheetOnce("shared/encyclopedia-layer.css");
+    loadScriptOnce("shared/encyclopedia-data.js", () => {
+      loadScriptOnce("shared/encyclopedia-layer.js", () => {
+        const mounted = window.AcelyaEncyclopedia?.mount({
+          pageId,
+          info,
+          allInfo,
+          trigger,
+        });
+        if (mounted) body.dataset.encyclopedia = "ready";
+      });
+    });
+  }
+
   function loadActivityTracker() {
     loadScriptOnce("shared/firebase-config.js", () => {
       loadScriptOnce("shared/activity.js", trackActivityVisit);
@@ -1000,24 +1075,18 @@
       const s = document.createElement("script");
       s.src = "shared/page-info.js";
       s.onload = function () {
-        // PAGE_INFO yüklendikten sonra topbar'a bilgi butonu ekle
-        const actions = document.querySelector(".app-topbar-actions");
-        const info = PAGE_INFO[pageId];
-        if (actions && info && !document.getElementById("appInfoBtn")) {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "app-btn-icon";
-          btn.id = "appInfoBtn";
-          btn.title = "Temel Bilgi";
-          btn.textContent = "📚";
-          btn.addEventListener("click", showInfoOverlay);
-          actions.insertBefore(btn, actions.firstChild);
-        }
+        s.dataset.loaded = "true";
+        ensureNotebookButton();
+        initEncyclopediaLayer();
       };
       document.head.appendChild(s);
     }
     initStars();
     initTopbar();
+    if (typeof PAGE_INFO !== "undefined") {
+      ensureNotebookButton();
+      initEncyclopediaLayer();
+    }
     enhanceHints();
     loadActivityTracker();
     loadGameKit();

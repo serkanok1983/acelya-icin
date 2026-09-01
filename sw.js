@@ -2,7 +2,7 @@
  * Açelya'nın Yeri — Service Worker
  * Çevrimdışı kullanım için önbellekleme
  */
-const CACHE_NAME = "acelya-v8-atlas";
+const CACHE_NAME = "acelya-v9-encyclopedia";
 const STATIC_ASSETS = [
   "index.html",
   "bilim-atlasi.html",
@@ -13,6 +13,9 @@ const STATIC_ASSETS = [
   "shared/atlas.css",
   "shared/app.js",
   "shared/atlas.js",
+  "shared/encyclopedia-data.js",
+  "shared/encyclopedia-layer.js",
+  "shared/encyclopedia-layer.css",
   "shared/auth.js",
   "shared/icons.js",
   "shared/game-kit.js",
