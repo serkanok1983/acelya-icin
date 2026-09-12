@@ -2,7 +2,7 @@
  * Açelya'nın Yeri — Service Worker
  * Çevrimdışı kullanım için önbellekleme
  */
-const CACHE_NAME = "acelya-v10-university-stem";
+const CACHE_NAME = "acelya-v11-content-depth";
 const STATIC_ASSETS = [
   "index.html",
   "bilim-atlasi.html",
@@ -25,6 +25,7 @@ const STATIC_ASSETS = [
   "shared/stem-content.js",
   "shared/stem-bridge.js",
   "shared/encyclopedia-data.js",
+  "shared/encyclopedia-topic-guides.js",
   "shared/encyclopedia-layer.js",
   "shared/encyclopedia-layer.css",
   "shared/auth.js",

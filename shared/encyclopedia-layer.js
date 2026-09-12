@@ -92,6 +92,50 @@
       .join("");
   }
 
+  function renderDepth(model) {
+    return model.depth
+      .map(
+        (item, index) => `
+          <article class="encyclopedia-depth-card">
+            <div class="encyclopedia-depth-mark" aria-hidden="true">
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <i></i>
+            </div>
+            <div>
+              <small>${escapeHtml(item.label)}</small>
+              <h3>${escapeHtml(item.heading)}</h3>
+              <p>${escapeHtml(item.body)}</p>
+            </div>
+          </article>`,
+      )
+      .join("");
+  }
+
+  function renderEvidence(model) {
+    if (!model.evidence) return "";
+    const cards = [
+      ["İDDİA", "Ne söylüyoruz?", model.evidence.claim],
+      ["DAYANAK", "Neye dayanıyor?", model.evidence.evidence],
+      ["SINIR", "Nerede dikkatli olmalı?", model.evidence.boundary],
+    ];
+    return `
+      <div class="encyclopedia-section-label encyclopedia-section-label--secondary">
+        <span>K</span><h3>İddia · dayanak · sınır</h3>
+      </div>
+      <div class="encyclopedia-evidence-grid">
+        ${cards
+          .map(
+            ([label, heading, body]) => `
+              <article>
+                <span>${label}</span>
+                <h3>${heading}</h3>
+                <p>${escapeHtml(body)}</p>
+              </article>`,
+          )
+          .join("")}
+      </div>`;
+  }
+
   function renderQuestions(model) {
     return model.questions
       .map(
@@ -201,6 +245,7 @@
             <p class="encyclopedia-kicker">
               <span>${escapeHtml(model.code)} / NOT-${escapeHtml(model.slug.slice(0, 3).toLocaleUpperCase("tr-TR"))}</span>
               Araştırma defteri
+              ${model.enriched ? '<strong class="encyclopedia-depth-badge">KONUYA ÖZGÜ</strong>' : ""}
             </p>
             <h2 id="encyclopedia-title">${escapeHtml(model.title)}</h2>
             <p id="encyclopedia-description" class="encyclopedia-field">
@@ -242,6 +287,9 @@
                 </div>
               </article>
             </div>
+            <div class="encyclopedia-section-label encyclopedia-section-label--secondary"><span>↗</span><h3>Derinleşme merdiveni</h3></div>
+            <div class="encyclopedia-depth-path">${renderDepth(model)}</div>
+            <p class="encyclopedia-depth-note"><strong>Bilimsel düşünme notu:</strong> ${escapeHtml(model.depthNote)}</p>
             <div class="encyclopedia-observation-grid">
               <article>
                 <span class="encyclopedia-stamp" aria-hidden="true">NEDEN?</span>
@@ -266,6 +314,7 @@
           >
             <div class="encyclopedia-section-label"><span>02</span><h3>Temel kavramlar</h3></div>
             <div class="encyclopedia-concept-grid">${renderConcepts(model)}</div>
+            ${renderEvidence(model)}
             <div class="encyclopedia-section-label encyclopedia-section-label--secondary"><span>Ç</span><h3>Çözümlü düşünme örneği</h3></div>
             <article class="encyclopedia-worked-example">
               <header>

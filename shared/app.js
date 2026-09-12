@@ -450,15 +450,15 @@
     "kuantum-mekanigi": {
       type: "Fizik",
       intro:
-        "Tek tek elektronlar çift yarıktan geçer. Ölçüm yokken ekranda girişim deseni (dalga) birikir; hangi yarıktan geçtiğini ölçersen desen kaybolur ve iki şerit görürsün (parçacık).",
+        "Tekil elektron algılamaları ekranda noktalar oluşturur. Yollar ayırt edilemezken noktalar girişim saçaklarında birikir; yol bilgisi fiziksel olarak kaydedildiğinde koherens ve saçak görünürlüğü azalır.",
       controls: [
         "Otomatik ateş — sürekli elektron",
-        "Gözlemci — hangi yarık ölçümü",
-        "Tek yarık — difraksiyon karşılaştırması",
+        "Yol ölçümü — yolları ayırt edilebilir yap",
+        "Tek yarık — kırınım karşılaştırması",
         "λ, d, L kaydırıcıları",
       ],
       learn:
-        "Born yorumu: |ψ|² olasılık. Ölçüm süperpozisyonu çökertir — complementarity.",
+        "Born kuralında |ψ|² olasılık yoğunluğunu verir. Ölçüm aygıtıyla etkileşim fiziksel bir süreçtir; bilinçli gözlemci gerekmez.",
     },
     "newton-hareket-yasalari": {
       type: "Fizik",
@@ -1113,15 +1113,17 @@
     const trigger = ensureNotebookButton();
     if (!trigger) return;
     loadStylesheetOnce("shared/encyclopedia-layer.css");
-    loadScriptOnce("shared/encyclopedia-data.js", () => {
-      loadScriptOnce("shared/encyclopedia-layer.js", () => {
-        const mounted = window.AcelyaEncyclopedia?.mount({
-          pageId,
-          info,
-          allInfo,
-          trigger,
+    loadScriptOnce("shared/encyclopedia-topic-guides.js", () => {
+      loadScriptOnce("shared/encyclopedia-data.js", () => {
+        loadScriptOnce("shared/encyclopedia-layer.js", () => {
+          const mounted = window.AcelyaEncyclopedia?.mount({
+            pageId,
+            info,
+            allInfo,
+            trigger,
+          });
+          if (mounted) body.dataset.encyclopedia = "ready";
         });
-        if (mounted) body.dataset.encyclopedia = "ready";
       });
     });
   }

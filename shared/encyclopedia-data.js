@@ -1557,8 +1557,9 @@
   function resolve(slug, info, allInfo) {
     const profileKey = profileKeyFor(slug);
     const profile = PROFILES[profileKey];
+    const topicStudy = root.AcelyaTopicStudyGuides?.[slug] || {};
     const title = info?.title || titleFor(slug, allInfo);
-    const patched = (TOPIC_CONCEPTS[slug] || []).map(([term, definition]) => ({
+    const patched = (topicStudy.concepts || TOPIC_CONCEPTS[slug] || []).map(([term, definition]) => ({
       term,
       definition,
     }));
@@ -1578,13 +1579,25 @@
       concepts[2]?.definition || profile.misconception[1],
     ];
     const firstQuiz = rotateOptions(firstOptions, 0, `${slug}-concept`);
+    const check = topicStudy.check || profile.check;
     const secondQuiz = rotateOptions(
-      profile.check.options,
-      profile.check.answer,
+      check.options,
+      check.answer,
       `${slug}-reasoning`,
     );
-    const values = { title, concept: primary.term };
-    const study = STUDY_GUIDES[profileKey];
+    const values = {
+      title,
+      concept: primary.term,
+      secondConcept: concepts[1]?.term || primary.term,
+    };
+    const genericStudy = STUDY_GUIDES[profileKey];
+    const study = {
+      ...genericStudy,
+      ...topicStudy,
+      example: { ...genericStudy.example, ...(topicStudy.example || {}) },
+      experiment: { ...genericStudy.experiment, ...(topicStudy.experiment || {}) },
+    };
+    const path = STUDY_PATHS[profileKey];
     const example = {
       title: study.example.title,
       prompt: format(study.example.prompt, values),
@@ -1596,6 +1609,16 @@
       steps: study.experiment.steps.map((step) => format(step, values)),
       observe: format(study.experiment.observe, values),
     };
+    const depth = path.layers.map(([label, heading, body]) => ({
+      label,
+      heading: format(heading, values),
+      body: format(body, values),
+    }));
+    const evidence = topicStudy.evidence
+      ? Object.fromEntries(
+          Object.entries(topicStudy.evidence).map(([key, value]) => [key, format(value, values)]),
+        )
+      : null;
 
     return {
       slug,
@@ -1607,19 +1630,23 @@
       contextHtml:
         info?.text ||
         `<p>${textFromHtml(title)}; kuralları, geri bildirimi ve strateji seçimlerini deneyebileceğin etkileşimli bir oyun laboratuvarıdır.</p>`,
-      why: format(profile.why, values),
-      realWorld: format(profile.realWorld, values),
+      why: format(topicStudy.why || profile.why, values),
+      realWorld: format(topicStudy.realWorld || profile.realWorld, values),
       objective: format(study.objective, values),
       prerequisite: format(study.prerequisite, values),
+      depth,
+      depthNote: format(topicStudy.depthNote || path.correction, values),
+      evidence,
+      enriched: Boolean(root.AcelyaTopicStudyGuides?.[slug]),
       example,
       experiment,
-      misconception: profile.misconception.map((item) => format(item, values)),
+      misconception: (topicStudy.misconception || profile.misconception).map((item) => format(item, values)),
       modelLimit: format(study.modelLimit, values),
       concepts: concepts.slice(0, 3),
       glossary: concepts.slice(0, 5),
-      questions: profile.inquiry.map((question) => format(question, values)),
+      questions: (topicStudy.questions || profile.inquiry).map((question) => format(question, values)),
       related: relatedFor(slug, profileKey, allInfo),
-      sources: profile.sources,
+      sources: (topicStudy.sources || []).concat(profile.sources),
       quiz: [
         {
           question: `“${primary.term}” kavramını en iyi açıklayan ifade hangisidir?`,
@@ -1628,13 +1655,13 @@
           explanation: primary.definition,
         },
         {
-          question: profile.check.question,
+          question: check.question,
           options: secondQuiz.options,
           answer: secondQuiz.answer,
-          explanation: profile.check.explanation,
+          explanation: check.explanation,
         },
       ],
-      revision: "1 Eylül 2026",
+      revision: topicStudy.revision || (root.AcelyaTopicStudyGuides?.[slug] ? "12 Eylül 2026" : "1 Eylül 2026"),
       profileKey,
     };
   }
