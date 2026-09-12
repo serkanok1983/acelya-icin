@@ -1,10 +1,10 @@
 # Açelya'nın Yeri — Temel Bilimler Atlası
 
-Açelya'nın Yeri, lise düzeyindeki temel bilimleri yalnızca “okunan” değil;
-tahmin, deney, gözlem ve açıklama yoluyla keşfedilen bir ansiklopediye
-dönüştürme projesidir. Matematik, fizik, kimya, biyoloji ve yer-uzay
-bilimlerini kavram haritaları, etkileşimli laboratuvarlar ve kısa
-simülasyonlarla birbirine bağlar.
+Açelya'nın Yeri, liseden üniversite temellerine uzanan STEM konularını yalnızca
+“okunan” değil; tahmin, deney, gözlem ve açıklama yoluyla keşfedilen bir
+ansiklopediye dönüştürme projesidir. Matematik, fizik, kimya, biyoloji,
+bilgisayar bilimi ve yer-uzay bilimlerini kavram haritaları, ön koşullu rotalar
+ve etkileşimli laboratuvarlarla birbirine bağlar.
 
 ## İlk ansiklopedi rotası
 
@@ -21,6 +21,24 @@ Her amiral içerikte katmanlı anlatım, çözümlü örnekler, kavram yanılgı
 sözlük, Tahmin → Test → Gözle → Açıkla görevi, geri bildirimli mini sınav,
 erişilebilir metin karşılığı, Türkçe seslendirme ve kaynak/revizyon bilgisi
 bulunur.
+
+## Üniversite STEM omurgası
+
+Atlasın ikinci rotası lise kavramlarını üniversite ve sonrasındaki araştırma
+diline bağlayan sekiz derin duraktan oluşur:
+
+- Lineer cebir ve özdeğerler
+- Çok değişkenli kalkülüs
+- Diferansiyel denklemler ve dinamik sistemler
+- Maxwell denklemleri ve alanlar
+- Entropi ve istatistiksel fizik
+- Kimyasal denge ve Gibbs enerjisi
+- Gen ifadesi ve moleküler bilgi akışı
+- Algoritma karmaşıklığı ve ölçeklenme
+
+Bu sayfaların her birinde merkez soru, ön koşullar, dört bölümlü kavram
+anlatısı, çalışan görsel model, çözülmüş örnek, model sınırı, kavram
+yanılgıları, açıklamalı mini sınav, sözlük ve açık üniversite kaynakları vardır.
 
 ## Yerelde çalıştırma
 

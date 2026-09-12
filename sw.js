@@ -2,17 +2,28 @@
  * Açelya'nın Yeri — Service Worker
  * Çevrimdışı kullanım için önbellekleme
  */
-const CACHE_NAME = "acelya-v9-encyclopedia";
+const CACHE_NAME = "acelya-v10-university-stem";
 const STATIC_ASSETS = [
   "index.html",
   "bilim-atlasi.html",
   "bilimsel-yontem-olcme-ve-belirsizlik.html",
   "hareket-ve-grafikler.html",
   "momentum-itme-ve-carpismalar.html",
+  "lineer-cebir-ve-ozdegerler.html",
+  "cok-degiskenli-kalkulus.html",
+  "diferansiyel-denklemler.html",
+  "maxwell-denklemleri-ve-alanlar.html",
+  "entropi-ve-istatistiksel-fizik.html",
+  "kimyasal-denge-ve-gibbs-enerjisi.html",
+  "gen-ifadesi-ve-molekuler-biyoloji.html",
+  "algoritma-karmasikligi.html",
   "shared/theme.css",
   "shared/atlas.css",
+  "shared/stem-bridge.css",
   "shared/app.js",
   "shared/atlas.js",
+  "shared/stem-content.js",
+  "shared/stem-bridge.js",
   "shared/encyclopedia-data.js",
   "shared/encyclopedia-layer.js",
   "shared/encyclopedia-layer.css",

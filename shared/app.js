@@ -209,6 +209,102 @@
       learn:
         "Momentum korunumu ile kinetik enerji korunumunun aynı iddia olmadığını; itmenin momentum değişimine eşitliğini gözlemlersin.",
     },
+    "lineer-cebir-ve-ozdegerler": {
+      type: "Matematik",
+      intro:
+        "Matrisleri uzayı dönüştüren makineler olarak incele; özdeğerlerin tekrarlı dönüşümlerdeki doğal yönleri nasıl belirlediğini keşfet.",
+      controls: [
+        "a, b ve d ile simetrik 2×2 matrisi değiştir",
+        "Vektör açısını ayarla; v ile Av'yi karşılaştır",
+        "Altın özdoğrultuları determinant ve özdeğerlerle birlikte oku",
+      ],
+      learn:
+        "Lineer dönüşüm, determinant, baz, özvektör, köşegenleştirme ve izdüşüm fikirlerini geometrik bir bütün olarak kurarsın.",
+    },
+    "cok-degiskenli-kalkulus": {
+      type: "Matematik",
+      intro:
+        "Bir yüzeyin seviye haritasında dolaş; kısmi türevleri ve gradyanı yerel değişim yönü olarak gör.",
+      controls: [
+        "(x,y) noktasını değiştir",
+        "xy bağlaşımıyla yüzey biçimini dönüştür",
+        "Yürüyüş yönünü çevirip yönlü türevi karşılaştır",
+      ],
+      learn:
+        "Kısmi türev, gradyan, yönlü türev, Jacobian ve çift integral arasında temsil geçişi yaparsın.",
+    },
+    "diferansiyel-denklemler": {
+      type: "Matematik",
+      intro:
+        "Bir sistemin anlık değişim yasasından zaman grafiği ve faz yörüngesi üret; sönümle kararlılığın izini sür.",
+      controls: [
+        "Yay sabiti ve sönümü değiştir",
+        "Başlangıç konumu ile hızını ayarla",
+        "x(t) grafiğini (x,v) faz portresiyle karşılaştır",
+      ],
+      learn:
+        "Başlangıç koşulu, denge, kararlılık, faz uzayı ve sayısal çözümün ne söylediğini ayırt edersin.",
+    },
+    "maxwell-denklemleri-ve-alanlar": {
+      type: "Fizik",
+      intro:
+        "Elektrik ve manyetik alanların boşlukta birbirini üreten bir dalga olarak nasıl ilerlediğini Maxwell çerçevesinde incele.",
+      controls: [
+        "Göreli frekansı ve alan genliğini değiştir",
+        "Fazı ilerletip iki alanı birlikte izle",
+        "Frekans–dalga boyu ilişkisini sonuç panelinden oku",
+      ],
+      learn:
+        "Akı, dolaşım, indüksiyon, yer değiştirme akımı ve elektromanyetik enerji akışını tek kuramda birleştirirsin.",
+    },
+    "entropi-ve-istatistiksel-fizik": {
+      type: "Fizik",
+      intro:
+        "Parçacıkların sol–sağ dağılımlarını say; makrodurum olasılığının ve Boltzmann entropisinin parçacık sayısıyla nasıl keskinleştiğini gör.",
+      controls: [
+        "Toplam parçacık sayısını değiştir",
+        "Soldaki parçacık sayısını denge çevresinde kaydır",
+        "Çokluk, olasılık ve lnΩ değerini birlikte karşılaştır",
+      ],
+      learn:
+        "Mikrodurum, makrodurum, çokluk ve ikinci yasanın istatistiksel anlamını birbirinden ayırırsın.",
+    },
+    "kimyasal-denge-ve-gibbs-enerjisi": {
+      type: "Kimya",
+      intro:
+        "Standart Gibbs enerjisi, sıcaklık ve anlık bileşimden K ile Q'yu hesaplayarak tepkimenin net yönünü bul.",
+      controls: [
+        "ΔG° ve sıcaklığı değiştir; K'nın yanıtını izle",
+        "log₁₀Q ile karışımın anlık bileşimini değiştir",
+        "ΔG işaretini ileri, geri ve denge bölgeleriyle karşılaştır",
+      ],
+      learn:
+        "Dinamik dengeyi; Q, K, ΔG ve katalizörün farklı rollerini nicel biçimde yorumlarsın.",
+    },
+    "gen-ifadesi-ve-molekuler-biyoloji": {
+      type: "Biyoloji",
+      intro:
+        "Transkripsiyon, translasyon ve yıkım hızlarından mRNA ile protein düzeylerinin zamana bağlı yanıtını üret.",
+      controls: [
+        "Transkripsiyon ve translasyon hızlarını değiştir",
+        "mRNA ve protein yıkımını ayrı ayrı ayarla",
+        "Denge düzeylerini ve yarı ömürleri karşılaştır",
+      ],
+      learn:
+        "DNA–RNA–protein akışını kromatin, RNA işlenmesi, geri besleme ve moleküler gürültüyle birlikte düşünürsün.",
+    },
+    "algoritma-karmasikligi": {
+      type: "Bilgisayar Bilimi",
+      intro:
+        "Girdi boyutunu büyüt; log n'den 2ⁿ'e farklı maliyet sınıflarının aynı logaritmik grafikte nasıl ayrıştığını gör.",
+      controls: [
+        "n değerini 2 ile 100 arasında değiştir",
+        "Beş büyüme sınıfının işlem sayılarını karşılaştır",
+        "Grafiğin logaritmik düşey ölçeğini hesaba kat",
+      ],
+      learn:
+        "O, Ω, Θ; en kötü, ortalama ve amorti edilmiş analiz ile zaman–bellek değiş tokuşunu ayırt edersin.",
+    },
     pong: {
       type: "Oyun",
       intro:
@@ -417,6 +513,7 @@
     Matematik: "📐",
     Kimya: "🧪",
     Biyoloji: "🧬",
+    "Bilgisayar Bilimi": "💻",
     Simülasyon: "🔬",
   };
 
