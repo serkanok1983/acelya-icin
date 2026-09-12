@@ -11,8 +11,8 @@
     boot();
     return {
       get: () => juice,
-      burst(x, y, color, n) {
-        juice?.burst(x, y, color, n);
+      burst(x, y, color, n, speed) {
+        juice?.burst(x, y, color, n, speed);
       },
       pop(x, y, text, color) {
         juice?.popScore(x, y, text, color);
@@ -29,7 +29,7 @@
       draw(ctx, w, h) {
         juice?.draw(ctx, w, h);
       },
-      wrapDraw(ctx, fn) {
+      wrapDraw(ctx, w, h, fn) {
         ctx.save();
         juice?.applyTransform(ctx);
         fn();

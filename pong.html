@@ -220,10 +220,10 @@
   let computerY = GAME_H / 2 - paddleHeight / 2;
   let ballX = GAME_W / 2;
   let ballY = GAME_H / 2;
-  const baseBallSpeed = 3;
+  const baseBallSpeed = 4;
   const maxBallSpeed = 10;
-  let ballDX = 3;
-  let ballDY = 2;
+  let ballDX = baseBallSpeed;
+  let ballDY = 0;
   let paddleSpeed = 8;
   let ballSpeed = baseBallSpeed;
   let playerScore = 0;
@@ -337,17 +337,25 @@
     ballX += ballDX;
     ballY += ballDY;
 
-    if (ballY < 0 || ballY > GAME_H) ballDY *= -1;
+    if (ballY < 8) {
+      ballY = 8;
+      ballDY = Math.abs(ballDY);
+    } else if (ballY > GAME_H - 8) {
+      ballY = GAME_H - 8;
+      ballDY = -Math.abs(ballDY);
+    }
 
-    if (ballX < paddleWidth && ballY > playerY && ballY < playerY + paddleHeight) {
-      ballDX = Math.abs(ballDX);
+    if (ballDX < 0 && ballX < paddleWidth + 8 && ballY > playerY && ballY < playerY + paddleHeight) {
+      reflectFromPaddle(playerY, 1);
+      ballX = paddleWidth + 8;
       playHit();
       fx.burst(ballX, ballY, "#5eead4", 10);
       fx.shake(3);
     }
 
-    if (ballX > GAME_W - paddleWidth && ballY > computerY && ballY < computerY + paddleHeight) {
-      ballDX = -Math.abs(ballDX);
+    if (ballDX > 0 && ballX > GAME_W - paddleWidth - 8 && ballY > computerY && ballY < computerY + paddleHeight) {
+      reflectFromPaddle(computerY, -1);
+      ballX = GAME_W - paddleWidth - 8;
       playHit();
       fx.burst(ballX, ballY, "#a78bfa", 8);
     }
@@ -376,8 +384,20 @@
   function resetBall() {
     ballX = GAME_W / 2;
     ballY = GAME_H / 2;
-    ballDX = ballSpeed * (Math.random() > 0.5 ? 1 : -1);
-    ballDY = ballSpeed * (Math.random() > 0.5 ? 1 : -1);
+    const angle = (Math.random() - 0.5) * 0.9;
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    ballDX = direction * ballSpeed * Math.cos(angle);
+    ballDY = ballSpeed * Math.sin(angle);
+  }
+
+  function reflectFromPaddle(paddleY, direction) {
+    const relativeHit = Math.max(
+      -1,
+      Math.min(1, (ballY - (paddleY + paddleHeight / 2)) / (paddleHeight / 2)),
+    );
+    const angle = relativeHit * (Math.PI / 3);
+    ballDX = direction * ballSpeed * Math.cos(angle);
+    ballDY = ballSpeed * Math.sin(angle);
   }
 
   function draw() {
@@ -392,8 +412,18 @@
     fx.draw(ctx, GAME_W, GAME_H);
   }
 
-  function gameLoop() {
-    update();
+  let lastGameFrame = performance.now();
+  let gameAccumulator = 0;
+  const gameStep = 1000 / 60;
+  function gameLoop(now) {
+    let elapsed = now - lastGameFrame;
+    lastGameFrame = now;
+    if (elapsed > 100) elapsed = 0;
+    gameAccumulator += elapsed;
+    while (gameAccumulator >= gameStep) {
+      update();
+      gameAccumulator -= gameStep;
+    }
     draw();
     requestAnimationFrame(gameLoop);
   }
@@ -412,13 +442,15 @@
   function restartGame() {
     playerScore = 0;
     computerScore = 0;
+    upPressed = false;
+    downPressed = false;
     prevTotalScore = 0;
     ballSpeed = baseBallSpeed;
-    ballDX = 3 * (Math.random() > 0.5 ? 1 : -1);
-    ballDY = 2 * (Math.random() > 0.5 ? 1 : -1);
     playerY = GAME_H / 2 - paddleHeight / 2;
     computerY = GAME_H / 2 - paddleHeight / 2;
     resetBall();
+    gameAccumulator = 0;
+    lastGameFrame = performance.now();
     gameEnded = false;
     document.getElementById("gameOverScreen").classList.remove("is-open");
     document.getElementById("playerScore").innerText = "0";
@@ -427,6 +459,7 @@
   }
 
   updateSpeedUi();
+  resetBall();
   if (!animationStarted) {
     animationStarted = true;
     gameLoop();

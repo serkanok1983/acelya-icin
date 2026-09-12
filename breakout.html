@@ -38,6 +38,7 @@
       font-size: clamp(0.85rem, 3.5vw, 1.15rem);
       opacity: 0.95;
     }
+    .controls { margin-top: 6px; }
     .hint {
       margin: 6px 0 0;
       font-size: clamp(0.7rem, 2.8vw, 0.8rem);
@@ -69,7 +70,8 @@
 <header class="hud">
   <h1>Breakout 🧱</h1>
   <div id="score">Skor: <span id="scoreValue">0</span></div>
-  <p class="hint">← → veya parmağınızı yatay kaydırın</p>
+  <div class="controls"><button type="button" id="btnNew">Yeni Oyun</button></div>
+  <p class="hint">← → veya yatay kaydır · Tüm tuğlaları kır</p>
 </header>
 
 <div class="game-stage">
@@ -145,8 +147,14 @@
   }
 
   document.addEventListener("keydown", function (e) {
+    if (gameOver && (e.code === "Space" || e.key === "Enter")) {
+      e.preventDefault();
+      newGame();
+      return;
+    }
     if (e.key === "ArrowLeft" && paddle.x > 0) paddle.x -= paddle.speed;
     if (e.key === "ArrowRight" && paddle.x < GAME_W - paddle.width) paddle.x += paddle.speed;
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") e.preventDefault();
   });
 
   function canvasCssToGameX(clientX) {
@@ -202,13 +210,23 @@
     ball.x += ball.dx;
     ball.y += ball.dy;
 
-    if (ball.x < ball.radius || ball.x > GAME_W - ball.radius) ball.dx *= -1;
-    if (ball.y < ball.radius) ball.dy *= -1;
+    if (ball.x < ball.radius) {
+      ball.x = ball.radius;
+      ball.dx = Math.abs(ball.dx);
+    } else if (ball.x > GAME_W - ball.radius) {
+      ball.x = GAME_W - ball.radius;
+      ball.dx = -Math.abs(ball.dx);
+    }
+    if (ball.y < ball.radius) {
+      ball.y = ball.radius;
+      ball.dy = Math.abs(ball.dy);
+    }
 
     if (ball.y > GAME_H + ball.radius * 2) {
       gameOver = true;
       fx.shake(12);
       if (window.AcelyaHooks) AcelyaHooks.recordScore(score);
+      window.AcelyaGame?.announce?.(`Oyun bitti. Skorun ${score}.`, true);
       return;
     }
 
@@ -219,7 +237,11 @@
       ball.x + ball.radius >= paddle.x &&
       ball.x - ball.radius <= paddle.x + paddle.width
     ) {
-      ball.dy = -Math.abs(ball.dy);
+      var paddleHit = Math.max(-1, Math.min(1, (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2)));
+      var ballSpeed = Math.hypot(ball.dx, ball.dy);
+      var paddleAngle = paddleHit * (Math.PI / 3);
+      ball.dx = ballSpeed * Math.sin(paddleAngle);
+      ball.dy = -ballSpeed * Math.cos(paddleAngle);
       ball.y = paddle.y - ball.radius - 0.5;
       playPaddleHit();
     }
@@ -233,7 +255,16 @@
         ball.y + ball.radius > b.y &&
         ball.y - ball.radius < b.y + b.height
       ) {
-        ball.dy *= -1;
+        var overlapX = Math.min(
+          ball.x + ball.radius - b.x,
+          b.x + b.width - (ball.x - ball.radius)
+        );
+        var overlapY = Math.min(
+          ball.y + ball.radius - b.y,
+          b.y + b.height - (ball.y - ball.radius)
+        );
+        if (overlapX < overlapY) ball.dx *= -1;
+        else ball.dy *= -1;
         b.status = 0;
         bricksDestroyed++;
         playBrickBreak();
@@ -263,6 +294,7 @@
       fx.flash(0.35);
       fx.shake(8);
       if (window.AcelyaHooks) AcelyaHooks.recordScore(score);
+      window.AcelyaGame?.announce?.(`Bütün tuğlaları kırdın. Skorun ${score}.`, true);
     }
   }
 
@@ -313,7 +345,7 @@
         ctx.fillText("Oyun bitti", GAME_W / 2, GAME_H / 2 - 18);
       }
       ctx.font = "16px system-ui, sans-serif";
-      ctx.fillText("Skor: " + score + " — Tekrar için sayfayı yenileyin (F5)", GAME_W / 2, GAME_H / 2 + 22);
+      ctx.fillText("Skor: " + score + " — Yeni Oyun’a bas veya Enter", GAME_W / 2, GAME_H / 2 + 22);
       ctx.restore();
     }
 
@@ -321,13 +353,41 @@
     fx.draw(ctx, GAME_W, GAME_H);
   }
 
-  function gameLoop() {
-    update();
+  var lastFrame = performance.now();
+  var frameAccumulator = 0;
+  var fixedStep = 1000 / 60;
+  function gameLoop(now) {
+    var elapsed = now - lastFrame;
+    lastFrame = now;
+    if (elapsed > 100) elapsed = 0;
+    frameAccumulator += elapsed;
+    while (frameAccumulator >= fixedStep) {
+      update();
+      frameAccumulator -= fixedStep;
+    }
     draw();
     requestAnimationFrame(gameLoop);
   }
 
-  createBricks();
+  function newGame() {
+    paddle.x = (GAME_W - paddle.width) / 2;
+    ball.x = GAME_W / 2;
+    ball.y = GAME_H / 2;
+    ball.dx = Math.random() < 0.5 ? -4 : 4;
+    ball.dy = -4;
+    score = 0;
+    gameOver = false;
+    won = false;
+    bricksDestroyed = 0;
+    frameAccumulator = 0;
+    lastFrame = performance.now();
+    document.getElementById("scoreValue").textContent = "0";
+    createBricks();
+    draw();
+  }
+
+  document.getElementById("btnNew").addEventListener("click", newGame);
+  newGame();
   requestAnimationFrame(gameLoop);
 })();
 </script>

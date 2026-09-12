@@ -126,10 +126,11 @@
   function playEnd() { window.AcelyaSounds?.explode(); }
 
   function recordMineScore() {
-    if (scoreRecorded) return;
+    if (scoreRecorded || !win) return;
     scoreRecorded = true;
-    const pts = win ? Math.max(0, 100000 - seconds * 100) : seconds * 10;
+    const pts = Math.max(100, 100000 - seconds * 100);
     window.AcelyaHooks?.recordScore(pts);
+    window.AcelyaGame?.announce?.(`Mayın tarlası ${seconds} saniyede tamamlandı.`, true);
   }
 
   function idx(r, c) { return r * COLS + c; }
@@ -258,12 +259,27 @@
 
   function cellFromEvent(e) {
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX ?? e.touches?.[0]?.clientX) - rect.left;
-    const y = (e.clientY ?? e.touches?.[0]?.clientY) - rect.top;
+    const point = e.touches?.[0] || e.changedTouches?.[0] || e;
+    const x = point.clientX - rect.left;
+    const y = point.clientY - rect.top;
     const c = Math.floor((x / rect.width) * COLS);
     const r = Math.floor((y / rect.height) * ROWS);
     if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return null;
     return { r, c };
+  }
+
+  function toggleFlag(i) {
+    if (revealed[i] || gameOver) return false;
+    const flagCount = flagged.filter(Boolean).length;
+    if (!flagged[i] && flagCount >= MINES) {
+      window.AcelyaGame?.announce?.("Bütün bayrakları kullandın.");
+      return false;
+    }
+    flagged[i] = !flagged[i];
+    const nextCount = flagged.filter(Boolean).length;
+    minesLeftEl.textContent = Math.max(0, MINES - nextCount);
+    draw();
+    return true;
   }
 
   function updateProbHint() {
@@ -357,12 +373,7 @@
     const { r, c } = cell;
     const i = idx(r, c);
     if (e.button === 2 || e.ctrlKey) {
-      if (!revealed[i] && !gameOver) {
-        flagged[i] = !flagged[i];
-        const flags = flagged.filter(Boolean).length;
-        minesLeftEl.textContent = Math.max(0, MINES - flags);
-        draw();
-      }
+      toggleFlag(i);
       return;
     }
     if (gameOver) return;
@@ -379,23 +390,26 @@
   });
 
   let longPressTimer = null;
+  let longPressFired = false;
   canvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
     const cell = cellFromEvent(e);
     if (!cell) return;
+    longPressFired = false;
     longPressTimer = setTimeout(() => {
       const i = idx(cell.r, cell.c);
-      if (!revealed[i] && !gameOver) {
-        flagged[i] = !flagged[i];
-        const flags = flagged.filter(Boolean).length;
-        minesLeftEl.textContent = Math.max(0, MINES - flags);
-        draw();
-      }
+      longPressFired = true;
+      const changed = toggleFlag(i);
+      if (changed && navigator.vibrate) navigator.vibrate(18);
     }, 450);
   }, { passive: false });
   canvas.addEventListener("touchend", (e) => {
     e.preventDefault();
     clearTimeout(longPressTimer);
+    if (longPressFired) {
+      longPressFired = false;
+      return;
+    }
     const cell = cellFromEvent(e);
     if (!cell || gameOver) return;
     const { r, c } = cell;
@@ -410,6 +424,10 @@
     reveal(r, c);
     draw();
   }, { passive: false });
+  canvas.addEventListener("touchcancel", () => {
+    clearTimeout(longPressTimer);
+    longPressFired = false;
+  });
 
   document.getElementById("btnNew").addEventListener("click", newGame);
   newGame();

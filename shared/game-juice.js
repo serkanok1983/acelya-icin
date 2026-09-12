@@ -10,6 +10,7 @@
       stage.classList.add("game-stage-juice");
     }
 
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const state = {
       particles: [],
       floats: [],
@@ -19,8 +20,10 @@
     };
 
     function burst(x, y, color = "#5eead4", count = 14, speed = 4) {
-      for (let i = 0; i < count; i++) {
-        const a = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+      if (reduceMotion.matches) return;
+      const safeCount = Math.min(60, Math.max(0, Math.round(count)));
+      for (let i = 0; i < safeCount; i++) {
+        const a = (Math.PI * 2 * i) / safeCount + Math.random() * 0.4;
         const v = speed * (0.5 + Math.random());
         state.particles.push({
           x,
@@ -32,17 +35,24 @@
           size: 2 + Math.random() * 3,
         });
       }
+      if (state.particles.length > 240) {
+        state.particles.splice(0, state.particles.length - 240);
+      }
     }
 
     function popScore(x, y, text, color = "#fbbf24") {
+      if (reduceMotion.matches) return;
       state.floats.push({ x, y, text, color, life: 48, vy: -1.2 });
+      if (state.floats.length > 32) state.floats.shift();
     }
 
     function shakeScreen(amount = 6) {
+      if (reduceMotion.matches) return;
       state.shake = Math.min(18, state.shake + amount);
     }
 
     function flashScreen(alpha = 0.25) {
+      if (reduceMotion.matches) return;
       state.flash = Math.max(state.flash, alpha);
     }
 

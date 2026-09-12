@@ -24,6 +24,13 @@
     }
     .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); }
     #status { font-size: clamp(0.85rem, 3.5vw, 1.05rem); }
+    #formulaNote {
+      min-height: 1.25em;
+      margin: 4px auto 0;
+      max-width: 48em;
+      color: #95d5b2;
+      font-size: clamp(0.68rem, 2.7vw, 0.8rem);
+    }
     .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.8rem); opacity: 0.65; }
     .controls { margin-top: 6px; }
     button {
@@ -58,6 +65,7 @@
 <header class="hud">
   <h1>Formül Hafıza</h1>
   <div id="status">Hamle: <span id="moves">0</span> · Eşleşen: <span id="matched">0</span> / 8</div>
+  <p id="formulaNote" aria-live="polite">Her turda formül bankasından sekiz farklı kavram seçilir.</p>
   <div class="controls">
     <button type="button" id="btnNew">Yeni Oyun</button>
   </div>
@@ -73,15 +81,23 @@
   const GAME_H = 640;
   const COLS = 4;
   const ROWS = 4;
-  const PAIRS = [
-    { name: "Newton II", formula: "F = m·a" },
-    { name: "Kinetik Enerji", formula: "Eₖ = ½mv²" },
-    { name: "Ohm Kanunu", formula: "V = I·R" },
-    { name: "Basınç", formula: "P = F/A" },
-    { name: "İş", formula: "W = F·d" },
-    { name: "Yerçekimi", formula: "F = Gm₁m₂/r²" },
-    { name: "Dalga Hızı", formula: "v = f·λ" },
-    { name: "Momentum", formula: "p = m·v" },
+  const FORMULA_BANK = [
+    { name: "Newton’un II. Yasası", formula: "Fₙₑₜ = m·a", note: "Net kuvvet, kütle ile ivmenin çarpımıdır." },
+    { name: "Kinetik Enerji", formula: "Eₖ = ½mv²", note: "Hız iki katına çıkarsa kinetik enerji dört katına çıkar." },
+    { name: "Ohm Yasası", formula: "V = I·R", note: "Gerilim, akım ve direnci ilişkilendirir." },
+    { name: "Basınç", formula: "p = F⊥/A", note: "Aynı dik kuvvet daha küçük alanda daha büyük basınç üretir." },
+    { name: "Mekanik İş", formula: "W = F·d·cosθ", note: "Yalnız hareket doğrultusundaki kuvvet bileşeni iş yapar." },
+    { name: "Kütle Çekimi", formula: "F = Gm₁m₂/r²", note: "Uzaklık iki katına çıkarsa çekim kuvveti dörtte bire iner." },
+    { name: "Dalga Hızı", formula: "v = f·λ", note: "Dalga hızı, frekans ile dalga boyunun çarpımıdır." },
+    { name: "Momentum", formula: "p = m·v", note: "Momentum yönlüdür; cismin hız vektörüyle aynı yönü taşır." },
+    { name: "Elektriksel Güç", formula: "P = V·I", note: "Güç, birim zamanda aktarılan enerjidir." },
+    { name: "Coulomb Yasası", formula: "F = k|q₁q₂|/r²", note: "Noktasal yükler arasındaki kuvvet de ters-kare yasasına uyar." },
+    { name: "Özkütle", formula: "ρ = m/V", note: "Özkütle, birim hacimdeki kütledir." },
+    { name: "Foton Enerjisi", formula: "E = h·f", note: "Foton enerjisi frekansla doğru orantılıdır." },
+    { name: "İdeal Gaz", formula: "pV = nRT", note: "Basınç, hacim, mol sayısı ve sıcaklığı aynı modelde birleştirir." },
+    { name: "Merkezcil İvme", formula: "aₘ = v²/r", note: "Dairesel harekette ivme merkeze yönelir." },
+    { name: "Hooke Yasası", formula: "F = −k·x", note: "Eksi işareti geri çağırıcı kuvvetin sapmaya zıt yönünü gösterir." },
+    { name: "Süreklilik", formula: "A₁v₁ = A₂v₂", note: "Sıkıştırılamaz akışta dar kesitte hız artar." },
   ];
 
   const canvas = document.getElementById("gameCanvas");
@@ -91,6 +107,7 @@
 
   const movesEl = document.getElementById("moves");
   const matchedEl = document.getElementById("matched");
+  const formulaNoteEl = document.getElementById("formulaNote");
 
   let fx = { burst() {}, pop() {}, shake() {}, flash() {}, update() {}, draw() {} };
   window.addEventListener("acelya-game-ready", () => {
@@ -122,6 +139,7 @@
   let matched = 0;
   let lock = false;
   let won = false;
+  let activePairs = [];
 
   function playFlip() { window.AcelyaSounds?.hit(); }
   function playMatch() { window.AcelyaSounds?.explode(); }
@@ -147,7 +165,8 @@
 
   function newGame() {
     const deck = [];
-    PAIRS.forEach((p, id) => {
+    activePairs = shuffle(FORMULA_BANK.slice()).slice(0, 8);
+    activePairs.forEach((p, id) => {
       deck.push({ pairId: id, kind: "name", text: p.name, face: false, matched: false });
       deck.push({ pairId: id, kind: "formula", text: p.formula, face: false, matched: false });
     });
@@ -160,6 +179,7 @@
     won = false;
     movesEl.textContent = "0";
     matchedEl.textContent = "0";
+    formulaNoteEl.textContent = "Yeni tur: sekiz kavram seçildi. Eşleşince kısa bilim notu burada görünecek.";
     draw();
   }
 
@@ -269,10 +289,13 @@
         ca.face = cb.face = true;
         matched++;
         matchedEl.textContent = matched;
+        const pair = activePairs[ca.pairId];
+        formulaNoteEl.textContent = `${pair.name}: ${pair.note}`;
+        window.AcelyaGame?.announce?.(`${pair.name} eşleşti. ${pair.note}`);
         playMatch();
         fx.flash(0.2);
         fx.burst(GAME_W / 2, GAME_H / 2, "#95d5b2", 24);
-        if (matched === PAIRS.length) {
+        if (matched === activePairs.length) {
           won = true;
           const pts = Math.max(0, 10000 - moves * 50);
           window.AcelyaHooks?.recordScore(pts);
@@ -287,12 +310,10 @@
     }, 700);
   }
 
-  canvas.addEventListener("click", (e) => onPick(pickCard(e.clientX, e.clientY)));
-  canvas.addEventListener("touchend", (e) => {
+  canvas.addEventListener("pointerup", (e) => {
     e.preventDefault();
-    const t = e.changedTouches[0];
-    onPick(pickCard(t.clientX, t.clientY));
-  }, { passive: false });
+    onPick(pickCard(e.clientX, e.clientY));
+  });
 
   document.getElementById("btnNew").addEventListener("click", newGame);
   newGame();

@@ -2,7 +2,7 @@
  * Açelya'nın Yeri — Service Worker
  * Çevrimdışı kullanım için önbellekleme
  */
-const CACHE_NAME = "acelya-v11-content-depth";
+const CACHE_NAME = "acelya-v14-game-lab";
 const STATIC_ASSETS = [
   "index.html",
   "bilim-atlasi.html",
@@ -17,6 +17,19 @@ const STATIC_ASSETS = [
   "kimyasal-denge-ve-gibbs-enerjisi.html",
   "gen-ifadesi-ve-molekuler-biyoloji.html",
   "algoritma-karmasikligi.html",
+  "asteroids.html",
+  "breakout.html",
+  "formul-hafiza.html",
+  "gezegen-savunmasi.html",
+  "hanoi-kuleleri.html",
+  "isik-sondurme.html",
+  "mayin-tarlasi.html",
+  "oyun-2048.html",
+  "pong.html",
+  "snake.html",
+  "tetris.html",
+  "uzay-kosucusu.html",
+  "yasam-oyunu.html",
   "shared/theme.css",
   "shared/atlas.css",
   "shared/stem-bridge.css",
@@ -37,6 +50,12 @@ const STATIC_ASSETS = [
   "shared/game-hooks.js",
   "shared/leaderboard.js",
   "shared/chart-safe.js",
+  "hit.m4a",
+  "explode.m4a",
+  "laser.m4a",
+  "thrust.m4a",
+  "music-low.m4a",
+  "music-high.m4a",
   "favicon-32.png",
   "favicon.svg",
   "apple-touch-icon.png",

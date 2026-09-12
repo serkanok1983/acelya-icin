@@ -25,6 +25,8 @@
     .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); }
     #info { font-size: clamp(0.85rem, 3.5vw, 1.05rem); opacity: 0.9; }
     .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+    .control-select { display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; color: #9aa8b6; }
+    .control-select select { padding: 6px 8px; font-size: 0.78rem; }
     button {
       font-size: 14px;
       padding: 8px 12px;
@@ -68,6 +70,21 @@
     <button type="button" id="btnStep" class="secondary">Adım</button>
     <button type="button" id="btnClear" class="secondary">Temizle</button>
     <button type="button" id="btnRandom" class="secondary">Rastgele</button>
+    <label class="control-select" for="patternSelect">Desen
+      <select id="patternSelect">
+        <option value="glider">Planör</option>
+        <option value="blinker">Titreşen</option>
+        <option value="toad">Kurbağa</option>
+      </select>
+    </label>
+    <button type="button" id="btnPattern" class="secondary">Deseni Kur</button>
+    <label class="control-select" for="speedSelect">Hız
+      <select id="speedSelect">
+        <option value="240">Yavaş</option>
+        <option value="120" selected>Normal</option>
+        <option value="60">Hızlı</option>
+      </select>
+    </label>
   </div>
   <p class="hint">Çiz modunda hücrelere tıkla · Oynat: otomatik nesil · Adım: tek nesil</p>
 </header>
@@ -91,6 +108,8 @@
   const aliveEl = document.getElementById("alive");
   const btnDraw = document.getElementById("btnDraw");
   const btnPlay = document.getElementById("btnPlay");
+  const patternSelect = document.getElementById("patternSelect");
+  const speedSelect = document.getElementById("speedSelect");
 
   function resizeGame() {
     const hud = document.querySelector(".hud");
@@ -117,6 +136,14 @@
   let intervalId = null;
   let painting = 1;
   let peakGeneration = 0;
+  let lastRecordedGeneration = 0;
+  let simulationSpeed = 120;
+
+  const PATTERNS = {
+    glider: [[0, 1], [1, 2], [2, 0], [2, 1], [2, 2]],
+    blinker: [[0, 0], [0, 1], [0, 2]],
+    toad: [[0, 1], [0, 2], [0, 3], [1, 0], [1, 1], [1, 2]],
+  };
 
   function playCellOn() { window.AcelyaSounds?.hit(); }
   function playBurst() { window.AcelyaSounds?.explode(); }
@@ -156,7 +183,6 @@
     generation++;
     if (generation > peakGeneration) {
       peakGeneration = generation;
-      if (generation % 5 === 0) window.AcelyaHooks?.recordScore(peakGeneration);
     }
     updateHud();
     draw();
@@ -165,6 +191,37 @@
   function updateHud() {
     genEl.textContent = generation;
     aliveEl.textContent = countAlive();
+  }
+
+  function recordRun() {
+    if (peakGeneration <= 0 || peakGeneration === lastRecordedGeneration) return;
+    lastRecordedGeneration = peakGeneration;
+    window.AcelyaHooks?.recordScore(peakGeneration);
+  }
+
+  function loadPattern(name) {
+    recordRun();
+    clearInterval(intervalId);
+    playing = false;
+    drawMode = true;
+    grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    const pattern = PATTERNS[name] || PATTERNS.glider;
+    const minR = Math.min(...pattern.map(([r]) => r));
+    const maxR = Math.max(...pattern.map(([r]) => r));
+    const minC = Math.min(...pattern.map(([, c]) => c));
+    const maxC = Math.max(...pattern.map(([, c]) => c));
+    const startR = Math.floor((ROWS - (maxR - minR + 1)) / 2);
+    const startC = Math.floor((COLS - (maxC - minC + 1)) / 2);
+    pattern.forEach(([r, c]) => { grid[startR + r - minR][startC + c - minC] = 1; });
+    generation = 0;
+    peakGeneration = 0;
+    lastRecordedGeneration = 0;
+    btnPlay.textContent = "Oynat";
+    btnPlay.classList.remove("active");
+    btnDraw.classList.add("active");
+    updateHud();
+    draw();
+    window.AcelyaGame?.announce?.(`${patternSelect.selectedOptions[0].text} deseni kuruldu.`);
   }
 
   function draw() {
@@ -222,6 +279,7 @@
   canvas.addEventListener("touchmove", pointerMove, { passive: false });
 
   btnDraw.addEventListener("click", () => {
+    recordRun();
     drawMode = true;
     playing = false;
     clearInterval(intervalId);
@@ -233,6 +291,7 @@
 
   btnPlay.addEventListener("click", () => {
     if (playing) {
+      recordRun();
       playing = false;
       drawMode = true;
       clearInterval(intervalId);
@@ -245,7 +304,7 @@
       btnPlay.textContent = "Durdur";
       btnPlay.classList.add("active");
       btnDraw.classList.remove("active");
-      intervalId = setInterval(stepOnce, 120);
+      intervalId = setInterval(stepOnce, simulationSpeed);
     }
     draw();
   });
@@ -255,21 +314,37 @@
   });
 
   document.getElementById("btnClear").addEventListener("click", () => {
+    recordRun();
     grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
     generation = 0;
     peakGeneration = 0;
+    lastRecordedGeneration = 0;
     updateHud();
     draw();
   });
 
   document.getElementById("btnRandom").addEventListener("click", () => {
+    recordRun();
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c < COLS; c++) grid[r][c] = Math.random() < 0.28 ? 1 : 0;
     generation = 0;
     peakGeneration = 0;
+    lastRecordedGeneration = 0;
     playBurst();
     updateHud();
     draw();
+  });
+
+  document.getElementById("btnPattern").addEventListener("click", () => {
+    loadPattern(patternSelect.value);
+  });
+
+  speedSelect.addEventListener("change", () => {
+    simulationSpeed = Number(speedSelect.value);
+    if (playing) {
+      clearInterval(intervalId);
+      intervalId = setInterval(stepOnce, simulationSpeed);
+    }
   });
 
   updateHud();

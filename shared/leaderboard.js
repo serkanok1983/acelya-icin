@@ -25,6 +25,7 @@
   }
 
   async function initDb() {
+    if (navigator.onLine === false) return null;
     if (dbReady) {
       try {
         return await Promise.race([
@@ -77,7 +78,11 @@
   }
 
   function writeLocal(data) {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
+    } catch (_) {
+      // Depolama kapalıysa oyun akışı skor kaydı yüzünden bozulmamalı.
+    }
   }
 
   function getLocalBest(gameId, user) {
@@ -178,7 +183,11 @@
   }
 
   function writeHistory(data) {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(data));
+    } catch (_) {
+      // Depolama kapalıysa yalnız geçmiş özelliğinden vazgeçilir.
+    }
   }
 
   function getHistory(gameId, user) {
@@ -191,7 +200,7 @@
     const data = readHistory();
     const key = `${gameId}_${user}`;
     if (!data[key]) data[key] = [];
-    data[key].push({ score, date: Date.now() });
+    data[key].push({ score, date: Date.now(), higherBetter: higherBetter !== false });
     if (data[key].length > MAX_HISTORY) data[key] = data[key].slice(-MAX_HISTORY);
     writeHistory(data);
     return data[key];
@@ -201,15 +210,17 @@
     const history = getHistory(gameId, user);
     if (!history.length) return null;
     const scores = history.map((h) => h.score);
+    const higherBetter = history[history.length - 1].higherBetter !== false;
+    const rawTrend =
+      scores.length >= 2
+        ? scores[scores.length - 1] - scores[scores.length - 2]
+        : 0;
     return {
       last: scores[scores.length - 1],
-      best: Math.max(...scores),
+      best: higherBetter ? Math.max(...scores) : Math.min(...scores),
       avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
       total: scores.length,
-      trend:
-        scores.length >= 2
-          ? scores[scores.length - 1] - scores[scores.length - 2]
-          : 0,
+      trend: higherBetter ? rawTrend : -rawTrend,
     };
   }
 

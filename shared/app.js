@@ -4,6 +4,7 @@
 
 /* Sesler — sayfa scriptlerinden önce kullanılabilir */
 (function initSounds() {
+  const SOUND_PREF_KEY = "acelya-sound-muted";
   const SOUND_FILES = {
     hit: "hit.m4a",
     explode: "explode.m4a",
@@ -12,6 +13,12 @@
   };
   const soundCache = {};
   let unlocked = false;
+  let muted = false;
+  try {
+    muted = localStorage.getItem(SOUND_PREF_KEY) === "1";
+  } catch (_) {
+    // Depolama kapalıysa ses tercihi yalnız bu oturumda tutulur.
+  }
   function getSound(name) {
     if (!SOUND_FILES[name]) return null;
     if (!soundCache[name]) {
@@ -23,7 +30,7 @@
   }
   window.AcelyaSounds = {
     play(name) {
-      if (!unlocked) return;
+      if (!unlocked || muted) return;
       const s = getSound(name);
       if (!s) return;
       try {
@@ -47,6 +54,28 @@
     thrust() {
       window.AcelyaSounds.play("thrust");
     },
+    isMuted() {
+      return muted;
+    },
+    setMuted(value) {
+      muted = Boolean(value);
+      Object.values(soundCache).forEach((sound) => {
+        sound.muted = muted;
+        if (muted) sound.pause();
+      });
+      try {
+        localStorage.setItem(SOUND_PREF_KEY, muted ? "1" : "0");
+      } catch (_) {
+        // Tercihin saklanamaması ses kontrolünü engellememeli.
+      }
+      window.dispatchEvent(
+        new CustomEvent("acelya-sound-change", { detail: { muted } }),
+      );
+      return muted;
+    },
+    toggleMuted() {
+      return window.AcelyaSounds.setMuted(!muted);
+    },
   };
 
   function unlockAudio() {
@@ -60,11 +89,11 @@
         .then(() => {
           s.pause();
           s.currentTime = 0;
-          s.muted = false;
+          s.muted = muted;
           s.volume = key === "thrust" ? 0.35 : 0.55;
         })
         .catch(() => {
-          s.muted = false;
+          s.muted = muted;
           s.volume = key === "thrust" ? 0.35 : 0.55;
         });
     });
@@ -150,6 +179,18 @@
       },
       setPaused(v) {
         PauseState.paused = !!v;
+        if (PauseState.paused) {
+          const keys = ["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown", "Space"];
+          keys.forEach((code) => {
+            document.dispatchEvent(
+              new KeyboardEvent("keyup", {
+                code,
+                key: code === "Space" ? " " : code,
+                bubbles: true,
+              }),
+            );
+          });
+        }
         window.dispatchEvent(
           new CustomEvent("acelya-pause-change", {
             detail: { paused: PauseState.paused },
@@ -308,72 +349,191 @@
     pong: {
       type: "Oyun",
       intro:
-        "Klasik Pong: Sol taraftaki raketi sen kontrol edersin, sağdaki bilgisayar. Top file çarptıkça hızlanır; önce 20 sayıya ulaşan kazanır.",
-      controls: ["↑ ↓ veya parmağını kaydır — raket", "Space — topu hızlandır"],
-      learn: "Açılı çarpışmada top yön değiştirir; hız her 5 puanda artar.",
+        "Sol raketi yönet, bilgisayarın dönüşlerini oku ve 20 sayıya önce ulaş. Space topu isteğe bağlı hızlandırır; hız arttıkça tepki süren kısalır.",
+      controls: [
+        "↑ ↓ veya parmağını dikey kaydır — raketi yönet",
+        "Space — topu hızlandır; P — oyunu duraklat",
+      ],
+      learn:
+        "Topun hareketi konum ve hız vektörleriyle güncellenir. Duvara çarpmada düşey hızın, rakete çarpmada yatay hızın işareti değişir. Bilgisayar raketi ise hedef konuma gecikmeli yaklaşan basit bir geri besleme denetleyicisidir.",
+      strategy:
+        "Top raketine nerede çarparsa bir sonraki yörüngenin nasıl değişeceğini tahmin et. Space kullanmadan beş sayı almayı dene; sonra aynı hedefi daha yüksek hızda tekrarla.",
+      deeper:
+        "Üniversite köprüsü: vektörel yansıma, ayrık zamanlı hareket ve oransal denetim (P-kontrol).",
     },
     asteroids: {
       type: "Oyun",
       intro:
-        "Uzay gemini döndür, it ve kayaları lazerle parçala. Büyük kayalar küçüğe bölünür; çarpışırsan patlarsın. Canların bittiğinde oyun biter.",
-      controls: ["← → — dönüş", "↑ — itiş", "Space — lazer"],
-      learn: "Momentum korunur; sürtünme yoksa gemi kaymaya devam eder.",
+        "Uzay gemini döndür, kısa itişlerle hız vektörünü değiştir ve kayaları lazerle parçala. Büyük kayalar daha küçük parçalara ayrılır; üç canın bittiğinde görev yeniden başlar.",
+      controls: [
+        "← → — geminin yönünü döndür",
+        "↑ — motor itişi; Space — lazer; P — duraklat",
+      ],
+      learn:
+        "Gemi baktığı yöne değil, mevcut hız vektörünün götürdüğü yöne ilerler. İtiş bu vektöre yeni bir bileşen ekler; bu, Newton’un birinci ve ikinci yasalarının oyunlaştırılmış bir modelidir. Ekranın karşı kenarından dönmek torus topolojisine benzer.",
+      strategy:
+        "Motoru sürekli açık tutma: kısa darbelerle hızını düzelt, sonra dönüp nişan al. Küçük asteroitlerin puanı yüksek ama hedef alanı küçüktür.",
+      deeper:
+        "Üniversite köprüsü: vektör bileşenleri, sayısal zaman adımları, dairesel olmayan çarpışma sınırları ve toroidal uzay.",
     },
     snake: {
       type: "Oyun",
       intro:
-        "Yılanı ok tuşlarıyla yönlendir; renkli yemi ye, uzat. Kendine veya duvara çarparsan oyun biter. Duvarlardan geçebilirsin.",
-      controls: ["Ok tuşları veya kaydırma — yön", "Her yem +10 puan, hız artar"],
-      learn: "Kuyruk takibi: baş hareket eder, son segment eski konuma gelir.",
+        "Yılanı yönlendir, renkli yemleri topla ve kendi gövdene çarpmadan büyü. Kenarlar duvar değildir: bir kenardan çıkınca karşı kenardan devam edersin.",
+      controls: [
+        "Ok tuşları veya kaydırma — yön değiştir",
+        "Her yem +10 puan; her 100 puanda tempo artar; P — duraklat",
+      ],
+      learn:
+        "Yılan gövdesi bir kuyruk veri yapısı gibi güncellenir: yeni baş öne eklenir, yem yenmediyse son parça çıkarılır. Çarpışma denetimi yeni başın gövde koordinatlarından biriyle eşleşip eşleşmediğini sınar.",
+      strategy:
+        "Alanı küçük döngülere bölmek yerine uzun ve geri dönüş yolu açık rotalar kur. Hız yükselmeden önce ani ters dönüş yapamayacağını hesaba kat.",
+      deeper:
+        "Üniversite köprüsü: kuyruk veri yapıları, durum güncellemesi, ayrık ızgara geometrisi ve yol planlama.",
     },
     breakout: {
       type: "Oyun",
       intro:
-        "Topu raketle sektir, renkli tuğlaları kır. Top aşağı düşerse kaybedersin. Her 10 tuğlada top hızlanır.",
-      controls: ["← → veya yatay kaydırma — raket"],
-      learn: "Çarpışma açısı topun yansıma yönünü belirler.",
+        "Topu raket üzerinde tut, 40 tuğlanın tamamını kır ve artan hıza uyum sağla. Her on tuğlada hız yaklaşık %8 artar.",
+      controls: [
+        "← → veya yatay kaydırma — raketi taşı",
+        "P — duraklat; Yeni Oyun — tahtayı sıfırla",
+      ],
+      learn:
+        "Topun konumu her karede hız vektörüyle güncellenir. Bir yüzeye çarpınca yüzeye dik hız bileşeninin işareti çevrilir; bu, ideal esnek yansımanın sadeleştirilmiş modelidir.",
+      strategy:
+        "Raketin merkezini topun öngörülen iniş noktasına götür. Üst köşelerde açılan koridorlar topun tuğlaların arkasında uzun süre kalmasını sağlayabilir.",
+      deeper:
+        "Üniversite köprüsü: çarpışma normalleri, vektörel yansıma, ayrık zaman adımı ve tünelleme hatası.",
     },
     "oyun-2048": {
       type: "Oyun",
       intro:
-        "Aynı sayıları birleştirerek 2048’e ulaşmaya çalış. Ok tuşları veya kaydırma ile kutular kayar; boş yerde yeni 2 veya 4 belirir.",
-      controls: ["Ok / kaydır — dört yön"],
-      learn: "Üsler ve 2’nin kuvvetleri; strateji köşede büyük karo tutmaktır.",
+        "Aynı değerli karoları birleştirerek 2048’e ulaş. Her geçerli hamleden sonra boş bir hücrede çoğunlukla 2, bazen 4 doğar.",
+      controls: ["Ok tuşu / kaydırma — bütün karoları seçilen yöne taşı"],
+      learn:
+        "Her karo 2ⁿ biçimindedir; iki eşit karo birleşince üs bir artar. 2048 = 2¹¹ olduğundan hedef karoda on bir kat ikileme birikmiştir. Her hamle, belirsiz bir yeni karoyla değişen bir durum uzayında karar verir.",
+      strategy:
+        "En büyük karoyu bir köşede tutup değerleri o köşeye doğru sıralamayı dene. Boş hücre sayısını korumak, tek hamlede yüksek puan almaktan çoğu zaman değerlidir.",
+      deeper:
+        "Üniversite köprüsü: logaritmalar, durum uzayı, açgözlü sezgiseller ve beklenen değerle karar verme.",
     },
     "yasam-oyunu": {
       type: "Oyun",
       intro:
-        "Conway’in Yaşam Oyunu: Hücreler komşularına göre doğar, yaşar veya ölür. Çiz modunda desen yap, Oynat ile evrimi izle.",
-      controls: ["Çiz — tıkla/sürükle", "Oynat / Adım / Temizle"],
-      learn: "3 canlı komşu → doğum; <2 veya >3 → ölüm; tam 3 → yeni hücre.",
+        "Başlangıç desenini çiz ve yalnızca yerel komşuluk kurallarının bütün sistemi nasıl dönüştürdüğünü izle. Izgaranın karşı kenarları birbirine bağlıdır.",
+      controls: [
+        "Çiz — tıkla veya sürükle; Rastgele — yeni başlangıç üret",
+        "Oynat / Durdur — otomatik evrim; Adım — tek nesil ilerle",
+      ],
+      learn:
+        "Canlı hücre 2–3 komşuyla yaşar; ölü hücre tam 3 komşuyla doğar. Merkezi yönetim olmadan sabit, salınımlı ve hareketli örüntülerin belirmesi ‘ortaya çıkan davranış’a güçlü bir örnektir.",
+      strategy:
+        "Üç hücrelik yatay bir çizgiyle başlayıp periyot-2 salınımını gözle. Sonra beş hücrelik desenler kurup hangilerinin söndüğünü, hangilerinin kararlı kaldığını sınıflandır.",
+      deeper:
+        "Üniversite köprüsü: hücresel otomatlar, dinamik sistemler, başlangıç koşullarına duyarlılık ve evrensel hesaplama fikri.",
     },
     tetris: {
       type: "Oyun",
       intro:
-        "Düşen blokları döndür ve satır doldur. Tam satır silinir; seviye arttıkça hız artar.",
-      controls: ["← → — hareket", "↑ — döndür", "↓ — hızlı düşür"],
-      learn: "Uzamsal örüntü ve planlama becerisi.",
+        "Yedi tetrominoyu döndürüp yerleştir, boşluksuz satırlar kur ve yükselen tempoda tahtayı açık tut. Her on satır yeni bir seviye başlatır.",
+      controls: [
+        "← → — taşı; ↑ — döndür; ↓ — hızlandır",
+        "Space — anında düşür; P — duraklat",
+      ],
+      learn:
+        "Tetrominolar dört eş kareden oluşan poliominolardır. Döndürme matris dönüşümüne, çarpışma denetimi ise ızgara üzerindeki doluluk testine karşılık gelir. İyi oyun, yüzey yüksekliği ve kapalı boşluklar arasında optimizasyon yapar.",
+      strategy:
+        "Derin kuyular ve üstü kapanmış boşluklar oluşturma. Sonraki parçayı kullanarak yalnız mevcut hamleyi değil, iki adımlık yüzey profilini düşün.",
+      deeper:
+        "Üniversite köprüsü: dönüşüm matrisleri, sezgisel arama, çok ölçütlü optimizasyon ve durum uzayı.",
     },
     "gezegen-savunmasi": {
       type: "Oyun",
       intro:
-        "Merkez gezegenin etrafında yörüngeye giren düşmanları vur. Yerçekimi mermi yolunu eğer.",
-      controls: ["← → — nişan", "Space / dokun — ateş"],
-      learn: "Yörünge hareketi ve merkezcil kuvvet sezgisini pekiştirir.",
+        "Ana gezegeni yaklaşan cisimlerden koru. Mermiler ve düşmanlar, ekrandaki gezegenlerin çekimi altında eğri yollar izler.",
+      controls: [
+        "← → veya dokunup sürükleme — namluyu yönlendir",
+        "Space / basılı tut — ateş; P — duraklat",
+      ],
+      learn:
+        "Çekim ivmesi uzaklığın karesiyle azalır ve her zaman gezegene yönelir. Oyun, bu ivmeyi küçük zaman adımlarında hıza; hızı da konuma ekleyerek yörüngeyi yaklaşık hesaplar.",
+      strategy:
+        "Hedefin bulunduğu yere değil, çekim altında eğilecek yolun biraz ilerisine nişan al. Yakın gezegenlerin mermiyi hangi yöne saptırdığını karşılaştır.",
+      deeper:
+        "Üniversite köprüsü: ters-kare kuvveti, Euler tipi sayısal integrasyon, başlangıç değer problemi ve yörünge mekaniği.",
     },
     "formul-hafiza": {
       type: "Oyun",
       intro:
-        "Fizik formüllerini eşleştir: kartları çevir, çiftleri bul. Az hamlede bitirmeye çalış.",
-      controls: ["Karta tıkla — çevir"],
-      learn: "Formül adı ile denklemi ilişkilendirerek sınav öncesi tekrar.",
+        "Sekiz fizik kavramını doğru denklemle eşleştir. Amaç yalnız sembol biçimini ezberlemek değil, denklemin hangi büyüklükleri ilişkilendirdiğini hatırlamaktır.",
+      controls: ["Karta dokun/tıkla — çevir; iki kart bir denemedir"],
+      learn:
+        "Mekanik, elektrik, dalgalar, akışkanlar ve modern fizikten seçilen bağıntıları birlikte tekrar edersin. Denklem doğru görünse bile birim analiziyle sınanmalıdır; örneğin kuvvetin birimi kg·m/s²’dir.",
+      strategy:
+        "Kartın yalnız yerini değil türünü de kodla: ‘kavram kartı, sol üst’ gibi. Eşleşince formülü sesli okuyup her sembolün anlamını söyle.",
+      deeper:
+        "Üniversite köprüsü: boyut analizi, ölçekleme, model varsayımları ve aynı sembolün farklı bağlamlarda değişen anlamı.",
     },
     "mayin-tarlasi": {
       type: "Oyun",
       intro:
-        "Mayın tarlasında güvenli hücreleri aç. Sağ tık veya uzun bas ile bayrak koy. Hover’da olasılık ipucu görünür.",
-      controls: ["Sol tık — aç", "Sağ / uzun bas — bayrak"],
-      learn: "Olasılık ve mantıksal çıkarım; komşu mayın sayısı ipucudur.",
+        "Sayıların sekiz komşu içindeki mayın sayısını verdiği alanda güvenli hücreleri çıkarımla bul. İlk açılan hücre ve çevresi güvenlidir.",
+      controls: [
+        "Sol tık/dokun — aç; sağ tık veya uzun bas — bayrak",
+        "İmleç altındaki yüzde, yerel kısıtlardan üretilen yaklaşık güven olasılığıdır",
+      ],
+      learn:
+        "Her açık sayı bir kısıt denklemidir: çevresindeki bilinmeyen mayınların toplamı, sayıdan yerleştirilmiş bayraklar çıkarılınca kalan değere eşittir. Gösterilen yüzde kesin çözüm değil, bu yerel kısıtların basit bir tahminidir.",
+      strategy:
+        "Bir sayının kalan kapalı komşu sayısı kalan mayın sayısına eşitse hepsi mayındır; kalan mayın sıfırsa diğerlerinin hepsi güvenlidir.",
+      deeper:
+        "Üniversite köprüsü: koşullu olasılık, kısıt sağlama problemleri, Bayesçi güncelleme ve bilgi kazancı.",
+    },
+    "hanoi-kuleleri": {
+      type: "Oyun",
+      intro:
+        "Diskleri soldan sağ kuleye taşı: her hamlede yalnız üstteki disk oynar ve büyük disk küçük diskin üzerine gelemez. Disk sayısı büyüdükçe gereken iş hızla artar.",
+      controls: [
+        "Bir kuleye dokun — üst diski seç; hedef kuleye dokun — yerleştir",
+        "Geri Al — son hamle; Çöz — özyinelemeli çözümü adım adım göster",
+      ],
+      learn:
+        "n diski taşımak için önce n−1 diski yardımcı kuleye, en büyük diski hedefe, sonra n−1 diski hedefe taşımak gerekir. Bu T(n)=2T(n−1)+1 bağıntısını ve minimum 2ⁿ−1 hamleyi üretir.",
+      strategy:
+        "Önce en büyük diskin hedefe gidebilmesi için hangi kulenin boş kalması gerektiğini düşün. Dört diskte minimumun 15, beş diskte 31 olduğunu oyunda doğrula.",
+      deeper:
+        "Üniversite köprüsü: özyineleme, matematiksel tümevarım, üstel büyüme ve algoritma karmaşıklığı.",
+    },
+    "isik-sondurme": {
+      type: "Oyun",
+      intro:
+        "Bir hücreye dokununca kendisi ile dikey-yatay komşuları terslenir. Bütün ışıkları söndürmek için hamle dizisini keşfet.",
+      controls: [
+        "Hücreye dokun — artı biçimli beşliyi tersle",
+        "Geri Al — son hamle; İpucu — o anda en çok ışığı azaltan adayı vurgula",
+      ],
+      learn:
+        "Her ışığı 0/1, her hamleyi mod 2 toplama olarak düşünebilirsin: aynı düğmeye iki kez basmak etkisini yok eder. Böylece oyun GF(2) üzerinde doğrusal denklem sistemine dönüşür.",
+      strategy:
+        "İlk satır için bir seçim yapıp sonraki satırlarda yalnız üstte kalan ışığı söndüren düğmeye basmayı dene. Aynı düğmeye iki kez basmanın gereksiz olduğunu unutma.",
+      deeper:
+        "Üniversite köprüsü: ikili matrisler, Gauss eliminasyonu, sonlu cisimler ve tersinir dönüşümler.",
+    },
+    "uzay-kosucusu": {
+      type: "Oyun",
+      intro:
+        "Asteroit ve lazerlerden kaç, yıldız zincirleriyle kombonu büyüt, kalkan-mıknatıs-hız güçlerini doğru zamanda kullan. Üç zıplama hakkın vardır.",
+      controls: [
+        "Tıkla / Space / ↑ — zıpla; havada tekrar bas — ek zıplama",
+        "P — duraklat; oyun bitince tıkla veya Space — yeniden başlat",
+      ],
+      learn:
+        "Düşey harekette her karede yerçekimi hıza, hız konuma eklenir; bu yüzden zıplama yolu yaklaşık paraboldür. Mesafe arttıkça oyun hızı yükselerek tepki süresini azaltır.",
+      strategy:
+        "Bütün zıplamaları bir anda tüketme. İlk zıplamayı engelin tabanına yakın yap, havadaki hakları düzeltme payı olarak sakla; yıldız zincirlerinde mıknatısın menzilini gözle.",
+      deeper:
+        "Üniversite köprüsü: sabit ivmeli hareket, ayrık simülasyon, çarpışma kutuları ve uyarlanabilir zorluk eğrisi.",
     },
     "optik-yansima-kirilma": {
       type: "Fizik",
@@ -763,13 +923,14 @@
     const bar = document.createElement("header");
     bar.className = "app-topbar";
     bar.innerHTML = `
-      <a class="app-home" href="index.html">← Ana sayfa</a>
+      <a class="app-home" href="index.html" aria-label="Ana sayfaya dön">← <span class="app-home-label">Ana sayfa</span></a>
       <span class="app-topbar-title">${title}</span>
       <div class="app-topbar-actions">
         ${hasNotebook ? '<button type="button" class="app-btn-icon" id="appInfoBtn" title="Araştırma defterini aç" aria-label="Araştırma defterini aç">📓</button>' : ""}
-        ${isGame ? '<button type="button" class="app-btn-icon" id="appPauseBtn" title="Duraklat (P)">⏯️</button>' : ""}
-        <button type="button" class="app-btn-theme" id="appThemeBtn" title="Tema değiştir">${themeIcon}</button>
-        <button type="button" class="app-btn-icon" id="appHelpBtn" title="Yardım">ℹ️</button>
+        ${isGame ? '<button type="button" class="app-btn-icon" id="appPauseBtn" title="Oyunu duraklat (P)" aria-label="Oyunu duraklat">⏯️</button>' : ""}
+        ${isGame ? '<button type="button" class="app-btn-icon" id="appSoundBtn" title="Oyun sesini kapat" aria-label="Oyun sesini kapat">🔊</button>' : ""}
+        <button type="button" class="app-btn-theme" id="appThemeBtn" title="Tema değiştir" aria-label="Temayı değiştir">${themeIcon}</button>
+        <button type="button" class="app-btn-icon" id="appHelpBtn" title="Görev brifingi" aria-label="Görev brifingini aç">ℹ️</button>
       </div>`;
     document.body.prepend(bar);
 
@@ -780,6 +941,11 @@
     }
     if (isGame) {
       document.getElementById("appPauseBtn").addEventListener("click", togglePause);
+      document.getElementById("appSoundBtn").addEventListener("click", () => {
+        const muted = window.AcelyaSounds?.toggleMuted?.();
+        updateSoundUI(Boolean(muted));
+      });
+      updateSoundUI(Boolean(window.AcelyaSounds?.isMuted?.()));
     }
     document.getElementById("appThemeBtn").addEventListener("click", toggleTheme);
     document
@@ -788,6 +954,8 @@
   }
 
   /* ── Pause ── */
+  let pauseDialogDismiss = null;
+
   function togglePause() {
     const paused = !window.AcelyaPause?.isPaused();
     window.AcelyaPause?.setPaused(paused);
@@ -796,7 +964,12 @@
 
   function updatePauseUI(paused) {
     const btn = document.getElementById("appPauseBtn");
-    if (btn) btn.textContent = paused ? "▶️" : "⏯️";
+    if (btn) {
+      btn.textContent = paused ? "▶️" : "⏯️";
+      btn.title = paused ? "Oyuna devam et (P)" : "Oyunu duraklat (P)";
+      btn.setAttribute("aria-label", paused ? "Oyuna devam et" : "Oyunu duraklat");
+      btn.setAttribute("aria-pressed", paused ? "true" : "false");
+    }
     let overlay = document.getElementById("appPauseOverlay");
     if (paused) {
       if (!overlay) {
@@ -804,13 +977,40 @@
         overlay.id = "appPauseOverlay";
         overlay.className = "app-pause-overlay";
         overlay.innerHTML =
-          '<div class="app-pause-text">⏸ Duraklatıldı</div><div class="app-pause-hint">Devam etmek için P tuşuna bas</div>';
+          '<div class="app-pause-card" role="dialog" aria-modal="true" aria-labelledby="appPauseTitle"><span class="app-pause-kicker">OYUN BEKLEMEDE</span><div class="app-pause-text" id="appPauseTitle">⏸ Duraklatıldı</div><div class="app-pause-hint">Hazır olduğunda kaldığın yerden devam et.</div><button type="button" class="app-btn-primary" id="appPauseResume">Devam et</button></div>';
         document.body.appendChild(overlay);
+        document.getElementById("appPauseResume").addEventListener("click", togglePause);
       }
       overlay.classList.remove("hidden");
+      if (!pauseDialogDismiss) {
+        pauseDialogDismiss = activateAccessibleDialog(
+          overlay,
+          document.getElementById("appPauseResume"),
+          () => {
+            if (window.AcelyaPause?.isPaused()) {
+              window.AcelyaPause.setPaused(false);
+              updatePauseUI(false);
+            }
+          },
+        );
+      }
     } else {
       if (overlay) overlay.classList.add("hidden");
+      if (pauseDialogDismiss) {
+        const dismiss = pauseDialogDismiss;
+        pauseDialogDismiss = null;
+        dismiss("programmatic");
+      }
     }
+  }
+
+  function updateSoundUI(muted) {
+    const btn = document.getElementById("appSoundBtn");
+    if (!btn) return;
+    btn.textContent = muted ? "🔇" : "🔊";
+    btn.title = muted ? "Oyun sesini aç" : "Oyun sesini kapat";
+    btn.setAttribute("aria-label", muted ? "Oyun sesini aç" : "Oyun sesini kapat");
+    btn.setAttribute("aria-pressed", muted ? "true" : "false");
   }
 
   // Klavye: P tuşu ile pause toggle (sadece oyun sayfalarında)
@@ -822,9 +1022,25 @@
       )
         return;
       if (!GAME_IDS.has(pageId)) return;
+      const blockingDialog = Array.from(
+        document.querySelectorAll('[role="dialog"]'),
+      ).some(
+        (dialog) =>
+          dialog.getClientRects().length > 0 &&
+          !dialog.closest("#appPauseOverlay"),
+      );
+      if (blockingDialog) return;
       e.preventDefault();
       togglePause();
     }
+  });
+
+  // Gerçek zamanlı oyunlar arka planda akıp kullanıcıyı cezalandırmasın.
+  document.addEventListener("visibilitychange", () => {
+    if (!GAME_IDS.has(pageId) || document.visibilityState !== "hidden") return;
+    if (window.AcelyaPause?.isPaused()) return;
+    window.AcelyaPause?.setPaused(true);
+    updatePauseUI(true);
   });
 
   function activateAccessibleDialog(overlay, initialFocus, onDismiss) {
@@ -981,6 +1197,10 @@
         <p><strong>Kontroller</strong></p>
         <ul>${g.controls.map((c) => `<li>${c}</li>`).join("")}</ul>
         <p><strong>Öğrenme notu:</strong> ${g.learn}</p>
+        ${g.strategy || g.deeper ? `<div class="app-game-briefing">
+          ${g.strategy ? `<p><strong>🎯 Ustalık deneyi</strong>${g.strategy}</p>` : ""}
+          ${g.deeper ? `<p><strong>🔬 Derin bağlantı</strong>${g.deeper}</p>` : ""}
+        </div>` : ""}
         <div class="app-intro-actions">
           <button type="button" class="app-btn-primary" id="appIntroStart">Başla</button>
           <button type="button" class="app-btn-ghost" id="appIntroAgain">Bir daha gösterme</button>
