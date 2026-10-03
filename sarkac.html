@@ -4,162 +4,554 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="shared/theme.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Sarkaç Hareketi</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-  <script src="shared/chart-safe.js"></script>
-
+  <title>Sarkaç Laboratuvarı</title>
+  <meta name="description" content="Uzunluk, açı, kütle ve yerçekimini değiştir; formülün verdiği periyotla ölçülen periyodu karşılaştır, enerjinin kinetik ve potansiyel arasında nasıl aktığını izle.">
   <style>
-    .sim-canvas { background: #12121c; display: block; margin: 0 auto; max-width: 100%; border-radius: 8px; }
-    .chart-canvas { background: #161b22; display: block; margin: 12px auto 0; max-width: 100%; border-radius: 8px; }
-    #info { margin: 12px 0; font-size: 0.9rem; }
-    #info p { margin: 4px 0; }
-    .controls { margin: 12px 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .chart-fallback { color: var(--text-muted); font-size: 0.85rem; }
-    .hidden { display: none; }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+      cursor: grab;
+    }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+    }
+    .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+    }
+    .readout small { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .readout strong { font-size: 1.1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .energy { display: grid; gap: 6px; }
+    .bar { display: grid; grid-template-columns: 64px 1fr 56px; align-items: center; gap: 8px; font-size: 0.8rem; }
+    .bar i { display: block; height: 10px; border-radius: 999px; background: var(--bg-input); overflow: hidden; }
+    .bar i b { display: block; height: 100%; width: 0; border-radius: inherit; transition: width 0.08s linear; }
+    .bar.kin i b { background: var(--accent); }
+    .bar.pot i b { background: var(--accent-2); }
+    .bar.tot i b { background: var(--accent-warm); }
+    .bar span { font-variant-numeric: tabular-nums; text-align: right; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
+    }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="sarkac">
 
 <div class="app-content">
-  <h1>Sarkaç — Basit Harmonik Hareket</h1>
-  <p class="hint">Küçük açılarda sarkaç periyodu T ≈ 2π√(L/g) formülüne yaklaşır.</p>
+  <h1>Sarkaç Laboratuvarı</h1>
+  <p class="hint">Topu sürükleyip bırak ya da kaydırıcıları değiştir. Küçük açılarda periyot yalnızca uzunluğa ve yerçekimine bağlıdır: T = 2π√(L/g). Formülün verdiği değerle ölçülen değeri karşılaştır.</p>
 
-  <canvas id="pendulumCanvas" class="sim-canvas" width="600" height="400" role="img" aria-label="Sarkaç animasyonu"></canvas>
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="pendulumCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Sarkaç animasyonu: ipi, topu ve açıyı gösterir"></canvas>
+      <canvas id="angleChart" class="chart-canvas" width="900" height="300" role="img" aria-label="Açı-zaman grafiği"></canvas>
+      <div class="readouts" aria-live="polite">
+        <div class="readout"><small>Açı θ</small><strong id="angleDisplay">0.0°</strong></div>
+        <div class="readout"><small>Açısal hız ω</small><strong id="angularVelocityDisplay">0.00 rad/s</strong></div>
+        <div class="readout"><small>Formül T₀ = 2π√(L/g)</small><strong id="periodDisplay">—</strong></div>
+        <div class="readout is-highlight"><small>Ölçülen periyot</small><strong id="measuredDisplay">—</strong></div>
+        <div class="readout"><small>Fark</small><strong id="diffDisplay">—</strong></div>
+      </div>
+      <div class="energy panel" aria-label="Enerji">
+        <h2>Enerji</h2>
+        <div class="bar kin"><span>Kinetik</span><i><b id="kinBar"></b></i><span id="kinVal">0 J</span></div>
+        <div class="bar pot"><span>Potansiyel</span><i><b id="potBar"></b></i><span id="potVal">0 J</span></div>
+        <div class="bar tot"><span>Toplam</span><i><b id="totBar"></b></i><span id="totVal">0 J</span></div>
+        <p class="note">Potansiyel enerji en alt noktada sıfır alınır: E<sub>p</sub> = mgL(1 − cos θ). Sönüm kapalıyken toplam sabit kalır.</p>
+      </div>
+    </div>
 
-  <div id="info">
-    <p>Açı (θ): <span id="angleDisplay">0</span>°</p>
-    <p>Açısal hız (ω): <span id="angularVelocityDisplay">0</span> rad/s</p>
-    <p>Açısal ivme (α): <span id="angularAccelerationDisplay">0</span> rad/s²</p>
-    <p>Periyot (T): <span id="periodDisplay">0</span> s</p>
+    <div class="panel" aria-label="Kontroller">
+      <h2>Deney ayarları</h2>
+      <div class="field">
+        <label for="lengthRange">Uzunluk L <output id="lengthOut">1.00 m</output></label>
+        <input type="range" id="lengthRange" min="0.25" max="3" step="0.05" value="1">
+      </div>
+      <div class="field">
+        <label for="angleRange">Başlangıç açısı θ₀ <output id="angleOut">20°</output></label>
+        <input type="range" id="angleRange" min="2" max="170" step="1" value="20">
+      </div>
+      <div class="field">
+        <label for="massRange">Kütle m <output id="massOut">1.0 kg</output></label>
+        <input type="range" id="massRange" min="0.1" max="5" step="0.1" value="1">
+      </div>
+      <div class="field">
+        <label for="gravitySelect">Yerçekimi g <output id="gravityOut">9.81 m/s²</output></label>
+        <select id="gravitySelect">
+          <option value="1.62">Ay · 1.62</option>
+          <option value="3.71">Mars · 3.71</option>
+          <option value="9.81" selected>Dünya · 9.81</option>
+          <option value="24.79">Jüpiter · 24.79</option>
+        </select>
+      </div>
+      <label class="check"><input type="checkbox" id="dampingCheck"> Sönüm (hava direnci) açık</label>
+      <div class="field" id="dampingField" hidden>
+        <label for="dampingRange">Sönüm katsayısı b <output id="dampingOut">0.10 /s</output></label>
+        <input type="range" id="dampingRange" min="0.02" max="1" step="0.02" value="0.1">
+      </div>
+      <div class="row">
+        <button type="button" id="toggleBtn">Duraklat</button>
+        <button type="button" id="resetBtn">Sıfırla</button>
+        <button type="button" onclick="location.href='cift-sarkac.html'">Çift sarkaca geç</button>
+      </div>
+      <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla. Topu sürüklediğinde sarkaç durur; bıraktığında o açıdan salınmaya başlar.</p>
+    </div>
   </div>
-
-  <div class="controls">
-    <button type="button" onclick="resetPendulum()">Tekrarla</button>
-    <button type="button" onclick="location.href='cift-sarkac.html'">Çift Sarkaca Geç</button>
-  </div>
-
-  <canvas id="angleChart" class="chart-canvas" width="600" height="200" aria-label="Açı-zaman grafiği"></canvas>
-  <p id="chartMsg" class="chart-fallback hidden"></p>
 </div>
 
 <script>
 (function () {
+  "use strict";
   const canvas = document.getElementById("pendulumCanvas");
   const ctx = canvas.getContext("2d");
-  const originX = canvas.width / 2;
-  const originY = 50;
-  const length = 200;
-  let angle = Math.PI / 4;
-  let angleVelocity = 0;
-  const gravity = 9.8;
-  const damping = 0.999;
+  const chart = document.getElementById("angleChart");
+  const cctx = chart.getContext("2d");
 
-  let time = 0;
-  const timeValues = [];
-  const angleValues = [];
-  let angleChart = null;
+  const ui = {
+    length: document.getElementById("lengthRange"),
+    angle: document.getElementById("angleRange"),
+    mass: document.getElementById("massRange"),
+    gravity: document.getElementById("gravitySelect"),
+    dampingCheck: document.getElementById("dampingCheck"),
+    dampingField: document.getElementById("dampingField"),
+    damping: document.getElementById("dampingRange"),
+    lengthOut: document.getElementById("lengthOut"),
+    angleOut: document.getElementById("angleOut"),
+    massOut: document.getElementById("massOut"),
+    gravityOut: document.getElementById("gravityOut"),
+    dampingOut: document.getElementById("dampingOut"),
+    toggle: document.getElementById("toggleBtn"),
+    reset: document.getElementById("resetBtn"),
+    angleDisplay: document.getElementById("angleDisplay"),
+    omegaDisplay: document.getElementById("angularVelocityDisplay"),
+    periodDisplay: document.getElementById("periodDisplay"),
+    measuredDisplay: document.getElementById("measuredDisplay"),
+    diffDisplay: document.getElementById("diffDisplay"),
+    kinBar: document.getElementById("kinBar"),
+    potBar: document.getElementById("potBar"),
+    totBar: document.getElementById("totBar"),
+    kinVal: document.getElementById("kinVal"),
+    potVal: document.getElementById("potVal"),
+    totVal: document.getElementById("totVal"),
+  };
 
-  function initChart() {
-    if (typeof Chart === "undefined") {
-      document.getElementById("chartMsg").textContent = "Grafik yüklenemedi; animasyon çalışıyor.";
-      document.getElementById("chartMsg").classList.remove("hidden");
-      return;
+  const state = {
+    L: 1,
+    m: 1,
+    g: 9.81,
+    theta0: (20 * Math.PI) / 180,
+    theta: (20 * Math.PI) / 180,
+    omega: 0,
+    damping: 0,
+    t: 0,
+    running: true,
+    dragging: false,
+    history: [],
+    crossings: [],
+    maxEnergy: 0,
+  };
+  const HISTORY_SECONDS = 12;
+  const DT = 1 / 240;
+  let lastFrame = 0;
+  let dpr = 1;
+
+  function readControls() {
+    state.L = Number(ui.length.value);
+    state.m = Number(ui.mass.value);
+    state.g = Number(ui.gravity.value);
+    state.damping = ui.dampingCheck.checked ? Number(ui.damping.value) : 0;
+    ui.lengthOut.textContent = `${state.L.toFixed(2)} m`;
+    ui.angleOut.textContent = `${ui.angle.value}°`;
+    ui.massOut.textContent = `${state.m.toFixed(1)} kg`;
+    ui.gravityOut.textContent = `${state.g.toFixed(2)} m/s²`;
+    ui.dampingOut.textContent = `${Number(ui.damping.value).toFixed(2)} /s`;
+    ui.dampingField.hidden = !ui.dampingCheck.checked;
+    ui.periodDisplay.textContent = `${(2 * Math.PI * Math.sqrt(state.L / state.g)).toFixed(3)} s`;
+  }
+
+  function resetMotion(angleDeg) {
+    state.theta0 = ((angleDeg ?? Number(ui.angle.value)) * Math.PI) / 180;
+    state.theta = state.theta0;
+    state.omega = 0;
+    state.t = 0;
+    state.history = [];
+    state.crossings = [];
+    state.maxEnergy = potential();
+    ui.measuredDisplay.textContent = "—";
+    ui.diffDisplay.textContent = "—";
+  }
+
+  function potential() {
+    return state.m * state.g * state.L * (1 - Math.cos(state.theta));
+  }
+  function kinetic() {
+    return 0.5 * state.m * Math.pow(state.L * state.omega, 2);
+  }
+
+  // θ'' = −(g/L)·sin θ − b·θ'  (RK4)
+  function accel(theta, omega) {
+    return (-state.g / state.L) * Math.sin(theta) - state.damping * omega;
+  }
+  function step(dt) {
+    const { theta, omega } = state;
+    const k1t = omega, k1w = accel(theta, omega);
+    const k2t = omega + 0.5 * dt * k1w, k2w = accel(theta + 0.5 * dt * k1t, omega + 0.5 * dt * k1w);
+    const k3t = omega + 0.5 * dt * k2w, k3w = accel(theta + 0.5 * dt * k2t, omega + 0.5 * dt * k2w);
+    const k4t = omega + dt * k3w, k4w = accel(theta + dt * k3t, omega + dt * k3w);
+    const prevTheta = theta;
+    state.theta += (dt / 6) * (k1t + 2 * k2t + 2 * k3t + k4t);
+    state.omega += (dt / 6) * (k1w + 2 * k2w + 2 * k3w + k4w);
+    state.t += dt;
+    // Denge noktasından pozitif yönde geçişler: periyot ölçümü
+    if (prevTheta < 0 && state.theta >= 0 && state.omega > 0) {
+      state.crossings.push(state.t);
+      if (state.crossings.length > 6) state.crossings.shift();
+      updateMeasured();
     }
-    try {
-      const chartCtx = document.getElementById("angleChart").getContext("2d");
-      angleChart = createSafeChart(chartCtx, {
-        type: "line",
-        data: {
-          labels: timeValues,
-          datasets: [{
-            label: "θ (°)",
-            data: angleValues,
-            borderColor: "#f87171",
-            borderWidth: 2,
-            fill: false,
-            tension: 0.1,
-          }],
-        },
-        options: {
-          responsive: false,
-          animation: false,
-          scales: {
-            x: { title: { display: true, text: "Zaman (s)" } },
-            y: { title: { display: true, text: "Açı (°)" }, suggestedMin: -60, suggestedMax: 60 },
-          },
-        },
-      });
-    } catch (e) {
-      console.error(e);
-      document.getElementById("chartMsg").textContent = "Grafik oluşturulamadı; animasyon aktif.";
-      document.getElementById("chartMsg").classList.remove("hidden");
+  }
+
+  function updateMeasured() {
+    const c = state.crossings;
+    if (c.length < 2) return;
+    const periods = [];
+    for (let i = 1; i < c.length; i++) periods.push(c[i] - c[i - 1]);
+    const measured = periods.slice(-3).reduce((a, b) => a + b, 0) / Math.min(3, periods.length);
+    const formula = 2 * Math.PI * Math.sqrt(state.L / state.g);
+    ui.measuredDisplay.textContent = `${measured.toFixed(3)} s`;
+    const diff = ((measured - formula) / formula) * 100;
+    ui.diffDisplay.textContent = `${diff >= 0 ? "+" : ""}${diff.toFixed(2)} %`;
+  }
+
+  function updateReadouts() {
+    ui.angleDisplay.textContent = `${((state.theta * 180) / Math.PI).toFixed(1)}°`;
+    ui.omegaDisplay.textContent = `${state.omega.toFixed(2)} rad/s`;
+    const ek = kinetic(), ep = potential(), et = ek + ep;
+    state.maxEnergy = Math.max(state.maxEnergy, et, 1e-9);
+    const pct = (v) => `${Math.max(0, Math.min(100, (v / state.maxEnergy) * 100)).toFixed(1)}%`;
+    ui.kinBar.style.width = pct(ek);
+    ui.potBar.style.width = pct(ep);
+    ui.totBar.style.width = pct(et);
+    ui.kinVal.textContent = `${ek.toFixed(2)} J`;
+    ui.potVal.textContent = `${ep.toFixed(2)} J`;
+    ui.totVal.textContent = `${et.toFixed(2)} J`;
+  }
+
+  /* ── Çizim ── */
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [canvas, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      c.width = Math.round(rect.width * dpr);
+      c.height = Math.round(rect.height * dpr);
     }
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      rod: light ? "#1a1d2e" : "#e8ecf4",
+      bob: light ? "#dc2626" : "#f87171",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+    };
   }
 
   function drawPendulum() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const x = originX + length * Math.sin(angle);
-    const y = originY + length * Math.cos(angle);
-    ctx.strokeStyle = "#e8ecf4";
-    ctx.lineWidth = 2;
+    const W = canvas.width, H = canvas.height;
+    const t = theme();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const px = (H * 0.86) / 3.0; // 3 m tam sığsın
+    const ox = W / 2, oy = H * 0.09;
+    const Lpx = state.L * px;
+    const x = ox + Lpx * Math.sin(state.theta);
+    const y = oy + Lpx * Math.cos(state.theta);
+
+    // Denge çizgisi ve açı yayı
+    ctx.save();
+    ctx.setLineDash([6 * dpr, 6 * dpr]);
+    ctx.strokeStyle = t.grid;
+    ctx.lineWidth = 1 * dpr;
     ctx.beginPath();
-    ctx.moveTo(originX, originY);
+    ctx.moveTo(ox, oy);
+    ctx.lineTo(ox, oy + Lpx + 20 * dpr);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.strokeStyle = t.accent2;
+    ctx.lineWidth = 2 * dpr;
+    const r = Math.min(Lpx * 0.35, 70 * dpr);
+    ctx.arc(ox, oy, r, Math.PI / 2, Math.PI / 2 - state.theta, state.theta > 0);
+    ctx.stroke();
+    ctx.fillStyle = t.muted;
+    ctx.font = `${13 * dpr}px Outfit, system-ui, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText(`θ = ${((state.theta * 180) / Math.PI).toFixed(0)}°`, ox + (state.theta >= 0 ? r + 26 * dpr : -r - 26 * dpr), oy + r * 0.8);
+
+    // Tavan
+    ctx.fillStyle = t.grid;
+    ctx.fillRect(ox - 60 * dpr, oy - 6 * dpr, 120 * dpr, 6 * dpr);
+
+    // İp
+    ctx.strokeStyle = t.rod;
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(ox, oy);
     ctx.lineTo(x, y);
     ctx.stroke();
-    ctx.fillStyle = "#f87171";
+
+    // Pivot
+    ctx.fillStyle = t.accent;
     ctx.beginPath();
-    ctx.arc(x, y, 14, 0, Math.PI * 2);
+    ctx.arc(ox, oy, 5 * dpr, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#5eead4";
+
+    // Top (yarıçap kütlenin küp köküyle büyür)
+    const rb = (10 + 8 * Math.cbrt(state.m)) * dpr;
+    const grad = ctx.createRadialGradient(x - rb * 0.35, y - rb * 0.35, rb * 0.1, x, y, rb);
+    grad.addColorStop(0, t.light ? "#fca5a5" : "#fecaca");
+    grad.addColorStop(1, t.bob);
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(originX, originY, 5, 0, Math.PI * 2);
+    ctx.arc(x, y, rb, 0, Math.PI * 2);
     ctx.fill();
+
+    // Hız vektörü (teğet)
+    const v = state.L * state.omega;
+    if (Math.abs(v) > 0.05) {
+      const scale = 28 * dpr;
+      const vx = Math.cos(state.theta) * v * scale, vy = -Math.sin(state.theta) * v * scale;
+      ctx.strokeStyle = t.accent;
+      ctx.lineWidth = 2.5 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + vx, y + vy);
+      ctx.stroke();
+      const ang = Math.atan2(vy, vx);
+      ctx.beginPath();
+      ctx.moveTo(x + vx, y + vy);
+      ctx.lineTo(x + vx - 9 * dpr * Math.cos(ang - 0.5), y + vy - 9 * dpr * Math.sin(ang - 0.5));
+      ctx.lineTo(x + vx - 9 * dpr * Math.cos(ang + 0.5), y + vy - 9 * dpr * Math.sin(ang + 0.5));
+      ctx.closePath();
+      ctx.fillStyle = t.accent;
+      ctx.fill();
+    }
+
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "left";
+    ctx.fillText(`L = ${state.L.toFixed(2)} m · m = ${state.m.toFixed(1)} kg · g = ${state.g.toFixed(2)} m/s²`, 12 * dpr, H - 12 * dpr);
   }
 
-  function updatePendulum() {
-    const angleAcceleration = (-gravity / length) * Math.sin(angle);
-    angleVelocity += angleAcceleration * 0.05;
-    angle += angleVelocity * 0.05;
-    angleVelocity *= damping;
+  function drawChart() {
+    const W = chart.width, H = chart.height;
+    const t = theme();
+    cctx.setTransform(1, 0, 0, 1, 0, 0);
+    cctx.clearRect(0, 0, W, H);
+    const padL = 44 * dpr, padR = 12 * dpr, padT = 12 * dpr, padB = 24 * dpr;
+    const maxDeg = Math.max(30, Math.ceil(((state.theta0 * 180) / Math.PI) / 10) * 10);
+    const y0 = padT + (H - padT - padB) / 2;
+    const yScale = (H - padT - padB) / 2 / maxDeg;
+    const tEnd = Math.max(state.t, HISTORY_SECONDS);
+    const tStart = tEnd - HISTORY_SECONDS;
+    const xOf = (time) => padL + ((time - tStart) / HISTORY_SECONDS) * (W - padL - padR);
 
-    document.getElementById("angleDisplay").textContent = (angle * (180 / Math.PI)).toFixed(1);
-    document.getElementById("angularVelocityDisplay").textContent = angleVelocity.toFixed(4);
-    document.getElementById("angularAccelerationDisplay").textContent = angleAcceleration.toFixed(4);
-    document.getElementById("periodDisplay").textContent = (2 * Math.PI * Math.sqrt(length / gravity)).toFixed(2);
-
-    time += 0.1;
-    if (timeValues.length > 80) {
-      timeValues.shift();
-      angleValues.shift();
+    cctx.strokeStyle = t.grid;
+    cctx.lineWidth = 1 * dpr;
+    cctx.fillStyle = t.muted;
+    cctx.font = `${11 * dpr}px Outfit, system-ui, sans-serif`;
+    cctx.textAlign = "right";
+    [maxDeg, 0, -maxDeg].forEach((deg) => {
+      const y = y0 - deg * yScale;
+      cctx.beginPath();
+      cctx.moveTo(padL, y);
+      cctx.lineTo(W - padR, y);
+      cctx.stroke();
+      cctx.fillText(`${deg}°`, padL - 6 * dpr, y + 4 * dpr);
+    });
+    cctx.textAlign = "center";
+    for (let s = Math.ceil(tStart); s <= tEnd; s += 2) {
+      const x = xOf(s);
+      cctx.beginPath();
+      cctx.moveTo(x, padT);
+      cctx.lineTo(x, H - padB);
+      cctx.stroke();
+      cctx.fillText(`${s} s`, x, H - 8 * dpr);
     }
-    timeValues.push(time.toFixed(1));
-    angleValues.push(angle * (180 / Math.PI));
 
-    if (angleChart) {
-      angleChart.data.labels = timeValues.slice();
-      angleChart.data.datasets[0].data = angleValues.slice();
-      angleChart.update("none");
+    // Formül periyodu işaretleri (son geçişten itibaren)
+    const T0 = 2 * Math.PI * Math.sqrt(state.L / state.g);
+    const anchor = state.crossings.length ? state.crossings[state.crossings.length - 1] : 0;
+    cctx.save();
+    cctx.setLineDash([3 * dpr, 4 * dpr]);
+    cctx.strokeStyle = t.accent2;
+    for (let k = -8; k <= 8; k++) {
+      const time = anchor + k * T0;
+      if (time < tStart || time > tEnd) continue;
+      const x = xOf(time);
+      cctx.beginPath();
+      cctx.moveTo(x, padT);
+      cctx.lineTo(x, H - padB);
+      cctx.stroke();
     }
+    cctx.restore();
+
+    if (state.history.length > 1) {
+      cctx.strokeStyle = t.bob;
+      cctx.lineWidth = 2 * dpr;
+      cctx.beginPath();
+      let started = false;
+      for (const [time, deg] of state.history) {
+        if (time < tStart) continue;
+        const x = xOf(time), y = y0 - deg * yScale;
+        if (!started) { cctx.moveTo(x, y); started = true; } else cctx.lineTo(x, y);
+      }
+      cctx.stroke();
+    }
+    cctx.textAlign = "left";
+    cctx.fillStyle = t.muted;
+    cctx.fillText("θ(t) · kesikli çizgiler: formül periyodu T₀", padL + 6 * dpr, padT + 12 * dpr);
   }
 
-  function animate() {
-    updatePendulum();
+  /* ── Döngü ── */
+  let acc = 0;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    let elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (state.running && !state.dragging && !paused) {
+      acc += elapsed;
+      while (acc >= DT) {
+        step(DT);
+        acc -= DT;
+      }
+      const deg = (state.theta * 180) / Math.PI;
+      const last = state.history[state.history.length - 1];
+      if (!last || state.t - last[0] >= 1 / 60) state.history.push([state.t, deg]);
+      while (state.history.length && state.history[0][0] < state.t - HISTORY_SECONDS - 0.5) state.history.shift();
+    }
+    updateReadouts();
     drawPendulum();
-    requestAnimationFrame(animate);
+    drawChart();
+    requestAnimationFrame(frame);
   }
 
-  window.resetPendulum = function () {
-    angle = Math.PI / 4;
-    angleVelocity = 0;
-    time = 0;
-    timeValues.length = 0;
-    angleValues.length = 0;
-    if (angleChart) angleChart.update("none");
-  };
+  /* ── Etkileşim ── */
+  function setRunning(run) {
+    state.running = run;
+    ui.toggle.textContent = run ? "Duraklat" : "Devam et";
+    ui.toggle.setAttribute("aria-pressed", String(!run));
+  }
+  ui.toggle.addEventListener("click", () => setRunning(!state.running));
+  ui.reset.addEventListener("click", () => { readControls(); resetMotion(); setRunning(true); });
+  ["length", "mass", "gravity", "damping", "dampingCheck"].forEach((k) => {
+    ui[k].addEventListener("input", () => {
+      readControls();
+      state.maxEnergy = Math.max(potential() + kinetic(), 1e-9);
+      state.crossings = [];
+      ui.measuredDisplay.textContent = "—";
+      ui.diffDisplay.textContent = "—";
+    });
+  });
+  ui.angle.addEventListener("input", () => { readControls(); resetMotion(); });
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, select, textarea, button")) return;
+    if (e.code === "Space") { e.preventDefault(); setRunning(!state.running); }
+    if (e.key === "r" || e.key === "R") { readControls(); resetMotion(); setRunning(true); }
+  });
 
-  initChart();
-  animate();
+  function pointerAngle(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const sx = ((evt.clientX - rect.left) / rect.width) * canvas.width;
+    const sy = ((evt.clientY - rect.top) / rect.height) * canvas.height;
+    const ox = canvas.width / 2, oy = canvas.height * 0.09;
+    return Math.atan2(sx - ox, sy - oy);
+  }
+  canvas.addEventListener("pointerdown", (evt) => {
+    state.dragging = true;
+    canvas.classList.add("is-dragging");
+    canvas.setPointerCapture(evt.pointerId);
+    state.theta = pointerAngle(evt);
+    state.omega = 0;
+  });
+  canvas.addEventListener("pointermove", (evt) => {
+    if (!state.dragging) return;
+    state.theta = pointerAngle(evt);
+  });
+  const release = () => {
+    if (!state.dragging) return;
+    state.dragging = false;
+    canvas.classList.remove("is-dragging");
+    const deg = Math.round(Math.abs((state.theta * 180) / Math.PI));
+    ui.angle.value = Math.max(2, Math.min(170, deg));
+    readControls();
+    state.theta0 = state.theta;
+    state.omega = 0;
+    state.t = 0;
+    state.history = [];
+    state.crossings = [];
+    state.maxEnergy = potential();
+    ui.measuredDisplay.textContent = "—";
+    ui.diffDisplay.textContent = "—";
+    setRunning(true);
+  };
+  canvas.addEventListener("pointerup", release);
+  canvas.addEventListener("pointercancel", release);
+
+  window.addEventListener("resize", resize);
+  new ResizeObserver(resize).observe(canvas);
+  readControls();
+  resetMotion();
+  resize();
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
