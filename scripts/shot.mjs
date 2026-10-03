@@ -11,7 +11,7 @@ const opt = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] :
 const flag = (n) => args.includes(n);
 function loadPlaywright() {
   for (const dir of [ROOT, ...(process.env.NODE_PATH || "").split(":").filter(Boolean), "/opt/node-tools"]) {
-    try { return createRequire(join(dir, "package.json")).require("playwright"); } catch (_) {}
+    try { return createRequire(join(dir, "package.json"))("playwright"); } catch (_) {}
   }
   return createRequire(import.meta.url)("playwright");
 }

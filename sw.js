@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-77df6d31ca";
+const VERSION = "acelya-8adef8708b";
 // --- end:version ---
 
 // --- generated:core ---
@@ -26,6 +26,7 @@ const CORE = [
   "shared/atlas.css",
   "shared/atlas.js",
   "shared/auth.js",
+  "shared/catalog.js",
   "shared/chart-safe.js",
   "shared/digest.css",
   "shared/digest.js",

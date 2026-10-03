@@ -19,7 +19,7 @@ function loadPlaywright() {
   const candidates = [ROOT, ...(process.env.NODE_PATH || "").split(":").filter(Boolean), "/opt/node-tools"];
   for (const dir of candidates) {
     try {
-      return createRequire(join(dir, "package.json")).require("playwright");
+      return createRequire(join(dir, "package.json"))("playwright");
     } catch (_) {}
   }
   return require("playwright");
