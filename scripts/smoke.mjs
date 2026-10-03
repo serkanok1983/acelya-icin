@@ -128,6 +128,8 @@ async function worker() {
         winH: innerHeight,
         bodyOverflow: getComputedStyle(document.body).overflowY,
         htmlOverflow: getComputedStyle(document.documentElement).overflowY,
+        hOverflow: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) > innerWidth + 2,
+        scrollW: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
       }));
       if (CHECK_DIGEST) {
         entry.digest = await page.evaluate(async () => {
@@ -178,6 +180,8 @@ const withFailed = report.filter((r) => r.failedRequests.length);
 const cdnBlocked = report.filter((r) => r.cdnBlocked.length);
 console.log(`\n${report.length} sayfa · JS/konsol hatalı: ${withErrors.length} · yerel başarısız istek: ${withFailed.length} · CDN erişilemediği için atlanan: ${cdnBlocked.length}`);
 for (const r of withErrors) console.log(`  ✗ ${r.slug}: ${r.errors.concat(r.consoleErrors).slice(0, 2).join(" | ").slice(0, 160)}`);
+const hOverflow = report.filter((r) => r.scrollable?.hOverflow);
+if (hOverflow.length) console.log(`yatay taşma (${hOverflow.length}): ${hOverflow.map((r) => `${r.slug}(${r.scrollable.scrollW})`).join(" ")}`);
 for (const r of withFailed) console.log(`  ⚠ ${r.slug}: ${r.failedRequests.slice(0, 2).join(" | ").slice(0, 160)}`);
 if (CHECK_DIGEST) {
   const noDigest = report.filter((r) => !r.digest?.mounted);
