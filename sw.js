@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-6564888ce3";
+const VERSION = "acelya-30678006e6";
 // --- end:version ---
 
 // --- generated:core ---
@@ -230,21 +230,33 @@ const PAGES = [
 const DIGESTS = [
   "shared/digest/algoritmalar.js",
   "shared/digest/altin-oran.js",
+  "shared/digest/asteroids.js",
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
+  "shared/digest/cizge-teorisi.js",
   "shared/digest/derleyici-ve-yorumlayicilar.js",
   "shared/digest/dna-replikasyon.js",
   "shared/digest/elektrikli-araclar.js",
+  "shared/digest/elektrokimya.js",
+  "shared/digest/elektronik-muhendisligi.js",
   "shared/digest/grup-teorisi.js",
   "shared/digest/hesaplama-teorisi.js",
   "shared/digest/internet-ve-ag-teknolojileri.js",
   "shared/digest/isaretciler-ve-bellek-yonetimi.js",
   "shared/digest/isletim-sistemleri-ve-linux.js",
   "shared/digest/isletme-bilimi-ve-yonetim.js",
+  "shared/digest/maden-muhendisligi.js",
   "shared/digest/makine-dili-assembly-c.js",
+  "shared/digest/makine-muhendisligi.js",
+  "shared/digest/makine-ogrenmesi-derin-ogrenme-llm.js",
+  "shared/digest/makro-ekonomi-ve-para-politikalari.js",
+  "shared/digest/mantik-devresi.js",
   "shared/digest/metalurji-ve-malzeme-muhendisligi.js",
+  "shared/digest/mikro-ekonomi-ve-uretim-faktorleri.js",
   "shared/digest/otomotiv-muhendisligi.js",
+  "shared/digest/otonom-araclar-ve-iha.js",
   "shared/digest/periyodik-tablo.js",
+  "shared/digest/plc-hidrolik-pnomatik-cnc-cadcam.js",
   "shared/digest/pong.js",
   "shared/digest/programlama-paradigmalari.js",
   "shared/digest/roma-hukuku.js",

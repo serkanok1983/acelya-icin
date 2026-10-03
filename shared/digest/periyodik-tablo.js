@@ -6,22 +6,22 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
   level: "Lise",
   minutes: 30,
   tagline:
-    "118 kutuluk bir tablo, 1869'da henüz keşfedilmemiş elementlerin yoğunluğunu öngördü. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
+    "1869'da 63 elementle çizilen bir tablo, henüz keşfedilmemiş metallerin yoğunluğunu önceden söyledi. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
   hook:
-    "1875'te Paris'te genç bir kimyacı, yeni bulduğu metalin yoğunluğunu 4.7 g/cm³ olarak ölçtü. Binlerce kilometre ötede, o metali hiç görmemiş bir Rus profesör itiraz etti: değer 5.9 civarında olmalıydı. Örnek saflaştırılıp yeniden tartıldı: 5.9. Mendeleyev, elinde bile tutmadığı galyumu nereden biliyordu?",
+    "1875'te Paris'te bir kimyacı, çinko cevherinden yeni ayırdığı metalin yoğunluğunu 4.7 g/cm³ ölçtü. Üç bin kilometre kadar ötede, o metali hiç görmemiş bir Rus profesör itiraz etti: değer 6'ya yakın olmalıydı. Örnek saflaştırılıp yeniden tartıldı: 5.9. Mendeleyev, elinde bile tutmadığı galyumu nereden biliyordu?",
   bigIdea:
     "Periyodik tablo elementleri kütleye değil <strong>atom numarasına</strong>, yani çekirdekteki proton sayısına göre sıralar; benzer kimyasal davranış, dış kabuktaki elektron sayısı her yeni kabukta aynı değerlere geri döndüğü için düzenli aralıklarla tekrar eder.",
   story: [
-    "Mendeleyev'den önce de örüntü arayanlar vardı. 1829'da Johann Döbereiner bazı elementlerin üçlü gruplar oluşturduğunu fark etti: klor–brom–iyot ya da kalsiyum–stronsiyum–baryum gibi üçlülerde ortadaki elementin atom ağırlığı, diğer ikisinin ortalamasına yakındı. 1865'te İngiliz kimyacı John Newlands elementleri ağırlığa göre dizince her sekizincinin benzer davrandığını söyledi ve buna müzikten ödünç alarak <em>oktavlar yasası</em> dedi. Londra Kimya Derneği'nde alaya alındığı, bir üyenin ona elementleri alfabetik sıraya göre dizmeyi deneyip denemediğini sorduğu anlatılır. Almanya'da Lothar Meyer de aynı yıllarda atom hacmini ağırlığa karşı çizdiğinde tepeleri ve çukurları düzenli tekrar eden bir eğri buldu. Örüntü ortadaydı; eksik olan, ona güvenip boşluk bırakacak cesaretti.",
+    "Mendeleyev'den önce de örüntü arayanlar vardı. 1829'da Johann Döbereiner bazı elementlerin üçlü gruplar oluşturduğunu fark etti: klor–brom–iyot ya da kalsiyum–stronsiyum–baryum gibi üçlülerde ortadaki elementin atom ağırlığı, diğer ikisinin ortalamasına yakındı. 1865'te İngiliz kimyacı John Newlands elementleri ağırlığa göre dizince her sekizincinin benzer davrandığını söyledi ve buna müzikten ödünç alarak <em>oktavlar yasası</em> dedi. Londra Kimya Derneği'nde alaya alındığı, bir üyenin ona elementleri alfabetik sıraya dizmeyi deneyip denemediğini sorduğu anlatılır. Almanya'da Lothar Meyer de aynı yıllarda atom hacmini ağırlığa karşı çizdiğinde tepeleri ve çukurları düzenli tekrar eden bir eğri buldu. Örüntü ortadaydı; eksik olan, ona güvenip boşluk bırakacak cesaretti.",
     "O cesareti 1869'da St. Petersburg'da ders kitabı yazan Dmitri Mendeleyev gösterdi. O sırada 63 element biliniyordu. Her birinin adını ve özelliklerini kartlara yazıp pasyans gibi dizdiği, hatta tabloyu rüyasında gördüğü anlatılır; bunlar hikâyedir, kanıt olan şey yayımladığı tablodur. Mendeleyev elementleri atom ağırlığına göre sıraladı ama iki şeyi diğerlerinden farklı yaptı. Birincisi, kimyasal akrabalığa ağırlıktan daha çok güvendi: tellür iyottan ağır olduğu hâlde (127.6'ya karşı 126.9) ikisinin yerini değiştirdi, çünkü tellür kükürdün, iyot klorun akrabasıydı. İkincisi, sıra tutmayınca boş kutu bıraktı ve o kutulara gelecek elementlerin ağırlığını, yoğunluğunu, oksidinin biçimini önceden yazdı. 1875'te galyum (eka-alüminyum), 1879'da skandiyum (eka-bor) ve 1886'da germanyum (eka-silisyum) bulunduğunda tahminler tutmuştu: eka-silisyum için 72 ağırlık ve 5.5 g/cm³ yoğunluk demişti; Clemens Winkler'in bulduğu germanyum için değerler 72.6 ve 5.35 çıktı. Tablo bir sınıflandırma olmaktan çıkıp bir öngörü makinesine dönüşmüştü.",
     "Yine de ağırlıkla sıralamanın çatlakları vardı. 1894'te Lord Rayleigh ve William Ramsay havadan argonu ayırdı: hiçbir şeyle tepkimeye girmeyen, Mendeleyev'in tablosunda yeri olmayan bir gaz. Ramsay dört yıl içinde helyum, neon, kripton ve ksenonu da buldu ve tabloya kimsenin öngörmediği koca bir sütun eklendi. Üstelik argon potasyumdan ağırdı; sıraya ağırlıkla değil kimyayla girdi. Asıl anahtarı 1913'te 25 yaşındaki Henry Moseley buldu. Manchester'da Rutherford'un yanında, elementlerin yaydığı X-ışınlarının frekansını ölçtü ve frekansın karekökünün tam sayı adımlarla arttığını gördü. O tam sayı atom numarasıydı: çekirdeğin yükü, yani proton sayısı. Tellür–iyot, kobalt–nikel ve argon–potasyum ters çevrimleri bir anda açıklandı; 43, 61, 72 ve 75 numaralı kutuların boş olduğu da. Moseley 1915'te Çanakkale'de, Gelibolu'da bir keskin nişancı kurşunuyla öldü; 27 yaşındaydı. Boş kutular onun ölümünden sonra doldu: hafniyum 1923'te, renyum 1925'te, teknesyum 1937'de bir hızlandırıcıda insan eliyle üretilen ilk element olarak, prometyum 1945'te.",
-    "Peki tekrar neden sekizde, on sekizde, otuz ikide? Cevap 1920'lerde kuantum mekaniğinden geldi: Bohr'un kabuk modeli ve Pauli'nin 1925'teki dışlama ilkesi, elektronların 2, 8, 18, 32 kişilik katlara yerleştiğini ve kimyanın hep en dış kata baktığını söyledi. Tablonun biçimi son kez 1940'larda değişti: Glenn Seaborg aktinyumdan sonraki elementlerin lantanitler gibi ayrı bir sıra oluşturduğunu önerdi ve bugünkü iki alt satır doğdu. Sonrası bir yarıştı: Berkeley, Dubna, Darmstadt ve Japonya'daki RIKEN'de hızlandırıcılarla çekirdekler çarpıştırılıp yeni elementler tek tek atom olarak üretildi. 2016'da IUPAC 113, 115, 117 ve 118 numaralı elementlerin adlarını onayladı ve yedinci periyot tamamlandı. 2019'u Birleşmiş Milletler, tablonun 150. yılı için Uluslararası Periyodik Tablo Yılı ilan etti. Harita bitmiş değil; 119. kutunun avı sürüyor.",
+    "Peki tekrar neden sekizde, on sekizde, otuz ikide? Cevap 1920'lerde kuantum mekaniğinden geldi: Bohr'un kabuk modeli ve Pauli'nin 1925'teki dışlama ilkesi, elektronların 2, 8, 18, 32 kişilik katlara yerleştiğini ve kimyanın hep en dış kata baktığını söyledi. Tablonun biçimi son kez 1940'larda değişti: Glenn Seaborg aktinyumdan sonraki elementlerin lantanitler gibi ayrı bir sıra oluşturduğunu önerdi ve bugünkü iki alt satır doğdu. Sonrası bir yarıştı: Berkeley, Dubna, Darmstadt ve Japonya'daki RIKEN'de hızlandırıcılarla çekirdekler çarpıştırılıp yeni elementler tek tek atom olarak üretildi. 2016'da IUPAC 113, 115, 117 ve 118 numaralı elementlerin adlarını onayladı ve yedinci periyot tamamlandı. Birleşmiş Milletler, tablonun 150. yılı olan 2019'u Uluslararası Periyodik Tablo Yılı ilan etti. Harita bitmiş değil; 119. kutunun avı sürüyor.",
   ],
   core: [
     {
       heading: "Sıralama anahtarı: proton sayısı",
       body:
-        "Bir elementi element yapan şey çekirdeğindeki proton sayısıdır; buna <strong>atom numarası</strong> (Z) denir. Altı protonlu her atom karbondur, nötron sayısı ne olursa olsun. Nötron sayısı değişince <strong>izotop</strong> değişir, element değişmez; bu yüzden tablodaki kütle ondalıklıdır, doğadaki izotop karışımının ortalamasıdır. Kütle sırası dört yerde bozulur (Ar–K, Co–Ni, Te–I, Th–Pa) ama proton sırası hiç bozulmaz. Sayfadaki her kutunun üstündeki küçük sayı işte bu anahtardır.",
+        "Bir elementi element yapan şey çekirdeğindeki proton sayısıdır; buna <strong>atom numarası</strong> (Z) denir. Altı protonlu her atom karbondur, nötron sayısı ne olursa olsun. Nötron sayısı değişince <strong>izotop</strong> değişir, element değişmez; bu yüzden tablodaki kütle ondalıklıdır, doğadaki izotop karışımının ortalamasıdır. Ondalıklı kütleler arasında sıra dört yerde bozulur (Ar–K, Co–Ni, Te–I, Th–Pa) ama proton sırası hiç bozulmaz. Sayfadaki her kutunun üstündeki küçük sayı işte bu anahtardır.",
       formula: "Z = proton sayısı · A = proton + nötron",
       formulaNote: "A kütle numarası tek bir izotop için tam sayıdır; tablodaki ondalıklı değer izotopların bollukla ağırlıklı ortalamasıdır.",
     },
@@ -37,7 +37,7 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
       body:
         "Dikey sütuna <strong>grup</strong> denir ve aynı gruptaki elementlerin en dış kabuğunda aynı sayıda elektron bulunur; kimya büyük ölçüde o elektronlarla yapılır. Lityum, sodyum ve potasyumun dış kabuğunda tek elektron vardır; onu kolayca verip +1 iyon olurlar, suya atıldıklarında köpürüp alev alırlar. Flor ve klorun yedi dış elektronu vardır; bir tane daha alıp −1 olmaya can atarlar. Soy gazların kabuğu doludur; ne verir ne alırlar. Grup numarası dış elektron sayısını doğrudan söyler: 1 ve 2. gruplarda kendisi, 13–18. gruplarda on eksiği.",
       formula: "Değerlik e⁻ = grup no (1–2) · grup no − 10 (13–18)",
-      formulaNote: "Geçiş metallerinde (3–12) kural bu kadar basit değildir; d elektronları da bağa katılır ve tek bir element birden çok yük alabilir.",
+      formulaNote: "İki istisna: helyum 18. gruptadır ama ilk kabuk ikiyle dolduğu için yalnızca iki elektronu vardır; geçiş metallerinde (3–12) d elektronları da bağa katılır ve tek bir element birden çok yük alabilir.",
     },
     {
       heading: "Eğilimler: çekim ve perdeleme",
@@ -54,7 +54,7 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
   ],
   lab: {
     intro:
-      "Bu sayfada kaydırıcı yok; laboratuvar bir harita okuma tatbikatıdır. Üstteki on bir düğme (<strong>Tümü</strong>, <strong>Metaller</strong>, <strong>Ametaller</strong>, <strong>Yarı metaller</strong>, <strong>1A Alkali</strong>, <strong>2A Toprak alkali</strong>, <strong>Halojenler (17)</strong>, <strong>Soy gazlar (18)</strong>, <strong>Geçiş metalleri</strong>, <strong>Lantanitler</strong>, <strong>Aktinitler</strong>) bir aileyi renklendirir, diğerlerini soluklaştırır. Her kutuda üstte atom numarası, ortada simge, altta kütle yazar. Bir kutuya tıklayınca alttaki ayrıntı kutusunda simge ve ad, <strong>Atom numarası</strong>, <strong>Kütle</strong>, <strong>Periyot</strong>, <strong>Grup</strong> ve ailesi görünür. Deney, tıklayıp okumak ve sayılardaki örüntüyü yakalamaktır.",
+      "Bu sayfada kaydırıcı yok; laboratuvar bir harita okuma tatbikatıdır. Üstteki on bir düğme (<strong>Tümü</strong>, <strong>Metaller</strong>, <strong>Ametaller</strong>, <strong>Yarı metaller</strong>, <strong>1A Alkali</strong>, <strong>2A Toprak alkali</strong>, <strong>Halojenler (17)</strong>, <strong>Soy gazlar (18)</strong>, <strong>Geçiş metalleri</strong>, <strong>Lantanitler</strong>, <strong>Aktinitler</strong>) bir aileyi renklendirir, diğerlerini soluklaştırır. Her kutuda üstte atom numarası, ortada simge, altta kütle yazar. Bir kutuya tıklayınca alttaki ayrıntı kutusunda simge ve ad, <strong>Atom numarası</strong>, <strong>Kütle</strong>, <strong>Periyot</strong>, <strong>Grup</strong> ve ailesi görünür. Tek uyarı: lantanitler ve aktinitler tablonun altında iki ayrı sıra olarak çizildiği için ayrıntı kutusu onlara 'Periyot 8' ve 'Periyot 9' der ve 'Grup' olarak çizim sütununu verir; gerçekte lantanitler 6., aktinitler 7. periyottadır ve bu iki sıraya 1–18 grup numarası verilmez. Deney, tıklayıp okumak ve sayılardaki örüntüyü yakalamaktır.",
     experiments: [
       {
         title: "Alkali sütunu ve gizli ritim",
@@ -83,11 +83,11 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
         predict:
           "Atom numarası arttıkça kütle de her zaman artar mı? Toryum (90) ile protaktinyum (91) ve kobalt (27) ile nikel (28) için tahmin yürüt.",
         do:
-          "<strong>Aktinitler</strong> düğmesine basıp en alt sırada Th ve Pa kutularına tıkla; Kütle satırlarını karşılaştır. Sonra <strong>Tümü</strong>'ne dönüp tablonun ortasındaki Co ve Ni kutularını dene.",
+          "<strong>Aktinitler</strong> düğmesine basıp en alt sırada Th ve Pa kutularına tıkla; Kütle satırlarını karşılaştır. Sonra <strong>Tümü</strong>'ne dönüp tablonun ortasındaki Co ve Ni kutularını dene. Vaktin varsa alt sırada U ile Np'ye de bak.",
         observe:
-          "Th 232.04 u, Pa 231.04 u: numara büyüdü, kütle 1 u küçüldü. Co 58.93, Ni 58.69: aynı ters dönüş. Tabloda böyle dört çift vardır; diğer ikisi argon–potasyum (39.95'e karşı 39.1) ve tellür–iyot (127.6'ya karşı 126.9).",
+          "Th 232.04 u, Pa 231.04 u: numara büyüdü, kütle 1 u küçüldü. (Ayrıntı kutusundaki 'Periyot 9, Grup 4' çizim satırıdır; toryum gerçekte yedinci periyottadır.) Co 58.93, Ni 58.69: aynı ters dönüş. Ondalıklı kütleler arasında böyle dört çift vardır; diğer ikisi argon–potasyum (39.95'e karşı 39.1) ve tellür–iyot (127.6'ya karşı 126.9). U 238.03 → Np 237 ve biraz ötede Pu 244 → Am 243 de geriye gider, ama orada sayıların türü değişir: ondalıksız olanlar bir ortalama değil, tek bir izotopun kütle numarasıdır.",
         explain:
-          "Kütle, izotop karışımının ortalamasıdır ve nötron sayısına bağlıdır; proton sayısı ise her atomda tam ve kesindir. Mendeleyev kütleye göre dizerken Te–I çiftini kimyasal benzerlik uğruna bile isteye ters çevirdi; Moseley 1913'te gerçek anahtarın proton sayısı olduğunu X-ışınlarıyla gösterdi. Dört ters çevrim, tablonun kütleyle değil numarayla sıralandığının tabloya kazınmış kanıtıdır.",
+          "Kütle, izotop karışımının ortalamasıdır ve nötron sayısına bağlıdır; proton sayısı ise her atomda tam ve kesindir. Mendeleyev kütleye göre dizerken Te–I çiftini kimyasal benzerlik uğruna bile isteye ters çevirdi; Moseley 1913'te gerçek anahtarın proton sayısı olduğunu X-ışınlarıyla gösterdi. Dört ters çevrim, tablonun kütleyle değil numarayla sıralandığının tabloya kazınmış kanıtıdır. Ondalıksız kütlelerin neden ayrı bir tür olduğu bir sonraki deneyde.",
       },
       {
         title: "Hangi kütleler tam sayı?",
@@ -98,7 +98,7 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
         observe:
           "Bi 208.98 ve U 238.03 ondalıklı; Po 209 ve Rn 222 tam sayı. Tc 98 ve Pm 145 de tam sayıdır. Oksijenin 16, florun 19 görünmesi ayrı bir sebeptendir: sayfa 15.999 ve 18.998 değerlerini yuvarlamıştır.",
         explain:
-          "Ondalıklı değer bir <strong>standart atom ağırlığı</strong>dır: yerkabuğunda belirli bir izotop karışımıyla bulunan elementin ortalaması. Kararlı izotopu olmayan Po, Rn, Tc, Pm gibi elementlere IUPAC böyle bir değer vermez; tablolar en uzun ömürlü izotopun kütle numarasını yazar. Bizmut sınır durumdur: tek doğal izotopu bozunur ama yarı ömrü yaklaşık 2×10¹⁹ yıl, evrenin yaşının bir milyar katından uzundur. Uranyum da radyoaktiftir ama izotopları o kadar uzun ömürlüdür ki yerkabuğunda sabit bir karışımla bulunur; bu yüzden ağırlığı ondalıklıdır.",
+          "Ondalıklı değer bir <strong>standart atom ağırlığı</strong>dır: yerkabuğunda belirli bir izotop karışımıyla bulunan elementin ortalaması. Kararlı izotopu olmayan Po, Rn, Tc, Pm gibi elementlere IUPAC böyle bir değer vermez; tablolar en uzun ömürlü izotopun kütle numarasını yazar. Bizmut sınır durumdur: tek doğal izotopu bozunur ama yarı ömrü yaklaşık 2×10¹⁹ yıl, evrenin yaşının bir milyar katından uzundur. Uranyum da radyoaktiftir ama izotopları o kadar uzun ömürlüdür ki yerkabuğunda sabit bir karışımla bulunur; bu yüzden ağırlığı ondalıklıdır. Toryum ve protaktinyum için de aynı şey geçerlidir.",
       },
     ],
   },
@@ -106,12 +106,12 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
     {
       title: "Görmediği metalin yoğunluğunu düzeltti",
       body:
-        "Paul-Émile Lecoq de Boisbaudran 1875'te çinko cevherinden ayırdığı galyumun yoğunluğunu 4.7 g/cm³ ölçtü. Mendeleyev dört yıl önce bu kutuya 'eka-alüminyum' adını ve yaklaşık 6 g/cm³ yoğunluğu yazmıştı; ölçümün yanlış olması gerektiğini bildirdi. Saflaştırılan örnek 5.9 verdi; bugünkü değer 5.91. Bir teori, bir laboratuvar ölçümünü ilk kez masa başından düzeltmişti.",
+        "Paul-Émile Lecoq de Boisbaudran 1875'te çinko cevherinden ayırdığı galyumun yoğunluğunu 4.7 g/cm³ ölçtü. Mendeleyev dört yıl önce bu kutuya 'eka-alüminyum' adını ve yaklaşık 6 g/cm³ yoğunluğu yazmıştı; ölçümün yanlış olması gerektiğini bildirdi. Saflaştırılan örnek 5.9 verdi; bugünkü değer 5.91. Bir tablo, bir laboratuvar terazisini masa başından düzeltmişti.",
     },
     {
       title: "Gelibolu'da ölen fizikçi",
       body:
-        "Henry Moseley 1913'te, elementlerin X-ışını frekanslarının karekökünü atom numarasına karşı çizince kusursuz bir doğru elde etti. Tabloya tam sayı anahtarını veren bu çalışma yirmi beş yaşında yapılmıştı. İki yıl sonra, 10 Ağustos 1915'te, Çanakkale cephesinde Gelibolu'da öldü. Kaybın o kadar ağır görüldüğü, Britanya'nın bundan sonra önde gelen bilim insanlarını cephe görevinden uzak tuttuğu kayıtlara geçer.",
+        "Henry Moseley 1913'te, elementlerin X-ışını frekanslarının karekökünü atom numarasına karşı çizince kusursuz bir doğru elde etti. Tabloya tam sayı anahtarını veren bu çalışma yirmi beş yaşında yapılmıştı. İki yıl sonra, 10 Ağustos 1915'te, Çanakkale cephesinde Gelibolu'da öldü. Bu kaybın ardından Britanya'nın önde gelen bilim insanlarını artık cepheye göndermediği yazılır; Nobel'i olmayan en ünlü fizikçilerden biri olarak anılır.",
     },
     {
       title: "Milisaniyelik element",
@@ -122,11 +122,11 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
   worked: {
     title: "Mendeleyev gibi tahmin et: eka-silisyum",
     prompt:
-      "Germanyum hiç keşfedilmemiş gibi davran. Boş kutunun dört komşusunun (üstte Si, altta Sn, solda Ga, sağda As) tablodaki kütlelerinden ve bilinen yoğunluklarından kutunun değerlerini kestir; Mendeleyev'in 1871 tahmini ve Winkler'in 1886 ölçümüyle karşılaştır.",
+      "Germanyum hiç keşfedilmemiş gibi davran. Boş kutunun dört komşusunun (üstte Si, altta Sn, solda Ga, sağda As) sayfadaki kütlelerinden ve bilinen yoğunluklarından kutunun değerlerini kestir; Mendeleyev'in 1871 tahmini ve Winkler'in 1886 ölçümüyle karşılaştır.",
     steps: [
       "Dikey komşular: Si 28.09 u ve Sn 118.71 u. Ortalama (28.09 + 118.71) / 2 = 73.4 u.",
       "Yatay komşular: Ga 69.72 u ve As 74.92 u. Ortalama (69.72 + 74.92) / 2 = 72.3 u. İki ortalamanın ortalaması (73.4 + 72.3) / 2 ≈ 72.9 u.",
-      "Yoğunluk için aynı yöntem: Si 2.33 ve Sn 7.29 g/cm³ → 4.81; Ga 5.91 ve As 5.73 g/cm³ → 5.82. Ortalama (4.81 + 5.82) / 2 ≈ 5.3 g/cm³.",
+      "Yoğunluk için aynı yöntem: Si 2.33 ve Sn 7.27 g/cm³ → 4.80; Ga 5.91 ve As 5.73 g/cm³ → 5.82. Ortalama (4.80 + 5.82) / 2 ≈ 5.3 g/cm³.",
       "Karşılaştır: Mendeleyev 1871'de, galyum henüz bilinmezken, 72 u ve 5.5 g/cm³ öngörmüştü. 1886'da bulunan germanyum için ölçülen değerler 72.6 u ve 5.35 g/cm³ çıktı; bugünkü değerler 72.63 u ve 5.32 g/cm³.",
     ],
     result:
@@ -181,11 +181,16 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
   },
   quiz: [
     {
-      question: "Modern periyodik tabloda elementlerin sırasını ne belirler?",
-      options: ["Atom kütlesi", "Çekirdekteki proton sayısı", "Nötron sayısı", "Keşif tarihi"],
+      question: "Argon (kütle 39.95 u) potasyumdan (39.1 u) ağırdır ama tabloda ondan önce gelir. Neden?",
+      options: [
+        "Argon daha önce keşfedildiği için",
+        "Argonun 18, potasyumun 19 protonu vardır; sıra proton sayısına göredir",
+        "Gazlar tabloda metallerden önce yazıldığı için",
+        "Sayfadaki kütleler yuvarlandığı için sıra yanlış görünür",
+      ],
       answer: 1,
       explanation:
-        "Sıra atom numarasına, yani proton sayısına göredir. Kütleyle sıralama dört çiftte (Ar–K, Co–Ni, Te–I, Th–Pa) kimyasal aileleri bozar; Moseley 1913'te X-ışınlarıyla gerçek anahtarın proton sayısı olduğunu gösterdi.",
+        "Sıra atom numarasına, yani proton sayısına göredir; kütle izotop karışımının ortalamasıdır ve nötronlara bağlıdır. Kütleyle dizseydin argon potasyumun yerine, yani alkali metallerin sütununa düşerdi. Aynı ters dönüş Co–Ni, Te–I ve Th–Pa çiftlerinde de vardır; Moseley 1913'te X-ışınlarıyla gerçek anahtarın proton sayısı olduğunu gösterdi.",
     },
     {
       question: "Li 3, Na 11, K 19, Rb 37: ardışık alkali metallerin atom numaraları arasındaki 8, 8, 18 farkları neyi sayar?",

@@ -6,20 +6,20 @@ window.ACELYA_DIGEST["altin-oran"] = {
   level: "Lise",
   minutes: 30,
   tagline:
-    "φ = 1,618…; parçanın bütüne benzediği tek oran. Beşgende, Fibonacci dizisinde, ayçiçeğinin tohum sarmallarında gerçekten var; Parthenon'da ve insan yüzünde ise çoğunlukla sonradan uydurulmuş.",
+    "Bir çubuğu öyle böl ki kalan parça bütünün küçük kopyası olsun: φ = 1,618… Beşgende, Fibonacci dizisinde ve ayçiçeğinin sarmallarında gerçekten var; Parthenon'da ve insan yüzünde ise çoğunlukla sonradan uydurulmuş.",
   hook:
     "Bir ayçiçeğinin ortasına yakından bak: tohumlar iki yönde sarmal çizer. Saat yönündekileri sayarsan 34, ötekileri 55 bulursun; büyük bir çiçekte 55 ve 89. Neden hep bu sayılar? Ve neden aynı sayı, 2300 yıl önce yazılmış bir Yunan geometri kitabının bir tanımından da çıkıyor?",
   bigIdea:
     "Altın oran, bir parçayı ayırdığında kalanın yine aynı oranı taşıdığı tek orandır: <strong>φ² = φ + 1</strong>. Bu kendine benzerlik Fibonacci dizisinde, beşgende, logaritmik spiralde ve bitkilerin tohum diziliminde aynı sayıyı doğurur; ama her güzel şeyin içinde değildir.",
   story: [
-    "Altın oranın en eski güvenilir kaydı Öklid'in <em>Elementler</em>'idir (MÖ 300 civarı). Öklid ona 'altın' demedi; 'bir doğruyu <strong>aşırı ve orta oranda bölmek</strong>' dedi: bütün büyük parçaya nasıl oranlanıyorsa, büyük parça küçüğe öyle oranlansın. Bu bölmeye ihtiyacı vardı, çünkü düzgün beşgeni pergel ve cetvelle çizmenin yolu buradan geçer: beşgenin köşegeni kenarına tam bu oranla bölünür. Pisagorcuların beşgen yıldızı simge olarak kullandığı anlatılır; ama onların bu oranı bilinçli olarak incelediğine dair elimizde metin yoktur. 'Altın kesit' adı ancak 1835'te Alman matematikçi Martin Ohm'un bir kitabında görülür; φ harfinin ise 20. yüzyılın başında heykeltıraş Fidias'ın adının ilk harfinden seçildiği söylenir.",
+    "Altın oranın en eski güvenilir kaydı Öklid'in <em>Elementler</em>'idir (MÖ 300 civarı). Öklid ona 'altın' demedi; 'bir doğruyu <strong>aşırı ve orta oranda bölmek</strong>' dedi: bütün büyük parçaya nasıl oranlanıyorsa, büyük parça küçüğe öyle oranlansın. Bu bölmeye ihtiyacı vardı, çünkü düzgün beşgeni pergel ve cetvelle çizmenin yolu buradan geçer: beşgenin köşegeni kenarına tam bu oranla bölünür. Pisagorcuların beşgen yıldızı simge olarak kullandığı anlatılır; ama bu oranı bilinçli olarak incelediklerine dair elimizde tek satır yoktur. 'Altın kesit' adı ancak 1835'te, Alman matematikçi Martin Ohm'un bir ders kitabında görülür; φ harfi ise 20. yüzyılın başında, heykeltıraş Fidias'ın adının ilk harfi olarak seçilmiştir. Yani Öklid'in iki bin yıl boyunca adı bile olmayan oranı, altın unvanını oldukça geç almıştır.",
     "Sayı, ikinci kez bambaşka bir kapıdan girdi. 1202'de Pisalı Leonardo (Fibonacci), <em>Liber Abaci</em> adlı hesap kitabında bir tavşan sorusu sordu: her ay yeni bir çift doğuran ve ikinci ayından itibaren üreyen çiftler on iki ay sonra kaça ulaşır? Cevap 377'ydi ve aylık sayılar 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377 diye gidiyordu: her sayı önceki ikisinin toplamı. Aynı dizi Hindistan'da çok daha önce, şiir vezinlerindeki kısa ve uzun heceleri sayan Virahanka ve Hemaçandra gibi bilginler tarafından bulunmuştu. Ardışık terimlerin oranının 1,618…'e yaklaştığını ise 17. yüzyılın başında Kepler fark etti. Bir geometri tanımı ile bir sayma sorusu aynı sayıda buluşmuştu.",
     "Sonra efsane başladı. 1509'da Luca Pacioli, Leonardo da Vinci'nin çizimleriyle süslü <em>De divina proportione</em> ('İlahi Oran') kitabını bastı ve sayıya kutsal bir hava kattı. 1854'te Adolf Zeising, insan bedeninden bitkilere her güzel biçimin altın oranla kurulduğunu ilan etti; Parthenon'un, Mona Lisa'nın ve insan yüzünün φ ile ölçüldüğü iddiaları buradan türedi. Kanıt ne diyor? Parthenon MÖ 447–432'de yapıldı, mimarlarının φ'yi hedeflediğine dair hiçbir belge yok ve dikdörtgeni nereden ölçtüğünüze göre oran 1,5 ile 1,8 arasında oynuyor. George Markowsky 1992'de bu iddiaları tek tek sınadı ve çoğunun, istenen sonucu veren ölçüm noktalarını sonradan seçmeye dayandığını gösterdi. Nautilus kabuğu da altın spiral değildir: her tam turda yaklaşık 3 kat büyür, altın spiral ise 6,85 kat.",
     "Peki gerçek nerede? Bitkilerin yaprak ve tohum diziliminde: büyüme noktasında her yeni tohum bir öncekinden <strong>altın açı</strong> kadar (137,5°) dönerek yerleşir ve bu, yüzeyi en sıkı dolduran düzen olduğu için sarmal sayıları Fibonacci sayıları çıkar. Penrose döşemelerinde ve 1982'de keşfedilen yarı kristallerde: beş katlı simetriyi taşıyan her yapı φ'yi taşır. Ve bilgisayar biliminde: Öklid'in bölme algoritması en çok adımı ardışık iki Fibonacci sayısında atar; dengeli arama ağaçlarının en kötü yüksekliği φ ile ölçülür. Altın oran süslemenin değil, kendine benzerliğin sayısıdır.",
   ],
   core: [
     {
-      heading: "Tanım: bütünün parçaya benzemesi",
+      heading: "Kalan parça bütünün kopyası olsun",
       body:
         "Bir çubuğu a (büyük) ve b (küçük) diye iki parçaya böl. Bütünün büyüğe oranı, büyüğün küçüğe oranına eşitse bölme altındır: (a + b)/a = a/b. Bu orana x dersen eşitlik x = 1 + 1/x olur, yani <strong>x² = x + 1</strong>. İkinci dereceden bu denklemin pozitif kökü φ'dir. Formülün söylediği şey basit ama derindir: φ'nin karesi kendisinden bir fazla, tersi kendisinden bir eksiktir. Başka hiçbir pozitif sayı bunu yapamaz.",
       formula: "φ = (1 + √5)/2 ≈ 1,618 034",
@@ -35,7 +35,7 @@ window.ACELYA_DIGEST["altin-oran"] = {
     {
       heading: "Altın dikdörtgen ve logaritmik spiral",
       body:
-        "Kenarları φ oranında olan bir dikdörtgenden bir kare kes; kalan parça yine altın dikdörtgendir. Bunu sonsuza dek sürdürüp her kareye çeyrek çember çizersen altın spiral belirir: her çeyrek turda merkezden uzaklık φ katına çıkar, tam turda φ⁴ ≈ 6,85 katına. Bu bir <strong>logaritmik spiral</strong>dir: açı eşit adımlarla artarken yarıçap eşit <em>katlarla</em> büyür. Jakob Bernoulli bu eğriye 'spira mirabilis' dedi ve mezar taşına kazınmasını istedi; büyütüp döndürdüğünde kendine dönüşen tek spiraldir.",
+        "Kenarları φ oranında olan bir dikdörtgenden bir kare kes; kalan parça yine altın dikdörtgendir. Bunu sonsuza dek sürdürüp her kareye çeyrek çember çizersen altın spiral belirir: her çeyrek turda merkezden uzaklık φ katına çıkar, tam turda φ⁴ ≈ 6,85 katına. Bu bir <strong>logaritmik spiral</strong>dir: açı eşit adımlarla artarken yarıçap eşit <em>katlarla</em> büyür. Jakob Bernoulli bu eğriye 'spira mirabilis' (mucizevi spiral) dedi ve mezar taşına kazınmasını vasiyet etti; Basel'deki taşa ise ustanın yanlışlıkla kazıdığı, sarmalları eşit aralıklı bir Arşimet spirali durur. Logaritmik spiral, büyütüp döndürdüğünde kendine dönüşen tek spiraldir.",
       formula: "r(θ) = r₀ · φ<sup>θ/90°</sup>",
       formulaNote: "Bu sayfadaki spiral her 45°'de φ katına çıkar, yani r(θ) = r₀ · φ<sup>θ/45°</sup>: altın spiralden iki kat daha dik, bir turda 47 kat büyüyen bir logaritmik spiral.",
     },
@@ -56,35 +56,35 @@ window.ACELYA_DIGEST["altin-oran"] = {
   ],
   lab: {
     intro:
-      "Bu sayfada kaydırıcı ya da menü yok; yalnızca üç boyutlu bir sahne var. Kontroller farenin kendisi: <strong>sol tuşla sürükle</strong> sahneyi döndürür, <strong>tekerlek</strong> yakınlaştırıp uzaklaştırır, <strong>sağ tuşla sürükle</strong> kaydırır (dokunmatik ekranda tek parmak döndürür, iki parmak yakınlaştırır). Kod 100 sarı top üretir: ilki merkezden 0,1 birim uzakta, her sonraki top bir öncekinden φ kat daha uzakta ve 45° daha dönmüş. Toplar ayrıca yavaşça öne-arkaya salınır.",
+      "Bu sayfada kaydırıcı ya da menü yok; yalnızca üç boyutlu bir sahne var. Kontroller farenin kendisi: <strong>sol tuşla sürükle</strong> sahneyi döndürür, <strong>tekerlek</strong> yakınlaştırıp uzaklaştırır, <strong>sağ tuşla sürükle</strong> kaydırır (dokunmatik ekranda tek parmak döndürür, iki parmak yakınlaştırır). Kod, yarıçapı 0,2 birim olan 100 sarı top üretir: ilki merkezden 0,1 birim uzakta, her sonraki top bir öncekinden φ kat daha uzakta ve 45° daha dönmüş; kamera 20 birim geriden bakar. Toplar ayrıca yavaşça öne-arkaya salınır. Aşağıdaki sayılar doğrudan bu kuraldan hesaplandı; sen de 0,1 × φⁿ ile kontrol edebilirsin.",
     experiments: [
       {
         title: "Yüz toptan kaçı görünüyor?",
         predict: "Kod 100 top çiziyor. Sayfa açıldığında kaçını görebileceğini tahmin et: hepsini mi, yarısını mı, bir avucunu mu?",
         do: "Sayfayı yenile, hiçbir şeye dokunmadan ekrandaki topları say. Merkezdeki iç içe geçmiş yumruyu tek tek saymaya çalışma; onu bir grup olarak al.",
         observe: "Geniş ekranda yaklaşık 12 top: ortada 4–5 topun kaynaştığı bir yumru, çevresinde gittikçe seyrelen 7–8 top. Kalan 88 top ekranın dışındadır.",
-        explain: "Uzaklıklar toplanarak değil çarpılarak büyür: 0,1 × φⁿ. Onuncu top 12,3 birimde, on ikinci top 32 birimdedir; kamera ise 20 birim uzaktan yaklaşık 15 birimlik bir yarıçap görür. Üstel büyüme on adımda 123 kat demektir.",
+        explain: "Uzaklıklar toplanarak değil çarpılarak büyür: 0,1 × φⁿ. Merkezden sayınca 11. top 12,3 birimde, 12. top 19,9 birimde, 13. top 32 birimdedir; kamera ise 20 birim geriden, yukarı-aşağı yönde yalnızca 15 birimlik bir yarıçap görür (yana doğru ekranın enine göre biraz daha fazla). Üstel büyüme on adımda 123 kat demektir; bu yüzden ilk on iki top ekrana sığar, kalan 88'i sığmaz.",
       },
       {
         title: "Sekiz ışın",
         predict: "Spiral deyince kıvrımlı bir eğri beklersin. Toplar düz çizgiler üzerine de dizilebilir mi? Kaç çizgi olurdu?",
         do: "Sahneye dokunmadan ya da tekerlekle biraz uzaklaşarak topların merkezden geçen düz doğrular üzerinde olup olmadığına bak. Sağa (3 yönü) ve yukarı (12 yönü) düşen topları bul.",
-        observe: "Toplar merkezden çıkan sekiz düz ışına dizilir: 0°, 45°, 90°… Aynı ışın üzerindeki iki komşu top arasında tam sekiz top vardır ve dıştaki içtekinden yaklaşık 47 kat uzaktadır: sağdaki ışında 0,1; 4,7; 221 birim.",
+        observe: "Toplar merkezden çıkan sekiz düz ışına dizilir: 0°, 45°, 90°… Aynı ışın üzerindeki iki komşu top arasında sekiz adım (aradaki öteki ışınlarda yedi top) vardır ve dıştaki içtekinden yaklaşık 47 kat uzaktadır: sağdaki ışında 0,1; 4,7; 221 birim. Üçüncüsü ekrana sığmaz; tekerlekle uzaklaşsan bile 221 birim için epey geri gitmen gerekir.",
         explain: "45°, 360°'yi tam böler; sekiz adımda başa dönülür. φ⁸ ≈ 46,98 olduğu için her ışında uzaklık 47 kat atlar. Bitki 137,5° kullanır; bu açı tam turu asla eşit bölmez, o yüzden tohumlar ışın değil sarmal çizer.",
       },
       {
         title: "Çeyrek tur testi: bu altın spiral mi?",
         predict: "Gerçek altın spiral her çeyrek turda φ ≈ 1,62 kat büyür. Sağdaki toptan (3 yönü) yukarıdaki topa (12 yönü) geçince uzaklık kaç katına çıkar: 1,6 mı, 2,6 mı?",
-        do: "Sayfa yeni açılmışken sağ ışında, merkeze en yakın seçilebilen topu bul (4,7 birimde); sonra ondan iki top sonraki, tam yukarıdaki topu (12,3 birimde). Göz kararı ya da ekrana cetvel tutarak uzaklıkları karşılaştır.",
+        do: "Sayfa yeni açılmışken sağ ışında, merkez yumrusunun dışındaki ilk topu bul (4,7 birimde); sonra ondan iki top sonraki, tam yukarıdaki topu (12,3 birimde). Göz kararı ya da ekrana cetvel tutarak uzaklıkları karşılaştır.",
         observe: "Yukarıdaki top, sağdakinden yaklaşık 2,6 kat uzaktadır; soldaki (6,85 kat) ise yarım turda altın spiralin tam turda yaptığını yapar. Uzaklıklar 4,7 → 12,3 → 32,2 birim.",
         explain: "Çeyrek turda iki adım atılıyor: φ² ≈ 2,618. Sayfanın spirali logaritmik ama altın değil; altın spiral için adım açısı 90° ya da büyüme çarpanı √φ ≈ 1,27 olmalıydı.",
       },
       {
         title: "Yandan bak: içeri akan dalga",
         predict: "Toplar düzlem içinde durmuyor; öne-arkaya salınıyor. Bir gidiş-dönüş kaç saniye sürer, komşu toplar aynı anda mı tepeye çıkar?",
-        do: "Sol tuşla yatay sürükleyip sahneyi yandan görene kadar (90° kadar) döndür; toplar bir çizgiye dizilsin. Bir topun aynı yönde iki kez tepeye çıkışı arasındaki süreyi saatle ölç; sonra merkezdeki ve en dıştaki topların tepe anlarını karşılaştır.",
-        observe: "Her top yaklaşık 6,3 saniyede bir gidiş-dönüş yapar ve toplam 1 birim (iki buçuk top çapı) yol alır. Dıştaki toplar içtekilerden biraz önce tepeye çıkar; dalga dıştan merkeze doğru akıyor gibi görünür.",
-        explain: "Kod z = 0,5·sin(t + 0,1·n) kullanır: genlik 0,5, periyot 2π ≈ 6,28 s, her top bir öncekinden 0,1 radyan (5,7°) ileride. Ekrandaki on iki top arasında toplam faz farkı 1,1 radyan, yani yaklaşık 1,1 saniyedir.",
+        do: "Sol tuşla yatay sürükleyip sahneyi yandan görene kadar (90° kadar) döndür; spiral düzlemi kenardan görününce toplar dikey bir çizgiye yakın dizilir ve öne-arkaya salınım artık sağa-sola gidip gelme olarak görünür. Bir topun aynı yöne iki kez varışı arasındaki süreyi saatle ölç; sonra merkezdeki ve en dıştaki topların uç noktaya varış anlarını karşılaştır.",
+        observe: "Her top yaklaşık 6,3 saniyede bir gidiş-dönüş yapar ve uçtan uca 1 birim (iki buçuk top çapı) yol alır. Dıştaki toplar içtekilerden biraz önce uca varır; dalga dıştan merkeze doğru akıyor gibi görünür.",
+        explain: "Kod z = 0,5·sin(t + 0,1·n) kullanır (t saniye, n topun sırası): genlik 0,5 birim, periyot 2π ≈ 6,28 s, her top bir öncekinden 0,1 radyan (5,7°) ileride. Ekrandaki on iki top arasında toplam faz farkı 1,1 radyan, yani yaklaşık 1,1 saniyedir; dalganın içeri akıyor görünmesinin tek sebebi bu küçük gecikme zinciridir.",
       },
     ],
   },
@@ -127,7 +127,7 @@ window.ACELYA_DIGEST["altin-oran"] = {
     {
       myth: "Fibonacci dizisinde yeterince ilerlersen oran tam olarak 1,618 olur.",
       truth:
-        "Hiçbir zaman. φ irrasyoneldir; iki tam sayının oranı ona ancak yaklaşır. Oranlar bir alttan bir üstten yaklaşır (1,5; 1,667; 1,6; 1,625; …) ve fark her adımda yaklaşık 2,6 kat küçülür ama asla sıfır olmaz. 1,618 de φ'nin kendisi değil, dört basamağa yuvarlanmış halidir.",
+        "Hiçbir zaman. φ irrasyoneldir; iki tam sayının oranı ona ancak yaklaşır. Oranlar bir alttan bir üstten yaklaşır (1,5; 1,667; 1,6; 1,625; …) ve fark her adımda yaklaşık 2,6 kat küçülür ama asla sıfır olmaz. 1,618 de φ'nin kendisi değil, üç ondalık basamağa yuvarlanmış halidir; φ'nin açılımı 1,6180339887… diye sonsuza gider.",
     },
     {
       myth: "Fibonacci spirali ile altın spiral aynı şeydir.",
@@ -137,7 +137,7 @@ window.ACELYA_DIGEST["altin-oran"] = {
     {
       myth: "Bitkiler Fibonacci sayılarını 'bilir'.",
       truth:
-        "Bitki sayı saymaz. Büyüme noktasında yeni tohum, öncekilerin en az ittiği boşluğa yerleşir; bu basit kural ardışık tohumlar arasında 137,5°'lik açıyı doğurur ve Fibonacci sayıları bunun sonucu olarak ortaya çıkar. Douady ve Couder'in mıknatıslı damlacıkları da aynı deseni verir. Üstelik kural bazen bozulur: incelenen yüzlerce ayçiçeğinin yaklaşık dörtte biri tam Fibonacci sayısı vermez.",
+        "Bitki sayı saymaz. Büyüme noktasında yeni tohum, öncekilerin en az ittiği boşluğa yerleşir; bu basit kural ardışık tohumlar arasında 137,5°'lik açıyı doğurur ve Fibonacci sayıları bunun sonucu olarak ortaya çıkar. Douady ve Couder'in mıknatıslı damlacıkları da aynı deseni verir. Üstelik kural bazen bozulur: 2016'da yayımlanan, 657 ayçiçeği başının sayıldığı bir gönüllü bilim projesinde başların yaklaşık dörtte biri tam Fibonacci sayısı vermedi; bazıları Lucas sayıları (1, 3, 4, 7, 11, 18, …) gibi akraba dizilere, bazıları hiçbirine uymadı.",
     },
   ],
   glossary: [
@@ -148,7 +148,7 @@ window.ACELYA_DIGEST["altin-oran"] = {
     { term: "Altın açı", definition: "360°/φ² ≈ 137,5°; bitkilerin ardışık yaprak ve tohumlarını yerleştirdiği, tam turu asla eşit bölmeyen dönme açısı." },
     { term: "Filotaksi", definition: "Bitkilerde yaprak, tohum ve dalların gövde ya da çiçek tablası üzerindeki dizilim düzeni." },
     { term: "Sürekli kesir", definition: "Bir sayıyı iç içe kesirler olarak yazma biçimi; φ'ninki yalnızca birlerden oluşur: 1 + 1/(1 + 1/(1 + …))." },
-    { term: "İrrasyonel sayı", definition: "İki tam sayının oranı olarak yazılamayan sayı; ondalık açılımı sonsuz ve tekrarsızdır. φ, √5 ile birlikte irrasyoneldir." },
+    { term: "İrrasyonel sayı", definition: "İki tam sayının oranı olarak yazılamayan, ondalık açılımı sonsuz ve tekrarsız olan sayı; √5 gibi φ de irrasyoneldir." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",

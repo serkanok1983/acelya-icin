@@ -12,9 +12,16 @@ window.ACELYA_CATALOG = {
   },
   "altin-oran": {
     "title": "Altın Oran: Kendine Benzeyen Sayı",
-    "tagline": "φ = 1,618…; parçanın bütüne benzediği tek oran. Beşgende, Fibonacci dizisinde, ayçiçeğinin tohum sarmallarında gerçekten var; Parthenon'da ve insan yüzünde ise çoğunlukla sonradan uydurulmuş.",
+    "tagline": "Bir çubuğu öyle böl ki kalan parça bütünün küçük kopyası olsun: φ = 1,618… Beşgende, Fibonacci dizisinde ve ayçiçeğinin sarmallarında gerçekten var; Parthenon'da ve insan yüzünde ise çoğunlukla sonradan uydurulmuş.",
     "field": "Matematik",
     "level": "Lise",
+    "minutes": 30
+  },
+  "asteroids": {
+    "title": "Asteroids: Uzayda Eylemsizlik Dersi",
+    "tagline": "1979'da Atari'nin en çok satan kabini, beş düğmeyle Newton'un birinci yasasını öğretti: gemi baktığı yöne değil, hız vektörünün gösterdiği yöne gider. Bu sayfadaki kodun her satırı o dersin içinde.",
+    "field": "Oyun",
+    "level": "Lise hazırlık",
     "minutes": 30
   },
   "bicimsel-diller-ve-otomata-teorisi": {
@@ -30,6 +37,13 @@ window.ACELYA_CATALOG = {
     "field": "Bilgisayar Bilimi",
     "level": "Lise",
     "minutes": 35
+  },
+  "cizge-teorisi": {
+    "title": "Çizge Teorisi: Köprülerden Algoritmalara",
+    "tagline": "Yedi köprü, bir nehir ve 1736'da 'bunun matematikle pek ilgisi yok' diyen Euler. Noktalarla çizgilerden kurulu bu dünya bugün harita uygulamalarının, sosyal ağların ve internetin omurgası.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
   },
   "derleyici-ve-yorumlayicilar": {
     "title": "Derleyici ve Yorumlayıcı: Kodun Makineye Yolculuğu",
@@ -51,6 +65,20 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise",
     "minutes": 30
+  },
+  "elektrokimya": {
+    "title": "Elektrokimya: Pilin İçindeki Merdiven",
+    "tagline": "Bir çinko parçası neden bakır iyonlarına elektron verir de tersi olmaz? Cevap, metallerin dizildiği bir voltaj merdiveninde gizli: pilin gerilimi, iki basamak arasındaki mesafedir.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "elektronik-muhendisligi": {
+    "title": "Elektronik: Kumdan Düşünen Makineye",
+    "tagline": "Bir kum tanesinin içine birkaç yabancı atom karıştır; akımı tek yöne geçiren bir kapı, sonra bir anahtar, sonra bir bilgisayar çıkar. Elektronik mühendisliği bu zincirin her halkasını tasarlar.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
   },
   "grup-teorisi": {
     "title": "Grup Teorisi: Simetrinin Dilbilgisi",
@@ -94,12 +122,47 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "maden-muhendisligi": {
+    "title": "Maden Mühendisliği: Kayadan Metale Giden Yol",
+    "tagline": "Bir ton kayada bir gram altın, yüz tonda bir ton bakır: maden mühendisi, değersiz görünen taşı bulan, çıkaran ve ayıran kişidir. Sayfadaki kartlar bu yolun duraklarıdır.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
   "makine-dili-assembly-c": {
     "title": "Makine Dili, Assembly ve C: Soyutlamanın Üç Katı",
     "tagline": "Telefonundaki her uygulama sonunda 48 89 F8 gibi byte dizilerine iner. Assembly o byte'lara ad verir, C ise 'hangi işlemci' sorusunu derleyiciye bırakır. Üç kat, tek makine.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise",
     "minutes": 35
+  },
+  "makine-muhendisligi": {
+    "title": "Makine Mühendisliği: Kuvvet, Isı ve Akışın Dili",
+    "tagline": "Bir cetveli dik tutunca yüz kat sertleşir, bir motorun verimi sıkıştırma oranına bakar, bir akışın düzenli mi karışık mı olacağını tek bir sayı söyler. Makine mühendisliği bu üç dili aynı anda konuşur.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "makine-ogrenmesi-derin-ogrenme-llm": {
+    "title": "Makine Öğrenmesi: Hatadan Öğrenen Makineler",
+    "tagline": "Sayfadaki ağın dokuz ağırlığı var; GPT-3'ün 175 milyar. İkisi de aynı şeyi yapar: tahmin et, hatayı ölç, her sayıyı eğimin tersine bir tık kaydır. Öğrenme dediğimiz şey, bu üç adımın milyarlarca kez tekrarıdır.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 40
+  },
+  "makro-ekonomi-ve-para-politikalari": {
+    "title": "Makroekonomi: Faiz, Fiyat ve Paranın Büyük Resmi",
+    "tagline": "Bir ülkenin bütün alışverişini dört harfe sığdıran denklem, altı sıfır atılan bir lira ve tek bir faiz düğmesinin milyonlarca cüzdana nasıl ulaştığı: makroekonominin ve merkez bankacılığının gerçek hikâyesi.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "mantik-devresi": {
+    "title": "Mantık Devresi: Kapılardan Hesaplamaya",
+    "tagline": "Yedi küçük kapı, iki voltaj seviyesi ve bir doğruluk tablosu: 1847'de bir ayakkabıcının oğlunun bulduğu cebir, 1937'de 21 yaşındaki bir öğrencinin elinde devreye dönüştü. Bugün cebindeki telefonun içinde milyarlarca kopyası var.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 30
   },
   "metalurji-ve-malzeme-muhendisligi": {
     "title": "Metalurji ve Malzeme: Atomların Dizilişi, Çeliğin Kaderi",
@@ -108,6 +171,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "mikro-ekonomi-ve-uretim-faktorleri": {
+    "title": "Mikroekonomi: Kıtlık, Fiyat ve Seçim",
+    "tagline": "Su hayat kurtarır, elmas hiçbir işe yaramaz; yine de elmasa servet ödenir. Bu bilmeceyi 'son bardak' fikri çözdü. Sayfadaki iki grafikte denge fiyatını ve tüketicinin en iyi seçimini düğmelerle kendin oynat.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
+  },
   "otomotiv-muhendisligi": {
     "title": "Otomotiv Mühendisliği: Patlamadan Tekerleğe",
     "tagline": "Bir otomobil, saniyede yüz kez tekrarlanan küçük patlamaları düzgün bir dönüşe, o dönüşü de yola çeviren makinedir. Motordan frene her parçası birkaç basit fizik yasasının ürünüdür.",
@@ -115,12 +185,26 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "otonom-araclar-ve-iha": {
+    "title": "Otonom Araçlar ve İHA: Gören, Planlayan, Düzelten Makineler",
+    "tagline": "Sürücüsüz bir araç saniyede onlarca kez üç soru sorar: Neredeyim, ne görüyorum, nereden gideyim? Lazer, radar, 1968 tarihli bir algoritma ve yüz yıllık bir geri besleme fikri bu soruları yanıtlar.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
   "periyodik-tablo": {
     "title": "Periyodik Tablo: Boşlukları Öngören Harita",
-    "tagline": "118 kutuluk bir tablo, 1869'da henüz keşfedilmemiş elementlerin yoğunluğunu öngördü. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
+    "tagline": "1869'da 63 elementle çizilen bir tablo, henüz keşfedilmemiş metallerin yoğunluğunu önceden söyledi. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
     "field": "Kimya",
     "level": "Lise",
     "minutes": 30
+  },
+  "plc-hidrolik-pnomatik-cnc-cadcam": {
+    "title": "Otomasyon: Beyin, Kas ve Dijital Köprü",
+    "tagline": "Bir fabrika üç şeyden kuruludur: karar veren bir beyin (PLC), itip çeken kaslar (hidrolik, pnömatik, dişli) ve çizimi parçaya çeviren dijital bir zincir (CAD, CAM, G-kodu). Hepsi birkaç basit yasaya dayanır.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
   },
   "pong": {
     "title": "Pong: Bir Topun Geometrisi",
