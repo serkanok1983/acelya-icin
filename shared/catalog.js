@@ -3,12 +3,26 @@
  * Ana sayfa kartları ve arama için Keşif Defteri özetleri.
  */
 window.ACELYA_CATALOG = {
+  "dna-replikasyon": {
+    "title": "DNA Replikasyonu: Kendi Kalıbını Taşıyan Molekül",
+    "tagline": "Her hücre bölünmesinden önce iki metrelik bir molekül harf harf kopyalanır; hata payı milyarda bir. Sırrı 1953'te tek bir cümleyle sezildi: çift sarmalın her ipliği, ötekinin kalıbıdır.",
+    "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 30
+  },
   "pong": {
     "title": "Pong: Bir Topun Geometrisi",
     "tagline": "1972'de bir barın bozuk para kutusunu dolduran oyun, aslında saf geometri: hız vektörü, duvarda yansıma ve raketin ucundaki 60 derecelik sır. Bilgisayarı yenmenin formülü de burada.",
     "field": "Oyun",
     "level": "Lise hazırlık",
     "minutes": 25
+  },
+  "roma-hukuku": {
+    "title": "Roma Hukuku: Taş Kaybolur, Kural Kalır",
+    "tagline": "MÖ 450'de Forum'a asılan on iki levhadan tek parça kalmadı; yine de o levhaların mantığı bugün Türk Medeni Kanunu'nda yaşıyor. Hukukun nasıl 'ölümsüz' olduğunun hikâyesi.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
   },
   "sarkac": {
     "title": "Sarkaç: Zamanı Ölçen Salınım",

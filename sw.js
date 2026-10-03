@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-bf5e6014d3";
+const VERSION = "acelya-3c71702f83";
 // --- end:version ---
 
 // --- generated:core ---
@@ -228,7 +228,9 @@ const PAGES = [
 
 // --- generated:digests ---
 const DIGESTS = [
+  "shared/digest/dna-replikasyon.js",
   "shared/digest/pong.js",
+  "shared/digest/roma-hukuku.js",
   "shared/digest/sarkac.js",
   "shared/digest/turev.js",
 ];
