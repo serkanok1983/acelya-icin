@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-4aaac77786";
+const VERSION = "acelya-14ee44391c";
 // --- end:version ---
 
 // --- generated:core ---
@@ -228,11 +228,24 @@ const PAGES = [
 
 // --- generated:digests ---
 const DIGESTS = [
+  "shared/digest/algoritmalar.js",
+  "shared/digest/altin-oran.js",
+  "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
+  "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
+  "shared/digest/derleyici-ve-yorumlayicilar.js",
   "shared/digest/dna-replikasyon.js",
+  "shared/digest/grup-teorisi.js",
+  "shared/digest/internet-ve-ag-teknolojileri.js",
+  "shared/digest/isletim-sistemleri-ve-linux.js",
   "shared/digest/pong.js",
   "shared/digest/roma-hukuku.js",
   "shared/digest/sarkac.js",
+  "shared/digest/siber-guvenlik.js",
+  "shared/digest/tasarim-desenleri.js",
   "shared/digest/turev.js",
+  "shared/digest/veri-yapilari.js",
+  "shared/digest/veritabanlari.js",
+  "shared/digest/yazilim-muhendisligi.js",
 ];
 // --- end:digests ---
 
