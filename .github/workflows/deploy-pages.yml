@@ -1,9 +1,10 @@
 # GitHub Pages: repo ayarlarında Pages → Build and deployment → Source: GitHub Actions seçin.
-name: Deploy to GitHub Pages
+name: Check and deploy
 
 on:
   push:
     branches: [main, master]
+  pull_request:
 
 permissions:
   contents: read
@@ -11,11 +12,40 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  check:
+    name: Site denetimi ve tarayıcı duman testi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Tutarlılık denetimi (bağlantılar, meta, defter şeması)
+        run: node scripts/check-site.mjs --require-digests
+
+      - name: Service worker listesi güncel mi
+        run: node scripts/build-sw.mjs --check
+
+      - name: Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Her sayfayı tarayıcıda aç (JS hatası, defter görünürlüğü)
+        run: node scripts/smoke.mjs --digest --jobs 4
+
   deploy:
+    name: GitHub Pages
+    needs: check
+    if: github.event_name == 'push'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -27,7 +57,7 @@ jobs:
       - name: Prepare site (exclude repo metadata)
         run: |
           mkdir -p _site
-          rsync -a --exclude='.git' --exclude='.github' ./ _site/
+          rsync -a --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='scripts' --exclude='docs' --exclude='package.json' ./ _site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -326,7 +326,7 @@
       document.head.appendChild(apple);
     }
     // Service Worker
-    if ("serviceWorker" in navigator && !navigator.serviceWorker.controller) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js").catch(function () {});
     }
   }
