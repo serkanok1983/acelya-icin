@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-8adef8708b";
+const VERSION = "acelya-bf5e6014d3";
 // --- end:version ---
 
 // --- generated:core ---
@@ -228,7 +228,9 @@ const PAGES = [
 
 // --- generated:digests ---
 const DIGESTS = [
+  "shared/digest/pong.js",
   "shared/digest/sarkac.js",
+  "shared/digest/turev.js",
 ];
 // --- end:digests ---
 
