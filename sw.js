@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-3c71702f83";
+const VERSION = "acelya-4aaac77786";
 // --- end:version ---
 
 // --- generated:core ---

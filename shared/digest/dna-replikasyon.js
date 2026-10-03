@@ -29,7 +29,7 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
       body:
         "Replikasyon bittiğinde ortada iki molekül vardır ve her birinde bir iplik ana molekülden, bir iplik yeni sentezden gelir. Bu, Meselson–Stahl deneyinin ölçtüğü şeydir ve iki sonucu vardır. Birincisi, hücre asla \"sıfırdan\" DNA yazmaz; her zaman eski ipliği okuyarak yazar. İkincisi, bugün senin hücrelerindeki bazı DNA iplikleri, kelimenin tam anlamıyla, doğduğunda bölünen hücrelerden kalmadır. Her nesilde eski ipliklerin payı yarıya iner ama hiçbir zaman sıfır olmaz.",
       formula: "1 molekül → 2 molekül, her biri (1 eski + 1 yeni) iplik",
-      formulaNote: "n bölünme sonra en eski ipliklerin, moleküllerin yalnızca 2/2ⁿ'sinde bulunur; iki nesil sonra dörtte birinde.",
+      formulaNote: "n bölünme sonra 2ⁿ molekülün yalnız ikisi ilk molekülün ipliklerini taşır: iki nesil sonra yarısı, üç nesil sonra dörtte biri.",
     },
     {
       heading: "Çatalda çalışan ekip",
@@ -65,7 +65,7 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
       {
         title: "Tamamlayıcıyı önceden yaz",
         predict: "Üst iplik ATGCGATACGTA ise, kopyalama bittiğinde üst sırada hangi diziyi okuyacaksın? Önce kâğıda yaz, sonra bak.",
-        do: "1. Açılma'da üst ipliği soldan sağa oku. Sonra 3. Sentez'e bas ve Oynat'ı başlat; harflerin belirişini izle. 4. Tamamlanma'da üst sırayı yeniden oku.",
+        do: "1. Açılma'da üst ipliği soldan sağa oku. Sonra 3. Sentez'e bas ve Oynat'ı başlat; harflerin belirişini izle. 4. Tamamlanma'da (Oynat açıkken) üst sırayı yeniden oku.",
         observe: "Harfler soldan sağa, yaklaşık bir saniyede belirir ve üst sıra TACGCTATGCAT olur: tahminin tam tamamlayıcı dizi. Sayfa yeni ipliği kalıbın üstüne çizdiğinden eski harfler yeni harflerin altında kaybolur; gerçekte yeni iplik kalıbın yanına, ona hidrojen bağlarıyla tutunarak dizilir.",
         explain: "Her yeni harf kalıptaki harfin eşidir; kalıp bilgiyi taşır, polimeraz yalnızca okur ve yazar. Hız kıyaslaması: E. coli polimerazı saniyede yaklaşık 1000 nükleotit ekler; bu 12 harf gerçekte 0.012 saniyede, yani sayfadakinden yüz kat hızlı yazılırdı.",
       },
@@ -73,7 +73,7 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
         title: "Primer gelir, primer gider",
         predict: "Primer kaç bazın üstüne oturur ve hangi adımda ortadan kalkar? Bitmiş DNA'da RNA kalır mı?",
         do: "2. Primer'e bas ve mor dikdörtgenleri say: hangi dairelerin üstünde, her iplikte kaç tane? 3. Sentez'e geç ve hâlâ orada mı diye bak. Sonra 4. Tamamlanma'ya bas.",
-        observe: "Her ipliğin en soldaki iki bazının üstünde birer mor blok vardır; 3. adımda da dururlar. 4. Tamamlanma'da kaybolurlar. Aynı anda ortadaki \"Helikaz\" yazısı da gider; iplikler 2. adımdan itibaren birbirinden uzaklaşmıştır.",
+        observe: "Her ipliğin en soldaki iki bazının üstünde birer mor blok vardır; 3. adımda da (Oynat açıkken) dururlar. 4. Tamamlanma'da kaybolurlar. Ortadaki \"Helikaz\" yazısı ise 2. adımdan itibaren hep kalır; iplikler de 2. adımdan itibaren birbirinden uzaklaşmıştır.",
         explain: "Primaz'ın yazdığı RNA parçası polimeraza bir başlangıç 3' ucu verir; iş bitince Pol I primeri söker, yerine DNA yazar ve ligaz çentiği kapatır. Bitmiş molekülde RNA kalmaz. Gerçek primerler on nükleotit civarındadır; sayfa iki bazla temsil eder.",
       },
       {
