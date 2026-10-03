@@ -40,8 +40,15 @@ window.ACELYA_CATALOG = {
   },
   "dna-replikasyon": {
     "title": "DNA Replikasyonu: Kendi Kalıbını Taşıyan Molekül",
-    "tagline": "Her hücre bölünmesinden önce iki metrelik bir molekül harf harf kopyalanır; hata payı milyarda bir. Sırrı 1953'te tek bir cümleyle sezildi: çift sarmalın her ipliği, ötekinin kalıbıdır.",
+    "tagline": "Her hücre bölünmesinden önce iki metre DNA harf harf kopyalanır; hata payı milyarda bir. Sırrı 1953'te tek bir cümleyle sezildi: çift sarmalın her ipliği, ötekinin kalıbıdır.",
     "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "elektrikli-araclar": {
+    "title": "Elektrikli Araçlar: Pilden Tekerleğe Enerji",
+    "tagline": "Saatte 100 kilometreyi aşan ilk otomobil 1899'da elektrikliydi. Yüz yıl kaybolup bir telefon piliyle geri döndü: bataryadan tekerleğe giden enerjinin muhasebesi.",
+    "field": "Mühendislik",
     "level": "Lise",
     "minutes": 30
   },
@@ -52,6 +59,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 35
   },
+  "hesaplama-teorisi": {
+    "title": "Hesaplama Teorisi: Makinelerin Yapamayacağı Şeyler",
+    "tagline": "1936'da, daha ortada tek bir bilgisayar yokken, 'hesaplamak' sözcüğü tanımlandı ve aynı yıl hiçbir bilgisayarın asla cevaplayamayacağı bir soru bulundu. Bu sayfa o tanımın ve o sorunun hikâyesi.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
   "internet-ve-ag-teknolojileri": {
     "title": "İnternet: Paketlerin Dünya Turu",
     "tagline": "Bir tıklamayla yola çıkan veri küçük paketlere bölünür, denizaltı kablolarında ışık hızının üçte ikisiyle gider; yolu yönlendiriciler, adresi DNS, güvenilirliği TCP sağlar. Beş deneyle zinciri tek tek aç.",
@@ -59,10 +73,52 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "isaretciler-ve-bellek-yonetimi": {
+    "title": "İşaretçiler ve Bellek: Adresi Elinde Tutmak",
+    "tagline": "Bir değişkenin değerini değil adresini saklamak, programcıya belleğin anahtarını verir: en hızlı veri yapıları da, 1988'de interneti durduran solucan da aynı anahtarla açıldı.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
   "isletim-sistemleri-ve-linux": {
     "title": "İşletim Sistemi: Donanımı Paylaştıran Hakem",
     "tagline": "Tek bir işlemci, yüzlerce program: hepsi aynı anda çalışıyormuş gibi görünür. Bu yanılsamayı kuran, belleği paylaştıran ve her şeyi dosyaya çeviren yazılıma işletim sistemi denir; Linux onun en çok kopyalanan örneğidir.",
     "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "isletme-bilimi-ve-yonetim": {
+    "title": "İşletme: Kârın Başladığı Çizgi",
+    "tagline": "Bir fabrika kaçıncı üründe kendini öder? Başabaş noktası, katkı payı ve faaliyet kaldıracı: sayfadaki grafikte beş düğmeyle kârın matematiğini kendin kur, sonra Ford'dan Toyota'ya yönetimin hikâyesini oku.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "makine-dili-assembly-c": {
+    "title": "Makine Dili, Assembly ve C: Soyutlamanın Üç Katı",
+    "tagline": "Telefonundaki her uygulama sonunda 48 89 F8 gibi byte dizilerine iner. Assembly o byte'lara ad verir, C ise 'hangi işlemci' sorusunu derleyiciye bırakır. Üç kat, tek makine.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "metalurji-ve-malzeme-muhendisligi": {
+    "title": "Metalurji ve Malzeme: Atomların Dizilişi, Çeliğin Kaderi",
+    "tagline": "Aynı demir, aynı karbon; birkaç saniyelik soğutma farkı yumuşak bir çubuğu cam gibi sert bir bıçağa çevirir. Malzeme mühendisliği, atomların dizilişini okuyup yeniden yazma sanatıdır.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "otomotiv-muhendisligi": {
+    "title": "Otomotiv Mühendisliği: Patlamadan Tekerleğe",
+    "tagline": "Bir otomobil, saniyede yüz kez tekrarlanan küçük patlamaları düzgün bir dönüşe, o dönüşü de yola çeviren makinedir. Motordan frene her parçası birkaç basit fizik yasasının ürünüdür.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "periyodik-tablo": {
+    "title": "Periyodik Tablo: Boşlukları Öngören Harita",
+    "tagline": "118 kutuluk bir tablo, 1869'da henüz keşfedilmemiş elementlerin yoğunluğunu öngördü. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
+    "field": "Kimya",
     "level": "Lise",
     "minutes": 30
   },
@@ -73,9 +129,16 @@ window.ACELYA_CATALOG = {
     "level": "Lise hazırlık",
     "minutes": 25
   },
+  "programlama-paradigmalari": {
+    "title": "Programlama Paradigmaları: Aynı Soruya Beş Kafa",
+    "tagline": "1936'da iki matematikçi 'hesaplamak nedir' sorusuna iki farklı cevap verdi; biri bugünkü döngülerin, öteki map ve filter'ın atasıdır. Aynı altı sayıyı beş ayrı kafayla işleyip neden hep [4, 16, 36] çıktığını görüyoruz.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
   "roma-hukuku": {
     "title": "Roma Hukuku: Taş Kaybolur, Kural Kalır",
-    "tagline": "MÖ 450'de Forum'a asılan on iki levhadan tek parça kalmadı; yine de o levhaların mantığı bugün Türk Medeni Kanunu'nda yaşıyor. Hukukun nasıl 'ölümsüz' olduğunun hikâyesi.",
+    "tagline": "Bir ipotek, bir kira sözleşmesi, bir miras davası: bugün mahkemede konuşulan dilin çoğu 2.000 yıl önce Roma'da yazıldı. Kanun kitabı değil, dava dava biriken bir düşünme yönteminin hikâyesi.",
     "field": "Toplum ve Ekonomi",
     "level": "Lise",
     "minutes": 30
@@ -94,6 +157,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "sicim-teorisi": {
+    "title": "Sicim Teorisi: Evrenin Notaları",
+    "tagline": "Parçacık yerine titreşen minicik bir ip koyarsan kütle çekimi kendiliğinden belirir, ama uzay 10 boyutlu olmak zorunda kalır. Elli yıllık bir fikrin yükselişi, vaatleri ve hâlâ sınanamamış olması.",
+    "field": "Fizik",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
   "tasarim-desenleri": {
     "title": "Tasarım Desenleri: Programcıların Ortak Sözlüğü",
     "tagline": "Bir mimarın 1977'de evler için yazdığı 253 'desen', 1994'te dört programcının elinde 23 yazılım desenine dönüştü. Bugün her büyük programın içinde aynı 23 fikir döner; ilk wiki bile bu desenleri tartışmak için kuruldu.",
@@ -107,6 +177,27 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise",
     "minutes": 30
+  },
+  "ucak-muhendisligi-ve-aerodinamik": {
+    "title": "Aerodinamik: Havayı Aşağı İten Kanat",
+    "tagline": "Dört yüz tonluk bir uçağı havada tutan şey, atmosfer basıncının yüzde yedisi kadar bir fark. Kanadın bu farkı nasıl yarattığı, ne zaman yaratamadığı ve bunu ilk ölçen iki bisiklet tamircisinin hikâyesi.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "uluslararasi-iliskiler": {
+    "title": "Uluslararası İlişkiler: Polisi Olmayan Dünya",
+    "tagline": "Devletlerin üstünde ne hükümet ne polis var; yine de uçaklar iner, mektuplar ulaşır, antlaşmalara çoğunlukla uyulur. Üstte kimse yokken düzen nasıl mümkün olur? Uİ'nin bütün soruları bu sorunun türevidir.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "uzay-kosucusu": {
+    "title": "Uzay Koşucusu: Tek Tuşla Yerçekimi",
+    "tagline": "Tek bir tuş, sabit bir yerçekimi ve saniyede altmış kez dönen bir döngü. Zıplayan geminin arkasında atış hareketinin matematiği, paralaks yıldızlar ve kronometre kılığında bir mesafe sayacı var.",
+    "field": "Oyun",
+    "level": "Lise hazırlık",
+    "minutes": 25
   },
   "veri-yapilari": {
     "title": "Veri Yapıları: Doğru Rafı Seçmek",

@@ -6,16 +6,16 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
   level: "Lise",
   minutes: 30,
   tagline:
-    "MÖ 450'de Forum'a asılan on iki levhadan tek parça kalmadı; yine de o levhaların mantığı bugün Türk Medeni Kanunu'nda yaşıyor. Hukukun nasıl 'ölümsüz' olduğunun hikâyesi.",
+    "Bir ipotek, bir kira sözleşmesi, bir miras davası: bugün mahkemede konuşulan dilin çoğu 2.000 yıl önce Roma'da yazıldı. Kanun kitabı değil, dava dava biriken bir düşünme yönteminin hikâyesi.",
   hook:
-    "Roma Forumu'na MÖ 450 civarında asılan On İki Levha'dan bugün tek parça bile yok; metni yalnızca sonraki yazarların alıntılarından biliniyor. Yine de 2.500 yıl sonra bir Türk hâkimi, tapuda adına yazılı tarlayı on yıl iyi niyetle ve kesintisiz elinde tutan kişiye 'artık senindir' derken o levhalardaki 'iki yıl' kuralının torununu uyguluyor. Taş kaybolduğu hâlde kural nasıl hayatta kalır?",
+    "Roma Forumu'na MÖ 450 civarında asılan On İki Levha'dan bugün tek parça bile yok; metni yalnızca sonraki yazarların alıntılarından biliyoruz. Yine de 2.500 yıl sonra bir Türk hâkimi, tapuda adına yazılı tarlayı on yıl boyunca iyi niyetle ve kesintisiz elinde tutana 'artık senindir' derken o levhalardaki 'iki yıl' kuralının torununu uyguluyor. Taş kaybolduğu hâlde kural nasıl hayatta kalır?",
   bigIdea:
     "Roma hukuku bir kanun kitabı değil, bin yıl boyunca <strong>somut davalar</strong> üzerinde biriken bir düşünme yöntemidir: kişi, eşya ve dava diye ayır; katı kuralı hakkaniyetle yumuşat; her uyuşmazlığı 'eğer ... ise ... yoksa ...' biçiminde bir formüle indir.",
   story: [
     "MÖ 5. yüzyılın ortasında Roma, soylu <strong>patrici</strong>ler ile halk çoğunluğu <strong>pleb</strong>ler arasında bölünmüştü ve hukukun ne dediğini yalnızca patrici rahipler bilirdi. Pleblerin baskısıyla MÖ 451–450'de on kişilik bir kurul (decemviri) kuralları yazıya döktü: <strong>On İki Levha</strong>. Levhaların Atina'ya gönderilen bir heyetin Solon yasalarını incelemesinden sonra yazıldığı anlatılır; bu kısım efsane ile tarih arasındadır. Metnin kendisi ise kuru ve sert: borcunu ödeyemeyen kişiye 30 gün süre tanınır, sonra alacaklı onu zincire vurabilir, 60 gün sonra üç pazar günü art arda Forum'a çıkarır ve hâlâ ödeme yoksa borçluyu Tiber'in ötesine satabilirdi. Bir başkasının kemiğini kıranın cezası 300 as, yüzüne tokat atanın cezası 25 as idi. Toprak iki yıl, öteki mallar bir yıl kesintisiz elde tutulursa mülkiyet kazanılırdı. Cicero çocukken bu levhaları ezberlediklerini yazar; biz ise metni yalnızca Cicero, Gellius gibi yazarların alıntılarından, parça parça kurabiliyoruz.",
     "Yazılı kural yetmedi; dava açmak için hangi sözlerin hangi sırayla söyleneceğini gene rahipler biliyordu. MÖ 304 dolayında bir kâtip, <strong>Gnaeus Flavius</strong>, dava kalıplarını ve mahkeme takvimini halka açtı; hukuk bilgisi tekelden çıktı. Asıl dönüşümü MÖ 367'de kurulan <strong>praetor</strong> makamı getirdi. Praetor her yıl göreve başlarken hangi durumlarda dava hakkı tanıyacağını bir beyanname (<em>edictum</em>) ile ilan ederdi. Eski kurallar bir durumu karşılamıyorsa praetor yeni bir dava tipi yaratır, katı kuralı hakkaniyetle (<em>aequitas</em>) yumuşatırdı. Böylece eski vatandaş hukukunun yanına esnek bir 'praetor hukuku' katmanı eklendi; yabancılarla ticaret için de tüm halklara uygulanan <em>ius gentium</em> gelişti. MS 212'de İmparator Caracalla neredeyse bütün özgür halka vatandaşlık verince bu katmanlar iç içe geçti. Bu dönemde Gaius (yaklaşık MS 160), Papinianus (ölümü 212) ve Ulpianus (ölümü 223) gibi hukukçular görüş (<em>responsa</em>) yazdı; MS 426'daki Atıf Kanunu beş hukukçunun görüşlerini mahkemeler için bağlayıcı kıldı, eşitlik hâlinde Papinianus'un dediği geçerli olacaktı.",
     "Batı Roma 476'da çökmüştü; ama Doğu'da, Konstantinopolis'te (bugünkü İstanbul) İmparator <strong>Justinianus</strong> 528'de hukuk danışmanı Tribonianus'un başkanlığında bir kurula bin yıllık birikimi derletmeye girişti. 529'da imparator emirnamelerinin derlemesi <em>Codex</em>, 533'te hukukçu görüşlerinden seçilmiş elli kitaplık <em>Digesta</em>, aynı yıl öğrenciler için dört kitaplık <em>Institutiones</em> yayımlandı; 534'te Codex gözden geçirildi. Justinianus'un Digesta'yı yürürlüğe sokan 533 tarihli önsözünde (Tanta) verdiği sayılar çarpıcıdır: yaklaşık 2.000 kitap ve 3 milyon satır okundu, 150.000 satıra indirildi ve on yıl beklenen iş üç yılda bitti. Daha sonra çıkarılan yeni kanunlar (<em>Novellae</em>) çoğunlukla Yunanca yazıldı; çünkü Doğu'nun dili artık Yunancaydı. Bu dört parçaya 16. yüzyılda <strong>Corpus Iuris Civilis</strong> adı verildi.",
-    "Derleme yüzyıllarca unutuldu. 11. yüzyılın sonunda Bologna'da <strong>Irnerius</strong> ve öğrencileri Digesta'yı satır satır açıklamaya (gloss yazmaya) başladı; Avrupa'nın ilk üniversitesi bu derslerin çevresinde doğdu. Oradan yetişen hukukçular Roma hukukunu bütün Kıta Avrupası'nın ortak hukuku (<em>ius commune</em>) hâline getirdi. 1804'te Fransız Medeni Kanunu, 1900'de Alman Medeni Kanunu (BGB), 1912'de İsviçre Medeni Kanunu bu mirası ulusal kanunlara dönüştürdü. Türkiye 1926'da İsviçre Medeni Kanunu'nu ve Borçlar Kanunu'nu çevirerek aldı; 2002'de yürürlüğe giren yeni Türk Medeni Kanunu da aynı soyun devamıdır. Napolyon'un sürgünde 'Asıl zaferim kırk savaş değil, hiçbir şeyin silemeyeceği Medeni Kanunum' dediği anlatılır; söz ona ait olsun olmasın, Roma'dan gelen bu mirasın gücünü iyi anlatır.",
+    "Derleme yüzyıllarca unutuldu. 11. yüzyılın sonunda Bologna'da <strong>Irnerius</strong> ve öğrencileri Digesta'yı satır satır açıklamaya (gloss yazmaya) başladı; Avrupa'nın ilk üniversitesi bu derslerin çevresinde doğdu. Ders kitabı, 6. yüzyılda yazılmış ve bugün Floransa'da korunan tek bir tam Digesta elyazmasının kopyalarıydı; bin yıllık birikim, bir süre tek bir nüshaya emanet kalmıştı. Oradan yetişen hukukçular Roma hukukunu bütün Kıta Avrupası'nın ortak hukuku (<em>ius commune</em>) hâline getirdi. 1804'te Fransız Medeni Kanunu, 1900'de Alman Medeni Kanunu (BGB), 1912'de İsviçre Medeni Kanunu bu mirası ulusal kanunlara dönüştürdü. Türkiye 1926'da İsviçre Medeni Kanunu'nu ve Borçlar Kanunu'nu çevirerek aldı; 2002'de yürürlüğe giren yeni Türk Medeni Kanunu da aynı soyun devamıdır. Napolyon'un sürgünde 'Asıl zaferim kırk savaş değil, hiçbir şeyin silemeyeceği Medeni Kanunum' dediği anlatılır; söz ona ait olsun olmasın, Roma'dan gelen bu mirasın gücünü iyi anlatır.",
   ],
   core: [
     {
@@ -42,7 +42,7 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
     {
       heading: "Formula: hukukun 'eğer-ise-yoksa' cümlesi",
       body:
-        "Klasik dönemde bir dava iki aşamada görülürdü. Önce praetorun önünde (<em>in iure</em>) taraflar uyuşmazlığı tek bir yazılı cümleye, <strong>formula</strong>ya indirirdi. Sonra sıradan bir vatandaş olan yargıç (<em>iudex</em>) delilleri dinler ve yalnızca bu cümledeki soruya cevap verirdi. Formulanın çekirdeği bir koşul cümlesidir: 'Eğer davalının davacıya 10.000 sesterce borçlu olduğu anlaşılırsa yargıç onu 10.000 sesterceye mahkûm etsin; anlaşılmazsa beraat ettirsin.' Mahkûmiyet her zaman para olarak verilirdi; yargıç 'atı teslim et' diyemez, atın değerini ödetirdi. Bir mantık kapısı ya da bir programdaki if-else dalı ile aynı yapıdır.",
+        "Klasik dönemde bir dava iki aşamada görülürdü. Önce praetorun önünde (<em>in iure</em>) taraflar uyuşmazlığı tek bir yazılı cümleye, <strong>formula</strong>ya indirirdi. Sonra sıradan bir vatandaş olan yargıç (<em>iudex</em>) delilleri dinler ve yalnızca bu cümledeki soruya cevap verirdi. Formulanın çekirdeği bir koşul cümlesidir: 'Eğer davalının davacıya 10.000 sestertius borçlu olduğu anlaşılırsa yargıç onu 10.000 sestertiusa mahkûm etsin; anlaşılmazsa beraat ettirsin.' Mahkûmiyet her zaman para olarak verilirdi; yargıç 'atı teslim et' diyemez, atın değerini ödetirdi. Bir mantık kapısı ya da bir programdaki if-else dalı ile aynı yapıdır.",
       formula: "Si paret … condemnato; si non paret, absolvito",
       formulaNote: "'Anlaşılırsa mahkûm et; anlaşılmazsa beraat ettir.' Formulanın iki zorunlu parçası: iddia (intentio) ve mahkûmiyet (condemnatio).",
     },
@@ -62,7 +62,7 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
         title: "Çizelge ölçekli mi?",
         predict: "Beş dönem kutusu aynı genişlikte çizilmiş. Sence en uzun dönem kaç yıl, en kısası kaç yıl sürüyor? Oran 2'ye 1 mi, 15'e 1 mi?",
         do: "Zaman çizelgesinde beş kutuya sırayla tıkla; her kutunun üstündeki yıl aralığını not et ve bitiş yılından başlangıç yılını çıkar (MÖ'den MS'ye geçerken ikisini topla).",
-        observe: "Eski Hukuk: MÖ 753–150, yaklaşık 600 yıl. Klasik: MÖ 150–MS 250, 400 yıl. Klasik Sonrası: 250–527, 277 yıl. Justinianus: 527–565, yalnızca 38 yıl. Son kutu ('MS 1100+') açık uçlu. Toplam 753 + 565 = 1318 yıl; panel başlığındaki 'yaklaşık 1300 yıl' buradan gelir.",
+        observe: "Eski Hukuk: MÖ 753–150, yaklaşık 600 yıl. Klasik: MÖ 150–MS 250, 400 yıl. Klasik Sonrası: 250–527, 277 yıl. Justinianus: 527–565, yalnızca 38 yıl. Son kutu ('MS 1100+') açık uçlu. Toplam 753 + 565 = 1318 yıl; panel açıklamasındaki 'yaklaşık 1300 yıl' buradan gelir.",
         explain: "Çizelge zamanı değil kategoriyi gösteriyor: 38 yıllık Justinianus dönemi 600 yıllık eski dönemle aynı kutuyu alıyor. Ölçekli çizilseydi Justinianus kutusu 16 kat daha dar olurdu. Tarih grafiklerinde eşit kutu, eşit süre demek değildir; bu tuzağa her ders kitabında rastlarsın.",
       },
       {
@@ -84,7 +84,7 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
         predict: "Corpus Iuris'in dört parçasının toplam kitap sayısı kaçtır? Digesta'daki 'kat kat küçültme' oranı 2 mi, 20 mi?",
         do: "Corpus Iuris Civilis panelindeki dört karta tıkla; Codex, Digesta ve Institutiones kartlarındaki kitap sayılarını topla. Digesta kartındaki satır sayılarını birbirine böl. Novellae kartında sayının neden aralık olarak verildiğine dikkat et.",
         observe: "12 + 50 + 4 = 66 kitap; Novellae kitap değil tek tek kanunlardır, kart 156–168 arası sayı verir çünkü farklı derlemelerde farklı sayıda kanun korunmuştur. Digesta: 3.000.000 / 150.000 = 20; yani okunan her yirmi satırdan biri kalmış. Üç yıla bölersen günde ortalama 2.700 satırın üzerinde metin okunmuş demektir.",
-        explain: "Bu sayılar Justinianus'un kendi önsözünden gelir ve yuvarlaktır; ama derlemenin bir 'ezber kitabı' değil, dev bir seçme ve ayıklama işi olduğunu gösterir. Seçilen parçaların yaklaşık yüzde kırkı tek bir hukukçuya, Ulpianus'a aittir; Digesta'yı okumak biraz da onu okumaktır.",
+        explain: "Bu sayılar Justinianus'un kendi önsözünden gelir ve yuvarlaktır; ama derlemenin bir 'ezber kitabı' değil, dev bir seçme ve ayıklama işi olduğunu gösterir. Seçilen parçaların üçte birinden fazlası tek bir hukukçuya, Ulpianus'a aittir; Digesta'yı okumak biraz da onu okumaktır.",
       },
     ],
   },
@@ -100,24 +100,24 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
         "On İki Levha yüze tokat atanın cezasını 25 as olarak sabitlemişti. Yüzyıllar içinde para değer kaybedince bu ceza gülünç kaldı. Gellius'un aktardığına göre Lucius Veratius adlı bir Romalı, sokakta canının istediğine tokat atıp arkasındaki köleye hemen 25 as ödetiyordu. Bu rezalet praetorları zarar miktarını olaya göre takdir eden yeni bir dava yaratmaya itti. Sabit rakamlı ceza enflasyona dayanmaz; hukuk bunu Roma'da öğrendi.",
     },
     {
-      title: "Üç yılda üç milyon satır",
+      title: "Hukuk fakültesinin ders programı 533'te yazıldı",
       body:
-        "Justinianus 533 tarihli önsözünde Digesta için yaklaşık 2.000 kitap ve 3 milyon satırın okunduğunu, 150.000 satıra indirildiğini ve on yıl beklenen işin üç yılda bittiğini yazar. Sonuç, dokuz bini aşkın alıntıdan oluşan elli kitaptır. Bu derlemenin 6. yüzyıldan kalma en eski tam elyazması bugün Floransa'da korunur ve Bologna'daki hukuk devrimi büyük ölçüde bu tek nüshanın kopyalarıyla başlamıştır.",
+        "Justinianus, Digesta'yı yürürlüğe sokan önsözle aynı gün (16 Aralık 533) bir de eğitim emirnamesi çıkardı: <em>Omnem</em>. Hukuk öğrenimi beş yıla çıkarıldı, her yılın hangi kitapları okuyacağı tek tek yazıldı ve ders vermeye yalnızca Konstantinopolis ile Beyrut okullarına izin verildi; İskenderiye ve Kayseri'deki dersler yasaklandı. Emirname, birinci sınıf öğrencilerine takılan 'dupondii' (iki metelikler) lakabını bile yasakladı: bundan böyle onlara 'yeni Justinianuslular' denecekti. Bugün Türkiye'de hukuk fakültesi dört yıldır; 1.500 yıl önce bir yıl daha uzundu.",
     },
   ],
   worked: {
     title: "Teslim edilmeyen at: bir formula davası",
     prompt:
-      "Klasik dönemde Aulus Agerius, Numerius Negidius'tan 2.000 sesterceye bir at satın alır, parayı öder, ama at teslim edilmez. Davayı Roma usulüyle adım adım çöz: hangi hukuk, hangi dava, hangi karar?",
+      "Klasik dönemde Aulus Agerius, Numerius Negidius'tan 2.000 sestertiusa bir at satın alır, parayı öder, ama at teslim edilmez. Davayı Roma usulüyle adım adım çöz: hangi hukuk, hangi dava, hangi karar?",
     steps: [
       "Tarafları adlandır. 'Aulus Agerius' ve 'Numerius Negidius' Roma hukukçularının örnek davalarda kullandığı takma adlardır: agere (dava etmek) ve negare (inkâr etmek) fiillerinden türetilmiştir; bizim 'Ali ile Veli' dememiz gibi.",
       "Hukuku belirle. Satış (emptio venditio) rızayla kurulan bir sözleşmedir, yazılı belge ya da tören gerekmez; ius gentium kökenlidir ve 'iyi niyet' davası (actio empti) ile korunur. Yani alıcı, satıcıya karşı sözleşmeden doğan dava açabilir.",
-      "Praetorun önüne git (in iure). Taraflar uyuşmazlığı formulaya indirir: 'Aulus Agerius'un Numerius Negidius'tan 2.000 sesterceye bir at satın aldığı anlaşıldığına göre, Numerius Negidius'un iyi niyet gereği ne vermesi gerekiyorsa yargıç onu o kadar paraya mahkûm etsin; anlaşılmazsa beraat ettirsin.'",
-      "Yargıcın önüne git (apud iudicem). Yargıç tanıkları dinler. Satışın yapıldığı ve 2.000 sesterce ödendiği kanıtlanırsa, atın teslim edilmemesinden doğan zararı para olarak belirler: ödenen 2.000 sesterce artı varsa alıcının yoksun kaldığı kazanç. Atı zorla teslim ettiremez; Roma'da mahkûmiyet daima paradır.",
+      "Praetorun önüne git (in iure). Taraflar uyuşmazlığı formulaya indirir: 'Aulus Agerius'un Numerius Negidius'tan 2.000 sestertiusa bir at satın aldığı anlaşıldığına göre, Numerius Negidius'un iyi niyet gereği ne vermesi gerekiyorsa yargıç onu o kadar paraya mahkûm etsin; anlaşılmazsa beraat ettirsin.'",
+      "Yargıcın önüne git (apud iudicem). Yargıç tanıkları dinler. Satışın yapıldığı ve 2.000 sestertius ödendiği kanıtlanırsa, atın teslim edilmemesinden doğan zararı para olarak belirler: ödenen 2.000 sestertius artı varsa alıcının yoksun kaldığı kazanç. Atı zorla teslim ettiremez; Roma'da mahkûmiyet daima paradır.",
       "Sonucu modern hukukla karşılaştır. Bugünkü Türk Borçlar Kanunu'nda alıcı 'aynen ifa' (atın teslimini) de isteyebilir; Roma'nın 'yalnızca para' kuralı 19. yüzyıl kanunlaştırmalarında terk edildi. Formulanın 'eğer-ise-yoksa' mantığı ise aynen yaşıyor.",
     ],
     result:
-      "Numerius Negidius, atın değerine karşılık gelen bir para tutarına (en az 2.000 sesterce) mahkûm edilir. Dava iki aşamada görülür; karar paradır; formula bir koşul cümlesidir.",
+      "Numerius Negidius, atın değerine karşılık gelen bir para tutarına (en az 2.000 sestertius) mahkûm edilir. Dava iki aşamada görülür; karar paradır; formula bir koşul cümlesidir.",
   },
   misconceptions: [
     {
@@ -144,8 +144,8 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
   glossary: [
     { term: "Ius civile", definition: "Yalnızca Roma vatandaşlarına uygulanan, On İki Levha'dan gelen eski ve şekilci vatandaş hukuku." },
     { term: "Ius gentium", definition: "Bütün halklar için ortak sayılan ve yabancılarla ilişkilerde uygulanan kurallar; satış ve kira gibi sözleşmelerin kaynağı." },
-    { term: "Praetor", definition: "MÖ 367'den itibaren yargı işlerini yürüten yıllık seçilmiş yüksek memur; beyannameleriyle yeni dava tipleri yaratırdı." },
-    { term: "Edictum", definition: "Praetorun göreve başlarken hangi durumlarda dava hakkı tanıyacağını ilan ettiği beyanname; praetor hukukunun kaynağı." },
+    { term: "Praetor", definition: "MÖ 367'den itibaren yargı işlerini yürüten, bir yıllığına seçilen yüksek memur; göreve başlarken yayımladığı beyanname (edictum) ile yeni dava tipleri yaratırdı." },
+    { term: "Aequitas", definition: "Hakkaniyet: katı kuralın somut olayda haksız sonuç vermesini önlemek için praetorun başvurduğu ölçü; kuralın harfi değil amacı." },
     { term: "Formula", definition: "Klasik dönemde praetorun önünde yazılan ve yargıca gönderilen tek cümlelik dava programı: 'anlaşılırsa mahkûm et, anlaşılmazsa beraat ettir'." },
     { term: "Digesta (Pandectae)", definition: "Justinianus'un 533'te yürürlüğe soktuğu, klasik hukukçu görüşlerinden seçilmiş elli kitaplık derleme; Corpus Iuris'in en büyük parçası." },
     { term: "Usucapio", definition: "Bir şeyi belirli süre kesintisiz elde tutarak mülkiyetini kazanma; On İki Levha'da toprak için iki, öteki mallar için bir yıl." },
@@ -161,10 +161,10 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
   },
   quiz: [
     {
-      question: "Aşağıdakilerden hangisi Corpus Iuris Civilis'in dört parçasından biri değildir?",
-      options: ["Codex", "Digesta", "Edictum perpetuum", "Institutiones"],
+      question: "On İki Levha'nın metnini bugün nereden biliyoruz?",
+      options: ["Forum'da korunan orijinal levhalardan", "Justinianus'un Codex'ine aynen alındığı için", "Cicero ve Gellius gibi sonraki yazarların alıntılarından, parça parça", "Verona'da bulunan palimpsestten"],
       answer: 2,
-      explanation: "Dört parça Codex, Digesta, Institutiones ve Novellae'dir. Edictum perpetuum, Hadrianus döneminde kalıcı biçime sokulan praetor beyannamesidir; Digesta'da alıntılanan hukukçular onu yorumlamıştır ama kendisi derlemenin bir parçası değildir.",
+      explanation: "Levhalardan tek parça kalmadı; metin Cicero, Gellius ve hukukçuların alıntılarından yeniden kurulur, bu yüzden sırası ve eksikleri tartışmalıdır. Verona palimpsesti On İki Levha'yı değil Gaius'un ders kitabını sakladı; Codex ise imparator emirnamelerinin derlemesidir, bir meclis kanununu içermez.",
     },
     {
       question: "Klasik dönemde bir formula davasında yargıç, borçluyu yalnızca neye mahkûm edebilirdi?",
@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
   next: [
     { href: "uluslararasi-iliskiler.html", title: "Uluslararası İlişkiler", why: "Tüm halklara uygulanan ius gentium fikrinin bugünkü mirasçısı: devletler arasında hukuk nasıl kurulur?" },
     { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi ve Üretim Faktörleri", why: "Mülkiyet ve sözleşme olmadan piyasa olmaz; Roma'nın dominium ve obligatio kavramlarının ekonomik yüzü." },
-    { href: "isletme-bilimi-ve-yonetim.html", title: "İşletme Bilimi ve Yönetim", why: "Roma'nın societas'ından bugünün şirketine: ortaklık, sorumluluk ve sözleşme yönetimi." },
+    { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Formulanın 'anlaşılırsa mahkûm et, anlaşılmazsa beraat ettir' cümlesi bir koşul kapısıdır; aynı eğer-ise-yoksa iskeletini devrede gör." },
     { href: "sezar-sifre.html", title: "Sezar Şifresi", why: "Aynı Roma, bu kez askerî haberleşme: Caesar'ın alfabeyi kaydırarak yazdığı şifre." },
   ],
   sources: [

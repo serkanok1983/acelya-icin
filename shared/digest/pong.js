@@ -12,7 +12,7 @@ window.ACELYA_DIGEST["pong"] = {
   bigIdea:
     "Pong'daki top bir <strong>hız vektörüdür</strong>: v<sub>x</sub> = v·cos θ ve v<sub>y</sub> = v·sin θ. Duvar yalnızca dikey bileşenin işaretini çevirir; raket ise açıyı yansıma yasasıyla değil, topun raketin <em>neresine</em> çarptığıyla belirler.",
   story: [
-    "Ekranda top sektiren ilk oyun bir bilgisayar oyunu bile değildi. 1958'de Brookhaven Ulusal Laboratuvarı'nda fizikçi William Higinbotham, yıllık ziyaretçi gününde insanlar sıkılmasın diye bir osiloskopa iki düğme bağladı ve <strong>Tennis for Two</strong>'yu yaptı: yandan görünen bir tenis kortu, yerçekimiyle düşen bir nokta, ağa takılan toplar. Ziyaretçiler saatlerce kuyruk oldu. İki yıl sonra cihaz söküldü, parçaları başka deneylere gitti; Higinbotham patent bile almadı. Kayıtlara göre o, bu işi hayatının en önemsiz işlerinden biri sayıyordu.",
+    "Ekranda top sektiren ilk oyun bir bilgisayar oyunu bile değildi. 1958'de Brookhaven Ulusal Laboratuvarı'nda fizikçi William Higinbotham, yıllık ziyaretçi gününde insanlar sıkılmasın diye bir osiloskopa iki düğme bağladı ve <strong>Tennis for Two</strong>'yu yaptı: yandan görünen bir tenis kortu, yerçekimiyle düşen bir nokta, ağa takılan toplar. Ziyaretçiler saatlerce kuyruk oldu. İki ziyaretçi gününden sonra cihaz söküldü, parçaları başka deneylere gitti; Higinbotham patent bile almadı. Yıllar sonra, oyunla değil nükleer silahlanmaya karşı çalışmalarıyla hatırlanmak istediğini söyleyecekti.",
     "Asıl zincir 1960'ların sonunda Ralph Baer'le başladı. Televizyona bağlanan bir oyun kutusu fikrini bir mühendislik şirketinde gizlice geliştirdi; prototipine 'Brown Box' deniyordu ve içinde bir masa tenisi oyunu vardı. Bu kutu 1972'de <strong>Magnavox Odyssey</strong> adıyla satışa çıktı: tarihin ilk ev konsolu. Mayıs 1972'de Burlingame'deki bir tanıtımda Nolan Bushnell o tenis oyununu oynadı; birkaç hafta sonra Ted Dabney ile Atari'yi kurdu ve işe aldığı genç mühendis Allan Alcorn'a bir 'alıştırma' verdi: bir top, iki raket. Bushnell bunun General Electric için sipariş olduğunu söylemişti; değildi. Alcorn alıştırmayı ciddiye aldı ve oyunu oyun yapan üç şeyi ekledi: raketi bölümlere ayırıp her bölümün topu farklı açıyla göndermesini sağladı, topu oyunda kaldıkça hızlandırdı ve bir vuruş sesi koydu. Mikroişlemci yoktu, yazılım yoktu; her şey onlarca mantık çipiyle, elle kurulmuş devreydi.",
     "Prototip 1972 sonbaharında Sunnyvale'deki Andy Capp's Tavern'e kondu. Birkaç gün sonra barın sahibi makinenin bozulduğunu bildirdi; Alcorn gidip baktığında bozuk para kutusunun dolup taştığını gördü. Hikâyenin bu kısmı Alcorn ve Bushnell'in anlatımıdır; ama rakamlar anlatıdan ibaret değil: Atari aynı yıl Pong salon makinesini üretime aldı, binlerce kabin sattı ve dünyanın her yerinde kopyaları çıktı. Baer'in patentini elinde tutan Magnavox dava açtı; anlaşmazlık 1976'da Atari'nin lisans alıp ödeme yapmasıyla kapandı. 1975'te Sears kataloğundan satılan ev tipi Pong ise bir konsolu Noel hediyesine çevirdi. Bugün hangi oyunu açarsan aç, çekirdeğinde hâlâ Alcorn'un döngüsü döner: konumu güncelle, çarpışmayı denetle, çiz; saniyede altmış kez.",
   ],
@@ -41,14 +41,14 @@ window.ACELYA_DIGEST["pong"] = {
     {
       heading: "Saniyede 60 adım: zaman nasıl akar",
       body:
-        "Oyunda sürekli hareket yoktur; vardır gibi görünür. Her adımda konum, hız kadar artırılır: x ← x + v<sub>x</sub>, y ← y + v<sub>y</sub>. Sayfa bu adımı ekranın tazeleme hızından bağımsız olarak saniyede tam 60 kez atar; bir 'zaman biriktirici' geciken kareleri sonradan telafi eder. Bu yöntem matematikte <strong>Euler adımı</strong>dır ve en büyük tuzağı tünellemedir: top bir adımda engelin kalınlığından fazla ilerlerse çarpışma hiç fark edilmez. Burada raketin yakalama penceresi 18 piksel, en yüksek hız ise 10 piksel/adım; pencere adımdan büyük olduğu için top raketi hiçbir zaman 'delip geçmez'. Tasarımcı bunu hesaplamış olmalı.",
+        "Oyunda sürekli hareket yoktur; vardır gibi görünür. Her adımda konum, hız kadar artırılır: x ← x + v<sub>x</sub>, y ← y + v<sub>y</sub>. Sayfa bu adımı ekranın tazeleme hızından bağımsız olarak saniyede tam 60 kez atar; bir 'zaman biriktirici' geciken kareleri sonradan telafi eder. Bu yöntem matematikte <strong>Euler adımı</strong>dır ve en büyük tuzağı tünellemedir: top bir adımda engelin kalınlığından fazla ilerlerse çarpışma hiç fark edilmez. Burada raketin yakalama penceresi 18 piksel, en yüksek hız ise 10 piksel/adım; pencere adımdan büyük olduğu için top raketi hiçbir zaman 'delip geçmez'. Hızın 10'da kilitlenmesi işte bu yüzden keyfi bir sayı değil, bir güvenlik payıdır.",
       formula: "x<sub>n+1</sub> = x<sub>n</sub> + v<sub>x</sub>·Δt,  Δt = 1/60 s",
       formulaNote: "Kodda Δt birim sayılır; hızlar zaten piksel/adım olarak tutulur.",
     },
     {
       heading: "Rakibin beyni: üç satırlık kontrolcü",
       body:
-        "Sağdaki raket düşünmez, kovalar. Her adımda raket merkezi topun 20 piksel üstündeyse aşağı, 20 piksel altındaysa yukarı kayar; aradaysa durur. Adım boyu senin raketinin yüzde 70'idir: sen 8 piksel, o 5.6 piksel. Bu üç satırın iki sonucu var. Birincisi, bilgisayar topu çoğunlukla 20 piksel sapmayla karşılar, yani vuruşları en çok 30° civarında olur; raketi kenara dayandığında bu 48°'ye çıkabilir ama senin 60°'lik uç vuruşuna hiç ulaşamaz. İkincisi, topun dikey hızı 5.6'yı aştığında rakip yetişemez: 60°'lik vuruşta bu, v > 6.47 demektir. Duvar sekmeleri ona biraz nefes aldırır; benzetimde uç vuruşlar yaklaşık 7.0 hızdan sonra neredeyse her seferinde geçer.",
+        "Sağdaki raket düşünmez, kovalar. Her adımda raket merkezi topun 20 piksel üstündeyse aşağı, 20 piksel altındaysa yukarı kayar; aradaysa durur. Adım boyu senin raketinin yüzde 70'idir: sen 8 piksel, o 5.6 piksel. Bu üç satırın iki sonucu var. Birincisi, yavaş toplarda bilgisayar topu en çok 20 piksel sapmayla karşılar, yani vuruşları 30°'yi pek aşmaz; raketi kenara dayandığında 48°'ye çıkabilir. Dik vuruşu ancak top ondan hızlı kaçıp raketin ucuna çarptığında yapar; o da zaten kaçırmak üzereyken. İkincisi, topun dikey hızı 5.6'yı aştığında rakip adım adım geride kalır: 60°'lik vuruşta bu, v > 6.47 demektir. Ama geride kalmak kaçırmak değildir; duvar sekmesi topu geri döndürüp raketin kucağına bırakabilir. Kodun aynısıyla yapılan benzetimde ilk kaçışlar 7.40'ta başlar, 10.00'da bile uç vuruşların ancak yarısı geçer.",
       formula: "|y<sub>raket</sub> − y<sub>top</sub>| > 20 ⇒ 5.6 piksel/adım yaklaş",
       formulaNote: "20 piksellik aralığa 'ölü bölge' denir; raketin titremesini önler ama vuruş açısını da sınırlar.",
     },
@@ -61,9 +61,9 @@ window.ACELYA_DIGEST["pong"] = {
         title: "Ortadan mı, uçtan mı?",
         predict:
           "Topu raketin tam ortasıyla karşılarsan nasıl bir çizgi çizer? En ucuyla karşılarsan karşıya varana kadar kaç kez duvara çarpar: bir mi, üç mü, on mu?",
-        do: "Hız 4.00'da raketi topun hizasına getir ve topun raketin ortasına denk gelmesini sağla. Sonraki vuruşta raketi öyle ayarla ki top raketin en üst ya da en alt 5 pikseline çarpsın.",
+        do: "Hız 4.00'da raketi topun hizasına getir ve topun raketin ortasına denk gelmesini sağla. Sonraki vuruşta raketi öyle ayarla ki top raketin en üst ya da en alt birkaç pikseline çarpsın.",
         observe:
-          "Ortadan vuruş dümdüz yatay bir çizgi: top hiç duvara değmeden yaklaşık 3.2 saniyede karşıya ulaşır. Uç vuruş dik bir zikzak: 60°'lik çizgi, karşıya varana kadar üç ya da dört duvar sekmesi ve yaklaşık 6.4 saniye.",
+          "Ortadan vuruş dümdüz yatay bir çizgi: top hiç duvara değmeden yaklaşık 3.2 saniyede karşıya ulaşır. Uç vuruş dik bir zikzak: 60°'ye yakın bir çizgi, karşıya varana kadar üç ya da dört duvar sekmesi ve yaklaşık 6.4 saniye.",
         explain:
           "Ortada θ = 0°, cos 0 = 1: hızın tamamı yataydır. Uçta θ = 60°, cos 60° = 0.5: yatay ilerleme yarıya iner, karşıya varmak iki kat uzun sürer; dikey bileşen 3.46 piksel/adım olduğundan top yolda 1300 piksel kadar aşağı yukarı gider, 384 piksellik alanda bu üç dört sekme eder.",
       },
@@ -85,17 +85,17 @@ window.ACELYA_DIGEST["pong"] = {
         observe:
           "Bilgisayarın vuruşları hep daha yatıktır; çoğu 30° dolayında ya da altında. Yalnızca raketi en üstte ya da en altta sıkıştığında daha dik, en çok 48° civarında döner. Yatay gönderdiğin top neredeyse yatay geri gelir.",
         explain:
-          "Rakip, merkezi topa 20 pikselden yakınken durur; 20/40 = 0.5, 0.5 × 60° = 30°. Kenarda raket 0 ile 320 arasına sıkıştırılır, merkezi 40'tan yukarı çıkamaz; top 8'e kadar inebildiğinden sapma 32 piksel, açı 0.8 × 60° = 48° olur. 60° için topun raketin tam ucuna gelmesi gerekir; ölü bölge buna izin vermez.",
+          "Rakip, merkezi topa 20 pikselden yakınken durur; 20/40 = 0.5, 0.5 × 60° = 30°. Kenarda raket 0 ile 320 arasına sıkıştırılır, merkezi 40'tan yukarı çıkamaz; top 8'e kadar inebildiğinden sapma 32 piksel, açı 0.8 × 60° = 48° olur. 60° için topun raketin tam ucuna gelmesi gerekir; yavaş topta ölü bölge buna izin vermez. Hız 8'i geçince raket geride kalmaya başlar ve top ara sıra onun ucuna da çarpar; o zaman rakibin dönüşü de dikleşir.",
       },
       {
         title: "Bilgisayarı yenmenin eşiği",
         predict:
-          "Rakip raket adımda 5.6 piksel kayabiliyor. 60°'lik vuruşun dikey hızı v·sin 60° olduğuna göre hangi Hız değerinden sonra rakip yetişemez olur?",
-        do: "Space'e 8 kez basıp Hız'ı 7.40'a getir ve topu raketin en ucuyla karşıla. Ardından 9. basışla 8.00'e çık ve aynı vuruşu dene. Son olarak aynı hızda ortadan vur.",
+          "Rakip raket adımda 5.6 piksel kayabiliyor. 60°'lik vuruşun dikey hızı v·sin 60° olduğuna göre hangi Hız değerinden sonra rakip geride kalmaya başlar? Geride kalmak kaçırmak için yeterli mi?",
+        do: "Space'e 7 kez basıp Hız'ı 6.86'ya getir; on kadar uç vuruş dene ve kaçının geçtiğini say. Sonra 8. basışla 7.40'a, 9. basışla 8.00'e çık ve her hızda sayımı tekrarla. Son olarak 10.00'da hem uçtan hem ortadan vur.",
         observe:
-          "Hız 6.86'da (7 basış) rakip uç vuruşlara hâlâ yetişir. 7.40'ta tam uç vuruş çoğunlukla geçer; 8.00 ve üzerinde raketin en dış 4 pikseline çarpan her top sayı olur, 10.00'da en dış 8 piksel yeter. Ortadan vuruşları ise rakip hiçbir hızda kaçırmaz.",
+          "6.86'da rakip her şeyi yakalar; raket topun peşinden koşar ama hep yetişir. 7.40'ta ilk kaçışlar başlar: on uç vuruştan belki biri. 8.00'de üç dört vuruştan biri, 10.00'da yaklaşık yarısı geçer. Geçip geçmeyeceğini çoğu kez topun son duvar sekmesi belirler: sekme rakibe yakınsa top geri dönüp onun kucağına düşer, uzaktaysa raket geride kalır. Ortadan vuruşları ise rakip hiçbir hızda kaçırmaz.",
         explain:
-          "v·sin 60° > 5.6 koşulu v > 6.47 verir; ama bu gerekli, yeterli değil. Duvar sekmesi topu geri döndürüp rakibe zaman kazandırır, bu yüzden eşik pratikte 7 dolayına kayar. Ortadan vuruşta dikey hız sıfırdır; kovalayacak bir şey olmayınca rakip asla kaybetmez. Strateji: önce hızı yükselt, sonra uçla vur.",
+          "v·sin 60° > 5.6 koşulu v > 6.47 verir; ama bu gerekli, yeterli değil. Hız 10.00'da bile topun dikey hızı 10 × sin 60° ≈ 8.66: açık adımda en çok 3 piksel büyür, 7.40'ta yalnızca 0.8. Raketin yarı boyu 40 piksel olduğundan topun sekmesiz on küsur adım kaçması gerekir; duvar sekmesi ise topu geri çevirip açığı sıfırlar. Eşik bu yüzden 6.47'den 7.40'a kayar. Ortadan vuruşta dikey hız sıfırdır; kovalayacak bir şey olmayınca rakip asla kaybetmez. Strateji: önce hızı yükselt, sonra uçla vur ve sabırlı ol; hiçbir vuruş garanti değil.",
       },
     ],
   },
@@ -144,7 +144,7 @@ window.ACELYA_DIGEST["pong"] = {
     {
       myth: "Bilgisayar topun nereye gideceğini önceden biliyor, o yüzden kaçırmıyor.",
       truth:
-        "Hiçbir şey hesaplamıyor; sadece topun o anki yüksekliğini senin raketinin yüzde 70 hızıyla kovalıyor. Yavaş toplarda bu yeterlidir, bu yüzden yenilmez görünür. Topun dikey hızı raketin 5.6 piksel/adım sınırını aşınca kovalamak yetmez ve kaçırmaya başlar.",
+        "Hiçbir şey hesaplamıyor; sadece topun o anki yüksekliğini senin raketinin yüzde 70 hızıyla kovalıyor. Yavaş toplarda bu yeterlidir, bu yüzden yenilmez görünür. Topun dikey hızı raketin 5.6 piksel/adım sınırını aşınca kovalamak yetmez; Hız 7.40'tan sonra uç vuruşlar ara ara, 10.00'da yarı yarıya geçmeye başlar.",
     },
     {
       myth: "Hız göstergesindeki 4.00 topun saniyedeki hızıdır.",
@@ -178,10 +178,10 @@ window.ACELYA_DIGEST["pong"] = {
       explanation: "Merkezde relativeHit = 0, açı 0°; cos 0 = 1 ve sin 0 = 0. Top dümdüz yatay gider. Raket geliş açısına hiç bakmaz; yeni yönü yalnızca çarpma noktası belirler.",
     },
     {
-      question: "Space'e iki kez basılınca Hız göstergesi 4.00'dan kaça çıkar?",
-      options: ["4.16", "4.32", "4.67", "4.80"],
-      answer: 2,
-      explanation: "Her basış 1.08 ile çarpar: 4 × 1.08 = 4.32, 4.32 × 1.08 ≈ 4.67. Artış toplanmaz, çarpılır; bu yüzden 4.16 ya da 4.80 değil 4.67. Dizi geometriktir.",
+      question: "Space'e basınca top hızlanır ama çizdiği zikzak değişmez. Neden?",
+      options: ["Yalnızca yatay bileşen artar, dikey bileşen sabit kalır", "İki bileşen de aynı oranla çarpılır; oranları, yani açı, değişmez", "Hız üst sınıra ulaşmıştır, kod daha fazla değişiklik yapmaz", "Zikzak aslında değişir ama göz fark edemez"],
+      answer: 1,
+      explanation: "Kod ballDX ve ballDY'yi aynı 1.08 ile çarpar. Bileşenlerin oranı v<sub>y</sub>/v<sub>x</sub> = tan θ olduğundan oran sabitse açı da sabittir; top aynı çizgiyi daha kısa sürede çizer. Yatay bileşen tek başına artsaydı çizgi yatıklaşırdı.",
     },
     {
       question: "Top üst duvara çarptığında hangisi doğrudur?",

@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-14ee44391c";
+const VERSION = "acelya-6564888ce3";
 // --- end:version ---
 
 // --- generated:core ---
@@ -234,15 +234,28 @@ const DIGESTS = [
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
   "shared/digest/derleyici-ve-yorumlayicilar.js",
   "shared/digest/dna-replikasyon.js",
+  "shared/digest/elektrikli-araclar.js",
   "shared/digest/grup-teorisi.js",
+  "shared/digest/hesaplama-teorisi.js",
   "shared/digest/internet-ve-ag-teknolojileri.js",
+  "shared/digest/isaretciler-ve-bellek-yonetimi.js",
   "shared/digest/isletim-sistemleri-ve-linux.js",
+  "shared/digest/isletme-bilimi-ve-yonetim.js",
+  "shared/digest/makine-dili-assembly-c.js",
+  "shared/digest/metalurji-ve-malzeme-muhendisligi.js",
+  "shared/digest/otomotiv-muhendisligi.js",
+  "shared/digest/periyodik-tablo.js",
   "shared/digest/pong.js",
+  "shared/digest/programlama-paradigmalari.js",
   "shared/digest/roma-hukuku.js",
   "shared/digest/sarkac.js",
   "shared/digest/siber-guvenlik.js",
+  "shared/digest/sicim-teorisi.js",
   "shared/digest/tasarim-desenleri.js",
   "shared/digest/turev.js",
+  "shared/digest/ucak-muhendisligi-ve-aerodinamik.js",
+  "shared/digest/uluslararasi-iliskiler.js",
+  "shared/digest/uzay-kosucusu.js",
   "shared/digest/veri-yapilari.js",
   "shared/digest/veritabanlari.js",
   "shared/digest/yazilim-muhendisligi.js",

@@ -6,7 +6,7 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
   level: "Lise",
   minutes: 30,
   tagline:
-    "Her hücre bölünmesinden önce iki metrelik bir molekül harf harf kopyalanır; hata payı milyarda bir. Sırrı 1953'te tek bir cümleyle sezildi: çift sarmalın her ipliği, ötekinin kalıbıdır.",
+    "Her hücre bölünmesinden önce iki metre DNA harf harf kopyalanır; hata payı milyarda bir. Sırrı 1953'te tek bir cümleyle sezildi: çift sarmalın her ipliği, ötekinin kalıbıdır.",
   hook:
     "25 Nisan 1953'te Nature dergisinde çıkan bir sayfalık makalenin sonunda, neredeyse fısıltıyla söylenmiş bir cümle vardı: \"Önerdiğimiz özgül eşleşmenin, genetik malzeme için olası bir kopyalama mekanizmasını hemen akla getirdiği gözümüzden kaçmadı.\" Bir molekül nasıl olur da kendi kendinin kalıbı olabilir?",
   bigIdea:
@@ -35,6 +35,8 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
       heading: "Çatalda çalışan ekip",
       body:
         "Replikasyon tek bir enzimin değil, bir makinenin işidir. <strong>Helikaz</strong> hidrojen bağlarını kopararak iki ipliği ayırır; açılan Y biçimli bölgeye <strong>replikasyon çatalı</strong> denir. Tek kalan iplikleri <strong>tek iplik bağlayıcı proteinler</strong> yeniden sarılmasın diye tutar. Çatalın önünde biriken burulmayı <strong>topoizomeraz</strong> gevşetir. <strong>Primaz</strong>, kalıba yaklaşık on nükleotitlik kısa bir RNA parçası (<strong>primer</strong>) yazar; çünkü polimeraz boşa başlayamaz, uzatacak bir 3' ucu ister. Sonra <strong>DNA polimeraz</strong> (bakteride Pol III) primeri uzatır. İş bitince başka bir polimeraz (Pol I) RNA primerlerini söküp yerine DNA yazar, <strong>ligaz</strong> da kalan tek çentiği kapatır.",
+      formula: "Helikaz → tek iplik bağlayıcı → primaz → Pol III → Pol I → ligaz",
+      formulaNote: "Çatalda iş sırası. Topoizomeraz çatalın önünde, ötekilerden bağımsız çalışır. Sayfa yalnız helikazı ve Pol III'ü adıyla gösterir.",
     },
     {
       heading: "Yön sorunu: öncü ve geciken iplik",
@@ -53,7 +55,7 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
   ],
   lab: {
     intro:
-      "Sayfada dört adım düğmesi (<strong>1. Açılma</strong>, <strong>2. Primer</strong>, <strong>3. Sentez</strong>, <strong>4. Tamamlanma</strong>) ve bir <strong>Oynat</strong> düğmesi var. Tuval, 12 bazlık bir DNA parçasını renkli dairelerle çizer: A kırmızı, T mavi, G yeşil, C turuncu. Oynat, adımları yaklaşık birer saniyeyle döndürür. Önemli bir ayrıntı: 3. ve 4. adımda bazlar yalnızca Oynat çalışırken soldan sağa belirir; düğmeye basıp boş bir tuval görürsen Oynat'a bas.",
+      "Sayfada dört adım düğmesi (<strong>1. Açılma</strong>, <strong>2. Primer</strong>, <strong>3. Sentez</strong>, <strong>4. Tamamlanma</strong>) ve bir <strong>Oynat</strong> düğmesi var. Tuval, 12 bazlık bir DNA parçasını renkli dairelerle çizer: A kırmızı, T mavi, G yeşil, C turuncu. Oynat, her adımı yaklaşık 1.2 saniye gösterip bir sonrakine geçer; 4. adımdan sonra başa döner. İki pratik ayrıntı: 3. ve 4. adımda bazlar yalnızca Oynat çalışırken soldan sağa belirir, düğmeye basıp boş bir tuval görürsen Oynat'a bas. Harfler tam belirdiği anda <strong>Durdur</strong>'a basarsan görüntü olduğu yerde donar; rahat rahat sayarsın. Bir adım düğmesine basmak ise sayacı sıfırlar ve tuvali yeniden boşaltır.",
     experiments: [
       {
         title: "Chargaff'ı say",
@@ -65,15 +67,15 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
       {
         title: "Tamamlayıcıyı önceden yaz",
         predict: "Üst iplik ATGCGATACGTA ise, kopyalama bittiğinde üst sırada hangi diziyi okuyacaksın? Önce kâğıda yaz, sonra bak.",
-        do: "1. Açılma'da üst ipliği soldan sağa oku. Sonra 3. Sentez'e bas ve Oynat'ı başlat; harflerin belirişini izle. 4. Tamamlanma'da (Oynat açıkken) üst sırayı yeniden oku.",
-        observe: "Harfler soldan sağa, yaklaşık bir saniyede belirir ve üst sıra TACGCTATGCAT olur: tahminin tam tamamlayıcı dizi. Sayfa yeni ipliği kalıbın üstüne çizdiğinden eski harfler yeni harflerin altında kaybolur; gerçekte yeni iplik kalıbın yanına, ona hidrojen bağlarıyla tutunarak dizilir.",
+        do: "1. Açılma'da üst ipliği soldan sağa oku ve kâğıda tamamlayıcısını yaz. Sonra 3. Sentez'e bas ve Oynat'ı başlat; harflerin belirişini izle. Üst sıra dolduğu anda Durdur'a bas ve sırayı soldan sağa oku.",
+        observe: "Harfler soldan sağa, bir saniyeden kısa sürede belirir ve üst sıra TACGCTATGCAT olur: kâğıdındaki dizinin aynısı. Sayfa yeni ipliği kalıbın üstüne çizdiğinden eski harfler yeni harflerin altında kaybolur; gerçekte yeni iplik kalıbın yanına, ona hidrojen bağlarıyla tutunarak dizilir.",
         explain: "Her yeni harf kalıptaki harfin eşidir; kalıp bilgiyi taşır, polimeraz yalnızca okur ve yazar. Hız kıyaslaması: E. coli polimerazı saniyede yaklaşık 1000 nükleotit ekler; bu 12 harf gerçekte 0.012 saniyede, yani sayfadakinden yüz kat hızlı yazılırdı.",
       },
       {
         title: "Primer gelir, primer gider",
         predict: "Primer kaç bazın üstüne oturur ve hangi adımda ortadan kalkar? Bitmiş DNA'da RNA kalır mı?",
-        do: "2. Primer'e bas ve mor dikdörtgenleri say: hangi dairelerin üstünde, her iplikte kaç tane? 3. Sentez'e geç ve hâlâ orada mı diye bak. Sonra 4. Tamamlanma'ya bas.",
-        observe: "Her ipliğin en soldaki iki bazının üstünde birer mor blok vardır; 3. adımda da (Oynat açıkken) dururlar. 4. Tamamlanma'da kaybolurlar. Ortadaki \"Helikaz\" yazısı ise 2. adımdan itibaren hep kalır; iplikler de 2. adımdan itibaren birbirinden uzaklaşmıştır.",
+        do: "2. Primer'e bas ve mor dikdörtgenleri say: hangi dairelerin üstünde, her iplikte kaç tane? 3. Sentez'e geç, Oynat'ı aç ve harflerle birlikte mor blokların da belirip belirmediğine bak. Bir adım sonra 4. Tamamlanma geldiğinde Durdur'a bas.",
+        observe: "Her ipliğin en soldaki iki bazının üstünde birer mor blok vardır; 3. adımda da harflerle birlikte belirip yerinde durur. 4. Tamamlanma'da kaybolurlar. Ortadaki \"Helikaz\" yazısı ise 2. adımdan itibaren hep kalır; iplikler de 2. adımdan itibaren birbirinden uzaklaşmıştır.",
         explain: "Primaz'ın yazdığı RNA parçası polimeraza bir başlangıç 3' ucu verir; iş bitince Pol I primeri söker, yerine DNA yazar ve ligaz çentiği kapatır. Bitmiş molekülde RNA kalmaz. Gerçek primerler on nükleotit civarındadır; sayfa iki bazla temsil eder.",
       },
       {
@@ -150,7 +152,7 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede replikasyon bir enzim listesidir; üniversitede bir <strong>makine</strong>: helikaz, primaz, iki ya da üç polimeraz ve kıskaç proteinleri tek bir <em>replizom</em> olarak birlikte hareket eder. Polimerazı kalıptan düşürmeyen halka biçimli <strong>kayar kıskaç</strong>, enzimin tek seferde binlerce nükleotit yazmasını (işlemsellik) sağlar; bu, Michaelis–Menten kinetiğiyle ölçülen bir özelliktir. Ökaryotlarda başlangıç noktaları hücre döngüsünün G1 evresinde \"lisanslanır\" ve S evresinde yalnız bir kez ateşlenir; bu kontrol bozulduğunda genom iki kez kopyalanır ve kanser biyolojisinin ana konularından biri doğar.",
+      "Lisede replikasyon bir enzim listesidir; üniversitede bir <strong>makine</strong>: helikaz, primaz, iki ya da üç polimeraz ve kıskaç proteinleri tek bir <em>replizom</em> olarak birlikte hareket eder. Polimerazı kalıptan düşürmeyen halka biçimli <strong>kayar kıskaç</strong>, enzimin kalıba bir kez tutunup binlerce nükleotit yazmasını sağlar; bu sayıya <em>işlemsellik</em> denir ve kıskaçsız polimeraz için onlarla, kıskaçlıyken binlerle ölçülür. Ökaryotlarda başlangıç noktaları hücre döngüsünün G1 evresinde \"lisanslanır\" ve S evresinde yalnız bir kez ateşlenir; bu kontrol bozulduğunda genom iki kez kopyalanır ve kanser biyolojisinin ana konularından biri doğar.",
       "Doğrusal kromozomların bir de uç sorunu vardır: geciken iplikte son primer söküldüğünde yerine DNA yazılamaz ve kromozom her bölünmede biraz kısalır. Hücre bu kaybı <strong>telomeraz</strong> enziminin eklediği tekrar dizileriyle (telomer) karşılar; Elizabeth Blackburn, Carol Greider ve Jack Szostak bu buluşla 2009 Nobel Tıp Ödülü'nü aldı. Aynı polimeraz kimyası laboratuvarda PCR, DNA dizileme ve adli tıp olarak karşına çıkar; tek molekül deneylerinde ise bir polimerazın bir kalıp üzerinde ilerleyişi nanometre hassasiyetinde izlenir.",
     ],
     topics: ["Replizom ve kayar kıskaç", "Enzim kinetiği ve işlemsellik", "Hücre döngüsü ve başlangıç lisanslama", "Telomerler ve telomeraz", "DNA onarım yolları", "PCR ve DNA dizileme"],

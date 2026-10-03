@@ -8,14 +8,14 @@ window.ACELYA_DIGEST["turev"] = {
   tagline:
     "Duran bir fotoğrafın hızı olur mu? Türev bu soruya iki yüzyıl süren bir kavganın sonunda verilen cevaptır: sıfıra yaklaşan ama sıfır olmayan bir adımla eğimi yakalamak.",
   hook:
-    "Bir radar fotoğrafında araba kıpırdamaz; tek bir an dondurulmuştur. Yine de cezada 'o anda 92 km/sa' yazar. Duran bir karenin hızı nasıl olur? Zenon bu soruyu 2400 yıl önce havadaki bir okla sordu; cevabı 1600'lerde geldi ve sayfadaki salınan yeşil çizgi o cevabın ta kendisi.",
+    "Bir radar fotoğrafında araba kıpırdamaz; tek bir an dondurulmuştur. Yine de cezada 'o anda 92 km/sa' yazar. Duran bir karenin hızı nasıl olur? Zenon bu soruyu 2400 yıl önce havadaki bir okla sordu; cevabın ilk taslağı 1600'lerde geldi, sağlam hâli iki yüzyıl daha bekledi. Sayfada kırmızıya yapışıp ayrılan yeşil çizgi, o cevabın ta kendisi.",
   bigIdea:
     "Türev, iki yakın nokta arasındaki <strong>ortalama değişim hızının</strong> noktalar birbirine yaklaşırken yerleştiği değerdir: <em>f′(a) = lim<sub>h→0</sub> [f(a+h) − f(a)]/h</em>. Sekant teğete, ortalama hız anlık hıza dönüşür.",
   story: [
     "Teğet sorusu kalkülüsten çok eskidir. 1630'larda Pierre de Fermat bir eğrinin en yüksek noktasını ve teğetini bulmak için garip bir numara kullanıyordu: bilinmeyen küçük bir <em>e</em> miktarı ekliyor, denklemi sadeleştiriyor, sonra <em>e</em>'yi siliyordu. Yöntem işliyordu ama Fermat bile neden işlediğini tam açıklayamıyordu; <em>e</em> önce sıfır değildi (bölebilmek için), sonra sıfırdı (atabilmek için). Bugün bu, sayfadaki <strong>h</strong>'nin ta kendisidir.",
-    "1665'te veba Cambridge'i kapattı; 23 yaşındaki Isaac Newton Woolsthorpe'taki aile çiftliğine çekildi ve iki yıl içinde hareket eden niceliklerin 'akış hızlarını', kendi deyişiyle <em>fluxion</em>'ları hesaplayan bir yöntem kurdu. Harfin üstüne nokta koyduğu ẋ gösterimi fizikçiler arasında hâlâ yaşar. Sonuçlarını yıllarca yayımlamadı. Gottfried Wilhelm Leibniz ise 1675 sonbaharında Paris'te aynı fikre bağımsız olarak ulaştı ve bugün kullandığımız dy/dx ile ∫ sembollerini icat etti; 1684'te <em>Acta Eruditorum</em>'da yayımladığı birkaç sayfalık makale türevin ilk basılı anlatımıdır. Ardından gelen öncelik kavgası çirkindi: 1712'de Royal Society'nin kurduğu komite Newton'u haklı buldu; raporu büyük ölçüde Society'nin başkanı olan Newton'un kendisinin kaleme aldığı sonradan anlaşıldı. Kavga, İngiliz matematiğini Kıta Avrupası'ndan onlarca yıl kopardı.",
+    "1665'te veba Cambridge'i kapattı; 23 yaşındaki Isaac Newton Woolsthorpe'taki aile çiftliğine çekildi ve iki yıl içinde hareket eden niceliklerin 'akış hızlarını', kendi deyişiyle <em>fluxion</em>'ları hesaplayan bir yöntem kurdu. Harfin üstüne nokta koyduğu ẋ gösterimi fizikçiler arasında hâlâ yaşar; ama Newton sonuçlarını yıllarca çekmecede tuttu. Gottfried Wilhelm Leibniz 1675 sonbaharında Paris'te aynı fikre bağımsız olarak ulaştı, bugün kullandığımız dy/dx ile ∫ sembollerini icat etti ve 1684'te <em>Acta Eruditorum</em>'da birkaç sayfalık bir makale bastırdı: türevin ilk basılı anlatımı. Sonrası çirkin bir öncelik kavgasıdır. 1712'de Royal Society'nin kurduğu komite Newton'u haklı buldu; raporu büyük ölçüde, Society'nin başkanı olan Newton'un kendisinin yazdığı sonradan anlaşıldı. Kavga İngiliz matematiğini Kıta Avrupası'ndan onlarca yıl kopardı.",
     "Yöntem işliyordu ama temeli çürüktü. 1734'te Piskopos George Berkeley, <em>The Analyst</em> adlı kitapçığında alay etti: h önce sıfır değil, sonra sıfır; bunlar 'ölmüş niceliklerin hayaletleri' değil de ne? Haklıydı. Sağlam cevap neredeyse yüz yıl sürdü. 1820'lerde Augustin-Louis Cauchy türevi, h'yi sıfır yaparak değil, fark oranının h sıfıra <em>yaklaşırken</em> yaklaştığı değer, yani bir <strong>limit</strong> olarak tanımladı. Karl Weierstrass 1860'larda Berlin derslerinde limiti ε ve δ harfleriyle, 'yaklaşmak' sözcüğüne bile ihtiyaç duymadan yazdı. Sayfadaki yeşil çizginin salınırken kırmızıya yapışıp ayrılması, bu iki yüzyıllık tartışmanın görsel özetidir.",
-    "Bugün türev her yerdedir. Newton'un ikinci yasası aslında ivme, yani konumun ikinci türevi hakkında bir denklemdir; ekonomist 'marjinal maliyet' derken türev söyler; hava tahmini, uçak kanadı, salgın eğrisi ve yapay sinir ağlarının eğitimi türevle yürür. Bir sinir ağı 'öğrenirken' yaptığı şey, hatanın milyonlarca parametreye göre türevini alıp her birini eğimin ters yönünde küçük bir adım kaydırmaktır. Bu sayfadaki küçük yeşil sekant, o devasa makinenin en küçük dişlisidir.",
+    "Bugün türev her yerdedir. Newton'un ikinci yasası aslında ivme, yani konumun ikinci türevi hakkında bir denklemdir; ekonomist 'marjinal maliyet' derken türev söyler; radar, hava tahmini, uçak kanadı, salgın eğrisi ve yapay zekânın eğitimi türevle yürür. Bir dil modeli 'öğrenirken' yaptığı tek şey, hatasının milyarlarca sayıya göre türevini almak ve her birini eğimin ters yönünde bir adım kaydırmaktır. Bu sayfadaki küçük yeşil sekant, o devasa makinenin en küçük dişlisidir.",
   ],
   core: [
     {
@@ -59,7 +59,7 @@ window.ACELYA_DIGEST["turev"] = {
       "Sayfada iki kontrol var: <strong>Fonksiyon Seç</strong> menüsü (x², x³, x⁴) ve −3 ile 3 arasında 0.1 adımla kayan <strong>x Değeri (nokta)</strong> kaydırıcısı. Altındaki dört satır x, f(x), teğet eğimi f′(x) ve o andaki h ile sekant eğimini verir. h kendi kendine −0.80 ile 0.80 arasında salınır, birkaç saniyede bir tam tur atar ve her turda iki kez sıfırdan geçer. Bir uyarı: grafikte yatayda 1 birim yaklaşık 86 piksel, dikeyde yaklaşık 6.7 pikseldir; eğimler ekranda olduklarından yaklaşık 13 kat basık görünür. Sayılara güven, göze değil.",
     experiments: [
       {
-        title: "Sekant eğimi eksi teğet eğimi tam olarak h",
+        title: "Sekant, teğetten tam h kadar ayrılır",
         predict: "x² seçili ve x = 1.00 iken teğet eğimi 2.00'dır. h = 0.50 olduğu anda sekant eğimi kaç olur? h = −0.80'de?",
         do: "Menüden x² seç, kaydırıcıyı 1.0'a getir. Birkaç saniye alttaki 'h = … (secant eğimi: …)' satırını izle; h'nin 0.80, 0.00 ve −0.80 civarından geçtiği anlarda sekant eğimini not et.",
         observe: "Sekant eğimi 2.80 ile 1.20 arasında salınır ve h sıfırdan geçerken tam 2.00'ı gösterir. Hangi anda bakarsan bak, sekant eğimi eksi 2.00, ekrandaki h'ye eşittir.",
@@ -84,7 +84,7 @@ window.ACELYA_DIGEST["turev"] = {
         predict: "x² için kaydırıcıyı −3.0'dan 3.0'a sürersen f′(x) hangi değerler arasında değişir? f(x) ile f′(x) hangi x'te eşitlenir?",
         do: "x² seçiliyken kaydırıcıyı yavaşça sola ve sağa sür; f(x) ve f′(x) satırlarını birlikte oku. Sonra x⁴ seçip kaydırıcıyı 3.0'a götür ve kırmızı noktaya bak.",
         observe: "x²'de f′(x) tam 2x: −6.00'dan 6.00'a. x = 2.0'da f(x) = f′(x) = 4.00. x⁴'te x = 3.0 iken f(x) = 81.00, f′(x) = 108.00 ve kırmızı nokta ekranın dışındadır; çerçeve 30'da biter, eğri |x| ≈ 2.34'ten sonra kaçar.",
-        explain: "Negatif x'te parabol iner, türev negatiftir; sıfırda yatay, sonra pozitif. x⁴'ün eğimi 4x³ ile büyür: x = 3'te fonksiyonun kendisinden bile büyüktür. Sayfa ölçeği sabit olduğu için eğri çerçeveyi terk eder; sayılar yine de doğrudur.",
+        explain: "Negatif x'te parabol iner, türev negatiftir; sıfırda yatay, sonra pozitif. x²'de f ile f′ sıfırda da (0 = 0), x = 2'de de (4 = 4) buluşur; x³'te buluşma x = 3'tedir: 27 = 27, kaydırıcıyı 3.0'a getirip doğrula. x⁴'ün eğimi 4x³ ile büyür: x = 3'te fonksiyonun kendisinden bile büyüktür. Sayfa ölçeği sabit olduğu için eğri çerçeveyi terk eder; sayılar yine de doğrudur.",
       },
     ],
   },
@@ -95,9 +95,9 @@ window.ACELYA_DIGEST["turev"] = {
         "1665–1666'da veba Cambridge Üniversitesi'ni kapattı. Köyüne dönen Isaac Newton bu iki yılda kalkülüsün temelini, beyaz ışığın renklere ayrıldığını ve kütle çekiminin uzak cisimlere uzandığı fikrini kurdu. Yaşlılığında bu dönemi 'icat için en verimli çağım' diye andı. Sonuçlarının çoğu yirmi yıl sonra, 1687'de yayımlanan <em>Principia</em>'ya kadar çekmecede kaldı; akış hesabı kitabı ise ölümünden sonra, 1736'da basıldı.",
     },
     {
-      title: "Hayalet niceliklere savaş açan piskopos",
+      title: "Her adımda 175 milyar türev",
       body:
-        "1734'te George Berkeley, <em>The Analyst</em> adlı kitapçığında matematikçilere Fermat'dan beri süren numarayı sordu: h önce sıfır değil (bölüyorsunuz), sonra sıfır (atıyorsunuz). Bunlar 'ölmüş niceliklerin hayaletleri' değil de ne? Alaycıydı ama haklıydı; tutarlı bir limit tanımı için neredeyse yüz yıl, Cauchy'nin 1820'lerdeki derslerine kadar beklemek gerekti.",
+        "2020'de tanıtılan GPT-3 dil modelinin 175 milyar ayarlanabilir sayısı vardı. Eğitimin her adımında bilgisayar, modelin yaptığı hatanın bu 175 milyar sayının <em>her birine</em> göre türevini hesapladı ve her sayıyı eğimin ters yönünde küçücük bir adım kaydırdı; bu, on binlerce adım boyunca tekrarlandı. Yöntemin adı <strong>gradyan inişi</strong>, türevleri zincirleme hesaplama tekniğinin adı <em>geri yayılım</em>. Bugün 'yapay zekâ öğreniyor' cümlesinin arkasında, bu sayfadaki fark oranının milyarlarca kopyası vardır.",
     },
     {
       title: "Her yerde sürekli, hiçbir yerde türevli",
@@ -127,7 +127,7 @@ window.ACELYA_DIGEST["turev"] = {
     {
       myth: "x² fonksiyonunun x = 3'teki türevi 9'dur.",
       truth:
-        "9, fonksiyonun değeridir: f(3) = 9. Türev o noktadaki eğimdir: f′(3) = 2·3 = 6. Sayfada x²'yi seçip kaydırıcıyı 3.0'a götür; iki satır ayrı ayrı 9.00 ve 6.00 gösterir. İkisinin eşit olduğu tek nokta x = 2'dir.",
+        "9, fonksiyonun değeridir: f(3) = 9. Türev o noktadaki eğimdir: f′(3) = 2·3 = 6. Sayfada x²'yi seçip kaydırıcıyı 3.0'a götür; iki satır ayrı ayrı 9.00 ve 6.00 gösterir. İkisi yalnızca x = 0'da (0 = 0) ve x = 2'de (4 = 4) eşittir.",
     },
     {
       myth: "h = 0 koyunca 0/0 çıkıyor, demek ki türev tanımsız.",
@@ -153,7 +153,7 @@ window.ACELYA_DIGEST["turev"] = {
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede türev bir kurallar listesidir; üniversitede önce bir <strong>tanım</strong>a dönüşür. İlk analiz dersinde limit, Weierstrass'ın ε–δ diliyle yazılır ve 'türevlenebilen fonksiyon süreklidir' gibi cümleler ispatlanır. Ardından Ortalama Değer Teoremi gelir: iki nokta arasındaki sekantın eğimine eşit bir teğet mutlaka vardır. Bu teorem, 'iki saatte 180 km gittiysen bir an 90 km/sa gitmişsindir' cümlesinin matematiğidir. Yerel doğrusallaştırma da ilerler: teğete h² terimi, sonra h³ eklenir ve Taylor serisi doğar; bilgisayarın sin ve e<sup>x</sup> hesaplama biçimi budur.",
+      "Lisede türev bir kurallar listesidir; üniversitede önce bir <strong>tanım</strong>a dönüşür. İlk analiz dersinde limit, Weierstrass'ın ε–δ diliyle yazılır ve 'türevlenebilen fonksiyon süreklidir' gibi cümleler ispatlanır. Ardından Ortalama Değer Teoremi gelir: iki nokta arasındaki sekantın eğimine eşit bir teğet mutlaka vardır. Bu teorem, 'iki saatte 180 km gittiysen bir an 90 km/sa gitmişsindir' cümlesinin matematiğidir. Yerel doğrusallaştırma da ilerler: teğete h² terimi, sonra h³ eklenir ve Taylor serisi doğar; hesap makinenin sin ve e<sup>x</sup> tuşlarının altında yatan fikir budur.",
       "İkinci sıçrama, birden çok değişkendir. Bir dağ yüzeyinin her yönde ayrı eğimi vardır; bunları toplayan vektöre <strong>gradyan</strong> denir ve en dik tırmanış yönünü gösterir. Yapay sinir ağı eğitmek, hatanın milyonlarca parametreye göre gradyanını zincir kuralıyla hesaplayıp (geri yayılım) her adımda eğimin tersine inmektir. Fizikte ise Newton'un F = m·a yasası aslında bir diferansiyel denklemdir: ivme konumun ikinci türevidir, denklemi çözmek yörüngeyi bulmaktır. Gezegenler de, salgın eğrileri de, köprü titreşimleri de aynı dille yazılır.",
     ],
     topics: ["ε–δ ile limit", "Ortalama Değer Teoremi", "Zincir kuralı", "Taylor serisi", "Kısmi türev ve gradyan", "Diferansiyel denklemler", "Gradyan inişi ve geri yayılım"],
