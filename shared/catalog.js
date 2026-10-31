@@ -45,6 +45,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "dairesel-hareket": {
+    "title": "Dairesel Hareket: Hiç Yere Varmayan Düşüş",
+    "tagline": "Sürat hiç değişmese bile çember üzerindeki her cisim ivmelenir. İpin ucundaki anahtarlığı, virajdaki arabayı ve Ay'ı aynı formül tutar: F = mv²/r.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 30
+  },
   "derleyici-ve-yorumlayicilar": {
     "title": "Derleyici ve Yorumlayıcı: Kodun Makineye Yolculuğu",
     "tagline": "Yazdığın dört satır kod, işlemciye varana kadar beş kez kılık değiştirir: harfler token olur, tokenlar ağaç, ağaç ara kod, ara kod makine komutu. Bu sayfada o dönüşümü adım adım kendin yaparsın.",
@@ -80,6 +87,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "fonksiyon-grafigi": {
+    "title": "Fonksiyon Grafiği: Bir Kuralın Portresi",
+    "tagline": "Tekrar eden sinüs, ondan çeyrek periyot önde giden kosinüs, simetrik parabol, durdurulamayan eˣ ve onun aynası ln x. Grafik bir kuralı tek bakışta gösterir; ama yalnızca pencerenin içini.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
   "grup-teorisi": {
     "title": "Grup Teorisi: Simetrinin Dilbilgisi",
     "tagline": "Bir kareyi döndürmek, saati ileri almak ve Rubik küpünü karıştırmak aynı dört kurala uyar. Grup teorisi bu kuralların bilimidir; Galois'nın 20 yaşında bıraktığı mektuptan Monster grubuna uzanır.",
@@ -101,6 +115,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "is-enerji": {
+    "title": "İş ve Enerji: Doğanın Muhasebe Defteri",
+    "tagline": "Rampadan kayan bir kutunun hızını, ivmeyi ve zamanı hiç hesaplamadan bulabilirsin. Tek gereken bir hesap defteri: kim ne kadar iş yaptı, enerji nereye gitti?",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 25
+  },
   "isaretciler-ve-bellek-yonetimi": {
     "title": "İşaretçiler ve Bellek: Adresi Elinde Tutmak",
     "tagline": "Bir değişkenin değerini değil adresini saklamak, programcıya belleğin anahtarını verir: en hızlı veri yapıları da, 1988'de interneti durduran solucan da aynı anahtarla açıldı.",
@@ -119,6 +140,13 @@ window.ACELYA_CATALOG = {
     "title": "İşletme: Kârın Başladığı Çizgi",
     "tagline": "Bir fabrika kaçıncı üründe kendini öder? Başabaş noktası, katkı payı ve faaliyet kaldıracı: sayfadaki grafikte beş düğmeyle kârın matematiğini kendin kur, sonra Ford'dan Toyota'ya yönetimin hikâyesini oku.",
     "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "kepler-yasalari": {
+    "title": "Kepler Yasaları: Sekiz Yay Dakikalık İnat",
+    "tagline": "Tycho Brahe'nin gözlemlerindeki inatçı bir sekiz yay dakikası, gezegenlerin çember değil elips çizdiğini ortaya çıkardı. Üç yasa: elips yörünge, eşit alanlar ve T² = a³.",
+    "field": "Fizik",
     "level": "Lise",
     "minutes": 30
   },
@@ -164,6 +192,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "manyetik-alan": {
+    "title": "Manyetik Alan: Akımın Görünmez Gölgesi",
+    "tagline": "İçinden akım geçen sıradan bir bakır tel, pusula iğnesini Dünya'nın elinden alacak kadar güçlü bir mıknatısa dönüşür. Teli sarıp sarımları yığınca bu görünmez alanı açıp kapatabilir, ölçebilir, büyütebilirsin.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 25
+  },
+  "matris-donusumleri": {
+    "title": "Matris Dönüşümleri: Dört Sayıyla Düzlemi Yeniden Çizmek",
+    "tagline": "Dört sayı bir şekli döndürür, gerer, yamultur, aynada çevirir ya da bir çizgiye ezer. Sütunları, determinantı ve özdeğerleri on bir köşeli küçük bir evin üstünde okumayı öğren.",
+    "field": "Matematik",
+    "level": "Lise ileri",
+    "minutes": 30
+  },
   "metalurji-ve-malzeme-muhendisligi": {
     "title": "Metalurji ve Malzeme: Atomların Dizilişi, Çeliğin Kaderi",
     "tagline": "Aynı demir, aynı karbon; birkaç saniyelik soğutma farkı yumuşak bir çubuğu cam gibi sert bir bıçağa çevirir. Malzeme mühendisliği, atomların dizilişini okuyup yeniden yazma sanatıdır.",
@@ -175,6 +217,13 @@ window.ACELYA_CATALOG = {
     "title": "Mikroekonomi: Kıtlık, Fiyat ve Seçim",
     "tagline": "Su hayat kurtarır, elmas hiçbir işe yaramaz; yine de elmasa servet ödenir. Bu bilmeceyi 'son bardak' fikri çözdü. Sayfadaki iki grafikte denge fiyatını ve tüketicinin en iyi seçimini düğmelerle kendin oynat.",
     "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "newton-hareket-yasalari": {
+    "title": "Newton Yasaları: Kuvvet, Değişim ve Bir Çarpışma",
+    "tagline": "Newton'un üç yasası iki topun tek bir çarpışmasına sığar: kuvvet yokken dümdüz giden toplar, temas anında eşit ve zıt iki itme, önce de sonra da kuruşu kuruşuna aynı kalan toplam momentum.",
+    "field": "Fizik",
     "level": "Lise",
     "minutes": 30
   },
@@ -234,6 +283,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 25
   },
+  "serbest-dusme": {
+    "title": "Serbest Düşme: Tüy, Çekiç ve Hava",
+    "tagline": "Havasız ortamda tüy ile çekiç yere aynı anda değer; havada ise hızın karesiyle büyüyen bir fren her düşüşü bir limit hızla sınırlar. Aristoteles'ten Ay'daki çekice, yağmurdan paraşüte uzanan bir hikâye.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 30
+  },
   "siber-guvenlik": {
     "title": "Siber Güvenlik: Tersi Zor Olan İşlemler",
     "tagline": "Herkesin dinlediği bir hatta iki yabancı nasıl ortak bir sır kurar? Parola gücü neden bitle ölçülür, bir noktanın değişmesi özetin yarısını neden alt üst eder? Hepsi tek fikre dayanır: bir yönde kolay, tersi zor işlem.",
@@ -283,6 +339,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise hazırlık",
     "minutes": 25
   },
+  "vektorler": {
+    "title": "Vektörler: Yönü Olan Sayıların Aritmetiği",
+    "tagline": "3 + 4 her zaman 7 etmez: yönü olan nicelikler uç uca eklenir, sonucu aradaki açı belirler. Stevin'in top zincirinden Hamilton'ın köprüsüne ve rüzgârda yan yan uçan uçağa, okların aritmetiği.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
   "veri-yapilari": {
     "title": "Veri Yapıları: Doğru Rafı Seçmek",
     "tagline": "Aynı sayılar bir dizide, bir zincirde, yedi yuvalı bir tabloda ya da bir ağaçta saklanabilir. Hangisini seçtiğin, bir aramanın sekiz milyar adım mı yoksa otuz üç adım mı süreceğini belirler.",
@@ -296,6 +359,13 @@ window.ACELYA_CATALOG = {
     "field": "Bilgisayar Bilimi",
     "level": "Lise",
     "minutes": 35
+  },
+  "yay-kutle": {
+    "title": "Yay ve Kütle: Saati Cebe Sığdıran Salınım",
+    "tagline": "Sarkacı yerçekimi geri çağırır, bloğu yay. Bu tek fark periyodu kütleye bağlar, yerçekiminden kurtarır; aynı denklem cep saatinden gökdelenlere, oradan moleküllere uzanır.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 25
   },
   "yazilim-muhendisligi": {
     "title": "Yazılım Mühendisliği: Kodun Ötesindeki Zanaat",

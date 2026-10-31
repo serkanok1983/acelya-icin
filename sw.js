@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-be67e47d43";
+const VERSION = "acelya-6e6d91ba80";
 // --- end:version ---
 
 // --- generated:core ---
@@ -234,25 +234,32 @@ const DIGESTS = [
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
   "shared/digest/cizge-teorisi.js",
+  "shared/digest/dairesel-hareket.js",
   "shared/digest/derleyici-ve-yorumlayicilar.js",
   "shared/digest/dna-replikasyon.js",
   "shared/digest/elektrikli-araclar.js",
   "shared/digest/elektrokimya.js",
   "shared/digest/elektronik-muhendisligi.js",
+  "shared/digest/fonksiyon-grafigi.js",
   "shared/digest/grup-teorisi.js",
   "shared/digest/hesaplama-teorisi.js",
   "shared/digest/internet-ve-ag-teknolojileri.js",
+  "shared/digest/is-enerji.js",
   "shared/digest/isaretciler-ve-bellek-yonetimi.js",
   "shared/digest/isletim-sistemleri-ve-linux.js",
   "shared/digest/isletme-bilimi-ve-yonetim.js",
+  "shared/digest/kepler-yasalari.js",
   "shared/digest/maden-muhendisligi.js",
   "shared/digest/makine-dili-assembly-c.js",
   "shared/digest/makine-muhendisligi.js",
   "shared/digest/makine-ogrenmesi-derin-ogrenme-llm.js",
   "shared/digest/makro-ekonomi-ve-para-politikalari.js",
   "shared/digest/mantik-devresi.js",
+  "shared/digest/manyetik-alan.js",
+  "shared/digest/matris-donusumleri.js",
   "shared/digest/metalurji-ve-malzeme-muhendisligi.js",
   "shared/digest/mikro-ekonomi-ve-uretim-faktorleri.js",
+  "shared/digest/newton-hareket-yasalari.js",
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
   "shared/digest/periyodik-tablo.js",
@@ -261,6 +268,7 @@ const DIGESTS = [
   "shared/digest/programlama-paradigmalari.js",
   "shared/digest/roma-hukuku.js",
   "shared/digest/sarkac.js",
+  "shared/digest/serbest-dusme.js",
   "shared/digest/siber-guvenlik.js",
   "shared/digest/sicim-teorisi.js",
   "shared/digest/tasarim-desenleri.js",
@@ -268,8 +276,10 @@ const DIGESTS = [
   "shared/digest/ucak-muhendisligi-ve-aerodinamik.js",
   "shared/digest/uluslararasi-iliskiler.js",
   "shared/digest/uzay-kosucusu.js",
+  "shared/digest/vektorler.js",
   "shared/digest/veri-yapilari.js",
   "shared/digest/veritabanlari.js",
+  "shared/digest/yay-kutle.js",
   "shared/digest/yazilim-muhendisligi.js",
 ];
 // --- end:digests ---
