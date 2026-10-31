@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
     <link rel="stylesheet" href="shared/theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Rampadan kayan bir kutunun hızını, ivmeyi ve zamanı hiç hesaplamadan bulabilirsin. Tek gereken bir hesap defteri: kim ne kadar iş yaptı, enerji nereye gitti?">
   <title>İş–Enerji İlkesi</title>
   <style>
     * { box-sizing: border-box; }
@@ -33,7 +34,12 @@
   <p id="info"></p>
 <script>
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-let W, H, s = 0, v = 0, running = false, m = 2, g = 9.8, dt = 1/60;
+const angleInput = document.getElementById('angle');
+const frictionInput = document.getElementById('friction');
+const runBtn = document.getElementById('runBtn');
+// Fiziksel birimler: rampa 5 m, kütle 2 kg; çizim ölçeği ekrana göre ayarlanır.
+const L = 5, m = 2, g = 9.8, dt = 1/60;
+let W, H, s = 0, v = 0, running = false, done = false;
 
 function resize() {
   const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -41,87 +47,130 @@ function resize() {
   cv.width = W * dpr; cv.height = H * dpr;
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
 }
 window.addEventListener('resize', resize);
 
-document.getElementById('runBtn').onclick = () => { running = !running; document.getElementById('runBtn').textContent = running ? 'Duraklat' : 'Başlat'; };
-document.getElementById('resetBtn').onclick = () => { s = 0; v = 0; running = false; document.getElementById('runBtn').textContent = 'Başlat'; draw(); };
+function setRunning(next) {
+  running = next;
+  runBtn.textContent = running ? 'Duraklat' : 'Başlat';
+  if (running) requestAnimationFrame(loop);
+}
+function reset() { s = 0; v = 0; done = false; setRunning(false); draw(); }
+
+runBtn.onclick = () => {
+  if (done) { s = 0; v = 0; done = false; }
+  setRunning(!running);
+};
+document.getElementById('resetBtn').onclick = reset;
+angleInput.addEventListener('input', reset);
+frictionInput.addEventListener('input', reset);
+
+function params() {
+  const deg = +angleInput.value;
+  const mu = +frictionInput.value;
+  const rad = deg * Math.PI / 180;
+  return { deg, mu, rad, a: g * (Math.sin(rad) - mu * Math.cos(rad)) };
+}
+
+function step() {
+  const { a } = params();
+  // Statik sürtünme kinetik ile aynı μ kabul edilir: a ≤ 0 ise durgun cisim kaymaz.
+  if (v <= 0 && a <= 0) { v = 0; setRunning(false); return; }
+  v = Math.max(0, v + a * dt);
+  s += v * dt;
+  if (s >= L) { s = L; done = true; setRunning(false); }
+}
+
+function loop() {
+  if (!running) return;
+  step();
+  draw();
+  if (running) requestAnimationFrame(loop);
+}
 
 function draw() {
-  const deg = +document.getElementById('angle').value;
-  const mu = +document.getElementById('friction').value;
-  const rad = deg * Math.PI / 180;
-  const rampLen = W * 0.55;
-  const h0 = rampLen * Math.sin(rad);
-  const h = Math.max(0, h0 - s * Math.sin(rad));
+  if (!W) return;
+  const { deg, mu, rad, a } = params();
+  const h0 = L * Math.sin(rad);
+  const h = (L - s) * Math.sin(rad);
   const PE = m * g * h;
   const KE = 0.5 * m * v * v;
   const Wgrav = m * g * (h0 - h);
   const Wfric = mu * m * g * Math.cos(rad) * s;
 
-  if (running && s < rampLen - 20) {
-    const a = g * (Math.sin(rad) - mu * Math.cos(rad));
-    v += a * dt;
-    s += v * dt;
-    if (s > rampLen - 20) { s = rampLen - 20; v = 0; running = false; }
-  }
-
   ctx.fillStyle = '#121820';
   ctx.fillRect(0, 0, W, H);
 
-  const x0 = 60, y0 = H * 0.75;
-  const x1 = x0 + rampLen * Math.cos(rad);
-  const y1 = y0 - rampLen * Math.sin(rad);
+  const rampPx = Math.min(W * 0.45, (H * 0.6) / Math.sin(45 * Math.PI / 180));
+  const px = rampPx / L;
+  const x0 = 40, y0 = H * 0.8;                 // rampanın alt kenarı
+  const x1 = x0 + rampPx * Math.cos(rad);      // rampanın sağ (alçak) ucu
+  const yTop = y0 - rampPx * Math.sin(rad);    // rampanın tepesi (sol)
 
   ctx.fillStyle = '#21262d';
   ctx.beginPath();
-  ctx.moveTo(x0, y0);
-  ctx.lineTo(x1, y1);
+  ctx.moveTo(x0, yTop);
   ctx.lineTo(x1, y0);
+  ctx.lineTo(x0, y0);
   ctx.closePath();
   ctx.fill();
   ctx.strokeStyle = '#484f58';
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  const bx = x0 + s * Math.cos(rad);
-  const by = y0 - s * Math.sin(rad);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`h₀ = ${h0.toFixed(2)} m`, x0 + 6, (yTop + y0) / 2 + 16);
+  ctx.fillText(`θ = ${deg}°`, x1 - 52, y0 - 8);
+
+  const d = s * px;
+  const cx = x0 + d * Math.cos(rad), cy = yTop + d * Math.sin(rad);
+  const nx = Math.sin(rad), ny = -Math.cos(rad);  // yüzeye dik, dışa doğru birim vektör
+  const r = 14;
   ctx.fillStyle = '#58a6ff';
   ctx.beginPath();
-  ctx.arc(bx, by - 16, 16, 0, Math.PI * 2);
+  ctx.arc(cx + nx * r, cy + ny * r, r, 0, Math.PI * 2);
   ctx.fill();
 
-  const barX = W * 0.62, barW = 28, maxE = m * g * h0 * 1.1 || 1;
+  const barX = Math.max(x1 + 24, W * 0.6), maxE = m * g * h0 * 1.05 || 1;
+  const slot = Math.min(46, (W - barX - 8) / 4), barW = Math.min(28, slot * 0.62);
   const bars = [
     { label: 'KE', val: KE, color: '#3fb950' },
     { label: 'PE', val: PE, color: '#58a6ff' },
-    { label: 'W', val: Wgrav - Wfric, color: '#ffa657' }
+    { label: 'W_net', val: Wgrav - Wfric, color: '#ffa657' },
+    { label: 'Isı', val: Wfric, color: '#f778ba' }
   ];
   bars.forEach((b, i) => {
-    const bh = (b.val / maxE) * (H * 0.35);
-    const x = barX + i * (barW + 24);
+    const bh = Math.max(0, b.val / maxE) * (H * 0.35);
+    const x = barX + i * slot;
     ctx.fillStyle = '#30363d';
     ctx.fillRect(x, H * 0.35, barW, H * 0.35);
     ctx.fillStyle = b.color;
     ctx.fillRect(x, H * 0.7 - bh, barW, bh);
     ctx.fillStyle = '#8b949e';
-    ctx.font = '11px sans-serif';
+    ctx.font = (slot < 40 ? 9 : 11) + 'px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(b.label, x + barW / 2, H * 0.28);
-    ctx.fillText(b.val.toFixed(0) + ' J', x + barW / 2, H * 0.75);
+    ctx.fillText(b.label, x + barW / 2, H * 0.31);
+    ctx.fillText(b.val.toFixed(1) + ' J', x + barW / 2, H * 0.75);
   });
 
   ctx.fillStyle = '#e6edf3';
   ctx.font = '12px sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('E_mek = KE + PE = ' + (KE + PE).toFixed(1) + ' J', 16, 24);
+  ctx.fillStyle = '#8b949e';
+  ctx.fillText(`m = ${m} kg · rampa ${L} m · yol s = ${s.toFixed(2)} m`, 16, 42);
+  if (a <= 0 && s === 0 && v === 0) {
+    ctx.fillStyle = '#ffa657';
+    ctx.fillText(`μ ≥ tanθ (${Math.tan(rad).toFixed(2)}): sürtünme cismi tutar, kayma başlamaz.`, 16, 60);
+  }
 
   document.getElementById('info').textContent =
-    `ΔE = W_net  →  Yerçekimi işi: ${Wgrav.toFixed(0)} J, sürtünme: -${Wfric.toFixed(0)} J, hız: ${v.toFixed(2)} m/s`;
-  if (running) requestAnimationFrame(draw);
+    `W_net = ΔKE  →  Yerçekimi işi: ${Wgrav.toFixed(1)} J, sürtünme işi: −${Wfric.toFixed(1)} J, hız: ${v.toFixed(2)} m/s`;
 }
 
 resize();
-draw();
 </script></body>
 </html>

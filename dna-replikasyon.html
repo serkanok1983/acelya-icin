@@ -36,135 +36,222 @@
   <a class="back" href="index.html">← Ana menü</a>
 <script>
 const STEPS = [
-  { title: 'Helikaz — çift sarmal açılır', desc: 'DNA helikaz hidrojen bağlarını kopararak replikasyon çatalı oluşur.' },
-  { title: 'Primer RNA bağlanır', desc: 'Primaz kısa RNA primerleri sentezler; DNA polimeraz III buradan başlar.' },
-  { title: 'DNA polimeraz — yeni iplik', desc: '5\'→3\' yönünde komplementer nükleotidler eklenir (A-T, G-C).' },
-  { title: 'İki özdeş DNA molekülü', desc: 'Her yeni çift sarmalda bir eski (ana), bir yeni iplik bulunur — yarı korunumlu.' }
+  { title: 'Helikaz — çift sarmal açılır', desc: 'DNA helikaz baz çiftleri arasındaki hidrojen bağlarını koparır; iki kalıp iplik ayrılır ve replikasyon çatalı oluşur.' },
+  { title: 'Primaz — RNA primerleri', desc: 'Primaz, her kalıbın 3′ ucuna karşılık gelen bölgeye kısa RNA primeri (mor) yapar. DNA polimeraz zinciri sıfırdan başlatamaz; primerin 3′-OH ucuna ihtiyaç duyar.' },
+  { title: 'DNA polimeraz III — yeni iplik', desc: 'Polimeraz kalıbı 3′→5′ yönünde okur, yeni ipliği yalnız 5′→3′ yönünde uzatır (A–T, G–C). Kalıplar antiparalel olduğu için iki yeni iplik zıt yönlerde büyür.' },
+  { title: 'Tamamlanma — iki özdeş DNA', desc: 'RNA primerleri DNA ile değiştirilir (bakteride DNA polimeraz I), DNA ligaz boşlukları kapatır. Her yeni çift sarmalda bir eski (ana) ve bir yeni iplik bulunur: yarı korunumlu eşlenme.' }
 ];
 const BASE_COL = { A:'#f85149', T:'#58a6ff', G:'#3fb950', C:'#ffa657' };
 const PAIR = { A:'T', T:'A', G:'C', C:'G' };
-const SEQ = 'ATGCGATACGTA';
+const SEQ = 'ATGCGATACGTA';            // üst kalıp, 5′→3′ soldan sağa
+const TOP = SEQ.split('');
+const BOT = TOP.map(b => PAIR[b]);      // alt kalıp, 3′→5′ soldan sağa
+const PRIMER_LEN = 2;
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-let W, H, step = 0, anim = 0, playing = false;
+const playBtn = document.getElementById('playBtn');
+let W, H, step = 0, anim = 0, playing = false, hold = 0, raf = null;
 
 function resize() {
   const dpr = Math.min(devicePixelRatio || 1, 2);
-  W = Math.min(800, innerWidth - 24); H = Math.min(400, innerHeight * 0.5);
+  W = Math.min(800, innerWidth - 24); H = Math.min(400, Math.max(300, innerHeight * 0.5));
   cv.width = W * dpr; cv.height = H * dpr;
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
 }
 window.addEventListener('resize', resize);
 
 document.querySelectorAll('.step-btn').forEach(b => {
-  b.onclick = () => setStep(+b.dataset.s);
+  b.onclick = () => { setPlaying(false); setStep(+b.dataset.s); };
 });
-document.getElementById('playBtn').onclick = () => {
-  playing = !playing;
-  document.getElementById('playBtn').textContent = playing ? 'Durdur' : 'Oynat';
-  if (playing) tick();
+playBtn.onclick = () => {
+  setPlaying(!playing);
+  if (playing && anim >= 1) { hold = 0; setStep((step + 1) % STEPS.length); }
+  else if (playing) start();
 };
 
+function setPlaying(next) {
+  playing = next;
+  playBtn.textContent = playing ? 'Durdur' : 'Oynat';
+}
+
 function setStep(s) {
-  step = s; anim = 0;
+  step = s; anim = reduceMotion ? 1 : 0; hold = 0;
   document.querySelectorAll('.step-btn').forEach(b => b.classList.toggle('active', +b.dataset.s === s));
   const st = STEPS[s];
   document.getElementById('stepInfo').innerHTML = `<strong>${st.title}</strong><br>${st.desc}`;
   draw();
+  start();
 }
 
-function drawStrand(y, bases, flip, progress, isNew) {
-  const n = bases.length;
-  const spacing = Math.min(28, (W - 120) / n);
-  const startX = (W - spacing * (n - 1)) / 2;
-  const fork = step >= 1 ? Math.min(1, anim) * 40 : 0;
-  const yOff = flip ? fork : -fork;
+function start() {
+  if (raf) cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(tick);
+}
 
-  for (let i = 0; i < n; i++) {
-    const show = step < 2 ? 1 : Math.min(1, (anim * n - i) / 2);
-    if (show <= 0) continue;
-    const x = startX + i * spacing + (flip ? fork * 0.3 : -fork * 0.3);
-    const b = bases[i];
-    ctx.globalAlpha = isNew ? show : 1;
-    ctx.fillStyle = BASE_COL[b];
-    ctx.beginPath();
-    ctx.arc(x, y + yOff, 10, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#e6edf3';
-    ctx.font = '10px system-ui';
-    ctx.textAlign = 'center';
-    ctx.fillText(b, x, y + yOff + 4);
-    if (step >= 1 && i < 2 && step < 3) {
-      ctx.fillStyle = '#d2a8ff';
-      ctx.fillRect(x - 4, y + yOff - 18, 8, 6);
-    }
-    ctx.globalAlpha = 1;
+// Seçilen adım bir kez canlandırılır; Oynat açıksa kısa bir duraklamadan sonra sonraki adıma geçilir.
+function tick() {
+  raf = null;
+  if (anim < 1) {
+    anim = Math.min(1, anim + 0.012);
+  } else if (playing) {
+    if (++hold > 70) { setStep((step + 1) % STEPS.length); return; }
+  } else {
+    draw();
+    return;
   }
-  if (step >= 1) {
-    ctx.strokeStyle = '#484f58';
-    ctx.lineWidth = 2;
+  draw();
+  raf = requestAnimationFrame(tick);
+}
+
+const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+function layout() {
+  const n = TOP.length;
+  const spacing = Math.min(30, (W - 120) / (n - 1));
+  const startX = (W - spacing * (n - 1)) / 2;
+  const mid = H / 2;
+  const open = step === 0 ? ease(anim) : 1;
+  const gap = 22 + open * 88;            // kalıplar arası yarım mesafe
+  return { n, spacing, startX, mid, yTop: mid - gap, yBot: mid + gap, newOffset: 34, open };
+}
+
+function base(x, y, b, alpha) {
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = BASE_COL[b];
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#0d1117';
+  ctx.font = 'bold 10px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(b, x, y + 3.5);
+  ctx.globalAlpha = 1;
+}
+
+function backbone(x1, x2, y, color, dash) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.setLineDash(dash || []);
+  ctx.beginPath();
+  ctx.moveTo(x1, y);
+  ctx.lineTo(x2, y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function endLabels(L, y, left, right, color) {
+  ctx.fillStyle = color || '#8b949e';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(left, L.startX - 30, y + 4);
+  ctx.fillText(right, L.startX + L.spacing * (L.n - 1) + 30, y + 4);
+}
+
+function pairLines(L, yA, yB, from, to, alpha) {
+  ctx.strokeStyle = 'rgba(139,148,158,0.55)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 3]);
+  ctx.globalAlpha = alpha;
+  for (let i = from; i < to; i++) {
+    const x = L.startX + i * L.spacing;
     ctx.beginPath();
-    ctx.moveTo(startX - 20, y);
-    for (let i = 0; i < n; i++) {
-      const x = startX + i * spacing + (flip ? fork * 0.3 : -fork * 0.3);
-      ctx.lineTo(x, y + yOff);
-    }
+    ctx.moveTo(x, yA + (yA < yB ? 10 : -10));
+    ctx.lineTo(x, yB + (yA < yB ? -10 : 10));
     ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.setLineDash([]);
+}
+
+// Yeni ipliğin i. bazının görünürlüğü. Üst yeni iplik sağdan sola, alt yeni iplik soldan sağa büyür (5′→3′).
+function newBaseState(i, n, isTop) {
+  const order = isTop ? n - 1 - i : i;
+  const isPrimer = order < PRIMER_LEN;
+  if (step < 1) return { alpha: 0, primer: false };
+  if (step === 1) return { alpha: isPrimer ? Math.max(0, Math.min(1, anim * 3 - order)) : 0, primer: isPrimer };
+  if (step === 2) {
+    if (isPrimer) return { alpha: 1, primer: true };
+    const grown = anim * (n - PRIMER_LEN);
+    return { alpha: Math.max(0, Math.min(1, grown - (order - PRIMER_LEN))), primer: false };
+  }
+  return { alpha: 1, primer: isPrimer && anim < 0.5 };
+}
+
+function drawNewStrand(L, isTop) {
+  const y = isTop ? L.yTop + L.newOffset : L.yBot - L.newOffset;
+  const yTemplate = isTop ? L.yTop : L.yBot;
+  const bases = isTop ? BOT : TOP;
+  let tipX = null, minX = Infinity, maxX = -Infinity, anyShown = false;
+  for (let i = 0; i < L.n; i++) {
+    const st = newBaseState(i, L.n, isTop);
+    if (st.alpha <= 0) continue;
+    anyShown = true;
+    const x = L.startX + i * L.spacing;
+    minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+    if (st.primer) {
+      ctx.globalAlpha = st.alpha;
+      ctx.fillStyle = '#d2a8ff';
+      ctx.fillRect(x - 12, y - 12, 24, 24);
+      ctx.globalAlpha = 1;
+    }
+    base(x, y, bases[i], st.alpha);
+    pairLines(L, yTemplate, y, i, i + 1, st.alpha);
+    if (st.alpha > 0.05) tipX = isTop ? (tipX === null ? x : Math.min(tipX, x)) : (tipX === null ? x : Math.max(tipX, x));
+  }
+  if (!anyShown) return;
+  backbone(minX - 12, maxX + 12, y + (isTop ? 14 : -14), step === 3 ? '#3fb950' : 'rgba(63,185,80,0.6)');
+  // Yeni ipliğin uçları: üstte 3′ solda / 5′ sağda, altta 5′ solda / 3′ sağda.
+  if (step >= 2) endLabels(L, y, isTop ? "3′" : "5′", isTop ? "5′" : "3′", '#3fb950');
+  if (step === 2 && tipX !== null && anim < 1) {
+    ctx.fillStyle = '#3fb950';
+    ctx.font = 'bold 11px system-ui';
+    ctx.textAlign = 'center';
+    const ty = isTop ? y + 32 : y - 24;
+    ctx.fillText(isTop ? '← DNA Pol III' : 'DNA Pol III →', tipX + (isTop ? -10 : 10), ty);
   }
 }
 
 function draw() {
+  if (!W) return;
   ctx.fillStyle = '#121820';
   ctx.fillRect(0, 0, W, H);
-  const mid = H / 2;
-  const top = SEQ.split('');
-  const bot = top.map(b => PAIR[b]);
-  const newTop = step >= 2 ? bot : [];
-  const newBot = step >= 2 ? top : [];
+  const L = layout();
+  const lastX = L.startX + L.spacing * (L.n - 1);
 
-  if (step === 0) {
-    drawStrand(mid - 50, top, false, 0, false);
-    drawStrand(mid + 50, bot, true, 0, false);
-  } else {
-    drawStrand(mid - 70, top, false, anim, false);
-    drawStrand(mid + 70, bot, true, anim, false);
-    if (step >= 2) {
-      drawStrand(mid - 70, newTop.length ? newTop : bot, false, anim, true);
-      drawStrand(mid + 70, newBot.length ? newBot : top, true, anim, true);
-    }
+  // Kalıp iplikler ve omurgaları
+  backbone(L.startX - 12, lastX + 12, L.yTop - 14, '#6e7681');
+  backbone(L.startX - 12, lastX + 12, L.yBot + 14, '#6e7681');
+  if (step === 0) pairLines(L, L.yTop, L.yBot, 0, L.n, 1 - L.open);
+  for (let i = 0; i < L.n; i++) {
+    const x = L.startX + i * L.spacing;
+    base(x, L.yTop, TOP[i], 1);
+    base(x, L.yBot, BOT[i], 1);
   }
+  endLabels(L, L.yTop, "5′", "3′");
+  endLabels(L, L.yBot, "3′", "5′");
 
-  if (step >= 1) {
-    ctx.fillStyle = '#ffa657';
-    ctx.font = '11px system-ui';
-    ctx.fillText('Helikaz', W/2 - 24, mid - 8);
-    if (step >= 2) {
-      ctx.fillStyle = '#3fb950';
-      ctx.fillText('DNA Pol III →', W * 0.72, mid - 55);
-      ctx.fillText('← DNA Pol III', W * 0.12, mid + 65);
-    }
-  }
-  ctx.fillStyle = '#8b949e';
-  ctx.font = '10px system-ui';
-  ctx.textAlign = 'center';
-  ctx.fillText('5\'', 30, mid - 70);
-  ctx.fillText('3\'', W - 30, mid + 70);
+  drawNewStrand(L, true);
+  drawNewStrand(L, false);
+
+  ctx.font = '11px system-ui';
   ctx.textAlign = 'left';
-}
-
-function tick() {
-  if (!playing) return;
-  anim += 0.02;
-  if (anim >= 1.2) {
-    anim = 0;
-    step = (step + 1) % 4;
-    document.querySelectorAll('.step-btn').forEach(b => b.classList.toggle('active', +b.dataset.s === step));
-    const st = STEPS[step];
-    document.getElementById('stepInfo').innerHTML = `<strong>${st.title}</strong><br>${st.desc}`;
+  if (step === 0) {
+    ctx.fillStyle = '#ffa657';
+    ctx.fillText('Helikaz: hidrojen bağları kopuyor', 12, 18);
+  } else if (step === 3) {
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText('Gri: eski (kalıp) iplik · Yeşil: yeni iplik', 12, 18);
+  } else {
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText('Kalıp iplikler antiparalel: üstte 5′→3′, altta 3′→5′ (soldan sağa)', 12, 18);
   }
-  draw();
-  requestAnimationFrame(tick);
+  if (step >= 1 && step <= 2) {
+    ctx.fillStyle = '#d2a8ff';
+    ctx.fillText('■ RNA primeri', 12, H - 12);
+  }
 }
 
 resize();
