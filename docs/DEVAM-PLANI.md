@@ -6,7 +6,7 @@ sonra **Yapılacaklar**'ı oku. Teknik ayrıntılar için `README.md`, içerik
 standardı için `docs/icerik-rehberi.md`.
 
 Dal: `claude/zealous-archimedes-iwjhpu` (main'e henüz birleştirilmedi).
-Son durum tarihi: 2026-10-03.
+Son durum tarihi: 2026-10-31.
 
 ## 1. Hedef (sahibinin sözleriyle)
 
@@ -57,35 +57,44 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   21 sayfada mobil yatay taşma giderildi (theme.css canvas kuralı + 7 sayfa
   tek tek). Duman testi: 168 sayfada 0 JS hatası.
 - Service worker yeniden yazıldı; CI'da denetim adımı; README.
-- Keşif Defteri altyapısı + 43 defter (aşağıda durum tablosu).
+- Keşif Defteri altyapısı + 53 defter (aşağıda durum tablosu).
+- **31 Ekim 2026 oturumu:**
+  - Simülasyon hataları düzeltildi: `is-enerji` (animasyon çalışmıyordu, fiziksel
+    birimlerle yeniden yazıldı), `kepler-yasalari` (gezegen ekran dışındaydı;
+    artık Kepler denklemi çözülüyor, Güneş odakta), `dna-replikasyon` (5′/3′
+    yönleri ve primer konumları), `manyetik-alan` (kapat/sıfırla, Chart.js
+    yoksa çökme), `serbest-dusme` (g kaydırıcısı adımı).
+  - 10 yeni defter tam hattan (yazar → doğrulayıcı → editör) geçti; `dna-replikasyon`
+    yeni simülasyona göre güncellenip doğrulayıcı + editörden geçirildi.
+  - GitHub Actions kullanılamadığı için elle yayın betiği eklendi (bkz. 4.6).
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.1 Kalan 111 sayfa için defter yaz
+### 4.1 Kalan 101 sayfa için defter yaz
 
 Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler):
 
 ```
 akiskanlar-mekanigi alternatif-akim asal-rsa asit-baz-titrasyonu atislar atom-orbitalleri
 av-avci-lotka-volterra ay-evreleri barnsley-egreltiotu basinc bayes-olasilik besin-agi
-birim-cember breakout cift-sarkac collatz dairesel-hareket dalga-superpozisyonu
+birim-cember breakout cift-sarkac collatz dalga-superpozisyonu
 denklem-denklestirme dogal-secilim doppler-etkisi duran-dalgalar elektrik-devresi-simulasyonu
 elektrik-muhendisligi elektronik-devre enigma-makinesi enzim-kinetigi fibo fibo+pascal
-fonksiyon-grafigi formul-hafiza fotoelektrik fotosentez-solunum fourier-ses
+formul-hafiza fotoelektrik fotosentez-solunum fourier-ses
 gemi-makineleri-isletme-muhendisligi genetik-caprazlama gezegen-savunmasi gorelilik-uzayzaman
-gunes-sistemi hanoi-kuleleri hilbert-egrisi ideal-gaz integral is-enerji isik-sondurme
-julia-fraktali kaldirma-kuvveti kalp-dolasim kara-cisim-isimasi karmasik-sayilar kepler-yasalari
+gunes-sistemi hanoi-kuleleri hilbert-egrisi ideal-gaz integral isik-sondurme
+julia-fraktali kaldirma-kuvveti kalp-dolasim kara-cisim-isimasi karmasik-sayilar 
 kimya-muhendisligi kimyasal-kinetik kirinim-izgarasi klasik-girisim koch-kar-tanesi konik-kesitler
 kristal-yapilar kuantum-dalga kuantum-mekanigi lissajous lorentz-kuvveti lorenz-cekici
-lorenz-cekici2 mandelbrot+lorenz mandelbrot-fraktali mantik-kapilari manyetik-alan
-matris-donusumleri mayin-tarlasi mekatronik-muhendisligi mercek-isinlari mitoz-mayoz molekul
-molekul-sekli newton-hareket-yasalari normal-dagilim nukleer-fizik optik-yansima-kirilma
+lorenz-cekici2 mandelbrot+lorenz mandelbrot-fraktali mantik-kapilari 
+mayin-tarlasi mekatronik-muhendisligi mercek-isinlari mitoz-mayoz molekul
+molekul-sekli normal-dagilim nukleer-fizik optik-yansima-kirilma
 oyun-2048 pascal-ucgeni penrose-dosemesi ph-indikator pi-yaklasimi pisagor radyoaktif-bozunma
-rastgele-yuruyus renk-teorisi riemann-toplamlari serbest-dusme ses-sentezleyici sezar-sifre
+rastgele-yuruyus renk-teorisi riemann-toplamlari ses-sentezleyici sezar-sifre
 sierpinski-fraktali-peano-egrisi-altin-oran siralama-algoritmalari siralama-yarisi snake
 takimyildiz-haritasi taylor-serisi tek-sayi-toplam3 tek-sayi-toplam4 tek-sayi-toplam5
-termodinamik tetris tork-denge uretim-planlama-ve-endustri-muhendisligi vektorler yasam-oyunu
-yay-kutle yildiz-yasam-dongusu yol-bulma-algoritmalari yoneylem-arastirmasi
+termodinamik tetris tork-denge uretim-planlama-ve-endustri-muhendisligi yasam-oyunu
+yildiz-yasam-dongusu yol-bulma-algoritmalari yoneylem-arastirmasi
 ```
 
 Kapsam dışı (defter yazılmaz): `index`, `404`, `bilgi`, `bilim-atlasi`,
@@ -134,8 +143,8 @@ aşamasından geçti. Durum:
 
 | Durum | Sayfalar |
 |---|---|
-| yazar + doğrulama + editör (tam) | turev*, roma-hukuku* |
-| yazar + editör (doğrulama yok) | altin-oran, dna-replikasyon, pong |
+| yazar + doğrulama + editör (tam) | turev*, roma-hukuku*, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle |
+| yazar + editör (doğrulama yok) | altin-oran, pong |
 | yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, cizge-teorisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, grup-teorisi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, periyodik-tablo, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
 | elle yazıldı (referans) | sarkac |
@@ -196,8 +205,15 @@ tablosu hataları). Öneri:
 
 - Firebase Realtime Database kuralları konsoldan sıkılaştırılmalı
   (`shared/firebase-config.example.js` içindeki öneri); repodan yapılamaz.
-- PR aç: `claude/zealous-archimedes-iwjhpu` → `main`; CI (check + smoke)
-  yeşil olmalı. Pages ayarı: Source = GitHub Actions.
+- PR aç: `claude/zealous-archimedes-iwjhpu` → `main`.
+- **Yayın (GitHub Actions kullanılamıyor):** CI'ın yaptığını yerelde
+  `scripts/deploy-manual.sh` yapar: check-site → katalog/sw `--check` →
+  smoke → `_site` paketi. `npm run deploy:check` yalnız denetler ve paketler;
+  `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
+  Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
+  Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
+  (101 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
+  bitince geçer.
 
 ## 5. Kalite çıtası (kısa hatırlatma)
 

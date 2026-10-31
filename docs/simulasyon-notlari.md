@@ -79,15 +79,17 @@ Durum: ❑ bekliyor · ✔ yapıldı
 
 ## dna-replikasyon.html
 
-- ❑ dna-replikasyon.html drawStrand(): the `show` gate (`step < 2 ? 1 : (anim*n - i)/2`) applies to the template strands as well as the new strands, so pressing '3. Sentez' or '4. Tamamlanma' without Oynat (anim = 0) renders an empty canvas with only backbone lines and labels. The static step views should draw the template at full visibility and gate only `isNew` strands (or set anim = 1 when a step button is pressed).
-- ❑ dna-replikasyon.html draw(): the new strand is drawn at exactly the same y and offset as its template (`drawStrand(mid - 70, newTop, false, anim, true)` over the old top strand), so the complementary bases paint over the template letters. At '4. Tamamlanma' the viewer sees one row reading TACGCTATGCAT and one reading ATGCGATACGTA, i.e. the two parental strands swapped, not two daughter double helices. The new strand should be drawn beside its template (e.g. mid-70 template with new strand at mid-40, and mirrored below) so each product is visibly 'one old + one new'.
-- ❑ dna-replikasyon.html: there is no actual fork geometry. `fork` is a constant yOff applied uniformly along each strand (plus a 0.3*fork horizontal shift), so the strands separate as parallel lines rather than opening from one side into a Y. The 'Helikaz' label sits at centre but nothing opens there; a left-to-right (or centre-outward) progressive separation would match the step text 'replikasyon çatalı oluşur'.
-- ❑ dna-replikasyon.html: both new strands are filled left-to-right regardless of the 'DNA Pol III →' / '← DNA Pol III' labels, and there are no Okazaki fragments, so leading/lagging strands (mentioned in PAGE_INFO and the step 3 caption's 5'→3' claim) are not represented. The bottom new strand should fill right-to-left, ideally in 2–3 short fragments with their own primers.
-- ❑ dna-replikasyon.html: primer rectangles are drawn on bases i < 2 of both strands and removed only at step index 3, but the step 4 caption never says primers are removed/replaced (Pol I + ligase); there is no visual of primer removal or ligation.
-- ❑ dna-replikasyon.html: the 'Helikaz' label persists through '4. Tamamlanma' (condition `step >= 1`) even though the caption describes two finished molecules; it should disappear at step index 3.
-- ❑ dna-replikasyon.html tick(): animation advances a fixed 0.02 per requestAnimationFrame with no dt, so the ~1 s/step pacing is frame-rate dependent (2× faster on 120 Hz displays). Use a timestamp delta.
-- ❑ dna-replikasyon.html resize(): the resize handler resets canvas size but does not call draw(), so after a window resize the canvas stays blank until the next step change or tick.
-- ❑ dna-replikasyon.html draw(): ctx.textAlign is left as 'center' from drawStrand when the 'Helikaz' and 'DNA Pol III' labels are drawn with hand-tuned x offsets (W/2 - 24, W*0.72, W*0.12), which makes their positions inconsistent; set textAlign explicitly before each label. The 5'/3' labels only mark the top-left and bottom-right ends, so strand polarity of the new strands is never shown.
+- ✔ Düzeltildi (Ekim 2026): adım düğmeleri artık boş tuval göstermiyor. Kalıp iplikler her adımda tam görünür; bir adım düğmesi Oynat'ı durdurur ve o adımı bir kez canlandırıp son hâlinde bırakır. Oynat adımları kısa bir duraklamayla döndürür; prefers-reduced-motion açıkken adımlar doğrudan son hâlleriyle çizilir.
+- ✔ Düzeltildi (Ekim 2026): yeni iplik artık kalıbın üstüne çizilmiyor. Her yeni iplik kendi kalıbının iç tarafında (newOffset = 34 px), yeşil omurgayla ayrı bir sıra olarak çiziliyor ve her baz kalıptaki eşine noktalı çizgiyle bağlı. 4. Tamamlanma'da "Gri: eski (kalıp) iplik · Yeşil: yeni iplik" açıklamasıyla iki ürünün her biri görünür biçimde "bir eski + bir yeni".
+- ✔ Düzeltildi (Ekim 2026): 5′/3′ etiketleri ve yön hataları. Dört ipliğin de iki ucu etiketli: kalıplar gri (üst 5′ sol / 3′ sağ, alt 3′ sol / 5′ sağ), yeni iplikler yeşil (üst 3′ sol / 5′ sağ, alt 5′ sol / 3′ sağ). Üst yeni iplik sağdan sola, alt yeni iplik soldan sağa büyüyor; "← DNA Pol III" ve "DNA Pol III →" etiketleri büyüyen ucu izliyor ve yönleriyle tutarlı.
+- ✔ Düzeltildi (Ekim 2026): primerler artık her yeni ipliğin 5′ ucunda, kalıbın 3′ ucunun karşısında (üstte en sağdaki, altta en soldaki iki baz). 4. Tamamlanma'da mor kareler animasyonun yarısında kayboluyor; adım metni primerin DNA ile değiştirilmesini (DNA polimeraz I) ve ligazı söylüyor.
+- ✔ Düzeltildi (Ekim 2026): "Helikaz" yazısı yalnız 1. Açılma'da görünüyor (sol üst açıklama); resize() artık draw() çağırıyor; etiketlerden önce textAlign açıkça ayarlanıyor.
+- ❑ dna-replikasyon.html: hâlâ gerçek çatal geometrisi yok. 1. Açılma'da iki kalıp paralel çizgiler olarak düzgünce ayrılıyor; Y biçiminde bir taraftan açılmıyor. Adım 1 metni ise "replikasyon çatalı oluşur" diyor. Soldan sağa (ya da merkezden dışa) ilerleyen bir açılma metinle uyuşur.
+- ❑ dna-replikasyon.html: öncü/geciken iplik ayrımı ve Okazaki parçaları hâlâ gösterilmiyor; iki yeni iplik de tek primerden kesintisiz büyüyor. Çatal yönü çizilince, çataldan uzaklaşan iplik 2–3 kısa parça ve her biri için ayrı primerle doldurulmalı.
+- ❑ dna-replikasyon.html: RNA primeri karelerinin içinde T harfi yazıyor (her iki primer de bir T içeriyor); RNA'da T yerine U bulunur. Primer bazlarında T → U gösterilmeli (Tamamlanma'da primer silinince T'ye dönebilir; bu, primerin DNA ile değiştirilmesini de görünür kılar).
+- ❑ dna-replikasyon.html: primerler 12 bazlık parçanın en uçlarında duruyor; Pol I'in primerin yerini doldurması için primerin ötesinde uzatacağı bir 3′ ucu gerekir. Parçanın uzun bir molekülün penceresi olduğu (iki uçta kesik omurga ya da "…" işareti) belirtilirse çizim kendi içinde tutarlı olur.
+- ❑ dna-replikasyon.html tick(): animasyon hâlâ kare başına sabit 0.012 ilerliyor, Oynat'taki duraklama da 70 kare; dt yok. Hız ekran yenileme hızına bağlı (120 Hz ekranda iki kat hızlı). Zaman damgası farkı kullanılmalı.
+- ❑ dna-replikasyon.html: prefers-reduced-motion açıkken 3. Sentez'de "DNA Pol III" etiketleri hiç görünmüyor (yalnız anim < 1 iken çiziliyorlar); sentez yönü bu kullanıcılar için yalnız yeşil 5′/3′ etiketlerinden okunabiliyor. Statik görünümde etiketleri yeni ipliğin 3′ ucunda göstermek yeterli olur.
 
 ## elektrikli-araclar.html
 
@@ -411,6 +413,79 @@ Durum: ❑ bekliyor · ✔ yapıldı
 - ❑ Design Patterns panel text says 'Gang of Four tarafından kataloglanan 23 klasik tasarım deseni' but the panel shows only 15 cards (5 per tab); the intro should say it shows 15 of the 23, or the remaining 8 should be added (Bridge, Flyweight, Interpreter, Iterator, Mediator, Memento, State, Visitor).
 - ❑ SDLC 'Bakım' detail asserts 'Yazılım maliyetinin ~%70'i bakımdadır!' without a source; the figure varies widely across studies. Consider softening to 'çoğu' or citing a source.
 - ❑ Minor: 'Chain of Resp.' card name is abbreviated while all others are full; and the SOLID 'D' bad example ('private EmailServisi email = new EmailServisi()') and pattern code snippets are rendered via innerHTML with `<` characters inside strings (e.g. 'List<Bilesen>', 'List<ClickListener>', 'List<Komut>') which the browser may parse as unknown tags and drop from the displayed code; escape them as &lt; or set textContent for .dp-code.
+
+## dairesel-hareket.html
+
+- ❑ Kırmızı a_c oku yanlış fiziği gösteriyor: uzunluğu 0.35·r px (r büyüdükçe uzuyor, v'yi yok sayıyor); gerçekte a_c = v²/r. Ok uzunluğu a_c ile orantılı olmalı.
+- ❑ Turuncu F oku 0.014·m·v² px; varsayılanda ~1 px, en çok ~20 px, ok başı topun altında kalıyor ve göstergede (legend) yok.
+- ❑ Animasyon kare başına `angle += v/R*0.04`; 60 Hz'de gösterilen T'den ~2.4 kat, 120 Hz'de ~4.8 kat hızlı. requestAnimationFrame zaman damgası kullanılmalı.
+- ❑ ω göstergesi toFixed(2) ile çok kaba (0.01–0.20); kaydırıcılar değer göstermiyor, seçilen değerler yalnız alt satırda.
+- ❑ r = 160'ta çember kısa pencerelerde (innerHeight < ~630 px) tuvalden taşıyor. Ölü kod: kullanılmayan `scale`, boş `oninput` işleyicileri.
+
+## fonksiyon-grafigi.html
+
+- ❑ Kaydırıcı etiketi genişlik ≥ 5.97 olduğunda hep "2π" yazıyor (`spanX >= Math.PI*1.9`); ilk açılışta kaydırıcı 6.5 gösterirken gerçek yarıçap 2π.
+- ❑ Eğri ±1.05×, ızgara ±1.0× hesaplanıyor ama tuval ±1.11× gösteriyor; kenarlarda boş şeritler kalıyor. Yatay ve dikey ölçek farklı (324/r ve 168/s px), eksenlerde sayı yok.
+- ❑ İpucu iki parmakla yakınlaştırmayı vaat ediyor ama çoklu dokunma kodu yok; tekerlek yakınlaştırması imleç yerine merkeze göre ve olay büyüklüğünden bağımsız.
+- ❑ Sinüs açılışta dikey yarıçap 4 ile, menüden seçilince 2.5 ile çiziliyor; "Görünümü sıfırla" açılış görünümüne dönmüyor. Her çizimde canvas.width yeniden atanıyor.
+
+## is-enerji.html
+
+- ✔ Düzeltildi (Ekim 2026): Başlat animasyonu başlatmıyordu, kaydırıcılar etkisizdi, top rampada yukarı çıkıyordu, birimler pikseldi. Simülasyon fiziksel birimlerle (L = 5 m, m = 2 kg) yeniden yazıldı; Isı çubuğu eklendi; μ ≥ tanθ iken cisim kaymıyor.
+- ❑ Kare başına sabit 1/60 s adım; 120 Hz ekranda gerçek zamanda iki kat hızlı.
+- ❑ Son adımda konum 5 m'ye kırpılıyor ama hız düzeltilmiyor; altta KE ≠ W_net (25°, μ = 0'da 41.2 / 41.4 J). Bitişte v = √(2aL) kesin değeri kullanılabilir.
+- ❑ Kaydırıcılar değerlerini göstermiyor (θ yalnız rampada, μ hiçbir yerde). Statik ve kinetik μ aynı kabul ediliyor.
+
+## kepler-yasalari.html
+
+- ✔ Düzeltildi (Ekim 2026): gezegen piksel ölçeği iki kez çarpıldığı için ekran dışında çiziliyordu; Güneş elipsin merkezindeydi. Konum artık Kepler denklemi M = E − e·sinE çözülerek bulunuyor, Güneş odakta, taranan alan son T/8 süre (her an elipsin 1/8'i), sol üstte r ve vis-viva hızı.
+- ❑ T²/a³ göstergesi T = a^1.5 tanımından hesaplandığı için her zaman 1.00; ölçüm değil. Gözlenen periyotlar yanında gösterilebilir.
+- ❑ Hız oku her gezegenin kendi ortalama hızına göre ölçekleniyor; gezegenler arasında karşılaştırılamaz.
+- ❑ Kaydırıcı ya da menü değişince gezegen günberiye sıfırlanıyor; kaydırıcı 0.005 adımlı, gerçek e değerleri (0.206, 0.007, 0.017) tam seçilemiyor. Merkür turu 1.44 s, yakalaması zor; hız kontrolü yok.
+- ❑ Dar ekranlarda (~360 px) sol üst değer metinleri yörüngeyle çakışabilir.
+
+## manyetik-alan.html
+
+- ✔ Düzeltildi (Ekim 2026): kapatınca B göstergesi ve grafik güncellenmiyordu; Sıfırla kaydırıcıları geri almıyordu; Chart.js yüklenemezse sayfa hata veriyordu.
+- ❑ Tuval alan çizgisi, yön ya da kutup çizmiyor; yalnız sayı gösteriliyor.
+- ❑ 41 sarımın üstünde camgöbeği sarım çizgileri çemberin dışına taşıyor.
+- ❑ Zaman ekseni "Zaman (s)" diyor ama `time += 0.1` kare başına ve kaydırıcı hareketi başına artıyor.
+- ❑ Açma anında akım anlık (öz-indüktans yok); hava çekirdeği ve L = 0.2 m sabit; akım yönü değiştirilemiyor. Aç/Kapat'a hızlı iki kez basmak ikinci animasyon döngüsü başlatabiliyor.
+
+## matris-donusumleri.html
+
+- ❑ Ev ters çiziliyor: baseShape y-aşağı (ekran) düşünülerek yazılmış, drawShape y-yukarı çiziyor; çatı aşağı bakıyor ("X eksenine göre" ile düzeliyor).
+- ❑ "Kaydırma (Shear)" iki kaydırıcı birlikteyken [[1, shx], [shy, 1]] tek matrisi; det = 1 − Shx·Shy, alan korunmuyor (Shx = Shy = 1'de şekil y = x doğrusuna çöküyor). Gerçek iki yönlü kesme iki matrisin çarpımı olmalı.
+- ❑ Şekil simetrik ve yönelim işareti yok: "Y eksenine göre" yansıma görünmez (det = −1). (1,0) ve (0,1)'in görüntüsü, dönüştürülmüş ızgara ve özvektörler çizilmiyor.
+- ❑ Çarpım sırası (ölçek → kesme → döndürme → yansıma) sabit ve arayüzde yazmıyor; ±180°'de "-0.000"; otomatik sığdırma ve sıfırla düğmesi yok.
+
+## newton-hareket-yasalari.html
+
+- ❑ Grafik eksenleri "m/s" ve "s" diyor ama hızlar piksel/kare, zaman kare başına 0.1 artan sayaç; ekran yenileme hızına bağlı.
+- ❑ updateChart, `if (collisionChart)` denetiminden önce collisionChart.data okuyor; Chart.js yüklenemezse animasyon ilk karede donuyor.
+- ❑ Çarpışma yalnız örtüşmeyle algılanıyor (yaklaşma denetimi, ayırma yok); bir kare geç yakalanıyor (5 px örtüşme). Duvar yok; toplar ekrandan çıkıp döngü sonsuza dek sürüyor.
+- ❑ Sayfa "momentum ve enerji korunumu" diyor ama momentum/enerji göstergesi, kütle, hız ya da esneklik kontrolü yok; duraklat düğmesi yok; grafik son 51 noktayı tuttuğu için çarpışma sıçraması bir saniyeden kısa görünüyor.
+
+## serbest-dusme.html
+
+- ✔ Düzeltildi (Ekim 2026): Yerçekimi kaydırıcısı tam sayı adımlıydı (9.8 seçilemiyordu); step = 0.1.
+- ❑ Direnç her zaman `k·v²` olarak çıkarılıyor (`−k·v·|v|` olmalı); düşüş sırasında k artırılır ya da kütle azaltılırsa hız yukarı dönüp sonsuza kaçıyor (göstergeler Infinity).
+- ❑ Kare başına 0.1 s; 60 Hz'de gerçek zamandan 6 kat hızlı. Başlat'a her basış yeni döngü başlatıyor; Sıfırla düşüşü durdurmuyor ve göstergeleri yenilemiyor.
+- ❑ Yere varış enterpolasyonsuz (kısa süre negatif yükseklik); grafik yalnız son 50 noktayı (5 s) tutuyor; kaydırıcılar değer ve birim (kg/m) göstermiyor; zemin ve ölçek çizilmiyor.
+
+## vektorler.html
+
+- ❑ Paralelkenar hiç çizilmiyor: `pAB` ile `pR` aynı nokta, kesikli yol tek bir kenar. A'nın B'nin ucuna taşınmış hâli görünmüyor.
+- ❑ θ atan2'den (−180°…180°) gelirken açı kaydırıcıları 0–360°; sıfır vektörde yuvarlama artıklarından anlamsız θ ve "−0.00" görünüyor (|R| < 0.005 iken "tanımsız" yazılmalı).
+- ❑ Orijin (80, 400) noktasında; sola ve aşağı yalnız ~2.9 birim yer var, 5 birimlik oklar tuvalden çıkıyor. Izgara kısmi, eksen numarası yok.
+- ❑ Etiketler girişlere bağlı değil (erişilebilir ad yok), okuma aria-live değil; A ile B arasındaki açı gösterilmiyor; sayfa bilgisi çıkarma yapılabildiğini söylüyor ama sayfa yalnız topluyor.
+
+## yay-kutle.html
+
+- ❑ `tick()` kare başına sabit `t += 0.016`; 60 Hz'de %4 yavaş, 120 Hz'de ~2 kat hızlı, arka plan sekmede duruyor.
+- ❑ Fizik motoru yok: x = A·cos(ωt) doğrudan çiziliyor. Genlik 0.8 m sabit (periyodun genlikten bağımsızlığı denenemiyor); sönüm ve enerji göstergesi yok; duraklat düğmesi yok.
+- ❑ Hız eğrisi k/m > ~120'de grafikten taşıyor; konum ve hız aynı eksende etiketsiz farklı ölçeklerle çiziliyor.
+- ❑ Her karede canvas boyutu yeniden atanıyor; kaydırıcı etiketlerinin `for` özniteliği yok.
 
 ---
 
