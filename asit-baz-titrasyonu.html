@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="shared/theme.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Bir büret, bir indikatör ve biraz sabır: titrasyon görünmez iyonları damla damla sayar. Yirmi mililitre boyunca kıpırdamayan pH, son dört damlada altı basamaktan fazla sıçrar; sırrı logaritmada.">
     <title>Asit-Baz Titrasyonu | Açelya</title>
     <style>
       .titration-stage {
@@ -140,8 +141,8 @@
               <option value="bromothymol">Bromotimol Mavisi (6.0–7.6)</option>
             </select>
           </label>
-          <button id="dropBtn">💧 Damla ekle (0.5 mL)</button>
-          <button id="drop10Btn">💧💧 10 damla ekle</button>
+          <button id="dropBtn">💧 0.5 mL ekle</button>
+          <button id="drop10Btn">💧💧 5 mL ekle</button>
           <button id="autoBtn">▶️ Otomatik titrasyon</button>
           <button id="resetBtn" class="secondary">🔄 Sıfırla</button>
         </div>
@@ -157,13 +158,20 @@
         const bctx = beakerCanvas.getContext("2d");
         const cctx = curveCanvas.getContext("2d");
 
-        // Titrasyon parametreleri
+        // Titrasyon parametreleri: erlende asit (analit), bürette baz (titrant).
+        // acid: "strong" | "weak" (pKa) | "diprotic" (1. proton kuvvetli, 2. proton pKa2)
+        // base: "strong" | "weak" (pKaConj: eşlenik asidin, NH₄⁺'nın pKa'sı)
         const PAIRS = {
-          "hcl-naoh": { name: "HCl + NaOH", acidConc: 0.1, baseConc: 0.1, acidVol: 25, pKa: null, type: "strong-strong", eqVol: 25 },
-          "ch3cooh-naoh": { name: "CH₃COOH + NaOH", acidConc: 0.1, baseConc: 0.1, acidVol: 25, pKa: 4.76, type: "weak-strong", eqVol: 25 },
-          "hcl-nh3": { name: "HCl + NH₃", acidConc: 0.1, baseConc: 0.1, acidVol: 25, pKa: 9.25, type: "strong-weak", eqVol: 25 },
-          "h2so4-naoh": { name: "H₂SO₄ + NaOH", acidConc: 0.05, baseConc: 0.1, acidVol: 25, pKa: null, type: "diprotic", eqVol: 25 },
+          "hcl-naoh": { name: "HCl + NaOH", acidConc: 0.1, baseConc: 0.1, acidVol: 25, acid: "strong", protons: 1, base: "strong" },
+          "ch3cooh-naoh": { name: "CH₃COOH + NaOH", acidConc: 0.1, baseConc: 0.1, acidVol: 25, acid: "weak", pKa: 4.76, protons: 1, base: "strong" },
+          "hcl-nh3": { name: "HCl + NH₃", acidConc: 0.1, baseConc: 0.1, acidVol: 25, acid: "strong", protons: 1, base: "weak", pKaConj: 9.25 },
+          "h2so4-naoh": { name: "H₂SO₄ + NaOH", acidConc: 0.05, baseConc: 0.1, acidVol: 25, acid: "diprotic", pKa2: 1.99, protons: 2, base: "strong" },
         };
+        // Eşdeğerlik: protons · n(asit) = n(baz). Grafik ve büret 2 × eşdeğerlik hacmine kadar gider.
+        for (const p of Object.values(PAIRS)) {
+          p.eqVol = Math.round((p.protons * p.acidConc * p.acidVol / p.baseConc) * 1000) / 1000;
+          p.maxVol = 2 * p.eqVol;
+        }
 
         const INDICATORS = {
           "phenolphthalein": { name: "Fenolftalein", low: 8.2, high: 10.0, colorLow: "#e8e8f4", colorHigh: "#e04090" },
@@ -180,68 +188,43 @@
         let autoTimer = null;
         let eqReached = false;
 
-        // pH hesaplama
-        function calcPH(vol) {
-          const acidMoles = pair.acidConc * pair.acidVol;
-          const baseMoles = pair.baseConc * vol;
-          const totalVol = pair.acidVol + vol;
-          const diff = acidMoles - baseMoles;
+        // pH hesaplama: yük dengesi, her bölgede (başlangıç, tampon, eşdeğerlik, fazla baz) kesin çözüm
+        const KW = 1.0e-14; // 25 °C
 
-          if (pair.type === "strong-strong") {
-            if (Math.abs(diff) < 1e-10) return 7.0;
-            if (diff > 0) return -Math.log10(diff / totalVol);
-            return 14 + Math.log10(-diff / totalVol);
+        // [H⁺] + [Na⁺] + [NH₄⁺] − [OH⁻] − [Cl⁻] − [CH₃COO⁻] − [HSO₄⁻] − 2[SO₄²⁻]
+        // Bu fark [H⁺] ile kesin artar, bu yüzden tek bir kökü vardır.
+        function chargeImbalance(pr, vol, h) {
+          const totalVol = pr.acidVol + vol;
+          const ca = pr.acidConc * pr.acidVol / totalVol; // seyrelmiş toplam asit (mol/L)
+          const cb = pr.baseConc * vol / totalVol;        // seyrelmiş toplam baz (mol/L)
+          let anions;
+          if (pr.acid === "strong") {
+            anions = ca;
+          } else if (pr.acid === "weak") {
+            const ka = Math.pow(10, -pr.pKa);
+            anions = ca * ka / (ka + h);
+          } else {
+            const ka2 = Math.pow(10, -pr.pKa2);
+            anions = ca * (h + 2 * ka2) / (h + ka2);
           }
-
-          if (pair.type === "weak-strong") {
-            if (Math.abs(diff) < 1e-10) {
-              const conjBase = baseMoles / totalVol;
-              const pOH = -Math.log10(Math.sqrt(conjBase * Math.pow(10, -(14 - pair.pKa))));
-              return 14 - pOH;
-            }
-            if (diff > 0) {
-              // Henderson-Hasselbalch: tampon bölge
-              if (baseMoles > 0) {
-                return pair.pKa + Math.log10(baseMoles / diff);
-              }
-              // Saf zayıf asit
-              const ca = acidMoles / totalVol;
-              return -Math.log10(Math.sqrt(ca * Math.pow(10, -pair.pKa)));
-            }
-            // Fazla baz
-            const excessOH = -diff / totalVol;
-            return 14 + Math.log10(excessOH);
+          let cations;
+          if (pr.base === "strong") {
+            cations = cb;
+          } else {
+            const ka = Math.pow(10, -pr.pKaConj);
+            cations = cb * h / (h + ka);
           }
+          return h + cations - KW / h - anions;
+        }
 
-          if (pair.type === "strong-weak") {
-            if (Math.abs(diff) < 1e-10) {
-              const conjAcid = acidMoles / totalVol;
-              const pKb = 14 - pair.pKa;
-              const pOH = -Math.log10(Math.sqrt(conjAcid * Math.pow(10, -pKb)));
-              return 14 - pOH;
-            }
-            if (diff > 0) {
-              const excessH = diff / totalVol;
-              return -Math.log10(excessH);
-            }
-            // Tampon bölge (fazla zayıf baz)
-            if (acidMoles > 0) {
-              const pKaConj = pair.pKa;
-              return pKaConj + Math.log10((baseMoles - acidMoles) / acidMoles);
-            }
-            const cb = -diff / totalVol;
-            const pOH = -Math.log10(Math.sqrt(cb * Math.pow(10, -(14 - pair.pKa))));
-            return 14 - pOH;
+        function calcPH(vol, pr = pair) {
+          let lo = -15, hi = 1; // log10[H⁺] aralığı (pH −1 … 15)
+          for (let i = 0; i < 50; i++) {
+            const mid = (lo + hi) / 2;
+            if (chargeImbalance(pr, vol, Math.pow(10, mid)) > 0) hi = mid;
+            else lo = mid;
           }
-
-          if (pair.type === "diprotic") {
-            if (Math.abs(diff) < 1e-10) return 7.0;
-            if (diff > 0) return -Math.log10(diff / totalVol);
-            if (Math.abs(acidMoles / 2 - baseMoles) < 1e-3) return 4.5;
-            return 14 + Math.log10(-diff / totalVol);
-          }
-
-          return 7;
+          return -(lo + hi) / 2;
         }
 
         function update() {
@@ -272,21 +255,16 @@
           const ic = document.getElementById("indicatorColor");
           const inom = document.getElementById("indicatorName");
           inom.textContent = indicator.name;
-          if (pH <= indicator.low) ic.style.background = indicator.colorLow;
-          else if (pH >= indicator.high) ic.style.background = indicator.colorHigh;
-          else {
-            const t = (pH - indicator.low) / (indicator.high - indicator.low);
-            ic.style.background = mixColors(indicator.colorLow, indicator.colorHigh, t);
-          }
+          ic.style.background = indicatorColor(1);
         }
 
-        function mixColors(c1, c2, t) {
-          const r1 = parseInt(c1.slice(1, 3), 16), g1 = parseInt(c1.slice(3, 5), 16), b1 = parseInt(c1.slice(5, 7), 16);
-          const r2 = parseInt(c2.slice(1, 3), 16), g2 = parseInt(c2.slice(3, 5), 16), b2 = parseInt(c2.slice(5, 7), 16);
-          const r = Math.round(r1 + (r2 - r1) * t);
-          const g = Math.round(g1 + (g2 - g1) * t);
-          const b = Math.round(b1 + (b2 - b1) * t);
-          return `rgb(${r},${g},${b})`;
+        // İndikatör rengi: aralığın altında colorLow, üstünde colorHigh, arada pH ile doğrusal geçiş.
+        function indicatorColor(alpha) {
+          const t = Math.min(1, Math.max(0, (pH - indicator.low) / (indicator.high - indicator.low)));
+          const c1 = indicator.colorLow, c2 = indicator.colorHigh;
+          const ch = (c, i) => parseInt(c.slice(i, i + 2), 16);
+          const mix = (i) => Math.round(ch(c1, i) + (ch(c2, i) - ch(c1, i)) * t);
+          return `rgba(${mix(1)},${mix(3)},${mix(5)},${alpha})`;
         }
 
         function drawBeaker() {
@@ -311,7 +289,7 @@
 
           // Sıvı seviyesi (erlen içinde)
           const maxLiqH = erlenBot - erlenTop - 4;
-          const liqH = maxLiqH * (pair.acidVol + volumeAdded) / (pair.acidVol + pair.eqVol + 10);
+          const liqH = maxLiqH * (pair.acidVol + volumeAdded) / (pair.acidVol + pair.maxVol);
           const liqTop = erlenBot - 8 - Math.min(liqH, maxLiqH);
           bctx.fillStyle = getLiquidColor();
           bctx.fillRect(cx - erlenWide + 2, liqTop, erlenWide * 2 - 4, erlenBot - 8 - liqTop);
@@ -332,14 +310,14 @@
           bctx.lineTo(buretX + 3, buretBot);
           bctx.stroke();
           // Büret içindeki sıvı
-          const buretFillH = (buretBot - buretTop) * (1 - volumeAdded / (pair.eqVol + 5));
+          const buretFillH = (buretBot - buretTop) * (1 - volumeAdded / pair.maxVol);
           bctx.fillStyle = "rgba(94,234,212,0.25)";
           bctx.fillRect(buretX - 6, buretTop + (buretBot - buretTop) - buretFillH, 12, buretFillH);
           // Musluk
           bctx.fillStyle = "rgba(255,255,255,0.5)";
           bctx.fillRect(buretX - 10, buretBot - 2, 20, 4);
           // Damla
-          if (volumeAdded > 0 && volumeAdded < pair.eqVol + 5) {
+          if (volumeAdded > 0 && volumeAdded < pair.maxVol) {
             bctx.fillStyle = "rgba(94,234,212,0.6)";
             bctx.beginPath();
             bctx.arc(cx, buretBot + 22, 3, 0, Math.PI * 2);
@@ -353,12 +331,8 @@
         }
 
         function getLiquidColor() {
-          // pH'a göre sıvı rengi (asidik → nötr → bazik)
-          if (pH <= indicator.low) return indicator.colorLow.replace(")", ",0.35)").replace("rgb", "rgba");
-          if (pH >= indicator.high) return indicator.colorHigh.replace(")", ",0.35)").replace("rgb", "rgba");
-          const t = (pH - indicator.low) / (indicator.high - indicator.low);
-          const c = mixColors(indicator.colorLow, indicator.colorHigh, t);
-          return c.replace("rgb", "rgba").replace(")", ",0.35)");
+          // Erlendeki sıvı: indikatör rengi, yarı saydam
+          return indicatorColor(0.35);
         }
 
         function drawCurve() {
@@ -395,7 +369,7 @@
             cctx.font = "10px Outfit, sans-serif";
             cctx.fillText(i, margin.left - 22, y + 4);
           }
-          const maxVol = pair.eqVol * 2;
+          const maxVol = pair.maxVol;
           for (let v = 0; v <= maxVol; v += 10) {
             const x = margin.left + (pw * v / maxVol);
             cctx.beginPath();
@@ -455,7 +429,7 @@
 
         function addDrop(mL) {
           volumeAdded = Math.round((volumeAdded + mL) * 10) / 10;
-          if (volumeAdded > pair.eqVol + 10) volumeAdded = pair.eqVol + 10;
+          if (volumeAdded > pair.maxVol) volumeAdded = pair.maxVol;
           update();
         }
 
@@ -475,12 +449,13 @@
 
         function startAuto() {
           if (autoRunning) { stopAuto(); return; }
-          if (volumeAdded >= pair.eqVol + 10) reset();
+          if (volumeAdded >= pair.maxVol) reset();
           autoRunning = true;
           document.getElementById("autoBtn").textContent = "⏸️ Durdur";
           autoTimer = setInterval(() => {
-            if (volumeAdded >= pair.eqVol + 10) { stopAuto(); return; }
-            const step = volumeAdded < pair.eqVol - 1 ? 0.5 : 0.1;
+            if (volumeAdded >= pair.maxVol) { stopAuto(); return; }
+            const nearEq = volumeAdded >= pair.eqVol - 1 && volumeAdded < pair.eqVol + 1;
+            const step = nearEq ? 0.1 : 0.5;
             addDrop(step);
           }, 200);
         }

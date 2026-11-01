@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="shared/theme.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Bir ağacın kuru kütlesinin büyük kısmı havadan gelir; soluduğun oksijen bir zamanlar fotosentez yapan bir hücrenin içindeki suydu. İki süreç aynı atomları döndürür, enerji ise tek yöne akar.">
     <title>Fotosentez ve Hücresel Solunum | Açelya</title>
     <style>
       .photo-stage {
@@ -44,6 +45,7 @@
         border-color: rgba(94,234,212,0.5);
         color: var(--accent);
       }
+      body.app-page .step-btn.active { outline: 2px solid var(--text); outline-offset: 2px; }
       .step-btn.alt.active {
         background: rgba(167,139,250,0.18);
         border-color: rgba(167,139,250,0.5);
@@ -122,6 +124,8 @@
       (function () {
         const canvas = document.getElementById("mainCanvas");
         const ctx = canvas.getContext("2d");
+        // Canvas "var(--x)" okuyamaz; tema değişkenini çizim anında gerçek renge çevir.
+        const cssVar = (n, fb) => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || fb;
 
         const STEPS = [
           {
@@ -150,7 +154,7 @@
           },
           {
             title: "Elektron Taşıma Sistemi (ETS) — Krista",
-            desc: "NADH ve FADH₂'den gelen elektronlar iç mitokondri zarındaki taşıyıcılardan geçer. Proton gradyanı oluşur; ATP sentaz oksidatif fosforilasyonla yaklaşık 26–28 ATP üretir. Glikoliz ve substrat düzeyinde fosforilasyon da eklendiğinde ökaryotlarda glikoz başına toplam verim çoğunlukla yaklaşık 30–32 ATP kabul edilir. Son elektron alıcısı O₂'dir ve H₂O oluşur.",
+            desc: "NADH ve FADH₂'den gelen elektronlar iç mitokondri zarındaki taşıyıcılardan geçer. Proton gradyanı oluşur; ATP sentaz oksidatif fosforilasyonla yaklaşık 26–28 ATP üretir. Glikoliz ve Krebs döngüsündeki substrat düzeyinde fosforilasyon da eklendiğinde ökaryotlarda glikoz başına toplam verim çoğunlukla yaklaşık 30–32 ATP kabul edilir. Son elektron alıcısı O₂'dir ve H₂O oluşur.",
             side: "right",
             highlight: "ets",
           },
@@ -160,79 +164,74 @@
         let animTime = 0;
         let particles = [];
 
-        // Basit parçacık sistemi (molekül akışı animasyonu için)
+        // Yerleşim: organeller, kenar etiketleri ve parçacık yolları aynı ölçüleri kullanır.
+        const L = {
+          chl: { x: 80, y: 40, w: 220, h: 200 },   // kloroplast (sol üst)
+          mit: { x: 460, y: 215, w: 220, h: 200 }, // mitokondri (sağ alt)
+        };
+        const ROW_Y = [0.35, 0.5, 0.65]; // etiket satırları (organel yüksekliğine oranla)
+        // "in": soldan organele girer; "out": organelden sağa çıkar. Renkler üstteki lejantla aynı (ink: açık tema yazı rengi).
+        const FLOWS = [
+          { org: "chl", side: "in", row: 0, color: "#5eead4", ink: "#0f766e", label: "CO₂" },
+          { org: "chl", side: "in", row: 1, color: "#58a6ff", ink: "#1d4ed8", label: "H₂O" },
+          { org: "chl", side: "in", row: 2, color: "#ffa657", ink: "#c2410c", label: "ışık" },
+          { org: "chl", side: "out", row: 0, color: "#fbbf24", ink: "#a16207", label: "C₆H₁₂O₆" },
+          { org: "chl", side: "out", row: 1, color: "#f778ba", ink: "#be185d", label: "O₂" },
+          { org: "mit", side: "in", row: 0, color: "#fbbf24", ink: "#a16207", label: "C₆H₁₂O₆" },
+          { org: "mit", side: "in", row: 1, color: "#f778ba", ink: "#be185d", label: "O₂" },
+          { org: "mit", side: "out", row: 0, color: "#5eead4", ink: "#0f766e", label: "CO₂" },
+          { org: "mit", side: "out", row: 1, color: "#58a6ff", ink: "#1d4ed8", label: "H₂O" },
+          { org: "mit", side: "out", row: 2, color: "#a78bfa", ink: "#6d28d9", label: "ATP" },
+        ];
+
+        // Basit parçacık sistemi (molekül akışı animasyonu için): her akışta 3 parçacık
         function spawnFlowParticles() {
           particles = [];
-          const N = 18;
-          for (let i = 0; i < N; i++) {
-            particles.push({
-              phase: Math.random(),
-              speed: 0.15 + Math.random() * 0.35,
-              lane: Math.floor(Math.random() * 4), // 0=CO₂, 1=H₂O, 2=glikoz, 3=O₂
-              offset: (Math.random() - 0.5) * 30,
-            });
-          }
+          FLOWS.forEach((f, fi) => {
+            for (let k = 0; k < 3; k++) {
+              particles.push({
+                flow: fi,
+                phase: (k + Math.random() * 0.6) / 3,
+                speed: 0.3 + Math.random() * 0.2,
+                offset: (Math.random() - 0.5) * 6,
+              });
+            }
+          });
         }
         spawnFlowParticles();
 
         function updateParticles(dt) {
           animTime += dt;
           particles.forEach(p => {
-            p.phase += p.speed * dt * 0.4;
-            if (p.phase > 1.5) p.phase -= 1.5;
+            p.phase += p.speed * dt;
+            if (p.phase > 1) p.phase -= 1;
           });
         }
 
-        const PARTICLE_COLORS = [
-          "#5eead4", // CO₂
-          "#58a6ff", // H₂O
-          "#fbbf24", // glikoz
-          "#f778ba", // O₂
-        ];
+        function flowPath(f) {
+          const o = L[f.org];
+          const y = o.y + o.h * ROW_Y[f.row] + 8; // etiketin hemen altından akar
+          return f.side === "in"
+            ? { x0: o.x - 60, x1: o.x + 30, y }
+            : { x0: o.x + o.w - 30, x1: o.x + o.w + 60, y };
+        }
 
-        function drawParticles(W, H) {
-          const cx = W / 2;
-          const cy = H / 2;
-          const leftCx = W * 0.22;
-          const rightCx = W * 0.78;
-          const topY = H * 0.28;
-          const botY = H * 0.72;
-
+        function drawParticles() {
           particles.forEach(p => {
-            let x, y;
-            // Sol taraf: fotosentez akışı
-            if (p.lane <= 1) {
-              // CO₂ ve H₂O soldan girer, glikoz ve O₂ çıkar
-              const inflow = (p.lane === 0); // CO₂ → giriş, H₂O → giriş
-              if (inflow) {
-                x = leftCx - 95 + p.phase * 60;
-                y = topY - 12 + p.lane * 14 + p.offset * 0.3;
-              } else {
-                x = leftCx + 40 - p.phase * 50;
-                y = botY - 5 + (p.lane - 2) * 14 + p.offset * 0.3;
-              }
-            } else {
-              // Sağ taraf: solunum akışı
-              const inflow = (p.lane === 2); // glikoz → giriş, O₂ → giriş
-              if (inflow) {
-                x = rightCx - 20 + p.phase * 50;
-                y = topY - 12 + (p.lane - 2) * 14 + p.offset * 0.3;
-              } else {
-                x = rightCx + 45 - p.phase * 50;
-                y = botY - 5 + (p.lane - 2) * 14 + p.offset * 0.3;
-              }
-            }
-
-            const alpha = 1 - Math.abs(p.phase - 0.5) * 1.4;
+            const f = FLOWS[p.flow];
+            const path = flowPath(f);
+            const x = path.x0 + (path.x1 - path.x0) * p.phase;
+            const y = path.y + p.offset;
+            const alpha = Math.sin(Math.PI * p.phase);
             if (alpha > 0.05) {
-              ctx.fillStyle = PARTICLE_COLORS[p.lane];
-              ctx.globalAlpha = Math.min(1, alpha * 0.8);
+              ctx.fillStyle = f.color;
+              ctx.globalAlpha = Math.min(1, alpha * 0.9);
               ctx.beginPath();
               ctx.arc(x, y, 3.5, 0, Math.PI * 2);
               ctx.fill();
             }
-            ctx.globalAlpha = 1;
           });
+          ctx.globalAlpha = 1;
         }
 
         function drawOrganelle(x, y, w, h, type, highlight) {
@@ -277,12 +276,12 @@
 
             // Işık vurgusu
             if (highlight === "light") {
-              ctx.fillStyle = "rgba(251,191,36,0.3)";
+              ctx.fillStyle = "rgba(255,166,87,0.3)";
               ctx.beginPath();
               ctx.arc(gx + gw / 2, gy - 8, 14, 0, Math.PI * 2);
               ctx.fill();
               // Işınlar
-              ctx.strokeStyle = "rgba(251,191,36,0.3)";
+              ctx.strokeStyle = "rgba(255,166,87,0.3)";
               ctx.lineWidth = 1;
               for (let a = 0; a < 8; a++) {
                 const ang = (a / 8) * Math.PI * 2;
@@ -314,10 +313,10 @@
           } else if (type === "mitochondria") {
             // Mitokondri: oval, içinde krista
             ctx.fillStyle = "rgba(248,113,113,0.1)";
-            ctx.strokeStyle = highlight === "krebs" || highlight === "ets" || highlight === "glycolysis"
+            ctx.strokeStyle = highlight === "krebs" || highlight === "ets"
               ? "rgba(248,113,113,0.8)"
               : "rgba(248,113,113,0.4)";
-            ctx.lineWidth = highlight === "krebs" || highlight === "ets" || highlight === "glycolysis" ? 2.5 : 1.5;
+            ctx.lineWidth = highlight === "krebs" || highlight === "ets" ? 2.5 : 1.5;
             ctx.beginPath();
             ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2);
             ctx.fill();
@@ -350,8 +349,8 @@
               ctx.strokeStyle = "rgba(167,139,250,0.6)";
               ctx.lineWidth = 1.5;
               ctx.setLineDash([3, 3]);
-              const scx = x + w * 0.65;
-              const scy = y + h * 0.6;
+              const scx = x + w * 0.5;
+              const scy = y + h * 0.2; // kristaların üstündeki boş matriks
               ctx.beginPath();
               ctx.arc(scx, scy, 16, 0, Math.PI * 2);
               ctx.stroke();
@@ -377,65 +376,62 @@
 
         function draw() {
           const W = canvas.width, H = canvas.height;
+          const muted = cssVar("--text-muted", "#8b95a8");
           ctx.clearRect(0, 0, W, H);
 
-          // Arka plan
-          ctx.fillStyle = "var(--bg-card)";
+          // Arka plan (temadan gerçek renk olarak okunur)
+          ctx.fillStyle = cssVar("--bg-card", "#0e1424");
           ctx.fillRect(0, 0, W, H);
 
           const cx = W / 2;
-          const cy = H / 2;
 
           updateParticles(0.016);
 
           const step = STEPS[currentStep];
           const leftHl = step.side === "left" ? step.highlight : null;
           const rightHl = step.side === "right" ? step.highlight : null;
+          const C = L.chl, M = L.mit;
 
-          // ---------- SOL: KLOROPLAST ----------
-          const leftX = 30, leftY = 50;
-          const lw = 260, lh = 220;
-
-          // Etiket
-          ctx.fillStyle = "rgba(34,197,94,0.8)";
+          // Başlıklar
           ctx.font = "bold 13px Outfit, sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText("KLOROPLAST", leftX + lw / 2, leftY - 8);
+          ctx.fillStyle = "rgba(34,197,94,0.9)";
+          ctx.fillText("KLOROPLAST", C.x + C.w / 2, C.y - 8);
+          ctx.fillStyle = "rgba(248,113,113,0.9)";
+          ctx.fillText("MİTOKONDRİ", M.x + M.w / 2, M.y - 8);
 
-          // Fotosentez denklemi
-          ctx.fillStyle = "rgba(255,255,255,0.45)";
+          // Net denklemler
+          ctx.fillStyle = muted;
           ctx.font = "9px Outfit, sans-serif";
-          ctx.fillText(
-            "6CO₂ + 6H₂O + ışık → C₆H₁₂O₆ + 6O₂",
-            leftX + lw / 2,
-            leftY + lh + 26
-          );
+          ctx.fillText("6CO₂ + 6H₂O + ışık → C₆H₁₂O₆ + 6O₂", C.x + C.w / 2, C.y + C.h + 26);
+          ctx.fillText("C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + ATP", M.x + M.w / 2, M.y + M.h + 26);
 
-          // Giriş etiketleri (sol taraf)
-          ctx.textAlign = "right";
-          ctx.fillStyle = "rgba(94,234,212,0.6)";
-          ctx.fillText("CO₂ →", leftX - 2, leftY + lh * 0.35);
-          ctx.fillStyle = "rgba(88,166,255,0.6)";
-          ctx.fillText("H₂O →", leftX - 2, leftY + lh * 0.50);
-          ctx.fillStyle = "rgba(251,191,36,0.6)";
-          ctx.fillText("ışık →", leftX - 2, leftY + lh * 0.65);
-          ctx.textAlign = "start";
+          drawOrganelle(C.x, C.y, C.w, C.h, "chloroplast", leftHl);
+          drawOrganelle(M.x, M.y, M.w, M.h, "mitochondria", rightHl);
 
-          // Çıkış etiketleri (sağ taraf)
-          ctx.fillStyle = "rgba(251,191,36,0.6)";
-          ctx.fillText("→ C₆H₁₂O₆", leftX + lw + 4, leftY + lh * 0.35);
-          ctx.fillStyle = "rgba(247,120,186,0.6)";
-          ctx.fillText("→ O₂", leftX + lw + 4, leftY + lh * 0.50);
-
-          drawOrganelle(leftX, leftY, lw, lh, "chloroplast", leftHl);
+          // Giriş (sol kenar) ve çıkış (sağ kenar) etiketleri
+          ctx.font = "10px Outfit, sans-serif";
+          const light = document.documentElement.getAttribute("data-theme") === "light";
+          FLOWS.forEach(f => {
+            const o = L[f.org];
+            const y = o.y + o.h * ROW_Y[f.row];
+            ctx.fillStyle = light ? f.ink : f.color; // açık temada okunaklı koyu ton
+            if (f.side === "in") {
+              ctx.textAlign = "right";
+              ctx.fillText(f.label + " →", o.x - 4, y);
+            } else {
+              ctx.textAlign = "left";
+              ctx.fillText("→ " + f.label, o.x + o.w + 4, y);
+            }
+          });
 
           // ---------- ORTA: OK ----------
           const arrowX = cx;
-          const arrowTopY = leftY + lh * 0.7;
-          const arrowBotY = H - leftY - 30;
+          const arrowTopY = 195;
+          const arrowBotY = 370;
 
-          // Çift yönlü ok
-          ctx.strokeStyle = "rgba(255,255,255,0.25)";
+          ctx.strokeStyle = muted;
+          ctx.fillStyle = muted;
           ctx.lineWidth = 1.5;
           ctx.setLineDash([4, 4]);
 
@@ -444,7 +440,6 @@
           ctx.moveTo(arrowX - 12, arrowTopY);
           ctx.lineTo(arrowX + 12, arrowTopY);
           ctx.stroke();
-          ctx.fillStyle = "rgba(255,255,255,0.25)";
           ctx.beginPath();
           ctx.moveTo(arrowX + 12, arrowTopY);
           ctx.lineTo(arrowX + 6, arrowTopY - 5);
@@ -457,7 +452,6 @@
           ctx.moveTo(arrowX + 12, arrowBotY);
           ctx.lineTo(arrowX - 12, arrowBotY);
           ctx.stroke();
-          ctx.fillStyle = "rgba(255,255,255,0.25)";
           ctx.beginPath();
           ctx.moveTo(arrowX - 12, arrowBotY);
           ctx.lineTo(arrowX - 6, arrowBotY - 5);
@@ -466,66 +460,35 @@
           ctx.fill();
           ctx.setLineDash([]);
 
-          // Ok etiketi
-          ctx.fillStyle = "rgba(255,255,255,0.3)";
-          ctx.font = "8px Outfit, sans-serif";
+          // Ok etiketleri
+          ctx.font = "9px Outfit, sans-serif";
           ctx.textAlign = "center";
           ctx.fillText("glikoz + O₂", arrowX, arrowTopY - 8);
-          ctx.fillText("CO₂ + H₂O", arrowX, arrowBotY + 14);
+          ctx.fillText("CO₂ + H₂O", arrowX, arrowBotY + 16);
 
-          // ---------- SAĞ: MİTOKONDRİ ----------
-          const rightX = W - leftX - lw, rightY = H - leftY - lh - 30;
-
-          // Etiket
-          ctx.fillStyle = "rgba(248,113,113,0.8)";
-          ctx.font = "bold 13px Outfit, sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText("MİTOKONDRİ", rightX + lw / 2, rightY - 8);
-
-          // Solunum denklemi
-          ctx.fillStyle = "rgba(255,255,255,0.45)";
-          ctx.font = "9px Outfit, sans-serif";
-          ctx.fillText(
-            "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + ATP",
-            rightX + lw / 2,
-            rightY + lh + 26
-          );
-
-          // Giriş etiketleri
-          ctx.fillStyle = "rgba(251,191,36,0.6)";
-          ctx.textAlign = "right";
-          ctx.fillText("C₆H₁₂O₆ →", rightX - 2, rightY + lh * 0.35);
-          ctx.fillStyle = "rgba(247,120,186,0.6)";
-          ctx.fillText("O₂ →", rightX - 2, rightY + lh * 0.50);
-          ctx.textAlign = "start";
-
-          // Çıkış etiketleri
-          ctx.fillStyle = "rgba(94,234,212,0.6)";
-          ctx.fillText("→ CO₂", rightX + lw + 4, rightY + lh * 0.35);
-          ctx.fillStyle = "rgba(88,166,255,0.6)";
-          ctx.fillText("→ H₂O", rightX + lw + 4, rightY + lh * 0.50);
-          ctx.fillStyle = "rgba(167,139,250,0.6)";
-          ctx.fillText("→ ATP", rightX + lw + 4, rightY + lh * 0.65);
-
-          drawOrganelle(rightX, rightY, lw, lh, "mitochondria", rightHl);
-
-          // Glikoliz etiketi (iki organel arasında, sitoplazmayı temsilen)
+          // Glikoliz: mitokondrinin dışında, sitoplazmada (glikozun mitokondriye giden yolunda)
           if (step.highlight === "glycolysis") {
-            ctx.fillStyle = "rgba(167,139,250,0.7)";
-            ctx.font = "bold 11px Outfit, sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("GLİKOLİZ (Sitoplazma)", cx, rightY - 18);
-            ctx.strokeStyle = "rgba(167,139,250,0.4)";
+            const accent2 = cssVar("--accent-2", "#a78bfa");
+            const gx = M.x - 40;
+            const gy = M.y + M.h * ROW_Y[0] + 4;
+            ctx.strokeStyle = accent2;
             ctx.lineWidth = 1.5;
             ctx.setLineDash([3, 3]);
             ctx.beginPath();
-            ctx.arc(cx, rightY - 22, 36, 0, Math.PI * 2);
+            ctx.ellipse(gx, gy, 38, 17, 0, 0, Math.PI * 2);
             ctx.stroke();
             ctx.setLineDash([]);
+            ctx.fillStyle = accent2;
+            ctx.font = "bold 11px Outfit, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("GLİKOLİZ (sitoplazma)", gx - 10, M.y + 34);
+            ctx.fillStyle = muted;
+            ctx.font = "9px Outfit, sans-serif";
+            ctx.fillText("glikoz → 2 pirüvat, net 2 ATP", gx - 10, M.y + 47);
           }
 
           // Parçacık akışı
-          drawParticles(W, H);
+          drawParticles();
         }
 
         function setStep(s) {

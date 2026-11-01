@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
     <link rel="stylesheet" href="shared/theme.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Vücudunda her gün milyarlarca hücre mitozla bölünüp kendini kopyalar; yalnız eşey hücrelerini yapan hücreler mayozla sayıyı yarıya indirir ve genleri karıştırır. Aynı makine, iki zıt amaç.">
   <title>Mitoz & Mayoz</title>
   <style>
     * { box-sizing: border-box; }
@@ -15,15 +16,18 @@
     .panel { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 1rem; align-items: center; }
     button, .toggle { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
     .toggle.active { background: #a371f7; border-color: #d2a8ff; }
-    #phaseInfo { font-size: 0.95rem; color: #79c0ff; text-align: center; max-width: 40rem; }
+    #phaseInfo { font-size: 0.95rem; color: #79c0ff; text-align: center; max-width: 40rem; min-height: 4.2em; margin: 0.25rem 0; }
+    #counts { font-size: 0.95rem; text-align: center; margin: 0; font-variant-numeric: tabular-nums; }
+    .legend { font-size: 0.82rem; color: #8b949e; text-align: center; max-width: 40rem; margin: 0.5rem 0 0; line-height: 1.6; }
+    .legend i { display: inline-block; width: 0.9em; height: 0.9em; border-radius: 3px; vertical-align: -0.1em; margin-right: 0.25em; }
     a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="mitoz-mayoz">
   <h1>Hücre Bölünmesi</h1>
-  <p class="sub">Mitoz: 2 özdeş diploid hücre. Mayoz: 4 haploid gamet — krossing-over ve homolog ayrılma.</p>
-  <canvas id="cv"></canvas>
+  <p class="sub">Mitoz: 2 özdeş diploit hücre. Mayoz: 4 haploit hücre (hayvanlarda gamet) — krossing-over ve homolog ayrılma.</p>
+  <canvas id="cv" role="img" aria-label="Hücre bölünmesi çizimi"></canvas>
   <div class="panel">
     <button class="toggle active" id="mitozBtn">Mitoz</button>
     <button class="toggle" id="mayozBtn">Mayoz</button>
@@ -31,163 +35,515 @@
     <button id="nextBtn">Sonraki →</button>
     <button id="playBtn">Oynat</button>
   </div>
+  <p id="counts" aria-live="polite"></p>
   <p id="phaseInfo"></p>
+  <p class="legend">Model: 2n = 4, yani iki homolog çift (uzun ve kısa). <i style="background:#f85149"></i>kırmızı: anneden · <i style="background:#58a6ff"></i>mavi: babadan · <i style="background:#f0f3f6;border-radius:50%"></i>beyaz nokta: sentromer (kromozom sayısı = sentromer sayısı) · <i style="background:#d2a8ff;border-radius:50%"></i>mor: iğ kutbu. Sayılar hücre başınadır.</p>
   <a class="back" href="index.html">← Ana menü</a>
 <script>
+// Model: 2n = 4 — iki homolog çift. A = uzun çift, B = kısa çift.
+// r = anneden (kırmızı), b = babadan (mavi). Kromatitler kimlikleriyle izlenir;
+// krossing-over'da değişen parçalar gametlere kadar taşınır.
+const COL = { r: '#f85149', b: '#58a6ff' };
+const LEN = { A: 56, B: 36 };
+const CEN = { A: 0.4, B: 0.6 };
+const BG = '#121820', OUTLINE = '#0b0f14', CELL_FILL = '#19212c', CELL_EDGE = '#3d4b5e',
+  NUC_FILL = '#1f2a38', NUC_EDGE = '#5a6b82', FIBER = '#8b949e', POLE = '#d2a8ff',
+  CHIASMA = '#ffa657', LABEL = '#8b949e', CEN_FILL = '#f0f3f6';
+const CX = 320, CY = 228, CT_W = 6.2, GAP = CT_W / 2 + 0.35;
+
+const ct = (pair, c, o, a, b) => ({
+  pair, segs: o ? [[0, a, c], [a, b, o], [b, 1, c]].filter(s => s[1] > s[0]) : [[0, 1, c]]
+});
+// Mitoz: kardeş kromatitler özdeş.
+const M = {
+  Ar: [ct('A', 'r'), ct('A', 'r')], Ab: [ct('A', 'b'), ct('A', 'b')],
+  Br: [ct('B', 'r'), ct('B', 'r')], Bb: [ct('B', 'b'), ct('B', 'b')]
+};
+// Mayoz: Profaz I'de kardeş olmayan iç kromatitler uç parçalarını karşılıklı değiştirir.
+const XA = [0.68, 1], XB = [0, 0.3];
+const K = {
+  Ar1: ct('A', 'r'), Ar2: ct('A', 'r', 'b', ...XA), Ab1: ct('A', 'b', 'r', ...XA), Ab2: ct('A', 'b'),
+  Br1: ct('B', 'r'), Br2: ct('B', 'r', 'b', ...XB), Bb1: ct('B', 'b', 'r', ...XB), Bb2: ct('B', 'b')
+};
+
 const MITOZ = [
-  { n:'İnterfaz', d:'DNA replikasyonu; kromozomlar görünmez halde.' },
-  { n:'Profaz', d:'Kromozomlar yoğunlaşır, çekirdek zarı erir, iğ iplikleri oluşur.' },
-  { n:'Metafaz', d:'Kromozomlar ekvator düzleminde hizalanır.' },
-  { n:'Anafaz', d:'Kardeş kromatidler kutuplara çekilir.' },
-  { n:'Telofaz', d:'İki çekirdek oluşur; sitokinez ile 2 hücre.' }
+  { n: 'İnterfaz (mitozdan önce)', note: 'S evresinden sonra',
+    d: 'Mitozun bir evresi değil, hazırlık dönemi. S evresinde her kromozom kopyalanır; kromatin ince ve dağınık olduğu için kromozomlar tek tek seçilmez.', draw: interphase },
+  { n: 'Profaz', d: 'Kromozomlar yoğunlaşıp görünür olur: her biri sentromerde bağlı iki kardeş kromatit (X şekli). Çekirdek zarı dağılır; iki kutuptaki sentrozomlardan iğ iplikleri uzanır.', draw: mProphase },
+  { n: 'Metafaz', d: 'İğ iplikleri her kromozomu iki yandan, sentromerinden yakalar; kromozomlar hücrenin ortasında (ekvator düzlemi) tek sıra dizilir.', draw: mMetaphase },
+  { n: 'Anafaz', note: 'bir an için; her kutupta 4',
+    d: 'Kardeş kromatitler ayrılıp zıt kutuplara çekilir; her biri artık tek kromatitli, bağımsız bir kromozomdur. Her kutba 4 kromozom gider: 2 kırmızı, 2 mavi.', draw: mAnaphase },
+  { n: 'Telofaz', note: 'iki çekirdekte 4 + 4',
+    d: 'Kutuplarda iki yeni çekirdek zarı kurulur, kromozomlar gevşemeye başlar. Hücre ortadan boğumlanır.', draw: mTelophase },
+  { n: 'Sitokinez', note: 'her hücre 2n = 4',
+    d: 'Sitoplazma ikiye bölünür: ana hücreyle aynı 4 kromozomu taşıyan iki özdeş yavru hücre (2n → 2n).', draw: mCytokinesis }
 ];
 const MAYOZ = [
-  { n:'Mayoz I — Profaz I', d:'Homolog kromozomlar eşleşir; krossing-over olabilir.' },
-  { n:'Mayoz I — Metafaz I', d:'Homolog çiftler ekvatorda.' },
-  { n:'Mayoz I — Anafaz I', d:'Homolog kromozomlar ayrılır.' },
-  { n:'Mayoz II — Metafaz II', d:'İki hücrede kromozomlar tekrar hizalanır.' },
-  { n:'Mayoz II — Sonuç', d:'4 haploid gamet (n kromozom).' }
+  { n: 'İnterfaz (mayozdan önce)', note: 'S evresinden sonra',
+    d: 'Mayozdan önce DNA yalnız bir kez, S evresinde kopyalanır. Uzun ve kısa kromozomlar iki homolog çifttir; her çiftin biri anneden (kırmızı), biri babadan (mavi).', draw: interphase },
+  { n: 'Mayoz I — Profaz I', note: '2 tetrat',
+    d: 'Homolog kromozomlar boylu boyunca eşleşir (sinapsis); her çift 4 kromatitli bir tetrat olur. Kardeş olmayan kromatitler parça değiş tokuş eder: krossing-over (turuncu halka: kiyazma). Çekirdek zarı dağılır.', draw: yProphase1 },
+  { n: 'Mayoz I — Metafaz I', d: 'Homolog çiftler ekvatora ikili dizilir; her homolog yalnız bir kutba bağlanır. Hangi eşin hangi kutba bakacağı her çift için bağımsızdır: burada uzun çiftte kırmızı, kısa çiftte mavi solda.', draw: yMetaphase1 },
+  { n: 'Mayoz I — Anafaz I', note: 'her kutupta 2: bir uzun, bir kısa',
+    d: 'Homologlar ayrılır: her kutba her çiftten bir kromozom gider. Kardeş kromatitler ayrılmaz; kromozomlar hâlâ iki kromatitlidir.', draw: yAnaphase1 },
+  { n: 'Mayoz I — Telofaz I ve sitokinez', note: 'her hücre n = 2',
+    d: 'İki hücre oluşur; her birinde n = 2 kromozom var, ama her kromozom hâlâ iki kromatitli. Krossing-over yüzünden kardeş kromatitler artık aynı renkte değil.', draw: yTelophase1 },
+  { n: 'Mayoz II — Profaz II', d: 'DNA yeniden kopyalanmadan ikinci bölünme başlar. İki hücrede de kromozomlar yeniden yoğunlaşır, yeni iğ iplikleri kurulur.', draw: yProphase2 },
+  { n: 'Mayoz II — Metafaz II', d: 'Her hücrede 2 kromozom ortada tek sıra dizilir; iğ iplikleri her kromozomun iki kardeş kromatitini zıt kutuplara bağlar.', draw: yMetaphase2 },
+  { n: 'Mayoz II — Anafaz II', note: 'bir an için; her kutupta 2',
+    d: 'Kardeş kromatitler ayrılıp zıt kutuplara gider; her biri artık tek kromatitli bir kromozomdur.', draw: yAnaphase2 },
+  { n: 'Mayoz II — Telofaz II ve sonuç', note: 'her hücre n = 2',
+    d: '4 haploit hücre: her birinde her çiftten bir tane, toplam n = 2 tek kromatitli kromozom (2n → n). Krossing-over ve bağımsız dağılım yüzünden dördü de genetik olarak farklı.', draw: yTelophase2 }
 ];
 
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-let W, H, mode = 'mitoz', phase = 0, playing = false, t = 0;
+const playBtn = document.getElementById('playBtn');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let W, H, dpr = 1, mode = 'mitoz', phase = 0, playing = false, lastStep = 0, rafId = 0, tally;
 
 function resize() {
-  const dpr = Math.min(devicePixelRatio || 1, 2);
-  W = Math.min(640, innerWidth - 24); H = Math.min(440, innerHeight * 0.52);
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(640, innerWidth - 40);
+  H = Math.round(Math.min(W * 0.6875, Math.max(240, innerHeight * 0.62)));
   cv.width = W * dpr; cv.height = H * dpr;
   cv.style.width = W + 'px'; cv.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   draw();
 }
 window.addEventListener('resize', resize);
 
 function phases() { return mode === 'mitoz' ? MITOZ : MAYOZ; }
 
+/* —— Çizim yardımcıları (640 × 440 sanal alan) —— */
+function cell(cx, cy, rx, ry = rx, pinch = 0) {
+  ctx.save();
+  ctx.beginPath();
+  for (let i = 0; i <= 120; i++) {
+    const a = (i / 120) * Math.PI * 2, s = Math.sin(a);
+    const x = cx + rx * Math.cos(a), y = cy + ry * s * (1 - pinch * s ** 4);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = CELL_FILL; ctx.fill();
+  ctx.strokeStyle = CELL_EDGE; ctx.lineWidth = 2; ctx.stroke();
+  ctx.restore();
+  tally.cells++;
+}
+
+function nucleus(cx, cy, r, dashed) {
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.globalAlpha = dashed ? 0.5 : 1;
+  ctx.fillStyle = NUC_FILL; ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = NUC_EDGE; ctx.lineWidth = 1.5;
+  if (dashed) ctx.setLineDash([7, 6]);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function pole(x, y) {
+  ctx.save();
+  ctx.strokeStyle = FIBER; ctx.globalAlpha = 0.45; ctx.lineWidth = 1;
+  for (let i = 0; i < 10; i++) {
+    const a = (i * Math.PI) / 5;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(a) * 6, y + Math.sin(a) * 6);
+    ctx.lineTo(x + Math.cos(a) * 14, y + Math.sin(a) * 14);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = POLE;
+  ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function centrosomePair(x, y) {
+  ctx.save();
+  ctx.fillStyle = POLE;
+  for (const [dx, dy] of [[-5, 0], [5, 4]]) { ctx.beginPath(); ctx.arc(x + dx, y + dy, 3.5, 0, Math.PI * 2); ctx.fill(); }
+  ctx.restore();
+}
+
+// İki kutuplu iğ: kutuptan kinetokorlara giden iplikler + kutuplar arası iplikler.
+function spindle(p1, p2, t1 = [], t2 = [], polar = 3) {
+  ctx.save();
+  ctx.strokeStyle = FIBER; ctx.lineWidth = 1.1; ctx.globalAlpha = 0.75;
+  const line = (a, b) => { ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
+  t1.forEach(t => line(p1, t));
+  t2.forEach(t => line(p2, t));
+  const dx = p2[0] - p1[0], dy = p2[1] - p1[1], L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+  ctx.globalAlpha = 0.3;
+  for (let i = 0; i < polar; i++) {
+    const off = (i - (polar - 1) / 2) * 24;
+    for (const [p, s] of [[p1, 1], [p2, -1]]) {
+      ctx.beginPath(); ctx.moveTo(p[0], p[1]);
+      ctx.quadraticCurveTo(p[0] + s * dx * 0.3 + nx * off * 1.4, p[1] + s * dy * 0.3 + ny * off * 1.4,
+        p[0] + s * dx * 0.62 + nx * off, p[1] + s * dy * 0.62 + ny * off);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  pole(p1[0], p1[1]); pole(p2[0], p2[1]);
+}
+
+function plate(x1, y1, x2, y2) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(210,168,255,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([3, 5]);
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.restore();
+}
+
+function ring(x, y, r = 8) {
+  ctx.save();
+  ctx.strokeStyle = CHIASMA; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+}
+
+function label(txt, x, y, col = LABEL, align = 'center', size = 12) {
+  ctx.save();
+  ctx.fillStyle = col; ctx.font = `600 ${size}px Outfit, system-ui, sans-serif`;
+  ctx.textAlign = align; ctx.textBaseline = 'middle';
+  ctx.fillText(txt, x, y);
+  ctx.restore();
+}
+
+// Kromatit yerel eksende dikey; t = 0 üst uç, t = 1 alt uç, sentromer (0, 0).
+// side: kardeşin yanı (−1/+1), flare: uçlarda açılma (X), bend: tek kromatidin kutba V şeklinde çekilmesi.
+function ptAt(c, t, o) {
+  const L = LEN[c.pair], cen = CEN[c.pair];
+  const s = (t - cen) * L, r = Math.abs(s) / (Math.max(cen, 1 - cen) * L);
+  return [(o.dx || 0) + (o.side || 0) * (GAP + (o.flare || 0) * r) - (o.bend || 0) * r * r, s];
+}
+function strokeRange(c, o, a, b) {
+  const n = Math.max(2, Math.ceil((b - a) * 30));
+  ctx.beginPath();
+  for (let i = 0; i <= n; i++) {
+    const [x, y] = ptAt(c, a + ((b - a) * i) / n, o);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.stroke();
+}
+function chromatid(c, o, pass) {
+  ctx.lineJoin = 'round';
+  if (pass === 0) {
+    ctx.lineCap = 'round'; ctx.strokeStyle = OUTLINE; ctx.lineWidth = CT_W + 2.4;
+    strokeRange(c, o, 0, 1);
+    return;
+  }
+  ctx.lineCap = 'butt'; ctx.lineWidth = CT_W;
+  for (const [a, b, col] of c.segs) { ctx.strokeStyle = COL[col]; strokeRange(c, o, a, b); }
+  for (const [t, col] of [[0, c.segs[0][2]], [1, c.segs[c.segs.length - 1][2]]]) {
+    const [x, y] = ptAt(c, t, o);
+    ctx.fillStyle = COL[col];
+    ctx.beginPath(); ctx.arc(x, y, CT_W / 2, 0, Math.PI * 2); ctx.fill();
+  }
+}
+function centromere(x, y) {
+  ctx.beginPath(); ctx.arc(x, y, 3.3, 0, Math.PI * 2);
+  ctx.fillStyle = CEN_FILL; ctx.fill();
+  ctx.lineWidth = 1.2; ctx.strokeStyle = OUTLINE; ctx.stroke();
+}
+
+// Bir kromozom = 1 sentromer; 2 kromatitliyse X, tek kromatitliyse çubuk/V.
+function chromosome(cts, x, y, ang = 0, o = {}) {
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(ang);
+  const opts = cts.length === 2
+    ? [-1, 1].map(side => ({ side, flare: o.flare ?? 4, bend: o.bend || 0 }))
+    : [{ bend: o.bend || 0 }];
+  for (const pass of [0, 1]) cts.forEach((c, i) => chromatid(c, opts[i], pass));
+  centromere(0, 0);
+  ctx.restore();
+  tally.krom++; tally.kromatit += cts.length;
+}
+
+// Tetrat: eşleşmiş iki homolog, dört paralel kromatit; xT = değişim noktası (kiyazma).
+function tetrad(left, right, x, y, ang, xT, sc = 1.45) {
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(ang); ctx.scale(sc, sc);
+  const items = [[left, -(GAP + 4)], [right, GAP + 4]];
+  for (const pass of [0, 1]) {
+    for (const [cts, dx] of items) cts.forEach((c, i) => chromatid(c, { side: i ? 1 : -1, dx }, pass));
+  }
+  for (const [, dx] of items) centromere(dx, 0);
+  const s = (xT - CEN[left[0].pair]) * LEN[left[0].pair];
+  ctx.restore();
+  tally.krom += 2; tally.kromatit += 4;
+  // Kiyazma halkası: değişim noktasının yanında, değişen parçayı örtmeden.
+  const px = x - s * sc * Math.sin(ang), py = y + s * sc * Math.cos(ang);
+  ring(px, py, 15);
+  return [px, py];
+}
+
+// İnterfaz: gevşek kromatin; kopyalanmış kromozomlar ince çift iplikler.
+function threads(cts, x, y, ang) {
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(ang);
+  const L = LEN[cts[0].pair] * 1.5;
+  ctx.lineWidth = 1.6; ctx.globalAlpha = 0.7; ctx.lineCap = 'round';
+  cts.forEach((c, k) => {
+    ctx.strokeStyle = COL[c.segs[0][2]];
+    ctx.beginPath();
+    for (let i = 0; i <= 40; i++) {
+      const s = (i / 40 - 0.5) * L, xx = Math.sin(s * 0.28 + k * 0.5) * 6 + (k ? 1.6 : -1.6);
+      i ? ctx.lineTo(xx, s) : ctx.moveTo(xx, s);
+    }
+    ctx.stroke();
+  });
+  ctx.restore();
+  tally.krom++; tally.kromatit += cts.length;
+}
+
+function stack(pairs, cy, gap) {
+  const total = pairs.reduce((s, p) => s + LEN[p], 0) + gap * (pairs.length - 1);
+  let y = cy - total / 2;
+  return pairs.map(p => { const c = y + CEN[p] * LEN[p]; y += LEN[p] + gap; return c; });
+}
+
+/* —— Evreler —— */
+const ORDER = ['Ar', 'Bb', 'Ab', 'Br'];
+
+function interphase() {
+  cell(CX, CY, 150, 128);
+  nucleus(CX, CY, 84, false);
+  threads(M.Ar, CX - 30, CY - 16, 0.5);
+  threads(M.Ab, CX + 26, CY + 18, -0.7);
+  threads(M.Br, CX + 30, CY - 34, 1.25);
+  threads(M.Bb, CX - 26, CY + 36, 0.15);
+  centrosomePair(CX + 112, CY - 52);
+}
+
+function mProphase() {
+  cell(CX, CY, 150, 128);
+  nucleus(CX, CY, 86, true);
+  spindle([CX - 124, CY], [CX + 124, CY], [], [], 2);
+  chromosome(M.Ar, CX - 36, CY - 22, 0.45);
+  chromosome(M.Bb, CX + 32, CY - 38, -0.9);
+  chromosome(M.Ab, CX + 30, CY + 26, 1.9);
+  chromosome(M.Br, CX - 30, CY + 40, 0.3);
+}
+
+function mMetaphase() {
+  cell(CX, CY, 150, 128);
+  const ys = stack(ORDER.map(k => k[0]), CY, 10);
+  plate(CX, CY - 118, CX, CY + 118);
+  spindle([CX - 132, CY], [CX + 132, CY], ys.map(y => [CX - GAP - 2, y]), ys.map(y => [CX + GAP + 2, y]));
+  ORDER.forEach((k, i) => chromosome(M[k], CX, ys[i]));
+}
+
+function mAnaphase() {
+  cell(CX, CY, 184, 118);
+  const ys = stack(ORDER.map(k => k[0]), CY, 10), d = 76;
+  spindle([CX - 168, CY], [CX + 168, CY], ys.map(y => [CX - d, y]), ys.map(y => [CX + d, y]));
+  ORDER.forEach((k, i) => {
+    chromosome([M[k][0]], CX - d, ys[i], 0, { bend: -12 });
+    chromosome([M[k][1]], CX + d, ys[i], 0, { bend: 12 });
+  });
+}
+
+function mTelophase() {
+  cell(CX, CY, 205, 112, 0.42);
+  ctx.save();
+  ctx.strokeStyle = FIBER; ctx.globalAlpha = 0.3; ctx.lineWidth = 1;
+  for (const dy of [-10, 0, 10]) { ctx.beginPath(); ctx.moveTo(CX - 45, CY + dy); ctx.lineTo(CX + 45, CY + dy); ctx.stroke(); }
+  ctx.restore();
+  for (const s of [-1, 1]) {
+    const nx = CX + s * 112;
+    nucleus(nx, CY, 54, true);
+    ORDER.forEach((k, i) => chromosome([M[k][s < 0 ? 0 : 1]], nx - 27 + i * 18, CY - 2, (i - 1.5) * 0.12));
+  }
+}
+
+function mCytokinesis() {
+  for (const s of [-1, 1]) {
+    const cx = CX + s * 152;
+    cell(cx, CY, 118);
+    nucleus(cx, CY - 6, 56, false);
+    ORDER.forEach((k, i) => chromosome([M[k][s < 0 ? 0 : 1]], cx - 27 + i * 18, CY - 8, (i - 1.5) * 0.12));
+    label('2n = 4', cx, CY + 78);
+  }
+}
+
+function yProphase1() {
+  cell(CX, CY, 150, 128);
+  nucleus(CX, CY, 92, true);
+  spindle([CX - 124, CY], [CX + 124, CY], [], [], 2);
+  const a = tetrad([K.Ar1, K.Ar2], [K.Ab1, K.Ab2], CX - 40, CY - 14, 0.3, XA[0]);
+  const b = tetrad([K.Bb2, K.Bb1], [K.Br2, K.Br1], CX + 44, CY + 4, -0.45, XB[1]);
+  const lx = CX, ly = CY + 108;
+  ctx.save();
+  ctx.strokeStyle = CHIASMA; ctx.globalAlpha = 0.6; ctx.lineWidth = 1;
+  for (const p of [a, b]) {
+    const dx = p[0] - lx, dy = p[1] - (ly - 8), L = Math.hypot(dx, dy);
+    ctx.beginPath(); ctx.moveTo(lx, ly - 8); ctx.lineTo(p[0] - (dx / L) * 16, p[1] - (dy / L) * 16); ctx.stroke();
+  }
+  ctx.restore();
+  label('kiyazma: krossing-over', lx, ly, CHIASMA);
+}
+
+function yMetaphase1() {
+  cell(CX, CY, 150, 128);
+  const [yA, yB] = stack(['A', 'B'], CY, 34), h = 2 * GAP + 3;
+  plate(CX, CY - 118, CX, CY + 118);
+  spindle([CX - 132, CY], [CX + 132, CY],
+    [[CX - h - GAP, yA], [CX - h - GAP, yB]], [[CX + h + GAP, yA], [CX + h + GAP, yB]]);
+  chromosome([K.Ar1, K.Ar2], CX - h, yA, 0, { flare: 2 });
+  chromosome([K.Ab1, K.Ab2], CX + h, yA, 0, { flare: 2 });
+  chromosome([K.Bb2, K.Bb1], CX - h, yB, 0, { flare: 2 });
+  chromosome([K.Br2, K.Br1], CX + h, yB, 0, { flare: 2 });
+  ring(CX, yA + (XA[0] - CEN.A) * LEN.A, 6);
+  ring(CX, yB + (XB[1] - CEN.B) * LEN.B, 6);
+}
+
+function yAnaphase1() {
+  cell(CX, CY, 184, 118);
+  const [yA, yB] = stack(['A', 'B'], CY, 34), d = 80;
+  spindle([CX - 168, CY], [CX + 168, CY],
+    [[CX - d - GAP, yA], [CX - d - GAP, yB]], [[CX + d + GAP, yA], [CX + d + GAP, yB]]);
+  chromosome([K.Ar1, K.Ar2], CX - d, yA, 0, { flare: 3, bend: -9 });
+  chromosome([K.Bb2, K.Bb1], CX - d, yB, 0, { flare: 3, bend: -9 });
+  chromosome([K.Ab1, K.Ab2], CX + d, yA, 0, { flare: 3, bend: 9 });
+  chromosome([K.Br2, K.Br1], CX + d, yB, 0, { flare: 3, bend: 9 });
+}
+
+// Mayoz I'den çıkan iki hücre: solda uzun-kırmızı + kısa-mavi, sağda uzun-mavi + kısa-kırmızı.
+const HALF = [
+  { cx: CX - 148, A: [K.Ar1, K.Ar2], B: [K.Bb2, K.Bb1] },
+  { cx: CX + 148, A: [K.Ab1, K.Ab2], B: [K.Br2, K.Br1] }
+];
+
+function yTelophase1() {
+  for (const h of HALF) {
+    cell(h.cx, CY, 118);
+    nucleus(h.cx, CY - 6, 56, true);
+    chromosome(h.A, h.cx - 15, CY - 8, -0.15);
+    chromosome(h.B, h.cx + 17, CY - 6, 0.2);
+    label('n = 2', h.cx, CY + 78);
+  }
+}
+
+function yProphase2() {
+  for (const h of HALF) {
+    cell(h.cx, CY, 118);
+    nucleus(h.cx, CY, 60, true);
+    spindle([h.cx, CY - 100], [h.cx, CY + 100], [], [], 2);
+    chromosome(h.A, h.cx - 18, CY + 2, 0.6);
+    chromosome(h.B, h.cx + 22, CY - 12, -0.7);
+  }
+}
+
+function yMetaphase2() {
+  for (const h of HALF) {
+    cell(h.cx, CY, 118);
+    const xa = h.cx - 26, xb = h.cx + 28;
+    plate(h.cx - 92, CY, h.cx + 92, CY);
+    spindle([h.cx, CY - 102], [h.cx, CY + 102],
+      [[xa, CY - GAP - 2], [xb, CY - GAP - 2]], [[xa, CY + GAP + 2], [xb, CY + GAP + 2]], 2);
+    chromosome(h.A, xa, CY, Math.PI / 2);
+    chromosome(h.B, xb, CY, Math.PI / 2);
+  }
+}
+
+function yAnaphase2() {
+  for (const h of HALF) {
+    cell(h.cx, CY, 104, 140);
+    const xa = h.cx - 26, xb = h.cx + 28, d = 60;
+    spindle([h.cx, CY - 126], [h.cx, CY + 126], [[xa, CY - d], [xb, CY - d]], [[xa, CY + d], [xb, CY + d]], 2);
+    chromosome([h.A[0]], xa, CY - d, Math.PI / 2, { bend: -10 });
+    chromosome([h.B[0]], xb, CY - d, Math.PI / 2, { bend: -10 });
+    chromosome([h.A[1]], xa, CY + d, Math.PI / 2, { bend: 10 });
+    chromosome([h.B[1]], xb, CY + d, Math.PI / 2, { bend: 10 });
+  }
+}
+
+function yTelophase2() {
+  for (const h of HALF) {
+    for (const [k, sy] of [[0, -1], [1, 1]]) {
+      const cy = CY + sy * 98;
+      cell(h.cx, cy, 86);
+      nucleus(h.cx, cy - 8, 40, false);
+      chromosome([h.A[k]], h.cx - 12, cy - 12, -0.1);
+      chromosome([h.B[k]], h.cx + 13, cy - 10, 0.12);
+      label('n = 2', h.cx, cy + 54);
+    }
+  }
+}
+
+/* —— Çizim ve sayaç —— */
+function draw() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.globalAlpha = 1; ctx.setLineDash([]);
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+  const k = Math.min(W / 640, H / 440);
+  ctx.translate((W - 640 * k) / 2, (H - 440 * k) / 2);
+  ctx.scale(k, k);
+  tally = { cells: 0, krom: 0, kromatit: 0 };
+  const list = phases(), p = list[phase];
+  p.draw();
+  label(`${mode === 'mitoz' ? 'Mitoz' : 'Mayoz'} · ${phase + 1}/${list.length}`, 14, 18, LABEL, 'left');
+  // Sayılar çizilen sahneden gelir (hücre başına; bu modelde her hücre aynı sayıyı taşır).
+  const c = tally.cells, kr = tally.krom / c, kt = tally.kromatit / c;
+  document.getElementById('counts').innerHTML =
+    `<strong>Kromozom: ${kr}</strong> · <strong>Kromatit: ${kt}</strong> · <strong>Hücre: ${c}</strong>` +
+    (p.note ? ` <small>(${p.note})</small>` : '');
+  cv.setAttribute('aria-label', `${p.n}. Hücre başına ${kr} kromozom, ${kt} kromatit; ${c} hücre.`);
+}
+
 function updateInfo() {
   const p = phases()[phase];
   document.getElementById('phaseInfo').innerHTML = `<strong>${p.n}</strong> — ${p.d}`;
 }
 
-document.getElementById('mitozBtn').onclick = () => { mode = 'mitoz'; phase = 0; syncToggle(); updateInfo(); draw(); };
-document.getElementById('mayozBtn').onclick = () => { mode = 'mayoz'; phase = 0; syncToggle(); updateInfo(); draw(); };
-document.getElementById('prevBtn').onclick = () => { phase = (phase - 1 + phases().length) % phases().length; updateInfo(); draw(); };
-document.getElementById('nextBtn').onclick = () => { phase = (phase + 1) % phases().length; updateInfo(); draw(); };
-document.getElementById('playBtn').onclick = () => {
-  playing = !playing;
-  document.getElementById('playBtn').textContent = playing ? 'Durdur' : 'Oynat';
-  if (playing) loop();
+function render() { draw(); updateInfo(); }
+
+function setMode(m) { mode = m; phase = 0; lastStep = performance.now(); syncToggle(); render(); }
+
+function step(dir) {
+  phase = (phase + dir + phases().length) % phases().length;
+  lastStep = performance.now();
+  render();
+}
+
+// Oynat: geçen süreye göre her ~1,5 s'de bir evre (azaltılmış hareket tercihinde 3 s); sonda durur.
+function stepMs() { return reduceMotion.matches ? 3000 : 1500; }
+function setPlaying(on) {
+  playing = on;
+  playBtn.textContent = on ? 'Durdur' : 'Oynat';
+  playBtn.setAttribute('aria-pressed', String(on));
+  cancelAnimationFrame(rafId);
+  if (on) { lastStep = performance.now(); rafId = requestAnimationFrame(tick); }
+}
+function tick(now) {
+  if (!playing) return;
+  if (now - lastStep >= stepMs()) {
+    lastStep = now;
+    phase++;
+    render();
+    if (phase >= phases().length - 1) { setPlaying(false); return; }
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+document.getElementById('mitozBtn').onclick = () => setMode('mitoz');
+document.getElementById('mayozBtn').onclick = () => setMode('mayoz');
+document.getElementById('prevBtn').onclick = () => step(-1);
+document.getElementById('nextBtn').onclick = () => step(1);
+playBtn.onclick = () => {
+  if (!playing && phase >= phases().length - 1) { phase = 0; render(); }
+  setPlaying(!playing);
 };
 
 function syncToggle() {
-  document.getElementById('mitozBtn').classList.toggle('active', mode === 'mitoz');
-  document.getElementById('mayozBtn').classList.toggle('active', mode === 'mayoz');
-}
-
-function drawChrom(x, y, len, angle, col) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  ctx.strokeStyle = col;
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(-len/2, 0);
-  ctx.lineTo(len/2, 0);
-  ctx.stroke();
-  ctx.fillStyle = col;
-  ctx.beginPath();
-  ctx.arc(-len/2, 0, 5, 0, Math.PI * 2);
-  ctx.arc(len/2, 0, 5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-function draw() {
-  ctx.fillStyle = '#121820';
-  ctx.fillRect(0, 0, W, H);
-  const cx = W/2, cy = H/2;
-  const r = Math.min(W, H) * 0.32;
-
-  ctx.strokeStyle = '#30363d';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r + 15, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.fillStyle = 'rgba(33,38,45,0.5)';
-  ctx.fill();
-
-  const nCells = mode === 'mayoz' && phase >= 3 ? (phase >= 4 ? 4 : 2) : 1;
-  const spread = phase >= 2 ? (phase >= 3 ? 0.55 : 0.35) : 0;
-
-  for (let c = 0; c < nCells; c++) {
-    let ox = cx, oy = cy;
-    if (nCells === 2) ox = cx + (c ? spread : -spread) * W * 0.25;
-    if (nCells === 4) {
-      ox = cx + (c % 2 ? 1 : -1) * W * 0.22;
-      oy = cy + (c < 2 ? -1 : 1) * H * 0.18;
-    }
-
-    const chrCount = mode === 'mayoz' ? 2 : 4;
-    for (let i = 0; i < chrCount; i++) {
-      let ang = (i / chrCount) * Math.PI;
-      let clen = 50;
-      let col = i % 2 ? '#58a6ff' : '#f85149';
-      if (phase === 0) { clen = 20; ctx.globalAlpha = 0.3; }
-      else ctx.globalAlpha = 1;
-      if (phase === 2) ang = Math.PI / 2 + (i - chrCount/2) * 0.4;
-      if (phase >= 3) ang = (i < chrCount/2 ? -0.6 : 0.6) + (c * 0.1);
-      if (phase === 1 && mode === 'mayoz' && i < 2) {
-        ctx.strokeStyle = '#ffa657';
-        ctx.setLineDash([4,4]);
-        ctx.beginPath();
-        ctx.moveTo(ox - 20, oy);
-        ctx.lineTo(ox + 20, oy);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-      drawChrom(ox + Math.cos(ang) * 30, oy + Math.sin(ang) * 20, clen, ang, col);
-    }
-    if (phase >= 4 || (mode === 'mitoz' && phase === 4)) {
-      ctx.strokeStyle = '#484f58';
-      ctx.beginPath();
-      ctx.ellipse(ox, oy, r * 0.5, r * 0.35, 0, 0, Math.PI * 2);
-      ctx.stroke();
-    }
+  for (const [id, m] of [['mitozBtn', 'mitoz'], ['mayozBtn', 'mayoz']]) {
+    const b = document.getElementById(id);
+    b.classList.toggle('active', mode === m);
+    b.setAttribute('aria-pressed', String(mode === m));
   }
-
-  if (phase >= 1 && phase <= 3) {
-    ctx.strokeStyle = '#8b949e';
-    ctx.setLineDash([3, 5]);
-    for (let a = 0; a < 8; a++) {
-      const ang = t + a * Math.PI / 4;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(ang) * r * 0.9, cy + Math.sin(ang) * r * 0.9);
-      ctx.stroke();
-    }
-    ctx.setLineDash([]);
-  }
-
-  ctx.fillStyle = '#8b949e';
-  ctx.font = '11px system-ui';
-  ctx.textAlign = 'center';
-  ctx.fillText(mode === 'mitoz' ? '2n → 2n (2 hücre)' : '2n → n (4 gamet)', cx, H - 20);
-  ctx.textAlign = 'left';
 }
 
-function loop() {
-  if (!playing) return;
-  t += 0.04;
-  if (Math.floor(t * 2) % 3 === 0) {
-    phase = (phase + 1) % phases().length;
-    updateInfo();
-  }
-  draw();
-  requestAnimationFrame(loop);
-}
-
-resize();
 syncToggle();
+resize();
 updateInfo();
 </script></body>
 </html>

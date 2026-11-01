@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="shared/theme.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Her yıldız, kütleçekimi ile füzyon arasında yapılmış bir ateşkestir. H-R diyagramında bu ateşkesin nasıl kurulduğunu, ne kadar sürdüğünü ve nasıl bozulduğunu oku.">
   <title>Yıldız Yaşam Döngüsü (H-R Diyagramı)</title>
   <style>
     .app-content { max-width: 960px; }
@@ -52,6 +53,13 @@
     }
 
     .btn-toggle:hover { border-color: var(--border-hover); }
+
+    /* theme.css paints every button as "on"; show switched-off overlays as outlined */
+    body.app-page .controls > button.btn-toggle[aria-pressed="false"]:not(.active):not(.app-btn-primary):not(.app-btn-ghost):not(.app-btn-icon) {
+      background: transparent !important;
+      color: var(--text) !important;
+      border: 1px solid var(--border-hover) !important;
+    }
 
     .info-panel {
       background: var(--bg-card);
@@ -166,439 +174,612 @@
   const canvas = document.getElementById('hrCanvas');
   const ctx = canvas.getContext('2d');
   const infoPanel = document.getElementById('infoPanel');
+  const EMPTY_INFO = '<p style="text-align:center;">👆 Diyagramdaki işaretli yıldızlara tıklayarak bilgi alın</p>';
 
-  let W, H;
-
-  // Layout margins
-  const ml = 70, mr = 30, mt = 30, mb = 60;
+  let W = 0, H = 0;
+  // Layout margins and base font size (set in resize)
+  let ml = 62, mr = 16, mt = 36, mb = 54;
+  let fs = 11, narrow = false;
 
   // Overlay toggles
   const overlays = { evolution: true, regions: true, massTracks: false };
+  let selectedId = null;
+  let occupied = []; // boxes already used by text/dots, for label placement
+  let lineOcc = [];  // small boxes along drawn lines (labels avoid them when they can)
 
-  // Spectral classes from hot (left) to cool (right)
-  const spectral = ['O', 'B', 'A', 'F', 'G', 'K', 'M'];
+  // The canvas keeps its dark night-sky background in both themes, so literal
+  // colours are used (canvas ignores CSS var(...) values).
+  const C = {
+    bg: '#080c16',
+    grid: 'rgba(255,255,255,0.07)',
+    axis: 'rgba(255,255,255,0.4)',
+    text: '#c8d0de',
+    muted: '#8b95a8',
+    star: '#e8ecf4',
+    halo: 'rgba(8,12,22,0.9)',
+    sun: 'rgba(251,191,36,0.85)',
+    massive: 'rgba(248,113,113,0.85)',
+    proto: 'rgba(94,234,212,0.8)',
+  };
 
-  // Star data: [name, spectralClass, logL (log10 L/Lsun), labelX offset, labelY offset, type, mass, info]
-  const stars = [
-    { id: 'rigel', name: 'Rigel', sp: 'B8', logT: 4.25, logL: 5.1, dx: 8, dy: -8, type: 'süperdev', mass: 21, info: 'Mavi-beyaz süperdev, Orion takımyıldızında. Kütlesi ~21 M☉, yaklaşık 120.000 L☉ parlaklığında. Kaderi: süpernova → nötron yıldızı veya kara delik.' },
-    { id: 'betelgeuse', name: 'Betelgeuse', sp: 'M2', logT: 3.53, logL: 4.9, dx: 8, dy: -8, type: 'kırmızı süperdev', mass: 16, info: 'Kırmızı süperdev, Orionʼun sol omzu. ~16 M☉, çapı Mars yörüngesine ulaşır. Yakın gelecekte (astronomik ölçekte) süpernova patlaması bekleniyor.' },
-    { id: 'siriusA', name: 'Sirius A', sp: 'A1', logT: 3.98, logL: 1.4, dx: 8, dy: -8, type: 'ana kol', mass: 2.0, info: 'Gece gökyüzünün en parlak yıldızı, Büyük Köpek takımyıldızında. ~2 M☉, beyaz ana kol yıldızı. Beyaz cüce yoldaşı Sirius B ile çift sistem.' },
-    { id: 'sun', name: 'Güneş', sp: 'G2', logT: 3.76, logL: 0.0, dx: 8, dy: 14, type: 'ana kol', mass: 1.0, info: 'G-tipi ana kol yıldızı, ~4.6 milyar yaşında. Yaklaşık 5 milyar yıl sonra kırmızı dev aşamasına geçecek, ardından dış katmanlarını atarak beyaz cüce olacak.' },
-    { id: 'aldebaran', name: 'Aldebaran', sp: 'K5', logT: 3.65, logL: 2.0, dx: 8, dy: -8, type: 'kırmızı dev', mass: 1.5, info: 'Turuncu kırmızı dev, Boğa takımyıldızında. ~1.5 M☉, ana koldan ayrılmış ve helyum yakmaya başlamış. Beyaz cüce olarak yaşamını tamamlayacak.' },
-    { id: 'siriusB', name: 'Sirius B', sp: 'DA', logT: 4.5, logL: -2.4, dx: 8, dy: -8, type: 'beyaz cüce', mass: 1.0, info: 'Beyaz cüce, Sirius Aʼnın yoldaşı. ~1 M☉ kütle, ancak Dünya büyüklüğünde. Artık nükleer füzyon yapmıyor, yalnızca kalan ısısını yayıyor.' },
-    { id: 'proxima', name: 'Proxima Centauri', sp: 'M5', logT: 3.45, logL: -3.9, dx: 8, dy: -8, type: 'ana kol', mass: 0.12, info: 'Güneşʼe en yakın yıldız (~4.2 ışık yılı). Kırmızı cüce, ~0.12 M☉. Trilyonlarca yıl ana kolda kalacak, asla kırmızı dev olmayacak.' },
-    { id: 'polaris', name: 'Polaris (Kutup Yıldızı)', sp: 'F7', logT: 3.82, logL: 3.2, dx: 8, dy: -8, type: 'süperdev', mass: 5.4, info: 'Sefeid değişen yıldız, Küçük Ayı takımyıldızında. ~5.4 M☉, periyodik parlaklık değişimi gösterir. Süpernova olarak sonlanacak.' },
-    { id: 'antares', name: 'Antares', sp: 'M1', logT: 3.56, logL: 4.5, dx: 8, dy: -8, type: 'kırmızı süperdev', mass: 12, info: 'Kırmızı süperdev, Akrep takımyıldızının kalbi. ~12 M☉, çapı Güneşʼin 700 katı. Süpernova adayı.' },
-    { id: 'vega', name: 'Vega', sp: 'A0', logT: 3.99, logL: 1.6, dx: 8, dy: -8, type: 'ana kol', mass: 2.1, info: 'Lir takımyıldızının en parlak yıldızı. ~2.1 M☉, genç bir ana kol yıldızı (~455 milyon yıl). Beyaz cüce olarak sonlanacak.' },
-    { id: 'capella', name: 'Capella', sp: 'G3', logT: 3.74, logL: 1.3, dx: 8, dy: -8, type: 'kırmızı dev', mass: 2.5, info: 'Arabacı takımyıldızında sarı kırmızı dev. ~2.5 M☉, helyum füzyonu aşamasında. Beyaz cüce olacak.' },
-    { id: 'deneb', name: 'Deneb', sp: 'A2', logT: 4.15, logL: 5.3, dx: 8, dy: -8, type: 'süperdev', mass: 19, info: 'Beyaz süperdev, Kuğu takımyıldızında. ~19 M☉, 200.000 L☉ʼden parlak. Kaderi: süpernova → kara delik.' },
+  // Axes: x = log10(T), hot on the left; y = log10(L/L☉)
+  const LOGT_HOT = Math.log10(50000), LOGT_COOL = Math.log10(2400);
+  const LOGL_MIN = -4.6, LOGL_MAX = 6.4;
+
+  // Approximate main-sequence temperature range of each spectral class (K)
+  const spectral = [
+    { cls: 'O', hot: 50000, cool: 30000, color: '#9bb0ff' },
+    { cls: 'B', hot: 30000, cool: 10000, color: '#aabfff' },
+    { cls: 'A', hot: 10000, cool: 7500, color: '#cad7ff' },
+    { cls: 'F', hot: 7500, cool: 6000, color: '#f8f7ff' },
+    { cls: 'G', hot: 6000, cool: 5200, color: '#fff4ea' },
+    { cls: 'K', hot: 5200, cool: 3700, color: '#ffd2a1' },
+    { cls: 'M', hot: 3700, cool: 2400, color: '#ffb56b' },
   ];
 
-  // Map sp class to x position (spectral index + offset within class)
-  function spToX(sp) {
-    const cls = sp.replace(/[0-9]/g, '');
-    const num = parseInt(sp.replace(/[^0-9]/g, '')) || 5;
-    let idx = spectral.indexOf(cls);
-    if (idx === -1) idx = 4;
-    return idx + (9 - num) / 10; // fractional position
+  // T: effective temperature (K), L: bolometric luminosity (L☉), mass in M☉
+  const stars = [
+    { id: 'rigel', name: 'Rigel', sp: 'B8 Ia', T: 12100, L: 120000, type: 'süperdev', mass: 21, info: 'Mavi-beyaz süperdev; Avcı (Orion) takımyıldızında, avcının sol ayağı. Yüzeyi Güneşʼinkinden iki kat sıcak, ışığı yaklaşık 120 000 Güneşʼe bedel. Kaderi: süpernova → nötron yıldızı veya kara delik.' },
+    { id: 'betelgeuse', name: 'Betelgeuse', sp: 'M1–M2 Ia', T: 3500, L: 90000, type: 'kırmızı süperdev', mass: '16.5–19', info: 'Kırmızı süperdev; Avcı (Orion) takımyıldızında, avcının sağ omzu (gökyüzünde bize sol üstte görünür). Yarıçapı Güneşʼinkinin yaklaşık 800 katı (ölçümler birbirinden epey farklı): Güneşʼin yerine konsa yüzeyi Mars yörüngesinin de ötesine uzanırdı. Tahminlere göre 100 000 yıl içinde süpernova olarak patlayacak; geride nötron yıldızı veya kara delik kalacak.' },
+    { id: 'antares', name: 'Antares', sp: 'M1.5 Iab', T: 3600, L: 76000, type: 'kırmızı süperdev', mass: 12, info: 'Kırmızı süperdev, Akrep takımyıldızının kalbi. Yarıçapı Güneşʼinkinin yaklaşık 700 katı. Betelgeuse ile neredeyse ikizdir; diyagramda hemen yanında durur. Kaderi: süpernova → nötron yıldızı veya kara delik.' },
+    { id: 'deneb', name: 'Deneb', sp: 'A2 Ia', T: 8500, L: 196000, type: 'süperdev', mass: 19, info: 'Beyaz süperdev, Kuğu takımyıldızının kuyruğu. Çıplak gözle görülen en güçlü yıldızlardan: yaklaşık 200 000 L☉ (uzaklığı tam bilinmediği için bu değer belirsizdir). Kaderi: süpernova → nötron yıldızı veya kara delik.' },
+    { id: 'polaris', name: 'Polaris (Kutup Yıldızı)', sp: 'F7 Ib', T: 6015, L: 1260, type: 'süperdev', mass: 5.4, info: 'Küçük Ayı takımyıldızında; bir Sefeid değişeni: parlaklığı yaklaşık 4 günde bir hafifçe artıp azalır. Tayfındaki “Ib” onu sönük süperdevler sınıfına koyar, ama ~5.4 M☉ ile süpernova sınırının (~8 M☉) altındadır. Kaderi: dış katmanlarını atıp beyaz cüce olmak.' },
+    { id: 'aldebaran', name: 'Aldebaran', sp: 'K5 III', T: 3900, L: 440, type: 'kırmızı dev', mass: 1.2, info: 'Turuncu renkli bir kırmızı dev; Boğa takımyıldızının gözü. Çekirdeğindeki hidrojeni bitirip ana kolu terk etmiş ve şişmiş: yarıçapı Güneşʼinkinin ~45 katı. Güneşʼin geleceğine bir örnek. Kaderi: beyaz cüce.' },
+    { id: 'capella', name: 'Capella', sp: 'K0 III', T: 4970, L: 79, type: 'kırmızı dev', mass: 2.6, info: 'Arabacı takımyıldızında. Gözle tek yıldız gibi görünür ama birbirine çok yakın iki sarı-turuncu devden oluşan bir çifttir (ikisi birlikte ~150 L☉). Burada daha soğuk bileşen Capella Aa çizildi: ~4 970 K, ~79 L☉; çekirdeğinde helyum yakıyor. Öteki bileşen (~5 700 K, ~73 L☉) biraz daha solda olurdu. Kaderi: beyaz cüce.' },
+    { id: 'sun', name: 'Güneş', sp: 'G2 V', T: 5772, L: 1, type: 'ana kol', mass: 1.0, info: 'G tipi ana kol yıldızı, ~4.6 milyar yaşında, yüzeyi 5 772 K. Yaklaşık 5 milyar yıl sonra kırmızı dev olacak, ardından dış katmanlarını gezegenimsi bulutsu olarak savurup beyaz cüceye dönüşecek.' },
+    { id: 'siriusA', name: 'Sirius A', sp: 'A1 V', T: 9940, L: 25, type: 'ana kol', mass: 2.1, info: 'Gece gökyüzünün en parlak yıldızı (Büyük Köpek takımyıldızı, 8.6 ışık yılı). Beyaz bir ana kol yıldızı: Güneşʼin yaklaşık 2 katı kütle, 25 katı parlaklık. Yörüngesinde beyaz cüce Sirius B dolanır. Kaderi: kırmızı dev → beyaz cüce.' },
+    { id: 'vega', name: 'Vega', sp: 'A0 V', T: 9600, L: 40, type: 'ana kol', mass: 2.1, info: 'Lir takımyıldızının en parlak yıldızı. Genç bir ana kol yıldızı (~455 milyon yaşında). Çok hızlı döndüğü için kutupları ekvatorundan sıcaktır; burada ortalama sıcaklık gösteriliyor. Kaderi: beyaz cüce.' },
+    { id: 'siriusB', name: 'Sirius B', sp: 'DA2', T: 25000, L: 0.03, type: 'beyaz cüce', mass: 1.0, info: 'Beyaz cüce, Sirius Aʼnın yoldaşı. Kütlesi Güneşʼinki kadar, boyu ise Dünya kadar. Yüzeyi ~25 000 K ile Güneşʼinkinden 4 kat sıcak, ama yüzey alanı çok küçük olduğu için Güneşʼten 30–40 kat sönük. Füzyon yapmaz; kalan ısısını yayarak yavaşça soğur. “DA”, tayfında hidrojen çizgileri görülen beyaz cüce sınıfıdır.' },
+    { id: 'proxima', name: 'Proxima Centauri', sp: 'M5.5 V', T: 3042, L: 0.0016, type: 'ana kol', mass: 0.12, info: 'Güneşʼe en yakın yıldız (~4.2 ışık yılı). Kırmızı cüce; toplam ışıması Güneşʼinkinin yalnızca ~0.0016ʼsı ve bunun çoğu kızılötesinde. Ana kolda trilyonlarca yıl kalacak; kırmızı dev olmadan, yavaşça beyaz cüceye dönüşmesi bekleniyor.' },
+  ];
+  for (const s of stars) { s.logT = Math.log10(s.T); s.logL = Math.log10(s.L); }
+
+  const typeLabels = {
+    'ana kol': 'Ana Kol Yıldızı',
+    'kırmızı dev': 'Kırmızı Dev',
+    'süperdev': 'Süperdev',
+    'kırmızı süperdev': 'Kırmızı Süperdev',
+    'beyaz cüce': 'Beyaz Cüce'
+  };
+  const glowColors = {
+    'ana kol': '94,234,212',
+    'kırmızı dev': '248,113,113',
+    'kırmızı süperdev': '248,113,113',
+    'süperdev': '167,139,250',
+    'beyaz cüce': '251,191,36'
+  };
+
+  // Region outlines in (logT, logL)
+  const MS_LINE = [[4.70, 6.05], [4.60, 5.45], [4.50, 4.65], [4.40, 3.95], [4.30, 3.3], [4.20, 2.7], [4.10, 2.15], [4.00, 1.55], [3.93, 1.1], [3.857, 0.7], [3.80, 0.3], [3.76, 0.0], [3.722, -0.33], [3.643, -0.8], [3.60, -1.15], [3.55, -1.65], [3.52, -2.05], [3.49, -2.7], [3.45, -3.1], [3.38, -3.55]];
+  const GIANT_REGION = [[3.74, 0.4], [3.66, 0.6], [3.58, 1.4], [3.50, 2.4], [3.46, 3.0], [3.46, 3.7], [3.54, 3.7], [3.62, 3.0], [3.70, 2.3], [3.77, 1.6]];
+  const SUPERGIANT_REGION = [[4.70, 6.25], [3.40, 6.25], [3.40, 4.0], [3.78, 2.95], [4.00, 3.6], [4.70, 4.6]];
+  // White dwarfs: between radius ≈ 0.008 and 0.016 R☉ (lines of constant radius, L ∝ T⁴)
+  const WD_REGION = [[4.70, 4 * 4.70 - 18.64], [3.72, 4 * 3.72 - 18.64], [3.72, 4 * 3.72 - 19.24], [4.70, 4 * 4.70 - 19.24]];
+
+  // Schematic evolutionary tracks (qualitative shape after published stellar models)
+  const TRACKS = [
+    { mass: 25, color: 'rgba(253,164,175,0.9)', segs: [
+      { pts: [[4.585, 4.90], [4.53, 5.05], [4.47, 5.18], [4.49, 5.22], [4.20, 5.25], [3.90, 5.28], [3.65, 5.30], [3.555, 5.32]] },
+    ] },
+    { mass: 5, color: 'rgba(196,181,253,0.9)', segs: [
+      { pts: [[4.235, 2.78], [4.20, 2.95], [4.17, 3.05], [4.19, 3.10], [4.00, 3.08], [3.80, 3.00], [3.66, 2.95], [3.62, 3.05], [3.615, 3.22], [3.68, 3.12], [3.80, 3.12], [3.87, 3.20], [3.80, 3.28], [3.68, 3.30], [3.62, 3.40], [3.57, 3.70], [3.53, 4.00]] },
+    ] },
+    { mass: 1, color: 'rgba(125,211,252,0.9)', segs: [
+      // main sequence → subgiant → red giant branch
+      { pts: [[3.752, -0.15], [3.762, 0.0], [3.772, 0.25], [3.74, 0.38], [3.69, 0.45], [3.665, 0.8], [3.635, 1.5], [3.59, 2.3], [3.55, 2.9], [3.51, 3.35]] },
+      // helium flash → horizontal branch (red clump)
+      { pts: [[3.51, 3.35], [3.68, 1.65]], dash: [3, 4] },
+      // asymptotic giant branch → planetary nebula (core leaves the chart, >100 000 K) → white dwarf
+      { pts: [[3.68, 1.65], [3.665, 1.9], [3.60, 2.6], [3.545, 3.2], [3.50, 3.55], [3.70, 3.6], [4.30, 3.62], [5.00, 3.6], [5.15, 3.0], [5.05, 1.5], [4.80, 0.31], [4.60, -0.49], [4.40, -1.29], [4.20, -2.09], [4.00, -2.89], [3.85, -3.49]] },
+    ] },
+  ];
+
+  /* ── helpers ── */
+  function font(size, style) { return (style ? style + ' ' : '') + size + 'px Outfit, system-ui, sans-serif'; }
+  function groupDigits(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0'); }
+  function fmtT(T) { return groupDigits(Math.round(T / 100) * 100) + '\u00a0K'; }
+  function fmtL(L) {
+    const v = Number(L.toPrecision(2));
+    return (v >= 1000 ? groupDigits(v) : String(v)) + '\u00a0L☉';
+  }
+
+  function xFromLogT(lt) { return ml + (LOGT_HOT - lt) / (LOGT_HOT - LOGT_COOL) * (W - ml - mr); }
+  function yFromLogL(ll) { return mt + (LOGL_MAX - ll) / (LOGL_MAX - LOGL_MIN) * (H - mt - mb); }
+  function toXY(p) { return [xFromLogT(p[0]), yFromLogL(p[1])]; }
+
+  function rectsOverlap(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
+  function inPlot(r) { return r.x >= ml + 2 && r.x + r.w <= W - mr - 2 && r.y >= mt + 2 && r.y + r.h <= H - mb - 2; }
+  function clipPlot() { ctx.beginPath(); ctx.rect(ml, mt, W - ml - mr, H - mt - mb); ctx.clip(); }
+
+  function textOpts(opts) {
+    return Object.assign({ size: fs, style: '', color: C.text, align: 'left', halo: true, reserve: true, clamp: false }, opts);
+  }
+
+  function textBox(text, x, y, o) {
+    ctx.save();
+    ctx.font = font(o.size, o.style);
+    const w = ctx.measureText(text).width;
+    ctx.restore();
+    let left = o.align === 'right' ? x - w : o.align === 'center' ? x - w / 2 : x;
+    if (o.clamp) left = Math.max(ml + 4, Math.min(left, W - mr - 4 - w));
+    return { left, r: { x: left - 2, y: y - o.size * 0.7, w: w + 4, h: o.size * 1.4 } };
+  }
+
+  // Draws text with a dark halo; records its box so later labels avoid it.
+  function drawText(text, x, y, opts) {
+    const o = textOpts(opts);
+    const { left, r } = textBox(text, x, y, o);
+    ctx.save();
+    ctx.font = font(o.size, o.style);
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    if (o.halo) {
+      ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.strokeStyle = C.halo;
+      ctx.strokeText(text, left, y);
+    }
+    ctx.fillStyle = o.color;
+    ctx.fillText(text, left, y);
+    ctx.restore();
+    if (o.reserve) occupied.push(r);
+    return r;
+  }
+
+  function overlapArea(a, b) {
+    const w = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+    const h = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+    return w > 0 && h > 0 ? w * h : 0;
+  }
+
+  // Lower is better: overlap with text/dots counts fully, with lines a little,
+  // leaving the plot a lot. Candidate order breaks ties.
+  function cost(r) {
+    let c = 0;
+    for (const o of occupied) c += overlapArea(r, o);
+    for (const o of lineOcc) c += overlapArea(r, o) * 0.15;
+    if (!inPlot(r)) c += 1e6;
+    return c;
+  }
+
+  function best(list, rectOf) {
+    let pick = list[0], min = Infinity;
+    for (const c of list) {
+      const v = cost(rectOf(c));
+      if (v < min - 0.01) { min = v; pick = c; }
+    }
+    return pick;
+  }
+
+  // Picks the first candidate [x, y, align?] that is inside the plot and free
+  // of text, dots and lines; then relaxes to "free of text and dots".
+  function placeText(text, cands, opts) {
+    const base = textOpts(opts);
+    const list = cands.map(([x, y, align]) => {
+      const o = Object.assign({}, base, align ? { align } : {});
+      return { x, y, o, r: textBox(text, x, y, o).r };
+    });
+    const pick = best(list, c => c.r);
+    return drawText(text, pick.x, pick.y, pick.o);
+  }
+
+  function reserveLine(pts) {
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+      const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 5));
+      for (let k = 0; k <= n; k++) {
+        const x = x0 + (x1 - x0) * k / n, y = y0 + (y1 - y0) * k / n;
+        lineOcc.push({ x: x - 2.5, y: y - 2.5, w: 5, h: 5 });
+      }
+    }
+  }
+
+  function fillRegion(pts, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    pts.forEach((p, i) => { const [x, y] = toXY(p); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function strokeSmooth(pts) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length - 1; i++) {
+      const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+      ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my);
+    }
+    const last = pts[pts.length - 1];
+    ctx.lineTo(last[0], last[1]);
+    ctx.stroke();
+  }
+
+  function arrowHead(from, to, color, size) {
+    const a = Math.atan2(to[1] - from[1], to[0] - from[0]);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(to[0], to[1]);
+    ctx.lineTo(to[0] - size * Math.cos(a - 0.45), to[1] - size * Math.sin(a - 0.45));
+    ctx.lineTo(to[0] - size * Math.cos(a + 0.45), to[1] - size * Math.sin(a + 0.45));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Moves an end point `px` pixels towards its neighbour (keeps arrows off star dots).
+  function trim(p, toward, px) {
+    const dx = toward[0] - p[0], dy = toward[1] - p[1], d = Math.hypot(dx, dy) || 1;
+    return [p[0] + dx / d * px, p[1] + dy / d * px];
+  }
+
+  function drawPath(logPts, color, o) {
+    o = o || {};
+    const pts = logPts.map(toXY);
+    if (o.trimStart) pts[0] = trim(pts[0], pts[1], o.trimStart);
+    if (o.trimEnd) pts[pts.length - 1] = trim(pts[pts.length - 1], pts[pts.length - 2], o.trimEnd);
+    ctx.save();
+    clipPlot();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = o.width || 1.6;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.setLineDash(o.dash || []);
+    strokeSmooth(pts);
+    ctx.setLineDash([]);
+    if (o.arrow) arrowHead(pts[pts.length - 2], pts[pts.length - 1], color, narrow ? 7 : 9);
+    ctx.restore();
+    reserveLine(pts);
+    return pts;
+  }
+
+  // "10" with a raised exponent, right-aligned at xr
+  function drawPow10(n, xr, y) {
+    ctx.save();
+    ctx.fillStyle = C.text;
+    ctx.textBaseline = 'middle';
+    if (n === 0) {
+      ctx.font = font(fs);
+      ctx.textAlign = 'right';
+      ctx.fillText('1', xr, y);
+      ctx.restore();
+      return;
+    }
+    const exp = (n < 0 ? '\u2212' : '') + Math.abs(n);
+    ctx.textAlign = 'left';
+    ctx.font = font(fs - 2.5);
+    const ew = ctx.measureText(exp).width;
+    ctx.font = font(fs);
+    const bw = ctx.measureText('10').width;
+    ctx.fillText('10', xr - ew - bw - 1, y + 1);
+    ctx.font = font(fs - 2.5);
+    ctx.fillText(exp, xr - ew, y - fs * 0.4);
+    ctx.restore();
+  }
+
+  /* ── layers ── */
+  function drawRegions() {
+    ctx.save();
+    clipPlot();
+    const msBand = MS_LINE.map(([t, l]) => [t, l + 0.45]).concat(MS_LINE.slice().reverse().map(([t, l]) => [t, l - 0.45]));
+    fillRegion(SUPERGIANT_REGION, 'rgba(167,139,250,0.06)');
+    fillRegion(GIANT_REGION, 'rgba(248,113,113,0.07)');
+    fillRegion(msBand, 'rgba(94,234,212,0.08)');
+    fillRegion(WD_REGION, 'rgba(251,191,36,0.09)');
+    ctx.restore();
+  }
+
+  function drawGridAndAxes() {
+    const plotW = W - ml - mr, plotH = H - mt - mb;
+    ctx.save();
+    // Grid
+    ctx.strokeStyle = C.grid;
+    ctx.lineWidth = 1;
+    for (let n = -4; n <= 6; n++) {
+      const y = Math.round(yFromLogL(n)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(ml, y); ctx.lineTo(W - mr, y); ctx.stroke();
+    }
+    const tTicks = [40000, 20000, 10000, 5000, 3000];
+    for (const T of tTicks) {
+      const x = Math.round(xFromLogT(Math.log10(T))) + 0.5;
+      ctx.beginPath(); ctx.moveTo(x, mt); ctx.lineTo(x, H - mb); ctx.stroke();
+    }
+
+    // Frame
+    ctx.strokeStyle = C.axis;
+    ctx.strokeRect(ml + 0.5, mt + 0.5, plotW, plotH);
+
+    // Y axis: luminosity as powers of ten
+    for (let n = -4; n <= 6; n++) {
+      const y = yFromLogL(n);
+      ctx.beginPath(); ctx.moveTo(ml - 4, y); ctx.lineTo(ml, y); ctx.stroke();
+      drawPow10(n, ml - 7, y);
+    }
+    ctx.save();
+    ctx.translate(narrow ? 10 : 13, mt + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = C.text;
+    ctx.font = font(fs);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(narrow ? 'Parlaklık (Güneş = 1)' : 'Parlaklık (Güneş = 1, log ölçek)', 0, 0);
+    ctx.restore();
+
+    // X axis: temperature ticks
+    ctx.fillStyle = C.text;
+    ctx.font = font(fs);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (const T of tTicks) {
+      const x = xFromLogT(Math.log10(T));
+      ctx.beginPath(); ctx.moveTo(x, H - mb); ctx.lineTo(x, H - mb + 4); ctx.stroke();
+      ctx.fillText(groupDigits(T), x, H - mb + 13);
+    }
+    const ty = H - mb + 32;
+    ctx.fillText(narrow ? 'Sıcaklık (K)' : 'Yüzey sıcaklığı (K, log ölçek)', ml + plotW / 2, ty);
+    ctx.fillStyle = C.muted;
+    ctx.textAlign = 'left';
+    ctx.fillText('← sıcak', ml, ty);
+    ctx.textAlign = 'right';
+    ctx.fillText('soğuk →', W - mr, ty);
+
+    // Top axis: spectral classes at their temperatures
+    ctx.strokeStyle = C.axis;
+    for (const b of spectral) {
+      if (b.cool > 2400) {
+        const xb = xFromLogT(Math.log10(b.cool));
+        ctx.beginPath(); ctx.moveTo(xb, mt - 6); ctx.lineTo(xb, mt); ctx.stroke();
+      }
+      const xc = xFromLogT((Math.log10(b.hot) + Math.log10(b.cool)) / 2);
+      ctx.fillStyle = b.color;
+      ctx.font = font(fs + 1.5, 'bold');
+      ctx.textAlign = 'center';
+      ctx.fillText(b.cls, xc, mt - 12);
+    }
+    ctx.fillStyle = C.muted;
+    ctx.font = font(fs - 1.5);
+    ctx.textAlign = 'right';
+    ctx.fillText('Tayf', ml - 7, mt - 12);
+    ctx.restore();
+  }
+
+  function drawEvolutionArrows() {
+    // Protostar: comes down from higher luminosity on the cool side, then left to the main sequence
+    drawPath([[3.575, 1.5], [3.60, 0.8], [3.62, 0.2], [3.66, 0.02], [3.761, 0.0]], C.proto, { dash: [6, 4], arrow: true, trimEnd: 8 });
+    // Sun-like star: main sequence → red giant (up and to the right)
+    drawPath([[3.761, 0.0], [3.71, 0.3], [3.675, 0.9], [3.62, 1.9], [3.545, 3.1]], C.sun, { dash: [6, 4], arrow: true, trimStart: 8 });
+    // → sheds its envelope (planetary nebula); the hot core runs off the left edge
+    drawPath([[3.53, 3.35], [3.62, 3.55], [4.0, 3.6], [LOGT_HOT, 3.6]], C.sun, { dash: [6, 4], arrow: true });
+    // → returns as a cooling white dwarf
+    drawPath([[LOGT_HOT, -0.09], [4.4, -1.29], [4.15, -2.29]], C.sun, { dash: [6, 4], arrow: true });
+    // Massive star: blue supergiant → red supergiant (roughly horizontal)
+    drawPath([[4.083, 5.08], [3.90, 5.0], [3.75, 4.97], [3.60, 4.95]], C.massive, { dash: [6, 4], arrow: true, trimStart: 8 });
+  }
+
+  function drawEvolutionLabels() {
+    const s = fs - 0.5;
+    const [px, py] = toXY([3.575, 1.5]);
+    placeText('önyıldız', [[px + 7, py + 2], [px, py - 11, 'center'], [px - 7, py + 2, 'right'], [px + 7, py + 14]], { size: s, style: 'italic', color: C.proto });
+    const [nx, ny] = toXY([4.25, 3.6]);
+    drawText(narrow ? 'gezegenimsi bulutsu' : 'Güneş benzeri: dış katmanlar atılır (gezegenimsi bulutsu)', nx, ny - 11, { size: s, style: 'italic', color: C.sun, align: 'center', clamp: true });
+    drawText('← çekirdek 100 000 K’i aşar', ml + 4, ny + 11, { size: s - 1, style: 'italic', color: C.sun });
+    const [wx, wy] = toXY([4.15, -2.29]);
+    placeText('beyaz cüce olarak soğur', [[wx + 8, wy + 6], [wx - 4, wy + 16], [wx + 8, wy - 8], [wx - 30, wy + 16]], { size: s, style: 'italic', color: C.sun });
+    const [, my] = toXY([0, 4.4]);
+    drawText('Yüksek kütleli (>8 M☉): süpernova', W - mr - 4, my, { size: s, style: 'italic', color: C.massive, align: 'right' });
+    drawText('→ nötron yıldızı veya kara delik', W - mr - 4, my + s * 1.4, { size: s, style: 'italic', color: C.massive, align: 'right' });
+  }
+
+  function drawMassTracks() {
+    for (const t of TRACKS) {
+      for (const seg of t.segs) drawPath(seg.pts, t.color, { width: 1.8, dash: seg.dash });
+    }
+  }
+
+  function drawMassTrackLabels() {
+    for (const t of TRACKS) {
+      const [x, y] = toXY(t.segs[0].pts[0]);
+      const g = fs + 2;
+      placeText(t.mass + ' M☉', [[x - 8, y, 'right'], [x, y + g, 'center'], [x, y - g, 'center'], [x + 8, y + g * 0.8], [x - 8, y + g * 0.8, 'right']], { size: fs, style: 'bold', color: t.color });
+    }
+    const s = fs - 0.5, x0 = ml + 6, y0 = H - mb - 12 - s * 1.4;
+    drawText('Kütle yolları (şematik)', x0, y0, { size: s, color: C.text });
+    drawText(narrow ? '25 M☉ → süpernova; 5, 1 M☉ → beyaz cüce' : '25 M☉ → süpernova · 5 ve 1 M☉ → beyaz cüce', x0, y0 + s * 1.4, { size: s, color: C.muted });
+  }
+
+  function drawRegionNames() {
+    const s = fs + 1;
+    // Main sequence: rotated along the band, just below it
+    const a = toXY([4.40, 3.95]), b = toXY([4.20, 2.7]);
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    const [cx, cy] = toXY([4.30, 2.25]);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(ang);
+    ctx.font = font(s, 'italic');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(94,234,212,0.85)';
+    ctx.fillText('ANA KOL', 0, 0);
+    const w = ctx.measureText('ANA KOL').width;
+    ctx.restore();
+    const bw = w * Math.abs(Math.cos(ang)) + s * Math.abs(Math.sin(ang));
+    const bh = w * Math.abs(Math.sin(ang)) + s * Math.abs(Math.cos(ang));
+    occupied.push({ x: cx - bw / 2, y: cy - bh / 2, w: bw, h: bh });
+
+    const at = (pts) => pts.map(p => toXY(p).concat('center'));
+    placeText('KIRMIZI DEVLER', at([[3.50, 1.55], [3.47, 2.0], [3.47, 1.15], [3.50, 0.8], [3.66, 1.2]]), { size: s, style: 'italic', color: 'rgba(248,113,113,0.9)', clamp: true });
+    placeText('SÜPERDEVLER', at([[3.85, 5.95], [4.25, 5.95], [3.65, 5.95], [3.85, 5.65]]), { size: s, style: 'italic', color: 'rgba(167,139,250,0.95)', clamp: true });
+    placeText('BEYAZ CÜCELER', at([[4.30, -2.75], [4.45, -2.25], [4.20, -3.3], [4.05, -3.6]]), { size: s, style: 'italic', color: 'rgba(251,191,36,0.9)', clamp: true });
+  }
+
+  function drawStarDots() {
+    for (const s of stars) {
+      [s.x, s.y] = toXY([s.logT, s.logL]);
+      const rgb = glowColors[s.type] || '200,200,200';
+      const glow = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 13);
+      glow.addColorStop(0, `rgba(${rgb},1)`);
+      glow.addColorStop(0.4, `rgba(${rgb},0.4)`);
+      glow.addColorStop(1, `rgba(${rgb},0)`);
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 13, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = `rgb(${rgb})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      if (s.id === selectedId) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 9, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Greedy placement: first candidate position that stays inside the plot
+  // and does not collide with other labels, region names or star dots.
+  function placeStarLabels() {
+    ctx.save();
+    ctx.font = font(fs);
+    const h = fs * 1.4, gap = 8;
+    for (const s of stars) {
+      const w = ctx.measureText(s.name).width + 4;
+      const cands = [
+        [s.x + gap, s.y - h / 2],
+        [s.x - gap - w, s.y - h / 2],
+        [s.x + 3, s.y - gap - h],
+        [s.x + 3, s.y + gap],
+        [s.x - 3 - w, s.y - gap - h],
+        [s.x - 3 - w, s.y + gap],
+        [s.x - w / 2, s.y - gap - h - 3],
+        [s.x - w / 2, s.y + gap + 3],
+        [s.x + gap, s.y - h * 1.6],
+        [s.x + gap, s.y + h * 0.6],
+        [s.x - gap - w, s.y - h * 1.6],
+        [s.x - gap - w, s.y + h * 0.6],
+        [s.x - w / 2, s.y - gap - h * 2],
+        [s.x - w / 2, s.y + gap + h],
+        [s.x + gap, s.y - h * 2.4],
+        [s.x - gap - w, s.y - h * 2.4],
+        [s.x + gap, s.y + h * 1.4],
+        [s.x - gap - w, s.y + h * 1.4],
+      ].map(([x, y]) => ({ x, y, w, h }));
+      const r = best(cands, c => c);
+      occupied.push(r);
+      s.labelRect = r;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.lineWidth = 3;
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = C.halo;
+      ctx.strokeText(s.name, r.x + 2, r.y + h / 2);
+      ctx.fillStyle = s.id === selectedId ? '#ffffff' : C.star;
+      ctx.fillText(s.name, r.x + 2, r.y + h / 2);
+    }
+    ctx.restore();
+  }
+
+  function draw() {
+    if (!W) return;
+    occupied = [];
+    lineOcc = [];
+    ctx.save();
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    drawRegions();
+    drawGridAndAxes();
+    if (overlays.massTracks) drawMassTracks();
+    if (overlays.evolution) drawEvolutionArrows();
+    drawStarDots();
+    for (const s of stars) occupied.push({ x: s.x - 7, y: s.y - 7, w: 14, h: 14 });
+    drawText('Hertzsprung–Russell diyagramı', W - mr - 6, H - mb - 10, { size: fs - 1, style: 'italic', color: 'rgba(255,255,255,0.22)', align: 'right', halo: false });
+    if (overlays.evolution) drawEvolutionLabels();
+    if (overlays.massTracks) drawMassTrackLabels();
+    if (overlays.regions) drawRegionNames();
+    placeStarLabels();
+    ctx.restore();
   }
 
   function resize() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    const rect = canvas.parentElement.getBoundingClientRect();
-    W = rect.width;
-    H = Math.min(W * 0.75, 560);
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.parentElement.getBoundingClientRect().width;
+    narrow = W < 560;
+    H = Math.round(Math.min(Math.max(W * 0.68, 400), 580));
+    ml = narrow ? 48 : 62;
+    mr = narrow ? 10 : 16;
+    mt = 36;
+    mb = narrow ? 48 : 54;
+    fs = narrow ? 9.5 : 11;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
     canvas.style.width = W + 'px';
     canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     draw();
   }
 
-  // Coordinate transforms
-  function xFromSp(sp) {
-    const fx = spToX(sp);
-    const plotW = W - ml - mr;
-    return ml + (fx / (spectral.length - 0.1)) * plotW;
-  }
-
-  function yFromLogL(logL) {
-    const plotH = H - mt - mb;
-    const yMin = -5, yMax = 6;
-    return mt + (1 - (logL - yMin) / (yMax - yMin)) * plotH;
-  }
-
-  // Check if point is near a star
+  // Click on a dot (nearest within 20 px) or on a star's name
   function hitTest(mx, my) {
-    let best = null, bestDist = 30;
     for (const s of stars) {
-      const sx = xFromSp(s.sp);
-      const sy = yFromLogL(s.logL);
-      const d = Math.hypot(mx - sx, my - sy);
+      const r = s.labelRect;
+      if (r && mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) return s;
+    }
+    let best = null, bestDist = 20;
+    for (const s of stars) {
+      const d = Math.hypot(mx - s.x, my - s.y);
       if (d < bestDist) { bestDist = d; best = s; }
     }
     return best;
   }
 
-  function drawArrow(fromX, fromY, toX, toY, color) {
-    const headLen = 10, angle = Math.atan2(toY - fromY, toX - fromX);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([6, 3]);
-    ctx.beginPath();
-    ctx.moveTo(fromX, fromY);
-    ctx.lineTo(toX - headLen * Math.cos(angle), toY - headLen * Math.sin(angle));
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(toX, toY);
-    ctx.lineTo(toX - headLen * Math.cos(angle - 0.5), toY - headLen * Math.sin(angle - 0.5));
-    ctx.lineTo(toX - headLen * Math.cos(angle + 0.5), toY - headLen * Math.sin(angle + 0.5));
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  function drawEvolutionArrows() {
-    // Sun path: main sequence → red giant → planetary nebula → white dwarf
-    const sunStar = stars.find(s => s.id === 'sun');
-    if (!sunStar) return;
-    const sx = xFromSp(sunStar.sp);
-    const sy = yFromLogL(sunStar.logL);
-
-    // Main sequence to red giant
-    const rgX = xFromSp('K5');
-    const rgY = yFromLogL(2.0);
-    drawArrow(sx, sy, rgX, rgY, 'rgba(251,191,36,0.7)');
-
-    // Red giant to white dwarf
-    const wdX = xFromSp('DA');
-    const wdY = yFromLogL(-2.4);
-    drawArrow(rgX, rgY, wdX, wdY, 'rgba(251,191,36,0.7)');
-
-    // Label
-    ctx.fillStyle = 'rgba(251,191,36,0.9)';
-    ctx.font = 'italic 11px Outfit, sans-serif';
-    const midX = (rgX + wdX) / 2 + 20;
-    const midY = (rgY + wdY) / 2;
-    ctx.fillText('Düşük kütleli evrim (Güneş benzeri)', midX, midY);
-    ctx.fillText('Gezegenimsi bulutsu → Beyaz cüce', midX, midY + 16);
-
-    // High-mass path
-    const rigelX = xFromSp('B8');
-    const rigelY = yFromLogL(5.1);
-    const rsgX = xFromSp('M2');
-    const rsgY = yFromLogL(4.9);
-    drawArrow(rigelX + 8, rigelY, rsgX + 8, rsgY, 'rgba(248,113,113,0.7)');
-    const snX = (rsgX + ml) / 2;
-    const snY = H - mb - 10;
-    drawArrow(rsgX + 8, rsgY, snX, snY, 'rgba(248,113,113,0.7)');
-
-    ctx.fillStyle = 'rgba(248,113,113,0.9)';
-    ctx.fillText('Yüksek kütleli evrim (>8 M☉)', rsgX + 15, rsgY + 55);
-    ctx.fillText('Süpernova → Nötron yıldızı / Kara delik', rsgX + 15, rsgY + 72);
-
-    // Nebula → Main sequence
-    const nebX = xFromSp('M5');
-    const nebY = yFromLogL(-1);
-    drawArrow(nebX, nebY, sx - 5, sy - 5, 'rgba(94,234,212,0.6)');
-    ctx.fillStyle = 'rgba(94,234,212,0.8)';
-    ctx.fillText('Önyıldız / Bulutsu', nebX - 30, nebY - 8);
-  }
-
-  function drawRegionNames() {
-    ctx.font = 'italic 13px Outfit, sans-serif';
-    ctx.textAlign = 'center';
-
-    // Main sequence
-    const msX = xFromSp('F0');
-    const msY = yFromLogL(0.5) - 25;
-    ctx.fillStyle = 'rgba(94,234,212,0.7)';
-    ctx.fillText('ANA KOL', msX, msY);
-
-    // Red giants
-    const rgX = xFromSp('K3');
-    const rgY = yFromLogL(1.8) - 15;
-    ctx.fillStyle = 'rgba(248,113,113,0.7)';
-    ctx.fillText('KIRMIZI DEVLER', rgX + 20, rgY);
-
-    // Supergiants
-    const sgX = xFromSp('G0');
-    const sgY = yFromLogL(5.0) - 20;
-    ctx.fillStyle = 'rgba(167,139,250,0.7)';
-    ctx.fillText('SÜPERDEVLER', sgX, sgY);
-
-    // White dwarfs
-    const wdX = xFromSp('A5');
-    const wdY = yFromLogL(-3.5) + 20;
-    ctx.fillStyle = 'rgba(251,191,36,0.7)';
-    ctx.fillText('BEYAZ CÜCELER', wdX, wdY);
-
-    ctx.textAlign = 'start';
-  }
-
-  function drawMassTracks() {
-    // Simplified mass tracks: 25M, 5M, 1M, 0.5M
-    const tracks = [
-      { mass: 25, color: 'rgba(248,113,113,0.5)', pts: [[spToX('O5'), 5.6], [spToX('B0'), 5.3], [spToX('B5'), 5.0], [spToX('M0'), 4.7]] },
-      { mass: 5, color: 'rgba(167,139,250,0.5)', pts: [[spToX('B3'), 3.0], [spToX('A0'), 2.5], [spToX('K0'), 2.0], [spToX('M0'), 1.8]] },
-      { mass: 1, color: 'rgba(94,234,212,0.5)', pts: [[spToX('F0'), 0.5], [spToX('G2'), 0.0], [spToX('K0'), -0.5], [spToX('M0'), -1.5]] },
-      { mass: 0.5, color: 'rgba(94,234,212,0.4)', pts: [[spToX('K0'), -0.8], [spToX('M0'), -2.0], [spToX('M5'), -3.5]] },
-    ];
-
-    ctx.lineWidth = 2;
-    ctx.setLineDash([4, 8]);
-    for (const t of tracks) {
-      ctx.strokeStyle = t.color;
-      ctx.beginPath();
-      let first = true;
-      for (const [fx, logL] of t.pts) {
-        const px = ml + (fx / (spectral.length - 0.1)) * (W - ml - mr);
-        const py = yFromLogL(logL);
-        if (first) { ctx.moveTo(px, py); first = false; }
-        else ctx.lineTo(px, py);
-      }
-      ctx.stroke();
-
-      // Label at end
-      const lastPt = t.pts[t.pts.length - 1];
-      const lx = ml + (lastPt[0] / (spectral.length - 0.1)) * (W - ml - mr);
-      const ly = yFromLogL(lastPt[1]);
-      ctx.fillStyle = t.color.replace('0.5', '0.9').replace('0.4', '0.8');
-      ctx.setLineDash([]);
-      ctx.font = '10px Outfit, sans-serif';
-      ctx.fillText(t.mass + ' M☉', lx + 6, ly - 6);
-    }
-  }
-
-  function draw() {
-    const plotW = W - ml - mr;
-    const plotH = H - mt - mb;
-    const yMin = -5, yMax = 6;
-
-    // Background
-    ctx.fillStyle = '#080c16';
-    ctx.fillRect(0, 0, W, H);
-
-    // Grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 0.5;
-    // Vertical grid at spectral classes
-    for (let i = 0; i < spectral.length; i++) {
-      const x = ml + (i / (spectral.length - 0.1)) * plotW;
-      ctx.beginPath();
-      ctx.moveTo(x, mt);
-      ctx.lineTo(x, H - mb);
-      ctx.stroke();
-    }
-    // Horizontal grid
-    for (let ly = yMin; ly <= yMax; ly++) {
-      const y = yFromLogL(ly);
-      ctx.beginPath();
-      ctx.moveTo(ml, y);
-      ctx.lineTo(W - mr, y);
-      ctx.stroke();
-    }
-
-    // Axes
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([]);
-    ctx.beginPath();
-    ctx.moveTo(ml, mt);
-    ctx.lineTo(ml, H - mb);
-    ctx.lineTo(W - mr, H - mb);
-    ctx.stroke();
-
-    // X-axis labels (spectral classes)
-    ctx.fillStyle = 'var(--text-muted)';
-    ctx.font = 'bold 12px Outfit, sans-serif';
-    ctx.textAlign = 'center';
-    for (let i = 0; i < spectral.length; i++) {
-      const x = ml + (i / (spectral.length - 0.1)) * plotW;
-      ctx.fillText(spectral[i], x, H - mb + 18);
-    }
-    ctx.fillText('← Sıcak                                                                                           Soğuk →', ml + plotW / 2, H - mb + 36);
-    ctx.fillText('Sıcaklık (Tayf Sınıfı)', ml + plotW / 2, H - mb + 52);
-
-    // Y-axis labels
-    ctx.textAlign = 'right';
-    ctx.font = '11px Outfit, sans-serif';
-    for (let ly = yMin; ly <= yMax; ly++) {
-      const y = yFromLogL(ly);
-      let label;
-      if (ly === 0) label = '1 L☉';
-      else if (ly > 0) label = '10' + (ly > 1 ? superscript(ly) : '') + ' L☉';
-      else label = '10' + (ly < -1 ? superscript(ly) : '⁻¹') + ' L☉';
-      // Simpler labels
-      const lbl = ly === 0 ? '1' : ly > 0 ? '10' + ly : '10' + ly;
-      ctx.fillText(lbl, ml - 8, y + 4);
-    }
-    function superscript(n) {
-      const ss = { 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', '-1': '⁻¹', '-2': '⁻²', '-3': '⁻³', '-4': '⁻⁴', '-5': '⁻⁵' };
-      return ss[n] || '';
-    }
-    ctx.save();
-    ctx.translate(14, mt + plotH / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = 'center';
-    ctx.fillText('Parlaklık (L/L☉) — log ölçek', 0, 0);
-    ctx.restore();
-
-    // Draw shaded regions
-    // Main sequence band
-    const msTop = [
-      [spToX('O5'), 6.0], [spToX('B0'), 4.0], [spToX('A0'), 2.2], [spToX('F0'), 1.0],
-      [spToX('G0'), 0.3], [spToX('K0'), -0.3], [spToX('M0'), -1.2], [spToX('M5'), -3.0]
-    ];
-    const msBot = [
-      [spToX('O5'), 4.0], [spToX('B0'), 2.0], [spToX('A0'), -0.2], [spToX('F0'), -0.8],
-      [spToX('G0'), -1.2], [spToX('K0'), -1.8], [spToX('M0'), -3.0], [spToX('M5'), -5.0]
-    ];
-
-    ctx.fillStyle = 'rgba(94,234,212,0.06)';
-    ctx.beginPath();
-    for (const [fx, logL] of msTop) {
-      ctx.lineTo(ml + (fx / (spectral.length - 0.1)) * plotW, yFromLogL(logL));
-    }
-    for (let i = msBot.length - 1; i >= 0; i--) {
-      const [fx, logL] = msBot[i];
-      ctx.lineTo(ml + (fx / (spectral.length - 0.1)) * plotW, yFromLogL(logL));
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    // Red giant region
-    ctx.fillStyle = 'rgba(248,113,113,0.05)';
-    ctx.beginPath();
-    const rgPts = [
-      [spToX('A0'), 1.8], [spToX('G0'), 2.5], [spToX('K0'), 2.8], [spToX('M0'), 3.0],
-      [spToX('M5'), 3.0], [spToX('M5'), 0.5], [spToX('K0'), 0.2], [spToX('G0'), -0.3], [spToX('A0'), -0.8]
-    ];
-    for (const [fx, logL] of rgPts) {
-      ctx.lineTo(ml + (fx / (spectral.length - 0.1)) * plotW, yFromLogL(logL));
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    // Supergiant region
-    ctx.fillStyle = 'rgba(167,139,250,0.05)';
-    ctx.beginPath();
-    const sgPts = [
-      [spToX('O5'), 6.0], [spToX('B0'), 5.5], [spToX('A0'), 5.0], [spToX('G0'), 4.5],
-      [spToX('M0'), 4.5], [spToX('M5'), 4.5], [spToX('M5'), 2.0], [spToX('B0'), 1.5], [spToX('O5'), 2.0]
-    ];
-    for (const [fx, logL] of sgPts) {
-      ctx.lineTo(ml + (fx / (spectral.length - 0.1)) * plotW, yFromLogL(logL));
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    // White dwarf region
-    ctx.fillStyle = 'rgba(251,191,36,0.06)';
-    ctx.beginPath();
-    const wdPts = [
-      [spToX('A0'), -1.0], [spToX('F0'), -1.5], [spToX('G0'), -2.0], [spToX('K0'), -2.8],
-      [spToX('K0'), -4.5], [spToX('G0'), -4.0], [spToX('A0'), -3.5], [spToX('B0'), -2.5], [spToX('B0'), -1.5]
-    ];
-    for (const [fx, logL] of wdPts) {
-      ctx.lineTo(ml + (fx / (spectral.length - 0.1)) * plotW, yFromLogL(logL));
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    // Overlays
-    if (overlays.evolution) drawEvolutionArrows();
-    if (overlays.regions) drawRegionNames();
-    if (overlays.massTracks) drawMassTracks();
-
-    // Draw stars
-    for (const s of stars) {
-      const sx = xFromSp(s.sp);
-      const sy = yFromLogL(s.logL);
-
-      // Glow
-      const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, 14);
-      let glowColor;
-      switch (s.type) {
-        case 'ana kol': glowColor = '94,234,212'; break;
-        case 'kırmızı dev': case 'kırmızı süperdev': glowColor = '248,113,113'; break;
-        case 'süperdev': glowColor = '167,139,250'; break;
-        case 'beyaz cüce': glowColor = '251,191,36'; break;
-        default: glowColor = '200,200,200';
-      }
-      glow.addColorStop(0, `rgba(${glowColor},1)`);
-      glow.addColorStop(0.4, `rgba(${glowColor},0.4)`);
-      glow.addColorStop(1, `rgba(${glowColor},0)`);
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 13, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Core
-      ctx.fillStyle = `rgb(${glowColor})`;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 4.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Border ring
-      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Label
-      ctx.fillStyle = '#e8ecf4';
-      ctx.font = '10px Outfit, sans-serif';
-      ctx.fillText(s.name, sx + s.dx, sy + s.dy);
-    }
-
-    // Title inside canvas
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.font = 'italic 11px Outfit, sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText('Hertzsprung-Russell Diyagramı', W - mr, mt + 14);
-    ctx.textAlign = 'start';
-  }
-
-  // Click handler
-  canvas.addEventListener('click', function (e) {
+  function eventPos(e) {
     const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) * (W / rect.width);
-    const my = (e.clientY - rect.top) * (H / rect.height);
-    const hit = hitTest(mx, my);
+    return [(e.clientX - rect.left) * (W / rect.width), (e.clientY - rect.top) * (H / rect.height)];
+  }
 
+  canvas.addEventListener('click', function (e) {
+    const hit = hitTest(...eventPos(e));
     if (hit) {
+      selectedId = hit.id;
       infoPanel.classList.remove('is-empty');
-      const typeLabels = {
-        'ana kol': 'Ana Kol Yıldızı',
-        'kırmızı dev': 'Kırmızı Dev',
-        'süperdev': 'Süperdev',
-        'kırmızı süperdev': 'Kırmızı Süperdev',
-        'beyaz cüce': 'Beyaz Cüce'
-      };
+      const mass = typeof hit.mass === 'string' ? hit.mass : '~' + hit.mass;
       infoPanel.innerHTML = `
         <h3>${hit.name}</h3>
-        <div class="star-type">${typeLabels[hit.type] || hit.type} · ${hit.sp} · ~${hit.mass} M☉</div>
+        <div class="star-type">${typeLabels[hit.type] || hit.type} · <span style="text-transform:none;">${hit.sp} · ${mass} M☉ · ~${fmtT(hit.T)} · ~${fmtL(hit.L)}</span></div>
         <p>${hit.info}</p>
       `;
     } else {
+      selectedId = null;
       infoPanel.classList.add('is-empty');
-      infoPanel.innerHTML = '<p style="text-align:center;">👆 Diyagramdaki işaretli yıldızlara tıklayarak bilgi alın</p>';
+      infoPanel.innerHTML = EMPTY_INFO;
     }
+    draw();
+  });
+
+  canvas.addEventListener('mousemove', function (e) {
+    canvas.style.cursor = hitTest(...eventPos(e)) ? 'pointer' : 'default';
   });
 
   // Toggle buttons
   document.querySelectorAll('.btn-toggle').forEach(btn => {
+    btn.setAttribute('aria-pressed', String(btn.classList.contains('active')));
     btn.addEventListener('click', function () {
       this.classList.toggle('active');
-      overlays[this.dataset.overlay] = this.classList.contains('active');
+      const on = this.classList.contains('active');
+      this.setAttribute('aria-pressed', String(on));
+      overlays[this.dataset.overlay] = on;
       draw();
     });
   });
 
   window.addEventListener('resize', resize);
   resize();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
 })();
 </script>
 
