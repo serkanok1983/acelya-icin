@@ -6,7 +6,7 @@ sonra **Yapılacaklar**'ı oku. Teknik ayrıntılar için `README.md`, içerik
 standardı için `docs/icerik-rehberi.md`.
 
 Dal: `claude/zealous-archimedes-iwjhpu` (main'e henüz birleştirilmedi).
-Son durum tarihi: 2026-10-31.
+Son durum tarihi: 2026-11-01.
 
 ## 1. Hedef (sahibinin sözleriyle)
 
@@ -57,7 +57,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   21 sayfada mobil yatay taşma giderildi (theme.css canvas kuralı + 7 sayfa
   tek tek). Duman testi: 168 sayfada 0 JS hatası.
 - Service worker yeniden yazıldı; CI'da denetim adımı; README.
-- Keşif Defteri altyapısı + 53 defter (aşağıda durum tablosu).
+- Keşif Defteri altyapısı + 69 defter (aşağıda durum tablosu).
 - **31 Ekim 2026 oturumu:**
   - Simülasyon hataları düzeltildi: `is-enerji` (animasyon çalışmıyordu, fiziksel
     birimlerle yeniden yazıldı), `kepler-yasalari` (gezegen ekran dışındaydı;
@@ -67,34 +67,49 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   - 10 yeni defter tam hattan (yazar → doğrulayıcı → editör) geçti; `dna-replikasyon`
     yeni simülasyona göre güncellenip doğrulayıcı + editörden geçirildi.
   - GitHub Actions kullanılamadığı için elle yayın betiği eklendi (bkz. 4.6).
+- **1 Kasım 2026 oturumu:** 16 yeni defter tam hattan geçti (integral,
+  bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli,
+  kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi,
+  fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri,
+  yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi).
+  Yazarların bulduğu ve içeriği yanlış öğreten 9 simülasyon (ay-evreleri,
+  mitoz-mayoz, molekul-sekli, asit-baz-titrasyonu, gunes-sistemi,
+  yildiz-yasam-dongusu, takimyildiz-haritasi, atom-orbitalleri, bayes) ile
+  4 sayfadaki canvas CSS-değişkeni renk hatası düzeltildi; ayrıntı
+  `docs/simulasyon-notlari.md`.
+- **Hattın yeni sırası (bu oturumda işe yaradı):** yazar → (yazar BLOCKER
+  bulduysa) sayfa düzeltme ajanı, sayfayla birlikte defterin laboratuvar
+  bölümünü de günceller → doğrulayıcı → aynı doğrulayıcı oturumu editör olarak
+  devam eder. Ajanlar HTML'i editör aracıyla değil python/node betikleriyle
+  düzenlemeli: editör kaydederken tüm dosyayı yeniden biçimlendiriyor.
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.1 Kalan 101 sayfa için defter yaz
+### 4.1 Kalan 85 sayfa için defter yaz
 
 Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler):
 
 ```
-akiskanlar-mekanigi alternatif-akim asal-rsa asit-baz-titrasyonu atislar atom-orbitalleri
-av-avci-lotka-volterra ay-evreleri barnsley-egreltiotu basinc bayes-olasilik besin-agi
-birim-cember breakout cift-sarkac collatz dalga-superpozisyonu
-denklem-denklestirme dogal-secilim doppler-etkisi duran-dalgalar elektrik-devresi-simulasyonu
-elektrik-muhendisligi elektronik-devre enigma-makinesi enzim-kinetigi fibo fibo+pascal
-formul-hafiza fotoelektrik fotosentez-solunum fourier-ses
+akiskanlar-mekanigi alternatif-akim asal-rsa atislar 
+av-avci-lotka-volterra barnsley-egreltiotu basinc besin-agi
+birim-cember breakout cift-sarkac collatz 
+denklem-denklestirme doppler-etkisi duran-dalgalar elektrik-devresi-simulasyonu
+elektrik-muhendisligi elektronik-devre enigma-makinesi fibo fibo+pascal
+formul-hafiza fotoelektrik fourier-ses
 gemi-makineleri-isletme-muhendisligi genetik-caprazlama gezegen-savunmasi gorelilik-uzayzaman
-gunes-sistemi hanoi-kuleleri hilbert-egrisi ideal-gaz integral isik-sondurme
+hanoi-kuleleri hilbert-egrisi ideal-gaz isik-sondurme
 julia-fraktali kaldirma-kuvveti kalp-dolasim kara-cisim-isimasi karmasik-sayilar 
-kimya-muhendisligi kimyasal-kinetik kirinim-izgarasi klasik-girisim koch-kar-tanesi konik-kesitler
+kimya-muhendisligi kirinim-izgarasi klasik-girisim koch-kar-tanesi konik-kesitler
 kristal-yapilar kuantum-dalga kuantum-mekanigi lissajous lorentz-kuvveti lorenz-cekici
 lorenz-cekici2 mandelbrot+lorenz mandelbrot-fraktali mantik-kapilari 
-mayin-tarlasi mekatronik-muhendisligi mercek-isinlari mitoz-mayoz molekul
-molekul-sekli normal-dagilim nukleer-fizik optik-yansima-kirilma
+mayin-tarlasi mercek-isinlari molekul
+normal-dagilim nukleer-fizik optik-yansima-kirilma
 oyun-2048 pascal-ucgeni penrose-dosemesi ph-indikator pi-yaklasimi pisagor radyoaktif-bozunma
 rastgele-yuruyus renk-teorisi riemann-toplamlari ses-sentezleyici sezar-sifre
 sierpinski-fraktali-peano-egrisi-altin-oran siralama-algoritmalari siralama-yarisi snake
-takimyildiz-haritasi taylor-serisi tek-sayi-toplam3 tek-sayi-toplam4 tek-sayi-toplam5
+taylor-serisi tek-sayi-toplam3 tek-sayi-toplam4 tek-sayi-toplam5
 termodinamik tetris tork-denge uretim-planlama-ve-endustri-muhendisligi yasam-oyunu
-yildiz-yasam-dongusu yol-bulma-algoritmalari yoneylem-arastirmasi
+yol-bulma-algoritmalari yoneylem-arastirmasi
 ```
 
 Kapsam dışı (defter yazılmaz): `index`, `404`, `bilgi`, `bilim-atlasi`,
@@ -143,7 +158,7 @@ aşamasından geçti. Durum:
 
 | Durum | Sayfalar |
 |---|---|
-| yazar + doğrulama + editör (tam) | turev*, roma-hukuku*, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle |
+| yazar + doğrulama + editör (tam) | turev*, roma-hukuku*, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi |
 | yazar + editör (doğrulama yok) | altin-oran, pong |
 | yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, cizge-teorisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, grup-teorisi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, periyodik-tablo, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
@@ -212,7 +227,7 @@ tablosu hataları). Öneri:
   `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
   Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
   Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
-  (101 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
+  (85 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
   bitince geçer.
 
 ## 5. Kalite çıtası (kısa hatırlatma)

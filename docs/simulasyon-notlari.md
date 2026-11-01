@@ -487,6 +487,87 @@ Durum: ❑ bekliyor · ✔ yapıldı
 - ❑ Hız eğrisi k/m > ~120'de grafikten taşıyor; konum ve hız aynı eksende etiketsiz farklı ölçeklerle çiziliyor.
 - ❑ Her karede canvas boyutu yeniden atanıyor; kaydırıcı etiketlerinin `for` özniteliği yok.
 
+## asit-baz-titrasyonu.html
+
+- ✔ Düzeltildi (Kasım 2026): H₂SO₄ + NaOH iki protonu yok sayıyordu, HCl + NH₃ eşdeğerlikte NH₄⁺'yı baz sayıyordu (pH 10.97, sonra düşüş). calcPH artık tüm çiftler için yük denkliğini ikiye bölmeyle çözüyor (H₂SO₄ pKₐ₂ 1.99, NH₄⁺ pKₐ 9.25); eşdeğerlik hacmi hesaplanıyor; eğriler monoton; aralık 50 mL; indikatör rengi düzgün geçiyor.
+- ❑ "Eşdeğerlik noktası geçildi" mesajı ancak 26.0 mL'den sonra çıkıyor (`> eqVol + 1`); düşen damla büret ucunun altında değil, şişenin ortasında çiziliyor.
+
+## atom-orbitalleri.html
+
+- ✔ Düzeltildi (Kasım 2026): enerji diyagramı (1s en üstte, eşit aralık, 4s/3d sırası) yeniden çizildi, hidrojen anahtarı eklendi; orbital metinlerindeki düğüm düzlemi hataları düzeltildi; noktalar artık gerçek |ψ|²'den örnekleniyor (1s/2s/3s, Kesit ile radyal düğümler); mℓ ve radyal/açısal düğüm okumaları doğru; tekerlek sayfa kaydırmayı engellemiyor; kesit kalınlığı en çok ±0.8 a₀.
+- ❑ Dokunmatik ekranda tuvalde sürükleme sayfayı kaydırmıyor (döndürme için touch-action: none). 3p ve f orbitalleri sayfada yok.
+
+## ay-evreleri.html
+
+- ✔ Düzeltildi (Kasım 2026): Ay Dünya'nın yanlış tarafındaydı; evre diski yanlış aydınlatılıyordu; mevsim paneli Dünya merkezliydi ve ekseni sallıyordu; Otomatik düğmesi çalışmıyordu. Geometri, aydınlık küre çizimi, sabit eksenli mevsim paneli (23,44°), İstanbul öğle Güneş'i yüksekliği, büyüyen/küçülen evre adları, gün sayacı ve 12,37 oranlı Otomatik eklendi.
+- ❑ İki yörünge aynı düzlemde ve dairesel; Ay yörüngesinin ~5,1° eğikliği yok (sayfa ve defter bunu söylüyor).
+
+## bayes-olasilik.html
+
+- ✔ Düzeltildi (Kasım 2026): "Zar (hile)" senaryosunda adil zar için 6 olasılığı %5 alınıyordu (artık 1/6 ≈ %17); kaydırıcı etiketleri senaryoya göre değişiyor; yüzde biçimi ve statik P(B) düzeltildi; açık tema okunur.
+- ❑ Önsel kaydırıcısı %50'de duruyor; duyarlılık ≥ %50 ve yanlış pozitif ≤ %50 olduğu için kanıtın inancı azalttığı durum gösterilemiyor.
+
+## dalga-superpozisyonu.html
+
+- ❑ İki dalga hep aynı frekansta; "frequency" değişkeni aslında dalga sayısı, uzun dalgalar daha hızlı ilerliyor, zamanla vuru görülmüyor.
+- ❑ Faz farkı π/2'de sabit; tam yıkıcı girişim gösterilemiyor; kaydırıcı ya da sayısal gösterge yok.
+- ❑ ECharts grafiği tuvale göre ters, y ekseni ±100'de kırpıyor ("Toplam Dalga Genliği" başlığı da y(x) için yanlış); ECharts yüklenemezse tuval de boş kalıyor; kare başına zaman.
+
+## dogal-secilim.html
+
+- ✔ Düzeltildi (Kasım 2026): "alel frekansı" etiketleri "fenotip oranı" oldu; dar tuvalde alt sıra kırpılmıyor; grafik ölçeklemesi düzeltildi.
+- ❑ Kelebekler listedeki sıraya göre sabit yerlerde çiziliyor, bireyler evrimleşiyormuş gibi görünüyor; nüfus kaydırıcısı çalışırken rastgele birey ekleyip siliyor; hale sınırda çok soluk; hız kontrolü ve tohum yok.
+
+## enzim-kinetigi.html
+
+- ✔ Düzeltildi (Kasım 2026): tuval arka planı CSS değişkeniyle boyanmıyordu; "µM/s" büyük harfe çevrilip "ΜM/S" oluyordu.
+- ❑ Yarışmalı modda Km ≥ 1.15'te Km işareti grafiğin dışına çıkıyor; şema [S]/Vmax/Km'ye tepki vermiyor ve yarışmalı inhibitörü bağlı substratın yanında çiziyor.
+
+## fotosentez-solunum.html
+
+- ✔ Düzeltildi (Kasım 2026): tuval son parçacık rengine boyanıyordu; O₂ mitokondriden çıkıyormuş gibi çiziliyordu; Glikoliz adımı mitokondriyi vurguluyordu; etiketler kırpılıyordu; Krebs halkası kristaların üstündeydi; güneş simgesi glikoz renginde çiziliyordu.
+- ❑ Nicel model yok (ışık/CO₂/sıcaklık ayarı, kompansasyon noktası yok); animasyon reduced-motion'a uymuyor.
+
+## gunes-sistemi.html
+
+- ✔ Düzeltildi (Kasım 2026): Ay Dünya'nın çevresinde dönmüyordu (hız oranı 1); tıklamalar Güneş parıltısına takılıyordu; hareket kare hızına bağlıydı; Satürn halkası dikti; arka plan yıldızları Güneş Sistemi'nin içindeydi; kamera yıldız kabuğundan çıkabiliyordu. Bilgi paneli dönem ve uzaklık gösteriyor; ölçek uyarısı var.
+- ❑ Ay'ın çizilen yörüngesi Venüs ve Mars'ın yörüngesine değiyor; x2 üstünde Ay kare başına onlarca derece atlıyor. Uzaklıklar ve boyutlar ölçeksiz (sayfada yazıyor).
+
+## integral.html
+
+- ❑ Aralık hep 0'ı içeriyor (a: −5…0, b: 0…5); [1, 3] gibi aralıklar seçilemiyor.
+- ❑ Gerçek integral ve hata göstergesi yok; düşey aralık ±10'da sabit (x² ve x³ kırpılıyor, sin neredeyse düz); simetrik tek fonksiyonlarda "-0.000000"; yalnız orta nokta; süs dalgası yüzünden sürekli animasyon; MathJax CDN'e bağlı.
+
+## kimyasal-kinetik.html
+
+- ❑ Parçacık paneli çarpışma modellemiyor: her karede her parçacık kalan A oranına göre rastgele renkleniyor, B çizilmiyor, hız sıcaklıkla değişmiyor; sayfadaki "Parçacıklar çarpıştıkça ürün oluşur" yazısı yanıltıcı.
+- ❑ İki grafik eğrisi farklı zaman ölçeği kullanıyor; geçmiş 500 noktayla sınırlı; "Enzim" ayarı 100 °C'de bile ×10 (gerçek enzimlerden çok zayıf); kare başına sabit dt; k ve t½ göstergesi yok.
+
+## mekatronik-muhendisligi.html
+
+- ✔ Düzeltildi (Kasım 2026): robot kol tuvalinin renkleri CSS değişkeninden okunmuyordu; kol 12 konumun 7'sinde tuvalden çıkıyordu; uç konumu artık tabana göre, y yukarı.
+- ❑ Yalnız θ₁ değiştirilebiliyor (θ₂ = 30° sabit), çalışma alanı halkası denenemiyor. Sayfanın ana fikri olan kapalı döngü/PID yalnız statik şema; etkileşimli PID simülasyonu en değerli ek olur. PLC panelinde "STL" (IEC dili ST), IMU kartında manyetometre eksik.
+
+## mitoz-mayoz.html
+
+- ✔ Düzeltildi (Kasım 2026): mitoz iki hücre üretmiyordu; anafazda kromozom sayısı yarıya iniyormuş gibi görünüyordu; mayozda homologlar ayrılmıyordu; krossing-over yanlış evredeydi; evreler eksikti; kardeş kromatitler ve iki kutuplu iğ yoktu; Oynat kare hızına bağlı ve bozuktu. 2n = 4 modeli, X kromozomlar, evre başına "Kromozom · Kromatit · Hücre" sayacı ve zaman tabanlı Oynat eklendi.
+- ❑ Metafaz I'de tek bir dizilim ve çift başına tek sabit krossing-over gösteriliyor (bağımsız dağılım çeşitliliği yalnız metinde).
+
+## molekul-sekli.html
+
+- ✔ Düzeltildi (Kasım 2026): bütün dış atomlar "H" yazıyordu; NH₃ düzdü; H₂O 135°, CH₄ bozuk çiziliyordu; ortaklanmamış çiftler molekülle dönmüyordu; 2D'de atomlar üst üste biniyordu. Gerçek atom etiketleri, açılardan hesaplanan 3B geometri, dönen elektron çifti lobları, kama/kesikli kama 2D görünümü, açı yayı ve ölçekli bağ uzunlukları eklendi.
+- ❑ 2D NH₃'te açı yayı kama ile kesikli kama arasında (ekranda ~80°) ama gerçek 107° yazıyor; defter bunu açıklıyor.
+
+## takimyildiz-haritasi.html
+
+- ✔ Düzeltildi (Kasım 2026): Büyük Ayı metni Kutup Yıldızı'nı sap yıldızlarına gösterttiriyordu; pusula harfleri köşelerdeydi; mevsimler yalnız parlaklığı değiştiriyordu; kutup çevresi takımyıldızlar "zor görünür" diyordu; yerleşim uydurmaydı. Harita artık gerçek J2000 koordinatlarıyla, Ankara (39,9° K) için her mevsimin ortasında saat 22.00'deki gökyüzünü başucu merkezli gösteriyor; parlaklıklar, çizgiler ve mitler düzeltildi; arka plan yıldızları tohumlu.
+- ❑ Harita tek konum ve saate sabit; kalabalık yerlerde bazı sönük yıldız adları gizleniyor; tuval klavye ve ekran okuyucuyla kullanılamıyor.
+
+## yildiz-yasam-dongusu.html
+
+- ✔ Düzeltildi (Kasım 2026): eksen etiketleri görünmüyordu (CSS değişkeni); yıldızlar tayf alt sınıfına göre ters yerleşiyordu (Sirius B G sütununda); Polaris kartı süpernova diyordu; "Kütle Yolları" evrim yolu değildi; parlaklıklar hatalıydı. Yıldızlar artık sıcaklığa göre logaritmik eksende; şematik ama doğru evrim yolları; düzeltilmiş kartlar; çakışmayan etiketler.
+- ❑ Diyagram açık temada da koyu kalıyor (bilinçli seçim); yıldızlara klavyeyle erişilemiyor.
+
 ---
 
 # Uygulanmamış doğrulama bulguları
