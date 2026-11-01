@@ -17,11 +17,39 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "asit-baz-titrasyonu": {
+    "title": "Asit-Baz Titrasyonu: Damla Damla Mol Saymak",
+    "tagline": "Bir büret, bir indikatör ve biraz sabır: titrasyon görünmez iyonları damla damla sayar. Yirmi mililitre boyunca kıpırdamayan pH, son dört damlada altı basamaktan fazla sıçrar; sırrı logaritmada.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 30
+  },
   "asteroids": {
     "title": "Asteroids: Uzayda Eylemsizlik Dersi",
     "tagline": "1979'da Atari'nin en çok satan kabini, beş düğmeyle Newton'un birinci yasasını öğretti: gemi baktığı yöne değil, hız vektörünün gösterdiği yöne gider. Bu sayfadaki kodun her satırı o dersin içinde.",
     "field": "Oyun",
     "level": "Lise hazırlık",
+    "minutes": 30
+  },
+  "atom-orbitalleri": {
+    "title": "Atom Orbitalleri: Elektronun Olasılık Haritası",
+    "tagline": "Elektron çekirdeğin çevresinde dönmez; bir dalga gibi titreşir ve yalnızca belirli biçimlere izin verilir. Küre, dambıl, yonca: bu biçimler periyodik tablodan kimyasal bağa kadar her şeyi düzenler.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "ay-evreleri": {
+    "title": "Ay ve Mevsimler: Gölge Değil, Geometri",
+    "tagline": "Ay'ın yarısı hep aydınlıktır; evreler, o yarının ne kadarını gördüğümüzdür. Mevsimler de Güneş'e uzaklıktan değil, 23,44 derecelik bir eğiklikten doğar.",
+    "field": "Yer ve Uzay",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "bayes-olasilik": {
+    "title": "Bayes Teoremi: Kanıtla Fikir Değiştirmenin Matematiği",
+    "tagline": "Testin pozitif çıktı; hasta olma ihtimalin %95 mi, %9 mu? Cevap testin kalitesinde değil, hastalığın ne kadar nadir olduğunda saklı. Bayes teoremi, yeni bir kanıtla fikrini ne kadar değiştirmen gerektiğini söyler.",
+    "field": "Matematik",
+    "level": "Lise",
     "minutes": 30
   },
   "bicimsel-diller-ve-otomata-teorisi": {
@@ -52,6 +80,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "dalga-superpozisyonu": {
+    "title": "Dalga Süperpozisyonu: Sesle Sessizlik Yapmak",
+    "tagline": "İki dalga karşılaştığında yalnızca toplanır; ama bu basit toplama, ışığın dalga olduğunu kanıtladı, kulaklıklara sessizlik getirdi ve kara deliklerin çarpışmasını duydu.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 25
+  },
   "derleyici-ve-yorumlayicilar": {
     "title": "Derleyici ve Yorumlayıcı: Kodun Makineye Yolculuğu",
     "tagline": "Yazdığın dört satır kod, işlemciye varana kadar beş kez kılık değiştirir: harfler token olur, tokenlar ağaç, ağaç ara kod, ara kod makine komutu. Bu sayfada o dönüşümü adım adım kendin yaparsın.",
@@ -62,6 +97,13 @@ window.ACELYA_CATALOG = {
   "dna-replikasyon": {
     "title": "DNA Replikasyonu: Kendi Kalıbını Taşıyan Molekül",
     "tagline": "Her hücre bölünmesinden önce iki metre DNA harf harf kopyalanır; hata payı milyarda bir. Sırrı 1953'te tek bir cümleyle sezildi: çift sarmalın her ipliği, ötekinin kalıbıdır.",
+    "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "dogal-secilim": {
+    "title": "Doğal Seçilim: Kimin Torunları Çoğalır?",
+    "tagline": "Hiçbir canlı değişmeye çalışmaz, yine de popülasyonlar değişir. İsli kentlerdeki güvelerden kuraklıktaki ispinozlara: rastgele çeşitlilik ile seçici hayatta kalma ve üremenin kör ama güçlü ortaklığı.",
     "field": "Biyoloji",
     "level": "Lise",
     "minutes": 30
@@ -87,10 +129,24 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "enzim-kinetigi": {
+    "title": "Enzim Kinetiği: Yaşamın Hız Sınırı",
+    "tagline": "Enzimler tepkimeleri milyonlarca kat, en uç örnekte 10¹⁷ kat hızlandırır; ama her birinin bir hız tavanı vardır. Bu tavanı ve ona nasıl yaklaşıldığını anlatan temel model hâlâ 1913'te yazılmış tek bir denklemdir.",
+    "field": "Biyoloji",
+    "level": "Lise ileri",
+    "minutes": 30
+  },
   "fonksiyon-grafigi": {
     "title": "Fonksiyon Grafiği: Bir Kuralın Portresi",
     "tagline": "Tekrar eden sinüs, ondan çeyrek periyot önde giden kosinüs, simetrik parabol, durdurulamayan eˣ ve onun aynası ln x. Grafik bir kuralı tek bakışta gösterir; ama yalnızca pencerenin içini.",
     "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "fotosentez-solunum": {
+    "title": "Fotosentez ve Solunum: Havadan Şeker, Şekerden Enerji",
+    "tagline": "Bir ağacın kuru kütlesinin büyük kısmı havadan gelir; soluduğun oksijen bir zamanlar fotosentez yapan bir hücrenin içindeki suydu. İki süreç aynı atomları döndürür, enerji ise tek yöne akar.",
+    "field": "Biyoloji",
     "level": "Lise",
     "minutes": 30
   },
@@ -101,12 +157,26 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 35
   },
+  "gunes-sistemi": {
+    "title": "Güneş Sistemi: Ekrana Sığmayan Mahalle",
+    "tagline": "Bir bulutun çöküşünden doğan, kütlesinin %99.8'i tek bir yıldızda toplanmış, neredeyse bomboş bir mahalle. Gezegenleri kim, nasıl buldu ve hiçbir poster neden onu doğru çizemiyor?",
+    "field": "Yer ve Uzay",
+    "level": "Lise",
+    "minutes": 30
+  },
   "hesaplama-teorisi": {
     "title": "Hesaplama Teorisi: Makinelerin Yapamayacağı Şeyler",
     "tagline": "1936'da, daha ortada tek bir bilgisayar yokken, 'hesaplamak' sözcüğü tanımlandı ve aynı yıl hiçbir bilgisayarın asla cevaplayamayacağı bir soru bulundu. Bu sayfa o tanımın ve o sorunun hikâyesi.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise ileri",
     "minutes": 35
+  },
+  "integral": {
+    "title": "İntegral: Sonsuz İnce Dilimlerin Toplamı",
+    "tagline": "Arşimet bir parabolün alanını dilimleyerek buldu, Leibniz o dilimlerin toplamına uzun bir S çizdi. İntegral, küçük katkıları biriktirip tek ve kesin bir sayıya varmanın sanatıdır.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
   },
   "internet-ve-ag-teknolojileri": {
     "title": "İnternet: Paketlerin Dünya Turu",
@@ -147,6 +217,13 @@ window.ACELYA_CATALOG = {
     "title": "Kepler Yasaları: Sekiz Yay Dakikalık İnat",
     "tagline": "Tycho Brahe'nin gözlemlerindeki inatçı bir sekiz yay dakikası, gezegenlerin çember değil elips çizdiğini ortaya çıkardı. Üç yasa: elips yörünge, eşit alanlar ve T² = a³.",
     "field": "Fizik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "kimyasal-kinetik": {
+    "title": "Kimyasal Kinetik: Tepkimelerin Saati",
+    "tagline": "Şeker yanmak, elmas grafite dönüşmek 'ister'; ama ikisi de oda sıcaklığında yerinden kıpırdamaz. Sır bir enerji tepesinde ve sıcaklığın o tepeyi aşan molekülleri nasıl çoğalttığında.",
+    "field": "Kimya",
     "level": "Lise",
     "minutes": 30
   },
@@ -206,6 +283,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 30
   },
+  "mekatronik-muhendisligi": {
+    "title": "Mekatronik: Kendi Hatasını Düzelten Makineler",
+    "tagline": "Bir makineyi akıllı yapan güçlü motoru değil, kendi hatasını ölçüp düzeltebilmesidir. Sensör, kontrolcü ve motor arasında saniyede onlarca ila binlerce kez dönen tek bir döngü: geri besleme.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
   "metalurji-ve-malzeme-muhendisligi": {
     "title": "Metalurji ve Malzeme: Atomların Dizilişi, Çeliğin Kaderi",
     "tagline": "Aynı demir, aynı karbon; birkaç saniyelik soğutma farkı yumuşak bir çubuğu cam gibi sert bir bıçağa çevirir. Malzeme mühendisliği, atomların dizilişini okuyup yeniden yazma sanatıdır.",
@@ -219,6 +303,20 @@ window.ACELYA_CATALOG = {
     "field": "Toplum ve Ekonomi",
     "level": "Lise",
     "minutes": 30
+  },
+  "mitoz-mayoz": {
+    "title": "Mitoz ve Mayoz: Kopyalamak ve Karıştırmak",
+    "tagline": "Vücudunda her gün milyarlarca hücre mitozla bölünüp kendini kopyalar; yalnız eşey hücrelerini yapan hücreler mayozla sayıyı yarıya indirir ve genleri karıştırır. Aynı makine, iki zıt amaç.",
+    "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "molekul-sekli": {
+    "title": "Molekül Şekli: Elektron Çiftlerinin Yer Kavgası",
+    "tagline": "Su neden bükük, karbondioksit neden dümdüz? Merkez atomun çevresindeki elektron çiftleri birbirinden kaçar; bu kaçışın geometrisi kokudan buzun yüzmesine kadar çok şeyi belirler.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 25
   },
   "newton-hareket-yasalari": {
     "title": "Newton Yasaları: Kuvvet, Değişim ve Bir Çarpışma",
@@ -304,6 +402,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 35
   },
+  "takimyildiz-haritasi": {
+    "title": "Takımyıldız Haritası: Gökyüzünün Adres Defteri",
+    "tagline": "Takımyıldızlar uzayda değil, bizim bakışımızda bir aradadır. Kutup Yıldızı'nın yüksekliği enlemini, kadir ölçeği parlaklığı, Dünya'nın dönüşü de hangi yıldızı ne zaman göreceğini söyler.",
+    "field": "Yer ve Uzay",
+    "level": "Lise",
+    "minutes": 30
+  },
   "tasarim-desenleri": {
     "title": "Tasarım Desenleri: Programcıların Ortak Sözlüğü",
     "tagline": "Bir mimarın 1977'de evler için yazdığı 253 'desen', 1994'te dört programcının elinde 23 yazılım desenine dönüştü. Bugün her büyük programın içinde aynı 23 fikir döner; ilk wiki bile bu desenleri tartışmak için kuruldu.",
@@ -373,5 +478,12 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise",
     "minutes": 35
+  },
+  "yildiz-yasam-dongusu": {
+    "title": "Yıldızların Hayatı: Kaderi Kütle Yazar",
+    "tagline": "Her yıldız, kütleçekimi ile füzyon arasında yapılmış bir ateşkestir. H-R diyagramında bu ateşkesin nasıl kurulduğunu, ne kadar sürdüğünü ve nasıl bozulduğunu oku.",
+    "field": "Yer ve Uzay",
+    "level": "Lise",
+    "minutes": 30
   }
 };

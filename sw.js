@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-6e6d91ba80";
+const VERSION = "acelya-f1d0a91592";
 // --- end:version ---
 
 // --- generated:core ---
@@ -230,25 +230,36 @@ const PAGES = [
 const DIGESTS = [
   "shared/digest/algoritmalar.js",
   "shared/digest/altin-oran.js",
+  "shared/digest/asit-baz-titrasyonu.js",
   "shared/digest/asteroids.js",
+  "shared/digest/atom-orbitalleri.js",
+  "shared/digest/ay-evreleri.js",
+  "shared/digest/bayes-olasilik.js",
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
   "shared/digest/cizge-teorisi.js",
   "shared/digest/dairesel-hareket.js",
+  "shared/digest/dalga-superpozisyonu.js",
   "shared/digest/derleyici-ve-yorumlayicilar.js",
   "shared/digest/dna-replikasyon.js",
+  "shared/digest/dogal-secilim.js",
   "shared/digest/elektrikli-araclar.js",
   "shared/digest/elektrokimya.js",
   "shared/digest/elektronik-muhendisligi.js",
+  "shared/digest/enzim-kinetigi.js",
   "shared/digest/fonksiyon-grafigi.js",
+  "shared/digest/fotosentez-solunum.js",
   "shared/digest/grup-teorisi.js",
+  "shared/digest/gunes-sistemi.js",
   "shared/digest/hesaplama-teorisi.js",
+  "shared/digest/integral.js",
   "shared/digest/internet-ve-ag-teknolojileri.js",
   "shared/digest/is-enerji.js",
   "shared/digest/isaretciler-ve-bellek-yonetimi.js",
   "shared/digest/isletim-sistemleri-ve-linux.js",
   "shared/digest/isletme-bilimi-ve-yonetim.js",
   "shared/digest/kepler-yasalari.js",
+  "shared/digest/kimyasal-kinetik.js",
   "shared/digest/maden-muhendisligi.js",
   "shared/digest/makine-dili-assembly-c.js",
   "shared/digest/makine-muhendisligi.js",
@@ -257,8 +268,11 @@ const DIGESTS = [
   "shared/digest/mantik-devresi.js",
   "shared/digest/manyetik-alan.js",
   "shared/digest/matris-donusumleri.js",
+  "shared/digest/mekatronik-muhendisligi.js",
   "shared/digest/metalurji-ve-malzeme-muhendisligi.js",
   "shared/digest/mikro-ekonomi-ve-uretim-faktorleri.js",
+  "shared/digest/mitoz-mayoz.js",
+  "shared/digest/molekul-sekli.js",
   "shared/digest/newton-hareket-yasalari.js",
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
@@ -271,6 +285,7 @@ const DIGESTS = [
   "shared/digest/serbest-dusme.js",
   "shared/digest/siber-guvenlik.js",
   "shared/digest/sicim-teorisi.js",
+  "shared/digest/takimyildiz-haritasi.js",
   "shared/digest/tasarim-desenleri.js",
   "shared/digest/turev.js",
   "shared/digest/ucak-muhendisligi-ve-aerodinamik.js",
@@ -281,6 +296,7 @@ const DIGESTS = [
   "shared/digest/veritabanlari.js",
   "shared/digest/yay-kutle.js",
   "shared/digest/yazilim-muhendisligi.js",
+  "shared/digest/yildiz-yasam-dongusu.js",
 ];
 // --- end:digests ---
 
