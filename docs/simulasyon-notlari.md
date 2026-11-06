@@ -666,3 +666,44 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 - ❑ Cıva + su durumunda durum satırındaki işlem ("13534 × 1.47 / 20.00 = 998") gösterilen sayılarla yeniden yapılınca 994.7 veriyor; h₁ üç ondalıkla gösterilmeli (`readoutsB()`, ~1218. satır).
 - ❑ Hidrolik sekmede d₁/d₂ hem piston çapları hem de yer değiştirmeler için kullanılıyor ("Σd₁", "mgd₂"); defter Δx₁/Δx₂ kullanıyor.
 - ❑ U-tüpü grafiğinin ekran okuyucu etiketi (`ARIA.utup[1]`, ~604. satır) çizilen grafiği yanlış tarif ediyor.
+
+## optik-yansima-kirilma.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu: arayüz (Snell yasası ve Fermat ilkesiyle sayısal en kısa süre, s ve p kutuplu Fresnel güç oranları, Brewster ve kritik açı, sönümlenen dalganın derinliği), prizma ve dispersiyon (Sellmeier indisleri, en küçük sapmadan n ölçümü, F/d/C çizgileri), optik fiber (sayısal açıklık, kabul konisi, duvardaki yansıma sayısı, ışınlar arası gecikme).
+- ❑ Kritik açıya git düğmesinde (n₁/n₂)·sin θ₁ tam 1 çıkıyor; sayfa bunu tam iç yansıma sayıp θ₂ kartına "yok (tam iç yansıma)" yazıyor, durum satırı ise "Kritik açıdasın … θ₂ = 90°" diyor (`st >= 1`, ~416. satır; kart ~926. satır). Sınırda kart "90.00° (sıyırır)" göstermeli; defterdeki deney bugünkü metni andığı için ikisi birlikte güncellenmeli.
+- ❑ Fiberde 14.1°'de sızan ışının 1 m sonraki gücü yaklaşık 10⁻⁵⁷⁷; JavaScript'in en küçük sayısının altında kaldığı için 0'a yuvarlanıyor ve "≈ 0" görünüyor. Gücün logaritması gösterilebilir.
+- ❑ Fiberdeki 1 m'lik güç soğurmayı hesaba katmıyor (gerçek silika 0.2–3 dB/km); darbeler aynı hızla çiziliyor, yalnız uzun yolu gösteriyor.
+
+## mercek-isinlari.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu: tek mercek (ince mercek denklemi, ışın çizimi, Newton biçimi, büyüteç, ıraksak mercek), mercek yapıcı denklemi (Snell ile gerçek ışın izleme, kalın mercek, hava/su/yağ, küresel sapma), iki mercekli sistemler (mikroskop, Kepler ve Galileo teleskobu, eşdeğer kırıcılık, açısal büyütme).
+- ✔ İki mercekli sistemlerde durum satırı son görüntü gerçekse yakınsayan demet, 25 cm'den yakınsa yakın nokta uyarısı veriyor (teleskopta da); net görüş aralığı (mikroskopta s_o, teleskopta d) o anki düzenden hesaplanıyor.
+- ❑ Tek mercek sekmesinde açısal büyütme okuması yok; Büyüteç düğmesinde yanal m = +2.5 rastlantıyla 25 cm/f = 2.5'e eşit ve okuru yanıltabilir. Sanal görüntü (−15 cm) de 25 cm'lik yakın noktanın içinde (defterdeki bir kavram yanılgısı bunu açıklıyor).
+- ❑ Mikroskopta net görüş aralığı yaklaşık 0.02 mm; s_o kaydırıcısının adımı (0.01 cm) bundan büyük, kaydırıcıyla yalnız hazır değer (1.76 cm) netlikte. Bir ince ayar denetimi eklenebilir; defter 1.75 cm'ye "bir adım" demeye dayanıyor.
+- ❑ Gözlük gücündeki mercekler (|f| > 20 cm) Tek mercek sekmesinde kurulamıyor; defterin gözlük örneği yalnız metinde. Dispersiyon yok, renk sapınçı yalnız metinde anlatılıyor.
+- ❑ İnce mercekler sonsuz açıklıklı: çizilen mercek boyunun üstünden geçen ışınlar da kırılıyor.
+
+## cift-sarkac.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu: tam Lagrange denklemleri, 0.5 ms adımlı RK4; 2–10 kopya θ₂'de Δ farkla başlar; ln d grafiği, eğim uydurma, Benettin λ, öngörülebilirlik ufku ve ayrışma zamanı; küçük açılarda normal mod periyotları; faz portresi ve Poincaré kesiti.
+- ❑ 200 s'lik Benettin λ JavaScript motoruna bağlı (Chromium 0.945, node 1.007 1/s): `Math.sin`/`Math.cos`'un son bitteki farkı kaosla yaklaşık 35 s'de büyüyor. Sayfa bunu formül notunda söylüyor, defter aralık veriyor.
+- ❑ Eğim uydurma t = 0'dan başlıyor ve ilk hizalanma geçişini içeriyor; Δ ≥ 10⁻³'te pencere anlamlı olamayacak kadar kısa.
+- ❑ Kopyalar yalnız θ₂'de farklı başlıyor (ω ya da θ₁ bozulması, rastgele topluluk yok); bütün hazır başlangıçlar durgun, ilk hız denetimi yok. Mod hazırlarının genliği sabit (5° ve 3°).
+- ❑ Herhangi bir parametre değişince koşu baştan başlıyor (`sarkac.html`'deki gibi koşu sırasında değiştirme yok). Poincaré kesiti kısa koşuda seyrek; kaotik denizi görmek için birkaç dakika ya da N = 10 gerekiyor.
+- ❑ Defterin "sonraki" bağlantısı `lorenz-cekici.html` tek "Çiz!" düğmeli, sabit parametreli eski bir sayfa; yeniden kurulmalı.
+
+## kuantum-dalga.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu: sonsuz kuyu, sonlu kuyu, harmonik osilatör ve çift kuyu; Schrödinger denklemi ızgarada sayısal çözülüyor ve özdeğerler kesin değerlerle karşılaştırılıyor; üç bileşene kadar süperpozisyon, ⟨x⟩ ve periyot ölçümü, Gauss paketi ve yeniden canlanma (T_rev), çift kuyuda tünelleme ve yarılma.
+- ✔ Osilatörde |m − n| ≠ 1 çiftleri artık ⟨x⟩ salınımı üretmiyor (ızgaradaki ⟨φ₀|x|φ₃⟩ ≈ −5×10⁻⁶ nm kalıntısı ⟨x⟩ = 0 iken 6.893 fs'lik sahte bir periyot gösteriyordu). Her iki durumlu karışımda zaman kartı t/T'yi, harita T'nin katlarını gösteriyor; ⟨x⟩ sabitse kart nedenini (parite ya da merdiven kuralı) söylüyor.
+- ❑ 1 meV'den sığ bağlı durumlar 16 nm'lik hesap kutusuna sığmıyor ve sayılmıyor (V₀ ve a taramasında ayarların yaklaşık % 0.5'i); sayfa "Bağlı durum sayısı" alt satırında bunu söylüyor.
+- ❑ Çift kuyuda yasak bölgedeki olasılık yalnız sayısal; kesin değerle karşılaştırılmıyor.
+- ❑ Yüksek hızlarda Re ψ ve Im ψ kare hızından hızlı döndüğü için çakarak görünüyor ("Ortak faz dönüşünü çıkar" bunu gideriyor); ölçümler etkilenmiyor.
+
+## atislar.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu (Three.js/CDN prototipi kaldırıldı): ikinci dereceden hava direnciyle noktasal top, 1 ms adımlı RK4; menzil, tepe yüksekliği, süre ve çarpma hızı boşluk formülleriyle karşılaştırılıyor; açı taraması en iyi açıyı buluyor. Futbol, beyzbol, golf, masa tenisi topu, gülle ve özel top; Dünya (deniz düzeyi ve Denver), Mars ve Ay.
+- ✔ Ay'da durum satırı oranları Dünya'daki boşluk atışına göre veriyor (yerden 6.06 kat uzak, 6.06 kat uzun); `index.html` etiketi ve `page-info.js` girdisi 2B sayfaya göre düzeltildi.
+- ❑ Kaldırma (Magnus) kuvveti, dönme ve sürükleme krizi yok (C_d sabit): golf ve beyzbolda taşıma mesafesi, futbolda kritik hız (~12 m/s) çevresi eksik modelleniyor. Sayfa bunu "Top" panelinde söylüyor.
+- ❑ Rüzgâr, sekme ve yuvarlanma yok; zemin atış düzeyinde düz. "Tipik atış" değerleri yuvarlanmış örnekler, ölçülmüş veri değil.
+- ❑ Çok hafif özel topların yüksekten bırakıldığı taramalar birkaç saniye sürebiliyor.

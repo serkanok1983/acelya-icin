@@ -76,12 +76,12 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 
 ## Fizik (39)
 
-- `optik-yansima-kirilma` — Optik: Yansıma & Kırılma (sayfa başlığı: Optik: Yansıma ve Kırılma)
-- `mercek-isinlari` — Mercek Işınları (sayfa başlığı: Mercek Işın Diyagramı)
+- `optik-yansima-kirilma` — Optik: Yansıma & Kırılma (sayfa başlığı: Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma)
+- `mercek-isinlari` — Mercek Işınları (sayfa başlığı: İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu)
 - `klasik-girisim` — Klasik Girişim (sayfa başlığı: Young'un Çift Yarık Deneyi: Işığın Girişimi)
 - `yay-kutle` — Yay–Kütle (SHM)
 - `sarkac` — Sarkaç (sayfa başlığı: Sarkaç Laboratuvarı)
-- `cift-sarkac` — Çift Sarkaç (sayfa başlığı: Çift Sarkaç (Kaos))
+- `cift-sarkac` — Çift Sarkaç (sayfa başlığı: Çift Sarkaç: Kaos ve Başlangıç Koşullarına Duyarlılık)
 - `dairesel-hareket` — Dairesel Hareket (sayfa başlığı: Dairesel Hareket — Merkezcil Kuvvet)
 - `tork-denge` — Tork ve Denge (sayfa başlığı: Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik)
 - `is-enerji` — İş–Enerji (sayfa başlığı: İş–Enerji İlkesi)
@@ -102,7 +102,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `fotoelektrik` — Fotoelektrik (sayfa başlığı: Fotoelektrik Olay: Planck Sabitini Ölç)
 - `radyoaktif-bozunma` — Radyoaktif Bozunma (sayfa başlığı: Radyoaktif Bozunma: Rastlantıdan Doğan Yasa)
 - `kuantum-mekanigi` — Kuantum Çift Yarık (sayfa başlığı: Kuantum Çift Yarık Deneyi)
-- `kuantum-dalga` — Kuantum Dalga (sayfa başlığı: Kuantum Dalga Fonksiyonu)
+- `kuantum-dalga` — Kuantum Dalga (sayfa başlığı: Kuantum Dalga Fonksiyonu: Kuyular, Süperpozisyon ve Tünelleme)
 - `gorelilik-uzayzaman` — Görelilik (sayfa başlığı: Özel Görelilik: Uzay-Zaman Diyagramı)
 - `gunes-sistemi` — Güneş Sistemi
 - `ay-evreleri` — Ay & Mevsimler (sayfa başlığı: Ay Evreleri ve Mevsimler)
