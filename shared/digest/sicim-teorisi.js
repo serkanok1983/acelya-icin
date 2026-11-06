@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["sicim-teorisi"] = {
   next: [
     { href: "duran-dalgalar.html", title: "Duran Dalgalar", why: "Sayfadaki sicim çizimlerinin klasik aslı: iki ucu sabit telde harmonikler ve f<sub>n</sub> = n·v/2L." },
     { href: "kuantum-dalga.html", title: "Kuantum Dalga Fonksiyonu", why: "Kuantize enerji düzeyleri fikrinin kaynağı; sicimin kütle merdiveni aynı mantığın bir üst katıdır." },
-    { href: "gorelilik-uzayzaman.html", title: "Görelilik ve Uzay-Zaman", why: "Sicim kuramının birleştirmeye çalıştığı iki sütundan biri: kütle çekimi olarak eğri uzayzaman." },
+    { href: "gorelilik-uzayzaman.html", title: "Görelilik ve Uzay-Zaman", why: "Sicim kuramının birleştirmeye çalıştığı iki sütundan birinin ilk adımı: özel görelilikte uzay ile zamanın tek bir uzayzamanda birleşmesi." },
     { href: "grup-teorisi.html", title: "Grup Teorisi", why: "SO(32) ve E₈×E₈ birer simetri grubudur; 496'nın nereden geldiğini anlamak için grupların dilini öğren." },
   ],
   sources: [

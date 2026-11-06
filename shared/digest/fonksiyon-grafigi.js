@@ -245,7 +245,7 @@ window.ACELYA_DIGEST["fonksiyon-grafigi"] = {
     {
       href: "turev.html",
       title: "Türev",
-      why: "Burada sürekli andığımız 'gerçek eğim' nedir? x², x³ ve x⁴ üzerinde kesen doğrunun, h küçüldükçe teğete dönüşmesini izle.",
+      why: "Burada sürekli andığımız 'gerçek eğim' nedir? x², x³ ve sin x üzerinde kesen doğrunun, h küçüldükçe teğete dönüşmesini izle; çok küçük h'de yuvarlama hatasını da gör.",
     },
     {
       href: "taylor-serisi.html",

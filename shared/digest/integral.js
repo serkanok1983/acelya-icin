@@ -247,7 +247,7 @@ window.ACELYA_DIGEST["integral"] = {
     {
       href: "turev.html",
       title: "Türev",
-      why: "Temel teoremin öteki yüzü: sekantın teğete dönüşmesi ve kuvvet kuralı. Ters türev, o kuralı geriye doğru okumaktır.",
+      why: "Temel teoremin öteki yüzü: kesenin teğete dönüşmesi ve kuvvet kuralı. Ters türev, o kuralı geriye doğru okumaktır.",
     },
     {
       href: "hareket-ve-grafikler.html",

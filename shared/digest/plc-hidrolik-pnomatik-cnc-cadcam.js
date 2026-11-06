@@ -179,7 +179,7 @@ window.ACELYA_DIGEST["plc-hidrolik-pnomatik-cnc-cadcam"] = {
     },
   ],
   next: [
-    { href: "basinc.html", title: "Basınç — Derinlik ve Pascal", why: "Hidrolik silindirin dayandığı Pascal ilkesini bir sıvı sütununda etkileşimli olarak gör." },
+    { href: "basinc.html", title: "Basınç: Hidrostatik ve Pascal", why: "Hidrolik silindirin dayandığı Pascal ilkesini hidrolik kaldıraç sekmesinde dene: kuvvet kazancı, piston yolu ve iş dengesi." },
     { href: "mantik-devresi.html", title: "Mantık Devresi Tasarımcısı", why: "Merdiven basamağındaki VE/VEYA mantığını kapılarla kur; mühürleme aslında bir geri beslemedir." },
     { href: "tork-denge.html", title: "Tork ve Denge — Kaldıraç", why: "Dişli oranının ve hidrolik presin ortak atası: kuvvet ile yolun takası." },
     { href: "mekatronik-muhendisligi.html", title: "Mekatronik Mühendisliği", why: "PLC, sensör ve motorun bir araya geldiği disiplin; bu sayfanın bir üst katı." },

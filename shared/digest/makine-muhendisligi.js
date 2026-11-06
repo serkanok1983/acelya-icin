@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["makine-muhendisligi"] = {
   ],
   next: [
     { href: "tork-denge.html", title: "Tork ve Denge", why: "ΣM = 0'ın en çıplak hâli: kaldıraçta kuvvet ve kol çarpımını kendin dengele, mesnet tepkilerinin nereden geldiğini gör." },
-    { href: "termodinamik.html", title: "Termodinamik ve Gaz Yasaları", why: "P-V diyagramının altındaki PV = nRT; izoterm ve adyabat eğrilerinin neden dikdörtgen olamadığını orada izle." },
+    { href: "termodinamik.html", title: "Termodinamik: PV Diyagramı ve Çevrimler", why: "P-V diyagramında Carnot ve Otto çevrimlerini kur; izoterm ve adyabatların çevrelediği alanın neden net iş olduğunu orada gör." },
     { href: "akiskanlar-mekanigi.html", title: "Bernoulli ve Viskozite", why: "Reynolds sayısındaki viskoziteyi ve hızı canlı olarak oynat; laminerden türbülansa geçişi gör." },
     { href: "metalurji-ve-malzeme-muhendisligi.html", title: "Metalurji ve Malzeme", why: "Çözümlü örnekteki 235 MPa nereden geliyor? Çeliğin akma dayanımını belirleyen atom dizilişi." },
   ],

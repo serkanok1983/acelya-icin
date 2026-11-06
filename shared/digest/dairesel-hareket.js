@@ -254,7 +254,7 @@ window.ACELYA_DIGEST["dairesel-hareket"] = {
     },
     {
       href: "atislar.html",
-      title: "3B Atış Simülasyonu",
+      title: "Eğik Atış",
       why: "Newton'un güllesinin ilk adımı: düz yer ve sabit g ile atılan top bir parabol çizer. Hızı artırdıkça topun daha uzağa düştüğünü izle; yeryüzü eğri ve hız 7.9 km/s olsaydı top hiç yere varmazdı.",
     },
     {

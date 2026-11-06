@@ -180,7 +180,7 @@ window.ACELYA_DIGEST["elektrikli-araclar"] = {
   ],
   next: [
     { href: "elektrokimya.html", title: "Elektrokimya: Galvanik Hücre", why: "Bataryanın gerilimi nereden gelir? İki elektrot arasındaki kimyasal potansiyel farkını deneyle gör." },
-    { href: "alternatif-akim.html", title: "Alternatif Akım ve Bobinler", why: "İnverterin motora yolladığı üç fazlı akım ve dönen manyetik alan; AC motorun mantığı burada." },
+    { href: "alternatif-akim.html", title: "Alternatif Akım: RLC ve Rezonans", why: "İnverterin ürettiği alternatif akımın dili: genlik, frekans ve faz. Bobinin akımı nasıl geciktirdiğini RLC devresinde fazörlerle gör." },
     { href: "is-enerji.html", title: "İş–Enerji İlkesi", why: "Rejeneratif frenlemenin hesabı: kinetik enerji, iş ve hangi kısmın geri alınabileceği." },
     { href: "otomotiv-muhendisligi.html", title: "Otomotiv Mühendisliği", why: "Aynı aracın öteki yarısı: şasi, süspansiyon, aerodinamik ve içten yanmalı motorla karşılaştırma." },
   ],

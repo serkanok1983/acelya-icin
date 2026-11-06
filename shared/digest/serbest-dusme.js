@@ -244,8 +244,8 @@ window.ACELYA_DIGEST["serbest-dusme"] = {
     },
     {
       href: "atislar.html",
-      title: "Atış (3B)",
-      why: "Topu bir açıyla fırlat: düşeyde aynı serbest düşme, yatayda sabit hız, sonuç bir parabol. Açı, hız ve yerçekimi kaydırıcılarıyla menzilin nasıl değiştiğini gör; orada hava direnci yok.",
+      title: "Eğik Atış",
+      why: "Topu bir açıyla fırlat: düşeyde aynı serbest düşme, yatayda sabit hız, sonuç bir parabol. Hava direncini açıp kapat; menzilin ve en iyi açının nasıl değiştiğini gör.",
     },
     {
       href: "diferansiyel-denklemler.html",

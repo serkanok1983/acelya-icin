@@ -210,7 +210,7 @@ window.ACELYA_DIGEST["otonom-araclar-ve-iha"] = {
   next: [
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "Dijkstra, A* ve ötekilerini adım adım izle; buradaki yeşil yolun arkasındaki kuyruğu gör." },
     { href: "elektrikli-araclar.html", title: "Elektrikli Araçlar", why: "Drone'u ve otonom aracı besleyen lityum hücrenin kimyası, kWh ve C-değeri muhasebesi." },
-    { href: "doppler-etkisi.html", title: "Doppler Etkisi", why: "Araç radarının hızı nasıl okuduğunu kaynağın ve gözlemcinin hareketiyle dene." },
+    { href: "doppler-etkisi.html", title: "Doppler Etkisi", why: "Radarın dayandığı frekans kaymasını ses dalgalarıyla dene: kaynak ve gözlemci hareket edince ölçülen frekans nasıl değişiyor?" },
     { href: "ucak-muhendisligi-ve-aerodinamik.html", title: "Uçak Mühendisliği ve Aerodinamik", why: "Sabit kanatlı İHA'nın saatlerce uçmasını sağlayan kaldırma kuvveti ve sürükleme." },
   ],
   sources: [

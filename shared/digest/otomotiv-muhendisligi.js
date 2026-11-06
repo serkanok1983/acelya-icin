@@ -180,7 +180,7 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
     },
   ],
   next: [
-    { href: "termodinamik.html", title: "Termodinamik ve Gaz Yasaları", why: "Sıkıştırılan havanın neden ısındığını ve Otto verim formülünün nereden geldiğini PV = nRT ile gör." },
+    { href: "termodinamik.html", title: "Termodinamik: PV Diyagramı ve Çevrimler", why: "Sıkıştırılan havanın neden ısındığını ve Otto verim formülünün nereden geldiğini PV = nRT ile gör." },
     { href: "is-enerji.html", title: "İş–Enerji İlkesi", why: "Fren mesafesi ve ezilme bölgesi hesaplarının kaynağı: kuvvet çarpı yol, kinetik enerjiye eşittir." },
     { href: "makine-muhendisligi.html", title: "Makine Mühendisliği", why: "Krank-biyel mekanizması, dişliler ve malzeme dayanımı: motoru taşıyan daha geniş disiplin." },
     { href: "elektrikli-araclar.html", title: "Elektrikli Araçlar", why: "Dört zamanı tümüyle atan tahrik: sıfır devirde tork, rejeneratif fren ve batarya." },

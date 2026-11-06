@@ -256,7 +256,7 @@ window.ACELYA_DIGEST["atom-orbitalleri"] = {
     {
       href: "kuantum-dalga.html",
       title: "Kuantum Dalga Fonksiyonu",
-      why: "Bir kutuya hapsolmuş parçacığın ψ ve |ψ|² eğrileri: n kaydırıcısını 1'den 5'e çek, düğüm sayısının n − 1 olduğunu tek boyutta say.",
+      why: "Kutuya hapsolmuş bir elektronun özdurumları enerji düzeylerinin üstünde: düğüm sayısının n − 1 olduğunu tek boyutta say, sonlu kuyuda dalganın duvara sızdığını gör.",
     },
     {
       href: "duran-dalgalar.html",

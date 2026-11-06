@@ -193,7 +193,7 @@ window.ACELYA_DIGEST["uzay-kosucusu"] = {
   ],
   next: [
     { href: "serbest-dusme.html", title: "Serbest Düşme", why: "Geminin zıplama denklemi burada gerçek birimlerle, hava direnci de eklenerek karşına çıkar." },
-    { href: "atislar.html", title: "Atış (3B)", why: "Yatayla dikeyin bağımsızlığını üç boyutta gör: aynı kemer, bu kez açı ve hızla." },
+    { href: "atislar.html", title: "Eğik Atış", why: "Yatayla dikeyin bağımsızlığını gör: aynı kemer, bu kez açı, hız ve hava direnciyle; en uzağa hangi açının gittiğini tarayarak bul." },
     { href: "hareket-ve-grafikler.html", title: "Hareket ve Grafikler", why: "Mesafe sayacının neden bir kronometre olduğunu konum-zaman ve hız-zaman grafikleriyle çöz." },
     { href: "pong.html", title: "Pong", why: "Aynı 60 adımlık döngü ve çarpışma mantığı, bu kez yerçekimsiz bir topla." },
   ],

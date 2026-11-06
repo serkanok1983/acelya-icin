@@ -239,12 +239,12 @@ window.ACELYA_DIGEST["manyetik-alan"] = {
     {
       href: "lorentz-kuvveti.html",
       title: "Lorentz Kuvveti",
-      why: "Alanı ürettin; şimdi içinden geçen yüklü bir parçacığın yolunu nasıl büktüğünü izle. Yük ve alan kaydırıcılarıyla kuvvetin F = qvB ile büyüdüğünü gör.",
+      why: "Alanı ürettin; şimdi içinden geçen yüklü bir parçacığın yolunu nasıl büktüğünü izle. Yük ve alan kaydırıcılarıyla yörünge yarıçapının r = mv/(|q|B) ile değiştiğini ölç.",
     },
     {
       href: "alternatif-akim.html",
-      title: "Alternatif Akım ve Bobinler",
-      why: "Faraday'ın ters sorusu: bobindeki akım sürekli yön değiştirince alanı da değişir ve ikinci bir bobinde gerilim doğurur. Frekans ve sarım kaydırıcılarıyla dene.",
+      title: "Alternatif Akım: RLC ve Rezonans",
+      why: "Değişen akımın devre dili: bobin ve kondansatörlü bir devrede akımın gerilimin önüne geçmesini ya da geride kalmasını ve rezonansı frekans kaydırıcısıyla gör.",
     },
     {
       href: "elektrik-devresi-simulasyonu.html",

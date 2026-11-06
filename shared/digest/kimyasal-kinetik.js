@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["kimyasal-kinetik"] = {
   next: [
     { href: "kimyasal-denge-ve-gibbs-enerjisi.html", title: "Kimyasal Denge ve Gibbs Enerjisi", why: "Kinetik 'ne kadar hızlı' diye sorar; buradaki Q–K yön bulucu 'hangi yöne ve nereye kadar' sorusunu ΔG ile yanıtlar." },
     { href: "enzim-kinetigi.html", title: "Enzim Kinetiği", why: "Sayfadaki 'Enzim' konumunun gerçek hâli: Vmax ve Km kaydırıcıları ve inhibitör seçimiyle doymaya giden Michaelis–Menten eğrisi." },
-    { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma", why: "Aynı birinci derece matematiği çekirdeklerde: yarı ömür kaydırıcısıyla üstel sönümü ve rastgele bozunan parçacıkları izle." },
+    { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma", why: "Aynı birinci derece matematiği çekirdeklerde: rastgele bozunan çekirdeklerden üstel yasanın doğuşunu izle, yarı ömrü ln N doğrusunun eğiminden ölç." },
     { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler", why: "d[A]/dt = −k[A] tipi denklemleri ve bu sayfanın kodunun kullandığı Euler adımının hatasını genel çerçevede gör." },
   ],
   sources: [

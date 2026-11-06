@@ -249,8 +249,8 @@ window.ACELYA_DIGEST["is-enerji"] = {
     },
     {
       href: "termodinamik.html",
-      title: "Termodinamik ve Gaz Yasaları",
-      why: "Isı çubuğuna giden enerji taneciklerin düzensiz hareketini hızlandırır; sıcaklık bunun ölçüsüdür. Burada Sıcaklık ve Hacim kaydırıcılarıyla gaz basıncını PV = nRT ile izle.",
+      title: "Termodinamik: PV Diyagramı ve Çevrimler",
+      why: "Isı çubuğuna giden enerji taneciklerin düzensiz hareketini hızlandırır; sıcaklık bunun ölçüsüdür. Burada gazı adım adım genişletip sıkıştır, iş ile ısının birinci yasada nasıl dengelendiğini izle.",
     },
   ],
   sources: [
