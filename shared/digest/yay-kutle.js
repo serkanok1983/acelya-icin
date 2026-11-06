@@ -249,7 +249,7 @@ window.ACELYA_DIGEST["yay-kutle"] = {
     {
       href: "duran-dalgalar.html",
       title: "Duran Dalgalar",
-      why: "Yaylarla bağlı kütleler sonsuz küçülüp sıklaşırsa gerilmiş bir tele dönüşür ve tek doğal frekans yerine bir frekans merdiveni çıkar; Harmonik Mod (n) kaydırıcısıyla n = 1–5 modlarını, düğüm ve karın noktalarını gör.",
+      why: "Yaylarla bağlı kütleler sonsuz küçülüp sıklaşırsa gerilmiş bir tele dönüşür ve tek doğal frekans yerine bir frekans merdiveni çıkar: f<sub>n</sub> = n·v/2L. Rezonans eğrisini tara düğmesiyle merdivenin basamaklarını, titreştiriciyi bir basamağa getirince düğüm ve karın noktalarını gör.",
     },
     {
       href: "diferansiyel-denklemler.html",

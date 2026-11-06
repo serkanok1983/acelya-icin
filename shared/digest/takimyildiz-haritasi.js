@@ -252,7 +252,7 @@ window.ACELYA_DIGEST["takimyildiz-haritasi"] = {
     {
       href: "kara-cisim-isimasi.html",
       title: "Kara Cisim Işıması",
-      why: "Sıcaklık kaydırıcısını Betelgeuse'ün yaklaşık 3500 K'ine getir, sonra en sağa, 10 000 K'e it (Rigel daha da sıcaktır, yaklaşık 12 000 K): turuncu-kırmızıdan mavi-beyaza geçişin arkasındaki Wien yasası.",
+      why: "Hazır cisim menüsünden Betelgeuse'ü (yaklaşık 3600 K), sonra Rigel'i (yaklaşık 12 100 K) seç: turuncu-kırmızıdan mavi-beyaza geçişin arkasında Planck eğrisi ve Wien yasası var; Yıldızlar ve renk sekmesi aynı yıldızların rengini hesaplar.",
     },
     {
       href: "kepler-yasalari.html",

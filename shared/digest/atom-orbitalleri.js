@@ -261,7 +261,7 @@ window.ACELYA_DIGEST["atom-orbitalleri"] = {
     {
       href: "duran-dalgalar.html",
       title: "Duran Dalgalar",
-      why: "de Broglie'nin fikrinin kökü bir telde: harmonik modu artırdıkça düğüm noktalarının nasıl çoğaldığını izle; orbitaller bu titreşimlerin üç boyutlu akrabasıdır.",
+      why: "de Broglie'nin fikrinin kökü bir telde: Titreştirici frekansı f'yi f₁, f₂, f₃… rezonanslarına getirdikçe düğüm noktalarının nasıl çoğaldığını izle; orbitaller bu titreşimlerin üç boyutlu akrabasıdır.",
     },
     {
       href: "molekul-sekli.html",

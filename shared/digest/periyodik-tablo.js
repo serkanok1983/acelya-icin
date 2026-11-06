@@ -218,7 +218,7 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
   next: [
     { href: "atom-orbitalleri.html", title: "Atom Orbitalleri", why: "s, p ve d orbitallerinin biçimini üç boyutta gör; enerji şemasında çok elektronlu atomu hidrojenle karşılaştırıp dolum sırasının nereden geldiğini izle." },
     { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma", why: "Teknesyum ve polonyumun kütlesi neden köşeli parantezde: yarı ömür kavramını simülasyonda ölç." },
-    { href: "nukleer-fizik.html", title: "Nükleer Fizik", why: "Bağlanma enerjisi eğrisi, ağır elementlerin neden parçalandığını ve 118'den sonrasının neden zor olduğunu anlatır." },
+    { href: "nukleer-fizik.html", title: "Nükleer Fizik", why: "Bağlanma enerjisi eğrisi ve sıvı damla formülünün Coulomb terimi, ağır çekirdeklerin neden fisyona ve α bozunmasına yatkın olduğunu gösterir." },
     { href: "molekul-sekli.html", title: "Molekül Şekli", why: "Değerlik elektronları bağ kurunca ne olur: grup numarasından molekül geometrisine geçiş." },
   ],
   sources: [

@@ -251,12 +251,12 @@ window.ACELYA_DIGEST["yildiz-yasam-dongusu"] = {
     {
       href: "nukleer-fizik.html",
       title: "Nükleer Fizik: Bağlanma Enerjisi",
-      why: "Füzyonun neden demirde durduğunu bağlanma enerjisi eğrisinde gör: ¹H, ⁴He, ¹²C, ¹⁶O ve ⁵⁶Fe düğmeleriyle yıldızın yakıt merdivenini tırman.",
+      why: "Füzyonun neden demir ve nikel çevresinde durduğunu bağlanma enerjisi eğrisinde gör: ⁴He, ¹²C, ⁵⁶Fe ve ⁶²Ni düğmeleriyle yıldızın yakıt merdivenini tırman; Fisyon ve füzyon sekmesinde pp zincirinin açığa çıkardığı enerjiyi hesapla.",
     },
     {
       href: "kara-cisim-isimasi.html",
       title: "Kara Cisim Işıması",
-      why: "Sıcaklık kaydırıcısını 3 500 K'den (Betelgeuse) 5 800 K'e (Güneş) çek; tepe dalga boyunun ve metrekare başına gücün nasıl değiştiğini, H-R diyagramının yatay ekseninin fiziğini gör.",
+      why: "Hazır cisim menüsünden Betelgeuse'ü (3600 K), sonra Güneş'i (5772 K) seç; tepe dalga boyunun ve metrekare başına gücün nasıl değiştiğini, H-R diyagramının yatay ekseninin fiziğini gör.",
     },
     {
       href: "takimyildiz-haritasi.html",
