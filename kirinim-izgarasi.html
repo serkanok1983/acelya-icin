@@ -735,6 +735,14 @@
       }
       if (!best) return { kind: "none", nearest: near };
       const group = imgs.filter((im) => im.m === best.m && (im === best || !resolves(N, best.m, pairNeed(im.line.lam, best.line.lam))));
+      // Rayleigh sınırına yakın çözülmüş bir çiftte kıl çizgisi iki çizginin yarı genişliği içinde birden kalabilir
+      if (group.length === 1) {
+        const other = imgs.find((im) => im !== best && im.m === best.m && im.dist <= im.tol);
+        if (other && best.dist > Math.max(Math.abs(other.th - best.th) / 4, tolMin)) {
+          const pair = [best, other].sort((p, q) => p.th - q.th);
+          return { kind: "between", m: best.m, pair, nearest: best, label: pair.map((im) => im.line.name).join(" ile ") };
+        }
+      }
       let ws = 0, wl = 0;
       for (const im of group) { ws += im.line.rel; wl += im.line.lam * im.line.rel; }
       return {
@@ -1591,7 +1599,7 @@
     const id = PHYS.identifyB(src, SB.d, SB.N, SB.W, th, TOL_MIN);
     const pair = PHYS.pairInfo(src);
     let mCur = 1;
-    if (id.kind === "line" || id.kind === "blend") mCur = Math.abs(id.m);
+    if (id.kind === "line" || id.kind === "blend" || id.kind === "between") mCur = Math.abs(id.m);
     else if (id.kind === "none" && id.nearest) mCur = Math.abs(id.nearest.m);
     else if (src.lines.length === 0) {
       const w = PHYS.whiteAt(SB.d, th);
@@ -1635,6 +1643,10 @@
       const l1 = (SB.d * Math.sin(Math.abs(SB.phi) * D2R)) / Math.abs(id.m) / NM;
       lam1 = fmtNm(l1, 2);
       lam1Sub = `NIST (hava) ${fmtNm(id.lamRef, 3)}${id.kind === "blend" ? " (şiddet ağırlıklı)" : ""} · fark ${pct(l1, id.lamRef, 3)}`;
+    } else if (id.kind === "between") {
+      what = `${id.label} arası, m = ${intSigned(id.m)}`;
+      whatSub = "kıl çizgisi çözülmüş iki tepenin arasında";
+      lam1Sub = "okuma için kıl çizgisini bir tepeye getir";
     } else {
       what = "çizgi yok";
       whatSub = near ? `en yakın: ${near.line.name}, m = ${intSigned(near.m)} (${Math.abs(near.th - r.th) <= fovR ? "görüş alanında" : "görüş alanı dışında"})` : "";
@@ -1695,6 +1707,8 @@
       if (inFov) info.push(`Görüş alanında ${near.line.name} (m = ${intSigned(near.m)}) var; kıl çizgisine getir ya da "Hizala"ya bas.`);
       else info.push("Görüş alanında çizgi yok; sahnedeki renkli ışınlar çizgilerin nerede olduğunu gösterir.");
       if (Math.abs(SB.phi) >= TH_MAX - 1e-9) warn.push("Dürbün 80°'nin ötesine dönemez.");
+    } else if (id.kind === "between") {
+      info.push(`Kıl çizgisi ${id.label} tepelerinin arasında (m = ${intSigned(id.m)}). Çizgiler çözülmüş: okuma için birine getir ya da "Hizala"ya bas.`);
     } else {
       info.push(`${id.label} (m = ${intSigned(id.m)}) kıl çizgisinde. Okumayı kaydet; aynı çizgiyi ${intSigned(-id.m)}. mertebede de ölç.`);
     }
@@ -1737,7 +1751,7 @@
     const id = SB.res.id;
     if (id.kind === "zero") { SB.zeroRead = SB.phi; SB.msg = `Kaydedildi: φ₀ = ${fix(SB.phi, 2)}°.`; }
     else if (id.kind === "line" || id.kind === "blend") { addRecord(id, SB.phi); SB.msg = `Kaydedildi: ${id.label}, m = ${intSigned(id.m)}, φ = ${fix(SB.phi, 2)}°.`; }
-    else SB.msg = id.kind === "white" ? "Sürekli tayfta kayıt yapılmaz." : "Kıl çizgisinde çizgi yok: kayıt yapılmadı.";
+    else SB.msg = id.kind === "white" ? "Sürekli tayfta kayıt yapılmaz." : id.kind === "between" ? "Kıl çizgisi iki çizginin arasında: önce birine hizala." : "Kıl çizgisinde çizgi yok: kayıt yapılmadı.";
     readoutsB();
   }
   function autoB() {
