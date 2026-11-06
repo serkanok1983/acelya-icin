@@ -4,8 +4,9 @@
  * Her sayfayı gerçek Chromium'da açar; JS hatalarını, konsol hatalarını ve
  * başarısız istekleri toplar. Çıktı: JSON rapor (stdout özet).
  *
- * Kullanım: node scripts/smoke.mjs [--out rapor.json] [--only slug1,slug2] [--digest]
+ * Kullanım: node scripts/smoke.mjs [--out rapor.json] [--only slug1,slug2] [--digest] [--tabs] [--width 390]
  *   --digest : sayfada .digest bölümünün yüklenip görünür olduğunu da denetler
+ *   --tabs   : her sekmeye ([role="tab"]) sırayla geçer; sekmelere özgü JS hatalarını ve taşmayı da yakalar
  */
 import { createRequire } from "node:module";
 import { createServer } from "node:http";
@@ -37,6 +38,7 @@ const ONLY = opt("--only", "")
   .map((s) => s.trim())
   .filter(Boolean);
 const CHECK_DIGEST = flag("--digest");
+const CHECK_TABS = flag("--tabs");
 const CONCURRENCY = Number(opt("--jobs", "6"));
 
 const MIME = {
@@ -131,6 +133,17 @@ async function worker() {
         hOverflow: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) > innerWidth + 2,
         scrollW: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
       }));
+      if (CHECK_TABS) {
+        const n = await page.evaluate(() => document.querySelectorAll('[role="tab"]').length);
+        for (let i = 0; i < n; i++) {
+          await page.evaluate((i) => document.querySelectorAll('[role="tab"]')[i].click(), i);
+          await page.waitForTimeout(500);
+          const w = await page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth));
+          if (w > entry.scrollable.scrollW) entry.scrollable.scrollW = w;
+        }
+        entry.tabs = n;
+        entry.scrollable.hOverflow = entry.scrollable.scrollW > (await page.evaluate(() => innerWidth)) + 2;
+      }
       if (CHECK_DIGEST) {
         entry.digest = await page.evaluate(async () => {
           const el = document.querySelector(".digest");
@@ -189,6 +202,7 @@ const withErrors = report.filter((r) => r.errors.length || r.consoleErrors.lengt
 const withFailed = report.filter((r) => r.failedRequests.length);
 const cdnBlocked = report.filter((r) => r.cdnBlocked.length);
 console.log(`\n${report.length} sayfa · JS/konsol hatalı: ${withErrors.length} · yerel başarısız istek: ${withFailed.length} · CDN erişilemediği için atlanan: ${cdnBlocked.length}`);
+if (CHECK_TABS) console.log(`sekmeler: ${report.filter((r) => r.tabs).length} sayfada ${report.reduce((s, r) => s + (r.tabs || 0), 0)} sekme açıldı`);
 for (const r of withErrors) console.log(`  ✗ ${r.slug}: ${r.errors.concat(r.consoleErrors).slice(0, 2).join(" | ").slice(0, 160)}`);
 const hOverflow = report.filter((r) => r.scrollable?.hOverflow);
 if (hOverflow.length) console.log(`yatay taşma (${hOverflow.length}): ${hOverflow.map((r) => `${r.slug}(${r.scrollable.scrollW})`).join(" ")}`);
