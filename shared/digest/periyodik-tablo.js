@@ -3,17 +3,17 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
   slug: "periyodik-tablo",
   title: "Periyodik Tablo: Boşlukları Öngören Harita",
   field: "Kimya",
-  level: "Lise",
-  minutes: 30,
+  level: "Lise–Lisans",
+  minutes: 35,
   tagline:
     "1869'da 63 elementle çizilen bir tablo, henüz keşfedilmemiş metallerin yoğunluğunu önceden söyledi. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
   hook:
-    "1875'te Paris'te bir kimyacı, çinko cevherinden yeni ayırdığı metalin yoğunluğunu 4.7 g/cm³ ölçtü. Üç bin kilometre kadar ötede, o metali hiç görmemiş bir Rus profesör itiraz etti: değer 6'ya yakın olmalıydı. Örnek saflaştırılıp yeniden tartıldı: 5.9. Mendeleyev, elinde bile tutmadığı galyumu nereden biliyordu?",
+    "1875'te Fransız bir kimyacı, çinko cevherinden yeni ayırdığı metalin yoğunluğunu 4.7 g/cm³ ölçtü. Binlerce kilometre ötede, o metali hiç görmemiş bir Rus profesör itiraz etti: değer 6'ya yakın olmalıydı. Örnek saflaştırılıp yeniden tartıldı: 5.9. Mendeleyev, elinde bile tutmadığı galyumu nereden biliyordu?",
   bigIdea:
     "Periyodik tablo elementleri kütleye değil <strong>atom numarasına</strong>, yani çekirdekteki proton sayısına göre sıralar; benzer kimyasal davranış, dış kabuktaki elektron sayısı her yeni kabukta aynı değerlere geri döndüğü için düzenli aralıklarla tekrar eder.",
   story: [
     "Mendeleyev'den önce de örüntü arayanlar vardı. 1829'da Johann Döbereiner bazı elementlerin üçlü gruplar oluşturduğunu fark etti: klor–brom–iyot ya da kalsiyum–stronsiyum–baryum gibi üçlülerde ortadaki elementin atom ağırlığı, diğer ikisinin ortalamasına yakındı. 1865'te İngiliz kimyacı John Newlands elementleri ağırlığa göre dizince her sekizincinin benzer davrandığını söyledi ve buna müzikten ödünç alarak <em>oktavlar yasası</em> dedi. Londra Kimya Derneği'nde alaya alındığı, bir üyenin ona elementleri alfabetik sıraya dizmeyi deneyip denemediğini sorduğu anlatılır. Almanya'da Lothar Meyer de aynı yıllarda atom hacmini ağırlığa karşı çizdiğinde tepeleri ve çukurları düzenli tekrar eden bir eğri buldu. Örüntü ortadaydı; eksik olan, ona güvenip boşluk bırakacak cesaretti.",
-    "O cesareti 1869'da St. Petersburg'da ders kitabı yazan Dmitri Mendeleyev gösterdi. O sırada 63 element biliniyordu. Her birinin adını ve özelliklerini kartlara yazıp pasyans gibi dizdiği, hatta tabloyu rüyasında gördüğü anlatılır; bunlar hikâyedir, kanıt olan şey yayımladığı tablodur. Mendeleyev elementleri atom ağırlığına göre sıraladı ama iki şeyi diğerlerinden farklı yaptı. Birincisi, kimyasal akrabalığa ağırlıktan daha çok güvendi: tellür iyottan ağır olduğu hâlde (127.6'ya karşı 126.9) ikisinin yerini değiştirdi, çünkü tellür kükürdün, iyot klorun akrabasıydı. İkincisi, sıra tutmayınca boş kutu bıraktı ve o kutulara gelecek elementlerin ağırlığını, yoğunluğunu, oksidinin biçimini önceden yazdı. 1875'te galyum (eka-alüminyum), 1879'da skandiyum (eka-bor) ve 1886'da germanyum (eka-silisyum) bulunduğunda tahminler tutmuştu: eka-silisyum için 72 ağırlık ve 5.5 g/cm³ yoğunluk demişti; Clemens Winkler'in bulduğu germanyum için değerler 72.6 ve 5.35 çıktı. Tablo bir sınıflandırma olmaktan çıkıp bir öngörü makinesine dönüşmüştü.",
+    "O cesareti 1869'da St. Petersburg'da ders kitabı yazan Dmitri Mendeleyev gösterdi. O sırada 63 element biliniyordu. Her birinin adını ve özelliklerini kartlara yazıp pasyans gibi dizdiği, hatta tabloyu rüyasında gördüğü anlatılır; bunlar hikâyedir, kanıt olan şey yayımladığı tablodur. Mendeleyev elementleri atom ağırlığına göre sıraladı ama iki şeyi diğerlerinden farklı yaptı. Birincisi, kimyasal akrabalığa ağırlıktan daha çok güvendi: tellür iyottan ağır olduğu hâlde (127.6'ya karşı 126.9) ikisinin yerini değiştirdi, çünkü tellür kükürdün, iyot klorun akrabasıydı. İkincisi, sıra tutmayınca boş kutu bıraktı ve o kutulara gelecek elementlerin ağırlığını, yoğunluğunu, oksidinin biçimini önceden yazdı. 1875'te galyum (eka-alüminyum), 1879'da skandiyum (eka-bor) ve 1886'da germanyum (eka-silisyum) bulunduğunda tahminler tutmuştu: eka-silisyum için 72 ağırlık ve 5.5 g/cm³ yoğunluk demişti; Clemens Winkler'in bulduğu germanyumun bugünkü değerleri 72.63 ve 5.32 g/cm³'tür. Tablo bir sınıflandırma olmaktan çıkıp bir öngörü makinesine dönüşmüştü.",
     "Yine de ağırlıkla sıralamanın çatlakları vardı. 1894'te Lord Rayleigh ve William Ramsay havadan argonu ayırdı: hiçbir şeyle tepkimeye girmeyen, Mendeleyev'in tablosunda yeri olmayan bir gaz. Ramsay dört yıl içinde helyum, neon, kripton ve ksenonu da buldu ve tabloya kimsenin öngörmediği koca bir sütun eklendi. Üstelik argon potasyumdan ağırdı; sıraya ağırlıkla değil kimyayla girdi. Asıl anahtarı 1913'te 25 yaşındaki Henry Moseley buldu. Manchester'da Rutherford'un yanında, elementlerin yaydığı X-ışınlarının frekansını ölçtü ve frekansın karekökünün tam sayı adımlarla arttığını gördü. O tam sayı atom numarasıydı: çekirdeğin yükü, yani proton sayısı. Tellür–iyot, kobalt–nikel ve argon–potasyum ters çevrimleri bir anda açıklandı; 43, 61, 72 ve 75 numaralı kutuların boş olduğu da. Moseley 1915'te Çanakkale'de, Gelibolu'da bir keskin nişancı kurşunuyla öldü; 27 yaşındaydı. Boş kutular onun ölümünden sonra doldu: hafniyum 1923'te, renyum 1925'te, teknesyum 1937'de bir hızlandırıcıda insan eliyle üretilen ilk element olarak, prometyum 1945'te.",
     "Peki tekrar neden sekizde, on sekizde, otuz ikide? Cevap 1920'lerde kuantum mekaniğinden geldi: Bohr'un kabuk modeli ve Pauli'nin 1925'teki dışlama ilkesi, elektronların 2, 8, 18, 32 kişilik katlara yerleştiğini ve kimyanın hep en dış kata baktığını söyledi. Tablonun biçimi son kez 1940'larda değişti: Glenn Seaborg aktinyumdan sonraki elementlerin lantanitler gibi ayrı bir sıra oluşturduğunu önerdi ve bugünkü iki alt satır doğdu. Sonrası bir yarıştı: Berkeley, Dubna, Darmstadt ve Japonya'daki RIKEN'de hızlandırıcılarla çekirdekler çarpıştırılıp yeni elementler tek tek atom olarak üretildi. 2016'da IUPAC 113, 115, 117 ve 118 numaralı elementlerin adlarını onayladı ve yedinci periyot tamamlandı. Birleşmiş Milletler, tablonun 150. yılı olan 2019'u Uluslararası Periyodik Tablo Yılı ilan etti. Harita bitmiş değil; 119. kutunun avı sürüyor.",
   ],
@@ -21,7 +21,7 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
     {
       heading: "Sıralama anahtarı: proton sayısı",
       body:
-        "Bir elementi element yapan şey çekirdeğindeki proton sayısıdır; buna <strong>atom numarası</strong> (Z) denir. Altı protonlu her atom karbondur, nötron sayısı ne olursa olsun. Nötron sayısı değişince <strong>izotop</strong> değişir, element değişmez; bu yüzden tablodaki kütle ondalıklıdır, doğadaki izotop karışımının ortalamasıdır. Ondalıklı kütleler arasında sıra dört yerde bozulur (Ar–K, Co–Ni, Te–I, Th–Pa) ama proton sırası hiç bozulmaz. Sayfadaki her kutunun üstündeki küçük sayı işte bu anahtardır.",
+        "Bir elementi element yapan şey çekirdeğindeki proton sayısıdır; buna <strong>atom numarası</strong> (Z) denir. Altı protonlu her atom karbondur, nötron sayısı ne olursa olsun. Nötron sayısı değişince <strong>izotop</strong> değişir, element değişmez; bu yüzden tablodaki kütle ondalıklıdır, doğadaki izotop karışımının ortalamasıdır. Ondalıklı kütleler arasında sıra dört yerde bozulur (Ar–K, Co–Ni, Te–I, Th–Pa) ama proton sırası hiç bozulmaz. Sayfadaki her kutunun üstündeki küçük sayı bu anahtardır; alttaki ondalıklı sayı ortalama kütle, [98] gibi köşeli parantezli sayı ise tek bir izotopun kütle numarasıdır.",
       formula: "Z = proton sayısı · A = proton + nötron",
       formulaNote: "A kütle numarası tek bir izotop için tam sayıdır; tablodaki ondalıklı değer izotopların bollukla ağırlıklı ortalamasıdır.",
     },
@@ -35,70 +35,70 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
     {
       heading: "Grup: dış kabukta kaç elektron var?",
       body:
-        "Dikey sütuna <strong>grup</strong> denir ve aynı gruptaki elementlerin en dış kabuğunda aynı sayıda elektron bulunur; kimya büyük ölçüde o elektronlarla yapılır. Lityum, sodyum ve potasyumun dış kabuğunda tek elektron vardır; onu kolayca verip +1 iyon olurlar, suya atıldıklarında köpürüp alev alırlar. Flor ve klorun yedi dış elektronu vardır; bir tane daha alıp −1 olmaya can atarlar. Soy gazların kabuğu doludur; ne verir ne alırlar. Grup numarası dış elektron sayısını doğrudan söyler: 1 ve 2. gruplarda kendisi, 13–18. gruplarda on eksiği.",
+        "Dikey sütuna <strong>grup</strong> denir ve aynı gruptaki elementlerin en dış kabuğunda aynı sayıda elektron bulunur; kimya büyük ölçüde o elektronlarla yapılır. Lityum, sodyum ve potasyumun dış kabuğunda tek elektron vardır; onu kolayca verip +1 iyon olurlar, suyla hidrojen çıkararak tepkimeye girerler, potasyumda açığa çıkan hidrojen tutuşur. Flor ve klorun yedi dış elektronu vardır; bir tane daha alıp −1 olmaya can atarlar. Soy gazların kabuğu doludur; ne verir ne alırlar. Grup numarası dış elektron sayısını doğrudan söyler: 1 ve 2. gruplarda kendisi, 13–18. gruplarda on eksiği.",
       formula: "Değerlik e⁻ = grup no (1–2) · grup no − 10 (13–18)",
       formulaNote: "İki istisna: helyum 18. gruptadır ama ilk kabuk ikiyle dolduğu için yalnızca iki elektronu vardır; geçiş metallerinde (3–12) d elektronları da bağa katılır ve tek bir element birden çok yük alabilir.",
     },
     {
       heading: "Eğilimler: çekim ve perdeleme",
       body:
-        "Bir periyotta soldan sağa gidince proton sayısı artar ama yeni elektronlar aynı kabuğa eklenir; iç elektronlar çekirdeği aynı ölçüde gizleyemez, dış elektron daha güçlü çekilir. Sonuç: atom küçülür, elektron koparmak zorlaşır. İlk <strong>iyonlaşma enerjisi</strong> lityumda 520 kJ/mol iken neonda 2081 kJ/mol'dür. Bir grupta aşağı inince ise yeni kabuklar eklenir, dış elektron uzaklaşır ve perdelenir: lityum 520, sodyum 496, potasyum 419, rubidyum 403, sezyum 376 kJ/mol. Eğilimler kuralsız değildir ama pürüzsüz de değildir: bor berilyumdan (801'e karşı 900), oksijen azottan (1314'e karşı 1402) daha kolay elektron verir; çünkü alt kabuk değişir ya da bir orbitalde iki elektron birbirini iter.",
+        "Bir periyotta soldan sağa gidince proton sayısı artar ama yeni elektronlar aynı kabuğa eklenir; aynı kabuktaki elektronlar birbirini zayıf perdeler, dış elektron daha güçlü çekilir. Sonuç: atom küçülür, elektron koparmak zorlaşır. İlk <strong>iyonlaşma enerjisi</strong> lityumda 5.39 eV (520 kJ/mol) iken neonda 21.56 eV'tur (2081 kJ/mol). Bir grupta aşağı inince yeni kabuklar eklenir, dış elektron uzaklaşır: lityum 5.39, sodyum 5.14, potasyum 4.34, rubidyum 4.18, sezyum 3.89 eV. Eğilimler kuralsız değildir ama pürüzsüz de değildir: bor berilyumdan (8.30'a karşı 9.32 eV), oksijen azottan (13.62'ye karşı 14.53 eV) daha kolay elektron verir; çünkü alt kabuk değişir ya da bir orbitalde iki elektron birbirini iter.",
       formula: "Z<sub>etkin</sub> ≈ Z − S",
-      formulaNote: "S perdeleme sabiti: iç elektronların dış elektrondan sakladığı çekirdek yükü. Etkin yük büyüdükçe atom küçülür, iyonlaşma enerjisi artar.",
+      formulaNote: "S perdeleme sabiti: iç elektronların dış elektrondan sakladığı çekirdek yükü. Slater kurallarıyla sodyumun 3s elektronu için S = 8 × 0.85 + 2 × 1.00 = 8.8, yani etkin yük 11 − 8.8 = 2.2.",
     },
     {
       heading: "Merdiven: metaller, ametaller ve aradakiler",
       body:
-        "Tablonun sağ üstünde bordan polonyuma inen bir merdiven vardır: B, Si, Ge, As, Sb, Te, Po. Merdivenin solunda kalan elementlerin büyük çoğunluğu <strong>metaldir</strong>: elektron vermeye yatkın, ışıltılı, dövülebilir, elektriği ileten. Sağında <strong>ametaller</strong> vardır: elektron almaya yatkın, çoğu gaz ya da kırılgan katı, yalıtkan. Merdivenin üstündekiler <strong>yarı metaldir</strong>; silisyum ve germanyum elektriği ne tam iletir ne tam keser ve bu kararsızlık bütün elektroniğin temelidir. 118 elementin yaklaşık beşte dördü metaldir. Hidrojen tek dış elektronuyla 1. grubun tepesinde durur ama metal değildir; sayfa onu haklı olarak ametal sayar.",
+        "Tablonun sağ üstünde bordan polonyuma inen bir merdiven vardır: B, Si, Ge, As, Sb, Te, Po. Merdivenin solunda kalan elementlerin büyük çoğunluğu <strong>metaldir</strong>: elektron vermeye yatkın, ışıltılı, dövülebilir, elektriği ileten. Sağında <strong>ametaller</strong> vardır: elektron almaya yatkın, çoğu gaz ya da kırılgan katı, yalıtkan. Merdivenin üstündekiler <strong>yarı metaldir</strong>; silisyum ve germanyum elektriği ne tam iletir ne tam keser ve bu kararsızlık bütün elektroniğin temelidir. Bu sayfanın sınıflamasında 118 elementin 91'i metaldir (en ağır birkaçınınki öngörü); <strong>Metaller</strong> düğmesi alttaki iki sıra dahil hepsini yakar. Hidrojen tek dış elektronuyla 1. grubun tepesinde durur ama metal değildir; sayfa onu haklı olarak ametal sayar.",
     },
   ],
   lab: {
     intro:
-      "Bu sayfada kaydırıcı yok; laboratuvar bir harita okuma tatbikatıdır. Üstteki on bir düğme (<strong>Tümü</strong>, <strong>Metaller</strong>, <strong>Ametaller</strong>, <strong>Yarı metaller</strong>, <strong>1A Alkali</strong>, <strong>2A Toprak alkali</strong>, <strong>Halojenler (17)</strong>, <strong>Soy gazlar (18)</strong>, <strong>Geçiş metalleri</strong>, <strong>Lantanitler</strong>, <strong>Aktinitler</strong>) bir aileyi renklendirir, diğerlerini soluklaştırır. Her kutuda üstte atom numarası, ortada simge, altta kütle yazar. Bir kutuya tıklayınca alttaki ayrıntı kutusunda simge ve ad, <strong>Atom numarası</strong>, <strong>Kütle</strong>, <strong>Periyot</strong>, <strong>Grup</strong> ve ailesi görünür. Tek uyarı: lantanitler ve aktinitler tablonun altında iki ayrı sıra olarak çizildiği için ayrıntı kutusu onlara 'Periyot 8' ve 'Periyot 9' der ve 'Grup' olarak çizim sütununu verir; gerçekte lantanitler 6., aktinitler 7. periyottadır ve bu iki sıraya 1–18 grup numarası verilmez. Deney, tıklayıp okumak ve sayılardaki örüntüyü yakalamaktır.",
+      "Bu sayfada kaydırıcı yok; laboratuvar bir veri okuma tatbikatıdır. Üstteki düğmeler (<strong>Tümü</strong>, <strong>Metaller</strong>, <strong>Ametaller</strong>, <strong>Yarı metaller</strong>, <strong>Alkali metaller (1)</strong>, <strong>Toprak alkali (2)</strong>, <strong>Halojenler (17)</strong>, <strong>Soy gazlar (18)</strong>, <strong>Geçiş metalleri</strong>, <strong>Lantanitler</strong>, <strong>Aktinitler</strong>) bir aileyi öne çıkarır ve kaç elementin yandığını yazar: <strong>Metaller</strong> 91, <strong>Ametaller</strong> 20 element yakar. <strong>Kutularda göster</strong> menüsü kutunun alt satırına atom ağırlığını, 1. iyonlaşma enerjisini (eV) ya da Pauling elektronegatifliğini yazar; son ikisinde tablo değere göre renklenir. Bir kutuya tıklayınca (ya da Tab ile gelip Enter'a basınca) ayrıntı kutusu periyodu, grubu, bloğu, elektron dizilimini, iyonlaşma enerjisini eV ve kJ/mol olarak, elektronegatifliği ve notları gösterir; Madelung kuralından sapan dizilimlerde kuralın beklediğini de yazar. Lantanit ve aktinitlere grup numarası verilmez, ayrıntıda 'f-blok' yazar. Köşeli parantezli kütle ([98] gibi) tek bir izotopun kütle numarasıdır; '—' değerin olmadığı ya da kaynakların uzlaşmadığı yerdir.",
     experiments: [
       {
-        title: "Alkali sütunu ve gizli ritim",
+        title: "Üçüncü periyotta yürüyüş: iki küçük çukur",
         predict:
-          "<strong>1A Alkali</strong> düğmesine basınca kaç kutu kırmızıya döner, hidrojen aralarında olur mu? Sonra Li, Na, K, Rb, Cs ve Fr'un atom numaraları arasındaki farkları tahmin et: hep aynı sayı mı?",
+          "Na'dan Ar'a her adımda çekirdeğe bir proton eklenir. 1. iyonlaşma enerjisi sekiz adımın hepsinde artar mı, yoksa bir yerde düşer mi? Elektronegatiflik için de aynı cevabı mı verirsin?",
         do:
-          "Düğmeye bas. Ardından en soldaki sütunda yukarıdan aşağı Li, Na, K, Rb, Cs ve Fr kutularına sırayla tıkla; her seferinde ayrıntı kutusundaki Atom numarası satırını not et ve ardışık farkları hesapla.",
+          "<strong>Kutularda göster</strong> menüsünden <strong>1. iyonlaşma enerjisi (eV)</strong>'yi seç ve üçüncü sırayı soldan sağa oku; sonra <strong>Elektronegatiflik (Pauling)</strong>'e geç. Mg, Al, P ve S kutularına tıklayıp ayrıntı kutusundaki elektron dizilimlerini de yan yana yaz.",
         observe:
-          "Altı kutu yanar; hidrojen soluk kalır. Numaralar 3, 11, 19, 37, 55, 87; farklar 8, 8, 18, 18, 32. Her birinde 'Periyot n, Grup 1 · 1A Alkali' yazar. Fransiyumun kütlesi ondalıksız 223 görünür.",
+          "İyonlaşma: Na 5.14, Mg 7.65, Al 5.99, Si 8.15, P 10.49, S 10.36, Cl 12.97, Ar 15.76 eV. İki yerde düşer: Mg→Al 1.66 eV, P→S 0.13 eV (738→578 ve 1012→1000 kJ/mol). Elektronegatiflik çukursuz tırmanır: 0.93, 1.31, 1.61, 1.90, 2.19, 2.58, 3.16; argonda '—'. İkinci sıra aynı iki kırılmayı gösterir: Be 9.32→B 8.30, N 14.53→O 13.62 eV.",
         explain:
-          "Her alkali metal bir soy gazdan hemen sonra gelir; farklar periyotların uzunluğudur. Yeni bir kabuk açıldığında dış elektron sayısı 1'e döner ve kimya baştan başlar: sodyum lityumun, potasyum sodyumun tekrarıdır. Hidrojenin de tek elektronu vardır ama onu verip metal gibi davranmaz; sayfa onu ametal sayar. Fransiyumun tam sayı kütlesi dördüncü deneyin konusu.",
+          "Genel artış etkin çekirdek yükünün büyümesindendir: aynı kabuğa eklenen elektronlar birbirini zayıf perdeler. Al'da koparılan elektron 3p'dedir; 3s'den yüksek enerjilidir ve 3s² tarafından kısmen perdelenir. S'de dördüncü 3p elektronu dolu bir orbitale eşleşerek girer; aynı orbitaldeki iki elektronun itmesi onu koparmayı kolaylaştırır. Elektronegatiflik bağdaki ortak elektronlara uygulanan çekimdir, tek bir orbitalin enerjisi değildir; bu yüzden bu çukurları göstermez.",
       },
       {
-        title: "İkinci periyotta yürüyüş",
+        title: "Grupta aşağı: alkali metaller ve halojenler",
         predict:
-          "Li'den Ne'ye sekiz kutuyu soldan sağa tıklayınca aile etiketi kaç kez değişir? Grup sayısı 1, 2'den sonra 3'e mi geçer, yoksa sıçrar mı? Kütle her adımda yaklaşık kaç birim artar?",
+          "Li'den Cs'ye inerken çekirdek yükü 3'ten 55'e çıkar. Dış elektronu koparmak kolaylaşır mı, zorlaşır mı? Fransiyum (87) sırayı bozar mı? Halojenlerde elektronegatiflik nasıl değişir?",
         do:
-          "İkinci sıradaki Li, Be, B, C, N, O, F, Ne kutularına sırayla tıkla. Her seferinde Grup sayısını, aile etiketini ve Kütle değerini yan yana yaz.",
+          "<strong>Alkali metaller (1)</strong> düğmesine bas; menüde <strong>1. iyonlaşma enerjisi (eV)</strong> seçiliyken sütunu yukarıdan aşağı oku, sonra elektronegatifliğe geç. Aynısını <strong>Halojenler (17)</strong> için yap. Hesap makinesiyle her alkali için n√(IE / 13.6 eV) değerini bul; n periyot numarasıdır.",
         observe:
-          "Gruplar 1, 2, 13, 14, 15, 16, 17, 18: ikiden on üçe atlar. Etiketler sırasıyla 1A Alkali, 2A Toprak alkali, Yarı metaller, üç kez Ametaller, Halojenler, Soy gazlar. Kütleler 6.94, 9.01, 10.81, 12.01, 14.01, 16, 19, 20.18: her protonda yaklaşık 2 u.",
+          "Alkaliler: Li 5.39, Na 5.14, K 4.34, Rb 4.18, Cs 3.89, Fr 4.07 eV; elektronegatiflik 0.98, 0.93, 0.82, 0.82, 0.79, fransiyumda '—'. Halojenler: F 17.42, Cl 12.97, Br 11.81, I 10.45, At 9.32 eV; elektronegatiflik 3.98, 3.16, 2.96, 2.66, 2.2. Li'den Cs'ye n√(IE / 13.6 eV) sırasıyla 1.26, 1.84, 2.26, 2.77, 3.21 çıkar.",
         explain:
-          "Ortadaki on sütun geçiş metallerine ayrılmıştır; ikinci periyotta d alt kabuğu olmadığından o sütunlar boştur ve numara 2'den 13'e sıçrar. Kütlenin proton başına yaklaşık 2 u artması, hafif çekirdeklerde her protona yaklaşık bir nötronun eşlik etmesindendir. Sekiz adımda metalden yarı metale, ametale, halojene ve soy gaza giden bu yürüyüş, bütün tablonun mantığının küçük bir özetidir.",
+          "Hidrojen benzeri model IE = 13.6 eV × (Z<sub>etkin</sub>/n)² der. Perdeleme tam olsaydı Z<sub>etkin</sub> = 1 ve IE = 13.6/n² eV olurdu: Li için 3.40, Cs için 0.38 eV. Ölçülen değerler 1.6 ile 10 kat büyüktür, çünkü dış elektron zamanının bir kısmını iç kabukların içinde geçirir ve daha büyük yük görür. Z<sub>etkin</sub> büyüse de n² daha hızlı büyüdüğü için enerji düşer. Fransiyumdaki yükseliş göreli etkidir: ağır atomda 7s orbitali büzülür, elektron daha sıkı bağlanır.",
+      },
+      {
+        title: "d bloğunu doldur: Cr ve Cu kuralı neden bozar?",
+        predict:
+          "<strong>Madelung (n + l) kuralı</strong>, n + l toplamı küçük olan alt kabuğun önce dolduğunu söyler; 4s (4 + 0) bu yüzden 3d'den (3 + 2) önce gelir. Sc'den Zn'ye on kutunun hepsi [Ar] 3dⁿ 4s² biçiminde mi olur? Kaç istisna bekliyorsun?",
+        do:
+          "Dördüncü sırada Sc'den Zn'ye her kutuya tıkla ve <strong>Elektron dizilimi</strong> satırını yaz; aynısını beşinci sırada Y'den Cd'ye yap. Sonra 10. sütundaki Ni, Pd ve Pt'yi karşılaştır. Menüde iyonlaşma enerjisini seçip d bloğunu soldan sağa da oku.",
+        observe:
+          "Dördüncü periyotta iki istisna var: Cr [Ar] 3d⁵ 4s¹ ve Cu [Ar] 3d¹⁰ 4s¹; ayrıntı kutusu kuralın 3d⁴ 4s² ve 3d⁹ 4s² beklediğini yazar. Beşincide altı istisna var: Nb, Mo, Ru, Rh, Pd, Ag. 10. sütunda üç element üç ayrı dizilim gösterir: Ni [Ar] 3d⁸ 4s², Pd [Kr] 4d¹⁰ (5s tümüyle boş), Pt [Xe] 4f¹⁴ 5d⁹ 6s¹. İyonlaşma enerjisi d bloğunda neredeyse düzdür: Sc 6.56'dan Cu 7.73'e, Zn'de 9.39 eV.",
+        explain:
+          "3d ile 4s (ve 4d ile 5s) enerjileri çok yakındır; küçük farkı paralel spinli elektronların değiş-tokuş kazancı ve elektron itmesi belirler. 'Yarı dolu ya da dolu alt kabuk kararlıdır' kısayolu Cr ve Cu'yu açıklar ama 10. sütunu açıklamaz; kesin cevap çok elektronlu atom hesaplarından gelir. Sayfa toplam 20 elementi kural dışı diye işaretler. Eğrinin düz kalması, içerideki 3d'ye eklenen elektronların dıştaki 4s elektronlarını iyi perdelemesindendir.",
       },
       {
         title: "Kütle sırası nerede bozulur?",
         predict:
-          "Atom numarası arttıkça kütle de her zaman artar mı? Toryum (90) ile protaktinyum (91) ve kobalt (27) ile nikel (28) için tahmin yürüt.",
+          "Atom numarası arttıkça atom ağırlığı da hep artar mı? Ar–K, Co–Ni ve Te–I çiftlerinde hangisinin ağır çıkacağını tahmin et.",
         do:
-          "<strong>Aktinitler</strong> düğmesine basıp en alt sırada Th ve Pa kutularına tıkla; Kütle satırlarını karşılaştır. Sonra <strong>Tümü</strong>'ne dönüp tablonun ortasındaki Co ve Ni kutularını dene. Vaktin varsa alt sırada U ile Np'ye de bak.",
+          "Menüyü <strong>Atom ağırlığı</strong>'na al. Ar ile K'ye, Co ile Ni'ye, Te ile I'ya sırayla tıkla; kutulardaki değerleri ve ayrıntı kutusundaki izotop notlarını oku. Vaktin varsa alt sırada Th ile Pa'ya da bak.",
         observe:
-          "Th 232.04 u, Pa 231.04 u: numara büyüdü, kütle 1 u küçüldü. (Ayrıntı kutusundaki 'Periyot 9, Grup 4' çizim satırıdır; toryum gerçekte yedinci periyottadır.) Co 58.93, Ni 58.69: aynı ters dönüş. Ondalıklı kütleler arasında böyle dört çift vardır; diğer ikisi argon–potasyum (39.95'e karşı 39.1) ve tellür–iyot (127.6'ya karşı 126.9). U 238.03 → Np 237 ve biraz ötede Pu 244 → Am 243 de geriye gider, ama orada sayıların türü değişir: ondalıksız olanlar bir ortalama değil, tek bir izotopun kütle numarasıdır.",
+          "Ar 39.95, K 39.098; Co 58.933, Ni 58.693; Te 127.60, I 126.90; Th 232.04, Pa 231.04. Dört çiftte de numara büyürken ağırlık küçülür. Notlar nedeni söyler: argonun %99.6'sı ⁴⁰Ar, potasyumun %93.3'ü ³⁹K; kobaltın tek kararlı izotopu ⁵⁹Co, nikelin %68'i ⁵⁸Ni; tellürün ağır izotopları ¹³⁰Te (%34) ve ¹²⁸Te (%32), iyotun tek kararlı izotopu ¹²⁷I.",
         explain:
-          "Kütle, izotop karışımının ortalamasıdır ve nötron sayısına bağlıdır; proton sayısı ise her atomda tam ve kesindir. Mendeleyev kütleye göre dizerken Te–I çiftini kimyasal benzerlik uğruna bile isteye ters çevirdi; Moseley 1913'te gerçek anahtarın proton sayısı olduğunu X-ışınlarıyla gösterdi. Dört ters çevrim, tablonun kütleyle değil numarayla sıralandığının tabloya kazınmış kanıtıdır. Ondalıksız kütlelerin neden ayrı bir tür olduğu bir sonraki deneyde.",
-      },
-      {
-        title: "Hangi kütleler tam sayı?",
-        predict:
-          "Bi (83), Po (84), Rn (86) ve U (92) için Kütle satırında ondalık görecek misin? Hangileri tam sayı çıkar ve bunun ortak sebebi ne olabilir?",
-        do:
-          "Altıncı periyodun sağ ucunda Bi, Po ve Rn kutularına, sonra en alt sırada U kutusuna tıkla; kütleleri yan yana yaz. Merak edersen tablonun ortasındaki Tc (43) ve lantanit sırasındaki Pm (61) kutularına da bak.",
-        observe:
-          "Bi 208.98 ve U 238.03 ondalıklı; Po 209 ve Rn 222 tam sayı. Tc 98 ve Pm 145 de tam sayıdır. Oksijenin 16, florun 19 görünmesi ayrı bir sebeptendir: sayfa 15.999 ve 18.998 değerlerini yuvarlamıştır.",
-        explain:
-          "Ondalıklı değer bir <strong>standart atom ağırlığı</strong>dır: yerkabuğunda belirli bir izotop karışımıyla bulunan elementin ortalaması. Kararlı izotopu olmayan Po, Rn, Tc, Pm gibi elementlere IUPAC böyle bir değer vermez; tablolar en uzun ömürlü izotopun kütle numarasını yazar. Bizmut sınır durumdur: tek doğal izotopu bozunur ama yarı ömrü yaklaşık 2×10¹⁹ yıl, evrenin yaşının bir milyar katından uzundur. Uranyum da radyoaktiftir ama izotopları o kadar uzun ömürlüdür ki yerkabuğunda sabit bir karışımla bulunur; bu yüzden ağırlığı ondalıklıdır. Toryum ve protaktinyum için de aynı şey geçerlidir.",
+          "Atom ağırlığı izotop karışımının ortalamasıdır ve nötronlara bağlıdır; kimyayı ise proton sayısı belirler. Dünya'daki argonun çoğu kayalardaki ⁴⁰K'nin bozunmasından doğduğu için ağırdır. Mendeleyev 1869'da tellürü kükürt ve selenyumun, iyotu klor ve bromun altına koymak için ağırlık sırasını bile isteye bozdu ve tellürün ağırlığının yanlış ölçüldüğünü düşündü. Moseley 1913'te X-ışınlarıyla sıranın proton sayısı olduğunu gösterince dört ters çevrim de açıklandı.",
       },
     ],
   },
@@ -122,21 +122,21 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
   worked: {
     title: "Mendeleyev gibi tahmin et: eka-silisyum",
     prompt:
-      "Germanyum hiç keşfedilmemiş gibi davran. Boş kutunun dört komşusunun (üstte Si, altta Sn, solda Ga, sağda As) sayfadaki kütlelerinden ve bilinen yoğunluklarından kutunun değerlerini kestir; Mendeleyev'in 1871 tahmini ve Winkler'in 1886 ölçümüyle karşılaştır.",
+      "Germanyum hiç keşfedilmemiş gibi davran. Boş kutunun dört komşusunun (üstte Si, altta Sn, solda Ga, sağda As) sayfadaki atom ağırlıklarından ve bilinen yoğunluklarından kutunun değerlerini kestir; Mendeleyev'in 1871 tahmini ve germanyumun bugünkü değerleriyle karşılaştır.",
     steps: [
-      "Dikey komşular: Si 28.09 u ve Sn 118.71 u. Ortalama (28.09 + 118.71) / 2 = 73.4 u.",
-      "Yatay komşular: Ga 69.72 u ve As 74.92 u. Ortalama (69.72 + 74.92) / 2 = 72.3 u. İki ortalamanın ortalaması (73.4 + 72.3) / 2 ≈ 72.9 u.",
-      "Yoğunluk için aynı yöntem: Si 2.33 ve Sn 7.27 g/cm³ → 4.80; Ga 5.91 ve As 5.73 g/cm³ → 5.82. Ortalama (4.80 + 5.82) / 2 ≈ 5.3 g/cm³.",
-      "Karşılaştır: Mendeleyev 1871'de, galyum henüz bilinmezken, 72 u ve 5.5 g/cm³ öngörmüştü. 1886'da bulunan germanyum için ölçülen değerler 72.6 u ve 5.35 g/cm³ çıktı; bugünkü değerler 72.63 u ve 5.32 g/cm³.",
+      "Dikey komşular: Si 28.085 u ve Sn 118.71 u. Ortalama (28.085 + 118.71) / 2 ≈ 73.40 u.",
+      "Yatay komşular: Ga 69.723 u ve As 74.922 u. Ortalama (69.723 + 74.922) / 2 ≈ 72.32 u. İki ortalamanın ortalaması (73.40 + 72.32) / 2 ≈ 72.86 u.",
+      "Yoğunluk için aynı yöntem: Si 2.33 ve Sn 7.27 g/cm³ → 4.80; Ga 5.91 ve As 5.73 g/cm³ → 5.82. Ortalama (4.80 + 5.82) / 2 ≈ 5.31 g/cm³.",
+      "Karşılaştır: Mendeleyev 1871'de, galyum henüz bilinmezken, 72 u ve 5.5 g/cm³ öngörmüştü. Sayfa germanyuma 72.630 u yazar; bugünkü yoğunluk 5.32 g/cm³.",
     ],
     result:
-      "Boş bir kutunun komşuları, içindekini yüzde birkaç hatayla anlatır: kütle ≈ 72.9 u (gerçek 72.63), yoğunluk ≈ 5.3 g/cm³ (gerçek 5.32). Periyodiklik tam olarak bu öngörü gücüdür; tabloyu haritaya çeviren şey de budur.",
+      "Boş bir kutunun komşuları, içindekini yüzde birkaç hatayla anlatır: kütle ≈ 72.9 u (sayfadaki değer 72.630, fark %0.3), yoğunluk ≈ 5.3 g/cm³ (gerçek 5.32). Periyodiklik tam olarak bu öngörü gücüdür; tabloyu haritaya çeviren şey de budur.",
   },
   misconceptions: [
     {
       myth: "Elementler atom kütlesine göre sıralanmıştır.",
       truth:
-        "Sıralama anahtarı proton sayısıdır. Kütleye göre dizseydin argon ile potasyum, kobalt ile nikel, tellür ile iyot ve toryum ile protaktinyum yer değiştirirdi ve kimyasal aileler bozulurdu. Sayfada Th ve Pa'ya tıklayıp kütlelerine bak.",
+        "Sıralama anahtarı proton sayısıdır. Kütleye göre dizseydin argon ile potasyum, kobalt ile nikel, tellür ile iyot ve toryum ile protaktinyum yer değiştirirdi ve kimyasal aileler bozulurdu. Sayfada Ar ile K'ye tıklayıp ağırlıklarına bak: 39.95'e karşı 39.098.",
     },
     {
       myth: "Aynı gruptaki elementler aynı şekilde davranır.",
@@ -158,11 +158,11 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
     { term: "Atom numarası (Z)", definition: "Çekirdekteki proton sayısı; elementin kimliğini ve tablodaki sırasını belirler." },
     { term: "Kütle numarası (A)", definition: "Bir atomun çekirdeğindeki proton ve nötronların toplamı; tek bir izotop için tam sayıdır." },
     { term: "İzotop", definition: "Aynı elementin farklı nötron sayılı çeşitleri; kimyası aynı, kütlesi ve kararlılığı farklı atomlar." },
-    { term: "Standart atom ağırlığı", definition: "Bir elementin doğadaki izotop karışımının bollukla ağırlıklı ortalama kütlesi; kararlı izotopu olmayan elementlere verilmez." },
+    { term: "Standart atom ağırlığı", definition: "Bir elementin doğadaki izotop karışımının bollukla ağırlıklı ortalama kütlesi; doğada belirli bir izotop bileşimiyle bulunmayan elementlere (Tc, Pm, Po'dan Ac'ye, Np ve sonrası) verilmez." },
     { term: "Periyot", definition: "Tablodaki yatay sıra; numarası, atomun dolu ya da dolmakta olan elektron kabuğu sayısını söyler." },
     { term: "Grup", definition: "Tablodaki dikey sütun; aynı gruptaki elementlerin dış kabuğunda aynı sayıda elektron bulunur ve kimyaları benzer." },
-    { term: "Değerlik elektronu", definition: "En dış kabuktaki, bağ yapımına ve tepkimelere katılan elektron." },
-    { term: "İyonlaşma enerjisi", definition: "Gaz hâlindeki bir atomdan en gevşek elektronu koparmak için gereken enerji; kJ/mol ile ölçülür." },
+    { term: "İyonlaşma enerjisi", definition: "Gaz hâlindeki bir atomdan en gevşek bağlı elektronu koparmak için gereken en küçük enerji; atom başına eV ya da mol başına kJ/mol ile verilir (1 eV = 96.485 kJ/mol)." },
+    { term: "Elektronegatiflik (Pauling)", definition: "Bir atomun kimyasal bağdaki ortak elektronları kendine çekme eğilimi; Pauling ölçeği bağ enerjilerinden türetilir, birimsizdir ve en yüksek değeri 3.98 ile flor alır." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
@@ -181,16 +181,16 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
   },
   quiz: [
     {
-      question: "Argon (kütle 39.95 u) potasyumdan (39.1 u) ağırdır ama tabloda ondan önce gelir. Neden?",
+      question: "Magnezyumda 1. iyonlaşma enerjisi 7.65 eV, alüminyumda 5.99 eV. Proton sayısı artarken neden düşer?",
       options: [
-        "Argon daha önce keşfedildiği için",
-        "Argonun 18, potasyumun 19 protonu vardır; sıra proton sayısına göredir",
-        "Gazlar tabloda metallerden önce yazıldığı için",
-        "Sayfadaki kütleler yuvarlandığı için sıra yanlış görünür",
+        "Alüminyumun bir elektron kabuğu daha fazla olduğu için",
+        "Alüminyumda koparılan elektron 3p alt kabuğundadır; 3s'den yüksek enerjilidir ve 3s² tarafından kısmen perdelenir",
+        "Alüminyumun atom ağırlığı daha büyük olduğu için",
+        "Alüminyumun çekirdek yükü daha küçük olduğu için",
       ],
       answer: 1,
       explanation:
-        "Sıra atom numarasına, yani proton sayısına göredir; kütle izotop karışımının ortalamasıdır ve nötronlara bağlıdır. Kütleyle dizseydin argon potasyumun yerine, yani alkali metallerin sütununa düşerdi. Aynı ters dönüş Co–Ni, Te–I ve Th–Pa çiftlerinde de vardır; Moseley 1913'te X-ışınlarıyla gerçek anahtarın proton sayısı olduğunu gösterdi.",
+        "Etkin çekirdek yükü periyot boyunca artar ama alt kabuk değiştiği adımda eğilim kırılır: alüminyumun tek 3p elektronu 3s elektronlarından yüksek enerjilidir. İki element de üçüncü periyottadır, kabuk sayıları aynıdır. Aynı kırılma ikinci periyotta Be 9.32 → B 8.30 eV olarak görülür; P → S'deki küçük düşüşün nedeni ise eşleşmedir.",
     },
     {
       question: "Li 3, Na 11, K 19, Rb 37: ardışık alkali metallerin atom numaraları arasındaki 8, 8, 18 farkları neyi sayar?",
@@ -200,29 +200,30 @@ window.ACELYA_DIGEST["periyodik-tablo"] = {
         "Her alkali metal bir soy gazdan hemen sonra, yeni bir kabuğun ilk elektronuyla gelir. İki alkali metal arasındaki fark, aradaki periyodun uzunluğudur: 8, 8, 18, 18, 32. Bu sayılar kabukların ve alt kabukların kapasitesinden doğar.",
     },
     {
-      question: "Teknesyumun kütlesi tabloda 98 gibi tam sayı görünürken molibdeninki 95.95. Fark neden?",
+      question: "Teknesyumun kutusunda köşeli parantez içinde [98], molibdeninkinde 95.95 yazar. Fark neden?",
       options: [
         "Teknesyum daha hafif olduğu için",
-        "Teknesyumun kararlı izotopu yoktur; en uzun ömürlü izotopunun kütle numarası yazılır",
+        "Teknesyumun kararlı izotopu yoktur; ortalama yerine tek bir uzun ömürlü izotopun kütle numarası yazılır",
         "Yapay elementlerin kütlesi ölçülemez",
         "Yuvarlama hatasıdır",
       ],
       answer: 1,
       explanation:
-        "Standart atom ağırlığı, doğada kararlı izotop karışımı bulunan elementler için tanımlıdır. Teknesyumun bütün izotopları radyoaktiftir; bu yüzden tablolar en uzun ömürlü izotopun kütle numarasını, 98'i yazar. Po, Rn, Pm ve 93'ten sonrası için de aynı kural geçerlidir.",
+        "Standart atom ağırlığı, doğada belirli bir izotop bileşimiyle bulunan elementler için tanımlıdır. Teknesyumun bütün izotopları radyoaktiftir; en kararlıları ⁹⁷Tc ve ⁹⁸Tc'nin yarı ömrü yaklaşık 4.2 milyon yıldır, tablolar [97] ya da [98] yazar. Pm, Po'dan Ac'ye kadarki elementler ve Np'den sonrası da köşeli parantez alır; Bi, Th, Pa ve U ise radyoaktif oldukları hâlde ondalıklı ağırlık alır.",
     },
   ],
   next: [
     { href: "atom-orbitalleri.html", title: "Atom Orbitalleri", why: "Periyotların neden 2, 8, 8, 18 uzunluğunda olduğunu s, p, d orbitallerini kendin dizerek gör." },
-    { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma", why: "Teknesyum ve polonyumun kütlesi neden tam sayı: yarı ömür kavramını simülasyonda ölç." },
+    { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma", why: "Teknesyum ve polonyumun kütlesi neden köşeli parantezde: yarı ömür kavramını simülasyonda ölç." },
     { href: "nukleer-fizik.html", title: "Nükleer Fizik", why: "Bağlanma enerjisi eğrisi, ağır elementlerin neden parçalandığını ve 118'den sonrasının neden zor olduğunu anlatır." },
     { href: "molekul-sekli.html", title: "Molekül Şekli", why: "Değerlik elektronları bağ kurunca ne olur: grup numarasından molekül geometrisine geçiş." },
   ],
   sources: [
     { title: "OpenStax · Chemistry 2e, 2.5 The Periodic Table", url: "https://openstax.org/books/chemistry-2e/pages/2-5-the-periodic-table", note: "Grup ve periyot adlandırması, metal–ametal–yarı metal ayrımı ve tarihçe (İngilizce, açık ders kitabı)." },
-    { title: "PhET · Bir Atom Oluştur", url: "https://phet.colorado.edu/tr/simulations/build-an-atom", note: "Proton, nötron ve elektron ekleyerek atom numarası, kütle numarası ve yük arasındaki farkı elinle kur." },
-    { title: "NIST · Periyodik Tablo", url: "https://www.nist.gov/pml/periodic-table-elements", note: "ABD standartlar enstitüsünün güncel atom ağırlıkları ve iyonlaşma enerjileriyle hazırladığı referans tablo." },
+    { title: "OpenStax · Chemistry 2e, 6.5 Periodic Variations in Element Properties", url: "https://openstax.org/books/chemistry-2e/pages/6-5-periodic-variations-in-element-properties", note: "Etkin çekirdek yükü, atom ve iyon yarıçapı, iyonlaşma enerjisi eğilimleri ve Be–B gibi sapmaların açıklaması (İngilizce, açık ders kitabı)." },
+    { title: "NIST ASD · Ground Levels and Ionization Energies", url: "https://physics.nist.gov/PhysRefData/ASD/ionEnergy.html", note: "Sayfadaki iyonlaşma enerjilerinin ve temel hâl elektron dizilimlerinin kaynağı; değerler belirsizlikleriyle birlikte (İngilizce)." },
+    { title: "Wikipedia · Electronegativities of the elements (data page)", url: "https://en.wikipedia.org/wiki/Electronegativities_of_the_elements_(data_page)", note: "Pauling ölçeğinde CRC Handbook ve WebElements değerleri yan yana; sayfa yalnızca ikisinin uzlaştığı değerleri gösterir (İngilizce)." },
     { title: "Vikipedi · Periyodik tablo", url: "https://tr.wikipedia.org/wiki/Periyodik_tablo", note: "Tarihçe, Mendeleyev'in öngörüleri, Moseley ve süper ağır elementler için Türkçe genel bakış." },
   ],
-  revision: "Ekim 2026",
+  revision: "Kasım 2026",
 };
