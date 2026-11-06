@@ -2,210 +2,1602 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elektrik Devresi Simülasyonu</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-  <script src="shared/chart-safe.js"></script>
- 
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları</title>
+  <meta name="description" content="Seri, paralel, karma, Wheatstone köprüsü ve en büyük güç aktarımı devrelerini kur; düğüm analiziyle çözülen akım, gerilim ve güçleri formüllerle karşılaştır, Kirchhoff toplamlarının sıfır olduğunu gör.">
   <style>
-    body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
-    canvas { background: #222; display: block; margin: auto; }
-    .controls { margin-top: 15px; }
-    button { font-size: 16px; padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
-    button:hover { background: #0056b3; }
-    .slider-container { margin: 10px; }
-    .slider-container input { width: 300px; }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: manipulation;
+    }
+    .sim-canvas.is-pointer { cursor: pointer; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 5 / 2;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    [hidden] { display: none !important; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; max-width: 100%; }
+    .field .inline { display: flex; gap: 8px; align-items: center; }
+    .field .inline input[type="range"] { flex: 1; min-width: 0; }
+    .field .inline button { padding: 4px 10px; font: inherit; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; }
+    .sel-info {
+      margin: 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      font-variant-numeric: tabular-nums;
+    }
+    .sel-info b { color: var(--text); }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+    }
+    .readout small { font-size: 0.7rem; letter-spacing: 0.04em; }
+    .readout strong { font-size: 1.05rem; font-variant-numeric: tabular-nums; color: var(--text) !important; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .bar { display: grid; grid-template-columns: 104px minmax(0, 1fr) 76px; align-items: center; gap: 8px; font-size: 0.8rem; }
+    .bar i { display: block; height: 10px; border-radius: 999px; background: var(--bg-input); overflow: hidden; }
+    .bar i b { display: block; height: 100%; width: 0; border-radius: inherit; transition: width 0.12s linear; }
+    .bar.src i b { background: var(--accent-warm); }
+    .bar.loss i b { background: var(--danger); }
+    .bar.ext i b { background: var(--accent); }
+    .bar span { font-variant-numeric: tabular-nums; }
+    .bar span:last-child { text-align: right; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .tables { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; align-items: start; }
+    body.app-page .data-table { width: 100%; margin: 0; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+    body.app-page .data-table th,
+    body.app-page .data-table td { padding: 5px 7px; text-align: right; vertical-align: top; }
+    body.app-page .data-table th:first-child,
+    body.app-page .data-table td:first-child { text-align: left; }
+    body.app-page .data-table td small { display: block; font-size: 0.74rem; color: var(--text-muted); overflow-wrap: anywhere; }
+    body.app-page .data-table tbody tr[data-el] { cursor: pointer; }
+    body.app-page .data-table tr.is-selected td { background: color-mix(in srgb, var(--accent-2) 20%, var(--bg-card)) !important; }
+    .data-table.no-lamp .col-lamp { display: none; }
+    body.app-page #elTable td:not(:first-child),
+    body.app-page #kTable td:last-child { white-space: nowrap; }
+    body.app-page #kTable th:nth-child(2),
+    body.app-page #kTable td:nth-child(2) { text-align: left; }
+    @media (max-width: 760px) {
+      .lab, .tables { grid-template-columns: 1fr; }
+      .chart-canvas { aspect-ratio: 2 / 1; }
+      body.app-page .data-table { font-size: 0.76rem; }
+      body.app-page .data-table th,
+      body.app-page .data-table td { padding: 4px 5px; }
+    }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="elektrik-devresi-simulasyonu">
 
-<h1>Elektrik Devresi Simülasyonu ⚡💡</h1>
-<p>Basit devreyi aç/kapat ve seri & paralel bağlantıları keşfet!</p>
-<canvas id="circuitCanvas" width="600" height="400"></canvas>
+<div class="app-content">
+  <h1>DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları</h1>
+  <p class="hint">Bir devre seç; ε, r ve dirençleri değiştir. Akımlar düğüm analiziyle çözülür: ölçülen değerleri formüllerle, Kirchhoff toplamlarını sıfırla karşılaştır. Şemada bir elemana dokununca gerilimi, akımı ve gücü görünür.</p>
 
-<div id="info">
-  <p>Gerilim (V): <span id="voltageDisplay">9</span> V</p>
-  <p>Akım (I): <span id="currentDisplay">0</span> A</p>
-  <p>Toplam Direnç (R): <span id="resistanceDisplay">1000</span> Ω</p>
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="circuitCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Devre şeması: tellerin rengi düğüm potansiyelini, hareketli noktalar yük akışını gösterir"></canvas>
+      <p class="sel-info" id="selInfo" aria-live="polite">—</p>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="360" role="img" aria-label="Çalışma noktası grafiği: kaynak doğrusu ile yük doğrusunun kesişimi"></canvas>
+      <div class="readouts" id="readouts" aria-live="polite">
+        <div class="readout is-highlight"><small>Ölçülen akım I</small><strong id="iMeas">—</strong></div>
+        <div class="readout"><small>Formül ε/(R<sub>eş</sub> + r)</small><strong id="iTheory">—</strong></div>
+        <div class="readout"><small>Fark</small><strong id="iDiff">—</strong></div>
+        <div class="readout"><small>Uç gerilimi V = ε − I·r</small><strong id="vTerm">—</strong></div>
+        <div class="readout"><small>R<sub>eş</sub> = V/I</small><strong id="rEq">—</strong></div>
+        <div class="readout"><small>Verim η = P<sub>dış</sub>/P<sub>ε</sub></small><strong id="effOut">—</strong></div>
+        <div class="readout is-highlight" data-mode="kopru"><small>Ölçülen I<sub>g</sub> (B→D)</small><strong id="igMeas">—</strong></div>
+        <div class="readout" data-mode="kopru"><small>Thevenin I<sub>g</sub> = V<sub>th</sub>/(R<sub>th</sub> + R<sub>g</sub>)</small><strong id="igTheory">—</strong></div>
+        <div class="readout" data-mode="kopru"><small>Denge: R₄ = R₂R₃/R₁</small><strong id="r4Bal">—</strong></div>
+        <div class="readout is-highlight" data-mode="maksguc"><small>Ölçülen yük gücü P<sub>L</sub></small><strong id="plMeas">—</strong></div>
+        <div class="readout" data-mode="maksguc"><small>Formül ε²R<sub>L</sub>/(R<sub>L</sub> + r)²</small><strong id="plTheory">—</strong></div>
+        <div class="readout" data-mode="maksguc"><small>En büyük P<sub>max</sub> = ε²/4r</small><strong id="pMax">—</strong></div>
+      </div>
+      <p class="note" id="formulaNote">—</p>
+      <div class="panel" aria-label="Güç dengesi">
+        <h2>Güç dengesi</h2>
+        <div class="bar src"><span>Kaynak εI</span><i><b id="pSrcBar"></b></i><span id="pSrcVal">—</span></div>
+        <div class="bar loss"><span>İç direnç I²r</span><i><b id="pLossBar"></b></i><span id="pLossVal">—</span></div>
+        <div class="bar ext"><span>Dış devre ΣVI</span><i><b id="pExtBar"></b></i><span id="pExtVal">—</span></div>
+        <p class="note" id="powerNote">—</p>
+      </div>
+    </div>
+
+    <div class="panel" aria-label="Kontroller">
+      <h2>Deney ayarları</h2>
+      <div class="field">
+        <label for="topoSelect">Devre</label>
+        <select id="topoSelect">
+          <option value="seri">Seri: R₁ – R₂ – R₃</option>
+          <option value="paralel">Paralel: R₁ ∥ R₂ ∥ R₃</option>
+          <option value="karma" selected>Karma: R₁ + (R₂ ∥ R₃)</option>
+          <option value="kopru">Wheatstone köprüsü</option>
+          <option value="maksguc">Maksimum güç aktarımı</option>
+        </select>
+      </div>
+      <div class="field" id="countField" hidden>
+        <label for="countSelect">Direnç sayısı</label>
+        <select id="countSelect">
+          <option value="1">1 direnç</option>
+          <option value="2">2 direnç</option>
+          <option value="3" selected>3 direnç</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="presetSelect">Hazır deney</label>
+        <select id="presetSelect">
+          <option value="">Elle ayar</option>
+          <option value="seriLamba">Özdeş lambalar seri: 3 × 24 Ω, r = 0</option>
+          <option value="paralelLamba">Özdeş lambalar paralel: 3 × 24 Ω, r = 0</option>
+          <option value="hafifYuk">Hafif yük: 3 × 1.5 kΩ paralel, r = 0.5 Ω</option>
+          <option value="agirYuk">Ağır yük: 3 × 1.5 Ω paralel, r = 0.5 Ω</option>
+          <option value="kopru">Köprü dengesi: 100, 200, 150, 300 Ω</option>
+          <option value="maksGuc">En büyük güç: R_L = r = 0.5 Ω</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="emfRange">EMK ε <output id="emfOut" for="emfRange">12.0 V</output></label>
+        <input type="range" id="emfRange" min="0.5" max="24" step="0.5" value="12">
+      </div>
+      <div class="field">
+        <label for="rintRange">İç direnç r <output id="rintOut" for="rintRange">0.50 Ω</output></label>
+        <input type="range" id="rintRange" min="0" max="10" step="0.1" value="0.5">
+      </div>
+      <div class="field" id="r1Field">
+        <label for="r1Range">R₁ <output id="r1Out" for="r1Range">20 Ω</output></label>
+        <input type="range" id="r1Range" min="0" max="96" step="1" value="31">
+      </div>
+      <div class="field" id="r2Field">
+        <label for="r2Range">R₂ <output id="r2Out" for="r2Range">30 Ω</output></label>
+        <input type="range" id="r2Range" min="0" max="96" step="1" value="35">
+      </div>
+      <div class="field" id="r3Field">
+        <label for="r3Range">R₃ <output id="r3Out" for="r3Range">20 Ω</output></label>
+        <input type="range" id="r3Range" min="0" max="96" step="1" value="31">
+      </div>
+      <div class="field" id="r4Field" hidden>
+        <label for="r4Range">R₄ <output id="r4Out" for="r4Range">20 Ω</output></label>
+        <input type="range" id="r4Range" min="0" max="96" step="1" value="31">
+      </div>
+      <div class="field" id="rgField" hidden>
+        <label for="rgRange">Galvanometre R<sub>g</sub> <output id="rgOut" for="rgRange">100 Ω</output></label>
+        <input type="range" id="rgRange" min="0" max="96" step="1" value="48">
+      </div>
+      <div class="field" id="rlField" hidden>
+        <label for="rlRange">Yük direnci R<sub>L</sub> <output id="rlOut" for="rlRange">1.00 Ω</output></label>
+        <div class="inline">
+          <input type="range" id="rlRange" min="0" max="400" step="1" value="100">
+          <button type="button" id="rlMatchBtn">R<sub>L</sub> = r yap</button>
+        </div>
+      </div>
+      <label class="check" for="closedCheck"><input type="checkbox" id="closedCheck" checked> Anahtar kapalı (devre tamamlanır)</label>
+      <label class="check" for="lampCheck"><input type="checkbox" id="lampCheck"> Dirençleri lamba olarak göster</label>
+      <label class="check" for="electronCheck"><input type="checkbox" id="electronCheck"> Elektronların sürüklenme yönünü göster</label>
+      <div class="field">
+        <label for="elementSelect">İncelenen eleman</label>
+        <select id="elementSelect"></select>
+      </div>
+      <div class="row">
+        <button type="button" id="toggleBtn" aria-pressed="false">Duraklat</button>
+        <button type="button" id="resetBtn">Varsayılana dön</button>
+      </div>
+      <p class="note">Dirençler E24 standart değerleriyle 1 Ω ile 10 kΩ arasında logaritmik adımlarla değişir. Kısayollar: <kbd>Boşluk</kbd> animasyonu duraklat, <kbd>S</kbd> anahtarı aç/kapat, <kbd>R</kbd> varsayılana dön.</p>
+    </div>
+  </div>
+
+  <div class="tables">
+    <section class="panel" aria-labelledby="elTitle">
+      <h2 id="elTitle">Elemanlar: V, I, P</h2>
+      <div class="table-wrap">
+        <table class="data-table no-lamp" id="elTable">
+          <thead><tr><th scope="col">Eleman</th><th scope="col">Değer</th><th scope="col">V</th><th scope="col">I</th><th scope="col">P</th><th scope="col" class="col-lamp">Parlaklık</th></tr></thead>
+          <tbody id="elBody"></tbody>
+        </table>
+      </div>
+      <p class="note" id="elNote">P, elemanın harcadığı güçtür; kaynağın satırı eksidir çünkü güç verir. Satıra dokununca eleman şemada seçilir. Lamba parlaklığı gücüyle orantılıdır; 6 W tam parlaklıktır (12 V, 6 W'lık lamba). En büyük güç devresinde tam parlaklık P<sub>max</sub> = ε²/4r'dir.</p>
+    </section>
+    <section class="panel" aria-labelledby="kTitle">
+      <h2 id="kTitle">Kirchhoff denetimi</h2>
+      <div class="table-wrap">
+        <table class="data-table" id="kTable">
+          <thead><tr><th scope="col">Yasa</th><th scope="col">Denklem</th><th scope="col">Toplam</th></tr></thead>
+          <tbody id="kBody"></tbody>
+        </table>
+      </div>
+      <p class="note" id="nodeNote">—</p>
+      <p class="note">KAY (Kirchhoff akım yasası): bir düğüme giren akımların toplamı çıkanlarınkine eşittir. KGY (gerilim yasası): kapalı bir ilmekte gerilim artışları ile düşüşlerinin toplamı sıfırdır. Toplam sütunundaki 10⁻¹⁵ mertebesindeki değerler kayan nokta yuvarlamasıdır.</p>
+    </section>
+  </div>
 </div>
-
-<div class="controls">
-  <button onclick="toggleSwitch()">Devreyi Aç/Kapat</button>
-  <button onclick="switchToSeries()">Seri Devre</button>
-  <button onclick="switchToParallel()">Paralel Devre</button>
-</div>
-
-<div class="slider-container">
-  <label for="resistanceSlider">Direnç (Ω):</label>
-  <input type="range" id="resistanceSlider" min="100" max="5000" step="100" value="1000">
-</div>
-
-<!-- Grafik -->
-<canvas id="currentChart" width="600" height="200"></canvas>
 
 <script>
-  const canvas = document.getElementById("circuitCanvas");
-  const ctx = canvas.getContext("2d");
+(function () {
+  "use strict";
 
-  let voltage = 9;
-  let resistance1 = 1000;
-  let resistance2 = 1000;
-  let current = 0;
-  let circuitClosed = false;
-  let circuitType = "series"; 
+  /* ── Çekirdek: devre kurulumu, düğüm analizi (MNA), el formülleri ── */
+  const DCCore = (() => {
+    const E24 = [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1];
+    const R_VALUES = [];
+    for (let d = 0; d < 4; d++) for (const m of E24) R_VALUES.push(Math.round(m * 10 ** d * 10) / 10);
+    R_VALUES.push(10000);
+    const RL_MIN = 0.1;
+    const RL_STEPS_PER_DECADE = 100;
+    const rlFromPos = (pos) => Number((RL_MIN * 10 ** (pos / RL_STEPS_PER_DECADE)).toPrecision(3));
+    const posFromRl = (R) => Math.round(RL_STEPS_PER_DECADE * Math.log10(R / RL_MIN));
 
-  let time = 0;
-  let timeValues = [];
-  let currentValues = [];
+    function makePath(pts) {
+      const segs = [];
+      let total = 0;
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1];
+        const [x1, y1] = pts[i];
+        const len = Math.hypot(x1 - x0, y1 - y0);
+        segs.push({ x0, y0, ux: (x1 - x0) / len, uy: (y1 - y0) / len, len, s: total });
+        total += len;
+      }
+      return { pts, segs, length: total };
+    }
 
-  // **GRAFİK OLUŞTURMA (Y Ekseni Sabitlendi)**
-  const chartCtx = document.getElementById("currentChart").getContext("2d");
-  let currentChart = createSafeChart(chartCtx, {
-    type: "line",
-    data: { 
-      labels: timeValues, 
-      datasets: [{ 
-        label: "Akım (I) - Zaman", 
-        data: currentValues, 
-        borderColor: "cyan", 
-        borderWidth: 2, 
-        fill: false 
-      }] 
-    },
-    options: {
-      responsive: true,
-      animation: false,
-      scales: {
-        x: { title: { display: true, text: "Zaman (s)" } },
-        y: { 
-          title: { display: true, text: "Akım (A)" },
-          suggestedMin: 0, // **Sabit alt sınır**
-          suggestedMax: 0.01   // **Sabit üst sınır**
+    function pointAt(path, s) {
+      const segs = path.segs;
+      let k = 0;
+      while (k < segs.length - 1 && s > segs[k].s + segs[k].len) k++;
+      const g = segs[k];
+      const d = Math.max(0, Math.min(g.len, s - g.s));
+      return { x: g.x0 + g.ux * d, y: g.y0 + g.uy * d, ux: g.ux, uy: g.uy };
+    }
+
+    function project(path, x, y) {
+      let best = Infinity, bestS = 0;
+      for (const g of path.segs) {
+        const t = Math.max(0, Math.min(g.len, (x - g.x0) * g.ux + (y - g.y0) * g.uy));
+        const d = Math.hypot(x - (g.x0 + g.ux * t), y - (g.y0 + g.uy * t));
+        if (d < best) { best = d; bestS = g.s + t; }
+      }
+      return bestS;
+    }
+
+    function branch(id, kind, a, b, pts, opt) {
+      const out = Object.assign({ id, kind, a, b, path: makePath(pts) }, opt || {});
+      if (out.at) {
+        const sc = project(out.path, out.at[0], out.at[1]);
+        const p = pointAt(out.path, sc);
+        Object.assign(out, { s0: sc - out.len / 2, s1: sc + out.len / 2, cx: p.x, cy: p.y, ux: p.ux, uy: p.uy });
+      }
+      return out;
+    }
+
+    // Mantıksal koordinatlar 600 × 400. Eksi uç (n0) toprak: 0 V.
+    function build(p) {
+      const c = p.count;
+      const br = [
+        branch("emf", "emf", "n0", "E", [[70, 330], [70, 200]], { at: [70, 268], len: 26, emf: p.emf }),
+        branch("rint", "R", "E", "P", [[70, 200], [70, 70]], { at: [70, 140], len: 46, R: p.rint, internal: true }),
+      ];
+      const sw = (to, pts) => branch("sw", "sw", "P", to, pts, { at: [140, 70], len: 40, closed: p.closed });
+      const res = (id, a, b, pts, at, side) =>
+        branch(id, "R", a, b, pts, { at, len: 64, R: id === "RL" ? p.RL : p.R[id], side, load: true });
+      const wire = (id, a, b, pts) => branch(id, "wire", a, b, pts);
+      const kcl = [], kvl = [], letters = {};
+
+      if (p.topo === "seri") {
+        br.push(sw("S", [[70, 70], [200, 70]]));
+        br.push(res("R1", "S", "N1", [[200, 70], [530, 70]], [365, 70], "up"));
+        br.push(c >= 2 ? res("R2", "N1", "N2", [[530, 70], [530, 330]], [530, 200], "left") : wire("w2", "N1", "N2", [[530, 70], [530, 330]]));
+        br.push(c >= 3 ? res("R3", "N2", "n0", [[530, 330], [70, 330]], [300, 330], "up") : wire("w3", "N2", "n0", [[530, 330], [70, 330]]));
+        letters.S = ["A", 0, -16];
+        kcl.push({ where: "A", terms: [["rint", 1], ["R1", -1]] });
+        if (c >= 2) { letters.N1 = ["B", 14, -12]; kcl.push({ where: "B", terms: [["R1", 1], ["R2", -1]] }); }
+        if (c >= 3) { letters.N2 = ["C", 14, 22]; kcl.push({ where: "C", terms: [["R2", 1], ["R3", -1]] }); }
+        const loop = [["emf", 1], ["rint", -1], ["sw", -1], ["R1", -1]];
+        if (c >= 2) loop.push(["R2", -1]);
+        if (c >= 3) loop.push(["R3", -1]);
+        kvl.push({ where: "tek ilmek", terms: loop });
+      } else if (p.topo === "paralel") {
+        const xs = [290, 395, 500];
+        br.push(sw("T1", [[70, 70], [290, 70]]));
+        const ids = [];
+        for (let i = 1; i <= c; i++) {
+          const x = xs[i - 1];
+          ids.push(`R${i}`);
+          br.push(res(`R${i}`, `T${i}`, `B${i}`, [[x, 70], [x, 330]], [x, 200], "right"));
+          if (i > 1) {
+            br.push(wire(`wt${i}`, `T${i - 1}`, `T${i}`, [[xs[i - 2], 70], [x, 70]]));
+            br.push(wire(`wb${i}`, `B${i}`, `B${i - 1}`, [[x, 330], [xs[i - 2], 330]]));
+          }
+        }
+        br.push(wire("wb1", "B1", "n0", [[290, 330], [70, 330]]));
+        letters.T1 = ["A", 0, -16];
+        letters.B1 = ["B", 0, 26];
+        kcl.push({ where: "A", terms: [["rint", 1], ...ids.map((id) => [id, -1])] });
+        kcl.push({ where: "B", terms: [...ids.map((id) => [id, 1]), ["rint", -1]] });
+        kvl.push({ where: "ε, r, S, R₁", terms: [["emf", 1], ["rint", -1], ["sw", -1], ["R1", -1]] });
+        for (let i = 1; i < c; i++) kvl.push({ where: `R${"₀₁₂₃"[i]}, R${"₀₁₂₃"[i + 1]}`, terms: [[`R${i}`, 1], [`R${i + 1}`, -1]] });
+      } else if (p.topo === "karma") {
+        br.push(sw("S", [[70, 70], [200, 70]]));
+        br.push(res("R1", "S", "T1", [[200, 70], [390, 70]], [295, 70], "up"));
+        br.push(res("R2", "T1", "B1", [[390, 70], [390, 330]], [390, 200], "right"));
+        br.push(wire("wt2", "T1", "T2", [[390, 70], [500, 70]]));
+        br.push(res("R3", "T2", "B2", [[500, 70], [500, 330]], [500, 200], "right"));
+        br.push(wire("wb2", "B2", "B1", [[500, 330], [390, 330]]));
+        br.push(wire("wb1", "B1", "n0", [[390, 330], [70, 330]]));
+        letters.T1 = ["A", 0, -16];
+        letters.B1 = ["B", 0, 26];
+        kcl.push({ where: "A", terms: [["R1", 1], ["R2", -1], ["R3", -1]] });
+        kcl.push({ where: "B", terms: [["R2", 1], ["R3", 1], ["rint", -1]] });
+        kvl.push({ where: "ε, r, S, R₁, R₂", terms: [["emf", 1], ["rint", -1], ["sw", -1], ["R1", -1], ["R2", -1]] });
+        kvl.push({ where: "R₂, R₃", terms: [["R2", 1], ["R3", -1]] });
+      } else if (p.topo === "kopru") {
+        br.push(sw("A", [[70, 70], [200, 70], [200, 190]]));
+        br.push(res("R1", "A", "B", [[200, 190], [340, 90]], [270, 140], "out"));
+        br.push(res("R2", "B", "C", [[340, 90], [480, 190]], [410, 140], "out"));
+        br.push(res("R3", "A", "D", [[200, 190], [340, 290]], [270, 240], "out"));
+        br.push(res("R4", "D", "C", [[340, 290], [480, 190]], [410, 240], "out"));
+        br.push(branch("Rg", "R", "B", "D", [[340, 90], [340, 290]], { at: [340, 190], len: 44, R: p.Rg, galv: true, side: "right", load: true }));
+        br.push(wire("wc", "C", "n0", [[480, 190], [560, 190], [560, 330], [70, 330]]));
+        letters.A = ["A", -16, 5];
+        letters.B = ["B", 0, -14];
+        letters.C = ["C", 14, -16];
+        letters.D = ["D", 0, 25];
+        kcl.push({ where: "A", terms: [["rint", 1], ["R1", -1], ["R3", -1]] });
+        kcl.push({ where: "B", terms: [["R1", 1], ["R2", -1], ["Rg", -1]] });
+        kcl.push({ where: "D", terms: [["R3", 1], ["Rg", 1], ["R4", -1]] });
+        kcl.push({ where: "C", terms: [["R2", 1], ["R4", 1], ["rint", -1]] });
+        kvl.push({ where: "ε, r, S, R₁, R₂", terms: [["emf", 1], ["rint", -1], ["sw", -1], ["R1", -1], ["R2", -1]] });
+        kvl.push({ where: "A–B–D", terms: [["R1", 1], ["Rg", 1], ["R3", -1]] });
+        kvl.push({ where: "B–C–D", terms: [["R2", 1], ["Rg", -1], ["R4", -1]] });
+      } else {
+        br.push(sw("T", [[70, 70], [450, 70]]));
+        br.push(res("RL", "T", "Bt", [[450, 70], [450, 330]], [450, 200], "right"));
+        br.push(wire("wb", "Bt", "n0", [[450, 330], [70, 330]]));
+        kcl.push({ where: "yük ucu", terms: [["rint", 1], ["RL", -1]] });
+        kvl.push({ where: "tek ilmek", terms: [["emf", 1], ["rint", -1], ["sw", -1], ["RL", -1]] });
+      }
+
+      const nodes = {};
+      for (const b of br) {
+        const pts = b.path.pts;
+        nodes[b.a] = nodes[b.a] || { x: pts[0][0], y: pts[0][1], deg: 0 };
+        nodes[b.b] = nodes[b.b] || { x: pts[pts.length - 1][0], y: pts[pts.length - 1][1], deg: 0 };
+        nodes[b.a].deg++;
+        nodes[b.b].deg++;
+      }
+      return { topo: p.topo, count: c, branches: br, nodes, kcl, kvl, letters };
+    }
+
+    function gauss(A, z) {
+      const N = z.length;
+      const M = A.map((row, i) => [...row, z[i]]);
+      for (let col = 0; col < N; col++) {
+        let piv = col;
+        for (let r = col + 1; r < N; r++) if (Math.abs(M[r][col]) > Math.abs(M[piv][col])) piv = r;
+        if (Math.abs(M[piv][col]) < 1e-15) throw new Error("Tekil devre matrisi");
+        [M[col], M[piv]] = [M[piv], M[col]];
+        for (let r = col + 1; r < N; r++) {
+          const f = M[r][col] / M[col][col];
+          if (f === 0) continue;
+          for (let k = col; k <= N; k++) M[r][k] -= f * M[col][k];
         }
       }
+      const x = new Array(N).fill(0);
+      for (let r = N - 1; r >= 0; r--) {
+        let s = M[r][N];
+        for (let k = r + 1; k < N; k++) s -= M[r][k] * x[k];
+        x[r] = s / M[r][r];
+      }
+      return x;
+    }
+
+    // Değiştirilmiş düğüm analizi: G·v + B·j = 0 (KAY), Bᵀ·v = E (gerilim kaynakları).
+    // Teller, kapalı anahtar ve 0 Ω'luk iç direnç 0 V'luk kaynak olarak girer; böylece akımları da çözülür.
+    function solve(circ) {
+      const names = [];
+      const seen = new Set(["n0"]);
+      for (const b of circ.branches) for (const n of [b.a, b.b]) if (!seen.has(n)) { seen.add(n); names.push(n); }
+      const index = new Map(names.map((n, i) => [n, i]));
+      const id = (n) => (n === "n0" ? -1 : index.get(n));
+      const active = circ.branches.filter((b) => b.kind !== "sw" || b.closed);
+      const isSource = (b) => b.kind !== "R" || b.R < 1e-9;
+      const sources = active.filter(isSource);
+      const n = names.length;
+      const N = n + sources.length;
+      const A = Array.from({ length: N }, () => new Array(N).fill(0));
+      const z = new Array(N).fill(0);
+      for (const b of active) {
+        if (isSource(b)) continue;
+        const g = 1 / b.R, i = id(b.a), j = id(b.b);
+        if (i >= 0) A[i][i] += g;
+        if (j >= 0) A[j][j] += g;
+        if (i >= 0 && j >= 0) { A[i][j] -= g; A[j][i] -= g; }
+      }
+      sources.forEach((b, k) => {
+        const row = n + k, i = id(b.a), j = id(b.b);
+        if (i >= 0) { A[i][row] += 1; A[row][i] += 1; }
+        if (j >= 0) { A[j][row] -= 1; A[row][j] -= 1; }
+        z[row] = b.kind === "emf" ? -b.emf : 0;
+      });
+      const x = gauss(A, z);
+      const V = { n0: 0 };
+      names.forEach((nm, i) => { V[nm] = x[i]; });
+      const I = {};
+      for (const b of circ.branches) I[b.id] = 0;
+      for (const b of active) if (!isSource(b)) I[b.id] = (V[b.a] - V[b.b]) / b.R;
+      sources.forEach((b, k) => { I[b.id] = x[n + k]; });
+      return { V, I, unknowns: N };
+    }
+
+    // Elle türetilen formüller (MNA'dan bağımsız): seri/paralel indirgeme, Δ–Y dönüşümü, Thevenin.
+    function theory(p) {
+      const R = p.R, r = p.rint, e = p.emf;
+      const par = (...xs) => 1 / xs.reduce((s, x) => s + 1 / x, 0);
+      const out = {};
+      let Req;
+      if (p.topo === "seri") Req = [R.R1, R.R2, R.R3].slice(0, p.count).reduce((s, x) => s + x, 0);
+      else if (p.topo === "paralel") Req = par(...[R.R1, R.R2, R.R3].slice(0, p.count));
+      else if (p.topo === "karma") Req = R.R1 + par(R.R2, R.R3);
+      else if (p.topo === "kopru") {
+        const S = R.R1 + R.R3 + p.Rg;
+        Req = (R.R1 * R.R3) / S + par((R.R1 * p.Rg) / S + R.R2, (R.R3 * p.Rg) / S + R.R4);
+        const Rab = par(R.R1 + R.R2, R.R3 + R.R4);
+        const Vac = (e * Rab) / (Rab + r);
+        out.Vth = Vac * (R.R2 / (R.R1 + R.R2) - R.R4 / (R.R3 + R.R4));
+        const S2 = R.R1 + R.R2 + r;
+        out.Rth = (R.R1 * R.R2) / S2 + par((R.R1 * r) / S2 + R.R3, (R.R2 * r) / S2 + R.R4);
+        out.Ig = p.closed ? out.Vth / (out.Rth + p.Rg) : 0;
+        out.R4bal = (R.R2 * R.R3) / R.R1;
+      } else Req = p.RL;
+      out.Req = Req;
+      out.I = p.closed ? e / (Req + r) : 0;
+      out.V = e - out.I * r;
+      out.Pmax = r > 0 ? (e * e) / (4 * r) : Infinity;
+      if (p.topo === "maksguc") {
+        out.PL = out.I * out.I * p.RL;
+        out.eta = p.RL / (p.RL + r);
+      }
+      return out;
+    }
+
+    return { E24, R_VALUES, RL_MIN, rlFromPos, posFromRl, makePath, pointAt, build, solve, theory };
+  })();
+
+  const R_VALUES = DCCore.R_VALUES;
+  const LW = 600, LH = 400;
+  const LAMP_REF_W = 6;
+  const DOT_SPACING = 22;
+  const DOT_GAIN = 90;
+  const DT = 1 / 120;
+  const MINUS = "−";
+
+  const canvas = document.getElementById("circuitCanvas");
+  const ctx = canvas.getContext("2d");
+  const chart = document.getElementById("chartCanvas");
+  const cctx = chart.getContext("2d");
+  const $ = (id) => document.getElementById(id);
+  const ui = {
+    topo: $("topoSelect"), count: $("countSelect"), countField: $("countField"), preset: $("presetSelect"),
+    emf: $("emfRange"), emfOut: $("emfOut"), rint: $("rintRange"), rintOut: $("rintOut"),
+    rl: $("rlRange"), rlOut: $("rlOut"), rlField: $("rlField"), rlMatch: $("rlMatchBtn"),
+    closed: $("closedCheck"), lamps: $("lampCheck"), electrons: $("electronCheck"),
+    element: $("elementSelect"), toggle: $("toggleBtn"), reset: $("resetBtn"),
+    selInfo: $("selInfo"), iMeas: $("iMeas"), iTheory: $("iTheory"), iDiff: $("iDiff"), vTerm: $("vTerm"),
+    rEq: $("rEq"), effOut: $("effOut"), igMeas: $("igMeas"), igTheory: $("igTheory"), r4Bal: $("r4Bal"),
+    plMeas: $("plMeas"), plTheory: $("plTheory"), pMax: $("pMax"), formulaNote: $("formulaNote"),
+    pSrcBar: $("pSrcBar"), pLossBar: $("pLossBar"), pExtBar: $("pExtBar"),
+    pSrcVal: $("pSrcVal"), pLossVal: $("pLossVal"), pExtVal: $("pExtVal"), powerNote: $("powerNote"),
+    elTable: $("elTable"), elBody: $("elBody"), kBody: $("kBody"), nodeNote: $("nodeNote"),
+  };
+  const R_SLIDERS = {};
+  for (const k of ["R1", "R2", "R3", "R4", "Rg"]) {
+    const base = k.toLowerCase();
+    R_SLIDERS[k] = { input: $(`${base}Range`), out: $(`${base}Out`), field: $(`${base}Field`) };
+  }
+
+  const EL = {
+    emf: { name: "Kaynak ε", html: "Kaynak ε" },
+    rint: { name: "İç direnç r", html: "İç direnç r" },
+    sw: { name: "Anahtar S", html: "Anahtar S" },
+    R1: { name: "R₁", html: "R₁" },
+    R2: { name: "R₂", html: "R₂" },
+    R3: { name: "R₃", html: "R₃" },
+    R4: { name: "R₄", html: "R₄" },
+    Rg: { name: "Galvanometre (Rg)", html: "Galvanometre R<sub>g</sub>" },
+    RL: { name: "Yük direnci (RL)", html: "Yük R<sub>L</sub>" },
+  };
+  const CUR = { rint: "I", R1: "I₁", R2: "I₂", R3: "I₃", R4: "I₄", Rg: "I<sub>g</sub>", RL: "I<sub>L</sub>" };
+  const VOL = { emf: "ε", rint: "I·r", sw: "V<sub>S</sub>", R1: "V₁", R2: "V₂", R3: "V₃", R4: "V₄", Rg: "V<sub>g</sub>", RL: "V<sub>L</sub>" };
+
+  const DEFAULTS = { topo: "karma", count: 3, emf: 12, rint: 0.5, R1: 20, R2: 30, R3: 20, R4: 20, Rg: 100, RL: 1, closed: true, lamps: false, electrons: false, element: "R1" };
+  const PRESETS = {
+    seriLamba: { topo: "seri", count: 3, emf: 12, rint: 0, R1: 24, R2: 24, R3: 24, closed: true, lamps: true, element: "R1" },
+    paralelLamba: { topo: "paralel", count: 3, emf: 12, rint: 0, R1: 24, R2: 24, R3: 24, closed: true, lamps: true, element: "R1" },
+    hafifYuk: { topo: "paralel", count: 3, emf: 12, rint: 0.5, R1: 1500, R2: 1500, R3: 1500, closed: true, lamps: false, element: "rint" },
+    agirYuk: { topo: "paralel", count: 3, emf: 12, rint: 0.5, R1: 1.5, R2: 1.5, R3: 1.5, closed: true, lamps: false, element: "rint" },
+    kopru: { topo: "kopru", emf: 12, rint: 0.5, R1: 100, R2: 200, R3: 150, R4: 300, Rg: 100, closed: true, element: "Rg" },
+    maksGuc: { topo: "maksguc", emf: 12, rint: 0.5, RL: 0.5, closed: true, element: "RL" },
+  };
+
+  const state = {
+    p: null, circ: null, sol: null, th: null, key: "",
+    RL: 1, selected: "R1", running: true, phase: {}, speedScale: 1, lampRef: LAMP_REF_W,
+  };
+
+  /* ── Biçimlendirme ── */
+  function prefixOf(a) {
+    if (a >= 1e3) return [1e3, "k"];
+    if (a >= 1) return [1, ""];
+    if (a >= 1e-3) return [1e-3, "m"];
+    if (a >= 1e-6) return [1e-6, "µ"];
+    return [1e-9, "n"];
+  }
+  function si(x, unit, sig = 3) {
+    if (!Number.isFinite(x)) return "—";
+    if (Math.abs(x) < 1e-12) return `0 ${unit}`;
+    const r = Number(x.toPrecision(sig));
+    const [f, pfx] = prefixOf(Math.abs(r));
+    return `${r < 0 ? MINUS : ""}${(Math.abs(r) / f).toPrecision(sig)} ${pfx}${unit}`;
+  }
+  function ohm(R) {
+    if (R >= 1000) return `${Number((R / 1000).toPrecision(3))} kΩ`;
+    return `${Number(R.toPrecision(3))} Ω`;
+  }
+  function ohms(x, sig = 3) {
+    if (!Number.isFinite(x)) return "∞";
+    if (Number(x.toPrecision(sig)) >= 1000) return `${(x / 1000).toPrecision(sig)} kΩ`;
+    return `${x.toPrecision(sig)} Ω`;
+  }
+  function diffPct(meas, ref) {
+    if (!(Math.abs(ref) > 0)) return "—";
+    const d = ((meas - ref) / ref) * 100;
+    if (Math.abs(d) < 0.005) return "0.00 %";
+    return `${d > 0 ? "+" : MINUS}${Math.abs(d).toFixed(2)} %`;
+  }
+  function sci(x, unit) {
+    if (x === 0) return `0 ${unit}`;
+    const e = Math.floor(Math.log10(Math.abs(x)));
+    const m = Math.abs(x) / 10 ** e;
+    const sup = String(e).replace(/[-0-9]/g, (ch) => "⁻⁰¹²³⁴⁵⁶⁷⁸⁹"["-0123456789".indexOf(ch)]);
+    return `${x < 0 ? MINUS : ""}${m.toFixed(1)}×10${sup} ${unit}`;
+  }
+  function termsText(vals, unit) {
+    const max = Math.max(...vals.map(Math.abs));
+    if (!(max > 1e-12)) return `0 ${unit}`;
+    const [f, pfx] = prefixOf(max);
+    const dec = Math.max(0, Math.min(4, 3 - Math.floor(Math.log10(max / f))));
+    return `${vals.map((v, i) => {
+      const s = (Math.abs(v) / f).toFixed(dec);
+      const neg = v < 0 || Object.is(v, -0);
+      if (i === 0) return `${neg ? MINUS : ""}${s}`;
+      return `${neg ? ` ${MINUS} ` : " + "}${s}`;
+    }).join("")} ${pfx}${unit}`;
+  }
+
+  /* ── Durum ve hesap ── */
+  function readParams() {
+    const R = {};
+    for (const k of ["R1", "R2", "R3", "R4"]) R[k] = R_VALUES[Number(R_SLIDERS[k].input.value)];
+    return {
+      topo: ui.topo.value,
+      count: Number(ui.count.value),
+      emf: Number(ui.emf.value),
+      rint: Number(ui.rint.value),
+      R,
+      Rg: R_VALUES[Number(R_SLIDERS.Rg.input.value)],
+      RL: state.RL,
+      closed: ui.closed.checked,
+    };
+  }
+
+  const branchById = (id) => state.circ.branches.find((b) => b.id === id);
+  const elementIds = () => state.circ.branches.filter((b) => b.kind !== "wire").map((b) => b.id);
+
+  function recompute() {
+    const p = readParams();
+    const key = `${p.topo}:${p.count}`;
+    const rebuilt = key !== state.key;
+    state.key = key;
+    state.p = p;
+    state.circ = DCCore.build(p);
+    state.sol = DCCore.solve(state.circ);
+    state.th = DCCore.theory(p);
+    const Imax = Math.max(0, ...state.circ.branches.map((b) => Math.abs(state.sol.I[b.id])));
+    const raw = DOT_GAIN * Imax;
+    state.speedScale = raw > 1e-9 ? Math.min(240, Math.max(12, raw)) / raw : 1;
+    state.lampRef = p.topo === "maksguc" && p.rint > 0 ? state.th.Pmax : LAMP_REF_W;
+    if (rebuilt) {
+      state.phase = {};
+      rebuildLists();
+    }
+    updateOutputs();
+    updateFields();
+    updateReadouts();
+    updateElementTable();
+    updateKirchhoff();
+    updateSelInfo();
+  }
+
+  function setRL(R) {
+    state.RL = Math.min(1000, Math.max(DCCore.RL_MIN, R));
+    ui.rl.value = DCCore.posFromRl(state.RL);
+  }
+
+  function applySettings(cfg) {
+    if (cfg.topo) ui.topo.value = cfg.topo;
+    if (cfg.count) ui.count.value = String(cfg.count);
+    if (cfg.emf !== undefined) ui.emf.value = cfg.emf;
+    if (cfg.rint !== undefined) ui.rint.value = cfg.rint;
+    for (const k of Object.keys(R_SLIDERS)) if (cfg[k] !== undefined) R_SLIDERS[k].input.value = R_VALUES.indexOf(cfg[k]);
+    if (cfg.RL !== undefined) setRL(cfg.RL);
+    if (cfg.closed !== undefined) ui.closed.checked = cfg.closed;
+    if (cfg.lamps !== undefined) ui.lamps.checked = cfg.lamps;
+    if (cfg.electrons !== undefined) ui.electrons.checked = cfg.electrons;
+    recompute();
+    if (cfg.element) select(cfg.element);
+  }
+
+  function updateOutputs() {
+    const p = state.p;
+    ui.emfOut.textContent = `${p.emf.toFixed(1)} V`;
+    ui.rintOut.textContent = `${p.rint.toFixed(2)} Ω`;
+    for (const s of Object.values(R_SLIDERS)) {
+      const txt = ohm(R_VALUES[Number(s.input.value)]);
+      s.out.textContent = txt;
+      s.input.setAttribute("aria-valuetext", txt);
+    }
+    const rl = ohms(state.RL);
+    ui.rlOut.textContent = rl;
+    ui.rl.setAttribute("aria-valuetext", rl);
+    ui.rlMatch.disabled = !(p.rint >= DCCore.RL_MIN);
+  }
+
+  function updateFields() {
+    const { topo, count } = state.p;
+    const variable = topo === "seri" || topo === "paralel";
+    const n = variable ? count : topo === "maksguc" ? 0 : 3;
+    ui.countField.hidden = !variable;
+    R_SLIDERS.R1.field.hidden = n < 1;
+    R_SLIDERS.R2.field.hidden = n < 2;
+    R_SLIDERS.R3.field.hidden = n < 3;
+    R_SLIDERS.R4.field.hidden = topo !== "kopru";
+    R_SLIDERS.Rg.field.hidden = topo !== "kopru";
+    ui.rlField.hidden = topo !== "maksguc";
+    document.querySelectorAll("[data-mode]").forEach((el) => { el.hidden = el.dataset.mode !== topo; });
+    ui.elTable.classList.toggle("no-lamp", !ui.lamps.checked);
+    chart.setAttribute("aria-label", topo === "maksguc"
+      ? "Yük gücü ve verimin yük direncine göre grafiği; en büyük güç R_L = r noktasında"
+      : "Çalışma noktası grafiği: kaynak doğrusu V = ε − I·r ile yük doğrusu V = R_eş·I kesişir");
+  }
+
+  function rebuildLists() {
+    const ids = elementIds();
+    ui.element.innerHTML = ids.map((id) => `<option value="${id}">${EL[id].name}</option>`).join("");
+    ui.elBody.innerHTML = ids
+      .map((id) => `<tr data-el="${id}"><td>${EL[id].html}</td><td></td><td></td><td></td><td></td><td class="col-lamp"></td></tr>`)
+      .join("");
+    if (!ids.includes(state.selected)) state.selected = ids.includes("R1") ? "R1" : ids.includes("RL") ? "RL" : "emf";
+    ui.element.value = state.selected;
+  }
+
+  function elementData(id) {
+    const { sol, p } = state;
+    const b = branchById(id);
+    const I = sol.I[id];
+    if (b.kind === "emf") return { b, value: `${p.emf.toFixed(1)} V`, V: p.emf, I, P: -p.emf * I, lamp: null };
+    const V = sol.V[b.a] - sol.V[b.b];
+    if (b.kind === "sw") return { b, value: p.closed ? "kapalı" : "açık", V, I, P: V * I, lamp: null };
+    const value = b.internal ? `${p.rint.toFixed(2)} Ω` : b.id === "RL" ? ohms(b.R) : ohm(b.R);
+    return { b, value, V, I, P: V * I, lamp: b.load && !b.galv ? (V * I) / state.lampRef : null };
+  }
+
+  function powers() {
+    const { circ, sol, p } = state;
+    const src = p.emf * sol.I.emf;
+    const loss = sol.I.rint ** 2 * p.rint;
+    let ext = 0;
+    for (const b of circ.branches) if (b.load) ext += (sol.V[b.a] - sol.V[b.b]) * sol.I[b.id];
+    return { src, loss, ext, residual: src - loss - ext };
+  }
+
+  function formulaText() {
+    const { p, th } = state;
+    const Req = ohms(th.Req);
+    let txt;
+    if (p.topo === "seri") txt = `Seri dirençlerden aynı akım geçer: R<sub>eş</sub> = ${["R₁", "R₂", "R₃"].slice(0, p.count).join(" + ")} = ${Req}.`;
+    else if (p.topo === "paralel") txt = `Paralel kolların gerilimi aynıdır: 1/R<sub>eş</sub> = ${["1/R₁", "1/R₂", "1/R₃"].slice(0, p.count).join(" + ")}, R<sub>eş</sub> = ${Req}.`;
+    else if (p.topo === "karma") txt = `R<sub>eş</sub> = R₁ + R₂R₃/(R₂ + R₃) = ${Req}.`;
+    else if (p.topo === "kopru") txt = `Köprü seri-paralel indirgenemez; Δ–Y dönüşümüyle R<sub>eş</sub> = ${Req}. Thevenin eşdeğeri (galvanometre uçlarından): V<sub>th</sub> = ${si(th.Vth, "V")}, R<sub>th</sub> = ${ohms(th.Rth)}. Şu an R₁/R₂ = ${(p.R.R1 / p.R.R2).toFixed(3)}, R₃/R₄ = ${(p.R.R3 / p.R.R4).toFixed(3)}; iki oran eşit olunca V<sub>th</sub> = 0, dolayısıyla I<sub>g</sub> = 0.`;
+    else txt = `R<sub>eş</sub> = R<sub>L</sub> = ${Req}. Yük gücü R<sub>L</sub> = r iken en büyüktür; o noktada verim η = R<sub>L</sub>/(R<sub>L</sub> + r) = 50 %.`;
+    if (!p.closed) txt += " Anahtar açık: I = 0, bu yüzden uç gerilimi V = ε.";
+    return txt;
+  }
+
+  function updateReadouts() {
+    const { p, sol, th } = state;
+    const I = sol.I.rint;
+    const Vt = sol.V.P;
+    ui.iMeas.textContent = si(I, "A", 4);
+    ui.iTheory.textContent = si(th.I, "A", 4);
+    ui.iDiff.textContent = p.closed ? diffPct(I, th.I) : "—";
+    ui.vTerm.textContent = si(Vt, "V", 4);
+    ui.rEq.textContent = p.closed ? ohms(Vt / I, 4) : "∞ (açık)";
+    const pw = powers();
+    ui.effOut.textContent = pw.src > 1e-12 ? `${((pw.ext / pw.src) * 100).toFixed(1)} %` : "—";
+    if (p.topo === "kopru") {
+      ui.igMeas.textContent = si(sol.I.Rg, "A", 4);
+      ui.igTheory.textContent = si(th.Ig, "A", 4);
+      ui.r4Bal.textContent = ohms(th.R4bal, 4);
+    }
+    if (p.topo === "maksguc") {
+      ui.plMeas.textContent = si((sol.V.T - sol.V.Bt) * sol.I.RL, "W", 4);
+      ui.plTheory.textContent = si(th.PL, "W", 4);
+      ui.pMax.textContent = p.rint > 0 ? si(th.Pmax, "W", 4) : "sınırsız (r = 0)";
+    }
+    ui.formulaNote.innerHTML = formulaText();
+    const width = (x) => `${pw.src > 1e-12 ? Math.max(0, Math.min(100, (x / pw.src) * 100)).toFixed(1) : 0}%`;
+    ui.pSrcBar.style.width = pw.src > 1e-12 ? "100%" : "0%";
+    ui.pLossBar.style.width = width(pw.loss);
+    ui.pExtBar.style.width = width(pw.ext);
+    ui.pSrcVal.textContent = si(pw.src, "W");
+    ui.pLossVal.textContent = si(pw.loss, "W");
+    ui.pExtVal.textContent = si(pw.ext, "W");
+    ui.powerNote.innerHTML = `P<sub>ε</sub> − I²r − ΣVI = ${sci(pw.residual, "W")}. Kaynağın verdiği enerjinin tamamı iç dirençte ve dış devrede ısıya (lambada ışığa) dönüşür.`;
+  }
+
+  function updateElementTable() {
+    for (const tr of ui.elBody.rows) {
+      const d = elementData(tr.dataset.el);
+      const c = tr.cells;
+      c[1].textContent = d.value;
+      c[2].textContent = si(d.V, "V");
+      c[3].textContent = si(d.I, "A");
+      c[4].textContent = si(d.P, "W");
+      c[5].textContent = d.lamp == null ? "—" : `${Math.round(d.lamp * 100)} %`;
+      tr.classList.toggle("is-selected", tr.dataset.el === state.selected);
+    }
+  }
+
+  function dropOf(id) {
+    if (id === "emf") return state.p.emf;
+    const b = branchById(id);
+    if (b.kind === "sw") return state.sol.V[b.a] - state.sol.V[b.b];
+    return state.sol.I[id] * b.R;
+  }
+
+  function updateKirchhoff() {
+    const { circ, sol } = state;
+    const sym = (terms, map) => terms
+      .map(([id, sg], i) => `${i === 0 ? (sg < 0 ? MINUS : "") : sg < 0 ? ` ${MINUS} ` : " + "}${map[id]}`)
+      .join("");
+    const rows = [];
+    for (const k of circ.kcl) {
+      const vals = k.terms.map(([id, sg]) => sg * sol.I[id]);
+      const where = k.where.length === 1 ? `${k.where} düğümü` : k.where[0].toUpperCase() + k.where.slice(1);
+      rows.push(`<tr><td>KAY<small>${where}</small></td><td>${sym(k.terms, CUR)} = 0<small>${termsText(vals, "A")}</small></td><td>${sci(vals.reduce((a, v) => a + v, 0), "A")}</td></tr>`);
+    }
+    for (const k of circ.kvl) {
+      const vals = k.terms.map(([id, sg]) => sg * dropOf(id));
+      const where = k.where === "tek ilmek" ? "Tek ilmek" : `İlmek: ${k.where}`;
+      rows.push(`<tr><td>KGY<small>${where}</small></td><td>${sym(k.terms, VOL)} = 0<small>${termsText(vals, "V")}</small></td><td>${sci(vals.reduce((a, v) => a + v, 0), "V")}</td></tr>`);
+    }
+    ui.kBody.innerHTML = rows.join("");
+    const parts = Object.entries(circ.letters).map(([node, [L]]) => `${L} = ${si(sol.V[node], "V")}`);
+    const refDir = circ.topo === "kopru" ? " I<sub>g</sub> için referans yön B'den D'ye doğrudur; eksi değer akımın D'den B'ye aktığını gösterir." : "";
+    ui.nodeNote.innerHTML = `Düğüm potansiyelleri (kaynağın eksi ucu 0 V): artı uç ${si(sol.V.P, "V")}${parts.length ? `; ${parts.join(", ")}` : ""}.${refDir}`;
+  }
+
+  function updateSelInfo() {
+    const d = elementData(state.selected);
+    const b = d.b;
+    let html;
+    if (b.kind === "emf") html = `<b>Kaynak</b> ε = ${d.value} · I = ${si(d.I, "A")} · verdiği güç εI = ${si(-d.P, "W")}`;
+    else if (b.kind === "sw") html = `<b>Anahtar ${d.value}</b> · uçları arasındaki gerilim ${si(d.V, "V")} · I = ${si(d.I, "A")}`;
+    else {
+      html = `<b>${EL[b.id].html}</b> = ${d.value} · V = ${si(d.V, "V")} · I = ${si(d.I, "A")} · P = ${si(d.P, "W")}`;
+      if (d.lamp != null && ui.lamps.checked) html += ` · parlaklık ${Math.round(d.lamp * 100)} %`;
+    }
+    ui.selInfo.innerHTML = html;
+  }
+
+  function select(id) {
+    if (!elementIds().includes(id)) return;
+    state.selected = id;
+    ui.element.value = id;
+    updateElementTable();
+    updateSelInfo();
+  }
+
+  /* ── Çizim ── */
+  const FONT = "Outfit, system-ui, sans-serif";
+  const NAME = { R1: ["R", "1"], R2: ["R", "2"], R3: ["R", "3"], R4: ["R", "4"], Rg: ["G", ""], RL: ["R", "L"] };
+  let dpr = 1;
+  let view = { s: 1, ox: 0, oy: 0, u: 1 };
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [canvas, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      c.width = Math.round(rect.width * dpr);
+      c.height = Math.round(rect.height * dpr);
+    }
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+      box: light ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.3)",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      danger: light ? "#dc2626" : "#f87171",
+      face: light ? "#ffffff" : "#0b1120",
+      charge: light ? "#facc15" : "#fde68a",
+      electron: light ? "#38bdf8" : "#7dd3fc",
+      outline: "rgba(0,0,0,0.6)",
+      glow: light ? "234,138,0" : "253,224,71",
+      pot: light ? [[29, 78, 216], [126, 34, 206], [220, 38, 38]] : [[96, 165, 250], [192, 132, 252], [248, 113, 113]],
+    };
+  }
+
+  function potColor(t, v) {
+    const x = Math.max(0, Math.min(1, v)) * 2;
+    const i = Math.min(1, Math.floor(x));
+    const f = x - i;
+    const a = t.pot[i], b = t.pot[i + 1];
+    return `rgb(${Math.round(a[0] + (b[0] - a[0]) * f)},${Math.round(a[1] + (b[1] - a[1]) * f)},${Math.round(a[2] + (b[2] - a[2]) * f)})`;
+  }
+
+  function line(c, x0, y0, x1, y1) {
+    c.beginPath();
+    c.moveTo(x0, y0);
+    c.lineTo(x1, y1);
+    c.stroke();
+  }
+
+  function roundRectPath(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  function richWidth(c, parts, fs, weight = 500) {
+    let w = 0;
+    for (const [txt, sub] of parts) {
+      c.font = `${weight} ${sub ? fs * 0.72 : fs}px ${FONT}`;
+      w += c.measureText(txt).width;
+    }
+    return w;
+  }
+
+  function richText(c, parts, x, y, fs, color, align = "left", weight = 500) {
+    const total = richWidth(c, parts, fs, weight);
+    let cx = align === "center" ? x - total / 2 : align === "right" ? x - total : x;
+    c.fillStyle = color;
+    c.textAlign = "left";
+    for (const [txt, sub] of parts) {
+      c.font = `${weight} ${sub ? fs * 0.72 : fs}px ${FONT}`;
+      c.fillText(txt, cx, sub ? y + fs * 0.25 : y);
+      cx += c.measureText(txt).width;
+    }
+    return total;
+  }
+
+  function strokeSub(path, s0, s1) {
+    if (s1 - s0 < 0.01) return;
+    const a = DCCore.pointAt(path, s0);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    for (const g of path.segs) {
+      const end = g.s + g.len;
+      if (end > s0 && end < s1) ctx.lineTo(g.x0 + g.ux * g.len, g.y0 + g.uy * g.len);
+    }
+    const e = DCCore.pointAt(path, s1);
+    ctx.lineTo(e.x, e.y);
+    ctx.stroke();
+  }
+
+  function zigzag(half, amp, n) {
+    const a = -half + 6, z = half - 6, step = (z - a) / n;
+    ctx.beginPath();
+    ctx.moveTo(-half, 0);
+    ctx.lineTo(a, 0);
+    for (let i = 0; i < n; i++) ctx.lineTo(a + step * (i + 0.5), i % 2 ? amp : -amp);
+    ctx.lineTo(z, 0);
+    ctx.lineTo(half, 0);
+    ctx.stroke();
+  }
+
+  function drawLamp(b, t, u) {
+    const level = Math.max(0, elementData(b.id).lamp);
+    const k = Math.min(1, level);
+    const { cx, cy } = b;
+    if (k > 0.003) {
+      const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, 50);
+      g.addColorStop(0, `rgba(${t.glow},${(0.95 * k).toFixed(3)})`);
+      g.addColorStop(0.3, `rgba(${t.glow},${(0.5 * k).toFixed(3)})`);
+      g.addColorStop(1, `rgba(${t.glow},0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 50, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = `rgba(${t.glow},${(0.12 + 0.88 * k).toFixed(3)})`;
+    ctx.strokeStyle = t.ink;
+    ctx.lineWidth = Math.max(1.6, 1.2 * u);
+    ctx.beginPath();
+    ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.lineWidth = Math.max(1.4, u);
+    line(ctx, cx - 9.9, cy - 9.9, cx + 9.9, cy + 9.9);
+    line(ctx, cx - 9.9, cy + 9.9, cx + 9.9, cy - 9.9);
+    if (level > 1.02) {
+      ctx.strokeStyle = t.danger;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, 19, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  // İbre logaritmik: 1 µA'den 100 mA'e kadar beş on katı 69°'lik sapmaya yayar.
+  function drawGalvanometer(b, t, u) {
+    const { cx, cy } = b;
+    ctx.fillStyle = t.face;
+    ctx.strokeStyle = t.ink;
+    ctx.lineWidth = Math.max(1.8, 1.3 * u);
+    ctx.beginPath();
+    ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    const px = cx, py = cy + 10;
+    ctx.strokeStyle = t.muted;
+    ctx.lineWidth = Math.max(1.1, 0.8 * u);
+    ctx.beginPath();
+    ctx.arc(px, py, 18, -Math.PI / 2 - 1.2, -Math.PI / 2 + 1.2);
+    ctx.stroke();
+    line(ctx, px, py - 15, px, py - 21);
+    const Ig = state.sol.I[b.id];
+    const ang = Math.sign(Ig) * 1.2 * Math.min(1, Math.log10(1 + Math.abs(Ig) / 1e-6) / 5);
+    ctx.strokeStyle = t.danger;
+    ctx.lineWidth = Math.max(1.8, 1.2 * u);
+    line(ctx, px, py, px + 17 * Math.sin(ang), py - 17 * Math.cos(ang));
+    ctx.fillStyle = t.ink;
+    ctx.beginPath();
+    ctx.arc(px, py, 2.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawElement(b, t, col, w, u) {
+    const half = b.len / 2;
+    const ca = col(b.a), cb = col(b.b);
+    const lamp = ui.lamps.checked && b.load && !b.galv;
+    ctx.save();
+    ctx.translate(b.cx, b.cy);
+    ctx.rotate(Math.atan2(b.uy, b.ux));
+    if (b.id === state.selected) {
+      ctx.save();
+      ctx.strokeStyle = t.accent2;
+      ctx.lineWidth = Math.max(1.6, 1.3 * u);
+      ctx.setLineDash([5, 4]);
+      const hh = b.galv || lamp ? 27 : b.kind === "emf" ? 22 : b.kind === "sw" ? 20 : 15;
+      roundRectPath(ctx, -half - 7, -hh, b.len + 14, 2 * hh, 7);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.lineWidth = w;
+    if (b.kind === "emf") {
+      ctx.strokeStyle = ca;
+      line(ctx, -half, 0, -5, 0);
+      ctx.strokeStyle = cb;
+      line(ctx, 5, 0, half, 0);
+      ctx.strokeStyle = t.ink;
+      ctx.lineWidth = 5;
+      line(ctx, -5, -8, -5, 8);
+      ctx.lineWidth = 2.4;
+      line(ctx, 5, -16, 5, 16);
+    } else if (b.kind === "sw") {
+      const ang = b.closed ? -0.07 : -0.52;
+      ctx.strokeStyle = t.ink;
+      ctx.lineWidth = Math.max(2.6, 1.6 * u);
+      line(ctx, -half + 4, 0, -half + 4 + (b.len - 8) * Math.cos(ang), (b.len - 8) * Math.sin(ang));
+      ctx.fillStyle = t.face;
+      ctx.lineWidth = Math.max(1.6, 1.1 * u);
+      for (const x of [-half + 2, half - 2]) {
+        ctx.beginPath();
+        ctx.arc(x, 0, 4.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+    } else if (b.galv || lamp) {
+      const r0 = b.galv ? 20 : 14;
+      ctx.strokeStyle = ca;
+      line(ctx, -half, 0, -r0, 0);
+      ctx.strokeStyle = cb;
+      line(ctx, r0, 0, half, 0);
+    } else {
+      const g = ctx.createLinearGradient(-half, 0, half, 0);
+      g.addColorStop(0, ca);
+      g.addColorStop(1, cb);
+      ctx.strokeStyle = g;
+      ctx.lineWidth = Math.max(2.6, w * 0.85);
+      zigzag(half, b.internal ? 5 : 8, b.internal ? 6 : 7);
+    }
+    ctx.restore();
+    if (b.galv) drawGalvanometer(b, t, u);
+    else if (lamp) drawLamp(b, t, u);
+  }
+
+  function drawDots(t, u) {
+    const rad = Math.max(3.4, 2.2 * u);
+    ctx.fillStyle = ui.electrons.checked ? t.electron : t.charge;
+    ctx.strokeStyle = t.outline;
+    ctx.lineWidth = Math.max(1, 0.8 * u);
+    ctx.beginPath();
+    for (const b of state.circ.branches) {
+      const skip = b.kind === "sw" || b.galv;
+      const L = b.path.length;
+      for (let s = state.phase[b.id] || 0; s < L - 0.5; s += DOT_SPACING) {
+        if (skip && s > b.s0 - 2 && s < b.s1 + 2) continue;
+        const q = DCCore.pointAt(b.path, s);
+        ctx.moveTo(q.x + rad, q.y);
+        ctx.arc(q.x, q.y, rad, 0, Math.PI * 2);
+      }
+    }
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  function drawLabels(t, fs, u) {
+    const { circ, p, sol, th } = state;
+    const lamps = ui.lamps.checked;
+    ctx.textBaseline = "alphabetic";
+    for (const b of circ.branches) {
+      if (!b.side) continue;
+      const [m, sb] = NAME[b.id];
+      const nameParts = sb ? [[m], [sb, true]] : [[m]];
+      const val = b.id === "RL" ? ohms(b.R) : ohm(b.R);
+      const lampOn = lamps && !b.galv;
+      if (b.side === "up") {
+        const y = b.cy - (lampOn ? 26 : 19) - 4;
+        const gap = fs * 0.4;
+        const wN = richWidth(ctx, nameParts, fs, 600);
+        ctx.font = `500 ${fs}px ${FONT}`;
+        const x0 = b.cx - (wN + gap + ctx.measureText(val).width) / 2;
+        richText(ctx, nameParts, x0, y, fs, t.ink, "left", 600);
+        ctx.font = `500 ${fs}px ${FONT}`;
+        ctx.fillStyle = t.muted;
+        ctx.fillText(val, x0 + wN + gap, y);
+        continue;
+      }
+      let x, y, align;
+      if (b.side === "out") {
+        const dx = b.cx - 340, dy = b.cy - 190, n = Math.hypot(dx, dy);
+        x = b.cx + (dx / n) * 40;
+        y = b.cy + (dy / n) * 40 - fs * 0.15;
+        align = "center";
+      } else {
+        const off = b.galv ? 26 : lampOn ? 24 : 21;
+        x = b.side === "right" ? b.cx + off : b.cx - off;
+        y = b.cy - fs * 0.1;
+        align = b.side === "right" ? "left" : "right";
+      }
+      richText(ctx, nameParts, x, y, fs, t.ink, align, 600);
+      ctx.font = `500 ${fs}px ${FONT}`;
+      ctx.fillStyle = t.muted;
+      ctx.textAlign = align;
+      ctx.fillText(val, x, y + fs * 1.05);
+    }
+
+    richText(ctx, [["ε"]], 118, 268 - fs * 0.1, fs, t.ink, "left", 600);
+    richText(ctx, [[`${p.emf.toFixed(1)} V`]], 118, 268 + fs * 0.95, fs, t.muted);
+    richText(ctx, [["r"]], 118, 140 - fs * 0.1, fs, t.ink, "left", 600);
+    richText(ctx, [[`${p.rint.toFixed(2)} Ω`]], 118, 140 + fs * 0.95, fs, t.muted);
+    ctx.font = `700 ${fs * 0.95}px ${FONT}`;
+    ctx.fillStyle = t.ink;
+    ctx.textAlign = "center";
+    ctx.fillText("+", 46, 255 + fs * 0.35);
+    ctx.fillText(MINUS, 46, 282 + fs * 0.35);
+
+    ctx.font = `500 ${fs * 0.82}px ${FONT}`;
+    ctx.fillStyle = p.closed ? t.muted : t.danger;
+    ctx.fillText(p.closed ? "anahtar S" : "S açık", 140, 96 + fs * 0.3);
+
+    ctx.font = `700 ${fs * 0.95}px ${FONT}`;
+    ctx.fillStyle = t.accent2;
+    for (const [node, [L, dx, dy]] of Object.entries(circ.letters)) {
+      const nd = circ.nodes[node];
+      ctx.fillText(L, nd.x + dx, nd.y + dy + fs * 0.32);
+    }
+
+    if (circ.topo === "maksguc") {
+      const x = 555, y0 = 120, h = 160, w = 16;
+      const PL = (sol.V.T - sol.V.Bt) * sol.I.RL;
+      const ratio = p.rint > 0 ? PL / th.Pmax : NaN;
+      ctx.strokeStyle = t.muted;
+      ctx.lineWidth = Math.max(1.2, u);
+      ctx.strokeRect(x - w / 2, y0, w, h);
+      if (ratio > 0) {
+        ctx.fillStyle = t.warm;
+        const fh = h * Math.min(1, ratio);
+        ctx.fillRect(x - w / 2, y0 + h - fh, w, fh);
+      }
+      richText(ctx, [["P"], ["L", true], [" / P"], ["max", true]], x, y0 - 12, fs * 0.85, t.ink, "center", 600);
+      richText(ctx, [[Number.isFinite(ratio) ? `${(ratio * 100).toFixed(1)} %` : "—"]], x, y0 + h + fs * 1.1, fs * 0.85, t.muted, "center");
+    }
+  }
+
+  function drawLegend(t, fs, u) {
+    const small = fs * 0.82;
+    const electrons = ui.electrons.checked;
+    const y1 = 376, y2 = 395;
+    const rad = Math.max(3.4, 2.2 * u);
+    ctx.fillStyle = electrons ? t.electron : t.charge;
+    ctx.strokeStyle = t.outline;
+    ctx.lineWidth = Math.max(1, 0.8 * u);
+    ctx.beginPath();
+    ctx.arc(16, y1 - small * 0.32, rad, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.font = `500 ${small}px ${FONT}`;
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "left";
+    ctx.fillText(electrons ? `Elektronlar: akıma ters yönde (${MINUS} → +)` : `Artı yükler: geleneksel akım yönü (+ → ${MINUS})`, 26, y1);
+    let speed = "Nokta hızı akımla orantılı";
+    const f = state.speedScale;
+    if (Math.abs(f - 1) > 1e-6) speed += ` · ölçek ×${f >= 10 ? Math.round(f) : f >= 1 ? f.toFixed(1) : f.toFixed(2)}`;
+    if (!state.running) speed += " · duraklatıldı";
+    ctx.fillText(speed, 10, y2);
+
+    const bx0 = 440, bx1 = 590;
+    const g = ctx.createLinearGradient(bx0, 0, bx1, 0);
+    g.addColorStop(0, potColor(t, 0));
+    g.addColorStop(0.5, potColor(t, 0.5));
+    g.addColorStop(1, potColor(t, 1));
+    ctx.fillStyle = g;
+    ctx.fillRect(bx0, 382, bx1 - bx0, 8);
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "right";
+    ctx.fillText(`Potansiyel: 0 V … ${state.p.emf.toFixed(1)} V`, bx1, y1 - 4);
+  }
+
+  function drawCircuit(t) {
+    const W = canvas.width, H = canvas.height;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const s = Math.min(W / LW, H / LH);
+    view = { s, ox: (W - LW * s) / 2, oy: (H - LH * s) / 2, u: dpr / s };
+    const u = view.u;
+    const fs = Math.max(15, 11 * u);
+    ctx.setTransform(s, 0, 0, s, view.ox, view.oy);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    const { circ, sol, p } = state;
+    const scale = Math.max(p.emf, 1e-9);
+    const col = (node) => potColor(t, sol.V[node] / scale);
+
+    ctx.save();
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = t.box;
+    ctx.lineWidth = Math.max(1.2, u);
+    ctx.strokeRect(30, 112, 80, 186);
+    ctx.restore();
+
+    const w = Math.max(3.2, 2 * u);
+    ctx.lineWidth = w;
+    for (const b of circ.branches) {
+      if (!b.at) {
+        ctx.strokeStyle = col(b.a);
+        strokeSub(b.path, 0, b.path.length);
+      } else {
+        ctx.strokeStyle = col(b.a);
+        strokeSub(b.path, 0, b.s0);
+        ctx.strokeStyle = col(b.b);
+        strokeSub(b.path, b.s1, b.path.length);
+      }
+    }
+    for (const b of circ.branches) if (b.at) drawElement(b, t, col, w, u);
+    for (const [name, nd] of Object.entries(circ.nodes)) {
+      if (nd.deg < 3) continue;
+      ctx.fillStyle = col(name);
+      ctx.beginPath();
+      ctx.arc(nd.x, nd.y, 5.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    drawDots(t, u);
+    drawLabels(t, fs, u);
+    drawLegend(t, fs, u);
+  }
+
+  /* ── Grafikler ── */
+  function niceAxis(v) {
+    const safe = v > 0 && Number.isFinite(v) ? v : 1;
+    const e = Math.floor(Math.log10(safe)), b = 10 ** e;
+    for (const [m, n] of [[1, 4], [1.2, 4], [1.5, 3], [2, 4], [2.5, 5], [3, 3], [4, 4], [5, 5], [6, 3], [8, 4]]) {
+      if (m * b >= safe * (1 - 1e-9)) return { max: m * b, n };
+    }
+    return { max: 10 * b, n: 5 };
+  }
+
+  function tick(x, unit) {
+    if (Math.abs(x) < 1e-12) return `0 ${unit}`;
+    const r = Number(x.toPrecision(3));
+    if (unit === "Ω" && Math.abs(r) < 1) return `${r} Ω`;
+    const [f, pfx] = prefixOf(Math.abs(r));
+    return `${Number((r / f).toPrecision(3))} ${pfx}${unit}`;
+  }
+
+  function legend(c, items, x0, y0, maxX, fs, t, draw) {
+    const sw = 18 * dpr, gap = 12 * dpr;
+    let x = x0, row = 0;
+    for (const it of items) {
+      const w = sw + 5 * dpr + richWidth(c, it.parts, fs);
+      if (x > x0 && x + w > maxX) { x = x0; row++; }
+      if (draw) {
+        const yy = y0 + row * fs * 1.5;
+        c.strokeStyle = it.color;
+        c.fillStyle = it.color;
+        c.lineWidth = 2.5 * dpr;
+        if (it.kind === "dot") {
+          c.beginPath();
+          c.arc(x + sw / 2, yy - fs * 0.32, 4 * dpr, 0, Math.PI * 2);
+          c.fill();
+        } else {
+          c.setLineDash(it.kind === "dash" ? [5 * dpr, 4 * dpr] : []);
+          line(c, x, yy - fs * 0.32, x + sw, yy - fs * 0.32);
+          c.setLineDash([]);
+        }
+        richText(c, it.parts, x + sw + 5 * dpr, yy, fs, t.muted);
+      }
+      x += w + gap;
+    }
+    return row + 1;
+  }
+
+  function chartFrame(t, items, padL, padR, padB) {
+    const W = chart.width, H = chart.height;
+    cctx.setTransform(1, 0, 0, 1, 0, 0);
+    cctx.clearRect(0, 0, W, H);
+    const fs = 11 * dpr;
+    const rows = legend(cctx, items, padL, 0, W - padR, fs, t, false);
+    legend(cctx, items, padL, 16 * dpr, W - padR, fs, t, true);
+    const padT = (14 + rows * 16.5) * dpr;
+    return { W, H, fs, padT, pw: W - padL - padR, ph: H - padT - padB };
+  }
+
+  function drawIV(t) {
+    const { p, sol, th } = state;
+    const Iop = sol.I.rint, Vop = sol.V.P;
+    const padL = 52 * dpr, padR = 14 * dpr, padB = 24 * dpr;
+    const items = [
+      { color: t.warm, kind: "line", parts: [["Kaynak: V = ε − I·r"]] },
+      { color: t.accent, kind: "line", parts: [["Yük: V = R"], ["eş", true], ["·I"]] },
+      { color: t.danger, kind: "dot", parts: [[p.closed ? `Çalışma noktası: ${si(Iop, "A")}, ${si(Vop, "V")}` : "Açık devre: I = 0, V = ε"]] },
+    ];
+    const { H, fs, padT, pw, ph } = chartFrame(t, items, padL, padR, padB);
+    const c = cctx;
+    const e = p.emf, r = p.rint, Req = th.Req;
+    const ax = niceAxis((e / (Req + r)) * 1.5);
+    const ay = niceAxis(e * 1.1);
+    const X = (I) => padL + (I / ax.max) * pw;
+    const Y = (V) => padT + ph - (V / ay.max) * ph;
+    c.strokeStyle = t.grid;
+    c.lineWidth = dpr;
+    c.font = `500 ${fs}px ${FONT}`;
+    c.fillStyle = t.muted;
+    for (let k = 0; k <= ax.n; k++) {
+      const v = (ax.max * k) / ax.n;
+      line(c, X(v), padT, X(v), padT + ph);
+      c.textAlign = k === ax.n ? "right" : "center";
+      c.fillText(tick(v, "A"), Math.min(X(v), padL + pw), H - 7 * dpr);
+    }
+    for (let k = 0; k <= ay.n; k++) {
+      const v = (ay.max * k) / ay.n;
+      line(c, padL, Y(v), padL + pw, Y(v));
+      c.textAlign = "right";
+      c.fillText(tick(v, "V"), padL - 6 * dpr, Y(v) + 4 * dpr);
+    }
+    c.save();
+    c.beginPath();
+    c.rect(padL, padT, pw, ph);
+    c.clip();
+    c.lineWidth = 2.5 * dpr;
+    const Iend = r > 0 ? Math.min(ax.max, e / r) : ax.max;
+    c.strokeStyle = t.warm;
+    line(c, X(0), Y(e), X(Iend), Y(e - r * Iend));
+    const Il = Math.min(ax.max, ay.max / Req);
+    c.strokeStyle = t.accent;
+    line(c, X(0), Y(0), X(Il), Y(Req * Il));
+    c.restore();
+
+    c.setLineDash([3 * dpr, 4 * dpr]);
+    c.strokeStyle = t.muted;
+    c.lineWidth = dpr;
+    line(c, X(Iop), Y(Vop), X(Iop), Y(0));
+    line(c, X(Iop), Y(Vop), X(0), Y(Vop));
+    c.setLineDash([]);
+    c.fillStyle = t.danger;
+    c.beginPath();
+    c.arc(X(Iop), Y(Vop), 5 * dpr, 0, Math.PI * 2);
+    c.fill();
+  }
+
+  function drawPower(t) {
+    const { p, sol, th } = state;
+    const PLm = (sol.V.T - sol.V.Bt) * sol.I.RL;
+    const pw2 = powers();
+    const eta = pw2.src > 1e-12 ? pw2.ext / pw2.src : 0;
+    const padL = 52 * dpr, padR = 42 * dpr, padB = 24 * dpr;
+    const items = [
+      { color: t.warm, kind: "line", parts: [["P"], ["L", true], ["(R"], ["L", true], [")"]] },
+      { color: t.accent2, kind: "dash", parts: [["Verim η"]] },
+      { color: t.accent, kind: "dash", parts: [["R"], ["L", true], [" = r"]] },
+      { color: t.danger, kind: "dot", parts: [[p.closed ? `Şu an: ${si(PLm, "W")}, η = ${(eta * 100).toFixed(1)} %` : "Açık devre: P = 0"]] },
+    ];
+    const { W, H, fs, padT, pw, ph } = chartFrame(t, items, padL, padR, padB);
+    const c = cctx;
+    const e = p.emf, r = p.rint, RL = state.RL;
+    const lo = Math.log10(DCCore.RL_MIN), hi = 3;
+    const X = (R) => padL + ((Math.log10(R) - lo) / (hi - lo)) * pw;
+    const PLf = (R) => (e * e * R) / (R + r) ** 2;
+    const ay = niceAxis((r > 0 ? th.Pmax : PLf(RL) * 2) * 1.08);
+    const Y = (P) => padT + ph - (P / ay.max) * ph;
+    const Ye = (eta) => padT + ph - eta * ph;
+    c.strokeStyle = t.grid;
+    c.lineWidth = dpr;
+    c.font = `500 ${fs}px ${FONT}`;
+    c.fillStyle = t.muted;
+    for (let d = lo; d <= hi; d++) {
+      const x = X(10 ** d);
+      line(c, x, padT, x, padT + ph);
+      c.textAlign = d === hi ? "right" : d === lo ? "left" : "center";
+      c.fillText(tick(10 ** d, "Ω"), x, H - 7 * dpr);
+    }
+    for (let k = 0; k <= ay.n; k++) {
+      const v = (ay.max * k) / ay.n;
+      line(c, padL, Y(v), padL + pw, Y(v));
+      c.textAlign = "right";
+      c.fillText(tick(v, "W"), padL - 6 * dpr, Y(v) + 4 * dpr);
+    }
+    c.textAlign = "left";
+    for (const eta of [0, 0.5, 1]) c.fillText(`${eta * 100} %`, padL + pw + 6 * dpr, Ye(eta) + 4 * dpr);
+
+    c.save();
+    c.beginPath();
+    c.rect(padL, padT, pw, ph);
+    c.clip();
+    const N = 240;
+    c.lineWidth = 2.5 * dpr;
+    c.strokeStyle = t.warm;
+    c.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const R = 10 ** (lo + ((hi - lo) * i) / N);
+      if (i) c.lineTo(X(R), Y(PLf(R)));
+      else c.moveTo(X(R), Y(PLf(R)));
+    }
+    c.stroke();
+    c.strokeStyle = t.accent2;
+    c.lineWidth = 2 * dpr;
+    c.setLineDash([6 * dpr, 4 * dpr]);
+    c.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const R = 10 ** (lo + ((hi - lo) * i) / N);
+      const yy = Ye(R / (R + r));
+      if (i) c.lineTo(X(R), yy);
+      else c.moveTo(X(R), yy);
+    }
+    c.stroke();
+    if (r >= DCCore.RL_MIN) {
+      c.strokeStyle = t.accent;
+      c.setLineDash([3 * dpr, 4 * dpr]);
+      line(c, X(r), padT, X(r), padT + ph);
+    }
+    c.setLineDash([]);
+    c.restore();
+
+    c.fillStyle = t.accent2;
+    c.beginPath();
+    c.arc(X(RL), Ye(eta), 4 * dpr, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = t.danger;
+    c.beginPath();
+    c.arc(X(RL), Math.max(padT, Y(PLm)), 5 * dpr, 0, Math.PI * 2);
+    c.fill();
+    if (r < DCCore.RL_MIN) {
+      c.font = `500 ${fs}px ${FONT}`;
+      c.textAlign = "right";
+      c.fillStyle = t.muted;
+      c.fillText("r ≈ 0: P ε²/R ile artar, tepe yok", W - padR, padT + fs);
+    }
+  }
+
+  function drawChart(t) {
+    if (state.p.topo === "maksguc") drawPower(t);
+    else drawIV(t);
+  }
+
+  /* ── Döngü ── */
+  function advanceDots(dt) {
+    const k = DOT_GAIN * state.speedScale * (ui.electrons.checked ? -1 : 1);
+    for (const b of state.circ.branches) {
+      const v = k * state.sol.I[b.id];
+      if (!v) continue;
+      const ph = (state.phase[b.id] || 0) + v * dt;
+      state.phase[b.id] = ((ph % DOT_SPACING) + DOT_SPACING) % DOT_SPACING;
+    }
+  }
+
+  let lastFrame = 0;
+  let acc = 0;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (state.running && !paused) {
+      acc += elapsed;
+      while (acc >= DT) {
+        advanceDots(DT);
+        acc -= DT;
+      }
+    }
+    const t = theme();
+    drawCircuit(t);
+    drawChart(t);
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  function setRunning(run) {
+    state.running = run;
+    ui.toggle.textContent = run ? "Duraklat" : "Devam et";
+    ui.toggle.setAttribute("aria-pressed", String(!run));
+  }
+
+  function onManualInput() {
+    ui.preset.value = "";
+    recompute();
+  }
+
+  function resetAll() {
+    ui.preset.value = "";
+    applySettings(DEFAULTS);
+    setRunning(true);
+  }
+
+  [ui.topo, ui.count, ui.emf, ui.rint, ui.closed, ...Object.values(R_SLIDERS).map((s) => s.input)].forEach((el) => {
+    el.addEventListener("input", onManualInput);
+  });
+  ui.rl.addEventListener("input", () => {
+    state.RL = DCCore.rlFromPos(Number(ui.rl.value));
+    onManualInput();
+  });
+  ui.rlMatch.addEventListener("click", () => {
+    setRL(state.p.rint);
+    onManualInput();
+  });
+  ui.lamps.addEventListener("input", () => {
+    updateFields();
+    updateElementTable();
+    updateSelInfo();
+  });
+  ui.element.addEventListener("input", () => select(ui.element.value));
+  ui.preset.addEventListener("input", () => {
+    const cfg = PRESETS[ui.preset.value];
+    if (cfg) applySettings(cfg);
+  });
+  ui.elBody.addEventListener("click", (evt) => {
+    const tr = evt.target.closest("tr[data-el]");
+    if (tr) select(tr.dataset.el);
+  });
+  ui.toggle.addEventListener("click", () => setRunning(!state.running));
+  ui.reset.addEventListener("click", resetAll);
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.matches("input, select, textarea, button")) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      setRunning(!state.running);
+    } else if (e.key === "r" || e.key === "R") resetAll();
+    else if (e.key === "s" || e.key === "S") {
+      ui.closed.checked = !ui.closed.checked;
+      onManualInput();
     }
   });
 
-  function drawCircuit() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "red";
-    ctx.fillRect(50, 150, 30, 80);
-    ctx.fillStyle = "black";
-    ctx.fillRect(50, 180, 30, 10);
-
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(80, 190);
-    ctx.lineTo(200, 190);
-    ctx.stroke();
-
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(180, 175, 40, 30);
-    ctx.fillStyle = "black";
-    ctx.fillText("R₁", 190, 195);
-
-    ctx.beginPath();
-    ctx.moveTo(200, 190);
-    ctx.lineTo(300, circuitClosed ? 190 : 160);
-    ctx.stroke();
-
-    if (circuitType === "series") {
-      ctx.beginPath();
-      ctx.moveTo(300, 190);
-      ctx.lineTo(400, 190);
-      ctx.stroke();
-      ctx.fillStyle = circuitClosed ? "cyan" : "gray";
-      ctx.beginPath();
-      ctx.arc(400, 190, 10, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      ctx.beginPath();
-      ctx.moveTo(300, 190);
-      ctx.lineTo(350, 160);
-      ctx.lineTo(400, 190);
-      ctx.stroke();
-      ctx.fillStyle = circuitClosed ? "cyan" : "gray";
-      ctx.beginPath();
-      ctx.arc(350, 160, 10, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(400, 190, 10, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.strokeStyle = "white";
-    ctx.beginPath();
-    ctx.moveTo(400, 190);
-    ctx.lineTo(400, 250);
-    ctx.lineTo(50, 250);
-    ctx.lineTo(50, 230);
-    ctx.stroke();
+  function toLogical(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const dx = ((evt.clientX - rect.left) / rect.width) * canvas.width;
+    const dy = ((evt.clientY - rect.top) / rect.height) * canvas.height;
+    return [(dx - view.ox) / view.s, (dy - view.oy) / view.s];
   }
 
-  function updateCircuit() {
-    let totalResistance;
-    if (circuitType === "series") {
-      totalResistance = resistance1 + resistance2;
-    } else {
-      totalResistance = (resistance1 * resistance2) / (resistance1 + resistance2);
+  function hitTest([lx, ly]) {
+    let best = null;
+    let bestD = Math.max(20, 14 * view.u);
+    for (const b of state.circ.branches) {
+      if (!b.at) continue;
+      const hx = (b.ux * b.len) / 2, hy = (b.uy * b.len) / 2;
+      const ax = b.cx - hx, ay = b.cy - hy, vx = 2 * hx, vy = 2 * hy;
+      const tt = Math.max(0, Math.min(1, ((lx - ax) * vx + (ly - ay) * vy) / (vx * vx + vy * vy)));
+      const d = Math.hypot(lx - (ax + vx * tt), ly - (ay + vy * tt));
+      if (d < bestD) { bestD = d; best = b; }
     }
-
-    if (circuitClosed) {
-      current = voltage / totalResistance;
-    } else {
-      current = 0;
-    }
-
-    document.getElementById("voltageDisplay").innerText = voltage;
-    document.getElementById("currentDisplay").innerText = current.toFixed(6);
-    document.getElementById("resistanceDisplay").innerText = totalResistance.toFixed(0);
-
-    time += 0.1;
-    if (timeValues.length > 100) {
-      timeValues.shift();
-      currentValues.shift();
-    }
-    timeValues.push(time.toFixed(1));
-    currentValues.push(current.toFixed(6));
-
-    if (currentChart) {
-      currentChart.data.labels = timeValues;
-      currentChart.data.datasets[0].data = currentValues;
-      currentChart.update();
-    }
+    return best;
   }
 
-  function toggleSwitch() {
-    circuitClosed = !circuitClosed;
-    drawCircuit();
-  }
-
-  function switchToSeries() {
-    circuitType = "series";
-    drawCircuit();
-  }
-
-  function switchToParallel() {
-    circuitType = "parallel";
-    drawCircuit();
-  }
-
-  document.getElementById("resistanceSlider").addEventListener("input", function() {
-    resistance1 = parseInt(this.value);
-    resistance2 = parseInt(this.value);
-    updateCircuit();
+  canvas.addEventListener("pointerdown", (evt) => {
+    const b = hitTest(toLogical(evt));
+    if (!b) return;
+    if (b.kind === "sw") {
+      ui.closed.checked = !ui.closed.checked;
+      onManualInput();
+    }
+    select(b.id);
+  });
+  canvas.addEventListener("pointermove", (evt) => {
+    canvas.classList.toggle("is-pointer", Boolean(hitTest(toLogical(evt))));
   });
 
-  function animate() {
-    updateCircuit();
-    drawCircuit();
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-</script></body>
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas);
+  ro.observe(chart);
+  applySettings(DEFAULTS);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>

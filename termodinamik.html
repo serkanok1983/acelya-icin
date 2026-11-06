@@ -2,141 +2,1582 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Termodinamik & Gaz Yasaları (PV = nRT)</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-  <script src="shared/chart-safe.js"></script>
-
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Termodinamik: PV Diyagramı, İş, Isı ve Çevrimler</title>
+  <meta name="description" content="İdeal gazla izotermal, adyabatik, izobarik ve izokorik adımlardan yol kur; her adımın işini, ısısını, iç enerji ve entropi değişimini birinci yasayla denetle, Carnot, Otto ve Stirling çevrimlerinin verimini karşılaştır.">
   <style>
-    body {
-      text-align: center;
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
+    .app-content { --c-isoT: #5eead4; --c-adiab: #a78bfa; --c-isoP: #fbbf24; --c-isoV: #f472b6; }
+    [data-theme="light"] .app-content { --c-isoT: #0d9488; --c-adiab: #7c3aed; --c-isoP: #d97706; --c-isoV: #db2777; }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
     }
-    canvas {
-      background: #222;
+    .lab-stage, .side { display: grid; gap: 12px; min-width: 0; }
+    .pv-canvas, .cyl-canvas, .ts-canvas {
+      width: 100%;
       display: block;
-      margin: auto;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
     }
-    .controls {
-      margin-top: 15px;
+    .pv-canvas { aspect-ratio: 4 / 3; touch-action: none; cursor: crosshair; }
+    .pv-canvas.is-locked { cursor: default; }
+    .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .cyl-canvas, .ts-canvas { aspect-ratio: 1 / 1; }
+    [data-theme="light"] .pv-canvas,
+    [data-theme="light"] .cyl-canvas,
+    [data-theme="light"] .ts-canvas { background: #f7f9fc; }
+    .legend { list-style: none; margin: -4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.78rem; }
+    .legend li { display: inline-flex; align-items: center; gap: 6px; }
+    .sw { display: inline-block; flex: none; width: 16px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+    .legend .sw { margin-right: 0; }
+    .sw-isoT { background: var(--c-isoT); }
+    .sw-adiab { background: var(--c-adiab); }
+    .sw-isoP { background: var(--c-isoP); }
+    .sw-isoV { background: var(--c-isoV); }
+    .sw-line { height: 0; border-top: 1.5px solid var(--text-muted); border-radius: 0; }
+    .sw-dash { height: 0; border-top: 1.5px dashed var(--text-muted); border-radius: 0; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
     }
-    button {
-      font-size: 16px;
-      padding: 10px 15px;
-      margin: 5px;
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field[hidden] { display: none; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; cursor: pointer; }
+    .app-content button:disabled { opacity: 0.45; cursor: not-allowed; filter: none !important; }
+    .group-title { margin: 2px 0 -4px; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.06em; }
+    .readouts-wrap { display: grid; gap: 8px; }
+    .readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      min-width: 0;
     }
-    button:hover {
-      background: #0056b3;
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .preview { display: grid; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--border); background: var(--bg-input); }
+    .preview-head { margin: 0; font-size: 0.82rem; line-height: 1.4; }
+    .mini { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
+    .mini div { display: flex; justify-content: space-between; gap: 6px; font-size: 0.84rem; color: var(--text-muted); }
+    .mini strong { font-variant-numeric: tabular-nums; color: var(--text) !important; }
+    .status { min-height: 1.5em; }
+    .steps-panel { margin-top: 16px; }
+    .steps-panel .table-wrap { margin: 0; }
+    .steps-panel table.steps { width: 100%; margin: 0; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+    .steps-panel table.steps th,
+    .steps-panel table.steps td { padding: 5px 8px; white-space: nowrap; text-align: right; }
+    .steps-panel table.steps th:nth-child(-n+2),
+    .steps-panel table.steps td:nth-child(-n+2) { text-align: left; }
+    .steps-panel table.steps tfoot th { text-align: left; }
+    .steps-panel table.steps tfoot td { font-weight: 700; }
+    .steps-panel table.steps tr.is-active td { background: color-mix(in srgb, var(--accent-warm) 18%, transparent) !important; }
+    .steps-panel table.steps td.empty { text-align: center; white-space: normal; color: var(--text-muted) !important; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
     }
-    .slider-container {
-      margin: 15px;
-    }
-    .slider-container input {
-      width: 300px;
-    }
-    #gasChart {
-      width: 600px;
-      height: 300px;
-      margin: auto;
+    @media (max-width: 520px) {
+      .duo { grid-template-columns: 1fr; }
+      .cyl-canvas { aspect-ratio: 16 / 10; }
+      .ts-canvas { aspect-ratio: 4 / 3; }
     }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="termodinamik">
 
-<h1>Termodinamik & Gaz Yasaları (PV = nRT)</h1>
-<p>Gazın sıcaklık, basınç ve hacim değişimini gözlemleyin.</p>
-<canvas id="gasContainer" width="500" height="300"></canvas>
+<div class="app-content">
+  <h1>Termodinamik: PV Diyagramı, İş, Isı ve Çevrimler</h1>
+  <p class="hint">Bir süreç seç, hedefi kaydırıcıyla ya da diyagramda sürükleyerek belirle ve Uygula'ya bas. Gazın yaptığı iş eğrinin altındaki alandır; yol başlangıca dönünce çevrelenen alan net iştir.</p>
 
-<!-- Parametre Kontrolleri -->
-<div class="slider-container">
-  <label for="temperature">Sıcaklık (K):</label>
-  <input type="range" id="temperature" min="100" max="600" step="10" value="300" oninput="updateGas()">
-  <span id="tempValue">300</span> K
-</div>
-<div class="slider-container">
-  <label for="volume">Hacim (L):</label>
-  <input type="range" id="volume" min="1" max="10" step="0.1" value="5" oninput="updateGas()">
-  <span id="volValue">5</span> L
-</div>
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="pvCanvas" class="pv-canvas" width="900" height="675" role="img" aria-label="Basınç-hacim (PV) diyagramı: soluk izotermler ve adyabatlar, kurulan yol, önizleme adımı ve gazın anlık durumu"></canvas>
+      <ul class="legend" aria-label="Renk açıklaması">
+        <li><i class="sw sw-isoT"></i>İzotermal</li>
+        <li><i class="sw sw-adiab"></i>Adyabatik</li>
+        <li><i class="sw sw-isoP"></i>İzobarik</li>
+        <li><i class="sw sw-isoV"></i>İzokorik</li>
+        <li><i class="sw sw-line"></i>izoterm</li>
+        <li><i class="sw sw-dash"></i>adyabat</li>
+      </ul>
+      <div class="duo">
+        <canvas id="cylCanvas" class="cyl-canvas" width="450" height="450" role="img" aria-label="Piston-silindir: piston yüksekliği hacimle orantılı, parçacık hızı karekök T ile ölçeklenir; ısı akışı okları ve sıcak, soğuk kaynaklar"></canvas>
+        <canvas id="tsCanvas" class="ts-canvas" width="450" height="450" role="img" aria-label="Sıcaklık-entropi (TS) diyagramı: eğrinin altındaki alan ısıdır"></canvas>
+      </div>
+      <div class="readouts-wrap" aria-live="polite">
+        <p class="group-title">Gazın durumu</p>
+        <div class="readouts">
+          <div class="readout"><small>Basınç P</small><strong id="pDisplay">—</strong></div>
+          <div class="readout"><small>Hacim V</small><strong id="vDisplay">—</strong></div>
+          <div class="readout"><small>Sıcaklık T</small><strong id="tDisplay">—</strong></div>
+          <div class="readout"><small>İç enerji U = nC<sub>v</sub>T</small><strong id="uDisplay">—</strong></div>
+          <div class="readout"><small>Entropi S − S<sub>1</sub></small><strong id="sDisplay">—</strong></div>
+          <div class="readout"><small>PV<sup>γ</sup></small><strong id="pvgDisplay">—</strong></div>
+        </div>
+        <p class="group-title" id="workTitle">İş: sayısal alan ve formül</p>
+        <div class="readouts">
+          <div class="readout is-highlight"><small id="wNumLabel">∫P dV (sayısal)</small><strong id="wNumDisplay">—</strong></div>
+          <div class="readout"><small id="wFormLabel">Formül</small><strong id="wFormDisplay">—</strong></div>
+          <div class="readout"><small>Fark</small><strong id="wDiffDisplay">—</strong></div>
+        </div>
+        <p class="group-title" id="cycleTitle">Çevrim (yol kapanınca)</p>
+        <div class="readouts">
+          <div class="readout"><small>Net iş W<sub>net</sub> = ΣW</small><strong id="wNetDisplay">—</strong></div>
+          <div class="readout"><small>Alınan ısı Q<sub>in</sub></small><strong id="qInDisplay">—</strong></div>
+          <div class="readout is-highlight"><small id="etaLabel">Verim η = W<sub>net</sub>/Q<sub>in</sub></small><strong id="etaDisplay">—</strong></div>
+          <div class="readout"><small id="etaFormLabel">Çevrim formülü</small><strong id="etaFormDisplay">—</strong></div>
+          <div class="readout"><small>Fark</small><strong id="etaDiffDisplay">—</strong></div>
+          <div class="readout"><small>Carnot sınırı 1 − T<sub>min</sub>/T<sub>maks</sub></small><strong id="carnotDisplay">—</strong></div>
+        </div>
+      </div>
+    </div>
 
-<!-- Grafik -->
-<canvas id="gasChart"></canvas>
+    <div class="side">
+      <div class="panel" aria-label="Gaz ve başlangıç durumu">
+        <h2>Gaz ve başlangıç</h2>
+        <div class="field">
+          <label for="gasSelect"><span class="lt">Gaz türü</span><output id="gasOut" for="gasSelect">γ = 1.667</output></label>
+          <select id="gasSelect">
+            <option value="mono" selected>Tek atomlu (He, Ar) · Cv = 3/2 R</option>
+            <option value="di">İki atomlu (N₂, O₂) · Cv = 5/2 R</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="nRange"><span class="lt">Madde miktarı n</span><output id="nOut" for="nRange">1.0 mol</output></label>
+          <input type="range" id="nRange" min="0.1" max="2" step="0.1" value="1">
+        </div>
+        <div class="field">
+          <label for="v0Range"><span class="lt">Başlangıç hacmi V<sub>1</sub></span><output id="v0Out" for="v0Range">10.00 L</output></label>
+          <input type="range" id="v0Range" min="1" max="40" step="0.5" value="10">
+        </div>
+        <div class="field">
+          <label for="t0Range"><span class="lt">Başlangıç sıcaklığı T<sub>1</sub></span><output id="t0Out" for="t0Range">300.0 K</output></label>
+          <input type="range" id="t0Range" min="100" max="1000" step="10" value="300">
+        </div>
+        <p class="note">Gaz türü ya da n değişince adımlar aynı hedeflerle yeniden hesaplanır; başlangıç durumu değişince yol silinir.</p>
+      </div>
+
+      <div class="panel" aria-label="Süreç adımı">
+        <h2>Süreç adımı</h2>
+        <div class="field">
+          <label for="procSelect"><span class="lt">Süreç</span><output id="procOut" for="procSelect">T sabit</output></label>
+          <select id="procSelect">
+            <option value="isoT" selected>İzotermal (T sabit)</option>
+            <option value="adiab">Adyabatik (Q = 0)</option>
+            <option value="isoP">İzobarik (P sabit)</option>
+            <option value="isoV">İzokorik (V sabit)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="targetRange"><span class="lt" id="targetLabel">Hedef hacim V</span><output id="targetOut" for="targetRange">—</output></label>
+          <input type="range" id="targetRange" min="1" max="80" step="0.1" value="10">
+        </div>
+        <div class="preview" aria-live="polite">
+          <p class="preview-head" id="prevHead">Hedef seçilmedi.</p>
+          <div class="mini">
+            <div>W <strong id="prevW">—</strong></div>
+            <div>Q <strong id="prevQ">—</strong></div>
+            <div>ΔU <strong id="prevU">—</strong></div>
+            <div>ΔS <strong id="prevS">—</strong></div>
+          </div>
+          <p class="note" id="prevInv"></p>
+        </div>
+        <div class="row">
+          <button type="button" id="applyBtn">Uygula</button>
+          <button type="button" id="undoBtn" class="app-btn-ghost">Geri al</button>
+          <button type="button" id="clearBtn" class="app-btn-ghost">Temizle</button>
+          <button type="button" id="closeBtn" class="app-btn-ghost">Başlangıca dön</button>
+        </div>
+        <p class="note status" id="statusLine" aria-live="polite"></p>
+      </div>
+
+      <div class="panel" aria-label="Hazır çevrimler">
+        <h2>Hazır çevrimler</h2>
+        <div class="field">
+          <label for="cycleSelect"><span class="lt">Çevrim</span><output id="cycleOut" for="cycleSelect">2 izoterm + 2 adyabat</output></label>
+          <select id="cycleSelect">
+            <option value="carnot" selected>Carnot</option>
+            <option value="otto">Otto</option>
+            <option value="stirling">Stirling (rejeneratörsüz)</option>
+          </select>
+        </div>
+        <div class="field" id="thField">
+          <label for="thRange"><span class="lt">Sıcak kaynak T<sub>h</sub></span><output id="thOut" for="thRange">600 K</output></label>
+          <input type="range" id="thRange" min="400" max="1000" step="10" value="600">
+        </div>
+        <div class="field" id="tcField">
+          <label for="tcRange"><span class="lt" id="tcLabel">Soğuk kaynak T<sub>c</sub></span><output id="tcOut" for="tcRange">300 K</output></label>
+          <input type="range" id="tcRange" min="200" max="500" step="10" value="300">
+        </div>
+        <div class="field" id="rField" hidden>
+          <label for="rRange"><span class="lt">Sıkıştırma oranı r = V<sub>maks</sub>/V<sub>min</sub></span><output id="rOut" for="rRange">8.0</output></label>
+          <input type="range" id="rRange" min="2" max="12" step="0.5" value="8">
+        </div>
+        <div class="field" id="qinField" hidden>
+          <label for="qinRange"><span class="lt">Yanma ısısı Q<sub>in</sub></span><output id="qinOut" for="qinRange">3000 J</output></label>
+          <input type="range" id="qinRange" min="500" max="10000" step="100" value="3000">
+        </div>
+        <div class="row">
+          <button type="button" id="buildBtn">Çevrimi kur</button>
+          <button type="button" id="playBtn" class="app-btn-ghost" aria-pressed="false">Oynat</button>
+        </div>
+        <p class="note" id="cycleNote">Carnot: T<sub>h</sub>'de izotermal genleşme (V₂/V₁ = 2), adyabatik genleşme, T<sub>c</sub>'de izotermal sıkışma, adyabatik sıkışma.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> oynat/duraklat, <kbd>R</kbd> temizle, <kbd>Z</kbd> geri al. Hazır çevrim yüklüyken kaydırıcılar çevrimi canlı günceller.</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="panel steps-panel" aria-label="Adım tablosu">
+    <h2>Adımlar ve birinci yasa</h2>
+    <div class="table-wrap">
+      <table class="steps">
+        <caption class="visually-hidden">Her adımın hacim, sıcaklık, iş, ısı, iç enerji ve entropi değişimi</caption>
+        <thead>
+          <tr>
+            <th scope="col">Adım</th>
+            <th scope="col">Süreç</th>
+            <th scope="col">V (L)</th>
+            <th scope="col">T (K)</th>
+            <th scope="col">W (J)</th>
+            <th scope="col">Q (J)</th>
+            <th scope="col">ΔU (J)</th>
+            <th scope="col">Q − W (J)</th>
+            <th scope="col">ΔS (J/K)</th>
+          </tr>
+        </thead>
+        <tbody id="stepRows"></tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" colspan="4">Toplam</th>
+            <td id="sumW">0.0</td>
+            <td id="sumQ">0.0</td>
+            <td id="sumU">0.0</td>
+            <td id="sumQW">0.0</td>
+            <td id="sumS">0.00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <p class="note">İşaret kuralı: W gazın yaptığı iştir (genleşmede pozitif), Q gaza giren ısıdır. Her satırda ΔU = Q − W. Kapalı çevrimde ΣΔU = 0 ve ΣΔS = 0 olur, çünkü U ve S durum fonksiyonudur; ΣW = ΣQ ise yola bağlıdır.</p>
+  </section>
+</div>
 
 <script>
-  const canvas = document.getElementById("gasContainer");
-  const ctx = canvas.getContext("2d");
-  
-  let temperature = 300;
-  let volume = 5;
-  let pressure = (8.31 * temperature) / volume;
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
 
-  let time = 0;
-  let timeValues = [];
-  let pressureValues = [];
+  /* ── Fizik ── */
+  const R = 8.314;                          // J/(mol·K) = kPa·L/(mol·K)
+  const DT = 1 / 240;                       // s, sabit adım
+  const STEP_TIME = 1.6;                    // s, bir sürecin oynatılma süresi
+  const N_SUB = Math.round(STEP_TIME / DT); // 384 alt adım
+  const SAMPLES = 64;
+  const MAX_STEPS = 12;
+  const V_MIN = 1, V_MAX = 80, T_MIN = 50, T_MAX = 2500;
+  const PROC = {
+    isoT: { name: "İzotermal", by: "V", short: "T sabit" },
+    adiab: { name: "Adyabatik", by: "V", short: "Q = 0" },
+    isoP: { name: "İzobarik", by: "V", short: "P sabit" },
+    isoV: { name: "İzokorik", by: "T", short: "V sabit" },
+  };
+  const gas = { n: 1, f: 1.5 };             // f = C_v / R
 
-  const chartCtx = document.getElementById("gasChart").getContext("2d");
-  let gasChart = createSafeChart(chartCtx, {
-    type: "line",
-    data: {
-      labels: timeValues,
-      datasets: [{
-        label: "Basınç (P) - Zaman",
-        borderColor: "yellow",
-        data: pressureValues,
-        fill: false
-      }]
-    },
-    options: {
-      scales: {
-        x: { title: { display: true, text: "Zaman (s)" } },
-        y: { title: { display: true, text: "Basınç (atm)" } }
+  const cv = () => gas.f * R;               // J/(mol·K)
+  const gam = () => 1 + 1 / gas.f;
+  const pres = (s) => (gas.n * R * s.T) / s.V;   // kPa
+  const relS = (s, ref) => gas.n * cv() * Math.log(s.T / ref.T) + gas.n * R * Math.log(s.V / ref.V);
+  const driver = (proc, s) => (PROC[proc].by === "V" ? s.V : s.T);
+
+  // a durumundan geçen süreç eğrisinde, sürücü değişkeni x (V ya da T) olan durum
+  function stateAt(a, proc, x) {
+    switch (proc) {
+      case "isoT": return { V: x, T: a.T };
+      case "adiab": return { V: x, T: a.T * Math.pow(a.V / x, gam() - 1) };
+      case "isoP": return { V: x, T: (a.T * x) / a.V };
+      default: return { V: a.V, T: x };
+    }
+  }
+
+  // Kapalı biçim: W gazın yaptığı iş, Q gaza giren ısı (J)
+  function formulas(a, b, proc) {
+    const n = gas.n, Cv = cv(), Cp = Cv + R, dT = b.T - a.T;
+    let W, Q;
+    switch (proc) {
+      case "isoT": W = n * R * a.T * Math.log(b.V / a.V); Q = W; break;
+      case "adiab": W = n * Cv * (a.T - b.T); Q = 0; break;
+      case "isoP": W = pres(a) * (b.V - a.V); Q = n * Cp * dT; break;
+      default: W = 0; Q = n * Cv * dT;
+    }
+    return { W, Q, dU: n * Cv * dT, dS: n * Cv * Math.log(b.T / a.T) + n * R * Math.log(b.V / a.V) };
+  }
+
+  // Birinci yasa boyunca türevler: y = [T, W, Q, S], bağımsız değişken x (V ya da T)
+  function deriv(proc, a, x, y) {
+    const n = gas.n, Cv = cv(), T = y[0];
+    switch (proc) {
+      case "isoT": { const p = (n * R * T) / x; return [0, p, p, p / T]; }
+      case "adiab": { const p = (n * R * T) / x; return [(-(R / Cv) * T) / x, p, 0, 0]; }
+      case "isoP": { const p = pres(a), dT = p / (n * R), dq = n * Cv * dT + p; return [dT, p, dq, dq / T]; }
+      default: return [1, 0, n * Cv, (n * Cv) / T];
+    }
+  }
+  function rk4(proc, a, x, h, y) {
+    const k1 = deriv(proc, a, x, y);
+    const k2 = deriv(proc, a, x + h / 2, y.map((v, i) => v + (h / 2) * k1[i]));
+    const k3 = deriv(proc, a, x + h / 2, y.map((v, i) => v + (h / 2) * k2[i]));
+    const k4 = deriv(proc, a, x + h, y.map((v, i) => v + h * k3[i]));
+    return y.map((v, i) => v + (h / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
+  }
+  // Oynatmadaki alt adımların aynısıyla tüm süreç: "ölçülen" T₂, W, Q, ΔS
+  function integrate(a, proc, x2, upTo = N_SUB) {
+    const x1 = driver(proc, a), h = (x2 - x1) / N_SUB;
+    let y = [a.T, 0, 0, 0];
+    for (let k = 0; k < upTo; k++) y = rk4(proc, a, x1 + k * h, h, y);
+    return y;
+  }
+
+  function makeStep(a, proc, target) {
+    const b = stateAt(a, proc, target);
+    const y = integrate(a, proc, target);
+    const x1 = driver(proc, a);
+    const samples = [];
+    for (let j = 0; j <= SAMPLES; j++) samples.push(stateAt(a, proc, x1 + ((target - x1) * j) / SAMPLES));
+    return { proc, target, a, b, ...formulas(a, b, proc), num: { T: y[0], W: y[1], Q: y[2], S: y[3] }, samples };
+  }
+
+  /* ── Yol modeli ── */
+  const path = { start: { V: 10, T: 300 }, specs: [], steps: [], closed: false, preset: null };
+  const current = () => (path.steps.length ? path.steps[path.steps.length - 1].b : path.start);
+  const near = (x, y, tol = 1e-6) => Math.abs(x - y) <= tol * Math.max(Math.abs(y), 1e-12);
+  const sameState = (s, t) => near(s.V, t.V) && near(s.T, t.T);
+
+  function rebuild() {
+    path.steps = [];
+    path.closed = false;
+    let a = path.start;
+    for (let i = 0; i < path.specs.length; i++) {
+      const sp = path.specs[i];
+      const st = makeStep(a, sp.proc, sp.target);
+      path.steps.push(st);
+      a = st.b;
+      if (path.steps.length >= 2 && sameState(a, path.start)) {
+        st.b = { V: path.start.V, T: path.start.T };
+        st.samples[SAMPLES] = st.b;
+        Object.assign(st, formulas(st.a, st.b, st.proc));
+        path.closed = true;
+        path.specs.length = i + 1;
+        break;
       }
     }
+  }
+
+  // Başlangıca dönüş: tek süreç yetiyorsa onu, yetmiyorsa seçili süreçle başlayan iki adımı kullan
+  function closingSpecs(c, s, sel) {
+    if (sameState(c, s)) return [];
+    const g = gam();
+    if (near(c.T, s.T)) return [{ proc: "isoT", target: s.V }];
+    if (near(c.V, s.V)) return [{ proc: "isoV", target: s.T }];
+    if (near(pres(c), pres(s))) return [{ proc: "isoP", target: s.V }];
+    if (near(c.T * Math.pow(c.V, g - 1), s.T * Math.pow(s.V, g - 1))) return [{ proc: "adiab", target: s.V }];
+    if (sel === "isoT") return [{ proc: "isoT", target: s.V }, { proc: "isoV", target: s.T }];
+    if (sel === "isoP") return [{ proc: "isoP", target: s.V }, { proc: "isoV", target: s.T }];
+    if (sel === "adiab") {
+      const v = c.V * Math.pow(c.T / s.T, 1 / (g - 1));
+      if (v >= 0.2 && v <= 400) return [{ proc: "adiab", target: v }, { proc: "isoT", target: s.V }];
+    }
+    return [{ proc: "isoV", target: s.T }, { proc: "isoT", target: s.V }];
+  }
+
+  // Hazır çevrimler (n ve gaz türü o anki ayarlardan)
+  function presetSpecs(p) {
+    const g = gam();
+    if (p.type === "carnot") {
+      const f = Math.pow(p.Th / p.Tc, 1 / (g - 1)); // adyabatik hacim oranı
+      const V1 = Math.min(5, 60 / (2 * f));
+      return {
+        start: { V: V1, T: p.Th },
+        specs: [
+          { proc: "isoT", target: 2 * V1 },
+          { proc: "adiab", target: 2 * V1 * f },
+          { proc: "isoT", target: V1 * f },
+          { proc: "adiab", target: V1 },
+        ],
+      };
+    }
+    if (p.type === "otto") {
+      const V1 = 20, T1 = p.Tc, V2 = V1 / p.r;
+      const T3 = T1 * Math.pow(p.r, g - 1) + p.Qin / (gas.n * cv());
+      return {
+        start: { V: V1, T: T1 },
+        specs: [
+          { proc: "adiab", target: V2 },
+          { proc: "isoV", target: T3 },
+          { proc: "adiab", target: V1 },
+          { proc: "isoV", target: T1 },
+        ],
+      };
+    }
+    const Vmin = 20 / p.r;
+    return {
+      start: { V: Vmin, T: p.Th },
+      specs: [
+        { proc: "isoT", target: 20 },
+        { proc: "isoV", target: p.Tc },
+        { proc: "isoT", target: Vmin },
+        { proc: "isoV", target: p.Th },
+      ],
+    };
+  }
+  function presetEta(p) {
+    if (p.type === "carnot") return { eta: 1 - p.Tc / p.Th, label: "Carnot formülü 1 − T<sub>c</sub>/T<sub>h</sub>" };
+    if (p.type === "otto") return { eta: 1 - Math.pow(p.r, 1 - gam()), label: "Otto formülü 1 − r<sup>1−γ</sup>" };
+    const L = Math.log(p.r);
+    return { eta: ((p.Th - p.Tc) * L) / (p.Th * L + gas.f * (p.Th - p.Tc)), label: "Stirling formülü (rejeneratörsüz)" };
+  }
+
+  function cycleSummary() {
+    if (!path.closed) return null;
+    let W = 0, Qin = 0, Qout = 0, Wnum = 0, Tmin = Infinity, Tmax = 0;
+    for (const st of path.steps) {
+      W += st.W;
+      Wnum += st.num.W;
+      if (st.Q > 0) Qin += st.Q; else Qout += st.Q;
+      Tmin = Math.min(Tmin, st.a.T, st.b.T);
+      Tmax = Math.max(Tmax, st.a.T, st.b.T);
+    }
+    return { W, Wnum, Qin, Qout, eta: W > 0 && Qin > 0 ? W / Qin : null, carnot: 1 - Tmin / Tmax, Tmin, Tmax };
+  }
+
+  /* ── Biçimlendirme ── */
+  const MINUS = "−";
+  function fix(x, d) {
+    const r = Number(x.toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
+  }
+  function sgn(x, d) {
+    const r = Number(x.toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r > 0 ? "+" : MINUS) + Math.abs(r).toFixed(d);
+  }
+  const fmtP = (p) => `${fix(p, p >= 1000 ? 0 : 1)} kPa`;
+  const fmtV = (v) => `${fix(v, 2)} L`;
+  const fmtT = (t) => `${fix(t, 1)} K`;
+  const fmtJ = (j) => `${sgn(j, 1)} J`;
+  const fmtS = (s) => `${sgn(s, 2)} J/K`;
+  const fmtPct = (x) => `${fix(x * 100, 2)} %`;
+  function diffPct(meas, theory) {
+    if (!Number.isFinite(meas) || !Number.isFinite(theory) || Math.abs(theory) < 1e-9) return "—";
+    return `${sgn(((meas - theory) / Math.abs(theory)) * 100, 2)} %`;
+  }
+
+  /* ── Arayüz ── */
+  const ui = {
+    gas: $("gasSelect"), gasOut: $("gasOut"), n: $("nRange"), nOut: $("nOut"),
+    v0: $("v0Range"), v0Out: $("v0Out"), t0: $("t0Range"), t0Out: $("t0Out"),
+    proc: $("procSelect"), procOut: $("procOut"),
+    target: $("targetRange"), targetLabel: $("targetLabel"), targetOut: $("targetOut"),
+    prevHead: $("prevHead"), prevW: $("prevW"), prevQ: $("prevQ"), prevU: $("prevU"), prevS: $("prevS"), prevInv: $("prevInv"),
+    apply: $("applyBtn"), undo: $("undoBtn"), clear: $("clearBtn"), close: $("closeBtn"), status: $("statusLine"),
+    cycle: $("cycleSelect"), cycleOut: $("cycleOut"), cycleNote: $("cycleNote"),
+    th: $("thRange"), thOut: $("thOut"), thField: $("thField"),
+    tc: $("tcRange"), tcOut: $("tcOut"), tcLabel: $("tcLabel"),
+    r: $("rRange"), rOut: $("rOut"), rField: $("rField"),
+    qin: $("qinRange"), qinOut: $("qinOut"), qinField: $("qinField"),
+    build: $("buildBtn"), play: $("playBtn"), rows: $("stepRows"),
+    sumW: $("sumW"), sumQ: $("sumQ"), sumU: $("sumU"), sumQW: $("sumQW"), sumS: $("sumS"),
+    p: $("pDisplay"), v: $("vDisplay"), t: $("tDisplay"), u: $("uDisplay"), s: $("sDisplay"), pvg: $("pvgDisplay"),
+    workTitle: $("workTitle"), wNumLabel: $("wNumLabel"), wFormLabel: $("wFormLabel"),
+    wNum: $("wNumDisplay"), wForm: $("wFormDisplay"), wDiff: $("wDiffDisplay"),
+    cycleTitle: $("cycleTitle"), wNet: $("wNetDisplay"), qIn: $("qInDisplay"),
+    etaLabel: $("etaLabel"), eta: $("etaDisplay"), etaFormLabel: $("etaFormLabel"), etaForm: $("etaFormDisplay"),
+    etaDiff: $("etaDiffDisplay"), carnot: $("carnotDisplay"),
+  };
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  const say = (msg) => setText(ui.status, msg);
+  const procSel = () => ui.proc.value;
+  const NOTES = {
+    carnot: "Carnot: T<sub>h</sub>'de izotermal genleşme (V₂/V₁ = 2), adyabatik genleşme, T<sub>c</sub>'de izotermal sıkışma, adyabatik sıkışma. Başlangıç hacmi 5 L'dir; en büyük hacim 60 L'yi aşacaksa küçülür.",
+    otto: "Otto: adyabatik sıkışma (20 L → 20/r L), V sabitken yanma ısısı Q<sub>in</sub>, adyabatik genleşme, V sabitken ısı atımı. Verim yalnız r ve γ'ya bağlıdır.",
+    stirling: "Stirling: T<sub>h</sub>'de izotermal genleşme (20/r L → 20 L), V sabitken soğuma, T<sub>c</sub>'de izotermal sıkışma, V sabitken ısınma. Rejeneratör yok: izokorik ısınma da Q<sub>in</sub>'e sayılır.",
+  };
+
+  let target = null;   // seçili sürecin sürücü değişkeni (V ya da T) için hedef; null: önizleme yok
+  let preview = null;
+  const play = { mode: "idle", loop: false, paused: false, from: 0, i: 0, k: 0, y: null };
+
+  function syncTargetSlider() {
+    const pr = procSel();
+    if (PROC[pr].by === "V") {
+      ui.target.min = V_MIN; ui.target.max = V_MAX; ui.target.step = 0.1;
+      setHTML(ui.targetLabel, "Hedef hacim V");
+    } else {
+      ui.target.min = T_MIN; ui.target.max = T_MAX; ui.target.step = 1;
+      setHTML(ui.targetLabel, "Hedef sıcaklık T");
+    }
+    ui.target.value = driver(pr, current());
+    target = null;
+    refreshPreview();
+  }
+
+  // Başlangıç durumu bu sürecin eğrisi üzerindeyse onu kapatan hedef değeri
+  function closingValue(pr, c) {
+    if (!path.steps.length) return null;
+    const s = path.start, g = gam();
+    let on;
+    switch (pr) {
+      case "isoT": on = near(c.T, s.T); break;
+      case "adiab": on = near(c.T * Math.pow(c.V, g - 1), s.T * Math.pow(s.V, g - 1)); break;
+      case "isoP": on = near(pres(c), pres(s)); break;
+      default: on = near(c.V, s.V);
+    }
+    return on && !sameState(c, s) ? driver(pr, s) : null;
+  }
+
+  function setTarget(x, fromCanvas) {
+    if (path.closed) return;
+    const pr = procSel(), by = PROC[pr].by, c = current();
+    const lo = by === "V" ? V_MIN : T_MIN, hi = by === "V" ? V_MAX : T_MAX;
+    x = Math.min(hi, Math.max(lo, x));
+    const x0 = driver(pr, c), half = by === "V" ? 0.05 : 0.5;
+    const snap = closingValue(pr, c);
+    let snapped = false;
+    if (snap !== null && Math.abs(x - snap) <= Math.max(half, 0.015 * snap)) { x = snap; snapped = true; }
+    else if (Math.abs(x - x0) < half) x = x0;
+    target = Math.abs(x - x0) <= 1e-9 * Math.max(1, x0) ? null : x;
+    if (fromCanvas) ui.target.value = x;
+    refreshPreview();
+    if (snapped && target !== null) say("Hedef başlangıç durumuna kenetlendi: Uygula ile yol kapanır.");
+  }
+
+  function invariantText(pr, c) {
+    const g = gam();
+    switch (pr) {
+      case "isoT": return `PV = nRT = ${fix(gas.n * R * c.T, 1)} J sabit kalır; ΔU = 0, bu yüzden Q = W.`;
+      case "adiab": {
+        let s = `PV<sup>γ</sup> = ${fix(pres(c) * Math.pow(c.V, g), 0)} kPa·L<sup>γ</sup> sabit kalır; Q = 0, bu yüzden ΔU = −W.`;
+        if (preview) s += ` Birinci yasanın sayısal tümlemesi T₂ = ${fix(preview.num.T, 2)} K verir; formül T₁(V₁/V₂)<sup>γ−1</sup> = ${fix(preview.b.T, 2)} K.`;
+        return s;
+      }
+      case "isoP": return `P = ${fmtP(pres(c))} sabit kalır; W = PΔV, Q = nC<sub>p</sub>ΔT ve C<sub>p</sub> = C<sub>v</sub> + R.`;
+      default: return `V = ${fmtV(c.V)} sabit kalır; W = 0, bu yüzden Q = ΔU = nC<sub>v</sub>ΔT.`;
+    }
+  }
+
+  function refreshPreview() {
+    const pr = procSel(), by = PROC[pr].by, c = current();
+    preview = target === null || path.closed ? null : makeStep(c, pr, target);
+    const x = target === null ? driver(pr, c) : target;
+    setText(ui.targetOut, by === "V" ? fmtV(x) : fmtT(x));
+    setText(ui.procOut, PROC[pr].short);
+    const no = path.steps.length + 1;
+    if (path.closed) setText(ui.prevHead, "Yol kapandı. Yeni adım için Geri al ya da Temizle.");
+    else if (!preview) setText(ui.prevHead, `Şimdiki durum ${no}. Hedefi kaydırıcıyla ya da diyagramda sürükleyerek seç.`);
+    else setText(ui.prevHead, `Adım ${no} → ${no + 1}: V₂ = ${fmtV(preview.b.V)}, T₂ = ${fmtT(preview.b.T)}, P₂ = ${fmtP(pres(preview.b))}`);
+    setText(ui.prevW, preview ? fmtJ(preview.W) : "—");
+    setText(ui.prevQ, preview ? fmtJ(preview.Q) : "—");
+    setText(ui.prevU, preview ? fmtJ(preview.dU) : "—");
+    setText(ui.prevS, preview ? fmtS(preview.dS) : "—");
+    setHTML(ui.prevInv, path.closed ? "" : invariantText(pr, c));
+    updateButtons();
+    fitView();
+  }
+
+  function updateButtons() {
+    const running = play.mode !== "idle";
+    ui.apply.disabled = !preview || path.closed || path.steps.length >= MAX_STEPS;
+    ui.undo.disabled = !path.specs.length;
+    ui.clear.disabled = !path.specs.length;
+    ui.close.disabled = path.closed || !path.steps.length;
+    ui.target.disabled = path.closed;
+    ui.play.disabled = !path.steps.length;
+    setText(ui.play, !running ? "Oynat" : play.paused ? "Devam et" : "Duraklat");
+    ui.play.setAttribute("aria-pressed", String(running && !play.paused));
+    pvC.classList.toggle("is-locked", path.closed);
+  }
+
+  function afterPathChange() {
+    target = null;
+    syncTargetSlider();
+    renderTable();
+  }
+
+  function applyStep() {
+    if (!preview || path.closed) return;
+    if (path.steps.length >= MAX_STEPS) { say(`En fazla ${MAX_STEPS} adım kurulabilir.`); return; }
+    stopPlayback();
+    const from = path.steps.length;
+    path.specs.push({ proc: preview.proc, target: preview.target });
+    path.preset = null;
+    rebuild();
+    afterPathChange();
+    const c = cycleSummary();
+    say(c ? `Yol kapandı: net iş ${fmtJ(c.W)}.` : "");
+    startPlayback(false, from);
+  }
+
+  function undo() {
+    if (!path.specs.length) return;
+    stopPlayback();
+    path.specs.pop();
+    path.preset = null;
+    rebuild();
+    afterPathChange();
+    say("Son adım geri alındı.");
+  }
+
+  function clearPath() {
+    stopPlayback();
+    path.specs = [];
+    path.preset = null;
+    rebuild();
+    afterPathChange();
+    say("");
+  }
+
+  function closePath() {
+    if (path.closed || !path.steps.length) return;
+    const add = closingSpecs(current(), path.start, procSel());
+    if (path.steps.length + add.length > MAX_STEPS) { say(`En fazla ${MAX_STEPS} adım kurulabilir.`); return; }
+    stopPlayback();
+    const from = path.steps.length;
+    path.specs.push(...add);
+    path.preset = null;
+    rebuild();
+    afterPathChange();
+    const c = cycleSummary();
+    say(c ? `Başlangıca ${add.length} adımda dönüldü: net iş ${fmtJ(c.W)}.` : "");
+    startPlayback(false, from);
+  }
+
+  function readGas() {
+    gas.f = ui.gas.value === "di" ? 2.5 : 1.5;
+    gas.n = Number(ui.n.value);
+    setText(ui.gasOut, `γ = ${gam().toFixed(3)}`);
+    setText(ui.nOut, `${gas.n.toFixed(1)} mol`);
+  }
+  function showStart() {
+    setText(ui.v0Out, fmtV(path.start.V));
+    setText(ui.t0Out, fmtT(path.start.T));
+  }
+
+  function onGasChange() {
+    readGas();
+    if (path.preset) { applyPreset(path.preset, false); say("Çevrim yeni gaz ayarıyla yeniden kuruldu."); return; }
+    stopPlayback();
+    const wasClosed = path.closed;
+    rebuild();
+    afterPathChange();
+    if (path.steps.length) say(wasClosed && !path.closed ? "Adımlar yeniden hesaplandı; yol artık kapanmıyor." : "Adımlar aynı hedeflerle yeniden hesaplandı.");
+  }
+
+  function onStartChange() {
+    stopPlayback();
+    path.start = { V: Number(ui.v0.value), T: Number(ui.t0.value) };
+    path.specs = [];
+    path.preset = null;
+    rebuild();
+    showStart();
+    afterPathChange();
+    say("");
+  }
+
+  function presetParams() {
+    return { type: ui.cycle.value, Th: Number(ui.th.value), Tc: Number(ui.tc.value), r: Number(ui.r.value), Qin: Number(ui.qin.value) };
+  }
+  function readPresetUI() {
+    const type = ui.cycle.value;
+    setText(ui.thOut, `${ui.th.value} K`);
+    setText(ui.tcOut, `${ui.tc.value} K`);
+    setText(ui.rOut, Number(ui.r.value).toFixed(1));
+    setText(ui.qinOut, `${ui.qin.value} J`);
+    ui.thField.hidden = type === "otto";
+    ui.rField.hidden = type === "carnot";
+    ui.qinField.hidden = type !== "otto";
+    setHTML(ui.tcLabel, type === "otto" ? "Emme sıcaklığı T<sub>1</sub>" : "Soğuk kaynak T<sub>c</sub>");
+    setText(ui.cycleOut, type === "carnot" ? "2 izoterm + 2 adyabat" : type === "otto" ? "2 adyabat + 2 izokor" : "2 izoterm + 2 izokor");
+    setHTML(ui.cycleNote, NOTES[type]);
+  }
+  function couple(changed) {
+    const th = Number(ui.th.value), tc = Number(ui.tc.value);
+    if (th - tc >= 50) return;
+    if (changed === ui.th) ui.tc.value = th - 50;
+    else ui.th.value = tc + 50;
+  }
+
+  function applyPreset(p, autoplay) {
+    const keep = play.mode !== "idle" && play.loop ? { i: play.i, k: play.k, paused: play.paused } : null;
+    stopPlayback();
+    const sp = presetSpecs(p);
+    path.start = sp.start;
+    path.specs = sp.specs;
+    path.preset = p;
+    rebuild();
+    ui.v0.value = path.start.V;
+    ui.t0.value = path.start.T;
+    showStart();
+    afterPathChange();
+    if (autoplay || keep) startPlayback(true, 0, keep);
+    const c = cycleSummary(), f = presetEta(p);
+    if (c && c.eta !== null) say(`${p.type === "carnot" ? "Carnot" : p.type === "otto" ? "Otto" : "Stirling"} çevrimi: η = ${fmtPct(c.eta)}, formül ${fmtPct(f.eta)}, Carnot sınırı ${fmtPct(c.carnot)}.`);
+  }
+
+  /* ── Oynatma: sabit adımlı yarı-durgun sürücü ── */
+  function startPlayback(loop, from, keep) {
+    if (!path.steps.length) return;
+    play.mode = "run";
+    play.loop = loop && path.closed;
+    play.paused = keep ? keep.paused : false;
+    play.from = play.loop ? 0 : from;
+    play.i = keep ? Math.min(keep.i, path.steps.length - 1) : from;
+    play.k = keep ? keep.k : 0;
+    const st = path.steps[play.i];
+    play.y = integrate(st.a, st.proc, st.target, play.k);
+    updateButtons();
+  }
+  function stopPlayback() {
+    play.mode = "idle";
+    play.paused = false;
+    updateButtons();
+  }
+  function togglePlay() {
+    if (play.mode === "idle") startPlayback(true, 0);
+    else play.paused = !play.paused;
+    updateButtons();
+  }
+  function tickPlay() {
+    if (play.mode === "idle" || play.paused) return;
+    const st = path.steps[play.i];
+    const x1 = driver(st.proc, st.a), h = (st.target - x1) / N_SUB;
+    play.y = rk4(st.proc, st.a, x1 + play.k * h, h, play.y);
+    play.k++;
+    if (play.k < N_SUB) return;
+    play.i++;
+    play.k = 0;
+    if (play.i >= path.steps.length) {
+      if (!play.loop) { stopPlayback(); return; }
+      play.i = 0;
+    }
+    play.y = [path.steps[play.i].a.T, 0, 0, 0];
+  }
+  function playState() {
+    if (play.mode === "idle") return current();
+    const st = path.steps[play.i], x1 = driver(st.proc, st.a);
+    return stateAt(st.a, st.proc, x1 + ((st.target - x1) * play.k) / N_SUB);
+  }
+
+  /* ── Tablo ve göstergeler ── */
+  let activeRow = -1;
+  function renderTable() {
+    const n = path.steps.length;
+    if (!n) {
+      ui.rows.innerHTML = '<tr><td class="empty" colspan="9">Henüz adım yok.</td></tr>';
+    } else {
+      ui.rows.innerHTML = path.steps.map((st, i) => {
+        const to = path.closed && i === n - 1 ? 1 : i + 2;
+        return `<tr data-i="${i}"><td>${i + 1} → ${to}</td><td><i class="sw sw-${st.proc}"></i>${PROC[st.proc].name}</td>` +
+          `<td>${fix(st.a.V, 2)} → ${fix(st.b.V, 2)}</td><td>${fix(st.a.T, 1)} → ${fix(st.b.T, 1)}</td>` +
+          `<td>${sgn(st.W, 1)}</td><td>${sgn(st.Q, 1)}</td><td>${sgn(st.dU, 1)}</td><td>${sgn(st.Q - st.W, 1)}</td><td>${sgn(st.dS, 2)}</td></tr>`;
+      }).join("");
+    }
+    const sum = (f) => path.steps.reduce((acc, st) => acc + f(st), 0);
+    setText(ui.sumW, sgn(sum((st) => st.W), 1));
+    setText(ui.sumQ, sgn(sum((st) => st.Q), 1));
+    setText(ui.sumU, sgn(sum((st) => st.dU), 1));
+    setText(ui.sumQW, sgn(sum((st) => st.Q - st.W), 1));
+    setText(ui.sumS, sgn(sum((st) => st.dS), 2));
+    activeRow = -1;
+    renderCycle();
+  }
+
+  function renderCycle() {
+    const c = cycleSummary();
+    const dash = [ui.wNet, ui.qIn, ui.eta, ui.etaForm, ui.etaDiff, ui.carnot];
+    setHTML(ui.etaLabel, "Verim η = W<sub>net</sub>/Q<sub>in</sub>");
+    if (!c) {
+      dash.forEach((el) => setText(el, "—"));
+      setText(ui.cycleTitle, "Çevrim (yol başlangıca dönünce)");
+      setHTML(ui.etaFormLabel, "Çevrim formülü");
+      return;
+    }
+    setText(ui.cycleTitle, c.W > 0 ? "Çevrim: ısı makinesi (saat yönünde)" : "Çevrim: saat yönünün tersine, net iş gaza yapılır");
+    setText(ui.wNet, fmtJ(c.W));
+    setText(ui.qIn, fmtJ(c.Qin));
+    const pf = path.preset ? presetEta(path.preset) : null;
+    setHTML(ui.etaFormLabel, pf ? pf.label : "Çevrim formülü (hazır çevrimde)");
+    setText(ui.etaForm, pf ? fmtPct(pf.eta) : "—");
+    setText(ui.eta, c.eta === null ? "—" : fmtPct(c.eta));
+    setText(ui.etaDiff, pf && c.eta !== null ? diffPct(c.eta, pf.eta) : "—");
+    setText(ui.carnot, c.eta === null ? "—" : fmtPct(c.carnot));
+  }
+
+  function highlightRow() {
+    const idx = play.mode === "idle" ? -1 : play.i;
+    if (idx === activeRow) return;
+    activeRow = idx;
+    for (const tr of ui.rows.children) tr.classList.toggle("is-active", Number(tr.dataset.i) === idx);
+  }
+
+  function updateReadouts() {
+    const s = playState();
+    setText(ui.p, fmtP(pres(s)));
+    setText(ui.v, fmtV(s.V));
+    setText(ui.t, fmtT(s.T));
+    setText(ui.u, `${fix(gas.n * cv() * s.T, 1)} J`);
+    setText(ui.s, fmtS(relS(s, path.start)));
+    setHTML(ui.pvg, `${fix(pres(s) * Math.pow(s.V, gam()), 0)} kPa·L<sup>γ</sup>`);
+    let title = "İş: sayısal alan ve formül", nl = "∫P dV (sayısal)", fl = "W formülü", num = null, form = null;
+    if (play.mode !== "idle") {
+      const st = path.steps[play.i];
+      let n0 = 0, f0 = 0;
+      for (let j = play.from; j < play.i; j++) { n0 += path.steps[j].num.W; f0 += path.steps[j].W; }
+      num = n0 + play.y[1];
+      form = f0 + formulas(st.a, s, st.proc).W;
+      title = play.loop ? "İş sayacı: bu tur" : "İş sayacı: oynatılan adım";
+      nl = "∫P dV (sayaç)";
+      fl = "Formül, aynı yol";
+    } else if (preview) {
+      num = preview.num.W; form = preview.W; title = "İş: önizlenen adım";
+    } else if (path.closed) {
+      const c = cycleSummary();
+      num = c.Wnum; form = c.W; title = "İş: kapalı çevrim"; nl = "∮P dV (sayısal)"; fl = "ΣW formülü";
+    } else if (path.steps.length) {
+      const st = path.steps[path.steps.length - 1];
+      num = st.num.W; form = st.W; title = "İş: son adım";
+    }
+    setText(ui.workTitle, title);
+    setText(ui.wNumLabel, nl);
+    setText(ui.wFormLabel, fl);
+    setText(ui.wNum, num === null ? "—" : fmtJ(num));
+    setText(ui.wForm, form === null ? "—" : fmtJ(form));
+    setText(ui.wDiff, num === null ? "—" : diffPct(num, form));
+  }
+
+  /* ── Çizim ── */
+  const pvC = $("pvCanvas"), pvX = pvC.getContext("2d");
+  const cyC = $("cylCanvas"), cyX = cyC.getContext("2d");
+  const tsC = $("tsCanvas"), tsX = tsC.getContext("2d");
+  const bg = document.createElement("canvas"), bgX = bg.getContext("2d");
+  let bgKey = "", dpr = 1, dragging = false, simTime = 0;
+  const view = { V: 1, P: 1, T: 1, S0: -1, S1: 1, Vt: 1, Pt: 1, Tt: 1, S0t: -1, S1t: 1 };
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.07)", axis: "rgba(26,29,46,0.5)",
+      isoLine: "rgba(13,148,136,0.32)", adiLine: "rgba(124,58,237,0.28)", isoText: "rgba(15,118,110,0.9)",
+      isoT: "#0d9488", adiab: "#7c3aed", isoP: "#d97706", isoV: "#db2777",
+      hot: "#dc2626", cold: "#2563eb", warm: "#b45309", hotRGB: [220, 38, 38], coldRGB: [37, 99, 235],
+      fillPos: "rgba(13,148,136,0.16)", fillNeg: "rgba(219,39,119,0.14)", cycle: "rgba(217,119,6,0.20)",
+      tagBg: "rgba(255,255,255,0.9)", point: "#1a1d2e", ring: "#ffffff", metal: "#94a3b8", metalEdge: "#475569",
+      wall: "rgba(26,29,46,0.6)", particle: "rgba(26,29,46,0.8)",
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.07)", axis: "rgba(232,236,244,0.5)",
+      isoLine: "rgba(94,234,212,0.24)", adiLine: "rgba(167,139,250,0.26)", isoText: "rgba(94,234,212,0.75)",
+      isoT: "#5eead4", adiab: "#a78bfa", isoP: "#fbbf24", isoV: "#f472b6",
+      hot: "#f87171", cold: "#60a5fa", warm: "#fbbf24", hotRGB: [248, 113, 113], coldRGB: [96, 165, 250],
+      fillPos: "rgba(94,234,212,0.16)", fillNeg: "rgba(244,114,182,0.17)", cycle: "rgba(251,191,36,0.18)",
+      tagBg: "rgba(8,12,22,0.85)", point: "#ffffff", ring: "#0b1020", metal: "#64748b", metalEdge: "#cbd5e1",
+      wall: "rgba(232,236,244,0.6)", particle: "rgba(232,236,244,0.85)",
+    };
+  }
+  const font = (px, weight = "") => `${weight}${weight ? " " : ""}${px * dpr}px Outfit, system-ui, sans-serif`;
+
+  function niceCeil(x) {
+    if (!(x > 0)) return 1;
+    const e = Math.pow(10, Math.floor(Math.log10(x)));
+    for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * e >= x * (1 - 1e-9)) return m * e;
+    return 10 * e;
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  const tickText = (v, step) => fix(v, step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9)));
+
+  // Eksen aralıkları içeriğe göre seçilir; sürüklerken sabit kalır, yumuşak geçişle değişir
+  function fitView() {
+    if (dragging) return;
+    const pts = [path.start, ...path.steps.map((st) => st.b)];
+    if (preview) pts.push(preview.b);
+    let vmax = 0, pmax = 0, tmax = 0, smin = 0, smax = 0;
+    for (const s of pts) {
+      vmax = Math.max(vmax, s.V);
+      pmax = Math.max(pmax, pres(s));
+      tmax = Math.max(tmax, s.T);
+      const ss = relS(s, path.start);
+      smin = Math.min(smin, ss);
+      smax = Math.max(smax, ss);
+    }
+    view.Vt = niceCeil(vmax * 1.12);
+    view.Pt = niceCeil(pmax * 1.15);
+    view.Tt = niceCeil(tmax * 1.15);
+    const span = Math.max(smax - smin, 2), extra = (span - (smax - smin)) / 2;
+    view.S0t = smin - extra - 0.12 * span;
+    view.S1t = smax + extra + 0.12 * span;
+  }
+  function easeView(elapsed) {
+    const k = 1 - Math.exp(-elapsed / 0.14);
+    for (const key of ["V", "P", "T", "S0", "S1"]) {
+      const goal = view[key + "t"], d = goal - view[key];
+      view[key] = Math.abs(d) > 1e-4 * Math.max(Math.abs(goal), 1) ? view[key] + d * k : goal;
+    }
+  }
+  function snapView() {
+    for (const key of ["V", "P", "T", "S0", "S1"]) view[key] = view[key + "t"];
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [pvC, cyC, tsC]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    bgKey = "";
+  }
+
+  function line(g, x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+  function tag(g, text, x, y, color, th, box) {
+    g.font = font(12, "600");
+    const w = g.measureText(text).width + 12 * dpr, h = 20 * dpr;
+    let bx = x - w / 2, by = y - h / 2;
+    if (box) { bx = Math.min(Math.max(bx, box.l + 2 * dpr), box.l + box.w - w - 2 * dpr); by = Math.min(Math.max(by, box.t + 2 * dpr), box.t + box.h - h - 2 * dpr); }
+    g.fillStyle = th.tagBg;
+    g.beginPath();
+    g.roundRect(bx, by, w, h, 6 * dpr);
+    g.fill();
+    g.fillStyle = color;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(text, bx + w / 2, by + h / 2 + 0.5 * dpr);
+  }
+  function polyline(g, pts, color, width, alpha, dash) {
+    g.save();
+    g.globalAlpha = alpha;
+    g.strokeStyle = color;
+    g.lineWidth = width;
+    g.lineJoin = "round";
+    g.lineCap = "round";
+    if (dash) g.setLineDash(dash);
+    g.beginPath();
+    pts.forEach(([x, y], j) => (j ? g.lineTo(x, y) : g.moveTo(x, y)));
+    g.stroke();
+    g.restore();
+  }
+  function arrowMid(g, pts, color) {
+    const m = Math.floor(pts.length / 2), a = pts[Math.max(0, m - 2)], b = pts[Math.min(pts.length - 1, m + 2)];
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    if (Math.hypot(dx, dy) < 2 * dpr) return;
+    const ang = Math.atan2(dy, dx), [x, y] = pts[m], s = 7 * dpr;
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(x + s * Math.cos(ang), y + s * Math.sin(ang));
+    g.lineTo(x - s * Math.cos(ang - 0.55), y - s * Math.sin(ang - 0.55));
+    g.lineTo(x - s * Math.cos(ang + 0.55), y - s * Math.sin(ang + 0.55));
+    g.closePath();
+    g.fill();
+  }
+  function underFill(g, pts, y0, color) {
+    if (pts.length < 2) return;
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(pts[0][0], y0);
+    pts.forEach(([x, y]) => g.lineTo(x, y));
+    g.lineTo(pts[pts.length - 1][0], y0);
+    g.closePath();
+    g.fill();
+  }
+  function partialStates(st, frac, count = 40) {
+    const x1 = driver(st.proc, st.a), out = [];
+    for (let j = 0; j <= count; j++) out.push(stateAt(st.a, st.proc, x1 + ((st.target - x1) * frac * j) / count));
+    return out;
+  }
+  function pointMarker(g, x, y, th, r) {
+    const glow = g.createRadialGradient(x, y, 0, x, y, r * 3);
+    glow.addColorStop(0, th.light ? "rgba(217,119,6,0.35)" : "rgba(251,191,36,0.45)");
+    glow.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = glow;
+    g.beginPath(); g.arc(x, y, r * 3, 0, Math.PI * 2); g.fill();
+    g.fillStyle = th.point;
+    g.strokeStyle = th.ring;
+    g.lineWidth = 2 * dpr;
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.stroke();
+  }
+  // Durum numaraları: çevrimin merkezinden dışa doğru, çakışırsa komşu yönlere kayarak
+  function stateLabels(g, toXY, th, L) {
+    const states = [path.start, ...path.steps.map((st) => st.b)];
+    if (path.closed) states.pop();
+    const pts = states.map(toXY), r = 4 * dpr, d = 11 * dpr, h = 13 * dpr;
+    let cx = 0, cy = 0;
+    pts.forEach(([x, y]) => { cx += x / pts.length; cy += y / pts.length; });
+    const placed = pts.map(([x, y]) => [x - r, y - r, x + r, y + r]);
+    const free = (b) => placed.every((p) => b[2] < p[0] || b[0] > p[2] || b[3] < p[1] || b[1] > p[3]);
+    g.font = font(11, "600");
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = th.ink;
+    pts.forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 3.2 * dpr, 0, Math.PI * 2); g.fill(); });
+    pts.forEach(([x, y], i) => {
+      const text = String(i + 1), w = g.measureText(text).width + 4 * dpr;
+      const base = Math.hypot(x - cx, y - cy) < 1 ? -Math.PI / 4 : Math.atan2(y - cy, x - cx);
+      let pick = null;
+      for (let k = 0; k < 8 && !pick; k++) {
+        const ang = base + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * (Math.PI / 4);
+        const lx = x + d * Math.cos(ang), ly = y + d * Math.sin(ang);
+        const box = [lx - w / 2, ly - h / 2, lx + w / 2, ly + h / 2];
+        if (box[0] >= L.l && box[2] <= L.l + L.w + 8 * dpr && box[1] >= L.t - 8 * dpr && box[3] <= L.t + L.h && free(box)) pick = [lx, ly, box];
+      }
+      if (!pick) { const lx = x + d * Math.cos(base), ly = y + d * Math.sin(base); pick = [lx, ly, [lx - w / 2, ly - h / 2, lx + w / 2, ly + h / 2]]; }
+      placed.push(pick[2]);
+      g.fillText(text, pick[0], pick[1]);
+    });
+  }
+  function polygonCentroid(pts) {
+    let a = 0, cx = 0, cy = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % pts.length], c = x1 * y2 - x2 * y1;
+      a += c; cx += (x1 + x2) * c; cy += (y1 + y2) * c;
+    }
+    if (Math.abs(a) < 1e-6) return pts[0];
+    return [cx / (3 * a), cy / (3 * a)];
+  }
+
+  function pvLayout() {
+    const W = pvC.width, H = pvC.height, small = W < 560 * dpr;
+    const l = (small ? 46 : 58) * dpr, r = 16 * dpr, t = 30 * dpr, b = 40 * dpr;
+    const w = W - l - r, h = H - t - b;
+    return { W, H, l, t, w, h, X: (v) => l + (v / view.V) * w, Y: (p) => t + h - (p / view.P) * h };
+  }
+
+  function pvBackground(L, th) {
+    const key = [L.W, L.H, th.light, gas.n, gas.f, view.V, view.P, dpr].join("|");
+    if (key === bgKey) return;
+    bgKey = key;
+    if (bg.width !== L.W || bg.height !== L.H) { bg.width = L.W; bg.height = L.H; }
+    const g = bgX;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, L.W, L.H);
+    g.font = font(11);
+    g.lineWidth = 1 * dpr;
+    g.strokeStyle = th.grid;
+    g.fillStyle = th.muted;
+    const vs = niceStep(view.V / 5), ps = niceStep(view.P / 5);
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let v = vs; v <= view.V * 1.0001; v += vs) { const x = L.X(v); line(g, x, L.t, x, L.t + L.h); g.fillText(tickText(v, vs), x, L.t + L.h + 6 * dpr); }
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (let p = ps; p <= view.P * 1.0001; p += ps) { const y = L.Y(p); line(g, L.l, y, L.l + L.w, y); g.fillText(tickText(p, ps), L.l - 6 * dpr, y); }
+    g.fillText("0", L.l - 6 * dpr, L.t + L.h);
+
+    g.save();
+    g.beginPath();
+    g.rect(L.l, L.t, L.w, L.h);
+    g.clip();
+    const nR = gas.n * R, Ttop = (view.P * view.V) / nR, dTi = niceStep(Ttop / 7), labels = [];
+    g.strokeStyle = th.isoLine;
+    g.lineWidth = 1.2 * dpr;
+    for (let T = dTi; T < Ttop * 0.999; T += dTi) {
+      const v0 = Math.max((nR * T) / view.P, view.V * 0.002);
+      g.beginPath();
+      for (let j = 0; j <= 80; j++) {
+        const v = v0 + ((view.V - v0) * j) / 80, x = L.X(v), y = L.Y((nR * T) / v);
+        j ? g.lineTo(x, y) : g.moveTo(x, y);
+      }
+      g.stroke();
+      labels.push([T, L.Y((nR * T) / view.V)]);
+    }
+    const gm = gam();
+    g.strokeStyle = th.adiLine;
+    g.setLineDash([5 * dpr, 5 * dpr]);
+    for (let k = 1; k <= 7; k++) {
+      const K = ((view.P * k) / 8) * Math.pow(view.V, gm), v0 = Math.pow(K / view.P, 1 / gm);
+      g.beginPath();
+      for (let j = 0; j <= 80; j++) {
+        const v = v0 + ((view.V - v0) * j) / 80, x = L.X(v), y = L.Y(K / Math.pow(v, gm));
+        j ? g.lineTo(x, y) : g.moveTo(x, y);
+      }
+      g.stroke();
+    }
+    g.restore();
+
+    g.font = font(10);
+    g.fillStyle = th.isoText;
+    g.textAlign = "right";
+    g.textBaseline = "bottom";
+    let lastY = -1e9;
+    for (const [T, y] of labels) {
+      if (y > L.t + L.h - 16 * dpr || y < L.t + 12 * dpr || Math.abs(y - lastY) < 14 * dpr) continue;
+      g.fillText(`${tickText(T, dTi)} K`, L.l + L.w - 4 * dpr, y - 2 * dpr);
+      lastY = y;
+    }
+    g.strokeStyle = th.axis;
+    g.lineWidth = 1.2 * dpr;
+    g.beginPath();
+    g.moveTo(L.l, L.t);
+    g.lineTo(L.l, L.t + L.h);
+    g.lineTo(L.l + L.w, L.t + L.h);
+    g.stroke();
+    g.font = font(12, "600");
+    g.fillStyle = th.muted;
+    g.textAlign = "left";
+    g.textBaseline = "alphabetic";
+    g.fillText("P (kPa)", 6 * dpr, L.t - 13 * dpr);
+    g.textAlign = "right";
+    g.fillText("V (L)", L.l + L.w, L.H - 4 * dpr);
+  }
+
+  function drawPV() {
+    const L = pvLayout(), th = theme(), g = pvX;
+    if (L.w <= 0 || L.h <= 0) return;
+    pvBackground(L, th);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, L.W, L.H);
+    g.drawImage(bg, 0, 0);
+    const toXY = (s) => [L.X(s.V), L.Y(pres(s))];
+    const y0 = L.Y(0), running = play.mode !== "idle";
+    g.save();
+    g.beginPath();
+    g.rect(L.l, L.t - 8 * dpr, L.w + 8 * dpr, L.h + 8 * dpr);
+    g.clip();
+    let cyclePts = null;
+    if (path.closed) {
+      cyclePts = [];
+      path.steps.forEach((st) => st.samples.forEach((s) => cyclePts.push(toXY(s))));
+      g.fillStyle = th.cycle;
+      g.beginPath();
+      cyclePts.forEach(([x, y], j) => (j ? g.lineTo(x, y) : g.moveTo(x, y)));
+      g.closePath();
+      g.fill();
+    }
+    if (preview) underFill(g, preview.samples.map(toXY), y0, preview.W >= 0 ? th.fillPos : th.fillNeg);
+    if (running && !play.loop) {
+      const st = path.steps[play.i];
+      underFill(g, partialStates(st, play.k / N_SUB).map(toXY), y0, st.W >= 0 ? th.fillPos : th.fillNeg);
+    }
+    path.steps.forEach((st, i) => {
+      const pts = st.samples.map(toXY);
+      if (running && !play.loop && i >= play.i) {
+        polyline(g, pts, th[st.proc], 2.6 * dpr, 0.3);
+        if (i === play.i) polyline(g, partialStates(st, play.k / N_SUB).map(toXY), th[st.proc], 2.6 * dpr, 1);
+      } else {
+        polyline(g, pts, th[st.proc], 2.6 * dpr, 1);
+      }
+      arrowMid(g, pts, th[st.proc]);
+    });
+    if (preview) {
+      const pts = preview.samples.map(toXY);
+      polyline(g, pts, th[preview.proc], 2.2 * dpr, 1, [7 * dpr, 6 * dpr]);
+      arrowMid(g, pts, th[preview.proc]);
+    }
+    g.restore();
+
+    stateLabels(g, toXY, th, L);
+    if (preview) {
+      const [bx, by] = toXY(preview.b);
+      g.strokeStyle = th[preview.proc];
+      g.lineWidth = 2 * dpr;
+      g.beginPath(); g.arc(bx, by, 6 * dpr, 0, Math.PI * 2); g.stroke();
+      const a = preview.a, b = preview.b;
+      if (preview.proc === "isoV") {
+        tag(g, "W = 0 (V sabit)", L.X(a.V) + 62 * dpr, L.Y((pres(a) + pres(b)) / 2), th.ink, th, L);
+      } else {
+        const vm = (a.V + b.V) / 2, pm = pres(stateAt(a, preview.proc, vm));
+        tag(g, `W = ${fmtJ(preview.W)}`, L.X(vm), L.Y(pm * 0.42), th.ink, th, L);
+      }
+    } else if (cyclePts) {
+      const c = cycleSummary(), [cx, cy] = polygonCentroid(cyclePts);
+      tag(g, `Net iş ${fmtJ(c.W)}`, cx, cy, th.warm, th, L);
+    }
+    const [px, py] = toXY(playState());
+    pointMarker(g, px, py, th, 6 * dpr);
+  }
+
+  function tsLayout() {
+    const W = tsC.width, H = tsC.height;
+    const l = 46 * dpr, r = 14 * dpr, t = 30 * dpr, b = 38 * dpr, w = W - l - r, h = H - t - b;
+    return { W, H, l, t, w, h, X: (s) => l + ((s - view.S0) / (view.S1 - view.S0)) * w, Y: (T) => t + h - (T / view.T) * h };
+  }
+
+  function drawTS() {
+    const L = tsLayout(), th = theme(), g = tsX;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, L.W, L.H);
+    if (L.w <= 0 || L.h <= 0) return;
+    g.font = font(10);
+    g.lineWidth = 1 * dpr;
+    g.strokeStyle = th.grid;
+    g.fillStyle = th.muted;
+    const ts = niceStep(view.T / 4), ss = niceStep((view.S1 - view.S0) / 4);
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (let T = ts; T <= view.T * 1.0001; T += ts) { const y = L.Y(T); line(g, L.l, y, L.l + L.w, y); g.fillText(tickText(T, ts), L.l - 5 * dpr, y); }
+    g.fillText("0", L.l - 5 * dpr, L.t + L.h);
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let s = Math.ceil(view.S0 / ss) * ss; s <= view.S1 + 1e-9; s += ss) { const x = L.X(s); line(g, x, L.t, x, L.t + L.h); g.fillText(tickText(s, ss), x, L.t + L.h + 5 * dpr); }
+    g.strokeStyle = th.axis;
+    g.lineWidth = 1.2 * dpr;
+    g.beginPath(); g.moveTo(L.l, L.t); g.lineTo(L.l, L.t + L.h); g.lineTo(L.l + L.w, L.t + L.h); g.stroke();
+    g.font = font(11, "600");
+    g.textAlign = "left";
+    g.textBaseline = "alphabetic";
+    g.fillText("T (K)", 6 * dpr, L.t - 13 * dpr);
+    g.textAlign = "right";
+    g.fillText("S − S₁ (J/K)", L.l + L.w, L.H - 4 * dpr);
+    g.font = font(10);
+    g.fillText("alan = ısı Q", L.l + L.w, L.t - 13 * dpr);
+
+    const toXY = (s) => [L.X(relS(s, path.start)), L.Y(s.T)];
+    const y0 = L.Y(0), running = play.mode !== "idle";
+    g.save();
+    g.beginPath();
+    g.rect(L.l, L.t - 6 * dpr, L.w + 6 * dpr, L.h + 6 * dpr);
+    g.clip();
+    if (path.closed) {
+      g.fillStyle = th.cycle;
+      g.beginPath();
+      let first = true;
+      path.steps.forEach((st) => st.samples.forEach((s) => { const [x, y] = toXY(s); first ? g.moveTo(x, y) : g.lineTo(x, y); first = false; }));
+      g.closePath();
+      g.fill();
+    }
+    if (preview) underFill(g, preview.samples.map(toXY), y0, preview.Q >= 0 ? th.fillPos : th.fillNeg);
+    path.steps.forEach((st, i) => {
+      const pts = st.samples.map(toXY);
+      const faint = running && !play.loop && i >= play.i;
+      polyline(g, pts, th[st.proc], 2.2 * dpr, faint ? 0.3 : 1);
+      if (faint && i === play.i) polyline(g, partialStates(st, play.k / N_SUB).map(toXY), th[st.proc], 2.2 * dpr, 1);
+      arrowMid(g, pts, th[st.proc]);
+    });
+    if (preview) polyline(g, preview.samples.map(toXY), th[preview.proc], 2 * dpr, 1, [6 * dpr, 5 * dpr]);
+    g.restore();
+    if (path.steps.length) stateLabels(g, toXY, th, L);
+    const [px, py] = toXY(playState());
+    pointMarker(g, px, py, th, 5 * dpr);
+  }
+
+  /* ── Piston-silindir ── */
+  const parts = [];
+  function seedParticles() {
+    const gauss = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(2 * Math.PI * Math.random());
+    for (let i = 0; i < 46; i++) {
+      // Maxwell dağılımına benzer hız payı; ortak ölçek √T ile değişir
+      const vx = gauss(), vy = gauss(), vz = gauss(), sp = Math.hypot(vx, vy, vz) / Math.sqrt(3), a = Math.random() * Math.PI * 2;
+      parts.push({ x: Math.random(), y: Math.random() * 0.5, vx: sp * Math.cos(a), vy: sp * Math.sin(a) });
+    }
+  }
+  function cylGeom() {
+    const W = cyC.width, H = cyC.height, wide = W > H * 1.25;
+    const cw = Math.min(W * (wide ? 0.26 : 0.4), H * 0.46);
+    const top = H * 0.24, bottom = H * 0.7, pt = 9 * dpr;
+    return { W, H, wide, cw, x0: W / 2 - cw / 2, top, bottom, pt, maxH: bottom - top - pt - 3 * dpr };
+  }
+  function gasHeight(G, s) { return Math.max(4 * dpr, Math.min(1, s.V / view.V) * G.maxH); }
+  function stepParticles(dt) {
+    const G = cylGeom();
+    if (!G.cw) return;
+    const s = playState(), colH = gasHeight(G, s) / G.cw, k = 0.6 * Math.sqrt(s.T / 300);
+    for (const p of parts) {
+      p.x += p.vx * k * dt;
+      p.y += p.vy * k * dt;
+      if (p.x < 0) { p.x = -p.x; p.vx = Math.abs(p.vx); } else if (p.x > 1) { p.x = 2 - p.x; p.vx = -Math.abs(p.vx); }
+      if (p.y < 0) { p.y = -p.y; p.vy = Math.abs(p.vy); }
+      if (p.y > colH) { p.y = 2 * colH - p.y; if (p.y < 0) p.y = Math.random() * colH; p.vy = -Math.abs(p.vy); }
+    }
+  }
+  function cylContext() {
+    if (play.mode !== "idle") {
+      const st = path.steps[play.i], to = path.closed && play.i === path.steps.length - 1 ? 1 : play.i + 2;
+      return { st, live: !play.paused, W: play.y[1], Q: play.y[2], label: `${play.i + 1} → ${to} · ${PROC[st.proc].name}` };
+    }
+    if (preview) return { st: preview, live: false, W: preview.W, Q: preview.Q, label: `Önizleme · ${PROC[preview.proc].name}` };
+    return null;
+  }
+  function flowArrow(g, x1, y1, x2, y2, color, alpha, moving) {
+    g.save();
+    g.globalAlpha = alpha;
+    g.strokeStyle = color;
+    g.fillStyle = color;
+    g.lineWidth = 3 * dpr;
+    g.setLineDash([7 * dpr, 6 * dpr]);
+    g.lineDashOffset = moving ? -simTime * 26 * dpr : 0;
+    const cx = (x1 + x2) / 2, cy = Math.min(y1, y2) - 6 * dpr;
+    g.beginPath(); g.moveTo(x1, y1); g.quadraticCurveTo(cx, cy, x2, y2); g.stroke();
+    g.setLineDash([]);
+    const ang = Math.atan2(y2 - cy, x2 - cx), s = 9 * dpr;
+    g.beginPath();
+    g.moveTo(x2, y2);
+    g.lineTo(x2 - s * Math.cos(ang - 0.5), y2 - s * Math.sin(ang - 0.5));
+    g.lineTo(x2 - s * Math.cos(ang + 0.5), y2 - s * Math.sin(ang + 0.5));
+    g.closePath();
+    g.fill();
+    g.restore();
+  }
+
+  function drawCyl() {
+    const G = cylGeom(), th = theme(), g = cyX;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, G.W, G.H);
+    if (!G.cw) return;
+    const s = playState(), ctx = cylContext(), fs = G.W < 300 * dpr ? 10 : 11;
+    const inflow = ctx && ctx.st.Q > 1e-9, outflow = ctx && ctx.st.Q < -1e-9, insulated = ctx && ctx.st.proc === "adiab";
+    const alpha = ctx && ctx.live ? 1 : 0.55;
+
+    // Başlık: süreç ve sayaçlar
+    g.textBaseline = "alphabetic";
+    g.textAlign = "left";
+    g.font = font(fs + 1, "600");
+    g.fillStyle = th.ink;
+    g.fillText(ctx ? ctx.label : "Denge durumu", 8 * dpr, 18 * dpr);
+    g.font = font(fs);
+    g.fillStyle = th.muted;
+    if (ctx) {
+      g.fillText(`W = ${fmtJ(ctx.W)}`, 8 * dpr, 34 * dpr);
+      g.textAlign = "right";
+      g.fillText(`Q = ${fmtJ(ctx.Q)}`, G.W - 8 * dpr, 34 * dpr);
+    } else {
+      g.fillText("Bir hedef seçince ısı ve iş okları görünür.", 8 * dpr, 34 * dpr);
+    }
+
+    // Kaynaklar
+    const bw = G.W * (G.wide ? 0.3 : 0.38), bh = G.H * 0.13, by = G.H * 0.83;
+    const hot = { x: 8 * dpr, lit: inflow }, cold = { x: G.W - 8 * dpr - bw, lit: outflow };
+    const tLabel = path.preset && path.preset.type !== "otto" ? [`${path.preset.Th} K`, `${path.preset.Tc} K`] : ["", ""];
+    [[hot, th.hot, "Sıcak kaynak", tLabel[0]], [cold, th.cold, "Soğuk kaynak", tLabel[1]]].forEach(([box, color, name, temp]) => {
+      g.save();
+      g.globalAlpha = box.lit ? 0.32 * alpha + 0.1 : 0.1;
+      g.fillStyle = color;
+      g.beginPath(); g.roundRect(box.x, by, bw, bh, 8 * dpr); g.fill();
+      g.restore();
+      g.strokeStyle = color;
+      g.globalAlpha = box.lit ? 1 : 0.4;
+      g.lineWidth = (box.lit ? 2 : 1) * dpr;
+      g.beginPath(); g.roundRect(box.x, by, bw, bh, 8 * dpr); g.stroke();
+      g.globalAlpha = 1;
+      g.fillStyle = box.lit ? th.ink : th.muted;
+      g.font = font(fs, "600");
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText(name, box.x + bw / 2, by + bh / 2 - (temp ? 6 * dpr : 0));
+      if (temp) { g.font = font(fs); g.fillText(temp, box.x + bw / 2, by + bh / 2 + 8 * dpr); }
+    });
+
+    // Isı akışı okları
+    if (inflow) flowArrow(g, hot.x + bw / 2, by - 3 * dpr, G.x0 + G.cw * 0.3, G.bottom + 5 * dpr, th.hot, alpha, ctx.live);
+    if (outflow) flowArrow(g, G.x0 + G.cw * 0.7, G.bottom + 5 * dpr, cold.x + bw / 2, by - 3 * dpr, th.cold, alpha, ctx.live);
+    if (insulated) {
+      g.font = font(fs, "600");
+      g.fillStyle = th.adiab;
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText("Yalıtılmış: Q = 0", G.W / 2, G.bottom + (by - G.bottom) / 2 + 2 * dpr);
+    }
+
+    // Gaz ve parçacıklar
+    const gh = gasHeight(G, s), gasTop = G.bottom - gh;
+    const tt = Math.min(1, Math.max(0, (Math.log(s.T) - Math.log(150)) / (Math.log(1500) - Math.log(150))));
+    const mix = th.coldRGB.map((c, i) => Math.round(c + (th.hotRGB[i] - c) * tt));
+    g.fillStyle = `rgba(${mix[0]},${mix[1]},${mix[2]},${th.light ? 0.2 : 0.26})`;
+    g.fillRect(G.x0, gasTop, G.cw, gh);
+    g.save();
+    g.beginPath(); g.rect(G.x0, gasTop, G.cw, gh); g.clip();
+    g.fillStyle = th.particle;
+    const pr = Math.max(1.5 * dpr, G.cw / 70);
+    for (const p of parts) {
+      g.beginPath();
+      g.arc(G.x0 + p.x * G.cw, G.bottom - p.y * G.cw, pr, 0, Math.PI * 2);
+      g.fill();
+    }
+    g.restore();
+
+    // Silindir duvarları (adyabatikte yalıtım taraması)
+    const wallTop = G.top - 4 * dpr;
+    if (insulated) {
+      g.save();
+      g.strokeStyle = th.adiab;
+      g.globalAlpha = 0.6 * alpha + 0.2;
+      g.lineWidth = 1.2 * dpr;
+      const ins = 7 * dpr;
+      g.beginPath();
+      g.rect(G.x0 - ins - 2 * dpr, wallTop, ins, G.bottom - wallTop + ins);
+      g.rect(G.x0 + G.cw + 2 * dpr, wallTop, ins, G.bottom - wallTop + ins);
+      g.rect(G.x0 - 2 * dpr, G.bottom + 2 * dpr, G.cw + 4 * dpr, ins - 2 * dpr);
+      g.clip();
+      for (let d = -G.H; d < G.W + G.H; d += 6 * dpr) line(g, d, wallTop - 10 * dpr, d + G.H, wallTop - 10 * dpr + G.H);
+      g.restore();
+    }
+    g.strokeStyle = th.wall;
+    g.lineWidth = 2.5 * dpr;
+    g.beginPath();
+    g.moveTo(G.x0, wallTop);
+    g.lineTo(G.x0, G.bottom);
+    g.lineTo(G.x0 + G.cw, G.bottom);
+    g.lineTo(G.x0 + G.cw, wallTop);
+    g.stroke();
+
+    // Önizleme hedefi: kesikli piston
+    if (preview && play.mode === "idle") {
+      const ty = G.bottom - gasHeight(G, preview.b);
+      g.save();
+      g.setLineDash([5 * dpr, 4 * dpr]);
+      g.strokeStyle = th[preview.proc];
+      g.lineWidth = 1.5 * dpr;
+      g.strokeRect(G.x0 + 1.5 * dpr, ty - G.pt, G.cw - 3 * dpr, G.pt);
+      g.restore();
+    }
+
+    // Piston ve kol
+    const py = gasTop - G.pt;
+    g.fillStyle = th.metal;
+    g.fillRect(G.x0 + 1.5 * dpr, py, G.cw - 3 * dpr, G.pt);
+    g.strokeStyle = th.metalEdge;
+    g.lineWidth = 1 * dpr;
+    g.strokeRect(G.x0 + 1.5 * dpr, py, G.cw - 3 * dpr, G.pt);
+    g.fillStyle = th.metal;
+    g.fillRect(G.W / 2 - 3 * dpr, Math.min(wallTop - 10 * dpr, py), 6 * dpr, Math.abs(py - (wallTop - 10 * dpr)) + 1);
+
+    // İş oku: genleşmede yukarı (W > 0), sıkışmada aşağı (W < 0)
+    if (ctx && Math.abs(ctx.st.W) > 1e-9) {
+      const up = ctx.st.W > 0, ax = G.x0 + G.cw + 16 * dpr, ay = py + G.pt / 2, len = 24 * dpr;
+      g.save();
+      g.globalAlpha = alpha;
+      g.strokeStyle = th.warm;
+      g.fillStyle = th.warm;
+      g.lineWidth = 3 * dpr;
+      const y2 = up ? ay - len : ay + len;
+      line(g, ax, ay, ax, y2);
+      g.beginPath();
+      g.moveTo(ax, y2 + (up ? -6 : 6) * dpr);
+      g.lineTo(ax - 6 * dpr, y2);
+      g.lineTo(ax + 6 * dpr, y2);
+      g.closePath();
+      g.fill();
+      g.font = font(fs, "600");
+      g.textAlign = "left";
+      g.textBaseline = "middle";
+      g.fillText("W", ax + 8 * dpr, (ay + y2) / 2);
+      g.restore();
+    }
+  }
+
+  /* ── Döngü ── */
+  let acc = 0, lastFrame = 0;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    if (!window.AcelyaPause?.isPaused?.()) {
+      acc += elapsed;
+      while (acc >= DT) {
+        simTime += DT;
+        tickPlay();
+        stepParticles(DT);
+        acc -= DT;
+      }
+      easeView(elapsed);
+    }
+    updateReadouts();
+    highlightRow();
+    drawPV();
+    drawTS();
+    drawCyl();
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  function pointerTarget(evt) {
+    const rect = pvC.getBoundingClientRect(), L = pvLayout();
+    const x = ((evt.clientX - rect.left) / rect.width) * pvC.width;
+    const y = ((evt.clientY - rect.top) / rect.height) * pvC.height;
+    if (PROC[procSel()].by === "V") return ((x - L.l) / L.w) * view.V;
+    const p = Math.max(0.01, ((L.t + L.h - y) / L.h) * view.P);
+    return (p * current().V) / (gas.n * R); // izokorik: basınçtan sıcaklığa
+  }
+  pvC.addEventListener("pointerdown", (evt) => {
+    if (path.closed) { say("Yol kapalı: yeni adım için Geri al ya da Temizle."); return; }
+    dragging = true;
+    pvC.setPointerCapture(evt.pointerId);
+    setTarget(pointerTarget(evt), true);
+  });
+  pvC.addEventListener("pointermove", (evt) => {
+    if (dragging) setTarget(pointerTarget(evt), true);
+  });
+  const release = () => {
+    if (!dragging) return;
+    dragging = false;
+    fitView();
+  };
+  pvC.addEventListener("pointerup", release);
+  pvC.addEventListener("pointercancel", release);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button")) return;
+    if (e.code === "Space") { e.preventDefault(); togglePlay(); }
+    else if (e.key === "r" || e.key === "R") clearPath();
+    else if (e.key === "z" || e.key === "Z") undo();
   });
 
-  function drawGas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "cyan";
-    for (let i = 0; i < 20; i++) {
-      let x = Math.random() * canvas.width;
-      let y = Math.random() * canvas.height;
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
+  ui.gas.addEventListener("change", onGasChange);
+  ui.n.addEventListener("input", onGasChange);
+  ui.v0.addEventListener("input", onStartChange);
+  ui.t0.addEventListener("input", onStartChange);
+  ui.proc.addEventListener("change", syncTargetSlider);
+  ui.target.addEventListener("input", () => setTarget(Number(ui.target.value), false));
+  ui.apply.addEventListener("click", applyStep);
+  ui.undo.addEventListener("click", undo);
+  ui.clear.addEventListener("click", clearPath);
+  ui.close.addEventListener("click", closePath);
+  ui.play.addEventListener("click", togglePlay);
+  ui.build.addEventListener("click", () => applyPreset(presetParams(), true));
+  ui.cycle.addEventListener("change", readPresetUI);
+  [ui.th, ui.tc, ui.r, ui.qin].forEach((el) => el.addEventListener("input", () => {
+    couple(el);
+    readPresetUI();
+    if (path.preset && path.preset.type === ui.cycle.value) applyPreset(presetParams(), false);
+  }));
 
-  function updateGas() {
-    temperature = parseFloat(document.getElementById("temperature").value);
-    volume = parseFloat(document.getElementById("volume").value);
-    pressure = (8.31 * temperature) / volume;
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  [pvC, cyC, tsC].forEach((c) => ro.observe(c));
 
-    document.getElementById("tempValue").innerText = temperature;
-    document.getElementById("volValue").innerText = volume;
-
-    time += 1;
-    if (timeValues.length > 50) {
-      timeValues.shift();
-      pressureValues.shift();
-    }
-    timeValues.push(time);
-    pressureValues.push(pressure.toFixed(2));
-
-    gasChart.data.labels = timeValues;
-    gasChart.data.datasets[0].data = pressureValues;
-    if (gasChart) gasChart.update();
-    drawGas();
-  }
-
-  drawGas();
-</script></body>
+  readGas();
+  readPresetUI();
+  path.start = { V: Number(ui.v0.value), T: Number(ui.t0.value) };
+  rebuild();
+  showStart();
+  afterPathChange();
+  seedParticles();
+  resize();
+  fitView();
+  snapView();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>

@@ -2,378 +2,1495 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Duran bir fotoğrafın hızı olur mu? Türev bu soruya iki yüzyıl süren bir kavganın sonunda verilen cevaptır: sıfıra yaklaşan ama sıfır olmayan bir adımla eğimi yakalamak.">
-    <link rel="stylesheet" href="shared/theme.css">
-<title>Türev Nedir? (Limit Tanımı)</title>
+  <title>Türev: Kesenden Teğete (Limit Laboratuvarı)</title>
+  <meta name="description" content="Kesenin eğimi teğetin eğimine nasıl yaklaşır? h'yi 2'den 10⁻¹²'ye küçült; ileri, geri ve merkezi fark bölümlerini tam türevle karşılaştır, kesme ve yuvarlama hatasını log–log grafikte gör.">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: #fdfdfd;
+    body.app-page .app-content { max-width: 1100px; }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(290px, 1fr);
+      grid-template-areas: "stage side" "error side";
+      gap: 16px;
+      align-items: start;
     }
-
-    header {
-      text-align: center; 
-      background: #eee; 
-      padding: 1rem 0;
-      border-bottom: 1px solid #ccc;
+    .lab-stage { grid-area: stage; display: grid; gap: 8px; min-width: 0; }
+    .lab-error { grid-area: error; display: grid; gap: 8px; min-width: 0; }
+    .lab-side { grid-area: side; display: grid; gap: 12px; min-width: 0; }
+    @media (min-width: 761px) and (min-height: 820px) {
+      .lab-side {
+        position: sticky;
+        top: calc(var(--topbar-h) + 10px);
+        max-height: calc(100vh - var(--topbar-h) - 20px);
+        overflow-y: auto;
+      }
     }
-    h1, h2, p {
-      margin: 0.5rem auto;
-      max-width: 900px;
-      color: #333;
-    }
-
-    /* Üç sütun düzeni için container ve içindeki paneller */
-    #container {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;       /* Ekran daralınca satır atlayabilmesi için */
-      justify-content: center;
-      gap: 1rem;             /* Sütunlar arasında boşluk */
-      padding: 1rem;
-      max-width: 1500px;
-      margin: 0 auto;
-    }
-
-    /* Soldaki ayarlar */
-    #leftPane {
-      flex: 1 1 220px;      /* Biraz daraltabilsin, en az 220px pay */
-      max-width: 300px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 1rem;
-      min-width: 220px;
-      box-sizing: border-box;
-    }
-    #leftPane label,
-    #leftPane input,
-    #leftPane select {
+    canvas.plot {
+      width: 100%;
       display: block;
-      margin: 0.6rem 0;
+      border-radius: 12px;
+      background: rgba(8, 12, 22, 0.75);
     }
-
-    /* Ortadaki bilgilendirme paneli */
-    #infoPane {
-      flex: 1 1 300px;
-      max-width: 400px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 1rem;
-      min-width: 250px;
-      box-sizing: border-box;
+    .graph-canvas {
+      aspect-ratio: 3 / 2;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      touch-action: pan-y;
+      cursor: crosshair;
     }
-    p.note {
-      font-size: 0.9rem;
-      color: #555;
-      line-height: 1.6em;
+    .strip-canvas { aspect-ratio: 4 / 1; touch-action: pan-y; cursor: crosshair; }
+    .error-canvas { aspect-ratio: 2 / 1; }
+    canvas.plot.is-dragging { cursor: grabbing; }
+    [data-theme="light"] .graph-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .strip-canvas,
+    [data-theme="light"] .error-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 10px;
     }
-
-    /* Sağdaki canvas alanı */
-    #canvasPane {
-      flex: 1 1 500px;      /* Daha geniş pay ayıralım */
-      min-width: 300px;
-      display: flex;
-      justify-content: center;
+    .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .seg { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; border: 0; padding: 0; margin: 0; min-width: 0; }
+    .seg legend { float: left; margin-right: 4px; padding: 0; font-size: 0.86rem; font-weight: 600; color: var(--text); }
+    .seg label {
+      display: inline-flex;
       align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-input);
+      font-size: 0.86rem;
+      cursor: pointer;
     }
-    #myCanvas {
-      background: #fff;
-      border: 1px solid #ccc;
-      width: 600px;
-      height: 400px;
+    .seg label:has(input:checked) { border-color: var(--accent); }
+    .row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .row button { padding: 7px 10px; font: inherit; cursor: pointer; }
+    .row button[disabled] { opacity: 0.45; cursor: default; filter: none; }
+    .readouts { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+    .readout {
+      grid-column: span 2;
+      padding: 7px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      min-width: 0;
     }
-
-    footer {
-      text-align: center;
-      margin-top: 1rem;
-      padding: 0.5rem;
-      font-size: 0.8rem;
-      color: #666;
-    }
-
-    /* Responsive ayarlar: ekran daralınca sütunlar alt alta */
-    @media (max-width: 992px) {
-      #myCanvas {
-        width: 100% !important;
-        height: auto !important;
-      }
-    }
-    @media (max-width: 768px) {
-      #container {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      #leftPane, #infoPane, #canvasPane {
-        max-width: 100% !important;
-        flex: 1 1 auto;
-      }
-      #myCanvas {
-        width: 100% !important;
-        height: auto !important;
-      }
+    .readout.half { grid-column: span 3; }
+    .readout.wide { grid-column: span 6; }
+    .readout small { font-size: 0.74rem; letter-spacing: 0.02em; }
+    .readout strong { font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.wide strong { font-size: 1.12rem; }
+    .readout.trio { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+    .readout.trio > div { display: grid; gap: 2px; }
+    .readout.trio strong { font-size: 1rem; }
+    .readout.is-secant strong { color: var(--accent) !important; }
+    .readout.is-exact strong { color: var(--accent-2) !important; }
+    .readout.is-error strong { color: var(--accent-warm) !important; }
+    .readouts .note { grid-column: 1 / -1; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 2px 14px; margin: 0; font-size: 0.78rem; line-height: 1.6; color: var(--text-muted); }
+    .legend b { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+    .legend i { display: inline-block; width: 18px; border-top: 2.5px solid currentColor; }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.dot { width: 9px; height: 9px; border: 0; border-radius: 50%; background: currentColor; }
+    .legend i.ring { width: 7px; height: 7px; border: 2px solid currentColor; border-radius: 50%; }
+    .legend i.tri { width: 0; border-top: 7px solid currentColor; border-left: 5px solid transparent; border-right: 5px solid transparent; }
+    .c-curve { color: #7dd3fc; }
+    .c-secant { color: var(--accent); }
+    .c-tangent { color: var(--accent-2); }
+    .c-warm { color: var(--accent-warm); }
+    .c-red { color: var(--danger); }
+    .c-ink { color: var(--text); }
+    [data-theme="light"] .c-curve { color: #2563eb; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "error"; }
+      .lab-side { position: static; max-height: none; overflow: visible; }
+      .strip-canvas { aspect-ratio: 5 / 2; }
+      .error-canvas { aspect-ratio: 4 / 3; }
     }
   </style>
-
-  <!-- MathJax: LaTeX ifadeleri için -->
-  <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$','$$'], ['\\[','\\]']]
-      }
-    };
-  </script>
-  <script id="MathJax-script" async 
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
   <script src="shared/app.js"></script>
 </head>
-
 <body class="app-page" data-page="turev">
-<header>
-  <h1>Türev</h1>
-  <h2>Limit Tanımı</h2>
-</header>
 
-<div id="container">
+<div class="app-content">
+  <h1>Türev: Kesenden Teğete (Limit Laboratuvarı)</h1>
+  <p class="hint">Kesen, eğri üzerindeki iki noktadan geçer; h küçüldükçe eğimi D<sub>h</sub>, teğetin eğimi f′(a)'ya yaklaşır. A'yı grafikte sürükle, «h → 0» ile h'yi her çeyrek saniyede yarıya indir; hata grafiği, çok küçük h'de kayan nokta yuvarlamasının hatayı yeniden büyüttüğünü gösterir.</p>
 
-  <!-- Sütun 1: Ayarlar -->
-  <div id="leftPane">
-    <label for="funcSelect"><strong>Fonksiyon Seç:</strong></label>
-    <select id="funcSelect">
-      <option value="2" selected>x^2</option>
-      <option value="3">x^3</option>
-      <option value="4">x^4</option>
-    </select>
+  <div class="lab" id="lab">
+    <div class="lab-stage">
+      <canvas id="graphCanvas" class="plot graph-canvas" width="900" height="600" role="img" aria-label="Fonksiyon grafiği: eğri, A ve B noktaları, kesen, kesikli teğet ve eğim üçgeni; h çok küçükken büyüteç penceresi açılır"></canvas>
+      <p class="legend">
+        <b><i class="c-curve"></i><span>f(x)</span></b>
+        <b><i class="c-secant"></i><span>kesen (eğim D<sub>h</sub>)</span></b>
+        <b><i class="c-tangent dash"></i><span>teğet (eğim f′(a))</span></b>
+        <b><i class="c-warm"></i><span>eğim üçgeni Δx, Δy</span></b>
+        <b><i class="c-red dot"></i><span>A = (a, f(a)); B = (a+h, f(a+h)); C = (a−h, f(a−h))</span></b>
+      </p>
+      <canvas id="derivCanvas" class="plot strip-canvas" width="900" height="225" role="img" aria-label="Türev şeridi: tam türev f′(x) ile şu anki h için fark bölümü D_h(x); dikey çizgi a noktasını gösterir"></canvas>
+      <p class="legend">
+        <b><i class="c-tangent"></i><span>f′(x), tam türev</span></b>
+        <b><i class="c-secant"></i><span>D<sub>h</sub>(x), şu anki h ile fark bölümü</span></b>
+        <b><i class="c-red"></i><span>x = a</span></b>
+      </p>
+    </div>
 
-    <label for="xRange"><strong>x Değeri (nokta):</strong></label>
-    <input type="range" id="xRange" min="-3" max="3" step="0.1" value="1" />
-    <p id="xVal"></p>
+    <div class="lab-side">
+      <div class="panel" aria-label="Kontroller">
+        <h2>Deney ayarları</h2>
+        <div class="field">
+          <label for="funcSelect">Fonksiyon f(x)</label>
+          <select id="funcSelect">
+            <option value="sq" selected>f(x) = x²</option>
+            <option value="cube">f(x) = x³</option>
+            <option value="sin">f(x) = sin x</option>
+            <option value="exp">f(x) = eˣ</option>
+            <option value="ln">f(x) = ln x  (x &gt; 0)</option>
+            <option value="abs">f(x) = |x|  (0'da köşe)</option>
+            <option value="sqrt">f(x) = √x  (x ≥ 0)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="formulaSelect">Fark bölümü</label>
+          <select id="formulaSelect">
+            <option value="fwd" selected>İleri fark: [f(a+h) − f(a)] / h</option>
+            <option value="bwd">Geri fark: [f(a) − f(a−h)] / h</option>
+            <option value="ctr">Merkezi fark: [f(a+h) − f(a−h)] / (2h)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aRange">Nokta a <output id="aOut" for="aRange">1.00</output></label>
+          <input type="range" id="aRange" min="-2.5" max="2.5" step="0.01" value="1">
+        </div>
+        <div class="field">
+          <label for="hRange">Adım |h| (logaritmik) <output id="hOut" for="hRange">1</output></label>
+          <input type="range" id="hRange" min="-12" max="0.3" step="0.05" value="0">
+        </div>
+        <fieldset class="seg">
+          <legend>h'nin işareti</legend>
+          <label for="signPos"><input type="radio" id="signPos" name="hSign" value="1" checked> h &gt; 0</label>
+          <label for="signNeg"><input type="radio" id="signNeg" name="hSign" value="-1"> h &lt; 0</label>
+        </fieldset>
+        <div class="row">
+          <button type="button" id="shrinkBtn">h → 0</button>
+          <button type="button" id="stopBtn" disabled>Durdur</button>
+          <button type="button" id="sweepBtn" aria-pressed="false">Tüm h değerlerini tara</button>
+          <button type="button" id="resetBtn">Sıfırla</button>
+        </div>
+        <p class="note"><kbd>Boşluk</kbd> h → 0 başlat/durdur, <kbd>R</kbd> sıfırla. Grafiğe dokun ya da sürükle: A oraya gider; B'yi sürüklemek h'yi değiştirir.</p>
+      </div>
 
-    <p class="note">
-      Kırmızı çizgi: Teğet (türev eğimi).  
-      Yeşil çizgi: Secant (animasyonlu yaklaşım).  
-      <em>h</em> değerimiz titreşerek limitin nasıl çalıştığını gösteriyor.
-    </p>
+      <div class="panel" aria-label="Ölçümler">
+        <h2>Ölçümler</h2>
+        <div class="readouts" id="readouts" aria-live="polite">
+          <div class="readout wide trio">
+            <div><small>Nokta a</small><strong id="aVal">1.00</strong></div>
+            <div><small>Adım h</small><strong id="hVal">+1</strong></div>
+            <div><small>f(a)</small><strong id="faVal">1</strong></div>
+          </div>
+          <div class="readout wide is-secant"><small id="dLabel">Kesen eğimi D<sub>h</sub> · ileri fark</small><strong id="dVal">—</strong></div>
+          <div class="readout wide is-exact"><small>Teğet eğimi f′(a) · tam değer</small><strong id="exactVal">—</strong></div>
+          <div class="readout half is-error"><small>Mutlak hata |D<sub>h</sub> − f′(a)|</small><strong id="absErr">—</strong></div>
+          <div class="readout half"><small>Bağıl hata</small><strong id="relErr">—</strong></div>
+          <p class="note" id="statusNote"></p>
+        </div>
+      </div>
+    </div>
 
+    <div class="lab-error">
+      <canvas id="errorCanvas" class="plot error-canvas" width="900" height="450" role="img" aria-label="Log–log hata grafiği: yatayda |h|, düşeyde |D_h − f′(a)|; ölçülen hata noktaları, tam aritmetikteki kesme hatası, yuvarlama tahmini ve şu anki h"></canvas>
+      <p class="legend">
+        <b><i class="c-secant dot"></i><span>ölçülen hata (kayan nokta)</span></b>
+        <b><i class="c-warm dash"></i><span>kesme hatası (tam aritmetik)</span></b>
+        <b><i class="c-red dash"></i><span>yuvarlama tahmini ∝ ε/|h|</span></b>
+        <b><i class="c-ink ring"></i><span>şu anki h</span></b>
+        <b><i class="c-secant tri"></i><span>hata tam 0</span></b>
+      </p>
+      <p class="note" id="errorNote"></p>
+    </div>
   </div>
-
-  <!-- Sütun 2: Bilgilendirme Metni -->
-  <div id="infoPane">
-    <p>
-      Türev, bir fonksiyonun değişim hızını ölçer.  
-      <strong>Limit tanımı</strong> şöyledir:
-    </p>
-    <p>
-      $$f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}.$$
-    </p>
-    <p>
-      Geometrik olarak, 
-      $$ f'(x) $$ 
-      o noktadaki <em>teğet</em> doğrusunun eğimidir.  
-      Secant (kesik) doğrusu, \(h\) küçüldükçe teğete yaklaşır.
-    </p>
-    <p>
-      Seçilen polinom için türev formülü:  
-      $$ x^n \quad \to \quad n\,x^{\,n-1}. $$
-      Örneğin, 
-      - \(x^2 \rightarrow 2x\)  
-      - \(x^3 \rightarrow 3x^2\)  
-      - \(x^4 \rightarrow 4x^3\)
-    </p>
-    <p class="note">
-      Aşağıdaki grafikte <em>mavi eğri</em> fonksiyon \(f(x)\), 
-      <em>kırmızı çizgi</em> türevine karşılık gelen teğet, 
-      <em>yeşil çizgi</em> ise h hâlâ sıfır değilken aldığımız kesik doğrudur.
-    </p>
-  </div>
-
-  <!-- Sütun 3: Grafik Canvas -->
-  <div id="canvasPane">
-    <canvas id="myCanvas" width="600" height="400"></canvas>
-  </div>
-
 </div>
 
-<footer>
-  <p>Türev (Derivative)</p>
-</footer>
-
 <script>
-//=========================================
-// 1) Genel Değişkenler
-//=========================================
-const canvas = document.getElementById('myCanvas');
-const ctx = canvas.getContext('2d');
+(function () {
+  "use strict";
 
-const funcSelect = document.getElementById('funcSelect');
-const xRange = document.getElementById('xRange');
-const xVal   = document.getElementById('xVal');
+  /* MATH-START — DOM'a dokunmayan saf hesap çekirdeği */
+  const EPS = Number.EPSILON; // 2⁻⁵² ≈ 2.22·10⁻¹⁶
+  const H_MIN = 1e-12;
+  const H_MAX = 2;
 
-// Koordinat aralıkları (canvas -> matematik)
-let xMin = -3.5, xMax = 3.5;
-let yMin = -30,  yMax = 30;
+  // Küçük argümanda sadeleşmeyi seriyle yapan yardımcılar (tam aritmetikteki kesme hatası için)
+  function sincm1(x) { // sin(x)/x − 1
+    const x2 = x * x;
+    if (Math.abs(x) < 0.05) return x2 * (-1 / 6 + x2 * (1 / 120 + x2 * (-1 / 5040 + x2 / 362880)));
+    return Math.sin(x) / x - 1;
+  }
+  function expm1m(x) { // (eˣ − 1)/x − 1
+    if (Math.abs(x) < 1e-3) return x * (1 / 2 + x * (1 / 6 + x * (1 / 24 + x / 120)));
+    return Math.expm1(x) / x - 1;
+  }
+  function sinhm1(x) { // sinh(x)/x − 1
+    const x2 = x * x;
+    if (Math.abs(x) < 0.05) return x2 * (1 / 6 + x2 * (1 / 120 + x2 * (1 / 5040 + x2 / 362880)));
+    return Math.sinh(x) / x - 1;
+  }
+  function log1pm(u) { // ln(1 + u)/u − 1
+    if (Math.abs(u) < 1e-3) return u * (-1 / 2 + u * (1 / 3 + u * (-1 / 4 + u / 5)));
+    return Math.log1p(u) / u - 1;
+  }
+  function atanhm1(u) { // artanh(u)/u − 1
+    const u2 = u * u;
+    if (Math.abs(u) < 0.05) return u2 * (1 / 3 + u2 * (1 / 5 + u2 * (1 / 7 + u2 * (1 / 9 + u2 / 11))));
+    return Math.atanh(u) / u - 1;
+  }
 
-// Animasyon için zaman parametresi
-let t = 0;
+  const ALL = () => true;
+  // d: [f′, f″, f‴, f⁗, f⁽⁵⁾]; trunc(a, h, tür): tam aritmetikte D_h − f′(a)
+  const FUNCS = {
+    sq: {
+      name: "x²", f: (x) => x * x, dom: ALL,
+      d: [(x) => 2 * x, () => 2, () => 0, () => 0, () => 0],
+      aMin: -2.5, aMax: 2.5, span: 8, viewMin: -Infinity,
+      trunc: (a, h, k) => (k === "ctr" ? 0 : k === "fwd" ? h : -h),
+    },
+    cube: {
+      name: "x³", f: (x) => x * x * x, dom: ALL,
+      d: [(x) => 3 * x * x, (x) => 6 * x, () => 6, () => 0, () => 0],
+      aMin: -1.8, aMax: 1.8, span: 4.5, viewMin: -Infinity,
+      trunc: (a, h, k) => (k === "ctr" ? h * h : k === "fwd" ? 3 * a * h + h * h : -3 * a * h + h * h),
+    },
+    sin: {
+      name: "sin x", f: Math.sin, dom: ALL,
+      d: [Math.cos, (x) => -Math.sin(x), (x) => -Math.cos(x), Math.sin, Math.cos],
+      aMin: -6.28, aMax: 6.28, span: 8, viewMin: -Infinity,
+      trunc(a, h, k) {
+        if (k === "ctr") return Math.cos(a) * sincm1(h);
+        const t = k === "fwd" ? h : -h; // geri fark: D(h) = ileri fark D(−h)
+        const s1 = sincm1(t / 2);
+        // [sin(a+t) − sin a]/t = cos(a + t/2)·sin(t/2)/(t/2)
+        return -2 * Math.sin(a + t / 4) * Math.sin(t / 4) * (1 + s1) + Math.cos(a) * s1;
+      },
+    },
+    exp: {
+      name: "eˣ", f: Math.exp, dom: ALL,
+      d: [Math.exp, Math.exp, Math.exp, Math.exp, Math.exp],
+      aMin: -3, aMax: 2, span: 5, viewMin: -Infinity,
+      trunc: (a, h, k) => Math.exp(a) * (k === "ctr" ? sinhm1(h) : expm1m(k === "fwd" ? h : -h)),
+    },
+    ln: {
+      name: "ln x", f: Math.log, dom: (x) => x > 0, domText: "ln x yalnız x > 0 için tanımlı",
+      d: [(x) => 1 / x, (x) => -1 / (x * x), (x) => 2 / (x * x * x), (x) => -6 / (x * x * x * x), (x) => 24 / (x * x * x * x * x)],
+      aMin: 0.05, aMax: 5, span: 5.5, viewMin: -0.6,
+      trunc(a, h, k) {
+        const u = h / a;
+        return (k === "ctr" ? atanhm1(u) : log1pm(k === "fwd" ? u : -u)) / a;
+      },
+    },
+    abs: {
+      name: "|x|", f: Math.abs, dom: ALL,
+      d: [(x) => (x === 0 ? NaN : Math.sign(x)), () => 0, () => 0, () => 0, () => 0],
+      aMin: -2.5, aMax: 2.5, span: 6, viewMin: -Infinity,
+      trunc(a, h, k) { // a ≠ 0
+        const s = Math.sign(a);
+        if (k === "ctr") return Math.abs(h) <= Math.abs(a) ? 0 : a / Math.abs(h) - s;
+        const t = k === "fwd" ? h : -h;
+        if (a + t === 0 || Math.sign(a + t) === s) return 0;
+        return (s > 0 ? -(2 * a + t) / t : (2 * a + t) / t) - s;
+      },
+    },
+    sqrt: {
+      name: "√x", f: Math.sqrt, dom: (x) => x >= 0, domText: "√x yalnız x ≥ 0 için tanımlı",
+      d: [
+        (x) => 1 / (2 * Math.sqrt(x)),
+        (x) => -1 / (4 * x * Math.sqrt(x)),
+        (x) => 3 / (8 * x * x * Math.sqrt(x)),
+        (x) => -15 / (16 * x * x * x * Math.sqrt(x)),
+        (x) => 105 / (32 * x * x * x * x * Math.sqrt(x)),
+      ],
+      aMin: 0, aMax: 5, span: 5.5, viewMin: -0.6,
+      trunc(a, h, k) { // a > 0; kökler toplamıyla yazılınca sadeleşme kaybı olmaz
+        const ra = Math.sqrt(a);
+        if (k === "fwd") { const r = Math.sqrt(a + h) + ra; return -h / (2 * ra * r * r); }
+        if (k === "bwd") { const r = ra + Math.sqrt(a - h); return h / (2 * ra * r * r); }
+        const rp = Math.sqrt(a + h), rm = Math.sqrt(a - h), S = rp + rm;
+        return (h * h) / (ra * S * S * (rp + ra) * (rm + ra));
+      },
+    },
+  };
 
-//=========================================
-// 2) Fonksiyon Tanımı
-//=========================================
-function f(x, n){
-  return Math.pow(x, n);
-}
+  // Kayan noktada, saf bir programın yapacağı gibi hesaplanan fark bölümü
+  function quotient(F, a, h, kind) {
+    if (kind === "fwd") {
+      const x = a + h;
+      return F.dom(x) ? (F.f(x) - F.f(a)) / h : NaN;
+    }
+    if (kind === "bwd") {
+      const x = a - h;
+      return F.dom(x) ? (F.f(a) - F.f(x)) / h : NaN;
+    }
+    const xp = a + h, xm = a - h;
+    return F.dom(xp) && F.dom(xm) ? (F.f(xp) - F.f(xm)) / (2 * h) : NaN;
+  }
 
-// f'(x) = n*x^(n-1)
-function fprime(x, n){
-  return n * Math.pow(x, n - 1);
-}
+  // "ok": sonlu türev; "none": |x| için a = 0 (köşe); "vertical": √x için a = 0 (dikey teğet)
+  function derivInfo(F, a) {
+    if (F === FUNCS.abs && a === 0) return { kind: "none" };
+    if (F === FUNCS.sqrt && a === 0) return { kind: "vertical" };
+    return { kind: "ok", value: F.d[0](a) };
+  }
 
-//=========================================
-// 3) Koordinat Dönüşüm Fonksiyonları
-//=========================================
-function xToPx(x){
-  return (x - xMin) * (canvas.width / (xMax - xMin));
-}
-function yToPx(y){
-  return canvas.height - (y - yMin) * (canvas.height / (yMax - yMin));
-}
+  function truncError(F, a, h, kind) {
+    if (kind !== "bwd" && !F.dom(a + h)) return NaN;
+    if (kind !== "fwd" && !F.dom(a - h)) return NaN;
+    return F.trunc(a, h, kind);
+  }
 
-//=========================================
-// 4) Eksen ve Fonksiyon Çizimi
-//=========================================
-function drawAxes(){
-  ctx.strokeStyle = '#888';
-  ctx.lineWidth = 1;
+  // Yuvarlama payı ≈ R/|h|: f(a) ve f(a±h) birer ulp, a + h toplamı da bir ulp hata taşır
+  function roundCoef(F, a, kind) {
+    const base = EPS * (Math.abs(F.f(a)) + Math.abs(a * F.d[0](a)));
+    return kind === "ctr" ? base / 2 : base;
+  }
 
-  // x ekseni
-  let xAxisY = yToPx(0);
-  ctx.beginPath();
-  ctx.moveTo(xToPx(xMin), xAxisY);
-  ctx.lineTo(xToPx(xMax), xAxisY);
-  ctx.stroke();
+  // Taylor açılımındaki ilk sıfır olmayan kesme terimi: |hata| ≈ C·|h|^p
+  function leading(F, a, kind) {
+    const d = F.d.map((g) => g(a));
+    if (kind === "ctr") {
+      if (d[2] !== 0) return { C: Math.abs(d[2]) / 6, p: 2 };
+      if (d[4] !== 0) return { C: Math.abs(d[4]) / 120, p: 4 };
+      return null;
+    }
+    if (d[1] !== 0) return { C: Math.abs(d[1]) / 2, p: 1 };
+    if (d[2] !== 0) return { C: Math.abs(d[2]) / 6, p: 2 };
+    if (d[3] !== 0) return { C: Math.abs(d[3]) / 24, p: 3 };
+    return null;
+  }
 
-  // y ekseni
-  let yAxisX = xToPx(0);
-  ctx.beginPath();
-  ctx.moveTo(yAxisX, yToPx(yMin));
-  ctx.lineTo(yAxisX, yToPx(yMax));
-  ctx.stroke();
-}
+  // Kuramsal en iyi adım: |kesme(h)| + R/|h| toplamını en küçük yapan |h|
+  function optimum(F, a, kind, sign) {
+    if (!leading(F, a, kind)) return null;
+    const R = roundCoef(F, a, kind);
+    if (!(R > 0)) return null;
+    const N = 600, top = Math.log10(H_MAX);
+    let best = null;
+    for (let i = 0; i <= N; i++) {
+      const m = Math.pow(10, -12 + (i * (top + 12)) / N);
+      const E = truncError(F, a, sign * m, kind);
+      if (!Number.isFinite(E)) continue;
+      const M = Math.abs(E) + R / m;
+      if (!best || M < best.M) best = { h: m, M, i };
+    }
+    if (!best || best.i === 0 || best.i === N) return null;
+    return best;
+  }
 
-function drawFunction(n){
-  ctx.strokeStyle = '#0000cc'; // mavi
-  ctx.lineWidth = 2;
-  ctx.beginPath();
+  // Kaydırıcının ızgarası: log₁₀|h| = −12 … 0.30, adım 0.05; değer 2 anlamlı basamağa yuvarlanır
+  function niceH(s) {
+    return Number(Math.pow(10, s).toPrecision(2));
+  }
+  const H_GRID = [];
+  for (let k = 246; k >= 0; k--) H_GRID.push(niceH(-12 + 0.05 * k));
+  /* MATH-END */
 
-  let step = 0.02;
-  let first = true;
-  for(let x = xMin; x <= xMax; x += step){
-    let px = xToPx(x);
-    let py = yToPx(f(x, n));
-    if(first){
-      ctx.moveTo(px, py);
-      first = false;
+  /* ── Arayüz ve durum ── */
+  const $ = (id) => document.getElementById(id);
+  const graph = $("graphCanvas"), gctx = graph.getContext("2d");
+  const strip = $("derivCanvas"), sctx = strip.getContext("2d");
+  const errc = $("errorCanvas"), ectx = errc.getContext("2d");
+  const lab = $("lab");
+  const ui = {
+    func: $("funcSelect"), formula: $("formulaSelect"),
+    a: $("aRange"), aOut: $("aOut"), h: $("hRange"), hOut: $("hOut"),
+    signPos: $("signPos"), signNeg: $("signNeg"),
+    shrink: $("shrinkBtn"), stop: $("stopBtn"), sweep: $("sweepBtn"), reset: $("resetBtn"),
+    readouts: $("readouts"), aVal: $("aVal"), hVal: $("hVal"), faVal: $("faVal"),
+    dLabel: $("dLabel"), dVal: $("dVal"), exactVal: $("exactVal"),
+    absErr: $("absErr"), relErr: $("relErr"), status: $("statusNote"), errorNote: $("errorNote"),
+  };
+
+  const KIND_NAME = { fwd: "ileri fark", bwd: "geri fark", ctr: "merkezi fark" };
+  const STEP_T = 0.25; // s: «h → 0» her adımda h'yi yarıya indirir
+  const state = {
+    fn: "sq", kind: "fwd", a: 1, h: 1, // h işaretli
+    anim: false, acc: 0, sweep: false,
+    visited: new Map(), sweepData: [], eRange: { lo: -17, hi: 1 },
+    drag: null,
+  };
+  let view = null, target = null; // ana grafiğin görünen bölgesi {x0, x1, y0, y1}
+  let stripY = null;
+  let insetCorner = "bl";
+  let dpr = 1, dirty = true, lastFrame = 0, lastTheme = "";
+
+  /* ── Sayı biçimi ── */
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const minus = (s) => s.replace(/-/g, "−");
+  const supText = (n) => String(n).split("").map((c) => SUP[c] ?? c).join("");
+  // n anlamlı basamak; |x| < 10⁻⁴ ya da ≥ 10⁶ ise m·10ᵏ (html: <sup>, değilse Unicode üst simge)
+  function num(x, n, html, trim) {
+    if (!Number.isFinite(x)) return x > 0 ? "+∞" : x < 0 ? "−∞" : "—";
+    if (x === 0) return "0";
+    const ax = Math.abs(x);
+    const cut = (s) => (trim && s.includes(".") ? s.replace(/0+$/, "").replace(/\.$/, "") : s);
+    const fixed = x.toPrecision(n);
+    if (ax >= 1e-4 && ax < 1e6 && !fixed.includes("e")) return minus(cut(fixed));
+    const [m, e] = x.toExponential(n - 1).split("e");
+    const exp = Number(e);
+    return minus(cut(m)) + "·10" + (html ? `<sup>${minus(String(exp))}</sup>` : supText(exp));
+  }
+  const signed = (x, n, html) => (x > 0 ? "+" : "") + num(x, n, html, true);
+
+  /* ── Model ── */
+  const fnObj = () => FUNCS[state.fn];
+
+  function current() {
+    const F = fnObj(), a = state.a, h = state.h, kind = state.kind;
+    const info = derivInfo(F, a);
+    const D = quotient(F, a, h, kind);
+    const exact = info.kind === "ok" ? info.value : NaN;
+    const err = info.kind === "ok" && Number.isFinite(D) ? Math.abs(D - exact) : NaN;
+    const E = info.kind === "ok" ? truncError(F, a, h, kind) : NaN;
+    const Rh = info.kind === "ok" ? roundCoef(F, a, kind) / Math.abs(h) : NaN;
+    return { F, a, h, kind, fa: F.f(a), D, info, exact, err, E, Rh };
+  }
+
+  // Hata grafiğinin bir noktası: |h| ve |D_h − f′(a)| (dikey teğette |D_h|)
+  function errorPoint(F, a, h, kind, info) {
+    const D = quotient(F, a, h, kind);
+    if (!Number.isFinite(D)) return null;
+    if (info.kind === "vertical") return { h: Math.abs(h), v: Math.abs(D) };
+    if (info.kind !== "ok") return null;
+    return { h: Math.abs(h), v: Math.abs(D - info.value) };
+  }
+
+  function rebuildSweep() {
+    const F = fnObj(), info = derivInfo(F, state.a), sign = Math.sign(state.h) || 1;
+    state.sweepData = [];
+    for (const m of H_GRID) {
+      const p = errorPoint(F, state.a, sign * m, state.kind, info);
+      if (p) state.sweepData.push(p);
+    }
+    if (info.kind === "vertical") {
+      state.eRange = { lo: -1, hi: 7 };
+      return;
+    }
+    let max = 0;
+    for (const p of state.sweepData) if (Number.isFinite(p.v)) max = Math.max(max, p.v);
+    const hi = max > 0 ? Math.ceil(Math.log10(max) + 0.3) : 1;
+    state.eRange = { lo: -17, hi: Math.min(4, Math.max(0, hi)) };
+  }
+
+  function recordVisit() {
+    const F = fnObj();
+    const p = errorPoint(F, state.a, state.h, state.kind, derivInfo(F, state.a));
+    if (p) state.visited.set(state.h, p);
+  }
+
+  // f, a, formül ya da işaret değişti: eski ölçümler bu ayara ait değil
+  function settingsChanged() {
+    state.visited.clear();
+    rebuildSweep();
+    recordVisit();
+  }
+
+  /* ── Ana grafiğin görünümü: mümkünse eşit ölçek ── */
+  function plotRect(cv, kind) {
+    const W = cv.width, H = cv.height;
+    if (kind === "error") {
+      const l = 56 * dpr, r = 14 * dpr, t = 28 * dpr, b = 32 * dpr;
+      return { l, t, w: W - l - r, h: H - t - b };
+    }
+    const l = 46 * dpr, r = 12 * dpr, t = 24 * dpr, b = (kind === "strip" ? 20 : 26) * dpr;
+    return { l, t, w: W - l - r, h: H - t - b };
+  }
+
+  function keyPoints() {
+    const F = fnObj(), a = state.a, h = state.h;
+    const pts = [{ x: a, y: F.f(a) }];
+    if (state.kind !== "bwd" && F.dom(a + h)) pts.push({ x: a + h, y: F.f(a + h) });
+    if (state.kind !== "fwd" && F.dom(a - h)) pts.push({ x: a - h, y: F.f(a - h) });
+    return pts;
+  }
+
+  // x aralığı a çevresinde fonksiyona özgü genişlikte; A ve B (ve C) her zaman içeride.
+  // Eşit ölçek için önce x aralığı (en çok 2.5 kat) genişletilir, yetmezse dikey eksen sıkıştırılır.
+  function computeTarget(freezeX) {
+    const F = fnObj();
+    const R = plotRect(graph, "graph");
+    const ratio = R.h / R.w;
+    const pts = keyPoints();
+    let x0, x1;
+    if (freezeX && view) {
+      x0 = view.x0;
+      x1 = view.x1;
     } else {
-      ctx.lineTo(px, py);
+      x0 = state.a - F.span / 2;
+      x1 = state.a + F.span / 2;
+      if (x0 < F.viewMin) { x1 += F.viewMin - x0; x0 = F.viewMin; }
+      const pad = 0.06 * F.span;
+      for (const p of pts) { x0 = Math.min(x0, p.x - pad); x1 = Math.max(x1, p.x + pad); }
+      // Büyüteç açılacaksa (üçgen iki yönde de küçük) A'yı yana kaydır ki pencere A'nın üstüne düşmesin
+      const span = x1 - x0;
+      const ext = Math.max(...pts.map((p) => Math.abs(p.x - state.a)), ...pts.map((p) => Math.abs(p.y - pts[0].y)));
+      if (((state.kind === "ctr" ? 2 : 1) * ext * R.w) / span < 40 * dpr) {
+        x0 = state.a - 0.72 * span;
+        if (x0 < F.viewMin) x0 = Math.max(F.viewMin, state.a - 0.28 * span);
+        x1 = x0 + span;
+      }
+    }
+    let lo = Infinity, hi = -Infinity;
+    for (const p of pts) { lo = Math.min(lo, p.y); hi = Math.max(hi, p.y); }
+    const FILL = 0.78;
+    let need = hi - lo;
+    let yspan = (x1 - x0) * ratio;
+    if (need > FILL * yspan && !freezeX) {
+      const span = Math.min(need / FILL / ratio, Math.max(F.span * 2.5, x1 - x0));
+      if (span > x1 - x0) {
+        const grow = span - (x1 - x0);
+        x0 -= grow / 2;
+        x1 += grow / 2;
+        if (x0 < F.viewMin) { x1 += F.viewMin - x0; x0 = F.viewMin; }
+      }
+      yspan = (x1 - x0) * ratio;
+    }
+    if (need > FILL * yspan) yspan = need / FILL;
+    if (Math.max(hi, 0) - Math.min(lo, 0) <= FILL * yspan) {
+      lo = Math.min(lo, 0);
+      hi = Math.max(hi, 0);
+      need = hi - lo;
+    }
+    const half = yspan / 2;
+    const m = Math.max(0, Math.min(0.11 * yspan, (yspan - need) / 2));
+    const yc = Math.min(Math.max(F.f(state.a), hi + m - half), lo - m + half);
+    return { x0, x1, y0: yc - half, y1: yc + half };
+  }
+
+  function retarget(snap) {
+    if (state.drag?.mode === "b") return; // B sürüklenirken görünüm sabit kalır
+    target = computeTarget(state.drag?.mode === "a");
+    if (snap || !view) view = { ...target };
+    dirty = true;
+  }
+
+  // Zamandan bağımsız yumuşak geçiş (τ = 0.12 s)
+  function stepView(dt) {
+    if (!target || !view) return false;
+    const k = 1 - Math.exp(-dt / 0.12);
+    const tolX = 1e-4 * (target.x1 - target.x0), tolY = 1e-4 * (target.y1 - target.y0);
+    let moving = false;
+    for (const key of ["x0", "x1", "y0", "y1"]) {
+      const d = target[key] - view[key];
+      if (Math.abs(d) > (key[0] === "x" ? tolX : tolY)) {
+        view[key] += d * k;
+        moving = true;
+      } else view[key] = target[key];
+    }
+    return moving;
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [graph, strip, errc]) {
+      const r = c.getBoundingClientRect();
+      if (!r.width) continue;
+      const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    stripY = null;
+    retarget(true);
+  }
+
+  /* ── Çizim yardımcıları ── */
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.07)",
+      axis: light ? "rgba(26,29,46,0.55)" : "rgba(232,236,244,0.5)",
+      curve: light ? "#2563eb" : "#7dd3fc",
+      secant: light ? "#0d9488" : "#5eead4",
+      tangent: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      red: light ? "#dc2626" : "#f87171",
+      halo: light ? "rgba(247,249,252,0.92)" : "rgba(9,13,24,0.9)",
+      inset: light ? "rgba(252,253,255,0.97)" : "rgba(10,15,27,0.97)",
+    };
+  }
+  const font = (px, w) => `${w || 400} ${px * dpr}px Outfit, system-ui, sans-serif`;
+  function text(c, s, x, y, color, t, o = {}) {
+    c.font = font(o.size || 11.5, o.weight);
+    c.textAlign = o.align || "left";
+    c.textBaseline = o.base || "alphabetic";
+    c.lineJoin = "round";
+    c.lineWidth = 4 * dpr;
+    c.strokeStyle = t.halo;
+    c.strokeText(s, x, y);
+    c.fillStyle = color;
+    c.fillText(s, x, y);
+  }
+  function niceStep(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const m = raw / p;
+    return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p;
+  }
+  function tickText(v, step) {
+    const dec = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+    let s = v.toFixed(dec);
+    if (/^-0(\.0+)?$/.test(s)) s = s.slice(1);
+    return minus(s);
+  }
+  const clampPx = (v) => Math.max(-1e5, Math.min(1e5, v));
+  function polyline(c, pts) {
+    c.beginPath();
+    let pen = false;
+    for (const p of pts) {
+      if (!p) { pen = false; continue; }
+      if (pen) c.lineTo(p[0], p[1]);
+      else { c.moveTo(p[0], p[1]); pen = true; }
+    }
+    c.stroke();
+  }
+
+  // Doğrusal eksenler: ızgara, x = 0 ve y = 0 eksenleri, kenar etiketleri
+  function linearGrid(c, R, v, t, xs, ys) {
+    const X = (x) => R.l + ((x - v.x0) / (v.x1 - v.x0)) * R.w;
+    const Y = (y) => R.t + ((v.y1 - y) / (v.y1 - v.y0)) * R.h;
+    const xi0 = Math.ceil(v.x0 / xs), xi1 = Math.min(Math.floor(v.x1 / xs), xi0 + 200);
+    const yi0 = Math.ceil(v.y0 / ys), yi1 = Math.min(Math.floor(v.y1 / ys), yi0 + 200);
+    c.lineWidth = 1 * dpr;
+    c.strokeStyle = t.grid;
+    c.beginPath();
+    for (let i = xi0; i <= xi1; i++) { const px = Math.round(X(i * xs)) + 0.5; c.moveTo(px, R.t); c.lineTo(px, R.t + R.h); }
+    for (let j = yi0; j <= yi1; j++) { const py = Math.round(Y(j * ys)) + 0.5; c.moveTo(R.l, py); c.lineTo(R.l + R.w, py); }
+    c.stroke();
+    c.strokeRect(R.l + 0.5, R.t + 0.5, R.w - 1, R.h - 1);
+    c.strokeStyle = t.axis;
+    c.beginPath();
+    if (v.x0 <= 0 && v.x1 >= 0) { const px = Math.round(X(0)) + 0.5; c.moveTo(px, R.t); c.lineTo(px, R.t + R.h); }
+    if (v.y0 <= 0 && v.y1 >= 0) { const py = Math.round(Y(0)) + 0.5; c.moveTo(R.l, py); c.lineTo(R.l + R.w, py); }
+    c.stroke();
+    c.font = font(11);
+    c.fillStyle = t.muted;
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    for (let i = xi0; i <= xi1; i++) c.fillText(tickText(i * xs, xs), X(i * xs), R.t + R.h + 5 * dpr);
+    c.textAlign = "right";
+    c.textBaseline = "middle";
+    for (let j = yi0; j <= yi1; j++) c.fillText(tickText(j * ys, ys), R.l - 6 * dpr, Y(j * ys));
+  }
+
+  // A'ya göre bağıl koordinatlarda (dx, dy) bir doğru; yalnız görünen dy aralığında çizilir
+  function lineThrough(c, M, x0, y0, slope) {
+    let s0 = M.dx0, s1 = M.dx1;
+    if (slope !== 0) {
+      const m = 0.5 * (M.dyT - M.dyB);
+      let u0 = x0 + (M.dyB - m - y0) / slope, u1 = x0 + (M.dyT + m - y0) / slope;
+      if (u0 > u1) [u0, u1] = [u1, u0];
+      s0 = Math.max(s0, u0);
+      s1 = Math.min(s1, u1);
+      if (!(s1 > s0)) return;
+    }
+    c.beginPath();
+    c.moveTo(M.X(s0), M.Y(y0 + slope * (s0 - x0)));
+    c.lineTo(M.X(s1), M.Y(y0 + slope * (s1 - x0)));
+    c.stroke();
+  }
+
+  // A = (0, 0); B = (h, f(a+h) − f(a)); C = (−h, f(a−h) − f(a)). Üçgen P'den Q'ya kurulur.
+  function relPoints(cur) {
+    const { F, a, h, kind, fa } = cur;
+    const A = { dx: 0, dy: 0, name: "A" };
+    const B = F.dom(a + h) ? { dx: h, dy: F.f(a + h) - fa, name: "B" } : null;
+    const C = F.dom(a - h) ? { dx: -h, dy: F.f(a - h) - fa, name: "C" } : null;
+    const P = kind === "fwd" ? A : C;
+    const Q = kind === "bwd" ? A : B;
+    const shown = kind === "fwd" ? [B] : kind === "bwd" ? [C] : [C, B];
+    const dy = kind === "fwd" ? F.f(a + h) - fa : kind === "bwd" ? fa - F.f(a - h) : F.f(a + h) - F.f(a - h);
+    return { A, B, C, P, Q, shown, dy };
+  }
+
+  // Eğri, teğet, kesen, eğim üçgeni ve noktalar; M bağıl koordinatları piksele çevirir
+  function scene(c, M, t, cur, rp, small) {
+    const { F, a, fa, D, info, kind, h } = cur;
+    const n = Math.max(80, Math.round(M.w / (1.5 * dpr)));
+    const xs = [];
+    for (let i = 0; i <= n; i++) xs.push(M.dx0 + ((M.dx1 - M.dx0) * i) / n);
+    if (F.viewMin > -Infinity && -a >= M.dx0 && -a <= M.dx1) {
+      const w = M.dx1 - M.dx0;
+      xs.push(-a);
+      for (let k = 0; k <= 18; k++) xs.push(-a + w * 0.05 * Math.pow(10, -k / 3));
+      xs.sort((p, q) => p - q);
+    }
+    const pts = xs.map((dx) => {
+      const x = a + dx;
+      if (!F.dom(x)) return null;
+      const y = F.f(x);
+      return Number.isFinite(y) ? [M.X(dx), M.Y(y - fa)] : null;
+    });
+    c.strokeStyle = t.curve;
+    c.lineWidth = 2.2 * dpr;
+    c.lineJoin = "round";
+    polyline(c, pts);
+
+    // Kesikli teğet kesenin üstüne çizilir: h küçükken ikisi çakışsa da boşluklardan kesen görünür
+    const tangent = () => {
+      c.save();
+      c.setLineDash([7 * dpr, 6 * dpr]);
+      c.strokeStyle = t.tangent;
+      c.lineWidth = 2 * dpr;
+      if (info.kind === "ok") lineThrough(c, M, 0, 0, info.value);
+      else if (info.kind === "none") { lineThrough(c, M, 0, 0, -1); lineThrough(c, M, 0, 0, 1); }
+      else {
+        c.beginPath();
+        c.moveTo(M.X(0), M.Y(M.dyB));
+        c.lineTo(M.X(0), M.Y(M.dyT));
+        c.stroke();
+      }
+      c.restore();
+    };
+
+    if (!(rp.P && rp.Q && Number.isFinite(D))) tangent();
+    else {
+      c.strokeStyle = t.secant;
+      c.lineWidth = 2 * dpr;
+      lineThrough(c, M, rp.P.dx, rp.P.dy, D);
+      const x0 = M.X(rp.P.dx), y0 = M.Y(rp.P.dy), x1 = M.X(rp.Q.dx), y1 = M.Y(rp.Q.dy);
+      c.beginPath();
+      c.moveTo(x0, y0);
+      c.lineTo(x1, y0);
+      c.lineTo(x1, y1);
+      c.closePath();
+      c.globalAlpha = 0.14;
+      c.fillStyle = t.warm;
+      c.fill();
+      c.globalAlpha = 1;
+      c.beginPath();
+      c.moveTo(x0, y0);
+      c.lineTo(x1, y0);
+      c.lineTo(x1, y1);
+      c.strokeStyle = t.warm;
+      c.lineWidth = 1.8 * dpr;
+      c.stroke();
+      c.beginPath();
+      c.moveTo(x0, y0);
+      c.lineTo(x1, y1);
+      c.strokeStyle = t.secant;
+      c.lineWidth = 3.2 * dpr;
+      c.stroke();
+      tangent();
+      const sz = small ? 10.5 : 11.5;
+      if (Math.abs(x1 - x0) > 34 * dpr) {
+        const dxText = small ? (kind === "ctr" ? "Δx = 2h" : "Δx = h") : kind === "ctr" ? `Δx = 2h = ${num(2 * h, 3, false, true)}` : `Δx = h = ${num(h, 3, false, true)}`;
+        text(c, dxText, (x0 + x1) / 2, y0 + (y1 < y0 ? 15 : -7) * dpr, t.warm, t, { align: "center", size: sz });
+      }
+      if (Math.abs(y1 - y0) > 16 * dpr) {
+        const right = x1 >= x0;
+        const dyText = small ? "Δy" : `Δy = ${num(rp.dy, 3, false, true)}`;
+        text(c, dyText, x1 + (right ? 7 : -7) * dpr, (y0 + y1) / 2, t.warm, t, { align: right ? "left" : "right", base: "middle", size: sz });
+      }
+    }
+
+    if (!small && info.kind === "none") {
+      const s = 0.55 * Math.min(-M.dx0, M.dx1);
+      text(c, "sağ türev +1", M.X(s) + 6 * dpr, M.Y(s) + 16 * dpr, t.tangent, t, { size: 11 });
+      text(c, "sol türev −1", M.X(-s) - 6 * dpr, M.Y(s) + 16 * dpr, t.tangent, t, { size: 11, align: "right" });
+    }
+    if (!small && info.kind === "vertical") text(c, "dikey teğet: x = 0", M.X(0) + 7 * dpr, M.Y(0.8 * M.dyT), t.tangent, t, { size: 11 });
+
+    const ax = M.X(0), ay = M.Y(0);
+    const dot = (p, color, r) => {
+      c.beginPath();
+      c.arc(M.X(p.dx), M.Y(p.dy), r * dpr, 0, Math.PI * 2);
+      c.fillStyle = color;
+      c.fill();
+      c.lineWidth = 1.5 * dpr;
+      c.strokeStyle = t.halo;
+      c.stroke();
+    };
+    for (const p of rp.shown) {
+      if (!p) continue;
+      dot(p, t.secant, small ? 4 : 4.5);
+      const px = M.X(p.dx), py = M.Y(p.dy);
+      if (Math.hypot(px - ax, py - ay) > 16 * dpr) {
+        text(c, p.name, px + (p.dx >= 0 ? 7 : -7) * dpr, py - 7 * dpr, t.secant, t, { weight: 600, align: p.dx >= 0 ? "left" : "right" });
+      }
+    }
+    dot(rp.A, t.red, small ? 4.5 : 5.5);
+    text(c, "A", ax - 8 * dpr, ay - 8 * dpr, t.red, t, { weight: 600, align: "right" });
+  }
+
+  /* ── Ana grafik ── */
+  function drawGraph(cur, t) {
+    const c = gctx, R = plotRect(graph, "graph");
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, graph.width, graph.height);
+    if (R.w <= 0 || R.h <= 0 || !view) return;
+    const v = view;
+    const upx = (v.x1 - v.x0) / R.w, upy = (v.y1 - v.y0) / R.h;
+    const k = upy / upx;
+    const equal = Math.abs(k - 1) < 0.02;
+    const xs = niceStep(upx * 72 * dpr);
+    const ys = equal ? xs : niceStep(upy * 48 * dpr);
+    linearGrid(c, R, v, t, xs, ys);
+    const { a, fa } = cur;
+    const M = {
+      X: (dx) => R.l + ((a + dx - v.x0) / (v.x1 - v.x0)) * R.w,
+      Y: (dy) => clampPx(R.t + ((v.y1 - (fa + dy)) / (v.y1 - v.y0)) * R.h),
+      dx0: v.x0 - a, dx1: v.x1 - a, dyB: v.y0 - fa, dyT: v.y1 - fa, upx, upy, w: R.w,
+    };
+    const rp = relPoints(cur);
+    c.save();
+    c.beginPath();
+    c.rect(R.l, R.t, R.w, R.h);
+    c.clip();
+    scene(c, M, t, cur, rp, false);
+    c.restore();
+    text(c, `f(x) = ${cur.F.name}`, R.l, 16 * dpr, t.muted, t, { size: 11 });
+    text(c, equal ? "Eşit ölçek (1:1)" : `Dikey eksen ${num(k, 2, false, true)} kat sıkıştırıldı`, R.l + R.w, 16 * dpr, equal ? t.muted : t.warm, t, { align: "right", size: 11 });
+
+    if (rp.P && rp.Q) {
+      const gap = Math.max(Math.abs(M.X(rp.Q.dx) - M.X(rp.P.dx)), Math.abs(M.Y(rp.Q.dy) - M.Y(rp.P.dy)));
+      if (gap < 40 * dpr) drawInset(c, R, M, t, cur, rp, gap);
+    } else {
+      const which = cur.kind === "fwd" || (cur.kind === "ctr" && !rp.B) ? `a + h = ${num(a + cur.h, 3, false, true)}` : `a − h = ${num(a - cur.h, 3, false, true)}`;
+      text(c, `${which} tanım kümesinde değil: kesen çizilemez`, R.l + 10 * dpr, R.t + R.h - 10 * dpr, t.red, t, { size: 11.5 });
     }
   }
-  ctx.stroke();
-}
 
-//=========================================
-// 5) Teğet (Türev) ve Secant (Limit Yaklaşımı)
-//=========================================
-function drawScene(){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Büyüteç: ana grafikle aynı birim oranını korur, böylece eğimler aynı açıyla görünür
+  function drawInset(c, R, M, t, cur, rp, gap) {
+    const iw = Math.min(Math.max(R.w * 0.44, Math.min(R.w * 0.55, 170 * dpr)), 240 * dpr), ih = iw * 0.68, m = 8 * dpr;
+    const rects = {
+      tl: { x: R.l + m, y: R.t + m },
+      bl: { x: R.l + m, y: R.t + R.h - ih - m },
+      tr: { x: R.l + R.w - iw - m, y: R.t + m },
+      br: { x: R.l + R.w - iw - m, y: R.t + R.h - ih - m },
+    };
+    const ax = M.X(0), ay = M.Y(0), pad = 16 * dpr;
+    const hit = (r) => ax > r.x - pad && ax < r.x + iw + pad && ay > r.y - pad && ay < r.y + ih + pad;
+    if (hit(rects[insetCorner])) {
+      let best = null, bd = -1;
+      for (const [key, r] of Object.entries(rects)) {
+        if (hit(r)) continue;
+        const d = Math.hypot(r.x + iw / 2 - ax, r.y + ih / 2 - ay);
+        if (d > bd) { bd = d; best = key; }
+      }
+      if (best) insetCorner = best;
+    }
+    const box = rects[insetCorner];
+    insetBox = { x: box.x, y: box.y, w: iw, h: ih };
+    const ratio = M.upy / M.upx;
+    const dxs = [rp.P.dx, rp.Q.dx, 0], dys = [rp.P.dy, rp.Q.dy, 0];
+    const xmin = Math.min(...dxs), xmax = Math.max(...dxs), ymin = Math.min(...dys), ymax = Math.max(...dys);
+    const head = 20 * dpr; // başlık şeridi; noktalar bunun altına sığdırılır
+    const ux = Math.max((xmax - xmin) / (0.6 * iw), (ymax - ymin) / (0.62 * (ih - head) * ratio), 1e-300);
+    if (M.upx / ux < 1.5) { insetBox = null; return; } // büyütmüyorsa pencereye gerek yok
+    const uy = ux * ratio;
+    const cx = (xmin + xmax) / 2, cy = (ymin + ymax) / 2;
+    const cpx = box.x + iw / 2, cpy = box.y + head + (ih - head) / 2;
+    const N = {
+      X: (dx) => cpx + (dx - cx) / ux,
+      Y: (dy) => clampPx(cpy - (dy - cy) / uy),
+      dx0: cx - (iw / 2) * ux, dx1: cx + (iw / 2) * ux,
+      dyB: cy - (box.y + ih - cpy) * uy, dyT: cy + (cpy - box.y) * uy,
+      upx: ux, upy: uy, w: iw,
+    };
+    const lw = Math.max(10 * dpr, (iw * ux) / M.upx), lh = Math.max(10 * dpr, (ih * uy) / M.upy);
+    const lx = M.X(cx), ly = M.Y(cy);
+    c.save();
+    c.strokeStyle = t.muted;
+    c.lineWidth = 1 * dpr;
+    c.setLineDash([3 * dpr, 3 * dpr]);
+    c.beginPath();
+    c.moveTo(lx, ly);
+    c.lineTo(box.x + iw / 2, box.y + ih / 2);
+    c.stroke();
+    c.setLineDash([]);
+    c.strokeRect(lx - lw / 2, ly - lh / 2, lw, lh);
+    c.beginPath();
+    c.roundRect(box.x, box.y, iw, ih, 8 * dpr);
+    c.fillStyle = t.inset;
+    c.fill();
+    c.stroke();
+    c.clip();
+    scene(c, N, t, cur, rp, true);
+    c.restore();
+    text(c, `Büyüteç ×${num(M.upx / ux, 2, false, true)}`, box.x + 8 * dpr, box.y + 15 * dpr, t.ink, t, { size: 10.5, weight: 600 });
+    if (gap < 2 * dpr) {
+      const who = cur.kind === "fwd" ? "B noktası" : cur.kind === "bwd" ? "C noktası" : "B ve C,";
+      // Not, büyütecin karşı kenarına yazılır; A dikeyde ortada olduğundan bu şeritler boş kalır
+      const ny = insetCorner[0] === "t" ? R.t + R.h - 10 * dpr : R.t + 18 * dpr;
+      text(c, `${who} A'ya görünmeyecek kadar yakın`, R.l + 10 * dpr, ny, t.warm, t, { size: 11 });
+    }
+  }
 
-  // Eksen ve fonksiyon
-  drawAxes();
-  let n = parseInt(funcSelect.value);
-  drawFunction(n);
+  /* ── Türev şeridi: x ekseni ana grafikle hizalı ── */
+  function stripSamples(cur) {
+    const R = plotRect(strip, "strip");
+    const { F, h, kind } = cur;
+    const n = Math.max(40, Math.round(R.w / (2 * dpr)));
+    const xs = [], fp = [], dh = [];
+    for (let i = 0; i <= n; i++) {
+      const x = view.x0 + ((view.x1 - view.x0) * i) / n;
+      const ok = F.dom(x) && !((F === FUNCS.abs || F === FUNCS.sqrt) && x === 0);
+      xs.push(x);
+      fp.push(ok ? F.d[0](x) : NaN);
+      dh.push(F.dom(x) ? quotient(F, x, h, kind) : NaN);
+    }
+    return { R, xs, fp, dh };
+  }
 
-  // Seçilen x
-  let a = parseFloat(xRange.value);
-  let fa = f(a,n);
+  function stripRange(S, cur) {
+    const span = view.x1 - view.x0;
+    let lo = Infinity, hi = -Infinity;
+    const take = (y) => { if (Number.isFinite(y)) { lo = Math.min(lo, y); hi = Math.max(hi, y); } };
+    for (let i = 0; i < S.xs.length; i++) {
+      if (cur.F.viewMin > -Infinity && S.xs[i] < 0.06 * span) continue; // ln, √x: 0'daki sonsuzluk ölçeği bozmasın
+      take(S.fp[i]);
+      take(S.dh[i]);
+    }
+    if (cur.info.kind === "ok") take(cur.info.value);
+    if (!(hi > lo)) { const mid = Number.isFinite(lo) ? lo : 0; lo = mid - 1; hi = mid + 1; }
+    const pad = 0.14 * (hi - lo);
+    return { y0: lo - pad, y1: hi + pad };
+  }
 
-  // Kırmızı nokta: (a, f(a))
-  ctx.fillStyle = 'red';
-  ctx.beginPath();
-  ctx.arc(xToPx(a), yToPx(fa), 5, 0, 2*Math.PI);
-  ctx.fill();
+  function drawStrip(S, cur, t) {
+    const c = sctx, R = S.R;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, strip.width, strip.height);
+    if (R.w <= 0 || R.h <= 0 || !stripY) return;
+    const v = { x0: view.x0, x1: view.x1, y0: stripY.y0, y1: stripY.y1 };
+    const X = (x) => R.l + ((x - v.x0) / (v.x1 - v.x0)) * R.w;
+    const Y = (y) => clampPx(R.t + ((v.y1 - y) / (v.y1 - v.y0)) * R.h);
+    linearGrid(c, R, v, t, niceStep(((v.x1 - v.x0) / R.w) * 72 * dpr), niceStep(((v.y1 - v.y0) / R.h) * 26 * dpr));
+    text(c, "f′(x) ve Dₕ(x)", R.l, 16 * dpr, t.muted, t, { size: 11 });
+    c.save();
+    c.beginPath();
+    c.rect(R.l, R.t, R.w, R.h);
+    c.clip();
+    const isAbs = cur.F === FUNCS.abs;
+    c.lineJoin = "round";
+    c.globalAlpha = 0.75;
+    c.strokeStyle = t.secant;
+    c.lineWidth = 3.4 * dpr;
+    polyline(c, S.xs.map((x, i) => (Number.isFinite(S.dh[i]) ? [X(x), Y(S.dh[i])] : null)));
+    c.globalAlpha = 1;
+    c.strokeStyle = t.tangent;
+    c.lineWidth = 1.8 * dpr;
+    polyline(c, S.xs.map((x, i) => {
+      if (!Number.isFinite(S.fp[i])) return null;
+      if (isAbs && i > 0 && Math.sign(S.xs[i - 1]) !== Math.sign(x)) return null;
+      return [X(x), Y(S.fp[i])];
+    }));
+    if (isAbs && v.x0 < 0 && v.x1 > 0) {
+      for (const y of [-1, 1]) {
+        c.beginPath();
+        c.arc(X(0), Y(y), 3.5 * dpr, 0, Math.PI * 2);
+        c.fillStyle = t.halo;
+        c.fill();
+        c.stroke();
+      }
+    }
+    c.strokeStyle = t.red;
+    c.lineWidth = 1.5 * dpr;
+    c.beginPath();
+    c.moveTo(X(cur.a), R.t);
+    c.lineTo(X(cur.a), R.t + R.h);
+    c.stroke();
+    const mark = (y, color) => {
+      if (!Number.isFinite(y)) return;
+      c.beginPath();
+      c.arc(X(cur.a), Y(y), 4 * dpr, 0, Math.PI * 2);
+      c.fillStyle = color;
+      c.fill();
+    };
+    mark(cur.D, t.secant);
+    if (cur.info.kind === "ok") mark(cur.info.value, t.tangent);
+    c.restore();
+  }
 
-  // Teğet (tangent) eğimi = f'(a)
-  let slope = fprime(a,n);
-  let b = fa - slope*a; // y = slope*x + b => b = f(a) - slope*a
+  /* ── Log–log hata grafiği ── */
+  function drawError(cur, t) {
+    const c = ectx, R = plotRect(errc, "error");
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, errc.width, errc.height);
+    if (R.w <= 0 || R.h <= 0) return;
+    const { F, a, kind, info } = cur;
+    const sign = Math.sign(cur.h) || 1;
+    const L0 = -12.5, L1 = 0.6;
+    const { lo, hi } = state.eRange;
+    const X = (m) => R.l + ((Math.log10(m) - L0) / (L1 - L0)) * R.w;
+    const Y = (val) => clampPx(R.t + ((hi - Math.log10(val)) / (hi - lo)) * R.h);
+    const yFloor = R.t + R.h - 4 * dpr;
+    const pxDec = R.w / (L1 - L0), pyDec = R.h / (hi - lo);
+    const kx = [1, 2, 3, 4, 6].find((q) => q * pxDec >= 40 * dpr) || 6;
+    const ky = [1, 2, 3, 4, 5].find((q) => q * pyDec >= 17 * dpr) || 5;
+    c.lineWidth = 1 * dpr;
+    c.strokeStyle = t.grid;
+    c.beginPath();
+    for (let e = Math.ceil(L0); e <= L1; e++) { const px = Math.round(X(10 ** e)) + 0.5; c.moveTo(px, R.t); c.lineTo(px, R.t + R.h); }
+    for (let e = Math.ceil(lo); e <= hi; e++) { const py = Math.round(Y(10 ** e)) + 0.5; c.moveTo(R.l, py); c.lineTo(R.l + R.w, py); }
+    c.stroke();
+    c.strokeRect(R.l + 0.5, R.t + 0.5, R.w - 1, R.h - 1);
+    c.font = font(11);
+    c.fillStyle = t.muted;
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    for (let e = Math.ceil(L0); e <= L1; e++) if (e % kx === 0) c.fillText(`10${supText(e)}`, X(10 ** e), R.t + R.h + 6 * dpr);
+    c.textAlign = "right";
+    c.textBaseline = "middle";
+    for (let e = Math.ceil(lo); e <= hi; e++) if (e % ky === 0) c.fillText(`10${supText(e)}`, R.l - 6 * dpr, Y(10 ** e));
+    const vertical = info.kind === "vertical";
+    text(c, vertical ? "|Dₕ| (fark bölümünün kendisi)" : "|Dₕ − f′(a)|", R.l - 40 * dpr, 17 * dpr, t.ink, t, { size: 11.5, weight: 600 });
+    text(c, "yatay: |h| · log–log", R.l + R.w, 17 * dpr, t.muted, t, { size: 11, align: "right" });
 
-  // Teğet çizgisi
-  ctx.strokeStyle = 'red';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  let x1 = a - 1.5;
-  let y1 = slope*x1 + b;
-  ctx.moveTo(xToPx(x1), yToPx(y1));
-  let x2 = a + 1.5;
-  let y2 = slope*x2 + b;
-  ctx.lineTo(xToPx(x2), yToPx(y2));
-  ctx.stroke();
+    c.save();
+    c.beginPath();
+    c.rect(R.l, R.t, R.w, R.h);
+    c.clip();
+    const center = (lines, color) => {
+      lines.forEach((s, i) => text(c, s, R.l + R.w / 2, R.t + R.h / 2 + (i - (lines.length - 1) / 2) * 18 * dpr, i ? t.muted : color, t, { align: "center", base: "middle", size: i ? 11.5 : 12.5, weight: i ? 400 : 600 }));
+    };
+    if (info.kind === "none") {
+      center(kind === "ctr"
+        ? ["f′(0) yok: hata tanımlanamaz", "Merkezi fark her h için 0 verir,", "ama sağdan Dₕ = +1, soldan Dₕ = −1."]
+        : ["f′(0) yok: hata tanımlanamaz", "h > 0 iken Dₕ = +1, h < 0 iken Dₕ = −1;", "h ne kadar küçülürse küçülsün."], t.red);
+      c.restore();
+      return;
+    }
+    if (!state.sweepData.length) {
+      center(["Bu ayarda fark bölümü tanımsız", "a ± h tanım kümesinin dışında kalıyor."], t.red);
+      c.restore();
+      return;
+    }
+    const N = 280;
+    c.save();
+    c.setLineDash([6 * dpr, 5 * dpr]);
+    c.lineWidth = 1.8 * dpr;
+    c.strokeStyle = t.warm;
+    const ref = [];
+    for (let i = 0; i <= N; i++) {
+      const m = Math.min(H_MAX, Math.pow(10, L0 + ((Math.log10(H_MAX) - L0) * i) / N));
+      const val = vertical ? 1 / Math.sqrt(m) : Math.abs(truncError(F, a, sign * m, kind));
+      ref.push(val > 0 && Number.isFinite(val) ? [X(m), Y(val)] : null);
+    }
+    polyline(c, ref);
+    const Rc = vertical ? 0 : roundCoef(F, a, kind);
+    if (Rc > 0) {
+      c.strokeStyle = t.red;
+      const m0 = Math.pow(10, L0);
+      polyline(c, [[X(m0), Y(Rc / m0)], [X(H_MAX), Y(Rc / H_MAX)]]);
+    }
+    c.restore();
+    const best = vertical ? null : optimum(F, a, kind, sign);
+    if (best) {
+      const px = X(best.h);
+      c.save();
+      c.setLineDash([2 * dpr, 4 * dpr]);
+      c.strokeStyle = t.muted;
+      c.lineWidth = 1.2 * dpr;
+      c.beginPath();
+      c.moveTo(px, R.t);
+      c.lineTo(px, R.t + R.h);
+      c.stroke();
+      c.restore();
+      text(c, `h* ≈ ${num(best.h, 2, false, true)}`, px + 5 * dpr, R.t + 15 * dpr, t.muted, t, { size: 11 });
+    }
+    const at = (p) => [X(p.h), p.v > 0 ? Y(p.v) : yFloor];
+    const floorMark = (x, color) => {
+      c.beginPath();
+      c.moveTo(x - 4 * dpr, yFloor - 6 * dpr);
+      c.lineTo(x + 4 * dpr, yFloor - 6 * dpr);
+      c.lineTo(x, yFloor);
+      c.closePath();
+      c.fillStyle = color;
+      c.fill();
+    };
+    if (state.sweep) {
+      c.globalAlpha = 0.7;
+      c.strokeStyle = t.secant;
+      c.lineWidth = 1.3 * dpr;
+      polyline(c, state.sweepData.map(at));
+      c.globalAlpha = 1;
+      for (const p of state.sweepData) {
+        const [x, y] = at(p);
+        if (p.v > 0) { c.beginPath(); c.arc(x, y, 1.8 * dpr, 0, Math.PI * 2); c.fillStyle = t.secant; c.fill(); }
+        else floorMark(x, t.secant);
+      }
+    }
+    for (const p of state.visited.values()) {
+      const [x, y] = at(p);
+      if (p.v > 0) {
+        c.beginPath();
+        c.arc(x, y, 3.4 * dpr, 0, Math.PI * 2);
+        c.fillStyle = t.secant;
+        c.fill();
+        c.lineWidth = 1.2 * dpr;
+        c.strokeStyle = t.halo;
+        c.stroke();
+      } else floorMark(x, t.secant);
+    }
+    const now = errorPoint(F, a, cur.h, kind, info);
+    const hx = X(Math.abs(cur.h));
+    c.globalAlpha = 0.35;
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1 * dpr;
+    c.beginPath();
+    c.moveTo(hx, R.t);
+    c.lineTo(hx, R.t + R.h);
+    c.stroke();
+    c.globalAlpha = 1;
+    if (now) {
+      const [x, y] = at(now);
+      c.beginPath();
+      c.arc(x, y, 6.5 * dpr, 0, Math.PI * 2);
+      c.lineWidth = 2 * dpr;
+      c.strokeStyle = t.ink;
+      c.stroke();
+    }
+    if (state.visited.size <= 1 && !state.sweep) {
+      text(c, "«h → 0» ile noktalar birikir", R.l + 8 * dpr, R.t + R.h - 12 * dpr, t.muted, t, { size: 11 });
+    }
+    c.restore();
+  }
 
-  // Secant için h değerini animasyona bağlayalım
-  let h = 0.8 * Math.cos(t);
-  let fah = f(a+h, n);
-  let secSlope = (fah - fa)/h;
-  let bSec = fa - secSlope*a;
+  /* ── Okumalar ── */
+  const PAIR = { fwd: "f(a+h) ile f(a)", bwd: "f(a) ile f(a−h)", ctr: "f(a+h) ile f(a−h)" };
+  const HALF = { 1: "yarısına", 2: "dörtte birine", 3: "sekizde birine", 4: "on altıda birine" };
 
-  // Secant çizgisi (yeşil)
-  ctx.strokeStyle = 'green';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(xToPx(a),   yToPx(fa));
-  ctx.lineTo(xToPx(a+h), yToPx(fah));
-  ctx.stroke();
+  function domainText(cur) {
+    const { F, a, h, kind } = cur;
+    const bad = [];
+    if (kind !== "bwd" && !F.dom(a + h)) bad.push(`a + h = ${num(a + h, 4, true, true)}`);
+    if (kind !== "fwd" && !F.dom(a - h)) bad.push(`a − h = ${num(a - h, 4, true, true)}`);
+    return bad.length ? `${bad.join(" ve ")} tanım kümesinde değil (${F.domText}); bu h ile fark bölümü hesaplanamaz.` : "";
+  }
 
-  // Küçük nokta da (a+h, f(a+h))
-  ctx.fillStyle = 'green';
-  ctx.beginPath();
-  ctx.arc(xToPx(a+h), yToPx(fah), 4, 0, 2*Math.PI);
-  ctx.fill();
+  function statusText(cur) {
+    const { F, a, h, kind, D, info, err, E } = cur;
+    const dom = domainText(cur);
+    if (dom) return dom;
+    if (info.kind === "none") {
+      if (kind === "ctr") return "|x| için a = 0'da merkezi fark her h için tam 0 verir, ama bu türev değildir: sağdan fark bölümü +1, soldan −1. Tek yanlı limitler farklı, türev yok.";
+      return `|x| için a = 0'da fark bölümü h &gt; 0 iken +1, h &lt; 0 iken −1 (şu an ${signed(D, 2, true)}). h ne kadar küçülürse küçülsün bu iki değer birleşmez: sol ve sağ limit farklı, türev yok.`;
+    }
+    if (info.kind === "vertical") {
+      return `√x için a = 0'da D<sub>h</sub> = 1/√|h| = ${num(D, 4, true, true)}. h → 0 iken sınırsız büyür: teğet dikeydir (x = 0), sonlu bir türev yoktur.`;
+    }
+    if (err === 0) return "Hesaplanan D<sub>h</sub>, f′(a) ile birebir aynı: kalan kesme hatası kayan noktanın çözünürlüğünün altında kaldı.";
+    if (E === 0) return "Burada formülün kesme hatası yok (tam aritmetikte D<sub>h</sub> = f′(a)); görülen hatanın tamamı yuvarlamadan gelir.";
+    if (F === FUNCS.abs) return "|h| &gt; |a|: kullanılan noktalardan biri köşenin (x = 0) öbür yanında, fark bölümü ±1'den sapar. |h| &lt; |a| olunca kesme hatası tam 0 olur.";
+    const delta = Math.abs(D - info.value - E); // gerçekleşen yuvarlama payı
+    const aE = Math.abs(E);
+    if (delta <= aE / 3) {
+      const lead = leading(F, a, kind);
+      const p = lead ? lead.p : 1;
+      return `Kesme hatası baskın: küçük h'de hata ≈ C·|h|${supText(p)}, yani h'yi yarıya indirmek hatayı yaklaşık ${HALF[p]} düşürür (log–log grafikte eğim ${p}).`;
+    }
+    if (delta >= 3 * aE) return `Yuvarlama hatası baskın: ${PAIR[kind]} neredeyse eşit, çıkarmada anlamlı basamaklar kaybolur (ε ≈ 2.2·10<sup>−16</sup>). Bu bölgede h'yi küçültmek hatayı büyütür.`;
+    const best = optimum(F, a, kind, Math.sign(h) || 1);
+    return `Kesme ve yuvarlama hataları aynı büyüklükte: en küçük hata bu civarda${best ? ` (kuramsal h* ≈ ${num(best.h, 2, true, true)})` : ""}.`;
+  }
 
-  // Bilgi metnini güncelle
-  xVal.innerHTML = `
-    x = ${a.toFixed(2)}<br/>
-    f(x) = ${fa.toFixed(2)}<br/>
-    f'(x) (teğet eğimi) = ${slope.toFixed(2)}<br/>
-    h = ${h.toFixed(2)} (secant eğimi: ${secSlope.toFixed(2)})
-  `;
-}
+  function errorNoteText(cur) {
+    const { F, a, h, kind, info, D, E, Rh } = cur;
+    if (info.kind === "none") return "f′(0) var olmadığından hata tanımsız. Sağdan ve soldan fark bölümlerini Ölçümler bölümünde oku: biri +1, öteki −1.";
+    if (info.kind === "vertical") return "Dikey teğette hata yerine |D<sub>h</sub>| çizilir. Kesikli doğru tam değer 1/√|h|; eğimi −1/2, yani h her 100 kat küçüldüğünde D<sub>h</sub> 10 kat büyür.";
+    if (!Number.isFinite(D)) return "Bu h ile fark bölümü tanımsız; tanım kümesi içinde kalan bir h seç.";
+    const lead = leading(F, a, kind);
+    const best = optimum(F, a, kind, Math.sign(h) || 1);
+    const delta = Math.abs(D - info.value - E);
+    return `Şu anki h: kesme hatası ${num(Math.abs(E), 3, true)} (tam aritmetikte), gerçekleşen yuvarlama payı ${num(delta, 3, true)}, yuvarlama tahmini ε·(|f(a)| + |a·f′(a)|)/${kind === "ctr" ? "(2|h|)" : "|h|"} = ${num(Rh, 3, true)}. ` +
+      (lead ? `Küçük h'de kesme hatası ∝ |h|${supText(lead.p)} (eğim ${lead.p}).` : "Bu formülün burada kesme hatası yok.") +
+      (best ? ` Kuramsal en iyi adım h* ≈ ${num(best.h, 2, true, true)}; daha küçük h hatayı büyütür.` : "") +
+      " ε = 2<sup>−52</sup> ≈ 2.22·10<sup>−16</sup>.";
+  }
 
-//=========================================
-// 6) Animasyon Döngüsü
-//=========================================
-function animate(){
-  t += 0.03;
-  drawScene();
-  requestAnimationFrame(animate);
-}
+  function updateReadouts(cur) {
+    const { a, h, fa, D, info, err, kind } = cur;
+    ui.aVal.textContent = a.toFixed(2);
+    ui.hVal.innerHTML = signed(h, 4, true);
+    ui.faVal.innerHTML = num(fa, 15, true);
+    ui.dLabel.innerHTML = `Kesen eğimi D<sub>h</sub> · ${KIND_NAME[kind]}`;
+    ui.dVal.innerHTML = Number.isFinite(D) ? num(D, 15, true) : "tanımsız";
+    if (info.kind === "none") ui.exactVal.textContent = "yok (sol türev −1, sağ türev +1)";
+    else if (info.kind === "vertical") ui.exactVal.textContent = "yok: dikey teğet (+∞)";
+    else ui.exactVal.innerHTML = num(info.value, 15, true);
+    const okErr = Number.isFinite(err);
+    ui.absErr.innerHTML = okErr ? num(err, 3, true) : "—";
+    ui.relErr.innerHTML = !okErr ? "—" : info.value === 0 ? "— (f′(a) = 0)" : num(err / Math.abs(info.value), 3, true);
+    ui.status.innerHTML = statusText(cur);
+    ui.errorNote.innerHTML = errorNoteText(cur);
+  }
 
-//=========================================
-// 7) Olay Dinleyiciler (Event Listeners)
-//=========================================
-funcSelect.addEventListener('change', () => {
-  drawScene();
-});
-xRange.addEventListener('input', () => {
-  drawScene();
-});
+  function refresh() {
+    retarget(false);
+    updateReadouts(current());
+    dirty = true;
+  }
 
-//=========================================
-// 8) Başlangıç
-//=========================================
-drawScene();
-animate();
-</script></body>
+  /* ── Kontroller ── */
+  function setA(v) {
+    const F = fnObj();
+    v = Math.min(F.aMax, Math.max(F.aMin, v));
+    v = Number((Math.round(v / 0.01) * 0.01).toFixed(2));
+    ui.a.value = String(v);
+    ui.aOut.textContent = v.toFixed(2);
+    if (v === state.a) return false;
+    state.a = v;
+    return true;
+  }
+
+  function syncH() {
+    const m = Math.abs(state.h);
+    ui.h.value = String(Math.log10(m));
+    ui.hOut.innerHTML = num(m, 4, true, true);
+    ui.signPos.checked = state.h > 0;
+    ui.signNeg.checked = state.h < 0;
+  }
+
+  function applyFunction() {
+    const F = fnObj();
+    ui.a.min = String(F.aMin);
+    ui.a.max = String(F.aMax);
+    setA(state.a);
+  }
+
+  function setBusy(on) {
+    ui.readouts.setAttribute("aria-busy", on ? "true" : "false");
+  }
+
+  function startAnim() {
+    if (state.anim) return;
+    if (Math.abs(state.h) / 2 < H_MIN) {
+      state.h = Math.sign(state.h) || 1;
+      syncH();
+      recordVisit();
+    }
+    state.anim = true;
+    state.acc = 0;
+    const hadFocus = document.activeElement === ui.shrink;
+    ui.shrink.disabled = true;
+    ui.stop.disabled = false;
+    if (hadFocus) ui.stop.focus();
+    setBusy(true);
+    refresh();
+  }
+
+  function stopAnim() {
+    if (!state.anim) return;
+    state.anim = false;
+    const hadFocus = document.activeElement === ui.stop;
+    ui.shrink.disabled = false;
+    ui.stop.disabled = true;
+    if (hadFocus) ui.shrink.focus();
+    setBusy(false);
+    refresh();
+  }
+
+  // h → h/2; 10⁻¹²'nin altına inmeden durur
+  function halveStep() {
+    const next = state.h / 2;
+    if (Math.abs(next) < H_MIN) {
+      stopAnim();
+      return;
+    }
+    state.h = next;
+    syncH();
+    recordVisit();
+    refresh();
+  }
+
+  function setSweep(on) {
+    state.sweep = on;
+    ui.sweep.setAttribute("aria-pressed", String(on));
+    ui.sweep.textContent = on ? "Taramayı gizle" : "Tüm h değerlerini tara";
+    dirty = true;
+  }
+
+  function resetAll() {
+    stopAnim();
+    state.h = 1;
+    setA(1);
+    syncH();
+    setSweep(false);
+    settingsChanged();
+    stripY = null;
+    retarget(true);
+    refresh();
+  }
+
+  ui.func.addEventListener("change", () => {
+    state.fn = ui.func.value;
+    applyFunction();
+    settingsChanged();
+    stripY = null;
+    retarget(true);
+    refresh();
+  });
+  ui.formula.addEventListener("change", () => {
+    state.kind = ui.formula.value;
+    settingsChanged();
+    refresh();
+  });
+  ui.a.addEventListener("input", () => {
+    if (setA(Number(ui.a.value))) settingsChanged();
+    refresh();
+  });
+  ui.h.addEventListener("input", () => {
+    stopAnim();
+    state.h = (state.h < 0 ? -1 : 1) * niceH(Number(ui.h.value));
+    ui.hOut.innerHTML = num(Math.abs(state.h), 4, true, true);
+    recordVisit();
+    refresh();
+  });
+  for (const r of [ui.signPos, ui.signNeg]) {
+    r.addEventListener("change", () => {
+      state.h = Number(r.value) * Math.abs(state.h);
+      settingsChanged();
+      refresh();
+    });
+  }
+  ui.shrink.addEventListener("click", startAnim);
+  ui.stop.addEventListener("click", stopAnim);
+  ui.sweep.addEventListener("click", () => setSweep(!state.sweep));
+  ui.reset.addEventListener("click", resetAll);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.closest("input, select, textarea, button, a, [contenteditable]")) return;
+    const r = lab.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return; // laboratuvar görünmüyorsa Boşluk sayfayı kaydırsın
+    if (e.code === "Space") {
+      e.preventDefault();
+      if (!e.repeat) (state.anim ? stopAnim : startAnim)();
+    } else if (e.key === "r" || e.key === "R") resetAll();
+  });
+
+  /* ── İşaretçi: A'yı ya da B/C'yi sürükle ── */
+  let insetBox = null;
+  function devicePos(evt, cv) {
+    const r = cv.getBoundingClientRect();
+    return { x: ((evt.clientX - r.left) / r.width) * cv.width, y: ((evt.clientY - r.top) / r.height) * cv.height };
+  }
+  const pxToX = (px, R) => view.x0 + ((px - R.l) / R.w) * (view.x1 - view.x0);
+
+  function dragTo(evt) {
+    const d = state.drag;
+    const R = plotRect(d.cv, d.cv === graph ? "graph" : "strip");
+    const x = pxToX(devicePos(evt, d.cv).x, R);
+    if (d.mode === "a") {
+      if (setA(x)) settingsChanged();
+    } else {
+      let h = d.which === "B" ? x - state.a : state.a - x;
+      const sgn = h < 0 ? -1 : 1;
+      h = sgn * Math.min(H_MAX, Math.max(H_MIN, Number(Math.abs(h).toPrecision(2))));
+      const flipped = Math.sign(h) !== Math.sign(state.h);
+      state.h = h;
+      syncH();
+      if (flipped) settingsChanged();
+      else recordVisit();
+    }
+    refresh();
+  }
+
+  function pointerDown(evt, cv) {
+    if (!view || (evt.pointerType === "mouse" && evt.button !== 0)) return;
+    const R = plotRect(cv, cv === graph ? "graph" : "strip");
+    const p = devicePos(evt, cv);
+    if (p.x < R.l || p.x > R.l + R.w || p.y < R.t || p.y > R.t + R.h) return;
+    let mode = "a", which = null;
+    if (cv === graph) {
+      if (insetBox && p.x > insetBox.x && p.x < insetBox.x + insetBox.w && p.y > insetBox.y && p.y < insetBox.y + insetBox.h) return;
+      const cur = current(), rp = relPoints(cur);
+      const X = (dx) => R.l + ((cur.a + dx - view.x0) / (view.x1 - view.x0)) * R.w;
+      const Y = (dy) => R.t + ((view.y1 - (cur.fa + dy)) / (view.y1 - view.y0)) * R.h;
+      for (const q of rp.shown) {
+        if (!q) continue;
+        const qx = X(q.dx), qy = Y(q.dy);
+        if (Math.hypot(p.x - qx, p.y - qy) < 18 * dpr && Math.hypot(qx - X(0), qy - Y(0)) > 14 * dpr) { mode = "b"; which = q.name; }
+      }
+    }
+    stopAnim();
+    state.drag = { mode, which, cv };
+    cv.setPointerCapture(evt.pointerId);
+    cv.classList.add("is-dragging");
+    setBusy(true);
+    if (mode === "a") dragTo(evt);
+  }
+  function pointerUp() {
+    if (!state.drag) return;
+    state.drag.cv.classList.remove("is-dragging");
+    state.drag = null;
+    setBusy(false);
+    refresh();
+  }
+  for (const cv of [graph, strip]) {
+    cv.addEventListener("pointerdown", (evt) => pointerDown(evt, cv));
+    cv.addEventListener("pointermove", (evt) => { if (state.drag?.cv === cv) dragTo(evt); });
+    cv.addEventListener("pointerup", pointerUp);
+    cv.addEventListener("pointercancel", pointerUp);
+  }
+
+  /* ── Döngü ── */
+  function frame(now) {
+    const dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
+    lastFrame = now;
+    if (state.anim && !window.AcelyaPause?.isPaused?.()) {
+      state.acc += dt;
+      while (state.anim && state.acc >= STEP_T) {
+        state.acc -= STEP_T;
+        halveStep();
+      }
+    }
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) { lastTheme = th; dirty = true; }
+    if (stepView(dt)) dirty = true;
+    if (dirty) {
+      dirty = false;
+      const cur = current(), t = theme();
+      insetBox = null;
+      drawGraph(cur, t);
+      const S = stripSamples(cur);
+      const tg = stripRange(S, cur);
+      if (!stripY) stripY = tg;
+      else {
+        const k = 1 - Math.exp(-dt / 0.12);
+        stripY = { y0: stripY.y0 + (tg.y0 - stripY.y0) * k, y1: stripY.y1 + (tg.y1 - stripY.y1) * k };
+        if (Math.abs(tg.y0 - stripY.y0) + Math.abs(tg.y1 - stripY.y1) > 1e-4 * (tg.y1 - tg.y0)) dirty = true;
+        else stripY = tg;
+      }
+      drawStrip(S, cur, t);
+      drawError(cur, t);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  ui.func.value = state.fn;
+  ui.formula.value = state.kind;
+  applyFunction();
+  syncH();
+  settingsChanged();
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  for (const c of [graph, strip, errc]) ro.observe(c);
+  resize();
+  refresh();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>

@@ -2,159 +2,1202 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lorentz Kuvveti Simülasyonu</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-  <script src="shared/chart-safe.js"></script>
-
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lorentz Kuvveti: Yüklü Parçacık Laboratuvarı</title>
+  <meta name="description" content="Yüklü bir parçacığı düzgün manyetik ve elektrik alana fırlat; yörüngeden ölçülen yarıçap ve periyodu r = mv/(|q|B) ve T = 2πm/(|q|B) ile karşılaştır. Hız seçici, E×B sürüklenmesi ve kütle spektrometresi deneyleri.">
   <style>
-    body {
-      text-align: center;
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
     }
-    canvas {
-      background: #222;
+    .lab [hidden] { display: none !important; }
+    .lab-stage { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 2;
       display: block;
-      margin: auto;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
     }
-    .controls {
-      margin-top: 15px;
+    .sim-canvas.is-placeable { cursor: crosshair; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
     }
-    button {
-      font-size: 16px;
-      padding: 10px 15px;
-      margin: 5px;
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
     }
-    button:hover {
-      background: #0056b3;
+    .lab .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts { display: grid; gap: 10px; min-width: 0; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 34%; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
     }
-    .slider-container {
-      margin: 15px;
+    .readout small { font-size: 0.72rem; letter-spacing: 0.02em; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; }
+    .lab .status { margin: 0; font-size: 0.88rem; line-height: 1.5; color: var(--text) !important; }
+    .lab .warn {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--danger);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--danger) !important;
     }
-    .slider-container input {
-      width: 300px;
-    }
-    #lorentzChart {
-      width: 600px;
-      height: 300px;
-      margin: auto;
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
+      .sim-canvas { aspect-ratio: 4 / 3; }
+      .chart-canvas { aspect-ratio: 2 / 1; }
+      .lab table.cmp { font-size: 0.8rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
     }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="lorentz-kuvveti">
 
-<h1>Lorentz Kuvveti Simülasyonu</h1>
-<p>Yüklü parçacığın manyetik alan içindeki hareketini gözlemleyin.</p>
-<canvas id="lorentzCanvas" width="600" height="400"></canvas>
+<div class="app-content">
+  <h1>Lorentz Kuvveti: Yüklü Parçacık Laboratuvarı</h1>
+  <p class="hint">Senaryo ve parçacık seç, alanları ayarla. Sayfa yörüngeden ölçtüğü yarıçap ve periyodu r = mv/(|q|B) ve T = 2πm/(|q|B) formülleriyle karşılaştırır. Serbest ve E×B senaryolarında tuvale tıklayarak parçacığı başka bir noktadan başlatabilirsin.</p>
 
-<!-- Parametre Kontrolleri -->
-<div class="slider-container">
-  <label for="charge">Yük (q):</label>
-  <input type="range" id="charge" min="-5" max="5" step="0.1" value="1" oninput="updateLorentz()">
-  <span id="chargeValue">1</span> C
-</div>
-<div class="slider-container">
-  <label for="magneticField">Manyetik Alan (B):</label>
-  <input type="range" id="magneticField" min="-5" max="5" step="0.1" value="1" oninput="updateLorentz()">
-  <span id="magneticFieldValue">1</span> T
-</div>
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="stageCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Parçacığın yörüngesi: manyetik alan işaretleri, iz, hız (v) ve kuvvet (F) vektörleri, ölçek çubuğu"></canvas>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="300" role="img" aria-label="Hız bileşenlerinin zamanla değişimi; spektrometre senaryosunda dedektördeki iz konumları"></canvas>
+      <div class="readouts" aria-live="polite">
+        <table class="cmp">
+          <caption class="visually-hidden">Ölçülen ve kuramsal değerler</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+          <tbody id="cmpBody"></tbody>
+        </table>
+        <p class="note" id="formulaNote"></p>
+        <div class="cards">
+          <div class="readout"><small>Dönme yönü</small><strong id="senseOut">—</strong></div>
+          <div class="readout"><small>Siklotron frekansı f<sub>c</sub></small><strong id="fcOut">—</strong></div>
+          <div class="readout"><small>Kinetik enerji</small><strong id="ekOut">—</strong></div>
+          <div class="readout"><small>Zaman ölçeği</small><strong id="scaleOut">—</strong></div>
+        </div>
+        <p class="status" id="statusOut"></p>
+        <p class="warn" id="warnOut" hidden></p>
+      </div>
+    </div>
 
-<!-- Grafik -->
-<canvas id="lorentzChart"></canvas>
+    <div class="panel" role="group" aria-labelledby="controlsTitle">
+      <h2 id="controlsTitle">Deney ayarları</h2>
+      <div class="field">
+        <label for="scenarioSelect">Senaryo</label>
+        <select id="scenarioSelect">
+          <option value="serbest" selected>Serbest (yalnız B)</option>
+          <option value="secici">Hız seçici (E ⟂ B)</option>
+          <option value="exb">E×B sürüklenmesi</option>
+          <option value="spektrometre">Kütle spektrometresi (izotoplar)</option>
+        </select>
+      </div>
+      <div class="field" id="presetField">
+        <label for="presetSelect">Parçacık</label>
+        <select id="presetSelect">
+          <option value="elektron">Elektron</option>
+          <option value="pozitron">Pozitron</option>
+          <option value="proton" selected>Proton</option>
+          <option value="alfa">Alfa parçacığı</option>
+          <option value="ozel">Özel</option>
+        </select>
+      </div>
+      <div class="field" id="isotopeField" hidden>
+        <label for="isotopeSelect">İzotop takımı</label>
+        <select id="isotopeSelect">
+          <option value="ne" selected>Neon: Ne-20 / Ne-22 (Thomson–Aston)</option>
+          <option value="c">Karbon: C-12 / C-13 / C-14</option>
+          <option value="u">Uranyum: U-235 / U-238 (kalutron)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="chargeRange">Yük q <output id="chargeOut" for="chargeRange">+1 e</output></label>
+        <input type="range" id="chargeRange" min="-3" max="3" step="1" value="1">
+      </div>
+      <div class="field" id="massField">
+        <label for="massRange">Kütle m <output id="massOut" for="massRange">1.0073 u</output></label>
+        <input type="range" id="massRange" min="0" max="5.66" step="0.001" value="3.264">
+      </div>
+      <div class="field">
+        <label for="speedRange">Hız v <output id="speedOut" for="speedRange">1.00×10⁶ m/s</output></label>
+        <input type="range" id="speedRange" min="0" max="41" step="1" value="21">
+      </div>
+      <div class="field" id="angleField">
+        <label for="angleRange">Fırlatma yönü φ <output id="angleOut" for="angleRange">0°</output></label>
+        <input type="range" id="angleRange" min="0" max="355" step="5" value="0">
+      </div>
+      <div class="field" id="pitchField">
+        <label for="pitchRange">B ile açı α <output id="pitchOut" for="pitchRange">90°</output></label>
+        <input type="range" id="pitchRange" min="10" max="90" step="5" value="90">
+      </div>
+      <div class="field">
+        <label for="fieldRange">Manyetik alan |B| <output id="fieldOut" for="fieldRange">100 mT</output></label>
+        <input type="range" id="fieldRange" min="0" max="43" step="1" value="30">
+      </div>
+      <div class="field">
+        <label for="fieldDir">B yönü</label>
+        <select id="fieldDir">
+          <option value="1" selected>⊙ +z, ekrandan dışarı</option>
+          <option value="-1">⊗ −z, ekrana doğru</option>
+        </select>
+      </div>
+      <div class="field" id="efieldField" hidden>
+        <label for="efieldRange">Elektrik alanı E (+y) <output id="efieldOut" for="efieldRange">100 kV/m</output></label>
+        <input type="range" id="efieldRange" min="0" max="61" step="1" value="41">
+      </div>
+      <label class="check"><input type="checkbox" id="lockScale"> Zaman ölçeğini sabitle</label>
+      <div class="row">
+        <button type="button" id="toggleBtn" aria-pressed="false">Duraklat</button>
+        <button type="button" id="resetBtn">Sıfırla</button>
+        <button type="button" id="clearBtn">İzi temizle</button>
+      </div>
+      <p class="note">Model: F = q(E + v×B). B ekrana dik (z ekseni), E ekran düzleminde +y yönünde. Sayısal yöntem: Boris itici, adım dt = T/200. Senaryo değişince önerilen başlangıç değerleri yüklenir.</p>
+      <p class="note">Kısayollar: <kbd>Boşluk</kbd> başlat/duraklat, <kbd>R</kbd> sıfırla, <kbd>C</kbd> izi temizle. Zaman ölçeği sabit değilse her ayarda bir tur ekranda 2–8 s sürecek biçimde seçilir.</p>
+    </div>
+  </div>
+</div>
 
 <script>
-  const canvas = document.getElementById("lorentzCanvas");
-  const ctx = canvas.getContext("2d");
-  
-  let charge = 1;
-  let magneticField = 1;
-  let velocity = 2;
-  let lorentzForce = charge * velocity * magneticField;
+(function () {
+  "use strict";
 
-  let posX = canvas.width / 4;
-  let posY = canvas.height / 2;
-  let velocityX = velocity;
-  let velocityY = 0;
-  
-  let time = 0;
-  let timeValues = [];
-  let forceValues = [];
-
-  const chartCtx = document.getElementById("lorentzChart").getContext("2d");
-  let lorentzChart = createSafeChart(chartCtx, {
-    type: "line",
-    data: {
-      labels: timeValues,
-      datasets: [{
-        label: "Lorentz Kuvveti (F) - Zaman",
-        borderColor: "yellow",
-        data: forceValues,
-        fill: false
-      }]
-    },
-    options: {
-      scales: {
-        x: { title: { display: true, text: "Zaman (s)" } },
-        y: { title: { display: true, text: "Kuvvet (N)" } }
+  /* ── Fizik çekirdeği ── */
+  const QE = 1.602176634e-19;
+  const ME = 9.1093837e-31;
+  const MP = 1.67262192e-27;
+  const AMU = 1.66053907e-27;
+  const MALPHA = 6.6446573357e-27;
+  const C0 = 299792458;
+  const PRESETS = {
+    elektron: { q: -1, m: ME },
+    pozitron: { q: 1, m: ME },
+    proton: { q: 1, m: MP },
+    alfa: { q: 2, m: MALPHA },
+  };
+  const ISOTOPES = {
+    ne: [["Ne-20", 19.9924401762], ["Ne-22", 21.991385114]],
+    c: [["C-12", 12], ["C-13", 13.00335483507], ["C-14", 14.0032419884]],
+    u: [["U-235", 235.0439299], ["U-238", 238.0507882]],
+  };
+  const STEPS_PER_TURN = 200;
+  const TRAIL_MAX = 2400;
+  const HIST_MAX = 1200;
+  const MANT = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
+  function niceList(minExp, maxVal) {
+    const out = [];
+    for (let k = minExp; ; k++) {
+      for (const m of MANT) {
+        const v = +(m * 10 ** k).toPrecision(3);
+        if (v > maxVal * 1.0001) return out;
+        out.push(v);
       }
     }
+  }
+  const SPEEDS = [0, ...niceList(4, 1e8)];
+  const B_LIST = niceList(-4, 2);
+  const E_LIST = [0, ...niceList(1, 1e7)];
+  const SCALES = [];
+  for (let k = -12; k <= -1; k++) for (const m of [1, 2, 5]) SCALES.push(+(m * 10 ** k).toPrecision(1));
+
+  function fieldE(c) {
+    return c.scenario === "secici" || c.scenario === "exb" ? c.E : 0;
+  }
+
+  // Boris hız güncellemesi: yarım elektrik itmesi, manyetik dönme, yarım elektrik itmesi
+  function kick(p, dt, E, B) {
+    const h = (p.qC * dt) / (2 * p.m);
+    let vx = p.vx;
+    let vy = p.vy + h * E;
+    const t = h * B, s = (2 * t) / (1 + t * t);
+    const px = vx + vy * t, py = vy - vx * t;
+    vx += py * s;
+    vy -= px * s;
+    p.vx = vx;
+    p.vy = vy + h * E;
+  }
+
+  function createSim(c, start) {
+    const E = fieldE(c), B = c.B, vd = E / B, parts = [];
+    const add = (label, q, m, x, y, vx, vy, vz) => {
+      const qC = q * QE, wx = vx - vd, wy = vy, w0 = Math.hypot(wx, wy), v0 = Math.hypot(vx, vy, vz);
+      const k = qC ? m / (qC * B) : 0;
+      parts.push({
+        label, q, qC, m, x, y, z: 0, vx, vy, vz, x0: x, y0: y, vx0: vx, v0, w0,
+        T: qC ? (2 * Math.PI * m) / Math.abs(qC * B) : Infinity,
+        r: qC ? (m * w0) / Math.abs(qC * B) : NaN,
+        gyrating: qC !== 0 && w0 > 1e-9 * Math.max(v0, Math.abs(vd)),
+        gc: { x: x + k * wy, y: y - k * wx },
+        trail: [x, y, 0], ups: [], yMax: null, yMin: null, extY: 0, ext: 0, sense: 0,
+        landed: false, escaped: false, xHit: null, tHit: null, xPrev: x, yPrev: y,
+      });
+    };
+    if (c.scenario === "spektrometre") {
+      for (const [name, A] of ISOTOPES[c.iso]) add(ionLabel(name, c.q), c.q, A * AMU - c.q * ME, 0, 0, 0, c.v, 0);
+    } else if (c.scenario === "secici") {
+      add("", c.q, c.m, 0, 0, c.v, 0, 0);
+    } else {
+      const helix = c.scenario === "serbest";
+      const a = helix ? (c.alphaDeg * Math.PI) / 180 : Math.PI / 2;
+      const vp = c.v * Math.sin(a), vz = helix && c.alphaDeg !== 90 ? c.v * Math.cos(a) : 0;
+      const phi = (c.phiDeg * Math.PI) / 180;
+      const vx = vp * Math.cos(phi), vy = vp * Math.sin(phi);
+      let x = 0, y = 0;
+      if (start) { x = start.x; y = start.y; }
+      else if (helix && c.q) { const k = c.m / (c.q * QE * B); x = -k * vy; y = k * vx; }
+      add("", c.q, c.m, x, y, vx, vy, vz);
+    }
+    const Ts = parts.map((p) => p.T).filter(Number.isFinite);
+    const Tref = Ts.length ? Math.min(...Ts) : (2 * Math.PI * Math.min(...parts.map((p) => p.m))) / (QE * Math.abs(B));
+    const sim = { cfg: { ...c }, E, B, vd, Tref, dt: Tref / STEPS_PER_TURN, t: 0, parts, hist: [0, parts[0].vx, parts[0].vy], gc0: parts[0].gc };
+    for (const p of parts) {
+      kick(p, -sim.dt / 2, E, B);
+      p.xPrev = p.x - p.vx * sim.dt;
+      p.yPrev = p.y - p.vy * sim.dt;
+    }
+    return sim;
+  }
+
+  function stepAll(sim) {
+    const { dt, E, B } = sim, tn = sim.t, spec = sim.cfg.scenario === "spektrometre";
+    for (const p of sim.parts) {
+      if (p.landed) continue;
+      const x0 = p.x, y0 = p.y, z0 = p.z, vxo = p.vx, vyo = p.vy;
+      kick(p, dt, E, B);
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.z += p.vz * dt;
+      const cz = (vxo - sim.vd) * p.vy - vyo * (p.vx - sim.vd);
+      if (cz !== 0) p.sense = cz < 0 ? -1 : 1;
+      if (p.gyrating && ((vyo < 0 && p.vy >= 0) || (vyo > 0 && p.vy <= 0))) {
+        // v_y işaret değiştirdi: y uç noktada (parabolle inceltilir), yukarı geçişler periyodu ölçer
+        const dtc = (vyo / (vyo - p.vy) - 0.5) * dt;
+        const den = p.yPrev - 2 * y0 + p.y;
+        const yExt = den ? y0 - (p.y - p.yPrev) ** 2 / (8 * den) : y0;
+        if (vyo > 0) p.yMax = yExt; else p.yMin = yExt;
+        if (Math.abs(yExt - p.y0) > Math.abs(p.extY)) p.extY = yExt - p.y0;
+        p.ext++;
+        if (vyo < 0) {
+          p.ups.push([tn + dtc, x0 + dtc * (dtc < 0 ? vxo : p.vx), z0 + dtc * p.vz]);
+          if (p.ups.length > 6) p.ups.shift();
+        }
+      }
+      if (spec && y0 > 0 && p.y <= 0) {
+        // y = 0 kesişimi: son üç nokta üzerinden x(y) ikinci derece (Lagrange) aradeğerlemesi
+        const ya = p.yPrev, yb = y0, yc = p.y;
+        p.xHit = ya > yb
+          ? (p.xPrev * yb * yc) / ((ya - yb) * (ya - yc)) + (x0 * ya * yc) / ((yb - ya) * (yb - yc)) + (p.x * ya * yb) / ((yc - ya) * (yc - yb))
+          : x0 + (yb / (yb - yc)) * (p.x - x0);
+        p.tHit = tn + (y0 / (y0 - p.y)) * dt;
+        p.x = p.xHit;
+        p.y = 0;
+        p.landed = true;
+      }
+      p.xPrev = x0;
+      p.yPrev = y0;
+      p.trail.push(p.x, p.y, p.z);
+      if (p.trail.length > TRAIL_MAX * 3 + 600) p.trail.splice(0, p.trail.length - TRAIL_MAX * 3);
+    }
+    sim.t = tn + dt;
+    const q = sim.parts[0];
+    sim.hist.push(sim.t, q.vx, q.vy);
+    if (sim.hist.length > HIST_MAX * 3 + 300) sim.hist.splice(0, sim.hist.length - HIST_MAX * 3);
+  }
+
+  function measure(p, sim) {
+    const u = p.ups, n = u.length, m = { T: null, drift: null, pitch: null, r: null };
+    if (n >= 2) {
+      const k = Math.min(3, n - 1), a = u[n - 1 - k], b = u[n - 1];
+      m.T = (b[0] - a[0]) / k;
+      m.drift = (b[1] - a[1]) / (b[0] - a[0]);
+      m.pitch = (b[2] - a[2]) / k;
+    } else if (!p.gyrating && sim.t > 0) {
+      m.drift = (p.x - p.x0) / sim.t;
+    }
+    if (p.yMax !== null && p.yMin !== null) m.r = (p.yMax - p.yMin) / 2;
+    return m;
+  }
+
+  function maxSpeed(sim) {
+    return Math.max(...sim.parts.map((p) => (sim.cfg.scenario === "secici" || sim.cfg.scenario === "exb" ? Math.abs(sim.vd) + p.w0 : p.v0)));
+  }
+
+  /* ── Biçimlendirme ── */
+  const PFX = [[1e9, "G"], [1e6, "M"], [1e3, "k"], [1, ""], [1e-3, "m"], [1e-6, "µ"], [1e-9, "n"], [1e-12, "p"], [1e-15, "f"]];
+  const LEN = [[1e3, "km"], [1, "m"], [1e-2, "cm"], [1e-3, "mm"], [1e-6, "µm"], [1e-9, "nm"], [1e-12, "pm"]];
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  function withUnits(x, unit, d, table) {
+    if (x === null || !Number.isFinite(x)) return "—";
+    if (x === 0) return `0 ${unit === null ? "m" : unit}`;
+    const a = Math.abs(x);
+    let pick = table[table.length - 1];
+    for (const row of table) if (a >= row[0] * 0.99995) { pick = row; break; }
+    return `${x < 0 ? "−" : ""}${(a / pick[0]).toPrecision(d)} ${unit === null ? pick[1] : pick[1] + unit}`;
+  }
+  const fmtSI = (x, unit, d = 4) => withUnits(x, unit, d, PFX);
+  const fmtLen = (x, d = 4) => withUnits(x, null, d, LEN);
+  const strip = (s) => s.replace(/(\.\d*?)0+ /, "$1 ").replace(/\. /, " ");
+  function sci(x, d = 3) {
+    if (x === 0) return "0";
+    const [m, e] = Math.abs(x).toExponential(d - 1).split("e");
+    return `${x < 0 ? "−" : ""}${m}×10${String(+e).replace(/./g, (ch) => SUP[ch])}`;
+  }
+  const fmtSpeed = (v, d = 3) => (v === null || !Number.isFinite(v) ? "—" : v === 0 ? "0 m/s" : `${sci(v, d)} m/s`);
+  function pct(meas, th) {
+    if (meas === null || th === null || !Number.isFinite(meas) || !Number.isFinite(th) || th === 0) return "—";
+    const d = ((meas - th) / Math.abs(th)) * 100;
+    if (Math.abs(d) < 0.005) return "0.00 %";
+    return `${d > 0 ? "+" : "−"}${Math.abs(d).toFixed(2)} %`;
+  }
+  function ionLabel(name, q) {
+    if (!q) return `${name} (yüksüz)`;
+    const n = Math.abs(q) > 1 ? SUP[Math.abs(q)] : "";
+    return `${name}${n}${q > 0 ? "⁺" : "⁻"}`;
+  }
+  function fmtMass(m) {
+    const lead = m < 0.01 * AMU ? `${(m / ME).toPrecision(4)} mₑ` : `${(m / AMU).toPrecision(5)} u`;
+    return `${lead} · ${sci(m, 4)} kg`;
+  }
+  const fmtCharge = (q) => (q === 0 ? "0 (yüksüz)" : `${q > 0 ? "+" : "−"}${Math.abs(q)} e · ${sci(Math.abs(q) * QE, 4)} C`);
+
+  function rowsFor(sim) {
+    const c = sim.cfg, p = sim.parts[0], m = measure(p, sim), rows = [];
+    const row = (label, meas, th, fmt) => rows.push([label, th === null ? "—" : meas === null ? "ölçülüyor…" : fmt(meas), th === null ? "—" : fmt(th), pct(meas, th)]);
+    const L = (x) => fmtLen(x, 4), Tf = (x) => fmtSI(x, "s", 4), F = (x) => fmtSI(x, "Hz", 4);
+    const V = (x) => fmtSpeed(x, 4), EV = (x) => fmtSI(x, "eV", 4);
+    const vref = p.v0 + Math.abs(sim.vd) + p.w0;
+    const clean = (x, ref) => (x !== null && Math.abs(x) < 1e-9 * ref ? 0 : x);
+    if (c.scenario === "spektrometre") {
+      sim.parts.forEach((q) => row(`${q.label} iz konumu`, q.landed ? Math.abs(q.xHit) : null, q.qC ? 2 * q.r : null, L));
+      for (let i = 0; i + 1 < sim.parts.length; i++) {
+        const a = sim.parts[i], b = sim.parts[i + 1];
+        row(`Ayrım ${a.label}–${b.label}`, a.landed && b.landed ? Math.abs(b.xHit) - Math.abs(a.xHit) : null, a.qC ? 2 * (b.r - a.r) : null, L);
+      }
+      return rows;
+    }
+    if (!p.qC) {
+      row("Yarıçap r", null, null, L);
+      row("Periyot T", null, null, Tf);
+      return rows;
+    }
+    if (c.scenario === "serbest") {
+      const sp = Math.hypot(p.vx, p.vy, p.vz);
+      row("Yarıçap r", p.gyrating ? m.r : 0, p.gyrating ? p.r : 0, L);
+      row("Periyot T", m.T, p.T, Tf);
+      row("Frekans f = 1/T", m.T && 1 / m.T, 1 / p.T, F);
+      row("Hız |v|", sp, p.v0, V);
+      row("Kinetik enerji", (0.5 * p.m * sp * sp) / QE, (0.5 * p.m * p.v0 * p.v0) / QE, EV);
+      if (p.vz !== 0) row("Adım p = v∥T", m.pitch, p.vz * p.T, L);
+    } else if (c.scenario === "secici") {
+      const th = p.gyrating ? (-2 * p.m * (p.vx0 - sim.vd)) / (p.qC * sim.B) : 0;
+      const meas = p.ext ? p.extY : sim.t > 0 ? clean(p.y - p.y0, Math.abs(p.x - p.x0)) : null;
+      row("En büyük sapma y", meas, th, L);
+      row("Ortalama yatay hız", clean(m.drift, vref), sim.vd, V);
+      if (p.gyrating) row("Periyot T", m.T, p.T, Tf);
+    } else {
+      row("Sürüklenme hızı vₓ", clean(m.drift, vref), sim.vd, V);
+      row("Dönme yarıçapı r′", p.gyrating ? m.r : 0, p.gyrating ? p.r : 0, L);
+      row("Periyot T", m.T, p.T, Tf);
+    }
+    return rows;
+  }
+
+  function infoFor(sim) {
+    const c = sim.cfg, p = sim.parts[0], E = sim.E, B = sim.B, vd = sim.vd;
+    const sp = Math.hypot(p.vx, p.vy, p.vz);
+    const sense = !p.qC || !p.gyrating ? "dönmüyor" : p.sense < 0 ? "saat yönünde ↻" : p.sense > 0 ? "saat yönünün tersine ↺" : "—";
+    const out = {
+      sense,
+      fc: p.qC ? fmtSI(1 / p.T, "Hz", 4) : "—",
+      ek: fmtSI((0.5 * p.m * sp * sp) / QE, "eV", 4),
+      status: "",
+      warn: "",
+      formula: "",
+    };
+    const up = (x) => (x > 0 ? "+y (yukarı)" : "−y (aşağı)");
+    if (c.scenario === "serbest") {
+      out.formula = "Kuram: r = m·v⊥/(|q|B), T = 2πm/(|q|B), f = 1/T, adım p = v∥·T. Ölçüm: r, yörüngenin ardışık en yüksek ve en alçak noktalarından; T, v_y’nin ardışık yukarı sıfır geçişlerinden.";
+      out.status = !p.qC
+        ? "Yüksüz parçacık: Lorentz kuvveti sıfır, düz çizgide gider."
+        : `Manyetik kuvvet her an hıza dik: iş yapmaz, |v| ve kinetik enerji değişmez.${p.vz ? " Hızın B’ye paralel bileşeni de değişmez; yol bir sarmaldır (yandan görünüm)." : ""}`;
+    } else if (c.scenario === "secici") {
+      out.formula = "Kuram: denge koşulu qE = qvB, yani v = E/B (yük ve kütleden bağımsız). Sapma: y = −2m(v − E/B)/(qB). Ortalama yatay hız her durumda E/B’dir. Oklar: qE mor, qv×B pembe, net kuvvet F turuncu.";
+      if (!p.qC) out.status = "Yüksüz parçacık: kuvvet yok, sapmadan geçer.";
+      else if (E === 0) out.status = "E = 0: yalnız manyetik kuvvet var; parçacık çembere sapar.";
+      else if (B < 0) out.status = "B ekrana doğru (⊗): elektrik ve manyetik kuvvet aynı yönde, seçici çalışmaz. B yönünü çevir.";
+      else if (!p.gyrating) out.status = `v = E/B = ${fmtSpeed(vd)}: elektrik ve manyetik kuvvet dengede, parçacık sapmadan geçer.`;
+      else if (c.v > vd) out.status = `v > E/B (${fmtSpeed(vd)}): manyetik kuvvet baskın, sapma ${up(-p.q)}.`;
+      else out.status = `v < E/B (${fmtSpeed(vd)}): elektrik kuvveti baskın, sapma ${up(p.q)}.`;
+    } else if (c.scenario === "exb") {
+      out.formula = "Kuram: v_d = E×B/B², büyüklüğü E/B; r′ = m|v₀ − v_d|/(|q|B), T = 2πm/(|q|B). Ölçüm: v_d, bir tam dönüşteki yer değiştirmenin periyoda oranı.";
+      if (!p.qC) out.status = "Yüksüz parçacık: kuvvet yok, sürüklenme yok.";
+      else if (E === 0) out.status = "E = 0: sürüklenme yok, yalnız dönme.";
+      else out.status = `Sürüklenme E×B yönünde: ${vd > 0 ? "+x (sağa)" : "−x (sola)"}, ${fmtSpeed(Math.abs(vd))}. Yükün işaretine ve kütleye bağlı değil.`;
+    } else {
+      out.formula = "Kuram: iz konumu x = 2r = 2mv/(|q|B); ayrım Δx = 2Δm·v/(|q|B). İyon kütlesi = atom kütlesi − q·mₑ (atom kütleleri: AME2020).";
+      out.status = !p.qC
+        ? "Yüksüz atomlar sapmaz; spektrometre yalnız iyonları ayırır."
+        : "Tüm iyonlar aynı hız ve yükle giriyor; r ∝ m olduğundan ağır izotop daha uzağa düşer.";
+    }
+    const vmax = maxSpeed(sim), beta = vmax / C0;
+    if ((c.scenario === "secici" || c.scenario === "exb") && Math.abs(vd) >= C0) {
+      out.warn = "E/B ≥ c: sürüklenme hızı ışık hızına ulaşıyor. Gerçekte bu durumda E’yi ortadan kaldıran bir çerçeve yoktur ve parçacık sınırsız hızlanır; göreli olmayan model geçersiz.";
+    } else if (beta >= 1) {
+      out.warn = `En büyük hız ${beta.toFixed(2)}c: göreli olmayan model ışıktan hızlı hareket öngörüyor, fiziksel değil. Göreli kuram gerekir.`;
+    } else if (beta > 0.1) {
+      const g = 1 / Math.sqrt(1 - beta * beta);
+      out.warn = `En büyük hız ${beta.toFixed(3)}c, γ = ${g.toFixed(4)}: göreli olmayan model artık yeterince doğru değil. Gerçek yarıçap ve periyot yaklaşık γ kat büyüktür.`;
+    }
+    return out;
+  }
+
+  /* ── Arayüz ── */
+  const canvas = document.getElementById("stageCanvas");
+  const ctx = canvas.getContext("2d");
+  const chart = document.getElementById("chartCanvas");
+  const cctx = chart.getContext("2d");
+  const $ = (id) => document.getElementById(id);
+  const ui = {
+    scenario: $("scenarioSelect"), preset: $("presetSelect"), iso: $("isotopeSelect"),
+    q: $("chargeRange"), m: $("massRange"), v: $("speedRange"), phi: $("angleRange"), alpha: $("pitchRange"),
+    B: $("fieldRange"), bDir: $("fieldDir"), E: $("efieldRange"), lock: $("lockScale"),
+    qOut: $("chargeOut"), mOut: $("massOut"), vOut: $("speedOut"), phiOut: $("angleOut"), alphaOut: $("pitchOut"),
+    BOut: $("fieldOut"), EOut: $("efieldOut"),
+    presetField: $("presetField"), isoField: $("isotopeField"), massField: $("massField"),
+    phiField: $("angleField"), alphaField: $("pitchField"), EField: $("efieldField"),
+    toggle: $("toggleBtn"), reset: $("resetBtn"), clear: $("clearBtn"),
+    body: $("cmpBody"), formula: $("formulaNote"), sense: $("senseOut"), fc: $("fcOut"), ek: $("ekOut"),
+    scale: $("scaleOut"), status: $("statusOut"), warn: $("warnOut"),
+  };
+  ui.v.max = SPEEDS.length - 1;
+  ui.B.max = B_LIST.length - 1;
+  ui.E.max = E_LIST.length - 1;
+
+  const cfg = { scenario: "serbest", q: 1, m: MP, v: 1e6, phiDeg: 0, alphaDeg: 90, B: 0.1, E: 1e5, iso: "ne" };
+  const SCENARIO_DEFAULTS = {
+    secici: { preset: "proton", v: 1e6, B: 0.1, dir: 1, E: 1e5 },
+    exb: { preset: "proton", v: 0, B: 0.1, dir: 1, E: 1e5, phi: 0 },
+    spektrometre: { q: 1, v: 1e5, B: 0.1, dir: 1, iso: "ne" },
+  };
+  let sim = null, view = null, scale = null, acc = 0, running = true, throttled = false;
+  let lastFrame = 0, dpr = 1, rowCells = [], lastUi = 0, startOverride = null, xform = null;
+
+  const nearest = (list, v) => list.reduce((best, x, i) => (Math.abs(x - v) < Math.abs(list[best] - v) ? i : best), 0);
+
+  function setPreset(name) {
+    const pr = PRESETS[name];
+    if (!pr) return;
+    ui.preset.value = name;
+    ui.q.value = pr.q;
+    cfg.m = pr.m;
+    ui.m.value = Math.log10(pr.m / ME).toFixed(3);
+  }
+
+  function applyScenarioDefaults(name) {
+    const d = SCENARIO_DEFAULTS[name];
+    if (!d) return;
+    if (d.preset) setPreset(d.preset);
+    if (d.q !== undefined) ui.q.value = d.q;
+    ui.v.value = nearest(SPEEDS, d.v);
+    ui.B.value = nearest(B_LIST, d.B);
+    ui.bDir.value = String(d.dir);
+    if (d.E !== undefined) ui.E.value = nearest(E_LIST, d.E);
+    if (d.phi !== undefined) ui.phi.value = d.phi;
+    if (d.iso) ui.iso.value = d.iso;
+  }
+
+  function readControls() {
+    cfg.scenario = ui.scenario.value;
+    cfg.q = Number(ui.q.value);
+    cfg.v = SPEEDS[Number(ui.v.value)];
+    cfg.phiDeg = Number(ui.phi.value);
+    cfg.alphaDeg = Number(ui.alpha.value);
+    cfg.B = B_LIST[Number(ui.B.value)] * Number(ui.bDir.value);
+    cfg.E = E_LIST[Number(ui.E.value)];
+    cfg.iso = ui.iso.value;
+    const sc = cfg.scenario;
+    ui.presetField.hidden = sc === "spektrometre";
+    ui.massField.hidden = sc === "spektrometre";
+    ui.isoField.hidden = sc !== "spektrometre";
+    ui.phiField.hidden = !(sc === "serbest" || sc === "exb");
+    ui.alphaField.hidden = sc !== "serbest";
+    ui.EField.hidden = !(sc === "secici" || sc === "exb");
+    ui.qOut.textContent = fmtCharge(cfg.q);
+    ui.mOut.textContent = fmtMass(cfg.m);
+    ui.vOut.textContent = fmtSpeed(cfg.v);
+    ui.phiOut.textContent = `${cfg.phiDeg}°`;
+    ui.alphaOut.textContent = `${cfg.alphaDeg}°`;
+    ui.BOut.textContent = fmtSI(Math.abs(cfg.B), "T", 3);
+    ui.EOut.textContent = fmtSI(cfg.E, "V/m", 3);
+  }
+
+  function computeView() {
+    const p = sim.parts[0], c = sim.cfg, aB = Math.abs(sim.B);
+    const rRef = (q) => (q.m * Math.max(q.v0, 1e4)) / (Math.max(Math.abs(q.q), 1) * QE * aB);
+    if (c.scenario === "spektrometre") {
+      const D = 2 * Math.max(...sim.parts.map((q) => (q.qC && q.r > 0 ? q.r : rRef(q))));
+      const sgn = p.qC * sim.B < 0 ? -1 : 1;
+      return { w: D * 1.35, h: D * 0.8, cx: (sgn * D) / 2, cy: D * 0.2, follow: false };
+    }
+    if (c.scenario === "serbest") {
+      const r = p.qC && p.r > 0 ? p.r : rRef(p);
+      return { w: r * 2.5, h: r * 2.5, cx: sim.gc0.x, cy: sim.gc0.y, follow: false };
+    }
+    const Ld = p.qC ? Math.abs(sim.vd) * p.T : 0, rp = p.qC ? p.r : 0;
+    let w = Math.max((c.scenario === "secici" ? 1.1 : 2.2) * Ld, 5 * rp), h = Math.max(3 * rp, 0.3 * w);
+    if (!(w > 0)) { w = 2.5 * rRef(p); h = w; }
+    return { w, h, cx: sim.gc0.x, cy: sim.gc0.y, follow: true };
+  }
+
+  function timeRef() {
+    const p = sim.parts[0];
+    if (sim.parts.some((q) => q.qC)) return sim.Tref;
+    return p.v0 > 0 ? view.w / p.v0 : Infinity;
+  }
+
+  function pickScale(T, cur) {
+    if (!Number.isFinite(T) || T <= 0) return cur || 1e-6;
+    if (cur && T / cur >= 1.5 && T / cur <= 8) return cur;
+    let best = SCALES[0];
+    for (const s of SCALES) if (T / s >= 2) best = s;
+    return best;
+  }
+
+  function resetSim(keepView) {
+    sim = createSim(cfg, startOverride);
+    if (!keepView || !view) view = computeView();
+    if (!ui.lock.checked || !scale) scale = pickScale(timeRef(), scale);
+    acc = 0;
+    rowCells = [];
+    updateReadouts(true);
+  }
+
+  function clearTrail() {
+    for (const p of sim.parts) p.trail = [p.x, p.y, p.z];
+    sim.hist = [sim.t, sim.parts[0].vx, sim.parts[0].vy];
+  }
+
+  function updateReadouts(force) {
+    const now = performance.now();
+    if (!force && now - lastUi < 150) return;
+    lastUi = now;
+    const rows = rowsFor(sim);
+    if (rowCells.length !== rows.length) {
+      ui.body.textContent = "";
+      rowCells = rows.map(() => {
+        const tr = document.createElement("tr");
+        const th = document.createElement("th");
+        th.scope = "row";
+        tr.appendChild(th);
+        const tds = [0, 1, 2].map((i) => {
+          const td = document.createElement("td");
+          if (i === 2) td.className = "diff";
+          tr.appendChild(td);
+          return td;
+        });
+        ui.body.appendChild(tr);
+        return [th, ...tds];
+      });
+    }
+    rows.forEach((r, i) => r.forEach((text, j) => {
+      if (rowCells[i][j].textContent !== text) rowCells[i][j].textContent = text;
+    }));
+    const info = infoFor(sim);
+    const set = (el, text) => { if (el.textContent !== text) el.textContent = text; };
+    set(ui.formula, info.formula);
+    set(ui.sense, info.sense);
+    set(ui.fc, info.fc);
+    set(ui.ek, info.ek);
+    set(ui.scale, `1 s = ${strip(fmtSI(scale, "s", 3))}${throttled ? " (yavaşlatıldı)" : ""}`);
+    set(ui.status, info.status);
+    ui.warn.hidden = !info.warn;
+    set(ui.warn, info.warn);
+  }
+
+  /* ── Çizim ── */
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [canvas, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      c.width = Math.round(rect.width * dpr);
+      c.height = Math.round(rect.height * dpr);
+    }
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+      field: light ? "rgba(26,29,46,0.22)" : "rgba(232,236,244,0.2)",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      pos: light ? "#dc2626" : "#f87171",
+      neg: light ? "#2563eb" : "#60a5fa",
+      pill: light ? "rgba(255,255,255,0.82)" : "rgba(8,12,22,0.72)",
+      plate: light ? "rgba(26,29,46,0.28)" : "rgba(232,236,244,0.22)",
+      fb: light ? "#be185d" : "#f472b6",
+    };
+  }
+
+  const chargeColor = (t, q) => (q > 0 ? t.pos : q < 0 ? t.neg : t.muted);
+
+  function arrow(g, x, y, dx, dy, color, label) {
+    const len = Math.hypot(dx, dy);
+    if (len < 3 * dpr) return;
+    const ux = dx / len, uy = dy / len, hd = 8 * dpr;
+    g.strokeStyle = color;
+    g.fillStyle = color;
+    g.lineWidth = 2.2 * dpr;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + dx - ux * hd * 0.6, y + dy - uy * hd * 0.6);
+    g.stroke();
+    g.beginPath();
+    g.moveTo(x + dx, y + dy);
+    g.lineTo(x + dx - ux * hd - uy * hd * 0.5, y + dy - uy * hd + ux * hd * 0.5);
+    g.lineTo(x + dx - ux * hd + uy * hd * 0.5, y + dy - uy * hd - ux * hd * 0.5);
+    g.closePath();
+    g.fill();
+    if (label && len > 14 * dpr) {
+      g.font = `600 ${12 * dpr}px Outfit, system-ui, sans-serif`;
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText(label, x + dx + ux * 10 * dpr, y + dy + uy * 10 * dpr);
+      g.textBaseline = "alphabetic";
+    }
+  }
+
+  function fieldSymbol(g, x, y, r, out) {
+    g.moveTo(x + r, y);
+    g.arc(x, y, r, 0, Math.PI * 2);
+    if (!out) {
+      const k = r * 0.62;
+      g.moveTo(x - k, y - k); g.lineTo(x + k, y + k);
+      g.moveTo(x + k, y - k); g.lineTo(x - k, y + k);
+    }
+  }
+
+  function pill(g, x, y, w, h, t) {
+    g.fillStyle = t.pill;
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, 6 * dpr); else g.rect(x, y, w, h);
+    g.fill();
+  }
+
+  function niceFloor(x) {
+    const e = Math.floor(Math.log10(x)), b = 10 ** e, f = x / b;
+    return (f >= 5 ? 5 : f >= 2 ? 2 : 1) * b;
+  }
+
+  function drawStage() {
+    const W = canvas.width, H = canvas.height, t = theme(), c = sim.cfg, p0 = sim.parts[0];
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const s = Math.min(W / view.w, H / view.h);
+    let camX = view.cx, camY = view.cy;
+    if (view.follow) {
+      if (p0.qC) camX = sim.gc0.x + sim.vd * sim.t;
+      else { camX = p0.x; camY = p0.y; }
+    }
+    xform = { s, camX, camY, W, H };
+    const X = (x) => W / 2 + (x - camX) * s, Y = (y) => H / 2 - (y - camY) * s;
+    const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+
+    // Manyetik alan işaretleri (dünyaya sabit ızgara)
+    const sp = (56 * dpr) / s, out = sim.B > 0;
+    const gx0 = Math.floor((camX - W / 2 / s) / sp) * sp, gy0 = Math.floor((camY - H / 2 / s) / sp) * sp;
+    ctx.strokeStyle = t.field;
+    ctx.fillStyle = t.field;
+    ctx.lineWidth = 1.2 * dpr;
+    ctx.beginPath();
+    const dots = [];
+    for (let i = 0; gx0 + i * sp < camX + W / 2 / s + sp; i++) {
+      for (let j = 0; gy0 + j * sp < camY + H / 2 / s + sp; j++) {
+        const sx = X(gx0 + (i + 0.5) * sp), sy = Y(gy0 + (j + 0.5) * sp);
+        fieldSymbol(ctx, sx, sy, 4.5 * dpr, out);
+        dots.push(sx, sy);
+      }
+    }
+    ctx.stroke();
+    if (out) {
+      ctx.beginPath();
+      for (let k = 0; k < dots.length; k += 2) { ctx.moveTo(dots[k] + 1.4 * dpr, dots[k + 1]); ctx.arc(dots[k], dots[k + 1], 1.4 * dpr, 0, Math.PI * 2); }
+      ctx.fill();
+    }
+
+    // Senaryo yardımcıları
+    ctx.save();
+    ctx.setLineDash([6 * dpr, 6 * dpr]);
+    ctx.lineWidth = 1.2 * dpr;
+    ctx.strokeStyle = t.muted;
+    if (c.scenario === "serbest" && p0.qC && p0.gyrating) {
+      ctx.beginPath();
+      ctx.arc(X(sim.gc0.x), Y(sim.gc0.y), p0.r * s, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    if ((c.scenario === "exb" || c.scenario === "secici") && p0.qC) {
+      ctx.beginPath();
+      ctx.moveTo(0, Y(sim.gc0.y));
+      ctx.lineTo(W, Y(sim.gc0.y));
+      ctx.stroke();
+    }
+    if (c.scenario === "secici" && p0.gyrating && Math.abs(Y(p0.y0) - Y(sim.gc0.y)) > 2 * dpr) {
+      ctx.strokeStyle = t.accent2;
+      ctx.beginPath();
+      ctx.moveTo(0, Y(p0.y0));
+      ctx.lineTo(W, Y(p0.y0));
+      ctx.stroke();
+    }
+    ctx.restore();
+    if (c.scenario === "secici") {
+      ctx.fillStyle = t.plate;
+      ctx.fillRect(0, 0, W, 6 * dpr);
+      ctx.fillRect(0, H - 6 * dpr, W, 6 * dpr);
+      if (sim.E > 0) {
+        ctx.font = font(15, 700);
+        ctx.textAlign = "center";
+        for (let x = 60 * dpr; x < W; x += 120 * dpr) {
+          ctx.fillStyle = t.neg;
+          ctx.fillText("−", x, 22 * dpr);
+          ctx.fillStyle = t.pos;
+          ctx.fillText("+", x, H - 12 * dpr);
+        }
+      }
+    }
+    if (c.scenario === "spektrometre") {
+      const y0 = Y(0), sx = X(0), gap = 5 * dpr;
+      ctx.strokeStyle = t.ink;
+      ctx.lineWidth = 3 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(0, y0); ctx.lineTo(sx - gap, y0);
+      ctx.moveTo(sx + gap, y0); ctx.lineTo(W, y0);
+      ctx.stroke();
+      ctx.save();
+      ctx.setLineDash([4 * dpr, 4 * dpr]);
+      ctx.strokeStyle = t.muted;
+      ctx.lineWidth = 1.5 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(sx, H); ctx.lineTo(sx, y0);
+      ctx.stroke();
+      ctx.restore();
+      const sgn = view.cx >= 0 ? 1 : -1;
+      const rMin = Math.min(...sim.parts.map((q) => (q.qC && q.r > 0 ? q.r : Infinity)));
+      ctx.fillStyle = t.muted;
+      ctx.font = font(11);
+      ctx.textAlign = sgn > 0 ? "left" : "right";
+      ctx.fillText("yarık", sx + sgn * 8 * dpr, y0 + 16 * dpr);
+      ctx.fillText("iyon demeti (v)", sx + sgn * 8 * dpr, y0 + 30 * dpr);
+      if (Number.isFinite(rMin)) {
+        ctx.textAlign = "center";
+        ctx.fillText("dedektör (y = 0)", X(sgn * rMin * 1.15), y0 + 16 * dpr);
+      }
+      sim.parts.forEach((q, i) => {
+        if (!q.qC) return;
+        const xt = X((q.qC * sim.B > 0 ? 1 : -1) * 2 * q.r);
+        ctx.strokeStyle = [t.accent, t.warm, t.accent2][i % 3];
+        ctx.lineWidth = 1.5 * dpr;
+        ctx.beginPath();
+        ctx.moveTo(xt, y0 - 7 * dpr); ctx.lineTo(xt, y0 + 7 * dpr);
+        ctx.stroke();
+      });
+    }
+
+    // İzler
+    const multi = sim.parts.length > 1;
+    sim.parts.forEach((q, i) => {
+      const col = multi ? [t.accent, t.warm, t.accent2][i % 3] : chargeColor(t, q.q);
+      const tr = q.trail;
+      if (tr.length < 6) return;
+      ctx.strokeStyle = col;
+      ctx.globalAlpha = 0.85;
+      ctx.lineWidth = 2 * dpr;
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(X(tr[0]), Y(tr[1]));
+      for (let k = 3; k < tr.length; k += 3) ctx.lineTo(X(tr[k]), Y(tr[k + 1]));
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    });
+
+    // Parçacıklar, v ve F vektörleri
+    const vref = Math.max(maxSpeed(sim), 1e-30);
+    sim.parts.forEach((q, i) => {
+      const x = X(q.x), y = Y(q.y), col = multi ? [t.accent, t.warm, t.accent2][i % 3] : chargeColor(t, q.q);
+      if (q.landed && q.xHit !== null) {
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.moveTo(x, y - 6 * dpr); ctx.lineTo(x + 5 * dpr, y); ctx.lineTo(x, y + 6 * dpr); ctx.lineTo(x - 5 * dpr, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1 * dpr;
+        const ly = y + (18 + 15 * i) * dpr;
+        ctx.beginPath();
+        ctx.moveTo(x, y + 7 * dpr); ctx.lineTo(x, ly - 10 * dpr);
+        ctx.stroke();
+        ctx.font = font(11, 600);
+        ctx.textAlign = x > W - 60 * dpr ? "right" : x < 60 * dpr ? "left" : "center";
+        ctx.fillText(q.label, x, ly);
+        return;
+      }
+      const L = (multi ? 38 : 52) * dpr;
+      const vp = Math.hypot(q.vx, q.vy);
+      arrow(ctx, x, y, (q.vx / vref) * L, (-q.vy / vref) * L, t.accent, q.vz ? "v⊥" : "v");
+      if (q.qC) {
+        const Fx = q.qC * q.vy * sim.B, Fy = q.qC * (sim.E - q.vx * sim.B);
+        const Fref = Math.abs(q.qC) * (Math.abs(sim.E) + vref * Math.abs(sim.B));
+        if (c.scenario === "secici" && Fref > 0) {
+          arrow(ctx, x, y, 0, (-q.qC * sim.E / Fref) * L, t.accent2, "qE");
+          arrow(ctx, x, y, (q.qC * q.vy * sim.B / Fref) * L, (q.qC * q.vx * sim.B / Fref) * L, t.fb, "qv×B");
+        }
+        if (Fref > 0 && vp + Math.abs(sim.E) > 0) arrow(ctx, x, y, (Fx / Fref) * L, (-Fy / Fref) * L, t.warm, "F");
+      }
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.arc(x, y, 6.5 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = t.light ? "#ffffff" : "#0b1020";
+      ctx.lineWidth = 1.5 * dpr;
+      ctx.stroke();
+    });
+
+    // Gösterge: alanlar
+    const lines = [`B = ${fmtSI(Math.abs(sim.B), "T", 3)} (${out ? "+z, dışarı" : "−z, içeri"})`];
+    if ((c.scenario === "secici" || c.scenario === "exb") && sim.E > 0) lines.push(`E = ${fmtSI(sim.E, "V/m", 3)} (+y)`);
+    ctx.font = font(12);
+    const lw = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 34 * dpr;
+    pill(ctx, 8 * dpr, 8 * dpr, lw, (10 + 18 * lines.length) * dpr, t);
+    ctx.textAlign = "left";
+    lines.forEach((l, i) => {
+      const ly = (26 + 18 * i) * dpr;
+      ctx.fillStyle = t.ink;
+      ctx.fillText(l, 30 * dpr, ly);
+      ctx.strokeStyle = t.ink;
+      ctx.lineWidth = 1.3 * dpr;
+      if (i === 0) {
+        ctx.beginPath();
+        fieldSymbol(ctx, 19 * dpr, ly - 4 * dpr, 5.5 * dpr, out);
+        ctx.stroke();
+        if (out) { ctx.beginPath(); ctx.arc(19 * dpr, ly - 4 * dpr, 1.6 * dpr, 0, Math.PI * 2); ctx.fill(); }
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(19 * dpr, ly + 2 * dpr); ctx.lineTo(19 * dpr, ly - 10 * dpr);
+        ctx.moveTo(15.5 * dpr, ly - 6.5 * dpr); ctx.lineTo(19 * dpr, ly - 10 * dpr); ctx.lineTo(22.5 * dpr, ly - 6.5 * dpr);
+        ctx.stroke();
+      }
+    });
+
+    // Ölçek çubuğu ve zaman ölçeği
+    const Lw = niceFloor((110 * dpr) / s), Lpx = Lw * s, bx = 14 * dpr, by = H - 16 * dpr;
+    const label = strip(fmtLen(Lw, 3));
+    ctx.font = font(11);
+    const tl1 = `ekranda 1 s = ${strip(fmtSI(scale, "s", 3))}`, tl2 = `t = ${fmtSI(sim.t, "s", 3)}${throttled ? " · yavaşlatıldı" : ""}`;
+    const tw = Math.max(ctx.measureText(tl1).width, ctx.measureText(tl2).width) + 14 * dpr;
+    pill(ctx, bx - 6 * dpr, by - 26 * dpr, Math.max(Lpx, ctx.measureText(label).width) + 12 * dpr, 34 * dpr, t);
+    pill(ctx, W - tw - 8 * dpr, H - 42 * dpr, tw, 34 * dpr, t);
+    ctx.strokeStyle = t.ink;
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(bx, by - 5 * dpr); ctx.lineTo(bx, by); ctx.lineTo(bx + Lpx, by); ctx.lineTo(bx + Lpx, by - 5 * dpr);
+    ctx.stroke();
+    ctx.fillStyle = t.ink;
+    ctx.textAlign = "left";
+    ctx.fillText(label, bx, by - 10 * dpr);
+    ctx.textAlign = "right";
+    ctx.fillText(tl1, W - 15 * dpr, H - 28 * dpr);
+    ctx.fillStyle = t.muted;
+    ctx.fillText(tl2, W - 15 * dpr, H - 13 * dpr);
+
+    if (c.scenario === "serbest" && p0.qC && p0.vz) drawSideView(t, W, H, p0);
+  }
+
+  function drawSideView(t, W, H, p) {
+    const bw = Math.min(W * 0.4, 300 * dpr), bh = bw * 0.62, bx = W - bw - 8 * dpr, by = 8 * dpr;
+    pill(ctx, bx, by, bw, bh, t);
+    ctx.strokeStyle = t.grid;
+    ctx.lineWidth = 1 * dpr;
+    ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
+    ctx.font = `${11 * dpr}px Outfit, system-ui, sans-serif`;
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "left";
+    ctx.fillText("Yandan görünüm (z–y)", bx + 8 * dpr, by + 15 * dpr);
+    const innerW = bw - 16 * dpr, innerH = bh - 44 * dpr;
+    const pitch = Math.abs(p.vz * p.T);
+    const si = Math.min(innerW / Math.max(2.5 * pitch, 1e-300), innerH / (2.4 * p.r));
+    const dir = p.vz >= 0 ? 1 : -1;
+    const zLead = p.z - dir * (innerW * 0.8) / si;
+    const cy = by + 22 * dpr + innerH / 2;
+    const ZX = (z) => bx + 8 * dpr + (dir > 0 ? (z - zLead) * si : innerW - (zLead - z) * si);
+    const YY = (y) => cy - (y - sim.gc0.y) * si;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(bx + 2 * dpr, by + 20 * dpr, bw - 4 * dpr, innerH + 6 * dpr);
+    ctx.clip();
+    const tr = p.trail;
+    ctx.strokeStyle = chargeColor(t, p.q);
+    ctx.lineWidth = 1.6 * dpr;
+    ctx.beginPath();
+    let started = false;
+    for (let k = tr.length - 3; k >= 0; k -= 3) {
+      if ((tr[k + 2] - zLead) * dir < -innerW / si) break;
+      const x = ZX(tr[k + 2]), y = YY(tr[k + 1]);
+      if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = chargeColor(t, p.q);
+    ctx.beginPath();
+    ctx.arc(ZX(p.z), YY(p.y), 4 * dpr, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    const ay = by + bh - 12 * dpr, ax = bx + bw / 2, bdir = sim.B > 0 ? 1 : -1;
+    arrow(ctx, ax - bdir * 22 * dpr, ay, bdir * 44 * dpr, 0, t.muted, "");
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "left";
+    ctx.fillText("B", ax + 30 * dpr, ay + 4 * dpr);
+  }
+
+  function niceStep(x) {
+    const e = Math.floor(Math.log10(x)), b = 10 ** e, f = x / b;
+    return (f > 5 ? 10 : f > 2 ? 5 : f > 1 ? 2 : 1) * b;
+  }
+
+  function drawChart() {
+    const W = chart.width, H = chart.height, t = theme(), c = sim.cfg, p = sim.parts[0];
+    cctx.setTransform(1, 0, 0, 1, 0, 0);
+    cctx.clearRect(0, 0, W, H);
+    const padL = 58 * dpr, padR = 12 * dpr, padT = 24 * dpr, padB = 22 * dpr;
+    const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+    cctx.font = font(11);
+    cctx.lineWidth = 1 * dpr;
+    if (c.scenario === "spektrometre") {
+      const xs = sim.parts.filter((q) => q.qC).map((q) => 2 * q.r);
+      cctx.fillStyle = t.muted;
+      cctx.textAlign = "left";
+      if (!xs.length) { cctx.fillText("Yüksüz atomlar dedektöre ulaşmaz.", padL, H / 2); return; }
+      const lo = Math.min(...xs), hi = Math.max(...xs), pad = Math.max((hi - lo) * 0.3, hi * 0.02);
+      const a = lo - pad, b = hi + pad, XS = (x) => padL + ((x - a) / (b - a)) * (W - padL - padR);
+      const step = niceStep((b - a) / 5);
+      cctx.strokeStyle = t.grid;
+      cctx.textAlign = "center";
+      for (let x = Math.ceil(a / step) * step; x <= b; x += step) {
+        const sx = XS(x);
+        cctx.beginPath(); cctx.moveTo(sx, padT); cctx.lineTo(sx, H - padB); cctx.stroke();
+        cctx.fillText(strip(fmtLen(x, 4)), sx, H - 7 * dpr);
+      }
+      cctx.strokeStyle = t.ink;
+      cctx.lineWidth = 2 * dpr;
+      cctx.beginPath(); cctx.moveTo(padL, H - padB); cctx.lineTo(W - padR, H - padB); cctx.stroke();
+      sim.parts.forEach((q, i) => {
+        if (!q.qC) return;
+        const col = [t.accent, t.warm, t.accent2][i % 3], sx = XS(2 * q.r), ly = padT + (i % 2 ? 14 : 2) * dpr;
+        cctx.save();
+        cctx.setLineDash([4 * dpr, 4 * dpr]);
+        cctx.strokeStyle = col;
+        cctx.lineWidth = 1.2 * dpr;
+        cctx.beginPath(); cctx.moveTo(sx, ly + 5 * dpr); cctx.lineTo(sx, H - padB); cctx.stroke();
+        cctx.restore();
+        cctx.fillStyle = col;
+        cctx.font = font(11, 600);
+        cctx.textAlign = "center";
+        cctx.fillText(q.label, sx, ly);
+        if (q.landed && q.xHit !== null) {
+          const hx = XS(Math.abs(q.xHit)), top = padT + 22 * dpr;
+          cctx.fillRect(hx - 2.5 * dpr, top, 5 * dpr, H - padB - top);
+        }
+      });
+      cctx.font = font(11);
+      cctx.fillStyle = t.muted;
+      cctx.textAlign = "left";
+      cctx.fillText("Dedektör (yakın)", 8 * dpr, padT + 2 * dpr);
+      cctx.fillText("kesikli: kuram 2r", 8 * dpr, padT + 18 * dpr);
+      cctx.fillText("dolu: ölçülen iz", 8 * dpr, padT + 34 * dpr);
+      return;
+    }
+    const win = Number.isFinite(p.T) ? 3 * p.T : 3 * scale;
+    const tEnd = Math.max(sim.t, win), tStart = tEnd - win;
+    const vref = Math.max(Math.abs(sim.vd) + p.w0, Math.hypot(p.vx, p.vy), 1e-30) * 1.1;
+    const y0 = padT + (H - padT - padB) / 2, ys = (H - padT - padB) / 2 / vref;
+    const XT = (time) => padL + ((time - tStart) / win) * (W - padL - padR);
+    cctx.strokeStyle = t.grid;
+    cctx.fillStyle = t.muted;
+    cctx.textAlign = "right";
+    const tick = vref / 1.1;
+    [tick, 0, -tick].forEach((v) => {
+      const y = y0 - v * ys;
+      cctx.beginPath(); cctx.moveTo(padL, y); cctx.lineTo(W - padR, y); cctx.stroke();
+      cctx.fillText(v === 0 ? "0" : `${v > 0 ? "+" : "−"}${sci(Math.abs(v), 2)}`, padL - 6 * dpr, y + 4 * dpr);
+    });
+    const step = niceStep(win / 5);
+    cctx.textAlign = "center";
+    for (let k = Math.ceil(tStart / step); k * step <= tEnd; k++) {
+      const x = XT(k * step);
+      cctx.beginPath(); cctx.moveTo(x, padT); cctx.lineTo(x, H - padB); cctx.stroke();
+      cctx.fillText(strip(fmtSI(k * step, "s", 3)), x, H - 7 * dpr);
+    }
+    if (Number.isFinite(p.T) && p.gyrating) {
+      const anchor = p.ups.length ? p.ups[p.ups.length - 1][0] : 0;
+      cctx.save();
+      cctx.setLineDash([3 * dpr, 4 * dpr]);
+      cctx.strokeStyle = t.muted;
+      for (let k = Math.floor((tStart - anchor) / p.T); anchor + k * p.T <= tEnd; k++) {
+        const time = anchor + k * p.T;
+        if (time < tStart) continue;
+        const x = XT(time);
+        cctx.beginPath(); cctx.moveTo(x, padT); cctx.lineTo(x, H - padB); cctx.stroke();
+      }
+      cctx.restore();
+    }
+    if (sim.vd) {
+      cctx.save();
+      cctx.setLineDash([6 * dpr, 4 * dpr]);
+      cctx.strokeStyle = t.warm;
+      cctx.lineWidth = 1.5 * dpr;
+      const y = y0 - sim.vd * ys;
+      cctx.beginPath(); cctx.moveTo(padL, y); cctx.lineTo(W - padR, y); cctx.stroke();
+      cctx.restore();
+    }
+    const hs = sim.hist;
+    [[1, t.accent], [2, t.accent2]].forEach(([off, col]) => {
+      cctx.strokeStyle = col;
+      cctx.lineWidth = 2 * dpr;
+      cctx.beginPath();
+      let started = false;
+      for (let k = 0; k < hs.length; k += 3) {
+        if (hs[k] < tStart) continue;
+        const x = XT(hs[k]), y = y0 - hs[k + off] * ys;
+        if (!started) { cctx.moveTo(x, y); started = true; } else cctx.lineTo(x, y);
+      }
+      cctx.stroke();
+    });
+    const legend = [["vₓ(t)", t.accent], ["v_y(t)", t.accent2], ["kesikli: T = 2πm/(|q|B)", t.muted]];
+    if (sim.vd) legend.push(["E/B", t.warm]);
+    legend.push(["(m/s)", t.muted]);
+    cctx.textAlign = "left";
+    let lx = padL + 4 * dpr;
+    for (const [text, col] of legend) {
+      cctx.fillStyle = col;
+      cctx.fillText(text, lx, padT - 8 * dpr);
+      lx += cctx.measureText(text).width + 12 * dpr;
+    }
+  }
+
+  /* ── Döngü ── */
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (running && !paused) {
+      acc += elapsed * scale;
+      const cap = Math.floor(24000 / sim.parts.length);
+      let n = Math.floor(acc / sim.dt);
+      throttled = n > cap;
+      if (throttled) { n = cap; acc = 0; } else acc -= n * sim.dt;
+      for (let i = 0; i < n; i++) stepAll(sim);
+      for (const q of sim.parts) {
+        if (q.qC || q.landed) continue;
+        const far = Math.abs(q.x - view.cx) > view.w * 1.5 || Math.abs(q.y - view.cy) > view.h * 1.5;
+        if (far && sim.cfg.scenario === "serbest") { resetSim(true); break; }
+        if (far && sim.cfg.scenario === "spektrometre") { q.landed = true; q.escaped = true; }
+      }
+    }
+    updateReadouts(false);
+    drawStage();
+    drawChart();
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  function setRunning(run) {
+    running = run;
+    ui.toggle.textContent = run ? "Duraklat" : "Başlat";
+    ui.toggle.setAttribute("aria-pressed", String(!run));
+  }
+  function restart() {
+    readControls();
+    startOverride = null;
+    resetSim(false);
+    canvas.classList.toggle("is-placeable", cfg.scenario === "serbest" || cfg.scenario === "exb");
+  }
+  ui.toggle.addEventListener("click", () => setRunning(!running));
+  ui.reset.addEventListener("click", () => { restart(); setRunning(true); });
+  ui.clear.addEventListener("click", clearTrail);
+  ui.scenario.addEventListener("change", () => { applyScenarioDefaults(ui.scenario.value); restart(); });
+  ui.preset.addEventListener("change", () => { setPreset(ui.preset.value); restart(); });
+  ui.q.addEventListener("input", () => { ui.preset.value = "ozel"; restart(); });
+  ui.m.addEventListener("input", () => { cfg.m = ME * 10 ** Number(ui.m.value); ui.preset.value = "ozel"; restart(); });
+  [ui.v, ui.phi, ui.alpha, ui.B, ui.E].forEach((el) => el.addEventListener("input", restart));
+  [ui.bDir, ui.iso].forEach((el) => el.addEventListener("change", restart));
+  ui.lock.addEventListener("change", () => {
+    if (!ui.lock.checked) { scale = pickScale(timeRef(), null); updateReadouts(true); }
+  });
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, select, textarea, button")) return;
+    if (e.code === "Space") { e.preventDefault(); setRunning(!running); }
+    else if (e.key === "r" || e.key === "R") { restart(); setRunning(true); }
+    else if (e.key === "c" || e.key === "C") clearTrail();
+  });
+  canvas.addEventListener("pointerdown", (evt) => {
+    if (!xform || !(cfg.scenario === "serbest" || cfg.scenario === "exb")) return;
+    const rect = canvas.getBoundingClientRect();
+    const sx = ((evt.clientX - rect.left) / rect.width) * canvas.width;
+    const sy = ((evt.clientY - rect.top) / rect.height) * canvas.height;
+    startOverride = { x: xform.camX + (sx - xform.W / 2) / xform.s, y: xform.camY - (sy - xform.H / 2) / xform.s };
+    resetSim(cfg.scenario === "serbest");
+    setRunning(true);
   });
 
-  function drawLorentz() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "cyan";
-    ctx.beginPath();
-    ctx.arc(posX, posY, 10, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "yellow";
-    ctx.fillText("q = " + charge, 10, 20);
-    ctx.fillText("B = " + magneticField, 10, 40);
-  }
-
-  function updateLorentz() {
-    charge = parseFloat(document.getElementById("charge").value);
-    magneticField = parseFloat(document.getElementById("magneticField").value);
-    lorentzForce = charge * velocity * magneticField;
-
-    document.getElementById("chargeValue").innerText = charge;
-    document.getElementById("magneticFieldValue").innerText = magneticField;
-
-    time += 1;
-    if (timeValues.length > 50) {
-      timeValues.shift();
-      forceValues.shift();
-    }
-    timeValues.push(time);
-    forceValues.push(lorentzForce.toFixed(2));
-
-    lorentzChart.data.labels = timeValues;
-    lorentzChart.data.datasets[0].data = forceValues;
-    if (lorentzChart) lorentzChart.update();
-  }
-
-  function animateParticle() {
-    velocityY += charge * velocityX * magneticField * 0.01;
-    posX += velocityX;
-    posY += velocityY;
-    
-    if (posX > canvas.width) posX = 0;
-    if (posY > canvas.height) posY = 0;
-    if (posY < 0) posY = canvas.height;
-    
-    drawLorentz();
-    requestAnimationFrame(animateParticle);
-  }
-
-  drawLorentz();
-  animateParticle();
-</script></body>
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas);
+  ro.observe(chart);
+  readControls();
+  restart();
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>
