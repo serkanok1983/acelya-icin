@@ -2,141 +2,2003 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tork ve Denge — Kaldıraç</title>
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik</title>
+  <meta name="description" content="Bir kirişi destek üzerinde dengele, iki destekli tahtanın tepkilerini çöz, merdivenin hangi açıda kaydığını bul. Tork, ağırlık merkezi ve eylemsizlik momenti ölçülen ve kuramsal değerlerle yan yana.">
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
-      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
-    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
-    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 34rem; }
-    canvas { background: #121820; border-radius: 8px; max-width: 100%; touch-action: none; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
-    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
-    label { font-size: 0.85rem; color: #8b949e; }
-    input[type="range"] { width: 130px; accent-color: #ffa657; }
-    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 38rem; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+    .app-content .tabs .tab {
+      padding: 8px 16px;
+      font: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-muted);
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--btn-text); }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab [hidden] { display: none !important; }
+    .lab-stage, .side { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+    }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .group { display: grid; gap: 10px; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 10px; }
+    .app-content .group-title { margin: 0; font-size: 0.8rem; font-weight: 700; color: var(--text) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts { display: grid; gap: 10px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; }
+    .cards.quad { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp caption { caption-side: top; text-align: left; font-size: 0.8rem; font-weight: 700; padding: 0 0 6px; color: var(--text); }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.74rem; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th, .lab table.cmp tfoot th { text-align: left; }
+    .lab table.cmp tbody th, .lab table.cmp tfoot th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; }
+    .lab table.cmp tfoot td { font-weight: 700; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp td.neg { color: var(--danger) !important; }
+    .lab table.cmp col.c-name { width: 36%; }
+    .lab table.cmp col.c-force { width: 28%; }
+    .lab .status { margin: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.88rem; line-height: 1.5; color: var(--text) !important; }
+    .lab .status.is-ok { border-color: var(--accent); }
+    .lab .status.is-bad { border-color: var(--danger); }
+    .sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+    .sw-0 { background: #f87171; }
+    .sw-1 { background: #60a5fa; }
+    .sw-2 { background: #c084fc; }
+    .sw-b { background: #c9a27a; border-radius: 2px; }
+    [data-theme="light"] .sw-0 { background: #dc2626; }
+    [data-theme="light"] .sw-1 { background: #2563eb; }
+    [data-theme="light"] .sw-2 { background: #9333ea; }
+    [data-theme="light"] .sw-b { background: #b7834e; }
+    .tbar { display: grid; gap: 6px; }
+    .bar { display: grid; grid-template-columns: minmax(0, 10.5em) minmax(0, 1fr) 6.4em; align-items: center; gap: 8px; font-size: 0.8rem; }
+    .bar i { display: block; height: 10px; border-radius: 999px; background: var(--bg-input); border: 1px solid var(--border); overflow: hidden; }
+    .bar i b { display: block; height: 100%; width: 0; border-radius: inherit; }
+    .bar.ccw i b { background: var(--accent); }
+    .bar.cw i b { background: var(--accent-2); }
+    .bar span { font-variant-numeric: tabular-nums; }
+    .bar span:last-child { text-align: right; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
+      .sim-canvas { aspect-ratio: 4 / 3; }
+      .chart-canvas { aspect-ratio: 2 / 1; }
+      .lab table.cmp { font-size: 0.8rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+      .bar { grid-template-columns: minmax(0, 8.6em) minmax(0, 1fr) 5.8em; }
+    }
+    @media (max-width: 520px) {
+      .cards.quad { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="tork-denge">
-  <h1>Tork ve Denge</h1>
-  <p class="sub">Στ = 0 olduğunda denge. Ağırlıkları sürükleyin; destek noktasını kaydırın.</p>
-  <canvas id="cv"></canvas>
-  <div class="panel">
-    <label>Destek konumu <input type="range" id="fulcrum" min="25" max="75" value="50"></label>
-    <label>Sol kütle (kg) <input type="range" id="m1" min="1" max="15" value="5"></label>
-    <label>Sağ kütle (kg) <input type="range" id="m2" min="1" max="15" value="3"></label>
+
+<div class="app-content">
+  <h1>Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik</h1>
+  <p class="hint">Bir deney seç; cisimleri tuvalde sürükle ya da kaydırıcılarla ayarla. İşaret kuralı: saat yönünün tersine dönme pozitif, bu yüzden desteğin x kadar sağındaki m kütlesinin torku τ = −mgx. Sayfa ölçtüğü ve sayısal bulduğu değerleri formüllerle karşılaştırır.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-lever" aria-selected="true" aria-controls="labPanel" tabindex="0">Kaldıraç</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-beam" aria-selected="false" aria-controls="labPanel" tabindex="-1">İki destekli kiriş</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-ladder" aria-selected="false" aria-controls="labPanel" tabindex="-1">Merdiven</button>
   </div>
-  <p id="info"></p>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-lever">
+    <div class="lab-stage">
+      <canvas id="stageCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Kaldıraç: destek üzerinde kiriş, kütleler, ağırlık ve tepki okları, açı göstergesi"></canvas>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="300" role="img" aria-label="Serbest bırakılan kirişin açı-zaman grafiği"></canvas>
+
+      <!-- Kaldıraç okumaları -->
+      <div class="readouts" data-tab="lever" aria-live="polite">
+        <p class="status" id="lvStatus"></p>
+        <table class="cmp">
+          <caption>Desteğe göre torklar (↺ pozitif)</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Cisim</th><th scope="col">m (kg)</th><th scope="col">Kol x (m)</th><th scope="col">τ = −mgx (N·m)</th></tr></thead>
+          <tbody id="lvTorqueBody"></tbody>
+          <tfoot><tr><th scope="row" colspan="3">Toplam Στ</th><td id="lvSum">—</td></tr></tfoot>
+        </table>
+        <div class="tbar" aria-label="Tork terazisi">
+          <p class="group-title">Tork terazisi</p>
+          <div class="bar ccw"><span>↺ Saat yönü tersine (+)</span><i><b id="lvCcwBar"></b></i><span id="lvCcwVal">—</span></div>
+          <div class="bar cw"><span>↻ Saat yönünde (−)</span><i><b id="lvCwBar"></b></i><span id="lvCwVal">—</span></div>
+        </div>
+        <div class="cards">
+          <div class="readout"><small>Toplam kütle M</small><strong id="lvMtot">—</strong></div>
+          <div class="readout"><small>Ağırlık merkezi x<sub>cm</sub> (sol uçtan)</small><strong id="lvXcm">—</strong></div>
+          <div class="readout is-highlight"><small>d = x<sub>cm</sub> − x<sub>destek</sub></small><strong id="lvD">—</strong></div>
+          <div class="readout"><small>Destek tepkisi N = Mg (dengede)</small><strong id="lvN">—</strong></div>
+          <div class="readout"><small>Eylemsizlik momenti I (destek ekseni)</small><strong id="lvI">—</strong></div>
+          <div class="readout"><small>Açı θ · açısal hız ω</small><strong id="lvThOm">—</strong></div>
+        </div>
+        <table class="cmp">
+          <caption>Serbest bırakma: ölçülen ve kuram</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+          <tbody id="lvDynBody"></tbody>
+        </table>
+        <p class="note">Kuram: Στ(θ) = −Mg·d·cos θ, α₀ = Στ/I, I = Σmx² + M<sub>k</sub>L²/12 + M<sub>k</sub>(L/2 − x<sub>destek</sub>)² (paralel eksen). Bırakma anında N₀ = Mg(1 − Md²/I); dayanakta ω = √(2|α₀| sin 20°). Sayısal yöntem: RK4, Δt = 1 ms. Ölçüm: simüle edilen θ(t)'ye t₁ ve 2t₁ anlarında θ = at² + bt³ uydurulur ve α₀ = 2a alınır (t₁ = 0.01 s; hızlı dönüşte θ 0.5°'yi geçince). N₀ ağırlık merkezinin aynı yolla bulunan dikey ivmesinden gelir.</p>
+      </div>
+
+      <!-- Kiriş okumaları -->
+      <div class="readouts" data-tab="beam" aria-live="polite" hidden>
+        <p class="status" id="bmStatus"></p>
+        <div class="cards quad">
+          <div class="readout is-highlight"><small>Tepki R<sub>A</sub></small><strong id="bmRA">—</strong></div>
+          <div class="readout is-highlight"><small>Tepki R<sub>B</sub></small><strong id="bmRB">—</strong></div>
+          <div class="readout"><small>R<sub>A</sub> + R<sub>B</sub></small><strong id="bmRsum">—</strong></div>
+          <div class="readout"><small>Toplam ağırlık ΣW</small><strong id="bmW">—</strong></div>
+        </div>
+        <table class="cmp">
+          <caption>Tahtaya etkiyen kuvvetler (yukarı +, ↺ +)</caption>
+          <colgroup><col class="c-force"><col><col><col><col></colgroup>
+          <thead><tr><th scope="col">Kuvvet</th><th scope="col">x (m)</th><th scope="col">F<sub>y</sub> (N)</th><th scope="col">τ<sub>A</sub> (N·m)</th><th scope="col">τ<sub>B</sub> (N·m)</th></tr></thead>
+          <tbody id="bmForceBody"></tbody>
+          <tfoot><tr><th scope="row" colspan="2">Toplam</th><td id="bmSumF">—</td><td id="bmSumA">—</td><td id="bmSumB">—</td></tr></tfoot>
+        </table>
+        <table class="cmp">
+          <caption>Kişinin devrilme sınırı: sayısal arama ve formül</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Sayısal</th><th scope="col">Formül</th><th scope="col">Fark</th></tr></thead>
+          <tbody id="bmLimitBody"></tbody>
+        </table>
+        <p class="note">ΣF = 0: R<sub>A</sub> + R<sub>B</sub> = ΣW. A'ya göre Στ = 0: R<sub>B</sub> = ΣW<sub>i</sub>(x<sub>i</sub> − x<sub>A</sub>)/(x<sub>B</sub> − x<sub>A</sub>). τ<sub>B</sub> sütunu bağımsız denetimdir: denge varsa her noktaya göre Στ = 0. Sınır x* (R<sub>A</sub> = 0) = x<sub>B</sub> + Σ<sub>diğer</sub> W<sub>j</sub>(x<sub>B</sub> − x<sub>j</sub>)/W<sub>kişi</sub>; sayısal değer kişiyi kaydırıp R<sub>A</sub> = 0 noktasını ikiye bölmeyle arayarak bulunur.</p>
+      </div>
+
+      <!-- Merdiven okumaları -->
+      <div class="readouts" data-tab="ladder" aria-live="polite" hidden>
+        <p class="status" id="ldStatus"></p>
+        <div class="cards">
+          <div class="readout"><small>Zemin tepkisi N<sub>zemin</sub></small><strong id="ldNf">—</strong></div>
+          <div class="readout is-highlight"><small>Gereken sürtünme f</small><strong id="ldF">—</strong></div>
+          <div class="readout"><small>En büyük sürtünme μ<sub>s</sub>N<sub>zemin</sub></small><strong id="ldFmax">—</strong></div>
+          <div class="readout"><small>Duvar tepkisi N<sub>duvar</sub></small><strong id="ldNw">—</strong></div>
+          <div class="readout"><small>Gereken katsayı f/N<sub>zemin</sub></small><strong id="ldMuReq">—</strong></div>
+          <div class="readout"><small>Pay μ<sub>s</sub>N<sub>zemin</sub> − f</small><strong id="ldMargin">—</strong></div>
+        </div>
+        <table class="cmp">
+          <caption>Kayma sınırları: sayısal arama ve formül</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Sayısal</th><th scope="col">Formül</th><th scope="col">Fark</th></tr></thead>
+          <tbody id="ldLimitBody"></tbody>
+        </table>
+        <p class="note" id="ldCheck"></p>
+        <p class="note">Duvar sürtünmesiz. ΣF<sub>y</sub> = 0: N<sub>zemin</sub> = (m + M)g. ΣF<sub>x</sub> = 0: f = N<sub>duvar</sub>. Ayağa göre Στ = 0: N<sub>duvar</sub>·L sin θ = gL cos θ (m/2 + Md). Kaymama koşulu f ≤ μ<sub>s</sub>N<sub>zemin</sub>, yani tan θ ≥ (m/2 + Md)/(μ<sub>s</sub>(m + M)). Sayısal sütun aynı denge denklemlerini 3×3 doğrusal sistem olarak çözer ve sınırı ikiye bölmeyle arar.</p>
+      </div>
+    </div>
+
+    <div class="side">
+      <!-- Kaldıraç ayarları -->
+      <div class="panel" data-tab="lever" role="group" aria-labelledby="lvTitle">
+        <h2 id="lvTitle">Kaldıraç ayarları</h2>
+        <div class="field">
+          <label for="lvPreset">Hazır düzen</label>
+          <select id="lvPreset">
+            <option value="esit" selected>Eşit torklar: 2 kg × 0.6 m = 3 kg × 0.4 m</option>
+            <option value="kiris">Destek merkez dışında: kirişin ağırlığı</option>
+            <option value="ic">Aynı Στ, kütleler içeride</option>
+            <option value="dis">Aynı Στ, kütleler dışarıda</option>
+            <option value="uc">Üç kütleyle denge</option>
+            <option value="ozel">Özel ayar</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="lvL">Kiriş uzunluğu L <output id="lvLOut" for="lvL">2.0 m</output></label>
+          <input type="range" id="lvL" min="1" max="3" step="0.1" value="2">
+        </div>
+        <div class="field">
+          <label for="lvMb"><span class="lt">Kiriş kütlesi M<sub>k</sub></span> <output id="lvMbOut" for="lvMb">1.0 kg</output></label>
+          <input type="range" id="lvMb" min="0" max="10" step="0.1" value="1">
+        </div>
+        <div class="field">
+          <label for="lvPivot"><span class="lt">Destek konumu x<sub>destek</sub></span> <output id="lvPivotOut" for="lvPivot">1.00 m</output></label>
+          <input type="range" id="lvPivot" min="0" max="2" step="0.01" value="1">
+        </div>
+        <div class="field">
+          <label for="lvCount">Kütle sayısı</label>
+          <select id="lvCount">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div class="group" id="lvG0">
+          <p class="group-title"><i class="sw sw-0"></i>Kütle 1</p>
+          <div class="field">
+            <label for="lvM0">Kütle m₁ <output id="lvM0Out" for="lvM0">2.0 kg</output></label>
+            <input type="range" id="lvM0" min="0.1" max="10" step="0.1" value="2">
+          </div>
+          <div class="field">
+            <label for="lvS0">Konum (sol uçtan) <output id="lvS0Out" for="lvS0">0.40 m</output></label>
+            <input type="range" id="lvS0" min="0" max="2" step="0.01" value="0.4">
+          </div>
+        </div>
+        <div class="group" id="lvG1">
+          <p class="group-title"><i class="sw sw-1"></i>Kütle 2</p>
+          <div class="field">
+            <label for="lvM1">Kütle m₂ <output id="lvM1Out" for="lvM1">3.0 kg</output></label>
+            <input type="range" id="lvM1" min="0.1" max="10" step="0.1" value="3">
+          </div>
+          <div class="field">
+            <label for="lvS1">Konum (sol uçtan) <output id="lvS1Out" for="lvS1">1.40 m</output></label>
+            <input type="range" id="lvS1" min="0" max="2" step="0.01" value="1.4">
+          </div>
+        </div>
+        <div class="group" id="lvG2" hidden>
+          <p class="group-title"><i class="sw sw-2"></i>Kütle 3</p>
+          <div class="field">
+            <label for="lvM2">Kütle m₃ <output id="lvM2Out" for="lvM2">1.0 kg</output></label>
+            <input type="range" id="lvM2" min="0.1" max="10" step="0.1" value="1">
+          </div>
+          <div class="field">
+            <label for="lvS2">Konum (sol uçtan) <output id="lvS2Out" for="lvS2">1.80 m</output></label>
+            <input type="range" id="lvS2" min="0" max="2" step="0.01" value="1.8">
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="lvDamp"> Sönüm (yatak sürtünmesi, c/I = 1.5 s⁻¹)</label>
+        <div class="row">
+          <button type="button" id="lvRelease">Serbest bırak</button>
+          <button type="button" id="lvHold" class="app-btn-ghost">Yatay tut</button>
+        </div>
+        <p class="note">Kütleleri ve desteği tuvalde sürükleyebilirsin (1 cm adım). Konumlar kirişin sol ucundan ölçülür; kol x = konum − x<sub>destek</sub>. Bir ayar değişince kiriş yeniden yatay tutulur. Kiriş ±20°'deki dayanaklarda durur.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> serbest bırak / tut, <kbd>R</kbd> yatay konuma al.</p>
+      </div>
+
+      <!-- Kiriş ayarları -->
+      <div class="panel" data-tab="beam" role="group" aria-labelledby="bmTitle" hidden>
+        <h2 id="bmTitle">Kiriş ayarları</h2>
+        <div class="field">
+          <label for="bmPreset">Hazır düzen</label>
+          <select id="bmPreset">
+            <option value="masa" selected>Masadan taşan tahta</option>
+            <option value="orta">Uçlardan destekli, yük ortada</option>
+            <option value="yakin">Uçlardan destekli, yük A'ya yakın</option>
+            <option value="iki">İki yük</option>
+            <option value="hafif">Hafif tahta (M = 0)</option>
+            <option value="konsol">Cıvatalı konsol (çıkma)</option>
+            <option value="ozel">Özel ayar</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bmL">Tahta uzunluğu L <output id="bmLOut" for="bmL">4.0 m</output></label>
+          <input type="range" id="bmL" min="2" max="6" step="0.1" value="4">
+        </div>
+        <div class="field">
+          <label for="bmMp">Tahta kütlesi M <output id="bmMpOut" for="bmMp">20 kg</output></label>
+          <input type="range" id="bmMp" min="0" max="50" step="1" value="20">
+        </div>
+        <div class="field">
+          <label for="bmA"><span class="lt">A desteği x<sub>A</sub></span> <output id="bmAOut" for="bmA">0.50 m</output></label>
+          <input type="range" id="bmA" min="0" max="4" step="0.01" value="0.5">
+        </div>
+        <div class="field">
+          <label for="bmB"><span class="lt">B desteği x<sub>B</sub></span> <output id="bmBOut" for="bmB">3.00 m</output></label>
+          <input type="range" id="bmB" min="0" max="4" step="0.01" value="3">
+        </div>
+        <div class="group">
+          <p class="group-title">Kişi</p>
+          <div class="field">
+            <label for="bmMP">Kütle <output id="bmMPOut" for="bmMP">60 kg</output></label>
+            <input type="range" id="bmMP" min="10" max="120" step="1" value="60">
+          </div>
+          <div class="field">
+            <label for="bmXP">Konum (sol uçtan) <output id="bmXPOut" for="bmXP">2.00 m</output></label>
+            <input type="range" id="bmXP" min="0" max="4" step="0.01" value="2">
+          </div>
+        </div>
+        <div class="group">
+          <p class="group-title">Kutu</p>
+          <div class="field">
+            <label for="bmMK">Kütle (0 = yok) <output id="bmMKOut" for="bmMK">yok</output></label>
+            <input type="range" id="bmMK" min="0" max="100" step="1" value="0">
+          </div>
+          <div class="field">
+            <label for="bmXK">Konum (sol uçtan) <output id="bmXKOut" for="bmXK">1.00 m</output></label>
+            <input type="range" id="bmXK" min="0" max="4" step="0.01" value="1">
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="bmBolt"> Destekler tahtaya cıvatalı (aşağı da çekebilir)</label>
+        <div class="row">
+          <button type="button" id="bmWalk" aria-pressed="false">Kişiyi yürüt</button>
+          <button type="button" id="bmReset" class="app-btn-ghost">Başa al</button>
+        </div>
+        <p class="note">Kişiyi, kutuyu ve destekleri tuvalde sürükleyebilirsin. Yürüyüş 0.5 m/s ile sağ uca doğru gider; cıvata yoksa tepki eksiye düştüğü anda durur.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> yürüt / durdur, <kbd>R</kbd> kişiyi yürüyüşün başladığı yere al.</p>
+      </div>
+
+      <!-- Merdiven ayarları -->
+      <div class="panel" data-tab="ladder" role="group" aria-labelledby="ldTitle" hidden>
+        <h2 id="ldTitle">Merdiven ayarları</h2>
+        <div class="field">
+          <label for="ldPreset">Hazır düzen</label>
+          <select id="ldPreset">
+            <option value="temel" selected>Temel: 60°, μₛ = 0.40</option>
+            <option value="kural">4'e 1 kuralı: 75°, en üst basamak</option>
+            <option value="yatik">Yatık merdiven: 45°</option>
+            <option value="hafif">Üst basamakta hafif kişi (30 kg)</option>
+            <option value="agir">Üst basamakta ağır kişi (100 kg)</option>
+            <option value="ozel">Özel ayar</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ldL">Merdiven uzunluğu L <output id="ldLOut" for="ldL">5.0 m</output></label>
+          <input type="range" id="ldL" min="2" max="8" step="0.1" value="5">
+        </div>
+        <div class="field">
+          <label for="ldm">Merdiven kütlesi m <output id="ldmOut" for="ldm">15 kg</output></label>
+          <input type="range" id="ldm" min="5" max="40" step="1" value="15">
+        </div>
+        <div class="field">
+          <label for="ldTh">Yerle açı θ <output id="ldThOut" for="ldTh">60°</output></label>
+          <input type="range" id="ldTh" min="20" max="85" step="1" value="60">
+        </div>
+        <div class="field">
+          <label for="ldMu"><span class="lt">Zemin sürtünme katsayısı μ<sub>s</sub></span> <output id="ldMuOut" for="ldMu">0.40</output></label>
+          <input type="range" id="ldMu" min="0.05" max="1" step="0.01" value="0.4">
+        </div>
+        <div class="field">
+          <label for="ldM">Kişinin kütlesi M <output id="ldMOut" for="ldM">75 kg</output></label>
+          <input type="range" id="ldM" min="0" max="150" step="1" value="75">
+        </div>
+        <div class="field">
+          <label for="ldD">Tırmanma oranı d (ayaktan) <output id="ldDOut" for="ldD">0.50 · 2.50 m</output></label>
+          <input type="range" id="ldD" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        <div class="row">
+          <button type="button" id="ldClimb" aria-pressed="false">Tırman</button>
+          <button type="button" id="ldReset" class="app-btn-ghost">Başa al</button>
+        </div>
+        <p class="note">Kişiyi merdiven boyunca, merdivenin ayağını zeminde ya da üst ucunu duvarda sürükleyebilirsin. Tırmanış 0.3 m/s ile yukarı gider; kayma başladığı anda durur.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> tırman / durdur, <kbd>R</kbd> kişiyi tırmanışın başladığı yere al.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-let W, H, beamY, fulcrumPct = 50;
-let leftPos = 0.22, rightPos = 0.78;
-let drag = null;
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
 
-function resize() {
-  const dpr = Math.min(devicePixelRatio || 1, 2);
-  W = Math.min(760, innerWidth - 24); H = Math.min(400, innerHeight * 0.5);
-  cv.width = W * dpr; cv.height = H * dpr;
-  cv.style.width = W + 'px'; cv.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  beamY = H * 0.55;
-}
-window.addEventListener('resize', resize);
+  /* FİZİK-BAŞI */
+  const G = 9.81;                         // m/s²
+  const STOP = (20 * Math.PI) / 180;      // dayanak açısı (rad)
+  const DT = 1 / 1000;                    // s, sabit adım (RK4)
+  const DAMP = 1.5;                       // 1/s, sönüm açıkken c/I
+  const FIT_K = 10;                       // α₀ ölçümü: t₂ = 2t₁ ≤ 20 adım (0.02 s)
+  const GATE = (0.5 * Math.PI) / 180;     // hızlı dönüşte ölçüm θ = 0.5° geçilince yapılır
+  const HIST_EVERY = 4;                   // grafik için her 4 adımda bir örnek
 
-document.getElementById('fulcrum').oninput = e => { fulcrumPct = +e.target.value; draw(); };
-document.getElementById('m1').oninput = draw;
-document.getElementById('m2').oninput = draw;
-
-function ptr(e) {
-  const r = cv.getBoundingClientRect();
-  return { x: (e.clientX - r.left), y: (e.clientY - r.top) };
-}
-
-cv.addEventListener('pointerdown', e => {
-  const p = ptr(e);
-  const lx = leftPos * W, rx = rightPos * W;
-  if (Math.hypot(p.x - lx, p.y - (beamY - 40)) < 35) drag = 'left';
-  else if (Math.hypot(p.x - rx, p.y - (beamY - 40)) < 35) drag = 'right';
-});
-cv.addEventListener('pointermove', e => {
-  if (!drag) return;
-  const p = ptr(e);
-  const f = fulcrumPct / 100;
-  if (drag === 'left') leftPos = Math.max(0.05, Math.min(f - 0.05, p.x / W));
-  else rightPos = Math.max(f + 0.05, Math.min(0.95, p.x / W));
-  draw();
-});
-cv.addEventListener('pointerup', () => drag = null);
-
-function draw() {
-  const m1 = +document.getElementById('m1').value;
-  const m2 = +document.getElementById('m2').value;
-  const fx = fulcrumPct / 100 * W;
-  const lx = leftPos * W, rx = rightPos * W;
-  const d1 = (fx - lx) / 100;
-  const d2 = (rx - fx) / 100;
-  const t1 = m1 * 9.8 * d1;
-  const t2 = m2 * 9.8 * d2;
-  const balanced = Math.abs(t1 - t2) < 0.5;
-  const tilt = Math.max(-0.12, Math.min(0.12, (t2 - t1) * 0.008));
-
-  ctx.fillStyle = '#121820';
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.fillStyle = '#30363d';
-  ctx.beginPath();
-  ctx.moveTo(fx - 20, beamY + 30);
-  ctx.lineTo(fx, beamY + 70);
-  ctx.lineTo(fx + 20, beamY + 30);
-  ctx.fill();
-
-  ctx.save();
-  ctx.translate(fx, beamY);
-  ctx.rotate(tilt);
-  ctx.translate(-fx, -beamY);
-
-  ctx.strokeStyle = '#8b949e';
-  ctx.lineWidth = 10;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(W * 0.05, beamY);
-  ctx.lineTo(W * 0.95, beamY);
-  ctx.stroke();
-
-  function weight(x, m, color) {
-    const size = 18 + m * 2;
-    ctx.fillStyle = color;
-    ctx.fillRect(x - size / 2, beamY - size - 8, size, size);
-    ctx.fillStyle = '#e6edf3';
-    ctx.font = '12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(m + ' kg', x, beamY - size - 14);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(x, beamY);
-    ctx.lineTo(fx, beamY);
-    ctx.stroke();
-    ctx.setLineDash([]);
+  // Kaldıraç statiği. Konumlar sol uçtan (m); kol x = s − x_destek (sağ +).
+  // Tam denge sınaması için tamsayı birimler: kütle 0.1 kg, konum 1 cm.
+  function leverStatics(c) {
+    const Lc = Math.round(c.L * 100), pc = Math.round(c.sp * 100);
+    const items = c.masses.map((q, i) => ({ key: i, m10: Math.round(q.m * 10), xc: Math.round(q.s * 100) - pc }));
+    items.push({ key: "beam", m10: Math.round(c.Mb * 10), xc: Lc / 2 - pc });
+    let Sint = 0, M10 = 0, I = 0;
+    for (const it of items) {
+      it.m = it.m10 / 10;
+      it.x = it.xc / 100;
+      it.tau = -G * it.m10 * it.xc * 0.001;
+      Sint += it.m10 * it.xc;
+      M10 += it.m10;
+      I += it.m * it.x * it.x;
+    }
+    const Ibc = (c.Mb * c.L * c.L) / 12;
+    I += Ibc;
+    const M = M10 / 10, S = Sint * 0.001, tau = -G * S, d = M > 0 ? S / M : 0;
+    let ccw = 0, cw = 0;
+    for (const it of items) { if (it.tau > 0) ccw += it.tau; else cw -= it.tau; }
+    const ok = I > 1e-12;
+    const xb = items[items.length - 1].x;
+    let N0 = ok ? M * G - (G * S * S) / I : M * G;
+    if (Math.abs(N0) < 1e-9 * M * G) N0 = 0;   // tek noktasal kütle: I = Md², bırakma anında serbest düşer
+    return {
+      items, M, S, tau, d, xcm: c.sp + d, I, Ibeam: Ibc + c.Mb * xb * xb,
+      N: M * G, ccw, cw, balanced: Sint === 0 || !ok,
+      alpha0: ok ? tau / I : 0,
+      N0,
+    };
   }
 
-  weight(lx, m1, '#58a6ff');
-  weight(rx, m2, '#f0883e');
-  ctx.restore();
+  function leverSim(st, damped) {
+    return { st, beta: damped ? DAMP : 0, th: 0, om: 0, t: 0, k: 0, early: [0], done: false, side: 0,
+      tStop: null, omStop: null, alpha: null, n0: null, hist: [0, 0] };
+  }
+  function leverAcc(sim, th, om) {
+    return sim.st.I > 1e-12 ? (sim.st.tau * Math.cos(th)) / sim.st.I - sim.beta * om : 0;
+  }
+  // θ = a t² + b t³ uydurması (t₁ ve 2t₁): α₀ = 2a; ağırlık merkezinin dikey ivmesi aynı yolla
+  function leverFit(sim, k1) {
+    const t1 = k1 * DT, a = sim.early[k1], b = sim.early[2 * k1];
+    sim.alpha = (8 * a - b) / (2 * t1 * t1);
+    const ay = (sim.st.d * (8 * Math.sin(a) - Math.sin(b))) / (2 * t1 * t1);
+    sim.n0 = sim.st.M * (G + ay);
+  }
+  function leverStep(sim) {
+    if (sim.done) return;
+    const h = DT, th = sim.th, om = sim.om;
+    const k1t = om, k1w = leverAcc(sim, th, om);
+    const k2t = om + 0.5 * h * k1w, k2w = leverAcc(sim, th + 0.5 * h * k1t, om + 0.5 * h * k1w);
+    const k3t = om + 0.5 * h * k2w, k3w = leverAcc(sim, th + 0.5 * h * k2t, om + 0.5 * h * k2w);
+    const k4t = om + h * k3w, k4w = leverAcc(sim, th + h * k3t, om + h * k3w);
+    const th1 = th + (h / 6) * (k1t + 2 * k2t + 2 * k3t + k4t);
+    const om1 = om + (h / 6) * (k1w + 2 * k2w + 2 * k3w + k4w);
+    sim.k += 1;
+    if (Math.abs(th1) >= STOP) {
+      // Dayanağa çarpma anı ve ω: adım içinde kübik Hermite aradeğerlemesi
+      const target = Math.sign(th1) * STOP;
+      const Hm = (u) => { const u2 = u * u, u3 = u2 * u; return (2 * u3 - 3 * u2 + 1) * th + (u3 - 2 * u2 + u) * h * om + (-2 * u3 + 3 * u2) * th1 + (u3 - u2) * h * om1; };
+      const dHm = (u) => { const u2 = u * u; return ((6 * u2 - 6 * u) * th + (3 * u2 - 4 * u + 1) * h * om + (-6 * u2 + 6 * u) * th1 + (3 * u2 - 2 * u) * h * om1) / h; };
+      let lo = 0, hi = 1;
+      for (let i = 0; i < 50; i++) {
+        const mid = 0.5 * (lo + hi);
+        if ((Hm(mid) - target) * Math.sign(target) >= 0) hi = mid; else lo = mid;
+      }
+      const u = 0.5 * (lo + hi);
+      sim.tStop = (sim.k - 1 + u) * h;
+      sim.omStop = dHm(u);
+      if (sim.alpha === null) { const k1 = Math.floor((sim.k - 1) / 2); if (k1 >= 1) leverFit(sim, k1); }
+      sim.th = target; sim.om = 0; sim.t = sim.tStop; sim.done = true; sim.side = Math.sign(target);
+      sim.hist.push(sim.tStop, target);
+      return;
+    }
+    sim.th = th1; sim.om = om1; sim.t = sim.k * h;
+    if (sim.alpha === null) {
+      sim.early.push(th1);
+      if (sim.k % 2 === 0 && (sim.k >= 2 * FIT_K || Math.abs(th1) >= GATE)) leverFit(sim, sim.k / 2);
+    }
+    if (sim.k % HIST_EVERY === 0) sim.hist.push(sim.t, th1);
+    if (sim.st.balanced && sim.t >= 2) sim.done = true;
+  }
+  // Sönümsüz hareket: ω² = 2a·sin θ  →  t(θ) = ∫ dθ/ω; θ = v² ile tekilliksiz Simpson
+  function timeToAngle(a, th) {
+    if (!(th > 0)) return 0;
+    if (!(a > 0)) return Infinity;
+    const n = 200, vmax = Math.sqrt(th), hv = vmax / n;
+    const f = (v) => (v < 1e-12 ? Math.sqrt(2 / a) : (2 * v) / Math.sqrt(2 * a * Math.sin(v * v)));
+    let sum = f(0) + f(vmax);
+    for (let i = 1; i < n; i++) sum += (i % 2 ? 4 : 2) * f(i * hv);
+    return (sum * hv) / 3;
+  }
 
-  ctx.fillStyle = balanced ? '#3fb950' : '#f85149';
-  ctx.font = 'bold 14px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(balanced ? '✓ Denge' : '↻ Dönüyor', W / 2, 36);
+  function bisect(fn, lo, hi) {
+    let flo = fn(lo);
+    const fhi = fn(hi);
+    if (!(flo * fhi <= 0)) return NaN;
+    if (flo === 0) return lo;
+    if (fhi === 0) return hi;
+    for (let i = 0; i < 200; i++) {
+      const mid = 0.5 * (lo + hi), fm = fn(mid);
+      if (fm === 0) return mid;
+      if ((fm > 0) === (flo > 0)) { lo = mid; flo = fm; } else hi = mid;
+      if (hi - lo <= 1e-15 * Math.max(1, Math.abs(mid))) break;
+    }
+    return 0.5 * (lo + hi);
+  }
 
-  document.getElementById('info').textContent =
-    `τ_sol = m₁g·d₁ = ${t1.toFixed(1)} N·m  |  τ_sağ = m₂g·d₂ = ${t2.toFixed(1)} N·m  |  Fark: ${(t1 - t2).toFixed(1)} N·m`;
-}
+  // İki destekli kiriş. loads[0] kişi, loads[1] kutu; konumlar sol uçtan (m).
+  function beamStatics(c) {
+    const forces = c.loads.map((q, i) => ({ key: i, W: q.m * G, x: q.x }));
+    forces.push({ key: "plank", W: c.Mp * G, x: c.L / 2 });
+    const span = c.b - c.a;
+    let W = 0, MA = 0;
+    for (const q of forces) { W += q.W; MA += q.W * (q.x - c.a); }
+    const RB = MA / span, RA = W - RB;
+    let tauA = RB * (c.b - c.a), tauB = RA * (c.a - c.b);
+    for (const q of forces) { tauA -= q.W * (q.x - c.a); tauB -= q.W * (q.x - c.b); }
+    return { forces, W, RA, RB, tauA, tauB, sumF: RA + RB - W, span };
+  }
+  function beamLimits(c) {
+    const WP = c.loads[0].m * G;
+    let restB = c.Mp * G * (c.b - c.L / 2), restA = c.Mp * G * (c.L / 2 - c.a);
+    for (let i = 1; i < c.loads.length; i++) {
+      const q = c.loads[i];
+      restB += q.m * G * (c.b - q.x);
+      restA += q.m * G * (q.x - c.a);
+    }
+    return WP > 0 ? { xA0: c.b + restB / WP, xB0: c.a - restA / WP } : { xA0: NaN, xB0: NaN };
+  }
+  function beamLimitsNumeric(c) {
+    const at = (x) => beamStatics({ ...c, loads: c.loads.map((q, i) => (i === 0 ? { m: q.m, x } : q)) });
+    const lo = -20 * c.L, hi = 21 * c.L;
+    return { xA0: bisect((x) => at(x).RA, lo, hi), xB0: bisect((x) => at(x).RB, lo, hi) };
+  }
 
-resize();
-draw();
-</script></body>
+  // Merdiven: duvar sürtünmesiz. Bilinmeyenler [N_zemin, f, N_duvar].
+  function solve3(A, b) {
+    const M = A.map((r, i) => [...r, b[i]]);
+    for (let col = 0; col < 3; col++) {
+      let p = col;
+      for (let r = col + 1; r < 3; r++) if (Math.abs(M[r][col]) > Math.abs(M[p][col])) p = r;
+      [M[col], M[p]] = [M[p], M[col]];
+      for (let r = col + 1; r < 3; r++) {
+        const k = M[r][col] / M[col][col];
+        for (let j = col; j < 4; j++) M[r][j] -= k * M[col][j];
+      }
+    }
+    const x = [0, 0, 0];
+    for (let r = 2; r >= 0; r--) {
+      let s = M[r][3];
+      for (let j = r + 1; j < 3; j++) s -= M[r][j] * x[j];
+      x[r] = s / M[r][r];
+    }
+    return x;
+  }
+  function ladderStatics(c) {
+    const sn = Math.sin(c.th), co = Math.cos(c.th);
+    const A = [[0, 1, -1], [1, 0, 0], [0, 0, c.L * sn]];
+    const B = [0, (c.m + c.M) * G, G * c.L * co * (c.m / 2 + c.M * c.d)];
+    const [Nf, f, Nw] = solve3(A, B);
+    const fmax = c.mu * Nf, xt = c.L * co, yt = c.L * sn;
+    const tauTop = -xt * Nf + yt * f + (xt / 2) * c.m * G + (1 - c.d) * xt * c.M * G;
+    return { Nf, f, Nw, fmax, muReq: f / Nf, margin: fmax - f, slips: f > fmax * (1 + 1e-9),
+      sumFx: f - Nw, sumFy: Nf - (c.m + c.M) * G, tauTop };
+  }
+  function ladderFormulas(c) {
+    const tanMin = (c.m / 2 + c.M * c.d) / (c.mu * (c.m + c.M));
+    return {
+      thMin: Math.atan(tanMin),
+      dCrit: c.M > 0 ? (c.mu * (c.m + c.M) * Math.tan(c.th) - c.m / 2) / c.M : NaN,
+    };
+  }
+  function ladderNumeric(c) {
+    const margin = (p) => ladderStatics({ ...c, ...p }).margin;
+    return {
+      thMin: bisect((th) => margin({ th }), 1e-6, Math.PI / 2 - 1e-9),
+      dCrit: c.M > 0 ? bisect((d) => margin({ d }), -50, 50) : NaN,
+    };
+  }
+  /* FİZİK-SONU */
+
+  /* ── Biçim ── */
+  const MINUS = "\u2212";
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  function fx(x, d) {
+    if (x === null || x === undefined || !Number.isFinite(x)) return "—";
+    const r = Math.abs(x) < 0.5 * Math.pow(10, -d) ? 0 : x;
+    return r.toFixed(d).replace("-", MINUS);
+  }
+  function fsg(x, d) {
+    const s = fx(x, d);
+    return s !== "—" && x > 0 && Math.abs(x) >= 0.5 * Math.pow(10, -d) ? `+${s}` : s;
+  }
+  function sig(x, n) {
+    if (x === null || !Number.isFinite(x)) return "—";
+    if (x === 0) return "0";
+    const a = Math.abs(x);
+    if (a >= 1e-3 && a < 1e6) return fx(x, Math.max(0, n - 1 - Math.floor(Math.log10(a))));
+    const [m, e] = a.toExponential(n - 1).split("e");
+    return `${x < 0 ? MINUS : ""}${m}×10${String(+e).replace(/./g, (ch) => SUP[ch])}`;
+  }
+  function pct(meas, th) {
+    if (meas === null || th === null || !Number.isFinite(meas) || !Number.isFinite(th) || th === 0) return "—";
+    const d = ((meas - th) / Math.abs(th)) * 100;
+    if (Math.abs(d) < 0.005) return "0.00 %";
+    return `${d > 0 ? "+" : MINUS}${Math.abs(d).toFixed(2)} %`;
+  }
+  const deg = (r) => (r * 180) / Math.PI;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const set = (el, text) => { if (el.textContent !== text) el.textContent = text; };
+
+  /* ── Durum ── */
+  const canvas = $("stageCanvas"), ctx = canvas.getContext("2d");
+  const chart = $("chartCanvas"), cctx = chart.getContext("2d");
+  const TABS = ["lever", "beam", "ladder"];
+  const tabBtns = TABS.map((k) => $(`tab-${k}`));
+  const STAGE_LABEL = {
+    lever: "Kaldıraç: destek üzerinde kiriş, kütleler, ölçekli ağırlık ve tepki okları, açı göstergesi ve ±20° dayanakları",
+    beam: "İki destekli kiriş: tahta, A ve B destekleri, kişi ve kutu, ölçekli ağırlık ve tepki okları",
+    ladder: "Merdiven: duvara dayalı merdiven, tırmanan kişi, zemin ve duvar tepkileri, sürtünme ve ağırlık okları",
+  };
+  const CHART_LABEL = {
+    lever: "Açı-zaman grafiği: ölçülen θ(t), sönümsüz kuram eğrisi ve önceki deneme",
+    beam: "Etki çizgisi: kişinin konumuna göre destek tepkileri R_A ve R_B, devrilme bölgeleri",
+    ladder: "Tırmanma oranına göre gereken sürtünme ve zeminin verebileceği en büyük sürtünme",
+  };
+  let active = "lever";
+  let dpr = 1, dirty = true, uiDirty = true, lastUi = 0, lastFrame = 0, acc = 0, lastTheme = "";
+  let drag = null;
+
+  const LEVER_PRESETS = {
+    esit: { L: 2, Mb: 1, sp: 1, n: 2, m: [2, 3, 1], s: [0.4, 1.4, 1.8] },
+    kiris: { L: 2, Mb: 2, sp: 0.7, n: 1, m: [1, 3, 1], s: [0.1, 1.4, 1.8] },
+    ic: { L: 2, Mb: 1, sp: 1, n: 2, m: [2, 2, 1], s: [0.7, 1.5, 1.8] },
+    dis: { L: 2, Mb: 1, sp: 1, n: 2, m: [2, 2, 1], s: [0.2, 2, 1.8] },
+    uc: { L: 2, Mb: 1, sp: 1, n: 3, m: [3, 1.5, 2], s: [0.3, 1.4, 1.75] },
+  };
+  const BEAM_PRESETS = {
+    masa: { L: 4, Mp: 20, a: 0.5, b: 3, mP: 60, xP: 2, mK: 0, xK: 1, bolt: false },
+    orta: { L: 4, Mp: 20, a: 0, b: 4, mP: 60, xP: 2, mK: 0, xK: 1, bolt: false },
+    yakin: { L: 4, Mp: 20, a: 0, b: 4, mP: 60, xP: 1, mK: 0, xK: 3, bolt: false },
+    iki: { L: 4, Mp: 20, a: 0, b: 4, mP: 60, xP: 3, mK: 40, xK: 1, bolt: false },
+    hafif: { L: 4, Mp: 0, a: 0.5, b: 3, mP: 60, xP: 2.5, mK: 0, xK: 1, bolt: false },
+    konsol: { L: 4, Mp: 20, a: 0, b: 0.6, mP: 60, xP: 3.5, mK: 0, xK: 1, bolt: true },
+  };
+  const LADDER_PRESETS = {
+    temel: { L: 5, m: 15, th: 60, mu: 0.4, M: 75, d: 0.5 },
+    kural: { L: 5, m: 15, th: 75, mu: 0.4, M: 75, d: 1 },
+    yatik: { L: 5, m: 15, th: 45, mu: 0.4, M: 75, d: 0.5 },
+    hafif: { L: 5, m: 15, th: 65, mu: 0.38, M: 30, d: 0.9 },
+    agir: { L: 5, m: 15, th: 65, mu: 0.38, M: 100, d: 0.9 },
+  };
+
+  const ui = {
+    lvPreset: $("lvPreset"), lvL: $("lvL"), lvMb: $("lvMb"), lvPivot: $("lvPivot"), lvCount: $("lvCount"),
+    lvM: [0, 1, 2].map((i) => $(`lvM${i}`)), lvS: [0, 1, 2].map((i) => $(`lvS${i}`)),
+    lvMOut: [0, 1, 2].map((i) => $(`lvM${i}Out`)), lvSOut: [0, 1, 2].map((i) => $(`lvS${i}Out`)),
+    lvG: [0, 1, 2].map((i) => $(`lvG${i}`)),
+    lvLOut: $("lvLOut"), lvMbOut: $("lvMbOut"), lvPivotOut: $("lvPivotOut"), lvDamp: $("lvDamp"),
+    lvRelease: $("lvRelease"), lvHold: $("lvHold"),
+    lvStatus: $("lvStatus"), lvTorqueBody: $("lvTorqueBody"), lvSum: $("lvSum"),
+    lvCcwBar: $("lvCcwBar"), lvCwBar: $("lvCwBar"), lvCcwVal: $("lvCcwVal"), lvCwVal: $("lvCwVal"),
+    lvMtot: $("lvMtot"), lvXcm: $("lvXcm"), lvD: $("lvD"), lvN: $("lvN"), lvI: $("lvI"), lvThOm: $("lvThOm"),
+    lvDynBody: $("lvDynBody"),
+    bmPreset: $("bmPreset"), bmL: $("bmL"), bmMp: $("bmMp"), bmA: $("bmA"), bmB: $("bmB"),
+    bmMP: $("bmMP"), bmXP: $("bmXP"), bmMK: $("bmMK"), bmXK: $("bmXK"), bmBolt: $("bmBolt"),
+    bmLOut: $("bmLOut"), bmMpOut: $("bmMpOut"), bmAOut: $("bmAOut"), bmBOut: $("bmBOut"),
+    bmMPOut: $("bmMPOut"), bmXPOut: $("bmXPOut"), bmMKOut: $("bmMKOut"), bmXKOut: $("bmXKOut"),
+    bmWalk: $("bmWalk"), bmReset: $("bmReset"),
+    bmStatus: $("bmStatus"), bmRA: $("bmRA"), bmRB: $("bmRB"), bmRsum: $("bmRsum"), bmW: $("bmW"),
+    bmForceBody: $("bmForceBody"), bmSumF: $("bmSumF"), bmSumA: $("bmSumA"), bmSumB: $("bmSumB"), bmLimitBody: $("bmLimitBody"),
+    ldPreset: $("ldPreset"), ldL: $("ldL"), ldm: $("ldm"), ldTh: $("ldTh"), ldMu: $("ldMu"), ldM: $("ldM"), ldD: $("ldD"),
+    ldLOut: $("ldLOut"), ldmOut: $("ldmOut"), ldThOut: $("ldThOut"), ldMuOut: $("ldMuOut"), ldMOut: $("ldMOut"), ldDOut: $("ldDOut"),
+    ldClimb: $("ldClimb"), ldReset: $("ldReset"),
+    ldStatus: $("ldStatus"), ldNf: $("ldNf"), ldF: $("ldF"), ldFmax: $("ldFmax"), ldNw: $("ldNw"),
+    ldMuReq: $("ldMuReq"), ldMargin: $("ldMargin"), ldLimitBody: $("ldLimitBody"), ldCheck: $("ldCheck"),
+  };
+
+  const lv = { cfg: null, st: null, sim: null, ghost: null, curve: null };
+  const bm = { cfg: null, st: null, lim: null, num: null, walking: false, dir: 1, x: 0, start: null };
+  const ld = { cfg: null, st: null, fm: null, num: null, climbing: false, d: 0, start: null };
+
+  /* ── Kaldıraç ── */
+  function setLeverMax(L) {
+    for (const el of [ui.lvPivot, ...ui.lvS]) {
+      el.max = L.toFixed(2);
+      if (Number(el.value) > L) el.value = L.toFixed(2);
+    }
+  }
+  function readLever() {
+    const L = Number(ui.lvL.value);
+    setLeverMax(L);
+    const n = Number(ui.lvCount.value);
+    const cfg = { L, Mb: Number(ui.lvMb.value), sp: Number(ui.lvPivot.value), n, damp: ui.lvDamp.checked, masses: [] };
+    for (let i = 0; i < n; i++) cfg.masses.push({ m: Number(ui.lvM[i].value), s: Number(ui.lvS[i].value) });
+    ui.lvLOut.textContent = `${fx(L, 1)} m`;
+    ui.lvMbOut.textContent = `${fx(cfg.Mb, 1)} kg`;
+    ui.lvPivotOut.textContent = `${fx(cfg.sp, 2)} m`;
+    for (let i = 0; i < 3; i++) {
+      ui.lvG[i].hidden = i >= n;
+      const s = Number(ui.lvS[i].value);
+      ui.lvMOut[i].textContent = `${fx(Number(ui.lvM[i].value), 1)} kg`;
+      ui.lvSOut[i].textContent = `${fx(s, 2)} m (x = ${fsg(Math.round((s - cfg.sp) * 100) / 100, 2)} m)`;
+    }
+    lv.cfg = cfg;
+    lv.st = leverStatics(cfg);
+    lv.curve = null;
+  }
+  function discardLeverSim() {
+    if (lv.sim && lv.sim.t > 0.02 && !lv.sim.st.balanced) lv.ghost = { hist: lv.sim.hist, tEnd: lv.sim.t };
+    lv.sim = null;
+  }
+  function holdLever() {
+    discardLeverSim();
+    refresh();
+  }
+  function releaseLever() {
+    discardLeverSim();
+    lv.sim = leverSim(lv.st, lv.cfg.damp);
+    acc = 0;
+    refresh();
+  }
+  function applyLeverPreset(name) {
+    const p = LEVER_PRESETS[name];
+    if (!p) return;
+    ui.lvL.value = p.L;
+    setLeverMax(p.L);
+    ui.lvMb.value = p.Mb;
+    ui.lvPivot.value = p.sp;
+    ui.lvCount.value = String(p.n);
+    for (let i = 0; i < 3; i++) { ui.lvM[i].value = p.m[i]; ui.lvS[i].value = p.s[i]; }
+  }
+  function leverTheoryCurve() {
+    if (lv.curve) return lv.curve;
+    const st = lv.st, a = Math.abs(st.alpha0), pts = [];
+    if (!st.balanced && a > 0) {
+      const sgn = st.alpha0 > 0 ? 1 : -1, n = 60;
+      for (let k = 0; k <= n; k++) {
+        const th = STOP * (k / n) * (k / n);
+        pts.push(timeToAngle(a, th), sgn * th);
+      }
+    }
+    lv.curve = pts;
+    return pts;
+  }
+
+  /* ── Kiriş ── */
+  function setBeamMax(L) {
+    for (const el of [ui.bmA, ui.bmB, ui.bmXP, ui.bmXK]) {
+      el.max = L.toFixed(2);
+      if (Number(el.value) > L) el.value = L.toFixed(2);
+    }
+  }
+  function readBeam(src) {
+    const L = Number(ui.bmL.value);
+    setBeamMax(L);
+    let a = Number(ui.bmA.value), b = Number(ui.bmB.value);
+    if (b - a < 0.1 - 1e-9) {
+      if (src === ui.bmA) a = Math.max(0, b - 0.1);
+      else if (src === ui.bmB) b = Math.min(L, a + 0.1);
+      else { b = Math.max(b, Math.min(L, a + 0.1)); a = Math.min(a, b - 0.1); }
+      a = Math.round(a * 100) / 100;
+      b = Math.round(b * 100) / 100;
+      ui.bmA.value = a;
+      ui.bmB.value = b;
+    }
+    const cfg = {
+      L, Mp: Number(ui.bmMp.value), a, b, bolt: ui.bmBolt.checked,
+      loads: [{ m: Number(ui.bmMP.value), x: Number(ui.bmXP.value) }, { m: Number(ui.bmMK.value), x: Number(ui.bmXK.value) }],
+    };
+    ui.bmLOut.textContent = `${fx(L, 1)} m`;
+    ui.bmMpOut.textContent = `${fx(cfg.Mp, 0)} kg`;
+    ui.bmAOut.textContent = `${fx(a, 2)} m`;
+    ui.bmBOut.textContent = `${fx(b, 2)} m`;
+    ui.bmMPOut.textContent = `${fx(cfg.loads[0].m, 0)} kg`;
+    ui.bmXPOut.textContent = `${fx(cfg.loads[0].x, 2)} m`;
+    ui.bmMKOut.textContent = cfg.loads[1].m > 0 ? `${fx(cfg.loads[1].m, 0)} kg` : "yok";
+    ui.bmXKOut.textContent = `${fx(cfg.loads[1].x, 2)} m`;
+    bm.cfg = cfg;
+    bm.st = beamStatics(cfg);
+    bm.lim = beamLimits(cfg);
+    bm.num = beamLimitsNumeric(cfg);
+  }
+  function beamTips(st, cfg) {
+    if (cfg.bolt) return 0;
+    const eps = 1e-9 * Math.max(1, st.W);
+    if (st.RA < -eps) return -1;   // A kalkar, B üzerinde döner
+    if (st.RB < -eps) return 1;    // B kalkar, A üzerinde döner
+    return 0;
+  }
+  function applyBeamPreset(name) {
+    const p = BEAM_PRESETS[name];
+    if (!p) return;
+    ui.bmL.value = p.L;
+    setBeamMax(p.L);
+    ui.bmMp.value = p.Mp;
+    ui.bmA.value = p.a;
+    ui.bmB.value = p.b;
+    ui.bmMP.value = p.mP;
+    ui.bmXP.value = p.xP;
+    ui.bmMK.value = p.mK;
+    ui.bmXK.value = p.xK;
+    ui.bmBolt.checked = p.bolt;
+  }
+  function setWalking(on) {
+    bm.walking = on;
+    if (on) {
+      bm.x = bm.cfg.loads[0].x;
+      bm.start = bm.x;
+      bm.dir = bm.x >= bm.cfg.L - 0.005 ? -1 : 1;
+      acc = 0;
+    }
+    ui.bmWalk.textContent = on ? "Durdur" : "Kişiyi yürüt";
+    ui.bmWalk.setAttribute("aria-pressed", String(on));
+  }
+
+  /* ── Merdiven ── */
+  function readLadder() {
+    const cfg = {
+      L: Number(ui.ldL.value), m: Number(ui.ldm.value), thDeg: Number(ui.ldTh.value),
+      mu: Number(ui.ldMu.value), M: Number(ui.ldM.value), d: Number(ui.ldD.value),
+    };
+    cfg.th = (cfg.thDeg * Math.PI) / 180;
+    ui.ldLOut.textContent = `${fx(cfg.L, 1)} m`;
+    ui.ldmOut.textContent = `${fx(cfg.m, 0)} kg`;
+    ui.ldThOut.textContent = `${fx(cfg.thDeg, 0)}°`;
+    ui.ldMuOut.textContent = fx(cfg.mu, 2);
+    ui.ldMOut.textContent = cfg.M > 0 ? `${fx(cfg.M, 0)} kg` : "yok";
+    ui.ldDOut.textContent = `${fx(cfg.d, 2)} · ${fx(cfg.d * cfg.L, 2)} m`;
+    ld.cfg = cfg;
+    ld.st = ladderStatics(cfg);
+    ld.fm = ladderFormulas(cfg);
+    ld.num = ladderNumeric(cfg);
+  }
+  function applyLadderPreset(name) {
+    const p = LADDER_PRESETS[name];
+    if (!p) return;
+    ui.ldL.value = p.L;
+    ui.ldm.value = p.m;
+    ui.ldTh.value = p.th;
+    ui.ldMu.value = p.mu;
+    ui.ldM.value = p.M;
+    ui.ldD.value = p.d;
+  }
+  function setClimbing(on) {
+    ld.climbing = on;
+    if (on) {
+      if (ld.cfg.d >= 0.995) { ui.ldD.value = 0; readLadder(); }
+      ld.d = ld.cfg.d;
+      ld.start = ld.d;
+      acc = 0;
+    }
+    ui.ldClimb.textContent = on ? "Durdur" : "Tırman";
+    ui.ldClimb.setAttribute("aria-pressed", String(on));
+  }
+
+  /* ── Okumalar ── */
+  function rowsInto(body, rows, cls) {
+    if (body.children.length !== rows.length) {
+      body.textContent = "";
+      for (const r of rows) {
+        const tr = document.createElement("tr");
+        const th = document.createElement("th");
+        th.scope = "row";
+        tr.appendChild(th);
+        for (let j = 1; j < r.length; j++) tr.appendChild(document.createElement("td"));
+        body.appendChild(tr);
+      }
+    }
+    rows.forEach((r, i) => {
+      const tr = body.children[i];
+      r.forEach((cell, j) => {
+        const el = tr.children[j];
+        if (cell && cell.html !== undefined) {
+          if (el.innerHTML !== cell.html) el.innerHTML = cell.html;
+        } else if (j === 0 && typeof cell === "object") {
+          if (el.dataset.sw !== String(cell.sw)) {
+            el.textContent = "";
+            const sw = document.createElement("i");
+            sw.className = `sw sw-${cell.sw}`;
+            el.append(sw, cell.text);
+            el.dataset.sw = String(cell.sw);
+          } else if (el.lastChild.textContent !== cell.text) el.lastChild.textContent = cell.text;
+        } else set(el, String(cell));
+        if (j > 0 && cls) el.className = cls(i, j) || "";
+      });
+    });
+  }
+
+  function updateLeverReadouts() {
+    const st = lv.st, sim = lv.sim, c = lv.cfg;
+    const rows = st.items.map((it) => [
+      it.key === "beam" ? { sw: "b", text: "Kiriş (merkezi)" } : { sw: it.key, text: `Kütle ${it.key + 1}` },
+      fx(it.m, 1), fsg(it.x, 2), fsg(it.tau, 2),
+    ]);
+    rowsInto(ui.lvTorqueBody, rows);
+    set(ui.lvSum, `${fsg(st.tau, 2)} N·m`);
+    const top = Math.max(st.ccw, st.cw, 1e-9);
+    ui.lvCcwBar.style.width = `${((st.ccw / top) * 100).toFixed(1)}%`;
+    ui.lvCwBar.style.width = `${((st.cw / top) * 100).toFixed(1)}%`;
+    set(ui.lvCcwVal, `${fx(st.ccw, 2)} N·m`);
+    set(ui.lvCwVal, `${fx(st.cw, 2)} N·m`);
+    set(ui.lvMtot, `${fx(st.M, 1)} kg`);
+    set(ui.lvXcm, `${fx(st.xcm, 3)} m`);
+    const side = Math.abs(st.d) < 5e-7 ? "desteğin üstünde" : st.d > 0 ? "sağda" : "solda";
+    set(ui.lvD, `${fsg(st.d, 3)} m · ${side}`);
+    set(ui.lvN, `${fx(st.N, 2)} N`);
+    set(ui.lvI, `${sig(st.I, 4)} kg·m²`);
+    const th = sim ? sim.th : 0, om = sim ? sim.om : 0;
+    set(ui.lvThOm, `${fsg(deg(th), 1)}° · ${fsg(om, 3)} rad/s`);
+
+    const a = Math.abs(st.alpha0), undamped = !c.damp;
+    const waiting = sim ? "ölçülüyor…" : "—";
+    const row = (label, meas, th0, fmt) => [label, meas === null ? waiting : fmt(meas), th0 === null ? "—" : fmt(th0), meas === null || th0 === null ? "—" : pct(meas, th0)];
+    const fA = (v) => `${sig(v, 4)} rad/s²`, fN = (v) => `${fx(v, 2)} N`, fW = (v) => `${fx(v, 4)} rad/s`, fT = (v) => `${fx(v, 4)} s`;
+    const stopTh = !st.balanced && undamped ? timeToAngle(a, STOP) : null;
+    const omTh = !st.balanced && undamped ? Math.sqrt(2 * a * Math.sin(STOP)) : null;
+    const done = sim && sim.done && sim.tStop !== null;
+    const dyn = [
+      row("İlk açısal ivme α₀", sim && sim.alpha !== null ? sim.alpha : null, st.alpha0, fA),
+      row("Bırakma anında destek tepkisi N₀", sim && sim.n0 !== null ? sim.n0 : null, st.N0, fN),
+      st.balanced
+        ? ["Dayanağa çarpma hızı |ω|", "—", "dönmez", "—"]
+        : row("Dayanağa çarpma hızı |ω|", done ? Math.abs(sim.omStop) : null, omTh, fW),
+      st.balanced
+        ? ["Dayanağa varış süresi t", "—", "dönmez", "—"]
+        : row("Dayanağa varış süresi t", done ? sim.tStop : null, stopTh, fT),
+    ];
+    rowsInto(ui.lvDynBody, dyn, (i, j) => (j === 3 ? "diff" : ""));
+
+    let text, cls;
+    if (st.balanced) {
+      text = sim
+        ? "Denge: Στ = 0, ağırlık merkezi desteğin tam üstünde. Bırakılan kiriş hiç dönmüyor (nötr denge: her açıda Στ = −Mg·d·cos θ = 0)."
+        : "Denge: Στ = 0, ağırlık merkezi desteğin tam üstünde (d = 0). Kiriş bırakılırsa durduğu yerde kalır.";
+      cls = "is-ok";
+    } else {
+      const dir = st.tau > 0 ? "saat yönünün tersine (↺, sol uç iner)" : "saat yönünde (↻, sağ uç iner)";
+      if (!sim) text = `Denge yok: Στ = ${fsg(st.tau, 2)} N·m. Ağırlık merkezi desteğin ${fx(Math.abs(st.d), 3)} m ${st.d > 0 ? "sağında" : "solunda"}; bırakılırsa ${dir} döner. Şimdilik elle yatay tutuluyor.`;
+      else if (!sim.done) text = `Dönüyor: ${dir}. θ = ${fsg(deg(sim.th), 1)}°, ω = ${fsg(sim.om, 3)} rad/s.${c.damp ? " Sönüm açık." : ""}`;
+      else text = `Kiriş ${sim.side > 0 ? "+20°" : "−20°"} dayanağına ${fx(sim.tStop, 3)} s sonra |ω| = ${fx(Math.abs(sim.omStop), 3)} rad/s ile çarptı ve durdu.`;
+      cls = "is-bad";
+    }
+    set(ui.lvStatus, text);
+    ui.lvStatus.className = `status ${cls}`;
+    ui.lvRelease.textContent = sim && sim.done ? "Yeniden bırak" : "Serbest bırak";
+  }
+
+  function updateBeamReadouts() {
+    const st = bm.st, c = bm.cfg, tip = beamTips(st, c);
+    set(ui.bmRA, `${fx(st.RA, 1)} N`);
+    set(ui.bmRB, `${fx(st.RB, 1)} N`);
+    set(ui.bmRsum, `${fx(st.RA + st.RB, 1)} N`);
+    set(ui.bmW, `${fx(st.W, 1)} N`);
+    const names = ["Kişi W", "Kutu W", "Tahta W"];
+    const rows = [];
+    for (const q of st.forces) {
+      if (q.key === 1 && c.loads[1].m <= 0) continue;
+      const i = q.key === "plank" ? 2 : q.key;
+      rows.push([names[i], fx(q.x, 2), fx(-q.W, 1), fsg(-q.W * (q.x - c.a), 1), fsg(-q.W * (q.x - c.b), 1)]);
+    }
+    rows.push([{ html: "Tepki R<sub>A</sub>" }, fx(c.a, 2), fsg(st.RA, 1), "0.0", fsg(st.RA * (c.a - c.b), 1)]);
+    rows.push([{ html: "Tepki R<sub>B</sub>" }, fx(c.b, 2), fsg(st.RB, 1), fsg(st.RB * (c.b - c.a), 1), "0.0"]);
+    rowsInto(ui.bmForceBody, rows, (i, j) => (j === 2 && rows[i][2].startsWith(MINUS) && i >= rows.length - 2 ? "neg" : ""));
+    set(ui.bmSumF, `${fsg(st.sumF, 3)} N`);
+    set(ui.bmSumA, fsg(st.tauA, 3));
+    set(ui.bmSumB, fsg(st.tauB, 3));
+    const on = (x) => (Number.isFinite(x) ? `${fx(x, 3)} m${x < 0 || x > c.L ? " (tahta dışı)" : ""}` : "—");
+    rowsInto(ui.bmLimitBody, [
+      [{ html: "R<sub>A</sub> = 0 sınırı x*" }, on(bm.num.xA0), on(bm.lim.xA0), pct(bm.num.xA0, bm.lim.xA0)],
+      [{ html: "R<sub>B</sub> = 0 sınırı x**" }, on(bm.num.xB0), on(bm.lim.xB0), pct(bm.num.xB0, bm.lim.xB0)],
+    ], (i, j) => (j === 3 ? "diff" : ""));
+    let text, cls = "is-ok";
+    if (tip === -1) { text = `Devrilir: denge için R<sub>A</sub> = ${fx(st.RA, 1)} N gerekirdi, ama A desteği çekemez. A ucu kalkar, tahta B üzerinde döner. Kişi x* = ${fx(bm.lim.xA0, 2)} m'yi geçti.`; cls = "is-bad"; }
+    else if (tip === 1) { text = `Devrilir: denge için R<sub>B</sub> = ${fx(st.RB, 1)} N gerekirdi, ama B desteği çekemez. B ucu kalkar, tahta A üzerinde döner.`; cls = "is-bad"; }
+    else if (c.bolt && (st.RA < 0 || st.RB < 0)) text = `Cıvata çekiyor: ${st.RA < 0 ? "A" : "B"} desteği tahtayı ${fx(Math.abs(Math.min(st.RA, st.RB)), 1)} N ile aşağı tutuyor; diğer destek ΣW'den fazlasını, ${fx(Math.max(st.RA, st.RB), 1)} N taşıyor. Konsol (çıkma) böyle durur.`;
+    else text = `Dengede: iki tepki de pozitif ve toplamları ΣW = ${fx(st.W, 1)} N. Yük hangi desteğe yakınsa o destek daha çok taşır.`;
+    if (ui.bmStatus.innerHTML !== text) ui.bmStatus.innerHTML = text;
+    ui.bmStatus.className = `status ${cls}`;
+  }
+
+  function updateLadderReadouts() {
+    const st = ld.st, c = ld.cfg, fm = ld.fm, num = ld.num;
+    set(ui.ldNf, `${fx(st.Nf, 1)} N`);
+    set(ui.ldF, `${fx(st.f, 1)} N`);
+    set(ui.ldFmax, `${fx(st.fmax, 1)} N`);
+    set(ui.ldNw, `${fx(st.Nw, 1)} N`);
+    set(ui.ldMuReq, fx(st.muReq, 3));
+    set(ui.ldMargin, `${fsg(st.margin, 1)} N`);
+    const dTxt = (d) => (Number.isFinite(d) ? fx(d, 4) : "—");
+    rowsInto(ui.ldLimitBody, [
+      ["Kritik tırmanma oranı d*", dTxt(num.dCrit), dTxt(fm.dCrit), pct(num.dCrit, fm.dCrit)],
+      [{ html: "En küçük güvenli açı θ<sub>min</sub>" }, `${fx(deg(num.thMin), 3)}°`, `${fx(deg(fm.thMin), 3)}°`, pct(num.thMin, fm.thMin)],
+    ], (i, j) => (j === 3 ? "diff" : ""));
+    const chk = `Denge denetimi: ΣF<sub>x</sub> = ${fx(st.sumFx, 3)} N, ΣF<sub>y</sub> = ${fx(st.sumFy, 3)} N, üst uca göre Στ = ${fx(st.tauTop, 3)} N·m.`;
+    if (ui.ldCheck.innerHTML !== chk) ui.ldCheck.innerHTML = chk;
+    let text;
+    const dc = fm.dCrit;
+    const where = c.M <= 0 ? "Kişi yok." : dc >= 1 ? "Kişi en üst basamağa kadar güvenle çıkabilir." : dc < 0 ? "Kişi ilk basamakta bile güvende değil." : `Kişi en çok d* = ${fx(dc, 3)} (ayaktan ${fx(dc * c.L, 2)} m) yüksekliğe kadar çıkabilir.`;
+    if (st.slips) text = `Kayar: gereken sürtünme ${fx(st.f, 1)} N, zeminin verebileceği en çok μₛN = ${fx(st.fmax, 1)} N. Bu konumda en az θ<sub>min</sub> = ${fx(deg(fm.thMin), 1)}° gerekir. ${where}`;
+    else text = `Kaymaz: gereken sürtünme ${fx(st.f, 1)} N ≤ μₛN = ${fx(st.fmax, 1)} N (gereken katsayı ${fx(st.muReq, 3)} ≤ μₛ = ${fx(c.mu, 2)}). ${where}`;
+    if (ui.ldStatus.innerHTML !== text) ui.ldStatus.innerHTML = text;
+    ui.ldStatus.className = `status ${st.slips ? "is-bad" : "is-ok"}`;
+  }
+
+  function updateReadouts() {
+    if (active === "lever") updateLeverReadouts();
+    else if (active === "beam") updateBeamReadouts();
+    else updateLadderReadouts();
+  }
+  function refresh() {
+    dirty = true;
+    uiDirty = false;
+    updateReadouts();
+  }
+
+  /* ── Çizim yardımcıları ── */
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [canvas, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      c.width = Math.round(rect.width * dpr);
+      c.height = Math.round(rect.height * dpr);
+    }
+    dirty = true;
+  }
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+      faint: light ? "rgba(26,29,46,0.10)" : "rgba(232,236,244,0.08)",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      danger: light ? "#dc2626" : "#f87171",
+      wood: light ? "#d7b48a" : "#a07a52",
+      woodEdge: light ? "#7a5530" : "#e2c8a6",
+      steel: light ? "#64748b" : "#94a3b8",
+      pill: light ? "rgba(255,255,255,0.86)" : "rgba(8,12,22,0.74)",
+      floor: light ? "rgba(26,29,46,0.45)" : "rgba(232,236,244,0.4)",
+      masses: light ? ["#dc2626", "#2563eb", "#9333ea"] : ["#f87171", "#60a5fa", "#c084fc"],
+      massHi: light ? ["#fca5a5", "#93c5fd", "#d8b4fe"] : ["#fecaca", "#bfdbfe", "#e9d5ff"],
+      person: light ? "#334155" : "#cbd5e1",
+      box: light ? "#2563eb" : "#60a5fa",
+    };
+  }
+  const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+  function line(g, x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+  function arrow(g, x, y, dx, dy, color, opts = {}) {
+    const len = Math.hypot(dx, dy);
+    if (len < 1.5 * dpr) return;
+    const ux = dx / len, uy = dy / len, hd = Math.min(10 * dpr, len * 0.5), w = (opts.w || 2.4) * dpr;
+    g.save();
+    g.strokeStyle = color;
+    g.fillStyle = color;
+    g.lineWidth = w;
+    if (opts.dash) g.setLineDash([5 * dpr, 4 * dpr]);
+    line(g, x, y, x + dx - ux * hd * 0.7, y + dy - uy * hd * 0.7);
+    g.setLineDash([]);
+    g.beginPath();
+    g.moveTo(x + dx, y + dy);
+    g.lineTo(x + dx - ux * hd - uy * hd * 0.45, y + dy - uy * hd + ux * hd * 0.45);
+    g.lineTo(x + dx - ux * hd + uy * hd * 0.45, y + dy - uy * hd - ux * hd * 0.45);
+    g.closePath();
+    g.fill();
+    g.restore();
+  }
+  function pill(g, x, y, w, h, t) {
+    g.fillStyle = t.pill;
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, 6 * dpr); else g.rect(x, y, w, h);
+    g.fill();
+  }
+  // Okunaklı etiket: yarı saydam zemin, tuval içinde kalır
+  function tag(g, text, x, y, color, t, align = "center", size = 11.5, weight = 600, dry = false) {
+    g.font = font(size, weight);
+    const w = g.measureText(text).width + 8 * dpr, h = (size + 6) * dpr;
+    let bx = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    bx = clamp(bx, 2 * dpr, g.canvas.width - w - 2 * dpr);
+    const by = clamp(y - h / 2, 2 * dpr, g.canvas.height - h - 2 * dpr);
+    if (dry) return { x: bx, y: by, w, h };
+    pill(g, bx, by, w, h, t);
+    g.fillStyle = color;
+    g.textAlign = "left";
+    g.textBaseline = "middle";
+    g.fillText(text, bx + 4 * dpr, by + h / 2 + 0.5 * dpr);
+    g.textBaseline = "alphabetic";
+    return { x: bx, y: by, w, h };
+  }
+  // Etiket listesi: çakışan etiketi dikeyde kaydırarak yerleştir
+  const overlap = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  function tags(g, t, list) {
+    const placed = [];
+    for (const it of list) {
+      const args = () => [g, it.text, it.x, it.y, it.color, t, it.align || "center", it.size || 11.5, it.weight || 600];
+      let r = tag(...args(), true);
+      for (let k = 0; k < 8 && placed.some((p) => overlap(p, r)); k++) {
+        it.y += (it.dir || 1) * (r.h + 3 * dpr);
+        r = tag(...args(), true);
+      }
+      placed.push(r);
+      tag(...args());
+    }
+  }
+  function niceDown(x) {
+    const e = Math.floor(Math.log10(x)), b = 10 ** e, m = x / b;
+    return (m >= 5 ? 5 : m >= 2 ? 2 : 1) * b;
+  }
+  function niceStep(range, n) {
+    const raw = range / n, e = Math.floor(Math.log10(raw)), b = 10 ** e, m = raw / b;
+    return (m > 5 ? 10 : m > 2 ? 5 : m > 1 ? 2 : 1) * b;
+  }
+  function forceScaleLegend(g, t, kF, x, y) {
+    const Fref = niceDown((56 * dpr) / kF), len = Fref * kF;
+    const txt = `= ${Fref >= 1 ? fx(Fref, 0) : sig(Fref, 2)} N`;
+    g.font = font(11);
+    const w = len + g.measureText(txt).width + 26 * dpr;
+    pill(g, x - w, y, w, 24 * dpr, t);
+    arrow(g, x - w + 8 * dpr, y + 12 * dpr, len, 0, t.ink, { w: 2 });
+    g.fillStyle = t.muted;
+    g.textAlign = "left";
+    g.fillText(txt, x - w + len + 16 * dpr, y + 16 * dpr);
+  }
+  function hatch(g, x1, y, x2, t) {
+    g.save();
+    g.strokeStyle = t.floor;
+    g.lineWidth = 2 * dpr;
+    line(g, x1, y, x2, y);
+    g.lineWidth = 1 * dpr;
+    g.globalAlpha = 0.5;
+    for (let x = x1 + 4 * dpr; x < x2; x += 10 * dpr) line(g, x, y + 1 * dpr, x - 7 * dpr, y + 8 * dpr);
+    g.restore();
+  }
+  function figure(g, x, y, h, color, armTo) {
+    g.save();
+    g.strokeStyle = color;
+    g.fillStyle = color;
+    g.lineWidth = Math.max(2, h * 0.05);
+    g.lineCap = "round";
+    const r = h * 0.11, neck = y - h + 2 * r, hip = y - h * 0.46, sh = neck + h * 0.07;
+    g.beginPath();
+    g.arc(x, y - h + r, r, 0, Math.PI * 2);
+    g.fill();
+    g.beginPath();
+    g.moveTo(x, neck); g.lineTo(x, hip);
+    g.moveTo(x, hip); g.lineTo(x - h * 0.12, y);
+    g.moveTo(x, hip); g.lineTo(x + h * 0.12, y);
+    if (armTo) {
+      g.moveTo(x, sh); g.lineTo(armTo[0], armTo[1]);
+      g.moveTo(x, sh); g.lineTo(armTo[0] - h * 0.04, armTo[1] + h * 0.1);
+    } else {
+      g.moveTo(x, sh); g.lineTo(x - h * 0.17, hip - h * 0.02);
+      g.moveTo(x, sh); g.lineTo(x + h * 0.17, hip - h * 0.02);
+    }
+    g.stroke();
+    g.restore();
+  }
+
+  /* ── Kaldıraç çizimi ── */
+  function leverLayout() {
+    const W = canvas.width, H = canvas.height, c = lv.cfg, sinS = Math.sin(STOP);
+    const s = Math.min((W - 64 * dpr) / c.L, (H - 78 * dpr) / (2 * c.L * sinS));
+    const x0 = (W - c.L * s) / 2, pX = x0 + c.sp * s, pY = 52 * dpr + c.L * sinS * s;
+    const floorY = Math.min(H - 10 * dpr, pY + c.L * sinS * s + 16 * dpr);
+    const th = lv.sim ? lv.sim.th : 0;
+    return { W, H, s, x0, pX, pY, floorY, th, cs: Math.cos(th), sn: Math.sin(th) };
+  }
+  const ballR = (m) => (7 + 5.5 * Math.cbrt(m)) * dpr;
+  function leverReaction() {
+    const st = lv.st, sim = lv.sim;
+    if (sim && !sim.done && !st.balanced) {
+      const th = sim.th, om = sim.om, al = leverAcc(sim, th, om);
+      const ax = st.d * (-al * Math.sin(th) - om * om * Math.cos(th));
+      const ay = st.d * (al * Math.cos(th) - om * om * Math.sin(th));
+      return { x: st.M * ax, y: st.M * (G + ay), dyn: true };
+    }
+    if (st.balanced) return { x: 0, y: st.N, dyn: false };
+    return null;
+  }
+  function drawLever(t) {
+    const { W, s, pX, pY, floorY, th, cs, sn } = leverLayout();
+    const c = lv.cfg, st = lv.st, sim = lv.sim;
+    const P = (x) => [pX + x * s * cs, pY - x * s * sn];
+    hatch(ctx, 0, floorY, W, t);
+
+    // Ayak, açı ölçeği, dayanaklar, ibre
+    const legH = floorY - pY, spread = Math.min(0.34 * legH, 62 * dpr);
+    ctx.strokeStyle = t.steel;
+    ctx.lineWidth = 4 * dpr;
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(pX - spread, floorY); ctx.lineTo(pX, pY); ctx.lineTo(pX + spread, floorY);
+    ctx.stroke();
+    const rN = Math.min(0.62 * legH, 86 * dpr);
+    ctx.strokeStyle = t.muted;
+    ctx.lineWidth = 1.2 * dpr;
+    ctx.beginPath();
+    ctx.arc(pX, pY, rN, Math.PI / 2 - STOP, Math.PI / 2 + STOP);
+    ctx.stroke();
+    for (let k = -4; k <= 4; k++) {
+      const a = Math.PI / 2 - (k * 5 * Math.PI) / 180, r1 = rN - (k % 2 === 0 ? 7 : 4) * dpr;
+      line(ctx, pX + r1 * Math.cos(a), pY + r1 * Math.sin(a), pX + rN * Math.cos(a), pY + rN * Math.sin(a));
+    }
+    ctx.fillStyle = t.danger;
+    for (const sgn of [-1, 1]) {
+      const a = Math.PI / 2 - sgn * STOP;
+      ctx.beginPath();
+      ctx.arc(pX + (rN + 3 * dpr) * Math.cos(a), pY + (rN + 3 * dpr) * Math.sin(a), 3.5 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.font = font(10);
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "center";
+    ctx.fillText("0", pX, pY + rN + 13 * dpr);
+    ctx.fillText("+20°", pX + (rN + 16 * dpr) * Math.sin(STOP) + 8 * dpr, pY + (rN + 16 * dpr) * Math.cos(STOP));
+    ctx.fillText("−20°", pX - (rN + 16 * dpr) * Math.sin(STOP) - 8 * dpr, pY + (rN + 16 * dpr) * Math.cos(STOP));
+    ctx.strokeStyle = t.danger;
+    ctx.lineWidth = 2 * dpr;
+    line(ctx, pX, pY, pX + rN * sn, pY + rN * cs);
+
+    // Kiriş ve cetvel
+    const tb = Math.max(9 * dpr, Math.min(15 * dpr, 0.045 * s));
+    ctx.save();
+    ctx.translate(pX, pY);
+    ctx.rotate(-th);
+    const xl = -c.sp * s, xr = (c.L - c.sp) * s;
+    ctx.fillStyle = t.wood;
+    ctx.fillRect(xl, -tb / 2, xr - xl, tb);
+    ctx.strokeStyle = t.woodEdge;
+    ctx.lineWidth = 1 * dpr;
+    ctx.strokeRect(xl, -tb / 2, xr - xl, tb);
+    const nT = Math.round(c.L * 10), every = 0.5 * s >= 34 * dpr ? 5 : 10;
+    ctx.font = font(10);
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "center";
+    for (let k = 0; k <= nT; k++) {
+      const x = (k / 10 - c.sp) * s;
+      line(ctx, x, -tb / 2, x, -tb / 2 + (k % 5 === 0 ? tb * 0.6 : tb * 0.3));
+      if (k % every === 0) ctx.fillText(fx(k / 10, 1), x, tb / 2 + 12 * dpr);
+    }
+    ctx.restore();
+
+    // Kuvvet ölçeği
+    const Fmax = st.M * G;
+    const kF = Math.min(88 * dpr, pY - 34 * dpr) / Math.max(Fmax, 1e-9);
+
+    // Kirişin ağırlığı
+    const beam = st.items[st.items.length - 1];
+    if (beam.m > 0) {
+      const [bx, by] = P(beam.x);
+      ctx.fillStyle = t.ink;
+      ctx.beginPath();
+      ctx.arc(bx, by, 3 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+      arrow(ctx, bx, by, 0, beam.m * G * kF, t.warm, { w: 2 });
+      tag(ctx, `M_k g = ${fx(beam.m * G, 1)} N`, bx + 6 * dpr, by + beam.m * G * kF, t.warm, t, "left", 10.5, 500);
+    }
+
+    // Kütleler
+    const order = st.items.filter((it) => it.key !== "beam").map((it) => ({ it, p: P(it.x) })).sort((a, b) => a.p[0] - b.p[0]);
+    let prevX = -Infinity, lift = 0;
+    for (const { it, p } of order) {
+      const [x, y] = p, r = ballR(it.m), i = it.key;
+      arrow(ctx, x, y, 0, it.m * G * kF, t.warm, { w: 2 });
+      const grad = ctx.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.1, x, y, r);
+      grad.addColorStop(0, t.massHi[i]);
+      grad.addColorStop(1, t.masses[i]);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#0b1020";
+      ctx.font = font(11, 700);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(i + 1), x, y + 0.5 * dpr);
+      ctx.textBaseline = "alphabetic";
+      lift = x - prevX < 92 * dpr ? (lift ? 0 : 30 * dpr) : 0;
+      prevX = x;
+      const ly = y - r - 26 * dpr - lift;
+      tag(ctx, `m${"₁₂₃"[i]} = ${fx(it.m, 1)} kg`, x, ly, t.masses[i], t, "center", 11.5, 700);
+      tag(ctx, `x = ${fsg(it.x, 2)} m`, x, ly + 15 * dpr, t.muted, t, "center", 10.5, 500);
+      tag(ctx, `${fx(it.m * G, 1)} N`, x, y + it.m * G * kF + 11 * dpr, t.warm, t, "center", 10, 500);
+    }
+
+    // Pim ve tepki
+    ctx.fillStyle = t.steel;
+    ctx.beginPath();
+    ctx.arc(pX, pY, 5 * dpr, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = t.ink;
+    ctx.lineWidth = 1.2 * dpr;
+    ctx.stroke();
+    const R = leverReaction();
+    if (R) {
+      arrow(ctx, pX, pY - 6 * dpr, R.x * kF, -R.y * kF, t.accent, { w: 2.6 });
+      tag(ctx, `${R.dyn ? "R" : "N"} = ${fx(Math.hypot(R.x, R.y), 1)} N`, pX + R.x * kF + 8 * dpr, pY - 6 * dpr - R.y * kF - 4 * dpr, t.accent, t, "left");
+    } else if (sim && sim.done) {
+      tag(ctx, "dayanakta", pX, pY - 22 * dpr, t.danger, t);
+    } else {
+      tag(ctx, "elle yatay tutuluyor", pX, pY - 24 * dpr, t.muted, t, "center", 11, 500);
+    }
+
+    // Özet ve ölçek
+    const l1 = `Στ = ${fsg(st.tau * Math.cos(th), 2)} N·m`, l2 = `θ = ${fsg(deg(th), 1)}° · ${sim && sim.done && !st.balanced ? "dayanak karşılıyor" : "↺ pozitif"}`;
+    ctx.font = font(13, 700);
+    const pw = Math.max(ctx.measureText(l1).width, (ctx.font = font(11), ctx.measureText(l2).width)) + 18 * dpr;
+    pill(ctx, 8 * dpr, 8 * dpr, pw, 42 * dpr, t);
+    ctx.textAlign = "left";
+    ctx.font = font(13, 700);
+    ctx.fillStyle = st.balanced ? t.accent : t.danger;
+    ctx.fillText(l1, 16 * dpr, 26 * dpr);
+    ctx.font = font(11);
+    ctx.fillStyle = t.muted;
+    ctx.fillText(l2, 16 * dpr, 43 * dpr);
+    forceScaleLegend(ctx, t, kF, W - 8 * dpr, 8 * dpr);
+  }
+
+  /* ── Kiriş çizimi ── */
+  function beamLayout() {
+    const W = canvas.width, H = canvas.height, c = bm.cfg, side = 30 * dpr;
+    const s = (W - 2 * side) / c.L, tb = Math.max(8 * dpr, Math.min(14 * dpr, 0.05 * s));
+    const yT = Math.round(H * 0.47), yB = yT + tb, floorY = H - 18 * dpr;
+    return { W, H, s, x0: side, tb, yT, yB, floorY, X: (x) => side + x * s, hp: Math.min(64 * dpr, 0.2 * H) };
+  }
+  const boxSide = (m) => (16 + 9 * Math.cbrt(m)) * dpr;
+  function drawBeam(t) {
+    const { W, s, tb, yT, yB, floorY, X, hp } = beamLayout();
+    const c = bm.cfg, st = bm.st, tip = beamTips(st, c);
+    hatch(ctx, 0, floorY, W, t);
+
+    // Destekler
+    for (const [name, x] of [["A", c.a], ["B", c.b]]) {
+      const px = X(x);
+      ctx.fillStyle = t.faint;
+      ctx.strokeStyle = t.steel;
+      ctx.lineWidth = 1.5 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(px, yB); ctx.lineTo(px - 10 * dpr, yB + 14 * dpr); ctx.lineTo(px + 10 * dpr, yB + 14 * dpr); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.fillRect(px - 6 * dpr, yB + 14 * dpr, 12 * dpr, floorY - yB - 14 * dpr);
+      ctx.strokeRect(px - 6 * dpr, yB + 14 * dpr, 12 * dpr, floorY - yB - 14 * dpr);
+      ctx.font = font(12, 700);
+      ctx.fillStyle = t.ink;
+      ctx.textAlign = "center";
+      ctx.fillText(name, px, floorY + 14 * dpr);
+      if (c.bolt) {
+        ctx.fillStyle = t.steel;
+        ctx.beginPath();
+        ctx.arc(px, yT + tb / 2, 3 * dpr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Devrilme gösterimi (kesikli hayalet)
+    if (tip) {
+      const pivotX = X(tip < 0 ? c.b : c.a), ang = (tip < 0 ? 7 : -7) * (Math.PI / 180);
+      ctx.save();
+      ctx.translate(pivotX, yB);
+      ctx.rotate(ang);
+      ctx.setLineDash([6 * dpr, 5 * dpr]);
+      ctx.strokeStyle = t.danger;
+      ctx.lineWidth = 1.5 * dpr;
+      ctx.strokeRect(X(0) - pivotX, -tb, c.L * s, tb);
+      ctx.restore();
+    }
+
+    // Tahta ve cetvel
+    ctx.fillStyle = t.wood;
+    ctx.fillRect(X(0), yT, c.L * s, tb);
+    ctx.strokeStyle = t.woodEdge;
+    ctx.lineWidth = 1 * dpr;
+    ctx.strokeRect(X(0), yT, c.L * s, tb);
+    ctx.font = font(10);
+    ctx.textAlign = "center";
+    for (let k = 0; k <= Math.round(c.L * 2); k++) {
+      const px = X(k / 2);
+      line(ctx, px, yT, px, yT + (k % 2 === 0 ? tb * 0.6 : tb * 0.35));
+      if (k % 2 === 0) { ctx.fillStyle = t.muted; ctx.fillText(`${k / 2}`, px + (k === 0 ? 5 * dpr : 0), yB + 12 * dpr); }
+    }
+
+    // Kuvvet ölçeği
+    const Fmax = Math.max(...st.forces.map((q) => q.W), Math.abs(st.RA), Math.abs(st.RB), 1e-9);
+    const kF = Math.min(yT - 50 * dpr, floorY - yB - 12 * dpr, 150 * dpr) / Fmax;
+
+    // Kutu
+    const box = c.loads[1];
+    if (box.m > 0) {
+      const bs = boxSide(box.m), bx = X(box.x);
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = t.box;
+      ctx.fillRect(bx - bs / 2, yT - bs, bs, bs);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = t.ink;
+      ctx.lineWidth = 1 * dpr;
+      ctx.strokeRect(bx - bs / 2, yT - bs, bs, bs);
+    }
+    // Kişi
+    const P = c.loads[0], pxP = X(P.x);
+    ctx.globalAlpha = 0.6;
+    figure(ctx, pxP, yT, hp, t.person);
+    ctx.globalAlpha = 1;
+
+    // Ağırlık okları (uç tahtaya değer)
+    const top = [], bottom = [];
+    st.forces.forEach((q) => {
+      if (q.W <= 0) return;
+      const px = X(q.x), len = q.W * kF;
+      if (q.key === "plank") {
+        arrow(ctx, px, yT + tb / 2, 0, len, t.warm, { w: 2 });
+        bottom.push({ text: `W_tahta = ${fx(q.W, 1)} N`, x: px, y: yT + tb / 2 + len + 12 * dpr, color: t.warm, size: 10.5, weight: 500 });
+        return;
+      }
+      arrow(ctx, px, yT - len, 0, len, t.warm, { w: 2.6 });
+      const figTop = q.key === 0 ? yT - hp : yT - boxSide(c.loads[1].m);
+      top.push({ text: `${q.key === 0 ? "W_kişi" : "W_kutu"} = ${fx(q.W, 1)} N`, x: px, y: Math.min(yT - len, figTop) - 10 * dpr, color: t.warm, size: 11, dir: -1 });
+    });
+
+    // Tepkiler: A etiketi okun solunda, B etiketi sağında (yer varsa)
+    for (const [name, x, R, left] of [["R_A", c.a, st.RA, true], ["R_B", c.b, st.RB, false]]) {
+      const px = X(x), len = Math.abs(R) * kF;
+      if (R >= 0) arrow(ctx, px, yB + len, 0, -len, t.accent, { w: 2.8 });
+      else arrow(ctx, px, yB, 0, len, t.danger, { w: 2.8, dash: !c.bolt });
+      const toLeft = left ? px > 150 * dpr : px > W - 150 * dpr;
+      bottom.push({ text: `${name} = ${fx(R, 1)} N`, x: px + (toLeft ? -12 : 12) * dpr, y: yB + Math.max(len * 0.55, 24 * dpr), color: R >= 0 ? t.accent : t.danger, align: toLeft ? "right" : "left" });
+    }
+    tags(ctx, t, top);
+    tags(ctx, t, bottom);
+
+    if (tip) tag(ctx, `Devrilir: ${tip < 0 ? "A" : "B"} ucu kalkar`, 10 * dpr, 20 * dpr, t.danger, t, "left", 12.5, 700);
+    else if (c.bolt && (st.RA < 0 || st.RB < 0)) tag(ctx, "Cıvata aşağı çekiyor", 10 * dpr, 20 * dpr, t.danger, t, "left", 12.5, 700);
+    else tag(ctx, "ΣF = 0 ve Στ = 0", 10 * dpr, 20 * dpr, t.accent, t, "left", 12.5, 700);
+    forceScaleLegend(ctx, t, kF, W - 8 * dpr, 8 * dpr);
+  }
+
+  /* ── Merdiven çizimi ── */
+  function ladderLayout() {
+    const W = canvas.width, H = canvas.height, c = ld.cfg;
+    const wallX = W - 34 * dpr, floorY = H - 26 * dpr;
+    const s = Math.min((wallX - 100 * dpr) / c.L, (floorY - 30 * dpr) / c.L);
+    const F = [wallX - c.L * Math.cos(c.th) * s, floorY], T = [wallX, floorY - c.L * Math.sin(c.th) * s];
+    const d = ld.climbing ? ld.d : c.d;
+    const P = [F[0] + d * (T[0] - F[0]), F[1] + d * (T[1] - F[1])];
+    return { W, H, s, wallX, floorY, F, T, P, hp: Math.min(58 * dpr, 0.17 * H) };
+  }
+  function drawLadderShape(F, T, t, color, dashed) {
+    const dx = T[0] - F[0], dy = T[1] - F[1], len = Math.hypot(dx, dy), nx = -dy / len, ny = dx / len, o = 4 * dpr;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = (dashed ? 1.5 : 3) * dpr;
+    if (dashed) ctx.setLineDash([6 * dpr, 5 * dpr]);
+    line(ctx, F[0] + nx * o, F[1] + ny * o, T[0] + nx * o, T[1] + ny * o);
+    line(ctx, F[0] - nx * o, F[1] - ny * o, T[0] - nx * o, T[1] - ny * o);
+    if (!dashed) {
+      ctx.lineWidth = 1.6 * dpr;
+      const n = Math.max(2, Math.floor(ld.cfg.L / 0.3));
+      for (let k = 1; k < n; k++) {
+        const u = k / n, x = F[0] + u * dx, y = F[1] + u * dy;
+        line(ctx, x + nx * o, y + ny * o, x - nx * o, y - ny * o);
+      }
+    }
+    ctx.restore();
+  }
+  function drawLadder(t) {
+    const { W, s, wallX, floorY, F, T, P, hp } = ladderLayout();
+    const c = ld.cfg, st = ld.st;
+    // Duvar ve zemin
+    ctx.fillStyle = t.faint;
+    ctx.fillRect(wallX, 0, W - wallX, floorY);
+    ctx.save();
+    ctx.strokeStyle = t.floor;
+    ctx.lineWidth = 2 * dpr;
+    line(ctx, wallX, 0, wallX, floorY);
+    ctx.lineWidth = 1 * dpr;
+    ctx.globalAlpha = 0.5;
+    for (let y = 6 * dpr; y < floorY; y += 10 * dpr) line(ctx, wallX + 1 * dpr, y, wallX + 8 * dpr, y - 7 * dpr);
+    ctx.restore();
+    hatch(ctx, 0, floorY, wallX, t);
+    ctx.font = font(11);
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "right";
+    ctx.fillText("sürtünmesiz duvar", wallX - 6 * dpr, 16 * dpr);
+
+    // Kayma hayaleti
+    if (st.slips) {
+      const thg = Math.max(c.th - (10 * Math.PI) / 180, (6 * Math.PI) / 180);
+      const Fg = [wallX - c.L * Math.cos(thg) * s, floorY], Tg = [wallX, floorY - c.L * Math.sin(thg) * s];
+      drawLadderShape(Fg, Tg, t, t.danger, true);
+      arrow(ctx, F[0] - 6 * dpr, floorY + 12 * dpr, -40 * dpr, 0, t.danger, { w: 2 });
+      tag(ctx, "kayar", F[0] - 50 * dpr, floorY + 12 * dpr, t.danger, t, "right", 11, 700);
+    }
+    drawLadderShape(F, T, t, t.steel, false);
+
+    // Açı yayı
+    ctx.strokeStyle = t.accent2;
+    ctx.lineWidth = 1.5 * dpr;
+    ctx.beginPath();
+    ctx.arc(F[0], F[1], 34 * dpr, -c.th, 0);
+    ctx.stroke();
+    ctx.font = font(12, 600);
+    ctx.fillStyle = t.accent2;
+    ctx.textAlign = "left";
+    ctx.fillText(`θ = ${fx(c.thDeg, 0)}°`, F[0] + 40 * dpr * Math.cos(c.th / 2), F[1] - 40 * dpr * Math.sin(c.th / 2) + 4 * dpr);
+
+    // Kişi
+    if (c.M > 0) {
+      const ux = (T[0] - F[0]) / Math.hypot(T[0] - F[0], T[1] - F[1]), uy = (T[1] - F[1]) / Math.hypot(T[0] - F[0], T[1] - F[1]);
+      ctx.globalAlpha = 0.75;
+      figure(ctx, P[0] - 4 * dpr, P[1], hp, t.person, [P[0] + ux * hp * 0.78, P[1] + uy * hp * 0.78]);
+      ctx.globalAlpha = 1;
+    }
+
+    // Kuvvetler
+    const Fmax = Math.max(st.Nf, st.Nw, st.f, st.fmax, 1e-9);
+    const kF = Math.min(0.4 * (floorY - 24 * dpr), 160 * dpr) / Fmax;
+    const labels = [];
+    arrow(ctx, F[0], F[1], 0, -st.Nf * kF, t.accent, { w: 2.8 });
+    labels.push({ text: `N_zemin = ${fx(st.Nf, 1)} N`, x: F[0] - 8 * dpr, y: F[1] - st.Nf * kF * 0.6, color: t.accent, align: "right" });
+    const fy = F[1] - 5 * dpr;
+    if (!st.slips) {
+      arrow(ctx, F[0], fy, st.f * kF, 0, t.accent2, { w: 2.8 });
+      labels.push({ text: `f = ${fx(st.f, 1)} N`, x: F[0] + st.f * kF * 0.5, y: floorY + 13 * dpr, color: t.accent2 });
+    } else {
+      arrow(ctx, F[0], fy, st.fmax * kF, 0, t.accent2, { w: 2.8 });
+      arrow(ctx, F[0] + st.fmax * kF, fy, (st.f - st.fmax) * kF, 0, t.danger, { w: 2, dash: true });
+      labels.push({ text: `gereken f = ${fx(st.f, 1)} N > μₛN = ${fx(st.fmax, 1)} N`, x: F[0] + 4 * dpr, y: floorY + 13 * dpr, color: t.danger, align: "left" });
+    }
+    arrow(ctx, T[0], T[1], -st.Nw * kF, 0, t.accent, { w: 2.8 });
+    labels.push({ text: `N_duvar = ${fx(st.Nw, 1)} N`, x: T[0] - Math.max(st.Nw * kF, 20 * dpr) - 6 * dpr, y: T[1] - 2 * dpr, color: t.accent, align: "right" });
+    let Mx = (F[0] + T[0]) / 2, Px = P[0];
+    const My = (F[1] + T[1]) / 2;
+    if (c.M > 0 && Math.abs(Px - Mx) < 8 * dpr) { Mx -= 5 * dpr; Px += 5 * dpr; }   // aynı etki çizgisi: iki oku da göster
+    ctx.fillStyle = t.ink;
+    ctx.beginPath();
+    ctx.arc((F[0] + T[0]) / 2, My, 3 * dpr, 0, Math.PI * 2);
+    ctx.fill();
+    arrow(ctx, Mx, My, 0, c.m * G * kF, t.warm, { w: 2.4 });
+    labels.push({ text: `mg = ${fx(c.m * G, 1)} N`, x: Mx + 8 * dpr, y: My + c.m * G * kF * 0.6 + 4 * dpr, color: t.warm, align: "left", size: 10.5 });
+    if (c.M > 0) {
+      arrow(ctx, Px, P[1], 0, c.M * G * kF, t.warm, { w: 2.6 });
+      labels.push({ text: `Mg = ${fx(c.M * G, 1)} N`, x: Px - 8 * dpr, y: P[1] + c.M * G * kF * 0.6, color: t.warm, align: "right", size: 10.5 });
+    }
+    tags(ctx, t, labels);
+
+    tag(ctx, st.slips ? "Kayar" : "Kaymaz", 10 * dpr, 20 * dpr, st.slips ? t.danger : t.accent, t, "left", 13, 700);
+    tag(ctx, `gereken f/N = ${fx(st.muReq, 3)} · μₛ = ${fx(c.mu, 2)}`, 10 * dpr, 44 * dpr, t.muted, t, "left", 11, 500);
+    forceScaleLegend(ctx, t, kF, 10 * dpr + 150 * dpr, 58 * dpr);
+  }
+
+  /* ── Grafikler ── */
+  const tickFmt = (v, step) => fx(v, step < 0.1 ? 2 : step < 1 ? 1 : 0);
+  function chartFrame(t, box, xr, yr, xLabel, yUnit, xFmt, yTicks = 4) {
+    const { l, r, tp, b } = box, W = chart.width, H = chart.height;
+    const X = (v) => l + ((v - xr[0]) / (xr[1] - xr[0])) * (W - l - r);
+    const Y = (v) => H - b - ((v - yr[0]) / (yr[1] - yr[0])) * (H - tp - b);
+    cctx.font = font(10.5);
+    cctx.lineWidth = 1 * dpr;
+    cctx.strokeStyle = t.grid;
+    cctx.fillStyle = t.muted;
+    const ys = niceStep(yr[1] - yr[0], yTicks);
+    cctx.textAlign = "right";
+    for (let v = Math.ceil(yr[0] / ys) * ys; v <= yr[1] + 1e-9; v += ys) {
+      const y = Y(v);
+      line(cctx, l, y, W - r, y);
+      cctx.fillText(`${Math.abs(v) < 1e-9 ? "0" : fx(v, ys < 1 ? 1 : 0)}`, l - 5 * dpr, y + 3.5 * dpr);
+    }
+    const xs = niceStep(xr[1] - xr[0], 6);
+    cctx.textAlign = "center";
+    for (let v = Math.ceil(xr[0] / xs) * xs; v <= xr[1] + 1e-9; v += xs) {
+      const x = X(v);
+      line(cctx, x, tp, x, H - b);
+      cctx.fillText(xFmt(v, xs), x, H - 6 * dpr);
+    }
+    cctx.textAlign = "right";
+    cctx.fillText(xLabel, W - r, H - b - 5 * dpr);
+    cctx.textAlign = "left";
+    cctx.fillText(yUnit, 4 * dpr, tp - 6 * dpr);
+    return { X, Y };
+  }
+  function legend(t, items, x, y) {
+    cctx.font = font(10.5);
+    cctx.textAlign = "left";
+    let lx = x;
+    for (const [text, color, style] of items) {
+      if (style === "box") {
+        cctx.fillStyle = color;
+        cctx.globalAlpha = 0.3;
+        cctx.fillRect(lx, y - 9 * dpr, 16 * dpr, 10 * dpr);
+        cctx.globalAlpha = 1;
+      } else {
+        cctx.strokeStyle = color;
+        cctx.lineWidth = 2 * dpr;
+        cctx.setLineDash(style === "dash" ? [5 * dpr, 4 * dpr] : style === "dot" ? [1.5 * dpr, 3 * dpr] : []);
+        line(cctx, lx, y - 3.5 * dpr, lx + 16 * dpr, y - 3.5 * dpr);
+        cctx.setLineDash([]);
+      }
+      cctx.fillStyle = t.muted;
+      cctx.fillText(text, lx + 20 * dpr, y);
+      lx += cctx.measureText(text).width + 34 * dpr;
+    }
+  }
+  function polyline(pts, X, Y, color, w, dash) {
+    if (pts.length < 4) return;
+    cctx.save();
+    cctx.strokeStyle = color;
+    cctx.lineWidth = w * dpr;
+    if (dash) cctx.setLineDash(dash);
+    cctx.beginPath();
+    cctx.moveTo(X(pts[0]), Y(pts[1]));
+    for (let k = 2; k < pts.length; k += 2) cctx.lineTo(X(pts[k]), Y(pts[k + 1]));
+    cctx.stroke();
+    cctx.restore();
+  }
+  const box = () => ({ l: 46 * dpr, r: 12 * dpr, tp: 30 * dpr, b: 22 * dpr });
+
+  function drawLeverChart(t) {
+    const st = lv.st, sim = lv.sim, a = Math.abs(st.alpha0);
+    const Tth = !st.balanced ? timeToAngle(a, STOP) : Infinity;
+    let tMax = 1;
+    if (Number.isFinite(Tth)) tMax = Math.max(tMax, Tth * 1.3);
+    if (sim) tMax = Math.max(tMax, sim.t * 1.08);
+    if (lv.ghost) tMax = Math.max(tMax, lv.ghost.tEnd * 1.08);
+    const fr = chartFrame(t, box(), [0, tMax], [-25, 25], "t (s)", "θ (°)", tickFmt, 5);
+    const X = fr.X, Y = (r) => fr.Y(deg(r));
+    cctx.save();
+    cctx.setLineDash([3 * dpr, 4 * dpr]);
+    cctx.strokeStyle = t.danger;
+    cctx.lineWidth = 1 * dpr;
+    for (const sg of [-1, 1]) line(cctx, X(0), Y(sg * STOP), X(tMax), Y(sg * STOP));
+    cctx.restore();
+    if (lv.ghost) polyline(lv.ghost.hist, X, Y, t.muted, 1.6, [1.5 * dpr, 3 * dpr]);
+    if (sim) {
+      const pts = sim.hist.concat(sim.done ? [tMax, sim.th] : [sim.t, sim.th]);
+      polyline(pts, X, Y, t.accent, 3);
+    }
+    const curve = leverTheoryCurve();
+    if (curve.length) {
+      const pts = curve.concat([tMax, curve[curve.length - 1]]);
+      polyline(pts, X, Y, t.accent2, 1.6, [6 * dpr, 5 * dpr]);
+    }
+    const items = [["θ(t) ölçülen", t.accent, ""], ["kuram (sönümsüz)", t.accent2, "dash"]];
+    if (lv.ghost) items.push(["önceki deneme", t.muted, "dot"]);
+    items.push(["±20° dayanak", t.danger, "dot"]);
+    legend(t, items, 50 * dpr, 16 * dpr);
+    if (!sim) {
+      cctx.font = font(11);
+      cctx.fillStyle = t.muted;
+      cctx.textAlign = "center";
+      cctx.fillText(st.balanced ? "Denge: kiriş dönmeyecek" : "Kesikli eğri tahmin; ölçmek için serbest bırak", (X(0) + X(tMax)) / 2, Y(0) - 8 * dpr);
+    }
+  }
+  function drawBeamChart(t) {
+    const c = bm.cfg;
+    const at = (x) => beamStatics({ ...c, loads: c.loads.map((q, i) => (i === 0 ? { m: q.m, x } : q)) });
+    const s0 = at(0), s1 = at(c.L), W = bm.st.W;
+    const vals = [0, W, s0.RA, s0.RB, s1.RA, s1.RB];
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    const pad = (hi - lo) * 0.1 || 1;
+    lo -= lo < 0 ? pad : 0;
+    hi += pad;
+    const { X, Y } = chartFrame(t, box(), [0, c.L], [lo, hi], "kişinin konumu x (m)", "R (N)", tickFmt);
+    // Devrilme bölgeleri
+    if (!c.bolt) {
+      cctx.fillStyle = t.danger;
+      cctx.globalAlpha = 0.12;
+      const xa = bm.lim.xA0, xb = bm.lim.xB0, top = Y(hi), h = Y(lo) - Y(hi);
+      if (Number.isFinite(xa) && xa < c.L) cctx.fillRect(X(Math.max(0, xa)), top, X(c.L) - X(Math.max(0, xa)), h);
+      if (Number.isFinite(xb) && xb > 0) cctx.fillRect(X(0), top, X(Math.min(c.L, xb)) - X(0), h);
+      cctx.globalAlpha = 1;
+    }
+    cctx.strokeStyle = t.ink;
+    cctx.lineWidth = 1 * dpr;
+    line(cctx, X(0), Y(0), X(c.L), Y(0));
+    polyline([0, W, c.L, W], X, Y, t.muted, 1.4, [5 * dpr, 4 * dpr]);
+    polyline([0, s0.RA, c.L, s1.RA], X, Y, t.accent, 2.4);
+    polyline([0, s0.RB, c.L, s1.RB], X, Y, t.accent2, 2.4);
+    const xP = c.loads[0].x;
+    cctx.save();
+    cctx.setLineDash([3 * dpr, 3 * dpr]);
+    cctx.strokeStyle = t.warm;
+    line(cctx, X(xP), Y(hi), X(xP), Y(lo));
+    cctx.restore();
+    for (const [v, col] of [[bm.st.RA, t.accent], [bm.st.RB, t.accent2]]) {
+      cctx.fillStyle = col;
+      cctx.beginPath();
+      cctx.arc(X(xP), Y(v), 4 * dpr, 0, Math.PI * 2);
+      cctx.fill();
+    }
+    const items = [["R_A(x)", t.accent, ""], ["R_B(x)", t.accent2, ""], ["ΣW", t.muted, "dash"], ["kişi", t.warm, "dot"]];
+    if (!c.bolt) items.push(["devrilme", t.danger, "box"]);
+    legend(t, items, 50 * dpr, 16 * dpr);
+  }
+
+  function drawLadderChart(t) {
+    const c = ld.cfg, st = ld.st;
+    const fAt = (d) => (G * (c.m / 2 + c.M * d)) / Math.tan(c.th);
+    const hi = Math.max(fAt(0), fAt(1), st.fmax) * 1.15;
+    const { X, Y } = chartFrame(t, box(), [0, 1], [0, hi], "tırmanma oranı d", "f (N)", tickFmt);
+    const dc = ld.fm.dCrit;
+    cctx.fillStyle = t.danger;
+    cctx.globalAlpha = 0.12;
+    if (c.M > 0 && dc < 1) { const a = Math.max(0, dc); cctx.fillRect(X(a), Y(hi), X(1) - X(a), Y(0) - Y(hi)); }
+    else if (c.M <= 0 && st.slips) cctx.fillRect(X(0), Y(hi), X(1) - X(0), Y(0) - Y(hi));
+    cctx.globalAlpha = 1;
+    polyline([0, st.fmax, 1, st.fmax], X, Y, t.accent, 2, [6 * dpr, 4 * dpr]);
+    polyline([0, fAt(0), 1, fAt(1)], X, Y, t.accent2, 2.4);
+    if (c.M > 0 && dc >= 0 && dc <= 1) {
+      cctx.save();
+      cctx.setLineDash([3 * dpr, 3 * dpr]);
+      cctx.strokeStyle = t.danger;
+      cctx.lineWidth = 1.2 * dpr;
+      line(cctx, X(dc), Y(hi), X(dc), Y(0));
+      cctx.restore();
+      cctx.font = font(10.5, 600);
+      cctx.fillStyle = t.danger;
+      cctx.textAlign = dc > 0.8 ? "right" : "left";
+      cctx.fillText(`d* = ${fx(dc, 3)}`, X(dc) + (dc > 0.8 ? -5 : 5) * dpr, Y(hi) + 12 * dpr);
+    }
+    const d = ld.climbing ? ld.d : c.d;
+    cctx.fillStyle = t.warm;
+    cctx.beginPath();
+    cctx.arc(X(d), Y(fAt(d)), 4.5 * dpr, 0, Math.PI * 2);
+    cctx.fill();
+    legend(t, [["gereken f(d)", t.accent2, ""], ["en büyük μₛN", t.accent, "dash"], ["kişi", t.warm, ""]], 50 * dpr, 16 * dpr);
+  }
+
+  function draw() {
+    const t = theme();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    cctx.setTransform(1, 0, 0, 1, 0, 0);
+    cctx.clearRect(0, 0, chart.width, chart.height);
+    if (active === "lever") { drawLever(t); drawLeverChart(t); }
+    else if (active === "beam") { drawBeam(t); drawBeamChart(t); }
+    else { drawLadder(t); drawLadderChart(t); }
+  }
+
+  /* ── Döngü ── */
+  function animating() {
+    return (active === "lever" && lv.sim && !lv.sim.done) || (active === "beam" && bm.walking) || (active === "ladder" && ld.climbing);
+  }
+  function stepActive() {
+    if (active === "lever") { if (lv.sim) leverStep(lv.sim); return; }
+    if (active === "beam") {
+      const c = bm.cfg;
+      bm.x = clamp(bm.x + bm.dir * 0.5 * DT, 0, c.L);
+      const xs = Math.round(bm.x * 100) / 100;
+      if (xs !== c.loads[0].x) {
+        const before = beamTips(bm.st, c);
+        ui.bmXP.value = xs;
+        readBeam(null);
+        if (!before && beamTips(bm.st, bm.cfg)) { setWalking(false); return; }
+      }
+      if (bm.x <= 0 || bm.x >= c.L) setWalking(false);
+      return;
+    }
+    const c = ld.cfg;
+    ld.d = clamp(ld.d + (0.3 / c.L) * DT, 0, 1);
+    const ds = Math.round(ld.d * 100) / 100;
+    if (ds !== c.d) {
+      const before = ld.st.slips;
+      ui.ldD.value = ds;
+      readLadder();
+      if (!before && ld.st.slips) { ld.d = ds; setClimbing(false); return; }
+    }
+    if (ld.d >= 1) setClimbing(false);
+  }
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (animating() && !paused) {
+      acc += elapsed;
+      while (acc >= DT && animating()) { stepActive(); acc -= DT; }
+      dirty = true;
+      uiDirty = true;
+    } else acc = 0;
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) { lastTheme = th; dirty = true; }
+    if (uiDirty && (now - lastUi > 120 || !animating())) { updateReadouts(); lastUi = now; uiDirty = false; }
+    if (dirty) { draw(); dirty = false; }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Sekmeler ── */
+  function selectTab(name, focus) {
+    if (!TABS.includes(name)) return;
+    if (bm.walking) setWalking(false);
+    if (ld.climbing) setClimbing(false);
+    active = name;
+    tabBtns.forEach((b, i) => {
+      const on = TABS[i] === name;
+      b.setAttribute("aria-selected", String(on));
+      b.tabIndex = on ? 0 : -1;
+      if (on && focus) b.focus();
+    });
+    $("labPanel").setAttribute("aria-labelledby", `tab-${name}`);
+    document.querySelectorAll("[data-tab]").forEach((el) => { el.hidden = el.dataset.tab !== name; });
+    canvas.setAttribute("aria-label", STAGE_LABEL[name]);
+    chart.setAttribute("aria-label", CHART_LABEL[name]);
+    acc = 0;
+    refresh();
+  }
+  tabBtns.forEach((b, i) => {
+    b.addEventListener("click", () => selectTab(TABS[i], false));
+    b.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight") j = (i + 1) % TABS.length;
+      else if (e.key === "ArrowLeft") j = (i + TABS.length - 1) % TABS.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = TABS.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(TABS[j], true);
+    });
+  });
+
+  /* ── Denetimler ── */
+  const lvInputs = [ui.lvL, ui.lvMb, ui.lvPivot, ...ui.lvM, ...ui.lvS];
+  lvInputs.forEach((el) => el.addEventListener("input", () => { ui.lvPreset.value = "ozel"; readLever(); holdLever(); }));
+  ui.lvCount.addEventListener("change", () => { ui.lvPreset.value = "ozel"; readLever(); holdLever(); });
+  ui.lvDamp.addEventListener("change", () => { readLever(); holdLever(); });
+  ui.lvPreset.addEventListener("change", () => { applyLeverPreset(ui.lvPreset.value); readLever(); holdLever(); });
+  ui.lvRelease.addEventListener("click", releaseLever);
+  ui.lvHold.addEventListener("click", holdLever);
+
+  const bmInputs = [ui.bmL, ui.bmMp, ui.bmA, ui.bmB, ui.bmMP, ui.bmXP, ui.bmMK, ui.bmXK];
+  bmInputs.forEach((el) => el.addEventListener("input", () => { if (bm.walking) setWalking(false); ui.bmPreset.value = "ozel"; readBeam(el); refresh(); }));
+  ui.bmBolt.addEventListener("change", () => { ui.bmPreset.value = "ozel"; readBeam(null); refresh(); });
+  ui.bmPreset.addEventListener("change", () => { if (bm.walking) setWalking(false); applyBeamPreset(ui.bmPreset.value); readBeam(null); refresh(); });
+  ui.bmWalk.addEventListener("click", () => { setWalking(!bm.walking); refresh(); });
+  function resetBeam() {
+    const back = bm.start;
+    setWalking(false);
+    if (back !== null) { ui.bmXP.value = back; readBeam(null); }
+    refresh();
+  }
+  ui.bmReset.addEventListener("click", resetBeam);
+
+  const ldInputs = [ui.ldL, ui.ldm, ui.ldTh, ui.ldMu, ui.ldM, ui.ldD];
+  ldInputs.forEach((el) => el.addEventListener("input", () => { if (ld.climbing) setClimbing(false); ui.ldPreset.value = "ozel"; readLadder(); refresh(); }));
+  ui.ldPreset.addEventListener("change", () => { if (ld.climbing) setClimbing(false); applyLadderPreset(ui.ldPreset.value); readLadder(); refresh(); });
+  ui.ldClimb.addEventListener("click", () => { setClimbing(!ld.climbing); refresh(); });
+  function resetLadder() {
+    const back = ld.start;
+    setClimbing(false);
+    if (back !== null) { ui.ldD.value = back; readLadder(); }
+    refresh();
+  }
+  ui.ldReset.addEventListener("click", resetLadder);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, select, textarea, button") || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      if (active === "lever") { if (lv.sim && !lv.sim.done) holdLever(); else releaseLever(); }
+      else if (active === "beam") { setWalking(!bm.walking); refresh(); }
+      else { setClimbing(!ld.climbing); refresh(); }
+    } else if (e.key === "r" || e.key === "R") {
+      if (active === "lever") holdLever();
+      else if (active === "beam") resetBeam();
+      else resetLadder();
+    }
+  });
+
+  /* ── Sürükleme ── */
+  function pointerXY(evt) {
+    const rect = canvas.getBoundingClientRect();
+    return [((evt.clientX - rect.left) / rect.width) * canvas.width, ((evt.clientY - rect.top) / rect.height) * canvas.height];
+  }
+  function hitTest(px, py) {
+    if (active === "lever") {
+      const L = leverLayout(), st = lv.st;
+      const masses = st.items.filter((it) => it.key !== "beam");
+      for (let k = masses.length - 1; k >= 0; k--) {
+        const it = masses[k], x = L.pX + it.x * L.s * L.cs, y = L.pY - it.x * L.s * L.sn;
+        if (Math.hypot(px - x, py - y) < ballR(it.m) + 8 * dpr) return { kind: "mass", i: it.key };
+      }
+      const legH = L.floorY - L.pY, spread = Math.min(0.34 * legH, 62 * dpr);
+      if (py > L.pY + 6 * dpr && py < L.floorY + 8 * dpr && Math.abs(px - L.pX) < spread * ((py - L.pY) / legH) + 14 * dpr) return { kind: "pivot" };
+      return null;
+    }
+    if (active === "beam") {
+      const L = beamLayout(), c = bm.cfg, xp = L.X(c.loads[0].x);
+      if (Math.abs(px - xp) < 16 * dpr && py > L.yT - L.hp - 8 * dpr && py < L.yB + 4 * dpr) return { kind: "person" };
+      if (c.loads[1].m > 0) {
+        const bs = boxSide(c.loads[1].m), xb = L.X(c.loads[1].x);
+        if (Math.abs(px - xb) < bs / 2 + 6 * dpr && py > L.yT - bs - 6 * dpr && py < L.yB + 4 * dpr) return { kind: "box" };
+      }
+      for (const [kind, x] of [["A", c.a], ["B", c.b]]) if (Math.abs(px - L.X(x)) < 14 * dpr && py > L.yB - 4 * dpr && py < L.floorY + 10 * dpr) return { kind };
+      return null;
+    }
+    const L = ladderLayout();
+    if (ld.cfg.M > 0 && Math.abs(px - L.P[0]) < 20 * dpr && py > L.P[1] - L.hp - 6 * dpr && py < L.P[1] + 10 * dpr) return { kind: "person" };
+    if (Math.hypot(px - L.T[0], py - L.T[1]) < 18 * dpr) return { kind: "top" };
+    if (Math.hypot(px - L.F[0], py - L.F[1]) < 18 * dpr) return { kind: "foot" };
+    return null;
+  }
+  function setRange(el, v) {
+    const step = Number(el.step) || 1, min = Number(el.min), max = Number(el.max);
+    const q = clamp(Math.round(v / step) * step, min, max);
+    const s = q.toFixed(step < 0.1 ? 2 : step < 1 ? 1 : 0);
+    if (el.value !== s) { el.value = s; return true; }
+    return false;
+  }
+  function dragTo(px, py) {
+    if (!drag) return;
+    let changed = false;
+    if (active === "lever") {
+      const L = leverLayout();
+      const u = ((px - L.pX) * L.cs - (py - L.pY) * L.sn) / L.s;
+      if (drag.kind === "mass") changed = setRange(ui.lvS[drag.i], lv.cfg.sp + u);
+      else changed = setRange(ui.lvPivot, (px - L.x0) / L.s);
+      if (changed || lv.sim) { ui.lvPreset.value = "ozel"; readLever(); holdLever(); }
+      return;
+    }
+    if (active === "beam") {
+      const L = beamLayout(), x = (px - L.x0) / L.s;
+      const el = { person: ui.bmXP, box: ui.bmXK, A: ui.bmA, B: ui.bmB }[drag.kind];
+      if (setRange(el, x)) { ui.bmPreset.value = "ozel"; readBeam(el); refresh(); }
+      return;
+    }
+    const L = ladderLayout(), c = ld.cfg;
+    if (drag.kind === "person") {
+      const dx = L.T[0] - L.F[0], dy = L.T[1] - L.F[1];
+      changed = setRange(ui.ldD, ((px - L.F[0]) * dx + (py - L.F[1]) * dy) / (dx * dx + dy * dy));
+    } else if (drag.kind === "top") {
+      changed = setRange(ui.ldTh, deg(Math.asin(clamp((L.floorY - py) / (c.L * L.s), 0, 1))));
+    } else {
+      changed = setRange(ui.ldTh, deg(Math.acos(clamp((L.wallX - px) / (c.L * L.s), 0, 1))));
+    }
+    if (changed) { ui.ldPreset.value = "ozel"; readLadder(); refresh(); }
+  }
+  canvas.addEventListener("pointerdown", (evt) => {
+    const [px, py] = pointerXY(evt);
+    const hit = hitTest(px, py);
+    if (!hit) return;
+    if (active === "beam" && bm.walking) setWalking(false);
+    if (active === "ladder" && ld.climbing) setClimbing(false);
+    drag = hit;
+    canvas.setPointerCapture(evt.pointerId);
+    canvas.style.cursor = "grabbing";
+    evt.preventDefault();
+    dragTo(px, py);
+  });
+  canvas.addEventListener("pointermove", (evt) => {
+    const [px, py] = pointerXY(evt);
+    if (drag) { dragTo(px, py); return; }
+    canvas.style.cursor = hitTest(px, py) ? "grab" : "default";
+  });
+  const endDrag = () => { if (!drag) return; drag = null; canvas.style.cursor = "default"; };
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+
+  /* ── Başlangıç ── */
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas);
+  ro.observe(chart);
+  readLever();
+  readBeam(null);
+  readLadder();
+  const fromHash = { kaldirac: "lever", kiris: "beam", merdiven: "ladder" }[location.hash.slice(1)];
+  resize();
+  selectTab(fromHash || "lever", false);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>
