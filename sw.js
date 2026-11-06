@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-f1d0a91592";
+const VERSION = "acelya-556a66a3f8";
 // --- end:version ---
 
 // --- generated:core ---
@@ -229,6 +229,7 @@ const PAGES = [
 // --- generated:digests ---
 const DIGESTS = [
   "shared/digest/algoritmalar.js",
+  "shared/digest/alternatif-akim.js",
   "shared/digest/altin-oran.js",
   "shared/digest/asit-baz-titrasyonu.js",
   "shared/digest/asteroids.js",
@@ -243,15 +244,20 @@ const DIGESTS = [
   "shared/digest/derleyici-ve-yorumlayicilar.js",
   "shared/digest/dna-replikasyon.js",
   "shared/digest/dogal-secilim.js",
+  "shared/digest/doppler-etkisi.js",
+  "shared/digest/elektrik-devresi-simulasyonu.js",
   "shared/digest/elektrikli-araclar.js",
   "shared/digest/elektrokimya.js",
   "shared/digest/elektronik-muhendisligi.js",
   "shared/digest/enzim-kinetigi.js",
   "shared/digest/fonksiyon-grafigi.js",
+  "shared/digest/fotoelektrik.js",
   "shared/digest/fotosentez-solunum.js",
+  "shared/digest/gorelilik-uzayzaman.js",
   "shared/digest/grup-teorisi.js",
   "shared/digest/gunes-sistemi.js",
   "shared/digest/hesaplama-teorisi.js",
+  "shared/digest/ideal-gaz.js",
   "shared/digest/integral.js",
   "shared/digest/internet-ve-ag-teknolojileri.js",
   "shared/digest/is-enerji.js",
@@ -260,6 +266,8 @@ const DIGESTS = [
   "shared/digest/isletme-bilimi-ve-yonetim.js",
   "shared/digest/kepler-yasalari.js",
   "shared/digest/kimyasal-kinetik.js",
+  "shared/digest/klasik-girisim.js",
+  "shared/digest/lorentz-kuvveti.js",
   "shared/digest/maden-muhendisligi.js",
   "shared/digest/makine-dili-assembly-c.js",
   "shared/digest/makine-muhendisligi.js",
@@ -280,6 +288,7 @@ const DIGESTS = [
   "shared/digest/plc-hidrolik-pnomatik-cnc-cadcam.js",
   "shared/digest/pong.js",
   "shared/digest/programlama-paradigmalari.js",
+  "shared/digest/radyoaktif-bozunma.js",
   "shared/digest/roma-hukuku.js",
   "shared/digest/sarkac.js",
   "shared/digest/serbest-dusme.js",
@@ -287,6 +296,7 @@ const DIGESTS = [
   "shared/digest/sicim-teorisi.js",
   "shared/digest/takimyildiz-haritasi.js",
   "shared/digest/tasarim-desenleri.js",
+  "shared/digest/termodinamik.js",
   "shared/digest/turev.js",
   "shared/digest/ucak-muhendisligi-ve-aerodinamik.js",
   "shared/digest/uluslararasi-iliskiler.js",

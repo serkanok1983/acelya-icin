@@ -10,6 +10,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "alternatif-akim": {
+    "title": "Alternatif Akım: Fazörler, Rezonans ve Güç",
+    "tagline": "Bobinde akım gerilimin gerisinde kalır, kondansatörde önüne geçer; doğru frekansta bu iki etki birbirini siler. Aynı zamanlama radyoyu istasyona kilitler ve 10 voltluk kaynaktan yüzlerce volt çıkarır.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "altin-oran": {
     "title": "Altın Oran: Kendine Benzeyen Sayı",
     "tagline": "Bir çubuğu öyle böl ki kalan parça bütünün küçük kopyası olsun: φ = 1,618… Beşgende, Fibonacci dizisinde ve ayçiçeğinin sarmallarında gerçekten var; Parthenon'da ve insan yüzünde ise çoğunlukla sonradan uydurulmuş.",
@@ -70,8 +77,8 @@ window.ACELYA_CATALOG = {
     "title": "Çizge Teorisi: Köprülerden Algoritmalara",
     "tagline": "Yedi köprü, bir nehir ve 1736'da 'bunun matematikle pek ilgisi yok' diyen Euler. Noktalarla çizgilerden kurulu bu dünya bugün harita uygulamalarının, sosyal ağların ve internetin omurgası.",
     "field": "Matematik",
-    "level": "Lise",
-    "minutes": 30
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "dairesel-hareket": {
     "title": "Dairesel Hareket: Hiç Yere Varmayan Düşüş",
@@ -106,6 +113,20 @@ window.ACELYA_CATALOG = {
     "tagline": "Hiçbir canlı değişmeye çalışmaz, yine de popülasyonlar değişir. İsli kentlerdeki güvelerden kuraklıktaki ispinozlara: rastgele çeşitlilik ile seçici hayatta kalma ve üremenin kör ama güçlü ortaklığı.",
     "field": "Biyoloji",
     "level": "Lise",
+    "minutes": 30
+  },
+  "doppler-etkisi": {
+    "title": "Doppler Etkisi: Sirenden Yıldızlara",
+    "tagline": "Ambulans geçerken perde neden düşer, ses üstü bir jet neden sessizce gelip patlamayla duyulur? Hareketin dalga tepelerini nasıl sıkıştırdığını ölç; aynı ilkenin yıldızları nasıl tarttığını gör.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "elektrik-devresi-simulasyonu": {
+    "title": "Doğru Akım Devreleri: Akım Tükenmez, Enerji Paylaşılır",
+    "tagline": "Bir pil, birkaç direnç ve tel: hepsi iki korunum yasasına ve tek bir doğrusal denklem sistemine iner. Ohm'un termoçiftinden Wheatstone köprüsüne, en büyük güç aktarımından SPICE'a uzanan bir yol.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
     "minutes": 30
   },
   "elektrikli-araclar": {
@@ -143,12 +164,26 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "fotoelektrik": {
+    "title": "Fotoelektrik Olay: Işığın Bozuk Parası",
+    "tagline": "Metalden kaçmanın bir bedeli var ve ışık onu tek tek fotonlarla öder. Bir voltmetre, birkaç renk ve bir doğruyla Planck sabitini ölç: Einstein'ı haklı çıkaran, ama bunu ölçen Millikan'ı bile uzun süre ikna edemeyen deney.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "fotosentez-solunum": {
     "title": "Fotosentez ve Solunum: Havadan Şeker, Şekerden Enerji",
     "tagline": "Bir ağacın kuru kütlesinin büyük kısmı havadan gelir; soluduğun oksijen bir zamanlar fotosentez yapan bir hücrenin içindeki suydu. İki süreç aynı atomları döndürür, enerji ise tek yöne akar.",
     "field": "Biyoloji",
     "level": "Lise",
     "minutes": 30
+  },
+  "gorelilik-uzayzaman": {
+    "title": "Özel Görelilik: Uzay-Zamanın Geometrisi",
+    "tagline": "Işık hızı herkes için aynıysa saatler, cetveller ve “şimdi” gözlemciye göre değişir. Bir Minkowski diyagramında ışık saatini, eşzamanlılığı, ikizleri ve hiç değişmeyen uzay-zaman aralığını kendin ölç.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "grup-teorisi": {
     "title": "Grup Teorisi: Simetrinin Dilbilgisi",
@@ -169,6 +204,13 @@ window.ACELYA_CATALOG = {
     "tagline": "1936'da, daha ortada tek bir bilgisayar yokken, 'hesaplamak' sözcüğü tanımlandı ve aynı yıl hiçbir bilgisayarın asla cevaplayamayacağı bir soru bulundu. Bu sayfa o tanımın ve o sorunun hikâyesi.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise ileri",
+    "minutes": 35
+  },
+  "ideal-gaz": {
+    "title": "İdeal Gaz: Rastgele Çarpışmalardan Kusursuz Bir Yasa",
+    "tagline": "Basınç, duvara saniyede bırakılan momentumdur; sıcaklık, moleküllerin ortalama hareket enerjisi. Düz bir sert disk gazında PV = nRT'nin iki boyutlu hâlini, Maxwell–Boltzmann dağılımını ve ideallikten sapmayı ölç.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
     "minutes": 35
   },
   "integral": {
@@ -226,6 +268,20 @@ window.ACELYA_CATALOG = {
     "field": "Kimya",
     "level": "Lise",
     "minutes": 30
+  },
+  "klasik-girisim": {
+    "title": "Young'ın Çift Yarığı: Işığı Cetvelle Ölçmek",
+    "tagline": "Bir iğne deliği, iki yarık ve bir cetvel: nanometrelik dalga boyu milimetrelik saçaklara dönüşür. Young'ın kart deneyinden bir yıldızın çapını ölçen aynalara uzanan Δy = λL/d'nin hikâyesi.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "lorentz-kuvveti": {
+    "title": "Lorentz Kuvveti: Hıza Aldırmayan Saat",
+    "tagline": "Manyetik alan yüklü bir parçacığın süratini değiştiremez, yalnızca yolunu büker. Bu tek kural siklotronu, kütle spektrometresini, kutup ışıklarını ve füzyon plazmasını aynı denklemde buluşturur.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "maden-muhendisligi": {
     "title": "Maden Mühendisliği: Kayadan Metale Giden Yol",
@@ -343,8 +399,8 @@ window.ACELYA_CATALOG = {
     "title": "Periyodik Tablo: Boşlukları Öngören Harita",
     "tagline": "1869'da 63 elementle çizilen bir tablo, henüz keşfedilmemiş metallerin yoğunluğunu önceden söyledi. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
     "field": "Kimya",
-    "level": "Lise",
-    "minutes": 30
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "plc-hidrolik-pnomatik-cnc-cadcam": {
     "title": "Otomasyon: Beyin, Kas ve Dijital Köprü",
@@ -367,12 +423,19 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 35
   },
+  "radyoaktif-bozunma": {
+    "title": "Radyoaktif Bozunma: Zar Atan Çekirdeklerin Saati",
+    "tagline": "Tek bir çekirdeğin ne zaman bozunacağını kimse söyleyemez; milyarlarcasının yarısının ne zaman gideceğini ise şaşmadan söyleriz. Rastlantı, sayı büyüdükçe yasaya dönüşür.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "roma-hukuku": {
     "title": "Roma Hukuku: Taş Kaybolur, Kural Kalır",
-    "tagline": "Bir ipotek, bir kira sözleşmesi, bir miras davası: bugün mahkemede konuşulan dilin çoğu 2.000 yıl önce Roma'da yazıldı. Kanun kitabı değil, dava dava biriken bir düşünme yönteminin hikâyesi.",
+    "tagline": "Bir ipotek, bir kira sözleşmesi, bir miras davası: üçünün de iskeleti Roma'da kuruldu. Kanun kitabı değil, bin yıl boyunca dava dava biriken bir düşünme yönteminin hikâyesi.",
     "field": "Toplum ve Ekonomi",
-    "level": "Lise",
-    "minutes": 30
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "sarkac": {
     "title": "Sarkaç: Zamanı Ölçen Salınım",
@@ -416,12 +479,19 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 35
   },
+  "termodinamik": {
+    "title": "Termodinamik: Isıyı İşe Çevirmenin Bedeli",
+    "tagline": "Isı enerjidir ama çevrimle çalışan hiçbir makine onu tamamen işe çeviremez. Bir gazı PV diyagramında adım adım yönet, birinci yasanın defterini tut; Carnot, Otto ve Stirling'in yüzde yüze neden ulaşamadığını ölç.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "turev": {
     "title": "Türev: Anlık Değişimi Yakalamak",
-    "tagline": "Duran bir fotoğrafın hızı olur mu? Türev bu soruya iki yüzyıl süren bir kavganın sonunda verilen cevaptır: sıfıra yaklaşan ama sıfır olmayan bir adımla eğimi yakalamak.",
+    "tagline": "Duran bir fotoğrafın hızı olur mu? Türev, sıfıra yaklaşan ama sıfır olmayan bir adımla eğimi yakalar; bilgisayar ise o adımı fazla küçültünce yanılmaya başlar.",
     "field": "Matematik",
-    "level": "Lise",
-    "minutes": 30
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "ucak-muhendisligi-ve-aerodinamik": {
     "title": "Aerodinamik: Havayı Aşağı İten Kanat",
