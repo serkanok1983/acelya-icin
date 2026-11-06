@@ -129,8 +129,16 @@ Hard requirements: sarkac.html skeleton (app-root, theme.css, viewport-fit=cover
 no body{overflow:hidden}; Turkish UI text without emoji; <label for> on every control, aria-live readouts, role="img"
 canvases; physics verified numerically with a node script (scratch under .shots/tmp-<slug>/, deleted at the end);
 a single self-contained HTML file; do not modify any other file. Do not uppercase labels that contain symbols.
+Lessons from the previous rebuilds (reviewers flagged these; avoid them):
+- Every preset value must be reachable with its slider step, and each tab needs a reset to its defaults.
+- Use one rounding helper everywhere; a card and the status line must agree, especially at boundary values.
+- Never print a measured value for a quantity that is not defined in the current state (use thresholds relative to
+  the problem's scale, not absolute epsilons); say why instead.
+- When the configuration is physically unobservable or outside the model's validity, the status line must say so.
+- Changing a parameter must restart any running measurement; never leave a card stuck at "ölçülüyor…".
 Testing: check-site --only <slug> (exit 0), smoke --only <slug> (0 errors), shot.mjs dark / light / --width 390 --full;
-look at every screenshot.
+look at every screenshot. Own Playwright scripts: set localStorage "acelya-user", "loggedIn" = "true" and
+"acelya-sound-muted" = "1" with context.addInitScript (login gate).
 Report (sections): title/purpose; controls (label, id, range, default, unit); readouts (id, formula); canvases;
 model and constants with sources; reference numbers for the default state and each experiment (measured vs theory);
 limitations; test results.
@@ -174,6 +182,12 @@ main changes; simulationNotes; remaining uncertainties.
   her grup bitince commit'le.
 - Ajan raporları kaybolabilir: kurucu raporlarını dosyaya yazdır (`.shots/briefs/`), sayfa sayılarını oradan al.
 - Bir ajan yalnız kendi geçici klasörünü silmeli; ortak `.shots/` klasörünü toptan silmesin.
+- Sitenin giriş kapısı oturum yoksa `index.html`'e yönlendirir. `smoke.mjs` ve `shot.mjs` bunu aşıyor; ajanların kendi
+  Playwright betikleri `context.addInitScript` ile `acelya-user`, `loggedIn = "true"` ve `acelya-sound-muted = "1"`
+  yazmalı.
+- Doğrulayıcıların bulduğu sayfa hataları çoğunlukla aynı türden: hazır değere kaydırıcıyla ulaşılamaması, kart ile
+  durum satırının sınır değerde çelişmesi, tanımsız bir nicelik için "ölçülen" değer yazılması (mutlak eşikler),
+  gözlenemeyen bir düzenin uyarısız bırakılması. Kurucu istemindeki "Lessons" listesi bunlar için.
 
 ## Yapılandırılmış çıktılar
 
