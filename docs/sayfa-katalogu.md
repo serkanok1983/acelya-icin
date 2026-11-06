@@ -86,7 +86,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `tork-denge` — Tork ve Denge (sayfa başlığı: Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik)
 - `is-enerji` — İş–Enerji (sayfa başlığı: İş–Enerji İlkesi)
 - `newton-hareket-yasalari` — Newton Yasaları (sayfa başlığı: Newton’un Hareket Yasaları ve Çarpışmalar)
-- `atislar` — Atış (3B) (sayfa başlığı: 3D Atış Simülasyonu)
+- `atislar` — Eğik Atış (sayfa başlığı: Eğik Atış: Hava Direnci ve En İyi Açı)
 - `serbest-dusme` — Serbest Düşme (sayfa başlığı: Serbest Düşme ve Hava Direnci)
 - `kaldirma-kuvveti` — Kaldırma Kuvveti (sayfa başlığı: Kaldırma Kuvveti: Arşimet İlkesi ve Yüzme)
 - `basinc` — Basınç (sayfa başlığı: Basınç: Hidrostatik, Pascal İlkesi ve Hidrolik)

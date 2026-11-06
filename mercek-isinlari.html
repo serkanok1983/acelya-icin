@@ -2,217 +2,1814 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mercek Işın Diyagramı</title>
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu</title>
+  <meta name="description" content="Yakınsak ve ıraksak ince mercekte görüntüyü üç asal ışınla bul ve mercek denklemiyle karşılaştır; merceğin biçiminden ve camından odak uzaklığını hesapla, mikroskopta ve teleskopta iki merceği birleştir.">
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100vh;
-      background: #0a0e14; color: #e6edf3;
-      font-family: system-ui, -apple-system, sans-serif;
-      display: flex; flex-direction: column; align-items: center;
-      padding: 1rem;
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
     }
-    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); margin: 0.5rem 0; }
-    p.sub { color: #8b949e; font-size: 0.9rem; margin: 0 0 1rem; max-width: 36rem; text-align: center; }
-    canvas {
-      background: #121820; border-radius: 8px;
-      max-width: 100%; height: auto; touch-action: none;
-      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
     }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, 1fr);
+      grid-template-areas: "stage stage" "main side";
+      gap: 14px 16px;
+      align-items: start;
+    }
+    .stage-wrap { grid-area: stage; display: grid; gap: 8px; min-width: 0; }
+    .main { grid-area: main; display: grid; gap: 12px; min-width: 0; }
+    .side { grid-area: side; display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 11 / 5;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+    }
+    .lab[data-tab="yapici"] .sim-canvas { touch-action: auto; }
+    .sim-canvas.is-grab { cursor: grab; }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; }
+    .legend span { white-space: nowrap; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.k-r1 { border-top-color: var(--accent); }
+    .legend i.k-r2 { border-top-color: var(--accent-2); }
+    .legend i.k-r3 { border-top-color: #f472b6; }
+    .legend i.k-obj { border-top-color: var(--accent-warm); }
+    .legend i.k-img { border-top-color: #60a5fa; }
+    .legend i.k-mid { border-top-color: var(--text-muted); }
+    [data-theme="light"] .legend i.k-r3 { border-top-color: #db2777; }
+    [data-theme="light"] .legend i.k-img { border-top-color: #2563eb; }
     .panel {
-      display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem;
-      justify-content: center; align-items: center;
-      margin: 1rem 0; max-width: 720px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
     }
-    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
-    input[type="range"] { width: 140px; accent-color: #58a6ff; }
-    select, button {
-      padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d;
-      background: #21262d; color: #e6edf3; font-size: 0.9rem; cursor: pointer;
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts-wrap { display: grid; gap: 10px; min-width: 0; }
+    .group { display: grid; gap: 10px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
     }
-    button:hover { background: #30363d; }
-    button.active { background: #238636; border-color: #238636; }
-    .legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.8rem; margin-top: 0.5rem; }
-    .legend span::before { content: ''; display: inline-block; width: 12px; height: 3px; margin-right: 6px; vertical-align: middle; }
-    .l-inc::before { background: #f0883e; }
-    .l-par::before { background: #58a6ff; }
-    .l-foc::before { background: #3fb950; }
-    .l-cen::before { background: #d2a8ff; }
-    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 32rem; }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.8rem; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 34%; }
+    .lab table.cmp tr.is-sel th, .lab table.cmp tr.is-sel td { color: var(--accent-warm) !important; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "main"; gap: 12px; }
+      .sim-canvas { aspect-ratio: 16 / 10; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.78rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="mercek-isinlari">
-  <h1>Mercek Işın Diyagramı</h1>
-  <p class="sub">İnce ve kalın merceklerde üç temel ışın kuralını keşfedin. Nesneyi sürükleyin veya kaydırıcıyı kullanın.</p>
-  <canvas id="cv"></canvas>
-  <div class="panel">
-    <button id="btnConvex" class="active">İnce (Toplayıcı)</button>
-    <button id="btnConcave">Kalın (Dağıtıcı)</button>
-    <label>Nesne konumu (s)
-      <input type="range" id="objPos" min="-180" max="-40" value="-120">
-    </label>
-    <label>Mercek odak uzaklığı (f)
-      <input type="range" id="focal" min="60" max="140" value="90">
-    </label>
+
+<div class="app-content">
+  <h1>İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu</h1>
+  <p class="hint">Bir sekme seç; cismi, odak noktalarını ya da ikinci merceği sürükle veya kaydırıcıları kullan. Görüntünün yerini çizilen ışınların kesişiminden ölç, ince mercek denklemi 1/s<sub>o</sub> + 1/s<sub>i</sub> = 1/f ile karşılaştır.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney senaryoları">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-tek" data-tab="tek" aria-selected="true" aria-controls="labPanel">Tek mercek</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-yapici" data-tab="yapici" aria-selected="false" aria-controls="labPanel" tabindex="-1">Mercek yapıcı denklemi</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-iki" data-tab="iki" aria-selected="false" aria-controls="labPanel" tabindex="-1">İki mercekli sistemler</button>
   </div>
-  <div class="legend">
-    <span class="l-inc">Gelen ışın</span>
-    <span class="l-par">Paralel kural</span>
-    <span class="l-foc">Odak kuralı</span>
-    <span class="l-cen">Merkez kuralı</span>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-tek" data-tab="tek">
+    <div class="stage-wrap">
+      <canvas id="stageCanvas" class="sim-canvas" width="1100" height="500" role="img" aria-label="Sahne"></canvas>
+      <p class="legend" data-for="tek">
+        <span><i class="k-r1"></i>1: eksene paralel gelir, F′ üzerinden çıkar</span>
+        <span><i class="k-r2"></i>2: merkezden sapmadan geçer</span>
+        <span><i class="k-r3"></i>3: F üzerinden gelir, paralel çıkar</span>
+        <span><i class="k-mid dash"></i>sanal uzantı</span>
+        <span><i class="k-obj"></i>cisim</span>
+        <span><i class="k-img"></i>görüntü</span>
+      </p>
+      <p class="legend" data-for="yapici" hidden>
+        <span><i class="k-r1"></i>eksen yakını ışınlar</span>
+        <span><i class="k-obj"></i>kenar ışınları</span>
+        <span><i class="k-mid dash"></i>sanal uzantı</span>
+        <span>F′: eksen yakını odak · H′: arka ana düzlem · C₁, C₂: eğrilik merkezleri</span>
+      </p>
+      <p class="legend" data-for="iki" hidden>
+        <span><i class="k-r1"></i>ışın 1</span>
+        <span><i class="k-r2"></i>ışın 2</span>
+        <span><i class="k-r3"></i>ışın 3</span>
+        <span><i class="k-mid dash"></i>sanal uzantı</span>
+        <span><i class="k-obj"></i>cisim</span>
+        <span><i class="k-mid"></i>ara görüntü</span>
+        <span><i class="k-img"></i>son görüntü</span>
+      </p>
+    </div>
+
+    <div class="side">
+      <div class="panel" data-for="tek" role="group" aria-labelledby="ttlA">
+        <h2 id="ttlA">Mercek ve cisim</h2>
+        <div class="field">
+          <label for="aType"><span class="lt">Mercek türü</span><output id="aTypeOut" for="aType">f &gt; 0</output></label>
+          <select id="aType">
+            <option value="yakinsak" selected>Yakınsak (ince kenarlı)</option>
+            <option value="iraksak">Iraksak (kalın kenarlı)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aF"><span class="lt">Odak uzaklığı |f|</span><output id="aFOut" for="aF">f = +10.0 cm</output></label>
+          <input type="range" id="aF" min="4" max="20" step="0.5" value="10">
+        </div>
+        <div class="field">
+          <label for="aSo"><span class="lt">Cismin uzaklığı s<sub>o</sub></span><output id="aSoOut" for="aSo">30.0 cm</output></label>
+          <input type="range" id="aSo" min="2" max="50" step="0.5" value="30">
+        </div>
+        <div class="field">
+          <label for="aHo"><span class="lt">Cismin boyu h<sub>o</sub></span><output id="aHoOut" for="aHo">3.0 cm</output></label>
+          <input type="range" id="aHo" min="0.5" max="6" step="0.1" value="3">
+        </div>
+        <label class="check" for="aFan"><input type="checkbox" id="aFan"> Cismin ucundan çıkan 9 ışınlık demeti de çiz</label>
+        <div class="row" role="group" aria-label="Hazır deneyler">
+          <button type="button" class="app-btn-ghost" data-preset-a="2f">Cisim 2F'de</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="f2f">F ile 2F arasında</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="f">Cisim F'de</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="buyutec">Büyüteç</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="iraksak">Iraksak mercek</button>
+          <button type="button" id="aReset" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">İşaret kuralı: ışık soldan sağa gider ve cisim merceğin solundadır, s<sub>o</sub> &gt; 0. Gerçek görüntü merceğin sağında oluşur, s<sub>i</sub> &gt; 0; sanal görüntü cisimle aynı yandadır, s<sub>i</sub> &lt; 0. Yakınsak mercekte f &gt; 0, ıraksakta f &lt; 0. Büyütme m = −s<sub>i</sub>/s<sub>o</sub> eksiyse görüntü terstir.</p>
+        <p class="note">F, cismin bulunduğu yandaki (ön), F′ öbür yandaki (arka) odak noktasıdır. Iraksak mercekte F′ cismin yanına geçer: paralel gelen ışın, uzantısı F′ üzerinden geçecek biçimde saçılır.</p>
+        <p class="note">Sahnede cismin ucunu (s<sub>o</sub> ve h<sub>o</sub>), gövdesini (yalnız s<sub>o</sub>) ya da F, F′ işaretlerini (|f|) sürükleyebilirsin. Düşey ölçek okunaklılık için büyütülmüştür; doğrular doğru olarak kaldığı için kesişim noktaları değişmez. Kısayol: <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="yapici" role="group" aria-labelledby="ttlB" hidden>
+        <h2 id="ttlB">Merceğin biçimi ve camı</h2>
+        <div class="field">
+          <label for="bShape"><span class="lt">Hazır biçim</span><output id="bShapeOut" for="bShape">kenarı ince</output></label>
+          <select id="bShape">
+            <option value="bikonveks" selected>Eşit dışbükey · R₁ = +10, R₂ = −10 cm</option>
+            <option value="duzkonveks1">Düz-dışbükey, eğri yüz ışığa · R₁ = +10 cm, R₂ = ∞</option>
+            <option value="duzkonveks2">Düz-dışbükey, düz yüz ışığa · R₁ = ∞, R₂ = −10 cm</option>
+            <option value="menisk1">Yakınsak menisküs · R₁ = +10, R₂ = +20 cm</option>
+            <option value="bikonkav">Eşit içbükey · R₁ = −10, R₂ = +10 cm</option>
+            <option value="duzkonkav">Düz-içbükey · R₁ = ∞, R₂ = +10 cm</option>
+            <option value="menisk2">Iraksak menisküs · R₁ = +20, R₂ = +10 cm</option>
+            <option value="ozel">Özel (kaydırıcılardan)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bC1"><span class="lt">Ön yüzeyin eğriliği 1/R₁</span><output id="bC1Out" for="bC1">R₁ = +10.0 cm</output></label>
+          <input type="range" id="bC1" min="-25" max="25" step="0.25" value="10">
+        </div>
+        <div class="field">
+          <label for="bC2"><span class="lt">Arka yüzeyin eğriliği 1/R₂</span><output id="bC2Out" for="bC2">R₂ = −10.0 cm</output></label>
+          <input type="range" id="bC2" min="-25" max="25" step="0.25" value="-10">
+        </div>
+        <div class="field">
+          <label for="bGlass"><span class="lt">Merceğin malzemesi</span><output id="bGlassOut" for="bGlass">n = 1.5168</output></label>
+          <select id="bGlass">
+            <option value="bk7" selected>BK7 taç camı · 1.5168</option>
+            <option value="pmma">Akrilik (PMMA) · 1.491</option>
+            <option value="pc">Polikarbonat · 1.586</option>
+            <option value="f2">F2 çakmaktaşı camı · 1.620</option>
+            <option value="elmas">Elmas · 2.417</option>
+            <option value="su">Su · 1.333</option>
+            <option value="hava">Hava (kabarcık) · 1.000</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bMedium"><span class="lt">Çevredeki ortam</span><output id="bMediumOut" for="bMedium">n = 1.000</output></label>
+          <select id="bMedium">
+            <option value="hava" selected>Hava · 1.000</option>
+            <option value="su">Su · 1.333</option>
+            <option value="gliserin">Gliserin · 1.473</option>
+            <option value="yag">İmmersiyon yağı · 1.515</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" id="bReset" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">İşaret kuralı: yüzeyin eğrilik merkezi sağdaysa (ışığın gittiği yanda) R &gt; 0, soldaysa R &lt; 0; düz yüzeyde 1/R = 0, yani R = ∞. Eşit dışbükey mercekte R₁ &gt; 0 ve R₂ &lt; 0 olur. Kaydırıcı eğriliği (1/R, m⁻¹) değiştirir; sıfırdan geçerken yüzey düzleşip öbür yana bükülür.</p>
+        <p class="note">İnce mercek: 1/f = (n/n<sub>ortam</sub> − 1)(1/R₁ − 1/R₂). Kırıcılık P = 1/f, f metre cinsinden; birimi diyoptridir (1 D = 1 m⁻¹). Göz biliminde bir ortamın içindeki güç n<sub>ortam</sub>/f olarak da tanımlanır; burada her ortam için 1/f gösterilir.</p>
+        <p class="note">Model: merceğin çapı 4.0 cm; ortası ya da kenarı en az 1.5 mm kalınlıkta olacak biçimde çizilir. Sahnedeki ışınlar iki küresel yüzeyde Snell yasasıyla (n₁ sin θ₁ = n₂ sin θ₂) tam olarak kırılır, paraksiyal yaklaşım yoktur. Kalın mercek: 1/f = (n<sub>r</sub> − 1)[1/R₁ − 1/R₂ + (n<sub>r</sub> − 1)t/(n<sub>r</sub>R₁R₂)], n<sub>r</sub> = n/n<sub>ortam</sub>, t orta kalınlık. Kırılma indisleri havaya göre ve sarı ışık (587–589 nm) içindir. Kısayol: <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="iki" role="group" aria-labelledby="ttlC" hidden>
+        <h2 id="ttlC">İki mercek</h2>
+        <div class="field">
+          <label for="cPreset"><span class="lt">Hazır düzen</span><output id="cPresetOut" for="cPreset">mikroskop</output></label>
+          <select id="cPreset">
+            <option value="mikroskop" selected>Mikroskop · f₁ = 1.6 cm, f₂ = 2.5 cm</option>
+            <option value="kepler">Kepler teleskobu · f₁ = 50 cm, f₂ = 5 cm</option>
+            <option value="galileo">Galileo teleskobu · f₁ = 50 cm, f₂ = −5 cm</option>
+            <option value="serbest">Serbest düzen</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cObj"><span class="lt">Cisim</span><output id="cObjOut" for="cObj">sonlu uzaklıkta</output></label>
+          <select id="cObj">
+            <option value="sonlu" selected>Sonlu uzaklıkta (ok)</option>
+            <option value="sonsuz">Sonsuzda (paralel ışınlar)</option>
+          </select>
+        </div>
+        <div class="field" id="cSoField">
+          <label for="cSo"><span class="lt">Cismin 1. merceğe uzaklığı s<sub>o</sub></span><output id="cSoOut" for="cSo">1.76 cm</output></label>
+          <input type="range" id="cSo" min="0.5" max="80" step="0.01" value="1.76">
+        </div>
+        <div class="field" id="cHoField">
+          <label for="cHo"><span class="lt">Cismin boyu h<sub>o</sub></span><output id="cHoOut" for="cHo">0.50 mm</output></label>
+          <input type="range" id="cHo" min="0.01" max="5" step="0.01" value="0.05">
+        </div>
+        <div class="field" id="cThField" hidden>
+          <label for="cTh"><span class="lt">Uzak cismin açısı θ₀</span><output id="cThOut" for="cTh">1.0°</output></label>
+          <input type="range" id="cTh" min="0.1" max="5" step="0.1" value="1">
+        </div>
+        <div class="field">
+          <label for="c1Type"><span class="lt">1. mercek (objektif)</span><output id="c1TypeOut" for="c1Type">f₁ &gt; 0</output></label>
+          <select id="c1Type">
+            <option value="yakinsak" selected>Yakınsak</option>
+            <option value="iraksak">Iraksak</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cF1"><span class="lt">Odak uzaklığı |f₁|</span><output id="cF1Out" for="cF1">f₁ = +1.6 cm</output></label>
+          <input type="range" id="cF1" min="0.5" max="60" step="0.1" value="1.6">
+        </div>
+        <div class="field">
+          <label for="c2Type"><span class="lt">2. mercek (göz merceği)</span><output id="c2TypeOut" for="c2Type">f₂ &gt; 0</output></label>
+          <select id="c2Type">
+            <option value="yakinsak" selected>Yakınsak</option>
+            <option value="iraksak">Iraksak</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cF2"><span class="lt">Odak uzaklığı |f₂|</span><output id="cF2Out" for="cF2">f₂ = +2.5 cm</output></label>
+          <input type="range" id="cF2" min="0.5" max="30" step="0.1" value="2.5">
+        </div>
+        <div class="field">
+          <label for="cD"><span class="lt">Mercekler arası uzaklık d</span><output id="cDOut" for="cD">20.1 cm</output></label>
+          <input type="range" id="cD" min="0.5" max="100" step="0.1" value="20.1">
+        </div>
+        <div class="row">
+          <button type="button" id="cReset" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">Birinci merceğin oluşturduğu ara görüntü ikinci merceğin cismidir: s<sub>o2</sub> = d − s<sub>i1</sub>. Ara görüntü ikinci merceğin arkasına düşerse s<sub>o2</sub> &lt; 0 olur (sanal cisim). Toplam büyütme m = m₁m₂.</p>
+        <p class="note">Açısal büyütme M, göz ikinci merceğin hemen arkasındayken son görüntünün göründüğü açının çıplak gözle görülen açıya oranıdır: mikroskopta cisme 25 cm'den bakılır, teleskopta cisim sonsuzdadır. Açılar tanjantlarıyla alınır. L = d − f₁ − f₂, objektifin arka odağı ile göz merceğinin ön odağı arasındaki tüp uzunluğudur.</p>
+        <p class="note">Sahnede cismin ucunu ya da ikinci merceği sürükleyebilirsin. Bir ayarı değiştirince düzen "Serbest"e geçer. Düşey ölçek büyütülmüştür. Kısayol: <kbd>R</kbd> sıfırla.</p>
+      </div>
+    </div>
+
+    <div class="main">
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Grafik"></canvas>
+      <div class="readouts-wrap" aria-live="polite">
+        <div class="group" data-for="tek">
+          <div class="cards">
+            <div class="readout is-highlight"><small>Görüntünün türü</small><strong id="aKind">—</strong></div>
+            <div class="readout"><small>Yönü</small><strong id="aOrient">—</strong></div>
+            <div class="readout"><small>Boyu</small><strong id="aSize">—</strong></div>
+            <div class="readout"><small>Kırıcılık P = 1/f</small><strong id="aPow">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Işınların kesişiminden ölçülen görüntü ile ince mercek denkleminin karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (ışınlar)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Görüntü uzaklığı s<sub>i</sub></th><td id="aSiM">—</td><td id="aSiT">—</td><td id="aSiD" class="diff">—</td></tr>
+              <tr><th scope="row">Görüntü boyu h<sub>i</sub></th><td id="aHiM">—</td><td id="aHiT">—</td><td id="aHiD" class="diff">—</td></tr>
+              <tr><th scope="row">Büyütme m</th><td id="aMM">—</td><td id="aMT">—</td><td id="aMD" class="diff">—</td></tr>
+              <tr><th scope="row">Newton: x<sub>o</sub>x<sub>i</sub> ile f²</th><td id="aNM">—</td><td id="aNT">—</td><td id="aND" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Ölçülen değerler çizilen ışınlardan gelir: her ışın mercek düzleminde u′ = u − y/f kuralıyla kırılır (y ışının merceğe çarptığı yükseklik, u eğimi); kırılan ışınların doğruları en küçük kareler yöntemiyle kesiştirilir. Kuram: 1/s<sub>o</sub> + 1/s<sub>i</sub> = 1/f ve m = −s<sub>i</sub>/s<sub>o</sub>. Newton biçimi uzaklıkları odak noktalarından ölçer: x<sub>o</sub> = s<sub>o</sub> − f, x<sub>i</sub> = s<sub>i</sub> − f.</p>
+          <p class="status" id="aStatus"></p>
+        </div>
+
+        <div class="group" data-for="yapici" hidden>
+          <div class="cards">
+            <div class="readout"><small>Eğrilik farkı 1/R₁ − 1/R₂</small><strong id="bK">—</strong></div>
+            <div class="readout"><small>Kalınlık: ortada · kenarda</small><strong id="bThick">—</strong></div>
+            <div class="readout"><small>Bağıl indis n/n<sub>ortam</sub></small><strong id="bNrel">—</strong></div>
+            <div class="readout is-highlight"><small>Seçili ortamda</small><strong id="bBehav">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Aynı merceğin dört ortamdaki odak uzaklığı ve kırıcılığı, ince mercek denklemiyle</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Ortam (ince mercek)</th><th scope="col">n<sub>ortam</sub></th><th scope="col">f</th><th scope="col">P = 1/f</th></tr></thead>
+            <tbody>
+              <tr data-medium="hava"><th scope="row">Hava</th><td>1.000</td><td id="bFhava">—</td><td id="bPhava">—</td></tr>
+              <tr data-medium="su"><th scope="row">Su</th><td>1.333</td><td id="bFsu">—</td><td id="bPsu">—</td></tr>
+              <tr data-medium="gliserin"><th scope="row">Gliserin</th><td>1.473</td><td id="bFgliserin">—</td><td id="bPgliserin">—</td></tr>
+              <tr data-medium="yag"><th scope="row">İmmersiyon yağı</th><td>1.515</td><td id="bFyag">—</td><td id="bPyag">—</td></tr>
+            </tbody>
+          </table>
+          <div class="cards">
+            <div class="readout is-highlight"><small>f<sub>su</sub> / f<sub>hava</sub></small><strong id="bRatio">—</strong></div>
+            <div class="readout"><small>Suda kalan güç P<sub>su</sub>/P<sub>hava</sub></small><strong id="bPowLeft">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Seçili ortamda Snell yasasıyla ışın izleme ile ince ve kalın mercek formüllerinin karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Seçili ortamda</th><th scope="col">Işın izleme</th><th scope="col">Formül</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">f, ince mercek denklemi</th><td id="bF1m">—</td><td id="bF1t">—</td><td id="bF1d" class="diff">—</td></tr>
+              <tr><th scope="row">f, kalın mercek denklemi</th><td id="bF2m">—</td><td id="bF2t">—</td><td id="bF2d" class="diff">—</td></tr>
+              <tr><th scope="row">Arka odak uzaklığı (arka yüzeyden)</th><td id="bBm">—</td><td id="bBt">—</td><td id="bBd" class="diff">—</td></tr>
+              <tr><th scope="row">Küresel sapma x<sub>F′</sub> − x<sub>kenar</sub> (h = 1.8 cm)</th><td id="bLsa">—</td><td>—</td><td>—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Işın izleme: eksenden 1 µm yükseklikte paralel gelen bir ışın merceğin iki yüzeyinde Snell yasasıyla kırılır; f bu ışının çıkıştaki eğiminden (f = −h/u′), arka odak uzaklığı ekseni kestiği noktadan ölçülür. İnce mercek denklemiyle aradaki fark merceğin kalınlığından gelir.</p>
+          <p class="status" id="bStatus"></p>
+        </div>
+
+        <div class="group" data-for="iki" hidden>
+          <div class="cards">
+            <div class="readout"><small>Ara görüntü s<sub>i1</sub> (1. mercekten)</small><strong id="cSi1">—</strong></div>
+            <div class="readout"><small>Objektifin büyütmesi m₁</small><strong id="cM1">—</strong></div>
+            <div class="readout"><small>2. merceğin cismi s<sub>o2</sub> = d − s<sub>i1</sub></small><strong id="cSo2">—</strong></div>
+            <div class="readout"><small>Göz merceğinin büyütmesi m₂</small><strong id="cM2">—</strong></div>
+            <div class="readout"><small id="cTubeLabel">Tüp uzunluğu L = d − f₁ − f₂</small><strong id="cTube">—</strong></div>
+            <div class="readout"><small>Sistemin kırıcılığı P = P₁ + P₂ − dP₁P₂</small><strong id="cPsys">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">İki mercekten ışın izleme ile adım adım ince mercek hesabının karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Işın izleme</th><th scope="col">Adım adım</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Son görüntü s<sub>i2</sub> (2. mercekten)</th><td id="cSiM">—</td><td id="cSiT">—</td><td id="cSiD" class="diff">—</td></tr>
+              <tr><th scope="row">Toplam büyütme m = m₁m₂</th><td id="cMM">—</td><td id="cMT">—</td><td id="cMD" class="diff">—</td></tr>
+              <tr><th scope="row">Açısal büyütme M (göz 2. mercekte)</th><td id="cAM">—</td><td id="cAT">—</td><td id="cAD" class="diff">—</td></tr>
+              <tr><th scope="row" id="cXLabel">M ≈ −(L/f₁)(25 cm/f₂)</th><td id="cXM">—</td><td id="cXT">—</td><td id="cXD" class="diff">—</td></tr>
+              <tr><th scope="row">Eşdeğer odak uzaklığı f<sub>eş</sub> = 1/P</th><td id="cFM">—</td><td id="cFT">—</td><td id="cFD" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Işın izleme: üç ışın iki mercekten u′ = u − y/f kuralıyla geçirilir, son doğruların kesişimi ölçülür. M için cismin ucundan çıkıp ikinci merceğin merkezine varan ışın bulunur ve çıkış eğimi kullanılır; f<sub>eş</sub> eksene paralel gelen bir ışının çıkış eğiminden (f<sub>eş</sub> = −h/u′) bulunur. Adım adım: 1/s<sub>o</sub> + 1/s<sub>i</sub> = 1/f her merceğe sırayla uygulanır.</p>
+          <p class="status" id="cStatus"></p>
+        </div>
+      </div>
+    </div>
   </div>
-  <p id="info"></p>
+</div>
+
 <script>
-const cv = document.getElementById('cv');
-const ctx = cv.getContext('2d');
-let W, H, cx, cy, f, convex = true, objX;
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
 
-function resize() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const w = Math.min(800, window.innerWidth - 24);
-  const h = Math.min(420, window.innerHeight * 0.55);
-  cv.width = w * dpr; cv.height = h * dpr;
-  cv.style.width = w + 'px'; cv.style.height = h + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  W = w; H = h; cx = W / 2; cy = H / 2;
-  draw();
-}
-window.addEventListener('resize', resize);
+  /* ── FİZİK (doğrulama betiği bu bloğu ayıklar) ── */
+  // >>> PHYS
+  const PHYS = (() => {
+    /* Birimler: uzunluk cm, eğrilik 1/cm (kaydırıcılar m⁻¹ gösterir), kırıcılık D = 100/f(cm).
+       İşaret kuralı (gerçek pozitif): ışık +x yönünde gider. s_o > 0 gerçek cisim (merceğin solunda),
+       s_i > 0 gerçek görüntü (sağda), s_i < 0 sanal görüntü; f > 0 yakınsak, f < 0 ıraksak.
+       Eğrilik merkezi yüzeyin sağındaysa R > 0.
+       Kırılma indisleri havaya göre, sarı ışıkta (d çizgisi 587.6 nm ya da D çizgisi 589 nm):
+         N-BK7 1.5168  Schott veri sayfası, n_d = 1.51680
+         PMMA 1.491    Sultanova ve ark. (2009), 589 nm'de ≈ 1.4905
+         PC 1.586      polikarbonat, n_d ≈ 1.585–1.586 (göz camı kataloğu "1.59")
+         F2 1.620      Schott veri sayfası, n_d = 1.62004
+         elmas 2.417   Peter (1923), 589 nm'de 2.4175
+         su 1.333      20 °C, 589 nm (havaya göre 1.3330)
+         gliserin 1.473  20 °C, CRC Handbook 1.4729
+         immersiyon yağı 1.515  ISO 8036 (23 °C'de n_e = 1.518, n_D ≈ 1.515)
+       Hava için n = 1: katalog indisleri zaten havaya göre verilir. */
+    const NEAR = 25;            // cm, en yakın net görme uzaklığı (açısal büyütme başvurusu)
+    const INF_INV = 1e-9;       // |1/s| bundan küçükse görüntü sonsuzda sayılır (|s| > 10 km)
+    const APERTURE = 2.0;       // cm, (b) sekmesindeki merceğin yarı çapı
+    const T_CENTER_MIN = 0.15;  // cm, en ince orta kalınlık
+    const T_EDGE_MIN = 0.15;    // cm, en ince kenar kalınlığı
+    const GLASSES = {
+      bk7: { name: "BK7 taç camı", n: 1.5168 },
+      pmma: { name: "Akrilik (PMMA)", n: 1.491 },
+      pc: { name: "Polikarbonat", n: 1.586 },
+      f2: { name: "F2 çakmaktaşı camı", n: 1.62 },
+      elmas: { name: "Elmas", n: 2.417 },
+      su: { name: "Su", n: 1.333 },
+      hava: { name: "Hava", n: 1.0 },
+    };
+    const MEDIA = {
+      hava: { name: "Hava", n: 1.0 },
+      su: { name: "Su", n: 1.333 },
+      gliserin: { name: "Gliserin", n: 1.473 },
+      yag: { name: "İmmersiyon yağı", n: 1.515 },
+    };
 
-document.getElementById('btnConvex').onclick = () => { convex = true; updateBtns(); draw(); };
-document.getElementById('btnConcave').onclick = () => { convex = false; updateBtns(); draw(); };
-function updateBtns() {
-  document.getElementById('btnConvex').classList.toggle('active', convex);
-  document.getElementById('btnConcave').classList.toggle('active', !convex);
-}
-document.getElementById('objPos').oninput = draw;
-document.getElementById('focal').oninput = draw;
+    // İnce mercek denklemi 1/s_o + 1/s_i = 1/f → s_i. s_o = f ise görüntü sonsuzda (Infinity).
+    function imageDistance(so, f) {
+      const inv = 1 / f - 1 / so;
+      return Math.abs(inv) < INF_INV ? Infinity : 1 / inv;
+    }
 
-let drag = false;
-cv.addEventListener('pointerdown', e => { drag = true; moveObj(e); });
-cv.addEventListener('pointermove', e => { if (drag) moveObj(e); });
-cv.addEventListener('pointerup', () => drag = false);
+    // Paraksiyal ışın (x, y, u): u = dy/dx. Mercek düzleminde kırılma u′ = u − y/f.
+    function trace(ray, lenses) {
+      let x = ray.x, y = ray.y, u = ray.u;
+      const pts = [[x, y]];
+      for (const L of lenses) {
+        y += u * (L.x - x);
+        x = L.x;
+        pts.push([x, y]);
+        if (Number.isFinite(L.f)) u -= y / L.f;
+      }
+      return { pts, x, y, u };
+    }
 
-function moveObj(e) {
-  const r = cv.getBoundingClientRect();
-  objX = Math.max(40, Math.min(cx - 30, e.clientX - r.left));
-  document.getElementById('objPos').value = objX - cx;
-  draw();
-}
+    // Kırılmış ışın doğrularının (y = y_k + u_k(X − x_k)) en küçük kareler kesişimi.
+    function meet(rays) {
+      const n = rays.length, x0 = rays[0].x;
+      let my = 0, mu = 0, mu2 = 0;
+      for (const r of rays) { const y = r.y + r.u * (x0 - r.x); my += y; mu += r.u; mu2 += r.u * r.u; }
+      my /= n; mu /= n; mu2 /= n;
+      let cov = 0, vu = 0;
+      for (const r of rays) { const y = r.y + r.u * (x0 - r.x); cov += (y - my) * (r.u - mu); vu += (r.u - mu) * (r.u - mu); }
+      vu /= n; cov /= n;
+      if (!(vu > 1e-24 + 1e-20 * mu2)) return { x: Infinity, y: NaN, parallel: true };
+      const X = -cov / vu;
+      if (!(Math.abs(X) < 1 / INF_INV)) return { x: Infinity, y: NaN, parallel: true };
+      return { x: x0 + X, y: my + mu * X, parallel: false };
+    }
 
-function line(x1, y1, x2, y2, color, dash) {
-  ctx.strokeStyle = color;
-  ctx.setLineDash(dash || []);
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-  ctx.setLineDash([]);
-}
+    // Cismin ucundan (−s_o, h_o) çıkan üç asal ışın; mercek x = 0'da.
+    function principalRays(so, ho, f) {
+      const rays = [
+        { kind: 1, x: -so, y: ho, u: 0 },          // eksene paralel → F′
+        { kind: 2, x: -so, y: ho, u: -ho / so },   // merkezden, sapmadan
+      ];
+      const den = so - f;                           // F'den geçen (ıraksakta F'ye yönelen) → paralel
+      if (Math.abs(den) > 1e-9 * Math.abs(f)) rays.push({ kind: 3, x: -so, y: ho, u: -ho / den });
+      return rays;
+    }
 
-function extend(x1, y1, x2, y2, color, dash) {
-  const dx = x2 - x1, dy = y2 - y1;
-  const len = Math.hypot(dx, dy) || 1;
-  line(x1, y1, x1 + (dx / len) * 500, y1 + (dy / len) * 500, color, dash);
-}
+    // Tek mercek: ölçülen (çizilen ışınların kesişimi) ve kuram
+    function singleLens(so, ho, f) {
+      const rays = principalRays(so, ho, f).map((r) => ({ ...r, out: trace(r, [{ x: 0, f }]) }));
+      const m = meet(rays.map((r) => r.out));
+      const si = imageDistance(so, f);
+      const mag = Number.isFinite(si) ? -si / so : Infinity;
+      return {
+        rays,
+        meas: { si: m.x, hi: m.y, m: m.y / ho, parallel: m.parallel },
+        theory: { si, hi: mag * ho, m: mag },
+        newtonMeas: m.parallel ? Infinity : (so - f) * (m.x - f),
+        f2: f * f,
+      };
+    }
 
-function drawRays(oy) {
-  const F = { x: cx + f, y: cy };
-  const Fv = { x: cx - f, y: cy };
-  const hitY = oy;
+    /* ── Mercek yapıcı denklemi ── */
+    const thinPower = (n, nm, C1, C2) => (n / nm - 1) * (C1 - C2);  // 1/cm
+    function thickPower(n, nm, C1, C2, t) {
+      const r = n / nm;
+      return (r - 1) * (C1 - C2) + ((r - 1) * (r - 1) * t * C1 * C2) / r;
+    }
+    function thickBFD(n, nm, C1, C2, t) {
+      const r = n / nm, P = thickPower(n, nm, C1, C2, t);
+      return Math.abs(P) < 1e-12 ? Infinity : (1 - ((r - 1) * t * C1) / r) / P;
+    }
+    // Küresel yüzeyin sehimi (tepe noktasından eksen boyunca sapma), C = 1/R
+    const sag = (C, y) => (C * y * y) / (1 + Math.sqrt(Math.max(0, 1 - C * C * y * y)));
+    function lensShape(C1, C2) {
+      const a = APERTURE;
+      const t = Math.max(T_CENTER_MIN, T_EDGE_MIN + sag(C1, a) - sag(C2, a));
+      return { a, t, edge: t + sag(C2, a) - sag(C1, a) };
+    }
+    // Işının küresel yüzeyle (tepe xv, eğrilik C) kesişimi; normal gelen ışına karşı yönlü.
+    function hitSurface(px, py, dx, dy, xv, C) {
+      if (Math.abs(C) < 1e-12) {
+        const s = (xv - px) / dx;
+        return { x: px + s * dx, y: py + s * dy, nx: -1, ny: 0 };
+      }
+      const R = 1 / C, cx = xv + R, r = Math.abs(R);
+      const ox = px - cx, b = ox * dx + py * dy, c = ox * ox + py * py - r * r, disc = b * b - c;
+      if (disc < 0) return null;
+      // s² + 2bs + c = 0, sayısal olarak kararlı kökler; ışın tepe noktasına yakın yarım küreye çarpar
+      const q = -(b + (b < 0 ? -1 : 1) * Math.sqrt(disc)), s1 = q, s2 = q !== 0 ? c / q : 0;
+      const s = C > 0 ? Math.min(s1, s2) : Math.max(s1, s2);
+      const hx = px + s * dx, hy = py + s * dy;
+      let nx = (hx - cx) / r, ny = hy / r;
+      if (nx * dx + ny * dy > 0) { nx = -nx; ny = -ny; }
+      return { x: hx, y: hy, nx, ny };
+    }
+    // Snell yasasının vektör biçimi; eta = n_gelen / n_kırılan. Tam yansımada null.
+    function refract(dx, dy, nx, ny, eta) {
+      const cosi = -(nx * dx + ny * dy), k = 1 - eta * eta * (1 - cosi * cosi);
+      if (k < 0) return null;
+      const a = eta * cosi - Math.sqrt(k);
+      const tx = eta * dx + a * nx, ty = eta * dy + a * ny, L = Math.hypot(tx, ty);
+      return [tx / L, ty / L];
+    }
+    // Eksene paralel, yüksekliği h olan ışını x0'dan başlatıp iki yüzeyden geçir.
+    function snellRay(h, n, nm, C1, C2, t, x0) {
+      const pts = [[x0, h]];
+      const s1 = hitSurface(x0, h, 1, 0, 0, C1);
+      if (!s1) return { pts, lost: true };
+      pts.push([s1.x, s1.y]);
+      const d1 = refract(1, 0, s1.nx, s1.ny, nm / n);
+      if (!d1) return { pts, lost: true };
+      const s2 = hitSurface(s1.x, s1.y, d1[0], d1[1], t, C2);
+      if (!s2) return { pts, lost: true };
+      pts.push([s2.x, s2.y]);
+      const d2 = refract(d1[0], d1[1], s2.nx, s2.ny, n / nm);
+      if (!d2) return { pts, lost: true };
+      return { pts, lost: false, x: s2.x, y: s2.y, dx: d2[0], dy: d2[1] };
+    }
+    // Işının çıkıştan sonra ekseni kestiği x (arka yüzeyden ölçülmemiş, mutlak)
+    const axisCross = (r) => (r.lost || Math.abs(r.dy) < 1e-15 ? NaN : r.x - (r.y * r.dx) / r.dy);
+    function measureLens(n, nm, C1, C2) {
+      const g = lensShape(C1, C2), t = g.t, hp = 1e-4, hm = 0.9 * g.a;
+      const p = snellRay(hp, n, nm, C1, C2, t, -1);
+      let efl = Infinity, bfd = Infinity, xF = Infinity;
+      if (!p.lost && Math.abs(p.dy) > 1e-15) {
+        efl = -hp / (p.dy / p.dx);
+        xF = axisCross(p);
+        bfd = xF - t;
+      }
+      const q = snellRay(hm, n, nm, C1, C2, t, -1);
+      const xM = axisCross(q);
+      return {
+        t, edge: g.edge, a: g.a, efl, bfd, xF, xH: xF - efl, hm,
+        xMarg: xM, lsa: Number.isFinite(xF) && Number.isFinite(xM) ? xF - xM : NaN, lostMarg: q.lost,
+        thin: 1 / thinPower(n, nm, C1, C2),
+        thick: 1 / thickPower(n, nm, C1, C2, t),
+        bfdTh: thickBFD(n, nm, C1, C2, t),
+      };
+    }
 
-  line(objX, oy, cx, hitY, '#f0883e', []);
+    /* ── İki ince mercek (1. mercek x = 0'da, 2. mercek x = d'de) ── */
+    // Adım adım, ters uzaklıklarla (verjans) hesaplanır; sonsuz ara görüntü de güvenle işlenir.
+    function twoLens(f1, f2, d, so) {
+      const v1 = 1 / f1 - 1 / so;                       // 1/s_i1 (so = Infinity → 1/f1)
+      const si1 = Math.abs(v1) < INF_INV ? Infinity : 1 / v1;
+      const q = d * v1 - 1;                             // s_o2 = q/v1, s_i1/s_o2 = 1/q
+      const so2 = Math.abs(v1) < INF_INV ? -Infinity : q / v1;
+      const v2 = Math.abs(q) < 1e-12 ? Infinity : 1 / f2 - v1 / q;   // 1/s_i2 = 1/f2 − 1/s_o2
+      const si2 = !Number.isFinite(v2) ? 0 : Math.abs(v2) < INF_INV ? Infinity : 1 / v2;
+      const finite = Number.isFinite(so), atLens2 = Math.abs(q) < 1e-12;
+      const m1 = finite ? -si1 / so : NaN;
+      const m2 = atLens2 ? 1 : Number.isFinite(so2) ? -si2 / so2 : 0;
+      const m = !finite ? NaN : atLens2 ? m1 : Number.isFinite(si2) ? si2 / (so * q) : Infinity;
+      // Açısal büyütme, göz 2. mercekte: M = θ′/θ₀ (tanjantlar)
+      const M = finite ? -NEAR / (so * q) : -1 / q;
+      const P = 1 / f1 + 1 / f2 - d / (f1 * f2);        // 1/cm
+      return { si1, so2, si2, m1, m2, m, M, P, feq: Math.abs(P) < 1e-15 ? Infinity : 1 / P, q };
+    }
+    // Ders kitabı formülleri: mikroskop (son görüntü sonsuzda) ve teleskop (afokal)
+    const microscopeM = (f1, f2, d) => -((d - f1 - f2) / f1) * (NEAR / f2);
+    const telescopeM = (f1, f2) => -f1 / f2;
 
-  if (convex) {
-    line(objX, oy, cx, oy, '#58a6ff', []);
-    extend(cx, oy, F.x, F.y, '#58a6ff', [5, 4]);
-    line(objX, oy, F.x, F.y, '#3fb950', []);
-    line(cx, hitY, cx + 200, hitY, '#3fb950', [5, 4]);
-    line(objX, oy, cx + 200, cy + (oy - cy) * (200 / (cx - objX)), '#d2a8ff', [5, 4]);
-  } else {
-    line(objX, oy, cx, oy, '#58a6ff', []);
-    extend(cx, oy, Fv.x, Fv.y, '#58a6ff', [5, 4]);
-    line(objX, oy, Fv.x, Fv.y, '#3fb950', []);
-    extend(cx, hitY, cx - 200, hitY, '#3fb950', [5, 4]);
-    line(objX, oy, cx - 200, cy + (oy - cy) * (-200 / (cx - objX)), '#d2a8ff', [5, 4]);
+    return {
+      NEAR, INF_INV, APERTURE, GLASSES, MEDIA,
+      imageDistance, trace, meet, principalRays, singleLens,
+      thinPower, thickPower, thickBFD, sag, lensShape, snellRay, axisCross, measureLens,
+      twoLens, microscopeM, telescopeM,
+    };
+  })();
+  // <<< PHYS
+
+  /* ── Biçimlendirme ── */
+  const MINUS = "−";
+  // 1e-12 payı: ikili sistemde x.xx4999… saklanan değerler elle hesaptaki gibi yuvarlansın
+  function fix(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
   }
-}
-
-function imagePoint() {
-  const s = cx - objX;
-  if (convex) {
-    const sp = 1 / (1 / f - 1 / s);
-    return { x: cx + sp, mag: -sp / s, real: sp > 0 };
+  function sgn(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r > 0 ? "+" : MINUS) + Math.abs(r).toFixed(d);
   }
-  const sp = 1 / (-1 / f - 1 / s);
-  return { x: cx + sp, mag: -sp / s, real: false };
-}
-
-function draw() {
-  f = +document.getElementById('focal').value;
-  objX = cx + (+document.getElementById('objPos').value);
-  ctx.fillStyle = '#121820';
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.strokeStyle = '#30363d';
-  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
-
-  ctx.strokeStyle = '#484f58'; ctx.setLineDash([4, 6]);
-  ctx.beginPath(); ctx.moveTo(cx + f, 0); ctx.lineTo(cx + f, H); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx - f, 0); ctx.lineTo(cx - f, H); ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.fillStyle = '#8b949e'; ctx.font = '11px sans-serif';
-  ctx.fillText('F', cx + f - 4, cy + 16);
-  ctx.fillText("F'", cx - f - 10, cy + 16);
-
-  const lensH = H * 0.7;
-  ctx.strokeStyle = convex ? '#58a6ff' : '#f85149';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  if (convex) {
-    ctx.moveTo(cx, cy - lensH / 2);
-    ctx.quadraticCurveTo(cx - 18, cy, cx, cy + lensH / 2);
-    ctx.quadraticCurveTo(cx + 18, cy, cx, cy - lensH / 2);
-  } else {
-    ctx.moveTo(cx, cy - lensH / 2);
-    ctx.quadraticCurveTo(cx + 18, cy, cx, cy + lensH / 2);
-    ctx.quadraticCurveTo(cx - 18, cy, cx, cy - lensH / 2);
+  function diffPct(meas, theory) {
+    if (!Number.isFinite(meas) || !Number.isFinite(theory) || Math.abs(theory) < 1e-12) return "—";
+    return `${sgn(((meas - theory) / Math.abs(theory)) * 100, 2)} %`;
   }
-  ctx.stroke();
+  // Uzunluk: cm (1000 cm'den itibaren m); sonsuz için "∞"
+  function fmtLen(x, d, signed) {
+    if (!Number.isFinite(x)) return "∞";
+    const f = signed ? sgn : fix;
+    return Math.abs(x) >= 1000 ? `${f(x / 100, 2)} m` : `${f(x, d)} cm`;
+  }
+  const fmtMag = (m, d) => (Number.isFinite(m) ? sgn(m, d === undefined ? 3 : d) : "∞");
+  const fmtPow = (P) => (Number.isFinite(P) ? `${sgn(P, 2)} D` : "∞");   // P: D
+  const fmtR = (C) => (Math.abs(C) < 1e-9 ? "∞ (düz)" : `${sgn(100 / C, 1)} cm`);  // C: m⁻¹
+  const deg = (r) => (r * 180) / Math.PI;
 
-  const objTop = cy - 50;
-  drawRays(objTop);
+  /* ── Ortak arayüz ve çizim ── */
+  const stage = $("stageCanvas"), sg = stage.getContext("2d");
+  const chart = $("chartCanvas"), cg = chart.getContext("2d");
+  const labPanel = $("labPanel");
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((t) => t.dataset.tab);
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const ARIA = {
+    tek: [
+      "Optik sıra: ince mercek, odak noktaları F ve F′, 2F noktaları, cisim oku, üç asal ışın ve sanal uzantıları, görüntü oku; altta santimetre cetveli",
+      "Görüntü uzaklığı s_i ile cisim uzaklığı s_o arasındaki hiperbol: s_o = f ve s_i = f asimptotları, s_i = s_o doğrusu, 2f noktası ve şimdiki durum",
+    ],
+    yapici: [
+      "Merceğin gerçek ölçekli kesiti: iki küresel yüzey, eğrilik merkezleri C₁ ve C₂, Snell yasasıyla izlenen paralel ışınlar, eksen yakını odak F′, kenar ışınlarının odağı ve arka ana düzlem H′",
+      "Merceğin kırıcılığı P = 1/f malzemenin kırılma indisine karşı: hava, su, gliserin ve immersiyon yağı için dört doğru; seçili malzeme işaretli",
+    ],
+    iki: [
+      "İki mercekli optik sıra: birinci ve ikinci mercek, odak noktaları, cisim, ara görüntü, son görüntü ve iki mercekten geçen üç ışın",
+      "Sistemin kırıcılığı P = P₁ + P₂ − dP₁P₂ mercekler arası uzaklık d'ye karşı; P = 0 olan afokal nokta ve şimdiki d",
+    ],
+  };
+  const S = { tab: "tek" };
+  let dirty = true, dpr = 1;
 
-  const img = imagePoint();
-  const h = 50 * img.mag;
-
-  ctx.fillStyle = '#f0883e';
-  ctx.fillRect(objX - 4, cy - 55, 8, 55);
-  ctx.strokeStyle = '#f0883e';
-  ctx.beginPath(); ctx.moveTo(objX, objTop); ctx.lineTo(objX, cy); ctx.stroke();
-
-  if (img.real && img.x > cx && img.x < W) {
-    ctx.fillStyle = '#3fb950';
-    ctx.fillRect(img.x - 3, cy - h, 6, h);
-    ctx.beginPath(); ctx.moveTo(img.x, cy - h); ctx.lineTo(img.x, cy); ctx.stroke();
-  } else {
-    ctx.strokeStyle = '#3fb950'; ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(cx - 60, cy - h * 0.65); ctx.lineTo(W - 20, cy - h * 0.65); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#3fb950'; ctx.font = '12px sans-serif';
-    ctx.fillText('Sanal görüntü', cx + 10, cy - h * 0.65 - 8);
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", faint: "rgba(26,29,46,0.32)", grid: "rgba(0,0,0,0.07)", axis: "rgba(26,29,46,0.5)",
+      accent: "#0d9488", accent2: "#7c3aed", pink: "#db2777", warm: "#d97706", blue: "#2563eb", danger: "#dc2626",
+      glassFill: "rgba(14,165,233,0.16)", glassEdge: "rgba(3,105,161,0.85)", tagBg: "rgba(255,255,255,0.92)",
+      fan: "rgba(217,119,6,0.42)", mid: "#64748b",
+      medium: { hava: null, su: "rgba(2,132,199,0.10)", gliserin: "rgba(124,58,237,0.07)", yag: "rgba(217,119,6,0.10)" },
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", faint: "rgba(232,236,244,0.3)", grid: "rgba(255,255,255,0.07)", axis: "rgba(232,236,244,0.45)",
+      accent: "#5eead4", accent2: "#a78bfa", pink: "#f472b6", warm: "#fbbf24", blue: "#60a5fa", danger: "#f87171",
+      glassFill: "rgba(125,211,252,0.16)", glassEdge: "rgba(186,230,253,0.85)", tagBg: "rgba(8,12,22,0.85)",
+      fan: "rgba(251,191,36,0.4)", mid: "#94a3b8",
+      medium: { hava: null, su: "rgba(56,189,248,0.10)", gliserin: "rgba(167,139,250,0.08)", yag: "rgba(251,191,36,0.08)" },
+    };
+  }
+  const font = (px, w) => `${w ? w + " " : ""}${px * dpr}px Outfit, system-ui, sans-serif`;
+  function line(g, x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+  function stroke(g, color, w, dash) {
+    g.strokeStyle = color;
+    g.lineWidth = w * dpr;
+    g.setLineDash(dash ? [dash[0] * dpr, dash[1] * dpr] : []);
+  }
+  function arrowHead(g, x, y, ang, size, color) {
+    const s = size * dpr;
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x - s * Math.cos(ang - 0.42), y - s * Math.sin(ang - 0.42));
+    g.lineTo(x - s * Math.cos(ang + 0.42), y - s * Math.sin(ang + 0.42));
+    g.closePath();
+    g.fill();
+  }
+  // "s_o", "s_{i1}", "P^2" biçiminde alt/üst simgeli metin
+  function rich(g, s, x, y, color, size, align, weight) {
+    const parts = [];
+    let cur = "", i = 0;
+    while (i < s.length) {
+      const c = s[i];
+      if ((c === "_" || c === "^") && i + 1 < s.length) {
+        if (cur) parts.push({ t: cur, k: 0 });
+        cur = "";
+        let t;
+        if (s[i + 1] === "{") { const j = s.indexOf("}", i + 2); t = s.slice(i + 2, j); i = j + 1; }
+        else { t = s[i + 1]; i += 2; }
+        parts.push({ t, k: c === "_" ? 1 : 2 });
+      } else { cur += c; i++; }
+    }
+    if (cur) parts.push({ t: cur, k: 0 });
+    const sz = size || 11, big = font(sz, weight), small = font(sz * 0.74, weight);
+    let w = 0;
+    for (const p of parts) { g.font = p.k ? small : big; p.w = g.measureText(p.t).width; w += p.w; }
+    if (color === null) return w;
+    let px = align === "center" ? x - w / 2 : align === "right" ? x - w : x;
+    g.fillStyle = color;
+    g.textAlign = "left";
+    g.textBaseline = "middle";
+    for (const p of parts) {
+      g.font = p.k ? small : big;
+      g.fillText(p.t, px, y + (p.k === 1 ? sz * 0.3 * dpr : p.k === 2 ? -sz * 0.34 * dpr : 0));
+      px += p.w;
+    }
+    return w;
+  }
+  // Arka planlı etiket; kutu tuvalin içinde tutulur
+  function tag(g, s, x, y, color, th, size, align) {
+    const sz = size || 11, w = rich(g, s, 0, 0, null, sz, "left", "600") + 10 * dpr, h = sz * dpr + 9 * dpr;
+    let bx = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    bx = Math.max(2 * dpr, Math.min(bx, g.canvas.width - w - 2 * dpr));
+    const by = Math.max(2 * dpr, Math.min(y - h / 2, g.canvas.height - h - 2 * dpr));
+    g.fillStyle = th.tagBg;
+    g.beginPath(); g.roundRect(bx, by, w, h, 5 * dpr); g.fill();
+    rich(g, s, bx + 5 * dpr, by + h / 2 + 0.5 * dpr, color, sz, "left", "600");
+    return { x: bx, y: by, w, h };
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  const tickText = (v, step) => fix(v, step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9)));
+  // Grafik çerçevesi: ızgara, eksen yazıları; dönüş: piksel dönüşümleri
+  function chartFrame(g, th, o) {
+    const W = chart.width, H = chart.height, small = W < 520 * dpr;
+    const L = { W, H, l: (small ? 40 : 46) * dpr, r: 12 * dpr, t: 22 * dpr, b: 22 * dpr };
+    L.w = W - L.l - L.r;
+    L.h = H - L.t - L.b;
+    L.X = (v) => L.l + ((v - o.x0) / (o.x1 - o.x0)) * L.w;
+    L.Y = (v) => L.t + L.h - ((v - o.y0) / (o.y1 - o.y0)) * L.h;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.setLineDash([]);
+    g.lineWidth = 1 * dpr;
+    g.strokeStyle = th.grid;
+    g.font = font(10);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let v = Math.ceil(o.x0 / o.xStep - 1e-9) * o.xStep; v <= o.x1 + 1e-9; v += o.xStep) {
+      const x = L.X(v);
+      line(g, x, L.t, x, L.t + L.h);
+      g.fillText(tickText(v, o.xStep), x, L.t + L.h + 5 * dpr);
+    }
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (let v = Math.ceil(o.y0 / o.yStep - 1e-9) * o.yStep; v <= o.y1 + 1e-9; v += o.yStep) {
+      const y = L.Y(v);
+      line(g, L.l, y, L.l + L.w, y);
+      g.fillText(tickText(v, o.yStep), L.l - 5 * dpr, y);
+    }
+    g.strokeStyle = th.axis;
+    g.lineWidth = 1.2 * dpr;
+    g.beginPath(); g.moveTo(L.l, L.t); g.lineTo(L.l, L.t + L.h); g.lineTo(L.l + L.w, L.t + L.h); g.stroke();
+    if (o.y0 < 0 && o.y1 > 0) line(g, L.l, L.Y(0), L.l + L.w, L.Y(0));
+    rich(g, o.xLabel, L.l + L.w - 2 * dpr, L.t + L.h - 9 * dpr, th.muted, 10, "right", "600");
+    rich(g, o.yLabel, 4 * dpr, 10 * dpr, th.muted, 10, "left", "600");
+    return L;
+  }
+  const clipRect = (g, x, y, w, h) => { g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); };
+  function stagePoint(evt, c) {
+    const r = c.getBoundingClientRect();
+    return [((evt.clientX - r.left) / r.width) * c.width, ((evt.clientY - r.top) / r.height) * c.height];
+  }
+  // Sahne görünümü: x ∈ [x0, x1] cm yatayda tuvali doldurur; eksen y = ay pikselde, düşeyde ky px/cm
+  function makeView(x0, x1, ay, ky) {
+    const kx = stage.width / (x1 - x0);
+    return { x0, x1, kx, ky, ay, X: (x) => (x - x0) * kx, Y: (y) => ay - y * ky, ix: (px) => x0 + px / kx, iy: (py) => (ay - py) / ky };
+  }
+  // Optik eksen ve alt kenarda santimetre cetveli
+  function drawAxisRuler(g, th, V, bandTop) {
+    const W = stage.width;
+    stroke(g, th.axis, 1.2);
+    line(g, 0, V.ay, W, V.ay);
+    const minor = niceStep(Math.max(1e-3, (14 * dpr) / V.kx));
+    let major = niceStep(Math.max(1e-3, (46 * dpr) / V.kx));
+    if (major <= minor) major = minor * 2;
+    stroke(g, th.faint, 1);
+    g.font = font(9.5);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let v = Math.ceil(V.x0 / minor - 1e-9) * minor; v <= V.x1 + 1e-9; v += minor) {
+      const x = V.X(v), isMajor = Math.abs(v / major - Math.round(v / major)) < 1e-6;
+      line(g, x, bandTop, x, bandTop + (isMajor ? 6 : 3) * dpr);
+      if (isMajor && x > 14 * dpr && x < W - 22 * dpr) g.fillText(tickText(v, major), x, bandTop + 7 * dpr);
+    }
+    line(g, 0, bandTop, W, bandTop);
+    g.textAlign = "right";
+    g.fillText("cm", W - 4 * dpr, bandTop + 7 * dpr);
+  }
+  // İnce mercek simgesi: yakınsakta dışbükey, ıraksakta içbükey kesit; düzlemi kesikli çizgi
+  function drawThinLens(g, th, px, yTop, yBot, converging) {
+    const h = yBot - yTop, mid = (yTop + yBot) / 2, e = Math.max(4 * dpr, Math.min(9 * dpr, h * 0.035));
+    stroke(g, th.faint, 1, [3, 4]);
+    line(g, px, 0, px, stage.height);
+    g.setLineDash([]);
+    g.fillStyle = th.glassFill;
+    g.strokeStyle = th.glassEdge;
+    g.lineWidth = 1.5 * dpr;
+    g.beginPath();
+    if (converging) {
+      g.moveTo(px, yTop);
+      g.quadraticCurveTo(px + 2 * e, mid, px, yBot);
+      g.quadraticCurveTo(px - 2 * e, mid, px, yTop);
+    } else {
+      g.moveTo(px - e, yTop);
+      g.lineTo(px + e, yTop);
+      g.quadraticCurveTo(px - 0.5 * e, mid, px + e, yBot);
+      g.lineTo(px - e, yBot);
+      g.quadraticCurveTo(px + 0.5 * e, mid, px - e, yTop);
+    }
+    g.closePath();
+    g.fill();
+    g.stroke();
+  }
+  // Ok (cisim/görüntü): taban eksende; sanal görüntü kesikli ve içi boş başlı
+  function drawArrow(g, x, y0, y1, color, w, dashed) {
+    if (Math.abs(y1 - y0) < 1) return;
+    stroke(g, color, w, dashed ? [5, 4] : null);
+    const dir = Math.sign(y1 - y0), hs = Math.min(10 * dpr, Math.abs(y1 - y0) * 0.6);
+    line(g, x, y0, x, y1 - dir * hs * 0.7);
+    g.setLineDash([]);
+    if (dashed) {
+      g.beginPath();
+      g.moveTo(x, y1); g.lineTo(x - hs * 0.55, y1 - dir * hs); g.lineTo(x + hs * 0.55, y1 - dir * hs); g.closePath();
+      g.lineWidth = 1.6 * dpr;
+      g.stroke();
+    } else arrowHead(g, x, y1, dir > 0 ? Math.PI / 2 : -Math.PI / 2, hs / dpr, color);
+  }
+  // Işın doğrultusunu gösteren küçük ok başı (parçanın ortasında)
+  function midArrow(g, xa, ya, xb, yb, color) {
+    const len = Math.hypot(xb - xa, yb - ya);
+    if (len < 40 * dpr) return;
+    arrowHead(g, (xa + xb) / 2, (ya + yb) / 2, Math.atan2(yb - ya, xb - xa), 7, color);
+  }
+  function focusMark(g, th, x, ay, label, color) {
+    g.fillStyle = color;
+    g.beginPath(); g.arc(x, ay, 3.2 * dpr, 0, Math.PI * 2); g.fill();
+    rich(g, label, x, ay + 13 * dpr, color, 11, "center", "600");
+  }
+  function handle(g, th, x, y, color) {
+    g.fillStyle = th.tagBg;
+    g.beginPath(); g.arc(x, y, 7 * dpr, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = color;
+    g.lineWidth = 2 * dpr;
+    g.setLineDash([]);
+    g.stroke();
   }
 
-  document.getElementById('info').textContent = convex
-    ? `İnce mercek: 1/f = 1/s + 1/s′ — Görüntü ${img.real ? 'gerçek' : 'sanal'}, |m| ≈ ${Math.abs(img.mag).toFixed(2)}`
-    : `Kalın mercek: sanal, düz, küçük görüntü — |m| ≈ ${Math.abs(img.mag).toFixed(2)}`;
-}
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  // Kaydırıcıya adımına yuvarlanmış değer yaz (sürüklemenin kaydırıcı karşılığı)
+  function setRange(el, v) {
+    const min = Number(el.min), max = Number(el.max), step = Number(el.step);
+    const q = Math.round((Math.min(max, Math.max(min, v)) - min) / step) * step + min;
+    el.value = String(Number(q.toFixed(6)));
+  }
 
-resize();
-</script></body>
+  /* ── (a) Tek mercek ── */
+  const A = {
+    conv: true, f: 10, so: 30, ho: 3, fan: false, res: null, drag: null,
+    ui: {
+      type: $("aType"), typeOut: $("aTypeOut"), f: $("aF"), fOut: $("aFOut"), so: $("aSo"), soOut: $("aSoOut"),
+      ho: $("aHo"), hoOut: $("aHoOut"), fan: $("aFan"), reset: $("aReset"),
+      kind: $("aKind"), orient: $("aOrient"), size: $("aSize"), pow: $("aPow"),
+      siM: $("aSiM"), siT: $("aSiT"), siD: $("aSiD"), hiM: $("aHiM"), hiT: $("aHiT"), hiD: $("aHiD"),
+      mM: $("aMM"), mT: $("aMT"), mD: $("aMD"), nM: $("aNM"), nT: $("aNT"), nD: $("aND"), status: $("aStatus"),
+    },
+  };
+  const A_VIEW = { x0: -55, x1: 60, yHalf: 12, lens: 10.5 };
+  const A_PRESETS = {
+    "2f": ["yakinsak", 10, 20, 3], f2f: ["yakinsak", 10, 15, 3], f: ["yakinsak", 10, 10, 3],
+    buyutec: ["yakinsak", 10, 6, 3], iraksak: ["iraksak", 10, 20, 3], reset: ["yakinsak", 10, 30, 3],
+  };
+  const fA = () => (A.conv ? A.f : -A.f);
+  function syncA() {
+    const u = A.ui;
+    A.conv = u.type.value === "yakinsak";
+    A.f = Number(u.f.value);
+    A.so = Number(u.so.value);
+    A.ho = Number(u.ho.value);
+    A.fan = u.fan.checked;
+    setText(u.typeOut, A.conv ? "f > 0" : "f < 0");
+    setText(u.fOut, `f = ${sgn(fA(), 1)} cm`);
+    setText(u.soOut, `${fix(A.so, 1)} cm`);
+    setText(u.hoOut, `${fix(A.ho, 1)} cm`);
+    A.res = PHYS.singleLens(A.so, A.ho, fA());
+    dirty = true;
+  }
+  function presetA(key) {
+    const p = A_PRESETS[key], u = A.ui;
+    u.type.value = p[0];
+    u.f.value = String(p[1]);
+    u.so.value = String(p[2]);
+    u.ho.value = String(p[3]);
+    if (key === "reset") u.fan.checked = false;
+    syncA();
+  }
+
+  function statusA() {
+    const f = fA(), so = A.so, T = A.res.theory, nums = Number.isFinite(T.si)
+      ? ` Burada s<sub>i</sub> = ${fmtLen(T.si, 2, true)}, m = ${sgn(T.m, 3)}.` : "";
+    if (!A.conv) return "Iraksak mercek: kırılan ışınlar hep birbirinden uzaklaşır, uzantıları mercek ile F′ arasında kesişir. Cisim nerede olursa olsun görüntü sanal, düz ve küçüktür; cisim uzaklaştıkça görüntü F′ noktasına yaklaşır." + nums;
+    const e = 1e-9 * f;
+    if (Math.abs(so - f) <= e) return "Cisim F noktasında: kırılan ışınlar birbirine paralel çıkar, görüntü sonsuzda oluşur. Göz bu ışınları sonsuzdaki bir cisimden geliyormuş gibi görür; gevşek gözle kullanılan büyüteç böyle çalışır.";
+    if (so < f) return "Cisim F ile mercek arasında: kırılan ışınlar birbirinden uzaklaşır, uzantıları cismin bulunduğu yanda kesişir. Görüntü sanal, düz ve büyüktür: büyüteç. Sanal görüntü bir perdeye düşmez, yalnızca mercekten bakınca görülür." + nums;
+    if (Math.abs(so - 2 * f) <= e) return "Cisim 2F'de: görüntü 2F′ noktasında oluşur; gerçek, ters ve cisimle aynı boydadır (m = −1)." + nums;
+    if (so < 2 * f) return "Cisim F ile 2F arasında: görüntü 2F′ noktasının ötesinde oluşur; gerçek, ters ve büyüktür. Projeksiyon cihazı böyle çalışır. Cisim F'ye yaklaştıkça görüntü sonsuza kaçar." + nums;
+    return "Cisim 2F'nin ötesinde: görüntü F′ ile 2F′ arasında oluşur; gerçek, ters ve küçüktür. Fotoğraf makinesi ve göz böyle çalışır." + nums;
+  }
+  function readoutsA() {
+    const u = A.ui, r = A.res, T = r.theory, M = r.meas, inf = !Number.isFinite(T.si);
+    setText(u.pow, fmtPow(100 / fA()));
+    if (inf) {
+      setText(u.kind, "oluşmaz (sonsuzda)");
+      setText(u.orient, "—");
+      setText(u.size, "—");
+    } else {
+      const am = Math.abs(T.m);
+      setText(u.kind, T.si > 0 ? "gerçek" : "sanal");
+      setText(u.orient, T.m < 0 ? "ters" : "düz");
+      setText(u.size, Math.abs(am - 1) < 1e-9 ? "cisimle aynı boyda" : `${am > 1 ? "büyük" : "küçük"} (${fix(am, 2)} kat)`);
+    }
+    setText(u.siM, M.parallel ? "∞ (ışınlar paralel)" : fmtLen(M.si, 2, true));
+    setText(u.siT, fmtLen(T.si, 2, true));
+    setText(u.siD, diffPct(M.si, T.si));
+    setText(u.hiM, M.parallel ? "—" : fmtLen(M.hi, 2, true));
+    setText(u.hiT, inf ? "—" : fmtLen(T.hi, 2, true));
+    setText(u.hiD, diffPct(M.hi, T.hi));
+    setText(u.mM, M.parallel ? "—" : sgn(M.m, 3));
+    setText(u.mT, inf ? "∞" : sgn(T.m, 3));
+    setText(u.mD, diffPct(M.m, T.m));
+    setText(u.nM, M.parallel ? "—" : `${fix(r.newtonMeas, 1)} cm²`);
+    setText(u.nT, `${fix(r.f2, 1)} cm²`);
+    setText(u.nD, diffPct(r.newtonMeas, r.f2));
+    setHTML(u.status, statusA());
+    u.status.className = "status" + (inf ? " is-warn" : "");
+  }
+
+  function viewA() {
+    const H = stage.height, band = 22 * dpr, top = 8 * dpr;
+    return makeView(A_VIEW.x0, A_VIEW.x1, (top + H - band) / 2, (H - band - top) / 2 / A_VIEW.yHalf);
+  }
+  // Mercekten çıkan doğrunun x'teki yüksekliği
+  const yAt = (o, x) => o.y + o.u * (x - o.x);
+  function drawA() {
+    const th = theme(), g = sg, W = stage.width, H = stage.height, V = viewA(), f = fA(), r = A.res, T = r.theory;
+    const band = H - 22 * dpr, so = A.so, ho = A.ho;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    stroke(g, th.grid, 1);
+    for (let x = Math.ceil(V.x0 / 10) * 10; x <= V.x1; x += 10) line(g, V.X(x), 0, V.X(x), band);
+    drawAxisRuler(g, th, V, band);
+    drawThinLens(g, th, V.X(0), V.Y(A_VIEW.lens), V.Y(-A_VIEW.lens), A.conv);
+
+    const finite = Number.isFinite(T.si), virt = finite && T.si < 0, xR = V.x1 + 2;
+    const col = { 1: th.accent, 2: th.accent2, 3: th.pink };
+    clipRect(g, 0, 0, W, band);
+    if (A.fan) {
+      for (let k = 0; k < 9; k++) {
+        const yL = -9 + (18 * k) / 8, o = PHYS.trace({ x: -so, y: ho, u: (yL - ho) / so }, [{ x: 0, f }]);
+        stroke(g, th.fan, 1.1);
+        line(g, V.X(-so), V.Y(ho), V.X(0), V.Y(yL));
+        line(g, V.X(0), V.Y(yL), V.X(xR), V.Y(yAt(o, xR)));
+        if (virt) {
+          stroke(g, th.fan, 1, [3, 4]);
+          line(g, V.X(0), V.Y(yL), V.X(T.si - 3), V.Y(yAt(o, T.si - 3)));
+        }
+      }
+    }
+    for (const ray of r.rays) {
+      const c = col[ray.kind], o = ray.out, yL = o.y;
+      stroke(g, c, 2);
+      line(g, V.X(-so), V.Y(ho), V.X(0), V.Y(yL));
+      midArrow(g, V.X(-so), V.Y(ho), V.X(0), V.Y(yL), c);
+      stroke(g, c, 2);
+      line(g, V.X(0), V.Y(yL), V.X(xR), V.Y(yAt(o, xR)));
+      const xm = finite && T.si > 0 ? Math.min(T.si, V.x1) : V.x1 * 0.6;
+      midArrow(g, V.X(0), V.Y(yL), V.X(xm), V.Y(yAt(o, xm)), c);
+      if (virt) {
+        const xb = Math.min(T.si, ray.kind === 1 ? f : T.si) - 4;
+        stroke(g, c, 1.4, [6, 5]);
+        line(g, V.X(0), V.Y(yL), V.X(xb), V.Y(yAt(o, xb)));
+      }
+      if (ray.kind === 3) {
+        stroke(g, c, 1.4, [6, 5]);
+        if (A.conv && so < f) line(g, V.X(-f), V.Y(0), V.X(-so), V.Y(ho));   // F'den geliyormuş gibi
+        if (!A.conv) line(g, V.X(0), V.Y(yL), V.X(-f), V.Y(0));             // F'ye yöneliyordu
+      }
+    }
+    g.setLineDash([]);
+    // Görüntü (kuram) ve ölçülen kesişim noktası
+    if (finite && T.si > V.x0 && T.si < V.x1) {
+      drawArrow(g, V.X(T.si), V.Y(0), V.Y(T.hi), th.blue, 3, virt);
+      if (!r.meas.parallel) {
+        g.strokeStyle = th.ink;
+        g.lineWidth = 1.5 * dpr;
+        g.beginPath(); g.arc(V.X(r.meas.si), V.Y(r.meas.hi), 5.5 * dpr, 0, Math.PI * 2); g.stroke();
+      }
+    }
+    drawArrow(g, V.X(-so), V.Y(0), V.Y(ho), th.warm, 3, false);
+    g.restore();
+
+    // Odak noktaları: F (−f), F′ (+f), 2F, 2F′
+    for (const [x, lab, main] of [[-f, "F", true], [f, "F′", true], [-2 * f, "2F", false], [2 * f, "2F′", false]]) {
+      if (x < V.x0 || x > V.x1) continue;
+      focusMark(g, th, V.X(x), V.ay, lab, main ? th.ink : th.muted);
+    }
+    handle(g, th, V.X(-so), V.Y(ho), th.warm);
+    tag(g, "cisim", V.X(-so), V.Y(ho) - 16 * dpr, th.warm, th, 10.5);
+    if (finite && T.si > V.x0 && T.si < V.x1) {
+      const yTip = V.Y(T.hi), up = T.hi > 0;
+      const yWant = up ? Math.min(yTip - 16 * dpr, V.ay - 32 * dpr) : Math.max(yTip + 16 * dpr, V.ay + 32 * dpr);
+      const yLab = Math.max(14 * dpr, Math.min(band - 14 * dpr, yWant));
+      tag(g, `görüntü (${virt ? "sanal" : "gerçek"})`, V.X(T.si), yLab, th.blue, th, 10.5);
+    } else if (finite) {
+      const right = T.si >= V.x1;
+      tag(g, right ? `görüntü sağda: s_i = ${fmtLen(T.si, 1, true)} →` : `← görüntü solda: s_i = ${fmtLen(T.si, 1, true)}`,
+        right ? W - 4 * dpr : 4 * dpr, 16 * dpr, th.blue, th, 10.5, right ? "right" : "left");
+    } else tag(g, "ışınlar paralel: görüntü sonsuzda →", W - 4 * dpr, 16 * dpr, th.blue, th, 10.5, "right");
+    if (finite && Math.abs(T.hi) > A_VIEW.yHalf && T.si > V.x0 && T.si < V.x1)
+      tag(g, `görüntü çerçeveden taşıyor: h_i = ${fmtLen(T.hi, 1, true)}`, W / 2, band - 14 * dpr, th.blue, th, 10);
+    rich(g, `düşey ölçek ×${fix(V.ky / V.kx, 1)}`, 8 * dpr, 12 * dpr, th.muted, 10, "left");
+  }
+
+  function drawChartA() {
+    const th = theme(), g = cg, f = fA(), T = A.res.theory, so = A.so;
+    const L = chartFrame(g, th, { x0: 0, x1: 50, y0: -60, y1: 60, xStep: 10, yStep: 20, xLabel: "s_o (cm)", yLabel: "s_i (cm)" });
+    clipRect(g, L.l, L.t, L.w, L.h);
+    stroke(g, th.faint, 1, [3, 4]);
+    line(g, L.X(0), L.Y(0), L.X(60), L.Y(60));
+    stroke(g, th.accent2, 1.3, [6, 4]);
+    line(g, L.l, L.Y(f), L.l + L.w, L.Y(f));
+    if (f > 0) line(g, L.X(f), L.t, L.X(f), L.t + L.h);
+    stroke(g, th.accent, 2);
+    const branch = (s) => {
+      g.beginPath();
+      for (let i = 0; i <= 240; i++) {
+        const sv = s(i / 240), si = Math.max(-900, Math.min(900, (sv * f) / (sv - f)));
+        i ? g.lineTo(L.X(sv), L.Y(si)) : g.moveTo(L.X(sv), L.Y(si));
+      }
+      g.stroke();
+    };
+    if (f > 0) {
+      branch((t) => f * (1 - 1e-4 - (1 - 2e-4) * t * t));      // 0 < s_o < f: sanal kol
+      branch((t) => f + 1e-4 * f + (50 - f) * t * t);           // s_o > f: gerçek kol
+    } else branch((t) => 1e-3 + (50 - 1e-3) * t);
+    if (f > 0 && 2 * f <= 50) {
+      stroke(g, th.ink, 1.5);
+      g.beginPath(); g.arc(L.X(2 * f), L.Y(2 * f), 4 * dpr, 0, Math.PI * 2); g.stroke();
+    }
+    g.restore();
+    if (f > 0 && 2 * f <= 50) rich(g, "2f", L.X(2 * f) + 7 * dpr, L.Y(2 * f) - 9 * dpr, th.ink, 10, "left", "600");
+    if (f > 0) tag(g, "s_o = f", L.X(f) + 4 * dpr, L.t + 10 * dpr, th.accent2, th, 9.5, "left");
+    tag(g, "s_i = f", L.l + L.w - 4 * dpr, L.Y(f) + (f > 0 ? -11 : 11) * dpr, th.accent2, th, 9.5, "right");
+    rich(g, "gerçek görüntü (s_i > 0)", L.l + L.w - 6 * dpr, L.t + 30 * dpr, th.muted, 10, "right");
+    rich(g, "sanal görüntü (s_i < 0)", L.l + L.w - 6 * dpr, L.t + L.h - 28 * dpr, th.muted, 10, "right");
+    if (Number.isFinite(T.si)) {
+      const inside = Math.abs(T.si) <= 60, py = L.Y(Math.max(-60, Math.min(60, T.si))), px = L.X(so);
+      stroke(g, th.warm, 1, [2, 3]);
+      line(g, px, L.Y(0), px, py);
+      g.setLineDash([]);
+      if (inside) {
+        g.fillStyle = th.warm;
+        g.beginPath(); g.arc(px, py, 5 * dpr, 0, Math.PI * 2); g.fill();
+      } else arrowHead(g, px, py, T.si > 0 ? -Math.PI / 2 : Math.PI / 2, 10, th.warm);
+      tag(g, `(${fix(so, 1)}; ${fix(T.si, 2)})`, px + (so > 38 ? -8 : 8) * dpr, py + (T.si > 0 ? 14 : -14) * dpr, th.warm, th, 10, so > 38 ? "right" : "left");
+    } else tag(g, "s_o = f: s_i → ∞", L.X(so) + 6 * dpr, L.t + 28 * dpr, th.warm, th, 10, "left");
+  }
+
+  function hitA(sx, sy) {
+    const V = viewA(), f = fA(), ox = V.X(-A.so), oy0 = V.Y(0), oy1 = V.Y(A.ho);
+    if (Math.hypot(sx - ox, sy - oy1) < 16 * dpr) return "tip";
+    if (Math.abs(sx - ox) < 12 * dpr && sy < oy0 + 6 * dpr && sy > oy1) return "stem";
+    for (const x of [-f, f]) if (Math.abs(sx - V.X(x)) < 14 * dpr && Math.abs(sy - V.ay) < 22 * dpr) return "f";
+    return null;
+  }
+  function pointerA(sx, sy, start) {
+    if (start) { A.drag = hitA(sx, sy); if (!A.drag) return false; }
+    const V = viewA(), x = V.ix(sx);
+    if (A.drag === "f") setRange(A.ui.f, Math.abs(x));
+    else {
+      setRange(A.ui.so, -x);
+      if (A.drag === "tip") setRange(A.ui.ho, V.iy(sy));
+    }
+    syncA();
+    return true;
+  }
+
+  /* ── (b) Mercek yapıcı denklemi ── */
+  const B = {
+    C1: 10, C2: -10, glass: "bk7", medium: "hava", res: null, fMedia: {},
+    ui: {
+      shape: $("bShape"), shapeOut: $("bShapeOut"), c1: $("bC1"), c1Out: $("bC1Out"), c2: $("bC2"), c2Out: $("bC2Out"),
+      glass: $("bGlass"), glassOut: $("bGlassOut"), medium: $("bMedium"), mediumOut: $("bMediumOut"), reset: $("bReset"),
+      k: $("bK"), thick: $("bThick"), nrel: $("bNrel"), behav: $("bBehav"), ratio: $("bRatio"), powLeft: $("bPowLeft"),
+      f1m: $("bF1m"), f1t: $("bF1t"), f1d: $("bF1d"), f2m: $("bF2m"), f2t: $("bF2t"), f2d: $("bF2d"),
+      bm: $("bBm"), bt: $("bBt"), bd: $("bBd"), lsa: $("bLsa"), status: $("bStatus"),
+    },
+  };
+  // Hazır biçimler: [1/R₁, 1/R₂] m⁻¹ cinsinden
+  const B_SHAPES = {
+    bikonveks: [10, -10], duzkonveks1: [10, 0], duzkonveks2: [0, -10], menisk1: [10, 5],
+    bikonkav: [-10, 10], duzkonkav: [0, 10], menisk2: [5, 10],
+  };
+  const nTxt = (n) => n.toFixed(Math.max(3, (String(n).split(".")[1] || "").length));
+  const nB = () => PHYS.GLASSES[B.glass].n;
+  const nmB = () => PHYS.MEDIA[B.medium].n;
+  function syncB(src) {
+    const u = B.ui;
+    if (src === "shape" && u.shape.value !== "ozel") {
+      const s = B_SHAPES[u.shape.value];
+      u.c1.value = String(s[0]);
+      u.c2.value = String(s[1]);
+    } else if (src === "slider") {
+      const c1 = Number(u.c1.value), c2 = Number(u.c2.value);
+      u.shape.value = Object.keys(B_SHAPES).find((k) => B_SHAPES[k][0] === c1 && B_SHAPES[k][1] === c2) || "ozel";
+    }
+    B.C1 = Number(u.c1.value);
+    B.C2 = Number(u.c2.value);
+    B.glass = u.glass.value;
+    B.medium = u.medium.value;
+    const n = nB(), C1 = B.C1 / 100, C2 = B.C2 / 100;
+    setText(u.c1Out, `R₁ = ${fmtR(B.C1)}`);
+    setText(u.c2Out, `R₂ = ${fmtR(B.C2)}`);
+    setText(u.glassOut, `n = ${nTxt(n)}`);
+    setText(u.mediumOut, `n = ${nTxt(nmB())}`);
+    B.res = PHYS.measureLens(n, nmB(), C1, C2);
+    for (const k of Object.keys(PHYS.MEDIA)) B.fMedia[k] = 1 / PHYS.thinPower(n, PHYS.MEDIA[k].n, C1, C2);
+    const r = B.res;
+    setText(u.shapeOut, r.t > r.edge + 1e-9 ? "kenarı ince" : r.t < r.edge - 1e-9 ? "kenarı kalın" : "düz levha");
+    dirty = true;
+  }
+  function resetB() {
+    const u = B.ui;
+    u.shape.value = "bikonveks";
+    u.glass.value = "bk7";
+    u.medium.value = "hava";
+    syncB("shape");
+  }
+
+  function statusB() {
+    const n = nB(), nm = nmB(), r = B.res, K = B.C1 - B.C2, nr = n / nm;
+    if (Math.abs(nr - 1) < 1e-12) return "Merceğin indisi ortamınkine eşit (n/n<sub>ortam</sub> = 1): ışık yüzeylerde hiç kırılmaz, mercek görünmez olur. Aynı indisli yağa batırılan cam çubuğun kaybolması bu yüzdendir.";
+    if (Math.abs(K) < 1e-12) return "İki yüzeyin eğriliği eşit: ince mercek denklemine göre güç sıfırdır, f = ∞. Işın izlemenin bulduğu küçük güç yalnızca merceğin kalınlığından gelir.";
+    let s = "";
+    if (nr < 1) s = "Merceğin indisi ortamınkinden küçük: (n/n<sub>ortam</sub> − 1) eksi olduğu için mercek biçiminin söylediğinin tersini yapar; kenarı ince mercek ıraksak, kenarı kalın mercek yakınsak olur. Su içindeki hava kabarcığı ıraksak mercektir. ";
+    const fa = B.fMedia.hava, fw = B.fMedia.su;
+    if (Number.isFinite(fa) && Number.isFinite(fw) && Math.abs(n - 1) > 1e-12) {
+      s += `(n/n<sub>ortam</sub> − 1) çarpanı havada ${fix(n - 1, 4)}, suda ${fix(n / PHYS.MEDIA.su.n - 1, 4)}. Bu yüzden suda güç havadakinin ${fix(fa / fw, 3)} katına iner, f ${fix(Math.abs(fw / fa), 2)} kat ${Math.sign(fw) === Math.sign(fa) ? "uzar" : "uzar ve işaret değiştirir"}. `;
+    }
+    if (Number.isFinite(r.efl) && Number.isFinite(r.thin)) {
+      if (Math.abs(B.C1) < 1e-9 || Math.abs(B.C2) < 1e-9) s += `Bir yüzey düz olduğu için merceğin kalınlığı (${fix(r.t * 10, 2)} mm) f'yi değiştirmez: kalın mercek denklemindeki ek terim 1/(R₁R₂) ile orantılıdır ve sıfırdır. Kalınlık yalnızca arka odak uzaklığını kaydırır.`;
+      else s += `Merceğin ortası ${fix(r.t * 10, 2)} mm kalın: Snell yasasıyla izlenen ışının verdiği f ince mercek değerinden ${diffPct(r.efl, r.thin).replace(" %", "")} % farklı; kalın mercek denklemi bu farkı tam olarak açıklar.`;
+    }
+    return s;
+  }
+  function readoutsB() {
+    const u = B.ui, r = B.res, n = nB(), nm = nmB(), K = B.C1 - B.C2, fsel = B.fMedia[B.medium];
+    setText(u.k, `${sgn(K, 2)} m⁻¹`);
+    setText(u.thick, `${fix(r.t * 10, 2)} mm · ${fix(r.edge * 10, 2)} mm`);
+    setText(u.nrel, fix(n / nm, 4));
+    setText(u.behav, !Number.isFinite(fsel) ? "kırıcılığı yok (f = ∞)" : fsel > 0 ? `yakınsak, f = ${fmtLen(fsel, 2, true)}` : `ıraksak, f = ${fmtLen(fsel, 2, true)}`);
+    for (const k of Object.keys(PHYS.MEDIA)) {
+      const f = B.fMedia[k];
+      setText($(`bF${k}`), fmtLen(f, 2, true));
+      setText($(`bP${k}`), Number.isFinite(f) ? fmtPow(100 / f) : "0.00 D");
+      document.querySelector(`tr[data-medium="${k}"]`).classList.toggle("is-sel", k === B.medium);
+    }
+    const fa = B.fMedia.hava, fw = B.fMedia.su, ok = Number.isFinite(fa) && Number.isFinite(fw);
+    setText(u.ratio, ok ? fix(fw / fa, 3) : "—");
+    setText(u.powLeft, ok ? fix(fa / fw, 3) : "—");
+    setText(u.f1m, fmtLen(r.efl, 2, true));
+    setText(u.f1t, fmtLen(r.thin, 2, true));
+    setText(u.f1d, diffPct(r.efl, r.thin));
+    setText(u.f2m, fmtLen(r.efl, 2, true));
+    setText(u.f2t, fmtLen(r.thick, 2, true));
+    setText(u.f2d, diffPct(r.efl, r.thick));
+    setText(u.bm, fmtLen(r.bfd, 2, true));
+    setText(u.bt, fmtLen(r.bfdTh, 2, true));
+    setText(u.bd, diffPct(r.bfd, r.bfdTh));
+    setText(u.lsa, r.lostMarg ? "tam yansıma" : Number.isFinite(r.lsa) ? fmtLen(r.lsa, 2, true) : "—");
+    setHTML(u.status, statusB());
+  }
+
+  function viewB() {
+    const r = B.res, W = stage.width, H = stage.height, band = 22 * dpr, asp = W / (H - band);
+    let lo = -2.5, hi = r.t + 3;
+    if (Number.isFinite(r.xF) && Math.abs(r.xF) < 90) { lo = Math.min(lo, r.xF - 2.5); hi = Math.max(hi, r.xF + 3); }
+    const span = hi - lo, need = Math.max(span * 1.06, 5.6 * asp);
+    const w = [8, 10, 12, 16, 20, 24, 32, 40, 48, 64, 80, 100, 128].find((v) => v >= need) || need;
+    const x0 = lo - (w - span) / 2;
+    return makeView(x0, x0 + w, (H - band) / 2, W / w);
+  }
+  function drawB() {
+    const th = theme(), g = sg, W = stage.width, H = stage.height, band = H - 22 * dpr, V = viewB();
+    const r = B.res, n = nB(), nm = nmB(), C1 = B.C1 / 100, C2 = B.C2 / 100, t = r.t, a = r.a;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const tint = th.medium[B.medium];
+    if (tint) { g.fillStyle = tint; g.fillRect(0, 0, W, band); }
+    drawAxisRuler(g, th, V, band);
+
+    // Merceğin kesiti (gerçek ölçek)
+    g.beginPath();
+    for (let i = 0; i <= 60; i++) { const y = -a + (2 * a * i) / 60, x = PHYS.sag(C1, y); i ? g.lineTo(V.X(x), V.Y(y)) : g.moveTo(V.X(x), V.Y(y)); }
+    for (let i = 0; i <= 60; i++) { const y = a - (2 * a * i) / 60; g.lineTo(V.X(t + PHYS.sag(C2, y)), V.Y(y)); }
+    g.closePath();
+    g.fillStyle = th.glassFill;
+    g.fill();
+    stroke(g, th.glassEdge, 1.6);
+    g.stroke();
+
+    // Eğrilik merkezleri ve yarıçaplar
+    const centres = [[C1, 0, "C₁", "R₁", B.C1], [C2, t, "C₂", "R₂", B.C2]], edgeY = { left: band - 14 * dpr, right: band - 14 * dpr };
+    for (const [C, xv, cl, rl, Cm] of centres) {
+      if (Math.abs(C) < 1e-12) continue;
+      const xc = xv + 1 / C, rimX = xv + PHYS.sag(C, a), side = C > 0 ? "sağda" : "solda";
+      if (xc > V.x0 && xc < V.x1) {
+        stroke(g, th.faint, 1, [4, 4]);
+        line(g, V.X(xc), V.Y(0), V.X(rimX), V.Y(cl === "C₁" ? a : -a));
+        g.setLineDash([]);
+        stroke(g, th.muted, 1.5);
+        const cx = V.X(xc), cy = V.ay, s = 5 * dpr;
+        line(g, cx - s, cy, cx + s, cy);
+        line(g, cx, cy - s, cx, cy + s);
+        rich(g, cl, cx + 6 * dpr, cy - 12 * dpr, th.muted, 11, "left", "600");
+      } else {
+        const right = xc >= V.x1, k = right ? "right" : "left";
+        tag(g, `${cl} ${side}: ${rl} = ${fmtR(Cm)}`, right ? W - 4 * dpr : 4 * dpr, edgeY[k], th.muted, th, 10, k);
+        edgeY[k] -= 22 * dpr;
+      }
+    }
+
+    // Snell yasasıyla izlenen paralel ışınlar
+    const conv = Number.isFinite(r.efl) && r.efl > 0, divg = Number.isFinite(r.efl) && r.efl < 0;
+    clipRect(g, 0, 0, W, band);
+    for (const k of [-0.9, -0.65, -0.4, -0.15, 0.15, 0.4, 0.65, 0.9]) {
+      const ray = PHYS.snellRay(k * a, n, nm, C1, C2, t, V.x0 - 1), c = Math.abs(k) > 0.6 ? th.warm : th.accent;
+      stroke(g, c, 1.6);
+      g.beginPath();
+      ray.pts.forEach(([x, y], i) => (i ? g.lineTo(V.X(x), V.Y(y)) : g.moveTo(V.X(x), V.Y(y))));
+      if (!ray.lost && ray.dx > 0) {
+        const s = (V.x1 + 1 - ray.x) / ray.dx;
+        g.lineTo(V.X(ray.x + s * ray.dx), V.Y(ray.y + s * ray.dy));
+      }
+      g.stroke();
+      if (ray.lost) {
+        const [x, y] = ray.pts[ray.pts.length - 1], px = V.X(x), py = V.Y(y), q = 4 * dpr;
+        stroke(g, th.danger, 2);
+        line(g, px - q, py - q, px + q, py + q);
+        line(g, px - q, py + q, px + q, py - q);
+      } else if (divg) {
+        const xc = PHYS.axisCross(ray);
+        if (Number.isFinite(xc)) {
+          const xb = xc - 1.5, yb = ray.y + ((xb - ray.x) * ray.dy) / ray.dx;
+          stroke(g, c, 1.1, [5, 4]);
+          line(g, V.X(ray.x), V.Y(ray.y), V.X(xb), V.Y(yb));
+        }
+      }
+      midArrow(g, V.X(V.x0), V.Y(k * a), V.X(Math.min(0, V.x0 + 6)), V.Y(k * a), c);
+    }
+    g.setLineDash([]);
+    g.restore();
+
+    // Odak, kenar odağı, arka ana düzlem ve f ölçüsü
+    const inView = (x) => Number.isFinite(x) && x > V.x0 && x < V.x1;
+    if (inView(r.xF)) {
+      focusMark(g, th, V.X(r.xF), V.ay, "F′", th.ink);
+      if (inView(r.xMarg) && Math.abs(V.X(r.xMarg) - V.X(r.xF)) > 2 * dpr) {
+        g.fillStyle = th.warm;
+        const px = V.X(r.xMarg), py = V.ay;
+        g.beginPath(); g.moveTo(px, py - 2 * dpr); g.lineTo(px - 5 * dpr, py - 11 * dpr); g.lineTo(px + 5 * dpr, py - 11 * dpr); g.closePath(); g.fill();
+        rich(g, "kenar", px, py - 19 * dpr, th.warm, 10, "center", "600");
+      }
+      if (inView(r.xH) && (conv || divg)) {
+        stroke(g, th.accent2, 1.2, [5, 4]);
+        line(g, V.X(r.xH), V.Y(a) - 22 * dpr, V.X(r.xH), V.Y(-a - 0.2));
+        g.setLineDash([]);
+        rich(g, "H′", V.X(r.xH), V.Y(a) - 31 * dpr, th.accent2, 11, "center", "600");
+        const yd = V.Y(-a) + 18 * dpr, x1 = V.X(r.xH), x2 = V.X(r.xF);
+        if (Math.abs(x2 - x1) > 30 * dpr && yd < band - 16 * dpr) {
+          stroke(g, th.accent2, 1.2);
+          line(g, x1, yd, x2, yd);
+          const dir = Math.sign(x2 - x1);
+          arrowHead(g, x2, yd, dir > 0 ? 0 : Math.PI, 7, th.accent2);
+          arrowHead(g, x1, yd, dir > 0 ? Math.PI : 0, 7, th.accent2);
+          tag(g, `f = ${fmtLen(r.efl, 2, true)}`, (x1 + x2) / 2, yd + 13 * dpr, th.accent2, th, 10);
+        }
+      }
+    } else if (Number.isFinite(r.xF)) {
+      const right = r.xF >= V.x1;
+      tag(g, right ? `F′ sağda: ${fmtLen(r.xF, 2, true)} →` : `← F′ solda: ${fmtLen(r.xF, 2, true)}`, right ? W - 4 * dpr : 4 * dpr, V.ay - 16 * dpr, th.ink, th, 10.5, right ? "right" : "left");
+    } else tag(g, "çıkan ışınlar paralel: f = ∞", W - 4 * dpr, V.ay - 16 * dpr, th.ink, th, 10.5, "right");
+    tag(g, `R₁ = ${fmtR(B.C1)}`, Math.min(V.X(0), V.X(PHYS.sag(C1, a))) - 10 * dpr, V.Y(a) - 12 * dpr, th.ink, th, 10, "right");
+    tag(g, `R₂ = ${fmtR(B.C2)}`, Math.max(V.X(t), V.X(t + PHYS.sag(C2, a))) + 10 * dpr, V.Y(a) - 12 * dpr, th.ink, th, 10, "left");
+    rich(g, `${PHYS.GLASSES[B.glass].name} (n = ${nTxt(n)}) · ortam: ${PHYS.MEDIA[B.medium].name.toLocaleLowerCase("tr")} (n = ${nTxt(nm)}) · gerçek ölçek`, 8 * dpr, 12 * dpr, th.muted, 10, "left");
+  }
+
+  function drawChartB() {
+    const th = theme(), g = cg, K = B.C1 - B.C2, n = nB(), cols = { hava: th.accent, su: th.blue, gliserin: th.accent2, yag: th.warm };
+    let lo = 0, hi = 0;
+    for (const k of Object.keys(PHYS.MEDIA)) for (const nn of [1, 2.5]) { const P = (nn / PHYS.MEDIA[k].n - 1) * K; lo = Math.min(lo, P); hi = Math.max(hi, P); }
+    if (hi - lo < 2) { hi += 1; lo -= 1; }
+    const step = niceStep((hi - lo) / 5), y0 = Math.floor(lo / step) * step, y1 = Math.ceil(hi / step) * step;
+    const L = chartFrame(g, th, { x0: 1, x1: 2.5, y0, y1, xStep: 0.5, yStep: step, xLabel: "merceğin indisi n", yLabel: "P = 1/f (D)" });
+    clipRect(g, L.l, L.t, L.w, L.h);
+    stroke(g, th.faint, 1, [3, 4]);
+    line(g, L.X(n), L.t, L.X(n), L.t + L.h);
+    for (const k of Object.keys(PHYS.MEDIA)) {
+      const nm = PHYS.MEDIA[k].n, sel = k === B.medium;
+      stroke(g, cols[k], sel ? 2.6 : 1.3);
+      line(g, L.X(1), L.Y((1 / nm - 1) * K), L.X(2.5), L.Y((2.5 / nm - 1) * K));
+      const P = (n / nm - 1) * K;
+      g.fillStyle = cols[k];
+      g.beginPath(); g.arc(L.X(n), L.Y(P), (sel ? 5 : 3.5) * dpr, 0, Math.PI * 2); g.fill();
+    }
+    g.restore();
+    // Ortam adları doğruların sağ ucunda; üst üste binmesin, eksen yazısının üstünde kalsın
+    const labs = Object.keys(PHYS.MEDIA).map((k) => ({ k, y: L.Y((2.5 / PHYS.MEDIA[k].n - 1) * K) + (K >= 0 ? 9 : -9) * dpr }));
+    labs.sort((p, q) => p.y - q.y);
+    const gap = 12 * dpr, yMax = L.t + L.h - 22 * dpr;
+    for (let i = 1; i < labs.length; i++) labs[i].y = Math.max(labs[i].y, labs[i - 1].y + gap);
+    const over = labs[labs.length - 1].y - yMax;
+    if (over > 0) labs.forEach((p) => { p.y -= over; });
+    for (const p of labs) rich(g, PHYS.MEDIA[p.k].name, L.l + L.w - 4 * dpr, Math.max(L.t + 6 * dpr, p.y), cols[p.k], 9.5, "right", p.k === B.medium ? "700" : "500");
+    const Psel = (n / nmB() - 1) * K;
+    tag(g, `n = ${nTxt(n)}: P = ${fmtPow(Psel)}`, L.X(n) + (n > 2 ? -8 : 8) * dpr, L.t + 10 * dpr, cols[B.medium], th, 10, n > 2 ? "right" : "left");
+  }
+
+  /* ── (c) İki mercekli sistemler ── */
+  const C = {
+    preset: "mikroskop", inf: false, so: 1.76, ho: 0.05, th: 1, f1: 1.6, f2: 2.5, d: 20.1, res: null, view: null, drag: null,
+    ui: {
+      preset: $("cPreset"), presetOut: $("cPresetOut"), obj: $("cObj"), objOut: $("cObjOut"),
+      soField: $("cSoField"), so: $("cSo"), soOut: $("cSoOut"), hoField: $("cHoField"), ho: $("cHo"), hoOut: $("cHoOut"),
+      thField: $("cThField"), th: $("cTh"), thOut: $("cThOut"),
+      t1: $("c1Type"), t1Out: $("c1TypeOut"), f1: $("cF1"), f1Out: $("cF1Out"),
+      t2: $("c2Type"), t2Out: $("c2TypeOut"), f2: $("cF2"), f2Out: $("cF2Out"), d: $("cD"), dOut: $("cDOut"), reset: $("cReset"),
+      si1: $("cSi1"), m1: $("cM1"), so2: $("cSo2"), m2: $("cM2"), tubeLabel: $("cTubeLabel"), tube: $("cTube"), psys: $("cPsys"),
+      siM: $("cSiM"), siT: $("cSiT"), siD: $("cSiD"), mM: $("cMM"), mT: $("cMT"), mD: $("cMD"),
+      aM: $("cAM"), aT: $("cAT"), aD: $("cAD"), xLabel: $("cXLabel"), xM: $("cXM"), xT: $("cXT"), xD: $("cXD"),
+      fM: $("cFM"), fT: $("cFT"), fD: $("cFD"), status: $("cStatus"),
+    },
+  };
+  const C_PRESETS = {
+    mikroskop: { obj: "sonlu", so: 1.76, ho: 0.05, th: 1, t1: "yakinsak", f1: 1.6, t2: "yakinsak", f2: 2.5, d: 20.1 },
+    kepler: { obj: "sonsuz", so: 60, ho: 1, th: 1, t1: "yakinsak", f1: 50, t2: "yakinsak", f2: 5, d: 55 },
+    galileo: { obj: "sonsuz", so: 60, ho: 1, th: 1, t1: "yakinsak", f1: 50, t2: "iraksak", f2: 5, d: 45 },
+  };
+  const C_KEYS = ["obj", "so", "ho", "th", "t1", "f1", "t2", "f2", "d"];
+  function syncC(src) {
+    const u = C.ui;
+    if (src === "preset" && u.preset.value !== "serbest") {
+      const p = C_PRESETS[u.preset.value];
+      for (const k of C_KEYS) u[k].value = String(p[k]);
+    } else if (src === "control") {
+      const same = (p) => C_KEYS.every((k) => (typeof p[k] === "number" ? Number(u[k].value) === p[k] : u[k].value === p[k]));
+      u.preset.value = Object.keys(C_PRESETS).find((k) => same(C_PRESETS[k])) || "serbest";
+    }
+    C.preset = u.preset.value;
+    C.inf = u.obj.value === "sonsuz";
+    C.so = Number(u.so.value);
+    C.ho = Number(u.ho.value);
+    C.th = Number(u.th.value);
+    C.f1 = (u.t1.value === "yakinsak" ? 1 : -1) * Number(u.f1.value);
+    C.f2 = (u.t2.value === "yakinsak" ? 1 : -1) * Number(u.f2.value);
+    C.d = Number(u.d.value);
+    u.soField.hidden = C.inf;
+    u.hoField.hidden = C.inf;
+    u.thField.hidden = !C.inf;
+    setText(u.objOut, C.inf ? "sonsuzda" : "sonlu uzaklıkta");
+    setText(u.soOut, `${fix(C.so, 2)} cm`);
+    setText(u.hoOut, C.ho < 1 ? `${fix(C.ho * 10, 1)} mm` : `${fix(C.ho, 2)} cm`);
+    setText(u.thOut, `${fix(C.th, 1)}°`);
+    setText(u.t1Out, C.f1 > 0 ? "f₁ > 0" : "f₁ < 0");
+    setText(u.t2Out, C.f2 > 0 ? "f₂ > 0" : "f₂ < 0");
+    setText(u.f1Out, `f₁ = ${sgn(C.f1, 1)} cm`);
+    setText(u.f2Out, `f₂ = ${sgn(C.f2, 1)} cm`);
+    setText(u.dOut, `${fix(C.d, 1)} cm`);
+    C.res = computeC();
+    setText(u.presetOut, `M = ${fmtMag(C.res.T.M, 1)}`);
+    dirty = true;
+  }
+
+  function computeC() {
+    const f1 = C.f1, f2 = C.f2, d = C.d, lenses = [{ x: 0, f: f1 }, { x: d, f: f2 }];
+    const T = PHYS.twoLens(f1, f2, d, C.inf ? Infinity : C.so);
+    const u0 = -Math.tan((C.th * Math.PI) / 180);
+    let rays;
+    if (C.inf) {
+      const A = Math.max(1.5 * Math.abs(f1 * u0), Math.abs(f1) / 20);
+      rays = [-A, 0, A].map((yL, i) => ({ kind: i + 1, x: 0, y: yL, u: u0 }));
+    } else rays = PHYS.principalRays(C.so, C.ho, f1);
+    for (const r of rays) r.tr = PHYS.trace(r, lenses);
+    const m = PHYS.meet(rays.map((r) => r.tr));
+    // M için: cisimden çıkıp 2. merceğin merkezine varan ışın (y₂ başlangıç parametresine doğrusal bağlı)
+    const start = (p) => (C.inf ? { x: 0, y: p, u: u0 } : { x: -C.so, y: C.ho, u: p });
+    const y2 = (p) => PHYS.trace(start(p), lenses).pts[2][1];
+    const a0 = y2(0), b = y2(1) - a0;
+    let Mmeas = NaN;
+    if (Math.abs(b) > 1e-15) {
+      const uf = PHYS.trace(start(-a0 / b), lenses).u;
+      Mmeas = C.inf ? uf / u0 : (-uf * PHYS.NEAR) / C.ho;
+    }
+    const pf = PHYS.trace({ x: -1, y: 1, u: 0 }, lenses).u;
+    const y1T = C.inf ? T.si1 * u0 : T.m1 * C.ho;
+    const yFT = !Number.isFinite(T.si2) ? NaN : C.inf ? T.m2 * y1T : T.m * C.ho;
+    return {
+      T, rays, u0, y1T, yFT, Mmeas,
+      meas: { si2: m.x - d, y: m.y, m: C.inf ? NaN : m.y / C.ho, parallel: m.parallel },
+      feqMeas: Math.abs(pf) < 1e-15 ? Infinity : -1 / pf,
+      Mapprox: C.inf ? PHYS.telescopeM(f1, f2) : PHYS.microscopeM(f1, f2, d),
+    };
+  }
+  function resetC() {
+    C.ui.preset.value = "mikroskop";
+    syncC("preset");
+  }
+
+  function statusC() {
+    const R = C.res, T = R.T, d = C.d, f1 = C.f1, f2 = C.f2;
+    const L1 = (x) => fmtLen(x, 2, true);
+    let s;
+    if (C.inf) s = `Uzak cismin ışınları paralel gelir; objektif görüntüyü odak düzleminde oluşturur: s<sub>i1</sub> = f₁ = ${L1(f1)}, boyu f₁·tan θ₀ = ${L1(R.y1T)}. `;
+    else if (!Number.isFinite(T.si1)) s = "Cisim objektifin odağında: iki mercek arasında ışınlar paralel ilerler, son görüntü 2. merceğin arka odak düzleminde oluşur. ";
+    else s = `1. mercek: 1/${fix(C.so, 2)} + 1/s<sub>i1</sub> = 1/${fix(f1, 1)} → s<sub>i1</sub> = ${L1(T.si1)}, m₁ = ${fmtMag(T.m1, 3)}. `;
+    if (Number.isFinite(T.si1)) s += `2. mercek: s<sub>o2</sub> = ${fix(d, 2)} − ${fix(T.si1, 2)} = ${L1(T.so2)}${T.so2 < 0 ? " (sanal cisim)" : ""}`;
+    if (!Number.isFinite(T.si2)) {
+      s += Number.isFinite(T.si1) ? " = f₂, " : "";
+      s += `ışınlar paralel çıkar: son görüntü sonsuzda, göz gevşek bakar. Açısal büyütme M = ${fmtMag(T.M, 2)}`;
+      if (C.inf) s += `: θ₀ = ${fix(C.th, 1)}° olan cisim ${fix(deg(Math.atan(Math.abs(T.M * Math.tan((C.th * Math.PI) / 180)))), 1)}° açıyla, ${T.M < 0 ? "ters" : "düz"} görünür.`;
+      else s += ` (çıplak göz cisme 25 cm'den bakar). Formül: −(L/f₁)(25 cm/f₂) = −(${fix(d - f1 - f2, 2)}/${fix(f1, 1)})(25/${fix(f2, 1)}) = ${fmtMag(R.Mapprox, 2)}.`;
+    } else {
+      s += `${Number.isFinite(T.si1) ? " →" : ""} s<sub>i2</sub> = ${L1(T.si2)} (${T.si2 > 0 ? "gerçek" : "sanal"}). Açısal büyütme M = ${fmtMag(T.M, 2)}.`;
+      if (C.inf) s += ` Afokal düzen için d = f₁ + f₂ = ${L1(f1 + f2)} olmalı.`;
+      else if (T.si2 < 0 && T.si2 > -PHYS.NEAR) s += " Son görüntü göze 25 cm'den yakın: göz bu kadar yakını net göremez. Mikroskopta cisim, son görüntü 25 cm ile sonsuz arasına düşecek biçimde ayarlanır; hazır düzende bu aralık yalnızca s<sub>o</sub> = 1.758–1.760 cm, yani yaklaşık 0.02 mm genişliğindedir.";
+    }
+    return s;
+  }
+  function readoutsC() {
+    const u = C.ui, R = C.res, T = R.T, inf = C.inf;
+    setText(u.si1, fmtLen(T.si1, 2, true));
+    setText(u.m1, inf ? "—" : fmtMag(T.m1, 3));
+    setText(u.so2, Number.isFinite(T.so2) ? `${fmtLen(T.so2, 2, true)}${T.so2 < 0 ? " (sanal)" : ""}` : "∞ (paralel ışın)");
+    setText(u.m2, fmtMag(T.m2, 3));
+    setText(u.tubeLabel, inf ? "Afokal uzunluk f₁ + f₂" : "Tüp uzunluğu L = d − f₁ − f₂");
+    setText(u.tube, fmtLen(inf ? C.f1 + C.f2 : C.d - C.f1 - C.f2, 2, true));
+    setText(u.psys, fmtPow(100 * T.P));
+    setText(u.siM, R.meas.parallel ? "∞ (ışınlar paralel)" : fmtLen(R.meas.si2, 2, true));
+    setText(u.siT, fmtLen(T.si2, 2, true));
+    setText(u.siD, diffPct(R.meas.si2, T.si2));
+    setText(u.mM, inf ? "—" : R.meas.parallel ? "∞" : sgn(R.meas.m, 3));
+    setText(u.mT, inf ? "—" : fmtMag(T.m, 3));
+    setText(u.mD, inf ? "—" : diffPct(R.meas.m, T.m));
+    setText(u.aM, fmtMag(R.Mmeas, 2));
+    setText(u.aT, fmtMag(T.M, 2));
+    setText(u.aD, diffPct(R.Mmeas, T.M));
+    setText(u.xLabel, inf ? "M = −f₁/f₂ (afokal teleskop)" : "M ≈ −(L/f₁)(25 cm/f₂)");
+    setText(u.xM, fmtMag(R.Mmeas, 2));
+    setText(u.xT, fmtMag(R.Mapprox, 2));
+    setText(u.xD, diffPct(R.Mmeas, R.Mapprox));
+    setText(u.fM, fmtLen(R.feqMeas, 2, true));
+    setText(u.fT, fmtLen(T.feq, 2, true));
+    setText(u.fD, diffPct(R.feqMeas, T.feq));
+    setHTML(u.status, statusC());
+  }
+
+  const NICE_W = [2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120, 150, 200, 250, 300, 400];
+  const NICE_Y = [0.02, 0.05, 0.1, 0.2, 0.3, 0.5, 0.8, 1, 1.5, 2, 3, 5, 8, 10, 15, 20, 30, 50, 80, 120];
+  // Görünüm sürükleme boyunca sabit kalır; ölçek "yuvarlak" değerlere atlar (gecikmeli küçülme)
+  function viewC(force) {
+    if (C.drag && C.view && !force) return C.view;
+    const W = stage.width, H = stage.height, band = 22 * dpr, R = C.res, T = R.T, d = C.d;
+    let lo = C.inf ? -0.22 * Math.max(d, Math.abs(C.f1)) : -C.so, hi = d + Math.max(1.5 * Math.abs(C.f2), 0.25 * d);
+    const near = (x) => Number.isFinite(x) && x > lo - 0.6 * (hi - lo) && x < hi + 0.6 * (hi - lo);
+    if (near(T.si1)) { lo = Math.min(lo, T.si1); hi = Math.max(hi, T.si1); }
+    if (near(d + T.si2)) { lo = Math.min(lo, d + T.si2); hi = Math.max(hi, d + T.si2); }
+    const span = (hi - lo) * 1.12, prev = C.view;
+    let w = NICE_W.find((v) => v >= span) || span;
+    if (prev && prev.w >= span && prev.w <= 1.7 * span) w = prev.w;
+    const x0 = (lo + hi) / 2 - w / 2, x1 = x0 + w;
+    const inX = (x) => x > x0 && x < x1;
+    let ym = C.inf ? 0 : C.ho;
+    for (const r of R.rays) for (const p of r.tr.pts) if (inX(p[0]) || p[0] === 0 || p[0] === d) ym = Math.max(ym, Math.abs(p[1]));
+    if (Number.isFinite(T.si1) && inX(T.si1)) ym = Math.max(ym, Math.abs(R.y1T));
+    if (Number.isFinite(R.yFT) && inX(d + T.si2)) ym = Math.max(ym, Math.abs(R.yFT));
+    let Y = NICE_Y.find((v) => v >= ym * 1.2) || ym * 1.2;
+    if (prev && prev.Y0 >= ym * 1.2 && prev.Y0 <= 1.8 * ym * 1.2) Y = prev.Y0;
+    const ay = (H - band) / 2, V = makeView(x0, x1, ay, (ay - 8 * dpr) / Y);
+    V.w = w;
+    V.Y0 = Y;
+    C.view = V;
+    return V;
+  }
+
+  function drawC() {
+    const th = theme(), g = sg, W = stage.width, H = stage.height, band = H - 22 * dpr;
+    const V = viewC(), R = C.res, T = R.T, d = C.d, f1 = C.f1, f2 = C.f2;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    drawAxisRuler(g, th, V, band);
+    const Lh = 0.86 * V.Y0;
+    drawThinLens(g, th, V.X(0), V.Y(Lh), V.Y(-Lh), f1 > 0);
+    drawThinLens(g, th, V.X(d), V.Y(Lh), V.Y(-Lh), f2 > 0);
+    const named = C.preset !== "serbest";
+    rich(g, named ? "objektif" : "1. mercek", V.X(0), V.Y(Lh) - 9 * dpr, th.muted, 10, "center", "600");
+    rich(g, named ? "göz merceği" : "2. mercek", V.X(d), V.Y(Lh) - 9 * dpr, th.muted, 10, "center", "600");
+    // Çakışan odaklar tek etikette birleşir (afokal düzende F₁′ = F₂)
+    const marks = [];
+    for (const [x, lab] of [[-f1, "F_1"], [f1, "F_1′"], [d - f2, "F_2"], [d + f2, "F_2′"]]) {
+      if (!(x > V.x0 && x < V.x1)) continue;
+      const same = marks.find((m) => Math.abs(V.X(m.x) - V.X(x)) < 1.5 * dpr);
+      if (same) same.lab += ` = ${lab}`;
+      else marks.push({ x, lab });
+    }
+    for (const m of marks) focusMark(g, th, V.X(m.x), V.ay, m.lab, th.muted);
+
+    const col = { 1: th.accent, 2: th.accent2, 3: th.pink }, xR = V.x1 + 1;
+    const si1 = T.si1, si2 = T.si2, xi2 = d + si2;
+    clipRect(g, 0, 0, W, band);
+    for (const ray of R.rays) {
+      const c = col[ray.kind], p = ray.tr.pts, y1 = p[1][1], y2 = p[2][1], uf = ray.tr.u;
+      const u1 = d > 0 ? (y2 - y1) / d : ray.u;
+      const xs = C.inf ? V.x0 - 1 : -C.so, ys = C.inf ? ray.y + ray.u * (xs - ray.x) : C.ho;
+      stroke(g, c, 2);
+      line(g, V.X(xs), V.Y(ys), V.X(0), V.Y(y1));
+      line(g, V.X(0), V.Y(y1), V.X(d), V.Y(y2));
+      line(g, V.X(d), V.Y(y2), V.X(xR), V.Y(y2 + uf * (xR - d)));
+      midArrow(g, V.X(Math.max(xs, V.x0)), V.Y(ys + (Math.max(xs, V.x0) - xs) * (C.inf ? ray.u : (y1 - ys) / (0 - xs))), V.X(0), V.Y(y1), c);
+      midArrow(g, V.X(d), V.Y(y2), V.X(Math.min(xR, d + 0.5 * (V.x1 - d))), V.Y(y2 + uf * (Math.min(xR, d + 0.5 * (V.x1 - d)) - d)), c);
+      stroke(g, c, 1.3, [6, 5]);
+      if (Number.isFinite(si1) && si1 < 0) { const xb = si1 - 0.04 * V.w; line(g, V.X(0), V.Y(y1), V.X(xb), V.Y(y1 + u1 * xb)); }
+      if (Number.isFinite(si1) && si1 > d) { const xb = si1 + 0.04 * V.w; line(g, V.X(d), V.Y(y2), V.X(xb), V.Y(y2 + u1 * (xb - d))); }
+      if (Number.isFinite(si2) && si2 < 0) { const xb = xi2 - 0.04 * V.w; line(g, V.X(d), V.Y(y2), V.X(xb), V.Y(y2 + uf * (xb - d))); }
+    }
+    g.setLineDash([]);
+    if (Number.isFinite(si1) && si1 > V.x0 && si1 < V.x1) drawArrow(g, V.X(si1), V.Y(0), V.Y(R.y1T), th.mid, 2.5, si1 < 0 || si1 > d);
+    if (Number.isFinite(si2) && Number.isFinite(R.yFT) && xi2 > V.x0 && xi2 < V.x1) {
+      drawArrow(g, V.X(xi2), V.Y(0), V.Y(R.yFT), th.blue, 3, si2 < 0);
+      if (!R.meas.parallel) {
+        g.strokeStyle = th.ink;
+        g.lineWidth = 1.5 * dpr;
+        g.beginPath(); g.arc(V.X(d + R.meas.si2), V.Y(R.meas.y), 5.5 * dpr, 0, Math.PI * 2); g.stroke();
+      }
+    }
+    if (!C.inf) drawArrow(g, V.X(-C.so), V.Y(0), V.Y(C.ho), th.warm, 3, false);
+    g.restore();
+
+    if (!C.inf) {
+      handle(g, th, V.X(-C.so), V.Y(C.ho), th.warm);
+      tag(g, "cisim", V.X(-C.so), V.Y(C.ho) - 16 * dpr, th.warm, th, 10.5);
+    } else tag(g, `uzak cisim: θ_0 = ${fix(C.th, 1)}°`, 6 * dpr, 16 * dpr, th.warm, th, 10.5, "left");
+    if (Number.isFinite(si1) && si1 > V.x0 && si1 < V.x1) {
+      const yt = V.Y(R.y1T), lab = si1 > d ? "ara görüntü (2. merceğin sanal cismi)" : si1 < 0 ? "ara görüntü (sanal)" : "ara görüntü";
+      tag(g, lab, V.X(si1), Math.max(14 * dpr, Math.min(band - 14 * dpr, yt + (R.y1T < 0 ? 15 : -15) * dpr)), th.mid, th, 10);
+    }
+    if (!Number.isFinite(si2)) tag(g, "ışınlar paralel çıkar: son görüntü sonsuzda", 4 * dpr, band - 14 * dpr, th.blue, th, 10.5, "left");
+    else if (Number.isFinite(R.yFT) && xi2 > V.x0 && xi2 < V.x1) {
+      const yt = V.Y(R.yFT);
+      tag(g, `son görüntü (${si2 < 0 ? "sanal" : "gerçek"})`, V.X(xi2), Math.max(14 * dpr, Math.min(band - 14 * dpr, yt + (R.yFT < 0 ? 15 : -15) * dpr)), th.blue, th, 10.5);
+    } else {
+      const right = xi2 >= V.x1;
+      tag(g, right ? `son görüntü sağda: ${fmtLen(si2, 1, true)} →` : `← son görüntü solda: s_{i2} = ${fmtLen(si2, 1, true)}`, right ? W - 4 * dpr : 4 * dpr, 16 * dpr, th.blue, th, 10.5, right ? "right" : "left");
+    }
+    handle(g, th, V.X(d), V.ay, th.ink);
+    rich(g, `düşey ölçek ×${fix(V.ky / V.kx, 1)}`, W - 8 * dpr, band - 10 * dpr, th.muted, 10, "right");
+  }
+
+  function drawChartC() {
+    const th = theme(), g = cg, P1 = 100 / C.f1, P2 = 100 / C.f2, d = C.d;
+    const Pd = (x) => P1 + P2 - (x / 100) * P1 * P2;
+    const xMax = [10, 20, 30, 40, 50, 60, 80, 100, 120, 150, 200].find((v) => v >= Math.max(1.4 * d, 1.25 * Math.abs(C.f1 + C.f2), 5)) || 200;
+    const lo = Math.min(0, Pd(0), Pd(xMax)), hi = Math.max(0, Pd(0), Pd(xMax));
+    const step = niceStep(Math.max(hi - lo, 1) / 5), y0 = Math.floor(lo / step) * step, y1 = Math.ceil(hi / step) * step;
+    const L = chartFrame(g, th, { x0: 0, x1: xMax, y0, y1, xStep: niceStep(xMax / 6), yStep: step, xLabel: "d (cm)", yLabel: "P (D)" });
+    clipRect(g, L.l, L.t, L.w, L.h);
+    stroke(g, th.accent, 2);
+    line(g, L.X(0), L.Y(Pd(0)), L.X(xMax), L.Y(Pd(xMax)));
+    const dA = C.f1 + C.f2, hasA = Math.abs(P1 * P2) > 1e-12 && dA > 0 && dA < xMax;
+    if (hasA) {
+      stroke(g, th.accent2, 1.2, [5, 4]);
+      line(g, L.X(dA), L.t, L.X(dA), L.t + L.h);
+      g.setLineDash([]);
+      stroke(g, th.accent2, 1.6);
+      g.beginPath(); g.arc(L.X(dA), L.Y(0), 4.5 * dpr, 0, Math.PI * 2); g.stroke();
+    }
+    const Pn = Pd(d);
+    g.fillStyle = th.warm;
+    g.beginPath(); g.arc(L.X(d), L.Y(Pn), 5 * dpr, 0, Math.PI * 2); g.fill();
+    g.restore();
+    if (hasA) tag(g, `afokal: d = f₁ + f₂ = ${fix(dA, 1)} cm`, L.X(dA) + (L.X(dA) > L.l + L.w * 0.6 ? -6 : 6) * dpr, L.t + 10 * dpr, th.accent2, th, 9.5, L.X(dA) > L.l + L.w * 0.6 ? "right" : "left");
+    const right = L.X(d) > L.l + L.w * 0.6;
+    tag(g, `P = ${fmtPow(Pn)} · f_{eş} = ${fmtLen(C.res.T.feq, 2, true)}`, L.X(d) + (right ? -8 : 8) * dpr, L.Y(Pn) + (Pn > (y0 + y1) / 2 ? 16 : -16) * dpr, th.warm, th, 10, right ? "right" : "left");
+  }
+
+  function hitC(sx, sy) {
+    const V = viewC();
+    if (!C.inf) {
+      const ox = V.X(-C.so), oy0 = V.Y(0), oy1 = V.Y(C.ho);
+      if (Math.hypot(sx - ox, sy - oy1) < 16 * dpr) return "tip";
+      if (Math.abs(sx - ox) < 12 * dpr && sy < oy0 + 6 * dpr && sy > oy1) return "stem";
+    }
+    const lh = 0.86 * V.Y0 * V.ky;
+    if (Math.abs(sx - V.X(C.d)) < 14 * dpr && Math.abs(sy - V.ay) < lh + 10 * dpr) return "lens2";
+    return null;
+  }
+  function pointerC(sx, sy, start) {
+    if (start) {
+      const k = hitC(sx, sy);
+      if (!k) return false;
+      C.view = viewC(true);
+      C.drag = k;
+    }
+    const V = C.view, x = V.ix(sx);
+    if (C.drag === "lens2") setRange(C.ui.d, x);
+    else {
+      setRange(C.ui.so, -x);
+      if (C.drag === "tip") setRange(C.ui.ho, V.iy(sy));
+    }
+    syncC("control");
+    return true;
+  }
+
+  /* ── Sekmeler ── */
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = el.dataset.for !== key; });
+    stage.setAttribute("aria-label", ARIA[key][0]);
+    chart.setAttribute("aria-label", ARIA[key][1]);
+    if (fromUser) {
+      try { history.replaceState(null, "", `#${key}`); } catch (_) {}
+    }
+    endDrag();
+    stage.classList.remove("is-grab");
+    dirty = true;
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+
+  /* ── Çizim döngüsü: yalnız bir şey değişince (ya da tema değişince) yeniden çizilir ── */
+  let lastTheme = "";
+  function render() {
+    if (S.tab === "tek") { drawA(); drawChartA(); readoutsA(); }
+    else if (S.tab === "yapici") { drawB(); drawChartB(); readoutsB(); }
+    else { drawC(); drawChartC(); readoutsC(); }
+  }
+  function frame() {
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) { lastTheme = th; dirty = true; }
+    if (dirty) {
+      dirty = false;
+      render();
+    }
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    C.view = null;
+    dirty = true;
+  }
+
+  /* ── Etkileşim ── */
+  let drag = null;
+  function endDrag() {
+    if (!drag) return;
+    drag = null;
+    A.drag = null;
+    C.drag = null;
+    stage.classList.remove("is-dragging");
+    dirty = true;
+  }
+  stage.addEventListener("pointerdown", (evt) => {
+    const [sx, sy] = stagePoint(evt, stage);
+    let ok = false;
+    if (S.tab === "tek") ok = pointerA(sx, sy, true);
+    else if (S.tab === "iki") ok = pointerC(sx, sy, true);
+    if (!ok) return;
+    drag = S.tab;
+    stage.setPointerCapture(evt.pointerId);
+    stage.classList.add("is-dragging");
+    evt.preventDefault();
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    const [sx, sy] = stagePoint(evt, stage);
+    if (!drag) {
+      if (evt.pointerType === "mouse") stage.classList.toggle("is-grab", Boolean(S.tab === "tek" ? hitA(sx, sy) : S.tab === "iki" ? hitC(sx, sy) : null));
+      return;
+    }
+    if (drag === "tek") pointerA(sx, sy, false);
+    else pointerC(sx, sy, false);
+  });
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  stage.addEventListener("pointerleave", () => { if (!drag) stage.classList.remove("is-grab"); });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button")) return;
+    if (e.key === "r" || e.key === "R") {
+      if (S.tab === "tek") presetA("reset");
+      else if (S.tab === "yapici") resetB();
+      else resetC();
+    }
+  });
+
+  [A.ui.f, A.ui.so, A.ui.ho].forEach((el) => el.addEventListener("input", syncA));
+  [A.ui.type, A.ui.fan].forEach((el) => el.addEventListener("change", syncA));
+  document.querySelectorAll("[data-preset-a]").forEach((b) => b.addEventListener("click", () => presetA(b.dataset.presetA)));
+  A.ui.reset.addEventListener("click", () => presetA("reset"));
+
+  B.ui.shape.addEventListener("change", () => syncB("shape"));
+  [B.ui.c1, B.ui.c2].forEach((el) => el.addEventListener("input", () => syncB("slider")));
+  [B.ui.glass, B.ui.medium].forEach((el) => el.addEventListener("change", () => syncB("")));
+  B.ui.reset.addEventListener("click", resetB);
+
+  C.ui.preset.addEventListener("change", () => { C.view = null; syncC("preset"); });
+  [C.ui.so, C.ui.ho, C.ui.th, C.ui.f1, C.ui.f2, C.ui.d].forEach((el) => el.addEventListener("input", () => syncC("control")));
+  [C.ui.obj, C.ui.t1, C.ui.t2].forEach((el) => el.addEventListener("change", () => syncC("control")));
+  C.ui.reset.addEventListener("click", () => { C.view = null; resetC(); });
+
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Başlat ── */
+  syncA();
+  syncB("shape");
+  syncC("preset");
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "tek", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>
