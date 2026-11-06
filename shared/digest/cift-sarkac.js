@@ -244,8 +244,8 @@ window.ACELYA_DIGEST["cift-sarkac"] = {
     },
     {
       href: "lorenz-cekici.html",
-      title: "Lorenz Çekici",
-      why: "Küçük, eski bir sayfa: tek Çiz! düğmesi Lorenz'in 1963 denklemlerini (σ = 10, ρ = 28, β = 8/3) sabit bir başlangıçtan çizer, ayar yoktur. Bu sönümlü sistemde yörüngeler garip bir çekiciye yığılır; çift sarkaçta enerji korunur.",
+      title: "Lorenz Çekicisi",
+      why: "Kaosun öbür klasik örneği, Lorenz'in 1963 konveksiyon modeli: Kelebek etkisi sekmesinde Δ = 10⁻⁹ farkla başlayan kopyaların ayrılışından Lyapunov üstelini (yaklaşık 0.90) ölç. Bu sönümlü sistemde hacim üstel olarak büzülür ve yörüngeler garip bir çekiciye yığılır; çift sarkaçta enerji korunur.",
     },
   ],
   sources: [
