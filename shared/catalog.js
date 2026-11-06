@@ -271,7 +271,7 @@ window.ACELYA_CATALOG = {
   },
   "kaldirma-kuvveti": {
     "title": "Kaldırma Kuvveti: Suyun İçinde Tartmak",
-    "tagline": "Batmış her cisim, yerini aldığı sıvının ağırlığı kadar yukarı itilir. Bu tek ilke buzdağının ne kadarının gizli kaldığını, gemilerin neden devrilmediğini ve sahte bir tacın suda nasıl ele verildiğini açıklar.",
+    "tagline": "Sıvıya giren her cisim, yerini aldığı sıvının ağırlığı kadar yukarı itilir. Bu tek ilke buzdağının ne kadarının gizli kaldığını, geminin neden devrilmediğini ve sahte bir tacın suda nasıl ele verildiğini açıklar.",
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
@@ -509,7 +509,7 @@ window.ACELYA_CATALOG = {
   },
   "tork-denge": {
     "title": "Tork ve Denge: Kaldıraçtan Kayan Merdivene",
-    "tagline": "Bir kuvvetin döndürme gücü, büyüklüğü kadar nereye bindiğine de bağlıdır. Kaldıracı dengele, tahtanın nerede devrildiğini bul, merdivenin hangi basamakta kaydığını ölç: hepsi iki denklemle, ΣF = 0 ve Στ = 0.",
+    "tagline": "Bir kuvvetin döndürme etkisi, büyüklüğü kadar nereye bindiğine de bağlıdır. Kaldıracı dengele, tahtanın nerede devrildiğini bul, merdivenin hangi basamakta kaydığını ölç: hepsi iki denklemle, ΣF = 0 ve Στ = 0.",
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 40
