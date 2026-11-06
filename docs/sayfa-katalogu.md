@@ -94,14 +94,14 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `dalga-superpozisyonu` — Dalga Süperpozisyonu
 - `doppler-etkisi` — Doppler (sayfa başlığı: Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması)
 - `elektrik-devresi-simulasyonu` — Elektrik Devresi (sayfa başlığı: DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları)
-- `elektronik-devre` — RC Devresi (sayfa başlığı: Elektronik Devre - RC Şarj/Deşarj Simülasyonu)
+- `elektronik-devre` — RC Devresi (sayfa başlığı: Geçici Rejim: RC, RL ve RLC Devreleri)
 - `manyetik-alan` — Manyetik Alan (sayfa başlığı: Manyetik Alan ve Elektromıknatıs Etkisi)
 - `alternatif-akim` — Alternatif Akım (sayfa başlığı: Alternatif Akım: RLC Devresi, Fazörler ve Rezonans)
 - `lorentz-kuvveti` — Lorentz Kuvveti (sayfa başlığı: Lorentz Kuvveti: Yüklü Parçacık Laboratuvarı)
 - `termodinamik` — Termodinamik (sayfa başlığı: Termodinamik: PV Diyagramı, İş, Isı ve Çevrimler)
 - `fotoelektrik` — Fotoelektrik (sayfa başlığı: Fotoelektrik Olay: Planck Sabitini Ölç)
 - `radyoaktif-bozunma` — Radyoaktif Bozunma (sayfa başlığı: Radyoaktif Bozunma: Rastlantıdan Doğan Yasa)
-- `kuantum-mekanigi` — Kuantum Çift Yarık (sayfa başlığı: Kuantum Çift Yarık Deneyi)
+- `kuantum-mekanigi` — Kuantum Çift Yarık (sayfa başlığı: Kuantum Çift Yarık: Tek Tek Parçacıklarla Girişim)
 - `kuantum-dalga` — Kuantum Dalga (sayfa başlığı: Kuantum Dalga Fonksiyonu: Kuyular, Süperpozisyon ve Tünelleme)
 - `gorelilik-uzayzaman` — Görelilik (sayfa başlığı: Özel Görelilik: Uzay-Zaman Diyagramı)
 - `gunes-sistemi` — Güneş Sistemi
@@ -109,10 +109,10 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `mantik-kapilari` — Mantık Kapıları
 - `molekul` — Molekül (sayfa başlığı: Molekül Görselleştirme)
 - `kepler-yasalari` — Kepler Yasaları (sayfa başlığı: Kepler Yasaları — Gezegen Yörüngeleri)
-- `kirinim-izgarasi` — Kırınım Izgarası (sayfa başlığı: Kırınım Izgarası — Difraksiyon)
-- `duran-dalgalar` — Duran Dalgalar (sayfa başlığı: Duran Dalgalar — Tel Üzerinde)
-- `kara-cisim-isimasi` — Kara Cisim Işıması
-- `nukleer-fizik` — Nükleer Fizik (sayfa başlığı: Nükleer Fizik — Bağlanma Enerjisi)
+- `kirinim-izgarasi` — Kırınım Izgarası (sayfa başlığı: Kırınım Izgarası: Çok Yarıklı Girişim ve Spektrometre)
+- `duran-dalgalar` — Duran Dalgalar (sayfa başlığı: Duran Dalgalar: Tel, Hava Sütunu ve Harmonikler)
+- `kara-cisim-isimasi` — Kara Cisim Işıması (sayfa başlığı: Kara Cisim Işıması: Planck, Wien ve Stefan–Boltzmann)
+- `nukleer-fizik` — Nükleer Fizik (sayfa başlığı: Çekirdek Bağlanma Enerjisi: Kütle Açığı, Fisyon ve Füzyon)
 - `yildiz-yasam-dongusu` — Yıldız Yaşam Döngüsü (sayfa başlığı: Yıldız Yaşam Döngüsü (H-R Diyagramı))
 - `takimyildiz-haritasi` — Takımyıldız Haritası
 

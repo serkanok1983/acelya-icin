@@ -7,7 +7,7 @@ standardı için `docs/icerik-rehberi.md`.
 
 Dal: `main` (eski `claude/zealous-archimedes-iwjhpu` dalı main'e birleşmiş durumda).
 6 Kasım oturumunun commit'leri `origin/main`'e gönderildi ve `gh-pages`'te yayında.
-Son durum tarihi: 2026-11-06.
+Son durum tarihi: 2026-11-07.
 
 ## 1. Hedef (sahibinin sözleriyle)
 
@@ -62,7 +62,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   21 sayfada mobil yatay taşma giderildi (theme.css canvas kuralı + 7 sayfa
   tek tek). Duman testi: 168 sayfada 0 JS hatası.
 - Service worker yeniden yazıldı; CI'da denetim adımı; README.
-- Keşif Defteri altyapısı + 88 defter (aşağıda durum tablosu).
+- Keşif Defteri altyapısı + 94 defter (aşağıda durum tablosu).
 - **31 Ekim 2026 oturumu:**
   - Simülasyon hataları düzeltildi: `is-enerji` (animasyon çalışmıyordu, fiziksel
     birimlerle yeniden yazıldı), `kepler-yasalari` (gezegen ekran dışındaydı;
@@ -122,6 +122,19 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   Doğrulayıcıların bulduğu sayfa hataları da düzeltildi: atislar'da Ay oranı,
   mercek-isinlari'nda göz için net görüntü uyarıları, kuantum-dalga'da
   osilatördeki sahte ⟨x⟩ periyodu.
+- **7 Kasım (grup A3):** duran-dalgalar (titreştiricili tel, hava sütunu ve
+  rezonans tüpü, harmonikler), kirinim-izgarasi (çok yarıklı desen, spektrometre
+  ve Rydberg sabiti, CD/DVD), elektronik-devre (RC, RL ve RLC geçici rejim),
+  kara-cisim-isimasi (Planck, CIE renkleri, gezegen sıcaklığı), kuantum-mekanigi
+  (tek tek elektronlarla girişim, yol işaretçisi, de Broglie) ve nukleer-fizik
+  (AME2020 bağlanma enerjisi, izobarlar, fisyon ve füzyon) yeniden kuruldu; altı
+  defter tam hattan geçti (94 defter). Kurucuların altısı da 55. dakikada bir
+  bağlantı kesintisiyle düştü ve `resume` ile kaldıkları yerden sürdü. Yazar ve
+  doğrulayıcıların bulduğu sayfa sorunları düzeltildi: kuantum-mekanigi'nde iki
+  sekmenin çelişen örtüşme kuralı, nukleer-fizik'te iki farklı yüzde tabanı,
+  kirinim-izgarasi'nda Rayleigh sınırındaki kıl çizgisi kartı, kara-cisim'de
+  Dünya'nın eski albedosu (0.306 → NASA'nın güncel 0.294), duran-dalgalar'da
+  frekans için sayı kutusu, elektronik-devre'de bozuk not ve etiket.
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
@@ -136,10 +149,10 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.1 Kalan 66 sayfa için defter yaz (üniversite hedefine göre sıralı)
+### 4.1 Kalan 60 sayfa için defter yaz (üniversite hedefine göre sıralı)
 
-Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler). 6 Kasım'da
-20 ince sayfa (19'u fizik) yeniden kurulup defterlendi; ince ya da yanlış fizik
+Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler). 6–7 Kasım'da
+26 ince sayfa (25'i fizik) yeniden kurulup defterlendi; ince ya da yanlış fizik
 içeren bir sayfaya defter yazmak, laboratuvar bölümünü sonra yeniden yazmak
 demektir. Kalan temel bilim sayfalarının hepsi ince: 150–680 satır, en çok 6
 denetim (yeniden kurulan laboratuvarlar 1800–2000 satır; `lorenz-cekici` 87
@@ -149,9 +162,8 @@ satır, tek düğme ve CDN). Bu yüzden hepsi kurucudan başlar:
 A · kurucu → yazar → doğrulayıcı+editör (6'lık gruplar)
     tamamlandı (6 Kasım): akiskanlar-mekanigi tork-denge kaldirma-kuvveti basinc
     (grup A); optik-yansima-kirilma mercek-isinlari atislar cift-sarkac
-    kuantum-dalga (grup A2)
-    A3 fizik:      duran-dalgalar kirinim-izgarasi elektronik-devre
-                   kara-cisim-isimasi kuantum-mekanigi nukleer-fizik
+    kuantum-dalga (grup A2); duran-dalgalar kirinim-izgarasi elektronik-devre
+    kara-cisim-isimasi kuantum-mekanigi nukleer-fizik (grup A3, 7 Kasım)
     A4 matematik:  lorenz-cekici taylor-serisi riemann-toplamlari
                    karmasik-sayilar normal-dagilim konik-kesitler
     A5 kimya/biyo: kristal-yapilar denklem-denklestirme ph-indikator
@@ -218,13 +230,13 @@ Tam istem metinleri bu oturumda kullanılan İngilizce halleriyle
   `shared/digest.js` slug'ı `encodeURIComponent` ile yükler, dosya adı
   birebir `fibo+pascal.js` olmalı.
 
-### 4.2 Var olan 88 defterin eksik aşamalarını tamamla
+### 4.2 Var olan 94 defterin eksik aşamalarını tamamla
 
 Bekleyen doğrulama bulgusu kalmadı. Durum (6 Kasım 2026):
 
 | Durum | Sayfalar |
 |---|---|
-| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga |
+| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik |
 | yazar + editör (doğrulama yok) | altin-oran, pong |
 | yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
@@ -283,10 +295,11 @@ tablosu hataları). Öneri:
    ile bulunabilir; sabit renk ya da `getComputedStyle` kullan).
 2. Sonra en çok kullanılan/temel sayfaları `sarkac.html` seviyesine çıkar.
    6 Kasım'da yapıldı: turev, periyodik-tablo (düzeltme ve veri) ve defteri
-   olmayan 19 fizik sayfası (ilk turda 10, grup A'da 4, grup A2'de 5; bkz.
+   olmayan 25 fizik sayfası (ilk turda 10, grup A'da 4, A2'de 5, A3'te 6; bkz.
    3. bölüm). Sırada defteri olan
    ama laboratuvarı zayıf temel sayfalar: integral, vektorler, serbest-dusme,
-   yay-kutle, newton-hareket-yasalari. Bunlar yeniden kurulursa
+   yay-kutle, newton-hareket-yasalari, dalga-superpozisyonu (aynı yönlü iki
+   dalga, faz denetimi yok; duran dalgaların ön koşulu). Bunlar yeniden kurulursa
    defterlerinin laboratuvar bölümü de yeniden yazılmalı (kurucu raporu ile).
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.
@@ -302,7 +315,7 @@ tablosu hataları). Öneri:
   `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
   Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
   Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
-  (66 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
+  (60 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
   bitince geçer.
 
 ## 5. Kalite çıtası (kısa hatırlatma)

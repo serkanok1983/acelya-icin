@@ -181,6 +181,9 @@ main changes; simulationNotes; remaining uncertainties.
   dakikada yazılmıştı. Ajanları 5–6'lık gruplarla çalıştır, her istemde 30 dakikalık bütçe ve `timeout` kuralı olsun,
   her grup bitince commit'le.
 - Ajan raporları kaybolabilir: kurucu raporlarını dosyaya yazdır (`.shots/briefs/`), sayfa sayılarını oradan al.
+- `smoke.mjs` sayfayı yalnız varsayılan sekmesiyle açar; sekme içindeki bir kod yolunu değiştirdikten sonra bütün
+  sekmeleri (ve sekme içi düzenleri) bir Playwright betiğiyle tek tek açıp `pageerror` dinle. 7 Kasım'da hava sütunu
+  sekmesindeki bir `ReferenceError` duman testinden geçti, ancak böyle yakalandı.
 - Bağlantı kesintisi bütün ajanları aynı anda düşürebilir (6 Kasım, A3'ün altı kurucusu 55. dakikada). Kurucular
   sayfayı erken diske yazıp üzerinde yinelemeli; düşen ajan `resume` ile, diskteki durum anlatılarak kaldığı yerden
   sürdürülür.

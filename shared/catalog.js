@@ -150,6 +150,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "duran-dalgalar": {
+    "title": "Duran Dalgalar: Tele ve Boruya Sığan Notalar",
+    "tagline": "Bir tel ya da bir boru her frekansı çalamaz: dalga kendi yansımasıyla buluşur ve yalnızca uçlara sığan dalga boyları birikir. Gitarın notası, klarnetin pesliği ve tınının rengi bu kuraldan doğar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "elektrik-devresi-simulasyonu": {
     "title": "Doğru Akım Devreleri: Akım Tükenmez, Enerji Paylaşılır",
     "tagline": "Bir pil, birkaç direnç ve tel: hepsi iki korunum yasasına ve tek bir doğrusal denklem sistemine iner. Ohm'un termoçiftinden Wheatstone köprüsüne, en büyük güç aktarımından SPICE'a uzanan bir yol.",
@@ -170,6 +177,13 @@ window.ACELYA_CATALOG = {
     "field": "Kimya",
     "level": "Lise",
     "minutes": 30
+  },
+  "elektronik-devre": {
+    "title": "Geçici Rejim: Kondansatör Neden Bir Anda Dolmaz?",
+    "tagline": "Anahtar çevrildiği an devre yeni dengesine sıçrayamaz; τ ölçeğinde üstel olarak ya da salınarak varır. Leyden şişesinden defibrilatöre, 555 zamanlayıcısından osiloskoba aynı birkaç denklem.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "elektronik-muhendisligi": {
     "title": "Elektronik: Kumdan Düşünen Makineye",
@@ -290,6 +304,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "kara-cisim-isimasi": {
+    "title": "Kara Cisim Işıması: Kuantumun Doğduğu Eğri",
+    "tagline": "Sıcak her şey ışır; ideal bir kara cismin tayfını ise yalnız sıcaklığı belirler. Planck eğrisinden tepeyi ve toplam gücü ölç, yıldızların rengini hesapla, bir gezegenin ısı bütçesini kızılötesinde kapat.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
   "kepler-yasalari": {
     "title": "Kepler Yasaları: Sekiz Yay Dakikalık İnat",
     "tagline": "Tycho Brahe'nin gözlemlerindeki inatçı bir sekiz yay dakikası, gezegenlerin çember değil elips çizdiğini ortaya çıkardı. Üç yasa: elips yörünge, eşit alanlar ve T² = a³.",
@@ -304,6 +325,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "kirinim-izgarasi": {
+    "title": "Kırınım Izgarası: Işığın Parmak İzini Okuyan Çizgiler",
+    "tagline": "Bir CD'deki gökkuşağından Güneş'te bulunan helyuma: binlerce eş yarık ışığı renklerine ayırır, parlak tepeleri 1/N oranında inceltir ve hidrojenin tayfında protonun kütlesini bile fark ettirir.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "klasik-girisim": {
     "title": "Young'ın Çift Yarığı: Işığı Cetvelle Ölçmek",
     "tagline": "Bir iğne deliği, iki yarık ve bir cetvel: nanometrelik dalga boyu milimetrelik saçaklara dönüşür. Young'ın kart deneyinden bir yıldızın çapını ölçen aynalara uzanan Δy = λL/d'nin hikâyesi.",
@@ -316,6 +344,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Bir elektronu nanometrelik kuyulara kapat: enerji basamaklara bölünür, tek basamakta hiçbir şey kıpırdamaz, iki basamak karışınca olasılık çalkalanır ve elektron ince bir duvarın ardındaki kuyuya tünelleyerek geçer.",
     "field": "Fizik",
     "level": "Lisans",
+    "minutes": 45
+  },
+  "kuantum-mekanigi": {
+    "title": "Kuantum Çift Yarık: Tek Elektron, İki Yol",
+    "tagline": "Elektronlar ekrana tek tek, kestirilemeyen noktalara düşer; binlercesi birikince saçak çizer. Genliklerin toplandığı, yol bilgisinin saçağı sildiği ve tenis topunun saçağının neden hiç görülemeyeceği yer.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
     "minutes": 45
   },
   "lorentz-kuvveti": {
@@ -429,6 +464,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise",
     "minutes": 30
+  },
+  "nukleer-fizik": {
+    "title": "Bağlanma Enerjisi: Çekirdeğin Eksik Kütlesi",
+    "tagline": "Bir helyum çekirdeği, kendisini oluşturan iki proton ve iki nötrondan binde 7.5 hafiftir. Bu eksik kütle yıldızları yakar, reaktörleri ısıtır; eğrinin tepesi hangi tepkimenin enerji vereceğini söyler.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "optik-yansima-kirilma": {
     "title": "Sınırdaki Işık: Snell'den Optik Fibere",

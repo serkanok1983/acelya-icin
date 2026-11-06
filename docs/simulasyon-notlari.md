@@ -709,3 +709,55 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 - ❑ Kaldırma (Magnus) kuvveti, dönme ve sürükleme krizi yok (C_d sabit): golf ve beyzbolda taşıma mesafesi, futbolda kritik hız (~12 m/s) çevresi eksik modelleniyor. Sayfa bunu "Top" panelinde söylüyor.
 - ❑ Rüzgâr, sekme ve yuvarlanma yok; zemin atış düzeyinde düz. "Tipik atış" değerleri yuvarlanmış örnekler, ölçülmüş veri değil.
 - ❑ Çok hafif özel topların yüksekten bırakıldığı taramalar birkaç saniye sürebiliyor.
+
+## duran-dalgalar.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: titreştiricili tel (dalga denklemi sonlu farklarla; rezonansta genlik birikir, düğümler ve düğüm aralığı ölçülür, rezonans eğrisi taranır, iki yürüyen dalga gösterilir; gitar teli D'Addario PL010 verisiyle), açık ve kapalı borular (uç düzeltmesi, yer değiştirme ve basınç desenleri), rezonans tüpüyle ses hızı ve uç düzeltmesi, çekilen telin harmonikleri ve sesi çal düğmesi.
+- ✔ Titreştirici frekansı için "f (Hz)" sayı kutusu (kaydırıcı 0.01 Hz adımlı olduğundan 90.00 Hz'e inmek yüzlerce tuş istiyordu).
+- ❑ Gerilme kuvveti kaydırıcısında (`aT`, 0.5–150 N) sayı kutusu yok; 10.00 N'a inmek sürükleme ve 50'ye yakın ok tuşu istiyor, her basış teli yeniden başlatıyor. `aFNum` gibi bir "T (N)" kutusu eklenmeli.
+- ❑ Yerleşme ölçütü (`settledA`, 7/β beklemesi) önceki durumun e⁻⁷'sini bırakıyor; 100 Hz'den 90 Hz'e geçince kartlar "yerleşti" dendikten sonra kısa bir süre kayıyor ve durum satırındaki kazanç (bir ondalıkla, `fix(gain, 1)`) 1.05'in iki yanında 1.0 ile 1.1 arasında gidip geliyor. Bekleme ln(A_eski/A_yeni)/β kadar uzatılmalı ya da kazanç iki ondalıkla yazılmalı (defter bugünkü davranışı anlatıyor).
+- ❑ Düğüm konumları yalnız tuval cetvelinden okunuyor; tabloda listelenmeli. Sönüm bütün modlar için aynı, gitar telininki görünürlük için abartılı (β = 8 s⁻¹, sayfa söylüyor). "İlk 6 harmoniği ayrı ayrı çiz" açıkken eksik modlar hiç çizilmiyor.
+- ❑ Borularda uç düzeltmesi frekanstan bağımsız (0.61 r, kr ≪ 1); boru tablosu ölçüm değil, düzeltmeli ve düzeltmesiz formül değerlerini karşılaştırıyor; rezonans tüpünün dB değerleri göreli.
+- ❑ Defterin önceki "sonraki" bağlantısı `dalga-superpozisyonu.html` aynı yönlü iki dalga gösteren, faz denetimi olmayan eski bir sayfa; duran dalgaların doğal ön koşulu olarak yeniden kurulmalı.
+
+## kirinim-izgarasi.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: N yarıklı Fraunhofer deseni (tepe, sıfır ve ikincil maksimumlar sayısal bulunur; eksik mertebeler), gonyometreli spektrometre (H, Na, Hg ve beyaz ışık; iki yanlı okuma, ölçek sıfır hatası, Rayleigh ölçütü, Balmer çizgilerinden Rydberg sabiti ve indirgenmiş kütle düzeltmesi), CD, DVD ve Blu-ray iz aralığı ölçümü.
+- ✔ Rayleigh sınırında kıl çizgisi çözülmüş iki çizginin arasındaysa kart "arası" diyor ve kayıt yapmıyor (önceden en yakın çizginin adını yazıyordu).
+- ❑ W = 1.65 mm'de "Bütün çizgileri ölç" 1. mertebede Na D₁'i bulamıyor; düz tepede tepe araması boş dönüyor (`PHYS.autoMeasureB`). 2 mm'de dört çizgi de kaydediliyor.
+- ❑ "Na çifti, m = 2" düzeninde kıl çizgisi iki çizginin arasındaki karanlık boşluğa düşüyor; 45.00° iki çizginin de yarı genişliği dışında kaldığı için kart "arası" yerine "çizgi yok" diyor.
+- ❑ Otomatik ölçüm sıfır okumasını her zaman kaydettiği için tek yanlı ölçümün hatası (defterdeki −1.07 %) ancak elle kayıtla görülebiliyor.
+- ❑ Skaler Fraunhofer kuramı: eğiklik çarpanı ve kutuplanma yok, d < 2λ'da şiddetler nitel; spektrometrede yarık zarfı ve parlatma (blaze) yok.
+
+## kuantum-mekanigi.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: tohumlu üreteçle tek tek gelen elektronlar (Jönsson 1961 düzeni; histogramdan saçak aralığı, görünürlük ve χ², klasik toplamın reddi), yol işaretçisi ve kuantum silgisi (V² + D² ≤ 1), de Broglie dalga boyu (foton, göreli elektron, ısıl nötron, C₆₀, tenis topu; Jönsson, Tonomura ve Arndt düzenleri).
+- ✔ Demet örtüşmesi iki sekmede de üç düzeyli: (λL/a)/d ≥ 1 örtüşür, 0.5–1 kısmen, < 0.5 ayrı (önceden 1'in altı "hiç örtüşmez" diyordu). Parçacıklar sekmesi uzak alan formülünün yaklaşık kaldığı düzenleri not ediyor; pencere kartı "saçak aralığı" sayıyor.
+- ❑ Kısmi örtüşmede sayfa yalnız uyarıyor; desen uzak alan formülüyle çizilmeyi sürdürüyor (Fresnel hesabı yok). Arndt ızgarası iki yarık olarak modelleniyor; biprizmanın sınırlı örtüşme bölgesi ve tel kenarı saçakları yok.
+- ❑ Büyük N'de ölçülen görünürlük gürültüyle 1'i biraz aşabiliyor (1.007 ± 0.006); sayfa belirsizliği gösteriyor, kırpmıyor.
+- ❑ Uzak alanda "1. yarık", "2. yarık" ve "sırayla" aynı isabet dizisini veriyor; yakın alandaki ±d/2 kayması modellenmiyor (sayfa açıklıyor).
+
+## elektronik-devre.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu (MathJax CDN'i kaldırıldı): RC şarj ve deşarj (τ iki yoldan, enerji bilançosu), kare dalga ve RC filtre (alçak ve yüksek geçiren çıkış, dalgalanma, yükselme süresi, Bode çizimi), seri RLC ve RL basamak yanıtı (aşma, sönümlü periyot, logaritmik azalma, kutuplar).
+- ✔ RC tablosu notundaki bozuk cümle ve ısı payı kartındaki düz "W_R/W_E" etiketi düzeltildi.
+- ❑ Kare dalgada 100 kHz hazır düzeni 1×'te kararlı duruma ancak yaklaşık 2 dakikada ulaşıyor; hız kendiliğinden seçilebilir. Kararlı durum ilan edildikten sonra dalgalanma birkaç periyot 250.0 mV okuyor (kuram 249.9 mV): `sqEndPeriod` eşiği (1e-5·V₀) gösterim duyarlığından gevşek.
+- ❑ "V_R tepesi" V₀ − V_min'den hesaplanıyor, V_R izinden bağımsız ölçülmüyor.
+- ❑ RC sekmesinde anahtar çevrildikten sonra V₀ gösterilmiyor ve okumalar 120 ms'de bir yenileniyor; kısmi dolum deneyleri zahmetli ("t = τ'da dur" düğmesi ya da durum satırında V₀).
+- ❑ RLC'de %2 yerleşme süresinin ζ'ya bağlılığı grafikte yok; 150 Ω → 160 Ω'daki 574 → 376 µs sıçraması yalnız sayılarla görülüyor. İdeal elemanlar (ESR, sargı direnci, kaynak empedansı yok), paralel RLC yok.
+
+## kara-cisim-isimasi.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: Planck eğrisi (dalga boyu ya da frekans ekseni, Rayleigh–Jeans ve Wien yaklaşımları; tepe ve toplam güç eğriden sayısal ölçülür, aralık dışı tepe için sayı yazılmaz), CIE 1931 tablosuyla kara cisim rengi ve Planck eğrisi, gezegen denge sıcaklığı (Venüs, Dünya, Mars, sera farkı).
+- ✔ Dünya'nın Bond albedosu NASA'nın güncel değeri 0.294 (255.1 K, sera farkı +32.9 K); tablodaki NASA değeri 254.0 K eski albedo 0.306 ile hesaplı ve yıldızla nota bağlı. `nssdc.gsfc.nasa.gov` kaynak izin listesine eklendi.
+- ❑ Gezegen sekmesinde yalnız albedo değişince gözlenen sıcaklık ve sera farkı kutuları boşalıyor ("yalnız hazır gezegenlerde"); yıldız ve uzaklık bir gezegene uyuyorsa gözlenen değer korunabilir.
+- ❑ İmleç kaydırıcısıyla 0–3 µm aralığında 300 nm'ye varsayılandan 340 ok tuşuyla iniliyor; karşılaştırma tablosunda tepe yüksekliği sütunu yok (T⁵ ölçeklemesi elle not edilmeli).
+- ❑ Akkor lamba kara cisim olarak modelleniyor (tungsten seçici yayıcıdır, ε < 0.5); durum satırında not yok. Gezegen tayfında 8–13 µm atmosfer penceresi çizilmiyor. Ekran dışı renkler kırpılıyor (çok soğuk cisimler #FF0000).
+
+## nukleer-fizik.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: AME2020'den ölçülmüş 2549 çekirdeğin B/A eğrisi ve Bethe–Weizsäcker formülü (terim dökümü, sihirli sayılarda sapma), N–Z haritası ve izobar kütle parabolleri (β⁻, β⁺ ve EC yönü), fisyon ve füzyon Q değerleri ve iki cisimli son durumda enerji paylaşımı.
+- ✔ Formülün yüzde hatası her yerde ölçülen değere göre, (ölçülen − formül)/ölçülen; önceden kart ve durum satırı formüle bölüp grafik ölçülene bölüyordu (²H'de formülün B'si negatif).
+- ❑ 3. sekmede gizli paneller (kinetik enerji tablosu, β zinciri kartı) önceki tepkimenin metnini tutuyor; görünmüyor ama `readoutsC` yalnız `hidden`'ı değiştiriyor.
+- ❑ 1. sekmede B/A sıralaması yalnız bazı çekirdekler için yazılıyor (⁵⁸Fe'nin ikinciliği yalnız tepe notunda); 2. sekmede "yalnız EC" örneği (¹⁰¹Rh) için hazır düğme yok.
+- ❑ Formül katsayıları Rohlf (1994) setinin Wikipedia tablosundan; ağır çekirdeklerde yaklaşık % 0.5–0.7 fazla bağlar. Uyarılmış durumlar, yarı ömürler, α ve fisyon engeli modellenmiyor.

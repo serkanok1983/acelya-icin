@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-535d5fc1e8";
+const VERSION = "acelya-e6324f8e5b";
 // --- end:version ---
 
 // --- generated:core ---
@@ -249,9 +249,11 @@ const DIGESTS = [
   "shared/digest/dna-replikasyon.js",
   "shared/digest/dogal-secilim.js",
   "shared/digest/doppler-etkisi.js",
+  "shared/digest/duran-dalgalar.js",
   "shared/digest/elektrik-devresi-simulasyonu.js",
   "shared/digest/elektrikli-araclar.js",
   "shared/digest/elektrokimya.js",
+  "shared/digest/elektronik-devre.js",
   "shared/digest/elektronik-muhendisligi.js",
   "shared/digest/enzim-kinetigi.js",
   "shared/digest/fonksiyon-grafigi.js",
@@ -269,10 +271,13 @@ const DIGESTS = [
   "shared/digest/isletim-sistemleri-ve-linux.js",
   "shared/digest/isletme-bilimi-ve-yonetim.js",
   "shared/digest/kaldirma-kuvveti.js",
+  "shared/digest/kara-cisim-isimasi.js",
   "shared/digest/kepler-yasalari.js",
   "shared/digest/kimyasal-kinetik.js",
+  "shared/digest/kirinim-izgarasi.js",
   "shared/digest/klasik-girisim.js",
   "shared/digest/kuantum-dalga.js",
+  "shared/digest/kuantum-mekanigi.js",
   "shared/digest/lorentz-kuvveti.js",
   "shared/digest/maden-muhendisligi.js",
   "shared/digest/makine-dili-assembly-c.js",
@@ -289,6 +294,7 @@ const DIGESTS = [
   "shared/digest/mitoz-mayoz.js",
   "shared/digest/molekul-sekli.js",
   "shared/digest/newton-hareket-yasalari.js",
+  "shared/digest/nukleer-fizik.js",
   "shared/digest/optik-yansima-kirilma.js",
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
