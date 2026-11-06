@@ -138,12 +138,22 @@ async function worker() {
           el.scrollIntoView({ block: "start" });
           await new Promise((r) => setTimeout(r, 200));
           const rect = el.getBoundingClientRect();
+          // Sınav açıklamaları yalnız şık seçilince yazılır; onları da denetlemek için her soruda bir şık seç.
+          el.querySelectorAll(".digest-q").forEach((fs) => {
+            const input = fs.querySelector("input[type=radio]");
+            if (input) {
+              input.checked = true;
+              input.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+          });
+          const literalTags = [...new Set(el.textContent.match(/<\/?(sub|sup|em|strong|code|kbd|br|span|small|mark|b|i|var|ul|ol|li|a|p)\b[^>]*>/g) || [])];
           return {
             mounted: true,
             top: Math.round(rect.top),
             height: Math.round(rect.height),
             visible: rect.height > 200 && rect.top < innerHeight && rect.bottom > 0,
             sections: el.querySelectorAll("section").length,
+            literalTags,
           };
         });
       }
@@ -189,5 +199,10 @@ if (CHECK_DIGEST) {
   console.log(`digest yok: ${noDigest.length} ${noDigest.map((r) => r.slug).join(" ")}`);
   console.log(`digest görünmüyor: ${hidden.length} ${hidden.map((r) => r.slug).join(" ")}`);
 }
+const literal = CHECK_DIGEST ? report.filter((r) => r.digest?.literalTags?.length) : [];
+if (literal.length) {
+  console.log(`defterde ham HTML etiketi görünüyor (${literal.length}):`);
+  for (const r of literal) console.log(`  ✗ ${r.slug}: ${r.digest.literalTags.join(" ")}`);
+}
 console.log(`rapor: ${OUT}`);
-process.exit(withErrors.length ? 1 : 0);
+process.exit(withErrors.length || literal.length ? 1 : 0);

@@ -116,7 +116,7 @@
       <div class="digest-section-head">
         <span class="digest-num" aria-hidden="true">${esc(num)}</span>
         <h3>${esc(title)}</h3>
-        ${note ? `<small>${esc(note)}</small>` : ""}
+        ${note ? `<small>${sanitize(note)}</small>` : ""}
       </div>`;
   }
 
@@ -136,12 +136,12 @@
         (item, i) => `
         <article class="digest-card">
           <span class="digest-num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
-          <h4>${esc(item.heading)}</h4>
+          <h4>${sanitize(item.heading)}</h4>
           <div class="digest-body">${paragraphs(item.body)}</div>
           ${
             item.formula
               ? `<div class="digest-formula">${sanitize(item.formula)}${
-                  item.formulaNote ? `<small>${esc(item.formulaNote)}</small>` : ""
+                  item.formulaNote ? `<small>${sanitize(item.formulaNote)}</small>` : ""
                 }</div>`
               : ""
           }
@@ -162,7 +162,7 @@
       .map(
         (e) => `
         <article class="digest-card digest-exp">
-          <h4>${esc(e.title)}</h4>
+          <h4>${sanitize(e.title)}</h4>
           <dl>
             <dt data-step="predict">Tahmin</dt><dd>${sanitize(e.predict)}</dd>
             <dt data-step="do">Dene</dt><dd>${sanitize(e.do)}</dd>
@@ -183,7 +183,7 @@
   function renderWow(d) {
     if (!d.wow?.length) return "";
     const cards = d.wow
-      .map((w) => `<article class="digest-card"><h4>${esc(w.title)}</h4><p>${sanitize(w.body)}</p></article>`)
+      .map((w) => `<article class="digest-card"><h4>${sanitize(w.title)}</h4><p>${sanitize(w.body)}</p></article>`)
       .join("");
     return `
       <section class="digest-section" id="defter-vay" aria-labelledby="defter-vay-baslik">
@@ -225,7 +225,7 @@
   function renderGlossary(d) {
     if (!d.glossary?.length) return "";
     const items = d.glossary
-      .map((g) => `<div><dt>${esc(g.term)}</dt><dd>${sanitize(g.definition)}</dd></div>`)
+      .map((g) => `<div><dt>${sanitize(g.term)}</dt><dd>${sanitize(g.definition)}</dd></div>`)
       .join("");
     return `
       <section class="digest-section" id="defter-sozluk" aria-labelledby="defter-sozluk-baslik">
@@ -237,7 +237,7 @@
   function renderBridge(d) {
     const b = d.bridge;
     if (!b?.body) return "";
-    const topics = (b.topics || []).map((t) => `<li>${esc(t)}</li>`).join("");
+    const topics = (b.topics || []).map((t) => `<li>${sanitize(t)}</li>`).join("");
     return `
       <section class="digest-section" id="defter-kopru" aria-labelledby="defter-kopru-baslik">
         ${sectionHead("08", b.heading || "Üniversiteye köprü", "Bu fikir nereye gidiyor")}
@@ -254,7 +254,7 @@
       .map(
         (q, qi) => `
         <fieldset class="digest-q" data-q="${qi}" data-answer="${Number(q.answer)}">
-          <legend><span aria-hidden="true">${qi + 1}.</span>${esc(q.question)}</legend>
+          <legend><span aria-hidden="true">${qi + 1}.</span>${sanitize(q.question)}</legend>
           <div class="digest-options">
             ${q.options
               .map(
@@ -302,7 +302,7 @@
         (s) => `
         <li>
           <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>
-          ${s.note ? `<small>${esc(s.note)}</small>` : ""}
+          ${s.note ? `<small>${sanitize(s.note)}</small>` : ""}
         </li>`,
       )
       .join("");
@@ -439,7 +439,7 @@
         });
         fs.classList.toggle("is-correct", correct);
         fs.classList.toggle("is-wrong", !correct);
-        feedback.innerHTML = `<strong>${correct ? "Doğru." : "Henüz değil."}</strong>${esc(explanation)}`;
+        feedback.innerHTML = `<strong>${correct ? "Doğru." : "Henüz değil."}</strong>${sanitize(explanation)}`;
         const key = `${slug}:${fs.dataset.q}`;
         stored[key] = { correct, at: new Date().toISOString() };
         writeJSON(QUIZ_KEY, stored);
