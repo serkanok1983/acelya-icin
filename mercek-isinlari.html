@@ -1463,6 +1463,20 @@
     syncC("preset");
   }
 
+  // Göz son görüntüyü ancak sanal ve en az NEAR uzaktaysa ya da sonsuzdaysa net görür: s_o2, f₂ ile NEAR·f₂/(NEAR + f₂) arasında.
+  // Teleskopta d'nin, mikroskopta cismin bu koşulu sağlayan aralığı; hesaplanamıyorsa null.
+  function focusRangeC() {
+    const f1 = C.f1, f2 = C.f2, d = C.d, N = PHYS.NEAR;
+    if (Math.abs(N + f2) < 1e-9) return null;
+    const ends = [f2, (N * f2) / (N + f2)];
+    if (C.inf) {
+      const r = ends.map((so2) => f1 + so2).sort((a, b) => a - b);
+      return r[0] > 0 ? r : null;
+    }
+    if (!(f1 > 0 && f2 > 0 && d - f2 > f1)) return null;
+    return ends.map((so2) => 1 / (1 / f1 - 1 / (d - so2))).sort((a, b) => a - b);
+  }
+
   function statusC() {
     const R = C.res, T = R.T, d = C.d, f1 = C.f1, f2 = C.f2;
     const L1 = (x) => fmtLen(x, 2, true);
@@ -1478,8 +1492,20 @@
       else s += ` (çıplak göz cisme 25 cm'den bakar). Formül: −(L/f₁)(25 cm/f₂) = −(${fix(d - f1 - f2, 2)}/${fix(f1, 1)})(25/${fix(f2, 1)}) = ${fmtMag(R.Mapprox, 2)}.`;
     } else {
       s += `${Number.isFinite(T.si1) ? " →" : ""} s<sub>i2</sub> = ${L1(T.si2)} (${T.si2 > 0 ? "gerçek" : "sanal"}). Açısal büyütme M = ${fmtMag(T.M, 2)}.`;
-      if (C.inf) s += ` Afokal düzen için d = f₁ + f₂ = ${L1(f1 + f2)} olmalı.`;
-      else if (T.si2 < 0 && T.si2 > -PHYS.NEAR) s += " Son görüntü göze 25 cm'den yakın: göz bu kadar yakını net göremez. Mikroskopta cisim, son görüntü 25 cm ile sonsuz arasına düşecek biçimde ayarlanır; hazır düzende bu aralık yalnızca s<sub>o</sub> = 1.758–1.760 cm, yani yaklaşık 0.02 mm genişliğindedir.";
+      const sharp = T.si2 <= -PHYS.NEAR;
+      if (T.si2 > 0) s += " Son görüntü gerçek: ışınlar göze yakınsayarak girer. Normal göz gevşekken paralel, uyum yaparak ıraksak ışınları ağ tabakada toplar; yakınsayan demet ağ tabakanın önünde odaklanır ve görüntü bulanıklaşır.";
+      else if (!sharp) s += " Son görüntü göze 25 cm'den yakın: göz bu kadar yakını net göremez.";
+      else s += " Son görüntü göze 25 cm'den uzak: göz uyum yaparak net görür.";
+      const r = sharp ? null : focusRangeC();
+      if (C.inf) {
+        s += r
+          ? ` Net görüntü için d = ${fix(r[0], 2)}–${fix(r[1], 2)} cm olmalı; gevşek göz için tam f₁ + f₂ = ${L1(f1 + f2)} (afokal düzen).`
+          : ` Gevşek göz için afokal düzen gerekir: d = f₁ + f₂ = ${L1(f1 + f2)}.`;
+      } else if (r) {
+        const w = r[1] - r[0];
+        s += ` Net görüntü için cisim s<sub>o</sub> = ${fix(r[0], 3)}–${fix(r[1], 3)} cm aralığında olmalı (son görüntü 25 cm ile sonsuz arasında); bu aralık yaklaşık ${fix(10 * w, w < 0.1 ? 2 : 1)} mm genişliğindedir.`;
+        if (w < 0.1) s += " Gerçek mikroskoplarda bu yüzden ayrı bir ince ayar düğmesi bulunur.";
+      }
     }
     return s;
   }
