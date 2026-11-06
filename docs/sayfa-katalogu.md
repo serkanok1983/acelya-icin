@@ -42,7 +42,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `vektorler` — Vektörler
 - `fonksiyon-grafigi` — Fonksiyon Grafiği
 - `riemann-toplamlari` — Riemann Toplamları
-- `turev` — Türev (sayfa başlığı: Türev Nedir? (Limit Tanımı))
+- `turev` — Türev (sayfa başlığı: Türev: Kesenden Teğete (Limit Laboratuvarı))
 - `integral` — İntegral (sayfa başlığı: İntegral Nedir? - Riemann Toplamı)
 - `taylor-serisi` — Taylor Serisi
 - `pisagor` — Pisagor Teoremi
@@ -78,7 +78,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 
 - `optik-yansima-kirilma` — Optik: Yansıma & Kırılma (sayfa başlığı: Optik: Yansıma ve Kırılma)
 - `mercek-isinlari` — Mercek Işınları (sayfa başlığı: Mercek Işın Diyagramı)
-- `klasik-girisim` — Klasik Girişim (sayfa başlığı: Klasik Girişim — Çift Yarık)
+- `klasik-girisim` — Klasik Girişim (sayfa başlığı: Young'un Çift Yarık Deneyi: Işığın Girişimi)
 - `yay-kutle` — Yay–Kütle (SHM)
 - `sarkac` — Sarkaç (sayfa başlığı: Sarkaç Laboratuvarı)
 - `cift-sarkac` — Çift Sarkaç (sayfa başlığı: Çift Sarkaç (Kaos))
@@ -92,18 +92,18 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `basinc` — Basınç (sayfa başlığı: Basınç — Derinlik ve Pascal)
 - `akiskanlar-mekanigi` — Akışkanlar (sayfa başlığı: Bernoulli & Viskozite Simülasyonu)
 - `dalga-superpozisyonu` — Dalga Süperpozisyonu
-- `doppler-etkisi` — Doppler (sayfa başlığı: Doppler Etkisi Simülasyonu)
-- `elektrik-devresi-simulasyonu` — Elektrik Devresi (sayfa başlığı: Elektrik Devresi Simülasyonu)
+- `doppler-etkisi` — Doppler (sayfa başlığı: Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması)
+- `elektrik-devresi-simulasyonu` — Elektrik Devresi (sayfa başlığı: DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları)
 - `elektronik-devre` — RC Devresi (sayfa başlığı: Elektronik Devre - RC Şarj/Deşarj Simülasyonu)
 - `manyetik-alan` — Manyetik Alan (sayfa başlığı: Manyetik Alan ve Elektromıknatıs Etkisi)
-- `alternatif-akim` — Alternatif Akım (sayfa başlığı: Alternatif Akım & Bobinler (AC Motor Mantığı!))
-- `lorentz-kuvveti` — Lorentz Kuvveti (sayfa başlığı: Lorentz Kuvveti Simülasyonu)
-- `termodinamik` — Termodinamik (sayfa başlığı: Termodinamik & Gaz Yasaları (PV = nRT))
-- `fotoelektrik` — Fotoelektrik (sayfa başlığı: Fotoelektrik Olay)
-- `radyoaktif-bozunma` — Radyoaktif Bozunma (sayfa başlığı: Radyoaktif Bozunma — Yarı Ömür)
+- `alternatif-akim` — Alternatif Akım (sayfa başlığı: Alternatif Akım: RLC Devresi, Fazörler ve Rezonans)
+- `lorentz-kuvveti` — Lorentz Kuvveti (sayfa başlığı: Lorentz Kuvveti: Yüklü Parçacık Laboratuvarı)
+- `termodinamik` — Termodinamik (sayfa başlığı: Termodinamik: PV Diyagramı, İş, Isı ve Çevrimler)
+- `fotoelektrik` — Fotoelektrik (sayfa başlığı: Fotoelektrik Olay: Planck Sabitini Ölç)
+- `radyoaktif-bozunma` — Radyoaktif Bozunma (sayfa başlığı: Radyoaktif Bozunma: Rastlantıdan Doğan Yasa)
 - `kuantum-mekanigi` — Kuantum Çift Yarık (sayfa başlığı: Kuantum Çift Yarık Deneyi)
 - `kuantum-dalga` — Kuantum Dalga (sayfa başlığı: Kuantum Dalga Fonksiyonu)
-- `gorelilik-uzayzaman` — Görelilik (sayfa başlığı: Görelilik & Uzay-Zaman Simülasyonu)
+- `gorelilik-uzayzaman` — Görelilik (sayfa başlığı: Özel Görelilik: Uzay-Zaman Diyagramı)
 - `gunes-sistemi` — Güneş Sistemi
 - `ay-evreleri` — Ay & Mevsimler (sayfa başlığı: Ay Evreleri ve Mevsimler)
 - `mantik-kapilari` — Mantık Kapıları
@@ -125,7 +125,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `atom-orbitalleri` — Atom Orbitalleri (sayfa başlığı: Atom Orbitalleri — s, p, d)
 - `kristal-yapilar` — Kristal Yapılar
 - `elektrokimya` — Elektrokimya (sayfa başlığı: Elektrokimya — Galvanik Hücre | Açelya)
-- `ideal-gaz` — İdeal Gaz (sayfa başlığı: İdeal Gaz — PV = nRT)
+- `ideal-gaz` — İdeal Gaz (sayfa başlığı: İdeal Gaz: Moleküllerden Basınca (Kinetik Teori))
 - `ph-indikator` — pH & İndikatör (sayfa başlığı: pH ve İndikatör)
 - `molekul-sekli` — Molekül Şekli (sayfa başlığı: Molekül Şekli (VSEPR))
 

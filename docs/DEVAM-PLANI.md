@@ -5,8 +5,9 @@ sürdürebilmesi için yazıldı. Önce **Hedef** ve **Mevcut durum** bölümler
 sonra **Yapılacaklar**'ı oku. Teknik ayrıntılar için `README.md`, içerik
 standardı için `docs/icerik-rehberi.md`.
 
-Dal: `claude/zealous-archimedes-iwjhpu` (main'e henüz birleştirilmedi).
-Son durum tarihi: 2026-11-01.
+Dal: `main` (eski `claude/zealous-archimedes-iwjhpu` dalı main'e birleşmiş durumda).
+6 Kasım oturumunun commit'leri yereldedir; `origin/main`'e gönderilmedi.
+Son durum tarihi: 2026-11-06.
 
 ## 1. Hedef (sahibinin sözleriyle)
 
@@ -20,6 +21,10 @@ kazandırmak. İstekler:
   "quality digest" olsun: iştah açsın, öğretsin, bilgilendirsin, "lezzetli"
   olsun. **Her sayfa "vay" dedirtsin.** Kıymetini bilene muhteşem bir
   kaynak olsun.
+- **6 Kasım 2026:** "Üniversite seviyesi temel bilimler STEM ansiklopedisini
+  hedefliyoruz." Defterler lise sezgisinden başlayıp lisans ilk yıl
+  düzeyine tırmanır; ayrıntı `docs/icerik-rehberi.md` → "Üniversite düzeyi".
+  Öncelik temel bilim sayfalarıdır (fizik, kimya, biyoloji, matematik).
 
 ## 2. Mimari (kısa)
 
@@ -57,7 +62,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   21 sayfada mobil yatay taşma giderildi (theme.css canvas kuralı + 7 sayfa
   tek tek). Duman testi: 168 sayfada 0 JS hatası.
 - Service worker yeniden yazıldı; CI'da denetim adımı; README.
-- Keşif Defteri altyapısı + 69 defter (aşağıda durum tablosu).
+- Keşif Defteri altyapısı + 79 defter (aşağıda durum tablosu).
 - **31 Ekim 2026 oturumu:**
   - Simülasyon hataları düzeltildi: `is-enerji` (animasyon çalışmıyordu, fiziksel
     birimlerle yeniden yazıldı), `kepler-yasalari` (gezegen ekran dışındaydı;
@@ -77,7 +82,36 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   yildiz-yasam-dongusu, takimyildiz-haritasi, atom-orbitalleri, bayes) ile
   4 sayfadaki canvas CSS-değişkeni renk hatası düzeltildi; ayrıntı
   `docs/simulasyon-notlari.md`.
-- **Hattın yeni sırası (bu oturumda işe yaradı):** yazar → (yazar BLOCKER
+- **6 Kasım 2026 oturumu (üniversite düzeyi hedefi):**
+  - 11 laboratuvar `sarkac.html` standardında sıfırdan yazıldı: lorentz-kuvveti
+    (Boris itici, hız seçici, E×B, kütle spektrometresi), klasik-girisim
+    (tek/çift yarık, beyaz ışık, zarf ve eksik mertebeler), fotoelektrik
+    (durdurma gerilimi, V₀–f doğrusundan h ölçümü), radyoaktif-bozunma (tohumlu
+    bozunma, ln N uydurması, Mo-99 → Tc-99m zinciri), termodinamik (PV/TS,
+    birinci yasa tablosu, Carnot/Otto/Stirling), ideal-gaz (olay güdümlü 2B
+    sert disk MD, Maxwell–Boltzmann), gorelilik-uzayzaman (Minkowski diyagramı,
+    ikizler), doppler-etkisi (dalga cepheleri, Mach konisi), alternatif-akim
+    (RLC, fazörler, rezonans), elektrik-devresi-simulasyonu (düğüm analizi,
+    Kirchhoff, Wheatstone, maksimum güç), turev (h → 0, kesme ve yuvarlama
+    hatası).
+  - Yanlış öğreten 3 sayfa düzeltildi: periyodik-tablo (18 element ekran
+    dışındaydı; NIST/CIAAW verileri eklendi), grup-teorisi (Cayley sekmeleri
+    çöküyordu, alt grup kafesleri yanlıştı), cizge-teorisi (Königsberg
+    çizgesi Euler'in sonucunun tersini veriyordu).
+  - 10 yeni defter yazıldı (79 defter); türev defteri yeni laboratuvara göre
+    yeniden yazıldı; roma-hukuku ve turev için bekleyen doğrulama bulguları
+    işlendi. Bu 14 defter ve roma-hukuku tam hattan geçti (puanlar 9/10).
+  - Ortak: `[hidden]` öğeler her sayfada gizli (theme.css), defter sınavında
+    sarılan soru başlıkları çerçeveye binmiyor (digest.css), sembol bozan büyük
+    harf dönüşümleri kaldırıldı; içerik rehberine "Üniversite düzeyi" ve
+    `Lisans` düzeyi eklendi.
+- **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
+  (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
+  **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
+  gruplarla, istem başına ~30 dakikalık bütçe ve tarayıcı komutlarında
+  `timeout` ile çalışır; her grup bitince commit. İstemler ve çalıştırma
+  notları `docs/ajan-istemleri.md`'de.
+- **Hattın önceki sırası (1 Kasım):** yazar → (yazar BLOCKER
   bulduysa) sayfa düzeltme ajanı, sayfayla birlikte defterin laboratuvar
   bölümünü de günceller → doğrulayıcı → aynı doğrulayıcı oturumu editör olarak
   devam eder. Ajanlar HTML'i editör aracıyla değil python/node betikleriyle
@@ -85,31 +119,45 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.1 Kalan 85 sayfa için defter yaz
+### 4.1 Kalan 75 sayfa için defter yaz (üniversite hedefine göre sıralı)
 
-Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler):
+Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler). 6 Kasım'da
+11 ince fizik sayfası yeniden kurulup defterlendi; ince ya da yanlış fizik
+içeren bir sayfaya defter yazmak, laboratuvar bölümünü sonra yeniden yazmak
+demektir. Bu yüzden sıra:
 
 ```
-akiskanlar-mekanigi alternatif-akim asal-rsa atislar 
-av-avci-lotka-volterra barnsley-egreltiotu basinc besin-agi
-birim-cember breakout cift-sarkac collatz 
-denklem-denklestirme doppler-etkisi duran-dalgalar elektrik-devresi-simulasyonu
-elektrik-muhendisligi elektronik-devre enigma-makinesi fibo fibo+pascal
-formul-hafiza fotoelektrik fourier-ses
-gemi-makineleri-isletme-muhendisligi genetik-caprazlama gezegen-savunmasi gorelilik-uzayzaman
-hanoi-kuleleri hilbert-egrisi ideal-gaz isik-sondurme
-julia-fraktali kaldirma-kuvveti kalp-dolasim kara-cisim-isimasi karmasik-sayilar 
-kimya-muhendisligi kirinim-izgarasi klasik-girisim koch-kar-tanesi konik-kesitler
-kristal-yapilar kuantum-dalga kuantum-mekanigi lissajous lorentz-kuvveti lorenz-cekici
-lorenz-cekici2 mandelbrot+lorenz mandelbrot-fraktali mantik-kapilari 
-mayin-tarlasi mercek-isinlari molekul
-normal-dagilim nukleer-fizik optik-yansima-kirilma
-oyun-2048 pascal-ucgeni penrose-dosemesi ph-indikator pi-yaklasimi pisagor radyoaktif-bozunma
-rastgele-yuruyus renk-teorisi riemann-toplamlari ses-sentezleyici sezar-sifre
-sierpinski-fraktali-peano-egrisi-altin-oran siralama-algoritmalari siralama-yarisi snake
-taylor-serisi tek-sayi-toplam3 tek-sayi-toplam4 tek-sayi-toplam5
-termodinamik tetris tork-denge uretim-planlama-ve-endustri-muhendisligi yasam-oyunu
-yol-bulma-algoritmalari yoneylem-arastirmasi
+A · kurucu → yazar → doğrulayıcı+editör (ince temel fizik sayfaları;
+    son beşini önce incele, gerekirse yeniden kur)
+    akiskanlar-mekanigi tork-denge kaldirma-kuvveti basinc
+    optik-yansima-kirilma mercek-isinlari atislar cift-sarkac kuantum-dalga
+
+B · yazar → doğrulayıcı+editör (temel bilim; yazar BLOCKER bulursa kurucuya)
+    fizik:    duran-dalgalar kirinim-izgarasi elektronik-devre kara-cisim-isimasi
+              kuantum-mekanigi nukleer-fizik mantik-kapilari molekul
+    matematik: taylor-serisi riemann-toplamlari karmasik-sayilar normal-dagilim
+              konik-kesitler birim-cember lorenz-cekici rastgele-yuruyus
+              pi-yaklasimi pisagor asal-rsa lissajous pascal-ucgeni collatz
+    kimya:    kristal-yapilar denklem-denklestirme ph-indikator
+    biyoloji: genetik-caprazlama av-avci-lotka-volterra kalp-dolasim besin-agi
+
+C · fraktallar ve görsel matematik
+    mandelbrot-fraktali julia-fraktali koch-kar-tanesi hilbert-egrisi
+    penrose-dosemesi barnsley-egreltiotu sierpinski-fraktali-peano-egrisi-altin-oran
+    lorenz-cekici2 mandelbrot+lorenz fibo fibo+pascal
+    tek-sayi-toplam3 tek-sayi-toplam4 tek-sayi-toplam5
+
+D · bilgisayar bilimi ve disiplinler arası
+    fourier-ses sezar-sifre siralama-algoritmalari siralama-yarisi
+    yol-bulma-algoritmalari enigma-makinesi ses-sentezleyici renk-teorisi
+
+E · mühendislik
+    elektrik-muhendisligi kimya-muhendisligi gemi-makineleri-isletme-muhendisligi
+    uretim-planlama-ve-endustri-muhendisligi yoneylem-arastirmasi
+
+F · oyunlar
+    breakout formul-hafiza gezegen-savunmasi hanoi-kuleleri isik-sondurme
+    mayin-tarlasi oyun-2048 snake tetris yasam-oyunu
 ```
 
 Kapsam dışı (defter yazılmaz): `index`, `404`, `bilgi`, `bilim-atlasi`,
@@ -151,27 +199,31 @@ Tam istem metinleri bu oturumda kullanılan İngilizce halleriyle
   `shared/digest.js` slug'ı `encodeURIComponent` ile yükler, dosya adı
   birebir `fibo+pascal.js` olmalı.
 
-### 4.2 Mevcut 43 defterin eksik aşamalarını tamamla
+### 4.2 Var olan 79 defterin eksik aşamalarını tamamla
 
-Oturum, kullanım sınırı yüzünden yarıda kesildi; çoğu defter yalnızca yazar
-aşamasından geçti. Durum:
+Bekleyen doğrulama bulgusu kalmadı. Durum (6 Kasım 2026):
 
 | Durum | Sayfalar |
 |---|---|
-| yazar + doğrulama + editör (tam) | turev*, roma-hukuku*, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi |
+| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu |
 | yazar + editör (doğrulama yok) | altin-oran, pong |
-| yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, cizge-teorisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, grup-teorisi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, periyodik-tablo, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
+| yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
 | elle yazıldı (referans) | sarkac |
 
-\* turev ve roma-hukuku için doğrulayıcının bulguları **henüz işlenmedi**;
-liste `docs/simulasyon-notlari.md` dosyasının sonunda ("Uygulanmamış
-doğrulama bulguları"). Editör aşamasında uygula.
+"Yalnız yazar" satırında üniversite hedefine en yakın olanlar önce:
+elektrokimya ve sicim-teorisi (temel bilim), sonra hesaplama-teorisi,
+bicimsel-diller-ve-otomata-teorisi, algoritmalar, veri-yapilari. Bu
+sayfaların bazılarında yanlış öğreten simülasyon hataları var (ör.
+elektrokimya'da anot satırındaki işaret, bicimsel-diller'de DFA açıklaması);
+`docs/simulasyon-notlari.md`'ye bak, gerekirse önce sayfayı düzelt.
 
 ### 4.3 Defterler tamamlanınca (deterministik adımlar)
 
 ```bash
-node scripts/sync-meta.mjs          # meta description'ları defter etiketinden yaz
+node scripts/sync-meta.mjs          # eksik meta description'ları defter etiketinden yaz
+                                    # (--force var olanları da değiştirir; sarkac.html'in
+                                    #  açıklaması elle yazıldı, --force sonrası geri al)
 npm run build                       # shared/catalog.js ve sw.js'i yenile
 node scripts/check-site.mjs --require-digests
 npm install && npx playwright install chromium
@@ -210,9 +262,12 @@ tablosu hataları). Öneri:
 1. Önce **gerçek hataları** düzelt (canvas CSS-değişkeni renkleri tüm
    sayfalarda `grep -l "var(--" *.html | xargs grep -l "fillStyle\|strokeStyle"`
    ile bulunabilir; sabit renk ya da `getComputedStyle` kullan).
-2. Sonra en çok kullanılan/temel sayfaları `sarkac.html` seviyesine çıkar:
-   turev (kullanıcı kontrollü h, yakınsama), integral, vektorler, serbest-dusme,
-   yay-kutle, newton-hareket-yasalari, ideal-gaz, periyodik-tablo.
+2. Sonra en çok kullanılan/temel sayfaları `sarkac.html` seviyesine çıkar.
+   6 Kasım'da yapıldı: turev, ideal-gaz, periyodik-tablo (düzeltme ve veri)
+   ve defteri olmayan 10 fizik sayfası (bkz. 3. bölüm). Sırada defteri olan
+   ama laboratuvarı zayıf temel sayfalar: integral, vektorler, serbest-dusme,
+   yay-kutle, newton-hareket-yasalari. Bunlar yeniden kurulursa
+   defterlerinin laboratuvar bölümü de yeniden yazılmalı (kurucu raporu ile).
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.
 
@@ -220,14 +275,14 @@ tablosu hataları). Öneri:
 
 - Firebase Realtime Database kuralları konsoldan sıkılaştırılmalı
   (`shared/firebase-config.example.js` içindeki öneri); repodan yapılamaz.
-- PR aç: `claude/zealous-archimedes-iwjhpu` → `main`.
+- Yerel `main` commit'lerini `origin/main`'e gönder (sahibinin onayıyla).
 - **Yayın (GitHub Actions kullanılamıyor):** CI'ın yaptığını yerelde
   `scripts/deploy-manual.sh` yapar: check-site → katalog/sw `--check` →
   smoke → `_site` paketi. `npm run deploy:check` yalnız denetler ve paketler;
   `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
   Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
   Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
-  (85 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
+  (75 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
   bitince geçer.
 
 ## 5. Kalite çıtası (kısa hatırlatma)

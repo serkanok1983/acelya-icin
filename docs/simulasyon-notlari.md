@@ -55,16 +55,12 @@ Durum: ❑ bekliyor · ✔ yapıldı
 
 ## cizge-teorisi.html
 
-- ❑ The 'Königsberg' example (loadExample('konigsberg') in cizge-teorisi.html) is not the Königsberg graph. Its edges are 0-1 (twice), 0-2, 0-3, 1-2, 1-3, 2-3, giving degrees 4,4,3,3, so the Euler button reports 'Euler Yolu var! Tek dereceli düğümler: 2, 3'. The historical graph has degrees 5,3,3,3 (A-B x2, A-C x2, A-D, B-D, C-D) and no Euler path, which is the entire point of the example. Fix: edges [[0,1],[0,1],[0,2],[0,2],[0,3],[1,3],[2,3]]. The digest's lab currently predicts the page's wrong verdict honestly and then has the reader delete an edge to reach the 'yok' case; once fixed, lab experiment 1 should be rewritten.
-- ❑ Parallel edges are drawn as identical straight lines in draw(), so the two 0-1 bridges in the Königsberg example look like one edge (and the weight label '1' is painted twice on the same spot). The graph visually shows 6 edges while the code has 7. Multi-edges should be drawn with a curve/offset (e.g. quadraticCurveTo with a perpendicular control-point offset per duplicate index).
-- ❑ In 'Sil' mode, clicking a doubled edge removes only the first matching edge in the edges array (edgeAt returns the first hit), so the line stays on screen after the click. Combined with the invisible parallel edge this is confusing; at least the readout should say how many parallel edges remain.
-- ❑ addEdge() rejects any second edge between the same pair ('kenarı zaten var'), so the user cannot build a multigraph (the real Königsberg) by hand even though the examples contain one. Either allow parallel edges consistently (with the curved drawing above) or remove them from the examples.
-- ❑ Edge weights cannot be set by the user: addEdge always uses edgeWeightDefault = 1 and there is no input for it. Dijkstra on user-built graphs therefore degenerates to BFS. A small weight input next to 'Kenar Ekle' (or a prompt on edge creation) would make the Dijkstra section meaningful for custom graphs.
-- ❑ runTraversal() always starts from nodes[0] (the lowest surviving node id), with no way to choose the start node; the Dijkstra row has start/end inputs but BFS/DFS do not. Adding a start selector (or using dijkstraStart) would let the reader compare search orders from different roots.
-- ❑ Node ids are never reused after deletion (nextId only increments), and updateDijkstraInputs() sets max = nextId-1, so after deleting node 2 the Dijkstra inputs still accept 2 and then report 'Başlangıç veya hedef düğüm bulunamadı'. Minor, but the inputs could be restricted to existing ids.
-- ❑ The 'Sil' mode edge hit-test (edgeAt, 10 px) returns the first edge in array order, so where two edges cross (e.g. K4 drawn with crossing diagonals) a click at the crossing deletes the earlier-listed edge, not necessarily the one the user meant. Preferring the nearest edge rather than the first within tolerance would fix it.
-- ❑ mouseup/touchend clears dijkstraPath and algoResult after any drag, so simply moving a node erases the highlighted result; the reader has to re-run the algorithm to confirm that layout does not matter. Keeping the highlight through a drag (and recomputing only on structural edits) would make the 'position is irrelevant' lesson visible directly.
-- ❑ Dijkstra's readout prints dist with toFixed(1) ('24.0') although all weights are integers; cosmetic, but '24' would read more naturally for a 14-year-old.
+- ✔ Düzeltildi (Kasım 2026): Königsberg örneği artık Euler'in gerçek çoklu çizgesi (dereceler 5, 3, 3, 3; Euler yolu yok). Paralel kenarlar ayrı eğriler olarak çiziliyor ve elle eklenebiliyor; Sil en yakın kenarı siliyor; kenar ağırlığı girilebiliyor (Kenar ağırlığı, Ağırlık Ver); BFS/DFS için başlangıç düğümü seçiliyor ve DFS gerçek derinlik öncelikli; Dijkstra yalnız var olan düğümleri listeliyor ve paralel kenarların en hafifini kullanıyor; sonuçlar düğüm sürüklenince silinmiyor; tam sayı ağırlıklarda uzaklık tam sayı yazılıyor; tuval açık temaya uyuyor; emoji kaldırıldı.
+- ❑ İlmek (self-loop) yok; "ilmek dereceye 2 ekler" durumu gösterilemiyor.
+- ❑ Tuval yalnız fare ve dokunmayla kullanılıyor; klavye alternatifi yok.
+- ❑ `neighbors()` her çağrıda bütün kenarları tarıyor; BFS/DFS O(|V|·|E|) çalışıyor (defter "komşuluk listesiyle O(|V|+|E|)" diyor).
+- ❑ Mod değiştirmek (`setMode`) sonuç metnini ipucu metniyle eziyor; vurgular kalıyor ama sonuç yazısı kayboluyor.
+- ❑ Düğümler tek tek eklenince Hedef menüsü en yeni düğümü değil 1'i seçili tutuyor. Etiketler yalnız kendi kenarı boyunca kayarak çakışmadan kaçıyor; yoğun çizimlerde yine çakışabilir. Nehir çizimi düğüm sürüklenince yerinde kalıyor.
 
 ## derleyici-ve-yorumlayicilar.html
 
@@ -127,12 +123,10 @@ Durum: ❑ bekliyor · ✔ yapıldı
 
 ## grup-teorisi.html
 
-- ❑ Cayley table (grup-teorisi.html ~line 681-691): render() calls g.op(i, j) with row/column INDICES, but the V4 and S3 op functions expect element NAMES (idx[a] / map[a]). idx[0] is undefined, so clicking the 'Klein-4 (V₄)' or 'S₃ (Simetrik Grup)' tab throws TypeError inside render(); the tab turns active but the table and info line stay on the previous group. Fix: pass g.elems[i], g.elems[j] to op (or make all op functions index-based).
-- ❑ Cayley table Z₅ˣ (line ~663-668): op = (a*b)%5 is applied to indices 0..3 instead of element values 1..4, so the rendered table is wrong (first row reads 1 1 1 1; 2∗2 shows 2; 3∗3 and 4∗4 show 'undefined' because index 4 is out of range). Correct op: ((i+1)*(j+1)) % 5 mapped back to index (value-1). The digest's lab intro warns readers about these three tabs.
-- ❑ Subgroup lattice (lines ~740-917) is mathematically incomplete/incorrect: Z₁₂ is cyclic and has exactly ONE subgroup of order 2 ({0,6}) but the drawing shows two Z₂ nodes; D₄ has 10 subgroups (5 of order 2, 3 of order 4) but only 7 are drawn, and the edge ['V','Z2sr'] is wrong because ⟨s,r²⟩ = {e,r²,s,sr²} does not contain sr (the missing ⟨sr,r²⟩ ≅ V₄ should be its parent); A₄ has 10 subgroups (3 of order 2, 4 of order 3) but only 8 nodes are drawn. Also the initial #latticeInfo text ('|G| = 12. Alt gruplar: …') is immediately overwritten by draw() with just the title.
-- ❑ Dihedral simulation (lines ~1094-1204) does not model composition order: state is only (rotation count, reflected flag) and the canvas always draws scale(-1,1) after rotate, i.e. s·r^k regardless of press order. Pressing s then r shows the same 'sr¹' picture as r then s, although in D₄ rs = sr³. Suggested fix: keep a single permutation/matrix state and compose each button press onto it (right-multiply), deriving the label from the resulting element. Cosmetic: the label reads 'sr¹' instead of 'sr'.
-- ❑ Cyclic groups panel (lines ~1007-1089): the '🎲 Rastgele Üreteç' button is not random; findGenerator(n) always returns the smallest g ≥ 2 coprime to n, so repeated presses never change the generator (at n=7 it switches from the hard-coded 3 to 2 once, then stays). Suggested fix: pick uniformly among all k with gcd(k,n)=1. Also the step list loses its superscripts after the first render ('31=3' instead of '3¹=3'), the n label becomes 'Z8' (no subscript) after the slider moves, and the row of nodes draws arrows 0→1→2→… rather than following the generator's path, so the visualization doesn't show the cycle it describes.
-- ❑ Concept card 'Basit Grupların Sınıflandırılması' says '(2004)'; the classification was announced complete in 1983 and the quasithin gap closed in 2004, which is worth stating precisely. Minor: the axiom card says 'Ters eleman ... a∗a⁻¹ = e' without the two-sided condition; fine for the page's level.
+- ✔ Düzeltildi (Kasım 2026): Cayley tablosu bütün gruplar için tek, indis tabanlı yapıda (V₄ ve S₃ sekmeleri çökmüyor; S₃ permütasyonlardan, "önce b, sonra a" kuralıyla); Z₅ˣ değerleri 1–4 mod 5; alt grup kafesleri koddan hesaplanan Hasse diyagramları (Z₁₂: 6, D₄: 10, A₄: 10 alt grup; A₄'te 6 mertebeli alt grup yok); D₄ paneli gerçek bileşim tutuyor ("sr = önce r, sonra s"; r→s = sr, s→r = sr³); rastgele üreteç φ(n) üreteç arasından düzgün seçiyor ve saat diyagramı üretecin yolunu izliyor; sınıflandırma kartı 1983/2004 ayrımını doğru veriyor; emoji kaldırıldı; temanın gizlediği vurgular görünür.
+- ❑ Kafes düğümlerinin yerleşimi grup başına sabit (kenarlar hesaplanıyor); A₄ diyagramı bilerek yamuk; 320 px ekranda etiketler yaklaşık 8 px.
+- ❑ Rastgele üreteç aynı üreteci art arda seçebiliyor (düzgün örneklemenin doğası; istenirse bir önceki dışlanabilir).
+- ❑ Sayfa kartları "izomorfizm", defter "izomorfizma" diyor; terim birliği sağlanmalı.
 
 ## hesaplama-teorisi.html
 
@@ -253,12 +247,10 @@ Durum: ❑ bekliyor · ✔ yapıldı
 
 ## periyodik-tablo.html
 
-- ❑ periyodik-tablo.html, gridPos(): periods 3, 4 and 5 are mis-mapped. Period 3 uses `c: z + 6` for z>12 (Al→19 … Ar→24), period 4 uses `z - 18 + 2` for the d-block and `z - 18 + 12` for the p-block (Sc→5 instead of 3, Ga→25 … Kr→30), period 5 likewise (Y→5, In→25 … Xe→30). Since the SVG viewBox has 18 columns, 18 elements (Al, Si, P, S, Cl, Ar, Ga, Ge, As, Se, Br, Kr, In, Sn, Sb, Te, I, Xe) are rendered off-canvas and are invisible/unclickable, and the Sc–Zn / Y–Cd blocks sit two columns to the right of Hf–Hg. Fix: period 3 `c: z - 10` for all z, period 4 `c: z - 18`, period 5 `c: z - 36` (no extra offsets). This also corrupts the detail readout 'Grup' for those elements (e.g. Fe shows Grup 10 instead of 8). The digest's lab experiments deliberately use only elements that render correctly today (period 2, group 1, period 6 p-block, f-block rows, Co/Ni/Tc masses).
-- ❑ periyodik-tablo.html, gridPos() + detail box: lanthanides are placed at display row p=8 and actinides at p=9, and the detail box prints `Periyot ${el.p}` and `Grup ${el.c}`, so La shows 'Periyot 8, Grup 3' and U shows 'Periyot 9, Grup 6'. Chemically they are periods 6 and 7 and have no group number (or group 3 for La/Ac under one convention). Store a separate display row vs. real period, and print 'Grup —' (or 'f-blok') for z 57–71 and 89–103.
-- ❑ periyodik-tablo.html, inGroup(): the 'Metaller' button highlights metal+alkali+toprak+gecis but excludes lantanit and aktinit, so the two bottom rows stay dim although every lanthanide/actinide is a metal. Add both categories to the 'metal' filter list.
-- ❑ periyodik-tablo.html, MASSES/detail: values stored as 16.0, 19.0, 52.0 print as '16', '19', '52' (String(16.0)), which looks identical to the integer mass numbers used for elements without stable isotopes (Tc 98, Pm 145, Po 209 …). Suggest storing 15.999/18.998/51.996 or formatting with toFixed, and rendering the no-stable-isotope cases in brackets like IUPAC ('[98]') with a one-line legend; the digest's 4th experiment explains the distinction but the page should make it visible.
-- ❑ periyodik-tablo.html, category(): Oganesson (118) is labelled 'Soy gazlar' and tennessine (117) 'Halojenler'; both are predicted (not measured) to deviate from their groups. Harmless, but a tooltip or an 'öngörülen' marker for z ≥ 104 would be more honest. Also a legend for cell colours and keyboard/hover support (cells are click-only, no title/tooltip) would help the reader find an element by name.
-- ❑ periyodik-tablo.html, detail box: no element data beyond Z, mass, period, group and family. The digest references ionization energies and valence electrons; adding electron configuration, first ionization energy and a 'kararlı izotop yok' flag per element would let the lab experiments become quantitative instead of observational.
+- ✔ Düzeltildi (Kasım 2026): 18 sütunlu ızgara 118 elementin hepsini doğru hücreye yerleştiriyor (Fe 8. grupta); lantanit ve aktinitler gerçek periyotlarıyla ve "f-blok" olarak gösteriliyor; Metaller (91) ve Ametaller (20) süzgeçleri tam; kütleler CIAAW 2024 standart atom ağırlıkları, kararlı izotopu olmayanlar köşeli parantezli kütle numarasıyla; NIST ASD elektron dizilimleri (20 Madelung istisnası işaretli), 100 element için birinci iyonlaşma enerjisi, CRC ile WebElements'in uyuştuğu 69 element için Pauling elektronegatifliği; "Kutularda göster" ısı haritası; Z ≥ 104 "öngörülen" olarak işaretli; renk açıklaması ve klavye erişimi; cıva notu standart koşullara göre hassaslaştırıldı.
+- ❑ Mobilde tablo kendi çerçevesinde yatay kaydırma istiyor (en az 660 px; bilinçli seçim).
+- ❑ Bazı sınıflandırmalar uzlaşma meselesi (Po yarı metal, At halojen, Zn/Cd/Hg geçiş metali); sayfada not var.
+- ❑ Elektronegatiflik değerleri CRC'nin kendisinden değil, Wikipedia'daki CRC alıntısından doğrulandı.
 
 ## pong.html
 
@@ -295,6 +287,7 @@ Durum: ❑ bekliyor · ✔ yapıldı
 - ❑ roma-hukuku.html (h2 headings and default detail texts '👆 Bir döneme tıklayarak...', '🖱️ Bir hukuk dalına tıklayın.'): emoji in headings and prompts conflict with the owner's no-emoji content direction and with the digest's tone; worth cleaning when the page is brought to production level.
 - ❑ roma-hukuku.html (timeline era 5 detail): says Irnerius began in the '11. yüzyılda'; he is generally placed around 1100–1125 (late 11th / early 12th century). Minor, but the era label 'MS 1100+' and the text disagree by a century boundary.
 - ❑ roma-hukuku.html (Novellae card): '156-168 arası kanun' is given without explanation; the range exists because different medieval collections preserve different numbers (the Greek collection has 168, including some by Justinian's successors). A half-sentence of context would prevent the number looking like an error.
+- ❑ roma-hukuku.html (kaynak kartları): İmparatorluk Emirnameleri için "MS 27" yazıyor; Augustus'un tek başına yönetimi MÖ 27'de başlar. Kasım 2026 editör geçişi ayrıca "Gaius'un dörtlü ayrımı" etiketinin Justinianus'a ait bir ayrımı Gaius'a mal ettiğini bildirdi; düzeltmeden önce doğrulanmalı. Defterin ikinci deneyi okura bu tarihi kontrol ettiriyor; sayfa düzeltilince o deneyin açıklaması güncellenmeli.
 
 ## siber-guvenlik.html
 
@@ -335,13 +328,10 @@ Durum: ❑ bekliyor · ✔ yapıldı
 
 ## turev.html
 
-- ❑ turev.html: h never converges — it is h = 0.8·cos(t), oscillating between −0.80 and +0.80 forever (one cycle ≈ 209 frames). The page claims to show 'how the limit works', but the secant only passes through h = 0 twice per cycle; a decaying h (or a user-controlled h slider with a 'h → 0' button) would actually demonstrate convergence. The digest explains this honestly ('salınır, sıfırdan geçer').
-- ❑ turev.html: secSlope = (f(a+h) − f(a))/h has no guard for h ≈ 0. Since t advances by 0.03 per frame, h usually stays ≥ ~0.01 in magnitude at the zero crossing, but a frame can in principle land arbitrarily close to h = 0 and print NaN/Infinity or catastrophic-cancellation noise in the 'secant eğimi' readout.
-- ❑ turev.html: fixed viewport (x ∈ [−3.5, 3.5], y ∈ [−30, 30]) with no autoscale. x⁴ leaves the frame at |x| ≈ 2.34 and x³ at x ≈ 3.11, so with x⁴ and the slider at 3.0 the red dot (f = 81) and most of the tangent are drawn off-canvas while the readout still works. Either autoscale y or cap the slider per function.
-- ❑ turev.html: axes are unequal (≈85.7 px per x-unit vs ≈6.67 px per y-unit), with no ticks or labels. A slope of 1 appears at ≈4.4°, slope 6 at ≈25°, i.e. every slope looks ≈13× flatter than its numeric value. Add tick marks/labels, or use equal scaling for |x| ≤ 3.5 with a smaller y-range when x² is selected.
-- ❑ turev.html (info pane): 'Secant (kesik) doğrusu' is a mistranslation — secant is 'kesen'; 'kesik doğru' means dashed line. Also the Markdown-style list '- \(x^2 \rightarrow 2x\)' is rendered as literal hyphens in one paragraph, not as a list.
-- ❑ turev.html: MathJax is loaded from cdn.jsdelivr.net pinned only to major version (mathjax@3); the checker's unpinned-CDN rule does not catch it. Consider pinning to an exact version for the service-worker cache.
-- ❑ turev.html: page-local CSS (body background #fdfdfd, header #eee, Arial) overrides shared/theme.css look; also the funcSelect/xRange 'change'/'input' listeners are redundant because animate() already redraws every frame (harmless).
+- ✔ Yeniden kuruldu (Kasım 2026): h artık kullanıcı denetiminde (logaritmik |h|, işaret seçimi, "h → 0" yarılama animasyonu); ileri, geri ve merkezi fark; yedi fonksiyon (|x| ve √x özel durumlarıyla); eşit ölçekli, kendiliğinden ölçeklenen eksenler ve büyüteç; kesme hatası ile kayan nokta yuvarlamasını ayıran log–log hata grafiği; "kesen" terimi doğru; MathJax CDN'i ve sayfaya özel stil kaldırıldı.
+- ❑ Bir düğme odaktayken (ör. Sıfırla'ya basınca) Boşluk tuşu çalışmıyor (`keydown` işleyicisi, ~1372–1381. satırlar).
+- ❑ Fonksiyon değişince a, h'nin işareti ve tarama durumu korunuyor; bu yüzden defter deneyleri başlangıç durumunu açıkça yazıyor.
+- ❑ Kırmızı yuvarlama çizgisi bir üst sınır değil, kaba bir kestirim; eˣ ileri farkta h = 2.8·10⁻⁸ noktası çizginin üstünde kalıyor.
 
 ## ucak-muhendisligi-ve-aerodinamik.html
 
@@ -568,40 +558,79 @@ Durum: ❑ bekliyor · ✔ yapıldı
 - ✔ Düzeltildi (Kasım 2026): eksen etiketleri görünmüyordu (CSS değişkeni); yıldızlar tayf alt sınıfına göre ters yerleşiyordu (Sirius B G sütununda); Polaris kartı süpernova diyordu; "Kütle Yolları" evrim yolu değildi; parlaklıklar hatalıydı. Yıldızlar artık sıcaklığa göre logaritmik eksende; şematik ama doğru evrim yolları; düzeltilmiş kartlar; çakışmayan etiketler.
 - ❑ Diyagram açık temada da koyu kalıyor (bilinçli seçim); yıldızlara klavyeyle erişilemiyor.
 
+## sarkac.html
+
+- ✔ Düzeltildi (Kasım 2026): sönüm alanı `hidden` iken de görünüyordu (`.field { display: grid }` özniteliği eziyordu; `shared/theme.css`'e `[hidden] { display: none !important; }` eklendi). Okuma etiketlerindeki büyük harf dönüşümü "2π√(L/g)"yi "2Π√(L/G)" yapıyordu; kaldırıldı.
+
+## Ortak katman (shared/)
+
+- ✔ Düzeltildi (Kasım 2026): `digest.css` — mobilde iki satıra sarılan sınav soruları (`legend`) kutunun üst çerçevesine biniyordu; legend artık kutunun içinde.
+- ❑ `digest.js`: "🔈 Hikâyeyi dinle" düğmesinde emoji var (içerik rehberi emoji istemiyor; arayüz öğesi olduğu için ertelendi).
+
 ---
 
-# Uygulanmamış doğrulama bulguları
+# Kasım 2026'da yeniden kurulan laboratuvarlar
 
-Bağımsız doğrulayıcı ajanın bulduğu, henüz defter dosyasına işlenmemiş sorunlar.
+Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, kare hızından bağımsız sayısal yöntem, ölçülen–kuram karşılaştırması). Kurucu ajanların ayrıntılı raporları depoda tutulmuyor; aşağıdaki maddeler doğrulayıcı ve editör ajanların bildirdiği açık kalan zayıflıklardır.
 
-## roma-hukuku
+## lorentz-kuvveti.html
 
-- **wrong** · `story[2]` · "İmparator Justinianus 528'de hukuk danışmanı Tribonianus'un başkanlığında bir kurula bin yıllık birikimi derletmeye girişti."
-  → "528'de imparator emirnamelerini derleyecek ilk kurul kuruldu; 530'da ise hukuk danışmanı Tribonianus'un başkanlığında yeni bir kurul, hukukçuların bin yıllık birikimini derlemeye girişti."
-- **wrong** · `worked.steps[4] ve quiz[1].explanation` · "Roma'nın 'yalnızca para' kuralı 19. yüzyıl kanunlaştırmalarında terk edildi." / "Aynen ifa isteme hakkı modern kanunlaştırmalarla gelmiştir."
-  → "Roma'nın 'yalnızca para' kuralı formula usulüne bağlıydı; Klasik Sonrası dönemin cognitio usulünde yargıç malın kendisinin teslimine de hükmedebilir oldu ve modern kanunlar bu çizgiyi izledi." Quiz açıklamasını da buna göre düzelt: "Aynen ifa, cognitio usulü ve modern kanunlaştırmalarla gelmiştir."
-- **doubtful** · `story[0]` · "sonra alacaklı onu zincire vurabilir, 60 gün sonra üç pazar günü art arda Forum'a çıkarır ve hâlâ ödeme yoksa borçluyu Tiber'in ötesine satabilirdi"
-  → "...alacaklı onu en çok 60 gün zincirde tutabilir; bu süre içinde art arda üç pazar günü Forum'a çıkarıp borcunu ilan eder, üçüncüsünde hâlâ ödeme yoksa borçluyu Tiber'in ötesine satabilirdi."
-- **doubtful** · `wow[2].body` · "Hukuk öğrenimi beş yıla çıkarıldı"
-  → "Beş yıllık hukuk öğrenimi baştan sona yeniden düzenlendi, her yılın hangi kitapları okuyacağı tek tek yazıldı..." ve son cümleyi "1.500 yıl önce de bir yıl daha uzundu" biçiminde bırak.
-- **doubtful** · `wow[2].body` · "ders vermeye yalnızca Konstantinopolis ile Beyrut okullarına izin verildi; İskenderiye ve Kayseri'deki dersler yasaklandı"
-  → "ders vermeye yalnızca Roma, Konstantinopolis ve Beyrut okullarına izin verildi; İskenderiye, Kayseri ve öteki şehirlerdeki dersler yasaklandı"
-- **doubtful** · `wow[0].body` · "Klasik dönemden bize ulaşan tek bütün hukuk kitabı, böyle bir 'palimpsest'ten geri kazanıldı."
-  → "Klasik dönemden Digesta'nın dışında neredeyse tam hâliyle bize ulaşan tek hukuk kitabı, böyle bir 'palimpsest'ten geri kazanıldı."
-- **doubtful** · `lab.experiments[1].observe` · Sıralama: "... Senatus Consulta ..., İmparatorluk Emirnameleri (MS 27'den itibaren), Hukukçuların Görüşleri (klasik dönem), Corpus Iuris Civilis"
-  → Sıralamayı 'Hukukçuların Görüşleri' ile 'İmparatorluk Emirnameleri' için 'iç içe geçer, kesin sıra verilemez' diye yaz ve explain'e bir not ekle: "Karttaki 'MS 27' ayrıca şüpheli: Augustus'un tek başına yönetimi MÖ 27'de başlar; kaynağa güvenme, tarihi kontrol et." (Sayfadaki tarihi de MÖ 27 olarak düzeltmek için ayrı iş açılmalı.)
-- **doubtful** · `core[3].formulaNote` · "Formulanın iki zorunlu parçası: iddia (intentio) ve mahkûmiyet (condemnatio)."
-  → "Formulanın vazgeçilmez parçası iddiadır (intentio); olağan davalarda ona mahkûmiyet (condemnatio) eşlik eder."
+- ❑ Serbest senaryoda görünüm her değişiklikte yörüngeye göre yeniden ölçekleniyor; yarıçapın büyüdüğü tuvalde görülmüyor, yalnız tabloda ve ölçek çubuğunda. "Zaman ölçeğini sabitle" işaretliyken görünüm de sabitlenebilir.
+- ❑ Spektrometrede yük kaydırıcısı oynatılınca gizli parçacık menüsü sessizce "Özel"e geçiyor.
+- ❑ Model göreli değil (0.1c üstünde yalnız uyarı); E hep +y yönünde, B düzgün (grad-B sürüklenmesi ve manyetik şişe yok).
 
-## turev
+## klasik-girisim.html
 
-- **doubtful** · `story[1]; wow[0].title` · "1665'te veba Cambridge'i kapattı; 23 yaşındaki Isaac Newton Woolsthorpe'taki aile çiftliğine çekildi" and wow title "Veba yılı, 23 yaşında bir öğrenci"
-  → story[1]: "22 yaşındaki Isaac Newton" (or "yirmili yaşlarının başındaki"); wow[0].title: "Veba yılları, 22–23 yaşında bir öğrenci".
-- **doubtful** · `story[1]` · "Harfin üstüne nokta koyduğu ẋ gösterimi fizikçiler arasında hâlâ yaşar" placed inside the 1665–1667 plague-years sentence
-  → "Sonradan (1690'larda) benimsediği, harfin üstüne nokta koyduğu ẋ gösterimi fizikçiler arasında hâlâ yaşar".
-- **doubtful** · `wow[0].body` · "Sonuçlarının çoğu yirmi yıl sonra, 1687'de yayımlanan Principia'ya kadar çekmecede kaldı; akış hesabı kitabı ise ölümünden sonra, 1736'da basıldı."
-  → "Kütle çekimi sonuçları yirmi yıl sonra, 1687'deki Principia'ya kadar çekmecede kaldı; akış hesabını ilk kez 1704'te Opticks'in ekinde bastırdı, Method of Fluxions ise ölümünden sonra, 1736'da basıldı."
-- **doubtful** · `bridge.body[0]` · "hesap makinenin sin ve e<sup>x</sup> tuşlarının altında yatan fikir budur" (Taylor series)
-  → "bilgisayarların sin ve e<sup>x</sup> hesaplarken kullandığı polinom yaklaşımlarının arkasındaki fikir budur" (or drop the calculator-key image).
-- **doubtful** · `lab.experiments[0].observe` · "Hangi anda bakarsan bak, sekant eğimi eksi 2.00, ekrandaki h'ye eşittir."
-  → "Hangi anda bakarsan bak, sekant eğimi ile 2.00 arasındaki fark ekrandaki h'ye eşittir."
+- ❑ Beyaz ışıkta imleç okuması "I/I₀" diyor, açıklama "parlaklık Y/Y₀" (`updateCursorReadout`).
+- ❑ Beyaz ışıkta karanlık saçak aralığındaki −1.02 % farkın nedeni (kısa dalga boylarının daha dik çukurları) sayfada açıklanmıyor.
+- ❑ Fresnel kartı 0.3'ün altındaki her değere "≪ 1" diyor; 0.12 için cömert.
+- ❑ L = 3 m'de varsayılan ±20 mm görünüme merkez zarftaki 9 saçağın 7'si sığıyor.
+
+## fotoelektrik.html
+
+- ❑ `collectedShare()` düzgün enerji dağılımı varsaydığı için akım −V₀'da keskin kesiliyor; gerçek eğrilerin yumuşak kuyruğu ve temas potansiyeli yok (sayfa bunu söylüyor).
+- ❑ "Belirsizlik" okuması deterministik yuvarlamayı rastgele hata gibi ele alıyor.
+- ❑ 5 V üstündeki V₀ ölçülemiyor; sezyumda 178 nm altına inilemiyor.
+
+## radyoaktif-bozunma.html
+
+- ❑ Her sıfırlama ya da ayar değişikliği koşuyu kendiliğinden başlatıyor; "Başlat" durumu neredeyse hiç görülmüyor.
+- ❑ Uydurulan λ'nın belirsizliği gösterilmiyor; N₀ = 100'de yaklaşık % 3 yanlı; yaklaşık % 25 daha dar olan en çok olabilirlik kestirimi sunulmuyor.
+
+## termodinamik.html
+
+- ❑ R = 8.314 kullanılıyor (tam değer 8.314462618); enerjiler yaklaşık % 0.005 düşük.
+- ❑ Hazır çevrimden sonra Temizle, 10 L / 300 K'ya değil hazır çevrimin başlangıcına dönüyor.
+- ❑ Sabit hacimde ısıtma tek bir "Sıcak kaynak" kutusuyla gösteriliyor; tersinir bir adım sürekli bir kaynaklar dizisi ister ve gösterilen ΔS yalnız gazınki; sayfa bunu söylemiyor.
+- ❑ Ters yönlü (soğutucu) çevrimler için etkinlik katsayısı (COP) okuması yok.
+
+## ideal-gaz.html
+
+- ❑ Termostat açıkken "Isıt (enerji ×1.25)" hedefi 10 K'ya yuvarlıyor: 300 → 380 K (×1.27) (`heatBy()`).
+- ❑ Varsayılanlara dönme düğmesi yok; `fullReset()` kaydırıcıları sıfırlamıyor, defter sayfanın yeniden yüklenmesini söylüyor.
+- ❑ d = 0.10 nm'de ortalama serbest yol (21 nm) 30 nm'lik kutu yüksekliğine yaklaşıyor; seyrek gazda sıkıştırma tersinirlikten belirgin biçimde uzaklaşıyor.
+
+## gorelilik-uzayzaman.html
+
+- ❑ İkizler senaryosunda olay tablosu E₁ ve E₂'yi gidiş hızıyla dönüştürüyor; E₂ için okur dönüş çerçevesindeki değeri bekleyebilir (ct′ = 13.67 görünüyor; ~456–465 ve ~1460. satırlar).
+- ❑ "Doppler k (uzaklaşan)" okuması dönüş (yaklaşma) bacağını yok sayıyor; 1/k yalnız grafikte.
+- ❑ Eşzamanlılık tablosu geometriden hesaplanıyor, değerler ışık daha varmadan görünüyor; β ≥ 0.8'de A'nın ışığı koşu bittikten sonra varıyor.
+- ❑ Göreli hız toplama için denetim yok.
+
+## doppler-etkisi.html
+
+- ❑ Hazır deney düğmeleri geçiş uzaklığı d'yi sıfırlamıyor (~1273. satır); defter deneyleri bunu hesaba katıyor.
+- ❑ M ≥ 1'de C sürüklendikten sonra durum satırı bir sonraki tepe C'ye varana dek "dışında" diyebiliyor.
+- ❑ Gözlemciler yalnız kaynağa doğru hareket edebiliyor, C ortama göre hep durgun; geçiş sesinin şiddeti duyulabilirlik için 1/r yerine 1/√r ile azalıyor.
+
+## alternatif-akim.html
+
+- ❑ Frekans kaydırıcısı logaritmik adımlı; 400 Hz'den ayrılınca tam 400 Hz'e dönülemiyor (399.9 Hz). Varsayılana dönüş düğmesi ya da sayısal giriş eklenmeli (`freqRange`).
+- ❑ Saf L ya da saf C devresi yok (R ≥ 1 Ω); paralel RLC, sargı direnci ve kaynak empedansı yok.
+- ❑ `elektrik-muhendisligi.html` şebeke gerilimini 220 V yazıyor; Türkiye'de anma değeri 230 V.
+
+## elektrik-devresi-simulasyonu.html
+
+- ❑ Köprüde anahtar açıkken formül notu hâlâ V_th = 285 mV yazıyor (`DCCore.theory()` `p.closed`'ı denetlemiyor).
+- ❑ I–V grafiğinde akım ekseni devreye göre yeniden ölçekleniyor; kaynak doğrusunun eğimi (−r) değişmediği hâlde dik ya da yatık görünüyor. Açıklamaya "eğim −r" notu eklenmeli.
+- ❑ Maksimum güç kipinde r = 0 iken lamba referansı 6 W'a düşüyor ve parlaklık % 2400 gösterebiliyor (yalnız görsel).

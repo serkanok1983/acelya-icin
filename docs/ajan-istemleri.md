@@ -7,9 +7,12 @@ Her ajan sonunda `node scripts/check-site.mjs --only <slug>` sıfır hata vermel
 ## Ortak bağlam (COMMON)
 
 ```
-Project: "Açelya'nın Yeri" — a static Turkish science site (repo root = working directory). Every topic page gets a
-"Keşif Defteri" (discovery digest): a long-form, delightful, rigorous content section rendered at the bottom of the page
-from the data file shared/digest/<slug>.js. The reader is a curious 14-year-old preparing for high school, and her father.
+Project: "Açelya'nın Yeri" — a static Turkish science site (repo root = working directory). The goal is a university-level
+basic-sciences STEM encyclopedia in Turkish. Every topic page gets a "Keşif Defteri" (discovery digest): a long-form,
+delightful, rigorous content section rendered at the bottom of the page from the data file shared/digest/<slug>.js.
+Readers range from a motivated high-school student to a first/second-year university student, and her father. The digest
+climbs in layers: hook, big idea and story open to everyone; concept cards climbing from intuition to first-year
+university depth; worked example and university bridge at first-year university level.
 The owner's brief: "quality digest — it should whet the appetite, teach, inform; delicious content; every page should
 make you say 'wow'; a treasure for those who appreciate it." Accuracy is non-negotiable.
 
@@ -103,6 +106,74 @@ Finally run: node scripts/check-site.mjs --only ${slug}   — must exit 0.
 Report honest scoreBefore/scoreAfter, which fact fixes you applied/rejected, your changes and remaining concerns.
 Do not modify any file other than shared/digest/${slug}.js.
 ```
+
+## 0. Laboratuvar kurucu (Kasım 2026)
+
+İnce ya da yanlış fizik içeren bir sayfayı `sarkac.html` standardında sıfırdan yazar. Defter yazarı bu ajanın
+raporuyla çalışır; rapor `.shots/briefs/<slug>.md` dosyasına yazdırılır (git dışı). Sayfaya özgü fizik özeti
+(`PAGE BRIEF`) her sayfa için ayrıca yazılır: model, denetimler, okumalar, ölçülen–kuram çiftleri ve defterin
+kullanacağı deneyler.
+
+```
+${COMMON-PROJECT}
+YOUR ROLE: laboratory builder. Rebuild <slug>.html from scratch as a production-quality, physically correct,
+university-level interactive lab. The gold standard is sarkac.html — read it completely first: real SI units; a
+fixed-step integrator driven by an accumulator with the frame time clamped (Math.min(0.05, elapsed)) so it is
+frame-rate independent (shared/app.js wraps requestAnimationFrame for a global pause); hand-drawn stage and chart
+canvases (no chart libraries, no CDN scripts); labelled sliders/selects whose <output> shows value + unit; readouts that
+put MEASURED values next to THEORY values with the % difference; Space/R shortcuts ignored inside form controls;
+DPR-aware canvases via ResizeObserver; theme-aware colours from document.documentElement.dataset.theme (Canvas 2D cannot
+resolve "var(--x)"); one column under 760 px, no horizontal overflow at 390 px.
+Hard requirements: sarkac.html skeleton (app-root, theme.css, viewport-fit=cover, <title>, meta description, app.js in
+<head>, <body class="app-page" data-page="<slug>">, <div class="app-content"> with <h1> and one <p class="hint">);
+no body{overflow:hidden}; Turkish UI text without emoji; <label for> on every control, aria-live readouts, role="img"
+canvases; physics verified numerically with a node script (scratch under .shots/tmp-<slug>/, deleted at the end);
+a single self-contained HTML file; do not modify any other file. Do not uppercase labels that contain symbols.
+Testing: check-site --only <slug> (exit 0), smoke --only <slug> (0 errors), shot.mjs dark / light / --width 390 --full;
+look at every screenshot.
+Report (sections): title/purpose; controls (label, id, range, default, unit); readouts (id, formula); canvases;
+model and constants with sources; reference numbers for the default state and each experiment (measured vs theory);
+limitations; test results.
+=== PAGE BRIEF ===
+<model, controls, readouts and the experiments the digest will use>
+```
+
+## 4. Doğrulayıcı + editör tek oturumda (Kasım 2026)
+
+Doğrulayıcının bulgularını editörün uygulaması için iki ayrı oturum açmak yerine aynı ajan önce çürütmeye çalışır,
+sonra editör olarak düzeltir. Yazardan bağımsızlık korunur; koordinatör arada beklemez.
+
+```
+${COMMON}
+SLUG: <slug>. YOUR TASK — two jobs on shared/digest/<slug>.js, in this order. Modify only that file.
+JOB 1 — adversarial fact-check. You did not write this digest; assume it contains errors.
+  a) Read the digest, <slug>.html, and .shots/briefs/<slug>.md if it exists. The page is the final authority.
+  b) Extract every checkable claim: dates, names, numbers, formulas, mechanisms, attributions, predicted lab values,
+     quiz answers, URLs.
+  c) Try to REFUTE each claim: from knowledge, by computation (reproduce the page's code in node), and by fetching a
+     source where possible. Keep a list: wrong / doubtful / quality, with location and suggested fix.
+JOB 2 — editor-in-chief.
+  a) Apply every fix you are confident about; for doubtful claims prefer removing the number or name.
+  b) Grade 1–10 against the checklist and the "Üniversite düzeyi" section; be harsh; rewrite weak parts in place.
+  c) "next" hrefs exist, sources on allowed domains, revision set.
+  d) check-site --only <slug> exits 0; one smoke run with --digest.
+Time budget: about 30 minutes. Prefer node reproductions over real-time browser runs; prefix browser commands with
+`timeout 120`; give every Playwright wait a timeout; never wait in real time more than 60 s; if the browser hangs or
+fails twice, stop using it. Only delete your own scratch folder.
+Report: claimsChecked; issues (severity · location · one line) applied/rejected with reason; scoreBefore/scoreAfter;
+main changes; simulationNotes; remaining uncertainties.
+```
+
+## Çalıştırma notları (Kasım 2026)
+
+- Playwright, komut sandbox'ında işlemciyi yanlış algılayıp tarayıcıyı bulamıyor. `smoke.mjs`, `shot.mjs` ve ajanların
+  kendi Playwright betikleri `required_permissions: ["all"]` ve
+  `PLAYWRIGHT_BROWSERS_PATH=$HOME/Library/Caches/ms-playwright` ile çalıştırılmalı.
+- 14 ajanlık bir dalga, tarayıcıda gerçek zamanlı doğrulama döngüleri yüzünden iki saati aştı; dosyalar ilk 30
+  dakikada yazılmıştı. Ajanları 5–6'lık gruplarla çalıştır, her istemde 30 dakikalık bütçe ve `timeout` kuralı olsun,
+  her grup bitince commit'le.
+- Ajan raporları kaybolabilir: kurucu raporlarını dosyaya yazdır (`.shots/briefs/`), sayfa sayılarını oradan al.
+- Bir ajan yalnız kendi geçici klasörünü silmeli; ortak `.shots/` klasörünü toptan silmesin.
 
 ## Yapılandırılmış çıktılar
 
