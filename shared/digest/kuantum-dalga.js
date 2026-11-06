@@ -82,7 +82,7 @@ window.ACELYA_DIGEST["kuantum-dalga"] = {
         observe:
           "Durağan durumda Re ψ ile Im ψ döner (Zaman t kartı: faz periyodu h/Eₙ = 11.00 fs), ama |ψ|² kıpırdamaz: ⟨x⟩ = 0.500 nm, kart 'durağan durum: ⟨x⟩ ve |ψ|² zamanla değişmez' der, harita yatay şeritler çizer. φ₁ + φ₂'de ⟨x⟩ 0.320 ile 0.680 nm arasında gider gelir. φ₁ + φ₃'te ⟨x⟩ 0.500 nm'de kalır ('bileşenlerin paritesi aynı'), ama haritada yoğunluk kutunun ortasında toplanıp iki yana ayrılmayı sürdürür.",
         explain:
-          "Tek özdurumun bütün zaman bağımlılığı e<sup>−iE₁t/ħ</sup> fazıdır ve |ψ|²'de sadeleşir. Karışımda çapraz terim cos(ΔE·t/ħ) ile salınır. φ₁ ile φ₃ kutunun ortasına göre çift fonksiyonlardır; çarpımları da çifttir ve ⟨x⟩'e katkısı sıfırdır. Yoğunluk ise kutunun ortasında 0 ile 4 nm⁻¹ arasında gidip gelir. Periyodu kartlarda yazmaz; tablodaki enerjilerden bulunur: h/(E₃ − E₁) = 4.1357 eV·fs / 3.00824 eV = 1.375 fs.",
+          "Tek özdurumun bütün zaman bağımlılığı e<sup>−iE₁t/ħ</sup> fazıdır ve |ψ|²'de sadeleşir. Karışımda çapraz terim cos(ΔE·t/ħ) ile salınır. φ₁ ile φ₃ kutunun ortasına göre çift fonksiyonlardır; çarpımları da çifttir ve ⟨x⟩'e katkısı sıfırdır. Yoğunluk ise kutunun ortasında 0 ile 4 nm⁻¹ arasında gidip gelir; haritadaki kesikli çizgiler bu periyodun katlarıdır. Değerini kartlar yazmaz, tablodaki enerjilerden bulunur: h/(E₃ − E₁) = 4.1357 eV·fs / 3.00824 eV = 1.375 fs.",
       },
       {
         title: "Sonlu kuyu: duvarın içinde ne kadar elektron var?",

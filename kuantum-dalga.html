@@ -110,7 +110,7 @@
 
 <div class="app-content">
   <h1>Kuantum Dalga Fonksiyonu: Kuyular, Süperpozisyon ve Tünelleme</h1>
-  <p class="hint">Bir potansiyel seç; Schrödinger denklemi ızgara üzerinde sayısal çözülür ve özdeğerler kesin değerlerle karşılaştırılır. Tek bir özdurumda |ψ|² zamanla değişmez; iki özdurum karışınca |ψ|², T = h/(E₂ − E₁) periyoduyla çalkalanır (paritesi zıt iki durumda ⟨x⟩ de bu periyotla salınır).</p>
+  <p class="hint">Bir potansiyel seç; Schrödinger denklemi ızgara üzerinde sayısal çözülür ve özdeğerler kesin değerlerle karşılaştırılır. Tek bir özdurumda |ψ|² zamanla değişmez; iki özdurum karışınca |ψ|², T = h/(E₂ − E₁) periyoduyla çalkalanır. ⟨x⟩ ise yalnız ⟨φₘ|x|φₙ⟩ ≠ 0 iken salınır: bakışımlı kuyuda iki durumun paritesi zıt olmalı, osilatörde ayrıca |m − n| = 1.</p>
 
   <div class="lab">
     <div class="lab-stage">
@@ -692,7 +692,9 @@
       for (let j = i + 1; j < comps.length; j++) {
         const a = comps[i], b = comps[j];
         const m = Math.sqrt(p2[i] * p2[j]);
-        const A = 2 * m * sol.X[a.k * K + b.k], B = 2 * m * sol.R[a.k * K + b.k];
+        // Osilatörde x yalnız komşu düzeyleri bağlar (|m − n| ≠ 1 iken ⟨m|x|n⟩ = 0); ızgaradaki ~10⁻⁵ nm'lik kalıntı sahte bir ⟨x⟩ salınımı üretmesin.
+        const ladderZero = sol.spec.kind === "ho" && Math.abs(a.k - b.k) !== 1;
+        const A = ladderZero ? 0 : 2 * m * sol.X[a.k * K + b.k], B = 2 * m * sol.R[a.k * K + b.k];
         if (Math.abs(A) < 1e-10 * scale && Math.abs(B) < 1e-10) continue;
         const alpha = Math.atan2(b.im, b.re) - Math.atan2(a.im, a.re);
         pairs.push({ A: Math.abs(A) < 1e-10 * scale ? 0 : A, B, alpha, omega: w[j] - w[i], ka: a.k, kb: b.k });
@@ -1096,7 +1098,7 @@
       for (let i = 1; i < ks.length; i++) gap = Math.min(gap, exactE(ks[i]) - exactE(ks[i - 1]));
       Tslow = H_EVFS / gap;
       S.Twin = 2.5 * Tslow;
-      if (ks.length === 2 && S.ev.oscillates) {
+      if (ks.length === 2) {
         S.Tref = H_EVFS / (exactE(ks[1]) - exactE(ks[0]));
         S.refKind = S.kind === "dbl" && ks[0] === 0 && ks[1] === 1 ? "tunnel" : "period";
       }
@@ -1800,6 +1802,13 @@
     }
   }
 
+  // ⟨x⟩ sabitse nedeni: bileşenlerin hepsi aynı paritede ya da (osilatörde) hiçbir çift komşu düzey değil
+  function staticXReason(short) {
+    const ks = S.comps.map((c) => c.k);
+    if (ks.every((k) => (k - ks[0]) % 2 === 0)) return short ? "aynı parite" : "bileşenlerin paritesi aynı";
+    return short ? "osilatörde |m − n| ≠ 1" : "osilatörde x yalnız komşu düzeyleri bağlar";
+  }
+
   function updateTimeReadouts() {
     timeReadoutsDirty = false;
     const sol = S.sol, s = sol.spec, ev = S.ev, tr = S.tracker, t = S.t;
@@ -1810,7 +1819,7 @@
     const xm = ev.x(t) + s.offset;
     setText(out.xOut, fmtNm(xm));
     if (!ev.oscillates) {
-      setText(out.xSub, S.comps.length === 1 ? "durağan durum: ⟨x⟩ ve |ψ|² zamanla değişmez" : "bileşenlerin paritesi aynı: ⟨x⟩ sabit kalır");
+      setText(out.xSub, S.comps.length === 1 ? "durağan durum: ⟨x⟩ ve |ψ|² zamanla değişmez" : `${staticXReason(false)}: ⟨x⟩ sabit kalır`);
     } else {
       const mx = tr.maxima, mn = tr.minima;
       let ampMeas = NaN;
@@ -1840,7 +1849,7 @@
     if (!S.packet && !(S.refKind === "tunnel")) {
       if (!ev.oscillates) {
         setText(out.periodOut, "—");
-        setText(out.periodSub, S.comps.length === 1 ? "tek özdurum: salınım yok" : "⟨x⟩ salınmıyor (aynı parite)");
+        setText(out.periodSub, S.comps.length === 1 ? "tek özdurum: salınım yok" : `⟨x⟩ salınmıyor (${staticXReason(true)})`);
       } else if (S.comps.length > 2) {
         const parts = [];
         for (let i = 1; i < S.comps.length; i++) parts.push(`h/ΔE = ${fmtFs(H_EVFS / (exactE(S.comps[i].k) - exactE(S.comps[i - 1].k)))}`);
