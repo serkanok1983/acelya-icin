@@ -7,10 +7,34 @@ uy. Doğrulama: `node scripts/check-site.mjs`.
 
 ## Kime yazıyoruz?
 
-Lise hazırlık dönemindeki meraklı bir öğrenciye ve onunla birlikte öğrenen
-yetişkine. Okur zeki ama henüz ders terimlerini bilmiyor olabilir. Önce
-merak, sonra kavram, sonra derinlik. Hiçbir yerde "kolay" diye
-küçümseme, hiçbir yerde jargonla korkutma.
+Hedef, Türkçe ve **üniversite düzeyinde bir temel bilimler (STEM)
+ansiklopedisi**. Okur yelpazesi meraklı bir lise öğrencisinden lisansın ilk
+iki yılındaki öğrenciye ve onlarla birlikte öğrenen yetişkine uzanır. Defter
+bu yüzden katman katman yükselir: kanca, büyük fikir ve hikâye herkese
+açıktır; kavram kartları lise sezgisinden başlayıp lisans düzeyine
+(kalkülüs ve vektör dili, türetme, modelin varsayımları) tırmanır; çözümlü
+örnek ve köprü lisans birinci sınıf düzeyindedir. Hiçbir yerde "kolay" diye
+küçümseme, hiçbir yerde açıklanmamış jargonla korkutma.
+
+## Üniversite düzeyi (temel bilim sayfaları)
+
+Fizik, kimya, biyoloji, matematik ve yer-uzay sayfalarında defterin tavanı
+lisans ilk yıl ders kitaplarıdır (ör. OpenStax University Physics,
+Calculus, Chemistry 2e). Somut beklentiler:
+
+- **Kavramlar:** son bir-iki kart lisans düzeyinde olsun: denklemin
+  türetilişi ya da taslağı (ör. F = q(E + v×B)'den r = mv/(qB)), diferansiyel
+  denklem biçimi, geçerlilik koşulları ve modelin nerede bozulduğu.
+- **Laboratuvar:** deneyler ölçme ile kuramı karşılaştırsın: sayfanın
+  ölçtüğü değer, formülün verdiği değer ve aradaki farkın nedeni.
+- **Çözümlü örnek:** birimli, sayısal, lisans ilk yıl sınavında
+  sorulabilecek nitelikte bir problem.
+- **Köprü:** gerçek ders adları (Fizik II, Modern Fizik, Elektromanyetik
+  Teori, Termodinamik, Diferansiyel Denklemler…) ve sonraki kavramlar.
+- **Sınav:** üç sorudan en az biri ezber değil akıl yürütme istesin
+  (ölçekleme, sınır durumu, birim analizi).
+- **Düzey etiketi:** lisans araçlarını kullanan defterler için
+  `Lise–Lisans`, doğrudan lisans konusu olanlar için `Lisans`.
 
 ## Ses ve üslup
 
@@ -41,7 +65,7 @@ window.ACELYA_DIGEST["<slug>"] = {
   slug: "<slug>",
   title: "Başlık: Alt başlık",            // 3–8 kelime, sayfa başlığından daha iyi olabilir
   field: "Fizik",                          // Matematik | Fizik | Kimya | Biyoloji | Bilgisayar Bilimi | Yer ve Uzay | Mühendislik | Toplum ve Ekonomi | Oyun
-  level: "Lise",                           // Lise hazırlık | Lise | Lise ileri | Lise–Lisans
+  level: "Lise",                           // Lise hazırlık | Lise | Lise ileri | Lise–Lisans | Lisans
   minutes: 25,                             // okuma + deney süresi
   tagline: "…",                            // 1–2 cümle, ≤ 220 karakter; meta description olarak da kullanılır
   hook: "…",                               // 1–3 cümle; soru, sahne ya da şaşırtıcı olgu

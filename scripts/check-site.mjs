@@ -29,7 +29,7 @@ const warn = (m) => warnings.push(m);
 const SKIP_DIGEST = new Set(["index", "404", "bilgi", "bilim-atlasi"]);
 const ALLOWED_TAGS = new Set(["p", "strong", "em", "b", "i", "sup", "sub", "code", "kbd", "var", "br", "span", "small", "ul", "ol", "li", "a", "mark"]);
 const FIELDS = new Set(["Matematik", "Fizik", "Kimya", "Biyoloji", "Bilgisayar Bilimi", "Yer ve Uzay", "Mühendislik", "Toplum ve Ekonomi", "Oyun"]);
-const LEVELS = new Set(["Lise hazırlık", "Lise", "Lise ileri", "Lise–Lisans"]);
+const LEVELS = new Set(["Lise hazırlık", "Lise", "Lise ileri", "Lise–Lisans", "Lisans"]);
 const SOURCE_PREFIXES = [
   "https://openstax.org/", "https://ocw.mit.edu/", "https://phet.colorado.edu/",
   "https://tr.wikipedia.org/wiki/", "https://en.wikipedia.org/wiki/",
