@@ -617,7 +617,7 @@
     const cosD = pz === null || pw === null ? 0 : Math.cos(pz - pw);
     const notes = [];
     if (pz !== null && pz === Math.PI) notes.push("z negatif gerçel eksende: arg z = 180°, esas aralığın üst ucu (−180° aralıkta değildir)");
-    if (op !== "conj" && pw !== null && pw === Math.PI) notes.push("w negatif gerçel eksende: arg w = 180°");
+    if (op !== "conj" && op !== "mul" && pw !== null && pw === Math.PI) notes.push("w negatif gerçel eksende: arg w = 180°");
 
     if (op === "add" || op === "sub") {
       const T = op === "add" ? cadd(z, w) : csub(z, w);
@@ -707,7 +707,7 @@
         if (aw === 0) { R.status = "w = 0: z / w tanımsız (sıfıra bölme). 0–1–w üçgeni yok; ne açı ne oran ölçülebilir."; R.warn = true; }
         else if (az === 0) R.status = "z = 0: bölüm 0; argümanı tanımsız.";
         else {
-          R.status = `Bölme çarpmanın tersidir: z, arg w = ${dg(pw, 2)} geri döner ve |w| = ${fx(aw, 4)}'e bölünür. 0–w–z ile 0–1–(z/w) üçgenleri benzerdir.`;
+          R.status = `Bölme çarpmanın tersidir: z, arg w = ${dg(pw, 2)} geri döner ve uzunluğu |w| = ${fx(aw, 4)} değerine bölünür. 0–w–z ile 0–1–(z/w) üçgenleri benzerdir.`;
           const dd = (pz - pw) * R2D;
           if (dd > 180 || dd <= -180) R.status += ` arg z − arg w = ${fx(dd, 2)}° esas aralığın dışında; arg(z / w) = ${dg(tArg, 2)}.`;
         }
@@ -1157,24 +1157,36 @@
       syncAll(except);
       g.onChange();
     }
+    // Kutulara yazılırken sınırlanmamış ara değer: bir kutu sınırı geçici olarak aşınca (ör. Re c = 0 iken |c| < 0.1)
+    // öbür kutuya yazılan değer sınırlanmış sayının üstüne kurulmasın
+    let raw = null;
     const num0 = (el) => parseBox(el.value);
     g.s1.addEventListener("input", () => {
+      raw = null;
       const z = g.get(), v = Number(g.s1.value);
       if (g.kind === "cart") commit(C(v, z.im), g.s1);
       else commit(fromPolarDeg(v, carg(z) === null ? lastArgDeg : snap2deg(carg(z) * R2D)), g.s1);
     });
     g.s2.addEventListener("input", () => {
+      raw = null;
       const z = g.get(), v = Number(g.s2.value);
       if (g.kind === "cart") commit(C(z.re, v), g.s2);
       else { lastArgDeg = v; commit(fromPolarDeg(cabs(z), v), g.s2); }
     });
+    const group = [g.re, g.im, g.mod, g.arg].filter(Boolean);
     const boxIn = (el, fn) => {
       if (!el) return;
-      el.addEventListener("input", () => { const v = num0(el); if (v !== null) commit(fn(v, g.get()), el); });
-      el.addEventListener("change", () => syncAll(null));
+      el.addEventListener("input", () => { const v = num0(el); if (v !== null) { raw = fn(v, raw ?? g.get()); commit(raw, el); } });
+      el.addEventListener("focusout", (e) => {
+        if (group.includes(e.relatedTarget)) return;
+        raw = null;
+        syncAll(null);
+      });
       el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { raw = null; syncAll(null); return; }
         if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
         e.preventDefault();
+        raw = null;
         const v = num0(el) ?? 0, st = Number(el.dataset.step) || 0.01;
         commit(fn(Number((v + (e.key === "ArrowUp" ? st : -st)).toFixed(4)), g.get()), null);
       });
