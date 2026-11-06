@@ -461,10 +461,12 @@
     r.Mneed = r.dyNeed / r.dy;
     if (r.blocked) r.status = "blocked";
     else if (r.noOrder) r.status = "noorder";
-    else if (!r.biprism && r.overlap < 1) r.status = "overlap";
+    else if (!r.biprism && r.overlap < 0.5) r.status = "overlap";
     else if (r.vDet >= 0.5) r.status = "resolved";
     else if (r.vDet >= 0.05) r.status = "marginal";
     else r.status = "unresolved";
+    // λL/a tek yarık lobunun yarı genişliği: 0.5 ≤ oran < 1 iken merkez lobları ancak kısmen örtüşür
+    r.partial = !r.biprism && r.overlap >= 0.5 && r.overlap < 1;
     return r;
   }
 
@@ -1456,6 +1458,9 @@
       if (m.chiAlt && m.chiAlt.p < 1e-3) st += ` İki yarık deseni |ψ₁ + ψ₂|² bu histogramla uyuşmuyor (χ²/sd = ${m.chiAlt.red.toFixed(2)}): ikinci yarığı açmak bazı noktalara düşen parçacığı azaltır.`;
       else st += " Uzak alanda iki tek yarık deseni aynı yere düşer; toplamları zarfın iki katıdır, saçak içermez.";
     }
+    const ov = (P.lam * P.L) / (P.a * P.d);
+    if (ov < 0.5) st += ` Not: bu düzende tek yarık demetleri gözlem düzleminde örtüşmez ((λL/a)/d = ${num(ov, 3)}); gerçekte iki ayrı leke görülürdü. Sayfanın uzak alan formülü L ≥ ad/λ = ${fmtLen((P.a * P.d) / P.lam)} için geçerlidir.`;
+    else if (ov < 1) st += ` Not: bu düzende tek yarık demetleri gözlem düzleminde yalnız kısmen örtüşür ((λL/a)/d = ${num(ov, 3)}); uzak alan formülü burada yaklaşıktır, gerçek desende saçaklar yalnız örtüşme bölgesinde görülür.`;
     ui.status.className = `status ${cls}`;
     setText(ui.status, st);
   }
@@ -1597,26 +1602,27 @@
     out.cOverCard.hidden = r.biprism;
     if (!r.biprism) {
       setText(out.cOverOut, num(r.overlap, 3));
-      setText(out.cOverSub, `${r.overlap >= 1 ? "≥ 1: demetler örtüşür" : "< 1: demetler ayrı kalır"} · gereken L ≥ ad/λ = ${fmtLen(r.Lneed)} · Fresnel sayısı a²/(λL) = ${num(r.fresnel, 3)}`);
+      setText(out.cOverSub, `${r.overlap >= 1 ? "≥ 1: demetler örtüşür" : r.overlap >= 0.5 ? "0.5–1: demetler kısmen örtüşür" : "< 0.5: demetler ayrı kalır"} · tam örtüşme için L ≥ ad/λ = ${fmtLen(r.Lneed)} · Fresnel sayısı a²/(λL) = ${num(r.fresnel, 3)}`);
     }
     // Durum satırı
     const name = QUANTA[kind].label;
     let st = "", cls = "";
     const preset = S.cPreset ? `${PRESETS[S.cPreset].text} ` : "";
+    const lead = preset + (r.partial ? `Demetler yalnız kısmen örtüşür ((λL/a)/d = ${num(r.overlap, 3)}): saçaklar yalnız iki demetin örtüştüğü bölgede görülür; tam örtüşme için L ≥ ad/λ = ${fmtLen(r.Lneed)}. ` : "");
     if (r.status === "blocked") { st = `${preset}Bu ${name} (${fmtLen(QUANTA[kind].size)}) a = ${fmtLen(p.a)} genişliğindeki yarıktan geçemez; yarığı büyüt.`; cls = "is-warn"; }
     else if (r.status === "noorder") { st = `${preset}λ = ${fmtLen(r.lam)} yarık aralığından büyük: λ ≥ d iken birinci saçak oluşmaz.`; cls = "is-warn"; }
     else if (r.status === "overlap") {
-      st = `${preset}Gözlenemez: tek yarık demeti L = ${fmtLen(p.L)} uzakta yalnız ${fmtLen(r.spread)} yayılır, yarık aralığı ise ${fmtLen(p.d)}. İki demet hiç örtüşmez; ekranda iki ayrı leke görülür. Örtüşme için L ≥ ad/λ = ${fmtLen(r.Lneed)} gerekir${r.Lneed > UNIVERSE ? ` (gözlenebilir evrenin çapının ${sci(r.Lneed / UNIVERSE, 2)} katı)` : ""}.`;
+      st = `${preset}Gözlenemez: tek yarık demeti L = ${fmtLen(p.L)} uzakta yalnız ${fmtLen(r.spread)} yayılır, yarık aralığı ise ${fmtLen(p.d)}. İki demet hiç örtüşmez; ekranda iki ayrı leke görülür. Tam örtüşme için L ≥ ad/λ = ${fmtLen(r.Lneed)} gerekir${r.Lneed > UNIVERSE ? ` (gözlenebilir evrenin çapının ${sci(r.Lneed / UNIVERSE, 2)} katı)` : ""}.`;
       if (kind === "top") st += ` Saçak aralığı λL/d = ${fmtLen(r.dy)} olurdu: proton yarıçapının ${sci(r.dy / R_PROTON, 2)} katı, Planck uzunluğunun ${num(r.dy / L_PLANCK, 3)} katı. Üstelik top hava molekülleri ve ısıl ışımayla sürekli etkileşir; yol bilgisi çevreye yazıldığı için saçaklar zaten silinirdi.`;
       cls = "is-warn";
     } else if (r.status === "unresolved") {
-      st = `${preset}Gözlenemez: dedektördeki saçak aralığı M·Δy = ${fmtLen(r.dyDet)}, çözünürlük δ = ${fmtLen(p.delta)}; görünürlük ${r.vDet < 1e-3 ? "0.001'in altına" : r.vDet.toFixed(3) + "'e"} iner. Görmek için en az M = ${num(r.Mneed, 3)}× büyütme ya da daha ince bir dedektör gerekir.`;
+      st = `${lead}Gözlenemez: dedektördeki saçak aralığı M·Δy = ${fmtLen(r.dyDet)}, çözünürlük δ = ${fmtLen(p.delta)}; görünürlük ${r.vDet < 1e-3 ? "0.001'in altına" : r.vDet.toFixed(3) + "'e"} iner. Görmek için en az M = ${num(r.Mneed, 3)}× büyütme ya da daha ince bir dedektör gerekir.`;
       cls = "is-warn";
     } else if (r.status === "marginal") {
-      st = `${preset}Sınırda: M·Δy = ${fmtLen(r.dyDet)}, δ = ${fmtLen(p.delta)}; saçaklar görünürlüğü ${r.vDet.toFixed(3)}'e düşmüş olarak seçilir.`;
+      st = `${lead}Sınırda: M·Δy = ${fmtLen(r.dyDet)}, δ = ${fmtLen(p.delta)}; saçaklar görünürlüğü ${r.vDet.toFixed(3)}'e düşmüş olarak seçilir.`;
     } else {
-      st = `${preset}Gözlenebilir: dedektördeki saçak aralığı M·Δy = ${fmtLen(r.dyDet)}, çözünürlüğün ${num(r.ratio, 3)} katı; görünürlük ${r.vDet.toFixed(3)}.`;
-      cls = "is-good";
+      st = `${lead}Gözlenebilir: dedektördeki saçak aralığı M·Δy = ${fmtLen(r.dyDet)}, çözünürlüğün ${num(r.ratio, 3)} katı; görünürlük ${r.vDet.toFixed(3)}.`;
+      cls = r.partial ? "" : "is-good";
     }
     ui.status.className = `status ${cls}`;
     setText(ui.status, st);
