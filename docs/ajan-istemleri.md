@@ -136,6 +136,8 @@ Lessons from the previous rebuilds (reviewers flagged these; avoid them):
   the problem's scale, not absolute epsilons); say why instead.
 - When the configuration is physically unobservable or outside the model's validity, the status line must say so.
 - Changing a parameter must restart any running measurement; never leave a card stuck at "ölçülüyor…".
+- Decimal number boxes: do not use type="number" (on a lang="tr" page Chrome displays a decimal comma, while the
+  site writes decimal points); use type="text" inputmode="decimal" and parse with value.replace(",", ".").
 Testing: check-site --only <slug> (exit 0), smoke --only <slug> (0 errors), shot.mjs dark / light / --width 390 --full;
 look at every screenshot. Own Playwright scripts: set localStorage "acelya-user", "loggedIn" = "true" and
 "acelya-sound-muted" = "1" with context.addInitScript (login gate).
