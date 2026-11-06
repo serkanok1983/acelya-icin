@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-442c5de821";
+const VERSION = "acelya-b1ebadd5c3";
 // --- end:version ---
 
 // --- generated:core ---
@@ -228,6 +228,7 @@ const PAGES = [
 
 // --- generated:digests ---
 const DIGESTS = [
+  "shared/digest/akiskanlar-mekanigi.js",
   "shared/digest/algoritmalar.js",
   "shared/digest/alternatif-akim.js",
   "shared/digest/altin-oran.js",
@@ -235,6 +236,7 @@ const DIGESTS = [
   "shared/digest/asteroids.js",
   "shared/digest/atom-orbitalleri.js",
   "shared/digest/ay-evreleri.js",
+  "shared/digest/basinc.js",
   "shared/digest/bayes-olasilik.js",
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
@@ -264,6 +266,7 @@ const DIGESTS = [
   "shared/digest/isaretciler-ve-bellek-yonetimi.js",
   "shared/digest/isletim-sistemleri-ve-linux.js",
   "shared/digest/isletme-bilimi-ve-yonetim.js",
+  "shared/digest/kaldirma-kuvveti.js",
   "shared/digest/kepler-yasalari.js",
   "shared/digest/kimyasal-kinetik.js",
   "shared/digest/klasik-girisim.js",
@@ -297,6 +300,7 @@ const DIGESTS = [
   "shared/digest/takimyildiz-haritasi.js",
   "shared/digest/tasarim-desenleri.js",
   "shared/digest/termodinamik.js",
+  "shared/digest/tork-denge.js",
   "shared/digest/turev.js",
   "shared/digest/ucak-muhendisligi-ve-aerodinamik.js",
   "shared/digest/uluslararasi-iliskiler.js",

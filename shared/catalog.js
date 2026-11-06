@@ -3,6 +3,13 @@
  * Ana sayfa kartları ve arama için Keşif Defteri özetleri.
  */
 window.ACELYA_CATALOG = {
+  "akiskanlar-mekanigi": {
+    "title": "Akışkanlar Mekaniği: Hız, Basınç ve Viskozite",
+    "tagline": "Daralan boruda su hızlanır ve basıncı düşer, tanktan fışkıran jet seviyeyle birlikte yavaşlar, ince boruda debi yarıçapın dördüncü kuvvetiyle çöker. Bernoulli, Torricelli ve Poiseuille'ü ölç, sınırlarını gör.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "algoritmalar": {
     "title": "Algoritmalar: Adımları Sayma Sanatı",
     "tagline": "Aynı 40 çubuğu sıralamak için bir yöntem 780 karşılaştırma yapar, öteki 170'le biter. Fark bilgisayarın hızında değil, adımların girdiyle nasıl büyüdüğünde gizli.",
@@ -51,6 +58,13 @@ window.ACELYA_CATALOG = {
     "field": "Yer ve Uzay",
     "level": "Lise",
     "minutes": 30
+  },
+  "basinc": {
+    "title": "Basınç: Derinlik, Pascal ve Hava Okyanusu",
+    "tagline": "Durgun bir akışkanda basınç yalnızca derinliğe bağlıdır; kabın biçimi de içindeki sıvının miktarı da bunu değiştirmez. Aynı kural Torricelli'nin cıva tüpünü, hidrolik krikoyu ve Everest'teki ince havayı açıklar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "bayes-olasilik": {
     "title": "Bayes Teoremi: Kanıtla Fikir Değiştirmenin Matematiği",
@@ -254,6 +268,13 @@ window.ACELYA_CATALOG = {
     "field": "Toplum ve Ekonomi",
     "level": "Lise",
     "minutes": 30
+  },
+  "kaldirma-kuvveti": {
+    "title": "Kaldırma Kuvveti: Suyun İçinde Tartmak",
+    "tagline": "Batmış her cisim, yerini aldığı sıvının ağırlığı kadar yukarı itilir. Bu tek ilke buzdağının ne kadarının gizli kaldığını, gemilerin neden devrilmediğini ve sahte bir tacın suda nasıl ele verildiğini açıklar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "kepler-yasalari": {
     "title": "Kepler Yasaları: Sekiz Yay Dakikalık İnat",
@@ -482,6 +503,13 @@ window.ACELYA_CATALOG = {
   "termodinamik": {
     "title": "Termodinamik: Isıyı İşe Çevirmenin Bedeli",
     "tagline": "Isı enerjidir ama çevrimle çalışan hiçbir makine onu tamamen işe çeviremez. Bir gazı PV diyagramında adım adım yönet, birinci yasanın defterini tut; Carnot, Otto ve Stirling'in yüzde yüze neden ulaşamadığını ölç.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "tork-denge": {
+    "title": "Tork ve Denge: Kaldıraçtan Kayan Merdivene",
+    "tagline": "Bir kuvvetin döndürme gücü, büyüklüğü kadar nereye bindiğine de bağlıdır. Kaldıracı dengele, tahtanın nerede devrildiğini bul, merdivenin hangi basamakta kaydığını ölç: hepsi iki denklemle, ΣF = 0 ve Στ = 0.",
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 40
