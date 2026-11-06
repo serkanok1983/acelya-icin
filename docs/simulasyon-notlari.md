@@ -565,6 +565,7 @@ Durum: ❑ bekliyor · ✔ yapıldı
 ## Ortak katman (shared/)
 
 - ✔ Düzeltildi (Kasım 2026): `digest.css` — mobilde iki satıra sarılan sınav soruları (`legend`) kutunun üst çerçevesine biniyordu; legend artık kutunun içinde.
+- ✔ Düzeltildi (6 Kasım 2026): `digest.js` kavram başlığı, formül notu, deney ve vay başlıkları, sözlük terimi, köprü konuları, sınav sorusu ve açıklaması ile kaynak notunu HTML'den kaçırarak basıyordu; 41 defterde 76 alanda `<sub>` gibi ham etiketler sayfada görünüyordu. Bu alanlar artık `sanitize()` ile işleniyor. `smoke.mjs --digest` defter metninde ham etiket kalırsa hata veriyor (her soruda bir şık seçip açıklamaları da denetliyor).
 - ❑ `digest.js`: "🔈 Hikâyeyi dinle" düğmesinde emoji var (içerik rehberi emoji istemiyor; arayüz öğesi olduğu için ertelendi).
 
 ---
@@ -634,3 +635,34 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 - ❑ Köprüde anahtar açıkken formül notu hâlâ V_th = 285 mV yazıyor (`DCCore.theory()` `p.closed`'ı denetlemiyor).
 - ❑ I–V grafiğinde akım ekseni devreye göre yeniden ölçekleniyor; kaynak doğrusunun eğimi (−r) değişmediği hâlde dik ya da yatık görünüyor. Açıklamaya "eğim −r" notu eklenmeli.
 - ❑ Maksimum güç kipinde r = 0 iken lamba referansı 6 W'a düşüyor ve parlaklık % 2400 gösterebiliyor (yalnız görsel).
+
+## akiskanlar-mekanigi.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu: Venturi borusu (süreklilik, Bernoulli, piyezometre tüpleri, venturimetre), Torricelli boşalan tank (C_d = C_c·C_v, jet menzili, boşalma süresi), Poiseuille viskoz akışı (parabolik hız profili, R⁴ yasası, Reynolds sayısı).
+- ❑ Sekme bağlantıları (#venturi, #torricelli, #poiseuille) yalnız sayfa yüklenirken okunuyor; `hashchange` dinleyicisi yok.
+- ❑ Poiseuille'de "tam gelişmiş akış" eşiği (`poiTick`, 5e-5) gösterim yuvarlamasından gevşek; tablo kararlı görünür olduktan sonra yaklaşık 0.4 s boyunca 627.0 µL/s yazıp sonra 627.1'e geçiyor.
+- ❑ Torricelli'de başlangıç hızı ve debisi kartlarda okunamayacak kadar hızlı geçiyor (kartlar 150 ms'de bir yenileniyor, 20× hızda).
+- ❑ Jet hız katsayısı C_v = 0.98 ders kitabı değeri; hassas ölçümler 1'e çok yakın değer veriyor. Zeytinyağı viskozitesi sayfada 84 mPa·s, OpenStax tablosunda 138 mPa·s (kaynağa ve sıcaklığa bağlı).
+
+## tork-denge.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu: kaldıraç (tork, ağırlık merkezi, serbest bırakınca Iα = Στ, paralel eksen teoremi), iki destekli kiriş (tepki kuvvetleri, devrilme), merdiven (sürtünmeli statik, kritik açı).
+- ❑ `fx()` aynı 539.55 N tepkiyi bir hazır düzende 539.6, ötekinde 539.5 gösteriyor (yuvarlama tutarsızlığı, ~614. satır).
+- ❑ Kaldıraçtaki `#lvN` kartı ("Destek tepkisi N = Mg (dengede)") kiriş dengesizken ya da dönerken de Mg gösteriyor; yanındaki dinamik N₀ ile karışabilir (~936. satır).
+- ❑ Merdivende kişinin kütlesi 0 iken Tırman düğmesi ve d kaydırıcısı çalışıyor ama hiçbir şey değişmiyor (`setClimbing`, ~874. satır).
+- ❑ Devrilme ve kayma canlandırılmıyor, yalnız kesikli çizgiyle gösteriliyor; bir düğme odaktayken kısayollar çalışmıyor.
+
+## kaldirma-kuvveti.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu: serbest bırakılan düşey silindirin yüzme dengesi ve salınımı (kararlılık uyarısı), dinamometre ile taşırma kabı, kral tacı yoğunluk testi.
+- ❑ Sekme bağlantıları (#serbest, #dinamometre, #tac) yalnız sayfa yüklenirken okunuyor; `hashchange` dinleyicisi yok.
+- ❑ Cisim dururken ζ, C_d, H ya da D değiştirilirse periyot satırı "ölçülüyor…"da kalıyor; hareket yeniden başlamadığı için Sıfırla gerekiyor (`paramsChangedA`, ~641. satır).
+- ❑ Eklenmiş kütle (added mass) modelde yok; gerçek bir blok sayfadakinden daha yavaş salınır (sayfa bunu söylüyor).
+
+## basinc.html (6 Kasım 2026)
+
+- ✔ Yeniden kuruldu: derinlik ve kap biçimi (hidrostatik paradoks, duvar kuvvetleri), U-tüpü manometre (gizli yoğunluklu yağ), hidrolik kaldıraç (iş dengesi, pompa vuruşları), barometre ve yükseklik (ISA ve izotermal model).
+- ❑ U-tüpünde durum satırı yaklaşık 5.2 s'de "Dengede" deyip 0.3 s kadar "Salınıyor"a dönüyor; denge testinde kilit yok (`stepB()`, ~1180. satır).
+- ❑ Cıva + su durumunda durum satırındaki işlem ("13534 × 1.47 / 20.00 = 998") gösterilen sayılarla yeniden yapılınca 994.7 veriyor; h₁ üç ondalıkla gösterilmeli (`readoutsB()`, ~1218. satır).
+- ❑ Hidrolik sekmede d₁/d₂ hem piston çapları hem de yer değiştirmeler için kullanılıyor ("Σd₁", "mgd₂"); defter Δx₁/Δx₂ kullanıyor.
+- ❑ U-tüpü grafiğinin ekran okuyucu etiketi (`ARIA.utup[1]`, ~604. satır) çizilen grafiği yanlış tarif ediyor.
