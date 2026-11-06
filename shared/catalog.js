@@ -12,7 +12,7 @@ window.ACELYA_CATALOG = {
   },
   "alternatif-akim": {
     "title": "Alternatif Akım: Fazörler, Rezonans ve Güç",
-    "tagline": "Bobinde akım gerilimin gerisinde kalır, kondansatörde önüne geçer; doğru frekansta bu iki etki birbirini siler. Aynı zamanlama radyoyu istasyona kilitler ve 10 voltluk kaynaktan yüzlerce volt çıkarır.",
+    "tagline": "Bobinde akım gerilimin gerisinde kalır, kondansatörde önüne geçer; doğru frekansta bu iki etki birbirini siler. Aynı zamanlama radyoyu istasyona ayarlar, 10 voltluk bir kaynaktan da 300 voltun üstünde gerilim çıkarır.",
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
@@ -78,7 +78,7 @@ window.ACELYA_CATALOG = {
     "tagline": "Yedi köprü, bir nehir ve 1736'da 'bunun matematikle pek ilgisi yok' diyen Euler. Noktalarla çizgilerden kurulu bu dünya bugün harita uygulamalarının, sosyal ağların ve internetin omurgası.",
     "field": "Matematik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "dairesel-hareket": {
     "title": "Dairesel Hareket: Hiç Yere Varmayan Düşüş",
@@ -117,7 +117,7 @@ window.ACELYA_CATALOG = {
   },
   "doppler-etkisi": {
     "title": "Doppler Etkisi: Sirenden Yıldızlara",
-    "tagline": "Ambulans geçerken perde neden düşer, ses üstü bir jet neden sessizce gelip patlamayla duyulur? Hareketin dalga tepelerini nasıl sıkıştırdığını ölç; aynı ilkenin yıldızları nasıl tarttığını gör.",
+    "tagline": "Geçen ambulansın perdesi neden düşer, ses üstü bir jet neden önce sessiz gelip sonra patlamayla duyulur? Tepeleri say, frekansı ölç; aynı ilkenin başka güneşlerin gezegenlerini nasıl bulduğunu gör.",
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
@@ -166,10 +166,10 @@ window.ACELYA_CATALOG = {
   },
   "fotoelektrik": {
     "title": "Fotoelektrik Olay: Işığın Bozuk Parası",
-    "tagline": "Metalden kaçmanın bir bedeli var ve ışık onu tek tek fotonlarla öder. Bir voltmetre, birkaç renk ve bir doğruyla Planck sabitini ölç: Einstein'ı haklı çıkaran, ama bunu ölçen Millikan'ı bile uzun süre ikna edemeyen deney.",
+    "tagline": "Metalden kaçmanın bir bedeli var ve ışık onu tek tek fotonlarla öder. Birkaç renk, bir gerilim kaynağı ve bir doğruyla Planck sabitini ölç: Einstein'ı haklı çıkaran, ama ölçeni ikna edemeyen deney.",
     "field": "Fizik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "fotosentez-solunum": {
     "title": "Fotosentez ve Solunum: Havadan Şeker, Şekerden Enerji",
@@ -189,8 +189,8 @@ window.ACELYA_CATALOG = {
     "title": "Grup Teorisi: Simetrinin Dilbilgisi",
     "tagline": "Bir kareyi döndürmek, saati ileri almak ve Rubik küpünü karıştırmak aynı dört kurala uyar. Grup teorisi bu kuralların bilimidir; Galois'nın 20 yaşında bıraktığı mektuptan Monster grubuna uzanır.",
     "field": "Matematik",
-    "level": "Lise ileri",
-    "minutes": 35
+    "level": "Lisans",
+    "minutes": 40
   },
   "gunes-sistemi": {
     "title": "Güneş Sistemi: Ekrana Sığmayan Mahalle",
@@ -207,8 +207,8 @@ window.ACELYA_CATALOG = {
     "minutes": 35
   },
   "ideal-gaz": {
-    "title": "İdeal Gaz: Rastgele Çarpışmalardan Kusursuz Bir Yasa",
-    "tagline": "Basınç, duvara saniyede bırakılan momentumdur; sıcaklık, moleküllerin ortalama hareket enerjisi. Düz bir sert disk gazında PV = nRT'nin iki boyutlu hâlini, Maxwell–Boltzmann dağılımını ve ideallikten sapmayı ölç.",
+    "title": "İdeal Gaz: Çarpışma Kaosundan Basit Bir Yasa",
+    "tagline": "Basınç, birim duvar yüzeyine saniyede yağan momentumdur; sıcaklık, ortalama hareket enerjisinin ölçüsü. Düz bir sert disk gazında PV = nRT'nin iki boyutlu hâlini, Maxwell–Boltzmann dağılımını ve ideallikten sapmayı ölç.",
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
