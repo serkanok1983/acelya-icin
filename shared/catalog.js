@@ -45,6 +45,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise hazırlık",
     "minutes": 30
   },
+  "atislar": {
+    "title": "Eğik Atış: Parabol, Hava ve En İyi Açı",
+    "tagline": "Boşlukta top bir parabol çizer ve en uzağa 45° ile gider. Havada yol bozulur, menzil kısalır, en iyi açı düşer. Tartaglia'nın güllelerinden Ay'daki golf vuruşuna atışın matematiği.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "atom-orbitalleri": {
     "title": "Atom Orbitalleri: Elektronun Olasılık Haritası",
     "tagline": "Elektron çekirdeğin çevresinde dönmez; bir dalga gibi titreşir ve yalnızca belirli biçimlere izin verilir. Küre, dambıl, yonca: bu biçimler periyodik tablodan kimyasal bağa kadar her şeyi düzenler.",
@@ -85,6 +92,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Telefonundaki çip saniyede milyarlarca kez tik tak eder ve her tikte bir komut bir adım ilerler. Von Neumann'ın 1945 taslağından işlem hattına, ikiye tümleyenden önbelleğe: makinenin içindeki düzen.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise",
+    "minutes": 35
+  },
+  "cift-sarkac": {
+    "title": "Çift Sarkaç: Belirlenimci ama Öngörülemez",
+    "tagline": "İki çubuk, iki top, eksiksiz bilinen iki denklem; içinde hiç rastlantı yok. Yine de milyonda bir radyan farkla başlayan kopyalar 11 saniyede birbirinden kopar. Kaosu ölç, öngörünün neden bu kadar kısa kaldığını gör.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
     "minutes": 35
   },
   "cizge-teorisi": {
@@ -297,6 +311,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "kuantum-dalga": {
+    "title": "Kuantum Kuyuları: Düzeyler, Vurular ve Tünelleme",
+    "tagline": "Bir elektronu nanometrelik kuyulara kapat: enerji basamaklara bölünür, tek basamakta hiçbir şey kıpırdamaz, iki basamak karışınca olasılık çalkalanır ve elektron ince bir duvarın ardındaki kuyuya tünelleyerek geçer.",
+    "field": "Fizik",
+    "level": "Lisans",
+    "minutes": 45
+  },
   "lorentz-kuvveti": {
     "title": "Lorentz Kuvveti: Hıza Aldırmayan Saat",
     "tagline": "Manyetik alan yüklü bir parçacığın süratini değiştiremez, yalnızca yolunu büker. Bu tek kural siklotronu, kütle spektrometresini, kutup ışıklarını ve füzyon plazmasını aynı denklemde buluşturur.",
@@ -367,6 +388,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "mercek-isinlari": {
+    "title": "Mercek ve Görüntü: Gözlükten Teleskoba",
+    "tagline": "Eğri bir cam parçası, bir noktadan saçılan ışığı başka bir noktada yeniden toplar. Gözlüğü, mikroskobu ve teleskobu doğuran bu fikrin geometrisi tek bir denkleme sığar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "metalurji-ve-malzeme-muhendisligi": {
     "title": "Metalurji ve Malzeme: Atomların Dizilişi, Çeliğin Kaderi",
     "tagline": "Aynı demir, aynı karbon; birkaç saniyelik soğutma farkı yumuşak bir çubuğu cam gibi sert bir bıçağa çevirir. Malzeme mühendisliği, atomların dizilişini okuyup yeniden yazma sanatıdır.",
@@ -401,6 +429,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise",
     "minutes": 30
+  },
+  "optik-yansima-kirilma": {
+    "title": "Sınırdaki Işık: Snell'den Optik Fibere",
+    "tagline": "Işık camın yüzeyinde yön değiştirir, bir kısmı geri döner, belli bir açıdan sonra hiç dışarı çıkamaz. İbn Sehl'in 984'teki oranından kıtaları bağlayan cam ipliklere, kırılma ve yansımanın fiziği.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "otomotiv-muhendisligi": {
     "title": "Otomotiv Mühendisliği: Patlamadan Tekerleğe",

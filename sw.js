@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-ce5837290f";
+const VERSION = "acelya-535d5fc1e8";
 // --- end:version ---
 
 // --- generated:core ---
@@ -234,12 +234,14 @@ const DIGESTS = [
   "shared/digest/altin-oran.js",
   "shared/digest/asit-baz-titrasyonu.js",
   "shared/digest/asteroids.js",
+  "shared/digest/atislar.js",
   "shared/digest/atom-orbitalleri.js",
   "shared/digest/ay-evreleri.js",
   "shared/digest/basinc.js",
   "shared/digest/bayes-olasilik.js",
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
+  "shared/digest/cift-sarkac.js",
   "shared/digest/cizge-teorisi.js",
   "shared/digest/dairesel-hareket.js",
   "shared/digest/dalga-superpozisyonu.js",
@@ -270,6 +272,7 @@ const DIGESTS = [
   "shared/digest/kepler-yasalari.js",
   "shared/digest/kimyasal-kinetik.js",
   "shared/digest/klasik-girisim.js",
+  "shared/digest/kuantum-dalga.js",
   "shared/digest/lorentz-kuvveti.js",
   "shared/digest/maden-muhendisligi.js",
   "shared/digest/makine-dili-assembly-c.js",
@@ -280,11 +283,13 @@ const DIGESTS = [
   "shared/digest/manyetik-alan.js",
   "shared/digest/matris-donusumleri.js",
   "shared/digest/mekatronik-muhendisligi.js",
+  "shared/digest/mercek-isinlari.js",
   "shared/digest/metalurji-ve-malzeme-muhendisligi.js",
   "shared/digest/mikro-ekonomi-ve-uretim-faktorleri.js",
   "shared/digest/mitoz-mayoz.js",
   "shared/digest/molekul-sekli.js",
   "shared/digest/newton-hareket-yasalari.js",
+  "shared/digest/optik-yansima-kirilma.js",
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
   "shared/digest/periyodik-tablo.js",
