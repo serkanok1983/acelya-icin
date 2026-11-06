@@ -39,6 +39,7 @@ const SOURCE_PREFIXES = [
   "https://goldbook.iupac.org/", "https://webbook.nist.gov/", "https://www.nist.gov/", "https://physics.nist.gov/", "https://www.bipm.org/",
   "https://www.ncbi.nlm.nih.gov/", "https://www.biointeractive.org/",
   "https://science.nasa.gov/", "https://www.nasa.gov/", "https://www.esa.int/", "https://www.jpl.nasa.gov/",
+  "https://nssdc.gsfc.nasa.gov/",
   "https://developer.mozilla.org/", "https://docs.python.org/", "https://www.w3.org/",
   "https://plato.stanford.edu/entries/", "https://www.nobelprize.org/", "https://arxiv.org/abs/",
   "https://acikders.tuba.gov.tr/", "https://bilimgenc.tubitak.gov.tr/", "https://www.tubitak.gov.tr/",
