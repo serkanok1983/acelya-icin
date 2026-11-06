@@ -682,6 +682,8 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 - ❑ Mikroskopta net görüş aralığı yaklaşık 0.02 mm; s_o kaydırıcısının adımı (0.01 cm) bundan büyük, kaydırıcıyla yalnız hazır değer (1.76 cm) netlikte. Bir ince ayar denetimi eklenebilir; defter 1.75 cm'ye "bir adım" demeye dayanıyor.
 - ❑ Gözlük gücündeki mercekler (|f| > 20 cm) Tek mercek sekmesinde kurulamıyor; defterin gözlük örneği yalnız metinde. Dispersiyon yok, renk sapınçı yalnız metinde anlatılıyor.
 - ❑ İnce mercekler sonsuz açıklıklı: çizilen mercek boyunun üstünden geçen ışınlar da kırılıyor.
+- ❑ İki mercekli sistemlerde M satırı göz son görüntüyü göremezken de büyük bir değer gösteriyor (1.75 cm'de −186.05); durum satırı açıklıyor ama satır da işaretlenebilir.
+- ❑ Mercek yapıcı denkleminde küresel sapma yalnız h = 1.8 cm'de gösteriliyor; ikinci bir yükseklik (h = 0.9 cm'de 0.13 cm) h²'yle büyümeyi sınatırdı.
 
 ## cift-sarkac.html (6 Kasım 2026)
 
