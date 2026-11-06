@@ -32,16 +32,15 @@ node scripts/build-sw.mjs --check
 echo "3/4 Tarayıcı duman testi (her sayfa, JS hatası)"
 node scripts/smoke.mjs --digest
 
-echo "4/4 Paket: _site"
+echo "4/4 Paket: _site (yalnız commit'lenmiş dosyalar)"
 SITE="$ROOT/_site"
 rm -rf "$SITE"
 mkdir -p "$SITE"
-rsync -a \
-  --exclude='.git' --exclude='.github' --exclude='node_modules' \
-  --exclude='scripts' --exclude='docs' --exclude='package.json' \
-  --exclude='package-lock.json' --exclude='_site' --exclude='.playwright-cli' \
-  --exclude='.DS_Store' \
-  ./ "$SITE/"
+# Çalışma klasörü değil git ağacı paketlenir: .gitignore'daki dosyalar
+# (acelya.png, .shots/, node_modules/ …) herkese açık siteye gitmez.
+git archive --format=tar HEAD | tar -x -C "$SITE"
+rm -rf "$SITE/.github" "$SITE/scripts" "$SITE/docs" "$SITE/.gitignore" \
+       "$SITE/package.json" "$SITE/package-lock.json"
 touch "$SITE/.nojekyll"
 echo "Paket hazır: $SITE ($(find "$SITE" -type f | wc -l | tr -d ' ') dosya)"
 
