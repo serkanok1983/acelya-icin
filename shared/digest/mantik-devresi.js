@@ -28,14 +28,14 @@ window.ACELYA_DIGEST["mantik-devresi"] = {
       heading: "Yedi kapı, tek bir tablo",
       body:
         "Bir kapıyı tanımlayan şey biçimi değil, <strong>doğruluk tablosudur</strong>: her giriş birleşimi için çıkışın ne olduğu. İki girişle 2² = 4 satır vardır; sayfanın sağ panelindeki tablo tam bu dört satırı, A'yı önce değiştirerek 00, 01, 10, 11 sırasında yazar. AND yalnızca son satırda 1 verir, OR yalnızca ilk satırda 0, XOR girişler farklıyken 1. NAND, NOR ve XNOR ise bu üçünün tersidir; sondaki 'N' çıkışın başına bir değil işareti koyar. Dört satırın her birine 0 ya da 1 yazabildiğine göre iki girişli olası kapı sayısı 2⁴ = 16'dır; sayfadaki altı iki girişli kapı bunların en kullanışlı altısıdır. Geri kalan onu da bunlardan kurabilirsin.",
-      formula: "AND: A·B   OR: A+B   XOR: A⊕B   NOT: Ā",
+      formula: "AND: A·B   OR: A+B   XOR: A⊕B   NOT: <span class=ov>A</span>",
       formulaNote: "Boole cebrinde 1 + 1 = 1'dir: 'veya' işleminde iki doğru, yine doğru eder; 2 diye bir değer yoktur.",
     },
     {
       heading: "De Morgan ve NAND'ın gizli gücü",
       body:
         "Augustus De Morgan'ın (1806–1871) iki yasası, değil işaretini bir çarpımın üzerinden geçirirken çarpımı toplama çevirir ve tersi. Bu, NAND'ı özel yapar: aynı NAND hem 'A ve B'nin değili' hem de 'A'nın değili veya B'nin değili'dir. İki girişini birbirine bağlarsan NOT olur; arkasına bir NOT koyarsan AND; girişlerine birer NOT koyarsan OR. Yani yalnızca NAND'larla bütün 16 kapı, onlardan da her devre kurulabilir; buna <strong>işlevsel tamlık</strong> denir. Charles Sanders Peirce bunu 1880'de NOR için fark etmişti ama yayımlamadı; Henry Sheffer 1913'te yayımladı ve NAND'ın cebirdeki simgesi hâlâ 'Sheffer çizgisi' diye anılır. Fabrikalar bu yüzden NAND'ı sever: CMOS teknolojisinde bir NAND yalnızca 4 transistördür, AND ise NAND artı NOT, yani 6.",
-      formula: "¬(A·B) = Ā + B̄    ¬(A+B) = Ā · B̄",
+      formula: "¬(A·B) = <span class=ov>A</span> + <span class=ov>B</span>    ¬(A+B) = <span class=ov>A</span> · <span class=ov>B</span>",
       formulaNote: "İlk eşitlik NAND'ın iki yüzüdür. Sayfada bir NAND ile bir NOT'u art arda bağlayıp AND tablosunu geri alabilirsin.",
     },
     {
@@ -49,8 +49,8 @@ window.ACELYA_DIGEST["mantik-devresi"] = {
       heading: "Döngüyü kapat, hafıza doğsun",
       body:
         "Buraya kadarki devrelerde sinyal hep soldan sağa aktı; girişler belliyse çıkış bellidir ve geçmişin önemi yoktur. Buna <strong>kombinasyonel</strong> devre denir. Bir kapının çıkışını geri dönüp kendi girişine ya da komşusununkine bağladığında ise kural bozulur. Sayfadaki <strong>SR Latch</strong> düğmesi iki NAND'ı çapraz bağlar: her birinin çıkışı ötekinin girişidir. S ve R ikisi de 1 iken devre iki kararlı durumdan birinde kalır ve neyi en son gördüğünü hatırlar. Bir bitlik bu bellek hücresi 1918'de William Eccles ve Frank Jordan'ın iki vakum tüpüyle kurduğu 'tetikleme devresi'nin torunudur; işlemcindeki her kaydedici, her önbellek hücresi bu fikrin üstüne kuruludur. Doğruluk tablosu artık yetmez: çıkış girişlere değil, girişlerin <em>tarihine</em> bağlıdır.",
-      formula: "Q = NAND(S̄, Q̄),   Q̄ = NAND(Q, R̄)",
-      formulaNote: "NAND kilidinde girişler 'etkin düşük'tür: S̄ = 0 kurar (Q = 1), R̄ = 0 sıfırlar, ikisi 1 ise tutar, ikisi 0 ise yasak (iki çıkış da 1).",
+      formula: "Q = NAND(<span class=ov>S</span>, <span class=ov>Q</span>),   <span class=ov>Q</span> = NAND(Q, <span class=ov>R</span>)",
+      formulaNote: "NAND kilidinde girişler 'etkin düşük'tür: <span class=ov>S</span> = 0 kurar (Q = 1), <span class=ov>R</span> = 0 sıfırlar, ikisi 1 ise tutar, ikisi 0 ise yasak (iki çıkış da 1).",
     },
   ],
   lab: {
@@ -81,8 +81,8 @@ window.ACELYA_DIGEST["mantik-devresi"] = {
       {
         title: "SR kilidi: tablonun bittiği yer",
         predict: "İki NAND çapraz bağlıyken S = 0 ve R = 0 verirsen iki çıkış da ne olur? İpucu: NAND'ın girişlerinden biri 0 ise çıkışı kesindir.",
-        do: "Sol şeritten SR Latch (Flip-Flop) düğmesine bas. Tuvalde iki giriş pini (ikisi de 0) ve birbirine çapraz bağlı iki NAND belirir. İki NAND'ın gövdesindeki sayıları oku; sonra kâğıda S̄ = 1, R̄ = 0 ve S̄ = R̄ = 1 durumlarını adım adım çöz.",
-        observe: "Sayfada iki NAND da 1 gösterir: NAND kilidinde her iki girişin 0 olması 'yasak' durumdur ve gerçek devrede de iki çıkış birden 1 olur. Pinleri değiştirdiğinde sayfanın hesaplayıcısı döngüyü 'geri dönen hattı bir kez 0 say' kuralıyla kırdığı için tutma davranışını gösteremez; kâğıtta S̄ = 1, R̄ = 0 için Q = 0, Q̄ = 1 bulursun ve S̄ = R̄ = 1'e geçince bu değerler kendi kendini besleyerek kalır.",
+        do: "Sol şeritten SR Latch (Flip-Flop) düğmesine bas. Tuvalde iki giriş pini (ikisi de 0) ve birbirine çapraz bağlı iki NAND belirir. İki NAND'ın gövdesindeki sayıları oku; sonra kâğıda <span class=ov>S</span> = 1, <span class=ov>R</span> = 0 ve <span class=ov>S</span> = <span class=ov>R</span> = 1 durumlarını adım adım çöz.",
+        observe: "Sayfada iki NAND da 1 gösterir: NAND kilidinde her iki girişin 0 olması 'yasak' durumdur ve gerçek devrede de iki çıkış birden 1 olur. Pinleri değiştirdiğinde sayfanın hesaplayıcısı döngüyü 'geri dönen hattı bir kez 0 say' kuralıyla kırdığı için tutma davranışını gösteremez; kâğıtta <span class=ov>S</span> = 1, <span class=ov>R</span> = 0 için Q = 0, <span class=ov>Q</span> = 1 bulursun ve <span class=ov>S</span> = <span class=ov>R</span> = 1'e geçince bu değerler kendi kendini besleyerek kalır.",
         explain: "Geri besleme, devreye geçmiş kazandırır: çıkış girişi, giriş çıkışı belirler ve iki tutarlı çözümden biri seçilir. Doğruluk tablosu anlık bir fotoğraftır; kilidi anlatmak için zamana, yani bir önceki duruma ihtiyaç vardır. Bu sayfanın hesaplayıcısı tek geçişli olduğu için fotoğraf çeker, film değil.",
       },
     ],
@@ -145,7 +145,7 @@ window.ACELYA_DIGEST["mantik-devresi"] = {
     { term: "Doğruluk tablosu", definition: "Bir devrenin her olası giriş birleşimi için çıkışını listeleyen tablo; n giriş için 2ⁿ satır." },
     { term: "Mantık kapısı", definition: "Bir ya da iki ikili girişten tek bir ikili çıkış üreten en küçük devre birimi; transistörlerle gerçeklenir." },
     { term: "İşlevsel tamlık", definition: "Bir kapı kümesinin bütün Boole işlevlerini kurabilmesi; NAND tek başına, NOR tek başına bu özelliğe sahiptir." },
-    { term: "De Morgan yasaları", definition: "¬(A·B) = Ā + B̄ ve ¬(A+B) = Ā·B̄; değil işaretini içeri alırken AND ile OR yer değiştirir." },
+    { term: "De Morgan yasaları", definition: "¬(A·B) = <span class=ov>A</span> + <span class=ov>B</span> ve ¬(A+B) = <span class=ov>A</span>·<span class=ov>B</span>; değil işaretini içeri alırken AND ile OR yer değiştirir." },
     { term: "Yarım toplayıcı", definition: "İki biti toplayan devre: toplam = A ⊕ B, elde = A·B; elde girişi almaz." },
     { term: "Kombinasyonel devre", definition: "Çıkışı yalnızca o anki girişlere bağlı olan, geri beslemesiz devre; doğruluk tablosuyla tam anlatılır." },
     { term: "SR kilidi (latch)", definition: "Çapraz bağlı iki NAND ya da NOR'dan oluşan bir bitlik bellek; Set ve Reset girişleriyle kurulur, girişler pasifken değerini tutar." },

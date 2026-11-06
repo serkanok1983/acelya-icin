@@ -97,6 +97,10 @@ window.ACELYA_DIGEST["<slug>"] = {
 Şu etiketler kullanılabilir: `strong, em, sup, sub, code, kbd, br, span,
 small, ul, ol, li, a, mark`. Başka her şey düz metne çevrilir. Matematik
 için Unicode ve `<sup>/<sub>` kullan (√, π, θ, ², ₀ …); MathJax yok.
+Üst çizgi (ortalama x̄, tümleyen Ā) için birleşik U+0304 ya da tek parça
+Ā kullanma: defter yazı tiplerinde çizgi harfin yanına kayıyor. Bunun
+yerine `<span class=ov>x</span>` yaz (öznitelik tırnaksız, çünkü alanlar
+çift tırnaklı JS dizeleridir).
 
 ### Oyun sayfaları
 

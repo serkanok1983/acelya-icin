@@ -121,7 +121,7 @@ window.ACELYA_DIGEST["kirinim-izgarasi"] = {
     prompt:
       "Sodyumun D₂ ve D₁ çizgileri havada 588.9950 nm ve 589.5924 nm'dir. Milimetrede 600 çizgilik bir geçirgen ızgaraya ışık dik geliyor. (a) Çifti Rayleigh ölçütüyle ayırmak için birinci ve ikinci mertebede en az kaç çizgi ve ne genişlikte bir aydınlatılmış şerit gerekir? (b) Birinci mertebede iki çizgi arasındaki açı kaçtır? (c) 0.01° okuyan bir ölçek bu ayrımı görmeye yeter mi?",
     steps: [
-      "Gereken çözme gücünü bul: λ̄ = (588.9950 + 589.5924)/2 = 589.2937 nm, Δλ = 0.5974 nm, λ̄/Δλ = 986.4. Rayleigh ölçütü mN ≥ 986.4 ister.",
+      "Gereken çözme gücünü bul: <span class=ov>λ</span> = (588.9950 + 589.5924)/2 = 589.2937 nm, Δλ = 0.5974 nm, <span class=ov>λ</span>/Δλ = 986.4. Rayleigh ölçütü mN ≥ 986.4 ister.",
       "Çizgi sayısına ve genişliğe çevir: m = 1'de N ≥ 986.4, en az 987 çizgi; m = 2'de N ≥ 493.2, en az 494 çizgi. d = 1/600 mm = 1.6667 µm ve W = N·d olduğundan birinci mertebede W ≥ 987 × 1.6667 µm = 1.645 mm, ikincide W ≥ 0.823 mm. İkinci mertebe aynı işi yarım şeritle görür.",
       "Açıları hesapla: sin θ = mλ/d. m = 1'de D₂ için sin θ = 588.995/1666.67 = 0.35340, θ = 20.695°; D₁ için 0.35376, θ = 20.717°. Aralık Δθ = 0.022° = 3.83 × 10⁻⁴ rad. Türevle de aynısı çıkar: Δθ = mΔλ/(d·cos θ) = 0.5974 nm/(1666.67 nm × 0.9354) = 3.83 × 10⁻⁴ rad.",
       "Rayleigh sınırını denetle: W = 1.65 mm (990 çizgi) için bir çizginin tepeden ilk sıfıra yarı genişliği λ/(W·cos θ) = 589.29 nm/(1.65 mm × 0.9354) = 3.82 × 10⁻⁴ rad, aralıkla neredeyse eşit: ölçüt tam sınırda sağlanır. İkinci mertebede θ ≈ 45.0° ve aralık 0.058°'ye çıkar.",

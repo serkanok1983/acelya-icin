@@ -44,9 +44,9 @@ window.ACELYA_DIGEST["radyoaktif-bozunma"] = {
     {
       heading: "Binom, Poisson ve 1/√N kuralı",
       body:
-        "Her çekirdek t anına kadar q = e<sup>−λt</sup> olasılıkla hayatta kalır ve çekirdekler birbirinden bağımsızdır. Bu yüzden kalan sayı, yazı tura sayar gibi bir <strong>binom dağılımı</strong> izler: ortalaması N₀q, standart sapması σ = √(N₀q(1 − q)). t = T½'de q = 1/2 ve σ = √N₀/2 olur; göreli sapma tam olarak 1/√N₀'dır: N₀ = 100 için %10, 2500 için %2. Geç zamanlarda (q ≪ 1) ya da kısa bir aralıktaki bozunmaları saydığında dağılım <strong>Poisson</strong>'a yaklaşır: σ = √N̄. Sayfanın <strong>Beklenen dalgalanma σ (binom)</strong> kartı ilkini, alt satırındaki 'Poisson sınırı' ikincisini gösterir; aktivite histogramındaki bant da ±√m genişliğinde bir Poisson bandıdır. Kuralın özü: çekirdek sayısını 100 katına çıkarırsan göreli gürültü 10 kat küçülür. 10¹² çekirdekte milyonda birdir; makroskobik bir numunenin bozunması bu yüzden kusursuz bir eğri gibi görünür.",
-      formula: "σ = √(N₀q(1 − q)),  q = e<sup>−λt</sup>  ·  t = T½ iken σ/N̄ = 1/√N₀",
-      formulaNote: "Poisson sınırında (q ≪ 1) σ ≈ √N̄. Ortalaması m olan bir sayımın göreli gürültüsü kabaca 1/√m'dir.",
+        "Her çekirdek t anına kadar q = e<sup>−λt</sup> olasılıkla hayatta kalır ve çekirdekler birbirinden bağımsızdır. Bu yüzden kalan sayı, yazı tura sayar gibi bir <strong>binom dağılımı</strong> izler: ortalaması N₀q, standart sapması σ = √(N₀q(1 − q)). t = T½'de q = 1/2 ve σ = √N₀/2 olur; göreli sapma tam olarak 1/√N₀'dır: N₀ = 100 için %10, 2500 için %2. Geç zamanlarda (q ≪ 1) ya da kısa bir aralıktaki bozunmaları saydığında dağılım <strong>Poisson</strong>'a yaklaşır: σ = √<span class=ov>N</span>. Sayfanın <strong>Beklenen dalgalanma σ (binom)</strong> kartı ilkini, alt satırındaki 'Poisson sınırı' ikincisini gösterir; aktivite histogramındaki bant da ±√m genişliğinde bir Poisson bandıdır. Kuralın özü: çekirdek sayısını 100 katına çıkarırsan göreli gürültü 10 kat küçülür. 10¹² çekirdekte milyonda birdir; makroskobik bir numunenin bozunması bu yüzden kusursuz bir eğri gibi görünür.",
+      formula: "σ = √(N₀q(1 − q)),  q = e<sup>−λt</sup>  ·  t = T½ iken σ/<span class=ov>N</span> = 1/√N₀",
+      formulaNote: "Poisson sınırında (q ≪ 1) σ ≈ √<span class=ov>N</span>. Ortalaması m olan bir sayımın göreli gürültüsü kabaca 1/√m'dir.",
     },
     {
       heading: "Zincirler: Bateman çözümü ve geçici denge",
@@ -199,7 +199,7 @@ window.ACELYA_DIGEST["radyoaktif-bozunma"] = {
     },
     {
       question:
-        "Sayfada N₀'ı 100'den 2500'e çıkarıyorsun. t = T½ anında kalan çekirdek sayısının göreli dalgalanması (σ/N̄) nasıl değişir?",
+        "Sayfada N₀'ı 100'den 2500'e çıkarıyorsun. t = T½ anında kalan çekirdek sayısının göreli dalgalanması (σ/<span class=ov>N</span>) nasıl değişir?",
       options: ["25 kat küçülür", "5 kat küçülür: %10'dan %2'ye", "Değişmez, çünkü bozunma olasılığı aynıdır", "5 kat büyür, çünkü σ büyür"],
       answer: 1,
       explanation:

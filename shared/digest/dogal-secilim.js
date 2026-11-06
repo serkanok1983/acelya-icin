@@ -40,7 +40,7 @@ window.ACELYA_DIGEST["dogal-secilim"] = {
         "Açık tipin oranı p, koyu tipinki q = 1 − p olsun. Her tip uyumuyla orantılı yavru bırakırsa yeni oran aşağıdaki formülle bulunur. Daha zarif yol, iki tipin birbirine oranına (p/q) bakmaktır: bu oran her nesil w<sub>A</sub>/w<sub>K</sub> ile çarpılır, yani bileşik faiz gibi üstel değişir. %5'lik bir avantaj tek nesilde fark edilmez; 100 nesilde oranı yaklaşık 130 kat değiştirir. J. B. S. Haldane 1924'te biberli güveler için bu türden bir hesap yaptı. Koyu formun 1848'de %2, 1895'te %95 olduğunu varsaydı (kayıtlardaki değer %98'dir) ve bu değişim için koyuların açıklardan yaklaşık %50 daha başarılı olması gerektiğini buldu. Bu kadar hızlı bir değişimi şans açıklayamazdı.",
       formula: "p′ = p·w<sub>A</sub> / (p·w<sub>A</sub> + q·w<sub>K</sub>)   ·   (p/q)′ = (p/q)·(w<sub>A</sub>/w<sub>K</sub>)",
       formulaNote:
-        "A: açık, K: koyu. Payda, popülasyonun ortalama uyumu w̄'dır. Bu, sayfadaki gibi her yavrunun tek ebeveynden geldiği en basit modeldir; iki kopyalı genler ve baskınlık hesabı değiştirir (Üniversiteye köprü).",
+        "A: açık, K: koyu. Payda, popülasyonun ortalama uyumu <span class=ov>w</span>'dır. Bu, sayfadaki gibi her yavrunun tek ebeveynden geldiği en basit modeldir; iki kopyalı genler ve baskınlık hesabı değiştirir (Üniversiteye köprü).",
     },
     {
       heading: "Mutasyon önerir, seçilim ayıklar",
@@ -128,7 +128,7 @@ window.ACELYA_DIGEST["dogal-secilim"] = {
       "Sayfanın formülünü iki tipik kelebekle kullan: Çevre Rengi %30, Seçilim Baskısı %60. Açıkları renk değeri 75, koyuları renk değeri 25 olan birer birey temsil etsin. Başlangıçta yarı yarıya (p = 0.50). Bir nesil sonra açık oran ne olur? Oran kaç nesilde 0.10'un altına iner?",
     steps: [
       "Uyumları hesapla: w = 1 − (|renk − çevre|/100)·(baskı/100). Açık: 1 − 0.45 × 0.60 = 0.73. Koyu: 1 − 0.05 × 0.60 = 0.97. Bir koyu kelebek, bir açık kelebekten ortalama 0.97/0.73 ≈ 1.33 kat yavru bırakır.",
-      "Ortalama uyum: w̄ = 0.50 × 0.73 + 0.50 × 0.97 = 0.85. Yeni oran: p′ = p·w<sub>A</sub>/w̄ = 0.365/0.85 ≈ 0.43. Bir nesilde 0.50'den 0.43'e.",
+      "Ortalama uyum: <span class=ov>w</span> = 0.50 × 0.73 + 0.50 × 0.97 = 0.85. Yeni oran: p′ = p·w<sub>A</sub>/<span class=ov>w</span> = 0.365/0.85 ≈ 0.43. Bir nesilde 0.50'den 0.43'e.",
       "Kısa yol: açık/koyu oranı p/q her nesil 0.73/0.97 ≈ 0.753 ile çarpılır. Başlangıçta p/q = 1, n nesil sonra p/q = 0.753ⁿ. Kontrol: 2. nesilde 0.753² ≈ 0.567, yani p ≈ 0.567/1.567 ≈ 0.36.",
       "p = 0.10 demek p/q = 0.10/0.90 = 1/9 demek. 0.753ⁿ = 1/9 ⇒ n = ln 9 / ln(1/0.753) ≈ 2.197/0.284 ≈ 7.7. Yani 7. nesilde p ≈ 0.12, 8. nesilde p ≈ 0.09.",
       "Sayfayla karşılaştır: gerçek simülasyonda renkler 0–100 arasına yayılmıştır. Tam dağılımla hesaplanan ilk adım 0.50 → 0.44'tür ve sayfa da ortalamada bunu verir. 0.10'un altına iniş sayfada genelde 6–25 nesil sürer (ortanca 12): 50'ye yakın açık kelebeklerin uyumu 0.73'ten yüksektir ve şans araya girer.",

@@ -104,7 +104,8 @@ function loadDigest(slug) {
 
 function checkHtml(where, value) {
   if (typeof value !== "string") return;
-  for (const m of value.matchAll(/<\s*\/?\s*([a-zA-Z][a-zA-Z0-9]*)/g)) {
+  // HTML'de etiket "<" ya da "</" işaretinden hemen sonra harfle başlar; "< Z" metindir
+  for (const m of value.matchAll(/<\/?([a-zA-Z][a-zA-Z0-9]*)/g)) {
     if (!ALLOWED_TAGS.has(m[1].toLowerCase())) err(`${where}: izinsiz HTML etiketi <${m[1]}>`);
   }
   if (/\bTODO\b|lorem ipsum|\[\.\.\.\]/i.test(value)) err(`${where}: yer tutucu metin`);

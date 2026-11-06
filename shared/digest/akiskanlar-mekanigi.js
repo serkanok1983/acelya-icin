@@ -42,16 +42,16 @@ window.ACELYA_DIGEST["akiskanlar-mekanigi"] = {
     {
       heading: "Viskozite ve Hagen–Poiseuille: dördüncü kuvvet",
       body:
-        "Bal dolu bir pipette sürtünmeyi yok sayamazsın. Viskozite, akışkan katmanlarının birbirine sürtünmesidir: Newton tipi bir akışkanda kayma gerilmesi hız gradyanıyla orantılıdır, τ = −η·dv/dr. Duvara değen akışkan duvara yapışır (<strong>kaymazlık koşulu</strong>); hız duvarda sıfır, eksende en büyüktür. Borunun içinde yarıçapı r olan bir akışkan silindiri için kuvvet dengesi ΔP·πr² = τ·2πrL'dir; buradan τ = ΔP·r/(2L) bulunur ve bir integral parabolik profili verir: v(r) = ΔP(R² − r²)/(4ηL). Profili kesit üzerinde toplamak (Q = ∫v·2πr dr) Hagen–Poiseuille yasasını verir. R⁴'ün iki kaynağı vardır: kesit alanı R² ile, ortalama hız da R² ile büyür. Yarıçapı yarıya indirmek debiyi 16'da birine düşürür; aynı debiyi korumak için 16 kat basınç farkı gerekir. Sayfanın varsayılanında (su, R = 2.00 mm, L = 1.00 m, ΔP = 100 Pa) Q = 627.1 µL/s ve v<sub>maks</sub> = 99.80 mm/s = 2v̄. Ohm yasasındaki gibi ΔP = Q·R<sub>h</sub> yazılır; seri bağlı borularda dirençler toplanır.",
-      formula: "Q = πR⁴ΔP/(8ηL),   R<sub>h</sub> = 8ηL/(πR⁴),   v<sub>maks</sub> = ΔP·R²/(4ηL) = 2v̄",
+        "Bal dolu bir pipette sürtünmeyi yok sayamazsın. Viskozite, akışkan katmanlarının birbirine sürtünmesidir: Newton tipi bir akışkanda kayma gerilmesi hız gradyanıyla orantılıdır, τ = −η·dv/dr. Duvara değen akışkan duvara yapışır (<strong>kaymazlık koşulu</strong>); hız duvarda sıfır, eksende en büyüktür. Borunun içinde yarıçapı r olan bir akışkan silindiri için kuvvet dengesi ΔP·πr² = τ·2πrL'dir; buradan τ = ΔP·r/(2L) bulunur ve bir integral parabolik profili verir: v(r) = ΔP(R² − r²)/(4ηL). Profili kesit üzerinde toplamak (Q = ∫v·2πr dr) Hagen–Poiseuille yasasını verir. R⁴'ün iki kaynağı vardır: kesit alanı R² ile, ortalama hız da R² ile büyür. Yarıçapı yarıya indirmek debiyi 16'da birine düşürür; aynı debiyi korumak için 16 kat basınç farkı gerekir. Sayfanın varsayılanında (su, R = 2.00 mm, L = 1.00 m, ΔP = 100 Pa) Q = 627.1 µL/s ve v<sub>maks</sub> = 99.80 mm/s = 2<span class=ov>v</span>. Ohm yasasındaki gibi ΔP = Q·R<sub>h</sub> yazılır; seri bağlı borularda dirençler toplanır.",
+      formula: "Q = πR⁴ΔP/(8ηL),   R<sub>h</sub> = 8ηL/(πR⁴),   v<sub>maks</sub> = ΔP·R²/(4ηL) = 2<span class=ov>v</span>",
       formulaNote: "Yalnız Newton tipi akışkanın laminer ve tam gelişmiş akışında geçerlidir. η'nin birimi Pa·s; 20 °C'de su 1.002 mPa·s, sayfadaki bal 10 Pa·s.",
     },
     {
       heading: "Reynolds sayısı: düzen mi, çalkantı mı?",
       body:
         "Musluğu az açınca su cam gibi pürüzsüz akar, sonuna kadar açınca bulanıklaşıp çalkalanır. Hangisinin olacağını tek bir boyutsuz sayı kestirir: Reynolds sayısı, birim hacim başına eylemsizlik kuvvetinin (ρv²/D mertebesi) viskoz kuvvete (ηv/D² mertebesi) oranıdır. Mühendislik kitapları boruda Re ≲ 2300'ü laminer, Re ≳ 4000'i türbülanslı sayar, arası geçiş bölgesidir; sayfa da bu eşikleri kullanır. Eşikler kaynaktan kaynağa değişir (OpenStax 2000 ile 3000 verir), çünkü geçişi borunun girişindeki bozucular da belirler. Laminer akışta Poiseuille yasası Darcy sürtünme katsayısını f = 64/Re verir. Türbülansta katsayı duvarın pürüzlülüğüne de bağlanır (Moody diyagramı) ve basınç düşüşü debinin karesine yaklaşır; pürüzsüz boruda Blasius bağıntısıyla aynı ΔP'de debi R⁴ yerine yaklaşık R<sup>2.7</sup> ile büyür. Geometrisi benzer iki akış aynı Re'de aynı davranır; küçük modellerle tünel deneyi yapmanın temeli budur. Sayfanın laminer çözümünde Re = ρΔP·R³/(4η²L): basınç farkı ya da yarıçap büyüdükçe çözüm geçerliliğini yitirir. Varsayılan akışta Re = 199, ΔP = 1.20 kPa'da 2 386.",
-      formula: "Re = ρv̄D/η",
-      formulaNote: "D boru çapı, v̄ ortalama hız. 20 °C su ve D = 4 mm için Re = 2300 ancak v̄ ≈ 0.58 m/s'de aşılır.",
+      formula: "Re = ρ<span class=ov>v</span>D/η",
+      formulaNote: "D boru çapı, <span class=ov>v</span> ortalama hız. 20 °C su ve D = 4 mm için Re = 2300 ancak <span class=ov>v</span> ≈ 0.58 m/s'de aşılır.",
     },
   ],
   lab: {
@@ -84,7 +84,7 @@ window.ACELYA_DIGEST["akiskanlar-mekanigi"] = {
           "Aynı basınç farkı ve uzunlukta yarıçapı 2 mm'den 1 mm'ye indirirsen debi yarıya mı, dörtte birine mi, on altıda birine mi iner? Suyun yerine viskozitesi yaklaşık 10⁴ kat büyük bal koyarsan ne olur?",
         do: "Viskoz akış sekmesinde varsayılan ayarlarla (Su, R = 2.00 mm, L = 1.00 m, ΔP = 100 Pa) tablodaki soluk italik değerler normal yazıya dönene kadar, yaklaşık 5 saniye bekle. Boru yarıçapı R'yi 1.00 mm yap ve yine bekle. R'yi 2.00 mm'ye döndürüp bekledikten sonra Akışkan menüsünden Bal'ı seç.",
         observe:
-          "Akış gelişirken v<sub>maks</sub>/v̄ 1'e yakın bir değerden 2.000'e tırmanır; tam gelişince Q = 627.1 µL/s ve v<sub>maks</sub> = 99.80 mm/s olur. R = 1.00 mm'de Q = 39.19 µL/s ve Q/Q<sub>önceki</sub> satırı 0.0625 (kuram 0.0625) gösterir. Balda Q = 62.83 nL/s ve oran 1.00×10⁻⁴ olur. İzleyiciler balda da suda olduğu kadar hızlı görünür; farkı yalnızca sayılar ve grafik gösterir.",
+          "Akış gelişirken v<sub>maks</sub>/<span class=ov>v</span> 1'e yakın bir değerden 2.000'e tırmanır; tam gelişince Q = 627.1 µL/s ve v<sub>maks</sub> = 99.80 mm/s olur. R = 1.00 mm'de Q = 39.19 µL/s ve Q/Q<sub>önceki</sub> satırı 0.0625 (kuram 0.0625) gösterir. Balda Q = 62.83 nL/s ve oran 1.00×10⁻⁴ olur. İzleyiciler balda da suda olduğu kadar hızlı görünür; farkı yalnızca sayılar ve grafik gösterir.",
         explain:
           "Q = πR⁴ΔP/(8ηL): yarıçap yarıya inince (1/2)⁴ = 0.0625. Debi viskoziteyle ters orantılıdır: 1.002 mPa·s / 10 Pa·s = 1.002×10⁻⁴. Akış başlarken çekirdek bir tıkaç gibi düzgün hızlanır, duvardaki sınır tabakaları içe doğru kalınlaşır; profil, zaman sabitinin (suda 689 ms) birkaç katı sonra parabole oturur.",
       },
@@ -96,7 +96,7 @@ window.ACELYA_DIGEST["akiskanlar-mekanigi"] = {
         observe:
           "1.00 kPa'da Re = 1 988 (laminer) ve tablo dolunca Q/Q<sub>önceki</sub> = 10 olur. 1.20 kPa'da Re = 2 386, kart 'geçiş bölgesi' yazar ve sahnede 'Bu Re'de parabolik profil kararlı kalmaz' uyarısı çıkar; 2.50 kPa'da Re = 4 971 ve rejim 'türbülanslı'. Grafikteki doğru Re = 2300 işaretinden sonra kesikli çizilir. R = 6.00 mm, ΔP = 100 Pa'da da Re = 5 369.",
         explain:
-          "Laminer çözümde v̄ ∝ ΔP·R², dolayısıyla Re = ρΔP·R³/(4η²L): basınçla doğru, yarıçapın küpüyle orantılı. Bu boruda kritik basınç farkı yaklaşık 1157 Pa'dır. Sayfa türbülans modeli içermez; laminer çözümü hesaplamayı sürdürür ve ölçülen debi yine formüle eşit çıkar. Durum satırının dediği gibi gerçek debi bunun altında kalırdı.",
+          "Laminer çözümde <span class=ov>v</span> ∝ ΔP·R², dolayısıyla Re = ρΔP·R³/(4η²L): basınçla doğru, yarıçapın küpüyle orantılı. Bu boruda kritik basınç farkı yaklaşık 1157 Pa'dır. Sayfa türbülans modeli içermez; laminer çözümü hesaplamayı sürdürür ve ölçülen debi yine formüle eşit çıkar. Durum satırının dediği gibi gerçek debi bunun altında kalırdı.",
       },
     ],
   },
@@ -125,7 +125,7 @@ window.ACELYA_DIGEST["akiskanlar-mekanigi"] = {
       "Denklemleri kur. Süreklilik: v₁ = v₂·(A₂/A₁) = v₂β², burada β = D₂/D₁ = 0.5. Yatay boruda Bernoulli: P₁ − P₂ = ½ρ(v₂² − v₁²). Piyezometreler aynı basınç farkını su sütunu olarak gösterir: P₁ − P₂ = ρgΔh. İkisini birleştirince ρ sadeleşir: v₂ = √(2gΔh/(1 − β⁴)).",
       "Sayıları koy: β⁴ = 0.0625; 2gΔh = 2 × 9.81 m/s² × 0.793 m = 15.56 m²/s²; 15.56/0.9375 = 16.60 m²/s², v₂ = 4.074 m/s. Boğaz kesiti A₂ = π(0.0125 m)² = 4.909×10⁻⁴ m², dolayısıyla Q = A₂v₂ = 2.000×10⁻³ m³/s = 2.00 L/s. Giriş hızı v₁ = v₂β² ≈ 1.018 m/s.",
       "Basınçlar: P₁ − P₂ = ρgΔh = 998.2 kg/m³ × 9.81 m/s² × 0.793 m = 7.77 kPa. Mutlak giriş basıncı 101.3 + 15 = 116.3 kPa, boğazda P₂ = 108.6 kPa: atmosferin (101.3 kPa) üstünde, buhar basıncının (2.34 kPa) çok üstünde. Açık piyezometre okunur, kavitasyon yok. ΔP ∝ Q² olduğundan boğaz Q = 2.00 L/s × √(15/7.77) ≈ 2.78 L/s'de atmosfer basıncına iner.",
-      "Modeli denetle: Re₁ = ρv₁D₁/η = 998.2 × 1.018 × 0.050 / 1.002×10⁻³ ≈ 5.07×10⁴; akış türbülanslıdır. Bu, tek boyutlu Bernoulli'nin işine yarar: türbülansta hız profili düze yakındır ve kesite tek bir v yazmak iyi bir yaklaşımdır (laminer parabolde ½ρv̄² kinetik enerjiyi yarı yarıya eksik sayardı). Giriş ile boğaz arasındaki sürtünme debiyi yine biraz düşürür; endüstride formül deneyle bulunan, 1'e çok yakın bir debi katsayısıyla çarpılır. Sayfanın sürtünmesiz modelinde bu katsayı tam 1'dir.",
+      "Modeli denetle: Re₁ = ρv₁D₁/η = 998.2 × 1.018 × 0.050 / 1.002×10⁻³ ≈ 5.07×10⁴; akış türbülanslıdır. Bu, tek boyutlu Bernoulli'nin işine yarar: türbülansta hız profili düze yakındır ve kesite tek bir v yazmak iyi bir yaklaşımdır (laminer parabolde ½ρ<span class=ov>v</span>² kinetik enerjiyi yarı yarıya eksik sayardı). Giriş ile boğaz arasındaki sürtünme debiyi yine biraz düşürür; endüstride formül deneyle bulunan, 1'e çok yakın bir debi katsayısıyla çarpılır. Sayfanın sürtünmesiz modelinde bu katsayı tam 1'dir.",
       "Sayfada dene: Venturi borusu sekmesinin varsayılan ayarları bu problemdir. Tablo Δh = 79.3 cm (kuram 79.32 cm) ve Δh'den debi 2.000 L/s (−0.01 %) gösterir; kartlarda basınç düşüşü 7.767 kPa, boğaz basıncı 108.6 kPa ve Reynolds 50 736 okunur. Debiyi 3.00 L/s yapınca boğaz piyezometresi boşalır ve tablo Δh için 'okunamaz' yazar.",
     ],
     result:
