@@ -147,6 +147,8 @@ Lessons from the previous rebuilds (reviewers flagged these; avoid them):
 - Never attribute a numerical artefact or a physical effect to one cause without measuring it (e.g. step error vs
   rounding: run an h/2 twin; a heart model's stroke volume fell at 120 bpm because afterload rose, not because
   filling shortened: the end-diastolic volume had barely moved). Status lines that explain a mechanism need the numbers.
+- An asymptotic formula in a page brief is not a finite-N result. 1 − π/ln N for the 2D return probability gives
+  54.5 % at N = 1000; the exact value is 67.8 %. Check every such formula at the N the page will display.
 - No combining marks in labels, notes or canvas text: a dot (U+0307) or bar (U+0304) over a letter slides sideways or
   vanishes in the site fonts. Write the plain letter and explain the notation in words, or use
   <span class="ov">x</span> with .ov { text-decoration-line: overline } for a bar.

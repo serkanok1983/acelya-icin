@@ -38,17 +38,17 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 
 ## Matematik (35)
 
-- `birim-cember` — Birim Çember (sayfa başlığı: Birim Çember (sin–cos))
+- `birim-cember` — Birim Çember (sayfa başlığı: Birim Çember: Sinüs, Kosinüs ve Dönmeler)
 - `vektorler` — Vektörler
 - `fonksiyon-grafigi` — Fonksiyon Grafiği
 - `riemann-toplamlari` — Riemann Toplamları (sayfa başlığı: Riemann Toplamları ve Sayısal İntegral)
 - `turev` — Türev (sayfa başlığı: Türev: Kesenden Teğete (Limit Laboratuvarı))
 - `integral` — İntegral (sayfa başlığı: İntegral Nedir? - Riemann Toplamı)
 - `taylor-serisi` — Taylor Serisi (sayfa başlığı: Taylor Serisi: Fonksiyonları Polinomlarla Yakalamak)
-- `pisagor` — Pisagor Teoremi
-- `asal-rsa` — Asal & RSA (sayfa başlığı: Asal Sayılar & RSA Fikri)
-- `rastgele-yuruyus` — Rastgele Yürüyüş
-- `lissajous` — Lissajous (sayfa başlığı: Lissajous Eğrileri)
+- `pisagor` — Pisagor Teoremi (sayfa başlığı: Pisagor Teoremi: Kanıtlar, Üçlüler ve Eğri Yüzey)
+- `asal-rsa` — Asal & RSA (sayfa başlığı: Asal Sayılar ve RSA: Elekten Şifreye)
+- `rastgele-yuruyus` — Rastgele Yürüyüş (sayfa başlığı: Rastgele Yürüyüş: √N Yasası, Difüzyon ve Geri Dönüş)
+- `lissajous` — Lissajous (sayfa başlığı: Lissajous Eğrileri: Frekans Oranı, Faz ve Harmonograf)
 - `normal-dagilim` — Normal Dağılım (sayfa başlığı: Normal Dağılım ve Merkezi Limit Teoremi)
 - `altin-oran` — Altın Oran (sayfa başlığı: Altın Oran & Fibonacci Spirali - Three.js)
 - `fibo` — Fibonacci (sayfa başlığı: Fibonacci Spiral (Animasyonlu))
@@ -70,7 +70,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `sierpinski-fraktali-peano-egrisi-altin-oran` — Sierpinski & Peano (sayfa başlığı: Sierpiński + Peano + Altın Oran - 3D)
 - `cizge-teorisi` — Çizge Teorisi (sayfa başlığı: Çizge Teorisi (Graph Theory))
 - `karmasik-sayilar` — Karmaşık Sayılar (sayfa başlığı: Karmaşık Sayılar: Düzlemde Döndürme ve Büyütme)
-- `pi-yaklasimi` — π Yaklaşımı (sayfa başlığı: π Sayısının Yaklaşık Hesaplanması)
+- `pi-yaklasimi` — π Yaklaşımı (sayfa başlığı: π'yi Hesaplamak: Arşimet, Seriler ve Monte Carlo)
 - `konik-kesitler` — Konik Kesitler (sayfa başlığı: Konik Kesitler: Elips, Parabol ve Hiperbol)
 - `matris-donusumleri` — Matris Dönüşümleri (sayfa başlığı: Matris Dönüşümleri (2B))
 
