@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-049d8077bb";
+const VERSION = "acelya-09ec7650f6";
 // --- end:version ---
 
 // --- generated:core ---
@@ -277,6 +277,7 @@ const DIGESTS = [
   "shared/digest/kimyasal-kinetik.js",
   "shared/digest/kirinim-izgarasi.js",
   "shared/digest/klasik-girisim.js",
+  "shared/digest/konik-kesitler.js",
   "shared/digest/kuantum-dalga.js",
   "shared/digest/kuantum-mekanigi.js",
   "shared/digest/lorentz-kuvveti.js",

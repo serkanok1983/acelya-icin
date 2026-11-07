@@ -346,6 +346,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "konik-kesitler": {
+    "title": "Konik Kesitler: Bir Koni, Bir Düzlem, Üç Eğri",
+    "tagline": "Bir koniyi düzlemle kes: eğime göre çember, elips, parabol ya da hiperbol çıkar. Tek bir sayı, dışmerkezlik, dördünü birleştirir; gezegen yörüngelerinden çanak antenlere uzanan bir geometri.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "kuantum-dalga": {
     "title": "Kuantum Kuyuları: Düzeyler, Vurular ve Tünelleme",
     "tagline": "Bir elektronu nanometrelik kuyulara kapat: enerji basamaklara bölünür, tek basamakta hiçbir şey kıpırdamaz, iki basamak karışınca olasılık çalkalanır ve elektron ince bir duvarın ardındaki kuyuya tünelleyerek geçer.",
