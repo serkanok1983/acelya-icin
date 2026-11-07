@@ -119,27 +119,27 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 ## Kimya (10)
 
 - `periyodik-tablo` — Periyodik Tablo
-- `denklem-denklestirme` — Denklem Denkleştirme
+- `denklem-denklestirme` — Denklem Denkleştirme (sayfa başlığı: Kimyasal Denklem Denkleştirme: Atom Sayımı, Matris Yöntemi ve Stokiyometri)
 - `asit-baz-titrasyonu` — Asit-Baz Titrasyonu (sayfa başlığı: Asit-Baz Titrasyonu | Açelya)
 - `kimyasal-kinetik` — Kimyasal Kinetik (sayfa başlığı: Kimyasal Kinetik | Açelya)
 - `atom-orbitalleri` — Atom Orbitalleri (sayfa başlığı: Atom Orbitalleri — s, p, d)
-- `kristal-yapilar` — Kristal Yapılar
+- `kristal-yapilar` — Kristal Yapılar (sayfa başlığı: Kristal Yapılar: Birim Hücre, Paketleme ve X-Işını Kırınımı)
 - `elektrokimya` — Elektrokimya (sayfa başlığı: Elektrokimya — Galvanik Hücre | Açelya)
 - `ideal-gaz` — İdeal Gaz (sayfa başlığı: İdeal Gaz: Moleküllerden Basınca (Kinetik Teori))
-- `ph-indikator` — pH & İndikatör (sayfa başlığı: pH ve İndikatör)
+- `ph-indikator` — pH & İndikatörler (sayfa başlığı: pH ve İndikatörler: Logaritmik Ölçek, Su Dengesi ve Renk)
 - `molekul-sekli` — Molekül Şekli (sayfa başlığı: Molekül Şekli (VSEPR))
 
 ## Biyoloji (9)
 
 - `dna-replikasyon` — DNA Replikasyonu
 - `mitoz-mayoz` — Mitoz & Mayoz
-- `kalp-dolasim` — Kalp & Dolaşım
+- `kalp-dolasim` — Kalp & Dolaşım (sayfa başlığı: Kalp ve Dolaşım: Basınç–Hacim Döngüsü, Windkessel ve Oksijen Taşıma)
 - `besin-agi` — Besin Ağı
-- `av-avci-lotka-volterra` — Av-Avcı Modeli (sayfa başlığı: Av-Avcı Modeli (Lotka-Volterra))
+- `av-avci-lotka-volterra` — Av–Avcı Modeli (sayfa başlığı: Av–Avcı Modeli: Lotka–Volterra Döngüleri ve Ötesi)
 - `dogal-secilim` — Doğal Seçilim (sayfa başlığı: Doğal Seçilim Simülasyonu)
 - `enzim-kinetigi` — Enzim Kinetiği (sayfa başlığı: Enzim Kinetiği (Michaelis-Menten) | Açelya)
 - `fotosentez-solunum` — Fotosentez & Solunum (sayfa başlığı: Fotosentez ve Hücresel Solunum | Açelya)
-- `genetik-caprazlama` — Genetik Çaprazlama (sayfa başlığı: Genetik Çaprazlama (Punnett) | Açelya)
+- `genetik-caprazlama` — Genetik Çaprazlama (sayfa başlığı: Genetik Çaprazlama: Mendel Oranları, Ki-Kare ve Bağlı Genler)
 
 ## Disiplinler Arası (48)
 
