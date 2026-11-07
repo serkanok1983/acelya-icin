@@ -201,6 +201,12 @@ main changes; simulationNotes; remaining uncertainties.
   konik kesitler yazarı böyle takıldı, dört saat sonra hiç dosya yazmadan düştü. İstemlere "engellenen isteği
   tekrarlama, onay bekleme; ayrıntıyı çıkar ya da çekinceyle yaz" ve "ilk 15 dakikada tam bir taslağı diske yaz"
   kuralları eklendi. Düşen yazarın yerine açılan yenisine, eskisinin doğruladıkları "baş başlangıç" olarak verilir.
+- Kurucular sayfa yazarken yayın: ana ağaçta `npm run build` çalıştırma (sw.js ve katalog yarım sayfaları özetler);
+  `deploy-manual.sh --publish` commit'lenmemiş değişiklik varken zaten durur. HEAD'den `.shots/` altına bir çalışma
+  ağacı aç (`git worktree add .shots/yayin-wt -b yayin-x HEAD`; sandbox'ta `.git/worktrees` yazımı için tam izin
+  gerekir), sync-meta, build, commit ve yayını orada yap; sonra ana ağaçta `git merge --ff-only yayin-x`, ağacı ve
+  dalı sil, `git push origin main`'i ayrı komut olarak çalıştır. Komutları `;` ile değil `&&` ile bağla: 7 Kasım'da
+  başarısız bir `worktree add`'den sonra derleme ana ağaçta çalıştı ve geri almak gerekti.
 - Örnek defter (`sarkac.js`) de doğrulayıcıdan geçebilir; istemde "sesini, yapısını ve uzunluğunu koru, yalnız
   yanlışı düzelt" denmeli. 7 Kasım'da yaklaşık iki düzine düzeltmeyle 7'den 9'a çıktı, yapı aynı kaldı.
 - Sitenin giriş kapısı oturum yoksa `index.html`'e yönlendirir. `smoke.mjs` ve `shot.mjs` bunu aşıyor; ajanların kendi
