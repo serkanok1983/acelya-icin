@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-4342378381";
+const VERSION = "acelya-cc8c16f174";
 // --- end:version ---
 
 // --- generated:core ---
@@ -287,6 +287,7 @@ const DIGESTS = [
   "shared/digest/kristal-yapilar.js",
   "shared/digest/kuantum-dalga.js",
   "shared/digest/kuantum-mekanigi.js",
+  "shared/digest/lissajous.js",
   "shared/digest/lorentz-kuvveti.js",
   "shared/digest/lorenz-cekici.js",
   "shared/digest/maden-muhendisligi.js",
@@ -312,6 +313,7 @@ const DIGESTS = [
   "shared/digest/periyodik-tablo.js",
   "shared/digest/ph-indikator.js",
   "shared/digest/pi-yaklasimi.js",
+  "shared/digest/pisagor.js",
   "shared/digest/plc-hidrolik-pnomatik-cnc-cadcam.js",
   "shared/digest/pong.js",
   "shared/digest/programlama-paradigmalari.js",

@@ -416,6 +416,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "lissajous": {
+    "title": "Lissajous: Oran, Faz ve Dolgu",
+    "tagline": "İki dik salınımın çizdiği eğri, frekans oranını kenarlara değme sayısından, fazı ise elipsin kesişimi ile dönüş yönünden okutur. Yarım hertz iki saniyelik bir turdur; irrasyonel oran dikdörtgeni doldurur.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "lorentz-kuvveti": {
     "title": "Lorentz Kuvveti: Hıza Aldırmayan Saat",
     "tagline": "Manyetik alan yüklü bir parçacığın süratini değiştiremez, yalnızca yolunu büker. Bu tek kural siklotronu, kütle spektrometresini, kutup ışıklarını ve füzyon plazmasını aynı denklemde buluşturur.",
@@ -586,10 +593,17 @@ window.ACELYA_CATALOG = {
   },
   "pi-yaklasimi": {
     "title": "π'yi Hesaplamak: Hata Hangi Hızla Küçülür?",
-    "tagline": "Bir milyon rastgele nokta π'nin tipik olarak üç basamağını verir, Chudnovsky serisinin tek terimi on üçünü. Dokuz yöntemi yarıştır; Arşimet'in sınırlarını ve kayan noktanın tuzağını ölç.",
+    "tagline": "Bir milyon rastgele nokta π'nin tipik olarak 2.8 basamağını verir. Chudnovsky serisinin tek terimi 13.2 basamak getirir. Dokuz yöntemi yarıştır; Arşimet'in sınırlarını ve kayan noktanın tuzağını ölç.",
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 45
+  },
+  "pisagor": {
+    "title": "Pisagor: Kare, Üçlü ve Küre",
+    "tagline": "Dik üçgende iki karenin alanı üçüncüsüne eşittir. Açı sapınca kosinüs teoremi, kenarlar tam sayı olunca Öklid üçlüleri, yer eğrilince de açı fazlalığı aynı eşitliğin büyümüş hâlidir.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "plc-hidrolik-pnomatik-cnc-cadcam": {
     "title": "Otomasyon: Beyin, Kas ve Dijital Köprü",
