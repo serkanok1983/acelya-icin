@@ -1,659 +1,2256 @@
-<!doctype html>
+<!DOCTYPE html>
 <html class="app-root" lang="tr">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="shared/theme.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kristal Yapılar</title>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        min-height: 100dvh;
-        background: var(--bg-deep);
-        color: var(--text);
-        font-family: var(--font);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kristal Yapılar: Birim Hücre, Paketleme ve X-Işını Kırınımı</title>
+  <meta name="description" content="Yedi kristal yapıyı döndür, küreleri temas ettirip hücredeki atom sayısını, komşu sayısını ve doluluğu geometriden ölç; Miller düzlemlerini çiz, toz kırınım desenini Bragg yasası ve yapı çarpanıyla üret, tepeleri indisleyip örgü sabitini uydur.">
+  <style>
+    body.app-page .app-content { max-width: 1100px; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .col { display: grid; gap: 12px; min-width: 0; }
+    .stage-wrap { display: grid; gap: 8px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      display: block;
+      background: radial-gradient(ellipse at 50% 40%, rgba(22, 30, 52, 0.95), rgba(8, 12, 22, 0.97));
+      border-radius: 12px;
+      touch-action: pan-y;
+      cursor: grab;
+    }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 5 / 2;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .lab[data-tab="duzlemler"] .chart-canvas { aspect-ratio: 16 / 9; }
+    .lab[data-tab="kirinim"] .sim-canvas { aspect-ratio: 16 / 9; cursor: default; }
+    .lab[data-tab="kirinim"] .chart-canvas { aspect-ratio: 5 / 2; }
+    [data-theme="light"] .sim-canvas { background: radial-gradient(ellipse at 50% 40%, #fbfcfe, #e6ebf3); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .legend span { white-space: nowrap; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid currentColor; }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.dot { width: 9px; height: 9px; border: 0; border-radius: 50%; background: currentColor; }
+    .legend i.ring { width: 9px; height: 9px; border: 2px solid currentColor; border-radius: 50%; }
+    .legend i.box { width: 12px; height: 10px; border: 1.5px solid currentColor; border-radius: 2px; background: color-mix(in srgb, currentColor 30%, transparent); }
+    .k-corner { color: #60a5fa; } .k-edge { color: #f472b6; } .k-face { color: #5eead4; } .k-body { color: #fbbf24; } .k-out { color: #a78bfa; }
+    .k-an { color: #4ade80; } .k-cat { color: #a78bfa; } .k-warm { color: #fbbf24; } .k-ink { color: #e8ecf4; } .k-muted { color: #8b95a8; }
+    .k-la { color: #60a5fa; } .k-lb { color: #f87171; } .k-lc { color: #4ade80; } .k-plane { color: #a78bfa; }
+    [data-theme="light"] .k-corner { color: #2563eb; } [data-theme="light"] .k-edge { color: #db2777; } [data-theme="light"] .k-face { color: #0d9488; }
+    [data-theme="light"] .k-body { color: #d97706; } [data-theme="light"] .k-out { color: #7c3aed; } [data-theme="light"] .k-an { color: #16a34a; }
+    [data-theme="light"] .k-cat { color: #7c3aed; } [data-theme="light"] .k-warm { color: #d97706; } [data-theme="light"] .k-ink { color: #1a1d2e; }
+    [data-theme="light"] .k-muted { color: #5a5f7a; } [data-theme="light"] .k-la { color: #2563eb; } [data-theme="light"] .k-lb { color: #dc2626; }
+    [data-theme="light"] .k-lc { color: #16a34a; } [data-theme="light"] .k-plane { color: #7c3aed; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.08em; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; min-width: 0; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .duo { display: grid; grid-template-columns: minmax(0, 1fr) 6.4em; gap: 8px; align-items: center; }
+    .duo input[type="text"] { width: 100%; min-width: 0; box-sizing: border-box; padding: 5px 7px; font: inherit; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+    .hkl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .hkl .field label { justify-content: center; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .row button { padding: 7px 11px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .app-content button:disabled { opacity: 0.45; cursor: not-allowed; filter: none !important; }
+    .app-content .row button[aria-pressed="true"] { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+    .check { display: flex; gap: 7px; align-items: center; font-size: 0.84rem; cursor: pointer; min-width: 0; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .ob { text-decoration: overline; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout em { font-style: normal; font-size: 0.72rem; line-height: 1.3; color: var(--text-muted); overflow-wrap: anywhere; }
+    .readout.is-meas strong { color: var(--accent-warm) !important; }
+    .readout.is-theory strong { color: var(--accent-2) !important; }
+    .readout.wide { grid-column: 1 / -1; }
+    .table-wrap { max-width: 100%; overflow-x: auto; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 6px; text-align: right; overflow-wrap: anywhere; vertical-align: top; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.02em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.78rem; }
+    .lab table.cmp tbody th i { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; background: currentColor; vertical-align: baseline; }
+    .lab table.cmp td.meas { color: var(--accent-warm) !important; }
+    .lab table.cmp td.theory { color: var(--accent-2) !important; }
+    .lab table.cmp td small, .lab table.cmp th small { display: block; font-size: 0.68rem; font-weight: 400; color: var(--text-muted); white-space: normal; }
+    .lab table.cmp tr.is-sel th, .lab table.cmp tr.is-sel td { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 12%, transparent); }
+    .lab table.cmp td.is-max { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent-warm) 16%, transparent); font-weight: 600; }
+    .lab table.cmp col.c-q { width: 30%; }
+    .lab table.cmp col.c-n { width: 9%; }
+    .lab table.cmp col.c-hkl { width: 19%; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    .panel.is-stale .meas, .panel.is-stale .status { opacity: 0.45; transition: opacity 0.1s; }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .col { display: contents; }
+      .stage-wrap { order: 1; }
+      .ctl { order: 2; }
+      .o3 { order: 3; }
+      .o4 { order: 4; }
+      .sim-canvas { aspect-ratio: 1 / 1; }
+      .lab[data-tab="kirinim"] .sim-canvas { aspect-ratio: 4 / 3; }
+      .chart-canvas, .lab[data-tab="kirinim"] .chart-canvas { aspect-ratio: 4 / 3; }
+      .lab[data-tab="duzlemler"] .chart-canvas { aspect-ratio: 1 / 1; }
+      .app-content .tabs .tab { font-size: 0.78rem; padding: 8px 5px; }
+      .lab table.cmp { font-size: 0.74rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 4px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="kristal-yapilar">
 
-      .app-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 1rem 1rem 2rem;
-        max-width: 720px;
-        width: 100%;
-      }
+<div class="app-content">
+  <h1>Kristal Yapılar: Birim Hücre, Paketleme ve X-Işını Kırınımı</h1>
+  <p class="hint">Bir sekme seç. Birim hücre'de yapıyı döndür, küreleri temas ettir; hücredeki atom sayısını, komşu sayısını ve doluluğu geometriden ölçüp kuramla karşılaştır. Düzlemler'de bir (hkl) ailesini çiz, aralığını ve atom yoğunluğunu ölç. X-ışını kırınımı'nda toz desenini Bragg yasası ve yapı çarpanıyla üret, tepeleri indisle, örgü sabitini uydur.</p>
 
-      h1 {
-        font-size: clamp(1.2rem, 4vw, 1.6rem);
-        font-weight: 600;
-        margin: 0.4rem 0 0.2rem;
-        color: var(--accent);
-      }
+  <div class="tabs" role="tablist" aria-label="Deney bölümleri">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-hucre" data-tab="hucre" aria-selected="true" aria-controls="labPanel">Birim hücre</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-duzlemler" data-tab="duzlemler" aria-selected="false" aria-controls="labPanel" tabindex="-1">Düzlemler ve Miller indisleri</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-kirinim" data-tab="kirinim" aria-selected="false" aria-controls="labPanel" tabindex="-1">X-ışını kırınımı</button>
+  </div>
 
-      .hint {
-        color: var(--text-muted);
-        font-size: 0.88rem;
-        text-align: center;
-        max-width: 36rem;
-        margin: 0 0 0.8rem;
-        line-height: 1.5;
-      }
-
-      /* Yapı seçim butonları */
-      .struct-btns {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.45rem;
-        justify-content: center;
-        margin-bottom: 0.8rem;
-      }
-      .struct-btns button {
-        padding: 0.45rem 0.85rem;
-        border-radius: var(--radius);
-        font-size: 0.78rem;
-        font-weight: 500;
-        border: 1px solid var(--border);
-        background: var(--bg-card);
-        color: var(--text);
-        cursor: pointer;
-        font-family: var(--font);
-        transition: all 0.2s;
-      }
-      .struct-btns button:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-      }
-      .struct-btns button.active {
-        background: var(--accent);
-        color: var(--btn-text);
-        border-color: var(--accent);
-        font-weight: 600;
-      }
-
-      /* Canvas */
-      .canvas-wrap {
-        position: relative;
-        width: 100%;
-        max-width: 560px;
-      }
-      canvas {
-        display: block;
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1 / 1;
-        background: #0a0f1a;
-        border-radius: var(--radius);
-        border: 1px solid var(--border);
-        cursor: grab;
-        touch-action: none;
-      }
-      canvas:active {
-        cursor: grabbing;
-      }
-
-      /* Bilgi paneli */
-      .info-panel {
-        margin-top: 0.9rem;
-        padding: 0.9rem 1.1rem;
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        max-width: 560px;
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem 1rem;
-      }
-      .info-panel .info-item {
-        display: flex;
-        flex-direction: column;
-      }
-      .info-panel .info-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--text-muted);
-        margin-bottom: 0.15rem;
-      }
-      .info-panel .info-val {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--accent);
-      }
-      .info-desc {
-        grid-column: 1 / -1;
-        font-size: 0.82rem;
-        color: var(--text-muted);
-        line-height: 1.5;
-        margin-top: 0.2rem;
-      }
-
-      .back-link {
-        margin-top: 1rem;
-        color: var(--accent-2);
-        font-size: 0.85rem;
-        text-decoration: none;
-        font-weight: 500;
-      }
-      .back-link:hover {
-        text-decoration: underline;
-      }
-
-      @media (max-width: 480px) {
-        .info-panel {
-          grid-template-columns: 1fr 1fr;
-          gap: 0.35rem 0.6rem;
-          padding: 0.7rem 0.85rem;
-        }
-        .info-panel .info-val {
-          font-size: 0.95rem;
-        }
-        .struct-btns button {
-          padding: 0.35rem 0.6rem;
-          font-size: 0.72rem;
-        }
-      }
-    </style>
-    <script src="shared/app.js"></script>
-  </head>
-  <body class="app-page" data-page="kristal-yapilar">
-    <div class="app-content">
-      <h1>Kristal Yapılar</h1>
-      <p class="hint">
-        Birim hücre yapılarının 3B görselleştirmesi. Fare ile sürükleyerek döndürün,
-        kaydırarak yakınlaştırın.
-      </p>
-
-      <div class="struct-btns" id="structBtns"></div>
-
-      <div class="canvas-wrap">
-        <canvas
-          id="cv"
-          role="img"
-          aria-label="Kristal yapı 3B görselleştirme"
-        ></canvas>
-      </div>
-
-      <div class="info-panel" id="infoPanel">
-        <div class="info-item">
-          <span class="info-label">Birim Hücredeki Atom</span>
-          <span class="info-val" id="infoAtoms">1</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Koordinasyon Sayısı</span>
-          <span class="info-val" id="infoCoord">6</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Doluluk Oranı</span>
-          <span class="info-val" id="infoPacking">%52,4</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Atom Yarıçapı</span>
-          <span class="info-val" id="infoRadius">a/2</span>
-        </div>
-        <p class="info-desc" id="infoDesc">
-          En basit kristal yapıdır. Atomlar yalnızca küpün köşelerinde bulunur.
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-hucre" data-tab="hucre">
+    <div class="col col-l">
+      <div class="stage-wrap">
+        <canvas id="stageCanvas" class="sim-canvas" width="900" height="675" role="img" aria-label="Birim hücre"></canvas>
+        <p class="legend" data-for="hucre" id="aLegend">
+          <span><i class="dot k-corner"></i>köşe (1/8)</span>
+          <span><i class="dot k-edge"></i>kenar ortası (1/4)</span>
+          <span><i class="dot k-face"></i>yüz merkezi (1/2)</span>
+          <span><i class="dot k-body"></i>iç (1)</span>
+          <span><i class="k-warm"></i>temas doğrultusu</span>
+          <span><i class="ring k-out"></i>hücre dışındaki komşu</span>
+        </p>
+        <p class="legend" data-for="duzlemler" hidden>
+          <span><i class="box k-warm"></i>vurgulanan düzlem</span>
+          <span><i class="box k-plane"></i>aynı ailenin öbür düzlemleri</span>
+          <span><i class="ring k-warm"></i>düzlemin üstündeki atom</span>
+          <span><i class="k-ink"></i>d: başlangıç köşesinden düzleme dik uzaklık</span>
+        </p>
+        <p class="legend" data-for="kirinim" hidden>
+          <span><i class="box k-face"></i>ölçülen desen</span>
+          <span><i class="k-plane"></i>Bragg konumu ve kuramsal şiddet</span>
+          <span><i class="dot k-warm"></i>bulunan tepe</span>
+          <span><i class="dash k-muted"></i>sönen yansıma (F = 0)</span>
+        </p>
+        <canvas id="chartCanvas" class="chart-canvas" width="900" height="360" role="img" aria-label="Grafik"></canvas>
+        <p class="legend" data-for="hucre">
+          <span><i class="box k-plane"></i>kuram, temas eden küreler</span>
+          <span><i class="dot k-warm"></i>ölçülen ± 2σ</span>
+          <span><i class="ring k-face"></i>seçili yapının şimdiki r'deki doluluğu</span>
+        </p>
+        <p class="legend" data-for="duzlemler" hidden>
+          <span><i class="dot k-la"></i>1. katman (sert küre)</span>
+          <span><i class="dot k-lb"></i>2. katman (küçültülmüş)</span>
+          <span><i class="ring k-lc"></i>3. katmanın yeri (renk konumuna göre)</span>
+          <span><i class="dash k-muted"></i>2B öteleme hücresi</span>
+        </p>
+        <p class="legend" data-for="kirinim" hidden>
+          <span><i class="dot k-warm"></i>bulunan tepeler (N, sin²θ)</span>
+          <span><i class="k-plane"></i>en küçük kareler doğrusu sin²θ = (λ²/4a²)·N</span>
         </p>
       </div>
 
-      <a class="back-link" href="index.html">← Ana sayfa</a>
+      <div class="panel out o3" data-for="hucre" aria-labelledby="ttlA2">
+        <h2 id="ttlA2">Ölçüm ve kuram</h2>
+        <div class="table-wrap">
+          <table class="cmp" id="aTable">
+            <colgroup><col class="c-q"><col><col><col style="width:18%"></colgroup>
+            <thead><tr><th scope="col">Büyüklük</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody aria-live="polite"></tbody>
+          </table>
+        </div>
+        <div class="table-wrap">
+          <table class="cmp" id="aSites">
+            <colgroup><col class="c-q"><col style="width:14%"><col><col></colgroup>
+            <thead><tr><th scope="col">Konum</th><th scope="col">Adet</th><th scope="col">Hücredeki pay (ölçülen)</th><th scope="col">Katkı</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-theory"><small>Temas koşulu</small><strong id="aRel">—</strong><em id="aRelNote"></em></div>
+          <div class="readout is-meas"><small>En yakın komşu uzaklığı</small><strong id="aD1">—</strong><em id="aD1Note"></em></div>
+          <div class="readout"><small>İkinci komşu kabuğu</small><strong id="aD2">—</strong><em id="aD2Note"></em></div>
+          <div class="readout"><small>Örgü ve baz · uzay grubu</small><strong id="aBrav">—</strong><em id="aBravNote"></em></div>
+        </div>
+        <p class="status" id="aStatus" aria-live="polite"></p>
+      </div>
+
+      <div class="panel out o3" data-for="duzlemler" aria-labelledby="ttlB2" hidden>
+        <h2 id="ttlB2">Düzlem ailesi: ölçüm ve kuram</h2>
+        <div class="table-wrap">
+          <table class="cmp" id="bTable">
+            <colgroup><col class="c-q"><col><col><col style="width:16%"></colgroup>
+            <thead><tr><th scope="col">Büyüklük</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody aria-live="polite"></tbody>
+          </table>
+        </div>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-meas"><small>Atom katmanlarının sırası</small><strong id="bSeq">—</strong><em id="bSeqNote"></em></div>
+          <div class="readout is-theory"><small>Yapı çarpanı F<sub>hkl</sub></small><strong id="bF">—</strong><em id="bFNote"></em></div>
+        </div>
+        <p class="status" id="bStatus" aria-live="polite"></p>
+      </div>
+
+      <div class="panel out o3" data-for="kirinim" aria-labelledby="ttlC2" hidden>
+        <h2 id="ttlC2">Tepeler, indisleme ve örgü sabiti</h2>
+        <div class="table-wrap">
+          <table class="cmp" id="cPeaks">
+            <colgroup><col style="width:7%"><col><col><col><col class="c-hkl"><col style="width:14%"></colgroup>
+            <thead><tr><th scope="col">#</th><th scope="col">2θ (°)</th><th scope="col">d (Å)</th><th scope="col">sin²θ / sin²θ₁</th><th scope="col">hkl</th><th scope="col">I (%)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-meas"><small>Uydurulan a (en küçük kareler)</small><strong id="cFit">—</strong><em id="cFitNote"></em></div>
+          <div class="readout is-theory"><small>Girilen a</small><strong id="cAin">—</strong><em id="cAinNote"></em></div>
+          <div class="readout wide"><small>İndisleme adayları</small><strong id="cCand">—</strong><em id="cCandNote"></em></div>
+        </div>
+        <p class="status" id="cStatus" aria-live="polite"></p>
+      </div>
     </div>
 
-    <script>
-      /* ── Yapı tanımları ── */
-      const ST = {
-        sc: {
-          name: "Basit Kübik (SC)",
-          atoms: [
-            [-1, -1, -1],
-            [1, -1, -1],
-            [-1, 1, -1],
-            [-1, -1, 1],
-            [1, 1, -1],
-            [1, -1, 1],
-            [-1, 1, 1],
-            [1, 1, 1],
-          ],
-          radius: 0.38,
-          edges: [
-            [0, 1],
-            [0, 2],
-            [0, 3],
-            [1, 4],
-            [1, 5],
-            [2, 4],
-            [2, 6],
-            [3, 5],
-            [3, 6],
-            [4, 7],
-            [5, 7],
-            [6, 7],
-          ],
-          info: {
-            atoms: "1",
-            coord: "6",
-            packing: "%52,4",
-            radius: "a/2",
-            desc: "En basit kristal yapı. Atomlar sadece küpün köşelerinde bulunur (8 × ⅛ = 1 atom). Kenar uzunluğu a = 2r. Polonyum bu yapıdadır.",
-          },
-        },
-        bcc: {
-          name: "Hacim Merkezli Kübik (BCC)",
-          atoms: [
-            [-1, -1, -1],
-            [1, -1, -1],
-            [-1, 1, -1],
-            [-1, -1, 1],
-            [1, 1, -1],
-            [1, -1, 1],
-            [-1, 1, 1],
-            [1, 1, 1],
-            [0, 0, 0],
-          ],
-          radius: 0.33,
-          edges: [
-            [0, 1],
-            [0, 2],
-            [0, 3],
-            [1, 4],
-            [1, 5],
-            [2, 4],
-            [2, 6],
-            [3, 5],
-            [3, 6],
-            [4, 7],
-            [5, 7],
-            [6, 7],
-          ],
-          info: {
-            atoms: "2",
-            coord: "8",
-            packing: "%68,0",
-            radius: "a√3/4",
-            desc: "Köşelerde 8, merkezde 1 atom (8 × ⅛ + 1 = 2 atom). Gövde merkezindeki atom 8 köşe atomuyla temas eder. Demir, tungsten, krom BCC yapıdadır.",
-          },
-        },
-        fcc: {
-          name: "Yüzey Merkezli Kübik (FCC)",
-          atoms: [
-            [-1, -1, -1],
-            [1, -1, -1],
-            [-1, 1, -1],
-            [-1, -1, 1],
-            [1, 1, -1],
-            [1, -1, 1],
-            [-1, 1, 1],
-            [1, 1, 1],
-            [0, 0, -1],
-            [1, 0, 0],
-            [0, 1, 0],
-            [-1, 0, 0],
-            [0, -1, 0],
-            [0, 0, 1],
-          ],
-          radius: 0.28,
-          edges: [
-            [0, 1],
-            [0, 2],
-            [0, 3],
-            [1, 4],
-            [1, 5],
-            [2, 4],
-            [2, 6],
-            [3, 5],
-            [3, 6],
-            [4, 7],
-            [5, 7],
-            [6, 7],
-          ],
-          info: {
-            atoms: "4",
-            coord: "12",
-            packing: "%74,0",
-            radius: "a√2/4",
-            desc: "Köşelerde 8, yüzey merkezlerinde 6 atom (8 × ⅛ + 6 × ½ = 4 atom). En sıkı paketlenmiş kübik yapıdır. Alüminyum, bakır, altın, gümüş FCC yapıdadır.",
-          },
-        },
-        hcp: {
-          name: "Hekzagonal Sıkı Paket (HCP)",
-          atoms: (function () {
-            const h = Math.sqrt(8 / 3) * 1;
-            const R = 1;
-            const mr = R / Math.sqrt(3);
-            const bottom = [],
-              top = [],
-              middle = [];
-            for (let i = 0; i < 6; i++) {
-              const a = (Math.PI / 3) * i;
-              bottom.push([R * Math.cos(a), R * Math.sin(a), -h / 2]);
-              top.push([R * Math.cos(a), R * Math.sin(a), h / 2]);
-            }
-            bottom.push([0, 0, -h / 2]);
-            top.push([0, 0, h / 2]);
-            for (let i = 0; i < 3; i++) {
-              const a = Math.PI / 6 + ((2 * Math.PI) / 3) * i;
-              middle.push([mr * Math.cos(a), mr * Math.sin(a), 0]);
-            }
-            return [...bottom, ...middle, ...top];
-          })(),
-          radius: 0.28,
-          edges: (function () {
-            const e = [];
-            for (let i = 0; i < 6; i++) {
-              e.push([i, (i + 1) % 6]);
-            } // bottom hexagon
-            for (let i = 10; i < 16; i++) {
-              e.push([i, i < 15 ? i + 1 : 10]);
-            } // top hexagon (indices 10-15)
-            for (let i = 0; i < 6; i++) {
-              e.push([i, i + 10]);
-            } // vertical edges
-            e.push([6, 16]); // bottom center → top center
-            for (let i = 0; i < 6; i++) {
-              e.push([6, i]);
-              e.push([16, i + 10]);
-            } // center → vertices
-            return e;
-          })(),
-          info: {
-            atoms: "6",
-            coord: "12",
-            packing: "%74,0",
-            radius: "a/2",
-            desc: "ABAB istiflenmesiyle oluşan en sıkı paket yapı. Altıgen prizma şeklinde birim hücre. c/a = √(8/3) ≈ 1,633. Magnezyum, titanyum, çinko HCP yapıdadır.",
-          },
+    <div class="col col-r">
+      <!-- (a) Birim hücre -->
+      <div class="panel ctl" data-for="hucre" role="group" aria-labelledby="ttlA">
+        <h2 id="ttlA">Yapı ve küreler</h2>
+        <div class="field">
+          <label for="aStruct"><span class="lt">Yapı</span><output id="aStructOut" for="aStruct">FCC</output></label>
+          <select id="aStruct">
+            <option value="sc">Basit kübik (SC)</option>
+            <option value="bcc">Hacim merkezli kübik (BCC)</option>
+            <option value="fcc" selected>Yüzey merkezli kübik (FCC)</option>
+            <option value="hcp">Altıgen sıkı paket (HCP)</option>
+            <option value="dia">Elmas kübik</option>
+            <option value="nacl">Kaya tuzu (NaCl)</option>
+            <option value="cscl">Sezyum klorür (CsCl)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aMat"><span class="lt">Örnek madde</span><output id="aMatOut" for="aMat">—</output></label>
+          <select id="aMat"></select>
+        </div>
+        <div class="field">
+          <label for="aSize"><span class="lt">Küre yarıçapı r / r<sub>temas</sub></span><output id="aSizeOut" for="aSize">1.00 · temas</output></label>
+          <input type="range" id="aSize" min="0" max="1" step="0.01" value="1">
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aPoint">Nokta (r = 0)</button>
+          <button type="button" class="app-btn-ghost" id="aFull">Temas (r = r<sub>temas</sub>)</button>
+        </div>
+        <div class="field">
+          <label for="aColor"><span class="lt">Renk</span><output id="aColorOut" for="aColor">konum</output></label>
+          <select id="aColor">
+            <option value="site" selected>Hücredeki konuma göre</option>
+            <option value="sp">Atom ya da iyon türüne göre</option>
+          </select>
+        </div>
+        <label class="check" for="aTouch"><input type="checkbox" id="aTouch" checked> Temas doğrultusunu vurgula</label>
+        <label class="check" for="aNeigh"><input type="checkbox" id="aNeigh"> Bir atomun en yakın komşularını göster</label>
+        <h2>Görünüm</h2>
+        <div class="field">
+          <label for="aYaw"><span class="lt">Dönme açısı</span><output id="aYawOut" for="aYaw">30°</output></label>
+          <input type="range" id="aYaw" min="-180" max="180" step="1" value="30">
+        </div>
+        <div class="field">
+          <label for="aPitch"><span class="lt">Eğim açısı</span><output id="aPitchOut" for="aPitch">20°</output></label>
+          <input type="range" id="aPitch" min="-90" max="90" step="1" value="20">
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aV1">[100] yönünden bak</button>
+          <button type="button" class="app-btn-ghost" id="aV2">[111] yönünden bak</button>
+          <button type="button" class="app-btn-ghost" id="aRot" aria-pressed="false">Kendiliğinden döndür</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Sıfırla</button>
+        </div>
+        <p class="note">Sert küre modeli: r/r<sub>temas</sub> = 1'de en yakın komşular birbirine değer. Sahneyi sürükleyerek döndür (telefonda yatay sürükleme döndürür, eğim için kaydırıcıyı kullan). <kbd>Boşluk</kbd> kendiliğinden dönmeyi açar ya da kapatır, <kbd>R</kbd> bu sekmeyi sıfırlar. Yapı ya da madde değişince ölçümler baştan yapılır.</p>
+        <p class="note">Ölçüm yöntemi: hücreye değen her kürenin içeride kalan payı, küreye oturtulmuş 40³ düzenli noktayla sayılır (yüzey küre merkezinden geçiyorsa pay simetriden tam çıkar; HCP'deki eğik kesitlerde ±0.01'e kadar ızgara hatası olur, ama dışarı taşan ve komşudan giren parçalar aynı ızgarayla sayıldığından toplam n tam kalır). Koordinasyon sayısı, üretilen örgüde en yakın uzaklıktaki atomlar sayılarak (göreli tolerans 10⁻⁶) bulunur. Doluluk, hücreye 24³ noktalık ızgara 32 rastgele kaydırmayla atılıp küre içine düşen noktalar sayılarak ölçülür; ± değeri bu 32 tahminin standart hatasıdır. HCP'de atom sayımı altıgen prizmada (6 atom), doluluk ilkel hücrede (2 atom) yapılır.</p>
+      </div>
+
+      <div class="panel out o4" data-for="hucre" aria-labelledby="ttlA3">
+        <h2 id="ttlA3">Gerçek maddeler: örgü sabitinden yoğunluk</h2>
+        <div class="table-wrap">
+          <table class="cmp" id="aDens">
+            <colgroup><col style="width:27%"><col><col><col><col style="width:17%"></colgroup>
+            <thead><tr><th scope="col">Madde</th><th scope="col">a (Å)</th><th scope="col">ρ = nM/(N<sub>A</sub>V)</th><th scope="col">Tablo ρ</th><th scope="col">Fark</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note">ρ, g/cm³; V hücre hacmi (kübikte a³, HCP'de ilkel hücre (√3/2)a²c ile n = 2), N<sub>A</sub> = 6.02214076·10²³ mol⁻¹ (SI 2019, tam). Örgü sabitleri: elementler için 20 °C değerleri Arblaster (2018), <i>Selected Values of the Crystallographic Properties of Elements</i> (ASM); Si için CODATA 2018 (22.5 °C); elmas (300 K) ve CsCl için Wikipedia “Lattice constant” listesi; α-Po için 335.2 pm (Wikipedia, Polonium; ölçüm az, kaynaklar arasında yaklaşık %0.5 fark var); NaCl 564.02 pm, KCl 629.2 pm ve PbS 5.936 Å (CRC Handbook) bileşiklerin Wikipedia maddelerinden. Tablo yoğunlukları: CRC Handbook of Chemistry and Physics (Wikipedia “Densities of the elements” veri sayfası ve bileşik maddeleri; KCl 1.984 g/cm³ Wikipedia). Molar kütleler: IUPAC (CIAAW) standart atom ağırlıkları; Po için ²¹⁰Po (209.98 g/mol). Fark, tablo değerinin son basamağının yarısından küçükse “yuvarlama içinde” yazılır.</p>
+        <p class="note">Yedi kristal sistemi ve 14 Bravais örgüsü: triklinik (P), monoklinik (P, C), ortorombik (P, C, I, F), tetragonal (P, I), trigonal (R), hekzagonal (P), kübik (P, I, F); P ilkel, C taban merkezli, I hacim merkezli, F yüzey merkezli, R romboedral. Bu sayfadaki yapıların hepsi iki sistemden: SC, BCC ve FCC sırasıyla kübik P, I ve F örgüleridir; elmas ve kaya tuzu, kübik F örgüsüne iki atomlu baz eklenerek; CsCl, kübik P örgüsüne iki atomlu baz eklenerek (BCC değil: köşe ve merkezdeki atomlar farklı); HCP, hekzagonal P örgüsüne iki atomlu baz eklenerek oluşur. Her biri 230 uzay grubundan birine aittir: SC Pm-3m (221), BCC Im-3m (229), FCC ve NaCl Fm-3m (225), elmas Fd-3m (227), CsCl Pm-3m (221), HCP P6₃/mmc (194).</p>
+      </div>
+
+      <!-- (b) Düzlemler -->
+      <div class="panel ctl" data-for="duzlemler" role="group" aria-labelledby="ttlB" hidden>
+        <h2 id="ttlB">Yapı ve Miller indisleri</h2>
+        <div class="field">
+          <label for="bStruct"><span class="lt">Yapı</span><output id="bStructOut" for="bStruct">FCC</output></label>
+          <select id="bStruct">
+            <option value="sc">Basit kübik (SC)</option>
+            <option value="bcc">Hacim merkezli kübik (BCC)</option>
+            <option value="fcc" selected>Yüzey merkezli kübik (FCC)</option>
+            <option value="dia">Elmas kübik</option>
+            <option value="nacl">Kaya tuzu (NaCl)</option>
+            <option value="cscl">Sezyum klorür (CsCl)</option>
+            <option value="hcp">Altıgen sıkı paket (HCP, bazal katmanlar)</option>
+          </select>
+        </div>
+        <div class="hkl">
+          <div class="field"><label for="bH"><span class="lt">h</span></label><select id="bH"></select></div>
+          <div class="field"><label for="bK"><span class="lt">k</span></label><select id="bK"></select></div>
+          <div class="field"><label for="bL"><span class="lt">l</span></label><select id="bL"></select></div>
+        </div>
+        <div class="row" id="bPresets">
+          <button type="button" class="app-btn-ghost" data-hkl="1,0,0">(100)</button>
+          <button type="button" class="app-btn-ghost" data-hkl="1,1,0">(110)</button>
+          <button type="button" class="app-btn-ghost" data-hkl="1,1,1">(111)</button>
+          <button type="button" class="app-btn-ghost" data-hkl="2,0,0">(200)</button>
+          <button type="button" class="app-btn-ghost" data-hkl="-1,1,1">(<span class="ob">1</span>11)</button>
+        </div>
+        <div class="field">
+          <label for="bSize"><span class="lt">Küre yarıçapı r / r<sub>temas</sub></span><output id="bSizeOut" for="bSize">0.35</output></label>
+          <input type="range" id="bSize" min="0" max="1" step="0.01" value="0.35">
+        </div>
+        <h2>Görünüm</h2>
+        <div class="field">
+          <label for="bYaw"><span class="lt">Dönme açısı</span><output id="bYawOut" for="bYaw">30°</output></label>
+          <input type="range" id="bYaw" min="-180" max="180" step="1" value="30">
+        </div>
+        <div class="field">
+          <label for="bPitch"><span class="lt">Eğim açısı</span><output id="bPitchOut" for="bPitch">20°</output></label>
+          <input type="range" id="bPitch" min="-90" max="90" step="1" value="20">
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="bAlong">Düzleme dik bak</button>
+          <button type="button" class="app-btn-ghost" id="bEdge">Düzlemi yandan gör</button>
+          <button type="button" class="app-btn-ghost" id="bRot" aria-pressed="false">Kendiliğinden döndür</button>
+          <button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button>
+        </div>
+        <p class="note">(hkl) ailesi, a birimiyle hx + ky + lz = m (m tam sayı) düzlemleridir. Vurgulanan düzlem eksenleri 1/h, 1/k, 1/l noktalarında keser; negatif indiste başlangıç noktası komşu köşeye taşınır, sıfır indis o eksene paralel demektir. d, vurgulanan çokgenin köşelerinden hesaplanan normal boyunca başlangıç köşesine olan uzaklıktır. HCP'de dört indisli gösterim yerine yalnız bazal (0001) katmanları çizilir. <kbd>Boşluk</kbd> döndürür, <kbd>R</kbd> sıfırlar.</p>
+      </div>
+
+      <div class="panel out o4" data-for="duzlemler" aria-labelledby="ttlB3" hidden>
+        <h2 id="ttlB3">Düzlemsel atom yoğunluğu (atom/a²) ve doluluk</h2>
+        <div class="table-wrap">
+          <table class="cmp" id="bPD">
+            <colgroup><col style="width:16%"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Yapı</th><th scope="col">(100)</th><th scope="col">(110)</th><th scope="col">(111)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note">Her hücrede üstte ölçülen yoğunluk (üretilen örgüde düzlemin 2B öteleme hücresine düşen atom sayısı ÷ hücre alanı), altta kuram ve sert küre kesitlerinin kapladığı alan payı; satırın en sık dizilmiş düzlemi vurgulu. FCC'nin (111) düzlemi altıgen sıkı paket katmandır (doluluk π/(2√3) = 0.9069, düzlemde olabilecek en büyük değer). Metaller kolayca en sık dizilmiş düzlemlerde kayar: FCC'de {111}, BCC'de {110}. Kaya tuzu yapısındaki halit ve galen {100} boyunca küp biçiminde, elmas {111} boyunca dilinir.</p>
+        <p class="note">FCC ve HCP aynı katmanı (düzlemde 2/√3 ≈ 1.155 atom/(2r)²) aynı aralıkla (√(2/3)·2r ≈ 0.8165·2r) üst üste koyar; atom başına hacim ikisinde de 4√2·r³, doluluk π/(3√2) ≈ 0.7405. Fark yalnız üçüncü katmanın yeridir: FCC'de C boşluklarının üstü (ABCABC…), HCP'de ilk katmanın tam üstü (ABAB…).</p>
+      </div>
+
+      <!-- (c) X-ışını kırınımı -->
+      <div class="panel ctl" data-for="kirinim" role="group" aria-labelledby="ttlC" hidden>
+        <h2 id="ttlC">Örnek ve ışın</h2>
+        <div class="field" id="cStructField">
+          <label for="cStruct"><span class="lt">Yapı</span><output id="cStructOut" for="cStruct">BCC</output></label>
+          <select id="cStruct">
+            <option value="sc">Basit kübik (SC)</option>
+            <option value="bcc" selected>Hacim merkezli kübik (BCC)</option>
+            <option value="fcc">Yüzey merkezli kübik (FCC)</option>
+            <option value="dia">Elmas kübik</option>
+            <option value="nacl">Kaya tuzu (NaCl)</option>
+            <option value="cscl">Sezyum klorür (CsCl)</option>
+          </select>
+        </div>
+        <div class="field" id="cMatField">
+          <label for="cMat"><span class="lt">Örnek madde</span><output id="cMatOut" for="cMat">—</output></label>
+          <select id="cMat"></select>
+        </div>
+        <div class="field" id="cAField">
+          <label for="cA"><span class="lt">Örgü sabiti a</span><output id="cAOut" for="cA">2.8665 Å</output></label>
+          <div class="duo"><input type="range" id="cA" min="2.5" max="7" step="0.001" value="2.8665"><input type="text" id="cANum" value="2.8665" inputmode="decimal" spellcheck="false" autocomplete="off"></div>
+          <label for="cANum" class="visually-hidden">Örgü sabiti a, ångström; Enter ile uygulanır</label>
+        </div>
+        <div class="field">
+          <label for="cLam"><span class="lt">Dalga boyu λ</span><output id="cLamOut" for="cLam">1.540593 Å</output></label>
+          <select id="cLam">
+            <option value="cu" selected>Cu Kα₁ · 1.540593 Å</option>
+            <option value="mo">Mo Kα₁ · 0.709317 Å</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cW"><span class="lt">Tepe genişliği (FWHM)</span><output id="cWOut" for="cW">0.15°</output></label>
+          <input type="range" id="cW" min="0.05" max="0.6" step="0.01" value="0.15">
+        </div>
+        <label class="check" for="cExt"><input type="checkbox" id="cExt" checked> Sönen yansımaları işaretle</label>
+        <label class="check" for="cLog"><input type="checkbox" id="cLog"> Logaritmik şiddet ekseni (zayıf tepeler için)</label>
+        <div class="row"><button type="button" class="app-btn-ghost" id="cReset">Sıfırla</button></div>
+        <h2>Bilinmeyen örnek</h2>
+        <div class="row">
+          <button type="button" id="cUnk">Bilinmeyen örnek getir</button>
+        </div>
+        <div class="field" id="cGuessField" hidden>
+          <label for="cGuess"><span class="lt">Tahminin</span><output id="cGuessOut" for="cGuess">—</output></label>
+          <select id="cGuess">
+            <option value="" selected>Yapıyı seç…</option>
+            <option value="sc">Basit kübik (SC)</option>
+            <option value="bcc">Hacim merkezli kübik (BCC)</option>
+            <option value="fcc">Yüzey merkezli kübik (FCC)</option>
+            <option value="dia">Elmas kübik</option>
+            <option value="nacl">Kaya tuzu (NaCl)</option>
+            <option value="cscl">Sezyum klorür (CsCl)</option>
+          </select>
+        </div>
+        <div class="row" id="cGuessRow" hidden>
+          <button type="button" id="cCheck">Kontrol et</button>
+          <button type="button" class="app-btn-ghost" id="cNext">Yeni örnek</button>
+          <button type="button" class="app-btn-ghost" id="cExit">Bilinmeyenden çık</button>
+        </div>
+        <p class="note">Bilinmeyen örnekte madde, yapı, a ve hkl etiketleri gizlenir; tepe konumları, sin²θ oranları, yoğunluk ve molar kütle görünür. Hücredeki formül birimi sayısı Z = ρN<sub>A</sub>a³/M tam sayı olmalıdır: oranlar iki örgüye de uyuyorsa yoğunluk karar verir. <kbd>R</kbd> bu sekmeyi sıfırlar.</p>
+      </div>
+
+      <div class="panel out o4" data-for="kirinim" aria-labelledby="ttlC3" hidden>
+        <h2 id="ttlC3">Yapı çarpanı ve sönme kuralları</h2>
+        <div class="table-wrap">
+          <table class="cmp" id="cF">
+            <colgroup><col style="width:17%"><col style="width:9%"><col><col style="width:16%"><col style="width:22%"></colgroup>
+            <thead><tr><th scope="col">hkl</th><th scope="col">p</th><th scope="col">F (elektron)</th><th scope="col">2θ (°)</th><th scope="col">Durum</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note" id="cRule"></p>
+        <p class="note">Bragg yasası λ = 2d·sinθ, kübikte d = a/√N, N = h² + k² + l². Şiddet modeli: I = p·|F|²·LP, LP = (1 + cos²2θ)/(sin²θ·cosθ) (kutuplanmamış ışın, monokromatör yok); p çokluk. F = Σ f<sub>j</sub>(s)·e<sup>2πi(hx<sub>j</sub> + ky<sub>j</sub> + lz<sub>j</sub>)</sup>, s = sinθ/λ; f<sub>j</sub> International Tables for Crystallography C, Tablo 6.1.1.4'ün dört Gauss yaklaşımı (NaCl, KCl, CsCl'de iyonlar, öbürlerinde nötr atomlar). Isıl titreşim (Debye–Waller), soğurma, Kα₂ çizgisi ve tercihli yönelim yok sayılır; gerçek desenlerde yüksek açılı tepeler daha zayıftır. Dalga boyları: Cu Kα₁ 1.540593 Å (Hölzer ve ark. 1997; NIST SRM 640), Mo Kα₁ 0.709317 Å (Deslattes ve ark. 2003). Desen 5°–150° arasında 0.01° adımla örneklenir; tepe, ln y'ye üç noktalı parabol oturtularak (Gauss için tam) bulunur; en güçlü tepenin %0.3'ünden zayıf tepeler “görünmez” sayılır.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* MATH-START — DOM'a dokunmayan saf hesap çekirdeği (node ile de çalışır) */
+  const NA = 6.02214076e23; // mol⁻¹, SI 2019 (tam)
+  const PI = Math.PI, SQ2 = Math.SQRT2, SQ3 = Math.sqrt(3), D2R = PI / 180;
+  const IDEAL_CA = Math.sqrt(8 / 3);
+  const frac1 = (v) => { const r = v - Math.floor(v + 1e-12); return Math.abs(r) < 1e-12 ? 0 : r; };
+  const dot = (u, v) => u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
+  const sub = (u, v) => [u[0] - v[0], u[1] - v[1], u[2] - v[2]];
+  const addv = (u, v) => [u[0] + v[0], u[1] + v[1], u[2] + v[2]];
+  const mul = (u, s) => [u[0] * s, u[1] * s, u[2] * s];
+  const len = (u) => Math.hypot(u[0], u[1], u[2]);
+  const cross = (u, v) => [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+  const lerp3 = (u, v, t) => [u[0] + (v[0] - u[0]) * t, u[1] + (v[1] - u[1]) * t, u[2] + (v[2] - u[2]) * t];
+  const gcd = (p, q) => (q ? gcd(q, p % q) : Math.abs(p));
+
+  const FCC4 = [[0, 0, 0], [0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0]];
+  const put = (L, sp, d = [0, 0, 0]) => L.map((p) => [frac1(p[0] + d[0]), frac1(p[1] + d[1]), frac1(p[2] + d[2]), sp]);
+  // basis: kesirli koordinat + tür (0: tek tür ya da anyon, 1: katyon). Z: hücredeki formül birimi; fu: formül birimindeki atom
+  const STRUCTS = {
+    sc: { key: "sc", short: "SC", name: "Basit kübik", lat: "cub", basis: put([[0, 0, 0]], 0), Z: 1, fu: 1, cn: 6, apf: PI / 6, apfTxt: "π/6", rel: "a = 2r", relLine: "küp kenarı", brav: "kübik P, 1 atomlu baz", sg: "Pm-3m (221)" },
+    bcc: { key: "bcc", short: "BCC", name: "Hacim merkezli kübik", lat: "cub", basis: put([[0, 0, 0], [0.5, 0.5, 0.5]], 0), Z: 2, fu: 1, cn: 8, apf: (PI * SQ3) / 8, apfTxt: "π√3/8", rel: "a√3 = 4r", relLine: "cisim köşegeni", brav: "kübik I, 1 atomlu baz", sg: "Im-3m (229)" },
+    fcc: { key: "fcc", short: "FCC", name: "Yüzey merkezli kübik", lat: "cub", basis: put(FCC4, 0), Z: 4, fu: 1, cn: 12, apf: (PI * SQ2) / 6, apfTxt: "π√2/6", rel: "a√2 = 4r", relLine: "yüz köşegeni", brav: "kübik F, 1 atomlu baz", sg: "Fm-3m (225)" },
+    hcp: { key: "hcp", short: "HCP", name: "Altıgen sıkı paket", lat: "hex", basis: put([[0, 0, 0], [1 / 3, 1 / 3, 0.5]], 0), Z: 2, fu: 1, cn: 12, apf: (PI * SQ2) / 6, apfTxt: "π√2/6 (ideal c/a)", rel: "a = 2r, ideal c = a√(8/3)", relLine: "taban altıgeninin kenarı", brav: "hekzagonal P, 2 atomlu baz", sg: "P6₃/mmc (194)" },
+    dia: { key: "dia", short: "Elmas", name: "Elmas kübik", lat: "cub", basis: [...put(FCC4, 0), ...put(FCC4, 0, [0.25, 0.25, 0.25])], Z: 8, fu: 1, cn: 4, apf: (PI * SQ3) / 16, apfTxt: "π√3/16", rel: "a√3 = 8r", relLine: "cisim köşegeninin dörtte biri (bağ)", brav: "kübik F, 2 atomlu baz", sg: "Fd-3m (227)" },
+    nacl: { key: "nacl", short: "NaCl", name: "Kaya tuzu", lat: "cub", basis: [...put(FCC4, 0), ...put(FCC4, 1, [0.5, 0, 0])], Z: 4, fu: 2, cn: 6, apf: null, apfTxt: "(16π/3)(r₊³ + r₋³)/a³", rel: "a = 2(r₊ + r₋)", relLine: "küp kenarı", brav: "kübik F, 2 atomlu baz", sg: "Fm-3m (225)" },
+    cscl: { key: "cscl", short: "CsCl", name: "Sezyum klorür", lat: "cub", basis: [[0, 0, 0, 0], [0.5, 0.5, 0.5, 1]], Z: 1, fu: 2, cn: 8, apf: null, apfTxt: "(4π/3)(r₊³ + r₋³)/a³", rel: "a√3 = 2(r₊ + r₋)", relLine: "cisim köşegeni", brav: "kübik P, 2 atomlu baz (BCC değil)", sg: "Pm-3m (221)" },
+  };
+  // a, c: Å; M: g/mol; rho: tablo yoğunluğu (metin, anlamlı basamak korunur); r: Shannon (1976) iyon yarıçapları, Å [anyon, katyon]; xs: kırınım türleri
+  const MATS = {
+    po: { s: "sc", name: "α-Po", a: 3.352, M: 209.98, rho: "9.20", xs: ["Po"] },
+    fe: { s: "bcc", name: "α-Fe", a: 2.8665, M: 55.845, rho: "7.87", xs: ["Fe"] },
+    w: { s: "bcc", name: "W", a: 3.1652, M: 183.84, rho: "19.3", xs: ["W"] },
+    cu: { s: "fcc", name: "Cu", a: 3.615, aS: "3.6150", M: 63.546, rho: "8.96", xs: ["Cu"] },
+    al: { s: "fcc", name: "Al", a: 4.0493, M: 26.982, rho: "2.70", xs: ["Al"] },
+    hid: { s: "hcp", name: "İdeal HCP", ideal: true },
+    mg: { s: "hcp", name: "Mg", a: 3.2091, c: 5.2103, M: 24.305, rho: "1.74" },
+    zn: { s: "hcp", name: "Zn", a: 2.6646, c: 4.9455, M: 65.38, rho: "7.14" },
+    si: { s: "dia", name: "Si", a: 5.431020511, M: 28.085, rho: "2.3290", xs: ["Si"] },
+    ge: { s: "dia", name: "Ge", a: 5.65774, M: 72.63, rho: "5.3234", xs: ["Ge"] },
+    c: { s: "dia", name: "C (elmas)", a: 3.567, M: 12.011, rho: "3.513", xs: ["C"] },
+    nacl: { s: "nacl", name: "NaCl (halit)", ions: ["Cl⁻", "Na⁺"], r: [1.81, 1.02], a: 5.6402, M: 58.44, rho: "2.17", xs: ["Cl⁻", "Na⁺"] },
+    kcl: { s: "nacl", name: "KCl (silvin)", ions: ["Cl⁻", "K⁺"], r: [1.81, 1.38], a: 6.292, M: 74.548, rho: "1.984", xs: ["Cl⁻", "K⁺"] },
+    pbs: { s: "nacl", name: "PbS (galen)", ions: ["S²⁻", "Pb²⁺"], r: [1.84, 1.19], a: 5.936, M: 239.26, rho: "7.60", xs: ["S", "Pb"] },
+    cscl: { s: "cscl", name: "CsCl", ions: ["Cl⁻", "Cs⁺"], r: [1.81, 1.74], a: 4.123, M: 168.36, rho: "3.988", xs: ["Cl⁻", "Cs⁺"] },
+  };
+  const STRUCT_MATS = { sc: ["po"], bcc: ["fe", "w"], fcc: ["cu", "al"], hcp: ["hid", "mg", "zn"], dia: ["si", "ge", "c"], nacl: ["nacl", "kcl", "pbs"], cscl: ["cscl"] };
+  const caOf = (S, M) => (S.lat === "hex" ? (M && M.c ? M.c / M.a : IDEAL_CA) : 1);
+  const rhoOf = (M) => (M && M.r ? M.r : [1, 1]);
+  const aStr = (M) => M.aS || String(M.a);
+
+  function latVecs(S, ca) { return S.lat === "hex" ? [[1, 0, 0], [0.5, SQ3 / 2, 0], [0, 0, ca]] : [[1, 0, 0], [0, 1, 0], [0, 0, 1]]; }
+  function cart(V, f) { return [0, 1, 2].map((i) => f[0] * V[0][i] + f[1] * V[1][i] + f[2] * V[2][i]); }
+  function genAtoms(S, ca, n) {
+    const V = latVecs(S, ca), out = [];
+    for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) for (let k = -n; k <= n; k++) {
+      S.basis.forEach((b, bi) => { const f = [b[0] + i, b[1] + j, b[2] + k]; out.push({ f, p: cart(V, f), sp: b[3], bi }); });
+    }
+    return out;
+  }
+  // Komşu kabukları: üretilen örgüde uzaklığa göre say (göreli tolerans 10⁻⁶)
+  function shells(S, ca, bi, count) {
+    const V = latVecs(S, ca), r0 = cart(V, S.basis[bi]), list = [];
+    for (const at of genAtoms(S, ca, 2)) { const d = len(sub(at.p, r0)); if (d > 1e-9) list.push({ d, sp: at.sp, p: at.p }); }
+    list.sort((x, y) => x.d - y.d);
+    const out = [];
+    for (const x of list) {
+      const last = out[out.length - 1];
+      if (last && x.d <= last.d * (1 + 1e-6)) { last.n++; last.pts.push(x.p); last.sps[x.sp]++; continue; }
+      if (out.length === count) break;
+      out.push({ d: x.d, n: 1, pts: [x.p], sps: [x.sp === 0 ? 1 : 0, x.sp === 1 ? 1 : 0] });
+    }
+    return { ref: r0, sp: S.basis[bi][3], list: out };
+  }
+  // Sert küre teması: göreli yarıçaplar rho ile, en küçük d/(ρᵢ + ρⱼ) ölçeği
+  function touching(S, ca, rho) {
+    const V = latVecs(S, ca), atoms = genAtoms(S, ca, 1);
+    let s = Infinity, pair = null;
+    for (const b of S.basis) {
+      const r0 = cart(V, b);
+      for (const at of atoms) {
+        const d = len(sub(at.p, r0));
+        if (d < 1e-9) continue;
+        const q = d / (rho[b[3]] + rho[at.sp]);
+        if (q < s * (1 - 1e-9)) { s = q; pair = { a: r0, b: at.p, d, spA: b[3], spB: at.sp }; }
+      }
+    }
+    return { s, pair, r: [s * rho[0], s * rho[1]] };
+  }
+  // Hücre: kübikte [0,1]³ (a birimi), HCP'de eksen üstünde ortalanmış altıgen prizma
+  function cellOf(S, ca) {
+    if (S.lat === "hex") {
+      const ap = SQ3 / 2, N = [[SQ3 / 2, 0.5], [0, 1], [-SQ3 / 2, 0.5]];
+      const inT = (x, y, z, e) => z >= -e && z <= ca + e && N.every((q) => Math.abs(q[0] * x + q[1] * y) <= ap + e);
+      return {
+        kind: "prism", vol: 1.5 * SQ3 * ca,
+        inside: (x, y, z) => inT(x, y, z, 0),
+        insideTol: (p) => inT(p[0], p[1], p[2], 1e-9),
+        near: (p, r) => inT(p[0], p[1], p[2], r),
+        site(p) {
+          const rx = Math.hypot(p[0], p[1]), base = Math.abs(p[2]) < 1e-9 || Math.abs(p[2] - ca) < 1e-9;
+          if (base && rx < 1e-9) return "base";
+          if (base && Math.abs(rx - 1) < 1e-9) return "corner6";
+          return "body";
         },
       };
-
-      /* ── Durum ── */
-      let current = "sc",
-        rotY = 0.5,
-        rotX = 0.3,
-        zoom = 1.0;
-      let dragging = false,
-        lastX = 0,
-        lastY = 0;
-      let autoRotate = true,
-        autoRotateTimer = null;
-
-      const cv = document.getElementById("cv");
-      const ctx = cv.getContext("2d");
-      let W, H, dpr;
-
-      /* ── Butonlar ── */
-      const btnsDiv = document.getElementById("structBtns");
-      Object.entries(ST).forEach(([key, st]) => {
-        const btn = document.createElement("button");
-        btn.textContent = st.name;
-        btn.dataset.key = key;
-        btn.addEventListener("click", () => selectStructure(key));
-        btnsDiv.appendChild(btn);
-      });
-      function updateActiveBtn() {
-        btnsDiv.querySelectorAll("button").forEach((b) => {
-          b.classList.toggle("active", b.dataset.key === current);
-        });
-      }
-
-      /* ── Bilgi paneli güncelleme ── */
-      function updateInfo() {
-        const st = ST[current];
-        document.getElementById("infoAtoms").textContent = st.info.atoms;
-        document.getElementById("infoCoord").textContent = st.info.coord;
-        document.getElementById("infoPacking").textContent = st.info.packing;
-        document.getElementById("infoRadius").textContent = st.info.radius;
-        document.getElementById("infoDesc").textContent = st.info.desc;
-      }
-
-      /* ── Yapı seçimi ── */
-      function selectStructure(key) {
-        current = key;
-        rotY = 0.5;
-        rotX = 0.3;
-        zoom = 1.0;
-        updateActiveBtn();
-        updateInfo();
-        resetAutoRotate();
-        draw();
-      }
-
-      /* ── Boyutlandırma ── */
-      function resize() {
-        const rect = cv.getBoundingClientRect();
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
-        W = rect.width;
-        H = rect.height;
-        cv.width = W * dpr;
-        cv.height = H * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        draw();
-      }
-      window.addEventListener("resize", resize);
-      new ResizeObserver(resize).observe(cv);
-
-      /* ── 3B Projeksiyon ── */
-      function project(x, y, z) {
-        const cy = Math.cos(rotY),
-          sy = Math.sin(rotY);
-        const cx = Math.cos(rotX),
-          sx = Math.sin(rotX);
-        let x1 = x * cy - z * sy;
-        let z1 = x * sy + z * cy;
-        let y1 = y * cx - z1 * sx;
-        let z2 = y * sx + z1 * cx;
-        const scale = 80 * zoom;
-        const fov = 5;
-        const p = fov / (fov + z2);
-        return { x: W / 2 + x1 * scale * p, y: H / 2 - y1 * scale * p, depth: z2 };
-      }
-
-      /* ── Çizim ── */
-      function draw() {
-        if (!W || !H) return; // ilk ölçüm gelmeden çizme (NaN koordinat önlemi)
-        const st = ST[current];
-        const atoms = st.atoms;
-        const edges = st.edges;
-        const rad = st.radius;
-
-        ctx.clearRect(0, 0, W, H);
-
-        // Arka plan
-        ctx.fillStyle = "#0a0f1a";
-        ctx.fillRect(0, 0, W, H);
-
-        // Atomları projekte et ve derinliğe göre sırala
-        const projected = atoms.map((a, i) => {
-          const p = project(a[0], a[1], a[2]);
-          return { ...p, idx: i, orig: a };
-        });
-
-        // Kenarları çiz (atomların arkasında)
-        ctx.strokeStyle = "rgba(94,234,212,0.45)";
-        ctx.lineWidth = Math.max(1, 1.5 * zoom);
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        edges.forEach(([a, b]) => {
-          const pa = projected[a],
-            pb = projected[b];
-          ctx.moveTo(pa.x, pa.y);
-          ctx.lineTo(pb.x, pb.y);
-        });
-        ctx.stroke();
-
-        // Atomları derinliğe göre sırala (uzaktan yakına)
-        const sorted = [...projected].sort((a, b) => a.depth - b.depth);
-
-        // Her atomu küre olarak çiz
-        sorted.forEach((p) => {
-          const r = 40 * rad * zoom;
-          if (r < 1.5) return;
-          const screenR = Math.max(2, r);
-
-          // Işık yönü (sol-üst)
-          const lightX = p.x - screenR * 0.35;
-          const lightY = p.y - screenR * 0.35;
-
-          const grad = ctx.createRadialGradient(
-            lightX,
-            lightY,
-            screenR * 0.08,
-            p.x,
-            p.y,
-            screenR,
-          );
-          grad.addColorStop(0, "#d4faf5");
-          grad.addColorStop(0.35, "#5eead4");
-          grad.addColorStop(0.7, "#0d9488");
-          grad.addColorStop(1, "#042f2e");
-
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, screenR, 0, Math.PI * 2);
-          ctx.fillStyle = grad;
-          ctx.fill();
-
-          // Hafif kenar çizgisi
-          ctx.strokeStyle = "rgba(167,139,250,0.25)";
-          ctx.lineWidth = 0.8 * zoom;
-          ctx.stroke();
-        });
-
-        // Merkez atom varsa vurgula (BCC)
-        if (current === "bcc" && projected.length >= 9) {
-          const center = projected[8];
-          const cr = 42 * rad * zoom;
-          ctx.beginPath();
-          ctx.arc(center.x, center.y, cr + 2 * zoom, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(251,191,36,0.5)";
-          ctx.lineWidth = 1.5 * zoom;
-          ctx.setLineDash([4 * zoom, 4 * zoom]);
-          ctx.stroke();
-          ctx.setLineDash([]);
+    }
+    const inT = (x, y, z, e) => x >= -e && x <= 1 + e && y >= -e && y <= 1 + e && z >= -e && z <= 1 + e;
+    return {
+      kind: "box", vol: 1,
+      inside: (x, y, z) => inT(x, y, z, 0),
+      insideTol: (p) => inT(p[0], p[1], p[2], 1e-9),
+      near: (p, r) => inT(p[0], p[1], p[2], r),
+      site(p) {
+        const b = p.filter((v) => Math.abs(v) < 1e-9 || Math.abs(v - 1) < 1e-9).length;
+        return ["body", "face", "edge", "corner"][b];
+      },
+    };
+  }
+  // Kürenin hücre içinde kalan hacim payı: küre merkezli simetrik m³ orta nokta ızgarası
+  function sphereFraction(c, r, inside, m) {
+    const h = (2 * r) / m, r2 = r * r * (1 + 1e-12);
+    let nS = 0, nIn = 0;
+    for (let i = 0; i < m; i++) {
+      const dx = (i + 0.5 - m / 2) * h, x = c[0] + dx;
+      for (let j = 0; j < m; j++) {
+        const dy = (j + 0.5 - m / 2) * h, y = c[1] + dy, dxy = dx * dx + dy * dy;
+        if (dxy > r2) continue;
+        for (let k = 0; k < m; k++) {
+          const dz = (k + 0.5 - m / 2) * h;
+          if (dxy + dz * dz > r2) continue;
+          nS++;
+          if (inside(x, y, c[2] + dz)) nIn++;
         }
       }
-
-      /* ── Otomatik dönme ── */
-      function resetAutoRotate() {
-        autoRotate = false;
-        clearTimeout(autoRotateTimer);
-        autoRotateTimer = setTimeout(() => {
-          autoRotate = true;
-        }, 2500);
-      }
-
-      function animate() {
-        if (autoRotate && !dragging) {
-          rotY += 0.004;
-          draw();
-        }
-        requestAnimationFrame(animate);
-      }
-
-      /* ── Fare / Dokunmatik olaylar ── */
-      cv.addEventListener("pointerdown", (e) => {
-        dragging = true;
-        autoRotate = false;
-        clearTimeout(autoRotateTimer);
-        lastX = e.clientX;
-        lastY = e.clientY;
-        cv.setPointerCapture(e.pointerId);
-      });
-
-      cv.addEventListener("pointermove", (e) => {
-        if (!dragging) return;
-        const dx = e.clientX - lastX,
-          dy = e.clientY - lastY;
-        rotY += dx * 0.008;
-        rotX += dy * 0.008;
-        lastX = e.clientX;
-        lastY = e.clientY;
-        draw();
-      });
-
-      cv.addEventListener("pointerup", () => {
-        dragging = false;
-        resetAutoRotate();
-      });
-
-      cv.addEventListener("pointerleave", () => {
-        if (dragging) {
-          dragging = false;
-          resetAutoRotate();
-        }
-      });
-
-      cv.addEventListener(
-        "wheel",
-        (e) => {
-          e.preventDefault();
-          zoom *= e.deltaY < 0 ? 1.08 : 0.93;
-          zoom = Math.max(0.4, Math.min(3.5, zoom));
-          resetAutoRotate();
-          draw();
-        },
-        { passive: false },
-      );
-
-      /* ── Dokunmatik: iki parmak zoom ── */
-      let pinchDist = 0;
-      cv.addEventListener(
-        "touchstart",
-        (e) => {
-          if (e.touches.length === 2) {
-            pinchDist = Math.hypot(
-              e.touches[0].clientX - e.touches[1].clientX,
-              e.touches[0].clientY - e.touches[1].clientY,
-            );
-          }
-        },
-        { passive: true },
-      );
-
-      cv.addEventListener(
-        "touchmove",
-        (e) => {
-          if (e.touches.length === 2) {
-            const d = Math.hypot(
-              e.touches[0].clientX - e.touches[1].clientX,
-              e.touches[0].clientY - e.touches[1].clientY,
-            );
-            if (pinchDist > 0) {
-              zoom *= d / pinchDist;
-              zoom = Math.max(0.4, Math.min(3.5, zoom));
-              pinchDist = d;
-              resetAutoRotate();
-              draw();
+    }
+    return nS ? nIn / nS : 0;
+  }
+  const SITE_ORDER = ["corner", "corner6", "edge", "face", "base", "body", "out"];
+  // Hücredeki atom sayısı: hücreye değen her kürenin içerde kalan payı toplanır
+  function countAtoms(S, ca, radii, m) {
+    const cell = cellOf(S, ca), atoms = genAtoms(S, ca, S.lat === "hex" ? 2 : 1);
+    const groups = new Map(), drawn = [];
+    let total = 0;
+    const totalSp = [0, 0];
+    for (const at of atoms) {
+      const inCell = cell.insideTol(at.p);
+      if (inCell) drawn.push({ p: at.p, sp: at.sp, site: cell.site(at.p) });
+      const r = radii[at.sp];
+      if (!inCell && !(r > 0 && cell.near(at.p, r))) continue;
+      const fr = sphereFraction(at.p, Math.max(r, 1e-6), cell.inside, m);
+      if (fr <= 0) continue;
+      const site = inCell ? cell.site(at.p) : "out";
+      const key = site + "|" + at.sp;
+      let g = groups.get(key);
+      if (!g) { g = { site, sp: at.sp, count: 0, sum: 0, min: 1, max: 0 }; groups.set(key, g); }
+      g.count++; g.sum += fr; g.min = Math.min(g.min, fr); g.max = Math.max(g.max, fr);
+      total += fr; totalSp[at.sp] += fr;
+    }
+    const list = [...groups.values()].sort((x, y) => SITE_ORDER.indexOf(x.site) - SITE_ORDER.indexOf(y.site) || x.sp - y.sp);
+    return { list, total, totalSp, drawn, cell };
+  }
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Doluluk: hücreye m³ noktalık düzenli ızgara K rastgele kaydırmayla atılır; küre içine düşen pay ve K tahminin standart hatası
+  function packingGrid(S, ca, radii, m, K, seed) {
+    const V = latVecs(S, ca), atoms = genAtoms(S, ca, 1);
+    const corners = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]].map((f) => cart(V, f));
+    const lo = [0, 1, 2].map((i) => Math.min(...corners.map((c) => c[i]))), hi = [0, 1, 2].map((i) => Math.max(...corners.map((c) => c[i])));
+    const cand = [];
+    for (const at of atoms) {
+      const r = radii[at.sp];
+      if (!(r > 0)) continue;
+      if (at.p.every((v, i) => v >= lo[i] - r && v <= hi[i] + r)) cand.push(at.p[0], at.p[1], at.p[2], r * r);
+    }
+    const C = Float64Array.from(cand), nc = C.length / 4, rng = mulberry32(seed), est = [];
+    const [v0, v1, v2] = V;
+    for (let q = 0; q < K; q++) {
+      const u0 = rng(), u1 = rng(), u2 = rng();
+      let hit = 0;
+      for (let i = 0; i < m; i++) {
+        const f0 = (i + u0) / m;
+        for (let j = 0; j < m; j++) {
+          const f1 = (j + u1) / m;
+          const bx = f0 * v0[0] + f1 * v1[0], by = f0 * v0[1] + f1 * v1[1], bz = f0 * v0[2] + f1 * v1[2];
+          for (let k = 0; k < m; k++) {
+            const f2 = (k + u2) / m;
+            const x = bx + f2 * v2[0], y = by + f2 * v2[1], z = bz + f2 * v2[2];
+            for (let c = 0; c < nc; c++) {
+              const o = 4 * c, dx = x - C[o], dy = y - C[o + 1], dz = z - C[o + 2];
+              if (dx * dx + dy * dy + dz * dz <= C[o + 3]) { hit++; break; }
             }
           }
-        },
-        { passive: true },
-      );
-
-      cv.addEventListener("touchend", () => {
-        pinchDist = 0;
-      });
-
-      /* ── Klavye ── */
-      document.addEventListener("keydown", (e) => {
-        const keys = { 1: "sc", 2: "bcc", 3: "fcc", 4: "hcp" };
-        if (keys[e.key]) {
-          selectStructure(keys[e.key]);
         }
-      });
+      }
+      est.push(hit / (m * m * m));
+    }
+    const mean = est.reduce((s, v) => s + v, 0) / K;
+    const sd = Math.sqrt(est.reduce((s, v) => s + (v - mean) ** 2, 0) / (K - 1));
+    return { mean, se: sd / Math.sqrt(K), K, m, est };
+  }
+  // Kuram: hücredeki kürelerin hacmi / hücre hacmi
+  function apfTheory(S, ca, radii) {
+    const V = latVecs(S, ca), vol = Math.abs(dot(V[0], cross(V[1], V[2])));
+    return S.basis.reduce((s, b) => s + (4 / 3) * PI * radii[b[3]] ** 3, 0) / vol;
+  }
+  // ρ = Z·M/(N_A·V), V Å³ → cm³
+  function densityOf(S, M) {
+    if (!M || M.ideal) return NaN;
+    const a = M.a * 1e-8, V = S.lat === "hex" ? (SQ3 / 2) * a * a * (M.c * 1e-8) : a * a * a;
+    return (S.Z * M.M) / (NA * V);
+  }
 
-      /* ── Başlat ── */
-      updateActiveBtn();
-      updateInfo();
-      requestAnimationFrame(() => {
-        resize();
-      });
-      animate();
-    </script>
-  </body>
+  /* Kırınım */
+  // International Tables C, Tablo 6.1.1.4: f(s) = Σ aᵢ·exp(−bᵢ s²) + c, s = sinθ/λ (Å⁻¹)
+  const SF = {
+    C: [2.31, 20.8439, 1.02, 10.2075, 1.5886, 0.5687, 0.865, 51.6512, 0.2156],
+    Al: [6.4202, 3.0387, 1.9002, 0.7426, 1.5936, 31.5472, 1.9646, 85.0886, 1.1151],
+    Si: [6.2915, 2.4386, 3.0353, 32.3337, 1.9891, 0.6785, 1.541, 81.6937, 1.1407],
+    S: [6.9053, 1.4679, 5.2034, 22.2151, 1.4379, 0.2536, 1.5863, 56.172, 0.8669],
+    Fe: [11.7695, 4.7611, 7.3573, 0.3072, 3.5222, 15.3535, 2.3045, 76.8805, 1.0369],
+    Cu: [13.338, 3.5828, 7.1676, 0.247, 5.6158, 11.3966, 1.6735, 64.8126, 1.191],
+    Ge: [16.0816, 2.8509, 6.3747, 0.2516, 3.7068, 11.4468, 3.683, 54.7625, 2.1313],
+    W: [29.0818, 1.72029, 15.43, 9.2259, 14.4327, 0.321703, 5.11982, 57.056, 9.8875],
+    Pb: [31.0617, 0.6902, 13.0637, 2.3576, 18.442, 8.618, 5.9696, 47.2579, 13.4118],
+    Po: [34.6726, 0.700999, 15.4733, 3.55078, 13.1138, 9.55642, 7.02588, 47.0045, 13.677],
+    "Na⁺": [3.2565, 2.6671, 3.9362, 6.1153, 1.3998, 0.2001, 1.0032, 14.039, 0.404],
+    "K⁺": [7.9578, 12.6331, 7.4917, 0.7674, 6.359, -0.002, 1.1915, 31.9128, -4.9978],
+    "Cs⁺": [20.3524, 3.552, 19.1278, 0.3086, 10.2821, 23.7128, 0.9615, 59.4565, 3.2791],
+    "Cl⁻": [18.2915, 0.0066, 7.2084, 1.1717, 6.5337, 19.5424, 2.3386, 60.4486, -16.378],
+  };
+  function fAtom(sym, s) {
+    const q = SF[sym], s2 = s * s;
+    return q[0] * Math.exp(-q[1] * s2) + q[2] * Math.exp(-q[3] * s2) + q[4] * Math.exp(-q[5] * s2) + q[6] * Math.exp(-q[7] * s2) + q[8];
+  }
+  const LAMBDAS = { cu: { name: "Cu Kα₁", lam: 1.540593 }, mo: { name: "Mo Kα₁", lam: 0.709317 } };
+  const TTH_MIN = 5, TTH_MAX = 150, TTH_STEP = 0.01, DETECT = 0.003;
+  function multiplicity(h, k, l) { // h ≥ k ≥ l ≥ 0, m-3m Laue sınıfı
+    if (h === k && k === l) return 8;
+    if (k === 0 && l === 0) return 6;
+    if (h === k && l === 0) return 12;
+    if (l === 0 || h === k || k === l) return 24;
+    return 48;
+  }
+  const isSum3 = (N) => { if (N <= 0) return N === 0; while (N % 4 === 0) N /= 4; return N % 8 !== 7; };
+  function lpFactor(tth) { const th = (tth * D2R) / 2, c2 = Math.cos(2 * th); return (1 + c2 * c2) / (Math.sin(th) ** 2 * Math.cos(th)); }
+  // Yapı çarpanı: türlere göre ayrık toplamlar (F = Σ_tür f_tür·A_tür)
+  function phaseSums(S, h, k, l) {
+    const A = [[0, 0], [0, 0]];
+    for (const b of S.basis) { const ph = 2 * PI * (h * b[0] + k * b[1] + l * b[2]); A[b[3]][0] += Math.cos(ph); A[b[3]][1] += Math.sin(ph); }
+    return A;
+  }
+  function reflections(S, a, lam, xs) {
+    const sinMax = Math.sin((TTH_MAX / 2) * D2R), sinMin = Math.sin((TTH_MIN / 2) * D2R);
+    const Nmax = Math.floor(((2 * a * sinMax) / lam) ** 2 + 1e-9);
+    const groups = new Map();
+    for (let h = 1; h * h <= Nmax; h++) for (let k = 0; k <= h; k++) for (let l = 0; l <= k; l++) {
+      const N = h * h + k * k + l * l;
+      if (N > Nmax) continue;
+      const sinT = (lam * Math.sqrt(N)) / (2 * a);
+      if (sinT < sinMin) continue;
+      const s = Math.sqrt(N) / (2 * a);
+      const A = phaseSums(S, h, k, l), f = [fAtom(xs[0], s), fAtom(xs[1] ?? xs[0], s)];
+      const re = f[0] * A[0][0] + f[1] * A[1][0], im = f[0] * A[0][1] + f[1] * A[1][1];
+      const fsum = S.basis.reduce((q, b) => q + Math.abs(f[b[3]]), 0);
+      const F2 = re * re + im * im, ext = F2 < 1e-10 * fsum * fsum;
+      const p = multiplicity(h, k, l);
+      let G = groups.get(N);
+      if (!G) { G = { N, tth: (2 * Math.asin(sinT)) / D2R, d: a / Math.sqrt(N), s, forms: [], I: 0 }; groups.set(N, G); }
+      G.forms.push({ h, k, l, p, re, im, F2, ext, A });
+      if (!ext) G.I += p * F2;
+    }
+    const list = [...groups.values()].sort((x, y) => x.N - y.N);
+    for (const G of list) { G.lp = lpFactor(G.tth); G.I *= G.lp; G.ext = G.forms.every((q) => q.ext); }
+    const Imax = Math.max(0, ...list.map((G) => G.I));
+    for (const G of list) G.rel = Imax > 0 ? (100 * G.I) / Imax : 0;
+    return list;
+  }
+  function profile(list, w) {
+    const n = Math.round((TTH_MAX - TTH_MIN) / TTH_STEP) + 1, y = new Float64Array(n);
+    const sig = w / (2 * Math.sqrt(2 * Math.LN2)), span = 7 * sig;
+    for (const G of list) {
+      if (G.ext || !(G.rel > 0)) continue;
+      const i0 = Math.max(0, Math.ceil((G.tth - span - TTH_MIN) / TTH_STEP)), i1 = Math.min(n - 1, Math.floor((G.tth + span - TTH_MIN) / TTH_STEP));
+      for (let i = i0; i <= i1; i++) { const x = (TTH_MIN + i * TTH_STEP - G.tth) / sig; y[i] += G.rel * Math.exp(-0.5 * x * x); }
+    }
+    return { y, n, x0: TTH_MIN, step: TTH_STEP };
+  }
+  // Tepe: yerel en büyük; konum ln y'ye üç noktalı parabolün tepesi (tek Gauss için tam)
+  function findPeaks(P) {
+    const { y, n, x0, step } = P;
+    let ymax = 0;
+    for (let i = 0; i < n; i++) if (y[i] > ymax) ymax = y[i];
+    const out = [];
+    if (!(ymax > 0)) return out;
+    for (let i = 1; i < n - 1; i++) {
+      if (!(y[i] > y[i - 1] && y[i] >= y[i + 1] && y[i] >= DETECT * ymax)) continue;
+      const a = Math.log(y[i - 1]), b = Math.log(y[i]), c = Math.log(y[i + 1]), den = a - 2 * b + c;
+      const dx = den < 0 ? (0.5 * (a - c)) / den : 0;
+      out.push({ tth: x0 + (i + dx) * step, h: Math.exp(b - 0.25 * (a - c) * dx) });
+    }
+    const hm = Math.max(...out.map((q) => q.h));
+    for (const q of out) q.h = (100 * q.h) / hm;
+    return out;
+  }
+  const CLASSES = [
+    { key: "P", name: "basit kübik örgü (P)", first: 1, ok: (N) => isSum3(N) },
+    { key: "I", name: "hacim merkezli örgü (I)", first: 2, ok: (N) => N % 2 === 0 && isSum3(N) },
+    { key: "F", name: "yüzey merkezli örgü (F)", first: 3, ok: (N) => N % 8 === 3 || (N % 4 === 0 && isSum3(N / 4)) },
+    { key: "D", name: "elmas tipi (F, h + k + l = 4n + 2 de yok)", first: 3, ok: (N) => N % 8 === 3 || (N % 8 === 0 && isSum3(N / 4)) },
+  ];
+  const IDX_TOL = 2e-3, IDX_FIRST = 12;
+  // Sınıfın sönme kuralına uyan {hkl} biçimleri (h ≥ k ≥ l ≥ 0)
+  function hklForN(N, key) {
+    const out = [];
+    for (let h = 0; h * h <= N; h++) for (let k = 0; k <= h; k++) for (let l = 0; l <= k; l++) {
+      if (h * h + k * k + l * l !== N) continue;
+      if (key === "I" && (h + k + l) % 2) continue;
+      if ((key === "F" || key === "D") && !(h % 2 === k % 2 && k % 2 === l % 2)) continue;
+      if (key === "D" && h % 2 === 0 && (h + k + l) % 4 !== 0) continue;
+      out.push([h, k, l]);
+    }
+    return out;
+  }
+  function fitA(s2, N, lam) {
+    let sNy = 0, sNN = 0;
+    for (let i = 0; i < N.length; i++) { sNy += N[i] * s2[i]; sNN += N[i] * N[i]; }
+    const A = sNy / sNN;
+    let ss = 0;
+    for (let i = 0; i < N.length; i++) ss += (s2[i] - A * N[i]) ** 2;
+    const n = N.length, sigA = n > 1 ? Math.sqrt(ss / (n - 1) / sNN) : NaN;
+    const a = lam / (2 * Math.sqrt(A));
+    return { A, sigA, a, sa: (a * sigA) / (2 * A), n };
+  }
+  // sin²θ oranlarından indisleme (ilk 12 çizgi): ilk çizgi sınıfın ilk izinli N'i; bütün N'ler tam sayı ve izinli olmalı.
+  // Aradaki izinli ama görülmeyen N'ler sayılır; en az eksikli sınıflar aday kalır. Sonraki çizgiler uydurulan A ile indislenir.
+  function indexPeaks(peaks, lam) {
+    const s2 = peaks.map((p) => Math.sin((p.tth / 2) * D2R) ** 2), r = s2.map((v) => v / s2[0]);
+    if (peaks.length < 2) return { cands: [], all: [], s2, r };
+    const nI = Math.min(peaks.length, IDX_FIRST), all = [];
+    for (const C of CLASSES) {
+      const Ns = r.slice(0, nI).map((x) => x * C.first), Ni = Ns.map(Math.round);
+      const ok = Ni.every((q, i) => q >= 1 && Math.abs(Ns[i] / q - 1) < IDX_TOL && C.ok(q)) && new Set(Ni).size === Ni.length;
+      if (!ok) continue;
+      const have = new Set(Ni), missing = [];
+      for (let q = C.first; q <= Ni[nI - 1]; q++) if (C.ok(q) && !have.has(q)) missing.push(q);
+      let fit = fitA(s2.slice(0, nI), Ni, lam);
+      const N = Ni.slice();
+      for (let i = nI; i < peaks.length; i++) {
+        const x = s2[i] / fit.A, q = Math.round(x);
+        N.push(q >= 1 && Math.abs(x / q - 1) < IDX_TOL && C.ok(q) && !N.includes(q) ? q : null);
+      }
+      const used = N.map((q, i) => (q ? i : -1)).filter((i) => i >= 0);
+      fit = fitA(used.map((i) => s2[i]), used.map((i) => N[i]), lam);
+      all.push({ C, N, missing, fit, nUsed: used.length, hkl: N.map((q) => (q ? hklForN(q, C.key) : null)) });
+    }
+    const minMiss = Math.min(...all.map((c) => c.missing.length));
+    return { cands: all.filter((c) => c.missing.length === minMiss), all, s2, r };
+  }
+  const zOf = (M, a) => (M.rho * NA * (a * 1e-8) ** 3) / M.M;
+
+  /* Düzlemler */
+  const CUBE_V = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0], [0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]];
+  const CUBE_E = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+  function orderPoly(pts, n) {
+    const c = mul(pts.reduce((s, p) => addv(s, p), [0, 0, 0]), 1 / pts.length);
+    const nn = mul(n, 1 / len(n)), ref = Math.abs(nn[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+    const e1 = cross(nn, ref), e1n = mul(e1, 1 / len(e1)), e2 = cross(nn, e1n);
+    return pts.map((p) => ({ p, t: Math.atan2(dot(sub(p, c), e2), dot(sub(p, c), e1n)) })).sort((x, y) => x.t - y.t).map((q) => q.p);
+  }
+  function polyArea(P) { let s = [0, 0, 0]; for (let i = 0; i < P.length; i++) s = addv(s, cross(P[i], P[(i + 1) % P.length])); return len(s) / 2; }
+  // Newell yöntemiyle çokgen normali
+  function polyNormal(P) {
+    let nx = 0, ny = 0, nz = 0;
+    for (let i = 0; i < P.length; i++) {
+      const a = P[i], b = P[(i + 1) % P.length];
+      nx += (a[1] - b[1]) * (a[2] + b[2]); ny += (a[2] - b[2]) * (a[0] + b[0]); nz += (a[0] - b[0]) * (a[1] + b[1]);
+    }
+    const L = Math.hypot(nx, ny, nz);
+    return [nx / L, ny / L, nz / L];
+  }
+  function clipPlaneCube(n, m) {
+    const pts = [];
+    const addP = (p) => { if (!pts.some((q) => len(sub(p, q)) < 1e-9)) pts.push(p); };
+    for (const [i, j] of CUBE_E) {
+      const A = CUBE_V[i], B = CUBE_V[j], fa = dot(n, A) - m, fb = dot(n, B) - m;
+      if (Math.abs(fa) < 1e-12) addP(A);
+      if (Math.abs(fb) < 1e-12) addP(B);
+      if (fa * fb < 0 && Math.abs(fa) >= 1e-12 && Math.abs(fb) >= 1e-12) addP(lerp3(A, B, fa / (fa - fb)));
+    }
+    if (pts.length < 3) return null;
+    const P = orderPoly(pts, n);
+    return polyArea(P) > 1e-9 ? P : null;
+  }
+  function planeFamily(h, k, l) {
+    const n = [h, k, l], vals = CUBE_V.map((v) => dot(n, v));
+    const lo = Math.ceil(Math.min(...vals) - 1e-9), hi = Math.floor(Math.max(...vals) + 1e-9), polys = [];
+    for (let m = lo; m <= hi; m++) { const P = clipPlaneCube(n, m); if (P) polys.push({ m, pts: P }); }
+    const O = [h < 0 ? 1 : 0, k < 0 ? 1 : 0, l < 0 ? 1 : 0], mHi = 1 + dot(n, O);
+    const Phi = polys.find((q) => q.m === mHi);
+    const nrm = polyNormal(Phi.pts), cen = mul(Phi.pts.reduce((s, p) => addv(s, p), [0, 0, 0]), 1 / Phi.pts.length);
+    const dMeas = Math.abs(dot(nrm, sub(cen, O)));
+    const ints = [0, 1, 2].filter((i) => n[i] !== 0).map((i) => { const p = O.slice(); p[i] += 1 / n[i]; return { i, p, v: 1 / n[i] }; });
+    return { n, polys, O, mHi, dMeas, dTh: 1 / Math.sqrt(h * h + k * k + l * l), nrm, ints };
+  }
+  // Atom katmanları: t = h·x + k·y + l·z (d birimi); F'nin faz toplamları
+  function layerInfo(S, h, k, l) {
+    const ts = S.basis.map((b) => frac1(h * b[0] + k * b[1] + l * b[2]));
+    const layers = [...new Set(ts.map((t) => Math.round(t * 1e9) / 1e9))].sort((x, y) => x - y);
+    let gap = 1;
+    for (let i = 0; i < layers.length; i++) gap = Math.min(gap, (i + 1 < layers.length ? layers[i + 1] : layers[0] + 1) - layers[i]);
+    const onPlanes = ts.filter((t) => t < 1e-9).length;
+    return { ts, layers, gap, onPlanes, A: phaseSums(S, h, k, l) };
+  }
+  function inPlaneBasis(h, k, l) {
+    const N = h * h + k * k + l * l, g = gcd(gcd(Math.abs(h), Math.abs(k)), Math.abs(l)), area = Math.sqrt(N) / g, L = [];
+    for (let u = -6; u <= 6; u++) for (let v = -6; v <= 6; v++) for (let w = -6; w <= 6; w++) if ((u || v || w) && h * u + k * v + l * w === 0) L.push([u, v, w]);
+    L.sort((x, y) => dot(x, x) - dot(y, y));
+    const u1 = L[0];
+    const u2 = L.find((c) => Math.abs(len(cross(u1, c)) - area) < 1e-9);
+    return { u1, u2, area };
+  }
+  // h·r = t düzlemindeki atomlar, 2B öteleme hücresine (u1, u2) indirgenmiş sınıflar
+  function planeAtoms(S, h, k, l, t, B2) {
+    const { u1, u2 } = B2, N = h * h + k * k + l * l, p0 = [(h * t) / N, (k * t) / N, (l * t) / N];
+    const g11 = dot(u1, u1), g12 = dot(u1, u2), g22 = dot(u2, u2), det = g11 * g22 - g12 * g12, out = [], R = 5;
+    const w1 = (v) => { const x = Math.round(frac1(v) * 1e7) / 1e7; return x >= 1 ? 0 : x; };
+    const c0 = p0.map(Math.round);
+    for (const b of S.basis) {
+      const need = t - (h * b[0] + k * b[1] + l * b[2]), ni = Math.round(need);
+      if (Math.abs(need - ni) > 1e-9) continue;
+      for (let i = c0[0] - R; i <= c0[0] + R; i++) for (let j = c0[1] - R; j <= c0[1] + R; j++) for (let q = c0[2] - R; q <= c0[2] + R; q++) {
+        if (h * i + k * j + l * q !== ni) continue;
+        const d = sub([b[0] + i, b[1] + j, b[2] + q], p0), x1 = dot(d, u1), x2 = dot(d, u2);
+        const al = w1((g22 * x1 - g12 * x2) / det), be = w1((g11 * x2 - g12 * x1) / det);
+        if (!out.some((o) => o.sp === b[3] && Math.abs(o.al - al) < 1e-6 && Math.abs(o.be - be) < 1e-6)) out.push({ al, be, sp: b[3] });
+      }
+    }
+    return out;
+  }
+  const motifKey = (cl) => cl.map((c) => `${c.al.toFixed(5)},${c.be.toFixed(5)},${c.sp}`).sort().join(";");
+  const posKey = (cl) => [...new Set(cl.map((c) => `${c.al.toFixed(5)},${c.be.toFixed(5)}`))].sort().join(";");
+  // İstif dizisi: katmanların yanal konumları (2B hücreye göre) harflere (yalnız katyon içeren katman küçük harf);
+  // periyot = konum + tür dizisi ve aralıklar tekrarlanana kadar katman sayısı
+  function stacking(S, h, k, l, B2, nL) {
+    const info = layerInfo(S, h, k, l), seq = [], keys = [], pkeys = [];
+    for (let j = 0; seq.length < nL; j++) {
+      for (const u of info.layers) {
+        if (seq.length >= nL) break;
+        const t = j + u, cl = planeAtoms(S, h, k, l, t, B2), key = motifKey(cl), pk = posKey(cl);
+        let idx = keys.indexOf(key);
+        if (idx < 0) { keys.push(key); idx = keys.length - 1; }
+        let pos = pkeys.indexOf(pk);
+        if (pos < 0) { pkeys.push(pk); pos = pkeys.length - 1; }
+        seq.push({ t, idx, pos, cat: cl.length > 0 && cl.every((c) => c.sp === 1), cl });
+      }
+    }
+    let period = null;
+    for (let p = 1; p < nL && period === null; p++) {
+      let ok = true;
+      for (let i = 0; i + p < nL; i++) if (seq[i + p].idx !== seq[i].idx || Math.abs(seq[i + p].t - seq[i].t - (seq[p].t - seq[0].t)) > 1e-9) { ok = false; break; }
+      if (ok) period = p;
+    }
+    return { seq, period, info };
+  }
+  function planeAnalysis(S, h, k, l, rT) {
+    const fam = planeFamily(h, k, l), B2 = inPlaneBasis(h, k, l);
+    const cl = planeAtoms(S, h, k, l, fam.mHi, B2);
+    const pd = cl.length / B2.area, cover = cl.reduce((s, c) => s + PI * rT[c.sp] ** 2, 0) / B2.area;
+    const st = stacking(S, h, k, l, B2, 12);
+    return { fam, B2, cl, pd, cover, st, info: st.info };
+  }
+  // Kuram: SC, BCC, FCC'de (100), (110), (111) düzlemsel yoğunluğu (atom/a²)
+  const PD_TH = {
+    sc: { "100": [1, "1/a²"], "110": [1 / SQ2, "1/(a²√2)"], "111": [1 / SQ3, "1/(a²√3)"] },
+    bcc: { "100": [1, "1/a²"], "110": [SQ2, "√2/a²"], "111": [1 / SQ3, "1/(a²√3)"] },
+    fcc: { "100": [2, "2/a²"], "110": [SQ2, "√2/a²"], "111": [4 / SQ3, "4/(a²√3)"] },
+  };
+  /* MATH-END */
+
+  /* ── Biçimlendirme: tek yuvarlama yardımcısı ── */
+  const MINUS = "−";
+  const minus = (s) => s.replace(/-/g, MINUS);
+  function fix(x, d) {
+    if (!Number.isFinite(x)) return "—";
+    let s = x.toFixed(d);
+    if (/^-0(\.0+)?$/.test(s)) s = s.slice(1);
+    return minus(s);
+  }
+  const sfix = (x, d) => { const s = fix(x, d); return x > 0 && Number(s.replace(MINUS, "-")) !== 0 ? "+" + s : s; };
+  const pct = (x, d = 2) => `${sfix(x * 100, d)} %`;
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  const $ = (id) => document.getElementById(id);
+  const idxHTML = (v) => (v < 0 ? `<span class="ob">${-v}</span>` : String(v));
+  const hklHTML = (h, k, l, par = true) => (par ? "(" : "") + idxHTML(h) + idxHTML(k) + idxHTML(l) + (par ? ")" : "");
+  const hklPlain = (h, k, l) => `(${[h, k, l].map((v) => (v < 0 ? `${MINUS}${-v}` : String(v))).join(" ")})`;
+  const ionsOf = (M) => (M && M.ions ? M.ions : null);
+  const decimalsOf = (s) => (s.includes(".") ? s.split(".")[1].length : 0);
+  // Fark: tablo değerinin son basamağının yarısı içinde mi
+  function rhoCompare(calc, tabStr) {
+    const tab = Number(tabStr), half = 0.5 * Math.pow(10, -decimalsOf(tabStr)), rel = (calc - tab) / tab;
+    return { tab, rel, within: Math.abs(calc - tab) <= half };
+  }
+
+  /* ── Tema: tuval CSS değişkenlerini çözemez, renkler burada ── */
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.08)", axis: "rgba(26,29,46,0.55)", halo: "rgba(247,249,252,0.92)",
+      edge: "rgba(26,29,46,0.62)", edge2: "rgba(26,29,46,0.3)", warm: "#d97706", accent: "#0d9488", accent2: "#7c3aed", neg: "#dc2626",
+      site: { corner: "#2563eb", corner6: "#2563eb", edge: "#db2777", face: "#0d9488", base: "#0d9488", body: "#d97706", out: "#7c3aed" },
+      sp: ["#16a34a", "#7c3aed"], layer: ["#2563eb", "#dc2626", "#16a34a", "#d97706"], outline: "rgba(26,29,46,0.4)", plane: "#7c3aed", hiPlane: "#d97706", fill: "rgba(13,148,136,0.22)",
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.08)", axis: "rgba(232,236,244,0.5)", halo: "rgba(9,13,24,0.9)",
+      edge: "rgba(232,236,244,0.62)", edge2: "rgba(232,236,244,0.28)", warm: "#fbbf24", accent: "#5eead4", accent2: "#a78bfa", neg: "#f87171",
+      site: { corner: "#60a5fa", corner6: "#60a5fa", edge: "#f472b6", face: "#5eead4", base: "#5eead4", body: "#fbbf24", out: "#a78bfa" },
+      sp: ["#4ade80", "#a78bfa"], layer: ["#60a5fa", "#f87171", "#4ade80", "#fbbf24"], outline: "rgba(0,0,0,0.45)", plane: "#a78bfa", hiPlane: "#fbbf24", fill: "rgba(94,234,212,0.2)",
+    };
+  }
+  const RGB = new Map();
+  function rgbOf(hex) {
+    let v = RGB.get(hex);
+    if (!v) { const n = parseInt(hex.slice(1), 16); v = [(n >> 16) & 255, (n >> 8) & 255, n & 255]; RGB.set(hex, v); }
+    return v;
+  }
+  const rgba = (hex, a) => { const [r, g, b] = rgbOf(hex); return `rgba(${r},${g},${b},${a})`; };
+
+  /* ── Tuval ortakları ── */
+  const stage = $("stageCanvas"), sg = stage.getContext("2d");
+  const chart = $("chartCanvas"), cg = chart.getContext("2d");
+  const labPanel = $("labPanel");
+  let dpr = 1, dirty = true;
+  const font = (px, w) => `${w || 400} ${px * dpr}px Outfit, system-ui, sans-serif`;
+  function label(c, s, x, y, color, t, o = {}) {
+    c.font = font(o.size || 11.5, o.weight);
+    c.textAlign = o.align || "left";
+    c.textBaseline = o.base || "alphabetic";
+    c.lineJoin = "round";
+    c.lineWidth = 4 * dpr;
+    c.strokeStyle = t.halo;
+    c.strokeText(s, x, y);
+    c.fillStyle = color;
+    c.fillText(s, x, y);
+  }
+  // Miller etiketi: negatif indislerin üstüne çizgi
+  function hklLabel(c, h, k, l, x, y, color, t, o = {}) {
+    const parts = ["(", ...[h, k, l].map((v) => ({ v })), ")"];
+    c.font = font(o.size || 11.5, o.weight || 600);
+    const wOf = (p) => c.measureText(typeof p === "string" ? p : String(Math.abs(p.v))).width;
+    const W = parts.reduce((s, p) => s + wOf(p), 0);
+    let cx = o.align === "center" ? x - W / 2 : o.align === "right" ? x - W : x;
+    for (const p of parts) {
+      const s = typeof p === "string" ? p : String(Math.abs(p.v));
+      label(c, s, cx, y, color, t, { size: o.size || 11.5, weight: o.weight || 600, base: o.base });
+      if (typeof p !== "string" && p.v < 0) {
+        const wd = wOf(p), top = y - (o.size || 11.5) * dpr * (o.base === "middle" ? 0.62 : 0.95);
+        c.strokeStyle = color; c.lineWidth = 1.2 * dpr; c.beginPath(); c.moveTo(cx, top); c.lineTo(cx + wd, top); c.stroke();
+      }
+      cx += wOf(p);
+    }
+  }
+  function niceStep(raw) { const p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p; }
+
+  /* ── 3B izdüşüm (dik izdüşüm; z yukarı) ── */
+  function makeView(W, H, yawDeg, pitchDeg, center, R) {
+    const y = yawDeg * D2R, p = pitchDeg * D2R, cy = Math.cos(y), sy = Math.sin(y), cp = Math.cos(p), sp = Math.sin(p);
+    const s = (0.5 * Math.min(W, H) * 0.86) / R, cx = W / 2, cyy = H / 2;
+    return {
+      s, cy, sy, cp, sp,
+      dir: [sy * cp, cy * cp, -sp],
+      P(q) {
+        const x = q[0] - center[0], yy = q[1] - center[1], z = q[2] - center[2];
+        const x1 = x * cy - yy * sy, y1 = x * sy + yy * cy;
+        return { X: cx + s * x1, Y: cyy - s * (y1 * sp + z * cp), D: y1 * cp - z * sp };
+      },
+      R(v) { const x1 = v[0] * cy - v[1] * sy, y1 = v[0] * sy + v[1] * cy; return [x1, -(y1 * sp + v[2] * cp)]; },
+    };
+  }
+  function drawSphere(g, X, Y, r, hex, alpha, fog, t, ring) {
+    const [R0, G0, B0] = rgbOf(hex), k = 1 - 0.3 * fog;
+    if (r < 2.4 * dpr) {
+      g.globalAlpha = alpha;
+      g.fillStyle = `rgb(${Math.round(R0 * k)},${Math.round(G0 * k)},${Math.round(B0 * k)})`;
+      g.beginPath(); g.arc(X, Y, 2.4 * dpr, 0, 2 * PI); g.fill();
+      g.globalAlpha = 1;
+    } else {
+      const hi = `rgb(${Math.round(R0 + (255 - R0) * 0.6)},${Math.round(G0 + (255 - G0) * 0.6)},${Math.round(B0 + (255 - B0) * 0.6)})`;
+      const mid = `rgb(${Math.round(R0 * k)},${Math.round(G0 * k)},${Math.round(B0 * k)})`;
+      const lo = `rgb(${Math.round(R0 * 0.38 * k)},${Math.round(G0 * 0.38 * k)},${Math.round(B0 * 0.38 * k)})`;
+      const grd = g.createRadialGradient(X - 0.35 * r, Y - 0.4 * r, 0.08 * r, X, Y, r);
+      grd.addColorStop(0, hi); grd.addColorStop(0.5, mid); grd.addColorStop(1, lo);
+      g.globalAlpha = alpha;
+      g.fillStyle = grd;
+      g.beginPath(); g.arc(X, Y, r, 0, 2 * PI); g.fill();
+      g.lineWidth = 0.8 * dpr; g.strokeStyle = t.outline; g.stroke();
+      g.globalAlpha = 1;
+    }
+    if (ring) { g.lineWidth = 2.2 * dpr; g.strokeStyle = ring; g.beginPath(); g.arc(X, Y, Math.max(r, 2.4 * dpr) + 2.5 * dpr, 0, 2 * PI); g.stroke(); }
+  }
+  // Sahne: küreler, parçalanmış çizgiler ve paralel düzlemler; düzlemler varsa dilim dilim (arkadan öne) çizilir
+  function drawScene(g, t, pr, sc) {
+    const items = [], nrm = sc.nrm || null;
+    for (const s of sc.spheres) { const q = pr.P(s.p); items.push({ ty: 0, D: q.D, q, s, key: nrm ? dot(nrm, s.p) : 0 }); }
+    for (const L of sc.lines) {
+      const nSeg = L.seg || 8;
+      for (let i = 0; i < nSeg; i++) {
+        const a = lerp3(L.a, L.b, i / nSeg), b = lerp3(L.a, L.b, (i + 1) / nSeg), qa = pr.P(a), qb = pr.P(b);
+        items.push({ ty: 1, D: (qa.D + qb.D) / 2, qa, qb, L, key: nrm ? dot(nrm, lerp3(a, b, 0.5)) : 0 });
+      }
+    }
+    let Dmin = Infinity, Dmax = -Infinity;
+    for (const it of items) if (it.ty === 0) { Dmin = Math.min(Dmin, it.D); Dmax = Math.max(Dmax, it.D); }
+    const fogOf = (D) => (Dmax > Dmin ? (D - Dmin) / (Dmax - Dmin) : 0);
+    const planes = (sc.planes || []).slice();
+    const sgn = nrm && dot(nrm, pr.dir) < 0 ? 1 : -1;
+    planes.sort((x, y) => sgn * (x.m - y.m));
+    const slabOf = (key) => { let c = 0; for (const P of planes) if (sgn > 0 ? P.m <= key + 1e-9 : P.m >= key - 1e-9) c++; return c; };
+    const slabs = Array.from({ length: planes.length + 1 }, () => []);
+    for (const it of items) slabs[planes.length ? slabOf(it.key) : 0].push(it);
+    const drawItem = (it) => {
+      if (it.ty === 0) {
+        const s = it.s;
+        drawSphere(g, it.q.X, it.q.Y, s.r * pr.s, s.col, s.alpha ?? 1, fogOf(it.D), t, s.ring);
+      } else {
+        const L = it.L;
+        g.strokeStyle = L.col; g.lineWidth = (L.w || 1.5) * dpr; g.setLineDash(L.dash ? L.dash.map((v) => v * dpr) : []);
+        g.lineCap = "round";
+        g.beginPath(); g.moveTo(it.qa.X, it.qa.Y); g.lineTo(it.qb.X, it.qb.Y); g.stroke();
+        g.setLineDash([]);
+      }
+    };
+    for (let i = 0; i < slabs.length; i++) {
+      slabs[i].sort((x, y) => y.D - x.D).forEach(drawItem);
+      if (i < planes.length) {
+        const P = planes[i];
+        g.beginPath();
+        P.pts.forEach((p, j) => { const q = pr.P(p); if (j) g.lineTo(q.X, q.Y); else g.moveTo(q.X, q.Y); });
+        g.closePath();
+        g.fillStyle = P.fill; g.fill();
+        g.strokeStyle = P.stroke; g.lineWidth = (P.lw || 1.2) * dpr; g.setLineDash(P.dash ? P.dash.map((v) => v * dpr) : []); g.stroke(); g.setLineDash([]);
+      }
+    }
+  }
+  function drawTriad(g, t, pr, labels, W, H) {
+    const ox = 34 * dpr, oy = H - 30 * dpr, L = 22 * dpr;
+    const axes = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+    g.lineWidth = 1.6 * dpr;
+    axes.forEach((v, i) => {
+      const [dx, dy] = pr.R(v);
+      g.strokeStyle = t.axis;
+      g.beginPath(); g.moveTo(ox, oy); g.lineTo(ox + dx * L, oy + dy * L); g.stroke();
+      const m = Math.hypot(dx, dy);
+      if (m > 0.15) label(g, labels[i], ox + dx * (L + 9 * dpr), oy + dy * (L + 9 * dpr), t.muted, t, { size: 11, align: "center", base: "middle" });
+    });
+  }
+  const CUBE_LINES = CUBE_E.map(([i, j]) => [CUBE_V[i], CUBE_V[j]]);
+  function prismLines(ca) {
+    const V = [];
+    for (let k = 0; k < 6; k++) V.push([Math.cos((k * PI) / 3), Math.sin((k * PI) / 3)]);
+    const out = [];
+    for (let k = 0; k < 6; k++) {
+      const a = V[k], b = V[(k + 1) % 6];
+      out.push([[a[0], a[1], 0], [b[0], b[1], 0]], [[a[0], a[1], ca], [b[0], b[1], ca]], [[a[0], a[1], 0], [a[0], a[1], ca]]);
+    }
+    return out;
+  }
+  function primLines(ca) {
+    const B = [[0, 0], [1, 0], [0.5, SQ3 / 2], [-0.5, SQ3 / 2]], out = [];
+    for (let k = 0; k < 4; k++) {
+      const a = B[k], b = B[(k + 1) % 4];
+      out.push([[a[0], a[1], 0], [b[0], b[1], 0]], [[a[0], a[1], ca], [b[0], b[1], ca]], [[a[0], a[1], 0], [a[0], a[1], ca]]);
+    }
+    return out;
+  }
+
+  /* ═══════════ (a) Birim hücre ═══════════ */
+  const A = { struct: "fcc", mat: "cu", u: 1, color: "site", touch: true, neigh: false, yaw: 30, pitch: 20, rot: false, pending: true, measPending: false, measDue: 0, d: null, bars: {} };
+  const aOut = document.querySelector('.panel.o3[data-for="hucre"]');
+  const aUI = {
+    struct: $("aStruct"), structOut: $("aStructOut"), mat: $("aMat"), matOut: $("aMatOut"), size: $("aSize"), sizeOut: $("aSizeOut"),
+    color: $("aColor"), colorOut: $("aColorOut"), touch: $("aTouch"), neigh: $("aNeigh"), yaw: $("aYaw"), yawOut: $("aYawOut"), pitch: $("aPitch"), pitchOut: $("aPitchOut"),
+    v1: $("aV1"), v2: $("aV2"), rot: $("aRot"), reset: $("aReset"), point: $("aPoint"), full: $("aFull"),
+    table: $("aTable").tBodies[0], sites: $("aSites").tBodies[0], dens: $("aDens").tBodies[0], status: $("aStatus"),
+    rel: $("aRel"), relNote: $("aRelNote"), d1: $("aD1"), d1Note: $("aD1Note"), d2: $("aD2"), d2Note: $("aD2Note"), brav: $("aBrav"), bravNote: $("aBravNote"),
+  };
+  const SITE_NAME = { corner: "köşe", corner6: "köşe (120° kama)", edge: "kenar ortası", face: "yüz merkezi", base: "taban merkezi", body: "iç", out: "komşu hücreden taşan" };
+  const SITE_TH = { corner: [1 / 8, "1/8"], corner6: [1 / 6, "1/6"], edge: [1 / 4, "1/4"], face: [1 / 2, "1/2"], base: [1 / 2, "1/2"], body: [1, "1"] };
+  const NEIGH_REF = { sc: [0, 0, 0], bcc: [0.5, 0.5, 0.5], fcc: [0.5, 0.5, 1], hcp: null, dia: [0.25, 0.25, 0.25], nacl: [0.5, 0.5, 0.5], cscl: [0.5, 0.5, 0.5] };
+  const BAR_MATS = { sc: "po", bcc: "fe", fcc: "cu", hcp: "hid", dia: "si", nacl: "nacl", cscl: "cscl" };
+  const PACK_M = 24, PACK_K = 32, PACK_SEED = 20261107, COUNT_M = 40;
+
+  function fillMats(sel, key, filterFn) {
+    sel.innerHTML = "";
+    for (const m of STRUCT_MATS[key]) {
+      const M = MATS[m];
+      if (filterFn && !filterFn(M)) continue;
+      const txt = M.ideal ? "İdeal: c/a = √(8/3) = 1.633" : M.c ? `${M.name} · a = ${aStr(M)} Å, c/a = ${fix(M.c / M.a, 3)}` : `${M.name} · a = ${aStr(M)} Å`;
+      sel.add(new Option(txt, m));
+    }
+  }
+  // Geometri ucuz ve hemen; ölçüm (pay sayımı, doluluk ızgarası) kaydırıcı durunca yapılır
+  function geomA() {
+    const S = STRUCTS[A.struct], M = MATS[A.mat], ca = caOf(S, M), rho = rhoOf(M), cell = cellOf(S, ca);
+    const T = touching(S, ca, rho), radii = [A.u * T.r[0], A.u * T.r[1]];
+    const drawn = genAtoms(S, ca, S.lat === "hex" ? 2 : 1).filter((at) => cell.insideTol(at.p)).map((at) => ({ p: at.p, sp: at.sp, site: cell.site(at.p) }));
+    const shA = shells(S, ca, 0, 3), catIdx = S.basis.findIndex((b) => b[3] === 1), shB = catIdx >= 0 ? shells(S, ca, catIdx, 3) : null;
+    const apfTh = apfTheory(S, ca, radii), apfT1 = apfTheory(S, ca, T.r);
+    A.d = { S, M, ca, rho, T, radii, cell, drawn, shA, shB, apfTh, apfT1, rhoCalc: densityOf(S, M), cnt: null, pack: null };
+  }
+  function measureA() {
+    const d = A.d;
+    d.cnt = countAtoms(d.S, d.ca, d.radii, COUNT_M);
+    d.pack = A.u > 0 ? packingGrid(d.S, d.ca, d.radii, PACK_M, PACK_K, PACK_SEED) : { mean: 0, se: 0, K: 0, m: 0 };
+  }
+  function syncA() {
+    const S = STRUCTS[A.struct], M = MATS[A.mat];
+    aUI.struct.value = A.struct;
+    setText(aUI.structOut, S.short);
+    aUI.mat.value = A.mat;
+    setText(aUI.matOut, M.ideal ? `c/a = ${fix(IDEAL_CA, 4)}` : `a = ${aStr(M)} Å`);
+    aUI.size.value = String(A.u);
+    setText(aUI.sizeOut, `${fix(A.u, 2)}${A.u === 1 ? " · temas" : A.u === 0 ? " · nokta" : ""}`);
+    aUI.color.value = A.color;
+    setText(aUI.colorOut, A.color === "site" ? "konum" : "tür");
+    aUI.touch.checked = A.touch;
+    aUI.neigh.checked = A.neigh;
+    aUI.yaw.value = String(A.yaw); aUI.pitch.value = String(A.pitch);
+    setText(aUI.yawOut, `${fix(A.yaw, 0)}°`); setText(aUI.pitchOut, `${fix(A.pitch, 0)}°`);
+    setText(aUI.v1, S.lat === "hex" ? "a₁ yönünden bak" : "[100] yönünden bak");
+    setText(aUI.v2, S.lat === "hex" ? "c ekseninden bak" : "[111] yönünden bak");
+    aUI.rot.setAttribute("aria-pressed", String(A.rot));
+    // Lejant: renk kipine göre
+    const leg = $("aLegend");
+    const ions = ionsOf(M);
+    let html = "";
+    if (A.color === "sp" && ions) html = `<span><i class="dot k-an"></i>${ions[0]}</span><span><i class="dot k-cat"></i>${ions[1]}</span>`;
+    else if (A.color === "sp") html = `<span><i class="dot k-an"></i>${M.ideal ? "atom" : M.name}</span>`;
+    else if (S.lat === "hex") html = `<span><i class="dot k-corner"></i>köşe (1/6)</span><span><i class="dot k-face"></i>taban merkezi (1/2)</span><span><i class="dot k-body"></i>iç</span><span><i class="dash k-muted"></i>ilkel hücre (2 atom)</span>`;
+    else {
+      html = `<span><i class="dot k-corner"></i>köşe (1/8)</span>` + (A.struct === "nacl" ? `<span><i class="dot k-edge"></i>kenar ortası (1/4)</span>` : "") +
+        (["fcc", "dia", "nacl"].includes(A.struct) ? `<span><i class="dot k-face"></i>yüz merkezi (1/2)</span>` : "") + (A.struct !== "sc" && A.struct !== "fcc" ? `<span><i class="dot k-body"></i>iç (1)</span>` : "");
+    }
+    html += `<span><i class="k-warm"></i>temas doğrultusu</span>`;
+    if (A.neigh) html += `<span><i class="ring k-out"></i>hücre dışındaki komşu</span>`;
+    setHTML(leg, html);
+  }
+  function setStructA(key, keepMat) {
+    A.struct = key;
+    fillMats(aUI.mat, key);
+    if (!keepMat || !STRUCT_MATS[key].includes(A.mat)) A.mat = STRUCT_MATS[key][0];
+    if (key !== "nacl" && key !== "cscl" && A.color === "sp") A.color = "site";
+    A.pending = true; dirty = true;
+    syncA();
+  }
+  function viewAlong(n) {
+    const L = len(n), v = mul(n, 1 / L);
+    return { yaw: Math.round(Math.atan2(-v[0], -v[1]) / D2R), pitch: Math.round(Math.asin(Math.max(-1, Math.min(1, v[2]))) / D2R) };
+  }
+  function resetA() {
+    A.u = 1; A.color = "site"; A.touch = true; A.neigh = false; A.yaw = 30; A.pitch = 20; A.rot = false;
+    setStructA("fcc"); A.mat = "cu"; aUI.mat.value = "cu";
+    A.pending = true; dirty = true; syncA();
+  }
+  function readoutsA() {
+    const d = A.d;
+    if (!d || !d.cnt) return;
+    const { S, M, cnt, pack, T } = d, ions = ionsOf(M), u = A.u;
+    const nTh = S.lat === "hex" ? 6 : S.Z * S.fu;
+    const spName = (sp) => (ions ? ions[sp] : M.ideal ? "atom" : M.name.replace(/ \(.*\)/, ""));
+    // Ölçüm tablosu
+    const rows = [];
+    const nMeas = cnt.total;
+    const nTxt = S.lat === "hex" ? "12·1/6 + 2·1/2 + 3 = 6" : S.key === "nacl" ? `${ions[0]} 8·1/8 + 6·1/2, ${ions[1]} 12·1/4 + 1: 4 + 4 (Z = 4)` : S.key === "cscl" ? `${ions[0]} 8·1/8, ${ions[1]} 1: 1 + 1 (Z = 1)` : { sc: "8·1/8 = 1", bcc: "8·1/8 + 1 = 2", fcc: "8·1/8 + 6·1/2 = 4", dia: "8·1/8 + 6·1/2 + 4 = 8" }[S.key];
+    rows.push([`Hücredeki ${ions ? "iyon" : "atom"} sayısı n${S.lat === "hex" ? "<small>altıgen prizma (ilkel hücre: 2)</small>" : ions ? `<small>${ions[0]} + ${ions[1]}</small>` : ""}`, fix(nMeas, 3) + (ions ? `<small>${fix(cnt.totalSp[0], 3)} + ${fix(cnt.totalSp[1], 3)}</small>` : `<small>${COUNT_M}³ ızgara / küre</small>`), `${nTh}<small>${nTxt}</small>`, pct((nMeas - nTh) / nTh, 2)]);
+    const sh = d.shA.list, cnMeas = sh[0].n;
+    const cnSplit = S.lat === "hex" && sh[1] && Math.abs(sh[1].d / sh[0].d - 1) < 0.15 ? sh[1] : null;
+    const cnTxt = cnSplit ? `${sh[0].n} + ${cnSplit.n}<small>${fix(sh[0].d, 4)}a ve ${fix(cnSplit.d, 4)}a</small>` : `${cnMeas}<small>${fix(sh[0].d, 4)}a uzakta${ions ? `, hepsi ${spName(sh[0].sps[1] ? 1 : 0)}` : ""}</small>`;
+    const cnTh = S.lat === "hex" && !M.ideal ? `12<small>ideal c/a'da tek uzaklık</small>` : String(S.cn);
+    rows.push([`Koordinasyon sayısı${ions ? `<small>${spName(0)} çevresinde</small>` : ""}`, cnTxt, cnTh, cnSplit ? "6 + 6" : cnMeas === S.cn ? "0" : String(cnMeas - S.cn)]);
+    let apfMeas, apfDiff;
+    if (u === 0) { apfMeas = "0<small>küreler nokta</small>"; apfDiff = "—"; }
+    else {
+      apfMeas = `${fix(pack.mean, 4)} ± ${fix(pack.se, 4)}<small>${pack.m}³ nokta × ${pack.K} kaydırma</small>`;
+      const z = pack.se > 0 ? (pack.mean - d.apfTh) / pack.se : 0;
+      apfDiff = `${pct((pack.mean - d.apfTh) / d.apfTh, 2)}<small>${fix(Math.abs(z), 1)}σ</small>`;
+    }
+    const apfFormula = S.apf !== null && !(S.lat === "hex" && !M.ideal) ? S.apfTxt : S.lat === "hex" ? "2·(4π/3)r³/((√3/2)a²c)" : S.apfTxt;
+    rows.push([`Doluluk oranı η${u < 1 ? `<small>r = ${fix(u, 2)}·r<sub>temas</sub>: η = ${fix(u, 2)}³·η<sub>temas</sub></small>` : ""}`, apfMeas, `${fix(d.apfTh, 4)}<small>${apfFormula}${u < 1 ? ` · temas: ${fix(d.apfT1, 4)}` : ""}</small>`, apfDiff]);
+    if (!M.ideal) {
+      const cmp = rhoCompare(d.rhoCalc, M.rho);
+      rows.push([`Yoğunluk ρ (g/cm³)<small>nM/(N<sub>A</sub>V) ve tablo</small>`, `${fix(d.rhoCalc, 3)}<small>a = ${aStr(M)} Å${M.c ? `, c = ${M.c} Å` : ""}</small>`, `${M.rho}<small>CRC</small>`, cmp.within ? `${pct(cmp.rel, 2)}<small>yuvarlama içinde</small>` : pct(cmp.rel, 2)]);
+    }
+    setHTML(aUI.table, rows.map((r) => `<tr><th scope="row">${r[0]}</th><td class="meas">${r[1]}</td><td class="theory">${r[2]}</td><td>${r[3]}</td></tr>`).join(""));
+    // Konum tablosu
+    const t = theme();
+    const srows = cnt.list.map((g) => {
+      const col = A.color === "sp" && ions ? t.sp[g.sp] : t.site[g.site];
+      const th = SITE_TH[g.site];
+      const mean = g.sum / g.count;
+      const nm = `${SITE_NAME[g.site]}${ions ? ` · ${ions[g.sp]}` : ""}`;
+      // HCP iç atomu yan yüzden küresel bir kapak kadar taşar: dışarıdaki pay h²(3r − h)/(4r³), h = r − t
+      const tFace = SQ3 / 2 - 1 / SQ3, rr = d.radii[0], hc = rr - tFace, capF = S.lat === "hex" && hc > 0 ? (hc * hc * (3 * rr - hc)) / (4 * rr ** 3) : 0;
+      let thTxt = th ? `kuram ${th[1]}` : "";
+      if (S.lat === "hex" && g.site === "body") thTxt = capF > 0 ? `kuram 1 − V<sub>kapak</sub>/V<sub>küre</sub> = ${fix(1 - capF, 4)}` : "kuram 1";
+      if (g.site === "out") thTxt = `komşu prizmanın iç atomu; kuram V<sub>kapak</sub>/V<sub>küre</sub> = ${fix(capF, 4)}`;
+      return `<tr><th scope="row"><i style="color:${col}"></i>${nm}</th><td>${g.count}</td><td class="meas">${fix(mean, 4)}${g.max - g.min > 1e-9 ? ` (${fix(g.min, 4)}–${fix(g.max, 4)})` : ""}<small>${thTxt}</small></td><td>${fix(g.sum, 3)}</td></tr>`;
+    });
+    srows.push(`<tr><th scope="row">Toplam</th><td>${cnt.list.reduce((s, g) => s + g.count, 0)}</td><td></td><td class="meas">${fix(cnt.total, 3)}</td></tr>`);
+    setHTML(aUI.sites, srows.join(""));
+    // Kartlar
+    const aA = M.ideal ? null : M.a;
+    const pairD = T.pair.d;
+    setText(aUI.rel, S.rel);
+    const rT = T.r;
+    let relNote = `temas: ${T.pair.spA === T.pair.spB ? "aynı tür" : "zıt iyonlar"}, ${dirName(S, T.pair)}`;
+    if (aA) relNote += ions ? ` · r₋ = ${fix(rT[0] * aA, 3)} Å, r₊ = ${fix(rT[1] * aA, 3)} Å (oran Shannon)` : ` · r = ${fix(rT[0] * aA, 4)} Å`;
+    setText(aUI.relNote, relNote);
+    setText(aUI.d1, aA ? `${fix(sh[0].d * aA, 4)} Å` : `${fix(sh[0].d, 4)}a`);
+    setText(aUI.d1Note, `${fix(sh[0].d, 4)}a · ${sh[0].n} komşu${aA ? "" : " (a birimi)"}${Math.abs(pairD - sh[0].d) < 1e-9 ? " · bu uzaklıkta değerler" : ""}`);
+    const s2 = sh[1];
+    setText(aUI.d2, `${s2.n} atom · ${aA ? `${fix(s2.d * aA, 4)} Å` : `${fix(s2.d, 4)}a`}`);
+    setText(aUI.d2Note, `${fix(s2.d, 4)}a, ilk kabuğa oranı ${fix(s2.d / sh[0].d, 4)}${ions ? `, ${spName(s2.sps[1] ? 1 : 0)}` : ""}`);
+    setText(aUI.brav, S.brav);
+    setText(aUI.bravNote, `uzay grubu ${S.sg}${S.lat === "hex" ? ` · c/a = ${fix(d.ca, 4)}${M.ideal ? " (ideal)" : ` (ideal ${fix(IDEAL_CA, 4)})`}` : ""}`);
+    // Durum
+    const parts = [];
+    if (u === 0) parts.push(`Küreler nokta: her konumun payı yalnız açıya bağlı (köşe ${S.lat === "hex" ? "1/6" : "1/8"}, ${S.lat === "hex" ? "taban merkezi 1/2" : "kenar 1/4, yüz 1/2"}, iç 1), doluluk 0.`);
+    else if (u < 1) parts.push(`Küreler temas etmiyor (r = ${fix(u, 2)}·r<sub>temas</sub>): doluluk r³ ile küçülür, ${fix(d.apfTh, 4)}. Hücredeki atom sayısı yine ${fix(nMeas, 3)}: paylar kürenin büyüklüğüne bağlı değil.`);
+    else if (ions) parts.push(`${S.short} tipi: hücrede ${fix(nMeas, 3)} iyon (${fix(cnt.totalSp[1], 3)} ${ions[1]} + ${fix(cnt.totalSp[0], 3)} ${ions[0]}, Z = ${S.Z}); her iyonun ${cnMeas} zıt yüklü komşusu var, iyonlar ${dirName(S, T.pair)} boyunca değiyor (${S.rel}).`);
+    else parts.push(`${S.short}: hücrede ${fix(nMeas, 3)} atom, her atomun ${cnSplit ? `${sh[0].n} + ${cnSplit.n}` : cnMeas} komşusu var; küreler ${dirName(S, T.pair)} boyunca değiyor (${S.rel}).`);
+    if (u > 0) {
+      const z = pack.se > 0 ? Math.abs(pack.mean - d.apfTh) / pack.se : 0;
+      parts.push(`Ölçülen doluluk ${fix(pack.mean, 4)} ± ${fix(pack.se, 4)}, kuram ${fix(d.apfTh, 4)}: fark ${fix(z, 1)}σ, ${z <= 2 ? "ölçüm kuramla uyumlu" : z <= 3 ? "sınırda uyumlu" : "uyumsuz"}.`);
+    }
+    if (S.lat === "hex" && !M.ideal) {
+      const dev = d.ca / IDEAL_CA - 1;
+      parts.push(`${M.name}'de c/a = ${fix(d.ca, 3)}, ideal √(8/3) = ${fix(IDEAL_CA, 3)}'ten ${pct(dev, 1)} farklı: 12 komşu ${sh[0].n} + ${cnSplit ? cnSplit.n : "?"} olarak iki uzaklığa ayrılır (${fix(sh[0].d * M.a, 3)} Å ve ${fix((cnSplit || sh[1]).d * M.a, 3)} Å); sert kürelerin doluluğu ${fix(d.apfT1, 4)}, ideal ${fix(STRUCTS.hcp.apf, 4)}.`);
+    }
+    if (!M.ideal) {
+      const cmp = rhoCompare(d.rhoCalc, M.rho);
+      parts.push(`${M.name}: örgü sabitinden ρ = ${fix(d.rhoCalc, 3)} g/cm³, tabloda ${M.rho} g/cm³ (${pct(cmp.rel, 2)}${cmp.within ? ", yuvarlama içinde" : ""}).`);
+    }
+    if (ions && u === 1) {
+      const q = M.r[1] / M.r[0], pred = q >= 0.732 ? 8 : q >= 0.414 ? 6 : 4;
+      parts.push(`Yarıçap oranı r₊/r₋ = ${fix(q, 3)} (Shannon): kural ${pred === 8 ? "0.732'nin üstünde sekizli (kübik)" : pred === 6 ? "0.414–0.732 arasında altılı (oktahedral)" : "0.414'ün altında dörtlü"} koordinasyon öngörür${pred === S.cn ? ", gözlenenle uyumlu." : `, oysa ${M.name.replace(/ \(.*\)/, "")} ${{ 4: "dörtlü", 6: "altılı", 8: "sekizli" }[S.cn]} koordinasyonla kristalleşir: yarıçap oranı kuralı kaba bir yol göstericidir.`}`);
+    }
+    setHTML(aUI.status, parts.join(" "));
+    aUI.status.classList.toggle("is-good", u > 0 && pack.se > 0 && Math.abs(pack.mean - d.apfTh) <= 2 * pack.se);
+    // Yoğunluk tablosu
+    const drows = [];
+    for (const [key, list] of Object.entries(STRUCT_MATS)) {
+      for (const m of list) {
+        const MM = MATS[m];
+        if (MM.ideal) continue;
+        const SS = STRUCTS[key], rc = densityOf(SS, MM), cmp = rhoCompare(rc, MM.rho);
+        drows.push(`<tr${m === A.mat ? ' class="is-sel"' : ""}><th scope="row">${MM.name}<small>${SS.short}${MM.c ? `, c = ${MM.c} Å` : ""}</small></th><td>${aStr(MM)}</td><td class="meas">${fix(rc, 3)}</td><td class="theory">${MM.rho}</td><td>${pct(cmp.rel, 2)}${cmp.within ? "<small>yuvarlama içinde</small>" : ""}</td></tr>`);
+      }
+    }
+    setHTML(aUI.dens, drows.join(""));
+  }
+  function dirName(S, pair) {
+    const v = sub(pair.b, pair.a);
+    if (S.lat === "hex") {
+      if (A.d && Math.abs(A.d.ca - IDEAL_CA) < 1e-9) return "taban kenarı ve katmanlar arası (12 komşunun hepsi)";
+      return Math.abs(v[2]) < 1e-9 ? "taban altıgeninin kenarı" : "katmanlar arası A–B doğrultusu";
+    }
+    const m = Math.max(...v.map(Math.abs)), nz = v.filter((x) => Math.abs(Math.abs(x) - m) < 1e-9).length;
+    if (S.key === "dia") return "cisim köşegeni (bağ, köşegenin dörtte biri)";
+    return ["", "küp kenarı", "yüz köşegeni", "cisim köşegeni"][nz];
+  }
+  function sceneA(t) {
+    const d = A.d, { S, M, T, radii, ca } = d, ions = ionsOf(M), spheres = [], lines = [];
+    const colOf = (a) => (A.color === "sp" ? t.sp[a.sp] : t.site[a.site]);
+    for (const a of d.drawn) spheres.push({ p: a.p, r: radii[a.sp], col: colOf(a), alpha: 1, site: a.site, sp: a.sp });
+    const edges = S.lat === "hex" ? prismLines(ca) : CUBE_LINES;
+    for (const [a, b] of edges) lines.push({ a, b, col: t.edge, w: 1.4 });
+    if (S.lat === "hex") for (const [a, b] of primLines(ca)) lines.push({ a, b, col: t.edge2, w: 1.1, dash: [4, 4] });
+    const overlays = [];
+    if (A.touch) {
+      let a0 = T.pair.a, dir = sub(T.pair.b, T.pair.a), b0 = T.pair.b;
+      if (S.lat === "hex") {
+        if (Math.abs(dir[2]) < 1e-9 || Math.abs(ca - IDEAL_CA) < 1e-9) { a0 = [0, 0, 0]; b0 = [1, 0, 0]; }
+        else { a0 = [0, 0, ca]; b0 = [0.5, SQ3 / 6, ca / 2]; }
+      } else if (S.key !== "dia") {
+        a0 = [0, 0, 0];
+        const u = mul(dir.map(Math.abs), 1 / len(dir));
+        const tMax = Math.min(...u.map((x) => (x > 1e-9 ? 1 / x : Infinity)));
+        b0 = mul(u, tMax);
+      } else { a0 = [0, 0, 0]; b0 = [0.25, 0.25, 0.25]; }
+      overlays.push({ kind: "touch", a: a0, b: b0 });
+    }
+    if (A.neigh) {
+      let ref = NEIGH_REF[S.key];
+      if (!ref) ref = [0, 0, ca];
+      const all = genAtoms(S, ca, 2);
+      const refAt = all.find((q) => len(sub(q.p, ref)) < 1e-9);
+      const ds = all.map((q) => ({ q, d: len(sub(q.p, ref)) })).filter((x) => x.d > 1e-9).sort((x, y) => x.d - y.d);
+      const d1 = ds[0].d, nb = ds.filter((x) => x.d <= d1 * (1 + 1e-6));
+      for (const x of nb) {
+        lines.push({ a: ref, b: x.q.p, col: t.warm, w: 2, seg: 6 });
+        if (!d.cell.insideTol(x.q.p)) spheres.push({ p: x.q.p, r: radii[x.q.sp], col: A.color === "sp" ? t.sp[x.q.sp] : t.site.out, alpha: 0.38, ghost: true });
+      }
+      const s = spheres.find((q) => len(sub(q.p, ref)) < 1e-9);
+      if (s) s.ring = t.warm;
+      overlays.push({ kind: "neigh", ref, n: nb.length, sp: refAt ? refAt.sp : 0 });
+    }
+    return { spheres, lines, overlays, ions };
+  }
+  function drawStageA(t) {
+    const W = stage.width, H = stage.height, g = sg, d = A.d;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (!d) return;
+    const { S, M, ca, T } = d;
+    const center = S.lat === "hex" ? [0, 0, ca / 2] : [0.5, 0.5, 0.5];
+    const Rfit = S.lat === "hex" ? Math.hypot(1 + T.r[0], ca / 2 + T.r[0]) : (SQ3 / 2) + Math.max(T.r[0], T.r[1]) * 0.9;
+    const pr = makeView(W, H, A.yaw, A.pitch, center, Rfit * (A.neigh ? 1.12 : 1));
+    const sc = sceneA(t);
+    drawScene(g, t, pr, sc);
+    for (const o of sc.overlays) {
+      if (o.kind === "touch") {
+        const qa = pr.P(o.a), qb = pr.P(o.b);
+        g.strokeStyle = rgba(t.warm, 0.9); g.lineWidth = 3 * dpr; g.lineCap = "round";
+        g.beginPath(); g.moveTo(qa.X, qa.Y); g.lineTo(qb.X, qb.Y); g.stroke();
+        // Değme noktaları: doğru üstündeki ardışık kürelerin arası
+        const onLine = d.drawn.filter((a) => { const v = sub(a.p, o.a), w = sub(o.b, o.a), c = cross(v, w); return len(c) / len(w) < 1e-9 && dot(v, w) >= -1e-9 && dot(v, w) <= dot(w, w) + 1e-9; })
+          .map((a) => ({ a, s: dot(sub(a.p, o.a), sub(o.b, o.a)) / dot(sub(o.b, o.a), sub(o.b, o.a)) })).sort((x, y) => x.s - y.s);
+        const W3 = sub(o.b, o.a), Lw = len(W3), uW = mul(W3, 1 / Lw);
+        if (A.u > 0.999) for (let i = 0; i + 1 < onLine.length; i++) {
+          const p = addv(onLine[i].a.p, mul(uW, d.radii[onLine[i].a.sp]));
+          const q = pr.P(p);
+          g.fillStyle = t.light ? "#ffffff" : "#fff7d6"; g.strokeStyle = t.warm; g.lineWidth = 1.5 * dpr;
+          g.beginPath(); g.arc(q.X, q.Y, 3.4 * dpr, 0, 2 * PI); g.fill(); g.stroke();
+        }
+        const mx = (qa.X + qb.X) / 2, my = (qa.Y + qb.Y) / 2;
+        label(g, S.rel, mx + 8 * dpr, my - 8 * dpr, t.warm, t, { size: 12.5, weight: 600 });
+      }
+    }
+    drawTriad(g, t, pr, S.lat === "hex" ? ["a₁", "", "c"] : ["x", "y", "z"], W, H);
+    const ions = ionsOf(M);
+    const head = `${S.short} · ${M.ideal ? "ideal c/a" : M.name}${M.ideal ? "" : ` · a = ${aStr(M)} Å`}`;
+    label(g, head, 12 * dpr, 20 * dpr, t.ink, t, { size: 12.5, weight: 600 });
+    label(g, `küre yarıçapı ${fix(A.u, 2)} × temas yarıçapı${ions ? ` · ${ions[0]} ve ${ions[1]}` : ""}`, 12 * dpr, 38 * dpr, t.muted, t, { size: 11 });
+    label(g, "sürükle: döndür", W - 10 * dpr, H - 12 * dpr, t.muted, t, { size: 10.5, align: "right" });
+    const aria = `${S.name} birim hücresi${S.lat === "hex" ? " (altıgen prizma ve kesikli ilkel hücre)" : ""}: ${d.drawn.length} küre, r = ${fix(A.u, 2)} r_temas${A.touch ? `, ${dirName(S, T.pair)} boyunca temas çizgisi` : ""}${A.neigh ? ", bir atomun en yakın komşuları ve bağları" : ""}; dönme ${A.yaw}°, eğim ${A.pitch}°.`;
+    if (stage.getAttribute("aria-label") !== aria) stage.setAttribute("aria-label", aria);
+  }
+  // Grafik: bütün yapıların doluluğu (temas), ölçülen ± 2σ
+  function barData() {
+    return Object.keys(STRUCTS).map((key) => {
+      const S = STRUCTS[key], m = key === A.struct ? A.mat : BAR_MATS[key], M = MATS[m], ca = caOf(S, M), T = touching(S, ca, rhoOf(M));
+      const th = apfTheory(S, ca, T.r), bk = `${key}|${m}`;
+      return { key, S, M, th, meas: A.bars[bk] || null, bk, ca, T };
+    }).sort((x, y) => x.th - y.th);
+  }
+  function drawChartA(t) {
+    const W = chart.width, H = chart.height, g = cg;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const rows = barData();
+    const L = 112 * dpr, R = W - 64 * dpr, top = 26 * dpr, bot = H - 22 * dpr, rh = (bot - top) / rows.length;
+    const X = (v) => L + (v / 0.8) * (R - L);
+    label(g, "Doluluk oranı η (küreler temas ederken)", L, 16 * dpr, t.ink, t, { size: 11.5, weight: 600 });
+    g.strokeStyle = t.grid; g.lineWidth = 1 * dpr;
+    g.font = font(10); g.fillStyle = t.muted; g.textAlign = "center"; g.textBaseline = "top";
+    for (let v = 0; v <= 0.8 + 1e-9; v += 0.2) { const x = X(v); g.beginPath(); g.moveTo(x, top); g.lineTo(x, bot); g.stroke(); g.fillText(fix(v, 1), x, bot + 4 * dpr); }
+    rows.forEach((r, i) => {
+      const y = top + i * rh, cy = y + rh / 2, bh = Math.min(rh * 0.56, 16 * dpr), sel = r.key === A.struct;
+      g.fillStyle = sel ? rgba(t.accent2, 0.55) : rgba(t.accent2, 0.25);
+      g.fillRect(L, cy - bh / 2, X(r.th) - L, bh);
+      if (sel) { g.strokeStyle = t.accent2; g.lineWidth = 1.5 * dpr; g.strokeRect(L, cy - bh / 2, X(r.th) - L, bh); }
+      const nm = r.key === "hcp" ? (r.M.ideal ? "HCP ideal" : `HCP ${r.M.name}`) : r.key === "nacl" || r.key === "cscl" ? r.M.name.replace(/ \(.*\)/, "") : r.S.short;
+      label(g, nm, L - 8 * dpr, cy, sel ? t.ink : t.muted, t, { size: 11, weight: sel ? 600 : 400, align: "right", base: "middle" });
+      label(g, fix(r.th, 4), X(r.th) + 8 * dpr, cy, t.muted, t, { size: 10.5, base: "middle" });
+      if (r.meas) {
+        const x = X(r.meas.mean), e = Math.max(1, X(r.meas.mean + 2 * r.meas.se) - x);
+        g.strokeStyle = t.warm; g.lineWidth = 1.5 * dpr;
+        g.beginPath(); g.moveTo(x - e, cy); g.lineTo(x + e, cy); g.stroke();
+        g.fillStyle = t.warm; g.beginPath(); g.arc(x, cy, 3.2 * dpr, 0, 2 * PI); g.fill();
+      }
+      if (sel && A.d && A.u < 1) {
+        const x = X(A.d.apfTh);
+        g.strokeStyle = t.accent; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(x, cy, 5 * dpr, 0, 2 * PI); g.stroke();
+      }
+    });
+    const aria = "Yedi yapının temas hâlindeki doluluk oranları, küçükten büyüğe: " + rows.map((r) => `${r.S.short} ${fix(r.th, 3)}`).join(", ") + ".";
+    if (chart.getAttribute("aria-label") !== aria) chart.setAttribute("aria-label", aria);
+  }
+  function stepBars() {
+    // Her karede en çok bir yapının ölçümü (telefonda takılmasın)
+    const rows = barData();
+    const r = rows.find((q) => !A.bars[q.bk]);
+    if (!r) return false;
+    A.bars[r.bk] = packingGrid(r.S, r.ca, r.T.r, PACK_M, PACK_K, PACK_SEED);
+    return true;
+  }
+
+  /* ═══════════ (b) Düzlemler ═══════════ */
+  const B = { struct: "fcc", h: 1, k: 1, l: 1, u: 0.35, yaw: 30, pitch: 20, rot: false, pending: true, d: null };
+  const bUI = {
+    struct: $("bStruct"), structOut: $("bStructOut"), h: $("bH"), k: $("bK"), l: $("bL"), size: $("bSize"), sizeOut: $("bSizeOut"),
+    yaw: $("bYaw"), yawOut: $("bYawOut"), pitch: $("bPitch"), pitchOut: $("bPitchOut"), along: $("bAlong"), edge: $("bEdge"), rot: $("bRot"), reset: $("bReset"),
+    table: $("bTable").tBodies[0], pd: $("bPD").tBodies[0], seq: $("bSeq"), seqNote: $("bSeqNote"), F: $("bF"), FNote: $("bFNote"), status: $("bStatus"),
+  };
+  for (const sel of [bUI.h, bUI.k, bUI.l]) for (let v = -3; v <= 3; v++) sel.add(new Option(v < 0 ? `${MINUS}${-v}` : String(v), String(v)));
+  const B_MAT = { sc: "po", bcc: "fe", fcc: "cu", dia: "si", nacl: "nacl", cscl: "cscl", hcp: "hid" };
+  function computeB() {
+    const S = STRUCTS[B.struct], M = MATS[B_MAT[B.struct]], ca = caOf(S, M), T = touching(S, ca, rhoOf(M));
+    if (S.lat === "hex") {
+      // Bazal katmanlar: z = 0 (A), c/2 (B), c (A); 2B hücre a₁, a₂
+      const hexPts = (z) => Array.from({ length: 6 }, (_, k) => [Math.cos((k * PI) / 3), Math.sin((k * PI) / 3), z]);
+      const polys = [{ m: 0, pts: hexPts(0) }, { m: ca / 2, pts: hexPts(ca / 2) }, { m: ca, pts: hexPts(ca) }];
+      const nrm = polyNormal(polys[1].pts), dMeas = Math.abs(dot(nrm, sub(polys[1].pts[0], [0, 0, 0])));
+      const area = SQ3 / 2;
+      B.d = { S, M, ca, T, hex: true, fam: { polys, mHi: ca / 2, dMeas, dTh: ca / 2, nrm: [0, 0, 1], O: [0, 0, 0], ints: [] }, pd: 1 / area, cover: (PI * T.r[0] ** 2) / area, area, gap: ca / 2, seq: ["A", "B", "A", "B"], period: 2 };
+      return;
+    }
+    if (!B.h && !B.k && !B.l) { B.d = { S, M, ca, T, zero: true }; return; }
+    const an = planeAnalysis(S, B.h, B.k, B.l, T.r);
+    B.d = { S, M, ca, T, ...an };
+  }
+  function syncB() {
+    const S = STRUCTS[B.struct], hex = S.lat === "hex";
+    bUI.struct.value = B.struct;
+    setText(bUI.structOut, S.short);
+    bUI.h.value = String(B.h); bUI.k.value = String(B.k); bUI.l.value = String(B.l);
+    for (const el of [bUI.h, bUI.k, bUI.l]) el.disabled = hex;
+    document.querySelectorAll("#bPresets button").forEach((b) => { b.disabled = hex; });
+    bUI.size.value = String(B.u);
+    setText(bUI.sizeOut, fix(B.u, 2));
+    bUI.yaw.value = String(B.yaw); bUI.pitch.value = String(B.pitch);
+    setText(bUI.yawOut, `${fix(B.yaw, 0)}°`); setText(bUI.pitchOut, `${fix(B.pitch, 0)}°`);
+    bUI.rot.setAttribute("aria-pressed", String(B.rot));
+  }
+  function resetB() {
+    Object.assign(B, { struct: "fcc", h: 1, k: 1, l: 1, u: 0.35, yaw: 30, pitch: 20, rot: false, pending: true });
+    syncB(); dirty = true;
+  }
+  const LETTERS = "ABCDEFGHIJKL";
+  const letterOf = (s) => (s.cat ? LETTERS[s.pos].toLowerCase() : LETTERS[s.pos]);
+  function readoutsB() {
+    const d = B.d;
+    if (!d) return;
+    const rows = [];
+    if (d.zero) {
+      setHTML(bUI.table, `<tr><th scope="row">d<sub>hkl</sub></th><td class="meas">—</td><td class="theory">—</td><td>—</td></tr>`);
+      setText(bUI.seq, "—"); setText(bUI.seqNote, ""); setText(bUI.F, "—"); setText(bUI.FNote, "");
+      setHTML(bUI.status, "Miller indislerinin üçü birden sıfır olamaz: (000) bir düzlem tanımlamaz. En az birini sıfırdan farklı seç.");
+      bUI.status.classList.add("is-warn");
+      drawPDTable();
+      return;
+    }
+    bUI.status.classList.remove("is-warn");
+    const { S, T } = d, rT = T.r, twoR = 2 * rT[0];
+    if (d.hex) {
+      rows.push(["Katman aralığı d = c/2", `${fix(d.fam.dMeas, 4)}a<small>çizilen altıgenlerden</small>`, `${fix(d.fam.dTh, 4)}a<small>c/2 = a√(2/3)</small>`, pct((d.fam.dMeas - d.fam.dTh) / d.fam.dTh, 3)]);
+      rows.push(["Katmandaki atom yoğunluğu", `${fix(d.pd, 4)}/a²<small>1 atom / (√3/2)a²</small>`, `${fix(2 / SQ3, 4)}/a²<small>2/(a²√3)</small>`, "0"]);
+      rows.push(["Aynı büyüklükler 2r birimiyle", `${fix(d.pd * twoR * twoR, 4)}/(2r)²<small>aralık ${fix(d.fam.dMeas / twoR, 4)}·2r</small>`, `${fix(2 / SQ3, 4)}/(2r)²<small>aralık √(2/3) = ${fix(Math.sqrt(2 / 3), 4)}</small>`, "—"]);
+      rows.push(["Düzlemsel doluluk (temas)", fix(d.cover, 4), `${fix(PI / (2 * SQ3), 4)}<small>π/(2√3)</small>`, pct((d.cover - PI / (2 * SQ3)) / (PI / (2 * SQ3)), 3)]);
+      setHTML(bUI.table, rows.map((r) => `<tr><th scope="row">${r[0]}</th><td class="meas">${r[1]}</td><td class="theory">${r[2]}</td><td>${r[3]}</td></tr>`).join(""));
+      setText(bUI.seq, "A B A B …");
+      setText(bUI.seqNote, "periyot 2 katman: üçüncü katman ilkinin tam üstünde");
+      setText(bUI.F, "(0001) söner, (0002) görünür");
+      setText(bUI.FNote, "B katmanı iki A katmanının tam ortasında: c aralığındaki yansımada yarım dalga farkı");
+      setHTML(bUI.status, `HCP bazal katmanları: her katman altıgen sıkı paket (2/√3 ≈ ${fix(2 / SQ3, 4)} atom/(2r)², doluluk ${fix(d.cover, 4)}), aralık c/2 = ${fix(d.fam.dMeas, 4)}a = ${fix(d.fam.dMeas / twoR, 4)}·2r. FCC'nin (111) katmanlarıyla aynı yoğunluk ve aynı aralık: atom başına hacim, dolayısıyla doluluk (π/(3√2) ≈ 0.7405) aynı. Fark istifte: HCP'de ABAB, FCC'de ABCABC.`);
+      drawPDTable();
+      return;
+    }
+    const { fam, info, st } = d, hk = [B.h, B.k, B.l];
+    rows.push([`Düzlemler arası uzaklık d<sub>hkl</sub>`, `${fix(fam.dMeas, 4)}a<small>vurgulanan çokgenin normali boyunca</small>`, `${fix(fam.dTh, 4)}a<small>a/√(h² + k² + l²) = a/√${hk[0] ** 2 + hk[1] ** 2 + hk[2] ** 2}</small>`, pct((fam.dMeas - fam.dTh) / fam.dTh, 3)]);
+    rows.push([`Atom katmanı aralığı`, `${fix(info.gap * fam.dTh, 4)}a<small>d başına ${info.layers.length} katman</small>`, `${info.gap < 1 - 1e-9 ? `d·${fix(info.gap, 3)}` : "d"}<small>${info.gap < 1 - 1e-9 ? "düzlemlerin arasında da atom var" : "bütün atomlar düzlemlerde"}</small>`, "—"]);
+    const key = [Math.abs(B.h), Math.abs(B.k), Math.abs(B.l)].sort((x, y) => y - x).join("");
+    const th = PD_TH[S.key] && PD_TH[S.key][key] && gcd(gcd(Math.abs(B.h), Math.abs(B.k)), Math.abs(B.l)) === 1 ? PD_TH[S.key][key] : null;
+    rows.push([`Vurgulanan düzlemde atom yoğunluğu`, `${fix(d.pd, 4)}/a²<small>${d.cl.length} atom / ${fix(d.B2.area, 4)}a² (2B hücre)</small>`, th ? `${fix(th[0], 4)}/a²<small>${th[1]}</small>` : "—<small>tabloda yalnız SC, BCC, FCC (100), (110), (111)</small>", th ? pct((d.pd - th[0]) / th[0], 3) : "—"]);
+    const ions = ionsOf(d.M);
+    rows.push([`Düzlemsel doluluk (temas)`, `${fix(d.cover, 4)}<small>Σπr² / hücre alanı${ions ? ", iki iyon" : ""}</small>`, th ? `${fix(th[0] * PI * rT[0] ** 2, 4)}` : "—", th ? pct((d.cover - th[0] * PI * rT[0] ** 2) / (th[0] * PI * rT[0] ** 2), 3) : "—"]);
+    setHTML(bUI.table, rows.map((r) => `<tr><th scope="row">${r[0]}</th><td class="meas">${r[1]}</td><td class="theory">${r[2]}</td><td>${r[3]}</td></tr>`).join(""));
+    // İstif
+    const nShow = st.period ? Math.min(st.period + 1, 9) : 6;
+    setText(bUI.seq, st.seq.slice(0, nShow).map(letterOf).join(" ") + (st.period ? " …" : ""));
+    const spanT = st.period ? st.seq[st.period].t - st.seq[0].t : 0;
+    setText(bUI.seqNote, st.period ? `periyot ${st.period} katman (${fix(spanT, Math.abs(spanT - Math.round(spanT)) < 1e-9 ? 0 : 1)} düzlem aralığı)${st.period === 1 ? ": bütün katmanlar aynı yerde" : ""}${st.seq.some((s) => s.cat) ? "; küçük harf: yalnız katyon içeren katman" : ""}` : "12 katmanda tekrar yok");
+    // Yapı çarpanı
+    const Aph = info.A, ionsN = ions;
+    const term = (c, nm) => (Math.abs(c[1]) > 1e-9 ? null : Math.abs(c[0]) < 1e-9 ? "" : `${c[0] < 0 ? MINUS : "+"} ${fix(Math.abs(c[0]), 0) === "1" ? "" : fix(Math.abs(c[0]), 0)}f${nm}`);
+    let Ftxt, Fnote, ext;
+    if (S.key === "nacl" || S.key === "cscl") {
+      const t0 = term(Aph[0], `(${ionsN[0]})`), t1 = term(Aph[1], `(${ionsN[1]})`);
+      const s = [t0, t1].filter((x) => x).join(" ").replace(/^\+ /, "");
+      Ftxt = s ? `F = ${s}` : "F = 0";
+      ext = !s;
+      Fnote = ext ? "iki alt örgünün katkıları da sıfır: yansıma söner" : Aph[0][0] * Aph[1][0] < 0 ? "iki iyonun katkısı çıkarılır: zayıf yansıma" : "iki iyonun katkısı toplanır: güçlü yansıma";
+    } else {
+      const mag = Math.hypot(Aph[0][0], Aph[0][1]);
+      ext = mag < 1e-9;
+      const sym = Math.abs(mag - Math.round(mag)) < 1e-9 ? fix(mag, 0) : Math.abs(mag - 4 * SQ2) < 1e-9 ? "4√2" : fix(mag, 3);
+      Ftxt = ext ? "F = 0" : `|F| = ${sym}f`;
+      Fnote = ext ? `katmanlar arası faz farkları birbirini götürür: ${hklPlain(B.h, B.k, B.l)} yansıması söner` : `hücredeki ${info.ts.length} atomun fazları ${Math.abs(mag - info.ts.length) < 1e-9 ? "aynı: tam yapıcı girişim" : "kısmen uyumlu"}`;
+    }
+    setText(bUI.F, Ftxt);
+    setText(bUI.FNote, Fnote);
+    // Durum
+    const parts = [];
+    parts.push(`${hklPlain(B.h, B.k, B.l)}: d = a/√${hk[0] ** 2 + hk[1] ** 2 + hk[2] ** 2} = ${fix(fam.dTh, 4)}a; küpte bu aileden ${fam.polys.length} düzlem.`);
+    if (info.gap < 1 - 1e-9) parts.push(`Hücredeki ${info.ts.length} atomdan ${info.ts.length - info.onPlanes} tanesi bu düzlemlerin arasında (katman aralığı d·${fix(info.gap, 3)}): ${ext ? "aradaki katmanlar yarım dalga boyu farkla saçar ve yansıma söner" : "aradaki katmanlar yansımayı zayıflatır ama söndürmez"}.`);
+    else parts.push("Bütün atomlar bu düzlemlerin üstünde: aynı fazla saçarlar.");
+    if (th) {
+      const row = PD_TH[S.key], best = Object.entries(row).sort((x, y) => y[1][0] - x[1][0])[0][0];
+      parts.push(`Düzlemde ${fix(d.pd, 4)} atom/a², doluluk ${fix(d.cover, 4)}${key === best ? `: ${S.short}'nin en sık dizilmiş düzlemi` : `; en sık dizilmiş düzlem (${best.split("").join("")})`}${S.key === "fcc" && key === "111" ? " (altıgen sıkı paket katman, istif ABC)" : ""}.`);
+    } else parts.push(`Düzlemde ${fix(d.pd, 4)} atom/a².`);
+    setHTML(bUI.status, parts.join(" "));
+    drawPDTable();
+  }
+  let PD_CACHE = null;
+  function drawPDTable() {
+    const keys = ["100", "110", "111"], rows = [];
+    if (!PD_CACHE) {
+      PD_CACHE = {};
+      for (const sk of ["sc", "bcc", "fcc"]) {
+        const S = STRUCTS[sk], T = touching(S, 1, [1, 1]);
+        PD_CACHE[sk] = keys.map((k) => { const [h, kk, l] = k.split("").map(Number); const an = planeAnalysis(S, h, kk, l, T.r); return { k, pd: an.pd, cover: an.cover, th: PD_TH[sk][k] }; });
+      }
+    }
+    for (const sk of ["sc", "bcc", "fcc"]) {
+      const S = STRUCTS[sk], vals = PD_CACHE[sk];
+      const best = vals.reduce((m, v) => (v.cover > m.cover ? v : m), vals[0]);
+      rows.push(`<tr${sk === B.struct ? ' class="is-sel"' : ""}><th scope="row">${S.short}<small>r = ${{ sc: "a/2", bcc: "a√3/4", fcc: "a√2/4" }[sk]}</small></th>` +
+        vals.map((v) => `<td class="${v === best ? "is-max" : ""}"><span class="meas">${fix(v.pd, 4)}</span><small>kuram ${v.th[1]} · doluluk ${fix(v.cover, 4)}</small></td>`).join("") + "</tr>");
+    }
+    setHTML(bUI.pd, rows.join(""));
+  }
+  function drawStageB(t) {
+    const W = stage.width, H = stage.height, g = sg, d = B.d;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (!d) return;
+    const { S, ca, T } = d, hex = S.lat === "hex";
+    const center = hex ? [0, 0, ca / 2] : [0.5, 0.5, 0.5];
+    const Rfit = hex ? Math.hypot(1.08, ca / 2 + 0.1) : SQ3 / 2 + 0.12;
+    const pr = makeView(W, H, B.yaw, B.pitch, center, Rfit);
+    const cell = cellOf(S, ca), radii = [B.u * T.r[0], B.u * T.r[1]];
+    const atoms = genAtoms(S, ca, hex ? 1 : 1).filter((a) => cell.insideTol(a.p));
+    const spheres = [], lines = [], planes = [];
+    const ions = ionsOf(d.M);
+    let nOn = 0;
+    if (!d.zero) {
+      const nrmI = hex ? [0, 0, 1] : [B.h, B.k, B.l];
+      for (const a of atoms) {
+        const on = Math.abs(dot(nrmI, a.p) - d.fam.mHi) < 1e-9;
+        if (on) nOn++;
+        const col = ions ? t.sp[a.sp] : hex ? (Math.abs(a.p[2] - ca / 2) < 1e-9 ? t.layer[1] : t.layer[0]) : t.site.face;
+        spheres.push({ p: a.p, r: radii[a.sp], col, alpha: on ? 1 : 0.55, ring: on ? t.hiPlane : null });
+      }
+      for (const P of d.fam.polys) {
+        const hi = Math.abs(P.m - d.fam.mHi) < 1e-9;
+        planes.push({ m: P.m, pts: P.pts, fill: hi ? rgba(t.hiPlane, 0.3) : rgba(t.plane, 0.13), stroke: hi ? t.hiPlane : rgba(t.plane, 0.7), lw: hi ? 2 : 1.1, dash: hi ? null : [5, 4] });
+      }
+    } else for (const a of atoms) spheres.push({ p: a.p, r: radii[a.sp], col: ions ? t.sp[a.sp] : t.site.face, alpha: 0.7 });
+    const edges = hex ? prismLines(ca) : CUBE_LINES;
+    for (const [a, b] of edges) lines.push({ a, b, col: t.edge, w: 1.3 });
+    drawScene(g, t, pr, { spheres, lines, planes, nrm: d.zero ? null : hex ? [0, 0, 1] : [B.h, B.k, B.l] });
+    if (!d.zero) {
+      // d çizgisi: başlangıç köşesinden vurgulanan düzleme dik
+      const O = d.fam.O, nn = d.fam.nrm, Ph = d.fam.polys.find((q) => Math.abs(q.m - d.fam.mHi) < 1e-9);
+      const sgn = dot(nn, sub(Ph.pts[0], O)) >= 0 ? 1 : -1, foot = addv(O, mul(nn, sgn * d.fam.dMeas));
+      const qa = pr.P(O), qb = pr.P(foot);
+      g.strokeStyle = t.ink; g.lineWidth = 2 * dpr; g.setLineDash([]);
+      g.beginPath(); g.moveTo(qa.X, qa.Y); g.lineTo(qb.X, qb.Y); g.stroke();
+      const ang = Math.atan2(qb.Y - qa.Y, qb.X - qa.X), Ls = Math.hypot(qb.X - qa.X, qb.Y - qa.Y);
+      if (Ls > 10 * dpr) {
+        g.fillStyle = t.ink; g.beginPath(); g.moveTo(qb.X, qb.Y);
+        g.lineTo(qb.X - 9 * dpr * Math.cos(ang - 0.4), qb.Y - 9 * dpr * Math.sin(ang - 0.4));
+        g.lineTo(qb.X - 9 * dpr * Math.cos(ang + 0.4), qb.Y - 9 * dpr * Math.sin(ang + 0.4)); g.closePath(); g.fill();
+      }
+      g.fillStyle = t.ink; g.beginPath(); g.arc(qa.X, qa.Y, 3.5 * dpr, 0, 2 * PI); g.fill();
+      label(g, `d = ${fix(d.fam.dMeas, 4)}a`, (qa.X + qb.X) / 2 + 8 * dpr, (qa.Y + qb.Y) / 2 + 4 * dpr, t.ink, t, { size: 12, weight: 600 });
+      for (const it of d.fam.ints) {
+        if (Math.abs(it.v) > 1 + 1e-9) continue;
+        const q = pr.P(it.p);
+        g.fillStyle = t.hiPlane; g.beginPath(); g.arc(q.X, q.Y, 4 * dpr, 0, 2 * PI); g.fill();
+        const v = it.v, txt = Math.abs(Math.abs(v) - 1) < 1e-9 ? (v < 0 ? `${MINUS}1` : "1") : `${v < 0 ? MINUS : ""}1/${Math.round(Math.abs(1 / v))}`;
+        label(g, `${"xyz"[it.i]} = ${txt}`, q.X + 7 * dpr, q.Y - 7 * dpr, t.hiPlane, t, { size: 11, weight: 600 });
+      }
+    }
+    drawTriad(g, t, pr, hex ? ["a₁", "", "c"] : ["x", "y", "z"], W, H);
+    if (hex) label(g, "HCP · bazal (0002) katmanları A, B, A", 12 * dpr, 20 * dpr, t.ink, t, { size: 12.5, weight: 600 });
+    else if (d.zero) label(g, `${S.short} · (000) düzlem değil`, 12 * dpr, 20 * dpr, t.neg, t, { size: 12.5, weight: 600 });
+    else { label(g, `${S.short} · `, 12 * dpr, 20 * dpr, t.ink, t, { size: 12.5, weight: 600 }); g.font = font(12.5, 600); hklLabel(g, B.h, B.k, B.l, 12 * dpr + g.measureText(`${S.short} · `).width, 20 * dpr, t.ink, t, { size: 12.5 }); }
+    if (!d.zero) label(g, `düzlemdeki atom: ${nOn}`, 12 * dpr, 38 * dpr, t.muted, t, { size: 11 });
+    label(g, "sürükle: döndür", W - 10 * dpr, H - 12 * dpr, t.muted, t, { size: 10.5, align: "right" });
+    const aria = d.zero ? `${S.name} küpü; (000) bir düzlem tanımlamaz.` : hex ? `HCP altıgen prizması ve z = 0, c/2, c'deki bazal katmanlar; ortadaki B katmanı vurgulu, d = c/2.` :
+      `${S.name} küpünde ${hklPlain(B.h, B.k, B.l)} düzlem ailesi: ${d.fam.polys.length} düzlem, vurgulanan düzlemde ${nOn} atom, başlangıç köşesinden d = ${fix(d.fam.dMeas, 4)}a çizgisi; dönme ${B.yaw}°, eğim ${B.pitch}°.`;
+    if (stage.getAttribute("aria-label") !== aria) stage.setAttribute("aria-label", aria);
+  }
+  // Grafik: katmanların üstten görünüşü (normal boyunca izdüşüm)
+  function drawChartB(t) {
+    const W = chart.width, H = chart.height, g = cg, d = B.d;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (!d || d.zero) { label(g, "(000) için katman yok", W / 2, H / 2, t.muted, t, { size: 12, align: "center", base: "middle" }); return; }
+    const { S, T } = d, ions = ionsOf(d.M);
+    let n, e1, e2, u1, u2, layers;
+    if (d.hex) {
+      n = [0, 0, 1]; u1 = [1, 0, 0]; u2 = [0.5, SQ3 / 2, 0]; e1 = [1, 0, 0]; e2 = [0, 1, 0];
+      layers = [{ t: 0, idx: 0, pos: 0, cl: [{ al: 0, be: 0, sp: 0 }] }, { t: 0.5, idx: 1, pos: 1, cl: [{ al: 1 / 3, be: 1 / 3, sp: 0 }] }, { t: 1, idx: 0, pos: 0, cl: [{ al: 0, be: 0, sp: 0 }] }];
+    } else {
+      const N2 = B.h * B.h + B.k * B.k + B.l * B.l;
+      n = mul([B.h, B.k, B.l], 1 / Math.sqrt(N2)); u1 = d.B2.u1; u2 = d.B2.u2;
+      e1 = mul(u1, 1 / len(u1)); e2 = cross(n, e1);
+      layers = d.st.seq.slice(0, 3);
+    }
+    const r0 = T.r;
+    // Ölçek: ilk katmanda en yakın iki atom arası, kısa kenara yaklaşık 4.5 kez sığsın
+    let dnn = Infinity;
+    const c0 = layers[0].cl;
+    for (const a of c0) for (const b of c0) for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
+      const v = addv(mul(u1, b.al - a.al + i), mul(u2, b.be - a.be + j)), L = len(v);
+      if (L > 1e-9) dnn = Math.min(dnn, L);
+    }
+    const sc = Math.min(W, H) / (4.6 * Math.max(dnn, 2 * Math.max(r0[0], r0[1]))), cx = W / 2, cy = H / 2 + 8 * dpr;
+    const P2 = (p) => [cx + sc * dot(p, e1), cy - sc * dot(p, e2)];
+    const nPerp = (tt) => (d.hex ? [0, 0, 0] : mul([B.h, B.k, B.l], tt / (B.h * B.h + B.k * B.k + B.l * B.l)));
+    const R = 8;
+    layers.forEach((L, li) => {
+      const p0 = d.hex ? [0, 0, 0] : nPerp(L.t);
+      const col = t.layer[L.pos % 4];
+      for (let i = -R; i <= R; i++) for (let j = -R; j <= R; j++) for (const c of L.cl) {
+        const p = addv(p0, addv(mul(u1, c.al + i), mul(u2, c.be + j)));
+        const [X, Y] = P2(p);
+        const rr = r0[c.sp] * sc;
+        if (X < -rr || X > W + rr || Y < 22 * dpr - rr || Y > H + rr) continue;
+        if (li === 0) {
+          drawSphere(g, X, Y, rr, ions ? t.sp[c.sp] : col, 1, 0.35, t, null);
+          if (ions) { g.lineWidth = 2.2 * dpr; g.strokeStyle = col; g.beginPath(); g.arc(X, Y, rr - 1.1 * dpr, 0, 2 * PI); g.stroke(); }
+        } else if (li === 1) {
+          // İkinci katman küçültülmüş çizilir: altındaki katman görünür kalsın
+          drawSphere(g, X, Y, rr * 0.62, ions ? t.sp[c.sp] : col, 1, 0, t, null);
+          g.lineWidth = 2.2 * dpr; g.strokeStyle = col; g.beginPath(); g.arc(X, Y, rr * 0.62 + 1.2 * dpr, 0, 2 * PI); g.stroke();
+        } else {
+          g.lineWidth = 2.4 * dpr; g.strokeStyle = col; g.beginPath(); g.arc(X, Y, Math.max(4 * dpr, rr * 0.45), 0, 2 * PI); g.stroke();
+          g.fillStyle = col; g.beginPath(); g.arc(X, Y, 2.2 * dpr, 0, 2 * PI); g.fill();
+        }
+      }
+    });
+    // 2B öteleme hücresi
+    const p0 = d.hex ? [0, 0, 0] : nPerp(layers[0].t);
+    const cpts = [p0, addv(p0, u1), addv(addv(p0, u1), u2), addv(p0, u2)].map(P2);
+    g.strokeStyle = t.ink; g.lineWidth = 1.5 * dpr; g.setLineDash([6 * dpr, 4 * dpr]);
+    g.beginPath(); cpts.forEach((q, i) => (i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]))); g.closePath(); g.stroke(); g.setLineDash([]);
+    // Harfler
+    layers.forEach((L, li) => {
+      const p0l = d.hex ? [0, 0, 0] : nPerp(L.t), c = L.cl[0];
+      if (!c) return;
+      const [X, Y] = P2(addv(p0l, addv(mul(u1, c.al), mul(u2, c.be))));
+      label(g, `${li + 1}: ${letterOf(L)}`, X + 6 * dpr, Y - (li === 2 ? 10 : 4) * dpr, t.layer[L.pos % 4], t, { size: 12, weight: 700 });
+    });
+    const seqTxt = layers.map(letterOf).join(" ");
+    label(g, W < 520 * dpr ? "Katmanlar üstten" : d.hex ? "Bazal katmanlar üstten (2. katman küçültülmüş)" : "Katmanlar normal boyunca üstten (2. katman küçültülmüş)", 12 * dpr, 16 * dpr, t.ink, t, { size: 11.5, weight: 600 });
+    label(g, `istif: ${seqTxt}${d.hex ? " · HCP" : d.st.period ? ` · periyot ${d.st.period}` : ""}`, 12 * dpr, H - 10 * dpr, t.muted, t, { size: 11 });
+    const aria = `${d.hex ? "HCP bazal" : hklPlain(B.h, B.k, B.l)} katmanlarının üstten görünüşü: ilk üç katman ${seqTxt} konumlarında, kesikli çizgi 2B öteleme hücresi.`;
+    if (chart.getAttribute("aria-label") !== aria) chart.setAttribute("aria-label", aria);
+  }
+
+  /* ═══════════ (c) X-ışını kırınımı ═══════════ */
+  const C = { struct: "bcc", mat: "fe", a: 2.8665, lam: "cu", w: 0.15, ext: true, log: false, unk: null, pending: true, d: null };
+  const cUI = {
+    struct: $("cStruct"), structOut: $("cStructOut"), mat: $("cMat"), matOut: $("cMatOut"), a: $("cA"), aNum: $("cANum"), aOut: $("cAOut"),
+    lam: $("cLam"), lamOut: $("cLamOut"), w: $("cW"), wOut: $("cWOut"), ext: $("cExt"), log: $("cLog"), reset: $("cReset"),
+    unk: $("cUnk"), guessField: $("cGuessField"), guess: $("cGuess"), guessOut: $("cGuessOut"), guessRow: $("cGuessRow"), check: $("cCheck"), next: $("cNext"), exit: $("cExit"),
+    structField: $("cStructField"), matField: $("cMatField"), aField: $("cAField"),
+    peaks: $("cPeaks").tBodies[0], F: $("cF").tBodies[0], rule: $("cRule"), fit: $("cFit"), fitNote: $("cFitNote"), ain: $("cAin"), ainNote: $("cAinNote"), cand: $("cCand"), candNote: $("cCandNote"), status: $("cStatus"),
+  };
+  const UNK_POOL = ["po", "fe", "w", "cu", "al", "si", "ge", "c", "nacl", "pbs", "cscl"];
+  let unkRng = mulberry32(1914), unkLast = -1;
+  const XS = { sc: ["Po"], bcc: ["Fe"], fcc: ["Cu"], dia: ["Si"], nacl: ["Cl⁻", "Na⁺"], cscl: ["Cl⁻", "Cs⁺"] };
+  function computeC() {
+    const M = MATS[C.mat], S = STRUCTS[C.struct], lam = LAMBDAS[C.lam].lam;
+    const xs = M && M.xs ? M.xs : XS[C.struct];
+    const list = reflections(S, C.a, lam, xs);
+    const P = profile(list, C.w), peaks = findPeaks(P);
+    const idx = indexPeaks(peaks, lam);
+    const aIsMat = M && Math.abs(C.a - M.a) < 1e-12;
+    for (const c of idx.cands) c.Z = aIsMat ? zOf({ rho: Number(M.rho), M: M.M }, c.fit.a) : NaN;
+    // Seçilen aday: yoğunluk biliniyorsa Z tam sayıya en yakın olan; değilse ilk
+    let best = idx.cands[0] || null;
+    if (aIsMat && idx.cands.length > 1) {
+      const good = idx.cands.filter((c) => c.Z >= 0.95 && Math.abs(c.Z - Math.round(c.Z)) < 0.05);
+      if (good.length) best = good[0];
+    }
+    // Ölçülen tepeleri kuramsal yansımalarla eşle (etiket için)
+    const visible = list.filter((G) => !G.ext);
+    for (const pk of peaks) { let bestG = null, bd = Infinity; for (const G of visible) { const dd = Math.abs(G.tth - pk.tth); if (dd < bd) { bd = dd; bestG = G; } } pk.G = bestG; pk.off = bd; }
+    C.d = { S, M, lam, xs, list, P, peaks, idx, best, aIsMat };
+  }
+  function syncC() {
+    const S = STRUCTS[C.struct], M = MATS[C.mat];
+    cUI.struct.value = C.struct;
+    setText(cUI.structOut, S.short);
+    if (cUI.mat.dataset.s !== C.struct) { fillMats(cUI.mat, C.struct); cUI.mat.dataset.s = C.struct; }
+    cUI.mat.value = C.mat;
+    const free = !(M && Math.abs(C.a - M.a) < 1e-12);
+    setText(cUI.matOut, free ? "a değiştirildi" : M.name);
+    cUI.a.value = String(C.a);
+    setText(cUI.aOut, `${fix(C.a, 4)} Å`);
+    if (document.activeElement !== cUI.aNum) cUI.aNum.value = String(Number(C.a.toFixed(6)));
+    cUI.aNum.removeAttribute("aria-invalid");
+    cUI.lam.value = C.lam;
+    setText(cUI.lamOut, `${LAMBDAS[C.lam].lam} Å`);
+    cUI.w.value = String(C.w);
+    setText(cUI.wOut, `${fix(C.w, 2)}°`);
+    cUI.ext.checked = C.ext; cUI.log.checked = C.log;
+    const unk = !!C.unk;
+    cUI.structField.hidden = unk; cUI.matField.hidden = unk; cUI.aField.hidden = unk;
+    cUI.guessField.hidden = !unk; cUI.guessRow.hidden = !unk;
+    setText(cUI.unk, unk ? "Başka bir bilinmeyen" : "Bilinmeyen örnek getir");
+    setText(cUI.guessOut, cUI.guess.value ? STRUCTS[cUI.guess.value].short : "—");
+  }
+  function setMatC(m) {
+    const M = MATS[m];
+    C.mat = m; C.struct = M.s; C.a = M.a;
+    C.pending = true; dirty = true; syncC();
+  }
+  function resetC() {
+    C.unk = null; C.lam = "cu"; C.w = 0.15; C.ext = true; C.log = false;
+    cUI.guess.value = "";
+    setMatC("fe");
+  }
+  function newUnknown() {
+    let i;
+    do { i = Math.floor(unkRng() * UNK_POOL.length); } while (i === unkLast);
+    unkLast = i;
+    const m = UNK_POOL[i];
+    C.unk = { mat: m, revealed: false, verdict: "" };
+    cUI.guess.value = "";
+    setMatC(m);
+  }
+  const GUESS_LATT = { sc: "P", cscl: "P", bcc: "I", fcc: "F", nacl: "F", dia: "D" };
+  function checkGuess() {
+    if (!C.unk) return;
+    const g = cUI.guess.value, truth = MATS[C.unk.mat].s, M = MATS[C.unk.mat];
+    if (!g) { C.unk.verdict = "Önce bir yapı seç."; readoutsC(); return; }
+    let v;
+    if (g === truth) v = `Doğru: ${M.name}, ${STRUCTS[truth].name.toLowerCase()} (${STRUCTS[truth].short}), a = ${aStr(M)} Å.`;
+    else if (GUESS_LATT[g] === GUESS_LATT[truth]) {
+      v = `Örgü doğru (${GUESS_LATT[truth] === "P" ? "basit kübik" : "yüzey merkezli"}), baz yanlış: örnek ${M.name}, ${STRUCTS[truth].short}. ` +
+        (truth === "nacl" ? "İpucu: iki iyonlu kaya tuzunda tek indisli çizgiler (111), (311) … f₋ − f₊ ile, çift indisliler f₋ + f₊ ile saçar; (200) çoğu zaman (111)'den güçlüdür." :
+          truth === "cscl" ? "İpucu: CsCl'de h + k + l tek çizgiler f(Cs⁺) − f(Cl⁻), çift olanlar toplamla saçar; şiddetler tek–çift sırayla iner çıkar." :
+            truth === "fcc" ? "İpucu: tek atomlu FCC metalinde (111) en güçlü çizgidir." : "İpucu: tek atomlu basit kübikte şiddetler düzgün azalır.");
+    } else v = `Yanlış: örnek ${M.name}, ${STRUCTS[truth].short}. sin²θ oranlarını ${STRUCTS[truth].short} dizisiyle karşılaştır${truth === "bcc" ? " (1 : 2 : 3 : 4 : 5 : 6 : 7 …; 7 varsa basit kübik olamaz)" : truth === "dia" ? " (3 : 8 : 11 : 16 …, (200) yok)" : truth === "fcc" || truth === "nacl" ? " (3 : 4 : 8 : 11 : 12 …)" : " (1 : 2 : 3 : 4 : 5 : 6 : 8 …, 7 yok)"}.`;
+    C.unk.revealed = true;
+    C.unk.verdict = v;
+    dirty = true;
+    readoutsC();
+  }
+  const hkl3 = (h, k, l) => ([h, k, l].some((v) => v > 9) ? `${h} ${k} ${l}` : `${h}${k}${l}`);
+  function hklOfG(G) {
+    const fs = G.forms.filter((f) => !f.ext);
+    return (fs.length ? fs : G.forms).map((f) => hkl3(f.h, f.k, f.l)).join(", ");
+  }
+  const hklList = (L) => (L && L.length ? L.map((q) => hkl3(q[0], q[1], q[2])).join(", ") : "—");
+  // Uydurma belirsizliği gösterim çözünürlüğünün (10⁻⁵ Å) altındaysa ± sıfır yazılmaz
+  const FIT_RES = 5e-6;
+  const aFitTxt = (f) => (f.sa >= FIT_RES ? `${fix(f.a, 5)} ± ${fix(f.sa, 5)} Å` : `${fix(f.a, 5)} Å (belirsizlik < 0.00001 Å)`);
+  function readoutsC() {
+    const d = C.d;
+    if (!d) return;
+    const hide = C.unk && !C.unk.revealed;
+    const { peaks, idx, best, lam, list, S, M } = d;
+    // Tepe tablosu
+    const rows = peaks.map((pk, i) => {
+      const s2 = Math.sin((pk.tth / 2) * D2R) ** 2, dd = lam / (2 * Math.sin((pk.tth / 2) * D2R));
+      const N = best ? best.N[i] : null;
+      const hkl = hide ? "?" : best ? (N ? `${N}<small>${hklList(best.hkl[i])}</small>` : "—<small>atanamadı</small>") : "—";
+      return `<tr><th scope="row">${i + 1}</th><td class="meas">${fix(pk.tth, 3)}</td><td>${fix(dd, 4)}</td><td>${fix(s2 / idx.s2[0], 4)}</td><td>${hkl}</td><td>${fix(pk.h, 1)}</td></tr>`;
+    });
+    setHTML(cUI.peaks, rows.join("") || `<tr><td colspan="6">Tepe bulunamadı.</td></tr>`);
+    const head = cUI.peaks.parentElement.tHead.rows[0].cells[4];
+    setHTML(head, hide ? "hkl" : "N<small>hkl</small>");
+    // Uydurma
+    if (hide) {
+      setText(cUI.fit, "gizli"); setText(cUI.fitNote, "Kontrol et'ten sonra açılır");
+      setText(cUI.ain, "gizli"); setText(cUI.ainNote, `ρ = ${M.rho} g/cm³, M = ${M.M} g/mol (ipucu)`);
+      setText(cUI.cand, "tahminini yap"); setText(cUI.candNote, `oranlar: ${idx.r.slice(0, 8).map((x) => fix(x, 3)).join(" : ")}`);
+    } else if (best) {
+      const f = best.fit, nUn = best.N.filter((q) => !q).length;
+      setText(cUI.fit, f.sa >= FIT_RES ? `${fix(f.a, 5)} ± ${fix(f.sa, 5)} Å` : `${fix(f.a, 5)} Å`);
+      setText(cUI.fitNote, `${f.sa >= FIT_RES ? "" : "belirsizlik < 0.00001 Å · "}${f.n} tepe${nUn ? ` (${nUn} tepe örtüşmeden atanamadı)` : ""}, sin²θ = A·N, A = ${fix(f.A, 6)}; ${best.C.name}`);
+      setText(cUI.ain, `${fix(C.a, 5)} Å`);
+      setText(cUI.ainNote, f.sa >= FIT_RES ? `fark ${pct((f.a - C.a) / C.a, 4)} (${fix(Math.abs(f.a - C.a) / f.sa, 1)}σ)` : `fark ${pct((f.a - C.a) / C.a, 4)}: desende gürültü yok, ayrık tepelerin konumu tam bulunur; saçılma yalnız örtüşen tepelerden gelir`);
+      setText(cUI.cand, idx.cands.map((c) => `${c.C.key}: a = ${fix(c.fit.a, 4)} Å${Number.isFinite(c.Z) ? `, Z = ${fix(c.Z, 2)}` : ""}`).join(" · "));
+      const miss = best.missing.length ? ` İlk ${Math.min(peaks.length, 12)} çizgide görülmeyen izinli N: ${best.missing.join(", ")} (çok zayıf).` : "";
+      setText(cUI.candNote, (idx.cands.length > 1 ? (d.aIsMat ? "oranlar birden çok örgüye uyuyor; Z = ρN_A a³/M tam sayı olmalı." : "oranlar birden çok örgüye uyuyor; yoğunluk bilinmeden ayırt edilemez.") : "oranlara uyan tek örgü.") + miss);
+    } else {
+      setText(cUI.fit, "—"); setText(cUI.fitNote, "indisleme başarısız");
+      setText(cUI.ain, `${fix(C.a, 5)} Å`); setText(cUI.ainNote, "");
+      setText(cUI.cand, "uyan örgü yok"); setText(cUI.candNote, "tepeler örtüşüyor olabilir: FWHM'i küçült");
+    }
+    // F tablosu (ilk 10 N)
+    const Frows = [];
+    for (const G of list.slice(0, 12)) {
+      for (const f of G.forms) {
+        if (Frows.length >= 12) break;
+        const Fm = Math.hypot(f.re, f.im);
+        const st = f.ext ? "söner" : "görünür";
+        Frows.push(`<tr><th scope="row">${hide ? "?" : `${f.h}${f.k}${f.l}`}</th><td>${f.p}</td><td class="${f.ext ? "" : "theory"}">${f.ext ? "0" : fix(Fm, 2)}</td><td>${fix(G.tth, 2)}</td><td>${st}</td></tr>`);
+      }
+    }
+    setHTML(cUI.F, hide ? `<tr><td colspan="5">Bilinmeyen örnekte gizli.</td></tr>` : Frows.join(""));
+    const rules = {
+      sc: "Basit kübik: hücrede tek atom, F = f; bütün hkl görünür (N = 7, 15, 23 … üç karenin toplamı olmadığından hiç yoktur).",
+      bcc: "BCC: F = f[1 + e^{iπ(h+k+l)}] → h + k + l çiftse 2f, tekse 0. (100), (111), (210) … söner; ilk çizgi (110).",
+      fcc: "FCC: F = f[1 + e^{iπ(h+k)} + e^{iπ(h+l)} + e^{iπ(k+l)}] → indislerin hepsi tek ya da hepsi çiftse 4f, karışıksa 0. (100), (110) söner; ilk çizgiler (111), (200).",
+      dia: "Elmas: FCC kuralına ek olarak F = F_FCC·[1 + e^{iπ(h+k+l)/2}]: hepsi tekse |F| = 4√2 f, hepsi çift ve h + k + l = 4n ise 8f, hepsi çift ve h + k + l = 4n + 2 ise 0. (200), (222), (420) söner.",
+      nacl: "Kaya tuzu: FCC kuralı; hepsi çiftse F = 4(f₋ + f₊), hepsi tekse F = 4(f₋ − f₊). Tek indisli çizgiler iki iyonun farkıyla saçar ve zayıftır; KCl'de K⁺ ile Cl⁻ aynı sayıda elektron (18) taşır, tek çizgiler %1'in altına iner: doğrusal eksende desen a/2'lik basit kübiğe benzer, logaritmik eksende görünür.",
+      cscl: "CsCl: kübik P; h + k + l çiftse F = f₋ + f₊, tekse f₋ − f₊ (sıfır değil). Bütün çizgiler var, şiddetler tek–çift sırayla değişir; iki iyon eşit saçsaydı tek çizgiler sönerdi ve desen BCC'ye dönerdi.",
+    };
+    setText(cUI.rule, hide ? "Sönme kuralları gizli: hangi N değerlerinin eksik olduğuna oranlardan bak." : rules[C.struct]);
+    // Durum
+    const parts = [];
+    if (C.unk) {
+      parts.push(hide ? `Bilinmeyen örnek: ${peaks.length} tepe. ρ = ${M.rho} g/cm³, M = ${M.M} g/mol. sin²θ oranlarına bak, yapıyı seç ve Kontrol et'e bas.` : C.unk.verdict);
+    } else if (!peaks.length) parts.push("Bu a ve λ ile 5°–150° arasında yansıma yok.");
+    else {
+      parts.push(`${d.aIsMat ? M.name : `a = ${fix(C.a, 4)} Å`}, ${LAMBDAS[C.lam].name}: ${peaks.length} tepe; ilk üçü ${peaks.slice(0, 3).map((p, i) => `${fix(p.tth, 2)}°${best && best.hkl[i] ? ` (${hklList(best.hkl[i])})` : ""}`).join(", ")}.`);
+      const extFirst = list.filter((G) => G.ext && G.tth < (peaks[2] ? peaks[2].tth : 180)).map((G) => `(${G.forms.map((f) => `${f.h}${f.k}${f.l}`).join(", ")})`);
+      if (extFirst.length) parts.push(`Bu aralıkta sönen: ${extFirst.join(", ")}.`);
+      if (best) {
+        const amb = idx.cands.length > 1;
+        if (amb && d.aIsMat) parts.push(`Oranlar ${idx.cands.map((c) => `${c.C.key} (a = ${fix(c.fit.a, 4)} Å, Z = ${fix(c.Z, 2)})`).join(" ve ")} ile uyumlu; Z yalnız ${best.C.key} için tam sayı.`);
+        else if (amb) parts.push(`Oranlar ${idx.cands.map((c) => c.C.key).join(" ve ")} örgülerine uyuyor; yoğunluk bilinmeden ayırt edilemez.`);
+        parts.push(`Uydurulan a = ${aFitTxt(best.fit)}; girilen ${fix(C.a, 5)} Å.`);
+        if (d.aIsMat && Number.isFinite(best.Z) && Math.abs(best.Z - Math.round(best.Z)) > 0.05) {
+          parts.push(`Z = ${fix(best.Z, 2)} tam sayı değil: ${Math.abs(best.Z * 8 - Math.round(best.Z * 8)) < 0.1 ? "gerçek hücre kenarı iki katı; tek indisli yansımalar algılanamayacak kadar zayıf" : "indisleme yanlış"}.`);
+        }
+      } else parts.push("Hiçbir kübik örgü bütün tepeleri açıklamadı: tepeler örtüşüyor olabilir, FWHM'i küçült.");
+      if (C.struct === "nacl" && peaks.length) {
+        const g111 = list.find((G) => G.N === 3), g200 = list.find((G) => G.N === 4);
+        if (g111 && g200) parts.push(`(111)/(200) şiddet oranı ${fix(g111.rel / g200.rel, 3)}: tek indisli çizgi f₋ − f₊ ile saçar.`);
+      }
+      if (C.struct === "dia") parts.push("(200) ve (222) yok: iki FCC alt örgüsünün katkısı bu yansımalarda birbirini götürür (gerçek Si'de (222) bağ elektronları yüzünden çok zayıf görünür).");
+    }
+    setText(cUI.status, parts.join(" "));
+    cUI.status.classList.toggle("is-good", !!(C.unk && C.unk.revealed && cUI.guess.value === MATS[C.unk.mat].s));
+    cUI.status.classList.toggle("is-warn", !!(C.unk && C.unk.revealed && cUI.guess.value !== MATS[C.unk.mat].s) || (!C.unk && !best && peaks.length > 0));
+  }
+  function drawStageC(t) {
+    const W = stage.width, H = stage.height, g = sg, d = C.d;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (!d) return;
+    const hide = C.unk && !C.unk.revealed;
+    const Rr = { l: 44 * dpr, t: 34 * dpr, w: W - 58 * dpr, h: H - 34 * dpr - 40 * dpr };
+    const X = (v) => Rr.l + ((v - TTH_MIN) / (TTH_MAX - TTH_MIN)) * Rr.w;
+    const LOGMIN = -2;
+    const Y = (v) => {
+      if (C.log) { const lv = Math.log10(Math.max(v, 1e-6)); return Rr.t + Rr.h - ((Math.max(lv, LOGMIN) - LOGMIN) / (2.1 - LOGMIN)) * Rr.h; }
+      return Rr.t + Rr.h - (v / 110) * Rr.h;
+    };
+    g.lineWidth = 1 * dpr; g.strokeStyle = t.grid;
+    g.font = font(10); g.fillStyle = t.muted;
+    g.textAlign = "center"; g.textBaseline = "top";
+    const xs = W < 600 * dpr ? 20 : 10;
+    for (let v = 10; v <= TTH_MAX; v += xs) { const x = X(v); g.beginPath(); g.moveTo(x, Rr.t); g.lineTo(x, Rr.t + Rr.h); g.stroke(); g.fillText(String(v), x, Rr.t + Rr.h + 5 * dpr); }
+    g.textAlign = "right"; g.textBaseline = "middle";
+    const yt = C.log ? [0.01, 0.1, 1, 10, 100] : [0, 25, 50, 75, 100];
+    for (const v of yt) { const y = Y(v); g.beginPath(); g.moveTo(Rr.l, y); g.lineTo(Rr.l + Rr.w, y); g.stroke(); g.fillText(C.log ? (v < 1 ? fix(v, v < 0.1 ? 2 : 1) : String(v)) : String(v), Rr.l - 5 * dpr, y); }
+    g.strokeStyle = t.axis; g.strokeRect(Rr.l + 0.5, Rr.t + 0.5, Rr.w - 1, Rr.h - 1);
+    label(g, "2θ (°)", Rr.l + Rr.w, Rr.t + Rr.h + 30 * dpr, t.muted, t, { size: 10.5, align: "right" });
+    label(g, C.log ? "I (%, log)" : "I (%)", Rr.l, Rr.t - 8 * dpr, t.muted, t, { size: 10.5 });
+    // Sönen yansımalar
+    if (C.ext && !hide) {
+      g.setLineDash([3 * dpr, 3 * dpr]); g.strokeStyle = t.muted; g.lineWidth = 1.2 * dpr;
+      for (const G of d.list) if (G.ext) { const x = X(G.tth); g.beginPath(); g.moveTo(x, Rr.t + Rr.h); g.lineTo(x, Rr.t + Rr.h - 18 * dpr); g.stroke(); }
+      g.setLineDash([]);
+      let lastX = -1e9;
+      for (const G of d.list) if (G.ext) {
+        const x = X(G.tth);
+        if (x - lastX < 30 * dpr) continue;
+        label(g, `${G.forms[0].h}${G.forms[0].k}${G.forms[0].l}`, x, Rr.t + Rr.h - 22 * dpr, t.muted, t, { size: 9.5, align: "center" });
+        lastX = x;
+      }
+    }
+    // Profil
+    const P = d.P, step = Math.max(1, Math.floor(P.n / (Rr.w / dpr) / 2));
+    g.beginPath();
+    g.moveTo(X(TTH_MIN), Y(C.log ? 1e-6 : 0));
+    for (let i = 0; i < P.n; i += step) {
+      let v = P.y[i];
+      for (let j = 1; j < step && i + j < P.n; j++) v = Math.max(v, P.y[i + j]);
+      g.lineTo(X(P.x0 + i * P.step), Y(v));
+    }
+    g.lineTo(X(TTH_MAX), Y(C.log ? 1e-6 : 0));
+    g.closePath();
+    g.fillStyle = t.fill; g.fill();
+    g.strokeStyle = t.accent; g.lineWidth = 1.5 * dpr; g.stroke();
+    // Kuramsal çubuklar ve etiketler
+    let lastLX = [-1e9, -1e9];
+    for (const G of d.list) {
+      if (G.ext) continue;
+      const x = X(G.tth);
+      g.strokeStyle = rgba(t.accent2, 0.85); g.lineWidth = 1.2 * dpr;
+      g.beginPath(); g.moveTo(x, Y(C.log ? 1e-6 : 0)); g.lineTo(x, Y(G.rel)); g.stroke();
+      if (!hide && G.rel >= (C.log ? 0.02 : 0.8)) {
+        const row = x - lastLX[0] > 34 * dpr ? 0 : x - lastLX[1] > 34 * dpr ? 1 : -1;
+        if (row >= 0) {
+          label(g, hklOfG(G), x, Y(G.rel) - (8 + row * 13) * dpr, t.accent2, t, { size: 10, weight: 600, align: "center" });
+          lastLX[row] = x;
+        }
+      }
+    }
+    for (const pk of d.peaks) {
+      const x = X(pk.tth), y = Y(pk.h) - 3 * dpr;
+      g.fillStyle = t.warm; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 4 * dpr, y - 7 * dpr); g.lineTo(x + 4 * dpr, y - 7 * dpr); g.closePath(); g.fill();
+    }
+    const head = hide ? `Bilinmeyen örnek · ${LAMBDAS[C.lam].name} λ = ${LAMBDAS[C.lam].lam} Å` : `${d.aIsMat ? d.M.name : "serbest a"} · ${d.S.short} · a = ${fix(C.a, 4)} Å · ${LAMBDAS[C.lam].name} λ = ${LAMBDAS[C.lam].lam} Å`;
+    label(g, head, Rr.l, 16 * dpr, t.ink, t, { size: 12, weight: 600 });
+    const aria = `${hide ? "Bilinmeyen örneğin" : `${d.aIsMat ? d.M.name : "serbest a"} (${d.S.short}, a = ${fix(C.a, 4)} Å)`} toz kırınım deseni, ${LAMBDAS[C.lam].name}: ${d.peaks.length} tepe${d.peaks.length ? `, ilk tepe 2θ = ${fix(d.peaks[0].tth, 2)}°` : ""}; mor çubuklar Bragg konumları${C.ext && !hide ? ", kesikli çizgiler sönen yansımalar" : ""}.`;
+    if (stage.getAttribute("aria-label") !== aria) stage.setAttribute("aria-label", aria);
+  }
+  function drawChartC(t) {
+    const W = chart.width, H = chart.height, g = cg, d = C.d;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (!d || !d.peaks.length) return;
+    const hide = C.unk && !C.unk.revealed;
+    const Rr = { l: 52 * dpr, t: 28 * dpr, w: W - 66 * dpr, h: H - 28 * dpr - 38 * dpr };
+    if (hide || !d.best) {
+      // Oranlar: sin²θᵢ/sin²θ₁, tam sayı ızgarası
+      const r = d.idx.r, n = r.length, ymax = Math.ceil(Math.max(...r)) + 1;
+      const X = (i) => Rr.l + ((i + 0.5) / n) * Rr.w, Y = (v) => Rr.t + Rr.h - (v / ymax) * Rr.h;
+      g.strokeStyle = t.grid; g.lineWidth = 1 * dpr; g.font = font(10); g.fillStyle = t.muted; g.textAlign = "right"; g.textBaseline = "middle";
+      const ys = niceStep(ymax / 6);
+      for (let v = 0; v <= ymax + 1e-9; v += ys) { const y = Y(v); g.beginPath(); g.moveTo(Rr.l, y); g.lineTo(Rr.l + Rr.w, y); g.stroke(); g.fillText(String(v), Rr.l - 5 * dpr, y); }
+      g.textAlign = "center"; g.textBaseline = "top";
+      r.forEach((v, i) => { g.fillStyle = t.muted; g.fillText(String(i + 1), X(i), Rr.t + Rr.h + 5 * dpr); g.fillStyle = t.warm; g.beginPath(); g.arc(X(i), Y(v), 4 * dpr, 0, 2 * PI); g.fill(); });
+      label(g, "sin²θᵢ / sin²θ₁ (tepe sırasına göre)", Rr.l, 16 * dpr, t.ink, t, { size: 11.5, weight: 600 });
+      label(g, "tepe no", Rr.l + Rr.w, Rr.t + Rr.h + 28 * dpr, t.muted, t, { size: 10.5, align: "right" });
+      const aria = `Tepelerin sin²θ oranları: ${r.slice(0, 10).map((v) => fix(v, 3)).join(", ")}.`;
+      if (chart.getAttribute("aria-label") !== aria) chart.setAttribute("aria-label", aria);
+      return;
+    }
+    const b = d.best, Nmax = Math.max(...b.N.filter((q) => q)) + 1, smax = Math.min(1, Math.max(...d.idx.s2) * 1.1);
+    const X = (v) => Rr.l + (v / Nmax) * Rr.w, Y = (v) => Rr.t + Rr.h - (v / smax) * Rr.h;
+    g.strokeStyle = t.grid; g.lineWidth = 1 * dpr; g.font = font(10); g.fillStyle = t.muted; g.textAlign = "center"; g.textBaseline = "top";
+    const xs = niceStep(Nmax / 8);
+    for (let v = 0; v <= Nmax; v += xs) { const x = X(v); g.beginPath(); g.moveTo(x, Rr.t); g.lineTo(x, Rr.t + Rr.h); g.stroke(); g.fillText(String(v), x, Rr.t + Rr.h + 5 * dpr); }
+    g.textAlign = "right"; g.textBaseline = "middle";
+    const ys = niceStep(smax / 5);
+    for (let v = 0; v <= smax + 1e-9; v += ys) { const y = Y(v); g.beginPath(); g.moveTo(Rr.l, y); g.lineTo(Rr.l + Rr.w, y); g.stroke(); g.fillText(fix(v, ys < 0.1 ? 2 : 1), Rr.l - 5 * dpr, y); }
+    g.strokeStyle = t.accent2; g.lineWidth = 2 * dpr;
+    g.beginPath(); g.moveTo(X(0), Y(0)); g.lineTo(X(Nmax), Y(Math.min(smax, b.fit.A * Nmax))); g.stroke();
+    b.N.forEach((N, i) => { if (!N) return; g.fillStyle = t.warm; g.beginPath(); g.arc(X(N), Y(d.idx.s2[i]), 4 * dpr, 0, 2 * PI); g.fill(); });
+    label(g, `sin²θ – N: eğim A = λ²/(4a²) = ${fix(b.fit.A, 6)} → a = ${fix(b.fit.a, 5)} Å`, Rr.l, 16 * dpr, t.ink, t, { size: 11.5, weight: 600 });
+    label(g, "N = h² + k² + l²", Rr.l + Rr.w, Rr.t + Rr.h + 28 * dpr, t.muted, t, { size: 10.5, align: "right" });
+    const aria = `sin²θ ile N grafiği: ${b.fit.n} tepe başlangıçtan geçen doğruya oturuyor, eğim ${fix(b.fit.A, 6)}, uydurulan a = ${fix(b.fit.a, 5)} Å.`;
+    if (chart.getAttribute("aria-label") !== aria) chart.setAttribute("aria-label", aria);
+  }
+
+  /* ── Sekmeler ── */
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((x) => x.dataset.tab);
+  const ST = { tab: "hucre" };
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    ST.tab = key;
+    tabs.forEach((x) => {
+      const on = x.dataset.tab === key;
+      x.setAttribute("aria-selected", String(on));
+      x.tabIndex = on ? 0 : -1;
+      if (on && focus) x.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = el.dataset.for !== key; });
+    if (fromUser) { try { history.replaceState(null, "", `#${key}`); } catch (_) {} }
+    endDrag();
+    resize();
+    dirty = true;
+  }
+  tabs.forEach((x, i) => {
+    x.addEventListener("click", () => selectTab(x.dataset.tab, false, true));
+    x.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== ST.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Denetimler ── */
+  // (a)
+  aUI.struct.addEventListener("change", () => setStructA(aUI.struct.value));
+  aUI.mat.addEventListener("change", () => { A.mat = aUI.mat.value; A.pending = true; dirty = true; syncA(); });
+  aUI.size.addEventListener("input", () => { A.u = Number(aUI.size.value); A.pending = true; dirty = true; syncA(); });
+  aUI.point.addEventListener("click", () => { A.u = 0; A.pending = true; dirty = true; syncA(); });
+  aUI.full.addEventListener("click", () => { A.u = 1; A.pending = true; dirty = true; syncA(); });
+  aUI.color.addEventListener("change", () => { A.color = aUI.color.value; dirty = true; syncA(); readoutsA(); });
+  aUI.touch.addEventListener("change", () => { A.touch = aUI.touch.checked; dirty = true; syncA(); });
+  aUI.neigh.addEventListener("change", () => { A.neigh = aUI.neigh.checked; dirty = true; syncA(); });
+  aUI.yaw.addEventListener("input", () => { A.yaw = Number(aUI.yaw.value); dirty = true; syncA(); });
+  aUI.pitch.addEventListener("input", () => { A.pitch = Number(aUI.pitch.value); dirty = true; syncA(); });
+  aUI.v1.addEventListener("click", () => { const v = STRUCTS[A.struct].lat === "hex" ? viewAlong([1, 0, 0]) : viewAlong([1, 0, 0]); A.yaw = v.yaw; A.pitch = v.pitch; dirty = true; syncA(); });
+  aUI.v2.addEventListener("click", () => { const v = STRUCTS[A.struct].lat === "hex" ? viewAlong([0, 0, 1]) : viewAlong([1, 1, 1]); A.yaw = v.yaw; A.pitch = v.pitch; dirty = true; syncA(); });
+  // Dönme durunca açı kaydırıcının tam derece adımına oturur
+  function setRot(T, on) { T.rot = on; if (!on) { T.yaw = Math.round(T.yaw); dirty = true; } if (T === A) syncA(); else syncB(); }
+  aUI.rot.addEventListener("click", () => setRot(A, !A.rot));
+  aUI.reset.addEventListener("click", resetA);
+  // (b)
+  bUI.struct.addEventListener("change", () => { B.struct = bUI.struct.value; B.pending = true; dirty = true; syncB(); });
+  for (const [el, k] of [[bUI.h, "h"], [bUI.k, "k"], [bUI.l, "l"]]) el.addEventListener("change", () => { B[k] = Number(el.value); B.pending = true; dirty = true; syncB(); });
+  document.querySelectorAll("#bPresets button").forEach((btn) => btn.addEventListener("click", () => {
+    const [h, k, l] = btn.dataset.hkl.split(",").map(Number);
+    Object.assign(B, { h, k, l, pending: true }); dirty = true; syncB();
+  }));
+  bUI.size.addEventListener("input", () => { B.u = Number(bUI.size.value); dirty = true; syncB(); });
+  bUI.yaw.addEventListener("input", () => { B.yaw = Number(bUI.yaw.value); dirty = true; syncB(); });
+  bUI.pitch.addEventListener("input", () => { B.pitch = Number(bUI.pitch.value); dirty = true; syncB(); });
+  bUI.along.addEventListener("click", () => {
+    const n = STRUCTS[B.struct].lat === "hex" ? [0, 0, 1] : (B.h || B.k || B.l) ? [B.h, B.k, B.l] : [1, 1, 1];
+    const v = viewAlong(n); B.yaw = v.yaw; B.pitch = v.pitch; dirty = true; syncB();
+  });
+  bUI.edge.addEventListener("click", () => {
+    const n = STRUCTS[B.struct].lat === "hex" ? [0, 0, 1] : (B.h || B.k || B.l) ? [B.h, B.k, B.l] : [1, 1, 1];
+    // Görüş doğrultusu düzleme paralel: n'ye dik bir doğrultu boyunca bak
+    const ref = Math.abs(n[2]) < 0.9 * len(n) ? [0, 0, 1] : [1, 0, 0];
+    const w = cross(n, ref), u = cross(w, n);
+    const v = viewAlong(Math.abs(n[2]) < 0.9 * len(n) ? w : u);
+    B.yaw = v.yaw; B.pitch = v.pitch; dirty = true; syncB();
+  });
+  bUI.rot.addEventListener("click", () => setRot(B, !B.rot));
+  bUI.reset.addEventListener("click", resetB);
+  // (c)
+  cUI.struct.addEventListener("change", () => setMatC(STRUCT_MATS[cUI.struct.value][0]));
+  cUI.mat.addEventListener("change", () => setMatC(cUI.mat.value));
+  cUI.a.addEventListener("input", () => { C.a = Number(cUI.a.value); C.pending = true; dirty = true; syncC(); });
+  cUI.aNum.addEventListener("change", () => {
+    const v = Number(String(cUI.aNum.value).trim().replace(",", "."));
+    if (!Number.isFinite(v) || v < 2.5 || v > 7) { cUI.aNum.setAttribute("aria-invalid", "true"); setText(cUI.status, "Örgü sabiti 2.5 ile 7 Å arasında bir sayı olmalı (ondalık için nokta ya da virgül)."); cUI.aNum.value = String(Number(C.a.toFixed(6))); return; }
+    C.a = v; C.pending = true; dirty = true; syncC();
+  });
+  cUI.aNum.addEventListener("keydown", (e) => { if (e.key === "Enter") cUI.aNum.dispatchEvent(new Event("change")); });
+  cUI.lam.addEventListener("change", () => { C.lam = cUI.lam.value; C.pending = true; dirty = true; syncC(); });
+  cUI.w.addEventListener("input", () => { C.w = Number(cUI.w.value); C.pending = true; dirty = true; syncC(); });
+  cUI.ext.addEventListener("change", () => { C.ext = cUI.ext.checked; dirty = true; });
+  cUI.log.addEventListener("change", () => { C.log = cUI.log.checked; dirty = true; });
+  cUI.reset.addEventListener("click", resetC);
+  cUI.unk.addEventListener("click", newUnknown);
+  cUI.next.addEventListener("click", newUnknown);
+  cUI.exit.addEventListener("click", resetC);
+  cUI.check.addEventListener("click", checkGuess);
+  cUI.guess.addEventListener("change", () => { syncC(); });
+
+  /* ── İşaretçi: (a) ve (b)'de sürükleyerek döndür ── */
+  let drag = null;
+  function endDrag() { if (drag) { drag = null; stage.classList.remove("is-dragging"); } }
+  stage.addEventListener("pointerdown", (e) => {
+    if (ST.tab === "kirinim") return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const T = ST.tab === "hucre" ? A : B;
+    drag = { x: e.clientX, y: e.clientY, yaw: T.yaw, pitch: T.pitch, T };
+    stage.setPointerCapture(e.pointerId);
+    stage.classList.add("is-dragging");
+  });
+  stage.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const T = drag.T;
+    let yaw = drag.yaw - (e.clientX - drag.x) * 0.5;
+    yaw = ((((yaw + 180) % 360) + 360) % 360) - 180;
+    T.yaw = Math.round(yaw);
+    if (e.pointerType !== "touch") T.pitch = Math.round(Math.max(-90, Math.min(90, drag.pitch + (e.clientY - drag.y) * 0.5)));
+    dirty = true;
+    if (T === A) syncA(); else syncB();
+  });
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+
+  /* ── Klavye: R sekmeyi sıfırlar, Boşluk (a) ve (b)'de kendiliğinden dönmeyi açar ── */
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.closest("input, select, textarea, button, a, [contenteditable]")) return;
+    const r = labPanel.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return;
+    if (e.key === "r" || e.key === "R") {
+      if (ST.tab === "hucre") resetA(); else if (ST.tab === "duzlemler") resetB(); else resetC();
+    } else if (e.code === "Space" && ST.tab !== "kirinim") {
+      e.preventDefault();
+      if (e.repeat) return;
+      if (ST.tab === "hucre") setRot(A, !A.rot); else setRot(B, !B.rot);
+    }
+  });
+
+  /* ── Döngü ── */
+  const ROT_SPEED = 24; // °/s
+  let lastFrame = 0, lastTheme = "";
+  function render() {
+    const t = theme();
+    if (ST.tab === "hucre") { drawStageA(t); drawChartA(t); }
+    else if (ST.tab === "duzlemler") { drawStageB(t); drawChartB(t); }
+    else { drawStageC(t); drawChartC(t); }
+  }
+  function frame(now) {
+    const dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (ST.tab === "hucre") {
+      if (A.pending) { A.pending = false; geomA(); A.measDue = now + (A.d && A.measDue === 0 ? 0 : 160); A.measPending = true; aOut.classList.add("is-stale"); dirty = true; }
+      if (A.measPending && now >= A.measDue) { A.measPending = false; measureA(); readoutsA(); aOut.classList.remove("is-stale"); dirty = true; }
+      else if (!A.measPending && stepBars()) dirty = true;
+      if (A.rot && !drag && !paused) { A.yaw = ((((A.yaw + ROT_SPEED * dt + 180) % 360) + 360) % 360) - 180; syncA(); dirty = true; }
+    } else if (ST.tab === "duzlemler") {
+      if (B.pending) { B.pending = false; computeB(); readoutsB(); dirty = true; }
+      if (B.rot && !drag && !paused) { B.yaw = ((((B.yaw + ROT_SPEED * dt + 180) % 360) + 360) % 360) - 180; syncB(); dirty = true; }
+    } else if (C.pending) { C.pending = false; computeC(); readoutsC(); dirty = true; }
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) { lastTheme = th; dirty = true; if (A.d) readoutsA(); }
+    if (dirty) { dirty = false; render(); }
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const cv of [stage, chart]) {
+      const r = cv.getBoundingClientRect();
+      if (!r.width) continue;
+      const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    }
+    dirty = true;
+  }
+
+  /* ── Başlat ── */
+  fillMats(aUI.mat, "fcc");
+  syncA();
+  syncB();
+  fillMats(cUI.mat, "bcc"); cUI.mat.dataset.s = "bcc";
+  syncC();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "hucre", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+  window.__kristal = { STRUCTS, MATS, A, B, C, ST, selectTab, geomA, measureA, computeB, computeC, packingGrid, countAtoms, touching, shells, reflections, findPeaks, indexPeaks, planeAnalysis };
+})();
+</script>
+</body>
 </html>
