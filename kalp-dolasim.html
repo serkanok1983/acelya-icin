@@ -2,152 +2,2324 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kalp & Dolaşım</title>
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kalp ve Dolaşım: Basınç–Hacim Döngüsü, Windkessel ve Oksijen Taşıma</title>
+  <meta name="description" content="Zamanla değişen elastans modeliyle sol karıncığın basınç–hacim döngüsünü ve Wiggers diyagramını izle; ön yük, ard yük, kasılma ve atardamar esnekliğiyle Frank–Starling eğrisini ve windkessel zaman sabitini ölç; hemoglobinin oksijen ayrışma eğrisinde Bohr kaymasını ve Fick ilkesini dene.">
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
-      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
-    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
-    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 38rem; }
-    canvas { background: #121820; border-radius: 8px; max-width: 100%; }
-    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
-    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
-    input[type="range"] { width: 160px; accent-color: #f85149; }
-    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
-    #info { font-size: 0.9rem; color: #8b949e; text-align: center; max-width: 40rem; }
-    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(270px, 1fr);
+      grid-template-areas: "stage side" "res res";
+      gap: 14px 16px;
+      align-items: start;
+    }
+    .lab[hidden] { display: none !important; }
+    .stage { grid-area: stage; display: grid; gap: 10px; min-width: 0; }
+    .side { grid-area: side; display: grid; gap: 12px; min-width: 0; }
+    .res { grid-area: res; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px; align-items: start; min-width: 0; }
+    .res-main, .res-side { display: grid; gap: 12px; min-width: 0; }
+    .lab canvas { width: 100%; display: block; border-radius: 12px; }
+    .cv-stage {
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+    }
+    .cv-chart { aspect-ratio: 16 / 10; background: rgba(8, 12, 22, 0.75); }
+    .cv-wig { aspect-ratio: 16 / 11; background: rgba(8, 12, 22, 0.75); }
+    .cv-sq { aspect-ratio: 5 / 4; background: rgba(8, 12, 22, 0.75); }
+    [data-theme="light"] .cv-stage { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .cv-chart,
+    [data-theme="light"] .cv-wig,
+    [data-theme="light"] .cv-sq { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .app-content .panel h3 { margin: 2px 0 0; font-size: 0.84rem; font-weight: 700; color: var(--text) !important; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; min-width: 0; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .num-row { display: grid; grid-template-columns: minmax(0, 1fr) 5.6em; gap: 10px; align-items: center; }
+    .num-row input[inputmode="decimal"] { width: 100%; box-sizing: border-box; padding: 5px 6px; font: inherit; font-size: 0.84rem; font-variant-numeric: tabular-nums; min-width: 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .presets button { padding: 8px 10px; font: inherit; font-size: 0.8rem; line-height: 1.3; text-align: left; cursor: pointer; min-width: 0; }
+    .presets button[aria-pressed="true"] { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+    .check { display: inline-flex; gap: 6px; align-items: center; font-size: 0.84rem; cursor: pointer; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .legend span { white-space: nowrap; }
+    .legend span.long { white-space: normal; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.k-acc { border-top-color: var(--accent); }
+    .legend i.k-acc2 { border-top-color: var(--accent-2); }
+    .legend i.k-warm { border-top-color: var(--accent-warm); }
+    .legend i.k-red { border-top-color: var(--danger); }
+    .legend i.k-ink { border-top-color: var(--text); }
+    .legend i.box { width: 12px; height: 10px; border: 0; border-radius: 3px; }
+    .legend i.box.k-acc { background: color-mix(in srgb, var(--accent) 45%, transparent); }
+    .legend i.box.k-acc2 { background: color-mix(in srgb, var(--accent-2) 45%, transparent); }
+    .legend i.box.k-red { background: color-mix(in srgb, var(--danger) 45%, transparent); }
+    .legend i.box.k-warm { background: color-mix(in srgb, var(--accent-warm) 45%, transparent); }
+    .legend i.dot { width: 9px; height: 9px; border: 0; border-radius: 50%; background: var(--accent-warm); }
+    .legend i.dot.k-acc { background: var(--accent); }
+    .legend i.dot.k-red { background: var(--danger); }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.3; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .readout.is-wait strong { color: var(--text-muted) !important; font-weight: 500; font-style: italic; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; vertical-align: top; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.78rem; }
+    .lab table.cmp td.meas { color: var(--accent-warm) !important; font-weight: 600; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp td.wait { color: var(--text-muted) !important; font-style: italic; }
+    .lab table.cmp col.c-name { width: 34%; }
+    .lab table.cmp.sweep col { width: auto; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    .disclaimer { margin-top: 16px; color: var(--text-muted); }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "res"; gap: 12px; }
+      .res { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .res-main, .res-side { display: contents; }
+      .res .notes-panel { order: 9; }
+      .cv-stage { aspect-ratio: 4 / 3; }
+      .cv-wig { aspect-ratio: 1 / 1; }
+      .cv-chart { aspect-ratio: 4 / 3; }
+      .cv-sq { aspect-ratio: 1 / 1; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.76rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 5px; }
+      .lab table.cmp col.c-name { width: 33%; }
+    }
+    @media (max-width: 420px) {
+      .presets { grid-template-columns: minmax(0, 1fr); }
+    }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="kalp-dolasim">
-  <h1>Kalp ve Kan Dolaşımı</h1>
-  <p class="sub">Kalp atışı: sistol (kasılma) ve diyastol (gevşeme). Oksijenli ve oksijensiz kan yolları.</p>
-  <canvas id="cv"></canvas>
-  <div class="panel">
-    <label>Nabız (atım/dk) <input type="range" id="bpm" min="40" max="120" value="72"></label>
-    <button id="pauseBtn">Duraklat</button>
+
+<div class="app-content">
+  <h1>Kalp ve Dolaşım: Basınç–Hacim Döngüsü, Windkessel ve Oksijen Taşıma</h1>
+  <p class="hint">Sol karıncık kasılırken sertleşen, gevşerken yumuşayan bir odacıktır; kapaklar basınç farkıyla açılıp kapanır, esnek aort her atımın kanını depolayıp diyastolde çevreye yayar. Döngüyü izle, yükü değiştirip ölç, sonra kanın oksijeni dokuya nasıl bıraktığını gör.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney bölümleri">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-dongu" data-tab="dongu" aria-selected="true" aria-controls="panel-dongu">Kalp döngüsü</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-yuk" data-tab="yuk" aria-selected="false" aria-controls="panel-yuk" tabindex="-1">Frank–Starling ve yük</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-oksijen" data-tab="oksijen" aria-selected="false" aria-controls="panel-oksijen" tabindex="-1">Oksijen taşıma</button>
   </div>
-  <p id="info"></p>
-  <a class="back" href="index.html">← Ana menü</a>
+
+  <!-- (a) Kalp döngüsü -->
+  <section class="lab" id="panel-dongu" role="tabpanel" aria-labelledby="tab-dongu">
+    <div class="stage">
+      <canvas id="heartCanvas" class="cv-stage" width="960" height="540" role="img" aria-label="Dolaşım şeması: sol kulakçık, mitral kapak, sol karıncık, aort kapağı, esnek aort, atardamarlar, arteriyoller, kılcallar ve toplardamarlar. Karıncığın boyu anlık hacmi, duvar rengi kasılmayı gösterir; kapaklar açılıp kapanır, hareket eden noktalar kan akışıdır. Üstteki şerit atımın evrelerini ve şu anki anı gösterir."></canvas>
+      <canvas id="wiggersCanvas" class="cv-wig" width="960" height="660" role="img" aria-label="Wiggers diyagramı, son 2.5 saniye: üstte sol karıncık, aort ve sol kulakçık basıncı; ortada mitral ve aort kapağının açık olduğu aralıklar; altta karıncık hacmi. Arka plan dört evreyi renklendirir, en üst şerit sistol ve diyastolü ayırır, dikey çizgiler kapak olaylarıdır."></canvas>
+      <p class="legend">
+        <span><i class="k-red"></i>sol karıncık basıncı P<sub>LV</sub></span>
+        <span><i class="k-acc"></i>aort basıncı P<sub>ao</sub></span>
+        <span><i class="dash k-acc2"></i>sol kulakçık (dolum) basıncı P<sub>LA</sub></span>
+        <span><i class="k-warm"></i>karıncık hacmi V</span>
+      </p>
+      <p class="legend">
+        <span><i class="box k-acc2"></i>İK: izovolümik kasılma</span>
+        <span><i class="box k-red"></i>atım (ejeksiyon)</span>
+        <span><i class="box k-warm"></i>İG: izovolümik gevşeme</span>
+        <span><i class="box k-acc"></i>dolum</span>
+        <span class="long">Olaylar: MK mitral kapanır, AA aort kapağı açılır, AK aort kapağı kapanır, MA mitral açılır. Sistol MK'den AK'ye, diyastol AK'den bir sonraki MK'ye sürer.</span>
+      </p>
+    </div>
+
+    <div class="side">
+      <div class="panel" role="group" aria-labelledby="aTitle">
+        <h2 id="aTitle">Nabız ve gösterim</h2>
+        <div class="field">
+          <label for="aHR"><span class="lt">Nabız (kalp hızı) HR</span><output id="aHROut" for="aHR">70 atım/dk</output></label>
+          <input type="range" id="aHR" min="40" max="180" step="1" value="70">
+        </div>
+        <div class="presets" role="group" aria-label="Hazır nabız değerleri">
+          <button type="button" class="app-btn-ghost" data-hr="50" aria-pressed="false">Yavaş: 50 atım/dk</button>
+          <button type="button" class="app-btn-ghost" data-hr="70" aria-pressed="true">Dinlenim: 70 atım/dk</button>
+          <button type="button" class="app-btn-ghost" data-hr="120" aria-pressed="false">Hızlı: 120 atım/dk</button>
+          <button type="button" class="app-btn-ghost" data-hr="170" aria-pressed="false">Çok hızlı: 170 atım/dk</button>
+        </div>
+        <div class="field">
+          <label for="aSpeed"><span class="lt">Gösterim hızı</span><output id="aSpeedOut" for="aSpeed">gerçek zaman</output></label>
+          <select id="aSpeed">
+            <option value="0.1">0.1× (ağır çekim)</option>
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1× (gerçek zaman)</option>
+          </select>
+        </div>
+        <label class="check" for="aAuto"><input type="checkbox" id="aAuto" checked><span>Ayar değişince geçiş atımlarını hızla geç</span></label>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="aSkip">Kararlı duruma atla</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Varsayılanlara dön</button>
+        </div>
+        <p class="note">Nabız arttıkça sistol biraz, diyastol çok kısalır: 70 atım/dk'da sistol döngünün yaklaşık %40'ı, 170 atım/dk'da üçte ikisidir. Yeni nabız bir sonraki atımın başında uygulanır ve ölçüm yeniden başlar. Kutu işaretliyken geçiş atımları arka planda hızla hesaplanır; kaldırırsan dolaşımın yeni dengesine atım atım nasıl vardığını izlersin. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> ölçümü yeniden başlat; bir form öğesi odaktayken çalışmaz.</p>
+        <p class="note">Kanın yolu: akciğerden gelen kan sol kulakçıktan mitral kapakla karıncığa, oradan aort kapağıyla aorta geçer; esnek aort ve büyük atardamarlar sistolde gerilip kanı depolar, diyastolde geri yaylanıp arteriyollere ve kılcallara iter. Direncin büyük kısmı arteriyollerdedir; yarıçapın küçük bir değişimi Poiseuille yasası gereği direnci dördüncü kuvvetle değiştirir (ikinci sekmede dene).</p>
+      </div>
+    </div>
+
+    <div class="res">
+      <div class="res-main">
+        <canvas id="pvCanvas" class="cv-sq" width="800" height="640" role="img" aria-label="Basınç–hacim döngüsü: yatay eksen karıncık hacmi, dikey eksen karıncık basıncı. Son tam atımın döngüsü evre renkleriyle, uç-sistolik basınç–hacim doğrusu (eğim E_es), uç-diyastolik basınç–hacim eğrisi, etkin atardamar elastansı E_a doğrusu ve Sunagawa kestirimi ile şu anki nokta çizilir; döngünün içi atım işidir."></canvas>
+        <p class="legend">
+          <span><i class="dash k-red"></i>uç-sistolik ilişki (ESPVR), eğim E<sub>es</sub></span>
+          <span><i class="dash k-acc"></i>uç-diyastolik ilişki (EDPVR)</span>
+          <span><i class="dash k-warm"></i>E<sub>a</sub> doğrusu: (EDV, 0) ile uç-sistolik nokta</span>
+          <span><i class="dot"></i>şu anki an</span>
+        </p>
+        <div class="panel notes-panel">
+          <h2>Model ve yöntem</h2>
+        <p class="note">Model: sol karıncık zamanla değişen bir elastanstır (Suga &amp; Sagawa 1974): P<sub>LV</sub> = e(t)·E<sub>es</sub>·(V − V₀) + [1 − e(t)]·A(e<sup>B(V − V₀)</sup> − 1). Aktivasyon e(t), sistolde 0'dan 1'e çıkıp yeniden 0'a inen düzgün bir çift Hill eğrisidir (Stergiopulos ve ark. 1996); tepesine T<sub>maks</sub> = 0.2 s + 0.15·T sürede varır, T = 60/HR atım süresidir. Diyastolik ilişki doğrusal alınsaydı bu, P = E(t)·(V − V₀) biçimine iner; üstel diyastolik ilişki, çok dolan karıncığın sertleşmesini verir. Mitral ve aort kapakları küçük dirençli ideal diyotlardır (0.005 ve 0.003 mmHg·s/mL, geri kaçak yok). Sol kulakçık sabit bir dolum basıncı P<sub>LA</sub> = 8 mmHg kaynağıdır; kulakçık kasılması yoktur. Atardamar yükü üç elemanlı windkessel'dir: karakteristik empedans Z<sub>c</sub> = 0.045, çevresel direnç R = 1.17 mmHg·s/mL ve kompliyans C = 1.7 mL/mmHg (Westerhof ve ark. 2009). R'nin ucundaki toplardamar basıncı 0 mmHg alınır (sağ kulakçık basıncı yaklaşık 0 mmHg'dir, Guyton &amp; Hall).</p>
+        <p class="note">Parametreler, varsayılan atım ders kitabındaki dinlenim değerlerine otursun diye seçildi: E<sub>es</sub> = 2.8 mmHg/mL, V₀ = 10 mL, A = 0.31 mmHg, B = 0.03 mL⁻¹. Geçerlik: refleksler (baroreseptör, sempatik uyarı), kulakçık kasılması, sağ kalp ve akciğer dolaşımı, kanın eylemsizliği ve yansıyan basınç dalgaları yoktur; kapak hastalıkları (darlık, yetersizlik) modellenmedi. Kasılmanın başlangıcı yavaş çizildiğinden izovolümik kasılma (≈0.09 s) Guyton &amp; Hall'un verdiği 0.02–0.03 s'den uzundur.</p>
+        <p class="note">Sayısal yöntem: sabit adımlı dördüncü mertebe Runge–Kutta (RK4), h = 0.5 ms; atımın son adımı atım sınırına denk gelecek kadar kısaltılır. Kapakların açılıp kapandığı anlar ve en büyük elastans anı adımın içinde doğrusal aradeğerlemeyle, basınç tepeleri üç ardışık örnekten geçen parabolle bulunur. Atım hacmi, ortalama basınç ve atım işi (döngü alanı −∮P dV) aynı RK4 adımlarıyla integrallenir. Değerler, ardışık iki atım arasında EDV, ESV, sistolik, diyastolik ve ortalama basınç ile atım işi art arda iki kez %0.002'den az değiştiğinde (periyodik kararlı durum) yazılır ve ayar değişene dek o atımın değerleri gösterilir. Adımı yarıya indirmek varsayılan atımda SV'yi 0.0001 mL'den, basınçları 0.001 mmHg'den az değiştirir.</p>
+        </div>
+      </div>
+      <div class="res-side">
+        <div class="cards" aria-live="polite">
+          <div class="readout"><small>Uç-diyastolik hacim EDV</small><strong id="aEDV">—</strong></div>
+          <div class="readout"><small>Uç-sistolik hacim ESV</small><strong id="aESV">—</strong></div>
+          <div class="readout is-highlight"><small>Atım hacmi SV = EDV − ESV</small><strong id="aSV">—</strong></div>
+          <div class="readout"><small>Ejeksiyon fraksiyonu EF = SV/EDV</small><strong id="aEF">—</strong></div>
+          <div class="readout is-highlight"><small>Aort basıncı: sistolik/diyastolik</small><strong id="aBP">—</strong></div>
+          <div class="readout"><small>Ortalama arter basıncı (zaman ortalaması)</small><strong id="aMAP">—</strong></div>
+          <div class="readout"><small>Kalp debisi Q̇ = HR × SV</small><strong id="aCO">—</strong></div>
+          <div class="readout"><small>Atım işi SW (döngü alanı)</small><strong id="aSW">—</strong></div>
+          <div class="readout"><small>Sistol / diyastol süresi</small><strong id="aSD">—</strong></div>
+        </div>
+        <div class="panel">
+          <h2>Ölçülen ve kuram</h2>
+          <table class="cmp">
+            <caption class="visually-hidden">Benzetilen atımdan ölçülen değerler ile model formüllerinin karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">EDV · tam dolum: V₀ + ln(1 + P<sub>LA</sub>/A)/B</th><td id="aEdvM" class="meas">—</td><td id="aEdvT">—</td><td id="aEdvD" class="diff">—</td></tr>
+              <tr><th scope="row">Ortalama basınç · Ohm: P<sub>v</sub> + Q̇·(R + Z<sub>c</sub>)</th><td id="aMapM" class="meas">—</td><td id="aMapT">—</td><td id="aMapD" class="diff">—</td></tr>
+              <tr><th scope="row">Ortalama basınç · yaklaşım 0.6·P<sub>d</sub> + 0.4·P<sub>s</sub></th><td id="aMap2M" class="meas">—</td><td id="aMap2T">—</td><td id="aMap2D" class="diff">—</td></tr>
+              <tr><th scope="row">E<sub>a</sub> = P<sub>es</sub>/SV · Sunagawa: (R + Z<sub>c</sub>)/T</th><td id="aEaM" class="meas">—</td><td id="aEaT">—</td><td id="aEaD" class="diff">—</td></tr>
+              <tr><th scope="row">SV · bağlaşım: (EDV − V₀)·E<sub>es</sub>/(E<sub>es</sub> + E<sub>a</sub>)</th><td id="aSvM" class="meas">—</td><td id="aSvT">—</td><td id="aSvD" class="diff">—</td></tr>
+              <tr><th scope="row">Atım işi · klinik yaklaşım SV·(MAP − P<sub>LA</sub>)</th><td id="aSwM" class="meas">—</td><td id="aSwT">—</td><td id="aSwD" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Ölçülen: benzetilen atımdan. EDV mitralin kapandığı, ESV aort kapağının kapandığı andaki hacimdir; P<sub>es</sub> en büyük elastans anındaki (T<sub>maks</sub>) karıncık basıncıdır. Ortalama basınç aort basıncının bir atım boyunca zaman ortalamasıdır. Ohm satırı kararlı durumda tam olmalıdır, çünkü atım başına C'de biriken kan sıfırdır. Sunagawa ve ark. (1983) uç-sistolik basıncı P<sub>es</sub> ≈ E<sub>a</sub>·SV yazar ve E<sub>a</sub>'yı R/T ile kestirir (insanda Kelly ve ark. 1992); fark bu kestirimin yaklaşıklığıdır. Klinik atım işi formülü, ejeksiyon basıncı yerine ortalama arter basıncını kullandığı için döngü alanını küçük bulur.</p>
+          <p class="status" id="aStatus" role="status"></p>
+        </div>
+        <div class="panel">
+          <h2>Ders kitabıyla karşılaştırma</h2>
+          <table class="cmp">
+            <caption class="visually-hidden">Ölçülen değerlerin erişkin dinlenim değerleriyle karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Ders kitabı</th><th scope="col">Durum</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">EDV</th><td id="bkEdvM" class="meas">—</td><td>110–120 mL</td><td id="bkEdvD" class="diff">—</td></tr>
+              <tr><th scope="row">ESV</th><td id="bkEsvM" class="meas">—</td><td>40–50 mL</td><td id="bkEsvD" class="diff">—</td></tr>
+              <tr><th scope="row">SV</th><td id="bkSvM" class="meas">—</td><td>≈ 70 mL</td><td id="bkSvD" class="diff">—</td></tr>
+              <tr><th scope="row">EF</th><td id="bkEfM" class="meas">—</td><td>≈ %60; normal %52–74</td><td id="bkEfD" class="diff">—</td></tr>
+              <tr><th scope="row">Sistolik basınç</th><td id="bkPsM" class="meas">—</td><td>120 mmHg</td><td id="bkPsD" class="diff">—</td></tr>
+              <tr><th scope="row">Diyastolik basınç</th><td id="bkPdM" class="meas">—</td><td>80 mmHg</td><td id="bkPdD" class="diff">—</td></tr>
+              <tr><th scope="row">Kalp debisi</th><td id="bkCoM" class="meas">—</td><td>≈ 5 L/dk</td><td id="bkCoD" class="diff">—</td></tr>
+              <tr><th scope="row">Sistolün döngüdeki payı</th><td id="bkFrM" class="meas">—</td><td>≈ 0.4 (72 atım/dk)</td><td id="bkFrD" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Kaynaklar: Guyton &amp; Hall, <em>Tıbbi Fizyoloji</em> (dinlenimde EDV 110–120 mL, SV yaklaşık 70 mL, ESV 40–50 mL, EF yaklaşık %60; 120/80 mmHg; dinlenimdeki erişkinde debi yaklaşık 5 L/dk; 72 atım/dk'da sistol döngünün yaklaşık 0.4'ü, üç katı nabızda 0.65'i; nabız örneği 72 atım/dk). EF'nin normal aralığı (erkekte %52–72, kadında %54–74): Lang ve ark. 2015, Amerikan Ekokardiyografi Derneği ve Avrupa Kardiyovasküler Görüntüleme Derneği önerileri. Karşılaştırma yalnız varsayılan yük ve 70 atım/dk civarında anlamlıdır.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- (b) Frank–Starling ve yük -->
+  <section class="lab" id="panel-yuk" role="tabpanel" aria-labelledby="tab-yuk" hidden>
+    <div class="stage">
+      <canvas id="loopsCanvas" class="cv-sq" width="800" height="640" role="img" aria-label="Basınç–hacim düzlemi: şimdiki döngü, kesikli çizgiyle varsayılan döngü, Frank–Starling taramasındaki her dolum basıncının döngüsü, döngülerin uç-sistolik noktaları ve bunlardan uydurulan doğru, uç-sistolik ve uç-diyastolik ilişkiler."></canvas>
+      <p class="legend">
+        <span><i class="k-acc"></i>şimdiki döngü</span>
+        <span><i class="dash k-ink"></i>varsayılan döngü</span>
+        <span><i class="k-acc2"></i>tarama döngüleri</span>
+        <span><i class="dot"></i>uç-sistolik noktalar ve uydurulan doğru</span>
+        <span><i class="dash k-red"></i>ESPVR (kuram)</span>
+        <span><i class="dash k-acc"></i>EDPVR</span>
+      </p>
+    </div>
+
+    <div class="side">
+      <div class="panel" role="group" aria-labelledby="bTitle">
+        <h2 id="bTitle">Ön yük, ard yük, kasılma</h2>
+        <div class="field">
+          <label for="bPla"><span class="lt">Ön yük: dolum basıncı P<sub>LA</sub></span><output id="bPlaOut" for="bPla">8.0 mmHg</output></label>
+          <input type="range" id="bPla" min="2" max="30" step="0.5" value="8">
+        </div>
+        <div class="field">
+          <label for="bR"><span class="lt">Ard yük: çevresel direnç R</span><output id="bROut" for="bR">1.17 mmHg·s/mL</output></label>
+          <div class="num-row">
+            <input type="range" id="bR" min="0.4" max="4" step="0.01" value="1.17">
+            <input type="text" id="bRNum" autocomplete="off" spellcheck="false" value="1.17" inputmode="decimal" aria-label="R değerini yaz, mmHg·s/mL">
+          </div>
+        </div>
+        <div class="field">
+          <label for="bRr"><span class="lt">Arteriyol yarıçapı r/r₀</span><output id="bRrOut" for="bRr">100 %</output></label>
+          <input type="range" id="bRr" min="60" max="140" step="1" value="100">
+        </div>
+        <div class="field">
+          <label for="bEes"><span class="lt">Kasılabilirlik E<sub>es</sub></span><output id="bEesOut" for="bEes">2.80 mmHg/mL</output></label>
+          <div class="num-row">
+            <input type="range" id="bEes" min="0.5" max="6" step="0.05" value="2.8">
+            <input type="text" id="bEesNum" autocomplete="off" spellcheck="false" value="2.8" inputmode="decimal" aria-label="E_es değerini yaz, mmHg/mL">
+          </div>
+        </div>
+        <div class="field">
+          <label for="bC"><span class="lt">Atardamar kompliyansı C</span><output id="bCOut" for="bC">1.70 mL/mmHg</output></label>
+          <div class="num-row">
+            <input type="range" id="bC" min="0.3" max="4" step="0.05" value="1.7">
+            <input type="text" id="bCNum" autocomplete="off" spellcheck="false" value="1.7" inputmode="decimal" aria-label="C değerini yaz, mL/mmHg">
+          </div>
+        </div>
+        <div class="presets" role="group" aria-label="Hazır deneyler">
+          <button type="button" class="app-btn-ghost" data-preset-b="def" aria-pressed="true">Varsayılan atım</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="r2" aria-pressed="false">Ard yük: R iki katı (2.34)</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="rr" aria-pressed="false">Arteriyol yarıçapı %84 (arteriyol direnci ×2)</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="c2" aria-pressed="false">Sert atardamarlar: C yarıya (0.85)</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="e2" aria-pressed="false">Zayıf kasılma: E<sub>es</sub> yarıya (1.4)</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="pla" aria-pressed="false">Ön yük: P<sub>LA</sub> 16 mmHg</button>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="bToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="bReset">Varsayılanlara dön</button>
+        </div>
+        <p class="note">Bu sekmedeki her değişiklikten sonra dolaşım yeni periyodik dengesine arka planda hızla taşınır; ayarlar ilk sekmedeki atıma da uygulanır. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> ölçümü yeniden başlat.</p>
+      </div>
+    </div>
+
+    <div class="res">
+      <div class="res-main">
+        <div class="field">
+          <label for="bAxis"><span class="lt">Frank–Starling eğrisinin yatay ekseni</span><output id="bAxisOut" for="bAxis">uç-diyastolik basınç</output></label>
+          <select id="bAxis">
+            <option value="edp" selected>Uç-diyastolik basınç EDP (= P<sub>LA</sub>)</option>
+            <option value="edv">Uç-diyastolik hacim EDV</option>
+          </select>
+        </div>
+        <canvas id="starlingCanvas" class="cv-chart" width="900" height="560" role="img" aria-label="Frank–Starling eğrisi: taramadaki her dolum basıncında ölçülen atım hacmi noktaları, Sunagawa bağlaşımı ile tam dolumdan hesaplanan kuram eğrisi, şimdiki çalışma noktası ve varsayılan nokta."></canvas>
+        <p class="legend">
+          <span><i class="dot k-acc"></i>ölçülen SV (tarama)</span>
+          <span><i class="dash k-acc2"></i>kuram: tam dolum + Sunagawa bağlaşımı</span>
+          <span><i class="dot"></i>şimdiki çalışma noktası</span>
+        </p>
+        <canvas id="decayCanvas" class="cv-chart" width="900" height="560" role="img" aria-label="Diyastolde aort basıncının inişi: son diyastolün ölçülen aort basıncı, ona uydurulan üstel eğri ve kalp dursaydı süreceği uzantısı; t = τ anında basıncın e'de birine indiği nokta işaretlidir."></canvas>
+        <p class="legend">
+          <span><i class="k-acc"></i>ölçülen diyastolik aort basıncı</span>
+          <span><i class="dash k-warm"></i>uydurulan üstel P<sub>v</sub> + (P₀ − P<sub>v</sub>)e<sup>−t/τ</sup> ve uzantısı</span>
+          <span><i class="dash k-acc2"></i>kuram: τ = R<sub>etkin</sub>·C</span>
+        </p>
+        <div class="panel notes-panel">
+          <h2>Model notları</h2>
+        <p class="note">Direnç damarları: r = r₀'da R'nin yarısı arteriyollerdedir ve Poiseuille yasasıyla R<sub>arteriyol</sub> ∝ 1/r⁴ değişir, öbür yarısı (büyük atardamarlar, kılcallar, toplardamarlar) sabit kalır: R<sub>etkin</sub> = R·[0.5 + 0.5·(r₀/r)⁴]. Yarıçapı %16 daraltmak arteriyol direncini iki katına çıkarır; toplam direnci iki katına çıkarmak için r = %76 gerekir. Yarı yarıya paylaşım bir model varsayımıdır: dolaşımdaki en büyük basınç düşüşü küçük atardamar ve arteriyollerdedir (Guyton &amp; Hall).</p>
+        <p class="note">Frank–Starling taraması: dolum basıncı 2'den 30 mmHg'ye on bir değerde, öbür ayarlar şimdiki hâlinde tutularak, her biri periyodik kararlı duruma dek ayrı ayrı benzetilir. Ayar değişince tarama kendiliğinden yinelenir. Uç-sistolik noktalar (en büyük elastans anı) üzerinden en küçük kareler doğrusu E<sub>es</sub> ve V₀'ı ölçer: Suga ve Sagawa'nın 1974'te farklı yüklerdeki döngülerle yaptığı ölçümün aynısı. Modelde bu doğrusallık varsayılmıştır; ölçüm, döngülerin köşelerinin gerçekten tek bir doğruya oturduğunu gösterir.</p>
+        </div>
+      </div>
+      <div class="res-side">
+        <div class="cards" aria-live="polite">
+          <div class="readout"><small>EDV</small><strong id="bEDV">—</strong></div>
+          <div class="readout"><small>ESV</small><strong id="bESV">—</strong></div>
+          <div class="readout is-highlight"><small>Atım hacmi SV</small><strong id="bSV">—</strong></div>
+          <div class="readout"><small>EF</small><strong id="bEF">—</strong></div>
+          <div class="readout is-highlight"><small>Aort basıncı: sistolik/diyastolik</small><strong id="bBP">—</strong></div>
+          <div class="readout"><small>Nabız basıncı PP</small><strong id="bPP">—</strong></div>
+          <div class="readout"><small>Ortalama arter basıncı</small><strong id="bMAP">—</strong></div>
+          <div class="readout"><small>Kalp debisi</small><strong id="bCO">—</strong></div>
+          <div class="readout"><small>Etkin direnç R<sub>etkin</sub> (ayardan)</small><strong id="bReff">—</strong></div>
+        </div>
+        <div class="panel">
+          <h2>Ölçülen ve kuram</h2>
+          <table class="cmp">
+            <caption class="visually-hidden">Yük deneyinde ölçülen değerler ile kuramın karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Diyastolik iniş τ · Frank 1899: R<sub>etkin</sub>·C</th><td id="bTauM" class="meas">—</td><td id="bTauT">—</td><td id="bTauD" class="diff">—</td></tr>
+              <tr><th scope="row">SV · bağlaşım: (EDV − V₀)·E<sub>es</sub>/(E<sub>es</sub> + E<sub>a</sub>)</th><td id="bSvM" class="meas">—</td><td id="bSvT">—</td><td id="bSvD" class="diff">—</td></tr>
+              <tr><th scope="row">Ortalama basınç · Ohm: Q̇·(R<sub>etkin</sub> + Z<sub>c</sub>)</th><td id="bMapM" class="meas">—</td><td id="bMapT">—</td><td id="bMapD" class="diff">—</td></tr>
+              <tr><th scope="row">Kompliyans kestirimi SV/PP · gerçek C</th><td id="bCM" class="meas">—</td><td id="bCT">—</td><td id="bCD" class="diff">—</td></tr>
+              <tr><th scope="row">E<sub>es</sub> · uç-sistolik noktaların doğrusu</th><td id="bEesM" class="meas">—</td><td id="bEesT">—</td><td id="bEesD" class="diff">—</td></tr>
+              <tr><th scope="row">V₀ · aynı doğrunun hacim eksenini kestiği yer</th><td id="bV0M" class="meas">—</td><td id="bV0T">—</td><td id="bV0D" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Ölçülen τ: aort kapağının kapanışından bir sonraki açılışına dek ln(P<sub>ao</sub> − P<sub>v</sub>)'nin zamana karşı en küçük kareler doğrusunun eğimi, τ = −1/eğim. Diyastolde aort kapalıdır; Z<sub>c</sub>'den akım geçmez ve basınç yalnız R üzerinden boşalır, iniş bu yüzden tam üsteldir. Gerçek aort basıncında dikrotik çentik ve yansıyan dalgalar bu inişi bozar. SV/PP oranı kompliyansı olduğundan büyük kestirir, çünkü atım sürerken kanın bir kısmı çevreye akıp gider; atardamarlar sertleştikçe (RC kısaldıkça) hata büyür. Bağlaşım satırında E<sub>a</sub> = (R<sub>etkin</sub> + Z<sub>c</sub>)/T alınır.</p>
+          <p class="status" id="bStatus" role="status"></p>
+        </div>
+        <div class="panel">
+          <h2>Frank–Starling taraması</h2>
+          <table class="cmp sweep">
+            <caption class="visually-hidden">Her dolum basıncında kararlı durumda ölçülen hacimler ve atım işi</caption>
+            <thead><tr><th scope="col">P<sub>LA</sub> (mmHg)</th><th scope="col">EDV (mL)</th><th scope="col">SV (mL)</th><th scope="col">EF</th><th scope="col">SW (J)</th></tr></thead>
+            <tbody id="bSweepBody"></tbody>
+          </table>
+          <p class="note" id="bSweepNote">Tarama hesaplanıyor…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- (c) Oksijen taşıma -->
+  <section class="lab" id="panel-oksijen" role="tabpanel" aria-labelledby="tab-oksijen" hidden>
+    <div class="stage">
+      <canvas id="o2Canvas" class="cv-sq" width="800" height="640" role="img" aria-label="Hemoglobinin oksijen ayrışma eğrisi: yatay eksen oksijen kısmi basıncı, dikey eksen doygunluk ya da O₂ içeriği. Standart eğri, akciğer koşullarındaki ve doku koşullarındaki eğriler, arter ve karışık venöz kan noktaları, P₅₀ işaretleri ve arter ile toplardamar arasında bırakılan oksijen çizilir."></canvas>
+      <p class="legend">
+        <span><i class="dash k-ink"></i>standart eğri (pH 7.40, 40 mmHg, 37 °C)</span>
+        <span><i class="k-red"></i>akciğer koşulları (arter kanı)</span>
+        <span><i class="k-acc2"></i>doku koşulları (toplardamar kanı)</span>
+        <span><i class="dot k-red"></i>a: arter noktası</span>
+        <span><i class="dot"></i>v̄: karışık venöz nokta</span>
+      </p>
+      <div class="field">
+        <label for="cView"><span class="lt">Dikey eksen</span><output id="cViewOut" for="cView">doygunluk</output></label>
+        <select id="cView">
+          <option value="s" selected>Doygunluk S<sub>O₂</sub> (%)</option>
+          <option value="c">O₂ içeriği (mL O₂/dL)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="panel" role="group" aria-labelledby="cTitle1">
+        <h2 id="cTitle1">Kan</h2>
+        <div class="field">
+          <label for="cHb"><span class="lt">Hemoglobin Hb</span><output id="cHbOut" for="cHb">15.0 g/dL</output></label>
+          <div class="num-row">
+            <input type="range" id="cHb" min="4" max="20" step="0.1" value="15">
+            <input type="text" id="cHbNum" autocomplete="off" spellcheck="false" value="15" inputmode="decimal" aria-label="Hb değerini yaz, g/dL">
+          </div>
+        </div>
+        <div class="field">
+          <label for="cPa"><span class="lt">Arter kanı P<sub>aO₂</sub></span><output id="cPaOut" for="cPa">100 mmHg</output></label>
+          <input type="range" id="cPa" min="30" max="150" step="1" value="100">
+        </div>
+        <div class="field">
+          <label for="cCOHb"><span class="lt">Karbon monoksit: HbCO payı</span><output id="cCOHbOut" for="cCOHb">0 %</output></label>
+          <input type="range" id="cCOHb" min="0" max="60" step="1" value="0">
+        </div>
+        <div class="field">
+          <label for="cBpg"><span class="lt">Ek P₅₀ kayması (2,3-BPG vb.)</span><output id="cBpgOut" for="cBpg">0.0 mmHg</output></label>
+          <input type="range" id="cBpg" min="-10" max="10" step="0.5" value="0">
+        </div>
+      </div>
+      <div class="panel" role="group" aria-labelledby="cTitle2">
+        <h2 id="cTitle2">Doku ve dolaşım</h2>
+        <div class="field">
+          <label for="cVO2"><span class="lt">O₂ tüketimi V̇O₂</span><output id="cVO2Out" for="cVO2">250 mL/dk</output></label>
+          <div class="num-row">
+            <input type="range" id="cVO2" min="100" max="4000" step="10" value="250">
+            <input type="text" id="cVO2Num" autocomplete="off" spellcheck="false" value="250" inputmode="decimal" aria-label="V̇O₂ değerini yaz, mL/dk">
+          </div>
+        </div>
+        <div class="field">
+          <label for="cQ"><span class="lt">Kalp debisi Q̇</span><output id="cQOut" for="cQ">5.0 L/dk</output></label>
+          <div class="num-row">
+            <input type="range" id="cQ" min="1" max="30" step="0.1" value="5">
+            <input type="text" id="cQNum" autocomplete="off" spellcheck="false" value="5" inputmode="decimal" aria-label="Kalp debisini yaz, L/dk">
+          </div>
+        </div>
+        <div class="field">
+          <label for="cpH"><span class="lt">Doku (toplardamar) pH'ı</span><output id="cpHOut" for="cpH">7.35</output></label>
+          <div class="num-row">
+            <input type="range" id="cpH" min="6.9" max="7.7" step="0.01" value="7.35">
+            <input type="text" id="cpHNum" autocomplete="off" spellcheck="false" value="7.35" inputmode="decimal" aria-label="Doku pH değerini yaz">
+          </div>
+        </div>
+        <div class="field">
+          <label for="cPco2"><span class="lt">Doku (toplardamar) P<sub>CO₂</sub></span><output id="cPco2Out" for="cPco2">45 mmHg</output></label>
+          <input type="range" id="cPco2" min="20" max="80" step="1" value="45">
+        </div>
+        <div class="field">
+          <label for="cT"><span class="lt">Vücut sıcaklığı T</span><output id="cTOut" for="cT">37.0 °C</output></label>
+          <div class="num-row">
+            <input type="range" id="cT" min="34" max="42" step="0.1" value="37">
+            <input type="text" id="cTNum" autocomplete="off" spellcheck="false" value="37" inputmode="decimal" aria-label="Sıcaklığı yaz, °C">
+          </div>
+        </div>
+        <div class="presets" role="group" aria-label="Hazır durumlar">
+          <button type="button" class="app-btn-ghost" data-preset-c="rest" aria-pressed="true">Dinlenim</button>
+          <button type="button" class="app-btn-ghost" data-preset-c="ex" aria-pressed="false">Ağır egzersiz</button>
+          <button type="button" class="app-btn-ghost" data-preset-c="anemi" aria-pressed="false">Anemi: Hb 7.5 g/dL</button>
+          <button type="button" class="app-btn-ghost" data-preset-c="co" aria-pressed="false">Karbon monoksit: %50 HbCO</button>
+          <button type="button" class="app-btn-ghost" data-preset-c="irtifa" aria-pressed="false">Yüksek irtifa: P<sub>aO₂</sub> 50 mmHg</button>
+          <button type="button" class="app-btn-ghost" id="cReset">Varsayılanlara dön</button>
+        </div>
+        <p class="note">Ağır egzersiz: V̇O₂ 3000 mL/dk, Q̇ 20 L/dk, doku pH 7.25, P<sub>CO₂</sub> 60 mmHg, 39 °C. Dinlenim: V̇O₂ 250 mL/dk, Q̇ 5 L/dk; karışık venöz kanda pH 7.35, P<sub>CO₂</sub> 45 mmHg (Guyton &amp; Hall). Arter kanı her zaman akciğer koşullarındadır (pH 7.40, P<sub>CO₂</sub> 40 mmHg); sıcaklık ve 2,3-BPG iki kanı birlikte etkiler.</p>
+      </div>
+    </div>
+
+    <div class="res">
+      <div class="res-main">
+        <div class="cards" aria-live="polite">
+          <div class="readout"><small>Arter doygunluğu S<sub>aO₂</sub></small><strong id="cSa">—</strong></div>
+          <div class="readout"><small>Arter O₂ içeriği C<sub>aO₂</sub></small><strong id="cCa">—</strong></div>
+          <div class="readout is-highlight"><small>Karışık venöz P<sub>v̄O₂</sub></small><strong id="cPv">—</strong></div>
+          <div class="readout"><small>Venöz doygunluk S<sub>v̄O₂</sub></small><strong id="cSv">—</strong></div>
+          <div class="readout"><small>Venöz O₂ içeriği C<sub>v̄O₂</sub></small><strong id="cCv">—</strong></div>
+          <div class="readout"><small>Arteriyovenöz fark</small><strong id="cAvd">—</strong></div>
+          <div class="readout"><small>O₂ çekim oranı</small><strong id="cER">—</strong></div>
+          <div class="readout"><small>O₂ sunumu DO₂ = Q̇·C<sub>aO₂</sub></small><strong id="cDO2">—</strong></div>
+          <div class="readout is-highlight"><small>Fick ile ölçülen debi</small><strong id="cFick">—</strong></div>
+        </div>
+        <p class="note">O₂ içeriği C = 1.34·Hb·S + 0.003·P<sub>O₂</sub> (mL O₂/dL): 1 g hemoglobin en çok 1.34 mL O₂ bağlar, plazmada her mmHg için 0.003 mL/dL O₂ çözünür (Guyton &amp; Hall). S, HbO₂'nin toplam hemoglobine oranıdır. Doku, tükettiğini kandan alır: C<sub>v̄</sub> = C<sub>a</sub> − V̇O₂/Q̇. Bu içeriği doku koşullarındaki eğride veren P<sub>O₂</sub>, karışık venöz noktadır. Fick ilkesi (1870) aynı kütle dengesidir: Q̇ = V̇O₂/(C<sub>a</sub> − C<sub>v̄</sub>).</p>
+      </div>
+      <div class="res-side">
+        <div class="panel">
+          <h2>Ölçülen ve kuram</h2>
+          <table class="cmp">
+            <caption class="visually-hidden">Fick debisi ve P₅₀ değerlerinin karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Debi · Fick: V̇O₂/(C<sub>a</sub> − C<sub>v̄</sub>) ile girilen Q̇</th><td id="cFickM" class="meas">—</td><td id="cFickT">—</td><td id="cFickD" class="diff">—</td></tr>
+              <tr><th scope="row">P₅₀, akciğer koşulları · kapalı biçim</th><td id="cP50aM" class="meas">—</td><td id="cP50aT">—</td><td id="cP50aD" class="diff">—</td></tr>
+              <tr><th scope="row">P₅₀, doku koşulları · kapalı biçim</th><td id="cP50vM" class="meas">—</td><td id="cP50vT">—</td><td id="cP50vD" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Fick debisi kan örneklerinin okunan değerlerinden hesaplanır: S ve P<sub>O₂</sub>'den içerikler, sonra V̇O₂/(C<sub>a</sub> − C<sub>v̄</sub>). Kararlı durumda kütle dengesi gereği girilen debiye eşittir; gerçek ölçümün hatası a − v̄ farkının ölçümünden gelir: S<sub>v̄O₂</sub>'deki 1 puanlık hata debiyi <span id="cSens">—</span> değiştirir. Ölçülen P₅₀: O₂'ye açık hemoglobinin yarı doygun olduğu basınç, eğri üzerinde ikiye bölmeyle. Kuram: Severinghaus (1979) denkleminin tersi ve sanal basınç düzeltmesi P<sub>sanal</sub> = P·10<sup>0.024(37 − T) + 0.40(pH − 7.40) + 0.06·log(40/P<sub>CO₂</sub>)</sup>; karbon monoksitte Haldane kuralıyla P₅₀' = [(1 − f)/(1 + f)]·S⁻¹((1 + f)/2).</p>
+        </div>
+        <div class="panel">
+          <h2>Bohr etkisi: doku koşulları ne kazandırır?</h2>
+          <table class="cmp">
+            <caption class="visually-hidden">Doku koşullarındaki eğri ile kaymasız eğrinin karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Doku eğrisi</th><th scope="col">Kaymasız</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Aynı O₂'yi bırakmak için gereken P<sub>v̄O₂</sub></th><td id="cBPvM" class="meas">—</td><td id="cBPvT">—</td><td id="cBPvD" class="diff">—</td></tr>
+              <tr><th scope="row">Aynı P<sub>v̄O₂</sub>'ye inerken bırakılan O₂</th><td id="cBUM" class="meas">—</td><td id="cBUT">—</td><td id="cBUD" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Kaymasız: toplardamar kanının da akciğer koşullarındaki eğride kaldığı varsayımı. Asitlik, CO₂ ve sıcaklık eğriyi sağa iter (Bohr etkisi): aynı oksijeni daha yüksek bir P<sub>O₂</sub>'de bırakır, bu da oksijeni mitokondriye iten difüzyon farkını korur. Karbon monoksit kapasiteyi anemi gibi düşürür, ama kalan hemoglobinin eğrisini sola da kaydırır; oksijen ancak çok düşük P<sub>O₂</sub>'de bırakılır (Haldane 1912; Roughton &amp; Darling 1944). Model, kılcal geçiş boyunca HbCO payını sabit tutar.</p>
+          <p class="status" id="cStatus" role="status"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="note disclaimer">Bu sayfa bir eğitim modelidir; tıbbi tanı ya da tedavi önerisi değildir.</p>
+</div>
+
 <script>
-const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-let W, H, t = 0, paused = false;
+(function () {
+  "use strict";
 
-function resize() {
-  const dpr = Math.min(devicePixelRatio || 1, 2);
-  W = Math.min(700, innerWidth - 24); H = Math.min(460, innerHeight * 0.55);
-  cv.width = W * dpr; cv.height = H * dpr;
-  cv.style.width = W + 'px'; cv.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-window.addEventListener('resize', resize);
+  /* MATH-START — DOM'a dokunmayan saf hesap çekirdeği; doğrulama betiği bu bloğu node'da çalıştırır */
+  const Core = (function () {
+    const H = 0.0005;                 // RK4 adımı (s)
+    const TOL = 2e-5;                 // kararlı durum: ardışık iki atım arası bağıl değişim eşiği
+    const MMHGML_J = 1.33322e-4;      // 1 mmHg·mL = 1.33322×10⁻⁴ J
+    const ART = 0.5;                  // r = r₀'da toplam çevresel direncin arteriyol payı
+    const HILL = { a1: 0.7, n1: 1.9, a2: 1.17, n2: 21.9 }; // Stergiopulos ve ark. 1996, çift Hill aktivasyonu
+    const DEF = { HR: 70, Ees: 2.8, V0: 10, A: 0.31, B: 0.03, Pla: 8, Rmv: 0.005, Rav: 0.003, Zc: 0.045, R: 1.17, C: 1.7, rr: 1, Pv: 0 };
+    const RING = 8192;                // Wiggers izi ve diyastol uydurması için halka tampon (her 2 adımda bir örnek)
 
-document.getElementById('bpm').oninput = () => {};
-document.getElementById('pauseBtn').onclick = function() {
-  paused = !paused;
-  this.textContent = paused ? 'Devam' : 'Duraklat';
-};
+    function hillRaw(tn) {
+      if (!(tn > 0)) return 0;
+      const x = Math.pow(tn / HILL.a1, HILL.n1);
+      const y = Math.pow(tn / HILL.a2, HILL.n2);
+      return x / (1 + x) / (1 + y);
+    }
+    const PEAK = (function () {
+      let a = 0.5, b = 1.5;
+      const g = (Math.sqrt(5) - 1) / 2;
+      for (let i = 0; i < 200; i++) {
+        const c = b - g * (b - a), d = a + g * (b - a);
+        if (hillRaw(c) > hillRaw(d)) b = d; else a = c;
+      }
+      const tn = 0.5 * (a + b);
+      return { tn, val: hillRaw(tn) };
+    })();
+    const act = (tn) => hillRaw(tn) / PEAK.val;
+    const tmaxOf = (T) => 0.2 + 0.15 * T;
 
-function heartPath(cx, cy, scale) {
-  ctx.beginPath();
-  ctx.moveTo(cx, cy + 20 * scale);
-  ctx.bezierCurveTo(cx - 60*scale, cy - 20*scale, cx - 50*scale, cy - 70*scale, cx, cy - 45*scale);
-  ctx.bezierCurveTo(cx + 50*scale, cy - 70*scale, cx + 60*scale, cy - 20*scale, cx, cy + 20*scale);
-  ctx.closePath();
-}
+    function derive(q) {
+      const p = Object.assign({}, DEF, q);
+      p.T = 60 / p.HR;
+      p.Tmax = tmaxOf(p.T);
+      p.tes = PEAK.tn * p.Tmax;
+      p.Rart = (ART * p.R) / Math.pow(p.rr, 4);
+      p.Reff = (1 - ART) * p.R + p.Rart;
+      p.Rtot = p.Reff + p.Zc;
+      return p;
+    }
+    const ped = (p, V) => p.A * (Math.exp(p.B * (V - p.V0)) - 1);
+    const plv = (p, V, e) => e * p.Ees * (V - p.V0) + (1 - e) * ped(p, V);
+    const edvFull = (p) => p.V0 + Math.log(1 + p.Pla / p.A) / p.B;
+    // Sunagawa ve ark. 1983: E_a ≈ R/T, SV ≈ (EDV − V₀)·E_es/(E_es + E_a)
+    const eaTheory = (p) => p.Rtot / p.T;
+    const svCoupling = (p, EDV) => ((EDV - p.V0) * p.Ees) / (p.Ees + eaTheory(p));
 
-function drawArrow(x1, y1, x2, y2, col, prog) {
-  const dx = x2 - x1, dy = y2 - y1;
-  const len = Math.hypot(dx, dy);
-  const px = x1 + (dx / len) * len * prog;
-  const py = y1 + (dy / len) * len * prog;
-  ctx.strokeStyle = col;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(px, py);
-  ctx.stroke();
-  const ang = Math.atan2(dy, dx);
-  ctx.fillStyle = col;
-  ctx.beginPath();
-  ctx.moveTo(px, py);
-  ctx.lineTo(px - 8 * Math.cos(ang - 0.4), py - 8 * Math.sin(ang - 0.4));
-  ctx.lineTo(px - 8 * Math.cos(ang + 0.4), py - 8 * Math.sin(ang + 0.4));
-  ctx.closePath();
-  ctx.fill();
-}
+    // y = [V, P_C, ∫Q_ao dt, ∫P_ao dt, ∫P_LV·(Q_ao − Q_mi) dt]
+    function rhs(p, y, e, d, aux) {
+      const V = y[0], Pc = y[1];
+      const P = plv(p, V, e);
+      const qm = P < p.Pla ? (p.Pla - P) / p.Rmv : 0;
+      const qa = P > Pc ? (P - Pc) / (p.Rav + p.Zc) : 0;
+      const Pao = Pc + p.Zc * qa;
+      d[0] = qm - qa;
+      d[1] = (qa - (Pc - p.Pv) / p.Reff) / p.C;
+      d[2] = qa;
+      d[3] = Pao;
+      d[4] = P * (qa - qm);
+      if (aux) {
+        aux.P = P; aux.qm = qm; aux.qa = qa; aux.Pao = Pao;
+      }
+    }
+    function eAt(s, tb) {
+      return act(tb / s.p.Tmax) + act((tb + s.prev.T) / s.prev.Tmax);
+    }
 
-function draw() {
-  const bpm = +document.getElementById('bpm').value;
-  if (!paused) t += bpm / 60 / 60;
-  const beat = (Math.sin(t * Math.PI * 2) + 1) / 2;
-  const systole = beat > 0.6;
+    function newBeat(s) {
+      return {
+        I2: s.y[2], I3: s.y[3], I4: s.y[4],
+        EDV: NaN, EDP: NaN, tMC: NaN, tAO: NaN, tAC: NaN, tMO: NaN, ESV: NaN, Pdia: NaN, Pes: NaN, Ves: NaN,
+        PaoMax: -Infinity, tPaoMax: NaN, PlvMax: -Infinity, nAO: 0, nMO: 0,
+        loopV: [s.y[0]], loopP: [s.aux.P], loopPh: [PH_CODE[s.phase]],
+      };
+    }
 
-  ctx.fillStyle = '#121820';
-  ctx.fillRect(0, 0, W, H);
+    function create(params, init) {
+      const p = derive(params);
+      const s = {
+        p, prev: init && init.prev ? Object.assign({}, init.prev) : { T: p.T, Tmax: p.Tmax },
+        y: new Float64Array(5), k1: new Float64Array(5), k2: new Float64Array(5), k3: new Float64Array(5), k4: new Float64Array(5),
+        yt: new Float64Array(5), dd: new Float64Array(5),
+        aux: { P: 0, qm: 0, qa: 0, Pao: 0 }, e: 0,
+        tb: init && init.tb ? init.tb : 0, t: 0, beat: 0, nStep: 0,
+        phase: "fill", pending: null,
+        last: null, steady: null, okRun: 0, sinceChange: 0, lastLoop: null, decay: null, lastAC: NaN,
+        ring: {
+          n: 0, t: new Float64Array(RING), Plv: new Float32Array(RING), Pao: new Float32Array(RING), V: new Float32Array(RING),
+          ph: new Uint8Array(RING), e: new Float32Array(RING), qa: new Float32Array(RING), qm: new Float32Array(RING),
+        },
+        events: [],
+      };
+      s.y[0] = init && Number.isFinite(init.V) ? init.V : edvFull(p);
+      s.y[1] = init && Number.isFinite(init.Pc) ? init.Pc : 80;
+      s.e = eAt(s, s.tb);
+      rhs(p, s.y, s.e, s.dd, s.aux);
+      s.phase = init && init.phase ? init.phase : s.aux.P < p.Pla ? "fill" : s.aux.P > s.y[1] ? "ej" : "ivc";
+      s.cur = newBeat(s);
+      return s;
+    }
+    const PH_CODE = { fill: 0, ivc: 1, ej: 2, ivr: 3 };
 
-  const cx = W * 0.42, cy = H * 0.48;
-  const scale = 0.9 + beat * 0.08;
+    function setParams(s, params) {
+      s.pending = Object.assign({}, s.pending || s.p, params);
+    }
 
-  ctx.fillStyle = '#3d2028';
-  heartPath(cx - 35, cy, scale * 0.85);
-  ctx.fill();
-  ctx.fillStyle = '#2d1a48';
-  heartPath(cx + 35, cy, scale * 0.85);
-  ctx.fill();
+    function pushRing(s) {
+      const r = s.ring, i = r.n % RING;
+      r.t[i] = s.t; r.Plv[i] = s.aux.P; r.Pao[i] = s.aux.Pao; r.V[i] = s.y[0];
+      r.ph[i] = PH_CODE[s.phase]; r.e[i] = s.e; r.qa[i] = s.aux.qa; r.qm[i] = s.aux.qm;
+      r.n++;
+    }
 
-  ctx.fillStyle = systole ? '#6e3030' : '#4a2828';
-  heartPath(cx - 35, cy, scale * 0.85);
-  ctx.fill();
-  ctx.strokeStyle = '#f85149';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.fillStyle = systole ? '#4a3060' : '#352050';
-  heartPath(cx + 35, cy, scale * 0.85);
-  ctx.fill();
-  ctx.strokeStyle = '#a371f7';
-  ctx.stroke();
+    // Diyastolde (aort kapalı) P_ao = P_C: ln(P_ao − P_v)'nin t'ye en küçük kareler doğrusu, τ = −1/eğim
+    function fitDecay(s, t0, t1) {
+      const r = s.ring, p = s.p;
+      let n = 0, St = 0, Sy = 0, Stt = 0, Sty = 0;
+      const lo = Math.max(0, r.n - RING);
+      let P0 = NaN, P1 = NaN;
+      for (let j = lo; j < r.n; j++) {
+        const i = j % RING, t = r.t[i];
+        if (t < t0 || t > t1) continue;
+        const d = r.Pao[i] - p.Pv;
+        if (!(d > 0)) continue;
+        const tt = t - t0, yy = Math.log(d);
+        if (!n) P0 = r.Pao[i];
+        P1 = r.Pao[i];
+        n++; St += tt; Sy += yy; Stt += tt * tt; Sty += tt * yy;
+      }
+      if (n < 20) return null;
+      const den = n * Stt - St * St;
+      if (!(den > 0)) return null;
+      const b = (n * Sty - St * Sy) / den, a = (Sy - b * St) / n;
+      if (!(b < 0)) return null;
+      return { tau: -1 / b, a, t0, t1, n, P0, P1, Pv: p.Pv };
+    }
 
-  ctx.fillStyle = '#e6edf3';
-  ctx.font = '11px system-ui';
-  ctx.fillText('Sağ (oksijensiz)', cx - 75, cy + 55);
-  ctx.fillText('Sol (oksijenli)', cx + 5, cy + 55);
+    function event(s, type, f, h, old) {
+      const tb = old.tb + f * h, t = old.t + f * h;
+      // V ve P_C olay anında türevlenebilir; P_ao'nun kırığı vardır, açılışta P_ao = P_C olduğundan P_C aradeğerlenir
+      const V = old.V + f * (s.y[0] - old.V), P = old.P + f * (s.aux.P - old.P), Pc = old.Pc + f * (s.y[1] - old.Pc);
+      const b = s.cur;
+      if (type === "MC") { b.EDV = V; b.EDP = P; b.tMC = tb; s.phase = "ivc"; }
+      else if (type === "AO") {
+        b.tAO = tb; b.Pdia = Pc; b.nAO++; s.phase = "ej";
+        if (Number.isFinite(s.lastAC) && s.lastAC < t) s.decay = fitDecay(s, s.lastAC + 0.002, t - 0.002);
+      } else if (type === "AC") { b.tAC = tb; b.ESV = V; s.phase = "ivr"; s.lastAC = t; }
+      else if (type === "MO") { if (!Number.isFinite(b.tMO) && Number.isFinite(b.tAC)) b.tMO = tb; b.nMO++; s.phase = "fill"; }
+      s.events.push({ t, type });
+      if (s.events.length > 64) s.events.shift();
+    }
 
-  const flow = (t * 2) % 1;
-  drawArrow(W * 0.08, H * 0.35, cx - 60, cy - 20, '#58a6ff', flow);
-  drawArrow(cx + 60, cy - 20, W * 0.88, H * 0.35, '#f85149', flow);
-  drawArrow(W * 0.88, H * 0.65, cx + 60, cy + 30, '#79c0ff', (flow + 0.5) % 1);
-  drawArrow(cx - 60, cy + 30, W * 0.08, H * 0.65, '#8b949e', (flow + 0.5) % 1);
+    function step(s) {
+      const p = s.p, h = Math.min(H, p.T - s.tb);
+      const y = s.y, yt = s.yt, k1 = s.k1, k2 = s.k2, k3 = s.k3, k4 = s.k4;
+      const e1 = s.e, e2 = eAt(s, s.tb + 0.5 * h), e4 = eAt(s, s.tb + h);
+      rhs(p, y, e1, k1);
+      for (let i = 0; i < 5; i++) yt[i] = y[i] + 0.5 * h * k1[i];
+      rhs(p, yt, e2, k2);
+      for (let i = 0; i < 5; i++) yt[i] = y[i] + 0.5 * h * k2[i];
+      rhs(p, yt, e2, k3);
+      for (let i = 0; i < 5; i++) yt[i] = y[i] + h * k3[i];
+      rhs(p, yt, e4, k4);
+      const old = { tb: s.tb, t: s.t, V: y[0], Pc: y[1], P: s.aux.P, Pao: s.aux.Pao, gm: p.Pla - s.aux.P, ga: s.aux.P - y[1], PaoPrev: s.PaoPrev, PlvPrev: s.PlvPrev };
+      for (let i = 0; i < 5; i++) y[i] += (h / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+      s.tb += h; s.t += h; s.e = e4; s.nStep++;
+      rhs(p, y, e4, s.dd, s.aux);
+      const gm = p.Pla - s.aux.P, ga = s.aux.P - y[1];
+      // Kapak olayları: işaret değişimi adımın içinde doğrusal aradeğerlemeyle konumlanır
+      if (old.gm > 0 && gm <= 0) event(s, "MC", old.gm / (old.gm - gm), h, old);
+      if (old.ga <= 0 && ga > 0) event(s, "AO", -old.ga / (ga - old.ga), h, old);
+      if (old.ga > 0 && ga <= 0) event(s, "AC", old.ga / (old.ga - ga), h, old);
+      if (old.gm <= 0 && gm > 0) event(s, "MO", -old.gm / (gm - old.gm), h, old);
+      const b = s.cur;
+      // Tepeler: üç ardışık örnekten geçen parabolün tepesi
+      if (Number.isFinite(old.PaoPrev) && old.Pao >= old.PaoPrev && old.Pao > s.aux.Pao) {
+        const a = old.PaoPrev, c = s.aux.Pao, m = old.Pao, den = a - 2 * m + c;
+        const v = den < 0 ? m - ((a - c) * (a - c)) / (8 * den) : m;
+        if (v > b.PaoMax) { b.PaoMax = v; b.tPaoMax = old.tb + (den < 0 ? (h * (a - c)) / (2 * den) : 0); }
+      }
+      if (Number.isFinite(old.PlvPrev) && old.P >= old.PlvPrev && old.P > s.aux.P) {
+        const a = old.PlvPrev, c = s.aux.P, m = old.P, den = a - 2 * m + c;
+        const v = den < 0 ? m - ((a - c) * (a - c)) / (8 * den) : m;
+        if (v > b.PlvMax) b.PlvMax = v;
+      }
+      s.PaoPrev = old.Pao; s.PlvPrev = old.P;
+      if (old.tb < p.tes && s.tb >= p.tes) {
+        const f = (p.tes - old.tb) / h;
+        b.Ves = old.V + f * (y[0] - old.V);
+        b.Pes = old.P + f * (s.aux.P - old.P);
+      }
+      if (s.nStep % 2 === 0) pushRing(s);
+      if (s.nStep % 4 === 0) { b.loopV.push(y[0]); b.loopP.push(s.aux.P); b.loopPh.push(PH_CODE[s.phase]); }
+      if (s.tb >= p.T - 1e-12) endBeat(s);
+    }
 
-  ctx.fillStyle = '#8b949e';
-  ctx.font = '10px system-ui';
-  ctx.fillText('V. kava', W * 0.05, H * 0.3);
-  ctx.fillText('A. pulmonaris', W * 0.78, H * 0.3);
-  ctx.fillText('V. pulmonaris', W * 0.78, H * 0.7);
-  ctx.fillText('A. aorta', W * 0.05, H * 0.7);
+    const KEYS = ["EDV", "ESV", "Psys", "Pdia", "MAP", "SW"];
+    function endBeat(s) {
+      const p = s.p, b = s.cur, y = s.y;
+      b.loopV.push(y[0]); b.loopP.push(s.aux.P); b.loopPh.push(PH_CODE[s.phase]);
+      const m = {
+        beat: s.beat, HR: p.HR, T: p.T,
+        EDV: b.EDV, EDP: b.EDP, ESV: b.ESV, Pdia: b.Pdia, Psys: b.PaoMax, tPsys: b.tPaoMax, PlvMax: b.PlvMax,
+        Pes: b.Pes, Ves: b.Ves, tMC: b.tMC, tAO: b.tAO, tAC: b.tAC, tMO: b.tMO,
+        MAP: (y[3] - b.I3) / p.T, SVq: y[2] - b.I2, SW: y[4] - b.I4,
+        multi: b.nAO > 1,
+      };
+      m.SV = m.EDV - m.ESV;
+      m.EF = m.SV / m.EDV;
+      m.CO = (m.SV * p.HR) / 1000;
+      m.Ea = m.Pes / m.SV;
+      m.valid = [m.EDV, m.ESV, m.Pdia, m.Psys, m.tMC, m.tAO, m.tAC, m.Pes].every(Number.isFinite) && m.SV > 0 && !m.multi;
+      m.decay = s.decay;
+      if (s.last && s.last.valid && m.valid) {
+        let d = 0;
+        for (const k of KEYS) d = Math.max(d, Math.abs(m[k] - s.last[k]) / Math.max(Math.abs(m[k]), 1e-9));
+        m.delta = d;
+      } else m.delta = Infinity;
+      s.sinceChange++;
+      s.okRun = m.delta < TOL ? s.okRun + 1 : 0;
+      s.steady = s.okRun >= 2 && s.sinceChange >= 3 ? m : null;
+      // Rapor edilen ölçüm, ayar değişene dek ilk kararlı atımda sabit kalır (son basamak atımdan atıma oynamasın)
+      s.report = s.steady ? s.report || m : null;
+      s.last = m;
+      s.lastLoop = { V: b.loopV, P: b.loopP, ph: b.loopPh, m };
+      s.prev = { T: p.T, Tmax: p.Tmax };
+      s.tb = 0;
+      s.beat++;
+      if (s.pending) {
+        s.p = derive(s.pending);
+        s.pending = null;
+        s.last = null; s.steady = null; s.report = null; s.okRun = 0; s.sinceChange = 0;
+      }
+      s.cur = newBeat(s);
+    }
 
-  ctx.fillStyle = '#21262d';
-  ctx.fillRect(W * 0.55, H * 0.12, W * 0.38, H * 0.35);
-  ctx.strokeStyle = '#30363d';
-  ctx.strokeRect(W * 0.55, H * 0.12, W * 0.38, H * 0.35);
-  ctx.fillStyle = '#e6edf3';
-  ctx.font = '12px system-ui';
-  ctx.fillText(systole ? 'Sistol — kasılma' : 'Diyastol — gevşeme', W * 0.58, H * 0.2);
-  ctx.fillStyle = '#8b949e';
-  ctx.font = '11px system-ui';
-  ctx.fillText('• Sağ kalp → akciğer', W * 0.58, H * 0.28);
-  ctx.fillText('• Sol kalp → vücut', W * 0.58, H * 0.34);
-  ctx.fillText('• Kapakçıklar tek yön', W * 0.58, H * 0.4);
+    function snapshot(s) {
+      return { V: s.y[0], Pc: s.y[1], prev: Object.assign({}, s.prev), phase: s.phase };
+    }
+    // Kararlı duruma dek koştur (en çok maxBeats atım); sonuç s.steady
+    function runSteady(s, maxBeats) {
+      const stop = s.beat + maxBeats;
+      while (!s.steady && s.beat < stop) step(s);
+      return s.steady;
+    }
+    function steadyOf(params, init, maxBeats) {
+      const s = create(params, init);
+      runSteady(s, maxBeats || 400);
+      return s;
+    }
 
-  document.getElementById('info').textContent =
-    `Nabız: ${bpm} atım/dk · ${systole ? 'Kan damarlara pompalanıyor (sistol)' : 'Kalp gevşiyor, kan dolar (diyastol)'}`;
+    /* ── Oksijen ── */
+    const O2 = (function () {
+      const HUFNER = 1.34, SOL = 0.003; // mL O₂/g Hb; mL O₂/(dL·mmHg)
+      const sev = (P) => (P > 0 ? 1 / (1 + 23400 / (P * P * P + 150 * P)) : 0); // Severinghaus 1979
+      // Ters çevirme: P³ + 150P = q, q = 23400·S/(1 − S) (Cardano)
+      function sevInv(S) {
+        if (!(S > 0)) return 0;
+        if (!(S < 1)) return Infinity;
+        const q = (23400 * S) / (1 - S), r = Math.sqrt((q * q) / 4 + 125000);
+        return Math.cbrt(q / 2 + r) + Math.cbrt(q / 2 - r);
+      }
+      const P50STD = sevInv(0.5);
+      // Severinghaus 1979: P_sanal = P·10^[0.024(37 − T) + 0.40(pH − 7.40) + 0.06·log₁₀(40/P_CO₂)], 2,3-BPG ayrıca P₅₀ kayması
+      function kOf(c) {
+        return (Math.pow(10, 0.024 * (37 - c.T) + 0.4 * (c.pH - 7.4) + 0.06 * Math.log10(40 / c.pco2)) * P50STD) / (P50STD + c.dP50);
+      }
+      // HbO₂ / toplam Hb; f = HbCO payı (sabit). Haldane: S(P + K)·K/(P + K) = f, K = M·P_CO
+      function sat(P, k, f) {
+        if (!(f > 0)) return sev(P * k);
+        let lo = 0, hi = 1e6;
+        for (let i = 0; i < 100; i++) {
+          const K = 0.5 * (lo + hi);
+          if ((sev((P + K) * k) * K) / (P + K) > f) hi = K; else lo = K;
+        }
+        const K = 0.5 * (lo + hi);
+        return Math.max(0, sev((P + K) * k) - f);
+      }
+      const content = (P, Hb, k, f) => HUFNER * Hb * sat(P, k, f) + SOL * P;
+      function pOfContent(C, Hb, k, f, Pmax) {
+        if (!(C >= 0) || C > content(Pmax, Hb, k, f)) return NaN;
+        let lo = 0, hi = Pmax;
+        for (let i = 0; i < 100; i++) {
+          const m = 0.5 * (lo + hi);
+          if (content(m, Hb, k, f) > C) hi = m; else lo = m;
+        }
+        return 0.5 * (lo + hi);
+      }
+      // O₂'ye açık Hb'nin yarı doygun olduğu P (ölçülen: eğri üzerinde ikiye bölme)
+      function p50Measured(k, f) {
+        const target = 0.5 * (1 - (f > 0 ? f : 0));
+        let lo = 0, hi = 200;
+        for (let i = 0; i < 100; i++) {
+          const m = 0.5 * (lo + hi);
+          if (sat(m, k, f) > target) hi = m; else lo = m;
+        }
+        return 0.5 * (lo + hi);
+      }
+      // Kapalı biçim: P₅₀' = [(1 − f)/(1 + f)]·S⁻¹((1 + f)/2)/k
+      const p50Theory = (k, f) => (((1 - f) / (1 + f)) * sevInv((1 + f) / 2)) / k;
 
-  requestAnimationFrame(draw);
-}
+      function solve(q) {
+        const ka = kOf({ T: q.T, pH: 7.4, pco2: 40, dP50: q.dP50 });
+        const kv = kOf({ T: q.T, pH: q.pHv, pco2: q.pco2v, dP50: q.dP50 });
+        const f = q.COHb / 100;
+        const Sa = sat(q.Pa, ka, f), Ca = content(q.Pa, q.Hb, ka, f);
+        const avd = q.VO2 / (10 * q.Q);           // mL O₂/dL
+        const Cv = Ca - avd;
+        const r = { ka, kv, f, Sa, Ca, avd, Cv, DO2: 10 * q.Q * Ca, ER: avd / Ca };
+        r.ok = Cv > 0;
+        r.Pv = r.ok ? pOfContent(Cv, q.Hb, kv, f, q.Pa) : NaN;
+        r.ok = r.ok && Number.isFinite(r.Pv);
+        r.Sv = r.ok ? sat(r.Pv, kv, f) : NaN;
+        // "Ölçülen" Fick debisi: kan örneklerinden okunan S ve P ile içerikler, sonra Q = V̇O₂/(C_a − C_v)
+        const CaM = HUFNER * q.Hb * Sa + SOL * q.Pa, CvM = HUFNER * q.Hb * r.Sv + SOL * r.Pv;
+        r.QFick = r.ok ? q.VO2 / (10 * (CaM - CvM)) : NaN;
+        r.sens = r.ok ? (HUFNER * q.Hb * 0.01) / avd : NaN; // S_v'de 1 puanlık hatanın debideki bağıl etkisi
+        // Bohr kayması olmasaydı: aynı C_v için akciğer koşullarındaki eğri
+        r.PvNoShift = r.ok ? pOfContent(Cv, q.Hb, ka, f, q.Pa) : NaN;
+        r.unloadNoShift = r.ok ? Ca - content(r.Pv, q.Hb, ka, f) : NaN;
+        r.P50a = p50Measured(ka, f); r.P50aT = p50Theory(ka, f);
+        r.P50v = p50Measured(kv, f); r.P50vT = p50Theory(kv, f);
+        return r;
+      }
+      return { HUFNER, SOL, sev, sevInv, P50STD, kOf, sat, content, pOfContent, p50Measured, p50Theory, solve };
+    })();
 
-resize();
-draw();
-</script></body>
+    return { H, TOL, MMHGML_J, ART, HILL, DEF, PEAK, RING, act, tmaxOf, derive, ped, plv, edvFull, eaTheory, svCoupling, create, setParams, step, snapshot, runSteady, steadyOf, O2, PH_CODE };
+  })();
+  /* MATH-END */
+
+  /* ── Biçimlendirme: tek yuvarlama yardımcısı (fmt); karşılaştırmalar da yuvarlanmış değerle yapılır ── */
+  const MINUS = "−";
+  function fmt(x, d) {
+    if (!Number.isFinite(x)) return "—";
+    const s = Math.abs(x).toFixed(d);
+    return (x < 0 && Number(s) !== 0 ? MINUS : "") + s;
+  }
+  const rnd = (x, d) => Number(fmt(x, d).replace(MINUS, "-"));
+  function sgn(x, d) {
+    if (!Number.isFinite(x)) return "—";
+    const s = Math.abs(x).toFixed(d);
+    if (Number(s) === 0) return s;
+    return (x < 0 ? MINUS : "+") + s;
+  }
+  function pctDiff(m, t) {
+    if (!Number.isFinite(m) || !Number.isFinite(t) || t === 0) return "—";
+    return `${sgn((100 * (m - t)) / Math.abs(t), 2)} %`;
+  }
+  const $ = (id) => document.getElementById(id);
+  function setText(node, t) {
+    if (node && node.textContent !== t) node.textContent = t;
+  }
+  function setHTML(node, h) {
+    if (node && node.dataset.h !== h) {
+      node.dataset.h = h;
+      node.innerHTML = h;
+    }
+  }
+  const WAIT = "ölçülüyor";
+
+  /* ── Durum ── */
+  const S = { tab: "dongu", running: true, speed: 1, acc: 0, catchUp: false, catchBeats: 0, lastUi: 0, theme: "", sweep: null, sweepRes: null, sweepKey: "", sweepAt: 0, o2: null, o2Dirty: true };
+  const DEF = Core.DEF;
+  const P = { HR: DEF.HR, Pla: DEF.Pla, R: DEF.R, rr: DEF.rr, Ees: DEF.Ees, C: DEF.C };
+  const REF = Core.steadyOf(DEF, null, 400);
+  const REFM = REF.steady;
+  const REFLOOP = REF.lastLoop;
+  let L = REF;
+
+  /* ── Çizim yardımcıları ── */
+  let dpr = 1;
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+      axis: light ? "rgba(0,0,0,0.32)" : "rgba(255,255,255,0.28)",
+      acc: light ? "#0d9488" : "#5eead4",
+      acc2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      red: light ? "#dc2626" : "#f87171",
+      blood: light ? "#c81e1e" : "#ef4444",
+      bloodV: light ? "#6d28d9" : "#8b5cf6",
+      tube: light ? "rgba(26,29,46,0.10)" : "rgba(232,236,244,0.10)",
+      bg: light ? "#f7f9fc" : "#0b1120",
+      bandA: light ? 0.1 : 0.13,
+    };
+  }
+  function rgba(hex, a) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  }
+  const phaseColor = (th, code) => [th.acc, th.acc2, th.red, th.warm][code];
+  const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+  // "_{...}" alt simge olarak yazılır
+  function rich(ctx, text, x, y, px, color, align = "left", weight = 600) {
+    const parts = String(text).split(/_\{([^}]*)\}/);
+    const fonts = parts.map((_, k) => font(k % 2 ? px * 0.74 : px, weight));
+    let total = 0;
+    const widths = parts.map((part, k) => {
+      ctx.font = fonts[k];
+      const w = ctx.measureText(part).width;
+      total += w;
+      return w;
+    });
+    let cx = align === "center" ? x - total / 2 : align === "right" ? x - total : x;
+    ctx.fillStyle = color;
+    ctx.textAlign = "left";
+    parts.forEach((part, k) => {
+      ctx.font = fonts[k];
+      ctx.fillText(part, cx, k % 2 ? y + px * 0.3 * dpr : y);
+      cx += widths[k];
+    });
+    return total;
+  }
+  function line(ctx, x0, y0, x1, y1) {
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }
+  function niceStep(span, target) {
+    const raw = span / Math.max(1, target), p10 = Math.pow(10, Math.floor(Math.log10(raw)));
+    const m = raw / p10;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p10;
+  }
+  const niceCeil = (v, st) => Math.ceil(v / st - 1e-9) * st;
+  // Eksen çerçevesi: ızgara, işaretler ve etiketler; dönüş { b, X, Y }
+  function frame2d(ctx, th, o) {
+    const W = ctx.canvas.width, H = ctx.canvas.height, u = dpr;
+    const b = { x0: (o.padL ?? 50) * u, x1: W - (o.padR ?? 14) * u, y0: (o.padT ?? 14) * u, y1: H - (o.padB ?? 38) * u };
+    const X = (v) => b.x0 + ((v - o.x[0]) / (o.x[1] - o.x[0])) * (b.x1 - b.x0);
+    const Y = (v) => b.y1 - ((v - o.y[0]) / (o.y[1] - o.y[0])) * (b.y1 - b.y0);
+    ctx.lineWidth = 1 * u;
+    ctx.font = font(11);
+    ctx.strokeStyle = th.grid;
+    ctx.fillStyle = th.muted;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (let v = Math.ceil(o.y[0] / o.ys - 1e-9) * o.ys; v <= o.y[1] + 1e-9; v += o.ys) {
+      const y = Y(v);
+      line(ctx, b.x0, y, b.x1, y);
+      ctx.fillText(o.fy ? o.fy(v) : fmt(v, 0), b.x0 - 6 * u, y);
+    }
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    for (let v = Math.ceil(o.x[0] / o.xs - 1e-9) * o.xs; v <= o.x[1] + 1e-9; v += o.xs) {
+      const x = X(v);
+      line(ctx, x, b.y0, x, b.y1);
+      ctx.fillText(o.fx ? o.fx(v) : fmt(v, 0), x, b.y1 + 5 * u);
+    }
+    ctx.strokeStyle = th.axis;
+    ctx.strokeRect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0);
+    ctx.textBaseline = "alphabetic";
+    if (o.xl) rich(ctx, o.xl, (b.x0 + b.x1) / 2, H - 6 * u, 11, th.muted, "center", 500);
+    if (o.yl) {
+      ctx.save();
+      ctx.translate(13 * u, (b.y0 + b.y1) / 2);
+      ctx.rotate(-Math.PI / 2);
+      rich(ctx, o.yl, 0, 0, 11, th.muted, "center", 500);
+      ctx.restore();
+    }
+    return { b, X, Y };
+  }
+  function clipBox(ctx, b) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0);
+    ctx.clip();
+  }
+  function dot(ctx, x, y, r, fill, stroke) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+  }
+  function polyline(ctx, xs, ys, X, Y) {
+    ctx.beginPath();
+    for (let i = 0; i < xs.length; i++) {
+      const x = X(xs[i]), y = Y(ys[i]);
+      if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  /* ── Kalp benzetimi: parametreler ve ölçüm ── */
+  const heartParams = () => Object.assign({}, DEF, P);
+  const isDefaultLoad = () => P.Pla === DEF.Pla && P.R === DEF.R && P.rr === DEF.rr && P.Ees === DEF.Ees && P.C === DEF.C;
+  function applyHeart(fast) {
+    Core.setParams(L, heartParams());
+    if (fast) startCatchUp();
+    syncPresetsA();
+    syncPresetsB();
+    readoutsAll();
+  }
+  function startCatchUp() {
+    S.catchUp = true;
+    S.catchBeats = L.beat;
+  }
+  function restartMeasurement() {
+    // Aynı ayarlarla ölçüm yeniden başlar: şimdiki atım bittiğinde sayaç sıfırlanır
+    Core.setParams(L, heartParams());
+    if ($("aAuto").checked || S.tab === "yuk") startCatchUp();
+    readoutsAll();
+  }
+
+  /* ── (a) Kalp döngüsü: denetimler ── */
+  function syncHR() {
+    const t = `${P.HR} atım/dk`;
+    $("aHR").value = String(P.HR);
+    setText($("aHROut"), t);
+    $("aHR").setAttribute("aria-valuetext", t);
+  }
+  function syncPresetsA() {
+    document.querySelectorAll("[data-hr]").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.hr) === P.HR)));
+  }
+  function speedText() {
+    const v = S.speed;
+    const t = v === 1 ? "gerçek zaman" : `${v}× (1 s'de ${fmt(v, 2)} s)`;
+    setText($("aSpeedOut"), t);
+  }
+  $("aHR").addEventListener("input", () => {
+    P.HR = Number($("aHR").value);
+    syncHR();
+    applyHeart($("aAuto").checked);
+  });
+  document.querySelectorAll("[data-hr]").forEach((b) => b.addEventListener("click", () => {
+    P.HR = Number(b.dataset.hr);
+    syncHR();
+    applyHeart($("aAuto").checked);
+    setRunning(true);
+  }));
+  $("aSpeed").addEventListener("change", () => {
+    S.speed = Number($("aSpeed").value);
+    S.acc = 0;
+    speedText();
+  });
+  $("aSkip").addEventListener("click", () => {
+    if (L.pending || !L.steady) startCatchUp();
+    readoutsAll();
+  });
+  $("aReset").addEventListener("click", () => {
+    P.HR = DEF.HR;
+    syncHR();
+    $("aSpeed").value = "1";
+    S.speed = 1;
+    speedText();
+    $("aAuto").checked = true;
+    applyHeart(true);
+    setRunning(true);
+  });
+
+  /* ── Parametre denetimi: kaydırıcı + isteğe bağlı sayı kutusu + çıktı ── */
+  function bindParam(o) {
+    const sync = () => {
+      const v = o.get(), txt = o.fmt(v);
+      o.range.value = String(v);
+      if (o.num && document.activeElement !== o.num) o.num.value = String(+v.toFixed(o.dec));
+      setText(o.out, txt);
+      o.range.setAttribute("aria-valuetext", txt);
+    };
+    o.range.addEventListener("input", () => {
+      o.set(+Number(o.range.value).toFixed(o.dec));
+      sync();
+      o.onChange();
+    });
+    if (o.num) {
+      o.num.addEventListener("change", () => {
+        const raw = String(o.num.value).replace(",", ".").trim();
+        let v = Number(raw);
+        if (raw === "" || !Number.isFinite(v)) {
+          o.num.value = String(+o.get().toFixed(o.dec));
+          return;
+        }
+        v = +Math.min(o.max, Math.max(o.min, v)).toFixed(o.dec);
+        o.set(v);
+        o.num.value = String(v);
+        sync();
+        o.onChange();
+      });
+    }
+    return sync;
+  }
+
+  /* ── (b) Frank–Starling ve yük: denetimler ── */
+  const onLoadChange = () => {
+    applyHeart(true);
+    S.sweepAt = performance.now() + 250;
+  };
+  const syncB = [
+    bindParam({ range: $("bPla"), out: $("bPlaOut"), dec: 1, min: 2, max: 30, get: () => P.Pla, set: (v) => (P.Pla = v), fmt: (v) => `${fmt(v, 1)} mmHg`, onChange: onLoadChange }),
+    bindParam({ range: $("bR"), num: $("bRNum"), out: $("bROut"), dec: 2, min: 0.4, max: 4, get: () => P.R, set: (v) => (P.R = v), fmt: (v) => `${fmt(v, 2)} mmHg·s/mL`, onChange: onLoadChange }),
+    bindParam({ range: $("bRr"), out: $("bRrOut"), dec: 0, min: 60, max: 140, get: () => Math.round(P.rr * 100), set: (v) => (P.rr = v / 100), fmt: (v) => `${fmt(v, 0)} %`, onChange: onLoadChange }),
+    bindParam({ range: $("bEes"), num: $("bEesNum"), out: $("bEesOut"), dec: 2, min: 0.5, max: 6, get: () => P.Ees, set: (v) => (P.Ees = v), fmt: (v) => `${fmt(v, 2)} mmHg/mL`, onChange: onLoadChange }),
+    bindParam({ range: $("bC"), num: $("bCNum"), out: $("bCOut"), dec: 2, min: 0.3, max: 4, get: () => P.C, set: (v) => (P.C = v), fmt: (v) => `${fmt(v, 2)} mL/mmHg`, onChange: onLoadChange }),
+  ];
+  const PRESET_B = {
+    def: {},
+    r2: { R: 2 * DEF.R },
+    rr: { rr: 0.84 },
+    c2: { C: DEF.C / 2 },
+    e2: { Ees: DEF.Ees / 2 },
+    pla: { Pla: 16 },
+  };
+  function loadOf(q) {
+    return { Pla: DEF.Pla, R: DEF.R, rr: DEF.rr, Ees: DEF.Ees, C: DEF.C, ...q };
+  }
+  function syncPresetsB() {
+    document.querySelectorAll("[data-preset-b]").forEach((b) => {
+      const q = loadOf(PRESET_B[b.dataset.presetB]);
+      const on = ["Pla", "R", "rr", "Ees", "C"].every((k) => Math.abs(q[k] - P[k]) < 1e-9);
+      b.setAttribute("aria-pressed", String(on));
+    });
+  }
+  function setLoad(q) {
+    Object.assign(P, loadOf(q));
+    syncB.forEach((f) => f());
+    onLoadChange();
+  }
+  document.querySelectorAll("[data-preset-b]").forEach((b) => b.addEventListener("click", () => {
+    setLoad(PRESET_B[b.dataset.presetB]);
+    setRunning(true);
+  }));
+  $("bReset").addEventListener("click", () => {
+    $("bAxis").value = "edp";
+    axisText();
+    setLoad({});
+    setRunning(true);
+  });
+  function axisText() {
+    setText($("bAxisOut"), $("bAxis").value === "edp" ? "uç-diyastolik basınç" : "uç-diyastolik hacim");
+  }
+  $("bAxis").addEventListener("change", axisText);
+
+  /* ── Frank–Starling taraması (zaman dilimli) ── */
+  const SWEEP_PLA = [2, 4, 6, 8, 10, 12, 15, 18, 22, 26, 30];
+  const sweepKey = () => [P.HR, P.R, P.rr, P.Ees, P.C].join("|");
+  function startSweep() {
+    S.sweep = { key: sweepKey(), i: 0, sim: null, out: [], init: null };
+    S.sweepRes = null;
+    renderSweepTable();
+  }
+  function sweepWork(budgetMs) {
+    const job = S.sweep;
+    if (!job) return;
+    const t0 = performance.now();
+    while (performance.now() - t0 < budgetMs) {
+      if (!job.sim) {
+        const q = Object.assign({}, DEF, P, { Pla: SWEEP_PLA[job.i] });
+        job.sim = Core.create(q, job.init);
+      }
+      for (let k = 0; k < 400 && !job.sim.steady; k++) Core.step(job.sim);
+      if (job.sim.steady || job.sim.beat > 400) {
+        const s = job.sim;
+        job.out.push({ Pla: SWEEP_PLA[job.i], m: s.steady, loop: s.lastLoop });
+        job.init = Core.snapshot(s);
+        job.sim = null;
+        job.i++;
+        if (job.i >= SWEEP_PLA.length) {
+          S.sweepRes = finishSweep(job);
+          S.sweep = null;
+          renderSweepTable();
+          readoutsB();
+          return;
+        }
+      }
+    }
+  }
+  function finishSweep(job) {
+    const pts = job.out.filter((r) => r.m);
+    let n = 0, Sx = 0, Sy = 0, Sxx = 0, Sxy = 0;
+    for (const r of pts) {
+      n++; Sx += r.m.Ves; Sy += r.m.Pes; Sxx += r.m.Ves * r.m.Ves; Sxy += r.m.Ves * r.m.Pes;
+    }
+    const den = n * Sxx - Sx * Sx;
+    const slope = n >= 3 && den > 0 ? (n * Sxy - Sx * Sy) / den : NaN;
+    const icpt = (Sy - slope * Sx) / n;
+    return { key: job.key, pts, all: job.out, slope, V0: -icpt / slope, failed: job.out.length - pts.length };
+  }
+  function renderSweepTable() {
+    const body = $("bSweepBody");
+    const res = S.sweepRes;
+    if (!res) {
+      const done = S.sweep ? S.sweep.i : 0;
+      setHTML(body, "");
+      setText($("bSweepNote"), `Tarama hesaplanıyor: ${done}/${SWEEP_PLA.length} dolum basıncı kararlı duruma vardı.`);
+      return;
+    }
+    const rows = res.all.map((r) => {
+      if (!r.m) return `<tr><th scope="row">${fmt(r.Pla, 0)}</th><td colspan="4">kararlı duruma varmadı</td></tr>`;
+      return `<tr><th scope="row">${fmt(r.Pla, 0)}</th><td>${fmt(r.m.EDV, 1)}</td><td>${fmt(r.m.SV, 1)}</td><td>${fmt(100 * r.m.EF, 1)} %</td><td>${fmt(r.m.SW * Core.MMHGML_J, 3)}</td></tr>`;
+    });
+    setHTML(body, rows.join(""));
+    const first = res.pts[0], last = res.pts[res.pts.length - 1];
+    let txt = "Her satır o dolum basıncında periyodik kararlı durumdaki atımdır.";
+    if (first && last) {
+      const k1 = (res.pts[1].m.SV - first.m.SV) / (res.pts[1].Pla - first.Pla);
+      const n = res.pts.length, k2 = (last.m.SV - res.pts[n - 2].m.SV) / (last.Pla - res.pts[n - 2].Pla);
+      txt += ` Eğri yatıklaşır: ${fmt(first.Pla, 0)}–${fmt(res.pts[1].Pla, 0)} mmHg arasında SV her mmHg için ${fmt(k1, 1)} mL artarken ${fmt(res.pts[n - 2].Pla, 0)}–${fmt(last.Pla, 0)} mmHg arasında ${fmt(k2, 1)} mL artar. Sebep kas değil, diyastolik sertleşmedir: aynı basınç artışı çok dolmuş karıncığa daha az kan sokar; SV'yi EDV'ye karşı çizersen eğri neredeyse doğrudur.`;
+    }
+    if (res.failed) txt += ` ${res.failed} değer 400 atımda kararlı duruma varmadı.`;
+    setText($("bSweepNote"), txt);
+  }
+
+  /* ── Okumalar: (a) ve (b) ── */
+  function waitCards(ids) {
+    ids.forEach((id) => {
+      setText($(id), WAIT);
+      $(id).parentElement.classList.add("is-wait");
+    });
+  }
+  function showCard(id, t) {
+    setText($(id), t);
+    $(id).parentElement.classList.remove("is-wait");
+  }
+  function cmpRow(prefix, meas, theo, txtM, txtT) {
+    setText($(`${prefix}M`), txtM);
+    setText($(`${prefix}T`), txtT);
+    setText($(`${prefix}D`), Number.isFinite(meas) && Number.isFinite(theo) ? pctDiff(meas, theo) : "—");
+  }
+  const A_CARDS = ["aEDV", "aESV", "aSV", "aEF", "aBP", "aMAP", "aCO", "aSW", "aSD"];
+  const B_CARDS = ["bEDV", "bESV", "bSV", "bEF", "bBP", "bPP", "bMAP", "bCO"];
+  const A_ROWS = ["aEdv", "aMap", "aMap2", "aEa", "aSv", "aSw"];
+  const BK_ROWS = ["bkEdv", "bkEsv", "bkSv", "bkEf", "bkPs", "bkPd", "bkCo", "bkFr"];
+  function measState() {
+    if (L.steady && L.report && !L.pending) return { m: L.report, p: L.p };
+    return null;
+  }
+  function progressText() {
+    if (L.pending) return S.running || S.catchUp ? "Yeni ayarlar bu atımın sonunda uygulanacak; ölçüm o zaman yeniden başlar." : "Duraklatıldı: yeni ayarlar sürdürünce, bu atımın sonunda uygulanacak.";
+    const n = L.sinceChange, d = L.last ? L.last.delta : Infinity;
+    if (!L.last || !Number.isFinite(d)) return `Ölçülüyor: ayar değişikliğinden bu yana ${n} atım; karşılaştırmak için iki tam atım gerekir.`;
+    return `Ölçülüyor: ayar değişikliğinden bu yana ${n} atım; son iki atım arasındaki en büyük bağıl değişim ${fmt(100 * d, 4)} % (eşik ${fmt(100 * Core.TOL, 3)} %, art arda iki kez).`;
+  }
+  function validityParts(p, m) {
+    const parts = [];
+    if (p.HR > 150) parts.push(`Nabız 150 atım/dk'nın üstünde: modelin geçerlik sınırı aşıldı. Gevşeme bitmeden yeni atım başlıyor ve dolum süresi ${m ? fmt(p.T - m.tMO + m.tMC, 3) + " s'ye" : "çok"} kısalıyor; gerçek kalpte sempatik uyarı gevşemeyi hızlandırır, kasılmayı artırır ve toplardamar dönüşünü yükseltir, model bunları içermez.`);
+    else if (p.HR > 110) parts.push("Hızlı nabız: modelde yalnız nabız değişir; sempatik uyarının kasılmaya ve gevşemeye etkisi, baroreseptör refleksi ve toplardamar dönüşünün artışı yoktur. Bu yüzden basınç debiyle birlikte yükselir.");
+    if (p.HR < 50) parts.push("Yavaş nabız: diyastol uzun, aort basıncı atımlar arasında çok iner; gerçek dolaşımda baroreseptör refleksi direnci artırarak bunu sınırlar.");
+    if (m && m.multi) parts.push("Aort kapağı bu atımda birden çok kez açıldı: ölçüm geçersiz.");
+    return parts;
+  }
+  function readoutsA() {
+    const st = measState();
+    const status = $("aStatus");
+    if (!st) {
+      waitCards(A_CARDS);
+      A_ROWS.forEach((r) => { setText($(`${r}M`), WAIT); $(`${r}M`).classList.add("wait"); setText($(`${r}T`), "—"); setText($(`${r}D`), "—"); });
+      BK_ROWS.forEach((r) => { setText($(`${r}M`), WAIT); $(`${r}M`).classList.add("wait"); setText($(`${r}D`), "—"); });
+      const parts = [progressText(), ...validityParts(L.pending ? Object.assign({}, L.p, Core.derive(L.pending)) : L.p, null)];
+      setText(status, parts.join(" "));
+      status.className = "status";
+      return;
+    }
+    const { m, p } = st;
+    A_ROWS.forEach((r) => $(`${r}M`).classList.remove("wait"));
+    BK_ROWS.forEach((r) => $(`${r}M`).classList.remove("wait"));
+    const tsys = m.tAC - m.tMC, tdia = p.T - tsys;
+    showCard("aEDV", `${fmt(m.EDV, 1)} mL`);
+    showCard("aESV", `${fmt(m.ESV, 1)} mL`);
+    showCard("aSV", `${fmt(m.SV, 1)} mL`);
+    showCard("aEF", `${fmt(100 * m.EF, 1)} %`);
+    showCard("aBP", `${fmt(m.Psys, 1)}/${fmt(m.Pdia, 1)} mmHg`);
+    showCard("aMAP", `${fmt(m.MAP, 1)} mmHg`);
+    showCard("aCO", `${fmt(m.CO, 2)} L/dk`);
+    showCard("aSW", `${fmt(m.SW * Core.MMHGML_J, 3)} J`);
+    showCard("aSD", `${fmt(tsys, 3)} / ${fmt(tdia, 3)} s`);
+    const edvT = Core.edvFull(p);
+    cmpRow("aEdv", m.EDV, edvT, `${fmt(m.EDV, 2)} mL`, `${fmt(edvT, 2)} mL`);
+    const mapT = p.Pv + (m.SV / p.T) * p.Rtot;
+    cmpRow("aMap", m.MAP, mapT, `${fmt(m.MAP, 2)} mmHg`, `${fmt(mapT, 2)} mmHg`);
+    const map2 = 0.6 * m.Pdia + 0.4 * m.Psys;
+    cmpRow("aMap2", m.MAP, map2, `${fmt(m.MAP, 2)} mmHg`, `${fmt(map2, 2)} mmHg`);
+    const eaT = Core.eaTheory(p);
+    cmpRow("aEa", m.Ea, eaT, `${fmt(m.Ea, 3)} mmHg/mL`, `${fmt(eaT, 3)} mmHg/mL`);
+    const svT = Core.svCoupling(p, m.EDV);
+    cmpRow("aSv", m.SV, svT, `${fmt(m.SV, 2)} mL`, `${fmt(svT, 2)} mL`);
+    const swT = m.SV * (m.MAP - p.Pla);
+    cmpRow("aSw", m.SW, swT, `${fmt(m.SW * Core.MMHGML_J, 3)} J`, `${fmt(swT * Core.MMHGML_J, 3)} J`);
+    // Ders kitabı: aralık denetimi gösterilen (yuvarlanmış) değerle yapılır
+    const withUnit = (t, unit) => (unit ? `${t} ${unit}` : t);
+    const range = (id, v, d, lo, hi, unit) => {
+      const r = rnd(v, d);
+      setText($(`${id}M`), withUnit(fmt(v, d), unit));
+      setText($(`${id}D`), r < lo ? `${withUnit(fmt(lo - r, d), unit)} altında` : r > hi ? `${withUnit(fmt(r - hi, d), unit)} üstünde` : "aralıkta");
+    };
+    const near = (id, v, d, ref, unit) => {
+      setText($(`${id}M`), withUnit(fmt(v, d), unit));
+      setText($(`${id}D`), pctDiff(rnd(v, d), ref));
+    };
+    range("bkEdv", m.EDV, 1, 110, 120, "mL");
+    range("bkEsv", m.ESV, 1, 40, 50, "mL");
+    near("bkSv", m.SV, 1, 70, "mL");
+    range("bkEf", 100 * m.EF, 1, 52, 74, "%");
+    near("bkPs", m.Psys, 1, 120, "mmHg");
+    near("bkPd", m.Pdia, 1, 80, "mmHg");
+    near("bkCo", m.CO, 2, 5, "L/dk");
+    near("bkFr", tsys / p.T, 2, 0.4, "");
+    const parts = [`Periyodik kararlı durum: ardışık atımlar ${fmt(100 * Core.TOL, 3)} %'den az farklı; değerler ilk kararlı atımdandır. Sistol ${fmt(tsys, 3)} s, diyastol ${fmt(tdia, 3)} s; sistol döngünün ${fmt(100 * tsys / p.T, 1)} %'si.`];
+    parts.push(`Evreler: izovolümik kasılma ${fmt(m.tAO - m.tMC, 3)} s, atım ${fmt(m.tAC - m.tAO, 3)} s, izovolümik gevşeme ${fmt(m.tMO - m.tAC, 3)} s, dolum ${fmt(p.T - m.tMO + m.tMC, 3)} s.`);
+    const warn = validityParts(p, m);
+    if (!isDefaultLoad()) parts.push("Yük ayarları ikinci sekmede değiştirildi: ders kitabı karşılaştırması varsayılan yük içindir.");
+    else if (Math.abs(p.HR - 70) > 5) parts.push("Ders kitabı değerleri 70–72 atım/dk'daki dinlenim içindir.");
+    setText(status, parts.concat(warn).join(" "));
+    status.className = `status ${warn.length && p.HR > 150 ? "is-warn" : "is-good"}`;
+  }
+  function readoutsB() {
+    const st = measState();
+    const p = Core.derive(heartParams());
+    setText($("bReff"), `${fmt(p.Reff, 3)} mmHg·s/mL`);
+    const status = $("bStatus");
+    const res = S.sweepRes && S.sweepRes.key === sweepKey() ? S.sweepRes : null;
+    if (res && Number.isFinite(res.slope)) {
+      cmpRow("bEes", res.slope, p.Ees, `${fmt(res.slope, 3)} mmHg/mL`, `${fmt(p.Ees, 3)} mmHg/mL`);
+      cmpRow("bV0", res.V0, p.V0, `${fmt(res.V0, 2)} mL`, `${fmt(p.V0, 2)} mL`);
+    } else {
+      ["bEes", "bV0"].forEach((r) => { setText($(`${r}M`), "tarama sürüyor"); setText($(`${r}T`), "—"); setText($(`${r}D`), "—"); });
+    }
+    if (!st) {
+      waitCards(B_CARDS);
+      ["bTau", "bSv", "bMap", "bC"].forEach((r) => { setText($(`${r}M`), WAIT); setText($(`${r}T`), "—"); setText($(`${r}D`), "—"); });
+      setText(status, progressText());
+      status.className = "status";
+      return;
+    }
+    const m = st.m, q = st.p;
+    showCard("bEDV", `${fmt(m.EDV, 1)} mL`);
+    showCard("bESV", `${fmt(m.ESV, 1)} mL`);
+    showCard("bSV", `${fmt(m.SV, 1)} mL`);
+    showCard("bEF", `${fmt(100 * m.EF, 1)} %`);
+    showCard("bBP", `${fmt(m.Psys, 1)}/${fmt(m.Pdia, 1)} mmHg`);
+    showCard("bPP", `${fmt(m.Psys - m.Pdia, 1)} mmHg`);
+    showCard("bMAP", `${fmt(m.MAP, 1)} mmHg`);
+    showCard("bCO", `${fmt(m.CO, 2)} L/dk`);
+    const tauT = q.Reff * q.C;
+    if (m.decay) cmpRow("bTau", m.decay.tau, tauT, `${fmt(m.decay.tau, 4)} s`, `${fmt(tauT, 4)} s`);
+    else cmpRow("bTau", NaN, tauT, "diyastol yok", `${fmt(tauT, 4)} s`);
+    const svT = Core.svCoupling(q, m.EDV);
+    cmpRow("bSv", m.SV, svT, `${fmt(m.SV, 2)} mL`, `${fmt(svT, 2)} mL`);
+    const mapT = q.Pv + (m.SV / q.T) * q.Rtot;
+    cmpRow("bMap", m.MAP, mapT, `${fmt(m.MAP, 2)} mmHg`, `${fmt(mapT, 2)} mmHg`);
+    const cEst = m.SV / (m.Psys - m.Pdia);
+    cmpRow("bC", cEst, q.C, `${fmt(cEst, 3)} mL/mmHg`, `${fmt(q.C, 3)} mL/mmHg`);
+    const r = REFM;
+    const parts = [];
+    if (isDefaultLoad() && q.HR === DEF.HR) parts.push("Varsayılan atım. Bir hazır deney seç ya da kaydırıcılarla yükü değiştir; değerler varsayılanla karşılaştırılır.");
+    else {
+      parts.push(`Varsayılana göre: SV ${fmt(r.SV, 1)} → ${fmt(m.SV, 1)} mL (${pctDiff(rnd(m.SV, 1), rnd(r.SV, 1))}), ESV ${fmt(r.ESV, 1)} → ${fmt(m.ESV, 1)} mL, EF ${fmt(100 * r.EF, 1)} → ${fmt(100 * m.EF, 1)} %, basınç ${fmt(r.Psys, 1)}/${fmt(r.Pdia, 1)} → ${fmt(m.Psys, 1)}/${fmt(m.Pdia, 1)} mmHg, nabız basıncı ${fmt(r.Psys - r.Pdia, 1)} → ${fmt(m.Psys - m.Pdia, 1)} mmHg, atım işi ${fmt(r.SW * Core.MMHGML_J, 3)} → ${fmt(m.SW * Core.MMHGML_J, 3)} J.`);
+    }
+    if (q.HR !== DEF.HR) parts.push(`Nabız ilk sekmede ${q.HR} atım/dk'ya ayarlı.`);
+    const warn = validityParts(q, m);
+    setText(status, parts.concat(warn).join(" "));
+    status.className = `status ${warn.length && q.HR > 150 ? "is-warn" : "is-good"}`;
+  }
+  function readoutsAll() {
+    if (S.tab === "dongu") readoutsA();
+    else if (S.tab === "yuk") readoutsB();
+  }
+
+  /* ── (a) Kalp ve dolaşım şeması ── */
+  const flowPhase = { pv: 0, mi: 0, lv: 0, ao: 0, ar: 0, ca: 0, ve: 0 };
+  function advanceFlow(dt) {
+    const p = L.p, a = L.aux, qout = (L.y[1] - p.Pv) / p.Reff;
+    flowPhase.pv += 0.010 * qout * dt;
+    flowPhase.mi += 0.010 * a.qm * dt;
+    flowPhase.lv += 0.010 * Math.max(a.qm, a.qa) * dt;
+    flowPhase.ao += 0.010 * (0.5 * (a.qa + qout)) * dt;
+    flowPhase.ar += 0.018 * qout * dt;
+    flowPhase.ca += 0.004 * qout * dt;
+    flowPhase.ve += 0.010 * qout * dt;
+  }
+  const PHASE_NAMES = ["diyastol · dolum", "sistol · izovolümik kasılma", "sistol · atım (ejeksiyon)", "diyastol · izovolümik gevşeme"];
+  function pathOf(ctx, pts, W, H) {
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => (i ? ctx.lineTo(x * W, y * H) : ctx.moveTo(x * W, y * H)));
+  }
+  function flowTube(ctx, th, pts, W, H, width, color, phase, spacing) {
+    const u = dpr;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    pathOf(ctx, pts, W, H);
+    ctx.strokeStyle = rgba(color, th.light ? 0.22 : 0.28);
+    ctx.lineWidth = width;
+    ctx.stroke();
+    pathOf(ctx, pts, W, H);
+    ctx.setLineDash([0.1 * u, spacing * u]);
+    ctx.lineDashOffset = -((phase * spacing * u) % (spacing * u * 1000));
+    ctx.strokeStyle = color;
+    ctx.lineWidth = Math.min(width * 0.6, 5 * u);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.lineDashOffset = 0;
+  }
+  function valve(ctx, th, x, y, open, horiz, u) {
+    ctx.strokeStyle = open ? th.acc : th.ink;
+    ctx.lineWidth = 3 * u;
+    ctx.lineCap = "round";
+    const g = open ? 9 * u : 0.5 * u, l = 11 * u;
+    if (horiz) {
+      line(ctx, x, y - g - l, x + (open ? 6 * u : 0), y - g);
+      line(ctx, x, y + g + l, x + (open ? 6 * u : 0), y + g);
+    } else {
+      line(ctx, x - g - l, y, x - g, y - (open ? 6 * u : 0));
+      line(ctx, x + g + l, y, x + g, y - (open ? 6 * u : 0));
+    }
+  }
+  function drawHeart(ctx, th) {
+    const W = ctx.canvas.width, H = ctx.canvas.height, u = dpr;
+    const s = L, p = s.p, a = s.aux, code = Core.PH_CODE[s.phase], e = Math.max(0, Math.min(1, s.e));
+    const narrow = W / u < 560;
+    const fs = narrow ? 10 : 11.5;
+    // Atım şeridi: son tam atımın evreleri ve şu anki an
+    const bx0 = 12 * u, bx1 = W - 12 * u, by = 10 * u, bh = 12 * u;
+    const lm = s.last && s.last.valid ? s.last : null;
+    if (lm) {
+      const T = lm.T, segs = [[0, lm.tMC, 0], [lm.tMC, lm.tAO, 1], [lm.tAO, lm.tAC, 2], [lm.tAC, lm.tMO, 3], [lm.tMO, T, 0]];
+      for (const [t0, t1, c] of segs) {
+        if (!(t1 > t0)) continue;
+        ctx.fillStyle = rgba(phaseColor(th, c), 0.55);
+        ctx.fillRect(bx0 + (t0 / T) * (bx1 - bx0), by, ((t1 - t0) / T) * (bx1 - bx0), bh);
+      }
+      ctx.strokeStyle = th.axis;
+      ctx.lineWidth = 1 * u;
+      ctx.strokeRect(bx0, by, bx1 - bx0, bh);
+      const xs = bx0 + (lm.tMC / T) * (bx1 - bx0), xe = bx0 + (lm.tAC / T) * (bx1 - bx0);
+      ctx.font = font(10, 600);
+      ctx.textBaseline = "top";
+      ctx.fillStyle = th.ink;
+      ctx.textAlign = "center";
+      if (xe - xs > 50 * u) ctx.fillText("sistol", (xs + xe) / 2, by + bh + 3 * u);
+      if (bx1 - xe > 60 * u) ctx.fillText("diyastol", (xe + bx1) / 2, by + bh + 3 * u);
+      ctx.textBaseline = "alphabetic";
+    }
+    const xc = bx0 + Math.min(1, s.tb / p.T) * (bx1 - bx0);
+    ctx.strokeStyle = th.ink;
+    ctx.lineWidth = 2 * u;
+    line(ctx, xc, by - 3 * u, xc, by + bh + 3 * u);
+    rich(ctx, `Şu an: ${PHASE_NAMES[code]}`, 14 * u, 46 * u, fs + 1, phaseColor(th, code), "left", 700);
+    rich(ctx, `t = ${fmt(s.tb, 2)} / ${fmt(p.T, 2)} s · ${p.HR} atım/dk`, W - 14 * u, 46 * u, fs, th.muted, "right", 500);
+
+    // Kan yolu
+    const venT = [[0.9, 0.56], [0.955, 0.64], [0.955, 0.9], [0.62, 0.9]];
+    const lungT = [[0.62, 0.9], [0.03, 0.9], [0.03, 0.56], [0.07, 0.56]];
+    const laT = [[0.07, 0.56], [0.17, 0.56]];
+    const miT = [[0.17, 0.56], [0.235, 0.6]];
+    const lvT = [[0.235, 0.6], [0.29, 0.57], [0.34, 0.48], [0.385, 0.4]];
+    const ay = narrow ? 0.3 : 0.22;
+    const aoT = [[0.385, 0.4], [0.41, 0.3], [0.46, ay], [0.6, ay], [0.65, 0.3]];
+    const arT = [[0.65, 0.3], [0.72, 0.36], [0.8, 0.42]];
+    const caT = [[0.8, 0.42], [0.86, 0.47], [0.9, 0.56]];
+    const sp = narrow ? 11 : 14;
+    flowTube(ctx, th, venT, W, H, 9 * u, th.bloodV, flowPhase.ve, sp);
+    flowTube(ctx, th, lungT, W, H, 9 * u, th.blood, flowPhase.pv, sp);
+    // Akciğer kutusu
+    const lx0 = 0.3 * W, lx1 = 0.6 * W, ly = 0.9 * H;
+    ctx.fillStyle = th.light ? "rgba(255,255,255,0.85)" : "rgba(11,17,32,0.85)";
+    ctx.strokeStyle = th.axis;
+    ctx.lineWidth = 1 * u;
+    ctx.fillRect(lx0, ly - 11 * u, lx1 - lx0, 22 * u);
+    ctx.strokeRect(lx0, ly - 11 * u, lx1 - lx0, 22 * u);
+    rich(ctx, narrow ? "sağ kalp + akciğer (sabit P_{LA})" : "sağ kalp ve akciğerler: modelde sabit dolum basıncı P_{LA}", (lx0 + lx1) / 2, ly + 4 * u, fs - 1, th.muted, "center", 500);
+    rich(ctx, "toplardamarlar", 0.955 * W - 6 * u, 0.77 * H, fs - 1, th.bloodV, "right", 600);
+    // Sol kulakçık
+    const laX0 = 0.06 * W, laX1 = 0.175 * W, laY0 = 0.45 * H, laY1 = 0.67 * H;
+    ctx.fillStyle = rgba(th.blood, th.light ? 0.16 : 0.22);
+    ctx.strokeStyle = rgba(th.blood, 0.8);
+    ctx.lineWidth = 2 * u;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(laX0, laY0, laX1 - laX0, laY1 - laY0, 10 * u);
+    else ctx.rect(laX0, laY0, laX1 - laX0, laY1 - laY0);
+    ctx.fill();
+    ctx.stroke();
+    flowTube(ctx, th, laT, W, H, 7 * u, th.blood, flowPhase.mi, sp);
+    rich(ctx, "Sol kulakçık", (laX0 + laX1) / 2, laY0 - 6 * u, fs, th.ink, "center", 700);
+    rich(ctx, `P_{LA} ${fmt(p.Pla, 1)} mmHg`, (laX0 + laX1) / 2, laY1 + 14 * u, fs - 1, th.muted, "center", 500);
+    // Sol karıncık
+    const V = s.y[0], k = Math.cbrt(Math.max(V, 5) / 120);
+    const cx = 0.305 * W, cy = 0.6 * H, rx = 0.075 * W * k, ry = 0.16 * H * k * (narrow ? 1.1 : 1);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-0.45);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = rgba(th.blood, th.light ? 0.2 + 0.1 * e : 0.24 + 0.12 * e);
+    ctx.fill();
+    ctx.lineWidth = (5 + 9 * e) * u;
+    ctx.strokeStyle = rgba(th.red, 0.45 + 0.5 * e);
+    ctx.stroke();
+    ctx.restore();
+    flowTube(ctx, th, miT, W, H, 7 * u, th.blood, flowPhase.mi, sp);
+    flowTube(ctx, th, lvT, W, H, 7 * u, th.blood, flowPhase.lv, sp);
+    rich(ctx, "Sol karıncık", cx, cy + 0.03 * H, fs, th.ink, "center", 700);
+    rich(ctx, `P_{LV} ${fmt(a.P, 0)} mmHg`, cx, cy + 0.03 * H + (fs + 4) * u, fs - 1, th.ink, "center", 500);
+    rich(ctx, `V ${fmt(V, 0)} mL`, cx, cy + 0.03 * H + 2 * (fs + 4) * u, fs - 1, th.ink, "center", 500);
+    // Aort, atardamarlar, arteriyoller, kılcallar
+    const aoW = Math.max(6, Math.min(26, 6 + (s.y[1] - 40) * 0.17)) * u;
+    flowTube(ctx, th, aoT, W, H, aoW, th.blood, flowPhase.ao, sp);
+    flowTube(ctx, th, arT.slice(0, 2), W, H, 8 * u, th.blood, flowPhase.ar, sp);
+    flowTube(ctx, th, arT.slice(1), W, H, Math.max(1.5, 5 * p.rr * p.rr) * u, th.blood, flowPhase.ar, sp);
+    for (let j = -2; j <= 2; j++) {
+      const pts = [[0.8, 0.42], [0.85, 0.46 + j * 0.022], [0.9, 0.56]];
+      flowTube(ctx, th, pts, W, H, 2.5 * u, j < 0 ? th.blood : th.bloodV, flowPhase.ca, sp * 0.7);
+    }
+    valve(ctx, th, 0.172 * W, 0.56 * H, code === 0, true, u);
+    valve(ctx, th, 0.385 * W, 0.4 * H, code === 2, false, u);
+    rich(ctx, "mitral", 0.172 * W + 5 * u, 0.56 * H - 21 * u, fs - 1.5, code === 0 ? th.acc : th.muted, "left", 600);
+    rich(ctx, "aort kapağı", 0.385 * W + 16 * u, 0.4 * H + 20 * u, fs - 1.5, code === 2 ? th.acc : th.muted, "left", 600);
+    rich(ctx, narrow ? "Aort (esnek depo C)" : "Aort ve büyük atardamarlar: esnek depo C", 0.53 * W, ay * H - aoW / 2 - 8 * u, fs, th.ink, "center", 700);
+    rich(ctx, `P_{ao} ${fmt(a.Pao, 0)} mmHg`, 0.53 * W, ay * H + aoW / 2 + 15 * u, fs - 1, th.ink, "center", 500);
+    rich(ctx, `arteriyoller r = ${fmt(100 * p.rr, 0)} % r₀`, 0.74 * W, 0.47 * H + 10 * u, fs - 1, th.ink, "center", 600);
+    rich(ctx, `R ∝ 1/r⁴ → R_{etkin} ${fmt(p.Reff, 2)} mmHg·s/mL`, 0.74 * W, 0.47 * H + (fs + 14) * u, fs - 2, th.muted, "center", 500);
+    rich(ctx, "kılcallar", 0.86 * W, 0.37 * H, fs - 1, th.muted, "center", 600);
+  }
+
+  /* ── (a) Wiggers diyagramı ── */
+  const WIG_W = 2.5;
+  const EV_LABEL = { MC: "MK", AO: "AA", AC: "AK", MO: "MA" };
+  function ringRange(s, t0) {
+    const r = s.ring, n = r.n, lo = Math.max(0, n - Core.RING);
+    let j = n - 1;
+    while (j > lo && r.t[(j - 1) % Core.RING] >= t0) j--;
+    return [j, n];
+  }
+  function drawWiggers(ctx, th) {
+    const W = ctx.canvas.width, H = ctx.canvas.height, u = dpr;
+    const s = L, r = s.ring, tEnd = s.t, tStart = tEnd - WIG_W;
+    const [j0, j1] = ringRange(s, tStart);
+    let pMax = 0, vMin = Infinity, vMax = -Infinity;
+    for (let j = j0; j < j1; j++) {
+      const i = j % Core.RING;
+      pMax = Math.max(pMax, r.Plv[i], r.Pao[i]);
+      vMin = Math.min(vMin, r.V[i]);
+      vMax = Math.max(vMax, r.V[i]);
+    }
+    if (!Number.isFinite(vMin)) { vMin = 40; vMax = 130; }
+    const pTop = niceCeil(Math.max(140, pMax + 10), 20);
+    const vStep = 20, vLo = Math.max(0, Math.floor((vMin - 5) / vStep) * vStep), vHi = Math.ceil((vMax + 5) / vStep) * vStep;
+    const x0 = 48 * u, x1 = W - 12 * u, top = 30 * u, bot = H - 38 * u;
+    const hp = (bot - top) * 0.58, gap = 12 * u, hv = (bot - top) - hp - 2 * gap - 26 * u;
+    const pY0 = top, pY1 = top + hp, vaY = pY1 + gap, vY0 = vaY + 26 * u + gap, vY1 = vY0 + hv;
+    const X = (t) => x0 + ((t - tStart) / WIG_W) * (x1 - x0);
+    const YP = (P) => pY1 - (P / pTop) * (pY1 - pY0);
+    const YV = (V) => vY1 - ((V - vLo) / (vHi - vLo)) * (vY1 - vY0);
+    // Evre bantları ve sistol/diyastol şeridi
+    let runStart = j0, runCode = j0 < j1 ? r.ph[j0 % Core.RING] : 0;
+    const runs = [];
+    for (let j = j0 + 1; j <= j1; j++) {
+      const c = j < j1 ? r.ph[j % Core.RING] : -1;
+      if (c !== runCode) {
+        runs.push([r.t[runStart % Core.RING], r.t[(j - 1) % Core.RING], runCode]);
+        runStart = j;
+        runCode = c;
+      }
+    }
+    for (const [ta, tb, c] of runs) {
+      const xa = Math.max(x0, X(ta)), xb = Math.min(x1, X(tb));
+      if (xb <= xa) continue;
+      ctx.fillStyle = rgba(phaseColor(th, c), th.bandA);
+      ctx.fillRect(xa, pY0, xb - xa, vY1 - pY0);
+      const sys = c === 1 || c === 2;
+      ctx.fillStyle = rgba(sys ? th.red : th.acc, 0.5);
+      ctx.fillRect(xa, 8 * u, xb - xa, 9 * u);
+      if (xb - xa > 26 * u) {
+        ctx.font = font(9.5, 600);
+        ctx.fillStyle = th.muted;
+        ctx.textAlign = "center";
+        ctx.fillText(["dolum", "İK", "atım", "İG"][c], (xa + xb) / 2, pY0 + 11 * u);
+      }
+    }
+    // sistol / diyastol etiketleri: birleşik aralıklar
+    const sd = [];
+    for (const [ta, tb, c] of runs) {
+      const sys = c === 1 || c === 2;
+      if (sd.length && sd[sd.length - 1][2] === sys) sd[sd.length - 1][1] = tb;
+      else sd.push([ta, tb, sys]);
+    }
+    ctx.font = font(9.5, 700);
+    ctx.textAlign = "center";
+    ctx.fillStyle = th.ink;
+    for (const [ta, tb, sys] of sd) {
+      const xa = Math.max(x0, X(ta)), xb = Math.min(x1, X(tb));
+      if (xb - xa > (sys ? 34 : 46) * u) ctx.fillText(sys ? "sistol" : "diyastol", (xa + xb) / 2, 27 * u);
+    }
+    // Eksenler
+    ctx.strokeStyle = th.grid;
+    ctx.lineWidth = 1 * u;
+    ctx.font = font(10.5);
+    ctx.fillStyle = th.muted;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    const pStep = pTop > 160 ? 40 : 20;
+    for (let P0 = 0; P0 <= pTop; P0 += pStep) {
+      line(ctx, x0, YP(P0), x1, YP(P0));
+      ctx.fillText(String(P0), x0 - 5 * u, YP(P0));
+    }
+    for (let V0 = vLo; V0 <= vHi; V0 += vStep) {
+      line(ctx, x0, YV(V0), x1, YV(V0));
+      ctx.fillText(String(V0), x0 - 5 * u, YV(V0));
+    }
+    ctx.textBaseline = "alphabetic";
+    ctx.strokeStyle = th.axis;
+    ctx.strokeRect(x0, pY0, x1 - x0, pY1 - pY0);
+    ctx.strokeRect(x0, vY0, x1 - x0, vY1 - vY0);
+    ctx.save();
+    ctx.translate(13 * u, (pY0 + pY1) / 2);
+    ctx.rotate(-Math.PI / 2);
+    rich(ctx, "basınç (mmHg)", 0, 0, 10.5, th.muted, "center", 500);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(13 * u, (vY0 + vY1) / 2);
+    ctx.rotate(-Math.PI / 2);
+    rich(ctx, "hacim (mL)", 0, 0, 10.5, th.muted, "center", 500);
+    ctx.restore();
+    // Zaman ekseni
+    ctx.fillStyle = th.muted;
+    ctx.textAlign = "center";
+    ctx.font = font(10.5);
+    for (let k = 0; k <= 5; k++) {
+      const t = tEnd - k * 0.5;
+      ctx.textAlign = k === 0 ? "right" : k === 5 ? "left" : "center";
+      ctx.fillText(k ? `${MINUS}${fmt(k * 0.5, 1)} s` : "şimdi", X(t), H - 4 * u);
+    }
+    // Kapak çubukları
+    ctx.font = font(9.5, 600);
+    ctx.textAlign = "left";
+    rich(ctx, "mitral", 4 * u, vaY + 9 * u, 9, th.muted, "left", 600);
+    rich(ctx, "aort", 4 * u, vaY + 22 * u, 9, th.muted, "left", 600);
+    for (const [ta, tb, c] of runs) {
+      const xa = Math.max(x0, X(ta)), xb = Math.min(x1, X(tb));
+      if (xb <= xa) continue;
+      if (c === 0) { ctx.fillStyle = rgba(th.acc, 0.75); ctx.fillRect(xa, vaY + 2 * u, xb - xa, 9 * u); }
+      if (c === 2) { ctx.fillStyle = rgba(th.red, 0.75); ctx.fillRect(xa, vaY + 15 * u, xb - xa, 9 * u); }
+    }
+    ctx.strokeStyle = th.grid;
+    ctx.strokeRect(x0, vaY + 2 * u, x1 - x0, 9 * u);
+    ctx.strokeRect(x0, vaY + 15 * u, x1 - x0, 9 * u);
+    // Olaylar
+    ctx.save();
+    ctx.setLineDash([2 * u, 3 * u]);
+    ctx.strokeStyle = th.axis;
+    ctx.font = font(9, 700);
+    ctx.textAlign = "center";
+    ctx.fillStyle = th.muted;
+    // Yakın olay etiketleri iki satıra dağıtılır
+    let lastX = -1e9, row = 0;
+    for (const ev of s.events) {
+      if (ev.t < tStart || ev.t > tEnd) continue;
+      const x = X(ev.t);
+      line(ctx, x, pY0 + 14 * u, x, vY1);
+      row = x - lastX < 22 * u ? 1 - row : 0;
+      ctx.fillText(EV_LABEL[ev.type], x, vY1 + (row ? 20 : 10) * u);
+      lastX = x;
+    }
+    ctx.restore();
+    // İzler
+    const step = Math.max(1, Math.floor((j1 - j0) / ((x1 - x0) / u)));
+    const trace = (get, Yf, color, w) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = w * u;
+      ctx.beginPath();
+      let first = true;
+      for (let j = j0; j < j1; j += step) {
+        const i = j % Core.RING, x = X(r.t[i]), y = Yf(get(i));
+        if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    };
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x0, pY0, x1 - x0, vY1 - pY0);
+    ctx.clip();
+    ctx.setLineDash([5 * u, 4 * u]);
+    ctx.strokeStyle = th.acc2;
+    ctx.lineWidth = 1.6 * u;
+    line(ctx, x0, YP(s.p.Pla), x1, YP(s.p.Pla));
+    ctx.setLineDash([]);
+    trace((i) => r.Pao[i], YP, th.acc, 2);
+    trace((i) => r.Plv[i], YP, th.red, 2);
+    trace((i) => r.V[i], YV, th.warm, 2);
+    ctx.restore();
+    // Etiketler
+    rich(ctx, "P_{LV}", x1 - 4 * u, pY0 + 26 * u, 10.5, th.red, "right", 700);
+    rich(ctx, "P_{ao}", x1 - 40 * u, pY0 + 26 * u, 10.5, th.acc, "right", 700);
+    rich(ctx, "P_{LA}", x1 - 4 * u, YP(s.p.Pla) - 4 * u, 10, th.acc2, "right", 700);
+    rich(ctx, "V", x1 - 4 * u, vY0 + 13 * u, 10.5, th.warm, "right", 700);
+  }
+
+  /* ── Basınç–hacim düzlemi ── */
+  function pvAxes(ctx, th, loops) {
+    let vMax = 160, pMax = 140;
+    for (const lp of loops) {
+      if (!lp) continue;
+      for (let i = 0; i < lp.V.length; i += 3) { vMax = Math.max(vMax, lp.V[i]); pMax = Math.max(pMax, lp.P[i]); }
+    }
+    const vTop = niceCeil(vMax + 25, 20), pTop = niceCeil(pMax + 15, 20);
+    return frame2d(ctx, th, { x: [0, vTop], y: [0, pTop], xs: vTop > 200 ? 40 : 20, ys: pTop > 200 ? 40 : 20, xl: "karıncık hacmi V (mL)", yl: "karıncık basıncı P_{LV} (mmHg)", padL: 50 });
+  }
+  function relations(ctx, th, g, p) {
+    const { b, X, Y } = g;
+    ctx.save();
+    clipBox(ctx, b);
+    ctx.setLineDash([6 * dpr, 5 * dpr]);
+    ctx.lineWidth = 1.6 * dpr;
+    ctx.strokeStyle = th.red;
+    const vHi = (b.x1 - b.x0) / (X(1) - X(0)) + 0;
+    line(ctx, X(p.V0), Y(0), X(vHi), Y(p.Ees * (vHi - p.V0)));
+    ctx.strokeStyle = th.acc;
+    ctx.beginPath();
+    for (let V = p.V0; V <= vHi; V += 1) {
+      const x = X(V), y = Y(Core.ped(p, V));
+      if (V === p.V0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+  function loopPath(ctx, lp, X, Y, colorOf, w) {
+    ctx.lineWidth = w * dpr;
+    ctx.lineJoin = "round";
+    if (!colorOf) {
+      polyline(ctx, lp.V, lp.P, X, Y);
+      return;
+    }
+    let i0 = 0;
+    for (let i = 1; i <= lp.V.length; i++) {
+      if (i === lp.V.length || lp.ph[i] !== lp.ph[i0]) {
+        ctx.strokeStyle = colorOf(lp.ph[i0]);
+        ctx.beginPath();
+        ctx.moveTo(X(lp.V[Math.max(0, i0 - 1)]), Y(lp.P[Math.max(0, i0 - 1)]));
+        for (let k = i0; k < Math.min(i + 1, lp.V.length); k++) ctx.lineTo(X(lp.V[k]), Y(lp.P[k]));
+        ctx.stroke();
+        i0 = i;
+      }
+    }
+  }
+  function drawPV(ctx, th) {
+    const s = L, p = s.p, lp = s.lastLoop;
+    const g = pvAxes(ctx, th, [lp, REFLOOP]);
+    const { b, X, Y } = g;
+    relations(ctx, th, g, p);
+    ctx.save();
+    clipBox(ctx, b);
+    const st = measState();
+    if (lp && lp.m && lp.m.valid) {
+      ctx.beginPath();
+      lp.V.forEach((V, i) => (i ? ctx.lineTo(X(V), Y(lp.P[i])) : ctx.moveTo(X(V), Y(lp.P[i]))));
+      ctx.closePath();
+      ctx.fillStyle = rgba(th.acc, th.light ? 0.08 : 0.1);
+      ctx.fill();
+      loopPath(ctx, lp, X, Y, (c) => phaseColor(th, c), 2.6);
+      const m = lp.m;
+      if (st) {
+        // E_a doğrusu ve Sunagawa kestirimi
+        ctx.setLineDash([5 * dpr, 4 * dpr]);
+        ctx.strokeStyle = th.warm;
+        ctx.lineWidth = 1.5 * dpr;
+        line(ctx, X(m.EDV), Y(0), X(m.Ves), Y(m.Pes));
+        ctx.setLineDash([]);
+        const Ea = Core.eaTheory(p), Vs = (Ea * m.EDV + p.Ees * p.V0) / (p.Ees + Ea), Ps = p.Ees * (Vs - p.V0);
+        ctx.strokeStyle = th.ink;
+        ctx.lineWidth = 1.5 * dpr;
+        const xx = X(Vs), yy = Y(Ps), d = 5 * dpr;
+        line(ctx, xx - d, yy - d, xx + d, yy + d);
+        line(ctx, xx - d, yy + d, xx + d, yy - d);
+        dot(ctx, X(m.Ves), Y(m.Pes), 4.5 * dpr, th.red);
+        dot(ctx, X(m.EDV), Y(m.EDP), 4.5 * dpr, th.acc);
+        ctx.font = font(10.5, 600);
+        const esW = ctx.measureText("uç-sistolik nokta").width;
+        if (X(m.Ves) - 8 * dpr - esW > b.x0 + 2 * dpr) rich(ctx, "uç-sistolik nokta", X(m.Ves) - 8 * dpr, Y(m.Pes) - 8 * dpr, 10.5, th.red, "right", 600);
+        else rich(ctx, "uç-sistolik nokta", X(m.Ves) + 8 * dpr, Y(m.Pes) + 42 * dpr, 10.5, th.red, "left", 600);
+        rich(ctx, "uç-diyastolik nokta", X(m.EDV) + 8 * dpr, Y(m.EDP) - 8 * dpr, 10.5, th.acc, "left", 600);
+        rich(ctx, "× Sunagawa kestirimi", xx + 8 * dpr, yy - 8 * dpr, 10, th.muted, "left", 500);
+      }
+    }
+    const cur = s.cur;
+    ctx.strokeStyle = th.ink;
+    ctx.globalAlpha = 0.65;
+    polyline(ctx, cur.loopV, cur.loopP, X, Y);
+    ctx.globalAlpha = 1;
+    dot(ctx, X(s.y[0]), Y(s.aux.P), 5.5 * dpr, th.warm, th.ink);
+    ctx.restore();
+    rich(ctx, `ESPVR: eğim E_{es} = ${fmt(p.Ees, 2)} mmHg/mL`, b.x0 + 8 * dpr, b.y0 + 16 * dpr, 10.5, th.red, "left", 600);
+    rich(ctx, `EDPVR: A(e^B(V−V₀) − 1), A = ${fmt(p.A, 2)} mmHg, B = ${fmt(p.B, 3)} mL⁻¹`, b.x0 + 8 * dpr, b.y0 + 32 * dpr, 10.5, th.acc, "left", 600);
+    if (st) rich(ctx, `SW = alan = ${fmt(st.m.SW * Core.MMHGML_J, 3)} J`, b.x1 - 8 * dpr, b.y1 - 10 * dpr, 10.5, th.muted, "right", 600);
+  }
+
+  /* ── (b) Döngüler, Frank–Starling, diyastolik iniş ── */
+  function drawLoops(ctx, th) {
+    const s = L, p = Core.derive(heartParams()), lp = s.lastLoop;
+    const res = S.sweepRes && S.sweepRes.key === sweepKey() ? S.sweepRes : null;
+    const loops = [lp, REFLOOP].concat(res ? res.pts.map((r) => r.loop) : []);
+    const g = pvAxes(ctx, th, loops);
+    const { b, X, Y } = g;
+    relations(ctx, th, g, p);
+    ctx.save();
+    clipBox(ctx, b);
+    if (res) {
+      ctx.strokeStyle = rgba(th.acc2, 0.6);
+      for (const r of res.pts) loopPath(ctx, r.loop, X, Y, null, 1.2);
+      if (Number.isFinite(res.slope)) {
+        ctx.strokeStyle = th.warm;
+        ctx.lineWidth = 1.2 * dpr;
+        const v0 = res.V0, v1 = (b.x1 - b.x0) / (X(1) - X(0));
+        line(ctx, X(v0), Y(0), X(v1), Y(res.slope * (v1 - v0)));
+      }
+      for (const r of res.pts) {
+        dot(ctx, X(r.m.Ves), Y(r.m.Pes), 3.6 * dpr, th.warm);
+        dot(ctx, X(r.m.EDV), Y(r.m.EDP), 3 * dpr, th.acc);
+      }
+    }
+    ctx.setLineDash([6 * dpr, 4 * dpr]);
+    ctx.strokeStyle = th.ink;
+    ctx.globalAlpha = 0.7;
+    loopPath(ctx, REFLOOP, X, Y, null, 1.5);
+    ctx.globalAlpha = 1;
+    ctx.setLineDash([]);
+    if (lp && lp.m && lp.m.valid) {
+      ctx.strokeStyle = th.acc;
+      loopPath(ctx, lp, X, Y, null, 2.8);
+    }
+    dot(ctx, X(s.y[0]), Y(s.aux.P), 5 * dpr, th.warm, th.ink);
+    ctx.restore();
+    rich(ctx, `E_{es} = ${fmt(p.Ees, 2)} mmHg/mL · R_{etkin} = ${fmt(p.Reff, 2)} · C = ${fmt(p.C, 2)}`, b.x0 + 8 * dpr, b.y0 + 16 * dpr, 10.5, th.ink, "left", 600);
+    if (!res) rich(ctx, "Frank–Starling taraması hesaplanıyor…", b.x0 + 8 * dpr, b.y0 + 32 * dpr, 10.5, th.muted, "left", 500);
+  }
+  function drawStarling(ctx, th) {
+    const res = S.sweepRes && S.sweepRes.key === sweepKey() ? S.sweepRes : null;
+    const byEdv = $("bAxis").value === "edv";
+    const st = measState();
+    const p = Core.derive(heartParams());
+    let svMax = 100, eMin = 60, eMax = 170;
+    if (res) for (const r of res.pts) { svMax = Math.max(svMax, r.m.SV); eMin = Math.min(eMin, r.m.EDV); eMax = Math.max(eMax, r.m.EDV); }
+    if (st) svMax = Math.max(svMax, st.m.SV);
+    const xr = byEdv ? [Math.floor((eMin - 10) / 20) * 20, niceCeil(eMax + 10, 20)] : [0, 32];
+    const g = frame2d(ctx, th, { x: xr, y: [0, niceCeil(svMax + 10, 20)], xs: byEdv ? 20 : 4, ys: 20, xl: byEdv ? "uç-diyastolik hacim EDV (mL)" : "uç-diyastolik basınç EDP = P_{LA} (mmHg)", yl: "atım hacmi SV (mL)" });
+    const { b, X, Y } = g;
+    ctx.save();
+    clipBox(ctx, b);
+    // Kuram: tam dolum EDV'si ve Sunagawa bağlaşımı
+    ctx.setLineDash([6 * dpr, 4 * dpr]);
+    ctx.strokeStyle = th.acc2;
+    ctx.lineWidth = 1.6 * dpr;
+    ctx.beginPath();
+    for (let k = 0; k <= 120; k++) {
+      const Pla = 1 + (31 * k) / 120, q = Object.assign({}, p, { Pla }), edv = Core.edvFull(q), sv = Core.svCoupling(q, edv);
+      const x = X(byEdv ? edv : Pla), y = Y(sv);
+      if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    if (res) {
+      ctx.strokeStyle = th.acc;
+      ctx.lineWidth = 2 * dpr;
+      polyline(ctx, res.pts.map((r) => (byEdv ? r.m.EDV : r.Pla)), res.pts.map((r) => r.m.SV), X, Y);
+      for (const r of res.pts) dot(ctx, X(byEdv ? r.m.EDV : r.Pla), Y(r.m.SV), 4 * dpr, th.acc);
+    }
+    if (st) {
+      ctx.lineWidth = 2 * dpr;
+      dot(ctx, X(byEdv ? st.m.EDV : st.p.Pla), Y(st.m.SV), 7 * dpr, null, th.warm);
+      dot(ctx, X(byEdv ? st.m.EDV : st.p.Pla), Y(st.m.SV), 3 * dpr, th.warm);
+    }
+    ctx.restore();
+    if (!res) rich(ctx, "tarama hesaplanıyor…", b.x0 + 8 * dpr, b.y0 + 16 * dpr, 10.5, th.muted, "left", 500);
+    else rich(ctx, "Frank–Starling: daha çok dolan karıncık daha çok atar", b.x0 + 8 * dpr, b.y0 + 16 * dpr, 10.5, th.ink, "left", 600);
+  }
+  function drawDecay(ctx, th) {
+    const st = measState();
+    const p = Core.derive(heartParams());
+    const tauT = p.Reff * p.C;
+    const dec = st && L.steady.decay;
+    const tdia = dec ? dec.t1 - dec.t0 : 0.5;
+    const tMax = niceCeil(Math.max(2 * tauT, 1.2 * tdia), tauT > 4 ? 2 : 0.5);
+    const P0 = dec ? dec.P0 : 120;
+    const g = frame2d(ctx, th, { x: [0, tMax], y: [0, niceCeil(P0 + 20, 20)], xs: niceStep(tMax, 6), ys: 20, xl: "aort kapağının kapanışından sonra geçen süre t (s)", yl: "aort basıncı P_{ao} (mmHg)", fx: (v) => fmt(v, tMax < 3 ? 1 : 0) });
+    const { b, X, Y } = g;
+    if (!dec) {
+      rich(ctx, st ? "bu atımda diyastolik iniş ölçülemedi" : "ölçülüyor: kararlı durum bekleniyor", b.x0 + 8 * dpr, b.y0 + 16 * dpr, 10.5, th.muted, "left", 500);
+      return;
+    }
+    ctx.save();
+    clipBox(ctx, b);
+    // Kuram eğrisi (τ = R·C) ve uydurulan üstel
+    const fitAt = (t) => dec.Pv + Math.exp(dec.a - t / dec.tau);
+    const P00 = fitAt(0);
+    ctx.setLineDash([3 * dpr, 4 * dpr]);
+    ctx.strokeStyle = th.acc2;
+    ctx.lineWidth = 1.4 * dpr;
+    ctx.beginPath();
+    for (let k = 0; k <= 200; k++) {
+      const t = (tMax * k) / 200, y = Y(dec.Pv + (P00 - dec.Pv) * Math.exp(-t / tauT));
+      if (k) ctx.lineTo(X(t), y); else ctx.moveTo(X(t), y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([7 * dpr, 4 * dpr]);
+    ctx.strokeStyle = th.warm;
+    ctx.lineWidth = 1.8 * dpr;
+    ctx.beginPath();
+    for (let k = 0; k <= 200; k++) {
+      const t = (tMax * k) / 200;
+      if (k) ctx.lineTo(X(t), Y(fitAt(t))); else ctx.moveTo(X(t), Y(fitAt(t)));
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Ölçülen diyastol
+    const r = L.ring;
+    ctx.strokeStyle = th.acc;
+    ctx.lineWidth = 3 * dpr;
+    ctx.beginPath();
+    let first = true;
+    const lo = Math.max(0, r.n - Core.RING);
+    for (let j = lo; j < r.n; j++) {
+      const i = j % Core.RING, t = r.t[i];
+      if (t < dec.t0 || t > dec.t1) continue;
+      const x = X(t - dec.t0), y = Y(r.Pao[i]);
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // τ işareti
+    const yt = Y(fitAt(dec.tau));
+    if (dec.tau < tMax) {
+      ctx.setLineDash([2 * dpr, 3 * dpr]);
+      ctx.strokeStyle = th.muted;
+      ctx.lineWidth = 1 * dpr;
+      line(ctx, X(dec.tau), Y(0), X(dec.tau), yt);
+      line(ctx, X(0), yt, X(dec.tau), yt);
+      ctx.setLineDash([]);
+      dot(ctx, X(dec.tau), yt, 4 * dpr, th.warm);
+    }
+    ctx.restore();
+    rich(ctx, `ölçülen τ = ${fmt(dec.tau, 4)} s · kuram R_{etkin}·C = ${fmt(tauT, 4)} s`, b.x1 - 8 * dpr, b.y0 + 16 * dpr, 10.5, th.ink, "right", 600);
+    rich(ctx, `t = τ'da basınç başlangıçtakinin e⁻¹ = 0.368 katına iner`, b.x1 - 8 * dpr, b.y0 + 32 * dpr, 10, th.muted, "right", 500);
+  }
+
+  /* ── (c) Oksijen ── */
+  const O2D = { Hb: 15, Pa: 100, COHb: 0, dP50: 0, VO2: 250, Q: 5, pHv: 7.35, pco2v: 45, T: 37 };
+  const Q2 = Object.assign({}, O2D);
+  const PRESET_C = {
+    rest: {},
+    ex: { VO2: 3000, Q: 20, pHv: 7.25, pco2v: 60, T: 39 },
+    anemi: { Hb: 7.5 },
+    co: { COHb: 50 },
+    irtifa: { Pa: 50 },
+  };
+  const onO2 = () => { S.o2Dirty = true; syncPresetsC(); };
+  const syncC = [
+    bindParam({ range: $("cHb"), num: $("cHbNum"), out: $("cHbOut"), dec: 1, min: 4, max: 20, get: () => Q2.Hb, set: (v) => (Q2.Hb = v), fmt: (v) => `${fmt(v, 1)} g/dL`, onChange: onO2 }),
+    bindParam({ range: $("cPa"), out: $("cPaOut"), dec: 0, min: 30, max: 150, get: () => Q2.Pa, set: (v) => (Q2.Pa = v), fmt: (v) => `${fmt(v, 0)} mmHg`, onChange: onO2 }),
+    bindParam({ range: $("cCOHb"), out: $("cCOHbOut"), dec: 0, min: 0, max: 60, get: () => Q2.COHb, set: (v) => (Q2.COHb = v), fmt: (v) => `${fmt(v, 0)} %`, onChange: onO2 }),
+    bindParam({ range: $("cBpg"), out: $("cBpgOut"), dec: 1, min: -10, max: 10, get: () => Q2.dP50, set: (v) => (Q2.dP50 = v), fmt: (v) => `${sgn(v, 1)} mmHg`, onChange: onO2 }),
+    bindParam({ range: $("cVO2"), num: $("cVO2Num"), out: $("cVO2Out"), dec: 0, min: 100, max: 4000, get: () => Q2.VO2, set: (v) => (Q2.VO2 = v), fmt: (v) => `${fmt(v, 0)} mL/dk`, onChange: onO2 }),
+    bindParam({ range: $("cQ"), num: $("cQNum"), out: $("cQOut"), dec: 1, min: 1, max: 30, get: () => Q2.Q, set: (v) => (Q2.Q = v), fmt: (v) => `${fmt(v, 1)} L/dk`, onChange: onO2 }),
+    bindParam({ range: $("cpH"), num: $("cpHNum"), out: $("cpHOut"), dec: 2, min: 6.9, max: 7.7, get: () => Q2.pHv, set: (v) => (Q2.pHv = v), fmt: (v) => fmt(v, 2), onChange: onO2 }),
+    bindParam({ range: $("cPco2"), out: $("cPco2Out"), dec: 0, min: 20, max: 80, get: () => Q2.pco2v, set: (v) => (Q2.pco2v = v), fmt: (v) => `${fmt(v, 0)} mmHg`, onChange: onO2 }),
+    bindParam({ range: $("cT"), num: $("cTNum"), out: $("cTOut"), dec: 1, min: 34, max: 42, get: () => Q2.T, set: (v) => (Q2.T = v), fmt: (v) => `${fmt(v, 1)} °C`, onChange: onO2 }),
+  ];
+  function syncPresetsC() {
+    document.querySelectorAll("[data-preset-c]").forEach((b) => {
+      const q = Object.assign({}, O2D, PRESET_C[b.dataset.presetC]);
+      b.setAttribute("aria-pressed", String(Object.keys(O2D).every((k) => Math.abs(q[k] - Q2[k]) < 1e-9)));
+    });
+  }
+  function setO2(q) {
+    Object.assign(Q2, O2D, q);
+    syncC.forEach((f) => f());
+    onO2();
+  }
+  document.querySelectorAll("[data-preset-c]").forEach((b) => b.addEventListener("click", () => setO2(PRESET_C[b.dataset.presetC])));
+  $("cReset").addEventListener("click", () => {
+    $("cView").value = "s";
+    viewText();
+    setO2({});
+  });
+  function viewText() {
+    setText($("cViewOut"), $("cView").value === "s" ? "doygunluk" : "O₂ içeriği");
+  }
+  $("cView").addEventListener("change", () => { viewText(); S.o2Dirty = true; });
+
+  function readoutsC() {
+    const q = Q2, r = Core.O2.solve(q);
+    S.o2 = r;
+    showCard("cSa", `${fmt(100 * r.Sa, 1)} %`);
+    showCard("cCa", `${fmt(r.Ca, 2)} mL/dL`);
+    showCard("cAvd", `${fmt(r.avd, 2)} mL/dL`);
+    showCard("cDO2", `${fmt(r.DO2, 0)} mL/dk`);
+    const status = $("cStatus");
+    const parts = [];
+    if (!r.ok) {
+      ["cPv", "cSv", "cCv", "cER", "cFick"].forEach((id) => showCard(id, "yok"));
+      cmpRow("cFick", NaN, q.Q, "hesaplanamaz", `${fmt(q.Q, 2)} L/dk`);
+      ["cBPv", "cBU"].forEach((id) => { setText($(`${id}M`), "—"); setText($(`${id}T`), "—"); setText($(`${id}D`), "—"); });
+      setText($("cSens"), "—");
+      if (r.Cv <= 0) parts.push(`Tüketim, kanın taşıdığı oksijeni aşıyor: V̇O₂ = ${fmt(q.VO2, 0)} mL/dk, ama O₂ sunumu yalnız ${fmt(r.DO2, 0)} mL/dk. Kararlı durum yok; doku oksijen borcuna girer. Debiyi artır ya da tüketimi azalt.`);
+      else parts.push("Karışık venöz nokta bulunamadı: doku koşullarındaki eğri akciğerdekinin soluna kaymış (pH ya da sıcaklık akciğerdekinden yüksek); bu model dışıdır.");
+      setText(status, parts.join(" "));
+      status.className = "status is-warn";
+    } else {
+      showCard("cPv", `${fmt(r.Pv, 1)} mmHg`);
+      showCard("cSv", `${fmt(100 * r.Sv, 1)} %`);
+      showCard("cCv", `${fmt(r.Cv, 2)} mL/dL`);
+      showCard("cER", `${fmt(100 * r.ER, 1)} %`);
+      showCard("cFick", `${fmt(r.QFick, 2)} L/dk`);
+      cmpRow("cFick", r.QFick, q.Q, `${fmt(r.QFick, 3)} L/dk`, `${fmt(q.Q, 3)} L/dk`);
+      setText($("cSens"), `${fmt(100 * r.sens, 1)} %`);
+      setText($("cBPvM"), `${fmt(r.Pv, 1)} mmHg`);
+      setText($("cBPvT"), `${fmt(r.PvNoShift, 1)} mmHg`);
+      setText($("cBPvD"), `${sgn(rnd(r.Pv, 1) - rnd(r.PvNoShift, 1), 1)} mmHg`);
+      setText($("cBUM"), `${fmt(r.avd, 2)} mL/dL`);
+      setText($("cBUT"), `${fmt(r.unloadNoShift, 2)} mL/dL`);
+      setText($("cBUD"), pctDiff(r.avd, r.unloadNoShift));
+      parts.push(`Doku her desilitre kandan ${fmt(r.avd, 2)} mL O₂ alır; kan dokudan ${fmt(100 * r.Sv, 1)} % doygunlukla, P<sub>O₂</sub> = ${fmt(r.Pv, 1)} mmHg ile ayrılır.`);
+      if (r.f > 0) parts.push(`Karbon monoksit hemoglobinin ${fmt(100 * r.f, 0)} %'sini bağlıyor: O₂ kapasitesi ${fmt(1.34 * q.Hb * (1 - r.f), 1)} mL/dL'ye iner, kalan hemoglobinin P₅₀'si ${fmt(r.P50v, 1)} mmHg'ye düşer; aynı oksijen anemiye göre çok daha düşük P<sub>O₂</sub>'de bırakılır.`);
+      if (rnd(r.Pv, 1) < 20) parts.push(`Karışık venöz P<sub>O₂</sub> 20 mmHg'nin altında: dokuya doğru difüzyonu süren basınç farkı çok küçülmüş.`);
+      if (rnd(100 * r.ER, 1) > 75) parts.push("Çekim oranı %75'in üstünde: dinlenimde yaklaşık %25 olan oran ağır egzersizde %75–85'e çıkabilir (Guyton &amp; Hall).");
+      setHTML(status, parts.join(" "));
+      status.className = r.Pv < 20 ? "status is-warn" : "status is-good";
+    }
+    cmpRow("cP50a", r.P50a, r.P50aT, `${fmt(r.P50a, 2)} mmHg`, `${fmt(r.P50aT, 2)} mmHg`);
+    cmpRow("cP50v", r.P50v, r.P50vT, `${fmt(r.P50v, 2)} mmHg`, `${fmt(r.P50vT, 2)} mmHg`);
+  }
+  function drawO2(ctx, th) {
+    const q = Q2, r = S.o2 || Core.O2.solve(q), O = Core.O2;
+    const content = $("cView").value === "c";
+    const xMax = q.Pa > 110 ? 160 : 120;
+    const yMax = content ? niceCeil(Math.max(22, 1.34 * q.Hb + 0.003 * xMax + 1), 4) : 100;
+    const g = frame2d(ctx, th, { x: [0, xMax], y: [0, yMax], xs: 20, ys: content ? 4 : 20, xl: "oksijen kısmi basıncı P_{O₂} (mmHg)", yl: content ? "O₂ içeriği (mL O₂/dL)" : "doygunluk S_{O₂} (%)" });
+    const { b, X, Y } = g;
+    const val = (P, k, f, Hb) => (content ? O.content(P, Hb, k, f) : 100 * O.sat(P, k, f));
+    const curve = (k, f, Hb, color, w, dash) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = w * dpr;
+      ctx.setLineDash(dash ? [6 * dpr, 4 * dpr] : []);
+      ctx.beginPath();
+      for (let i = 0; i <= 240; i++) {
+        const P = (xMax * i) / 240, y = Y(val(P, k, f, Hb));
+        if (i) ctx.lineTo(X(P), y); else ctx.moveTo(X(P), y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    ctx.save();
+    clipBox(ctx, b);
+    curve(1, 0, 15, th.ink, 1.4, true);
+    if (content) {
+      ctx.setLineDash([2 * dpr, 3 * dpr]);
+      ctx.strokeStyle = th.muted;
+      ctx.lineWidth = 1.2 * dpr;
+      line(ctx, X(0), Y(0), X(xMax), Y(0.003 * xMax));
+      ctx.setLineDash([]);
+    }
+    curve(r.ka, r.f, q.Hb, th.red, 2.4, false);
+    if (Math.abs(r.kv - r.ka) > 1e-6) curve(r.kv, r.f, q.Hb, th.acc2, 2.4, false);
+    // P₅₀ işaretleri
+    const p50 = (Pp, k, color) => {
+      const y = Y(val(Pp, k, r.f, q.Hb));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1 * dpr;
+      ctx.setLineDash([2 * dpr, 3 * dpr]);
+      line(ctx, X(Pp), y, X(Pp), Y(0));
+      ctx.setLineDash([]);
+    };
+    p50(r.P50a, r.ka, th.red);
+    if (Math.abs(r.kv - r.ka) > 1e-6) p50(r.P50v, r.kv, th.acc2);
+    // Noktalar ve bırakılan O₂
+    const ya = Y(content ? r.Ca : 100 * r.Sa);
+    if (r.ok) {
+      const yv = Y(content ? r.Cv : 100 * r.Sv);
+      ctx.strokeStyle = th.warm;
+      ctx.lineWidth = 2 * dpr;
+      ctx.setLineDash([4 * dpr, 3 * dpr]);
+      line(ctx, X(r.Pv), ya, X(q.Pa), ya);
+      ctx.setLineDash([]);
+      line(ctx, X(r.Pv), ya, X(r.Pv), yv);
+      dot(ctx, X(r.Pv), yv, 6 * dpr, th.warm, th.ink);
+      rich(ctx, "v̄", X(r.Pv) + 9 * dpr, yv + 14 * dpr, 12, th.warm, "left", 700);
+      rich(ctx, content ? `a − v̄ = ${fmt(r.avd, 2)} mL/dL` : `ΔS = ${fmt(100 * (r.Sa - r.Sv), 1)} puan`, X(r.Pv) + 8 * dpr, (ya + yv) / 2, 10.5, th.warm, "left", 600);
+    }
+    dot(ctx, X(q.Pa), ya, 6 * dpr, th.red, th.ink);
+    rich(ctx, "a", X(q.Pa) + 8 * dpr, ya + 16 * dpr, 12, th.red, "left", 700);
+    ctx.restore();
+    const lines = [`P₅₀: standart ${fmt(O.P50STD, 1)} · akciğer ${fmt(r.P50a, 1)} · doku ${fmt(r.P50v, 1)} mmHg`];
+    if (r.f > 0) lines.push(`HbCO ${fmt(100 * r.f, 0)} %: eğri en çok ${fmt(100 * (1 - r.f), 0)} %'e çıkar ve sola kayar`);
+    lines.forEach((t, i) => rich(ctx, t, b.x1 - 8 * dpr, b.y1 - 12 * dpr - i * 16 * dpr, 10.5, th.ink, "right", 600));
+  }
+
+  /* ── Döngü ── */
+  const C_HEART = $("heartCanvas"), C_WIG = $("wiggersCanvas"), C_PV = $("pvCanvas");
+  const C_LOOPS = $("loopsCanvas"), C_ST = $("starlingCanvas"), C_DEC = $("decayCanvas"), C_O2 = $("o2Canvas");
+  const ALL = [C_HEART, C_WIG, C_PV, C_LOOPS, C_ST, C_DEC, C_O2];
+  const CTX = new Map(ALL.map((c) => [c, c.getContext("2d")]));
+  function clear(c) {
+    const ctx = CTX.get(c);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, c.width, c.height);
+    return ctx;
+  }
+  function setRunning(on) {
+    S.running = on;
+    ["aToggle", "bToggle"].forEach((id) => {
+      setText($(id), on ? "Duraklat" : "Devam et");
+      $(id).setAttribute("aria-pressed", String(!on));
+    });
+  }
+  $("aToggle").addEventListener("click", () => setRunning(!S.running));
+  $("bToggle").addEventListener("click", () => setRunning(!S.running));
+
+  function advance(elapsed) {
+    const beat0 = L.beat;
+    if (S.catchUp) {
+      const t0 = performance.now();
+      while (performance.now() - t0 < 8) {
+        for (let k = 0; k < 200; k++) Core.step(L);
+        if (!L.pending && L.steady) { S.catchUp = false; break; }
+        if (L.beat - S.catchBeats > 400) { S.catchUp = false; break; }
+      }
+      S.acc = 0;
+    } else if (S.running && !window.AcelyaPause?.isPaused?.()) {
+      S.acc += elapsed * S.speed;
+      let n = 0;
+      while (S.acc > 0 && n < 6000) {
+        const t = L.t;
+        Core.step(L);
+        S.acc -= L.t - t;
+        n++;
+      }
+      if (n >= 6000) S.acc = 0;
+      advanceFlow(elapsed * S.speed);
+    }
+    return L.beat !== beat0;
+  }
+  let last = 0;
+  function frame(now) {
+    if (!last) last = now;
+    const elapsed = Math.min(0.05, Math.max(0, (now - last) / 1000));
+    last = now;
+    const th = theme();
+    const themeKey = th.light ? "l" : "d";
+    if (themeKey !== S.theme) { S.theme = themeKey; S.o2Dirty = true; }
+    if (S.tab !== "oksijen") {
+      const newBeat = advance(elapsed);
+      if (S.tab === "yuk") {
+        const key = sweepKey();
+        const stale = S.sweep ? S.sweep.key !== key : !S.sweepRes || S.sweepRes.key !== key;
+        if (stale && now >= S.sweepAt) startSweep();
+        if (S.sweep) {
+          sweepWork(6);
+          if (S.sweep && now - S.lastUi > 200) renderSweepTable();
+        }
+      }
+      if (newBeat || now - S.lastUi > 250) {
+        S.lastUi = now;
+        readoutsAll();
+      }
+      if (S.tab === "dongu") {
+        drawHeart(clear(C_HEART), th);
+        drawWiggers(clear(C_WIG), th);
+        drawPV(clear(C_PV), th);
+      } else {
+        drawLoops(clear(C_LOOPS), th);
+        drawStarling(clear(C_ST), th);
+        drawDecay(clear(C_DEC), th);
+      }
+    } else if (S.o2Dirty) {
+      S.o2Dirty = false;
+      readoutsC();
+      drawO2(clear(C_O2), th);
+    }
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of ALL) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) {
+        c.width = w;
+        c.height = h;
+      }
+    }
+    S.o2Dirty = true;
+  }
+
+  /* ── Sekmeler ── */
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((t) => t.dataset.tab);
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    TAB_KEYS.forEach((k) => { $(`panel-${k}`).hidden = k !== key; });
+    if (fromUser) {
+      try { history.replaceState(null, "", `#${key}`); } catch (_) { /* file:// */ }
+    }
+    S.acc = 0;
+    if (key === "yuk" && L.pending) startCatchUp();
+    S.o2Dirty = true;
+    resize();
+    readoutsAll();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.matches("input, select, textarea, button, a, [contenteditable]")) return;
+    if (S.tab === "oksijen") return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      setRunning(!S.running);
+    } else if (e.key === "r" || e.key === "R") {
+      restartMeasurement();
+      setRunning(true);
+    }
+  });
+
+  /* ── Başlat ── */
+  syncHR();
+  syncPresetsA();
+  syncB.forEach((f) => f());
+  syncPresetsB();
+  syncC.forEach((f) => f());
+  syncPresetsC();
+  speedText();
+  axisText();
+  viewText();
+  const initial = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initial) ? initial : "dongu", false, false);
+  setRunning(true);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ALL.forEach((c) => ro.observe(c));
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>
