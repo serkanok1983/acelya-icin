@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tycho Brahe'nin gözlemlerindeki inatçı bir sekiz yay dakikası, gezegenlerin çember değil elips çizdiğini ortaya çıkardı. Üç yasa: elips yörünge, eşit alanlar ve T² = a³.">
+  <title>Kepler Yasaları — Gezegen Yörüngeleri</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100dvh; }
+    .app-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 12px 36px;
+    }
+    h1 { text-align: center; margin-bottom: 4px; font-size: clamp(1.2rem, 4vw, 1.6rem); color: var(--text); }
+    .sub { color: var(--text-muted); font-size: 0.88rem; text-align: center; max-width: 40rem; margin: 0 auto 16px; line-height: 1.5; }
+    .law-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .law-section h2 { margin: 0 0 8px; font-size: 1.1rem; color: var(--accent); }
+    .law-section p { margin: 0 0 10px; color: var(--text-muted); font-size: 0.85rem; line-height: 1.45; }
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      background: #0c1018;
+      border-radius: var(--radius);
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      justify-content: center;
+      align-items: center;
+      margin: 14px 0;
+    }
+    label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+    }
+    input[type="range"] { width: 130px; accent-color: var(--accent); }
+    select {
+      background: var(--bg-input);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.82rem;
+    }
+    button {
+      padding: 6px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(94,234,212,0.12);
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+    button:hover { background: rgba(94,234,212,0.2); }
+    .info-row {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .info-row span { color: var(--accent); font-weight: 600; }
+    .legend {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .legend i {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="kepler-yasalari">
+<div class="app-content">
+  <h1>🪐 Kepler Yasaları</h1>
+  <p class="sub">Gezegenlerin Güneş etrafındaki hareketini yöneten üç temel yasa. Elips yörüngeler, eşit alan taraması ve periyot-yarı büyük eksen bağıntısı.</p>
+
+  <!-- Canvas: Ana simülasyon -->
+  <canvas id="orbitCanvas" width="700" height="400" role="img" aria-label="Kepler yasaları gezegen yörünge animasyonu"></canvas>
+
+  <div class="legend">
+    <span><i style="background:#fbbf24"></i> Güneş (odak)</span>
+    <span><i style="background:#58a6ff"></i> Gezegen</span>
+    <span><i style="background:rgba(94,234,212,0.5)"></i> Taranan Alan</span>
+    <span><i style="background:#f87171"></i> Hız Vektörü</span>
+  </div>
+
+  <div class="controls">
+    <label>Eksantriklik (e)
+      <input type="range" id="eccSlider" min="0" max="0.35" step="0.005" value="0.206">
+      <span id="eccVal">0.206</span>
+    </label>
+    <label>Gezegen
+      <select id="planetSelect">
+        <option value="merkur" selected>Merkür (a=0.387, e=0.206)</option>
+        <option value="venus">Venüs (a=0.723, e=0.007)</option>
+        <option value="dunya">Dünya (a=1.0, e=0.017)</option>
+        <option value="mars">Mars (a=1.524, e=0.093)</option>
+      </select>
+    </label>
+    <button id="playBtn">⏸ Duraklat</button>
+  </div>
+
+  <div class="info-row">
+    T²/a³ = <span id="ratioDisplay">1.00</span> yıl²/AU³ (Güneş çevresinde sabit)
+  </div>
+
+  <!-- 1. Yasa açıklaması -->
+  <div class="law-section">
+    <h2>📐 1. Yasa — Elips Yörünge</h2>
+    <p>Her gezegen, Güneş'in odaklarından birinde bulunduğu bir elips üzerinde dolanır. Eksantriklik (e) sıfıra yaklaştıkça yörünge daireye yaklaşır. Kaydırıcı ile eksantrikliği değiştirerek yörüngenin nasıl basıklaştığını gözlemleyin.</p>
+  </div>
+
+  <!-- 2. Yasa açıklaması -->
+  <div class="law-section">
+    <h2>⏱ 2. Yasa — Eşit Alanlar</h2>
+    <p>Gezegeni Güneş'e birleştiren yarıçap vektörü eşit zaman aralıklarında eşit alanlar tarar. Gezegen Güneş'e yaklaştıkça (günberi) hızlanır, uzaklaştıkça (günöte) yavaşlar. Turkuaz bölge, gezegenin son T/8 sürede taradığı alanı gösterir: biçimi günberide kısa ve geniş, günötede uzun ve dar olur ama alanı hep elipsin sekizde biridir.</p>
+  </div>
+
+  <!-- 3. Yasa bağıntısı -->
+  <div class="law-section">
+    <h2>📊 3. Yasa — T² ∝ a³</h2>
+    <p>Bir gezegenin dolanma periyodunun karesi (T²), yörüngesinin yarı büyük eksen uzunluğunun küpü (a³) ile orantılıdır. T yıl, a astronomik birim (AU) cinsinden alınırsa Güneş çevresindeki her gezegen için T²/a³ ≈ 1 olur; SI biriminde bu sabit 4π²/(GM☉) değerine eşittir. Simülasyonda yörünge her gezegen için aynı boyutta çizilir; Mars yavaş, Merkür hızlı döner çünkü dönüş hızı gerçek periyottan hesaplanır.</p>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('orbitCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, sunX, cy, scale, playing = true;
+// Ortalama anomali M zamanla düzgün artar; konum Kepler denklemi M = E − e·sinE çözülerek bulunur.
+let meanAnomaly = 0, lastTime = null;
+const SECONDS_PER_YEAR = 6;   // ekranda 1 yıl ≈ 6 s
+const SWEEP_FRACTION = 1 / 8; // taranan alan: son T/8 sürede
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(700, innerWidth - 20);
+  H = Math.min(400, innerHeight * 0.5);
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // Yörünge her gezegende aynı piksel boyutunda çizilir; biçim e ile, hız gerçek periyotla değişir.
+  // e ∈ [0, 0.35] için yatay kapsam: Güneş'in solunda a(1+e), sağında a(1−e) → toplam en fazla 2,35a.
+  scale = Math.max(40, Math.min((W - 24) / 2.35, H / 2 - 22));
+  sunX = W / 2 + scale * 0.175;
+  cy = H / 2;
+}
+window.addEventListener('resize', resize);
+
+const eccSlider = document.getElementById('eccSlider');
+const eccVal = document.getElementById('eccVal');
+const planetSelect = document.getElementById('planetSelect');
+const playBtn = document.getElementById('playBtn');
+const ratioDisplay = document.getElementById('ratioDisplay');
+
+const planets = {
+  merkur: { a: 0.387, e: 0.206, name: 'Merkür' },
+  venus:   { a: 0.723, e: 0.007, name: 'Venüs' },
+  dunya:   { a: 1.0,   e: 0.017, name: 'Dünya' },
+  mars:    { a: 1.524, e: 0.093, name: 'Mars' }
+};
+
+let currentPlanet = planetSelect.value;
+let currentEcc = planets[currentPlanet].e;
+
+function syncEcc() {
+  eccSlider.value = currentEcc;
+  eccVal.textContent = currentEcc.toFixed(3);
+}
+syncEcc();
+
+eccSlider.oninput = () => {
+  currentEcc = parseFloat(eccSlider.value);
+  eccVal.textContent = currentEcc.toFixed(3);
+  meanAnomaly = 0;
+};
+planetSelect.onchange = () => {
+  currentPlanet = planetSelect.value;
+  currentEcc = planets[currentPlanet].e;
+  syncEcc();
+  meanAnomaly = 0;
+};
+playBtn.onclick = () => {
+  playing = !playing;
+  playBtn.textContent = playing ? '⏸ Duraklat' : '▶ Oynat';
+};
+
+function solveKepler(M, e) {
+  let E = M;
+  for (let i = 0; i < 8; i++) E -= (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+  return E;
+}
+
+// Güneş odakta (sunX, cy); günberi +x yönünde. Ekranda y aşağı arttığı için sin terimi eksiyle çizilir.
+function orbitPoint(M, e) {
+  const E = solveKepler(M, e);
+  const a = scale, b = scale * Math.sqrt(1 - e * e);
+  return {
+    E,
+    x: sunX + a * (Math.cos(E) - e),
+    y: cy - b * Math.sin(E),
+  };
+}
+
+function drawArrow(x1, y1, x2, y2, color, w) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  if (len < 0.5) return;
+  const ux = dx / len, uy = dy / len;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = w || 2;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  const ah = 8;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - ux * ah - uy * 5, y2 - uy * ah + ux * 5);
+  ctx.lineTo(x2 - ux * ah + uy * 5, y2 - uy * ah - ux * 5);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function draw(now) {
+  const aAU = planets[currentPlanet].a;
+  const ecc = currentEcc;
+  const periodYears = Math.pow(aAU, 1.5);
+  const aPx = scale;
+  const bPx = aPx * Math.sqrt(1 - ecc * ecc);
+  const cPx = aPx * ecc;
+  const centerX = sunX - cPx;
+
+  if (now != null) {
+    if (playing && lastTime != null) {
+      const dtYears = Math.min(0.1, (now - lastTime) / 1000) / SECONDS_PER_YEAR;
+      meanAnomaly = (meanAnomaly + 2 * Math.PI * dtYears / periodYears) % (2 * Math.PI);
+    }
+    lastTime = now;
+  }
+
+  ctx.fillStyle = '#0c1018';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  for (let i = 0; i < 80; i++) {
+    const sx = ((i * 137 + 42) % W);
+    const sy = ((i * 251 + 126) % H);
+    ctx.beginPath();
+    ctx.arc(sx, sy, 0.5 + (i % 3) * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 8]);
+  ctx.beginPath();
+  ctx.ellipse(centerX, cy, aPx, bPx, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Büyük eksen
+  ctx.strokeStyle = 'rgba(167,139,250,0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 6]);
+  ctx.beginPath();
+  ctx.moveTo(centerX - aPx, cy);
+  ctx.lineTo(centerX + aPx, cy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // İkinci (boş) odak
+  if (cPx > 2) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.beginPath();
+    ctx.arc(centerX - cPx, cy, 3, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Son T/8 sürede taranan alan: ikinci yasa gereği her an aynı büyüklüktedir (πab/8).
+  const sweepSpan = 2 * Math.PI * SWEEP_FRACTION;
+  ctx.fillStyle = 'rgba(94,234,212,0.14)';
+  ctx.strokeStyle = 'rgba(94,234,212,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(sunX, cy);
+  const sweepSteps = 60;
+  for (let i = 0; i <= sweepSteps; i++) {
+    const sp = orbitPoint(meanAnomaly - sweepSpan + (sweepSpan * i) / sweepSteps, ecc);
+    ctx.lineTo(sp.x, sp.y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  const sunGrad = ctx.createRadialGradient(sunX, cy, 2, sunX, cy, 14);
+  sunGrad.addColorStop(0, '#fff7b0');
+  sunGrad.addColorStop(0.4, '#fbbf24');
+  sunGrad.addColorStop(1, 'rgba(251,191,36,0)');
+  ctx.fillStyle = sunGrad;
+  ctx.beginPath();
+  ctx.arc(sunX, cy, 16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath();
+  ctx.arc(sunX, cy, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  const p = orbitPoint(meanAnomaly, ecc);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 5]);
+  ctx.beginPath();
+  ctx.moveTo(sunX, cy);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Hız: dE/dM = 1/(1 − e·cosE); ok uzunluğu ortalama yörünge hızına göre ölçeklenir.
+  const dEdM = 1 / (1 - ecc * Math.cos(p.E));
+  const vx = -aPx * Math.sin(p.E) * dEdM;
+  const vy = -bPx * Math.cos(p.E) * dEdM;
+  const vMag = Math.hypot(vx, vy) || 1;
+  const arrowLen = 38 * (vMag / aPx);
+  drawArrow(p.x, p.y, p.x + (vx / vMag) * arrowLen, p.y + (vy / vMag) * arrowLen, '#f87171', 2.5);
+
+  const planetGrad = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 9);
+  planetGrad.addColorStop(0, '#a0d8ff');
+  planetGrad.addColorStop(0.5, '#58a6ff');
+  planetGrad.addColorStop(1, 'rgba(88,166,255,0)');
+  ctx.fillStyle = planetGrad;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#58a6ff';
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.font = '11px Outfit, system-ui, sans-serif';
+  ctx.fillStyle = '#8b95a8';
+  ctx.textAlign = 'left';
+  ctx.fillText('Güneş (odak)', sunX + 14, cy + 22);
+  ctx.textAlign = 'right';
+  ctx.fillText('Günberi', centerX + aPx - 4, cy - 10);
+  ctx.textAlign = 'left';
+  ctx.fillText('Günöte', centerX - aPx + 4, cy - 10);
+  ctx.textAlign = 'center';
+  ctx.fillText('a', centerX - aPx / 2, cy - 6);
+  ctx.textAlign = 'left';
+
+  const rAU = aAU * (1 - ecc * Math.cos(p.E));
+  const vKms = 29.78 * Math.sqrt(2 / rAU - 1 / aAU); // vis-viva, Güneş için km/s
+  const lines = [
+    `e = ${ecc.toFixed(3)}`,
+    `a = ${aAU.toFixed(3)} AU`,
+    `T = ${periodYears.toFixed(3)} yıl (${Math.round(periodYears * 365.25)} gün)`,
+    `r = ${rAU.toFixed(3)} AU`,
+    `v ≈ ${vKms.toFixed(1)} km/s`,
+  ];
+  ctx.fillStyle = '#e8ecf4';
+  ctx.font = '12px Outfit, system-ui, sans-serif';
+  lines.forEach((text, i) => ctx.fillText(text, 12, 22 + i * 17));
+  ctx.fillStyle = 'rgba(94,234,212,0.85)';
+  ctx.fillText('Taranan alan: son T/8 süre → her an elipsin %12,5\'i', 12, H - 12);
+
+  // Yıl ve AU biriminde T²/a³ = 1 (Güneş kütlesi için)
+  ratioDisplay.textContent = ((periodYears * periodYears) / (aAU * aAU * aAU)).toFixed(2);
+
+  requestAnimationFrame(draw);
+}
+
+resize();
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

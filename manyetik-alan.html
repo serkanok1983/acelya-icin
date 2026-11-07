@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+    <link rel="stylesheet" href="shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="İçinden akım geçen sıradan bir bakır tel, pusula iğnesini Dünya'nın elinden alacak kadar güçlü bir mıknatısa dönüşür. Teli sarıp sarımları yığınca bu görünmez alanı açıp kapatabilir, ölçebilir, büyütebilirsin.">
+  <title>Manyetik Alan ve Elektromıknatıs Etkisi</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="shared/chart-safe.js"></script>
+
+  <style>
+    body { text-align: center; background-color: black; color: white; font-family: Arial, sans-serif; }
+    canvas { background: #222; display: block; margin: auto; }
+    .controls { margin-top: 15px; }
+    button { font-size: 16px; padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
+    button:hover { background: #0056b3; }
+    .slider-container { margin: 10px; }
+    .slider-container input { width: 300px; }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="manyetik-alan">
+
+<h1>Manyetik Alan ve Elektromıknatıs 🌍🧲</h1>
+<p>Akımı artırarak manyetik alanın nasıl değiştiğini gözlemleyin!</p>
+<canvas id="magnetCanvas" width="600" height="400"></canvas>
+
+<!-- Bilgi Paneli -->
+<div id="info">
+  <p>Akım (I): <span id="currentDisplay">5</span> A</p>
+  <p>Sarım Sayısı (N): <span id="turnsDisplay">10</span></p>
+  <p>Manyetik Alan (B): <span id="fieldDisplay">0</span> mT</p>
+</div>
+
+<!-- Kontroller -->
+<div class="controls">
+  <button onclick="toggleMagnet()">Elektromıknatısı Aç/Kapat</button>
+  <button onclick="resetMagnet()">Sıfırla</button>
+</div>
+
+<!-- Ayarlar -->
+<div class="slider-container">
+  <label for="currentSlider">Akım (A):</label>
+  <input type="range" id="currentSlider" min="1" max="20" value="5">
+</div>
+<div class="slider-container">
+  <label for="turnsSlider">Sarım Sayısı:</label>
+  <input type="range" id="turnsSlider" min="5" max="50" value="10">
+</div>
+
+<!-- Grafik -->
+<canvas id="fieldChart" width="600" height="200"></canvas>
+
+<script>
+  const canvas = document.getElementById("magnetCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let current = 5; // Akım (A)
+  let turns = 10; // Bobin Sarım Sayısı
+  let magneticField = 0; // Manyetik Alan Gücü (mT)
+  let isMagnetOn = false;
+
+  let time = 0;
+  let timeValues = [];
+  let fieldValues = [];
+
+  let chartInstance = null;
+
+  function createChart() {
+    const chartCtx = document.getElementById("fieldChart").getContext("2d");
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = createSafeChart(chartCtx, {
+      type: "line",
+      data: {
+        labels: timeValues,
+        datasets: [{
+          label: "Manyetik Alan (mT) - Zaman",
+          data: fieldValues,
+          borderColor: "lime",
+          borderWidth: 2,
+          fill: false
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        scales: {
+          x: { title: { display: true, text: "Zaman (s)" } },
+          y: { title: { display: true, text: "Manyetik Alan (mT)" }, min: 0 }
+        }
+      }
+    });
+  }
+
+  function drawMagnet() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 60, 0, Math.PI * 2);
+    ctx.stroke();
+
+    if (isMagnetOn) {
+      ctx.strokeStyle = "cyan";
+      for (let i = 0; i < turns; i++) {
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2 - 60 + i * 3, canvas.height / 2 - 40);
+        ctx.lineTo(canvas.width / 2 - 60 + i * 3, canvas.height / 2 + 40);
+        ctx.stroke();
+      }
+    }
+
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function updateMagnet() {
+    if (isMagnetOn) {
+      let permeability = 4 * Math.PI * 1e-7;
+      let length = 0.2;
+      magneticField = (permeability * (turns * current)) / length;
+      magneticField *= 1000;
+    } else {
+      magneticField = 0;
+    }
+
+    document.getElementById("currentDisplay").innerText = current;
+    document.getElementById("turnsDisplay").innerText = turns;
+    document.getElementById("fieldDisplay").innerText = magneticField.toFixed(2);
+
+    time += 0.1;
+
+    // **Grafik için veri kaybını önleyen güncelleme**
+    if (timeValues.length >= 100) {
+        timeValues.shift();
+        fieldValues.shift();
+    }
+    
+    timeValues.push(time.toFixed(1));
+    fieldValues.push(magneticField.toFixed(2));
+
+    if (!chartInstance) return; // Chart.js yüklenemediyse (çevrimdışı) yalnız sayısal panel güncellenir
+    chartInstance.data.labels = [...timeValues]; // Eski verileri koru
+    chartInstance.data.datasets[0].data = [...fieldValues]; // Güncel verileri ekle
+    chartInstance.update();
+  }
+
+  function animate() {
+    if (isMagnetOn) {
+      updateMagnet();
+      drawMagnet();
+      requestAnimationFrame(animate);
+    }
+  }
+
+  function toggleMagnet() {
+    isMagnetOn = !isMagnetOn;
+    if (isMagnetOn) {
+      animate();
+    } else {
+      updateMagnet();
+      drawMagnet();
+    }
+  }
+
+  function resetMagnet() {
+    isMagnetOn = false;
+    current = 5;
+    turns = 10;
+    document.getElementById("currentSlider").value = current;
+    document.getElementById("turnsSlider").value = turns;
+    time = 0;
+    timeValues = [];
+    fieldValues = [];
+    createChart();
+    updateMagnet();
+    drawMagnet();
+  }
+
+  document.getElementById("currentSlider").addEventListener("input", function() {
+    current = parseInt(this.value);
+    updateMagnet();
+  });
+
+  document.getElementById("turnsSlider").addEventListener("input", function() {
+    turns = parseInt(this.value);
+    updateMagnet();
+  });
+
+  createChart();
+  drawMagnet();
+</script></body>
+</html>

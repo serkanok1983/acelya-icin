@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kaldırma Kuvveti: Arşimet İlkesi ve Yüzme</title>
+  <meta name="description" content="Sıvıya giren her cisim, yerini aldığı sıvının ağırlığı kadar yukarı itilir. Bu tek ilke buzdağının ne kadarının gizli kaldığını, geminin neden devrilmediğini ve sahte bir tacın suda nasıl ele verildiğini açıklar.">
+  <style>
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 14px; }
+    .tabs .tab { padding: 8px 14px; border-radius: 999px; font-size: 0.88rem; }
+    .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 16%, transparent);
+      font-weight: 600;
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage, .lab-side { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+    }
+    .sim-canvas[data-view="dinamometre"] { aspect-ratio: 4 / 3; }
+    .sim-canvas[data-view="tac"] { touch-action: pan-y; }
+    .sim-canvas.is-grab { cursor: grab; }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .lab .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; }
+    .field label .lbl { font-weight: inherit; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts { display: grid; gap: 10px; min-width: 0; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.74rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 34%; }
+    .lab table.cmp.crown col.c-name { width: 40%; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+    }
+    .readout small { font-size: 0.72rem; letter-spacing: 0.02em; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .lab .status { margin: 0; font-size: 0.88rem; line-height: 1.5; color: var(--text) !important; }
+    .lab .warn {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--danger);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--danger) !important;
+    }
+    .lab .verdict {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid color-mix(in srgb, var(--accent-warm) 60%, transparent);
+      background: var(--bg-input);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text) !important;
+    }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
+      .sim-canvas { aspect-ratio: 4 / 3; }
+      .sim-canvas[data-view="dinamometre"] { aspect-ratio: 1 / 1; }
+      .chart-canvas { aspect-ratio: 2 / 1; }
+      .lab table.cmp { font-size: 0.8rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="kaldirma-kuvveti">
+
+<div class="app-content">
+  <h1>Kaldırma Kuvveti: Arşimet İlkesi ve Yüzme</h1>
+  <p class="hint">Üç deneyden birini seç: cismi sıvıya bırakıp dengeye gelişini izle, dinamometreyle taşırma kabında kaldırma kuvvetini ölç ya da kral tacını su içinde tartıp yoğunluğunu bul. Sayfa her ölçümü Arşimet ilkesinin öngördüğü değerle karşılaştırır.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deneyler">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-serbest" data-tab="serbest" aria-controls="labPanel" aria-selected="true">Serbest bırak</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-dinamometre" data-tab="dinamometre" aria-controls="labPanel" aria-selected="false" tabindex="-1">Dinamometre ve taşırma kabı</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-tac" data-tab="tac" aria-controls="labPanel" aria-selected="false" tabindex="-1">Kral tacı</button>
+  </div>
+
+  <div class="lab" role="tabpanel" id="labPanel" aria-labelledby="tab-serbest">
+    <div class="lab-stage">
+      <canvas id="stageCanvas" class="sim-canvas" data-view="serbest" width="900" height="600" role="img" aria-label="Sıvı havuzunda silindir: ağırlık, kaldırma kuvveti, sürükleme ve taban tepkisi okları; silindir üzerinde kuramsal su çizgisi"></canvas>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="300" role="img" aria-label="Silindirin alt yüzünün yüzeye göre konumu zamanla; kesikli çizgi kuramsal denge konumu"></canvas>
+
+      <div class="readouts" data-for="serbest" aria-live="polite">
+        <table class="cmp">
+          <caption class="visually-hidden">Serbest bırakma: ölçülen ve kuramsal değerler</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Batan oran V<sub>bat</sub>/V</th><td id="aFracM">—</td><td id="aFracT">—</td><td class="diff" id="aFracD">—</td></tr>
+            <tr><th scope="row">Kaldırma kuvveti F<sub>k</sub></th><td id="aFbM">—</td><td id="aFbT">—</td><td class="diff" id="aFbD">—</td></tr>
+            <tr id="aPerRow"><th scope="row">Salınım periyodu T</th><td id="aTM">—</td><td id="aTT">—</td><td class="diff" id="aTD">—</td></tr>
+            <tr id="aNRow"><th scope="row">Dipte görünür ağırlık N</th><td id="aNM">—</td><td id="aNT">—</td><td class="diff" id="aND">—</td></tr>
+          </tbody>
+        </table>
+        <p class="note" id="aFormula"></p>
+        <div class="cards">
+          <div class="readout"><small>Kütle m = ρ<sub>c</sub>V</small><strong id="aMass">—</strong></div>
+          <div class="readout"><small>Hacim V = πD²H/4</small><strong id="aVol">—</strong></div>
+          <div class="readout"><small>Ağırlık G = mg</small><strong id="aWeight">—</strong></div>
+          <div class="readout is-highlight"><small>Net kuvvet (yukarı +)</small><strong id="aNet">—</strong></div>
+        </div>
+        <p class="status" id="aStatus"></p>
+        <p class="warn" id="aWarn" hidden></p>
+      </div>
+
+      <div class="readouts" data-for="dinamometre" aria-live="polite" hidden>
+        <table class="cmp">
+          <caption class="visually-hidden">Dinamometre ve taşırma kabı: ölçülen ve kuramsal değerler</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Havada ağırlık G (dinamometre)</th><td id="bWairM">—</td><td id="bWairT">—</td><td class="diff" id="bWairD">—</td></tr>
+            <tr><th scope="row">Görünür ağırlık G′ (dinamometre)</th><td id="bWappM">—</td><td id="bWappT">—</td><td class="diff" id="bWappD">—</td></tr>
+            <tr><th scope="row">Kaldırma kuvveti F<sub>k</sub> = G − G′</th><td id="bFkM">—</td><td id="bFkT">—</td><td class="diff" id="bFkD">—</td></tr>
+            <tr><th scope="row">Taşan sıvının ağırlığı (terazi)</th><td id="bGtM">—</td><td id="bGtT">—</td><td class="diff" id="bGtD">—</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Kuram: G = ρ<sub>c</sub>Vg, F<sub>k</sub> = ρ<sub>s</sub>gV<sub>bat</sub>, G′ = G − F<sub>k</sub>. Arşimet ilkesi: kaldırma kuvveti, cismin yerini aldığı sıvının ağırlığına eşittir; terazideki sıvı tam da o sıvıdır.</p>
+        <div class="cards">
+          <div class="readout"><small>Daldırma derinliği d</small><strong id="bDepth">—</strong></div>
+          <div class="readout"><small>Batan hacim V<sub>bat</sub></small><strong id="bVsub">—</strong></div>
+          <div class="readout"><small>Terazi (taşan sıvı)</small><strong id="bBal">—</strong></div>
+          <div class="readout is-highlight"><small>F<sub>k</sub> − taşan sıvı ağırlığı</small><strong id="bGap">—</strong></div>
+        </div>
+        <p class="status" id="bStatus"></p>
+      </div>
+
+      <div class="readouts" data-for="tac" aria-live="polite" hidden>
+        <table class="cmp crown">
+          <caption class="visually-hidden">Kral tacı: havada ve suda tartım, hesaplanan yoğunluk</caption>
+          <colgroup><col class="c-name"><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Saf altın taç</th><th scope="col">Kuşkulu taç</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Havada G<sub>hava</sub></th><td id="cWa0">—</td><td id="cWa1">—</td></tr>
+            <tr><th scope="row">Suda G<sub>su</sub></th><td id="cWw0">—</td><td id="cWw1">—</td></tr>
+            <tr><th scope="row">F<sub>k</sub> = G<sub>hava</sub> − G<sub>su</sub></th><td id="cFk0">—</td><td id="cFk1">—</td></tr>
+            <tr><th scope="row">Ölçülen ρ = ρ<sub>su</sub>G<sub>hava</sub>/F<sub>k</sub></th><td id="cRho0">—</td><td id="cRho1">—</td></tr>
+            <tr><th scope="row">Gerçek ρ (model)</th><td id="cRt0">—</td><td id="cRt1">—</td></tr>
+            <tr><th scope="row">Fark</th><td class="diff" id="cRd0">—</td><td class="diff" id="cRd1">—</td></tr>
+            <tr><th scope="row">Hacim V = F<sub>k</sub>/(ρ<sub>su</sub>g)</th><td id="cV0">—</td><td id="cV1">—</td></tr>
+            <tr><th scope="row">Gümüş oranı (ölçümden)</th><td id="cW0">—</td><td id="cW1">—</td></tr>
+          </tbody>
+        </table>
+        <p class="verdict" id="cVerdict"></p>
+        <p class="note" id="cOverflow"></p>
+        <p class="note">Efsane: Vitruvius'un (MÖ 1. yüzyıl, <i>De Architectura</i> IX. kitap) anlattığına göre Arşimet, hamamda taşan suyu görünce çözümü bulmuş, “Eureka!” diye bağırarak çıplak hâlde evine koşmuş ve sonra tacın taşırdığı suyu ölçmüş. Bu öykü Arşimet'ten yaklaşık iki yüzyıl sonra yazılmıştır ve onun eserlerinde geçmez. Galileo (<i>La Bilancetta</i>, 1586) taşırma ölçümünün bu iş için fazla kaba olduğunu, Arşimet'in büyük olasılıkla su içinde tartım yaptığını öne sürdü. Bu sekmedeki yöntem odur.</p>
+      </div>
+    </div>
+
+    <div class="lab-side">
+      <div class="panel" data-for="serbest" role="group" aria-labelledby="ctrlATitle">
+        <h2 id="ctrlATitle">Serbest bırakma</h2>
+        <div class="field">
+          <label for="matA">Cisim <output id="matAOut" for="matA">—</output></label>
+          <select id="matA"></select>
+        </div>
+        <div class="field" id="rhoAField" hidden>
+          <label for="rhoA"><b class="lbl">Özel yoğunluk ρ<sub>c</sub></b> <output id="rhoAOut" for="rhoA">—</output></label>
+          <input type="range" id="rhoA" min="2" max="4.4" step="0.005" value="3">
+        </div>
+        <div class="field">
+          <label for="fluidA">Sıvı <output id="fluidAOut" for="fluidA">—</output></label>
+          <select id="fluidA"></select>
+        </div>
+        <div class="field">
+          <label for="hA">Silindir yüksekliği H <output id="hAOut" for="hA">—</output></label>
+          <input type="range" id="hA" min="2" max="16" step="0.5" value="10">
+        </div>
+        <div class="field">
+          <label for="dA">Silindir çapı D <output id="dAOut" for="dA">—</output></label>
+          <input type="range" id="dA" min="2" max="30" step="0.5" value="20">
+        </div>
+        <div class="field">
+          <label for="y0A">Bırakma konumu y₀ (alt yüz) <output id="y0AOut" for="y0A">—</output></label>
+          <input type="range" id="y0A" min="-40" max="20" step="0.5" value="0">
+        </div>
+        <div class="field">
+          <label for="zetaA">Doğrusal sönüm oranı ζ <output id="zetaAOut" for="zetaA">—</output></label>
+          <input type="range" id="zetaA" min="0" max="0.3" step="0.01" value="0.05">
+        </div>
+        <div class="field">
+          <label for="cdA"><b class="lbl">Sürükleme katsayısı C<sub>d</sub></b> <output id="cdAOut" for="cdA">—</output></label>
+          <input type="range" id="cdA" min="0" max="2" step="0.05" value="1">
+        </div>
+        <div class="field">
+          <label for="speedA">Gösterim hızı <output id="speedAOut" for="speedA">—</output></label>
+          <select id="speedA">
+            <option value="1" selected>1× (gerçek zaman)</option>
+            <option value="0.5">0.5×</option>
+            <option value="0.25">0.25×</option>
+            <option value="0.1">0.1× (ağır çekim)</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" id="toggleA" aria-pressed="false">Duraklat</button>
+          <button type="button" id="resetA">Sıfırla</button>
+        </div>
+        <p class="note">Cisim düşey eksenli bir silindirdir (yan yüzleri düşey). y₀, alt yüzün sıvı yüzeyine göre yüksekliğidir: + yüzeyin üstü, − altı. Silindiri tuvalde yukarı aşağı sürükleyip bırakabilirsin; kaydırıcı aynı işi yapar. Havuz geniştir: cisim batınca yüzey seviyesi değişmez. Havuz derinliği 40 cm.</p>
+        <p class="note">Model: m·a = ρ<sub>s</sub>gAh − mg − bv − ½ρ<sub>s</sub>C<sub>d</sub>A|v|v (h: batan yükseklik, A = πD²/4, b = 2ζ√(mρ<sub>s</sub>gA)). Sönüm yalnız cisim ıslakken etkir; havanın direnci ve eklenmiş kütle (cisimle birlikte ivmelenen sıvı) ihmal edilir. Tabana çarpan cisim sekmez, durur (esnek olmayan çarpışma). Sayısal yöntem: RK4, Δt = 1 ms. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="dinamometre" role="group" aria-labelledby="ctrlBTitle" hidden>
+        <h2 id="ctrlBTitle">Dinamometre ve taşırma kabı</h2>
+        <div class="field">
+          <label for="matB">Cisim <output id="matBOut" for="matB">—</output></label>
+          <select id="matB"></select>
+        </div>
+        <div class="field" id="rhoBField" hidden>
+          <label for="rhoB"><b class="lbl">Özel yoğunluk ρ<sub>c</sub></b> <output id="rhoBOut" for="rhoB">—</output></label>
+          <input type="range" id="rhoB" min="2" max="4.4" step="0.005" value="3.5">
+        </div>
+        <div class="field">
+          <label for="fluidB">Sıvı <output id="fluidBOut" for="fluidB">—</output></label>
+          <select id="fluidB"></select>
+        </div>
+        <div class="field">
+          <label for="hB">Silindir yüksekliği H <output id="hBOut" for="hB">—</output></label>
+          <input type="range" id="hB" min="2" max="10" step="0.5" value="10">
+        </div>
+        <div class="field">
+          <label for="zB">Askıyı indirme z <output id="zBOut" for="zB">—</output></label>
+          <input type="range" id="zB" min="0" max="20" step="0.5" value="0">
+        </div>
+        <div class="row">
+          <button type="button" id="downB">1 cm indir</button>
+          <button type="button" id="upB">1 cm kaldır</button>
+          <button type="button" id="toggleB" aria-pressed="false">Duraklat</button>
+          <button type="button" id="resetB">Baştan başla</button>
+        </div>
+        <p class="note">Cisim, taban alanı 10.0 cm² (çap 3.57 cm) olan düşey bir silindirdir. Taşırma kabı 12 cm çaplıdır; başta taşma ağzına (tabandan 15 cm) kadar doludur. Taşan sıvı, darası alınmış terazideki behere akar. Askı 4 cm/s hızla iner; cisim her an dengede kabul edilir. Cismi tuvalde sürükleyerek de indirebilirsin.</p>
+        <p class="note">Dinamometre bir yaydır: ölçek boyu 6 cm, aralığı cismin ağırlığına göre seçilir (yay sabiti = aralık / 6 cm). Cisim yükselip sıvı seviyesi ağızdan aşağı inerse kap artık dolu değildir; yeni bir ölçüm için “Baştan başla” düğmesini kullan. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> baştan başla.</p>
+      </div>
+
+      <div class="panel" data-for="tac" role="group" aria-labelledby="ctrlCTitle" hidden>
+        <h2 id="ctrlCTitle">Kral tacı</h2>
+        <div class="field">
+          <label for="agC">Kuşkulu taçta gümüş oranı (kütlece) <output id="agCOut" for="agC">—</output></label>
+          <input type="range" id="agC" min="0" max="50" step="1" value="30">
+        </div>
+        <div class="field">
+          <label for="resC">Dinamometre duyarlılığı <output id="resCOut" for="resC">—</output></label>
+          <select id="resC">
+            <option value="0.1">0.1 N</option>
+            <option value="0.01" selected>0.01 N</option>
+            <option value="0.001">0.001 N</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" id="dipC" aria-pressed="false">Suya daldır</button>
+          <button type="button" id="resetC">Sıfırla</button>
+        </div>
+        <p class="note">İki tacın da kütlesi 1 kg'dır; havada aynı ağırlığı (9.81 N) gösterirler ve eşit kollu terazi dengededir. Kuşkulu taç altın ile gümüşün (10 490 kg/m³) alaşımıdır; alaşım hacmi bileşenlerin hacimleri toplanarak bulunur (ideal karışım). Su: tatlı su, 20 °C, 998 kg/m³. Havanın kaldırma kuvveti ihmal edildi (iki taç arasında yalnız 0.15 mN fark yaratır).</p>
+        <p class="note">Okumalar seçilen duyarlılığa yuvarlanır. Yoğunluğun belirsizliği en kötü durum sınırıdır: her okuma ±yarım bölme. Kısayollar: <kbd>Boşluk</kbd> daldır/çıkar, <kbd>R</kbd> sıfırla.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── Fizik çekirdeği ── */
+  const G = 9.81;
+  // Yoğunluklar (kg/m³). Kaynaklar: CRC Handbook of Chemistry and Physics, 97. baskı: tatlı su 998.2 (20 °C),
+  // etil alkol 789.3 (20 °C), gliserin 1261 (20 °C), cıva 13 534 (25 °C), buz 916.7 (0 °C), alüminyum 2700,
+  // demir 7874, kurşun 11 340, gümüş 10 490, altın 19 300 (20 °C). Deniz suyu ~1025 (tuzluluk 35 g/kg,
+  // 20 °C; TEOS-10). Zeytinyağı ~915 (20 °C, örnekler 910–920). Çam ~500 (kuru odun, türe göre 350–600;
+  // USDA Wood Handbook). Polietilen ~950 (HDPE 941–965). İnsan vücudu ~985 (akciğerler havayla dolu, yaklaşık).
+  const MATERIALS = {
+    cam: { name: "Çam ağacı", rho: 500, approx: true },
+    buz: { name: "Buz (0 °C)", rho: 917 },
+    pe: { name: "Polietilen (HDPE)", rho: 950, approx: true },
+    insan: { name: "İnsan vücudu (nefes dolu)", rho: 985, approx: true },
+    al: { name: "Alüminyum", rho: 2700 },
+    fe: { name: "Demir", rho: 7874 },
+    pb: { name: "Kurşun", rho: 11340 },
+    au: { name: "Altın", rho: 19300 },
+  };
+  const FLUIDS = {
+    su: { name: "Tatlı su", rho: 998, note: "20 °C" },
+    deniz: { name: "Deniz suyu", rho: 1025, note: "20 °C, yaklaşık" },
+    zeytin: { name: "Zeytinyağı", rho: 915, note: "20 °C, yaklaşık" },
+    alkol: { name: "Etil alkol", rho: 789, note: "20 °C" },
+    gliserin: { name: "Gliserin", rho: 1261, note: "20 °C" },
+    civa: { name: "Cıva", rho: 13534, note: "25 °C" },
+  };
+  const RHO_AU = 19300, RHO_AG = 10490, RHO_W = 998;
+
+  /* (a) Serbest bırakma: düşey silindir, alt yüz yüksekliği y (yüzey = 0, yukarı +) */
+  const POOL_DEPTH = 0.4;
+  function blockModel(p) {
+    const A = (Math.PI * p.D * p.D) / 4, V = A * p.H, m = p.rhoC * V, W = m * G;
+    const k = p.rhoS * G * A, s = p.rhoC / p.rhoS, f = Math.min(s, 1);
+    return {
+      ...p, A, V, m, W, k, s,
+      floats: s < 1,
+      b: 2 * p.zeta * Math.sqrt(k * m),
+      cq: 0.5 * p.rhoS * p.cd * A,
+      T0: s < 1 ? 2 * Math.PI * Math.sqrt(m / k) : NaN,
+      fracTh: f,
+      yEq: -f * p.H,
+      FbEq: s < 1 ? W : p.rhoS * G * V,
+      Nth: s > 1 ? (p.rhoC - p.rhoS) * G * V : 0,
+      // metasantr yüksekliği GM = BM − BG = D²/(16 h₀) − (H − h₀)/2, h₀ = sH (yüzerken)
+      GM: (p.D * p.D) / (16 * f * p.H) - ((1 - f) * p.H) / 2,
+    };
+  }
+  function submergedHeight(M, y) { return Math.min(Math.max(-y, 0), M.H); }
+  function forcesA(M, y, v) {
+    const h = submergedHeight(M, y);
+    const Fb = M.k * h;
+    const Fd = h > 0 ? -(M.b * v + M.cq * Math.abs(v) * v) : 0;
+    return { h, Fb, Fd, F: Fb - M.W + Fd };
+  }
+  function createBlockState(y0) {
+    return { y: Math.max(y0, -POOL_DEPTH), v: 0, t: 0, onFloor: false, N: 0, ups: [], cycMax: 0, cycNonlin: false };
+  }
+  function resetPeriod(S) { S.ups = []; S.cycMax = 0; S.cycNonlin = false; }
+  // RK4 adımı + taban kısıtı + denge seviyesinden yukarı geçişler (periyot ölçümü)
+  function stepBlock(S, M, dt) {
+    if (S.onFloor) {
+      const f = forcesA(M, S.y, 0);
+      if (f.Fb > M.W) S.onFloor = false;
+      else { S.N = M.W - f.Fb; S.v = 0; S.t += dt; return; }
+    }
+    const acc = (y, v) => forcesA(M, y, v).F / M.m;
+    const y0 = S.y, v0 = S.v;
+    const k1y = v0, k1v = acc(y0, v0);
+    const k2y = v0 + 0.5 * dt * k1v, k2v = acc(y0 + 0.5 * dt * k1y, v0 + 0.5 * dt * k1v);
+    const k3y = v0 + 0.5 * dt * k2v, k3v = acc(y0 + 0.5 * dt * k2y, v0 + 0.5 * dt * k2v);
+    const k4y = v0 + dt * k3v, k4v = acc(y0 + dt * k3y, v0 + dt * k3v);
+    S.y = y0 + (dt / 6) * (k1y + 2 * k2y + 2 * k3y + k4y);
+    S.v = v0 + (dt / 6) * (k1v + 2 * k2v + 2 * k3v + k4v);
+    S.N = 0;
+    if (S.y <= -POOL_DEPTH) {
+      S.y = -POOL_DEPTH;
+      if (S.v < 0) S.v = 0;
+      const f = forcesA(M, S.y, 0);
+      if (f.Fb <= M.W) { S.onFloor = true; S.v = 0; S.N = M.W - f.Fb; }
+    }
+    if (M.floats) {
+      const e0 = y0 - M.yEq, e1 = S.y - M.yEq;
+      S.cycMax = Math.max(S.cycMax, Math.abs(e1));
+      const h = submergedHeight(M, S.y);
+      if (h <= 0 || h >= M.H) S.cycNonlin = true;
+      if (e0 < 0 && e1 >= 0) {
+        if (S.cycMax > 1e-7) {
+          S.ups.push({ t: S.t + (dt * -e0) / (e1 - e0), nonlin: S.cycNonlin });
+          if (S.ups.length > 8) S.ups.shift();
+        }
+        S.cycMax = 0;
+        S.cycNonlin = false;
+      }
+    }
+    S.t += dt;
+  }
+  function measuredPeriod(S) {
+    const u = S.ups, n = u.length;
+    if (n < 2) return null;
+    const k = Math.min(3, n - 1);
+    return { T: (u[n - 1].t - u[n - 1 - k].t) / k, nonlin: u.slice(n - k).some((c) => c.nonlin), cycles: k };
+  }
+
+  /* (b) Dinamometre ve taşırma kabı: z, kap tabanından yükseklik (m) */
+  const CAN_R = 0.06, CAN_A = Math.PI * CAN_R * CAN_R, SPOUT = 0.15, CAN_RIM = 0.17;
+  const OBJ_A = 10e-4;
+  const BEAKER_R = 0.025, BEAKER_A = Math.PI * BEAKER_R * BEAKER_R;
+  const START_GAP = 0.02;
+  const SCALE_LEN = 0.06;
+  const RANGES = [1, 2, 5, 10, 20, 50, 100, 200];
+  const HOOK_SPEED = 0.04, DRAG_SPEED = 0.2;
+  const HOOK_REACH = 0.19;
+  const FLOW_TAU = 0.4, FLOW_MIN = 2e-6;
+  function rigModel(p) {
+    const V = OBJ_A * p.H, m = p.rhoC * V, W = m * G;
+    const range = RANGES.find((r) => W <= 0.95 * r) || 500;
+    return { ...p, V, m, W, range, ks: range / SCALE_LEN, zb0: SPOUT + START_GAP, s: p.rhoC / p.rhoS, FbMax: p.rhoS * G * V };
+  }
+  // Kaptaki sıvı hacmi Vf ve cismin alt yüzü zb için seviye; ağzı aşan hacim "over" olarak döner
+  function canLevel(Vf, zb, H) {
+    let L = Vf / CAN_A;
+    if (L > zb) {
+      L = (Vf - OBJ_A * zb) / (CAN_A - OBJ_A);
+      if (L > zb + H) L = (Vf + OBJ_A * H) / CAN_A;
+    }
+    if (L > SPOUT) L = SPOUT;
+    const Vsub = OBJ_A * Math.min(Math.max(L - zb, 0), H);
+    return { L, Vsub, over: Math.max(0, Vf + Vsub - CAN_A * L) };
+  }
+  // Askı zh kadar inmişken statik denge: ipte gerilme T = yay kuvveti, zb = zb0 − zh + (G − T)/k
+  function solveRig(M, zh, Vf) {
+    const Fb = (zb) => G * M.rhoS * canLevel(Vf, zb, M.H).Vsub;
+    const hang = M.zb0 - zh;
+    const f = (zb) => zb - hang - Fb(zb) / M.ks;
+    let zb, T, N = 0, mode = "asili";
+    if (f(0) >= 0) {
+      zb = 0;
+      T = Math.max(0, M.W - M.ks * (zh - M.zb0));
+      N = Math.max(0, M.W - Fb(0) - T);
+      mode = "dipte";
+    } else {
+      let lo = 0, hi = Math.max(hang, 0) + M.FbMax / M.ks + 0.01;
+      for (let i = 0; i < 64; i++) { const mid = 0.5 * (lo + hi); if (f(mid) > 0) hi = mid; else lo = mid; }
+      zb = 0.5 * (lo + hi);
+      T = M.W - Fb(zb);
+      if (T < 0) {
+        let a = zb, b = SPOUT + 0.01;
+        for (let i = 0; i < 64; i++) { const mid = 0.5 * (a + b); if (Fb(mid) > M.W) a = mid; else b = mid; }
+        zb = 0.5 * (a + b);
+        T = 0;
+        mode = "yuzuyor";
+      }
+    }
+    const lv = canLevel(Vf, zb, M.H);
+    return { zb, T, N, mode, L: lv.L, Vsub: lv.Vsub, over: lv.over, Fb: G * M.rhoS * lv.Vsub, d: lv.L - zb };
+  }
+  function createRigState(M) {
+    const S = { zh: 0, zt: 0, Vf: CAN_A * SPOUT, stream: 0, beaker: 0, t: 0, fast: false, full: true };
+    S.r = solveRig(M, 0, S.Vf);
+    S.Wair = S.r.T;
+    return S;
+  }
+  function stepRig(S, M, dt) {
+    const vmax = (S.fast ? DRAG_SPEED : HOOK_SPEED) * dt;
+    S.zh += Math.max(-vmax, Math.min(vmax, S.zt - S.zh));
+    const r = solveRig(M, S.zh, S.Vf);
+    if (r.over > 0) { S.Vf -= r.over; S.stream += r.over; }
+    if (r.L < SPOUT - 1e-9) S.full = false;
+    const flow = Math.min(S.stream, (FLOW_MIN + S.stream / FLOW_TAU) * dt);
+    S.stream -= flow;
+    S.beaker += flow;
+    S.r = r;
+    S.t += dt;
+  }
+
+  /* (c) Kral tacı: 1 kg saf altın ve aynı kütlede altın–gümüş alaşımı */
+  const CROWN_M = 1.0;
+  const VESSEL_D = 0.2;
+  function crownModel(p) {
+    const rhoAlloy = 1 / ((1 - p.wAg) / RHO_AU + p.wAg / RHO_AG);
+    const Wair = CROWN_M * G;
+    const q = (x) => Math.round(x / p.res) * p.res;
+    const one = (rhoTrue) => {
+      const V = CROWN_M / rhoTrue, Fb = RHO_W * G * V, Wwat = Wair - Fb;
+      const Wa = q(Wair), Ww = q(Wwat), D = Wa - Ww;
+      const rho = (RHO_W * Wa) / D;
+      const drho = rho * (p.res / 2 / Wa + p.res / D);
+      return {
+        rhoTrue, V, Fb, Wwat, Wa, Ww, D, rho, drho,
+        Vmeas: D / (RHO_W * G),
+        wEst: (1 / rho - 1 / RHO_AU) / (1 / RHO_AG - 1 / RHO_AU),
+        goldOk: Math.abs(rho - RHO_AU) <= drho,
+      };
+    };
+    const gold = one(RHO_AU), alloy = one(rhoAlloy);
+    const dV = alloy.V - gold.V;
+    return { ...p, rhoAlloy, Wair, gold, alloy, dV, dh: dV / (Math.PI * (VESSEL_D / 2) ** 2) };
+  }
+  // Eşit kollu terazi: I θ'' = L (F_sol − F_sağ) cos θ − K sin θ − c θ' (θ > 0: sol kol aşağı)
+  const BEAM_L = 0.3, BEAM_K = 0.5, BEAM_I = 0.028, BEAM_C = 0.084, DIP_RATE = 0.5;
+  function stepCrowns(S, C, dt) {
+    S.f += Math.max(-DIP_RATE * dt, Math.min(DIP_RATE * dt, S.ft - S.f));
+    const Fl = C.Wair - S.f * C.gold.Fb, Fr = C.Wair - S.f * C.alloy.Fb;
+    const tau = BEAM_L * (Fl - Fr) * Math.cos(S.th) - BEAM_K * Math.sin(S.th) - BEAM_C * S.om;
+    S.om += (tau / BEAM_I) * dt;
+    S.th += S.om * dt;
+    if (S.f >= 1) S.measured = true;
+    S.t += dt;
+  }
+
+  /* ── Arayüz ── */
+  const $ = (id) => document.getElementById(id);
+  const stage = $("stageCanvas"), ctx = stage.getContext("2d");
+  const chart = $("chartCanvas"), cctx = chart.getContext("2d");
+  const TAB_NAMES = ["serbest", "dinamometre", "tac"];
+  const STAGE_LABELS = {
+    serbest: "Sıvı havuzunda silindir: ağırlık, kaldırma kuvveti, sürükleme ve taban tepkisi okları; silindir üzerinde kuramsal su çizgisi",
+    dinamometre: "Statife asılı dinamometre, ipe bağlı silindir, taşırma kabı ve terazi üstündeki beher; taşan sıvı behere akar",
+    tac: "Eşit kollu terazinin iki ucunda iki taç ve altlarında su dolu kaplar; daldırınca terazi saf altın tarafına eğilir",
+  };
+  const CHART_LABELS = {
+    serbest: "Silindirin alt yüzünün yüzeye göre konumu zamanla; kesikli çizgi kuramsal denge konumu",
+    dinamometre: "Kuvvetin daldırma derinliğine göre değişimi: görünür ağırlık, kaldırma kuvveti ve taşan sıvının ağırlığı; kesikli çizgiler kuram",
+    tac: "Yoğunluk ekseni: gümüş, saf altın, alaşımın gerçek yoğunluğu ve iki tacın ölçülen yoğunluğu belirsizlik aralığıyla",
+  };
+  let tab = "serbest";
+  let dpr = 1, lastFrame = 0, lastUi = 0;
+
+  /* Biçimlendirme */
+  const NB = "\u00a0";
+  function fx(x, d) {
+    const r = Number(x.toFixed(d));
+    return `${r < 0 ? "−" : ""}${Math.abs(r).toFixed(d)}`;
+  }
+  function sg(x, d) {
+    const r = Number(x.toFixed(d));
+    return `${r > 0 ? "+" : r < 0 ? "−" : ""}${Math.abs(r).toFixed(d)}`;
+  }
+  function group(n) {
+    const a = Math.round(Math.abs(n)), s = String(a);
+    return `${n < 0 ? "−" : ""}${a >= 10000 ? s.replace(/\B(?=(\d{3})+(?!\d))/g, NB) : s}`;
+  }
+  const fmtRho = (r) => `${group(r)} kg/m³`;
+  const fDec = (x) => (Math.abs(x) >= 100 ? 1 : Math.abs(x) >= 10 ? 2 : 3);
+  const fmtF = (x) => `${fx(x, fDec(x))} N`;
+  const fmtSF = (x) => `${sg(x, fDec(x))} N`;
+  const fmtMass = (kg) => (kg < 1 ? `${fx(kg * 1000, 1)} g` : `${fx(kg, kg >= 100 ? 1 : 3)} kg`);
+  const fmtVol = (m3) => (m3 < 1e-3 ? `${fx(m3 * 1e6, 1)} cm³` : `${fx(m3 * 1e3, 3)} L`);
+  const fmtCm = (m, d = 1) => `${fx(m * 100, d)} cm`;
+  function pct(meas, th) {
+    if (meas === null || th === null || !Number.isFinite(meas) || !Number.isFinite(th) || th === 0) return "—";
+    const d = ((meas - th) / Math.abs(th)) * 100;
+    if (Math.abs(d) < 0.005) return "0.00 %";
+    return `${d > 0 ? "+" : "−"}${Math.abs(d).toFixed(2)} %`;
+  }
+  const setText = (el, text) => { if (el.textContent !== text) el.textContent = text; };
+  const htmlCache = new WeakMap();
+  const setHTML = (el, html) => { if (htmlCache.get(el) !== html) { el.innerHTML = html; htmlCache.set(el, html); } };
+  const round3 = (x) => Number(x.toPrecision(3));
+
+  function fillMaterials(sel, def) {
+    for (const [key, m] of Object.entries(MATERIALS)) sel.add(new Option(`${m.name} · ${m.approx ? "~" : ""}${group(m.rho)}`, key, key === def, key === def));
+    sel.add(new Option("Sıvıyla aynı yoğunluk (nötr)", "notr"));
+    sel.add(new Option("Özel yoğunluk", "ozel"));
+  }
+  function fillFluids(sel, def) {
+    for (const [key, f] of Object.entries(FLUIDS)) sel.add(new Option(`${f.name} · ${group(f.rho)}`, key, key === def, key === def));
+  }
+
+  const ui = {
+    tabs: [...document.querySelectorAll('[role="tab"]')],
+    panel: $("labPanel"),
+    matA: $("matA"), rhoA: $("rhoA"), rhoAField: $("rhoAField"), fluidA: $("fluidA"), hA: $("hA"), dA: $("dA"),
+    y0A: $("y0A"), zetaA: $("zetaA"), cdA: $("cdA"), speedA: $("speedA"), toggleA: $("toggleA"), resetA: $("resetA"),
+    matB: $("matB"), rhoB: $("rhoB"), rhoBField: $("rhoBField"), fluidB: $("fluidB"), hB: $("hB"), zB: $("zB"),
+    downB: $("downB"), upB: $("upB"), toggleB: $("toggleB"), resetB: $("resetB"),
+    agC: $("agC"), resC: $("resC"), dipC: $("dipC"), resetC: $("resetC"),
+  };
+  fillMaterials(ui.matA, "cam");
+  fillMaterials(ui.matB, "al");
+  fillFluids(ui.fluidA, "su");
+  fillFluids(ui.fluidB, "su");
+
+  function densityOf(sel, slider, rhoS) {
+    if (sel.value === "notr") return rhoS;
+    if (sel.value === "ozel") return round3(10 ** Number(slider.value));
+    return MATERIALS[sel.value].rho;
+  }
+  function materialName(key) {
+    return key === "notr" ? "Nötr cisim" : key === "ozel" ? "Özel cisim" : MATERIALS[key].name;
+  }
+
+  /* ── (a) durum ── */
+  // Bırakma ve sürükleme üst sınırı (alt yüz): 20 cm, ama silindirin üstü sahneden taşmasın
+  const yTopA = () => Math.min(0.2, 0.29 - Number(ui.hA.value) / 100);
+  const A = { M: null, S: null, running: true, dragging: false, grabDy: 0, speed: 1, acc: 0, hist: [], matKey: "cam", fluidKey: "su", settledFor: 0 };
+  function readA() {
+    const fl = FLUIDS[ui.fluidA.value];
+    const rhoC = densityOf(ui.matA, ui.rhoA, fl.rho);
+    A.matKey = ui.matA.value;
+    A.fluidKey = ui.fluidA.value;
+    A.speed = Number(ui.speedA.value);
+    A.M = blockModel({
+      rhoC, rhoS: fl.rho, H: Number(ui.hA.value) / 100, D: Number(ui.dA.value) / 100,
+      zeta: Number(ui.zetaA.value), cd: Number(ui.cdA.value),
+    });
+    ui.rhoAField.hidden = ui.matA.value !== "ozel";
+    setText($("matAOut"), `ρ = ${fmtRho(rhoC)}`);
+    setText($("rhoAOut"), fmtRho(round3(10 ** Number(ui.rhoA.value))));
+    setText($("fluidAOut"), `ρ = ${fmtRho(fl.rho)} (${fl.note})`);
+    setText($("hAOut"), fmtCm(A.M.H));
+    setText($("dAOut"), fmtCm(A.M.D));
+    ui.y0A.max = Math.floor(yTopA() * 200) / 2;
+    const y0 = Number(ui.y0A.value) / 100;
+    setText($("y0AOut"), y0 === 0 ? "0.0 cm (yüzeyde)" : `${sg(y0 * 100, 1)} cm`);
+    setText($("zetaAOut"), fx(A.M.zeta, 2));
+    setText($("cdAOut"), fx(A.M.cd, 2));
+    setText($("speedAOut"), `${A.speed}×`);
+  }
+  function restartA() {
+    readA();
+    A.S = createBlockState(Number(ui.y0A.value) / 100);
+    A.acc = 0;
+    A.hist = [];
+    A.settledFor = 0;
+    updateA(true);
+  }
+  function paramsChangedA() {
+    readA();
+    if (A.S) resetPeriod(A.S);
+    A.settledFor = 0;
+    updateA(true);
+  }
+
+  /* ── (b) durum ── */
+  const B = { M: null, S: null, running: true, acc: 0, trace: [], points: [], restLogged: false, dragging: false, grabZ: 0, grabZh: 0, matKey: "al", fluidKey: "su" };
+  function readB() {
+    const fl = FLUIDS[ui.fluidB.value];
+    const rhoC = densityOf(ui.matB, ui.rhoB, fl.rho);
+    B.matKey = ui.matB.value;
+    B.fluidKey = ui.fluidB.value;
+    B.M = rigModel({ rhoC, rhoS: fl.rho, H: Number(ui.hB.value) / 100 });
+    ui.rhoBField.hidden = ui.matB.value !== "ozel";
+    setText($("matBOut"), `ρ = ${fmtRho(rhoC)}`);
+    setText($("rhoBOut"), fmtRho(round3(10 ** Number(ui.rhoB.value))));
+    setText($("fluidBOut"), `ρ = ${fmtRho(fl.rho)} (${fl.note})`);
+    setText($("hBOut"), `${fmtCm(B.M.H)} · V = ${fx(B.M.V * 1e6, 1)} cm³`);
+    setText($("zBOut"), fmtCm(Number(ui.zB.value) / 100));
+  }
+  function restartB() {
+    readB();
+    ui.zB.value = 0;
+    setText($("zBOut"), fmtCm(0));
+    B.S = createRigState(B.M);
+    B.acc = 0;
+    B.trace = [];
+    B.points = [];
+    B.restLogged = false;
+    updateB(true);
+  }
+  function setTargetB(cm) {
+    const v = Math.max(0, Math.min(20, Math.round(cm * 2) / 2));
+    ui.zB.value = v;
+    B.S.zt = v / 100;
+    setText($("zBOut"), fmtCm(v / 100));
+  }
+
+  /* ── (c) durum ── */
+  const C = { M: null, S: null, running: true, acc: 0 };
+  function readC() {
+    C.M = crownModel({ wAg: Number(ui.agC.value) / 100, res: Number(ui.resC.value) });
+    setText($("agCOut"), `${ui.agC.value} % · ρ = ${fmtRho(C.M.rhoAlloy)}`);
+    setText($("resCOut"), `${ui.resC.value} N`);
+  }
+  function restartC() {
+    readC();
+    C.S = { f: 0, ft: 0, th: 0, om: 0, t: 0, measured: false };
+    setDipC(false);
+    updateC(true);
+  }
+  function setDipC(on) {
+    C.S.ft = on ? 1 : 0;
+    ui.dipC.textContent = on ? "Sudan çıkar" : "Suya daldır";
+    ui.dipC.setAttribute("aria-pressed", String(on));
+  }
+
+  /* ── Okumalar ── */
+  function updateA(force) {
+    const M = A.M, S = A.S;
+    const f = forcesA(M, S.y, S.v);
+    const frac = f.h / M.H;
+    setText($("aFracM"), `${fx(frac * 100, 2)} %`);
+    setText($("aFracT"), `${fx(M.fracTh * 100, 2)} %`);
+    setText($("aFracD"), pct(frac, M.fracTh));
+    setText($("aFbM"), fmtF(f.Fb));
+    setText($("aFbT"), fmtF(M.FbEq));
+    setText($("aFbD"), pct(f.Fb, M.FbEq));
+    $("aPerRow").hidden = !M.floats;
+    $("aNRow").hidden = M.s < 1;
+    if (M.floats) {
+      const mp = measuredPeriod(S);
+      setText($("aTM"), mp ? `${fx(mp.T, 4)} s${mp.nonlin ? " *" : ""}` : "ölçülüyor…");
+      setText($("aTT"), `${fx(M.T0, 4)} s`);
+      setText($("aTD"), mp ? pct(mp.T, M.T0) : "—");
+    } else {
+      setText($("aNM"), S.onFloor ? fmtF(S.N) : "dibe inmedi");
+      setText($("aNT"), fmtF(M.Nth));
+      setText($("aND"), S.onFloor ? (M.Nth > 0 ? pct(S.N, M.Nth) : S.N < 1e-9 ? "0.00 %" : "—") : "—");
+    }
+    const mp = M.floats ? measuredPeriod(S) : null;
+    let formula = M.floats
+      ? `Kuram: batan oran = ρ<sub>c</sub>/ρ<sub>s</sub>; dengede F<sub>k</sub> = G. Periyot T₀ = 2π√(m/(ρ<sub>s</sub>gA)) = 2π√(h₀/g); h₀ = ${fmtCm(M.fracTh * M.H, 2)} denge batma derinliği (düşey yan yüzler, küçük genlik, sönüm ve eklenmiş kütle yok). Ölçüm: denge seviyesinden ardışık yukarı geçişler, son ${mp ? mp.cycles : 3} periyodun ortalaması. Doğrusal sönüm periyodu 1/√(1 − ζ²) = ${fx(1 / Math.sqrt(1 - M.zeta * M.zeta), 4)} kat uzatır. Ölçülen sütunu anlık durumdur; cisim durulunca kuramla buluşur.`
+      : M.s > 1
+        ? "Kuram: ρ<sub>c</sub> > ρ<sub>s</sub> olduğundan tam batar ve F<sub>k</sub> = ρ<sub>s</sub>gV < G kalır. Dipte taban, görünür ağırlık kadar tepki uygular: N = (ρ<sub>c</sub> − ρ<sub>s</sub>)Vg."
+        : "Kuram: ρ<sub>c</sub> = ρ<sub>s</sub>; tam battığında F<sub>k</sub> = G her derinlikte, net kuvvet sıfırdır ve cisim bulunduğu yerde kalır (nötr denge).";
+    if (mp && mp.nonlin) formula += " * Ölçülen periyotlardan en az birinde cisim sıvıdan çıktı ya da tamamen battı: o salınım doğrusal değil.";
+    setHTML($("aFormula"), formula);
+    setText($("aMass"), fmtMass(M.m));
+    setText($("aVol"), fmtVol(M.V));
+    setText($("aWeight"), fmtF(M.W));
+    setText($("aNet"), fmtSF(S.onFloor ? 0 : f.F));
+    let status;
+    if (A.dragging) status = "Tutuluyor: bıraktığında bu konumdan durgun hâlde başlar.";
+    else if (S.onFloor) status = M.s > 1
+      ? `Dipte duruyor: G > F<sub>k</sub> olduğu için tabana yaslandı. Taban ${fmtF(S.N)} tepki uyguluyor; bu, cismin sıvı içindeki görünür ağırlığıdır.`
+      : "Dipte duruyor: kaldırma kuvveti ağırlığa eşit, taban tepkisi sıfır (nötr).";
+    else if (f.h <= 0) status = "Havada: yalnız ağırlık etkiyor, serbest düşüyor.";
+    else if (M.floats) status = A.settledFor > 0.3
+      ? `Yüzüyor ve dengede: F<sub>k</sub> = G. Ölçülen batan oran ${fx(frac * 100, 2)} %, kuram ρ<sub>c</sub>/ρ<sub>s</sub> = ${fx(M.s * 100, 2)} %.`
+      : f.h >= M.H - 1e-9 ? "Tamamen battı ama ρ<sub>c</sub> < ρ<sub>s</sub>: kaldırma kuvveti ağırlıktan büyük, yukarı itiliyor." : "Yüzüyor; denge konumu çevresinde salınıyor.";
+    else if (M.s > 1) status = "Batıyor: tamamen batsa bile F<sub>k</sub> = ρ<sub>s</sub>gV ağırlıktan küçük.";
+    else status = f.h >= M.H - 1e-9 && Math.abs(S.v) < 1e-3 ? "Askıda: tam batmış nötr cisimde F<sub>k</sub> = G; bulunduğu derinlikte kalır." : "Nötr cisim: tam batana kadar iniyor, sonra sürükleme onu durduruyor.";
+    setHTML($("aStatus"), status);
+    const warn = $("aWarn");
+    let w = "";
+    if (M.floats && M.GM < 0) w = `Bu oranlarla (D/H = ${fx(M.D / M.H, 2)}) gerçek bir silindir dik yüzemez: metasantr yüksekliği GM = ${fmtCm(M.GM, 2)} < 0, yan yatar. Model yalnız düşey hareketi hesaplar.`;
+    warn.hidden = !w;
+    setText(warn, w);
+  }
+
+  function updateB() {
+    const M = B.M, S = B.S, r = S.r;
+    const hanging = r.mode === "asili";
+    const FkM = S.Wair - r.T, FkT = r.Fb;
+    const Gt = M.rhoS * G * S.beaker;
+    setText($("bWairM"), fmtF(S.Wair));
+    setText($("bWairT"), fmtF(M.W));
+    setText($("bWairD"), pct(S.Wair, M.W));
+    setText($("bWappM"), fmtF(r.T));
+    setText($("bWappT"), fmtF(Math.max(0, M.W - r.Fb)));
+    setText($("bWappD"), M.W - r.Fb > 1e-9 ? pct(r.T, M.W - r.Fb) : r.T < 1e-9 ? "0.00 %" : "—");
+    setText($("bFkM"), fmtF(FkM));
+    setText($("bFkT"), fmtF(FkT));
+    setText($("bFkD"), FkT > 1e-9 ? pct(FkM, FkT) : FkM < 1e-9 ? "0.00 %" : "—");
+    setText($("bGtM"), fmtF(Gt));
+    setText($("bGtT"), fmtF(FkT));
+    setText($("bGtD"), FkT > 1e-9 ? pct(Gt, FkT) : Gt < 1e-12 ? "0.00 %" : "—");
+    setText($("bDepth"), r.d > 0 ? fmtCm(r.d, 2) : `${fmtCm(-r.d, 2)} yukarıda`);
+    setText($("bVsub"), `${fx(r.Vsub * 1e6, 1)} cm³`);
+    setText($("bBal"), `${fx(M.rhoS * S.beaker * 1000, 1)} g`);
+    setText($("bGap"), `${sg(FkM - Gt, 3)} N`);
+    let st;
+    if (r.mode === "dipte") st = `Cisim kabın dibine değdi: taban ${fmtF(r.N)} tepki uyguluyor, dinamometre G − F<sub>k</sub> − N gösteriyor. Okuma artık yalnız kaldırma kuvvetini ölçmüyor; cismi biraz kaldır.`;
+    else if (r.mode === "yuzuyor") st = `İp gevşedi: cisim yüzüyor (ρ<sub>c</sub> < ρ<sub>s</sub>). Dinamometre 0 gösteriyor, ağırlığın tamamını kaldırma kuvveti taşıyor: F<sub>k</sub> = G = ${fmtF(M.W)}.`;
+    else if (S.stream > 1e-9) st = "Taşan sıvı hâlâ behere akıyor; terazi okuması akış bitince kaldırma kuvvetine eşitlenir.";
+    else if (!S.full) st = "Cisim yükseltildiği için kaptaki seviye taşma ağzının altına indi: behere geçen sıvı geri dönmez, terazi artık batan hacmi göstermiyor. Yeni ölçüm için baştan başla.";
+    else if (r.d <= 0) st = "Cisim havada: dinamometre gerçek ağırlığı gösteriyor. Askıyı adım adım indir.";
+    else if (r.Vsub >= OBJ_A * M.H - 1e-12) st = "Cisim tamamen battı: daha derine indirmek kaldırma kuvvetini değiştirmez, çünkü batan hacim artık değişmiyor.";
+    else st = "Cisim batmaya başladı: batan hacim, dolayısıyla kaldırma kuvveti, daldırma derinliğiyle doğrusal artıyor.";
+    if (hanging && S.stream <= 1e-9 && S.full && r.d > 0) st += " Terazideki sıvının ağırlığı F<sub>k</sub> ile eşit: Arşimet ilkesi.";
+    setHTML($("bStatus"), st);
+  }
+
+  function updateC() {
+    const M = C.M, S = C.S;
+    const dec = M.res >= 0.1 ? 1 : M.res >= 0.01 ? 2 : 3;
+    const rd = (x) => `${fx(x, dec)} N`;
+    [M.gold, M.alloy].forEach((c, i) => {
+      setText($(`cWa${i}`), rd(c.Wa));
+      setText($(`cRt${i}`), fmtRho(c.rhoTrue));
+      if (!S.measured) {
+        ["cWw", "cFk", "cRho", "cRd", "cV", "cW"].forEach((p) => setText($(`${p}${i}`), "—"));
+        return;
+      }
+      setText($(`cWw${i}`), rd(c.Ww));
+      setText($(`cFk${i}`), rd(c.D));
+      const dr = Number(c.drho.toPrecision(2));
+      setText($(`cRho${i}`), `${group(c.rho)} ± ${group(dr)} kg/m³`);
+      setText($(`cRd${i}`), pct(c.rho, c.rhoTrue));
+      setText($(`cV${i}`), `${fx(c.Vmeas * 1e6, 1)} cm³`);
+      setText($(`cW${i}`), `${fx(Math.max(0, c.wEst) * 100, 1)} %`);
+    });
+    let v;
+    if (!S.measured) v = `Havada iki taç da ${rd(M.gold.Wa)} gösteriyor ve terazi dengede: ağırlık iki tacı ayırt etmez. Taçları suya daldır.`;
+    else {
+      const a = M.alloy, g = M.gold, dF = a.Fb - g.Fb;
+      if (!a.goldOk && a.rho < RHO_AU) {
+        const hiA = Number((a.rho + a.drho).toPrecision(3));
+        v = `Kuşkulu taç sahte: ölçülen yoğunluğu ${group(a.rho)} ± ${group(Number(a.drho.toPrecision(2)))} kg/m³; aralığın üst sınırı (${group(hiA)} kg/m³) bile saf altının ${fmtRho(RHO_AU)} değerinin altında. Aynı kütlede ${fx(M.dV * 1e6, 1)} cm³ daha büyük hacmi var; suda ${fx(dF, 3)} N daha fazla kaldırma kuvveti alıyor, bu yüzden terazi saf altın tarafına eğiliyor.`;
+      } else if (M.wAg === 0) {
+        v = `İki taç da saf altınla uyumlu: hacimleri ve sudaki ağırlıkları aynı, terazi suda da dengede.`;
+      } else {
+        v = `Bu duyarlılıkla (${M.res} N) iki taç ayırt edilemiyor: kuşkulu tacın yoğunluk aralığı ${fmtRho(RHO_AU)} değerini de içeriyor. Fark ${fx(dF, 3)} N; daha duyarlı bir dinamometre seç.`;
+      }
+    }
+    setText($("cVerdict"), v);
+    setText($("cOverflow"), `Taşırma yöntemiyle: kuşkulu taç ${fx(M.dV * 1e6, 2)} cm³ daha fazla su taşırır. Tacın sığdığı ${fx(VESSEL_D * 100, 0)} cm çaplı bir kapta bu yalnız ${fx(M.dh * 1000, 2)} mm seviye farkı demektir; menisküs ve kenarda kalan damlalar bu kadarını kolayca örter. Su içinde tartımda aynı fark ${fx((M.alloy.Fb - M.gold.Fb) * 1000, 0)} mN olarak doğrudan okunur.`);
+  }
+
+  function updateReadouts(force) {
+    const now = performance.now();
+    if (!force && now - lastUi < 150) return;
+    lastUi = now;
+    if (tab === "serbest") updateA();
+    else if (tab === "dinamometre") updateB();
+    else updateC();
+  }
+
+  /* ── Çizim ── */
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w) c.width = w;
+      if (c.height !== h) c.height = h;
+    }
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      weight: light ? "#dc2626" : "#f87171",
+      pill: light ? "rgba(255,255,255,0.86)" : "rgba(8,12,22,0.74)",
+      glass: light ? "rgba(26,29,46,0.45)" : "rgba(232,236,244,0.42)",
+      glassFill: light ? "rgba(26,29,46,0.04)" : "rgba(232,236,244,0.04)",
+      floor: light ? "#cfd6e2" : "#2a3142",
+      table: light ? "#b9c2d0" : "#3a4256",
+      metal: light ? "#7a8394" : "#9aa3b2",
+      body: light ? "#e9edf4" : "#1e2535",
+      outline: light ? "rgba(26,29,46,0.55)" : "rgba(232,236,244,0.5)",
+      gold: light ? "#b7791f" : "#e8b931",
+      silver: light ? "#6b7280" : "#c0c6d0",
+    };
+  }
+  const MAT_COLORS = {
+    cam: "#c8a165", buz: "#cfe6fb", pe: "#e7e9ee", insan: "#dcae8c", al: "#c3cad5",
+    fe: "#7d838e", pb: "#6a7280", au: "#e8b931", notr: "#b59cf5", ozel: "#ef7fb8",
+  };
+  const FLUID_COLORS = {
+    su: { dark: "rgba(96,165,250,0.26)", light: "rgba(37,99,235,0.16)", line: ["#60a5fa", "#2563eb"] },
+    deniz: { dark: "rgba(45,212,191,0.24)", light: "rgba(13,148,136,0.17)", line: ["#2dd4bf", "#0f766e"] },
+    zeytin: { dark: "rgba(202,180,48,0.34)", light: "rgba(161,140,20,0.24)", line: ["#d9c04a", "#a18c14"] },
+    alkol: { dark: "rgba(203,213,225,0.15)", light: "rgba(100,116,139,0.11)", line: ["#cbd5e1", "#64748b"] },
+    gliserin: { dark: "rgba(196,181,253,0.2)", light: "rgba(124,58,237,0.1)", line: ["#c4b5fd", "#7c3aed"] },
+    civa: { dark: "rgba(176,184,198,0.62)", light: "rgba(120,128,142,0.5)", line: ["#e5e7eb", "#4b5563"] },
+  };
+  function fluidStyle(t, key) {
+    const c = FLUID_COLORS[key];
+    return { fill: t.light ? c.light : c.dark, line: c.line[t.light ? 1 : 0] };
+  }
+  const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+
+  function fitView(W, H, x0, x1, z0, z1) {
+    const s = Math.min(W / (x1 - x0), H / (z1 - z0));
+    const ox = W / 2 - ((x0 + x1) / 2) * s, oz = H / 2 + ((z0 + z1) / 2) * s;
+    return { s, X: (x) => ox + x * s, Y: (z) => oz - z * s, toWorld: (px, py) => ({ x: (px - ox) / s, z: (oz - py) / s }) };
+  }
+  function arrow(g, x, y, dx, dy, color, label, side = 1) {
+    const len = Math.hypot(dx, dy);
+    if (len < 4 * dpr) return;
+    const ux = dx / len, uy = dy / len, hd = Math.min(9 * dpr, len * 0.5);
+    g.strokeStyle = color;
+    g.fillStyle = color;
+    g.lineWidth = 2.4 * dpr;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + dx - ux * hd * 0.6, y + dy - uy * hd * 0.6);
+    g.stroke();
+    g.beginPath();
+    g.moveTo(x + dx, y + dy);
+    g.lineTo(x + dx - ux * hd - uy * hd * 0.5, y + dy - uy * hd + ux * hd * 0.5);
+    g.lineTo(x + dx - ux * hd + uy * hd * 0.5, y + dy - uy * hd - ux * hd * 0.5);
+    g.closePath();
+    g.fill();
+    if (label) {
+      g.font = font(11.5, 600);
+      richText(g, label, x + dx + side * 7 * dpr, y + dy - uy * 4 * dpr + 4 * dpr, side > 0 ? "left" : "right");
+    }
+  }
+  // "F_k" biçimindeki alt simgeleri küçük ve aşağıda yazar; çizmeden genişlik için draw = false
+  function richText(g, str, x, y, align = "left", draw = true) {
+    const base = g.font, size = parseFloat(base.match(/([\d.]+)px/)[1]);
+    const small = base.replace(/[\d.]+px/, `${(size * 0.74).toFixed(2)}px`);
+    const parts = str.split(/_(\S)/).map((s, i) => {
+      g.font = i % 2 ? small : base;
+      return [s, g.measureText(s).width, i % 2 === 1];
+    });
+    const w = parts.reduce((a, p) => a + p[1], 0);
+    if (draw) {
+      const keep = g.textAlign;
+      let cx = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+      g.textAlign = "left";
+      for (const [s, pw, sub] of parts) {
+        g.font = sub ? small : base;
+        g.fillText(s, cx, y + (sub ? size * 0.26 : 0));
+        cx += pw;
+      }
+      g.textAlign = keep;
+    }
+    g.font = base;
+    return w;
+  }
+  function pill(g, x, y, w, h, t) {
+    g.fillStyle = t.pill;
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, 6 * dpr); else g.rect(x, y, w, h);
+    g.fill();
+  }
+  function infoBox(g, lines, t, x = 8 * dpr, y = 8 * dpr, align = "left") {
+    g.font = font(11.5);
+    const w = Math.max(...lines.map((l) => richText(g, l, 0, 0, "left", false))) + 16 * dpr;
+    const bx = align === "left" ? x : align === "center" ? x - w / 2 : x - w;
+    pill(g, bx, y, w, (8 + 16 * lines.length) * dpr, t);
+    lines.forEach((l, i) => {
+      g.fillStyle = i === 0 ? t.ink : t.muted;
+      richText(g, l, bx + 8 * dpr, y + (19 + 16 * i) * dpr, "left");
+    });
+  }
+  function legendRow(g, items, x0, xMax, y0) {
+    let lx = x0, ly = y0;
+    for (const [text, col] of items) {
+      const w = richText(g, text, 0, 0, "left", false);
+      if (lx + w > xMax && lx > x0) { lx = x0; ly += 13 * dpr; }
+      g.fillStyle = col;
+      richText(g, text, lx, ly, "left");
+      lx += w + 12 * dpr;
+    }
+  }
+  function niceStep(x) {
+    const e = Math.floor(Math.log10(x)), b = 10 ** e, f = x / b;
+    return (f > 5 ? 10 : f > 2 ? 5 : f > 1 ? 2 : 1) * b;
+  }
+
+  /* (a) sahnesi */
+  let viewA = null;
+  function drawStageA(t) {
+    const W = stage.width, H = stage.height, M = A.M, S = A.S;
+    const v = fitView(W, H, -0.56, 0.56, -0.455, 0.3);
+    viewA = v;
+    const { X, Y } = v;
+    const fl = fluidStyle(t, A.fluidKey);
+    const ySurf = Y(0), yFloor = Y(-POOL_DEPTH);
+    ctx.fillStyle = fl.fill;
+    ctx.fillRect(0, ySurf, W, yFloor - ySurf);
+    ctx.fillStyle = t.floor;
+    ctx.fillRect(0, yFloor, W, H - yFloor);
+
+    // Cetvel (yüzeye göre cm)
+    const rx = X(-0.5);
+    ctx.strokeStyle = t.muted;
+    ctx.fillStyle = t.muted;
+    ctx.lineWidth = 1 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(rx, Y(0.25));
+    ctx.lineTo(rx, yFloor);
+    for (let c = 25; c >= -40; c -= 5) {
+      const yy = Y(c / 100), long = c % 10 === 0;
+      ctx.moveTo(rx, yy);
+      ctx.lineTo(rx + (long ? 9 : 5) * dpr, yy);
+    }
+    ctx.stroke();
+    ctx.font = font(10.5);
+    ctx.textAlign = "left";
+    for (let c = 20; c >= -40; c -= 10) ctx.fillText(c === 0 ? "0" : `${c > 0 ? "+" : "−"}${Math.abs(c)}`, rx + 12 * dpr, Y(c / 100) + 4 * dpr);
+    ctx.fillText("y (cm)", rx - 2 * dpr, Y(0.25) - 7 * dpr);
+
+    // Silindir
+    const x0 = X(-M.D / 2), x1 = X(M.D / 2), yb = Y(S.y), yt = Y(S.y + M.H), ry = Math.min(0.12 * (x1 - x0), 0.35 * (yb - yt), 14 * dpr);
+    const col = MAT_COLORS[A.matKey];
+    const grad = ctx.createLinearGradient(x0, 0, x1, 0);
+    grad.addColorStop(0, col);
+    grad.addColorStop(0.45, t.light ? "#ffffff" : "#f8fafc");
+    grad.addColorStop(0.55, col);
+    grad.addColorStop(1, col);
+    ctx.globalAlpha = A.matKey === "buz" ? 0.85 : 1;
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.ellipse((x0 + x1) / 2, yb, (x1 - x0) / 2, ry, 0, 0, Math.PI);
+    ctx.fill();
+    ctx.fillStyle = grad;
+    ctx.globalAlpha = A.matKey === "buz" ? 0.8 : 0.92;
+    ctx.fillRect(x0, yt, x1 - x0, yb - yt);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.ellipse((x0 + x1) / 2, yt, (x1 - x0) / 2, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = t.outline;
+    ctx.lineWidth = 1.2 * dpr;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, yt);
+    ctx.lineTo(x0, yb);
+    ctx.ellipse((x0 + x1) / 2, yb, (x1 - x0) / 2, ry, 0, Math.PI, 0, true);
+    ctx.lineTo(x1, yt);
+    ctx.stroke();
+
+    // Batan kısım: sıvının içinden görünür
+    const f = forcesA(M, S.y, S.v);
+    if (f.h > 0) {
+      const top = Y(Math.min(0, S.y + M.H));
+      ctx.fillStyle = fl.fill;
+      ctx.fillRect(x0, top, x1 - x0, yb - top);
+      ctx.beginPath();
+      ctx.ellipse((x0 + x1) / 2, yb, (x1 - x0) / 2, ry, 0, 0, Math.PI);
+      ctx.fill();
+    }
+    ctx.strokeStyle = fl.line;
+    ctx.lineWidth = 1.6 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(0, ySurf);
+    ctx.lineTo(W, ySurf);
+    ctx.stroke();
+
+    // Kuramsal su çizgisi (yüzerken)
+    if (M.floats) {
+      const yw = Y(S.y + M.fracTh * M.H);
+      ctx.save();
+      ctx.setLineDash([5 * dpr, 4 * dpr]);
+      ctx.strokeStyle = t.accent2;
+      ctx.lineWidth = 1.6 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(x0 - 6 * dpr, yw);
+      ctx.lineTo(x1 + 6 * dpr, yw);
+      ctx.stroke();
+      ctx.restore();
+      ctx.font = font(10.5, 600);
+      const lbl = `kuram ${fx(M.fracTh * 100, 1)} %`, lw = ctx.measureText(lbl).width;
+      pill(ctx, x0 - 12 * dpr - lw, yw - 9 * dpr, lw + 8 * dpr, 16 * dpr, t);
+      ctx.fillStyle = t.accent2;
+      ctx.textAlign = "right";
+      ctx.fillText(lbl, x0 - 8 * dpr, yw + 4 * dpr);
+    }
+    // Kütle merkezi ve kaldırma merkezi
+    const cx = (x0 + x1) / 2;
+    ctx.fillStyle = t.weight;
+    ctx.beginPath();
+    ctx.arc(cx, Y(S.y + M.H / 2), 3.5 * dpr, 0, Math.PI * 2);
+    ctx.fill();
+    if (f.h > 0) {
+      ctx.fillStyle = t.accent;
+      ctx.beginPath();
+      ctx.arc(cx, Y(S.y + f.h / 2), 3.5 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    infoBox(ctx, [
+      `${materialName(A.matKey)} · ρ_c = ${fmtRho(M.rhoC)}`,
+      `${FLUIDS[A.fluidKey].name} · ρ_s = ${fmtRho(M.rhoS)}`,
+      `t = ${fx(S.t, 2)} s · ${A.speed}×${A.running ? "" : " · duraklatıldı"}`,
+    ], t, W - 8 * dpr, 8 * dpr, "right");
+    drawFreeBody(t, W, H, M, S, f);
+  }
+
+  // Serbest cisim diyagramı: oklar aynı ölçekte, kutuya sığar
+  function drawFreeBody(t, W, H, M, S, f) {
+    const bw = Math.min(150 * dpr, W * 0.3), bh = Math.min(H * 0.62, 230 * dpr);
+    const bx = W - bw - 8 * dpr, by = H - bh - 10 * dpr;
+    pill(ctx, bx, by, bw, bh, t);
+    ctx.font = font(10.5, 600);
+    ctx.fillStyle = t.muted;
+    ctx.textAlign = "left";
+    ctx.fillText("Kuvvetler", bx + 8 * dpr, by + 15 * dpr);
+    const cx = bx + bw / 2, cy = by + 20 * dpr + (bh - 20 * dpr) / 2;
+    const Fd = S.onFloor ? 0 : f.Fd;
+    const Fref = Math.max(M.W + Math.max(0, -Fd), f.Fb + S.N, Math.max(0, Fd), 1e-12);
+    const Lmax = (bh - 20 * dpr) / 2 - 22 * dpr, len = (F) => (F / Fref) * Lmax;
+    arrow(ctx, cx + 7 * dpr, cy, 0, len(M.W), t.weight, `G ${fmtF(M.W)}`, 1);
+    if (f.Fb > 0) arrow(ctx, cx - 7 * dpr, cy, 0, -len(f.Fb), t.accent, `F_k ${fmtF(f.Fb)}`, -1);
+    if (S.N > 1e-9) arrow(ctx, cx - 7 * dpr, cy - len(f.Fb), 0, -len(S.N), t.accent2, `N ${fmtF(S.N)}`, -1);
+    if (Math.abs(Fd) > 2e-3 * Fref) arrow(ctx, cx + 7 * dpr, cy + (Fd < 0 ? len(M.W) : 0), 0, -len(Fd), t.warm, `F_d ${fmtF(Math.abs(Fd))}`, 1);
+    ctx.fillStyle = t.ink;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 3.5 * dpr, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  /* (b) sahnesi */
+  let viewB = null;
+  function drawStageB(t) {
+    const W = stage.width, H = stage.height, M = B.M, S = B.S, r = S.r;
+    const v = fitView(W, H, -0.25, 0.2, -0.035, 0.545);
+    viewB = v;
+    const { X, Y, s } = v;
+    const fl = fluidStyle(t, B.fluidKey);
+    const table = Y(-0.006);
+    ctx.fillStyle = t.table;
+    ctx.fillRect(0, table, W, 4 * dpr);
+
+    // Statif: kanca, cismin alt yüzünden HOOK_REACH yukarıda (ip boyu H'ye göre seçilir)
+    const e = r.T / M.ks;
+    const zArm = M.zb0 - S.zh + M.W / M.ks + 0.095 + HOOK_REACH;
+    ctx.fillStyle = t.metal;
+    ctx.fillRect(X(-0.235), Y(0.006), X(-0.13) - X(-0.235), Y(-0.006) - Y(0.006));
+    ctx.fillRect(X(-0.204), Y(0.535), X(-0.196) - X(-0.204), Y(0.006) - Y(0.535));
+    ctx.fillRect(X(-0.21), Y(zArm + 0.008), X(-0.19) - X(-0.21), Y(zArm - 0.008) - Y(zArm + 0.008));
+    ctx.fillRect(X(-0.19), Y(zArm + 0.003), X(0.004) - X(-0.19), Y(zArm - 0.003) - Y(zArm + 0.003));
+
+    // Dinamometre
+    const Zt = zArm - 0.005, zZero = Zt - 0.015, zPtr = zZero - e, zHook = zPtr - 0.075;
+    ctx.strokeStyle = t.ink;
+    ctx.lineWidth = 1.4 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(zArm - 0.003));
+    ctx.lineTo(X(0), Y(Zt));
+    ctx.stroke();
+    ctx.fillStyle = t.body;
+    ctx.strokeStyle = t.outline;
+    ctx.beginPath();
+    const bx = X(-0.013), bw = X(0.013) - X(-0.013), btop = Y(Zt), bh = Y(Zt - 0.085) - Y(Zt);
+    if (ctx.roundRect) ctx.roundRect(bx, btop, bw, bh, 4 * dpr); else ctx.rect(bx, btop, bw, bh);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = t.muted;
+    ctx.strokeStyle = t.muted;
+    ctx.lineWidth = 1 * dpr;
+    ctx.font = font(9);
+    ctx.textAlign = "right";
+    const ticks = 10;
+    ctx.beginPath();
+    for (let i = 0; i <= ticks; i++) {
+      const zz = zZero - (SCALE_LEN * i) / ticks;
+      ctx.moveTo(X(-0.013), Y(zz));
+      ctx.lineTo(X(-0.013) + (i % 5 === 0 ? 6 : 3.5) * dpr, Y(zz));
+    }
+    ctx.stroke();
+    if (0.03 * s > 14 * dpr) {
+      for (let i = 0; i <= ticks; i += 5) ctx.fillText(`${(M.range * i) / ticks}`, X(-0.015), Y(zZero - (SCALE_LEN * i) / ticks) + 3 * dpr);
+    }
+    // yay
+    const turns = 9, sx0 = X(-0.006), sx1 = X(0.006);
+    ctx.strokeStyle = t.muted;
+    ctx.lineWidth = 1.2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(Zt - 0.002));
+    for (let i = 1; i <= turns * 2; i++) ctx.lineTo(i % 2 ? sx0 : sx1, Y(Zt - 0.002 + ((zPtr - Zt + 0.002) * i) / (turns * 2)));
+    ctx.lineTo(X(0), Y(zPtr));
+    ctx.stroke();
+    // gösterge ve çubuk
+    ctx.strokeStyle = t.warm;
+    ctx.lineWidth = 2.4 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(-0.012), Y(zPtr));
+    ctx.lineTo(X(0.012), Y(zPtr));
+    ctx.stroke();
+    ctx.strokeStyle = t.ink;
+    ctx.lineWidth = 1.6 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(zPtr));
+    ctx.lineTo(X(0), Y(zHook));
+    ctx.arc(X(0) + 3 * dpr, Y(zHook), 3 * dpr, Math.PI, Math.PI * 0.1, true);
+    ctx.stroke();
+    // ip: gergin ya da gevşek
+    const zTop = r.zb + M.H, zStr = zHook - (HOOK_REACH - M.H);
+    ctx.strokeStyle = t.ink;
+    ctx.lineWidth = 1.2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(0), Y(zHook));
+    if (zTop > zStr + 1e-4) {
+      const sag = Math.min(0.03, zTop - zStr);
+      ctx.quadraticCurveTo(X(0.012 + sag), Y(0.5 * (zHook + zTop)), X(0), Y(zTop));
+    } else ctx.lineTo(X(0), Y(zTop));
+    ctx.stroke();
+    // okuma
+    ctx.font = font(12, 700);
+    ctx.textAlign = "left";
+    const reading = `${fx(r.T, 3)} N`;
+    const rw = ctx.measureText(reading).width + 12 * dpr;
+    pill(ctx, X(0.018), Y(Zt - 0.03) - 12 * dpr, rw, 20 * dpr, t);
+    ctx.fillStyle = t.warm;
+    ctx.fillText(reading, X(0.018) + 6 * dpr, Y(Zt - 0.03) + 3 * dpr);
+    ctx.font = font(10);
+    ctx.fillStyle = t.muted;
+    ctx.fillText(`dinamometre 0–${M.range} N`, X(0.018), Y(Zt - 0.03) + 20 * dpr);
+
+    // Taşırma kabı ve sıvı
+    const cx0 = X(-CAN_R), cx1 = X(CAN_R);
+    ctx.fillStyle = fl.fill;
+    ctx.fillRect(cx0, Y(r.L), cx1 - cx0, Y(0) - Y(r.L));
+    // cisim
+    const ox0 = X(-0.01784), ox1 = X(0.01784);
+    ctx.fillStyle = MAT_COLORS[B.matKey];
+    ctx.fillRect(ox0, Y(zTop), ox1 - ox0, Y(r.zb) - Y(zTop));
+    ctx.strokeStyle = t.outline;
+    ctx.lineWidth = 1 * dpr;
+    ctx.strokeRect(ox0, Y(zTop), ox1 - ox0, Y(r.zb) - Y(zTop));
+    if (r.Vsub > 0) {
+      ctx.fillStyle = fl.fill;
+      const top = Y(Math.min(r.L, zTop));
+      ctx.fillRect(ox0, top, ox1 - ox0, Y(r.zb) - top);
+    }
+    ctx.strokeStyle = fl.line;
+    ctx.lineWidth = 1.4 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(cx0, Y(r.L));
+    ctx.lineTo(r.Vsub > 0 ? ox0 : cx1, Y(r.L));
+    if (r.Vsub > 0) { ctx.moveTo(ox1, Y(r.L)); ctx.lineTo(cx1, Y(r.L)); }
+    ctx.stroke();
+    // kap duvarları ve ağız
+    ctx.strokeStyle = t.glass;
+    ctx.lineWidth = 2.2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(-CAN_R - 0.002), Y(CAN_RIM));
+    ctx.lineTo(X(-CAN_R - 0.002), Y(-0.004));
+    ctx.lineTo(X(CAN_R + 0.002), Y(-0.004));
+    ctx.lineTo(X(CAN_R + 0.002), Y(CAN_RIM));
+    ctx.stroke();
+    const tipX = 0.125, tipZ = 0.136;
+    ctx.lineWidth = 1.6 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(CAN_R + 0.002), Y(SPOUT + 0.004));
+    ctx.lineTo(X(tipX), Y(tipZ + 0.004));
+    ctx.moveTo(X(CAN_R + 0.002), Y(SPOUT - 0.004));
+    ctx.lineTo(X(tipX), Y(tipZ - 0.004));
+    ctx.stroke();
+    ctx.fillStyle = t.muted;
+    ctx.font = font(10);
+    ctx.textAlign = "right";
+    ctx.fillText("taşırma kabı", X(-CAN_R - 0.008), Y(0.02));
+
+    // Terazi ve beher
+    const balTop = 0.022, bkBot = balTop + 0.002, bkTop = bkBot + 0.085;
+    ctx.fillStyle = t.body;
+    ctx.strokeStyle = t.outline;
+    ctx.lineWidth = 1 * dpr;
+    ctx.fillRect(X(0.082), Y(balTop), X(0.168) - X(0.082), Y(-0.006) - Y(balTop));
+    ctx.strokeRect(X(0.082), Y(balTop), X(0.168) - X(0.082), Y(-0.006) - Y(balTop));
+    const zBk = bkBot + S.beaker / BEAKER_A;
+    ctx.fillStyle = fl.fill;
+    ctx.fillRect(X(tipX - BEAKER_R), Y(zBk), X(tipX + BEAKER_R) - X(tipX - BEAKER_R), Y(bkBot) - Y(zBk));
+    if (S.beaker > 1e-9) {
+      ctx.strokeStyle = fl.line;
+      ctx.beginPath();
+      ctx.moveTo(X(tipX - BEAKER_R), Y(zBk));
+      ctx.lineTo(X(tipX + BEAKER_R), Y(zBk));
+      ctx.stroke();
+    }
+    ctx.strokeStyle = t.glass;
+    ctx.lineWidth = 1.8 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(tipX - BEAKER_R - 0.001), Y(bkTop));
+    ctx.lineTo(X(tipX - BEAKER_R - 0.001), Y(bkBot - 0.001));
+    ctx.lineTo(X(tipX + BEAKER_R + 0.001), Y(bkBot - 0.001));
+    ctx.lineTo(X(tipX + BEAKER_R + 0.001), Y(bkTop));
+    ctx.stroke();
+    if (S.stream > 1e-10) {
+      const wdt = Math.max(1.4 * dpr, Math.min(5 * dpr, (S.stream / 2e-6) * dpr));
+      ctx.strokeStyle = fl.line;
+      ctx.lineWidth = wdt;
+      ctx.beginPath();
+      ctx.moveTo(X(tipX), Y(tipZ));
+      ctx.lineTo(X(tipX), Y(zBk));
+      ctx.stroke();
+    }
+    const disp = `${fx(M.rhoS * S.beaker * 1000, 1)} g`;
+    ctx.font = font(11, 700);
+    ctx.textAlign = "center";
+    ctx.fillStyle = t.accent;
+    ctx.fillText(disp, X(0.125), Y(0.004));
+    ctx.font = font(10);
+    ctx.fillStyle = t.muted;
+    ctx.fillText("terazi (dara alındı)", X(0.125), Y(-0.006) + 14 * dpr);
+
+    // Daldırma derinliği göstergesi
+    if (r.d > 0 && r.mode !== "dipte") {
+      const gx = X(-CAN_R + 0.012);
+      ctx.strokeStyle = t.accent2;
+      ctx.fillStyle = t.accent2;
+      ctx.lineWidth = 1.2 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(gx, Y(r.L));
+      ctx.lineTo(gx, Y(Math.max(r.zb, 0)));
+      ctx.moveTo(gx - 4 * dpr, Y(r.L));
+      ctx.lineTo(gx + 4 * dpr, Y(r.L));
+      ctx.moveTo(gx - 4 * dpr, Y(r.zb));
+      ctx.lineTo(gx + 4 * dpr, Y(r.zb));
+      ctx.stroke();
+      ctx.font = font(10.5, 600);
+      const lbl = `d = ${fmtCm(r.d)}`, ly = Y(0.5 * (r.L + r.zb));
+      pill(ctx, gx + 4 * dpr, ly - 9 * dpr, ctx.measureText(lbl).width + 8 * dpr, 17 * dpr, t);
+      ctx.fillStyle = t.accent2;
+      ctx.textAlign = "left";
+      ctx.fillText(lbl, gx + 8 * dpr, ly + 4 * dpr);
+    }
+    infoBox(ctx, [
+      `${materialName(B.matKey)} · ${fx(M.m * 1000, 1)} g`,
+      `${FLUIDS[B.fluidKey].name} · ρ_s = ${fmtRho(M.rhoS)}`,
+    ], t, W - 8 * dpr, 8 * dpr, "right");
+  }
+
+  /* (c) sahnesi */
+  function drawCrown(g, cx, zb, scale, color, t, X, Y) {
+    const w = 0.09 * scale, h = 0.045 * scale;
+    const x0 = X(cx - w / 2), x1 = X(cx + w / 2), y0 = Y(zb), yBand = Y(zb + h * 0.42), yTip = Y(zb + h);
+    g.fillStyle = color;
+    g.strokeStyle = t.outline;
+    g.lineWidth = 1 * dpr;
+    g.beginPath();
+    g.moveTo(x0, y0);
+    g.lineTo(x0, yBand);
+    const n = 5;
+    for (let i = 0; i < n; i++) {
+      const a = x0 + ((x1 - x0) * i) / n, b = x0 + ((x1 - x0) * (i + 1)) / n;
+      g.lineTo((a + b) / 2, yTip);
+      g.lineTo(b, yBand);
+    }
+    g.lineTo(x1, y0);
+    g.closePath();
+    g.fill();
+    g.stroke();
+    g.fillStyle = t.light ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.3)";
+    g.fillRect(x0 + 2 * dpr, Y(zb + h * 0.2), x1 - x0 - 4 * dpr, 2 * dpr);
+  }
+  function mixColor(a, b, w) {
+    const pa = a.match(/\w\w/g).map((h) => parseInt(h, 16)), pb = b.match(/\w\w/g).map((h) => parseInt(h, 16));
+    return `rgb(${pa.map((v, i) => Math.round(v + (pb[i] - v) * w)).join(",")})`;
+  }
+  function drawStageC(t) {
+    const W = stage.width, H = stage.height, M = C.M, S = C.S;
+    const v = fitView(W, H, -0.45, 0.45, -0.03, 0.64);
+    const { X, Y } = v;
+    const fl = fluidStyle(t, "su");
+    ctx.fillStyle = t.table;
+    ctx.fillRect(0, Y(0), W, 4 * dpr);
+    const P = { x: 0, z: 0.47 };
+    // gövde
+    ctx.fillStyle = t.metal;
+    ctx.fillRect(X(-0.06), Y(0.012), X(0.06) - X(-0.06), Y(0) - Y(0.012));
+    ctx.fillRect(X(-0.006), Y(P.z), X(0.006) - X(-0.006), Y(0.012) - Y(P.z));
+    // kaplar ve krikolar: suyun altında taç, kiriş eğilse de kabın dibine değmez
+    const scaleAlloy = Math.cbrt(M.alloy.V / M.gold.V);
+    const STR = 0.2, hc = 0.045, zTop0 = P.z - STR;
+    const zw0 = zTop0 - hc * Math.max(1, scaleAlloy) - 0.03, zw1 = zTop0 + 0.06;
+    const zWater = zw0 + S.f * (zw1 - zw0), bkH = 0.19, bkBottom = zWater - 0.16;
+    for (const sx of [-1, 1]) {
+      const bxc = sx * BEAM_L, half = 0.08;
+      ctx.strokeStyle = t.metal;
+      ctx.lineWidth = 1.6 * dpr;
+      ctx.beginPath();
+      const jt = bkBottom, jb = 0.012;
+      ctx.moveTo(X(bxc - 0.05), Y(jb));
+      ctx.lineTo(X(bxc + 0.05), Y(jt));
+      ctx.moveTo(X(bxc + 0.05), Y(jb));
+      ctx.lineTo(X(bxc - 0.05), Y(jt));
+      ctx.stroke();
+      ctx.fillStyle = t.metal;
+      ctx.fillRect(X(bxc - 0.06), Y(0.012), X(bxc + 0.06) - X(bxc - 0.06), Y(0) - Y(0.012));
+      ctx.fillRect(X(bxc - 0.06), Y(jt), X(bxc + 0.06) - X(bxc - 0.06), Y(jt - 0.008) - Y(jt));
+      ctx.fillStyle = fl.fill;
+      ctx.fillRect(X(bxc - half), Y(zWater), X(bxc + half) - X(bxc - half), Y(bkBottom) - Y(zWater));
+    }
+    // kiriş
+    const th = S.th, c = Math.cos(th), sn = Math.sin(th);
+    const L = { x: P.x - BEAM_L * c, z: P.z - BEAM_L * sn }, R = { x: P.x + BEAM_L * c, z: P.z + BEAM_L * sn };
+    ctx.strokeStyle = t.ink;
+    ctx.lineWidth = 4 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(L.x), Y(L.z));
+    ctx.lineTo(X(R.x), Y(R.z));
+    ctx.stroke();
+    // ibre ve ölçek
+    ctx.strokeStyle = t.muted;
+    ctx.lineWidth = 1 * dpr;
+    ctx.beginPath();
+    for (let a = -10; a <= 10; a += 2) {
+      const ar = (a * Math.PI) / 180, r0 = 0.085, r1 = a % 10 === 0 ? 0.099 : 0.092;
+      ctx.moveTo(X(P.x + r0 * Math.sin(ar)), Y(P.z - r0 * Math.cos(ar)));
+      ctx.lineTo(X(P.x + r1 * Math.sin(ar)), Y(P.z - r1 * Math.cos(ar)));
+    }
+    ctx.stroke();
+    ctx.strokeStyle = t.warm;
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(X(P.x), Y(P.z));
+    ctx.lineTo(X(P.x + 0.095 * sn), Y(P.z - 0.095 * c));
+    ctx.stroke();
+    ctx.fillStyle = t.ink;
+    ctx.beginPath();
+    ctx.arc(X(P.x), Y(P.z), 4 * dpr, 0, Math.PI * 2);
+    ctx.fill();
+    // taçlar
+    const crowns = [
+      { end: L, scale: 1, color: "#e8b931", label: "Saf altın", c: M.gold, sx: -1 },
+      { end: R, scale: scaleAlloy, color: mixColor("e8b931", "d3d6db", M.wAg * 1.4), label: "Kuşkulu", c: M.alloy, sx: 1 },
+    ];
+    const dec = M.res >= 0.1 ? 1 : M.res >= 0.01 ? 2 : 3;
+    for (const k of crowns) {
+      const zTopC = k.end.z - STR, zb = zTopC - hc * k.scale;
+      ctx.strokeStyle = t.ink;
+      ctx.lineWidth = 1 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(X(k.end.x), Y(k.end.z));
+      ctx.lineTo(X(k.end.x), Y(zTopC));
+      ctx.stroke();
+      drawCrown(ctx, k.end.x, zb, k.scale, k.color, t, X, Y);
+      const sub = Math.max(0, Math.min(1, (zWater - zb) / (hc * k.scale)));
+      if (sub > 0) {
+        ctx.fillStyle = fl.fill;
+        const w = 0.09 * k.scale;
+        ctx.fillRect(X(k.end.x - w / 2 - 0.004), Y(Math.min(zWater, zTopC)), X(k.end.x + w / 2 + 0.004) - X(k.end.x - w / 2 - 0.004), Y(zb - 0.002) - Y(Math.min(zWater, zTopC)));
+      }
+      const Fapp = M.Wair - S.f * k.c.Fb;
+      const q = Math.round(Fapp / M.res) * M.res;
+      ctx.font = font(11.5, 700);
+      ctx.textAlign = "center";
+      ctx.fillStyle = t.ink;
+      ctx.fillText(k.label, X(k.sx * BEAM_L), Y(0.59));
+      ctx.fillStyle = t.warm;
+      ctx.fillText(`${fx(q, dec)} N`, X(k.sx * BEAM_L), Y(0.59) + 15 * dpr);
+    }
+    // su yüzeyi ve kap duvarları
+    for (const sx of [-1, 1]) {
+      const bxc = sx * BEAM_L, half = 0.08;
+      ctx.strokeStyle = fl.line;
+      ctx.lineWidth = 1.4 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(X(bxc - half), Y(zWater));
+      ctx.lineTo(X(bxc + half), Y(zWater));
+      ctx.stroke();
+      ctx.strokeStyle = t.glass;
+      ctx.lineWidth = 2 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(X(bxc - half - 0.002), Y(bkBottom + bkH));
+      ctx.lineTo(X(bxc - half - 0.002), Y(bkBottom - 0.002));
+      ctx.lineTo(X(bxc + half + 0.002), Y(bkBottom - 0.002));
+      ctx.lineTo(X(bxc + half + 0.002), Y(bkBottom + bkH));
+      ctx.stroke();
+    }
+    const deg = (th * 180) / Math.PI;
+    infoBox(ctx, [
+      S.f <= 0 ? "Havada tartım" : S.f >= 1 ? "Suda tartım" : "Daldırılıyor…",
+      `eğim ${fx(Math.abs(deg), 1)}°${Math.abs(deg) >= 0.05 ? (deg > 0 ? ": saf altın aşağıda" : ": kuşkulu taç aşağıda") : ": denge"}`,
+    ], t, W / 2, 6 * dpr, "center");
+  }
+
+  /* Grafikler */
+  function drawChartA(t) {
+    const W = chart.width, H = chart.height, M = A.M, S = A.S;
+    const padL = 46 * dpr, padR = 12 * dpr, padT = 22 * dpr, padB = 22 * dpr;
+    const win = M.floats ? Math.min(12, Math.max(3, 10 * M.T0)) : 4;
+    const tEnd = Math.max(S.t, win), tStart = tEnd - win;
+    let lo = Math.min(0, M.yEq), hi = Math.max(0.01, M.yEq);
+    for (const [tt, y] of A.hist) if (tt >= tStart) { lo = Math.min(lo, y); hi = Math.max(hi, y); }
+    lo = Math.min(lo, S.y);
+    hi = Math.max(hi, S.y);
+    const pad = Math.max(0.005, (hi - lo) * 0.12);
+    lo -= pad;
+    hi += pad;
+    const XT = (time) => padL + ((time - tStart) / win) * (W - padL - padR);
+    const YV = (y) => padT + ((hi - y) / (hi - lo)) * (H - padT - padB);
+    cctx.font = font(10.5);
+    cctx.lineWidth = 1 * dpr;
+    cctx.strokeStyle = t.grid;
+    cctx.fillStyle = t.muted;
+    cctx.textAlign = "right";
+    const step = niceStep((hi - lo) / 4);
+    for (let y = Math.ceil(lo / step) * step; y <= hi + 1e-12; y += step) {
+      cctx.beginPath(); cctx.moveTo(padL, YV(y)); cctx.lineTo(W - padR, YV(y)); cctx.stroke();
+      cctx.fillText(fx(y * 100, step * 100 < 1 ? 1 : 0), padL - 6 * dpr, YV(y) + 4 * dpr);
+    }
+    cctx.textAlign = "center";
+    const ts = niceStep(win / 6);
+    for (let k = Math.ceil(tStart / ts); k * ts <= tEnd + 1e-9; k++) {
+      const x = XT(k * ts);
+      cctx.beginPath(); cctx.moveTo(x, padT); cctx.lineTo(x, H - padB); cctx.stroke();
+      cctx.fillText(`${fx(k * ts, ts < 1 ? 1 : 0)} s`, x, H - 7 * dpr);
+    }
+    const fl = fluidStyle(t, A.fluidKey);
+    cctx.strokeStyle = fl.line;
+    cctx.lineWidth = 1.4 * dpr;
+    cctx.beginPath(); cctx.moveTo(padL, YV(0)); cctx.lineTo(W - padR, YV(0)); cctx.stroke();
+    if (-POOL_DEPTH >= lo) {
+      cctx.strokeStyle = t.muted;
+      cctx.beginPath(); cctx.moveTo(padL, YV(-POOL_DEPTH)); cctx.lineTo(W - padR, YV(-POOL_DEPTH)); cctx.stroke();
+    }
+    if (M.floats) {
+      cctx.save();
+      cctx.setLineDash([6 * dpr, 4 * dpr]);
+      cctx.strokeStyle = t.accent2;
+      cctx.beginPath(); cctx.moveTo(padL, YV(M.yEq)); cctx.lineTo(W - padR, YV(M.yEq)); cctx.stroke();
+      cctx.setLineDash([2 * dpr, 4 * dpr]);
+      cctx.strokeStyle = t.muted;
+      const anchor = S.ups.length ? S.ups[S.ups.length - 1].t : 0;
+      for (let k = Math.floor((tStart - anchor) / M.T0); anchor + k * M.T0 <= tEnd; k++) {
+        const time = anchor + k * M.T0;
+        if (time < tStart) continue;
+        cctx.beginPath(); cctx.moveTo(XT(time), padT); cctx.lineTo(XT(time), H - padB); cctx.stroke();
+      }
+      cctx.restore();
+    }
+    cctx.save();
+    cctx.beginPath();
+    cctx.rect(padL, padT - 2 * dpr, W - padL - padR, H - padT - padB + 4 * dpr);
+    cctx.clip();
+    cctx.strokeStyle = t.warm;
+    cctx.lineWidth = 2 * dpr;
+    cctx.beginPath();
+    let started = false;
+    for (const [tt, y] of A.hist) {
+      if (tt < tStart) continue;
+      if (!started) { cctx.moveTo(XT(tt), YV(y)); started = true; } else cctx.lineTo(XT(tt), YV(y));
+    }
+    cctx.stroke();
+    cctx.restore();
+    const legend = [["y(t), alt yüz (cm)", t.warm], ["yüzey", fl.line]];
+    if (M.floats) legend.push(["kesikli: kuramsal denge · noktalı: T₀ aralığı", t.accent2]);
+    legendRow(cctx, legend, padL + 4 * dpr, W - padR, padT - 8 * dpr);
+  }
+
+  function drawChartB(t) {
+    const W = chart.width, H = chart.height, M = B.M;
+    const padL = 46 * dpr, padR = 12 * dpr, padT = (W < 560 * dpr ? 34 : 22) * dpr, padB = 22 * dpr;
+    const dMin = -0.02, dMax = SPOUT + 0.005;
+    const Fmax = Math.max(niceStep(M.W / 4) * Math.ceil((M.W * 1.08) / niceStep(M.W / 4)), 1e-6);
+    const XD = (d) => padL + ((d - dMin) / (dMax - dMin)) * (W - padL - padR);
+    const YF = (F) => H - padB - (F / Fmax) * (H - padT - padB);
+    cctx.font = font(10.5);
+    cctx.lineWidth = 1 * dpr;
+    cctx.strokeStyle = t.grid;
+    cctx.fillStyle = t.muted;
+    cctx.textAlign = "right";
+    const fs = niceStep(Fmax / 4);
+    for (let F = 0; F <= Fmax + 1e-9; F += fs) {
+      cctx.beginPath(); cctx.moveTo(padL, YF(F)); cctx.lineTo(W - padR, YF(F)); cctx.stroke();
+      cctx.fillText(`${fx(F, fs < 0.1 ? 2 : fs < 1 ? 1 : 0)}`, padL - 6 * dpr, YF(F) + 4 * dpr);
+    }
+    cctx.textAlign = "center";
+    const ds = W < 500 * dpr ? 0.05 : 0.02;
+    for (let d = 0; d <= dMax + 1e-9; d += ds) {
+      cctx.beginPath(); cctx.moveTo(XD(d), padT); cctx.lineTo(XD(d), H - padB); cctx.stroke();
+      cctx.fillText(`${Math.round(d * 100)} cm`, XD(d), H - 7 * dpr);
+    }
+    const kap = M.rhoS * G * OBJ_A;
+    const dEnd = M.s < 1 ? M.s * M.H : dMax;
+    cctx.save();
+    cctx.setLineDash([6 * dpr, 4 * dpr]);
+    cctx.lineWidth = 1.4 * dpr;
+    cctx.strokeStyle = t.accent2;
+    cctx.beginPath();
+    cctx.moveTo(XD(dMin), YF(M.W));
+    cctx.lineTo(XD(0), YF(M.W));
+    cctx.lineTo(XD(Math.min(M.H, dEnd)), YF(M.W - kap * Math.min(M.H, dEnd)));
+    cctx.lineTo(XD(dEnd), YF(M.W - kap * Math.min(M.H, dEnd)));
+    cctx.stroke();
+    cctx.strokeStyle = t.accent;
+    cctx.beginPath();
+    cctx.moveTo(XD(dMin), YF(0));
+    cctx.lineTo(XD(0), YF(0));
+    cctx.lineTo(XD(Math.min(M.H, dEnd)), YF(kap * Math.min(M.H, dEnd)));
+    cctx.lineTo(XD(dEnd), YF(kap * Math.min(M.H, dEnd)));
+    cctx.stroke();
+    cctx.setLineDash([2 * dpr, 3 * dpr]);
+    cctx.strokeStyle = t.muted;
+    for (const d of [M.H, SPOUT]) {
+      if (d > dMax) continue;
+      cctx.beginPath(); cctx.moveTo(XD(d), padT); cctx.lineTo(XD(d), H - padB); cctx.stroke();
+    }
+    cctx.restore();
+    cctx.fillStyle = t.muted;
+    cctx.textAlign = "right";
+    cctx.fillText("tam batma", XD(M.H) - 3 * dpr, H - padB - 6 * dpr);
+    cctx.fillText("dip", XD(SPOUT) - 3 * dpr, padT + 12 * dpr);
+    const tr = B.trace;
+    if (tr.length > 1) {
+      cctx.lineWidth = 2 * dpr;
+      for (const [key, col] of [["T", t.warm], ["Fk", t.accent]]) {
+        cctx.strokeStyle = col;
+        cctx.beginPath();
+        tr.forEach((p, i) => { const x = XD(p.d), y = YF(p[key]); if (i) cctx.lineTo(x, y); else cctx.moveTo(x, y); });
+        cctx.stroke();
+      }
+    }
+    for (const p of B.points) {
+      cctx.fillStyle = t.warm;
+      cctx.beginPath(); cctx.arc(XD(p.d), YF(p.T), 3.2 * dpr, 0, Math.PI * 2); cctx.fill();
+      cctx.strokeStyle = t.ink;
+      cctx.lineWidth = 1.4 * dpr;
+      cctx.beginPath(); cctx.arc(XD(p.d), YF(p.Gt), 5 * dpr, 0, Math.PI * 2); cctx.stroke();
+    }
+    legendRow(cctx, [["G′ dinamometre", t.warm], ["F_k = G − G′", t.accent], ["○ taşan sıvı (terazi)", t.ink], ["kesikli: kuram · kuvvet (N)", t.accent2]], padL + 4 * dpr, W - padR, padT - 8 * dpr);
+  }
+
+  function drawChartC(t) {
+    const W = chart.width, H = chart.height, M = C.M, S = C.S;
+    const padL = 16 * dpr, padR = 16 * dpr;
+    const r0 = 9000, r1 = 21000;
+    const XR = (r) => padL + ((r - r0) / (r1 - r0)) * (W - padL - padR);
+    const axisY = H - 26 * dpr;
+    cctx.font = font(10.5);
+    cctx.strokeStyle = t.muted;
+    cctx.lineWidth = 1 * dpr;
+    cctx.beginPath(); cctx.moveTo(padL, axisY); cctx.lineTo(W - padR, axisY); cctx.stroke();
+    cctx.fillStyle = t.muted;
+    cctx.textAlign = "center";
+    for (let r = 10000; r <= 20000; r += 2000) {
+      cctx.beginPath(); cctx.moveTo(XR(r), axisY); cctx.lineTo(XR(r), axisY + 4 * dpr); cctx.stroke();
+      cctx.fillText(group(r), XR(r), axisY + 16 * dpr);
+    }
+    cctx.textAlign = "right";
+    cctx.fillText("ρ (kg/m³)", W - padR, axisY - 6 * dpr);
+    const marks = [[RHO_AG, "gümüş", t.silver], [RHO_AU, "saf altın", t.gold], [M.rhoAlloy, "alaşım (gerçek)", t.accent2]];
+    cctx.save();
+    cctx.setLineDash([4 * dpr, 4 * dpr]);
+    marks.forEach(([r, label, col], i) => {
+      if (i === 2 && M.wAg === 0) return;
+      cctx.strokeStyle = col;
+      cctx.lineWidth = 1.4 * dpr;
+      cctx.beginPath(); cctx.moveTo(XR(r), 14 * dpr); cctx.lineTo(XR(r), axisY); cctx.stroke();
+    });
+    cctx.restore();
+    cctx.textAlign = "center";
+    marks.forEach(([r, label, col], i) => {
+      if (i === 2 && M.wAg === 0) return;
+      cctx.fillStyle = col;
+      cctx.fillText(label, Math.min(Math.max(XR(r), 40 * dpr), W - 40 * dpr), (i === 2 ? 24 : 11) * dpr);
+    });
+    if (!S.measured) {
+      cctx.fillStyle = t.muted;
+      cctx.fillText("Ölçülen yoğunluklar, taçlar suda tartılınca belirir.", W / 2, axisY * 0.55);
+      return;
+    }
+    [[M.gold, "saf altın taç", t.gold, 0.42], [M.alloy, "kuşkulu taç", t.warm, 0.7]].forEach(([c, label, col, fy]) => {
+      const y = axisY * fy, xa = XR(Math.max(r0, c.rho - c.drho)), xb = XR(Math.min(r1, c.rho + c.drho)), x = XR(Math.min(r1, Math.max(r0, c.rho)));
+      cctx.strokeStyle = col;
+      cctx.lineWidth = 2 * dpr;
+      cctx.beginPath();
+      cctx.moveTo(xa, y); cctx.lineTo(xb, y);
+      cctx.moveTo(xa, y - 5 * dpr); cctx.lineTo(xa, y + 5 * dpr);
+      cctx.moveTo(xb, y - 5 * dpr); cctx.lineTo(xb, y + 5 * dpr);
+      cctx.stroke();
+      cctx.fillStyle = col;
+      cctx.beginPath(); cctx.arc(x, y, 4.5 * dpr, 0, Math.PI * 2); cctx.fill();
+      cctx.fillStyle = t.ink;
+      cctx.textAlign = x > W * 0.6 ? "right" : "left";
+      cctx.fillText(`${label}: ${group(c.rho)} ± ${group(Number(c.drho.toPrecision(2)))}`, x + (x > W * 0.6 ? -10 : 10) * dpr, y - 8 * dpr);
+    });
+  }
+
+  function draw() {
+    const t = theme();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, stage.width, stage.height);
+    cctx.setTransform(1, 0, 0, 1, 0, 0);
+    cctx.clearRect(0, 0, chart.width, chart.height);
+    if (tab === "serbest") { drawStageA(t); drawChartA(t); }
+    else if (tab === "dinamometre") { drawStageB(t); drawChartB(t); }
+    else { drawStageC(t); drawChartC(t); }
+  }
+
+  /* ── Döngü ── */
+  const DT_A = 0.001, DT_B = 1 / 240, DT_C = 1 / 240;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (!paused) {
+      if (tab === "serbest" && A.running && !A.dragging) {
+        A.acc += elapsed * A.speed;
+        while (A.acc >= DT_A) { stepBlock(A.S, A.M, DT_A); A.acc -= DT_A; }
+        const last = A.hist[A.hist.length - 1];
+        if (!last || A.S.t - last[0] >= 1 / 120) A.hist.push([A.S.t, A.S.y]);
+        while (A.hist.length && A.hist[0][0] < A.S.t - 12.5) A.hist.shift();
+        const f = forcesA(A.M, A.S.y, A.S.v);
+        const calm = Math.abs(A.S.v) < 1e-3 && (A.S.onFloor || Math.abs(f.F) < 1e-3 * A.M.W);
+        A.settledFor = calm ? A.settledFor + elapsed * A.speed : 0;
+      } else if (tab === "dinamometre" && B.running) {
+        B.acc += elapsed;
+        while (B.acc >= DT_B) { stepRig(B.S, B.M, DT_B); B.acc -= DT_B; }
+        recordB();
+      } else if (tab === "tac" && C.running) {
+        C.acc += elapsed;
+        while (C.acc >= DT_C) { stepCrowns(C.S, C.M, DT_C); C.acc -= DT_C; }
+      }
+    }
+    updateReadouts(false);
+    draw();
+    requestAnimationFrame(frame);
+  }
+  function recordB() {
+    const S = B.S, r = S.r;
+    const last = B.trace[B.trace.length - 1];
+    const p = { d: r.d, T: r.T, Fk: S.Wair - r.T };
+    if (!last || Math.abs(last.d - p.d) > 5e-4 || Math.abs(last.T - p.T) > 1e-3 * B.M.W) {
+      B.trace.push(p);
+      if (B.trace.length > 3000) B.trace.shift();
+    }
+    const atRest = Math.abs(S.zt - S.zh) < 1e-9 && S.stream <= 1e-12 && !B.dragging;
+    if (atRest && !B.restLogged && r.d > -0.019) {
+      B.points.push({ ...p, Gt: B.M.rhoS * G * S.beaker });
+      if (B.points.length > 60) B.points.shift();
+    }
+    B.restLogged = atRest;
+  }
+
+  /* ── Etkileşim ── */
+  function setTab(name, focus) {
+    if (!TAB_NAMES.includes(name)) return;
+    tab = name;
+    ui.tabs.forEach((b) => {
+      const on = b.dataset.tab === name;
+      b.setAttribute("aria-selected", String(on));
+      b.tabIndex = on ? 0 : -1;
+      if (on && focus) b.focus();
+    });
+    ui.panel.setAttribute("aria-labelledby", `tab-${name}`);
+    document.querySelectorAll("[data-for]").forEach((el) => { el.hidden = el.dataset.for !== name; });
+    stage.dataset.view = name;
+    stage.setAttribute("aria-label", STAGE_LABELS[name]);
+    chart.setAttribute("aria-label", CHART_LABELS[name]);
+    stage.classList.toggle("is-grab", name !== "tac");
+    lastFrame = 0;
+    resize();
+    updateReadouts(true);
+  }
+  ui.tabs.forEach((b, i) => {
+    b.addEventListener("click", () => {
+      setTab(b.dataset.tab, false);
+      history.replaceState(null, "", `#${b.dataset.tab}`);
+    });
+    b.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight") j = (i + 1) % ui.tabs.length;
+      else if (e.key === "ArrowLeft") j = (i + ui.tabs.length - 1) % ui.tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = ui.tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      setTab(ui.tabs[j].dataset.tab, true);
+      history.replaceState(null, "", `#${ui.tabs[j].dataset.tab}`);
+    });
+  });
+
+  function setRunning(obj, btn, run) {
+    obj.running = run;
+    btn.textContent = run ? "Duraklat" : "Devam et";
+    btn.setAttribute("aria-pressed", String(!run));
+  }
+  ui.toggleA.addEventListener("click", () => setRunning(A, ui.toggleA, !A.running));
+  ui.resetA.addEventListener("click", () => { restartA(); setRunning(A, ui.toggleA, true); });
+  [ui.matA, ui.fluidA].forEach((el) => el.addEventListener("change", paramsChangedA));
+  [ui.rhoA, ui.hA, ui.dA, ui.zetaA, ui.cdA].forEach((el) => el.addEventListener("input", paramsChangedA));
+  ui.speedA.addEventListener("change", () => { readA(); updateA(true); });
+  ui.y0A.addEventListener("input", () => { restartA(); setRunning(A, ui.toggleA, true); });
+
+  ui.toggleB.addEventListener("click", () => setRunning(B, ui.toggleB, !B.running));
+  ui.resetB.addEventListener("click", () => { restartB(); setRunning(B, ui.toggleB, true); });
+  [ui.matB, ui.fluidB].forEach((el) => el.addEventListener("change", () => { restartB(); }));
+  [ui.rhoB, ui.hB].forEach((el) => el.addEventListener("input", () => { restartB(); }));
+  ui.zB.addEventListener("input", () => { B.S.fast = false; setTargetB(Number(ui.zB.value)); });
+  ui.downB.addEventListener("click", () => { B.S.fast = false; setTargetB(Number(ui.zB.value) + 1); });
+  ui.upB.addEventListener("click", () => { B.S.fast = false; setTargetB(Number(ui.zB.value) - 1); });
+
+  ui.agC.addEventListener("input", () => { readC(); updateC(true); });
+  ui.resC.addEventListener("change", () => { readC(); updateC(true); });
+  ui.dipC.addEventListener("click", () => setDipC(C.S.ft < 1));
+  ui.resetC.addEventListener("click", restartC);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, select, textarea, button") || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      if (tab === "serbest") setRunning(A, ui.toggleA, !A.running);
+      else if (tab === "dinamometre") setRunning(B, ui.toggleB, !B.running);
+      else setDipC(C.S.ft < 1);
+    } else if (e.key === "r" || e.key === "R") {
+      if (tab === "serbest") { restartA(); setRunning(A, ui.toggleA, true); }
+      else if (tab === "dinamometre") { restartB(); setRunning(B, ui.toggleB, true); }
+      else restartC();
+    }
+  });
+
+  function canvasPoint(evt) {
+    const rect = stage.getBoundingClientRect();
+    return { px: ((evt.clientX - rect.left) / rect.width) * stage.width, py: ((evt.clientY - rect.top) / rect.height) * stage.height };
+  }
+  stage.addEventListener("pointerdown", (evt) => {
+    const { px, py } = canvasPoint(evt);
+    if (tab === "serbest" && viewA) {
+      const M = A.M, S = A.S, w = viewA.toWorld(px, py), tol = 14 * dpr / viewA.s;
+      if (Math.abs(w.x) > M.D / 2 + tol || w.z < S.y - tol || w.z > S.y + M.H + tol) return;
+      A.dragging = true;
+      A.grabDy = w.z - S.y;
+    } else if (tab === "dinamometre" && viewB) {
+      const S = B.S, w = viewB.toWorld(px, py), tol = 16 * dpr / viewB.s;
+      const zTop = S.r.zb + HOOK_REACH + 0.09;
+      if (Math.abs(w.x) > 0.03 + tol || w.z < S.r.zb - tol || w.z > zTop + tol) return;
+      B.dragging = true;
+      B.grabZ = w.z;
+      B.grabZh = Number(ui.zB.value);
+      S.fast = true;
+    } else return;
+    stage.classList.add("is-dragging");
+    stage.setPointerCapture(evt.pointerId);
+    evt.preventDefault();
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    if (!A.dragging && !B.dragging) return;
+    const { px, py } = canvasPoint(evt);
+    if (A.dragging) {
+      const w = viewA.toWorld(px, py);
+      A.S.y = Math.max(-POOL_DEPTH, Math.min(yTopA(), w.z - A.grabDy));
+      A.S.v = 0;
+      A.S.onFloor = false;
+    } else {
+      const w = viewB.toWorld(px, py);
+      setTargetB(B.grabZh + (B.grabZ - w.z) * 100);
+    }
+  });
+  const release = () => {
+    stage.classList.remove("is-dragging");
+    if (A.dragging) {
+      A.dragging = false;
+      const cm = Math.max(-40, Math.min(Number(ui.y0A.max), Math.round(A.S.y * 200) / 2));
+      ui.y0A.value = cm;
+      restartA();
+      setRunning(A, ui.toggleA, true);
+    }
+    if (B.dragging) { B.dragging = false; B.S.fast = false; }
+  };
+  stage.addEventListener("pointerup", release);
+  stage.addEventListener("pointercancel", release);
+
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  restartA();
+  restartB();
+  restartC();
+  const fromHash = location.hash.slice(1);
+  setTab(TAB_NAMES.includes(fromHash) ? fromHash : "serbest", false);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

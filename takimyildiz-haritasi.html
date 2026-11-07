@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Takımyıldızlar uzayda değil, bizim bakışımızda bir aradadır. Kutup Yıldızı'nın yüksekliği enlemini, kadir ölçeği parlaklığı, Dünya'nın dönüşü de hangi yıldızı ne zaman göreceğini söyler.">
+  <title>Takımyıldız Haritası</title>
+  <style>
+    .app-content { max-width: 960px; }
+
+    .sky-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px var(--border);
+    }
+
+    #skyCanvas {
+      display: block;
+      width: 100%;
+      background: #02050d;
+      cursor: grab;
+    }
+
+    #skyCanvas:active { cursor: grabbing; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 0;
+    }
+
+    .season-btn {
+      padding: 0.45rem 0.85rem;
+      font: inherit;
+      font-size: 0.82rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .season-btn.active {
+      background: rgba(94, 234, 212, 0.2);
+      border-color: rgba(94, 234, 212, 0.45);
+      color: var(--accent);
+    }
+
+    .season-btn:hover { border-color: var(--border-hover); }
+
+    .info-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin: 10px 0;
+      min-height: 60px;
+      transition: opacity 0.3s;
+    }
+
+    .info-panel.is-empty { opacity: 0.5; }
+
+    .info-panel h3 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+
+    .info-panel .myth {
+      font-size: 0.78rem;
+      color: var(--accent-2);
+      margin-bottom: 6px;
+      font-style: italic;
+    }
+
+    .info-panel p {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .hint {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin: 4px 0;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(1.1rem, 4vw, 1.45rem);
+      color: var(--text);
+      margin: 8px 0 2px;
+    }
+
+    .sub {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin: 0 0 6px;
+    }
+
+    @media (max-width: 600px) {
+      .season-btn { padding: 0.35rem 0.6rem; font-size: 0.74rem; }
+      .hint { font-size: 0.7rem; gap: 4px 10px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="takimyildiz-haritasi">
+
+<div class="app-content">
+  <h1>🌌 Takımyıldız Haritası</h1>
+  <p class="sub">Ankara'dan her mevsimin ortasında, saat 22.00'de başını kaldırınca görülen gökyüzü. Haritayı başının üstüne tuttuğunu düşün: Kuzey yukarıda, Doğu solda. Sürükleyerek gezdir, takımyıldızlara tıkla.</p>
+
+  <div class="controls">
+    <button class="season-btn active" data-season="spring">🌸 İlkbahar</button>
+    <button class="season-btn" data-season="summer">☀️ Yaz</button>
+    <button class="season-btn" data-season="autumn">🍂 Sonbahar</button>
+    <button class="season-btn" data-season="winter">❄️ Kış</button>
+  </div>
+
+  <div class="hint">
+    <span>🖱️ Sürükle: Gezdir</span>
+    <span>🔍 Tıklama: Takımyıldız bilgisi</span>
+    <span>⭐ Yıldız boyutu = parlaklık (kadir)</span>
+    <span>📏 Düz çizgi: rahat görünür · kesikli: alçakta</span>
+  </div>
+
+  <div class="sky-wrap">
+    <canvas id="skyCanvas"></canvas>
+  </div>
+
+  <div class="info-panel is-empty" id="infoPanel">
+    <p style="text-align:center;">👆 Haritadaki bir takımyıldıza tıklayarak bilgi alın</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById('skyCanvas');
+  const ctx = canvas.getContext('2d');
+  const infoPanel = document.getElementById('infoPanel');
+  const DEG = Math.PI / 180;
+
+  // Gözlem yeri: Ankara (39.93° K, 32.86° D). Her mevsim düğmesi, mevsimin ortasındaki
+  // ayın 15'inde saat 22.00 (TSİ, UTC+3) için yerel yıldız zamanını (saat) kullanır.
+  const LAT = 39.93;
+  const SEASONS = {
+    spring: { name: 'İlkbahar', icon: '🌸', date: '15 Nisan', lst: 10.79 },
+    summer: { name: 'Yaz', icon: '☀️', date: '15 Temmuz', lst: 16.77 },
+    autumn: { name: 'Sonbahar', icon: '🍂', date: '15 Ekim', lst: 22.81 },
+    winter: { name: 'Kış', icon: '❄️', date: '15 Ocak', lst: 4.87 },
+  };
+
+  let W, H, R, CX, CY;
+  let currentSeason = 'spring';
+
+  // Pan state
+  let panX = 0, panY = 0;
+  let dragging = false;
+  let dragStartX, dragStartY, dragStartPanX, dragStartPanY;
+
+  // Takımyıldızlar: gerçek J2000 koordinatları (ra: saat, dec: derece) ve görünür kadirler (V).
+  // magText: değişken ya da çift yıldızlarda kadirin nasıl yazılacağı.
+  const constellations = [
+    {
+      id: 'ursa-major', name: 'Büyük Ayı', latin: 'Ursa Major', circumpolar: true,
+      best: 'her mevsim; ilkbahar akşamları başımızın üstüne yakın',
+      myth: 'Yunan mitolojisinde Zeusʼun sevgilisi Callisto, Hera tarafından ayıya dönüştürülmüş ve gökyüzüne yerleştirilmiştir.',
+      info: 'Haritada yalnızca takımyıldızın en tanınmış parçası, Büyük Kepçe çizili. Kâsenin dış kenarındaki Merak ve Dubhe <strong>göstergeç yıldızlardır</strong>: Merakʼtan Dubheʼye giden çizgiyi aralarındaki uzaklığın yaklaşık 5 katı uzatırsan Kutup Yıldızıʼna varırsın (Merak–Dubhe 5.4°, Dubhe–Polaris 28.7°). Kepçe Türkiyeʼden her mevsim görülür: 40.7° Kʼnin kuzeyinde hiç batmaz, Ankaraʼda yalnızca sapın ucundaki Alkaid kısa bir süre kuzey ufkunun hemen altına iner.',
+      stars: [
+        { ra: 11.0621, dec: 61.751, mag: 1.79, name: 'Dubhe' },
+        { ra: 11.0307, dec: 56.382, mag: 2.37, name: 'Merak' },
+        { ra: 11.8972, dec: 53.695, mag: 2.44, name: 'Phecda' },
+        { ra: 12.2571, dec: 57.033, mag: 3.31, name: 'Megrez' },
+        { ra: 12.9005, dec: 55.960, mag: 1.77, name: 'Alioth' },
+        { ra: 13.3988, dec: 54.925, mag: 2.04, name: 'Mizar' },
+        { ra: 13.7923, dec: 49.313, mag: 1.86, name: 'Alkaid' },
+      ],
+      lines: [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [5, 6]],
+    },
+    {
+      id: 'ursa-minor', name: 'Küçük Ayı', latin: 'Ursa Minor', circumpolar: true,
+      best: 'her mevsim; kutba çok yakın olduğu için hep kuzeyde',
+      myth: 'Callistoʼnun oğlu Arcas da ayıya dönüştürülüp Küçük Ayı olarak gökyüzüne konmuştur. Kuyruğunun ucunda Kutup Yıldızı bulunur.',
+      info: 'Küçük bir kepçe biçimindedir. Sapın ucundaki Polaris (Kutup Yıldızı), Dünyaʼnın dönme ekseninin uzantısına 1°ʼden yakındır; bu yüzden gece boyunca neredeyse kıpırdamaz ve altındaki ufuk noktası kuzeydir. Polaris, Kochab ve Pherkad dışındaki dört yıldızı 4–5 kadir olduğundan şehir ışığında çoğu zaman seçilemez.',
+      stars: [
+        { ra: 2.5303, dec: 89.264, mag: 1.98, name: 'Polaris', magText: '1.86–2.13 (hafif değişken)' },
+        { ra: 17.5369, dec: 86.586, mag: 4.36 },
+        { ra: 16.7662, dec: 82.037, mag: 4.19 },
+        { ra: 15.7343, dec: 77.794, mag: 4.29 },
+        { ra: 14.8451, dec: 74.156, mag: 2.08, name: 'Kochab' },
+        { ra: 15.3455, dec: 71.834, mag: 3.05, name: 'Pherkad' },
+        { ra: 16.2917, dec: 75.755, mag: 4.95 },
+      ],
+      lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]],
+    },
+    {
+      id: 'orion', name: 'Avcı', latin: 'Orion',
+      best: 'kış akşamları, güneyde',
+      myth: 'Yunan mitolojisinde dev avcı Orion. Anlatıların çoğunda Gaiaʼnın, bazılarında Artemisʼin gönderdiği akrep tarafından öldürülmüştür. İkisi gökte karşı karşıya konmuştur: Akrep doğarken Avcı batar.',
+      info: 'Kış gökyüzünün en göz alıcı takımyıldızı. Kuşağı üç yıldız oluşturur: Alnitak, Alnilam, Mintaka. Omzundaki kırmızı süperdev Betelgeuse değişkendir (0.0–1.6 kadir; 1.6ʼya 2020 başındaki büyük sönükleşmede indi), ayağındaki mavi süperdev Rigel ise çoğu zaman ondan parlaktır.',
+      stars: [
+        { ra: 5.9195, dec: 7.407, mag: 0.50, name: 'Betelgeuse', magText: '0.0–1.6 (değişken)' },
+        { ra: 5.4188, dec: 6.350, mag: 1.64, name: 'Bellatrix' },
+        { ra: 5.6793, dec: -1.943, mag: 1.77, name: 'Alnitak' },
+        { ra: 5.6036, dec: -1.202, mag: 1.69, name: 'Alnilam' },
+        { ra: 5.5334, dec: -0.299, mag: 2.23, name: 'Mintaka' },
+        { ra: 5.7959, dec: -9.670, mag: 2.09, name: 'Saiph' },
+        { ra: 5.2423, dec: -8.202, mag: 0.13, name: 'Rigel' },
+      ],
+      lines: [[0, 1], [2, 3], [3, 4], [1, 4], [0, 2], [2, 5], [4, 6]],
+    },
+    {
+      id: 'cassiopeia', name: 'Kraliçe', latin: 'Cassiopeia', circumpolar: true,
+      best: 'her mevsim; sonbahar akşamları başımızın üstüne yakın',
+      myth: 'Etiyopya kraliçesi Cassiopeia, kendisinin (bazı anlatılarda kızı Andromedaʼnın) deniz perileri Nereidlerden daha güzel olduğunu söyleyerek Nereidleri ve Poseidonʼu kızdırmıştır. Ceza olarak tahtıyla birlikte kutbun çevresinde döner; yılın bir bölümünde baş aşağı görünür.',
+      info: 'W (ya da M) şeklini sırasıyla Caph, Schedar, Navi (γ Cas), Ruchbah ve Segin oluşturur. Samanyolu içinde yer alır. Kutup Yıldızıʼnın Büyük Kepçeʼye göre karşı tarafındadır. Türkiyeʼden kutup çevresidir: hiç batmaz, her mevsim görülür; ilkbahar akşamları kuzey ufkunun üstünde alçakta durur.',
+      stars: [
+        { ra: 0.1530, dec: 59.150, mag: 2.28, name: 'Caph' },
+        { ra: 0.6751, dec: 56.537, mag: 2.24, name: 'Schedar' },
+        { ra: 0.9451, dec: 60.717, mag: 2.39, name: 'Navi', magText: '2.39 (patlamalı değişken)' },
+        { ra: 1.4303, dec: 60.235, mag: 2.68, name: 'Ruchbah' },
+        { ra: 1.9066, dec: 63.670, mag: 3.37, name: 'Segin' },
+      ],
+      lines: [[0, 1], [1, 2], [2, 3], [3, 4]],
+    },
+    {
+      id: 'leo', name: 'Aslan', latin: 'Leo',
+      best: 'ilkbahar akşamları, güneyde yüksekte',
+      myth: 'Nemea Aslanı, Herkülʼün 12 görevinin ilkinde öldürdüğü canavardır. Derisi delinmez olduğu için Herkül onu boğarak öldürmüş, derisini zırh olarak giymiştir.',
+      info: 'İlkbahar akşamlarının simgesi. Ters soru işaretine benzeyen Orak asterizmi aslanın başını, Regulus kalbini, Denebola kuyruğunu temsil eder. Regulus ekliptiğe yarım dereceden yakındır; bu yüzden Ay zaman zaman önünden geçip onu bir süre örter.',
+      stars: [
+        { ra: 10.1395, dec: 11.967, mag: 1.40, name: 'Regulus' },
+        { ra: 10.1222, dec: 16.763, mag: 3.49 },
+        { ra: 10.3329, dec: 19.841, mag: 2.08, name: 'Algieba' },
+        { ra: 10.2782, dec: 23.417, mag: 3.33, name: 'Adhafera' },
+        { ra: 9.8794, dec: 26.007, mag: 3.88 },
+        { ra: 9.7642, dec: 23.774, mag: 2.98 },
+        { ra: 11.2351, dec: 20.524, mag: 2.56, name: 'Zosma' },
+        { ra: 11.8177, dec: 14.572, mag: 2.14, name: 'Denebola' },
+        { ra: 11.2373, dec: 15.430, mag: 3.32, name: 'Chertan' },
+      ],
+      lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [2, 6], [6, 7], [7, 8], [8, 0], [6, 8]],
+    },
+    {
+      id: 'scorpius', name: 'Akrep', latin: 'Scorpius',
+      best: 'yaz akşamları, güney ufkunun üstünde alçakta',
+      myth: 'Orionʼu öldürmesi için gönderilen akrep. Orion ve Akrep gökyüzünde birbirine zıt konumlardadır; biri doğarken diğeri batar.',
+      info: 'Kalbindeki kırmızı süperdev Antares (değişken, yaklaşık 0.6–1.6 kadir), Marsʼa benzeyen rengiyle dikkat çeker. Ankaraʼdan Antares en fazla yaklaşık 24° yükselir; kuyruğun ucundaki Shaula ve Sargas ise ufkun yalnızca 7–13° üstüne çıkar. Kuyruğu görmek için güney ufkunun açık olması gerekir.',
+      stars: [
+        { ra: 16.0906, dec: -19.805, mag: 2.62, name: 'Acrab' },
+        { ra: 16.0056, dec: -22.622, mag: 2.00, name: 'Dschubba', magText: '1.6–2.3 (değişken)' },
+        { ra: 15.9809, dec: -26.114, mag: 2.89 },
+        { ra: 16.3531, dec: -25.593, mag: 2.88 },
+        { ra: 16.4901, dec: -26.432, mag: 1.00, name: 'Antares', magText: '0.6–1.6 (değişken)' },
+        { ra: 16.5980, dec: -28.216, mag: 2.82 },
+        { ra: 16.8361, dec: -34.293, mag: 2.29 },
+        { ra: 16.8645, dec: -38.047, mag: 3.08 },
+        { ra: 16.9097, dec: -42.361, mag: 3.62 },
+        { ra: 17.2026, dec: -43.239, mag: 3.33 },
+        { ra: 17.6220, dec: -42.998, mag: 1.84, name: 'Sargas' },
+        { ra: 17.7931, dec: -40.127, mag: 3.03 },
+        { ra: 17.7081, dec: -39.030, mag: 2.41 },
+        { ra: 17.5601, dec: -37.104, mag: 1.63, name: 'Shaula' },
+      ],
+      lines: [[0, 1], [1, 2], [1, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13]],
+    },
+    {
+      id: 'cygnus', name: 'Kuğu', latin: 'Cygnus',
+      best: 'yaz ve sonbahar akşamları, başımızın üstüne yakın',
+      myth: 'Zeusʼun Ledaʼya yaklaşmak için girdiği kuğu kılığı olarak anlatılır. Başka bir anlatıya göre Orpheus ölümünden sonra kuğuya dönüştürülmüş ve liriyle (Çalgı takımyıldızı) yan yana gökyüzüne konmuştur.',
+      info: 'Kuzey Haçı asterizmiyle tanınır: uzun kol Deneb–Sadr–Albireo, kanatlar Sadrʼın iki yanındaki yıldızlar. Samanyoluʼnun en yoğun bölgelerinden birinde bulunur. Kuyruktaki Deneb, Vega ve Altair ile birlikte Yaz Üçgeniʼni oluşturur (Vega ve Altair haritada etiketli).',
+      stars: [
+        { ra: 20.6905, dec: 45.280, mag: 1.25, name: 'Deneb' },
+        { ra: 20.3705, dec: 40.257, mag: 2.23, name: 'Sadr' },
+        { ra: 19.9384, dec: 35.083, mag: 3.89 },
+        { ra: 19.5120, dec: 27.960, mag: 3.1, name: 'Albireo', magText: '≈3.1 (iki yıldız, toplam)' },
+        { ra: 19.7496, dec: 45.131, mag: 2.87 },
+        { ra: 20.7702, dec: 33.970, mag: 2.48 },
+      ],
+      lines: [[0, 1], [1, 2], [2, 3], [4, 1], [1, 5]],
+    },
+  ];
+
+  // Yön bulmak için birkaç parlak yıldız (tıklanmaz, yalnızca etiketli)
+  const refStars = [
+    { ra: 6.7525, dec: -16.716, mag: -1.46, name: 'Sirius' },
+    { ra: 14.2610, dec: 19.182, mag: -0.05, name: 'Arcturus' },
+    { ra: 18.6157, dec: 38.784, mag: 0.03, name: 'Vega' },
+    { ra: 5.2782, dec: 45.998, mag: 0.08, name: 'Capella' },
+    { ra: 7.6550, dec: 5.225, mag: 0.34, name: 'Procyon' },
+    { ra: 19.8464, dec: 8.868, mag: 0.76, name: 'Altair' },
+    { ra: 4.5987, dec: 16.509, mag: 0.86, name: 'Aldebaran' },
+    { ra: 13.4199, dec: -11.161, mag: 0.97, name: 'Spica' },
+    { ra: 7.7553, dec: 28.026, mag: 1.14, name: 'Pollux' },
+    { ra: 7.5766, dec: 31.888, mag: 1.58, name: 'Castor' },
+  ];
+
+  // Görünürlük o akşamki yükseklikten hesaplanır: tüm yıldızlar ≥ 10° ise 'yüksekte'.
+  const STATUS = {
+    high: { label: 'yüksekte', line: 0.8, dash: [], text: 'Bu saatte bütün yıldızları ufkun en az 10° üstünde; rahatça görülür.' },
+    low: { label: 'alçakta', line: 0.4, dash: [3, 4], text: 'Bu saatte ufka yakın ya da bir kısmı ufkun altında; açık bir ufuk gerekir.' },
+    down: { label: 'ufkun altında', line: 0, dash: [], text: 'Bu saatte ufkun altında; haritada görünmez.' },
+  };
+  const CIRC_TEXT = 'Her mevsim görünür: kutup çevresinde döner, yılın her akşamı gökyüzündedir (kimi zaman kuzey ufkuna yakın).';
+
+  // Yıldız boyutu yalnızca kadire bağlıdır (mevsime değil)
+  const starRadius = (mag) => Math.max(0.9, 4.4 - 0.8 * mag);
+
+  // Ekvator koordinatı -> ufuk koordinatı (yükseklik, azimut kuzeyden doğuya)
+  function altAz(ra, dec, lst) {
+    const h = (lst - ra) * 15 * DEG, d = dec * DEG, p = LAT * DEG;
+    const alt = Math.asin(Math.sin(p) * Math.sin(d) + Math.cos(p) * Math.cos(d) * Math.cos(h));
+    const az = Math.atan2(-Math.cos(d) * Math.sin(h), Math.sin(d) * Math.cos(p) - Math.cos(d) * Math.cos(h) * Math.sin(p));
+    return { alt: alt / DEG, az };
+  }
+
+  // Başucu merkezli eşit uzaklıklı izdüşüm: merkez = tepe noktası, kenar = ufuk.
+  // Haritayı başının üstüne kaldırınca Kuzey yukarı, Doğu SOLDA kalır.
+  function project(ra, dec) {
+    const { alt, az } = altAz(ra, dec, SEASONS[currentSeason].lst);
+    const r = R * (90 - alt) / 90;
+    return { x: CX - r * Math.sin(az), y: CY - r * Math.cos(az), alt };
+  }
+
+  const toVec = (ra, dec) => [Math.cos(dec * DEG) * Math.cos(ra * 15 * DEG), Math.cos(dec * DEG) * Math.sin(ra * 15 * DEG), Math.sin(dec * DEG)];
+  const fromVec = (v) => ({ ra: ((Math.atan2(v[1], v[0]) / DEG / 15) + 24) % 24, dec: Math.asin(Math.max(-1, Math.min(1, v[2]))) / DEG });
+
+  // Arka plan: soluk süs yıldızları (gerçek değil), sabit tohumla her açılışta aynı
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(20261101);
+  const bgStars = [];
+  for (let i = 0; i < 420; i++) {
+    bgStars.push({
+      ra: rand() * 24,
+      dec: Math.asin(rand() * 2 - 1) / DEG,
+      r: 0.3 + rand() * 0.8,
+      brightness: 0.2 + rand() * 0.45,
+      twinkle: rand() * Math.PI * 2,
+      twinkleSpeed: 0.01 + rand() * 0.03,
+    });
+  }
+
+  // Samanyolu: galaktik ekvator (b = 0) çizgisi, J2000 dönüşüm matrisiyle
+  const GAL = [[-0.0548755604, -0.8734370902, -0.4838350155], [0.4941094279, -0.4448296300, 0.7469822445], [-0.8676661490, -0.1980763734, 0.4559837762]];
+  const milkyWay = [];
+  for (let l = 0; l <= 360; l += 3) {
+    const g = [Math.cos(l * DEG), Math.sin(l * DEG), 0];
+    milkyWay.push(fromVec([0, 1, 2].map((j) => GAL[0][j] * g[0] + GAL[1][j] * g[1] + GAL[2][j] * g[2])));
+  }
+
+  // Göstergeç çizgisi: Merak'tan Dubhe'ye giden büyük çember, Polaris'e kadar uzatılmış
+  const pointerArc = [];
+  (function () {
+    const uma = constellations[0];
+    const m = toVec(uma.stars[1].ra, uma.stars[1].dec), d = toVec(uma.stars[0].ra, uma.stars[0].dec);
+    const theta = Math.acos(m[0] * d[0] + m[1] * d[1] + m[2] * d[2]);
+    const k = d.map((c, i) => c - Math.cos(theta) * m[i]);
+    const kn = Math.hypot(k[0], k[1], k[2]);
+    const kk = k.map((c) => c / kn);
+    const p = toVec(constellations[1].stars[0].ra, constellations[1].stars[0].dec);
+    const tEnd = Math.atan2(p[0] * kk[0] + p[1] * kk[1] + p[2] * kk[2], p[0] * m[0] + p[1] * m[1] + p[2] * m[2]) - 1.5 * DEG;
+    for (let t = theta; t <= tEnd; t += theta / 6) {
+      pointerArc.push(fromVec(m.map((c, i) => Math.cos(t) * c + Math.sin(t) * kk[i])));
+    }
+  })();
+
+  function layout() {
+    for (const con of constellations) {
+      for (const s of con.stars) s.p = project(s.ra, s.dec);
+      con.status = statusOf(con);
+    }
+    for (const s of refStars) s.p = project(s.ra, s.dec);
+    for (const s of bgStars) s.p = project(s.ra, s.dec);
+    for (const s of milkyWay) s.p = project(s.ra, s.dec);
+    for (const s of pointerArc) s.p = project(s.ra, s.dec);
+  }
+
+  function statusOf(con) {
+    const alts = con.stars.map((s) => s.p.alt);
+    if (alts.every((a) => a <= 0)) return 'down';
+    return alts.every((a) => a >= 10) ? 'high' : 'low';
+  }
+
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const rect = canvas.parentElement.getBoundingClientRect();
+    W = rect.width;
+    H = W < 600 ? W : Math.min(W * 0.72, 600);
+    R = Math.min(W, H) / 2 - 26;
+    CX = W / 2;
+    CY = H / 2;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    layout();
+    draw();
+  }
+
+  function drawPolyline(points, minAlt) {
+    ctx.beginPath();
+    let pen = false;
+    for (const pt of points) {
+      if (pt.p.alt < minAlt) { pen = false; continue; }
+      if (pen) ctx.lineTo(pt.p.x, pt.p.y); else ctx.moveTo(pt.p.x, pt.p.y);
+      pen = true;
+    }
+    ctx.stroke();
+  }
+
+  function draw() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#02050d';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.translate(panX, panY);
+
+    // Gökyüzü kubbesi (ufuk çemberinin içi)
+    const grad = ctx.createRadialGradient(CX, CY, 0, CX, CY, R);
+    grad.addColorStop(0, '#0b1730');
+    grad.addColorStop(1, '#050b1a');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(CX, CY, R, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(CX, CY, R, 0, Math.PI * 2);
+    ctx.clip();
+
+    // Samanyolu bandı
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(140,160,215,0.06)';
+    ctx.lineWidth = R * 16 / 90;
+    drawPolyline(milkyWay, -25);
+    ctx.strokeStyle = 'rgba(160,180,230,0.05)';
+    ctx.lineWidth = R * 6 / 90;
+    drawPolyline(milkyWay, -25);
+    ctx.lineCap = 'butt';
+
+    // Yükseklik çemberleri: 30° ve 60°
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([2, 5]);
+    for (const a of [30, 60]) {
+      ctx.beginPath();
+      ctx.arc(CX, CY, R * (90 - a) / 90, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Arka plan yıldızları (süs)
+    const time = Date.now() * 0.001;
+    for (const s of bgStars) {
+      if (s.p.alt < 0) continue;
+      const twinkle = 0.5 + 0.5 * Math.sin(s.twinkle + time * s.twinkleSpeed * 60);
+      ctx.fillStyle = `rgba(220,230,255,${(s.brightness * (0.6 + 0.4 * twinkle)).toFixed(2)})`;
+      ctx.beginPath();
+      ctx.arc(s.p.x, s.p.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Göstergeç çizgisi (büyük çember yayı)
+    ctx.strokeStyle = 'rgba(251,191,36,0.45)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 5]);
+    drawPolyline(pointerArc, 0);
+    ctx.setLineDash([]);
+
+    // Takımyıldız çizgileri: düz = rahat görünür, kesikli ve soluk = alçakta
+    for (const con of constellations) {
+      const st = STATUS[con.status];
+      if (con.status === 'down') continue;
+      ctx.strokeStyle = `rgba(94,234,212,${st.line})`;
+      ctx.lineWidth = 1;
+      ctx.setLineDash(st.dash);
+      ctx.beginPath();
+      for (const [i, j] of con.lines) {
+        ctx.moveTo(con.stars[i].p.x, con.stars[i].p.y);
+        ctx.lineTo(con.stars[j].p.x, con.stars[j].p.y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.restore(); // clip
+
+    // Yıldızlar ve etiketler ufuk kırpmasının dışında çizilir ki kenardaki adlar kesilmesin.
+    // Etiketler çakışmasın diye basit bir yerleştirici: sırayla sağ, sol, üst, alt denenir.
+    const placed = [[CX - 8, CY - R - 22, CX + 8, CY - R - 4], [CX - 8, CY + R + 4, CX + 8, CY + R + 22],
+      [CX - R - 22, CY - 8, CX - R - 4, CY + 8], [CX + R + 4, CY - 8, CX + R + 22, CY + 8], // K, G, D, B
+      [-panX, -panY, 180 - panX, 34 - panY], [-panX, H - 36 - panY, 180 - panX, H - panY]]; // köşe yazıları
+    const overlaps = (b) => b[0] + panX < 2 || b[2] + panX > W - 2 ||
+      placed.some((q) => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]);
+    function reserve(x, y, r) { placed.push([x - r, y - r, x + r, y + r]); }
+    function label(text, x, y, r, font, color, sides) {
+      ctx.font = font;
+      const w = ctx.measureText(text).width, h = parseInt(font.match(/(\d+)px/)[1], 10);
+      const all = {
+        right: [x + r + 4, y + h / 3], left: [x - r - 4 - w, y + h / 3],
+        up: [x - w / 2, y - r - 4], down: [x - w / 2, y + r + h + 2],
+      };
+      for (const side of sides || ['right', 'left', 'up', 'down']) {
+        const [lx, ly] = all[side];
+        const box = [lx - 1, ly - h, lx + w + 1, ly + 3];
+        if (overlaps(box)) continue;
+        placed.push(box);
+        ctx.fillStyle = color;
+        ctx.fillText(text, lx, ly);
+        return true;
+      }
+      return false;
+    }
+
+    const visibleCon = constellations.filter((c) => c.status !== 'down');
+    const conStars = visibleCon.flatMap((c) => c.stars.filter((s) => s.p.alt > 0));
+    const refUp = refStars.filter((s) => s.p.alt > 0);
+
+    for (const s of refUp) {
+      const r = starRadius(s.mag);
+      const glow = ctx.createRadialGradient(s.p.x, s.p.y, 0, s.p.x, s.p.y, r * 3);
+      glow.addColorStop(0, 'rgba(255,240,215,0.5)');
+      glow.addColorStop(1, 'rgba(255,240,215,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(s.p.x, s.p.y, r * 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,248,235,0.95)';
+      ctx.beginPath();
+      ctx.arc(s.p.x, s.p.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      reserve(s.p.x, s.p.y, r + 1);
+    }
+
+    // Yıldızlar: boyut yalnızca kadire bağlı
+    for (const s of conStars) {
+      const r = starRadius(s.mag);
+      const glow = ctx.createRadialGradient(s.p.x, s.p.y, 0, s.p.x, s.p.y, r * 3);
+      glow.addColorStop(0, 'rgba(94,234,212,0.7)');
+      glow.addColorStop(0.5, 'rgba(94,234,212,0.12)');
+      glow.addColorStop(1, 'rgba(94,234,212,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(s.p.x, s.p.y, r * 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(s.p.x, s.p.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      reserve(s.p.x, s.p.y, r + 1);
+    }
+
+    // Kutup Yıldızı vurgusu
+    const polaris = constellations[1].stars[0];
+    ctx.strokeStyle = 'rgba(251,191,36,0.6)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 6]);
+    ctx.beginPath();
+    ctx.arc(polaris.p.x, polaris.p.y, 14, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    reserve(polaris.p.x, polaris.p.y, 14);
+    // İki satırlık Polaris etiketi: sağda; solda daha az çakışma varsa solda
+    ctx.font = 'bold 10px Outfit, sans-serif';
+    const pw = Math.max(ctx.measureText('★ Kutup Yıldızı (Polaris)').width, 140);
+    const pBox = (side) => side === 'right'
+      ? [polaris.p.x + 17, polaris.p.y - 12, polaris.p.x + 17 + pw, polaris.p.y + 14]
+      : [polaris.p.x - 17 - pw, polaris.p.y - 12, polaris.p.x - 17, polaris.p.y + 14];
+    const nHits = (b) => placed.filter((q) => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]).length +
+      (b[0] + panX < 2 || b[2] + panX > W - 2 ? 99 : 0);
+    const pSide = nHits(pBox('left')) < nHits(pBox('right')) ? 'left' : 'right';
+    const pb = pBox(pSide);
+    placed.push([...pb, 5]);
+    const px = pSide === 'left' ? pb[2] : pb[0];
+    ctx.textAlign = pSide === 'left' ? 'right' : 'left';
+    ctx.fillStyle = 'rgba(251,191,36,0.9)';
+    ctx.fillText('★ Kutup Yıldızı (Polaris)', px, polaris.p.y);
+    ctx.fillStyle = 'rgba(251,191,36,0.6)';
+    ctx.font = 'italic 9px Outfit, sans-serif';
+    ctx.fillText('Altındaki ufuk noktası: Kuzey', px, polaris.p.y + 12);
+    ctx.textAlign = 'start';
+
+    // Takımyıldız adı + o akşamki görünürlük etiketi
+    for (const con of visibleCon) {
+      const up = con.stars.filter((s) => s.p.alt > 0);
+      const cx = up.reduce((a, s) => a + s.p.x, 0) / up.length;
+      const top = Math.min(...up.map((s) => s.p.y));
+      const bottom = Math.max(...up.map((s) => s.p.y));
+      const tag = (con.circumpolar ? 'her mevsim' : '') + (con.circumpolar && con.status === 'high' ? '' : (con.circumpolar ? ' · ' : '') + STATUS[con.status].label);
+      ctx.font = 'italic 12px Outfit, sans-serif';
+      const nw = ctx.measureText(con.name).width;
+      ctx.font = '9px Outfit, sans-serif';
+      const w = Math.max(nw, ctx.measureText(tag).width) + 4;
+      const left = Math.min(...up.map((s) => s.p.x)), right = Math.max(...up.map((s) => s.p.x));
+      const midY = (top + bottom) / 2;
+      const cands = [[cx, top - 22], [cx, bottom + 18], [left - w / 2 - 8, midY], [right + w / 2 + 8, midY], [cx, top - 40]];
+      const boxOf = ([x, y]) => [x - w / 2, y - 11, x + w / 2, y + 14];
+      const hits = (b) => placed.filter((q) => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1])
+        .reduce((n, q) => n + (q[4] || 1), 0) + (b[0] + panX < 2 || b[2] + panX > W - 2 ? 2 : 0);
+      let pick = cands.find((c) => !hits(boxOf(c)));
+      if (!pick) pick = cands.slice().sort((a, b) => hits(boxOf(a)) - hits(boxOf(b)))[0];
+      placed.push([...boxOf(pick), 5]); // başka bir takımyıldız adıyla çakışmak en kötüsü
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(167,139,250,0.95)';
+      ctx.font = 'italic 12px Outfit, sans-serif';
+      ctx.fillText(con.name, pick[0], pick[1]);
+      ctx.fillStyle = con.status === 'low' ? 'rgba(167,139,250,0.6)' : 'rgba(94,234,212,0.85)';
+      ctx.font = '9px Outfit, sans-serif';
+      ctx.fillText(tag, pick[0], pick[1] + 11);
+      ctx.textAlign = 'start';
+    }
+
+    // Göstergeç etiketi
+    const mid = pointerArc[Math.floor(pointerArc.length / 2)];
+    if (mid.p.alt > 0) label('≈ 5 × (Merak–Dubhe)', mid.p.x, mid.p.y, 3, 'italic 9px Outfit, sans-serif', 'rgba(251,191,36,0.65)');
+
+    // Yıldız adları: önce parlak olanlar
+    const named = conStars.filter((s) => s.name && s.name !== 'Polaris').map((s) => ({ s, ref: false }))
+      .concat(refUp.map((s) => ({ s, ref: true })))
+      .sort((a, b) => a.s.mag - b.s.mag);
+    for (const { s, ref } of named) {
+      label(s.name, s.p.x, s.p.y, starRadius(s.mag), (ref ? 'italic ' : '') + '9px Outfit, sans-serif',
+        ref ? 'rgba(255,230,200,0.55)' : 'rgba(200,210,230,0.8)');
+    }
+
+    // Başucu (tepe noktası)
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.beginPath();
+    ctx.moveTo(CX - 4, CY); ctx.lineTo(CX + 4, CY);
+    ctx.moveTo(CX, CY - 4); ctx.lineTo(CX, CY + 4);
+    ctx.stroke();
+    label('başucu', CX, CY, 4, '9px Outfit, sans-serif', 'rgba(255,255,255,0.3)', ['down', 'right', 'left', 'up']);
+
+
+    // Ufuk çemberi ve yönler (haritayı başının üstüne tutunca: K yukarı, D solda)
+    ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(CX, CY, R, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.font = 'bold 13px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('K', CX, CY - R - 8);
+    ctx.fillText('G', CX, CY + R + 18);
+    ctx.fillText('D', CX - R - 13, CY + 5);
+    ctx.fillText('B', CX + R + 13, CY + 5);
+    ctx.textAlign = 'start';
+
+    ctx.restore(); // pan
+
+    // Sabit bilgi yazıları
+    const season = SEASONS[currentSeason];
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.font = '11px Outfit, sans-serif';
+    ctx.fillText(`${season.icon} ${season.date}, 22.00 · Ankara`, 10, 16);
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.font = '9px Outfit, sans-serif';
+    ctx.fillText('merkez: başucu · çember: ufuk', 10, 29);
+    const hidden = constellations.filter((c) => c.status === 'down').map((c) => c.name);
+    if (hidden.length) {
+      ctx.fillText('Ufkun altında:', 10, H - 22);
+      ctx.fillText(hidden.join(', '), 10, H - 10);
+    }
+  }
+
+  function hitTestConstellation(mx, my) {
+    const sx = mx - panX, sy = my - panY;
+    let best = null, bestDist = 20;
+    for (const con of constellations) {
+      if (con.status === 'down') continue;
+      for (const s of con.stars) {
+        if (s.p.alt < 0) continue;
+        const d = Math.hypot(sx - s.p.x, sy - s.p.y);
+        if (d < bestDist) {
+          bestDist = d;
+          best = con;
+        }
+      }
+    }
+    return best;
+  }
+
+  function showInfo(hit) {
+    if (!hit) {
+      infoPanel.classList.add('is-empty');
+      infoPanel.innerHTML = '<p style="text-align:center;">👆 Haritadaki bir takımyıldıza tıklayarak bilgi alın</p>';
+      return;
+    }
+    const season = SEASONS[currentSeason];
+    const mags = hit.stars.filter((s) => s.name)
+      .map((s) => `${s.name} ${s.magText || s.mag.toFixed(2)}`).join(' · ');
+    infoPanel.classList.remove('is-empty');
+    infoPanel.innerHTML = `
+      <h3>${hit.name} <span style="font-size:0.8rem;color:var(--text-muted);">(${hit.latin})</span></h3>
+      <div class="myth">📖 ${hit.myth}</div>
+      <p>🔭 ${hit.info}</p>
+      <p style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">👁️ ${season.name} (${season.date}, 22.00, Ankara): ${hit.circumpolar ? CIRC_TEXT + ' ' : ''}${STATUS[hit.status].text} En iyi zamanı: ${hit.best}.</p>
+      <p style="margin-top:4px;font-size:0.75rem;color:var(--text-muted);">⭐ Görünür kadirler (küçük sayı = parlak): ${mags}</p>
+    `;
+  }
+
+  function clickAt(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (clientX - rect.left) * (W / rect.width);
+    const my = (clientY - rect.top) * (H / rect.height);
+    showInfo(hitTestConstellation(mx, my));
+  }
+
+  function clampPan() {
+    panX = Math.max(-W * 0.4, Math.min(W * 0.4, panX));
+    panY = Math.max(-H * 0.4, Math.min(H * 0.4, panY));
+  }
+
+  // Event handlers
+  canvas.addEventListener('mousedown', function (e) {
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragStartPanX = panX;
+    dragStartPanY = panY;
+    canvas.style.cursor = 'grabbing';
+  });
+
+  canvas.addEventListener('mousemove', function (e) {
+    if (!dragging) return;
+    panX = dragStartPanX + (e.clientX - dragStartX);
+    panY = dragStartPanY + (e.clientY - dragStartY);
+    clampPan();
+    draw();
+  });
+
+  canvas.addEventListener('mouseup', function (e) {
+    if (!dragging) return;
+    const moved = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY) > 4;
+    dragging = false;
+    canvas.style.cursor = 'grab';
+    if (!moved) clickAt(e.clientX, e.clientY);
+  });
+
+  canvas.addEventListener('mouseleave', function () {
+    dragging = false;
+    canvas.style.cursor = 'grab';
+  });
+
+  // Touch support for mobile
+  canvas.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 1) {
+      dragging = true;
+      dragStartX = e.touches[0].clientX;
+      dragStartY = e.touches[0].clientY;
+      dragStartPanX = panX;
+      dragStartPanY = panY;
+    }
+  }, { passive: true });
+
+  canvas.addEventListener('touchmove', function (e) {
+    if (!dragging || e.touches.length !== 1) return;
+    panX = dragStartPanX + (e.touches[0].clientX - dragStartX);
+    panY = dragStartPanY + (e.touches[0].clientY - dragStartY);
+    clampPan();
+    draw();
+  }, { passive: true });
+
+  canvas.addEventListener('touchend', function (e) {
+    if (!dragging) return;
+    const t = e.changedTouches[0];
+    const moved = t ? Math.hypot(t.clientX - dragStartX, t.clientY - dragStartY) > 8 : true;
+    dragging = false;
+    if (!moved) clickAt(t.clientX, t.clientY);
+  });
+
+  // Season buttons
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentSeason = this.dataset.season;
+      panX = 0;
+      panY = 0;
+      layout();
+      draw();
+      showInfo(null);
+    });
+  });
+
+  // Animation frame for twinkling stars
+  function animate() {
+    draw();
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  animate();
+})();
+</script>
+
+</body>
+</html>

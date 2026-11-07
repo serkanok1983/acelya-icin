@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Yol Bulma Algoritmaları</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; min-height: 100dvh;
+      background: var(--bg-deep); color: var(--text);
+      font-family: var(--font);
+    }
+    body { display: flex; flex-direction: column; padding-top: 0; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .hud h1 { margin: 0 0 6px; font-size: clamp(1.05rem, 4vw, 1.4rem); font-weight: 600; }
+    .stats {
+      display: flex; gap: 18px; justify-content: center; flex-wrap: wrap;
+      font-size: clamp(0.72rem, 2.8vw, 0.88rem); color: var(--text-muted);
+    }
+    .stats span { color: var(--accent); font-weight: 600; }
+    .stage {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px;
+    }
+    #gridCanvas {
+      display: block;
+      width: min(100%, 90vw, 560px);
+      height: min(100%, 90vw, 560px);
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: 0 0 0 1px var(--border);
+      cursor: pointer;
+      touch-action: none;
+    }
+    .controls {
+      flex-shrink: 0;
+      padding: 10px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border);
+      max-width: 600px; margin: 0 auto; width: 100%;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    button {
+      flex: 1; min-width: 70px; padding: 10px 12px;
+      background: var(--accent); color: var(--btn-text, #041016);
+      border: none; border-radius: var(--radius);
+      cursor: pointer; font-size: 0.84rem; font-weight: 600;
+      font-family: var(--font); transition: filter 0.15s;
+    }
+    button:hover { filter: brightness(1.1); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+    button.secondary { background: var(--bg-input); color: var(--text); border: 1px solid var(--border); }
+    button.accent2 { background: var(--accent-2); }
+    button.danger { background: var(--danger); }
+    .algo-row {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center;
+    }
+    .algo-btn {
+      flex: 0 0 auto; min-width: auto; padding: 8px 14px; font-size: 0.78rem;
+      background: var(--bg-input); color: var(--text-muted);
+      border: 1px solid var(--border); border-radius: var(--radius);
+    }
+    .algo-btn.active { background: var(--accent); color: var(--btn-text, #041016); border-color: var(--accent); }
+    .legend {
+      display: flex; gap: 14px; justify-content: center;
+      flex-wrap: wrap; font-size: 0.72rem; color: var(--text-muted);
+    }
+    .legend i {
+      display: inline-block; width: 12px; height: 12px;
+      border-radius: 3px; margin-right: 4px; vertical-align: middle;
+    }
+    .hint { font-size: 0.7rem; opacity: 0.5; text-align: center; margin: 6px 0 0; color: var(--text-muted); }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="yol-bulma-algoritmalari">
+
+<div class="hud">
+  <h1>Yol Bulma Algoritmaları</h1>
+  <div class="stats">
+    <span>Adım: <strong id="stepCount">0</strong></span>
+    <span>Yol Uzunluğu: <strong id="pathLength">—</strong></span>
+    <span>Algoritma: <strong id="algoName">BFS</strong></span>
+  </div>
+</div>
+
+<div class="stage">
+  <canvas id="gridCanvas" role="img" aria-label="Yol bulma ızgarası"></canvas>
+</div>
+
+<div class="controls">
+  <div class="legend">
+    <span><i style="background:#22c55e"></i>Başlangıç</span>
+    <span><i style="background:#ef4444"></i>Hedef</span>
+    <span><i style="background:#3b82f6"></i>Ziyaret Edildi</span>
+    <span><i style="background:#f59e0b"></i>Yol</span>
+    <span><i style="background:#475569"></i>Duvar</span>
+  </div>
+  <div class="algo-row" id="algoRow">
+    <button class="algo-btn active" data-algo="bfs">BFS</button>
+    <button class="algo-btn" data-algo="dijkstra">Dijkstra</button>
+    <button class="algo-btn" data-algo="astar">A*</button>
+  </div>
+  <div class="btn-row">
+    <button id="runBtn">▶ Çalıştır</button>
+    <button id="resetBtn" class="secondary">🔄 Izgarayı Sıfırla</button>
+  </div>
+  <div class="btn-row">
+    <button id="randomWallsBtn" class="secondary">🎲 Rastgele Duvar</button>
+    <button id="clearWallsBtn" class="secondary">🧹 Duvarları Temizle</button>
+  </div>
+  <p class="hint">Hücrelere tıklayarak duvar ekleyip kaldırabilirsiniz. Başlangıç ve hedef noktalarını sürükleyerek taşıyabilirsiniz.</p>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById("gridCanvas");
+  const ctx = canvas.getContext("2d");
+  const stepCountEl = document.getElementById("stepCount");
+  const pathLengthEl = document.getElementById("pathLength");
+  const algoNameEl = document.getElementById("algoName");
+  const runBtn = document.getElementById("runBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const randomWallsBtn = document.getElementById("randomWallsBtn");
+  const clearWallsBtn = document.getElementById("clearWallsBtn");
+
+  const ROWS = 20;
+  const COLS = 20;
+  let cellSize = 0;
+  let grid = [];
+  let startR = 1, startC = 1;
+  let endR = ROWS - 2, endC = COLS - 2;
+  let currentAlgo = "bfs";
+  let running = false;
+  let animTimer = null;
+  let dragMode = null; // 'start' | 'end' | null
+
+  const STATE = { EMPTY: 0, WALL: 1, START: 2, END: 3, VISITED: 4, PATH: 5 };
+  const COLORS = {
+    [STATE.EMPTY]: "rgba(30,41,59,0.6)",
+    [STATE.WALL]: "#475569",
+    [STATE.START]: "#22c55e",
+    [STATE.END]: "#ef4444",
+    [STATE.VISITED]: "#3b82f6",
+    [STATE.PATH]: "#f59e0b"
+  };
+
+  function initGrid() {
+    grid = [];
+    for (let r = 0; r < ROWS; r++) {
+      grid[r] = [];
+      for (let c = 0; c < COLS; c++) {
+        grid[r][c] = STATE.EMPTY;
+      }
+    }
+    grid[startR][startC] = STATE.START;
+    grid[endR][endC] = STATE.END;
+  }
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const size = Math.min(rect.width, rect.height);
+    canvas.width = Math.floor(size * dpr);
+    canvas.height = Math.floor(size * dpr);
+    canvas.style.width = size + "px";
+    canvas.style.height = size + "px";
+    cellSize = Math.floor(size / COLS);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const x = c * cellSize, y = r * cellSize;
+        let color = COLORS[grid[r][c]];
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, cellSize, cellSize);
+        ctx.strokeStyle = "rgba(255,255,255,0.06)";
+        ctx.strokeRect(x, y, cellSize, cellSize);
+      }
+    }
+  }
+
+  function getCell(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const c = Math.floor(x / (rect.width / COLS));
+    const r = Math.floor(y / (rect.height / ROWS));
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return null;
+    return { r, c };
+  }
+
+  function toggleWall(r, c) {
+    if (grid[r][c] === STATE.START || grid[r][c] === STATE.END) return;
+    grid[r][c] = grid[r][c] === STATE.WALL ? STATE.EMPTY : STATE.WALL;
+  }
+
+  function clearWalls() {
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (grid[r][c] === STATE.WALL) grid[r][c] = STATE.EMPTY;
+  }
+
+  function randomWalls(density = 0.3) {
+    clearWalls();
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c] === STATE.START || grid[r][c] === STATE.END) continue;
+        if (Math.random() < density) grid[r][c] = STATE.WALL;
+      }
+    }
+  }
+
+  function clearAnimation() {
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (grid[r][c] === STATE.VISITED || grid[r][c] === STATE.PATH)
+          grid[r][c] = STATE.EMPTY;
+    grid[startR][startC] = STATE.START;
+    grid[endR][endC] = STATE.END;
+  }
+
+  function resetAll() {
+    stop();
+    initGrid();
+    stepCountEl.textContent = "0";
+    pathLengthEl.textContent = "—";
+    draw();
+  }
+
+  function stop() {
+    if (animTimer) { clearTimeout(animTimer); animTimer = null; }
+    running = false;
+    runBtn.disabled = false;
+    runBtn.textContent = "▶ Çalıştır";
+  }
+
+  // ---- Algorithms ----
+  function bfs() {
+    const queue = [[startR, startC]];
+    const visited = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+    const parent = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    visited[startR][startC] = true;
+    const visitOrder = [];
+
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    while (queue.length) {
+      const [r, c] = queue.shift();
+      visitOrder.push([r, c]);
+      if (r === endR && c === endC) break;
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) continue;
+        if (visited[nr][nc] || grid[nr][nc] === STATE.WALL) continue;
+        visited[nr][nc] = true;
+        parent[nr][nc] = [r, c];
+        queue.push([nr, nc]);
+      }
+    }
+    return { visitOrder, parent };
+  }
+
+  function dijkstra() {
+    const dist = Array.from({ length: ROWS }, () => Array(COLS).fill(Infinity));
+    const visited = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+    const parent = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    dist[startR][startC] = 0;
+    const visitOrder = [];
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+
+    while (true) {
+      let minDist = Infinity, r = -1, c = -1;
+      for (let i = 0; i < ROWS; i++) {
+        for (let j = 0; j < COLS; j++) {
+          if (!visited[i][j] && grid[i][j] !== STATE.WALL && dist[i][j] < minDist) {
+            minDist = dist[i][j]; r = i; c = j;
+          }
+        }
+      }
+      if (r === -1) break;
+      visited[r][c] = true;
+      visitOrder.push([r, c]);
+      if (r === endR && c === endC) break;
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) continue;
+        if (grid[nr][nc] === STATE.WALL) continue;
+        const nd = dist[r][c] + 1;
+        if (nd < dist[nr][nc]) {
+          dist[nr][nc] = nd;
+          parent[nr][nc] = [r, c];
+        }
+      }
+    }
+    return { visitOrder, parent };
+  }
+
+  function astar() {
+    const open = [[startR, startC]];
+    const gScore = Array.from({ length: ROWS }, () => Array(COLS).fill(Infinity));
+    const parent = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    gScore[startR][startC] = 0;
+    const visitOrder = [];
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+
+    function heuristic(r, c) {
+      return Math.abs(r - endR) + Math.abs(c - endC);
+    }
+
+    while (open.length) {
+      let best = 0;
+      for (let i = 1; i < open.length; i++) {
+        const [ar, ac] = open[i];
+        const [br, bc] = open[best];
+        const fa = gScore[ar][ac] + heuristic(ar, ac);
+        const fb = gScore[br][bc] + heuristic(br, bc);
+        if (fa < fb) best = i;
+      }
+      const [r, c] = open.splice(best, 1)[0];
+      visitOrder.push([r, c]);
+      if (r === endR && c === endC) break;
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) continue;
+        if (grid[nr][nc] === STATE.WALL) continue;
+        const tg = gScore[r][c] + 1;
+        if (tg < gScore[nr][nc]) {
+          gScore[nr][nc] = tg;
+          parent[nr][nc] = [r, c];
+          if (!open.some(([or, oc]) => or === nr && oc === nc)) {
+            open.push([nr, nc]);
+          }
+        }
+      }
+    }
+    return { visitOrder, parent };
+  }
+
+  function buildPath(parent) {
+    const path = [];
+    let r = endR, c = endC;
+    while (r !== null && c !== null && !(r === startR && c === startC)) {
+      path.push([r, c]);
+      const p = parent[r][c];
+      if (!p) break;
+      [r, c] = p;
+    }
+    path.reverse();
+    return path;
+  }
+
+  function runAlgorithm() {
+    if (running) return;
+    running = true;
+    runBtn.disabled = true;
+    runBtn.textContent = "⏳ Çalışıyor...";
+    clearAnimation();
+    draw();
+
+    let result;
+    if (currentAlgo === "bfs") result = bfs();
+    else if (currentAlgo === "dijkstra") result = dijkstra();
+    else result = astar();
+
+    const { visitOrder, parent } = result;
+    const path = buildPath(parent);
+    let step = 0;
+
+    function animateVisit() {
+      if (step >= visitOrder.length) {
+        // Animate path
+        animatePath(path, 0);
+        return;
+      }
+      const [r, c] = visitOrder[step];
+      if (grid[r][c] !== STATE.START && grid[r][c] !== STATE.END) {
+        grid[r][c] = STATE.VISITED;
+      }
+      stepCountEl.textContent = step + 1;
+      draw();
+      step++;
+      animTimer = setTimeout(animateVisit, 15);
+    }
+
+    function animatePath(pathArr, idx) {
+      if (idx >= pathArr.length) {
+        pathLengthEl.textContent = pathArr.length;
+        stop();
+        return;
+      }
+      const [r, c] = pathArr[idx];
+      if (grid[r][c] !== STATE.START && grid[r][c] !== STATE.END) {
+        grid[r][c] = STATE.PATH;
+      }
+      draw();
+      animTimer = setTimeout(() => animatePath(pathArr, idx + 1), 30);
+    }
+
+    animateVisit();
+  }
+
+  // ---- Events ----
+  canvas.addEventListener("pointerdown", (e) => {
+    if (running) return;
+    const cell = getCell(e);
+    if (!cell) return;
+    const { r, c } = cell;
+    if (r === startR && c === startC) { dragMode = "start"; return; }
+    if (r === endR && c === endC) { dragMode = "end"; return; }
+    toggleWall(r, c);
+    draw();
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    if (!dragMode || running) return;
+    const cell = getCell(e);
+    if (!cell) return;
+    const { r, c } = cell;
+    if (grid[r][c] === STATE.WALL) return;
+    if (dragMode === "start") {
+      grid[startR][startC] = STATE.EMPTY;
+      startR = r; startC = c;
+      grid[r][c] = STATE.START;
+    } else if (dragMode === "end") {
+      grid[endR][endC] = STATE.EMPTY;
+      endR = r; endC = c;
+      grid[r][c] = STATE.END;
+    }
+    draw();
+  });
+
+  canvas.addEventListener("pointerup", () => { dragMode = null; });
+  canvas.addEventListener("pointerleave", () => { dragMode = null; });
+
+  document.getElementById("algoRow").addEventListener("click", (e) => {
+    if (running) return;
+    const btn = e.target.closest(".algo-btn");
+    if (!btn) return;
+    document.querySelectorAll(".algo-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentAlgo = btn.dataset.algo;
+    algoNameEl.textContent = btn.textContent;
+    clearAnimation();
+    stepCountEl.textContent = "0";
+    pathLengthEl.textContent = "—";
+    draw();
+  });
+
+  runBtn.addEventListener("click", () => {
+    if (running) { stop(); return; }
+    runAlgorithm();
+  });
+
+  resetBtn.addEventListener("click", resetAll);
+  clearWallsBtn.addEventListener("click", () => { if (!running) { clearWalls(); clearAnimation(); stepCountEl.textContent = "0"; pathLengthEl.textContent = "—"; draw(); } });
+  randomWallsBtn.addEventListener("click", () => { if (!running) { randomWalls(); clearAnimation(); stepCountEl.textContent = "0"; pathLengthEl.textContent = "—"; draw(); } });
+
+  window.addEventListener("resize", resize);
+  initGrid();
+  resize();
+})();
+</script>
+
+</body>
+</html>

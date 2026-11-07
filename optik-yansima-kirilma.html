@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma</title>
+  <meta name="description" content="Işık camın yüzeyinde yön değiştirir, bir kısmı geri döner, belli bir açıdan sonra hiç dışarı çıkamaz. İbn Sehl'in 984'teki oranından kıtaları bağlayan cam ipliklere, kırılma ve yansımanın fiziği.">
+  <style>
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage, .side { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+      cursor: grab;
+    }
+    .lab[data-tab="fiber"] .sim-canvas { aspect-ratio: 2 / 1; }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+      cursor: crosshair;
+      touch-action: pan-y;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field label .swatch { display: inline-block; width: 12px; height: 12px; margin-right: 6px; border-radius: 50%; vertical-align: -1px; box-shadow: 0 0 0 1px var(--border); }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; cursor: pointer; }
+    .app-content button:disabled { opacity: 0.45; cursor: not-allowed; filter: none !important; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts-wrap { display: grid; gap: 10px; min-width: 0; }
+    .group { display: grid; gap: 10px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.8rem; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 38%; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    @media (max-width: 760px) {
+      .tabs { gap: 6px; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab { grid-template-columns: 1fr; gap: 12px; }
+      .lab-stage, .side { display: contents; }
+      .sim-canvas { order: 1; aspect-ratio: 4 / 3; }
+      .lab[data-tab="fiber"] .sim-canvas { aspect-ratio: 3 / 2; }
+      .side .panel { order: 2; }
+      .readouts-wrap { order: 3; }
+      .chart-canvas { order: 4; aspect-ratio: 2 / 1; }
+      .lab table.cmp { font-size: 0.8rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="optik-yansima-kirilma">
+
+<div class="app-content">
+  <h1>Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma</h1>
+  <p class="hint">Bir senaryo seç; ışık kaynağını sürükle ya da kaydırıcıları değiştir. Sınırda ışığın doğrultusunu Snell yasası (n₁ sin θ₁ = n₂ sin θ₂), yansıyan ve geçen gücü Fresnel denklemleri belirler; kritik açının ötesinde ışığın tamamı geri döner.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney senaryoları">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-arayuz" data-tab="arayuz" aria-selected="true" aria-controls="labPanel">Arayüz</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-prizma" data-tab="prizma" aria-selected="false" aria-controls="labPanel" tabindex="-1">Prizma ve dispersiyon</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-fiber" data-tab="fiber" aria-selected="false" aria-controls="labPanel" tabindex="-1">Optik fiber</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-arayuz" data-tab="arayuz">
+    <div class="lab-stage">
+      <canvas id="stageCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Sahne"></canvas>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="300" role="img" aria-label="Grafik"></canvas>
+
+      <div class="readouts-wrap" aria-live="polite">
+        <div class="group" data-for="arayuz">
+          <div class="cards">
+            <div class="readout"><small>Geliş açısı θ₁</small><strong id="aTh1">—</strong></div>
+            <div class="readout"><small>Yansıma açısı θ₁′ (çizimden)</small><strong id="aTh1r">—</strong></div>
+            <div class="readout is-highlight"><small>Kırılma açısı θ₂ (çizimden)</small><strong id="aTh2">—</strong></div>
+            <div class="readout"><small>R<sub>s</sub>: s kutuplu ışığın yansıyan payı</small><strong id="aRs">—</strong></div>
+            <div class="readout"><small>R<sub>p</sub>: p kutuplu ışığın yansıyan payı</small><strong id="aRp">—</strong></div>
+            <div class="readout is-highlight"><small>R = (R<sub>s</sub> + R<sub>p</sub>)/2, kutuplanmamış</small><strong id="aR">—</strong></div>
+            <div class="readout"><small>T = 1 − R, geçen pay</small><strong id="aT">—</strong></div>
+            <div class="readout"><small>Brewster açısı θ<sub>B</sub> = arctan(n₂/n₁)</small><strong id="aThB">—</strong></div>
+            <div class="readout"><small>Kritik açı θ<sub>c</sub> = arcsin(n₂/n₁)</small><strong id="aThC">—</strong></div>
+            <div class="readout"><small>Dik gelişte R₀ = ((n₁ − n₂)/(n₁ + n₂))²</small><strong id="aR0">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Arayüz: çizimden ve eğrilerden ölçülen değerler ile kapalı formüller</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Kırılma açısı θ₂: Fermat çizimi ile Snell</th><td id="aTh2m">—</td><td id="aTh2t">—</td><td id="aTh2d" class="diff">—</td></tr>
+              <tr><th scope="row">Geçen güç: t katsayılarından akı ile 1 − R</th><td id="aTm">—</td><td id="aTt">—</td><td id="aTd" class="diff">—</td></tr>
+              <tr><th scope="row">θ<sub>B</sub>: R<sub>p</sub> eğrisinin sıfırı ile arctan(n₂/n₁)</th><td id="aBm">—</td><td id="aBt">—</td><td id="aBd" class="diff">—</td></tr>
+              <tr><th scope="row">θ<sub>c</sub>: T'nin sıfıra indiği açı ile arcsin(n₂/n₁)</th><td id="aCm">—</td><td id="aCt">—</td><td id="aCd" class="diff">—</td></tr>
+              <tr><th scope="row">R₀: Fresnel (θ₁ = 0) ile ((n₁ − n₂)/(n₁ + n₂))²</th><td id="aR0m">—</td><td id="aR0t">—</td><td id="aR0d" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Ölçülen θ₂, Fermat ilkesiyle bulunan ve sahnede çizilen ışından okunur. Geçen güç, iletim katsayılarından enerji akısı olarak hesaplanır: T<sub>s,p</sub> = (n₂cosθ₂)/(n₁cosθ₁)·t<sub>s,p</sub>². θ<sub>B</sub> ve θ<sub>c</sub> grafikteki eğrilerden sayısal aramayla bulunur.</p>
+          <p class="status" id="aStatus"></p>
+        </div>
+
+        <div class="group" data-for="prizma" hidden>
+          <div class="cards">
+            <div class="readout is-highlight"><small id="bNLabel">n(λ), Sellmeier</small><strong id="bN">—</strong></div>
+            <div class="readout"><small>n<sub>F</sub> (486.1 nm, mavi)</small><strong id="bNF">—</strong></div>
+            <div class="readout"><small>n<sub>d</sub> (587.6 nm, sarı)</small><strong id="bND">—</strong></div>
+            <div class="readout"><small>n<sub>C</sub> (656.3 nm, kırmızı)</small><strong id="bNC">—</strong></div>
+            <div class="readout"><small>İçeride kırılma θ₂ / ikinci yüzde geliş θ₃</small><strong id="bTh23">—</strong></div>
+            <div class="readout"><small>Çıkış açısı θ₄</small><strong id="bTh4">—</strong></div>
+            <div class="readout is-highlight"><small>Sapma açısı δ = θ₁ + θ₄ − A</small><strong id="bDelta">—</strong></div>
+            <div class="readout"><small>Çıkış için en küçük θ₁</small><strong id="bLim">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Prizma: ışın izlemeden ölçülen değerler ile kapalı formüller</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Sapma δ (şimdi): çizim ile formül</th><td id="bDm">—</td><td id="bDt">—</td><td id="bDd" class="diff">—</td></tr>
+              <tr><th scope="row">En küçük sapma δ<sub>min</sub>: eğri ile 2 arcsin(n sin(A/2)) − A</th><td id="bMm">—</td><td id="bMt">—</td><td id="bMd" class="diff">—</td></tr>
+              <tr><th scope="row">δ<sub>min</sub>'deki θ₁: eğri ile arcsin(n sin(A/2))</th><td id="bTm">—</td><td id="bTt">—</td><td id="bTd" class="diff">—</td></tr>
+              <tr><th scope="row">n = sin((A + δ<sub>min</sub>)/2)/sin(A/2) ile Sellmeier</th><td id="bRm">—</td><td id="bRt">—</td><td id="bRd" class="diff">—</td></tr>
+              <tr><th scope="row">Aynı yöntem, δ<sub>min</sub> 1′ duyarlıkla okunursa</th><td id="bQm">—</td><td id="bQt">—</td><td id="bQd" class="diff">—</td></tr>
+              <tr><th scope="row">Renk ayrımı δ<sub>F</sub> − δ<sub>C</sub> (şimdi): çizim ile formül</th><td id="bSm">—</td><td id="bSt">—</td><td id="bSd" class="diff">—</td></tr>
+              <tr><th scope="row">Abbe sayısı V<sub>d</sub>: Sellmeier ile katalog</th><td id="bVm">—</td><td id="bVt">—</td><td id="bVd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Ölçülen sapma, ışının prizmaya giren ve çıkan doğrultuları arasındaki açıdır; ışın her yüzde vektör biçimli Snell yasasıyla izlenir. δ<sub>min</sub> bu izlenen δ(θ₁) eğrisinin en küçüğünün sayısal aramasıdır. 1′ = 1/60°.</p>
+          <p class="status" id="bStatus"></p>
+        </div>
+
+        <div class="group" data-for="fiber" hidden>
+          <div class="cards">
+            <div class="readout"><small>Kritik açı θ<sub>c</sub> = arcsin(n₂/n₁), çekirdek–kılıf</small><strong id="cThC">—</strong></div>
+            <div class="readout is-highlight"><small>Sayısal açıklık NA = √(n₁² − n₂²)</small><strong id="cNA">—</strong></div>
+            <div class="readout is-highlight"><small>Kabul yarı açısı θ<sub>a</sub> = arcsin(NA/n₀)</small><strong id="cThA">—</strong></div>
+            <div class="readout"><small>Çekirdekte eksenle açı θ<sub>r</sub></small><strong id="cThR">—</strong></div>
+            <div class="readout"><small>Sınırda geliş açısı φ = 90° − θ<sub>r</sub></small><strong id="cPhi">—</strong></div>
+            <div class="readout"><small>Durum: φ ≥ θ<sub>c</sub> ise kılavuzlanır</small><strong id="cState">—</strong></div>
+            <div class="readout"><small>Giriş yüzünde yansıyan pay</small><strong id="cRin">—</strong></div>
+            <div class="readout"><small>1 m sonra kalan güç</small><strong id="cP1">—</strong></div>
+            <div class="readout"><small>En dik kılavuzlanan ışının gecikmesi n₁(n₁ − n₂)/(c·n₂)</small><strong id="cTmax">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Optik fiber: 1 m boyunca izlenen ışından ölçülenler ile geometri formülleri</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Metre başına yansıma: sayım ile tan θ<sub>r</sub>/d</th><td id="cNm">—</td><td id="cNt">—</td><td id="cNd" class="diff">—</td></tr>
+              <tr><th scope="row">1 m fiberde ışının yolu: iz ile 1/cos θ<sub>r</sub></th><td id="cLm">—</td><td id="cLt">—</td><td id="cLd" class="diff">—</td></tr>
+              <tr><th scope="row">Eksenel ışına göre gecikme: iz ile (n₁/c)(1/cos θ<sub>r</sub> − 1)</th><td id="cDm">—</td><td id="cDt">—</td><td id="cDd" class="diff">—</td></tr>
+              <tr><th scope="row">Kabul yarı açısı: izden arama ile arcsin(NA/n₀)</th><td id="cAm">—</td><td id="cAt">—</td><td id="cAd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Ölçülenler, giriş noktasından (eksenin ortası) başlatılan ışının 1 m boyunca adım adım izlenmesinden gelir: çarpmalar tek tek sayılır, parça uzunlukları toplanır. Kabul açısı, izleyicinin "tam iç yansıma var mı" yanıtı üzerinden ikiye bölme aramasıyla bulunur.</p>
+          <p class="status" id="cStatus"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="panel" data-for="arayuz" role="group" aria-labelledby="ttlA">
+        <h2 id="ttlA">Ortamlar ve ışın</h2>
+        <div class="field">
+          <label for="m1Select"><span class="lt">Üst ortam (ışığın geldiği)</span><output id="m1Out" for="m1Select">n₁ = 1.000293</output></label>
+          <select id="m1Select">
+            <option value="hava" selected>Hava · 1.000293</option>
+            <option value="su">Su · 1.333</option>
+            <option value="buz">Buz · 1.31</option>
+            <option value="pmma">Akrilik (PMMA) · 1.4905</option>
+            <option value="bk7">BK7 camı · 1.5168</option>
+            <option value="elmas">Elmas · 2.417</option>
+            <option value="ozel">Özel (kaydırıcıdan)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="n1Range"><span class="lt">Kırılma indisi n₁</span><output id="n1Out" for="n1Range">1.000293</output></label>
+          <input type="range" id="n1Range" min="1" max="2.6" step="0.001" value="1">
+        </div>
+        <div class="field">
+          <label for="m2Select"><span class="lt">Alt ortam</span><output id="m2Out" for="m2Select">n₂ = 1.5168</output></label>
+          <select id="m2Select">
+            <option value="hava">Hava · 1.000293</option>
+            <option value="su">Su · 1.333</option>
+            <option value="buz">Buz · 1.31</option>
+            <option value="pmma">Akrilik (PMMA) · 1.4905</option>
+            <option value="bk7" selected>BK7 camı · 1.5168</option>
+            <option value="elmas">Elmas · 2.417</option>
+            <option value="ozel">Özel (kaydırıcıdan)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="n2Range"><span class="lt">Kırılma indisi n₂</span><output id="n2Out" for="n2Range">1.5168</output></label>
+          <input type="range" id="n2Range" min="1" max="2.6" step="0.001" value="1.517">
+        </div>
+        <div class="field">
+          <label for="thetaRange"><span class="lt">Geliş açısı θ₁</span><output id="thetaOut" for="thetaRange">45.00°</output></label>
+          <input type="range" id="thetaRange" min="0" max="89.9" step="0.1" value="45">
+        </div>
+        <div class="field">
+          <label for="polSelect"><span class="lt">Gelen ışığın kutuplanması</span><output id="polOut" for="polSelect">R = 5.25 %</output></label>
+          <select id="polSelect">
+            <option value="u" selected>Kutuplanmamış (doğal ışık)</option>
+            <option value="s">s kutuplu: elektrik alanı yüzeye paralel</option>
+            <option value="p">p kutuplu: elektrik alanı geliş düzleminde</option>
+          </select>
+        </div>
+        <label class="check" for="waveCheck"><input type="checkbox" id="waveCheck" checked> Dalga cepheleri (animasyon)</label>
+        <label class="check" for="fermatCheck"><input type="checkbox" id="fermatCheck"> Fermat: komşu yolları ve fazla optik yollarını göster</label>
+        <div class="row">
+          <button type="button" id="swapBtn" class="app-btn-ghost">Ortamları değiştir</button>
+          <button type="button" id="normalBtn" class="app-btn-ghost">Dik geliş</button>
+          <button type="button" id="brewsterBtn" class="app-btn-ghost">Brewster açısına git</button>
+          <button type="button" id="criticalBtn" class="app-btn-ghost">Kritik açıya git</button>
+        </div>
+        <div class="row">
+          <button type="button" id="pauseA" class="app-btn-ghost" aria-pressed="false">Duraklat</button>
+          <button type="button" id="resetA" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">Işık kaynağını iletkinin üst yarısında sürükle ya da grafikte bir açıya dokun. Demetlerin kalınlığı taşıdıkları güçle orantılıdır; zayıf demetlerdeki ince çizgi yalnızca görünsün diye çizilir. Dalga cepheleri arasındaki uzaklık λ/n'dir: frekans aynı kalır, yoğun ortamda ışık yavaşlar ve dalga boyu kısalır; cepheler sınırda kesintisizdir (ölçekli değil).</p>
+        <p class="note">Kırılan ışın Snell formülüyle çizilmez: sayfa, kaynaktan iletki çemberindeki bir noktaya giden ve optik yolu n₁|SP| + n₂|PD| en kısa olan yolu sayısal olarak arar (Fermat ilkesi). θ₂ bu çizimden ölçülür; iletkinin yarıçapı 10 cm alınmıştır.</p>
+        <p class="note">Kırılma indisleri sodyum D çizgisi (589 nm) içindir: hava 1.000293 (0 °C, 1 atm), su 1.333 (20 °C), buz 1.31, akrilik 1.4905, BK7 1.5168 (SCHOTT N-BK7, 587.6 nm), elmas 2.417. Fresnel denklemleri soğurmayan, manyetik olmayan ortamlar içindir: R<sub>s</sub> = ((n₁cosθ₁ − n₂cosθ₂)/(n₁cosθ₁ + n₂cosθ₂))², R<sub>p</sub> = ((n₂cosθ₁ − n₁cosθ₂)/(n₂cosθ₁ + n₁cosθ₂))².</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> animasyonu duraklatır, <kbd>R</kbd> sıfırlar.</p>
+      </div>
+
+      <div class="panel" data-for="prizma" role="group" aria-labelledby="ttlB" hidden>
+        <h2 id="ttlB">Prizma ve ışık</h2>
+        <div class="field">
+          <label for="glassSelect"><span class="lt">Cam</span><output id="glassOut" for="glassSelect">n<sub>d</sub> = 1.51680</output></label>
+          <select id="glassSelect">
+            <option value="bk7" selected>N-BK7 · taç camı</option>
+            <option value="silika">Erimiş silika (SiO₂)</option>
+            <option value="f2">F2 · çakmaktaşı camı</option>
+            <option value="sf11">N-SF11 · yoğun çakmaktaşı camı</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="apexRange"><span class="lt">Tepe açısı A</span><output id="apexOut" for="apexRange">60.0°</output></label>
+          <input type="range" id="apexRange" min="20" max="75" step="0.5" value="60">
+        </div>
+        <div class="field">
+          <label for="th1bRange"><span class="lt">İlk yüzde geliş açısı θ₁</span><output id="th1bOut" for="th1bRange">50.00°</output></label>
+          <input type="range" id="th1bRange" min="0" max="89.9" step="0.1" value="50">
+        </div>
+        <div class="field">
+          <label for="lightSelect"><span class="lt">Işık</span><output id="lightOut" for="lightSelect">400–700 nm</output></label>
+          <select id="lightSelect">
+            <option value="white" selected>Beyaz ışık (31 dalga boyu)</option>
+            <option value="mono">Tek dalga boyu</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="lambdaRange"><span class="lt">İncelenen dalga boyu λ</span><output id="lambdaOut" for="lambdaRange"><i class="swatch" id="lambdaSwatch" aria-hidden="true"></i>587.6 nm</output></label>
+          <input type="range" id="lambdaRange" min="380" max="750" step="0.1" value="587.6">
+        </div>
+        <div class="row" role="group" aria-label="Fraunhofer çizgileri">
+          <button type="button" class="app-btn-ghost" data-line="F">F · 486.1 nm</button>
+          <button type="button" class="app-btn-ghost" data-line="d">d · 587.6 nm</button>
+          <button type="button" class="app-btn-ghost" data-line="C">C · 656.3 nm</button>
+        </div>
+        <div class="row">
+          <button type="button" id="minDevBtn">En küçük sapmaya getir</button>
+          <button type="button" id="resetB" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">Beyaz ışıkta bütün renkler çizilir; ölçümler ve δ yayı incelenen dalga boyuna aittir. Kaynağı sürükleyerek ya da grafikte tıklayarak θ₁'i değiştir. Spektrometre yöntemi: prizmayı döndürüp sapmanın en küçük olduğu konumu bul; o anda ışın prizmanın içinde tabana paralel ilerler ve n = sin((A + δ<sub>min</sub>)/2)/sin(A/2) olur.</p>
+        <p class="note">Sellmeier denklemi: n²(λ) = 1 + Σ B<sub>i</sub>λ²/(λ² − C<sub>i</sub>), λ mikrometre. N-BK7 için B = 1.03961212, 0.231792344, 1.01046945 ve C = 0.00600069867, 0.0200179144, 103.560653 µm² (SCHOTT veri föyü). F2 ve N-SF11: SCHOTT; erimiş silika: Malitson (1965). Katsayılar havaya göre indis verir; prizma havadadır. Abbe sayısı V<sub>d</sub> = (n<sub>d</sub> − 1)/(n<sub>F</sub> − n<sub>C</sub>): büyükse renkler az ayrılır.</p>
+        <p class="note">Kısayol: <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="fiber" role="group" aria-labelledby="ttlC" hidden>
+        <h2 id="ttlC">Fiber ve ışın</h2>
+        <div class="field">
+          <label for="n1fRange"><span class="lt">Çekirdeğin kırılma indisi n₁</span><output id="n1fOut" for="n1fRange">1.480</output></label>
+          <input type="range" id="n1fRange" min="1.4" max="1.7" step="0.001" value="1.48">
+        </div>
+        <div class="field">
+          <label for="n2fRange"><span class="lt">Kılıfın kırılma indisi n₂</span><output id="n2fOut" for="n2fRange">1.460</output></label>
+          <input type="range" id="n2fRange" min="1.3" max="1.699" step="0.001" value="1.46">
+        </div>
+        <div class="field">
+          <label for="th0Range"><span class="lt">Havadan giriş açısı θ₀</span><output id="th0Out" for="th0Range">10.0°</output></label>
+          <input type="range" id="th0Range" min="0" max="80" step="0.1" value="10">
+        </div>
+        <div class="field">
+          <label for="coreSelect"><span class="lt">Çekirdek çapı d</span><output id="coreOut" for="coreSelect">50 µm</output></label>
+          <select id="coreSelect">
+            <option value="50" selected>50 µm · çok modlu cam (50/125)</option>
+            <option value="62.5">62.5 µm · çok modlu cam (62.5/125)</option>
+            <option value="200">200 µm · kalın çekirdekli silika</option>
+            <option value="980">980 µm · plastik fiber (POF)</option>
+          </select>
+        </div>
+        <label class="check" for="pulseCheck"><input type="checkbox" id="pulseCheck" checked> Işık atmaları: eksenel ışınla yarış (animasyon)</label>
+        <div class="row">
+          <button type="button" id="typicalBtn" class="app-btn-ghost">Tipik cam fiber: 1.48 / 1.46</button>
+          <button type="button" id="pauseC" class="app-btn-ghost" aria-pressed="false">Duraklat</button>
+          <button type="button" id="resetC" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">Adım indisli düz fiber ve eksenden geçen (meridyen) ışınlar. Giriş yüzünde n₀ sin θ₀ = n₁ sin θ<sub>r</sub> (n₀ = 1.000293); ışın çekirdek–kılıf sınırına φ = 90° − θ<sub>r</sub> açısıyla çarpar. φ > θ<sub>c</sub> ise her çarpmada tam iç yansıma olur; sınır durumu NA = n₀ sin θ<sub>a</sub> = √(n₁² − n₂²) verir. Lazeri sürükle ya da grafikte bir açıya dokun.</p>
+        <p class="note">Sızan ışında her çarpmada kılıfa geçen pay Fresnel denklemlerinden hesaplanır; s ve p bileşenleri ayrı izlenir, giriş yüzündeki yansıma da sayılır. Soğurma, saçılma ve bükülme kayıpları yok sayıldı; kılıfa geçen ışığı dış kaplama soğurur. Çekirdek ölçeklidir; kılıf kalınlığı her seçenekte 50/125 µm fiberdeki orana göre çizilir.</p>
+        <p class="note">İki atma aynı hızla (c/n₁) ilerler; zikzak çizen ışının yolu daha uzun olduğu için eksenel atma öne geçer. Kipler arası dağılmanın kaynağı budur. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  /* ── FİZİK (doğrulama betiği bu bloğu ayıklar) ── */
+  // >>> PHYS
+  const PHYS = (() => {
+    const C0 = 299792458;            // m/s, ışık hızı (tanım)
+    const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+    /* Kırılma indisleri, sodyum D çizgisi civarında (589 nm):
+       hava 1.000293   0 °C, 101.325 kPa (15 °C'de 1.000277); Wikipedia "Refractive index" tablosu
+       su 1.333        20 °C, 589 nm (1.3330); Wikipedia "List of refractive indices"
+       buz 1.31        buz Ih, 589 nm; aynı liste
+       akrilik 1.4905  PMMA, 589.3 nm; Wikipedia "Poly(methyl methacrylate)"
+       BK7 1.5168      SCHOTT N-BK7, n_d (587.56 nm) = 1.51680; SCHOTT veri föyü (havaya göre)
+       elmas 2.417     589 nm; Wikipedia "List of refractive indices" */
+    const MEDIA = {
+      hava: { name: "Hava", n: 1.000293, label: "1.000293" },
+      su: { name: "Su", n: 1.333, label: "1.333" },
+      buz: { name: "Buz", n: 1.31, label: "1.31" },
+      pmma: { name: "Akrilik (PMMA)", n: 1.4905, label: "1.4905" },
+      bk7: { name: "BK7 camı", n: 1.5168, label: "1.5168" },
+      elmas: { name: "Elmas", n: 2.417, label: "2.417" },
+    };
+    const N_AIR = 1.000293;
+    const LAMBDA_NA = 589.3e-9;      // m, sodyum D1 ve D2 çizgilerinin ortası
+
+    /* Fresnel denklemleri (soğurmasız, manyetik olmayan ortamlar), θ radyan.
+       R = (Rs + Rp)/2 kutuplanmamış ışık; T akı olarak (n₂cosθ₂/n₁cosθ₁)·t² */
+    function fresnel(n1, n2, th) {
+      const s1 = Math.sin(th), c1 = Math.cos(th), st = (n1 / n2) * s1;
+      if (st >= 1) return { tir: true, rs: 1, rp: 1, ts: 0, tp: 0, Rs: 1, Rp: 1, R: 1, Ts: 0, Tp: 0, T: 0, thT: NaN };
+      const ct = Math.sqrt(1 - st * st);
+      const rs = (n1 * c1 - n2 * ct) / (n1 * c1 + n2 * ct);
+      const rp = (n2 * c1 - n1 * ct) / (n2 * c1 + n1 * ct);
+      const ts = (2 * n1 * c1) / (n1 * c1 + n2 * ct);
+      const tp = (2 * n1 * c1) / (n2 * c1 + n1 * ct);
+      const k = c1 > 1e-12 ? (n2 * ct) / (n1 * c1) : 0;
+      const Rs = rs * rs, Rp = rp * rp, Ts = k * ts * ts, Tp = k * tp * tp;
+      return { tir: false, rs, rp, ts, tp, Rs, Rp, R: (Rs + Rp) / 2, Ts, Tp, T: (Ts + Tp) / 2, thT: Math.asin(st) };
+    }
+    const snell = (n1, n2, th) => { const s = (n1 / n2) * Math.sin(th); return s > 1 ? NaN : Math.asin(s); };
+    const brewster = (n1, n2) => Math.atan(n2 / n1);
+    const critical = (n1, n2) => (n1 > n2 ? Math.asin(n2 / n1) : NaN);
+    const r0 = (n1, n2) => ((n1 - n2) / (n1 + n2)) ** 2;
+    // Tam iç yansımada sönümlenen dalganın genliğinin 1/e'ye indiği uzaklık
+    function evanescentDepth(n1, n2, th, lam0) {
+      const q = (n1 * Math.sin(th)) ** 2 - n2 * n2;
+      return q > 0 ? lam0 / (2 * Math.PI * Math.sqrt(q)) : Infinity;
+    }
+
+    // Altın oran araması: [lo, hi] aralığında tek çukurlu f'nin en küçüğü
+    function golden(f, lo, hi, it = 100) {
+      const g = 0.3819660112501051;
+      let a = lo, b = hi, x1 = a + g * (b - a), x2 = b - g * (b - a), f1 = f(x1), f2 = f(x2);
+      for (let i = 0; i < it; i++) {
+        if (f1 < f2) { b = x2; x2 = x1; f2 = f1; x1 = a + g * (b - a); f1 = f(x1); }
+        else { a = x1; x1 = x2; f1 = f2; x2 = b - g * (b - a); f2 = f(x2); }
+      }
+      return (a + b) / 2;
+    }
+
+    /* Fermat ilkesi: S kaynağından (ortam 1) D noktasına (ortam 2) giden ışık, sınırı
+       optik yolu n₁|SP| + n₂|PD| en küçük yapan P = (x, 0) noktasında keser.
+       Kaynak birim çemberde θ₁ açısında; alt yarı çemberde hangi D(φ) için yol O'dan geçer? O φ, θ₂'dir. */
+    const opl = (n1, n2, S, D, x) => n1 * Math.hypot(x - S[0], S[1]) + n2 * Math.hypot(D[0] - x, D[1]);
+    const fermatCross = (n1, n2, S, D) => golden((x) => opl(n1, n2, S, D, x), Math.min(S[0], D[0]), Math.max(S[0], D[0]), 100);
+    function fermatTheta2(n1, n2, th1) {
+      const S = [-Math.sin(th1), Math.cos(th1)];
+      const cross = (p) => fermatCross(n1, n2, S, [Math.sin(p), -Math.cos(p)]);
+      let lo = 0, hi = Math.PI / 2 - 1e-9;
+      if (cross(lo) >= 0) return 0;
+      if (cross(hi) <= 0) return NaN;   // O'dan geçip ortam 2'ye ulaşan yol yok: tam iç yansıma
+      for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (cross(m) < 0) lo = m; else hi = m; }
+      return (lo + hi) / 2;
+    }
+
+    /* Sellmeier: n²(λ) = 1 + Σ Bᵢλ²/(λ² − Cᵢ), λ µm, Cᵢ µm². Havaya göre (bağıl) indis.
+       N-BK7, F2, N-SF11: SCHOTT optik cam veri föyleri. Erimiş silika: I. H. Malitson,
+       J. Opt. Soc. Am. 55, 1205 (1965), Cᵢ = λᵢ², λᵢ = 0.0684043, 0.1162414, 9.896161 µm.
+       cat: katalogdaki n_d ve V_d (SCHOTT); silika için katalog karşılaştırması yok. */
+    const GLASSES = {
+      bk7: { name: "N-BK7", B: [1.03961212, 0.231792344, 1.01046945], C: [0.00600069867, 0.0200179144, 103.560653], cat: { nd: 1.5168, vd: 64.17 } },
+      silika: { name: "Erimiş silika", B: [0.6961663, 0.4079426, 0.8974794], C: [0.0684043 ** 2, 0.1162414 ** 2, 9.896161 ** 2], cat: null },
+      f2: { name: "F2", B: [1.34533359, 0.209073176, 0.937357162], C: [0.00997743871, 0.0470450767, 111.886764], cat: { nd: 1.62004, vd: 36.37 } },
+      sf11: { name: "N-SF11", B: [1.73759695, 0.313747346, 1.89878101], C: [0.013188707, 0.0623068142, 155.23629], cat: { nd: 1.78472, vd: 25.68 } },
+    };
+    // Fraunhofer çizgileri, nm: F = H-β, d = He, C = H-α
+    const LINES = { F: 486.1327, d: 587.5618, C: 656.2725 };
+    function sellmeier(key, nm) {
+      const g = GLASSES[key], l2 = (nm / 1000) ** 2;
+      let s = 1;
+      for (let i = 0; i < 3; i++) s += (g.B[i] * l2) / (l2 - g.C[i]);
+      return Math.sqrt(s);
+    }
+    function abbe(key) {
+      const nd = sellmeier(key, LINES.d), nF = sellmeier(key, LINES.F), nC = sellmeier(key, LINES.C);
+      return { nd, nF, nC, vd: (nd - 1) / (nF - nC) };
+    }
+
+    /* 2B ışın izleme: vektör biçimli Snell yasası. nrm, d'ye karşı yönlü birim normal; eta = n_geliş/n_çıkış */
+    const dot = (a, b) => a[0] * b[0] + a[1] * b[1];
+    const crossz = (a, b) => a[0] * b[1] - a[1] * b[0];
+    function refractV(d, nrm, eta) {
+      const ci = -dot(nrm, d), k = 1 - eta * eta * (1 - ci * ci);
+      if (k < 0) return null;
+      const a = eta * ci - Math.sqrt(k);
+      return [eta * d[0] + a * nrm[0], eta * d[1] + a * nrm[1]];
+    }
+    const reflectV = (d, nrm) => { const c = dot(d, nrm); return [d[0] - 2 * c * nrm[0], d[1] - 2 * c * nrm[1]]; };
+
+    /* Prizma: eğik kenarları 1 birim, tepe P = (0, 0), taban aşağıda. Yüz 1 solda, yüz 2 sağda, 0 taban.
+       Gelen ışın yüz 1'e, tepeden kenar boyunun 0.45'i kadar aşağıda çarpar. */
+    function prismGeom(A) {
+      const h = A / 2, s = Math.sin(h), c = Math.cos(h);
+      const P = [0, 0], BL = [-s, -c], BR = [s, -c];
+      return { P, BL, BR, faces: [
+        { a: BL, b: P, n: [-c, s], id: 1 },
+        { a: P, b: BR, n: [c, s], id: 2 },
+        { a: BR, b: BL, n: [0, -1], id: 0 },
+      ] };
+    }
+    const HIT_F = 0.45;
+    function prismTrace(A, n, th1) {
+      const G = prismGeom(A);
+      const M1 = [G.BL[0] * HIT_F, G.BL[1] * HIT_F];
+      const ang = th1 - A / 2;
+      const din = [Math.cos(ang), Math.sin(ang)];
+      const res = { M1, din, pts: [M1], dout: null, exitFace: -1, tir: 0, delta: NaN };
+      let d = refractV(din, G.faces[0].n, 1 / n), p = M1;
+      for (let k = 0; d && k < 8; k++) {
+        let best = null;
+        for (const f of G.faces) {
+          const e = [f.b[0] - f.a[0], f.b[1] - f.a[1]], den = crossz(d, e);
+          if (Math.abs(den) < 1e-15) continue;
+          const w = [f.a[0] - p[0], f.a[1] - p[1]];
+          const t = crossz(w, e) / den, u = crossz(w, d) / den;
+          if (t > 1e-9 && u >= -1e-12 && u <= 1 + 1e-12 && (!best || t < best.t)) best = { t, f };
+        }
+        if (!best) break;
+        p = [p[0] + best.t * d[0], p[1] + best.t * d[1]];
+        res.pts.push(p);
+        const nin = [-best.f.n[0], -best.f.n[1]];
+        const out = refractV(d, nin, n);
+        if (out) { res.dout = out; res.exitFace = best.f.id; break; }
+        d = reflectV(d, nin);
+        res.tir++;
+      }
+      if (res.dout) res.delta = Math.atan2(-crossz(din, res.dout), dot(din, res.dout));
+      return res;
+    }
+    // Kapalı formüller: θ₂ = arcsin(sin θ₁/n), θ₃ = A − θ₂, θ₄ = arcsin(n sin θ₃), δ = θ₁ + θ₄ − A
+    function prismAngles(A, n, th1) {
+      const t2 = Math.asin(Math.sin(th1) / n), t3 = A - t2, s4 = n * Math.sin(t3);
+      return { t2, t3, t4: Math.abs(s4) > 1 ? NaN : Math.asin(s4) };
+    }
+    const prismDelta = (A, n, th1) => { const a = prismAngles(A, n, th1); return th1 + a.t4 - A; };
+    const deltaMinTh = (A, n) => { const s = n * Math.sin(A / 2); return s >= 1 ? NaN : 2 * Math.asin(s) - A; };
+    const theta1MinDev = (A, n) => { const s = n * Math.sin(A / 2); return s >= 1 ? NaN : Math.asin(s); };
+    // İkinci yüzden çıkabilmek için en küçük θ₁ (çıkışta sıyırma); A > 2θc ise hiçbir açıda çıkmaz
+    function theta1Lim(A, n) {
+      const s = n * Math.sin(A - Math.asin(1 / n));
+      return s >= 1 ? NaN : s <= 0 ? 0 : Math.asin(s);
+    }
+    function deltaMinMeasured(A, n) {
+      const lo = theta1Lim(A, n);
+      if (!Number.isFinite(lo)) return null;
+      const f = (t) => { const r = prismTrace(A, n, t); return r.exitFace === 2 && r.tir === 0 ? r.delta : 1e9; };
+      const th1 = golden(f, lo + 1e-7, Math.PI / 2 - 1e-7, 100);
+      return { th1, delta: f(th1) };
+    }
+    const nFromDeltaMin = (A, dm) => Math.sin((A + dm) / 2) / Math.sin(A / 2);
+
+    /* Adım indisli düz fiber, meridyen ışın: giriş yüzünde Snell, sonra y = ±d/2 duvarları arasında yansıma.
+       L metre boyunca izlenir: çarpmalar sayılır, yol toplanır. Güç: girişte Fresnel geçişi, her çarpmada Rs, Rp. */
+    const fiberNA = (n1, n2) => Math.sqrt(Math.max(0, n1 * n1 - n2 * n2));
+    const acceptance = (n1, n2, n0) => { const s = fiberNA(n1, n2) / n0; return s >= 1 ? Math.PI / 2 : Math.asin(s); };
+    function fiberTrace(n1, n2, n0, th0, d, L) {
+      const thr = Math.asin((n0 * Math.sin(th0)) / n1), phi = Math.PI / 2 - thr;
+      const ent = fresnel(n0, n1, th0), wall = fresnel(n1, n2, phi);
+      const a = d / 2, dx = Math.cos(thr);
+      let x = 0, y = 0, dy = -Math.sin(thr), N = 0, path = 0;
+      if (thr > 1e-12) {
+        for (;;) {
+          const yw = dy < 0 ? -a : a, t = (yw - y) / dy;
+          if (x + t * dx > L) { path += (L - x) / dx; break; }
+          x += t * dx; y = yw; path += t; N++; dy = -dy;
+        }
+      } else path = L;
+      const P = (ent.Ts * Math.pow(wall.Rs, N) + ent.Tp * Math.pow(wall.Rp, N)) / 2;
+      return { thr, phi, thc: Math.asin(n2 / n1), guided: wall.tir, N, path, ent, wall, P };
+    }
+    const modalDelay = (n1, thr) => (n1 / C0) * (1 / Math.cos(thr) - 1);     // s/m, eksenel ışına göre
+    const modalDelayMax = (n1, n2) => (n1 / C0) * (n1 / n2 - 1);              // s/m, en dik kılavuzlanan ışın
+    function acceptanceMeasured(n1, n2, n0, d) {
+      const guided = (t) => fiberTrace(n1, n2, n0, t, d, 1e-3).guided;
+      let lo = 0, hi = Math.PI / 2;
+      if (guided(hi - 1e-12)) return Math.PI / 2;
+      for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (guided(m)) lo = m; else hi = m; }
+      return (lo + hi) / 2;
+    }
+
+    return {
+      C0, D2R, R2D, MEDIA, N_AIR, LAMBDA_NA, fresnel, snell, brewster, critical, r0, evanescentDepth, golden,
+      opl, fermatCross, fermatTheta2, GLASSES, LINES, sellmeier, abbe, refractV, reflectV, prismGeom, HIT_F, prismTrace,
+      prismAngles, prismDelta, deltaMinTh, theta1MinDev, theta1Lim, deltaMinMeasured, nFromDeltaMin,
+      fiberNA, acceptance, fiberTrace, modalDelay, modalDelayMax, acceptanceMeasured,
+    };
+  })();
+  // <<< PHYS
+
+  const { D2R, R2D } = PHYS;
+
+  /* ── Biçimlendirme ── */
+  const MINUS = "−";
+  // 1e-12 payı: ikili sistemde …4999 diye saklanan değerler elle hesaptaki gibi yukarı yuvarlansın
+  function fix(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
+  }
+  function sgn(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r > 0 ? "+" : MINUS) + Math.abs(r).toFixed(d);
+  }
+  function diffPct(meas, theory) {
+    if (!Number.isFinite(meas) || !Number.isFinite(theory) || Math.abs(theory) < 1e-12) return "—";
+    return `${sgn(((meas - theory) / Math.abs(theory)) * 100, 2)} %`;
+  }
+  const deg = (r, d = 2) => (Number.isFinite(r) ? `${fix(r * R2D, d)}°` : "—");
+  const pct = (f, d = 2) => (Number.isFinite(f) ? `${fix(f * 100, d)} %` : "—");
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  function sci(x, d) {
+    const e = Math.floor(Math.log10(Math.abs(x)));
+    let m = x / 10 ** e, ee = e;
+    if (Number(m.toFixed(d)) >= 10) { m /= 10; ee += 1; }
+    return `${fix(m, d)}×10${String(ee).replace(/./g, (c) => SUP[c] || c)}`;
+  }
+  function fmtPower(P) {
+    if (!Number.isFinite(P) || P <= 0) return "≈ 0";
+    if (P >= 1e-4) return pct(P);
+    return `${sci(P * 100, 1)} %`;
+  }
+  function fmtLen(m) {
+    if (!Number.isFinite(m)) return "—";
+    if (m < 1e-6) return `${fix(m * 1e9, 0)} nm`;
+    if (m < 1e-3) return `${fix(m * 1e6, m < 1e-5 ? 2 : 1)} µm`;
+    return `${fix(m * 1e3, 2)} mm`;
+  }
+  const fmtNs = (s, d = 1) => `${fix(s * 1e9, d)} ns/km`;   // girdi: saniye/km
+
+  /* ── Ortak arayüz ── */
+  const stage = $("stageCanvas"), sg = stage.getContext("2d");
+  const chart = $("chartCanvas"), cg = chart.getContext("2d");
+  const labPanel = $("labPanel");
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((t) => t.dataset.tab);
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  const ARIA = {
+    arayuz: [
+      "İki ortamın sınırı: iletki çemberi, normal, gelen, yansıyan ve kırılan ışın demetleri; demet kalınlıkları güçle orantılı; açı yayları, Brewster ve kritik açı işaretleri",
+      "Fresnel grafiği: geliş açısına karşı Rs, Rp, kutuplanmamış R ve T = 1 − R; Brewster açısı, kritik açı ve tam iç yansıma bölgesi",
+    ],
+    prizma: [
+      "Üçgen prizma: gelen ışık, prizmanın içindeki ve çıkan renkli ışınlar, yüz normalleri, tepe açısı ve sapma açısı yayı",
+      "Sapma grafiği: ilk yüzdeki geliş açısına karşı sapma açısı; kırmızı C, sarı d ve mavi F çizgileri için eğriler, en küçük sapma noktası",
+    ],
+    fiber: [
+      "Adım indisli optik fiber: havadaki kabul konisi, giriş açısı, çekirdekte zikzak çizen ışın, kılıfa sızan ışınlar ve ışık atmaları",
+      "Fiber grafiği: giriş açısına karşı 1 m sonra kalan güç ve eksenel ışına göre gecikme; kabul açısı işareti",
+    ],
+  };
+  const S = { tab: "arayuz", paused: false, t: 0 };
+  let dirty = true, dpr = 1;
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", faint: "rgba(26,29,46,0.35)", grid: "rgba(0,0,0,0.08)", axis: "rgba(26,29,46,0.55)",
+      accent: "#0d9488", accent2: "#7c3aed", warm: "#d97706", danger: "#dc2626", blue: "#2563eb", tagBg: "rgba(255,255,255,0.92)",
+      beam: [194, 65, 12], white: [51, 65, 85], ring: "rgba(26,29,46,0.5)", edge: "rgba(26,29,46,0.7)",
+      med: { hava: [148, 163, 184], su: [2, 132, 199], buz: [8, 145, 178], pmma: [124, 58, 237], bk7: [13, 148, 136], elmas: [71, 85, 105], ozel: [100, 116, 139] },
+      medA: 0.04, medK: 0.12, spec: 0.8, aBand: 0.38, aCore: 0.95, glow: "source-over",
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", faint: "rgba(232,236,244,0.35)", grid: "rgba(255,255,255,0.08)", axis: "rgba(232,236,244,0.5)",
+      accent: "#5eead4", accent2: "#a78bfa", warm: "#fbbf24", danger: "#f87171", blue: "#60a5fa", tagBg: "rgba(8,12,22,0.85)",
+      beam: [251, 191, 36], white: [241, 245, 249], ring: "rgba(232,236,244,0.45)", edge: "rgba(203,213,225,0.8)",
+      med: { hava: [148, 163, 184], su: [56, 189, 248], buz: [165, 243, 252], pmma: [196, 181, 253], bk7: [94, 234, 212], elmas: [226, 232, 240], ozel: [148, 163, 184] },
+      medA: 0.03, medK: 0.13, spec: 1, aBand: 0.34, aCore: 0.95, glow: "lighter",
+    };
+  }
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  const font = (px, w) => `${w ? w + " " : ""}${px * dpr}px Outfit, system-ui, sans-serif`;
+
+  /* Dalga boyunun görüntü rengi: CIE 1931 renk eşleme fonksiyonlarının Wyman, Sloan ve Shirley (2013)
+     Gauss uydurması → doğrusal sRGB (D65) → gama. Ton 400–680 nm dışında sabit tutulur. */
+  function cieFit(l) {
+    const g = (x, mu, s1, s2) => { const t = (x - mu) / (x < mu ? s1 : s2); return Math.exp(-0.5 * t * t); };
+    return [
+      1.056 * g(l, 599.8, 37.9, 31.0) + 0.362 * g(l, 442.0, 16.0, 26.7) - 0.065 * g(l, 501.1, 20.4, 26.2),
+      0.821 * g(l, 568.8, 46.9, 40.5) + 0.286 * g(l, 530.9, 16.3, 31.1),
+      1.217 * g(l, 437.0, 11.8, 36.0) + 0.681 * g(l, 459.0, 26.0, 13.8),
+    ];
+  }
+  const NM_CACHE = new Map();
+  function nmRGB(nm, th) {
+    const key = `${Math.round(nm * 10)}|${th.light ? 1 : 0}`;
+    let c = NM_CACHE.get(key);
+    if (c) return c;
+    const [X, Y, Z] = cieFit(Math.min(680, Math.max(400, nm)));
+    const lin = [3.2406 * X - 1.5372 * Y - 0.4986 * Z, -0.9689 * X + 1.8758 * Y + 0.0415 * Z, 0.0557 * X - 0.204 * Y + 1.057 * Z].map((v) => Math.max(0, v));
+    const m = Math.max(lin[0], lin[1], lin[2], 1e-9);
+    c = lin.map((v) => { v = Math.min(1, v / m); return Math.round((v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055) * th.spec * 255); });
+    NM_CACHE.set(key, c);
+    return c;
+  }
+
+  function line(g, x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+  function text(g, s, x, y, color, size, align, base, weight) {
+    g.font = font(size || 11, weight);
+    g.fillStyle = color;
+    g.textAlign = align || "left";
+    g.textBaseline = base || "middle";
+    g.fillText(s, x, y);
+  }
+  function tag(g, s, x, y, color, th, size, align) {
+    g.font = font(size || 11, "600");
+    const w = g.measureText(s).width + 10 * dpr, h = (size || 11) * dpr + 8 * dpr;
+    let bx = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    bx = Math.max(2 * dpr, Math.min(bx, g.canvas.width - w - 2 * dpr));
+    const by = Math.max(2 * dpr, Math.min(y - h / 2, g.canvas.height - h - 2 * dpr));
+    g.fillStyle = th.tagBg;
+    g.beginPath(); g.roundRect(bx, by, w, h, 5 * dpr); g.fill();
+    g.fillStyle = color;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(s, bx + w / 2, by + h / 2 + 0.5 * dpr);
+    return { x: bx, y: by, w, h };
+  }
+  function dashed(g, color, w, x1, y1, x2, y2, pat) {
+    g.save();
+    g.setLineDash(pat || [5 * dpr, 4 * dpr]);
+    g.strokeStyle = color;
+    g.lineWidth = w;
+    line(g, x1, y1, x2, y2);
+    g.restore();
+  }
+  // Kısa yay: a0'dan a1'e, ±π sarmasından bağımsız
+  function arcMark(g, x, y, r, a0, a1, color, w) {
+    let d = a1 - a0;
+    d -= 2 * Math.PI * Math.round(d / (2 * Math.PI));
+    if (Math.abs(d) < 1e-4) return;
+    g.strokeStyle = color;
+    g.lineWidth = w || 1.6 * dpr;
+    g.beginPath(); g.arc(x, y, r, a0, a0 + d, d < 0); g.stroke();
+  }
+  const midAngle = (a0, a1) => { let d = a1 - a0; d -= 2 * Math.PI * Math.round(d / (2 * Math.PI)); return a0 + d / 2; };
+  function edgeT(x, y, dx, dy, W, H) {
+    let t = Infinity;
+    if (dx > 1e-12) t = Math.min(t, (W - x) / dx); else if (dx < -1e-12) t = Math.min(t, -x / dx);
+    if (dy > 1e-12) t = Math.min(t, (H - y) / dy); else if (dy < -1e-12) t = Math.min(t, -y / dy);
+    return t;
+  }
+  const BEAM_W = 12;
+  // Işın demeti: kalınlık taşıdığı güçle orantılı; ince çekirdek çizgisi görünürlük içindir
+  function beam(g, x0, y0, x1, y1, rgb, P, th, wmax) {
+    const w = (wmax || BEAM_W) * dpr * P;
+    g.lineCap = "round";
+    if (w > 0.5 * dpr) { g.strokeStyle = rgba(rgb, th.aBand); g.lineWidth = w; line(g, x0, y0, x1, y1); }
+    g.strokeStyle = rgba(rgb, th.aCore * Math.min(1, 0.35 + P));
+    g.lineWidth = Math.max(1 * dpr, w * 0.3);
+    line(g, x0, y0, x1, y1);
+    g.lineCap = "butt";
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  const tickText = (v, step) => fix(v, step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9)));
+  function legend(g, th, items, x, y) {
+    g.font = font(10);
+    g.textBaseline = "middle";
+    g.textAlign = "left";
+    for (const it of items) {
+      g.strokeStyle = it.color;
+      g.lineWidth = (it.w || 2) * dpr;
+      g.setLineDash(it.dash ? [4 * dpr, 3 * dpr] : []);
+      line(g, x, y, x + 14 * dpr, y);
+      g.setLineDash([]);
+      g.fillStyle = th.muted;
+      g.fillText(it.label, x + 18 * dpr, y);
+      x += 18 * dpr + g.measureText(it.label).width + 12 * dpr;
+    }
+  }
+  // Grafik çerçevesi: ızgara, eksen etiketleri; dönüş: piksel dönüşümleri
+  function chartFrame(g, th, o) {
+    const W = chart.width, H = chart.height, small = W < 520 * dpr;
+    const L = { W, H, small, l: (small ? 38 : 46) * dpr, r: (o.right ? (small ? 40 : 50) : 12) * dpr, t: 24 * dpr, b: 22 * dpr };
+    L.w = W - L.l - L.r;
+    L.h = H - L.t - L.b;
+    L.X = (v) => L.l + ((v - o.x0) / (o.x1 - o.x0)) * L.w;
+    L.Y = (v) => L.t + L.h - ((v - o.y0) / (o.y1 - o.y0)) * L.h;
+    L.inv = (px) => o.x0 + ((px - L.l) / L.w) * (o.x1 - o.x0);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.lineWidth = 1 * dpr;
+    g.strokeStyle = th.grid;
+    g.font = font(10);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    const xf = o.xFmt || tickText, yf = o.yFmt || tickText;
+    for (let v = Math.ceil(o.x0 / o.xStep - 1e-9) * o.xStep; v <= o.x1 + 1e-9; v += o.xStep) {
+      const x = L.X(v);
+      line(g, x, L.t, x, L.t + L.h);
+      g.fillText(xf(v, o.xStep), x, L.t + L.h + 5 * dpr);
+    }
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (let v = Math.ceil(o.y0 / o.yStep - 1e-9) * o.yStep; v <= o.y1 + 1e-9; v += o.yStep) {
+      const y = L.Y(v);
+      line(g, L.l, y, L.l + L.w, y);
+      g.fillText(yf(v, o.yStep), L.l - 5 * dpr, y);
+    }
+    if (o.right) {
+      g.textAlign = "left";
+      g.fillStyle = o.right.color;
+      for (let v = 0; v <= o.right.y1 + 1e-9; v += o.right.step) {
+        const y = L.t + L.h - (v / o.right.y1) * L.h;
+        g.fillText(tickText(v, o.right.step), L.l + L.w + 5 * dpr, y);
+      }
+    }
+    g.strokeStyle = th.axis;
+    g.lineWidth = 1.2 * dpr;
+    g.beginPath(); g.moveTo(L.l, L.t); g.lineTo(L.l, L.t + L.h); g.lineTo(L.l + L.w, L.t + L.h); g.stroke();
+    g.font = font(10, "600");
+    g.fillStyle = th.muted;
+    g.textAlign = "left";
+    g.textBaseline = "bottom";
+    g.fillText(o.xLabel, 4 * dpr, H - 3 * dpr);
+    g.textBaseline = "middle";
+    g.fillText(o.yLabel, 4 * dpr, 11 * dpr);
+    if (o.right) {
+      g.textAlign = "right";
+      g.fillStyle = o.right.color;
+      g.fillText(o.right.label, W - 4 * dpr, 11 * dpr);
+    }
+    return L;
+  }
+  const clipPlot = (g, L) => { g.save(); g.beginPath(); g.rect(L.l, L.t, L.w, L.h); g.clip(); };
+  function canvasPoint(evt, c) {
+    const r = c.getBoundingClientRect();
+    return [((evt.clientX - r.left) / r.width) * c.width, ((evt.clientY - r.top) / r.height) * c.height];
+  }
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  /* ── (a) Arayüz ── */
+  const TH_MAX = 89.9 * D2R;
+  const SA = {
+    m1: "hava", m2: "bk7", n1: 1.000293, n2: 1.5168, th: 45 * D2R, pol: "u", waves: true, fermat: false, res: null,
+    ui: {
+      m1: $("m1Select"), m1Out: $("m1Out"), n1: $("n1Range"), n1Out: $("n1Out"),
+      m2: $("m2Select"), m2Out: $("m2Out"), n2: $("n2Range"), n2Out: $("n2Out"),
+      th: $("thetaRange"), thOut: $("thetaOut"), pol: $("polSelect"), polOut: $("polOut"),
+      waves: $("waveCheck"), fermat: $("fermatCheck"), swap: $("swapBtn"), normal: $("normalBtn"),
+      brew: $("brewsterBtn"), crit: $("criticalBtn"), pause: $("pauseA"), reset: $("resetA"),
+      th1: $("aTh1"), th1r: $("aTh1r"), th2: $("aTh2"), rs: $("aRs"), rp: $("aRp"), r: $("aR"), t: $("aT"),
+      thB: $("aThB"), thC: $("aThC"), r0: $("aR0"),
+      th2m: $("aTh2m"), th2t: $("aTh2t"), th2d: $("aTh2d"), tm: $("aTm"), tt: $("aTt"), td: $("aTd"),
+      bm: $("aBm"), bt: $("aBt"), bd: $("aBd"), cm: $("aCm"), ct: $("aCt"), cd: $("aCd"),
+      r0m: $("aR0m"), r0t: $("aR0t"), r0d: $("aR0d"), status: $("aStatus"),
+    },
+  };
+  const nLabel = (key, n) => (key !== "ozel" ? PHYS.MEDIA[key].label : n.toFixed(3));
+  const mName = (key) => (key !== "ozel" ? PHYS.MEDIA[key].name : "Özel ortam");
+
+  function computeA() {
+    const { n1, n2, th } = SA;
+    const f = PHYS.fresnel(n1, n2, th);
+    const same = Math.abs(n1 - n2) < 1e-9;
+    const thC = PHYS.critical(n1, n2);
+    const thB = same ? NaN : PHYS.brewster(n1, n2);
+    const thBm = same ? NaN : PHYS.golden((x) => PHYS.fresnel(n1, n2, x).Rp, 0, Number.isFinite(thC) ? thC : Math.PI / 2 - 1e-9, 200);
+    let thCm = NaN;
+    if (n1 > n2 && !same) {
+      let lo = 0, hi = Math.PI / 2;
+      for (let i = 0; i < 64; i++) { const m = (lo + hi) / 2; if (PHYS.fresnel(n1, n2, m).T > 0) lo = m; else hi = m; }
+      thCm = (lo + hi) / 2;
+    }
+    const Pr = SA.pol === "s" ? f.Rs : SA.pol === "p" ? f.Rp : f.R;
+    const Pt = SA.pol === "s" ? f.Ts : SA.pol === "p" ? f.Tp : f.T;
+    SA.res = {
+      f, same, thC, thB, thBm, thCm, Pr, Pt,
+      th2m: PHYS.fermatTheta2(n1, n2, th), th2t: PHYS.snell(n1, n2, th),
+      R0m: PHYS.fresnel(n1, n2, 0).R, R0t: PHYS.r0(n1, n2),
+      dEv: f.tir ? PHYS.evanescentDepth(n1, n2, th, PHYS.LAMBDA_NA) : NaN,
+    };
+  }
+  function syncA() {
+    const u = SA.ui;
+    computeA();
+    u.m1.value = SA.m1;
+    u.m2.value = SA.m2;
+    setText(u.m1Out, `n₁ = ${nLabel(SA.m1, SA.n1)}`);
+    setText(u.m2Out, `n₂ = ${nLabel(SA.m2, SA.n2)}`);
+    setText(u.n1Out, nLabel(SA.m1, SA.n1));
+    setText(u.n2Out, nLabel(SA.m2, SA.n2));
+    setText(u.thOut, deg(SA.th));
+    setText(u.polOut, `R = ${pct(SA.res.Pr)}`);
+    u.crit.disabled = !(SA.n1 > SA.n2) || SA.res.same;
+    u.brew.disabled = SA.res.same;
+    dirty = true;
+  }
+  function setThetaA(rad) {
+    SA.th = clamp(rad, 0, TH_MAX);
+    SA.ui.th.value = String(Math.round(SA.th * R2D * 10) / 10);
+    syncA();
+  }
+  function setMedium(which, key) {
+    if (which === 1) { SA.m1 = key; if (key !== "ozel") { SA.n1 = PHYS.MEDIA[key].n; SA.ui.n1.value = String(SA.n1); } else SA.n1 = Number(SA.ui.n1.value); }
+    else { SA.m2 = key; if (key !== "ozel") { SA.n2 = PHYS.MEDIA[key].n; SA.ui.n2.value = String(SA.n2); } else SA.n2 = Number(SA.ui.n2.value); }
+    syncA();
+  }
+  function resetA() {
+    SA.pol = "u";
+    SA.ui.pol.value = "u";
+    SA.fermat = false;
+    SA.ui.fermat.checked = false;
+    SA.waves = !REDUCED;
+    SA.ui.waves.checked = SA.waves;
+    setMedium(1, "hava");
+    setMedium(2, "bk7");
+    setThetaA(45 * D2R);
+  }
+
+  function readoutsA() {
+    const u = SA.ui, r = SA.res, f = r.f;
+    setText(u.th1, deg(SA.th));
+    setText(u.th1r, deg(SA.th));
+    setText(u.th2, f.tir ? "yok (tam iç yansıma)" : deg(r.th2m));
+    setText(u.rs, pct(f.Rs));
+    setText(u.rp, pct(f.Rp));
+    setText(u.r, pct(f.R));
+    setText(u.t, pct(1 - f.R));
+    setText(u.thB, r.same ? "tanımsız (n₁ = n₂)" : deg(r.thB));
+    setText(u.thC, Number.isFinite(r.thC) && !r.same ? deg(r.thC) : "yok (n₁ ≤ n₂)");
+    setText(u.r0, pct(r.R0t, 3));
+    setText(u.th2m, f.tir ? "ışın yok" : deg(r.th2m, 3));
+    setText(u.th2t, f.tir ? "sin θ₂ > 1" : deg(r.th2t, 3));
+    setText(u.th2d, f.tir ? "—" : diffPct(r.th2m, r.th2t));
+    setText(u.tm, pct(f.T, 3));
+    setText(u.tt, pct(1 - f.R, 3));
+    setText(u.td, diffPct(f.T, 1 - f.R));
+    setText(u.bm, r.same ? "—" : deg(r.thBm, 3));
+    setText(u.bt, r.same ? "—" : deg(r.thB, 3));
+    setText(u.bd, r.same ? "—" : diffPct(r.thBm, r.thB));
+    const hasC = Number.isFinite(r.thC) && !r.same;
+    setText(u.cm, hasC ? deg(r.thCm, 3) : "yok");
+    setText(u.ct, hasC ? deg(r.thC, 3) : "yok");
+    setText(u.cd, hasC ? diffPct(r.thCm, r.thC) : "—");
+    setText(u.r0m, pct(r.R0m, 3));
+    setText(u.r0t, pct(r.R0t, 3));
+    setText(u.r0d, diffPct(r.R0m, r.R0t));
+    let s;
+    const nm1 = mName(SA.m1), nm2 = mName(SA.m2);
+    if (r.same) s = "İki ortamın kırılma indisi eşit: ışık sınırı fark etmez, hiç yansıma olmaz ve doğrultusu değişmez.";
+    else if (f.tir && !Number.isFinite(r.dEv)) {
+      s = `Kritik açıdasın: θ₁ = θc = ${deg(r.thC)}. Kırılan ışın sınır boyunca sıyırır (θ₂ = 90°) ve taşıdığı güç sıfıra iner; açıyı biraz daha büyütürsen tam iç yansıma başlar.`;
+    } else if (f.tir) {
+      s = `Tam iç yansıma: θ₁ = ${deg(SA.th)}, kritik açıdan (θc = ${deg(r.thC)}) büyük; gelen gücün tamamı yansır. Sınırın öbür yanında enerji taşımayan sönümlenen (evanescent) bir dalga vardır: genliği sınırdan yaklaşık ${fmtLen(r.dEv)} uzaklıkta 1/e'ye iner (λ₀ = 589 nm). Optik fiber ve elmasın parıltısı bu olaya dayanır.`;
+    } else {
+      const parts = [];
+      parts.push(SA.n2 > SA.n1
+        ? `${nm1} → ${nm2}: ışın daha yavaş ortama geçiyor ve normale yaklaşıyor (θ₂ < θ₁).`
+        : `${nm1} → ${nm2}: ışın daha hızlı ortama geçiyor ve normalden uzaklaşıyor (θ₂ > θ₁).`);
+      if (Math.abs(SA.th - r.thB) < 0.05 * D2R) parts.push("Brewster açısındasın: p kutuplu ışık hiç yansımaz, yansıyan ışık tamamen s kutupludur. Kutuplayıcı güneş gözlükleri sudan ve yoldan gelen parıltıyı bu yüzden keser.");
+      parts.push(`Yansıyan güç ${pct(f.R)} (s: ${pct(f.Rs)}, p: ${pct(f.Rp)}), geçen güç ${pct(1 - f.R)}.`);
+      if (Number.isFinite(r.thC)) parts.push(`Bu yönde kritik açı ${deg(r.thC)}: yoğun ortamın içindeki bir göz, öbür ortamın tamamını tepe açısı 2θc = ${deg(2 * r.thC, 1)} olan bir koni içinde görür (Snell penceresi).`);
+      s = parts.join(" ");
+    }
+    setText(u.status, s);
+    u.status.className = `status ${f.tir ? "is-good" : ""}`;
+  }
+
+  function layoutA() {
+    const W = stage.width, H = stage.height;
+    return { W, H, ox: W / 2, oy: H / 2, Rp: Math.min(W * 0.4, H * 0.4) };
+  }
+  // Dalga tepeleri: O'daki faz ψ; gelen demette O'ya doğru, giden demetlerde O'dan uzağa akar
+  function crests(g, ox, oy, ux, uy, len, lam, psi, incoming, half, color) {
+    const fr = psi - Math.floor(psi);
+    g.strokeStyle = color;
+    g.lineWidth = 1.5 * dpr;
+    g.beginPath();
+    for (let u = incoming ? (1 - fr) * lam : fr * lam; u <= len; u += lam) {
+      const cx = ox + ux * u, cy = oy + uy * u;
+      g.moveTo(cx - uy * half, cy + ux * half);
+      g.lineTo(cx + uy * half, cy - ux * half);
+    }
+    g.stroke();
+  }
+  function mediumFill(key, n, th) {
+    return rgba(th.med[key], Math.min(0.32, th.medA + th.medK * Math.max(0, n - 1)));
+  }
+
+  function drawA() {
+    const th = theme(), g = sg, L = layoutA(), r = SA.res, f = r.f, { ox, oy, Rp, W, H } = L;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = mediumFill(SA.m1, SA.n1, th);
+    g.fillRect(0, 0, W, oy);
+    g.fillStyle = mediumFill(SA.m2, SA.n2, th);
+    g.fillRect(0, oy, W, H - oy);
+    g.strokeStyle = th.edge;
+    g.lineWidth = 1.5 * dpr;
+    line(g, 0, oy, W, oy);
+    text(g, `${mName(SA.m1)} · n₁ = ${nLabel(SA.m1, SA.n1)}`, 10 * dpr, 14 * dpr, th.ink, 12, "left", "middle", "600");
+    text(g, `${mName(SA.m2)} · n₂ = ${nLabel(SA.m2, SA.n2)}`, 10 * dpr, H - 14 * dpr, th.ink, 12, "left", "middle", "600");
+    const polTxt = SA.pol === "s" ? "s kutuplu" : SA.pol === "p" ? "p kutuplu" : "kutuplanmamış";
+    text(g, `λ₀ = 589 nm · ${polTxt}`, W - 10 * dpr, 14 * dpr, th.muted, 11, "right", "middle");
+
+    // İletki çemberi: normalden ölçülen açılar
+    g.strokeStyle = th.ring;
+    g.lineWidth = 1 * dpr;
+    g.beginPath(); g.arc(ox, oy, Rp, 0, Math.PI * 2); g.stroke();
+    g.beginPath();
+    for (let a = 0; a < 360; a += 5) {
+      const rad = a * D2R, len = (a % 30 === 0 ? 9 : a % 10 === 0 ? 6 : 3) * dpr;
+      const c = Math.cos(rad), s = Math.sin(rad);
+      g.moveTo(ox + c * Rp, oy + s * Rp);
+      g.lineTo(ox + c * (Rp - len), oy + s * (Rp - len));
+    }
+    g.stroke();
+    for (const [a, q] of [[30, 1], [60, 1], [30, -1], [60, -1]]) {
+      for (const side of [-1, 1]) {
+        const rad = a * D2R, x = ox + side * Math.sin(rad) * (Rp - 18 * dpr), y = oy - q * Math.cos(rad) * (Rp - 18 * dpr);
+        text(g, `${a}°`, x, y, th.muted, 9, "center", "middle");
+      }
+    }
+    dashed(g, th.faint, 1 * dpr, ox, oy - Rp - 6 * dpr, ox, oy + Rp + 6 * dpr);
+    text(g, "normal", ox + 5 * dpr, oy - Rp + 22 * dpr, th.muted, 10, "left", "middle");
+
+    // Tam iç yansıma bölgesi ve kritik/Brewster işaretleri (geliş tarafında, çemberin üzerinde)
+    if (Number.isFinite(r.thC) && !r.same) {
+      g.strokeStyle = rgba(th.light ? [217, 119, 6] : [251, 191, 36], 0.3);
+      g.lineWidth = 6 * dpr;
+      g.beginPath(); g.arc(ox, oy, Rp, Math.PI, Math.PI * 1.5 - r.thC); g.stroke();
+      const cx = ox - Rp * Math.sin(r.thC), cy = oy - Rp * Math.cos(r.thC);
+      g.fillStyle = th.warm;
+      g.beginPath(); g.arc(cx, cy, 4 * dpr, 0, Math.PI * 2); g.fill();
+      tag(g, `θc ${deg(r.thC, 1)}`, cx - 8 * dpr, cy - 12 * dpr, th.warm, th, 10, "right");
+    }
+    if (!r.same) {
+      const bx = ox - Rp * Math.sin(r.thB), by = oy - Rp * Math.cos(r.thB);
+      g.fillStyle = th.accent;
+      g.beginPath(); g.moveTo(bx, by - 5 * dpr); g.lineTo(bx + 5 * dpr, by); g.lineTo(bx, by + 5 * dpr); g.lineTo(bx - 5 * dpr, by); g.closePath(); g.fill();
+      tag(g, `θB ${deg(r.thB, 1)}`, bx - 8 * dpr, by + 12 * dpr, th.accent, th, 10, "right");
+    }
+
+    const st = Math.sin(SA.th), ct = Math.cos(SA.th);
+    const srcX = ox - Rp * st, srcY = oy - Rp * ct;
+    const refl = [st, -ct], tLen = edgeT(ox, oy, refl[0], refl[1], W, H);
+    const has2 = !f.tir && Number.isFinite(r.th2m);
+    const tr = has2 ? [Math.sin(r.th2m), Math.cos(r.th2m)] : null;
+    const kLen = has2 ? edgeT(ox, oy, tr[0], tr[1], W, H) : 0;
+
+    // Fermat: komşu yollar S → P → D ve fazla optik yolları
+    if (SA.fermat && has2) {
+      const S = [-st, ct], D = [tr[0], -tr[1]], base = PHYS.opl(SA.n1, SA.n2, S, D, 0);
+      const Dx = ox + Rp * tr[0], Dy = oy + Rp * tr[1];
+      for (const k of [-2, -1, 1, 2]) {
+        const x = 0.16 * k, Px = ox + x * Rp;
+        g.save();
+        g.setLineDash([4 * dpr, 4 * dpr]);
+        g.strokeStyle = th.accent2;
+        g.lineWidth = 1.2 * dpr;
+        g.beginPath(); g.moveTo(srcX, srcY); g.lineTo(Px, oy); g.lineTo(Dx, Dy); g.stroke();
+        g.restore();
+        const extra = (PHYS.opl(SA.n1, SA.n2, S, D, x) - base) * 100;   // 10 cm yarıçap → mm
+        text(g, `+${fix(extra, 2)} mm`, Px, oy + (Math.abs(k) === 1 ? 12 : 26) * dpr, th.accent2, 9, "center", "middle", "600");
+      }
+      text(g, "kesikli yollar: optik yol fazlası (n·uzunluk)", ox - Rp, oy + Rp + 14 * dpr > H - 30 * dpr ? H - 34 * dpr : oy + Rp + 14 * dpr, th.accent2, 10, "left", "middle");
+    }
+
+    // Tam iç yansımada sönümlenen dalga (nitel)
+    if (f.tir) {
+      const w = Rp * 0.42, h = 16 * dpr;
+      const gr = g.createLinearGradient(0, oy, 0, oy + h);
+      gr.addColorStop(0, rgba(th.beam, 0.5));
+      gr.addColorStop(1, rgba(th.beam, 0));
+      g.fillStyle = gr;
+      g.fillRect(ox - w / 2, oy, w, h);
+      text(g, "sönümlenen dalga: enerji taşımaz", ox + w / 2 + 6 * dpr, oy + 9 * dpr, th.muted, 10, "left", "middle");
+    }
+
+    // Demetler
+    const Pin = 1, Pr = r.Pr, Pt = has2 ? 1 - r.Pr : 0;
+    beam(g, srcX, srcY, ox, oy, th.beam, Pin, th);
+    beam(g, ox, oy, ox + refl[0] * tLen, oy + refl[1] * tLen, th.beam, Pr, th);
+    if (has2) beam(g, ox, oy, ox + tr[0] * kLen, oy + tr[1] * kLen, th.beam, Pt, th);
+    if (SA.waves) {
+      const psi = 0.8 * S.t, lam0 = 28 * dpr, col = rgba(th.beam, 0.85);
+      crests(g, ox, oy, -st, -ct, Rp, lam0 / SA.n1, psi, true, (BEAM_W * Pin) / 2 * dpr + 4 * dpr, col);
+      if (Pr > 0.003) crests(g, ox, oy, refl[0], refl[1], tLen, lam0 / SA.n1, psi, false, (BEAM_W * Pr) / 2 * dpr + 4 * dpr, rgba(th.beam, 0.3 + 0.55 * Math.sqrt(Pr)));
+      if (has2 && Pt > 0.003) crests(g, ox, oy, tr[0], tr[1], kLen, lam0 / SA.n2, psi, false, (BEAM_W * Pt) / 2 * dpr + 4 * dpr, rgba(th.beam, 0.3 + 0.55 * Math.sqrt(Pt)));
+    }
+
+    // Lazer ve tutamaç
+    g.save();
+    g.translate(srcX, srcY);
+    g.rotate(Math.atan2(oy - srcY, ox - srcX));
+    g.fillStyle = th.light ? "#334155" : "#cbd5e1";
+    g.beginPath(); g.roundRect(-30 * dpr, -6 * dpr, 26 * dpr, 12 * dpr, 3 * dpr); g.fill();
+    g.restore();
+    g.fillStyle = th.ink;
+    g.strokeStyle = th.warm;
+    g.lineWidth = 2 * dpr;
+    g.beginPath(); g.arc(srcX, srcY, 6 * dpr, 0, Math.PI * 2); g.fill(); g.stroke();
+
+    // Açı yayları
+    const r1 = Rp * 0.26, r2 = Rp * 0.34;
+    arcMark(g, ox, oy, r1, -Math.PI / 2 - SA.th, -Math.PI / 2, th.ink);
+    arcMark(g, ox, oy, r1 * 0.85, -Math.PI / 2, -Math.PI / 2 + SA.th, th.muted);
+    if (SA.th > 2 * D2R) {
+      const a1 = -Math.PI / 2 - SA.th / 2, a2 = -Math.PI / 2 + SA.th / 2;
+      text(g, "θ₁", ox + Math.cos(a1) * (r1 + 13 * dpr), oy + Math.sin(a1) * (r1 + 13 * dpr), th.ink, 12, "center", "middle", "600");
+      text(g, "θ₁′", ox + Math.cos(a2) * (r1 + 13 * dpr), oy + Math.sin(a2) * (r1 + 13 * dpr), th.muted, 12, "center", "middle", "600");
+    }
+    if (has2) {
+      arcMark(g, ox, oy, r2, Math.PI / 2 - r.th2m, Math.PI / 2, th.ink);
+      if (r.th2m > 2 * D2R) {
+        const a = Math.PI / 2 - r.th2m / 2;
+        text(g, "θ₂", ox + Math.cos(a) * (r2 + 13 * dpr), oy + Math.sin(a) * (r2 + 13 * dpr), th.ink, 12, "center", "middle", "600");
+      }
+    }
+    g.fillStyle = th.ink;
+    g.beginPath(); g.arc(ox, oy, 3 * dpr, 0, Math.PI * 2); g.fill();
+
+    // Güç etiketleri
+    const lab = (dx, dy, s, col) => {
+      const R = Rp + 18 * dpr, x = ox + dx * R, y = oy + dy * R;
+      tag(g, s, x + (dx >= 0 ? 6 : -6) * dpr, y, col, th, 11, dx >= 0 ? "left" : "right");
+    };
+    lab(refl[0], refl[1] * 0.92, f.tir ? "R = 100 % (tam iç yansıma)" : `R = ${pct(Pr)}`, th.warm);
+    if (has2) lab(tr[0], tr[1] * 0.92, `T = ${pct(Pt)}`, th.warm);
+    tag(g, `θ₁ = ${deg(SA.th, 1)} · ${has2 ? `θ₂ = ${deg(r.th2m, 1)}` : "kırılan ışın yok"}`, W - 8 * dpr, H - 16 * dpr, th.ink, th, 11, "right");
+  }
+
+  function drawChartA() {
+    const th = theme(), g = cg, r = SA.res;
+    const small = chart.width < 520 * dpr;
+    const L = chartFrame(g, th, { x0: 0, x1: 90, xStep: small ? 15 : 10, y0: 0, y1: 100, yStep: 20, xLabel: "θ₁", xFmt: (v) => `${v}°`, yLabel: "R, T (%)" });
+    const hasC = Number.isFinite(r.thC) && !r.same;
+    if (hasC) {
+      g.fillStyle = rgba(th.light ? [217, 119, 6] : [251, 191, 36], 0.1);
+      g.fillRect(L.X(r.thC * R2D), L.t, L.X(90) - L.X(r.thC * R2D), L.h);
+      text(g, "tam iç yansıma", (L.X(r.thC * R2D) + L.X(90)) / 2, L.t + L.h * 0.55, th.warm, 10, "center", "middle", "600");
+    }
+    const N = 360, Rs = [], Rp = [], Ru = [], Tu = [];
+    for (let i = 0; i <= N; i++) {
+      const a = Math.min((i / N) * 90, 89.999) * D2R, f = PHYS.fresnel(SA.n1, SA.n2, a);
+      Rs.push(f.Rs); Rp.push(f.Rp); Ru.push(f.R); Tu.push(1 - f.R);
+    }
+    clipPlot(g, L);
+    const curve = (arr, color, w, dashPat) => {
+      g.strokeStyle = color;
+      g.lineWidth = w * dpr;
+      g.setLineDash(dashPat || []);
+      g.beginPath();
+      arr.forEach((v, i) => { const x = L.X((i / N) * 90), y = L.Y(v * 100); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+      g.stroke();
+      g.setLineDash([]);
+    };
+    curve(Tu, th.blue, 1.6, [6 * dpr, 4 * dpr]);
+    curve(Rs, th.accent2, SA.pol === "s" ? 2.8 : 1.6);
+    curve(Rp, th.accent, SA.pol === "p" ? 2.8 : 1.6);
+    curve(Ru, th.warm, SA.pol === "u" ? 2.8 : 1.6);
+    g.restore();
+    if (!r.same) {
+      const x = L.X(r.thB * R2D);
+      dashed(g, th.accent, 1 * dpr, x, L.t, x, L.t + L.h, [2 * dpr, 3 * dpr]);
+      tag(g, `θB = ${deg(r.thB)}`, x, L.Y(8), th.accent, th, 10, "center");
+    }
+    if (hasC) {
+      const x = L.X(r.thC * R2D);
+      dashed(g, th.warm, 1 * dpr, x, L.t, x, L.t + L.h, [2 * dpr, 3 * dpr]);
+      tag(g, `θc = ${deg(r.thC)}`, x, L.Y(70), th.warm, th, 10, "center");
+    }
+    const xc = L.X(SA.th * R2D), f = r.f;
+    g.strokeStyle = th.ink;
+    g.lineWidth = 1 * dpr;
+    line(g, xc, L.t, xc, L.t + L.h);
+    for (const [v, c] of [[f.Rs, th.accent2], [f.Rp, th.accent], [f.R, th.warm], [1 - f.R, th.blue]]) {
+      g.fillStyle = c;
+      g.beginPath(); g.arc(xc, L.Y(v * 100), 3.5 * dpr, 0, Math.PI * 2); g.fill();
+    }
+    legend(g, th, small
+      ? [{ color: th.accent2, label: "Rs" }, { color: th.accent, label: "Rp" }, { color: th.warm, label: "R" }, { color: th.blue, label: "T", dash: true }]
+      : [{ color: th.accent2, label: "Rs" }, { color: th.accent, label: "Rp" }, { color: th.warm, label: "R, kutuplanmamış" }, { color: th.blue, label: "T = 1 − R", dash: true }],
+    L.l + (small ? 46 : 64) * dpr, 11 * dpr);
+  }
+
+  function pointerA(sx, sy) {
+    const L = layoutA(), dx = sx - L.ox, dy = sy - L.oy;
+    let a;
+    if (dy >= 0) a = dx < 0 ? TH_MAX : 0;
+    else a = Math.atan2(-dx, -dy);
+    setThetaA(a);
+    return true;
+  }
+
+  /* ── (b) Prizma ve dispersiyon ── */
+  const WHITE_NM = Array.from({ length: 31 }, (_, i) => 400 + 10 * i);
+  const SB = {
+    glass: "bk7", A: 60 * D2R, th1: 50 * D2R, white: true, lam: 587.6, res: null,
+    ui: {
+      glass: $("glassSelect"), glassOut: $("glassOut"), apex: $("apexRange"), apexOut: $("apexOut"),
+      th1: $("th1bRange"), th1Out: $("th1bOut"), light: $("lightSelect"), lightOut: $("lightOut"),
+      lam: $("lambdaRange"), lamOut: $("lambdaOut"), minDev: $("minDevBtn"), reset: $("resetB"),
+      nLabel: $("bNLabel"), n: $("bN"), nF: $("bNF"), nD: $("bND"), nC: $("bNC"), th23: $("bTh23"), th4: $("bTh4"), delta: $("bDelta"), lim: $("bLim"),
+      dm: $("bDm"), dt: $("bDt"), dd: $("bDd"), mm: $("bMm"), mt: $("bMt"), md: $("bMd"), tm: $("bTm"), tt: $("bTt"), td: $("bTd"),
+      rm: $("bRm"), rt: $("bRt"), rd: $("bRd"), qm: $("bQm"), qt: $("bQt"), qd: $("bQd"), sm: $("bSm"), st: $("bSt"), sd: $("bSd"),
+      vm: $("bVm"), vt: $("bVt"), vd: $("bVd"), status: $("bStatus"),
+    },
+  };
+  function computeB() {
+    const A = SB.A, th1 = SB.th1, key = SB.glass;
+    const n = PHYS.sellmeier(key, SB.lam), ab = PHYS.abbe(key);
+    const tr = PHYS.prismTrace(A, n, th1);
+    const ang = PHYS.prismAngles(A, n, th1);
+    const trF = PHYS.prismTrace(A, ab.nF, th1), trC = PHYS.prismTrace(A, ab.nC, th1);
+    const dm = PHYS.deltaMinMeasured(A, n);
+    const dmT = PHYS.deltaMinTh(A, n);
+    const nRec = dm ? PHYS.nFromDeltaMin(A, dm.delta) : NaN;
+    const dm1 = dm ? (Math.round(dm.delta * R2D * 60) / 60) * D2R : NaN;
+    SB.res = {
+      n, ab, tr, ang, trF, trC, dm, dmT, nRec, dm1, nRec1: dm ? PHYS.nFromDeltaMin(A, dm1) : NaN,
+      lim: PHYS.theta1Lim(A, n), th1mT: PHYS.theta1MinDev(A, n),
+      dT: PHYS.prismDelta(A, n, th1),
+      sM: trF.exitFace === 2 && trF.tir === 0 && trC.exitFace === 2 && trC.tir === 0 ? trF.delta - trC.delta : NaN,
+      sT: PHYS.prismDelta(A, ab.nF, th1) - PHYS.prismDelta(A, ab.nC, th1),
+      ok: tr.exitFace === 2 && tr.tir === 0,
+    };
+  }
+  function syncB() {
+    const u = SB.ui;
+    computeB();
+    const g = PHYS.GLASSES[SB.glass], r = SB.res;
+    setHTML(u.glassOut, `n<sub>d</sub> = ${fix(r.ab.nd, 5)}`);
+    setText(u.apexOut, deg(SB.A, 1));
+    setText(u.th1Out, deg(SB.th1));
+    setText(u.lightOut, SB.white ? "400–700 nm" : "tek renk");
+    const c = nmRGB(SB.lam, theme());
+    setHTML(u.lamOut, `<i class="swatch" aria-hidden="true" style="background: rgb(${c[0]},${c[1]},${c[2]})"></i>${fix(SB.lam, 1)} nm`);
+    setText(u.nLabel, `n(λ = ${fix(SB.lam, 1)} nm), ${g.name}, Sellmeier`);
+    dirty = true;
+  }
+  function setTh1B(rad) {
+    SB.th1 = clamp(rad, 0, TH_MAX);
+    SB.ui.th1.value = String(Math.round(SB.th1 * R2D * 10) / 10);
+    syncB();
+  }
+  function resetB() {
+    SB.glass = "bk7"; SB.ui.glass.value = "bk7";
+    SB.A = 60 * D2R; SB.ui.apex.value = "60";
+    SB.white = true; SB.ui.light.value = "white";
+    SB.lam = 587.6; SB.ui.lam.value = "587.6";
+    setTh1B(50 * D2R);
+  }
+  function readoutsB() {
+    const u = SB.ui, r = SB.res, A = SB.A;
+    setText(u.n, fix(r.n, 5));
+    setText(u.nF, fix(r.ab.nF, 5));
+    setText(u.nD, fix(r.ab.nd, 5));
+    setText(u.nC, fix(r.ab.nC, 5));
+    setText(u.th23, `${deg(r.ang.t2)} / ${deg(r.ang.t3)}`);
+    setText(u.th4, r.ok ? deg(r.ang.t4) : "çıkmıyor");
+    setText(u.delta, r.ok ? deg(r.tr.delta) : "—");
+    setText(u.lim, Number.isFinite(r.lim) ? deg(r.lim) : "hiçbir açıda");
+    setText(u.dm, r.ok ? deg(r.tr.delta, 3) : "çıkmıyor");
+    setText(u.dt, r.ok ? deg(r.dT, 3) : "—");
+    setText(u.dd, r.ok ? diffPct(r.tr.delta, r.dT) : "—");
+    const hasM = !!r.dm;
+    setText(u.mm, hasM ? deg(r.dm.delta, 3) : "—");
+    setText(u.mt, hasM ? deg(r.dmT, 3) : "—");
+    setText(u.md, hasM ? diffPct(r.dm.delta, r.dmT) : "—");
+    setText(u.tm, hasM ? deg(r.dm.th1, 3) : "—");
+    setText(u.tt, hasM ? deg(r.th1mT, 3) : "—");
+    setText(u.td, hasM ? diffPct(r.dm.th1, r.th1mT) : "—");
+    setText(u.rm, hasM ? fix(r.nRec, 5) : "—");
+    setText(u.rt, fix(r.n, 5));
+    setText(u.rd, hasM ? diffPct(r.nRec, r.n) : "—");
+    if (hasM) {
+      const tot = Math.round(r.dm1 * R2D * 60), dd = Math.floor(tot / 60), mm = tot - 60 * dd;
+      setText(u.qm, `${dd}° ${String(mm).padStart(2, "0")}′ → ${fix(r.nRec1, 5)}`);
+    } else setText(u.qm, "—");
+    setText(u.qt, fix(r.n, 5));
+    setText(u.qd, hasM ? `Δn = ${sgn(r.nRec1 - r.n, 5)}` : "—");
+    const sOk = Number.isFinite(r.sM);
+    setText(u.sm, sOk ? `${deg(r.sM, 3)} (${fix(r.sM * R2D * 60, 1)}′)` : "—");
+    setText(u.st, sOk ? deg(r.sT, 3) : "—");
+    setText(u.sd, sOk ? diffPct(r.sM, r.sT) : "—");
+    const cat = PHYS.GLASSES[SB.glass].cat;
+    setText(u.vm, fix(r.ab.vd, 2));
+    setText(u.vt, cat ? fix(cat.vd, 2) : "katalog yok");
+    setText(u.vd, cat ? diffPct(r.ab.vd, cat.vd) : "—");
+    let s, warn = false;
+    const tc = Math.asin(1 / r.n);
+    if (!Number.isFinite(r.lim)) {
+      s = `Bu camda A = ${deg(A, 1)} için ışın hiçbir geliş açısında ikinci yüzden çıkamaz: tepe açısı 2θc = ${deg(2 * tc, 1)} değerini aşıyor ve ikinci yüzde hep tam iç yansıma olur. A'yı küçült.`;
+      warn = true;
+    } else if (!r.ok) {
+      s = `θ₁ = ${deg(SB.th1)}, ikinci yüzden çıkış için gereken en küçük açıdan (${deg(r.lim)}) küçük: ışın içeride tam iç yansımaya uğruyor ve ${r.tr.exitFace === 0 ? "tabandan" : r.tr.exitFace === 2 ? "yansıdıktan sonra ikinci yüzden" : "başka bir yüzden"} çıkıyor. θ₁'i büyüt.`;
+      warn = true;
+    } else {
+      s = `Sapma δ = ${deg(r.tr.delta)}. En küçük sapma θ₁ = ${deg(r.th1mT)} iken δmin = ${deg(r.dmT)}; o konumda ışın prizmanın içinde tabana paralel gider. Spektrometre yöntemi n = sin((A + δmin)/2)/sin(A/2) = ${fix(r.nRec, 5)} verir. Bu θ₁'de mavi F ışığı kırmızı C ışığından ${deg(r.sT, 3)} (${fix(r.sT * R2D * 60, 1)}′) daha fazla sapar.`;
+    }
+    setText(u.status, s);
+    u.status.className = `status ${warn ? "is-warn" : ""}`;
+  }
+
+  function layoutB() {
+    const W = stage.width, H = stage.height, h = SB.A / 2;
+    const s = Math.min(W * 0.36, H * 0.64);
+    const cx = W * 0.4, cy = H * 0.53 - (Math.cos(h) / 2) * s;
+    return { W, H, s, X: (x) => cx + x * s, Y: (y) => cy - y * s };
+  }
+  function drawB() {
+    const th = theme(), g = sg, L = layoutB(), r = SB.res, A = SB.A;
+    const { W, H } = L;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const G = PHYS.prismGeom(A);
+    const P = [L.X(G.P[0]), L.Y(G.P[1])], BL = [L.X(G.BL[0]), L.Y(G.BL[1])], BR = [L.X(G.BR[0]), L.Y(G.BR[1])];
+    g.fillStyle = rgba(th.med.bk7, th.light ? 0.12 : 0.1);
+    g.strokeStyle = th.edge;
+    g.lineWidth = 2 * dpr;
+    g.lineJoin = "round";
+    g.beginPath(); g.moveTo(P[0], P[1]); g.lineTo(BR[0], BR[1]); g.lineTo(BL[0], BL[1]); g.closePath(); g.fill(); g.stroke();
+    const ra = 0.13 * L.s;
+    arcMark(g, P[0], P[1], ra, Math.PI / 2 - A / 2, Math.PI / 2 + A / 2, th.muted, 1.4 * dpr);
+    text(g, `A = ${deg(A, 1)}`, P[0], P[1] - 12 * dpr, th.muted, 11, "center", "middle", "600");
+    text(g, `${PHYS.GLASSES[SB.glass].name} · n(${fix(SB.lam, 1)} nm) = ${fix(r.n, 5)}`, 10 * dpr, 14 * dpr, th.ink, 12, "left", "middle", "600");
+
+    const tr = r.tr, M1 = [L.X(tr.M1[0]), L.Y(tr.M1[1])], din = [tr.din[0], -tr.din[1]];
+    // Kaynak: gelen ışın doğrultusunun gerisinde, tuvalin içinde
+    const back = edgeT(M1[0], M1[1], -din[0], -din[1], W, H);
+    const Ls = Math.max(30 * dpr, Math.min(0.95 * L.s, back - 16 * dpr));
+    const src = [M1[0] - din[0] * Ls, M1[1] - din[1] * Ls];
+
+    // Normaller (kesikli)
+    const n1 = G.faces[0].n, n2 = G.faces[1].n, nl = 0.3 * L.s;
+    dashed(g, th.faint, 1 * dpr, M1[0] - n1[0] * nl * 0.7, M1[1] + n1[1] * nl * 0.7, M1[0] + n1[0] * nl, M1[1] - n1[1] * nl);
+
+    const rays = SB.white ? WHITE_NM : [SB.lam];
+    const traceOf = (nm) => (Math.abs(nm - SB.lam) < 1e-9 ? tr : PHYS.prismTrace(A, PHYS.sellmeier(SB.glass, nm), SB.th1));
+    beam(g, src[0], src[1], M1[0], M1[1], SB.white ? th.white : nmRGB(SB.lam, th), 1, th, 6);
+    g.globalCompositeOperation = th.glow;
+    for (const nm of rays) {
+      const t = traceOf(nm), c = nmRGB(nm, th);
+      const alpha = SB.white ? (th.light ? 0.5 : 0.55) : 0.95;
+      g.strokeStyle = rgba(c, alpha);
+      g.lineWidth = (SB.white ? 2 : 3) * dpr;
+      g.beginPath();
+      t.pts.forEach((p, i) => { const x = L.X(p[0]), y = L.Y(p[1]); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+      if (t.dout) {
+        const e = t.pts[t.pts.length - 1], ex = L.X(e[0]), ey = L.Y(e[1]), dx = t.dout[0], dy = -t.dout[1];
+        const len = edgeT(ex, ey, dx, dy, W, H);
+        g.lineTo(ex + dx * len, ey + dy * len);
+      }
+      g.stroke();
+    }
+    g.globalCompositeOperation = "source-over";
+
+    // İncelenen dalga boyu: vurgulu çizgi, çıkış normali, δ yayı
+    const c = nmRGB(SB.lam, th);
+    if (tr.dout) {
+      const E = tr.pts[tr.pts.length - 1], ex = L.X(E[0]), ey = L.Y(E[1]), dout = [tr.dout[0], -tr.dout[1]];
+      if (SB.white) {
+        g.strokeStyle = rgba(c, 1);
+        g.lineWidth = 1.2 * dpr;
+        g.beginPath();
+        tr.pts.forEach((p, i) => { const x = L.X(p[0]), y = L.Y(p[1]); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+        const len = edgeT(ex, ey, dout[0], dout[1], W, H);
+        g.lineTo(ex + dout[0] * len, ey + dout[1] * len);
+        g.stroke();
+      }
+      if (tr.exitFace === 2) {
+        dashed(g, th.faint, 1 * dpr, ex - n2[0] * nl * 0.7, ey + n2[1] * nl * 0.7, ex + n2[0] * nl, ey - n2[1] * nl);
+        // Gelen doğrultunun uzantısı ile çıkan ışının geri uzantısının kesiştiği nokta
+        const den = din[0] * dout[1] - din[1] * dout[0];
+        if (Math.abs(den) > 1e-6) {
+          const wx = ex - M1[0], wy = ey - M1[1];
+          const t = (wx * dout[1] - wy * dout[0]) / den;
+          const X = [M1[0] + din[0] * t, M1[1] + din[1] * t];
+          const ext = 0.45 * L.s;
+          dashed(g, th.muted, 1.2 * dpr, M1[0], M1[1], X[0] + din[0] * ext, X[1] + din[1] * ext);
+          dashed(g, rgba(c, 0.8), 1.2 * dpr, ex, ey, X[0], X[1]);
+          const a0 = Math.atan2(din[1], din[0]), a1 = Math.atan2(dout[1], dout[0]), rr = 0.3 * L.s;
+          arcMark(g, X[0], X[1], rr, a0, a1, th.warm, 2 * dpr);
+          const am = midAngle(a0, a1);
+          text(g, "δ", X[0] + Math.cos(am) * (rr + 9 * dpr), X[1] + Math.sin(am) * (rr + 9 * dpr), th.warm, 13, "center", "middle", "700");
+          tag(g, `sapma δ = ${deg(tr.delta)}`, W - 8 * dpr, 40 * dpr, th.warm, th, 11, "right");
+        }
+      }
+    }
+    // θ₁ yayı (dış normal ile gelen ışının tersi arasında)
+    {
+      const aN = Math.atan2(-n1[1], n1[0]), aI = Math.atan2(-din[1], -din[0]), rr = 0.16 * L.s;
+      arcMark(g, M1[0], M1[1], rr, aN, aI, th.ink, 1.6 * dpr);
+      const am = midAngle(aN, aI);
+      text(g, "θ₁", M1[0] + Math.cos(am) * (rr + 12 * dpr), M1[1] + Math.sin(am) * (rr + 12 * dpr), th.ink, 12, "center", "middle", "600");
+    }
+    // Kaynak kutusu ve tutamaç
+    g.save();
+    g.translate(src[0], src[1]);
+    g.rotate(Math.atan2(din[1], din[0]));
+    g.fillStyle = th.light ? "#334155" : "#cbd5e1";
+    g.beginPath(); g.roundRect(-30 * dpr, -7 * dpr, 26 * dpr, 14 * dpr, 3 * dpr); g.fill();
+    g.restore();
+    g.fillStyle = th.ink;
+    g.strokeStyle = th.warm;
+    g.lineWidth = 2 * dpr;
+    g.beginPath(); g.arc(src[0], src[1], 6 * dpr, 0, Math.PI * 2); g.fill(); g.stroke();
+    tag(g, `θ₁ = ${deg(SB.th1, 1)}`, src[0], src[1] + 20 * dpr, th.ink, th, 10, "center");
+    if (SB.white && Number.isFinite(r.sM)) tag(g, `δF − δC = ${deg(r.sM, 2)}`, W - 10 * dpr, H - 16 * dpr, th.ink, th, 11, "right");
+    if (!r.ok) tag(g, "içeride tam iç yansıma: ikinci yüzden doğrudan çıkmıyor", W / 2, H - 16 * dpr, th.danger, th, 11, "center");
+  }
+
+  function drawChartB() {
+    const th = theme(), g = cg, r = SB.res, A = SB.A, small = chart.width < 520 * dpr;
+    const ab = r.ab;
+    const list = SB.white ? [[PHYS.LINES.F, ab.nF], [PHYS.LINES.d, ab.nd], [PHYS.LINES.C, ab.nC]] : [[SB.lam, r.n], [PHYS.LINES.F, ab.nF], [PHYS.LINES.C, ab.nC]];
+    const curves = [];
+    let lo = Infinity, hi = -Infinity;
+    for (const [nm, n] of list) {
+      const lim = PHYS.theta1Lim(A, n);
+      if (!Number.isFinite(lim)) continue;
+      const pts = [];
+      const N = 240;
+      for (let i = 0; i <= N; i++) {
+        const t = lim + ((89.9 * D2R - lim) * i) / N, d = PHYS.prismDelta(A, n, t);
+        if (Number.isFinite(d)) { pts.push([t * R2D, d * R2D]); lo = Math.min(lo, d * R2D); hi = Math.max(hi, d * R2D); }
+      }
+      curves.push({ nm, n, pts });
+    }
+    if (!curves.length) {
+      chartFrame(g, th, { x0: 0, x1: 90, xStep: small ? 15 : 10, y0: 0, y1: 90, yStep: 30, xLabel: "θ₁", xFmt: (v) => `${v}°`, yLabel: "δ (°)" });
+      text(g, "Bu tepe açısında ışın ikinci yüzden hiç çıkmıyor", chart.width / 2, chart.height / 2, th.danger, 12, "center", "middle", "600");
+      return;
+    }
+    const span = Math.max(4, hi - lo), step = niceStep(span / 4);
+    const y0 = Math.floor((lo - span * 0.08) / step) * step, y1 = Math.ceil((hi + span * 0.05) / step) * step;
+    const L = chartFrame(g, th, { x0: 0, x1: 90, xStep: small ? 15 : 10, y0, y1, yStep: step, xLabel: "θ₁", xFmt: (v) => `${v}°`, yLabel: "δ (°)" });
+    clipPlot(g, L);
+    curves.forEach((cv, i) => {
+      const ref = SB.white ? Math.abs(cv.nm - PHYS.LINES.d) < 1e-6 : i === 0;
+      g.strokeStyle = rgba(nmRGB(cv.nm, th), ref ? 1 : 0.85);
+      g.lineWidth = (ref ? 2.6 : 1.5) * dpr;
+      g.beginPath();
+      cv.pts.forEach(([x, y], k) => (k ? g.lineTo(L.X(x), L.Y(y)) : g.moveTo(L.X(x), L.Y(y))));
+      g.stroke();
+    });
+    g.restore();
+    const xc = L.X(SB.th1 * R2D);
+    g.strokeStyle = th.ink;
+    g.lineWidth = 1 * dpr;
+    line(g, xc, L.t, xc, L.t + L.h);
+    if (r.dm) {
+      const x = L.X(r.dm.th1 * R2D), y = L.Y(r.dm.delta * R2D);
+      dashed(g, th.warm, 1 * dpr, x, y, x, L.t + L.h, [2 * dpr, 3 * dpr]);
+      g.fillStyle = th.warm;
+      g.beginPath(); g.arc(x, y, 4.5 * dpr, 0, Math.PI * 2); g.fill();
+      tag(g, `δmin = ${deg(r.dm.delta)}`, x, y + 16 * dpr, th.warm, th, 10, "center");
+    }
+    if (r.ok) {
+      const c = nmRGB(SB.lam, th);
+      g.fillStyle = rgba(c, 1);
+      g.strokeStyle = th.ink;
+      g.lineWidth = 1.2 * dpr;
+      g.beginPath(); g.arc(xc, L.Y(r.tr.delta * R2D), 4 * dpr, 0, Math.PI * 2); g.fill(); g.stroke();
+    }
+    const items = SB.white
+      ? [{ color: rgba(nmRGB(PHYS.LINES.F, th), 1), label: "F 486.1" }, { color: rgba(nmRGB(PHYS.LINES.d, th), 1), label: "d 587.6", w: 2.6 }, { color: rgba(nmRGB(PHYS.LINES.C, th), 1), label: "C 656.3 nm" }]
+      : [{ color: rgba(nmRGB(SB.lam, th), 1), label: `${fix(SB.lam, 1)} nm`, w: 2.6 }, { color: rgba(nmRGB(PHYS.LINES.F, th), 1), label: "F" }, { color: rgba(nmRGB(PHYS.LINES.C, th), 1), label: "C" }];
+    legend(g, th, items, L.l + (small ? 30 : 40) * dpr, 11 * dpr);
+  }
+  function pointerB(sx, sy) {
+    const L = layoutB(), tr = SB.res.tr, mx = L.X(tr.M1[0]), my = L.Y(tr.M1[1]);
+    const dx = mx - sx, dy = -(my - sy);
+    if (Math.hypot(dx, dy) < 4 * dpr) return true;
+    let a = Math.atan2(dy, dx) + SB.A / 2;
+    if (a > Math.PI) a -= 2 * Math.PI;
+    setTh1B(a > TH_MAX ? TH_MAX : a);
+    return true;
+  }
+
+  /* ── (c) Optik fiber ── */
+  const PULSE_T = 3.2;      // s, eksenel atmanın görünen boyu geçme süresi
+  const L_REF = 1;          // m, ölçümler için izlenen boy
+  const SC = {
+    n1: 1.48, n2: 1.46, th0: 10 * D2R, d: 50e-6, pulse: true, u: 0, res: null,
+    ui: {
+      n1: $("n1fRange"), n1Out: $("n1fOut"), n2: $("n2fRange"), n2Out: $("n2fOut"), th0: $("th0Range"), th0Out: $("th0Out"),
+      core: $("coreSelect"), coreOut: $("coreOut"), pulse: $("pulseCheck"), typical: $("typicalBtn"), pause: $("pauseC"), reset: $("resetC"),
+      thC: $("cThC"), na: $("cNA"), thA: $("cThA"), thR: $("cThR"), phi: $("cPhi"), state: $("cState"), rin: $("cRin"), p1: $("cP1"), tmax: $("cTmax"),
+      nm: $("cNm"), nt: $("cNt"), nd: $("cNd"), lm: $("cLm"), lt: $("cLt"), ld: $("cLd"), dm: $("cDm"), dt: $("cDt"), dd: $("cDd"),
+      am: $("cAm"), at: $("cAt"), ad: $("cAd"), status: $("cStatus"),
+    },
+  };
+  function computeC() {
+    const { n1, n2, th0, d } = SC, n0 = PHYS.N_AIR;
+    const tr = PHYS.fiberTrace(n1, n2, n0, th0, d, L_REF);
+    SC.res = {
+      tr, NA: PHYS.fiberNA(n1, n2), thA: PHYS.acceptance(n1, n2, n0), thAm: PHYS.acceptanceMeasured(n1, n2, n0, d),
+      Nt: Math.tan(tr.thr) / d, Lt: 1 / Math.cos(tr.thr),
+      dM: (n1 / PHYS.C0) * (tr.path - L_REF) / L_REF, dT: PHYS.modalDelay(n1, tr.thr), dMax: PHYS.modalDelayMax(n1, n2),
+    };
+  }
+  function syncC() {
+    const u = SC.ui;
+    computeC();
+    setText(u.n1Out, fix(SC.n1, 3));
+    setText(u.n2Out, fix(SC.n2, 3));
+    setText(u.th0Out, deg(SC.th0, 1));
+    setText(u.coreOut, `${String(SC.d * 1e6)} µm`);
+    dirty = true;
+  }
+  function setTh0(rad) {
+    SC.th0 = clamp(rad, 0, 80 * D2R);
+    SC.ui.th0.value = String(Math.round(SC.th0 * R2D * 10) / 10);
+    syncC();
+  }
+  function setFiberN(n1, n2) {
+    SC.n1 = clamp(n1, 1.4, 1.7);
+    SC.n2 = clamp(n2, 1.3, SC.n1 - 0.001);
+    SC.ui.n1.value = String(SC.n1);
+    SC.ui.n2.value = String(SC.n2);
+    syncC();
+  }
+  function resetC() {
+    SC.d = 50e-6; SC.ui.core.value = "50";
+    SC.pulse = !REDUCED; SC.ui.pulse.checked = SC.pulse;
+    SC.u = 0;
+    setFiberN(1.48, 1.46);
+    setTh0(10 * D2R);
+  }
+  function readoutsC() {
+    const u = SC.ui, r = SC.res, tr = r.tr, KM = 1000;
+    setText(u.thC, deg(tr.thc));
+    setText(u.na, fix(r.NA, 4));
+    setText(u.thA, r.thA >= Math.PI / 2 - 1e-12 ? "90° (bütün açılar)" : deg(r.thA));
+    setText(u.thR, deg(tr.thr));
+    setText(u.phi, deg(tr.phi));
+    setText(u.state, tr.guided ? "kılavuzlanır" : "kılıfa sızar");
+    setText(u.rin, pct(tr.ent.R));
+    setText(u.p1, fmtPower(tr.P));
+    setText(u.tmax, fmtNs(r.dMax * KM));
+    setText(u.nm, `${tr.N} /m`);
+    setText(u.nt, `${fix(r.Nt, 1)} /m`);
+    setText(u.nd, r.Nt > 0 ? diffPct(tr.N, r.Nt) : "—");
+    setText(u.lm, `${fix(tr.path, 6)} m`);
+    setText(u.lt, `${fix(r.Lt, 6)} m`);
+    setText(u.ld, diffPct(tr.path, r.Lt));
+    setText(u.dm, fmtNs(r.dM * KM, 2));
+    setText(u.dt, fmtNs(r.dT * KM, 2));
+    setText(u.dd, r.dT > 0 ? diffPct(r.dM, r.dT) : "—");
+    setText(u.am, deg(r.thAm, 3));
+    setText(u.at, deg(r.thA, 3));
+    setText(u.ad, diffPct(r.thAm, r.thA));
+    let s;
+    if (tr.guided) {
+      s = `Işın her çarpmada tam iç yansımaya uğrar: φ = ${deg(tr.phi)} ≥ θc = ${deg(tr.thc)}. 1 m'de ${tr.N} kez yansır ve hiç güç kaybetmez; tek kayıp giriş yüzündeki Fresnel yansımasıdır (${pct(tr.ent.R)}, soğurma yok sayıldı). Eksenel ışına göre gecikmesi ${fmtNs(r.dT * KM)}.`;
+    } else {
+      const Rw = (tr.wall.Rs + tr.wall.Rp) / 2;
+      s = `θ₀ = ${deg(SC.th0, 1)} kabul açısından (θa = ${deg(r.thA)}) büyük: ışın sınıra φ = ${deg(tr.phi)} < θc açısıyla çarpar ve her çarpmada gücün bir kısmı kılıfa geçer. Bir çarpmada yansıyan pay ${fmtPower(Rw)}; 1 m'deki ${tr.N} çarpmadan sonra kalan güç ${fmtPower(tr.P)}.`;
+    }
+    setText(u.status, s);
+    u.status.className = `status ${tr.guided ? "is-good" : "is-warn"}`;
+  }
+
+  function layoutC() {
+    const W = stage.width, H = stage.height, small = W < 520 * dpr;
+    const x0 = W * (small ? 0.3 : 0.28), x1 = W - 6 * dpr, K = small ? 8 : 12;
+    const dpx = (x1 - x0) / K, yc = H * (small ? 0.46 : 0.44);
+    return { W, H, small, x0, x1, K, dpx, yc, clad: 0.75 * dpx, Rl: Math.min(W * 0.25, H * 0.38) };
+  }
+  // Zikzak yolu (piksel): giriş noktasından görünen ucun sonuna kadar
+  function fiberPath(L, thr) {
+    const pts = [[L.x0, L.yc]], hits = [];
+    const dx = Math.cos(thr), a = L.dpx / 2;
+    let x = L.x0, y = L.yc, dy = Math.sin(thr);
+    if (thr < 1e-9) { pts.push([L.x1, L.yc]); return { pts, hits }; }
+    for (let k = 0; k < 400; k++) {
+      const yw = dy > 0 ? L.yc + a : L.yc - a, t = (yw - y) / dy;
+      if (x + t * dx >= L.x1) { const tt = (L.x1 - x) / dx; pts.push([L.x1, y + tt * dy]); break; }
+      x += t * dx; y = yw;
+      pts.push([x, y]);
+      hits.push({ x, y, down: dy > 0 });
+      dy = -dy;
+    }
+    return { pts, hits };
+  }
+  function drawC() {
+    const th = theme(), g = sg, L = layoutC(), r = SC.res, tr = r.tr;
+    const { W, H, x0, x1, dpx, yc, clad } = L;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const a = dpx / 2;
+    // Kaplama, kılıf, çekirdek
+    g.fillStyle = th.light ? "rgba(51,65,85,0.18)" : "rgba(148,163,184,0.12)";
+    g.fillRect(x0, yc - a - clad - 8 * dpr, x1 - x0 + 6 * dpr, 8 * dpr);
+    g.fillRect(x0, yc + a + clad, x1 - x0 + 6 * dpr, 8 * dpr);
+    g.fillStyle = rgba(th.med.su, th.light ? 0.1 + (SC.n2 - 1.3) * 0.25 : 0.08 + (SC.n2 - 1.3) * 0.25);
+    g.fillRect(x0, yc - a - clad, x1 - x0 + 6 * dpr, clad);
+    g.fillRect(x0, yc + a, x1 - x0 + 6 * dpr, clad);
+    g.fillStyle = rgba(th.med.bk7, th.light ? 0.12 + (SC.n1 - 1.4) * 0.4 : 0.1 + (SC.n1 - 1.4) * 0.4);
+    g.fillRect(x0, yc - a, x1 - x0 + 6 * dpr, dpx);
+    g.strokeStyle = th.edge;
+    g.lineWidth = 1.2 * dpr;
+    line(g, x0, yc - a, x1 + 6 * dpr, yc - a);
+    line(g, x0, yc + a, x1 + 6 * dpr, yc + a);
+    g.lineWidth = 2 * dpr;
+    line(g, x0, yc - a - clad - 8 * dpr, x0, yc + a + clad + 8 * dpr);
+    dashed(g, th.faint, 1 * dpr, x0 - L.Rl, yc, x1, yc, [3 * dpr, 5 * dpr]);
+    text(g, `çekirdek n₁ = ${fix(SC.n1, 3)}`, x1 - 4 * dpr, yc - a + 11 * dpr, th.ink, 10, "right", "middle", "600");
+    text(g, `kılıf n₂ = ${fix(SC.n2, 3)}`, x1 - 4 * dpr, yc + a + clad / 2, th.muted, 10, "right", "middle", "600");
+    text(g, `d = ${String(SC.d * 1e6)} µm · görünen boy ${L.K}d = ${fmtLen(L.K * SC.d)}`, x0, yc + a + clad + 22 * dpr, th.muted, 10, "left", "middle");
+
+    // Kabul konisi (havada)
+    const thA = r.thA, Rc = L.Rl * 0.95;
+    g.fillStyle = rgba(th.light ? [13, 148, 136] : [94, 234, 212], 0.1);
+    g.beginPath(); g.moveTo(x0, yc); g.arc(x0, yc, Rc, Math.PI - Math.min(thA, Math.PI / 2), Math.PI + Math.min(thA, Math.PI / 2)); g.closePath(); g.fill();
+    for (const sgn of [-1, 1]) dashed(g, th.accent, 1.2 * dpr, x0, yc, x0 - Rc * Math.cos(thA), yc + sgn * Rc * Math.sin(thA));
+    text(g, `kabul konisi, θa = ${deg(thA, 1)}`, x0 - Rc * 0.55, yc + Rc * Math.sin(Math.min(thA, 0.9)) * 0.55 + 16 * dpr, th.accent, 10, "center", "middle", "600");
+
+    // Giriş: lazer, gelen ve yansıyan ışın
+    const th0 = SC.th0, lx = x0 - L.Rl * Math.cos(th0), ly = yc - L.Rl * Math.sin(th0);
+    const rgb = th.beam, Pin = tr.ent.T;
+    beam(g, lx, ly, x0, yc, rgb, 1, th, 8);
+    beam(g, x0, yc, x0 - L.Rl * 0.6 * Math.cos(th0), yc + L.Rl * 0.6 * Math.sin(th0), rgb, tr.ent.R, th, 8);
+    g.save();
+    g.translate(lx, ly);
+    g.rotate(Math.atan2(yc - ly, x0 - lx));
+    g.fillStyle = th.light ? "#334155" : "#cbd5e1";
+    g.beginPath(); g.roundRect(-30 * dpr, -6 * dpr, 26 * dpr, 12 * dpr, 3 * dpr); g.fill();
+    g.restore();
+    g.fillStyle = th.ink;
+    g.strokeStyle = th.warm;
+    g.lineWidth = 2 * dpr;
+    g.beginPath(); g.arc(lx, ly, 6 * dpr, 0, Math.PI * 2); g.fill(); g.stroke();
+    if (th0 > 1.5 * D2R) {
+      const rr = Math.min(48 * dpr, L.Rl * 0.35);
+      arcMark(g, x0, yc, rr, Math.PI, Math.PI + th0, th.ink);
+      text(g, "θ₀", x0 + Math.cos(Math.PI + th0 / 2) * (rr + 12 * dpr), yc + Math.sin(Math.PI + th0 / 2) * (rr + 12 * dpr), th.ink, 12, "center", "middle", "600");
+    }
+    tag(g, `θ₀ = ${deg(th0, 1)}`, lx, ly - 18 * dpr, th.ink, th, 10, "center");
+
+    // Çekirdekteki zikzak ve sızan ışınlar
+    const path = fiberPath(L, tr.thr);
+    let Ps = tr.ent.Ts, Pp = tr.ent.Tp;
+    const segP = [];
+    for (let i = 1; i < path.pts.length; i++) {
+      const P0 = path.pts[i - 1], P1 = path.pts[i], Pnow = (Ps + Pp) / 2;
+      segP.push(Pnow);
+      beam(g, P0[0], P0[1], P1[0], P1[1], rgb, Pnow, th, 8);
+      if (i - 1 < path.hits.length) {
+        const h = path.hits[i - 1];
+        if (!tr.guided) {
+          const Tw = (Ps * (1 - tr.wall.Rs) + Pp * (1 - tr.wall.Rp)) / 2;
+          const sTh = (SC.n1 / SC.n2) * Math.sin(tr.phi), cTh = Math.sqrt(Math.max(0, 1 - sTh * sTh));
+          const dyy = h.down ? 1 : -1, ex = sTh, ey = dyy * cTh;
+          const tlen = clad / Math.max(cTh, 1e-3);
+          if (Tw > 0.002) {
+            const gr = g.createLinearGradient(h.x, h.y, h.x + ex * tlen, h.y + ey * tlen);
+            gr.addColorStop(0, rgba(th.light ? [220, 38, 38] : [248, 113, 113], 0.85));
+            gr.addColorStop(1, rgba(th.light ? [220, 38, 38] : [248, 113, 113], 0));
+            g.strokeStyle = gr;
+            g.lineWidth = Math.max(1 * dpr, 8 * dpr * Tw);
+            line(g, h.x, h.y, h.x + ex * tlen, h.y + ey * tlen);
+          }
+        }
+        Ps *= tr.wall.Rs; Pp *= tr.wall.Rp;
+      }
+    }
+    // φ yayı ilk çarpmada
+    if (path.hits.length) {
+      const h = path.hits[0], rr = Math.min(30 * dpr, dpx * 0.45);
+      const nUp = h.down ? -Math.PI / 2 : Math.PI / 2;
+      const back = h.down ? -Math.PI + tr.thr : Math.PI - tr.thr;
+      arcMark(g, h.x, h.y, rr, back, nUp, th.ink, 1.4 * dpr);
+      dashed(g, th.faint, 1 * dpr, h.x, h.y, h.x, h.y + (h.down ? -1 : 1) * dpx * 0.9);
+      tag(g, `φ = ${deg(tr.phi, 1)} ${tr.guided ? "≥" : "<"} θc = ${deg(tr.thc, 1)}`, h.x, yc + (h.down ? -1 : 1) * (a + clad + 30 * dpr), tr.guided ? th.accent : th.danger, th, 10, "center");
+    }
+
+    // Işık atmaları: aynı hızla, biri eksen boyunca, biri zikzak yolda
+    if (SC.pulse) {
+      const total = (L.x1 - L.x0), s = SC.u * total;
+      const ax = Math.min(L.x1, L.x0 + s);
+      g.strokeStyle = th.accent;
+      g.lineWidth = 2 * dpr;
+      g.beginPath(); g.arc(ax, yc, 5 * dpr, 0, Math.PI * 2); g.stroke();
+      let rem = s, px = null, py = null, pw = 1;
+      for (let i = 1; i < path.pts.length; i++) {
+        const P0 = path.pts[i - 1], P1 = path.pts[i], len = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]);
+        if (rem <= len) { px = P0[0] + ((P1[0] - P0[0]) * rem) / len; py = P0[1] + ((P1[1] - P0[1]) * rem) / len; pw = segP[i - 1]; break; }
+        rem -= len;
+      }
+      if (px !== null && pw > 0.01) {
+        const gr = g.createRadialGradient(px, py, 0, px, py, 10 * dpr);
+        gr.addColorStop(0, rgba(rgb, Math.min(1, 0.4 + pw)));
+        gr.addColorStop(1, rgba(rgb, 0));
+        g.fillStyle = gr;
+        g.beginPath(); g.arc(px, py, 10 * dpr, 0, Math.PI * 2); g.fill();
+      }
+      text(g, "○ eksenel atma   ● bu ışının atması", x0, yc + a + clad + 38 * dpr, th.muted, 10, "left", "middle");
+    }
+    text(g, "Hava · n₀ = 1.000293", 10 * dpr, 14 * dpr, th.ink, 12, "left", "middle", "600");
+    text(g, `NA = ${fix(r.NA, 4)}`, W - 10 * dpr, 14 * dpr, th.ink, 12, "right", "middle", "600");
+  }
+
+  function drawChartC() {
+    const th = theme(), g = cg, r = SC.res, small = chart.width < 520 * dpr, n0 = PHYS.N_AIR;
+    const KM = 1000, thAdeg = r.thA * R2D;
+    const dMaxShown = PHYS.modalDelay(SC.n1, Math.asin((n0 * Math.sin(Math.min(r.thA, 80 * D2R))) / SC.n1)) * KM * 1e9;
+    const rStep = niceStep(Math.max(dMaxShown, 1e-6) / 4), rTop = Math.max(rStep, Math.ceil(dMaxShown / rStep) * rStep);
+    const L = chartFrame(g, th, {
+      x0: 0, x1: 80, xStep: small ? 20 : 10, y0: 0, y1: 100, yStep: 25, xLabel: "θ₀", xFmt: (v) => `${v}°`, yLabel: "1 m sonra güç (%)",
+      right: { y1: rTop, step: rStep, color: th.accent2, label: "Δτ (ns/km)" },
+    });
+    if (thAdeg < 80) {
+      g.fillStyle = rgba(th.light ? [220, 38, 38] : [248, 113, 113], 0.08);
+      g.fillRect(L.X(thAdeg), L.t, L.X(80) - L.X(thAdeg), L.h);
+      text(g, "sızan ışınlar", (L.X(thAdeg) + L.X(80)) / 2, L.t + L.h * 0.5, th.danger, 10, "center", "middle", "600");
+    }
+    clipPlot(g, L);
+    const N = 400, Yr = (v) => L.t + L.h - (v / rTop) * L.h;
+    g.strokeStyle = th.warm;
+    g.lineWidth = 2.4 * dpr;
+    g.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const t = (i / N) * 80 * D2R, thr = Math.asin((n0 * Math.sin(t)) / SC.n1);
+      const ent = PHYS.fresnel(n0, SC.n1, t), wall = PHYS.fresnel(SC.n1, SC.n2, Math.PI / 2 - thr);
+      const Nb = Math.floor((L_REF * Math.tan(thr)) / SC.d + 0.5);
+      const P = (ent.Ts * Math.pow(wall.Rs, Nb) + ent.Tp * Math.pow(wall.Rp, Nb)) / 2;
+      const x = L.X(t * R2D), y = L.Y(P * 100);
+      i ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+    g.strokeStyle = th.accent2;
+    g.lineWidth = 2 * dpr;
+    g.setLineDash([6 * dpr, 4 * dpr]);
+    g.beginPath();
+    for (let i = 0; i <= N; i++) {
+      const tdeg = (i / N) * Math.min(80, thAdeg), t = tdeg * D2R, thr = Math.asin((n0 * Math.sin(t)) / SC.n1);
+      const v = PHYS.modalDelay(SC.n1, thr) * KM * 1e9;
+      i ? g.lineTo(L.X(tdeg), Yr(v)) : g.moveTo(L.X(tdeg), Yr(v));
+    }
+    g.stroke();
+    g.setLineDash([]);
+    g.restore();
+    if (thAdeg < 80) {
+      const x = L.X(thAdeg);
+      dashed(g, th.accent, 1.2 * dpr, x, L.t, x, L.t + L.h, [2 * dpr, 3 * dpr]);
+      tag(g, `θa = ${deg(r.thA)}`, x + 4 * dpr, L.Y(14), th.accent, th, 10, "left");
+    }
+    const xc = L.X(SC.th0 * R2D);
+    g.strokeStyle = th.ink;
+    g.lineWidth = 1 * dpr;
+    line(g, xc, L.t, xc, L.t + L.h);
+    g.fillStyle = th.warm;
+    g.beginPath(); g.arc(xc, L.Y(Math.max(0, r.tr.P) * 100), 4 * dpr, 0, Math.PI * 2); g.fill();
+    if (r.tr.guided) {
+      g.fillStyle = th.accent2;
+      g.beginPath(); g.arc(xc, Yr(r.dT * KM * 1e9), 4 * dpr, 0, Math.PI * 2); g.fill();
+    }
+    legend(g, th, small
+      ? [{ color: th.warm, label: "güç" }, { color: th.accent2, label: "gecikme", dash: true }]
+      : [{ color: th.warm, label: "kalan güç (giriş yansıması dahil)" }, { color: th.accent2, label: "eksenel ışına göre gecikme", dash: true }],
+    L.l + (small ? 76 : 100) * dpr, 11 * dpr);
+  }
+  function pointerC(sx, sy) {
+    const L = layoutC(), dx = sx - L.x0, dy = sy - L.yc;
+    let a;
+    if (dx >= 0) a = dy < 0 ? 80 * D2R : 0;
+    else a = Math.atan2(-dy, -dx);
+    setTh0(a);
+    return true;
+  }
+
+  /* ── Sekmeler ── */
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = el.dataset.for !== key; });
+    stage.setAttribute("aria-label", ARIA[key][0]);
+    chart.setAttribute("aria-label", ARIA[key][1]);
+    if (fromUser) {
+      try { history.replaceState(null, "", `#${key}`); } catch (_) {}
+    }
+    endDrag();
+    dirty = true;
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+
+  /* ── Döngü ── */
+  const DT = 1 / 120;
+  let acc = 0, lastFrame = 0, lastTheme = "";
+  const animating = () => (S.tab === "arayuz" && SA.waves) || (S.tab === "fiber" && SC.pulse);
+  function stepSim(dt) {
+    S.t += dt;
+    if (S.tab === "fiber") {
+      const lim = 1 / Math.cos(SC.res.tr.thr) + 0.25;   // zikzak atma uca varınca kısa bekleyip baştan
+      SC.u += dt / PULSE_T;
+      if (SC.u > lim) SC.u = 0;
+    }
+  }
+  function render(full) {
+    if (S.tab === "arayuz") { drawA(); if (full) { drawChartA(); readoutsA(); } }
+    else if (S.tab === "prizma") { drawB(); if (full) { drawChartB(); readoutsB(); } }
+    else { drawC(); if (full) { drawChartC(); readoutsC(); } }
+  }
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) { lastTheme = th; dirty = true; if (S.tab === "prizma") syncB(); }
+    let anim = false;
+    if (!S.paused && !window.AcelyaPause?.isPaused?.()) {
+      anim = animating();
+      if (anim) {
+        acc += elapsed;
+        while (acc >= DT) { stepSim(DT); acc -= DT; }
+      } else acc = 0;
+    }
+    if (dirty) { render(true); dirty = false; }
+    else if (anim) render(false);
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    dirty = true;
+  }
+
+  /* ── Etkileşim ── */
+  const REDUCED = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+  function setPaused(p) {
+    S.paused = p;
+    for (const b of [SA.ui.pause, SC.ui.pause]) {
+      setText(b, p ? "Devam et" : "Duraklat");
+      b.setAttribute("aria-pressed", String(p));
+    }
+    dirty = true;
+  }
+  function resetTab() {
+    if (S.tab === "arayuz") resetA();
+    else if (S.tab === "prizma") resetB();
+    else resetC();
+  }
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button")) return;
+    if (e.code === "Space" && S.tab !== "prizma") { e.preventDefault(); setPaused(!S.paused); }
+    else if (e.key === "r" || e.key === "R") resetTab();
+  });
+
+  let drag = null;
+  function endDrag() {
+    if (!drag) return;
+    drag = null;
+    stage.classList.remove("is-dragging");
+  }
+  const pointerFor = { arayuz: pointerA, prizma: pointerB, fiber: pointerC };
+  stage.addEventListener("pointerdown", (evt) => {
+    const [sx, sy] = canvasPoint(evt, stage);
+    if (!pointerFor[S.tab](sx, sy)) return;
+    drag = S.tab;
+    stage.setPointerCapture(evt.pointerId);
+    stage.classList.add("is-dragging");
+    evt.preventDefault();
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    if (!drag || drag !== S.tab) return;
+    const [sx, sy] = canvasPoint(evt, stage);
+    pointerFor[S.tab](sx, sy);
+  });
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+
+  let chartDrag = false;
+  function chartSet(evt) {
+    const [sx] = canvasPoint(evt, chart), small = chart.width < 520 * dpr;
+    const l = (small ? 38 : 46) * dpr, rr = (S.tab === "fiber" ? (small ? 40 : 50) : 12) * dpr, w = chart.width - l - rr;
+    const f = clamp((sx - l) / w, 0, 1);
+    if (S.tab === "arayuz") setThetaA(f * 90 * D2R);
+    else if (S.tab === "prizma") setTh1B(f * 90 * D2R);
+    else setTh0(f * 80 * D2R);
+  }
+  chart.addEventListener("pointerdown", (evt) => { chartDrag = true; chart.setPointerCapture(evt.pointerId); chartSet(evt); });
+  chart.addEventListener("pointermove", (evt) => { if (chartDrag) chartSet(evt); });
+  const endChart = () => { chartDrag = false; };
+  chart.addEventListener("pointerup", endChart);
+  chart.addEventListener("pointercancel", endChart);
+
+  // (a)
+  SA.ui.m1.addEventListener("change", () => setMedium(1, SA.ui.m1.value));
+  SA.ui.m2.addEventListener("change", () => setMedium(2, SA.ui.m2.value));
+  SA.ui.n1.addEventListener("input", () => { SA.m1 = "ozel"; SA.n1 = Number(SA.ui.n1.value); syncA(); });
+  SA.ui.n2.addEventListener("input", () => { SA.m2 = "ozel"; SA.n2 = Number(SA.ui.n2.value); syncA(); });
+  SA.ui.th.addEventListener("input", () => { SA.th = Number(SA.ui.th.value) * D2R; syncA(); });
+  SA.ui.pol.addEventListener("change", () => { SA.pol = SA.ui.pol.value; syncA(); });
+  SA.ui.waves.addEventListener("change", () => { SA.waves = SA.ui.waves.checked; dirty = true; });
+  SA.ui.fermat.addEventListener("change", () => { SA.fermat = SA.ui.fermat.checked; dirty = true; });
+  SA.ui.swap.addEventListener("click", () => {
+    [SA.m1, SA.m2] = [SA.m2, SA.m1];
+    [SA.n1, SA.n2] = [SA.n2, SA.n1];
+    SA.ui.n1.value = String(SA.n1);
+    SA.ui.n2.value = String(SA.n2);
+    syncA();
+  });
+  SA.ui.normal.addEventListener("click", () => setThetaA(0));
+  SA.ui.brew.addEventListener("click", () => { if (!SA.res.same) setThetaA(SA.res.thB); });
+  SA.ui.crit.addEventListener("click", () => { if (Number.isFinite(SA.res.thC)) setThetaA(SA.res.thC); });
+  SA.ui.pause.addEventListener("click", () => setPaused(!S.paused));
+  SA.ui.reset.addEventListener("click", resetA);
+  // (b)
+  SB.ui.glass.addEventListener("change", () => { SB.glass = SB.ui.glass.value; syncB(); });
+  SB.ui.apex.addEventListener("input", () => { SB.A = Number(SB.ui.apex.value) * D2R; syncB(); });
+  SB.ui.th1.addEventListener("input", () => { SB.th1 = Number(SB.ui.th1.value) * D2R; syncB(); });
+  SB.ui.light.addEventListener("change", () => { SB.white = SB.ui.light.value === "white"; syncB(); });
+  SB.ui.lam.addEventListener("input", () => { SB.lam = Number(SB.ui.lam.value); syncB(); });
+  document.querySelectorAll("[data-line]").forEach((b) => b.addEventListener("click", () => {
+    SB.lam = Number(fix(PHYS.LINES[b.dataset.line], 1));
+    SB.ui.lam.value = String(SB.lam);
+    syncB();
+  }));
+  SB.ui.minDev.addEventListener("click", () => { const t = SB.res.th1mT; if (Number.isFinite(t)) setTh1B(t); });
+  SB.ui.reset.addEventListener("click", resetB);
+  // (c)
+  SC.ui.n1.addEventListener("input", () => setFiberN(Number(SC.ui.n1.value), SC.n2));
+  SC.ui.n2.addEventListener("input", () => setFiberN(SC.n1, Number(SC.ui.n2.value)));
+  SC.ui.th0.addEventListener("input", () => { SC.th0 = Number(SC.ui.th0.value) * D2R; syncC(); });
+  SC.ui.core.addEventListener("change", () => { SC.d = Number(SC.ui.core.value) * 1e-6; syncC(); });
+  SC.ui.pulse.addEventListener("change", () => { SC.pulse = SC.ui.pulse.checked; SC.u = 0; dirty = true; });
+  SC.ui.typical.addEventListener("click", () => setFiberN(1.48, 1.46));
+  SC.ui.pause.addEventListener("click", () => setPaused(!S.paused));
+  SC.ui.reset.addEventListener("click", resetC);
+
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Başlat ── */
+  resetA();
+  resetB();
+  resetC();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "arayuz", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

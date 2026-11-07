@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması</title>
+  <meta name="description" content="Geçen ambulansın perdesi neden düşer, ses üstü bir jet neden önce sessiz gelip sonra patlamayla duyulur? Tepeleri say, frekansı ölç; aynı ilkenin başka güneşlerin gezegenlerini nasıl bulduğunu gör.">
+  <style>
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+      cursor: crosshair;
+    }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .pass-canvas { aspect-ratio: 5 / 2; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    body.app-page .field label .lbl { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .row.presets button { padding: 6px 10px; font-size: 0.82rem; }
+    .row button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--accent-warm); }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+    }
+    .readout small { font-size: 0.74rem; letter-spacing: 0.03em; }
+    .readout strong { font-size: 1.1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .results { display: grid; gap: 10px; }
+    body.app-page table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; }
+    body.app-page table.cmp th,
+    body.app-page table.cmp td { padding: 6px 8px; text-align: right; vertical-align: top; overflow-wrap: anywhere; }
+    body.app-page table.cmp thead th { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    body.app-page table.cmp thead th:first-child { text-align: left; }
+    body.app-page table.cmp tbody th { text-align: left; font-weight: 600; background: var(--bg-input) !important; color: var(--text) !important; }
+    body.app-page table.cmp tbody tr:hover td { background: var(--bg-card) !important; }
+    .cmp col.c-name { width: 34%; }
+    .cmp b { display: block; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .cmp small { display: block; margin-top: 2px; font-size: 0.72rem; font-weight: 400; color: var(--text-muted); }
+    .dot { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; vertical-align: 1px; }
+    .dot-a { background: var(--accent-2); }
+    .dot-b { background: #60a5fa; }
+    .dot-c { background: #f472b6; }
+    [data-theme="light"] .dot-b { background: #2563eb; }
+    [data-theme="light"] .dot-c { background: #db2777; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .note:empty { display: none; }
+    .status { border-left: 3px solid var(--accent-warm); padding-left: 10px; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .sim-canvas { aspect-ratio: 3 / 2; }
+      .chart-canvas { aspect-ratio: 2 / 1; }
+      .pass-canvas { aspect-ratio: 3 / 2; }
+      .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      body.app-page table.cmp { font-size: 0.78rem; }
+      body.app-page table.cmp th,
+      body.app-page table.cmp td { padding: 5px 6px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="doppler-etkisi">
+
+<div class="app-content">
+  <h1>Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması</h1>
+  <p class="hint">Her dalga tepesi, yayıldığı anda kaynağın bulunduğu noktada merkezli ve c(t − tₑ) yarıçaplı bir çemberdir. A ve B'ye varan tepeler sayılarak frekans ölçülür ve formülle karşılaştırılır; C gözlemcisini sahnede sürükleyebilirsin.</p>
+
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="waveCanvas" class="sim-canvas" width="1000" height="500" tabindex="0" role="img" aria-label="Dalga cepheleri: hareket eden kaynağın yaydığı tepeler, eksen üzerindeki A ve B gözlemcileri, sürüklenebilir C gözlemcisi ve ses hızı aşılınca Mach konisi"></canvas>
+      <canvas id="arrivalChart" class="chart-canvas" width="1000" height="250" role="img" aria-label="Zaman çizelgesi: kaynakta tepe yayımı ve A, B, C gözlemcilerine tepe varışları, son 3 saniye"></canvas>
+      <div class="results" aria-live="polite">
+        <div class="readouts">
+          <div class="readout is-highlight"><small>Mach sayısı M</small><strong id="machDisplay">0.500</strong></div>
+          <div class="readout"><small>Ses hızı c</small><strong id="cDisplay">343 m/s</strong></div>
+          <div class="readout"><small>Durgun dalga boyu λ₀ = c/f₀</small><strong id="lam0Display">85.8 m</strong></div>
+          <div class="readout"><small>Rejim</small><strong id="regimeDisplay">ses altı</strong></div>
+        </div>
+        <table class="cmp">
+          <caption class="visually-hidden">Ölçülen ve kuramsal değerler</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead>
+            <tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr>
+          </thead>
+          <tbody>
+            <tr id="row-lamA"><th scope="row">λ önde<small>(c − v<sub>s</sub>)/f₀</small></th><td></td><td></td><td></td></tr>
+            <tr id="row-lamB"><th scope="row">λ arkada<small>(c + v<sub>s</sub>)/f₀</small></th><td></td><td></td><td></td></tr>
+            <tr id="row-fA"><th scope="row"><i class="dot dot-a" aria-hidden="true"></i>f, A (önde)<small>f₀(c + v<sub>o</sub>)/(c − v<sub>s</sub>)</small></th><td></td><td></td><td></td></tr>
+            <tr id="row-fB"><th scope="row"><i class="dot dot-b" aria-hidden="true"></i>f, B (arkada)<small>f₀(c + v<sub>o</sub>)/(c + v<sub>s</sub>)</small></th><td></td><td></td><td></td></tr>
+            <tr id="row-fC"><th scope="row"><i class="dot dot-c" aria-hidden="true"></i>f, C (anlık)<small>f₀/|1 − M cos θ|</small></th><td></td><td></td><td></td></tr>
+            <tr id="row-mu"><th scope="row">Koni yarı açısı μ<small>sin μ = c/v<sub>s</sub></small></th><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="note status" id="statusText"></p>
+        <p class="note" id="frameNote"></p>
+      </div>
+      <div class="panel">
+        <h2>Geçen siren</h2>
+        <canvas id="passChart" class="chart-canvas pass-canvas" width="900" height="300" role="img" aria-label="Yoldan geçen bir kaynaktan duyulan frekans oranı f/f₀, gözlemci zamanına göre"></canvas>
+        <p class="note" id="passNote"></p>
+      </div>
+    </div>
+
+    <div class="panel" aria-label="Kontroller">
+      <h2>Deney ayarları</h2>
+      <div class="field">
+        <label for="vsRange"><span class="lbl">Kaynak hızı v<sub>s</sub></span> <output id="vsOut">171.5 m/s (M = 0.500)</output></label>
+        <input type="range" id="vsRange" min="0" max="686" step="1.715" value="171.5">
+      </div>
+      <div class="field">
+        <label for="f0Range"><span class="lbl">Kaynak frekansı f₀</span> <output id="f0Out">4.0 Hz</output></label>
+        <input type="range" id="f0Range" min="1" max="10" step="0.5" value="4">
+      </div>
+      <div class="field">
+        <label for="mediumSelect"><span class="lbl">Ortam (ses hızı c)</span> <output id="mediumOut">343 m/s</output></label>
+        <select id="mediumSelect">
+          <option value="343" selected>Hava, 20 °C · 343 m/s</option>
+          <option value="331">Hava, 0 °C · 331 m/s</option>
+          <option value="1480">Tatlı su, 20 °C · 1480 m/s</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="voRange"><span class="lbl">Gözlemci hızı v<sub>o</sub> (kaynağa doğru)</span> <output id="voOut">0.0 m/s (0.00c)</output></label>
+        <input type="range" id="voRange" min="0" max="308.7" step="1.715" value="0">
+      </div>
+      <div class="field">
+        <label for="rateSelect"><span class="lbl">Oynatma hızı</span> <output id="rateOut">1×</output></label>
+        <select id="rateSelect">
+          <option value="1" selected>1× (gerçek zaman)</option>
+          <option value="0.5">0.5× (ağır çekim)</option>
+          <option value="0.25">0.25× (ağır çekim)</option>
+          <option value="0.1">0.1× (ağır çekim)</option>
+        </select>
+      </div>
+      <div class="row">
+        <button type="button" id="toggleBtn" aria-pressed="false">Duraklat</button>
+        <button type="button" id="resetBtn">Sıfırla</button>
+      </div>
+      <p class="note">Tepeleri görebilmek için f₀ saniyede birkaç tepe seçildi. Gerçek seste f₀ yüzlerce hertz olur; f/f₀ ve λ/λ₀ oranları aynı kalır.</p>
+
+      <h2>Hazır deneyler</h2>
+      <div class="row presets">
+        <button type="button" id="presetSlow" data-ms="0.2" data-mo="0">M = 0.2</button>
+        <button type="button" id="presetWall" data-ms="1" data-mo="0">M = 1</button>
+        <button type="button" id="presetFast" data-ms="2" data-mo="0">M = 2</button>
+        <button type="button" id="presetObserver" data-ms="0" data-mo="0.5">Gözlemci 0.5c</button>
+        <button type="button" id="presetSource" data-ms="0.5" data-mo="0">Kaynak 0.5c</button>
+      </div>
+
+      <h2>Ses</h2>
+      <div class="field">
+        <label for="earSelect"><span class="lbl">Dinlenen gözlemci</span></label>
+        <select id="earSelect">
+          <option value="A" selected>A (önde)</option>
+          <option value="B">B (arkada)</option>
+          <option value="C">C (sürüklenebilir)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="passRange"><span class="lbl">Geçiş uzaklığı d</span> <output id="passOut">20 m</output></label>
+        <input type="range" id="passRange" min="5" max="100" step="5" value="20">
+      </div>
+      <div class="row">
+        <button type="button" id="soundBtn" aria-pressed="false">Ses: kapalı</button>
+        <button type="button" id="passBtn" aria-pressed="false">Geçiş sesi</button>
+      </div>
+      <p class="note" id="audioNote" role="status"></p>
+      <p class="note">Ses: seçilen gözlemcide ölçülen f/f₀ oranı 440 Hz'lik bir tona uygulanır (440·f/f₀ Hz). Geçiş sesi: kaynak, gözlemciden d uzaklıktaki düz yoldan v<sub>s</sub> ile geçer; 5 s'lik kayıt, en yakın noktada yayılan sesin varışını ortalar. Genlik uzaklıkla azalır (duyulabilir kalsın diye ∝ 1/√r alındı).</p>
+      <p class="note">İşaretler: v<sub>s</sub> kaynağın ortama göre hızıdır (+x yönü, A'ya doğru). v<sub>o</sub>, A ve B'nin ortama göre hızıdır; pozitif değer kaynağa doğru demektir. C ortama göre durgundur. Sahne genişliği, sesin 3 s'de aldığı yoldur (c × 3 s).</p>
+      <p class="note">C'de ölçülen frekans iki ardışık tepenin varış aralığından bulunur; kuram, bu iki tepenin yayım anlarının ortasındaki θ açısıyla hesaplanan anlık değerdir. Frekans hızla değişirken (en yakın geçiş, koninin gelişi) aralarında birkaç yüzdelik fark kalır.</p>
+      <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla. Sahne seçiliyken ok tuşları C'yi taşır.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const stage = $("waveCanvas");
+  const sctx = stage.getContext("2d");
+  const chart = $("arrivalChart");
+  const cctx = chart.getContext("2d");
+  const passCv = $("passChart");
+  const pctx = passCv.getContext("2d");
+
+  const ui = {
+    vs: $("vsRange"), vsOut: $("vsOut"),
+    f0: $("f0Range"), f0Out: $("f0Out"),
+    medium: $("mediumSelect"), mediumOut: $("mediumOut"),
+    vo: $("voRange"), voOut: $("voOut"),
+    rate: $("rateSelect"), rateOut: $("rateOut"),
+    ear: $("earSelect"),
+    d: $("passRange"), dOut: $("passOut"),
+    sound: $("soundBtn"), passBtn: $("passBtn"),
+    toggle: $("toggleBtn"), reset: $("resetBtn"),
+    mach: $("machDisplay"), speed: $("cDisplay"), lam0: $("lam0Display"), regime: $("regimeDisplay"),
+    status: $("statusText"), frame: $("frameNote"), passNote: $("passNote"), audioNote: $("audioNote"),
+  };
+  const rows = {};
+  ["lamA", "lamB", "fA", "fB", "fC", "mu"].forEach((key) => {
+    const tr = $(`row-${key}`);
+    rows[key] = [1, 2, 3].map((i) => {
+      const b = document.createElement("b");
+      const s = document.createElement("small");
+      tr.cells[i].append(b, s);
+      return { b, s };
+    });
+  });
+
+  const DT = 1 / 240;
+  const VIEW_TIME = 3;
+  const CHART_SPAN = 3;
+  const PASS_HALF = 2.5;
+  const PASS_SAMPLES = 300;
+  const BASE_TONE = 440;
+  const EPS = 1e-9;
+
+  const P = { c: 343, M: 0.5, vs: 171.5, Mo: 0, vo: 0, f0: 4, rate: 1, d: 20 };
+  const cPos = { x: 0.7, y: 0.16 };
+  const run = { t: 0, n: 0, W: 1029, x0: 0, tEnd: Infinity, crests: [], emits: [], running: true };
+  const makeObs = (id) => ({ id, x0: 0, y: 0, vx: 0, arrivals: [], valid: [], live: null, flash: -1 });
+  const obs = { A: makeObs("A"), B: makeObs("B"), C: makeObs("C") };
+  const OBS = [obs.A, obs.B, obs.C];
+  let memo = {};
+  let dpr = 1;
+  let dragging = false;
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const sourceX = (t) => run.x0 + P.vs * t;
+  const obsX = (o, t) => o.x0 + o.vx * t;
+
+  /* ── Ayarlar ── */
+  function configureRange(input, c, maxMach, mach) {
+    const step = c / 200;
+    input.step = String(step);
+    input.max = String(maxMach * c + step / 4);
+    input.value = String(mach * c);
+  }
+
+  function readControls() {
+    P.c = Number(ui.medium.value);
+    const step = P.c / 200;
+    P.M = clamp(Math.round(Number(ui.vs.value) / step), 0, 400) / 200;
+    P.vs = P.M * P.c;
+    P.Mo = clamp(Math.round(Number(ui.vo.value) / step), 0, 180) / 200;
+    P.vo = P.Mo * P.c;
+    P.f0 = Number(ui.f0.value);
+    P.rate = Number(ui.rate.value);
+    P.d = Number(ui.d.value);
+    ui.vsOut.textContent = `${P.vs.toFixed(1)} m/s (M = ${P.M.toFixed(3)})`;
+    ui.f0Out.textContent = `${P.f0.toFixed(1)} Hz`;
+    ui.mediumOut.textContent = `${P.c} m/s`;
+    ui.voOut.textContent = `${P.vo.toFixed(1)} m/s (${P.Mo.toFixed(2)}c)`;
+    ui.rateOut.textContent = `${P.rate}×`;
+    ui.dOut.textContent = `${P.d} m`;
+  }
+
+  function plannedEnd() {
+    const { vs, vo } = P;
+    if (vs > 0) return (1.04 * run.W - run.x0) / vs + 1.2;
+    if (vo > 0) return Math.max((obs.A.x0 - run.x0) / vo, (run.x0 - obs.B.x0) / vo) + 1.2;
+    return Infinity;
+  }
+
+  function newRun(clearMemo) {
+    run.W = P.c * VIEW_TIME;
+    run.x0 = run.W * (P.M === 0 ? 0.5 : P.M >= 1 ? 0.1 : 0.36);
+    run.t = 0;
+    run.n = 0;
+    run.crests = [];
+    run.emits = [];
+    obs.A.x0 = 0.96 * run.W; obs.A.y = 0; obs.A.vx = -P.vo;
+    obs.B.x0 = 0.04 * run.W; obs.B.y = 0; obs.B.vx = P.vo;
+    obs.C.x0 = cPos.x * run.W; obs.C.y = cPos.y * run.W; obs.C.vx = 0;
+    OBS.forEach(resetObserver);
+    run.tEnd = plannedEnd();
+    if (clearMemo) memo = {};
+  }
+
+  function resetObserver(o) {
+    o.arrivals = [];
+    o.valid = [];
+    o.live = null;
+    o.flash = -1;
+  }
+
+  /* ── Fizik: tepe yayımı ve varış sayımı ── */
+  // g > 0: tepe gözlemciyi geçmiş (gözlemci çemberin içinde)
+  function gap(o, k, t) {
+    return P.c * (t - k.t) - Math.hypot(obsX(o, t) - k.x, o.y);
+  }
+
+  function step(dt) {
+    const t0 = run.t, t1 = t0 + dt;
+    while (run.n / P.f0 <= t1) {
+      const te = run.n / P.f0;
+      run.crests.push({ x: sourceX(te), t: te, n: run.n });
+      run.emits.push(te);
+      run.n++;
+    }
+    for (const o of OBS) {
+      let hits = null;
+      for (const k of run.crests) {
+        const ta = Math.max(t0, k.t);
+        if (ta >= t1) continue;
+        const ga = gap(o, k, ta), gb = gap(o, k, t1);
+        if (ga < 0 && gb >= 0) (hits || (hits = [])).push({ t: ta + ((t1 - ta) * -ga) / (gb - ga), n: k.n });
+      }
+      if (hits) {
+        hits.sort((p, q) => p.t - q.t);
+        hits.forEach((h) => registerArrival(o, h.t, h.n));
+      }
+    }
+    run.t = t1;
+  }
+
+  function registerArrival(o, tau, n) {
+    let valid = true;
+    if (o.id === "A") valid = sourceX(tau) < obsX(o, tau) - EPS * run.W;
+    else if (o.id === "B") valid = obsX(o, tau) < sourceX(tau) - EPS * run.W;
+    o.arrivals.push({ t: tau, n, v: valid });
+    o.flash = tau;
+    for (let i = o.arrivals.length - 2, stop = Math.max(0, o.arrivals.length - 41); i >= stop; i--) {
+      const a = o.arrivals[i];
+      if (Math.abs(a.n - n) !== 1) continue;
+      const dt = Math.abs(tau - a.t);
+      if (dt > 1e-12) {
+        const tm = (a.n + n) / (2 * P.f0);
+        const dx = obsX(o, tau) - sourceX(tm), dy = o.y;
+        const cos = dx / Math.hypot(dx, dy || 1e-12);
+        o.live = { f: 1 / dt, t: tau, dt, fth: P.f0 / Math.abs(1 - P.M * cos), theta: Math.acos(clamp(cos, -1, 1)) };
+      }
+      break;
+    }
+    if (valid && o.id !== "C") {
+      o.valid.push(tau);
+      if (o.valid.length > 9) o.valid.shift();
+      const v = o.valid;
+      if (v.length >= 2) memo[o.id] = (v.length - 1) / (v[v.length - 1] - v[0]);
+    }
+  }
+
+  function prune() {
+    const t = run.t, W = run.W, Hh = 0.34 * W;
+    run.crests = run.crests.filter((k) => P.c * (t - k.t) <= Math.hypot(Math.max(k.x, W - k.x), Hh) * 1.02);
+    const cut = t - CHART_SPAN - 0.5;
+    while (run.emits.length && run.emits[0] < cut) run.emits.shift();
+    for (const o of OBS) {
+      let i = 0;
+      while (i < o.arrivals.length - 40 && o.arrivals[i].t < cut) i++;
+      if (i) o.arrivals.splice(0, i);
+    }
+  }
+
+  // Eksen üzerindeki ardışık tepe cephelerinin aralığı (önde: ön yüzler, arkada: arka yüzler)
+  function frontSpacing(ahead) {
+    const t = run.t, W = run.W;
+    let newest = null, oldest = null, count = 0;
+    for (let i = run.crests.length - 1; i >= 0 && count < 6; i--) {
+      const k = run.crests[i];
+      const r = P.c * (t - k.t);
+      const x = ahead ? k.x + r : k.x - r;
+      if (x < 0 || x > W) {
+        if (count) break;
+        continue;
+      }
+      if (!newest) newest = { x, n: k.n };
+      oldest = { x, n: k.n };
+      count++;
+    }
+    if (count < 2) return null;
+    const dn = newest.n - oldest.n;
+    return ahead ? (oldest.x - newest.x) / dn : (newest.x - oldest.x) / dn;
+  }
+
+  // İki en eski tepenin ortak teğeti: sin μ = (r₁ − r₂)/(x₂ − x₁)
+  function coneAngle() {
+    if (run.crests.length < 2) return null;
+    const a = run.crests[0], b = run.crests[1];
+    const dx = b.x - a.x;
+    if (dx <= EPS) return null;
+    const s = (P.c * (b.t - a.t)) / dx;
+    if (s > 1 + 1e-9) return null;
+    return Math.asin(Math.min(1, s));
+  }
+
+  function liveRatio(o) {
+    const L = o.live;
+    if (!L || run.t - L.t > 1.5 * L.dt + 0.05) return null;
+    return L.f / P.f0;
+  }
+
+  /* ── Geçen kaynak: x = vₛt, gözlemci (0, d); τ = tₑ + R(tₑ)/c ── */
+  function passBranches(tau) {
+    const { c, vs: v, d, M } = P;
+    const roots = [];
+    if (v === 0) roots.push(tau - d / c);
+    else {
+      const a = c * c - v * v, b = -2 * c * c * tau, q = c * c * tau * tau - d * d;
+      if (Math.abs(a) < 1e-9 * c * c) {
+        if (tau > 0) roots.push(-q / b);
+      } else {
+        const disc = b * b - 4 * a * q;
+        if (disc >= 0) {
+          const s = Math.sqrt(disc);
+          [(-b - s) / (2 * a), (-b + s) / (2 * a)].forEach((te) => { if (tau - te > 1e-12) roots.push(te); });
+        }
+      }
+    }
+    roots.sort((x, y) => x - y);
+    return roots.map((te) => {
+      const R = c * (tau - te);
+      const cos = (-v * te) / R;
+      return { ratio: 1 / Math.abs(1 - M * cos), gain: Math.min(1, Math.sqrt(d / R)) };
+    });
+  }
+
+  let passCurve = null;
+  function computePass() {
+    const tau0 = P.d / P.c;
+    const rel = [], early = [], late = [];
+    for (let i = 0; i <= PASS_SAMPLES; i++) {
+      const tr = -PASS_HALF + (2 * PASS_HALF * i) / PASS_SAMPLES;
+      const br = passBranches(tau0 + tr);
+      rel.push(tr);
+      early.push(br.length === 2 ? br[0] : null);
+      late.push(br.length ? br[br.length - 1] : null);
+    }
+    let shock = null;
+    if (P.M > 1) shock = (P.d * Math.sqrt(P.M * P.M - 1)) / P.vs - tau0;
+    else if (P.M === 1) shock = -tau0;
+    passCurve = { rel, early, late, shock };
+    updatePassNote();
+  }
+
+  function updatePassNote() {
+    const { M, d, vs } = P;
+    const first = passCurve.late[0], last = passCurve.late[PASS_SAMPLES];
+    let text;
+    if (M === 0) text = "Kaynak durgun: geçiş yok, duyulan ton sabit (440 Hz).";
+    else if (M < 1) {
+      text = `d = ${d} m, vₛ = ${vs.toFixed(1)} m/s: pencerenin başında ${first.ratio.toFixed(3)} f₀, sonunda ${last.ratio.toFixed(3)} f₀ duyulur (440 Hz'lik tonda ${Math.round(BASE_TONE * first.ratio)} Hz → ${Math.round(BASE_TONE * last.ratio)} Hz). Sınırlar f₀/(1 − M) = ${(1 / (1 - M)).toFixed(3)} f₀ ve f₀/(1 + M) = ${(1 / (1 + M)).toFixed(3)} f₀. En yakın noktada yayılan ses tam f₀ ile, d/c = ${((d / P.c) * 1000).toFixed(0)} ms sonra duyulur.`;
+    } else if (M === 1) {
+      text = "Ses hızında geçiş: yaklaşırken yayılan seslerin hepsi, kaynak en yakın noktadan geçtiği anda birden gelir (grafikte dikey çizgi). Öncesi sessizdir; ardından tek bir ses f₀/2 değerine iner.";
+    } else {
+      const ts = passCurve.shock + d / P.c;
+      text = `Ses üstü geçiş: şok cephesi, kaynak en yakın noktadan geçtikten ${(ts * 1000).toFixed(0)} ms sonra gelir (grafikte dikey çizgi). Öncesi sessizdir; ardından patlama ve iki ses birden duyulur: ters sırada çalan erken dal f₀/(M − 1) = ${(1 / (M - 1)).toFixed(3)} f₀ değerine, geç dal f₀/(1 + M) = ${(1 / (1 + M)).toFixed(3)} f₀ değerine yaklaşır.`;
+    }
+    ui.passNote.textContent = text;
+  }
+
+  /* ── Okumalar ── */
+  function setText(el, text) {
+    if (el.textContent !== text) el.textContent = text;
+  }
+  function fill(row, meas, measSub, th, thSub, diff) {
+    setText(row[0].b, meas);
+    setText(row[0].s, measSub);
+    setText(row[1].b, th);
+    setText(row[1].s, thSub);
+    setText(row[2].b, diff);
+    setText(row[2].s, "");
+  }
+  const tidy = (v) => (Math.abs(v) < 5e-6 ? 0 : Number(v.toPrecision(9)));
+  const fmtLen = (m) => `${tidy(m).toFixed(1)} m`;
+  const fmtHz = (f) => `${tidy(f).toFixed(3)} Hz`;
+  function fmtDiff(meas, th) {
+    if (meas == null || th == null || Math.abs(th) < 1e-12) return "—";
+    const d = ((meas - th) / th) * 100;
+    if (Math.abs(d) < 0.005) return "0.00 %";
+    return `${d > 0 ? "+" : "−"}${Math.abs(d).toFixed(2)} %`;
+  }
+
+  function updateReadouts() {
+    const { c, f0, M, vs, vo } = P;
+    const lam0 = c / f0;
+    setText(ui.mach, M.toFixed(3));
+    setText(ui.speed, `${c} m/s`);
+    setText(ui.lam0, fmtLen(lam0));
+    setText(ui.regime, M === 0 ? "durgun kaynak" : M < 1 ? "ses altı" : M === 1 ? "ses duvarı" : "ses üstü");
+
+    const la = frontSpacing(true), lb = frontSpacing(false), mu = coneAngle();
+    if (la !== null) memo.lamA = la;
+    if (lb !== null) memo.lamB = lb;
+    if (mu !== null) memo.mu = mu;
+
+    if (M > 1) fill(rows.lamA, "önde dalga yok", "tepeler koninin içinde", "—", "c − vₛ < 0", "—");
+    else {
+      const th = (c - vs) / f0;
+      const m = memo.lamA;
+      fill(rows.lamA, m == null ? "—" : fmtLen(m), m == null ? "tepe bekleniyor" : M === 1 ? "tepeler üst üste" : `${(m / lam0).toFixed(3)} λ₀`,
+        fmtLen(th), `${(th / lam0).toFixed(3)} λ₀`, fmtDiff(m, th));
+    }
+    {
+      const th = (c + vs) / f0;
+      const m = memo.lamB;
+      fill(rows.lamB, m == null ? "—" : fmtLen(m), m == null ? "tepe bekleniyor" : `${(m / lam0).toFixed(3)} λ₀`,
+        fmtLen(th), `${(th / lam0).toFixed(3)} λ₀`, fmtDiff(m, th));
+    }
+    if (M >= 1) fill(rows.fA, "sessiz", "kaynaktan önce tepe ulaşmaz", "—", "c − vₛ ≤ 0", "—");
+    else {
+      const th = (f0 * (c + vo)) / (c - vs);
+      const m = memo.A;
+      fill(rows.fA, m == null ? "—" : fmtHz(m), m == null ? "tepe bekleniyor" : `${(m / f0).toFixed(3)} f₀`,
+        fmtHz(th), `${(th / f0).toFixed(3)} f₀`, fmtDiff(m, th));
+    }
+    {
+      const th = (f0 * (c + vo)) / (c + vs);
+      const m = memo.B;
+      fill(rows.fB, m == null ? "—" : fmtHz(m), m == null ? "tepe bekleniyor" : `${(m / f0).toFixed(3)} f₀`,
+        fmtHz(th), `${(th / f0).toFixed(3)} f₀`, fmtDiff(m, th));
+    }
+    const L = obs.C.live;
+    if (L) {
+      fill(rows.fC, fmtHz(L.f), `${(L.f / f0).toFixed(3)} f₀`, fmtHz(L.fth), `θ = ${((L.theta * 180) / Math.PI).toFixed(0)}°`, fmtDiff(L.f, L.fth));
+    } else {
+      fill(rows.fC, "sessiz", M >= 1 ? "koni henüz gelmedi" : "tepe bekleniyor", "—", "", "—");
+    }
+    if (M >= 1) {
+      const th = Math.asin(1 / M);
+      const m = memo.mu;
+      fill(rows.mu, m == null ? "—" : `${((m * 180) / Math.PI).toFixed(1)}°`, "iki en eski tepenin teğeti",
+        `${((th * 180) / Math.PI).toFixed(1)}°`, M === 1 ? "düz duvar" : "", fmtDiff(m, th));
+    } else fill(rows.mu, "koni yok", "M < 1", "—", "", "—");
+
+    setText(ui.status, statusText());
+    setText(ui.frame, frameText());
+  }
+
+  function statusText() {
+    const { M, vo } = P;
+    if (M === 0) {
+      return vo > 0
+        ? "Kaynak durgun, A ve B ona doğru ilerliyor: dalga boyu her yönde λ₀ kalır, ama gözlemciler tepelerle daha sık karşılaştığı için daha yüksek frekans ölçer."
+        : "Kaynak durgun: tepeler eş merkezli çemberlerdir; her yönde λ = λ₀ ve f = f₀.";
+    }
+    if (M < 1) {
+      return "Ses altı: kaynak, yaydığı tepelerin peşinden gider. Önde tepeler sıkışır (λ küçülür, f büyür), arkada seyrelir. Her çemberin merkezi, o tepe yayıldığı anda kaynağın bulunduğu noktadır.";
+    }
+    const heard = obs.C.arrivals.length > 0;
+    const cState = heard ? "C şu anda koninin içinde: sesi duyuyor." : "C şu anda koninin dışında: hiçbir şey duymuyor.";
+    if (M === 1) {
+      return `Ses duvarı (M = 1): kaynak kendi tepeleriyle aynı hızda gider; tepeler önünde üst üste binerek bir duvar oluşturur. Öndeki A, kaynak yanına gelene kadar hiçbir şey duymaz. ${cState}`;
+    }
+    return `Ses üstü: kaynak tepelerinden hızlıdır; tepeler yarı açısı μ olan bir koninin (Mach konisi) içinde kalır, sin μ = c/vₛ. Öndeki A'ya kaynaktan önce hiçbir tepe ulaşmaz. Koninin dışındaki gözlemci hiçbir şey duymaz; ses, koni (şok cephesi) üzerinden geçtiği anda birden gelir: ses patlaması. ${cState}`;
+  }
+
+  function frameText() {
+    const { c, vs, vo } = P;
+    const u = vs + vo;
+    if (u <= 0 || u >= c || vs >= c) return "";
+    const srcOnly = c / (c - u), obsOnly = (c + u) / c, now = (c + vo) / (c - vs);
+    return `A ile kaynak birbirine u = vₛ + vₒ = ${u.toFixed(1)} m/s ile yaklaşıyor. Aynı u ile yalnız kaynak hareket etseydi A f₀·c/(c − u) = ${srcOnly.toFixed(3)} f₀, yalnız gözlemci hareket etseydi f₀·(c + u)/c = ${obsOnly.toFixed(3)} f₀ ölçerdi; bu ayarda ${now.toFixed(3)} f₀. Ses ortama göre c hızıyla yayıldığı için ortam ayrıcalıklı bir çerçevedir: kaynak hareketi dalga boyunu değiştirir, gözlemci hareketi yalnız tepelerle karşılaşma sıklığını.`;
+  }
+
+  /* ── Çizim ── */
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const cv of [stage, chart, passCv]) {
+      const rect = cv.getBoundingClientRect();
+      if (!rect.width) continue;
+      cv.width = Math.round(rect.width * dpr);
+      cv.height = Math.round(rect.height * dpr);
+    }
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light
+      ? { light, ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.12)", crest: "#0d9488", source: "#d97706", a: "#7c3aed", b: "#2563eb", c: "#db2777", cone: "#dc2626", coneFill: "rgba(220,38,38,0.08)", halo: "rgba(247,249,252,0.92)" }
+      : { light, ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.12)", crest: "#5eead4", source: "#fbbf24", a: "#a78bfa", b: "#60a5fa", c: "#f472b6", cone: "#f87171", coneFill: "rgba(248,113,113,0.10)", halo: "rgba(8,12,22,0.85)" };
+  }
+
+  const fontPx = (cv) => clamp(cv.width / dpr / 40, 11, 14) * dpr;
+
+  function label(ctx, th, text, x, y, color, align) {
+    ctx.textAlign = align || "left";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 3.5 * dpr;
+    ctx.strokeStyle = th.halo;
+    ctx.strokeText(text, x, y);
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+  }
+
+  function arrow(ctx, x1, y1, x2, y2, color) {
+    const a = Math.atan2(y2 - y1, x2 - x1), h = 7 * dpr;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - h * Math.cos(a - 0.45), y2 - h * Math.sin(a - 0.45));
+    ctx.lineTo(x2 - h * Math.cos(a + 0.45), y2 - h * Math.sin(a + 0.45));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawStage(th) {
+    const Wp = stage.width, Hp = stage.height;
+    if (!Wp || !Hp) return;
+    const ctx = sctx;
+    const k = Wp / run.W;
+    const yAxis = Hp / 2;
+    const X = (x) => x * k;
+    const Y = (y) => yAxis - y * k;
+    const fs = fontPx(stage);
+    const t = run.t, xs = sourceX(t), sx = X(xs);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, Wp, Hp);
+    ctx.font = `${fs}px Outfit, system-ui, sans-serif`;
+    ctx.textBaseline = "alphabetic";
+
+    ctx.save();
+    ctx.setLineDash([6 * dpr, 6 * dpr]);
+    ctx.strokeStyle = th.grid;
+    ctx.lineWidth = 1 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(0, yAxis);
+    ctx.lineTo(Wp, yAxis);
+    ctx.stroke();
+    ctx.restore();
+
+    // Mach konisi: tepe noktası kaynakta, kenarlar en eski tepeye teğet.
+    // Gölge, sesin ulaştığı bölge: koni kenarları + en eski tepenin arka yayı.
+    let cone = null;
+    if (P.M >= 1 && run.crests.length && P.vs > 0) {
+      const old = run.crests[0];
+      const age = t - old.t;
+      const mu = Math.asin(1 / P.M);
+      const len = P.M > 1 ? age * Math.sqrt(P.vs * P.vs - P.c * P.c) * k : 0.6 * P.c * age * k;
+      cone = { mu, len };
+      if (P.M > 1 && len > 0) {
+        const tip = Math.PI / 2 - mu;
+        ctx.fillStyle = th.coneFill;
+        ctx.beginPath();
+        ctx.moveTo(sx, yAxis);
+        ctx.lineTo(sx - len * Math.cos(mu), yAxis - len * Math.sin(mu));
+        ctx.arc(X(old.x), yAxis, P.c * age * k, -tip, tip, true);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    ctx.lineWidth = 1.4 * dpr;
+    ctx.strokeStyle = th.crest;
+    for (const cr of run.crests) {
+      const r = P.c * (t - cr.t) * k;
+      if (r <= 0.5) continue;
+      ctx.globalAlpha = Math.max(0.22, 0.95 - (0.55 * (t - cr.t)) / VIEW_TIME);
+      ctx.beginPath();
+      ctx.arc(X(cr.x), yAxis, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = th.source;
+    for (const cr of run.crests) {
+      ctx.beginPath();
+      ctx.arc(X(cr.x), yAxis, 1.7 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    if (cone && cone.len > 0) {
+      ctx.strokeStyle = th.cone;
+      ctx.lineWidth = 2.2 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(sx - cone.len * Math.cos(cone.mu), yAxis - cone.len * Math.sin(cone.mu));
+      ctx.lineTo(sx, yAxis);
+      ctx.lineTo(sx - cone.len * Math.cos(cone.mu), yAxis + cone.len * Math.sin(cone.mu));
+      ctx.stroke();
+      if (P.M > 1 && sx > 0 && sx < Wp) {
+        const R = 34 * dpr;
+        ctx.lineWidth = 1.5 * dpr;
+        ctx.beginPath();
+        ctx.arc(sx, yAxis, R, Math.PI, Math.PI + cone.mu);
+        ctx.stroke();
+        const mid = Math.PI + cone.mu / 2;
+        label(ctx, th, "μ", sx + (R + 10 * dpr) * Math.cos(mid), yAxis + (R + 10 * dpr) * Math.sin(mid) + fs * 0.35, th.cone, "center");
+      }
+    }
+
+    // Dalga boyu işaretleri (eksen altında)
+    if (P.M < 1 && run.crests.length >= 2) {
+      const last = run.crests[run.crests.length - 1], prev = run.crests[run.crests.length - 2];
+      const yb = yAxis + 16 * dpr;
+      const marks = [
+        { a: last.x + P.c * (t - last.t), b: prev.x + P.c * (t - prev.t), text: "λ ön" },
+        { a: last.x - P.c * (t - last.t), b: prev.x - P.c * (t - prev.t), text: "λ arka" },
+      ];
+      for (const m of marks) {
+        const xa = X(m.a), xb = X(m.b);
+        if (Math.min(xa, xb) < 0 || Math.max(xa, xb) > Wp || Math.abs(xb - xa) < 4 * dpr) continue;
+        ctx.strokeStyle = th.ink;
+        ctx.lineWidth = 1.2 * dpr;
+        ctx.beginPath();
+        ctx.moveTo(xa, yb);
+        ctx.lineTo(xb, yb);
+        ctx.moveTo(xa, yb - 5 * dpr);
+        ctx.lineTo(xa, yb + 5 * dpr);
+        ctx.moveTo(xb, yb - 5 * dpr);
+        ctx.lineTo(xb, yb + 5 * dpr);
+        ctx.stroke();
+        label(ctx, th, m.text, (xa + xb) / 2, yb + fs + 4 * dpr, th.ink, "center");
+      }
+    }
+
+    drawObserver(ctx, th, obs.B, th.b, "B", X, Y);
+    drawObserver(ctx, th, obs.A, th.a, "A", X, Y);
+    drawObserver(ctx, th, obs.C, th.c, "C", X, Y);
+
+    if (sx > -40 * dpr && sx < Wp + 40 * dpr) {
+      if (P.vs > 0) arrow(ctx, sx, yAxis, sx + (16 + 22 * Math.min(P.M, 2)) * dpr, yAxis, th.source);
+      ctx.fillStyle = th.source;
+      ctx.beginPath();
+      ctx.arc(sx, yAxis, 7 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = th.halo;
+      ctx.lineWidth = 1.5 * dpr;
+      ctx.stroke();
+      const half = ctx.measureText("Kaynak").width / 2 + 4 * dpr;
+      label(ctx, th, "Kaynak", clamp(sx, half, Wp - half), yAxis - 13 * dpr, th.source, "center");
+    }
+
+    const pad = 10 * dpr;
+    let info = `M = ${P.M.toFixed(3)} · vₛ = ${P.vs.toFixed(1)} m/s · c = ${P.c} m/s · f₀ = ${P.f0.toFixed(1)} Hz`;
+    if (ctx.measureText(info).width > Wp - 2 * pad) info = `M = ${P.M.toFixed(3)} · c = ${P.c} m/s · f₀ = ${P.f0.toFixed(1)} Hz`;
+    label(ctx, th, info, pad, pad + fs, th.ink);
+    if (P.M >= 1) {
+      const coneText = P.M === 1 ? "M = 1: tepeler kaynağın önünde duvar oluşturur" : `Mach konisi: sin μ = c/vₛ → μ = ${((Math.asin(1 / P.M) * 180) / Math.PI).toFixed(1)}°`;
+      label(ctx, th, coneText, pad, pad + 2.3 * fs, th.cone);
+    }
+
+    // Ölçek çubuğu ve zaman
+    const target = run.W / 6;
+    const nice = [10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000].filter((v) => v <= target).pop() || 10;
+    const yb = Hp - pad;
+    const x2 = pad + nice * k;
+    ctx.strokeStyle = th.ink;
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(pad, yb - 6 * dpr);
+    ctx.lineTo(pad, yb);
+    ctx.lineTo(x2, yb);
+    ctx.lineTo(x2, yb - 6 * dpr);
+    ctx.stroke();
+    label(ctx, th, `${nice} m`, x2 + 6 * dpr, yb, th.ink);
+    label(ctx, th, `t = ${t.toFixed(2)} s · ${P.rate}×${run.running ? "" : " · duraklatıldı"}`, Wp - pad, yb, th.muted, "right");
+  }
+
+  function drawObserver(ctx, th, o, color, name, X, Y) {
+    const t = run.t;
+    const x = X(obsX(o, t)), y = Y(o.y);
+    if (x < -30 * dpr || x > ctx.canvas.width + 30 * dpr) return;
+    const since = t - o.flash;
+    if (o.flash >= 0 && since >= 0 && since < 0.18) {
+      ctx.globalAlpha = 1 - since / 0.18;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2 * dpr;
+      ctx.beginPath();
+      ctx.arc(x, y, (9 + 60 * since) * dpr, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    if (o.id === "C") {
+      ctx.save();
+      ctx.setLineDash([3 * dpr, 3 * dpr]);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.2 * dpr;
+      ctx.beginPath();
+      ctx.arc(x, y, 12 * dpr, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (o.vx) arrow(ctx, x, y, x + Math.sign(o.vx) * (14 + (30 * Math.abs(o.vx)) / P.c) * dpr, y, color);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 6 * dpr, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = th.halo;
+    ctx.lineWidth = 1.5 * dpr;
+    ctx.stroke();
+    ctx.font = `600 ${fontPx(stage)}px Outfit, system-ui, sans-serif`;
+    label(ctx, th, name, x, y - 16 * dpr, color, "center");
+    ctx.font = `${fontPx(stage)}px Outfit, system-ui, sans-serif`;
+  }
+
+  function drawChart(th) {
+    const W = chart.width, H = chart.height;
+    if (!W || !H) return;
+    const ctx = cctx;
+    const fs = fontPx(chart) * 0.92;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = `${fs}px Outfit, system-ui, sans-serif`;
+    ctx.textBaseline = "middle";
+    const lanes = [
+      { name: "Kaynak", color: th.source, times: run.emits, rate: P.f0 },
+      { name: "A önde", color: th.a, o: obs.A },
+      { name: "B arkada", color: th.b, o: obs.B },
+      { name: "C", color: th.c, o: obs.C },
+    ];
+    const padL = ctx.measureText("B arkada").width + 14 * dpr;
+    const padR = ctx.measureText("000.00 Hz").width + 12 * dpr;
+    const padT = fs + 10 * dpr, padB = fs + 8 * dpr;
+    const laneH = (H - padT - padB) / lanes.length;
+    const tEnd = Math.max(run.t, CHART_SPAN), tStart = tEnd - CHART_SPAN;
+    const xOf = (time) => padL + ((time - tStart) / CHART_SPAN) * (W - padL - padR);
+
+    ctx.strokeStyle = th.grid;
+    ctx.lineWidth = 1 * dpr;
+    ctx.fillStyle = th.muted;
+    ctx.textAlign = "center";
+    for (let s = Math.ceil(tStart * 2) / 2; s <= tEnd + 1e-9; s += 0.5) {
+      const x = xOf(s);
+      ctx.beginPath();
+      ctx.moveTo(x, padT);
+      ctx.lineTo(x, H - padB);
+      ctx.stroke();
+      if (Math.abs(s - Math.round(s)) < 1e-9) ctx.fillText(`${Math.round(s)} s`, x, H - padB / 2);
+    }
+    lanes.forEach((lane, i) => {
+      const y0 = padT + i * laneH, ym = y0 + laneH / 2;
+      ctx.strokeStyle = th.grid;
+      ctx.beginPath();
+      ctx.moveTo(padL, y0 + laneH);
+      ctx.lineTo(W - padR, y0 + laneH);
+      ctx.stroke();
+      ctx.textAlign = "left";
+      ctx.fillStyle = lane.color;
+      ctx.fillText(lane.name, 6 * dpr, ym);
+      ctx.lineWidth = 1.6 * dpr;
+      ctx.strokeStyle = lane.color;
+      const drawTicks = (list, pick) => {
+        ctx.beginPath();
+        for (const item of list) {
+          const time = pick(item);
+          if (time === null || time < tStart || time > tEnd) continue;
+          const x = xOf(time);
+          ctx.moveTo(x, y0 + laneH * 0.2);
+          ctx.lineTo(x, y0 + laneH * 0.8);
+        }
+        ctx.stroke();
+      };
+      let rate = lane.rate;
+      if (lane.o) {
+        drawTicks(lane.o.arrivals, (a) => (a.v ? a.t : null));
+        ctx.globalAlpha = 0.4;
+        drawTicks(lane.o.arrivals, (a) => (a.v ? null : a.t));
+        ctx.globalAlpha = 1;
+        const r = liveRatio(lane.o);
+        rate = r === null ? null : r * P.f0;
+      } else drawTicks(lane.times, (x) => x);
+      ctx.textAlign = "right";
+      ctx.fillStyle = rate === null ? th.muted : th.ink;
+      ctx.fillText(rate === null ? "sessiz" : `${rate.toFixed(2)} Hz`, W - 6 * dpr, ym);
+    });
+    ctx.lineWidth = 1 * dpr;
+    ctx.textAlign = "left";
+    ctx.fillStyle = th.muted;
+    ctx.fillText("Tepe yayımı ve varışları (son 3 s): çizgiler sıklaştıkça frekans artar", padL, padT / 2);
+  }
+
+  function niceStep(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const m = raw / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  }
+
+  function drawPass(th) {
+    const W = passCv.width, H = passCv.height;
+    if (!W || !H || !passCurve) return;
+    const ctx = pctx;
+    const fs = fontPx(passCv) * 0.92;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = `${fs}px Outfit, system-ui, sans-serif`;
+    ctx.textBaseline = "middle";
+    const { rel, early, late, shock } = passCurve;
+    let top = 1.3;
+    for (const s of early.concat(late)) if (s && s.ratio < 1e3) top = Math.max(top, s.ratio);
+    top = Math.min(top, 10) * 1.08;
+    const stepY = niceStep(top / 4);
+    const padL = ctx.measureText("10.0").width + 16 * dpr, padR = 12 * dpr, padT = fs + 12 * dpr, padB = fs + 10 * dpr;
+    const xOf = (r) => padL + ((r + PASS_HALF) / (2 * PASS_HALF)) * (W - padL - padR);
+    const yOf = (v) => H - padB - (v / top) * (H - padT - padB);
+
+    if (shock !== null && shock > -PASS_HALF) {
+      ctx.fillStyle = th.coneFill;
+      ctx.fillRect(padL, padT, Math.min(xOf(shock), W - padR) - padL, H - padT - padB);
+    }
+    ctx.strokeStyle = th.grid;
+    ctx.lineWidth = 1 * dpr;
+    ctx.fillStyle = th.muted;
+    ctx.textAlign = "right";
+    const decimals = stepY < 1 ? (stepY < 0.5 ? 2 : 1) : 0;
+    for (let v = 0; v <= top + 1e-9; v += stepY) {
+      const y = yOf(v);
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(W - padR, y);
+      ctx.stroke();
+      ctx.fillText(v.toFixed(decimals), padL - 6 * dpr, y);
+    }
+    ctx.textAlign = "center";
+    for (let s = -2; s <= 2; s++) {
+      const x = xOf(s);
+      ctx.beginPath();
+      ctx.moveTo(x, padT);
+      ctx.lineTo(x, H - padB);
+      ctx.stroke();
+      ctx.fillText(`${s} s`, x, H - padB / 2);
+    }
+
+    ctx.save();
+    ctx.setLineDash([5 * dpr, 4 * dpr]);
+    ctx.strokeStyle = th.muted;
+    const refs = [1];
+    if (P.M > 0 && P.M < 1) refs.push(1 / (1 - P.M), 1 / (1 + P.M));
+    for (const v of refs) {
+      if (v > top) continue;
+      ctx.beginPath();
+      ctx.moveTo(padL, yOf(v));
+      ctx.lineTo(W - padR, yOf(v));
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(padL, padT, W - padL - padR, H - padT - padB);
+    ctx.clip();
+    const curve = (list, color) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2 * dpr;
+      ctx.beginPath();
+      let pen = false;
+      list.forEach((s, i) => {
+        if (!s) { pen = false; return; }
+        const x = xOf(rel[i]), y = yOf(Math.min(s.ratio, top * 2));
+        if (pen) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+        pen = true;
+      });
+      ctx.stroke();
+    };
+    curve(early, th.source);
+    curve(late, th.a);
+    if (shock !== null && shock > -PASS_HALF && shock < PASS_HALF) {
+      ctx.strokeStyle = th.cone;
+      ctx.lineWidth = 2 * dpr;
+      ctx.beginPath();
+      ctx.moveTo(xOf(shock), padT);
+      ctx.lineTo(xOf(shock), H - padB);
+      ctx.stroke();
+    }
+    if (passAnim) {
+      const r = (performance.now() - passAnim.start) / 1000 - PASS_HALF;
+      if (r >= -PASS_HALF && r <= PASS_HALF) {
+        ctx.strokeStyle = th.ink;
+        ctx.lineWidth = 1.5 * dpr;
+        ctx.beginPath();
+        ctx.moveTo(xOf(r), padT);
+        ctx.lineTo(xOf(r), H - padB);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = th.muted;
+    let title = `Duyulan f/f₀ · d = ${P.d} m · vₛ = ${P.vs.toFixed(1)} m/s · yatay: gözlemci zamanı`;
+    if (ctx.measureText(title).width > W - padL - 4 * dpr) title = `Duyulan f/f₀ · d = ${P.d} m`;
+    ctx.fillText(title, padL, padT / 2);
+    if (P.M >= 1) {
+      ctx.textAlign = "right";
+      ctx.fillStyle = th.cone;
+      ctx.fillText(P.M > 1 ? "şok · erken dal (ters sıra) · geç dal" : "şok · tek dal", W - padR, padT / 2 + fs * 1.3);
+    }
+  }
+
+  /* ── Ses (Web Audio) ── */
+  const audio = { ctx: null, master: null, osc: null, gain: null, on: false, pass: null, lastF: 0, lastG: -1 };
+  let passAnim = null;
+
+  function audioCtx() {
+    if (audio.ctx) return audio.ctx;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) {
+      ui.audioNote.textContent = "Bu tarayıcı Web Audio desteklemiyor; ses çalınamaz, görsel deney çalışır.";
+      return null;
+    }
+    try {
+      audio.ctx = new AC();
+      audio.master = audio.ctx.createGain();
+      audio.master.gain.value = 0.6;
+      audio.master.connect(audio.ctx.destination);
+    } catch (_) {
+      audio.ctx = null;
+      ui.audioNote.textContent = "Ses başlatılamadı; görsel deney çalışmaya devam eder.";
+    }
+    return audio.ctx;
+  }
+
+  function wake(ac) {
+    try {
+      if (ac.state === "suspended") ac.resume().catch(() => {});
+    } catch (_) {}
+  }
+
+  function setSound(on) {
+    if (on) {
+      const ac = audioCtx();
+      if (!ac) on = false;
+      else {
+        try {
+          wake(ac);
+          if (!audio.osc) {
+            audio.osc = ac.createOscillator();
+            audio.osc.type = "triangle";
+            audio.gain = ac.createGain();
+            audio.gain.gain.value = 0;
+            audio.osc.connect(audio.gain);
+            audio.gain.connect(audio.master);
+            audio.osc.start();
+          }
+        } catch (_) {
+          on = false;
+          ui.audioNote.textContent = "Ses başlatılamadı; görsel deney çalışmaya devam eder.";
+        }
+      }
+    }
+    audio.on = on;
+    audio.lastG = -1;
+    ui.sound.textContent = on ? "Ses: açık" : "Ses: kapalı";
+    ui.sound.setAttribute("aria-pressed", String(on));
+    if (!on) silenceTone();
+  }
+
+  function silenceTone() {
+    if (!audio.gain) return;
+    try {
+      audio.gain.gain.setTargetAtTime(0, audio.ctx.currentTime, 0.03);
+    } catch (_) {}
+    audio.lastG = 0;
+  }
+
+  function updateTone() {
+    if (!audio.on || !audio.osc) return;
+    const ratio = run.running && !audio.pass ? liveRatio(obs[ui.ear.value]) : null;
+    const g = ratio ? 0.12 : 0;
+    try {
+      const now = audio.ctx.currentTime;
+      if (ratio) {
+        const f = clamp(BASE_TONE * ratio, 40, 9000);
+        if (Math.abs(f - audio.lastF) > 0.05) {
+          audio.osc.frequency.setTargetAtTime(f, now, 0.015);
+          audio.lastF = f;
+        }
+      }
+      if (g !== audio.lastG) {
+        audio.gain.gain.setTargetAtTime(g, now, 0.03);
+        audio.lastG = g;
+      }
+    } catch (_) {}
+  }
+
+  function boom(ac, when) {
+    const len = Math.floor(ac.sampleRate * 0.5);
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ac.sampleRate * 0.08));
+    const src = ac.createBufferSource();
+    src.buffer = buf;
+    const lp = ac.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 500;
+    const g = ac.createGain();
+    g.gain.value = 0.9;
+    src.connect(lp);
+    lp.connect(g);
+    g.connect(audio.master);
+    src.start(when);
+    return src;
+  }
+
+  function playPass() {
+    if (passAnim) {
+      stopPass();
+      return;
+    }
+    passAnim = { start: performance.now() + 80 };
+    ui.passBtn.textContent = "Geçişi durdur";
+    ui.passBtn.setAttribute("aria-pressed", "true");
+    const ac = audioCtx();
+    if (!ac) return;
+    try {
+      wake(ac);
+      const t0 = ac.currentTime + 0.08, span = 2 * PASS_HALF;
+      const nodes = [];
+      for (const key of ["early", "late"]) {
+        const list = passCurve[key];
+        if (!list.some(Boolean)) continue;
+        const osc = ac.createOscillator(), g = ac.createGain();
+        osc.type = "triangle";
+        g.gain.setValueAtTime(0, t0);
+        let started = false;
+        list.forEach((s, i) => {
+          const when = t0 + (span * i) / PASS_SAMPLES;
+          if (s) {
+            const f = clamp(BASE_TONE * s.ratio, 40, 9000);
+            if (started) osc.frequency.linearRampToValueAtTime(f, when);
+            else {
+              osc.frequency.setValueAtTime(f, when);
+              started = true;
+            }
+            g.gain.linearRampToValueAtTime(0.16 * s.gain, when);
+          } else g.gain.linearRampToValueAtTime(0, when);
+        });
+        g.gain.linearRampToValueAtTime(0, t0 + span + 0.05);
+        osc.connect(g);
+        g.connect(audio.master);
+        osc.start(t0);
+        osc.stop(t0 + span + 0.1);
+        nodes.push(osc);
+      }
+      const sh = passCurve.shock;
+      if (sh !== null && sh > -PASS_HALF && sh < PASS_HALF) nodes.push(boom(ac, t0 + sh + PASS_HALF));
+      audio.pass = nodes;
+      audio.lastG = -1;
+    } catch (_) {
+      ui.audioNote.textContent = "Geçiş sesi çalınamadı; grafik yine de gösterilir.";
+    }
+  }
+
+  function stopPass() {
+    if (audio.pass) {
+      audio.pass.forEach((node) => {
+        try {
+          node.stop();
+        } catch (_) {}
+      });
+      audio.pass = null;
+    }
+    passAnim = null;
+    audio.lastG = -1;
+    ui.passBtn.textContent = "Geçiş sesi";
+    ui.passBtn.setAttribute("aria-pressed", "false");
+  }
+
+  /* ── Döngü ── */
+  let lastFrame = 0, acc = 0, lastReadout = 0;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (run.running && !paused) {
+      acc += elapsed * P.rate;
+      while (acc >= DT) {
+        step(DT);
+        acc -= DT;
+        if (run.t >= run.tEnd) {
+          newRun(false);
+          acc = 0;
+          break;
+        }
+      }
+      prune();
+    }
+    if (passAnim && (now - passAnim.start) / 1000 > 2 * PASS_HALF + 0.2) stopPass();
+    const th = theme();
+    drawStage(th);
+    drawChart(th);
+    drawPass(th);
+    updateTone();
+    if (now - lastReadout > 250) {
+      updateReadouts();
+      lastReadout = now;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  function setRunning(on) {
+    run.running = on;
+    ui.toggle.textContent = on ? "Duraklat" : "Devam et";
+    ui.toggle.setAttribute("aria-pressed", String(!on));
+  }
+
+  function restart() {
+    readControls();
+    newRun(true);
+    computePass();
+    updateReadouts();
+  }
+
+  function onPhysicsChange() {
+    if (passAnim) stopPass();
+    restart();
+  }
+
+  ui.vs.addEventListener("input", onPhysicsChange);
+  ui.vo.addEventListener("input", onPhysicsChange);
+  ui.f0.addEventListener("input", onPhysicsChange);
+  const onMedium = () => {
+    const c = Number(ui.medium.value);
+    if (c === P.c) return;
+    configureRange(ui.vs, c, 2, P.M);
+    configureRange(ui.vo, c, 0.9, P.Mo);
+    onPhysicsChange();
+  };
+  ui.medium.addEventListener("input", onMedium);
+  ui.medium.addEventListener("change", onMedium);
+  ui.rate.addEventListener("input", readControls);
+  ui.rate.addEventListener("change", readControls);
+  ui.d.addEventListener("input", () => {
+    if (passAnim) stopPass();
+    readControls();
+    computePass();
+  });
+  ui.ear.addEventListener("change", () => { audio.lastG = -1; });
+  ui.toggle.addEventListener("click", () => setRunning(!run.running));
+  ui.reset.addEventListener("click", () => { restart(); setRunning(true); });
+  ui.sound.addEventListener("click", () => setSound(!audio.on));
+  ui.passBtn.addEventListener("click", playPass);
+  document.querySelectorAll(".presets button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      configureRange(ui.vs, P.c, 2, Number(btn.dataset.ms));
+      configureRange(ui.vo, P.c, 0.9, Number(btn.dataset.mo));
+      onPhysicsChange();
+      setRunning(true);
+    });
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, select, textarea, button")) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      setRunning(!run.running);
+    } else if (e.key === "r" || e.key === "R") {
+      restart();
+      setRunning(true);
+    }
+  });
+
+  function halfHeightFrac() {
+    return stage.width ? (stage.height / stage.width) / 2 : 0.25;
+  }
+
+  function placeC(x, y) {
+    const hh = halfHeightFrac();
+    cPos.x = clamp(x, 0.02, 0.98);
+    cPos.y = clamp(y, -hh * 0.9, hh * 0.9);
+    obs.C.x0 = cPos.x * run.W;
+    obs.C.y = cPos.y * run.W;
+    resetObserver(obs.C);
+  }
+
+  function pointerToC(evt) {
+    const rect = stage.getBoundingClientRect();
+    placeC((evt.clientX - rect.left) / rect.width, (rect.height / 2 - (evt.clientY - rect.top)) / rect.width);
+  }
+
+  stage.addEventListener("pointerdown", (evt) => {
+    dragging = true;
+    stage.classList.add("is-dragging");
+    stage.setPointerCapture(evt.pointerId);
+    pointerToC(evt);
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    if (dragging) pointerToC(evt);
+  });
+  const release = () => {
+    dragging = false;
+    stage.classList.remove("is-dragging");
+  };
+  stage.addEventListener("pointerup", release);
+  stage.addEventListener("pointercancel", release);
+  stage.addEventListener("keydown", (e) => {
+    const big = e.shiftKey ? 0.08 : 0.02;
+    const moves = { ArrowLeft: [-big, 0], ArrowRight: [big, 0], ArrowUp: [0, big], ArrowDown: [0, -big] };
+    const m = moves[e.key];
+    if (!m) return;
+    e.preventDefault();
+    placeC(cPos.x + m[0], cPos.y + m[1]);
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) silenceTone();
+  });
+  window.addEventListener("acelya-pause-change", (e) => {
+    if (e.detail?.paused) silenceTone();
+  });
+
+  window.addEventListener("resize", resize);
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(resize);
+    [stage, chart, passCv].forEach((cv) => ro.observe(cv));
+  }
+  configureRange(ui.vs, 343, 2, 0.5);
+  configureRange(ui.vo, 343, 0.9, 0);
+  restart();
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

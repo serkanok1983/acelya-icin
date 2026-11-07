@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Genetik Çaprazlama: Mendel Oranları, Ki-Kare ve Bağlı Genler</title>
+  <meta name="description" content="Mendel'in 3 : 1'i bir kota değil, bir olasılıktır. Yavruları tek tek say ve ki-kareyle sına; X'e bağlı genleri soyağacında izle, bağlı genlerin ne sıklıkla ayrıldığından kromozom haritası çıkar.">
+  <style>
+    body.app-page .app-content { max-width: 1100px; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(270px, 1fr);
+      grid-template-areas: "stage side" "main side";
+      grid-template-rows: auto 1fr;
+      gap: 14px 16px;
+      align-items: start;
+    }
+    .stage-wrap { grid-area: stage; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; }
+    .main { grid-area: main; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+    .side { grid-area: side; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+    .fig { margin: 0; display: grid; gap: 6px; min-width: 0; }
+    .fig figcaption { font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .sim-canvas, .chart-canvas { width: 100%; display: block; border-radius: 12px; touch-action: pan-y; }
+    .sim-canvas { aspect-ratio: 16 / 10; background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95)); }
+    .chart-canvas { aspect-ratio: 2 / 1; background: rgba(8, 12, 22, 0.75); }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 3px 14px; font-size: 0.76rem; line-height: 1.45; }
+    .legend li { display: inline-flex; align-items: center; gap: 6px; }
+    .sw { display: inline-block; flex: none; width: 16px; height: 0; border-top: 2px solid var(--text-muted); }
+    .sw.bar { height: 9px; border: 0; border-radius: 2px; background: var(--accent-warm); opacity: 0.75; }
+    .sw.tick { border-top: 2px solid var(--accent); }
+    .sw.band { height: 9px; border: 0; border-radius: 2px; background: var(--accent); opacity: 0.22; }
+    .sw.v2 { border-top-color: var(--accent-2); }
+    .sw.dash { border-top: 2px dashed var(--accent); }
+    .sw.dashw { border-top: 2px dashed var(--accent-warm); }
+    .sw.dot { width: 8px; height: 8px; border: 0; border-radius: 50%; background: var(--accent-warm); }
+    .sw.sq { width: 11px; height: 11px; border: 1.5px solid var(--text); border-radius: 1px; }
+    .sw.ci { width: 11px; height: 11px; border: 1.5px solid var(--text); border-radius: 50%; }
+    .sw.fill { background: var(--danger); border-color: var(--danger); }
+    .sw.car { background: radial-gradient(circle, var(--accent-warm) 0 30%, transparent 34%); }
+    .sw.dia { width: 9px; height: 9px; border: 1.5px solid var(--text); transform: rotate(45deg); margin: 0 2px; }
+    .sw.hi { border-top: 3px solid var(--accent-warm); }
+    .sw.xo { width: 10px; height: 10px; border: 0; background: linear-gradient(45deg, transparent 42%, var(--danger) 42% 58%, transparent 58%), linear-gradient(-45deg, transparent 42%, var(--danger) 42% 58%, transparent 58%); }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; }
+    .field input[type="range"] { width: 100%; min-width: 0; }
+    .field select, .field input[type="number"], .field input[type="text"] { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; min-width: 0; }
+    .combo { display: grid; grid-template-columns: minmax(0, 1fr) 5.8em; gap: 10px; align-items: center; }
+    .combo input[type="number"], .combo input[type="text"] { padding: 5px 6px; font-variant-numeric: tabular-nums; }
+    .duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .app-content button:disabled { opacity: 0.45; cursor: not-allowed; filter: none !important; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .group-title { margin: 2px 0 0; font-size: 0.8rem; font-weight: 600; color: var(--text) !important; }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.3; }
+    .readout strong { font-size: 1.04rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout .sub { font-size: 0.74rem; line-height: 1.35; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .readout.is-theory strong { color: var(--accent-2) !important; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    .table-wrap { max-width: 100%; overflow-x: auto; }
+    body.app-page table.cmp { width: 100%; margin: 0; font-size: 0.8rem; }
+    body.app-page table.cmp th, body.app-page table.cmp td { padding: 5px 7px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    body.app-page table.cmp tbody th { text-align: left; background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; }
+    body.app-page table.cmp td.is-meas { color: var(--accent-warm) !important; font-weight: 600; }
+    body.app-page table.cmp td.is-th { color: var(--accent-2) !important; }
+    body.app-page table.cmp tr.is-theory td { color: var(--text-muted) !important; }
+    body.app-page table.cmp tr.is-sel th, body.app-page table.cmp tr.is-sel td { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 14%, transparent); }
+    body.app-page table.cmp td small { font-size: 0.68rem; color: var(--text-muted) !important; }
+    body.app-page table.pq { width: auto; margin: 0 auto; font-size: 0.86rem; }
+    body.app-page table.pq th, body.app-page table.pq td { padding: 5px 9px; white-space: nowrap; font-variant-numeric: tabular-nums; line-height: 1.3; }
+    body.app-page table.pq thead th:first-child { font-size: 0.7rem; font-weight: 500; }
+    body.app-page .pq .gp { display: block; font-size: 0.68rem; font-weight: 500; color: var(--text-muted) !important; }
+    body.app-page .pq .ph { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 0.7rem; color: var(--text-muted) !important; }
+    body.app-page .cs { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; vertical-align: -1px; margin-right: 5px; box-shadow: 0 0 0 1px var(--border-hover); }
+    body.app-page .pq .ph .cs { margin-right: 0; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "main"; grid-template-rows: none; gap: 12px; }
+      .sim-canvas { aspect-ratio: 4 / 3; }
+      .chart-canvas { aspect-ratio: 16 / 10; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      body.app-page table.cmp { font-size: 0.74rem; }
+      body.app-page table.cmp th, body.app-page table.cmp td { padding: 4px 5px; }
+      body.app-page table.pq { font-size: 0.78rem; }
+      body.app-page table.pq th, body.app-page table.pq td { padding: 4px 5px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="genetik-caprazlama">
+
+<div class="app-content">
+  <h1>Genetik Çaprazlama: Mendel Oranları, Ki-Kare ve Bağlı Genler</h1>
+  <p class="hint">İki ebeveynin genotipini seç: Punnett karesi kuramsal oranları verir, tohumlu benzetim yavruları mayoz ve döllenmeyle tek tek üretir. Sayımı ki-kare sınamasıyla kuramla karşılaştır; aynı tohum aynı yavruları verir.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney bölümleri">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-mendel" data-tab="mendel" aria-selected="true" aria-controls="labPanel">Bir ve iki karakter</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-cinsiyet" data-tab="cinsiyet" aria-selected="false" aria-controls="labPanel" tabindex="-1">Cinsiyete bağlı kalıtım</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-bagli" data-tab="bagli" aria-selected="false" aria-controls="labPanel" tabindex="-1">Bağlı genler ve haritalama</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-mendel" data-tab="mendel">
+    <div class="stage-wrap">
+      <figure class="fig">
+        <canvas id="stageCanvas" class="sim-canvas" width="900" height="563" role="img" aria-label="Sahne"></canvas>
+        <ul class="legend" id="stageLegend" aria-label="Sahne açıklaması"></ul>
+      </figure>
+      <figure class="fig">
+        <canvas id="chartCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Grafik"></canvas>
+        <ul class="legend" id="chartLegend" aria-label="Grafik açıklaması"></ul>
+      </figure>
+      <figure class="fig" data-for="bagli" hidden>
+        <canvas id="mapCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Haritalama fonksiyonları: yatayda rekombinasyon oranı r, düşeyde harita uzaklığı (cM); saf d = 100·r doğrusu, Haldane ve Kosambi eğrileri, gerçek r'nin dikey çizgisi ve ölçülen r̂ noktaları"></canvas>
+        <figcaption id="mapCaption">Haritalama fonksiyonları: saf d = 100·r doğrusu (mor), Haldane d = −50·ln(1 − 2r) cM (turkuaz) ve Kosambi d = 25·ln[(1 + 2r)/(1 − 2r)] cM (kesikli). Yakın genlerde üçü örtüşür; r büyüdükçe görünmeyen çift krossing-overlar yüzünden saf uzaklık gerçeğin altında kalır ve r hiçbir zaman 0.5'i aşamaz. Amber nokta ve yatay çubuk: ölçülen <span class="hat">r</span> ve %95 aralığı, Haldane eğrisi üstünde; kırmızı çarpı: benzetimde sayılan ortalama krossing-over sayısı × 100; kesikli dikey çizgiler: modelin gerçek r değerleri.</figcaption>
+      </figure>
+      <p class="status" id="statusLine" aria-live="polite"></p>
+    </div>
+
+    <div class="main">
+      <!-- (a) Bir ve iki karakter -->
+      <div class="readouts" data-for="mendel" aria-live="polite" aria-label="Ölçüm ve kuram">
+        <div class="readout" aria-live="off"><small>Yavru sayısı N</small><strong id="aNOut">0</strong><span class="sub" id="aNSub">—</span></div>
+        <div class="readout is-highlight"><small>Fenotip oranı (ölçülen)</small><strong id="aPhOut">—</strong><span class="sub" id="aPhSub">—</span></div>
+        <div class="readout is-highlight"><small>Genotip oranı (ölçülen)</small><strong id="aGeOut">—</strong><span class="sub" id="aGeSub">—</span></div>
+        <div class="readout"><small id="aTestLabel">Uyum sınaması</small><strong id="aTestOut">—</strong><span class="sub" id="aTestSub">—</span></div>
+        <div class="readout is-highlight"><small>Baskın görünenlerde taşıyıcı payı</small><strong id="aCarOut">—</strong><span class="sub" id="aCarSub">—</span></div>
+      </div>
+      <p class="note" data-for="mendel">Taşıyıcı payı ters yönde sorulan bir olasılıktır: Aa × Aa'da AA : Aa : aa = 1 : 2 : 1, baskın görünenler 3 pay, bunların 2'si Aa. Koşullu olasılıkla P(Aa | baskın) = P(Aa)/P(baskın) = (1/2)/(3/4) = 2/3; aynı hesap <a href="bayes-olasilik.html">Bayes Olasılığı</a> sayfasının dilidir.</p>
+      <div data-for="mendel">
+        <p class="group-title" id="aPqTitle">Punnett karesi (kuram): satırlar dişinin, sütunlar erkeğin gametleri</p>
+        <div class="table-wrap"><table class="pq" id="aPq" aria-labelledby="aPqTitle"></table></div>
+        <p class="note" id="aPqNote"></p>
+      </div>
+      <div data-for="mendel">
+        <p class="group-title" id="aClsTitle">Sınıflar: kuram ve sayım</p>
+        <div class="table-wrap">
+          <table class="cmp" aria-labelledby="aClsTitle">
+            <thead><tr><th scope="col">Sınıf</th><th scope="col">Kuram</th><th scope="col">Beklenen E</th><th scope="col">Gözlenen O</th><th scope="col">O − E</th><th scope="col">(O − E)²/E</th></tr></thead>
+            <tbody id="aClsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div data-for="mendel" id="aCkWrap">
+        <p class="group-title" id="aCkTitle">Ölçüm çizelgesi: aynı tohum ve çaprazlamayla aynı sayılar</p>
+        <div class="table-wrap">
+          <table class="cmp" aria-labelledby="aCkTitle">
+            <thead><tr><th scope="col">N</th><th scope="col">Fenotip sayıları</th><th scope="col">Fenotip: sınama</th><th scope="col">Genotip: sınama</th><th scope="col">Taşıyıcı payı</th></tr></thead>
+            <tbody id="aCkBody"></tbody>
+          </table>
+        </div>
+        <p class="note" id="aCkNote">Satırlar 10, 100, 1000, 10 000 ve 100 000. yavruda kaydedilir. Yavru dizisi yalnız tohuma ve çaprazlamaya bağlıdır: hız, duraklatma ya da "Hemen tamamla" sonucu değiştirmez.</p>
+      </div>
+      <div class="panel" data-for="mendel" id="aMendelPanel" hidden aria-labelledby="ttlAM">
+        <h2 id="ttlAM">Mendel'in yedi deneyi</h2>
+        <div class="table-wrap">
+          <table class="cmp" aria-labelledby="ttlAM">
+            <thead><tr><th scope="col">Karakter</th><th scope="col">Baskın : çekinik</th><th scope="col">Oran</th><th scope="col">χ² (sd = 1)</th><th scope="col">p</th></tr></thead>
+            <tbody id="aMendelBody"></tbody>
+          </table>
+        </div>
+        <p class="note" id="aFisherNote"></p>
+      </div>
+
+      <!-- (b) Cinsiyete bağlı kalıtım -->
+      <div class="readouts" data-for="cinsiyet" hidden aria-live="polite" aria-label="Ölçüm ve kuram">
+        <div class="readout" aria-live="off"><small>Çocuk sayısı N</small><strong id="bNOut">0</strong><span class="sub" id="bNSub">—</span></div>
+        <div class="readout is-highlight"><small>Oğullarda hasta payı</small><strong id="bSonOut">—</strong><span class="sub" id="bSonSub">—</span></div>
+        <div class="readout is-highlight"><small>Kızlarda taşıyıcı payı</small><strong id="bCarOut">—</strong><span class="sub" id="bCarSub">—</span></div>
+        <div class="readout is-highlight"><small>Kızlarda hasta payı</small><strong id="bAffOut">—</strong><span class="sub" id="bAffSub">—</span></div>
+        <div class="readout"><small>Oğul payı (cinsiyet oranı)</small><strong id="bSexOut">—</strong><span class="sub" id="bSexSub">—</span></div>
+        <div class="readout"><small>Uyum sınaması: cinsiyet × genotip</small><strong id="bTestOut">—</strong><span class="sub" id="bTestSub">—</span></div>
+        <div class="readout is-theory"><small>Sonraki çocuk (kuram)</small><strong id="bNextOut">—</strong><span class="sub" id="bNextSub">—</span></div>
+      </div>
+      <div data-for="cinsiyet" hidden>
+        <p class="group-title" id="bPqTitle">Punnett karesi (kuram): satırlar annenin, sütunlar babanın gametleri</p>
+        <div class="table-wrap"><table class="pq" id="bPq" aria-labelledby="bPqTitle"></table></div>
+      </div>
+      <div data-for="cinsiyet" hidden>
+        <p class="group-title" id="bClsTitle">Sınıflar: kuram ve sayım</p>
+        <div class="table-wrap">
+          <table class="cmp" aria-labelledby="bClsTitle">
+            <thead><tr><th scope="col">Sınıf</th><th scope="col">Kuram</th><th scope="col">Beklenen E</th><th scope="col">Gözlenen O</th><th scope="col">O − E</th><th scope="col">Cinsiyet içinde pay</th></tr></thead>
+            <tbody id="bClsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- (c) Bağlı genler ve haritalama -->
+      <div class="readouts" data-for="bagli" hidden aria-live="polite" aria-label="Ölçüm ve kuram">
+        <div class="readout" aria-live="off"><small>Test çaprazlaması yavrusu N</small><strong id="cNOut">0</strong><span class="sub" id="cNSub">—</span></div>
+        <div class="readout is-highlight"><small id="cK1Label">—</small><strong id="cK1Out">—</strong><span class="sub" id="cK1Sub">—</span></div>
+        <div class="readout"><small id="cK2Label">—</small><strong id="cK2Out">—</strong><span class="sub" id="cK2Sub">—</span></div>
+        <div class="readout is-highlight"><small id="cK3Label">—</small><strong id="cK3Out">—</strong><span class="sub" id="cK3Sub">—</span></div>
+        <div class="readout is-highlight"><small id="cK4Label">—</small><strong id="cK4Out">—</strong><span class="sub" id="cK4Sub">—</span></div>
+        <div class="readout"><small id="cK5Label">—</small><strong id="cK5Out">—</strong><span class="sub" id="cK5Sub">—</span></div>
+      </div>
+      <div data-for="bagli" hidden>
+        <p class="group-title" id="cClsTitle">Yavru sınıfları: kuram ve sayım</p>
+        <div class="table-wrap">
+          <table class="cmp" aria-labelledby="cClsTitle">
+            <thead><tr><th scope="col">Gamet (çift heterozigottan)</th><th scope="col">Tür</th><th scope="col">Kuram</th><th scope="col">Beklenen E</th><th scope="col">Gözlenen O</th><th scope="col">O − E</th></tr></thead>
+            <tbody id="cClsBody"></tbody>
+          </table>
+        </div>
+        <p class="note" id="cClsNote"></p>
+      </div>
+    </div>
+
+    <div class="side">
+      <!-- (a) Bir ve iki karakter -->
+      <div class="panel" data-for="mendel" role="group" aria-labelledby="ttlA1">
+        <h2 id="ttlA1">Çaprazlama</h2>
+        <div class="field">
+          <label for="aGenes"><span class="lt">Gen sayısı</span><output id="aGenesOut" for="aGenes">monohibrit</output></label>
+          <select id="aGenes">
+            <option value="1" selected>1 gen (monohibrit)</option>
+            <option value="2">2 gen, ayrı kromozomlarda (dihibrit)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aMode1"><span class="lt">1. gen: baskınlık biçimi</span><output id="aMode1Out" for="aMode1">alel A, a</output></label>
+          <select id="aMode1">
+            <option value="tamA" selected>Tam baskınlık: A, a'ya baskın</option>
+            <option value="eksikA">Eksik baskınlık: A¹, A² (aslanağzı çiçek rengi)</option>
+            <option value="abo">Eş baskınlık, üç alel: Iᴬ, Iᴮ, i (ABO kan grubu)</option>
+          </select>
+        </div>
+        <div class="duo">
+          <div class="field">
+            <label for="aP1g1"><span class="lt">Dişi, 1. gen</span></label>
+            <select id="aP1g1"></select>
+          </div>
+          <div class="field">
+            <label for="aP2g1"><span class="lt">Erkek, 1. gen</span></label>
+            <select id="aP2g1"></select>
+          </div>
+        </div>
+        <div class="field" data-genes="2" hidden>
+          <label for="aMode2"><span class="lt">2. gen: baskınlık biçimi</span><output id="aMode2Out" for="aMode2">alel B, b</output></label>
+          <select id="aMode2">
+            <option value="tamB" selected>Tam baskınlık: B, b'ye baskın</option>
+            <option value="eksikB">Eksik baskınlık: B¹, B² (koyu, ara, açık)</option>
+            <option value="mn">Eş baskınlık: Lᴹ, Lᴺ (MN kan grubu)</option>
+          </select>
+        </div>
+        <div class="duo" data-genes="2" hidden>
+          <div class="field">
+            <label for="aP1g2"><span class="lt">Dişi, 2. gen</span></label>
+            <select id="aP1g2"></select>
+          </div>
+          <div class="field">
+            <label for="aP2g2"><span class="lt">Erkek, 2. gen</span></label>
+            <select id="aP2g2"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="aTest"><span class="lt">Sınanan sınıflar</span><output id="aTestOut2" for="aTest">fenotip</output></label>
+          <select id="aTest">
+            <option value="fen" selected>Fenotip (görünen özellik)</option>
+            <option value="gen">Genotip (benzetimde bilinir)</option>
+          </select>
+        </div>
+        <div class="row" role="group" aria-label="Hazır çaprazlamalar">
+          <button type="button" class="app-btn-ghost" data-apreset="f2">Aa × Aa</button>
+          <button type="button" class="app-btn-ghost" data-apreset="test">Aa × aa</button>
+          <button type="button" class="app-btn-ghost" data-apreset="di">AaBb × AaBb</button>
+          <button type="button" class="app-btn-ghost" data-apreset="snap">Pembe × pembe</button>
+          <button type="button" class="app-btn-ghost" data-apreset="abo">I<sup>A</sup>i × I<sup>B</sup>i</button>
+        </div>
+        <p class="note">Model: her ebeveyn her genden iki alelinden birini 1/2 olasılıkla gamete verir (Mendel'in ayrılma ilkesi); iki gen ayrı kromozomlardadır, bu yüzden alelleri birbirinden bağımsız dağılır. Gametler rastgele birleşir ve bütün genotiplerin yaşama şansı eşittir. Mayozun kendisi <a href="mitoz-mayoz.html">Mitoz ve Mayoz</a> sayfasında, bir popülasyonda seçilimin renk biçimlerinin oranını nasıl değiştirdiği <a href="dogal-secilim.html">Doğal Seçilim</a> sayfasında.</p>
+      </div>
+      <div class="panel" data-for="mendel" role="group" aria-labelledby="ttlA2">
+        <h2 id="ttlA2">Veri ve örneklem</h2>
+        <div class="field">
+          <label for="aData"><span class="lt">Veri</span><output id="aDataOut" for="aData">benzetim</output></label>
+          <select id="aData">
+            <option value="sim" selected>Benzetim: tohumlu yavrular</option>
+            <option value="m1">Mendel 1866: tohum biçimi (5474 : 1850)</option>
+            <option value="m2">Mendel 1866: tohum rengi (6022 : 2001)</option>
+            <option value="m3">Mendel 1866: tohum kabuğu rengi (705 : 224)</option>
+            <option value="m4">Mendel 1866: bakla biçimi (882 : 299)</option>
+            <option value="m5">Mendel 1866: ham bakla rengi (428 : 152)</option>
+            <option value="m6">Mendel 1866: çiçeklerin yeri (651 : 207)</option>
+            <option value="m7">Mendel 1866: gövde uzunluğu (787 : 277)</option>
+            <option value="md">Mendel 1866: tohum biçimi ve rengi (315 : 108 : 101 : 32)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aN"><span class="lt">Yavru sayısı N (logaritmik)</span><output id="aNOut2" for="aN">N = 100 yavru</output></label>
+          <div class="combo">
+            <input type="range" id="aN" min="0" max="5" step="0.01" value="2">
+            <input type="number" id="aNNum" min="1" max="100000" step="1" value="100" inputmode="numeric" aria-label="Yavru sayısı N, sayı kutusu (1 ile 100 000 arası)">
+          </div>
+        </div>
+        <div class="row" role="group" aria-label="Hazır yavru sayıları">
+          <button type="button" class="app-btn-ghost" data-an="100">N = 100</button>
+          <button type="button" class="app-btn-ghost" data-an="1000">N = 1000</button>
+          <button type="button" class="app-btn-ghost" data-an="10000">N = 10 000</button>
+        </div>
+        <div class="field">
+          <label for="aRate"><span class="lt">Sayım hızı</span><output id="aRateOut" for="aRate">50 yavru/s</output></label>
+          <input type="range" id="aRate" min="0" max="11" step="1" value="5">
+        </div>
+        <div class="field">
+          <label for="aSeed"><span class="lt">Tohum (rastgele sayı üreteci)</span></label>
+          <input type="number" id="aSeed" min="1" max="999999" step="1" value="1866" inputmode="numeric">
+        </div>
+        <div class="row">
+          <button type="button" id="aToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="aFill">Hemen tamamla</button>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aRepeat">Aynı tohumla yeniden</button>
+          <button type="button" class="app-btn-ghost" id="aNewSeed">Yeni tohum</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Sıfırla</button>
+        </div>
+        <p class="note">Uyum sınaması: χ² = Σ(O − E)²/E, serbestlik derecesi sd = sınıf sayısı − 1, p değeri χ² dağılımının üst kuyruğu (düzenlenmiş eksik gama fonksiyonu Q(sd/2, χ²/2)). Bir sınıfın beklenen sayısı 5'ten küçükse χ² yaklaşımı güvenilmez; o zaman p kesin çok terimli sınamayla bulunur: olasılığı gözlenen sonucunkinden büyük olmayan bütün sonuçların olasılıkları toplanır. "Yeni tohum" Math.random ile seçer, yeniden üretilemez; bir sonucu yinelemek için tohumu yaz.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat ya da sürdür, <kbd>R</kbd> bu sekmeyi varsayılanlara döndür (Aa × Aa, tam baskınlık, N = 100, tohum 1866). Çaprazlama, N, veri ya da tohum değişince sayım baştan başlar.</p>
+      </div>
+
+      <!-- (b) Cinsiyete bağlı kalıtım -->
+      <div class="panel" data-for="cinsiyet" role="group" aria-labelledby="ttlB1" hidden>
+        <h2 id="ttlB1">X'e bağlı çekinik özellik</h2>
+        <div class="field">
+          <label for="bTrait"><span class="lt">Özellik</span><output id="bTraitOut" for="bTrait">renk körlüğü</output></label>
+          <select id="bTrait">
+            <option value="rk" selected>Kırmızı–yeşil renk körlüğü</option>
+            <option value="hem">Hemofili A</option>
+          </select>
+        </div>
+        <div class="duo">
+          <div class="field">
+            <label for="bMother"><span class="lt">Anne</span></label>
+            <select id="bMother">
+              <option value="0">XᴬXᴬ · sağlıklı</option>
+              <option value="1" selected>XᴬXᵃ · taşıyıcı</option>
+              <option value="2">XᵃXᵃ · hasta</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bFather"><span class="lt">Baba</span></label>
+            <select id="bFather">
+              <option value="0" selected>XᴬY · sağlıklı</option>
+              <option value="1">XᵃY · hasta</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" role="group" aria-label="Hazır çaprazlamalar">
+          <button type="button" class="app-btn-ghost" data-bpreset="1,0">Taşıyıcı anne × sağlıklı baba</button>
+          <button type="button" class="app-btn-ghost" data-bpreset="0,1">Sağlıklı anne × hasta baba</button>
+          <button type="button" class="app-btn-ghost" data-bpreset="1,1">Taşıyıcı anne × hasta baba</button>
+          <button type="button" class="app-btn-ghost" data-bpreset="2,0">Hasta anne × sağlıklı baba</button>
+        </div>
+        <p class="note" id="bTraitNote"></p>
+        <p class="note">Model: X<sup>a</sup> çekinik ve tam etkili (her X<sup>a</sup>Y erkek ve her X<sup>a</sup>X<sup>a</sup> kadın hasta); Y kromozomunda bu gen yok. Anne iki X'inden birini 1/2 olasılıkla, baba X'ini ya da Y'sini 1/2 olasılıkla verir; cinsiyeti babanın gameti belirler. Taşıyıcı kadınlarda X kromozomlarından birinin rastgele susturulması (X inaktivasyonu) hafif belirtiler doğurabilir; model bunu içermez.</p>
+      </div>
+      <div class="panel" data-for="cinsiyet" role="group" aria-labelledby="ttlB2" hidden>
+        <h2 id="ttlB2">Örneklem</h2>
+        <div class="field">
+          <label for="bN"><span class="lt">Çocuk sayısı N (logaritmik)</span><output id="bNOut2" for="bN">N = 1000 çocuk</output></label>
+          <div class="combo">
+            <input type="range" id="bN" min="0" max="5" step="0.01" value="3">
+            <input type="number" id="bNNum" min="1" max="100000" step="1" value="1000" inputmode="numeric" aria-label="Çocuk sayısı N, sayı kutusu (1 ile 100 000 arası)">
+          </div>
+        </div>
+        <div class="field">
+          <label for="bRate"><span class="lt">Sayım hızı</span><output id="bRateOut" for="bRate">200 çocuk/s</output></label>
+          <input type="range" id="bRate" min="0" max="11" step="1" value="7">
+        </div>
+        <div class="field">
+          <label for="bSeed"><span class="lt">Tohum (rastgele sayı üreteci)</span></label>
+          <input type="number" id="bSeed" min="1" max="999999" step="1" value="1910" inputmode="numeric">
+        </div>
+        <div class="row">
+          <button type="button" id="bToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="bFill">Hemen tamamla</button>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="bRepeat">Aynı tohumla yeniden</button>
+          <button type="button" class="app-btn-ghost" id="bNewSeed">Yeni tohum</button>
+          <button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button>
+        </div>
+        <p class="note">Soyağacındaki çocuklar örneklemin ilk sekiz çocuğudur (doğum sırasıyla); baklava biçimli simge henüz doğmamış, cinsiyeti bilinmeyen bir sonraki çocuktur. Paylar cinsiyet içinde hesaplanır; standart hata kuramsal paydan √(q(1 − q)/n) ile bulunur, n o cinsiyetten çocuk sayısıdır. Kısayollar: <kbd>Boşluk</kbd> duraklat ya da sürdür, <kbd>R</kbd> bu sekmeyi sıfırla (taşıyıcı anne × sağlıklı baba, N = 1000, tohum 1910).</p>
+      </div>
+
+      <!-- (c) Bağlı genler ve haritalama -->
+      <div class="panel" data-for="bagli" role="group" aria-labelledby="ttlC1" hidden>
+        <h2 id="ttlC1">Kromozom</h2>
+        <div class="field">
+          <label for="cMode"><span class="lt">Deney</span><output id="cModeOut" for="cMode">iki gen</output></label>
+          <select id="cMode">
+            <option value="2" selected>İki gen: çift heterozigot × aabb</option>
+            <option value="3">Üç gen: üç noktalı test çaprazlaması</option>
+          </select>
+        </div>
+        <div class="field" data-cmode="2">
+          <label for="cR"><span class="lt">Rekombinasyon oranı r (A–B)</span><output id="cROut" for="cR">r = 0.200</output></label>
+          <div class="combo">
+            <input type="range" id="cR" min="0" max="0.5" step="0.005" value="0.2">
+            <input type="text" id="cRNum" value="0.200" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Rekombinasyon oranı r, sayı kutusu (0 ile 0.5 arası)">
+          </div>
+        </div>
+        <div class="field" data-cmode="2">
+          <label for="cPhase"><span class="lt">Ebeveynin evresi</span><output id="cPhaseOut" for="cPhase">AB/ab</output></label>
+          <select id="cPhase">
+            <option value="cis" selected>Çekim (cis): AB/ab</option>
+            <option value="trans">İtme (trans): Ab/aB</option>
+          </select>
+        </div>
+        <div class="field" data-cmode="3" hidden>
+          <label for="cR1"><span class="lt">Bölge I: r(A–B)</span><output id="cR1Out" for="cR1">r₁ = 0.100</output></label>
+          <div class="combo">
+            <input type="range" id="cR1" min="0" max="0.5" step="0.005" value="0.1">
+            <input type="text" id="cR1Num" value="0.100" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Bölge I rekombinasyon oranı, sayı kutusu (0 ile 0.5 arası)">
+          </div>
+        </div>
+        <div class="field" data-cmode="3" hidden>
+          <label for="cR2"><span class="lt">Bölge II: r(B–C)</span><output id="cR2Out" for="cR2">r₂ = 0.200</output></label>
+          <div class="combo">
+            <input type="range" id="cR2" min="0" max="0.5" step="0.005" value="0.2">
+            <input type="text" id="cR2Num" value="0.200" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Bölge II rekombinasyon oranı, sayı kutusu (0 ile 0.5 arası)">
+          </div>
+        </div>
+        <div class="field" data-cmode="3" hidden>
+          <label for="cI"><span class="lt">Girişim I = 1 − çakışma katsayısı</span><output id="cIOut" for="cI">I = 0.00</output></label>
+          <div class="combo">
+            <input type="range" id="cI" min="0" max="1" step="0.05" value="0">
+            <input type="text" id="cINum" value="0.00" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Girişim I, sayı kutusu (0 ile 1 arası)">
+          </div>
+        </div>
+        <div class="field" data-cmode="3" hidden>
+          <label for="cPhase3"><span class="lt">Ebeveynin evresi</span><output id="cPhase3Out" for="cPhase3">ABC/abc</output></label>
+          <select id="cPhase3">
+            <option value="ABC" selected>ABC/abc</option>
+            <option value="AbC">AbC/aBc</option>
+            <option value="ABc">ABc/abC</option>
+            <option value="Abc">Abc/aBC</option>
+          </select>
+        </div>
+        <div class="row" role="group" aria-label="Hazır deneyler" data-cmode="2">
+          <button type="button" class="app-btn-ghost" data-cpreset="0.02">Sıkı bağlı: r = 0.02</button>
+          <button type="button" class="app-btn-ghost" data-cpreset="0.3">r = 0.3</button>
+          <button type="button" class="app-btn-ghost" data-cpreset="0.5">Bağımsız: r = 0.5</button>
+        </div>
+        <div class="row" role="group" aria-label="Hazır deneyler" data-cmode="3" hidden>
+          <button type="button" class="app-btn-ghost" data-c3preset="0">Girişimsiz: I = 0</button>
+          <button type="button" class="app-btn-ghost" data-c3preset="0.5">I = 0.5</button>
+          <button type="button" class="app-btn-ghost" data-c3preset="1">Tam girişim: I = 1</button>
+        </div>
+        <p class="note" id="cModelNote"></p>
+      </div>
+      <div class="panel" data-for="bagli" role="group" aria-labelledby="ttlC2" hidden>
+        <h2 id="ttlC2">Örneklem</h2>
+        <div class="field">
+          <label for="cN"><span class="lt">Yavru sayısı N (logaritmik)</span><output id="cNOut2" for="cN">N = 1000 yavru</output></label>
+          <div class="combo">
+            <input type="range" id="cN" min="0" max="5" step="0.01" value="3">
+            <input type="number" id="cNNum" min="1" max="100000" step="1" value="1000" inputmode="numeric" aria-label="Yavru sayısı N, sayı kutusu (1 ile 100 000 arası)">
+          </div>
+        </div>
+        <div class="field">
+          <label for="cRate"><span class="lt">Sayım hızı</span><output id="cRateOut" for="cRate">200 yavru/s</output></label>
+          <input type="range" id="cRate" min="0" max="11" step="1" value="7">
+        </div>
+        <div class="field">
+          <label for="cSeed"><span class="lt">Tohum (rastgele sayı üreteci)</span></label>
+          <input type="number" id="cSeed" min="1" max="999999" step="1" value="1913" inputmode="numeric">
+        </div>
+        <div class="row">
+          <button type="button" id="cToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="cFill">Hemen tamamla</button>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="cRepeat">Aynı tohumla yeniden</button>
+          <button type="button" class="app-btn-ghost" id="cNewSeed">Yeni tohum</button>
+          <button type="button" class="app-btn-ghost" id="cReset">Sıfırla</button>
+        </div>
+        <p class="note">Test çaprazlamasında çekinik homozigot ebeveyn yalnız a, b (ve c) alelleri verir; bu yüzden her yavrunun fenotipi çift heterozigot ebeveynin gametini doğrudan gösterir. Rekombinasyon oranı tahmini <span class="hat">r</span> = rekombinant/N, standart hatası √(<span class="hat">r</span>(1 − <span class="hat">r</span>)/N). Kısayollar: <kbd>Boşluk</kbd> duraklat ya da sürdür, <kbd>R</kbd> bu sekmeyi sıfırla (iki gen, r = 0.200, çekim, N = 1000, tohum 1913).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* MATH-START — DOM'a dokunmayan saf hesap çekirdeği; doğrulama betiği bu bloğu node'da çalıştırır */
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const LANCZOS = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  function lgamma(x) {
+    if (x < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - lgamma(1 - x);
+    x -= 1;
+    let s = LANCZOS[0];
+    for (let i = 1; i < 9; i++) s += LANCZOS[i] / (x + i);
+    const t = x + 7.5;
+    return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(s);
+  }
+  // Düzenlenmiş üst eksik gama Q(a, x): x < a + 1 iken seri, öbür durumda sürekli kesir (Lentz).
+  function gammaQ(a, x) {
+    if (!(x > 0)) return 1;
+    const lf = -x + a * Math.log(x) - lgamma(a);
+    if (x < a + 1) {
+      let ap = a, del = 1 / a, sum = del;
+      for (let n = 0; n < 5000; n++) {
+        ap += 1;
+        del *= x / ap;
+        sum += del;
+        if (Math.abs(del) < Math.abs(sum) * 1e-16) break;
+      }
+      return Math.max(0, 1 - sum * Math.exp(lf));
+    }
+    const tiny = 1e-300;
+    let b = x + 1 - a, c = 1 / tiny, d = 1 / b, h = d;
+    for (let i = 1; i < 5000; i++) {
+      const an = -i * (i - a);
+      b += 2;
+      d = an * d + b;
+      if (Math.abs(d) < tiny) d = tiny;
+      c = b + an / c;
+      if (Math.abs(c) < tiny) c = tiny;
+      d = 1 / d;
+      const del = d * c;
+      h *= del;
+      if (Math.abs(del - 1) < 1e-16) break;
+    }
+    return Math.exp(lf) * h;
+  }
+  const chiSqP = (x2, dof) => gammaQ(dof / 2, x2 / 2);
+  let LOGF = new Float64Array([0, 0]);
+  function logFact(n) {
+    if (n >= LOGF.length) {
+      const m = Math.max(n + 1, 2 * LOGF.length), next = new Float64Array(m);
+      next.set(LOGF);
+      for (let i = LOGF.length; i < m; i++) next[i] = lgamma(i + 1);
+      LOGF = next;
+    }
+    return LOGF[n];
+  }
+  // İki yanlı kesin binom sınaması (R'nin binom.test'i gibi): olasılığı gözlenenden büyük olmayan bütün sonuçların toplamı.
+  function binomExactP(k, n, p) {
+    if (n < 1) return 1;
+    if (p <= 0) return k === 0 ? 1 : 0;
+    if (p >= 1) return k === n ? 1 : 0;
+    const lp = Math.log(p), lq = Math.log1p(-p), lf = logFact(n);
+    const lpmf = (j) => lf - logFact(j) - logFact(n - j) + j * lp + (n - j) * lq;
+    const ref = lpmf(k) + 1e-7;
+    let s = 0;
+    for (let j = 0; j <= n; j++) {
+      const l = lpmf(j);
+      if (l <= ref) s += Math.exp(l);
+    }
+    return Math.min(1, s);
+  }
+  // C(n + k − 1, k − 1): n yavrunun k sınıfa dağılabileceği yol sayısı
+  function compositions(n, k) {
+    let c = 1;
+    for (let i = 1; i < k; i++) c = (c * (n + i)) / i;
+    return c;
+  }
+  const EXACT_LIMIT = 200000;
+  // Kesin çok terimli uyum sınaması: bütün sonuçlar sayılır, olasılığı gözlenenden büyük olmayanlar toplanır.
+  function multinomExactP(obs, probs) {
+    const k = obs.length;
+    let n = 0;
+    for (const o of obs) n += o;
+    if (compositions(n, k) > EXACT_LIMIT) return null;
+    const lp = probs.map((p) => Math.log(p)), lf = logFact(n);
+    let lo = lf;
+    for (let i = 0; i < k; i++) lo += obs[i] * lp[i] - logFact(obs[i]);
+    const ref = lo + 1e-7;
+    let s = 0;
+    const rec = (i, left, acc) => {
+      if (i === k - 1) {
+        const l = acc + left * lp[i] - logFact(left);
+        if (l <= ref) s += Math.exp(l);
+        return;
+      }
+      for (let x = 0; x <= left; x++) rec(i + 1, left - x, acc + x * lp[i] - logFact(x));
+    };
+    rec(0, n, lf);
+    return Math.min(1, s);
+  }
+  // Uyum sınaması: beklenen sayıların hepsi ≥ 5 ise χ², değilse kesin çok terimli sınama.
+  function gof(obs, probs) {
+    const k = obs.length;
+    let N = 0;
+    for (const o of obs) N += o;
+    const res = { N, k, dof: k - 1, x2: NaN, eMin: NaN, p: NaN, kind: "none", needN: 0 };
+    if (k < 2 || N < 1) return res;
+    let x2 = 0, eMin = Infinity, pMin = 1;
+    for (let i = 0; i < k; i++) {
+      const e = N * probs[i];
+      x2 += ((obs[i] - e) * (obs[i] - e)) / e;
+      if (e < eMin) eMin = e;
+      if (probs[i] < pMin) pMin = probs[i];
+    }
+    res.x2 = x2;
+    res.eMin = eMin;
+    res.needN = Math.ceil(5 / pMin - 1e-9);
+    if (eMin >= 5) {
+      res.kind = "chi2";
+      res.p = chiSqP(x2, k - 1);
+    } else {
+      const p = multinomExactP(obs, probs);
+      if (p === null) res.kind = "toofew";
+      else { res.kind = "exact"; res.p = p; }
+    }
+    return res;
+  }
+  // Ağırlıkları (ortak payda D) sıfır olmayan sınıflarla sınama
+  function gofWeights(counts, weights, D) {
+    const obs = [], probs = [];
+    for (let i = 0; i < weights.length; i++) if (weights[i] > 0) { obs.push(counts[i]); probs.push(weights[i] / D); }
+    return gof(obs, probs);
+  }
+
+  /* Genler: aleller, genotipler (sıralı çiftler) ve fenotip eşlemesi */
+  const AL = (b, s = "") => ({ b, s });
+  function geneType(key, alleles, phen, phenOf, pattern, short) {
+    const m = alleles.length, genotypes = [], idx = alleles.map(() => []);
+    for (let i = 0; i < m; i++) for (let j = i; j < m; j++) { idx[i][j] = idx[j][i] = genotypes.length; genotypes.push([i, j]); }
+    return { key, alleles, phen, genotypes, gIndex: (x, y) => idx[x][y], phenOfG: genotypes.map(([i, j]) => phenOf(i, j)), pattern, short };
+  }
+  const domRec = (i, j) => (i === 0 || j === 0 ? 0 : 1);
+  const additive = (i, j) => i + j;
+  const GENE_TYPES = {
+    tamA: geneType("tamA", [AL("A"), AL("a")], ["baskın", "çekinik"], domRec, ["A_", "aa"], null),
+    eksikA: geneType("eksikA", [AL("A", "1"), AL("A", "2")], ["kırmızı", "pembe", "beyaz"], additive, null, null),
+    abo: geneType("abo", [AL("I", "A"), AL("I", "B"), AL("i")], ["A grubu", "B grubu", "AB grubu", "0 grubu"],
+      (i, j) => { const a = i === 0 || j === 0, b = i === 1 || j === 1; return a && b ? 2 : a ? 0 : b ? 1 : 3; }, null, ["A", "B", "AB", "0"]),
+    tamB: geneType("tamB", [AL("B"), AL("b")], ["baskın", "çekinik"], domRec, ["B_", "bb"], null),
+    eksikB: geneType("eksikB", [AL("B", "1"), AL("B", "2")], ["koyu", "ara", "açık"], additive, null, null),
+    mn: geneType("mn", [AL("L", "M"), AL("L", "N")], ["M grubu", "MN grubu", "N grubu"], additive, null, ["M", "MN", "N"]),
+  };
+  // Çaprazlamanın kuramı: genotip ve fenotip ağırlıkları (ortak payda 4^G), ayrı gametler ve Punnett hücreleri.
+  // Birleşik dizin 1. gen önde: (g₁, g₂) → g₁·n₂ + g₂.
+  function crossSetup(keys, p1, p2) {
+    const types = keys.map((k) => GENE_TYPES[k]), G = types.length;
+    const nG = types.reduce((s, T) => s * T.genotypes.length, 1), nP = types.reduce((s, T) => s * T.phen.length, 1);
+    const per = types.map((T, g) => {
+      const m = T.genotypes[p1[g]], f = T.genotypes[p2[g]], w = new Array(T.genotypes.length).fill(0);
+      for (const x of m) for (const y of f) w[T.gIndex(x, y)]++;
+      return w;
+    });
+    const D = Math.pow(4, G), strideG = G === 2 ? types[1].genotypes.length : 1, strideP = G === 2 ? types[1].phen.length : 1;
+    const gW = new Array(nG).fill(0), pW = new Array(nP).fill(0);
+    const pOfG = (gi) => (G === 1 ? types[0].phenOfG[gi] : types[0].phenOfG[Math.floor(gi / strideG)] * strideP + types[1].phenOfG[gi % strideG]);
+    if (G === 1) per[0].forEach((w, i) => { gW[i] += w; });
+    else for (let i = 0; i < per[0].length; i++) for (let j = 0; j < per[1].length; j++) gW[i * strideG + j] += per[0][i] * per[1][j];
+    gW.forEach((w, gi) => { pW[pOfG(gi)] += w; });
+    const gametes = (pp) => {
+      const map = new Map();
+      const rec = (g, acc) => {
+        if (g === G) {
+          const key = acc.join(","), e = map.get(key);
+          if (e) e.w++;
+          else map.set(key, { al: acc.slice(), w: 1 });
+          return;
+        }
+        for (const x of types[g].genotypes[pp[g]]) { acc.push(x); rec(g + 1, acc); acc.pop(); }
+      };
+      rec(0, []);
+      return [...map.values()];
+    };
+    const cellG = (a, b) => {
+      let gi = 0;
+      for (let g = 0; g < G; g++) gi = gi * types[g].genotypes.length + types[g].gIndex(a[g], b[g]);
+      return gi;
+    };
+    const genesOf = (gi) => (G === 1 ? [gi] : [Math.floor(gi / strideG), gi % strideG]);
+    const phensOf = (pi) => (G === 1 ? [pi] : [Math.floor(pi / strideP), pi % strideP]);
+    return { keys: keys.slice(), types, G, p1: p1.slice(), p2: p2.slice(), per, D, nG, nP, gW, pW, gm: gametes(p1), gf: gametes(p2), cellG, pOfG, genesOf, phensOf, strideG, strideP };
+  }
+  const CHECKPOINTS = [10, 100, 1000, 10000, 100000];
+  function makeCrossRun(setup, seed) {
+    return { setup, seed, rng: mulberry32(seed), N: 0, gC: new Float64Array(setup.nG), pC: new Float64Array(setup.nP), records: [], cp: 0 };
+  }
+  // Bir yavru: her gen için önce dişinin, sonra erkeğin aleli seçilir (her biri tek rastgele sayı, u < 1/2 → ilk alel).
+  function crossNext(run) {
+    const S = run.setup, picks = new Array(S.G);
+    let gi = 0;
+    for (let g = 0; g < S.G; g++) {
+      const T = S.types[g], m = T.genotypes[S.p1[g]], f = T.genotypes[S.p2[g]];
+      const mi = run.rng() < 0.5 ? 0 : 1, fi = run.rng() < 0.5 ? 0 : 1;
+      const gx = T.gIndex(m[mi], f[fi]);
+      gi = gi * T.genotypes.length + gx;
+      picks[g] = { mi, fi, gx };
+    }
+    const pi = S.pOfG(gi);
+    run.gC[gi]++;
+    run.pC[pi]++;
+    run.N++;
+    if (run.cp < CHECKPOINTS.length && run.N === CHECKPOINTS[run.cp]) { run.records.push(crossMeasure(run)); run.cp++; }
+    return { gi, pi, picks };
+  }
+  function carrierTheory(S) {
+    if (S.keys[0] !== "tamA") return null;
+    const w = S.per[0], dom = w[0] + w[1];
+    return { het: w[1], dom, q: dom ? w[1] / dom : NaN };
+  }
+  function carrierCount(S, gC) {
+    if (S.keys[0] !== "tamA" || !gC) return null;
+    const n2 = S.strideG;
+    let hom = 0, het = 0;
+    for (let j = 0; j < n2; j++) { hom += gC[j]; het += gC[n2 + j]; }
+    return { hom, het, dom: hom + het };
+  }
+  function crossMeasure(run) {
+    const S = run.setup, car = carrierCount(S, run.gC);
+    return { N: run.N, pC: Array.from(run.pC), fen: gofWeights(run.pC, S.pW, S.D), gen: run.gC ? gofWeights(run.gC, S.gW, S.D) : null, car };
+  }
+  // Mendel 1866, "Versuche über Pflanzen-Hybriden" (İngilizce çevirisi: Druery ve Bateson 1901): F₂ sayımları.
+  const MENDEL = {
+    m1: { title: "tohum biçimi", unit: "tohum", names: ["düzgün", "buruşuk"], counts: [5474, 1850], f3: { n: 565, het: 372 } },
+    m2: { title: "tohum (çenek) rengi", unit: "tohum", names: ["sarı", "yeşil"], counts: [6022, 2001], f3: { n: 519, het: 353 }, colors: ["#facc15", "#22c55e"] },
+    m3: { title: "tohum kabuğu rengi", unit: "bitki", names: ["gri-kahverengi", "beyaz"], counts: [705, 224] },
+    m4: { title: "bakla biçimi", unit: "bitki", names: ["şişkin", "boğumlu"], counts: [882, 299] },
+    m5: { title: "ham bakla rengi", unit: "bitki", names: ["yeşil", "sarı"], counts: [428, 152], colors: ["#22c55e", "#facc15"] },
+    m6: { title: "çiçeklerin yeri", unit: "bitki", names: ["gövde boyunca", "uçta"], counts: [651, 207] },
+    m7: { title: "gövde uzunluğu", unit: "bitki", names: ["uzun", "kısa"], counts: [787, 277] },
+    md: { title: "tohum biçimi ve rengi", unit: "tohum", names: [["düzgün", "buruşuk"], ["sarı", "yeşil"]], counts: [315, 108, 101, 32] },
+  };
+  const MENDEL_MONO = ["m1", "m2", "m3", "m4", "m5", "m6", "m7"];
+  function mendelRun(setup, key) {
+    const M = MENDEL[key], pC = new Float64Array(setup.nP);
+    M.counts.forEach((c, i) => { pC[i] = c; });
+    const N = M.counts.reduce((s, c) => s + c, 0);
+    return { setup, seed: 0, rng: null, N, gC: null, pC, records: [], cp: 0, mendel: key };
+  }
+  // Yedi tek karakter deneyinin 3 : 1'e göre χ² değerleri ve toplamları (sd = 7)
+  function mendelChiSum() {
+    const rows = MENDEL_MONO.map((k) => ({ key: k, ...gof(MENDEL[k].counts, [0.75, 0.25]) }));
+    const sum = rows.reduce((s, r) => s + r.x2, 0);
+    return { rows, sum, dof: rows.length, pUpper: chiSqP(sum, rows.length), pLower: 1 - chiSqP(sum, rows.length) };
+  }
+
+  /* X'e bağlı çekinik kalıtım: alel 0 = Xᴬ (normal), 1 = Xᵃ */
+  const X_MOM = [[0, 0], [0, 1], [1, 1]];
+  const X_DAD = [0, 1];
+  // Sınıflar: 0 sağlıklı oğul, 1 hasta oğul, 2 sağlıklı kız, 3 taşıyıcı kız, 4 hasta kız; ağırlıklar /4
+  function xTheory(mi, fi) {
+    const w = [0, 0, 0, 0, 0];
+    for (const x of X_MOM[mi]) { w[x]++; w[2 + x + X_DAD[fi]]++; }
+    return w;
+  }
+  function makeXRun(mi, fi, seed) {
+    return { mi, fi, seed, rng: mulberry32(seed), N: 0, c: new Float64Array(5), log: [] };
+  }
+  // Bir çocuk: önce annenin X'i, sonra babanın gameti (u < 1/2 → Y, oğul).
+  function xNext(run) {
+    const x = X_MOM[run.mi][run.rng() < 0.5 ? 0 : 1];
+    const son = run.rng() < 0.5;
+    const cls = son ? x : 2 + x + X_DAD[run.fi];
+    run.c[cls]++;
+    run.N++;
+    if (run.log.length < 8) run.log.push(cls);
+    return cls;
+  }
+
+  /* Bağlı genler: Haldane modeli (krossing-overlar iki gen arasında Poisson süreci, ortalama d Morgan) */
+  const haldaneD = (r) => (r >= 0.5 ? Infinity : r <= 0 ? 0 : -0.5 * Math.log(1 - 2 * r));
+  const haldaneR = (d) => 0.5 * (1 - Math.exp(-2 * d));
+  const kosambiD = (r) => (r >= 0.5 ? Infinity : r <= 0 ? 0 : 0.25 * Math.log((1 + 2 * r) / (1 - 2 * r)));
+  function poissonInv(lambda, u) {
+    let k = 0, p = Math.exp(-lambda), c = p;
+    while (u > c && k < 200) { k++; p *= lambda / k; c += p; }
+    return k;
+  }
+  // Ebeveynin iki homoloğu: [A lokusundaki alel, B lokusundaki alel], 0 = baskın
+  const PHASE2 = { cis: [[0, 0], [1, 1]], trans: [[0, 1], [1, 0]] };
+  // Sınıf dizini = 2·(a aleli) + (b aleli): 0 AB, 1 Ab, 2 aB, 3 ab
+  function link2Theory(r, phase) {
+    const P = PHASE2[phase], w = [0, 0, 0, 0], par = [false, false, false, false];
+    for (let c = 0; c < 4; c++) {
+      const a = c >> 1, b = c & 1;
+      par[c] = (a === P[0][0] && b === P[0][1]) || (a === P[1][0] && b === P[1][1]);
+      w[c] = par[c] ? (1 - r) / 2 : r / 2;
+    }
+    return { w, par, d: haldaneD(r), dK: kosambiD(r) };
+  }
+  function makeLink2(r, phase, seed) {
+    const indep = r >= 0.5;
+    return { r, phase, seed, indep, d: haldaneD(r), rng: mulberry32(seed), N: 0, c: new Float64Array(4), R: 0, K: 0, kHist: new Float64Array(4), hidden: 0, last: null };
+  }
+  // Bir gamet: başlangıç homoloğu (1 sayı); r < 0.5 ise krossing-over sayısı K ~ Poisson(d) (1 sayı) ve K konum (K sayı);
+  // B'deki alel K tekse öbür homologdan gelir. r = 0.5'te bağımsız: rekombinasyon 1/2 olasılıkla (1 sayı).
+  function link2Next(run) {
+    const P = PHASE2[run.phase], h = run.rng() < 0.5 ? 0 : 1;
+    let K = 0, rec;
+    const pos = [];
+    if (run.indep) rec = run.rng() < 0.5;
+    else {
+      K = poissonInv(run.d, run.rng());
+      for (let i = 0; i < K; i++) pos.push(run.rng());
+      rec = (K & 1) === 1;
+    }
+    pos.sort((x, y) => x - y);
+    const a = P[h][0], b = P[rec ? 1 - h : h][1], cls = a * 2 + b;
+    run.c[cls]++;
+    run.N++;
+    if (rec) run.R++;
+    run.K += K;
+    run.kHist[Math.min(3, K)]++;
+    if (!rec && K >= 2) run.hidden++;
+    run.last = { h, K, pos, rec, cls };
+    return run.last;
+  }
+  // Üç gen A–B–C (B ortada): bölge I'de r₁, bölge II'de r₂, çakışma katsayısı c = 1 − I.
+  const PHASE3 = { ABC: [0, 0, 0], AbC: [0, 1, 0], ABc: [0, 0, 1], Abc: [0, 1, 1] };
+  function link3Probs(r1, r2, I) {
+    const c = 1 - I, dco = c * r1 * r2;
+    return { c, dco, s1: r1 - dco, s2: r2 - dco, nco: 1 - r1 - r2 + dco };
+  }
+  const bit3 = (cls, g) => (cls >> (2 - g)) & 1;
+  // Sınıf dizini = 4·a + 2·b + c (0 = baskın alel)
+  function link3Theory(r1, r2, I, phase) {
+    const p = link3Probs(r1, r2, I), H = PHASE3[phase], w = new Array(8).fill(0), type = new Array(8).fill("");
+    const al = (hom, g) => (hom === 0 ? H[g] : 1 - H[g]);
+    for (const h of [0, 1]) {
+      for (const [x1, x2, q, t] of [[0, 0, p.nco, "par"], [1, 0, p.s1, "s1"], [0, 1, p.s2, "s2"], [1, 1, p.dco, "dco"]]) {
+        const hb = h ^ x1, hc = hb ^ x2, cls = al(h, 0) * 4 + al(hb, 1) * 2 + al(hc, 2);
+        w[cls] += q / 2;
+        type[cls] = t;
+      }
+    }
+    return { ...p, w, type, r1, r2, I, rAC: r1 + r2 - 2 * p.dco };
+  }
+  function makeLink3(r1, r2, I, phase, seed) {
+    return { r1, r2, I, phase, seed, p: link3Probs(r1, r2, I), rng: mulberry32(seed), N: 0, c: new Float64Array(8), last: null };
+  }
+  // Bir gamet: başlangıç homoloğu (1 sayı), sonra hangi bölgelerde krossing-over olduğu (1 sayı).
+  function link3Next(run) {
+    const H = PHASE3[run.phase], p = run.p, h = run.rng() < 0.5 ? 0 : 1, u = run.rng();
+    let x1 = 0, x2 = 0;
+    if (u < p.dco) { x1 = 1; x2 = 1; } else if (u < p.dco + p.s1) x1 = 1;
+    else if (u < p.dco + p.s1 + p.s2) x2 = 1;
+    const hb = h ^ x1, hc = hb ^ x2, al = (hom, g) => (hom === 0 ? H[g] : 1 - H[g]);
+    const cls = al(h, 0) * 4 + al(hb, 1) * 2 + al(hc, 2);
+    run.c[cls]++;
+    run.N++;
+    run.last = { h, x1, x2, cls };
+    return run.last;
+  }
+  // Ölçüm: ebeveyn homoloğu bilindiğinden her gen çifti için rekombinant payı sayılır; en uzak çift dış genleri verir.
+  function link3Analyse(c, N, phase) {
+    const H = PHASE3[phase];
+    const pairs = [[0, 1], [1, 2], [0, 2]];
+    const recOf = (cls, g, k) => ((bit3(cls, g) ^ bit3(cls, k)) !== (H[g] ^ H[k]) ? 1 : 0);
+    const R = pairs.map(([g, k]) => { let s = 0; for (let x = 0; x < 8; x++) if (recOf(x, g, k)) s += c[x]; return s; });
+    let dco = 0;
+    for (let x = 0; x < 8; x++) if (recOf(x, 0, 1) && recOf(x, 1, 2)) dco += c[x];
+    const r = R.map((v) => (N ? v / N : NaN));
+    let outer = 0;
+    for (let i = 1; i < 3; i++) if (R[i] > R[outer]) outer = i;
+    const sorted = R.slice().sort((x, y) => y - x);
+    const mid = 3 - pairs[outer][0] - pairs[outer][1];
+    const expD = N ? r[0] * r[1] * N : NaN;
+    const coc = expD > 0 ? dco / expD : NaN;
+    return { R, r, dco, outer, mid, tie: N > 0 && sorted[0] === sorted[1], expD, coc, I: 1 - coc };
+  }
+
+  /* Biçimleme: kartlar, çizelgeler ve durum satırı aynı yardımcıları kullanır */
+  const NB = "\u00a0";
+  const SUPS = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const minus = (s) => s.replace(/^-/, "−");
+  const round = (v, d) => Number(v.toFixed(d));
+  function fix(v, d) {
+    if (!Number.isFinite(v)) return "—";
+    const r = round(v, d);
+    return minus((r === 0 ? 0 : r).toFixed(d));
+  }
+  function fixS(v, d) {
+    if (!Number.isFinite(v)) return "—";
+    const r = round(v, d);
+    return r > 0 ? `+${r.toFixed(d)}` : r < 0 ? `−${Math.abs(r).toFixed(d)}` : (0).toFixed(d);
+  }
+  function sci(v, sig) {
+    if (!Number.isFinite(v)) return "—";
+    if (v === 0) return "0";
+    let e = Math.floor(Math.log10(Math.abs(v)));
+    let m = v / Math.pow(10, e);
+    if (Math.abs(Number(m.toFixed(sig - 1))) >= 10) { e += 1; m /= 10; }
+    return `${minus(m.toFixed(sig - 1))}×10${String(e).split("").map((ch) => SUPS[ch]).join("")}`;
+  }
+  function pNum(p) {
+    if (!(p >= 0)) return "—";
+    if (p < 1e-6) return "< 10⁻⁶";
+    if (p < 0.001) return sci(p, 2);
+    return p.toFixed(3);
+  }
+  const fmtP = (p) => (p < 1e-6 ? "p < 10⁻⁶" : `p = ${pNum(p)}`);
+  const fmtInt = (n) => (n >= 10000 ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NB) : String(n));
+  const pct = (v, d) => `${fix(v * 100, d)}${NB}%`;
+  // z = (ölçülen − kuram)/SE iki ondalığa yuvarlanır; yazı ve karar aynı sayıyı kullanır.
+  const zOf = (meas, th, se) => (se > 0 && Number.isFinite(meas) ? round((meas - th) / se, 2) : NaN);
+  const verdictZ = (z) => (Math.abs(z) <= 2 ? "uyumlu" : Math.abs(z) <= 3 ? "sınırda" : "uyumsuz");
+  // p değerinin sözü: kart, çizelge ve durum satırı aynı yuvarlanmış p'yi kullanır.
+  function verdictP(p) {
+    const r = round(p, 3);
+    return p < 0.001 ? "%0.1 düzeyinde de reddedilir" : r < 0.05 ? "%5 düzeyinde reddedilir" : "reddedilmiyor";
+  }
+  const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a; };
+  function ratioText(ws) {
+    const nz = ws.filter((w) => w > 0), g = nz.reduce(gcd, 0) || 1;
+    return nz.map((w) => w / g).join(" : ");
+  }
+  function fracText(w, D) {
+    if (!w) return "0";
+    if (w === D) return "1";
+    const g = gcd(w, D);
+    return `${w / g}/${D / g}`;
+  }
+  // Ölçülen oran: kuramdaki en küçük ağırlıklı (sondaki) sınıf, kuramdaki sayısına ölçeklenir.
+  function measuredRatio(counts, weights) {
+    const idx = [];
+    weights.forEach((w, i) => { if (w > 0) idx.push(i); });
+    const g = idx.reduce((s, i) => gcd(s, weights[i]), 0) || 1;
+    let ref = idx[idx.length - 1];
+    for (const i of idx) if (weights[i] <= weights[ref]) ref = i;
+    if (!(counts[ref] > 0)) return null;
+    const scale = weights[ref] / g / counts[ref];
+    return idx.map((i) => counts[i] * scale);
+  }
+  const MODEL = {
+    mulberry32, lgamma, gammaQ, chiSqP, logFact, binomExactP, compositions, multinomExactP, gof, gofWeights, EXACT_LIMIT,
+    GENE_TYPES, crossSetup, makeCrossRun, crossNext, crossMeasure, carrierTheory, carrierCount, CHECKPOINTS, MENDEL, MENDEL_MONO, mendelRun, mendelChiSum,
+    X_MOM, X_DAD, xTheory, makeXRun, xNext,
+    haldaneD, haldaneR, kosambiD, poissonInv, PHASE2, link2Theory, makeLink2, link2Next, PHASE3, link3Probs, link3Theory, makeLink3, link3Next, link3Analyse, bit3,
+    fix, fixS, sci, pNum, fmtP, fmtInt, pct, zOf, verdictZ, verdictP, ratioText, fracText, measuredRatio, round,
+  };
+  /* MATH-END */
+
+  /* ── Arayüz ── */
+  const $ = (id) => document.getElementById(id);
+  const ui = {};
+  document.querySelectorAll("[id]").forEach((el) => { ui[el.id] = el; });
+  const stage = ui.stageCanvas, sctx = stage.getContext("2d");
+  const chart = ui.chartCanvas, cctx = chart.getContext("2d");
+  const mapCv = ui.mapCanvas, mctx = mapCv.getContext("2d");
+  const labPanel = ui.labPanel;
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = ["mendel", "cinsiyet", "bagli"];
+  const htmlCache = new WeakMap();
+  function setText(el, text) { if (el.textContent !== text) el.textContent = text; }
+  function setHTML(el, h) { if (htmlCache.get(el) !== h) { htmlCache.set(el, h); el.innerHTML = h; } }
+  const escText = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const hatHTML = (h) => h.replace(/([A-Za-z])\u0302/g, '<span class="hat">$1</span>');
+  function setStatus(h, kind) {
+    setHTML(ui.statusLine, hatHTML(h));
+    ui.statusLine.classList.toggle("is-good", kind === "good");
+    ui.statusLine.classList.toggle("is-warn", kind === "warn");
+  }
+  const RATES = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 5000, 20000];
+  const N_MAX = 100000;
+  const SUPU = { A: "ᴬ", B: "ᴮ", M: "ᴹ", N: "ᴺ", a: "ᵃ", 1: "¹", 2: "²" };
+  const alText = (al) => al.b + (al.s ? SUPU[al.s] || al.s : "");
+  const alHTML = (al) => al.b + (al.s ? `<sup>${al.s}</sup>` : "");
+  const XA = AL("X", "A"), Xa = AL("X", "a"), YY = AL("Y");
+  const xAl = (x) => (x === 0 ? XA : Xa);
+
+  // Fenotip renkleri: iki temada aynı (sınır çizgisiyle çizilir)
+  const PH_COL = {
+    tamA: ["#c084fc", "#64748b"],
+    eksikA: ["#ef4444", "#f9a8d4", "#f8fafc"],
+    abo: ["#f97316", "#14b8a6", "#a855f7", "#94a3b8"],
+    tamB: ["#facc15", "#22c55e"],
+    eksikB: ["#1d4ed8", "#60a5fa", "#dbeafe"],
+    mn: ["#0ea5e9", "#a3e635", "#f43f5e"],
+  };
+
+  function readSeed(el) {
+    let v = Math.floor(Number(el.value));
+    if (!Number.isFinite(v) || v < 1) v = 1;
+    if (v > 999999) v = 999999;
+    el.value = String(v);
+    return v;
+  }
+  function newSeedFor(el) {
+    const old = readSeed(el);
+    let v = old;
+    while (v === old) v = 1 + Math.floor(Math.random() * 999999);
+    el.value = String(v);
+  }
+  const parseBox = (box) => Number(box.value.trim().replace(",", ".").replace("−", "-"));
+  // Kaydırıcı ile sayı kutusu eşlenir; kesin değer sayı kutusundan okunur, sınırlar kaydırıcınınkidir.
+  function bindPair(range, box, d, onChange) {
+    range.addEventListener("input", () => { box.value = Number(range.value).toFixed(d); onChange(); });
+    box.addEventListener("change", () => {
+      let v = parseBox(box);
+      if (box.value.trim() === "" || !Number.isFinite(v)) v = Number(range.value);
+      v = round(Math.min(Number(range.max), Math.max(Number(range.min), v)), d);
+      box.value = v.toFixed(d);
+      range.value = String(v);
+      onChange();
+    });
+  }
+  const pairValue = (box, d) => round(parseBox(box), d);
+  function setPair(range, box, v, d) { box.value = Number(v).toFixed(d); range.value = String(v); }
+  // N: logaritmik kaydırıcı + tam sayı kutusu
+  function bindN(range, box, onChange) {
+    range.addEventListener("input", () => { box.value = String(Math.round(Math.pow(10, Number(range.value)))); onChange(); });
+    box.addEventListener("change", () => {
+      let v = Math.round(Number(box.value));
+      if (!Number.isFinite(v) || box.value.trim() === "") v = Math.round(Math.pow(10, Number(range.value)));
+      v = Math.min(N_MAX, Math.max(1, v));
+      box.value = String(v);
+      range.value = String(Math.log10(v));
+      onChange();
+    });
+  }
+  const readN = (box) => Math.min(N_MAX, Math.max(1, Math.round(Number(box.value)) || 1));
+  function setN(range, box, v) { box.value = String(v); range.value = String(Math.log10(v)); }
+
+  /* ── Ortak örnekleme denetimi ── */
+  function setRunning(T, on) {
+    T.want = on;
+    const full = T.run.N >= T.target;
+    T.running = on && !full && !T.fixed;
+    T.toggle.textContent = T.fixed ? "Veri sabit" : full ? "Tamamlandı" : T.running ? "Duraklat" : T.run.N ? "Sürdür" : "Başlat";
+    T.toggle.setAttribute("aria-pressed", String(!T.running));
+    T.toggle.disabled = full || T.fixed;
+    T.fill.disabled = full || T.fixed;
+    T.dirty = true;
+  }
+  function stepT(T, dt, next) {
+    if (!T.running || dt <= 0) return;
+    T.acc += dt * T.rate;
+    let n = Math.floor(T.acc);
+    T.acc -= n;
+    n = Math.min(n, T.target - T.run.N);
+    for (let i = 0; i < n; i++) T.onNext(next(T.run));
+    if (n > 0) T.dirty = true;
+    if (T.run.N >= T.target) setRunning(T, T.want);
+  }
+  function fillT(T, next) {
+    const n = T.target - T.run.N;
+    for (let i = 0; i < n; i++) T.onNext(next(T.run));
+    T.acc = 0;
+    setRunning(T, T.want);
+  }
+
+  /* ── (a) Bir ve iki karakter ── */
+  const DEF_A = { genes: "1", mode1: "tamA", mode2: "tamB", test: "fen", data: "sim", N: 100, rate: 5, seed: 1866 };
+  const HIST_MAX = 100;
+  const A = { setup: null, run: null, target: 100, rate: 50, acc: 0, want: true, running: true, fixed: false, hist: [], last: null, dirty: true, toggle: ui.aToggle, fill: ui.aFill };
+  A.onNext = (o) => { A.last = o; A.hist.push(o.pi); if (A.hist.length > HIST_MAX) A.hist.shift(); };
+  const defaultGeno = (key, who) => (key === "abo" ? (who === 1 ? 2 : 4) : 1);
+  const genoTextT = (T, gx) => T.genotypes[gx].map((i) => alText(T.alleles[i])).join("");
+  const genoHTMLT = (T, gx) => T.genotypes[gx].map((i) => alHTML(T.alleles[i])).join("");
+  function fillGeno(sel, key, keep) {
+    const T = GENE_TYPES[key];
+    sel.innerHTML = T.genotypes.map((g, k) => `<option value="${k}">${genoTextT(T, k)} · ${T.phen[T.phenOfG[k]]}</option>`).join("");
+    sel.value = String(keep);
+    sel.dataset.type = key;
+  }
+  function phenColor(S, g, ph, mendelKey) {
+    const M = mendelKey ? MENDEL[mendelKey] : null;
+    if (M && M.colors && g === 0) return M.colors[ph];
+    return PH_COL[S.keys[g]][ph];
+  }
+  function phenNameG(S, g, ph, mendelKey) {
+    const M = mendelKey ? MENDEL[mendelKey] : null;
+    if (M) return S.G === 1 ? M.names[ph] : M.names[g][ph];
+    return S.types[g].phen[ph];
+  }
+  // Kısa fenotip etiketi (HTML): tam baskınlıkta kalıp (A_, aa), ötekilerde ad
+  function phenShortHTML(S, pi, mendelKey) {
+    return S.phensOf(pi).map((ph, g) => {
+      const T = S.types[g];
+      if (mendelKey) return phenNameG(S, g, ph, mendelKey);
+      return T.pattern ? T.pattern[ph] : T.short ? T.short[ph] : T.phen[ph];
+    }).join(" ");
+  }
+  function phenLongText(S, pi, mendelKey) {
+    return S.phensOf(pi).map((ph, g) => phenNameG(S, g, ph, mendelKey)).join(", ");
+  }
+  function genoHTML(S, gi) { return S.genesOf(gi).map((gx, g) => genoHTMLT(S.types[g], gx)).join(" "); }
+  function genoText(S, gi) { return S.genesOf(gi).map((gx, g) => genoTextT(S.types[g], gx)).join(" "); }
+  function swatchHTML(S, pi, mendelKey) {
+    const cols = S.phensOf(pi).map((ph, g) => phenColor(S, g, ph, mendelKey));
+    const bg = cols.length === 1 ? cols[0] : `linear-gradient(90deg, ${cols[0]} 50%, ${cols[1]} 50%)`;
+    return `<i class="cs" style="background:${bg}" aria-hidden="true"></i>`;
+  }
+  function readCrossControls() {
+    const G = Number(ui.aGenes.value);
+    const keys = G === 1 ? [ui.aMode1.value] : [ui.aMode1.value, ui.aMode2.value];
+    const p1 = [Number(ui.aP1g1.value)], p2 = [Number(ui.aP2g1.value)];
+    if (G === 2) { p1.push(Number(ui.aP1g2.value)); p2.push(Number(ui.aP2g2.value)); }
+    return { keys, p1, p2 };
+  }
+  function syncAOutputs() {
+    const G = Number(ui.aGenes.value);
+    document.querySelectorAll("[data-genes]").forEach((el) => { el.hidden = G !== 2; });
+    ui.aGenesOut.textContent = G === 1 ? "monohibrit" : "dihibrit";
+    const T1 = GENE_TYPES[ui.aMode1.value], T2 = GENE_TYPES[ui.aMode2.value];
+    ui.aMode1Out.textContent = `alel ${T1.alleles.map(alText).join(", ")}`;
+    ui.aMode2Out.textContent = `alel ${T2.alleles.map(alText).join(", ")}`;
+    ui.aTestOut2.textContent = ui.aTest.value === "fen" ? "fenotip" : "genotip";
+    ui.aDataOut.textContent = ui.aData.value === "sim" ? "benzetim" : "Mendel 1866";
+    A.rate = RATES[Number(ui.aRate.value)];
+    ui.aRateOut.textContent = `${fmtInt(A.rate)} yavru/s`;
+    const N = readN(ui.aNNum);
+    ui.aNOut2.textContent = `N = ${fmtInt(N)} yavru`;
+  }
+  function setAFixed(fixed) {
+    [ui.aN, ui.aNNum, ui.aRate, ui.aSeed, ui.aRepeat, ui.aNewSeed].forEach((el) => { el.disabled = fixed; });
+    document.querySelectorAll("[data-an]").forEach((el) => { el.disabled = fixed; });
+    ui.aTest.disabled = fixed;
+  }
+  function newRunA() {
+    const data = ui.aData.value;
+    if (data !== "sim") ui.aTest.value = "fen";
+    syncAOutputs();
+    const { keys, p1, p2 } = readCrossControls();
+    A.setup = crossSetup(keys, p1, p2);
+    A.fixed = data !== "sim";
+    A.run = A.fixed ? mendelRun(A.setup, data) : makeCrossRun(A.setup, readSeed(ui.aSeed));
+    A.target = A.fixed ? A.run.N : readN(ui.aNNum);
+    A.acc = 0;
+    A.hist = [];
+    A.last = null;
+    setAFixed(A.fixed);
+    buildPunnettA();
+    if (S.tab === "mendel") { ui.aMendelPanel.hidden = !A.fixed; ui.aCkWrap.hidden = A.fixed; }
+    if (A.fixed) buildMendelTable();
+    updateLegend();
+    setRunning(A, A.want);
+  }
+  // Mendel verisi seçilince çaprazlama denetimleri o deneyin çaprazlamasına kurulur (hepsi denetimlerle de seçilebilir).
+  function applyMendel(key) {
+    const di = key === "md";
+    ui.aGenes.value = di ? "2" : "1";
+    ui.aMode1.value = "tamA";
+    fillGeno(ui.aP1g1, "tamA", 1);
+    fillGeno(ui.aP2g1, "tamA", 1);
+    ui.aMode2.value = "tamB";
+    fillGeno(ui.aP1g2, "tamB", 1);
+    fillGeno(ui.aP2g2, "tamB", 1);
+  }
+  function crossChanged() {
+    ui.aData.value = "sim";
+    newRunA();
+  }
+  function modeChanged(sel, who) {
+    const key = sel.value;
+    if (who === 1) { fillGeno(ui.aP1g1, key, defaultGeno(key, 1)); fillGeno(ui.aP2g1, key, defaultGeno(key, 2)); }
+    else { fillGeno(ui.aP1g2, key, defaultGeno(key, 1)); fillGeno(ui.aP2g2, key, defaultGeno(key, 2)); }
+    crossChanged();
+  }
+  const A_PRESETS = {
+    f2: { genes: "1", m1: "tamA", g: [1, 1] },
+    test: { genes: "1", m1: "tamA", g: [1, 2] },
+    di: { genes: "2", m1: "tamA", m2: "tamB", g: [1, 1], h: [1, 1] },
+    snap: { genes: "1", m1: "eksikA", g: [1, 1] },
+    abo: { genes: "1", m1: "abo", g: [2, 4] },
+  };
+  function presetA(key) {
+    const P = A_PRESETS[key];
+    ui.aGenes.value = P.genes;
+    ui.aMode1.value = P.m1;
+    fillGeno(ui.aP1g1, P.m1, P.g[0]);
+    fillGeno(ui.aP2g1, P.m1, P.g[1]);
+    if (P.m2) {
+      ui.aMode2.value = P.m2;
+      fillGeno(ui.aP1g2, P.m2, P.h[0]);
+      fillGeno(ui.aP2g2, P.m2, P.h[1]);
+    }
+    crossChanged();
+  }
+  function resetA() {
+    ui.aGenes.value = DEF_A.genes;
+    ui.aMode1.value = DEF_A.mode1;
+    ui.aMode2.value = DEF_A.mode2;
+    fillGeno(ui.aP1g1, "tamA", 1);
+    fillGeno(ui.aP2g1, "tamA", 1);
+    fillGeno(ui.aP1g2, "tamB", 1);
+    fillGeno(ui.aP2g2, "tamB", 1);
+    ui.aTest.value = DEF_A.test;
+    ui.aData.value = DEF_A.data;
+    setN(ui.aN, ui.aNNum, DEF_A.N);
+    ui.aRate.value = String(DEF_A.rate);
+    ui.aSeed.value = String(DEF_A.seed);
+    A.want = true;
+    newRunA();
+  }
+  function buildPunnettA() {
+    const S = A.setup, G = S.G, mk = A.fixed ? A.run.mendel : null, den = Math.pow(2, G);
+    const gamHTML = (gm) => gm.al.map((a, g) => alHTML(S.types[g].alleles[a])).join("");
+    let h = `<thead><tr><th scope="col">gametler</th>`;
+    for (const f of S.gf) h += `<th scope="col">${gamHTML(f)}<span class="gp">${fracText(f.w, den)}</span></th>`;
+    h += "</tr></thead><tbody>";
+    for (const m of S.gm) {
+      h += `<tr><th scope="row">${gamHTML(m)}<span class="gp">${fracText(m.w, den)}</span></th>`;
+      for (const f of S.gf) {
+        const gi = S.cellG(m.al, f.al), pi = S.pOfG(gi);
+        h += `<td>${genoHTML(S, gi)}<span class="ph">${swatchHTML(S, pi, mk)}${phenShortHTML(S, pi, mk)}</span></td>`;
+      }
+      h += "</tr>";
+    }
+    h += "</tbody>";
+    setHTML(ui.aPq, h);
+    const gIdx = [], pIdx = [];
+    S.gW.forEach((w, i) => { if (w > 0) gIdx.push(i); });
+    S.pW.forEach((w, i) => { if (w > 0) pIdx.push(i); });
+    const cellsN = S.gm.length * S.gf.length;
+    setHTML(ui.aPqNote, `Her hücrenin olasılığı, satır ve sütun gametlerinin olasılıklarının çarpımıdır (${S.gm.length} × ${S.gf.length} = ${cellsN} hücre). Kuram: genotip ${ratioText(gIdx.map((i) => S.gW[i]))} (${gIdx.map((i) => genoHTML(S, i)).join(" : ")}); fenotip ${ratioText(pIdx.map((i) => S.pW[i]))} (${pIdx.map((i) => phenShortHTML(S, i, mk)).join(" : ")}).`);
+  }
+  function buildMendelTable() {
+    const sum = mendelChiSum();
+    setHTML(ui.aMendelBody, sum.rows.map((r) => {
+      const M = MENDEL[r.key], c = M.counts;
+      return `<tr${A.run.mendel === r.key ? ' class="is-sel"' : ""}><th scope="row">${M.title}</th><td>${fmtInt(c[0])} : ${fmtInt(c[1])}</td><td>${fix(c[0] / c[1], 2)} : 1</td><td>${fix(r.x2, 3)}</td><td>${pNum(r.p)}</td></tr>`;
+    }).join(""));
+    setHTML(ui.aFisherNote, `Yedi deneyin χ² toplamı ${fix(sum.sum, 3)} (sd = ${sum.dof}; beklenen değer 7). Bu kadar iyi ya da daha iyi bir uyumun şansla gelme olasılığı P(χ²₇ ≤ ${fix(sum.sum, 3)}) = ${pNum(sum.pLower)}. R. A. Fisher (1936, <em>Has Mendel's work been rediscovered?</em>) Mendel'in bütün sayımlarını birlikte inceleyip uyumun beklenenden iyi olduğunu ileri sürdü; nedeni (seçici sayım, yardımcıların düzeltmesi ya da şans) bugün de tartışmalıdır. Kaynak: Mendel 1866, <em>Versuche über Pflanzen-Hybriden</em>, İngilizce çevirisi <em>Experiments in Plant Hybridization</em> (Druery ve Bateson 1901); F₃ sınaması aynı makalenin "ikinci kuşak" bölümünden.`);
+  }
+  function aView() {
+    const S = A.setup, run = A.run, N = run.N;
+    const v = { N, S, run, mk: A.fixed ? run.mendel : null };
+    v.fen = N ? gofWeights(run.pC, S.pW, S.D) : null;
+    v.gen = N && run.gC ? gofWeights(run.gC, S.gW, S.D) : null;
+    v.test = ui.aTest.value === "gen" ? v.gen : v.fen;
+    v.carTh = carrierTheory(S);
+    v.car = carrierCount(S, run.gC);
+    return v;
+  }
+  function testSub(t, what) {
+    if (!t) return "örneklem yok";
+    if (t.k < 2) return `tek ${what} sınıfı: sınanacak oran yok`;
+    if (t.kind === "chi2") return `χ² = ${fix(t.x2, 3)}, sd = ${t.dof} · en küçük beklenen E = ${fix(t.eMin, 1)} ≥ 5 · ${verdictP(t.p)}`;
+    if (t.kind === "exact") return `kesin çok terimli sınama: en küçük beklenen E = ${fix(t.eMin, 2)} < 5, χ² yaklaşımı güvenilmez (χ² = ${fix(t.x2, 3)}, sd = ${t.dof}; yaklaşım p = ${pNum(gammaQ(t.dof / 2, t.x2 / 2))} verirdi) · ${verdictP(t.p)}`;
+    return `p yazılmaz: en küçük beklenen E = ${fix(t.eMin, 2)} < 5 ve kesin sınama için olası sonuç sayısı çok büyük; N ≥ ${fmtInt(t.needN)} gerekli`;
+  }
+  const testShort = (t) => (!t || t.k < 2 ? "—" : t.kind === "toofew" ? "yazılmaz" : `${t.kind === "exact" ? "kesin " : ""}${pNum(t.p)}`);
+  function readoutsA() {
+    const v = aView(), S = v.S, N = v.N, mk = v.mk;
+    setText(ui.aNOut, A.fixed ? fmtInt(N) : `${fmtInt(N)} / ${fmtInt(A.target)}`);
+    setText(ui.aNSub, A.fixed ? `Mendel 1866 · ${MENDEL[mk].title}` : `tohum ${A.run.seed} · ${A.running ? "sayım sürüyor" : N >= A.target ? "sayım tamam" : "duraklatıldı"}`);
+    const pIdx = [], gIdx = [];
+    S.pW.forEach((w, i) => { if (w > 0) pIdx.push(i); });
+    S.gW.forEach((w, i) => { if (w > 0) gIdx.push(i); });
+    const thPh = ratioText(pIdx.map((i) => S.pW[i])), thGe = ratioText(gIdx.map((i) => S.gW[i]));
+    const mrP = N ? measuredRatio(A.run.pC, S.pW) : null;
+    setText(ui.aPhOut, mrP ? (pIdx.length > 1 ? mrP.map((x) => fix(x, 2)).join(" : ") : "tek sınıf") : "—");
+    setText(ui.aPhSub, `kuram ${thPh} · ${pIdx.map((i) => phenLongText(S, i, mk)).join(" : ")}`);
+    if (A.run.gC) {
+      const mrG = N ? measuredRatio(A.run.gC, S.gW) : null;
+      setText(ui.aGeOut, mrG ? (gIdx.length > 1 ? mrG.map((x) => fix(x, 2)).join(" : ") : "tek sınıf") : "—");
+      setText(ui.aGeSub, `kuram ${thGe} · ${gIdx.map((i) => genoText(S, i)).join(" : ")}`);
+    } else {
+      setText(ui.aGeOut, "—");
+      setText(ui.aGeSub, `Mendel genotipleri saymadı, yalnız fenotipleri · kuram ${thGe}`);
+    }
+    const what = ui.aTest.value === "gen" ? "genotip" : "fenotip";
+    setText(ui.aTestLabel, `Uyum sınaması: ${what}${v.test ? ` (${v.test.k} sınıf)` : ""}`);
+    setText(ui.aTestOut, v.test && v.test.k >= 2 && v.test.kind !== "toofew" ? fmtP(v.test.p) : "—");
+    setText(ui.aTestSub, testSub(v.test, what));
+    // Taşıyıcı payı (2/3 bulmacası)
+    if (!v.carTh) {
+      setText(ui.aCarOut, "—");
+      setText(ui.aCarSub, "yalnız 1. gende tam baskınlıkta anlamlı: eksik ve eş baskınlıkta heterozigot zaten görünür");
+    } else if (A.fixed) {
+      const f3 = MENDEL[mk].f3;
+      if (f3) {
+        const q = f3.het / f3.n, se = Math.sqrt((2 / 3) * (1 / 3) / f3.n), z = zOf(q, 2 / 3, se);
+        setText(ui.aCarOut, `${f3.het}/${f3.n} = ${fix(q, 3)}`);
+        setText(ui.aCarSub, `Mendel'in F₃ sınaması: baskın görünen ${f3.n} F₂ bitkisinden ${f3.het}'i açılım gösterdi (Aa), ${f3.n - f3.het}'i saf döl verdi (AA) · kuram 2/3 = 0.667 · fark ${fixS(z, 2)}${NB}SE (${verdictZ(z)}), kesin binom ${fmtP(binomExactP(f3.het, f3.n, 2 / 3))}`);
+      } else {
+        setText(ui.aCarOut, "—");
+        setText(ui.aCarSub, "bu deneyde F₂ genotipleri sayılmadı");
+      }
+    } else {
+      const th = v.carTh, c = v.car, q = th.q;
+      if (!(th.dom > 0)) {
+        setText(ui.aCarOut, "—");
+        setText(ui.aCarSub, "bu çaprazlamada baskın görünen yavru beklenmez");
+      } else if (!(c.dom > 0)) {
+        setText(ui.aCarOut, "—");
+        setText(ui.aCarSub, `henüz baskın görünen yavru yok · kuram ${fracText(th.het, th.dom)} = ${fix(q, 3)}`);
+      } else {
+        const meas = c.het / c.dom, se = Math.sqrt((q * (1 - q)) / c.dom), z = zOf(meas, q, se);
+        setText(ui.aCarOut, `${fmtInt(c.het)}/${fmtInt(c.dom)} = ${fix(meas, 3)}`);
+        setText(ui.aCarSub, `kuram P(Aa | baskın görünüm) = ${fracText(th.het, th.dom)} = ${fix(q, 3)}${se > 0 ? ` · fark ${fixS(meas - q, 3)} = ${fixS(z, 2)}${NB}SE (SE = ${fix(se, 3)}, ${verdictZ(z)})` : " · kesin: bütün baskınlar aynı genotipte"}`);
+      }
+    }
+    // Sınıf çizelgesi
+    const useGen = ui.aTest.value === "gen" && A.run.gC;
+    const idx = useGen ? gIdx : pIdx, W = useGen ? S.gW : S.pW, C = useGen ? A.run.gC : A.run.pC;
+    let rows = "";
+    for (const i of idx) {
+      const p = W[i] / S.D, E = N * p, O = C[i];
+      const lab = useGen ? `${swatchHTML(S, S.pOfG(i), mk)}${genoHTML(S, i)} · ${phenLongText(S, S.pOfG(i), mk)}` : `${swatchHTML(S, i, mk)}${phenShortHTML(S, i, mk)}${mk ? "" : ` · ${phenLongText(S, i, mk)}`}`;
+      rows += `<tr><th scope="row">${lab}</th><td class="is-th">${fracText(W[i], S.D)}</td><td>${N ? fix(E, 1) : "—"}</td><td class="is-meas">${fmtInt(O)}</td><td>${N ? fixS(O - E, 1) : "—"}</td><td>${N ? fix(((O - E) * (O - E)) / E, 3) : "—"}</td></tr>`;
+    }
+    rows += `<tr class="is-theory"><th scope="row">toplam</th><td>1</td><td>${fmtInt(N)}</td><td>${fmtInt(N)}</td><td>—</td><td>${v.test && v.test.k >= 2 ? `χ² = ${fix(v.test.x2, 3)}` : "—"}</td></tr>`;
+    setHTML(ui.aClsBody, rows);
+    // Ölçüm çizelgesi
+    let ck = "";
+    if (A.fixed) ck = `<tr><td>${fmtInt(N)}</td><td class="is-meas">${Array.from(A.run.pC).filter((_, i) => S.pW[i] > 0).map(fmtInt).join(" : ")}</td><td>${testShort(v.fen)}</td><td>—</td><td>—</td></tr>`;
+    else for (const r of A.run.records) {
+      ck += `<tr><td>${fmtInt(r.N)}</td><td class="is-meas">${pIdx.map((i) => fmtInt(r.pC[i])).join(" : ")}</td><td>${testShort(r.fen)}${r.fen && r.fen.k >= 2 ? ` (χ² ${fix(r.fen.x2, 2)})` : ""}</td><td>${testShort(r.gen)}</td><td>${r.car && r.car.dom ? fix(r.car.het / r.car.dom, 3) : "—"}</td></tr>`;
+    }
+    if (!ck) ck = `<tr><td colspan="5">ilk satır 10. yavruda yazılır</td></tr>`;
+    setHTML(ui.aCkBody, ck);
+    statusA(v, thPh);
+  }
+  function statusA(v, thPh) {
+    const S = v.S, N = v.N, t = v.test, mk = v.mk;
+    const cross = mk ? `Mendel'in ${MENDEL[mk].title} sayımı` : `${S.types.map((T, g) => genoTextT(T, S.p1[g])).join(" ")} × ${S.types.map((T, g) => genoTextT(T, S.p2[g])).join(" ")}`;
+    let text = `${cross}: kuramsal fenotip oranı ${thPh}.`, kind = "good";
+    if (!N) { setStatus(`${text} Yavrular sayıldıkça ölçüm başlar.`, ""); return; }
+    if (!t || t.k < 2) { text += ` Bütün yavrular aynı ${ui.aTest.value === "gen" ? "genotipte" : "fenotipte"}: sınanacak oran yok.`; setStatus(text, ""); return; }
+    if (t.kind === "toofew") {
+      kind = "warn";
+      text += ` N = ${fmtInt(N)}: en küçük beklenen sayı ${fix(t.eMin, 2)} < 5, χ² yaklaşımı geçersiz ve kesin sınama bu kadar çok sınıfla hesaplanamıyor; p yazılmıyor. En az N = ${fmtInt(t.needN)} gerekli.`;
+    } else {
+      const method = t.kind === "chi2" ? `χ² = ${fix(t.x2, 3)}, sd = ${t.dof}, ${fmtP(t.p)}` : `en küçük beklenen sayı ${fix(t.eMin, 2)} < 5 olduğu için kesin çok terimli sınama: ${fmtP(t.p)}`;
+      const rejected = t.p < 0.001 || round(t.p, 3) < 0.05;
+      if (rejected) kind = "warn";
+      text += ` N = ${fmtInt(N)} ${mk ? (MENDEL[mk].unit === "bitki" ? "bitkide" : "tohumda") : "yavruda"} ${method}: ${rejected ? `kuramsal oran ${verdictP(t.p)} (model doğru olsa da her 20 deneyden yaklaşık biri p < 0.05 verir)` : "sayım kuramsal oranla uyumlu"}.`;
+      if (t.kind === "exact") kind = "warn";
+    }
+    if (mk) text += " Mendel'in sayımı sabit veridir; tohum, N ve hız kullanılmaz.";
+    setStatus(text, kind);
+  }
+
+  /* ── (b) Cinsiyete bağlı kalıtım ── */
+  const DEF_B = { trait: "rk", mom: 1, dad: 0, N: 1000, rate: 7, seed: 1910 };
+  const B = { run: null, target: 1000, rate: 200, acc: 0, want: true, running: true, fixed: false, dirty: true, toggle: ui.bToggle, fill: ui.bFill, onNext: () => {} };
+  const X_CLS = [
+    { sex: "m", name: "sağlıklı oğul", g: [XA, YY] },
+    { sex: "m", name: "hasta oğul", g: [Xa, YY] },
+    { sex: "f", name: "sağlıklı kız", g: [XA, XA] },
+    { sex: "f", name: "taşıyıcı kız", g: [XA, Xa] },
+    { sex: "f", name: "hasta kız", g: [Xa, Xa] },
+  ];
+  const TRAITS = {
+    rk: { name: "renk körlüğü", note: "Kırmızı–yeşil renk körlüğü X kromozomundaki opsin genlerinin (OPN1LW, OPN1MW) değişkenlerinden doğar; Kuzey Avrupa kökenli insanlarda erkeklerin yaklaşık %8'inde, kadınların yaklaşık %0.5'inde görülür." },
+    hem: { name: "hemofili A", note: "Hemofili A, X kromozomundaki pıhtılaşma faktörü VIII genindeki (F8) değişkenlerden doğar; yaklaşık 5000 erkek doğumdan birinde görülür. Kraliçe Victoria'nın soyundaki ünlü hastalık ise aynı biçimde kalıtılan hemofili B'ydi (faktör IX, F9): 2009'da Romanov ailesinin kalıntılarındaki DNA'dan gösterildi." },
+  };
+  function syncBOutputs() {
+    ui.bTraitOut.textContent = TRAITS[ui.bTrait.value].name;
+    setHTML(ui.bTraitNote, TRAITS[ui.bTrait.value].note);
+    B.rate = RATES[Number(ui.bRate.value)];
+    ui.bRateOut.textContent = `${fmtInt(B.rate)} çocuk/s`;
+    ui.bNOut2.textContent = `N = ${fmtInt(readN(ui.bNNum))} çocuk`;
+  }
+  function newRunB() {
+    syncBOutputs();
+    B.run = makeXRun(Number(ui.bMother.value), Number(ui.bFather.value), readSeed(ui.bSeed));
+    B.target = readN(ui.bNNum);
+    B.acc = 0;
+    buildPunnettB();
+    setRunning(B, B.want);
+  }
+  function resetB() {
+    ui.bTrait.value = DEF_B.trait;
+    ui.bMother.value = String(DEF_B.mom);
+    ui.bFather.value = String(DEF_B.dad);
+    setN(ui.bN, ui.bNNum, DEF_B.N);
+    ui.bRate.value = String(DEF_B.rate);
+    ui.bSeed.value = String(DEF_B.seed);
+    B.want = true;
+    newRunB();
+  }
+  const xClsHTML = (k) => X_CLS[k].g.map(alHTML).join("");
+  const xClsText = (k) => X_CLS[k].g.map(alText).join("");
+  const X_SW = (k) => `<i class="cs" style="background:${k === 1 || k === 4 ? "#f87171" : k === 3 ? "#fbbf24" : "#5eead4"}" aria-hidden="true"></i>`;
+  function buildPunnettB() {
+    const m = X_MOM[B.run.mi], f = X_DAD[B.run.fi];
+    const mg = m[0] === m[1] ? [m[0]] : m, den = mg.length;
+    let h = `<thead><tr><th scope="col">gametler</th><th scope="col">${alHTML(xAl(f))}<span class="gp">1/2 · kız</span></th><th scope="col">${alHTML(YY)}<span class="gp">1/2 · oğul</span></th></tr></thead><tbody>`;
+    for (const x of mg) {
+      const dau = 2 + x + f, son = x;
+      h += `<tr><th scope="row">${alHTML(xAl(x))}<span class="gp">${den === 1 ? "1" : "1/2"}</span></th><td>${xClsHTML(dau)}<span class="ph">${X_SW(dau)}${X_CLS[dau].name}</span></td><td>${xClsHTML(son)}<span class="ph">${X_SW(son)}${X_CLS[son].name}</span></td></tr>`;
+    }
+    setHTML(ui.bPq, h + "</tbody>");
+  }
+  function bView() {
+    const run = B.run, w = xTheory(run.mi, run.fi), c = run.c, N = run.N;
+    const sons = c[0] + c[1], daus = c[2] + c[3] + c[4];
+    return { run, w, c, N, sons, daus, test: N ? gofWeights(c, w, 4) : null };
+  }
+  function fracCard(outEl, subEl, count, n, wNum, wDen, label) {
+    const q = wDen ? wNum / wDen : NaN;
+    const qTxt = `${fracText(wNum, wDen)}${q > 0 && q < 1 ? ` = ${fix(q, 3)}` : ""}`;
+    if (!n) { setText(outEl, "—"); setText(subEl, `henüz ${label} yok · kuram ${qTxt}`); return null; }
+    const meas = count / n, se = Math.sqrt((q * (1 - q)) / n), z = zOf(meas, q, se);
+    setText(outEl, `${fmtInt(count)}/${fmtInt(n)} = ${fix(meas, 3)}`);
+    setText(subEl, se > 0 ? `kuram ${qTxt} · fark ${fixS(meas - q, 3)} = ${fixS(z, 2)}${NB}SE (SE = ${fix(se, 3)}, ${verdictZ(z)})` : `kuram ${qTxt}: ${q === 0 ? "hiç beklenmez" : "hepsi beklenir"}${count !== q * n ? " · kuramla çelişiyor" : ""}`);
+    return z;
+  }
+  function readoutsB() {
+    const v = bView(), w = v.w, c = v.c, N = v.N;
+    setText(ui.bNOut, `${fmtInt(N)} / ${fmtInt(B.target)}`);
+    setText(ui.bNSub, `${fmtInt(v.sons)} oğul · ${fmtInt(v.daus)} kız · tohum ${B.run.seed}`);
+    const zs = fracCard(ui.bSonOut, ui.bSonSub, c[1], v.sons, w[1], w[0] + w[1], "oğul");
+    const zc = fracCard(ui.bCarOut, ui.bCarSub, c[3], v.daus, w[3], w[2] + w[3] + w[4], "kız");
+    const za = fracCard(ui.bAffOut, ui.bAffSub, c[4], v.daus, w[4], w[2] + w[3] + w[4], "kız");
+    if (N) {
+      const p = binomExactP(v.sons, N, 0.5), se = Math.sqrt(0.25 / N), z = zOf(v.sons / N, 0.5, se);
+      setText(ui.bSexOut, fix(v.sons / N, 3));
+      setText(ui.bSexSub, `kuram 1/2 · fark ${fixS(z, 2)}${NB}SE (SE = ${fix(se, 3)}) · kesin binom ${fmtP(p)}`);
+    } else { setText(ui.bSexOut, "—"); setText(ui.bSexSub, "kuram 1/2"); }
+    const t = v.test;
+    setText(ui.bTestOut, t && t.k >= 2 && t.kind !== "toofew" ? fmtP(t.p) : "—");
+    setText(ui.bTestSub, t ? `${t.k} sınıf (olasılığı 0 olan sınıflar sınamaya girmez) · ${testSub(t, "çocuk")}` : "örneklem yok");
+    setText(ui.bNextOut, `P(hasta) = ${fracText(w[1] + w[4], 4)}`);
+    setText(ui.bNextSub, `cinsiyeti bilinmeyen bir sonraki çocuk: hasta ${fracText(w[1] + w[4], 4)}, taşıyıcı kız ${fracText(w[3], 4)}, ikisi de değil ${fracText(4 - w[1] - w[4] - w[3], 4)} · oğulsa hasta ${fracText(w[1], w[0] + w[1])}, kızsa hasta ${fracText(w[4], w[2] + w[3] + w[4])}, taşıyıcı ${fracText(w[3], w[2] + w[3] + w[4])}`);
+    let rows = "";
+    for (let k = 0; k < 5; k++) {
+      const p = w[k] / 4, E = N * p, nSex = X_CLS[k].sex === "m" ? v.sons : v.daus;
+      rows += `<tr><th scope="row">${X_SW(k)}${xClsHTML(k)} · ${X_CLS[k].name}</th><td class="is-th">${fracText(w[k], 4)}</td><td>${N ? fix(E, 1) : "—"}</td><td class="is-meas">${fmtInt(c[k])}</td><td>${N ? fixS(c[k] - E, 1) : "—"}</td><td>${nSex ? fix(c[k] / nSex, 3) : "—"} <small>(kuram ${fracText(w[k], X_CLS[k].sex === "m" ? w[0] + w[1] : w[2] + w[3] + w[4])})</small></td></tr>`;
+    }
+    setHTML(ui.bClsBody, rows);
+    statusB(v, zs, zc, za);
+  }
+  // "1/2" → "1/2'si"; 0 ve 1 sözle
+  const share = (fr, adj) => (fr === "0" ? `hiçbiri ${adj} değil` : fr === "1" ? `hepsi ${adj}` : `${fr}'si ${adj}`);
+  function statusB(v, zs, zc, za) {
+    const w = v.w, N = v.N, run = B.run;
+    const cross = `${X_MOM[run.mi].map((x) => alHTML(xAl(x))).join("")} × ${alHTML(xAl(X_DAD[run.fi]))}Y`;
+    const sonsTh = fracText(w[1], w[0] + w[1]), dauAff = fracText(w[4], w[2] + w[3] + w[4]), dauCar = fracText(w[3], w[2] + w[3] + w[4]);
+    let text = `${cross} (${TRAITS[ui.bTrait.value].name}): kurama göre oğulların ${share(sonsTh, "hasta")}; kızların ${share(dauAff, "hasta")}, ${share(dauCar, "taşıyıcı")}.`;
+    let kind = "good";
+    if (!N) { setStatus(`${text} Çocuklar sayıldıkça ölçüm başlar.`, ""); return; }
+    const t = v.test;
+    if (t && t.k >= 2 && t.kind !== "toofew") {
+      const rej = t.p < 0.001 || round(t.p, 3) < 0.05;
+      text += ` N = ${fmtInt(N)} çocukta ${t.kind === "chi2" ? `χ² = ${fix(t.x2, 3)}, sd = ${t.dof}, ${fmtP(t.p)}` : `kesin çok terimli sınama (en küçük beklenen sayı ${fix(t.eMin, 2)} < 5): ${fmtP(t.p)}`}: ${rej ? `kuram ${verdictP(t.p)}` : "sayım kuramla uyumlu"}.`;
+      if (rej || t.kind === "exact") kind = "warn";
+    } else if (t && t.kind === "toofew") { text += " Sınama için N yetersiz."; kind = "warn"; }
+    text += ` Erkeklerin tek X'i olduğu için çekinik alel onlarda hep görünür; kızların hasta olması için iki X<sup>a</sup> gerekir, bu yüzden babası sağlıklı bir kız hasta olamaz.`;
+    if (Math.max(Math.abs(zs || 0), Math.abs(zc || 0), Math.abs(za || 0)) > 3) kind = "warn";
+    setStatus(text, kind);
+  }
+
+  /* ── (c) Bağlı genler ve haritalama ── */
+  const DEF_C = { mode: "2", r: 0.2, phase: "cis", r1: 0.1, r2: 0.2, I: 0, phase3: "ABC", N: 1000, rate: 7, seed: 1913 };
+  const C = { run: null, mode: 2, target: 1000, rate: 200, acc: 0, want: true, running: true, fixed: false, dirty: true, toggle: ui.cToggle, fill: ui.cFill, onNext: () => {} };
+  const LOCI = ["A", "B", "C"];
+  const cls2Text = (k) => `${k >> 1 ? "a" : "A"}${k & 1 ? "b" : "B"}`;
+  const cls3Text = (k) => LOCI.map((L, g) => (bit3(k, g) ? L.toLowerCase() : L)).join("");
+  function syncCOutputs() {
+    C.mode = Number(ui.cMode.value);
+    document.querySelectorAll("[data-cmode]").forEach((el) => { el.hidden = Number(el.dataset.cmode) !== C.mode; });
+    ui.cModeOut.textContent = C.mode === 2 ? "iki gen" : "üç gen";
+    const r = pairValue(ui.cRNum, 3);
+    ui.cROut.textContent = r >= 0.5 ? "r = 0.500 · bağımsız" : `r = ${fix(r, 3)} · d = ${fix(100 * haldaneD(r), 1)} cM (Haldane)`;
+    ui.cPhaseOut.textContent = ui.cPhase.value === "cis" ? "AB/ab" : "Ab/aB";
+    ui.cR1Out.textContent = `r₁ = ${fix(pairValue(ui.cR1Num, 3), 3)}`;
+    ui.cR2Out.textContent = `r₂ = ${fix(pairValue(ui.cR2Num, 3), 3)}`;
+    ui.cIOut.textContent = `I = ${fix(pairValue(ui.cINum, 2), 2)} · c = ${fix(1 - pairValue(ui.cINum, 2), 2)}`;
+    const ph = ui.cPhase3.value, H = PHASE3[ph];
+    ui.cPhase3Out.textContent = `${LOCI.map((L, g) => (H[g] ? L.toLowerCase() : L)).join("")}/${LOCI.map((L, g) => (H[g] ? L : L.toLowerCase())).join("")}`;
+    C.rate = RATES[Number(ui.cRate.value)];
+    ui.cRateOut.textContent = `${fmtInt(C.rate)} yavru/s`;
+    ui.cNOut2.textContent = `N = ${fmtInt(readN(ui.cNNum))} yavru`;
+    setHTML(ui.cModelNote, C.mode === 2
+      ? "Model (Haldane): A ile B arasındaki krossing-over sayısı K, ortalaması harita uzaklığı d (Morgan) olan Poisson dağılımına uyar; K tek ise gamet rekombinanttır. Bu yüzden r = ½(1 − e<sup>−2d</sup>), tersi d = −½·ln(1 − 2r). Çift krossing-over ebeveyn tipi bir gamet verir ve test çaprazlamasında görünmez. r = 0.5'te genler bağımsız dağılır (ayrı kromozomlar ya da çok uzak). Krossing-overın hücredeki görüntüsü: <a href=\"mitoz-mayoz.html\">Mitoz ve Mayoz</a>."
+      : "Model: gen sırası A–B–C. Bölge I'de (A–B) ve bölge II'de (B–C) rekombinasyon oranları r₁ ve r₂; çift krossing-over olasılığı c·r₁·r₂, c = 1 − I çakışma katsayısı. Girişimsiz (I = 0) iki bölge bağımsızdır; I = 1'de çift krossing-over hiç olmaz. Dış genler arasında ölçülen oran r(A–C) = r₁ + r₂ − 2c·r₁·r₂: çift krossing-overlar dış genleri ebeveyn düzeninde bıraktığı için uzaklıklar tam toplanmaz. Sturtevant (1913) ilk genetik haritayı Drosophila'nın X kromozomunda bu yolla, kısa aralıkların rekombinasyon yüzdelerini toplayarak kurdu.");
+  }
+  function newRunC() {
+    syncCOutputs();
+    const seed = readSeed(ui.cSeed);
+    if (C.mode === 2) C.run = makeLink2(pairValue(ui.cRNum, 3), ui.cPhase.value, seed);
+    else C.run = makeLink3(pairValue(ui.cR1Num, 3), pairValue(ui.cR2Num, 3), pairValue(ui.cINum, 2), ui.cPhase3.value, seed);
+    C.target = readN(ui.cNNum);
+    C.acc = 0;
+    updateLegend();
+    setRunning(C, C.want);
+  }
+  function resetC() {
+    ui.cMode.value = DEF_C.mode;
+    setPair(ui.cR, ui.cRNum, DEF_C.r, 3);
+    ui.cPhase.value = DEF_C.phase;
+    setPair(ui.cR1, ui.cR1Num, DEF_C.r1, 3);
+    setPair(ui.cR2, ui.cR2Num, DEF_C.r2, 3);
+    setPair(ui.cI, ui.cINum, DEF_C.I, 2);
+    ui.cPhase3.value = DEF_C.phase3;
+    setN(ui.cN, ui.cNNum, DEF_C.N);
+    ui.cRate.value = String(DEF_C.rate);
+    ui.cSeed.value = String(DEF_C.seed);
+    C.want = true;
+    newRunC();
+  }
+  function c2View() {
+    const run = C.run, N = run.N, th = link2Theory(run.r, run.phase), R = run.R;
+    const v = { run, N, th, R };
+    if (N) {
+      v.rh = R / N;
+      v.se = Math.sqrt((v.rh * (1 - v.rh)) / N);
+      v.z = zOf(v.rh, run.r, v.se);
+      v.pR = binomExactP(R, N, run.r);
+      v.pInd = binomExactP(R, N, 0.5);
+      v.dNaive = 100 * v.rh;
+      v.dH = v.rh < 0.5 ? 100 * haldaneD(v.rh) : Infinity;
+      v.seH = v.rh < 0.5 ? (100 * v.se) / (1 - 2 * v.rh) : NaN;
+      v.dK = v.rh < 0.5 ? 100 * kosambiD(v.rh) : Infinity;
+      v.meanK = run.K / N;
+      v.test = gofWeights(run.c, th.w.map((x) => x * 1e6), 1e6);
+    }
+    return v;
+  }
+  function c3View() {
+    const run = C.run, N = run.N, th = link3Theory(run.r1, run.r2, run.I, run.phase);
+    const v = { run, N, th, an: N ? link3Analyse(run.c, N, run.phase) : null };
+    if (N) v.test = gofWeights(run.c, th.w.map((x) => x * 1e9), 1e9);
+    return v;
+  }
+  function card(k, label, value, sub) {
+    setHTML(ui[`cK${k}Label`], hatHTML(label));
+    setText(ui[`cK${k}Out`], value);
+    setHTML(ui[`cK${k}Sub`], hatHTML(escText(sub)));
+  }
+  function readoutsC() {
+    if (C.mode === 2) readoutsC2(); else readoutsC3();
+  }
+  function readoutsC2() {
+    const v = c2View(), run = v.run, N = v.N, r = run.r, th = v.th;
+    setText(ui.cNOut, `${fmtInt(N)} / ${fmtInt(C.target)}`);
+    setText(ui.cNSub, `${fmtInt(N - v.R)} ebeveyn tipi · ${fmtInt(v.R)} rekombinant · tohum ${run.seed}`);
+    const dTrue = 100 * th.d;
+    if (N) {
+      card(1, "Ölçülen r̂ = rekombinant/N", fix(v.rh, 4), `kuram r = ${fix(r, 3)} · SE = √(r̂(1 − r̂)/N) = ${fix(v.se, 4)}${Number.isFinite(v.z) ? ` · fark ${fixS(v.rh - r, 4)} = ${fixS(v.z, 2)}${NB}SE (${verdictZ(v.z)})` : ""} · %95 aralık ${fix(Math.max(0, v.rh - 1.96 * v.se), 3)}–${fix(Math.min(1, v.rh + 1.96 * v.se), 3)}`);
+      card(2, "Kesin binom sınamaları", fmtP(v.pR), `rekombinant sayısı ~ Binom(N, r = ${fix(r, 3)}): ${fmtP(v.pR)} (${verdictP(v.pR)}) · bağımsızlık (r = 0.5): ${fmtP(v.pInd)}${round(v.pInd, 3) < 0.05 ? " → bağlantı saptandı" : " → bağlantı saptanamadı"}`);
+      card(3, "Saf harita uzaklığı d = 100·r̂", `${fix(v.dNaive, 1)} cM`, `± ${fix(100 * v.se, 1)} cM (1 SE) · kuramsal saf değer 100·r = ${fix(100 * r, 1)} cM · gerçek uzaklık (Haldane) ${r >= 0.5 ? "tanımsız (∞)" : `${fix(dTrue, 1)} cM`}`);
+      card(4, "Haldane uzaklığı d = −50·ln(1 − 2r̂)", Number.isFinite(v.dH) ? `${fix(v.dH, 1)} cM` : "∞", Number.isFinite(v.dH) ? `± ${fix(v.seH, 1)} cM (SE/(1 − 2r̂)) · kuram ${r >= 0.5 ? "∞" : `${fix(dTrue, 1)} cM`} · Kosambi ${fix(v.dK, 1)} cM · saf uzaklıktan fark ${fixS(v.dH - v.dNaive, 1)} cM` : "r̂ ≥ 0.5: harita uzaklığı tanımsız, genler bağımsız görünüyor");
+      card(5, "Sayılan krossing-over (deneyde görünmez)", run.indep ? "—" : `${fix(v.meanK, 3)} / gamet`, run.indep ? "r = 0.5: bağımsız dağılım, krossing-over modellenmez" : `ortalama K × 100 = ${fix(100 * v.meanK, 1)} cM (kuram d = ${fix(dTrue, 1)} cM) · K ≥ 2: ${fmtInt(run.kHist[2] + run.kHist[3])} gamet, ${fmtInt(run.hidden)}'i ebeveyn tipi göründü (çift krossing-over)`);
+    } else {
+      card(1, "Ölçülen r̂ = rekombinant/N", "—", `kuram r = ${fix(r, 3)}`);
+      card(2, "Kesin binom sınamaları", "—", "örneklem yok");
+      card(3, "Saf harita uzaklığı d = 100·r̂", "—", `kuram 100·r = ${fix(100 * r, 1)} cM`);
+      card(4, "Haldane uzaklığı d = −50·ln(1 − 2r̂)", "—", `kuram ${r >= 0.5 ? "∞" : `${fix(dTrue, 1)} cM`}`);
+      card(5, "Sayılan krossing-over (deneyde görünmez)", "—", "—");
+    }
+    let rows = "";
+    for (const par of [true, false]) for (let k = 0; k < 4; k++) {
+      if (th.par[k] !== par) continue;
+      const E = N * th.w[k];
+      rows += `<tr><th scope="row">${cls2Text(k)} → yavru ${k >> 1 ? "aa" : "Aa"}${k & 1 ? "bb" : "Bb"}</th><td>${th.par[k] ? "ebeveyn tipi" : "rekombinant"}</td><td class="is-th">${fix(th.w[k], 4)}</td><td>${N ? fix(E, 1) : "—"}</td><td class="is-meas">${fmtInt(run.c[k])}</td><td>${N ? fixS(run.c[k] - E, 1) : "—"}</td></tr>`;
+    }
+    setHTML(ui.cClsBody, rows);
+    setHTML(ui.cClsNote, `Kuram: ebeveyn tipi sınıfların her biri (1 − r)/2 = ${fix((1 - r) / 2, 4)}, rekombinant sınıfların her biri r/2 = ${fix(r / 2, 4)}. ${v.test && v.test.k >= 2 ? `Dört sınıfın uyum sınaması: ${v.test.kind === "toofew" ? "yazılmaz (beklenen sayı < 5)" : `${v.test.kind === "chi2" ? `χ² = ${fix(v.test.x2, 3)}, sd = ${v.test.dof}` : "kesin sınama"}, ${fmtP(v.test.p)}`}.` : ""}`);
+    statusC2(v);
+  }
+  function statusC2(v) {
+    const run = v.run, r = run.r, N = v.N;
+    let text, kind = "good";
+    if (run.indep) text = "r = 0.5: iki gen bağımsız dağılıyor (Mendel'in ikinci ilkesi); dört sınıf da 1/4 beklenir, harita uzaklığı tanımsızdır.";
+    else text = `Harita uzaklığı d = ${fix(100 * v.th.d, 1)} cM (Haldane); ölçülebilen ise rekombinant payı r = ${fix(r, 3)}. Fark ${fix(100 * v.th.d - 100 * r, 1)} cM: iki gen arasındaki çift krossing-overlar ebeveyn tipi gamet verir ve sayılamaz.`;
+    if (N) {
+      text += ` N = ${fmtInt(N)}: r̂ = ${fix(v.rh, 4)} ± ${fix(v.se, 4)}${Number.isFinite(v.z) ? ` (${fixS(v.z, 2)} SE, ${verdictZ(v.z)})` : ""}.`;
+      if (Number.isFinite(v.z) && Math.abs(v.z) > 2) kind = "warn";
+      if (!(v.rh < 0.5)) { text += " r̂ ≥ 0.5 olduğu için Haldane uzaklığı tanımsız."; kind = "warn"; }
+      else if (v.rh > 0.4) { text += " r̂ 0.5'e yakın: Haldane uzaklığının belirsizliği büyük (SE/(1 − 2r̂)), harita bu aralıkta güvenilmez."; kind = "warn"; }
+      if (r > 0 && N * r < 10) { text += ` Beklenen rekombinant sayısı N·r = ${fix(N * r, 1)} küçük: SE yaklaşık, kesin binom sınamasına bak.`; kind = "warn"; }
+    }
+    setStatus(text, kind);
+  }
+  function readoutsC3() {
+    const v = c3View(), run = v.run, N = v.N, th = v.th, an = v.an;
+    setText(ui.cNOut, `${fmtInt(N)} / ${fmtInt(C.target)}`);
+    setText(ui.cNSub, `üç noktalı test çaprazlaması · tohum ${run.seed}`);
+    const se = (q) => Math.sqrt((q * (1 - q)) / N);
+    if (N) {
+      const [rAB, rBC, rAC] = an.r;
+      card(1, "Bölge I: r̂(A–B)", fix(rAB, 4), `kuram r₁ = ${fix(th.r1, 3)} · SE = ${fix(se(rAB), 4)} · fark ${fixS(zOf(rAB, th.r1, se(rAB)), 2)}${NB}SE · ${fix(100 * rAB, 1)} cM`);
+      card(2, "Bölge II: r̂(B–C)", fix(rBC, 4), `kuram r₂ = ${fix(th.r2, 3)} · SE = ${fix(se(rBC), 4)} · fark ${fixS(zOf(rBC, th.r2, se(rBC)), 2)}${NB}SE · ${fix(100 * rBC, 1)} cM`);
+      card(3, "Dış genler: r̂(A–C) ve toplam", `${fix(rAC, 4)} < ${fix(rAB + rBC, 4)}`, `doğrudan ölçülen r̂(A–C) (kuram ${fix(th.rAC, 4)}); r̂(A–B) + r̂(B–C) = ${fix(rAB + rBC, 4)}; fark 2·(çift krossing-over)/N = ${fix((2 * an.dco) / N, 4)}`);
+      card(4, "Çakışma katsayısı c ve girişim I", Number.isFinite(an.coc) ? `c = ${fix(an.coc, 3)} · I = ${fix(an.I, 3)}` : "—", Number.isFinite(an.coc) ? `gözlenen çift krossing-over ${fmtInt(an.dco)}, beklenen r̂₁·r̂₂·N = ${fix(an.expD, 1)} · kuram c = ${fix(th.c, 2)}, I = ${fix(th.I, 2)}${an.dco > 0 ? ` · yaklaşık SE(c) ≈ c/√${fmtInt(an.dco)} = ${fix(an.coc / Math.sqrt(an.dco), 3)} (Poisson)` : ""}` : "beklenen çift krossing-over sayısı 0: c tanımsız");
+      const op = [[0, 1], [1, 2], [0, 2]][an.outer];
+      card(5, "Veriden gen sırası", an.tie ? "belirsiz" : `ortadaki gen ${LOCI[an.mid]}`, an.tie ? "en büyük iki rekombinasyon oranı eşit: sıra bu örneklemden çıkmaz" : `en büyük rekombinasyon oranı ${LOCI[op[0]]}–${LOCI[op[1]]} çiftinde (${fix(an.r[an.outer], 4)}): dış genler bunlar · gerçek sıra A–B–C${an.mid === 1 ? " (doğru bulundu)" : " (örnekleme hatası)"}`);
+    } else {
+      card(1, "Bölge I: r̂(A–B)", "—", `kuram r₁ = ${fix(th.r1, 3)}`);
+      card(2, "Bölge II: r̂(B–C)", "—", `kuram r₂ = ${fix(th.r2, 3)}`);
+      card(3, "Dış genler: r̂(A–C) ve toplam", "—", `kuram r(A–C) = ${fix(th.rAC, 4)}`);
+      card(4, "Çakışma katsayısı c ve girişim I", "—", `kuram c = ${fix(th.c, 2)}`);
+      card(5, "Veriden gen sırası", "—", "—");
+    }
+    const TYPE = { par: "ebeveyn tipi", s1: "tek krossing-over, bölge I", s2: "tek krossing-over, bölge II", dco: "çift krossing-over" };
+    const order = [];
+    for (const t of ["par", "s1", "s2", "dco"]) for (let k = 0; k < 8; k++) if (th.type[k] === t) order.push(k);
+    let rows = "";
+    for (const k of order) {
+      const E = N * th.w[k];
+      rows += `<tr><th scope="row">${cls3Text(k)}</th><td>${TYPE[th.type[k]]}</td><td class="is-th">${fix(th.w[k], 4)}</td><td>${N ? fix(E, 1) : "—"}</td><td class="is-meas">${fmtInt(run.c[k])}</td><td>${N ? fixS(run.c[k] - E, 1) : "—"}</td></tr>`;
+    }
+    setHTML(ui.cClsBody, rows);
+    setHTML(ui.cClsNote, `Kuram: ebeveyn tipi (1 − r₁ − r₂ + c·r₁r₂)/2, bölge I'de tek krossing-over (r₁ − c·r₁r₂)/2, bölge II'de (r₂ − c·r₁r₂)/2, çift krossing-over c·r₁r₂/2. Ortadaki gen, çift krossing-over sınıfında ebeveyn düzenine göre yer değiştiren gendir. ${v.test && v.test.k >= 2 ? `Sekiz sınıfın uyum sınaması: ${v.test.kind === "toofew" ? "yazılmaz (beklenen sayı < 5)" : `${v.test.kind === "chi2" ? `χ² = ${fix(v.test.x2, 3)}, sd = ${v.test.dof}` : "kesin sınama"}, ${fmtP(v.test.p)}`}.` : ""}`);
+    statusC3(v);
+  }
+  function statusC3(v) {
+    const th = v.th, N = v.N, an = v.an;
+    let text = `Üç noktalı test çaprazlaması: r₁ = ${fix(th.r1, 3)}, r₂ = ${fix(th.r2, 3)}, I = ${fix(th.I, 2)}. Dış genler arasında kuramsal r(A–C) = ${fix(th.rAC, 4)}, oysa r₁ + r₂ = ${fix(th.r1 + th.r2, 4)}.`, kind = "good";
+    if (N) {
+      text += ` N = ${fmtInt(N)}: ${fmtInt(an.dco)} çift krossing-over, c = ${fix(an.coc, 3)}.`;
+      if (an.expD < 5) { text += ` Beklenen çift krossing-over sayısı ${fix(an.expD, 1)} < 5: c ve I çok belirsiz, N'yi artır.`; kind = "warn"; }
+      if (an.tie || an.mid !== 1) { text += " Bu örneklemde gen sırası doğru bulunamadı."; kind = "warn"; }
+    }
+    if (th.r1 >= 0.5 || th.r2 >= 0.5) { text += " Bir bölgede r = 0.5: o genler bağımsız görünür, üç noktalı haritalama bu bölgede anlam taşımaz."; kind = "warn"; }
+    if (th.r1 === 0 || th.r2 === 0) { text += " Bir bölgede r = 0: çift krossing-over beklenmez, c tanımsızdır."; kind = "warn"; }
+    setStatus(text, kind);
+  }
+
+  /* ── Renkler ── */
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light
+      ? { key: "light", ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.08)", axis: "rgba(0,0,0,0.3)", warm: "#d97706", warmFill: "rgba(217,119,6,0.55)", accent: "#0d9488", accentFill: "rgba(13,148,136,0.18)", accent2: "#7c3aed", danger: "#dc2626", dim: "rgba(0,0,0,0.14)", outline: "rgba(0,0,0,0.4)", chrom: "#cbd5e1", chromHi: "#d97706", tag: "rgba(247,249,252,0.92)" }
+      : { key: "dark", ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.08)", axis: "rgba(255,255,255,0.3)", warm: "#fbbf24", warmFill: "rgba(251,191,36,0.5)", accent: "#5eead4", accentFill: "rgba(94,234,212,0.16)", accent2: "#a78bfa", danger: "#f87171", dim: "rgba(255,255,255,0.14)", outline: "rgba(255,255,255,0.5)", chrom: "#334155", chromHi: "#fbbf24", tag: "rgba(8,12,22,0.85)" };
+  }
+
+  /* ── Çizim yardımcıları ── */
+  let dpr = 1;
+  const font = (px, w = 500) => `${w} ${px}px Outfit, system-ui, sans-serif`;
+  function begin(cv, ctx) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return [cv.width / dpr, cv.height / dpr];
+  }
+  function line(ctx, x0, y0, x1, y1) { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); }
+  // Alel dizisi (taban + üst simge) çizer; toks: [{b, s}] ya da düz metin parçaları
+  function tokW(ctx, toks, px, w) {
+    let s = 0;
+    for (const t of toks) {
+      ctx.font = font(px, w);
+      s += ctx.measureText(t.b).width;
+      if (t.s) { ctx.font = font(px * 0.66, w); s += ctx.measureText(t.s).width + 0.5; }
+    }
+    return s;
+  }
+  function drawToks(ctx, toks, x, y, px, align = "center", w = 600) {
+    const total = tokW(ctx, toks, px, w);
+    let cx = align === "center" ? x - total / 2 : align === "right" ? x - total : x;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    for (const t of toks) {
+      ctx.font = font(px, w);
+      ctx.fillText(t.b, cx, y);
+      cx += ctx.measureText(t.b).width;
+      if (t.s) {
+        ctx.font = font(px * 0.66, w);
+        ctx.fillText(t.s, cx + 0.5, y - px * 0.42);
+        cx += ctx.measureText(t.s).width + 0.5;
+      }
+    }
+    return total;
+  }
+  const T = (b) => ({ b, s: "" });
+  function niceStep(span, px, minPx) {
+    const raw = (span * minPx) / Math.max(1, px);
+    const e = Math.pow(10, Math.floor(Math.log10(raw)));
+    for (const m of [1, 2, 2.5, 5, 10]) if (m * e >= raw) return m * e;
+    return 10 * e;
+  }
+  function splitDot(ctx, x, y, r, cols, th) {
+    if (cols.length === 1) { ctx.fillStyle = cols[0]; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+    else {
+      ctx.fillStyle = cols[0]; ctx.beginPath(); ctx.arc(x, y, r, Math.PI / 2, (3 * Math.PI) / 2); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = cols[1]; ctx.beginPath(); ctx.arc(x, y, r, -Math.PI / 2, Math.PI / 2); ctx.closePath(); ctx.fill();
+    }
+    ctx.strokeStyle = th.outline;
+    ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+  }
+  // Göreli sıklık çubukları: ölçülen (amber), kuram (turkuaz çizgi) ve %95 örnekleme bandı p ± 1.96·√(p(1 − p)/n)
+  function drawBars(ctx, W, H, th, items, opts = {}) {
+    const padL = 40, padR = 10, padT = 16, padB = opts.padB ?? 34;
+    const x0 = padL, x1 = W - padR, y0 = padT, y1 = H - padB;
+    let yMax = 0;
+    for (const it of items) yMax = Math.max(yMax, it.p + 2.2 * Math.sqrt((it.p * (1 - it.p)) / Math.max(1, it.n)), it.n ? it.o / it.n : 0);
+    yMax = Math.min(1, Math.max(0.1, yMax * 1.08));
+    const step = niceStep(yMax, y1 - y0, 24);
+    const Y = (v) => y1 - (v / yMax) * (y1 - y0);
+    ctx.font = font(10);
+    ctx.lineWidth = 1;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (let v = 0; v <= yMax + 1e-9; v += step) {
+      ctx.strokeStyle = th.grid;
+      line(ctx, x0, Y(v), x1, Y(v));
+      ctx.fillStyle = th.muted;
+      ctx.fillText(fix(v, step < 0.1 ? 2 : 1), x0 - 5, Y(v));
+    }
+    const gapG = opts.groups ? 14 : 0;
+    const nG = opts.groups ? new Set(items.map((it) => it.group)).size - 1 : 0;
+    const slot = (x1 - x0 - gapG * nG) / items.length;
+    const bw = Math.min(46, slot * 0.6);
+    let gx = x0, prevG = items.length ? items[0].group : null;
+    items.forEach((it, i) => {
+      if (opts.groups && it.group !== prevG) { gx += gapG; prevG = it.group; }
+      const cx = gx + slot * (i + 0.5);
+      it.cx = cx;
+      const se = Math.sqrt((it.p * (1 - it.p)) / Math.max(1, it.n));
+      if (it.n) {
+        ctx.fillStyle = th.accentFill;
+        const lo = Math.max(0, it.p - 1.96 * se), hi = Math.min(1, it.p + 1.96 * se);
+        ctx.fillRect(cx - bw / 2 - 4, Y(hi), bw + 8, Math.max(1, Y(lo) - Y(hi)));
+        ctx.fillStyle = th.warmFill;
+        const f = it.o / it.n;
+        ctx.fillRect(cx - bw / 2, Y(f), bw, y1 - Y(f));
+        ctx.strokeStyle = th.warm;
+        ctx.lineWidth = 1.5;
+        line(ctx, cx - bw / 2, Y(f), cx + bw / 2, Y(f));
+      }
+      ctx.strokeStyle = th.accent;
+      ctx.lineWidth = 2.5;
+      line(ctx, cx - bw / 2 - 6, Y(it.p), cx + bw / 2 + 6, Y(it.p));
+      if (it.cols) splitDot(ctx, cx, y1 + 9, 5.5, it.cols, th);
+      if (it.toks && slot >= (opts.labelMin ?? 40)) {
+        ctx.fillStyle = th.ink;
+        drawToks(ctx, it.toks, cx, y1 + (it.cols ? 28 : 16), 10.5, "center", 600);
+      }
+    });
+    ctx.strokeStyle = th.axis;
+    ctx.lineWidth = 1;
+    line(ctx, x0, y1, x1, y1);
+    ctx.fillStyle = th.muted;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = font(10.5);
+    ctx.fillText(opts.title || "göreli sıklık", x0 + 4, y0 - 4);
+    return { Y, x0, x1, y0, y1, slot };
+  }
+
+  /* (a) Sahne: son yavrunun gametleri ve son 100 yavru */
+  function colsOf(S, pi, mk) { return S.phensOf(pi).map((ph, g) => phenColor(S, g, ph, mk)); }
+  function drawStageA(th) {
+    const [W, H] = begin(stage, sctx), ctx = sctx, S = A.setup, G = S.G, mk = A.fixed ? A.run.mendel : null;
+    const small = W < 480, last = A.last;
+    const parX = [W * 0.2, W * 0.8], chrTop = 34, chrW = small ? 8 : 10;
+    const chrH = Math.max(34, Math.min(64, H * 0.15)), chrBot = chrTop + 8 + chrH;
+    const gR = small ? 13 : 15, zR = small ? 10 : 12;
+    const gy = chrBot + gR + Math.max(8, H * 0.03);
+    const zy = gy + gR + zR + Math.max(8, H * 0.035);
+    const lblY = zy + zR + (small ? 13 : 16), cntY = lblY + 13;
+    ctx.fillStyle = th.muted;
+    ctx.font = font(small ? 10.5 : 11.5);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ["Dişi", "Erkek"].forEach((name, who) => {
+      const px = parX[who], gt = who === 0 ? S.p1 : S.p2;
+      const geno = [];
+      S.types.forEach((Tg, g) => { if (g) geno.push(T(" ")); Tg.genotypes[gt[g]].forEach((i) => geno.push(Tg.alleles[i])); });
+      ctx.fillStyle = th.muted;
+      ctx.font = font(small ? 10.5 : 11.5);
+      ctx.textAlign = "center";
+      ctx.fillText(name, px, 14);
+      ctx.fillStyle = th.ink;
+      drawToks(ctx, geno, px, 29, small ? 12 : 13.5);
+      // kromozom çiftleri: her gen için iki homolog
+      const pairGap = small ? 30 : 40;
+      S.types.forEach((Tg, g) => {
+        const cx = px + (G === 2 ? (g === 0 ? -pairGap / 2 : pairGap / 2) : 0);
+        const pair = Tg.genotypes[gt[g]];
+        [0, 1].forEach((hIdx) => {
+          const x = cx + (hIdx === 0 ? -chrW * 0.9 : chrW * 0.9);
+          const chosen = last && !mk && (who === 0 ? last.picks[g].mi : last.picks[g].fi) === hIdx;
+          ctx.fillStyle = chosen ? th.chromHi : th.chrom;
+          ctx.beginPath();
+          ctx.roundRect(x - chrW / 2, chrTop + 8, chrW, chrH, chrW / 2);
+          ctx.fill();
+          ctx.fillStyle = chosen ? "#111827" : th.ink;
+          drawToks(ctx, [Tg.alleles[pair[hIdx]]], x, chrTop + 8 + chrH * 0.55, small ? 9.5 : 10.5, "center", 700);
+        });
+      });
+    });
+    ctx.fillStyle = th.muted;
+    ctx.font = font(small ? 16 : 20, 400);
+    ctx.textAlign = "center";
+    ctx.fillText("×", W / 2, 34);
+    // gametler ve zigot
+    if (last && !mk) {
+      const gam = (who) => last.picks.map((pk, g) => S.types[g].alleles[S.types[g].genotypes[who === 0 ? S.p1[g] : S.p2[g]][who === 0 ? pk.mi : pk.fi]]);
+      [0, 1].forEach((who) => {
+        const gx = who === 0 ? W * 0.36 : W * 0.64;
+        ctx.strokeStyle = th.warm;
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([3, 3]);
+        line(ctx, parX[who], chrBot + 4, gx, gy - gR);
+        line(ctx, gx, gy + gR, W / 2, zy - zR);
+        ctx.setLineDash([]);
+        ctx.fillStyle = th.tag;
+        ctx.strokeStyle = th.warm;
+        ctx.beginPath();
+        ctx.arc(gx, gy, gR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = th.ink;
+        drawToks(ctx, gam(who), gx, gy + 4, small ? 10 : 11.5, "center", 700);
+      });
+      ctx.fillStyle = th.muted;
+      ctx.font = font(10);
+      ctx.textAlign = "center";
+      ctx.fillText("gametler", W / 2, gy + 4);
+      splitDot(ctx, W / 2, zy, zR, colsOf(S, last.pi, mk), th);
+      const geno = [];
+      S.genesOf(last.gi).forEach((gx, g) => { if (g) geno.push(T(" ")); S.types[g].genotypes[gx].forEach((i) => geno.push(S.types[g].alleles[i])); });
+      ctx.fillStyle = th.ink;
+      const lbl = [...geno, T(`  ·  ${phenLongText(S, last.pi, mk)}`)];
+      drawToks(ctx, lbl, W / 2, lblY, small ? 11 : 12.5, "center", 600);
+      ctx.fillStyle = th.muted;
+      ctx.font = font(10);
+      ctx.textAlign = "center";
+      ctx.fillText(`${fmtInt(A.run.N)}. yavru`, W / 2, cntY);
+    } else {
+      ctx.fillStyle = th.muted;
+      ctx.font = font(small ? 10.5 : 11.5);
+      ctx.textAlign = "center";
+      ctx.fillText(mk ? "Mendel'in sayımı: yavrular tek tek değil, toplam olarak bilinir" : "Başlat'a bas: her yavru için iki gamet seçilir", W / 2, zy);
+    }
+    // alt bölüm: son 100 yavru ya da Mendel verisinin 100'lük dağılımı
+    const gy0 = cntY + (small ? 22 : 28), cols = 20, rows = 5;
+    const cell = Math.min((W - 40) / cols, (H - gy0 - 6) / rows);
+    const gx0 = (W - cell * cols) / 2;
+    let list;
+    if (mk) {
+      // en büyük kalan yöntemiyle 100 hücreye paylaştır
+      const C = A.run.pC, N = A.run.N, idx = [];
+      S.pW.forEach((w, i) => { if (w > 0) idx.push(i); });
+      const raw = idx.map((i) => (C[i] / N) * 100), base = raw.map(Math.floor);
+      let left = 100 - base.reduce((s, x) => s + x, 0);
+      raw.map((x, j) => [x - base[j], j]).sort((p, q) => q[0] - p[0]).forEach(([, j]) => { if (left > 0) { base[j]++; left--; } });
+      list = [];
+      idx.forEach((i, j) => { for (let k = 0; k < base[j]; k++) list.push(i); });
+    } else list = A.hist;
+    ctx.fillStyle = th.muted;
+    ctx.font = font(10.5);
+    ctx.textAlign = "left";
+    ctx.fillText(mk ? "her nokta sayımın %1'i" : `son ${Math.min(HIST_MAX, list.length)} yavru (en yenisi sonda)`, gx0, gy0 - 10);
+    for (let k = 0; k < cols * rows; k++) {
+      const x = gx0 + (k % cols) * cell + cell / 2, y = gy0 + Math.floor(k / cols) * cell + cell / 2;
+      if (k < list.length) splitDot(ctx, x, y, cell * 0.36, colsOf(S, list[k], mk), th);
+      else { ctx.strokeStyle = th.dim; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, cell * 0.3, 0, Math.PI * 2); ctx.stroke(); }
+    }
+  }
+  function drawChartA(th) {
+    const [W, H] = begin(chart, cctx), S = A.setup, mk = A.fixed ? A.run.mendel : null, N = A.run.N;
+    const useGen = ui.aTest.value === "gen" && A.run.gC;
+    const Wt = useGen ? S.gW : S.pW, Cn = useGen ? A.run.gC : A.run.pC, items = [];
+    Wt.forEach((w, i) => {
+      if (!(w > 0)) return;
+      const pi = useGen ? S.pOfG(i) : i;
+      let toks;
+      if (useGen) { toks = []; S.genesOf(i).forEach((gx, g) => { if (g) toks.push(T(" ")); S.types[g].genotypes[gx].forEach((a) => toks.push(S.types[g].alleles[a])); }); }
+      else toks = [T(mk ? phenLongText(S, pi, mk) : S.phensOf(pi).map((ph, g) => (S.types[g].pattern ? S.types[g].pattern[ph] : S.types[g].short ? S.types[g].short[ph] : S.types[g].phen[ph])).join(" "))];
+      items.push({ p: w / S.D, o: Cn[i], n: N, cols: colsOf(S, pi, mk), toks });
+    });
+    drawBars(cctx, W, H, th, items, { title: `${useGen ? "genotip" : "fenotip"} sınıflarının göreli sıklığı · N = ${fmtInt(N)}`, labelMin: mk ? 70 : 38 });
+  }
+
+  /* (b) Sahne: soyağacı */
+  function pedSymbol(ctx, x, y, s, cls, th) {
+    const male = cls === null ? null : X_CLS[cls].sex === "m";
+    const aff = cls === 1 || cls === 4, car = cls === 3;
+    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = th.ink;
+    ctx.fillStyle = aff ? th.danger : th.tag;
+    ctx.beginPath();
+    if (male === null) { ctx.moveTo(x, y - s * 0.62); ctx.lineTo(x + s * 0.62, y); ctx.lineTo(x, y + s * 0.62); ctx.lineTo(x - s * 0.62, y); ctx.closePath(); }
+    else if (male) ctx.rect(x - s / 2, y - s / 2, s, s);
+    else ctx.arc(x, y, s / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    if (car) { ctx.fillStyle = th.warm; ctx.beginPath(); ctx.arc(x, y, s * 0.17, 0, Math.PI * 2); ctx.fill(); }
+  }
+  function drawStageB(th) {
+    const [W, H] = begin(stage, sctx), ctx = sctx, run = B.run, small = W < 480;
+    const s = small ? 20 : 26, y1 = H * 0.17, y2 = H * 0.5, ySib = H * 0.37;
+    const mClass = 2 + X_MOM[run.mi][0] + X_MOM[run.mi][1], fClass = X_DAD[run.fi];
+    const fx = W / 2 - (small ? 48 : 64), mx = W / 2 + (small ? 48 : 64);
+    ctx.strokeStyle = th.ink;
+    ctx.lineWidth = 1.4;
+    line(ctx, fx + s / 2, y1, mx - s / 2, y1);
+    line(ctx, W / 2, y1, W / 2, ySib);
+    pedSymbol(ctx, fx, y1, s, fClass, th);
+    pedSymbol(ctx, mx, y1, s, mClass, th);
+    ctx.fillStyle = th.ink;
+    drawToks(ctx, [xAl(X_DAD[run.fi]), YY], fx, y1 + s / 2 + 15, small ? 11 : 12.5);
+    drawToks(ctx, X_MOM[run.mi].map(xAl), mx, y1 + s / 2 + 15, small ? 11 : 12.5);
+    ctx.fillStyle = th.muted;
+    ctx.font = font(10.5);
+    ctx.textAlign = "right";
+    ctx.fillText("baba", fx - s / 2 - 6, y1 + 4);
+    ctx.textAlign = "left";
+    ctx.fillText("anne", mx + s / 2 + 6, y1 + 4);
+    ctx.font = font(11, 600);
+    ctx.textAlign = "left";
+    ctx.fillText("I", 10, y1 + 4);
+    ctx.fillText("II", 10, y2 + 4);
+    const kids = run.log.slice(0, 8), n = kids.length + 1;
+    const span = Math.min(W - 70, n * (small ? 36 : 56)), xs = (i) => W / 2 - span / 2 + (span / Math.max(1, n - 1)) * i;
+    const xL = n > 1 ? xs(0) : W / 2, xR = n > 1 ? xs(n - 1) : W / 2;
+    ctx.strokeStyle = th.ink;
+    ctx.lineWidth = 1.4;
+    line(ctx, xL, ySib, xR, ySib);
+    for (let i = 0; i < n; i++) {
+      const x = n > 1 ? xs(i) : W / 2, cls = i < kids.length ? kids[i] : null;
+      ctx.strokeStyle = th.ink;
+      ctx.lineWidth = 1.4;
+      line(ctx, x, ySib, x, y2 - s / 2 - (cls === null ? s * 0.12 : 0));
+      if (cls === null) { ctx.setLineDash([3, 3]); }
+      pedSymbol(ctx, x, y2, s * (small ? 0.85 : 0.9), cls, th);
+      ctx.setLineDash([]);
+      ctx.fillStyle = cls === null ? th.muted : th.ink;
+      if (cls === null) { ctx.font = font(small ? 11 : 12, 700); ctx.textAlign = "center"; ctx.fillText("?", x, y2 + 4); }
+      else drawToks(ctx, X_CLS[cls].g, x, y2 + s / 2 + 14, small ? 9.5 : 11);
+    }
+    // olasılıklar
+    const w = xTheory(run.mi, run.fi);
+    ctx.fillStyle = th.ink;
+    ctx.textAlign = "center";
+    ctx.font = font(small ? 11 : 12.5, 600);
+    const yP = H * 0.74;
+    ctx.fillText(`Sonraki çocuk (?): hasta ${fracText(w[1] + w[4], 4)} · taşıyıcı kız ${fracText(w[3], 4)}`, W / 2, yP);
+    ctx.fillStyle = th.muted;
+    ctx.font = font(small ? 10 : 11.5);
+    ctx.fillText(`oğulsa hasta ${fracText(w[1], w[0] + w[1])}  ·  kızsa taşıyıcı ${fracText(w[3], w[2] + w[3] + w[4])}, hasta ${fracText(w[4], w[2] + w[3] + w[4])}`, W / 2, yP + (small ? 16 : 19));
+    ctx.fillText(run.N ? `II. kuşak: örneklemin ilk ${kids.length} çocuğu (doğum sırasıyla), tohum ${run.seed}` : "II. kuşak: örneklem başlayınca ilk sekiz çocuk çizilir", W / 2, yP + (small ? 32 : 38));
+  }
+  function drawChartB(th) {
+    const [W, H] = begin(chart, cctx), v = bView(), w = v.w, items = [];
+    const wm = w[0] + w[1], wf = w[2] + w[3] + w[4];
+    const lab = (k) => [...X_CLS[k].g];
+    [0, 1].forEach((k) => items.push({ group: "m", p: wm ? w[k] / wm : 0, o: v.c[k], n: v.sons, toks: lab(k) }));
+    [2, 3, 4].forEach((k) => items.push({ group: "f", p: wf ? w[k] / wf : 0, o: v.c[k], n: v.daus, toks: lab(k) }));
+    const g = drawBars(cctx, W, H, th, items, { title: "cinsiyet içinde göreli sıklık · oğullar | kızlar", groups: true, padB: 40, labelMin: 30 });
+    cctx.fillStyle = th.muted;
+    cctx.font = font(10);
+    cctx.textAlign = "center";
+    const mid = (a, b) => (items[a].cx + items[b].cx) / 2;
+    cctx.fillText(`oğullar (n = ${fmtInt(v.sons)})`, mid(0, 1), g.y1 + 30);
+    cctx.fillText(`kızlar (n = ${fmtInt(v.daus)})`, items[3].cx, g.y1 + 30);
+  }
+
+  /* (c) Sahne: homologlar, krossing-over noktaları ve son gamet */
+  function drawStageC(th) {
+    const [W, H] = begin(stage, sctx), ctx = sctx, small = W < 480, run = C.run;
+    const x0 = small ? 54 : 80, x1 = W - (small ? 24 : 40), bh = small ? 10 : 13;
+    const yA = H * 0.2, yB = H * 0.34, yG = H * 0.62;
+    const three = C.mode === 3;
+    const H1 = three ? PHASE3[run.phase] : PHASE2[run.phase][0];
+    const nL = three ? 3 : 2;
+    const locX = three
+      ? [x0 + 10, x0 + 10 + (x1 - x0 - 20) * (run.r1 + run.r2 > 0 ? Math.max(0.15, Math.min(0.85, run.r1 / (run.r1 + run.r2))) : 0.5), x1 - 10]
+      : [x0 + 10, x1 - 10];
+    const alleleOf = (hom, g) => {
+      const dom = three ? (hom === 0 ? H1[g] : 1 - H1[g]) : PHASE2[run.phase][hom][g];
+      return dom ? LOCI[g].toLowerCase() : LOCI[g];
+    };
+    ctx.fillStyle = th.muted;
+    ctx.font = font(small ? 10.5 : 11.5);
+    ctx.textAlign = "left";
+    ctx.fillText("çift heterozigot ebeveynin homologları", x0, yA - bh - 10);
+    [yA, yB].forEach((y, hom) => {
+      ctx.fillStyle = th.chrom;
+      ctx.beginPath();
+      ctx.roundRect(x0, y - bh / 2, x1 - x0, bh, bh / 2);
+      ctx.fill();
+      for (let g = 0; g < nL; g++) {
+        ctx.fillStyle = th.ink;
+        ctx.fillRect(locX[g] - 1, y - bh / 2 - 3, 2, bh + 6);
+        drawToks(ctx, [T(alleleOf(hom, g))], locX[g], y - bh / 2 - 6, small ? 11 : 12.5, "center", 700);
+      }
+      ctx.fillStyle = th.muted;
+      ctx.font = font(10);
+      ctx.textAlign = "right";
+      ctx.fillText(hom === 0 ? "1. homolog" : "2. homolog", x0 - 6, y + 3);
+    });
+    const last = run.last;
+    if (!last) {
+      ctx.fillStyle = th.muted;
+      ctx.font = font(small ? 10.5 : 11.5);
+      ctx.textAlign = "center";
+      ctx.fillText("Başlat'a bas: her gamet için krossing-overlar çekilir", W / 2, yG);
+      return;
+    }
+    // gametin yolu: homologlar arasında krossing-over noktalarında geçiş
+    let points;
+    if (three) {
+      const pts = [];
+      if (last.x1) pts.push((locX[0] + locX[1]) / 2 + ((run.N * 37) % 11 - 5));
+      if (last.x2) pts.push((locX[1] + locX[2]) / 2 + ((run.N * 53) % 11 - 5));
+      points = pts;
+    } else points = run.indep ? [] : last.pos.map((u) => locX[0] + u * (locX[1] - locX[0]));
+    const yOf = (hom) => (hom === 0 ? yA : yB);
+    let hom = last.h, xPrev = x0;
+    ctx.strokeStyle = th.warm;
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(xPrev, yOf(hom));
+    for (const px of points) { ctx.lineTo(px, yOf(hom)); hom = 1 - hom; ctx.lineTo(px, yOf(hom)); }
+    ctx.lineTo(x1, yOf(hom));
+    ctx.stroke();
+    for (const px of points) {
+      ctx.strokeStyle = th.danger;
+      ctx.lineWidth = 2;
+      const ym = (yA + yB) / 2, d = 6;
+      line(ctx, px - d, ym - d, px + d, ym + d);
+      line(ctx, px - d, ym + d, px + d, ym - d);
+    }
+    // gamet
+    ctx.fillStyle = th.muted;
+    ctx.font = font(small ? 10.5 : 11.5);
+    ctx.textAlign = "left";
+    const kTxt = three ? `${last.x1 + last.x2} krossing-over` : run.indep ? "bağımsız dağılım" : `${last.K} krossing-over`;
+    const recTxt = three ? (last.x1 && last.x2 ? "çift krossing-over" : last.x1 || last.x2 ? "tek krossing-over" : "ebeveyn tipi") : last.rec ? "rekombinant" : last.K >= 2 ? "ebeveyn tipi (çift krossing-over görünmez)" : "ebeveyn tipi";
+    ctx.fillText(`${fmtInt(run.N)}. gamet: ${kTxt} → ${recTxt}`, x0, yG - bh - 12);
+    let segStart = x0, segHom = last.h;
+    const segs = [];
+    for (const px of points) { segs.push([segStart, px, segHom]); segStart = px; segHom = 1 - segHom; }
+    segs.push([segStart, x1, segHom]);
+    for (const [a, b, hm] of segs) {
+      ctx.fillStyle = hm === last.h ? th.warm : th.accent2;
+      ctx.fillRect(a, yG - bh / 2, b - a, bh);
+    }
+    const gAl = [];
+    for (let g = 0; g < nL; g++) {
+      let hm = last.h;
+      for (const px of points) if (px < locX[g]) hm = 1 - hm;
+      gAl.push(alleleOf(hm, g));
+      ctx.fillStyle = th.ink;
+      drawToks(ctx, [T(alleleOf(hm, g))], locX[g], yG - bh / 2 - 5, small ? 11 : 12.5, "center", 700);
+    }
+    ctx.fillStyle = th.muted;
+    ctx.font = font(small ? 10.5 : 11.5);
+    ctx.textAlign = "center";
+    const tester = three ? "abc" : "ab";
+    const off = gAl.map((a, g) => a + LOCI[g].toLowerCase()).join(" ");
+    ctx.fillText(`test ebeveyninin gameti ${tester} → yavru ${off}: fenotipi gameti doğrudan gösterir`, W / 2, yG + bh + 22);
+    if (!three && !run.indep) {
+      ctx.fillText(`gamet başına krossing-over: 0 → ${fmtInt(run.kHist[0])} · 1 → ${fmtInt(run.kHist[1])} · 2 → ${fmtInt(run.kHist[2])} · 3+ → ${fmtInt(run.kHist[3])}`, W / 2, yG + bh + 42);
+    }
+  }
+  function drawChartC(th) {
+    const [W, H] = begin(chart, cctx), run = C.run, N = run.N, items = [];
+    if (C.mode === 2) {
+      const t2 = link2Theory(run.r, run.phase);
+      for (const par of [true, false]) for (let k = 0; k < 4; k++) if (t2.par[k] === par) items.push({ group: par ? "p" : "r", p: t2.w[k], o: run.c[k], n: N, toks: [T(cls2Text(k))] });
+    } else {
+      const t3 = link3Theory(run.r1, run.r2, run.I, run.phase);
+      for (const t of ["par", "s1", "s2", "dco"]) for (let k = 0; k < 8; k++) if (t3.type[k] === t) items.push({ group: t, p: t3.w[k], o: run.c[k], n: N, toks: [T(cls3Text(k))] });
+    }
+    drawBars(cctx, W, H, th, items, { title: C.mode === 2 ? `gamet sınıfları · ebeveyn tipi | rekombinant · N = ${fmtInt(N)}` : `ebeveyn | bölge I | bölge II | çift · N = ${fmtInt(N)}`, groups: true, padB: 26, labelMin: 26 });
+  }
+  function drawMapC(th) {
+    const [W, H] = begin(mapCv, mctx), ctx = mctx, run = C.run, N = run.N;
+    const x0 = 44, x1 = W - 12, y0 = 14, y1 = H - 30, dMax = 150;
+    const X = (r) => x0 + (r / 0.5) * (x1 - x0), Y = (d) => y1 - (Math.min(d, dMax) / dMax) * (y1 - y0);
+    ctx.font = font(10);
+    ctx.lineWidth = 1;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (let d = 0; d <= dMax; d += 25) { ctx.strokeStyle = th.grid; line(ctx, x0, Y(d), x1, Y(d)); ctx.fillStyle = th.muted; ctx.fillText(`${d}`, x0 - 5, Y(d)); }
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    for (let r = 0; r <= 0.5001; r += 0.1) { ctx.strokeStyle = th.grid; line(ctx, X(r), y0, X(r), y1); ctx.fillStyle = th.muted; ctx.fillText(fix(r, 1), X(r), y1 + 5); }
+    ctx.textBaseline = "alphabetic";
+    ctx.textAlign = "left";
+    ctx.fillText("cM", 6, y0 + 4);
+    ctx.textAlign = "right";
+    ctx.fillText("rekombinasyon oranı r →", x1 - 4, y1 - 6);
+    const curve = (f, color, dash) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath();
+      let started = false;
+      for (let i = 0; i <= 400; i++) {
+        const r = (0.5 * i) / 400, d = 100 * f(r);
+        if (!Number.isFinite(d) || d > dMax * 1.05) break;
+        if (!started) { ctx.moveTo(X(r), Y(d)); started = true; } else ctx.lineTo(X(r), Y(d));
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    curve((r) => r, th.accent2);
+    curve(haldaneD, th.accent);
+    curve(kosambiD, th.accent, [5, 4]);
+    const marks = C.mode === 2 ? [{ r: run.r, lab: "r" }] : [{ r: run.r1, lab: "r₁" }, { r: run.r2, lab: "r₂" }, { r: link3Theory(run.r1, run.r2, run.I, run.phase).rAC, lab: "r(A–C)" }];
+    ctx.setLineDash([3, 4]);
+    ctx.strokeStyle = th.muted;
+    ctx.lineWidth = 1;
+    for (const m of marks) line(ctx, X(m.r), y0, X(m.r), y1);
+    ctx.setLineDash([]);
+    if (!N) return;
+    const pts = [];
+    if (C.mode === 2) {
+      const rh = run.R / N, se = Math.sqrt((rh * (1 - rh)) / N);
+      pts.push({ r: rh, se, lab: "ölçülen r" });
+      if (!run.indep) {
+        const dK = (100 * run.K) / N;
+        ctx.strokeStyle = th.danger;
+        ctx.lineWidth = 2;
+        const q = 4.5;
+        line(ctx, X(rh) - q, Y(dK) - q, X(rh) + q, Y(dK) + q);
+        line(ctx, X(rh) - q, Y(dK) + q, X(rh) + q, Y(dK) - q);
+        ctx.fillStyle = th.danger;
+        ctx.font = font(10);
+        ctx.textAlign = "left";
+        ctx.fillText(`sayılan krossing-over: ${fix(dK, 1)} cM`, X(rh) + 9, Y(dK) + 16);
+      }
+    } else {
+      const an = link3Analyse(run.c, N, run.phase);
+      an.r.forEach((rh, i) => pts.push({ r: rh, se: Math.sqrt((rh * (1 - rh)) / N), lab: ["A–B", "B–C", "A–C"][i] }));
+      const sum = an.r[0] + an.r[1];
+      if (sum <= 0.5) {
+        ctx.fillStyle = th.accent2;
+        ctx.beginPath();
+        ctx.arc(X(sum), Y(100 * sum), 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = font(10);
+        ctx.textAlign = "left";
+        ctx.fillText("A–B + B–C", X(sum) + 6, Y(100 * sum) + 12);
+      }
+    }
+    for (const p of pts) {
+      if (!(p.r < 0.5)) continue;
+      const d = 100 * haldaneD(p.r), lo = Math.max(0, p.r - 1.96 * p.se), hi = Math.min(0.4999, p.r + 1.96 * p.se);
+      ctx.strokeStyle = th.warm;
+      ctx.lineWidth = 2;
+      line(ctx, X(lo), Y(d), X(hi), Y(d));
+      ctx.fillStyle = th.warm;
+      ctx.beginPath();
+      ctx.arc(X(p.r), Y(d), 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = font(10, 600);
+      ctx.textAlign = "right";
+      ctx.fillText(C.mode === 2 ? `Haldane ${fix(d, 1)} cM` : p.lab, X(lo) - 5, Y(d) - 4);
+    }
+  }
+
+  /* ── Açıklamalar ── */
+  const ARIA = {
+    mendel: [
+      "Çaprazlama sahnesi: üstte iki ebeveynin her gen için iki homolog kromozomu ve son yavruya geçen aleller (vurgulu), ortada iki gamet ve oluşan yavrunun genotipi; altta son 100 yavru fenotip renkleriyle (iki gende sol yarı 1. genin, sağ yarı 2. genin fenotipi)",
+      "Sınıfların göreli sıklığı: ölçülen paylar (amber çubuklar), kuramsal olasılıklar (turkuaz çizgiler) ve N yavruda beklenen %95 örnekleme bandı; çubukların altında sınıf renkleri ve adları",
+    ],
+    cinsiyet: [
+      "Soyağacı: I. kuşakta baba (kare) ve anne (daire), II. kuşakta örneklemin ilk sekiz çocuğu ve cinsiyeti bilinmeyen sonraki çocuk (baklava); kırmızı dolu simge hasta, ortasında amber nokta olan daire taşıyıcı kız; altta sonraki çocuğun hasta ve taşıyıcı olma olasılıkları",
+      "Oğullarda (sağlıklı, hasta) ve kızlarda (sağlıklı, taşıyıcı, hasta) cinsiyet içindeki göreli sıklık: ölçülen (amber çubuklar), kuram (turkuaz çizgiler) ve %95 örnekleme bandı",
+    ],
+    bagli: [
+      "Kromozom sahnesi: çift heterozigot ebeveynin iki homoloğu ve gen yerleri, son gametin homologlar arasında geçerek izlediği yol, krossing-over noktaları (kırmızı çarpılar) ve oluşan gamet kromatidi; altta gametin alelleri ve test çaprazlaması yavrusunun genotipi",
+      "Gamet sınıflarının göreli sıklığı: ölçülen (amber çubuklar), kuram (turkuaz çizgiler) ve %95 örnekleme bandı; sınıflar ebeveyn tipi ve rekombinant (üç gende tek ve çift krossing-over) diye gruplanmıştır",
+    ],
+  };
+  function updateLegend() {
+    const li = (cls, text) => `<li><span class="sw ${cls}" aria-hidden="true"></span><span>${text}</span></li>`;
+    let st, ch;
+    if (S.tab === "mendel") {
+      st = [li("hi", "yavruya geçen homolog"), li("dot", "gamet ve yavru"), li("ci", A.setup && A.setup.G === 2 ? "yavru: sol yarı 1. gen, sağ yarı 2. gen" : "yavru: renk fenotipi gösterir")];
+      ch = [li("bar", "ölçülen pay"), li("tick", "kuramsal olasılık"), li("band", "%95 örnekleme bandı")];
+    } else if (S.tab === "cinsiyet") {
+      st = [li("sq", "erkek"), li("ci", "kadın"), li("sq fill", "hasta"), li("ci car", "taşıyıcı kız"), li("dia", "sonraki çocuk, cinsiyeti bilinmiyor")];
+      ch = [li("bar", "ölçülen pay (cinsiyet içinde)"), li("tick", "kuram"), li("band", "%95 örnekleme bandı")];
+    } else {
+      st = [li("hi", "gametin izlediği yol"), li("xo", "krossing-over noktası"), li("sw v2", "öbür homologdan gelen parça")];
+      ch = [li("bar", "ölçülen pay"), li("tick", "kuram"), li("band", "%95 örnekleme bandı")];
+    }
+    setHTML(ui.stageLegend, st.join(""));
+    setHTML(ui.chartLegend, ch.join(""));
+  }
+
+  /* ── Sekmeler ── */
+  const S = { tab: "mendel" };
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = !el.dataset.for.split(" ").includes(key); });
+    if (key === "mendel") { ui.aMendelPanel.hidden = !A.fixed; ui.aCkWrap.hidden = A.fixed; }
+    stage.setAttribute("aria-label", ARIA[key][0]);
+    chart.setAttribute("aria-label", ARIA[key][1]);
+    if (fromUser) { try { history.replaceState(null, "", `#${key}`); } catch (_) {} }
+    updateLegend();
+    resize();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Döngü ── */
+  const active = () => (S.tab === "mendel" ? A : S.tab === "cinsiyet" ? B : C);
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart, mapCv]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    A.dirty = B.dirty = C.dirty = true;
+  }
+  // Kartlar en çok 7 kez/s (kesin sınamalar pahalı olabilir), tuvaller en çok 22 kez/s yenilenir; sayım durunca hemen.
+  let lastFrame = 0, lastRead = 0, lastDraw = 0, lastTheme = "";
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    const dt = paused ? 0 : elapsed;
+    const th = theme();
+    if (th.key !== lastTheme) { lastTheme = th.key; A.dirty = B.dirty = C.dirty = true; }
+    const Tt = active();
+    if (S.tab === "mendel") stepT(A, dt, crossNext);
+    else if (S.tab === "cinsiyet") stepT(B, dt, xNext);
+    else stepT(C, dt, C.mode === 2 ? link2Next : link3Next);
+    if (Tt.dirty) { Tt.readDue = true; Tt.drawDue = true; Tt.dirty = false; }
+    if (Tt.readDue && (!Tt.running || now - lastRead > 140)) {
+      if (S.tab === "mendel") readoutsA();
+      else if (S.tab === "cinsiyet") readoutsB();
+      else readoutsC();
+      Tt.readDue = false;
+      lastRead = now;
+    }
+    if (Tt.drawDue && (!Tt.running || now - lastDraw > 45)) {
+      if (S.tab === "mendel") { drawStageA(th); drawChartA(th); }
+      else if (S.tab === "cinsiyet") { drawStageB(th); drawChartB(th); }
+      else { drawStageC(th); drawChartC(th); drawMapC(th); }
+      Tt.drawDue = false;
+      lastDraw = now;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  ui.aGenes.addEventListener("change", crossChanged);
+  ui.aMode1.addEventListener("change", () => modeChanged(ui.aMode1, 1));
+  ui.aMode2.addEventListener("change", () => modeChanged(ui.aMode2, 2));
+  [ui.aP1g1, ui.aP2g1, ui.aP1g2, ui.aP2g2].forEach((el) => el.addEventListener("change", crossChanged));
+  ui.aTest.addEventListener("change", () => { syncAOutputs(); A.dirty = true; });
+  ui.aData.addEventListener("change", () => { if (ui.aData.value !== "sim") applyMendel(ui.aData.value); newRunA(); });
+  bindN(ui.aN, ui.aNNum, newRunA);
+  document.querySelectorAll("[data-an]").forEach((b) => b.addEventListener("click", () => { setN(ui.aN, ui.aNNum, Number(b.dataset.an)); newRunA(); }));
+  ui.aRate.addEventListener("input", () => { syncAOutputs(); A.dirty = true; });
+  ui.aSeed.addEventListener("change", newRunA);
+  ui.aToggle.addEventListener("click", () => setRunning(A, !A.running));
+  ui.aFill.addEventListener("click", () => fillT(A, crossNext));
+  ui.aRepeat.addEventListener("click", newRunA);
+  ui.aNewSeed.addEventListener("click", () => { newSeedFor(ui.aSeed); newRunA(); });
+  ui.aReset.addEventListener("click", resetA);
+  document.querySelectorAll("[data-apreset]").forEach((b) => b.addEventListener("click", () => presetA(b.dataset.apreset)));
+
+  [ui.bMother, ui.bFather].forEach((el) => el.addEventListener("change", newRunB));
+  ui.bTrait.addEventListener("change", () => { syncBOutputs(); B.dirty = true; });
+  bindN(ui.bN, ui.bNNum, newRunB);
+  ui.bRate.addEventListener("input", () => { syncBOutputs(); B.dirty = true; });
+  ui.bSeed.addEventListener("change", newRunB);
+  ui.bToggle.addEventListener("click", () => setRunning(B, !B.running));
+  ui.bFill.addEventListener("click", () => fillT(B, xNext));
+  ui.bRepeat.addEventListener("click", newRunB);
+  ui.bNewSeed.addEventListener("click", () => { newSeedFor(ui.bSeed); newRunB(); });
+  ui.bReset.addEventListener("click", resetB);
+  document.querySelectorAll("[data-bpreset]").forEach((b) => b.addEventListener("click", () => {
+    const [m, f] = b.dataset.bpreset.split(",");
+    ui.bMother.value = m;
+    ui.bFather.value = f;
+    newRunB();
+  }));
+
+  ui.cMode.addEventListener("change", newRunC);
+  bindPair(ui.cR, ui.cRNum, 3, newRunC);
+  bindPair(ui.cR1, ui.cR1Num, 3, newRunC);
+  bindPair(ui.cR2, ui.cR2Num, 3, newRunC);
+  bindPair(ui.cI, ui.cINum, 2, newRunC);
+  [ui.cPhase, ui.cPhase3].forEach((el) => el.addEventListener("change", newRunC));
+  bindN(ui.cN, ui.cNNum, newRunC);
+  ui.cRate.addEventListener("input", () => { syncCOutputs(); C.dirty = true; });
+  ui.cSeed.addEventListener("change", newRunC);
+  ui.cToggle.addEventListener("click", () => setRunning(C, !C.running));
+  ui.cFill.addEventListener("click", () => fillT(C, C.mode === 2 ? link2Next : link3Next));
+  ui.cRepeat.addEventListener("click", newRunC);
+  ui.cNewSeed.addEventListener("click", () => { newSeedFor(ui.cSeed); newRunC(); });
+  ui.cReset.addEventListener("click", resetC);
+  document.querySelectorAll("[data-cpreset]").forEach((b) => b.addEventListener("click", () => { setPair(ui.cR, ui.cRNum, Number(b.dataset.cpreset), 3); newRunC(); }));
+  document.querySelectorAll("[data-c3preset]").forEach((b) => b.addEventListener("click", () => { setPair(ui.cI, ui.cINum, Number(b.dataset.c3preset), 2); newRunC(); }));
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.matches("input, select, textarea, button")) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      const Tt = active();
+      setRunning(Tt, !Tt.running);
+    } else if (e.key === "r" || e.key === "R") {
+      if (S.tab === "mendel") resetA();
+      else if (S.tab === "cinsiyet") resetB();
+      else resetC();
+    }
+  });
+
+  /* ── Başlat ── */
+  resetA();
+  resetB();
+  resetC();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "mendel", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  [stage, chart, mapCv].forEach((c) => ro.observe(c));
+  resize();
+  requestAnimationFrame(frame);
+  window.__genetik = { MODEL, A, B, C, S, selectTab, aView, bView, c2View, c3View, fillT, resetA, resetB, resetC, presetA };
+})();
+</script>
+</body>
+</html>

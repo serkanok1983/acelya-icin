@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+    <link rel="stylesheet" href="shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ay'ın yarısı hep aydınlıktır; evreler, o yarının ne kadarını gördüğümüzdür. Mevsimler de Güneş'e uzaklıktan değil, 23,44 derecelik bir eğiklikten doğar.">
+  <title>Ay Evreleri ve Mevsimler</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 38rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,.4); }
+    .panel { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem; }
+    label { font-size: 0.85rem; color: #8b949e; display: flex; flex-direction: column; gap: 0.25rem; }
+    input[type="range"] { width: 160px; accent-color: #ffa657; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    #info { font-size: 0.85rem; color: #8b949e; text-align: center; max-width: 42rem; }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="ay-evreleri">
+  <h1>Ay Evreleri ve Mevsimler</h1>
+  <p class="sub">Ay'ın evreleri Güneş–Dünya–Ay geometrisine bağlıdır. Dünya'nın eksen eğikliği (23,4°) mevsimleri belirler.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <label>Ay konumu (evre) <input type="range" id="moonAngle" min="0" max="360" value="45"></label>
+    <label>Dünya yörünge konumu (mevsim) <input type="range" id="seasonAngle" min="0" max="360" value="80"></label>
+    <button id="playBtn">Otomatik</button>
+  </div>
+  <p id="info"></p>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const moonInput = document.getElementById('moonAngle');
+const seasonInput = document.getElementById('seasonAngle');
+const playBtn = document.getElementById('playBtn');
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+let W, H, auto = false;
+
+const DEG = Math.PI / 180;
+const TILT = 23.44;      // Dünya'nın eksen eğikliği (°)
+const SYNODIC = 29.53;   // kavuşum ayı (gün)
+const YEAR = 365.25;     // yıl (gün)
+const LAT_IST = 41;      // İstanbul'un enlemi (° K)
+const DAYS_PER_SEC = 4;  // otomatik oynatmada saniyede geçen gün
+
+// Durum kaydırıcılardan ayrı, ondalıklı tutulur (kaydırıcılar tam sayıya yuvarlar).
+// moonDeg: Ay'ın gökte Güneş'in doğusuna doğru ilerlediği açı (0–360); 0 = Yeni Ay, 90 = İlk Dördün, 180 = Dolunay, 270 = Son Dördün.
+// seasonDeg: Dünya'nın yörünge açısı; 0 = Haziran gündönümü, 90 = Eylül ekinoksu, 180 = Aralık gündönümü, 270 = Mart ekinoksu.
+let moonDeg = +moonInput.value;
+let seasonDeg = +seasonInput.value;
+
+const phases = ['Yeni Ay','Büyüyen Hilal','İlk Dördün','Büyüyen Şişkin Ay','Dolunay','Küçülen Şişkin Ay','Son Dördün','Küçülen Hilal'];
+const seasons = ['İlkbahar','Yaz','Sonbahar','Kış'];
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(860, innerWidth - 24); H = Math.min(500, innerHeight * 0.6);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', () => { resize(); draw(); });
+
+moonInput.oninput = () => { moonDeg = +moonInput.value; draw(); };
+seasonInput.oninput = () => { seasonDeg = +seasonInput.value; draw(); };
+playBtn.onclick = function() {
+  auto = !auto;
+  this.textContent = auto ? 'Durdur' : 'Otomatik';
+  this.setAttribute('aria-pressed', auto);
+  if (auto) { last = 0; acc = 0; requestAnimationFrame(tick); }
+};
+
+const norm = d => ((d % 360) + 360) % 360;
+const fmt = (x, digits = 1) => x.toFixed(digits).replace('.', ',').replace('-', '−');
+
+// Yeni Ay, dördünler ve Dolunay birer andır: adları yalnızca o anın ±6° (≈ ±0,5 gün) yakınında verilir.
+function phaseName(deg) {
+  const d = norm(deg), q = Math.round(d / 90);
+  if (Math.abs(d - q * 90) <= 6) return phases[(q % 4) * 2];
+  return phases[Math.floor(d / 90) * 2 + 1];
+}
+
+// Gökbilimsel mevsimler (Kuzey Yarım Küre): yaz Haziran gündönümünde başlar.
+function seasonName(deg) {
+  const idx = Math.floor(((norm(deg) + 90) % 360) / 360 * 4) % 4;
+  return seasons[idx];
+}
+
+function seasonEvent(deg) {
+  const d = norm(deg), q = Math.round(d / 90);
+  if (Math.abs(d - q * 90) >= 1) return '';
+  return ['Haziran gündönümü', 'Eylül ekinoksu', 'Aralık gündönümü', 'Mart ekinoksu'][q % 4];
+}
+
+// Güneş'in dik açıklığı (deklinasyon; öğlende tam tepeden geldiği enlem): δ = asin(sin 23,44° · cos θ)
+const declination = deg => Math.asin(Math.sin(TILT * DEG) * Math.cos(deg * DEG)) / DEG;
+
+// Işık alan bir küre. (sx, sy, sz): ışığın geldiği yön, bakana göre (sağ, yukarı, bakana doğru).
+// Aydınlık bölge = ışığa bakan yarım disk ± genişliği r·|sz| olan yarım elips (sonlandırıcı);
+// görünen aydınlık kesir (1 + sz) / 2. Çizim diskin dışına taşmaz.
+function drawLitSphere(cx, cy, r, sx, sy, sz, lit, dark) {
+  const n = Math.hypot(sx, sy, sz) || 1;
+  sx /= n; sy /= n; sz /= n;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = dark; ctx.fill();
+  ctx.clip();
+  ctx.fillStyle = lit;
+  if (Math.hypot(sx, sy) < 1e-6) {
+    if (sz > 0) ctx.fill();
+  } else if ((1 + sz) / 2 > 1e-4) {
+    ctx.translate(cx, cy);
+    ctx.rotate(Math.atan2(-sy, sx));
+    ctx.beginPath();
+    ctx.arc(0, 0, r, -Math.PI / 2, Math.PI / 2);
+    ctx.ellipse(0, 0, r * Math.abs(sz), r, 0, Math.PI / 2, -Math.PI / 2, sz < 0);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawSun(x, y, r) {
+  const grad = ctx.createRadialGradient(x, y, r * 0.18, x, y, r * 1.8);
+  grad.addColorStop(0, '#fff8e7');
+  grad.addColorStop(1, '#ffa657');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawAxis(x, y, dx, dy) {
+  ctx.strokeStyle = '#3fb950';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(x - dx, y - dy); ctx.lineTo(x + dx, y + dy); ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#3fb950';
+  ctx.beginPath(); ctx.arc(x + dx, y + dy, 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('K', x + dx * 1.35, y + dy * 1.35 + 3);
+}
+
+function layout() {
+  if (W >= 600) {
+    const earthY = H * 0.42, mrx = Math.min(H * 0.35, W * 0.2), srx = Math.min(W * 0.15, 110);
+    return {
+      font: 12, sunX: 50, sunR: 28, earthX: W * 0.38, earthY, earthR: 22, mrx, mry: mrx * 0.32, moonR: 10,
+      viewX: W * 0.78, viewY: H * 0.24, viewR: Math.min(45, H * 0.1),
+      sX: W * 0.78, sY: H * 0.7, srx, sry: srx * 0.4, sEarthR: 12, sSunR: 14,
+    };
+  }
+  const earthY = H * 0.24, mrx = Math.min(W * 0.33, H * 0.22), srx = Math.min(W * 0.18, 90);
+  return {
+    font: 11, sunX: 26, sunR: 20, earthX: W * 0.56, earthY, earthR: 18, mrx, mry: mrx * 0.32, moonR: 9,
+    viewX: W * 0.26, viewY: H * 0.66, viewR: Math.min(40, W * 0.11, H * 0.1),
+    sX: W * 0.7, sY: H * 0.66, srx, sry: srx * 0.4, sEarthR: 10, sSunR: 12,
+  };
+}
+
+function draw() {
+  const L = layout();
+  const a = moonDeg * DEG, th = seasonDeg * DEG, T = TILT * DEG;
+
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'left';
+
+  // --- Güneş–Dünya–Ay: Güneş solda, Ay'ın yörüngesine kuzeyden eğik bakış (saat yönünün tersine dolanır) ---
+  const { sunX, earthX, earthY, mrx, mry } = L, sunY = earthY;
+  drawSun(sunX, sunY, L.sunR);
+  ctx.fillStyle = '#ffa657';
+  ctx.font = L.font + 'px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Güneş', sunX, sunY + L.sunR + 16);
+
+  ctx.strokeStyle = '#30363d';
+  ctx.setLineDash([4, 6]);
+  ctx.beginPath(); ctx.moveTo(sunX + L.sunR + 2, sunY); ctx.lineTo(earthX - L.earthR, earthY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = '#484f58';
+  ctx.beginPath(); ctx.ellipse(earthX, earthY, mrx, mry, 0, 0, Math.PI * 2); ctx.stroke();
+
+  // Yeni Ay (0°) Güneş ile Dünya'nın arasında, Dolunay (180°) Dünya'nın Güneş'e uzak yanında.
+  const mx = earthX - mrx * Math.cos(a);
+  const my = earthY + mry * Math.sin(a);
+  ctx.strokeStyle = '#484f58';
+  ctx.beginPath(); ctx.moveTo(earthX, earthY); ctx.lineTo(mx, my); ctx.stroke();
+
+  // Güneş ışığı soldan gelir: Dünya'nın ve Ay'ın Güneş'e bakan yarısı aydınlık.
+  drawLitSphere(earthX, earthY, L.earthR, -1, 0, 0, '#58a6ff', '#1d3a5f');
+  // Eksen uzayda sabit; bu çizimde Güneş hep solda olduğundan eksenin görünüşü mevsime göre değişir.
+  const e1 = mry / mrx, e1c = Math.sqrt(1 - e1 * e1), len1 = L.earthR + 8;
+  drawAxis(earthX, earthY,
+    -Math.sin(T) * Math.cos(th) * len1,
+    -(Math.sin(T) * Math.sin(th) * e1 + Math.cos(T) * e1c) * len1);
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = L.font + 'px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.strokeStyle = '#121820';
+  ctx.lineWidth = 4;
+  ctx.strokeText('Dünya', earthX + L.earthR + 6, earthY + 4);
+  ctx.lineWidth = 1;
+  ctx.fillText('Dünya', earthX + L.earthR + 6, earthY + 4);
+
+  drawLitSphere(mx, my, L.moonR, -1, 0, 0, '#e6edf3', '#30363d');
+  ctx.fillStyle = '#8b949e';
+  ctx.textAlign = 'center';
+  ctx.fillText('Ay', mx, my - L.moonR - 5);
+
+  // --- Ay'ın Dünya'dan (Kuzey Yarım Küre'den) görünüşü ---
+  const { viewX, viewY, viewR } = L;
+  const illum = (1 - Math.cos(a)) / 2;
+  ctx.fillStyle = '#8b949e';
+  ctx.fillText("Dünya'dan görünüş", viewX, viewY - viewR - 12);
+  drawLitSphere(viewX, viewY, viewR, Math.sin(a), 0, -Math.cos(a), '#e6edf3', '#30363d');
+  ctx.strokeStyle = '#484f58';
+  ctx.beginPath(); ctx.arc(viewX, viewY, viewR, 0, Math.PI * 2); ctx.stroke();
+  const days = norm(moonDeg) * SYNODIC / 360;
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = (L.font + 1) + 'px sans-serif';
+  ctx.fillText(phaseName(moonDeg), viewX, viewY + viewR + 22);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = L.font + 'px sans-serif';
+  ctx.fillText(`aydınlık %${Math.round(illum * 100)} · ${fmt(days)} gün`, viewX, viewY + viewR + 38);
+
+  // --- Mevsimler: Güneş ortada, Dünya saat yönünün tersine dolanır, eksen uzayda hep aynı yöne bakar ---
+  const { sX, sY, srx, sry } = L;
+  const e2 = sry / srx, e2c = Math.sqrt(1 - e2 * e2);
+  ctx.fillStyle = '#8b949e';
+  ctx.fillText("Dünya'nın yörüngesi", sX, sY - sry - 40);
+  ctx.strokeStyle = '#484f58';
+  ctx.beginPath(); ctx.ellipse(sX, sY, srx, sry, 0, 0, Math.PI * 2); ctx.stroke();
+
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = '#6e7681';
+  [['Haz', 0], ['Eyl', 90], ['Ara', 180], ['Mar', 270]].forEach(([txt, d]) => {
+    const gap = Math.abs(norm(seasonDeg - d + 180) - 180);
+    if (gap < 25) return; // Dünya bu etiketin üstündeyken etiketi gizle
+    const c = Math.cos(d * DEG), s = Math.sin(d * DEG);
+    ctx.textAlign = c > 0.5 ? 'left' : c < -0.5 ? 'right' : 'center';
+    ctx.fillText(txt, sX + (srx + 16) * c, sY - (sry + 16) * s + 4);
+  });
+
+  const ex = sX + srx * Math.cos(th);
+  const ey = sY - sry * Math.sin(th);
+  const drawEarth2 = () => {
+    ctx.strokeStyle = '#30363d';
+    ctx.setLineDash([3, 4]);
+    const dl = Math.hypot(ex - sX, ey - sY) || 1, k0 = (L.sSunR + 3) / dl;
+    ctx.beginPath(); ctx.moveTo(sX + (ex - sX) * k0, sY + (ey - sY) * k0); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.setLineDash([]);
+    drawLitSphere(ex, ey, L.sEarthR, -Math.cos(th), -Math.sin(th) * e2, Math.sin(th) * e2c, '#58a6ff', '#1d3a5f');
+    const len2 = L.sEarthR + 9;
+    drawAxis(ex, ey, -Math.sin(T) * len2, -Math.cos(T) * e2c * len2);
+  };
+  if (Math.sin(th) > 0) { drawEarth2(); drawSun(sX, sY, L.sSunR); }
+  else { drawSun(sX, sY, L.sSunR); drawEarth2(); }
+
+  const raw = declination(seasonDeg), dec = Math.abs(raw) < 0.05 ? 0 : raw;
+  const lean = dec > 0.5 ? "Kuzey kutbu Güneş'e doğru eğik"
+    : dec < -0.5 ? "Kuzey kutbu Güneş'ten uzağa eğik"
+    : "Eksen Güneş'e göre yana eğik";
+  const ev = seasonEvent(seasonDeg);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = (L.font + 1) + 'px sans-serif';
+  ctx.fillText('Mevsim: ' + seasonName(seasonDeg) + (ev ? ' (' + ev + ')' : ''), sX, sY + sry + 36);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = L.font + 'px sans-serif';
+  ctx.fillText(lean, sX, sY + sry + 52);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#6e7681';
+  ctx.font = '10px sans-serif';
+  ctx.fillText('Boyutlar ve uzaklıklar ölçekli değildir.', 8, H - 8);
+
+  const noon = 90 - LAT_IST + dec;
+  document.getElementById('info').textContent =
+    `Evre: ${phaseName(moonDeg)} — diskin aydınlık kısmı %${Math.round(illum * 100)}, Yeni Ay'dan bu yana ≈ ${fmt(days)} gün. ` +
+    `Mevsim (Kuzey Yarım Küre): ${seasonName(seasonDeg)}${ev ? ', ' + ev : ''}. Eksen eğikliği 23,4°; Güneş'in dik açıklığı δ ≈ ${dec > 0.05 ? '+' : ''}${fmt(dec)}°, ` +
+    `İstanbul'da (41° K) öğle Güneş'i ufkun ≈ ${fmt(noon)}° üstünde.`;
+}
+
+// Ay, mevsim hareketine göre yılda 365,25 / 29,53 ≈ 12,37 kez evre döngüsü tamamlar.
+function advance(days) {
+  moonDeg = (moonDeg + days * 360 / SYNODIC) % 360;
+  seasonDeg = (seasonDeg + days * 360 / YEAR) % 360;
+  moonInput.value = Math.round(moonDeg) % 360;
+  seasonInput.value = Math.round(seasonDeg) % 360;
+  draw();
+}
+
+let last = 0, acc = 0;
+function tick(t) {
+  if (!auto) return;
+  const dt = last ? Math.min((t - last) / 1000, 0.1) : 0;
+  last = t;
+  if (reduceMotion) {
+    // Hareket azaltma tercihinde akıcı canlandırma yerine 0,8 saniyede bir 1 günlük adım.
+    acc += dt;
+    if (acc >= 0.8) { acc = 0; advance(1); }
+  } else if (dt > 0) {
+    advance(dt * DAYS_PER_SEC);
+  }
+  requestAnimationFrame(tick);
+}
+
+resize();
+draw();
+</script></body>
+</html>

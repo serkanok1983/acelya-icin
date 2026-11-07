@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lissajous Eğrileri: Frekans Oranı, Faz ve Harmonograf</title>
+  <meta name="description" content="İki dik salınımın çizdiği eğri, frekans oranını kenarlara değme sayısından, fazı ise elipsin kesişimi ile dönüş yönünden okutur. Yarım hertz iki saniyelik bir turdur; irrasyonel oran dikdörtgeni doldurur.">
+  <style>
+    body.app-page .app-content { max-width: 1100px; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr);
+      grid-template-areas: "stage side" "main side";
+      gap: 14px 16px;
+      align-items: start;
+    }
+    .stage-wrap { grid-area: stage; display: grid; gap: 8px; min-width: 0; }
+    .main { grid-area: main; display: grid; gap: 12px; min-width: 0; }
+    .side { grid-area: side; display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+    }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .lab[data-tab="osiloskop"] .chart-canvas { aspect-ratio: 5 / 2; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .legend span { white-space: nowrap; }
+    .legend span.long { white-space: normal; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.k-acc { border-top-color: var(--accent); }
+    .legend i.k-acc2 { border-top-color: var(--accent-2); }
+    .legend i.k-warm { border-top-color: var(--accent-warm); }
+    .legend i.k-blue { border-top-color: #60a5fa; }
+    .legend i.k-ink { border-top-color: var(--text); }
+    .legend i.k-beam { border-top-color: #6ee7b7; }
+    .legend i.dot { width: 9px; height: 9px; border: 0; border-radius: 50%; background: var(--accent-warm); }
+    .legend i.dot.k-acc2 { background: var(--accent-2); }
+    .legend i.dot.k-blue { background: #60a5fa; }
+    .legend i.dot.k-acc { background: var(--accent); }
+    .legend i.ring { width: 6px; height: 6px; border: 2px solid var(--text); border-radius: 50%; }
+    .legend i.ring.k-warm { border-color: var(--accent-warm); }
+    .legend i.cell { width: 10px; height: 10px; border: 0; border-radius: 2px; background: color-mix(in srgb, var(--accent) 40%, transparent); }
+    [data-theme="light"] .legend i.k-blue { border-top-color: #2563eb; }
+    [data-theme="light"] .legend i.dot.k-blue { background: #2563eb; }
+    [data-theme="light"] .legend i.k-beam { border-top-color: #047857; }
+    .legend[hidden], .panel[hidden], .group[hidden], .field[hidden] { display: none !important; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .app-content .panel h3 { margin: 4px 0 0; font-size: 0.84rem; font-weight: 700; color: var(--text) !important; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; min-width: 0; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .num-row { display: grid; grid-template-columns: minmax(0, 1fr) 6.6em; gap: 10px; align-items: center; }
+    .num-row input[type="text"], .seed-row input[type="text"] { width: 100%; box-sizing: border-box; padding: 5px 6px; font: inherit; font-size: 0.84rem; font-variant-numeric: tabular-nums; min-width: 0; }
+    .seed-row { display: grid; grid-template-columns: 6.6em auto auto; gap: 8px; align-items: center; justify-content: start; }
+    .seed-row button { padding: 7px 10px; font: inherit; font-size: 0.82rem; cursor: pointer; }
+    .presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .presets button { padding: 8px 10px; font: inherit; font-size: 0.82rem; line-height: 1.3; text-align: left; cursor: pointer; }
+    .presets button[aria-pressed="true"] { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .group { display: grid; gap: 10px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.3; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout em { font-style: normal; font-size: 0.72rem; line-height: 1.35; color: var(--text-muted); overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .table-wrap { max-width: 100%; overflow-x: auto; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; vertical-align: top; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.78rem; }
+    .lab table.cmp td.meas { color: var(--accent-warm) !important; font-weight: 600; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 31%; }
+    .lab table.hgrid { width: 100%; margin: 0; table-layout: fixed; font-size: 0.8rem; border-collapse: collapse; }
+    .lab table.hgrid th, .lab table.hgrid td { padding: 3px 3px; text-align: left; font-weight: 600; }
+    .lab table.hgrid thead th { font-size: 0.7rem; color: var(--text-muted) !important; background: transparent !important; }
+    .lab table.hgrid tbody th { font-size: 0.76rem; color: var(--text) !important; background: transparent !important; white-space: nowrap; }
+    .lab table.hgrid col.c-row { width: 4.6em; }
+    .lab table.hgrid input { width: 100%; box-sizing: border-box; padding: 4px 4px; font: inherit; font-size: 0.8rem; font-variant-numeric: tabular-nums; min-width: 0; }
+    .lab table.hgrid tr.is-off input { opacity: 0.45; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--accent-warm) 60%, transparent); }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "main"; gap: 12px; }
+      .chart-canvas, .lab[data-tab="osiloskop"] .chart-canvas { aspect-ratio: 3 / 2; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.76rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
+    @media (max-width: 420px) {
+      .presets { grid-template-columns: 1fr; }
+      .seed-row { grid-template-columns: 6em auto; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="lissajous">
+
+<div class="app-content">
+  <h1>Lissajous Eğrileri: Frekans Oranı, Faz ve Harmonograf</h1>
+  <p class="hint">İki dik salınım, x = A sin(at + δ) ve y = B sin(bt), birlikte bir eğri çizer. Kapanmayı, kenarlara değme sayılarını ve fazı eğrinin kendisinden ölç; osiloskopta iki frekansı karşılaştır; harmonografta sönümü, yay salınıcısında irrasyonel oranın dikdörtgeni doldurmasını izle.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney bölümleri">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-egri" data-tab="egri" aria-selected="true" aria-controls="labPanel">Eğri</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-osiloskop" data-tab="osiloskop" aria-selected="false" aria-controls="labPanel" tabindex="-1">Osiloskop</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-harmonograf" data-tab="harmonograf" aria-selected="false" aria-controls="labPanel" tabindex="-1">Harmonograf ve iki boyutlu salınıcı</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-egri" data-tab="egri">
+    <div class="stage-wrap">
+      <canvas id="stageCanvas" class="sim-canvas" width="900" height="900" role="img" aria-label="Sahne"></canvas>
+      <p class="legend" data-for="egri">
+        <span><i class="k-acc"></i>sönen iz (son birkaç saniye)</span>
+        <span><i class="k-ink"></i>tam eğri (soluk)</span>
+        <span><i class="dash"></i>sınırlayan dikdörtgen ±A, ±B</span>
+        <span><i class="dot k-acc2"></i>dikey kenara değme</span>
+        <span><i class="dot k-blue"></i>yatay kenara değme</span>
+        <span><i class="ring k-warm"></i>köşedeki uç (yarım sayılır)</span>
+        <span><i class="ring"></i>kendini kesme</span>
+      </p>
+      <p class="legend" data-for="osiloskop" hidden>
+        <span><i class="k-beam"></i>ışın izi (fosfor kalıcılığıyla söner)</span>
+        <span class="long">Ekran: 8 × 8 bölme; iki sinyalin genliği 1, tam ölçek ±4 bölmenin 3'ü</span>
+      </p>
+      <p class="legend" data-for="harmonograf" data-mode="harmono" hidden>
+        <span><i class="k-acc"></i>kalemin çizdiği iz (renk zamanla değişir)</span>
+        <span><i class="dot"></i>kalem</span>
+      </p>
+      <p class="legend" data-for="harmonograf" data-mode="osc" hidden>
+        <span><i class="k-acc"></i>yörünge, son 2 s</span>
+        <span><i class="cell"></i>ziyaret edilmiş ızgara hücresi (64 × 64)</span>
+        <span><i class="dot"></i>kütle</span>
+        <span><i class="k-ink"></i>yaylar (raylı kızaklara bağlı)</span>
+      </p>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Grafik"></canvas>
+      <p class="legend" data-for="egri">
+        <span><i class="k-acc2"></i>x(t)/A</span>
+        <span><i class="k-blue"></i>y(t)/B</span>
+        <span><i class="dot k-acc2"></i>x'in uç değeri: dikey teğet</span>
+        <span><i class="dot k-blue"></i>y'nin uç değeri: yatay teğet</span>
+        <span><i class="dash k-warm"></i>ölçülen periyot T</span>
+      </p>
+      <p class="legend" data-for="osiloskop" hidden>
+        <span><i class="k-acc"></i>ölçülen etkin faz, çevrim cinsinden</span>
+        <span><i class="dash k-warm"></i>kuram: (q f₁ − p f₂)·t</span>
+        <span><i class="dash"></i>tam çevrimler</span>
+      </p>
+      <p class="legend" data-for="harmonograf" data-mode="harmono" hidden>
+        <span><i class="k-acc2"></i>x(t)</span>
+        <span><i class="k-blue"></i>y(t)</span>
+        <span><i class="dash k-warm"></i>zarf ±A e<sup>−dt</sup> (iki sarkaçta)</span>
+        <span><i class="dot"></i>ölçülen tepe</span>
+      </p>
+      <p class="legend" data-for="harmonograf" data-mode="osc" hidden>
+        <span><i class="k-acc"></i>ölçülen kaplama (sayısal yörünge)</span>
+        <span><i class="dash k-ink"></i>kuram: kapalı biçim yörünge</span>
+        <span><i class="k-acc2"></i>3:2 kuram</span>
+        <span><i class="k-warm"></i>√2 kuram</span>
+        <span><i class="k-blue"></i>alt panel: ΔE/E₀</span>
+      </p>
+    </div>
+
+    <div class="side">
+      <!-- (a) Eğri -->
+      <div class="panel" data-for="egri" role="group" aria-labelledby="ttlA1">
+        <h2 id="ttlA1">Hazır deneyler</h2>
+        <div class="presets">
+          <button type="button" class="app-btn-ghost" data-preset-a="l0" aria-pressed="false">1:1 · δ = 0° (doğru)</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="l45" aria-pressed="false">1:1 · δ = 45° (eğik elips)</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="l90" aria-pressed="false">1:1 · δ = 90° (çember)</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="p32" aria-pressed="true">3:2 · δ = 90°</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="p32d" aria-pressed="false">3:2 · δ = 45° (geri dönen)</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="p21" aria-pressed="false">2:1 · δ = 90° (parabol)</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="p54" aria-pressed="false">5:4 · δ = 30°</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="s2" aria-pressed="false">√2 : 1 · kapanmaz</button>
+        </div>
+        <p class="note">Hepsi A = B = 1 br alır. a ve b açısal frekanstır (rad/s), t saniyedir.</p>
+      </div>
+      <div class="panel" data-for="egri" role="group" aria-labelledby="ttlA2">
+        <h2 id="ttlA2">Parametreler</h2>
+        <div class="field">
+          <label for="aFa"><span class="lt">Frekans a</span><output id="aFaOut" for="aFa aFaNum">3 rad/s</output></label>
+          <div class="num-row">
+            <input type="range" id="aFa" min="0.25" max="12" step="0.05" value="3">
+            <label class="visually-hidden" for="aFaNum">Frekans a, rad/s, en çok 6 ondalık</label>
+            <input type="text" id="aFaNum" value="3" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="aFb"><span class="lt">Frekans b</span><output id="aFbOut" for="aFb aFbNum">2 rad/s</output></label>
+          <div class="num-row">
+            <input type="range" id="aFb" min="0.25" max="12" step="0.05" value="2">
+            <label class="visually-hidden" for="aFbNum">Frekans b, rad/s, en çok 6 ondalık</label>
+            <input type="text" id="aFbNum" value="2" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="aDel"><span class="lt">Faz δ (°)</span><output id="aDelOut" for="aDel aDelNum">90°</output></label>
+          <div class="num-row">
+            <input type="range" id="aDel" min="0" max="360" step="1" value="90">
+            <label class="visually-hidden" for="aDelNum">Faz δ, derece, en çok 2 ondalık</label>
+            <input type="text" id="aDelNum" value="90" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="aAmpA"><span class="lt">Genlik A (x)</span><output id="aAmpAOut" for="aAmpA">1.00 br</output></label>
+          <input type="range" id="aAmpA" min="0.2" max="1" step="0.05" value="1">
+        </div>
+        <div class="field">
+          <label for="aAmpB"><span class="lt">Genlik B (y)</span><output id="aAmpBOut" for="aAmpB">1.00 br</output></label>
+          <input type="range" id="aAmpB" min="0.2" max="1" step="0.05" value="1">
+        </div>
+        <div class="field">
+          <label for="aSpeed"><span class="lt">Canlandırma hızı</span><output id="aSpeedOut" for="aSpeed">1×</output></label>
+          <select id="aSpeed">
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1× (1 s'de t 1 s ilerler)</option>
+            <option value="2">2×</option>
+            <option value="4">4×</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aTrail"><span class="lt">İz uzunluğu</span><output id="aTrailOut" for="aTrail">3.0 s</output></label>
+          <input type="range" id="aTrail" min="0.5" max="20" step="0.5" value="3">
+        </div>
+        <label class="check" for="aFull"><input type="checkbox" id="aFull" checked> Tam eğriyi soluk göster</label>
+        <label class="check" for="aMarks"><input type="checkbox" id="aMarks" checked> Değme ve kesişme noktalarını işaretle</label>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="aRestart">Baştan başlat</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Sıfırla</button>
+        </div>
+        <p class="note">Model: x = A·sin(a·t + δ), y = B·sin(b·t). a/b = p/q en sade kesirse nokta T = 2π·p/a = 2π·q/b sürede başladığı duruma döner; a ve b tamsayıysa T = 2π/obeb(a, b). Kutular en çok 6 ondalık kabul eder ve her sonlu ondalık kesirli bir sayıdır: eğri kuramda kapanır, ama periyot çok uzun olabilir. √2 hazır deneyi gerçekten irrasyonel bir oran kullanır.</p>
+        <p class="note">Sayma kuralı: x bir periyotta p kez en büyük, p kez en küçük değerine varır; her seferinde eğri dikey bir kenara dikey teğetle değer. Dikey kenarlara 2p, yatay kenarlara 2q noktada değer, oran dikey : yatay = p : q = a : b. Geri dönen fazlarda x ile y aynı anda uç değerdedir: eğri köşeden geçip kendi üstünden geri gider, iki köşe arasında açık bir yay olur. O zaman her değme noktası iki kez ziyaret edilir, köşelerdeki iki uç her kenar için yarım sayılır ve sayılar p ile q'ya iner. Geri dönen fazlar: p ve q tekse δ = k·180°/q, biri çiftse δ = (2k + 1)·90°/q.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat/sürdür, <kbd>R</kbd> baştan başlat. Her parametre değişikliği ölçümü baştan yapar.</p>
+      </div>
+
+      <!-- (b) Osiloskop -->
+      <div class="panel" data-for="osiloskop" role="group" aria-labelledby="ttlB1" hidden>
+        <h2 id="ttlB1">Hazır deneyler</h2>
+        <div class="presets">
+          <button type="button" class="app-btn-ghost" data-preset-b="d05" aria-pressed="true">440 / 440.5 Hz</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="d1" aria-pressed="false">440 / 441 Hz</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="esit" aria-pressed="false">440 / 440 Hz (durur)</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="r23" aria-pressed="false">440 / 660 Hz (2 : 3)</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="r23k" aria-pressed="false">440 / 660.6 Hz (2 : 3 kayar)</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="r12k" aria-pressed="false">440 / 880.25 Hz (1 : 2 kayar)</button>
+        </div>
+      </div>
+      <div class="panel" data-for="osiloskop" role="group" aria-labelledby="ttlB2" hidden>
+        <h2 id="ttlB2">Sinyaller ve ekran</h2>
+        <div class="field">
+          <label for="bF1"><span class="lt">x kanalı: frekans f₁</span><output id="bF1Out" for="bF1 bF1Num">440.000 Hz</output></label>
+          <div class="num-row">
+            <input type="range" id="bF1" min="50" max="1000" step="0.5" value="440">
+            <label class="visually-hidden" for="bF1Num">x kanalının frekansı f₁, hertz, en çok 3 ondalık</label>
+            <input type="text" id="bF1Num" value="440" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="bF2"><span class="lt">y kanalı: frekans f₂</span><output id="bF2Out" for="bF2 bF2Num">440.500 Hz</output></label>
+          <div class="num-row">
+            <input type="range" id="bF2" min="50" max="1000" step="0.5" value="440.5">
+            <label class="visually-hidden" for="bF2Num">y kanalının frekansı f₂, hertz, en çok 3 ondalık</label>
+            <input type="text" id="bF2Num" value="440.5" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="bPhi"><span class="lt">Başlangıç faz farkı φ (x'te)</span><output id="bPhiOut" for="bPhi">0°</output></label>
+          <input type="range" id="bPhi" min="0" max="360" step="1" value="0">
+        </div>
+        <div class="field">
+          <label for="bPers"><span class="lt">Fosfor kalıcılığı τ</span><output id="bPersOut" for="bPers">60 ms</output></label>
+          <input type="range" id="bPers" min="10" max="300" step="5" value="60">
+        </div>
+        <div class="field">
+          <label for="bSlow"><span class="lt">Yavaş çekim</span><output id="bSlowOut" for="bSlow">1× (gerçek zaman)</output></label>
+          <select id="bSlow">
+            <option value="1" selected>1× (gerçek zaman)</option>
+            <option value="0.1">1/10</option>
+            <option value="0.01">1/100</option>
+            <option value="0.001">1/1000 (ışın noktası görünür)</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="bToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="bRestart">Baştan başlat</button>
+          <button type="button" class="app-btn-ghost" id="bSound" aria-pressed="false">Sesi aç</button>
+          <button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button>
+        </div>
+        <p class="note" id="bSoundNote">Ses kapalı başlar. Açılınca iki ton aynı hoparlörde karışır: vuru (beat) sıklığı |f₁ − f₂|'dir, 1 : 1'de şeklin dönme sıklığıyla aynıdır. Sitenin ses düğmesi kapalıysa ses çalmaz; ses yalnız 1× hızda çalar.</p>
+        <p class="note">Model: x kanalında sin(2π f₁ t + φ), y kanalında sin(2π f₂ t). f₂/f₁, q/p'ye yakınsa (p, q en çok 8) ekranda p : q Lissajous eğrisi görünür; x'in y'ye göre etkin fazı sabit hızla kayar ve şekil T = 1/|q f₁ − p f₂| sürede yinelenir. 1 : 1'de faz farkı 2π|f₁ − f₂| hızıyla kayar ve T = 1/|f₁ − f₂|: 440 ile 440.5 Hz şekli 2 saniyede bir döndürür.</p>
+        <p class="note">Ölçüm: ışın, hızlı sinyalin çevrimi başına 48 örnekle çizilir. y'nin her yukarı sıfır geçişinin anı, son dört örnekten kurulan üçüncü derece ara değerin kökü olarak adımın içinde bulunur. x'in o andaki fazı ψ, x kanalının son iki örneğinden ve bilinen referans frekansı f₁'den çıkar: sin θ = xₖ, cos θ = (xₖ cos ω₁h − xₖ₋₁)/sin ω₁h, ω₁ = 2πf₁. Her q geçişte bir ψ alınır, açılır (2π sıçramaları kaldırılır) ve zamana karşı eğimi en küçük karelerle uydurulur: T = (2π/q)/|eğim|. Kaymanın yönü hangi frekansın büyük olduğunu söyler; f₁ biliniyorsa f₂ = (q f₁ − q·eğim/2π)/p. Lissajous 1857'de her diyapazona bir ayna yapıştırıp ışığı ikisinden yansıtarak frekansları böyle karşılaştırdı.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat/sürdür, <kbd>R</kbd> baştan başlat. Frekans ya da faz değişince ölçüm baştan başlar; kalıcılık ve yavaş çekim ölçümü değiştirmez.</p>
+      </div>
+
+      <!-- (c) Harmonograf ve iki boyutlu salınıcı -->
+      <div class="panel" data-for="harmonograf" role="group" aria-labelledby="ttlC0" hidden>
+        <h2 id="ttlC0">Düzenek</h2>
+        <div class="field">
+          <label for="cMode"><span class="lt">Model</span><output id="cModeOut" for="cMode">harmonograf</output></label>
+          <select id="cMode">
+            <option value="harmono" selected>Harmonograf: sönümlü sarkaçlarla çizim</option>
+            <option value="osc">İki boyutlu yay salınıcısı: kₓ, k_y, m</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel" data-for="harmonograf" data-mode="harmono" role="group" aria-labelledby="ttlH1" hidden>
+        <h2 id="ttlH1">Harmonograf</h2>
+        <div class="presets">
+          <button type="button" class="app-btn-ghost" data-preset-h="iki21" aria-pressed="false">İki sarkaç · 2:1</button>
+          <button type="button" class="app-btn-ghost" data-preset-h="kayik32" aria-pressed="false">İki sarkaç · 3:2 hafif kayık</button>
+          <button type="button" class="app-btn-ghost" data-preset-h="doner" aria-pressed="false">Üç sarkaç · döner masa</button>
+        </div>
+        <div class="field">
+          <label for="hN"><span class="lt">Sarkaç sayısı</span><output id="hNOut" for="hN">3</output></label>
+          <select id="hN">
+            <option value="2">2: x sarkacı ve y sarkacı</option>
+            <option value="3" selected>3: artı döner masa (çember çizer)</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="hgrid">
+            <caption class="visually-hidden">Sarkaç parametreleri: açısal frekans, faz, genlik ve sönüm katsayısı</caption>
+            <colgroup><col class="c-row"><col><col><col><col></colgroup>
+            <thead><tr><th scope="col">Sarkaç</th><th scope="col">f (rad/s)</th><th scope="col">faz (°)</th><th scope="col">genlik (br)</th><th scope="col">d (1/s)</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">1 · x</th>
+                <td><label class="visually-hidden" for="h0f">Sarkaç 1 (x) açısal frekansı f₁, rad/s</label><input type="text" id="h0f" data-i="0" data-k="f" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h0p">Sarkaç 1 fazı p₁, derece</label><input type="text" id="h0p" data-i="0" data-k="p" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h0A">Sarkaç 1 genliği A₁, br</label><input type="text" id="h0A" data-i="0" data-k="A" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h0d">Sarkaç 1 sönüm katsayısı d₁, 1/s</label><input type="text" id="h0d" data-i="0" data-k="d" inputmode="decimal" autocomplete="off" spellcheck="false"></td></tr>
+              <tr><th scope="row">2 · y</th>
+                <td><label class="visually-hidden" for="h1f">Sarkaç 2 (y) açısal frekansı f₂, rad/s</label><input type="text" id="h1f" data-i="1" data-k="f" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h1p">Sarkaç 2 fazı p₂, derece</label><input type="text" id="h1p" data-i="1" data-k="p" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h1A">Sarkaç 2 genliği A₂, br</label><input type="text" id="h1A" data-i="1" data-k="A" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h1d">Sarkaç 2 sönüm katsayısı d₂, 1/s</label><input type="text" id="h1d" data-i="1" data-k="d" inputmode="decimal" autocomplete="off" spellcheck="false"></td></tr>
+              <tr id="hRow3"><th scope="row">3 · döner</th>
+                <td><label class="visually-hidden" for="h2f">Sarkaç 3 (döner masa) açısal frekansı f₃, rad/s</label><input type="text" id="h2f" data-i="2" data-k="f" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h2p">Sarkaç 3 fazı p₃, derece</label><input type="text" id="h2p" data-i="2" data-k="p" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h2A">Sarkaç 3 genliği A₃, br</label><input type="text" id="h2A" data-i="2" data-k="A" inputmode="decimal" autocomplete="off" spellcheck="false"></td>
+                <td><label class="visually-hidden" for="h2d">Sarkaç 3 sönüm katsayısı d₃, 1/s</label><input type="text" id="h2d" data-i="2" data-k="d" inputmode="decimal" autocomplete="off" spellcheck="false"></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="field">
+          <label for="hSeed"><span class="lt">Tohum (rastgele sayı üreteci)</span><output id="hSeedOut" for="hSeed">1857</output></label>
+          <div class="seed-row">
+            <input type="text" id="hSeed" value="1857" inputmode="numeric" autocomplete="off" spellcheck="false">
+            <button type="button" class="app-btn-ghost" id="hSeedDraw">Bu tohumla çiz</button>
+            <button type="button" class="app-btn-ghost" id="hRandom">Rastgele çizim</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="hSpan"><span class="lt">Çizim süresi</span><output id="hSpanOut" for="hSpan">160 s</output></label>
+          <input type="range" id="hSpan" min="20" max="400" step="10" value="160">
+        </div>
+        <div class="field">
+          <label for="hSpeed"><span class="lt">Kalem hızı</span><output id="hSpeedOut" for="hSpeed">20×</output></label>
+          <select id="hSpeed">
+            <option value="5">5×</option>
+            <option value="20" selected>20×</option>
+            <option value="60">60×</option>
+            <option value="0">Hemen bitir</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="hToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="hRestart">Baştan çiz</button>
+          <button type="button" class="app-btn-ghost" id="hReset">Sıfırla</button>
+        </div>
+        <p class="note">Model: x(t) = A₁ sin(f₁t + p₁) e<sup>−d₁t</sup>, y(t) = A₂ sin(f₂t + p₂) e<sup>−d₂t</sup>; üçüncü sarkaç kâğıdı taşıyan döner masadır ve iki koordinata A₃e<sup>−d₃t</sup>·(sin(f₃t + p₃), cos(f₃t + p₃)) ekler. Sürtünme her sarkacın genliğini e<sup>−dt</sup> ile küçültür: ardışık iki tepenin oranı e<sup>−d·2π/f</sup>, yarılanma süresi ln 2/d. Harmonograf 19. yüzyıl ortasında ortaya çıkmış bir çizim makinesidir; frekans oranı basit bir kesre yakın, ama tam eşit olmadığında desen yavaşça döner.</p>
+        <p class="note">Rastgele çizim tohumu bir artırır ve parametreleri o tohumdan üretir: temel frekans 1–2 rad/s, f₁/f₂ oranı 1:1, 1:2, 2:1, 2:3, 3:2, 1:3 ya da 3:1'den en çok ±%1.5 sapar, fazlar 0°–360°, sönüm 0.004–0.016 1/s. Aynı tohum her zaman aynı çizimi verir; değerler kutulara yazılır ve elle değiştirilebilir. Kısayollar: <kbd>Boşluk</kbd> kalemi duraklat, <kbd>R</kbd> baştan çiz.</p>
+      </div>
+      <div class="panel" data-for="harmonograf" data-mode="osc" role="group" aria-labelledby="ttlO1" hidden>
+        <h2 id="ttlO1">İki boyutlu yay salınıcısı</h2>
+        <div class="presets">
+          <button type="button" class="app-btn-ghost" data-preset-o="r32" aria-pressed="true">3:2 · kₓ = 9, k_y = 4 N/m</button>
+          <button type="button" class="app-btn-ghost" data-preset-o="r2" aria-pressed="false">√2 · kₓ = 8, k_y = 4 N/m</button>
+          <button type="button" class="app-btn-ghost" data-preset-o="r11" aria-pressed="false">1:1 · kₓ = k_y = 4 N/m</button>
+          <button type="button" class="app-btn-ghost" data-preset-o="r21" aria-pressed="false">2:1 · kₓ = 16, k_y = 4 N/m</button>
+        </div>
+        <div class="field">
+          <label for="oKx"><span class="lt">Yay sabiti kₓ</span><output id="oKxOut" for="oKx oKxNum">9 N/m</output></label>
+          <div class="num-row">
+            <input type="range" id="oKx" min="0.5" max="20" step="0.1" value="9">
+            <label class="visually-hidden" for="oKxNum">Yay sabiti kₓ, N/m, en çok 4 ondalık</label>
+            <input type="text" id="oKxNum" value="9" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="oKy"><span class="lt">Yay sabiti k_y</span><output id="oKyOut" for="oKy oKyNum">4 N/m</output></label>
+          <div class="num-row">
+            <input type="range" id="oKy" min="0.5" max="20" step="0.1" value="4">
+            <label class="visually-hidden" for="oKyNum">Yay sabiti k_y, N/m, en çok 4 ondalık</label>
+            <input type="text" id="oKyNum" value="4" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="oM"><span class="lt">Kütle m</span><output id="oMOut" for="oM oMNum">1 kg</output></label>
+          <div class="num-row">
+            <input type="range" id="oM" min="0.1" max="5" step="0.1" value="1">
+            <label class="visually-hidden" for="oMNum">Kütle m, kg, en çok 4 ondalık</label>
+            <input type="text" id="oMNum" value="1" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="oInteg"><span class="lt">Sayısal tümleyici</span><output id="oIntegOut" for="oInteg">hız-Verlet</output></label>
+          <select id="oInteg">
+            <option value="verlet" selected>Hız-Verlet (simplektik, 2. mertebe)</option>
+            <option value="rk4">Runge–Kutta 4 (RK4)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oH"><span class="lt">Zaman adımı h</span><output id="oHOut" for="oH">0.01 s</output></label>
+          <select id="oH">
+            <option value="0.001">0.001 s</option>
+            <option value="0.005">0.005 s</option>
+            <option value="0.01" selected>0.01 s</option>
+            <option value="0.025">0.025 s</option>
+            <option value="0.05">0.05 s</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oSpan"><span class="lt">Ölçüm süresi</span><output id="oSpanOut" for="oSpan">200 s</output></label>
+          <select id="oSpan">
+            <option value="50">50 s</option>
+            <option value="100">100 s</option>
+            <option value="200" selected>200 s</option>
+            <option value="400">400 s</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oSpeed"><span class="lt">Canlandırma hızı</span><output id="oSpeedOut" for="oSpeed">20×</output></label>
+          <select id="oSpeed">
+            <option value="1">1×</option>
+            <option value="5">5×</option>
+            <option value="20" selected>20×</option>
+            <option value="100">100×</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="oToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="oRestart">Baştan başlat</button>
+          <button type="button" class="app-btn-ghost" id="oSkip">Sona atla</button>
+          <button type="button" class="app-btn-ghost" id="oReset">Sıfırla</button>
+        </div>
+        <p class="note">Model: m·d²x/dt² = −kₓx, m·d²y/dt² = −k_y y. Yaylar raylarda kayan kızaklara bağlıdır, bu yüzden kuvvetler tam ayrışır ve iki eksen bağımsız salınır: ωₓ = √(kₓ/m), ω_y = √(k_y/m), oran ωₓ/ω_y = √(kₓ/k_y) kütleden bağımsızdır. Başlangıç x = 1 m, y = 0, vₓ = 0, v_y = ω_y·1 m; kapalı biçim çözüm x = cos(ωₓt), y = sin(ω_y t), yani δ = 90° olan bir Lissajous eğrisi. kₓ/k_y = 9/4 oranı 3/2 yapar ve yörünge kapanır; kₓ/k_y = 2 oranı √2 yapar: yay sabitleri kesirli olsa da frekans oranı irrasyoneldir, yörünge hiç kapanmaz ve dikdörtgenin her noktasına istenildiği kadar yaklaşır.</p>
+        <p class="note">Kaplama: [−1, 1] × [−1, 1] m karesi 64 × 64 hücreye bölünür (hücre 3.125 cm); her zaman adımının doğru parçasının geçtiği bütün hücreler işaretlenir. Kuram sütunu aynı ızgarada kapalı biçim çözümün, aynı süre içinde gezdiği hücrelerin oranıdır. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> baştan başlat.</p>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- (a) -->
+      <div class="group" data-for="egri" aria-live="polite">
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption class="visually-hidden">Eğri: örneklenen eğriden ölçülen değerler ile kuram</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (eğriden)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Periyot T (ilk dönüş)</th><td id="aTm" class="meas">—</td><td id="aTt">—</td><td id="aTd" class="diff">—</td></tr>
+              <tr><th scope="row">Dikey kenarlara değme (x = ±A)</th><td id="aVm" class="meas">—</td><td id="aVt">—</td><td id="aVd" class="diff">—</td></tr>
+              <tr><th scope="row">Yatay kenarlara değme (y = ±B)</th><td id="aHm" class="meas">—</td><td id="aHt">—</td><td id="aHd" class="diff">—</td></tr>
+              <tr><th scope="row">Oran dikey : yatay</th><td id="aRm" class="meas">—</td><td id="aRt">—</td><td id="aRd" class="diff">—</td></tr>
+              <tr><th scope="row" id="aXLabel">Kendini kesme noktası</th><td id="aXm" class="meas">—</td><td id="aXt">—</td><td id="aXd" class="diff">—</td></tr>
+              <tr><th scope="row">sin δ = x₀/A (a = b)</th><td id="aSm" class="meas">—</td><td id="aSt">—</td><td id="aSd" class="diff">—</td></tr>
+              <tr><th scope="row">δ: kesişim, eğim, dönüş yönü (a = b)</th><td id="aDm" class="meas">—</td><td id="aDt">—</td><td id="aDd" class="diff">—</td></tr>
+              <tr><th scope="row">İşaretli alan ile πAB sin δ (a = b)</th><td id="aAm" class="meas">—</td><td id="aAt">—</td><td id="aAd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Ölçüm: nokta önce aranır: t, 40·2π ≈ 251.3 s'ye dek, en hızlı salınımın çevrimi başına 32 örnekle taranır; konumun hem t'de hem bir çeyrek çevrim sonra başlangıçtakine döndüğü yerlerde uzaklık en küçükleştirilir (altın oran araması) ve uzaklık 10⁻⁶ br'nin altına inen ilk an T sayılır. Sonra bir periyot çevrim başına 128 örnekle yeniden örneklenir. x'in örneklerdeki her yerel ucu, eğrinin teğetinin dikey olduğu yer (dx/dt = 0) ikiye bölmeyle bulunarak inceltilir; aynı noktaya düşen ziyaretler birleştirilir. Kendini kesmeler örnek çokgeninin kenar–kenar kesişimleridir (geri dönen eğride bir köşeden öbürüne giden yarım periyot). a = b iken y'nin yukarı ve aşağı sıfır geçişleri eksen kesişimlerini, sağ kenara değme yüksekliği eğimi, çokgenin işaretli alanı dönüş yönünü verir.</p>
+        <div class="cards">
+          <div class="readout"><small>Zaman t</small><strong id="aTime">0.00 s</strong><em id="aTimeSub"></em></div>
+          <div class="readout"><small>Nokta (x, y)</small><strong id="aPoint">—</strong></div>
+          <div class="readout is-highlight"><small>Oran a/b, en sade kesir p : q</small><strong id="aRatio">—</strong><em id="aRatioSub"></em></div>
+          <div class="readout"><small>Eğrinin türü</small><strong id="aKind">—</strong></div>
+          <div class="readout"><small>Dönüş yönü (a = b)</small><strong id="aRot">—</strong></div>
+          <div class="readout"><small>%1 kesişim okuma hatasıyla δ</small><strong id="aRead">—</strong><em id="aReadSub"></em></div>
+        </div>
+        <p class="status" id="aStatus"></p>
+      </div>
+
+      <!-- (b) -->
+      <div class="group" data-for="osiloskop" aria-live="polite" hidden>
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption class="visually-hidden">Osiloskop: ışından ölçülen değerler ile kuram</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (ışından)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row" id="bTLabel">Şeklin yinelenme periyodu T</th><td id="bTm" class="meas">—</td><td id="bTt">—</td><td id="bTd" class="diff">—</td></tr>
+              <tr><th scope="row">Etkin faz kayma hızı</th><td id="bWm" class="meas">—</td><td id="bWt">—</td><td id="bWd" class="diff">—</td></tr>
+              <tr><th scope="row">f₂ tahmini (f₁ bilinen)</th><td id="bFm" class="meas">—</td><td id="bFt">—</td><td id="bFd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cards">
+          <div class="readout"><small>Benzetim zamanı</small><strong id="bTime">0.000 s</strong></div>
+          <div class="readout is-highlight"><small>Yakalanan oran p : q (x : y)</small><strong id="bRatio">—</strong><em id="bRatioSub"></em></div>
+          <div class="readout"><small>Tamamlanan çevrim</small><strong id="bCyc">0</strong><em id="bCycSub"></em></div>
+          <div class="readout"><small>Şu anki etkin faz</small><strong id="bPhase">—</strong></div>
+          <div class="readout"><small>Vuru periyodu 1/|f₁ − f₂|</small><strong id="bBeat">—</strong></div>
+        </div>
+        <p class="status" id="bStatus"></p>
+      </div>
+
+      <!-- (c) harmonograf -->
+      <div class="group" data-for="harmonograf" data-mode="harmono" aria-live="polite" hidden>
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption class="visually-hidden">Harmonograf: çizimden ölçülen sönüm ve frekanslar ile ayarlanan değerler</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (çizimden)</th><th scope="col">Ayar</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Sönüm d₁: x tepelerinin ln eğimi</th><td id="hD1m" class="meas">—</td><td id="hD1t">—</td><td id="hD1d" class="diff">—</td></tr>
+              <tr><th scope="row">Sönüm d₂: y tepelerinin ln eğimi</th><td id="hD2m" class="meas">—</td><td id="hD2t">—</td><td id="hD2d" class="diff">—</td></tr>
+              <tr><th scope="row">f₁: x tepeleri arası süreden</th><td id="hF1m" class="meas">—</td><td id="hF1t">—</td><td id="hF1d" class="diff">—</td></tr>
+              <tr><th scope="row">f₂: y tepeleri arası süreden</th><td id="hF2m" class="meas">—</td><td id="hF2t">—</td><td id="hF2d" class="diff">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Ölçüm: kalemin o ana dek çizdiği x(t) ve y(t) örneklenir, her yerel tepe zaman türevinin sıfır olduğu yerde ikiye bölmeyle inceltilir. ln(tepe) zamana karşı en küçük karelerle uydurulur, eğim −d'dir; ardışık tepeler arası ortalama süre 2π/f'dir. En az 6 tepe gerekir. Üç sarkaçta x ve y iki sönümlü terimin toplamıdır, tepeleri tek bir üstel üzerinde değildir: ölçüm yalnız iki sarkaçta yapılır.</p>
+        <div class="cards">
+          <div class="readout"><small>Kalem zamanı</small><strong id="hTime">0.0 s</strong><em id="hTimeSub"></em></div>
+          <div class="readout is-highlight"><small>Frekans oranı f₁/f₂</small><strong id="hRatio">—</strong><em id="hRatioSub"></em></div>
+          <div class="readout"><small>Yarılanma süresi ln 2/d</small><strong id="hHalf">—</strong></div>
+          <div class="readout"><small>Ölçülen tepe sayısı (x, y)</small><strong id="hPeaks">—</strong></div>
+        </div>
+        <p class="status" id="hStatus"></p>
+      </div>
+
+      <!-- (c) salınıcı -->
+      <div class="group" data-for="harmonograf" data-mode="osc" aria-live="polite" hidden>
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption class="visually-hidden">İki boyutlu salınıcı: sayısal yörüngeden ölçülen değerler ile kuram</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (sayısal)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row" id="oCLabel">Kaplanan hücre oranı</th><td id="oCm" class="meas">—</td><td id="oCt">—</td><td id="oCd" class="diff">—</td></tr>
+              <tr><th scope="row">Frekans oranı ωₓ/ω_y (sıfır geçişlerinden)</th><td id="oRm" class="meas">—</td><td id="oRt">—</td><td id="oRd" class="diff">—</td></tr>
+              <tr><th scope="row">En büyük |ΔE|/E₀</th><td id="oEm" class="meas">—</td><td id="oEt">—</td><td id="oEd" class="diff">—</td></tr>
+              <tr><th scope="row">Enerji sürüklenmesi d(ΔE/E₀)/dt</th><td id="oDm" class="meas">—</td><td id="oDt">—</td><td id="oDd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" id="oNote">Enerji E = ½m(vₓ² + v_y²) + ½kₓx² + ½k_y y². Hız-Verlet enerjiyi tam korumaz ama yanına bir "gölge enerji" H′ = ½mv² + ½kq²(1 − ω²h²/4) korur: her eksende E = H′ + (m ω⁴ h²/8)·q², bu yüzden hata sınırlı kalıp salınır, sürüklenmez. Verlet her ekseni ωₛ = (2/h)·arcsin(ωh/2) frekansıyla döndürür; kuram sütunundaki en büyük değer, bu tam ayrık çözümün adım anlarındaki en büyük sapmasıdır. RK4 her adımda her eksenin enerjisini (1 − (ωh)⁶/72 + (ωh)⁸/576) ile çarpar: enerji yavaşça ve tekdüze azalır. Sıfır geçiş anları adım içinde konum ve hızdan kurulan kübik Hermite eğrisiyle bulunur.</p>
+        <div class="cards">
+          <div class="readout"><small>Zaman t</small><strong id="oTime">0.00 s</strong><em id="oTimeSub"></em></div>
+          <div class="readout"><small>ωₓ, ω_y</small><strong id="oOmega">—</strong></div>
+          <div class="readout is-highlight"><small>Ziyaret edilen hücre</small><strong id="oCells">—</strong><em id="oCellsSub"></em></div>
+          <div class="readout"><small>Kuram, ölçüm süresi sonunda: 3:2 ve √2</small><strong id="oRefs">—</strong><em id="oRefsSub"></em></div>
+          <div class="readout"><small>Yörünge</small><strong id="oClose">—</strong></div>
+        </div>
+        <p class="status" id="oStatus"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* MATH-START — DOM'a dokunmayan saf hesap çekirdeği; doğrulama betiği bu bloğu node'da çalıştırır */
+  const TAU = 2 * Math.PI;
+  const D2R = Math.PI / 180;
+
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const r = a % b; a = b; b = r; } return a; }
+  const lcm = (a, b) => (a / gcd(a, b)) * b;
+  // k ondalığa kadar yazılmış sayıyı tam, indirgenmiş kesre çevirir: 2.35 → 47/20
+  function rat(v, k) {
+    const d0 = 10 ** k, n0 = Math.round(v * d0), g = gcd(n0, d0) || 1;
+    return { n: n0 / g, d: d0 / g };
+  }
+  function bisect(f, l, r) {
+    let fl = f(l);
+    if (fl === 0) return l;
+    for (let i = 0; i < 90; i++) {
+      const m = 0.5 * (l + r);
+      if (m === l || m === r) break;
+      const fm = f(m);
+      if (fm === 0) return m;
+      if ((fm > 0) === (fl > 0)) { l = m; fl = fm; } else r = m;
+    }
+    return 0.5 * (l + r);
+  }
+  function goldenMin(f, l, r) {
+    const g = (Math.sqrt(5) - 1) / 2;
+    let c = r - g * (r - l), d = l + g * (r - l), fc = f(c), fd = f(d);
+    for (let k = 0; k < 120 && r - l > 1e-15 * (Math.abs(l) + 1); k++) {
+      if (fc < fd) { r = d; d = c; fd = fc; c = r - g * (r - l); fc = f(c); }
+      else { l = c; c = d; fc = fd; d = l + g * (r - l); fd = f(d); }
+    }
+    return 0.5 * (l + r);
+  }
+  const regNew = () => ({ n: 0, mx: 0, my: 0, sxx: 0, sxy: 0, syy: 0 });
+  function regAdd(r, x, y) {
+    r.n++;
+    const dx = x - r.mx; r.mx += dx / r.n;
+    const dy = y - r.my; r.my += dy / r.n;
+    r.sxx += dx * (x - r.mx); r.sxy += dx * (y - r.my); r.syy += dy * (y - r.my);
+  }
+  function regFit(r) {
+    if (r.n < 3 || !(r.sxx > 0)) return null;
+    const b = r.sxy / r.sxx, res = Math.max(0, r.syy - b * r.sxy);
+    return { b, a: r.my - b * r.mx, se: Math.sqrt(res / (r.n - 2) / r.sxx), n: r.n };
+  }
+
+  /* (a) Lissajous eğrisi: x = A sin(a t + δ), y = B sin(b t); hesap birim genlikle, A ve B çizimde çarpılır */
+  const RET_WIN = 40 * TAU, RET_TOL = 1e-12, CROSS_MAX = 450;
+  const lx = (P, t) => Math.sin(P.a * t + P.d);
+  const ly = (P, t) => Math.sin(P.b * t);
+  function lissTheory(P) {
+    const th = { closed: false, irr: !!P.irr, p: null, q: null, T: Infinity, degen: false, nV: null, nH: null, nX: null };
+    if (P.irr) return th;
+    const ar = rat(P.a, 6), br = rat(P.b, 6);
+    const pn = ar.n * br.d, qn = br.n * ar.d, g = gcd(pn, qn);
+    const p = pn / g, q = qn / g;
+    th.closed = true; th.p = p; th.q = q;
+    th.T = (TAU * lcm(ar.d, br.d)) / gcd(ar.n, br.n);
+    // Geri dönen faz: x ve y aynı anda uçta. p, q tek: δ = k·180°/q; biri çift: δ = (2k + 1)·90°/q
+    const dr = rat(((P.dDeg % 360) + 360) % 360, 2);
+    if (p % 2 === 1 && q % 2 === 1) { const M = dr.d * 180; th.degen = ((dr.n % M) * (q % M)) % M === 0; }
+    else { const M = dr.d * 90, M2 = 2 * M; th.degen = ((dr.n % M2) * (q % M2)) % M2 === M; }
+    th.nV = th.degen ? p : 2 * p;
+    th.nH = th.degen ? q : 2 * q;
+    th.nX = th.degen ? ((p - 1) * (q - 1)) / 2 : 2 * p * q - p - q;
+    return th;
+  }
+  // İlk dönüş: konum t'de ve t + s'de başlangıçtakine döner (s = en hızlı salınımın çeyrek çevrimi)
+  function lissReturn(P) {
+    const f = Math.max(P.a, P.b), dt = TAU / (32 * f), s = Math.PI / (2 * f);
+    const x0 = lx(P, 0), y0 = ly(P, 0), xs = lx(P, s), ys = ly(P, s);
+    const R = (t) => {
+      const u = lx(P, t) - x0, v = ly(P, t) - y0, w = lx(P, t + s) - xs, z = ly(P, t + s) - ys;
+      return u * u + v * v + w * w + z * z;
+    };
+    const thr = 2 * (P.a * P.a + P.b * P.b) * dt * dt;
+    const n = Math.ceil(RET_WIN / dt);
+    let best = { t: null, R: Infinity }, rm2 = R(dt), rm1 = R(2 * dt);
+    for (let i = 3; i <= n + 1; i++) {
+      const r = R(i * dt);
+      if (rm1 <= rm2 && rm1 < r) {
+        if (rm1 < thr) {
+          const tc = goldenMin(R, (i - 2) * dt, i * dt), rc = R(tc);
+          if (rc < best.R) best = { t: tc, R: rc };
+          if (rc < RET_TOL) return { found: true, T: tc, R: rc, best };
+        } else if (rm1 < best.R) best = { t: (i - 1) * dt, R: rm1 };
+      }
+      rm2 = rm1; rm1 = r;
+    }
+    return { found: false, T: null, R: best.R, best };
+  }
+  // Örneklerdeki yerel uçlar; türevin işaret değiştirdiği yer ikiye bölmeyle inceltilir (teğet dikey/yatay)
+  function lissExtrema(arr, N, dt, closed, deriv) {
+    const out = [];
+    for (let i = closed ? 0 : 1; i <= N - 1; i++) {
+      const a0 = arr[closed ? (i + N - 1) % N : i - 1], a1 = arr[i], a2 = arr[closed ? (i + 1) % N : i + 1];
+      const isMax = a1 > a0 && a1 >= a2, isMin = a1 < a0 && a1 <= a2;
+      if (!isMax && !isMin) continue;
+      out.push({ t: bisect(deriv, (i - 1) * dt, (i + 1) * dt), max: isMax });
+    }
+    return out;
+  }
+  // Bir kenardaki farklı noktalar: aynı noktaya düşen ziyaretler birleşir; köşeler ayrı sayılır
+  function sidePoints(list, P, axis) {
+    const pts = [];
+    for (const e of list) {
+      const x = lx(P, e.t), y = ly(P, e.t);
+      const along = axis === 0 ? y : x, corner = Math.abs(along) >= 1 - 1e-12;
+      const side = e.max ? 1 : -1;
+      const hit = pts.find((p) => p.side === side && Math.abs(p.along - along) < 1e-7);
+      if (hit) hit.visits++;
+      else pts.push({ side, along, corner, x, y, t: e.t, visits: 1 });
+    }
+    let plain = 0, corners = 0;
+    for (const p of pts) { if (p.corner) corners++; else plain++; }
+    return { pts, plain, corners, count: plain + 0.5 * corners, events: list.length };
+  }
+  function segX(xs, ys, i, i1, k, k1) {
+    const ax = xs[i], ay = ys[i], bx = xs[i1] - ax, by = ys[i1] - ay;
+    const cx = xs[k], cy = ys[k], dx = xs[k1] - cx, dy = ys[k1] - cy;
+    const den = bx * dy - by * dx;
+    if (den === 0) return null;
+    const ex = cx - ax, ey = cy - ay;
+    const s = (ex * dy - ey * dx) / den, u = (ex * by - ey * bx) / den;
+    if (s < 0 || s >= 1 || u < 0 || u >= 1) return null;
+    return [ax + s * bx, ay + s * by];
+  }
+  // Çokgenin kendini kesme noktaları (ızgara kovalarıyla); komşu kenarlar atlanır, parametreler yarı açık [0, 1)
+  function polyCross(xs, ys, n, closed) {
+    const m = closed ? n : n - 1;
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    for (let i = 0; i < n; i++) { if (xs[i] < x0) x0 = xs[i]; if (xs[i] > x1) x1 = xs[i]; if (ys[i] < y0) y0 = ys[i]; if (ys[i] > y1) y1 = ys[i]; }
+    const G = Math.max(8, Math.min(256, Math.round(Math.sqrt(m) / 2)));
+    const sx = G / (x1 - x0 + 1e-12), sy = G / (y1 - y0 + 1e-12);
+    const ci = (v) => Math.max(0, Math.min(G - 1, v));
+    const buckets = Array.from({ length: G * G }, () => []);
+    for (let i = 0; i < m; i++) {
+      const j = (i + 1) % n;
+      const c0 = ci(Math.floor((Math.min(xs[i], xs[j]) - x0) * sx)), c1 = ci(Math.floor((Math.max(xs[i], xs[j]) - x0) * sx));
+      const r0 = ci(Math.floor((Math.min(ys[i], ys[j]) - y0) * sy)), r1 = ci(Math.floor((Math.max(ys[i], ys[j]) - y0) * sy));
+      for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) buckets[r * G + c].push(i);
+    }
+    const seen = new Set(), pts = [];
+    for (const b of buckets) {
+      for (let u = 0; u < b.length; u++) {
+        for (let v = u + 1; v < b.length; v++) {
+          const i = b[u], k = b[v];
+          if (k === i + 1 || (closed && i === 0 && k === m - 1)) continue;
+          const key = i * m + k;
+          if (seen.has(key)) continue;
+          const p = segX(xs, ys, i, (i + 1) % n, k, (k + 1) % n);
+          if (p) { seen.add(key); pts.push({ i, k, x: p[0], y: p[1] }); }
+        }
+      }
+    }
+    return pts;
+  }
+  // Çokgen kesişimi eğrinin üstünde Newton ile inceltilir: P(t₁) = P(t₂), t₁ ≠ t₂. Aynı (t₁, t₂) çiftine
+  // varan kesişimler tek sayılır; böylece çok yakın kolların çokgenlerinde çıkan sahte kesişim üçlüleri tek çift noktaya iner.
+  function crossRefine(P, t1, t2) {
+    for (let it = 0; it < 40; it++) {
+      const fx = lx(P, t1) - lx(P, t2), fy = ly(P, t1) - ly(P, t2);
+      const a1 = P.a * Math.cos(P.a * t1 + P.d), b1 = P.b * Math.cos(P.b * t1), a2 = P.a * Math.cos(P.a * t2 + P.d), b2 = P.b * Math.cos(P.b * t2);
+      const det = a2 * b1 - a1 * b2;
+      if (det === 0) return null;
+      const d1 = (fx * b2 - a2 * fy) / det, d2 = (b1 * fx - a1 * fy) / det;
+      t1 += d1; t2 += d2;
+      if (Math.abs(d1) + Math.abs(d2) < 1e-13 * (1 + Math.abs(t1) + Math.abs(t2))) break;
+    }
+    const r = Math.abs(lx(P, t1) - lx(P, t2)) + Math.abs(ly(P, t1) - ly(P, t2));
+    return r < 1e-11 ? [t1, t2] : null;
+  }
+  // Örnek sayısı, sayı ardışık iki çözünürlükte aynı kalana dek ikiye katlanır; örnek anları ızgaraya göre
+  // kaydırılır ki simetrik eğrilerde kesişimler tam örnek noktasına denk gelmesin.
+  const CROSS_OFF = 0.3090169943749474, CROSS_CAP = 1 << 17;
+  function lissCross(P, t0, span, open, n0, T) {
+    let n = n0, prev = -1, res = null;
+    const tol = 1e-7 * T;
+    for (;;) {
+      const cnt = open ? n + 1 : n, us = new Float64Array(cnt), xs = new Float64Array(cnt), ys = new Float64Array(cnt);
+      for (let i = 0; i < cnt; i++) {
+        us[i] = open ? (i === 0 ? 0 : i === n ? 1 : (i - 0.5 + CROSS_OFF) / n) : (i + CROSS_OFF) / n;
+        xs[i] = lx(P, t0 + us[i] * span); ys[i] = ly(P, t0 + us[i] * span);
+      }
+      const raw = polyCross(xs, ys, cnt, !open), found = [];
+      for (const c of raw) {
+        const tA = t0 + us[c.i] * span, tB = t0 + us[c.k] * span;
+        const r = crossRefine(P, tA, tB);
+        if (!r) continue;
+        let [u, v] = r;
+        if (open) { if (u < t0 - tol || u > t0 + span + tol || v < t0 - tol || v > t0 + span + tol) continue; }
+        else { u = ((u % T) + T) % T; v = ((v % T) + T) % T; }
+        let d = Math.abs(u - v);
+        if (!open) d = Math.min(d, T - d);
+        if (d < tol) continue;
+        // Neredeyse teğet kesişimde (t₁, t₂) kötü koşulludur ama nokta değildir: aynılık konumdan ölçülür
+        const x = lx(P, u), y = ly(P, u);
+        if (!found.some((f) => Math.abs(f.x - x) + Math.abs(f.y - y) < 1e-9)) found.push({ u, v, x, y });
+      }
+      res = { pts: found.map((f) => [f.x, f.y]), raw: raw.length, n };
+      if (found.length === prev) return { ...res, converged: true };
+      if (2 * n > CROSS_CAP) return { ...res, converged: false };
+      prev = found.length;
+      n *= 2;
+    }
+  }
+  function lissMeasure(P) {
+    const ret = lissReturn(P), closed = ret.found;
+    const T = closed ? ret.T : RET_WIN, f = Math.max(P.a, P.b);
+    const N = Math.min(240000, Math.max(2048, Math.ceil(((T * f) / TAU) * 128)));
+    const dt = T / N;
+    const xs = new Float64Array(N + 1), ys = new Float64Array(N + 1);
+    for (let i = 0; i <= N; i++) { xs[i] = lx(P, i * dt); ys[i] = ly(P, i * dt); }
+    const M = { ret, closed, T, N, dt, xs, ys };
+    M.xExt = lissExtrema(xs, N, dt, closed, (t) => Math.cos(P.a * t + P.d));
+    M.yExt = lissExtrema(ys, N, dt, closed, (t) => Math.cos(P.b * t));
+    M.v = sidePoints(M.xExt, P, 0);
+    M.h = sidePoints(M.yExt, P, 1);
+    M.retrace = closed && (M.v.corners > 0 || M.h.corners > 0);
+    // Kendini kesmeler: kapalı eğride bir periyot; geri dönen eğride köşeden köşeye yarım periyot
+    M.cross = null;
+    const est = (M.v.events * M.h.events) / 4;
+    if (closed && est <= CROSS_MAX) {
+      const n0 = Math.max(2048, 128 * (M.v.events + M.h.events));
+      if (M.retrace) {
+        const c = M.v.pts.find((p) => p.corner) || M.h.pts.find((p) => p.corner);
+        M.cross = { ...lissCross(P, c.t, T / 2, true, n0 / 2, T), open: true, t0: c.t };
+      } else M.cross = { ...lissCross(P, 0, T, false, n0, T), open: false };
+    } else M.crossSkip = closed ? "many" : "open";
+    // a = b: eksen kesişimi (y = 0), sağ kenara değme yüksekliği ve işaretli alan
+    M.phase = null;
+    if (closed && P.a === P.b && !P.irr) {
+      let tUp = null, tDn = null;
+      for (let i = 0; i < N; i++) {
+        const y0 = ys[i], y1 = ys[(i + 1) % N];
+        if (tUp === null && y0 < 0 && y1 >= 0) tUp = bisect((t) => ly(P, t), i * dt, (i + 1) * dt);
+        if (tDn === null && y0 > 0 && y1 <= 0) tDn = bisect((t) => ly(P, t), i * dt, (i + 1) * dt);
+      }
+      let area = 0;
+      for (let i = 0; i < N; i++) area += xs[i] * ys[i + 1] - xs[i + 1] * ys[i];
+      area *= 0.5 * P.A * P.B;
+      const xm = M.v.pts.filter((p) => p.side > 0);
+      const am = P.A * Math.max(...M.xExt.filter((e) => e.max).map((e) => lx(P, e.t)));
+      const bm = P.B * Math.max(...M.yExt.filter((e) => e.max).map((e) => ly(P, e.t)));
+      const yTilt = P.B * xm[0].y;
+      const xUp = P.A * lx(P, tUp), xDn = P.A * lx(P, tDn);
+      const sinAbs = Math.abs(xUp - xDn) / (2 * am);
+      const rot = Math.abs(area) <= 1e-12 * P.A * P.B ? 0 : Math.sign(area);
+      const sinM = rot * sinAbs, cosM = yTilt / bm;
+      let deg = Math.atan2(sinM, cosM) / D2R;
+      if (deg < 0) deg += 360;
+      if (deg >= 360 - 1e-12) deg -= 360;
+      const lo = Math.asin(Math.max(0, sinAbs - 0.01)) / D2R, hi = Math.asin(Math.min(1, sinAbs + 0.01)) / D2R;
+      M.phase = { xUp, xDn, am, bm, yTilt, area, rot, sinAbs, sinM, cosM, deg, arcsin: Math.asin(Math.min(1, sinAbs)) / D2R, err1: (hi - lo) / 2, polyN: N };
+    }
+    return M;
+  }
+
+  /* (b) Osiloskop: x = sin(2π f₁ t + φ), y = sin(2π f₂ t) */
+  const SC_SPC = 48, BEAM_CAP = 1 << 16;
+  function scopeRatio(f1, f2) {
+    let best = null, fall = null;
+    for (let q = 1; q <= 8; q++) {
+      for (let p = 1; p <= 8; p++) {
+        if (gcd(p, q) !== 1) continue;
+        const beat = q * f1 - p * f2, c = { p, q, beat };
+        if (Math.abs(beat) <= 4 && (!best || p + q < best.p + best.q)) best = c;
+        if (!fall || Math.abs(beat) < Math.abs(fall.beat)) fall = c;
+      }
+    }
+    return best ? { ...best, slow: true } : { ...fall, slow: false };
+  }
+  // Üçüncü derece Lagrange ara değeri, düğümler s = −3, −2, −1, 0 (v: son dört örnek)
+  function lag3(v, s) {
+    return (-v[0] * s * (s + 1) * (s + 2)) / 6 + (v[1] * s * (s + 1) * (s + 3)) / 2 - (v[2] * s * (s + 2) * (s + 3)) / 2 + (v[3] * (s + 1) * (s + 2) * (s + 3)) / 6;
+  }
+  function lag3D(v, s) {
+    const s2 = 3 * s * s;
+    return (-v[0] * (s2 + 6 * s + 2)) / 6 + (v[1] * (s2 + 8 * s + 3)) / 2 - (v[2] * (s2 + 10 * s + 6)) / 2 + (v[3] * (s2 + 12 * s + 11)) / 6;
+  }
+  function createScope(f1, f2, phiDeg) {
+    return {
+      f1, f2, phi: phiDeg * D2R, R: scopeRatio(f1, f2), h: 1 / (SC_SPC * Math.max(f1, f2)), k: -1, t: 0,
+      sx: [0, 0, 0, 0], sy: [0, 0, 0, 0], nCross: 0, psiPrev: null, Psi: 0, Psi0: 0, t0: null, uPrev: 0, reg: regNew(),
+      pts: [], every: 1, cnt: 0, cyc: [],
+      bx: new Float32Array(BEAM_CAP), by: new Float32Array(BEAM_CAP), bt: new Float64Array(BEAM_CAP), head: 0, len: 0,
+    };
+  }
+  function scopeRecord(S, t, psi) {
+    if (S.psiPrev === null) { S.Psi = psi; S.Psi0 = psi; S.t0 = t; }
+    else { let d = psi - S.psiPrev; d -= TAU * Math.round(d / TAU); S.Psi += d; }
+    S.psiPrev = psi;
+    const rt = t - S.t0, u = (S.Psi - S.Psi0) / (TAU / S.R.q);
+    regAdd(S.reg, rt, S.Psi - S.Psi0);
+    // Tam çevrim geçişleri (u bir tamsayıdan geçer; başlangıçtaki 0 sayılmaz), an doğrusal ara değerle
+    const a = Math.floor(S.uPrev), b = Math.floor(u);
+    if (a !== b && S.cnt > 0) {
+      const m = u > S.uPrev ? b : a;
+      if (m !== 0) S.cyc.push(S.tPrev + ((m - S.uPrev) / (u - S.uPrev)) * (rt - S.tPrev));
+    }
+    S.uPrev = u; S.tPrev = rt;
+    if (S.cnt++ % S.every === 0) {
+      S.pts.push(rt, u);
+      if (S.pts.length > 6000) { const k = []; for (let i = 0; i < S.pts.length; i += 4) k.push(S.pts[i], S.pts[i + 1]); S.pts = k; S.every *= 2; }
+    }
+  }
+  function scopeAdvance(S, tEnd) {
+    const w1 = TAU * S.f1, w2 = TAU * S.f2, h = S.h, q = S.R.q, c1 = Math.cos(w1 * h), s1 = Math.sin(w1 * h);
+    while ((S.k + 1) * h <= tEnd) {
+      S.k++;
+      const t = S.k * h, x = Math.sin(w1 * t + S.phi), y = Math.sin(w2 * t);
+      S.sx.shift(); S.sx.push(x);
+      S.sy.shift(); S.sy.push(y);
+      S.bx[S.head] = x; S.by[S.head] = y; S.bt[S.head] = t;
+      S.head = (S.head + 1) % BEAM_CAP;
+      if (S.len < BEAM_CAP) S.len++;
+      if (S.k >= 3 && S.sy[2] < 0 && S.sy[3] >= 0) {
+        // y'nin yukarı sıfır geçişi adımın içinde: kübik ara değerin kökü (Newton)
+        let s = -S.sy[3] / (S.sy[3] - S.sy[2]);
+        for (let it = 0; it < 5; it++) { const dQ = lag3D(S.sy, s); if (dQ === 0) break; s -= lag3(S.sy, s) / dQ; }
+        s = Math.min(0, Math.max(-1, s));
+        // x'in fazı son iki örnekten (f₁ bilinen referans): sin θ = xₖ, cos θ = (xₖ cos ω₁h − xₖ₋₁)/sin ω₁h; geçiş anına ω₁·s·h ile taşınır
+        const th = Math.atan2(S.sx[3], (S.sx[3] * c1 - S.sx[2]) / s1) + w1 * s * h;
+        if (S.nCross++ % q === 0) scopeRecord(S, t + s * h, th);
+      }
+    }
+    S.t = Math.max(S.t, tEnd);
+  }
+  function scopeResult(S) {
+    const th = { rate: (TAU * (S.R.q * S.f1 - S.R.p * S.f2)) / S.R.q };
+    th.T = S.R.beat === 0 ? Infinity : 1 / Math.abs(S.R.beat);
+    const fit = regFit(S.reg), span = S.reg.n ? S.tPrev : 0;
+    const out = { th, fit, span, n: S.reg.n, ok: false, flat: false };
+    if (!fit || S.reg.n < 20 || span < 0.25) return out;
+    if (Math.abs(fit.b) > 5 * fit.se && Math.abs(fit.b) > 1e-9) {
+      out.ok = true;
+      out.T = TAU / S.R.q / Math.abs(fit.b);
+      out.Tse = (out.T * fit.se) / Math.abs(fit.b);
+      out.f2 = (S.R.q * S.f1 - (S.R.q * fit.b) / TAU) / S.R.p;
+    } else if (span >= 1) {
+      out.flat = true;
+      out.Tmin = TAU / S.R.q / Math.max(5 * fit.se, 1e-9);
+    } else out.slowWait = true;
+    if (S.cyc.length) {
+      const c = S.cyc, iv = [c[0]];
+      for (let i = 1; i < c.length; i++) iv.push(c[i] - c[i - 1]);
+      out.cycMean = iv.reduce((u, v) => u + v, 0) / iv.length;
+    }
+    return out;
+  }
+
+  /* (c1) Harmonograf */
+  function harmoXY(H, t, o) {
+    let x = H.A[0] * Math.sin(H.f[0] * t + H.p[0] * D2R) * Math.exp(-H.d[0] * t);
+    let y = H.A[1] * Math.sin(H.f[1] * t + H.p[1] * D2R) * Math.exp(-H.d[1] * t);
+    if (H.n === 3) {
+      const e = H.A[2] * Math.exp(-H.d[2] * t), u = H.f[2] * t + H.p[2] * D2R;
+      x += e * Math.sin(u); y += e * Math.cos(u);
+    }
+    o[0] = x; o[1] = y;
+  }
+  const RATIOS_H = [[1, 1], [1, 2], [2, 1], [2, 3], [3, 2], [1, 3], [3, 1]];
+  function harmoRandom(seed, n) {
+    const r = mulberry32(seed);
+    const rd = (x, k) => Math.round(x * 10 ** k) / 10 ** k;
+    const base = 1 + r(), pick = RATIOS_H[Math.floor(r() * RATIOS_H.length)];
+    const det = () => 1 + (r() - 0.5) * 0.03;
+    const f = [rd(base * pick[0], 3), rd(base * pick[1] * det(), 3), rd(base * (1 + Math.floor(r() * 2)) * det(), 3)];
+    const p = [rd(360 * r(), 1), rd(360 * r(), 1), rd(360 * r(), 1)];
+    const A = [rd(0.55 + 0.45 * r(), 2), rd(0.55 + 0.45 * r(), 2), rd(0.15 + 0.3 * r(), 2)];
+    const d = [rd(0.004 + 0.012 * r(), 4), rd(0.004 + 0.012 * r(), 4), rd(0.004 + 0.012 * r(), 4)];
+    return { n, f, p, A, d, seed, ratio: pick };
+  }
+  function harmoSample(H, span) {
+    const fm = Math.max(H.f[0], H.f[1], H.n === 3 ? H.f[2] : 0, 0.05);
+    const dt = TAU / (48 * fm), n = Math.ceil(span / dt) + 1, pts = new Float32Array(2 * n), o = [0, 0];
+    for (let i = 0; i < n; i++) { harmoXY(H, i * dt, o); pts[2 * i] = o[0]; pts[2 * i + 1] = o[1]; }
+    return { dt, n, pts };
+  }
+  // Tek sarkacın tepeleri (iki sarkaçta x ya da y): türev sıfırı ikiye bölmeyle
+  function harmoPeaks(H, axis, span) {
+    const A = H.A[axis], f = H.f[axis], ph = H.p[axis] * D2R, d = H.d[axis];
+    const T = [], V = [];
+    if (!(A > 0) || !(f > 0)) return { T, V };
+    const g = (t) => A * Math.sin(f * t + ph) * Math.exp(-d * t);
+    const dg = (t) => A * Math.exp(-d * t) * (f * Math.cos(f * t + ph) - d * Math.sin(f * t + ph));
+    const dt = TAU / (32 * f), n = Math.floor(span / dt);
+    let g0 = g(0), g1 = g(dt);
+    for (let i = 2; i <= n; i++) {
+      const g2 = g(i * dt);
+      if (g1 > g0 && g1 >= g2 && g1 > 0) { const t = bisect(dg, (i - 2) * dt, i * dt); T.push(t); V.push(g(t)); }
+      g0 = g1; g1 = g2;
+    }
+    return { T, V };
+  }
+  function peakFit(pk, k) {
+    if (k < 6) return null;
+    const r = regNew();
+    for (let i = 0; i < k; i++) regAdd(r, pk.T[i], Math.log(pk.V[i]));
+    const fit = regFit(r);
+    return { d: -fit.b, se: fit.se, f: (TAU * (k - 1)) / (pk.T[k - 1] - pk.T[0]), n: k };
+  }
+
+  /* (c2) İki boyutlu yay salınıcısı */
+  const OSC_G = 64;
+  function cellMark(C, x0, y0, x1, y1) {
+    const G = OSC_G, s = G / 2, lim = G - 1e-9;
+    const gx0 = Math.min(lim, Math.max(0, (x0 + 1) * s)), gy0 = Math.min(lim, Math.max(0, (y0 + 1) * s));
+    const gx1 = Math.min(lim, Math.max(0, (x1 + 1) * s)), gy1 = Math.min(lim, Math.max(0, (y1 + 1) * s));
+    let i = Math.floor(gx0), j = Math.floor(gy0);
+    const i1 = Math.floor(gx1), j1 = Math.floor(gy1);
+    const mark = () => { const c = j * G + i; if (!C.cells[c]) { C.cells[c] = 1; C.count++; } };
+    mark();
+    const dx = gx1 - gx0, dy = gy1 - gy0, sx = dx > 0 ? 1 : -1, sy = dy > 0 ? 1 : -1;
+    let tx = dx !== 0 ? (sx > 0 ? i + 1 - gx0 : gx0 - i) / Math.abs(dx) : Infinity;
+    let ty = dy !== 0 ? (sy > 0 ? j + 1 - gy0 : gy0 - j) / Math.abs(dy) : Infinity;
+    const ddx = dx !== 0 ? 1 / Math.abs(dx) : Infinity, ddy = dy !== 0 ? 1 / Math.abs(dy) : Infinity;
+    let steps = Math.abs(i1 - i) + Math.abs(j1 - j);
+    while (steps-- > 0) {
+      if (tx < ty) { i += sx; tx += ddx; } else { j += sy; ty += ddy; }
+      mark();
+    }
+  }
+  function hermiteRoot(p0, v0, p1, v1, h) {
+    let s = p0 / (p0 - p1);
+    for (let it = 0; it < 5; it++) {
+      const s2 = s * s, s3 = s2 * s;
+      const H = (2 * s3 - 3 * s2 + 1) * p0 + (s3 - 2 * s2 + s) * h * v0 + (-2 * s3 + 3 * s2) * p1 + (s3 - s2) * h * v1;
+      const dH = (6 * s2 - 6 * s) * p0 + (3 * s2 - 4 * s + 1) * h * v0 + (-6 * s2 + 6 * s) * p1 + (3 * s2 - 2 * s) * h * v1;
+      if (dH === 0) break;
+      s = Math.min(1, Math.max(0, s - H / dH));
+    }
+    return s;
+  }
+  function oscEnergy(S) { const P = S.P; return 0.5 * P.m * (S.vx * S.vx + S.vy * S.vy) + 0.5 * P.kx * S.x * S.x + 0.5 * P.ky * S.y * S.y; }
+  function createOsc(P) {
+    const wx = Math.sqrt(P.kx / P.m), wy = Math.sqrt(P.ky / P.m);
+    const S = {
+      P, wx, wy, x: 1, y: 0, vx: 0, vy: wy, t: 0, n: 0, nEnd: Math.round(P.span / P.h), E0: 0,
+      cells: new Uint8Array(OSC_G * OSC_G), count: 0, cov: [0, 0], covEvery: Math.max(1, Math.round(0.25 / P.h)),
+      eMax: 0, eMaxAt: [0], eReg: regNew(), ePts: [0, 0, 0], eLo: Infinity, eHi: -Infinity,
+      zx: { n: 0, first: 0, last: 0 }, zy: { n: 0, first: 0, last: 0 },
+      trail: new Float32Array(2 * 4096), th: 0, tl: 0, trEvery: Math.max(1, Math.round(0.005 / P.h)),
+    };
+    S.E0 = oscEnergy(S);
+    cellMark(S, S.x, S.y, S.x, S.y);
+    S.cov[1] = S.count / (OSC_G * OSC_G);
+    S.trail[0] = S.x; S.trail[1] = S.y; S.th = 1; S.tl = 1;
+    return S;
+  }
+  function zeroCross(z, p0, v0, p1, v1, t0, h) {
+    if ((p0 < 0 && p1 >= 0) || (p0 > 0 && p1 <= 0)) {
+      const t = t0 + hermiteRoot(p0, v0, p1, v1, h) * h;
+      if (z.n === 0) z.first = t;
+      z.last = t; z.n++;
+    }
+  }
+  function oscStep(S) {
+    const P = S.P, h = P.h, ax = P.kx / P.m, ay = P.ky / P.m;
+    const x0 = S.x, y0 = S.y, vx0 = S.vx, vy0 = S.vy;
+    if (P.integ === "rk4") {
+      let q = S.x, v = S.vx, w = ax;
+      for (let k = 0; k < 2; k++) {
+        const k1q = v, k1v = -w * q;
+        const k2q = v + 0.5 * h * k1v, k2v = -w * (q + 0.5 * h * k1q);
+        const k3q = v + 0.5 * h * k2v, k3v = -w * (q + 0.5 * h * k2q);
+        const k4q = v + h * k3v, k4v = -w * (q + h * k3q);
+        const nq = q + (h / 6) * (k1q + 2 * k2q + 2 * k3q + k4q), nv = v + (h / 6) * (k1v + 2 * k2v + 2 * k3v + k4v);
+        if (k === 0) { S.x = nq; S.vx = nv; q = S.y; v = S.vy; w = ay; } else { S.y = nq; S.vy = nv; }
+      }
+    } else {
+      const hx = S.vx - 0.5 * h * ax * S.x, hy = S.vy - 0.5 * h * ay * S.y;
+      S.x += h * hx; S.y += h * hy;
+      S.vx = hx - 0.5 * h * ax * S.x; S.vy = hy - 0.5 * h * ay * S.y;
+    }
+    S.n++;
+    S.t = S.n * h;
+    cellMark(S, x0, y0, S.x, S.y);
+    zeroCross(S.zx, x0, vx0, S.x, S.vx, S.t - h, h);
+    zeroCross(S.zy, y0, vy0, S.y, S.vy, S.t - h, h);
+    const e = (oscEnergy(S) - S.E0) / S.E0;
+    if (Math.abs(e) > S.eMax) S.eMax = Math.abs(e);
+    if (e < S.eLo) S.eLo = e;
+    if (e > S.eHi) S.eHi = e;
+    regAdd(S.eReg, S.t, e);
+    // 0.25 s'lik ızgara anları: kaplama, |ΔE|'nin o ana dek en büyüğü ve aralığın en küçük/en büyük ΔE'si
+    if (S.n % S.covEvery === 0) {
+      S.cov.push(S.t, S.count / (OSC_G * OSC_G));
+      S.eMaxAt.push(S.eMax);
+      S.ePts.push(S.t, S.eLo, S.eHi);
+      S.eLo = Infinity; S.eHi = -Infinity;
+    }
+    if (S.n % S.trEvery === 0) {
+      S.trail[2 * S.th] = S.x; S.trail[2 * S.th + 1] = S.y;
+      S.th = (S.th + 1) % 4096;
+      if (S.tl < 4096) S.tl++;
+    }
+  }
+  // Kapalı biçim yörünge x = cos ωₓt, y = sin ω_y t: aynı ızgarada kaplama, 0.25 s'de bir
+  function exactCoverage(wx, wy, span) {
+    const C = { cells: new Uint8Array(OSC_G * OSC_G), count: 0 };
+    const wm = Math.max(wx, wy), dt = Math.min(0.002, 2 / OSC_G / (4 * wm));
+    const n = Math.ceil(span / dt), out = [];
+    let px = 1, py = 0, next = 0.25;
+    cellMark(C, px, py, px, py);
+    out.push(C.count / (OSC_G * OSC_G));
+    for (let i = 1; i <= n; i++) {
+      const t = Math.min(span, i * dt), x = Math.cos(wx * t), y = Math.sin(wy * t);
+      cellMark(C, px, py, x, y);
+      while (t >= next - 1e-12 && next <= span + 1e-9) { out.push(C.count / (OSC_G * OSC_G)); next += 0.25; }
+      px = x; py = y;
+    }
+    return { cov: out };
+  }
+  // Tümleyicinin kuramı: sayısal frekans ωₛ ve enerji hatası, 0.25 s ızgarasında |ΔE|/E₀'ın o ana dek en büyüğü
+  function oscTheory(P) {
+    const wx = Math.sqrt(P.kx / P.m), wy = Math.sqrt(P.ky / P.m), E0 = 0.5 * (P.kx + P.m * wy * wy), h = P.h;
+    const th = { wx, wy, ratio: Math.sqrt(P.kx / P.ky), E0, maxAt: [0] };
+    const every = Math.max(1, Math.round(0.25 / h)), N = Math.round(P.span / h);
+    if (P.integ === "rk4") {
+      // Her adım genliği |R(iωh)| ile çarpar, fazı arg R(iωh) kadar döndürür; R(z) = 1 + z + z²/2 + z³/6 + z⁴/24
+      const rho = (w) => { const z = w * h; return 1 - z ** 6 / 72 + z ** 8 / 576; };
+      const wn = (w) => { const z = w * h; return Math.atan2(z - z ** 3 / 6, 1 - (z * z) / 2 + z ** 4 / 24) / h; };
+      const ex = 0.5 * P.kx, ey = 0.5 * P.m * wy * wy;
+      th.rate = (ex * Math.log(rho(wx)) + ey * Math.log(rho(wy))) / (h * E0);
+      th.dE = (t) => (ex * (rho(wx) ** (t / h) - 1) + ey * (rho(wy) ** (t / h) - 1)) / E0;
+      th.numRatio = wn(wx) / wn(wy);
+      for (let k = 1; k * every <= N; k++) th.maxAt.push(Math.abs(th.dE(k * every * h)));
+      th.dmin = Math.min(0, th.dE(N * h)); th.dmax = Math.max(0, th.dE(N * h));
+    } else {
+      // Hız-Verlet'in tam ayrık çözümü: qₙ = Q cos(ωₛnh + φ), cos ωₛh = 1 − ω²h²/2; H′ = ½v² + ½ω²q²(1 − ω²h²/4) korunur,
+      // bu yüzden E = H′ + (m ω⁴ h²/8)·q² ve ΔEₙ = (m h²/8)[ωₓ⁴(xₙ² − 1) + ω_y⁴ yₙ²]
+      const wn = (w) => (2 / h) * Math.asin((w * h) / 2);
+      const wxn = wn(wx), wyn = wn(wy), Qy = 1 / Math.sqrt(1 - (wy * h) ** 2 / 4);
+      const c = (P.m * h * h) / 8 / E0, cx = wx ** 4, cy = wy ** 4;
+      let lo = 0, hi = 0;
+      for (let n = 1; n <= N; n++) {
+        const x = Math.cos(wxn * n * h), y = Qy * Math.sin(wyn * n * h), e = c * (cx * (x * x - 1) + cy * y * y);
+        if (e < lo) lo = e;
+        if (e > hi) hi = e;
+        if (n % every === 0) th.maxAt.push(Math.max(-lo, hi));
+      }
+      th.rate = 0; th.numRatio = wxn / wyn; th.dmin = lo; th.dmax = hi;
+    }
+    th.every = every;
+    return th;
+  }
+  /* MATH-END */
+
+  /* ── Biçimlendirme (tek yuvarlama yardımcısı: fix) ── */
+  const MINUS = "\u2212";
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  function fix(x, d) {
+    const r = Number(x.toFixed(d));
+    return r === 0 ? (0).toFixed(d) : (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
+  }
+  function sgn(x, d) {
+    const r = Number(x.toFixed(d));
+    return r === 0 ? (0).toFixed(d) : (r > 0 ? "+" : MINUS) + Math.abs(r).toFixed(d);
+  }
+  function sci(x, d = 2, plus = false) {
+    if (x === 0) return "0";
+    const [m, e] = Math.abs(x).toExponential(d - 1).split("e");
+    const sign = x < 0 ? MINUS : plus ? "+" : "";
+    return `${sign}${m}×10${String(+e).replace(/./g, (ch) => SUP[ch])}`;
+  }
+  const trimZ = (s) => (s.includes(".") ? s.replace(/0+$/, "").replace(/\.$/, "") : s);
+  const fmtPar = (v, d = 6) => trimZ(fix(v, d));
+  // Fark: gösterilen basamağın altındaysa bilimsel gösterimle (gerçek kalıntı görünsün)
+  function dstr(x, d, unit = "") {
+    if (x === null || !Number.isFinite(x)) return "—";
+    if (x === 0) return `0${unit}`;
+    if (Math.abs(x) < 0.5 * 10 ** -d) return `${sci(x, 2, true)}${unit}`;
+    return `${sgn(x, d)}${unit}`;
+  }
+  function vstr(x, d, unit = "") {
+    if (x === null || !Number.isFinite(x)) return "—";
+    if (x !== 0 && Math.abs(x) < 0.5 * 10 ** -d) return `${sci(x, 2)}${unit}`;
+    return `${fix(x, d)}${unit}`;
+  }
+  function fmtInt(n) {
+    if (!Number.isFinite(n)) return "—";
+    if (Math.abs(n) >= 1e15) return sci(n, 3);
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  }
+  const pctStr = (f, d = 2) => `${fix(100 * f, d)} %`;
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+
+  /* ── Ortak durum ── */
+  const $ = (id) => document.getElementById(id);
+  const TAB_KEYS = ["egri", "osiloskop", "harmonograf"];
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const labPanel = $("labPanel");
+  const stage = $("stageCanvas"), sctx = stage.getContext("2d");
+  const chart = $("chartCanvas"), cctx = chart.getContext("2d");
+  const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+  let dpr = 1, lastFrame = 0, lastUi = 0, lastTheme = "";
+  const S = { tab: "egri" };
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.07)", axis: "rgba(26,29,46,0.42)", pill: "rgba(255,255,255,0.86)",
+      faint: "rgba(26,29,46,0.30)", acc: "#0d9488", acc2: "#7c3aed", blue: "#2563eb", warm: "#d97706", red: "#dc2626",
+      accRGB: [13, 148, 136], acc2RGB: [124, 58, 237], warmRGB: [217, 119, 6], blueRGB: [37, 99, 235], cellFill: "rgba(13,148,136,0.20)",
+      scrBg: "#eef5f0", scrEdge: "#b9d3c5", scrGrid: "rgba(4,120,87,0.24)", scrText: "#065f46", beamRGB: [4, 120, 87], spot: "#022c22",
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.07)", axis: "rgba(232,236,244,0.42)", pill: "rgba(8,12,22,0.72)",
+      faint: "rgba(232,236,244,0.30)", acc: "#5eead4", acc2: "#a78bfa", blue: "#60a5fa", warm: "#fbbf24", red: "#f87171",
+      accRGB: [94, 234, 212], acc2RGB: [167, 139, 250], warmRGB: [251, 191, 36], blueRGB: [96, 165, 250], cellFill: "rgba(94,234,212,0.16)",
+      scrBg: "#02110c", scrEdge: "#1f3b31", scrGrid: "rgba(110,231,183,0.20)", scrText: "#6ee7b7", beamRGB: [110, 231, 183], spot: "#ecfdf5",
+    };
+  }
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  const mix = (c1, c2, u) => [0, 1, 2].map((i) => Math.round(c1[i] + (c2[i] - c1[i]) * u));
+  function pill(g, x, y, w, h, th) {
+    g.fillStyle = th.pill;
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, 6 * dpr); else g.rect(x, y, w, h);
+    g.fill();
+  }
+  function label(g, th, text, x, y, align = "left", color = th.muted, size = 12, back = true) {
+    g.font = font(size);
+    g.textAlign = align;
+    g.textBaseline = "middle";
+    if (back) {
+      const w = g.measureText(text).width, pad = 5 * dpr, h = (size + 7) * dpr;
+      const x0 = align === "left" ? x - pad : align === "right" ? x - w - pad : x - w / 2 - pad;
+      pill(g, x0, y - h / 2, w + 2 * pad, h, th);
+    }
+    g.fillStyle = color;
+    g.fillText(text, x, y);
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  // Grafik çerçevesi: ızgara, eksen etiketleri; dönüş: dünya → piksel dönüşümü
+  function plotBox(g, th, box, x0, x1, y0, y1, o = {}) {
+    const X = (v) => box.l + ((v - x0) / (x1 - x0)) * (box.r - box.l);
+    const Y = (v) => box.b - ((v - y0) / (y1 - y0)) * (box.b - box.t);
+    g.lineWidth = dpr;
+    g.strokeStyle = th.grid;
+    g.font = font(10);
+    g.fillStyle = th.muted;
+    const xs = o.xStep || niceStep((x1 - x0) / 6), ys = o.yStep || niceStep((y1 - y0) / 4);
+    g.textAlign = "center"; g.textBaseline = "top";
+    for (let v = Math.ceil(x0 / xs) * xs; v <= x1 + 1e-9; v += xs) {
+      g.beginPath(); g.moveTo(X(v), box.t); g.lineTo(X(v), box.b); g.stroke();
+      g.fillText(o.xFmt ? o.xFmt(v) : fmtPar(v, 3), X(v), box.b + 4 * dpr);
+    }
+    g.textAlign = "right"; g.textBaseline = "middle";
+    for (let v = Math.ceil(y0 / ys) * ys; v <= y1 + 1e-9; v += ys) {
+      g.beginPath(); g.moveTo(box.l, Y(v)); g.lineTo(box.r, Y(v)); g.stroke();
+      g.fillText(o.yFmt ? o.yFmt(v) : fmtPar(v, 3), box.l - 5 * dpr, Y(v));
+    }
+    g.strokeStyle = th.axis;
+    g.strokeRect(box.l, box.t, box.r - box.l, box.b - box.t);
+    if (o.xLabel) { g.textAlign = "right"; g.textBaseline = "bottom"; g.fillText(o.xLabel, box.r, box.t - 2 * dpr); }
+    return { X, Y };
+  }
+
+  /* ── Parametre denetimleri: kaydırıcı + sayı kutusu + çıktı ── */
+  function bindParam(o) {
+    const sync = () => {
+      const v = o.get(), txt = o.fmt(v);
+      o.range.value = String(v);
+      if (o.num && document.activeElement !== o.num) o.num.value = o.box ? o.box(v) : String(+v.toFixed(o.dec));
+      setText(o.out, txt);
+      o.range.setAttribute("aria-valuetext", txt);
+    };
+    o.range.addEventListener("input", () => { o.set(Number(o.range.value)); sync(); o.onChange(); });
+    if (o.num) {
+      o.num.addEventListener("change", () => {
+        const raw = String(o.num.value).replace(",", ".").replace("\u2212", "-").trim();
+        let v = Number(raw);
+        if (raw === "" || !Number.isFinite(v)) { o.num.value = o.box ? o.box(o.get()) : String(+o.get().toFixed(o.dec)); return; }
+        v = Math.min(o.max, Math.max(o.min, v));
+        v = Math.round(v * 10 ** o.dec) / 10 ** o.dec;
+        o.set(v);
+        o.num.value = String(v);
+        sync();
+        o.onChange();
+      });
+    }
+    return sync;
+  }
+
+  /* ════════ (a) Eğri ════════ */
+  const A_DEF = { a: 3, b: 2, dDeg: 90, irr: false, ampA: 1, ampB: 1, speed: 1, trail: 3, full: true, marks: true };
+  const PRESETS_A = {
+    l0: { a: 1, b: 1, dDeg: 0 }, l45: { a: 1, b: 1, dDeg: 45 }, l90: { a: 1, b: 1, dDeg: 90 },
+    p32: { a: 3, b: 2, dDeg: 90 }, p32d: { a: 3, b: 2, dDeg: 45 }, p21: { a: 2, b: 1, dDeg: 90 },
+    p54: { a: 5, b: 4, dDeg: 30 }, s2: { a: Math.SQRT2, b: 1, dDeg: 90, irr: true },
+  };
+  const A = { ...A_DEF, preset: "p32", running: true, t: 0, P: null, th: null, M: null, path: null, pathKey: "" };
+  const aUi = {
+    fa: $("aFa"), faNum: $("aFaNum"), faOut: $("aFaOut"), fb: $("aFb"), fbNum: $("aFbNum"), fbOut: $("aFbOut"),
+    del: $("aDel"), delNum: $("aDelNum"), delOut: $("aDelOut"), ampA: $("aAmpA"), ampAOut: $("aAmpAOut"), ampB: $("aAmpB"), ampBOut: $("aAmpBOut"),
+    speed: $("aSpeed"), speedOut: $("aSpeedOut"), trail: $("aTrail"), trailOut: $("aTrailOut"), full: $("aFull"), marks: $("aMarks"),
+    toggle: $("aToggle"), restart: $("aRestart"), reset: $("aReset"),
+  };
+  const fmtFreqA = (v, irr) => (irr ? "√2 ≈ 1.414214 rad/s" : `${fmtPar(v)} rad/s`);
+  const syncFa = bindParam({ range: aUi.fa, num: aUi.faNum, out: aUi.faOut, min: 0.25, max: 12, dec: 6, get: () => A.a, set: (v) => { A.a = v; A.irr = false; }, fmt: (v) => fmtFreqA(v, A.irr), onChange: () => onParamA() });
+  const syncFb = bindParam({ range: aUi.fb, num: aUi.fbNum, out: aUi.fbOut, min: 0.25, max: 12, dec: 6, get: () => A.b, set: (v) => { A.b = v; }, fmt: (v) => `${fmtPar(v)} rad/s`, onChange: () => onParamA() });
+  const syncDel = bindParam({ range: aUi.del, num: aUi.delNum, out: aUi.delOut, min: 0, max: 360, dec: 2, get: () => A.dDeg, set: (v) => { A.dDeg = v; }, fmt: (v) => `${fmtPar(v, 2)}°`, onChange: () => onParamA() });
+  function syncA() {
+    syncFa(); syncFb(); syncDel();
+    if (A.irr && document.activeElement !== aUi.faNum) aUi.faNum.value = "1.414214";
+    aUi.ampA.value = String(A.ampA); setText(aUi.ampAOut, `${fix(A.ampA, 2)} br`);
+    aUi.ampB.value = String(A.ampB); setText(aUi.ampBOut, `${fix(A.ampB, 2)} br`);
+    aUi.speed.value = String(A.speed); setText(aUi.speedOut, `${A.speed}×`);
+    aUi.trail.value = String(A.trail); setText(aUi.trailOut, `${fix(A.trail, 1)} s`);
+    aUi.full.checked = A.full; aUi.marks.checked = A.marks;
+  }
+  function setPresetA(name) {
+    A.preset = name;
+    document.querySelectorAll("[data-preset-a]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.presetA === name)));
+  }
+  function recomputeA() {
+    A.P = { a: A.a, b: A.b, d: A.dDeg * D2R, dDeg: A.dDeg, irr: A.irr, A: A.ampA, B: A.ampB };
+    A.th = lissTheory(A.P);
+    A.M = lissMeasure(A.P);
+    A.t = 0;
+    A.pathKey = "";
+    readoutsA();
+  }
+  function onParamA() { setPresetA(null); syncA(); recomputeA(); setRunningA(true); }
+  function applyPresetA(name) {
+    const p = PRESETS_A[name];
+    Object.assign(A, { a: p.a, b: p.b, dDeg: p.dDeg, irr: !!p.irr, ampA: 1, ampB: 1 });
+    setPresetA(name); syncA(); recomputeA(); setRunningA(true);
+  }
+  function resetA() { Object.assign(A, A_DEF); setPresetA("p32"); syncA(); recomputeA(); setRunningA(true); }
+  function setRunningA(v) { A.running = v; setText(aUi.toggle, v ? "Duraklat" : "Sürdür"); aUi.toggle.setAttribute("aria-pressed", String(!v)); }
+
+  const aOut = {};
+  ["aTm", "aTt", "aTd", "aVm", "aVt", "aVd", "aHm", "aHt", "aHd", "aRm", "aRt", "aRd", "aXLabel", "aXm", "aXt", "aXd", "aSm", "aSt", "aSd", "aDm", "aDt", "aDd", "aAm", "aAt", "aAd",
+    "aTime", "aTimeSub", "aPoint", "aRatio", "aRatioSub", "aKind", "aRot", "aRead", "aReadSub", "aStatus"].forEach((k) => { aOut[k] = $(k); });
+  const countStr = (sp) => (sp.corners ? `${fmtInt(sp.count)} (${sp.plain} değme + ${sp.corners} uç × ½)` : fmtInt(sp.count));
+  function ratioStr(u, v) {
+    if (!(u > 0) || !(v > 0)) return "—";
+    if (Number.isInteger(u) && Number.isInteger(v)) { const g = gcd(u, v); return `${fmtInt(u / g)} : ${fmtInt(v / g)}`; }
+    return `${fmtPar(u / v, 6)} : 1`;
+  }
+  function readoutsA() {
+    const P = A.P, th = A.th, M = A.M, o = aOut;
+    // Periyot
+    if (M.closed) setText(o.aTm, `${fix(M.T, 6)} s`); else setText(o.aTm, "pencerede dönmedi");
+    if (th.irr) setText(o.aTt, "∞ (a/b irrasyonel)");
+    else setText(o.aTt, `${fix(th.T, 6)} s`);
+    setText(o.aTd, M.closed && th.closed ? dstr(M.T - th.T, 6, " s") : "—");
+    // Değmeler
+    const win = !M.closed;
+    setText(o.aVm, win ? `${fmtInt(M.v.count)} (pencerede)` : countStr(M.v));
+    setText(o.aHm, win ? `${fmtInt(M.h.count)} (pencerede)` : countStr(M.h));
+    if (th.closed && M.closed) {
+      setText(o.aVt, th.degen ? `p = ${fmtInt(th.nV)}` : `2p = ${fmtInt(th.nV)}`);
+      setText(o.aHt, th.degen ? `q = ${fmtInt(th.nH)}` : `2q = ${fmtInt(th.nH)}`);
+      setText(o.aVd, fmtInt(M.v.count - th.nV)); setText(o.aHd, fmtInt(M.h.count - th.nH));
+    } else {
+      setText(o.aVt, "pencereyle büyür"); setText(o.aHt, "pencereyle büyür");
+      setText(o.aVd, "—"); setText(o.aHd, "—");
+    }
+    // Oran
+    const rv = M.v.count, rh = M.h.count;
+    if (M.closed) setText(o.aRm, `${countStrShort(rv)} : ${countStrShort(rh)} = ${ratioStr(rv, rh)}`);
+    else setText(o.aRm, `${fmtInt(rv)} : ${fmtInt(rh)} = ${fmtPar(rv / rh, 4)}`);
+    setText(o.aRt, th.closed ? `a : b = ${fmtInt(th.p)} : ${fmtInt(th.q)}` : `a/b = ${fmtPar(P.a / P.b, 6)}`);
+    if (M.closed && th.closed) setText(o.aRd, rv * th.q === rh * th.p ? "eşit" : "farklı");
+    else setText(o.aRd, dstr(rv / rh - P.a / P.b, 4));
+    // Kendini kesme
+    setText(o.aXLabel, M.retrace ? "Kendini kesme (açık yay)" : "Kendini kesme noktası");
+    if (M.cross) {
+      setText(o.aXm, M.cross.converged ? fmtInt(M.cross.pts.length) : `${fmtInt(M.cross.pts.length)} (çözünürlük yetmedi)`);
+      if (th.closed) {
+        setText(o.aXt, th.degen ? `(p − 1)(q − 1)/2 = ${fmtInt(th.nX)}` : `2pq − p − q = ${fmtInt(th.nX)}`);
+        setText(o.aXd, fmtInt(M.cross.pts.length - th.nX));
+      } else { setText(o.aXt, "—"); setText(o.aXd, "—"); }
+    } else {
+      setText(o.aXm, M.crossSkip === "many" ? "ölçülmedi (çok sayıda)" : "kapanmayan eğride sınırsız");
+      setText(o.aXt, th.closed ? (th.degen ? `(p − 1)(q − 1)/2 = ${fmtInt(th.nX)}` : `2pq − p − q = ${fmtInt(th.nX)}`) : "pencereyle büyür");
+      setText(o.aXd, "—");
+    }
+    // Faz yöntemi (a = b)
+    const ph = M.phase;
+    if (ph) {
+      const sTh = Math.sin(P.d);
+      setText(o.aSm, fix(ph.sinM, 6)); setText(o.aSt, fix(sTh, 6)); setText(o.aSd, dstr(ph.sinM - sTh, 6));
+      const dd = ((ph.deg - A.dDeg + 540) % 360) - 180;
+      setText(o.aDm, `${fix(ph.deg, 4)}°`); setText(o.aDt, `${fmtPar(A.dDeg, 2)}°`); setText(o.aDd, dstr(dd, 4, "°"));
+      const aTh = Math.PI * P.A * P.B * sTh;
+      setText(o.aAm, `${fix(ph.area, 6)} br²`); setText(o.aAt, `${fix(aTh, 6)} br²`); setText(o.aAd, dstr(ph.area - aTh, 6, " br²"));
+      setText(o.aRot, ph.rot > 0 ? "saat yönünün tersine" : ph.rot < 0 ? "saat yönünde" : "dönmüyor (doğru üstünde gidip gelir)");
+      setText(o.aRead, `±${fix(ph.err1, 2)}°`);
+      setText(o.aReadSub, `arcsin(|x₀|/A) = ${fix(ph.arcsin, 3)}°`);
+    } else {
+      ["aSm", "aDm", "aAm"].forEach((k) => setText(o[k], "—"));
+      ["aSt", "aDt", "aAt"].forEach((k) => setText(o[k], P.a === P.b ? "—" : "yalnız a = b iken"));
+      ["aSd", "aDd", "aAd"].forEach((k) => setText(o[k], "—"));
+      setText(o.aRot, P.a === P.b ? "—" : "a ≠ b: tanımsız");
+      setText(o.aRead, "—"); setText(o.aReadSub, "");
+    }
+    setText(o.aRatio, th.closed ? `${fmtInt(th.p)} : ${fmtInt(th.q)}` : "√2 : 1");
+    setText(o.aRatioSub, th.closed ? `a/b = ${fmtPar(P.a / P.b, 6)}` : "irrasyonel");
+    setText(o.aKind, M.closed ? (M.retrace ? "geri dönen açık yay" : "kapalı eğri") : "pencerede kapanmadı");
+    const st = statusA();
+    setText(o.aStatus, st.text);
+    o.aStatus.classList.toggle("is-warn", st.warn);
+  }
+  const countStrShort = (n) => fmtInt(n);
+  function statusA() {
+    const P = A.P, th = A.th, M = A.M, out = [];
+    let warn = false;
+    if (th.irr) {
+      const b = M.ret.best;
+      out.push(`a/b = √2 irrasyonel: nokta başladığı duruma hiç dönmez, eğri kapanmaz ve dikdörtgeni giderek doldurur.`);
+      if (b && b.t !== null) out.push(`40·2π ≈ 251.3 s'lik pencerede başlangıca en çok t = ${fix(b.t, 2)} s'de yaklaştı (iki noktalı uzaklık ${fix(Math.sqrt(b.R), 4)} br).`);
+      out.push(`Pencerede dikey kenarlara ${fmtInt(M.v.count)}, yatay kenarlara ${fmtInt(M.h.count)} kez değdi; oran ${fmtPar(M.v.count / M.h.count, 4)}, a/b = 1.4142'ye yaklaşır.`);
+      return { text: out.join(" "), warn: false };
+    }
+    if (!M.closed) {
+      out.push(`a/b = ${fmtInt(th.p)}/${fmtInt(th.q)} kesirli: eğri kuramda kapanır, ama periyot T = ${th.T < 1e6 ? fix(th.T, 1) : sci(th.T, 3)} s ölçüm penceresinin (251.3 s) ötesinde. Pencerede gezdiği kısım kapanmamış görünür; değme sayıları pencereyle büyür, oranları ${fmtPar(M.v.count / M.h.count, 4)}.`);
+      return { text: out.join(" "), warn: true };
+    }
+    const p = th.p, q = th.q;
+    out.push(`a : b = ${fmtInt(p)} : ${fmtInt(q)}, δ = ${fmtPar(A.dDeg, 2)}°: nokta T = ${fix(M.T, 4)} s sonra başladığı duruma döner.`);
+    if (M.retrace) {
+      out.push(`Bu oran için δ = ${fmtPar(A.dDeg, 2)}° geri dönen fazdır: x ile y aynı anda uç değerde, eğri köşeden geçip kendi üstünden geri gider (iki köşe arasında açık yay). Her değme noktasından iki kez geçer, köşelerdeki uçlar yarım sayılır: dikey ${fmtInt(M.v.count)}, yatay ${fmtInt(M.h.count)}, genel fazdaki ${fmtInt(2 * p)} ve ${fmtInt(2 * q)} sayısının yarısı.`);
+    } else {
+      out.push(`Dikey kenarlara ${fmtInt(M.v.count)}, yatay kenarlara ${fmtInt(M.h.count)} noktada değer: ${fmtInt(M.v.count)} : ${fmtInt(M.h.count)} = ${ratioStr(M.v.count, M.h.count)} = a : b.`);
+    }
+    if (M.cross && M.cross.pts.length !== th.nX) { warn = true; out.push(`Ölçülen kesişme sayısı kuramdan farklı (${M.cross.pts.length} ile ${th.nX}, ${fmtInt(M.cross.n)} örnekle): faz geri dönen bir değere çok yakın, kollar örnek çokgeninin çözebileceğinden daha yakın.`); }
+    if (M.crossSkip === "many") out.push(`Kendini kesme sayısı kuramda ${fmtInt(th.nX)}; bu kadar çok kesişim ayrı ayrı sayılmaz.`);
+    const ph = M.phase;
+    if (ph) {
+      if (ph.rot === 0) out.push(`a = b ve δ = ${fmtPar(A.dDeg, 2)}°: elips bir doğruya basıklaşır (eğim ${ph.cosM > 0 ? "+" : MINUS}B/A), eksen kesişimi 0, dönüş yok.`);
+      else {
+        out.push(`Elips: eksen kesişimleri x₀ = ±${fix(Math.abs(ph.xUp), 4)} br, |sin δ| = |x₀|/A = ${fix(ph.sinAbs, 4)}; sağ kenara y = ${fix(ph.yTilt, 4)} br yükseklikte değer, cos δ = ${fix(ph.cosM, 4)}${ph.cosM >= 0 ? " ≥ 0 (büyük eksen I. ve III. bölgede)" : " < 0 (büyük eksen II. ve IV. bölgede)"}; nokta ${ph.rot > 0 ? "saat yönünün tersine döner: x, y'den önde, δ ∈ (0°, 180°)" : "saat yönünde döner: x, y'den geride, δ ∈ (180°, 360°), yani negatif δ"}.`);
+        if (ph.sinAbs > 0.97) out.push(`δ, 90°'ye yakın: sin δ burada düzdür, kesişimdeki %1'lik okuma hatası δ'yı ±${fix(ph.err1, 1)}° oynatır; çeyreği ve değeri eğim (cos δ) daha iyi okur.`);
+        if (Math.abs(P.A - P.B) < 1e-12 && ph.sinAbs > 1 - 1e-12) out.push("A = B ve δ = 90°: eğri çemberdir.");
+      }
+    }
+    return { text: out.join(" "), warn };
+  }
+  function advanceA(el) { if (A.running) A.t += el * A.speed; }
+
+  /* ════════ (b) Osiloskop ════════ */
+  const B_DEF = { f1: 440, f2: 440.5, phi: 0, pers: 60, slow: 1 };
+  const PRESETS_B = { d05: { f1: 440, f2: 440.5 }, d1: { f1: 440, f2: 441 }, esit: { f1: 440, f2: 440 }, r23: { f1: 440, f2: 660 }, r23k: { f1: 440, f2: 660.6 }, r12k: { f1: 440, f2: 880.25 } };
+  const B = { ...B_DEF, preset: "d05", running: true, run: null, sound: false, soundMsg: "" };
+  const bUi = {
+    f1: $("bF1"), f1Num: $("bF1Num"), f1Out: $("bF1Out"), f2: $("bF2"), f2Num: $("bF2Num"), f2Out: $("bF2Out"),
+    phi: $("bPhi"), phiOut: $("bPhiOut"), pers: $("bPers"), persOut: $("bPersOut"), slow: $("bSlow"), slowOut: $("bSlowOut"),
+    toggle: $("bToggle"), restart: $("bRestart"), sound: $("bSound"), reset: $("bReset"), soundNote: $("bSoundNote"),
+  };
+  const syncF1 = bindParam({ range: bUi.f1, num: bUi.f1Num, out: bUi.f1Out, min: 50, max: 1000, dec: 3, get: () => B.f1, set: (v) => { B.f1 = v; }, fmt: (v) => `${fix(v, 3)} Hz`, onChange: () => onParamB() });
+  const syncF2 = bindParam({ range: bUi.f2, num: bUi.f2Num, out: bUi.f2Out, min: 50, max: 1000, dec: 3, get: () => B.f2, set: (v) => { B.f2 = v; }, fmt: (v) => `${fix(v, 3)} Hz`, onChange: () => onParamB() });
+  const SLOW_TXT = { 1: "1× (gerçek zaman)", 0.1: "1/10", 0.01: "1/100", 0.001: "1/1000" };
+  function syncB() {
+    syncF1(); syncF2();
+    bUi.phi.value = String(B.phi); setText(bUi.phiOut, `${B.phi}°`);
+    bUi.pers.value = String(B.pers); setText(bUi.persOut, `${B.pers} ms`);
+    bUi.slow.value = String(B.slow); setText(bUi.slowOut, SLOW_TXT[B.slow]);
+  }
+  function setPresetB(name) {
+    B.preset = name;
+    document.querySelectorAll("[data-preset-b]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.presetB === name)));
+  }
+  function restartB() { B.run = createScope(B.f1, B.f2, B.phi); audioUpdate(); readoutsB(); }
+  function onParamB() { setPresetB(null); syncB(); restartB(); setRunningB(true); }
+  function applyPresetB(name) { const p = PRESETS_B[name]; B.f1 = p.f1; B.f2 = p.f2; B.phi = 0; setPresetB(name); syncB(); restartB(); setRunningB(true); }
+  function resetB() { Object.assign(B, B_DEF); setPresetB("d05"); syncB(); restartB(); setRunningB(true); }
+  function setRunningB(v) { B.running = v; setText(bUi.toggle, v ? "Duraklat" : "Sürdür"); bUi.toggle.setAttribute("aria-pressed", String(!v)); audioUpdate(); }
+  function advanceB(el) { if (B.running) scopeAdvance(B.run, B.run.t + el * B.slow); }
+
+  // Ses: yalnız düğmeyle, sitenin sessiz ayarına uyarak
+  let audio = null;
+  function soundMuted() {
+    try { if (localStorage.getItem("acelya-sound-muted") === "1") return true; } catch (_) {}
+    return Boolean(window.AcelyaSounds?.isMuted?.());
+  }
+  function audioUpdate() {
+    const want = B.sound && B.running && S.tab === "osiloskop" && B.slow === 1 && !soundMuted() && !window.AcelyaPause?.isPaused?.();
+    if (!audio) return;
+    const now = audio.ctx.currentTime;
+    if (want) {
+      audio.o1.frequency.setValueAtTime(B.f1, now);
+      audio.o2.frequency.setValueAtTime(B.f2, now);
+      audio.ctx.resume?.();
+    }
+    audio.g.gain.setTargetAtTime(want ? 0.08 : 0, now, 0.03);
+  }
+  function toggleSound() {
+    if (B.sound) { B.sound = false; B.soundMsg = ""; }
+    else if (soundMuted()) { B.soundMsg = "Ses kapalı: sitenin ses düğmesinden açabilirsin."; }
+    else {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) B.soundMsg = "Bu tarayıcı Web Audio desteklemiyor.";
+      else {
+        if (!audio) {
+          const ctx = new AC(), g = ctx.createGain();
+          g.gain.value = 0;
+          g.connect(ctx.destination);
+          const o1 = ctx.createOscillator(), o2 = ctx.createOscillator();
+          o1.type = "sine"; o2.type = "sine";
+          o1.connect(g); o2.connect(g);
+          o1.start(); o2.start();
+          audio = { ctx, g, o1, o2 };
+        }
+        B.sound = true;
+        B.soundMsg = "";
+      }
+    }
+    setText(bUi.sound, B.sound ? "Sesi kapat" : "Sesi aç");
+    bUi.sound.setAttribute("aria-pressed", String(B.sound));
+    audioUpdate();
+    readoutsB();
+  }
+  window.addEventListener("acelya-sound-change", (e) => {
+    if (e.detail?.muted && B.sound) { B.sound = false; setText(bUi.sound, "Sesi aç"); bUi.sound.setAttribute("aria-pressed", "false"); }
+    audioUpdate();
+  });
+
+  const bOut = {};
+  ["bTLabel", "bTm", "bTt", "bTd", "bWm", "bWt", "bWd", "bFm", "bFt", "bFd", "bTime", "bRatio", "bRatioSub", "bCyc", "bCycSub", "bPhase", "bBeat", "bStatus"].forEach((k) => { bOut[k] = $(k); });
+  function readoutsB() {
+    const R = B.run, o = bOut, res = scopeResult(R), th = res.th, p = R.R.p, q = R.R.q;
+    setText(o.bTLabel, p === 1 && q === 1 ? "Dönme periyodu T = 1/|f₁ − f₂|" : "Şeklin yinelenme periyodu T");
+    setText(o.bTt, Number.isFinite(th.T) ? `${fix(th.T, 4)} s` : "∞ (şekil durur)");
+    setText(o.bWt, `${fix(th.rate, 4)} rad/s`);
+    setText(o.bFt, `${fix(R.f2, 3)} Hz`);
+    if (res.ok) {
+      setText(o.bTm, `${fix(res.T, 4)} s`);
+      setText(o.bTd, Number.isFinite(th.T) ? dstr(res.T - th.T, 4, " s") : "—");
+      setText(o.bWm, `${fix(res.fit.b, 4)} rad/s`);
+      setText(o.bWd, dstr(res.fit.b - th.rate, 4, " rad/s"));
+      setText(o.bFm, `${fix(res.f2, 3)} Hz`);
+      setText(o.bFd, dstr(res.f2 - R.f2, 3, " Hz"));
+    } else if (res.flat) {
+      setText(o.bTm, `> ${res.Tmin < 1e6 ? fix(res.Tmin, 0) : sci(res.Tmin, 2)} s (kayma yok)`);
+      setText(o.bTd, "—");
+      setText(o.bWm, `${dstr(res.fit.b, 4)} rad/s`);
+      setText(o.bWd, dstr(res.fit.b - th.rate, 4, " rad/s"));
+      setText(o.bFm, `${fix((R.R.q * R.f1) / R.R.p, 3)} Hz`);
+      setText(o.bFd, dstr((R.R.q * R.f1) / R.R.p - R.f2, 3, " Hz"));
+    } else {
+      const need = res.slowWait ? `kayma küçük: ${fix(res.span, 2)}/1 s` : R.reg.n < 20 ? `${R.reg.n}/20 faz okuması` : `${fix(res.span, 2)}/0.25 s`;
+      ["bTm", "bWm", "bFm"].forEach((k) => setText(o[k], `ölçülüyor… (${need})`));
+      ["bTd", "bWd", "bFd"].forEach((k) => setText(o[k], "—"));
+    }
+    setText(o.bTime, `${fix(R.t, 3)} s`);
+    setText(o.bRatio, `${p} : ${q}`);
+    setText(o.bRatioSub, `f₂/f₁ = ${fmtPar(R.f2 / R.f1, 6)} · q f₁ − p f₂ = ${fmtPar(R.R.beat, 4)} Hz`);
+    setText(o.bCyc, String(R.cyc.length));
+    setText(o.bCycSub, res.cycMean ? `ortalama süre ${fix(res.cycMean, 4)} s` : "henüz tam çevrim yok");
+    if (R.reg.n) {
+      let u = ((R.Psi % TAU) + TAU) % TAU;
+      setText(o.bPhase, `${fix(u / D2R, 1)}°`);
+    } else setText(o.bPhase, "—");
+    setText(o.bBeat, R.f1 === R.f2 ? "∞" : `${fix(1 / Math.abs(R.f1 - R.f2), 4)} s`);
+    const st = [];
+    if (!R.R.slow) st.push(`f₂/f₁ = ${fmtPar(R.f2 / R.f1, 4)} küçük bir kesre yakın değil (p, q ≤ 8 içinde en yakını ${p} : ${q}, fark ${fmtPar(Math.abs(R.R.beat), 2)} Hz): şekil saniyede ${fmtPar(Math.abs(R.R.beat), 1)} kez yinelenir, göz bir leke görür; ölçüm yine yapılır.`);
+    if (res.ok) {
+      const dir = res.fit.b < 0 ? `etkin faz azalıyor: y kanalı oranına göre hızlı, q f₁ − p f₂ < 0` : `etkin faz artıyor: x kanalı oranına göre hızlı, q f₁ − p f₂ > 0`;
+      const seT = res.Tse < 1e-9 ? "10⁻⁹ s'den küçük" : `${vstr(res.Tse, 4)} s`;
+      st.push(`Ölçülen T = ${fix(res.T, 4)} s, eğimin standart hatasından gelen belirsizlik ${seT}; kuram ${Number.isFinite(th.T) ? fix(th.T, 4) : "∞"} s; ${dir}.`);
+      if (p === 1 && q === 1) st.push(`Bir diyapazon 440 Hz olarak biliniyorsa öbürü ${fix(res.f2, 3)} Hz bulunur: frekans farkı 1/T, işareti dönüş yönünden.`);
+    } else if (res.flat) st.push(`${fix(res.span, 1)} s boyunca etkin faz kaymadı (eğim 0 ± ${vstr(res.fit.se, 2)} rad/s): şekil duruyor, frekanslar oranla tam uyumlu.`);
+    else if (res.slowWait) st.push("Eğim henüz gürültüsünden ayrılmıyor: kayma çok yavaş ya da yok; 1 s gözlemden sonra karar verilir.");
+    else {
+      st.push("Faz okumaları toplanıyor: en az 20 okuma ve 0.25 s gerekir.");
+      if (B.slow < 1) {
+        const need = Math.max(0.25 - res.span, ((20 - R.reg.n) * q) / R.f2, 0);
+        st.push(`Yavaş çekimde benzetim zamanı ${fmtInt(1 / B.slow)} kat yavaş akar: ilk ölçüm için yaklaşık ${fix(need / B.slow, 0)} s daha gerekir; 1×'e dönmek ölçümü baştan başlatmaz.`);
+      }
+    }
+    if (B.soundMsg) st.push(B.soundMsg);
+    else if (B.sound && B.slow !== 1) st.push("Ses yalnız 1× hızda çalar.");
+    setText(o.bStatus, st.join(" "));
+    o.bStatus.classList.toggle("is-warn", !R.R.slow);
+  }
+
+  /* ════════ (c) Harmonograf ve salınıcı ════════ */
+  const PRESETS_H = {
+    iki21: { n: 2, f: [2, 1, 1], p: [90, 0, 0], A: [1, 1, 0.3], d: [0.01, 0.01, 0.01] },
+    kayik32: { n: 2, f: [3, 2.01, 1], p: [90, 0, 0], A: [1, 1, 0.3], d: [0.004, 0.006, 0.01] },
+    doner: { n: 3, f: [2, 3.01, 1.005], p: [0, 90, 0], A: [0.8, 0.8, 0.35], d: [0.006, 0.008, 0.004] },
+  };
+  const H_DEF = { seed: 1857, n: 3, span: 160, speed: 20 };
+  const O_DEF = { kx: 9, ky: 4, m: 1, integ: "verlet", h: 0.01, span: 200, speed: 20 };
+  const PRESETS_O = { r32: { kx: 9, ky: 4, m: 1 }, r2: { kx: 8, ky: 4, m: 1 }, r11: { kx: 4, ky: 4, m: 1 }, r21: { kx: 16, ky: 4, m: 1 } };
+  const C = {
+    mode: "harmono",
+    h: { ...H_DEF, H: null, smp: null, pk: null, tPen: 0, drawn: 0, running: true, preset: null, paperKey: "" },
+    o: { ...O_DEF, preset: "r32", running: true, run: null, th: null, ex: null, refs: null, skip: false },
+  };
+  const hUi = {
+    n: $("hN"), nOut: $("hNOut"), seed: $("hSeed"), seedOut: $("hSeedOut"), seedDraw: $("hSeedDraw"), random: $("hRandom"),
+    span: $("hSpan"), spanOut: $("hSpanOut"), speed: $("hSpeed"), speedOut: $("hSpeedOut"), toggle: $("hToggle"), restart: $("hRestart"), reset: $("hReset"),
+    row3: $("hRow3"), boxes: Array.from(document.querySelectorAll(".hgrid input[data-k]")),
+  };
+  const H_LIM = { f: [0.05, 20, 3], p: [0, 360, 1], A: [0, 1.5, 2], d: [0, 0.2, 4] };
+  function syncH() {
+    const h = C.h, H = h.H;
+    hUi.n.value = String(H.n); setText(hUi.nOut, String(H.n));
+    hUi.row3.classList.toggle("is-off", H.n !== 3);
+    hUi.boxes.forEach((b) => {
+      b.disabled = H.n !== 3 && b.dataset.i === "2";
+      if (document.activeElement !== b) b.value = String(H[b.dataset.k][+b.dataset.i]);
+    });
+    if (document.activeElement !== hUi.seed) hUi.seed.value = String(h.seed);
+    setText(hUi.seedOut, H.seed === null ? "elle" : String(H.seed));
+    hUi.span.value = String(h.span); setText(hUi.spanOut, `${h.span} s`);
+    hUi.speed.value = String(h.speed); setText(hUi.speedOut, h.speed ? `${h.speed}×` : "hemen");
+  }
+  function setPresetH(name) {
+    C.h.preset = name;
+    document.querySelectorAll("[data-preset-h]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.presetH === name)));
+  }
+  function restartH() {
+    const h = C.h;
+    h.smp = harmoSample(h.H, h.span);
+    h.pk = h.H.n === 2 ? [harmoPeaks(h.H, 0, h.span), harmoPeaks(h.H, 1, h.span)] : null;
+    h.tPen = h.speed ? 0 : h.span;
+    h.drawn = 0;
+    h.paperKey = "";
+    readoutsH();
+  }
+  function drawSeed(seed) {
+    const h = C.h;
+    h.seed = seed;
+    h.H = harmoRandom(seed, h.H ? h.H.n : H_DEF.n);
+    setPresetH(null); syncH(); restartH(); setRunningH(true);
+  }
+  function applyPresetH(name) {
+    const p = PRESETS_H[name];
+    C.h.H = { n: p.n, f: p.f.slice(), p: p.p.slice(), A: p.A.slice(), d: p.d.slice(), seed: null };
+    setPresetH(name); syncH(); restartH(); setRunningH(true);
+  }
+  function resetH() { Object.assign(C.h, H_DEF); C.h.H = harmoRandom(H_DEF.seed, H_DEF.n); setPresetH(null); syncH(); restartH(); setRunningH(true); }
+  function setRunningH(v) { C.h.running = v; setText(hUi.toggle, v ? "Duraklat" : "Sürdür"); hUi.toggle.setAttribute("aria-pressed", String(!v)); }
+  function advanceH(el) {
+    const h = C.h;
+    if (!h.running) return;
+    if (!h.speed) h.tPen = h.span;
+    else h.tPen = Math.min(h.span, h.tPen + el * h.speed);
+  }
+
+  const hOut = {};
+  ["hD1m", "hD1t", "hD1d", "hD2m", "hD2t", "hD2d", "hF1m", "hF1t", "hF1d", "hF2m", "hF2t", "hF2d", "hTime", "hTimeSub", "hRatio", "hRatioSub", "hHalf", "hPeaks", "hStatus"].forEach((k) => { hOut[k] = $(k); });
+  function readoutsH() {
+    const h = C.h, H = h.H, o = hOut;
+    const rows = [["hD1", 0, "d"], ["hD2", 1, "d"], ["hF1", 0, "f"], ["hF2", 1, "f"]];
+    const fits = h.pk ? h.pk.map((pk) => { let k = 0; while (k < pk.T.length && pk.T[k] <= h.tPen) k++; return { k, fit: peakFit(pk, k) }; }) : null;
+    for (const [id, ax, kind] of rows) {
+      const set = H[kind][ax];
+      setText(o[id + "t"], kind === "d" ? `${fmtPar(set, 4)} 1/s` : `${fmtPar(set, 3)} rad/s`);
+      if (!fits) { setText(o[id + "m"], "üç sarkaçta yok"); setText(o[id + "d"], "—"); continue; }
+      const F = fits[ax];
+      if (!F.fit) { setText(o[id + "m"], `${F.k}/6 tepe`); setText(o[id + "d"], "—"); continue; }
+      const mv = kind === "d" ? F.fit.d : F.fit.f;
+      setText(o[id + "m"], kind === "d" ? `${fix(mv, 6)} 1/s` : `${fix(mv, 6)} rad/s`);
+      setText(o[id + "d"], dstr(mv - set, 6, kind === "d" ? " 1/s" : " rad/s"));
+    }
+    setText(o.hTime, `${fix(h.tPen, 1)} s`);
+    setText(o.hTimeSub, `çizim süresi ${h.span} s`);
+    const r = H.f[0] / H.f[1];
+    setText(o.hRatio, fmtPar(r, 5));
+    let best = null;
+    for (const [u, v] of RATIOS_H) { const e = r / (u / v) - 1; if (!best || Math.abs(e) < Math.abs(best.e)) best = { u, v, e }; }
+    setText(o.hRatioSub, `en yakın basit oran ${best.u}:${best.v} (sapma ${sgn(100 * best.e, 2)} %)`);
+    const halves = [0, 1].concat(H.n === 3 ? [2] : []).map((i) => (H.d[i] > 0 ? fix(Math.LN2 / H.d[i], 0) : "∞"));
+    setText(o.hHalf, `${halves.join(" · ")} s`);
+    setText(o.hPeaks, fits ? `${fits[0].k} · ${fits[1].k}` : "—");
+    const st = [];
+    st.push(`Desen ${H.n} sarkaçla çiziliyor${H.seed !== null && H.seed !== undefined ? ` (tohum ${H.seed})` : ""}.`);
+    if (Math.abs(best.e) > 1e-12) {
+      const slip = Math.abs(H.f[0] * best.v - H.f[1] * best.u);
+      st.push(`f₁/f₂, ${best.u}:${best.v}'e %${fix(Math.abs(100 * best.e), 2)} uzak: göreli faz ${fix(slip, 4)} rad/s hızla kayar, desen ${slip > 0 ? fix(TAU / slip, 0) : "∞"} s'de bir tur döner.`);
+    } else st.push(`f₁/f₂ tam ${best.u}:${best.v}: desen dönmez, yalnız küçülür.`);
+    if (fits) {
+      const F = fits[0];
+      if (F.fit) st.push(`x tepeleri e^(−d₁t) üstünde: ölçülen d₁ ayardan ${vstr(Math.abs(F.fit.d - H.d[0]), 2)} 1/s farklı; ardışık tepe oranı e^(−d₁·2π/f₁) = ${fix(Math.exp((-H.d[0] * TAU) / H.f[0]), 5)}.`);
+    } else st.push("Üç sarkaçta x ve y iki sönümlü terimin toplamıdır; tepeler tek bir üstele oturmaz, sönüm ölçümü iki sarkaçta yapılır.");
+    setText(o.hStatus, st.join(" "));
+  }
+
+  /* (c2) salınıcı */
+  const oUi = {
+    kx: $("oKx"), kxNum: $("oKxNum"), kxOut: $("oKxOut"), ky: $("oKy"), kyNum: $("oKyNum"), kyOut: $("oKyOut"), m: $("oM"), mNum: $("oMNum"), mOut: $("oMOut"),
+    integ: $("oInteg"), integOut: $("oIntegOut"), h: $("oH"), hOut: $("oHOut"), span: $("oSpan"), spanOut: $("oSpanOut"), speed: $("oSpeed"), speedOut: $("oSpeedOut"),
+    toggle: $("oToggle"), restart: $("oRestart"), skip: $("oSkip"), reset: $("oReset"),
+  };
+  const syncKx = bindParam({ range: oUi.kx, num: oUi.kxNum, out: oUi.kxOut, min: 0.5, max: 20, dec: 4, get: () => C.o.kx, set: (v) => { C.o.kx = v; }, fmt: (v) => `${fmtPar(v, 4)} N/m`, onChange: () => onParamO() });
+  const syncKy = bindParam({ range: oUi.ky, num: oUi.kyNum, out: oUi.kyOut, min: 0.5, max: 20, dec: 4, get: () => C.o.ky, set: (v) => { C.o.ky = v; }, fmt: (v) => `${fmtPar(v, 4)} N/m`, onChange: () => onParamO() });
+  const syncM = bindParam({ range: oUi.m, num: oUi.mNum, out: oUi.mOut, min: 0.1, max: 5, dec: 4, get: () => C.o.m, set: (v) => { C.o.m = v; }, fmt: (v) => `${fmtPar(v, 4)} kg`, onChange: () => onParamO() });
+  function syncO() {
+    const o = C.o;
+    syncKx(); syncKy(); syncM();
+    oUi.integ.value = o.integ; setText(oUi.integOut, o.integ === "rk4" ? "RK4" : "hız-Verlet");
+    oUi.h.value = String(o.h); setText(oUi.hOut, `${o.h} s`);
+    oUi.span.value = String(o.span); setText(oUi.spanOut, `${o.span} s`);
+    oUi.speed.value = String(o.speed); setText(oUi.speedOut, `${o.speed}×`);
+  }
+  function setPresetO(name) {
+    C.o.preset = name;
+    document.querySelectorAll("[data-preset-o]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.presetO === name)));
+  }
+  let refCache = null;
+  function restartO() {
+    const o = C.o, P = { kx: o.kx, ky: o.ky, m: o.m, integ: o.integ, h: o.h, span: o.span };
+    o.P = P;
+    o.run = createOsc(P);
+    o.th = oscTheory(P);
+    o.ex = exactCoverage(o.th.wx, o.th.wy, P.span);
+    const key = String(P.span);
+    if (!refCache || refCache.key !== key) refCache = { key, r32: exactCoverage(3, 2, P.span).cov, r2: exactCoverage(2 * Math.SQRT2, 2, P.span).cov };
+    o.refs = refCache;
+    o.skip = false;
+    readoutsO();
+  }
+  function onParamO() { setPresetO(null); syncO(); restartO(); setRunningO(true); }
+  function applyPresetO(name) { Object.assign(C.o, PRESETS_O[name]); setPresetO(name); syncO(); restartO(); setRunningO(true); }
+  function resetO() { Object.assign(C.o, O_DEF); setPresetO("r32"); syncO(); restartO(); setRunningO(true); }
+  function setRunningO(v) { C.o.running = v; setText(oUi.toggle, v ? "Duraklat" : "Sürdür"); oUi.toggle.setAttribute("aria-pressed", String(!v)); }
+  function advanceO(el) {
+    const o = C.o, R = o.run;
+    if (!o.running || R.n >= R.nEnd) return;
+    const t0 = performance.now();
+    if (o.skip) {
+      while (R.n < R.nEnd && performance.now() - t0 < 12) for (let k = 0; k < 500 && R.n < R.nEnd; k++) oscStep(R);
+      if (R.n >= R.nEnd) o.skip = false;
+      return;
+    }
+    const target = Math.min(R.nEnd, Math.floor((R.t + el * o.speed) / o.P.h + 1e-9));
+    while (R.n < target && performance.now() - t0 < 12) oscStep(R);
+  }
+
+  const oOut = {};
+  ["oCLabel", "oCm", "oCt", "oCd", "oRm", "oRt", "oRd", "oEm", "oEt", "oEd", "oDm", "oDt", "oDd", "oTime", "oTimeSub", "oOmega", "oCells", "oCellsSub", "oRefs", "oRefsSub", "oClose", "oStatus"].forEach((k) => { oOut[k] = $(k); });
+  function readoutsO() {
+    const o = C.o, R = o.run, th = o.th, out = oOut, P = o.P;
+    // Ölçülen ile kuram aynı ızgara anında karşılaştırılır: t_g = k·0.25 s
+    const k = R.eMaxAt.length - 1, tg = k * 0.25;
+    const covNow = R.cov[2 * k + 1], covTh = o.ex.cov[Math.min(k, o.ex.cov.length - 1)];
+    setText(out.oCLabel, `Kaplanan hücre oranı (t = ${fix(tg, 2)} s)`);
+    setText(out.oCm, pctStr(covNow));
+    setText(out.oCt, pctStr(covTh));
+    setText(out.oCd, `${sgn(100 * (covNow - covTh), 2)} puan`);
+    // Frekans oranı
+    const zx = R.zx, zy = R.zy;
+    setText(out.oRt, fix(th.ratio, 6));
+    if (zx.n >= 5 && zy.n >= 5) {
+      const px = (zx.last - zx.first) / (zx.n - 1), py = (zy.last - zy.first) / (zy.n - 1), mr = py / px;
+      setText(out.oRm, fix(mr, 6)); setText(out.oRd, dstr(mr - th.ratio, 6));
+      o.mRatio = mr;
+    } else { setText(out.oRm, `${Math.min(zx.n, zy.n)}/5 sıfır geçişi`); setText(out.oRd, "—"); o.mRatio = null; }
+    // Enerji: |ΔE|/E₀'ın t_g'ye dek en büyüğü
+    const eM = R.eMaxAt[k], eT = th.maxAt[Math.min(k, th.maxAt.length - 1)];
+    const s4 = (v) => (v === 0 ? "0" : sci(v, 4));
+    setText(out.oEm, s4(eM));
+    setText(out.oEt, P.integ === "rk4" ? `${s4(eT)} (tekdüze azalma)` : `${s4(eT)} (sınırlı salınım)`);
+    setText(out.oEd, eM === eT ? "0" : sci(eM - eT, 2, true));
+    const minT = (5 * TAU) / Math.min(th.wx, th.wy);
+    const ef = regFit(R.eReg);
+    if (ef && R.t >= minT) { setText(out.oDm, `${vstr(ef.b, 3)} /s`); setText(out.oDd, dstr(ef.b - th.rate, 3, " /s")); }
+    else { setText(out.oDm, `t ≥ ${fix(minT, 1)} s gerekir`); setText(out.oDd, "—"); }
+    setText(out.oDt, th.rate === 0 ? "0 (sürüklenme yok)" : `${vstr(th.rate, 3)} /s`);
+    setText(out.oTime, `${fix(R.t, 2)} s`);
+    setText(out.oTimeSub, `ölçüm süresi ${P.span} s · ${fmtInt(R.n)} adım`);
+    setText(out.oOmega, `${fix(th.wx, 4)} · ${fix(th.wy, 4)} rad/s`);
+    setText(out.oCells, `${fmtInt(R.count)} / 4 096`);
+    setText(out.oCellsSub, `kuram t = ${fix(tg, 2)} s'de ${fmtInt(Math.round(covTh * 4096))}`);
+    setText(out.oRefs, `${pctStr(o.refs.r32[o.refs.r32.length - 1], 1)} · ${pctStr(o.refs.r2[o.refs.r2.length - 1], 1)}`);
+    setText(out.oRefsSub, `t = ${P.span} s, aynı ızgara`);
+    const rr = rationalRatio(P.kx, P.ky);
+    setText(out.oClose, rr ? `kapanır: ωₓ/ω_y = ${rr.u}/${rr.v}` : "kapanmaz: oran irrasyonel");
+    const st = [];
+    const covEnd = o.ex.cov[o.ex.cov.length - 1];
+    if (rr) {
+      const Tc = (TAU * rr.v) / th.wy;
+      st.push(`kₓ/k_y = ${fmtPar(P.kx / P.ky, 4)} bir kesrin karesi: ωₓ/ω_y = ${rr.u}/${rr.v}, kapalı biçim yörünge T = 2π·${rr.v}/ω_y = ${fix(Tc, 3)} s sonra kapanır ve kaplaması ${pctStr(covEnd, 2)}'de durur.`);
+    } else st.push(`ωₓ/ω_y = √(${fmtPar(P.kx / P.ky, 4)}) = ${fix(th.ratio, 6)} irrasyonel: yörünge kapanmaz, kaplama süreyle artıp %100'e yaklaşır (kapalı biçim çözüm ${P.span} s'de ${pctStr(covEnd, 2)}).`);
+    const eps = th.numRatio / th.ratio - 1;
+    const rel = (v) => (v === 0 ? "0" : sci(v, 3, true));
+    st.push(`${P.integ === "rk4" ? "RK4 her ekseni ωₛ = arg R(iωh)/h" : "Hız-Verlet her ekseni ωₛ = (2/h)·arcsin(ωh/2)"} frekansıyla döndürür: sayısal oran kuramdan ${rel(eps)} göreli farklı olmalı${o.mRatio ? `, ölçülen ${rel(o.mRatio / th.ratio - 1)}` : ""}.`);
+    if (rr) {
+      const slip = th.wx * Math.abs(eps) * P.span;
+      st.push(`Bu fark kapalı yörüngenin fazını ${P.span} s'de ωₓ·|fark|·t = ${vstr(slip, 4)} rad kaydırır (eğri yaklaşık ${fix(slip / (2 / OSC_G), 2)} hücre kayar)${Math.abs(covNow - covTh) > 0.005 ? `; sayısal kaplamanın kuramdan ${sgn(100 * (covNow - covTh), 2)} puan sapması bundandır` : ""}.`);
+    }
+    if (P.integ !== "rk4") st.push(`Enerji hatası salınır ama büyümez: eğim × süre = ${ef ? vstr(Math.abs(ef.b) * Math.max(R.t, 1e-9), 2) : "—"}, salınım genliği ${vstr(Math.max(-th.dmin, th.dmax), 2)}.`);
+    const wh = Math.max(th.wx, th.wy) * P.h;
+    if (wh > 0.5) st.push(`ω·h = ${fix(wh, 2)}: adım kaba, tümleyicinin hatası büyür (Verlet ω·h < 2'de kararlıdır).`);
+    setText(out.oStatus, st.join(" "));
+    out.oStatus.classList.toggle("is-warn", wh > 0.5);
+  }
+  // kₓ/k_y bir tam sayı oranının karesi mi? (dörder ondalıklı kesirlerle tam)
+  function rationalRatio(kx, ky) {
+    const a = rat(kx, 4), b = rat(ky, 4);
+    const num = a.n * b.d, den = b.n * a.d, g = gcd(num, den), n = num / g, d = den / g;
+    const sn = Math.round(Math.sqrt(n)), sd = Math.round(Math.sqrt(d));
+    return sn * sn === n && sd * sd === d ? { u: sn, v: sd } : null;
+  }
+
+  /* ── Çizim: (a) ── */
+  function drawStageA(th) {
+    const W = stage.width, H = stage.height, g = sctx, P = A.P, M = A.M;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const s = (Math.min(W, H) - 56 * dpr) / 2 / 1.04, cx = W / 2, cy = H / 2 + 6 * dpr;
+    const X = (u) => cx + s * u, Y = (v) => cy - s * v;
+    g.lineWidth = dpr;
+    g.strokeStyle = th.grid;
+    for (let k = -4; k <= 4; k++) {
+      const u = k * 0.25;
+      g.beginPath(); g.moveTo(X(u), Y(-1.04)); g.lineTo(X(u), Y(1.04)); g.stroke();
+      g.beginPath(); g.moveTo(X(-1.04), Y(u)); g.lineTo(X(1.04), Y(u)); g.stroke();
+    }
+    g.strokeStyle = th.axis;
+    g.beginPath(); g.moveTo(X(-1.04), Y(0)); g.lineTo(X(1.04), Y(0)); g.moveTo(X(0), Y(-1.04)); g.lineTo(X(0), Y(1.04)); g.stroke();
+    g.setLineDash([5 * dpr, 4 * dpr]);
+    g.strokeStyle = th.muted;
+    g.strokeRect(X(-P.A), Y(P.B), 2 * s * P.A, 2 * s * P.B);
+    g.setLineDash([]);
+    // Tam eğri (soluk), önbellekli Path2D
+    if (A.full) {
+      const key = `${W}x${H}|${M.N}|${P.A}|${P.B}|${P.a}|${P.b}|${P.d}`;
+      if (A.pathKey !== key) {
+        const p = new Path2D(), stride = Math.max(1, Math.ceil(M.N / 20000));
+        p.moveTo(X(P.A * M.xs[0]), Y(P.B * M.ys[0]));
+        for (let i = stride; i <= M.N; i += stride) p.lineTo(X(P.A * M.xs[i]), Y(P.B * M.ys[i]));
+        p.lineTo(X(P.A * M.xs[M.N]), Y(P.B * M.ys[M.N]));
+        A.path = p; A.pathKey = key;
+      }
+      g.strokeStyle = th.faint;
+      g.lineWidth = 1.3 * dpr;
+      g.stroke(A.path);
+    }
+    // Sönen iz: son L saniye, analitik
+    const t = A.t, L = Math.min(A.trail, t), f = Math.max(P.a, P.b);
+    const n = Math.max(2, Math.min(900, Math.ceil(((L * f) / TAU) * 64)));
+    const chunks = 18;
+    g.lineCap = "round";
+    for (let c = 0; c < chunks; c++) {
+      const i0 = Math.floor((c * n) / chunks), i1 = Math.floor(((c + 1) * n) / chunks);
+      if (i1 <= i0) continue;
+      g.beginPath();
+      for (let i = i0; i <= i1; i++) {
+        const tt = t - L + (L * i) / n;
+        const px = X(P.A * lx(P, tt)), py = Y(P.B * ly(P, tt));
+        if (i === i0) g.moveTo(px, py); else g.lineTo(px, py);
+      }
+      g.strokeStyle = rgba(th.accRGB, (0.12 + 0.88 * (c + 1) / chunks).toFixed(3));
+      g.lineWidth = (1.2 + 1.8 * (c + 1) / chunks) * dpr;
+      g.stroke();
+    }
+    g.lineCap = "butt";
+    // İşaretler
+    if (A.marks && M.closed) {
+      for (const p of M.v.pts) {
+        if (p.corner) continue;
+        g.fillStyle = th.acc2;
+        g.beginPath(); g.arc(X(P.A * p.x), Y(P.B * p.y), 4.2 * dpr, 0, TAU); g.fill();
+      }
+      for (const p of M.h.pts) {
+        if (p.corner) continue;
+        g.fillStyle = th.blue;
+        g.beginPath(); g.arc(X(P.A * p.x), Y(P.B * p.y), 4.2 * dpr, 0, TAU); g.fill();
+      }
+      const corners = M.v.pts.filter((p) => p.corner);
+      for (const p of corners) {
+        g.strokeStyle = th.warm; g.lineWidth = 2.2 * dpr;
+        g.beginPath(); g.arc(X(P.A * p.x), Y(P.B * p.y), 6 * dpr, 0, TAU); g.stroke();
+      }
+      if (M.cross) {
+        g.strokeStyle = th.ink; g.lineWidth = 1.4 * dpr;
+        for (const [u, v] of M.cross.pts) { g.beginPath(); g.arc(X(P.A * u), Y(P.B * v), 3.4 * dpr, 0, TAU); g.stroke(); }
+      }
+      if (M.phase && M.phase.rot !== 0) {
+        g.fillStyle = th.warm;
+        for (const xv of [M.phase.xUp, M.phase.xDn]) {
+          const px = X(xv), py = Y(0), r = 5 * dpr;
+          g.beginPath(); g.moveTo(px, py - r); g.lineTo(px + r, py); g.lineTo(px, py + r); g.lineTo(px - r, py); g.closePath(); g.fill();
+        }
+        label(g, th, `x₀ = ${fix(M.phase.xUp, 3)}`, X(M.phase.xUp), Y(0) + 16 * dpr, "center", th.warm, 11);
+      }
+    } else if (A.marks && !M.closed) {
+      for (const p of M.v.pts.slice(0, 400)) { g.fillStyle = th.acc2; g.beginPath(); g.arc(X(P.A * p.x), Y(P.B * p.y), 2.4 * dpr, 0, TAU); g.fill(); }
+      for (const p of M.h.pts.slice(0, 400)) { g.fillStyle = th.blue; g.beginPath(); g.arc(X(P.A * p.x), Y(P.B * p.y), 2.4 * dpr, 0, TAU); g.fill(); }
+    }
+    // Nokta ve izdüşüm kılavuzları
+    const hx = X(P.A * lx(P, t)), hy = Y(P.B * ly(P, t));
+    g.setLineDash([3 * dpr, 4 * dpr]);
+    g.strokeStyle = th.muted; g.lineWidth = dpr;
+    g.beginPath(); g.moveTo(hx, Y(0)); g.lineTo(hx, hy); g.lineTo(X(0), hy); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle = th.warm;
+    g.beginPath(); g.arc(hx, hy, 6 * dpr, 0, TAU); g.fill();
+    // Yazılar
+    const th0 = A.th;
+    const ratio = th0.closed ? `${fmtInt(th0.p)} : ${fmtInt(th0.q)}` : "√2 : 1";
+    label(g, th, `a : b = ${ratio} · δ = ${fmtPar(A.dDeg, 2)}°`, 12 * dpr, 16 * dpr, "left", th.ink, 12);
+    label(g, th, `t = ${fix(t, 2)} s`, W - 12 * dpr, 16 * dpr, "right", th.muted, 12);
+    const cap = M.closed
+      ? `dikey kenar: ${fmtInt(M.v.count)} · yatay kenar: ${fmtInt(M.h.count)}${M.cross ? ` · kesişim: ${M.cross.pts.length}` : ""}`
+      : `pencerede (251 s) kapanmadı · dikey ${fmtInt(M.v.count)} · yatay ${fmtInt(M.h.count)}`;
+    label(g, th, cap, 12 * dpr, H - 14 * dpr, "left", th.muted, 11);
+  }
+  function drawChartA(th) {
+    const W = chart.width, H = chart.height, g = cctx, P = A.P, M = A.M;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const f = Math.max(P.a, P.b), Tcyc = TAU / f;
+    const span = Math.min(M.T, 30 * Tcyc);
+    const box = { l: 40 * dpr, r: W - 12 * dpr, t: 22 * dpr, b: H - 24 * dpr };
+    const ax = plotBox(g, th, box, 0, span, -1.2, 1.2, { yStep: 0.5, xFmt: (v) => fmtPar(v, 2), xLabel: span < M.T ? `t (s) · ilk 30 salınım (T = ${fix(M.T, 2)} s)` : "t (s) · bir periyot" });
+    const stride = Math.max(1, Math.floor(M.N / 4000));
+    const nMax = Math.min(M.N, Math.ceil(span / M.dt));
+    g.save();
+    g.beginPath(); g.rect(box.l, box.t, box.r - box.l, box.b - box.t); g.clip();
+    for (const [arr, col] of [[M.xs, th.acc2], [M.ys, th.blue]]) {
+      g.strokeStyle = col; g.lineWidth = 1.6 * dpr;
+      g.beginPath();
+      for (let i = 0; i <= nMax; i += stride) { const px = ax.X(i * M.dt), py = ax.Y(arr[i]); if (i === 0) g.moveTo(px, py); else g.lineTo(px, py); }
+      g.stroke();
+    }
+    for (const [ext, fn, col] of [[M.xExt, lx, th.acc2], [M.yExt, ly, th.blue]]) {
+      g.fillStyle = col;
+      let k = 0;
+      for (const e of ext) {
+        const tt = ((e.t % M.T) + M.T) % M.T;
+        if (tt > span || k++ > 600) continue;
+        g.beginPath(); g.arc(ax.X(tt), ax.Y(fn(P, e.t)), 3.2 * dpr, 0, TAU); g.fill();
+      }
+    }
+    if (M.closed && span >= M.T - 1e-9) {
+      g.setLineDash([5 * dpr, 4 * dpr]); g.strokeStyle = th.warm; g.lineWidth = 1.5 * dpr;
+      g.beginPath(); g.moveTo(ax.X(M.T), box.t); g.lineTo(ax.X(M.T), box.b); g.stroke();
+      g.setLineDash([]);
+    }
+    const tc = M.closed ? A.t % M.T : A.t;
+    if (tc <= span) {
+      g.strokeStyle = th.warm; g.lineWidth = 1.2 * dpr;
+      g.beginPath(); g.moveTo(ax.X(tc), box.t); g.lineTo(ax.X(tc), box.b); g.stroke();
+    }
+    g.restore();
+    label(g, th, `x uçları: ${M.xExt.length} · y uçları: ${M.yExt.length}`, box.l + 6 * dpr, 11 * dpr, "left", th.muted, 10, false);
+  }
+
+  /* ── Çizim: (b) ── */
+  function drawStageB(th) {
+    const W = stage.width, H = stage.height, g = sctx, R = B.run;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const side = Math.min(W, H) - 28 * dpr, x0 = (W - side) / 2, y0 = (H - side) / 2;
+    g.fillStyle = th.scrEdge;
+    g.beginPath(); if (g.roundRect) g.roundRect(x0 - 6 * dpr, y0 - 6 * dpr, side + 12 * dpr, side + 12 * dpr, 16 * dpr); else g.rect(x0 - 6 * dpr, y0 - 6 * dpr, side + 12 * dpr, side + 12 * dpr); g.fill();
+    g.fillStyle = th.scrBg;
+    g.beginPath(); if (g.roundRect) g.roundRect(x0, y0, side, side, 12 * dpr); else g.rect(x0, y0, side, side); g.fill();
+    const dv = side / 8, cx = x0 + side / 2, cy = y0 + side / 2;
+    g.strokeStyle = th.scrGrid; g.lineWidth = dpr;
+    for (let k = 1; k < 8; k++) {
+      g.beginPath(); g.moveTo(x0 + k * dv, y0); g.lineTo(x0 + k * dv, y0 + side); g.stroke();
+      g.beginPath(); g.moveTo(x0, y0 + k * dv); g.lineTo(x0 + side, y0 + k * dv); g.stroke();
+    }
+    for (let k = 1; k < 40; k++) {
+      const u = x0 + (k * side) / 40;
+      g.beginPath(); g.moveTo(u, cy - 4 * dpr); g.lineTo(u, cy + 4 * dpr); g.moveTo(cx - 4 * dpr, y0 + (k * side) / 40); g.lineTo(cx + 4 * dpr, y0 + (k * side) / 40); g.stroke();
+    }
+    // Işın: kalıcılık exp(−yaş/τ), yaş gerçek zamanda
+    const amp = 3 * dv, tau = B.pers / 1000, sl = B.slow, maxAge = 3 * tau, nb = 10;
+    g.save();
+    g.beginPath(); g.rect(x0, y0, side, side); g.clip();
+    g.lineWidth = 1.7 * dpr; g.lineJoin = "round";
+    let idx = (R.head - 1 + BEAM_CAP) % BEAM_CAP, cnt = 0, bucket = -1;
+    let started = false, lastX = 0, lastY = 0;
+    const flush = () => { if (started) { g.strokeStyle = rgba(th.beamRGB, Math.exp((-3 * (bucket + 0.5)) / nb).toFixed(3)); g.stroke(); } };
+    while (cnt < R.len) {
+      const age = (R.t - R.bt[idx]) / sl;
+      if (age > maxAge) break;
+      const bk = Math.min(nb - 1, Math.floor((age / maxAge) * nb));
+      const px = cx + amp * R.bx[idx], py = cy - amp * R.by[idx];
+      if (bk !== bucket) { flush(); bucket = bk; g.beginPath(); if (cnt) { g.moveTo(lastX, lastY); g.lineTo(px, py); } else g.moveTo(px, py); started = true; }
+      else g.lineTo(px, py);
+      lastX = px; lastY = py;
+      idx = (idx - 1 + BEAM_CAP) % BEAM_CAP;
+      cnt++;
+    }
+    flush();
+    if (R.len) {
+      const j = (R.head - 1 + BEAM_CAP) % BEAM_CAP;
+      g.fillStyle = th.spot;
+      g.beginPath(); g.arc(cx + amp * R.bx[j], cy - amp * R.by[j], 2.6 * dpr, 0, TAU); g.fill();
+    }
+    g.restore();
+    g.font = font(11); g.fillStyle = th.scrText; g.textBaseline = "top"; g.textAlign = "left";
+    g.fillText(`X: f₁ = ${fix(R.f1, 3)} Hz   Y: f₂ = ${fix(R.f2, 3)} Hz`, x0 + 10 * dpr, y0 + 8 * dpr);
+    g.textBaseline = "bottom"; g.textAlign = "left";
+    g.fillText(`t = ${fix(R.t, 3)} s · ${R.R.p} : ${R.R.q}`, x0 + 10 * dpr, y0 + side - 8 * dpr);
+    g.textAlign = "right";
+    g.fillText(`${B.slow === 1 ? "1×" : SLOW_TXT[B.slow]} · τ = ${B.pers} ms`, x0 + side - 10 * dpr, y0 + side - 8 * dpr);
+  }
+  function drawChartB(th) {
+    const W = chart.width, H = chart.height, g = cctx, R = B.run;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const box = { l: 46 * dpr, r: W - 12 * dpr, t: 22 * dpr, b: H - 24 * dpr };
+    const tEnd = Math.max(12, R.t), tStart = tEnd - 12;
+    const pts = R.pts, th0 = scopeResult(R).th;
+    let y0 = Infinity, y1 = -Infinity;
+    for (let i = 0; i < pts.length; i += 2) if (pts[i] + R.t0 >= tStart) { y0 = Math.min(y0, pts[i + 1]); y1 = Math.max(y1, pts[i + 1]); }
+    if (!Number.isFinite(y0)) { y0 = -1; y1 = 1; }
+    const pad = Math.max(0.3, 0.1 * (y1 - y0));
+    y0 = Math.floor(y0 - pad); y1 = Math.ceil(y1 + pad);
+    const ax = plotBox(g, th, box, tStart, tEnd, y0, y1, { xFmt: (v) => fmtPar(v, 1), yStep: Math.max(1, niceStep((y1 - y0) / 4)), yFmt: (v) => fmtPar(v, 1), xLabel: "t (s) · etkin faz (çevrim = 2π/q)" });
+    g.save();
+    g.beginPath(); g.rect(box.l, box.t, box.r - box.l, box.b - box.t); g.clip();
+    g.setLineDash([3 * dpr, 4 * dpr]); g.strokeStyle = th.muted; g.lineWidth = dpr;
+    for (let k = Math.ceil(y0); k <= y1; k++) { g.beginPath(); g.moveTo(box.l, ax.Y(k)); g.lineTo(box.r, ax.Y(k)); g.stroke(); }
+    if (R.t0 !== null) {
+      g.setLineDash([6 * dpr, 5 * dpr]); g.strokeStyle = th.warm; g.lineWidth = 1.5 * dpr;
+      const per = TAU / R.R.q, k = th0.rate / per;
+      g.beginPath(); g.moveTo(ax.X(tStart), ax.Y(k * (tStart - R.t0))); g.lineTo(ax.X(tEnd), ax.Y(k * (tEnd - R.t0))); g.stroke();
+      g.setLineDash([]);
+    }
+    g.strokeStyle = th.acc; g.lineWidth = 2 * dpr;
+    g.beginPath();
+    let st = false;
+    for (let i = 0; i < pts.length; i += 2) {
+      const tt = pts[i] + R.t0;
+      if (tt < tStart) continue;
+      if (!st) { g.moveTo(ax.X(tt), ax.Y(pts[i + 1])); st = true; } else g.lineTo(ax.X(tt), ax.Y(pts[i + 1]));
+    }
+    g.stroke();
+    g.restore();
+  }
+
+  /* ── Çizim: (c) ── */
+  const paper = document.createElement("canvas"), pctx = paper.getContext("2d");
+  function harmoGeom(W, H) {
+    const Hh = C.h.H, ex = Hh.A[0] + (Hh.n === 3 ? Hh.A[2] : 0), ey = Hh.A[1] + (Hh.n === 3 ? Hh.A[2] : 0);
+    const e = Math.max(ex, ey, 0.05), s = (Math.min(W, H) - 40 * dpr) / 2 / e;
+    return { s, cx: W / 2, cy: H / 2 };
+  }
+  function paperDraw(th, from, to) {
+    const h = C.h, sm = h.smp, G = harmoGeom(paper.width, paper.height);
+    pctx.lineWidth = 1.1 * dpr; pctx.lineJoin = "round";
+    const step = 160;
+    for (let i0 = from; i0 < to; i0 += step) {
+      const i1 = Math.min(to, i0 + step);
+      const u = (i0 * sm.dt) / h.span;
+      pctx.strokeStyle = rgba(mix(th.accRGB, th.acc2RGB, Math.min(1, u)), 0.8);
+      pctx.beginPath();
+      pctx.moveTo(G.cx + G.s * sm.pts[2 * i0], G.cy - G.s * sm.pts[2 * i0 + 1]);
+      for (let i = i0 + 1; i <= i1; i++) pctx.lineTo(G.cx + G.s * sm.pts[2 * i], G.cy - G.s * sm.pts[2 * i + 1]);
+      pctx.stroke();
+    }
+  }
+  function drawStageH(th) {
+    const W = stage.width, H = stage.height, g = sctx, h = C.h, sm = h.smp;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const key = `${W}x${H}|${th.light}`;
+    if (h.paperKey !== key) {
+      paper.width = W; paper.height = H;
+      pctx.clearRect(0, 0, W, H);
+      h.paperKey = key; h.drawn = 0;
+    }
+    const idx = Math.min(sm.n - 1, Math.floor(h.tPen / sm.dt));
+    if (idx > h.drawn) { paperDraw(th, h.drawn, idx); h.drawn = idx; }
+    g.drawImage(paper, 0, 0);
+    const G = harmoGeom(W, H), o = [0, 0];
+    harmoXY(h.H, h.tPen, o);
+    g.fillStyle = th.warm;
+    g.beginPath(); g.arc(G.cx + G.s * o[0], G.cy - G.s * o[1], 5 * dpr, 0, TAU); g.fill();
+    label(g, th, `${h.H.n} sarkaç${h.H.seed !== null && h.H.seed !== undefined ? ` · tohum ${h.H.seed}` : ""}`, 12 * dpr, 16 * dpr, "left", th.ink, 12);
+    label(g, th, `t = ${fix(h.tPen, 1)} s / ${h.span} s`, W - 12 * dpr, 16 * dpr, "right", th.muted, 12);
+  }
+  function drawChartH(th) {
+    const W = chart.width, H = chart.height, g = cctx, h = C.h, Hh = h.H, sm = h.smp;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const gap = 14 * dpr, top = 20 * dpr, bot = H - 22 * dpr, mid = (top + bot) / 2;
+    const boxes = [{ l: 40 * dpr, r: W - 12 * dpr, t: top, b: mid - gap / 2 }, { l: 40 * dpr, r: W - 12 * dpr, t: mid + gap / 2, b: bot }];
+    const stride = Math.max(1, Math.floor(sm.n / 3000));
+    [0, 1].forEach((axn) => {
+      const box = boxes[axn];
+      const e = Hh.A[axn] + (Hh.n === 3 ? Hh.A[2] : 0) || 1;
+      const ax = plotBox(g, th, box, 0, h.span, -e * 1.1, e * 1.1, { yStep: niceStep(e / 1.2), xFmt: (v) => (axn === 1 ? fmtPar(v, 0) : ""), yFmt: (v) => fmtPar(v, 2) });
+      g.save();
+      g.beginPath(); g.rect(box.l, box.t, box.r - box.l, box.b - box.t); g.clip();
+      g.strokeStyle = axn === 0 ? th.acc2 : th.blue; g.lineWidth = 1.1 * dpr;
+      g.beginPath();
+      for (let i = 0; i < sm.n; i += stride) { const px = ax.X(i * sm.dt), py = ax.Y(sm.pts[2 * i + axn]); if (i === 0) g.moveTo(px, py); else g.lineTo(px, py); }
+      g.stroke();
+      if (Hh.n === 2) {
+        g.setLineDash([5 * dpr, 4 * dpr]); g.strokeStyle = th.warm; g.lineWidth = 1.3 * dpr;
+        for (const sg of [1, -1]) {
+          g.beginPath();
+          for (let k = 0; k <= 80; k++) { const tt = (h.span * k) / 80, v = sg * Hh.A[axn] * Math.exp(-Hh.d[axn] * tt); if (k === 0) g.moveTo(ax.X(tt), ax.Y(v)); else g.lineTo(ax.X(tt), ax.Y(v)); }
+          g.stroke();
+        }
+        g.setLineDash([]);
+        const pk = h.pk[axn];
+        g.fillStyle = th.warm;
+        for (let i = 0; i < pk.T.length && pk.T[i] <= h.tPen; i++) { g.beginPath(); g.arc(ax.X(pk.T[i]), ax.Y(pk.V[i]), 2.6 * dpr, 0, TAU); g.fill(); }
+      }
+      g.strokeStyle = th.ink; g.lineWidth = 1.2 * dpr;
+      g.beginPath(); g.moveTo(ax.X(h.tPen), box.t); g.lineTo(ax.X(h.tPen), box.b); g.stroke();
+      g.restore();
+      label(g, th, axn === 0 ? "x(t) (br)" : "y(t) (br) · t (s)", box.r - 4 * dpr, box.t + 9 * dpr, "right", th.muted, 10, true);
+    });
+  }
+  function drawStageO(th) {
+    const W = stage.width, H = stage.height, g = sctx, o = C.o, R = o.run;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const s = (Math.min(W, H) - 30 * dpr) / 2 / 1.3, cx = W / 2, cy = H / 2;
+    const X = (u) => cx + s * u, Y = (v) => cy - s * v, cw = s * (2 / OSC_G);
+    g.fillStyle = th.cellFill;
+    for (let j = 0; j < OSC_G; j++) for (let i = 0; i < OSC_G; i++) if (R.cells[j * OSC_G + i]) g.fillRect(X(-1) + i * cw, Y(-1) - (j + 1) * cw, cw + 0.5, cw + 0.5);
+    g.strokeStyle = th.grid; g.lineWidth = dpr;
+    for (let k = 0; k <= 8; k++) { const u = -1 + k * 0.25; g.beginPath(); g.moveTo(X(u), Y(-1)); g.lineTo(X(u), Y(1)); g.moveTo(X(-1), Y(u)); g.lineTo(X(1), Y(u)); g.stroke(); }
+    g.strokeStyle = th.axis; g.strokeRect(X(-1), Y(1), 2 * s, 2 * s);
+    // Duvarlar ve raylar
+    const wl = -1.24;
+    g.fillStyle = th.muted;
+    g.fillRect(X(wl) - 4 * dpr, Y(1.2), 4 * dpr, Y(-1.2) - Y(1.2));
+    g.fillRect(X(-1.2), Y(wl), X(1.2) - X(-1.2), 4 * dpr);
+    // Iz
+    const n = Math.min(R.tl, Math.ceil(2 / (R.trEvery * o.P.h)));
+    g.lineWidth = 2 * dpr; g.lineCap = "round";
+    for (let c = 0; c < 10; c++) {
+      const a0 = Math.floor((c * n) / 10), a1 = Math.floor(((c + 1) * n) / 10);
+      if (a1 <= a0) continue;
+      g.beginPath();
+      for (let k = a0; k <= a1; k++) {
+        const ii = (R.th - n + k - 1 + 2 * 4096) % 4096;
+        const px = X(R.trail[2 * ii]), py = Y(R.trail[2 * ii + 1]);
+        if (k === a0) g.moveTo(px, py); else g.lineTo(px, py);
+      }
+      g.strokeStyle = rgba(th.accRGB, (0.15 + 0.85 * (c + 1) / 10).toFixed(3));
+      g.stroke();
+    }
+    g.lineCap = "butt";
+    const mx = X(R.x), my = Y(R.y);
+    const spring = (x0, y0, x1, y1) => {
+      const L = Math.hypot(x1 - x0, y1 - y0), ux = (x1 - x0) / L, uy = (y1 - y0) / L, nz = 12, w = 6 * dpr;
+      g.beginPath(); g.moveTo(x0, y0);
+      for (let k = 1; k < nz; k++) { const u = k / nz, sgn2 = k % 2 ? 1 : -1; g.lineTo(x0 + ux * L * u - uy * w * sgn2, y0 + uy * L * u + ux * w * sgn2); }
+      g.lineTo(x1, y1); g.stroke();
+    };
+    g.strokeStyle = th.ink; g.lineWidth = 1.4 * dpr;
+    spring(X(wl), my, mx - 8 * dpr, my);
+    spring(mx, Y(wl), mx, my + 8 * dpr);
+    g.fillStyle = th.ink;
+    g.fillRect(X(wl) - 4 * dpr, my - 5 * dpr, 8 * dpr, 10 * dpr);
+    g.fillRect(mx - 5 * dpr, Y(wl) - 4 * dpr, 10 * dpr, 8 * dpr);
+    g.fillStyle = th.warm;
+    g.beginPath(); g.arc(mx, my, 8 * dpr, 0, TAU); g.fill();
+    label(g, th, `ωₓ/ω_y = ${fix(o.th.ratio, 4)} · ${o.P.integ === "rk4" ? "RK4" : "Verlet"}, h = ${o.P.h} s`, 12 * dpr, 16 * dpr, "left", th.ink, 12);
+    label(g, th, `t = ${fix(R.t, 1)} s · ${pctStr(R.count / (OSC_G * OSC_G), 1)}`, W - 12 * dpr, 16 * dpr, "right", th.muted, 12);
+  }
+  function drawChartO(th) {
+    const W = chart.width, H = chart.height, g = cctx, o = C.o, R = o.run, span = o.P.span;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const top = 20 * dpr, bot = H - 22 * dpr, split = top + (bot - top) * 0.66;
+    const b1 = { l: 46 * dpr, r: W - 12 * dpr, t: top, b: split - 8 * dpr }, b2 = { l: 46 * dpr, r: W - 12 * dpr, t: split + 8 * dpr, b: bot };
+    const a1 = plotBox(g, th, b1, 0, span, 0, 1, { yStep: 0.25, xFmt: () => "", yFmt: (v) => `${fix(100 * v, 0)}%` });
+    const line = (arr, col, w, dash, upto) => {
+      g.strokeStyle = col; g.lineWidth = w * dpr; g.setLineDash(dash.map((v) => v * dpr));
+      g.beginPath();
+      const n = upto === undefined ? arr.length : Math.min(arr.length, upto);
+      for (let i = 0; i < n; i++) { const px = a1.X(i * 0.25), py = a1.Y(arr[i]); if (i === 0) g.moveTo(px, py); else g.lineTo(px, py); }
+      g.stroke(); g.setLineDash([]);
+    };
+    line(o.refs.r32, rgba(th.acc2RGB, 0.55), 1.2, []);
+    line(o.refs.r2, rgba(th.warmRGB, 0.55), 1.2, []);
+    line(o.ex.cov, th.ink, 1.3, [6, 4]);
+    g.strokeStyle = th.acc; g.lineWidth = 2.2 * dpr;
+    g.beginPath();
+    for (let i = 0; i < R.cov.length; i += 2) { const px = a1.X(R.cov[i]), py = a1.Y(R.cov[i + 1]); if (i === 0) g.moveTo(px, py); else g.lineTo(px, py); }
+    g.stroke();
+    label(g, th, "kaplanan hücre oranı", b1.r - 4 * dpr, b1.b - 10 * dpr, "right", th.muted, 10, true);
+    // Enerji paneli: her 0.25 s aralığında ΔE/E₀'ın en küçüğü ile en büyüğü arası bant; kuram kesikli
+    const em = Math.max(R.eMax, -o.th.dmin, o.th.dmax, 1e-15);
+    const ys = niceStep(em / 1.5), ylim = Math.ceil((em * 1.1) / ys) * ys;
+    const a2 = plotBox(g, th, b2, 0, span, -ylim, ylim, { yStep: ylim, xFmt: (v) => fmtPar(v, 0), yFmt: (v) => (v === 0 ? "0" : sci(v, 1)) });
+    g.save();
+    g.beginPath(); g.rect(b2.l, b2.t, b2.r - b2.l, b2.b - b2.t); g.clip();
+    g.setLineDash([6 * dpr, 4 * dpr]); g.strokeStyle = th.ink; g.lineWidth = 1.2 * dpr;
+    if (o.P.integ === "rk4") {
+      g.beginPath();
+      for (let k = 0; k <= 60; k++) { const tt = (span * k) / 60, px = a2.X(tt), py = a2.Y(o.th.dE(tt)); if (k === 0) g.moveTo(px, py); else g.lineTo(px, py); }
+      g.stroke();
+    } else {
+      for (const v of [o.th.dmin, o.th.dmax]) { g.beginPath(); g.moveTo(a2.X(0), a2.Y(v)); g.lineTo(a2.X(span), a2.Y(v)); g.stroke(); }
+    }
+    g.setLineDash([]);
+    const ep = R.ePts, nb = ep.length / 3;
+    if (nb > 1) {
+      g.fillStyle = rgba(th.blueRGB, 0.55);
+      g.beginPath();
+      g.moveTo(a2.X(ep[0]), a2.Y(ep[2]));
+      for (let i = 1; i < nb; i++) g.lineTo(a2.X(ep[3 * i]), a2.Y(ep[3 * i + 2]));
+      for (let i = nb - 1; i >= 1; i--) g.lineTo(a2.X(ep[3 * i]), a2.Y(ep[3 * i + 1]));
+      g.lineTo(a2.X(ep[0]), a2.Y(ep[1]));
+      g.closePath(); g.fill();
+      g.strokeStyle = th.blue; g.lineWidth = dpr; g.stroke();
+    }
+    g.restore();
+    label(g, th, "ΔE/E₀ · t (s)", b2.r - 4 * dpr, b2.t + 9 * dpr, "right", th.muted, 10, true);
+  }
+
+  /* ── Erişilebilir açıklamalar ── */
+  function ariaFor() {
+    if (S.tab === "egri") {
+      const M = A.M, th = A.th;
+      const r = th.closed ? `${th.p} : ${th.q}` : "√2 : 1";
+      return [`Lissajous eğrisi, a : b = ${r}, δ = ${fmtPar(A.dDeg, 2)}°: sınırlayan dikdörtgen, soluk tam eğri, hareket eden nokta ve sönen izi; ${M.closed ? `dikey kenarlara ${fmtInt(M.v.count)}, yatay kenarlara ${fmtInt(M.h.count)} değme noktası işaretli${M.cross ? `, ${M.cross.pts.length} kendini kesme noktası halkayla` : ""}` : "eğri pencerede kapanmadı"}`,
+        `x(t)/A ve y(t)/B zaman grafikleri, uç değerleri noktalarla işaretli, ölçülen periyot ${M.closed ? fix(M.T, 3) + " s" : "yok"} kesikli çizgiyle`];
+    }
+    if (S.tab === "osiloskop") {
+      const R = B.run;
+      return [`Benzetilmiş osiloskop ekranı, 8 × 8 bölme: x kanalı ${fix(R.f1, 3)} Hz, y kanalı ${fix(R.f2, 3)} Hz; fosfor kalıcılığıyla sönen ışın izi bir ${R.R.p} : ${R.R.q} Lissajous şekli çiziyor`,
+        "Etkin fazın zamana karşı grafiği (çevrim cinsinden), son 12 saniye: ölçülen faz ve kuramsal eğim kesikli çizgiyle"];
+    }
+    if (C.mode === "harmono") return [`Harmonograf çizimi, ${C.h.H.n} sarkaç: kalemin sönümlü sarkaçlarla çizdiği eğri ve kalemin şu anki yeri`, "İki panel: x(t) ve y(t), iki sarkaçta e üzeri −dt zarfı kesikli ve ölçülen tepeler noktalarla"];
+    return [`İki boyutlu yay salınıcısı: kütle, yatay ve düşey yaylar, son 2 saniyelik yörünge ve 64 × 64 ızgarada ziyaret edilmiş hücreler; ωₓ/ω_y = ${fix(C.o.th.ratio, 4)}`,
+      "Üst panel: kaplanan hücre oranı zamana karşı (ölçülen, kapalı biçim kuram, 3:2 ve √2 kuram eğrileri); alt panel: göreli enerji hatası ΔE/E₀"];
+  }
+
+  /* ── Sekmeler ── */
+  function applyVisibility() {
+    document.querySelectorAll(".lab [data-for]").forEach((el) => {
+      const okTab = el.dataset.for.split(" ").includes(S.tab);
+      const okMode = !el.dataset.mode || el.dataset.mode === C.mode;
+      el.hidden = !(okTab && okMode);
+    });
+  }
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    applyVisibility();
+    if (fromUser) { try { history.replaceState(null, "", `#${key}`); } catch (_) {} }
+    resize();
+    lastUi = 0;
+    audioUpdate();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+
+  /* ── Döngü ── */
+  let ariaKey = "";
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const el = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (!paused) {
+      if (S.tab === "egri") advanceA(el);
+      else if (S.tab === "osiloskop") advanceB(el);
+      else if (C.mode === "harmono") advanceH(el);
+      else advanceO(el);
+    }
+    const th = theme(), tk = th.light ? "light" : "dark";
+    if (tk !== lastTheme) { lastTheme = tk; C.h.paperKey = ""; }
+    if (now - lastUi > 200) {
+      lastUi = now;
+      if (S.tab === "egri") updateLiveA();
+      else if (S.tab === "osiloskop") readoutsB();
+      else if (C.mode === "harmono") readoutsH();
+      else readoutsO();
+      const ar = ariaFor(), k = ar.join("|");
+      if (k !== ariaKey) { ariaKey = k; stage.setAttribute("aria-label", ar[0]); chart.setAttribute("aria-label", ar[1]); }
+    }
+    if (S.tab === "egri") { drawStageA(th); drawChartA(th); }
+    else if (S.tab === "osiloskop") { drawStageB(th); drawChartB(th); }
+    else if (C.mode === "harmono") { drawStageH(th); drawChartH(th); }
+    else { drawStageO(th); drawChartO(th); }
+    requestAnimationFrame(frame);
+  }
+  function updateLiveA() {
+    const P = A.P, M = A.M, t = A.t;
+    setText(aOut.aTime, `${fix(t, 2)} s`);
+    setText(aOut.aTimeSub, M.closed ? `periyodun %${fix((100 * (t % M.T)) / M.T, 0)}'i · ${fmtInt(Math.floor(t / M.T))} tur` : "");
+    setText(aOut.aPoint, `(${fix(P.A * lx(P, t), 3)}, ${fix(P.B * ly(P, t), 3)}) br`);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+  }
+
+  /* ── Olaylar ── */
+  // (a)
+  document.querySelectorAll("[data-preset-a]").forEach((b) => b.addEventListener("click", () => applyPresetA(b.dataset.presetA)));
+  aUi.ampA.addEventListener("input", () => { A.ampA = Number(aUi.ampA.value); onParamA(); });
+  aUi.ampB.addEventListener("input", () => { A.ampB = Number(aUi.ampB.value); onParamA(); });
+  aUi.speed.addEventListener("change", () => { A.speed = Number(aUi.speed.value); syncA(); });
+  aUi.trail.addEventListener("input", () => { A.trail = Number(aUi.trail.value); syncA(); });
+  aUi.full.addEventListener("change", () => { A.full = aUi.full.checked; });
+  aUi.marks.addEventListener("change", () => { A.marks = aUi.marks.checked; });
+  aUi.toggle.addEventListener("click", () => setRunningA(!A.running));
+  aUi.restart.addEventListener("click", () => { A.t = 0; setRunningA(true); });
+  aUi.reset.addEventListener("click", resetA);
+  // (b)
+  document.querySelectorAll("[data-preset-b]").forEach((b) => b.addEventListener("click", () => applyPresetB(b.dataset.presetB)));
+  bUi.phi.addEventListener("input", () => { B.phi = Number(bUi.phi.value); onParamB(); });
+  bUi.pers.addEventListener("input", () => { B.pers = Number(bUi.pers.value); syncB(); });
+  bUi.slow.addEventListener("change", () => { B.slow = Number(bUi.slow.value); syncB(); audioUpdate(); });
+  bUi.toggle.addEventListener("click", () => setRunningB(!B.running));
+  bUi.restart.addEventListener("click", () => { restartB(); setRunningB(true); });
+  bUi.sound.addEventListener("click", toggleSound);
+  bUi.reset.addEventListener("click", resetB);
+  // (c)
+  $("cMode").addEventListener("change", (e) => { C.mode = e.target.value; setText($("cModeOut"), C.mode === "harmono" ? "harmonograf" : "yay salınıcısı"); applyVisibility(); resize(); lastUi = 0; });
+  document.querySelectorAll("[data-preset-h]").forEach((b) => b.addEventListener("click", () => applyPresetH(b.dataset.presetH)));
+  hUi.n.addEventListener("change", () => { C.h.H = { ...C.h.H, n: Number(hUi.n.value) }; setPresetH(null); syncH(); restartH(); setRunningH(true); });
+  hUi.boxes.forEach((b) => b.addEventListener("change", () => {
+    const k = b.dataset.k, i = +b.dataset.i, [lo, hi, dec] = H_LIM[k];
+    const raw = String(b.value).replace(",", ".").replace("\u2212", "-").trim();
+    let v = Number(raw);
+    if (raw === "" || !Number.isFinite(v)) { b.value = String(C.h.H[k][i]); return; }
+    v = Math.round(Math.min(hi, Math.max(lo, v)) * 10 ** dec) / 10 ** dec;
+    const H = { ...C.h.H, [k]: C.h.H[k].slice(), seed: null };
+    H[k][i] = v;
+    C.h.H = H;
+    setPresetH(null); syncH(); restartH(); setRunningH(true);
+  }));
+  function readSeed() {
+    const v = Math.floor(Number(String(hUi.seed.value).trim()));
+    return Number.isFinite(v) && v >= 1 && v <= 999999 ? v : null;
+  }
+  hUi.seed.addEventListener("change", () => { const v = readSeed(); if (v === null) hUi.seed.value = String(C.h.seed); else drawSeed(v); });
+  hUi.seedDraw.addEventListener("click", () => { const v = readSeed(); drawSeed(v === null ? C.h.seed : v); });
+  hUi.random.addEventListener("click", () => drawSeed(C.h.seed >= 999999 ? 1 : C.h.seed + 1));
+  hUi.span.addEventListener("input", () => { C.h.span = Number(hUi.span.value); syncH(); restartH(); setRunningH(true); });
+  hUi.speed.addEventListener("change", () => { C.h.speed = Number(hUi.speed.value); syncH(); if (!C.h.speed) C.h.tPen = C.h.span; });
+  hUi.toggle.addEventListener("click", () => setRunningH(!C.h.running));
+  hUi.restart.addEventListener("click", () => { restartH(); setRunningH(true); });
+  hUi.reset.addEventListener("click", resetH);
+  document.querySelectorAll("[data-preset-o]").forEach((b) => b.addEventListener("click", () => applyPresetO(b.dataset.presetO)));
+  oUi.integ.addEventListener("change", () => { C.o.integ = oUi.integ.value; syncO(); restartO(); setRunningO(true); });
+  oUi.h.addEventListener("change", () => { C.o.h = Number(oUi.h.value); syncO(); restartO(); setRunningO(true); });
+  oUi.span.addEventListener("change", () => { C.o.span = Number(oUi.span.value); syncO(); restartO(); setRunningO(true); });
+  oUi.speed.addEventListener("change", () => { C.o.speed = Number(oUi.speed.value); syncO(); });
+  oUi.toggle.addEventListener("click", () => setRunningO(!C.o.running));
+  oUi.restart.addEventListener("click", () => { restartO(); setRunningO(true); });
+  oUi.skip.addEventListener("click", () => { C.o.skip = true; setRunningO(true); });
+  oUi.reset.addEventListener("click", resetO);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button, a")) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      if (S.tab === "egri") setRunningA(!A.running);
+      else if (S.tab === "osiloskop") setRunningB(!B.running);
+      else if (C.mode === "harmono") setRunningH(!C.h.running);
+      else setRunningO(!C.o.running);
+    } else if (e.key === "r" || e.key === "R") {
+      if (S.tab === "egri") { A.t = 0; setRunningA(true); }
+      else if (S.tab === "osiloskop") { restartB(); setRunningB(true); }
+      else if (C.mode === "harmono") { restartH(); setRunningH(true); }
+      else { restartO(); setRunningO(true); }
+    }
+  });
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+  document.addEventListener("visibilitychange", () => audioUpdate());
+
+  /* ── Başlat ── */
+  C.h.H = harmoRandom(H_DEF.seed, H_DEF.n);
+  syncA(); syncB(); syncH(); syncO();
+  recomputeA(); restartB(); restartH(); restartO();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "egri", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+  window.__lissajous = { A, B, C, S, lissTheory, lissMeasure, scopeResult, oscTheory, applyPresetA, applyPresetB, applyPresetO, applyPresetH, selectTab, drawSeed };
+})();
+</script>
+</body>
+</html>

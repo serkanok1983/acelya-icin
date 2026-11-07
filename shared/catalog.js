@@ -1,0 +1,790 @@
+/**
+ * Açelya — sayfa kataloğu (scripts/build-catalog.mjs üretir; elle düzenleme)
+ * Ana sayfa kartları ve arama için Keşif Defteri özetleri.
+ */
+window.ACELYA_CATALOG = {
+  "akiskanlar-mekanigi": {
+    "title": "Akışkanlar Mekaniği: Hız, Basınç ve Viskozite",
+    "tagline": "Daralan boruda su hızlanır ve basıncı düşer, tanktan fışkıran jet seviyeyle birlikte yavaşlar, ince boruda debi yarıçapın dördüncü kuvvetiyle çöker. Bernoulli, Torricelli ve Poiseuille'ü ölç, sınırlarını gör.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "algoritmalar": {
+    "title": "Algoritmalar: Adımları Sayma Sanatı",
+    "tagline": "Aynı 40 çubuğu sıralamak için bir yöntem 780 karşılaştırma yapar, öteki 170'le biter. Fark bilgisayarın hızında değil, adımların girdiyle nasıl büyüdüğünde gizli.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "alternatif-akim": {
+    "title": "Alternatif Akım: Fazörler, Rezonans ve Güç",
+    "tagline": "Bobinde akım gerilimin gerisinde kalır, kondansatörde önüne geçer; doğru frekansta bu iki etki birbirini siler. Aynı zamanlama radyoyu istasyona ayarlar, 10 voltluk bir kaynaktan da 300 voltun üstünde gerilim çıkarır.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "altin-oran": {
+    "title": "Altın Oran: Kendine Benzeyen Sayı",
+    "tagline": "Bir çubuğu öyle böl ki kalan parça bütünün küçük kopyası olsun: φ = 1,618… Beşgende, Fibonacci dizisinde ve ayçiçeğinin sarmallarında gerçekten var; Parthenon'da ve insan yüzünde ise çoğunlukla sonradan uydurulmuş.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "asal-rsa": {
+    "title": "Asal Sayılar ve RSA: Elekten Şifreye",
+    "tagline": "İki asalı çarpmak bir an sürer, çarpımdan asalları geri bulmak yıllar. Eratosthenes'in eleğinden Riemann'ın sorusuna, 561'in hilesinden RSA anahtarına uzanan yol bu asimetride saklı.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "asit-baz-titrasyonu": {
+    "title": "Asit-Baz Titrasyonu: Damla Damla Mol Saymak",
+    "tagline": "Bir büret, bir indikatör ve biraz sabır: titrasyon görünmez iyonları damla damla sayar. Yirmi mililitre boyunca kıpırdamayan pH, son dört damlada altı basamaktan fazla sıçrar; sırrı logaritmada.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "asteroids": {
+    "title": "Asteroids: Uzayda Eylemsizlik Dersi",
+    "tagline": "1979'da Atari'nin en çok satan kabini, beş düğmeyle Newton'un birinci yasasını öğretti: gemi baktığı yöne değil, hız vektörünün gösterdiği yöne gider. Bu sayfadaki kodun her satırı o dersin içinde.",
+    "field": "Oyun",
+    "level": "Lise hazırlık",
+    "minutes": 30
+  },
+  "atislar": {
+    "title": "Eğik Atış: Parabol, Hava ve En İyi Açı",
+    "tagline": "Boşlukta top bir parabol çizer ve en uzağa 45° ile gider. Havada yol bozulur, menzil kısalır, en iyi açı düşer. Tartaglia'nın güllelerinden Ay'daki golf vuruşuna atışın matematiği.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
+  "atom-orbitalleri": {
+    "title": "Atom Orbitalleri: Elektronun Olasılık Haritası",
+    "tagline": "Elektron çekirdeğin çevresinde dönmez; bir dalga gibi titreşir ve yalnızca belirli biçimlere izin verilir. Küre, dambıl, yonca: bu biçimler periyodik tablodan kimyasal bağa kadar her şeyi düzenler.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "av-avci-lotka-volterra": {
+    "title": "Av ve Avcı: Birbirini Sürükleyen Nüfuslar",
+    "tagline": "Balıkçılık azalınca neden köpekbalıkları çoğalır? İki denklem, av ile avcının birbirini nasıl döngüye soktuğunu, hasadın avı neden artırdığını ve bol besinin dengeyi neden bozduğunu anlatır.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "ay-evreleri": {
+    "title": "Ay ve Mevsimler: Gölge Değil, Geometri",
+    "tagline": "Ay'ın yarısı hep aydınlıktır; evreler, o yarının ne kadarını gördüğümüzdür. Mevsimler de Güneş'e uzaklıktan değil, 23,44 derecelik bir eğiklikten doğar.",
+    "field": "Yer ve Uzay",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "basinc": {
+    "title": "Basınç: Derinlik, Pascal ve Hava Okyanusu",
+    "tagline": "Durgun bir akışkanda basınç yalnızca derinliğe bağlıdır; kabın biçimi de içindeki sıvının miktarı da bunu değiştirmez. Aynı kural Torricelli'nin cıva tüpünü, hidrolik krikoyu ve Everest'teki ince havayı açıklar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "bayes-olasilik": {
+    "title": "Bayes Teoremi: Kanıtla Fikir Değiştirmenin Matematiği",
+    "tagline": "Testin pozitif çıktı; hasta olma ihtimalin %95 mi, %9 mu? Cevap testin kalitesinde değil, hastalığın ne kadar nadir olduğunda saklı. Bayes teoremi, yeni bir kanıtla fikrini ne kadar değiştirmen gerektiğini söyler.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "bicimsel-diller-ve-otomata-teorisi": {
+    "title": "Otomatlar: Dört Daireyle Düşünen Makine",
+    "tagline": "Dört daire ve sekiz ok, bir dizgiyi 'evet' ya da 'hayır' diye yargılayabilir; ama parantez saymak için bir yığın, toplama yapmak için bir bant gerekir. Hangi makine neyi başarabilir, bu sayfanın sorusu.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
+  "bilgisayar-sistemleri-ve-mimarisi": {
+    "title": "Bilgisayar Mimarisi: Bir Saat Döngüsünün İçi",
+    "tagline": "Telefonundaki çip saniyede milyarlarca kez tik tak eder ve her tikte bir komut bir adım ilerler. Von Neumann'ın 1945 taslağından işlem hattına, ikiye tümleyenden önbelleğe: makinenin içindeki düzen.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "birim-cember": {
+    "title": "Birim Çember: Dönen Bir Noktanın Gölgeleri",
+    "tagline": "Yarıçapı 1 olan çemberde her açı bir noktadır; kosinüs ve sinüs onun iki gölgesi. İki dönmeyi art arda yapmak toplama formüllerini verir; sinüs de küçük dönmeleri kaydırıp toplayarak hesaplanabilir.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "cift-sarkac": {
+    "title": "Çift Sarkaç: Belirlenimci ama Öngörülemez",
+    "tagline": "İki çubuk, iki top, eksiksiz bilinen iki denklem; içinde hiç rastlantı yok. Yine de milyonda bir radyan farkla başlayan kopyalar 11 saniyede birbirinden kopar. Kaosu ölç, öngörünün neden bu kadar kısa kaldığını gör.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "cizge-teorisi": {
+    "title": "Çizge Teorisi: Köprülerden Algoritmalara",
+    "tagline": "Yedi köprü, bir nehir ve 1736'da 'bunun matematikle pek ilgisi yok' diyen Euler. Noktalarla çizgilerden kurulu bu dünya bugün harita uygulamalarının, sosyal ağların ve internetin omurgası.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "dairesel-hareket": {
+    "title": "Dairesel Hareket: Hiç Yere Varmayan Düşüş",
+    "tagline": "Sürat hiç değişmese bile çember üzerindeki her cisim ivmelenir. İpin ucundaki anahtarlığı, virajdaki arabayı ve Ay'ı aynı formül tutar: F = mv²/r.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "dalga-superpozisyonu": {
+    "title": "Dalga Süperpozisyonu: Sesle Sessizlik Yapmak",
+    "tagline": "İki dalga karşılaştığında yalnızca toplanır; ama bu basit toplama, ışığın dalga olduğunu kanıtladı, kulaklıklara sessizlik getirdi ve kara deliklerin çarpışmasını duydu.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 25
+  },
+  "denklem-denklestirme": {
+    "title": "Denklem Denkleştirme: Atom Sayımından Sıfır Uzayına",
+    "tagline": "Lavoisier'nin terazisinden lineer cebire: her atomu ve yükü iki tarafta eşitleyen katsayılar, A·v = 0 sisteminin çözümüdür. Elektronları say, sınırlayıcı gireni bul, verimi hesapla.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "derleyici-ve-yorumlayicilar": {
+    "title": "Derleyici ve Yorumlayıcı: Kodun Makineye Yolculuğu",
+    "tagline": "Yazdığın dört satır kod, işlemciye varana kadar beş kez kılık değiştirir: harfler token olur, tokenlar ağaç, ağaç ara kod, ara kod makine komutu. Bu sayfada o dönüşümü adım adım kendin yaparsın.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "dna-replikasyon": {
+    "title": "DNA Replikasyonu: Kendi Kalıbını Taşıyan Molekül",
+    "tagline": "Her hücre bölünmesinden önce iki metre DNA harf harf kopyalanır; hata payı milyarda bir. Sırrı 1953'te tek bir cümleyle sezildi: çift sarmalın her ipliği, ötekinin kalıbıdır.",
+    "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "dogal-secilim": {
+    "title": "Doğal Seçilim: Kimin Torunları Çoğalır?",
+    "tagline": "Hiçbir canlı değişmeye çalışmaz, yine de popülasyonlar değişir. İsli kentlerdeki güvelerden kuraklıktaki ispinozlara: rastgele çeşitlilik ile seçici hayatta kalma ve üremenin kör ama güçlü ortaklığı.",
+    "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "doppler-etkisi": {
+    "title": "Doppler Etkisi: Sirenden Yıldızlara",
+    "tagline": "Geçen ambulansın perdesi neden düşer, ses üstü bir jet neden önce sessiz gelip sonra patlamayla duyulur? Tepeleri say, frekansı ölç; aynı ilkenin başka güneşlerin gezegenlerini nasıl bulduğunu gör.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "duran-dalgalar": {
+    "title": "Duran Dalgalar: Tele ve Boruya Sığan Notalar",
+    "tagline": "Bir tel ya da bir boru her frekansı çalamaz: dalga kendi yansımasıyla buluşur ve yalnızca uçlara sığan dalga boyları birikir. Gitarın notası, klarnetin pesliği ve tınının rengi bu kuraldan doğar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "elektrik-devresi-simulasyonu": {
+    "title": "Doğru Akım Devreleri: Akım Tükenmez, Enerji Paylaşılır",
+    "tagline": "Bir pil, birkaç direnç ve tel: hepsi iki korunum yasasına ve tek bir doğrusal denklem sistemine iner. Ohm'un termoçiftinden Wheatstone köprüsüne, en büyük güç aktarımından SPICE'a uzanan bir yol.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
+  "elektrikli-araclar": {
+    "title": "Elektrikli Araçlar: Pilden Tekerleğe Enerji",
+    "tagline": "Saatte 100 kilometreyi aşan ilk otomobil 1899'da elektrikliydi. Yüz yıl kaybolup bir telefon piliyle geri döndü: bataryadan tekerleğe giden enerjinin muhasebesi.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "elektrokimya": {
+    "title": "Elektrokimya: Pilin İçindeki Merdiven",
+    "tagline": "Bir çinko parçası neden bakır iyonlarına elektron verir de tersi olmaz? Cevap, metallerin dizildiği bir voltaj merdiveninde gizli: pilin gerilimi, iki basamak arasındaki mesafedir.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "elektronik-devre": {
+    "title": "Geçici Rejim: Kondansatör Neden Bir Anda Dolmaz?",
+    "tagline": "Anahtar çevrildiği an devre yeni dengesine sıçrayamaz; τ ölçeğinde üstel olarak ya da salınarak varır. Leyden şişesinden defibrilatöre, 555 zamanlayıcısından osiloskoba aynı birkaç denklem.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "elektronik-muhendisligi": {
+    "title": "Elektronik: Kumdan Düşünen Makineye",
+    "tagline": "Bir kum tanesinin içine birkaç yabancı atom karıştır; akımı tek yöne geçiren bir kapı, sonra bir anahtar, sonra bir bilgisayar çıkar. Elektronik mühendisliği bu zincirin her halkasını tasarlar.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "enzim-kinetigi": {
+    "title": "Enzim Kinetiği: Yaşamın Hız Sınırı",
+    "tagline": "Enzimler tepkimeleri milyonlarca kat, en uç örnekte 10¹⁷ kat hızlandırır; ama her birinin bir hız tavanı vardır. Bu tavanı ve ona nasıl yaklaşıldığını anlatan temel model hâlâ 1913'te yazılmış tek bir denklemdir.",
+    "field": "Biyoloji",
+    "level": "Lise ileri",
+    "minutes": 30
+  },
+  "fonksiyon-grafigi": {
+    "title": "Fonksiyon Grafiği: Bir Kuralın Portresi",
+    "tagline": "Tekrar eden sinüs, ondan çeyrek periyot önde giden kosinüs, simetrik parabol, durdurulamayan eˣ ve onun aynası ln x. Grafik bir kuralı tek bakışta gösterir; ama yalnızca pencerenin içini.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "fotoelektrik": {
+    "title": "Fotoelektrik Olay: Işığın Bozuk Parası",
+    "tagline": "Metalden kaçmanın bir bedeli var ve ışık onu tek tek fotonlarla öder. Birkaç renk, bir gerilim kaynağı ve bir doğruyla Planck sabitini ölç: Einstein'ı haklı çıkaran, ama ölçeni ikna edemeyen deney.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "fotosentez-solunum": {
+    "title": "Fotosentez ve Solunum: Havadan Şeker, Şekerden Enerji",
+    "tagline": "Bir ağacın kuru kütlesinin büyük kısmı havadan gelir; soluduğun oksijen bir zamanlar fotosentez yapan bir hücrenin içindeki suydu. İki süreç aynı atomları döndürür, enerji ise tek yöne akar.",
+    "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "genetik-caprazlama": {
+    "title": "Genetik Çaprazlama: Bezelyeden Gen Haritasına",
+    "tagline": "Mendel'in 3 : 1'i bir kota değil, bir olasılıktır. Yavruları tek tek say ve ki-kareyle sına; X'e bağlı genleri soyağacında izle, bağlı genlerin ne sıklıkla ayrıldığından kromozom haritası çıkar.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "gorelilik-uzayzaman": {
+    "title": "Özel Görelilik: Uzay-Zamanın Geometrisi",
+    "tagline": "Işık hızı herkes için aynıysa saatler, cetveller ve “şimdi” gözlemciye göre değişir. Bir Minkowski diyagramında ışık saatini, eşzamanlılığı, ikizleri ve hiç değişmeyen uzay-zaman aralığını kendin ölç.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "grup-teorisi": {
+    "title": "Grup Teorisi: Simetrinin Dilbilgisi",
+    "tagline": "Bir kareyi döndürmek, saati ileri almak ve Rubik küpünü karıştırmak aynı dört kurala uyar. Grup teorisi bu kuralların bilimidir; Galois'nın 20 yaşında bıraktığı mektuptan Monster grubuna uzanır.",
+    "field": "Matematik",
+    "level": "Lisans",
+    "minutes": 40
+  },
+  "gunes-sistemi": {
+    "title": "Güneş Sistemi: Ekrana Sığmayan Mahalle",
+    "tagline": "Bir bulutun çöküşünden doğan, kütlesinin %99.8'i tek bir yıldızda toplanmış, neredeyse bomboş bir mahalle. Gezegenleri kim, nasıl buldu ve hiçbir poster neden onu doğru çizemiyor?",
+    "field": "Yer ve Uzay",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "hesaplama-teorisi": {
+    "title": "Hesaplama Teorisi: Makinelerin Yapamayacağı Şeyler",
+    "tagline": "1936'da, daha ortada tek bir bilgisayar yokken, 'hesaplamak' sözcüğü tanımlandı ve aynı yıl hiçbir bilgisayarın asla cevaplayamayacağı bir soru bulundu. Bu sayfa o tanımın ve o sorunun hikâyesi.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
+  "ideal-gaz": {
+    "title": "İdeal Gaz: Çarpışma Kaosundan Basit Bir Yasa",
+    "tagline": "Basınç, birim duvar yüzeyine saniyede yağan momentumdur; sıcaklık, ortalama hareket enerjisinin ölçüsü. Düz bir sert disk gazında PV = nRT'nin iki boyutlu hâlini, Maxwell–Boltzmann dağılımını ve ideallikten sapmayı ölç.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "integral": {
+    "title": "İntegral: Sonsuz İnce Dilimlerin Toplamı",
+    "tagline": "Arşimet bir parabolün alanını dilimleyerek buldu, Leibniz o dilimlerin toplamına uzun bir S çizdi. İntegral, küçük katkıları biriktirip tek ve kesin bir sayıya varmanın sanatıdır.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "internet-ve-ag-teknolojileri": {
+    "title": "İnternet: Paketlerin Dünya Turu",
+    "tagline": "Bir tıklamayla yola çıkan veri küçük paketlere bölünür, denizaltı kablolarında ışık hızının üçte ikisiyle gider; yolu yönlendiriciler, adresi DNS, güvenilirliği TCP sağlar. Beş deneyle zinciri tek tek aç.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "is-enerji": {
+    "title": "İş ve Enerji: Doğanın Muhasebe Defteri",
+    "tagline": "Rampadan kayan bir kutunun hızını, ivmeyi ve zamanı hiç hesaplamadan bulabilirsin. Tek gereken bir hesap defteri: kim ne kadar iş yaptı, enerji nereye gitti?",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 25
+  },
+  "isaretciler-ve-bellek-yonetimi": {
+    "title": "İşaretçiler ve Bellek: Adresi Elinde Tutmak",
+    "tagline": "Bir değişkenin değerini değil adresini saklamak, programcıya belleğin anahtarını verir: en hızlı veri yapıları da, 1988'de interneti durduran solucan da aynı anahtarla açıldı.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
+  "isletim-sistemleri-ve-linux": {
+    "title": "İşletim Sistemi: Donanımı Paylaştıran Hakem",
+    "tagline": "Tek bir işlemci, yüzlerce program: hepsi aynı anda çalışıyormuş gibi görünür. Bu yanılsamayı kuran, belleği paylaştıran ve her şeyi dosyaya çeviren yazılıma işletim sistemi denir; Linux onun en çok kopyalanan örneğidir.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "isletme-bilimi-ve-yonetim": {
+    "title": "İşletme: Kârın Başladığı Çizgi",
+    "tagline": "Bir fabrika kaçıncı üründe kendini öder? Başabaş noktası, katkı payı ve faaliyet kaldıracı: sayfadaki grafikte beş düğmeyle kârın matematiğini kendin kur, sonra Ford'dan Toyota'ya yönetimin hikâyesini oku.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "kaldirma-kuvveti": {
+    "title": "Kaldırma Kuvveti: Suyun İçinde Tartmak",
+    "tagline": "Sıvıya giren her cisim, yerini aldığı sıvının ağırlığı kadar yukarı itilir. Bu tek ilke buzdağının ne kadarının gizli kaldığını, geminin neden devrilmediğini ve sahte bir tacın suda nasıl ele verildiğini açıklar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "kalp-dolasim": {
+    "title": "Kalp ve Dolaşım: Pompa, Esnek Depo ve Oksijen",
+    "tagline": "Kasılırken sertleşen bir odacık, her atımın bir kısmını depolayan esnek bir aort ve oksijeni basınca göre bırakan bir molekül. Basınç–hacim döngüsünü, windkessel'i ve Fick ilkesini ölç.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "kara-cisim-isimasi": {
+    "title": "Kara Cisim Işıması: Kuantumun Doğduğu Eğri",
+    "tagline": "Sıcak her şey ışır; ideal bir kara cismin tayfını ise yalnız sıcaklığı belirler. Planck eğrisinden tepeyi ve toplam gücü ölç, yıldızların rengini hesapla, bir gezegenin ısı bütçesini kızılötesinde kapat.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
+  "karmasik-sayilar": {
+    "title": "Karmaşık Sayılar: Çarpmak Döndürmektir",
+    "tagline": "i ile çarpmak düzlemi 90° döndürür; her karmaşık sayıyla çarpmak bir döndürme ve bir büyütmedir. Euler formülü, birim kökler ve açıları koruyan dönüşümler bu tek fikrin üstüne kurulur.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "kepler-yasalari": {
+    "title": "Kepler Yasaları: Sekiz Yay Dakikalık İnat",
+    "tagline": "Tycho Brahe'nin gözlemlerindeki inatçı bir sekiz yay dakikası, gezegenlerin çember değil elips çizdiğini ortaya çıkardı. Üç yasa: elips yörünge, eşit alanlar ve T² = a³.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "kimyasal-kinetik": {
+    "title": "Kimyasal Kinetik: Tepkimelerin Saati",
+    "tagline": "Şeker yanmak, elmas grafite dönüşmek 'ister'; ama ikisi de oda sıcaklığında yerinden kıpırdamaz. Sır bir enerji tepesinde ve sıcaklığın o tepeyi aşan molekülleri nasıl çoğalttığında.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "kirinim-izgarasi": {
+    "title": "Kırınım Izgarası: Işığın Parmak İzini Okuyan Çizgiler",
+    "tagline": "Bir CD'deki gökkuşağından Güneş'te bulunan helyuma: binlerce eş yarık ışığı renklerine ayırır, parlak tepeleri 1/N oranında inceltir ve hidrojenin tayfında protonun kütlesini bile fark ettirir.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "klasik-girisim": {
+    "title": "Young'ın Çift Yarığı: Işığı Cetvelle Ölçmek",
+    "tagline": "Bir iğne deliği, iki yarık ve bir cetvel: nanometrelik dalga boyu milimetrelik saçaklara dönüşür. Young'ın kart deneyinden bir yıldızın çapını ölçen aynalara uzanan Δy = λL/d'nin hikâyesi.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "konik-kesitler": {
+    "title": "Konik Kesitler: Bir Koni, Bir Düzlem, Üç Eğri",
+    "tagline": "Bir koniyi düzlemle kes: eğime göre çember, elips, parabol ya da hiperbol çıkar. Tek bir sayı, dışmerkezlik, dördünü birleştirir; gezegen yörüngelerinden çanak antenlere uzanan bir geometri.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
+  "kristal-yapilar": {
+    "title": "Kristal Yapılar: Küre İstiflerinden X Işını Desenlerine",
+    "tagline": "Bir milimetrelik tuz kristali, aynı küçük kutunun milyarlarca milyar kez tekrarıdır. Küreleri istifle, düzlemleri çiz, X ışınlarının yansıdığı açıları ölç: atomları görmeden dizilişlerini böyle okuruz.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
+  "kuantum-dalga": {
+    "title": "Kuantum Kuyuları: Düzeyler, Vurular ve Tünelleme",
+    "tagline": "Bir elektronu nanometrelik kuyulara kapat: enerji basamaklara bölünür, tek basamakta hiçbir şey kıpırdamaz, iki basamak karışınca olasılık çalkalanır ve elektron ince bir duvarın ardındaki kuyuya tünelleyerek geçer.",
+    "field": "Fizik",
+    "level": "Lisans",
+    "minutes": 45
+  },
+  "kuantum-mekanigi": {
+    "title": "Kuantum Çift Yarık: Tek Elektron, İki Yol",
+    "tagline": "Elektronlar ekrana tek tek, kestirilemeyen noktalara düşer; binlercesi birikince saçak çizer. Genliklerin toplandığı, yol bilgisinin saçağı sildiği ve tenis topunun saçağının neden hiç görülemeyeceği yer.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
+  "lissajous": {
+    "title": "Lissajous: Oran, Faz ve Dolgu",
+    "tagline": "İki dik salınımın çizdiği eğri, frekans oranını kenarlara değme sayısından, fazı ise elipsin kesişimi ile dönüş yönünden okutur. Yarım hertz iki saniyelik bir turdur; irrasyonel oran dikdörtgeni doldurur.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "lorentz-kuvveti": {
+    "title": "Lorentz Kuvveti: Hıza Aldırmayan Saat",
+    "tagline": "Manyetik alan yüklü bir parçacığın süratini değiştiremez, yalnızca yolunu büker. Bu tek kural siklotronu, kütle spektrometresini, kutup ışıklarını ve füzyon plazmasını aynı denklemde buluşturur.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "lorenz-cekici": {
+    "title": "Lorenz Çekicisi: Üç Denklemin Garip Kelebeği",
+    "tagline": "Isıtılan bir akışkandan süzülmüş üç satırlık denklem: yörünge iki kanat arasında hiç yinelemeden gidip gelir, her hacim birim zamanda 860 bin kat küçülür, milyarda birlik fark 23 birim zamanda milyar kat büyür.",
+    "field": "Matematik",
+    "level": "Lisans",
+    "minutes": 40
+  },
+  "maden-muhendisligi": {
+    "title": "Maden Mühendisliği: Kayadan Metale Giden Yol",
+    "tagline": "Bir ton kayada bir gram altın, yüz tonda bir ton bakır: maden mühendisi, değersiz görünen taşı bulan, çıkaran ve ayıran kişidir. Sayfadaki kartlar bu yolun duraklarıdır.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "makine-dili-assembly-c": {
+    "title": "Makine Dili, Assembly ve C: Soyutlamanın Üç Katı",
+    "tagline": "Telefonundaki her uygulama sonunda 48 89 F8 gibi byte dizilerine iner. Assembly o byte'lara ad verir, C ise 'hangi işlemci' sorusunu derleyiciye bırakır. Üç kat, tek makine.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "makine-muhendisligi": {
+    "title": "Makine Mühendisliği: Kuvvet, Isı ve Akışın Dili",
+    "tagline": "Bir cetveli dik tutunca yüz kat sertleşir, bir motorun verimi sıkıştırma oranına bakar, bir akışın düzenli mi karışık mı olacağını tek bir sayı söyler. Makine mühendisliği bu üç dili aynı anda konuşur.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "makine-ogrenmesi-derin-ogrenme-llm": {
+    "title": "Makine Öğrenmesi: Hatadan Öğrenen Makineler",
+    "tagline": "Sayfadaki ağın dokuz ağırlığı var; GPT-3'ün 175 milyar. İkisi de aynı şeyi yapar: tahmin et, hatayı ölç, her sayıyı eğimin tersine bir tık kaydır. Öğrenme dediğimiz şey, bu üç adımın milyarlarca kez tekrarıdır.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 40
+  },
+  "makro-ekonomi-ve-para-politikalari": {
+    "title": "Makroekonomi: Faiz, Fiyat ve Paranın Büyük Resmi",
+    "tagline": "Bir ülkenin bütün alışverişini dört harfe sığdıran denklem, altı sıfır atılan bir lira ve tek bir faiz düğmesinin milyonlarca cüzdana nasıl ulaştığı: makroekonominin ve merkez bankacılığının gerçek hikâyesi.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "mantik-devresi": {
+    "title": "Mantık Devresi: Kapılardan Hesaplamaya",
+    "tagline": "Yedi küçük kapı, iki voltaj seviyesi ve bir doğruluk tablosu: 1847'de bir ayakkabıcının oğlunun bulduğu cebir, 1937'de 21 yaşındaki bir öğrencinin elinde devreye dönüştü. Bugün cebindeki telefonun içinde milyarlarca kopyası var.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "manyetik-alan": {
+    "title": "Manyetik Alan: Akımın Görünmez Gölgesi",
+    "tagline": "İçinden akım geçen sıradan bir bakır tel, pusula iğnesini Dünya'nın elinden alacak kadar güçlü bir mıknatısa dönüşür. Teli sarıp sarımları yığınca bu görünmez alanı açıp kapatabilir, ölçebilir, büyütebilirsin.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 25
+  },
+  "matris-donusumleri": {
+    "title": "Matris Dönüşümleri: Dört Sayıyla Düzlemi Yeniden Çizmek",
+    "tagline": "Dört sayı bir şekli döndürür, gerer, yamultur, aynada çevirir ya da bir çizgiye ezer. Sütunları, determinantı ve özdeğerleri on bir köşeli küçük bir evin üstünde okumayı öğren.",
+    "field": "Matematik",
+    "level": "Lise ileri",
+    "minutes": 30
+  },
+  "mekatronik-muhendisligi": {
+    "title": "Mekatronik: Kendi Hatasını Düzelten Makineler",
+    "tagline": "Bir makineyi akıllı yapan güçlü motoru değil, kendi hatasını ölçüp düzeltebilmesidir. Sensör, kontrolcü ve motor arasında saniyede onlarca ila binlerce kez dönen tek bir döngü: geri besleme.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "mercek-isinlari": {
+    "title": "Mercek ve Görüntü: Gözlükten Teleskoba",
+    "tagline": "Eğri bir cam parçası, bir noktadan saçılan ışığı başka bir noktada yeniden toplar. Gözlüğü, mikroskobu ve teleskobu doğuran bu fikrin geometrisi tek bir denkleme sığar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "metalurji-ve-malzeme-muhendisligi": {
+    "title": "Metalurji ve Malzeme: Atomların Dizilişi, Çeliğin Kaderi",
+    "tagline": "Aynı demir, aynı karbon; birkaç saniyelik soğutma farkı yumuşak bir çubuğu cam gibi sert bir bıçağa çevirir. Malzeme mühendisliği, atomların dizilişini okuyup yeniden yazma sanatıdır.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "mikro-ekonomi-ve-uretim-faktorleri": {
+    "title": "Mikroekonomi: Kıtlık, Fiyat ve Seçim",
+    "tagline": "Su hayat kurtarır, elmas hiçbir işe yaramaz; yine de elmasa servet ödenir. Bu bilmeceyi 'son bardak' fikri çözdü. Sayfadaki iki grafikte denge fiyatını ve tüketicinin en iyi seçimini düğmelerle kendin oynat.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "mitoz-mayoz": {
+    "title": "Mitoz ve Mayoz: Kopyalamak ve Karıştırmak",
+    "tagline": "Vücudunda her gün milyarlarca hücre mitozla bölünüp kendini kopyalar; yalnız eşey hücrelerini yapan hücreler mayozla sayıyı yarıya indirir ve genleri karıştırır. Aynı makine, iki zıt amaç.",
+    "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "molekul-sekli": {
+    "title": "Molekül Şekli: Elektron Çiftlerinin Yer Kavgası",
+    "tagline": "Su neden bükük, karbondioksit neden dümdüz? Merkez atomun çevresindeki elektron çiftleri birbirinden kaçar; bu kaçışın geometrisi kokudan buzun yüzmesine kadar çok şeyi belirler.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 25
+  },
+  "newton-hareket-yasalari": {
+    "title": "Newton Yasaları: Kuvvet, Değişim ve Bir Çarpışma",
+    "tagline": "Newton'un üç yasası iki topun tek bir çarpışmasına sığar: kuvvet yokken dümdüz giden toplar, temas anında eşit ve zıt iki itme, önce de sonra da kuruşu kuruşuna aynı kalan toplam momentum.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "normal-dagilim": {
+    "title": "Normal Dağılım: Toplanan Rastlantıların Çan Eğrisi",
+    "tagline": "Zar ortalamaları, ölçüm hataları, anket sonuçları: birbirine benzemeyen rastlantılar toplandıkça aynı çana döner. Merkezi limit teoremi nedenini anlatır, standart hata bedelini: dört kat ölçüm, iki kat kesinlik.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "nukleer-fizik": {
+    "title": "Bağlanma Enerjisi: Çekirdeğin Eksik Kütlesi",
+    "tagline": "Bir helyum çekirdeği, kendisini oluşturan iki proton ve iki nötrondan binde 7.5 hafiftir. Bu eksik kütle yıldızları yakar, reaktörleri ısıtır; eğrinin tepesi hangi tepkimenin enerji vereceğini söyler.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "optik-yansima-kirilma": {
+    "title": "Sınırdaki Işık: Snell'den Optik Fibere",
+    "tagline": "Işık camın yüzeyinde yön değiştirir, bir kısmı geri döner, belli bir açıdan sonra hiç dışarı çıkamaz. İbn Sehl'in 984'teki oranından kıtaları bağlayan cam ipliklere, kırılma ve yansımanın fiziği.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "otomotiv-muhendisligi": {
+    "title": "Otomotiv Mühendisliği: Patlamadan Tekerleğe",
+    "tagline": "Bir otomobil, saniyede yüz kez tekrarlanan küçük patlamaları düzgün bir dönüşe, o dönüşü de yola çeviren makinedir. Motordan frene her parçası birkaç basit fizik yasasının ürünüdür.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "otonom-araclar-ve-iha": {
+    "title": "Otonom Araçlar ve İHA: Gören, Planlayan, Düzelten Makineler",
+    "tagline": "Sürücüsüz bir araç saniyede onlarca kez üç soru sorar: Neredeyim, ne görüyorum, nereden gideyim? Lazer, radar, 1968 tarihli bir algoritma ve yüz yıllık bir geri besleme fikri bu soruları yanıtlar.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "periyodik-tablo": {
+    "title": "Periyodik Tablo: Boşlukları Öngören Harita",
+    "tagline": "1869'da 63 elementle çizilen bir tablo, henüz keşfedilmemiş metallerin yoğunluğunu önceden söyledi. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "ph-indikator": {
+    "title": "pH ve İndikatörler: Su Dengesi, Logaritma ve Renk",
+    "tagline": "Saf su 100 °C'de pH 6.13'tedir ama asidik değildir; asit eklenen su asla bazik olmaz; bir indikatörün rengi de tek bir dalga boyundan değil, bütün soğurma tayfından doğar.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "pi-yaklasimi": {
+    "title": "π'yi Hesaplamak: Hata Hangi Hızla Küçülür?",
+    "tagline": "Bir milyon rastgele nokta π'nin tipik olarak 2.8 basamağını verir. Chudnovsky serisinin tek terimi 13.2 basamak getirir. Dokuz yöntemi yarıştır; Arşimet'in sınırlarını ve kayan noktanın tuzağını ölç.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
+  "pisagor": {
+    "title": "Pisagor: Kare, Üçlü ve Küre",
+    "tagline": "Dik üçgende iki karenin alanı üçüncüsüne eşittir. Açı sapınca kosinüs teoremi, kenarlar tam sayı olunca Öklid üçlüleri, yer eğrilince de açı fazlalığı aynı eşitliğin büyümüş hâlidir.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "plc-hidrolik-pnomatik-cnc-cadcam": {
+    "title": "Otomasyon: Beyin, Kas ve Dijital Köprü",
+    "tagline": "Bir fabrika üç şeyden kuruludur: karar veren bir beyin (PLC), itip çeken kaslar (hidrolik, pnömatik, dişli) ve çizimi parçaya çeviren dijital bir zincir (CAD, CAM, G-kodu). Hepsi birkaç basit yasaya dayanır.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "pong": {
+    "title": "Pong: Bir Topun Geometrisi",
+    "tagline": "1972'de bir barın bozuk para kutusunu dolduran oyun, aslında saf geometri: hız vektörü, duvarda yansıma ve raketin ucundaki 60 derecelik sır. Bilgisayarı yenmenin formülü de burada.",
+    "field": "Oyun",
+    "level": "Lise hazırlık",
+    "minutes": 25
+  },
+  "programlama-paradigmalari": {
+    "title": "Programlama Paradigmaları: Aynı Soruya Beş Kafa",
+    "tagline": "1936'da iki matematikçi 'hesaplamak nedir' sorusuna iki farklı cevap verdi; biri bugünkü döngülerin, öteki map ve filter'ın atasıdır. Aynı altı sayıyı beş ayrı kafayla işleyip neden hep [4, 16, 36] çıktığını görüyoruz.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
+  "radyoaktif-bozunma": {
+    "title": "Radyoaktif Bozunma: Zar Atan Çekirdeklerin Saati",
+    "tagline": "Tek bir çekirdeğin ne zaman bozunacağını kimse söyleyemez; milyarlarcasının yarısının ne zaman gideceğini ise şaşmadan söyleriz. Rastlantı, sayı büyüdükçe yasaya dönüşür.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "rastgele-yuruyus": {
+    "title": "Rastgele Yürüyüş: Sarhoşun Yolu, Şansın Yasası",
+    "tagline": "Her adımı yazı turayla seçilen bir yürüyüşçü N adımda yalnızca √N mertebesinde uzaklaşır. Mürekkebin yavaş yayılması, kumarbazın iflası ve uzayda kaybolan kuş aynı hesaptan çıkar.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "riemann-toplamlari": {
+    "title": "Riemann Toplamları: Hatanın Hızı ve Monte Carlo",
+    "tagline": "Dikdörtgen, yamuk, parabol ve rastgele nokta: aynı alanı dört yolla ölç, hatanın n ile hangi hızda eridiğini log–log grafikte gör, tek boyutta kaybeden Monte Carlo'nun çok boyutta neden kazandığını hesapla.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "roma-hukuku": {
+    "title": "Roma Hukuku: Taş Kaybolur, Kural Kalır",
+    "tagline": "Bir ipotek, bir kira sözleşmesi, bir miras davası: üçünün de iskeleti Roma'da kuruldu. Kanun kitabı değil, bin yıl boyunca dava dava biriken bir düşünme yönteminin hikâyesi.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "sarkac": {
+    "title": "Sarkaç: Zamanı Ölçen Salınım",
+    "tagline": "Bir ipin ucundaki küçük bir ağırlık, üç yüzyıl boyunca insanlığın en hassas saatiydi. Nedeni salınımın matematiğinde gizli: periyot kütleye değil, ipin boyuna bakar.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 25
+  },
+  "serbest-dusme": {
+    "title": "Serbest Düşme: Tüy, Çekiç ve Hava",
+    "tagline": "Havasız ortamda tüy ile çekiç yere aynı anda değer; havada ise hızın karesiyle büyüyen bir fren her düşüşü bir limit hızla sınırlar. Aristoteles'ten Ay'daki çekice, yağmurdan paraşüte uzanan bir hikâye.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "siber-guvenlik": {
+    "title": "Siber Güvenlik: Tersi Zor Olan İşlemler",
+    "tagline": "Herkesin dinlediği bir hatta iki yabancı nasıl ortak bir sır kurar? Parola gücü neden bitle ölçülür, bir noktanın değişmesi özetin yarısını neden alt üst eder? Hepsi tek fikre dayanır: bir yönde kolay, tersi zor işlem.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "sicim-teorisi": {
+    "title": "Sicim Teorisi: Evrenin Notaları",
+    "tagline": "Parçacık yerine titreşen minicik bir ip koyarsan kütle çekimi kendiliğinden belirir, ama uzay 10 boyutlu olmak zorunda kalır. Elli yıllık bir fikrin yükselişi, vaatleri ve hâlâ sınanamamış olması.",
+    "field": "Fizik",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
+  "takimyildiz-haritasi": {
+    "title": "Takımyıldız Haritası: Gökyüzünün Adres Defteri",
+    "tagline": "Takımyıldızlar uzayda değil, bizim bakışımızda bir aradadır. Kutup Yıldızı'nın yüksekliği enlemini, kadir ölçeği parlaklığı, Dünya'nın dönüşü de hangi yıldızı ne zaman göreceğini söyler.",
+    "field": "Yer ve Uzay",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "tasarim-desenleri": {
+    "title": "Tasarım Desenleri: Programcıların Ortak Sözlüğü",
+    "tagline": "Bir mimarın 1977'de evler için yazdığı 253 'desen', 1994'te dört programcının elinde 23 yazılım desenine dönüştü. Bugün her büyük programın içinde aynı 23 fikir döner; ilk wiki bile bu desenleri tartışmak için kuruldu.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise ileri",
+    "minutes": 35
+  },
+  "taylor-serisi": {
+    "title": "Taylor Serisi: Tek Noktadan Ne Kadar Uzağa?",
+    "tagline": "Bir fonksiyonun tek noktadaki türevleri, onu o noktanın çevresinde taklit eden bir polinom kurar. Ne kadar uzağa kadar? Hatayı Lagrange kalanı, menzili karmaşık düzlemdeki tekillikler belirler.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "termodinamik": {
+    "title": "Termodinamik: Isıyı İşe Çevirmenin Bedeli",
+    "tagline": "Isı enerjidir ama çevrimle çalışan hiçbir makine onu tamamen işe çeviremez. Bir gazı PV diyagramında adım adım yönet, birinci yasanın defterini tut; Carnot, Otto ve Stirling'in yüzde yüze neden ulaşamadığını ölç.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "tork-denge": {
+    "title": "Tork ve Denge: Kaldıraçtan Kayan Merdivene",
+    "tagline": "Bir kuvvetin döndürme etkisi, büyüklüğü kadar nereye bindiğine de bağlıdır. Kaldıracı dengele, tahtanın nerede devrildiğini bul, merdivenin hangi basamakta kaydığını ölç: hepsi iki denklemle, ΣF = 0 ve Στ = 0.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "turev": {
+    "title": "Türev: Anlık Değişimi Yakalamak",
+    "tagline": "Duran bir fotoğrafın hızı olur mu? Türev, sıfıra yaklaşan ama sıfır olmayan bir adımla eğimi yakalar; bilgisayar ise o adımı fazla küçültünce yanılmaya başlar.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "ucak-muhendisligi-ve-aerodinamik": {
+    "title": "Aerodinamik: Havayı Aşağı İten Kanat",
+    "tagline": "Dört yüz tonluk bir uçağı havada tutan şey, atmosfer basıncının yüzde yedisi kadar bir fark. Kanadın bu farkı nasıl yarattığı, ne zaman yaratamadığı ve bunu ilk ölçen iki bisiklet tamircisinin hikâyesi.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "uluslararasi-iliskiler": {
+    "title": "Uluslararası İlişkiler: Polisi Olmayan Dünya",
+    "tagline": "Devletlerin üstünde ne hükümet ne polis var; yine de uçaklar iner, mektuplar ulaşır, antlaşmalara çoğunlukla uyulur. Üstte kimse yokken düzen nasıl mümkün olur? Uİ'nin bütün soruları bu sorunun türevidir.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "uzay-kosucusu": {
+    "title": "Uzay Koşucusu: Tek Tuşla Yerçekimi",
+    "tagline": "Tek bir tuş, sabit bir yerçekimi ve saniyede altmış kez dönen bir döngü. Zıplayan geminin arkasında atış hareketinin matematiği, paralaks yıldızlar ve kronometre kılığında bir mesafe sayacı var.",
+    "field": "Oyun",
+    "level": "Lise hazırlık",
+    "minutes": 25
+  },
+  "vektorler": {
+    "title": "Vektörler: Yönü Olan Sayıların Aritmetiği",
+    "tagline": "3 + 4 her zaman 7 etmez: yönü olan nicelikler uç uca eklenir, sonucu aradaki açı belirler. Stevin'in top zincirinden Hamilton'ın köprüsüne ve rüzgârda yan yan uçan uçağa, okların aritmetiği.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
+  "veri-yapilari": {
+    "title": "Veri Yapıları: Doğru Rafı Seçmek",
+    "tagline": "Aynı sayılar bir dizide, bir zincirde, yedi yuvalı bir tabloda ya da bir ağaçta saklanabilir. Hangisini seçtiğin, bir aramanın sekiz milyar adım mı yoksa otuz üç adım mı süreceğini belirler.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "veritabanlari": {
+    "title": "Veritabanları: Soruyu Sor, Yolu Bilme",
+    "tagline": "1970'te bir IBM matematikçisi, verinin diskte nerede durduğunu bilmeden soru sorulabileceğini iddia etti. Bugün cebindeki telefon bu fikrin onlarca kopyasını taşıyor: tablolar, anahtarlar, JOIN ve bir ağaç.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "yay-kutle": {
+    "title": "Yay ve Kütle: Saati Cebe Sığdıran Salınım",
+    "tagline": "Sarkacı yerçekimi geri çağırır, bloğu yay. Bu tek fark periyodu kütleye bağlar, yerçekiminden kurtarır; aynı denklem cep saatinden gökdelenlere, oradan moleküllere uzanır.",
+    "field": "Fizik",
+    "level": "Lise",
+    "minutes": 25
+  },
+  "yazilim-muhendisligi": {
+    "title": "Yazılım Mühendisliği: Kodun Ötesindeki Zanaat",
+    "tagline": "Bir satır kod yazmak kolaydır; on milyon satırı yüz kişiyle, on yıl boyunca, kimseyi öldürmeden değiştirmek değil. Yazılım mühendisliği bu ikinci işin bilimidir.",
+    "field": "Mühendislik",
+    "level": "Lise",
+    "minutes": 35
+  },
+  "yildiz-yasam-dongusu": {
+    "title": "Yıldızların Hayatı: Kaderi Kütle Yazar",
+    "tagline": "Her yıldız, kütleçekimi ile füzyon arasında yapılmış bir ateşkestir. H-R diyagramında bu ateşkesin nasıl kurulduğunu, ne kadar sürdüğünü ve nasıl bozulduğunu oku.",
+    "field": "Yer ve Uzay",
+    "level": "Lise",
+    "minutes": 30
+  }
+};

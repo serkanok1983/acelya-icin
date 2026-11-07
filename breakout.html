@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Breakout 🧱</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #06080f;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: none;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      min-height: 100dvh;
+    }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+      position: relative;
+      z-index: 3;
+    }
+    .hud h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-weight: 600;
+    }
+    #score {
+      font-size: clamp(0.85rem, 3.5vw, 1.15rem);
+      opacity: 0.95;
+    }
+    .controls { margin-top: 6px; }
+    .hint {
+      margin: 6px 0 0;
+      font-size: clamp(0.7rem, 2.8vw, 0.8rem);
+      opacity: 0.65;
+    }
+    .game-stage {
+      flex: 1;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+      position: relative;
+      z-index: 3;
+    }
+    #breakoutCanvas {
+      display: block;
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.2), 0 8px 32px rgba(0, 0, 0, 0.45);
+      touch-action: none;
+      background: #0c1929;
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="breakout">
+
+<header class="hud">
+  <h1>Breakout 🧱</h1>
+  <div id="score">Skor: <span id="scoreValue">0</span></div>
+  <div class="controls"><button type="button" id="btnNew">Yeni Oyun</button></div>
+  <p class="hint">← → veya yatay kaydır · Tüm tuğlaları kır</p>
+</header>
+
+<div class="game-stage">
+  <canvas id="breakoutCanvas" width="800" height="500" role="img" aria-label="Breakout oyun alanı"></canvas>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const GAME_W = 800;
+  const GAME_H = 500;
+  const BG = "#0c1929";
+
+  const canvas = document.getElementById("breakoutCanvas");
+  const ctx = canvas.getContext("2d", { alpha: true });
+  if (!ctx) return;
+
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  const noopFx = {
+    get: function () { return null; },
+    burst: function () {},
+    pop: function () {},
+    shake: function () {},
+    flash: function () {},
+    update: function () {},
+    draw: function () {},
+  };
+
+  let fx = window.AcelyaHooks && AcelyaHooks.noop ? AcelyaHooks.noop : noopFx;
+  window.addEventListener("acelya-game-ready", function () {
+    if (window.AcelyaHooks) fx = AcelyaHooks.bindJuice(canvas);
+    resizeGame();
+  });
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    if (!hud) return;
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = window.innerHeight - hudBottom - padY;
+    const scale = Math.min(availW / GAME_W, availH / GAME_H, 1.5) * 0.98;
+    const w = Math.max(260, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+  }
+
+  window.addEventListener("resize", resizeGame);
+  window.addEventListener("load", resizeGame);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", resizeGame);
+  }
+  resizeGame();
+
+  var paddle = { x: 350, y: 480, width: 100, height: 10, speed: 50 };
+  var ball = { x: 400, y: 250, dx: 4, dy: -4, radius: 8 };
+  var bricks = [];
+  var score = 0;
+  var gameOver = false;
+  var won = false;
+  var bricksDestroyed = 0;
+
+  function playPaddleHit() {
+    if (window.AcelyaSounds) AcelyaSounds.hit();
+  }
+  function playBrickBreak() {
+    if (window.AcelyaSounds) AcelyaSounds.explode();
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (gameOver && (e.code === "Space" || e.key === "Enter")) {
+      e.preventDefault();
+      newGame();
+      return;
+    }
+    if (e.key === "ArrowLeft" && paddle.x > 0) paddle.x -= paddle.speed;
+    if (e.key === "ArrowRight" && paddle.x < GAME_W - paddle.width) paddle.x += paddle.speed;
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") e.preventDefault();
+  });
+
+  function canvasCssToGameX(clientX) {
+    var rect = canvas.getBoundingClientRect();
+    if (rect.width <= 0) return GAME_W / 2;
+    var t = (clientX - rect.left) / rect.width;
+    return t * GAME_W;
+  }
+
+  canvas.addEventListener(
+    "touchstart",
+    function (e) {
+      e.preventDefault();
+      if (e.touches.length) {
+        var x = canvasCssToGameX(e.touches[0].clientX);
+        paddle.x = Math.max(0, Math.min(GAME_W - paddle.width, x - paddle.width / 2));
+      }
+    },
+    { passive: false }
+  );
+
+  canvas.addEventListener(
+    "touchmove",
+    function (e) {
+      e.preventDefault();
+      if (e.touches.length) {
+        var x = canvasCssToGameX(e.touches[0].clientX);
+        paddle.x = Math.max(0, Math.min(GAME_W - paddle.width, x - paddle.width / 2));
+      }
+    },
+    { passive: false }
+  );
+
+  function createBricks() {
+    bricks = [];
+    for (var c = 0; c < 8; c++) {
+      for (var r = 0; r < 5; r++) {
+        bricks.push({
+          x: c * 100 + 10,
+          y: r * 30 + 30,
+          width: 80,
+          height: 20,
+          color: "hsl(" + Math.floor(Math.random() * 360) + ", 85%, 58%)",
+          status: 1,
+        });
+      }
+    }
+  }
+
+  function update() {
+    if (gameOver) return;
+
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+
+    if (ball.x < ball.radius) {
+      ball.x = ball.radius;
+      ball.dx = Math.abs(ball.dx);
+    } else if (ball.x > GAME_W - ball.radius) {
+      ball.x = GAME_W - ball.radius;
+      ball.dx = -Math.abs(ball.dx);
+    }
+    if (ball.y < ball.radius) {
+      ball.y = ball.radius;
+      ball.dy = Math.abs(ball.dy);
+    }
+
+    if (ball.y > GAME_H + ball.radius * 2) {
+      gameOver = true;
+      fx.shake(12);
+      if (window.AcelyaHooks) AcelyaHooks.recordScore(score);
+      window.AcelyaGame?.announce?.(`Oyun bitti. Skorun ${score}.`, true);
+      return;
+    }
+
+    if (
+      ball.dy > 0 &&
+      ball.y + ball.radius >= paddle.y &&
+      ball.y - ball.radius <= paddle.y + paddle.height &&
+      ball.x + ball.radius >= paddle.x &&
+      ball.x - ball.radius <= paddle.x + paddle.width
+    ) {
+      var paddleHit = Math.max(-1, Math.min(1, (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2)));
+      var ballSpeed = Math.hypot(ball.dx, ball.dy);
+      var paddleAngle = paddleHit * (Math.PI / 3);
+      ball.dx = ballSpeed * Math.sin(paddleAngle);
+      ball.dy = -ballSpeed * Math.cos(paddleAngle);
+      ball.y = paddle.y - ball.radius - 0.5;
+      playPaddleHit();
+    }
+
+    for (var i = 0; i < bricks.length; i++) {
+      var b = bricks[i];
+      if (
+        b.status &&
+        ball.x + ball.radius > b.x &&
+        ball.x - ball.radius < b.x + b.width &&
+        ball.y + ball.radius > b.y &&
+        ball.y - ball.radius < b.y + b.height
+      ) {
+        var overlapX = Math.min(
+          ball.x + ball.radius - b.x,
+          b.x + b.width - (ball.x - ball.radius)
+        );
+        var overlapY = Math.min(
+          ball.y + ball.radius - b.y,
+          b.y + b.height - (ball.y - ball.radius)
+        );
+        if (overlapX < overlapY) ball.dx *= -1;
+        else ball.dy *= -1;
+        b.status = 0;
+        bricksDestroyed++;
+        playBrickBreak();
+        fx.burst(b.x + b.width / 2, b.y + b.height / 2, b.color, 18);
+        fx.pop(b.x + b.width / 2, b.y, "+10");
+        score += 10;
+        var el = document.getElementById("scoreValue");
+        if (el) el.textContent = String(score);
+        if (bricksDestroyed % 10 === 0) {
+          ball.dx *= 1.08;
+          ball.dy *= 1.08;
+        }
+        break;
+      }
+    }
+
+    var allGone = true;
+    for (var j = 0; j < bricks.length; j++) {
+      if (bricks[j].status) {
+        allGone = false;
+        break;
+      }
+    }
+    if (allGone && bricks.length) {
+      won = true;
+      gameOver = true;
+      fx.flash(0.35);
+      fx.shake(8);
+      if (window.AcelyaHooks) AcelyaHooks.recordScore(score);
+      window.AcelyaGame?.announce?.(`Bütün tuğlaları kırdın. Skorun ${score}.`, true);
+    }
+  }
+
+  function draw() {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+
+    var juice = typeof fx.get === "function" ? fx.get() : null;
+    if (juice && typeof juice.applyTransform === "function") {
+      juice.applyTransform(ctx);
+    }
+
+    for (var i = 0; i < bricks.length; i++) {
+      var b = bricks[i];
+      if (b.status) {
+        ctx.fillStyle = b.color;
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+        ctx.strokeStyle = "rgba(0,0,0,0.25)";
+        ctx.strokeRect(b.x + 0.5, b.y + 0.5, b.width - 1, b.height - 1);
+      }
+    }
+
+    ctx.fillStyle = "#5eead4";
+    ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+
+    ctx.beginPath();
+    ctx.fillStyle = "#fef3c7";
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+
+    if (gameOver) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = "rgba(6, 8, 15, 0.72)";
+      ctx.fillRect(0, 0, GAME_W, GAME_H);
+      ctx.fillStyle = "#e8ecf4";
+      ctx.font = "bold 28px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      if (won) {
+        ctx.fillText("Tebrikler! Tüm tuğlalar kırıldı", GAME_W / 2, GAME_H / 2 - 18);
+      } else {
+        ctx.fillText("Oyun bitti", GAME_W / 2, GAME_H / 2 - 18);
+      }
+      ctx.font = "16px system-ui, sans-serif";
+      ctx.fillText("Skor: " + score + " — Yeni Oyun’a bas veya Enter", GAME_W / 2, GAME_H / 2 + 22);
+      ctx.restore();
+    }
+
+    fx.update();
+    fx.draw(ctx, GAME_W, GAME_H);
+  }
+
+  var lastFrame = performance.now();
+  var frameAccumulator = 0;
+  var fixedStep = 1000 / 60;
+  function gameLoop(now) {
+    var elapsed = now - lastFrame;
+    lastFrame = now;
+    if (elapsed > 100) elapsed = 0;
+    frameAccumulator += elapsed;
+    while (frameAccumulator >= fixedStep) {
+      update();
+      frameAccumulator -= fixedStep;
+    }
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  function newGame() {
+    paddle.x = (GAME_W - paddle.width) / 2;
+    ball.x = GAME_W / 2;
+    ball.y = GAME_H / 2;
+    ball.dx = Math.random() < 0.5 ? -4 : 4;
+    ball.dy = -4;
+    score = 0;
+    gameOver = false;
+    won = false;
+    bricksDestroyed = 0;
+    frameAccumulator = 0;
+    lastFrame = performance.now();
+    document.getElementById("scoreValue").textContent = "0";
+    createBricks();
+    draw();
+  }
+
+  document.getElementById("btnNew").addEventListener("click", newGame);
+  newGame();
+  requestAnimationFrame(gameLoop);
+})();
+</script>
+</body>
+</html>

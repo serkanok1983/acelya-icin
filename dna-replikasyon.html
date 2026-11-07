@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+    <link rel="stylesheet" href="shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Her hücre bölünmesinden önce iki metre DNA harf harf kopyalanır; hata payı milyarda bir. Sırrı 1953'te tek bir cümleyle sezildi: çift sarmalın her ipliği, ötekinin kalıbıdır.">
+  <title>DNA Replikasyonu</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #0a0e14; color: #e6edf3;
+      font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+    h1 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+    p.sub { color: #8b949e; font-size: 0.9rem; text-align: center; max-width: 38rem; }
+    canvas { background: #121820; border-radius: 8px; max-width: 100%; }
+    .panel { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 1rem; }
+    button { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #e6edf3; cursor: pointer; }
+    button.active { background: #388bfd; border-color: #58a6ff; }
+    #stepInfo { font-size: 0.95rem; color: #79c0ff; text-align: center; max-width: 40rem; min-height: 2.5rem; }
+    a.back { color: #58a6ff; font-size: 0.85rem; margin-top: 0.5rem; text-decoration: none; }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="dna-replikasyon">
+  <h1>DNA Replikasyonu</h1>
+  <p class="sub">Yarı korunumlu kopyalama: çift sarmal açılır, primer bağlanır, DNA polimeraz yeni zincir sentezler.</p>
+  <canvas id="cv"></canvas>
+  <div class="panel">
+    <button class="step-btn active" data-s="0">1. Açılma</button>
+    <button class="step-btn" data-s="1">2. Primer</button>
+    <button class="step-btn" data-s="2">3. Sentez</button>
+    <button class="step-btn" data-s="3">4. Tamamlanma</button>
+    <button id="playBtn">Oynat</button>
+  </div>
+  <p id="stepInfo"></p>
+  <a class="back" href="index.html">← Ana menü</a>
+<script>
+const STEPS = [
+  { title: 'Helikaz — çift sarmal açılır', desc: 'DNA helikaz baz çiftleri arasındaki hidrojen bağlarını koparır; iki kalıp iplik ayrılır ve replikasyon çatalı oluşur.' },
+  { title: 'Primaz — RNA primerleri', desc: 'Primaz, her kalıbın 3′ ucuna karşılık gelen bölgeye kısa RNA primeri (mor) yapar. DNA polimeraz zinciri sıfırdan başlatamaz; primerin 3′-OH ucuna ihtiyaç duyar.' },
+  { title: 'DNA polimeraz III — yeni iplik', desc: 'Polimeraz kalıbı 3′→5′ yönünde okur, yeni ipliği yalnız 5′→3′ yönünde uzatır (A–T, G–C). Kalıplar antiparalel olduğu için iki yeni iplik zıt yönlerde büyür.' },
+  { title: 'Tamamlanma — iki özdeş DNA', desc: 'RNA primerleri DNA ile değiştirilir (bakteride DNA polimeraz I), DNA ligaz boşlukları kapatır. Her yeni çift sarmalda bir eski (ana) ve bir yeni iplik bulunur: yarı korunumlu eşlenme.' }
+];
+const BASE_COL = { A:'#f85149', T:'#58a6ff', G:'#3fb950', C:'#ffa657' };
+const PAIR = { A:'T', T:'A', G:'C', C:'G' };
+const SEQ = 'ATGCGATACGTA';            // üst kalıp, 5′→3′ soldan sağa
+const TOP = SEQ.split('');
+const BOT = TOP.map(b => PAIR[b]);      // alt kalıp, 3′→5′ soldan sağa
+const PRIMER_LEN = 2;
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const playBtn = document.getElementById('playBtn');
+let W, H, step = 0, anim = 0, playing = false, hold = 0, raf = null;
+
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = Math.min(800, innerWidth - 24); H = Math.min(400, Math.max(300, innerHeight * 0.5));
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+window.addEventListener('resize', resize);
+
+document.querySelectorAll('.step-btn').forEach(b => {
+  b.onclick = () => { setPlaying(false); setStep(+b.dataset.s); };
+});
+playBtn.onclick = () => {
+  setPlaying(!playing);
+  if (playing && anim >= 1) { hold = 0; setStep((step + 1) % STEPS.length); }
+  else if (playing) start();
+};
+
+function setPlaying(next) {
+  playing = next;
+  playBtn.textContent = playing ? 'Durdur' : 'Oynat';
+}
+
+function setStep(s) {
+  step = s; anim = reduceMotion ? 1 : 0; hold = 0;
+  document.querySelectorAll('.step-btn').forEach(b => b.classList.toggle('active', +b.dataset.s === s));
+  const st = STEPS[s];
+  document.getElementById('stepInfo').innerHTML = `<strong>${st.title}</strong><br>${st.desc}`;
+  draw();
+  start();
+}
+
+function start() {
+  if (raf) cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(tick);
+}
+
+// Seçilen adım bir kez canlandırılır; Oynat açıksa kısa bir duraklamadan sonra sonraki adıma geçilir.
+function tick() {
+  raf = null;
+  if (anim < 1) {
+    anim = Math.min(1, anim + 0.012);
+  } else if (playing) {
+    if (++hold > 70) { setStep((step + 1) % STEPS.length); return; }
+  } else {
+    draw();
+    return;
+  }
+  draw();
+  raf = requestAnimationFrame(tick);
+}
+
+const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+function layout() {
+  const n = TOP.length;
+  const spacing = Math.min(30, (W - 120) / (n - 1));
+  const startX = (W - spacing * (n - 1)) / 2;
+  const mid = H / 2;
+  const open = step === 0 ? ease(anim) : 1;
+  const gap = 22 + open * 88;            // kalıplar arası yarım mesafe
+  return { n, spacing, startX, mid, yTop: mid - gap, yBot: mid + gap, newOffset: 34, open };
+}
+
+function base(x, y, b, alpha) {
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = BASE_COL[b];
+  ctx.beginPath();
+  ctx.arc(x, y, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#0d1117';
+  ctx.font = 'bold 10px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(b, x, y + 3.5);
+  ctx.globalAlpha = 1;
+}
+
+function backbone(x1, x2, y, color, dash) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.setLineDash(dash || []);
+  ctx.beginPath();
+  ctx.moveTo(x1, y);
+  ctx.lineTo(x2, y);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function endLabels(L, y, left, right, color) {
+  ctx.fillStyle = color || '#8b949e';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(left, L.startX - 30, y + 4);
+  ctx.fillText(right, L.startX + L.spacing * (L.n - 1) + 30, y + 4);
+}
+
+function pairLines(L, yA, yB, from, to, alpha) {
+  ctx.strokeStyle = 'rgba(139,148,158,0.55)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 3]);
+  ctx.globalAlpha = alpha;
+  for (let i = from; i < to; i++) {
+    const x = L.startX + i * L.spacing;
+    ctx.beginPath();
+    ctx.moveTo(x, yA + (yA < yB ? 10 : -10));
+    ctx.lineTo(x, yB + (yA < yB ? -10 : 10));
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.setLineDash([]);
+}
+
+// Yeni ipliğin i. bazının görünürlüğü. Üst yeni iplik sağdan sola, alt yeni iplik soldan sağa büyür (5′→3′).
+function newBaseState(i, n, isTop) {
+  const order = isTop ? n - 1 - i : i;
+  const isPrimer = order < PRIMER_LEN;
+  if (step < 1) return { alpha: 0, primer: false };
+  if (step === 1) return { alpha: isPrimer ? Math.max(0, Math.min(1, anim * 3 - order)) : 0, primer: isPrimer };
+  if (step === 2) {
+    if (isPrimer) return { alpha: 1, primer: true };
+    const grown = anim * (n - PRIMER_LEN);
+    return { alpha: Math.max(0, Math.min(1, grown - (order - PRIMER_LEN))), primer: false };
+  }
+  return { alpha: 1, primer: isPrimer && anim < 0.5 };
+}
+
+function drawNewStrand(L, isTop) {
+  const y = isTop ? L.yTop + L.newOffset : L.yBot - L.newOffset;
+  const yTemplate = isTop ? L.yTop : L.yBot;
+  const bases = isTop ? BOT : TOP;
+  let tipX = null, minX = Infinity, maxX = -Infinity, anyShown = false;
+  for (let i = 0; i < L.n; i++) {
+    const st = newBaseState(i, L.n, isTop);
+    if (st.alpha <= 0) continue;
+    anyShown = true;
+    const x = L.startX + i * L.spacing;
+    minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+    if (st.primer) {
+      ctx.globalAlpha = st.alpha;
+      ctx.fillStyle = '#d2a8ff';
+      ctx.fillRect(x - 12, y - 12, 24, 24);
+      ctx.globalAlpha = 1;
+    }
+    base(x, y, bases[i], st.alpha);
+    pairLines(L, yTemplate, y, i, i + 1, st.alpha);
+    if (st.alpha > 0.05) tipX = isTop ? (tipX === null ? x : Math.min(tipX, x)) : (tipX === null ? x : Math.max(tipX, x));
+  }
+  if (!anyShown) return;
+  backbone(minX - 12, maxX + 12, y + (isTop ? 14 : -14), step === 3 ? '#3fb950' : 'rgba(63,185,80,0.6)');
+  // Yeni ipliğin uçları: üstte 3′ solda / 5′ sağda, altta 5′ solda / 3′ sağda.
+  if (step >= 2) endLabels(L, y, isTop ? "3′" : "5′", isTop ? "5′" : "3′", '#3fb950');
+  if (step === 2 && tipX !== null && anim < 1) {
+    ctx.fillStyle = '#3fb950';
+    ctx.font = 'bold 11px system-ui';
+    ctx.textAlign = 'center';
+    const ty = isTop ? y + 32 : y - 24;
+    ctx.fillText(isTop ? '← DNA Pol III' : 'DNA Pol III →', tipX + (isTop ? -10 : 10), ty);
+  }
+}
+
+function draw() {
+  if (!W) return;
+  ctx.fillStyle = '#121820';
+  ctx.fillRect(0, 0, W, H);
+  const L = layout();
+  const lastX = L.startX + L.spacing * (L.n - 1);
+
+  // Kalıp iplikler ve omurgaları
+  backbone(L.startX - 12, lastX + 12, L.yTop - 14, '#6e7681');
+  backbone(L.startX - 12, lastX + 12, L.yBot + 14, '#6e7681');
+  if (step === 0) pairLines(L, L.yTop, L.yBot, 0, L.n, 1 - L.open);
+  for (let i = 0; i < L.n; i++) {
+    const x = L.startX + i * L.spacing;
+    base(x, L.yTop, TOP[i], 1);
+    base(x, L.yBot, BOT[i], 1);
+  }
+  endLabels(L, L.yTop, "5′", "3′");
+  endLabels(L, L.yBot, "3′", "5′");
+
+  drawNewStrand(L, true);
+  drawNewStrand(L, false);
+
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'left';
+  if (step === 0) {
+    ctx.fillStyle = '#ffa657';
+    ctx.fillText('Helikaz: hidrojen bağları kopuyor', 12, 18);
+  } else if (step === 3) {
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText('Gri: eski (kalıp) iplik · Yeşil: yeni iplik', 12, 18);
+  } else {
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText('Kalıp iplikler antiparalel: üstte 5′→3′, altta 3′→5′ (soldan sağa)', 12, 18);
+  }
+  if (step >= 1 && step <= 2) {
+    ctx.fillStyle = '#d2a8ff';
+    ctx.fillText('■ RNA primeri', 12, H - 12);
+  }
+}
+
+resize();
+setStep(0);
+</script></body>
+</html>

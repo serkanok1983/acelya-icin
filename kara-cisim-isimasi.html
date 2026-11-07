@@ -1,0 +1,2254 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kara Cisim Işıması: Planck, Wien ve Stefan–Boltzmann</title>
+  <meta name="description" content="Sıcak her şey ışır; ideal bir kara cismin tayfını ise yalnız sıcaklığı belirler. Planck eğrisinden tepeyi ve toplam gücü ölç, yıldızların rengini hesapla, bir gezegenin ısı bütçesini kızılötesinde kapat.">
+  <style>
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, 1fr);
+      grid-template-areas: "stage stage" "main side";
+      gap: 14px 16px;
+      align-items: start;
+    }
+    .stage-wrap { grid-area: stage; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; }
+    .main { grid-area: main; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+    .side { grid-area: side; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: pan-y;
+    }
+    .lab[data-tab="renk"] .sim-canvas { aspect-ratio: 3 / 2; }
+    .sim-canvas.is-grab { cursor: grab; }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; }
+    .legend span { white-space: nowrap; }
+    .legend span.wrap { white-space: normal; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid #8b95a8; }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.dot { border-top-style: dotted; }
+    .legend i.box { height: 10px; border-top: 0; border-radius: 3px; opacity: 0.8; }
+    .legend i.band { height: 10px; border-top: 0; border-radius: 3px; background: linear-gradient(90deg, #6d28d9, #2563eb, #059669, #ca8a04, #dc2626); opacity: 0.8; }
+    .legend .k-main { border-top-color: #5eead4; }
+    .legend .k-c1 { border-top-color: #a78bfa; }
+    .legend .k-c2 { border-top-color: #f472b6; }
+    .legend .k-rj { border-top-color: #f87171; }
+    .legend .k-wien { border-top-color: #fbbf24; }
+    .legend .k-alt { border-top-color: #93c5fd; }
+    .legend .k-cur { border-top-color: #cbd5e1; }
+    .legend .k-x { border-top-color: #f87171; }
+    .legend .k-y { border-top-color: #4ade80; }
+    .legend .k-z { border-top-color: #60a5fa; }
+    .legend .k-pl { border-top-color: #e8ecf4; }
+    .legend .k-abs { background: #fbbf24; }
+    .legend .k-refl { background: #cbd5e1; }
+    .legend .k-ir { background: #f87171; }
+    .legend .k-inc { border-top-color: #fbbf24; }
+    [data-theme="light"] .legend .k-main { border-top-color: #0d9488; }
+    [data-theme="light"] .legend .k-c1 { border-top-color: #7c3aed; }
+    [data-theme="light"] .legend .k-c2 { border-top-color: #db2777; }
+    [data-theme="light"] .legend .k-rj { border-top-color: #dc2626; }
+    [data-theme="light"] .legend .k-wien { border-top-color: #b45309; }
+    [data-theme="light"] .legend .k-alt { border-top-color: #2563eb; }
+    [data-theme="light"] .legend .k-cur { border-top-color: #475569; }
+    [data-theme="light"] .legend .k-x { border-top-color: #dc2626; }
+    [data-theme="light"] .legend .k-y { border-top-color: #16a34a; }
+    [data-theme="light"] .legend .k-z { border-top-color: #2563eb; }
+    [data-theme="light"] .legend .k-pl { border-top-color: #1a1d2e; }
+    [data-theme="light"] .legend .k-abs { background: #d97706; }
+    [data-theme="light"] .legend .k-refl { background: #94a3b8; }
+    [data-theme="light"] .legend .k-ir { background: #dc2626; }
+    [data-theme="light"] .legend .k-inc { border-top-color: #d97706; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .row button:disabled { opacity: 0.5; cursor: default; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts-wrap { display: grid; gap: 10px; min-width: 0; }
+    .group { display: grid; gap: 10px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 0.98rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .swatch { display: inline-block; flex: none; width: 1.05em; height: 1.05em; margin-right: 6px; border-radius: 50%; border: 1px solid var(--border); vertical-align: -0.16em; }
+    .readout .swatch { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.8rem; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 36%; }
+    .lab table.cmp col.c-body { width: 27%; }
+    .lab table.cmp col.c-sw { width: 26%; }
+    .lab table.cmp tr.is-sel th, .lab table.cmp tr.is-sel td { color: var(--accent-warm) !important; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    kbd { padding: 0 4px; border: 1px solid var(--border); border-radius: 4px; font: inherit; font-size: 0.78rem; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "main"; gap: 12px; }
+      .sim-canvas { aspect-ratio: 4 / 3; }
+      .lab[data-tab="renk"] .sim-canvas { aspect-ratio: 1 / 1; }
+      .chart-canvas { aspect-ratio: 3 / 2; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.78rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="kara-cisim-isimasi">
+
+<div class="app-content">
+  <h1>Kara Cisim Işıması: Planck, Wien ve Stefan–Boltzmann</h1>
+  <p class="hint">Bir sekme seç; sıcaklığı kaydırıcıyla ya da hazır bir cisimle ayarla. Tepe dalga boyunu ve toplam gücü eğrinin kendisinden sayısal olarak ölç, Wien (λ<sub>max</sub> = b/T) ve Stefan–Boltzmann (M = σT⁴) yasalarıyla karşılaştır.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney bölümleri">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-planck" data-tab="planck" aria-selected="true" aria-controls="labPanel">Planck eğrisi</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-renk" data-tab="renk" aria-selected="false" aria-controls="labPanel" tabindex="-1">Yıldızlar ve renk</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-gezegen" data-tab="gezegen" aria-selected="false" aria-controls="labPanel" tabindex="-1">Gezegen sıcaklığı</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-planck" data-tab="planck">
+    <div class="stage-wrap">
+      <canvas id="stageCanvas" class="sim-canvas" width="1100" height="550" role="img" aria-label="Planck eğrisi"></canvas>
+      <p class="legend" data-for="planck">
+        <span><i class="k-main"></i>Planck, T</span>
+        <span id="aLegC1" hidden><i class="k-c1"></i>karşılaştırma T₁</span>
+        <span id="aLegC2" hidden><i class="k-c2"></i>karşılaştırma T₂</span>
+        <span id="aLegRJ"><i class="k-rj dash"></i>Rayleigh–Jeans (klasik)</span>
+        <span id="aLegW" hidden><i class="k-wien dot"></i>Wien yaklaşımı</span>
+        <span><i class="k-alt dot"></i>öbür tepenin konumu (c/ν<sub>max</sub> ya da c/λ<sub>max</sub>)</span>
+        <span><i class="k-cur dot"></i>imleç</span>
+        <span><i class="band"></i>görünür bant 380–750 nm</span>
+      </p>
+      <p class="legend" data-for="renk" hidden>
+        <span class="wrap">Kalın çizgi: Planck eğrisi (kara cisim renkleri), işaretler kelvin · kesikli üçgen: sRGB ekran renkleri · D65: ekran beyazı · halka: seçili sıcaklık</span>
+      </p>
+      <p class="legend" data-for="gezegen" hidden>
+        <span class="wrap">Ölçeksiz şema · uzaklık ekseni logaritmik · V, D, M: Venüs, Dünya, Mars · gezegeni sürükleyerek D'yi değiştir</span>
+      </p>
+    </div>
+
+    <div class="side">
+      <div class="panel" data-for="planck" role="group" aria-labelledby="ttlA">
+        <h2 id="ttlA">Sıcaklık ve eksenler</h2>
+        <div class="field">
+          <label for="aT"><span class="lt">Sıcaklık T</span><output id="aTOut" for="aT">5772 K</output></label>
+          <input type="range" id="aT" min="0" max="500" step="1" value="0">
+        </div>
+        <div class="field">
+          <label for="aPreset"><span class="lt">Hazır cisim</span></label>
+          <select id="aPreset">
+            <option value="">Serbest (kaydırıcı)</option>
+            <option value="insan">İnsan vücudu · 310 K</option>
+            <option value="lamba">Akkor lamba · 2700 K</option>
+            <option value="betelgeuse">Betelgeuse · 3600 K</option>
+            <option value="gunes" selected>Güneş · 5772 K</option>
+            <option value="sirius">Sirius A · 9940 K</option>
+            <option value="rigel">Rigel · 12100 K</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aVar"><span class="lt">Yatay eksen</span></label>
+          <select id="aVar">
+            <option value="lam" selected>Dalga boyu λ (Bλ çizilir)</option>
+            <option value="nu">Frekans ν (Bν çizilir)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aScale"><span class="lt">Ölçek ve aralık</span></label>
+          <select id="aScale">
+            <option value="0">Doğrusal · 0–1 µm</option>
+            <option value="1" selected>Doğrusal · 0–3 µm</option>
+            <option value="2">Doğrusal · 0–10 µm</option>
+            <option value="3">Doğrusal · 0–30 µm</option>
+            <option value="4">Doğrusal · 0–100 µm</option>
+            <option value="5">Log–log · 10 nm – 1 mm</option>
+          </select>
+        </div>
+        <label class="check" for="aRJ"><input type="checkbox" id="aRJ" checked> Rayleigh–Jeans yasası (klasik)</label>
+        <label class="check" for="aWien"><input type="checkbox" id="aWien"> Wien yaklaşımı</label>
+        <div class="field">
+          <label for="aCur"><span class="lt">İmleç</span><output id="aCurOut" for="aCur">λ = 2.000 µm</output></label>
+          <input type="range" id="aCur" min="1" max="600" step="1" value="400">
+        </div>
+        <div class="row">
+          <button type="button" id="aPin" class="app-btn-ghost">Karşılaştırmaya ekle</button>
+          <button type="button" id="aClear" class="app-btn-ghost">Karşılaştırmaları sil</button>
+          <button type="button" id="aReset" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">Planck: B<sub>λ</sub> = (2hc²/λ⁵) · 1/(e<sup>hc/λkT</sup> − 1), birimi W·m⁻²·sr⁻¹·m⁻¹ (grafikte µm başına). Frekansa göre B<sub>ν</sub> = (2hν³/c²) · 1/(e<sup>hν/kT</sup> − 1). Rayleigh–Jeans: B<sub>λ</sub> = 2ckT/λ⁴, klasik eş bölüşümden gelir; kısa dalga boyunda sonsuza gider ve toplamı sonsuzdur (morötesi felaketi). Wien yaklaşımı paydadaki −1'i atar; hc/λkT ≫ 1 iken doğrudur.</p>
+        <p class="note">Sabitler SI 2019'daki tam değerler: h = 6.62607015×10⁻³⁴ J·s, c = 299 792 458 m/s, k = 1.380649×10⁻²³ J/K. Bunlardan σ = 2π⁵k⁴/(15h³c²) = 5.670374×10⁻⁸ W·m⁻²·K⁻⁴, Wien sabiti b = hc/(4.965114 k) = 2.897772×10⁻³ m·K ve ν<sub>max</sub>/T = 2.821439 k/h = 5.878926×10¹⁰ Hz/K türetilir.</p>
+        <p class="note">Ölçüm: tepe, çizilen aralıktaki eğri üzerinde sayısal aranır (logaritmik ızgarada tarama, sonra altın oran inceltmesi); en büyük değer aralığın ucundaysa tepe yok sayılır. M = π∫B<sub>λ</sub>dλ, ln λ üzerinde Simpson yöntemiyle hc/λkT = 10⁻⁵…80 arasında toplanır. Görünür pay, 380–750 nm integralinin toplama oranıdır; kuram sütunu Planck integralinin seri açılımı.</p>
+        <p class="note">İmleci kaydırıcıyla ya da grafiğe dokunup sürükleyerek taşı; tepe noktasını sürüklemek sıcaklığı değiştirir (T = b/λ). Karşılaştırmaya ekle şimdiki eğriyi sabitler (en çok iki). Kısayol: <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="renk" role="group" aria-labelledby="ttlB" hidden>
+        <h2 id="ttlB">Cisim ve sıcaklık</h2>
+        <div class="field">
+          <label for="bT"><span class="lt">Sıcaklık T</span><output id="bTOut" for="bT">5772 K</output></label>
+          <input type="range" id="bT" min="0" max="500" step="1" value="0">
+        </div>
+        <div class="field">
+          <label for="bPreset"><span class="lt">Hazır cisim</span></label>
+          <select id="bPreset">
+            <option value="">Serbest (kaydırıcı)</option>
+            <option value="kma">Kozmik mikrodalga arka plan · 2.7255 K</option>
+            <option value="insan">İnsan vücudu · 310 K</option>
+            <option value="lamba">Akkor lamba · 2700 K</option>
+            <option value="betelgeuse">Betelgeuse · 3600 K</option>
+            <option value="gunes" selected>Güneş · 5772 K</option>
+            <option value="sirius">Sirius A · 9940 K</option>
+            <option value="rigel">Rigel · 12100 K</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" id="bReset" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">Renk hesabı: Planck tayfı CIE 1931 2° standart gözlemcinin renk eşleme fonksiyonlarıyla çarpılıp toplanır: X = Σ B<sub>λ</sub> <span class="ov">x</span> Δλ, Y ve Z de aynı biçimde (360–830 nm, 5 nm adımlı CIE tablosu). Renklilik x = X/(X+Y+Z), y = Y/(X+Y+Z). XYZ, IEC 61966-2-1 matrisiyle doğrusal sRGB'ye (D65 beyazı) çevrilir, en büyük bileşen 1 olacak biçimde parlaklık normalleştirilir ve sRGB gama eğrisi uygulanır. Bir bileşen eksiye düşerse (renk sRGB üçgeninin dışında, yaklaşık 1900 K altı) o bileşen sıfıra kırpılır.</p>
+        <p class="note">Işıklılık L<sub>v</sub> = 683 lm/W · Σ B<sub>λ</sub> ȳ Δλ (cd/m²). Göz uyumu yok sayılır: ekran beyazı D65'tir (yaklaşık 6504 K, Planck eğrisinin biraz üstünde); gerçekte göz ortamın ışığına uyar, bu yüzden 2700 K'lik lamba odada beyaz görünür.</p>
+        <p class="note">Sıcaklıklar etkin sıcaklıktır: Güneş 5772 K (IAU 2015 nominal değeri), Betelgeuse yaklaşık 3600 K, Sirius A yaklaşık 9940 K, Rigel yaklaşık 12 100 K; kozmik mikrodalga arka plan 2.7255 K (COBE/FIRAS, Fixsen 2009). Yıldızlar tam kara cisim değildir: soğurma çizgileri ve molekül bantları rengi biraz kaydırır. Diyagramda Planck eğrisine dokunup sürüklemek sıcaklığı seçer. Kısayol: <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="gezegen" role="group" aria-labelledby="ttlC" hidden>
+        <h2 id="ttlC">Yıldız ve gezegen</h2>
+        <div class="field">
+          <label for="cPlanet"><span class="lt">Hazır gezegen</span></label>
+          <select id="cPlanet">
+            <option value="">Serbest (kaydırıcılar)</option>
+            <option value="venus">Venüs · A = 0.770, D = 0.7233 au</option>
+            <option value="dunya" selected>Dünya · A = 0.294, D = 1.0000 au</option>
+            <option value="mars">Mars · A = 0.250, D = 1.5237 au</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cTs"><span class="lt">Yıldızın sıcaklığı T★</span><output id="cTsOut" for="cTs">5772 K</output></label>
+          <input type="range" id="cTs" min="0" max="500" step="1" value="0">
+        </div>
+        <div class="field">
+          <label for="cRs"><span class="lt">Yıldızın yarıçapı R★</span><output id="cRsOut" for="cRs">1.00 R☉</output></label>
+          <input type="range" id="cRs" min="0" max="500" step="1" value="0">
+        </div>
+        <div class="field">
+          <label for="cD"><span class="lt">Yörünge uzaklığı D</span><output id="cDOut" for="cD">1.0000 au</output></label>
+          <input type="range" id="cD" min="0" max="500" step="1" value="0">
+        </div>
+        <div class="field">
+          <label for="cA"><span class="lt">Bond albedosu A</span><output id="cAOut" for="cA">0.294</output></label>
+          <input type="range" id="cA" min="0" max="0.95" step="0.001" value="0.294">
+        </div>
+        <div class="row">
+          <button type="button" id="cReset" class="app-btn-ghost">Sıfırla</button>
+        </div>
+        <p class="note">Denge: gezegen kesit alanı πr² ile yıldız akısı S'yi yakalar, (1 − A) kadarını soğurur ve bütün yüzeyinden (4πr²) σT⁴ yayar. S = σT★⁴(R★/D)² olduğundan T<sub>eq</sub> = T★(1 − A)<sup>1/4</sup>√(R★/(2D)). Varsayımlar: gezegen kara cisim gibi yayar (ε = 1), hızlı döner (ısı bütün yüzeye dağılır), iç ısısı yok ve R★ ≪ D.</p>
+        <p class="note">Ölçülen sütunu: S, yıldızın Planck tayfının sayısal integralinden; T<sub>eq</sub>, soğurulan güce eşit yayılım veren sıcaklık için sayısal integrallerle kiriş yöntemiyle çözülür; λ<sub>max</sub> gezegenin tayfında sayısal tepe aramasıdır.</p>
+        <p class="note">Değerler: Güneş için IAU 2015 nominal T☉ = 5772 K, R☉ = 695 700 km; 1 au = 149 597 870 700 m. Bond albedoları (Venüs 0.77, Dünya 0.294, Mars 0.250), NASA'nın kara cisim sıcaklıkları ve gözlenen ortalama yüzey sıcaklıkları NASA gezegen bilgi sayfalarından; * NASA'nın Dünya için yazdığı 254.0 K'lik kara cisim sıcaklığı eski albedo değeri 0.306 ile hesaplanmıştır, güncel 0.294 ile 255.1 K çıkar; uzaklıklar JPL'in ortalama yörünge yarı büyük eksenleri. Gezegeni şemada sürükleyerek de D'yi değiştirebilirsin. Kısayol: <kbd>R</kbd> sıfırla.</p>
+      </div>
+    </div>
+
+    <div class="main">
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Grafik"></canvas>
+      <p class="legend" data-for="renk" hidden>
+        <span><i class="k-pl"></i>Planck tayfı (en büyüğü 1)</span>
+        <span><i class="k-x"></i><span class="ov">x</span></span>
+        <span><i class="k-y"></i><span class="ov">y</span> (gözün parlaklık duyarlılığı V)</span>
+        <span><i class="k-z"></i><span class="ov">z</span></span>
+      </p>
+      <p class="legend" data-for="gezegen" hidden>
+        <span><i class="k-inc dash"></i>gelen yıldız ışığı (yüzey ortalaması S/4)</span>
+        <span><i class="box k-abs"></i>soğurulan</span>
+        <span><i class="box k-refl"></i>yansıyan</span>
+        <span><i class="box k-ir"></i>gezegenin ışıması</span>
+      </p>
+      <div class="readouts-wrap" aria-live="polite">
+        <div class="group" data-for="planck">
+          <table class="cmp">
+            <caption class="visually-hidden">Eğriden sayısal olarak ölçülen değerler ile Wien ve Stefan–Boltzmann yasalarının karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (eğriden)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Tepe dalga boyu λ<sub>max</sub> · kuram b/T</th><td id="aLamM">—</td><td id="aLamT">—</td><td id="aLamD" class="diff">—</td></tr>
+              <tr><th scope="row">Tepe frekansı ν<sub>max</sub> · kuram 2.821 kT/h</th><td id="aNuM">—</td><td id="aNuT">—</td><td id="aNuD" class="diff">—</td></tr>
+              <tr><th scope="row" id="aPkLbl">Tepe yüksekliği</th><td id="aPkM">—</td><td id="aPkT">—</td><td id="aPkD" class="diff">—</td></tr>
+              <tr><th scope="row">Toplam yayılım M = π∫B<sub>λ</sub>dλ · kuram σT⁴</th><td id="aMM">—</td><td id="aMT">—</td><td id="aMD" class="diff">—</td></tr>
+              <tr><th scope="row">Görünür pay (380–750 nm)</th><td id="aVisM">—</td><td id="aVisT">—</td><td id="aVisD" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <div class="cards">
+            <div class="readout is-highlight"><small>c/ν<sub>max</sub>: B<sub>ν</sub> tepesinin dalga boyu</small><strong id="aCnu">—</strong></div>
+            <div class="readout"><small>λ<sub>max</sub>·ν<sub>max</sub>/c (kuram 2.821/4.965)</small><strong id="aProd">—</strong></div>
+            <div class="readout"><small id="aCurLbl">İmleçte B<sub>λ</sub> (W·m⁻²·sr⁻¹·µm⁻¹)</small><strong id="aCurB">—</strong></div>
+            <div class="readout"><small>İmleçte x = hc/λkT</small><strong id="aCurX">—</strong></div>
+            <div class="readout"><small>Rayleigh–Jeans ÷ Planck = (eˣ − 1)/x</small><strong id="aCurRJ">—</strong></div>
+            <div class="readout"><small>Wien ÷ Planck = 1 − e⁻ˣ</small><strong id="aCurW">—</strong></div>
+          </div>
+          <table class="cmp" id="aCurveTable" hidden>
+            <caption class="visually-hidden">Ana eğri ve karşılaştırma eğrilerinin tepe dalga boyu ve toplam yayılımı</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Eğri</th><th scope="col">T</th><th scope="col">λ<sub>max</sub> (eğriden)</th><th scope="col">M (sayısal)</th></tr></thead>
+            <tbody id="aCurves"></tbody>
+          </table>
+          <p class="note" id="aRatios" hidden></p>
+          <p class="status" id="aStatus" role="status"></p>
+        </div>
+
+        <div class="group" data-for="renk" hidden>
+          <div class="cards">
+            <div class="readout is-highlight"><small>Algılanan renk (sRGB, parlaklık normalleştirilmiş)</small><strong><span class="swatch" id="bSwatch"></span><span id="bHex">—</span></strong></div>
+            <div class="readout"><small>Renklilik (x, y) · CIE 1931</small><strong id="bXY">—</strong></div>
+            <div class="readout"><small>Işıklılık L<sub>v</sub></small><strong id="bLv">—</strong></div>
+            <div class="readout"><small>Görünür pay (380–750 nm)</small><strong id="bVis">—</strong></div>
+            <div class="readout"><small>Işık verimi 683·∫ȳB<sub>λ</sub>dλ / ∫B<sub>λ</sub>dλ</small><strong id="bEff">—</strong></div>
+            <div class="readout"><small>Toplam yayılım M (sayısal)</small><strong id="bM">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Seçili sıcaklıkta tayfın tepeleri: sayısal arama ile Wien yasasının karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (eğriden)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Tepe dalga boyu λ<sub>max</sub> · b/T</th><td id="bLamM">—</td><td id="bLamT">—</td><td id="bLamD" class="diff">—</td></tr>
+              <tr><th scope="row">Tepe frekansı ν<sub>max</sub> · 2.821 kT/h</th><td id="bNuM">—</td><td id="bNuT">—</td><td id="bNuD" class="diff">—</td></tr>
+              <tr><th scope="row">c/ν<sub>max</sub></th><td id="bCnuM">—</td><td id="bCnuT">—</td><td id="bCnuD" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <table class="cmp">
+            <caption class="visually-hidden">Hazır cisimlerin sıcaklığı, hesaplanan rengi, renklilik koordinatları ve tepe dalga boyu</caption>
+            <colgroup><col class="c-body"><col><col class="c-sw"><col><col></colgroup>
+            <thead><tr><th scope="col">Cisim</th><th scope="col">T</th><th scope="col">Renk</th><th scope="col">x, y</th><th scope="col">λ<sub>max</sub> = b/T</th></tr></thead>
+            <tbody id="bTable"></tbody>
+          </table>
+          <p class="status" id="bStatus" role="status"></p>
+        </div>
+
+        <div class="group" data-for="gezegen" hidden>
+          <table class="cmp">
+            <caption class="visually-hidden">Sayısal enerji dengesi ile denge sıcaklığı formülünün karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (sayısal)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Gezegende yıldız akısı S · σT★⁴(R★/D)²</th><td id="cSM">—</td><td id="cST">—</td><td id="cSD" class="diff">—</td></tr>
+              <tr><th scope="row">Denge sıcaklığı T<sub>eq</sub> · T★(1 − A)<sup>1/4</sup>√(R★/2D)</th><td id="cTM">—</td><td id="cTT">—</td><td id="cTD" class="diff">—</td></tr>
+              <tr><th scope="row">Gezegen tayfının tepesi λ<sub>max</sub> · b/T<sub>eq</sub></th><td id="cPM">—</td><td id="cPT">—</td><td id="cPD" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <div class="cards">
+            <div class="readout"><small>Yıldızın ışınım gücü L★ = 4πR★²σT★⁴</small><strong id="cL">—</strong></div>
+            <div class="readout"><small>Soğurulan = yayılan (yüzey ortalaması)</small><strong id="cAbs">—</strong></div>
+            <div class="readout"><small>Yıldız ışığının 4 µm altındaki payı</small><strong id="cStar4">—</strong></div>
+            <div class="readout"><small>Gezegen ışımasının 4 µm üstündeki payı</small><strong id="cPl4">—</strong></div>
+            <div class="readout is-highlight"><small>Gözlenen ortalama yüzey sıcaklığı</small><strong id="cObs">—</strong></div>
+            <div class="readout is-highlight"><small>Sera farkı T<sub>yüzey</sub> − T<sub>eq</sub></small><strong id="cGh">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Venüs, Dünya ve Mars için sayfanın denge sıcaklığı, NASA'nın kara cisim sıcaklığı, gözlenen ortalama yüzey sıcaklığı ve aradaki fark</caption>
+            <colgroup><col class="c-name"><col><col><col><col><col></colgroup>
+            <thead><tr><th scope="col">Gezegen</th><th scope="col">A</th><th scope="col">T<sub>eq</sub>, sayfa (K)</th><th scope="col">T<sub>eq</sub>, NASA (K)</th><th scope="col">Yüzey (K)</th><th scope="col">Fark (K)</th></tr></thead>
+            <tbody id="cTable"></tbody>
+          </table>
+          <p class="status" id="cStatus" role="status"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── Model ── */
+  const H = 6.62607015e-34;   // J·s, tam (SI 2019)
+  const C = 299792458;        // m/s, tam
+  const KB = 1.380649e-23;    // J/K, tam (SI 2019)
+  const SIGMA = (2 * Math.PI ** 5 * KB ** 4) / (15 * H ** 3 * C ** 2);   // W·m⁻²·K⁻⁴
+  const C1L = 2 * H * C * C;  // W·m²·sr⁻¹
+  const C2 = (H * C) / KB;    // m·K
+  const LN_C1L = Math.log(C1L);
+  const LN_NU = Math.log((2 * H) / (C * C));
+  // x = n(1 − e⁻ˣ) kökü: n = 5 B_λ'nın, n = 4 λB_λ'nın, n = 3 B_ν'nün tepesi
+  function wienRoot(n) {
+    let x = n;
+    for (let i = 0; i < 100; i++) x = n * (1 - Math.exp(-x));
+    return x;
+  }
+  const X5 = wienRoot(5), X4 = wienRoot(4), X3 = wienRoot(3);
+  const B_WIEN = C2 / X5;          // m·K
+  const NU_WIEN = (X3 * KB) / H;   // Hz/K
+  const T_SUN = 5772;              // K, IAU 2015 B3 nominal
+  const R_SUN = 6.957e8;           // m, IAU 2015 B3 nominal
+  const AU = 149597870700;         // m, IAU 2012 B2
+  const K_M = 683;                 // lm/W
+  const VIS_A = 380e-9, VIS_B = 750e-9;
+
+  // ln(eˣ − 1): büyük x'te eˣ taşmaz
+  function lnExpm1(x) { return x > 40 ? x + Math.log1p(-Math.exp(-x)) : Math.log(Math.expm1(x)); }
+  // Spektral parlaklıkların logaritması: B_λ (W·m⁻²·sr⁻¹·m⁻¹), B_ν (W·m⁻²·sr⁻¹·Hz⁻¹)
+  const lnPlanckLam = (lam, T) => LN_C1L - 5 * Math.log(lam) - lnExpm1(C2 / (lam * T));
+  const lnRJLam = (lam, T) => Math.log(2 * C * KB * T) - 4 * Math.log(lam);
+  const lnWienLam = (lam, T) => LN_C1L - 5 * Math.log(lam) - C2 / (lam * T);
+  const lnPlanckNu = (nu, T) => LN_NU + 3 * Math.log(nu) - lnExpm1((H * nu) / (KB * T));
+  const lnRJNu = (nu, T) => Math.log((2 * KB * T) / (C * C)) + 2 * Math.log(nu);
+  const lnWienNu = (nu, T) => LN_NU + 3 * Math.log(nu) - (H * nu) / (KB * T);
+
+  // [a, b] aralığında ln f'nin en büyüğü: logaritmik ızgarada tarama, sonra altın oran inceltmesi.
+  // En büyük değer aralığın ucundaysa tepe aralıkta değildir: null.
+  function findPeak(lnF, a, b) {
+    const N = 1200, la = Math.log(a), lb = Math.log(b), du = (lb - la) / N;
+    let best = 0, bv = -Infinity;
+    for (let i = 0; i <= N; i++) {
+      const v = lnF(Math.exp(la + i * du));
+      if (v > bv) { bv = v; best = i; }
+    }
+    if (best === 0 || best === N) return null;
+    let lo = la + (best - 1) * du, hi = la + (best + 1) * du;
+    const g = (Math.sqrt(5) - 1) / 2;
+    let x1 = hi - g * (hi - lo), x2 = lo + g * (hi - lo);
+    let f1 = lnF(Math.exp(x1)), f2 = lnF(Math.exp(x2));
+    for (let k = 0; k < 120 && hi - lo > 1e-12; k++) {
+      if (f1 < f2) { lo = x1; x1 = x2; f1 = f2; x2 = lo + g * (hi - lo); f2 = lnF(Math.exp(x2)); }
+      else { hi = x2; x2 = x1; f2 = f1; x1 = hi - g * (hi - lo); f1 = lnF(Math.exp(x1)); }
+    }
+    const at = Math.exp((lo + hi) / 2);
+    return { at, ln: lnF(at) };
+  }
+  function simpson(f, a, b, n) {
+    const h = (b - a) / n;
+    let s = f(a) + f(b);
+    for (let i = 1; i < n; i++) s += (i % 2 ? 4 : 2) * f(a + i * h);
+    return (s * h) / 3;
+  }
+  // M = π∫B_λ dλ, λ = eᵘ değişkeniyle; hc/λkT = 10⁻⁵ … 80 dışında kalan pay 10⁻¹⁵'ten küçük
+  function exitanceNum(T) {
+    const ua = Math.log(C2 / (80 * T)), ub = Math.log(C2 / (1e-5 * T));
+    return Math.PI * simpson((u) => Math.exp(lnPlanckLam(Math.exp(u), T) + u), ua, ub, 4000);
+  }
+  // ln ∫ₐᵇ B_λ dλ: Simpson, en büyük terime göre ölçeklenmiş (alttan taşma yok)
+  function lnBandNum(T, a, b, n) {
+    const h = (b - a) / n, v = new Float64Array(n + 1);
+    let m = -Infinity;
+    for (let i = 0; i <= n; i++) { v[i] = lnPlanckLam(a + i * h, T); if (v[i] > m) m = v[i]; }
+    let s = 0;
+    for (let i = 0; i <= n; i++) s += (i === 0 || i === n ? 1 : i % 2 ? 4 : 2) * Math.exp(v[i] - m);
+    return m + Math.log((s * h) / 3);
+  }
+  const lnVisFracNum = (T) => lnBandNum(T, VIS_A, VIS_B, 740) - Math.log(exitanceNum(T) / Math.PI);
+  // λ'dan kısa dalga boylarının güç payı, x = hc/λkT: (15/π⁴) Σ e⁻ⁿˣ (x³/n + 3x²/n² + 6x/n³ + 6/n⁴)
+  function lnFracBelow(x) {
+    let s = 0;
+    for (let n = 1; n < 20000; n++) {
+      const t = Math.exp(-(n - 1) * x) * (x ** 3 / n + (3 * x * x) / n ** 2 + (6 * x) / n ** 3 + 6 / n ** 4);
+      s += t;
+      if (t < 1e-17 * s) break;
+    }
+    return Math.log(15 / Math.PI ** 4) - x + Math.log(s);
+  }
+  function lnVisFracSeries(T) {
+    const a = lnFracBelow(C2 / (VIS_B * T)), b = lnFracBelow(C2 / (VIS_A * T));
+    return a + Math.log1p(-Math.exp(b - a));
+  }
+
+  // CIE 1931 2° standart gözlemci (x̄, ȳ, z̄), 360–830 nm, 5 nm adım; CIE 018:2019 tablosu (CVRL)
+  const CIE_N = 95;
+  const CIE = [
+    1.299e-4, 3.917e-6, 6.061e-4,  2.321e-4, 6.965e-6, 0.001086,  4.149e-4, 1.239e-5, 0.001946,  7.416e-4, 2.202e-5, 0.003486,
+    0.001368, 3.9e-5, 0.00645,  0.002236, 6.4e-5, 0.01055,  0.004243, 1.2e-4, 0.02005,  0.00765, 2.17e-4, 0.03621,
+    0.01431, 3.96e-4, 0.06785,  0.02319, 6.4e-4, 0.1102,  0.04351, 0.00121, 0.2074,  0.07763, 0.00218, 0.3713,
+    0.13438, 4e-3, 0.6456,  0.21477, 0.0073, 1.03905,  0.2839, 0.0116, 1.3856,  0.3285, 0.01684, 1.62296,
+    0.34828, 0.023, 1.74706,  0.34806, 0.0298, 1.7826,  0.3362, 0.038, 1.77211,  0.3187, 0.048, 1.7441,
+    0.2908, 0.06, 1.6692,  0.2511, 0.0739, 1.5281,  0.19536, 0.09098, 1.28764,  0.1421, 0.1126, 1.0419,
+    0.09564, 0.13902, 0.81295,  0.05795, 0.1693, 0.6162,  0.03201, 0.20802, 0.46518,  0.0147, 0.2586, 0.3533,
+    0.0049, 0.323, 0.272,  0.0024, 0.4073, 0.2123,  0.0093, 0.503, 0.1582,  0.0291, 0.6082, 0.1117,
+    0.06327, 0.71, 0.07825,  0.1096, 0.7932, 0.05725,  0.1655, 0.862, 0.04216,  0.22575, 0.91485, 0.02984,
+    0.2904, 0.954, 0.0203,  0.3597, 0.9803, 0.0134,  0.43345, 0.99495, 0.00875,  0.51205, 1, 0.00575,
+    0.5945, 0.995, 0.0039,  0.6784, 0.9786, 0.00275,  0.7621, 0.952, 0.0021,  0.8425, 0.9154, 0.0018,
+    0.9163, 0.87, 0.00165,  0.9786, 0.8163, 0.0014,  1.0263, 0.757, 0.0011,  1.0567, 0.6949, 1e-3,
+    1.0622, 0.631, 8e-4,  1.0456, 0.5668, 6e-4,  1.0026, 0.503, 3.4e-4,  0.9384, 0.4412, 2.4e-4,
+    0.85445, 0.381, 1.9e-4,  0.7514, 0.321, 1e-4,  0.6424, 0.265, 5e-5,  0.5419, 0.217, 3e-5,
+    0.4479, 0.175, 2e-5,  0.3608, 0.1382, 1e-5,  0.2835, 0.107, 0,  0.2187, 0.0816, 0,
+    0.1649, 0.061, 0,  0.1212, 0.04458, 0,  0.0874, 0.032, 0,  0.0636, 0.0232, 0,
+    0.04677, 0.017, 0,  0.0329, 0.01192, 0,  0.0227, 0.00821, 0,  0.01584, 0.005723, 0,
+    0.0113592, 0.004102, 0,  0.00811092, 0.002929, 0,  0.00579035, 0.002091, 0,  0.00410946, 0.001484, 0,
+    0.00289933, 0.001047, 0,  0.00204919, 7.4e-4, 0,  0.00143997, 5.2e-4, 0,  9.99949e-4, 3.611e-4, 0,
+    6.90079e-4, 2.492e-4, 0,  4.76021e-4, 1.719e-4, 0,  3.32301e-4, 1.2e-4, 0,  2.34826e-4, 8.48e-5, 0,
+    1.66151e-4, 6e-5, 0,  1.17413e-4, 4.24e-5, 0,  8.30753e-5, 3e-5, 0,  5.87065e-5, 2.12e-5, 0,
+    4.15099e-5, 1.499e-5, 0,  2.93533e-5, 1.06e-5, 0,  2.06738e-5, 7.4657e-6, 0,  1.45598e-5, 5.2578e-6, 0,
+    1.0254e-5, 3.7029e-6, 0,  7.22146e-6, 2.6078e-6, 0,  5.08587e-6, 1.8366e-6, 0,  3.58165e-6, 1.2934e-6, 0,
+    2.52253e-6, 9.1093e-7, 0,  1.77651e-6, 6.4153e-7, 0,  1.25114e-6, 4.5181e-7, 0,
+  ];
+  const cieNm = (i) => 360 + 5 * i;
+  function cmfAt(nm) {
+    const f = Math.min(CIE_N - 1, Math.max(0, (nm - 360) / 5));
+    const i = Math.min(CIE_N - 2, Math.floor(f)), w = f - i, k = 3 * i;
+    return [0, 1, 2].map((j) => CIE[k + j] + w * (CIE[k + 3 + j] - CIE[k + j]));
+  }
+  // lnW(λ) ağırlığıyla X, Y, Z; mutlak değer = (X, Y, Z)·e^lnK (Δλ = 5 nm dahil)
+  function xyzFromLn(lnW) {
+    const ln = new Float64Array(CIE_N);
+    let m = -Infinity;
+    for (let i = 0; i < CIE_N; i++) { ln[i] = lnW(cieNm(i) * 1e-9); if (ln[i] > m) m = ln[i]; }
+    let X = 0, Y = 0, Z = 0;
+    for (let i = 0; i < CIE_N; i++) {
+      const w = Math.exp(ln[i] - m);
+      X += w * CIE[3 * i]; Y += w * CIE[3 * i + 1]; Z += w * CIE[3 * i + 2];
+    }
+    return { X, Y, Z, lnK: m + Math.log(5e-9) };
+  }
+  // XYZ → doğrusal sRGB (IEC 61966-2-1, D65)
+  const linRGB = (X, Y, Z) => [3.2406 * X - 1.5372 * Y - 0.4986 * Z, -0.9689 * X + 1.8758 * Y + 0.0415 * Z, 0.0557 * X - 0.204 * Y + 1.057 * Z];
+  function gammaSRGB(c) {
+    c = Math.min(1, Math.max(0, c));
+    return c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+  }
+  // Kara cismin rengi: renklilik ve en büyük bileşeni 1 olan sRGB; üçgen dışındaysa eksi bileşen sıfıra kırpılır
+  function bodyColour(T) {
+    const q = xyzFromLn((lam) => lnPlanckLam(lam, T));
+    const s = q.X + q.Y + q.Z;
+    const lin = linRGB(q.X / q.Y, 1, q.Z / q.Y);
+    const out = Math.min(lin[0], lin[1], lin[2]) < 0;
+    const w = lin.map((v) => Math.max(0, v));
+    const mx = Math.max(w[0], w[1], w[2]);
+    return { x: q.X / s, y: q.Y / s, X: q.X, Y: q.Y, Z: q.Z, lnK: q.lnK, out, rgb: w.map((v) => Math.round(255 * gammaSRGB(v / mx))) };
+  }
+  // 5 nm'lik toplam, tayf 830 nm'de 5 nm'den kısa bir uzunlukta e kat sönüyorsa (T ≲ 104 K) çözümlenemez
+  const lvResolved = (T, lnLv) => C2 / (830e-9 * T) < 166 && lnLv > Math.log(1e-30);
+  // Işıklılık L_v = 683 lm/W · Σ B_λ ȳ Δλ (cd/m²), logaritması
+  const lnLuminance = (col) => Math.log(K_M * col.Y) + col.lnK;
+  // Tek dalga boyunun ekran rengi (bant boyaması için); görme sınırlarında sönükleşir
+  function spectralRGB(nm) {
+    const lin = linRGB(...cmfAt(nm)).map((v) => Math.max(0, v));
+    const m = Math.max(lin[0], lin[1], lin[2], 1e-12);
+    let f = 1;
+    if (nm < 420) f = 0.3 + (0.7 * (nm - 380)) / 40;
+    else if (nm > 700) f = 0.3 + (0.7 * (750 - nm)) / 50;
+    f = Math.max(0, Math.min(1, f));
+    return lin.map((v) => Math.round(255 * gammaSRGB((v / m) * f)));
+  }
+  const LOCUS = [];
+  for (let i = 0; i < CIE_N; i++) {
+    const s = CIE[3 * i] + CIE[3 * i + 1] + CIE[3 * i + 2];
+    LOCUS.push({ nm: cieNm(i), x: CIE[3 * i] / s, y: CIE[3 * i + 1] / s });
+  }
+  function xyOfLn(lnW) {
+    const q = xyzFromLn(lnW), s = q.X + q.Y + q.Z;
+    return { x: q.X / s, y: q.Y / s };
+  }
+  const PLANCK_LOCUS = [];
+  for (let k = 0; k <= 320; k++) {
+    const T = 400 * 10 ** (k / 80);
+    PLANCK_LOCUS.push(Object.assign({ T }, xyOfLn((lam) => lnPlanckLam(lam, T))));
+  }
+  const PLANCK_INF = xyOfLn((lam) => -4 * Math.log(lam));
+
+  // Kaydırıcı ızgarası: logaritmik aralıklı üç basamaklı değerler ve tam değerli hazır noktalar
+  function makeGrid(lo, hi, perDecade, extras) {
+    const ex = extras.filter((e) => e >= lo && e <= hi);
+    const set = new Set(ex);
+    const n = Math.round(Math.log10(hi / lo) * perDecade);
+    for (let k = 0; k <= n; k++) {
+      const v = Number((lo * 10 ** (k / perDecade)).toPrecision(3));
+      if (v < lo || v > hi || ex.some((e) => Math.abs(Math.log10(v / e)) < 0.5 / perDecade)) continue;
+      set.add(v);
+    }
+    return Array.from(set).sort((a, b) => a - b);
+  }
+  function nearestIndex(grid, v) {
+    if (!(v > grid[0])) return 0;
+    if (!(v < grid[grid.length - 1])) return grid.length - 1;
+    let lo = 0, hi = grid.length - 1;
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1;
+      if (grid[mid] <= v) lo = mid; else hi = mid;
+    }
+    return Math.log(v / grid[lo]) <= Math.log(grid[hi] / v) ? lo : hi;
+  }
+
+  const BODIES = [
+    { id: "kma", name: "Kozmik mikrodalga arka plan", T: 2.7255 },
+    { id: "insan", name: "İnsan vücudu", T: 310 },
+    { id: "lamba", name: "Akkor lamba", T: 2700 },
+    { id: "betelgeuse", name: "Betelgeuse", T: 3600 },
+    { id: "gunes", name: "Güneş", T: 5772 },
+    { id: "sirius", name: "Sirius A", T: 9940 },
+    { id: "rigel", name: "Rigel", T: 12100 },
+  ];
+  // Bond albedosu, NASA kara cisim sıcaklığı ve gözlenen ortalama yüzey sıcaklığı (NASA bilgi sayfaları);
+  // D: JPL ortalama yörünge yarı büyük ekseni (au)
+  const PLANETS = {
+    venus: { name: "Venüs", D: 0.7233, A: 0.77, Tbb: 226.6, Tsurf: 737 },
+    dunya: { name: "Dünya", D: 1, A: 0.294, Tbb: 254.0, Tsurf: 288 },
+    mars: { name: "Mars", D: 1.5237, A: 0.25, Tbb: 209.8, Tsurf: 208 },
+  };
+  const tEqFormula = (Ts, Rs, D, A) => Ts * Math.pow(1 - A, 0.25) * Math.sqrt(Rs / (2 * D));
+  // π∫B_λ(T) dλ = hedef: ln M – ln T düzleminde kiriş yöntemi, M yalnız sayısal integralden
+  function solveTeqNum(target) {
+    const f = (u) => Math.log(exitanceNum(Math.exp(u))) - Math.log(target);
+    let a = Math.log(100), b = Math.log(1000), fa = f(a), fb = f(b);
+    for (let i = 0; i < 40 && Math.abs(fb) > 1e-14 && fb !== fa; i++) {
+      const c = b - (fb * (b - a)) / (fb - fa);
+      a = b; fa = fb; b = c; fb = f(b);
+    }
+    return Math.exp(b);
+  }
+
+  /* ── Biçim ── */
+  const MINUS = "−";
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const SUB = ["₁", "₂"];
+  const supNum = (n) => String(n).split("").map((ch) => SUP[ch] || ch).join("");
+  function fix(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
+  }
+  function sgn(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r > 0 ? "+" : MINUS) + Math.abs(r).toFixed(d);
+  }
+  // n anlamlı basamak
+  function sig(x, n) {
+    if (!Number.isFinite(x)) return "—";
+    if (x === 0) return "0";
+    let e = Math.floor(Math.log10(Math.abs(x)));
+    let d = Math.max(0, n - 1 - e);
+    if (Math.abs(Number(x.toFixed(d))) >= 10 ** (e + 1)) { e += 1; d = Math.max(0, n - 1 - e); }
+    return fix(x, d);
+  }
+  // Bilimsel gösterim, doğal logaritmadan (taşma ya da alttan taşma olmadan)
+  function sciLn(lnx, d) {
+    const l10 = lnx / Math.LN10;
+    let e = Math.floor(l10), m = 10 ** (l10 - e);
+    if (Number(m.toFixed(d)) >= 10) { e += 1; m /= 10; }
+    return `${m.toFixed(d)}×10${supNum(e)}`;
+  }
+  // 10⁻³ ile 10⁴ arasında n anlamlı basamak, dışında bilimsel gösterim
+  function numLn(lnx, n) {
+    const l10 = lnx / Math.LN10;
+    return l10 >= -3 && l10 < 4 ? sig(Math.exp(lnx), n) : sciLn(lnx, n - 1);
+  }
+  function fmtLen(m) {
+    const a = Math.abs(m);
+    if (a < 1e-6) return `${sig(m * 1e9, 4)} nm`;
+    if (a < 1e-3) return `${sig(m * 1e6, 4)} µm`;
+    if (a < 1) return `${sig(m * 1e3, 4)} mm`;
+    return `${sig(m, 4)} m`;
+  }
+  function fmtFreq(hz) {
+    if (hz < 1e12) return `${sig(hz / 1e9, 4)} GHz`;
+    if (hz < 1e15) return `${sig(hz / 1e12, 4)} THz`;
+    return `${sig(hz / 1e15, 4)} PHz`;
+  }
+  const PREFIX = { "-18": "a", "-15": "f", "-12": "p", "-9": "n", "-6": "µ", "-3": "m", 0: "", 3: "k", 6: "M", 9: "G", 12: "T", 15: "P", 18: "E" };
+  function fmtFlux(w) {
+    const e = Math.max(-18, Math.min(18, 3 * Math.floor(Math.log10(w) / 3)));
+    return `${sig(w / 10 ** e, 4)} ${PREFIX[e]}W/m²`;
+  }
+  const fmtT = (T) => (T >= 100 ? `${fix(T, 0)} K` : `${String(Number(T.toPrecision(5)))} K`);
+  const fmtTeq = (T) => `${fix(T, 1)} K`;
+  const fmtCel = (T) => `${fix(T - 273.15, 1)} °C`;
+  const pctDiff = (m, t) => `${sgn((100 * (m - t)) / t, 3)} %`;
+  const pctDiffLn = (lm, lt) => `${sgn(100 * Math.expm1(lm - lt), 3)} %`;
+  function fmtPctLn(ln) {
+    const p = ln + Math.log(100);
+    if (p >= Math.log(99.995) && p < Math.log(100)) return "> 99.99 %";
+    if (p >= 0) return `${fix(Math.exp(p), 2)} %`;
+    if (p >= Math.log(1e-3)) return `${sig(Math.exp(p), 3)} %`;
+    return `${sciLn(p, 2)} %`;
+  }
+  const fmtR = (r) => `${sig(r, 3)} R☉`;
+  const fmtD = (d) => `${d < 10 ? fix(d, 4) : fix(d, 2)} au`;
+
+  /* ── Ortak arayüz ── */
+  const $ = (id) => document.getElementById(id);
+  const stage = $("stageCanvas"), sg = stage.getContext("2d");
+  const chart = $("chartCanvas"), cg = chart.getContext("2d");
+  const labPanel = $("labPanel");
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((t) => t.dataset.tab);
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  const setAria = (el, s) => { if (el.getAttribute("aria-label") !== s) el.setAttribute("aria-label", s); };
+  const subs = (s) => s.replace(/_(max|eq|ν|λ|v)/g, "<sub>$1</sub>").replace(/\^¼/g, "<sup>1/4</sup>");
+  const S = { tab: "planck" };
+  let dirty = true, dpr = 1;
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", faint: "rgba(26,29,46,0.35)", grid: "rgba(0,0,0,0.07)", axis: "rgba(26,29,46,0.5)",
+      main: "#0d9488", cmp: ["#7c3aed", "#db2777"], rj: "#dc2626", wien: "#b45309", alt: "#2563eb", cursor: "#475569",
+      xb: "#dc2626", yb: "#16a34a", zb: "#2563eb", abs: "#d97706", refl: "#94a3b8", ir: "#dc2626", ray: "#d97706",
+      tagBg: "rgba(255,255,255,0.9)", band: 0.2, under: 0.75, locus: "rgba(26,29,46,0.8)", planck: "#1a1d2e", hs: 1,
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", faint: "rgba(232,236,244,0.35)", grid: "rgba(255,255,255,0.07)", axis: "rgba(232,236,244,0.45)",
+      main: "#5eead4", cmp: ["#a78bfa", "#f472b6"], rj: "#f87171", wien: "#fbbf24", alt: "#93c5fd", cursor: "#cbd5e1",
+      xb: "#f87171", yb: "#4ade80", zb: "#60a5fa", abs: "#fbbf24", refl: "#cbd5e1", ir: "#f87171", ray: "#fde68a",
+      tagBg: "rgba(8,12,22,0.85)", band: 0.16, under: 0.7, locus: "rgba(232,236,244,0.85)", planck: "#ffffff", hs: 0.86,
+    };
+  }
+  const font = (px, w) => `${w ? w + " " : ""}${px * dpr}px Outfit, system-ui, sans-serif`;
+  function line(g, x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+  function pen(g, color, w, dash) {
+    g.strokeStyle = color;
+    g.lineWidth = w * dpr;
+    g.setLineDash(dash ? dash.map((d) => d * dpr) : []);
+  }
+  function dot(g, x, y, r, color, ring) {
+    g.beginPath();
+    g.arc(x, y, r * dpr, 0, Math.PI * 2);
+    if (ring) { g.setLineDash([]); g.strokeStyle = color; g.lineWidth = 1.6 * dpr; g.stroke(); }
+    else { g.fillStyle = color; g.fill(); }
+  }
+  function arrowHead(g, x, y, ang, size, color) {
+    const s = size * dpr;
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x - s * Math.cos(ang - 0.42), y - s * Math.sin(ang - 0.42));
+    g.lineTo(x - s * Math.cos(ang + 0.42), y - s * Math.sin(ang + 0.42));
+    g.closePath();
+    g.fill();
+  }
+  // "λ_{max}", "σT^4" biçiminde alt/üst simgeli metin
+  function rich(g, s, x, y, color, size, align, weight) {
+    const parts = [];
+    let cur = "", i = 0;
+    while (i < s.length) {
+      const c = s[i];
+      if ((c === "_" || c === "^") && i + 1 < s.length) {
+        if (cur) parts.push({ t: cur, k: 0 });
+        cur = "";
+        let t;
+        if (s[i + 1] === "{") { const j = s.indexOf("}", i + 2); t = s.slice(i + 2, j); i = j + 1; }
+        else { t = s[i + 1]; i += 2; }
+        parts.push({ t, k: c === "_" ? 1 : 2 });
+      } else { cur += c; i++; }
+    }
+    if (cur) parts.push({ t: cur, k: 0 });
+    const sz = size || 11, big = font(sz, weight), small = font(sz * 0.74, weight);
+    let w = 0;
+    for (const p of parts) { g.font = p.k ? small : big; p.w = g.measureText(p.t).width; w += p.w; }
+    if (color === null) return w;
+    let px = align === "center" ? x - w / 2 : align === "right" ? x - w : x;
+    g.fillStyle = color;
+    g.textAlign = "left";
+    g.textBaseline = "middle";
+    for (const p of parts) {
+      g.font = p.k ? small : big;
+      g.fillText(p.t, px, y + (p.k === 1 ? sz * 0.3 * dpr : p.k === 2 ? -sz * 0.34 * dpr : 0));
+      px += p.w;
+    }
+    return w;
+  }
+  // Arka planlı etiket; kutu tuvalin içinde tutulur
+  function tag(g, s, x, y, color, th, size, align) {
+    const sz = size || 11, w = rich(g, s, 0, 0, null, sz, "left", "600") + 10 * dpr, h = sz * dpr + 9 * dpr;
+    let bx = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    bx = Math.max(2 * dpr, Math.min(bx, g.canvas.width - w - 2 * dpr));
+    const by = Math.max(2 * dpr, Math.min(y - h / 2, g.canvas.height - h - 2 * dpr));
+    g.setLineDash([]);
+    g.fillStyle = th.tagBg;
+    g.beginPath(); g.roundRect(bx, by, w, h, 5 * dpr); g.fill();
+    rich(g, s, bx + 5 * dpr, by + h / 2 + 0.5 * dpr, color, sz, "left", "600");
+    return { x: bx, y: by, w, h };
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  const tickText = (v, step) => fix(v, step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9)));
+  const rgbStr = (c, a) => (a === undefined ? `rgb(${c[0]}, ${c[1]}, ${c[2]})` : `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`);
+  const hexStr = (c) => "#" + c.map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase();
+  function stagePoint(evt, c) {
+    const r = c.getBoundingClientRect();
+    return [((evt.clientX - r.left) / r.width) * c.width, ((evt.clientY - r.top) / r.height) * c.height];
+  }
+  function clearCanvas(g) {
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, g.canvas.width, g.canvas.height);
+    g.setLineDash([]);
+    g.globalAlpha = 1;
+  }
+  const colourCache = new Map();
+  function colourOf(T) {
+    if (!colourCache.has(T)) {
+      if (colourCache.size > 400) colourCache.clear();
+      colourCache.set(T, bodyColour(T));
+    }
+    return colourCache.get(T);
+  }
+
+  /* ── A: Planck eğrisi ── */
+  const A_GRID = makeGrid(100, 30000, 200, [100, 150, 200, 250, 300, 310, 400, 500, 600, 700, 800, 1000, 1200, 1500, 2000, 2500, 2700, 3000, 3600, 4000, 5000, 5772, 6000, 7000, 8000, 9940, 10000, 12000, 12100, 15000, 20000, 25000, 30000]);
+  const SCALES = [
+    { lam: 1e-6, lamStep: 1e-9, nu: 3000e12, nuStep: 5e12 },
+    { lam: 3e-6, lamStep: 5e-9, nu: 1000e12, nuStep: 1e12 },
+    { lam: 10e-6, lamStep: 10e-9, nu: 300e12, nuStep: 0.5e12 },
+    { lam: 30e-6, lamStep: 50e-9, nu: 100e12, nuStep: 0.1e12 },
+    { lam: 100e-6, lamStep: 100e-9, nu: 30e12, nuStep: 0.05e12 },
+    { log: true },
+  ];
+  const SCALE_TEXT = {
+    lam: ["Doğrusal · 0–1 µm", "Doğrusal · 0–3 µm", "Doğrusal · 0–10 µm", "Doğrusal · 0–30 µm", "Doğrusal · 0–100 µm", "Log–log · 10 nm – 1 mm"],
+    nu: ["Doğrusal · 0–3000 THz", "Doğrusal · 0–1000 THz", "Doğrusal · 0–300 THz", "Doğrusal · 0–100 THz", "Doğrusal · 0–30 THz", "Log–log · 0.3 THz – 30 PHz"],
+  };
+  const LOG_LAM = [1e-8, 1e-3], LOG_NU = [C / 1e-3, C / 1e-8], LOG_PER_DEC = 200;
+  const A = { T: 5772, vr: "lam", scale: 1, rj: true, wien: false, cur: 2e-6, pins: [], msg: "", calc: null, view: null, peakPx: null, drag: null };
+  const aui = {
+    T: $("aT"), TOut: $("aTOut"), preset: $("aPreset"), vr: $("aVar"), scale: $("aScale"), rj: $("aRJ"), wien: $("aWien"),
+    cur: $("aCur"), curOut: $("aCurOut"), pin: $("aPin"), clear: $("aClear"), reset: $("aReset"),
+    lamM: $("aLamM"), lamT: $("aLamT"), lamD: $("aLamD"), nuM: $("aNuM"), nuT: $("aNuT"), nuD: $("aNuD"),
+    pkLbl: $("aPkLbl"), pkM: $("aPkM"), pkT: $("aPkT"), pkD: $("aPkD"), mM: $("aMM"), mT: $("aMT"), mD: $("aMD"),
+    visM: $("aVisM"), visT: $("aVisT"), visD: $("aVisD"), cnu: $("aCnu"), prod: $("aProd"),
+    curLbl: $("aCurLbl"), curB: $("aCurB"), curX: $("aCurX"), curRJ: $("aCurRJ"), curW: $("aCurW"),
+    curveTable: $("aCurveTable"), curves: $("aCurves"), ratios: $("aRatios"), status: $("aStatus"),
+    legC1: $("aLegC1"), legC2: $("aLegC2"), legRJ: $("aLegRJ"), legW: $("aLegW"),
+  };
+  aui.T.max = String(A_GRID.length - 1);
+
+  function curRange() {
+    const sc = SCALES[A.scale], nu = A.vr === "nu";
+    if (sc.log) {
+      const lo = nu ? LOG_NU[0] : LOG_LAM[0];
+      return { n: 5 * LOG_PER_DEC, at: (i) => lo * 10 ** (i / LOG_PER_DEC), idx: (v) => Math.round(LOG_PER_DEC * Math.log10(v / lo)) };
+    }
+    const step = nu ? sc.nuStep : sc.lamStep, top = nu ? sc.nu : sc.lam;
+    return { n: Math.round(top / step), at: (i) => i * step, idx: (v) => Math.round(v / step) };
+  }
+  // Çizilen tayf penceresi, iki değişkende: doğrusal pencere 0'dan başlar (ucu 10⁻⁵ ile sınırlandı)
+  function windowsA() {
+    const sc = SCALES[A.scale];
+    if (sc.log) return { lam: LOG_LAM, nu: LOG_NU };
+    if (A.vr === "lam") return { lam: [sc.lam * 1e-5, sc.lam], nu: [C / sc.lam, (C / sc.lam) * 1e5] };
+    return { nu: [sc.nu * 1e-5, sc.nu], lam: [C / sc.nu, (C / sc.nu) * 1e5] };
+  }
+  function curveCalc(T, w) {
+    return {
+      T,
+      pl: findPeak((l) => lnPlanckLam(l, T), w.lam[0], w.lam[1]),
+      pn: findPeak((n) => lnPlanckNu(n, T), w.nu[0], w.nu[1]),
+      M: exitanceNum(T),
+    };
+  }
+  function computeA() {
+    const w = windowsA();
+    const main = curveCalc(A.T, w);
+    main.visNum = lnVisFracNum(A.T);
+    main.visTh = lnVisFracSeries(A.T);
+    A.calc = { w, main, pins: A.pins.map((T) => curveCalc(T, w)) };
+  }
+  function relabelScale() {
+    Array.from(aui.scale.options).forEach((o, i) => { o.textContent = SCALE_TEXT[A.vr][i]; });
+  }
+  function updateA() {
+    aui.T.value = String(nearestIndex(A_GRID, A.T));
+    const tt = fmtT(A.T);
+    setText(aui.TOut, tt);
+    aui.T.setAttribute("aria-valuetext", tt);
+    const b = BODIES.find((x) => x.T === A.T && x.id !== "kma");
+    aui.preset.value = b ? b.id : "";
+    aui.vr.value = A.vr;
+    aui.scale.value = String(A.scale);
+    aui.rj.checked = A.rj;
+    aui.wien.checked = A.wien;
+    const cr = curRange();
+    const ci = Math.max(1, Math.min(cr.n, cr.idx(A.cur)));
+    A.cur = cr.at(ci);
+    aui.cur.max = String(cr.n);
+    aui.cur.value = String(ci);
+    const ct = A.vr === "nu" ? `ν = ${fmtFreq(A.cur)}` : `λ = ${fmtLen(A.cur)}`;
+    setText(aui.curOut, ct);
+    aui.cur.setAttribute("aria-valuetext", ct);
+    aui.clear.disabled = !A.pins.length;
+    aui.legC1.hidden = A.pins.length < 1;
+    aui.legC2.hidden = A.pins.length < 2;
+    aui.legRJ.hidden = !A.rj;
+    aui.legW.hidden = !A.wien;
+    computeA();
+    dirty = true;
+  }
+  function resetA() {
+    Object.assign(A, { T: 5772, vr: "lam", scale: 1, rj: true, wien: false, cur: 2e-6, pins: [], msg: "" });
+    relabelScale();
+    updateA();
+  }
+  function pinA() {
+    if (A.pins.includes(A.T)) {
+      A.msg = `${fmtT(A.T)} zaten karşılaştırmada.`;
+    } else {
+      A.pins.push(A.T);
+      if (A.pins.length > 2) A.pins.shift();
+      A.msg = `${fmtT(A.T)} karşılaştırmaya eklendi; şimdi sıcaklığı değiştir.`;
+    }
+    updateA();
+  }
+
+  function readoutsA() {
+    const { main, pins } = A.calc, T = A.T, nu = A.vr === "nu";
+    const lamTh = B_WIEN / T, nuTh = NU_WIEN * T;
+    setText(aui.lamT, fmtLen(lamTh));
+    setText(aui.nuT, fmtFreq(nuTh));
+    if (main.pl) { setText(aui.lamM, fmtLen(main.pl.at)); setText(aui.lamD, pctDiff(main.pl.at, lamTh)); }
+    else { setText(aui.lamM, "aralık dışında"); setText(aui.lamD, "—"); }
+    if (main.pn) { setText(aui.nuM, fmtFreq(main.pn.at)); setText(aui.nuD, pctDiff(main.pn.at, nuTh)); }
+    else { setText(aui.nuM, "aralık dışında"); setText(aui.nuD, "—"); }
+    const pk = nu ? main.pn : main.pl;
+    const lnPkTh = nu ? LN_NU + 3 * Math.log(nuTh) - lnExpm1(X3) : LN_C1L - 5 * Math.log(lamTh) - lnExpm1(X5) + Math.log(1e-6);
+    setHTML(aui.pkLbl, nu
+      ? "Tepe yüksekliği B<sub>ν</sub>(ν<sub>max</sub>), W·m⁻²·sr⁻¹·Hz⁻¹ · kuram ∝ T³"
+      : "Tepe yüksekliği B<sub>λ</sub>(λ<sub>max</sub>), W·m⁻²·sr⁻¹·µm⁻¹ · kuram ∝ T⁵");
+    setText(aui.pkT, sciLn(lnPkTh, 3));
+    if (pk) {
+      const lnM = pk.ln + (nu ? 0 : Math.log(1e-6));
+      setText(aui.pkM, sciLn(lnM, 3));
+      setText(aui.pkD, pctDiffLn(lnM, lnPkTh));
+    } else { setText(aui.pkM, "aralık dışında"); setText(aui.pkD, "—"); }
+    const Mth = SIGMA * T ** 4;
+    setText(aui.mM, fmtFlux(main.M));
+    setText(aui.mT, fmtFlux(Mth));
+    setText(aui.mD, pctDiff(main.M, Mth));
+    setText(aui.visM, fmtPctLn(main.visNum));
+    setText(aui.visT, fmtPctLn(main.visTh));
+    setText(aui.visD, pctDiffLn(main.visNum, main.visTh));
+    setText(aui.cnu, main.pn ? fmtLen(C / main.pn.at) : "aralık dışında");
+    setText(aui.prod, main.pl && main.pn ? fix((main.pl.at * main.pn.at) / C, 4) : "tepelerden biri aralık dışında");
+    const v = A.cur;
+    const x = nu ? (H * v) / (KB * T) : C2 / (v * T);
+    setHTML(aui.curLbl, nu ? "İmleçte B<sub>ν</sub> (W·m⁻²·sr⁻¹·Hz⁻¹)" : "İmleçte B<sub>λ</sub> (W·m⁻²·sr⁻¹·µm⁻¹)");
+    setText(aui.curB, sciLn(nu ? lnPlanckNu(v, T) : lnPlanckLam(v, T) + Math.log(1e-6), 3));
+    setText(aui.curX, numLn(Math.log(x), 4));
+    setText(aui.curRJ, numLn(lnExpm1(x) - Math.log(x), 4));
+    setText(aui.curW, numLn(Math.log(-Math.expm1(-x)), 4));
+
+    aui.curveTable.hidden = !pins.length;
+    aui.ratios.hidden = !pins.length;
+    if (pins.length) {
+      const rows = [{ name: "Ana eğri", c: main }].concat(pins.map((c, i) => ({ name: `T${SUB[i]}`, c })));
+      setHTML(aui.curves, rows.map((r) => `<tr><th scope="row">${r.name}</th><td>${fmtT(r.c.T)}</td><td>${r.c.pl ? fmtLen(r.c.pl.at) : "aralık dışında"}</td><td>${fmtFlux(r.c.M)}</td></tr>`).join(""));
+      const sents = pins.map((c, i) => {
+        const tr = T / c.T;
+        const lamPart = main.pl && c.pl
+          ? `λ<sub>max</sub> oranı ${sig(main.pl.at / c.pl.at, 4)} (kuram T${SUB[i]}/T = ${sig(c.T / T, 4)})`
+          : "λ<sub>max</sub> oranı tanımsız (tepelerden biri aralık dışında)";
+        return `Şimdiki ÷ T${SUB[i]} (${fmtT(c.T)}): T oranı ${sig(tr, 4)}; ${lamPart}; M oranı ${sig(main.M / c.M, 4)} (kuram (T/T${SUB[i]})⁴ = ${sig(tr ** 4, 4)}).`;
+      });
+      setHTML(aui.ratios, sents.join("<br>"));
+    }
+    setHTML(aui.status, subs(statusA()));
+  }
+  function statusA() {
+    const { main } = A.calc, T = A.T, nu = A.vr === "nu", sc = SCALES[A.scale];
+    const parts = [];
+    if (A.msg) parts.push(A.msg);
+    const pk = nu ? main.pn : main.pl;
+    if (!pk) {
+      parts.push(nu
+        ? `Tepe çizilen aralığın dışında: kuram ν_max = 2.821 kT/h = ${fmtFreq(NU_WIEN * T)}, aralık ${fmtFreq(sc.nu)}'de bitiyor. Ölçeği büyüt ya da log–log'a geç.`
+        : `Tepe çizilen aralığın dışında: kuram λ_max = b/T = ${fmtLen(B_WIEN / T)}, aralık ${fmtLen(sc.lam)}'de bitiyor. Ölçeği büyüt ya da log–log'a geç.`);
+    } else if (main.pl && main.pn) {
+      parts.push(`λ_max = ${fmtLen(main.pl.at)}, ama B_ν'nün tepesindeki frekansın dalga boyu c/ν_max = ${fmtLen(C / main.pn.at)}: eşit dλ aralıkları eşit dν aralıklarına karşılık gelmediği için aynı tayfın iki tepesi farklı yerdedir.`);
+    } else {
+      parts.push(nu
+        ? `c/λ_max çizilen aralığın dışında (kuram λ_max = ${fmtLen(B_WIEN / T)}).`
+        : `c/ν_max çizilen aralığın dışında (kuram c/ν_max = ${fmtLen(C / (NU_WIEN * T))}).`);
+    }
+    if (main.visNum < Math.log(1e-6)) {
+      parts.push(`Görünür pay ${fmtPctLn(main.visNum)}: ışımanın neredeyse tamamı kızılötesinde, cisim karanlıkta görünmez.`);
+    } else {
+      const uv = lnFracBelow(C2 / (VIS_A * T));
+      const ir = Math.log1p(-Math.exp(lnFracBelow(C2 / (VIS_B * T))));
+      parts.push(`Güç dağılımı: morötesi (380 nm altı) ${fmtPctLn(uv)}, görünür ${fmtPctLn(main.visNum)}, kızılötesi (750 nm üstü) ${fmtPctLn(ir)}.`);
+    }
+    const x = nu ? (H * A.cur) / (KB * T) : C2 / (A.cur * T);
+    const xs = `${nu ? "hν/kT" : "hc/λkT"} = ${numLn(Math.log(x), 4)}`;
+    if (A.rj) {
+      const lnr = lnExpm1(x) - Math.log(x);
+      parts.push(x < 0.1
+        ? `İmleçte x = ${xs} ≪ 1: Rayleigh–Jeans Planck'tan yalnız ${fix(100 * Math.expm1(lnr), 2)} % büyük, ${nu ? "düşük frekansta" : "uzun dalga boyunda"} klasik yasa geçerli.`
+        : `İmleçte x = ${xs}: Rayleigh–Jeans Planck'ın ${numLn(lnr, 4)} katı; klasik yasa ancak x ≪ 1 iken geçerli, ${nu ? "ν → ∞" : "λ → 0"}'da sonsuza gider.`);
+    }
+    if (A.wien) {
+      const short = -Math.expm1(-x);
+      parts.push(x > 5
+        ? `Wien yaklaşımı imleçte Planck'tan yalnız ${sig(100 * (1 - short), 2)} % küçük (x ≫ 1).`
+        : `Wien yaklaşımı imleçte Planck'tan ${fix(100 * (1 - short), 1)} % küçük: x ≫ 1 değil, yaklaşım geçersiz.`);
+    }
+    return parts.join(" ");
+  }
+
+  function viewA() {
+    const W = stage.width, H = stage.height;
+    const narrow = W / dpr < 560;
+    const padL = (narrow ? 42 : 52) * dpr, padR = 14 * dpr, padT = 28 * dpr, padB = 40 * dpr;
+    const pw = W - padL - padR, ph = H - padT - padB;
+    const nu = A.vr === "nu", sc = SCALES[A.scale];
+    let x0, x1, xOf, xAt;
+    if (sc.log) {
+      x0 = nu ? LOG_NU[0] : LOG_LAM[0];
+      x1 = nu ? LOG_NU[1] : LOG_LAM[1];
+      const l0 = Math.log(x0), l1 = Math.log(x1);
+      xOf = (v) => padL + ((Math.log(v) - l0) / (l1 - l0)) * pw;
+      xAt = (px) => Math.exp(l0 + ((px - padL) / pw) * (l1 - l0));
+    } else {
+      x0 = 0;
+      x1 = nu ? sc.nu : sc.lam;
+      xOf = (v) => padL + (v / x1) * pw;
+      xAt = (px) => ((px - padL) / pw) * x1;
+    }
+    return { W, H, narrow, padL, padR, padT, padB, pw, ph, nu, log: !!sc.log, x0, x1, xOf, xAt };
+  }
+  function xTicksA(V) {
+    const out = [];
+    if (V.log) {
+      const lab = V.nu ? ["1 THz", "10 THz", "100 THz", "1 PHz", "10 PHz"] : ["10 nm", "100 nm", "1 µm", "10 µm", "100 µm", "1 mm"];
+      const d0 = V.nu ? 12 : -8;
+      lab.forEach((s, i) => out.push({ x: V.xOf(10 ** (d0 + i)), s }));
+      return { ticks: out, title: V.nu ? "Frekans ν (logaritmik)" : "Dalga boyu λ (logaritmik)" };
+    }
+    const unit = V.nu ? 1e12 : V.x1 <= 1e-6 ? 1e-9 : 1e-6;
+    const top = V.x1 / unit, step = niceStep(top / (V.narrow ? 4 : 7));
+    for (let v = 0; v <= top + 1e-9; v += step) out.push({ x: V.xOf(v * unit), s: tickText(v, step) });
+    return { ticks: out, title: V.nu ? "Frekans ν (THz)" : `Dalga boyu λ (${unit === 1e-9 ? "nm" : "µm"})` };
+  }
+
+  function drawA() {
+    const g = sg, t = theme(), V = viewA();
+    A.view = V;
+    clearCanvas(g);
+    const nu = V.nu, unit = nu ? 0 : Math.log(1e-6);
+    const fP = nu ? lnPlanckNu : lnPlanckLam, fR = nu ? lnRJNu : lnRJLam, fW = nu ? lnWienNu : lnWienLam;
+    const N = Math.max(80, Math.round(V.pw / (1.5 * dpr)));
+    const xs = new Float64Array(N + 1), vs = new Float64Array(N + 1);
+    for (let i = 0; i <= N; i++) {
+      xs[i] = V.padL + (i / N) * V.pw;
+      vs[i] = i === 0 && !V.log ? V.x1 * 1e-6 : V.xAt(xs[i]);
+    }
+    const curves = A.pins.map((T, k) => ({ T, color: t.cmp[k], name: `T${SUB[k]}` }));
+    curves.push({ T: A.T, color: t.main, name: "T", main: true });
+    for (const cv of curves) {
+      cv.ln = new Float64Array(N + 1);
+      let mx = -Infinity;
+      for (let i = 0; i <= N; i++) { const v = fP(vs[i], cv.T) + unit; cv.ln[i] = v; if (v > mx) mx = v; }
+      cv.max = mx;
+    }
+    const lnTop = Math.max(...curves.map((c) => c.max));
+    const uname = nu ? "W·m⁻²·sr⁻¹·Hz⁻¹" : "W·m⁻²·sr⁻¹·µm⁻¹";
+    let Y, yLabel;
+    const yTicks = [];
+    if (!V.log) {
+      const raw = Math.exp(lnTop) * 1.04;
+      const e3 = 3 * Math.floor(Math.log10(raw) / 3), sc = 10 ** e3;
+      const step = niceStep(raw / sc / 5), top = Math.ceil(raw / sc / step - 1e-9) * step, topAbs = top * sc;
+      Y = (ln) => V.padT + V.ph - Math.min(Math.exp(ln) / topAbs, 1.6) * V.ph;
+      for (let v = 0; v <= top + 1e-9; v += step) yTicks.push({ y: V.padT + V.ph - (v / top) * V.ph, s: tickText(v, step) });
+      yLabel = `B_${nu ? "ν" : "λ"} (${PREFIX[e3]}${uname})`;
+    } else {
+      const dTop = Math.ceil(lnTop / Math.LN10 + 0.02);
+      const lowMax = Math.min(...curves.map((c) => c.max)) / Math.LN10;
+      const dBot = Math.max(dTop - 22, Math.min(dTop - 12, Math.floor(lowMax) - 3));
+      Y = (ln) => V.padT + V.ph - Math.max(-0.05, Math.min(1.05, (ln / Math.LN10 - dBot) / (dTop - dBot))) * V.ph;
+      const every = Math.ceil((dTop - dBot) / (V.narrow ? 6 : 9));
+      for (let d = dTop; d >= dBot; d -= every) yTicks.push({ y: Y(d * Math.LN10), s: `10${supNum(d)}` });
+      yLabel = `B_${nu ? "ν" : "λ"} (${uname})`;
+    }
+
+    // Izgara ve eksen yazıları
+    pen(g, t.grid, 1);
+    g.font = font(10);
+    g.fillStyle = t.muted;
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (const tk of yTicks) { line(g, V.padL, tk.y, V.padL + V.pw, tk.y); g.fillText(tk.s, V.padL - 5 * dpr, tk.y); }
+    const xt = xTicksA(V);
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (const tk of xt.ticks) { line(g, tk.x, V.padT, tk.x, V.padT + V.ph); g.fillText(tk.s, tk.x, V.padT + V.ph + 5 * dpr); }
+    g.textBaseline = "bottom";
+    g.fillText(xt.title, V.padL + V.pw / 2, V.H - 3 * dpr);
+    rich(g, yLabel, V.padL, V.padT - 14 * dpr, t.muted, 10, "left");
+
+    // Görünür bant
+    const band = nu ? [C / VIS_B, C / VIS_A] : [VIS_A, VIS_B];
+    const bx0 = Math.max(V.padL, V.xOf(band[0])), bx1 = Math.min(V.padL + V.pw, V.xOf(band[1]));
+    const cols = [];
+    for (let px = Math.floor(bx0); px < bx1; px++) {
+      const v = V.xAt(px + 0.5);
+      cols.push([px, rgbStr(spectralRGB((nu ? C / v : v) * 1e9))]);
+    }
+    g.globalAlpha = t.band;
+    for (const [px, c] of cols) { g.fillStyle = c; g.fillRect(px, V.padT, 1.2, V.ph); }
+    g.globalAlpha = 1;
+    if (bx1 - bx0 > 44 * dpr) {
+      g.font = font(9.5);
+      g.fillStyle = t.muted;
+      g.textAlign = "center";
+      g.textBaseline = "top";
+      g.fillText("görünür", (bx0 + bx1) / 2, V.padT + 4 * dpr);
+    }
+
+    // Ana eğrinin altı: görünür bantta tayf renkleri
+    const main = curves[curves.length - 1];
+    if (!V.log) {
+      const path = new Path2D();
+      path.moveTo(xs[0], V.padT + V.ph);
+      for (let i = 0; i <= N; i++) path.lineTo(xs[i], Y(main.ln[i]));
+      path.lineTo(xs[N], V.padT + V.ph);
+      path.closePath();
+      g.save();
+      g.clip(path);
+      g.globalAlpha = 0.12;
+      g.fillStyle = main.color;
+      g.fillRect(V.padL, V.padT, V.pw, V.ph);
+      g.globalAlpha = t.under;
+      for (const [px, c] of cols) { g.fillStyle = c; g.fillRect(px, V.padT, 1.2, V.ph); }
+      g.restore();
+      g.globalAlpha = 1;
+    }
+
+    // Eğriler
+    g.save();
+    g.beginPath();
+    g.rect(V.padL, V.padT - 2 * dpr, V.pw, V.ph + 4 * dpr);
+    g.clip();
+    const trace = (arr, color, w, dash) => {
+      pen(g, color, w, dash);
+      g.beginPath();
+      for (let i = 0; i <= N; i++) { const y = Y(arr[i]); if (i) g.lineTo(xs[i], y); else g.moveTo(xs[i], y); }
+      g.stroke();
+    };
+    for (const cv of curves) trace(cv.ln, cv.color, cv.main ? 2.4 : 1.8);
+    let rjLn = null;
+    if (A.rj) {
+      rjLn = new Float64Array(N + 1);
+      for (let i = 0; i <= N; i++) rjLn[i] = fR(vs[i], A.T) + unit;
+      trace(rjLn, t.rj, 2, [7, 5]);
+    }
+    if (A.wien) {
+      const wl = new Float64Array(N + 1);
+      for (let i = 0; i <= N; i++) wl[i] = fW(vs[i], A.T) + unit;
+      trace(wl, t.wien, 2.2, [2, 4]);
+    }
+    g.restore();
+    pen(g, t.axis, 1);
+    line(g, V.padL, V.padT, V.padL, V.padT + V.ph);
+    line(g, V.padL, V.padT + V.ph, V.padL + V.pw, V.padT + V.ph);
+
+    if (rjLn && !V.log) {
+      let ic = -1;
+      for (let i = 1; i <= N; i++) if ((Y(rjLn[i - 1]) < V.padT) !== (Y(rjLn[i]) < V.padT)) { ic = i; break; }
+      if (ic > 0) {
+        const right = !nu;
+        tag(g, "Rayleigh–Jeans → ∞", xs[ic] + (right ? 6 : -6) * dpr, V.padT + 14 * dpr, t.rj, t, 10, right ? "left" : "right");
+      }
+    }
+
+    // Öbür tepenin konumu: λ'ya göre çizimde c/ν_max, ν'ye göre çizimde c/λ_max
+    const other = nu ? A.calc.main.pl : A.calc.main.pn;
+    if (other) {
+      const v = C / other.at, x = V.xOf(v);
+      if (x >= V.padL && x <= V.padL + V.pw) {
+        pen(g, t.alt, 1.4, [2, 3]);
+        line(g, x, V.padT, x, V.padT + V.ph);
+        tag(g, nu ? "c/λ_{max}" : "c/ν_{max}", x + 4 * dpr, V.padT + V.ph - 12 * dpr, t.alt, t, 10, "left");
+      }
+    }
+
+    // Tepe işareti (sürüklenebilir)
+    const pk = nu ? A.calc.main.pn : A.calc.main.pl;
+    A.peakPx = null;
+    if (pk) {
+      const x = V.xOf(pk.at), y = Y(pk.ln + unit);
+      pen(g, main.color, 1.2, [4, 4]);
+      line(g, x, y, x, V.padT + V.ph);
+      dot(g, x, y, 5, main.color);
+      dot(g, x, y, 9, main.color, true);
+      A.peakPx = { x, y };
+      const s = nu ? `ν_{max} = ${fmtFreq(pk.at)}` : `λ_{max} = ${fmtLen(pk.at)}`;
+      const wTxt = rich(g, s, 0, 0, null, 11, "left", "600");
+      const right = x + 14 * dpr + wTxt < V.padL + V.pw - 120 * dpr;
+      tag(g, s, x + (right ? 14 : -14) * dpr, Math.max(V.padT + 12 * dpr, y + 2 * dpr), main.color, t, 11, right ? "left" : "right");
+    }
+    for (const cv of curves) {
+      if (cv.main) continue;
+      const c = A.calc.pins[A.pins.indexOf(cv.T)];
+      const p = c && (nu ? c.pn : c.pl);
+      if (!p) continue;
+      dot(g, V.xOf(p.at), Y(p.ln + unit), 3.5, cv.color);
+    }
+
+    // İmleç
+    const cx = V.xOf(A.cur);
+    pen(g, t.cursor, 1.2, [1.5, 3.5]);
+    line(g, cx, V.padT, cx, V.padT + V.ph);
+    const marks = [[fP(A.cur, A.T) + unit, main.color]];
+    if (A.rj) marks.push([fR(A.cur, A.T) + unit, t.rj]);
+    if (A.wien) marks.push([fW(A.cur, A.T) + unit, t.wien]);
+    for (const [ln, col] of marks) {
+      const y = Y(ln);
+      if (y >= V.padT && y <= V.padT + V.ph) dot(g, cx, y, 3.6, col);
+    }
+
+    // Sıcaklıklar (sağ üst)
+    let ty = V.padT + 12 * dpr;
+    for (let i = curves.length - 1; i >= 0; i--) {
+      const cv = curves[i];
+      tag(g, `${cv.name} = ${fmtT(cv.T)}`, V.padL + V.pw - 6 * dpr, ty, cv.color, t, 11, "right");
+      ty += 22 * dpr;
+    }
+
+    const axisTxt = V.log ? (nu ? "log–log, 0.3 THz – 30 PHz" : "log–log, 10 nm – 1 mm") : (nu ? `doğrusal, 0–${fmtFreq(V.x1)}` : `doğrusal, 0–${fmtLen(V.x1)}`);
+    const pinsTxt = A.pins.length ? `; karşılaştırma eğrileri ${A.pins.map(fmtT).join(" ve ")}` : "";
+    const ovl = [A.rj ? "Rayleigh–Jeans eğrisi" : "", A.wien ? "Wien yaklaşımı" : ""].filter(Boolean).join(" ve ");
+    setAria(stage, `Planck eğrisi ${nu ? "B_ν" : "B_λ"}, T = ${fmtT(A.T)}, ${axisTxt}${pinsTxt}${ovl ? "; " + ovl : ""}; görünür bant tayf renkleriyle boyalı, tepe noktası, öbür tepenin konumu ve imleç çizgisi işaretli`);
+  }
+
+  function miniPlot(g, t, xa, xb, H, kind) {
+    const narrow = (xb - xa) / dpr < 260;
+    const padL = (narrow ? 38 : 46) * dpr, padR = 10 * dpr, padT = 26 * dpr, padB = 26 * dpr;
+    const x0 = xa + padL, x1 = xb - padR, y0 = padT, y1 = H - padB;
+    const lt0 = 2, lt1 = Math.log10(30000);
+    const X = (T) => x0 + ((Math.log10(T) - lt0) / (lt1 - lt0)) * (x1 - x0);
+    const wien = kind === "wien";
+    const ly0 = wien ? Math.log10(5e-8) : 0, ly1 = wien ? Math.log10(5e-5) : 11;
+    const Y = (v) => y1 - ((Math.log10(v) - ly0) / (ly1 - ly0)) * (y1 - y0);
+    pen(g, t.grid, 1);
+    g.font = font(9.5);
+    g.fillStyle = t.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (const [T, s] of [[100, "100 K"], [1000, "1000 K"], [10000, "10⁴ K"]]) { const x = X(T); line(g, x, y0, x, y1); g.fillText(s, x, y1 + 4 * dpr); }
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    const yt = wien ? [[1e-7, "100 nm"], [1e-6, "1 µm"], [1e-5, "10 µm"]] : [[1, "1"], [1e2, "10²"], [1e4, "10⁴"], [1e6, "10⁶"], [1e8, "10⁸"], [1e10, "10¹⁰"]];
+    for (const [v, s] of yt) { const y = Y(v); line(g, x0, y, x1, y); g.fillText(s, x0 - 4 * dpr, y); }
+    pen(g, t.axis, 1);
+    line(g, x0, y0, x0, y1);
+    line(g, x0, y1, x1, y1);
+    const f = wien ? (T) => B_WIEN / T : (T) => SIGMA * T ** 4;
+    pen(g, t.faint, 1.6);
+    line(g, X(100), Y(f(100)), X(30000), Y(f(30000)));
+    const pts = A.calc.pins.map((c, i) => ({ c, color: t.cmp[i] })).concat([{ c: A.calc.main, color: t.main }]);
+    for (const p of pts) {
+      const x = X(p.c.T);
+      if (wien) {
+        if (p.c.pl) dot(g, x, Y(p.c.pl.at), 4, p.color);
+        else dot(g, x, Y(B_WIEN / p.c.T), 4.5, p.color, true);
+      } else dot(g, x, Y(p.c.M), 4, p.color);
+    }
+    rich(g, wien ? "λ_{max} = b/T · eğim −1" : "M (W/m²) = σT^4 · eğim 4", x0, 13 * dpr, t.ink, narrow ? 9.5 : 10.5, "left", "600");
+  }
+  function drawChartA() {
+    const g = cg, t = theme(), W = chart.width, H = chart.height;
+    clearCanvas(g);
+    miniPlot(g, t, 0, W / 2 - 4 * dpr, H, "wien");
+    miniPlot(g, t, W / 2 + 4 * dpr, W, H, "sb");
+  }
+
+  /* ── B: Yıldızlar ve renk ── */
+  const B_GRID = makeGrid(1, 50000, 120, [1, 2, 2.7255, 3, 5, 10, 20, 30, 50, 100, 200, 300, 310, 500, 800, 1000, 1500, 2000, 2500, 2700, 3000, 3600, 4000, 5000, 5772, 6000, 6500, 7000, 8000, 9940, 10000, 12100, 15000, 20000, 30000, 40000, 50000]);
+  const Bst = { T: 5772, calc: null, view: null };
+  const bui = {
+    T: $("bT"), TOut: $("bTOut"), preset: $("bPreset"), reset: $("bReset"),
+    swatch: $("bSwatch"), hex: $("bHex"), xy: $("bXY"), lv: $("bLv"), vis: $("bVis"), eff: $("bEff"), m: $("bM"),
+    lamM: $("bLamM"), lamT: $("bLamT"), lamD: $("bLamD"), nuM: $("bNuM"), nuT: $("bNuT"), nuD: $("bNuD"),
+    cnuM: $("bCnuM"), cnuT: $("bCnuT"), cnuD: $("bCnuD"), table: $("bTable"), status: $("bStatus"),
+  };
+  bui.T.max = String(B_GRID.length - 1);
+  const LV_COLOUR = 0.005, LV_DARK = 1e-6;   // cd/m²: renk görmenin alt sınırı, mutlak eşik (yaklaşık)
+
+  function computeB() {
+    const T = Bst.T, col = colourOf(T), M = exitanceNum(T), lnLv = lnLuminance(col);
+    Bst.calc = {
+      col, M, lnLv,
+      lnEff: lnLv + Math.log(Math.PI) - Math.log(M),
+      pl: findPeak((l) => lnPlanckLam(l, T), 1e-8, 10),
+      pn: findPeak((n) => lnPlanckNu(n, T), C / 10, C / 1e-8),
+      vis: lnVisFracSeries(T),
+      resolved: lvResolved(T, lnLv),
+    };
+  }
+  const fmtLvB = (k) => (k.resolved ? `${numLn(k.lnLv, 3)} cd/m²` : "< 10⁻³⁰ cd/m²");
+  function updateB() {
+    bui.T.value = String(nearestIndex(B_GRID, Bst.T));
+    const tt = fmtT(Bst.T);
+    setText(bui.TOut, tt);
+    bui.T.setAttribute("aria-valuetext", tt);
+    const b = BODIES.find((x) => x.T === Bst.T);
+    bui.preset.value = b ? b.id : "";
+    computeB();
+    dirty = true;
+  }
+  function resetB() { Bst.T = 5772; updateB(); }
+  function buildBodyTable() {
+    bui.table.innerHTML = BODIES.map((b) => {
+      const c = colourOf(b.T);
+      return `<tr data-id="${b.id}"><th scope="row">${b.name}</th><td>${fmtT(b.T)}</td><td class="sw"><span class="swatch" style="background: ${rgbStr(c.rgb)}"></span>${hexStr(c.rgb)}</td><td>${fix(c.x, 4)}, ${fix(c.y, 4)}</td><td>${fmtLen(B_WIEN / b.T)}</td></tr>`;
+    }).join("");
+  }
+  function readoutsB() {
+    const k = Bst.calc, T = Bst.T, c = k.col;
+    bui.swatch.style.background = rgbStr(c.rgb);
+    setText(bui.hex, `${hexStr(c.rgb)} · (${c.rgb.join(", ")})`);
+    setText(bui.xy, `${fix(c.x, 4)}, ${fix(c.y, 4)}`);
+    setText(bui.lv, fmtLvB(k));
+    setText(bui.vis, fmtPctLn(k.vis));
+    setText(bui.eff, k.resolved ? `${numLn(k.lnEff, 3)} lm/W` : "< 10⁻³⁰ lm/W");
+    setText(bui.m, fmtFlux(k.M));
+    const lamTh = B_WIEN / T, nuTh = NU_WIEN * T;
+    setText(bui.lamM, fmtLen(k.pl.at)); setText(bui.lamT, fmtLen(lamTh)); setText(bui.lamD, pctDiff(k.pl.at, lamTh));
+    setText(bui.nuM, fmtFreq(k.pn.at)); setText(bui.nuT, fmtFreq(nuTh)); setText(bui.nuD, pctDiff(k.pn.at, nuTh));
+    setText(bui.cnuM, fmtLen(C / k.pn.at)); setText(bui.cnuT, fmtLen(C / nuTh)); setText(bui.cnuD, pctDiff(C / k.pn.at, C / nuTh));
+    for (const tr of bui.table.rows) {
+      const b = BODIES.find((x) => x.id === tr.dataset.id);
+      tr.classList.toggle("is-sel", b.T === T);
+    }
+    const st = statusB();
+    setHTML(bui.status, subs(st.text));
+    bui.status.classList.toggle("is-warn", st.warn);
+  }
+  function statusB() {
+    const k = Bst.calc, T = Bst.T, c = k.col;
+    const body = BODIES.find((x) => x.T === T);
+    const parts = [];
+    let warn = false;
+    const lv = `L_v ${k.resolved ? "= " : ""}${fmtLvB(k)}`;
+    if (k.lnLv < Math.log(LV_DARK)) {
+      warn = true;
+      parts.push(`${lv}: karanlığa alışmış göz için bile fazla sönük, bu cisim görünmez. Gösterilen renk yalnız renklilikten hesaplandı, gerçek bir görüntü değil.`);
+    } else if (k.lnLv < Math.log(LV_COLOUR)) {
+      warn = true;
+      parts.push(`${lv}: renk ayırt etmek için fazla sönük (renk görme yaklaşık 0.005 cd/m² altında kaybolur); karanlıkta en çok soluk bir parıltı seçilir.`);
+    }
+    if (c.out) parts.push("Bu renklilik sRGB üçgeninin dışında; ekranda eksi bileşen sıfıra kırpılarak en yakın gösterilebilir renk çiziliyor.");
+    parts.push(`Tepe λ_max = ${fmtLen(k.pl.at)}; frekans tepesi ν_max = ${fmtFreq(k.pn.at)}, dalga boyu c/ν_max = ${fmtLen(C / k.pn.at)}.`);
+    if (body) {
+      const notes = {
+        kma: "Evrenin 2.7255 K'lik ışıması mikrodalgada tepe yapar; görünür bölgeye düşen pay hesaplanamayacak kadar küçüktür.",
+        insan: "İnsan vücudu yalnız kızılötesinde ışır; ısıl kameralar bu 8–14 µm ışımayı görür.",
+        lamba: "Akkor lamba turuncumsu sarıdır; gücünün küçük bir kısmı görünürdedir, çoğu ısı olarak (kızılötesi) gider.",
+        betelgeuse: "Betelgeuse kırmızı üstdevdir; tayfındaki TiO bantları gerçek rengini kara cisimden biraz daha kırmızı yapar.",
+        gunes: "Güneş'in tayfı görünür bölgede düz sayılır: üç koni türü de benzer uyarılır ve renk beyaza yakın, hafif sıcaktır; λ_max'ın mavi-yeşilde olması rengi belirlemez.",
+        sirius: "Sirius A beyaz, hafif mavimsidir: tepesi morötesine yakın, kırmızı ucu zayıflar.",
+        rigel: "Rigel mavi-beyazdır; ışımasının büyük kısmı morötesindedir.",
+      };
+      parts.push(notes[body.id]);
+    }
+    return { text: parts.join(" "), warn };
+  }
+
+  const GAMMA_LUT = new Uint8Array(1025);
+  for (let i = 0; i <= 1024; i++) GAMMA_LUT[i] = Math.round(255 * gammaSRGB(i / 1024));
+  let horse = { key: "", cv: null };
+  function viewB() {
+    const W = stage.width, H = stage.height, side = W / H > 1.25;
+    const padL = 34 * dpr, padR = 10 * dpr, padT = 12 * dpr, padB = 28 * dpr;
+    const areaW = side ? Math.min(W * 0.62, H * 0.98) : W;
+    const s = Math.min((areaW - padL - padR) / 0.8, (H - padT - padB) / 0.9);
+    const ox = padL, oy = padT + 0.9 * s;
+    return { W, H, side, s, ox, oy, areaW, X: (x) => ox + x * s, Y: (y) => oy - y * s, ix: (px) => (px - ox) / s, iy: (py) => (oy - py) / s };
+  }
+  // Tayf rengi sınırının içi: her piksel, renklilik değerinin en parlak sRGB karşılığı
+  function horseshoe(V, t) {
+    const key = `${V.W}x${V.H}|${t.light}|${V.s.toFixed(3)}`;
+    if (horse.key === key) return horse.cv;
+    const cv = horse.cv || document.createElement("canvas");
+    cv.width = V.W;
+    cv.height = V.H;
+    const ctx = cv.getContext("2d");
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    const x0 = Math.max(0, Math.floor(V.X(0))), x1 = Math.min(V.W, Math.ceil(V.X(0.8))), y0 = Math.max(0, Math.floor(V.Y(0.9))), y1 = Math.min(V.H, Math.ceil(V.Y(0)));
+    const w = x1 - x0, h = y1 - y0;
+    const img = ctx.createImageData(w, h), d = img.data;
+    const n = LOCUS.length;
+    for (let j = 0; j < h; j++) {
+      const yv = V.iy(y0 + j + 0.5);
+      if (yv <= 0) continue;
+      const cut = [];
+      for (let i = 0; i < n; i++) {
+        const a = LOCUS[i], b = LOCUS[(i + 1) % n];
+        if ((a.y > yv) !== (b.y > yv)) cut.push(a.x + ((yv - a.y) / (b.y - a.y)) * (b.x - a.x));
+      }
+      cut.sort((p, q) => p - q);
+      for (let m = 0; m + 1 < cut.length; m += 2) {
+        const pa = Math.max(0, Math.ceil(V.X(cut[m]) - x0 - 0.5)), pb = Math.min(w - 1, Math.floor(V.X(cut[m + 1]) - x0 - 0.5));
+        for (let i = pa; i <= pb; i++) {
+          const xv = V.ix(x0 + i + 0.5);
+          const X = xv / yv, Z = (1 - xv - yv) / yv;
+          const r = Math.max(0, 3.2406 * X - 1.5372 - 0.4986 * Z), gg = Math.max(0, -0.9689 * X + 1.8758 + 0.0415 * Z), bb = Math.max(0, 0.0557 * X - 0.204 + 1.057 * Z);
+          const mx = Math.max(r, gg, bb) || 1, o = 4 * (j * w + i);
+          d[o] = GAMMA_LUT[Math.round((r / mx) * 1024)] * t.hs;
+          d[o + 1] = GAMMA_LUT[Math.round((gg / mx) * 1024)] * t.hs;
+          d[o + 2] = GAMMA_LUT[Math.round((bb / mx) * 1024)] * t.hs;
+          d[o + 3] = 255;
+        }
+      }
+    }
+    ctx.putImageData(img, x0, y0);
+    horse = { key, cv };
+    return cv;
+  }
+  function drawB() {
+    const g = sg, t = theme(), V = viewB(), k = Bst.calc, T = Bst.T;
+    const dense = V.s / dpr > 420;
+    Bst.view = V;
+    clearCanvas(g);
+    g.drawImage(horseshoe(V, t), 0, 0);
+    // Eksenler
+    pen(g, t.grid, 1);
+    g.font = font(9.5);
+    g.fillStyle = t.muted;
+    for (let i = 0; i <= 8; i++) {
+      const x = V.X(i / 10);
+      line(g, x, V.Y(0), x, V.Y(0.9));
+      g.textAlign = "center"; g.textBaseline = "top";
+      if (i % 2 === 0 || dense) g.fillText(fix(i / 10, 1), x, V.Y(0) + 4 * dpr);
+    }
+    for (let i = 0; i <= 9; i++) {
+      const y = V.Y(i / 10);
+      line(g, V.X(0), y, V.X(0.8), y);
+      g.textAlign = "right"; g.textBaseline = "middle";
+      if (i === 9) g.fillText("y", V.X(0) - 4 * dpr, y);
+      else if (i % 2 === 0 || dense) g.fillText(fix(i / 10, 1), V.X(0) - 4 * dpr, y);
+    }
+    g.textAlign = "right"; g.textBaseline = "bottom";
+    g.fillText("x", V.X(0.8), V.Y(0) - 3 * dpr);
+    // Tayf rengi sınırı ve mor çizgi
+    pen(g, t.locus, 1.3);
+    g.beginPath();
+    LOCUS.forEach((p, i) => { if (i) g.lineTo(V.X(p.x), V.Y(p.y)); else g.moveTo(V.X(p.x), V.Y(p.y)); });
+    g.closePath();
+    g.stroke();
+    const labels = dense ? [460, 470, 480, 490, 500, 510, 520, 540, 560, 580, 600, 620, 700] : [470, 490, 500, 520, 560, 600, 700];
+    g.font = font(9);
+    g.fillStyle = t.muted;
+    for (const nm of labels) {
+      const p = LOCUS[(nm - 360) / 5];
+      let nx = p.x - 0.33, ny = p.y - 0.33;
+      const L = Math.hypot(nx, ny);
+      nx /= L; ny /= L;
+      const sx = V.X(p.x), sy = V.Y(p.y);
+      pen(g, t.locus, 1);
+      line(g, sx, sy, sx + nx * 6 * dpr, sy - ny * 6 * dpr);
+      g.textAlign = nx > 0.3 ? "left" : nx < -0.3 ? "right" : "center";
+      g.textBaseline = ny > 0.3 ? "bottom" : ny < -0.3 ? "top" : "middle";
+      g.fillText(String(nm), sx + nx * 9 * dpr, sy - ny * 9 * dpr);
+    }
+    // sRGB üçgeni ve D65
+    pen(g, t.ink, 1, [5, 4]);
+    g.beginPath();
+    g.moveTo(V.X(0.64), V.Y(0.33)); g.lineTo(V.X(0.3), V.Y(0.6)); g.lineTo(V.X(0.15), V.Y(0.06)); g.closePath();
+    g.stroke();
+    g.setLineDash([]);
+    g.font = font(9.5, 600);
+    g.fillStyle = t.ink;
+    g.textAlign = "left"; g.textBaseline = "bottom";
+    g.fillText("sRGB", V.X(0.3) + 6 * dpr, V.Y(0.6) - 2 * dpr);
+    dot(g, V.X(0.3127), V.Y(0.329), 3.2, t.ink, true);
+    g.textAlign = "right";
+    g.textBaseline = "bottom";
+    g.fillText("D65", V.X(0.3127) - 5 * dpr, V.Y(0.329) - 3 * dpr);
+    // Planck eğrisi
+    pen(g, t.planck, 2.2);
+    g.beginPath();
+    PLANCK_LOCUS.forEach((p, i) => { if (i) g.lineTo(V.X(p.x), V.Y(p.y)); else g.moveTo(V.X(p.x), V.Y(p.y)); });
+    g.stroke();
+    pen(g, t.planck, 1.4, [2, 3]);
+    const last = PLANCK_LOCUS[PLANCK_LOCUS.length - 1];
+    line(g, V.X(last.x), V.Y(last.y), V.X(PLANCK_INF.x), V.Y(PLANCK_INF.y));
+    const ticks = dense ? [1000, 1500, 2000, 3000, 4000, 6000, 10000] : [1000, 2000, 3000, 6000, 10000];
+    g.font = font(9.5, 600);
+    for (const Tk of ticks.concat([Infinity])) {
+      const p = Tk === Infinity ? PLANCK_INF : xyOfLn((lam) => lnPlanckLam(lam, Tk));
+      const q = Tk === Infinity ? last : xyOfLn((lam) => lnPlanckLam(lam, Tk * 1.05));
+      let dx = V.X(q.x) - V.X(p.x), dy = V.Y(q.y) - V.Y(p.y);
+      const L = Math.hypot(dx, dy) || 1;
+      let nx = -dy / L, ny = dx / L;
+      if (ny < 0) { nx = -nx; ny = -ny; }
+      const sx = V.X(p.x), sy = V.Y(p.y);
+      pen(g, t.planck, 1.4);
+      line(g, sx - nx * 4 * dpr, sy - ny * 4 * dpr, sx + nx * 4 * dpr, sy + ny * 4 * dpr);
+      g.fillStyle = t.planck;
+      g.textAlign = nx > 0.4 ? "left" : nx < -0.4 ? "right" : "center";
+      g.textBaseline = "top";
+      g.fillText(Tk === Infinity ? "∞" : Tk === 1000 ? "1000 K" : String(Tk), sx + nx * 8 * dpr, sy + ny * 7 * dpr);
+    }
+    // Seçili sıcaklık
+    const c = k.col, px = V.X(c.x), py = V.Y(c.y);
+    dot(g, px, py, 7, rgbStr(c.rgb));
+    dot(g, px, py, 8, t.planck, true);
+    // Renk örneği
+    const faint = k.lnLv < Math.log(LV_COLOUR), dark = k.lnLv < Math.log(LV_DARK);
+    let cx, cy, r;
+    if (V.side) { cx = V.areaW + (V.W - V.areaW) / 2; cy = V.H * 0.4; r = Math.min((V.W - V.areaW) * 0.3, V.H * 0.22); }
+    else { cx = V.X(0.655); cy = V.Y(0.765); r = 0.085 * V.s; }
+    if (V.side && !faint) {
+      const gl = g.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 1.9);
+      gl.addColorStop(0, rgbStr(c.rgb, 0.45));
+      gl.addColorStop(1, rgbStr(c.rgb, 0));
+      g.fillStyle = gl;
+      g.beginPath(); g.arc(cx, cy, r * 1.9, 0, Math.PI * 2); g.fill();
+    }
+    g.globalAlpha = faint ? 0.35 : 1;
+    g.fillStyle = rgbStr(c.rgb);
+    g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+    g.globalAlpha = 1;
+    pen(g, t.faint, 1, faint ? [4, 4] : null);
+    g.stroke();
+    g.setLineDash([]);
+    const body = BODIES.find((x) => x.T === T);
+    g.fillStyle = t.ink;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    if (V.side) {
+      g.font = font(13, 700);
+      g.fillText(body ? body.name : "Kara cisim", cx, cy + r + 12 * dpr);
+      g.font = font(11);
+      g.fillStyle = t.muted;
+      g.fillText(`${fmtT(T)} · ${hexStr(c.rgb)}`, cx, cy + r + 32 * dpr);
+      if (faint) {
+        g.fillStyle = t.rj;
+        g.fillText(dark ? "görünmez: fazla sönük" : "renk seçilemez: çok sönük", cx, cy + r + 50 * dpr);
+      }
+    } else {
+      g.font = font(10.5, 700);
+      g.fillText(fmtT(T), cx, cy + r + 5 * dpr);
+      if (faint) {
+        g.font = font(10, 600);
+        g.fillStyle = t.rj;
+        g.fillText(dark ? "görünmez" : "çok sönük", cx, cy + r + 20 * dpr);
+      }
+    }
+    setAria(stage, `CIE 1931 xy renklilik diyagramı: renkli tayf sınırı dalga boyu etiketleriyle, kesikli sRGB üçgeni, D65 beyaz noktası ve kelvin işaretli Planck eğrisi; seçili sıcaklık ${fmtT(T)} noktası (x = ${fix(c.x, 4)}, y = ${fix(c.y, 4)}) ve renk örneği ${hexStr(c.rgb)}`);
+  }
+  function drawChartB() {
+    const g = cg, t = theme(), W = chart.width, H = chart.height, k = Bst.calc, T = Bst.T;
+    clearCanvas(g);
+    const narrow = W / dpr < 480;
+    const barW = (narrow ? 84 : 120) * dpr;
+    const padL = 32 * dpr, padR = barW + 12 * dpr, padT = 14 * dpr, padB = 34 * dpr;
+    const pw = W - padL - padR, ph = H - padT - padB;
+    const X = (nm) => padL + ((nm - 360) / 470) * pw, Y = (v) => padT + ph - (v / 1.9) * ph;
+    pen(g, t.grid, 1);
+    g.font = font(9.5);
+    g.fillStyle = t.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let nm = 400; nm <= 800; nm += 50) {
+      line(g, X(nm), padT, X(nm), padT + ph);
+      if (!narrow || nm % 100 === 0) g.fillText(String(nm), X(nm), padT + ph + 4 * dpr);
+    }
+    g.textBaseline = "bottom";
+    g.fillText("Dalga boyu λ (nm)", padL + pw / 2, H - 3 * dpr);
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (const v of [0, 0.5, 1, 1.5]) { line(g, padL, Y(v), padL + pw, Y(v)); g.fillText(fix(v, 1), padL - 4 * dpr, Y(v)); }
+    pen(g, t.axis, 1);
+    line(g, padL, padT, padL, padT + ph);
+    line(g, padL, padT + ph, padL + pw, padT + ph);
+    // Planck, en büyüğü 1
+    const n = Math.max(120, Math.round(pw / (2 * dpr)));
+    const ln = new Float64Array(n + 1);
+    let m = -Infinity;
+    for (let i = 0; i <= n; i++) { ln[i] = lnPlanckLam((360 + (470 * i) / n) * 1e-9, T); if (ln[i] > m) m = ln[i]; }
+    const path = new Path2D();
+    path.moveTo(X(360), Y(0));
+    for (let i = 0; i <= n; i++) path.lineTo(X(360 + (470 * i) / n), Y(Math.exp(ln[i] - m)));
+    path.lineTo(X(830), Y(0));
+    path.closePath();
+    g.save();
+    g.clip(path);
+    g.globalAlpha = t.under * 0.8;
+    for (let px = Math.floor(X(380)); px < X(750); px++) {
+      const nm = 360 + ((px + 0.5 - padL) / pw) * 470;
+      g.fillStyle = rgbStr(spectralRGB(nm));
+      g.fillRect(px, padT, 1.2, ph);
+    }
+    g.restore();
+    g.globalAlpha = 1;
+    pen(g, t.ink, 1.8);
+    g.beginPath();
+    for (let i = 0; i <= n; i++) { const x = X(360 + (470 * i) / n), y = Y(Math.exp(ln[i] - m)); if (i) g.lineTo(x, y); else g.moveTo(x, y); }
+    g.stroke();
+    // Renk eşleme fonksiyonları
+    [[0, t.xb], [1, t.yb], [2, t.zb]].forEach(([j, col]) => {
+      pen(g, col, 1.8);
+      g.beginPath();
+      for (let i = 0; i < CIE_N; i++) { const x = X(cieNm(i)), y = Y(CIE[3 * i + j]); if (i) g.lineTo(x, y); else g.moveTo(x, y); }
+      g.stroke();
+    });
+    // X, Y, Z toplamları
+    const c = k.col, mx = Math.max(c.X, c.Y, c.Z), bx = W - barW - 4 * dpr, bw = barW / 5;
+    g.font = font(10, 600);
+    [[c.X, t.xb, "X"], [c.Y, t.yb, "Y"], [c.Z, t.zb, "Z"]].forEach(([v, col, name], i) => {
+      const x = bx + (i + 0.5) * (barW / 3) - bw / 2, h = (v / mx) * ph * 0.8;
+      g.fillStyle = col;
+      g.globalAlpha = 0.85;
+      g.fillRect(x, padT + ph - h, bw, h);
+      g.globalAlpha = 1;
+      g.fillStyle = t.ink;
+      g.textAlign = "center";
+      g.textBaseline = "top";
+      g.fillText(name, x + bw / 2, padT + ph + 4 * dpr);
+      g.textBaseline = "bottom";
+      g.font = font(9.5);
+      g.fillStyle = t.muted;
+      g.fillText(fix(v / c.Y, 3), x + bw / 2, padT + ph - h - 3 * dpr);
+      g.font = font(10, 600);
+    });
+    g.fillStyle = t.muted;
+    g.font = font(9.5);
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    g.fillText("X : Y : Z (Y = 1)", bx + barW / 2, padT);
+    setAria(chart, `Görünür bölgede, 360–830 nm, ${fmtT(T)} kara cismin tayfı (en büyüğü 1) ve CIE 1931 renk eşleme fonksiyonları x̄, ȳ, z̄; sağda X, Y, Z toplamlarının çubukları, Y = 1 alınarak X = ${fix(c.X / c.Y, 3)}, Z = ${fix(c.Z / c.Y, 3)}`);
+  }
+
+  /* ── C: Gezegen sıcaklığı ── */
+  const TS_GRID = makeGrid(2000, 40000, 200, [2000, 2500, 3000, 3500, 4000, 5000, 5772, 6000, 7000, 8000, 10000, 15000, 20000, 30000, 40000]);
+  const RS_GRID = makeGrid(0.1, 20, 200, [0.1, 0.2, 0.5, 1, 2, 5, 10, 20]);
+  const D_GRID = makeGrid(0.02, 50, 200, [0.02, 0.05, 0.1, 0.2, 0.5, 0.7233, 1, 1.5237, 2, 5, 10, 20, 50]);
+  const PLANET_COL = { venus: "#e3c98d", dunya: "#4a86c8", mars: "#c8613a" };
+  const Cst = { Ts: 5772, Rs: 1, D: 1, A: 0.294, calc: null, view: null };
+  const cui = {
+    planet: $("cPlanet"), Ts: $("cTs"), TsOut: $("cTsOut"), Rs: $("cRs"), RsOut: $("cRsOut"), D: $("cD"), DOut: $("cDOut"), A: $("cA"), AOut: $("cAOut"), reset: $("cReset"),
+    SM: $("cSM"), ST: $("cST"), SD: $("cSD"), TM: $("cTM"), TT: $("cTT"), TD: $("cTD"), PM: $("cPM"), PT: $("cPT"), PD: $("cPD"),
+    L: $("cL"), abs: $("cAbs"), star4: $("cStar4"), pl4: $("cPl4"), obs: $("cObs"), gh: $("cGh"), table: $("cTable"), status: $("cStatus"),
+  };
+  cui.Ts.max = String(TS_GRID.length - 1);
+  cui.Rs.max = String(RS_GRID.length - 1);
+  cui.D.max = String(D_GRID.length - 1);
+
+  function planetKey() {
+    if (Cst.Ts !== T_SUN || Cst.Rs !== 1) return "";
+    for (const [id, p] of Object.entries(PLANETS)) if (Cst.D === p.D && Math.abs(Cst.A - p.A) < 1e-9) return id;
+    return "";
+  }
+  function computeC() {
+    const Rm = Cst.Rs * R_SUN, Dm = Cst.D * AU;
+    const ratio = Rm / Dm;
+    const S = exitanceNum(Cst.Ts) * ratio * ratio;
+    const Sth = SIGMA * Cst.Ts ** 4 * ratio * ratio;
+    const absorbed = ((1 - Cst.A) * S) / 4;
+    const Teq = solveTeqNum(absorbed);
+    Cst.calc = {
+      inside: Dm <= Rm, ratio, S, Sth, absorbed, Teq,
+      TeqTh: tEqFormula(Cst.Ts, Rm, Dm, Cst.A),
+      pk: findPeak((l) => lnPlanckLam(l, Teq), 1e-8, 10),
+      star4: lnFracBelow(C2 / (4e-6 * Cst.Ts)),
+      pl4: Math.log1p(-Math.exp(lnFracBelow(C2 / (4e-6 * Teq)))),
+      L: Cst.Rs * Cst.Rs * (Cst.Ts / T_SUN) ** 4,
+      key: planetKey(),
+    };
+  }
+  function updateC() {
+    cui.Ts.value = String(nearestIndex(TS_GRID, Cst.Ts));
+    cui.Rs.value = String(nearestIndex(RS_GRID, Cst.Rs));
+    cui.D.value = String(nearestIndex(D_GRID, Cst.D));
+    cui.A.value = fix(Cst.A, 3);
+    const ts = fmtT(Cst.Ts), rs = fmtR(Cst.Rs), ds = fmtD(Cst.D), as = fix(Cst.A, 3);
+    setText(cui.TsOut, ts); cui.Ts.setAttribute("aria-valuetext", ts);
+    setText(cui.RsOut, rs); cui.Rs.setAttribute("aria-valuetext", rs);
+    setText(cui.DOut, ds); cui.D.setAttribute("aria-valuetext", ds);
+    setText(cui.AOut, as);
+    computeC();
+    cui.planet.value = Cst.calc.key;
+    dirty = true;
+  }
+  function presetC(id) {
+    const p = PLANETS[id];
+    if (!p) return;
+    Object.assign(Cst, { Ts: T_SUN, Rs: 1, D: p.D, A: p.A });
+    updateC();
+  }
+  function resetC() { presetC("dunya"); }
+  function buildPlanetTable() {
+    cui.table.innerHTML = Object.entries(PLANETS).map(([id, p]) => {
+      const te = tEqFormula(T_SUN, R_SUN, p.D * AU, p.A);
+      return `<tr data-id="${id}"><th scope="row">${p.name}</th><td>${fix(p.A, 3)}</td><td>${fix(te, 1)}</td><td>${fix(p.Tbb, 1)}${id === "dunya" ? "*" : ""}</td><td>${p.Tsurf}</td><td>${sgn(p.Tsurf - te, 1)}</td></tr>`;
+    }).join("");
+  }
+  function readoutsC() {
+    const k = Cst.calc, p = PLANETS[k.key];
+    for (const tr of cui.table.rows) tr.classList.toggle("is-sel", tr.dataset.id === k.key);
+    setText(cui.L, `${numLn(Math.log(k.L), 4)} L☉`);
+    if (k.inside) {
+      for (const el of [cui.SM, cui.ST, cui.TM, cui.TT, cui.PM, cui.PT, cui.abs, cui.pl4]) setText(el, "tanımsız (D ≤ R★)");
+      for (const el of [cui.SD, cui.TD, cui.PD]) setText(el, "—");
+      setText(cui.star4, fmtPctLn(k.star4));
+    } else {
+      setText(cui.SM, fmtFlux(k.S)); setText(cui.ST, fmtFlux(k.Sth)); setText(cui.SD, pctDiff(k.S, k.Sth));
+      setText(cui.TM, fmtTeq(k.Teq)); setText(cui.TT, fmtTeq(k.TeqTh)); setText(cui.TD, pctDiff(k.Teq, k.TeqTh));
+      const lamTh = B_WIEN / k.TeqTh;
+      setText(cui.PM, k.pk ? fmtLen(k.pk.at) : "—"); setText(cui.PT, fmtLen(lamTh)); setText(cui.PD, k.pk ? pctDiff(k.pk.at, lamTh) : "—");
+      setText(cui.abs, fmtFlux(k.absorbed));
+      setText(cui.star4, fmtPctLn(k.star4));
+      setText(cui.pl4, fmtPctLn(k.pl4));
+    }
+    if (p && !k.inside) {
+      setText(cui.obs, `${p.Tsurf} K (${fmtCel(p.Tsurf)})`);
+      setText(cui.gh, `${sgn(p.Tsurf - k.TeqTh, 1)} K`);
+    } else {
+      setText(cui.obs, "yalnız hazır gezegenlerde");
+      setText(cui.gh, "—");
+    }
+    const st = statusC();
+    setHTML(cui.status, subs(st.text));
+    cui.status.classList.toggle("is-warn", st.warn);
+  }
+  function statusC() {
+    const k = Cst.calc, p = PLANETS[k.key];
+    if (k.inside) return { text: "Gezegen yıldızın içinde kalıyor (D ≤ R★): bu düzen fiziksel değil, denge sıcaklığı tanımsız. D'yi büyüt ya da R★'ı küçült.", warn: true };
+    const parts = [];
+    let warn = false;
+    const te = fmtTeq(k.TeqTh);
+    if (k.key === "dunya") parts.push(`Dünya: T_eq = ${te} (${fmtCel(k.TeqTh)}), ama gözlenen ortalama yüzey sıcaklığı ${p.Tsurf} K. Aradaki ${sgn(p.Tsurf - k.TeqTh, 1)} K, atmosferin yüzeyden çıkan kızılötesini tutmasından gelir: sera etkisi.`);
+    else if (k.key === "venus") parts.push(`Venüs: albedosu yüksek (0.77) olduğu için Güneş'e yakın olduğu hâlde Dünya'dan az enerji soğurur, T_eq = ${te}. Oysa yüzey ${p.Tsurf} K: kalın CO₂ atmosferin sera etkisi ${sgn(p.Tsurf - k.TeqTh, 1)} K.`);
+    else if (k.key === "mars") parts.push(`Mars: T_eq = ${te}, gözlenen ortalama ${p.Tsurf} K. İnce atmosferin sera etkisi küçüktür; gece–gündüz farkı büyük olduğundan sıcaklıkların ortalaması T_eq'den biraz düşük kalabilir (⟨T⟩ ≤ ⟨T⁴⟩^¼).`);
+    else parts.push(`T_eq = ${te} (${fmtCel(k.TeqTh)}).`);
+    if (k.pk) parts.push(`Gezegenin kendi ışıması ${fmtLen(k.pk.at)}'de tepe yapar; gücünün ${fmtPctLn(k.pl4)} kadarı 4 µm'den uzun dalga boyunda, yıldız ışığının ise ${fmtPctLn(k.star4)} kadarı 4 µm'den kısa.`);
+    if (k.ratio > 0.1) {
+      warn = true;
+      parts.push(`R★/D = ${fix(k.ratio, 3)}: yıldız gezegenden bakınca nokta değil, ışınlar paralel gelmez; formül soğurulan gücü küçük tahmin eder.`);
+    }
+    return { text: parts.join(" "), warn };
+  }
+
+  function drawC() {
+    const g = sg, t = theme(), W = stage.width, H = stage.height, k = Cst.calc;
+    clearCanvas(g);
+    const narrow = W / dpr < 560;
+    const ax0 = W * 0.22, ax1 = W * 0.95, ay = H * 0.86;
+    const l0 = Math.log10(D_GRID[0]), l1 = Math.log10(D_GRID[D_GRID.length - 1]);
+    const XD = (D) => ax0 + ((Math.log10(D) - l0) / (l1 - l0)) * (ax1 - ax0);
+    const cy = H * 0.52, pr = Math.max(7 * dpr, H * 0.055), px = XD(Cst.D);
+    Cst.view = { ax0, ax1, l0, l1, cy, ay, px, pr };
+    // Uzaklık ekseni
+    pen(g, t.axis, 1.2);
+    line(g, ax0, ay, ax1, ay);
+    g.font = font(9.5);
+    g.fillStyle = t.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (const D of [0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50]) {
+      const x = XD(D), major = D === 0.1 || D === 1 || D === 10;
+      pen(g, t.axis, 1);
+      line(g, x, ay - (major ? 5 : 3) * dpr, x, ay + (major ? 5 : 3) * dpr);
+      if (major || !narrow) g.fillText(`${D} au`, x, ay + 7 * dpr);
+    }
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    g.fillText("D", ax0 - 8 * dpr, ay);
+    g.font = font(9, 700);
+    for (const [id, p] of Object.entries(PLANETS)) {
+      const x = XD(p.D);
+      g.fillStyle = PLANET_COL[id];
+      g.beginPath();
+      g.moveTo(x, ay - 5 * dpr); g.lineTo(x - 4 * dpr, ay - 12 * dpr); g.lineTo(x + 4 * dpr, ay - 12 * dpr);
+      g.closePath();
+      g.fill();
+      g.fillStyle = t.muted;
+      g.textAlign = "center";
+      g.textBaseline = "bottom";
+      g.fillText(p.name[0], x, ay - 13 * dpr);
+    }
+    // Yıldız
+    const sc = colourOf(Cst.Ts).rgb;
+    const sx = W * 0.085, sr = Math.max(4 * dpr, Math.min(H * 0.17, H * 0.08 * Math.pow(Cst.Rs, 0.3)));
+    const glow = g.createRadialGradient(sx, cy, sr * 0.6, sx, cy, sr * 2.4);
+    glow.addColorStop(0, rgbStr(sc, t.light ? 0.45 : 0.55));
+    glow.addColorStop(1, rgbStr(sc, 0));
+    g.fillStyle = glow;
+    g.beginPath(); g.arc(sx, cy, sr * 2.4, 0, Math.PI * 2); g.fill();
+    g.fillStyle = rgbStr(sc);
+    g.beginPath(); g.arc(sx, cy, sr, 0, Math.PI * 2); g.fill();
+    pen(g, t.faint, 1);
+    g.stroke();
+    tag(g, `T★ = ${fmtT(Cst.Ts)}`, sx, cy + sr * 2.4 + 6 * dpr, t.ink, t, 10, "center");
+    tag(g, `R★ = ${fmtR(Cst.Rs)}`, sx, cy + sr * 2.4 + 26 * dpr, t.muted, t, 10, "center");
+    if (k.inside) {
+      tag(g, "Gezegen yıldızın içinde: düzen fiziksel değil", W / 2, cy, t.rj, t, 12, "center");
+      setAria(stage, "Ölçeksiz şema: gezegen yıldızın yarıçapının içinde, denge sıcaklığı tanımsız");
+      return;
+    }
+    // Gelen ışınlar
+    const xs0 = sx + sr * 0.95, xe = px - pr * 1.08;
+    if (xe > xs0 + 14 * dpr) {
+      g.globalAlpha = 0.85;
+      for (let i = -2; i <= 2; i++) {
+        const y1 = cy + i * Math.min(sr, pr) * 0.42, y2 = cy + i * pr * 0.42;
+        pen(g, t.ray, 1.6);
+        line(g, xs0, y1, xe, y2);
+        arrowHead(g, xe, y2, Math.atan2(y2 - y1, xe - xs0), 7, t.ray);
+      }
+      g.globalAlpha = 1;
+    }
+    // Yansıyan pay
+    g.globalAlpha = 0.25 + 0.75 * Cst.A;
+    for (const s of [-1, 1]) {
+      const x1 = px - pr * 0.9, y1 = cy + s * pr * 0.45;
+      const ang = Math.PI + s * 0.55, L = pr * 1.6;
+      const x2 = x1 + Math.cos(ang) * L, y2 = y1 + Math.sin(ang) * L;
+      pen(g, t.refl, 1.8);
+      line(g, x1, y1, x2, y2);
+      arrowHead(g, x2, y2, ang, 7, t.refl);
+    }
+    g.globalAlpha = 1;
+    // Gezegen
+    const pc = PLANET_COL[k.key] || (t.light ? "#8b95a8" : "#9aa5b8");
+    const pg = g.createRadialGradient(px - pr * 0.45, cy - pr * 0.2, pr * 0.1, px, cy, pr);
+    pg.addColorStop(0, "#ffffff");
+    pg.addColorStop(0.25, pc);
+    pg.addColorStop(1, t.light ? "#3b4252" : "#1f2937");
+    g.fillStyle = pg;
+    g.beginPath(); g.arc(px, cy, pr, 0, Math.PI * 2); g.fill();
+    // Kızılötesi ışıma: dalgalı oklar
+    const base = px > W * 0.8 ? Math.PI : 0;
+    pen(g, t.ir, 1.6);
+    for (const da of [-0.9, 0, 0.9, -Math.PI / 2 - base]) {
+      const ang = base + da, ux = Math.cos(ang), uy = Math.sin(ang), nx = -uy, ny = ux;
+      const r0 = pr * 1.18, L = pr * 1.5, amp = 2.4 * dpr, wl = 7 * dpr;
+      g.beginPath();
+      for (let s = 0; s <= L; s += dpr) {
+        const a = amp * Math.sin((2 * Math.PI * s) / wl);
+        const x = px + ux * (r0 + s) + nx * a, y = cy + uy * (r0 + s) + ny * a;
+        if (s) g.lineTo(x, y); else g.moveTo(x, y);
+      }
+      g.stroke();
+      arrowHead(g, px + ux * (r0 + L + 4 * dpr), cy + uy * (r0 + L + 4 * dpr), ang, 7, t.ir);
+    }
+    // Etiketler: gelen ve yansıyan ışın demetinin üstünde ve altında, yayılan gezegenin üstünde
+    const fs = narrow ? 9.5 : 10.5;
+    const sTxt = `gelen S = ${fmtFlux(k.S)}`;
+    const rTxt = narrow ? `yansıyan ${fmtFlux((Cst.A * k.S) / 4)}` : `yansıyan A·S/4 = ${fmtFlux((Cst.A * k.S) / 4)}`;
+    const labW = Math.max(rich(g, sTxt, 0, 0, null, fs, "left", "600"), rich(g, rTxt, 0, 0, null, fs, "left", "600")) + 18 * dpr;
+    if (xe - pr * 1.6 - xs0 > labW) {
+      tag(g, sTxt, xs0 + 6 * dpr, cy - pr - 13 * dpr, t.ray, t, fs, "left");
+      tag(g, rTxt, xs0 + 6 * dpr, cy + pr + 13 * dpr, t.refl, t, fs, "left");
+    } else {
+      tag(g, sTxt, 6 * dpr, 14 * dpr, t.ray, t, fs, "left");
+      tag(g, rTxt, 6 * dpr, 36 * dpr, t.refl, t, fs, "left");
+    }
+    tag(g, `yayılan σT_{eq}^4 = ${fmtFlux(SIGMA * k.Teq ** 4)}`, px, cy - pr * 3.25 - 6 * dpr, t.ir, t, fs, "center");
+    const pname = PLANETS[k.key] ? PLANETS[k.key].name : "Gezegen";
+    tag(g, `${pname} · T_{eq} = ${fmtTeq(k.TeqTh)}`, px, cy + pr * 2.4 + 15 * dpr, t.ink, t, fs + 0.5, "center");
+    // Sıcaklık ölçeği
+    const p = PLANETS[k.key];
+    const tops = [300, 500, 800, 1000, 1500, 2000, 3000, 5000, 10000, 20000, 50000, 100000];
+    const Tmax = tops.find((v) => v >= 1.12 * Math.max(k.TeqTh, p ? p.Tsurf : 0)) || 100000;
+    const tx0 = W * (narrow ? 0.5 : 0.42), tx1 = W * 0.95, ty = H * 0.12, bh = 8 * dpr;
+    const XT = (T) => tx0 + (Math.min(T, Tmax) / Tmax) * (tx1 - tx0);
+    const grad = g.createLinearGradient(tx0, 0, tx1, 0);
+    grad.addColorStop(0, "#3b82f6"); grad.addColorStop(0.5, "#facc15"); grad.addColorStop(1, "#ef4444");
+    g.globalAlpha = 0.75;
+    g.fillStyle = grad;
+    g.beginPath(); g.roundRect(tx0, ty - bh / 2, tx1 - tx0, bh, bh / 2); g.fill();
+    g.globalAlpha = 1;
+    const st = niceStep(Tmax / (narrow ? 3 : 5));
+    g.font = font(9);
+    g.fillStyle = t.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let v = 0; v <= Tmax + 1e-9; v += st) g.fillText(`${fix(v, 0)}`, XT(v), ty + bh / 2 + 3 * dpr);
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    g.fillText("T (K)", tx0 - 6 * dpr, ty);
+    const xe2 = XT(k.TeqTh);
+    pen(g, t.ink, 2);
+    line(g, xe2, ty - bh, xe2, ty + bh);
+    tag(g, `T_{eq} ${fmtTeq(k.TeqTh)}`, xe2, ty - bh - 12 * dpr, t.ink, t, 10, "center");
+    if (p) {
+      const xs2 = XT(p.Tsurf);
+      pen(g, t.ir, 2);
+      line(g, xs2, ty - bh, xs2, ty + bh);
+      tag(g, `yüzey ${p.Tsurf} K · fark ${sgn(p.Tsurf - k.TeqTh, 1)} K`, xs2, ty + bh + 26 * dpr, t.ir, t, 10, "center");
+    }
+    setAria(stage, `Ölçeksiz şema: ${fmtT(Cst.Ts)} sıcaklığında, ${fmtR(Cst.Rs)} yarıçaplı yıldız ve ${fmtD(Cst.D)} uzaklıkta ${pname.toLowerCase()}; gelen ışık okları, albedoyla yansıyan pay ve gezegenin dalgalı kızılötesi okları; üstte sıcaklık ölçeğinde T_eq = ${fmtTeq(k.TeqTh)}${p ? ` ve gözlenen yüzey sıcaklığı ${p.Tsurf} K` : ""}; altta logaritmik uzaklık ekseni ve Venüs, Dünya, Mars işaretleri`);
+  }
+  function niceLog(v, dir) {
+    const e = Math.floor(Math.log10(v)), m = v / 10 ** e;
+    const steps = [1, 2, 5, 10];
+    if (dir < 0) { let r = 1; for (const s of steps) if (s <= m * (1 + 1e-9)) r = s; return r * 10 ** e; }
+    for (const s of steps) if (s >= m * (1 - 1e-9)) return s * 10 ** e;
+    return 10 ** (e + 1);
+  }
+  function drawChartC() {
+    const g = cg, t = theme(), W = chart.width, H = chart.height, k = Cst.calc;
+    clearCanvas(g);
+    if (k.inside) {
+      g.font = font(12, 600);
+      g.fillStyle = t.rj;
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText("Gezegen yıldızın içinde: tayf tanımsız", W / 2, H / 2);
+      setAria(chart, "Tayf grafiği boş: gezegen yıldızın içinde");
+      return;
+    }
+    const narrow = W / dpr < 480;
+    const padL = 40 * dpr, padR = 12 * dpr, padT = 22 * dpr, padB = 34 * dpr;
+    const pw = W - padL - padR, ph = H - padT - padB;
+    const Ts = Cst.Ts, Te = k.Teq, alb = Cst.A, geo = 0.25 * k.ratio * k.ratio;
+    const lo = niceLog(C2 / (X4 * Ts) / 6, -1), hi = niceLog((C2 / (X4 * Te)) * 12, 1);
+    const l0 = Math.log(lo), l1 = Math.log(hi);
+    const X = (lam) => padL + ((Math.log(lam) - l0) / (l1 - l0)) * pw;
+    const N = Math.max(120, Math.round(pw / (1.5 * dpr)));
+    const lam = new Float64Array(N + 1), inc = new Float64Array(N + 1), emit = new Float64Array(N + 1);
+    let ymax = 0;
+    for (let i = 0; i <= N; i++) {
+      const L = Math.exp(l0 + (i / N) * (l1 - l0));
+      lam[i] = L;
+      inc[i] = geo * Math.PI * Math.exp(lnPlanckLam(L, Ts) + Math.log(L));
+      emit[i] = Math.PI * Math.exp(lnPlanckLam(L, Te) + Math.log(L));
+      ymax = Math.max(ymax, inc[i], emit[i]);
+    }
+    const e3 = 3 * Math.floor(Math.log10(ymax * 1.05) / 3), sc = 10 ** e3;
+    const step = niceStep((ymax * 1.05) / sc / 4), top = Math.ceil((ymax * 1.05) / sc / step - 1e-9) * step;
+    const Y = (v) => padT + ph - (v / (top * sc)) * ph;
+    pen(g, t.grid, 1);
+    g.font = font(9.5);
+    g.fillStyle = t.muted;
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (let v = 0; v <= top + 1e-9; v += step) { line(g, padL, Y(v * sc), padL + pw, Y(v * sc)); g.fillText(tickText(v, step), padL - 4 * dpr, Y(v * sc)); }
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let d = Math.ceil(Math.log10(lo) - 1e-9); d <= Math.floor(Math.log10(hi) + 1e-9); d++) {
+      const x = X(10 ** d);
+      line(g, x, padT, x, padT + ph);
+      g.fillText(fmtLen(10 ** d).replace(".000", "").replace(/(\.\d*?)0+ /, "$1 ").replace(". ", " "), x, padT + ph + 4 * dpr);
+    }
+    g.textBaseline = "bottom";
+    g.fillText("Dalga boyu λ (logaritmik)", padL + pw / 2, H - 3 * dpr);
+    rich(g, `λF_λ (${PREFIX[e3]}W/m²)`, padL, 11 * dpr, t.muted, 10, "left");
+    // Görünür bant
+    const vb0 = X(VIS_A), vb1 = X(VIS_B);
+    g.globalAlpha = t.band * 0.8;
+    for (let x = Math.max(padL, Math.floor(vb0)); x < Math.min(padL + pw, vb1); x++) {
+      const L = Math.exp(l0 + ((x + 0.5 - padL) / pw) * (l1 - l0));
+      g.fillStyle = rgbStr(spectralRGB(L * 1e9));
+      g.fillRect(x, padT, 1.2, ph);
+    }
+    g.globalAlpha = 1;
+    const fillUnder = (arr, scale, color, alpha, floor) => {
+      g.beginPath();
+      for (let i = 0; i <= N; i++) { const y = Y(arr[i] * scale); if (i) g.lineTo(X(lam[i]), y); else g.moveTo(X(lam[i]), y); }
+      for (let i = N; i >= 0; i--) g.lineTo(X(lam[i]), floor ? Y(floor[i] * (1 - alb)) : Y(0));
+      g.closePath();
+      g.globalAlpha = alpha;
+      g.fillStyle = color;
+      g.fill();
+      g.globalAlpha = 1;
+    };
+    const outline = (arr, scale, color, w, dash) => {
+      pen(g, color, w, dash);
+      g.beginPath();
+      for (let i = 0; i <= N; i++) { const y = Y(arr[i] * scale); if (i) g.lineTo(X(lam[i]), y); else g.moveTo(X(lam[i]), y); }
+      g.stroke();
+    };
+    fillUnder(inc, 1, t.refl, 0.28, inc);
+    fillUnder(inc, 1 - alb, t.abs, 0.4, null);
+    fillUnder(emit, 1, t.ir, 0.35, null);
+    outline(inc, 1, t.abs, 1.4, [5, 4]);
+    outline(inc, 1 - alb, t.abs, 2, null);
+    outline(emit, 1, t.ir, 2, null);
+    pen(g, t.axis, 1);
+    line(g, padL, padT, padL, padT + ph);
+    line(g, padL, padT + ph, padL + pw, padT + ph);
+    // 4 µm sınırı
+    const x4 = X(4e-6);
+    if (x4 > padL && x4 < padL + pw) {
+      pen(g, t.muted, 1.2, [2, 3]);
+      line(g, x4, padT, x4, padT + ph);
+      tag(g, "4 µm", x4, padT + 10 * dpr, t.muted, t, 9.5, "center");
+    }
+    // Tepe dalga boyları (B_λ'nın tepesi, b/T)
+    const mark = (lamPk, arr, scale, color, label, below) => {
+      const x = X(lamPk);
+      const i = Math.max(0, Math.min(N, Math.round(((Math.log(lamPk) - l0) / (l1 - l0)) * N)));
+      const y = Y(arr[i] * scale);
+      dot(g, x, y, 3.5, color);
+      tag(g, label, x, below ? y + 16 * dpr : y - 16 * dpr, color, t, 10, "center");
+    };
+    mark(B_WIEN / Ts, inc, 1 - alb, t.abs, `λ_{max} = ${fmtLen(B_WIEN / Ts)}`, false);
+    mark(B_WIEN / Te, emit, 1, t.ir, `λ_{max} = ${fmtLen(B_WIEN / Te)}`, false);
+    if (!narrow) tag(g, "eşit alan: soğurulan = yayılan", padL + pw - 4 * dpr, padT + 10 * dpr, t.muted, t, 9.5, "right");
+    setAria(chart, `Logaritmik dalga boyu ekseninde λ·F_λ: gelen yıldız ışığı (kesikli), soğurulan pay (dolu), yansıyan pay ve gezegenin kızılötesi ışıması; yıldız tayfının tepesi ${fmtLen(B_WIEN / Ts)}, gezegenin tepesi ${fmtLen(B_WIEN / Te)}, 4 µm sınırı işaretli`);
+  }
+
+  /* ── Sekmeler ── */
+  const ARIA_CHART = {
+    planck: "İki küçük log–log grafik: solda tepe dalga boyu λmax'ın sıcaklığa göre değişimi ve b/T doğrusu, sağda toplam yayılım M'nin sıcaklığa göre değişimi ve σT⁴ doğrusu; noktalar ana eğriden ve karşılaştırma eğrilerinden ölçülen değerler, içi boş halka tepesi aralık dışında kalan eğri",
+  };
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = el.dataset.for !== key; });
+    if (ARIA_CHART[key]) setAria(chart, ARIA_CHART[key]);
+    if (fromUser) {
+      try { history.replaceState(null, "", `#${key}`); } catch (_) {}
+    }
+    endDrag();
+    resize();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+
+  /* ── Çizim döngüsü: yalnız bir şey değişince ya da tema değişince ── */
+  let lastTheme = "";
+  function render() {
+    if (S.tab === "planck") { drawA(); drawChartA(); readoutsA(); }
+    else if (S.tab === "renk") { drawB(); drawChartB(); readoutsB(); }
+    else { drawC(); drawChartC(); readoutsC(); }
+  }
+  function frame() {
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) { lastTheme = th; dirty = true; }
+    if (dirty) {
+      dirty = false;
+      render();
+    }
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    dirty = true;
+  }
+
+  /* ── Etkileşim ── */
+  let drag = null;
+  function endDrag() {
+    if (!drag) return;
+    drag = null;
+    A.drag = null;
+    stage.classList.remove("is-dragging");
+  }
+  function pointerA(sx, sy, start) {
+    const V = A.view;
+    if (!V) return false;
+    if (start) {
+      if (A.peakPx && Math.hypot(sx - A.peakPx.x, sy - A.peakPx.y) < 16 * dpr) A.drag = "peak";
+      else if (sx >= V.padL - 8 * dpr && sx <= V.padL + V.pw + 8 * dpr && sy >= V.padT - 8 * dpr && sy <= V.padT + V.ph + 8 * dpr) A.drag = "cur";
+      else return false;
+    }
+    const v = V.xAt(Math.max(V.padL + 1, Math.min(V.padL + V.pw, sx)));
+    if (A.drag === "peak") {
+      A.T = A_GRID[nearestIndex(A_GRID, A.vr === "nu" ? v / NU_WIEN : B_WIEN / v)];
+      A.msg = "";
+    } else A.cur = v;
+    updateA();
+    return true;
+  }
+  function pointerB(sx, sy, start) {
+    const V = Bst.view;
+    if (!V) return false;
+    let best = null, bd = Infinity;
+    for (const p of PLANCK_LOCUS) {
+      const d = Math.hypot(V.X(p.x) - sx, V.Y(p.y) - sy);
+      if (d < bd) { bd = d; best = p; }
+    }
+    if (start && bd > 48 * dpr) return false;
+    Bst.T = B_GRID[nearestIndex(B_GRID, best.T)];
+    updateB();
+    return true;
+  }
+  function pointerC(sx, sy, start) {
+    const V = Cst.view;
+    if (!V) return false;
+    if (start) {
+      const nearPlanet = Math.hypot(sx - V.px, sy - V.cy) < V.pr + 14 * dpr;
+      const nearAxis = Math.abs(sy - V.ay) < 18 * dpr && sx >= V.ax0 - 10 * dpr && sx <= V.ax1 + 10 * dpr;
+      if (!nearPlanet && !nearAxis) return false;
+    }
+    const xx = Math.max(V.ax0, Math.min(V.ax1, sx));
+    Cst.D = D_GRID[nearestIndex(D_GRID, 10 ** (V.l0 + ((xx - V.ax0) / (V.ax1 - V.ax0)) * (V.l1 - V.l0)))];
+    updateC();
+    return true;
+  }
+  const POINTER = { planck: pointerA, renk: pointerB, gezegen: pointerC };
+  stage.addEventListener("pointerdown", (evt) => {
+    const [sx, sy] = stagePoint(evt, stage);
+    if (!POINTER[S.tab](sx, sy, true)) return;
+    drag = S.tab;
+    stage.setPointerCapture(evt.pointerId);
+    stage.classList.add("is-dragging");
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    const [sx, sy] = stagePoint(evt, stage);
+    if (drag) { POINTER[drag](sx, sy, false); return; }
+    if (evt.pointerType !== "mouse") return;
+    let grab = false;
+    if (S.tab === "planck" && A.peakPx) grab = Math.hypot(sx - A.peakPx.x, sy - A.peakPx.y) < 16 * dpr;
+    else if (S.tab === "gezegen" && Cst.view) grab = Math.hypot(sx - Cst.view.px, sy - Cst.view.cy) < Cst.view.pr + 14 * dpr;
+    stage.classList.toggle("is-grab", grab);
+  });
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  stage.addEventListener("pointerleave", () => { if (!drag) stage.classList.remove("is-grab"); });
+
+  aui.T.addEventListener("input", () => { A.T = A_GRID[Number(aui.T.value)]; A.msg = ""; updateA(); });
+  aui.preset.addEventListener("change", () => {
+    const b = BODIES.find((x) => x.id === aui.preset.value);
+    if (b) { A.T = b.T; A.msg = ""; }
+    updateA();
+  });
+  aui.vr.addEventListener("change", () => {
+    if (aui.vr.value !== A.vr) { A.cur = C / A.cur; A.vr = aui.vr.value; }
+    A.msg = "";
+    relabelScale();
+    updateA();
+  });
+  aui.scale.addEventListener("change", () => { A.scale = Number(aui.scale.value); A.msg = ""; updateA(); });
+  aui.rj.addEventListener("change", () => { A.rj = aui.rj.checked; updateA(); });
+  aui.wien.addEventListener("change", () => { A.wien = aui.wien.checked; updateA(); });
+  aui.cur.addEventListener("input", () => { A.cur = curRange().at(Number(aui.cur.value)); updateA(); });
+  aui.pin.addEventListener("click", pinA);
+  aui.clear.addEventListener("click", () => { A.pins = []; A.msg = "Karşılaştırmalar silindi."; updateA(); });
+  aui.reset.addEventListener("click", resetA);
+
+  bui.T.addEventListener("input", () => { Bst.T = B_GRID[Number(bui.T.value)]; updateB(); });
+  bui.preset.addEventListener("change", () => {
+    const b = BODIES.find((x) => x.id === bui.preset.value);
+    if (b) Bst.T = b.T;
+    updateB();
+  });
+  bui.reset.addEventListener("click", resetB);
+
+  cui.planet.addEventListener("change", () => { if (cui.planet.value) presetC(cui.planet.value); else updateC(); });
+  cui.Ts.addEventListener("input", () => { Cst.Ts = TS_GRID[Number(cui.Ts.value)]; updateC(); });
+  cui.Rs.addEventListener("input", () => { Cst.Rs = RS_GRID[Number(cui.Rs.value)]; updateC(); });
+  cui.D.addEventListener("input", () => { Cst.D = D_GRID[Number(cui.D.value)]; updateC(); });
+  cui.A.addEventListener("input", () => { Cst.A = Number(cui.A.value); updateC(); });
+  cui.reset.addEventListener("click", resetC);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button")) return;
+    if (e.key === "r" || e.key === "R") {
+      if (S.tab === "planck") resetA();
+      else if (S.tab === "renk") resetB();
+      else resetC();
+    }
+  });
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Başlat ── */
+  buildBodyTable();
+  buildPlanetTable();
+  relabelScale();
+  updateA();
+  updateB();
+  updateC();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "planck", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

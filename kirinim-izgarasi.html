@@ -1,0 +1,2441 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kırınım Izgarası: Çok Yarıklı Girişim ve Spektrometre</title>
+  <meta name="description" content="Bir CD'deki gökkuşağından Güneş'te bulunan helyuma: binlerce eş yarık ışığı renklerine ayırır, parlak tepeleri 1/N oranında inceltir ve hidrojenin tayfında protonun kütlesini bile fark ettirir.">
+  <style>
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, 1fr);
+      grid-template-areas: "stage stage" "main side";
+      gap: 14px 16px;
+      align-items: start;
+    }
+    .stage-wrap { grid-area: stage; display: grid; gap: 8px; min-width: 0; }
+    .main { grid-area: main; display: grid; gap: 12px; min-width: 0; }
+    .side { grid-area: side; display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: pan-y;
+    }
+    .lab[data-tab="spektrometre"] .sim-canvas { touch-action: none; cursor: grab; }
+    .sim-canvas.is-dragging { cursor: grabbing !important; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+      touch-action: pan-y;
+    }
+    .lab[data-tab="desen"] .chart-canvas { cursor: pointer; }
+    .lab[data-tab="spektrometre"] .chart-canvas, .lab[data-tab="cd"] .chart-canvas { cursor: ew-resize; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .legend span { white-space: nowrap; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.k-acc { border-top-color: var(--accent); }
+    .legend i.k-acc2 { border-top-color: var(--accent-2); }
+    .legend i.k-warm { border-top-color: var(--accent-warm); }
+    .legend i.k-red { border-top-color: var(--danger); }
+    .legend i.dot { width: 8px; height: 8px; border: 0; border-radius: 50%; background: var(--accent-warm); }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field[hidden] { display: none; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field label .swatch { display: inline-block; width: 12px; height: 12px; margin-right: 6px; border-radius: 50%; vertical-align: -1px; box-shadow: 0 0 0 1px var(--border); }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .row.nudge button { padding: 7px 9px; font-variant-numeric: tabular-nums; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts-wrap { display: grid; gap: 10px; min-width: 0; }
+    .group { display: grid; gap: 10px; min-width: 0; }
+    .group[hidden] { display: none; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout em { font-style: normal; font-size: 0.72rem; line-height: 1.3; color: var(--text-muted); overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .sel-head { margin: 0; font-size: 0.84rem; font-weight: 600; }
+    .table-wrap { max-width: 100%; overflow-x: auto; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; vertical-align: top; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.78rem; }
+    .lab table.cmp td.meas { color: var(--accent-warm) !important; font-weight: 600; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 34%; }
+    .lab table.rec { table-layout: auto; }
+    .lab table.rec td { white-space: nowrap; }
+    .lab table.rec td small { display: block; white-space: normal; font-size: 0.68rem; color: var(--text-muted); }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "main"; gap: 12px; }
+      .sim-canvas, .chart-canvas { aspect-ratio: 16 / 10; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.76rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="kirinim-izgarasi">
+
+<div class="app-content">
+  <h1>Kırınım Izgarası: Çok Yarıklı Girişim ve Spektrometre</h1>
+  <p class="hint">Bir sekme seç. Desende yarık sayısını, aralığını ve genişliğini değiştir; ana maksimumların yerini ve genişliğini hesaplanan desenden ölç, d·sin θ = mλ ile karşılaştır. Spektrometrede dürbünü çevirip çizgilerin açısını oku; dalga boyunu ve Rydberg sabitini kendin bul.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney senaryoları">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-desen" data-tab="desen" aria-selected="true" aria-controls="labPanel">Çok yarıklı desen</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-spektrometre" data-tab="spektrometre" aria-selected="false" aria-controls="labPanel" tabindex="-1">Spektrometre</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-cd" data-tab="cd" aria-selected="false" aria-controls="labPanel" tabindex="-1">CD, DVD ve Blu-ray</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-desen" data-tab="desen">
+    <div class="stage-wrap">
+      <canvas id="stageCanvas" class="sim-canvas" width="1100" height="550" role="img" aria-label="Sahne"></canvas>
+      <p class="legend" data-for="desen">
+        <span>Üstten görünüş: açılar gerçek, uzunluklar ölçekli değil</span>
+        <span><i class="k-warm"></i>kırınan demetler (parlaklık mertebenin şiddetiyle)</span>
+        <span><i class="dash"></i>eksik mertebe</span>
+        <span><i class="k-acc2"></i>grafikteki açı aralığı</span>
+      </p>
+      <p class="legend" data-for="spektrometre" hidden>
+        <span>Üstten görünüş: kolimatör solda sabit, ızgara ortada, dürbün döner</span>
+        <span><i class="k-warm"></i>tayf çizgilerinin mertebeleri (±1, ±2, ±3)</span>
+        <span>φ: ölçek okuması</span>
+      </p>
+      <p class="legend" data-for="cd" hidden>
+        <span>Yandan şema: açılar gerçek, uzunluklar ölçekli değil</span>
+        <span><i class="k-warm"></i>yansıyan mertebeler</span>
+        <span>duvarda delik: lazer buradan geçip diske dik düşer</span>
+      </p>
+    </div>
+
+    <div class="side">
+      <!-- (a) Çok yarıklı desen -->
+      <div class="panel" data-for="desen" role="group" aria-labelledby="ttlA">
+        <h2 id="ttlA">Izgara ve ışık</h2>
+        <div class="field">
+          <label for="aN"><span class="lt">Yarık sayısı N</span><output id="aNOut" for="aN">N = 5</output></label>
+          <input type="range" id="aN" min="0" max="21" step="1" value="4" aria-valuetext="N = 5">
+        </div>
+        <div class="field">
+          <label for="aSrc"><span class="lt">Işık kaynağı</span><output id="aSrcOut" for="aSrc">lazer</output></label>
+          <select id="aSrc">
+            <option value="405">Mor diyot lazer · 405 nm</option>
+            <option value="532">Yeşil DPSS lazer · 532 nm</option>
+            <option value="632.8" selected>He-Ne lazer · 632.8 nm</option>
+            <option value="ozel">Özel (kaydırıcıdan)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aLam"><span class="lt">Dalga boyu λ (havada)</span><output id="aLamOut" for="aLam"><i class="swatch" id="aSwatch" aria-hidden="true"></i><span id="aLamTxt">632.8 nm</span></output></label>
+          <input type="range" id="aLam" min="380" max="750" step="0.1" value="632.8">
+        </div>
+        <div class="field">
+          <label for="aUnit"><span class="lt">Izgara sabitini gir</span><output id="aUnitOut" for="aUnit">µm</output></label>
+          <select id="aUnit">
+            <option value="um" selected>Yarık aralığı d (µm)</option>
+            <option value="lpmm">Çizgi yoğunluğu (çizgi/mm)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aD"><span class="lt" id="aDLabel">Yarık aralığı d</span><output id="aDOut" for="aD">5.00 µm</output></label>
+          <input type="range" id="aD" min="0.8" max="50" step="0.01" value="5">
+        </div>
+        <div class="field">
+          <label for="aA"><span class="lt">Yarık genişliği a</span><output id="aAOut" for="aA">1.50 µm</output></label>
+          <input type="range" id="aA" min="0.05" max="50" step="0.01" value="1.5">
+        </div>
+        <div class="field">
+          <label for="aL"><span class="lt">Ekran uzaklığı L</span><output id="aLOut" for="aL">1.00 m</output></label>
+          <input type="range" id="aL" min="0.1" max="5" step="0.05" value="1">
+        </div>
+        <p class="note" id="aGap">Yarık genişliği a, yarık aralığı d'yi aşamaz.</p>
+        <h2>Grafik</h2>
+        <div class="field">
+          <label for="aView"><span class="lt">Grafik aralığı</span><output id="aViewOut" for="aView">bütün açılar</output></label>
+          <select id="aView">
+            <option value="tum" selected>Bütün açılar (−90° … +90°)</option>
+            <option value="zarf">Merkez zarf (sin θ ≤ 1.2 λ/a)</option>
+            <option value="aralik">Seçili mertebe ile bir önceki arası</option>
+            <option value="tepe">Seçili ana maksimumun çevresi</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aOrd"><span class="lt">İncelenen mertebe m</span><output id="aOrdOut" for="aOrd">m = 1</output></label>
+          <input type="range" id="aOrd" min="1" max="7" step="1" value="1">
+        </div>
+        <div class="field">
+          <label for="aScale"><span class="lt">Düşey eksen</span><output id="aScaleOut" for="aScale">doğrusal</output></label>
+          <select id="aScale">
+            <option value="lin" selected>Doğrusal (I/I₀)</option>
+            <option value="log">Logaritmik (10⁻⁵ … 1)</option>
+          </select>
+        </div>
+        <div class="row" role="group" aria-label="Hazır deneyler">
+          <button type="button" class="app-btn-ghost" data-preset-a="n2">N = 2</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="n10">N = 10</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="d3a">d = 3a</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="lp600">600 çizgi/mm, He-Ne</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Sıfırla</button>
+        </div>
+        <p class="note">N = 2 ve N = 10 düğmeleri yalnız yarık sayısını değiştirir; d, a ve λ aynı kalır, grafik iki ana maksimumun arasını gösterir. Grafiğe dokunmak en yakın mertebeyi seçer.</p>
+        <p class="note">Model: uzak alan (Fraunhofer) kırınımı, skaler dalga. I(θ) = I₀·[sin β/β]²·[sin Nγ/(N sin γ)]², β = πa·sin θ/λ, γ = πd·sin θ/λ; I₀ merkez tepenin şiddetidir ve tek yarığınkinin N² katıdır. Düz ekranda y = L·tan θ. λ havadaki dalga boyudur. Eğiklik çarpanı ve polarizasyon ihmal edildi; d birkaç λ'dan küçükken konumlar doğru, şiddetler yalnız niteldir.</p>
+        <p class="note">Ölçülen değerler hesaplanan desenden gelir: ana maksimum altın oran aramasıyla, sıfırlar genliğin işaret değiştirdiği yerde ikiye bölmeyle bulunur; ikincil maksimumlar m − 1 ile m arasında örneklenip sayılır. d/a = p/q (en sade kesir) ise m = p, 2p, … mertebeleri tek yarık zarfının sıfırına düşer ve kaybolur. Kısayol: <kbd>R</kbd> sekmeyi sıfırlar.</p>
+      </div>
+
+      <!-- (b) Spektrometre -->
+      <div class="panel" data-for="spektrometre" role="group" aria-labelledby="ttlB" hidden>
+        <h2 id="ttlB">Spektrometre</h2>
+        <div class="field">
+          <label for="bSrc"><span class="lt">Işık kaynağı</span><output id="bSrcOut" for="bSrc">hidrojen</output></label>
+          <select id="bSrc">
+            <option value="h" selected>Hidrojen lambası (Balmer çizgileri)</option>
+            <option value="na">Sodyum lambası (D₁ ve D₂)</option>
+            <option value="hg">Cıva lambası</option>
+            <option value="beyaz">Beyaz ışık (sürekli tayf)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bGr"><span class="lt">Geçirgen ızgara</span><output id="bGrOut" for="bGr">d = 1.6667 µm</output></label>
+          <select id="bGr">
+            <option value="100">100 çizgi/mm</option>
+            <option value="300">300 çizgi/mm</option>
+            <option value="600" selected>600 çizgi/mm</option>
+            <option value="1200">1200 çizgi/mm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bW"><span class="lt">Aydınlatılan genişlik W</span><output id="bWOut" for="bW">2.00 mm · N = 1200</output></label>
+          <input type="range" id="bW" min="0.05" max="20" step="0.01" value="2">
+        </div>
+        <div class="field">
+          <label for="bTel"><span class="lt">Dürbün açısı (ölçek okuması) φ</span><output id="bTelOut" for="bTel">23.00°</output></label>
+          <input type="range" id="bTel" min="-80" max="80" step="0.01" value="23" aria-valuetext="23.00 derece">
+        </div>
+        <div class="row nudge" role="group" aria-label="Dürbünü ince çevir">
+          <button type="button" class="app-btn-ghost" data-nudge="-1" aria-label="Dürbünü 1 derece geri çevir">−1°</button>
+          <button type="button" class="app-btn-ghost" data-nudge="-0.1" aria-label="Dürbünü 0.1 derece geri çevir">−0.1°</button>
+          <button type="button" class="app-btn-ghost" data-nudge="-0.01" aria-label="Dürbünü 0.01 derece geri çevir">−0.01°</button>
+          <button type="button" class="app-btn-ghost" data-nudge="0.01" aria-label="Dürbünü 0.01 derece ileri çevir">+0.01°</button>
+          <button type="button" class="app-btn-ghost" data-nudge="0.1" aria-label="Dürbünü 0.1 derece ileri çevir">+0.1°</button>
+          <button type="button" class="app-btn-ghost" data-nudge="1" aria-label="Dürbünü 1 derece ileri çevir">+1°</button>
+        </div>
+        <div class="field">
+          <label for="bFov"><span class="lt">Okülerin görüş alanı</span><output id="bFovOut" for="bFov">1°</output></label>
+          <select id="bFov">
+            <option value="4">4° (geniş)</option>
+            <option value="1" selected>1°</option>
+            <option value="0.25">0.25°</option>
+            <option value="0.05">0.05° (çok büyütülmüş)</option>
+          </select>
+        </div>
+        <label class="check" for="bZero"><input type="checkbox" id="bZero"> Ölçeğin sıfırı kaymış (δ = +0.30°)</label>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="bAlign">Kıl çizgisini çizgiye hizala</button>
+          <button type="button" class="app-btn-ghost" id="bRec">Okumayı kaydet</button>
+          <button type="button" class="app-btn-ghost" id="bAuto">Bütün çizgileri ölç</button>
+        </div>
+        <div class="row" role="group" aria-label="Hazır deneyler">
+          <button type="button" class="app-btn-ghost" data-preset-b="na1">Na çifti, m = 1</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="na2">Na çifti, m = 2</button>
+          <button type="button" class="app-btn-ghost" id="bClear">Kayıtları sil</button>
+          <button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button>
+        </div>
+        <p class="note">Dürbünü kaydırıcıyla, ince ayar düğmeleriyle, sahnede sürükleyerek ya da okülerdeki görüntüyü yana kaydırarak çevir. Çizgiyi kıl çizgisine getirip okumayı kaydet, aynı çizgiyi öbür yanda (−m) da ölç: θ = (φ₊ − φ₋)/2 ölçeğin sıfır hatasını götürür. Ölçek 0.01° adımla okunur.</p>
+        <p class="note">Dalga boyları havadadır (15 °C, 101 325 Pa standart hava). Kaynak: NIST ASD ve NIST Atomic Spectroscopic Handbook (H, Na); Hg için Sansonetti, Salit ve Reader (1996). Izgara denklemi havada d·sin θ = mλ<sub>hava</sub>; Rydberg formülü vakum dalga boyunu verir: λ<sub>vak</sub> = n<sub>hava</sub>·λ<sub>hava</sub>, n<sub>hava</sub> Peck ve Reeder (1972) formülünden (Hα'da n − 1 = 2.76 × 10⁻⁴).</p>
+        <p class="note">Çizgi görüntüsünün genişliği ızgaranın çözme gücüyle sınırlıdır: tepeden ilk sıfıra Δθ = λ/(W cos θ), W = N·d. Kolimatör yarığı sonsuz ince, bütün mertebeler eşit verimli varsayıldı. İki çizgi R = |m|·N ≥ λ/Δλ ise (Rayleigh ölçütü) ayrılır. Kısayollar: <kbd>←</kbd> <kbd>→</kbd> dürbünü 0.01° (<kbd>Shift</kbd> ile 0.1°) çevirir, <kbd>R</kbd> sekmeyi sıfırlar.</p>
+      </div>
+
+      <!-- (c) CD, DVD, Blu-ray -->
+      <div class="panel" data-for="cd" role="group" aria-labelledby="ttlC" hidden>
+        <h2 id="ttlC">Disk ve lazer</h2>
+        <div class="field">
+          <label for="cDisc"><span class="lt">Disk</span><output id="cDiscOut" for="cDisc">p = 1.60 µm</output></label>
+          <select id="cDisc">
+            <option value="cd" selected>CD · iz aralığı 1.6 µm</option>
+            <option value="dvd">DVD · iz aralığı 0.74 µm</option>
+            <option value="bd">Blu-ray · iz aralığı 0.32 µm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cLaser"><span class="lt">Lazer</span><output id="cLaserOut" for="cLaser">650 nm</output></label>
+          <select id="cLaser">
+            <option value="650" selected>Kırmızı lazer · 650 nm</option>
+            <option value="532">Yeşil lazer · 532 nm</option>
+            <option value="405">Mor lazer · 405 nm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cDist"><span class="lt">Disk ile duvar arası D</span><output id="cDistOut" for="cDist">10.0 cm</output></label>
+          <input type="range" id="cDist" min="5" max="50" step="0.5" value="10">
+        </div>
+        <h2>Cetvelle ölçüm</h2>
+        <div class="field">
+          <label for="cCurA"><span class="lt">İmleç A (duvarda)</span><output id="cCurAOut" for="cCurA">−4.0 cm</output></label>
+          <input type="range" id="cCurA" min="-31" max="31" step="0.1" value="-4">
+        </div>
+        <div class="field">
+          <label for="cCurB"><span class="lt">İmleç B (duvarda)</span><output id="cCurBOut" for="cCurB">4.0 cm</output></label>
+          <input type="range" id="cCurB" min="-31" max="31" step="0.1" value="4">
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="cSnap">İmleçleri ±1 lekelerine koy</button>
+          <button type="button" class="app-btn-ghost" id="cReset">Sıfırla</button>
+        </div>
+        <p class="note">Lazer duvardaki bir delikten geçip diske dik gelir; diskin spiral izi yansıtıcı bir ızgaradır: p·sin θ<sub>m</sub> = mλ. Lekeler duvarda y<sub>m</sub> = D·tan θ<sub>m</sub> konumundadır. A ve B imleçlerini −1 ve +1 lekelerinin ortasına getir (imleçleri duvar şeridinde sürükleyebilirsin): p = λ/sin(atan(|B − A|/2D)).</p>
+        <p class="note">İz aralıkları: CD 1.6 µm (IEC 60908, ECMA-130), DVD 0.74 µm (ECMA-267), Blu-ray 0.32 µm (BD-ROM biçimi). Lekelerin boyu demetin çapıdır (yaklaşık 1 mm); duvar disk yakınında olduğundan bu yakın alan görüntüsüdür, konumlar ızgara denkleminden gelir. "Lekelere koy" düğmesi imleçleri cetvelin 1 mm'lik çözünürlüğüne yuvarlar. Kısayol: <kbd>R</kbd> sekmeyi sıfırlar.</p>
+      </div>
+    </div>
+
+    <div class="main">
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Grafik"></canvas>
+      <p class="legend" data-for="desen">
+        <span><i class="k-warm"></i>I/I₀ (ışığın renginde)</span>
+        <span><i class="k-acc2 dash"></i>tek yarık zarfı</span>
+        <span><i class="dot"></i>bulunan ana maksimum</span>
+        <span>üstte: mertebe m, × eksik</span>
+      </p>
+      <p class="legend" data-for="spektrometre" hidden>
+        <span>Üstte okülerden görünüş, ortada kıl çizgisi</span>
+        <span>altta aynı açı aralığında şiddet profili</span>
+      </p>
+      <p class="legend" data-for="cd" hidden>
+        <span>Duvarın önden görünüşü</span>
+        <span><i class="k-acc"></i>imleç A</span>
+        <span><i class="k-warm"></i>imleç B</span>
+      </p>
+      <div class="readouts-wrap" aria-live="polite">
+        <div class="group" data-for="desen">
+          <div class="cards">
+            <div class="readout is-highlight"><small>En yüksek mertebe m<sub>max</sub></small><strong id="aMmax">—</strong><em id="aMmaxSub"></em></div>
+            <div class="readout"><small>Eksik mertebeler</small><strong id="aMiss">—</strong><em id="aMissSub"></em></div>
+            <div class="readout"><small>Merkez tepe (tek yarığa göre)</small><strong id="aPeak">—</strong><em id="aPeakSub"></em></div>
+            <div class="readout"><small>Fresnel sayısı (Nd)²/(λL)</small><strong id="aFres">—</strong><em id="aFresSub"></em></div>
+          </div>
+          <p class="sel-head" id="aSelHead">İncelenen ana maksimum: m = 1</p>
+          <table class="cmp">
+            <caption class="visually-hidden">Seçili ana maksimum için hesaplanan desenden ölçülen değerler ile kuramın karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (desenden)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row" id="aR1L">Ana maksimum açısı θ<sub>m</sub></th><td id="aR1M" class="meas">—</td><td id="aR1T">—</td><td id="aR1D" class="diff">—</td></tr>
+              <tr><th scope="row" id="aR2L">d·sin θ<sub>m</sub>/λ</th><td id="aR2M" class="meas">—</td><td id="aR2T">—</td><td id="aR2D" class="diff">—</td></tr>
+              <tr><th scope="row" id="aR3L">Ekranda y<sub>m</sub> = L·tan θ<sub>m</sub></th><td id="aR3M" class="meas">—</td><td id="aR3T">—</td><td id="aR3D" class="diff">—</td></tr>
+              <tr><th scope="row" id="aR4L">Tepeden ilk sıfıra Δ(sin θ)</th><td id="aR4M" class="meas">—</td><td id="aR4T">—</td><td id="aR4D" class="diff">—</td></tr>
+              <tr><th scope="row" id="aR5L">Açısal yarı genişlik Δθ</th><td id="aR5M" class="meas">—</td><td id="aR5T">—</td><td id="aR5D" class="diff">—</td></tr>
+              <tr><th scope="row" id="aR6L">m − 1 ile m arasında ikincil maksimum</th><td id="aR6M" class="meas">—</td><td id="aR6T">—</td><td id="aR6D" class="diff">—</td></tr>
+              <tr><th scope="row" id="aR7L">Ana maksimumun şiddeti I/I₀</th><td id="aR7M" class="meas">—</td><td id="aR7T">—</td><td id="aR7D" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="status" id="aStatus"></p>
+        </div>
+
+        <div class="group" data-for="spektrometre" hidden>
+          <div class="cards">
+            <div class="readout is-highlight"><small>Kıl çizgisinde</small><strong id="bWhat">—</strong><em id="bWhatSub"></em></div>
+            <div class="readout"><small>Tek okumadan λ = d·sin φ/m</small><strong id="bLam1">—</strong><em id="bLam1Sub"></em></div>
+            <div class="readout"><small>Çözme gücü R = |m|·N</small><strong id="bR">—</strong><em id="bRSub"></em></div>
+            <div class="readout"><small id="bRayLabel">Rayleigh ölçütü</small><strong id="bRay">—</strong><em id="bRaySub"></em></div>
+          </div>
+          <div class="table-wrap">
+            <table class="cmp rec">
+              <caption class="visually-hidden">Kaydedilen okumalar: iki yandan ölçülen açı, buradan bulunan dalga boyu ve NIST değeri</caption>
+              <thead><tr><th scope="col">Çizgi, m</th><th scope="col">φ₊, φ₋ (°)</th><th scope="col">θ (°)</th><th scope="col">λ ölçülen (nm)</th><th scope="col">λ NIST, hava (nm)</th><th scope="col">Fark</th></tr></thead>
+              <tbody id="bRecBody"></tbody>
+            </table>
+          </div>
+          <p class="note" id="bRecNote"></p>
+          <div class="group" id="bRydGroup">
+            <table class="cmp">
+              <caption class="visually-hidden">Kaydedilen Balmer çizgilerinden Rydberg sabiti</caption>
+              <colgroup><col class="c-name"><col><col><col></colgroup>
+              <thead><tr><th scope="col">Rydberg sabiti</th><th scope="col">Ölçülen (kayıtlar)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">R<sub>H</sub> = R<sub>∞</sub>/(1 + mₑ/mₚ)</th><td id="bRyM" class="meas">—</td><td id="bRyT">—</td><td id="bRyD" class="diff">—</td></tr>
+                <tr><th scope="row">R<sub>∞</sub> (CODATA 2022)</th><td id="bRiM" class="meas">—</td><td id="bRiT">—</td><td id="bRiD" class="diff">—</td></tr>
+              </tbody>
+            </table>
+            <p class="note" id="bRydNote">Her kayıtlı Balmer çizgisi için λ<sub>vak</sub> = n<sub>hava</sub>·λ<sub>hava</sub> bulunur; 1/λ<sub>vak</sub> = R(1/2² − 1/n²) doğrusu orijinden geçecek biçimde en küçük karelerle uydurulur. Çekirdek sonsuz ağır değildir: elektron ve proton ortak kütle merkezi çevresinde döner, bu yüzden hidrojenin sabiti R<sub>H</sub> = R<sub>∞</sub>·μ/mₑ = R<sub>∞</sub>/(1 + mₑ/mₚ), R<sub>∞</sub>'dan %0.054 küçüktür.</p>
+          </div>
+          <p class="status" id="bStatus"></p>
+        </div>
+
+        <div class="group" data-for="cd" hidden>
+          <div class="cards">
+            <div class="readout is-highlight"><small>Bir yandaki mertebe sayısı</small><strong id="cOrd">—</strong><em id="cOrdSub"></em></div>
+            <div class="readout"><small>Kuram: θ₁ = asin(λ/p)</small><strong id="cTh1">—</strong><em id="cTh1Sub"></em></div>
+            <div class="readout"><small>Kuram: y₁ = D·tan θ₁</small><strong id="cY1">—</strong><em id="cY1Sub"></em></div>
+            <div class="readout"><small>Cetvel ±0.5 mm iken δp</small><strong id="cUnc">—</strong><em id="cUncSub"></em></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">İmleçlerle ölçülen leke aralığından bulunan iz aralığı ile standart değerin karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (imleçler)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">±1 lekeleri arası |B − A|</th><td id="cR1M" class="meas">—</td><td id="cR1T">—</td><td id="cR1D" class="diff">—</td></tr>
+              <tr><th scope="row">Kırınım açısı θ₁ = atan(|B − A|/2D)</th><td id="cR2M" class="meas">—</td><td id="cR2T">—</td><td id="cR2D" class="diff">—</td></tr>
+              <tr><th scope="row">İz aralığı p = λ/sin θ₁</th><td id="cR3M" class="meas">—</td><td id="cR3T">—</td><td id="cR3D" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="status" id="cStatus"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  /* ── FİZİK (doğrulama betiği bu bloğu ayıklar) ── */
+  // >>> PHYS
+  const PHYS = (() => {
+    const NM = 1e-9, UM = 1e-6, MM = 1e-3, D2R = Math.PI / 180;
+    /* CODATA 2022 (physics.nist.gov/cuu): R∞ = 10 973 731.568 157(12) m⁻¹, mp/me = 1836.152 673 426(32) */
+    const R_INF = 10973731.568157;
+    const MP_ME = 1836.152673426;
+    const R_H = R_INF / (1 + 1 / MP_ME);          // indirgenmiş kütle düzeltmesi
+    const VIS = [380, 750];                        // beyaz ışığın görünür bandı (nm)
+
+    /* Standart hava (15 °C, 101 325 Pa, kuru, 300 ppm CO₂): Peck ve Reeder (1972), NIST ASD'nin hava ↔ vakum dönüşümü.
+       σ vakum dalga sayısı (µm⁻¹). */
+    function nAir(lamVacNm) {
+      const s2 = Math.pow(1000 / lamVacNm, 2);
+      return 1 + 1e-8 * (8060.51 + 2480990 / (132.274 - s2) + 17455.7 / (39.32957 - s2));
+    }
+    function airToVac(lamAirNm) {
+      let v = lamAirNm;
+      for (let i = 0; i < 6; i++) v = lamAirNm * nAir(v);
+      return v;
+    }
+
+    /* Havadaki dalga boyları (nm) ve tablolardaki bağıl şiddetler (yalnız çizim parlaklığı).
+       H ve Na: NIST Atomic Spectroscopic Handbook "Strong Lines" (NIST ASD değerleri); Hα ve Hβ ince yapı bileşenleriyle.
+       Hg: Sansonetti, Salit ve Reader (1996), Hg kalem lambası dalga boyları (NIST ASD kaynağı). */
+    const SOURCES = {
+      h: { key: "h", name: "Hidrojen", lines: [
+        { id: "Ha", name: "Hα", n: 3, comps: [[656.2711, 90], [656.27248, 30], [656.28518, 180]] },
+        { id: "Hb", name: "Hβ", n: 4, comps: [[486.12786, 30], [486.1287, 10], [486.13615, 60]] },
+        { id: "Hg", name: "Hγ", n: 5, comps: [[434.0462, 30]] },
+        { id: "Hd", name: "Hδ", n: 6, comps: [[410.174, 15]] },
+        { id: "He", name: "Hε", n: 7, comps: [[397.0072, 8]] },
+      ] },
+      na: { key: "na", name: "Sodyum", lines: [
+        { id: "D2", name: "Na D₂", comps: [[588.995, 1000]] },
+        { id: "D1", name: "Na D₁", comps: [[589.5924, 500]] },
+      ] },
+      hg: { key: "hg", name: "Cıva", lines: [
+        { id: "g1", name: "Hg 404.7", comps: [[404.6565, 1800]] },
+        { id: "g2", name: "Hg 407.8", comps: [[407.7837, 150]] },
+        { id: "g3", name: "Hg 435.8", comps: [[435.8335, 4000]] },
+        { id: "g4", name: "Hg 546.1", comps: [[546.075, 1100]] },
+        { id: "g5", name: "Hg 577.0", comps: [[576.961, 240]] },
+        { id: "g6", name: "Hg 579.1", comps: [[579.067, 280]] },
+      ] },
+      beyaz: { key: "beyaz", name: "Beyaz ışık", lines: [] },
+    };
+    for (const src of Object.values(SOURCES)) {
+      let imax = 0;
+      for (const L of src.lines) {
+        let sw = 0, sl = 0;
+        for (const [l, w] of L.comps) { sw += w; sl += l * w; }
+        L.lam = sl / sw;                 // şiddet ağırlıklı ortalama (bileşenler bu çözme gücünde ayrılmaz)
+        L.itot = sw;
+        imax = Math.max(imax, sw);
+      }
+      for (const L of src.lines) {
+        L.rel = L.itot / imax;
+        L.compsRel = L.comps.map(([l, w]) => [l, w / imax]);
+      }
+    }
+
+    function gcd(x, y) { x = Math.abs(x); y = Math.abs(y); while (y) { const t = x % y; x = y; y = t; } return x; }
+    const sinc = (b) => (Math.abs(b) < 1e-8 ? 1 - (b * b) / 6 : Math.sin(b) / b);
+    // N yarık çarpanının genliği sin(Nγ)/(N sin γ); γ = kπ'de 0/0 limiti (−1)^{k(N−1)}
+    function gridAmp(g, N) {
+      if (N <= 1) return 1;
+      const k = Math.round(g / Math.PI);
+      const r = g - k * Math.PI;
+      const sign = (k * (N - 1)) % 2 === 0 ? 1 : -1;
+      const x = N * r;
+      const v = Math.abs(x) < 1e-4 ? 1 - ((N * N - 1) * r * r) / 6 : Math.sin(x) / (N * Math.sin(r));
+      return sign * v;
+    }
+    function goldenMax(f, lo, hi, iters) {
+      const G = 0.3819660112501051;
+      let x1 = lo + G * (hi - lo), x2 = hi - G * (hi - lo), f1 = f(x1), f2 = f(x2);
+      for (let i = 0; i < (iters || 90); i++) {
+        if (f1 > f2) { hi = x2; x2 = x1; f2 = f1; x1 = lo + G * (hi - lo); f1 = f(x1); }
+        else { lo = x1; x1 = x2; f1 = f2; x2 = hi - G * (hi - lo); f2 = f(x2); }
+      }
+      const x = (lo + hi) / 2;
+      return { x, v: f(x) };
+    }
+    function bisect(f, a, b, fa) {
+      for (let i = 0; i < 200; i++) {
+        const m = (a + b) / 2, fm = f(m);
+        if (fm === 0 || b - a < 1e-16) return m;
+        if ((fm > 0) === (fa > 0)) { a = m; fa = fm; } else b = m;
+      }
+      return (a + b) / 2;
+    }
+    // x0'dan dir yönünde genliğin ilk işaret değiştirdiği yer (|x| < lim içinde), yoksa null
+    function firstZero(amp, x0, dir, span, lim) {
+      const K = 96;
+      let xa = x0, fa = amp(x0);
+      for (let i = 1; i <= K; i++) {
+        const xb = x0 + (dir * span * i) / K;
+        if (Math.abs(xb) >= lim) return null;
+        const fb = amp(xb);
+        if (fb === 0) return xb;
+        if ((fb > 0) !== (fa > 0)) return bisect(amp, Math.min(xa, xb), Math.max(xa, xb), dir > 0 ? fa : fb);
+        xa = xb; fa = fb;
+      }
+      return null;
+    }
+    // [c − half, c + half] içinde iç tepe (kenarda kalırsa null)
+    function peakNear(f, c, half) {
+      const n = 48, lo = c - half, hi = c + half, step = (hi - lo) / n;
+      let bi = 0, bv = -1;
+      for (let i = 0; i <= n; i++) { const v = f(lo + i * step); if (v > bv) { bv = v; bi = i; } }
+      if (bi === 0 || bi === n) return null;
+      return goldenMax(f, lo + (bi - 1) * step, lo + (bi + 1) * step, 80);
+    }
+
+    /* ── (a) N yarıklı Fraunhofer deseni; s = sin θ ── */
+    // p: { lam, d, a, N, L (m), sel, rat: { dNum, dDen, aNum, lam10 } } — d = dNum/dDen, a = aNum, λ = lam10 (0.1 nm birimi)
+    function analyseA(p) {
+      const { lam, d, a, N, L } = p;
+      const kA = (Math.PI * a) / lam, kD = (Math.PI * d) / lam;
+      const amp = (s) => sinc(kA * s) * gridAmp(kD * s, N);
+      const I = (s) => { const v = amp(s); return v * v; };
+      const env = (s) => { const v = sinc(kA * s); return v * v; };
+      const q = p.rat, den = q.dDen * q.lam10;
+      const mMax = Math.floor(q.dNum / den);
+      const grazing = mMax >= 1 && q.dNum % den === 0;          // en yüksek mertebe tam 90°'de
+      const mTop = grazing ? mMax - 1 : mMax;                     // 90°'den küçük açıdaki en yüksek mertebe
+      const g = gcd(q.dNum, q.dDen * q.aNum);
+      const P = q.dNum / g, Q = (q.dDen * q.aNum) / g;            // d/a = P/Q (en sade kesir)
+      const isMissing = (m) => m !== 0 && m % P === 0;
+      const missing = [];
+      for (let m = P; m <= mTop; m += P) missing.push(m);
+      const h = N >= 2 ? lam / (N * d) : NaN;                     // tepe ile ilk sıfır arası (sin θ)
+      const orders = [];
+      if (N >= 2) {
+        orders.push({ m: 0, sTh: 0, thTh: 0, vTh: 1, s: 0, th: 0, v: 1, ok: true, missing: false });
+        for (let m = 1; m <= mTop; m++) {
+          const sT = (m * lam) / d;
+          const o = { m, sTh: sT, thTh: Math.asin(sT), vTh: env(sT), missing: isMissing(m), ok: false };
+          if (!o.missing) {
+            const lo = sT - 0.5 * h, hi = Math.min(sT + 0.5 * h, 1 - 1e-12);
+            const pk = goldenMax(I, lo, hi, 100);
+            o.edge = Math.min(pk.x - lo, hi - pk.x) < 1e-6 * h;
+            o.s = pk.x; o.th = Math.asin(pk.x); o.v = pk.v; o.ok = !o.edge && pk.v > 0;
+          } else {
+            o.v = I(sT);
+          }
+          orders.push(o);
+        }
+      }
+      const res = { lam, d, a, N, L, kA, kD, amp, I, env, mMax, mTop, grazing, P, Q, missing, isMissing, orders, h,
+        ratio: d / a, NF: Math.pow(N * d, 2) / (lam * L), zF: Math.pow(N * d, 2) / lam, sel: null, single: N < 2 };
+      if (N < 2) {
+        res.z1Th = lam / a < 1 ? lam / a : null;
+        res.z1 = firstZero(amp, 0, 1, Math.min(1.5 * (lam / a), 0.999999), 1);
+        return res;
+      }
+      const m = Math.max(1, Math.min(p.sel, mTop));
+      const o = orders[m];
+      const sel = { m, o, hwTh: h, dthTh: h / Math.cos(o.thTh), yTh: L * Math.tan(o.thTh), sec: [] };
+      if (o.ok) {
+        sel.zp = firstZero(amp, o.s, 1, 1.6 * h, 1);
+        sel.zm = firstZero(amp, o.s, -1, 1.6 * h, 1);
+        if (sel.zp !== null && sel.zm !== null) {
+          sel.hw = (sel.zp - sel.zm) / 2;
+          sel.dth = (Math.asin(sel.zp) - Math.asin(sel.zm)) / 2;
+        } else if (sel.zm !== null) {
+          sel.hw = o.s - sel.zm; sel.dth = o.th - Math.asin(sel.zm); sel.oneSided = true;
+        }
+        sel.y = L * Math.tan(o.th);
+      }
+      // m − 1 ile m arasında, iki ana maksimumun ilk sıfırları arasında kalan yerel maksimumlar
+      const lo = ((m - 1) * lam) / d + h, hi = o.sTh - h;
+      if (hi > lo) {
+        const n = Math.max(400, 40 * N), dx = (hi - lo) / n;
+        let v0 = I(lo), v1 = I(lo + dx);
+        for (let i = 2; i <= n; i++) {
+          const x = lo + i * dx, v2 = I(x);
+          if (v1 > v0 && v1 >= v2) sel.sec.push({ s: x - dx, v: v1 });
+          v0 = v1; v1 = v2;
+        }
+      }
+      // aralığa ya da seçili tepenin ana lobuna zarfın bir sıfırı (sin θ = kλ/a) düşüyor mu?
+      const envZeroIn = (x0, x1) => {
+        for (let k = Math.max(1, Math.ceil((x0 * a) / lam)); k <= Math.floor((x1 * a) / lam); k++) {
+          const sz = (k * lam) / a;
+          if (sz > x0 && sz < x1) return sz;
+        }
+        return null;
+      };
+      sel.envZero = envZeroIn(lo, hi);
+      sel.envInPeak = o.missing ? null : envZeroIn(o.sTh - h, o.sTh + h);
+      res.sel = sel;
+      return res;
+    }
+    // Bir piksel sütunu [sa, sb] (sin θ) içindeki en büyük ve en küçük bağıl şiddet
+    function columnStats(r, sa, sb, out) {
+      const { N, kA, kD } = r;
+      const span = sb - sa;
+      const lobes = ((N >= 2 ? N * r.d : r.a) * Math.abs(span)) / r.lam;
+      let mx = 0, mn = Infinity;
+      if (lobes < 2) {
+        for (let k = 0; k <= 4; k++) { const v = r.I(sa + (span * k) / 4); if (v > mx) mx = v; if (v < mn) mn = v; }
+      } else {
+        mn = 0;
+        for (let k = 0; k <= 6; k++) {
+          const s = sa + (span * k) / 6, e = sinc(kA * s);
+          const g = kD * s, rr = g - Math.round(g / Math.PI) * Math.PI, ns = N * Math.sin(rr);
+          const v = e * e * (Math.abs(ns) <= 1 ? 1 : 1 / (ns * ns));
+          if (v > mx) mx = v;
+        }
+      }
+      if (N >= 2) {
+        const lo = Math.min(sa, sb), hi = Math.max(sa, sb);
+        const m0 = Math.ceil((lo * r.d) / r.lam), m1 = Math.floor((hi * r.d) / r.lam);
+        for (let m = m0; m <= m1 && m - m0 < 4; m++) { const v = r.I((m * r.lam) / r.d); if (v > mx) mx = v; }
+      }
+      out[0] = mx; out[1] = mn === Infinity ? 0 : mn;
+      return out;
+    }
+
+    /* ── (b) Spektrometre: geçirgen ızgara, dik geliş, d·sin θ = mλ (havada) ── */
+    function imagesB(src, d) {
+      const out = [];
+      for (const L of src.lines) for (let m = -3; m <= 3; m++) {
+        if (m === 0) continue;
+        const s = (m * L.lam * NM) / d;
+        if (Math.abs(s) >= 1) continue;
+        out.push({ line: L, m, s, th: Math.asin(s) });
+      }
+      return out;
+    }
+    // Gerçek dürbün açısında (rad) toplam şiddet; en parlak çizginin tepesi 1
+    function profileB(src, d, N, th) {
+      const s = Math.sin(th);
+      let sum = 0;
+      for (const L of src.lines) for (const [lam, w] of L.compsRel) {
+        const A = gridAmp((Math.PI * d * s) / (lam * NM), N);
+        sum += w * A * A;
+      }
+      return sum;
+    }
+    const halfAngle = (lamNm, W, th) => (lamNm * NM) / (W * Math.cos(th));   // tepeden ilk sıfıra (rad)
+    const pairNeed = (l1, l2) => (l1 + l2) / 2 / Math.abs(l1 - l2);          // λ/Δλ
+    const resolves = (N, m, need) => Math.abs(m) * N >= need;                 // Rayleigh: R = |m|N ≥ λ/Δλ
+    const nMin = (need, m) => Math.ceil(need / Math.abs(m) - 1e-9);
+    function pairInfo(src) {
+      if (src.lines.length < 2) return null;
+      const ls = [...src.lines].sort((p, q) => p.lam - q.lam);
+      let best = null;
+      for (let i = 1; i < ls.length; i++) {
+        const dl = ls[i].lam - ls[i - 1].lam;
+        if (!best || dl < best.dLam) best = { a: ls[i - 1], b: ls[i], dLam: dl };
+      }
+      best.lamBar = (best.a.lam + best.b.lam) / 2;
+      best.need = pairNeed(best.a.lam, best.b.lam);
+      return best;
+    }
+    function meanLam(src) {
+      let s = 0, w = 0;
+      for (const L of src.lines) { s += L.lam * L.rel; w += L.rel; }
+      return w ? s / w : 550;
+    }
+    // Kıl çizgisindeki görüntü: tolMin ölçek çözünürlüğünden gelen en küçük tolerans (rad)
+    function identifyB(src, d, N, W, th, tolMin) {
+      if (Math.abs(th) <= Math.max(halfAngle(meanLam(src), W, 0), tolMin)) return { kind: "zero" };
+      if (!src.lines.length) return { kind: "white" };
+      const imgs = imagesB(src, d);
+      let best = null, near = null;
+      for (const im of imgs) {
+        im.dist = Math.abs(th - im.th);
+        im.tol = Math.max(halfAngle(im.line.lam, W, im.th), tolMin);
+        if (!near || im.dist < near.dist) near = im;
+        if (im.dist <= im.tol && (!best || im.dist < best.dist)) best = im;
+      }
+      if (!best) return { kind: "none", nearest: near };
+      const group = imgs.filter((im) => im.m === best.m && (im === best || !resolves(N, best.m, pairNeed(im.line.lam, best.line.lam))));
+      // Rayleigh sınırına yakın çözülmüş bir çiftte kıl çizgisi iki çizginin yarı genişliği içinde birden kalabilir
+      if (group.length === 1) {
+        const other = imgs.find((im) => im !== best && im.m === best.m && im.dist <= im.tol);
+        if (other && best.dist > Math.max(Math.abs(other.th - best.th) / 4, tolMin)) {
+          const pair = [best, other].sort((p, q) => p.th - q.th);
+          return { kind: "between", m: best.m, pair, nearest: best, label: pair.map((im) => im.line.name).join(" ile ") };
+        }
+      }
+      let ws = 0, wl = 0;
+      for (const im of group) { ws += im.line.rel; wl += im.line.lam * im.line.rel; }
+      return {
+        kind: group.length > 1 ? "blend" : "line", m: best.m, group, best, nearest: near,
+        lamRef: wl / ws, label: group.map((im) => im.line.name).join(" + "),
+        n: group.length === 1 ? best.line.n : undefined,
+      };
+    }
+    // Görüş alanında (±fov/2) kıl çizgisine en yakın çizgi tepesi (gerçek açı, rad)
+    function alignB(src, d, N, W, th, fov) {
+      if (!src.lines.length) return null;
+      const f = (t) => profileB(src, d, N, t);
+      const cands = [{ th: 0, lam: meanLam(src) }];
+      for (const im of imagesB(src, d)) cands.push({ th: im.th, lam: im.line.lam });
+      let best = null;
+      for (const c of cands) {
+        if (Math.abs(c.th - th) > fov / 2 + 1e-12) continue;
+        const pk = c.th === 0 ? { x: 0, v: f(0) } : peakNear(f, c.th, 0.5 * halfAngle(c.lam, W, c.th));
+        if (!pk) continue;
+        const dist = Math.abs(pk.x - th);
+        if (!best || dist < best.dist) best = { th: pk.x, v: pk.v, dist };
+      }
+      return best;
+    }
+    // Bütün çizgiler: tepe bulunur, ölçek adımına (step, derece) yuvarlanır; δ sıfır hatası (derece)
+    function autoMeasureB(src, d, N, W, delta, step, thMaxDeg, tolMin) {
+      const out = [];
+      if (!src.lines.length) return out;
+      const f = (t) => profileB(src, d, N, t);
+      const round = (x) => Math.round(x / step) * step;
+      out.push({ zero: true, phi: round(delta) });
+      for (const im of imagesB(src, d)) {
+        if (Math.abs(im.th) > thMaxDeg * D2R) continue;
+        const pk = peakNear(f, im.th, 0.5 * halfAngle(im.line.lam, W, im.th));
+        if (!pk) continue;
+        const phi = round(pk.x / D2R + delta);
+        const id = identifyB(src, d, N, W, (phi - delta) * D2R, tolMin);
+        if (id.kind === "line" || id.kind === "blend") out.push({ phi, id });
+      }
+      return out;
+    }
+    // Rydberg: pts = [{ n, lamAir (nm) }]; 1/λ_vak = R·(1/4 − 1/n²), orijinden geçen en küçük kareler
+    function fitRydberg(pts) {
+      let sxy = 0, sxx = 0;
+      for (const p of pts) {
+        const x = 0.25 - 1 / (p.n * p.n), y = 1 / (airToVac(p.lamAir) * NM);
+        sxy += x * y; sxx += x * x;
+      }
+      return pts.length ? sxy / sxx : NaN;
+    }
+    // Çiftin m. mertebedeki profili: tepe sayısı ve aradaki çukur
+    function doubletB(src, pair, d, N, W, m) {
+      const sa = (m * pair.a.lam * NM) / d, sb = (m * pair.b.lam * NM) / d;
+      if (Math.abs(sa) >= 1 || Math.abs(sb) >= 1) return null;
+      const ta = Math.asin(sa), tb = Math.asin(sb), hw = halfAngle(pair.lamBar, W, (ta + tb) / 2);
+      const lo = Math.min(ta, tb) - 1.2 * hw, hi = Math.max(ta, tb) + 1.2 * hw, n = 800;
+      const f = (t) => profileB(src, d, N, t);
+      const xs = [], vs = [];
+      let vmax = 0;
+      for (let i = 0; i <= n; i++) { const x = lo + ((hi - lo) * i) / n, v = f(x); xs.push(x); vs.push(v); vmax = Math.max(vmax, v); }
+      const pk = [];
+      for (let i = 1; i < n; i++) if (vs[i] > vs[i - 1] && vs[i] >= vs[i + 1] && vs[i] >= 0.2 * vmax) pk.push(i);
+      const R = Math.abs(m) * N, out = { ta, tb, sep: Math.abs(tb - ta), hw, R, need: pair.need, ok: resolves(N, m, pair.need), peaks: pk.length, dip: null };
+      if (pk.length >= 2) {
+        pk.sort((i, j) => vs[j] - vs[i]);
+        const [i1, i2] = [pk[0], pk[1]].sort((i, j) => i - j);
+        let vmin = Infinity;
+        for (let i = i1; i <= i2; i++) vmin = Math.min(vmin, vs[i]);
+        out.dip = 1 - vmin / Math.min(vs[i1], vs[i2]);
+      }
+      return out;
+    }
+    // Beyaz ışık: bu açıda gelen görünür dalga boyları
+    function whiteAt(d, th) {
+      const s = Math.abs(Math.sin(th)), out = [];
+      for (let m = 1; m <= 8; m++) {
+        const lam = (d * s) / m / NM;
+        if (lam >= VIS[0] && lam <= VIS[1]) out.push({ m, lam });
+      }
+      return out;
+    }
+    // Ardışık mertebelerin örtüştüğü dalga boyu aralıkları
+    function overlapWhite(m) {
+      if (!(m * VIS[1] > (m + 1) * VIS[0])) return null;
+      return { m, lo: ((m + 1) * VIS[0]) / m, hi: VIS[1], lo2: VIS[0], hi2: (m * VIS[1]) / (m + 1) };
+    }
+
+    /* ── (c) Yansıtıcı ızgara: CD, DVD, Blu-ray; dik geliş, p·sin θ = mλ ── */
+    const DISCS = { cd: { name: "CD", pNm: 1600 }, dvd: { name: "DVD", pNm: 740 }, bd: { name: "Blu-ray", pNm: 320 } };
+    function spotsC(pNm, lamNm, D) {
+      const mMax = Math.floor(pNm / lamNm), grazing = mMax >= 1 && pNm % lamNm === 0, out = [];
+      for (let m = 1; m <= (grazing ? mMax - 1 : mMax); m++) {
+        const th = Math.asin((m * lamNm) / pNm);
+        out.push({ m, th, y: D * Math.tan(th) });
+      }
+      return { mMax, grazing, spots: out };
+    }
+    const pitchFromSpacing = (lamNm, dy, D) => (dy > 0 ? lamNm / Math.sin(Math.atan(dy / (2 * D))) : NaN);
+    // y₁ belirsizliği dy (m) için iz aralığının belirsizliği (nm): |dp/dy| = λ cos³θ/(D sin²θ)
+    const pitchUncert = (lamNm, th, D, dy) => (lamNm * Math.pow(Math.cos(th), 3) * dy) / (D * Math.sin(th) * Math.sin(th));
+
+    return {
+      NM, UM, MM, D2R, R_INF, MP_ME, R_H, VIS, nAir, airToVac, SOURCES, gcd, sinc, gridAmp, goldenMax, bisect, firstZero, peakNear,
+      analyseA, columnStats, imagesB, profileB, halfAngle, pairNeed, resolves, nMin, pairInfo, meanLam, identifyB, alignB,
+      autoMeasureB, fitRydberg, doubletB, whiteAt, overlapWhite, DISCS, spotsC, pitchFromSpacing, pitchUncert,
+    };
+  })();
+  // <<< PHYS
+
+  const { NM, UM, D2R } = PHYS;
+
+  /* ── Biçimlendirme: tek yuvarlama yardımcısı fix() ── */
+  const MINUS = "−";
+  function fix(x, d) {
+    if (!Number.isFinite(x)) return "—";
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
+  }
+  function sgnf(x, d) {
+    const s = fix(x, d);
+    if (s === "—" || s.startsWith(MINUS) || Number(s) === 0) return s;
+    return `+${s}`;
+  }
+  function pct(meas, th, dec) {
+    if (!Number.isFinite(meas) || !Number.isFinite(th) || th === 0) return "—";
+    return `${sgnf(((meas - th) / Math.abs(th)) * 100, dec === undefined ? 2 : dec)} %`;
+  }
+  function sig(x, n) {
+    if (!Number.isFinite(x)) return "—";
+    if (x === 0) return "0";
+    const e = Math.floor(Math.log10(Math.abs(x)));
+    return fix(x, Math.max(0, n - 1 - e));
+  }
+  const SUP = { "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹" };
+  function sci(x, n) {
+    if (!Number.isFinite(x)) return "—";
+    if (x === 0) return "0";
+    let e = Math.floor(Math.log10(Math.abs(x)));
+    let ms = fix(x / Math.pow(10, e), n - 1);
+    if (Math.abs(Number(ms.replace(MINUS, "-"))) >= 10) { e += 1; ms = fix(x / Math.pow(10, e), n - 1); }
+    return `${ms} × 10${String(e).split("").map((c) => SUP[c]).join("")}`;
+  }
+  const num = (x, n) => { const a = Math.abs(x); return a !== 0 && (a < 1e-3 || a >= 1e5) ? sci(x, n) : sig(x, n); };
+  function fmtLen(m, n) {
+    n = n || 4;
+    if (!Number.isFinite(m)) return "—";
+    const a = Math.abs(m);
+    if (a >= 1) return `${sig(m, n)} m`;
+    if (a >= 0.01) return `${sig(m * 100, n)} cm`;
+    if (a >= 1e-3) return `${sig(m * 1e3, n)} mm`;
+    return `${sig(m * 1e6, n)} µm`;
+  }
+  const deg = (r) => (r * 180) / Math.PI;
+  const fmtDeg = (r, d) => `${fix(deg(r), d === undefined ? 3 : d)}°`;
+  function fmtDM(dg) {
+    const neg = dg < 0;
+    const a = Math.abs(dg);
+    let D = Math.floor(a), M = fix((a - D) * 60, 1);
+    if (M === "60.0") { D += 1; M = "0.0"; }
+    return `${neg && (D > 0 || Number(M) > 0) ? MINUS : ""}${D}° ${M}′`;
+  }
+  const fmtNm = (x, d) => `${fix(x, d === undefined ? 2 : d)} nm`;
+  const intSigned = (m) => (m > 0 ? `+${m}` : m < 0 ? `${MINUS}${-m}` : "0");
+  // a/b oranını, tam sayıya çok yakın ama tam sayı olmayan değerler tam sayı gibi görünmeyecek kadar basamakla yaz
+  function ratioStr(a, b) {
+    if (a % b === 0) return String(a / b);
+    const fl = Math.floor(a / b);
+    for (let k = 3; k <= 9; k++) {
+      const s = fix(a / b, k), v = Number(s);
+      if (Math.floor(v) === fl && v !== Math.round(v)) return s;
+    }
+    return fix(a / b, 9);
+  }
+
+  /* ── Renk: CIE 1931 2° (Wyman, Sloan ve Shirley 2013 uydurması) → sRGB ── */
+  function cieFit(l) {
+    const g = (x, mu, s1, s2) => { const t = (x - mu) / (x < mu ? s1 : s2); return Math.exp(-0.5 * t * t); };
+    return [
+      1.056 * g(l, 599.8, 37.9, 31.0) + 0.362 * g(l, 442.0, 16.0, 26.7) - 0.065 * g(l, 501.1, 20.4, 26.2),
+      0.821 * g(l, 568.8, 46.9, 40.5) + 0.286 * g(l, 530.9, 16.3, 31.1),
+      1.217 * g(l, 437.0, 11.8, 36.0) + 0.681 * g(l, 459.0, 26.0, 13.8),
+    ];
+  }
+  const xyzToLin = (X, Y, Z) => [3.2406 * X - 1.5372 * Y - 0.4986 * Z, -0.9689 * X + 1.8758 * Y + 0.0415 * Z, 0.0557 * X - 0.204 * Y + 1.057 * Z];
+  function toSRGB(c) {
+    c = Math.min(1, Math.max(0, c));
+    return c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+  }
+  // Doğrusal sRGB, en büyük bileşen 1; görme sınırlarında sönükleşir, uydurmanın kuyruklarında ton sabit tutulur
+  function lambdaColor(nm) {
+    const [X, Y, Z] = cieFit(Math.min(680, Math.max(400, nm)));
+    const rgb = xyzToLin(X, Y, Z).map((v) => Math.max(0, v));
+    const m = Math.max(rgb[0], rgb[1], rgb[2], 1e-9);
+    let f = 1;
+    if (nm < 420) f = Math.max(0.2, 0.3 + (0.7 * (nm - 380)) / 40);
+    else if (nm > 700) f = Math.max(0.2, 0.3 + (0.7 * (750 - nm)) / 50);
+    return rgb.map((v) => (v / m) * f);
+  }
+  const colCache = new Map();
+  function lamCol(nm) {
+    const k = Math.round(nm * 10);
+    let c = colCache.get(k);
+    if (!c) { c = lambdaColor(nm); colCache.set(k, c); }
+    return c;
+  }
+  const ybar = (nm) => cieFit(nm)[1];
+  function cssColor(lin, k) {
+    k = k === undefined ? 1 : k;
+    const c = lin.map((v) => Math.round(255 * k * toSRGB(v)));
+    return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+  }
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light, key: light ? "light" : "dark",
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+      grid2: light ? "rgba(0,0,0,0.18)" : "rgba(255,255,255,0.18)",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      danger: light ? "#dc2626" : "#f87171",
+      metal: light ? "#334155" : "#cbd5e1",
+      metal2: light ? "#94a3b8" : "#475569",
+      tag: light ? "rgba(247,249,252,0.92)" : "rgba(8,12,22,0.85)",
+      wedge: light ? "rgba(124,58,237,0.10)" : "rgba(167,139,250,0.12)",
+    };
+  }
+
+  /* ── Ortak arayüz ── */
+  const stage = $("stageCanvas"), sg = stage.getContext("2d");
+  const chart = $("chartCanvas"), cg = chart.getContext("2d");
+  const labPanel = $("labPanel");
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((t) => t.dataset.tab);
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.innerHTML !== s) el.innerHTML = s; };
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const S = { tab: "desen" };
+  let dpr = 1, dirty = true;
+  const ARIA = {
+    desen: [
+      "Üstten görünüş, açılar gerçek: alttaki ızgaraya lazer demeti gelir, kırınan demetler mertebe açılarıyla üstteki düz ekrana gider; ekran şeridi deseni ışığın renginde gösterir, üstündeki cetvel gerçek uzunluktadır; seçili mertebenin açısı yayla işaretli",
+      "Şiddet grafiği: kırınım açısına göre bağıl şiddet I/I₀ ışığın renginde, kesikli çizgiyle tek yarık zarfı, bulunan ana maksimumlar nokta; üstte mertebe numaraları ve eksik mertebeler için çarpı, en üstte desenin renkli şeridi",
+    ],
+    spektrometre: [
+      "Spektrometrenin üstten görünüşü: soldaki lambadan gelen ışık kolimatörden geçip ortadaki ızgaraya düşer; tayf çizgilerinin mertebeleri renkli ışınlar, çevrede derece ölçeği ve dönebilen dürbün",
+      "Dürbünün okülerinden görünüş: ortada kıl çizgisi ve görüş alanındaki tayf çizgileri; altında aynı açı aralığının şiddet profili ve ölçek okumaları",
+    ],
+    cd: [
+      "Yandan şema, açılar gerçek: lazer duvardaki delikten geçip diske dik düşer, yansıyan mertebeler duvara döner; duvar şeridinde lekeler ve gerçek uzunluk cetveli",
+      "Duvarın önden görünüşü: lazer lekeleri, santimetre cetveli ve A, B ölçüm imleçleri",
+    ],
+  };
+  const rowCanvas = document.createElement("canvas"), rowCtx = rowCanvas.getContext("2d");
+  function paintRow(ctx, x, y, w, h, n, fill) {
+    n = Math.max(1, Math.round(n));
+    if (rowCanvas.width !== n) { rowCanvas.width = n; rowCanvas.height = 1; }
+    const img = rowCtx.createImageData(n, 1), px = img.data;
+    for (let j = 0; j < n; j++) { fill(j, px, 4 * j); px[4 * j + 3] = 255; }
+    rowCtx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(rowCanvas, 0, 0, n, 1, x, y, w, h);
+    ctx.imageSmoothingEnabled = true;
+  }
+  function niceStep(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    for (const k of [1, 2, 5, 10]) if (k * p >= raw - 1e-15) return k * p;
+    return 10 * p;
+  }
+  function stepDecimals(step) { return Math.max(0, -Math.floor(Math.log10(step) + 1e-9)); }
+  function font(px, w) { return `${w ? w + " " : ""}${px * dpr}px Outfit, system-ui, sans-serif`; }
+  function tagText(ctx, th, text, x, y, color, align) {
+    ctx.font = font(11);
+    const w = ctx.measureText(text).width + 8 * dpr, h = 15 * dpr;
+    let x0 = align === "right" ? x - w : align === "left" ? x : x - w / 2;
+    x0 = clamp(x0, 2 * dpr, ctx.canvas.width - w - 2 * dpr);
+    ctx.fillStyle = th.tag;
+    ctx.fillRect(x0, y - h + 4 * dpr, w, h);
+    ctx.fillStyle = color;
+    ctx.textAlign = "left";
+    ctx.fillText(text, x0 + 4 * dpr, y);
+  }
+  // Düz ekran ya da duvar geometrisi (a ve c sekmeleri): alt kenarda ızgara/disk, üstte ekran
+  function screenGeom() {
+    const W = stage.width, H = stage.height;
+    const xc = W / 2, yg = H - 30 * dpr, yS = 30 * dpr, sh = 12 * dpr;
+    return { W, H, xc, yg, yS, sh, yB: yS + sh, Lpx: yg - (yS + sh) };
+  }
+  function rayToScreen(g, th) {
+    const tx = Math.tan(th), x = g.xc + g.Lpx * tx;
+    if (x >= 0 && x <= g.W) return { x, y: g.yB, hit: true };
+    const xe = x < 0 ? 0 : g.W;
+    return { x: xe, y: g.yg - Math.abs(xe - g.xc) / Math.abs(tx), hit: false };
+  }
+  // Ekranın üstündeki gerçek uzunluk cetveli: piksel ↔ gerçek y doğrusal (y = L·tan θ)
+  function drawRuler(ctx, th, g, Lreal) {
+    const perPx = Lreal / g.Lpx;                 // m / piksel
+    const step = niceStep(60 * dpr * perPx);
+    const unit = step >= 0.5 ? [1, "m"] : step >= 0.005 ? [0.01, "cm"] : [0.001, "mm"];
+    const dec = stepDecimals(step / unit[0]);
+    ctx.strokeStyle = th.muted;
+    ctx.fillStyle = th.muted;
+    ctx.lineWidth = 1 * dpr;
+    ctx.font = font(10);
+    ctx.textAlign = "center";
+    const kMax = Math.floor((g.W / 2) * perPx / step);
+    ctx.beginPath();
+    for (let k = -kMax; k <= kMax; k++) {
+      const x = g.xc + (k * step) / perPx;
+      ctx.moveTo(x, g.yS - 4 * dpr);
+      ctx.lineTo(x, g.yS);
+    }
+    ctx.stroke();
+    for (let k = -kMax; k <= kMax; k++) {
+      if (k === 0) continue;
+      const x = g.xc + (k * step) / perPx;
+      if (x < 18 * dpr || x > g.W - 18 * dpr) continue;
+      ctx.fillText(fix((k * step) / unit[0], dec), x, g.yS - 7 * dpr);
+    }
+    ctx.textAlign = "left";
+    ctx.fillText(`y (${unit[1]})`, 6 * dpr, g.yS - 7 * dpr);
+  }
+
+  /* ═════ (a) Çok yarıklı desen ═════ */
+  const N_LIST = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 150, 200, 300, 500];
+  const A_DEF = { N: 5, src: "632.8", lam: "632.8", unit: "um", d: "5", a: "1.5", L: "1", view: "tum", ord: 1, scale: "lin" };
+  const A_PRESET_LAM = ["405", "532", "632.8"];
+  const LOGD = 5;
+  const GAP_NOTE = "Yarık genişliği a, yarık aralığı d'yi aşamaz.";
+  const SA = {
+    ui: {
+      N: $("aN"), NOut: $("aNOut"), src: $("aSrc"), srcOut: $("aSrcOut"), lam: $("aLam"), lamTxt: $("aLamTxt"), swatch: $("aSwatch"),
+      unit: $("aUnit"), unitOut: $("aUnitOut"), d: $("aD"), dOut: $("aDOut"), dLabel: $("aDLabel"), a: $("aA"), aOut: $("aAOut"),
+      L: $("aL"), LOut: $("aLOut"), gap: $("aGap"), view: $("aView"), viewOut: $("aViewOut"), ord: $("aOrd"), ordOut: $("aOrdOut"),
+      scale: $("aScale"), scaleOut: $("aScaleOut"), reset: $("aReset"),
+      mmax: $("aMmax"), mmaxSub: $("aMmaxSub"), miss: $("aMiss"), missSub: $("aMissSub"), peak: $("aPeak"), peakSub: $("aPeakSub"),
+      fres: $("aFres"), fresSub: $("aFresSub"), selHead: $("aSelHead"), status: $("aStatus"),
+    },
+    rat: {}, res: null, view: "tum", scale: "lin", viewTh: [-Math.PI / 2, Math.PI / 2], cols: null,
+  };
+  function setRange(el, min, max, step) { el.min = String(min); el.max = String(max); el.step = String(step); }
+  function syncA(changed) {
+    const ui = SA.ui;
+    SA.N = N_LIST[Number(ui.N.value)];
+    if (changed === "src" && ui.src.value !== "ozel") ui.lam.value = ui.src.value;
+    SA.lamNm = Number(ui.lam.value);
+    if (changed === "lam") ui.src.value = A_PRESET_LAM.find((v) => Math.abs(Number(v) - SA.lamNm) < 1e-9) || "ozel";
+    SA.lam = SA.lamNm * NM;
+    if (changed === "unit") {
+      if (ui.unit.value === "um") { setRange(ui.d, 0.8, 50, 0.01); ui.d.value = clamp(Math.round((SA.d / UM) * 100) / 100, 0.8, 50).toFixed(2); }
+      else { setRange(ui.d, 20, 1250, 1); ui.d.value = String(clamp(Math.round(1e-3 / SA.d), 20, 1250)); }
+    }
+    SA.unit = ui.unit.value;
+    const dv = Number(ui.d.value);
+    if (SA.unit === "um") { SA.d = dv * UM; SA.rat.dNum = Math.round(dv * 1e4); SA.rat.dDen = 1; SA.lpmm = null; }
+    else { SA.lpmm = Math.round(dv); SA.d = 1e-3 / SA.lpmm; SA.rat.dNum = 1e7; SA.rat.dDen = SA.lpmm; }
+    let aUm = Number(ui.a.value);
+    const aMaxUm = Math.floor((SA.d / UM) * 100 + 1e-7) / 100;
+    let gapMsg = null;
+    if (aUm > aMaxUm + 1e-9) {
+      aUm = aMaxUm;
+      ui.a.value = aUm.toFixed(2);
+      gapMsg = `a ≤ d olmalı: yarık genişliği a, ${fix(aUm, 2)} µm'ye indirildi.`;
+    }
+    SA.a = Number(ui.a.value) * UM;
+    SA.rat.aNum = Math.round(Number(ui.a.value) * 1e4);
+    SA.rat.lam10 = Math.round(SA.lamNm * 10);
+    SA.L = Number(ui.L.value);
+    SA.view = ui.view.value;
+    SA.scale = ui.scale.value;
+    if (gapMsg) setText(ui.gap, gapMsg);
+    else if (changed && changed !== "ord" && changed !== "view" && changed !== "scale") setText(ui.gap, GAP_NOTE);
+    // mertebe kaydırıcısı 1 … m_top
+    const den = SA.rat.dDen * SA.rat.lam10, mMax = Math.floor(SA.rat.dNum / den);
+    const mTop = Math.max(1, SA.rat.dNum % den === 0 ? mMax - 1 : mMax);
+    ui.ord.max = String(mTop);
+    if (Number(ui.ord.value) > mTop) ui.ord.value = String(mTop);
+    ui.ord.disabled = SA.N < 2;
+    SA.sel = Number(ui.ord.value);
+    SA.res = PHYS.analyseA({ lam: SA.lam, d: SA.d, a: SA.a, N: SA.N, L: SA.L, sel: SA.sel, rat: SA.rat });
+    SA.viewTh = viewRangeA();
+    SA.cols = null;
+    outputsA();
+    readoutsA();
+    dirty = true;
+  }
+  function viewRangeA() {
+    const r = SA.res, v = SA.view;
+    if (v === "tum") return [-Math.PI / 2, Math.PI / 2];
+    if (v === "zarf") { const s = Math.min(1, (1.2 * r.lam) / r.a); return [-Math.asin(s), Math.asin(s)]; }
+    if (r.single || !r.sel) return [-Math.PI / 2, Math.PI / 2];
+    const sm = r.sel.o.sTh, step = r.lam / r.d;
+    let s0, s1;
+    if (v === "aralik") { s0 = sm - 1.12 * step; s1 = sm + 0.12 * step; }
+    else { s0 = sm - 4 * r.h; s1 = sm + 4 * r.h; }
+    return [Math.asin(clamp(s0, -1, 1)), Math.asin(clamp(s1, -1, 1))];
+  }
+  function outputsA() {
+    const ui = SA.ui;
+    setText(ui.NOut, `N = ${SA.N}`);
+    ui.N.setAttribute("aria-valuetext", `N = ${SA.N}`);
+    setText(ui.srcOut, ui.src.value === "ozel" ? "özel" : "lazer");
+    setText(ui.lamTxt, fmtNm(SA.lamNm, 1));
+    ui.swatch.style.background = cssColor(lamCol(SA.lamNm));
+    setText(ui.unitOut, SA.unit === "um" ? "µm" : "çizgi/mm");
+    setText(ui.dLabel, SA.unit === "um" ? "Yarık aralığı d" : "Çizgi yoğunluğu 1/d");
+    setText(ui.dOut, SA.unit === "um"
+      ? `${fix(SA.d / UM, 2)} µm · ${sig(1e-3 / SA.d, 4)} çizgi/mm`
+      : `${SA.lpmm} çizgi/mm · d = ${fix(SA.d / UM, 4)} µm`);
+    ui.d.setAttribute("aria-valuetext", ui.dOut.textContent);
+    setText(ui.aOut, `${fix(SA.a / UM, 2)} µm · d/a = ${ratioStr(SA.rat.dNum, SA.rat.dDen * SA.rat.aNum)}`);
+    setText(ui.LOut, `${fix(SA.L, 2)} m`);
+    setText(ui.viewOut, { tum: "bütün açılar", zarf: "merkez zarf", aralik: "m − 1 → m", tepe: "tepe çevresi" }[SA.view]);
+    setText(ui.ordOut, SA.N < 2 ? "N = 1: yok" : `m = ${SA.res.sel.m}`);
+    setText(ui.scaleOut, SA.scale === "log" ? "logaritmik" : "doğrusal");
+  }
+  function farClass(NF) { return NF < 0.1 ? "far" : NF <= 1 ? "edge" : "near"; }
+  function setRowA(k, label, meas, th, diff) {
+    if (label !== null) setHTML($(`aR${k}L`), label);
+    setText($(`aR${k}M`), meas);
+    setText($(`aR${k}T`), th);
+    setText($(`aR${k}D`), diff);
+  }
+  function readoutsA() {
+    const r = SA.res, ui = SA.ui, lamU = SA.rat.lam10;
+    // m_max
+    setText(ui.mmax, String(r.mMax));
+    let sub = `⌊d/λ⌋ = ⌊${ratioStr(SA.rat.dNum, SA.rat.dDen * lamU)}⌋`;
+    if (r.grazing) sub += `; m = ${r.mMax} tam 90°'de, gözlenmez`;
+    setText(ui.mmaxSub, sub);
+    // eksik mertebeler
+    const fr = r.Q === 1 ? `d/a = ${r.P}` : r.Q <= 1000 ? `d/a = ${r.P}/${r.Q}` : `d/a = ${ratioStr(SA.rat.dNum, SA.rat.dDen * SA.rat.aNum)}`;
+    if (r.single) { setText(ui.miss, "—"); setText(ui.missSub, "N = 1: mertebe yok"); }
+    else if (r.missing.length) {
+      const list = r.missing.slice(0, 4).map((m) => `±${m}`).join(", ") + (r.missing.length > 4 ? ", …" : "");
+      setText(ui.miss, `m = ${list}`);
+      const v = r.orders[r.missing[0]].v;
+      setText(ui.missSub, `${fr}; ölçülen I(m = ${r.missing[0]})/I₀ = ${v < 1e-12 ? "0" : num(v, 2)}`);
+    } else {
+      setText(ui.miss, "yok");
+      setText(ui.missSub, r.P <= 9999 ? `${fr}; ilk eksik m = ±${r.P} > ${r.mTop}` : fr);
+    }
+    setText(ui.peak, `N² = ${SA.N * SA.N}`);
+    setText(ui.peakSub, SA.N < 2 ? "tek yarık" : `tepe N² kat parlak, 1/N kat dar`);
+    const fc = farClass(r.NF);
+    setText(ui.fres, num(r.NF, 3));
+    setText(ui.fresSub, fc === "far" ? `≪ 1: uzak alan; (Nd)²/λ = ${fmtLen(r.zF, 3)}` : fc === "edge" ? `≈ 1: uzak alanın sınırı; (Nd)²/λ = ${fmtLen(r.zF, 3)}` : `> 1: yakın alan; (Nd)²/λ = ${fmtLen(r.zF, 3)}`);
+
+    const warn = [], info = [];
+    if (r.single) {
+      setText(ui.selHead, "N = 1: tek yarık, ana maksimum yok");
+      const z = r.z1, zt = r.z1Th;
+      setRowA(1, "Zarfın ilk sıfırı sin θ₁", z !== null ? fix(z, 5) : "—", zt !== null ? `${fix(zt, 5)} = λ/a` : "yok (a < λ)", z !== null && zt !== null ? pct(z, zt) : "—");
+      setRowA(2, "İlk sıfırın açısı θ₁", z !== null ? fmtDeg(Math.asin(z), 4) : "—", zt !== null ? fmtDeg(Math.asin(zt), 4) : "—", z !== null && zt !== null ? pct(Math.asin(z), Math.asin(zt)) : "—");
+      setRowA(3, "Ekranda y₁ = L·tan θ₁", z !== null ? fmtLen(SA.L * Math.tan(Math.asin(z))) : "—", zt !== null ? fmtLen(SA.L * Math.tan(Math.asin(zt))) : "—", z !== null && zt !== null ? pct(Math.tan(Math.asin(z)), Math.tan(Math.asin(zt))) : "—");
+      for (const k of [4, 5, 6, 7]) setRowA(k, null, "—", "—", "—");
+      warn.push(`N = 1: tek yarık. Izgara mertebesi ve ana maksimum yok; desen yalnız tek yarık zarfıdır${r.z1Th !== null ? `, ilk sıfır sin θ = λ/a = ${fix(r.z1Th, 4)}` : "; a < λ olduğundan zarfın sıfırı da yok"}.`);
+    } else {
+      const s = r.sel, o = s.o, m = s.m;
+      setText(ui.selHead, `İncelenen ana maksimum: m = ${m}${o.missing ? " (eksik mertebe)" : ""}`);
+      const L = (t) => t.replace(/_m/g, `<sub>${m}</sub>`);
+      if (o.ok) {
+        setRowA(1, L("Ana maksimum açısı θ_m"), fmtDeg(o.th, 4), `${fmtDeg(o.thTh, 4)}`, pct(o.th, o.thTh));
+        const ratioM = (r.d * Math.sin(o.th)) / r.lam;
+        setRowA(2, L("d·sin θ_m/λ"), fix(ratioM, 5), String(m), pct(ratioM, m));
+        setRowA(3, L("Ekranda y_m = L·tan θ_m"), fmtLen(s.y), fmtLen(s.yTh), pct(s.y, s.yTh));
+        setRowA(4, s.oneSided ? "Tepeden iç sıfıra Δ(sin θ)" : "Tepeden ilk sıfıra Δ(sin θ)", Number.isFinite(s.hw) ? num(s.hw, 5) : "—", `${num(r.h, 5)} = λ/(Nd)`, pct(s.hw, r.h));
+        setRowA(5, "Açısal yarı genişlik Δθ", Number.isFinite(s.dth) ? `${num(s.dth * 1e3, 4)} mrad` : "—", `${num(s.dthTh * 1e3, 4)} mrad`, pct(s.dth, s.dthTh));
+        setRowA(7, "Ana maksimumun şiddeti I/I₀", num(o.v, 4), num(o.vTh, 4), pct(o.v, o.vTh));
+        if (s.oneSided) warn.push(`m = ${m} tepesinin dış sıfırı 90°'nin ötesinde; yarı genişlik iç sıfırdan ölçüldü.`);
+        if (s.envInPeak !== null) warn.push(`m = ${m} tepesinin ana lobuna tek yarık zarfının bir sıfırı düşüyor (sin θ = ${fix(s.envInPeak, 4)}; d/a ≈ ${m}): tepe kayar ve daralır, ilk sıfır zarfın sıfırıdır. Konum ve λ/(Nd) formülleri burada kuramdan sapar.`);
+      } else {
+        const why = o.missing ? "eksik mertebe" : "tepe bozuk";
+        setRowA(1, L("Ana maksimum açısı θ_m"), "—", fmtDeg(o.thTh, 4), why);
+        setRowA(2, L("d·sin θ_m/λ"), "—", String(m), why);
+        setRowA(3, L("Ekranda y_m = L·tan θ_m"), "—", fmtLen(s.yTh), why);
+        setRowA(4, "Tepeden ilk sıfıra Δ(sin θ)", "—", `${num(r.h, 5)} = λ/(Nd)`, why);
+        setRowA(5, "Açısal yarı genişlik Δθ", "—", `${num(s.dthTh * 1e3, 4)} mrad`, why);
+        setRowA(7, "Ana maksimumun şiddeti I/I₀", o.v < 1e-12 ? "0" : num(o.v, 3), num(o.vTh, 3), why);
+        if (o.missing && r.P === 1) warn.push("a = d: yarıklar birleşti, açıklık Nd genişliğinde tek bir yarık oldu. Bütün mertebeler (m ≠ 0) zarfın sıfırlarına düşer; ölçülecek ana maksimum kalmaz.");
+        else if (o.missing) warn.push(`m = ${m} eksik mertebe: d·sin θ = ${m}λ konumu tek yarık zarfının sıfırına düşüyor (${m}·a/d tam sayı), orada ana maksimum yok; ölçülecek tepe ve genişlik tanımsız.`);
+        else warn.push(`m = ${m} tepesi zarfın bir sıfırına çok yakın; desende ayrı bir ana maksimum seçilemiyor.`);
+      }
+      const cnt = s.sec.length, th6 = SA.N - 2;
+      setRowA(6, `${m - 1} ile ${m} arasında ikincil maksimum`, String(cnt), `${th6} = N − 2`, cnt === th6 ? "eşit" : `${cnt > th6 ? "+" : MINUS}${Math.abs(cnt - th6)}`);
+      if (s.envZero !== null) warn.push(`${m - 1} ile ${m} arasına tek yarık zarfının bir sıfırı düşüyor (sin θ = ${fix(s.envZero, 4)}): bir ikincil tepe ikiye bölünür, sayım N − 2'den sapabilir.`);
+      if (r.grazing) warn.push(`m = ${r.mMax} tam 90°'de (sıyırma açısı): ızgara yüzeyi boyunca yayılır, ekrana ulaşmaz.`);
+      if (r.d < 2 * r.lam) info.push("d < 2λ: konumlar ızgara denklemiyle kesin, şiddetler skaler modelde yalnız nitel.");
+      if (!warn.length) {
+        info.unshift(`N = ${SA.N}: ana maksimumlar d·sin θ = mλ'da, aralarında N − 2 = ${th6} ikincil maksimum var; tepeden ilk sıfıra Δ(sin θ) = λ/(Nd).${SA.N <= 3 ? " Az yarıkta zarfın eğimi tepeleri merkeze doğru biraz çeker." : ""}`);
+      }
+    }
+    if (fc === "near") warn.push(`Fresnel sayısı ${num(r.NF, 3)} > 1: L = ${fix(SA.L, 2)} m, uzak alan uzaklığı (Nd)²/λ = ${fmtLen(r.zF, 3)}'den kısa. Açılar doğru, ama bu genişlikteki tepeler ancak bir merceğin odak düzleminde (spektrometrede olduğu gibi) görülür; çıplak ekranda leke Nd = ${fmtLen(SA.N * r.d, 3)} genişliğindeki demetin izidir.`);
+    else if (fc === "edge") info.push(`Fresnel sayısı ${num(r.NF, 3)} ≈ 1: uzak alanın sınırındasın; tepe genişlikleri ekranda tam bu biçimde görünmez.`);
+    ui.status.className = `status ${warn.length ? "is-warn" : "is-good"}`;
+    setText(ui.status, [...warn, ...info].join(" "));
+  }
+  function drawStageA(th) {
+    const g = screenGeom(), r = SA.res, W = g.W, H = g.H;
+    sg.setTransform(1, 0, 0, 1, 0, 0);
+    sg.clearRect(0, 0, W, H);
+    const col = lamCol(SA.lamNm), colCss = cssColor(col);
+    const gw = Math.min(0.34 * W, 260 * dpr);
+    // grafikteki açı aralığı
+    if (SA.view !== "tum") {
+      const [t0, t1] = SA.viewTh, p0 = rayToScreen(g, t0), p1 = rayToScreen(g, t1);
+      sg.fillStyle = th.wedge;
+      sg.beginPath();
+      sg.moveTo(g.xc, g.yg);
+      sg.lineTo(p0.x, p0.y);
+      if (!p0.hit) sg.lineTo(p0.x, g.yB);
+      if (!p1.hit) sg.lineTo(p1.x, g.yB);
+      sg.lineTo(p1.x, p1.y);
+      sg.closePath();
+      sg.fill();
+    }
+    // gelen demet
+    sg.globalAlpha = th.light ? 0.35 : 0.28;
+    sg.fillStyle = colCss;
+    sg.fillRect(g.xc - gw / 2, g.yg, gw, H - g.yg);
+    sg.globalAlpha = 1;
+    // kırınan demetler
+    sg.font = font(10.5);
+    const labels = [];
+    if (!r.single) {
+      for (let m = -r.mTop; m <= r.mTop; m++) {
+        const o = r.orders[Math.abs(m)], t = Math.sign(m) * o.thTh, p = rayToScreen(g, t);
+        sg.save();
+        if (o.missing) {
+          sg.strokeStyle = th.muted;
+          sg.setLineDash([4 * dpr, 4 * dpr]);
+          sg.lineWidth = 1 * dpr;
+          sg.globalAlpha = 0.7;
+        } else {
+          sg.strokeStyle = colCss;
+          sg.lineWidth = (m === 0 ? 2.5 : 1.8) * dpr;
+          sg.globalAlpha = 0.18 + 0.82 * Math.sqrt(o.vTh);
+        }
+        sg.beginPath();
+        sg.moveTo(g.xc, g.yg);
+        sg.lineTo(p.x, p.y);
+        sg.stroke();
+        sg.restore();
+        if (!p.hit) labels.push({ x: p.x, y: p.y, text: `m = ${intSigned(m)}: ${fix(deg(t), 1)}°, ekran dışında`, m });
+      }
+      if (r.grazing) {
+        for (const sgn of [-1, 1]) {
+          sg.save();
+          sg.strokeStyle = th.muted;
+          sg.setLineDash([2 * dpr, 4 * dpr]);
+          sg.beginPath();
+          sg.moveTo(g.xc, g.yg);
+          sg.lineTo(g.xc + sgn * W, g.yg);
+          sg.stroke();
+          sg.restore();
+        }
+      }
+    } else {
+      sg.strokeStyle = colCss;
+      sg.lineWidth = 2.5 * dpr;
+      sg.beginPath(); sg.moveTo(g.xc, g.yg); sg.lineTo(g.xc, g.yB); sg.stroke();
+      if (r.z1Th !== null) {
+        for (const sgn of [-1, 1]) {
+          const p = rayToScreen(g, sgn * Math.asin(r.z1Th));
+          sg.save();
+          sg.strokeStyle = th.muted; sg.setLineDash([4 * dpr, 4 * dpr]); sg.lineWidth = 1 * dpr;
+          sg.beginPath(); sg.moveTo(g.xc, g.yg); sg.lineTo(p.x, p.y); sg.stroke();
+          sg.restore();
+        }
+      }
+    }
+    // ekran şeridi
+    sg.fillStyle = "#05070c";
+    sg.fillRect(0, g.yS, W, g.sh);
+    const out = new Float64Array(2), n = Math.round(W);
+    paintRow(sg, 0, g.yS, W, g.sh, n, (j, px, q) => {
+      const ta = Math.atan((j - g.xc) / g.Lpx), tb = Math.atan((j + 1 - g.xc) / g.Lpx);
+      PHYS.columnStats(r, Math.sin(ta), Math.sin(tb), out);
+      const v = Math.min(1, out[0]);
+      px[q] = Math.round(255 * toSRGB(v * col[0]));
+      px[q + 1] = Math.round(255 * toSRGB(v * col[1]));
+      px[q + 2] = Math.round(255 * toSRGB(v * col[2]));
+    });
+    sg.strokeStyle = th.grid2;
+    sg.lineWidth = 1 * dpr;
+    sg.strokeRect(0.5 * dpr, g.yS, W - dpr, g.sh);
+    drawRuler(sg, th, g, SA.L);
+    // ızgara
+    const nDraw = Math.min(SA.N, 40), per = gw / nDraw, open = Math.max(1 * dpr, (per * SA.a) / SA.d);
+    sg.fillStyle = th.metal;
+    sg.fillRect(g.xc - gw / 2 - 10 * dpr, g.yg - 3 * dpr, gw + 20 * dpr, 6 * dpr);
+    sg.fillStyle = colCss;
+    for (let i = 0; i < nDraw; i++) {
+      const xm = g.xc - gw / 2 + (i + 0.5) * per;
+      sg.fillRect(xm - open / 2, g.yg - 3 * dpr, open, 6 * dpr);
+    }
+    // seçili mertebenin açı yayı
+    if (!r.single && r.sel) {
+      const t = r.sel.o.thTh, rad = Math.min(0.32 * g.Lpx, 110 * dpr);
+      sg.strokeStyle = th.accent2;
+      sg.lineWidth = 1.5 * dpr;
+      sg.beginPath();
+      sg.arc(g.xc, g.yg, rad, -Math.PI / 2, -Math.PI / 2 + t, false);
+      sg.stroke();
+      sg.save();
+      sg.setLineDash([3 * dpr, 4 * dpr]);
+      sg.strokeStyle = th.muted;
+      sg.beginPath(); sg.moveTo(g.xc, g.yg); sg.lineTo(g.xc, g.yg - rad * 1.15); sg.stroke();
+      sg.restore();
+      const tm = t / 2 - Math.PI / 2;
+      tagText(sg, th, `θ${subDigits(r.sel.m)} = ${fix(deg(t), 2)}°`, g.xc + (rad + 8 * dpr) * Math.cos(tm), g.yg + (rad + 8 * dpr) * Math.sin(tm) + 4 * dpr, th.accent2, "left");
+    }
+    // etiketler
+    sg.font = font(11);
+    sg.fillStyle = th.muted;
+    sg.textAlign = "left";
+    const lbl = SA.N > nDraw ? `Izgara: N = ${SA.N} (${nDraw} yarığı çizildi)` : `Izgara: N = ${SA.N}`;
+    sg.fillText(lbl, 8 * dpr, H - 10 * dpr);
+    sg.textAlign = "right";
+    sg.fillText(`d = ${fix(SA.d / UM, SA.unit === "um" ? 2 : 4)} µm, a = ${fix(SA.a / UM, 2)} µm, λ = ${fix(SA.lamNm, 1)} nm`, W - 8 * dpr, H - 10 * dpr);
+    sg.textAlign = "left";
+    sg.fillStyle = th.ink;
+    sg.fillText(`Ekran, L = ${fix(SA.L, 2)} m`, 8 * dpr, g.yB + 15 * dpr);
+    for (const lb of labels) {
+      if (lb.y > g.yg - 14 * dpr) continue;
+      tagText(sg, th, lb.text, lb.x < g.xc ? lb.x + 4 * dpr : lb.x - 4 * dpr, lb.y + 14 * dpr, th.muted, lb.x < g.xc ? "left" : "right");
+    }
+  }
+  function subDigits(m) { return String(m).split("").map((c) => "₀₁₂₃₄₅₆₇₈₉"[Number(c)]).join(""); }
+  function chartLayoutA() {
+    const W = chart.width, H = chart.height, small = W < 520 * dpr;
+    const l = (small ? 40 : 48) * dpr, rr = 12 * dpr;
+    const bandY = 6 * dpr, bandH = (small ? 10 : 14) * dpr;
+    const top = bandY + bandH + (small ? 20 : 24) * dpr, bot = H - 22 * dpr;
+    const [t0, t1] = SA.viewTh;
+    const pw = W - l - rr;
+    return { W, H, small, l, rr, bandY, bandH, top, bot, t0, t1, pw, xOf: (t) => l + ((t - t0) / (t1 - t0)) * pw };
+  }
+  function drawChartA(th) {
+    const r = SA.res, c = chartLayoutA(), { W, H, l, top, bot, t0, t1, pw, xOf } = c;
+    cg.setTransform(1, 0, 0, 1, 0, 0);
+    cg.clearRect(0, 0, W, H);
+    const log = SA.scale === "log";
+    const yOf = log ? (v) => top + (Math.min(LOGD, -Math.log10(Math.max(v, 1e-30))) / LOGD) * (bot - top) : (v) => bot - Math.min(1.02, v) * (bot - top);
+    const n = Math.max(2, Math.round(pw));
+    if (!SA.cols || SA.cols.n !== n || SA.cols.t0 !== t0 || SA.cols.t1 !== t1) {
+      const mx = new Float32Array(n), mn = new Float32Array(n), ev = new Float32Array(n), out = new Float64Array(2);
+      for (let j = 0; j < n; j++) {
+        const ta = t0 + ((t1 - t0) * j) / n, tb = t0 + ((t1 - t0) * (j + 1)) / n;
+        PHYS.columnStats(r, Math.sin(ta), Math.sin(tb), out);
+        mx[j] = out[0]; mn[j] = out[1];
+        ev[j] = r.env(Math.sin((ta + tb) / 2));
+      }
+      SA.cols = { n, t0, t1, mx, mn, ev };
+    }
+    const { mx, mn, ev } = SA.cols;
+    const col = lamCol(SA.lamNm), lineCss = cssColor(col, th.light ? 0.72 : 1);
+    // renkli şerit
+    paintRow(cg, l, c.bandY, pw, c.bandH, n, (j, px, q) => {
+      const v = Math.min(1, mx[j]);
+      px[q] = Math.round(255 * toSRGB(v * col[0]));
+      px[q + 1] = Math.round(255 * toSRGB(v * col[1]));
+      px[q + 2] = Math.round(255 * toSRGB(v * col[2]));
+    });
+    // eksenler
+    cg.lineWidth = 1 * dpr;
+    cg.strokeStyle = th.grid;
+    cg.fillStyle = th.muted;
+    cg.font = font(10.5);
+    cg.textAlign = "right";
+    const yt = log ? [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5] : [0, 0.5, 1];
+    for (const v of yt) {
+      const y = yOf(v);
+      cg.beginPath(); cg.moveTo(l, y); cg.lineTo(W - c.rr, y); cg.stroke();
+      cg.fillText(log ? (v === 1 ? "1" : `10${String(Math.round(Math.log10(v))).split("").map((ch) => SUP[ch]).join("")}`) : v === 0.5 ? "0.5" : String(v), l - 5 * dpr, y + 4 * dpr);
+    }
+    const spanDeg = deg(t1 - t0), stepDeg = niceStep((spanDeg * 64 * dpr) / pw), dec = stepDecimals(stepDeg);
+    cg.textAlign = "center";
+    for (let k = Math.ceil(deg(t0) / stepDeg - 1e-9); k * stepDeg <= deg(t1) + 1e-9; k++) {
+      const x = xOf(k * stepDeg * D2R);
+      cg.strokeStyle = th.grid;
+      cg.beginPath(); cg.moveTo(x, top); cg.lineTo(x, bot); cg.stroke();
+      cg.fillText(`${fix(k * stepDeg, dec)}°`, x, H - 7 * dpr);
+    }
+    cg.textAlign = "left";
+    cg.fillText("I/I₀", 4 * dpr, top - 6 * dpr);
+    // seçili mertebe bandı
+    if (!r.single && r.sel) {
+      const x = xOf(r.sel.o.thTh);
+      if (x >= l && x <= W - c.rr) {
+        cg.fillStyle = th.wedge;
+        cg.fillRect(x - 5 * dpr, top, 10 * dpr, bot - top);
+      }
+    }
+    // zarf
+    if (!r.single) {
+      cg.save();
+      cg.strokeStyle = th.accent2;
+      cg.lineWidth = 1.3 * dpr;
+      cg.setLineDash([5 * dpr, 4 * dpr]);
+      cg.beginPath();
+      for (let j = 0; j < n; j++) { const x = l + ((j + 0.5) * pw) / n, y = yOf(ev[j]); if (j === 0) cg.moveTo(x, y); else cg.lineTo(x, y); }
+      cg.stroke();
+      cg.restore();
+    }
+    // desen: en büyük–en küçük bandı ve üst eğri
+    cg.save();
+    cg.beginPath();
+    for (let j = 0; j < n; j++) { const x = l + ((j + 0.5) * pw) / n; if (j === 0) cg.moveTo(x, yOf(mx[j])); else cg.lineTo(x, yOf(mx[j])); }
+    for (let j = n - 1; j >= 0; j--) cg.lineTo(l + ((j + 0.5) * pw) / n, yOf(mn[j]));
+    cg.closePath();
+    cg.globalAlpha = 0.35;
+    cg.fillStyle = lineCss;
+    cg.fill();
+    cg.globalAlpha = 1;
+    cg.strokeStyle = lineCss;
+    cg.lineWidth = 1.6 * dpr;
+    cg.beginPath();
+    for (let j = 0; j < n; j++) { const x = l + ((j + 0.5) * pw) / n; if (j === 0) cg.moveTo(x, yOf(mx[j])); else cg.lineTo(x, yOf(mx[j])); }
+    cg.stroke();
+    cg.restore();
+    if (r.single) return;
+    // mertebe numaraları ve bulunan tepeler
+    const vis = [];
+    for (let m = -r.mTop; m <= r.mTop; m++) {
+      const o = r.orders[Math.abs(m)], t = Math.sign(m) * o.thTh;
+      if (t < t0 || t > t1) continue;
+      vis.push({ m, o, x: xOf(t) });
+    }
+    let every = 1;
+    if (vis.length > 1) {
+      const gap = (vis[vis.length - 1].x - vis[0].x) / (vis.length - 1);
+      every = gap >= 16 * dpr ? 1 : gap >= 8 * dpr ? 2 : gap >= 3 * dpr ? 5 : 10;
+    }
+    cg.textAlign = "center";
+    cg.font = font(10.5);
+    for (const v of vis) {
+      if (v.o.missing) { cg.fillStyle = th.danger; cg.fillText("×", v.x, top - 7 * dpr); continue; }
+      if (v.m % every !== 0) continue;
+      cg.fillStyle = r.sel && Math.abs(v.m) === r.sel.m ? th.accent2 : th.muted;
+      cg.fillText(intSigned(v.m), v.x, top - 7 * dpr);
+    }
+    cg.fillStyle = th.warm;
+    for (const v of vis) {
+      if (!v.o.ok) continue;
+      const t = Math.sign(v.m) * v.o.th, y = yOf(v.o.v);
+      if (y > bot - 1) continue;
+      cg.beginPath();
+      cg.arc(xOf(t), y, (r.sel && Math.abs(v.m) === r.sel.m ? 4 : 2.5) * dpr, 0, Math.PI * 2);
+      cg.fill();
+    }
+    // yakın görünümlerde sıfırlar ve ikincil maksimumlar
+    const s = r.sel;
+    if (s && SA.view === "tepe" && s.o.ok) {
+      cg.save();
+      cg.strokeStyle = th.accent;
+      cg.setLineDash([3 * dpr, 3 * dpr]);
+      cg.lineWidth = 1 * dpr;
+      for (const z of [s.zm, s.zp]) {
+        if (z === null || z === undefined) continue;
+        const x = xOf(Math.asin(z));
+        cg.beginPath(); cg.moveTo(x, top); cg.lineTo(x, bot); cg.stroke();
+      }
+      cg.restore();
+      if (s.zp !== null && s.zp !== undefined) {
+        const x0 = xOf(s.o.th), x1 = xOf(Math.asin(s.zp)), y = yOf(log ? 3e-3 : 0.62);
+        cg.strokeStyle = th.accent;
+        cg.lineWidth = 1.3 * dpr;
+        cg.beginPath(); cg.moveTo(x0, y); cg.lineTo(x1, y); cg.stroke();
+        tagText(cg, th, "λ/(Nd)", (x0 + x1) / 2, y - 6 * dpr, th.accent, "center");
+      }
+    }
+    if (s && SA.view === "aralik") {
+      cg.fillStyle = th.accent;
+      for (const p of s.sec) {
+        const t = Math.asin(p.s);
+        if (t < t0 || t > t1) continue;
+        cg.beginPath(); cg.arc(xOf(t), yOf(p.v), 2.5 * dpr, 0, Math.PI * 2); cg.fill();
+      }
+      if (s.sec.length) tagText(cg, th, `${s.sec.length} ikincil maksimum`, l + 6 * dpr, top + 14 * dpr, th.accent, "left");
+    }
+  }
+  function presetA(kind) {
+    const ui = SA.ui;
+    if (kind === "n2" || kind === "n10") {
+      ui.N.value = String(N_LIST.indexOf(kind === "n2" ? 2 : 10));
+      ui.view.value = "aralik";
+      syncA("N");
+      return;
+    }
+    if (SA.N < 2) ui.N.value = String(N_LIST.indexOf(10));
+    if (kind === "d3a") {
+      ui.unit.value = "um"; setRange(ui.d, 0.8, 50, 0.01);
+      ui.d.value = "6"; ui.a.value = "2"; ui.view.value = "tum"; ui.ord.max = "9"; ui.ord.value = "3";
+    } else if (kind === "lp600") {
+      ui.unit.value = "lpmm"; setRange(ui.d, 20, 1250, 1);
+      ui.d.value = "600"; ui.a.value = "0.5"; ui.src.value = "632.8"; ui.lam.value = "632.8"; ui.view.value = "tum"; ui.ord.value = "1";
+    }
+    syncA("preset");
+  }
+  function resetA() {
+    const ui = SA.ui;
+    ui.N.value = String(N_LIST.indexOf(A_DEF.N));
+    ui.src.value = A_DEF.src; ui.lam.value = A_DEF.lam;
+    ui.unit.value = A_DEF.unit; setRange(ui.d, 0.8, 50, 0.01); ui.d.value = A_DEF.d;
+    ui.a.value = A_DEF.a; ui.L.value = A_DEF.L; ui.view.value = A_DEF.view; ui.scale.value = A_DEF.scale;
+    ui.ord.max = "7"; ui.ord.value = String(A_DEF.ord);
+    setText(ui.gap, GAP_NOTE);
+    syncA("reset");
+  }
+
+  /* ═════ (b) Spektrometre ═════ */
+  const B_DEF = { src: "h", gr: "600", W: "2", tel: "23", fov: "1", zero: false };
+  const DELTA = 0.3, STEP = 0.01, TH_MAX = 80, TOL_MIN = 0.6 * STEP * D2R;
+  const SB = {
+    ui: {
+      src: $("bSrc"), srcOut: $("bSrcOut"), gr: $("bGr"), grOut: $("bGrOut"), W: $("bW"), WOut: $("bWOut"),
+      tel: $("bTel"), telOut: $("bTelOut"), fov: $("bFov"), fovOut: $("bFovOut"), zero: $("bZero"),
+      align: $("bAlign"), rec: $("bRec"), auto: $("bAuto"), clear: $("bClear"), reset: $("bReset"),
+      what: $("bWhat"), whatSub: $("bWhatSub"), lam1: $("bLam1"), lam1Sub: $("bLam1Sub"), R: $("bR"), RSub: $("bRSub"),
+      rayLabel: $("bRayLabel"), ray: $("bRay"), raySub: $("bRaySub"), recBody: $("bRecBody"), recNote: $("bRecNote"),
+      ryd: $("bRydGroup"), ryM: $("bRyM"), ryT: $("bRyT"), ryD: $("bRyD"), riM: $("bRiM"), riT: $("bRiT"), riD: $("bRiD"), status: $("bStatus"),
+    },
+    records: new Map(), zeroRead: null, msg: "", res: null,
+  };
+  function syncB(changed) {
+    const ui = SB.ui;
+    const prev = { src: SB.srcKey, n: SB.n, delta: SB.delta };
+    SB.srcKey = ui.src.value;
+    SB.src = PHYS.SOURCES[SB.srcKey];
+    SB.n = Number(ui.gr.value);
+    SB.d = 1e-3 / SB.n;
+    SB.W = Number(ui.W.value) * 1e-3;
+    SB.N = Math.round(Number(ui.W.value) * SB.n);
+    SB.phi = Number(ui.tel.value);
+    SB.fov = Number(ui.fov.value);
+    SB.delta = ui.zero.checked ? DELTA : 0;
+    if (changed && changed !== "init" && (prev.src !== SB.srcKey || prev.n !== SB.n || prev.delta !== SB.delta) && (SB.records.size || SB.zeroRead !== null)) {
+      SB.records.clear();
+      SB.zeroRead = null;
+      SB.msg = prev.delta !== SB.delta ? "Ölçeğin sıfırı değişti: kayıtlar silindi." : prev.n !== SB.n ? "Izgara değişti: kayıtlar silindi." : "Kaynak değişti: kayıtlar silindi.";
+    }
+    computeB();
+    outputsB();
+    readoutsB();
+    dirty = true;
+  }
+  function computeB() {
+    const th = (SB.phi - SB.delta) * D2R;
+    const src = SB.src;
+    const id = PHYS.identifyB(src, SB.d, SB.N, SB.W, th, TOL_MIN);
+    const pair = PHYS.pairInfo(src);
+    let mCur = 1;
+    if (id.kind === "line" || id.kind === "blend" || id.kind === "between") mCur = Math.abs(id.m);
+    else if (id.kind === "none" && id.nearest) mCur = Math.abs(id.nearest.m);
+    else if (src.lines.length === 0) {
+      const w = PHYS.whiteAt(SB.d, th);
+      if (w.length) mCur = w[0].m;
+    }
+    SB.imgs = PHYS.imagesB(src, SB.d);
+    SB.res = { th, id, pair, mCur, dbl: pair ? PHYS.doubletB(src, pair, SB.d, SB.N, SB.W, mCur) : null, white: src.lines.length ? null : PHYS.whiteAt(SB.d, th) };
+  }
+  function outputsB() {
+    const ui = SB.ui;
+    setText(ui.srcOut, { h: "hidrojen", na: "sodyum", hg: "cıva", beyaz: "beyaz" }[SB.srcKey]);
+    setText(ui.grOut, `d = ${fix(SB.d / UM, 4)} µm`);
+    setText(ui.WOut, `${fix(Number(ui.W.value), 2)} mm · N = ${SB.N}`);
+    setText(ui.telOut, `${fix(SB.phi, 2)}° · ${fmtDM(SB.phi)}`);
+    ui.tel.setAttribute("aria-valuetext", `${fix(SB.phi, 2)} derece`);
+    setText(ui.fovOut, `${ui.fov.value}°`);
+  }
+  function recordTheta(rec) {
+    if (rec.plus !== null && rec.minus !== null) return { th: (rec.plus - rec.minus) / 2, how: "iki yan" };
+    const phi = rec.plus !== null ? rec.plus : rec.minus;
+    if (SB.zeroRead !== null) return { th: Math.abs(phi - SB.zeroRead), how: "tek yan, φ₀'a göre" };
+    return { th: Math.abs(phi), how: "tek yan, sıfır düzeltmesiz" };
+  }
+  function recordLam(rec) {
+    const t = recordTheta(rec);
+    return { ...t, lam: (SB.d * Math.sin(t.th * D2R)) / rec.m / NM };
+  }
+  function readoutsB() {
+    const ui = SB.ui, r = SB.res, id = r.id, src = SB.src;
+    // kıl çizgisi
+    let what = "—", whatSub = "", lam1 = "—", lam1Sub = "";
+    const near = id.nearest, fovR = (SB.fov * D2R) / 2;
+    if (id.kind === "zero") { what = "m = 0"; whatSub = "düz geçen ışık: bütün dalga boyları üst üste"; lam1Sub = "m = 0'da dalga boyu ölçülmez"; }
+    else if (id.kind === "white") {
+      what = "sürekli tayf";
+      whatSub = r.white.length ? r.white.map((w) => `m = ${w.m}: ${fix(w.lam, 1)} nm`).join(" · ") : "bu açıda görünür ışık yok";
+      lam1Sub = "tek çizgi yok: her mertebe başka λ getirir";
+    } else if (id.kind === "line" || id.kind === "blend") {
+      what = `${id.label}, m = ${intSigned(id.m)}`;
+      whatSub = id.kind === "blend" ? "çözülmemiş: tek çizgi gibi görünür" : "çizgi kıl çizgisinde";
+      const l1 = (SB.d * Math.sin(Math.abs(SB.phi) * D2R)) / Math.abs(id.m) / NM;
+      lam1 = fmtNm(l1, 2);
+      lam1Sub = `NIST (hava) ${fmtNm(id.lamRef, 3)}${id.kind === "blend" ? " (şiddet ağırlıklı)" : ""} · fark ${pct(l1, id.lamRef, 3)}`;
+    } else if (id.kind === "between") {
+      what = `${id.label} arası, m = ${intSigned(id.m)}`;
+      whatSub = "kıl çizgisi çözülmüş iki tepenin arasında";
+      lam1Sub = "okuma için kıl çizgisini bir tepeye getir";
+    } else {
+      what = "çizgi yok";
+      whatSub = near ? `en yakın: ${near.line.name}, m = ${intSigned(near.m)} (${Math.abs(near.th - r.th) <= fovR ? "görüş alanında" : "görüş alanı dışında"})` : "";
+      lam1Sub = "kıl çizgisinde çizgi yok";
+    }
+    setText(ui.what, what); setText(ui.whatSub, whatSub);
+    setText(ui.lam1, lam1); setText(ui.lam1Sub, lam1Sub);
+    const R = r.mCur * SB.N;
+    setText(ui.R, String(R));
+    setText(ui.RSub, `N = ${SB.N} çizgi, |m| = ${r.mCur}`);
+    const pair = r.pair;
+    if (pair) {
+      const nameP = SB.srcKey === "na" ? "Na D çifti" : `${pair.a.name} ile ${pair.b.name}`;
+      setText(ui.rayLabel, `Rayleigh ölçütü: ${nameP}`);
+      const ok = PHYS.resolves(SB.N, r.mCur, pair.need);
+      setText(ui.ray, ok ? "çözülür" : "çözülmez");
+      setText(ui.raySub, `${R} ${ok ? "≥" : "<"} λ/Δλ = ${fix(pair.need, 1)}; en az N: ${PHYS.nMin(pair.need, 1)} (m = 1), ${PHYS.nMin(pair.need, 2)} (m = 2)`);
+    } else {
+      setText(ui.rayLabel, "Rayleigh ölçütü");
+      setText(ui.ray, "—");
+      setText(ui.raySub, "sürekli tayf: ayrılacak çizgi çifti yok");
+    }
+    // kayıt tablosu
+    const recs = [...SB.records.values()].sort((p, q) => q.lamRef - p.lamRef || p.m - q.m);
+    let rows = "";
+    for (const rec of recs) {
+      const v = recordLam(rec);
+      const ph = `${rec.plus !== null ? sgnf(rec.plus, 2) : "—"}<br>${rec.minus !== null ? sgnf(rec.minus, 2) : "—"}`;
+      rows += `<tr><th scope="row">${rec.label}, ${rec.m}</th><td>${ph}</td><td>${fix(v.th, 3)}<small>${v.how}</small></td><td class="meas">${fix(v.lam, 2)}</td><td>${fix(rec.lamRef, 3)}</td><td class="diff">${pct(v.lam, rec.lamRef, 3)}</td></tr>`;
+    }
+    if (!rows) rows = `<tr><td colspan="6" style="text-align:left">Henüz kayıt yok: bir çizgiyi kıl çizgisine getirip "Okumayı kaydet"e bas ya da "Bütün çizgileri ölç"ü kullan.</td></tr>`;
+    setHTML(ui.recBody, rows);
+    const zr = SB.zeroRead !== null ? `Sıfır okuması φ₀ = ${fix(SB.zeroRead, 2)}°.` : "Sıfır okuması (m = 0) kaydedilmedi.";
+    setText(ui.recNote, `${SB.msg ? SB.msg + " " : ""}${zr} θ: iki yan ölçülmüşse (φ₊ − φ₋)/2, tek yanda |φ − φ₀|; λ = d·sin θ/m.`);
+    // Rydberg
+    ui.ryd.hidden = SB.srcKey !== "h";
+    if (SB.srcKey === "h") {
+      const pts = recs.filter((rec) => rec.n).map((rec) => ({ n: rec.n, lamAir: recordLam(rec).lam }));
+      const Rm = PHYS.fitRydberg(pts);
+      const fmtR = (x) => (Number.isFinite(x) ? `${fix(x / 1e7, 5)} × 10⁷ m⁻¹` : "—");
+      setText(ui.ryM, pts.length ? fmtR(Rm) : "—");
+      setText(ui.ryT, fmtR(PHYS.R_H));
+      setText(ui.ryD, pts.length ? pct(Rm, PHYS.R_H, 3) : "—");
+      setText(ui.riM, pts.length ? fmtR(Rm) : "—");
+      setText(ui.riT, fmtR(PHYS.R_INF));
+      setText(ui.riD, pts.length ? pct(Rm, PHYS.R_INF, 3) : "—");
+    }
+    // durum
+    const warn = [], info = [];
+    if (id.kind === "white") {
+      const ov = PHYS.overlapWhite(2);
+      info.push(`Sürekli tayf: 1. mertebe (380–750 nm) temiz, çünkü 2·380 = 760 > 750. 2. mertebenin ${fix(ov.lo, 0)}–${fix(ov.hi, 0)} nm kısmı 3. mertebenin ${fix(ov.lo2, 0)}–${fix(ov.hi2, 0)} nm kısmıyla aynı açılara düşer: 2λ₂ = 3λ₃.`);
+      if (r.white.length > 1) warn.push(`Bu açıda mertebeler örtüşüyor: ${r.white.map((w) => `m = ${w.m}, ${fix(w.lam, 1)} nm`).join(" ile ")} aynı yere geliyor.`);
+    } else if (id.kind === "zero") {
+      info.push("m = 0: bütün renkler düz geçer, tayf yok. Bu okuma ölçeğin sıfırıdır (φ₀); kaydedersen tek yanlı ölçümler buna göre düzeltilir.");
+    } else if (id.kind === "none") {
+      const inFov = near && Math.abs(near.th - r.th) <= fovR;
+      if (inFov) info.push(`Görüş alanında ${near.line.name} (m = ${intSigned(near.m)}) var; kıl çizgisine getir ya da "Hizala"ya bas.`);
+      else info.push("Görüş alanında çizgi yok; sahnedeki renkli ışınlar çizgilerin nerede olduğunu gösterir.");
+      if (Math.abs(SB.phi) >= TH_MAX - 1e-9) warn.push("Dürbün 80°'nin ötesine dönemez.");
+    } else if (id.kind === "between") {
+      info.push(`Kıl çizgisi ${id.label} tepelerinin arasında (m = ${intSigned(id.m)}). Çizgiler çözülmüş: okuma için birine getir ya da "Hizala"ya bas.`);
+    } else {
+      info.push(`${id.label} (m = ${intSigned(id.m)}) kıl çizgisinde. Okumayı kaydet; aynı çizgiyi ${intSigned(-id.m)}. mertebede de ölç.`);
+    }
+    const atLines = id.kind === "line" || id.kind === "blend" ? id.group.map((g) => g.line) : id.nearest ? [id.nearest.line] : [];
+    const pairHere = pair && SB.srcKey !== "h" && atLines.some((L) => L === pair.a || L === pair.b);
+    if (pairHere && r.dbl) {
+      const d2 = r.dbl, ok = d2.ok;
+      const prof = d2.peaks >= 2 ? `profilde iki tepe, aradaki çukur %${fix(100 * d2.dip, 1)}` : "profilde tek tepe";
+      const txt = `${SB.srcKey === "na" ? "Na D çifti" : `${pair.a.name}–${pair.b.name}`} (m = ${r.mCur}): R = ${d2.R} ${ok ? "≥" : "<"} ${fix(pair.need, 1)}, Rayleigh ölçütüne göre ${ok ? "çözülür" : "çözülmez"}; ${prof}.`;
+      if (!ok && d2.peaks >= 2) warn.push(`${txt} Rayleigh ölçütü bir uzlaşımdır: sınırın biraz altında da sığ bir çukur kalabilir, ama çizgiler artık güvenle ayrılamaz.`);
+      else (ok ? info : warn).push(txt);
+    } else if (pairHere && !r.dbl) {
+      warn.push(`${SB.srcKey === "na" ? "Na D çifti" : "Sarı çift"} bu ızgarada m = ${r.mCur} mertebesinde yok (sin θ > 1).`);
+    }
+    ui.status.className = `status ${warn.length ? "is-warn" : "is-good"}`;
+    setText(ui.status, [...warn, ...info].join(" "));
+  }
+  function setPhi(v) {
+    const p = clamp(Math.round(v / STEP) * STEP, -TH_MAX, TH_MAX);
+    SB.ui.tel.value = p.toFixed(2);
+    SB.msg = "";
+    syncB("tel");
+  }
+  function alignB() {
+    const r = SB.res;
+    const pk = PHYS.alignB(SB.src, SB.d, SB.N, SB.W, r.th, SB.fov * D2R);
+    if (!pk) { SB.msg = SB.src.lines.length ? "Görüş alanında hizalanacak çizgi yok." : "Sürekli tayfta hizalanacak çizgi yok."; readoutsB(); return; }
+    setPhi(pk.th / D2R + SB.delta);
+  }
+  function addRecord(id, phi) {
+    const key = `${id.label}|${Math.abs(id.m)}`;
+    let rec = SB.records.get(key);
+    if (!rec) {
+      rec = { key, label: id.label, m: Math.abs(id.m), lamRef: id.lamRef, n: id.kind === "line" ? id.n : undefined, plus: null, minus: null };
+      SB.records.set(key, rec);
+    }
+    if (id.m > 0) rec.plus = phi; else rec.minus = phi;
+  }
+  function recordB() {
+    const id = SB.res.id;
+    if (id.kind === "zero") { SB.zeroRead = SB.phi; SB.msg = `Kaydedildi: φ₀ = ${fix(SB.phi, 2)}°.`; }
+    else if (id.kind === "line" || id.kind === "blend") { addRecord(id, SB.phi); SB.msg = `Kaydedildi: ${id.label}, m = ${intSigned(id.m)}, φ = ${fix(SB.phi, 2)}°.`; }
+    else SB.msg = id.kind === "white" ? "Sürekli tayfta kayıt yapılmaz." : id.kind === "between" ? "Kıl çizgisi iki çizginin arasında: önce birine hizala." : "Kıl çizgisinde çizgi yok: kayıt yapılmadı.";
+    readoutsB();
+  }
+  function autoB() {
+    const list = PHYS.autoMeasureB(SB.src, SB.d, SB.N, SB.W, SB.delta, STEP, TH_MAX, TOL_MIN);
+    if (!list.length) { SB.msg = "Sürekli tayfta ölçülecek çizgi yok."; readoutsB(); return; }
+    SB.records.clear();
+    let k = 0;
+    for (const it of list) {
+      if (it.zero) SB.zeroRead = Number(it.phi.toFixed(2));
+      else { addRecord(it.id, Number(it.phi.toFixed(2))); k++; }
+    }
+    SB.msg = `Otomatik: ${k} okuma, her biri en yakın 0.01°'ye yuvarlandı.`;
+    readoutsB();
+    dirty = true;
+  }
+  function presetB(kind) {
+    const ui = SB.ui;
+    ui.src.value = "na";
+    ui.fov.value = "0.25";
+    syncB("src");
+    const m = kind === "na2" ? 2 : 1;
+    const pair = PHYS.pairInfo(SB.src);
+    const s = (m * pair.lamBar * NM) / SB.d;
+    if (Math.abs(s) < 1) setPhi(Math.asin(s) / D2R + SB.delta);
+  }
+  function resetB() {
+    const ui = SB.ui;
+    ui.src.value = B_DEF.src; ui.gr.value = B_DEF.gr; ui.W.value = B_DEF.W; ui.tel.value = B_DEF.tel; ui.fov.value = B_DEF.fov; ui.zero.checked = B_DEF.zero;
+    SB.records.clear(); SB.zeroRead = null; SB.msg = "";
+    syncB("reset");
+  }
+  function goniometer() {
+    const W = stage.width, H = stage.height;
+    const R = Math.min(0.42 * H, 0.3 * W);
+    return { W, H, R, cx: W / 2 + 0.12 * R, cy: H / 2 };
+  }
+  function drawStageB(th) {
+    const G = goniometer(), { W, H, R, cx, cy } = G, src = SB.src;
+    sg.setTransform(1, 0, 0, 1, 0, 0);
+    sg.clearRect(0, 0, W, H);
+    const P = (t, rad) => [cx + rad * Math.cos(t), cy - rad * Math.sin(t)];
+    // ölçek dairesi
+    sg.strokeStyle = th.grid2;
+    sg.lineWidth = 1 * dpr;
+    sg.beginPath(); sg.arc(cx, cy, R, 0, Math.PI * 2); sg.stroke();
+    const minor = R < 130 * dpr ? 5 : 2;
+    sg.font = font(9.5);
+    sg.textAlign = "center";
+    for (let k = 0; k < 360; k += minor) {
+      const t = (k - SB.delta) * D2R, major = k % 10 === 0;
+      const [x0, y0] = P(t, R), [x1, y1] = P(t, R - (major ? 8 : 4) * dpr);
+      sg.strokeStyle = major ? th.muted : th.grid2;
+      sg.beginPath(); sg.moveTo(x0, y0); sg.lineTo(x1, y1); sg.stroke();
+      if (k % 30 === 0) {
+        const lab = k > 180 ? k - 360 : k;
+        const [xl, yl] = P(t, R - 18 * dpr);
+        sg.fillStyle = th.muted;
+        sg.fillText(`${lab === 180 ? 180 : intSigned(lab)}°`, xl, yl + 3.5 * dpr);
+      }
+    }
+    // kolimatör ve lamba
+    const srcCol = src.lines.length ? cssColor(lamCol(PHYS.meanLam(src))) : "rgb(255, 255, 255)";
+    const tw = Math.max(7 * dpr, 0.07 * R);
+    sg.fillStyle = th.metal2;
+    sg.fillRect(cx - 1.15 * R, cy - tw / 2, 0.82 * R, tw);
+    const lx = cx - 1.3 * R;
+    const glow = sg.createRadialGradient(lx, cy, 0, lx, cy, 0.16 * R);
+    glow.addColorStop(0, srcCol);
+    glow.addColorStop(1, "rgba(0,0,0,0)");
+    sg.fillStyle = glow;
+    sg.fillRect(lx - 0.16 * R, cy - 0.16 * R, 0.32 * R, 0.32 * R);
+    sg.globalAlpha = 0.35;
+    sg.fillStyle = srcCol;
+    sg.fillRect(cx - 0.33 * R, cy - tw / 4, 0.33 * R, tw / 2);
+    sg.globalAlpha = 1;
+    // tayf ışınları
+    const ray = (t, css, alpha, w) => {
+      const [x0, y0] = P(t, 0.06 * R), [x1, y1] = P(t, 0.93 * R);
+      sg.globalAlpha = alpha;
+      sg.strokeStyle = css;
+      sg.lineWidth = w;
+      sg.beginPath(); sg.moveTo(x0, y0); sg.lineTo(x1, y1); sg.stroke();
+      sg.globalAlpha = 1;
+    };
+    ray(0, th.light ? "#1a1d2e" : "#ffffff", 0.7, 2 * dpr);
+    if (src.lines.length) {
+      for (const im of SB.imgs) ray(im.th, cssColor(lamCol(im.line.lam)), 0.3 + 0.7 * Math.sqrt(im.line.rel), 1.6 * dpr);
+    } else {
+      for (let m = -3; m <= 3; m++) {
+        if (m === 0) continue;
+        for (let nm = 380; nm <= 750; nm += 5) {
+          const s = (m * nm * NM) / SB.d;
+          if (Math.abs(s) >= 1) break;
+          ray(Math.asin(s), cssColor(lamCol(nm)), 0.55 / Math.abs(m), 1.2 * dpr);
+        }
+      }
+    }
+    // mertebe etiketleri
+    sg.font = font(10);
+    for (let m = -3; m <= 3; m++) {
+      if (m === 0) continue;
+      const lam = src.lines.length ? PHYS.meanLam(src) : 565;
+      const s = (m * lam * NM) / SB.d;
+      if (Math.abs(s) >= 1) continue;
+      const [x, y] = P(Math.asin(s), 0.62 * R);
+      sg.fillStyle = th.muted;
+      sg.fillText(intSigned(m), x + (m > 0 ? 8 : -8) * dpr * Math.sin(Math.asin(s)), y);
+    }
+    // ızgara
+    sg.strokeStyle = th.ink;
+    sg.lineWidth = 3 * dpr;
+    sg.beginPath(); sg.moveTo(cx, cy - 0.16 * R); sg.lineTo(cx, cy + 0.16 * R); sg.stroke();
+    // dürbün
+    const tT = SB.res.th;
+    sg.save();
+    sg.translate(cx, cy);
+    sg.rotate(-tT);
+    sg.fillStyle = th.metal;
+    sg.fillRect(0.3 * R, -tw / 2, 0.8 * R, tw);
+    sg.fillRect(1.1 * R, -tw * 0.35, 0.12 * R, tw * 0.7);
+    sg.fillStyle = th.warm;
+    sg.beginPath();
+    sg.moveTo(R - 1 * dpr, 0);
+    sg.lineTo(R - 9 * dpr, -5 * dpr);
+    sg.lineTo(R - 9 * dpr, 5 * dpr);
+    sg.closePath();
+    sg.fill();
+    sg.restore();
+    const [tx, ty] = P(tT, 1.2 * R);
+    tagText(sg, th, `φ = ${fix(SB.phi, 2)}°`, tx, ty + (tT > 0 ? -6 : 16) * dpr, th.warm, tT > 0.9 ? "left" : "center");
+    // sıfır hatası işareti
+    if (SB.delta) {
+      const [x0, y0] = P(-SB.delta * D2R, R + 4 * dpr);
+      sg.fillStyle = th.danger;
+      sg.beginPath(); sg.arc(x0, y0, 2.5 * dpr, 0, Math.PI * 2); sg.fill();
+      sg.font = font(10);
+      sg.textAlign = "left";
+      sg.fillText(`ölçeğin 0'ı: δ = +${fix(DELTA, 2)}°`, x0 + 6 * dpr, y0 + 12 * dpr);
+    }
+    sg.font = font(11);
+    sg.textAlign = "left";
+    sg.fillStyle = th.muted;
+    sg.fillText(`${src.name} · ${SB.n} çizgi/mm · N = ${SB.N}`, 8 * dpr, H - 10 * dpr);
+    sg.fillText("lamba ve kolimatör", 8 * dpr, cy - tw - 8 * dpr);
+  }
+  function drawChartB(th) {
+    const W = chart.width, H = chart.height, src = SB.src, r = SB.res;
+    cg.setTransform(1, 0, 0, 1, 0, 0);
+    cg.clearRect(0, 0, W, H);
+    const l = 12 * dpr, rr = 12 * dpr, fw = W - l - rr;
+    const fT = 8 * dpr, fB = Math.round(H * 0.5);
+    const pT = fB + 22 * dpr, pB = H - 22 * dpr;
+    const fov = SB.fov * D2R, t0 = r.th - fov / 2, t1 = r.th + fov / 2;
+    const n = Math.max(2, Math.round(fw));
+    const centers = [];
+    if (src.lines.length) {
+      if (0 >= t0 && 0 <= t1) centers.push(0);
+      for (const im of SB.imgs) if (im.th >= t0 && im.th <= t1) centers.push(im.th);
+    }
+    const Pv = new Float32Array(n), RGB = new Float32Array(3 * n);
+    let pmax = 0;
+    const cols = src.lines.map((L) => lamCol(L.lam));
+    for (let j = 0; j < n; j++) {
+      const ta = t0 + ((t1 - t0) * j) / n, tb = t0 + ((t1 - t0) * (j + 1)) / n;
+      let best = -1, R0 = 0, G0 = 0, B0 = 0;
+      const test = (t) => {
+        let P = 0, Rr = 0, Gg = 0, Bb = 0;
+        if (src.lines.length) {
+          const s = Math.sin(t);
+          src.lines.forEach((L, i) => {
+            let li = 0;
+            for (const [lam, w] of L.compsRel) { const A = PHYS.gridAmp((Math.PI * SB.d * s) / (lam * NM), SB.N); li += w * A * A; }
+            P += li; Rr += li * cols[i][0]; Gg += li * cols[i][1]; Bb += li * cols[i][2];
+          });
+        } else {
+          const s = Math.sin(t);
+          if (Math.abs((SB.d * s) / (550 * NM)) < 0.5) {
+            const A0 = PHYS.gridAmp((Math.PI * SB.d * s) / (550 * NM), SB.N);
+            const f0 = A0 * A0;
+            P += f0; Rr += f0; Gg += f0; Bb += f0;
+          }
+          for (const w of PHYS.whiteAt(SB.d, t)) {
+            const c = lamCol(w.lam), k = 1 / w.m;
+            Rr += c[0] * k; Gg += c[1] * k; Bb += c[2] * k; P += ybar(w.lam) * k;
+          }
+        }
+        if (P > best) { best = P; R0 = Rr; G0 = Gg; B0 = Bb; }
+      };
+      for (let k = 0; k < 3; k++) test(ta + ((tb - ta) * (k + 0.5)) / 3);
+      for (const c of centers) if (c >= ta && c < tb) test(c);
+      Pv[j] = best; RGB[3 * j] = R0; RGB[3 * j + 1] = G0; RGB[3 * j + 2] = B0;
+      if (best > pmax) pmax = best;
+    }
+    // görüş alanı
+    cg.fillStyle = "#03050a";
+    cg.fillRect(l, fT, fw, fB - fT);
+    paintRow(cg, l, fT, fw, fB - fT, n, (j, px, q) => {
+      px[q] = Math.round(255 * toSRGB(RGB[3 * j]));
+      px[q + 1] = Math.round(255 * toSRGB(RGB[3 * j + 1]));
+      px[q + 2] = Math.round(255 * toSRGB(RGB[3 * j + 2]));
+    });
+    const xc = l + fw / 2;
+    cg.strokeStyle = "rgba(230, 236, 244, 0.85)";
+    cg.lineWidth = 1 * dpr;
+    cg.beginPath(); cg.moveTo(xc, fT); cg.lineTo(xc, fB); cg.moveTo(l, (fT + fB) / 2); cg.lineTo(l + fw, (fT + fB) / 2); cg.stroke();
+    // çizgi adları
+    cg.font = font(10);
+    cg.textAlign = "center";
+    const xOf = (t) => l + ((t - t0) / (t1 - t0)) * fw;
+    let lastX = -1e9;
+    for (const im of SB.imgs) {
+      if (im.th < t0 || im.th > t1) continue;
+      const x = xOf(im.th);
+      if (Math.abs(x - lastX) < 46 * dpr) continue;
+      lastX = x;
+      cg.fillStyle = "rgba(230, 236, 244, 0.9)";
+      cg.fillText(`${im.line.name} ${intSigned(im.m)}`, clamp(x, l + 30 * dpr, l + fw - 30 * dpr), fT + 13 * dpr);
+    }
+    cg.fillStyle = "rgba(230, 236, 244, 0.75)";
+    cg.textAlign = "left";
+    cg.fillText(`görüş alanı ${SB.fov}°`, l + 6 * dpr, fB - 7 * dpr);
+    cg.strokeStyle = th.grid2;
+    cg.strokeRect(l, fT, fw, fB - fT);
+    // profil
+    const ymax = Math.max(1, pmax) * 1.08;
+    const yOf = (v) => pB - (v / ymax) * (pB - pT);
+    cg.strokeStyle = th.grid;
+    cg.beginPath(); cg.moveTo(l, pB); cg.lineTo(l + fw, pB); cg.moveTo(l, yOf(1)); cg.lineTo(l + fw, yOf(1)); cg.stroke();
+    for (let j = 0; j < n; j++) {
+      const v = Pv[j];
+      if (v <= 1e-4) continue;
+      const m = Math.max(RGB[3 * j], RGB[3 * j + 1], RGB[3 * j + 2], 1e-9);
+      cg.fillStyle = `rgb(${Math.round(255 * toSRGB(RGB[3 * j] / m) * (th.light ? 0.8 : 1))}, ${Math.round(255 * toSRGB(RGB[3 * j + 1] / m) * (th.light ? 0.8 : 1))}, ${Math.round(255 * toSRGB(RGB[3 * j + 2] / m) * (th.light ? 0.8 : 1))})`;
+      cg.globalAlpha = 0.55;
+      const y = yOf(v);
+      cg.fillRect(l + j * (fw / n), y, fw / n + 0.6, pB - y);
+    }
+    cg.globalAlpha = 1;
+    cg.strokeStyle = th.ink;
+    cg.lineWidth = 1.3 * dpr;
+    cg.beginPath();
+    for (let j = 0; j < n; j++) { const x = l + ((j + 0.5) * fw) / n, y = yOf(Pv[j]); if (j === 0) cg.moveTo(x, y); else cg.lineTo(x, y); }
+    cg.stroke();
+    cg.save();
+    cg.strokeStyle = th.accent;
+    cg.setLineDash([4 * dpr, 3 * dpr]);
+    cg.beginPath(); cg.moveTo(xc, pT - 6 * dpr); cg.lineTo(xc, pB); cg.stroke();
+    cg.restore();
+    // okuma ekseni (φ = θ + δ)
+    const spanDeg = SB.fov, stepDeg = niceStep((spanDeg * 70 * dpr) / fw), dec = stepDecimals(stepDeg);
+    cg.fillStyle = th.muted;
+    cg.font = font(10);
+    cg.textAlign = "center";
+    const ph0 = SB.phi - spanDeg / 2, ph1 = SB.phi + spanDeg / 2;
+    for (let k = Math.ceil(ph0 / stepDeg - 1e-9); k * stepDeg <= ph1 + 1e-9; k++) {
+      const x = l + ((k * stepDeg - ph0) / spanDeg) * fw;
+      cg.strokeStyle = th.grid2;
+      cg.beginPath(); cg.moveTo(x, pB); cg.lineTo(x, pB + 4 * dpr); cg.stroke();
+      cg.fillText(`${fix(k * stepDeg, dec)}°`, x, H - 6 * dpr);
+    }
+    cg.textAlign = "left";
+    cg.fillText("şiddet", l, pT - 8 * dpr);
+    cg.textAlign = "right";
+    cg.fillText("ölçek okuması φ", l + fw, pT - 8 * dpr);
+  }
+
+  /* ═════ (c) CD, DVD ve Blu-ray ═════ */
+  const C_DEF = { disc: "cd", laser: "650", dist: "10", a: -4, b: 4 };
+  const BEAM = 1e-3;     // demet çapı (m)
+  const SC = {
+    ui: {
+      disc: $("cDisc"), discOut: $("cDiscOut"), laser: $("cLaser"), laserOut: $("cLaserOut"), dist: $("cDist"), distOut: $("cDistOut"),
+      curA: $("cCurA"), curAOut: $("cCurAOut"), curB: $("cCurB"), curBOut: $("cCurBOut"), snap: $("cSnap"), reset: $("cReset"),
+      ord: $("cOrd"), ordSub: $("cOrdSub"), th1: $("cTh1"), th1Sub: $("cTh1Sub"), y1: $("cY1"), y1Sub: $("cY1Sub"), unc: $("cUnc"), uncSub: $("cUncSub"),
+      status: $("cStatus"),
+    },
+    res: null, view: 0.31,
+  };
+  function syncC(changed) {
+    const ui = SC.ui;
+    SC.disc = PHYS.DISCS[ui.disc.value];
+    SC.lamNm = Number(ui.laser.value);
+    SC.D = Number(ui.dist.value) / 100;
+    SC.res = PHYS.spotsC(SC.disc.pNm, SC.lamNm, SC.D);
+    // duvar görünümü (m): görünür lekeleri kapsayacak kadar
+    const vis = SC.res.spots.filter((s) => s.th <= 72 * D2R);
+    const ymax = vis.length ? vis[vis.length - 1].y : SC.D * Math.tan(30 * D2R);
+    SC.view = clamp(Math.ceil(1.2 * ymax * 100) / 100, 0.03, 1.6);
+    const vcm = Math.round(SC.view * 100);
+    for (const el of [ui.curA, ui.curB]) { el.min = String(-vcm); el.max = String(vcm); }
+    SC.a = Number(ui.curA.value) / 100;
+    SC.b = Number(ui.curB.value) / 100;
+    outputsC();
+    readoutsC();
+    dirty = true;
+  }
+  function outputsC() {
+    const ui = SC.ui;
+    setText(ui.discOut, `p = ${fix(SC.disc.pNm / 1000, 2)} µm`);
+    setText(ui.laserOut, `${SC.lamNm} nm`);
+    setText(ui.distOut, `${fix(SC.D * 100, 1)} cm`);
+    setText(ui.curAOut, `${fix(SC.a * 100, 1)} cm`);
+    setText(ui.curBOut, `${fix(SC.b * 100, 1)} cm`);
+  }
+  function readoutsC() {
+    const ui = SC.ui, r = SC.res, p = SC.disc.pNm, lam = SC.lamNm;
+    setText(ui.ord, String(r.spots.length));
+    setText(ui.ordSub, `⌊p/λ⌋ = ⌊${ratioStr(p, lam)}⌋${r.spots.length ? `; m = ${r.spots.map((s) => s.m).join(", ")}` : ": yalnız m = 0"}`);
+    const s1 = r.spots[0];
+    const warn = [], info = [];
+    if (s1) {
+      setText(ui.th1, fmtDeg(s1.th, 2));
+      setText(ui.th1Sub, `sin θ₁ = ${fix(lam / p, 4)}`);
+      setText(ui.y1, fmtLen(s1.y, 4));
+      setText(ui.y1Sub, r.spots.length > 1 ? `y₂ = ${fmtLen(r.spots[1].y, 4)}${r.spots[1].th > 72 * D2R ? " (çok eğik)" : ""}` : "bir yanda tek leke");
+      const dy1 = (0.5e-3 * Math.SQRT2) / 2;
+      const up = PHYS.pitchUncert(lam, s1.th, SC.D, dy1);
+      setText(ui.unc, `± ${fix(up, 1)} nm`);
+      setText(ui.uncSub, `%${fix((100 * up) / p, 2)}; D büyüdükçe küçülür`);
+      const dy = Math.abs(SC.b - SC.a);
+      const thM = dy > 0 ? Math.atan(dy / (2 * SC.D)) : NaN;
+      const pM = PHYS.pitchFromSpacing(lam, dy, SC.D);
+      const dyT = 2 * s1.y;
+      setText($("cR1M"), dy > 0 ? fmtLen(dy, 4) : "—");
+      setText($("cR1T"), fmtLen(dyT, 4));
+      setText($("cR1D"), dy > 0 ? pct(dy, dyT) : "—");
+      setText($("cR2M"), dy > 0 ? fmtDeg(thM, 2) : "—");
+      setText($("cR2T"), fmtDeg(s1.th, 2));
+      setText($("cR2D"), dy > 0 ? pct(thM, s1.th) : "—");
+      setText($("cR3M"), dy > 0 ? `${fix(pM, 0)} nm` : "—");
+      setText($("cR3T"), `${p} nm`);
+      setText($("cR3D"), dy > 0 ? pct(pM, p) : "—");
+      const errA = Math.abs(SC.a + s1.y), errB = Math.abs(SC.b - s1.y);
+      if (!(SC.a < 0 && SC.b > 0)) warn.push("A, −1 lekesinde (solda), B, +1 lekesinde (sağda) olmalı.");
+      else if (errA > 2e-3 || errB > 2e-3) info.push("İmleçleri −1 ve +1 lekelerinin ortasına getir; leke ortası 1 mm'lik cetvelle okunur.");
+      else info.push(`İmleçler lekelerde: ${SC.disc.name} için p = λ/sin θ₁ = ${fix(pM, 0)} nm, standart ${p} nm. Cetvel ±0.5 mm hatayla okunursa p yaklaşık ±${fix(up, 1)} nm belirsizdir; D'yi büyütmek bunu azaltır.`);
+      if (r.spots.length > 1) info.push(`${r.spots.length} mertebe: ${r.spots.map((s) => `m = ${s.m}, ${fix(deg(s.th), 1)}°`).join("; ")}.`);
+    } else {
+      for (const k of ["th1", "y1", "unc"]) setText(ui[k], "—");
+      setText(ui.th1Sub, `λ/p = ${fix(lam / p, 3)} > 1`);
+      setText(ui.y1Sub, "birinci mertebe yok");
+      setText(ui.uncSub, "ölçülecek leke yok");
+      for (const k of ["1", "2", "3"]) { setText($(`cR${k}M`), "—"); setText($(`cR${k}T`), "—"); setText($(`cR${k}D`), "—"); }
+      setText($("cR3T"), `${p} nm`);
+      warn.push(`λ = ${lam} nm > p = ${p} nm: sin θ₁ = λ/p > 1, birinci mertebe yok. Duvara yalnız aynasal yansıma (m = 0) döner; iz aralığı dik gelişte bu lazerle ölçülemez. ${SC.disc.name === "Blu-ray" ? "Görünür ışığın hepsi 320 nm'den uzun olduğundan Blu-ray dik gelişte hiç renk ayırmaz; parıltısı eğik bakıştan gelir." : ""}`.trim());
+    }
+    ui.status.className = `status ${warn.length ? "is-warn" : "is-good"}`;
+    setText(ui.status, [...warn, ...info].join(" "));
+  }
+  function setCursorC(key, ycm) {
+    const ui = SC.ui, el = key === "a" ? ui.curA : ui.curB;
+    el.value = String(clamp(Math.round(ycm * 10) / 10, Number(el.min), Number(el.max)));
+    SC[key] = Number(el.value) / 100;
+    outputsC();
+    readoutsC();
+    dirty = true;
+  }
+  function snapC() {
+    const s1 = SC.res.spots[0];
+    if (!s1) { readoutsC(); return; }
+    setCursorC("a", -s1.y * 100);
+    setCursorC("b", s1.y * 100);
+  }
+  function resetC() {
+    const ui = SC.ui;
+    ui.disc.value = C_DEF.disc; ui.laser.value = C_DEF.laser; ui.dist.value = C_DEF.dist;
+    syncC("reset");
+    ui.curA.value = String(C_DEF.a); ui.curB.value = String(C_DEF.b);
+    syncC("reset");
+  }
+  function drawStageC(th) {
+    const g = screenGeom(), r = SC.res, W = g.W, H = g.H;
+    sg.setTransform(1, 0, 0, 1, 0, 0);
+    sg.clearRect(0, 0, W, H);
+    const col = lamCol(SC.lamNm), colCss = cssColor(col);
+    // duvar şeridi ve lekeler
+    sg.fillStyle = "#05070c";
+    sg.fillRect(0, g.yS, W, g.sh);
+    const perPx = SC.D / g.Lpx;
+    const spots = [];
+    for (const s of r.spots) for (const sgn of [-1, 1]) spots.push({ y: sgn * s.y, w: (BEAM / 2) / Math.pow(Math.cos(s.th), 2) });
+    paintRow(sg, 0, g.yS, W, g.sh, Math.round(W), (j, px, q) => {
+      const y = (j + 0.5 - g.xc) * perPx;
+      let v = 0;
+      for (const sp of spots) { const u = (y - sp.y) / sp.w; v += Math.exp(-0.5 * u * u); }
+      v = Math.min(1, v);
+      px[q] = Math.round(255 * toSRGB(v * col[0]));
+      px[q + 1] = Math.round(255 * toSRGB(v * col[1]));
+      px[q + 2] = Math.round(255 * toSRGB(v * col[2]));
+    });
+    sg.fillStyle = th.light ? "#f7f9fc" : "#0e1424";
+    sg.fillRect(g.xc - 3 * dpr, g.yS, 6 * dpr, g.sh);
+    sg.strokeStyle = th.grid2;
+    sg.lineWidth = 1 * dpr;
+    sg.strokeRect(0.5 * dpr, g.yS, W - dpr, g.sh);
+    drawRuler(sg, th, g, SC.D);
+    // gelen demet (delikten diske)
+    sg.strokeStyle = colCss;
+    sg.lineWidth = 3 * dpr;
+    sg.beginPath(); sg.moveTo(g.xc, 0); sg.lineTo(g.xc, g.yg); sg.stroke();
+    // yansıyan mertebeler
+    sg.font = font(10.5);
+    for (const s of r.spots) for (const sgn of [-1, 1]) {
+      const p = rayToScreen(g, sgn * s.th);
+      sg.globalAlpha = 0.85;
+      sg.strokeStyle = colCss;
+      sg.lineWidth = 1.8 * dpr;
+      sg.beginPath(); sg.moveTo(g.xc, g.yg); sg.lineTo(p.x, p.y); sg.stroke();
+      sg.globalAlpha = 1;
+      if (!p.hit && p.y < g.yg - 14 * dpr) tagText(sg, th, `m = ${intSigned(sgn * s.m)}: ${fix(deg(s.th), 1)}°`, sgn < 0 ? p.x + 4 * dpr : p.x - 4 * dpr, p.y + 14 * dpr, th.muted, sgn < 0 ? "left" : "right");
+    }
+    // disk
+    const dw = Math.min(0.5 * W, 320 * dpr);
+    sg.fillStyle = th.metal2;
+    sg.fillRect(g.xc - dw / 2, g.yg, dw, 7 * dpr);
+    sg.fillStyle = th.metal;
+    for (let x = g.xc - dw / 2; x < g.xc + dw / 2; x += 4 * dpr) sg.fillRect(x, g.yg, 2 * dpr, 2 * dpr);
+    sg.font = font(11);
+    sg.fillStyle = th.muted;
+    sg.textAlign = "left";
+    sg.fillText(`${SC.disc.name}: iz aralığı p = ${fix(SC.disc.pNm / 1000, 2)} µm`, 8 * dpr, H - 9 * dpr);
+    sg.textAlign = "right";
+    sg.fillText(`λ = ${SC.lamNm} nm`, W - 8 * dpr, H - 9 * dpr);
+    sg.textAlign = "left";
+    sg.fillStyle = th.ink;
+    sg.fillText(`Duvar, D = ${fix(SC.D * 100, 1)} cm`, 8 * dpr, g.yB + 15 * dpr);
+    if (!r.spots.length) tagText(sg, th, "birinci mertebe yok: yalnız aynasal yansıma", g.xc, g.yB + 34 * dpr, th.danger, "center");
+  }
+  function chartLayoutC() {
+    const W = chart.width, H = chart.height;
+    const l = 16 * dpr, rr = 16 * dpr, pw = W - l - rr;
+    const bT = Math.round(H * 0.28), bB = Math.round(H * 0.62);
+    return { W, H, l, rr, pw, bT, bB, xOf: (y) => l + ((y + SC.view) / (2 * SC.view)) * pw };
+  }
+  function drawChartC(th) {
+    const c = chartLayoutC(), { W, H, l, pw, bT, bB, xOf } = c, r = SC.res;
+    cg.setTransform(1, 0, 0, 1, 0, 0);
+    cg.clearRect(0, 0, W, H);
+    const col = lamCol(SC.lamNm);
+    const spots = [];
+    for (const s of r.spots) for (const sgn of [-1, 1]) spots.push({ y: sgn * s.y, w: (BEAM / 2) / Math.pow(Math.cos(s.th), 2), m: sgn * s.m });
+    cg.fillStyle = "#05070c";
+    cg.fillRect(l, bT, pw, bB - bT);
+    paintRow(cg, l, bT, pw, bB - bT, Math.round(pw), (j, px, q) => {
+      const y = -SC.view + ((j + 0.5) / Math.round(pw)) * 2 * SC.view;
+      let v = 0;
+      for (const sp of spots) { const u = (y - sp.y) / sp.w; v += Math.exp(-0.5 * u * u); }
+      v = Math.min(1, v);
+      px[q] = Math.round(255 * toSRGB(v * col[0]));
+      px[q + 1] = Math.round(255 * toSRGB(v * col[1]));
+      px[q + 2] = Math.round(255 * toSRGB(v * col[2]));
+    });
+    // delik
+    cg.fillStyle = th.light ? "#f7f9fc" : "#0e1424";
+    cg.beginPath(); cg.arc(xOf(0), (bT + bB) / 2, 3 * dpr, 0, Math.PI * 2); cg.fill();
+    // mertebe etiketleri
+    cg.font = font(10.5);
+    cg.textAlign = "center";
+    cg.fillStyle = th.muted;
+    for (const sp of spots) if (Math.abs(sp.y) <= SC.view) cg.fillText(intSigned(sp.m), xOf(sp.y), bT - 8 * dpr);
+    cg.fillText("0", xOf(0), bT - 8 * dpr);
+    // cetvel
+    const perPx = (2 * SC.view) / pw;
+    const major = niceStep(56 * dpr * perPx), minorStep = major >= 0.01 ? (major >= 0.05 ? major / 5 : 0.001 * Math.max(1, Math.round(major / 0.01))) : major / 5;
+    cg.strokeStyle = th.muted;
+    cg.lineWidth = 1 * dpr;
+    cg.beginPath();
+    const kM = Math.floor(SC.view / minorStep);
+    for (let k = -kM; k <= kM; k++) {
+      const y = k * minorStep, x = xOf(y);
+      const isMajor = Math.abs(y / major - Math.round(y / major)) < 1e-6;
+      if (!isMajor && minorStep / perPx < 3 * dpr) continue;
+      cg.moveTo(x, bB);
+      cg.lineTo(x, bB + (isMajor ? 9 : 4) * dpr);
+    }
+    cg.stroke();
+    cg.fillStyle = th.ink;
+    const dec = stepDecimals(major * 100);
+    for (let k = -Math.floor(SC.view / major); k <= Math.floor(SC.view / major); k++) {
+      const x = xOf(k * major);
+      if (x < l + 8 * dpr || x > W - c.rr - 8 * dpr) continue;
+      cg.fillText(fix(k * major * 100, dec), x, bB + 21 * dpr);
+    }
+    cg.textAlign = "left";
+    cg.fillStyle = th.muted;
+    cg.fillText("cm", l, bB + 36 * dpr);
+    // imleçler
+    for (const [key, label, color] of [["a", "A", th.accent], ["b", "B", th.warm]]) {
+      const y = SC[key], x = xOf(clamp(y, -SC.view, SC.view));
+      cg.strokeStyle = color;
+      cg.lineWidth = 2 * dpr;
+      cg.beginPath(); cg.moveTo(x, bT - 2 * dpr); cg.lineTo(x, bB + 2 * dpr); cg.stroke();
+      tagText(cg, th, `${label} ${fix(y * 100, 1)} cm`, x, H - 8 * dpr, color, "center");
+    }
+    cg.textAlign = "left";
+    cg.fillStyle = th.muted;
+    cg.font = font(11);
+    cg.fillText(`Duvar (önden), ±${fix(SC.view * 100, 0)} cm`, l, 16 * dpr);
+  }
+
+  /* ── Sekmeler ── */
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = el.dataset.for !== key; });
+    stage.setAttribute("aria-label", ARIA[key][0]);
+    chart.setAttribute("aria-label", ARIA[key][1]);
+    if (fromUser) { try { history.replaceState(null, "", `#${key}`); } catch (_) {} }
+    endDrag();
+    resize();
+    dirty = true;
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+
+  /* ── Döngü: ayar ya da tema değişince yeniden çiz ── */
+  let lastTheme = "";
+  function render() {
+    const th = theme();
+    if (S.tab === "desen") { drawStageA(th); drawChartA(th); }
+    else if (S.tab === "spektrometre") { drawStageB(th); drawChartB(th); }
+    else { drawStageC(th); drawChartC(th); }
+  }
+  function frame() {
+    const tk = document.documentElement.dataset.theme || "dark";
+    if (tk !== lastTheme) { lastTheme = tk; dirty = true; }
+    if (dirty) { dirty = false; render(); }
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; SA.cols = null; }
+    }
+    dirty = true;
+  }
+
+  /* ── Etkileşim ── */
+  function canvasPoint(evt, el) {
+    const rect = el.getBoundingClientRect();
+    return [((evt.clientX - rect.left) / rect.width) * el.width, ((evt.clientY - rect.top) / rect.height) * el.height];
+  }
+  let drag = null;
+  function endDrag() {
+    if (!drag) return;
+    drag = null;
+    stage.classList.remove("is-dragging");
+  }
+  function stagePointerB(sx, sy) {
+    const G = goniometer();
+    let t = Math.atan2(G.cy - sy, sx - G.cx);
+    if (Math.abs(t) > TH_MAX * D2R) t = Math.sign(t || 1) * TH_MAX * D2R;
+    setPhi(t / D2R + SB.delta);
+  }
+  stage.addEventListener("pointerdown", (evt) => {
+    if (S.tab !== "spektrometre") return;
+    const [sx, sy] = canvasPoint(evt, stage);
+    drag = "stage";
+    stage.setPointerCapture(evt.pointerId);
+    stage.classList.add("is-dragging");
+    stagePointerB(sx, sy);
+    evt.preventDefault();
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    if (drag !== "stage" || S.tab !== "spektrometre") return;
+    const [sx, sy] = canvasPoint(evt, stage);
+    stagePointerB(sx, sy);
+  });
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+
+  let chartDrag = null;
+  chart.addEventListener("pointerdown", (evt) => {
+    const [sx] = canvasPoint(evt, chart);
+    if (S.tab === "desen") {
+      const c = chartLayoutA();
+      if (SA.res.single) return;
+      const t = c.t0 + ((sx - c.l) / c.pw) * (c.t1 - c.t0);
+      const m = Math.abs(Math.round((SA.res.d * Math.sin(t)) / SA.res.lam));
+      if (m >= 1 && m <= SA.res.mTop) { SA.ui.ord.value = String(m); syncA("ord"); }
+      return;
+    }
+    chart.setPointerCapture(evt.pointerId);
+    if (S.tab === "spektrometre") chartDrag = { x0: sx, phi0: SB.phi };
+    else {
+      const c = chartLayoutC();
+      const y = -SC.view + ((sx - c.l) / c.pw) * 2 * SC.view;
+      const key = Math.abs(y - SC.a) <= Math.abs(y - SC.b) ? "a" : "b";
+      chartDrag = { key };
+      setCursorC(key, y * 100);
+    }
+  });
+  chart.addEventListener("pointermove", (evt) => {
+    if (!chartDrag) return;
+    const [sx] = canvasPoint(evt, chart);
+    if (S.tab === "spektrometre") {
+      const fw = chart.width - 24 * dpr;
+      setPhi(chartDrag.phi0 - ((sx - chartDrag.x0) / fw) * SB.fov);
+    } else if (S.tab === "cd") {
+      const c = chartLayoutC();
+      setCursorC(chartDrag.key, (-SC.view + ((sx - c.l) / c.pw) * 2 * SC.view) * 100);
+    }
+  });
+  const endChart = () => { chartDrag = null; };
+  chart.addEventListener("pointerup", endChart);
+  chart.addEventListener("pointercancel", endChart);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button")) return;
+    if (e.key === "r" || e.key === "R") {
+      if (S.tab === "desen") resetA(); else if (S.tab === "spektrometre") resetB(); else resetC();
+    } else if (S.tab === "spektrometre" && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+      e.preventDefault();
+      setPhi(SB.phi + (e.key === "ArrowRight" ? 1 : -1) * (e.shiftKey ? 0.1 : 0.01));
+    }
+  });
+
+  // (a)
+  [["N", "N"], ["src", "src"], ["lam", "lam"], ["unit", "unit"], ["d", "d"], ["a", "a"], ["L", "L"], ["view", "view"], ["ord", "ord"], ["scale", "scale"]].forEach(([k, name]) => {
+    SA.ui[k].addEventListener("input", () => syncA(name));
+  });
+  document.querySelectorAll("[data-preset-a]").forEach((b) => b.addEventListener("click", () => presetA(b.dataset.presetA)));
+  SA.ui.reset.addEventListener("click", resetA);
+  // (b)
+  ["src", "gr", "W", "fov", "zero"].forEach((k) => SB.ui[k].addEventListener("input", () => { SB.msg = ""; syncB(k); }));
+  SB.ui.tel.addEventListener("input", () => { SB.msg = ""; syncB("tel"); });
+  document.querySelectorAll("[data-nudge]").forEach((b) => b.addEventListener("click", () => setPhi(SB.phi + Number(b.dataset.nudge))));
+  document.querySelectorAll("[data-preset-b]").forEach((b) => b.addEventListener("click", () => presetB(b.dataset.presetB)));
+  SB.ui.align.addEventListener("click", alignB);
+  SB.ui.rec.addEventListener("click", recordB);
+  SB.ui.auto.addEventListener("click", autoB);
+  SB.ui.clear.addEventListener("click", () => { SB.records.clear(); SB.zeroRead = null; SB.msg = "Kayıtlar silindi."; readoutsB(); });
+  SB.ui.reset.addEventListener("click", resetB);
+  // (c)
+  ["disc", "laser", "dist"].forEach((k) => SC.ui[k].addEventListener("input", () => syncC(k)));
+  SC.ui.curA.addEventListener("input", () => setCursorC("a", Number(SC.ui.curA.value)));
+  SC.ui.curB.addEventListener("input", () => setCursorC("b", Number(SC.ui.curB.value)));
+  SC.ui.snap.addEventListener("click", snapC);
+  SC.ui.reset.addEventListener("click", resetC);
+
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Başlat ── */
+  resetA();
+  resetB();
+  resetC();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "desen", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+  window.__kirinim = { PHYS, SA, SB, SC, syncA, syncB, syncC };
+})();
+</script>
+</body>
+</html>

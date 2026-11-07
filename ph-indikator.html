@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>pH ve İndikatörler: Logaritmik Ölçek, Su Dengesi ve Renk</title>
+  <meta name="description" content="Saf su 100 °C'de pH 6.13'tedir ama asidik değildir; asit eklenen su asla bazik olmaz; bir indikatörün rengi de tek bir dalga boyundan değil, bütün soğurma tayfından doğar.">
+  <style>
+    body.app-page .app-content { max-width: 1100px; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .col { display: grid; gap: 12px; min-width: 0; }
+    .stage-wrap { display: grid; gap: 8px; min-width: 0; }
+    .sim-canvas, .chart-canvas {
+      width: 100%;
+      display: block;
+      border-radius: 12px;
+      touch-action: pan-y;
+    }
+    .sim-canvas { aspect-ratio: 16 / 7.4; background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95)); }
+    .sim-canvas.ph-strip { aspect-ratio: 16 / 6.3; }
+    .chart-canvas { aspect-ratio: 5 / 2.3; background: rgba(8, 12, 22, 0.75); }
+    .chart-canvas.tall { aspect-ratio: 16 / 11; }
+    .chart-canvas.strip { aspect-ratio: 16 / 8.2; }
+    .is-drag { cursor: ew-resize; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .legend span { min-width: 0; overflow-wrap: anywhere; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid currentColor; }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.dot { border-top-style: dotted; border-top-width: 3px; }
+    .legend i.box { width: 12px; height: 10px; border: 0; border-radius: 2px; background: currentColor; opacity: 0.35; }
+    .k-ink { color: var(--text); } .k-muted { color: var(--text-muted); } .k-warm { color: var(--accent-warm); }
+    .k-acc { color: var(--accent); } .k-acc2 { color: var(--accent-2); } .k-neg { color: var(--danger); }
+    .k-s0 { color: #60a5fa; } .k-s1 { color: #f472b6; } .k-s2 { color: #fbbf24; } .k-s3 { color: #4ade80; }
+    [data-theme="light"] .k-s0 { color: #2563eb; } [data-theme="light"] .k-s1 { color: #db2777; } [data-theme="light"] .k-s2 { color: #b45309; } [data-theme="light"] .k-s3 { color: #15803d; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .app-content .panel h2.plain { text-transform: none; letter-spacing: 0.02em; font-size: 0.86rem; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; min-width: 0; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .duo { display: grid; grid-template-columns: minmax(0, 1fr) 7.4em; gap: 8px; align-items: center; }
+    .duo input[type="text"] { width: 100%; min-width: 0; box-sizing: border-box; padding: 5px 7px; font: inherit; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+    .duo input[aria-invalid="true"] { outline: 2px solid var(--danger); }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .row button { padding: 7px 11px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.84rem; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout em { font-style: normal; font-size: 0.72rem; line-height: 1.3; color: var(--text-muted); overflow-wrap: anywhere; }
+    .readout.is-meas strong { color: var(--accent-warm) !important; }
+    .readout.is-theory strong { color: var(--accent-2) !important; }
+    .readout.wide { grid-column: 1 / -1; }
+    .table-wrap { max-width: 100%; overflow-x: auto; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 7px; text-align: right; overflow-wrap: anywhere; vertical-align: top; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.02em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.8rem; }
+    .lab table.cmp td.meas { color: var(--accent-warm) !important; }
+    .lab table.cmp td.theory { color: var(--accent-2) !important; }
+    .lab table.cmp td small, .lab table.cmp th small { display: block; font-size: 0.68rem; font-weight: 400; color: var(--text-muted); white-space: normal; }
+    .lab table.cmp col.c-name { width: 30%; }
+    .lab table.cmp tr.is-bad td { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--danger) 9%, transparent); }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    .swatch-box { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
+    .cuvette {
+      width: 58px;
+      height: 82px;
+      border-radius: 5px 5px 14px 14px;
+      border: 2px solid var(--border-hover);
+      box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.18), 0 2px 10px rgba(0, 0, 0, 0.25);
+      background: #fff;
+    }
+    .compare { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 8px; }
+    .compare .sw { display: grid; gap: 3px; font-size: 0.72rem; line-height: 1.25; text-align: center; min-width: 0; }
+    .compare .sw i { display: block; height: 34px; border-radius: 7px; border: 1px solid var(--border-hover); }
+    .compare .sw.is-sel span { color: var(--accent); font-weight: 600; }
+    .compare .sw em { font-style: normal; color: var(--text-muted); font-size: 0.68rem; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .col { display: contents; }
+      .o1 { order: 1; } .o2 { order: 2; } .o3 { order: 3; } .o4 { order: 4; } .o5 { order: 5; } .o6 { order: 6; }
+      .sim-canvas, .sim-canvas.ph-strip { aspect-ratio: 4 / 3.3; }
+      .chart-canvas { aspect-ratio: 16 / 10.5; }
+      .chart-canvas.tall { aspect-ratio: 1 / 1.05; }
+      .chart-canvas.strip { aspect-ratio: 1 / 0.95; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.76rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 4px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="ph-indikator">
+
+<div class="app-content">
+  <h1>pH ve İndikatörler: Logaritmik Ölçek, Su Dengesi ve Renk</h1>
+  <p class="hint">Bir sekme seç. pH ölçeği ve su'da pH'ı sür, [H₃O⁺] ile [OH⁻]'yi mol/L olarak oku ve nötr noktanın sıcaklıkla kaydığını gör; Asit ve baz çözeltileri'nde yük denkliğinden ölçülen pH'ı ders kitabı yaklaşımlarıyla karşılaştır; İndikatörler ve renk'te rengi soğurma tayfından hesapla, pK<sub>In</sub>'i spektrofotometreyle ölç.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney bölümleri">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-olcek" data-tab="olcek" aria-selected="true" aria-controls="labPanel">pH ölçeği ve su</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-cozelti" data-tab="cozelti" aria-selected="false" aria-controls="labPanel" tabindex="-1">Asit ve baz çözeltileri</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-indikator" data-tab="indikator" aria-selected="false" aria-controls="labPanel" tabindex="-1">İndikatörler ve renk</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-olcek" data-tab="olcek">
+    <div class="col col-l">
+      <!-- (a) pH ölçeği ve su -->
+      <div class="stage-wrap o1" data-for="olcek">
+        <canvas id="aStrip" class="sim-canvas ph-strip is-drag" width="1100" height="510" role="img" aria-label="pH şeridi"></canvas>
+        <p class="legend">
+          <span><i class="k-warm"></i>seçili pH (şeritte sürükle)</span>
+          <span><i class="dash k-ink"></i>nötr nokta pH = pK<sub>w</sub>/2</span>
+          <span>şerit rengi: bu sayfanın evrensel indikatör modeli</span>
+          <span><i class="box k-muted"></i>pH &lt; 0 ya da [OH⁻] &gt; 1 mol/L: derişik bölge</span>
+        </p>
+      </div>
+      <div class="panel o3" data-for="olcek" aria-labelledby="ttlA2">
+        <h2 id="ttlA2">Okumalar</h2>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-meas"><small>[H₃O⁺] (= [H⁺]) = 10<sup>−pH</sup></small><strong id="aH">—</strong><em id="aHNote"></em></div>
+          <div class="readout is-meas"><small>[OH⁻] = K<sub>w</sub>/[H₃O⁺]</small><strong id="aOH">—</strong><em id="aOHNote"></em></div>
+          <div class="readout"><small>pOH = pK<sub>w</sub> − pH</small><strong id="aPOH">—</strong><em id="aPOHNote"></em></div>
+          <div class="readout is-theory"><small>K<sub>w</sub>(T) = [H₃O⁺][OH⁻]</small><strong id="aKw">—</strong><em id="aKwNote"></em></div>
+          <div class="readout is-theory"><small>Nötr nokta pH = pK<sub>w</sub>/2</small><strong id="aNeutral">—</strong><em id="aNeutralNote"></em></div>
+          <div class="readout"><small>[H₃O⁺]/[OH⁻] = 10<sup>pK<sub>w</sub> − 2pH</sup></small><strong id="aRatio">—</strong><em id="aClass"></em></div>
+        </div>
+        <p class="status" id="aStatus" aria-live="polite"></p>
+        <canvas id="aChart" class="chart-canvas" width="1100" height="500" role="img" aria-label="Nötr pH ve pKw sıcaklığa karşı"></canvas>
+        <p class="legend">
+          <span><i class="k-acc"></i>nötr pH = pK<sub>w</sub>(T)/2 (sağ eksen pK<sub>w</sub>)</span>
+          <span><i class="dash k-warm"></i>seçili pH</span>
+          <span>çizginin altı asidik, üstü bazik</span>
+        </p>
+      </div>
+
+      <!-- (b) Asit ve baz çözeltileri -->
+      <div class="stage-wrap o1" data-for="cozelti" hidden>
+        <canvas id="bSpec" class="sim-canvas" width="1100" height="510" role="img" aria-label="Tür dağılımı diyagramı"></canvas>
+        <p class="legend" id="bSpecLegend"></p>
+      </div>
+      <div class="panel o3" data-for="cozelti" aria-labelledby="ttlB2" hidden>
+        <h2 id="ttlB2">Ölçüm ve yaklaşımlar</h2>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-meas"><small>Ölçülen pH: tam yük denkliği</small><strong id="bPH">—</strong><em id="bPHNote"></em></div>
+          <div class="readout is-meas"><small>[H₃O⁺] ve [OH⁻]</small><strong id="bH">—</strong><em id="bOH"></em></div>
+          <div class="readout is-meas"><small id="bAlphaLabel">Ayrışma derecesi α (tam)</small><strong id="bAlpha">—</strong><em id="bAlphaNote"></em></div>
+          <div class="readout is-theory"><small>Ostwald yasası (su ihmal)</small><strong id="bOstwald">—</strong><em id="bOstwaldNote"></em></div>
+        </div>
+        <div class="table-wrap">
+          <table class="cmp" id="bTable">
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Yöntem</th><th scope="col">pH</th><th scope="col">ΔpH</th><th scope="col">Geçerli derişim (|ΔpH| ≤ 0.02)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="status" id="bStatus" aria-live="polite"></p>
+        <canvas id="bConc" class="chart-canvas tall is-drag" width="1100" height="760" role="img" aria-label="pH ve ayrışma derecesi derişime karşı"></canvas>
+        <p class="legend">
+          <span><i class="k-acc"></i>tam çözüm</span>
+          <span><i class="dash k-acc2"></i>ikinci derece (su ihmal)</span>
+          <span><i class="dot k-warm"></i>kısa yol</span>
+          <span><i class="box k-neg"></i>kısa yolun |ΔpH| &gt; 0.02 olduğu derişimler</span>
+          <span><i class="dash k-muted"></i>sonsuz seyreltmede α</span>
+        </p>
+      </div>
+
+      <!-- (c) İndikatörler ve renk -->
+      <div class="stage-wrap o1" data-for="indikator" hidden>
+        <canvas id="cSpec" class="sim-canvas is-drag" width="1100" height="510" role="img" aria-label="Soğurma tayfı"></canvas>
+        <p class="legend" id="cSpecLegend">
+          <span><i class="k-warm"></i>seçili pH'ta A(λ)</span>
+          <span><i class="dash k-s0"></i>saf asit biçimi</span>
+          <span><i class="dash k-s1"></i>saf baz biçimi</span>
+          <span><i class="k-muted"></i>pK ± 2 aralığında pH ailesi</span>
+          <span>halka: eş soğurma noktası · dikey çizgi: okuma λ (sürükle)</span>
+        </p>
+      </div>
+      <div class="panel o3" data-for="indikator" aria-labelledby="ttlC2" hidden>
+        <h2 id="ttlC2">Renk ve soğurma</h2>
+        <div class="swatch-box">
+          <div class="cuvette" id="cCuvette" role="img" aria-label="Küvet rengi"></div>
+          <div class="cards" aria-live="polite">
+            <div class="readout is-meas"><small>Hesaplanan geçen ışık rengi (sRGB)</small><strong id="cHex">—</strong><em id="cHexNote"></em></div>
+            <div class="readout is-meas"><small id="cFracLabel">In⁻ kesri</small><strong id="cFrac">—</strong><em id="cFracNote"></em></div>
+          </div>
+        </div>
+        <div class="cards" aria-live="polite">
+          <div class="readout"><small>[H₃O⁺] (= [H⁺]) = 10<sup>−pH</sup></small><strong id="cH">—</strong><em id="cHNote"></em></div>
+          <div class="readout is-meas"><small id="cAbsLabel">Soğurbanlık A(λ)</small><strong id="cAbs">—</strong><em id="cAbsNote"></em></div>
+          <div class="readout is-meas"><small>Eş soğurma noktası: tayflar kesişimi</small><strong id="cIso">—</strong><em id="cIsoNote"></em></div>
+          <div class="readout is-theory"><small>Görsel geçiş: In⁻ %10 → %90</small><strong id="cInt">—</strong><em id="cIntNote"></em></div>
+        </div>
+        <p class="status" id="cStatus" aria-live="polite"></p>
+        <h2 class="plain">Aynı pH'ta yan yana</h2>
+        <div class="compare" id="cCompare" aria-live="polite"></div>
+        <canvas id="cStrip" class="chart-canvas strip is-drag" width="1100" height="560" role="img" aria-label="İndikatör renk şeritleri"></canvas>
+        <p class="legend">
+          <span><i class="k-warm"></i>seçili pH (sürükle)</span>
+          <span>şeridin altındaki çizgi: modelde %10–%90 geçişi; uçlardaki çentikler: kaynakta verilen görsel aralık</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="col col-r">
+      <!-- (a) denetimler -->
+      <div class="panel o2" data-for="olcek" role="group" aria-labelledby="ttlA">
+        <h2 id="ttlA">pH ve sıcaklık</h2>
+        <div class="field">
+          <label for="aPH"><span class="lt">pH</span><output id="aPHOut" for="aPH">pH = 7.00</output></label>
+          <div class="duo"><input type="range" id="aPH" min="-1" max="15" step="0.01" value="7"><input type="text" id="aPHNum" value="7.00" inputmode="decimal" spellcheck="false" autocomplete="off"></div>
+          <label for="aPHNum" class="visually-hidden">pH değeri, −1 ile 15 arası</label>
+        </div>
+        <div class="field">
+          <label for="aT"><span class="lt">Sıcaklık T</span><output id="aTOut" for="aT">25 °C</output></label>
+          <div class="duo"><input type="range" id="aT" min="0" max="100" step="1" value="25"><input type="text" id="aTNum" value="25" inputmode="decimal" spellcheck="false" autocomplete="off"></div>
+          <label for="aTNum" class="visually-hidden">Sıcaklık, 0 ile 100 °C arası</label>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" data-temp="0">0 °C</button>
+          <button type="button" class="app-btn-ghost" data-temp="25">25 °C</button>
+          <button type="button" class="app-btn-ghost" data-temp="37">37 °C</button>
+          <button type="button" class="app-btn-ghost" data-temp="100">100 °C</button>
+          <button type="button" class="app-btn-ghost" id="aNeutralBtn">pH'ı nötre getir</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Sıfırla</button>
+        </div>
+        <p class="note">Kutulara ondalık sayı yazılabilir (virgül de olur); Enter ile uygulanır. Şeritte yatay sürükleyerek de pH seçilir. Kaydırıcı −1 ile 15 arasında: 1 mol/L'den derişik kuvvetli asit ya da bazda pH bu uçlara ulaşır, ama orada etkinlik katsayıları 1'den çok uzaklaşır ve [H₃O⁺] = 10<sup>−pH</sup> derişimle yalnız biçimsel kalır. <kbd>R</kbd> bu sekmeyi sıfırlar.</p>
+        <p class="note">K<sub>w</sub>(T): Bandura ve Lvov (2006), IAPWS R11-07 bağıntısı, 0.1 MPa'da sıvı su yoğunluğuyla (Kell 1975). Yönteme göre 0–100 °C aralığında pK<sub>w</sub> belirsizliği yaklaşık ±0.01'dir. 100 °C'de su 1 atm'de kaynar; değer sıvı su içindir.</p>
+      </div>
+      <div class="panel o4" data-for="olcek" aria-labelledby="ttlA3">
+        <h2 id="ttlA3">Seyreltme tuzağı: çok seyreltik HCl</h2>
+        <div class="field">
+          <label for="aC"><span class="lt">HCl derişimi c (logaritmik)</span><output id="aCOut" for="aC">c = 1.00·10⁻⁸ mol/L</output></label>
+          <div class="duo"><input type="range" id="aC" min="-10" max="-1" step="0.01" value="-8"><input type="text" id="aCNum" value="1e-8" inputmode="decimal" spellcheck="false" autocomplete="off"></div>
+          <label for="aCNum" class="visually-hidden">HCl derişimi mol/L, örneğin 1e-8</label>
+        </div>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-meas"><small>Ölçülen pH: yük denkliği [H₃O⁺] = c + [OH⁻]</small><strong id="aDilExact">—</strong><em id="aDilExactNote"></em></div>
+          <div class="readout is-theory"><small>Saf yaklaşım pH = −log c</small><strong id="aDilNaive">—</strong><em id="aDilNaiveNote"></em></div>
+          <div class="readout"><small>Fark −log c − pH</small><strong id="aDilDiff">—</strong><em id="aDilDiffNote"></em></div>
+          <div class="readout"><small>H₃O⁺'nın sudan gelen payı</small><strong id="aDilWater">—</strong><em id="aDilWaterNote"></em></div>
+        </div>
+        <p class="status" id="aDilStatus" aria-live="polite"></p>
+        <canvas id="aDil" class="chart-canvas is-drag" width="1100" height="500" role="img" aria-label="Seyreltik HCl çözeltisinin pH'ı derişime karşı"></canvas>
+        <p class="legend">
+          <span><i class="k-acc"></i>tam çözüm</span>
+          <span><i class="dash k-warm"></i>−log c</span>
+          <span><i class="dot k-muted"></i>nötr pH</span>
+          <span>grafikte yatay sürükleyerek c seçilir</span>
+        </p>
+        <p class="note">Ölçüm: yük denkliği [H₃O⁺] = [Cl⁻] + [OH⁻] = c + K<sub>w</sub>/[H₃O⁺], log[H₃O⁺] üzerinde ikiye bölme (bisection) ile 10<sup>−11</sup> pH birimine kadar çözülür; kapalı çözüm [H₃O⁺] = (c + √(c² + 4K<sub>w</sub>))/2 ile aynıdır. Asit eklemek pH'ı hiçbir zaman nötrün üstüne çıkaramaz.</p>
+      </div>
+
+      <!-- (b) denetimler -->
+      <div class="panel o2" data-for="cozelti" role="group" aria-labelledby="ttlB" hidden>
+        <h2 id="ttlB">Çözelti</h2>
+        <div class="field">
+          <label for="bSys"><span class="lt">Madde</span><output id="bSysOut" for="bSys">zayıf asit</output></label>
+          <select id="bSys">
+            <option value="hcl">HCl · kuvvetli asit</option>
+            <option value="naoh">NaOH · kuvvetli baz</option>
+            <option value="acetic" selected>Asetik asit CH₃COOH · pKa 4.756</option>
+            <option value="formic">Formik asit HCOOH · pKa 3.75</option>
+            <option value="hf">Hidroflorik asit HF · pKa 3.20</option>
+            <option value="hcn">Hidrosiyanik asit HCN · pKa 9.21</option>
+            <option value="nh4cl">Amonyum klorür NH₄Cl · pKa(NH₄⁺) 9.25</option>
+            <option value="nh3">Amonyak NH₃ · zayıf baz, pKa(NH₄⁺) 9.25</option>
+            <option value="h2co3">Karbonik asit H₂CO₃* · pKa 6.35, 10.33</option>
+            <option value="h3po4">Fosforik asit H₃PO₄ · pKa 2.16, 7.21, 12.32</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bC"><span class="lt">Toplam derişim c (logaritmik)</span><output id="bCOut" for="bC">c = 0.100 mol/L</output></label>
+          <div class="duo"><input type="range" id="bC" min="-9" max="0" step="0.01" value="-1"><input type="text" id="bCNum" value="0.1" inputmode="decimal" spellcheck="false" autocomplete="off"></div>
+          <label for="bCNum" class="visually-hidden">Toplam derişim mol/L, örneğin 1e-5</label>
+        </div>
+        <div class="field">
+          <label for="bMode"><span class="lt">Diyagram</span><output id="bModeOut" for="bMode">kesirler</output></label>
+          <select id="bMode">
+            <option value="frac" selected>Tür kesirleri α<sub>i</sub>(pH)</option>
+            <option value="log">Logaritmik derişim (Sillén diyagramı)</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" data-conc="-1">0.1 M</button>
+          <button type="button" class="app-btn-ghost" data-conc="-5">10⁻⁵ M</button>
+          <button type="button" class="app-btn-ghost" id="bBlood">Kan pH'ı 7.40'ta fosfat</button>
+          <button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button>
+        </div>
+        <p class="note">Derişim kutusuna 0,001, 1e-5 ya da 1·10^-5 yazılabilir. Alttaki grafikte yatay sürükleyerek de c seçilir. <kbd>R</kbd> bu sekmeyi sıfırlar. Tampon çözeltiler ve titrasyon eğrileri <a href="asit-baz-titrasyonu.html">Asit-Baz Titrasyonu</a> sayfasında.</p>
+      </div>
+      <div class="panel o4" data-for="cozelti" aria-labelledby="ttlB3" hidden>
+        <h2 id="ttlB3">Türler, seçili çözeltide</h2>
+        <div class="table-wrap">
+          <table class="cmp" id="bSpecies">
+            <colgroup><col class="c-name"><col><col></colgroup>
+            <thead><tr><th scope="col">Tür</th><th scope="col">Kesir α</th><th scope="col">Derişim</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note" id="bPhosNote"></p>
+        <p class="note">Model: ideal seyreltik çözelti, 25 °C, etkinlik yerine derişim. Yük denkliği h + Σz<sub>i</sub>[i] − K<sub>w</sub>/h = 0, h = [H₃O⁺], log h üzerinde ikiye bölme ile 10<sup>−11</sup> pH birimine kadar çözülür; fonksiyon h ile kesin artar, kök tektir. Kısa yollar: kuvvetli asit −log c, kuvvetli baz pK<sub>w</sub> + log c, zayıf asit ½(pK<sub>a</sub> − log c), zayıf baz pOH = ½(pK<sub>b</sub> − log c); ikinci derece çözüm suyu yok sayar ve çok basamaklı asitte yalnız birinci basamağı kullanır. Derişik çözeltide Davies denklemiyle (A = 0.509, 25 °C) etkinlik düzeltmesi ayrıca tahmin edilir.</p>
+        <p class="note">pK<sub>a</sub> değerleri 25 °C ve sıfır iyon şiddeti: CRC Handbook of Chemistry and Physics, 97. baskı (2016), "Dissociation Constants of Organic Acids and Bases" ve "of Inorganic Acids and Bases". Kaynaklar arasında ±0.05 fark olabilir (örneğin Harris, Quantitative Chemical Analysis, fosforik asit için 2.148, 7.198, 12.375 verir). H₂CO₃* çözünmüş CO₂ ile H₂CO₃'ün toplamıdır; 6.35 bu toplama göre görünür pK<sub>a1</sub>'dir. pK<sub>w</sub>(25 °C) = <span id="bPKw">13.995</span> (Bandura ve Lvov 2006).</p>
+      </div>
+
+      <!-- (c) denetimler -->
+      <div class="panel o2" data-for="indikator" role="group" aria-labelledby="ttlC" hidden>
+        <h2 id="ttlC">İndikatör ve çözelti</h2>
+        <div class="field">
+          <label for="cInd"><span class="lt">İndikatör</span><output id="cIndOut" for="cInd">pK 7.10</output></label>
+          <select id="cInd">
+            <option value="tb">Timol mavisi · iki geçiş</option>
+            <option value="mo">Metil oranj</option>
+            <option value="mr">Metil kırmızısı</option>
+            <option value="btb" selected>Bromtimol mavisi</option>
+            <option value="pp">Fenolftalein · tek renkli</option>
+            <option value="lit">Turnusol · renk tablosu</option>
+            <option value="uni">Evrensel indikatör · karışım</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cPH"><span class="lt">pH</span><output id="cPHOut" for="cPH">pH = 7.00</output></label>
+          <div class="duo"><input type="range" id="cPH" min="0" max="14" step="0.01" value="7"><input type="text" id="cPHNum" value="7.00" inputmode="decimal" spellcheck="false" autocomplete="off"></div>
+          <label for="cPHNum" class="visually-hidden">pH değeri, 0 ile 14 arası</label>
+        </div>
+        <div class="field">
+          <label for="cConc"><span class="lt" id="cConcLabel">İndikatör derişimi c</span><output id="cConcOut" for="cConc">20 µmol/L</output></label>
+          <input type="range" id="cConc" min="1" max="100" step="1" value="20">
+        </div>
+        <div class="field">
+          <label for="cPath"><span class="lt">Işık yolu ℓ</span><output id="cPathOut" for="cPath">1.0 cm</output></label>
+          <select id="cPath">
+            <option value="0.2">0.2 cm</option>
+            <option value="0.5">0.5 cm</option>
+            <option value="1" selected>1.0 cm (standart küvet)</option>
+            <option value="2">2.0 cm</option>
+            <option value="5">5.0 cm</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cLam"><span class="lt">Okuma dalga boyu λ</span><output id="cLamOut" for="cLam">λ = 616.0 nm</output></label>
+          <div class="duo"><input type="range" id="cLam" min="380" max="780" step="0.1" value="616"><input type="text" id="cLamNum" value="616.0" inputmode="decimal" spellcheck="false" autocomplete="off"></div>
+          <label for="cLamNum" class="visually-hidden">Okuma dalga boyu nm, 380 ile 780 arası</label>
+        </div>
+        <label class="check" id="cFadeWrap"><input type="checkbox" id="cFade" checked> Fenolftaleinin kuvvetli bazda yavaş solması (pK₃ ≈ 12, dengede)</label>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="cLamBase">λ = baz biçiminin tepesi</button>
+          <button type="button" class="app-btn-ghost" id="cLamIso">λ = eş soğurma noktası</button>
+          <button type="button" class="app-btn-ghost" id="cReset">Sıfırla</button>
+        </div>
+        <p class="note">Tayf grafiğinde ya da renk şeritlerinde yatay sürükleyerek λ ve pH seçilir. <kbd>R</kbd> bu sekmeyi sıfırlar, <kbd>Boşluk</kbd> yeni bir spektrofotometrik ölçüm dizisi alır.</p>
+      </div>
+      <div class="panel o4" data-for="indikator" aria-labelledby="ttlC3" hidden>
+        <h2 id="ttlC3">Spektrofotometrik pK<sub>In</sub> ölçümü</h2>
+        <div class="field">
+          <label for="cNoise"><span class="lt">Soğurbanlık gürültüsü σ<sub>A</sub></span><output id="cNoiseOut" for="cNoise">σ = 0.005</output></label>
+          <select id="cNoise">
+            <option value="0">Gürültüsüz</option>
+            <option value="0.002">σ = 0.002</option>
+            <option value="0.005" selected>σ = 0.005</option>
+            <option value="0.01">σ = 0.010</option>
+            <option value="0.02">σ = 0.020</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="cNewRun">Yeni ölçüm dizisi</button>
+          <span class="note" id="cSeedOut">tohum 2026</span>
+        </div>
+        <canvas id="cFit" class="chart-canvas" width="1100" height="500" role="img" aria-label="Spektrofotometrik pK ölçümü"></canvas>
+        <p class="legend">
+          <span><i class="dot k-warm"></i>ölçülen A (tamponlar)</span>
+          <span><i class="k-warm"></i>uydurulan sigmoit</span>
+          <span><i class="dash k-acc2"></i>girdi modeli</span>
+        </p>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-meas"><small>Ölçülen pK<sub>In</sub> (uydurma)</small><strong id="cFitPK">—</strong><em id="cFitPKNote"></em></div>
+          <div class="readout is-theory"><small>Kuram: girdi pK<sub>In</sub></small><strong id="cTruePK">—</strong><em id="cTruePKNote"></em></div>
+          <div class="readout"><small>Fark</small><strong id="cFitDiff">—</strong><em id="cFitDiffNote"></em></div>
+          <div class="readout"><small>Kalıntıların kök ortalama karesi</small><strong id="cFitRms">—</strong><em id="cFitRmsNote"></em></div>
+        </div>
+        <p class="status" id="cFitStatus" aria-live="polite"></p>
+        <p class="note">Yöntem: dokuz tampon, pK − 2'den pK + 2'ye 0.5 adımla; her tamponda baz biçiminin tepe dalga boyunda A ölçülür ve normal dağılımlı σ<sub>A</sub> gürültüsü eklenir (mulberry32 + Box–Muller). Uydurma modeli A(pH) = (A<sub>HIn</sub> + A<sub>In</sub>·10<sup>pH − pK</sup>)/(1 + 10<sup>pH − pK</sup>); A<sub>HIn</sub> ve A<sub>In</sub> her pK için doğrusal en küçük karelerle, pK ise 0.01 adımlı tarama ve altın oran aramasıyla bulunur. Standart hata Jacobian'dan: s²(JᵀJ)⁻¹, s² = SSR/(N − 3).</p>
+        <p class="note" id="cDataNote"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* MATH-START — DOM'a dokunmayan saf hesap çekirdeği; metni node'da çalıştırılabilir */
+  const LN10 = Math.LN10;
+  const lg = Math.log10;
+
+  /* ── Su: yoğunluk ve iyonlaşma çarpımı ── */
+  // Sıvı su yoğunluğu, 0.1 MPa, 0–150 °C: Kell (1975), g/cm³
+  function waterDensity(t) {
+    const n = 999.83952 + t * (16.945176 + t * (-7.9870401e-3 + t * (-46.170461e-6 + t * (105.56302e-9 + t * -280.54253e-12))));
+    return n / (1 + 16.87985e-3 * t) / 1000;
+  }
+  // pK_w(T, ρ): Bandura ve Lvov (2006), J. Phys. Chem. Ref. Data 35, 15; IAPWS R11-07. T kelvin, ρ g/cm³
+  function pKwBL(T, rho) {
+    const Q = rho * Math.exp(-0.864671 + 8659.19 / T - (22786.2 / (T * T)) * Math.pow(rho, 2 / 3));
+    const pKG = 0.61415 + 48251.33 / T - 67707.93 / (T * T) + 10102100 / (T * T * T);
+    return -12 * (lg(1 + Q) - (Q / (Q + 1)) * rho * (0.642044 - 56.8534 / T - 0.375754 * rho)) + pKG + 2 * lg(18.015268 / 1000);
+  }
+  const pKwAt = (tC) => pKwBL(tC + 273.15, waterDensity(tC));
+  const PKW25 = pKwAt(25);
+
+  /* ── Asit-baz sistemleri ──
+     pKa: en protonlu biçimden başlayarak ardışık sabitler (25 °C); z0: en protonlu biçimin yükü;
+     q: molekül başına karşı iyon yükü (Cl⁻ −1, Na⁺ +1). Kaynak: CRC Handbook, 97. baskı (2016). */
+  const SYSTEMS = {
+    hcl: { kind: "strong", pKa: [], z0: 0, q: -1, forms: [], counter: "Cl⁻", label: "HCl" },
+    naoh: { kind: "strong", pKa: [], z0: 0, q: 1, forms: [], counter: "Na⁺", label: "NaOH" },
+    acetic: { kind: "acid", pKa: [4.756], z0: 0, q: 0, forms: ["CH₃COOH", "CH₃COO⁻"], label: "asetik asit" },
+    formic: { kind: "acid", pKa: [3.75], z0: 0, q: 0, forms: ["HCOOH", "HCOO⁻"], label: "formik asit" },
+    hf: { kind: "acid", pKa: [3.2], z0: 0, q: 0, forms: ["HF", "F⁻"], label: "HF" },
+    hcn: { kind: "acid", pKa: [9.21], z0: 0, q: 0, forms: ["HCN", "CN⁻"], label: "HCN" },
+    nh4cl: { kind: "acid", pKa: [9.25], z0: 1, q: -1, forms: ["NH₄⁺", "NH₃"], counter: "Cl⁻", label: "NH₄Cl" },
+    nh3: { kind: "base", pKa: [9.25], z0: 1, q: 0, forms: ["NH₄⁺", "NH₃"], label: "NH₃" },
+    h2co3: { kind: "acid", pKa: [6.35, 10.33], z0: 0, q: 0, forms: ["H₂CO₃*", "HCO₃⁻", "CO₃²⁻"], label: "karbonik asit" },
+    h3po4: { kind: "acid", pKa: [2.16, 7.21, 12.32], z0: 0, q: 0, forms: ["H₃PO₄", "H₂PO₄⁻", "HPO₄²⁻", "PO₄³⁻"], label: "fosforik asit" },
+  };
+
+  // α_j: j proton vermiş biçimin kesri; logK = log K_a (ardışık), logaritmada taşmasız
+  function fractions(logK, logh) {
+    const n = logK.length, L = new Array(n + 1);
+    let acc = 0, m = -Infinity;
+    for (let j = 0; j <= n; j++) {
+      if (j) acc += logK[j - 1];
+      L[j] = (n - j) * logh + acc;
+      if (L[j] > m) m = L[j];
+    }
+    let s = 0;
+    for (let j = 0; j <= n; j++) { L[j] = Math.pow(10, L[j] - m); s += L[j]; }
+    for (let j = 0; j <= n; j++) L[j] /= s;
+    return L;
+  }
+  // Yük denkliği: h − K_w/h + c·Σ α_j (z0 − j) + c·q; h ile kesin artar
+  function balance(sys, c, logh, logKw, logK) {
+    let r = Math.pow(10, logh) - Math.pow(10, logKw - logh) + c * sys.q;
+    if (logK.length) {
+      const a = fractions(logK, logh);
+      let zbar = 0;
+      for (let j = 0; j < a.length; j++) zbar += a[j] * (sys.z0 - j);
+      r += c * zbar;
+    }
+    return r;
+  }
+  // log h üzerinde ikiye bölme: aralık pH −3 … 17, durma ölçütü 10⁻¹¹ pH
+  const PH_TOL_SOLVE = 1e-11;
+  function solveLogH(sys, c, logKw, logK) {
+    let lo = -17, hi = 3;
+    for (let i = 0; i < 100 && hi - lo > PH_TOL_SOLVE; i++) {
+      const mid = 0.5 * (lo + hi);
+      if (balance(sys, c, mid, logKw, logK) > 0) hi = mid; else lo = mid;
+    }
+    return 0.5 * (lo + hi);
+  }
+  function ionicStrength(sys, c, logh, logKw, logK) {
+    let s = Math.pow(10, logh) + Math.pow(10, logKw - logh) + c * sys.q * sys.q;
+    if (logK.length) {
+      const a = fractions(logK, logh);
+      for (let j = 0; j < a.length; j++) { const z = sys.z0 - j; s += c * a[j] * z * z; }
+    }
+    return s / 2;
+  }
+  // Davies (1962): log γ_z = −A z² (√I/(1 + √I) − 0.3 I), A = 0.509 (25 °C); I ≲ 0.5 mol/L için
+  const DAVIES_A = 0.509;
+  const daviesLg = (z, I) => { const s = Math.sqrt(I); return -DAVIES_A * z * z * (s / (1 + s) - 0.3 * I); };
+  // Tam çözüm; activity = true ise Davies katsayılarıyla koşullu sabitler, öz-tutarlı yineleme
+  function solve(sys, c, pKw, activity) {
+    const logK0 = sys.pKa.map((p) => -p);
+    let logK = logK0.slice(), logKw = -pKw, lg1 = 0, I = 0, iter = 0;
+    let logh = solveLogH(sys, c, logKw, logK);
+    if (activity) {
+      for (iter = 1; iter <= 60; iter++) {
+        const I1 = ionicStrength(sys, c, logh, logKw, logK);
+        lg1 = daviesLg(1, I1);
+        logK = logK0.map((k, j) => k + daviesLg(sys.z0 - j, I1) - lg1 - daviesLg(sys.z0 - j - 1, I1));
+        logKw = -pKw - 2 * lg1;
+        const nl = solveLogH(sys, c, logKw, logK);
+        const done = Math.abs(nl - logh) < 1e-10 && Math.abs(I1 - I) <= 1e-12 * Math.max(1e-9, I1);
+        logh = nl;
+        I = I1;
+        if (done) break;
+      }
+    } else I = ionicStrength(sys, c, logh, logKw, logK);
+    return { logh, pH: -logh, pHa: -(logh + lg1), lg1, I, iter, alpha: fractions(logK, logh), oh: Math.pow(10, logKw - logh) };
+  }
+  // Ders kitabı yaklaşımları: kısa yol ve (zayıf türlerde) su ihmal edilen ikinci derece çözüm
+  function approx(sys, c, pKw) {
+    if (sys.kind === "strong") return { short: sys.q < 0 ? -lg(c) : pKw + lg(c), quad: NaN };
+    const pKa = sys.pKa[0];
+    if (sys.kind === "base") {
+      const pKb = pKw - pKa, Kb = Math.pow(10, -pKb);
+      const oh = (2 * Kb * c) / (Kb + Math.sqrt(Kb * Kb + 4 * Kb * c));
+      return { short: pKw - 0.5 * (pKb - lg(c)), quad: pKw + lg(oh) };
+    }
+    const Ka = Math.pow(10, -pKa);
+    const h = (2 * Ka * c) / (Ka + Math.sqrt(Ka * Ka + 4 * Ka * c));
+    return { short: 0.5 * (pKa - lg(c)), quad: -lg(h) };
+  }
+  // Ayrışma (bazda protonlanma) derecesi: tam, Ostwald (su ihmal) ve sonsuz seyreltme sınırı
+  function dissociation(sys, c, pKw, sol) {
+    if (sys.kind === "strong") return { alpha: 1, ostwald: 1, limit: 1 };
+    const sKw = Math.pow(10, -pKw / 2), Ka = Math.pow(10, -sys.pKa[0]);
+    if (sys.kind === "base") {
+      const Kb = Math.pow(10, sys.pKa[0] - pKw);
+      return { alpha: sol.alpha[0], ostwald: (2 * Kb) / (Kb + Math.sqrt(Kb * Kb + 4 * Kb * c)), limit: sKw / (sKw + Ka) };
+    }
+    return { alpha: 1 - sol.alpha[0], ostwald: (2 * Ka) / (Ka + Math.sqrt(Ka * Ka + 4 * Ka * c)), limit: 1 - fractions(sys.pKa.map((p) => -p), -pKw / 2)[0] };
+  }
+  // log c ızgarasında (0.01 adım) tam ve yaklaşık pH; |ΔpH| ≤ tol olan aralıklar
+  const PH_TOL = 0.02;
+  function scan(sys, pKw, lc0, lc1) {
+    const n = Math.round((lc1 - lc0) * 100);
+    const lc = new Float64Array(n + 1), ex = new Float64Array(n + 1), sh = new Float64Array(n + 1), qd = new Float64Array(n + 1), al = new Float64Array(n + 1), os = new Float64Array(n + 1);
+    for (let i = 0; i <= n; i++) {
+      const x = lc0 + i / 100, c = Math.pow(10, x), s = solve(sys, c, pKw, false), a = approx(sys, c, pKw), d = dissociation(sys, c, pKw, s);
+      lc[i] = x; ex[i] = s.pH; sh[i] = a.short; qd[i] = a.quad; al[i] = d.alpha; os[i] = d.ostwald;
+    }
+    return { lc, ex, sh, qd, al, os };
+  }
+  // İç aralıklardan 0.3 on yıldan dar olanlar atılır: hatanın işaret değiştirirken sıfırdan geçtiği rastlantısal uyumlar
+  function okRanges(lc, ex, ap, tol) {
+    const out = [];
+    let start = null;
+    for (let i = 0; i < lc.length; i++) {
+      const ok = Number.isFinite(ap[i]) && Math.abs(ap[i] - ex[i]) <= tol;
+      if (ok && start === null) start = lc[i];
+      if (!ok && start !== null) { out.push([start, lc[i - 1]]); start = null; }
+    }
+    if (start !== null) out.push([start, lc[lc.length - 1]]);
+    const a = lc[0], b = lc[lc.length - 1];
+    return out.filter(([x, y]) => x <= a + 1e-9 || y >= b - 1e-9 || y - x >= 0.3);
+  }
+
+  /* ── Renk: CIE 1931 2° gözlemci ve D65 aydınlatıcısı ── */
+  // CIE 1931 2° (x̄, ȳ, z̄), 360–830 nm, 5 nm; CIE 018:2019 tablosu (CVRL)
+  const CIE_N = 95;
+  const CIE = [
+    1.299e-4, 3.917e-6, 6.061e-4,  2.321e-4, 6.965e-6, 0.001086,  4.149e-4, 1.239e-5, 0.001946,  7.416e-4, 2.202e-5, 0.003486,
+    0.001368, 3.9e-5, 0.00645,  0.002236, 6.4e-5, 0.01055,  0.004243, 1.2e-4, 0.02005,  0.00765, 2.17e-4, 0.03621,
+    0.01431, 3.96e-4, 0.06785,  0.02319, 6.4e-4, 0.1102,  0.04351, 0.00121, 0.2074,  0.07763, 0.00218, 0.3713,
+    0.13438, 4e-3, 0.6456,  0.21477, 0.0073, 1.03905,  0.2839, 0.0116, 1.3856,  0.3285, 0.01684, 1.62296,
+    0.34828, 0.023, 1.74706,  0.34806, 0.0298, 1.7826,  0.3362, 0.038, 1.77211,  0.3187, 0.048, 1.7441,
+    0.2908, 0.06, 1.6692,  0.2511, 0.0739, 1.5281,  0.19536, 0.09098, 1.28764,  0.1421, 0.1126, 1.0419,
+    0.09564, 0.13902, 0.81295,  0.05795, 0.1693, 0.6162,  0.03201, 0.20802, 0.46518,  0.0147, 0.2586, 0.3533,
+    0.0049, 0.323, 0.272,  0.0024, 0.4073, 0.2123,  0.0093, 0.503, 0.1582,  0.0291, 0.6082, 0.1117,
+    0.06327, 0.71, 0.07825,  0.1096, 0.7932, 0.05725,  0.1655, 0.862, 0.04216,  0.22575, 0.91485, 0.02984,
+    0.2904, 0.954, 0.0203,  0.3597, 0.9803, 0.0134,  0.43345, 0.99495, 0.00875,  0.51205, 1, 0.00575,
+    0.5945, 0.995, 0.0039,  0.6784, 0.9786, 0.00275,  0.7621, 0.952, 0.0021,  0.8425, 0.9154, 0.0018,
+    0.9163, 0.87, 0.00165,  0.9786, 0.8163, 0.0014,  1.0263, 0.757, 0.0011,  1.0567, 0.6949, 1e-3,
+    1.0622, 0.631, 8e-4,  1.0456, 0.5668, 6e-4,  1.0026, 0.503, 3.4e-4,  0.9384, 0.4412, 2.4e-4,
+    0.85445, 0.381, 1.9e-4,  0.7514, 0.321, 1e-4,  0.6424, 0.265, 5e-5,  0.5419, 0.217, 3e-5,
+    0.4479, 0.175, 2e-5,  0.3608, 0.1382, 1e-5,  0.2835, 0.107, 0,  0.2187, 0.0816, 0,
+    0.1649, 0.061, 0,  0.1212, 0.04458, 0,  0.0874, 0.032, 0,  0.0636, 0.0232, 0,
+    0.04677, 0.017, 0,  0.0329, 0.01192, 0,  0.0227, 0.00821, 0,  0.01584, 0.005723, 0,
+    0.0113592, 0.004102, 0,  0.00811092, 0.002929, 0,  0.00579035, 0.002091, 0,  0.00410946, 0.001484, 0,
+    0.00289933, 0.001047, 0,  0.00204919, 7.4e-4, 0,  0.00143997, 5.2e-4, 0,  9.99949e-4, 3.611e-4, 0,
+    6.90079e-4, 2.492e-4, 0,  4.76021e-4, 1.719e-4, 0,  3.32301e-4, 1.2e-4, 0,  2.34826e-4, 8.48e-5, 0,
+    1.66151e-4, 6e-5, 0,  1.17413e-4, 4.24e-5, 0,  8.30753e-5, 3e-5, 0,  5.87065e-5, 2.12e-5, 0,
+    4.15099e-5, 1.499e-5, 0,  2.93533e-5, 1.06e-5, 0,  2.06738e-5, 7.4657e-6, 0,  1.45598e-5, 5.2578e-6, 0,
+    1.0254e-5, 3.7029e-6, 0,  7.22146e-6, 2.6078e-6, 0,  5.08587e-6, 1.8366e-6, 0,  3.58165e-6, 1.2934e-6, 0,
+    2.52253e-6, 9.1093e-7, 0,  1.77651e-6, 6.4153e-7, 0,  1.25114e-6, 4.5181e-7, 0,
+  ];
+  // CIE D65 bağıl tayfsal güç dağılımı, 360–830 nm, 5 nm (CIE 015:2018 / ISO 11664-2)
+  const D65 = [
+    46.6383, 49.3637, 52.0891, 51.0323, 49.9755, 52.3118, 54.6482, 68.7015, 82.7549, 87.1204,
+    91.486, 92.4589, 93.4318, 90.057, 86.6823, 95.7736, 104.865, 110.936, 117.008, 117.41,
+    117.812, 116.336, 114.861, 115.392, 115.923, 112.367, 108.811, 109.082, 109.354, 108.578,
+    107.802, 106.296, 104.79, 106.239, 107.689, 106.047, 104.405, 104.225, 104.046, 102.023,
+    100, 98.1671, 96.3342, 96.0611, 95.788, 92.2368, 88.6856, 89.3459, 90.0062, 89.8026,
+    89.5991, 88.6489, 87.6987, 85.4936, 83.2886, 83.4939, 83.6992, 81.863, 80.0268, 80.1207,
+    80.2146, 81.2462, 82.2778, 80.281, 78.2842, 74.0027, 69.7213, 70.6652, 71.6091, 72.979,
+    74.349, 67.9765, 61.604, 65.7448, 69.8856, 72.4863, 75.087, 69.3398, 63.5927, 55.0054,
+    46.4182, 56.6118, 66.8054, 65.0941, 63.3828, 63.8434, 64.304, 61.8779, 59.4519, 55.7054,
+    51.959, 54.6998, 57.4406, 58.8765, 60.3125,
+  ];
+  const cieNm = (i) => 360 + 5 * i;
+  let D65_Y = 0;
+  for (let i = 0; i < CIE_N; i++) D65_Y += D65[i] * CIE[3 * i + 1];
+  // XYZ → doğrusal sRGB (IEC 61966-2-1, D65)
+  const linRGB = (X, Y, Z) => [3.2406 * X - 1.5372 * Y - 0.4986 * Z, -0.9689 * X + 1.8758 * Y + 0.0415 * Z, 0.0557 * X - 0.204 * Y + 1.057 * Z];
+  function gammaSRGB(c) {
+    c = Math.min(1, Math.max(0, c));
+    return c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+  }
+  const hexOf = (rgb) => "#" + rgb.map((v) => v.toString(16).padStart(2, "0")).join("");
+  // Beyaz D65 ışığında örnekten geçen ışığın rengi; absorb[i] = A(360 + 5i nm). Saydam örnek Y = 1 verir.
+  function colourFromAbs(absorb) {
+    let X = 0, Y = 0, Z = 0;
+    for (let i = 0; i < CIE_N; i++) {
+      const w = D65[i] * Math.pow(10, -absorb[i]);
+      X += w * CIE[3 * i]; Y += w * CIE[3 * i + 1]; Z += w * CIE[3 * i + 2];
+    }
+    X /= D65_Y; Y /= D65_Y; Z /= D65_Y;
+    const lin = linRGB(X, Y, Z), s = X + Y + Z;
+    const out = lin.some((v) => v < -2e-3 || v > 1 + 2e-3);
+    const rgb = lin.map((v) => Math.round(255 * gammaSRGB(v)));
+    return { X, Y, Z, x: s > 0 ? X / s : NaN, y: s > 0 ? Y / s : NaN, lin, out, rgb, hex: hexOf(rgb) };
+  }
+  // Tek dalga boyunun ekran rengi (eksen bandı için)
+  function spectralRGB(nm) {
+    const f0 = Math.min(CIE_N - 1, Math.max(0, (nm - 360) / 5));
+    const i = Math.min(CIE_N - 2, Math.floor(f0)), w = f0 - i;
+    const cmf = [0, 1, 2].map((j) => CIE[3 * i + j] + w * (CIE[3 * i + 3 + j] - CIE[3 * i + j]));
+    const lin = linRGB(...cmf).map((v) => Math.max(0, v));
+    const m = Math.max(lin[0], lin[1], lin[2], 1e-12);
+    let f = 1;
+    if (nm < 420) f = 0.3 + (0.7 * (nm - 380)) / 40;
+    else if (nm > 700) f = 0.3 + (0.7 * (780 - nm)) / 80;
+    f = Math.max(0, Math.min(1, f));
+    return lin.map((v) => Math.round(255 * gammaSRGB((v / m) * f)));
+  }
+
+  /* ── İndikatörler: her renkli biçim dalga sayısında tek Gauss bandı ──
+     ε(ν̃) = ε_max·exp(−(ν̃ − ν̃₀)²/(2s²)); tepe λ ve ε_max kaynaktan, s modelin ayarıdır. */
+  const IND = {
+    tb: { name: "Timol mavisi", short: "Timol m.", pK: [1.65, 8.9], meas: 2, lit: [[1.2, 2.8], [8.0, 9.6]],
+      forms: [{ sym: "H₂In", col: "kırmızı", nm: 544, eps: 1.8e4 }, { sym: "HIn⁻", col: "sarı", nm: 435, eps: 1.8e4 }, { sym: "In²⁻", col: "mavi", nm: 596, eps: 1.8e4 * 2.39 }] },
+    mo: { name: "Metil oranj", short: "Metil oranj", pK: [3.46], meas: 1, iso: 469, lit: [[3.1, 4.4]],
+      forms: [{ sym: "HIn", col: "kırmızı", nm: 507, eps: 4.4e4 }, { sym: "In⁻", col: "sarı-turuncu", nm: 464, eps: 2.5e4 }] },
+    mr: { name: "Metil kırmızısı", short: "Metil kırm.", pK: [5.0], meas: 1, iso: 460, lit: [[4.4, 6.2]],
+      forms: [{ sym: "HIn", col: "kırmızı", nm: 520, eps: 4.46e4 }, { sym: "In⁻", col: "sarı", nm: 425, eps: 1.85e4 }] },
+    btb: { name: "Bromtimol mavisi", short: "Bromtimol m.", pK: [7.1], meas: 1, iso: 498, lit: [[6.0, 7.6]],
+      forms: [{ sym: "HIn⁻", col: "sarı", nm: 432, eps: 1.8e4 }, { sym: "In²⁻", col: "mavi", nm: 616, eps: 4.0e4 }] },
+    pp: { name: "Fenolftalein", short: "Fenolftalein", pK: [9.05, 9.5, 12], meas: 2, fade: 2, lit: [[8.2, 10.0]],
+      forms: [{ sym: "H₂In", col: "renksiz", eps: 0 }, { sym: "HIn⁻", col: "renksiz", eps: 0 }, { sym: "In²⁻", col: "pembe", nm: 552.8, eps: 3.0e4 }, { sym: "In(OH)³⁻", col: "renksiz", eps: 0 }] },
+    lit: { name: "Turnusol", short: "Turnusol", chart: true, lit: [[4.5, 8.3]] },
+    uni: { name: "Evrensel indikatör", short: "Evrensel", mix: [["tb", 0.1115], ["mr", 0.4637], ["btb", 1], ["pp", 3.269]] },
+  };
+  const IND_KEYS = ["tb", "mo", "mr", "btb", "pp", "lit", "uni"];
+  // Eşit genişlikli iki Gauss bandının kesişimi kaynaktaki eş soğurma noktasına düşsün: s² = (ν̃_iso − ν̃_orta)(b − a)/ln(E_a/E_b)
+  function calibrateS(fa, fb, isoNm) {
+    const a = 1e7 / fa.nm, b = 1e7 / fb.nm, x = 1e7 / isoNm;
+    const s2 = ((x - (a + b) / 2) * (b - a)) / Math.log(fa.eps / fb.eps);
+    return s2 > 0 ? Math.sqrt(s2) : NaN;
+  }
+  const CAL_S = [];
+  for (const k of ["mo", "mr", "btb"]) {
+    const d = IND[k], s = calibrateS(d.forms[0], d.forms[1], d.iso);
+    d.forms[0].s = d.forms[1].s = s;
+    CAL_S.push(s);
+  }
+  const S_DEFAULT = CAL_S.reduce((p, q) => p + q, 0) / CAL_S.length;
+  for (const k of ["tb", "pp"]) for (const f of IND[k].forms) if (f.eps) f.s = S_DEFAULT;
+  for (const k of ["tb", "mo", "mr", "btb", "pp"]) for (const f of IND[k].forms) {
+    f.grid = new Float64Array(CIE_N);
+    if (f.eps) { f.wn = 1e7 / f.nm; for (let i = 0; i < CIE_N; i++) f.grid[i] = bandEps(f, cieNm(i)); }
+  }
+  function bandEps(f, nm) {
+    if (!f.eps) return 0;
+    const d = 1e7 / nm - f.wn;
+    return f.eps * Math.exp(-(d * d) / (2 * f.s * f.s));
+  }
+  const fwhm = (s) => 2 * Math.sqrt(2 * Math.LN2) * s;
+  // Biçim kesirleri; fenolftaleinde solma kapalıysa son biçim düşer
+  function indPK(key, fade) { const d = IND[key]; return d.fade !== undefined && !fade ? d.pK.slice(0, d.fade) : d.pK; }
+  function indFractions(key, pH, fade) { return fractions(indPK(key, fade).map((p) => -p), -pH); }
+  // Bileşenler: [anahtar, derişim çarpanı]; karışımda bromtimol mavisi = 1
+  const parts = (key) => (IND[key].mix ? IND[key].mix : [[key, 1]]);
+  // Soğurbanlık, tek λ: A = ℓ Σ ε_f(λ) c_f
+  function absAt(key, pH, cM, l, nm, fade) {
+    let A = 0;
+    for (const [k, w] of parts(key)) {
+      const a = indFractions(k, pH, fade), F = IND[k].forms;
+      for (let j = 0; j < a.length; j++) A += bandEps(F[j], nm) * a[j] * w * cM * l;
+    }
+    return A;
+  }
+  // 360–830 nm ızgarasında soğurbanlık
+  function absGrid(key, pH, cM, l, fade, formOnly) {
+    const out = new Float64Array(CIE_N);
+    for (const [k, w] of parts(key)) {
+      const a = formOnly !== undefined ? IND[k].forms.map((_, j) => (j === formOnly ? 1 : 0)) : indFractions(k, pH, fade), F = IND[k].forms;
+      for (let j = 0; j < F.length && j < a.length; j++) {
+        if (!F[j].eps || !a[j]) continue;
+        const g = F[j].grid, m = a[j] * w * cM * l;
+        for (let i = 0; i < CIE_N; i++) out[i] += g[i] * m;
+      }
+    }
+    return out;
+  }
+  // Turnusol: tayf modeli yok. Kaynaktaki aralık (pH 4.5 kırmızı – 8.3 mavi) %10–%90 alınır;
+  // ara tonlar iki temsili rengin soğurbanlıklarının (kanal başına) karışımıdır.
+  const LIT_MID = 6.4, LIT_N = (2 * lg(9)) / (8.3 - 4.5);
+  const LIT_RED = [196, 44, 58], LIT_BLUE = [48, 82, 170];
+  const linOf = (v) => { const c = v / 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const litFrac = (pH) => 1 / (1 + Math.pow(10, LIT_N * (LIT_MID - pH)));
+  function litmusColour(pH) {
+    const f = litFrac(pH);
+    const lin = [0, 1, 2].map((ch) => Math.pow(10, (1 - f) * lg(linOf(LIT_RED[ch])) + f * lg(linOf(LIT_BLUE[ch]))));
+    const rgb = lin.map((v) => Math.round(255 * gammaSRGB(v)));
+    return { rgb, hex: hexOf(rgb), lin, out: false, f };
+  }
+  function indColour(key, pH, cM, l, fade) {
+    if (IND[key].chart) return litmusColour(pH);
+    return colourFromAbs(absGrid(key, pH, cM, l, fade));
+  }
+  // İki biçimin ε eğrilerinin kesişimi (tepeler arasında ikiye bölme)
+  function crossing(fa, fb) {
+    if (!fa.eps || !fb.eps) return NaN;
+    let lo = Math.min(fa.nm, fb.nm), hi = Math.max(fa.nm, fb.nm);
+    const g = (nm) => bandEps(fa, nm) - bandEps(fb, nm);
+    const glo = g(lo);
+    if (glo * g(hi) > 0) return NaN;
+    for (let i = 0; i < 80 && hi - lo > 1e-9; i++) { const m = 0.5 * (lo + hi); if (g(m) * glo > 0) lo = m; else hi = m; }
+    return 0.5 * (lo + hi);
+  }
+  // t'inci geçiş: en az t proton vermiş biçimlerin toplam kesri (solmasız); %10 ve %90 noktaları
+  function transFrac(key, t, pH) { const a = indFractions(key, pH, false); let s = 0; for (let j = t; j < a.length; j++) s += a[j]; return s; }
+  function transPH(key, t, target) {
+    let lo = -2, hi = 16;
+    for (let i = 0; i < 80 && hi - lo > 1e-10; i++) { const m = 0.5 * (lo + hi); if (transFrac(key, t, m) < target) lo = m; else hi = m; }
+    return 0.5 * (lo + hi);
+  }
+  // Ölçüm için referans: tek geçişte pK; fenolftaleinde yarı dönüşüm pH'ı (In²⁻ = %50); timol mavisinde ikinci geçiş
+  function fitTarget(key) {
+    const d = IND[key];
+    if (key === "pp") return { t: 2, pK: transPH("pp", 2, 0.5) };
+    if (key === "tb") return { t: 2, pK: d.pK[1] };
+    return { t: 1, pK: d.pK[0] };
+  }
+
+  /* ── Spektrofotometrik pK ölçümü ── */
+  function mulberry32(seed) {
+    let s = seed >>> 0;
+    return function () {
+      s = (s + 0x6d2b79f5) >>> 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function normal(rnd) {
+    let u = 0;
+    while (u <= 1e-12) u = rnd();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rnd());
+  }
+  // Dokuz tampon pKref − 2 … pKref + 2 (0.01'e yuvarlanmış); ölçüm hızlı: fenolftaleinin yavaş solması ölçüme girmez
+  function simulateRun(key, cM, l, nm, sigma, seed) {
+    const ref = fitTarget(key).pK, rnd = mulberry32(seed), pts = [];
+    for (let k = 0; k < 9; k++) {
+      const pH = Math.round((ref - 2 + 0.5 * k) * 100) / 100;
+      const A0 = absAt(key, pH, cM, l, nm, false);
+      pts.push({ pH, A0, A: A0 + sigma * normal(rnd) });
+    }
+    return pts;
+  }
+  function fitSigmoid(pts, guess) {
+    const N = pts.length;
+    function linFit(pK) {
+      let suu = 0, suv = 0, svv = 0, suy = 0, svy = 0;
+      for (const p of pts) {
+        const r = Math.pow(10, p.pH - pK), u = 1 / (1 + r), v = r / (1 + r);
+        suu += u * u; suv += u * v; svv += v * v; suy += u * p.A; svy += v * p.A;
+      }
+      const det = suu * svv - suv * suv;
+      const Aa = (suy * svv - svy * suv) / det, Ab = (svy * suu - suy * suv) / det;
+      let ssr = 0;
+      for (const p of pts) { const r = Math.pow(10, p.pH - pK), m = (Aa + Ab * r) / (1 + r); ssr += (p.A - m) * (p.A - m); }
+      return { Aa, Ab, ssr };
+    }
+    let best = guess, bestS = Infinity;
+    for (let k = -300; k <= 300; k++) { const pK = guess + k / 100, s = linFit(pK).ssr; if (s < bestS) { bestS = s; best = pK; } }
+    const gr = (Math.sqrt(5) - 1) / 2;
+    let lo = best - 0.01, hi = best + 0.01;
+    let x1 = hi - gr * (hi - lo), x2 = lo + gr * (hi - lo), f1 = linFit(x1).ssr, f2 = linFit(x2).ssr;
+    for (let i = 0; i < 100 && hi - lo > 1e-11; i++) {
+      if (f1 < f2) { hi = x2; x2 = x1; f2 = f1; x1 = hi - gr * (hi - lo); f1 = linFit(x1).ssr; }
+      else { lo = x1; x1 = x2; f1 = f2; x2 = lo + gr * (hi - lo); f2 = linFit(x2).ssr; }
+    }
+    const pK = 0.5 * (lo + hi), L = linFit(pK);
+    // Jacobian: ∂m/∂A_a = u, ∂m/∂A_b = v, ∂m/∂pK = −ln10 (A_b − A_a) r/(1 + r)²
+    const M = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    for (const p of pts) {
+      const r = Math.pow(10, p.pH - pK), u = 1 / (1 + r), v = r / (1 + r), w = -LN10 * (L.Ab - L.Aa) * r / ((1 + r) * (1 + r));
+      const J = [u, v, w];
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) M[i][j] += J[i] * J[j];
+    }
+    const det3 = M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) + M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+    const inv22 = (M[0][0] * M[1][1] - M[0][1] * M[1][0]) / det3;
+    const s2 = N > 3 ? L.ssr / (N - 3) : NaN;
+    return { pK, Aa: L.Aa, Ab: L.Ab, ssr: L.ssr, rms: Math.sqrt(L.ssr / N), se: Math.sqrt(Math.max(0, s2 * inv22)), n: N };
+  }
+  /* MATH-END */
+
+  /* ── Biçimlendirme: tek yuvarlama yardımcısı ── */
+  const MINUS = "−";
+  const minus = (s) => String(s).replace(/-/g, MINUS);
+  const SUPC = { "-": "⁻", "+": "⁺", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const sup = (k) => String(k).split("").map((ch) => SUPC[ch] ?? ch).join("");
+  function fix(x, d) {
+    if (!Number.isFinite(x)) return "—";
+    let s = x.toFixed(d);
+    if (/^-0(\.0+)?$/.test(s)) s = s.slice(1);
+    return minus(s);
+  }
+  const back = (s) => Number(s.replace(MINUS, "-"));
+  const sgn = (x, d) => { const s = fix(x, d); return back(s) > 0 ? "+" + s : s; };
+  // n anlamlı basamak; 10⁻² ≤ |x| < 10⁴ ondalık, dışı m·10ᵏ
+  function num(x, n = 3, html = false) {
+    if (!Number.isFinite(x)) return "—";
+    if (x === 0) return "0";
+    const ax = Math.abs(x);
+    if (ax >= 0.01 && ax < 1e4) {
+      const s = x.toPrecision(n);
+      if (!s.includes("e")) return minus(s);
+    }
+    const [m, e] = x.toExponential(n - 1).split("e");
+    return minus(m) + "·10" + (html ? `<sup>${minus(String(Number(e)))}</sup>` : sup(Number(e)));
+  }
+  const molL = (x, html) => `${num(x, 3, html)} mol/L`;
+  const pct = (x, d = 1) => `${fix(100 * x, d)} %`;
+  // Ondalık ve bilimsel yazım: "0,001", "1e-5", "1·10^-5", "1×10⁻⁵", "10^-8"
+  function parseNum(s) {
+    let t = String(s).trim().replace(/\s+/g, "").replace(/[−–]/g, "-").replace(/,/g, ".");
+    t = t.replace(/[⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (run) => "^" + run.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]/g, (ch) => ({ "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁻": "-", "⁺": "+" })[ch]));
+    let m = t.match(/^([+-]?(?:\d+\.?\d*|\.\d+))[*x×·]10\^?([+-]?\d+)$/i);
+    if (m) return Number(m[1]) * Math.pow(10, Number(m[2]));
+    m = t.match(/^10\^([+-]?\d+)$/);
+    if (m) return Math.pow(10, Number(m[1]));
+    if (/^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(t)) return Number(t);
+    return NaN;
+  }
+  const setText = (el, s) => {
+    if (el.dataset.html !== undefined) { delete el.dataset.html; el.textContent = s; }
+    else if (el.textContent !== s) el.textContent = s;
+  };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  const $ = (id) => document.getElementById(id);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  /* ── Tema: tuval CSS değişkenlerini çözemez, renkler burada ── */
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.08)", axis: "rgba(26,29,46,0.45)", warm: "#d97706", accent: "#0d9488", accent2: "#7c3aed",
+      neg: "#dc2626", halo: "rgba(247,249,252,0.92)", shade: "rgba(90,95,122,0.30)", bad: "rgba(220,38,38,0.13)", box: "rgba(255,255,255,0.94)",
+      s: ["#2563eb", "#db2777", "#b45309", "#15803d"],
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.08)", axis: "rgba(232,236,244,0.45)", warm: "#fbbf24", accent: "#5eead4", accent2: "#a78bfa",
+      neg: "#f87171", halo: "rgba(9,13,24,0.9)", shade: "rgba(6,8,15,0.55)", bad: "rgba(248,113,113,0.16)", box: "rgba(10,15,27,0.92)",
+      s: ["#60a5fa", "#f472b6", "#fbbf24", "#4ade80"],
+    };
+  }
+  const rgbStr = (rgb, a = 1) => `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`;
+
+  /* ── Tuval yardımcıları ── */
+  let dpr = 1;
+  const font = (px, w) => `${w || 400} ${px * dpr}px Outfit, system-ui, sans-serif`;
+  // Hale ile metin; "_w" ya da "_{..}" alt simge olarak çizilir
+  function label(c, s, x, y, color, t, o = {}) {
+    const size = o.size || 11;
+    c.font = font(size, o.weight);
+    c.textBaseline = o.base || "alphabetic";
+    c.lineJoin = "round";
+    c.lineWidth = 3.5 * dpr;
+    c.strokeStyle = t.halo;
+    c.fillStyle = color;
+    if (!s.includes("_")) {
+      c.textAlign = o.align || "left";
+      c.strokeText(s, x, y);
+      c.fillText(s, x, y);
+      return;
+    }
+    const segs = [], re = /_(\{[^}]*\}|.)/g;
+    let last = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > last) segs.push([s.slice(last, m.index), false]);
+      segs.push([m[1].replace(/^\{|\}$/g, ""), true]);
+      last = re.lastIndex;
+    }
+    if (last < s.length) segs.push([s.slice(last), false]);
+    const fMain = font(size, o.weight), fSub = font(size * 0.72, o.weight);
+    let w = 0;
+    for (const [txt, sub] of segs) { c.font = sub ? fSub : fMain; w += c.measureText(txt).width; }
+    let x0 = o.align === "right" ? x - w : o.align === "center" ? x - w / 2 : x;
+    c.textAlign = "left";
+    for (const [txt, sub] of segs) {
+      c.font = sub ? fSub : fMain;
+      const yy = sub ? y + size * 0.3 * dpr : y;
+      c.strokeText(txt, x0, yy);
+      c.fillText(txt, x0, yy);
+      x0 += c.measureText(txt).width;
+    }
+  }
+  function niceStep(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const m = raw / p;
+    return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p;
+  }
+  function tickText(v, step) {
+    const dec = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+    return fix(v, dec);
+  }
+  // Doğrusal eksenler: v = {x0, x1, y0, y1}; o.xs, o.ys: adım; o.xfmt, o.yfmt: etiket
+  function axes(c, R, v, t, o = {}) {
+    const X = (x) => R.l + ((x - v.x0) / (v.x1 - v.x0)) * R.w;
+    const Y = (y) => R.t + ((v.y1 - y) / (v.y1 - v.y0)) * R.h;
+    const xs = o.xs || niceStep(((v.x1 - v.x0) / R.w) * 70 * dpr), ys = o.ys || niceStep(((v.y1 - v.y0) / R.h) * 36 * dpr);
+    c.lineWidth = 1 * dpr;
+    c.strokeStyle = t.grid;
+    c.beginPath();
+    for (let i = Math.ceil(v.x0 / xs - 1e-9); i * xs <= v.x1 + 1e-9; i++) { const px = Math.round(X(i * xs)) + 0.5; c.moveTo(px, R.t); c.lineTo(px, R.t + R.h); }
+    for (let j = Math.ceil(v.y0 / ys - 1e-9); j * ys <= v.y1 + 1e-9; j++) { const py = Math.round(Y(j * ys)) + 0.5; c.moveTo(R.l, py); c.lineTo(R.l + R.w, py); }
+    c.stroke();
+    c.strokeStyle = t.axis;
+    c.strokeRect(R.l + 0.5, R.t + 0.5, R.w - 1, R.h - 1);
+    c.font = font(10.5);
+    c.fillStyle = t.muted;
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    for (let i = Math.ceil(v.x0 / xs - 1e-9); i * xs <= v.x1 + 1e-9; i++) c.fillText((o.xfmt || tickText)(i * xs, xs), X(i * xs), R.t + R.h + 5 * dpr);
+    c.textAlign = "right";
+    c.textBaseline = "middle";
+    for (let j = Math.ceil(v.y0 / ys - 1e-9); j * ys <= v.y1 + 1e-9; j++) c.fillText((o.yfmt || tickText)(j * ys, ys), R.l - 5 * dpr, Y(j * ys));
+    if (o.yr) {
+      c.textAlign = "left";
+      for (let j = Math.ceil(v.y0 / ys - 1e-9); j * ys <= v.y1 + 1e-9; j++) c.fillText(o.yr(j * ys, ys), R.l + R.w + 5 * dpr, Y(j * ys));
+    }
+    if (o.xTitle) label(c, o.xTitle, R.l + R.w, R.t + R.h + 30 * dpr, t.muted, t, { size: 10.5, align: "right" });
+    if (o.yTitle) label(c, o.yTitle, R.l, R.t - 8 * dpr, t.ink, t, { size: 11, weight: 600 });
+    if (o.yrTitle) label(c, o.yrTitle, R.l + R.w, R.t - 8 * dpr, t.ink, t, { size: 11, weight: 600, align: "right" });
+    return { X, Y };
+  }
+  function polyline(c, pts) {
+    c.beginPath();
+    let pen = false;
+    for (const p of pts) {
+      if (!p) { pen = false; continue; }
+      if (pen) c.lineTo(p[0], p[1]); else { c.moveTo(p[0], p[1]); pen = true; }
+    }
+    c.stroke();
+  }
+  function dot(c, x, y, r, fill, stroke) {
+    c.beginPath();
+    c.arc(x, y, r, 0, 2 * Math.PI);
+    if (fill) { c.fillStyle = fill; c.fill(); }
+    if (stroke) { c.strokeStyle = stroke; c.lineWidth = 1.6 * dpr; c.stroke(); }
+  }
+  function devX(evt, cv) { const r = cv.getBoundingClientRect(); return ((evt.clientX - r.left) / r.width) * cv.width; }
+  function begin(cv) {
+    const c = cv.getContext("2d");
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, cv.width, cv.height);
+    c.setLineDash([]);
+    return c;
+  }
+  const setAria = (el, s) => { if (el.getAttribute("aria-label") !== s) el.setAttribute("aria-label", s); };
+
+  // Sayı kutusu + kaydırıcı ikilisi: kutu Enter ya da odak kaybında uygulanır
+  function bindBox(box, apply, current) {
+    box.addEventListener("change", () => {
+      const v = parseNum(box.value);
+      if (!Number.isFinite(v)) { box.setAttribute("aria-invalid", "true"); box.value = current(); return; }
+      box.removeAttribute("aria-invalid");
+      apply(v);
+      box.value = current();
+    });
+    box.addEventListener("keydown", (e) => { if (e.key === "Enter") box.dispatchEvent(new Event("change")); });
+  }
+
+  const dirty = { olcek: true, cozelti: true, indikator: true };
+  const S = { tab: "olcek" };
+  const mark = (k) => { dirty[k] = true; };
+
+  /* ═══ (a) pH ölçeği ve su ═══ */
+  const aUI = {
+    ph: $("aPH"), phNum: $("aPHNum"), phOut: $("aPHOut"), T: $("aT"), TNum: $("aTNum"), TOut: $("aTOut"),
+    c: $("aC"), cNum: $("aCNum"), cOut: $("aCOut"), reset: $("aReset"), neutral: $("aNeutralBtn"),
+    H: $("aH"), HNote: $("aHNote"), OH: $("aOH"), OHNote: $("aOHNote"), POH: $("aPOH"), POHNote: $("aPOHNote"),
+    Kw: $("aKw"), KwNote: $("aKwNote"), Neutral: $("aNeutral"), NeutralNote: $("aNeutralNote"), Ratio: $("aRatio"), Class: $("aClass"), status: $("aStatus"),
+    dEx: $("aDilExact"), dExN: $("aDilExactNote"), dNa: $("aDilNaive"), dNaN: $("aDilNaiveNote"), dDf: $("aDilDiff"), dDfN: $("aDilDiffNote"),
+    dW: $("aDilWater"), dWN: $("aDilWaterNote"), dStatus: $("aDilStatus"),
+  };
+  const aStrip = $("aStrip"), aChart = $("aChart"), aDil = $("aDil");
+  const A = { pH: 7, T: 25, lc: -8, pKw: PKW25 };
+  // Gündelik maddeler: OpenStax Chemistry 2e (2019), Şekil 14.2; yağmur suyu ve kan ayrıca
+  const SUBSTANCES = [
+    [0.0, "1 M HCl"], [1.4, "mide özsuyu"], [2.0, "misket limonu"], [2.4, "1 M asetik asit"], [3.5, "şarap"], [5.0, "kahve"],
+    [5.6, "yağmur suyu"], [7.0, "saf su"], [7.4, "kan"], [8.0, "deniz suyu"], [10.5, "magnezya sütü"], [11.5, "ev amonyağı"], [14.0, "1 M NaOH"],
+  ];
+  const UNI_C = 20e-6;
+  let UNI_STRIP = null;
+  function uniStrip() {
+    if (UNI_STRIP) return UNI_STRIP;
+    UNI_STRIP = [];
+    for (let k = 0; k <= 320; k++) { const pH = -1 + k / 20; UNI_STRIP.push(indColour("uni", pH, UNI_C, 1, true).rgb); }
+    return UNI_STRIP;
+  }
+  const dilExact = (c, pKw) => solve(SYSTEMS.hcl, c, pKw, false).pH;
+
+  function setA(o) {
+    if (o.pH !== undefined) A.pH = clamp(Math.round(o.pH * 100) / 100, -1, 15);
+    if (o.T !== undefined) A.T = clamp(Math.round(o.T), 0, 100);
+    if (o.lc !== undefined) A.lc = clamp(o.exact ? o.lc : Math.round(o.lc * 100) / 100, -10, -1);
+    A.pKw = pKwAt(A.T);
+    aUI.ph.value = String(A.pH);
+    aUI.T.value = String(A.T);
+    aUI.c.value = String(A.lc);
+    setText(aUI.phOut, `pH = ${fix(A.pH, 2)}`);
+    setText(aUI.TOut, `${A.T} °C`);
+    setText(aUI.cOut, `c = ${molL(Math.pow(10, A.lc))}`);
+    if (document.activeElement !== aUI.phNum) aUI.phNum.value = fix(A.pH, 2).replace(MINUS, "-");
+    if (document.activeElement !== aUI.TNum) aUI.TNum.value = String(A.T);
+    if (document.activeElement !== aUI.cNum) aUI.cNum.value = num(Math.pow(10, A.lc), 3).replace(/·10/, "e").replace(/[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (r) => r.replace(/./g, (ch) => ({ "⁻": "-", "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9" })[ch])).replace(MINUS, "-");
+    readoutsA();
+    mark("olcek");
+  }
+  // Sınıf, ekranda görünen (iki ondalık) değerlerden: kart ve durum satırı her zaman aynı şeyi söyler
+  function classify(pH, pKw) {
+    const a = fix(pH, 2), n = fix(pKw / 2, 2);
+    if (a === n) return "neutral";
+    return back(a) < back(n) ? "acid" : "base";
+  }
+  function readoutsA() {
+    const pH = A.pH, pKw = A.pKw, h = Math.pow(10, -pH), oh = Math.pow(10, pH - pKw), n = pKw / 2;
+    setText(aUI.H, molL(h));
+    setText(aUI.HNote, `log[H₃O⁺] = ${fix(-pH, 2)}`);
+    setText(aUI.OH, molL(oh));
+    setText(aUI.OHNote, `log[OH⁻] = ${fix(pH - pKw, 2)}`);
+    setText(aUI.POH, fix(pKw - pH, 2));
+    setHTML(aUI.POHNote, `pH + pOH = pK<sub>w</sub> = ${fix(pKw, 3)}`);
+    setText(aUI.Kw, num(Math.pow(10, -pKw), 3));
+    setHTML(aUI.KwNote, `pK<sub>w</sub> = ${fix(pKw, 3)} · ${A.T} °C, ρ = ${fix(waterDensity(A.T), 4)} g/cm³`);
+    setText(aUI.Neutral, fix(n, 2));
+    setText(aUI.NeutralNote, `[H₃O⁺] = [OH⁻] = ${molL(Math.pow(10, -n))}`);
+    const cls = classify(pH, pKw);
+    setText(aUI.Ratio, num(Math.pow(10, pKw - 2 * pH), 3));
+    setText(aUI.Class, cls === "neutral" ? "nötr: pH iki ondalıkta nötr noktaya eşit" : cls === "acid" ? `asidik: H₃O⁺ fazla (${A.T} °C)` : `bazik: OH⁻ fazla (${A.T} °C)`);
+    const parts = [];
+    parts.push(`${A.T} °C'de pK<sub>w</sub> = ${fix(pKw, 3)}; nötr su pH ${fix(n, 2)}'dedir.`);
+    if (cls === "neutral") parts.push(`Bu pH, iki ondalık basamakta bu sıcaklığın nötr noktasına (pK<sub>w</sub>/2 = ${fix(n, 3)}) eşit: [H₃O⁺] ile [OH⁻] arasındaki fark ${fix(100 * Math.abs(Math.pow(10, pKw - 2 * pH) - 1), 1)} %.`);
+    else {
+      const d = fix(Math.abs(pH - n), 2);
+      parts.push(cls === "acid" ? `pH nötrün ${d} birim altında: çözelti asidik, [H₃O⁺] [OH⁻]'nin ${num(Math.pow(10, pKw - 2 * pH), 3)} katı.` : `pH nötrün ${d} birim üstünde: çözelti bazik, [OH⁻] [H₃O⁺]'nın ${num(Math.pow(10, 2 * pH - pKw), 3)} katı.`);
+    }
+    if (A.T !== 25 && fix(pH, 2) === "7.00") parts.push(`pH 7.00 yalnız 25 °C'de nötre çok yakındır (${fix(PKW25 / 2, 3)}); ${A.T} °C'de ${cls === "base" ? "baziktir" : cls === "acid" ? "asidiktir" : "nötrdür"}.`);
+    if (A.T >= 30 && A.T <= 45 && cls === "neutral") parts.push("Örneğin vücut sıcaklığında saf su pH 6.8 civarındadır ama asidik değildir.");
+    let warn = false;
+    if (pH < 0) { warn = true; parts.push(`Model dışı: pH &lt; 0 için [H₃O⁺] &gt; 1 mol/L gerekir; bu derişimde etkinlik katsayısı 1'den çok uzaktır, pH = −log[H₃O⁺] derişimle yalnız biçimsel bir yazımdır.`); }
+    if (pH > pKw) { warn = true; parts.push(`Model dışı: [OH⁻] &gt; 1 mol/L; bu derişimde etkinlik katsayıları 1'den çok uzaktır, derişim tabanlı hesap yalnız biçimseldir.`); }
+    setHTML(aUI.status, parts.join(" "));
+    aUI.status.classList.toggle("is-warn", warn);
+    // Seyreltme tuzağı
+    const c = Math.pow(10, A.lc), ex = dilExact(c, pKw), naive = -A.lc, hx = Math.pow(10, -ex), water = Math.pow(10, ex - pKw) / hx;
+    setText(aUI.dEx, fix(ex, 3));
+    setText(aUI.dExN, `[H₃O⁺] = ${molL(hx)} · ${A.T} °C`);
+    setText(aUI.dNa, fix(naive, 3));
+    setText(aUI.dNaN, `[H₃O⁺] = c = ${molL(c)}`);
+    setText(aUI.dDf, sgn(naive - ex, 3));
+    setText(aUI.dDfN, `[H₃O⁺] bağıl hatası ${sgn(100 * (c / hx - 1), 1)} %`);
+    setText(aUI.dW, pct(water, 1));
+    setText(aUI.dWN, `[OH⁻]/[H₃O⁺]: su kendi iyonlaşmasıyla bu kadar H₃O⁺ katar`);
+    const dl = [];
+    const fail = Math.abs(naive - ex) > PH_TOL;
+    if (fail) dl.push(`Yaklaşım bozuluyor (|ΔpH| = ${fix(Math.abs(naive - ex), 3)} &gt; 0.02): c, sudan gelen 10<sup>${minus(fix(-pKw / 2, 1))}</sup> mol/L mertebesindeki H₃O⁺'ya göre küçük.`);
+    else dl.push(`Yaklaşım geçerli (|ΔpH| = ${fix(Math.abs(naive - ex), 3)} ≤ 0.02): asidin verdiği H₃O⁺ sudan gelenin yanında baskın.`);
+    if (naive > n && fail) dl.push(`−log c = ${fix(naive, 2)} nötrün (${fix(n, 2)}) üstünde, yani "bazik" derdi; oysa asit eklenmiş su nötrden bazik olamaz: tam çözüm ${fix(ex, 3)}.`);
+    setHTML(aUI.dStatus, dl.join(" "));
+    aUI.dStatus.classList.toggle("is-warn", fail);
+    setAria(aStrip, `pH şeridi −1'den 15'e: evrensel indikatör renkleri, üstte [H₃O⁺] ve altta ${A.T} °C için [OH⁻] on katlık ölçekleri, gündelik maddeler; seçili pH ${fix(pH, 2)} ve nötr nokta ${fix(n, 2)} işaretli`);
+    setAria(aChart, `0–100 °C arasında nötr pH = pKw/2 eğrisi (sağ eksen pKw); ${A.T} °C noktası ${fix(n, 2)} ve seçili pH ${fix(pH, 2)} yatay çizgisi`);
+    setAria(aDil, `HCl derişimi 10⁻¹⁰–10⁻¹ mol/L için tam pH ve −log c doğrusu, nötr pH çizgisi; c = ${molL(c)} noktası tam ${fix(ex, 3)}, yaklaşık ${fix(naive, 3)}`);
+  }
+  const aStripLayout = () => {
+    const W = aStrip.width, H = aStrip.height;
+    return { L: 16 * dpr, R: W - 16 * dpr, bandT: 42 * dpr, bandH: clamp(H * 0.2, 28 * dpr, 64 * dpr), W, H };
+  };
+  const aPhX = (Ly, p) => Ly.L + ((p + 1) / 16) * (Ly.R - Ly.L);
+  function drawStripA(t) {
+    const c = begin(aStrip), Ly = aStripLayout(), { L, R, bandT, bandH, W, H } = Ly;
+    const X = (p) => aPhX(Ly, p), bandB = bandT + bandH, pKw = A.pKw, n = pKw / 2;
+    // renk şeridi
+    const cols = uniStrip();
+    for (let k = 0; k < 320; k++) { c.fillStyle = rgbStr(cols[k]); c.fillRect(Math.floor(X(-1 + k / 20)), bandT, Math.ceil(X(-1 + (k + 1) / 20)) - Math.floor(X(-1 + k / 20)) + 1, bandH); }
+    c.fillStyle = t.shade;
+    c.fillRect(X(-1), bandT, X(0) - X(-1), bandH);
+    c.fillRect(X(pKw), bandT, X(15) - X(pKw), bandH);
+    c.strokeStyle = t.axis;
+    c.lineWidth = 1 * dpr;
+    c.strokeRect(L + 0.5, bandT + 0.5, R - L - 1, bandH - 1);
+    // pH tamsayıları
+    c.font = font(10.5, 600);
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    const pxPer = (R - L) / 16;
+    const pStep = pxPer < 18 * dpr ? 2 : 1;
+    for (let p = -1; p <= 15; p++) {
+      const x = Math.round(X(p)) + 0.5;
+      c.strokeStyle = t.axis;
+      c.beginPath(); c.moveTo(x, bandB); c.lineTo(x, bandB + 4 * dpr); c.stroke();
+      if (pStep === 1 || p % 2 === 0) { c.fillStyle = p < 0 || p > 14 ? t.muted : t.ink; c.fillText(minus(String(p)), x, bandB + 5 * dpr); }
+    }
+    // [H₃O⁺] ölçeği (üst)
+    c.font = font(10);
+    const dStep = pxPer < 26 * dpr ? (pxPer < 14 * dpr ? 4 : 2) : 1;
+    c.textBaseline = "bottom";
+    for (let p = -1; p <= 15; p++) {
+      const x = Math.round(X(p)) + 0.5;
+      c.strokeStyle = t.axis;
+      c.beginPath(); c.moveTo(x, bandT - 4 * dpr); c.lineTo(x, bandT); c.stroke();
+      if (p % dStep === 0) { c.fillStyle = t.muted; c.fillText(`10${sup(-p)}`, x, bandT - 5 * dpr); }
+    }
+    const xpTag = X(A.pH);
+    label(c, "[H₃O⁺], mol/L", xpTag > L + 150 * dpr ? L : R, 12 * dpr, t.ink, t, { size: 10.5, weight: 600, base: "middle", align: xpTag > L + 150 * dpr ? "left" : "right" });
+    // [OH⁻] ölçeği (alt): log[OH⁻] = pH − pK_w
+    const yOH = bandB + 40 * dpr;
+    label(c, `[OH⁻], mol/L (${A.T} °C)`, L, yOH - 7 * dpr, t.ink, t, { size: 10.5, weight: 600 });
+    c.strokeStyle = t.axis;
+    c.lineWidth = 1 * dpr;
+    c.beginPath(); c.moveTo(L, yOH); c.lineTo(R, yOH); c.stroke();
+    c.font = font(10);
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    for (let e = Math.ceil(-1 - pKw); e <= Math.floor(15 - pKw); e++) {
+      const x = Math.round(X(e + pKw)) + 0.5;
+      c.beginPath(); c.moveTo(x, yOH - 3 * dpr); c.lineTo(x, yOH + 3 * dpr); c.stroke();
+      if (e % dStep === 0) { c.fillStyle = t.muted; c.fillText(`10${sup(e)}`, x, yOH + 4 * dpr); }
+    }
+    // gündelik maddeler: çakışmasız şeritler
+    const laneT = yOH + 30 * dpr, laneH = 17 * dpr, lanes = Math.max(2, Math.min(5, Math.floor((H - laneT - 4 * dpr) / laneH)));
+    const ends = new Array(lanes).fill(-Infinity);
+    c.font = font(11);
+    for (const [p, name] of SUBSTANCES) {
+      const text = `${name} ${fix(p, 1)}`, w = c.measureText(text).width, x = X(p);
+      let lane = -1, lx = 0;
+      for (let k = 0; k < lanes; k++) {
+        const left = clamp(x - w / 2, L, R - w);
+        if (left > ends[k] + 6 * dpr) { lane = k; lx = left; break; }
+      }
+      if (lane < 0) continue;
+      ends[lane] = lx + w;
+      const y = laneT + lane * laneH;
+      c.strokeStyle = t.grid;
+      c.lineWidth = 1 * dpr;
+      c.beginPath(); c.moveTo(Math.round(x) + 0.5, yOH + 18 * dpr); c.lineTo(Math.round(x) + 0.5, y); c.stroke();
+      dot(c, x, yOH + 18 * dpr, 1.8 * dpr, t.muted);
+      label(c, text, lx, y + 11 * dpr, t.muted, t, { size: 11 });
+    }
+    // nötr nokta
+    const xn = X(n);
+    c.save();
+    c.setLineDash([4 * dpr, 3 * dpr]);
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1.5 * dpr;
+    c.beginPath(); c.moveTo(xn, bandT - 2 * dpr); c.lineTo(xn, yOH); c.stroke();
+    c.restore();
+    // seçili pH
+    const xp = X(A.pH);
+    c.strokeStyle = t.warm;
+    c.lineWidth = 2.4 * dpr;
+    c.beginPath(); c.moveTo(xp, bandT - 14 * dpr); c.lineTo(xp, yOH + 2 * dpr); c.stroke();
+    dot(c, xp, bandT + bandH / 2, 6 * dpr, rgbStr(cols[clamp(Math.round((A.pH + 1) * 20), 0, 320)]), t.warm);
+    const tag = `pH ${fix(A.pH, 2)}`;
+    c.font = font(11.5, 700);
+    const tw = c.measureText(tag).width + 10 * dpr, tx = clamp(xp - tw / 2, L, R - tw);
+    c.fillStyle = t.box;
+    c.fillRect(tx, 1 * dpr, tw, 18 * dpr);
+    c.strokeStyle = t.warm;
+    c.lineWidth = 1.2 * dpr;
+    c.strokeRect(tx + 0.5, 1 * dpr + 0.5, tw - 1, 18 * dpr - 1);
+    c.fillStyle = t.warm;
+    c.textAlign = "left";
+    c.textBaseline = "middle";
+    c.fillText(tag, tx + 5 * dpr, 10 * dpr);
+    const nt = `nötr ${fix(n, 2)}`;
+    const nx = xn > xp ? xn + 5 * dpr : xn - 5 * dpr;
+    label(c, nt, nx, bandT + bandH - 6 * dpr, t.ink, t, { size: 10.5, weight: 600, align: xn > xp ? "left" : "right" });
+  }
+  function drawChartA(t) {
+    const c = begin(aChart), W = aChart.width, H = aChart.height;
+    const R = { l: 42 * dpr, t: 24 * dpr, w: W - 42 * dpr - 44 * dpr, h: H - 24 * dpr - 38 * dpr };
+    if (R.w <= 0 || R.h <= 0) return;
+    const v = { x0: 0, x1: 100, y0: 6.0, y1: 7.6 };
+    const { X, Y } = axes(c, R, v, t, { xs: 10, ys: 0.2, yr: (y) => fix(2 * y, 1), xTitle: "T, °C", yTitle: "nötr pH", yrTitle: "pK_w", xfmt: (x) => String(x) });
+    c.save();
+    c.beginPath(); c.rect(R.l, R.t, R.w, R.h); c.clip();
+    c.strokeStyle = t.accent;
+    c.lineWidth = 2.4 * dpr;
+    const pts = [];
+    for (let T = 0; T <= 100; T += 0.5) pts.push([X(T), Y(pKwAt(T) / 2)]);
+    polyline(c, pts);
+    if (A.pH >= v.y0 && A.pH <= v.y1) {
+      c.setLineDash([6 * dpr, 4 * dpr]);
+      c.strokeStyle = t.warm;
+      c.lineWidth = 1.6 * dpr;
+      c.beginPath(); c.moveTo(R.l, Y(A.pH)); c.lineTo(R.l + R.w, Y(A.pH)); c.stroke();
+      c.setLineDash([]);
+    }
+    c.restore();
+    label(c, "bazik", X(97), Y(7.48), t.muted, t, { size: 11, align: "right" });
+    label(c, "asidik", X(3), Y(6.08), t.muted, t, { size: 11 });
+    const n = A.pKw / 2;
+    dot(c, X(A.T), Y(n), 5 * dpr, t.accent, t.halo);
+    label(c, `${A.T} °C: ${fix(n, 2)}`, X(A.T) + (A.T > 70 ? -8 : 8) * dpr, Y(n) - 8 * dpr, t.ink, t, { size: 11, weight: 600, align: A.T > 70 ? "right" : "left" });
+    if (A.pH >= v.y0 && A.pH <= v.y1) dot(c, X(A.T), Y(A.pH), 4.5 * dpr, t.warm);
+    else label(c, `seçili pH ${fix(A.pH, 2)} eksen dışında`, R.l + R.w - 6 * dpr, R.t + 14 * dpr, t.warm, t, { size: 10.5, align: "right" });
+  }
+  function drawDilA(t) {
+    const c = begin(aDil), W = aDil.width, H = aDil.height;
+    const R = { l: 38 * dpr, t: 22 * dpr, w: W - 38 * dpr - 14 * dpr, h: H - 22 * dpr - 38 * dpr };
+    if (R.w <= 0 || R.h <= 0) return;
+    const v = { x0: -10, x1: -1, y0: 0, y1: 10 };
+    const { X, Y } = axes(c, R, v, t, { xs: 1, ys: 1, xfmt: (x) => `10${sup(x)}`, xTitle: "c(HCl), mol/L", yTitle: "pH" });
+    const n = A.pKw / 2;
+    c.save();
+    c.beginPath(); c.rect(R.l, R.t, R.w, R.h); c.clip();
+    c.setLineDash([2 * dpr, 4 * dpr]);
+    c.strokeStyle = t.muted;
+    c.lineWidth = 1.6 * dpr;
+    c.beginPath(); c.moveTo(R.l, Y(n)); c.lineTo(R.l + R.w, Y(n)); c.stroke();
+    c.setLineDash([7 * dpr, 5 * dpr]);
+    c.strokeStyle = t.warm;
+    c.lineWidth = 1.8 * dpr;
+    polyline(c, [[X(-10), Y(10)], [X(-1), Y(1)]]);
+    c.setLineDash([]);
+    c.strokeStyle = t.accent;
+    c.lineWidth = 2.4 * dpr;
+    const pts = [];
+    for (let k = 0; k <= 450; k++) { const lc = -10 + k / 50; pts.push([X(lc), Y(dilExact(Math.pow(10, lc), A.pKw))]); }
+    polyline(c, pts);
+    c.restore();
+    const ex = dilExact(Math.pow(10, A.lc), A.pKw), x = X(A.lc);
+    c.globalAlpha = 0.5;
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1 * dpr;
+    c.beginPath(); c.moveTo(x, R.t); c.lineTo(x, R.t + R.h); c.stroke();
+    c.globalAlpha = 1;
+    dot(c, x, Y(ex), 5 * dpr, t.accent, t.halo);
+    if (-A.lc <= 10) dot(c, x, Y(-A.lc), 4.5 * dpr, t.warm, t.halo);
+    label(c, `nötr ${fix(n, 2)}`, R.l + 6 * dpr, Y(n) - 6 * dpr, t.muted, t, { size: 10.5 });
+    label(c, `tam ${fix(ex, 3)} · −log c ${fix(-A.lc, 2)}`, R.l + R.w - 4 * dpr, R.t + 14 * dpr, t.ink, t, { size: 11, weight: 600, align: "right" });
+  }
+  function resetA() { setA({ pH: 7, T: 25, lc: -8 }); }
+  aUI.ph.addEventListener("input", () => setA({ pH: Number(aUI.ph.value) }));
+  aUI.T.addEventListener("input", () => setA({ T: Number(aUI.T.value) }));
+  aUI.c.addEventListener("input", () => setA({ lc: Number(aUI.c.value) }));
+  bindBox(aUI.phNum, (v) => setA({ pH: v }), () => fix(A.pH, 2).replace(MINUS, "-"));
+  bindBox(aUI.TNum, (v) => setA({ T: v }), () => String(A.T));
+  bindBox(aUI.cNum, (v) => { if (v > 0) setA({ lc: lg(v), exact: true }); }, () => String(Number(Math.pow(10, A.lc).toPrecision(4))));
+  document.querySelectorAll("[data-temp]").forEach((b) => b.addEventListener("click", () => setA({ T: Number(b.dataset.temp) })));
+  aUI.neutral.addEventListener("click", () => setA({ pH: A.pKw / 2 }));
+  aUI.reset.addEventListener("click", resetA);
+
+  /* ═══ (b) Asit ve baz çözeltileri ═══ */
+  const bUI = {
+    sys: $("bSys"), sysOut: $("bSysOut"), c: $("bC"), cNum: $("bCNum"), cOut: $("bCOut"), mode: $("bMode"), modeOut: $("bModeOut"),
+    reset: $("bReset"), blood: $("bBlood"), pH: $("bPH"), pHNote: $("bPHNote"), H: $("bH"), OH: $("bOH"),
+    alpha: $("bAlpha"), alphaLabel: $("bAlphaLabel"), alphaNote: $("bAlphaNote"), ost: $("bOstwald"), ostNote: $("bOstwaldNote"),
+    tbody: document.querySelector("#bTable tbody"), species: document.querySelector("#bSpecies tbody"), status: $("bStatus"), phos: $("bPhosNote"), legend: $("bSpecLegend"),
+  };
+  const bSpec = $("bSpec"), bConc = $("bConc");
+  const B = { key: "acetic", lc: -1, mode: "frac", scan: null, scanKey: "", marker: null };
+  $("bPKw").textContent = fix(PKW25, 3);
+  const KIND_TR = { strong: "kuvvetli", acid: "zayıf asit", base: "zayıf baz" };
+  function setB(o) {
+    if (o.key !== undefined) B.key = o.key;
+    if (o.lc !== undefined) B.lc = clamp(o.exact ? o.lc : Math.round(o.lc * 100) / 100, -9, 0);
+    if (o.mode !== undefined) B.mode = o.mode;
+    B.marker = o.marker !== undefined ? o.marker : null;
+    bUI.sys.value = B.key;
+    bUI.c.value = String(B.lc);
+    bUI.mode.value = B.mode;
+    const sys = SYSTEMS[B.key];
+    setText(bUI.sysOut, sys.kind === "strong" ? (sys.q < 0 ? "kuvvetli asit" : "kuvvetli baz") : sys.pKa.length > 1 ? `${sys.pKa.length} basamaklı asit` : KIND_TR[sys.kind]);
+    setText(bUI.cOut, `c = ${molL(Math.pow(10, B.lc))}`);
+    setText(bUI.modeOut, B.mode === "frac" ? "kesirler" : "log derişim");
+    if (document.activeElement !== bUI.cNum) bUI.cNum.value = String(Number(Math.pow(10, B.lc).toPrecision(3)));
+    if (B.scanKey !== B.key) { B.scan = scan(sys, PKW25, -9, 0); B.scanKey = B.key; B.ranges = { short: okRanges(B.scan.lc, B.scan.ex, B.scan.sh, PH_TOL), quad: okRanges(B.scan.lc, B.scan.ex, B.scan.qd, PH_TOL) }; }
+    readoutsB();
+    mark("cozelti");
+  }
+  function rangeText(rs, lc0, lc1) {
+    if (!rs.length) return "hiçbir derişimde";
+    const e = (x) => `10<sup>${minus(fix(x, 2).replace(/\.?0+$/, ""))}</sup>`;
+    return rs.map(([a, b]) => {
+      if (a <= lc0 + 1e-9 && b >= lc1 - 1e-9) return "tarananın tümünde";
+      if (a <= lc0 + 1e-9) return `c ≤ ${e(b)}`;
+      if (b >= lc1 - 1e-9) return `c ≥ ${e(a)}`;
+      return `${e(a)} – ${e(b)}`;
+    }).join("; ");
+  }
+  function readoutsB() {
+    const sys = SYSTEMS[B.key], c = Math.pow(10, B.lc), pKw = PKW25;
+    const sol = solve(sys, c, pKw, false), act = solve(sys, c, pKw, true), ap = approx(sys, c, pKw), d = dissociation(sys, c, pKw, sol);
+    B.sol = sol;
+    setText(bUI.pH, fix(sol.pH, 3));
+    setText(bUI.pHNote, `log[H₃O⁺] üzerinde ikiye bölme; I = ${molL(sol.I)}`);
+    setText(bUI.H, molL(Math.pow(10, -sol.pH)));
+    setText(bUI.OH, `[OH⁻] = ${molL(sol.oh)}`);
+    const isBase = sys.kind === "base", strong = sys.kind === "strong";
+    setHTML(bUI.alphaLabel, isBase ? "Protonlanma derecesi α = [NH₄⁺]/c (tam)" : sys.pKa.length > 1 ? "Birinci basamak α = 1 − α(H<sub>n</sub>A) (tam)" : "Ayrışma derecesi α (tam)");
+    setText(bUI.alpha, strong ? "1 (tam ayrışma varsayımı)" : pct(d.alpha, d.alpha > 0.999 ? 3 : 2));
+    setHTML(bUI.alphaNote, strong ? "kuvvetli elektrolit: her derişimde tümü iyon" : `sonsuz seyreltmede sınır ${pct(d.limit, d.limit > 0.999 ? 3 : 2)} ([H₃O⁺] → √K<sub>w</sub>)`);
+    setText(bUI.ost, strong ? "—" : pct(d.ostwald, d.ostwald > 0.999 ? 3 : 2));
+    setHTML(bUI.ostNote, strong ? "kuvvetli elektrolitte uygulanmaz" : `K = α²c/(1 − α); su yok sayılınca sınır 100 %${Math.abs(d.ostwald - d.alpha) > 0.01 ? `, tamdan fark ${sgn(100 * (d.ostwald - d.alpha), 2)} puan` : ""}`);
+    const rows = [];
+    rows.push(`<tr><th scope="row">Tam çözüm<small>yük denkliği, su dahil</small></th><td class="meas">${fix(sol.pH, 3)}</td><td>—</td><td>ölçüm</td></tr>`);
+    const shortForm = strong ? (sys.q < 0 ? "−log c" : "pK<sub>w</sub> + log c") : isBase ? "pOH = ½(pK<sub>b</sub> − log c)" : "½(pK<sub>a1</sub> − log c)";
+    if (Number.isFinite(ap.quad)) {
+      const dq = ap.quad - sol.pH, bad = Math.abs(dq) > PH_TOL;
+      rows.push(`<tr class="${bad ? "is-bad" : ""}"><th scope="row">İkinci derece<small>${isBase ? "[OH⁻]² /(c − [OH⁻]) = K<sub>b</sub>" : "h²/(c − h) = K<sub>a1</sub>"}, su yok</small></th><td class="theory">${fix(ap.quad, 3)}</td><td>${sgn(dq, 3)}</td><td>${rangeText(B.ranges.quad, -9, 0)}</td></tr>`);
+    }
+    const ds = ap.short - sol.pH, badS = Math.abs(ds) > PH_TOL;
+    rows.push(`<tr class="${badS ? "is-bad" : ""}"><th scope="row">Kısa yol<small>${shortForm}</small></th><td class="theory">${fix(ap.short, 3)}</td><td>${sgn(ds, 3)}</td><td>${rangeText(B.ranges.short, -9, 0)}</td></tr>`);
+    setHTML(bUI.tbody, rows.join(""));
+    // türler
+    const spRows = [];
+    const counterC = sys.q ? c : 0;
+    if (sys.forms.length) sys.forms.forEach((f, j) => spRows.push(`<tr><th scope="row"><span class="k-s${j}">■</span> ${f}</th><td>${pct(sol.alpha[j], sol.alpha[j] < 0.001 ? 4 : 2)}</td><td>${molL(c * sol.alpha[j], true)}</td></tr>`));
+    if (sys.counter) spRows.push(`<tr><th scope="row">${sys.counter}<small>seyirci iyon</small></th><td>—</td><td>${molL(counterC, true)}</td></tr>`);
+    spRows.push(`<tr><th scope="row">H₃O⁺</th><td>—</td><td>${molL(Math.pow(10, -sol.pH), true)}</td></tr>`);
+    spRows.push(`<tr><th scope="row">OH⁻</th><td>—</td><td>${molL(sol.oh, true)}</td></tr>`);
+    setHTML(bUI.species, spRows.join(""));
+    // durum
+    const parts = [];
+    let warn = false;
+    if (strong) parts.push(sys.q < 0 ? "Kuvvetli asit tamamen ayrışır: [H₃O⁺] = c + [OH⁻]." : "Kuvvetli baz tamamen ayrışır: [OH⁻] = c + [H₃O⁺].");
+    else if (sys.pKa.length > 1) parts.push(`${sys.pKa.length} basamaklı asit: kesirler pH = pK<sub>a</sub> noktalarında eşitlenir.`);
+    if (badS) {
+      const why = strong ? "su kendi iyonlaşmasıyla 10<sup>−7</sup> mol/L mertebesinde H₃O⁺ ve OH⁻ verir; c bunun yanında küçük" : d.alpha > 0.05 && Math.abs(ap.quad - sol.pH) <= PH_TOL ? `ayrışma küçük değil (α = ${pct(d.alpha, 1)}): c − x ≈ c varsayımı bozuluyor` : Math.abs(ap.quad - sol.pH) > PH_TOL && d.alpha < 0.5 ? "suyun iyonlaşması türün verdiği iyonlarla yarışıyor" : "hem ayrışma büyük hem de su katkısı önemli";
+      parts.push(`Kısa yol ${fix(Math.abs(ds), 3)} pH birimi şaşıyor: ${why}.`);
+    } else parts.push(`Kısa yol ${fix(Math.abs(ds), 3)} pH birimi içinde doğru.`);
+    if (!strong && sys.kind === "acid" && sys.pKa[0] > 7.5) parts.push(`pK<sub>a</sub> > 7 olduğundan sonsuz seyreltmede bile α ${pct(d.limit, 2)}'de kalır: suyun 10<sup>−7</sup> mol/L H₃O⁺'su ayrışmayı bastırır, Ostwald yasası (su yok) ise α → 1 der.`);
+    if (!strong && isBase) parts.push(`Sonsuz seyreltmede protonlanma ${pct(d.limit, 2)}'ye iner (Ostwald: 100 %).`);
+    const dAct = act.pHa - sol.pH;
+    if (act.I > 0.5) { warn = true; parts.push(`Model dışı: iyon şiddeti I = ${molL(act.I)}; ideal seyreltik model ve Davies denklemi (I ≲ 0.5 mol/L) bu derişimde geçersiz, gerçek pH ölçümle ya da Pitzer modeliyle bulunur.`); }
+    else if (Math.abs(dAct) > PH_TOL) { warn = true; parts.push(`Model sınırında: I = ${molL(act.I)}; Davies etkinlik düzeltmesiyle pH ≈ ${fix(act.pHa, 2)} olurdu (fark ${sgn(dAct, 2)}). Derişimle hesaplanan pH burada ${fix(Math.abs(dAct), 2)} birim kadar güvenilmez.`); }
+    else parts.push(`Etkinlik düzeltmesi küçük: Davies ile fark ${sgn(dAct, 3)} pH (I = ${molL(act.I)}).`);
+    setHTML(bUI.status, parts.join(" "));
+    bUI.status.classList.toggle("is-warn", warn);
+    // fosfat ve kan notu
+    if (B.key === "h3po4" && B.marker === "blood") {
+      const a = fractions(sys.pKa.map((p) => -p), -7.4);
+      setHTML(bUI.phos, `Kan pH'ı 7.40'ta (çözeltinin kendi pH'ı değil, tamponla sabitlenmiş): H₂PO₄⁻ ${pct(a[1], 1)}, HPO₄²⁻ ${pct(a[2], 1)}, H₃PO₄ ${num(100 * a[0], 2)} %, PO₄³⁻ ${num(100 * a[3], 2)} %. Oran [HPO₄²⁻]/[H₂PO₄⁻] = 10<sup>7.40 − 7.21</sup> = ${num(a[2] / a[1], 3)}. Diyagramda kesikli çizgi.`);
+    } else setHTML(bUI.phos, B.key === "h3po4" ? "\"Kan pH'ı 7.40'ta fosfat\" düğmesi, pH'ı tamponla 7.40'ta tutulan bir ortamda fosfat türlerinin kesirlerini gösterir." : "");
+    const names = sys.forms.length ? sys.forms.join(", ") : "tür yok (kuvvetli elektrolit)";
+    setAria(bSpec, B.mode === "frac" ? `pH 0–14 için tür kesirleri: ${names}; pKa çizgileri ve çözeltinin pH'ı ${fix(sol.pH, 2)} işaretli` : `Sillén diyagramı: pH 0–14 için log[H₃O⁺], log[OH⁻] ve ${names} türlerinin log derişimi; çözeltinin pH'ı ${fix(sol.pH, 2)} işaretli`);
+    setAria(bConc, `Üstte pH, altta ${isBase ? "protonlanma" : "ayrışma"} derecesi, c = 10⁻⁹–1 mol/L için: tam çözüm, ${Number.isFinite(ap.quad) ? "ikinci derece, " : ""}kısa yol; seçili c = ${molL(c)}`);
+    setHTML(bUI.legend, specLegend(sys));
+  }
+  function specLegend(sys) {
+    const out = sys.forms.map((f, j) => `<span><i class="k-s${j}"></i>${f}</span>`);
+    if (B.mode === "log") out.push('<span><i class="k-ink"></i>H₃O⁺</span>', '<span><i class="dash k-ink"></i>OH⁻</span>');
+    out.push('<span><i class="k-warm"></i>çözeltinin pH\'ı</span>');
+    if (sys.pKa.length) out.push('<span><i class="dash k-muted"></i>pK<sub>a</sub></span>');
+    if (B.marker === "blood") out.push('<span><i class="dash k-neg"></i>kan pH\'ı 7.40</span>');
+    return out.join("");
+  }
+  function drawSpecB(t) {
+    const c = begin(bSpec), W = bSpec.width, H = bSpec.height, sys = SYSTEMS[B.key], sol = B.sol, cc = Math.pow(10, B.lc);
+    const R = { l: 44 * dpr, t: 24 * dpr, w: W - 44 * dpr - 14 * dpr, h: H - 24 * dpr - 38 * dpr };
+    if (R.w <= 0 || R.h <= 0) return;
+    const logMode = B.mode === "log";
+    const v = logMode ? { x0: 0, x1: 14, y0: -14, y1: 0.5 } : { x0: 0, x1: 14, y0: 0, y1: 1.05 };
+    const { X, Y } = axes(c, R, v, t, logMode ? { xs: 1, ys: 2, yfmt: (y) => minus(String(y)), xTitle: "pH", yTitle: "log derişim (mol/L)" } : { xs: 1, ys: 0.2, xTitle: "pH", yTitle: "kesir α" });
+    c.save();
+    c.beginPath(); c.rect(R.l, R.t, R.w, R.h); c.clip();
+    const logK = sys.pKa.map((p) => -p);
+    sys.pKa.forEach((p) => {
+      c.setLineDash([4 * dpr, 4 * dpr]);
+      c.strokeStyle = t.muted;
+      c.lineWidth = 1.2 * dpr;
+      c.beginPath(); c.moveTo(X(p), R.t); c.lineTo(X(p), R.t + R.h); c.stroke();
+      c.setLineDash([]);
+    });
+    if (B.marker === "blood") {
+      c.setLineDash([6 * dpr, 4 * dpr]);
+      c.strokeStyle = t.neg;
+      c.lineWidth = 1.6 * dpr;
+      c.beginPath(); c.moveTo(X(7.4), R.t); c.lineTo(X(7.4), R.t + R.h); c.stroke();
+      c.setLineDash([]);
+    }
+    if (logMode) {
+      c.strokeStyle = t.ink;
+      c.lineWidth = 1.8 * dpr;
+      polyline(c, [[X(0), Y(0)], [X(14), Y(-14)]]);
+      c.setLineDash([6 * dpr, 4 * dpr]);
+      polyline(c, [[X(0), Y(-PKW25)], [X(14), Y(14 - PKW25)]]);
+      c.setLineDash([]);
+    }
+    for (let j = 0; j < sys.forms.length; j++) {
+      c.strokeStyle = t.s[j];
+      c.lineWidth = 2.4 * dpr;
+      const pts = [];
+      for (let k = 0; k <= 560; k++) {
+        const pH = k / 40, a = fractions(logK, -pH)[j];
+        pts.push([X(pH), Y(logMode ? Math.max(-15, lg(cc * a)) : a)]);
+      }
+      polyline(c, pts);
+    }
+    if (!sys.forms.length && !logMode) {
+      c.strokeStyle = t.s[0];
+      c.lineWidth = 2.4 * dpr;
+      polyline(c, [[X(0), Y(1)], [X(14), Y(1)]]);
+    }
+    if (!sys.forms.length && logMode) {
+      c.strokeStyle = t.s[0];
+      c.lineWidth = 2.4 * dpr;
+      polyline(c, [[X(0), Y(lg(cc))], [X(14), Y(lg(cc))]]);
+    }
+    c.restore();
+    const xp = X(clamp(sol.pH, 0, 14));
+    c.strokeStyle = t.warm;
+    c.lineWidth = 2.2 * dpr;
+    c.beginPath(); c.moveTo(xp, R.t); c.lineTo(xp, R.t + R.h); c.stroke();
+    if (sys.forms.length) sys.forms.forEach((f, j) => { const a = sol.alpha[j], y = logMode ? lg(cc * a) : a; if (y >= v.y0) dot(c, xp, Y(y), 4 * dpr, t.s[j], t.halo); });
+    sys.pKa.forEach((p, i) => label(c, `pK${sys.pKa.length > 1 ? ["₁", "₂", "₃"][i] : "ₐ"} ${fix(p, 2)}`, X(p) + 4 * dpr, R.t + 14 * dpr + (i % 2) * 14 * dpr, t.muted, t, { size: 10.5 }));
+    if (!sys.forms.length && !logMode) label(c, sys.q < 0 ? "Cl⁻: her pH'ta %100 (kuvvetli asit)" : "Na⁺: her pH'ta %100 (kuvvetli baz)", R.l + 8 * dpr, Y(1) + 16 * dpr, t.muted, t, { size: 11 });
+    const right = sol.pH > 9;
+    label(c, `pH ${fix(sol.pH, 3)}`, xp + (right ? -6 : 6) * dpr, R.t + R.h - 8 * dpr, t.warm, t, { size: 11.5, weight: 700, align: right ? "right" : "left" });
+  }
+  const concPlot = () => {
+    const W = bConc.width, H = bConc.height, gap = 44 * dpr, top = 24 * dpr, bot = 38 * dpr;
+    const h = (H - top - bot - gap) / 2;
+    return { A: { l: 44 * dpr, t: top, w: W - 58 * dpr, h: h * 1.08 }, B: { l: 44 * dpr, t: top + h * 1.08 + gap, w: W - 58 * dpr, h: h * 0.92 } };
+  };
+  function drawConcB(t) {
+    const c = begin(bConc), P = concPlot(), sc = B.scan, sys = SYSTEMS[B.key];
+    if (P.A.w <= 0 || P.A.h <= 0 || !sc) return;
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < sc.ex.length; i++) for (const y of [sc.ex[i], sc.sh[i], sc.qd[i]]) if (Number.isFinite(y)) { lo = Math.min(lo, y); hi = Math.max(hi, y); }
+    lo = Math.max(-1, Math.floor(lo - 0.3)); hi = Math.min(15, Math.ceil(hi + 0.3));
+    const vA = { x0: -9, x1: 0, y0: lo, y1: hi };
+    const ax = axes(c, P.A, vA, t, { xs: 1, ys: hi - lo > 8 ? 2 : 1, xfmt: (x) => (x === 0 ? "1" : `10${sup(x)}`), yTitle: "pH" });
+    const X = ax.X, Y = ax.Y;
+    c.save();
+    c.beginPath(); c.rect(P.A.l, P.A.t, P.A.w, P.A.h); c.clip();
+    c.fillStyle = t.bad;
+    for (let i = 0; i < sc.lc.length; i++) if (Math.abs(sc.sh[i] - sc.ex[i]) > PH_TOL) c.fillRect(X(sc.lc[i]) - 0.6 * dpr, P.A.t, X(0.01 - 9) - X(-9) + 1.2 * dpr, P.A.h);
+    const line = (arr, col, dash, w) => {
+      c.setLineDash(dash.map((d) => d * dpr));
+      c.strokeStyle = col;
+      c.lineWidth = w * dpr;
+      const pts = [];
+      for (let i = 0; i < arr.length; i += 2) pts.push(Number.isFinite(arr[i]) && arr[i] > vA.y0 - 3 && arr[i] < vA.y1 + 3 ? [X(sc.lc[i]), Y(arr[i])] : null);
+      polyline(c, pts);
+      c.setLineDash([]);
+    };
+    if (sc.qd.some(Number.isFinite)) line(sc.qd, t.accent2, [7, 5], 1.8);
+    line(sc.sh, t.warm, [2, 4], 2.4);
+    line(sc.ex, t.accent, [], 2.4);
+    c.restore();
+    // α paneli
+    const strong = sys.kind === "strong";
+    const vB = { x0: -9, x1: 0, y0: 0, y1: 1.05 };
+    const bx = axes(c, P.B, vB, t, { xs: 1, ys: 0.2, xfmt: (x) => (x === 0 ? "1" : `10${sup(x)}`), xTitle: "toplam derişim c, mol/L", yTitle: sys.kind === "base" ? "protonlanma derecesi α" : "ayrışma derecesi α" });
+    c.save();
+    c.beginPath(); c.rect(P.B.l, P.B.t, P.B.w, P.B.h); c.clip();
+    if (!strong) {
+      const d = dissociation(sys, 1, PKW25, solve(sys, 1, PKW25, false));
+      c.setLineDash([5 * dpr, 4 * dpr]);
+      c.strokeStyle = t.muted;
+      c.lineWidth = 1.4 * dpr;
+      c.beginPath(); c.moveTo(P.B.l, bx.Y(d.limit)); c.lineTo(P.B.l + P.B.w, bx.Y(d.limit)); c.stroke();
+      c.setLineDash([7 * dpr, 5 * dpr]);
+      c.strokeStyle = t.accent2;
+      c.lineWidth = 1.8 * dpr;
+      const po = [], pa = [];
+      for (let i = 0; i < sc.lc.length; i += 2) { po.push([bx.X(sc.lc[i]), bx.Y(sc.os[i])]); pa.push([bx.X(sc.lc[i]), bx.Y(sc.al[i])]); }
+      polyline(c, po);
+      c.setLineDash([]);
+      c.strokeStyle = t.accent;
+      c.lineWidth = 2.4 * dpr;
+      polyline(c, pa);
+    } else {
+      c.strokeStyle = t.accent;
+      c.lineWidth = 2.4 * dpr;
+      polyline(c, [[bx.X(-9), bx.Y(1)], [bx.X(0), bx.Y(1)]]);
+    }
+    c.restore();
+    if (strong) label(c, "kuvvetli elektrolit: α = 1", P.B.l + 8 * dpr, bx.Y(1) + 16 * dpr, t.muted, t, { size: 11 });
+    // imleç
+    const x = X(B.lc), sol = B.sol, d = dissociation(sys, Math.pow(10, B.lc), PKW25, sol), ap = approx(sys, Math.pow(10, B.lc), PKW25);
+    c.globalAlpha = 0.5;
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1 * dpr;
+    c.beginPath(); c.moveTo(x, P.A.t); c.lineTo(x, P.A.t + P.A.h); c.moveTo(x, P.B.t); c.lineTo(x, P.B.t + P.B.h); c.stroke();
+    c.globalAlpha = 1;
+    dot(c, x, Y(clamp(ap.short, vA.y0, vA.y1)), 4 * dpr, t.warm, t.halo);
+    if (Number.isFinite(ap.quad)) dot(c, x, Y(clamp(ap.quad, vA.y0, vA.y1)), 4 * dpr, t.accent2, t.halo);
+    dot(c, x, Y(sol.pH), 5 * dpr, t.accent, t.halo);
+    dot(c, x, bx.Y(d.alpha), 5 * dpr, t.accent, t.halo);
+    const right = B.lc > -3;
+    label(c, `c = ${num(Math.pow(10, B.lc), 3)} · pH ${fix(sol.pH, 3)}`, x + (right ? -6 : 6) * dpr, P.A.t + 14 * dpr, t.ink, t, { size: 11, weight: 600, align: right ? "right" : "left" });
+    if (!strong) label(c, `α = ${pct(d.alpha, 1)}`, x + (right ? -6 : 6) * dpr, P.B.t + 14 * dpr, t.ink, t, { size: 11, weight: 600, align: right ? "right" : "left" });
+  }
+  function resetB() { setB({ key: "acetic", lc: -1, mode: "frac" }); }
+  bUI.sys.addEventListener("change", () => setB({ key: bUI.sys.value }));
+  bUI.c.addEventListener("input", () => setB({ lc: Number(bUI.c.value) }));
+  bUI.mode.addEventListener("change", () => setB({ mode: bUI.mode.value, marker: B.marker }));
+  bindBox(bUI.cNum, (v) => { if (v > 0) setB({ lc: lg(v), exact: true, marker: B.marker }); }, () => String(Number(Math.pow(10, B.lc).toPrecision(4))));
+  document.querySelectorAll("[data-conc]").forEach((b) => b.addEventListener("click", () => setB({ lc: Number(b.dataset.conc) })));
+  bUI.blood.addEventListener("click", () => setB({ key: "h3po4", lc: -3, marker: "blood" }));
+  bUI.reset.addEventListener("click", resetB);
+
+  /* ═══ (c) İndikatörler ve renk ═══ */
+  const cUI = {
+    ind: $("cInd"), indOut: $("cIndOut"), ph: $("cPH"), phNum: $("cPHNum"), phOut: $("cPHOut"), conc: $("cConc"), concOut: $("cConcOut"), concLabel: $("cConcLabel"),
+    path: $("cPath"), pathOut: $("cPathOut"), lam: $("cLam"), lamNum: $("cLamNum"), lamOut: $("cLamOut"), fade: $("cFade"), fadeWrap: $("cFadeWrap"),
+    lamBase: $("cLamBase"), lamIso: $("cLamIso"), reset: $("cReset"), noise: $("cNoise"), noiseOut: $("cNoiseOut"), newRun: $("cNewRun"), seedOut: $("cSeedOut"),
+    cuvette: $("cCuvette"), hex: $("cHex"), hexNote: $("cHexNote"), frac: $("cFrac"), fracLabel: $("cFracLabel"), fracNote: $("cFracNote"), H: $("cH"), HNote: $("cHNote"),
+    abs: $("cAbs"), absLabel: $("cAbsLabel"), absNote: $("cAbsNote"), iso: $("cIso"), isoNote: $("cIsoNote"), int: $("cInt"), intNote: $("cIntNote"), status: $("cStatus"),
+    compare: $("cCompare"), fitPK: $("cFitPK"), fitPKNote: $("cFitPKNote"), truePK: $("cTruePK"), truePKNote: $("cTruePKNote"), fitDiff: $("cFitDiff"), fitDiffNote: $("cFitDiffNote"),
+    fitRms: $("cFitRms"), fitRmsNote: $("cFitRmsNote"), fitStatus: $("cFitStatus"), dataNote: $("cDataNote"),
+  };
+  const cSpec = $("cSpec"), cStrip = $("cStrip"), cFit = $("cFit");
+  const C = { key: "btb", pH: 7, cu: 20, l: 1, lam: 616, fade: true, sigma: 0.005, seed: 2026, run: null, fit: null, strips: null, stripKey: "" };
+  const baseForm = (key) => IND[key].forms[IND[key].meas];
+  const isoList = (key) => {
+    const F = IND[key].forms, out = [];
+    if (!F) return out;
+    for (let j = 0; j + 1 < F.length; j++) { const x = crossing(F[j], F[j + 1]); if (Number.isFinite(x)) out.push({ j, nm: x, lit: j === 0 && IND[key].iso ? IND[key].iso : null }); }
+    return out;
+  };
+  const spectral = (key) => !IND[key].chart;
+  const fitable = (key) => !IND[key].chart && !IND[key].mix;
+  function setC(o) {
+    const prevKey = C.key;
+    if (o.key !== undefined) C.key = o.key;
+    if (o.pH !== undefined) C.pH = clamp(Math.round(o.pH * 100) / 100, 0, 14);
+    if (o.cu !== undefined) C.cu = clamp(Math.round(o.cu), 1, 100);
+    if (o.l !== undefined) C.l = o.l;
+    if (o.fade !== undefined) C.fade = o.fade;
+    if (o.sigma !== undefined) C.sigma = o.sigma;
+    if (o.seed !== undefined) C.seed = o.seed;
+    if (C.key !== prevKey || o.lamDefault) C.lam = fitable(C.key) ? baseForm(C.key).nm : C.key === "uni" ? 616 : 550;
+    if (o.lam !== undefined) C.lam = clamp(Math.round(o.lam * 10) / 10, 380, 780);
+    cUI.ind.value = C.key;
+    cUI.ph.value = String(C.pH);
+    cUI.conc.value = String(C.cu);
+    cUI.path.value = String(C.l);
+    cUI.lam.value = String(C.lam);
+    cUI.fade.checked = C.fade;
+    cUI.noise.value = String(C.sigma);
+    const d = IND[C.key];
+    setText(cUI.indOut, d.chart ? "pH 4.5–8.3" : d.mix ? "4 boya" : d.pK.length > 1 && !d.fade ? `pK ${fix(d.pK[0], 2)} ve ${fix(d.pK[1], 2)}` : d.fade !== undefined ? `pK ${fix(d.pK[0], 2)}, ${fix(d.pK[1], 2)}` : `pK ${fix(d.pK[0], 2)}`);
+    setText(cUI.phOut, `pH = ${fix(C.pH, 2)}`);
+    setText(cUI.concOut, `${C.cu} µmol/L`);
+    setText(cUI.concLabel, C.key === "uni" ? "Bromtimol mavisi derişimi (karışımda)" : "İndikatör derişimi c");
+    setText(cUI.pathOut, `${fix(C.l, 1)} cm`);
+    setText(cUI.lamOut, `λ = ${fix(C.lam, 1)} nm`);
+    setText(cUI.noiseOut, C.sigma ? `σ = ${fix(C.sigma, 3)}` : "gürültüsüz");
+    setText(cUI.seedOut, `tohum ${C.seed}`);
+    if (document.activeElement !== cUI.phNum) cUI.phNum.value = fix(C.pH, 2);
+    if (document.activeElement !== cUI.lamNum) cUI.lamNum.value = fix(C.lam, 1);
+    cUI.fadeWrap.hidden = !(C.key === "pp" || C.key === "uni");
+    cUI.conc.disabled = d.chart;
+    cUI.path.disabled = d.chart;
+    cUI.lam.disabled = cUI.lamNum.disabled = d.chart;
+    cUI.lamBase.disabled = !fitable(C.key);
+    cUI.lamIso.disabled = !isoList(C.key).length;
+    cUI.noise.disabled = cUI.newRun.disabled = !fitable(C.key);
+    const sk = `${C.cu}|${C.l}|${C.fade}`;
+    if (C.stripKey !== sk) { C.strips = null; C.stripKey = sk; }
+    const rk = `${C.key}|${C.cu}|${C.l}|${C.sigma}|${C.seed}`;
+    if (C.runKey !== rk) {
+      C.runKey = rk;
+      if (fitable(C.key)) {
+        const f = baseForm(C.key), tg = fitTarget(C.key);
+        C.run = simulateRun(C.key, C.cu * 1e-6, C.l, f.nm, C.sigma, C.seed);
+        C.fit = fitSigmoid(C.run, tg.pK);
+        C.target = tg;
+      } else { C.run = null; C.fit = null; }
+    }
+    readoutsC();
+    mark("indikator");
+  }
+  function colourWord(rgb) {
+    const [r, g, b] = rgb.map((v) => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+    if (d < 0.06) return l > 0.9 ? "renksize yakın" : "gri";
+    let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+    const sat = d / (1 - Math.abs(2 * l - 1));
+    const pale = sat < 0.25 || l > 0.88 ? "soluk " : "";
+    const name = h < 12 || h >= 340 ? "kırmızı" : h < 38 ? "turuncu" : h < 66 ? "sarı" : h < 90 ? "sarı-yeşil" : h < 165 ? "yeşil" : h < 196 ? "turkuaz" : h < 255 ? "mavi" : h < 290 ? "mor" : "pembe-eflatun";
+    return pale + name;
+  }
+  // Kaynakta verilen renk adı (Lange's görsel aralıkları; evrensel: Foster ve Gruntfest 1937; fenolftalein solması: Tamura ve ark. 1996;
+  // bromtimol mavisinin geçişteki yeşili: Wikipedia, Bromothymol blue)
+  const UNI_CHART = ["kırmızı", "turuncu", "sarı", "yeşil", "mavi", "çivit", "mor"];
+  function documentedColour(key, pH, fade) {
+    const d = IND[key];
+    if (key === "uni") { const k = clamp(Math.round(pH), 4, 10); return `${UNI_CHART[k - 4]} (pH ${k} satırı${pH < 3.5 || pH > 10.5 ? "; tablo 4–10 arası" : ""})`; }
+    if (key === "lit") return pH <= 4.5 ? "kırmızı" : pH >= 8.3 ? "mavi" : "mor (geçiş)";
+    if (key === "pp") return pH <= 8.2 ? "renksiz" : pH < 10 ? "renksizden pembeye geçiş" : fade && pH > 13 ? "renksiz (solmuş)" : fade && pH > 12 ? "pembe, yavaşça soluyor" : "pembe";
+    const F = d.forms, L = d.lit;
+    if (key === "tb") return pH <= L[0][0] ? F[0].col : pH < L[0][1] ? `${F[0].col} → ${F[1].col} geçişi` : pH <= L[1][0] ? F[1].col : pH < L[1][1] ? `${F[1].col} → ${F[2].col} geçişi` : F[2].col;
+    if (key === "btb" && pH > L[0][0] && pH < L[0][1]) return `${F[0].col} → ${F[1].col} geçişi (ortası yeşil)`;
+    return pH <= L[0][0] ? F[0].col : pH >= L[0][1] ? F[1].col : `${F[0].col} → ${F[1].col} geçişi`;
+  }
+  function readoutsC() {
+    const d = IND[C.key], cM = C.cu * 1e-6, col = indColour(C.key, C.pH, cM, C.l, C.fade);
+    C.col = col;
+    cUI.cuvette.style.background = col.hex;
+    setAria(cUI.cuvette, `Küvet: ${d.name}, pH ${fix(C.pH, 2)}, renk ${col.hex}`);
+    setText(cUI.hex, `${col.hex} · ${colourWord(col.rgb)}`);
+    if (d.chart) setText(cUI.hexNote, `temsili renk: turnusolün tayf modeli yok · kaynakta: ${documentedColour(C.key, C.pH, C.fade)}`);
+    else setText(cUI.hexNote, `kaynakta: ${documentedColour(C.key, C.pH, C.fade)} · CIE x = ${fix(col.x, 3)}, y = ${fix(col.y, 3)} · geçirgenlik Y = ${pct(col.Y, 1)}${col.out ? " · sRGB dışı, kırpıldı" : ""}`);
+    // kesirler
+    if (d.chart) { setText(cUI.fracLabel, "Mavi biçimin payı (tablodan)"); setText(cUI.frac, pct(col.f, 1)); setText(cUI.fracNote, "kaynak aralığı 4.5–8.3 = %10–%90 alındı"); }
+    else if (d.mix) {
+      setText(cUI.fracLabel, "Bileşenler: baz biçim payları");
+      const bits = d.mix.map(([k]) => { const a = indFractions(k, C.pH, C.fade); const f = k === "pp" ? a[2] : a[a.length - 1]; return `${IND[k].short} ${pct(f, 0)}`; });
+      setText(cUI.frac, bits.slice(0, 2).join(" · "));
+      setText(cUI.fracNote, bits.slice(2).join(" · ") + " (fenolftaleinde pembe In²⁻)");
+    } else {
+      const a = indFractions(C.key, C.pH, C.fade);
+      if (C.key === "tb") { setText(cUI.fracLabel, "H₂In · HIn⁻ · In²⁻ kesirleri"); setText(cUI.frac, a.map((x) => pct(x, 1)).join(" · ")); setText(cUI.fracNote, "kırmızı · sarı · mavi"); }
+      else if (C.key === "pp") { setText(cUI.fracLabel, "Pembe In²⁻ kesri"); setText(cUI.frac, pct(a[2], 1)); setText(cUI.fracNote, `H₂In ${pct(a[0], 1)} · HIn⁻ ${pct(a[1], 1)}${C.fade ? ` · In(OH)³⁻ ${pct(a[3], 1)}` : ""}`); }
+      else { setHTML(cUI.fracLabel, `${d.forms[1].sym} kesri = 1/(1 + 10<sup>pK − pH</sup>)`); setText(cUI.frac, pct(a[1], 1)); setText(cUI.fracNote, `${d.forms[0].sym} (${d.forms[0].col}) ${pct(a[0], 1)} · ${d.forms[1].sym} (${d.forms[1].col}) ${pct(a[1], 1)}`); }
+    }
+    setText(cUI.H, molL(Math.pow(10, -C.pH)));
+    setText(cUI.HNote, `pH ${fix(C.pH, 2)} · ${d.name}`);
+    if (d.chart) { setText(cUI.abs, "—"); setText(cUI.absNote, "turnusol için tayf modeli yok"); }
+    else {
+      const Aval = absAt(C.key, C.pH, cM, C.l, C.lam, C.fade);
+      setText(cUI.absLabel, `Soğurbanlık A(${fix(C.lam, 1)} nm) = ε·ℓ·c`);
+      setText(cUI.abs, fix(Aval, 3));
+      setHTML(cUI.absNote, `geçirgenlik T = 10<sup>−A</sup> = ${pct(Math.pow(10, -Aval), 1)} · ℓ = ${fix(C.l, 1)} cm`);
+    }
+    const iso = isoList(C.key);
+    if (!iso.length) { setText(cUI.iso, "yok"); setText(cUI.isoNote, d.chart ? "tayf modeli yok" : d.mix ? "karışımda tek kesişim yok: dört boya ayrı ayrı geçiş yapar" : "tek renkli indikatör: renkli biçim bir tane"); }
+    else {
+      setText(cUI.iso, iso.map((q) => `${fix(q.nm, 1)} nm`).join(" · "));
+      const q = iso[0], eps = bandEps(d.forms[q.j], q.nm);
+      setText(cUI.isoNote, (q.lit ? `kaynak ${q.lit} nm (bant genişliği buna ayarlı) · ` : "kaynak değeri yok · ") + `ε = ${num(eps, 3)} L/(mol·cm), A = ${fix(eps * cM * C.l, 3)} her pH'ta`);
+    }
+    // görsel geçiş
+    if (d.chart) { setText(cUI.int, "4.5 – 8.3"); setText(cUI.intNote, "kaynakta verilen aralık; karışım olduğu için geniş"); }
+    else if (d.mix) { setText(cUI.int, "pH 4 → 10"); setText(cUI.intNote, "kaynak tablosu: 4 kırmızı, 5 turuncu, 6 sarı, 7 yeşil, 8 mavi, 9 çivit, 10 mor"); }
+    else {
+      const ts = C.key === "tb" ? [1, 2] : C.key === "pp" ? [2] : [1];
+      setText(cUI.int, ts.map((tt) => `${fix(transPH(C.key, tt, 0.1), 2)} – ${fix(transPH(C.key, tt, 0.9), 2)}`).join(" ve "));
+      const lit = d.lit.map(([a, b]) => `${fix(a, 1)}–${fix(b, 1)}`).join(" ve ");
+      setText(cUI.intNote, C.key === "pp" ? `iki protonlu geçiş ±0.954'ten dar · kaynak (göz) ${lit}` : `pK ± log 9 = pK ± 0.954; kural "pK ± 1" · kaynak (göz) ${lit}`);
+    }
+    // durum
+    const parts = [];
+    let warn = false;
+    if (d.chart) parts.push("Turnusol likenlerden elde edilen bir boya karışımıdır (azolitmin, eritrolitmin); yayımlanmış tek bir soğurma tayfı olmadığından renk, kaynaktaki aralıktan (pH 4.5 kırmızı, 8.3 mavi) çizilen temsili bir şerittir, sayısal tayf modeli değildir.");
+    else if (d.mix) parts.push("Evrensel indikatör burada Yamada karışımıdır: timol mavisi, metil kırmızısı, bromtimol mavisi ve fenolftalein; renk dört boyanın soğurbanlıkları toplanarak hesaplanır.");
+    else if (C.key === "pp") parts.push(`Fenolftalein tek renklidir: yalnız In²⁻ pembedir; pembe kesri %50'ye pH ${fix(transPH("pp", 2, 0.5), 2)}'da ulaşır (pK₁ = 9.05, pK₂ = 9.50). Az miktardaki pembe de göze çarptığı için görsel başlangıç (8.2) indikatör derişimine bağlıdır.${C.fade && C.pH > 11 ? ` Kuvvetli bazda pembe biçim yavaşça renksiz In(OH)³⁻'e döner (dakikalar sürer); gösterilen renk dengedeki renktir.` : ""}`);
+    else {
+      const a = indFractions(C.key, C.pH, C.fade);
+      if (C.key === "tb") parts.push(`Timol mavisinin iki geçişi var: kırmızı → sarı (pK₁ = 1.65) ve sarı → mavi (pK₂ = 8.90).`);
+      else parts.push(`${d.name}: pH = pK = ${fix(d.pK[0], 2)}'de iki biçim eşittir; şu an ${d.forms[1].sym} kesri ${pct(a[1], 1)}.`);
+    }
+    if (!d.chart) {
+      let Amax = 0;
+      const g = absGrid(C.key, C.pH, cM, C.l, C.fade);
+      for (let i = 0; i < CIE_N; i++) if (cieNm(i) >= 400 && cieNm(i) <= 700) Amax = Math.max(Amax, g[i]);
+      if (Amax > 2) { warn = true; parts.push(`En yüksek soğurbanlık ${fix(Amax, 2)} &gt; 2: ışığın %1'inden azı geçer, gerçek spektrofotometrede Beer–Lambert doğrusallığı bozulur; derişimi ya da ışık yolunu azalt.`); }
+      if (col.out) parts.push("Renk sRGB üçgeninin dışında: eksi bileşen sıfıra kırpılarak gösterilebilen en yakın renk çiziliyor.");
+    }
+    setHTML(cUI.status, parts.join(" "));
+    cUI.status.classList.toggle("is-warn", warn);
+    // yan yana
+    const sw = IND_KEYS.map((k) => {
+      const cc = indColour(k, C.pH, cM, C.l, C.fade);
+      return `<div class="sw${k === C.key ? " is-sel" : ""}"><i style="background:${cc.hex}"></i><span>${IND[k].name}</span><em>${cc.hex}</em></div>`;
+    }).join("");
+    setHTML(cUI.compare, sw);
+    readoutsFit();
+    setAria(cSpec, d.chart ? "Turnusol için soğurma tayfı modeli yok" : `${d.name} soğurma tayfı 380–780 nm: pH ${fix(C.pH, 2)}'de A(λ), saf biçimlerin tayfları, pK ± 2 aralığında pH ailesi${iso.length ? `, eş soğurma noktası ${iso.map((q) => fix(q.nm, 1)).join(" ve ")} nm` : ""}; okuma dalga boyu ${fix(C.lam, 1)} nm`);
+    setAria(cStrip, `pH 0–14 için yedi indikatörün hesaplanan renk şeritleri, model %10–%90 geçiş çizgileri ve kaynak aralığı çentikleri; seçili pH ${fix(C.pH, 2)}`);
+  }
+  function readoutsFit() {
+    const f = C.fit;
+    if (!f) {
+      setText(cUI.fitPK, "—"); setText(cUI.fitPKNote, C.key === "uni" ? "karışımda tek pK yok: bileşeni tek tek seç" : "turnusol için tayf modeli yok");
+      setText(cUI.truePK, "—"); setText(cUI.truePKNote, ""); setText(cUI.fitDiff, "—"); setText(cUI.fitDiffNote, ""); setText(cUI.fitRms, "—"); setText(cUI.fitRmsNote, "");
+      setHTML(cUI.fitStatus, "Spektrofotometrik ölçüm tek bir geçişi olan, tayfı modellenmiş indikatörlerle yapılır.");
+      cUI.fitStatus.classList.remove("is-warn");
+      setAria(cFit, "Ölçüm yok: bu seçim için spektrofotometrik pK ölçümü yapılmaz");
+      return;
+    }
+    const tg = C.target, form = baseForm(C.key), diff = f.pK - tg.pK, noiseFree = C.sigma === 0;
+    const seStr = noiseFree || !(f.se > 1e-6) ? "" : ` ± ${fix(f.se, 3)}`;
+    setText(cUI.fitPK, `${fix(f.pK, 3)}${seStr}`);
+    setText(cUI.fitPKNote, `${f.n} tampon, λ = ${fix(form.nm, 1)} nm (${form.sym} tepesi)`);
+    setText(cUI.truePK, fix(tg.pK, 3));
+    setText(cUI.truePKNote, C.key === "pp" ? "yarı dönüşüm pH'ı (In²⁻ = %50), pK₁ 9.05 ve pK₂ 9.50'den" : C.key === "tb" ? "ikinci geçiş pK₂; birinci geçiş 544 nm'de aynı yolla ölçülür" : "modelin girdisi");
+    setText(cUI.fitDiff, sgn(diff, 3));
+    setText(cUI.fitDiffNote, noiseFree ? (C.key === "pp" ? "gürültü yok: fark model uyuşmazlığından" : "gürültü yok: fark yalnız yuvarlama") : f.se > 0 ? `standart hatanın ${fix(Math.abs(diff) / f.se, 1)} katı` : "");
+    setText(cUI.fitRms, f.rms < 5e-7 ? "≈ 0" : fix(f.rms, 4));
+    setText(cUI.fitRmsNote, noiseFree ? "gürültü yok" : `gürültü σ = ${fix(C.sigma, 3)}; uyumlu modelde RMS ≈ σ·√(6/9) = ${fix(C.sigma * Math.sqrt(6 / 9), 4)}`);
+    const parts = [];
+    let warn = false;
+    const span = Math.abs(f.Ab - f.Aa);
+    parts.push(`Uydurma A<sub>asit</sub> = ${fix(f.Aa, 3)}, A<sub>baz</sub> = ${fix(f.Ab, 3)}; sigmoidin dönüm noktası pK = ${fix(f.pK, 3)}.`);
+    if (C.key === "pp") parts.push(`Fenolftaleinde renk iki protonla açılır; tek protonlu sigmoit tam uymaz${noiseFree ? `, bu yüzden gürültüsüz veride de kalıntı ${fix(f.rms, 4)} kalır` : ""}.`);
+    if (!noiseFree && span < 10 * C.sigma) { warn = true; parts.push(`Soğurbanlık değişimi (${fix(span, 3)}) gürültünün yalnız ${fix(span / C.sigma, 1)} katı: pK belirsiz, derişimi ya da ışık yolunu artır.`); }
+    const Amax = Math.max(...C.run.map((p) => p.A0));
+    if (Amax > 2) { warn = true; parts.push(`En yüksek A = ${fix(Amax, 2)} &gt; 2: gerçek ölçümde doğrusallık bozulurdu.`); }
+    if (!noiseFree && Math.abs(diff) > 3 * f.se && f.se > 0 && C.key !== "pp") parts.push("Fark standart hatanın 3 katını aşıyor: bu tohumda gürültü şanssız düştü; yeni ölçüm dizisi dene.");
+    setHTML(cUI.fitStatus, parts.join(" "));
+    cUI.fitStatus.classList.toggle("is-warn", warn);
+    setAria(cFit, `${IND[C.key].name}: dokuz tamponda ${fix(form.nm, 1)} nm soğurbanlığı, uydurulan sigmoit (pK ${fix(f.pK, 3)}) ve girdi modeli (pK ${fix(tg.pK, 3)})`);
+  }
+  const specPlot = () => { const W = cSpec.width, H = cSpec.height; return { l: 44 * dpr, t: 26 * dpr, w: W - 58 * dpr, h: H - 26 * dpr - 52 * dpr }; };
+  function drawSpecC(t) {
+    const c = begin(cSpec), R = specPlot(), d = IND[C.key];
+    if (R.w <= 0 || R.h <= 0) return;
+    const v0 = { x0: 380, x1: 780 };
+    if (d.chart) {
+      axes(c, R, { ...v0, y0: 0, y1: 1 }, t, { xs: 50, ys: 0.2, xTitle: "dalga boyu λ, nm", yTitle: "soğurbanlık A" });
+      label(c, "Turnusol: yayımlanmış tek bir tayf yok (boya karışımı)", R.l + R.w / 2, R.t + R.h / 2, t.muted, t, { size: 12, align: "center" });
+      return;
+    }
+    const cM = C.cu * 1e-6, l = C.l, N = Math.max(120, Math.round(R.w / (2 * dpr)));
+    const lam = (k) => 380 + (400 * k) / N;
+    const curves = [];
+    const F = parts(C.key);
+    const pure = [];
+    if (!d.mix) {
+      const acid = 0, base = d.meas;
+      for (const j of [acid, base]) { const arr = []; for (let k = 0; k <= N; k++) arr.push(bandEps(d.forms[j], lam(k)) * cM * l); pure.push(arr); }
+    }
+    const fam = [];
+    if (!d.mix) {
+      const ref = fitTarget(C.key).pK;
+      for (let q = -2; q <= 2; q += 0.5) { const arr = []; for (let k = 0; k <= N; k++) arr.push(absAt(C.key, ref + q, cM, l, lam(k), C.fade)); fam.push(arr); }
+    }
+    const cur = [];
+    for (let k = 0; k <= N; k++) cur.push(absAt(C.key, C.pH, cM, l, lam(k), C.fade));
+    let ymax = 0.05;
+    for (const arr of [cur, ...pure]) for (const y of arr) ymax = Math.max(ymax, y);
+    void curves; void F;
+    const v = { ...v0, y0: 0, y1: ymax * 1.12 };
+    const { X, Y } = axes(c, R, v, t, { xs: 50, xTitle: "dalga boyu λ, nm", yTitle: `soğurbanlık A (ℓ = ${fix(l, 1)} cm, c = ${C.cu} µmol/L)` });
+    // görünür tayf bandı
+    const by = R.t + R.h + 18 * dpr;
+    for (let px = 0; px < R.w; px += 2) { const nm = 380 + (400 * px) / R.w; c.fillStyle = rgbStr(spectralRGB(nm)); c.fillRect(R.l + px, by, 2.5, 5 * dpr); }
+    c.save();
+    c.beginPath(); c.rect(R.l, R.t, R.w, R.h); c.clip();
+    const draw = (arr, col, w, dash, alpha) => {
+      c.globalAlpha = alpha ?? 1;
+      c.setLineDash((dash || []).map((x) => x * dpr));
+      c.strokeStyle = col;
+      c.lineWidth = w * dpr;
+      polyline(c, arr.map((y, k) => [X(lam(k)), Y(y)]));
+      c.setLineDash([]);
+      c.globalAlpha = 1;
+    };
+    for (const arr of fam) draw(arr, t.muted, 1, null, 0.55);
+    if (pure.length) { draw(pure[0], t.s[0], 1.8, [7, 5]); draw(pure[1], t.s[1], 1.8, [7, 5]); }
+    draw(cur, t.warm, 2.8);
+    c.restore();
+    for (const q of isoList(C.key)) {
+      const A0 = bandEps(d.forms[q.j], q.nm) * cM * l;
+      dot(c, X(q.nm), Y(A0), 5.5 * dpr, null, t.ink);
+      label(c, `${fix(q.nm, 1)} nm`, X(q.nm) + 7 * dpr, Y(A0) - 7 * dpr, t.ink, t, { size: 10.5, weight: 600 });
+    }
+    const xl = X(C.lam), Al = absAt(C.key, C.pH, cM, l, C.lam, C.fade);
+    c.globalAlpha = 0.6;
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1 * dpr;
+    c.beginPath(); c.moveTo(xl, R.t); c.lineTo(xl, R.t + R.h); c.stroke();
+    c.globalAlpha = 1;
+    dot(c, xl, Y(Al), 4.5 * dpr, t.warm, t.halo);
+    const right = C.lam > 640;
+    label(c, `λ ${fix(C.lam, 1)} nm · A ${fix(Al, 3)}`, xl + (right ? -6 : 6) * dpr, R.t + 14 * dpr, t.ink, t, { size: 11, weight: 600, align: right ? "right" : "left" });
+    label(c, `pH ${fix(C.pH, 2)}`, R.l + R.w - 6 * dpr, R.t + R.h - 8 * dpr, t.warm, t, { size: 11, weight: 700, align: "right" });
+  }
+  function stripsData() {
+    if (C.strips) return C.strips;
+    const cM = C.cu * 1e-6, out = {};
+    for (const k of IND_KEYS) { const row = []; for (let q = 0; q <= 280; q++) row.push(indColour(k, q / 20, cM, C.l, C.fade).rgb); out[k] = row; }
+    C.strips = out;
+    return out;
+  }
+  const stripPlot = () => {
+    const W = cStrip.width, H = cStrip.height, narrow = W < 560 * dpr;
+    const labW = (narrow ? 74 : 112) * dpr;
+    return { l: labW, t: 10 * dpr, w: W - labW - 12 * dpr, h: H - 10 * dpr - 30 * dpr, narrow };
+  };
+  function drawStripC(t) {
+    const c = begin(cStrip), R = stripPlot();
+    if (R.w <= 0 || R.h <= 0) return;
+    const X = (pH) => R.l + (pH / 14) * R.w, rows = IND_KEYS.length, rowH = R.h / rows, data = stripsData();
+    for (let r = 0; r < rows; r++) {
+      const k = IND_KEYS[r], y0 = R.t + r * rowH, bh = rowH * 0.56, d = IND[k];
+      const row = data[k];
+      for (let q = 0; q < 280; q++) { c.fillStyle = rgbStr(row[q]); c.fillRect(Math.floor(X(q / 20)), y0, Math.ceil(X((q + 1) / 20)) - Math.floor(X(q / 20)) + 1, bh); }
+      c.strokeStyle = k === C.key ? t.accent : t.axis;
+      c.lineWidth = (k === C.key ? 2 : 1) * dpr;
+      c.strokeRect(R.l + 0.5, y0 + 0.5, R.w - 1, bh - 1);
+      label(c, R.narrow ? d.short : d.name, R.l - 7 * dpr, y0 + bh / 2, k === C.key ? t.accent : t.ink, t, { size: R.narrow ? 10 : 11, weight: k === C.key ? 700 : 500, align: "right", base: "middle" });
+      // model %10–%90 ve kaynak aralığı
+      const yb = y0 + bh + 5 * dpr;
+      c.strokeStyle = t.muted;
+      c.lineWidth = 2 * dpr;
+      const ts = d.chart ? [] : d.mix ? [] : k === "tb" ? [1, 2] : k === "pp" ? [2] : [1];
+      for (const tt of ts) { c.beginPath(); c.moveTo(X(transPH(k, tt, 0.1)), yb); c.lineTo(X(transPH(k, tt, 0.9)), yb); c.stroke(); }
+      if (d.lit) for (const [a, b] of d.lit) for (const p of [a, b]) { c.strokeStyle = t.ink; c.lineWidth = 1.5 * dpr; c.beginPath(); c.moveTo(X(p), yb - 4 * dpr); c.lineTo(X(p), yb + 4 * dpr); c.stroke(); }
+    }
+    const xp = X(C.pH), tag = `pH ${fix(C.pH, 2)}`;
+    c.font = font(11, 700);
+    const tw = c.measureText(tag).width + 10 * dpr, tx = clamp(xp - tw / 2, R.l, R.l + R.w - tw);
+    c.font = font(10.5);
+    c.fillStyle = t.muted;
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    const step = R.w / 14 < 22 * dpr ? 2 : 1;
+    for (let p = 0; p <= 14; p += step) { const x = X(p); if (x < tx - 8 * dpr || x > tx + tw + 8 * dpr) c.fillText(String(p), x, R.t + R.h + 7 * dpr); }
+    c.strokeStyle = t.warm;
+    c.lineWidth = 2.4 * dpr;
+    c.beginPath(); c.moveTo(xp, R.t - 4 * dpr); c.lineTo(xp, R.t + R.h + 2 * dpr); c.stroke();
+    c.fillStyle = t.box;
+    c.fillRect(tx, R.t + R.h + 3 * dpr, tw, 18 * dpr);
+    c.strokeStyle = t.warm;
+    c.lineWidth = 1.2 * dpr;
+    c.strokeRect(tx + 0.5, R.t + R.h + 3 * dpr + 0.5, tw - 1, 18 * dpr - 1);
+    label(c, tag, tx + tw / 2, R.t + R.h + 12 * dpr, t.warm, t, { size: 11, weight: 700, align: "center", base: "middle" });
+  }
+  function drawFitC(t) {
+    const c = begin(cFit), W = cFit.width, H = cFit.height;
+    const R = { l: 46 * dpr, t: 24 * dpr, w: W - 60 * dpr, h: H - 24 * dpr - 38 * dpr };
+    if (R.w <= 0 || R.h <= 0) return;
+    if (!C.fit) {
+      axes(c, R, { x0: 0, x1: 14, y0: 0, y1: 1 }, t, { xs: 2, ys: 0.2, xTitle: "tampon pH", yTitle: "A" });
+      label(c, C.key === "uni" ? "Karışımda tek pK yok" : "Turnusol: tayf modeli yok", R.l + R.w / 2, R.t + R.h / 2, t.muted, t, { size: 12, align: "center" });
+      return;
+    }
+    const f = C.fit, ref = C.target.pK, pts = C.run, form = baseForm(C.key), cM = C.cu * 1e-6;
+    let lo = Infinity, hi = -Infinity;
+    for (const p of pts) { lo = Math.min(lo, p.A, p.A0); hi = Math.max(hi, p.A, p.A0); }
+    const pad = Math.max(0.02, 0.12 * (hi - lo));
+    const v = { x0: ref - 2.4, x1: ref + 2.4, y0: Math.max(0, lo - pad), y1: hi + pad };
+    const { X, Y } = axes(c, R, v, t, { xs: 0.5, xTitle: "tampon pH", yTitle: `A(${fix(form.nm, 1)} nm)` });
+    c.save();
+    c.beginPath(); c.rect(R.l, R.t, R.w, R.h); c.clip();
+    c.fillStyle = t.light ? "rgba(124,58,237,0.08)" : "rgba(167,139,250,0.1)";
+    const tt = C.target.t;
+    c.fillRect(X(transPH(C.key, tt, 0.1)), R.t, X(transPH(C.key, tt, 0.9)) - X(transPH(C.key, tt, 0.1)), R.h);
+    const N = 200, tru = [], fit = [];
+    for (let k = 0; k <= N; k++) {
+      const pH = v.x0 + ((v.x1 - v.x0) * k) / N, r = Math.pow(10, pH - f.pK);
+      tru.push([X(pH), Y(absAt(C.key, pH, cM, C.l, form.nm, false))]);
+      fit.push([X(pH), Y((f.Aa + f.Ab * r) / (1 + r))]);
+    }
+    c.setLineDash([7 * dpr, 5 * dpr]);
+    c.strokeStyle = t.accent2;
+    c.lineWidth = 1.8 * dpr;
+    polyline(c, tru);
+    c.setLineDash([]);
+    c.strokeStyle = t.warm;
+    c.lineWidth = 2.2 * dpr;
+    polyline(c, fit);
+    c.setLineDash([4 * dpr, 4 * dpr]);
+    c.strokeStyle = t.accent2;
+    c.lineWidth = 1.2 * dpr;
+    c.beginPath(); c.moveTo(X(ref), R.t); c.lineTo(X(ref), R.t + R.h); c.stroke();
+    c.setLineDash([]);
+    c.strokeStyle = t.warm;
+    c.beginPath(); c.moveTo(X(f.pK), R.t); c.lineTo(X(f.pK), R.t + R.h); c.stroke();
+    c.restore();
+    for (const p of pts) dot(c, X(p.pH), Y(p.A), 4.5 * dpr, t.warm, t.halo);
+    label(c, `uydurma pK ${fix(f.pK, 3)} · girdi ${fix(ref, 3)}`, R.l + R.w - 6 * dpr, R.t + 14 * dpr, t.ink, t, { size: 11, weight: 600, align: "right" });
+    label(c, "gölge: %10–%90", R.l + 6 * dpr, R.t + R.h - 8 * dpr, t.muted, t, { size: 10.5 });
+  }
+  function resetC() { setC({ key: "btb", pH: 7, cu: 20, l: 1, fade: true, sigma: 0.005, seed: 2026, lamDefault: true }); }
+  cUI.ind.addEventListener("change", () => setC({ key: cUI.ind.value }));
+  cUI.ph.addEventListener("input", () => setC({ pH: Number(cUI.ph.value) }));
+  cUI.conc.addEventListener("input", () => setC({ cu: Number(cUI.conc.value) }));
+  cUI.path.addEventListener("change", () => setC({ l: Number(cUI.path.value) }));
+  cUI.lam.addEventListener("input", () => setC({ lam: Number(cUI.lam.value) }));
+  cUI.fade.addEventListener("change", () => setC({ fade: cUI.fade.checked }));
+  cUI.noise.addEventListener("change", () => setC({ sigma: Number(cUI.noise.value) }));
+  bindBox(cUI.phNum, (v) => setC({ pH: v }), () => fix(C.pH, 2));
+  bindBox(cUI.lamNum, (v) => setC({ lam: v }), () => fix(C.lam, 1));
+  const newRun = () => { if (!fitable(C.key)) return; let s = C.seed; while (s === C.seed) s = 1 + Math.floor(Math.random() * 99999); setC({ seed: s }); };
+  cUI.newRun.addEventListener("click", newRun);
+  cUI.lamBase.addEventListener("click", () => { if (fitable(C.key)) setC({ lam: baseForm(C.key).nm }); });
+  cUI.lamIso.addEventListener("click", () => { const q = isoList(C.key); if (q.length) setC({ lam: q[0].nm }); });
+  cUI.reset.addEventListener("click", resetC);
+  cUI.dataNote.innerHTML = (() => {
+    const w = (k) => fix(fwhm(IND[k].forms[0].s), 0);
+    return `Bant verileri (tepe λ, ε<sub>max</sub> L mol⁻¹ cm⁻¹): metil oranj HIn 507 nm, 4.4·10⁴; In⁻ 464 nm, 2.5·10⁴; eş soğurma 469 nm (Nature 182, 44, 1958); pK 3.46. Metil kırmızısı HIn 520 nm, 4.46·10⁴; In⁻ 425 nm, 1.85·10⁴; eş soğurma 460 nm, pK 5.0 (J. Chem. Educ. 35, 514, 1958). Bromtimol mavisi HIn⁻ 432 nm, 1.8·10⁴; In²⁻ 616 nm, 4.0·10⁴ (reaktif özelliği A¹%₁cm'den); eş soğurma 498 nm; pK 7.10. Fenolftalein In²⁻ 552.8 nm, pK₁ 9.05, pK₂ 9.50, solma pK₃ ≈ 12 (Tamura ve ark., Anal. Sci. 12, 927, 1996); ε ≈ 3.0·10⁴ yaklaşık. Timol mavisi H₂In 544, HIn⁻ 435, In²⁻ 596 nm; pK 1.65 ve 8.90; ε oranı In²⁻/HIn⁻ = 2.39 (Zhang ve Byrne 1996); mutlak ε için kaynak bulunamadı: HIn⁻ ve H₂In için 1.8·10⁴ varsayıldı. Görsel aralıklar: Lange's Handbook of Chemistry. Bant modeli yaklaşıktır: her biçim dalga sayısında tek Gauss bandıdır, gerçek tayftaki omuzlar ve kuyruklar yoktur; bu yüzden bazı tonlar kaynaktaki renkten kayar (metil oranj ve metil kırmızısının asit biçimi pembeye, fenolftalein eflatuna, bromtimol mavisinin pH 7 civarındaki yeşili turkuaza yakın çıkar). Renk kartında kaynaktaki renk adı hesaplananın yanında verilir. İki biçimin bant genişliği eşit alınıp kesişim kaynaktaki eş soğurma noktasına ayarlandı (FWHM: metil oranj ${w("mo")}, metil kırmızısı ${w("mr")}, bromtimol mavisi ${w("btb")} cm⁻¹); öteki bantlar bunların ortalamasını (${fix(fwhm(S_DEFAULT), 0)} cm⁻¹) kullanır. Renk: geçirgenlik 10<sup>−A(λ)</sup>, CIE D65 ışığı ve CIE 1931 2° fonksiyonlarıyla 360–830 nm'de 5 nm adımla toplanır, IEC 61966-2-1 matrisiyle sRGB'ye çevrilir. Evrensel indikatör: Yamada karışımı, litrede 0.025 g timol mavisi, 0.060 g metil kırmızısı, 0.300 g bromtimol mavisi, 0.500 g fenolftalein (Foster ve Gruntfest, J. Chem. Educ. 14, 274, 1937). Turnusol: pH 4.5 kırmızı, 8.3 mavi (Kolthoff ve Rosenblum 1937; ChEBI).`;
+  })();
+
+  /* ── Sekmeler ── */
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((x) => x.dataset.tab);
+  const labPanel = $("labPanel");
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((x) => {
+      const on = x.dataset.tab === key;
+      x.setAttribute("aria-selected", String(on));
+      x.tabIndex = on ? 0 : -1;
+      if (on && focus) x.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = el.dataset.for !== key; });
+    if (fromUser) { try { history.replaceState(null, "", `#${key}`); } catch (_) { /* yok */ } }
+    drag = null;
+    resize();
+    mark(key);
+  }
+  tabs.forEach((x, i) => {
+    x.addEventListener("click", () => selectTab(x.dataset.tab, false, true));
+    x.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── İşaretçi: yatay sürükleme ── */
+  let drag = null;
+  const DRAG = [
+    [aStrip, (evt) => { const Ly = aStripLayout(); setA({ pH: -1 + ((devX(evt, aStrip) - Ly.L) / (Ly.R - Ly.L)) * 16 }); }],
+    [aDil, (evt) => { const W = aDil.width, l = 38 * dpr, w = W - 52 * dpr; setA({ lc: -10 + ((devX(evt, aDil) - l) / w) * 9 }); }],
+    [bConc, (evt) => { const P = concPlot(); setB({ lc: -9 + ((devX(evt, bConc) - P.A.l) / P.A.w) * 9, marker: B.marker }); }],
+    [cSpec, (evt) => { if (IND[C.key].chart) return; const R = specPlot(); setC({ lam: 380 + ((devX(evt, cSpec) - R.l) / R.w) * 400 }); }],
+    [cStrip, (evt) => { const R = stripPlot(); setC({ pH: ((devX(evt, cStrip) - R.l) / R.w) * 14 }); }],
+  ];
+  for (const [cv, fn] of DRAG) {
+    cv.addEventListener("pointerdown", (evt) => {
+      if (evt.pointerType === "mouse" && evt.button !== 0) return;
+      drag = cv;
+      cv.setPointerCapture(evt.pointerId);
+      fn(evt);
+    });
+    cv.addEventListener("pointermove", (evt) => { if (drag === cv) fn(evt); });
+    const end = () => { if (drag === cv) drag = null; };
+    cv.addEventListener("pointerup", end);
+    cv.addEventListener("pointercancel", end);
+  }
+
+  /* ── Klavye: R sekmeyi sıfırlar, Boşluk (c)'de yeni ölçüm ── */
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.closest("input, select, textarea, button, a, [contenteditable]")) return;
+    const r = labPanel.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return;
+    if (e.key === "r" || e.key === "R") {
+      if (S.tab === "olcek") resetA(); else if (S.tab === "cozelti") resetB(); else resetC();
+    } else if (e.code === "Space" && S.tab === "indikator") {
+      e.preventDefault();
+      if (!e.repeat) newRun();
+    }
+  });
+
+  /* ── Çizim döngüsü: yalnız değişince ── */
+  let lastTheme = "";
+  function render() {
+    const t = theme();
+    if (S.tab === "olcek" && dirty.olcek) { dirty.olcek = false; drawStripA(t); drawChartA(t); drawDilA(t); }
+    if (S.tab === "cozelti" && dirty.cozelti) { dirty.cozelti = false; drawSpecB(t); drawConcB(t); }
+    if (S.tab === "indikator" && dirty.indikator) { dirty.indikator = false; drawSpecC(t); drawStripC(t); drawFitC(t); }
+  }
+  function frame() {
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) { lastTheme = th; mark("olcek"); mark("cozelti"); mark("indikator"); }
+    render();
+    requestAnimationFrame(frame);
+  }
+  const CANVASES = [aStrip, aChart, aDil, bSpec, bConc, cSpec, cStrip, cFit];
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const cv of CANVASES) {
+      const r = cv.getBoundingClientRect();
+      if (!r.width) continue;
+      const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    }
+    mark("olcek"); mark("cozelti"); mark("indikator");
+  }
+
+  /* ── Başlat ── */
+  resetA();
+  resetB();
+  resetC();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "olcek", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  CANVASES.forEach((cv) => ro.observe(cv));
+  resize();
+  requestAnimationFrame(frame);
+  window.__ph = { A, B, C, IND, SYSTEMS, solve, approx, dissociation, pKwAt, indColour, absAt, fitSigmoid, simulateRun, transPH, isoList, selectTab, setA, setB, setC };
+})();
+</script>
+</body>
+</html>

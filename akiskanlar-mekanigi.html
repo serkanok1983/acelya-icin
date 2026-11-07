@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Akışkanlar Mekaniği: Süreklilik, Bernoulli ve Viskozite</title>
+  <meta name="description" content="Daralan boruda su hızlanır ve basıncı düşer, tanktan fışkıran jet seviyeyle birlikte yavaşlar, ince boruda debi yarıçapın dördüncü kuvvetiyle çöker. Bernoulli, Torricelli ve Poiseuille'ü ölç, sınırlarını gör.">
+  <style>
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .tabs [role="tab"] { display: grid; gap: 2px; justify-items: center; align-content: center; min-width: 0; padding: 8px 6px; line-height: 1.2; text-align: center; }
+    .tabs [role="tab"] b { font-size: 0.92rem; font-weight: 600; color: var(--text); }
+    .tabs [role="tab"] small { font-size: 0.72rem; color: var(--text-muted); }
+    .tabs [role="tab"][aria-selected="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
+    .tabs [role="tab"][aria-selected="true"] b { color: var(--accent); }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage, .lab-side { display: grid; gap: 12px; min-width: 0; }
+    .lab canvas { width: 100%; display: block; }
+    .stage-canvas {
+      aspect-ratio: 3 / 2;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: pan-y;
+    }
+    .stage-canvas.is-draggable { touch-action: none; }
+    .stage-canvas.is-pointer { cursor: grab; }
+    .stage-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas { aspect-ratio: 2 / 1; background: rgba(8, 12, 22, 0.75); border-radius: 12px; touch-action: pan-y; }
+    .chart-canvas.is-pointer { cursor: crosshair; }
+    [data-theme="light"] .stage-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { list-style: none; margin: -4px 0 0; padding: 0 2px; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.78rem; }
+    .legend li { display: inline-flex; align-items: center; gap: 6px; }
+    .sw { display: inline-block; flex: none; width: 18px; height: 3px; border-radius: 2px; }
+    .sw-teal { background: var(--accent); }
+    .sw-violet { background: var(--accent-2); }
+    .sw-amber { background: var(--accent-warm); }
+    .sw-red { background: var(--danger); }
+    .sw-ink { background: var(--text-muted); }
+    .sw-dash { height: 0; border-top: 2px dashed var(--text-muted); border-radius: 0; background: none; }
+    .sw-dash.sw-teal { border-top-color: var(--accent); }
+    .sw-dash.sw-violet { border-top-color: var(--accent-2); }
+    .sw-dash.sw-red { border-top-color: var(--danger); }
+    .sw-ring { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--text); background: none; }
+    .sw-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-warm); }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .ctl-group { display: grid; gap: 12px; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; }
+    .check { display: flex; gap: 8px; align-items: flex-start; font-size: 0.86rem; line-height: 1.35; cursor: pointer; }
+    .check input { margin-top: 2px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .results { margin-top: 16px; display: grid; gap: 12px; }
+    .res-group { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; align-items: start; }
+    .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .status.is-ok { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.74rem; line-height: 1.3; }
+    .readout strong { font-size: 1.04rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout em { font-style: normal; font-size: 0.78rem; font-weight: 600; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .regime.is-lam { color: var(--accent); }
+    .regime.is-trans { color: var(--accent-warm); }
+    .regime.is-turb { color: var(--danger); }
+    .table-wrap { overflow-x: auto; }
+    body.app-page table.meas { width: 100%; margin: 0; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    body.app-page table.meas th,
+    body.app-page table.meas td { padding: 6px 8px; }
+    body.app-page table.meas td { white-space: nowrap; }
+    body.app-page table.meas tbody th { background: var(--bg-input) !important; color: var(--text) !important; font-weight: 600; text-align: left; }
+    body.app-page table.meas tbody th small { display: block; font-weight: 400; font-size: 0.72rem; color: var(--text-muted); }
+    body.app-page table.meas.is-pending td.meas-cell { color: var(--text-muted) !important; font-style: italic; }
+    .group-title { margin: 0 0 -4px; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.06em; }
+    .res-col { display: grid; gap: 10px; min-width: 0; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; gap: 12px; }
+      .lab-stage, .lab-side { display: contents; }
+      .stage-canvas { order: 1; aspect-ratio: 4 / 3; }
+      .controls { order: 2; }
+      .chart-canvas { order: 3; aspect-ratio: 16 / 10; }
+      .legend { order: 4; margin: 0; }
+      .res-group { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="akiskanlar-mekanigi">
+
+<div class="app-content">
+  <h1>Akışkanlar Mekaniği: Süreklilik, Bernoulli ve Viskozite</h1>
+  <p class="hint">Bir deney seç. Daralan boğazda akış hızlanır ve basınç düşer; tanktan çıkan suyun hızı √(2gh) ile azalır; ince boruda debi yarıçapın dördüncü kuvvetiyle değişir. Sayfa ölçtüğü değerleri formüllerle yan yana gösterir.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney seçimi">
+    <button type="button" role="tab" class="app-btn-ghost" id="tab-venturi" data-scn="venturi" aria-selected="true" aria-controls="labPanel"><b>Venturi borusu</b><small>süreklilik ve Bernoulli</small></button>
+    <button type="button" role="tab" class="app-btn-ghost" id="tab-torricelli" data-scn="torricelli" aria-selected="false" aria-controls="labPanel" tabindex="-1"><b>Torricelli</b><small>boşalan tank</small></button>
+    <button type="button" role="tab" class="app-btn-ghost" id="tab-poiseuille" data-scn="poiseuille" aria-selected="false" aria-controls="labPanel" tabindex="-1"><b>Viskoz akış</b><small>Poiseuille</small></button>
+  </div>
+
+  <div id="labPanel" role="tabpanel" aria-labelledby="tab-venturi">
+    <div class="lab">
+      <div class="lab-stage">
+        <canvas id="stageCanvas" class="stage-canvas" width="900" height="600" role="img" aria-label="Deney sahnesi"></canvas>
+        <canvas id="chartCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Grafik"></canvas>
+        <ul class="legend" id="chartLegend" aria-label="Grafik renk açıklaması"></ul>
+      </div>
+
+      <div class="lab-side">
+        <div class="panel controls" role="group" aria-label="Deney ayarları">
+          <h2>Deney ayarları</h2>
+
+          <div class="ctl-group" data-scn="venturi">
+            <div class="field">
+              <label for="vFluid"><span class="lt">Akışkan</span><output id="vFluidOut" for="vFluid">ρ = 998.2 kg/m³</output></label>
+              <select id="vFluid">
+                <option value="su" selected>Su (20 °C)</option>
+                <option value="deniz">Deniz suyu (20 °C)</option>
+                <option value="hava">Hava (20 °C, 1 atm)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="vD1"><span class="lt">Giriş çapı D<sub>1</sub></span><output id="vD1Out" for="vD1">5.0 cm</output></label>
+              <input type="range" id="vD1" min="2" max="20" step="0.5" value="5">
+            </div>
+            <div class="field">
+              <label for="vBeta"><span class="lt">Çap oranı β = D<sub>2</sub>/D<sub>1</sub></span><output id="vBetaOut" for="vBeta">0.50 · D₂ = 2.50 cm</output></label>
+              <input type="range" id="vBeta" min="0.3" max="1" step="0.05" value="0.5">
+            </div>
+            <div class="field">
+              <label for="vQ"><span class="lt">Debi Q</span><output id="vQOut" for="vQ">2.00 L/s</output></label>
+              <input type="range" id="vQ" min="0" max="30" step="1" value="13">
+            </div>
+            <div class="field" id="vP1Field">
+              <label for="vP1"><span class="lt">Giriş gösterge basıncı p<sub>1</sub> = P<sub>1</sub> − P<sub>atm</sub></span><output id="vP1Out" for="vP1">15 kPa</output></label>
+              <input type="range" id="vP1" min="0" max="200" step="1" value="15">
+            </div>
+            <div class="field" id="vRiseField">
+              <label for="vRise"><span class="lt">Boğazın yükselmesi Δy</span><output id="vRiseOut" for="vRise">0.00 m</output></label>
+              <input type="range" id="vRise" min="0" max="0.5" step="0.05" value="0">
+            </div>
+            <p class="note" id="vNote">Akış sürtünmesiz ve sıkıştırılamaz kabul edilir (ideal akış). Piyezometre tüplerindeki sıvı, o kesitteki statik basıncın yüküne kadar yükselir. Boğazı tuvalde sürükleyerek de daraltabilirsin.</p>
+          </div>
+
+          <div class="ctl-group" data-scn="torricelli" hidden>
+            <div class="field">
+              <label for="tTank"><span class="lt">Tank çapı D</span><output id="tTankOut" for="tTank">30 cm</output></label>
+              <input type="range" id="tTank" min="10" max="60" step="1" value="30">
+            </div>
+            <div class="field">
+              <label for="tHole"><span class="lt">Delik çapı d</span><output id="tHoleOut" for="tHole">10 mm</output></label>
+              <input type="range" id="tHole" min="4" max="30" step="1" value="10">
+            </div>
+            <div class="field">
+              <label for="tH0"><span class="lt">Başlangıç seviyesi h<sub>0</sub> (delikten)</span><output id="tH0Out" for="tH0">1.00 m</output></label>
+              <input type="range" id="tH0" min="0.05" max="2" step="0.05" value="1">
+            </div>
+            <div class="field">
+              <label for="tH"><span class="lt">Deliğin yerden yüksekliği H</span><output id="tHOut" for="tH">1.00 m</output></label>
+              <input type="range" id="tH" min="0.1" max="2" step="0.05" value="1">
+            </div>
+            <label class="check" for="tReal"><input type="checkbox" id="tReal"><span class="lt">Gerçek keskin kenarlı delik: C<sub>d</sub> = C<sub>c</sub>·C<sub>v</sub> ≈ 0.61</span></label>
+            <div class="field">
+              <label for="tSpeed"><span class="lt">Zaman hızı</span><output id="tSpeedOut" for="tSpeed">ekranda 1 s = 20 s</output></label>
+              <select id="tSpeed">
+                <option value="auto" selected>Otomatik (boşalma ekranda 10–25 s)</option>
+                <option value="0.2">0.2× (ağır çekim)</option>
+                <option value="1">1× (gerçek zaman)</option>
+                <option value="5">5×</option>
+                <option value="20">20×</option>
+                <option value="100">100×</option>
+                <option value="1000">1000×</option>
+              </select>
+            </div>
+            <p class="note" id="tNote">İdeal delikte jet hızı v = √(2gh) ve debi a·v'dir. Gerçek delikte jet, delikten çıkınca daralır (vena contracta, C<sub>c</sub> ≈ 0.62) ve sürtünmeyle biraz yavaşlar (C<sub>v</sub> ≈ 0.98); bu deneysel katsayılar debiyi yaklaşık %39 azaltır. Bir ayar değişince tank yeniden dolar. Tanktaki suyu sürükleyerek de h<sub>0</sub>'ı seçebilirsin.</p>
+          </div>
+
+          <div class="ctl-group" data-scn="poiseuille" hidden>
+            <div class="field">
+              <label for="pFluid"><span class="lt">Akışkan</span><output id="pFluidOut" for="pFluid">η = 1.002 mPa·s</output></label>
+              <select id="pFluid">
+                <option value="hava">Hava (20 °C, 1 atm)</option>
+                <option value="su" selected>Su (20 °C)</option>
+                <option value="su37">Su (37 °C)</option>
+                <option value="kan">Kan (37 °C, yaklaşık)</option>
+                <option value="zeytin">Zeytinyağı (20 °C)</option>
+                <option value="gliserin">Gliserin (20 °C)</option>
+                <option value="bal">Bal (20 °C, yaklaşık)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pR"><span class="lt">Boru yarıçapı R</span><output id="pROut" for="pR">2.00 mm</output></label>
+              <input type="range" id="pR" min="0" max="23" step="1" value="13">
+            </div>
+            <div class="field">
+              <label for="pL"><span class="lt">Boru uzunluğu L</span><output id="pLOut" for="pL">1.00 m</output></label>
+              <input type="range" id="pL" min="0.1" max="5" step="0.05" value="1">
+            </div>
+            <div class="field">
+              <label for="pDP"><span class="lt">Basınç farkı ΔP = P<sub>1</sub> − P<sub>2</sub></span><output id="pDPOut" for="pDP">100 Pa</output></label>
+              <input type="range" id="pDP" min="0" max="50" step="1" value="20">
+            </div>
+            <p class="note" id="pNote">Akışkan durgunken uçlar arasına ΔP uygulanır; hız profili duvardaki kaymazlık koşuluyla gelişir ve parabole oturur. Her ayar değişikliği akışı durgun hâlden yeniden başlatır. Grafikte bir noktaya dokunmak yarıçapı oraya taşır.</p>
+          </div>
+
+          <div class="row">
+            <button type="button" id="toggleBtn" aria-pressed="false">Duraklat</button>
+            <button type="button" id="resetBtn">Sıfırla</button>
+          </div>
+          <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla. Sekmeler arasında ok tuşlarıyla geçilir.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="results" aria-label="Ölçüm ve kuram">
+      <p class="status" id="statusLine" role="status"></p>
+
+      <div class="res-group" data-scn="venturi">
+        <div class="res-col">
+          <p class="group-title">Süreklilik ve Bernoulli</p>
+          <div class="readouts" aria-live="polite">
+            <div class="readout"><small>Giriş hızı v<sub>1</sub> = Q/A<sub>1</sub></small><strong id="vV1">—</strong></div>
+            <div class="readout"><small>Hız oranı v<sub>2</sub>/v<sub>1</sub> = (D<sub>1</sub>/D<sub>2</sub>)²</small><strong id="vRatio">—</strong></div>
+            <div class="readout is-highlight"><small>Basınç düşüşü P<sub>1</sub> − P<sub>2</sub></small><strong id="vDP">—</strong></div>
+            <div class="readout"><small>Boğaz basıncı P<sub>2</sub> (mutlak)</small><strong id="vP2">—</strong><em id="vP2Word"></em></div>
+            <div class="readout"><small>Giriş Reynolds sayısı ρv<sub>1</sub>D<sub>1</sub>/η</small><strong id="vRe">—</strong></div>
+            <div class="readout"><small id="vMeterLabel">Ölçer: piyezometre tüpleri</small><strong id="vMeter">—</strong></div>
+          </div>
+        </div>
+        <div class="res-col">
+          <p class="group-title">Ölçülen ve kuram</p>
+          <div class="table-wrap">
+            <table class="meas" id="vTable">
+              <thead><tr><th scope="col">Büyüklük</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Boğaz hızı v<sub>2</sub><small>parçacık zamanlaması · Q/A<sub>2</sub></small></th><td id="vV2Meas" class="meas-cell">—</td><td id="vV2Th">—</td><td id="vV2Diff" class="meas-cell">—</td></tr>
+                <tr><th scope="row">Sütun farkı Δh<small id="vDhSub">1 mm çözünürlükle okunur</small></th><td id="vDhMeas" class="meas-cell">—</td><td id="vDhTh">—</td><td id="vDhDiff" class="meas-cell">—</td></tr>
+                <tr><th scope="row">Debi Q<small>Δh'den venturimetre · ayarlanan</small></th><td id="vQMeas" class="meas-cell">—</td><td id="vQTh">—</td><td id="vQDiff" class="meas-cell">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note" id="vFormula">Venturimetre: Q = A<sub>2</sub>√(2gΔh / (1 − (A<sub>2</sub>/A<sub>1</sub>)²)). Sütun farkı yalnız hızlara bağlıdır: Δh = (v<sub>2</sub>² − v<sub>1</sub>²)/2g; yoğunluk ve boğazın yüksekliği bu farkı değiştirmez.</p>
+        </div>
+      </div>
+
+      <div class="res-group" data-scn="torricelli" hidden>
+        <div class="res-col">
+          <p class="group-title">Anlık değerler</p>
+          <div class="readouts">
+            <div class="readout"><small>Geçen süre t</small><strong id="tT">—</strong></div>
+            <div class="readout"><small>Seviye h</small><strong id="tLevel">—</strong></div>
+            <div class="readout is-highlight"><small id="tVLabel">Çıkış hızı v = √(2gh)</small><strong id="tV">—</strong></div>
+            <div class="readout"><small id="tQLabel">Debi Q = a√(2gh)</small><strong id="tQ">—</strong></div>
+          </div>
+          <div class="readouts" aria-live="polite">
+            <div class="readout"><small>Alan oranı A/a</small><strong id="tRatio">—</strong></div>
+            <div class="readout"><small>Katsayılar C<sub>c</sub>, C<sub>v</sub>, C<sub>d</sub></small><strong id="tCoef">—</strong></div>
+          </div>
+        </div>
+        <div class="res-col">
+          <p class="group-title">Ölçülen ve kuram</p>
+          <div class="table-wrap">
+            <table class="meas" id="tTable">
+              <thead><tr><th scope="col">Büyüklük</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Boşalma süresi T<small id="tTSub">(A/a)√(2h₀/g)</small></th><td id="tTMeas" class="meas-cell">—</td><td id="tTTh">—</td><td id="tTDiff" class="meas-cell">—</td></tr>
+                <tr><th scope="row">h₀/4'e iniş<small>kuram T/2</small></th><td id="tQuMeas" class="meas-cell">—</td><td id="tQuTh">—</td><td id="tQuDiff" class="meas-cell">—</td></tr>
+                <tr><th scope="row">Jet menzili<small id="tRSub">son düşen damla · 2√(hH)</small></th><td id="tRMeas" class="meas-cell">—</td><td id="tRTh">—</td><td id="tRDiff" class="meas-cell">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">Seviye dh/dt = −C<sub>d</sub>(a/A)√(2gh) denklemiyle sabit adımlı RK4 ile ilerler. √h zamanla doğrusal azalır, bu yüzden suyun ilk dörtte üçü (h₀ → h₀/4) son dörtte biri kadar sürede boşalır. Menzil kuramı damlanın çıktığı andaki h ile hesaplanır.</p>
+        </div>
+      </div>
+
+      <div class="res-group" data-scn="poiseuille" hidden>
+        <div class="res-col">
+          <p class="group-title">Akış rejimi ve kuram</p>
+          <div class="readouts" aria-live="polite">
+            <div class="readout is-highlight"><small>Reynolds sayısı Re = ρ<span class="ov">v</span>D/η</small><strong id="pRe">—</strong><em id="pRegime" class="regime">—</em></div>
+            <div class="readout"><small>Ortalama hız <span class="ov">v</span> = Q/(πR²)</small><strong id="pVbar">—</strong></div>
+            <div class="readout"><small>Duvar kayma gerilmesi τ<sub>w</sub> = ΔP·R/(2L)</small><strong id="pTauW">—</strong></div>
+            <div class="readout"><small>Giriş uzunluğu L<sub>e</sub> ≈ 0.06·Re·D</small><strong id="pLe">—</strong></div>
+            <div class="readout"><small>Gelişme zaman sabiti ρR²/(2.405²η)</small><strong id="pTau">—</strong></div>
+            <div class="readout"><small>R yarıya inerse (aynı ΔP, L, η)</small><strong id="pSens">—</strong></div>
+          </div>
+        </div>
+        <div class="res-col">
+          <p class="group-title">Ölçülen ve kuram</p>
+          <div class="table-wrap">
+            <table class="meas is-pending" id="pTable">
+              <thead><tr><th scope="col">Büyüklük</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Debi Q<small>profilin sayısal tümlevi · πR⁴ΔP/(8ηL)</small></th><td id="pQMeas" class="meas-cell">—</td><td id="pQTh">—</td><td id="pQDiff" class="meas-cell">—</td></tr>
+                <tr><th scope="row">Merkez hızı v<sub>maks</sub><small>ΔP·R²/(4ηL)</small></th><td id="pVmMeas" class="meas-cell">—</td><td id="pVmTh">—</td><td id="pVmDiff" class="meas-cell">—</td></tr>
+                <tr><th scope="row">v<sub>maks</sub>/<span class="ov">v</span><small>parabolde tam 2</small></th><td id="pRatMeas" class="meas-cell">—</td><td id="pRatTh">2.000</td><td id="pRatDiff" class="meas-cell">—</td></tr>
+                <tr><th scope="row">Q/Q<sub>önceki</sub><small id="pCmpSub">önceki gelişmiş akışa göre</small></th><td id="pCmpMeas" class="meas-cell">—</td><td id="pCmpTh">—</td><td id="pCmpDiff" class="meas-cell">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">Hagen–Poiseuille yasası yalnız laminer, tam gelişmiş akışta geçerlidir (Re ≲ 2300). Re bu sayfada laminer çözümün ortalama hızıyla hesaplanır; türbülanslı akışta gerçek debi bu değerin altında kalır. Son satır, R, ΔP, η ve L'nin etkisini Q ∝ R⁴ΔP/(ηL) ölçek yasasıyla karşılaştırır.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  /* ── FİZİK (DOM kullanmaz; doğrulama betiği bu bloğu ayıklayıp çalıştırır) ── */
+  const G = 9.81;           // m/s², yerçekimi ivmesi
+  const P_ATM = 101325;     // Pa, standart atmosfer
+  const RHO_MANO = 998.2;   // kg/m³, hava ölçümünde U-borulu manometredeki su
+  const C_AIR = 343;        // m/s, 20 °C havada ses hızı (Mach denetimi)
+  // ρ yoğunluk (kg/m³), η dinamik viskozite (Pa·s), pv doymuş buhar basıncı (Pa).
+  // Su ve hava: NIST Chemistry WebBook (Thermophysical Properties of Fluid Systems) ve CRC Handbook of Chemistry
+  // and Physics, 97. baskı ("Properties of Water in the Range 0–100 °C", "Viscosity of Gases": hava 20 °C'de 18.2 µPa·s).
+  // Deniz suyu (S = 35 g/kg): Sharqawy, Lienhard ve Zubair, Desalination and Water Treatment 16 (2010) 354–380.
+  // Gliserin: CRC Handbook, "Viscosity of Liquids" (1.412 Pa·s, 20 °C). Zeytinyağı: Kaye & Laby, Tables of Physical
+  // and Chemical Constants (84 mPa·s, 20 °C). Kan: Fung, Biomechanics (1993); yüksek kayma hızındaki görünür viskozite
+  // 3–4 mPa·s, Newton tipi olmayan (kaymayla incelen) bir sıvıdır. Bal: nem oranına göre 20 °C'de yaklaşık 2–20 Pa·s
+  // (Yanniotis, Skaltsi ve Karaburnioti, J. Food Eng. 72 (2006) 372–377); burada 10 Pa·s alınır.
+  const FLUIDS = {
+    su:       { name: "Su (20 °C)", rho: 998.2, eta: 1.002e-3, pv: 2339 },
+    su37:     { name: "Su (37 °C)", rho: 993.3, eta: 0.692e-3 },
+    deniz:    { name: "Deniz suyu (20 °C)", rho: 1024.8, eta: 1.08e-3, pv: 2290 },
+    hava:     { name: "Hava (20 °C, 1 atm)", rho: 1.204, eta: 18.2e-6, gas: true },
+    kan:      { name: "Kan (37 °C)", rho: 1060, eta: 3.5e-3 },
+    zeytin:   { name: "Zeytinyağı (20 °C)", rho: 911, eta: 84e-3 },
+    gliserin: { name: "Gliserin (20 °C)", rho: 1261, eta: 1.412 },
+    bal:      { name: "Bal (20 °C)", rho: 1420, eta: 10 },
+  };
+
+  // Kaydırıcı değerleri: 1–1.2–1.5–2–2.5–3–4–5–6–8 dizisi (yarıya inme çoğu adımda tam)
+  const MANT = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
+  function ladder(e0, decades) {
+    const out = [];
+    for (let d = 0; d < decades; d++) for (const k of MANT) out.push(Number((k * Math.pow(10, e0 + d)).toPrecision(3)));
+    out.push(Math.pow(10, e0 + decades));
+    return out;
+  }
+  const Q_LIST = ladder(-1, 3).map((q) => q / 1000);                  // 0.1 … 100 L/s (m³/s)
+  const R_LIST = ladder(-1, 2).concat([12, 15, 20]).map((r) => r / 1000); // 0.1 … 20 mm (m)
+  const DP_LIST = ladder(0, 5);                                       // 1 Pa … 100 kPa
+  function floor125(x) {
+    const e = Math.floor(Math.log10(x) + 1e-9), b = Math.pow(10, e), k = x / b;
+    return (k >= 5 - 1e-9 ? 5 : k >= 2 - 1e-9 ? 2 : 1) * b;
+  }
+
+  /* (a) Venturi: süreklilik A₁v₁ = A₂v₂ = Q ve Bernoulli P + ½ρv² + ρgy = sabit (sürtünmesiz, sıkıştırılamaz, kararlı) */
+  // x/L boyunca: giriş düzlüğü, yakınsak bölüm, boğaz, uzun ıraksak bölüm, çıkış; geçişler kosinüs rampasıyla yumuşak
+  const VEN = { len: 12, a: 0.16, b: 0.31, c: 0.43, d: 0.84, tap1: 0.08, tap2: 0.37 };
+  const ramp = (t) => 0.5 - 0.5 * Math.cos(Math.PI * Math.min(1, Math.max(0, t)));
+  function venShape(u) {
+    if (u <= VEN.a || u >= VEN.d) return 0;
+    if (u < VEN.b) return ramp((u - VEN.a) / (VEN.b - VEN.a));
+    if (u <= VEN.c) return 1;
+    return 1 - ramp((u - VEN.c) / (VEN.d - VEN.c));
+  }
+  function venModel(p) {
+    const f = FLUIDS[p.fluid], gas = Boolean(f.gas);
+    const r1 = p.D1 / 2, r2 = p.beta * r1;
+    const A1 = Math.PI * r1 * r1, A2 = Math.PI * r2 * r2;
+    const v1 = p.Q / A1, v2 = p.Q / A2;
+    const dy = gas ? 0 : p.dy, p1g = gas ? 0 : p.p1g;
+    const P1 = P_ATM + p1g;
+    const dPpz = 0.5 * f.rho * (v2 * v2 - v1 * v1);       // (P + ρgy)₁ − (P + ρgy)₂
+    const dP = dPpz + f.rho * G * dy;                       // P₁ − P₂
+    const P2 = P1 - dP;
+    const kappa = gas ? (RHO_MANO - f.rho) / f.rho : 1;     // ölçer sıvısı katsayısı (piyezometrede 1)
+    return {
+      p, f, gas, r1, r2, L: VEN.len * p.D1, A1, A2, v1, v2, dy, p1g, P1, P2, dP, dPpz, kappa,
+      dh: dPpz / (kappa * f.rho * G),                       // sütun farkı (m)
+      z1: p1g / (f.rho * G),                                // piyezometre seviyeleri, giriş ekseninden (m)
+      z2: dy + (P2 - P_ATM) / (f.rho * G),
+      He: p1g / (f.rho * G) + (v1 * v1) / (2 * G),          // enerji çizgisi
+      Re1: (f.rho * v1 * p.D1) / f.eta,
+      mach: gas ? v2 / C_AIR : 0,
+      cav: !gas && P2 < f.pv,
+      suck: !gas && P2 < P_ATM,
+    };
+  }
+  function venAt(m, u) {
+    const s = venShape(u), r = m.r1 - (m.r1 - m.r2) * s;
+    const v = m.p.Q / (Math.PI * r * r), y = m.dy * s;
+    return { s, r, v, y, P: m.P1 + 0.5 * m.f.rho * (m.v1 * m.v1 - v * v) - m.f.rho * G * y };
+  }
+  function venSpeed(m, u) {
+    const r = m.r1 - (m.r1 - m.r2) * venShape(u);
+    return m.p.Q / (Math.PI * r * r);
+  }
+  // İzleyici parçacık: du/dt = v(x)/L, u = x/L; RK4 adımı
+  function venAdvance(m, u, dt) {
+    const k1 = venSpeed(m, u) / m.L, k2 = venSpeed(m, u + 0.5 * dt * k1) / m.L;
+    const k3 = venSpeed(m, u + 0.5 * dt * k2) / m.L, k4 = venSpeed(m, u + dt * k3) / m.L;
+    return u + (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+  }
+  // Ters problem (venturimetre): okunan Δh'den debi; β = 1 iken tanımsız
+  function venQ(m, dh) {
+    const b4 = Math.pow(m.A2 / m.A1, 2);
+    if (1 - b4 < 1e-9) return NaN;
+    return m.A2 * Math.sqrt((2 * G * m.kappa * Math.max(0, dh)) / (1 - b4));
+  }
+  const roundMm = (x) => Math.round(x * 1000) / 1000;
+  // Ölçer sütunu: kritik sönümlü izleyici (ω = 6 1/s; yeni dengeye yaklaşık 1 s'de oturur)
+  function follow(st, target, dt, w = 6) {
+    st.v += (w * w * (target - st.x) - 2 * w * st.v) * dt;
+    st.x += st.v * dt;
+  }
+
+  /* (b) Torricelli: dh/dt = −C_d (a/A) √(2gh); jet v = C_v √(2gh) ile yatay çıkar, eğik atış gibi düşer */
+  // Keskin kenarlı delik: daralma katsayısı C_c ≈ 0.62, hız katsayısı C_v ≈ 0.98, C_d = C_c·C_v ≈ 0.61 (deneysel)
+  const TOR = { Cc: 0.62, Cv: 0.98, sump: 0.04, dt: 0.005, emit: 0.02 };
+  function torModel(p) {
+    const A = (Math.PI * p.Dt * p.Dt) / 4, a = (Math.PI * p.d * p.d) / 4;
+    const Cc = p.real ? TOR.Cc : 1, Cv = p.real ? TOR.Cv : 1, Cd = Cc * Cv;
+    return {
+      p, A, a, Cc, Cv, Cd, h0: p.h0, H: p.H,
+      k: Cd * (a / A) * Math.sqrt(2 * G),
+      T: (A / (Cd * a)) * Math.sqrt((2 * p.h0) / G),
+    };
+  }
+  const torRate = (m, h) => -m.k * Math.sqrt(Math.max(0, h));
+  function torStep(m, h, dt) {
+    const k1 = torRate(m, h), k2 = torRate(m, h + 0.5 * dt * k1);
+    const k3 = torRate(m, h + 0.5 * dt * k2), k4 = torRate(m, h + dt * k3);
+    return h + (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
+  }
+  const jetSpeed = (m, h) => m.Cv * Math.sqrt(2 * G * Math.max(0, h));
+  const jetRange = (m, h) => 2 * m.Cv * Math.sqrt(Math.max(0, h) * m.H);
+  function torNew(m) {
+    return { t: 0, h: m.h0, prevRoot: NaN, tQuarter: null, tEmpty: null, drops: [], emitAcc: TOR.emit, land: null, landFirst: null, hist: [[0, m.h0]], histNext: m.T / 600 };
+  }
+  function torTick(m, s, dt) {
+    for (let i = s.drops.length - 1; i >= 0; i--) {
+      const d = s.drops[i], y1 = d.y + d.vy * dt - 0.5 * G * dt * dt;
+      if (y1 > 0) { d.x += d.vx * dt; d.y = y1; d.vy -= G * dt; continue; }
+      const tau = (d.vy + Math.sqrt(d.vy * d.vy + 2 * G * d.y)) / G;   // adım içindeki düşme anı (kesin)
+      s.land = { x: d.x + d.vx * tau, th: jetRange(m, d.hEmit), h: d.hEmit };
+      if (!s.landFirst) s.landFirst = s.land;
+      s.drops.splice(i, 1);
+    }
+    if (s.tEmpty !== null) return;
+    s.emitAcc += dt;
+    while (s.emitAcc >= TOR.emit - 1e-12) {
+      s.emitAcc -= TOR.emit;
+      s.drops.push({ x: 0, y: m.H, vx: jetSpeed(m, s.h), vy: 0, hEmit: s.h });
+    }
+    const h0 = s.h, r0 = Math.sqrt(h0), q = m.h0 / 4;
+    const fall = s.prevRoot - r0;   // √h'nin son tam adımdaki düşüşü (√h zamanla doğrusal azalır)
+    if (fall > 0 && r0 <= 2 * fall) {
+      // Boşalmaya iki adımdan az kaldı: RK4 ara adımları h < 0 bölgesine taşmadan önce dur, sıfıra varışı bu eğimle bul
+      if (s.tQuarter === null) s.tQuarter = s.t + (dt * (r0 - Math.sqrt(q))) / fall;
+      s.tEmpty = s.t + (dt * r0) / fall;
+      s.t = s.tEmpty;
+      s.h = 0;
+      s.hist.push([s.t, 0]);
+      return;
+    }
+    const h1 = torStep(m, h0, dt);
+    if (s.tQuarter === null && h1 <= q) s.tQuarter = s.t + (dt * (r0 - Math.sqrt(q))) / (r0 - Math.sqrt(Math.max(0, h1)));
+    if (h1 <= 0) {
+      s.tEmpty = s.t + dt;
+      s.t = s.tEmpty;
+      s.h = 0;
+      s.hist.push([s.t, 0]);
+      return;
+    }
+    s.prevRoot = r0;
+    s.h = h1;
+    s.t += dt;
+    if (s.t >= s.histNext) { s.hist.push([s.t, s.h]); s.histNext += m.T / 600; }
+  }
+
+  /* (c) Poiseuille: ρ ∂v/∂t = ΔP/L + η (1/r) ∂/∂r (r ∂v/∂r), v(R) = 0, akışkan durgun hâlden başlar */
+  // Düğümler r_j = jΔr (j = 0…N); merkezde ∇²v = 4(v₁ − v₀)/Δr². Bu ayrıklaştırmanın kararlı çözümü düğümlerde tam paraboldür.
+  const POI = { N: 40, l1: 2.404825557695773, crit: 2300, turb: 4000, cfl: 0.2, steps: 240 };
+  function poiModel(p) {
+    const f = FLUIDS[p.fluid], nu = f.eta / f.rho;
+    const Q = (Math.PI * Math.pow(p.R, 4) * p.dP) / (8 * f.eta * p.L);
+    const vbar = Q / (Math.PI * p.R * p.R);
+    const Re = (f.rho * vbar * 2 * p.R) / f.eta;
+    return {
+      p, f, nu, Q, vbar, Re,
+      vmax: (p.dP * p.R * p.R) / (4 * f.eta * p.L),
+      regime: Re < POI.crit ? "lam" : Re < POI.turb ? "trans" : "turb",
+      tau1: (p.R * p.R) / (nu * POI.l1 * POI.l1),            // en yavaş kipin zaman sabiti
+      Le: 0.06 * Re * 2 * p.R,                               // laminer giriş uzunluğu
+      tauW: (p.dP * p.R) / (2 * p.L),
+      acc: p.dP / (f.rho * p.L),
+    };
+  }
+  // Ekranda 1 s = 2τ₁ benzetim süresi. Her sabit adım (ekranda 1/240 s) açık Euler alt adımlarına bölünür:
+  // c = νh/Δr² ≤ 0.2 olduğundan bütün katsayılar pozitif kalır (kararlı, salınımsız).
+  function poiSim(m) {
+    const N = POI.N, dr = m.p.R / N, hStep = (2 * m.tau1) / POI.steps;
+    const nSub = Math.ceil(hStep / ((POI.cfl * dr * dr) / m.nu));
+    const h = hStep / nSub;
+    return { N, dr, R: m.p.R, v: new Float64Array(N + 1), w: new Float64Array(N + 1), t: 0, hStep, nSub, h, c: (m.nu * h) / (dr * dr), acc: m.acc };
+  }
+  function poiStep(s) {
+    const { N, v, w, c } = s, ga = s.acc * s.h;
+    for (let k = 0; k < s.nSub; k++) {
+      w[0] = v[0] + ga + 4 * c * (v[1] - v[0]);
+      for (let j = 1; j < N; j++) w[j] = v[j] + ga + (c * ((j + 0.5) * (v[j + 1] - v[j]) - (j - 0.5) * (v[j] - v[j - 1]))) / j;
+      w[N] = 0;
+      v.set(w);
+    }
+    s.t += s.hStep;
+  }
+  // Ölçülen debi: Q = 2π ∫₀ᴿ v(r) r dr, düğümler üzerinde Simpson kuralı
+  function poiFlow(s) {
+    let sum = 0;
+    for (let j = 0; j <= s.N; j++) sum += (j === 0 || j === s.N ? 1 : j % 2 ? 4 : 2) * j * s.dr * s.v[j];
+    return ((2 * Math.PI * s.dr) / 3) * sum;
+  }
+  function poiAt(s, r) {
+    const x = Math.min(s.N, Math.abs(r) / s.dr), j = Math.min(s.N - 1, Math.floor(x)), f = x - j;
+    return s.v[j] * (1 - f) + s.v[j + 1] * f;
+  }
+  const poiQ = (p, R) => (Math.PI * Math.pow(R, 4) * p.dP) / (8 * FLUIDS[p.fluid].eta * p.L);
+  // Ölçek yasası: Q/Q₀ = (R/R₀)⁴ (ΔP/ΔP₀) (η₀/η) (L₀/L)
+  const poiRatio = (p, q) => Math.pow(p.R / q.R, 4) * (p.dP / q.dP) * (FLUIDS[q.fluid].eta / FLUIDS[p.fluid].eta) * (q.L / p.L);
+  // Re = ρΔP R³/(4η²L) = 2300 olduğu yarıçap
+  function poiRcrit(p) {
+    const f = FLUIDS[p.fluid];
+    return Math.cbrt((POI.crit * 4 * f.eta * f.eta * p.L) / (f.rho * p.dP));
+  }
+  /* ── FİZİK SONU ── */
+
+  /* ── Biçimlendirme ── */
+  const MINUS = "−";
+  const PREFIX = [[1e9, "G"], [1e6, "M"], [1e3, "k"], [1, ""], [1e-3, "m"], [1e-6, "µ"], [1e-9, "n"], [1e-12, "p"], [1e-15, "f"]];
+  function si(x, unit, sig = 3) {
+    if (!Number.isFinite(x)) return "—";
+    const ax = Math.abs(x);
+    if (ax < 1e-18) return `0 ${unit}`;
+    let i = PREFIX.findIndex(([f]) => ax >= f);
+    if (i < 0) i = PREFIX.length - 1;
+    let s = (ax / PREFIX[i][0]).toPrecision(sig);
+    if (Number(s) >= 1000 && i > 0) {
+      i -= 1;
+      s = (ax / PREFIX[i][0]).toPrecision(sig);
+    }
+    return `${x < 0 ? MINUS : ""}${s} ${PREFIX[i][1]}${unit}`;
+  }
+  function fix(x, d) {
+    if (!Number.isFinite(x)) return "—";
+    const s = Math.abs(x).toFixed(d);
+    return (x < 0 && Number(s) !== 0 ? MINUS : "") + s;
+  }
+  function signed(x, d) {
+    const s = Math.abs(x).toFixed(d);
+    return Number(s) === 0 ? s : (x < 0 ? MINUS : "+") + s;
+  }
+  function pct(meas, th) {
+    if (!Number.isFinite(meas) || !Number.isFinite(th) || Math.abs(th) < 1e-300) return "—";
+    return `${signed(((meas - th) / Math.abs(th)) * 100, 2)} %`;
+  }
+  function fmtLen(x) {
+    if (!Number.isFinite(x)) return "—";
+    const a = Math.abs(x);
+    if (a >= 1) return `${fix(x, 3)} m`;
+    if (a >= 0.01) return `${fix(x * 100, 1)} cm`;
+    return `${fix(x * 1000, 1)} mm`;
+  }
+  const fmtTime = (t) => (!Number.isFinite(t) ? "—" : t >= 100 ? `${fix(t, 1)} s` : t >= 1 ? `${fix(t, 2)} s` : si(t, "s", 3));
+  // Gösterim ölçeği "ekranda 1 s = …": 1-2-5 değerleri, gereksiz sıfırsız
+  function fmtScale(k) {
+    if (k >= 1) return `${Number(k.toPrecision(3))} s`;
+    if (k >= 1e-3) return `${Number((k * 1e3).toPrecision(3))} ms`;
+    return `${Number((k * 1e6).toPrecision(3))} µs`;
+  }
+  const fmtQ = (q, sig = 4) => si(q * 1000, "L/s", sig);
+  const fmtP = (p, sig = 4) => si(p, "Pa", sig);
+  const fmtV = (v, sig = 4) => si(v, "m/s", sig);
+  const fmtRho = (r) => `${Number(r.toPrecision(4))} kg/m³`;
+  const SUP = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻" };
+  function fmtNum(x) {
+    if (!Number.isFinite(x)) return "—";
+    if (x === 0) return "0";
+    const a = Math.abs(x);
+    if (a >= 1e5 || a < 0.01) {
+      const e = Math.floor(Math.log10(a)), mant = x / Math.pow(10, e);
+      return `${mant.toFixed(2)}×10${String(e).replace(/[-0-9]/g, (c) => SUP[c])}`;
+    }
+    if (a >= 1000) return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
+    return Number(x.toPrecision(3)).toString();
+  }
+
+  /* ── Ortak arayüz ── */
+  const ui = {
+    tabs: [...document.querySelectorAll('[role="tab"]')], panel: $("labPanel"),
+    groups: [...document.querySelectorAll(".ctl-group")], res: [...document.querySelectorAll(".res-group")],
+    legend: $("chartLegend"), status: $("statusLine"), toggle: $("toggleBtn"), reset: $("resetBtn"),
+  };
+  ["vFluid", "vFluidOut", "vD1", "vD1Out", "vBeta", "vBetaOut", "vQ", "vQOut", "vP1", "vP1Out", "vP1Field", "vRise", "vRiseOut", "vRiseField",
+    "tTank", "tTankOut", "tHole", "tHoleOut", "tH0", "tH0Out", "tH", "tHOut", "tReal", "tSpeed", "tSpeedOut",
+    "pFluid", "pFluidOut", "pR", "pROut", "pL", "pLOut", "pDP", "pDPOut", "vNote"].forEach((id) => { ui[id] = $(id); });
+  const out = {};
+  ["vV1", "vRatio", "vDP", "vP2", "vP2Word", "vRe", "vMeterLabel", "vMeter", "vTable", "vV2Meas", "vV2Th", "vV2Diff", "vDhSub", "vDhMeas", "vDhTh", "vDhDiff", "vQMeas", "vQTh", "vQDiff", "vFormula",
+    "tT", "tLevel", "tVLabel", "tV", "tQLabel", "tQ", "tRatio", "tCoef", "tTable", "tTSub", "tTMeas", "tTTh", "tTDiff", "tQuMeas", "tQuTh", "tQuDiff", "tRSub", "tRMeas", "tRTh", "tRDiff",
+    "pRe", "pRegime", "pVbar", "pTauW", "pLe", "pTau", "pSens", "pTable", "pQMeas", "pQTh", "pQDiff", "pVmMeas", "pVmTh", "pVmDiff", "pRatMeas", "pRatDiff", "pCmpSub", "pCmpMeas", "pCmpTh", "pCmpDiff"]
+    .forEach((id) => { out[id] = $(id); });
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  function valueText(input, text) { if (input.getAttribute("aria-valuetext") !== text) input.setAttribute("aria-valuetext", text); }
+
+  const stage = $("stageCanvas"), sctx = stage.getContext("2d");
+  const chart = $("chartCanvas"), cctx = chart.getContext("2d");
+  const app = { scn: "venturi", running: true };
+  let dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.08)", axis: "rgba(26,29,46,0.45)",
+      teal: "#0d9488", violet: "#7c3aed", amber: "#d97706", red: "#dc2626", slow: [13, 148, 136], fast: [217, 119, 6],
+      wall: "#475569", glass: "rgba(71,85,105,0.6)", glassFill: "rgba(71,85,105,0.07)", water: "rgba(37,99,235,0.28)",
+      waterLine: "#2563eb", air: "rgba(100,116,139,0.12)", tagBg: "rgba(255,255,255,0.9)", hatch: "rgba(71,85,105,0.3)",
+      bubble: "rgba(255,255,255,0.95)", band: "rgba(13,148,136,0.12)", alpha: 0.3,
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.08)", axis: "rgba(232,236,244,0.45)",
+      teal: "#5eead4", violet: "#a78bfa", amber: "#fbbf24", red: "#f87171", slow: [94, 234, 212], fast: [251, 191, 36],
+      wall: "#94a3b8", glass: "rgba(203,213,225,0.55)", glassFill: "rgba(203,213,225,0.05)", water: "rgba(96,165,250,0.3)",
+      waterLine: "#60a5fa", air: "rgba(203,213,225,0.1)", tagBg: "rgba(8,12,22,0.85)", hatch: "rgba(148,163,184,0.3)",
+      bubble: "rgba(255,255,255,0.9)", band: "rgba(94,234,212,0.12)", alpha: 0.34,
+    };
+  }
+  const TINT = { su: [96, 165, 250], su37: [96, 165, 250], deniz: [56, 189, 248], hava: [148, 163, 184], kan: [220, 38, 38], zeytin: [190, 170, 40], gliserin: [165, 180, 205], bal: [217, 140, 20] };
+  const tint = (key, a) => `rgba(${TINT[key].join(",")},${a})`;
+  const mix = (a, b, t) => `rgb(${a.map((c, i) => Math.round(c + (b[i] - c) * t)).join(",")})`;
+  const font = (px, weight = 400) => `${weight} ${px * dpr}px Outfit, system-ui, sans-serif`;
+
+  /* ── Çizim yardımcıları ── */
+  function line(g, x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+  function arrow(g, x0, y0, x1, y1, color, width, head) {
+    const dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
+    if (len < 1.5 * dpr) return;
+    const ux = dx / len, uy = dy / len, hl = Math.min(head, len * 0.6), hw = hl * 0.5;
+    g.strokeStyle = color;
+    g.fillStyle = color;
+    g.lineWidth = width;
+    line(g, x0, y0, x1 - ux * hl * 0.7, y1 - uy * hl * 0.7);
+    g.beginPath();
+    g.moveTo(x1, y1);
+    g.lineTo(x1 - ux * hl - uy * hw, y1 - uy * hl + ux * hw);
+    g.lineTo(x1 - ux * hl + uy * hw, y1 - uy * hl - ux * hw);
+    g.closePath();
+    g.fill();
+  }
+  // Arka planlı kısa etiket; "_{…}" alt simge yazılır; align: "left" | "center" | "right"
+  function tag(g, text, x, y, color, th, align = "center", px = 12, weight = 600) {
+    const parts = text.split(/_\{([^}]*)\}/);
+    const fonts = parts.map((_, k) => font(k % 2 ? px * 0.75 : px, weight));
+    const widths = parts.map((s, k) => { g.font = fonts[k]; return g.measureText(s).width; });
+    const w = widths.reduce((a, b) => a + b, 0) + 10 * dpr, h = (px + 6) * dpr;
+    let bx = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    bx = Math.max(2 * dpr, Math.min(bx, g.canvas.width - w - 2 * dpr));
+    g.fillStyle = th.tagBg;
+    g.beginPath();
+    g.roundRect(bx, y - h / 2, w, h, 5 * dpr);
+    g.fill();
+    g.fillStyle = color;
+    g.textAlign = "left";
+    g.textBaseline = "middle";
+    let cx = bx + 5 * dpr;
+    parts.forEach((s, k) => {
+      g.font = fonts[k];
+      g.fillText(s, cx, y + 0.5 * dpr + (k % 2 ? px * 0.28 * dpr : 0));
+      cx += widths[k];
+    });
+    g.textBaseline = "alphabetic";
+    return w;
+  }
+  const AXIS_STEPS = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+  function niceAxis(x) {
+    if (!(x > 0)) return 1;
+    const b = Math.pow(10, Math.floor(Math.log10(x)));
+    return AXIS_STEPS.find((k) => k * b >= x * (1 - 1e-9)) * b;
+  }
+  // Ölçek büyüyünce hemen, içerik %55'in altına inince küçülür
+  function rescale(cur, want) {
+    const w = niceAxis(Math.max(want, 1e-9) * 1.06);
+    return !cur || w > cur || w < cur * 0.55 ? w : cur;
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  const decimalsFor = (step) => Math.max(0, Math.min(4, Math.ceil(-Math.log10(step) - 1e-9)));
+
+  /* ── (a) Venturi borusu ── */
+  const ven = { m: null, k: 0, t: 0, parts: [], c1: { x: 0, v: 0 }, c2: { x: 0, v: 0 }, cu: { x: 0, v: 0 }, v2Meas: NaN, zFull: 0, uFull: 0, gas: null, lay: null, drag: false, grab: null };
+
+  function venParams() {
+    return {
+      fluid: ui.vFluid.value, D1: Number(ui.vD1.value) / 100, beta: Number(ui.vBeta.value),
+      Q: Q_LIST[Number(ui.vQ.value)], p1g: Number(ui.vP1.value) * 1000, dy: Number(ui.vRise.value),
+    };
+  }
+  const fmtQset = (q) => { const l = q * 1000; return `${l.toFixed(l >= 10 ? 1 : l >= 1 ? 2 : 3)} L/s`; };
+  // Buhar basıncı çizgisi yalnız boğaz basıncı ona yaklaşınca (P₂ < 3·P_v) grafiğe girer
+  const venShowPv = (m) => !m.gas && Boolean(m.f.pv) && m.P2 < 3 * m.f.pv;
+
+  function venRead() {
+    const p = venParams(), m = venModel(p);
+    ven.m = m;
+    const texts = [
+      [ui.vD1, ui.vD1Out, `${fix(p.D1 * 100, 1)} cm`],
+      [ui.vBeta, ui.vBetaOut, `${fix(p.beta, 2)} · D₂ = ${fix(p.D1 * p.beta * 100, 2)} cm`],
+      [ui.vQ, ui.vQOut, fmtQset(p.Q)],
+      [ui.vP1, ui.vP1Out, `${fix(p.p1g / 1000, 0)} kPa`],
+      [ui.vRise, ui.vRiseOut, `${fix(p.dy, 2)} m`],
+    ];
+    for (const [input, output, text] of texts) { setText(output, text); valueText(input, text); }
+    setText(ui.vFluidOut, `ρ = ${fmtRho(m.f.rho)}`);
+    ui.vP1Field.hidden = m.gas;
+    ui.vRiseField.hidden = m.gas;
+    // Gösterim ölçeği: giriş hızındaki parçacık boruyu ekranda 1.5–12 s'de geçsin (dışına çıkınca yeniden seç)
+    const cross = ven.k ? m.L / (m.v1 * ven.k) : 0;
+    if (!ven.k || cross < 1.5 || cross > 12) ven.k = floor125(m.L / (m.v1 * 3));
+    for (const q of ven.parts) q.tIn = null;
+    ven.v2Meas = NaN;
+    if (ven.gas !== m.gas) {
+      ven.gas = m.gas;
+      ven.c1 = { x: 0, v: 0 };
+      ven.c2 = { x: 0, v: 0 };
+      ven.cu = { x: 0, v: 0 };
+      ven.zFull = 0;
+      ven.uFull = 0;
+    }
+    venTheory();
+  }
+
+  // Boru boyunca hacimle orantılı yoğunlukta izleyici: akış baştan kararlı görünür
+  function venSeed() {
+    const m = ven.m, K = 400, cum = [0];
+    for (let i = 1; i <= K; i++) {
+      const ra = m.r1 - (m.r1 - m.r2) * venShape((i - 1) / K), rb = m.r1 - (m.r1 - m.r2) * venShape(i / K);
+      cum.push(cum[i - 1] + 0.5 * (ra * ra + rb * rb));
+    }
+    const n = 170;
+    ven.parts = [];
+    for (let i = 0; i < n; i++) {
+      const target = ((i + Math.random()) / n) * cum[K];
+      let lo = 0, hi = K;
+      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (cum[mid] < target) lo = mid; else hi = mid; }
+      const f = (target - cum[lo]) / (cum[hi] - cum[lo] || 1);
+      ven.parts.push({ u: (lo + f) / K, eta: (Math.random() * 2 - 1) * 0.88, tIn: null });
+    }
+    ven.v2Meas = NaN;
+  }
+
+  function venTick(dt) {
+    const m = ven.m, ds = dt * ven.k;
+    for (const q of ven.parts) {
+      const u0 = q.u;
+      let u1 = venAdvance(m, u0, ds);
+      // Boğazın düz bölümü [b, c] boyunca geçiş süresi: ölçülen v₂
+      if (u0 < VEN.b && u1 >= VEN.b) q.tIn = ven.t + (ds * (VEN.b - u0)) / (u1 - u0);
+      else if (q.tIn !== null && u0 < VEN.c && u1 >= VEN.c) {
+        const tOut = ven.t + (ds * (VEN.c - u0)) / (u1 - u0);
+        ven.v2Meas = ((VEN.c - VEN.b) * m.L) / (tOut - q.tIn);
+        q.tIn = null;
+      }
+      if (u1 >= 1) { u1 -= 1; q.tIn = null; }
+      q.u = u1;
+    }
+    ven.t += ds;
+    if (m.gas) follow(ven.cu, m.dh, dt);
+    else { follow(ven.c1, m.z1, dt); follow(ven.c2, m.z2, dt); }
+  }
+
+  function venReading() {
+    const m = ven.m;
+    if (m.gas) return roundMm(ven.cu.x);
+    return m.suck ? NaN : roundMm(ven.c1.x - ven.c2.x);
+  }
+
+  function venTheory() {
+    const m = ven.m;
+    setText(out.vV1, fmtV(m.v1, 3));
+    setText(out.vRatio, `${fix(m.v2 / m.v1, 2)}×`);
+    setText(out.vDP, fmtP(m.dP));
+    setText(out.vP2, m.P2 > 0 ? fmtP(m.P2) : `${fmtP(m.P2)} (fiziksel değil)`);
+    setText(out.vP2Word, m.cav ? "buhar basıncının altında: kavitasyon" : m.suck ? "atmosfer basıncının altında" : "");
+    out.vP2Word.style.color = m.cav || m.suck ? "var(--danger)" : "";
+    setText(out.vRe, fmtNum(m.Re1));
+    if (m.gas) {
+      setText(out.vMeterLabel, "Ölçer: su dolu U-borulu manometre");
+      setText(out.vMeter, `ρₘ = ${fmtRho(RHO_MANO)}`);
+      setText(out.vDhSub, "su sütunu, 1 mm çözünürlükle");
+      setHTML(out.vFormula, "Gazda piyezometre kullanılamaz; basınç farkını su dolu U-boru ölçer. Venturimetre: Q = A<sub>2</sub>√(2gΔh(ρ<sub>m</sub> − ρ)/ρ / (1 − (A<sub>2</sub>/A<sub>1</sub>)²)), burada Δh su sütunu, ρ<sub>m</sub> suyun yoğunluğudur.");
+    } else {
+      setText(out.vMeterLabel, "Piyezometre seviyeleri z₁ / z₂ (giriş ekseninden)");
+      setText(out.vMeter, `${fmtLen(m.z1)} / ${fmtLen(m.z2)}`);
+      setText(out.vDhSub, "1 mm çözünürlükle okunur");
+      setHTML(out.vFormula, "Venturimetre: Q = A<sub>2</sub>√(2gΔh / (1 − (A<sub>2</sub>/A<sub>1</sub>)²)). Sütun farkı yalnız hızlara bağlıdır: Δh = (v<sub>2</sub>² − v<sub>1</sub>²)/2g; yoğunluk ve boğazın yüksekliği bu farkı değiştirmez.");
+    }
+    setText(out.vV2Th, fmtV(m.v2));
+    setText(out.vDhTh, m.dh >= 1 ? `${fix(m.dh, 4)} m` : m.dh >= 0.01 ? `${fix(m.dh * 100, 2)} cm` : `${fix(m.dh * 1000, 2)} mm`);
+    setHTML(ui.vNote, m.gas
+      ? "Akış sürtünmesiz ve sıkıştırılamaz kabul edilir (ideal akış); havada bu, Mach sayısı 0.3'ün altındayken iyi bir yaklaşımdır. Gazda açık piyezometre kullanılamaz: su dolu U-boru iki noktanın basınç farkını ölçer, yüksek basınçlı giriş kolu aşağıda kalır. Boğazı tuvalde sürükleyerek de daraltabilirsin."
+      : "Akış sürtünmesiz ve sıkıştırılamaz kabul edilir (ideal akış). Piyezometre tüplerindeki sıvı, o kesitteki statik basıncın yüküne kadar yükselir. Boğazı tuvalde sürükleyerek de daraltabilirsin.");
+    setText(out.vQTh, fmtQ(m.p.Q));
+  }
+
+  function venDom() {
+    const m = ven.m, dh = venReading(), q = venQ(m, dh);
+    setText(out.vV2Meas, Number.isFinite(ven.v2Meas) ? fmtV(ven.v2Meas) : "ölçülüyor…");
+    setText(out.vV2Diff, pct(ven.v2Meas, m.v2));
+    setText(out.vDhMeas, Number.isFinite(dh) ? fmtLen(dh) : "okunamaz");
+    setText(out.vDhDiff, pct(dh, m.dh));
+    setText(out.vQMeas, m.p.beta >= 0.999 ? "ölçülemez" : Number.isFinite(q) ? fmtQ(q) : "—");
+    setText(out.vQDiff, pct(q, m.p.Q));
+  }
+
+  function venStatus() {
+    const m = ven.m, msgs = [];
+    let warn = false;
+    if (m.p.beta >= 0.999) msgs.push("Daralma yok (β = 1): hız ve basınç boru boyunca sabit, sütunlar eşit; venturimetre debi ölçemez.");
+    else msgs.push(`Boğazda kesit ${fix(1 / (m.p.beta * m.p.beta), 2)} kat küçük, hız o kadar büyük; basınç ${fmtP(m.dP, 3)} düşer.`);
+    if (m.cav) { warn = true; msgs.push(`Kavitasyon: boğaz basıncı suyun buhar basıncının (${fmtP(m.f.pv, 3)}) altına iniyor; sıvı burada buharlaşır ve ideal model geçersiz olur.`); }
+    else if (m.suck) { warn = true; msgs.push("Boğazda basınç atmosferin altında: açık piyezometre hava emer ve okunamaz. Giriş basıncını artır ya da debiyi azalt."); }
+    if (m.gas && m.mach > 0.3) { warn = true; msgs.push(`Boğazda Mach sayısı ${fix(m.mach, 2)}: 0.3'ün üstünde hava sıkıştırılabilir davranır, sabit yoğunluk varsayımı zayıflar.`); }
+    if (m.Re1 < 4000) { warn = true; msgs.push(`Giriş Reynolds sayısı ${fmtNum(m.Re1)}: akış laminer ya da geçişte, sürtünme kayıpları ihmal edilemez.`); }
+    return { text: msgs.join(" "), warn };
+  }
+
+  function drawVenturi(th) {
+    const g = sctx, W = stage.width, H = stage.height, u = dpr, m = ven.m, p = m.p;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.lineCap = "round";
+    g.lineJoin = "round";
+    const small = W < 520 * u, fs = small ? 11 : 12;
+    const xl = (small ? 42 : 54) * u, xr = W - 12 * u;
+    const X = (s) => xl + s * (xr - xl);
+    const R1 = Math.min(H * 0.085, (xr - xl) * 0.06);
+    const yTop = 30 * u;
+    let yBase, sh = 0;
+    if (m.gas) yBase = H * 0.3;
+    else {
+      yBase = H - 44 * u - R1;
+      ven.zFull = rescale(ven.zFull, Math.max(m.z1, m.He, m.dy, ven.c1.x, ven.c2.x, 0.02));
+      sh = (yBase - R1 - yTop) / ven.zFull;
+    }
+    const ycOf = (s) => yBase - m.dy * s * sh;
+    const rOf = (s) => R1 * (1 - (1 - p.beta) * s);
+    ven.lay = { X, xl, xr, R1, ycThroat: ycOf(1) };
+
+    // Boru: profil, akışkan, parçacıklar, duvarlar
+    const N = 160, top = [], bot = [];
+    for (let i = 0; i <= N; i++) {
+      const s0 = venShape(i / N), x = X(i / N), c = ycOf(s0), r = rOf(s0);
+      top.push([x, c - r]);
+      bot.push([x, c + r]);
+    }
+    const pipePath = () => {
+      g.beginPath();
+      top.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+      for (let i = N; i >= 0; i--) g.lineTo(bot[i][0], bot[i][1]);
+      g.closePath();
+    };
+    g.fillStyle = m.gas ? th.air : th.water;
+    pipePath();
+    g.fill();
+    g.save();
+    pipePath();
+    g.clip();
+    const span = Math.max(1e-12, m.v2 - m.v1);
+    for (const q of ven.parts) {
+      const s0 = venShape(q.u), f = Math.min(1, Math.max(0, (venSpeed(m, q.u) - m.v1) / span));
+      g.fillStyle = mix(th.slow, th.fast, f);
+      g.beginPath();
+      g.arc(X(q.u), ycOf(s0) + q.eta * rOf(s0), 2.3 * u, 0, Math.PI * 2);
+      g.fill();
+    }
+    if (m.cav) {
+      g.strokeStyle = th.bubble;
+      g.lineWidth = 1.2 * u;
+      for (let i = 0; i < 14; i++) {
+        const s1 = VEN.b + ((VEN.d - VEN.b) * 0.5 * ((i * 0.618) % 1));
+        const y = ycOf(venShape(s1)) + (((i * 0.37) % 1) - 0.5) * 1.4 * rOf(venShape(s1));
+        g.beginPath();
+        g.arc(X(s1), y, (1.5 + (i % 3)) * u, 0, Math.PI * 2);
+        g.stroke();
+      }
+    }
+    g.restore();
+    g.strokeStyle = th.wall;
+    g.lineWidth = 3 * u;
+    for (const pts of [top, bot]) {
+      g.beginPath();
+      pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+      g.stroke();
+    }
+
+    const tw = Math.max(9 * u, R1 * 0.42);
+    const tapX = [X(VEN.tap1), X(VEN.tap2)];
+    const tapS = [venShape(VEN.tap1), venShape(VEN.tap2)];
+    if (!m.gas) {
+      // Yük cetveli: sıfır giriş ekseninde
+      const step = niceStep(ven.zFull / 4), dec = decimalsFor(step);
+      g.strokeStyle = th.axis;
+      g.lineWidth = 1 * u;
+      const rx = xl - 10 * u;
+      line(g, rx, yBase, rx, yBase - ven.zFull * sh);
+      g.font = font(10);
+      g.fillStyle = th.muted;
+      g.textAlign = "right";
+      for (let z = 0; z <= ven.zFull * 1.0001; z += step) {
+        const y = yBase - z * sh;
+        line(g, rx - 4 * u, y, rx, y);
+        g.fillText(fix(z, dec), rx - 6 * u, y + 3.5 * u);
+      }
+      g.textAlign = "left";
+      g.fillText("yük (m)", 4 * u, 14 * u);
+
+      // Piyezometre tüpleri
+      const lv = [ven.c1.x, ven.c2.x], lvY = lv.map((z) => yBase - z * sh);
+      for (let k = 0; k < 2; k++) {
+        const x = tapX[k], yPipe = ycOf(tapS[k]) - rOf(tapS[k]), yOpen = yTop - 6 * u;
+        g.fillStyle = th.glassFill;
+        g.fillRect(x - tw / 2, yOpen, tw, yPipe - yOpen);
+        const empty = k === 1 && m.suck;
+        if (!empty && lvY[k] < yPipe) {
+          g.fillStyle = th.water;
+          g.fillRect(x - tw / 2, lvY[k], tw, yPipe - lvY[k] + 2 * u);
+          g.strokeStyle = th.waterLine;
+          g.lineWidth = 2 * u;
+          line(g, x - tw / 2, lvY[k], x + tw / 2, lvY[k]);
+        }
+        g.strokeStyle = th.glass;
+        g.lineWidth = 1.5 * u;
+        line(g, x - tw / 2, yOpen, x - tw / 2, yPipe);
+        line(g, x + tw / 2, yOpen, x + tw / 2, yPipe);
+        if (empty && !m.cav) tag(g, "P₂ < P_{atm}", x, yPipe - 16 * u, th.red, th, "center", fs);
+      }
+
+      // Enerji çizgisi ve hız yükleri
+      const yE = yBase - m.He * sh;
+      g.save();
+      g.setLineDash([6 * u, 5 * u]);
+      g.strokeStyle = th.violet;
+      g.lineWidth = 1.4 * u;
+      line(g, X(0.02), yE, X(0.62), yE);
+      g.restore();
+      g.font = font(fs - 1, 600);
+      g.fillStyle = th.violet;
+      g.textAlign = "left";
+      g.fillText("enerji çizgisi z + v²/2g", X(0.63), yE + 4 * u);
+      for (let k = 0; k < 2; k++) {
+        if (k === 1 && m.suck) continue;
+        const bx = tapX[k] + tw / 2 + 6 * u, ya = lvY[k];
+        if (ya - yE < 6 * u) continue;
+        g.strokeStyle = th.violet;
+        g.lineWidth = 1.2 * u;
+        line(g, bx, ya, bx, yE);
+        line(g, bx - 3 * u, ya, bx + 3 * u, ya);
+        line(g, bx - 3 * u, yE, bx + 3 * u, yE);
+        if (ya - yE > 18 * u) {
+          g.font = font(fs - 1);
+          g.fillStyle = th.violet;
+          g.textAlign = "left";
+          g.fillText(k ? "v₂²/2g" : "v₁²/2g", bx + 4 * u, (ya + yE) / 2 + 4 * u);
+        }
+      }
+
+      // Δh: iki sütunun serbest yüzey farkı
+      if (!m.suck && lvY[1] - lvY[0] > 3 * u) {
+        const ax = tapX[1] - tw / 2 - 9 * u;
+        g.save();
+        g.setLineDash([3 * u, 3 * u]);
+        g.strokeStyle = th.ink;
+        g.globalAlpha = 0.5;
+        g.lineWidth = 1 * u;
+        line(g, tapX[0] + tw / 2, lvY[0], ax + 4 * u, lvY[0]);
+        g.restore();
+        arrow(g, ax, (lvY[0] + lvY[1]) / 2, ax, lvY[0], th.ink, 1.4 * u, 7 * u);
+        arrow(g, ax, (lvY[0] + lvY[1]) / 2, ax, lvY[1], th.ink, 1.4 * u, 7 * u);
+        tag(g, `Δh = ${fmtLen(venReading())}`, ax - 6 * u, (lvY[0] + lvY[1]) / 2, th.ink, th, "right", fs);
+      }
+    } else {
+      // Su dolu U-borulu manometre (borunun altında)
+      ven.uFull = rescale(ven.uFull, Math.max(m.dh, ven.cu.x, 1e-4));
+      const sm = (H * 0.18) / ven.uFull, yRest = H * 0.64, yU = H - 30 * u, half = 0.5 * ven.cu.x * sm;
+      const lvY = [yRest + half, yRest - half];
+      for (let k = 0; k < 2; k++) {
+        const x = tapX[k], yPipe = ycOf(tapS[k]) + rOf(tapS[k]);
+        g.fillStyle = th.air;
+        g.fillRect(x - tw / 2, yPipe, tw, lvY[k] - yPipe);
+        g.fillStyle = th.water;
+        g.fillRect(x - tw / 2, lvY[k], tw, yU - lvY[k]);
+        g.strokeStyle = th.waterLine;
+        g.lineWidth = 2 * u;
+        line(g, x - tw / 2, lvY[k], x + tw / 2, lvY[k]);
+      }
+      g.fillStyle = th.water;
+      g.fillRect(tapX[0] - tw / 2, yU - tw, tapX[1] - tapX[0] + tw, tw);
+      g.strokeStyle = th.glass;
+      g.lineWidth = 1.5 * u;
+      g.beginPath();
+      g.moveTo(tapX[0] - tw / 2, ycOf(tapS[0]) + rOf(tapS[0]));
+      g.lineTo(tapX[0] - tw / 2, yU);
+      g.lineTo(tapX[1] + tw / 2, yU);
+      g.lineTo(tapX[1] + tw / 2, ycOf(tapS[1]) + rOf(tapS[1]));
+      g.moveTo(tapX[0] + tw / 2, ycOf(tapS[0]) + rOf(tapS[0]));
+      g.lineTo(tapX[0] + tw / 2, yU - tw);
+      g.lineTo(tapX[1] - tw / 2, yU - tw);
+      g.lineTo(tapX[1] - tw / 2, ycOf(tapS[1]) + rOf(tapS[1]));
+      g.stroke();
+      if (lvY[0] - lvY[1] > 3 * u) {
+        const ax = tapX[1] + tw / 2 + 10 * u;
+        g.save();
+        g.setLineDash([3 * u, 3 * u]);
+        g.strokeStyle = th.ink;
+        g.globalAlpha = 0.5;
+        g.lineWidth = 1 * u;
+        line(g, tapX[0] + tw / 2, lvY[0], ax + 4 * u, lvY[0]);
+        g.restore();
+        arrow(g, ax, (lvY[0] + lvY[1]) / 2, ax, lvY[0], th.ink, 1.4 * u, 7 * u);
+        arrow(g, ax, (lvY[0] + lvY[1]) / 2, ax, lvY[1], th.ink, 1.4 * u, 7 * u);
+      }
+      tag(g, `Δh = ${fmtLen(venReading())} su`, tapX[1] + tw / 2 + 18 * u, (lvY[0] + lvY[1]) / 2, th.ink, th, "left", fs);
+    }
+
+    // Hız etiketleri
+    const ly = m.gas ? yBase - R1 - 14 * u : yBase + R1 + 18 * u;
+    tag(g, `v₁ = ${fmtV(m.v1, 3)}`, tapX[0], ly, th.ink, th, "left", fs);
+    tag(g, `v₂ = ${fmtV(m.v2, 3)}`, X((VEN.b + VEN.c) / 2) + 6 * u, m.gas ? ycOf(1) - rOf(1) - 14 * u : ycOf(1) + rOf(1) + 18 * u, th.amber, th, "left", fs);
+    if (m.cav) tag(g, "kavitasyon", X(VEN.c + 0.08), ycOf(1) - rOf(1) - 14 * u, th.red, th, "center", fs);
+    g.font = font(fs - 1);
+    g.fillStyle = th.muted;
+    g.textAlign = "right";
+    g.fillText(`Q = ${fmtQset(p.Q)} · ${m.f.name} · ekranda 1 s = ${fmtScale(ven.k)}`, W - 8 * u, H - 8 * u);
+  }
+
+  function drawVenChart(th) {
+    const g = cctx, W = chart.width, H = chart.height, u = dpr, m = ven.m;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const x0 = 50 * u, x1 = W - 46 * u, y0 = 26 * u, y1 = H - 26 * u;
+    const N = 120, xs = [], Ps = [], Vs = [];
+    for (let i = 0; i <= N; i++) { const st = venAt(m, i / N); xs.push(i / N); Ps.push(st.P); Vs.push(st.v); }
+    const Ptot = m.P1 + 0.5 * m.f.rho * m.v1 * m.v1;
+    let lo = Math.min(...Ps), hi = Ptot;
+    const showPv = venShowPv(m);
+    if (showPv) lo = Math.min(lo, m.f.pv);
+    const padP = Math.max((hi - lo) * 0.12, 1);
+    const pStep = niceStep((hi - lo + 2 * padP) / 4);
+    lo = Math.floor((lo - padP) / pStep) * pStep;
+    hi = Math.ceil((hi + padP) / pStep) * pStep;
+    const vStep = niceStep((m.v2 * 1.12) / 4), vTop = vStep * Math.ceil((m.v2 * 1.12) / vStep);
+    const X = (s) => x0 + s * (x1 - x0), YP = (P) => y1 - ((P - lo) / (hi - lo)) * (y1 - y0), YV = (v) => y1 - (v / vTop) * (y1 - y0);
+    const inCm = m.L < 2, Lshow = inCm ? m.L * 100 : m.L, xStep = niceStep(Lshow / 6);
+    g.lineWidth = 1 * u;
+    g.font = font(10);
+    g.fillStyle = th.muted;
+    g.strokeStyle = th.grid;
+    g.textAlign = "center";
+    for (let v = 0; v <= Lshow * 1.0001; v += xStep) { const x = X(v / Lshow); line(g, x, y0, x, y1); g.fillText(fix(v, decimalsFor(xStep)), x, y1 + 13 * u); }
+    g.textAlign = "right";
+    const pDec = decimalsFor(pStep / 1000);
+    for (let P = lo; P <= hi + pStep * 0.01; P += pStep) { const y = YP(P); line(g, x0, y, x1, y); g.fillText(fix(P / 1000, pDec), x0 - 5 * u, y + 3.5 * u); }
+    g.textAlign = "left";
+    g.fillStyle = th.amber;
+    for (let v = 0; v <= vTop * 1.0001; v += vStep) g.fillText(fix(v, decimalsFor(vStep)), x1 + 5 * u, YV(v) + 3.5 * u);
+    g.font = font(10, 600);
+    g.fillStyle = th.teal;
+    g.fillText("P (kPa)", 6 * u, 14 * u);
+    g.fillStyle = th.amber;
+    g.textAlign = "right";
+    g.fillText("v (m/s)", W - 6 * u, 14 * u);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.fillText(inCm ? "x (cm)" : "x (m)", (x0 + x1) / 2, H - 2 * u);
+
+    g.save();
+    g.beginPath();
+    g.rect(x0, y0 - 2 * u, x1 - x0, y1 - y0 + 4 * u);
+    g.clip();
+    g.fillStyle = th.band;
+    g.beginPath();
+    xs.forEach((s, i) => (i ? g.lineTo(X(s), YP(Ps[i])) : g.moveTo(X(s), YP(Ps[i]))));
+    g.lineTo(X(1), YP(Ptot));
+    g.lineTo(X(0), YP(Ptot));
+    g.closePath();
+    g.fill();
+    for (const s of [VEN.tap1, VEN.tap2]) {
+      g.save();
+      g.setLineDash([2 * u, 4 * u]);
+      g.strokeStyle = th.axis;
+      line(g, X(s), y0, X(s), y1);
+      g.restore();
+    }
+    if (showPv) {
+      g.save();
+      g.setLineDash([6 * u, 4 * u]);
+      g.strokeStyle = th.red;
+      g.lineWidth = 1.4 * u;
+      line(g, x0, YP(m.f.pv), x1, YP(m.f.pv));
+      g.restore();
+    }
+    g.save();
+    g.setLineDash([7 * u, 5 * u]);
+    g.strokeStyle = th.ink;
+    g.globalAlpha = 0.7;
+    g.lineWidth = 1.5 * u;
+    line(g, x0, YP(Ptot), x1, YP(Ptot));
+    g.restore();
+    const curve = (arr, Y, color, w) => {
+      g.strokeStyle = color;
+      g.lineWidth = w * u;
+      g.beginPath();
+      xs.forEach((s, i) => (i ? g.lineTo(X(s), Y(arr[i])) : g.moveTo(X(s), Y(arr[i]))));
+      g.stroke();
+    };
+    curve(Vs, YV, th.amber, 2);
+    curve(Ps, YP, th.teal, 2.6);
+    g.restore();
+    g.font = font(10, 600);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.fillText("1", X(VEN.tap1), y0 - 6 * u);
+    g.fillText("2", X(VEN.tap2), y0 - 6 * u);
+  }
+
+  /* ── (b) Torricelli: boşalan tank ── */
+  const tor = { m: null, s: null, speed: 20, acc: 0, lay: null, frozen: null, drag: false };
+  const SPEEDS = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+
+  function torParams() {
+    return { Dt: Number(ui.tTank.value) / 100, d: Number(ui.tHole.value) / 1000, h0: Number(ui.tH0.value), H: Number(ui.tH.value), real: ui.tReal.checked };
+  }
+  function torRead() {
+    const p = torParams(), m = torModel(p);
+    tor.m = m;
+    tor.s = torNew(m);
+    tor.acc = 0;
+    const texts = [
+      [ui.tTank, ui.tTankOut, `${fix(p.Dt * 100, 0)} cm · A = ${fix(m.A * 1e4, 0)} cm²`],
+      [ui.tHole, ui.tHoleOut, `${fix(p.d * 1000, 0)} mm · a = ${fix(m.a * 1e6, 1)} mm²`],
+      [ui.tH0, ui.tH0Out, `${fix(p.h0, 2)} m`],
+      [ui.tH, ui.tHOut, `${fix(p.H, 2)} m`],
+    ];
+    for (const [input, output, text] of texts) { setText(output, text); valueText(input, text); }
+    const sel = ui.tSpeed.value;
+    tor.speed = sel === "auto" ? SPEEDS.find((k) => m.T / k <= 25) || 1000 : Number(sel);
+    setText(ui.tSpeedOut, `ekranda 1 s = ${Number(tor.speed.toPrecision(3))} s`);
+    torTheory();
+  }
+
+  function torTickScreen(dt) {
+    const s = tor.s;
+    if (s.tEmpty !== null && !s.drops.length) return;
+    tor.acc += dt * tor.speed;
+    let n = 0;
+    while (tor.acc >= TOR.dt && n < 4000) { torTick(tor.m, s, TOR.dt); tor.acc -= TOR.dt; n++; }
+    if (n >= 4000) tor.acc = 0;
+  }
+
+  function torTheory() {
+    const m = tor.m, real = m.p.real;
+    setHTML(out.tVLabel, real ? "Çıkış hızı v = C<sub>v</sub>√(2gh)" : "Çıkış hızı v = √(2gh)");
+    setHTML(out.tQLabel, real ? "Debi Q = C<sub>d</sub>·a√(2gh)" : "Debi Q = a√(2gh)");
+    setText(out.tRatio, fmtNum(m.A / m.a));
+    setText(out.tCoef, real ? `${fix(m.Cc, 2)} · ${fix(m.Cv, 2)} · ${fix(m.Cd, 3)}` : "1 · 1 · 1 (ideal)");
+    setHTML(out.tTSub, real ? "(A/(C<sub>d</sub>·a))√(2h₀/g)" : "(A/a)√(2h₀/g)");
+    setText(out.tTTh, fmtTime(m.T));
+    setText(out.tQuTh, fmtTime(m.T / 2));
+  }
+
+  function torDom() {
+    const m = tor.m, s = tor.s;
+    setText(out.tT, fmtTime(s.t));
+    setText(out.tLevel, fmtLen(s.h));
+    setText(out.tV, fmtV(jetSpeed(m, s.h), 3));
+    setText(out.tQ, fmtQ(m.Cd * m.a * Math.sqrt(2 * G * s.h), 3));
+    setText(out.tTMeas, s.tEmpty === null ? "boşalıyor…" : fmtTime(s.tEmpty));
+    setText(out.tTDiff, s.tEmpty === null ? "—" : pct(s.tEmpty, m.T));
+    setText(out.tQuMeas, s.tQuarter === null ? "bekleniyor…" : fmtTime(s.tQuarter));
+    setText(out.tQuDiff, s.tQuarter === null ? "—" : pct(s.tQuarter, m.T / 2));
+    // Boşalırken son düşen damla; tank boşalınca h = h₀ iken çıkan ilk damla
+    const land = s.tEmpty === null ? s.land : s.landFirst, cv = m.p.real ? "2C<sub>v</sub>√(hH)" : "2√(hH)";
+    setHTML(out.tRSub, s.tEmpty === null ? `son düşen damla · ${cv}` : `ilk damla, h = h₀ · ${cv}`);
+    setText(out.tRMeas, land ? fmtLen(land.x) : "—");
+    setText(out.tRTh, land ? fmtLen(land.th) : "—");
+    setText(out.tRDiff, land ? pct(land.x, land.th) : "—");
+    out.tTable.classList.toggle("is-pending", s.tEmpty === null);
+  }
+
+  function torStatus() {
+    const m = tor.m, s = tor.s, msgs = [];
+    let warn = false;
+    if (s.tEmpty === null) msgs.push(`Tank boşalıyor (kuram T = ${fmtTime(m.T)}). Çıkış hızı ve jet menzili √h ile azalır; √h zamanla doğrusal düşer.`);
+    else msgs.push(`Tank boşaldı: seviye deliğe indi, ölçülen süre ${fmtTime(s.tEmpty)}. Deliğin altındaki ${fix(TOR.sump * 100, 0)} cm su tankta kalır.`);
+    if (m.a / m.A > 0.05) { warn = true; msgs.push(`Delik tanka göre büyük (a/A = ${fix(m.a / m.A, 3)}): yüzeyin iniş hızı ihmal edilemez, √(2gh) yaklaşık kalır.`); }
+    return { text: msgs.join(" "), warn };
+  }
+
+  function torLayout(W, H) {
+    if (tor.frozen) return tor.frozen;
+    const u = dpr, m = tor.m, p = m.p;
+    const padL = 30 * u, padR = 14 * u, padT = 46 * u, padB = 30 * u;
+    const xMin = -p.Dt - 0.06, xMax = Math.max(jetRange(m, m.h0), 0.25) * 1.1 + 0.05;
+    const yMax = p.H + p.h0 * 1.12 + 0.06;
+    const s = Math.min((W - padL - padR) / (xMax - xMin), (H - padT - padB) / yMax);
+    const ox = padL + (W - padL - padR - (xMax - xMin) * s) / 2 - xMin * s, oy = H - padB;
+    return { s, ox, oy, xMin, xMax, yMax, X: (x) => ox + x * s, Y: (y) => oy - y * s, toY: (py) => (oy - py) / s };
+  }
+
+  function drawTorricelli(th) {
+    const g = sctx, W = stage.width, H = stage.height, u = dpr, m = tor.m, s = tor.s, p = m.p;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.lineCap = "round";
+    g.lineJoin = "round";
+    const L = torLayout(W, H);
+    tor.lay = L;
+    const fs = W < 520 * u ? 11 : 12;
+    const yb = p.H - TOR.sump, yTank = p.H + p.h0 * 1.12 + 0.03;
+    const xl = L.X(-p.Dt), xr = L.X(0);
+
+    // Zemin ve cetvel
+    g.strokeStyle = th.axis;
+    g.lineWidth = 1.5 * u;
+    line(g, 6 * u, L.oy, W - 6 * u, L.oy);
+    const step = niceStep(L.xMax / 5), dec = decimalsFor(step);
+    g.font = font(10);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.lineWidth = 1 * u;
+    for (let x = 0; x <= L.xMax * 1.0001; x += step) {
+      line(g, L.X(x), L.oy, L.X(x), L.oy + 5 * u);
+      g.fillText(`${fix(x, dec)}${x === 0 ? "" : " m"}`, L.X(x), L.oy + 17 * u);
+    }
+
+    // Ayak ve tank
+    g.fillStyle = th.hatch;
+    for (const fx of [0.18, 0.82]) g.fillRect(L.X(-p.Dt * fx) - 3 * u, L.Y(yb), 6 * u, L.oy - L.Y(yb));
+    const level = p.H + s.h;
+    g.fillStyle = th.water;
+    g.fillRect(xl, L.Y(level), xr - xl, L.Y(yb) - L.Y(level));
+    g.strokeStyle = th.waterLine;
+    g.lineWidth = 2 * u;
+    line(g, xl, L.Y(level), xr, L.Y(level));
+    const dpx = Math.max(4 * u, p.d * L.s);
+    g.strokeStyle = th.wall;
+    g.lineWidth = 3 * u;
+    g.beginPath();
+    g.moveTo(xl, L.Y(yTank));
+    g.lineTo(xl, L.Y(yb));
+    g.lineTo(xr, L.Y(yb));
+    g.lineTo(xr, L.Y(p.H) + dpx / 2);
+    g.moveTo(xr, L.Y(p.H) - dpx / 2);
+    g.lineTo(xr, L.Y(yTank));
+    g.stroke();
+
+    // h₀, h₀/4 işaretleri ve h ölçüsü
+    g.save();
+    g.setLineDash([4 * u, 4 * u]);
+    g.lineWidth = 1 * u;
+    g.strokeStyle = th.muted;
+    for (const hh of [p.h0, p.h0 / 4]) line(g, xl, L.Y(p.H + hh), xr, L.Y(p.H + hh));
+    g.strokeStyle = th.axis;
+    line(g, xl, L.Y(p.H), xr, L.Y(p.H));
+    g.restore();
+    g.font = font(10, 600);
+    g.fillStyle = th.muted;
+    g.textAlign = "right";
+    g.fillText("h₀", xl - 4 * u, L.Y(p.H + p.h0) + 4 * u);
+    g.fillText("h₀/4", xl - 4 * u, L.Y(p.H + p.h0 / 4) + 4 * u);
+    g.fillText("0", xl - 4 * u, L.Y(p.H) + 4 * u);
+    if (s.h * L.s > 14 * u) {
+      const bx = (xl + xr) / 2;
+      arrow(g, bx, (L.Y(p.H) + L.Y(level)) / 2, bx, L.Y(level) + 1 * u, th.ink, 1.3 * u, 6 * u);
+      arrow(g, bx, (L.Y(p.H) + L.Y(level)) / 2, bx, L.Y(p.H) - 1 * u, th.ink, 1.3 * u, 6 * u);
+    }
+    tag(g, `h = ${fmtLen(s.h)}`, xr - 4 * u, Math.min(L.Y(level) - 12 * u, L.Y(p.H + p.h0) - 12 * u), th.ink, th, "right", fs);
+
+    // Jet: havadaki damlalar boyunca (en yeni delikte)
+    const drops = s.drops.slice().sort((a, b) => a.x - b.x);
+    if (drops.length) {
+      g.strokeStyle = th.waterLine;
+      g.globalAlpha = 0.85;
+      g.lineWidth = Math.max(2.5 * u, p.d * L.s * Math.sqrt(m.Cc));
+      g.beginPath();
+      if (s.tEmpty === null) g.moveTo(xr, L.Y(p.H)); else g.moveTo(L.X(drops[0].x), L.Y(drops[0].y));
+      for (const d of drops) g.lineTo(L.X(d.x), L.Y(d.y));
+      g.stroke();
+      g.globalAlpha = 1;
+      if (p.real && s.tEmpty === null) {
+        g.fillStyle = th.waterLine;
+        g.beginPath();
+        g.moveTo(xr, L.Y(p.H) - dpx / 2);
+        g.quadraticCurveTo(xr + dpx * 0.6, L.Y(p.H) - dpx * 0.32, xr + dpx * 1.2, L.Y(p.H) - dpx * 0.4);
+        g.lineTo(xr + dpx * 1.2, L.Y(p.H) + dpx * 0.4);
+        g.quadraticCurveTo(xr + dpx * 0.6, L.Y(p.H) + dpx * 0.32, xr, L.Y(p.H) + dpx / 2);
+        g.closePath();
+        g.fill();
+      }
+    }
+    // Kuram (şimdiki h) ve ölçülen düşme noktası
+    if (s.tEmpty === null) {
+      const xt = L.X(jetRange(m, s.h));
+      g.strokeStyle = th.amber;
+      g.lineWidth = 1.6 * u;
+      g.beginPath();
+      g.moveTo(xt, L.oy + 1 * u);
+      g.lineTo(xt - 5 * u, L.oy + 9 * u);
+      g.lineTo(xt + 5 * u, L.oy + 9 * u);
+      g.closePath();
+      g.stroke();
+    }
+    if (s.land) {
+      const xm = L.X(s.land.x);
+      g.strokeStyle = th.waterLine;
+      g.lineWidth = 2 * u;
+      g.beginPath();
+      g.arc(xm, L.oy, 6 * u, Math.PI, 2 * Math.PI);
+      g.stroke();
+      tag(g, `${fmtLen(s.land.x)}`, xm, L.oy - 16 * u, th.ink, th, "center", fs);
+    }
+    if (s.tEmpty === null && s.h > 0) {
+      const v = jetSpeed(m, s.h), v0 = jetSpeed(m, p.h0), len = 12 * u + (34 * u * v) / v0;
+      arrow(g, xr + 4 * u, L.Y(p.H) - 10 * u, xr + 4 * u + len, L.Y(p.H) - 10 * u, th.amber, 2 * u, 8 * u);
+      tag(g, `v = ${fmtV(v, 3)}`, xr + 6 * u, L.Y(p.H) - 26 * u, th.amber, th, "left", fs);
+    }
+
+    g.font = font(fs, 600);
+    g.textAlign = "left";
+    g.fillStyle = s.tEmpty === null ? th.ink : th.teal;
+    g.fillText(s.tEmpty === null ? `t = ${fmtTime(s.t)}` : `Boşaldı: T = ${fmtTime(s.tEmpty)}`, 8 * u, 18 * u);
+    g.font = font(fs - 1);
+    g.fillStyle = th.muted;
+    g.fillText(`ekranda 1 s = ${Number(tor.speed.toPrecision(3))} s`, 8 * u, 33 * u);
+    g.textAlign = "right";
+    g.fillStyle = th.amber;
+    g.fillText(`△ kuram ${p.real ? `${fix(m.Cv, 2)} · 2√(hH)` : "2√(hH)"}`, W - 8 * u, 18 * u);
+    g.fillStyle = th.muted;
+    g.fillText(`H = ${fix(p.H, 2)} m · d = ${fix(p.d * 1000, 0)} mm`, W - 8 * u, 33 * u);
+  }
+
+  function drawTorChart(th) {
+    const g = cctx, W = chart.width, H = chart.height, u = dpr, m = tor.m, s = tor.s, h0 = m.h0, r0 = Math.sqrt(h0);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const x0 = 46 * u, x1 = W - 46 * u, y0 = 26 * u, y1 = H - 26 * u;
+    const tMax = Math.max(m.T * 1.06, s.t);
+    const X = (t) => x0 + (t / tMax) * (x1 - x0), YL = (h) => y1 - (h / h0) * (y1 - y0), YR = (r) => y1 - (r / r0) * (y1 - y0);
+    const tStep = niceStep(tMax / 5), tDec = decimalsFor(tStep);
+    g.lineWidth = 1 * u;
+    g.font = font(10);
+    g.strokeStyle = th.grid;
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    for (let t = 0; t <= tMax * 1.0001; t += tStep) { line(g, X(t), y0, X(t), y1); g.fillText(fix(t, tDec), X(t), y1 + 13 * u); }
+    for (let k = 0; k <= 4; k++) {
+      const y = y1 - (k / 4) * (y1 - y0);
+      line(g, x0, y, x1, y);
+      g.textAlign = "right";
+      g.fillStyle = th.teal;
+      g.fillText(fix((h0 * k) / 4, h0 < 0.4 ? 3 : 2), x0 - 5 * u, y + 3.5 * u);
+      g.textAlign = "left";
+      g.fillStyle = th.violet;
+      g.fillText(fix((r0 * k) / 4, 3), x1 + 5 * u, y + 3.5 * u);
+    }
+    g.font = font(10, 600);
+    g.textAlign = "left";
+    g.fillStyle = th.teal;
+    g.fillText("h (m)", 6 * u, 14 * u);
+    g.textAlign = "right";
+    g.fillStyle = th.violet;
+    g.fillText("√h (√m)", W - 6 * u, 14 * u);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.fillText("t (s)", (x0 + x1) / 2, H - 2 * u);
+
+    g.save();
+    g.beginPath();
+    g.rect(x0, y0 - 3 * u, x1 - x0, y1 - y0 + 6 * u);
+    g.clip();
+    g.setLineDash([3 * u, 4 * u]);
+    g.strokeStyle = th.axis;
+    for (const t of [m.T / 2, m.T]) line(g, X(t), y0, X(t), y1);
+    line(g, x0, YL(h0 / 4), x1, YL(h0 / 4));
+    g.setLineDash([7 * u, 5 * u]);
+    g.lineWidth = 1.4 * u;
+    const N = 80, kk = m.k / 2;
+    g.strokeStyle = th.teal;
+    g.globalAlpha = 0.6;
+    g.beginPath();
+    for (let i = 0; i <= N; i++) { const t = (m.T * i) / N, r = Math.max(0, r0 - kk * t); i ? g.lineTo(X(t), YL(r * r)) : g.moveTo(X(t), YL(r * r)); }
+    g.stroke();
+    g.strokeStyle = th.violet;
+    line(g, X(0), YR(r0), X(m.T), YR(0));
+    g.globalAlpha = 1;
+    g.setLineDash([]);
+    const hist = s.hist.concat(s.tEmpty === null ? [[s.t, s.h]] : []);
+    g.lineWidth = 2.4 * u;
+    g.strokeStyle = th.teal;
+    g.beginPath();
+    hist.forEach(([t, h], i) => (i ? g.lineTo(X(t), YL(h)) : g.moveTo(X(t), YL(h))));
+    g.stroke();
+    g.strokeStyle = th.violet;
+    g.beginPath();
+    hist.forEach(([t, h], i) => (i ? g.lineTo(X(t), YR(Math.sqrt(h))) : g.moveTo(X(t), YR(Math.sqrt(h)))));
+    g.stroke();
+    g.restore();
+    g.font = font(10, 600);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.fillText("T/2", X(m.T / 2), y0 - 6 * u);
+    g.fillText("T", X(m.T), y0 - 6 * u);
+    g.fillStyle = th.ink;
+    g.beginPath();
+    g.arc(X(s.t), YL(s.h), 4 * u, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  /* ── (c) Viskoz akış: Poiseuille ── */
+  const poi = { m: null, s: null, rows: [], prev: null, steady: false, pts: [], ptsKey: "", lay: null, drag: false };
+  const ROWS = 13;
+  const REGIME = { lam: ["laminer", "is-lam"], trans: ["geçiş bölgesi", "is-trans"], turb: ["türbülanslı", "is-turb"] };
+
+  function poiParams() {
+    return { fluid: ui.pFluid.value, R: R_LIST[Number(ui.pR.value)], L: Number(ui.pL.value), dP: DP_LIST[Number(ui.pDP.value)] };
+  }
+  const fmtR = (R) => `${fix(R * 1000, R < 0.01 ? 2 : 1)} mm`;
+
+  function poiRead() {
+    const p = poiParams();
+    if (poi.m && poi.steady) poi.prev = { p: poi.m.p, Q: poiFlow(poi.s) };
+    const m = poiModel(p);
+    poi.m = m;
+    poi.s = poiSim(m);
+    poi.steady = false;
+    const key = `${p.fluid}|${p.L}|${p.dP}`;
+    if (key !== poi.ptsKey) { poi.ptsKey = key; poi.pts = []; }
+    const texts = [
+      [ui.pR, ui.pROut, fmtR(p.R)],
+      [ui.pL, ui.pLOut, `${fix(p.L, 2)} m`],
+      [ui.pDP, ui.pDPOut, si(p.dP, "Pa", 3)],
+    ];
+    for (const [input, output, text] of texts) { setText(output, text); valueText(input, text); }
+    setText(ui.pFluidOut, `η = ${si(m.f.eta, "Pa·s", 4)} · ρ = ${fmtRho(m.f.rho)}`);
+    poiTheory();
+  }
+  function poiSeed() {
+    poi.rows = [];
+    for (let k = 0; k < ROWS; k++) {
+      const f = (k - (ROWS - 1) / 2) / ((ROWS - 1) / 2 + 0.6), n = 9, ph = Math.random() / n;
+      poi.rows.push({ f, xs: Array.from({ length: n }, (_, i) => (ph + i / n) % 1) });
+    }
+  }
+
+  function poiTick(dt) {
+    const m = poi.m, s = poi.s;
+    poiStep(s);
+    if (!poi.steady && Math.abs(poiFlow(s) / m.Q - 1) < 5e-5) {
+      poi.steady = true;
+      const q = poiFlow(s), ex = poi.pts.find((pt) => Math.abs(pt.R / m.p.R - 1) < 1e-6);
+      if (ex) ex.Q = q; else poi.pts.push({ R: m.p.R, Q: q });
+    }
+    // İzleyiciler: ekrandaki hız v(r)/v_maks ile orantılı; gelişmiş akışta merkezdeki izleyici boruyu 3.2 s'de geçer
+    for (const row of poi.rows) {
+      const sp = (poiAt(s, row.f * s.R) / m.vmax / 3.2) * dt;
+      for (let i = 0; i < row.xs.length; i++) row.xs[i] = (row.xs[i] + sp) % 1;
+    }
+  }
+
+  function poiTheory() {
+    const m = poi.m, p = m.p;
+    setText(out.pRe, fmtNum(m.Re));
+    setText(out.pRegime, REGIME[m.regime][0]);
+    out.pRegime.className = `regime ${REGIME[m.regime][1]}`;
+    setText(out.pVbar, fmtV(m.vbar, 3));
+    setText(out.pTauW, fmtP(m.tauW, 3));
+    setText(out.pLe, `${fmtLen(m.Le)} (L'nin %${fix((m.Le / p.L) * 100, m.Le / p.L < 0.1 ? 2 : 1)}'i)`);
+    setText(out.pTau, fmtTime(m.tau1));
+    setText(out.pSens, `Q/16 = ${fmtQ(m.Q / 16, 3)}`);
+    setText(out.pQTh, fmtQ(m.Q));
+    setText(out.pVmTh, fmtV(m.vmax));
+    if (poi.prev) {
+      const q = poi.prev.p, parts = [];
+      if (q.fluid !== p.fluid) parts.push(`${FLUIDS[q.fluid].name} → ${FLUIDS[p.fluid].name}`);
+      if (q.R !== p.R) parts.push(`R ${fmtR(q.R)} → ${fmtR(p.R)}`);
+      if (q.dP !== p.dP) parts.push(`ΔP ${si(q.dP, "Pa", 3)} → ${si(p.dP, "Pa", 3)}`);
+      if (q.L !== p.L) parts.push(`L ${fix(q.L, 2)} → ${fix(p.L, 2)} m`);
+      setText(out.pCmpSub, parts.length ? parts.join(", ") : "aynı ayar");
+      setText(out.pCmpTh, fmtNum(poiRatio(p, q)));
+    } else {
+      setText(out.pCmpSub, "önceki gelişmiş akışa göre");
+      setText(out.pCmpTh, "—");
+    }
+  }
+
+  function poiDom() {
+    const m = poi.m, s = poi.s, q = poiFlow(s), vm = s.v[0];
+    const ratio = q > 0 ? vm / (q / (Math.PI * s.R * s.R)) : NaN;
+    setText(out.pQMeas, fmtQ(q));
+    setText(out.pQDiff, pct(q, m.Q));
+    setText(out.pVmMeas, fmtV(vm));
+    setText(out.pVmDiff, pct(vm, m.vmax));
+    setText(out.pRatMeas, Number.isFinite(ratio) ? fix(ratio, 3) : "—");
+    setText(out.pRatDiff, pct(ratio, 2));
+    if (poi.prev) {
+      const r = q / poi.prev.Q;
+      setText(out.pCmpMeas, fmtNum(r));
+      setText(out.pCmpDiff, pct(r, poiRatio(m.p, poi.prev.p)));
+    } else {
+      setText(out.pCmpMeas, "—");
+      setText(out.pCmpDiff, "—");
+    }
+    out.pTable.classList.toggle("is-pending", !poi.steady);
+  }
+
+  function poiStatus() {
+    const m = poi.m, s = poi.s, p = m.p, msgs = [];
+    let warn = false;
+    if (poi.steady) msgs.push("Tam gelişmiş akış: profil parabole oturdu; ölçülen debi Hagen–Poiseuille değerine eşit.");
+    else msgs.push(`Akış durgun hâlden gelişiyor: duvara yakın akışkan kaymazlık koşuluyla frenlenir, ölçülen debi kurama yaklaşır (zaman sabiti ${fmtTime(m.tau1)}).`);
+    if (m.regime === "trans") { warn = true; msgs.push(`Re = ${fmtNum(m.Re)}: geçiş bölgesi. Hagen–Poiseuille yalnız laminer akışta geçerlidir; gerçek akış kararsızlaşabilir.`); }
+    if (m.regime === "turb") { warn = true; msgs.push(`Re = ${fmtNum(m.Re)}: akış türbülanslı olur. Parabolik profil ve Q ∝ R⁴ geçersizdir; gerçek debi daha düşüktür.`); }
+    if (m.Le > p.L) { warn = true; msgs.push(`Giriş uzunluğu (${fmtLen(m.Le)}) borudan uzun: profil borunun çoğunda gelişmemiş kalır.`); }
+    if (m.f.gas && p.dP > 0.05 * P_ATM) { warn = true; msgs.push("Hava için ΔP, atmosfer basıncının %5'ini aşıyor: yoğunluk boru boyunca değişir, sıkıştırılamaz model yaklaşık kalır."); }
+    if (p.fluid === "kan") msgs.push("Kan, Newton tipi olmayan bir sıvıdır; η burada yüksek kayma hızındaki yaklaşık değerdir.");
+    return { text: msgs.join(" "), warn };
+  }
+
+  function drawPoiseuille(th) {
+    const g = sctx, W = stage.width, H = stage.height, u = dpr, m = poi.m, s = poi.s, p = m.p;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.lineCap = "round";
+    g.lineJoin = "round";
+    const fs = W < 520 * u ? 11 : 12;
+    const xa = 12 * u, xb = W - 12 * u, yc = H * 0.5, Rp = H * 0.27, wt = 9 * u;
+    const yT = yc - Rp, yB = yc + Rp;
+    g.fillStyle = tint(p.fluid, p.fluid === "hava" ? th.alpha * 0.5 : th.alpha);
+    g.fillRect(xa, yT, xb - xa, yB - yT);
+    g.fillStyle = th.hatch;
+    g.fillRect(xa, yT - wt, xb - xa, wt);
+    g.fillRect(xa, yB, xb - xa, wt);
+    g.strokeStyle = th.wall;
+    g.lineWidth = 2.5 * u;
+    line(g, xa, yT, xb, yT);
+    line(g, xa, yB, xb, yB);
+
+    // İzleyiciler
+    g.fillStyle = th.ink;
+    g.globalAlpha = 0.75;
+    for (const row of poi.rows) {
+      const y = yc - row.f * Rp;
+      for (const x of row.xs) { g.beginPath(); g.arc(xa + x * (xb - xa), y, 2.4 * u, 0, Math.PI * 2); g.fill(); }
+    }
+    g.globalAlpha = 1;
+
+    // Hız profili: oklar (benzetim), zarf ve kesikli kuramsal parabol
+    const xp = xa + (xb - xa) * 0.1, Lm = (xb - xa) * 0.42, N = s.N;
+    g.save();
+    g.setLineDash([3 * u, 4 * u]);
+    g.strokeStyle = th.ink;
+    g.globalAlpha = 0.45;
+    g.lineWidth = 1 * u;
+    line(g, xp, yT, xp, yB);
+    line(g, xp + 0.5 * Lm, yT, xp + 0.5 * Lm, yB);
+    g.globalAlpha = 1;
+    g.setLineDash([6 * u, 5 * u]);
+    g.strokeStyle = th.violet;
+    g.lineWidth = 1.6 * u;
+    g.beginPath();
+    for (let i = 0; i <= 60; i++) { const f = -1 + i / 30; i ? g.lineTo(xp + (1 - f * f) * Lm, yc - f * Rp) : g.moveTo(xp + (1 - f * f) * Lm, yc - f * Rp); }
+    g.stroke();
+    g.restore();
+    for (let j = -N + 4; j <= N - 4; j += 4) {
+      const vj = s.v[Math.abs(j)], len = (vj / m.vmax) * Lm;
+      if (len > 3 * u) arrow(g, xp, yc - (j / N) * Rp, xp + len, yc - (j / N) * Rp, th.teal, 1.6 * u, 7 * u);
+    }
+    g.strokeStyle = th.teal;
+    g.lineWidth = 2.6 * u;
+    g.beginPath();
+    for (let j = -N; j <= N; j++) { const x = xp + (s.v[Math.abs(j)] / m.vmax) * Lm, y = yc - (j / N) * Rp; j === -N ? g.moveTo(x, y) : g.lineTo(x, y); }
+    g.stroke();
+    tag(g, `v_{maks} = ${fmtV(s.v[0], 3)}`, xp + (s.v[0] / m.vmax) * Lm + 8 * u, yc, th.teal, th, "left", fs);
+    const vx = xp + 0.5 * Lm, vy = yT - wt - 5 * u;
+    g.font = font(fs, 600);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.fillText("v", vx, vy);
+    g.strokeStyle = th.muted;
+    g.lineWidth = 1.2 * u;
+    line(g, vx - 3.5 * u, vy - fs * 0.62 * u, vx + 3.5 * u, vy - fs * 0.62 * u);
+
+    // Başlık, basınçlar, rejim
+    g.font = font(fs, 600);
+    g.textAlign = "left";
+    g.fillStyle = th.ink;
+    g.fillText(`P₁ →`, xa, yB + wt + 18 * u);
+    g.textAlign = "right";
+    g.fillText(`→ P₂ = P₁ − ${si(p.dP, "Pa", 3)}`, xb, yB + wt + 18 * u);
+    g.textAlign = "left";
+    g.font = font(fs - 1);
+    g.fillStyle = th.muted;
+    g.fillText(`t = ${fmtTime(s.t)} · ekranda 1 s = ${fmtTime(2 * m.tau1)}`, 8 * u, 18 * u);
+    g.fillText(`2R = ${fix(p.R * 2000, p.R < 0.005 ? 2 : 1)} mm · L = ${fix(p.L, 2)} m · ${m.f.name}`, 8 * u, H - 10 * u);
+    const [word] = REGIME[m.regime];
+    tag(g, `Re = ${fmtNum(m.Re)} · ${word}`, W - 8 * u, 18 * u, m.regime === "lam" ? th.teal : m.regime === "trans" ? th.amber : th.red, th, "right", fs);
+    if (m.regime !== "lam") tag(g, "Bu Re'de parabolik profil kararlı kalmaz", (xa + xb) / 2, yT - wt - 22 * u, th.red, th, "center", fs);
+  }
+
+  function drawPoiChart(th) {
+    const g = cctx, W = chart.width, H = chart.height, u = dpr, m = poi.m, p = m.p;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const x0 = 58 * u, x1 = W - 14 * u, y0 = 24 * u, y1 = H - 28 * u;
+    const Rmin = R_LIST[0], Rmax = R_LIST[R_LIST.length - 1];
+    const lr0 = Math.log10(Rmin), lr1 = Math.log10(Rmax);
+    const lq0 = Math.floor(Math.log10(poiQ(p, Rmin)) + 1e-9), lq1 = Math.ceil(Math.log10(poiQ(p, Rmax)) - 1e-9);
+    const X = (R) => x0 + ((Math.log10(R) - lr0) / (lr1 - lr0)) * (x1 - x0);
+    const Y = (Q) => y1 - ((Math.log10(Q) - lq0) / (lq1 - lq0)) * (y1 - y0);
+    poi.lay = { x0, x1, lr0, lr1 };
+    g.lineWidth = 1 * u;
+    g.font = font(10);
+    g.strokeStyle = th.grid;
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    for (let e = -4; e <= -1; e++) {
+      for (let k = 1; k < 10; k++) {
+        const R = k * Math.pow(10, e);
+        if (R < Rmin * 0.999 || R > Rmax * 1.001) continue;
+        const x = X(R);
+        if (k === 1 || k === 2 || k === 5) { line(g, x, y0, x, y1); g.fillText(`${Number((R * 1000).toPrecision(2))}`, x, y1 + 13 * u); }
+        else { g.strokeStyle = th.axis; line(g, x, y1, x, y1 - 4 * u); g.strokeStyle = th.grid; }
+      }
+    }
+    const perDec = (y1 - y0) / (lq1 - lq0), every = Math.max(1, Math.ceil((16 * u) / perDec));
+    g.textAlign = "right";
+    for (let e = lq0; e <= lq1; e++) {
+      line(g, x0, Y(Math.pow(10, e)), x1, Y(Math.pow(10, e)));
+      if ((e - lq0) % every === 0) g.fillText(si(Math.pow(10, e + 3), "L/s", 3).replace(/\.0+ /, " "), x0 - 5 * u, Y(Math.pow(10, e)) + 3.5 * u);
+    }
+    g.font = font(10, 600);
+    g.textAlign = "left";
+    g.fillStyle = th.teal;
+    g.fillText("Q (log)", 6 * u, 14 * u);
+    g.textAlign = "right";
+    g.fillStyle = th.muted;
+    g.fillText("R (mm, log)", x1, H - 2 * u);
+
+    g.save();
+    g.beginPath();
+    g.rect(x0, y0 - 2 * u, x1 - x0, y1 - y0 + 4 * u);
+    g.clip();
+    if (p.fluid !== "su") {
+      const ps = { ...p, fluid: "su" };
+      g.strokeStyle = th.muted;
+      g.globalAlpha = 0.6;
+      g.lineWidth = 1.4 * u;
+      line(g, X(Rmin), Y(poiQ(ps, Rmin)), X(Rmax), Y(poiQ(ps, Rmax)));
+      g.globalAlpha = 1;
+    }
+    const Rc = poiRcrit(p), Rs = Math.min(Rmax, Math.max(Rmin, Rc));
+    g.strokeStyle = th.teal;
+    g.lineWidth = 2.4 * u;
+    if (Rc > Rmin) line(g, X(Rmin), Y(poiQ(p, Rmin)), X(Rs), Y(poiQ(p, Rs)));
+    if (Rc < Rmax) {
+      g.setLineDash([7 * u, 5 * u]);
+      line(g, X(Rs), Y(poiQ(p, Rs)), X(Rmax), Y(poiQ(p, Rmax)));
+      g.setLineDash([]);
+    }
+    // Eğim üçgeni: R iki katına çıkınca Q 16 katına çıkar
+    const Ra = Math.pow(10, lr0 + 0.56 * (lr1 - lr0)), Qa = poiQ(p, Ra);
+    g.strokeStyle = th.ink;
+    g.globalAlpha = 0.7;
+    g.lineWidth = 1.2 * u;
+    g.beginPath();
+    g.moveTo(X(Ra), Y(Qa));
+    g.lineTo(X(2 * Ra), Y(Qa));
+    g.lineTo(X(2 * Ra), Y(16 * Qa));
+    g.stroke();
+    g.globalAlpha = 1;
+    g.restore();
+    g.font = font(10, 600);
+    g.fillStyle = th.ink;
+    g.textAlign = "center";
+    g.fillText("R ×2", (X(Ra) + X(2 * Ra)) / 2, Y(Qa) + 13 * u);
+    g.textAlign = "left";
+    g.fillText("Q ×16", X(2 * Ra) + 5 * u, (Y(Qa) + Y(16 * Qa)) / 2 + 4 * u);
+    if (Rc > Rmin && Rc < Rmax) {
+      const xc = X(Rc), yq = Y(poiQ(p, Rc));
+      g.strokeStyle = th.red;
+      g.lineWidth = 1.5 * u;
+      line(g, xc, yq - 7 * u, xc, yq + 7 * u);
+      g.fillStyle = th.red;
+      g.textAlign = "right";
+      g.fillText("Re = 2300", xc - 6 * u, yq - 4 * u);
+    }
+    for (const pt of poi.pts) {
+      g.strokeStyle = th.ink;
+      g.lineWidth = 1.6 * u;
+      g.beginPath();
+      g.arc(X(pt.R), Y(pt.Q), 5.5 * u, 0, Math.PI * 2);
+      g.stroke();
+    }
+    g.fillStyle = th.amber;
+    g.beginPath();
+    g.arc(X(p.R), Y(m.Q), 4 * u, 0, Math.PI * 2);
+    g.fill();
+    if (p.fluid !== "su") {
+      const ps = { ...p, fluid: "su" };
+      for (let i = 0; i <= 40; i++) {
+        const R = Math.pow(10, lr0 + ((lr1 - lr0) * i) / 40), y = Y(poiQ(ps, R)) - 6 * u;
+        if (y > y0 + 12 * u && y < y1 - 4 * u) {
+          g.textAlign = "left";
+          g.fillStyle = th.muted;
+          g.fillText("su (20 °C)", X(R) + 4 * u, y);
+          break;
+        }
+      }
+    }
+  }
+
+  /* ── Sekmeler ── */
+  const SCN = {
+    venturi: {
+      stage: "Venturi borusu: izleyici parçacıklar daralan boğazda hızlanır. Sıvıda giriş ve boğazdaki piyezometre tüpleri statik basıncın yükünü, havada su dolu U-boru basınç farkını gösterir; kesikli mor çizgi enerji çizgisidir. Boğazı sürükleyerek daraltabilirsin.",
+      chart: "Boru boyunca statik basınç P(x), sabit kalan Bernoulli toplamı ve hız v(x); 1 ve 2 ölçüm noktaları",
+      legend: '<li><i class="sw sw-teal"></i>statik basınç P(x)</li><li><i class="sw sw-dash"></i>P + ½ρv² + ρgy (sabit)</li><li><i class="sw sw-amber"></i>hız v(x)</li>',
+      reset: "Sıfırla",
+    },
+    torricelli: {
+      stage: "Açık tank: su seviyesi düşer, yan duvardaki delikten çıkan jet yere eğik atış gibi düşer. Yerdeki cetvel menzili, üçgen kuramı gösterir. Tanktaki suyu sürükleyerek başlangıç seviyesini seçebilirsin.",
+      chart: "Seviye h(t) parabol, karekökü √h(t) doğru olarak azalır; kesikli eğriler kuram, T/2 ve T işaretli",
+      legend: '<li><i class="sw sw-teal"></i>h(t), parabol</li><li><i class="sw sw-violet"></i>√h(t), doğru</li><li><i class="sw sw-dash"></i>kesikli: kuram</li>',
+      reset: "Tankı doldur",
+    },
+    poiseuille: {
+      stage: "Borunun yan kesiti: oklar ve zarf eğrisi benzetimdeki hız profilidir, kesikli mor eğri kuramsal parabol. Her yarıçaptaki izleyiciler o yarıçaptaki hızla orantılı ilerler.",
+      chart: "Logaritmik eksenlerde debi ve yarıçap: eğimi 4 olan doğru, Re > 2300 bölgesi kesikli; dokunarak yarıçap seçilir",
+      legend: '<li><i class="sw sw-teal"></i>Q = πR⁴ΔP/(8ηL)</li><li><i class="sw sw-dash sw-teal"></i>Re &gt; 2300: formül geçersiz</li><li><i class="sw sw-dot"></i>şimdiki R</li><li><i class="sw sw-ring"></i>ölçülen (gelişmiş akış)</li>',
+      reset: "Durgun hâlden başlat",
+    },
+  };
+
+  function legendFor(name) {
+    const pv = name === "venturi" && venShowPv(ven.m) ? '<li><i class="sw sw-dash sw-red"></i>buhar basıncı P<sub>v</sub></li>' : "";
+    const water = name === "poiseuille" && poi.m.p.fluid !== "su" ? '<li><i class="sw sw-ink"></i>su (20 °C), aynı ΔP ve L</li>' : "";
+    return SCN[name].legend + pv + water;
+  }
+
+  function setScenario(name, fromUser) {
+    app.scn = name;
+    ui.tabs.forEach((t) => {
+      const on = t.dataset.scn === name;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+    });
+    ui.panel.setAttribute("aria-labelledby", `tab-${name}`);
+    ui.groups.forEach((el) => { el.hidden = el.dataset.scn !== name; });
+    ui.res.forEach((el) => { el.hidden = el.dataset.scn !== name; });
+    stage.setAttribute("aria-label", SCN[name].stage);
+    chart.setAttribute("aria-label", SCN[name].chart);
+    setHTML(ui.legend, legendFor(name));
+    setText(ui.reset, SCN[name].reset);
+    stage.classList.toggle("is-draggable", name !== "poiseuille");
+    chart.classList.toggle("is-pointer", name === "poiseuille");
+    stage.classList.remove("is-pointer", "is-dragging");
+    if (fromUser && location.hash !== `#${name}`) history.replaceState(null, "", `#${name}`);
+    lastDom = 0;
+    resize();
+  }
+
+  function resetActive() {
+    if (app.scn === "venturi") {
+      venSeed();
+      ven.c1 = { x: 0, v: 0 };
+      ven.c2 = { x: 0, v: 0 };
+      ven.cu = { x: 0, v: 0 };
+    } else if (app.scn === "torricelli") torRead();
+    else { poiRead(); poiSeed(); }
+    lastDom = 0;
+  }
+
+  function setRunning(run) {
+    app.running = run;
+    setText(ui.toggle, run ? "Duraklat" : "Devam et");
+    ui.toggle.setAttribute("aria-pressed", String(!run));
+  }
+
+  /* ── Döngü ── */
+  const DT = 1 / 240;
+  let acc = 0, lastFrame = 0, lastDom = 0;
+
+  function updateDom() {
+    let st;
+    if (app.scn === "venturi") { venDom(); st = venStatus(); }
+    else if (app.scn === "torricelli") { torDom(); st = torStatus(); }
+    else { poiDom(); st = poiStatus(); }
+    setText(ui.status, st.text);
+    setHTML(ui.legend, legendFor(app.scn));
+    ui.status.classList.toggle("is-warn", st.warn);
+    ui.status.classList.toggle("is-ok", !st.warn);
+  }
+
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    if (app.running && !window.AcelyaPause?.isPaused?.()) {
+      acc += elapsed;
+      while (acc >= DT) {
+        if (app.scn === "venturi") venTick(DT);
+        else if (app.scn === "torricelli") torTickScreen(DT);
+        else poiTick(DT);
+        acc -= DT;
+      }
+    }
+    if (now - lastDom > 150) { lastDom = now; updateDom(); }
+    const th = theme();
+    if (app.scn === "venturi") { drawVenturi(th); drawVenChart(th); }
+    else if (app.scn === "torricelli") { drawTorricelli(th); drawTorChart(th); }
+    else { drawPoiseuille(th); drawPoiChart(th); }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  ui.tabs.forEach((t, i) => {
+    t.addEventListener("click", () => setScenario(t.dataset.scn, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight") j = (i + 1) % ui.tabs.length;
+      else if (e.key === "ArrowLeft") j = (i - 1 + ui.tabs.length) % ui.tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = ui.tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      ui.tabs[j].focus();
+      setScenario(ui.tabs[j].dataset.scn, true);
+    });
+  });
+  [ui.vFluid, ui.vD1, ui.vBeta, ui.vQ, ui.vP1, ui.vRise].forEach((el) => el.addEventListener("input", venRead));
+  ui.vFluid.addEventListener("change", venRead);
+  [ui.tTank, ui.tHole, ui.tH0, ui.tH, ui.tReal, ui.tSpeed].forEach((el) => el.addEventListener("input", torRead));
+  [ui.tReal, ui.tSpeed].forEach((el) => el.addEventListener("change", torRead));
+  [ui.pFluid, ui.pR, ui.pL, ui.pDP].forEach((el) => el.addEventListener("input", poiRead));
+  ui.pFluid.addEventListener("change", poiRead);
+  ui.toggle.addEventListener("click", () => setRunning(!app.running));
+  ui.reset.addEventListener("click", () => { resetActive(); setRunning(true); });
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.matches("input, select, textarea, button")) return;
+    if (e.code === "Space") { e.preventDefault(); setRunning(!app.running); }
+    else if (e.key === "r" || e.key === "R") { resetActive(); setRunning(true); }
+  });
+
+  function canvasPoint(c, evt) {
+    const rect = c.getBoundingClientRect();
+    return [((evt.clientX - rect.left) / rect.width) * c.width, ((evt.clientY - rect.top) / rect.height) * c.height];
+  }
+  function stageHit(x, y) {
+    const u = dpr;
+    if (app.scn === "venturi" && ven.lay) {
+      const L = ven.lay;
+      return x > L.X(VEN.b) - 14 * u && x < L.X(VEN.c) + 14 * u && Math.abs(y - L.ycThroat) < L.R1 + 26 * u;
+    }
+    if (app.scn === "torricelli" && tor.lay) {
+      const L = tor.lay, p = tor.m.p;
+      return x > L.X(-p.Dt) - 8 * u && x < L.X(0) + 8 * u && y < L.Y(p.H - TOR.sump) && y > L.Y(p.H + p.h0 * 1.12 + 0.03) - 14 * u;
+    }
+    return false;
+  }
+  function stageDrag(x, y) {
+    if (app.scn === "venturi") {
+      // Tutulan noktaya göre: duvarı tutup çekmek gibi; dokunulan yer β'yı sıçratmaz
+      const L = ven.lay, d = Math.abs(y - L.ycThroat);
+      if (!ven.grab) ven.grab = { d, beta: Number(ui.vBeta.value) };
+      const beta = Math.min(1, Math.max(0.3, Math.round((ven.grab.beta + (d - ven.grab.d) / L.R1) * 20) / 20));
+      if (Number(ui.vBeta.value) !== beta) { ui.vBeta.value = String(beta); venRead(); }
+    } else if (app.scn === "torricelli") {
+      const L = tor.lay, p = tor.m.p;
+      const h0 = Math.min(2, Math.max(0.05, Math.round((L.toY(y) - p.H) * 20) / 20));
+      if (Math.abs(Number(ui.tH0.value) - h0) > 1e-9) { ui.tH0.value = String(h0); torRead(); }
+    }
+  }
+  stage.addEventListener("pointerdown", (evt) => {
+    const [x, y] = canvasPoint(stage, evt);
+    if (!stageHit(x, y)) return;
+    if (app.scn === "torricelli") tor.frozen = tor.lay;
+    ven.drag = app.scn === "venturi";
+    tor.drag = app.scn === "torricelli";
+    stage.setPointerCapture(evt.pointerId);
+    stage.classList.add("is-dragging");
+    stageDrag(x, y);
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    const [x, y] = canvasPoint(stage, evt);
+    if (ven.drag || tor.drag) { stageDrag(x, y); return; }
+    stage.classList.toggle("is-pointer", stageHit(x, y));
+  });
+  const endStageDrag = () => {
+    if (!ven.drag && !tor.drag) return;
+    ven.drag = false;
+    ven.grab = null;
+    tor.drag = false;
+    tor.frozen = null;
+    stage.classList.remove("is-dragging");
+  };
+  stage.addEventListener("pointerup", endStageDrag);
+  stage.addEventListener("pointercancel", endStageDrag);
+  stage.addEventListener("pointerleave", () => { if (!ven.drag && !tor.drag) stage.classList.remove("is-pointer"); });
+
+  function chartPick(evt) {
+    if (app.scn !== "poiseuille" || !poi.lay) return;
+    const [x] = canvasPoint(chart, evt), L = poi.lay;
+    const lr = L.lr0 + ((x - L.x0) / (L.x1 - L.x0)) * (L.lr1 - L.lr0);
+    let best = 0;
+    R_LIST.forEach((R, i) => { if (Math.abs(Math.log10(R) - lr) < Math.abs(Math.log10(R_LIST[best]) - lr)) best = i; });
+    if (Number(ui.pR.value) !== best) { ui.pR.value = String(best); poiRead(); }
+  }
+  chart.addEventListener("pointerdown", (evt) => {
+    if (app.scn !== "poiseuille") return;
+    poi.drag = true;
+    chart.setPointerCapture(evt.pointerId);
+    chartPick(evt);
+  });
+  chart.addEventListener("pointermove", (evt) => { if (poi.drag) chartPick(evt); });
+  const endChartDrag = () => { poi.drag = false; };
+  chart.addEventListener("pointerup", endChartDrag);
+  chart.addEventListener("pointercancel", endChartDrag);
+
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  [stage, chart].forEach((c) => ro.observe(c));
+
+  venRead();
+  venSeed();
+  torRead();
+  poiRead();
+  poiSeed();
+  const start = location.hash.slice(1);
+  setScenario(SCN[start] ? start : "venturi", false);
+  setRunning(true);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

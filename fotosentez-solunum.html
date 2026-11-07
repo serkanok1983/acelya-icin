@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="shared/theme.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Bir ağacın kuru kütlesinin büyük kısmı havadan gelir; soluduğun oksijen bir zamanlar fotosentez yapan bir hücrenin içindeki suydu. İki süreç aynı atomları döndürür, enerji ise tek yöne akar.">
+    <title>Fotosentez ve Hücresel Solunum | Açelya</title>
+    <style>
+      .photo-stage {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        margin: 10px 0;
+      }
+      .photo-stage canvas {
+        background: var(--bg-card);
+        border-radius: var(--radius);
+        box-shadow: 0 0 0 1px var(--border);
+        max-width: 100%;
+      }
+      .step-panel {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        margin: 10px 0;
+      }
+      .step-btn {
+        padding: 0.45rem 0.85rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-input);
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: var(--font);
+        font-size: 0.78rem;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .step-btn:hover { color: var(--text); border-color: var(--border-hover); }
+      .step-btn.active {
+        background: rgba(94,234,212,0.18);
+        border-color: rgba(94,234,212,0.5);
+        color: var(--accent);
+      }
+      body.app-page .step-btn.active { outline: 2px solid var(--text); outline-offset: 2px; }
+      .step-btn.alt.active {
+        background: rgba(167,139,250,0.18);
+        border-color: rgba(167,139,250,0.5);
+        color: var(--accent-2);
+      }
+      #stepDesc {
+        text-align: center;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        max-width: 520px;
+        margin: 4px auto 8px;
+        min-height: 2.4rem;
+        line-height: 1.45;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin: 6px 0;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+      .legend span { display: inline-flex; align-items: center; gap: 4px; }
+      .legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+      .photo-note {
+        text-align: center;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+      }
+      @media (max-width: 760px) {
+        .photo-stage canvas { max-width: 100%; height: auto; }
+      }
+    </style>
+    <script src="shared/app.js"></script>
+  </head>
+  <body class="app-page" data-page="fotosentez-solunum">
+    <div class="app-content">
+      <h1>🌿 Fotosentez ve Hücresel Solunum</h1>
+      <p class="hint">
+        Yaşamın iki temel enerji döngüsü: Kloroplastta ışık enerjisi kimyasal bağa dönüşür, mitokondride bu bağ enerjisi ATP'ye çevrilir.
+        Bitki hücrelerinde solunum yalnızca gece değil, gündüz de sürer.
+      </p>
+
+      <div class="legend">
+        <span><i class="dot" style="background:#5eead4"></i> CO₂</span>
+        <span><i class="dot" style="background:#58a6ff"></i> H₂O</span>
+        <span><i class="dot" style="background:#fbbf24"></i> C₆H₁₂O₆</span>
+        <span><i class="dot" style="background:#f778ba"></i> O₂</span>
+        <span><i class="dot" style="background:#a78bfa"></i> ATP</span>
+        <span><i class="dot" style="background:#ffa657"></i> Işık</span>
+      </div>
+
+      <div class="step-panel">
+        <button class="step-btn active" data-step="0">☀️ Işık Reaksiyonları</button>
+        <button class="step-btn" data-step="1">🔄 Calvin Döngüsü</button>
+        <button class="step-btn alt" data-step="2">🧬 Glikoliz</button>
+        <button class="step-btn alt" data-step="3">🔁 Krebs Döngüsü</button>
+        <button class="step-btn alt" data-step="4">⚡ ETS</button>
+      </div>
+
+      <p id="stepDesc"></p>
+
+      <div class="photo-stage">
+        <canvas id="mainCanvas" width="760" height="460"></canvas>
+      </div>
+
+      <p class="photo-note">
+        Fotosentez: 6CO₂ + 6H₂O + ışık → C₆H₁₂O₆ + 6O₂ &nbsp;|&nbsp;
+        Solunum: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + yaklaşık 30–32 ATP
+      </p>
+    </div>
+
+    <script>
+      (function () {
+        const canvas = document.getElementById("mainCanvas");
+        const ctx = canvas.getContext("2d");
+        // Canvas "var(--x)" okuyamaz; tema değişkenini çizim anında gerçek renge çevir.
+        const cssVar = (n, fb) => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || fb;
+
+        const STEPS = [
+          {
+            title: "Işık Reaksiyonları — Grana (Tilakoit Zar)",
+            desc: "Klorofil ışığı soğurur. Su (H₂O) fotoliz olur: O₂ açığa çıkar. NADP⁺ → NADPH indirgenir, ADP → ATP (fotofosforilasyon). Olay yeri: tilakoit zar.",
+            side: "left",
+            highlight: "light",
+          },
+          {
+            title: "Calvin Döngüsü — Stroma",
+            desc: "CO₂, RuBisCO enzimi ile RuBP'ye bağlanır (karbon fiksasyonu). NADPH ve ATP kullanılarak PGA → PGAL → glikoz sentezlenir. Işığa doğrudan ihtiyaç duymaz.",
+            side: "left",
+            highlight: "calvin",
+          },
+          {
+            title: "Glikoliz — Sitoplazma",
+            desc: "Glikoz (6C) → 2 Pirüvat (3C). 2 ATP harcanır, 4 ATP üretilir (net +2 ATP). 2 NADH oluşur. Oksijensiz ortamda da gerçekleşir.",
+            side: "right",
+            highlight: "glycolysis",
+          },
+          {
+            title: "Krebs Döngüsü — Mitokondri Matriksi",
+            desc: "Pirüvat → Asetil-CoA → Sitrik asit döngüsü. CO₂ açığa çıkar, NADH ve FADH₂ üretilir. Her glikoz için 2 tur döner.",
+            side: "right",
+            highlight: "krebs",
+          },
+          {
+            title: "Elektron Taşıma Sistemi (ETS) — Krista",
+            desc: "NADH ve FADH₂'den gelen elektronlar iç mitokondri zarındaki taşıyıcılardan geçer. Proton gradyanı oluşur; ATP sentaz oksidatif fosforilasyonla yaklaşık 26–28 ATP üretir. Glikoliz ve Krebs döngüsündeki substrat düzeyinde fosforilasyon da eklendiğinde ökaryotlarda glikoz başına toplam verim çoğunlukla yaklaşık 30–32 ATP kabul edilir. Son elektron alıcısı O₂'dir ve H₂O oluşur.",
+            side: "right",
+            highlight: "ets",
+          },
+        ];
+
+        let currentStep = 0;
+        let animTime = 0;
+        let particles = [];
+
+        // Yerleşim: organeller, kenar etiketleri ve parçacık yolları aynı ölçüleri kullanır.
+        const L = {
+          chl: { x: 80, y: 40, w: 220, h: 200 },   // kloroplast (sol üst)
+          mit: { x: 460, y: 215, w: 220, h: 200 }, // mitokondri (sağ alt)
+        };
+        const ROW_Y = [0.35, 0.5, 0.65]; // etiket satırları (organel yüksekliğine oranla)
+        // "in": soldan organele girer; "out": organelden sağa çıkar. Renkler üstteki lejantla aynı (ink: açık tema yazı rengi).
+        const FLOWS = [
+          { org: "chl", side: "in", row: 0, color: "#5eead4", ink: "#0f766e", label: "CO₂" },
+          { org: "chl", side: "in", row: 1, color: "#58a6ff", ink: "#1d4ed8", label: "H₂O" },
+          { org: "chl", side: "in", row: 2, color: "#ffa657", ink: "#c2410c", label: "ışık" },
+          { org: "chl", side: "out", row: 0, color: "#fbbf24", ink: "#a16207", label: "C₆H₁₂O₆" },
+          { org: "chl", side: "out", row: 1, color: "#f778ba", ink: "#be185d", label: "O₂" },
+          { org: "mit", side: "in", row: 0, color: "#fbbf24", ink: "#a16207", label: "C₆H₁₂O₆" },
+          { org: "mit", side: "in", row: 1, color: "#f778ba", ink: "#be185d", label: "O₂" },
+          { org: "mit", side: "out", row: 0, color: "#5eead4", ink: "#0f766e", label: "CO₂" },
+          { org: "mit", side: "out", row: 1, color: "#58a6ff", ink: "#1d4ed8", label: "H₂O" },
+          { org: "mit", side: "out", row: 2, color: "#a78bfa", ink: "#6d28d9", label: "ATP" },
+        ];
+
+        // Basit parçacık sistemi (molekül akışı animasyonu için): her akışta 3 parçacık
+        function spawnFlowParticles() {
+          particles = [];
+          FLOWS.forEach((f, fi) => {
+            for (let k = 0; k < 3; k++) {
+              particles.push({
+                flow: fi,
+                phase: (k + Math.random() * 0.6) / 3,
+                speed: 0.3 + Math.random() * 0.2,
+                offset: (Math.random() - 0.5) * 6,
+              });
+            }
+          });
+        }
+        spawnFlowParticles();
+
+        function updateParticles(dt) {
+          animTime += dt;
+          particles.forEach(p => {
+            p.phase += p.speed * dt;
+            if (p.phase > 1) p.phase -= 1;
+          });
+        }
+
+        function flowPath(f) {
+          const o = L[f.org];
+          const y = o.y + o.h * ROW_Y[f.row] + 8; // etiketin hemen altından akar
+          return f.side === "in"
+            ? { x0: o.x - 60, x1: o.x + 30, y }
+            : { x0: o.x + o.w - 30, x1: o.x + o.w + 60, y };
+        }
+
+        function drawParticles() {
+          particles.forEach(p => {
+            const f = FLOWS[p.flow];
+            const path = flowPath(f);
+            const x = path.x0 + (path.x1 - path.x0) * p.phase;
+            const y = path.y + p.offset;
+            const alpha = Math.sin(Math.PI * p.phase);
+            if (alpha > 0.05) {
+              ctx.fillStyle = f.color;
+              ctx.globalAlpha = Math.min(1, alpha * 0.9);
+              ctx.beginPath();
+              ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
+          ctx.globalAlpha = 1;
+        }
+
+        function drawOrganelle(x, y, w, h, type, highlight) {
+          // Organel dış zarı
+          ctx.save();
+
+          if (type === "chloroplast") {
+            // Kloroplast: oval, içinde tilakoit (grana) ve stroma
+            // Dış zar
+            ctx.fillStyle = "rgba(34,197,94,0.1)";
+            ctx.strokeStyle = highlight === "light" || highlight === "calvin"
+              ? "rgba(94,234,212,0.8)"
+              : "rgba(34,197,94,0.4)";
+            ctx.lineWidth = highlight === "light" || highlight === "calvin" ? 2.5 : 1.5;
+            ctx.beginPath();
+            ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // İç zar
+            ctx.strokeStyle = "rgba(34,197,94,0.2)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(x + w / 2, y + h / 2, w / 2 - 8, h / 2 - 8, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Tilakoit (grana) — üst üste diskler
+            const gx = x + w * 0.3;
+            const gy = y + h * 0.22;
+            const gw = w * 0.4;
+            const stackH = 36;
+            const discCount = 5;
+
+            for (let i = 0; i < discCount; i++) {
+              const dy = i * (stackH / discCount);
+              const bright = highlight === "light" ? 0.6 : 0.2;
+              ctx.fillStyle = `rgba(34,197,94,${bright})`;
+              ctx.beginPath();
+              ctx.ellipse(gx + gw / 2, gy + dy + 6, gw / 2, 6, 0, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            // Işık vurgusu
+            if (highlight === "light") {
+              ctx.fillStyle = "rgba(255,166,87,0.3)";
+              ctx.beginPath();
+              ctx.arc(gx + gw / 2, gy - 8, 14, 0, Math.PI * 2);
+              ctx.fill();
+              // Işınlar
+              ctx.strokeStyle = "rgba(255,166,87,0.3)";
+              ctx.lineWidth = 1;
+              for (let a = 0; a < 8; a++) {
+                const ang = (a / 8) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(gx + gw / 2 + Math.cos(ang) * 10, gy - 8 + Math.sin(ang) * 10);
+                ctx.lineTo(gx + gw / 2 + Math.cos(ang) * 24, gy - 8 + Math.sin(ang) * 24);
+                ctx.stroke();
+              }
+            }
+
+            // Calvin döngüsü vurgusu (stroma)
+            if (highlight === "calvin") {
+              ctx.strokeStyle = "rgba(94,234,212,0.5)";
+              ctx.lineWidth = 1.5;
+              ctx.setLineDash([3, 3]);
+              const scx = x + w * 0.6;
+              const scy = y + h * 0.65;
+              ctx.beginPath();
+              ctx.arc(scx, scy, 20, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.setLineDash([]);
+              // Döngü oku
+              ctx.fillStyle = "rgba(94,234,212,0.6)";
+              ctx.font = "9px Outfit, sans-serif";
+              ctx.textAlign = "center";
+              ctx.fillText("Calvin", scx, scy + 3);
+            }
+
+          } else if (type === "mitochondria") {
+            // Mitokondri: oval, içinde krista
+            ctx.fillStyle = "rgba(248,113,113,0.1)";
+            ctx.strokeStyle = highlight === "krebs" || highlight === "ets"
+              ? "rgba(248,113,113,0.8)"
+              : "rgba(248,113,113,0.4)";
+            ctx.lineWidth = highlight === "krebs" || highlight === "ets" ? 2.5 : 1.5;
+            ctx.beginPath();
+            ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // İç zar (krista)
+            ctx.strokeStyle = "rgba(248,113,113,0.2)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.ellipse(x + w / 2, y + h / 2, w / 2 - 8, h / 2 - 8, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Krista (zarlı kıvrımlar)
+            const kx = x + w * 0.25;
+            const ky = y + h * 0.35;
+            const kw = w * 0.5;
+            const kh = h * 0.35;
+            ctx.strokeStyle = highlight === "ets" ? "rgba(248,113,113,0.7)" : "rgba(248,113,113,0.25)";
+            ctx.lineWidth = highlight === "ets" ? 2 : 1;
+            for (let i = 0; i < 7; i++) {
+              const sx = kx + i * (kw / 7);
+              ctx.beginPath();
+              ctx.moveTo(sx, ky);
+              ctx.quadraticCurveTo(sx + 3, ky + kh * 0.5, sx, ky + kh);
+              ctx.stroke();
+            }
+
+            // Krebs döngüsü vurgusu (matriks)
+            if (highlight === "krebs") {
+              ctx.strokeStyle = "rgba(167,139,250,0.6)";
+              ctx.lineWidth = 1.5;
+              ctx.setLineDash([3, 3]);
+              const scx = x + w * 0.5;
+              const scy = y + h * 0.2; // kristaların üstündeki boş matriks
+              ctx.beginPath();
+              ctx.arc(scx, scy, 16, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.setLineDash([]);
+              ctx.fillStyle = "rgba(167,139,250,0.7)";
+              ctx.font = "8px Outfit, sans-serif";
+              ctx.textAlign = "center";
+              ctx.fillText("Krebs", scx, scy + 2);
+            }
+
+            // ETS vurgusu
+            if (highlight === "ets") {
+              ctx.fillStyle = "rgba(167,139,250,0.7)";
+              ctx.font = "9px Outfit, sans-serif";
+              ctx.fillText("ETS", x + w * 0.5, y + h * 0.82);
+            }
+
+            // Glikoliz vurgusu (sitoplazma dışarıda)
+          }
+
+          ctx.restore();
+        }
+
+        function draw() {
+          const W = canvas.width, H = canvas.height;
+          const muted = cssVar("--text-muted", "#8b95a8");
+          ctx.clearRect(0, 0, W, H);
+
+          // Arka plan (temadan gerçek renk olarak okunur)
+          ctx.fillStyle = cssVar("--bg-card", "#0e1424");
+          ctx.fillRect(0, 0, W, H);
+
+          const cx = W / 2;
+
+          updateParticles(0.016);
+
+          const step = STEPS[currentStep];
+          const leftHl = step.side === "left" ? step.highlight : null;
+          const rightHl = step.side === "right" ? step.highlight : null;
+          const C = L.chl, M = L.mit;
+
+          // Başlıklar
+          ctx.font = "bold 13px Outfit, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "rgba(34,197,94,0.9)";
+          ctx.fillText("KLOROPLAST", C.x + C.w / 2, C.y - 8);
+          ctx.fillStyle = "rgba(248,113,113,0.9)";
+          ctx.fillText("MİTOKONDRİ", M.x + M.w / 2, M.y - 8);
+
+          // Net denklemler
+          ctx.fillStyle = muted;
+          ctx.font = "9px Outfit, sans-serif";
+          ctx.fillText("6CO₂ + 6H₂O + ışık → C₆H₁₂O₆ + 6O₂", C.x + C.w / 2, C.y + C.h + 26);
+          ctx.fillText("C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + ATP", M.x + M.w / 2, M.y + M.h + 26);
+
+          drawOrganelle(C.x, C.y, C.w, C.h, "chloroplast", leftHl);
+          drawOrganelle(M.x, M.y, M.w, M.h, "mitochondria", rightHl);
+
+          // Giriş (sol kenar) ve çıkış (sağ kenar) etiketleri
+          ctx.font = "10px Outfit, sans-serif";
+          const light = document.documentElement.getAttribute("data-theme") === "light";
+          FLOWS.forEach(f => {
+            const o = L[f.org];
+            const y = o.y + o.h * ROW_Y[f.row];
+            ctx.fillStyle = light ? f.ink : f.color; // açık temada okunaklı koyu ton
+            if (f.side === "in") {
+              ctx.textAlign = "right";
+              ctx.fillText(f.label + " →", o.x - 4, y);
+            } else {
+              ctx.textAlign = "left";
+              ctx.fillText("→ " + f.label, o.x + o.w + 4, y);
+            }
+          });
+
+          // ---------- ORTA: OK ----------
+          const arrowX = cx;
+          const arrowTopY = 195;
+          const arrowBotY = 370;
+
+          ctx.strokeStyle = muted;
+          ctx.fillStyle = muted;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+
+          // Sağa giden ok (fotosentez ürünleri → solunum)
+          ctx.beginPath();
+          ctx.moveTo(arrowX - 12, arrowTopY);
+          ctx.lineTo(arrowX + 12, arrowTopY);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(arrowX + 12, arrowTopY);
+          ctx.lineTo(arrowX + 6, arrowTopY - 5);
+          ctx.lineTo(arrowX + 6, arrowTopY + 5);
+          ctx.closePath();
+          ctx.fill();
+
+          // Sola giden ok (solunum ürünleri → fotosentez)
+          ctx.beginPath();
+          ctx.moveTo(arrowX + 12, arrowBotY);
+          ctx.lineTo(arrowX - 12, arrowBotY);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(arrowX - 12, arrowBotY);
+          ctx.lineTo(arrowX - 6, arrowBotY - 5);
+          ctx.lineTo(arrowX - 6, arrowBotY + 5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.setLineDash([]);
+
+          // Ok etiketleri
+          ctx.font = "9px Outfit, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("glikoz + O₂", arrowX, arrowTopY - 8);
+          ctx.fillText("CO₂ + H₂O", arrowX, arrowBotY + 16);
+
+          // Glikoliz: mitokondrinin dışında, sitoplazmada (glikozun mitokondriye giden yolunda)
+          if (step.highlight === "glycolysis") {
+            const accent2 = cssVar("--accent-2", "#a78bfa");
+            const gx = M.x - 40;
+            const gy = M.y + M.h * ROW_Y[0] + 4;
+            ctx.strokeStyle = accent2;
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.ellipse(gx, gy, 38, 17, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = accent2;
+            ctx.font = "bold 11px Outfit, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("GLİKOLİZ (sitoplazma)", gx - 10, M.y + 34);
+            ctx.fillStyle = muted;
+            ctx.font = "9px Outfit, sans-serif";
+            ctx.fillText("glikoz → 2 pirüvat, net 2 ATP", gx - 10, M.y + 47);
+          }
+
+          // Parçacık akışı
+          drawParticles();
+        }
+
+        function setStep(s) {
+          currentStep = s;
+          animTime = 0;
+          spawnFlowParticles();
+
+          document.querySelectorAll(".step-btn").forEach(b => {
+            b.classList.toggle("active", +b.dataset.step === s);
+          });
+
+          const step = STEPS[s];
+          document.getElementById("stepDesc").innerHTML =
+            `<strong>${step.title}</strong><br>${step.desc}`;
+        }
+
+        document.querySelectorAll(".step-btn").forEach(b => {
+          b.addEventListener("click", () => {
+            setStep(+b.dataset.step);
+          });
+        });
+
+        function loop() {
+          draw();
+          requestAnimationFrame(loop);
+        }
+
+        setStep(0);
+        requestAnimationFrame(loop);
+      })();
+    </script>
+  </body>
+</html>
