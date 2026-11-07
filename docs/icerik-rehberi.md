@@ -100,7 +100,11 @@ için Unicode ve `<sup>/<sub>` kullan (√, π, θ, ², ₀ …); MathJax yok.
 Üst çizgi (ortalama x̄, tümleyen Ā) için birleşik U+0304 ya da tek parça
 Ā kullanma: defter yazı tiplerinde çizgi harfin yanına kayıyor. Bunun
 yerine `<span class=ov>x</span>` yaz (öznitelik tırnaksız, çünkü alanlar
-çift tırnaklı JS dizeleridir).
+çift tırnaklı JS dizeleridir). Aynısı şapka (kestirim r̂, fazör V̂) ve
+vektör oku (p⃗) için de geçerli: `<span class=hat>r</span>`,
+`<span class=vec>p</span>`. Üst nokta (Q̇) için düz harf yaz, anlamını
+sözle açıkla. check-site birleşik işaretleri hata sayar; üç sınıf
+`shared/theme.css`'te tanımlı, sayfa etiketlerinde de kullanılır.
 
 ### Oyun sayfaları
 

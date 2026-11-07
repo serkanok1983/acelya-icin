@@ -109,6 +109,9 @@ function checkHtml(where, value) {
     if (!ALLOWED_TAGS.has(m[1].toLowerCase())) err(`${where}: izinsiz HTML etiketi <${m[1]}>`);
   }
   if (/\bTODO\b|lorem ipsum|\[\.\.\.\]/i.test(value)) err(`${where}: yer tutucu metin`);
+  if (/[\u0302\u0304\u0305\u0307\u20d7]/.test(value)) {
+    err(`${where}: birleşik harf üstü işaret (x̄, r̂, Q̇, p⃗) yazı tiplerinde kayıyor; <span class=ov>x</span>, <span class=hat>r</span> ya da <span class=vec>p</span> yaz`);
+  }
 }
 
 function checkText(where, value, min, max) {

@@ -29,7 +29,7 @@ window.ACELYA_DIGEST["otonom-araclar-ve-iha"] = {
       heading: "Kalman filtresi: iki belirsiz ölçüyü tartmak",
       body:
         "GPS aracın 100 metrede olduğunu söylüyor ama ±5 metre şaşabiliyor; tekerlek sayacı ve IMU'dan yapılan tahmin 103 metre diyor ve ±2 metre güvenilir. Hangisine inanmalı? İkisine de, ama güvenilirlikleriyle orantılı. <strong>Kalman filtresi</strong> tam bunu yapar: tahmini, ölçümle arasındaki farkın bir kesriyle düzeltir; kesir, iki belirsizliğin karelerinin oranından gelir. Örnekte K = 4/(4+25) ≈ 0,14; düzeltilmiş konum 103 + 0,14·(100 − 103) ≈ 102,6 metre ve yeni belirsizlik yaklaşık ±1,9 metre. Birleşik tahmin, iki kaynağın her birinden daha kesindir. Araç tünele girip GPS kesilince K sıfıra yaklaşır ve IMU tek başına sürer; sayfadaki 'Sensor Fusion' kartının 'gürültülü verilerden optimal kestirim' dediği şey bu basit tartıdır, her adımda yeniden hesaplanır.",
-      formula: "x̂ = x⁻ + K·(z − x⁻),   K = P / (P + R)",
+      formula: "<span class=hat>x</span> = x⁻ + K·(z − x⁻),   K = P / (P + R)",
       formulaNote: "x⁻ tahmin, z ölçüm, P tahminin varyansı (σ²), R ölçümün varyansı. K birse yalnız ölçüme, sıfırsa yalnız tahmine inanılır.",
     },
     {

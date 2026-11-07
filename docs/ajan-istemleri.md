@@ -145,6 +145,9 @@ Lessons from the previous rebuilds (reviewers flagged these; avoid them):
 - Estimators from binned data: represent a bin by the mean of its points, not its centre, and fit slopes locally on
   raw points; check every quoted measurement over several seeds or starts, not only the default one.
 - Never attribute a numerical artefact to one cause without measuring it (e.g. step error vs rounding: run an h/2 twin).
+- No combining marks in labels, notes or canvas text: a dot (U+0307) or bar (U+0304) over a letter slides sideways or
+  vanishes in the site fonts. Write the plain letter and explain the notation in words, or use
+  <span class="ov">x</span> with .ov { text-decoration-line: overline } for a bar.
 Testing: check-site --only <slug> (exit 0), smoke --only <slug> (0 errors), shot.mjs dark / light / --width 390 --full;
 look at every screenshot. Own Playwright scripts: set localStorage "acelya-user", "loggedIn" = "true" and
 "acelya-sound-muted" = "1" with context.addInitScript (login gate).
@@ -215,6 +218,9 @@ main changes; simulationNotes; remaining uncertainties.
 - Doğrulayıcıların bulduğu sayfa hataları çoğunlukla aynı türden: hazır değere kaydırıcıyla ulaşılamaması, kart ile
   durum satırının sınır değerde çelişmesi, tanımsız bir nicelik için "ölçülen" değer yazılması (mutlak eşikler),
   gözlenemeyen bir düzenin uyarısız bırakılması. Kurucu istemindeki "Lessons" listesi bunlar için.
+- Birleşik işaretler (üst nokta U+0307, üst çizgi U+0304) yalnız defterde değil sayfada da bozuk görünür: 7 Kasım'da
+  kalp sayfasında Q̇ "Q`" gibi, karışık venöz v̄'nin çizgisi hiç görünmüyordu. Kurucu istemine kural olarak eklendi;
+  sayfa etiketlerini doğrularken bir ekran görüntüsüne bak.
 
 ## Yapılandırılmış çıktılar
 
