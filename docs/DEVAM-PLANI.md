@@ -7,8 +7,7 @@ standardı için `docs/icerik-rehberi.md`.
 
 Dal: `main` (eski `claude/zealous-archimedes-iwjhpu` dalı main'e birleşmiş durumda).
 6–7 Kasım oturumunun commit'leri `origin/main`'e gönderildi ve `gh-pages`'te yayında.
-Son durum tarihi: 2026-11-07 (grup A6'nın altı laboratuvarı kuruldu ve ara durum yayında;
-dört defter yazıldı, doğrulamaları sürüyor; pisagor ile lissajous defterleri yazılıyor).
+Son durum tarihi: 2026-11-07 (grup A6 tamamlandı ve yayında; sırada A7).
 
 ## 1. Hedef (sahibinin sözleriyle)
 
@@ -63,7 +62,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   21 sayfada mobil yatay taşma giderildi (theme.css canvas kuralı + 7 sayfa
   tek tek). Duman testi: 168 sayfada 0 JS hatası.
 - Service worker yeniden yazıldı; CI'da denetim adımı; README.
-- Keşif Defteri altyapısı + 110 defter (aşağıda durum tablosu).
+- Keşif Defteri altyapısı + 112 defter (aşağıda durum tablosu).
 - **31 Ekim 2026 oturumu:**
   - Simülasyon hataları düzeltildi: `is-enerji` (animasyon çalışmıyordu, fiziksel
     birimlerle yeniden yazıldı), `kepler-yasalari` (gezegen ekran dışındaydı;
@@ -172,15 +171,16 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   r̂, Q̇, p⃗) site yazı tiplerinde kayıyor ya da kutu çıkıyordu (momentum sayfasının 19
   vektör oku boştu): `theme.css`'e `.ov`, `.hat` ve `.vec` sınıfları eklendi, check-site
   defterlerde birleşik işareti hata sayıyor.
-- **7 Kasım (grup A6, matematik; ara durum):** birim-cember (çember, fazör toplamı,
-  CORDIC), rastgele-yuruyus (düzlem, tek boyut ve Pólya geri dönüşü; eski sayfa ortalama
-  uzaklığı √N sanıyordu), pi-yaklasimi (Monte Carlo, seri yarışı, Arşimet çokgenleri),
-  pisagor (üç kanıt, ilkel üçlüler, küre), asal-rsa (elek, Miller–Rabin, 40 bitlik anahtar)
-  ve lissajous (eğri, osiloskop, harmonograf) yeniden kuruldu. Dört defter yazıldı
-  (birim-cember, pi-yaklasimi, rastgele-yuruyus, asal-rsa; 110 defter) ama doğrulayıcıdan
-  geçmedi. pisagor ve lissajous defterleri bu ara durumda henüz yok: ilk yazarlar model
-  sınırında koptu, yerlerine yenileri açıldı. Doğrulama bitince bağlantı metinleri,
-  menü ve bu belge kapanışla güncellenir; bekleyen sayfa notları 4.1'in altında.
+- **7 Kasım (grup A6, matematik):** birim-cember (çember, fazör toplamı, CORDIC),
+  rastgele-yuruyus (düzlem, tek boyut ve Pólya geri dönüşü; eski sayfa ortalama uzaklığı
+  √N sanıyordu), pi-yaklasimi (Monte Carlo, seri yarışı, Arşimet çokgenleri), pisagor
+  (üç kanıt, ilkel üçlüler, küre), asal-rsa (elek, Miller–Rabin, 40 bitlik anahtar) ve
+  lissajous (eğri, osiloskop, harmonograf) yeniden kuruldu; altı defter tam hattan geçti
+  (112 defter). İki yazar ve bir doğrulayıcı model sınırında koptu, dosyayı yazanlar
+  commit'lendi, yazamayanların yerine yenisi açıldı. Sayfa düzeltmeleri: asal sayılarda
+  φ(n)/4 sınırı 9'u istisna sayıyor ve rho grafiği başarısız denemeleri de sayıyor;
+  birim çemberde 180° ile 270° düğmeleri var. Gelen bağlantıların sözleri yeni
+  denetimlerle hâlâ doğru; iki eski başlık ("Asal Sayılar & RSA Fikri") yenilendi.
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
@@ -195,7 +195,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.1 Kalan 44 sayfa için defter yaz (üniversite hedefine göre sıralı)
+### 4.1 Kalan 42 sayfa için defter yaz (üniversite hedefine göre sıralı)
 
 Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler). 6–7 Kasım'da
 26 ince sayfa (25'i fizik) yeniden kurulup defterlendi; ince ya da yanlış fizik
@@ -214,23 +214,9 @@ A · kurucu → yazar → doğrulayıcı+editör (6'lık gruplar)
     normal-dagilim konik-kesitler (grup A4, 7 Kasım); kristal-yapilar
     denklem-denklestirme ph-indikator genetik-caprazlama av-avci-lotka-volterra
     kalp-dolasim (grup A5, 7 Kasım)
-    A6 matematik, 7 Kasım, laboratuvarlar bitti: birim-cember rastgele-yuruyus
-                   pi-yaklasimi pisagor asal-rsa lissajous
-                   defteri yazılı, doğrulama sürüyor: birim-cember pi-yaklasimi
-                   rastgele-yuruyus asal-rsa
-                   defteri henüz yok: pisagor lissajous
+    birim-cember rastgele-yuruyus pi-yaklasimi pisagor asal-rsa lissajous
+    (grup A6, 7 Kasım)
     A7 karışık:    pascal-ucgeni collatz molekul mantik-kapilari besin-agi
-
-A6'yı kapatmak için kalan iş, bu sırayla: pisagor ve lissajous defterleri bitince
-commit; dört yazılı defterin doğrulayıcı bulgularını sayfaya işle ve commit'le;
-gelen bağlantı metinlerini yeni denetimlerle eşle (birim-cember'e yedi, rastgele-yuruyus'a
-dört, pi-yaklasimi'ne iki, asal-rsa'ya üç defter bağlanıyor; pisagor ve lissajous'a
-bağlantı yok); menü etiketleri kısa kalsın, sayfa kataloğundaki başlıklar güncellensin;
-sync-meta, build, iki genişlikte tam duman testi; yayın. Bekleyen sayfa notları:
-pi yarış tablosunda aynı hata iki biçimde (−1.00·10⁻³ ve −0.00100) ve basamak paneli
-yalnız ilk yanlış basamağı boyuyor; asal-rsa'da runTest'in son dalında boş bir koşul
-duruyor; lissajous'ta Verlet 3:2 kaplamasını 200 s'de %16.46'ya sürükler (sayfa
-söylüyor, RK4 %15.04'te kalır).
 
 B · fraktallar ve görsel matematik
     mandelbrot-fraktali julia-fraktali koch-kar-tanesi hilbert-egrisi
@@ -290,18 +276,17 @@ Tam istem metinleri bu oturumda kullanılan İngilizce halleriyle
   `shared/digest.js` slug'ı `encodeURIComponent` ile yükler, dosya adı
   birebir `fibo+pascal.js` olmalı.
 
-### 4.2 Var olan 110 defterin eksik aşamalarını tamamla
+### 4.2 Var olan 112 defterin eksik aşamalarını tamamla
 
 Bekleyen doğrulama bulgusu kalmadı. Durum (6 Kasım 2026):
 
 | Durum | Sayfalar |
 |---|---|
-| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim, konik-kesitler, av-avci-lotka-volterra, genetik-caprazlama, ph-indikator, kristal-yapilar, denklem-denklestirme, kalp-dolasim |
+| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim, konik-kesitler, av-avci-lotka-volterra, genetik-caprazlama, ph-indikator, kristal-yapilar, denklem-denklestirme, kalp-dolasim, birim-cember, rastgele-yuruyus, pi-yaklasimi, pisagor, asal-rsa, lissajous |
 | yazar + editör (doğrulama yok) | altin-oran, pong |
 | yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
 | elle yazıldı, 7 Kasım'da doğrulayıcı + editörden geçti (referans) | sarkac |
-| yazar yazdı, doğrulama sürüyor (7 Kasım, A6) | birim-cember, pi-yaklasimi, rastgele-yuruyus, asal-rsa |
 
 "Yalnız yazar" satırında üniversite hedefine en yakın olanlar önce:
 elektrokimya ve sicim-teorisi (temel bilim), sonra hesaplama-teorisi,
@@ -358,7 +343,7 @@ tablosu hataları). Öneri:
    6–7 Kasım'da yapıldı: turev, periyodik-tablo (düzeltme ve veri), defteri
    olmayan 25 fizik sayfası (ilk turda 10, grup A'da 4, A2'de 5, A3'te 6) ve
    6 matematik sayfası (A4), 6 kimya–biyoloji sayfası (A5) ve 6 matematik sayfası
-   (A6, doğrulamaları bitmedi); bkz. 3. bölüm. B grubundan önce bilinen kusurlar:
+   (A6); bkz. 3. bölüm. B grubundan önce bilinen kusurlar:
    mandelbrot-fraktali 0'da ortalı (−2 ucu kırpılıyor), c = −2 beyaz, eksen yok.
    rastgele-yuruyus'taki √n karışıklığı A6'da düzeltildi.
    Sırada defteri olan
@@ -380,7 +365,7 @@ tablosu hataları). Öneri:
   `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
   Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
   Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
-  (44 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
+  (42 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
   bitince geçer.
 
 ## 5. Kalite çıtası (kısa hatırlatma)

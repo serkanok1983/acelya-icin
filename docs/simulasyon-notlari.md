@@ -859,13 +859,13 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 
 - ✔ Harf üstü birleşik işaretler (U+0302 şapka, U+0304 üst çizgi, U+0307 nokta, U+20D7 ok) Outfit ve Fraunces'te harfin yanına kayıyor, görünmüyor ya da kutu çıkıyordu. Kalp sayfasında Q̇ "Q`" gibi görünüyordu; momentum sayfasındaki 19 vektör oku boş kutuydu; genetikte r̂, kara cisim ve üretim planlamada x̄ ile X̄, akışkanlarda v̄, klasik girişimde λ̄ kayıktı; üç defterde (alternatif akım V̂, genetik r̂, otonom araçlar x̂) aynısı. `shared/theme.css`'e `.ov`, `.hat` ve `.vec` sınıfları eklendi, yerler bunlara çevrildi; check-site defterlerde birleşik işareti hata sayıyor (33af3a4). Karmaşık sayılardaki z̄ ve bozunmadaki √N̄ Outfit'te düzgün olduğu için kaldı.
 
-## A6 laboratuvarları (7 Kasım 2026, doğrulama bitmedi)
+## A6 laboratuvarları (7 Kasım 2026)
 
-Altı sayfa yeniden kuruldu. Defterleri olan dördü (birim-cember, pi-yaklasimi, rastgele-yuruyus, asal-rsa) doğrulayıcıdan geçmedi; pisagor ve lissajous defterleri bu not yazılırken henüz yoktu. Kapanışta burası doğrulayıcı bulgularıyla güncellenir.
+Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim çember 8, π 7→9, rastgele yürüyüş 8→9, asal sayılar 7→9, Lissajous 8, Pisagor 7).
 
 - ✔ `birim-cember.html`: çember, dalgalar ve faz, CORDIC. Varsayılan açı 30°. 180° ve 270° düğmeleri eklendi. 15°'nin katına yuvarlama |θ − 15k| < 10⁻⁸° (mesajla aynı). CORDIC hatası tek açıda her adımda yarıya inmez; 300 açıda ortalama adım başına bir bit.
 - ✔ `rastgele-yuruyus.html`: ⟨r²⟩ = n, ortalama uzaklık kesin sonlu-n değeriyle. Geri dönüş sekmesi 1 − π/ln N yerine kesin değeri ve 1 − π/(ln N + γ + ln 8) kullanır (N = 1000'de kaba formül %54.5, kesin %67.8). p = 0.6 hazırı varsayılan tohumda "sınırda" (aynı rastgele sayıları yeniden kullanır).
 - ❑ `pi-yaklasimi.html`: yarış tablosunda aynı hata bir hücrede −1.00·10⁻³, kuram hücresinde −0.00100 (`sig` yalnız 10⁻³ altında bilimsele geçer). Basamak paneli yalnız ilk yanlış basamağı boyar; sonradan yine π ile tutan basamaklar düz kalır. 32 bit üreteç en çok 2³¹ noktada tekrarlar. Tohum 1777, 10⁶ noktada şanslıdır (tipik doğruluk yaklaşık 2.8 basamak). Saf kenar ikileme 28. adımdan sonra 0 verir.
-- ✔ `asal-rsa.html`: φ(n)/4 sınırı yalnız 9'dan büyük tek bileşik sayılarda yazılıyor (9'da 2 güçlü yalancı vardır). Tarama kartı rho yinelemelerini tek anahtar kartıyla aynı sayar. Lejant "rho doğrusu". `runTest`'in son dalında boş bir koşul duruyor.
+- ✔ `asal-rsa.html`: φ(n)/4 sınırı yalnız 9'dan büyük tek bileşik sayılarda yazılıyor (9'da 2 güçlü yalancı vardır). Tarama kartı ve grafik noktaları rho yinelemelerini aynı sayar. 561'in durum satırı "önemsiz olmayan karekök" diyor.
 - ❑ `lissajous.html`: varsayılan Verlet (adım 0.01 s) 3:2 kaplamasını 200 s'de %15.04'ten %16.46'ya sürükler (frekans hatası +2.08·10⁻⁵); RK4 %15.04'te kalır, sayfa söylüyor. Yaklaşık 450'den çok kendini kesme sayılmaz, kuramsal sayı yazılır.
-- ✔ `pisagor.html`: rastgelelik yok. Yaklaşık 10 km'nin altındaki üçgenlerde küçük üçgen yaklaşımının artığı çift duyarlıkta çözünmez; durum satırı bunu yazar. P(10⁷) = 1 591 579, oran 1.00002 (sayfa 10⁷'yi göstermez).
+- ✔ `pisagor.html`: rastgelelik yok. Yaklaşık 10 km'nin altındaki üçgenlerde küçük üçgen yaklaşımının artığı çift duyarlıkta çözünmez; durum satırı bunu yazar. Oktant 8.5 % sapmayı yazar ama kırmızıya dönmez; 3000 × 4000 km'lik üçgen döner. P(10⁷) = 1 591 579, oran 1.00002 (sayfa 10⁷'yi göstermez). Küre tam küredir.
