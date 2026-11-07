@@ -616,7 +616,7 @@
     if (m) {
       coef = Number(m[1]);
       i = m[0].length;
-      if (i >= t.length) throw perr(`"${t}" yalnız bir sayı; arkasında formül yok.`, p0);
+      if (i >= t.length) throw perr(`"${t}" yalnız bir sayı; arkasında formül yok. İyon yükü yazmak istediysen ^ ile yaz: Fe+3 değil Fe^3+.`, p0);
       if (coef < 1) throw perr("Baştaki katsayı en az 1 olmalı.", p0);
       if (coef > 999) throw perr("Katsayı en çok 999 olabilir.", p0);
     }
@@ -1364,6 +1364,22 @@
     return null;
   }
   const eUnit = (e) => `${qstr(e)} e⁻`;
+  // Ortalama basamağın gizleyebileceği iç redoks: kurallarla sabitlenmeyen bir element bir taraftaki formülde
+  // birden çok yerde geçiyor (NH4NO3'te N), öbür tarafta yalnız tek yerde (N2O). İki tarafta da çok yerdeyse
+  // (CH3COOH → CH3COO⁻) grup büyük olasılıkla korunur.
+  function hiddenRedox(eq) {
+    const multi = (sp, el) => (sp.src.split(/[*·]/)[0].match(/[A-Z][a-z]?/g) || []).filter((s) => s === el).length > 1;
+    const notes = [];
+    eq.species.forEach((sp) => {
+      if (sp.electron) return;
+      for (const el of Object.keys(sp.counts)) {
+        if (el === "O" || el === "H" || el === "F" || G1.has(el) || G2.has(el) || !multi(sp, el)) continue;
+        const other = eq.species.filter((x) => !x.electron && x.left !== sp.left && x.counts[el]);
+        if (other.length && !other.some((x) => multi(x, el))) notes.push(`${speciesHTML(sp, false)} içinde ${el} formülde birden çok yerde geçiyor, öbür tarafta ise tek yerde`);
+      }
+    });
+    return notes;
+  }
   function renderRedox() {
     const eq = S.eq, src = redoxSource();
     const rd = src ? redox(eq, src.v, S.ox) : null;
@@ -1381,7 +1397,10 @@
     if (!rd) {
       out.push('<p class="note">Denk bir biçimi olmadığı için elektron sayımı yapılamıyor; basamaklar tabloda.</p>');
     } else if (!rd.trans.length && !hasE) {
-      out.push('<p class="note">Redoks değil: hiçbir elementin yükseltgenme basamağı değişmiyor.</p>');
+      const hidden = hiddenRedox(eq);
+      out.push(hidden.length
+        ? `<p class="note">Ortalama yükseltgenme basamaklarında hiçbir element değişmiyor, ama bu tepkime yine de redoks olabilir: ${hidden.join("; ")}. Sayfa bir elementin bileşikteki basamaklarının ortalamasını kullandığı için farklı gruplardaki basamaklar arasındaki iç redoksu göremez. Örneğin NH₄NO₃'te azot NH₄⁺'da −3, NO₃⁻'te +5'tir; NH₄NO₃ → N₂O + 2H₂O bu yüzden bir redokstur.</p>`
+        : '<p class="note">Redoks değil: hiçbir elementin yükseltgenme basamağı değişmiyor.</p>');
     } else {
       const lines = rd.trans.map((t) => {
         const per = qabsStr(t);
@@ -1816,7 +1835,7 @@
     const nuOk = Math.abs(nuL - nuR) <= 1e-9 * Math.max(nuL, nuR, 1);
     const miss = S.mm.some((m) => m.missing.length);
     setCard("NuM", miss ? "—" : `girenler ${fmtM(nuL)} · ürünler ${fmtM(nuR)} g/mol`,
-      miss ? "standart atom ağırlığı olmayan element var" : nuOk ? "eşit: bu katsayılarla kütle korunur" : `fark ${fx(nuR - nuL, 3)} g/mol: denk olmayan katsayılarla iki taraf aynı kütleyi taşımaz, hesap çöker`);
+      miss ? "standart atom ağırlığı olmayan element var" : nuOk ? "eşit: bu katsayılarla kütle korunur" : `fark ${fx(nuR - nuL, 3)} g/mol: denk olmayan katsayılarla iki taraf aynı kütleyi taşımaz${plan.ok && !plan.mine ? "; aşağıdaki hesap en küçük tam sayılı denk çözümle yapılıyor" : ""}`);
     S.stoRes = null;
     if (!plan.ok) {
       Cc.Status.className = "status is-warn";
