@@ -809,3 +809,52 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 - ✔ `mandelbrot-fraktali.html`, `julia-fraktali.html`: jsPDF yüklenmediği için çalışmayan PDF düğmesi kaldırıldı, çizim sayfa açılınca yapılıyor.
 - ❑ `mandelbrot-fraktali.html`: görünüm 0'da ortalı (−2 ucu kırpılıyor), c = −2 beyaz çiziliyor (kaçış testi `< 4`), eksen yok (B grubu).
 - ❑ `matris-donusumleri.html`: özdeğerler boşluksuz yazılıyor ("1.732±1.000i").
+
+## av-avci-lotka-volterra.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu (eski parçacıklı "Ekosistem" görünümü kaldırıldı): Lotka–Volterra (RK4, 0.01 yıl; ölçülen periyot ve genlik düzeltmeli T₁, her genlikte kesin döngü ortalamaları, iki türe hasat ve Volterra ilkesi, avcı tepesinin gecikmesi), gerçekçi av–avcı (lojistik av ve Holling II avcı, Rosenzweig–MacArthur: sönümlü yaklaşma, Hopf eşiği, zenginleşme paradoksu), rekabet (dört sonuç sıfır eğrilerinden). Faz görünümü "Faz diyagramı"; α, β, δ, γ kaydırıcıları korundu.
+- ✔ (b) "⟨x⟩ ile x*" satırı farkın beklendiğini söylüyor (Holling II döngüsünde ⟨x⟩ > x*; önce +%40 hata gibi okunuyordu). ε kaydırıcısı α gibi 2'ye kadar; ε ≥ α'da kart "iki tür de tükenir" diyor. Durum satırı periyot farkını tabloyla aynı üç ondalıkla yazıyor; gecikme satırı T₀/4 eşitliğinin yalnız küçük genlikte geçerli olduğunu söylüyor. D'Ancona notu "sonradan damadı olacak".
+- ❑ (b) sınır döngüsünde periyot "Fark" sütunu doğrusal kestirime göre +%19 (etiket uyarıyor, ama sayı göze batıyor).
+- ❑ Taşıma kapasitesi K için tarama ya da çatallanma çizimi yok; zenginleşme paradoksu yalnız tek tek denenerek görülüyor.
+
+## genetik-caprazlama.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: bir ve iki karakter (yavrular tohumlu mayoz ve döllenme benzetimiyle; χ² ve tam p, küçük örneklemde kesin çok terimli test, ölçüm çizelgesi, Mendel'in kendi verisi, 2/3 taşıyıcı sorusu), cinsiyete bağlı kalıtım (X'e bağlı çekinik özellikler ve soy ağacı), bağlı genler ve haritalama (r tahmini, üç nokta çaprazlaması, girişim, Haldane eşlem fonksiyonu). Varsayılan tohumlar 1866, 1910, 1913.
+- ✔ Kraliçe Victoria'nın soyundaki hastalık hemofili B (F9; 2009 Romanov DNA'sı); renk körlüğü yaygınlığı iki cinsiyet için "Kuzey Avrupa kökenli insanlarda". Küçük örneklemde kesin test satırı χ² yaklaşımının p'sini de yazıyor (N = 12: 0.182 ↔ kesin 0.316). Durum satırı "Gerçek uzaklık" yerine "Harita uzaklığı"; Doğal Seçilim bağlantısı alel değil renk biçimi oranlarından söz ediyor.
+- ❑ ABO yalnız 1. gende, MN yalnız 2. gende seçilebiliyor; sekme başına en çok 100 000 yavru.
+- ❑ Sturtevant'ın 1913 konumları sayfada yok (kaynakla doğrulanamadı); üç nokta deneyi kurgusal genlerle.
+
+## ph-indikator.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: pH ölçeği ve su (IAPWS pK<sub>w</sub>(T); 25 °C'de nötr 7.00, 37 °C'de 6.81, 100 °C'de 6.13; 10⁻⁸ M HCl'de tam yük dengesiyle pH 6.976), asit ve baz çözeltileri (tam yük dengesi ile ders kitabı kısayollarının hatası, Ostwald yasası, Davies etkinlik uyarısı, çok protonlu asitlerde tür dağılımı), indikatörler ve renk (iki biçimin soğurma bantları, Beer–Lambert, eş soğurma noktası, CIE 1931 ile renk, gürültülü spektrofotometrik pK<sub>a</sub> ölçümü).
+- ✔ Ton adı sınırı 196°: bromtimol mavisi pH 8'den sonra hep "mavi" (pH 10'da "turkuaz"a dönüyordu); kaynak etiketi geçişte "ortası yeşil" diyor ve sınır değerlerinde (ör. tam pH 6.0) "geçiş" yerine dış rengi yazıyor.
+- ❑ Renk modeli tek Gauss bandı: metil oranj ve metil kırmızısı asitte pembe (kırmızı olmalı), fenolftalein lila (pembe), bromtimol mavisi pH 7.1'de turkuaz (yeşil). Sayfa kaynak renk adını yanında yazıyor; iki bantlı ya da ölçülmüş tayflar renkleri düzeltir. Varsayılan derişim (20 µmol/L, 1 cm) renkleri soluk gösteriyor.
+- ❑ (a) sekmesinde oran kartı [H₃O⁺]/[OH⁻], durum satırı tersini veriyor (37 °C'de 0.418 ile 2.39 ×); ikisi de doğru ama okur karıştırabilir.
+
+## kristal-yapilar.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: birim hücre (yedi yapı döndürülebilir 3B görünümde; hücredeki atom sayısı, komşu kabukları ve doluluk geometriden ölçülür, temas koşulu, örgü ve uzay grubu), düzlemler ve Miller indisleri (düzlem aileleri, aralık ve düzlem yoğunluğu; FCC'de ABC, HCP'de AB istifi), X-ışını kırınımı (Cu ve Mo Kα₁ toz deseni, yapı çarpanı ve sönme kuralları, sin²θ oranlarıyla indisleme, örgü sabiti uydurma; yoğunluk BCC'yi basit kübikten ayırır).
+- ✔ HCP katman yoğunluğunda iki sütun aynı formülden geldiği için Fark "—". İkinci komşu kabuğu kartı üçüncü kabuğu da yazıyor (FCC 24 atom, oran 1.7321; ideal HCP 2 atom, oran 1.6330): iki sıkı paketin ilk ayrıldığı kabuk artık sayfada okunuyor.
+- ❑ Isıl titreşim (Debye–Waller) çarpanı yok; yüksek açılı çizgiler güçlü (Cu (420) %38.5 > (220) %26.6, W (321) %49.2; sayfa notu söylüyor). `reflections()`'a isteğe bağlı bir B çarpanı eklenebilir.
+- ❑ Desen gürültüsüz ve Kα₂ yok: uydurulan a hep "belirsizlik < 0.00001 Å"; gerçekçi bir belirsizlik deneyi kurulamıyor. Kırınım yalnız kübik yapılarda; Ti ve Au kaynak getirilemediği için çıkarıldı.
+- ❑ Doluluk çubukları küçükten büyüğe yukarıdan aşağı sıralı; 0.7405 en altta (yazar "en üstte" diye okumuştu).
+
+## denklem-denklestirme.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: gerçek formül ayrıştırıcı (parantez, köşeli parantez, hidrat, iyon yükü), 19 hazır tepkime ve yazılan denklem; atom ve yük sayım tablosu, yükseltgenme basamakları ve aktarılan elektron; bileşim matrisi, BigInt ile adım adım Gauss–Jordan, rank ve çözüm uzayı (C + O₂ → CO + CO₂ iki boyutlu); kütleden mole, sınırlayıcı bileşen, verim, kütle korunumu ve gaz hacmi (IUPAC 2021 atom kütleleri).
+- ✔ İç redoks: NH₄NO₃ → N₂O + 2H₂O "Redoks değil" deniyordu (ortalama basamak −3 ile +5'i gizliyor). Bir element bir tarafta formülde birden çok yerde, öbür tarafta tek yerde geçiyorsa sayfa artık iç redoks olabileceğini söylüyor (nötrleşmelerde söylemiyor); basamağı değişen tepkimelerde de ortalamayla sayılan elektronun eksik kalabileceğini yazıyor (2NH₄NO₃ → 2N₂ + O₂ + 4H₂O: 4 değil 10 e⁻). "Fe+3" yazınca hata Fe^3+ yazımını öneriyor; Σν·M kartı "hesap çöker" yerine en küçük tam sayılı çözümü kullandığını söylüyor.
+- ❑ Basamaklar formül ortalaması; iç redoks uyarısı yapı bilgisi olmadan sezgisel (CH₃COOH yanmasında da çıkıyor, orada ortalama doğru sonucu verir).
+- ❑ "r₁'i katsayılara yaz" sıfırlı bir vektör yazınca rozet "Eksik" (tasarım gereği: o tür tepkimeden düşer).
+
+## kalp-dolasim.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: zamanla değişen elastanslı sol karıncık (Suga–Sagawa, Stergiopulos etkinleşmesi), ideal diyot kapaklar, sabit basınçlı sol kulakçık ve üç elemanlı windkessel; RK4 0.5 ms, kapak olayları ara değerle, değerler periyodik kararlı durumda. Kalp döngüsü (nabız, dolaşım şeması, Wiggers diyagramı, basınç–hacim döngüsü), Frank–Starling ve yük (altı hazır deney, 11 noktalı tarama, diyastolik zaman sabiti = R·C, kompliyans ve nabız basıncı), oksijen taşıma (Severinghaus 1979 eğrisi, Bohr kayması, karbon monoksit, Fick).
+- ✔ Birleşik nokta ve üst çizgi (Q̇, V̇O₂, v̄) kayıyor ya da görünmüyordu: Q ve VO₂ düz yazılıyor, karışık venöz v üst çizgi sınıfıyla, gösterim notta sözle açıklanıyor. 110–150 atım/dk durum satırı atım hacminin önce ard yük yüzünden düştüğünü (etkin atardamar elastansı nabızla büyür, ESV 49.6 → 61.9 mL) ve dolumun ancak yaklaşık 130 atım/dk üstünde kısaldığını o anki EDV ile yazıyor (120'de 118.6, 150'de 99.9 mL).
+- ❑ İzovolümik kasılma 0.094 s (Guyton & Hall 0.02–0.03 s; sayfa söylüyor); etkinleşme başlangıcı kaydırılarak kısaltılabilir.
+- ❑ Dikrotik çentik yok (kapak kapanışındaki geri akış ve kanın eylemsizliği modelde yok); eylemsizlikli dört elemanlı windkessel Wiggers diyagramına ekler. Kuvvet–frekans (Bowditch merdiveni) etkisi de yok.
+- ❑ "Kompliyans kestirimi SV/PP" satırının son basamağı tıklama yoluna bağlı (değer 5.205 % yuvarlama sınırında); kararlılık eşiği sıkılaştırılabilir.
+- ❑ Refleks, kulakçık kasılması, sağ kalp ve kapak hastalığı yok; 150 atım/dk üstünde kırmızı uyarı. Fick çıktısı kütle dengesi gereği girdiye eşit (sayfa söylüyor).
+
+## A5'te başka sayfalarda bulunan ve düzeltilen sorunlar
+
+- ✔ Harf üstü birleşik işaretler (U+0302 şapka, U+0304 üst çizgi, U+0307 nokta, U+20D7 ok) Outfit ve Fraunces'te harfin yanına kayıyor, görünmüyor ya da kutu çıkıyordu. Kalp sayfasında Q̇ "Q`" gibi görünüyordu; momentum sayfasındaki 19 vektör oku boş kutuydu; genetikte r̂, kara cisim ve üretim planlamada x̄ ile X̄, akışkanlarda v̄, klasik girişimde λ̄ kayıktı; üç defterde (alternatif akım V̂, genetik r̂, otonom araçlar x̂) aynısı. `shared/theme.css`'e `.ov`, `.hat` ve `.vec` sınıfları eklendi, yerler bunlara çevrildi; check-site defterlerde birleşik işareti hata sayıyor (33af3a4). Karmaşık sayılardaki z̄ ve bozunmadaki √N̄ Outfit'te düzgün olduğu için kaldı.

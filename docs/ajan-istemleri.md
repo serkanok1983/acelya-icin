@@ -144,7 +144,9 @@ Lessons from the previous rebuilds (reviewers flagged these; avoid them):
   silent change of amplitude makes the measured value depend on when the reader moved the slider.
 - Estimators from binned data: represent a bin by the mean of its points, not its centre, and fit slopes locally on
   raw points; check every quoted measurement over several seeds or starts, not only the default one.
-- Never attribute a numerical artefact to one cause without measuring it (e.g. step error vs rounding: run an h/2 twin).
+- Never attribute a numerical artefact or a physical effect to one cause without measuring it (e.g. step error vs
+  rounding: run an h/2 twin; a heart model's stroke volume fell at 120 bpm because afterload rose, not because
+  filling shortened: the end-diastolic volume had barely moved). Status lines that explain a mechanism need the numbers.
 - No combining marks in labels, notes or canvas text: a dot (U+0307) or bar (U+0304) over a letter slides sideways or
   vanishes in the site fonts. Write the plain letter and explain the notation in words, or use
   <span class="ov">x</span> with .ov { text-decoration-line: overline } for a bar.

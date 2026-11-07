@@ -59,6 +59,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "av-avci-lotka-volterra": {
+    "title": "Av ve Avcı: Birbirini Sürükleyen Nüfuslar",
+    "tagline": "Balıkçılık azalınca neden köpekbalıkları çoğalır? İki denklem, av ile avcının birbirini nasıl döngüye soktuğunu, hasadın avı neden artırdığını ve bol besinin dengeyi neden bozduğunu anlatır.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "ay-evreleri": {
     "title": "Ay ve Mevsimler: Gölge Değil, Geometri",
     "tagline": "Ay'ın yarısı hep aydınlıktır; evreler, o yarının ne kadarını gördüğümüzdür. Mevsimler de Güneş'e uzaklıktan değil, 23,44 derecelik bir eğiklikten doğar.",
@@ -121,6 +128,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise",
     "minutes": 25
+  },
+  "denklem-denklestirme": {
+    "title": "Denklem Denkleştirme: Atom Sayımından Sıfır Uzayına",
+    "tagline": "Lavoisier'nin terazisinden lineer cebire: her atomu ve yükü iki tarafta eşitleyen katsayılar, A·v = 0 sisteminin çözümüdür. Elektronları say, sınırlayıcı gireni bul, verimi hesapla.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "derleyici-ve-yorumlayicilar": {
     "title": "Derleyici ve Yorumlayıcı: Kodun Makineye Yolculuğu",
@@ -220,6 +234,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "genetik-caprazlama": {
+    "title": "Genetik Çaprazlama: Bezelyeden Gen Haritasına",
+    "tagline": "Mendel'in 3 : 1'i bir kota değil, bir olasılıktır. Yavruları tek tek say ve ki-kareyle sına; X'e bağlı genleri soyağacında izle, bağlı genlerin ne sıklıkla ayrıldığından kromozom haritası çıkar.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "gorelilik-uzayzaman": {
     "title": "Özel Görelilik: Uzay-Zamanın Geometrisi",
     "tagline": "Işık hızı herkes için aynıysa saatler, cetveller ve “şimdi” gözlemciye göre değişir. Bir Minkowski diyagramında ışık saatini, eşzamanlılığı, ikizleri ve hiç değişmeyen uzay-zaman aralığını kendin ölç.",
@@ -304,6 +325,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "kalp-dolasim": {
+    "title": "Kalp ve Dolaşım: Pompa, Esnek Depo ve Oksijen",
+    "tagline": "Kasılırken sertleşen bir odacık, her atımın bir kısmını depolayan esnek bir aort ve oksijeni basınca göre bırakan bir molekül. Basınç–hacim döngüsünü, windkessel'i ve Fick ilkesini ölç.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "kara-cisim-isimasi": {
     "title": "Kara Cisim Işıması: Kuantumun Doğduğu Eğri",
     "tagline": "Sıcak her şey ışır; ideal bir kara cismin tayfını ise yalnız sıcaklığı belirler. Planck eğrisinden tepeyi ve toplam gücü ölç, yıldızların rengini hesapla, bir gezegenin ısı bütçesini kızılötesinde kapat.",
@@ -350,6 +378,13 @@ window.ACELYA_CATALOG = {
     "title": "Konik Kesitler: Bir Koni, Bir Düzlem, Üç Eğri",
     "tagline": "Bir koniyi düzlemle kes: eğime göre çember, elips, parabol ya da hiperbol çıkar. Tek bir sayı, dışmerkezlik, dördünü birleştirir; gezegen yörüngelerinden çanak antenlere uzanan bir geometri.",
     "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
+  "kristal-yapilar": {
+    "title": "Kristal Yapılar: Küre İstiflerinden X Işını Desenlerine",
+    "tagline": "Bir milimetrelik tuz kristali, aynı küçük kutunun milyarlarca milyar kez tekrarıdır. Küreleri istifle, düzlemleri çiz, X ışınlarının yansıdığı açıları ölç: atomları görmeden dizilişlerini böyle okuruz.",
+    "field": "Kimya",
     "level": "Lise–Lisans",
     "minutes": 30
   },
@@ -524,6 +559,13 @@ window.ACELYA_CATALOG = {
   "periyodik-tablo": {
     "title": "Periyodik Tablo: Boşlukları Öngören Harita",
     "tagline": "1869'da 63 elementle çizilen bir tablo, henüz keşfedilmemiş metallerin yoğunluğunu önceden söyledi. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "ph-indikator": {
+    "title": "pH ve İndikatörler: Su Dengesi, Logaritma ve Renk",
+    "tagline": "Saf su 100 °C'de pH 6.13'tedir ama asidik değildir; asit eklenen su asla bazik olmaz; bir indikatörün rengi de tek bir dalga boyundan değil, bütün soğurma tayfından doğar.",
     "field": "Kimya",
     "level": "Lise–Lisans",
     "minutes": 35

@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-09ec7650f6";
+const VERSION = "acelya-6ffdc3880d";
 // --- end:version ---
 
 // --- generated:core ---
@@ -236,6 +236,7 @@ const DIGESTS = [
   "shared/digest/asteroids.js",
   "shared/digest/atislar.js",
   "shared/digest/atom-orbitalleri.js",
+  "shared/digest/av-avci-lotka-volterra.js",
   "shared/digest/ay-evreleri.js",
   "shared/digest/basinc.js",
   "shared/digest/bayes-olasilik.js",
@@ -245,6 +246,7 @@ const DIGESTS = [
   "shared/digest/cizge-teorisi.js",
   "shared/digest/dairesel-hareket.js",
   "shared/digest/dalga-superpozisyonu.js",
+  "shared/digest/denklem-denklestirme.js",
   "shared/digest/derleyici-ve-yorumlayicilar.js",
   "shared/digest/dna-replikasyon.js",
   "shared/digest/dogal-secilim.js",
@@ -259,6 +261,7 @@ const DIGESTS = [
   "shared/digest/fonksiyon-grafigi.js",
   "shared/digest/fotoelektrik.js",
   "shared/digest/fotosentez-solunum.js",
+  "shared/digest/genetik-caprazlama.js",
   "shared/digest/gorelilik-uzayzaman.js",
   "shared/digest/grup-teorisi.js",
   "shared/digest/gunes-sistemi.js",
@@ -271,6 +274,7 @@ const DIGESTS = [
   "shared/digest/isletim-sistemleri-ve-linux.js",
   "shared/digest/isletme-bilimi-ve-yonetim.js",
   "shared/digest/kaldirma-kuvveti.js",
+  "shared/digest/kalp-dolasim.js",
   "shared/digest/kara-cisim-isimasi.js",
   "shared/digest/karmasik-sayilar.js",
   "shared/digest/kepler-yasalari.js",
@@ -278,6 +282,7 @@ const DIGESTS = [
   "shared/digest/kirinim-izgarasi.js",
   "shared/digest/klasik-girisim.js",
   "shared/digest/konik-kesitler.js",
+  "shared/digest/kristal-yapilar.js",
   "shared/digest/kuantum-dalga.js",
   "shared/digest/kuantum-mekanigi.js",
   "shared/digest/lorentz-kuvveti.js",
@@ -303,6 +308,7 @@ const DIGESTS = [
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
   "shared/digest/periyodik-tablo.js",
+  "shared/digest/ph-indikator.js",
   "shared/digest/plc-hidrolik-pnomatik-cnc-cadcam.js",
   "shared/digest/pong.js",
   "shared/digest/programlama-paradigmalari.js",
