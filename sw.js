@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-6ffdc3880d";
+const VERSION = "acelya-4342378381";
 // --- end:version ---
 
 // --- generated:core ---
@@ -232,6 +232,7 @@ const DIGESTS = [
   "shared/digest/algoritmalar.js",
   "shared/digest/alternatif-akim.js",
   "shared/digest/altin-oran.js",
+  "shared/digest/asal-rsa.js",
   "shared/digest/asit-baz-titrasyonu.js",
   "shared/digest/asteroids.js",
   "shared/digest/atislar.js",
@@ -242,6 +243,7 @@ const DIGESTS = [
   "shared/digest/bayes-olasilik.js",
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
+  "shared/digest/birim-cember.js",
   "shared/digest/cift-sarkac.js",
   "shared/digest/cizge-teorisi.js",
   "shared/digest/dairesel-hareket.js",
@@ -309,10 +311,12 @@ const DIGESTS = [
   "shared/digest/otonom-araclar-ve-iha.js",
   "shared/digest/periyodik-tablo.js",
   "shared/digest/ph-indikator.js",
+  "shared/digest/pi-yaklasimi.js",
   "shared/digest/plc-hidrolik-pnomatik-cnc-cadcam.js",
   "shared/digest/pong.js",
   "shared/digest/programlama-paradigmalari.js",
   "shared/digest/radyoaktif-bozunma.js",
+  "shared/digest/rastgele-yuruyus.js",
   "shared/digest/riemann-toplamlari.js",
   "shared/digest/roma-hukuku.js",
   "shared/digest/sarkac.js",

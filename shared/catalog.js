@@ -31,6 +31,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "asal-rsa": {
+    "title": "Asal Sayılar ve RSA: Elekten Şifreye",
+    "tagline": "İki asalı çarpmak bir an sürer, çarpımdan asalları geri bulmak yıllar. Eratosthenes'in eleğinden Riemann'ın sorusuna, 561'in hilesinden RSA anahtarına uzanan yol bu asimetride saklı.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "asit-baz-titrasyonu": {
     "title": "Asit-Baz Titrasyonu: Damla Damla Mol Saymak",
     "tagline": "Bir büret, bir indikatör ve biraz sabır: titrasyon görünmez iyonları damla damla sayar. Yirmi mililitre boyunca kıpırdamayan pH, son dört damlada altı basamaktan fazla sıçrar; sırrı logaritmada.",
@@ -100,6 +107,13 @@ window.ACELYA_CATALOG = {
     "field": "Bilgisayar Bilimi",
     "level": "Lise",
     "minutes": 35
+  },
+  "birim-cember": {
+    "title": "Birim Çember: Dönen Bir Noktanın Gölgeleri",
+    "tagline": "Yarıçapı 1 olan çemberde her açı bir noktadır; kosinüs ve sinüs onun iki gölgesi. İki dönmeyi art arda yapmak toplama formüllerini verir; sinüs de küçük dönmeleri kaydırıp toplayarak hesaplanabilir.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "cift-sarkac": {
     "title": "Çift Sarkaç: Belirlenimci ama Öngörülemez",
@@ -570,6 +584,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "pi-yaklasimi": {
+    "title": "π'yi Hesaplamak: Hata Hangi Hızla Küçülür?",
+    "tagline": "Bir milyon rastgele nokta π'nin tipik olarak üç basamağını verir, Chudnovsky serisinin tek terimi on üçünü. Dokuz yöntemi yarıştır; Arşimet'in sınırlarını ve kayan noktanın tuzağını ölç.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
   "plc-hidrolik-pnomatik-cnc-cadcam": {
     "title": "Otomasyon: Beyin, Kas ve Dijital Köprü",
     "tagline": "Bir fabrika üç şeyden kuruludur: karar veren bir beyin (PLC), itip çeken kaslar (hidrolik, pnömatik, dişli) ve çizimi parçaya çeviren dijital bir zincir (CAD, CAM, G-kodu). Hepsi birkaç basit yasaya dayanır.",
@@ -595,6 +616,13 @@ window.ACELYA_CATALOG = {
     "title": "Radyoaktif Bozunma: Zar Atan Çekirdeklerin Saati",
     "tagline": "Tek bir çekirdeğin ne zaman bozunacağını kimse söyleyemez; milyarlarcasının yarısının ne zaman gideceğini ise şaşmadan söyleriz. Rastlantı, sayı büyüdükçe yasaya dönüşür.",
     "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "rastgele-yuruyus": {
+    "title": "Rastgele Yürüyüş: Sarhoşun Yolu, Şansın Yasası",
+    "tagline": "Her adımı yazı turayla seçilen bir yürüyüşçü N adımda yalnızca √N mertebesinde uzaklaşır. Mürekkebin yavaş yayılması, kumarbazın iflası ve uzayda kaybolan kuş aynı hesaptan çıkar.",
+    "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 35
   },
