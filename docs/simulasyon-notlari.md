@@ -797,6 +797,12 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 - ❑ Odak bir düğmedeyken Boşluk o düğmeye basıyor; duraklatma kısayolu yalnız odak düğmede değilken çalışıyor.
 - ❑ Öneri: s ile kurulan aralıklarda t* seçeneği (kapsamanın t dağılımıyla % 95'e dönüşünü göstermek için).
 
+## konik-kesitler.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: koniyi kesmek (döndürülebilir çift koni ve kesen düzlem; 720 noktaya genel konik uydurularak ölçülen e, a, b, ℓ ve odaklar; Dandelin küreleri; tepeden geçen düzlemde dejenere kesitler), odak ve doğrultman (PF = e·PD, iki odaklı tanımlar, kutupsal denklem, Dünya ve Halley yörüngeleri aynı ölçekte), yansıma özellikleri (elips, parabol ve hiperbol aynalarında ışın izleme, eşit yol, odaktan kaydırılan kaynak).
+- ✔ (a) notu çember yakınındaki farkı doğru veriyor: yalnız tam çemberde 10⁻⁸ düzeyinde, 89°–89.99° arasında 10⁻¹¹'in altında (önce 10⁻⁷ diyordu). Gerçek biçim grafiği koni ekseninin düzlemi deldiği noktayı çarpıyla gösteriyor; bu nokta elipsin merkezinde değil, varsayılan kesitte 0.23 br kayık. (b) notu iki yörüngenin aynı düzlemde çizildiğini, Halley'in yörünge düzleminin ekliptiğe yaklaşık 162° eğik olduğunu söylüyor; PF ve PD ayrı bir kartta.
+- ❑ (c) sekmesinde kaynak odaktan kaydırılınca tablo yalnız en kötü ışını gösteriyor; en uzun yol yalnız grafikte okunuyor.
+
 ## A4 ajanlarının başka sayfalarda bulduğu sorunlar
 
 - ❑ `rastgele-yuruyus.html`: 2B yürüyüşte ortalama uzaklık |r|, √n ile karşılaştırılıyor; √n ortalama karekök (RMS) uzaklıktır, ortalama uzaklık yaklaşık 0.886√n.
