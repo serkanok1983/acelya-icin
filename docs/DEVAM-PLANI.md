@@ -6,8 +6,8 @@ sonra **Yapılacaklar**'ı oku. Teknik ayrıntılar için `README.md`, içerik
 standardı için `docs/icerik-rehberi.md`.
 
 Dal: `main` (eski `claude/zealous-archimedes-iwjhpu` dalı main'e birleşmiş durumda).
-6 Kasım oturumunun commit'leri `origin/main`'e gönderildi ve `gh-pages`'te yayında.
-Son durum tarihi: 2026-11-07.
+6–7 Kasım oturumunun commit'leri `origin/main`'e gönderildi ve `gh-pages`'te yayında.
+Son durum tarihi: 2026-11-07 (grup A4 yayında; konik-kesitler defteri yazılıyor).
 
 ## 1. Hedef (sahibinin sözleriyle)
 
@@ -62,7 +62,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   21 sayfada mobil yatay taşma giderildi (theme.css canvas kuralı + 7 sayfa
   tek tek). Duman testi: 168 sayfada 0 JS hatası.
 - Service worker yeniden yazıldı; CI'da denetim adımı; README.
-- Keşif Defteri altyapısı + 94 defter (aşağıda durum tablosu).
+- Keşif Defteri altyapısı + 99 defter (aşağıda durum tablosu).
 - **31 Ekim 2026 oturumu:**
   - Simülasyon hataları düzeltildi: `is-enerji` (animasyon çalışmıyordu, fiziksel
     birimlerle yeniden yazıldı), `kepler-yasalari` (gezegen ekran dışındaydı;
@@ -135,6 +135,24 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   kirinim-izgarasi'nda Rayleigh sınırındaki kıl çizgisi kartı, kara-cisim'de
   Dünya'nın eski albedosu (0.306 → NASA'nın güncel 0.294), duran-dalgalar'da
   frekans için sayı kutusu, elektronik-devre'de bozuk not ve etiket.
+- **7 Kasım (grup A4, matematik):** lorenz-cekici (çekici, kelebek etkisi ve
+  Benettin λ, Lorenz haritası ve ρ taraması), taylor-serisi (polinom yaklaşımı,
+  yakınsaklık yarıçapı, seriyle sayı hesabı), riemann-toplamlari (yedi kural,
+  log–log yakınsama hızı, Monte Carlo ve boyut laneti), karmasik-sayilar (düzlemde
+  işlemler, Euler serisi ve kökler, konform dönüşümler), normal-dagilim (Galton
+  tahtası, merkezi limit teoremi, alanlar ve güven aralıkları) ve konik-kesitler
+  (koniyi kesmek ve Dandelin küreleri, odak ve doğrultman, yansıma özellikleri)
+  yeniden kuruldu; ilk beşinin defteri tam hattan geçti (99 defter). Konik
+  kesitler yazarı engellenen bir web isteğinde onay beklerken takıldı ve dört
+  saat sonra dosya yazmadan düştü; yerine açılan yazar sürüyor. Örnek defter
+  `sarkac.js` de ilk kez doğrulayıcı + editörden geçti (7 → 9). Sayfa
+  düzeltmeleri: sarkaç'ta periyot ölçümü titriyordu (geçiş anı adımın sonuna
+  yuvarlanıyordu), Lorenz haritasının eğim kestirimi ve "|f′| > 1" kararı
+  başlangıca bağlıydı, Lorenz'de yolun kopması yanlış nedene bağlanıyordu (artık
+  h/2 ikiziyle ölçülüyor), Riemann'da Richardson notu "daha büyük" durumunu
+  "daha küçük" yazıyordu, karmaşık sayılarda kökler listelenmiyordu ve u, v adları
+  f = u + iv ile çakışıyordu. Mandelbrot ve Julia'daki çalışmayan PDF düğmesi
+  kaldırıldı; defterlerde üst çizgi artık `<span class=ov>` ile yazılıyor.
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
@@ -149,7 +167,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.1 Kalan 60 sayfa için defter yaz (üniversite hedefine göre sıralı)
+### 4.1 Kalan 55 sayfa için defter yaz (üniversite hedefine göre sıralı)
 
 Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler). 6–7 Kasım'da
 26 ince sayfa (25'i fizik) yeniden kurulup defterlendi; ince ya da yanlış fizik
@@ -163,9 +181,10 @@ A · kurucu → yazar → doğrulayıcı+editör (6'lık gruplar)
     tamamlandı (6 Kasım): akiskanlar-mekanigi tork-denge kaldirma-kuvveti basinc
     (grup A); optik-yansima-kirilma mercek-isinlari atislar cift-sarkac
     kuantum-dalga (grup A2); duran-dalgalar kirinim-izgarasi elektronik-devre
-    kara-cisim-isimasi kuantum-mekanigi nukleer-fizik (grup A3, 7 Kasım)
-    A4 matematik:  lorenz-cekici taylor-serisi riemann-toplamlari
-                   karmasik-sayilar normal-dagilim konik-kesitler
+    kara-cisim-isimasi kuantum-mekanigi nukleer-fizik (grup A3, 7 Kasım);
+    lorenz-cekici taylor-serisi riemann-toplamlari karmasik-sayilar
+    normal-dagilim (grup A4, 7 Kasım; konik-kesitler sayfası kuruldu, defteri
+    yazılıyor)
     A5 kimya/biyo: kristal-yapilar denklem-denklestirme ph-indikator
                    genetik-caprazlama av-avci-lotka-volterra kalp-dolasim
     A6 matematik:  birim-cember rastgele-yuruyus pi-yaklasimi pisagor
@@ -230,17 +249,17 @@ Tam istem metinleri bu oturumda kullanılan İngilizce halleriyle
   `shared/digest.js` slug'ı `encodeURIComponent` ile yükler, dosya adı
   birebir `fibo+pascal.js` olmalı.
 
-### 4.2 Var olan 94 defterin eksik aşamalarını tamamla
+### 4.2 Var olan 99 defterin eksik aşamalarını tamamla
 
 Bekleyen doğrulama bulgusu kalmadı. Durum (6 Kasım 2026):
 
 | Durum | Sayfalar |
 |---|---|
-| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik |
+| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim |
 | yazar + editör (doğrulama yok) | altin-oran, pong |
 | yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
-| elle yazıldı (referans) | sarkac |
+| elle yazıldı, 7 Kasım'da doğrulayıcı + editörden geçti (referans) | sarkac |
 
 "Yalnız yazar" satırında üniversite hedefine en yakın olanlar önce:
 elektrokimya ve sicim-teorisi (temel bilim), sonra hesaplama-teorisi,
@@ -294,9 +313,12 @@ tablosu hataları). Öneri:
    sayfalarda `grep -l "var(--" *.html | xargs grep -l "fillStyle\|strokeStyle"`
    ile bulunabilir; sabit renk ya da `getComputedStyle` kullan).
 2. Sonra en çok kullanılan/temel sayfaları `sarkac.html` seviyesine çıkar.
-   6 Kasım'da yapıldı: turev, periyodik-tablo (düzeltme ve veri) ve defteri
-   olmayan 25 fizik sayfası (ilk turda 10, grup A'da 4, A2'de 5, A3'te 6; bkz.
-   3. bölüm). Sırada defteri olan
+   6–7 Kasım'da yapıldı: turev, periyodik-tablo (düzeltme ve veri), defteri
+   olmayan 25 fizik sayfası (ilk turda 10, grup A'da 4, A2'de 5, A3'te 6) ve
+   6 matematik sayfası (A4); bkz. 3. bölüm. B grubundan önce bilinen kusurlar:
+   mandelbrot-fraktali 0'da ortalı (−2 ucu kırpılıyor), c = −2 beyaz, eksen yok;
+   rastgele-yuruyus ortalama uzaklığı √n ile karşılaştırıyor (√n RMS uzaklık).
+   Sırada defteri olan
    ama laboratuvarı zayıf temel sayfalar: integral, vektorler, serbest-dusme,
    yay-kutle, newton-hareket-yasalari, dalga-superpozisyonu (aynı yönlü iki
    dalga, faz denetimi yok; duran dalgaların ön koşulu). Bunlar yeniden kurulursa
@@ -315,7 +337,7 @@ tablosu hataları). Öneri:
   `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
   Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
   Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
-  (60 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
+  (55 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
   bitince geçer.
 
 ## 5. Kalite çıtası (kısa hatırlatma)

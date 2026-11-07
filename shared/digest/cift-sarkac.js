@@ -245,7 +245,7 @@ window.ACELYA_DIGEST["cift-sarkac"] = {
     {
       href: "lorenz-cekici.html",
       title: "Lorenz Çekicisi",
-      why: "Kaosun öbür klasik örneği, Lorenz'in 1963 konveksiyon modeli: Kelebek etkisi sekmesinde Δ = 10⁻⁹ farkla başlayan kopyaların ayrılışından Lyapunov üstelini (yaklaşık 0.90) ölç. Bu sönümlü sistemde hacim üstel olarak büzülür ve yörüngeler garip bir çekiciye yığılır; çift sarkaçta enerji korunur.",
+      why: "Kaosun öbür klasik örneği, Lorenz'in 1963 modeli: Kelebek etkisi sekmesinde Δ = 10⁻⁹ farklı kopyalardan Lyapunov üstelini (yaklaşık 0.90) ölç. Orada hacim üstel büzülür ve garip bir çekici oluşur; çift sarkaçta enerji korunur.",
     },
   ],
   sources: [

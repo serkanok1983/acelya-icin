@@ -311,6 +311,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "karmasik-sayilar": {
+    "title": "Karmaşık Sayılar: Çarpmak Döndürmektir",
+    "tagline": "i ile çarpmak düzlemi 90° döndürür; her karmaşık sayıyla çarpmak bir döndürme ve bir büyütmedir. Euler formülü, birim kökler ve açıları koruyan dönüşümler bu tek fikrin üstüne kurulur.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "kepler-yasalari": {
     "title": "Kepler Yasaları: Sekiz Yay Dakikalık İnat",
     "tagline": "Tycho Brahe'nin gözlemlerindeki inatçı bir sekiz yay dakikası, gezegenlerin çember değil elips çizdiğini ortaya çıkardı. Üç yasa: elips yörünge, eşit alanlar ve T² = a³.",
@@ -359,6 +366,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "lorenz-cekici": {
+    "title": "Lorenz Çekicisi: Üç Denklemin Garip Kelebeği",
+    "tagline": "Isıtılan bir akışkandan süzülmüş üç satırlık denklem: yörünge iki kanat arasında hiç yinelemeden gidip gelir, her hacim birim zamanda 860 bin kat küçülür, milyarda birlik fark 23 birim zamanda milyar kat büyür.",
+    "field": "Matematik",
+    "level": "Lisans",
+    "minutes": 40
   },
   "maden-muhendisligi": {
     "title": "Maden Mühendisliği: Kayadan Metale Giden Yol",
@@ -465,6 +479,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "normal-dagilim": {
+    "title": "Normal Dağılım: Toplanan Rastlantıların Çan Eğrisi",
+    "tagline": "Zar ortalamaları, ölçüm hataları, anket sonuçları: birbirine benzemeyen rastlantılar toplandıkça aynı çana döner. Merkezi limit teoremi nedenini anlatır, standart hata bedelini: dört kat ölçüm, iki kat kesinlik.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "nukleer-fizik": {
     "title": "Bağlanma Enerjisi: Çekirdeğin Eksik Kütlesi",
     "tagline": "Bir helyum çekirdeği, kendisini oluşturan iki proton ve iki nötrondan binde 7.5 hafiftir. Bu eksik kütle yıldızları yakar, reaktörleri ısıtır; eğrinin tepesi hangi tepkimenin enerji vereceğini söyler.",
@@ -528,6 +549,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "riemann-toplamlari": {
+    "title": "Riemann Toplamları: Hatanın Hızı ve Monte Carlo",
+    "tagline": "Dikdörtgen, yamuk, parabol ve rastgele nokta: aynı alanı dört yolla ölç, hatanın n ile hangi hızda eridiğini log–log grafikte gör, tek boyutta kaybeden Monte Carlo'nun çok boyutta neden kazandığını hesapla.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "roma-hukuku": {
     "title": "Roma Hukuku: Taş Kaybolur, Kural Kalır",
     "tagline": "Bir ipotek, bir kira sözleşmesi, bir miras davası: üçünün de iskeleti Roma'da kuruldu. Kanun kitabı değil, bin yıl boyunca dava dava biriken bir düşünme yönteminin hikâyesi.",
@@ -539,7 +567,7 @@ window.ACELYA_CATALOG = {
     "title": "Sarkaç: Zamanı Ölçen Salınım",
     "tagline": "Bir ipin ucundaki küçük bir ağırlık, üç yüzyıl boyunca insanlığın en hassas saatiydi. Nedeni salınımın matematiğinde gizli: periyot kütleye değil, ipin boyuna bakar.",
     "field": "Fizik",
-    "level": "Lise",
+    "level": "Lise–Lisans",
     "minutes": 25
   },
   "serbest-dusme": {
@@ -576,6 +604,13 @@ window.ACELYA_CATALOG = {
     "field": "Bilgisayar Bilimi",
     "level": "Lise ileri",
     "minutes": 35
+  },
+  "taylor-serisi": {
+    "title": "Taylor Serisi: Tek Noktadan Ne Kadar Uzağa?",
+    "tagline": "Bir fonksiyonun tek noktadaki türevleri, onu o noktanın çevresinde taklit eden bir polinom kurar. Ne kadar uzağa kadar? Hatayı Lagrange kalanı, menzili karmaşık düzlemdeki tekillikler belirler.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "termodinamik": {
     "title": "Termodinamik: Isıyı İşe Çevirmenin Bedeli",

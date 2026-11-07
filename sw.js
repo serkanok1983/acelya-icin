@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-e6324f8e5b";
+const VERSION = "acelya-049d8077bb";
 // --- end:version ---
 
 // --- generated:core ---
@@ -272,6 +272,7 @@ const DIGESTS = [
   "shared/digest/isletme-bilimi-ve-yonetim.js",
   "shared/digest/kaldirma-kuvveti.js",
   "shared/digest/kara-cisim-isimasi.js",
+  "shared/digest/karmasik-sayilar.js",
   "shared/digest/kepler-yasalari.js",
   "shared/digest/kimyasal-kinetik.js",
   "shared/digest/kirinim-izgarasi.js",
@@ -279,6 +280,7 @@ const DIGESTS = [
   "shared/digest/kuantum-dalga.js",
   "shared/digest/kuantum-mekanigi.js",
   "shared/digest/lorentz-kuvveti.js",
+  "shared/digest/lorenz-cekici.js",
   "shared/digest/maden-muhendisligi.js",
   "shared/digest/makine-dili-assembly-c.js",
   "shared/digest/makine-muhendisligi.js",
@@ -294,6 +296,7 @@ const DIGESTS = [
   "shared/digest/mitoz-mayoz.js",
   "shared/digest/molekul-sekli.js",
   "shared/digest/newton-hareket-yasalari.js",
+  "shared/digest/normal-dagilim.js",
   "shared/digest/nukleer-fizik.js",
   "shared/digest/optik-yansima-kirilma.js",
   "shared/digest/otomotiv-muhendisligi.js",
@@ -303,6 +306,7 @@ const DIGESTS = [
   "shared/digest/pong.js",
   "shared/digest/programlama-paradigmalari.js",
   "shared/digest/radyoaktif-bozunma.js",
+  "shared/digest/riemann-toplamlari.js",
   "shared/digest/roma-hukuku.js",
   "shared/digest/sarkac.js",
   "shared/digest/serbest-dusme.js",
@@ -310,6 +314,7 @@ const DIGESTS = [
   "shared/digest/sicim-teorisi.js",
   "shared/digest/takimyildiz-haritasi.js",
   "shared/digest/tasarim-desenleri.js",
+  "shared/digest/taylor-serisi.js",
   "shared/digest/termodinamik.js",
   "shared/digest/tork-denge.js",
   "shared/digest/turev.js",
