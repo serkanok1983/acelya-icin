@@ -561,6 +561,7 @@ Durum: ❑ bekliyor · ✔ yapıldı
 ## sarkac.html
 
 - ✔ Düzeltildi (Kasım 2026): sönüm alanı `hidden` iken de görünüyordu (`.field { display: grid }` özniteliği eziyordu; `shared/theme.css`'e `[hidden] { display: none !important; }` eklendi). Okuma etiketlerindeki büyük harf dönüşümü "2π√(L/g)"yi "2Π√(L/G)" yapıyordu; kaldırıldı.
+- ✔ Düzeltildi (7 Kasım 2026): periyot ölçümü denge geçişini 1/240 s'lik adımın içinde ara değerle buluyor. Önce adımın sonuna yuvarlanıyordu: 20°'de okuma 2.021 ile 2.022 s arasında titriyor, küçük açılarda Fark −0.03 %'ye düşebiliyordu; şimdi sabit 2.021 s (+0.77 %), 2°'de +0.01 %. Uzunluk ya da yerçekimi değişince sarkaç θ₀'dan yeniden bırakılıyor (önce genlik sessizce değişiyordu); sürükleyip bırakınca kaydırıcının gösterdiği tam dereceye oturuyor; grafikteki T₀ çizgileri ilk geçişten önce de yukarı yönlü geçişlere hizalı; not modelin çubuk olduğunu söylüyor (açı 170°'ye kadar gidiyor, ip 90°'nin üstünde gevşerdi).
 
 ## Ortak katman (shared/)
 
@@ -692,7 +693,7 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 - ❑ Eğim uydurma t = 0'dan başlıyor ve ilk hizalanma geçişini içeriyor; Δ ≥ 10⁻³'te pencere anlamlı olamayacak kadar kısa.
 - ❑ Kopyalar yalnız θ₂'de farklı başlıyor (ω ya da θ₁ bozulması, rastgele topluluk yok); bütün hazır başlangıçlar durgun, ilk hız denetimi yok. Mod hazırlarının genliği sabit (5° ve 3°).
 - ❑ Herhangi bir parametre değişince koşu baştan başlıyor (`sarkac.html`'deki gibi koşu sırasında değiştirme yok). Poincaré kesiti kısa koşuda seyrek; kaotik denizi görmek için birkaç dakika ya da N = 10 gerekiyor.
-- ❑ Defterin "sonraki" bağlantısı `lorenz-cekici.html` tek "Çiz!" düğmeli, sabit parametreli eski bir sayfa; yeniden kurulmalı.
+- ✔ Defterin "sonraki" bağlantısı `lorenz-cekici.html` eski, tek "Çiz!" düğmeli bir sayfaydı; sayfa 7 Kasım'da yeniden kuruldu, bağlantı metni yeni sayfayı anlatıyor.
 
 ## kuantum-dalga.html (6 Kasım 2026)
 
@@ -761,3 +762,44 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 - ❑ 3. sekmede gizli paneller (kinetik enerji tablosu, β zinciri kartı) önceki tepkimenin metnini tutuyor; görünmüyor ama `readoutsC` yalnız `hidden`'ı değiştiriyor.
 - ❑ 1. sekmede B/A sıralaması yalnız bazı çekirdekler için yazılıyor (⁵⁸Fe'nin ikinciliği yalnız tepe notunda); 2. sekmede "yalnız EC" örneği (¹⁰¹Rh) için hazır düğme yok.
 - ❑ Formül katsayıları Rohlf (1994) setinin Wikipedia tablosundan; ağır çekirdeklerde yaklaşık % 0.5–0.7 fazla bağlar. Uyarılmış durumlar, yarı ömürler, α ve fisyon engeli modellenmiyor.
+
+## lorenz-cekici.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu (Chart.js, jsPDF ve CDN'ler kaldırıldı): RK4 ile Lorenz sistemi. Çekici sekmesi hacim küçülme hızını, ⟨z⟩'yi ve ⟨xy⟩ = β⟨z⟩ özdeşliğini, kanat değişimlerini ve üç Lyapunov üstelini (Gram–Schmidt bulutu) ölçüyor; kelebek etkisi sekmesi Δ farkla başlayan kopyaları, Benettin λ'yı (0.902 ± 0.004; Sprott 0.9056) ve öngörü ufkunu; harita sekmesi z tepelerinin Lorenz haritasını, sabit noktasını ve 400 sütunluk ileri ve geri ρ taramasını (Hopf eşiği ve kaotik çekicinin alt sınırı).
+- ✔ Harita kutuları merkezleriyle değil içlerindeki zₙ ortalamasıyla temsil ediliyor: en küçük |eğim| başlangıca göre 0.79–1.08 arasında oynuyordu ("sağlanıyor" kararı şanstı), şimdi 1.08–1.12. f′(z*) z*'ın çevresindeki tepe çiftlerine uydurulan doğrudan: −2.29 yerine −2.18 (periyodik yörüngeden −2.17).
+- ✔ Çekici sekmesi h/2 adımlı bir ikiz hesapla yolun gerçek çözümden kopma anını ölçüyor: (0, 1, 0)'dan t = 30.9, (10, 10, 10)'dan 16.8, uzak başlangıçtan 9.5. Durum satırı ve notlar kopmayı artık yuvarlamaya bağlamıyor; yuvarlama sınırı t ≈ 41.
+- ❑ Çekici sekmesi sayfa açılınca koşmaya başlıyor; okur defteri okurken t ilerliyor (defterin deney 1'i önce Duraklat dedirtiyor).
+- ❑ ρ = 35'te harita sağ uçta düzleşip dönüyor (|f′| < 1 gerçek); en küçük |eğim| okuması tepelerin o uca ne kadar uğradığına bağlı ve başlangıca göre 0.13 ile 1.13 arasında değişiyor.
+
+## taylor-serisi.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu (eski sayfa iki fonksiyon ve tek kaydırıcıydı): polinom yaklaşımı (sekiz fonksiyon; a ± d aralığında ölçülen en büyük hata ve Lagrange sınırı, toleransa inen derece), yakınsaklık yarıçapı (karmaşık düzlemdeki tekilliklerle R ve oran testi), sayıları hesaplamak (e, Leibniz ve Machin ile π, ln 2; sin θ ≈ θ ve sarkaç periyodu için eşik açıları).
+- ✔ (b) sekmesinin durum satırı kartla aynı birimi kullanıyor: hata "her derecede" (önce "her terimde") |x − a|/R oranında küçülüyor.
+
+## riemann-toplamlari.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: toplamlar (sol, sağ, orta nokta, yamuk, Simpson, Darboux üst ve alt toplamı; Neumaier telafili toplama), hata ve yakınsama hızı (log–log grafik, eğim uydurma, Euler–Maclaurin öncü terimi, Richardson), Monte Carlo (tohumlu ortalama değer yöntemi, 64 koşuluk RMS, d boyutlu bütçe tablosu).
+- ✔ Tablo notundaki yuvarlama eşiği kodla aynı; öncü terim eşiğin altındaysa kart "ölçülemez" diyor (exp(cos x), n ≥ 14). Richardson notu, hatası yamuktan büyükken "0.321 kat daha küçük" yazıyordu; şimdi "3.12 kat daha büyük" (basamak, n = 100). Boyut notu yalnız N<sup>−1/2</sup> hızının d'den bağımsız olduğunu, bağıl yayılımın √(r<sup>d</sup> − 1) ile büyüdüğünü söylüyor.
+- ❑ Hata sütununda yazım 10⁻⁴'te sabitten bilimsele geçiyor; −0.000115 ile −1.44·10⁻⁵ aynı sütunda yan yana.
+- ❑ Monte Carlo sekmesinde "isabet-ıska" seçeneği yok; π sayfasının yöntemiyle aradaki yaklaşık 3.4 katlık varyans farkı yalnız metinde.
+
+## karmasik-sayilar.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu (eski dört kutulu prototip kaldırıldı): düzlemde işlemler (toplama, çarpma, bölme, eşlenik; çarpımın açısı iletkiyle, uzunluğu cetvelle çizimden ölçülür), Euler formülü ve kökler (Euler serisinin sarmalı ve hata sınırı, De Moivre kuvvetleri, n'inci ve birim kökler), düzlemi eğen fonksiyonlar (z², 1/z, eᶻ, Joukowski; küçük karenin görüntüsünden yerel büyütme, dönme, köşe açısı ve alan oranı).
+- ✔ Kutulara sırayla yazmak çalışıyor (ara değer kaydırıcıya yuvarlanmıyordu). Kök kipinde "Bütün kökler" kartı her kökü yazıyor; seri tablosu tek indisle (∠(t₁₁, t₁₂) ve |t₁₂|/|t₁₁|; önce biri 1'den, öbürü 0'dan sayıyordu); fonksiyon sekmesinde yarım kenarlar h/2 ve ih/2, görüntüleri Δf₁ ve Δf₂ (u ve v adları f = u + iv yazımıyla çakışıyordu).
+- ❑ Sayılar "2 + 1i" biçiminde yazılıyor; katsayı 1 için "i" daha alışılmış.
+
+## normal-dagilim.html (7 Kasım 2026)
+
+- ✔ Yeniden kuruldu: Galton tahtası (tohumlu; binom ve normal dağılımla χ² karşılaştırması, ölçüm çizelgesi), merkezi limit teoremi (dört ana dağılım; çarpıklık ve standart hata), alanlar ve güven aralıkları (Φ'nin sayısal integrali, yüzdelikler, K aralıkla kapsama; σ yerine s kullanmanın bedeli).
+- ❑ Galton grafiğinde kutu başına sayı yok; orta kutudaki yaklaşık 226 top yalnız gözle okunuyor.
+- ❑ z aralığı ±5'te bitiyor, altı sigma kuyruğu karşılaştırılamıyor. Aralık sayısı K seçeneklerinde 750 yok; Gosset'in 750 × 4 deneyi birebir kurulamıyor.
+- ❑ Odak bir düğmedeyken Boşluk o düğmeye basıyor; duraklatma kısayolu yalnız odak düğmede değilken çalışıyor.
+- ❑ Öneri: s ile kurulan aralıklarda t* seçeneği (kapsamanın t dağılımıyla % 95'e dönüşünü göstermek için).
+
+## A4 ajanlarının başka sayfalarda bulduğu sorunlar
+
+- ❑ `rastgele-yuruyus.html`: 2B yürüyüşte ortalama uzaklık |r|, √n ile karşılaştırılıyor; √n ortalama karekök (RMS) uzaklıktır, ortalama uzaklık yaklaşık 0.886√n.
+- ✔ `mandelbrot-fraktali.html`, `julia-fraktali.html`: jsPDF yüklenmediği için çalışmayan PDF düğmesi kaldırıldı, çizim sayfa açılınca yapılıyor.
+- ❑ `mandelbrot-fraktali.html`: görünüm 0'da ortalı (−2 ucu kırpılıyor), c = −2 beyaz çiziliyor (kaçış testi `< 4`), eksen yok (B grubu).
+- ❑ `matris-donusumleri.html`: özdeğerler boşluksuz yazılıyor ("1.732±1.000i").

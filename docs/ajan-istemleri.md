@@ -138,6 +138,13 @@ Lessons from the previous rebuilds (reviewers flagged these; avoid them):
 - Changing a parameter must restart any running measurement; never leave a card stuck at "ölçülüyor…".
 - Decimal number boxes: do not use type="number" (on a lang="tr" page Chrome displays a decimal comma, while the
   site writes decimal points); use type="text" inputmode="decimal" and parse with value.replace(",", ".").
+- Event times (zero crossings, peaks, separations) must be located inside the integration step by interpolation, not
+  snapped to the step's end; otherwise readouts flicker on the 1/DT grid and can even take impossible signs.
+- Changing a parameter that alters the motion (length, gravity…) must restart from the stated initial condition; a
+  silent change of amplitude makes the measured value depend on when the reader moved the slider.
+- Estimators from binned data: represent a bin by the mean of its points, not its centre, and fit slopes locally on
+  raw points; check every quoted measurement over several seeds or starts, not only the default one.
+- Never attribute a numerical artefact to one cause without measuring it (e.g. step error vs rounding: run an h/2 twin).
 Testing: check-site --only <slug> (exit 0), smoke --only <slug> (0 errors), shot.mjs dark / light / --width 390 --full;
 look at every screenshot. Own Playwright scripts: set localStorage "acelya-user", "loggedIn" = "true" and
 "acelya-sound-muted" = "1" with context.addInitScript (login gate).
@@ -190,6 +197,12 @@ main changes; simulationNotes; remaining uncertainties.
   sayfayı erken diske yazıp üzerinde yinelemeli; düşen ajan `resume` ile, diskteki durum anlatılarak kaldığı yerden
   sürdürülür.
 - Bir ajan yalnız kendi geçici klasörünü silmeli; ortak `.shots/` klasörünü toptan silmesin.
+- Web isteği otomatik denetime takılırsa alt ajanın onay isteği kullanıcıya hiç ulaşmaz; ajan beklerse durur. 7 Kasım'da
+  konik kesitler yazarı böyle takıldı, dört saat sonra hiç dosya yazmadan düştü. İstemlere "engellenen isteği
+  tekrarlama, onay bekleme; ayrıntıyı çıkar ya da çekinceyle yaz" ve "ilk 15 dakikada tam bir taslağı diske yaz"
+  kuralları eklendi. Düşen yazarın yerine açılan yenisine, eskisinin doğruladıkları "baş başlangıç" olarak verilir.
+- Örnek defter (`sarkac.js`) de doğrulayıcıdan geçebilir; istemde "sesini, yapısını ve uzunluğunu koru, yalnız
+  yanlışı düzelt" denmeli. 7 Kasım'da yaklaşık iki düzine düzeltmeyle 7'den 9'a çıktı, yapı aynı kaldı.
 - Sitenin giriş kapısı oturum yoksa `index.html`'e yönlendirir. `smoke.mjs` ve `shot.mjs` bunu aşıyor; ajanların kendi
   Playwright betikleri `context.addInitScript` ile `acelya-user`, `loggedIn = "true"` ve `acelya-sound-muted = "1"`
   yazmalı.

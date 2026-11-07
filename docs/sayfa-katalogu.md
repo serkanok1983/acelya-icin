@@ -41,15 +41,15 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `birim-cember` — Birim Çember (sayfa başlığı: Birim Çember (sin–cos))
 - `vektorler` — Vektörler
 - `fonksiyon-grafigi` — Fonksiyon Grafiği
-- `riemann-toplamlari` — Riemann Toplamları
+- `riemann-toplamlari` — Riemann Toplamları (sayfa başlığı: Riemann Toplamları ve Sayısal İntegral)
 - `turev` — Türev (sayfa başlığı: Türev: Kesenden Teğete (Limit Laboratuvarı))
 - `integral` — İntegral (sayfa başlığı: İntegral Nedir? - Riemann Toplamı)
-- `taylor-serisi` — Taylor Serisi
+- `taylor-serisi` — Taylor Serisi (sayfa başlığı: Taylor Serisi: Fonksiyonları Polinomlarla Yakalamak)
 - `pisagor` — Pisagor Teoremi
 - `asal-rsa` — Asal & RSA (sayfa başlığı: Asal Sayılar & RSA Fikri)
 - `rastgele-yuruyus` — Rastgele Yürüyüş
 - `lissajous` — Lissajous (sayfa başlığı: Lissajous Eğrileri)
-- `normal-dagilim` — Normal Dağılım
+- `normal-dagilim` — Normal Dağılım (sayfa başlığı: Normal Dağılım ve Merkezi Limit Teoremi)
 - `altin-oran` — Altın Oran (sayfa başlığı: Altın Oran & Fibonacci Spirali - Three.js)
 - `fibo` — Fibonacci (sayfa başlığı: Fibonacci Spiral (Animasyonlu))
 - `fibo+pascal` — Fibonacci & Pascal (sayfa başlığı: Fibonacci Spiral + Pascal Üçgeni)
@@ -63,15 +63,15 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `koch-kar-tanesi` — Koch Kar Tanesi (sayfa başlığı: Koch Kar Tanesi - 3D Fraktal)
 - `hilbert-egrisi` — Hilbert Eğrisi (sayfa başlığı: Hilbert Eğrisi - 3D Animasyon)
 - `penrose-dosemesi` — Penrose (sayfa başlığı: Penrose Döşemesi - Three.js 3D)
-- `lorenz-cekici` — Lorenz Çekici (sayfa başlığı: Lorenz Çekici (Kaos Teorisi))
+- `lorenz-cekici` — Lorenz Çekicisi (sayfa başlığı: Lorenz Çekicisi: Kaos ve Kelebek Etkisi)
 - `lorenz-cekici2` — Lorenz 3B (sayfa başlığı: Lorenz Çekici - 3D Animasyon)
 - `mandelbrot+lorenz` — Mandelbrot & Lorenz 3B (sayfa başlığı: Mandelbrot Fraktali + Lorenz Çekici (3D))
 - `barnsley-egreltiotu` — Barnsley (sayfa başlığı: Barnsley Eğreltiotu - Three.js 3D Fraktal)
 - `sierpinski-fraktali-peano-egrisi-altin-oran` — Sierpinski & Peano (sayfa başlığı: Sierpiński + Peano + Altın Oran - 3D)
 - `cizge-teorisi` — Çizge Teorisi (sayfa başlığı: Çizge Teorisi (Graph Theory))
-- `karmasik-sayilar` — Karmaşık Sayılar
+- `karmasik-sayilar` — Karmaşık Sayılar (sayfa başlığı: Karmaşık Sayılar: Düzlemde Döndürme ve Büyütme)
 - `pi-yaklasimi` — π Yaklaşımı (sayfa başlığı: π Sayısının Yaklaşık Hesaplanması)
-- `konik-kesitler` — Konik Kesitler
+- `konik-kesitler` — Konik Kesitler (sayfa başlığı: Konik Kesitler: Elips, Parabol ve Hiperbol)
 - `matris-donusumleri` — Matris Dönüşümleri (sayfa başlığı: Matris Dönüşümleri (2B))
 
 ## Fizik (39)
