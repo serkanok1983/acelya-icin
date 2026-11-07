@@ -100,7 +100,7 @@ window.ACELYA_DIGEST["taylor-serisi"] = {
         observe:
           "sin θ ≈ θ eşiği 13.99°'de aşar (ilk terimden tahmin 14.03°): kart 13.9°'de +0.988 %, 14.0°'de +1.0021 % okur. Sarkaç periyodu 22.81°'de aşar (tahmin 22.92°). 20°'de sin θ ≈ θ +2.06 %, θ − θ³/6 −0.0126 %, sarkaç +0.767 % yanılır. 0.1 %'de eşik açıları 4.44° ve 7.24°, 5 %'te 30.85° ve 50.10°.",
         explain:
-          "Bağıl hata ilk atılan terimden gelir, (θ − sin θ)/sin θ ≈ θ²/6; eşik açısı √(6·eşik) gibi büyür. Sarkaçta açı θ<sub>0</sub> ile 0 arasında gezer ve hata yalnız uçlarda tam θ<sub>0</sub>²/6'dır; periyoda etkisi θ<sub>0</sub>²/16 olur. İki eşik açısının oranı bu yüzden yaklaşık 4/√6 ≈ 1.63'tür (1 %'de 22.81/13.99). Bir terim eklemek 20°'de hatayı 160 kat küçültür. Sarkaç sayfasında θ<sub>0</sub> = 20°'de «Fark» kartı yaklaşık +0.8 % okur: geçişleri 1/240 s'lik adımlarla yakaladığı için +0.74 ile +0.84 % arasında oynar.",
+          "Bağıl hata ilk atılan terimden gelir, (θ − sin θ)/sin θ ≈ θ²/6; eşik açısı √(6·eşik) gibi büyür. Sarkaçta açı θ<sub>0</sub> ile 0 arasında gezer ve hata yalnız uçlarda tam θ<sub>0</sub>²/6'dır; periyoda etkisi θ<sub>0</sub>²/16 olur. İki eşik açısının oranı bu yüzden yaklaşık 4/√6 ≈ 1.63'tür (1 %'de 22.81/13.99). Bir terim eklemek 20°'de hatayı 160 kat küçültür. Sarkaç sayfasında θ<sub>0</sub> = 20°'de «Fark» kartı +0.77 % okur.",
       },
     ],
   },
@@ -209,7 +209,7 @@ window.ACELYA_DIGEST["taylor-serisi"] = {
   next: [
     { href: "turev.html", title: "Türev", why: "Taylor polinomunun ilk iki terimi teğet doğrusudur; fark bölümünün kesme hatası atılan f″·h²/2 teriminden gelir ve orada kayan noktanın yuvarlamasıyla yarışır." },
     { href: "karmasik-sayilar.html", title: "Karmaşık Sayılar", why: "Tekilliklerin yaşadığı düzlem: eˣ serisine iθ koy ve kısmi toplamların birim çemberdeki e<sup>iθ</sup>'ya sarmal çizerek yaklaşmasını izle." },
-    { href: "sarkac.html", title: "Sarkaç", why: "sin θ ≈ θ yaklaşımının fizikteki bedeli: başlangıç açısı 20° iken «Fark» kartı ölçülen periyodun formülden yaklaşık yüzde 0.8 uzun olduğunu gösterir (tam değer % 0.767)." },
+    { href: "sarkac.html", title: "Sarkaç", why: "sin θ ≈ θ yaklaşımının fizikteki bedeli: başlangıç açısı 20° iken «Fark» kartı ölçülen periyodun formülden yüzde 0.77 uzun olduğunu gösterir." },
     { href: "pi-yaklasimi.html", title: "π Yaklaşımı", why: "Leibniz serisi Monte Carlo yöntemiyle yan yana koşar: serinin hatası 1/N, rastgele noktalarınki 1/√N gibi küçülür. Hangisi daha yavaş, izle." },
   ],
   sources: [

@@ -3,18 +3,18 @@ window.ACELYA_DIGEST["sarkac"] = {
   slug: "sarkac",
   title: "Sarkaç: Zamanı Ölçen Salınım",
   field: "Fizik",
-  level: "Lise",
+  level: "Lise–Lisans",
   minutes: 25,
   tagline:
     "Bir ipin ucundaki küçük bir ağırlık, üç yüzyıl boyunca insanlığın en hassas saatiydi. Nedeni salınımın matematiğinde gizli: periyot kütleye değil, ipin boyuna bakar.",
   hook:
-    "Galileo, Pisa Katedrali'nde sallanan bir kandili nabzıyla saydığında garip bir şey fark etti: salınım küçüldükçe küçülüyor ama bir gidiş-dönüşün süresi değişmiyordu. Peki ağırlık neden hiç fark etmez de ipin boyu her şeyi değiştirir?",
+    "Anlatılana göre Galileo, Pisa Katedrali'nde sallanan bir kandili nabzıyla saydığında garip bir şey fark etti: salınım küçüldükçe küçülüyor ama bir gidiş-dönüşün süresi değişmiyordu. Peki ağırlık neden hiç fark etmez de ipin boyu her şeyi değiştirir?",
   bigIdea:
-    "Küçük açılarda sarkaç bir <strong>basit harmonik salınıcıdır</strong>: periyodu yalnızca ipin uzunluğuna ve yerçekimine bağlıdır, <em>T = 2π√(L/g)</em>. Kütle ve (küçük kaldıkça) genlik denklemde yoktur.",
+    "Küçük açılarda sarkaç bir <strong>basit harmonik salınıcıdır</strong>: periyodu yalnızca ipin uzunluğuna ve yerçekimine bağlıdır, <em>T = 2π√(L/g)</em>; kütle ve (küçük kaldıkça) genlik denklemde yoktur.",
   story: [
-    "1583'te genç bir tıp öğrencisi olan Galileo'nun, Pisa Katedrali'nde rüzgârla sallanan bir kandili nabzıyla zamanladığı anlatılır. Hikâyenin ne kadarı efsane bilinmez; ama Galileo'nun yaptığı ölçümler gerçektir: salınımın genliği azalsa bile süresi neredeyse aynı kalıyordu. Bu özelliğe <strong>eşzamanlılık</strong> (izokronizm) denir ve zamanı ölçmek için aranan şeydi: kendi kendine tekrar eden, dış koşullardan pek etkilenmeyen bir tik-tak.",
-    "1656'da Christiaan Huygens bu fikri bir makineye dönüştürdü. İlk sarkaçlı saatler, günde çeyrek saat şaşan eski saatleri birkaç saniyelik hataya indirdi. Huygens daha ileri gitti: büyük açılarda eşzamanlılığın bozulduğunu fark etti ve topun bir <em>sikloit</em> eğrisi üzerinde salındığı, her genlikte tam eşzamanlı bir sarkaç tasarladı. Bir ip ve bir ağırlık, bilimin ilk hassas ölçüm aletlerinden birine dönüşmüştü.",
-    "Sarkaç yalnızca saat değildir; aynı zamanda bir <strong>yerçekimi ölçeridir</strong>. Periyot g'ye bağlı olduğu için, aynı sarkaç dünyanın farklı yerlerinde farklı hızda tıklar. 1672'de Jean Richer, Paris'te ayarlı bir sarkaçlı saati Fransız Guyanası'ndaki Cayenne'e götürdü; saat günde iki dakikadan fazla geri kaldı. Newton bu veriden Dünya'nın kutuplarda basık olduğunu çıkardı. Bugün aynı denklem bir çocuk salıncağını, gemi yalpalamasını, kristaldeki atom titreşimlerini ve bir elektrik devresindeki salınımı anlatıyor.",
+    "İlk biyografi yazarı Vincenzo Viviani'nin anlattığına göre, 1580'lerin başında genç bir tıp öğrencisi olan Galileo, Pisa Katedrali'nde sallanan bir kandili nabzıyla zamanladı. Hikâyenin ne kadarı efsane bilinmez; ama Galileo'nun sarkaç deneyleri gerçektir (en eski yazılı kaydı 1602 tarihli bir mektubudur): salınımın genliği azalsa bile süresi neredeyse aynı kalıyordu. Bu özelliğe <strong>eşzamanlılık</strong> (izokronizm) denir ve zamanı ölçmek için aranan şeydi: kendi kendine tekrar eden, dış koşullardan pek etkilenmeyen bir tik-tak.",
+    "1656'da Christiaan Huygens bu fikri bir makineye dönüştürdü. İlk sarkaçlı saatler, günde çeyrek saat kadar şaşan eski saatlerin hatasını günde on beş saniye civarına indirdi. Huygens daha ileri gitti: 1673'te yayımladığı <em>Horologium Oscillatorium</em>'da büyük açılarda eşzamanlılığın bozulduğunu kanıtladı ve topun bir <em>sikloit</em> eğrisi üzerinde salındığı, her genlikte tam eşzamanlı bir sarkaç tasarladı. Bir ip ve bir ağırlık, bilimin ilk hassas ölçüm aletlerinden birine dönüşmüştü.",
+    "Sarkaç yalnızca saat değildir; aynı zamanda bir <strong>yerçekimi ölçeridir</strong>. Periyot g'ye bağlı olduğu için, aynı sarkaç dünyanın farklı yerlerinde farklı hızda tıklar. 1672'de Fransız Guyanası'ndaki Cayenne'de gözlem yapan Jean Richer, Paris'te ayarlı sarkaçlı saatinin günde iki dakikadan fazla geri kaldığını gördü. Newton bu veriden Dünya'nın kutuplarda basık olduğunu çıkardı. Bugün aynı denklem bir çocuk salıncağını, gemi yalpalamasını, kristaldeki atom titreşimlerini ve bir elektrik devresindeki salınımı anlatıyor.",
   ],
   core: [
     {
@@ -27,7 +27,7 @@ window.ACELYA_DIGEST["sarkac"] = {
     {
       heading: "Küçük açı yaklaşımı ve periyot",
       body:
-        "Radyan cinsinden küçük açılar için sin θ ≈ θ'dır: 10° için fark binde beşten azdır. Bu yaklaşımla hareket denklemi bir yay-kütle sistemininkiyle aynı biçime gelir ve çözüm bir sinüs dalgasıdır. Periyot formülünde kütle sadeleşir; çünkü yerçekimi ağır cismi daha çok çeker ama ağır cisim de o kadar zor ivmelenir. Serbest düşmede tüylerin ve taşın aynı anda yere varmasıyla aynı sebep.",
+        "Radyan cinsinden küçük açılar için sin θ ≈ θ'dır: 10° için fark yaklaşık binde beştir. Teğet doğrultuda Newton'un ikinci yasası mL·θ'' = −mg·sin θ verir; yaklaşımla bu θ'' = −(g/L)·θ olur. Bu, yay-kütle sisteminin x'' = −(k/m)·x denklemiyle aynı biçimdir: çözüm θ₀·cos(√(g/L)·t) sinüs dalgasıdır ve bir tam salınım 2π/√(g/L) sürer. Periyot formülünde kütle sadeleşir; çünkü yerçekimi ağır cismi daha çok çeker ama ağır cisim de o kadar zor ivmelenir. Serbest düşmede tüylerin ve taşın aynı anda yere varmasıyla aynı sebep.",
       formula: "T = 2π√(L/g)",
       formulaNote: "Uzunluğu dört katına çıkarırsan periyot iki katına çıkar; kütleyi değiştirmek hiçbir şeyi değiştirmez.",
     },
@@ -48,35 +48,35 @@ window.ACELYA_DIGEST["sarkac"] = {
   ],
   lab: {
     intro:
-      "Sayfadaki laboratuvar gerçek zamanlı çalışır: 1 metrelik sarkaç gerçekten iki saniyede bir gidip gelir. Turuncu kutudaki <strong>ölçülen periyot</strong>, topun denge noktasından geçişleri sayılarak hesaplanır; formülle farkını yüzde olarak gösterir.",
+      "Sayfadaki laboratuvar gerçek zamanlı çalışır: 1 metrelik sarkaç gerçekten iki saniyede bir gidip gelir. <strong>Ölçülen periyot</strong> kutusu, topun denge noktasından aynı yönde art arda iki geçişi arasındaki sürenin son üç salınımdaki ortalamasını gösterir; <strong>Fark</strong> kutusu bunun <strong>Formül T₀</strong> değerinden yüzde kaç saptığını söyler. İlk değer, bıraktıktan yaklaşık iki salınım sonra gelir. Uzunluğu, açıyı ya da yerçekimini değiştirmek sarkacı θ₀'dan yeniden bırakır.",
     experiments: [
       {
         title: "Kütle gerçekten önemsiz mi?",
         predict: "Kütleyi 0.5 kg'dan 5 kg'a çıkarırsan ölçülen periyot artar mı, azalır mı, aynı mı kalır?",
         do: "L = 1.00 m ve θ₀ = 20° iken kütleyi 0.5 kg yap, birkaç salınım bekle ve ölçülen periyodu not et. Sonra kütleyi 5.0 kg yapıp sıfırla.",
-        observe: "İki ölçüm de 2.022 saniyedir; top büyüse de tik-tak değişmez. Enerji çubuklarının mutlak değeri büyür ama paylaşım biçimi aynı kalır.",
+        observe: "İki ölçüm de 2.021 s'dir (formül 2.006 s; Fark kutusundaki +0.77 %, 20°'lik genliğin payıdır); top büyüse de tik-tak değişmez. Çubukların yanındaki joule değerleri on katına çıkar ama paylaşım biçimi aynı kalır.",
         explain: "Yerçekimi kuvveti kütleyle orantılı, ivmeye direnç de kütleyle orantılı; ikisi sadeleşir. Serbest düşmede neden aynı anda düştüklerini hatırla.",
       },
       {
         title: "Dört kat uzunluk, iki kat periyot",
         predict: "Uzunluğu 0.50 m'den 2.00 m'ye çıkarırsan periyot kaç katına çıkar? Dört kat mı, iki kat mı?",
-        do: "θ₀ = 15° ile L = 0.50 m'de ölçülen periyodu kaydet; ardından L = 2.00 m yapıp sıfırla ve yeniden ölç.",
-        observe: "1.425 s ve 2.850 s: tam iki kat. Grafikteki kesikli çizgiler (formül periyodu) kırmızı eğrinin tepeleriyle neredeyse çakışır; 15°'de gerçek periyot formülden yalnız % 0.4 uzundur.",
+        do: "θ₀ = 15° ve L = 0.50 m seçip sıfırla, ölçülen periyodu kaydet; ardından L = 2.00 m yapıp yeniden sıfırla ve ölç.",
+        observe: "1.425 s ve 2.849 s: tam iki kat; 2 × 1.425 = 2.850 ile aradaki binde birlik fark yalnız yuvarlamadır. Grafikteki kesikli çizgiler (formül periyodu T₀) kırmızı eğrinin orta çizgiyi aşağıdan yukarı kestiği noktalara neredeyse tam oturur; 15°'de gerçek periyot formülden yalnız % 0.4 uzundur.",
         explain: "Periyot L'nin kendisiyle değil kareköküyle büyür. √4 = 2 olduğu için dört kat uzunluk iki kat süre demektir.",
       },
       {
         title: "Ay'da sarkaçlı saat",
         predict: "Aynı sarkacı Ay'a götürürsen (g = 1.62 m/s²) periyot kaç katına çıkar? Tahminini √(9.81/1.62) ile karşılaştır.",
-        do: "L = 1.00 m, θ₀ = 20° ile Dünya'da ölç. Yerçekimi menüsünden Ay'ı seç ve sıfırla; sonra Jüpiter'i dene.",
-        observe: "Dünya'da 2.022 s, Ay'da 4.974 s, Jüpiter'de 1.272 s. Ay'da salınım ağır çekimde gibi görünür; hız vektörü de kısalır.",
-        explain: "g paydada ve karekök içinde: yerçekimi altı kat azalınca periyot √6 ≈ 2.46 kat uzar. Sarkaçlı saat Ay'da günde saatlerce geri kalırdı.",
+        do: "L = 1.00 m, θ₀ = 20° ile Dünya'da ölç. Yerçekimi menüsünden Ay'ı seç ve sıfırla; sonra aynısını Jüpiter'le yap.",
+        observe: "Dünya'da 2.021 s, Ay'da 4.974 s, Jüpiter'de 1.272 s; Fark üçünde de +0.77 %. Ay'da salınım ağır çekimde gibi görünür; hız vektörü de kısalır.",
+        explain: "g paydada ve karekök içinde: yerçekimi 9.81/1.62 ≈ 6.06 kat azalınca periyot √6.06 ≈ 2.46 kat uzar. Ölçümlerin oranı da 2.46'dır, çünkü 20°'lik genliğin düzeltme çarpanı her gezegende aynıdır. Sarkaçlı saat Ay'da günde saatlerce geri kalırdı.",
       },
       {
         title: "Küçük açı nerede biter?",
-        predict: "θ₀ = 10°, 45° ve 90° için 'fark' kutusunda hangi yüzdeleri bekliyorsun? Formül yukarı mı, aşağı mı yanılır?",
+        predict: "θ₀ = 10°, 45° ve 90° için <strong>Fark</strong> kutusunda hangi yüzdeleri bekliyorsun? Formül yukarı mı, aşağı mı yanılır?",
         do: "Sönüm kapalıyken sırayla 10°, 45° ve 90° başlangıç açılarını dene; her seferinde birkaç salınım bekleyip farkı oku.",
-        observe: "Yaklaşık +0.2 %, +4 % ve +18 %. Gerçek periyot hep formülden uzundur; büyük açıda kırmızı eğrinin tepeleri kesikli çizgilerden sonra gelir.",
-        explain: "sin θ, θ'dan küçüktür; geri çağıran kuvvet formülün varsaydığından zayıftır, top daha tembel döner. Düzeltme terimi θ₀²/16 bunu nicel olarak verir.",
+        observe: "+0.19 %, +4.00 % ve +18.03 %. Gerçek periyot hep formülden uzundur; 90°'de kesikli çizgiler kırmızı eğrinin yukarı yönlü geçişlerine artık oturmaz, her salınımda yaklaşık 0.36 s kayar.",
+        explain: "sin θ, θ'dan küçüktür; geri çağıran kuvvet formülün varsaydığından zayıftır, top daha tembel döner. Düzeltme terimi θ₀²/16 bunu nicel olarak verir: 10°'de % 0.19, 45°'de % 3.9. 90°'de ise yalnız % 15.4 verir; kalan farkı serinin sonraki terimleri kapatır.",
       },
     ],
   },
@@ -89,10 +89,10 @@ window.ACELYA_DIGEST["sarkac"] = {
     {
       title: "Dünya'nın döndüğünü gösteren ip",
       body:
-        "1851'de Léon Foucault, Paris Panthéon'unun kubbesine 67 metrelik bir tele 28 kilogramlık bir top astı. Salınım düzlemi saatte 11 derece dönüyordu. Dönen sarkaç değil, altındaki yer küreydi. İnsanlık ilk kez Dünya'nın dönüşünü gökyüzüne bakmadan, bir odanın içinde gördü.",
+        "1851'de Léon Foucault, Paris Panthéon'unun kubbesine 67 metrelik bir tele 28 kilogramlık bir top astı. Salınım düzlemi saatte 11 derece dönüyordu. Düzlemi döndüren sarkaç değil, altındaki yer kürenin dönüşüydü: kutupta bir tam tur bir gün sürerdi, Paris'in enleminde yaklaşık 32 saat sürüyordu. İnsanlık ilk kez Dünya'nın dönüşünü gökyüzüne bakmadan, bir odanın içinde gördü.",
     },
     {
-      title: "Günde iki dakika, basık bir gezegen",
+      title: "Günde iki buçuk dakika, basık bir gezegen",
       body:
         "Richer'nin Cayenne'de geri kalan saati, ekvatora yakın yerlerde yerçekiminin biraz daha zayıf olduğunu söylüyordu. Newton bunu, dönen Dünya'nın ekvatorda şiştiği ve kutuplarda basıldığı şeklinde yorumladı. Küçük bir saat hatası, gezegenin biçimini açığa çıkardı.",
     },
@@ -100,21 +100,22 @@ window.ACELYA_DIGEST["sarkac"] = {
   worked: {
     title: "Saniye sarkacı",
     prompt:
-      "Dünya'da (g = 9.81 m/s²) bir metrelik sarkacın periyodunu bul. Sonra periyodu tam 1 saniye olan bir sarkacın uzunluğunu hesapla.",
+      "Dünya'da (g = 9.81 m/s²) bir metrelik sarkacın periyodunu küçük açı formülüyle bul ve sayfanın varsayılan 20°'lik salınımda ölçtüğü değerle karşılaştır. Sonra periyodu tam 1 saniye olan bir sarkacın uzunluğunu hesapla.",
     steps: [
       "Formülü yaz: T = 2π√(L/g). L = 1.00 m, g = 9.81 m/s² için L/g = 0.1019 s².",
       "Karekökü al: √0.1019 ≈ 0.3193 s. 2π ile çarp: T ≈ 2.006 s. Bir metrelik sarkaç iki saniyede bir gidip gelir; yani her bir saniyede bir denge noktasından geçer. 'Saniye sarkacı' adı buradan gelir.",
-      "Tersini sor: T = 1 s için L = gT²/(4π²) = 9.81 × 1 / 39.48 ≈ 0.248 m.",
-      "Sayfada dene: L = 0.25 m seçersen ölçülen periyot 1.00 s civarında olmalı. Küçük açıda kaldığından emin ol.",
+      "Büyük açı düzeltmesini ekle: θ₀ = 20° = 0.349 rad için θ₀²/16 = 0.0076, yani T ≈ 2.006 s × 1.0076 ≈ 2.021 s. Sayfa 2.021 s ölçer, Fark kutusu +0.77 % gösterir; serinin sonraki terimi (11θ₀⁴/3072) yalnızca 0.0001 s ekler.",
+      "Tersini sor: T = 1 s için L = gT²/(4π²) = (9.81 m/s²)·(1 s)² / 39.48 ≈ 0.248 m.",
+      "Sayfada dene: kaydırıcı 0.05 m'lik adımlarla ilerlediği için L = 0.25 m ve θ₀ = 5° seç. Formül T₀ kutusu 1.003 s, ölçülen periyot 1.004 s gösterir (Fark +0.05 %); 20°'de ise 1.011 s'ye çıkar.",
     ],
     result:
-      "Bir metrelik sarkaç 2.0 s'de, 25 santimetrelik sarkaç 1.0 s'de salınır. Periyodu yarıya indirmek için uzunluğu dörtte bire indirmek gerekir.",
+      "Bir metrelik sarkaç küçük açıda 2.006 s'de, 20°'den bırakılınca 2.021 s'de; 25 santimetrelik sarkaç 1.0 s'de salınır. Periyodu yarıya indirmek için uzunluğu dörtte bire indirmek gerekir.",
   },
   misconceptions: [
     {
       myth: "Ağır top daha hızlı salınır.",
       truth:
-        "Periyot formülünde kütle yoktur. Daha büyük kütle daha büyük kuvvet görür ama o kadar da zor ivmelenir. Sayfada kütleyi on katına çıkar; ölçülen periyot kıpırdamaz.",
+        "Periyot formülünde kütle yoktur. Daha büyük kütle daha büyük kuvvet görür ama o kadar da zor ivmelenir. Sayfada kütleyi on katına çıkar ve birkaç salınım bekle; ölçülen periyot yine aynı değeri gösterir.",
     },
     {
       myth: "T = 2π√(L/g) her açıda tam doğrudur.",
@@ -124,7 +125,7 @@ window.ACELYA_DIGEST["sarkac"] = {
     {
       myth: "En alt noktada top anlık olarak durur.",
       truth:
-        "Tam tersi: en alt noktada hız en büyüktür, duran şey teğet ivmedir. Top uç noktalarda durur ve orada ivme en büyüktür. Hız vektörünün uzunluğunu izleyerek bunu doğrula.",
+        "Tam tersi: en alt noktada hız en büyüktür, sıfır olan teğet ivmedir. Top uç noktalarda durur; teğet ivme de orada en büyüktür. Hız vektörünün uzunluğunu izleyerek bunu doğrula.",
     },
     {
       myth: "İp her an aynı kuvvetle gerilir.",
@@ -138,15 +139,15 @@ window.ACELYA_DIGEST["sarkac"] = {
     { term: "Genlik", definition: "Denge noktasından en büyük uzaklaşma; sarkaçta başlangıç açısı θ₀." },
     { term: "Basit harmonik hareket", definition: "Geri çağıran kuvvetin yer değiştirmeyle orantılı olduğu hareket; konum zamanla sinüs gibi değişir." },
     { term: "Küçük açı yaklaşımı", definition: "Radyan cinsinden küçük θ için sin θ ≈ θ alınması; sarkacı harmonik salınıcıya dönüştüren adım." },
-    { term: "Sönüm", definition: "Hava direnci ve sürtünmenin salınım enerjisini zamanla ısıya çevirmesi; genlik üstel biçimde azalır." },
-    { term: "Eşzamanlılık (izokronizm)", definition: "Periyodun genlikten bağımsız olması; sarkacı saat yapan özellik." },
+    { term: "Sönüm", definition: "Hava direnci ve sürtünmenin salınım enerjisini zamanla ısıya çevirmesi; sönüm hızla orantılıysa (sayfadaki model) genlik üstel biçimde azalır." },
+    { term: "Eşzamanlılık (izokronizm)", definition: "Periyodun genlikten bağımsız olması; sarkacı saat yapan, basit sarkaçta yalnız küçük açılarda yaklaşık, sikloit sarkaçta tam geçerli özellik." },
     { term: "Açısal hız (ω)", definition: "Açının değişim hızı, rad/s. Topun çizgisel hızı v = Lω." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede sarkaç bir formüldür; üniversitede bir <strong>diferansiyel denklem</strong>: θ'' + (g/L)·sin θ = 0. Bu denklemin kapalı çözümü yoktur; büyük açılarda periyot elips integralleriyle, bilgisayarda ise tam bu sayfanın yaptığı gibi küçük zaman adımlarıyla sayısal olarak bulunur. Sönüm ve dışarıdan itme eklendiğinde <em>rezonans</em> ortaya çıkar: salıncağı doğru anda itmekle köprüleri sallayan rüzgâr aynı matematiktir.",
-      "İkinci sarkacı birincinin ucuna astığında ise bambaşka bir dünyaya girersin: çift sarkaç, başlangıç koşullarına aşırı duyarlı <strong>kaotik</strong> bir sistemdir. Aynı denklemler kuantum mekaniğinde harmonik salınıcı olarak, elektronikte LC devresi olarak, moleküllerde bağ titreşimi olarak karşına çıkar. Fizikte 'bir şeyi salınıcıya indirgeyebiliyorsan onu anlamışsın' sözü boşuna değildir.",
+      "Lisede sarkaç bir formüldür; üniversitede (önce <strong>Fizik I</strong>'de, sonra <strong>Diferansiyel Denklemler</strong> dersinde) bir <strong>diferansiyel denklem</strong>: θ'' + (g/L)·sin θ = 0. Bu denklemin temel fonksiyonlarla yazılan bir çözümü yoktur; büyük açılarda periyot elips integralleriyle, bilgisayarda ise tam bu sayfanın yaptığı gibi 1/240 saniyelik adımlarla, dördüncü mertebe Runge–Kutta (RK4) yöntemiyle sayısal olarak bulunur. Sönüm ve dışarıdan itme eklendiğinde <em>rezonans</em> ortaya çıkar: salıncağı doğru anda itmekle bir radyonun tek bir istasyonu seçmesi aynı matematiktir.",
+      "İkinci sarkacı birincinin ucuna astığında ise bambaşka bir dünyaya girersin: çift sarkaç, büyük açılarda başlangıç koşullarına aşırı duyarlı <strong>kaotik</strong> bir sistemdir. Aynı denklemler kuantum mekaniğinde harmonik salınıcı olarak, elektronikte LC devresi olarak, moleküllerde bağ titreşimi olarak karşına çıkar. Bu bir rastlantı değildir: kararlı bir dengenin yakınında potansiyel enerji hemen her zaman bir parabole benzer, bu yüzden küçük salınımlar harmoniktir.",
     ],
     topics: ["Diferansiyel denklemler", "Faz uzayı", "Sönümlü ve sürülen salınıcı", "Rezonans", "Kaos ve çift sarkaç", "Lagrange mekaniği"],
   },
@@ -165,9 +166,9 @@ window.ACELYA_DIGEST["sarkac"] = {
     },
     {
       question: "Aynı sarkaç Ay'a götürülürse (g altı kat küçük) periyodu yaklaşık kaç kat olur?",
-      options: ["Altı kat", "Yaklaşık 2.4 kat", "Değişmez", "Altıda bir"],
+      options: ["Altı kat", "Yaklaşık 2.45 kat", "Değişmez", "Altıda bir"],
       answer: 1,
-      explanation: "g paydada ve karekök içindedir: √6 ≈ 2.45. Sayfada yerçekimi menüsünden Ay'ı seçerek ölçebilirsin.",
+      explanation: "g paydada ve karekök içindedir: √6 ≈ 2.45. Sayfada Yerçekimi g menüsünden Ay'ı seçip ölç: oran 2.46 çıkar, çünkü 9.81/1.62 tam 6 değil, 6.06'dır.",
     },
   ],
   next: [
@@ -179,8 +180,8 @@ window.ACELYA_DIGEST["sarkac"] = {
   sources: [
     { title: "OpenStax · University Physics Vol. 1, 15.4 Pendulums", url: "https://openstax.org/books/university-physics-volume-1/pages/15-4-pendulums", note: "Basit ve fiziksel sarkaç, küçük açı yaklaşımı ve örnek problemler (İngilizce, açık ders kitabı)." },
     { title: "PhET · Sarkaç Laboratuvarı", url: "https://phet.colorado.edu/tr/simulations/pendulum-lab", note: "Uzunluk, kütle ve yerçekimini değiştirebildiğin bir başka simülasyon; ölçümlerini karşılaştır." },
-    { title: "HyperPhysics · Pendulum", url: "http://hyperphysics.phy-astr.gsu.edu/hbase/pend.html", note: "Büyük açı düzeltmesi ve fiziksel sarkaç için kısa, formül odaklı özet." },
-    { title: "Vikipedi · Sarkaç", url: "https://tr.wikipedia.org/wiki/Sarka%C3%A7", note: "Tarihçe: Galileo, Huygens, Foucault ve saatçilik." },
+    { title: "HyperPhysics · Large Amplitude Pendulum", url: "http://hyperphysics.phy-astr.gsu.edu/hbase/pendl.html", note: "Büyük açıda periyodun elips integrali ve serisi; açıyı girip küçük açı formülüyle karşılaştıran bir hesaplayıcı (İngilizce)." },
+    { title: "Wikipedia · Pendulum", url: "https://en.wikipedia.org/wiki/Pendulum", note: "Tarihçe bölümü: Viviani'nin anlattığı kandil, Galileo'nun 1602 mektubu, Huygens'in 1656 saati ve 1673 kitabı, Richer'in Cayenne ölçümü, Foucault 1851 ve saniye sarkacı (İngilizce)." },
   ],
-  revision: "Ekim 2026",
+  revision: "Kasım 2026",
 };

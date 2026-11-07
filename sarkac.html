@@ -85,7 +85,7 @@
 
   <div class="lab">
     <div class="lab-stage">
-      <canvas id="pendulumCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Sarkaç animasyonu: ipi, topu ve açıyı gösterir"></canvas>
+      <canvas id="pendulumCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Sarkaç animasyonu: çubuğu, topu ve açıyı gösterir"></canvas>
       <canvas id="angleChart" class="chart-canvas" width="900" height="300" role="img" aria-label="Açı-zaman grafiği"></canvas>
       <div class="readouts" aria-live="polite">
         <div class="readout"><small>Açı θ</small><strong id="angleDisplay">0.0°</strong></div>
@@ -136,7 +136,7 @@
         <button type="button" id="resetBtn">Sıfırla</button>
         <button type="button" onclick="location.href='cift-sarkac.html'">Çift sarkaca geç</button>
       </div>
-      <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla. Topu sürüklediğinde sarkaç durur; bıraktığında o açıdan salınmaya başlar.</p>
+      <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla. Topu sürüklediğinde sarkaç durur; bıraktığında o açıdan (en yakın tam dereceye yuvarlanarak) salınmaya başlar. Uzunluk, açı ya da yerçekimi değişince sarkaç θ₀'dan yeniden bırakılır. Model, kütlesiz ve esnemez bir çubuğun ucundaki noktasal kütledir: ipli bir sarkaçta ip 90°'nin üstünde gevşerdi, çubuk gevşemez.</p>
     </div>
   </div>
 </div>
@@ -246,7 +246,8 @@
     state.t += dt;
     // Denge noktasından pozitif yönde geçişler: periyot ölçümü
     if (prevTheta < 0 && state.theta >= 0 && state.omega > 0) {
-      state.crossings.push(state.t);
+      // Geçiş anı adımın içinde doğrusal ara değerle: θ = 0'da sin θ sıfırdır, θ(t) orada neredeyse doğrudur
+      state.crossings.push(state.t - (dt * state.theta) / (state.theta - prevTheta));
       if (state.crossings.length > 6) state.crossings.shift();
       updateMeasured();
     }
@@ -428,7 +429,7 @@
 
     // Formül periyodu işaretleri (son geçişten itibaren)
     const T0 = 2 * Math.PI * Math.sqrt(state.L / state.g);
-    const anchor = state.crossings.length ? state.crossings[state.crossings.length - 1] : 0;
+    const anchor = state.crossings.length ? state.crossings[state.crossings.length - 1] : (state.theta0 >= 0 ? 0.75 : 0.25) * T0;
     cctx.save();
     cctx.setLineDash([3 * dpr, 4 * dpr]);
     cctx.strokeStyle = t.accent2;
@@ -492,7 +493,8 @@
   }
   ui.toggle.addEventListener("click", () => setRunning(!state.running));
   ui.reset.addEventListener("click", () => { readControls(); resetMotion(); setRunning(true); });
-  ["length", "mass", "gravity", "damping", "dampingCheck"].forEach((k) => {
+  ["length", "gravity"].forEach((k) => ui[k].addEventListener("input", () => { readControls(); resetMotion(); }));
+  ["mass", "damping", "dampingCheck"].forEach((k) => {
     ui[k].addEventListener("input", () => {
       readControls();
       state.maxEnergy = Math.max(potential() + kinetic(), 1e-9);
@@ -530,9 +532,10 @@
     if (!state.dragging) return;
     state.dragging = false;
     canvas.classList.remove("is-dragging");
-    const deg = Math.round(Math.abs((state.theta * 180) / Math.PI));
-    ui.angle.value = Math.max(2, Math.min(170, deg));
+    const deg = Math.max(2, Math.min(170, Math.round(Math.abs((state.theta * 180) / Math.PI))));
+    ui.angle.value = deg;
     readControls();
+    state.theta = ((state.theta < 0 ? -1 : 1) * deg * Math.PI) / 180;
     state.theta0 = state.theta;
     state.omega = 0;
     state.t = 0;
