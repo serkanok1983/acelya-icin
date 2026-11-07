@@ -228,8 +228,8 @@ window.ACELYA_DIGEST["akiskanlar-mekanigi"] = {
     },
     {
       href: "kalp-dolasim.html",
-      title: "Kalp ve Kan Dolaşımı",
-      why: "Poiseuille'ü akışkanlara götüren sistem. Nabız kaydırıcısıyla sistolü ve diyastolü izlerken aorttan kılcallara uzanan yolda R⁴ yasasının damar direncine ne yaptığını düşün.",
+      title: "Kalp ve Dolaşım",
+      why: "Poiseuille'ün r⁴ yasası damarda: Frank–Starling ve yük sekmesinde arteriyol yarıçapını %16 küçült; arteriyol direnci iki katına çıkar ve ortalama kan basıncı yükselir. Aort ise esnek bir depo gibi çalışır (windkessel).",
     },
     {
       href: "diferansiyel-denklemler.html",

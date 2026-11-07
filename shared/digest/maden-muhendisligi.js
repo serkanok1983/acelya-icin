@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["maden-muhendisligi"] = {
     { href: "metalurji-ve-malzeme-muhendisligi.html", title: "Metalurji ve Malzeme Mühendisliği", why: "Konsantre ergitme fırınına girdikten sonra ne olur: cüruf, mat, faz diyagramı ve çeliğin kaderi." },
     { href: "elektrokimya.html", title: "Elektrokimya", why: "Elektro-kazanımın kimyası: çözeltideki Cu²⁺ iyonu katotta nasıl yüzde 99.99 saflıkta metale döner." },
     { href: "kimya-muhendisligi.html", title: "Kimya Mühendisliği", why: "Liç tankı, flotasyon hücresi ve değirmen birer birim işlemdir; çözümlü örnekteki kütle denkliğini genel kuralıyla gör." },
-    { href: "kristal-yapilar.html", title: "Kristal Yapılar", why: "Cevher dediğimiz şey kristallerdir; mineralin kafes yapısı sertliğini, yoğunluğunu ve nasıl kırıldığını belirler." },
+    { href: "kristal-yapilar.html", title: "Kristal Yapılar", why: "Kurşunun başlıca cevheri galen (PbS), sofra tuzuyla (halit) aynı kaya tuzu yapısındadır. X-ışını kırınımı sekmesinde iki desenin farkını gör: mineraller laboratuvarda böyle tanınır." },
   ],
   sources: [
     { title: "Vikipedi · Madencilik", url: "https://tr.wikipedia.org/wiki/Madencilik", note: "Tarihçe, yöntemler ve çevresel etkiler için Türkçe genel bakış." },

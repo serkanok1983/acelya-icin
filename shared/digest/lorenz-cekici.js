@@ -244,8 +244,8 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
     },
     {
       href: "av-avci-lotka-volterra.html",
-      title: "Av-Avcı Modeli (Lotka-Volterra)",
-      why: "İki değişkenli doğrusal olmayan bir sistem: α, β, δ, γ kaydırıcılarıyla Faz Diyagramı'ndaki kapalı döngüleri izle. Düzlemde kaos olamaz (Poincaré–Bendixson teoremi); Lorenz'in üçüncü değişkeni bu yüzden gereklidir.",
+      title: "Av–Avcı Modeli",
+      why: "İki değişkenli doğrusal olmayan bir sistem: α, β, δ, γ kaydırıcılarıyla faz diyagramındaki kapalı döngüleri izle. Düzlemde kaos olamaz (Poincaré–Bendixson teoremi); Lorenz'in üçüncü değişkeni bu yüzden gereklidir.",
     },
   ],
   sources: [

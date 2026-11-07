@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["grup-teorisi"] = {
     { href: "asal-rsa.html", title: "Asal Sayılar & RSA", why: "Mod 5 çarpma grubunun büyüğü: Lagrange'tan çıkan a^φ(n) ≡ 1 (mod n) kuralı Euler teoremidir ve RSA'nın kalbinde çalışır." },
     { href: "matris-donusumleri.html", title: "Matris Dönüşümleri", why: "Döndürme ve yansımayı 2×2 matris olarak yaz; rs ≠ sr'nin sayısal karşılığı matris çarpımının sırasıdır." },
     { href: "sezar-sifre.html", title: "Sezar Şifresi", why: "Harfleri kaydırmak Z₂₆'da toplamadır: iki kaydırma art arda tek bir kaydırmadır, şifreyi çözmek ters elemanı uygulamaktır." },
-    { href: "kristal-yapilar.html", title: "Kristal Yapılar", why: "Kübik ve altıgen sıkı paket hücreler: her biri 230 uzay grubundan birine aittir; simetri sayımının üç boyuttaki karşılığı." },
+    { href: "kristal-yapilar.html", title: "Kristal Yapılar", why: "Birim hücre sekmesindeki uzay grubu kartı, her yapının 230 uzay grubundan hangisine ait olduğunu yazar: FCC Fm-3m (225), HCP P6₃/mmc (194). Simetri sayımının üç boyuttaki karşılığı." },
   ],
   sources: [
     { title: "Wikipedia · Group (mathematics)", url: "https://en.wikipedia.org/wiki/Group_(mathematics)", note: "Aksiyomlar, örnekler, tarihçe ve D₄ üzerinden anlatılan simetri grubu; sayfadaki kavramların kapsamlı özeti (İngilizce)." },

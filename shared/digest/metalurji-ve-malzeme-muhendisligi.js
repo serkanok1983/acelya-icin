@@ -180,7 +180,7 @@ window.ACELYA_DIGEST["metalurji-ve-malzeme-muhendisligi"] = {
     },
   ],
   next: [
-    { href: "kristal-yapilar.html", title: "Kristal Yapılar", why: "Yedi kristal sistemi ve örgü kavramı: BCC ve FCC'nin içinde yaşadığı daha büyük aile." },
+    { href: "kristal-yapilar.html", title: "Kristal Yapılar", why: "BCC demiri (α-Fe) ve FCC bakırı birim hücrede kur: doluluk oranını ve koordinasyon sayısını karşılaştır, X-ışını kırınımı sekmesinde iki örgünün hangi çizgileri söndürdüğünü gör." },
     { href: "elektrokimya.html", title: "Elektrokimya", why: "Paslanmaz çeliğin krom tabakası neden korur? Korozyon bir galvanik hücredir." },
     { href: "makine-muhendisligi.html", title: "Makine Mühendisliği", why: "Kiriş eğilme simülasyonunda bu sayfanın dayanım sayılarının bir tasarıma nasıl girdiğini gör." },
     { href: "maden-muhendisligi.html", title: "Maden Mühendisliği", why: "Hikâyenin bir önceki durağı: cevher nasıl bulunur, zenginleştirilir ve ergitmeye hazırlanır." },

@@ -252,7 +252,7 @@ window.ACELYA_DIGEST["mitoz-mayoz"] = {
     {
       href: "genetik-caprazlama.html",
       title: "Genetik Çaprazlama",
-      why: "Anafaz I'de ayrılan homologlar Punnett karesinin satır ve sütun başlıklarıdır: Aa bir ebeveyn A ve a gametlerini yarı yarıya üretir. İki genotip seç, yavru oranlarını gör.",
+      why: "Anafaz I'de ayrılan homologlar Punnett karesinin satır ve sütun başlıklarıdır. Profaz I'deki krossing-over'ın izini Bağlı genler ve haritalama sekmesinde ölç: rekombinant yavruların oranı genler arası uzaklığı verir.",
     },
     {
       href: "dogal-secilim.html",

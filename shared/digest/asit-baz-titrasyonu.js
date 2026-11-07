@@ -248,8 +248,8 @@ window.ACELYA_DIGEST["asit-baz-titrasyonu"] = {
   next: [
     {
       href: "ph-indikator.html",
-      title: "pH ve İndikatör",
-      why: "pH'ı kaydırıcıyla 0'dan 14'e kendin sür, [H⁺]'yi mol/L olarak oku ve fenolftalein ile metil turuncuyu (bu sayfadaki metil oranj) turnusol ve evrensel indikatörle karşılaştır.",
+      title: "pH ve İndikatörler",
+      why: "pH'ı kaydırıcıyla kendin sür, [H₃O⁺]'yu mol/L olarak oku; İndikatörler ve renk sekmesinde fenolftaleini ve metil oranjı turnusol ve evrensel indikatörle aynı pH'ta karşılaştır.",
     },
     {
       href: "kimyasal-denge-ve-gibbs-enerjisi.html",
@@ -258,8 +258,8 @@ window.ACELYA_DIGEST["asit-baz-titrasyonu"] = {
     },
     {
       href: "denklem-denklestirme.html",
-      title: "Denklem Denkleştirme",
-      why: "H₂SO₄ + 2NaOH'taki '2' olmadan titrasyon hesabı çöker. Katsayıları atom sayarak bulmayı beş tepkimede alıştır.",
+      title: "Kimyasal Denklem Denkleştirme",
+      why: "H₂SO₄ + 2NaOH'taki '2' olmadan titrasyon hesabı çöker. Nötrleşme dahil on dokuz hazır tepkimede katsayıları atom sayarak bul; Stokiyometri sekmesinde mol oranının grama nasıl çevrildiğini gör.",
     },
     {
       href: "elektrokimya.html",

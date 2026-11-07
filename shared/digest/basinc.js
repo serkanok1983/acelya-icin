@@ -239,7 +239,7 @@ window.ACELYA_DIGEST["basinc"] = {
     {
       href: "kalp-dolasim.html",
       title: "Kalp ve Dolaşım",
-      why: "120/80 mmHg'nin iki sayısı, kalbin kasılma (sistol) ve gevşeme (diyastol) evrelerinde atardamardaki basınçtır; o sayfada bu iki evreyi ve kanın yolunu izle.",
+      why: "120/80 mmHg, aort basıncının bir atımdaki tepe ve dip değeridir. Kalp döngüsü sekmesindeki Wiggers diyagramında bu iki sayının hangi evrede oluştuğunu ve kalp gevşerken basıncın neden sıfıra inmediğini gör.",
     },
   ],
   sources: [

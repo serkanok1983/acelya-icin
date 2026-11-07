@@ -213,7 +213,7 @@ window.ACELYA_DIGEST["dogal-secilim"] = {
     { href: "genetik-caprazlama.html", title: "Genetik Çaprazlama", why: "Siyah carbonaria aleli baskındır. Punnett karesinde baskın ve çekinik alelleri çaprazla; alel oranının neden görünen renk oranıyla aynı olmadığını gör." },
     { href: "mitoz-mayoz.html", title: "Mitoz & Mayoz", why: "Bu sayfadaki kelebekler eşeysiz çoğalır. Mayozdaki krossing-over ve homologların ayrılmasının, eşeyli üremede çeşitliliği nasıl karıştırdığını izle." },
     { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş", why: "Seçilim Baskısı %0'daki sarı çizgi bir tür rastgele yürüyüştür (0'da ya da 1'de takılıp kalan). Parçacıkların yalnızca şansla nasıl yayıldığını burada gör." },
-    { href: "av-avci-lotka-volterra.html", title: "Av-Avcı Modeli", why: "Güveleri seçen kuşlardı. Av ve avcı sayılarının birbirini nasıl salınımlı biçimde sürüklediğini izle: seçilim baskısının ekolojik kaynağı." },
+    { href: "av-avci-lotka-volterra.html", title: "Av–Avcı Modeli", why: "Güveleri seçen kuşlardı. Av ve avcı sayılarının birbirini nasıl salınımlı biçimde sürüklediğini izle: seçilim baskısının ekolojik kaynağı." },
   ],
   sources: [
     { title: "OpenStax · Biology 2e, 19.2 Population Genetics", url: "https://openstax.org/books/biology-2e/pages/19-2-population-genetics", note: "Doğal seçilim, genetik sürüklenme, darboğaz ve kurucu etkisi, gen akışı; açık ders kitabı (İngilizce)." },

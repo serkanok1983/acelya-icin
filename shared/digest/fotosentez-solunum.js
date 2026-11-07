@@ -260,8 +260,8 @@ window.ACELYA_DIGEST["fotosentez-solunum"] = {
     },
     {
       href: "denklem-denklestirme.html",
-      title: "Denklem Denkleştirme",
-      why: "CH₄ ve C₃H₈ yanma denklemlerinde katsayıları sürükle; solunum denklemini denkleştirmenin mantığı aynıdır.",
+      title: "Kimyasal Denklem Denkleştirme",
+      why: "Hücresel solunum ve fotosentez orada hazır tepkime olarak duruyor: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O'daki katsayıları atom sayarak kendin bul, metan ve propanın yanmasıyla karşılaştır.",
     },
     {
       href: "elektrokimya.html",
