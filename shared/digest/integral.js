@@ -242,7 +242,7 @@ window.ACELYA_DIGEST["integral"] = {
     {
       href: "riemann-toplamlari.html",
       title: "Riemann Toplamları",
-      why: "Sol uç, sağ uç ve orta noktayı aynı aralıkta yarıştır; o sayfa gerçek alanı ve hatayı da yazıyor, 1/n ile 1/n² farkını gözünle gör.",
+      why: "Sol uç, sağ uç, orta nokta, yamuk ve Simpson'ı aynı aralıkta yarıştır; Hata ve yakınsama hızı sekmesi hatayı log–log grafikte çizip eğimleri ölçer (−1, −2, −4). Monte Carlo sekmesi rastgele noktaların neden çok boyutta kazandığını gösterir.",
     },
     {
       href: "turev.html",
@@ -257,7 +257,7 @@ window.ACELYA_DIGEST["integral"] = {
     {
       href: "normal-dagilim.html",
       title: "Normal Dağılım",
-      why: "Olasılık bir integraldir: çan eğrisinin altındaki toplam alan 1, μ ± σ aralığındaki pay yaklaşık %68; histogram çubukları birer dikdörtgendir.",
+      why: "Olasılık bir integraldir: Alanlar ve güven aralıkları sekmesi çan eğrisinin altındaki alanı N dilimli sayısal integralle hesaplar; toplam alan 1, ortalamanın ±1σ çevresindeki pay yaklaşık % 68.",
     },
   ],
   sources: [

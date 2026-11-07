@@ -250,7 +250,7 @@ window.ACELYA_DIGEST["kepler-yasalari"] = {
     {
       href: "konik-kesitler.html",
       title: "Konik Kesitler",
-      why: "Elips, parabol ve hiperbol: ters kare çekimin izin verdiği bütün yörüngeler. Elips sekmesinde odakları sürükle, e'nin nasıl değiştiğini gör.",
+      why: "Elips, parabol ve hiperbol: ters kare çekimin izin verdiği bütün yörüngeler. Odak ve doğrultman sekmesinde e'yi değiştirip r = ℓ/(1 + e cos θ) eğrisinin çemberden parabole ve hiperbole açılışını izle; Dünya ve Halley düğmeleri iki yörüngeyi aynı ölçekte çizer.",
     },
     {
       href: "dairesel-hareket.html",

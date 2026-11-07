@@ -250,7 +250,7 @@ window.ACELYA_DIGEST["fonksiyon-grafigi"] = {
     {
       href: "taylor-serisi.html",
       title: "Taylor Serisi",
-      why: "x − x³/6 düzeltmesinin devamı: sin ve cos'u terim terim polinomla kur, terim sayısı arttıkça [−2π, 2π]'deki en büyük hatanın eridiğini izle.",
+      why: "x − x³/6 düzeltmesinin devamı: sin ve cos'u derece derece polinomla kur; Polinom yaklaşımı sekmesi a ± d aralığındaki en büyük hatayı ölçer ve derece arttıkça nasıl eridiğini gösterir.",
     },
     {
       href: "algoritma-karmasikligi.html",

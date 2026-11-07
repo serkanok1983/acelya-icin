@@ -252,7 +252,7 @@ window.ACELYA_DIGEST["bayes-olasilik"] = {
     {
       href: "normal-dagilim.html",
       title: "Normal Dağılım",
-      why: "Olasılık tek sayı değil bir eğri olunca: μ ve σ ile çan eğrisini biçimlendir, 1000 örnekle histogramı karşılaştır. Bayesçi istatistiğin dağılımları bu dille yazılır.",
+      why: "Olasılık tek sayı değil bir eğri olunca: Galton tahtasında binlerce topun yığıldığı histogramı çan eğrisiyle karşılaştır, Merkezi limit teoremi sekmesinde çarpık bir dağılımın örneklem ortalamalarının da çana döndüğünü izle. Bayesçi istatistiğin dağılımları bu dille yazılır.",
     },
     {
       href: "makine-ogrenmesi-derin-ogrenme-llm.html",
