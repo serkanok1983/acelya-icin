@@ -10,17 +10,17 @@ window.ACELYA_DIGEST["ph-indikator"] = {
   hook:
     "Kaynayan saf suya bir pH metre daldırdığını düşün: ekran 6.13 gösteriyor. Su asitlenmiş mi? Hayır: 100 °C'de nötr nokta tam orasıdır; ekran 7.00 deseydi su bazik olurdu.",
   bigIdea:
-    "pH, H₃O⁺ derişiminin on katlık basamaklarla yazılışıdır ve anlamını suyun kendi dengesinden alır: <strong>nötr</strong>, pH 7 değil [H₃O⁺] = [OH⁻] demektir; bir <strong>indikatör</strong> ise bu dengeyi soğurma tayfıyla renge çeviren, iki biçimli bir zayıf asittir.",
+    "pH, H₃O⁺ derişiminin on katlık basamaklarla yazılışıdır ve anlamını suyun kendi dengesinden alır: <strong>nötr</strong>, pH 7 değil [H₃O⁺] = [OH⁻] demektir; bir <strong>indikatör</strong> ise asit ve baz biçimleri farklı ışık soğuran bir zayıf asittir ve pH'ı soğurma tayfı üzerinden renge çevirir.",
   story: [
-    "Asitliği renkle okumak, pH sözcüğünden yüzyıllarca eskidir. Turnusolün İngilizce adı <em>litmus</em>, Eski İskandinavcada 'boya yosunu' anlamına gelen <em>litmosi</em>'den gelir; sözcüğün bilinen tek Orta Çağ kaydı, 1316 tarihli bir Norveç yasasının kürk gümrüğü bölümüdür. Kaynaklar Katalan hekim Arnaldus de Villa Nova'nın 1300 dolaylarında likenlerden çıkarılan bu boyayla asitleri ve bazları incelediğini, onu asitlik testi olarak kullanan bilinen ilk kişi olduğunu yazar. Turnusol tek bir molekül değildir: 10–15 boyanın karışımıdır, üretimi uzun süre sır gibi saklanmıştır; bilinen bir tarifte likenler soda ve amonyak çözeltisinde dört hafta kadar bekletilir ve renk kırmızıdan mora, sonra maviye döner. Sayfada turnusolün hesaplanmış bir tayfı olmamasının nedeni budur: tek bir soğurma tayfı yoktur.",
-    "Rengin neden değiştiğini anlamak için önce suyun içinde ne olduğunu bilmek gerekiyordu. 1870'lerin ikinci yarısında Würzburg'da Friedrich Kohlrausch, elektrolizi önlemek için alternatif akım kullanarak tuz ve asit çözeltilerinin iletkenliğini büyük bir hassasiyetle ölçtü. Zayıf elektrolitlerde çözelti seyreldikçe molar iletkenlik artıyordu: moleküllerin daha büyük bir kesri iyonlarına ayrılıyordu. İyon kuramının kurucuları Arrhenius, Ostwald ve van 't Hoff, Kohlrausch'tan gelen yöntem ve aletlerle yetişti. Arrhenius'un tanımında (hikâyesi Asit-Baz Titrasyonu defterinde) asit, suda H⁺ veren maddeydi; Ostwald, seyreltmeyle büyüyen ayrışmayı kütle etkisi yasasıyla birleştirip <strong>seyreltme yasası</strong> diye bilinen formüle döktü. Sayfadaki 'Ostwald yasası' kartı odur ve sayfa onun nerede yanıldığını da gösterir: yasa suyun kendi iyonlarını hesaba katmaz. Oysa en saf su bile az da olsa elektrik iletir, çünkü su kendi kendine iyonlaşır. Sørensen 1909'da bu küçücük derişimleri pH ile yazmayı önerdi; ölçeğin ortasındaki 7 de bu dengeden gelir: 25 °C'de K<sub>w</sub> ≈ 10⁻¹⁴ olduğu için saf suda iki iyonun her biri yaklaşık 10⁻⁷ mol/L'dir. Ama K<sub>w</sub> sıcaklıkla değişir; sayfanın ilk sekmesi tam bunu gösterir.",
-    "İndikatörün sırrı ise molekülün içindedir. Proton kaybı yalnızca yükü değil, molekülün elektronlarının yayıldığı bağ sistemini de değiştirir; bu yüzden iki biçim farklı dalga boylarını soğurur. Fenolftalein bunun en temiz örneğidir: Adolf von Baeyer'in 1871'de sentezlediği bu molekül, nötr ve asidik çözeltide renksiz bir halka (lakton) biçimindedir; iki proton kaybedince halka açılır ve pembe In²⁻ biçimi doğar. Kuvvetli bazda bir OH⁻ daha bağlanır, elektron sistemi bölünür ve renk yavaşça kaybolur. Mutfakta da aynı fizik çalışır: kırmızı lahananın antosiyaninleri asitte kırmızı, bazda mavidir ve lahana suyu sirkeyle karbonat arasında renkten renge geçer. Bugün bu renk değişimi bir ölçüm aracıdır: spektrofotometre her dalga boyunda soğurbanlığı ölçer ve pK<sub>In</sub>, sayfanın son panelindeki gibi bir eğri uydurmayla bulunur.",
+    "Asitliği renkle okumak, pH sözcüğünden yüzyıllarca eskidir. Turnusolün İngilizce adı <em>litmus</em>, Eski İskandinavcada 'boya yosunu' anlamına gelen <em>litmosi</em>'den gelir; sözcüğün bilinen tek Orta Çağ kaydı, 1316 tarihli bir Norveç yasasının kürk gümrüğü bölümüdür. Kaynaklar Katalan hekim Arnaldus de Villa Nova'nın 1300 dolaylarında likenlerden çıkarılan bu boyayla asitleri ve bazları incelediğini, onu asitlik testi olarak kullanan bilinen ilk kişi olduğunu yazar. Turnusol tek bir molekül değildir: 10–15 boyanın karışımıdır, üretimi uzun süre sır gibi saklanmıştır; bilinen bir tarifte likenler soda ve amonyak çözeltisinde dört hafta kadar bekletilir ve renk kırmızıdan mora, sonra maviye döner. Sayfanın turnusol için tayf hesaplamamasının nedeni de budur: bu karışımın yayımlanmış tek bir soğurma tayfı yoktur, şeridi kaynaktaki renk aralığından çizilir.",
+    "Rengin neden değiştiğini anlamak için önce suyun içinde ne olduğunu bilmek gerekiyordu. 1870'lerin ikinci yarısında Würzburg'da Friedrich Kohlrausch, elektrotlarda elektroliz ürünleri birikmesin diye alternatif akım kullanarak tuz ve asit çözeltilerinin iletkenliğini büyük bir hassasiyetle ölçtü ve zayıf elektrolitlerde tuhaf bir şey gördü: çözelti seyreldikçe molar iletkenlik artıyordu, yani moleküllerin giderek daha büyük bir kesri iyonlarına ayrılıyordu. İyon kuramının kurucuları Arrhenius, Ostwald ve van 't Hoff, Kohlrausch'tan gelen yöntem ve aletlerle yetişti. Arrhenius'un 1884'te ortaya attığı iyonlaşma kuramında (hikâyesi Asit-Baz Titrasyonu defterinde) asit suda H⁺ veren maddeydi ve su da kendi kendine iyonlaşıyordu: en saf suyun bile az da olsa akım iletmesinin nedeni buydu. Ostwald, seyreltmeyle büyüyen ayrışmayı kütle etkisi yasasıyla birleştirip <strong>seyreltme yasası</strong> diye bilinen formüle döktü. Sayfadaki 'Ostwald yasası' kartı odur ve sayfa onun nerede yanıldığını da gösterir: yasa suyun kendi iyonlarını hesaba katmaz. Sørensen 1909'da bu küçücük derişimleri pH ile yazmayı önerdi; ölçeğin ortasındaki 7 de suyun dengesinden gelir: 25 °C'de K<sub>w</sub> ≈ 10⁻¹⁴ olduğu için saf suda iki iyonun her biri yaklaşık 10⁻⁷ mol/L'dir. Ama K<sub>w</sub> sıcaklıkla değişir; sayfanın ilk sekmesi tam bunu gösterir.",
+    "İndikatörün sırrı ise molekülün içindedir. Proton kaybı yalnızca yükü değil, molekülün elektronlarının yayıldığı bağ sistemini de değiştirir; bu yüzden iki biçim farklı dalga boylarını soğurur. Fenolftalein bunun en temiz örneğidir: Adolf von Baeyer'in 1871'de sentezlediği bu molekül, nötr ve asidik çözeltide renksiz bir halka (lakton) biçimindedir; iki proton kaybedince halka açılır ve pembe In²⁻ biçimi doğar. Kuvvetli bazda bir OH⁻ daha bağlanır, elektron sistemi bölünür ve renk yavaşça kaybolur. Mutfakta da aynı kimya çalışır: kırmızı lahananın antosiyaninleri asitte kırmızı, bazda mavidir; lahana suyu sirkede kırmızıya, karbonat çözeltisinde maviye döner. Bugün bu renk değişimi bir ölçüm aracıdır: spektrofotometre her dalga boyunda soğurbanlığı ölçer ve pK<sub>In</sub>, sayfanın son panelindeki gibi bir eğri uydurmayla bulunur.",
   ],
   core: [
     {
       heading: "Logaritmik ölçek: bir birim, on kat",
       body:
-        "Mide özsuyunda (pH 1.4) H₃O⁺ derişimi kandakinin (pH 7.4) yaklaşık bir milyon katıdır; iki sayı arasında yalnızca altı birim var. pH bu yüzden bir <strong>logaritmik ölçek</strong>tir: [H₃O⁺]'yi 10'un kuvveti olarak yazar ve üssün işaretini çevirir. Bir birim on kat, üç birim bin kat demektir; 0.30 birim bile iki kat eder, çünkü log 2 = 0.301. Suda serbest bir proton dolaşmaz, bir su molekülüne bağlanır; [H⁺] ile [H₃O⁺] aynı şeyin iki yazılışıdır. Sayfadaki şeridin üstünde [H₃O⁺], altında [OH⁻] on katlık basamaklarla yazılıdır. 0 ile 14 bir duvar değildir: 1 mol/L'den derişik kuvvetli asitte pH sıfırın altına iner; kaydırıcı bu yüzden −1'den 15'e uzanır ve uçları 'derişik' diye işaretler.",
+        "Mide özsuyunda (pH 1.4) H₃O⁺ derişimi kandakinin (pH 7.4) yaklaşık bir milyon katıdır; iki sayı arasında yalnızca altı birim var. pH bu yüzden bir <strong>logaritmik ölçek</strong>tir: [H₃O⁺]'yi 10'un kuvveti olarak yazar ve üssün işaretini çevirir. Bir birim on kat, üç birim bin kat demektir; 0.30 birim bile iki kat eder, çünkü log 2 = 0.301. Suda serbest bir proton dolaşmaz, bir su molekülüne bağlanır; [H⁺] ile [H₃O⁺] aynı şeyin iki yazılışıdır. Sayfadaki şeridin üstünde [H₃O⁺], altında [OH⁻] on katlık basamaklarla yazılıdır. 0 ile 14 bir duvar değildir: derişik kuvvetli asitte pH sıfırın altına inebilir, derişik kuvvetli bazda 14'ün üstüne çıkabilir; kaydırıcı bu yüzden −1'den 15'e uzanır ve uçları 'derişik' diye işaretler.",
       formula: "pH = −log[H₃O⁺] &nbsp;·&nbsp; [H₃O⁺] = 10<sup>−pH</sup> mol/L",
       formulaNote:
         "Logaritmanın içine birimsiz sayı girer: derişim 1 mol/L'ye bölünmüş alınır. Kesin tanımda derişimin yerini etkinlik alır ('Tam pH' kartına bak).",
@@ -28,10 +28,10 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     {
       heading: "Su kendi kendine iyonlaşır; nötr nokta sıcaklıkla kayar",
       body:
-        "En saf su bile yalnız moleküllerden oluşmaz: iki su molekülü arada bir proton alışverişi yapar, 2H₂O ⇌ H₃O⁺ + OH⁻. 25 °C'de bu dengenin sabiti K<sub>w</sub> = 1.01·10⁻¹⁴'tür (pK<sub>w</sub> = 13.995); saf suda iki iyon eşit derişimdedir, her biri 1.0·10⁻⁷ mol/L. Yaklaşık 550 milyon su molekülüne bir H₃O⁺ düşer. Tepkime ısı alır, bu yüzden ısıtınca denge sağa kayar: K<sub>w</sub> 0 °C'de 1.13·10⁻¹⁵, 37 °C'de 2.39·10⁻¹⁴, 100 °C'de 5.60·10⁻¹³'tür; 0'dan 100 °C'ye yaklaşık 500 kat büyür. <strong>Nötr</strong>, [H₃O⁺] = [OH⁻] demektir ve bu pH = pK<sub>w</sub>/2'de olur: 0 °C'de 7.47, 25 °C'de 7.00, 37 °C'de 6.81, 100 °C'de 6.13. Kaynayan saf su asidik değildir; yalnızca iki iyondan da daha çok içerir.",
+        "En saf su bile yalnız moleküllerden oluşmaz: iki su molekülü arada bir proton alışverişi yapar, 2H₂O ⇌ H₃O⁺ + OH⁻. 25 °C'de bu dengenin sabiti K<sub>w</sub> = 1.01·10⁻¹⁴'tür (pK<sub>w</sub> = 13.995); saf suda iki iyon eşit derişimdedir, her biri 1.0·10⁻⁷ mol/L. Yaklaşık 550 milyon su molekülüne bir H₃O⁺ düşer. Denge durgun değildir: tek bir molekül kabaca on saatte bir iyonlaşır, H₃O⁺ ile OH⁻'nin yeniden birleşmesi ise bilinen en hızlı tepkimelerden biridir (hız sabiti 1.3·10¹¹ L mol⁻¹ s⁻¹). Tepkime ısı alır, bu yüzden ısıtınca denge sağa kayar: K<sub>w</sub> 0 °C'de 1.13·10⁻¹⁵, 37 °C'de 2.39·10⁻¹⁴, 100 °C'de 5.60·10⁻¹³'tür; 0'dan 100 °C'ye yaklaşık 500 kat büyür. <strong>Nötr</strong>, [H₃O⁺] = [OH⁻] demektir ve bu pH = pK<sub>w</sub>/2'de olur: 0 °C'de 7.47, 25 °C'de 7.00, 37 °C'de 6.81, 100 °C'de 6.13. Kaynayan saf su asidik değildir; yalnızca iki iyondan da daha çok içerir.",
       formula: "K<sub>w</sub> = [H₃O⁺][OH⁻] &nbsp;·&nbsp; pH<sub>nötr</sub> = ½·pK<sub>w</sub>(T) &nbsp;·&nbsp; d ln K<sub>w</sub>/dT = ΔH°/(RT²)",
       formulaNote:
-        "Sonuncusu van 't Hoff denklemidir. Sayfanın 20 ve 30 °C'deki pK<sub>w</sub> değerleri ΔH° ≈ 56 kJ/mol verir: kuvvetli asit ile kuvvetli bazın nötrleşme ısısının ters işaretlisi.",
+        "Sonuncusu van 't Hoff denklemidir. Sıcaklığı 20 ve 30 °C yap: K<sub>w</sub> kartının notu pK<sub>w</sub> = 14.165 ve 13.833 yazar. ln(K<sub>30</sub>/K<sub>20</sub>) = 2.303 × 0.332 = 0.764, ΔH° = 8.314 J mol⁻¹ K⁻¹ × 0.764 / (1/293.15 K − 1/303.15 K) ≈ 56 kJ/mol. Kaynaklardaki 55.8 kJ/mol'e yakındır: kuvvetli asit ile kuvvetli bazın nötrleşme ısısının ters işaretlisi.",
     },
     {
       heading: "Tam pH: kütle ve yük denkliği, kısa yolların sınırı",
@@ -44,7 +44,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     {
       heading: "Tür kesirleri: hangi biçim, hangi pH'ta?",
       body:
-        "Bir asidin her biçiminin payı (α) yalnız pH'a ve pK<sub>a</sub>'lara bağlıdır, toplam derişime bağlı değildir. Tek protonlu asitte pH = pK<sub>a</sub>'da iki biçim eşittir; pH bir birim uzaklaştıkça oran on kat değişir. Çok protonlu asitte fikir zincirlenir: fosforik asidin dört biçimi (H₃PO₄, H₂PO₄⁻, HPO₄²⁻, PO₄³⁻) pK<sub>a</sub> = 2.16, 7.21 ve 12.32'de sırayla devir teslim yapar. Kan pH'ında, 7.40'ta, fosfatın yüzde 39.2'si H₂PO₄⁻, yüzde 60.8'i HPO₄²⁻'dir; öteki iki biçimin payı milyonda birkaçtır. Logaritmik derişim (Sillén) diyagramında aynı bilgi, eğimleri tam sayı (0, ±1, ±2, …) olan doğru parçalarına dönüşür. Kesirler bir sürprizi de açıklar: Ostwald yasası suyu yok saydığı için seyreltince her zayıf asidin tamamen ayrışacağını söyler; oysa sonsuz seyreltmede pH suyun belirlediği ≈ 7'ye gider ve ayrışma K<sub>a</sub>/(K<sub>a</sub> + 10⁻⁷) civarında donar. HCN (pK<sub>a</sub> 9.21) için bu sınır yüzde 0.61'dir: ne kadar seyreltirsen seyrelt, HCN moleküllerinin yüzde 99'dan fazlası ayrışmadan kalır.",
+        "Bir asidin her biçiminin payı (α) yalnız pH'a ve pK<sub>a</sub>'lara bağlıdır, toplam derişime bağlı değildir. Tek protonlu asitte pH = pK<sub>a</sub>'da iki biçim eşittir; pH bir birim uzaklaştıkça oran on kat değişir. Çok protonlu asitte fikir zincirlenir: fosforik asidin dört biçimi (H₃PO₄, H₂PO₄⁻, HPO₄²⁻, PO₄³⁻) pK<sub>a</sub> = 2.16, 7.21 ve 12.32'de sırayla devir teslim yapar. Kan pH'ında, 7.40'ta, fosfatın yüzde 39.2'si H₂PO₄⁻, yüzde 60.8'i HPO₄²⁻'dir; öteki iki biçimin payı milyonda birkaçtır. Logaritmik derişim (Sillén) diyagramında aynı bilgi, pK<sub>a</sub>'lardan uzakta eğimi tam sayı (0, ±1, ±2, …) olan doğrulara dönüşür. Kesirler bir sürprizi de açıklar: Ostwald yasası suyu yok saydığı için seyreltince her zayıf asidin tamamen ayrışacağını söyler; oysa sonsuz seyreltmede pH suyun belirlediği ≈ 7'ye gider ve ayrışma K<sub>a</sub>/(K<sub>a</sub> + 10⁻⁷) civarında donar. HCN (pK<sub>a</sub> 9.21) için bu sınır yüzde 0.61'dir: ne kadar seyreltirsen seyrelt, HCN moleküllerinin yüzde 99'dan fazlası ayrışmadan kalır.",
       formula: "α<sub>j</sub> = [H₃O⁺]<sup>n−j</sup>·K<sub>1</sub>⋯K<sub>j</sub> / Σ<sub>k=0…n</sub> [H₃O⁺]<sup>n−k</sup>·K<sub>1</sub>⋯K<sub>k</sub>",
       formulaNote:
         "α<sub>j</sub>, j proton vermiş biçimin kesri; kesirlerin toplamı 1'dir. Tek protonlu asitte α(A⁻) = K<sub>a</sub>/([H₃O⁺] + K<sub>a</sub>).",
@@ -60,23 +60,23 @@ window.ACELYA_DIGEST["ph-indikator"] = {
   ],
   lab: {
     intro:
-      "Sayfa üç sekmedir; her sekmenin kendi <strong>Sıfırla</strong> düğmesi var (<kbd>R</kbd> de çalışır). <strong>pH ölçeği ve su</strong>: pH kaydırıcısı ve kutusu (−1…15), <strong>Sıcaklık T</strong> (0–100 °C) ile 0, 25, 37 ve 100 °C düğmeleri, <strong>pH'ı nötre getir</strong>; altta <strong>Seyreltme tuzağı</strong> paneli <strong>HCl derişimi c</strong> için yük denkliğinden ölçülen pH'ı −log c ile karşılaştırır. <strong>Asit ve baz çözeltileri</strong>: <strong>Madde</strong> menüsü (HCl'den fosforik aside on çözelti), <strong>Toplam derişim c</strong>, <strong>Diyagram</strong> (tür kesirleri ya da Sillén), <strong>0.1 M</strong>, <strong>10⁻⁵ M</strong> ve <strong>Kan pH'ı 7.40'ta fosfat</strong> düğmeleri; tablo tam çözümü suyu yok sayan ikinci derece çözüm ve kısa yolla yan yana koyar. <strong>İndikatörler ve renk</strong>: <strong>İndikatör</strong> menüsü (yedi seçenek), pH, <strong>İndikatör derişimi c</strong>, <strong>Işık yolu ℓ</strong>, <strong>Okuma dalga boyu λ</strong>, <strong>λ = baz biçiminin tepesi</strong> ve <strong>λ = eş soğurma noktası</strong>; altta <strong>Soğurbanlık gürültüsü σ<sub>A</sub></strong> ve <strong>Yeni ölçüm dizisi</strong> (<kbd>Boşluk</kbd>) ile dokuz tamponlu simüle bir spektrofotometrik ölçüm. Sayfa etkinlik yerine derişimle hesaplar ve bu yaklaşım bozulunca uyarır. Renkler, her biçimi tek bir soğurma bandıyla temsil eden yaklaşık bir modelden hesaplanır ve bazı tonlar gerçeğinden sapar: metil oranj ile metil kırmızısı asitte kırmızı yerine pembe, fenolftalein pembe yerine lavanta, bromtimol mavisi pH 7 civarında yeşil yerine turkuaz çıkar. Bu yüzden her rengin yanında kaynakta yazan renk adı durur; turnusol ise hesaplanmış değil, kaynaktan çizilmiş temsili bir şerittir.",
+      "Sayfa üç sekmedir; her sekmenin kendi <strong>Sıfırla</strong> düğmesi var (<kbd>R</kbd> de çalışır). <strong>pH ölçeği ve su</strong>: pH kaydırıcısı ve kutusu (−1…15), <strong>Sıcaklık T</strong> (0–100 °C) ile 0, 25, 37 ve 100 °C düğmeleri, <strong>pH'ı nötre getir</strong>; altta <strong>Seyreltme tuzağı</strong> paneli <strong>HCl derişimi c</strong> için yük denkliğinden ölçülen pH'ı −log c ile karşılaştırır. <strong>Asit ve baz çözeltileri</strong>: <strong>Madde</strong> menüsü (HCl'den fosforik aside on çözelti), <strong>Toplam derişim c</strong>, <strong>Diyagram</strong> (tür kesirleri ya da Sillén), <strong>0.1 M</strong>, <strong>10⁻⁵ M</strong> ve <strong>Kan pH'ı 7.40'ta fosfat</strong> düğmeleri; tablo tam çözümü, suyu yok sayan ikinci derece çözümle ve kısa yolla yan yana koyar. <strong>İndikatörler ve renk</strong>: <strong>İndikatör</strong> menüsü (yedi seçenek), pH, <strong>İndikatör derişimi c</strong>, <strong>Işık yolu ℓ</strong>, <strong>Okuma dalga boyu λ</strong>, <strong>λ = baz biçiminin tepesi</strong> ve <strong>λ = eş soğurma noktası</strong>; altta <strong>Soğurbanlık gürültüsü σ<sub>A</sub></strong> ve <strong>Yeni ölçüm dizisi</strong> (<kbd>Boşluk</kbd>) ile dokuz tamponlu simüle bir spektrofotometrik ölçüm. Sayfa etkinlik yerine derişimle hesaplar ve bu yaklaşım bozulunca uyarır. Renkler, her biçimi tek bir soğurma bandıyla temsil eden yaklaşık bir modelden hesaplanır ve bazı tonlar gerçeğinden sapar: metil oranj ile metil kırmızısı asitte kırmızı yerine pembe, fenolftalein pembe yerine lavanta, bromtimol mavisi pH 7 civarında yeşil yerine turkuaz çıkar. Bu yüzden her rengin yanında kaynakta yazan renk adı durur; turnusol ise hesaplanmış değil, kaynaktan çizilmiş temsili bir şerittir.",
     experiments: [
       {
         title: "pH 7.00 ne zaman nötrdür?",
         predict:
           "pH'ı 7.00'de bırakıp sıcaklığı 37 °C'ye, sonra 100 °C'ye çıkarırsan çözelti nötr mü kalır, asidik mi olur, bazik mi? 0 °C'de ne olur? 100 °C'de nötr nokta kaçtır?",
-        do: "pH ölçeği ve su sekmesinde Sıfırla'ya bas (pH 7.00, 25 °C). Sırayla 37 °C, 100 °C ve 0 °C düğmelerine bas; her seferinde Nötr nokta kartını, [H₃O⁺]/[OH⁻] kartının altındaki sınıfı ve durum satırını oku. Sonra 100 °C'ye dönüp pH'ı nötre getir'e bas.",
+        do: "pH ölçeği ve su sekmesinde Sıfırla'ya bas (pH 7.00, 25 °C). Sırayla 37 °C, 100 °C ve 0 °C düğmelerine bas; her seferinde Nötr nokta kartını, [H₃O⁺]/[OH⁻] kartının değerini ve altındaki sınıfı, sonra durum satırını oku. Sonra 100 °C'ye dönüp pH'ı nötre getir'e bas.",
         observe:
-          "25 °C'de Nötr nokta 7.00 ve sınıf 'nötr'; durum satırı iki derişimin yine de 1.3 % farklı olduğunu ekler, çünkü pK<sub>w</sub>/2 tam 6.997'dir. 37 °C'de nötr nokta 6.81'e iner ve pH 7.00 artık baziktir: [OH⁻], [H₃O⁺]'nın 2.39 katı. 100 °C'de nötr nokta 6.13, oran 56.0. 0 °C'de tablo tersine döner: nötr nokta 7.47 ve pH 7.00 asidiktir, [H₃O⁺] [OH⁻]'nin 8.84 katı. 100 °C'de pH'ı nötre getir pH'ı 6.13'e taşır ve sınıf yeniden 'nötr' olur. Alttaki grafikte nötr çizgisi 0'dan 100 °C'ye 1.35 birim alçalır.",
+          "25 °C'de Nötr nokta 7.00, sınıf 'nötr', oran kartı 0.987; durum satırı iki derişimin yine de 1.3 % farklı olduğunu ekler (pK<sub>w</sub>/2 = 6.997). 37 °C'de nötr nokta 6.81 ve pH 7.00 bazik: kart 0.418 yazar, durum satırı tersini, '[OH⁻] [H₃O⁺]'nın 2.39 katı'. 100 °C'de nötr nokta 6.13, kart 0.0179, durum satırı 56.0 kat. 0 °C'de nötr nokta 7.47 ve pH 7.00 asidik: kart da durum satırı da 8.84 der. 100 °C'de nötre getir pH'ı 6.13'e taşır, sınıf yeniden 'nötr' olur. Grafikte nötr çizgisi 0'dan 100 °C'ye 1.35 birim alçalır.",
         explain:
-          "Nötrlüğün tanımı [H₃O⁺] = [OH⁻]'dir, pH 7 değil. Suyun iyonlaşması ısı aldığı için K<sub>w</sub> sıcaklıkla büyür ve pK<sub>w</sub>/2 aşağı kayar. 100 °C'deki saf su her iki iyondan 25 °C'dekinin yaklaşık 7.4 katı içerir ama yine nötrdür. pH 7.00'de iki derişimin oranı 10<sup>pK<sub>w</sub> − 14</sup>'tür; 37 °C'de 10<sup>13.621 − 14</sup> = 0.418 (kartın gösterdiği değer), yani OH⁻ 2.39 kat fazladır.",
+          "Nötrlüğün tanımı [H₃O⁺] = [OH⁻]'dir, pH 7 değil. Suyun iyonlaşması ısı aldığı için K<sub>w</sub> sıcaklıkla büyür ve pK<sub>w</sub>/2 aşağı kayar. 100 °C'deki saf su her iki iyondan 25 °C'dekinin yaklaşık 7.4 katı içerir ama yine nötrdür. Kart her zaman [H₃O⁺]/[OH⁻] = 10<sup>pK<sub>w</sub> − 2pH</sup> yazar; pH 7.00'de bu 10<sup>pK<sub>w</sub> − 14</sup>'tür, 37 °C'de 10<sup>13.621 − 14</sup> = 0.418. Durum satırı büyüğü küçüğe böler: 1/0.418 = 2.39, yani OH⁻ 2.39 kat fazladır.",
       },
       {
         title: "Kısa yol nerede yanılır?",
         predict:
           "0.1 M asetik asitte kısa yol ½(pK<sub>a</sub> − log c) tam çözümden ne kadar sapar? Derişimi on bin kat azaltıp 10⁻⁵ M'ye indirince sapma büyür mü, küçülür mü? Ayrışma derecesi ne olur?",
-        do: "Asit ve baz çözeltileri sekmesinde Sıfırla'ya bas (asetik asit, 0.1 M). Ölçülen pH kartını, Ayrışma derecesi α kartını ve tablodaki Kısa yol satırını oku. Sonra 10⁻⁵ M düğmesine bas ve aynılarını yeniden oku; alttaki grafikte kırmızı gölgenin nerede başladığına bak. Son olarak Madde menüsünden HCN'yi seç ve derişim kutusuna 1e-9 yaz.",
+        do: "Asit ve baz çözeltileri sekmesinde Sıfırla'ya bas (asetik asit, 0.1 M). Ölçülen pH kartını, Ayrışma derecesi α kartını ve tablodaki Kısa yol satırını oku. Sonra 10⁻⁵ M düğmesine bas ve aynılarını yeniden oku; alttaki grafikte kırmızı gölgenin nerede başladığına bak. Son olarak Madde menüsünden HCN'yi seç, derişim kutusuna 1e-9 yazıp Enter'a bas.",
         observe:
           "0.1 M'de ölçülen pH 2.881, kısa yol 2.878 (ΔpH −0.003), α 1.32 %. 10⁻⁵ M'de ölçülen pH 5.148, kısa yol 4.878: ΔpH −0.270 ve satır kırmızıya boyanır; α artık 71.14 %. Geçerli derişim sütunu kısa yol için c ≥ 10<sup>−2.68</sup> (yaklaşık 2 mM) yazar; suyu yok sayan ikinci derece çözüm ise 10⁻⁵ M'de de tam çözümle aynıdır (5.148) ve c ≥ 10<sup>−6.33</sup> için geçerlidir. HCN 10⁻⁹ M'de pH 6.997, α yalnız 0.61 %; Ostwald kartı ise 53.53 % der.",
         explain:
@@ -86,9 +86,9 @@ window.ACELYA_DIGEST["ph-indikator"] = {
         title: "Bromtimol mavisi: renk, tayf ve eş soğurma noktası",
         predict:
           "Bromtimol mavisinin pK<sub>In</sub>'i 7.10. pH 6, 7.1 ve 8'de küvet ne renk olur, 616 nm'deki soğurbanlık nasıl değişir? Soğurbanlığın pH'tan hiç etkilenmediği bir dalga boyu var mıdır?",
-        do: "İndikatörler ve renk sekmesinde Sıfırla'ya bas (bromtimol mavisi, 20 µmol/L, 1.0 cm, λ = 616.0 nm). pH kutusuna sırayla 6, 7.1 ve 8 yaz; küveti, hesaplanan rengi, kaynakta yazan rengi, In²⁻ kesrini ve Soğurbanlık kartını not et. Sonra λ = eş soğurma noktası düğmesine bas ve pH'ı 6 ile 8 arasında gezdir.",
+        do: "İndikatörler ve renk sekmesinde Sıfırla'ya bas (bromtimol mavisi, 20 µmol/L, 1.0 cm, λ = 616.0 nm). pH kutusuna sırayla 6, 7.1 ve 8 yazıp Enter'a bas; küveti, hesaplanan rengi, altındaki 'kaynakta' etiketini, In²⁻ kesrini ve Soğurbanlık kartını not et. Sonra λ = eş soğurma noktası düğmesine bas ve pH'ı 6 ile 8 arasında gezdir.",
         observe:
-          "pH 6'da #eff5bf, açık sarı (sayfanın ton adı 'sarı-yeşil'), In²⁻ 7.4 %, A 0.059. pH 7.1'de #92d2df · turkuaz, In²⁻ tam 50.0 %, A 0.400. pH 8'de #3db8fc · mavi, In²⁻ 88.8 %, A 0.711. Eş soğurma noktası 498.0 nm'dir: orada A her pH'ta 0.089 kalır ve tayf grafiğindeki bütün eğriler o halkadan geçer. Görsel geçiş kartı modelde 6.15 – 8.05 yazar, kaynağın göz aralığı 6.0–7.6'dır.",
+          "pH 6'da #eff5bf · sarı-yeşil (göze çok açık bir sarı), In²⁻ 7.4 %, A 0.059. pH 7.1'de #92d2df · turkuaz, In²⁻ tam 50.0 %, A 0.400. pH 8'de #3db8fc · mavi, In²⁻ 88.8 %, A 0.711. Kaynak etiketi 6.0–7.6 arasında 'sarı → mavi geçişi (ortası yeşil)', pH 8'de 'mavi' der. Eş soğurma noktası 498.0 nm: orada A her pH'ta 0.089 kalır ve tayf grafiğindeki bütün eğriler o halkadan geçer. Görsel geçiş kartı modelde 6.15 – 8.05 yazar, kaynağın göz aralığı 6.0–7.6'dır.",
         explain:
           "616 nm mavi biçimin tepesidir; A, In²⁻ kesriyle orantılı büyür (0.059 : 0.400 : 0.711 ≈ 7.4 : 50.0 : 88.8). 498 nm'de iki biçimin ε'si eşittir, biçim değişimi A'yı değiştirmez. Ama modelde bu nokta, bant genişliği kaynaktaki 498 nm'ye ayarlandığı için oradadır: öngörü değil, ayardır. Renk de modeldir: gerçek bromtimol mavisi geçişin ortasında yeşildir, model turkuaz verir. Rengi tepe dalga boyu değil, geçen ışığın bütün tayfı ve gözün üç koni tepkisi belirler; her biçimi tek bir Gauss bandıyla çizmek gerçek bantların omuzlarını ve kanatlarını kaybeder, ton kayar.",
       },
@@ -100,7 +100,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
         observe:
           "Varsayılan dizide Ölçülen pK<sub>In</sub> 7.094 ± 0.013, kuram 7.100, fark −0.006: standart hatanın 0.4 katı. Gürültüsüz'de tam 7.100 ve kalıntılar ≈ 0. σ = 0.020'de standart hata 0.052'ye çıkar: gürültü dört kat, hata da dört kat. Metil oranjda 3.398 ± 0.119, girdi 3.460: hata çubuğu bromtimol mavisinin dokuz katı.",
         explain:
-          "Uydurulan eğri A(pH) = (A<sub>asit</sub> + A<sub>baz</sub>·r)/(1 + r), r = 10<sup>pH − pK</sup>; dönüm noktası pK<sub>In</sub>'dir. Standart hata gürültüyle doğru, ölçülen değişimin büyüklüğüyle ters orantılıdır. Bromtimol mavisinde 616 nm'de A 0.000'dan 0.800'e çıkar; metil oranjın 464 nm'deki tepesinde asit biçimi de güçlü soğurduğu için A yalnız 0.41'den 0.50'ye çıkar, sinyal dokuz kat küçüktür. Deneyci bu yüzden okuma dalga boyunu iki biçimin en çok ayrıştığı yere koyar. Simülasyonda yalnız soğurbanlık gürültüsü var; gerçek ölçüme pH metre hatası, kaçak ışık ve sıcaklık kayması da eklenir.",
+          "Uydurulan eğri A(pH) = (A<sub>asit</sub> + A<sub>baz</sub>·r)/(1 + r), r = 10<sup>pH − pK</sup>; dönüm noktası pK<sub>In</sub>'dir. Standart hata gürültüyle doğru, ölçülen değişimin büyüklüğüyle ters orantılıdır. Bromtimol mavisinde 616 nm'de A yaklaşık 0'dan 0.80'e çıkar (durum satırı A<sub>asit</sub> ve A<sub>baz</sub>'ı yazar); metil oranjın 464 nm'deki tepesinde asit biçimi de güçlü soğurduğu için A yalnız 0.41'den 0.50'ye çıkar, sinyal dokuz kat küçüktür. Deneyci bu yüzden okuma dalga boyunu iki biçimin en çok ayrıştığı yere koyar. Simülasyonda yalnız soğurbanlık gürültüsü var; gerçek ölçüme pH metre hatası, kaçak ışık ve sıcaklık kayması da eklenir.",
       },
     ],
   },
@@ -113,7 +113,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     {
       title: "Suyun direncinin bir tavanı var",
       body:
-        "Laboratuvarların ultra saf su cihazları en iyi durumda 18.2 MΩ·cm gösterir (25 °C'ye göre); bundan daha dirençli su yoktur. Bütün yabancı iyonlar sudan atılsa bile suyun kendi H₃O⁺ ve OH⁻ iyonları, her biri 1.0·10⁻⁷ mol/L, akımı taşır. İki iyonun molar iletkenliği (yaklaşık 350 ve 200 S·cm²/mol) bu derişimle çarpılınca 0.055 µS/cm çıkar; tersi tam o 18 MΩ·cm'dir.",
+        "Laboratuvarların ultra saf su cihazları en iyi durumda 18.2 MΩ·cm gösterir (25 °C'ye göre); bu sıcaklıkta bundan daha dirençli su olamaz. Bütün yabancı iyonlar atılsa bile suyun kendi H₃O⁺ ve OH⁻ iyonları, her biri 1.0·10⁻⁷ mol/L = 1.0·10⁻¹⁰ mol/cm³, akımı taşır. İki iyonun molar iletkenliklerinin toplamı yaklaşık 548 S·cm²/mol'dür (H₃O⁺ 350, OH⁻ 198); bu derişimle çarpınca 5.5·10⁻⁸ S/cm = 0.055 µS/cm çıkar, tersi 18.2 MΩ·cm. Kesin değer 18.18'dir ve ölçüm şaşırtıcı derecede hassastır: suya milyarda 0.1 oranında sofra tuzu karışması direnci 18.11 MΩ·cm'ye düşürür.",
     },
     {
       title: "Fenolftaleinin ikinci kariyeri",
@@ -124,13 +124,13 @@ window.ACELYA_DIGEST["ph-indikator"] = {
   worked: {
     title: "Yüz milyonda bir molar HCl: pH kaç?",
     prompt:
-      "25 °C'de 1.0·10⁻⁸ mol/L HCl çözeltisinin pH'ını tam olarak hesapla (K<sub>w</sub> = 10<sup>−13.995</sup> = 1.013·10⁻¹⁴, sayfanın değeri). H₃O⁺'nın ne kadarı sudan gelir? −log c neden yanılır?",
+      "25 °C'de 1.0·10⁻⁸ mol/L HCl çözeltisinin pH'ını tam olarak hesapla (sayfanın 25 °C değeri: pK<sub>w</sub> = 13.9945, K<sub>w</sub> = 1.013·10⁻¹⁴). H₃O⁺'nın ne kadarı sudan gelir? −log c neden yanılır?",
     steps: [
       "Türleri ve denklemleri yaz. HCl tamamen ayrışır: [Cl⁻] = c = 1.0·10⁻⁸ mol/L. Su da iyonlaşır: [H₃O⁺][OH⁻] = K<sub>w</sub>. Yük denkliği: [H₃O⁺] = [Cl⁻] + [OH⁻].",
       "Tek bilinmeyene indir: h = [H₃O⁺] dersen h = c + K<sub>w</sub>/h, yani h² − c·h − K<sub>w</sub> = 0. Fiziksel (artı) kök: h = (c + √(c² + 4K<sub>w</sub>))/2.",
       "Sayıları yerleştir: c² = 1.0·10⁻¹⁶ ve 4K<sub>w</sub> = 4.05·10⁻¹⁴ (mol/L)²; toplam 4.06·10⁻¹⁴ (mol/L)², karekökü 2.015·10⁻⁷ mol/L. h = (0.100·10⁻⁷ + 2.015·10⁻⁷)/2 = 1.058·10⁻⁷ mol/L, pH = −log(1.058·10⁻⁷) = 6.976.",
       "Payları ayır: [OH⁻] = K<sub>w</sub>/h = 9.58·10⁻⁸ mol/L. Suyun iyonlaşması her OH⁻ için bir H₃O⁺ üretir, bu yüzden sudan gelen pay [OH⁻]/h = 0.905'tir: H₃O⁺'nın yüzde 90.5'i suyun kendisinden gelir, asit yalnız yüzde 9.5 katar.",
-      "Yaklaşımı sına ve sayfada dene: −log c = 8.000, fark +1.024 pH. −log c ancak c, √K<sub>w</sub> ≈ 10⁻⁷ mol/L'nin çok üstündeyse geçerlidir; sayfa 0.02 sınırını c ≈ 4.6·10⁻⁷ mol/L'de bulur. pH ölçeği ve su sekmesinde HCl derişimi kutusuna 1e-8 yaz: Ölçülen pH 6.976, Saf yaklaşım 8.000, Fark +1.024, sudan gelen pay 90.5 %. 37 °C düğmesine basınca pH 6.796 olur: nötr nokta (6.81) kayınca çözelti de onunla kayar.",
+      "Yaklaşımı sına ve sayfada dene: −log c = 8.000, fark +1.024 pH. −log c ancak c, √K<sub>w</sub> ≈ 10⁻⁷ mol/L'nin çok üstündeyse geçerlidir; Asit ve baz çözeltileri sekmesinde HCl seçilince tablo bu aralığı c ≥ 10<sup>−6.34</sup> (≈ 4.6·10⁻⁷ mol/L) diye yazar. pH ölçeği ve su sekmesinde Sıfırla'dan sonra HCl derişimi zaten 1e-8'dir: Ölçülen pH 6.976, Saf yaklaşım 8.000, Fark +1.024, sudan gelen pay 90.5 %. 37 °C düğmesine basınca pH 6.796 olur: nötr nokta (6.81) kayınca çözelti de kayar.",
     ],
     result:
       "pH = 6.976: çözelti nötrün (6.997) yalnızca 0.02 birim altında, hafifçe asidiktir. Çok seyreltik asitte pH'ı suyun kendi iyonlaşması belirler; −log c'nin söylediği 8.00 fiziksel olarak imkânsızdır, çünkü asit eklenen su bazik olamaz.",
@@ -158,7 +158,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     },
   ],
   glossary: [
-    { term: "pH", definition: "H₃O⁺ etkinliğinin eksi on tabanlı logaritması; seyreltik çözeltide −log[H₃O⁺] ile aynıdır ve bir birim on kat derişim farkıdır." },
+    { term: "pH", definition: "H₃O⁺ etkinliğinin on tabanlı logaritmasının eksi işaretlisi; seyreltik çözeltide −log[H₃O⁺] ile aynıdır ve bir birim on kat derişim farkıdır." },
     { term: "Suyun iyonlaşma çarpımı (K<sub>w</sub>)", definition: "[H₃O⁺][OH⁻] çarpımı; 25 °C'de 1.01·10⁻¹⁴, 100 °C'de 5.60·10⁻¹³." },
     { term: "Nötr çözelti", definition: "[H₃O⁺] = [OH⁻] olan çözelti; pH'ı pK<sub>w</sub>/2'dir ve yalnız 25 °C civarında 7'dir." },
     { term: "Yük denkliği", definition: "Çözeltideki artı yüklerin toplam derişiminin eksi yüklerinkine eşit olması; tam pH hesabının temel denklemi." },
@@ -171,7 +171,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     heading: "Üniversiteye köprü",
     body: [
       "Lisede pH bir formüldür, üniversitede bir denklem sistemi. <strong>Genel Kimya</strong>'da K<sub>a</sub>, K<sub>w</sub> ve ikinci derece denklem gelir; <strong>Analitik Kimya</strong>'da kütle ve yük denkliği her problemin iskeleti olur ve tür kesirleri ile Sillén diyagramları çok protonlu asitlerde, metal komplekslerinde ve çözünürlükte aynı mantıkla kullanılır. Derişik çözeltide derişim yerine etkinlik gerekir: <strong>Fizikokimya</strong>'da Debye–Hückel kuramı, her iyonu saran zıt yük bulutundan log γ = −A·z²·√I sınır yasasını türetir (25 °C'de A ≈ 0.509); sayfanın kullandığı Davies denklemi onun yarı deneysel bir uzantısıdır. Aynı dersin termodinamik kısmı K<sub>w</sub>'nin sıcaklıkla neden büyüdüğünü van 't Hoff denklemiyle açıklar.",
-      "pH'ı gerçekte ölçen alet bir voltmetredir: cam elektrodun ince zarı, iki yanındaki H₃O⁺ etkinliklerinin oranına bağlı bir gerilim üretir; Nernst denklemine göre bu gerilim 25 °C'de pH birimi başına yaklaşık 59.2 mV değişir. Spektrofotometri ise sayfanın son panelini gerçeğe çevirir: deniz suyunun pH'ı, timol mavisi gibi boyaların iki dalga boyundaki soğurbanlık oranından ölçülür. <strong>Biyokimya</strong>'da aynı kesir hesabı amino asitlerin yükünü, enzimlerin çalıştığı pH'ı ve kandaki fosfat ile bikarbonat tamponlarını anlatır. Tampon kapasitesi ve titrasyon eğrileri Asit-Baz Titrasyonu sayfasında.",
+      "pH'ı gerçekte ölçen alet bir voltmetredir: cam elektrodun ince zarı, iki yanındaki H₃O⁺ etkinliklerinin oranına bağlı bir gerilim üretir; Kohlrausch'un Würzburg'daki doktora öğrencisi Walther Nernst'in adını taşıyan denkleme göre bu gerilim 25 °C'de pH birimi başına yaklaşık 59.2 mV değişir. Spektrofotometri ise sayfanın son panelini gerçeğe çevirir: deniz suyunun pH'ı, timol mavisi gibi boyaların iki dalga boyundaki soğurbanlık oranından ölçülür. <strong>Biyokimya</strong>'da aynı kesir hesabı amino asitlerin yükünü, enzimlerin çalıştığı pH'ı ve kandaki fosfat ile bikarbonat tamponlarını anlatır. Tampon kapasitesi ve titrasyon eğrileri Asit-Baz Titrasyonu sayfasında.",
     ],
     topics: [
       "Kütle ve yük denkliği",
@@ -185,11 +185,16 @@ window.ACELYA_DIGEST["ph-indikator"] = {
   },
   quiz: [
     {
-      question: "Bir çözeltideki [H₃O⁺] iki katına çıkarsa pH ne olur?",
-      options: ["0.30 azalır", "2 azalır", "0.30 artar", "Yarıya iner"],
-      answer: 0,
+      question: "pH'ı 3.00 olan bir HCl çözeltisini önce 100 kat, sonra 10 000 kat daha seyreltiyorsun (25 °C). pH sırasıyla ne olur?",
+      options: [
+        "5.00, sonra 9.00",
+        "5.00, sonra 7'nin hemen altında (≈ 6.995)",
+        "3.00 ve 3.00: kuvvetli asidin pH'ı seyreltmeyle değişmez",
+        "5.00, sonra tam 7.00",
+      ],
+      answer: 1,
       explanation:
-        "pH logaritmadır: −log(2h) = −log h − log 2 ve log 2 = 0.301. İki kat H₃O⁺ pH'ı 0.30 düşürür, on kat bir tam birim düşürür. pH'ı yarıya indirmek ise [H₃O⁺]'yi katlarca artırmak demektir: pH 4'ten 2'ye inmek yüz kat.",
+        "Yüz kat seyreltme c'yi 10⁻³'ten 10⁻⁵ mol/L'ye indirir; asidin verdiği H₃O⁺ sudan gelenin yüz katı olduğu için −log c geçerlidir: pH 5.00. İkinci adımda c = 10⁻⁹ mol/L olur ve H₃O⁺'nın yüzde 99'u sudan gelir: yük denkliği 6.995 verir, nötrün (6.997) hemen altı. 9.00 asitli suyu bazik yapardı; 'değişmez' seçeneği gücü derişimle karıştırır. Sayfada HCl derişimi kutusuna 1e-9 yazıp dene.",
     },
     {
       question: "Fosforik asidin pK<sub>a2</sub>'si 7.21'dir. pH'ı 7.40'ta sabit tutulan kanda hangisi doğrudur?",
@@ -225,7 +230,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     {
       href: "kara-cisim-isimasi.html",
       title: "Kara Cisim Işıması",
-      why: "Bu sayfadaki renk hesabının aynısı (CIE 1931 eşleme fonksiyonları, D65 beyazı, sRGB) orada ısınan bir cismin rengini bulur.",
+      why: "Aynı renk araçları (CIE 1931 eşleme fonksiyonları, sRGB dönüşümü) orada kızgın bir cismin rengini bulur: burada D65 gün ışığı küvetten süzülür, orada ışığı Planck tayfıyla cismin kendisi saçar.",
     },
     {
       href: "kimyasal-denge-ve-gibbs-enerjisi.html",
@@ -247,7 +252,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     {
       title: "Wikipedia · Self-ionization of water",
       url: "https://en.wikipedia.org/wiki/Self-ionization_of_water",
-      note: "Suyun kendi kendine iyonlaşması, K<sub>w</sub>'nin sıcaklık ve basınçla değişimi, Bandura–Lvov bağıntısı (İngilizce).",
+      note: "Suyun kendi kendine iyonlaşması, saf suyun 25 °C'de 0.055 µS/cm iletkenliği, Bandura ve Lvov (2006) verisiyle pK<sub>w</sub>(T) tablosu, iyonlaşma ve yeniden birleşme hızları (İngilizce).",
     },
     {
       title: "Wikipedia · pH indicator",
