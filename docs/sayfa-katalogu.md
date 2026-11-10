@@ -53,8 +53,8 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `altin-oran` — Altın Oran (sayfa başlığı: Altın Oran & Fibonacci Spirali - Three.js)
 - `fibo` — Fibonacci (sayfa başlığı: Fibonacci Spiral (Animasyonlu))
 - `fibo+pascal` — Fibonacci & Pascal (sayfa başlığı: Fibonacci Spiral + Pascal Üçgeni)
-- `pascal-ucgeni` — Pascal & Sierpinski (sayfa başlığı: Pascal Üçgeni & Sierpiński Fraktali)
-- `collatz` — Collatz (sayfa başlığı: Collatz Dizisi (3n+1) Animasyonlu)
+- `pascal-ucgeni` — Pascal & Sierpinski (sayfa başlığı: Pascal Üçgeni Laboratuvarı)
+- `collatz` — Collatz (sayfa başlığı: Collatz Laboratuvarı: Deney ve Kanıt)
 - `tek-sayi-toplam3` — Tek Sayı Toplamı (Tablo) (sayfa başlığı: Tek Sayıların Toplamı ve Kareleri)
 - `tek-sayi-toplam4` — Tek Sayı Toplamı (Adım) (sayfa başlığı: Tek Sayıların Toplamı (Animasyonlu))
 - `tek-sayi-toplam5` — Tek Sayı Toplamı (Seri) (sayfa başlığı: Tek Sayıların Toplamı (Animasyonlu))
@@ -106,8 +106,8 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `gorelilik-uzayzaman` — Görelilik (sayfa başlığı: Özel Görelilik: Uzay-Zaman Diyagramı)
 - `gunes-sistemi` — Güneş Sistemi
 - `ay-evreleri` — Ay & Mevsimler (sayfa başlığı: Ay Evreleri ve Mevsimler)
-- `mantik-kapilari` — Mantık Kapıları
-- `molekul` — Molekül (sayfa başlığı: Molekül Görselleştirme)
+- `mantik-kapilari` — Mantık Kapıları (sayfa başlığı: Mantık Kapıları Laboratuvarı)
+- `molekul` — Molekül (sayfa başlığı: Moleküller ve Kimyasal Bağlar Laboratuvarı)
 - `kepler-yasalari` — Kepler Yasaları (sayfa başlığı: Kepler Yasaları — Gezegen Yörüngeleri)
 - `kirinim-izgarasi` — Kırınım Izgarası (sayfa başlığı: Kırınım Izgarası: Çok Yarıklı Girişim ve Spektrometre)
 - `duran-dalgalar` — Duran Dalgalar (sayfa başlığı: Duran Dalgalar: Tel, Hava Sütunu ve Harmonikler)
@@ -134,7 +134,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `dna-replikasyon` — DNA Replikasyonu
 - `mitoz-mayoz` — Mitoz & Mayoz
 - `kalp-dolasim` — Kalp & Dolaşım (sayfa başlığı: Kalp ve Dolaşım: Basınç–Hacim Döngüsü, Windkessel ve Oksijen Taşıma)
-- `besin-agi` — Besin Ağı
+- `besin-agi` — Besin Ağı (sayfa başlığı: Besin Ağı ve Enerji Akışı Laboratuvarı)
 - `av-avci-lotka-volterra` — Av–Avcı Modeli (sayfa başlığı: Av–Avcı Modeli: Lotka–Volterra Döngüleri ve Ötesi)
 - `dogal-secilim` — Doğal Seçilim (sayfa başlığı: Doğal Seçilim Simülasyonu)
 - `enzim-kinetigi` — Enzim Kinetiği (sayfa başlığı: Enzim Kinetiği (Michaelis-Menten) | Açelya)

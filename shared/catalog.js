@@ -94,6 +94,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "besin-agi": {
+    "title": "Besin Ağı: Bir Lokmanın Yolculuğu",
+    "tagline": "Bir baykuşun öğününü üreticilere kadar izle. Enerji bütçesini kur; üç aktarımın nasıl çarpıldığını ve bir yolun var olmasının neden hayatta kalma garantisi olmadığını keşfet.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "bicimsel-diller-ve-otomata-teorisi": {
     "title": "Otomatlar: Dört Daireyle Düşünen Makine",
     "tagline": "Dört daire ve sekiz ok, bir dizgiyi 'evet' ya da 'hayır' diye yargılayabilir; ama parantez saymak için bir yığın, toplama yapmak için bir bant gerekir. Hangi makine neyi başarabilir, bu sayfanın sorusu.",
@@ -128,6 +135,13 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "collatz": {
+    "title": "Collatz: İki Kural, Bitmeyen Soru",
+    "tagline": "27 sayısı 1'e gitmeden önce 9232'ye yükselir. Kesin tam sayılarla bu yolu izle; durma süresini, karşı örneği ve hesap ile ispat arasındaki farkı ayır.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "dairesel-hareket": {
     "title": "Dairesel Hareket: Hiç Yere Varmayan Düşüş",
@@ -479,6 +493,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "mantik-kapilari": {
+    "title": "Mantık Kapıları: Karardan Hesaba",
+    "tagline": "İki anahtar bir karar verir; aynı kapılar bir araya gelince toplama yapar. Doğruluk tablolarını, De Morgan eşdeğerliklerini ve dört bit boyunca ilerleyen taşımayı araştır.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "manyetik-alan": {
     "title": "Manyetik Alan: Akımın Görünmez Gölgesi",
     "tagline": "İçinden akım geçen sıradan bir bakır tel, pusula iğnesini Dünya'nın elinden alacak kadar güçlü bir mıknatısa dönüşür. Teli sarıp sarımları yığınca bu görünmez alanı açıp kapatabilir, ölçebilir, büyütebilirsin.",
@@ -535,6 +556,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 25
   },
+  "molekul": {
+    "title": "Moleküller: Atomları Bir Arada Tutan Ne?",
+    "tagline": "Bir kimyasal bağ, iki top arasındaki çubuktan fazlasıdır: bir enerji kuyusu. Kuyunun biçimini ölç, izotopla titreşimi değiştir ve kutuplu bağların toplamını keşfet.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "newton-hareket-yasalari": {
     "title": "Newton Yasaları: Kuvvet, Değişim ve Bir Çarpışma",
     "tagline": "Newton'un üç yasası iki topun tek bir çarpışmasına sığar: kuvvet yokken dümdüz giden toplar, temas anında eşit ve zıt iki itme, önce de sonra da kuruşu kuruşuna aynı kalan toplam momentum.",
@@ -575,6 +603,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Sürücüsüz bir araç saniyede onlarca kez üç soru sorar: Neredeyim, ne görüyorum, nereden gideyim? Lazer, radar, 1968 tarihli bir algoritma ve yüz yıllık bir geri besleme fikri bu soruları yanıtlar.",
     "field": "Mühendislik",
     "level": "Lise",
+    "minutes": 35
+  },
+  "pascal-ucgeni": {
+    "title": "Pascal Üçgeni: Saymak, Tartmak, Desen Bulmak",
+    "tagline": "İki komşunun toplamı nasıl seçimleri sayar, olasılık dağılımına dönüşür ve tek sayılardan bir fraktal çıkarır? Pascal üçgenini kombinasyondan Lucas teoremine kadar izle.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
     "minutes": 35
   },
   "periyodik-tablo": {

@@ -221,7 +221,7 @@ window.ACELYA_DIGEST["normal-dagilim"] = {
     },
   ],
   next: [
-    { href: "pascal-ucgeni.html", title: "Pascal Üçgeni", why: "Galton tahtasındaki yol sayıları Pascal üçgeninin satırlarıdır. 13 satır çizdir: 12 numaralı satır 1, 12, 66, 220, 495, 792, 924 diye gider, toplamı 2¹² = 4096'dır; kutu olasılığı ikisinin oranıdır." },
+    { href: "pascal-ucgeni.html", title: "Pascal Üçgeni", why: "Satır n kaydırıcısını 12 yap: toplam 4096, orta katsayı 924. Galton tahtasında eş olasılıklı sağ–sol adımlar için orta kutu olasılığı 924/4096'dır; binom deneyiyle karşılaştır." },
     { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş", why: "Galton topunun yolu tek boyutlu bir rastgele yürüyüştür. Düzlemde n adım sonra uzaklığın karesinin ortalaması tam n'dir; ortalama uzaklık ise √n ile orantılı büyür ama √n'nin yaklaşık 0.89'u kadardır." },
     { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma", why: "Başka bir rastlantı makinesi: kalan çekirdek sayısı binom, kısa aralıktaki sayımlar Poisson dağılır ve göreli gürültü 1/√N ile küçülür." },
     { href: "bayes-olasilik.html", title: "Bayes Olasılığı", why: "Güven aralığının cevaplamadığı soru: veriyi gördükten sonra bir iddiaya ne kadar inanmalıyım? Önsel, olabilirlik ve sonsalla kanıtla fikir güncellemek." },

@@ -869,3 +869,33 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
 - ✔ `asal-rsa.html`: φ(n)/4 sınırı yalnız 9'dan büyük tek bileşik sayılarda yazılıyor (9'da 2 güçlü yalancı vardır). Tarama kartı ve grafik noktaları rho yinelemelerini aynı sayar. 561'in durum satırı "önemsiz olmayan karekök" diyor.
 - ❑ `lissajous.html`: varsayılan Verlet (adım 0.01 s) 3:2 kaplamasını 200 s'de %15.04'ten %16.46'ya sürükler (frekans hatası +2.08·10⁻⁵); RK4 %15.04'te kalır, sayfa söylüyor. Yaklaşık 450'den çok kendini kesme sayılmaz, kuramsal sayı yazılır.
 - ✔ `pisagor.html`: rastgelelik yok. Yaklaşık 10 km'nin altındaki üçgenlerde küçük üçgen yaklaşımının artığı çift duyarlıkta çözünmez; durum satırı bunu yazar. Oktant 8.5 % sapmayı yazar ama kırmızıya dönmez; 3000 × 4000 km'lik üçgen döner. P(10⁷) = 1 591 579, oran 1.00002 (sayfa 10⁷'yi göstermez). Küre tam küredir.
+
+## A7 kapanışı — 10 Kasım 2026
+
+- ✔ `pascal-ucgeni.html`: çalışmayan PDF ve biriken animasyon zamanlayıcısı
+  kaldırıldı. BigInt katsayıları ve satır toplamları, tohumlu binom deneyi,
+  asal modüllerde kalan deseni ve Lucas sayımı eklendi. Satır numarası n ile
+  çizilen satır sayısı R ayrı tanımlandı; örneklem varyansı M'ye bölünür.
+- ✔ `collatz.html`: Number kesinlik kaybı, kesri sessizce kesme ve sınırsız
+  döngü giderildi. BigInt, girdi/adım/bit sınırları, doğrusal/log grafik,
+  ilk altına iniş ile toplam durma süresi ayrımı ve iptal edilebilir tarama
+  var. Sınırda kalan başlangıçlar karşı örnek veya tamamlanmış ölçüm sayılmaz.
+- ✔ `molekul.html`: hatalı etan bağlantısı, açılarıyla uyuşmayan yapılar ve
+  fiziksel olmayan ölçek animasyonu yerine kaynaklı altı yapı, yaklaşık
+  H₂/D₂ Morse modeli ve dipol vektörleri geldi. Gerçek kuantum molekülü ile
+  klasik model; Dₑ ile D₀; ölçülen su dipolü ile oyuncak bağ okları ayrıldı.
+- ✔ `mantik-kapilari.html`: yedi kapı, bütün doğruluk tabloları, De Morgan
+  karşı örnekleri, yarım/tam toplayıcı ve dört bit taşıma zinciri eklendi.
+  NOT'ta ikinci giriş kullanılmıyor; devreler ideal ve gecikmesizdir.
+- ✔ `besin-agi.html`: her seçimin bütün ağı vurgulaması ve gerekçesiz
+  beslenme ilişkileri kaldırıldı. Açıkça varsayımsal yönlü ağ; bağımsız
+  üretim/verim bütçesi; nüfus tahmini yapmayan kaynak erişimi deneyi var.
+  Üç bütçe formülünde ayraç ile çarpma işareti karışıklığı giderildi.
+- ✔ Görsel QA: Pascal/Collatz/besin ağında ortak tema kurallarının seçili
+  sekmeyi örtmesi; besin ağında tuval yüksekliğinin mobilde düşüp düğümleri
+  üst üste getirmesi giderildi. Molekülde de tuval yüksekliği ve açık tema
+  kontrastı düzeltildi.
+- ✔ Beş yeni defter bağımsız doğrulayıcı/editörden geçti. Eski beş defterin
+  gelen bağlantıları yeni kontrollere uyarlandı. `npm run test:a7`, beş
+  laboratuvarın gerçek kontrollerini iki görünümde kullanarak 136 referans
+  kontrolünü çalıştırır; kaynak/arazi doğrulamasının yerini tutmaz.

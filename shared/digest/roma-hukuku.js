@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
     { href: "uluslararasi-iliskiler.html", title: "Uluslararası İlişkiler", why: "Bütün halklara uygulanan ius gentium, 16. ve 17. yüzyılda Vitoria ve Grotius'la devletler arası 'milletler hukuku'na dönüştü; sayfanın Uluslararası Hukuk panelinde bugünkü hâlini gör." },
     { href: "makro-ekonomi-ve-para-politikalari.html", title: "Makro Ekonomi ve Para Politikaları", why: "Veratius'un 25 aslık tokadı, sabit tutarların enflasyonla nasıl eridiğinin erken bir dersiydi: paranın değeri neden düşer, merkez bankası buna nasıl karşı koyar?" },
     { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi ve Üretim Faktörleri", why: "Mülkiyet ve sözleşme olmadan piyasa kurulamaz; Roma'nın dominium ve obligatio kavramlarının ekonomideki karşılığı." },
-    { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Formula bir koşul cümlesi, exceptio da onun 'VE DEĞİL' kolu: 'borç var VE hile yok ise mahkûm et' cümlesini kapılarla kendin kur." },
+    { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Formula bir koşul cümlesi, exceptio da onun 'VE DEĞİL' kolu gibi düşünülebilir. VE ile DEĞİL kapılarının doğruluk tablolarını inceleyerek bu mantıksal benzetimi sorgula." },
   ],
   sources: [
     { title: "Wikipedia · Roman law", url: "https://en.wikipedia.org/wiki/Roman_law", note: "Dönemler, kaynaklar, yargılama düzenleri ve resepsiyon için kapsamlı genel bakış (İngilizce)." },

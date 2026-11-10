@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["makine-dili-assembly-c"] = {
     { href: "bilgisayar-sistemleri-ve-mimarisi.html", title: "Bilgisayar Sistemleri ve Mimarisi", why: "Byte'ları yürüten makinenin içi: getir-çöz-yürüt döngüsü, boru hattı ve önbellek." },
     { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "C ile assembly arasındaki boş bırakılan adımlar: token, ağaç, ara kod ve iyileştirme." },
     { href: "isaretciler-ve-bellek-yonetimi.html", title: "İşaretçiler ve Bellek Yönetimi", why: "swap örneğindeki köşeli parantezlerin anlamı: adresler, yığın ve C'nin bedeli." },
-    { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Bir katman daha aşağı: imul komutunu gerçekten yapan transistör devreleri." },
+    { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Bir katman daha aşağı: ideal mantık kapılarının tam toplayıcıya, dört bitlik toplamanın taşıma zincirine nasıl dönüştüğünü incele." },
   ],
   sources: [
     { title: "Wikipedia · x86 calling conventions", url: "https://en.wikipedia.org/wiki/X86_calling_conventions", note: "System V AMD64 ve Windows x64 kurallarının karşılaştırmalı tablosu; sayfadaki çağrı düzeni şemasının kaynağı niteliğinde (İngilizce)." },

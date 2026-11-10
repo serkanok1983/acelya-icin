@@ -54,6 +54,8 @@ npm run check        # bağlantılar, meta etiketleri, defter şeması, sw liste
 npm run build:sw     # sw.js önbellek listelerini ve sürüm adını yeniler
 npm install && npx playwright install chromium
 npm run smoke        # her sayfayı Chromium'da açar; JS hatası ve defter görünürlüğü
+node scripts/smoke.mjs --only sarkac --digest --tabs --width 390
+npm run test:a7      # A7'nin beş laboratuvarında sayısal sonuçlar ve etkileşimler
 npm run shot -- sarkac --theme light --scroll digest   # ekran görüntüsü
 ```
 
@@ -67,10 +69,19 @@ Yeni bir konu eklerken:
 
 ## Dağıtım
 
-`main` dalına her push, GitHub Actions ile önce denetim ve tarayıcı duman
-testini çalıştırır, sonra GitHub Pages'e dağıtır
-(`.github/workflows/deploy-pages.yml`). Repo ayarlarında Pages → Source:
-GitHub Actions seçili olmalıdır.
+Güncel yayın yolu GitHub Pages'in `gh-pages` dalıdır. GitHub Actions
+kullanılamadığı için aynı denetimleri yerelde yapan yardımcı kullanılır:
+
+```bash
+npm run deploy:check # denetler ve commit'lenmiş HEAD'den _site paketini oluşturur
+npm run deploy       # denetler, paketler ve gh-pages dalına yayınlar
+```
+
+Paketleme HEAD'den yapıldığı için yayınlanacak değişiklikler önce commit
+edilmelidir. Pages ayarı: **Deploy from a branch → gh-pages / (root)**.
+Depodaki Actions workflow'u korunur; katı defter denetimi eksik defterler
+tamamlanmadan geçmez. Güncel kapsam ve devam sırası
+[`docs/DEVAM-PLANI.md`](docs/DEVAM-PLANI.md) içindedir.
 
 ## Gizlilik ve hesaplar
 

@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-cc8c16f174";
+const VERSION = "acelya-ffaf483948";
 // --- end:version ---
 
 // --- generated:core ---
@@ -241,11 +241,13 @@ const DIGESTS = [
   "shared/digest/ay-evreleri.js",
   "shared/digest/basinc.js",
   "shared/digest/bayes-olasilik.js",
+  "shared/digest/besin-agi.js",
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
   "shared/digest/birim-cember.js",
   "shared/digest/cift-sarkac.js",
   "shared/digest/cizge-teorisi.js",
+  "shared/digest/collatz.js",
   "shared/digest/dairesel-hareket.js",
   "shared/digest/dalga-superpozisyonu.js",
   "shared/digest/denklem-denklestirme.js",
@@ -296,6 +298,7 @@ const DIGESTS = [
   "shared/digest/makine-ogrenmesi-derin-ogrenme-llm.js",
   "shared/digest/makro-ekonomi-ve-para-politikalari.js",
   "shared/digest/mantik-devresi.js",
+  "shared/digest/mantik-kapilari.js",
   "shared/digest/manyetik-alan.js",
   "shared/digest/matris-donusumleri.js",
   "shared/digest/mekatronik-muhendisligi.js",
@@ -304,12 +307,14 @@ const DIGESTS = [
   "shared/digest/mikro-ekonomi-ve-uretim-faktorleri.js",
   "shared/digest/mitoz-mayoz.js",
   "shared/digest/molekul-sekli.js",
+  "shared/digest/molekul.js",
   "shared/digest/newton-hareket-yasalari.js",
   "shared/digest/normal-dagilim.js",
   "shared/digest/nukleer-fizik.js",
   "shared/digest/optik-yansima-kirilma.js",
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
+  "shared/digest/pascal-ucgeni.js",
   "shared/digest/periyodik-tablo.js",
   "shared/digest/ph-indikator.js",
   "shared/digest/pi-yaklasimi.js",

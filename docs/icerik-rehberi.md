@@ -120,13 +120,13 @@ Yalnızca aşağıdaki alan adlarıyla başlayan bağlantılar kabul edilir
 bölüm sayfası) yalnızca bölüm numarası ve başlığından eminsen kullanılır;
 emin değilsen kitabın ana sayfasını ver.
 
-- https://openstax.org/ · https://ocw.mit.edu/ · https://phet.colorado.edu/
+- https://openstax.org/ · https://ocw.mit.edu/ · https://tubes.mit.edu/ · https://phet.colorado.edu/
 - https://tr.wikipedia.org/wiki/ · https://en.wikipedia.org/wiki/
 - https://tr.khanacademy.org/ · https://www.khanacademy.org/
 - http://hyperphysics.phy-astr.gsu.edu/ · https://www.feynmanlectures.caltech.edu/
 - https://mathworld.wolfram.com/ · https://www.3blue1brown.com/
 - https://goldbook.iupac.org/ · https://webbook.nist.gov/ · https://www.nist.gov/ · https://physics.nist.gov/ · https://www.bipm.org/
-- https://www.ncbi.nlm.nih.gov/ · https://www.biointeractive.org/
+- https://www.ncbi.nlm.nih.gov/ · https://pubmed.ncbi.nlm.nih.gov/ · https://www.biointeractive.org/
 - https://science.nasa.gov/ · https://www.nasa.gov/ · https://www.esa.int/ · https://www.jpl.nasa.gov/ ·
   https://nssdc.gsfc.nasa.gov/ (NASA gezegen bilgi sayfaları)
 - https://developer.mozilla.org/ · https://docs.python.org/ · https://www.w3.org/

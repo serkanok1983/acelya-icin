@@ -245,8 +245,8 @@ window.ACELYA_DIGEST["molekul-sekli"] = {
     },
     {
       href: "molekul.html",
-      title: "Molekül Görselleştirme",
-      why: "Tek merkezden çok merkezliye: eten, etin, benzen ve etanolü 3B döndür, <strong>Gösterim Türü</strong> menüsünde top-çubuk (Ball &amp; Stick) ile boşluk dolduran (Space-filling) gösterimi karşılaştır. Koordinatlar temsili; açıları VSEPR ile sına.",
+      title: "Moleküller ve Kimyasal Bağlar",
+      why: "Geometriden enerjiye geç: galeride su, CO₂ ve metanı döndür; Morse kuyusunda bağ titreşimini ölç; Dipol atölyesinde yönleri değiştirerek kutuplu bağların toplamının neden sıfırlanabildiğini incele.",
     },
   ],
   sources: [

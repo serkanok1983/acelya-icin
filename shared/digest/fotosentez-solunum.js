@@ -256,7 +256,7 @@ window.ACELYA_DIGEST["fotosentez-solunum"] = {
     {
       href: "besin-agi.html",
       title: "Besin Ağı",
-      why: "Güneşten otlara, otlardan tavşan ve geyiğe, oradan tilki, kurt ve kartala: bir canlıya tıklayıp fotosentezle yakalanan enerjinin ağda hangi yollardan aktığını izle.",
+      why: "Otlar ve yoncadan çekirge, fare, kurbağa, yılan ve baykuşa uzanan yönlü yolları izle. Ardından ayrı enerji zincirinde net birincil üretim ile aktarım veriminin farklı etkilerini karşılaştır.",
     },
     {
       href: "denklem-denklestirme.html",

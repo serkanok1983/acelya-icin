@@ -1,7 +1,10 @@
 # Ajan İstemleri (Keşif Defteri üretim hattı)
 
 Bu oturumda kullanılan istemler. `${slug}` yerine sayfa slug'ı, `${COMMON}` yerine ortak bağlam gelir.
-Üç ajan birbirinden bağımsız çalışır (ayrı bağlam); yalnızca `shared/digest/<slug>.js` dosyasını düzenlerler.
+İnce sayfalarda güncel sıra **kurucu → bağımsız yazar → bağımsız doğrulayıcı+editör**dür.
+Kurucu yalnız `<slug>.html` ve kendi kurucu raporunu; yazar ve doğrulayıcı+editör
+yalnız `shared/digest/<slug>.js` dosyasını düzenler. Aynı sayfanın üç aşamasını
+farklı ajanlar üstlenir; koordinatör ortak belgeler, katalog ve service worker'ı kapatır.
 Her ajan sonunda `node scripts/check-site.mjs --only <slug>` sıfır hata vermelidir.
 
 ## Ortak bağlam (COMMON)
@@ -197,8 +200,8 @@ main changes; simulationNotes; remaining uncertainties.
   dakikada yazılmıştı. Ajanları 5–6'lık gruplarla çalıştır, her istemde 30 dakikalık bütçe ve `timeout` kuralı olsun,
   her grup bitince commit'le.
 - Ajan raporları kaybolabilir: kurucu raporlarını dosyaya yazdır (`.shots/briefs/`), sayfa sayılarını oradan al.
-- `smoke.mjs` sayfayı yalnız varsayılan sekmesiyle açar; sekme içindeki bir kod yolunu değiştirdikten sonra bütün
-  sekmeleri (ve sekme içi düzenleri) bir Playwright betiğiyle tek tek açıp `pageerror` dinle. 7 Kasım'da hava sütunu
+- `smoke.mjs --tabs` bütün `[role="tab"]` sekmelerini açar; bu bayrak olmadan yalnız varsayılan sekme sınanır.
+  Sekme içindeki denetimleri ve düzenleri ayrıca Playwright ile kullanıp sonuçlarını doğrula. 7 Kasım'da hava sütunu
   sekmesindeki bir `ReferenceError` duman testinden geçti, ancak böyle yakalandı.
 - Bağlantı kesintisi bütün ajanları aynı anda düşürebilir (6 Kasım, A3'ün altı kurucusu 55. dakikada). Kurucular
   sayfayı erken diske yazıp üzerinde yinelemeli; düşen ajan `resume` ile, diskteki durum anlatılarak kaldığı yerden
