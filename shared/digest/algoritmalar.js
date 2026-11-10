@@ -196,7 +196,7 @@ window.ACELYA_DIGEST["algoritmalar"] = {
     },
   ],
   next: [
-    { href: "siralama-yarisi.html", title: "Sıralama Yarışı", why: "Beş algoritmayı aynı dizide yan yana yarıştır; 780 ile 170 arasındaki farkı gözünle gör." },
+    { href: "siralama-yarisi.html", title: "Sıralama Yarışı", why: "Kabarcık, hızlı ve birleştirmeli sıralamayı aynı girdide karşılaştır; anahtar karşılaştırmalarını ve ana diziye yazmaları ayrı say." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "BFS'in yetmediği yer: ağırlıklı kenarlarda Dijkstra ve A* en kısa yolu nasıl bulur?" },
     { href: "hanoi-kuleleri.html", title: "Hanoi Kuleleri", why: "Özyinelemenin en temiz örneği: n disk için 2ⁿ − 1 hamle, ve bunun neden kaçınılmaz olduğu." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "O-gösterimini matematiksel olarak kur: limitler, alt sınırlar ve Master teoremi." },

@@ -208,8 +208,8 @@ window.ACELYA_DIGEST["siber-guvenlik"] = {
   ],
   next: [
     { href: "asal-rsa.html", title: "Asal Sayılar ve RSA", why: "Diffie–Hellman'ın kardeşi: aynı 'tersi zor' fikri, bu kez çarpanlara ayırmayla." },
-    { href: "sezar-sifre.html", title: "Sezar Şifresi", why: "Sıklık analizini elinle yap; 28 anahtarın neden birkaç saniyede bittiğini gör." },
-    { href: "enigma-makinesi.html", title: "Enigma Makinesi", why: "Bilinen düz metnin (crib) bir makineyi nasıl kırdığı; AAAA deneyinin tarihteki büyük versiyonu." },
+    { href: "sezar-sifre.html", title: "Sezar Şifresi", why: "26 veya 29 harfli alfabede bütün kaydırmaları dene; frekansların yer değiştirmesinin bilgiyi neden gizleyemediğini incele." },
+    { href: "enigma-makinesi.html", title: "Enigma Makinesi", why: "Bir harfin rotorlar ve yansıtıcıdaki yolunu izle; çift adımlamayı ve aynı başlangıç ayarının çözme için neden gerektiğini araştır." },
     { href: "internet-ve-ag-teknolojileri.html", title: "İnternet ve Ağ Teknolojileri", why: "Port, TCP ve UDP ne demek; güvenlik duvarının ağın neresinde durduğunu anla." },
   ],
   sources: [

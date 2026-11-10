@@ -192,7 +192,7 @@ window.ACELYA_DIGEST["internet-ve-ag-teknolojileri"] = {
   ],
   next: [
     { href: "siber-guvenlik.html", title: "Siber Güvenlik ve Kriptografi", why: "Paket açık bir zarftır; HTTPS'in TLS katmanı onu nasıl mühürler, Diffie-Hellman anahtarı ortak kanalda nasıl kurar?" },
-    { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "OSPF'nin içindeki Dijkstra'yı kendi gözünle çalıştır: yönlendirme tablosu böyle dolar." },
+    { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "Dijkstra'nın en düşük birikmiş maliyetle hücre seçmesini ızgarada izle; bunu OSPF'nin en kısa yol fikriyle karşılaştır." },
     { href: "cizge-teorisi.html", title: "Çizge Teorisi", why: "Canvas'taki düğümler ve hatlar bir çizgedir; yedek yollar, kesme noktaları ve bağlantılılık burada başlar." },
     { href: "asal-rsa.html", title: "Asal Sayılar ve RSA", why: "Sunucunun kimliğini kanıtlayan sertifikaların altındaki aritmetik: büyük asallar ve mod alma." },
   ],

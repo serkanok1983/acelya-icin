@@ -229,7 +229,7 @@ window.ACELYA_DIGEST["duran-dalgalar"] = {
     {
       href: "fourier-ses.html",
       title: "Fourier: Ses Analizi",
-      why: "Sesi FFT ile frekans çubuklarına ayır: sinüs, kare, testere ve üçgen dalgaların harmonik tariflerini karşılaştır ya da mikrofonla kendi sesini incele.",
+      why: "Harmonik toplam, örnekleme ve canlı spektrumu ayrı deneylerde incele; mikrofonun ölçtüğü spektrumla kurduğun sinyalin bileşenlerini karşılaştır.",
     },
     {
       href: "klasik-girisim.html",

@@ -1073,3 +1073,68 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
   açılmış fark polinomları, kuvvet toplamları ve BigInt ortak paydalı
   rasyonel seri toplamlarıdır. İlk uygun N, logaritma veya kayan nokta
   bölmesi kullanmadan tamsayı eşitsizliğiyle bağımsız bulunur.
+
+## C — Ses, renk, şifreleme ve algoritmalar (10 Kasım 2026)
+
+- ✔ `fourier-ses`: beş harmonikten normalize dalga, kontrollü DFT/örnekleme
+  ve gerçek Web Audio analizörü ayrı deneyler. Canlı tepe, gruplanmış bir
+  sütunun sol ucundan değil gerçek FFT kutusundan okunur. Dikdörtgen/Hann
+  ile canlı Blackman penceresi ve normalleştirmeler birbirine karıştırılmaz.
+  Sıfır/Nyquist sinüsü, katlanma, sızıntı ve kutu aralığının sınırları açık.
+  İlk harmonik sıfırken 1/f₀ zorunlu en küçük periyot sayılmaz; referans
+  periyodu denir. Durdur eski ölçüm okumalarını da temizler.
+- ✔ `ses-sentezleyici`: gerçek doğrusal ADSR otomasyonu, erken bırakma,
+  alçak geçiren biquad ve eşit tamperaman notaları. Web Audio lowpass Q
+  parametresinin dB birimi hesaba katılır. Zarfın örnekleri ve filtreden
+  önce/sonra kaydedilen RMS, OfflineAudioContext ile kuramla karşılaştırılır.
+  Canlı grafik gerçek cihaz örnekleme hızını kullanır; çevrimdışı ölçüm
+  48 kHz'dir. Eski kaynağın bitiş olayı yeni notayı kapatamaz.
+- ✔ İki ses sayfası açılışta AudioContext oluşturmaz. Ses açık eylemle
+  başlar; sekme, ayar, Escape, ortak sessiz tercih, gizlenme ve sayfadan
+  ayrılma temizliği var. Gecikmiş mikrofon sonucunda iptal edilen akışın
+  track'leri kapatılır. Kök tarayıcı kontrolü bu yarışı Web Audio'dan
+  üretilmiş gerçek MediaStream ve kontrollü izin yanıtlarıyla sınadı;
+  fiziksel mikrofon veya hoparlörden dinleme testi yapılmış sayılmaz.
+- ✔ `renk-teorisi`: HSV artık yeniden etiketlenmiş HSL değildir. Kanonik
+  renk kayan noktalı sRGB'de kalır; gösterim değişimi rengi yuvarlamaz,
+  kaydırıcı DOM'u yeniden kurulmaz. Kod/lineer ışık karışımı ve ideal
+  RGB ışıkları/CMY filtreleri ayrı; boya veya yazıcı benzetimi iddiası yok.
+  Gri ton açısı tanımsız, luminans ile HSL L/HSV V farklı, HEX gösterimi
+  yuvarlanmış ve Y hesabı yuvarlanmamış değerlerdir.
+- ✔ `sezar-sifre`: açık 26/29 harfli alfabeler, I/ı ve İ/i ayrımı, NFC ve
+  isteğe bağlı kayıplı sadeleştirme. Şifreleme/çözme harf izi seçili işlem
+  yönünde hesaplanır. Bütün anahtarlar (0 dahil) denenir; dil kararı
+  uydurulmaz. Frekans/çakışma oranı sayılır, N<2 tanımsızdır.
+  Bağımsız incelemede B+akut gibi işaretli kümelerin kaydırıldıktan sonra
+  yeniden NFC'de birleşip ters çözümü bozduğu bulundu. NFC sonrası artık
+  birleştirici işaret taşıyan kümeler kaydırma/sadeleştirme/sayımda tek
+  parça alfabe dışı tutulur; hazırlama idempotansı ve frekans korunumu
+  genişletilmiş regresyonla doğrulandı.
+  NFC'nin karakter sayısını artırabildiği ikinci sınır bulgusunda 500 kod
+  noktası sınırı normalleştirme sonrasına taşındı. Üç deney uzunluk
+  hatasını görünür mesajla karşılar, eski sonuçları temizler ve geçerli
+  metin girilince yeniden çalışır; beklenmeyen program hataları yutulmaz.
+- ✔ `enigma-makinesi`: I–V rotorları, B/C yansıtıcı, halka/pencere ve
+  fiş tahtası. Akımdan önce mekanik adım, gerçek çift adım, ileri/geri
+  elektrik yolu ve sabit eşlemenin tersinirliği ayrı deneylerdir. Eski
+  kilometre sayacı ilerleyişi kaldırıldı; no-self özelliği çözme algoritması
+  diye sunulmaz. Tarihsel mesaj ve Hamer/Tony Sale örnekleri referanstır.
+- ✔ `siralama-algoritmalari`: aynı başlangıç, etiketli eşit anahtarlar,
+  gerçek işlem izi ve ayrı sıralı/kesinleşmiş bölgeler. Komşu takaslı
+  ekleme ve kabarcık kararlı; seçim için 2A,2B,1C karşı örneği var.
+- ✔ `siralama-yarisi`: Bubble/son-pivot Quick/Merge aynı dizinin kopyasını
+  işler. Karşılaştırma, ana dizi yazması ve tampon yazması ayrı sayaçlar;
+  ortak iş bütçesi CPU süresi değildir. Bitişte hazır sort ile sonucu
+  değiştirme kaldırıldı; merge tamponları ve ana dizinin ara durumu açık.
+- ✔ `yol-bulma-algoritmalari`: dört yönlü ızgarada 1/5 hücre giriş bedeli,
+  BFS en az adım, Dijkstra/A* en az maliyet. Manhattan alt sınırı ve
+  tutarlılık koşulu açıklanır. Kuyruk/kenar/sezgi işi ayrı; erişilmez yol
+  null, başlangıç=hedef 0 adım/0 maliyet. Sürüklemenin klavye ve satır/sütun
+  menüsü eşdeğerleri var; aynı harita korunarak yöntem karşılaştırılır.
+- ✔ `test:c`: 22 çekirdek + 4 tarayıcı kripto senaryosu, 86.345 algoritma kontrolü,
+  gerçek tarayıcı dahil 41.871 ses/renk kontrolü. Referanslar yayımlanmış
+  şifreli mesajlar, küçük girdi uzayları, bağımsız Bellman–Ford, birim
+  kenarlı arama, Parseval, Butterworth dönüşümü ve Python colorsys'tir.
+  Kök ek kontrolünde 435 HSL örneği tarayıcının yerel Canvas dönüşümüyle
+  en çok 1 kod düzeyi farklıydı; dokuz çevrimdışı filtre deneyi bağımsız
+  kuramdan en çok 1,3×10⁻⁸ ayrıldı. Bunlar sınanan modellerin regresyonudur.

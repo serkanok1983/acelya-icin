@@ -241,6 +241,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "enigma-makinesi": {
+    "title": "Enigma: Her Harften Önce Değişen Yol",
+    "tagline": "Aynı A tuşu neden BDZGO üretir? Rotor adımını elektrik yolundan ayır; çift adımı, halka ayarını ve aynı başlangıçla çözmenin cebirini incele.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 32
+  },
   "enzim-kinetigi": {
     "title": "Enzim Kinetiği: Yaşamın Hız Sınırı",
     "tagline": "Enzimler tepkimeleri milyonlarca kat, en uç örnekte 10¹⁷ kat hızlandırır; ama her birinin bir hız tavanı vardır. Bu tavanı ve ona nasıl yaklaşıldığını anlatan temel model hâlâ 1913'te yazılmış tek bir denklemdir.",
@@ -282,6 +289,13 @@ window.ACELYA_CATALOG = {
     "field": "Biyoloji",
     "level": "Lise",
     "minutes": 30
+  },
+  "fourier-ses": {
+    "title": "Fourier: Bir Sesin İçindeki Sayılar",
+    "tagline": "Dalgayı kur, örneklerini çöz ve gerçek analizörle karşılaştır. Bir spektrumun ne söylediğini, neyi tek başına söyleyemediğini ölç.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "genetik-caprazlama": {
     "title": "Genetik Çaprazlama: Bezelyeden Gen Haritasına",
@@ -745,6 +759,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "renk-teorisi": {
+    "title": "Renk: Kodun Yarısı, Işığın Yarısı",
+    "tagline": "Siyahla beyazın ortası neden bazen 128, bazen 188? Renk koordinatlarını, ışıkta karışımı ve ideal filtreleri aynı hesapta birbirinden ayır.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "riemann-toplamlari": {
     "title": "Riemann Toplamları: Hatanın Hızı ve Monte Carlo",
     "tagline": "Dikdörtgen, yamuk, parabol ve rastgele nokta: aynı alanı dört yolla ölç, hatanın n ile hangi hızda eridiğini log–log grafikte gör, tek boyutta kaybeden Monte Carlo'nun çok boyutta neden kazandığını hesapla.",
@@ -773,6 +794,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "ses-sentezleyici": {
+    "title": "Ses Sentezi: Bir Notanın Yaşamı",
+    "tagline": "Frekans notayı, zarf zaman içindeki kazancı, filtre frekansların paylaşımını belirler. Çizdiğin eğriyi gerçek ses işlemesiyle karşılaştır.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "sezar-sifre": {
+    "title": "Sezar: Harflerin Saklayamadığı İz",
+    "tagline": "Bir mesajı kaydır, bütün anahtarlarını dene ve değişmeyen izini bul. Modüler aritmetik, Türkçe alfabe ve sonlu örnek olasılığı aynı şifrede buluşuyor.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 28
+  },
   "siber-guvenlik": {
     "title": "Siber Güvenlik: Tersi Zor Olan İşlemler",
     "tagline": "Herkesin dinlediği bir hatta iki yabancı nasıl ortak bir sır kurar? Parola gücü neden bitle ölçülür, bir noktanın değişmesi özetin yarısını neden alt üst eder? Hepsi tek fikre dayanır: bir yönde kolay, tersi zor işlem.",
@@ -793,6 +828,20 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "siralama-algoritmalari": {
+    "title": "Sıralama: Sonucun Sakladığı Bilgi",
+    "tagline": "1, 2, 2 doğru sıralanmış olabilir; peki iki tane 2 yer değiştirdi mi? Kayıt kimlikleriyle kararlılığı, tur sınırlarıyla doğruluğu ve tersliklerle yapılan işi ölç.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
+  "siralama-yarisi": {
+    "title": "Sıralama: Yarışın Ölçüsü Ne?",
+    "tagline": "Aynı sekiz kayıt, üç yöntem ve üç ayrı iş sayacı. Karşılaştırma ile yazmayı ayır; pivot seçiminin, tamponun ve girdi boyutunun sonucu nasıl değiştirdiğini hesapla.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 32
   },
   "takimyildiz-haritasi": {
     "title": "Takımyıldız Haritası: Gökyüzünün Adres Defteri",
@@ -918,6 +967,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Her yıldız, kütleçekimi ile füzyon arasında yapılmış bir ateşkestir. H-R diyagramında bu ateşkesin nasıl kurulduğunu, ne kadar sürdüğünü ve nasıl bozulduğunu oku.",
     "field": "Yer ve Uzay",
     "level": "Lise",
+    "minutes": 30
+  },
+  "yol-bulma-algoritmalari": {
+    "title": "Yol Bulma: En Kısa Neyin Kısası?",
+    "tagline": "On adımlık yol 46, on iki adımlık yol 12 maliyetli olabilir. BFS, Dijkstra ve A* ile aynı haritada amaç, öncelik ve kanıt arasındaki bağı incele.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
     "minutes": 30
   }
 };

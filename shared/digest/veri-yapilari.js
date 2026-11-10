@@ -200,7 +200,7 @@ window.ACELYA_DIGEST["veri-yapilari"] = {
   ],
   next: [
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "O(1), O(log n), O(n) etiketlerinin arkasındaki matematik: büyüme hızlarını ölçmeyi ve karşılaştırmayı öğren." },
-    { href: "siralama-algoritmalari.html", title: "Sıralama Algoritmaları", why: "'Min. Çıkar'ı sekiz kez basınca yaptığın heapsort'u, hızlı sıralama ve birleştirmeli sıralamayla yan yana izle." },
+    { href: "siralama-algoritmalari.html", title: "Sıralama Algoritmaları", why: "Kabarcık, seçmeli ve eklemeli sıralamanın adımlarını izle; eşit anahtarların kimlikleriyle kararlılığın neyi koruduğunu gör." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "Kuyruk BFS'i, öncelik kuyruğu Dijkstra'yı çalıştırır; veri yapısı seçiminin bir haritada yolu nasıl bulduğunu gör." },
     { href: "isaretciler-ve-bellek-yonetimi.html", title: "İşaretçiler ve Bellek Yönetimi", why: "Bağlı listedeki 'sonraki' adresinin ve çağrı yığınının bellekte gerçekten neye karşılık geldiğini keşfet." },
   ],

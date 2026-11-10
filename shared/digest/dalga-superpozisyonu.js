@@ -258,7 +258,7 @@ window.ACELYA_DIGEST["dalga-superpozisyonu"] = {
     {
       href: "fourier-ses.html",
       title: "Fourier: Ses Analizi",
-      why: "'Harmonik karışım' beş sinüsü üst üste koyar; spektrum çubukları toplamı yeniden bileşenlerine ayırır.",
+      why: "Harmoniklerden bir sinyal kur; ayrı örnekleme deneyinde tek sinüsün DFT kutularını ve katlanmasını ölç.",
     },
     {
       href: "birim-cember.html",

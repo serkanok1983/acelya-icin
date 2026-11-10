@@ -83,14 +83,14 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `sarkac` — Sarkaç (sayfa başlığı: Sarkaç Laboratuvarı)
 - `cift-sarkac` — Çift Sarkaç (sayfa başlığı: Çift Sarkaç: Kaos ve Başlangıç Koşullarına Duyarlılık)
 - `dairesel-hareket` — Dairesel Hareket (sayfa başlığı: Dairesel Hareket — Merkezcil Kuvvet)
-- `tork-denge` — Tork ve Denge (sayfa başlığı: Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik)
+- `tork-denge` — Tork, Denge ve Statik (sayfa başlığı: Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik)
 - `is-enerji` — İş–Enerji (sayfa başlığı: İş–Enerji İlkesi)
 - `newton-hareket-yasalari` — Newton Yasaları (sayfa başlığı: Newton’un Hareket Yasaları ve Çarpışmalar)
 - `atislar` — Eğik Atış (sayfa başlığı: Eğik Atış: Hava Direnci ve En İyi Açı)
 - `serbest-dusme` — Serbest Düşme (sayfa başlığı: Serbest Düşme ve Hava Direnci)
 - `kaldirma-kuvveti` — Kaldırma Kuvveti (sayfa başlığı: Kaldırma Kuvveti: Arşimet İlkesi ve Yüzme)
-- `basinc` — Basınç (sayfa başlığı: Basınç: Hidrostatik, Pascal İlkesi ve Hidrolik)
-- `akiskanlar-mekanigi` — Akışkanlar (sayfa başlığı: Akışkanlar Mekaniği: Süreklilik, Bernoulli ve Viskozite)
+- `basinc` — Basınç ve Hidrolik Pres (sayfa başlığı: Basınç: Hidrostatik, Pascal İlkesi ve Hidrolik)
+- `akiskanlar-mekanigi` — Akışkanlar Mekaniği (sayfa başlığı: Akışkanlar Mekaniği: Süreklilik, Bernoulli ve Viskozite)
 - `dalga-superpozisyonu` — Dalga Süperpozisyonu
 - `doppler-etkisi` — Doppler (sayfa başlığı: Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması)
 - `elektrik-devresi-simulasyonu` — Elektrik Devresi (sayfa başlığı: DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları)
@@ -143,16 +143,16 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 
 ## Disiplinler Arası (48)
 
-- `fourier-ses` — Fourier Ses (sayfa başlığı: Fourier: Ses Analizi)
-- `sezar-sifre` — Sezar Şifresi
-- `siralama-algoritmalari` — Sıralama Algoritmaları
+- `fourier-ses` — Fourier: Ses ve Örnekleme (sayfa başlığı: Fourier: Sesten Örneklere)
+- `sezar-sifre` — Sezar Şifresi (sayfa başlığı: Sezar Şifresi: Harf Değişir, İz Kalır)
+- `siralama-algoritmalari` — Sıralama: Adım ve Kararlılık (sayfa başlığı: Sıralama: Adımlar ve Kararlılık)
 - `bayes-olasilik` — Bayes Olasılığı
-- `yol-bulma-algoritmalari` — Yol Bulma Algoritmaları
-- `siralama-yarisi` — Sıralama Yarışı (sayfa başlığı: Sıralama Algoritması Yarışı)
+- `yol-bulma-algoritmalari` — Yol Bulma Algoritmaları (sayfa başlığı: Yol Bulma: Az Adım mı, Az Maliyet mi?)
+- `siralama-yarisi` — Sıralama Yarışı: İş Sayacı (sayfa başlığı: Sıralama Yarışı: Aynı Girdi, Farklı İş)
 - `mantik-devresi` — Mantık Devresi (sayfa başlığı: Mantık Devresi Tasarımcısı)
-- `enigma-makinesi` — Enigma Makinesi (sayfa başlığı: Enigma Makinesi (II. Dünya Savaşı Şifreleme))
-- `ses-sentezleyici` — Ses Sentezleyici
-- `renk-teorisi` — Renk Teorisi
+- `enigma-makinesi` — Enigma Makinesi (sayfa başlığı: Enigma: Rotor, Adım ve Elektrik Yolu)
+- `ses-sentezleyici` — Ses Sentezi: Zarf ve Tını (sayfa başlığı: Ses Sentezleyici: Zarf ve Tını)
+- `renk-teorisi` — Renk: Kod, Işık ve Karışım
 - `internet-ve-ag-teknolojileri` — İnternet ve Ağ Teknolojileri
 - `siber-guvenlik` — Siber Güvenlik ve Kriptografi
 - `isletim-sistemleri-ve-linux` — İşletim Sistemleri ve Linux

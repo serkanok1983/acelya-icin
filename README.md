@@ -60,6 +60,7 @@ npm run test:fractals # dört fraktalın hesap çekirdekleri ve sınır durumlar
 npm run test:b2      # Penrose, Barnsley ve üç limit deneyinin matematiksel denetimi
 npm run test:b3      # Lorenz/harita-akış ve Fibonacci/Pascal: bağımsız sayısal ve geometrik denetim
 npm run test:b4      # Tek sayılar: gerçek hücre eşlemesi, farklar ve tam rasyonel seri referansları
+npm run test:c       # Sekiz C laboratuvarı; sayısal referanslar ve gerçek çevrimdışı Web Audio
 npm run test:public  # girişsiz erişim, eski oturum temizliği ve yerel rekorlar
 npm run shot -- sarkac --theme light --scroll digest   # ekran görüntüsü
 ```

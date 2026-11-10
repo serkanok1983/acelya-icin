@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-381af50662";
+const VERSION = "acelya-2c3cde74fa";
 // --- end:version ---
 
 // --- generated:core ---
@@ -259,12 +259,14 @@ const DIGESTS = [
   "shared/digest/elektrokimya.js",
   "shared/digest/elektronik-devre.js",
   "shared/digest/elektronik-muhendisligi.js",
+  "shared/digest/enigma-makinesi.js",
   "shared/digest/enzim-kinetigi.js",
   "shared/digest/fibo+pascal.js",
   "shared/digest/fibo.js",
   "shared/digest/fonksiyon-grafigi.js",
   "shared/digest/fotoelektrik.js",
   "shared/digest/fotosentez-solunum.js",
+  "shared/digest/fourier-ses.js",
   "shared/digest/genetik-caprazlama.js",
   "shared/digest/gorelilik-uzayzaman.js",
   "shared/digest/grup-teorisi.js",
@@ -331,13 +333,18 @@ const DIGESTS = [
   "shared/digest/programlama-paradigmalari.js",
   "shared/digest/radyoaktif-bozunma.js",
   "shared/digest/rastgele-yuruyus.js",
+  "shared/digest/renk-teorisi.js",
   "shared/digest/riemann-toplamlari.js",
   "shared/digest/roma-hukuku.js",
   "shared/digest/sarkac.js",
   "shared/digest/serbest-dusme.js",
+  "shared/digest/ses-sentezleyici.js",
+  "shared/digest/sezar-sifre.js",
   "shared/digest/siber-guvenlik.js",
   "shared/digest/sicim-teorisi.js",
   "shared/digest/sierpinski-fraktali-peano-egrisi-altin-oran.js",
+  "shared/digest/siralama-algoritmalari.js",
+  "shared/digest/siralama-yarisi.js",
   "shared/digest/takimyildiz-haritasi.js",
   "shared/digest/tasarim-desenleri.js",
   "shared/digest/taylor-serisi.js",
@@ -356,6 +363,7 @@ const DIGESTS = [
   "shared/digest/yay-kutle.js",
   "shared/digest/yazilim-muhendisligi.js",
   "shared/digest/yildiz-yasam-dongusu.js",
+  "shared/digest/yol-bulma-algoritmalari.js",
 ];
 // --- end:digests ---
 
