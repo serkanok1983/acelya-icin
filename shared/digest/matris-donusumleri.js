@@ -254,9 +254,9 @@ window.ACELYA_DIGEST["matris-donusumleri"] = {
       why: "Çarpımda büyüklükler çarpılır, açılar toplanır: a + bi ile çarpmak [a −b; b a] matrisidir ve Özdeğerler kartındaki i'nin geometrisi buradadır.",
     },
     {
-      href: "birim-cember.html",
-      title: "Birim Çember",
-      why: "Döndürme matrisinin dört sayısı cos θ ve sin θ'dır; (1, 0) noktası birim çember üzerinde yürür.",
+      href: "barnsley-egreltiotu.html",
+      title: "Barnsley Eğreltiotu",
+      why: "Dört afin dönüşümle bir yaprak biçimi üret; determinantın alanı küçültmesi ile bütün uzaklıkların küçülmesinin neden ayrı koşullar olduğunu sına.",
     },
     {
       href: "grup-teorisi.html",

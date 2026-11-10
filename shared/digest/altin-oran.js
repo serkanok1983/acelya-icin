@@ -180,7 +180,7 @@ window.ACELYA_DIGEST["altin-oran"] = {
   ],
   next: [
     { href: "fibo.html", title: "Fibonacci Spirali", why: "Karelerden örülen Fibonacci spiralini adım adım izle; bu sayfadaki 45°'lik spiralle farkını gör." },
-    { href: "penrose-dosemesi.html", title: "Penrose Döşemesi", why: "Beş katlı simetri ve uçurtma/ok oranının φ'ye yaklaştığı periyodik olmayan döşeme." },
+    { href: "penrose-dosemesi.html", title: "Penrose Döşemesi", why: "Robinson üçgenlerini alt parçalara ayır; iki türün sayı oranını ve öteleme simetrisinin ne anlama geldiğini incele." },
     { href: "pascal-ucgeni.html", title: "Pascal Üçgeni", why: "Üçgenin eğik köşegenlerini topla: Fibonacci sayıları ortaya çıkar." },
     { href: "koch-kar-tanesi.html", title: "Koch Kar Tanesi", why: "Kendine benzerliğin öteki yüzü: oranla büyüyen spiral yerine sonsuza dek bölünen kenar." },
   ],

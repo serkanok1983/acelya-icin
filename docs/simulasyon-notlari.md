@@ -934,3 +934,50 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
 - Kapsam sınırı: geçmiş Git commit'leri ve uzak Firebase verileri yeniden
   yazılmadı/silinmedi. Kullanıcı Doğukan fotoğraflarını korumayı istedi;
   bu tur diğer depoya veya fotoğraflara dokunulmadı.
+
+
+## B2 — Penrose, Barnsley ve üç limit deneyi (10 Kasım 2026)
+
+- ✔ `penrose-dosemesi.html`: üst üste konmuş iki dörtgen yerine yönlü
+  Robinson altbölünmesi, tek üçgende alan/kenar deneyi ve işaretsiz
+  dörtgenlerden periyodik karşı örnek kuruldu. On A üçgeninden n = 5'te
+  340 A + 550 B; n = 7'de 2.330 A + 3.770 B çıkar. Ortak tabandan
+  birleştirilen tam dörtgenler ve sınır yarımları ayrı sayılır; yakınlaştırma
+  sayımları değiştirmez. İrrasyonel sıklık yalnız iki yönlü periyodik örgüyü
+  doğrudan dışlar; hiçbir öteleme periyodu olmaması ayrıca Penrose eşleme
+  teoremine dayanır. Sonlu yama teoremin kanıtı gibi sunulmaz.
+- ✔ `barnsley-egreltiotu.html`: dört doğru afin dönüşüm; tohumlu üretim,
+  ilk 100 adımı atma, aynı tohumda N artırılınca öneki koruma; geometri ve
+  olasılık sekmeleri eklendi. |det A| alan, en büyük tekil değer uzaklık
+  çarpanıdır. diag(2; 0,2) karşı örneği, alan küçülmesinin kontraksiyon
+  olmadığını gösterir ve eğreltiotu üretimine katılmaz. Pozitif olasılıklar
+  desteği korur, dağılımı değiştirir; sıfır olasılıkta bu garanti kalkar.
+  Durağan ortalama doğrusal denklemle bulunur; ardışık noktalar bağımlı
+  olduğundan bağımsız örnek hata çubuğu gösterilmez. Tek f₂ sabit noktası
+  (640/241; 2400/241)'dir. Model doğal yaprağın biyolojisi değildir.
+- ✔ `sierpinski-fraktali-peano-egrisi-altin-oran.html`: üç yanlış/ilişkisiz
+  3B animasyon yerine üç bağımsız limit deneyi. Sierpiński'de köşelerden
+  alan/çevre toplamı, n ve fiziksel ölçek ayrı; dış çerçevenin çevresi
+  3a sabit, bütün kenarların toplamı 3a(3/2)ⁿ. Eski altı alt parçalı
+  kopuk 'Peano' yerine gerçek 3×3 yansımalı sıra; n = 1..4'te her hücre
+  tek kez ziyaret edilir, bütün ardışık çiftler kenar komşusudur. %100
+  hücre örtüsü çizginin alanı değildir. Altın oran sekmesinde pozitif
+  rₙ₊₁ = 1 + 1/rₙ, işaretli hata, denklem kalanı ve ilk hata hedefi var;
+  r₀ = 0,2 ilk adımda 6'ya gider, hata önce büyüyebilir.
+- ✔ Üç sayfada dış çizim kütüphanesi ve sürekli boş animasyon kaldırıldı;
+  çizimler tema/boyut/denetim değişince yenilenir. Bütün kontroller etiketli,
+  mobil düzenler ve her sekmenin bağımsız sıfırlaması var.
+- ✔ `test:b2`, gerçek HTML çekirdeklerini bağımsız geometrik/rasyonel
+  referanslarla sınar: 3.848 kontrol. Penrose çocuklarının içeride kalması
+  ve içlerinin örtüşmemesi; Peano'nun komşuluğu ve düzeyler arası blok
+  sırası; Barnsley'nin alanı, uzaklık çarpanı ve durağan ortalamaları;
+  altın oranda 57 başlangıç ve ilk hata hedefleri dahildir. Bu kontroller
+  sonsuz kümeler hakkındaki teoremlerin yerine geçmez.
+- ✔ Ajan istemlerindeki eski oturum enjekte etme talimatı B1'in girişsiz
+  yapısına uyarlandı. Dört mevcut defterin sonraki durakları yeni
+  laboratuvarların gerçek içerikleriyle eşleştirildi.
+- ✔ Üç yeni defter bağımsız yazar ve doğrulayıcı/editörden geçti. İnceleme
+  sırasında Penrose'da tür sıklığı/sayı oranı, Barnsley'de tekil matris ve
+  ideal Markov süreci koşulları, Peano'da bire bir olmayan harita anlatımı
+  netleştirildi. Mobil son denetim: üç sayfa, dokuz sekme, görünür üç defter;
+  JS/konsol/istek hatası ve yatay taşma yok. B2 statik denetimi 0 hata/uyarı.

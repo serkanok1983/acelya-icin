@@ -80,6 +80,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "barnsley-egreltiotu": {
+    "title": "Barnsley: Rastgele Seçimden Bir Yaprak",
+    "tagline": "Dört matrisle bir eğreltiotu çiz. Alan küçülmesini uzaklık küçülmesinden, ideal şekli ziyaret yoğunluğundan ayır; sonlu örneğin ortalamasını denklemle sınayarak ilerle.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "basinc": {
     "title": "Basınç: Derinlik, Pascal ve Hava Okyanusu",
     "tagline": "Durgun bir akışkanda basınç yalnızca derinliğe bağlıdır; kabın biçimi de içindeki sıvının miktarı da bunu değiştirmez. Aynı kural Torricelli'nin cıva tüpünü, hidrolik krikoyu ve Everest'teki ince havayı açıklar.",
@@ -640,6 +647,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "penrose-dosemesi": {
+    "title": "Penrose: Periyotsuz Bir Düzen",
+    "tagline": "İki üçgeni aynı kuralla böl, sayılarının altın orana yaklaşmasını ölç. Sonra aynı dörtgenlerin neden bazen periyodik bir zemin oluşturabildiğini araştır.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "periyodik-tablo": {
     "title": "Periyodik Tablo: Boşlukları Öngören Harita",
     "tagline": "1869'da 63 elementle çizilen bir tablo, henüz keşfedilmemiş metallerin yoğunluğunu önceden söyledi. Sırrı tek bir sayıda saklı: çekirdekteki proton sayısı. Bu defter o haritayı okumayı öğretir.",
@@ -743,6 +757,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Parçacık yerine titreşen minicik bir ip koyarsan kütle çekimi kendiliğinden belirir, ama uzay 10 boyutlu olmak zorunda kalır. Elli yıllık bir fikrin yükselişi, vaatleri ve hâlâ sınanamamış olması.",
     "field": "Fizik",
     "level": "Lise ileri",
+    "minutes": 35
+  },
+  "sierpinski-fraktali-peano-egrisi-altin-oran": {
+    "title": "Üç Yapım: Limite Ne Kalır?",
+    "tagline": "Alanı azalan bir üçgen, limitte kareyi örten bir yol ve altın orana yaklaşan sayılar. Üç deneyde sonlu hesabı, geometrik ölçüyü ve yakınsama hatasını birbirinden ayır.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
     "minutes": 35
   },
   "takimyildiz-haritasi": {

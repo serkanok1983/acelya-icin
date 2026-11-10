@@ -156,8 +156,8 @@ Lessons from the previous rebuilds (reviewers flagged these; avoid them):
   vanishes in the site fonts. Write the plain letter and explain the notation in words, or use
   <span class="ov">x</span> with .ov { text-decoration-line: overline } for a bar.
 Testing: check-site --only <slug> (exit 0), smoke --only <slug> (0 errors), shot.mjs dark / light / --width 390 --full;
-look at every screenshot. Own Playwright scripts: set localStorage "acelya-user", "loggedIn" = "true" and
-"acelya-sound-muted" = "1" with context.addInitScript (login gate).
+look at every screenshot. Use a fresh anonymous browser context. Login was removed on 10 November 2026;
+do not inject identity or session keys. You may set "acelya-sound-muted" = "1" and a theme preference.
 Report (sections): title/purpose; controls (label, id, range, default, unit); readouts (id, formula); canvases;
 model and constants with sources; reference numbers for the default state and each experiment (measured vs theory);
 limitations; test results.
@@ -219,9 +219,9 @@ main changes; simulationNotes; remaining uncertainties.
   başarısız bir `worktree add`'den sonra derleme ana ağaçta çalıştı ve geri almak gerekti.
 - Örnek defter (`sarkac.js`) de doğrulayıcıdan geçebilir; istemde "sesini, yapısını ve uzunluğunu koru, yalnız
   yanlışı düzelt" denmeli. 7 Kasım'da yaklaşık iki düzine düzeltmeyle 7'den 9'a çıktı, yapı aynı kaldı.
-- Sitenin giriş kapısı oturum yoksa `index.html`'e yönlendirir. `smoke.mjs` ve `shot.mjs` bunu aşıyor; ajanların kendi
-  Playwright betikleri `context.addInitScript` ile `acelya-user`, `loggedIn = "true"` ve `acelya-sound-muted = "1"`
-  yazmalı.
+- **10 Kasım B1 sonrası:** giriş kapısı kaldırıldı. Bütün tarayıcı kontrolleri temiz, hesapsız bağlamda çalışır;
+  eski `acelya-user` / `loggedIn` anahtarlarını enjekte etme. Yalnız ses ve tema tercihleri ayarlanabilir.
+  `npm run test:public`, girişsiz erişim ve eski oturum temizliği için kalıcı denetimdir.
 - Doğrulayıcıların bulduğu sayfa hataları çoğunlukla aynı türden: hazır değere kaydırıcıyla ulaşılamaması, kart ile
   durum satırının sınır değerde çelişmesi, tanımsız bir nicelik için "ölçülen" değer yazılması (mutlak eşikler),
   gözlenemeyen bir düzenin uyarısız bırakılması. Kurucu istemindeki "Lessons" listesi bunlar için.

@@ -57,6 +57,7 @@ npm run smoke        # her sayfayı Chromium'da açar; JS hatası ve defter gör
 node scripts/smoke.mjs --only sarkac --digest --tabs --width 390
 npm run test:a7      # A7'nin beş laboratuvarında sayısal sonuçlar ve etkileşimler
 npm run test:fractals # dört fraktalın hesap çekirdekleri ve sınır durumları
+npm run test:b2      # Penrose, Barnsley ve üç limit deneyinin matematiksel denetimi
 npm run test:public  # girişsiz erişim, eski oturum temizliği ve yerel rekorlar
 npm run shot -- sarkac --theme light --scroll digest   # ekran görüntüsü
 ```

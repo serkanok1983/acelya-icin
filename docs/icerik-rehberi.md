@@ -124,6 +124,9 @@ emin değilsen kitabın ana sayfasını ver.
 - https://math.bu.edu/ · https://dummit.cos.northeastern.edu/ (üniversite ders notları)
 - https://www.numdam.org/ (özgün matematik yayınlarının arşivi)
 - https://pi.math.cornell.edu/ · https://mathshistory.st-andrews.ac.uk/ (ders notları ve matematik tarihi)
+- https://tilings.math.uni-bielefeld.de/ · https://www.math.utah.edu/ · https://www.cs.toronto.edu/ (döşemeler, ders notları ve akademik çalışmalar)
+- https://www.mathworks.com/ · https://maths-people.anu.edu.au/ (Moler'in sayısal hesap kitabı ve özgün IFS araştırmaları)
+- https://webhomes.maths.ed.ac.uk/ · https://www.mit.edu/ (özgün matematik makaleleri ve üniversite ders notları)
 - https://tr.wikipedia.org/wiki/ · https://en.wikipedia.org/wiki/
 - https://tr.khanacademy.org/ · https://www.khanacademy.org/
 - http://hyperphysics.phy-astr.gsu.edu/ · https://www.feynmanlectures.caltech.edu/

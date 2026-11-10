@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-6d47d9ffc0";
+const VERSION = "acelya-e223688040";
 // --- end:version ---
 
 // --- generated:core ---
@@ -236,6 +236,7 @@ const DIGESTS = [
   "shared/digest/atom-orbitalleri.js",
   "shared/digest/av-avci-lotka-volterra.js",
   "shared/digest/ay-evreleri.js",
+  "shared/digest/barnsley-egreltiotu.js",
   "shared/digest/basinc.js",
   "shared/digest/bayes-olasilik.js",
   "shared/digest/besin-agi.js",
@@ -316,6 +317,7 @@ const DIGESTS = [
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
   "shared/digest/pascal-ucgeni.js",
+  "shared/digest/penrose-dosemesi.js",
   "shared/digest/periyodik-tablo.js",
   "shared/digest/ph-indikator.js",
   "shared/digest/pi-yaklasimi.js",
@@ -331,6 +333,7 @@ const DIGESTS = [
   "shared/digest/serbest-dusme.js",
   "shared/digest/siber-guvenlik.js",
   "shared/digest/sicim-teorisi.js",
+  "shared/digest/sierpinski-fraktali-peano-egrisi-altin-oran.js",
   "shared/digest/takimyildiz-haritasi.js",
   "shared/digest/tasarim-desenleri.js",
   "shared/digest/taylor-serisi.js",
