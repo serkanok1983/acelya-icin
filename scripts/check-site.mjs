@@ -45,6 +45,8 @@ const SOURCE_PREFIXES = [
   "https://tilings.math.uni-bielefeld.de/", "https://www.math.utah.edu/", "https://www.cs.toronto.edu/",
   "https://www.mathworks.com/", "https://maths-people.anu.edu.au/",
   "https://webhomes.maths.ed.ac.uk/", "https://www.mit.edu/",
+  "https://people.ucsc.edu/", "https://underactuated.mit.edu/", "https://courses.seas.harvard.edu/",
+  "https://math.hmc.edu/", "https://web.williams.edu/", "https://research.monash.edu/",
   "https://science.nasa.gov/", "https://www.nasa.gov/", "https://www.esa.int/", "https://www.jpl.nasa.gov/",
   "https://nssdc.gsfc.nasa.gov/",
   "https://developer.mozilla.org/", "https://docs.python.org/", "https://www.w3.org/",

@@ -7,13 +7,13 @@ standardı için `docs/icerik-rehberi.md`.
 
 Dal: `main` (eski `claude/zealous-archimedes-iwjhpu` dalı main'e birleşmiş durumda).
 6–7 Kasım oturumunun commit'leri `origin/main`'e gönderildi ve `gh-pages`'te yayında.
-Son durum tarihi: 2026-11-10 (B2: Penrose, Barnsley ve üç limit laboratuvarı).
+Son durum tarihi: 2026-11-10 (B3: Lorenz, harita–akış, Fibonacci ve Pascal).
 A7 (`1101d98`) ve B1 (`7d5dd86`) `origin/main`'e gönderildi ve elle
 yayımlandı. B1 canlıda `acelya-6d47d9ffc0` sürümü ve 14 dosyanın yerel
 kopyalarıyla birebir eşleşmesiyle doğrulandı; girişsiz erişim yayında.
-B2'nin yayın paketi `acelya-e4eaddd595` sürümündedir; canlı kapanış
-kontrolünde bu sürümü karşılaştır. Sıradaki işler 4.1'deki B grubunun
-kalan yedi sayfasıdır.
+B3'ün yayın paketi `acelya-87a5cbb118` sürümündedir; canlı kapanış
+kontrolünde bu sürümü karşılaştır. Sıradaki grup B4: `tek-sayi-toplam3`,
+`tek-sayi-toplam4`, `tek-sayi-toplam5`. Ardından C grubuna geç.
 
 **10 Kasım yayın talimatı:** Kullanıcı her kodlama turunun sonunda `main`'e
 gönderim ve elle yayın istiyor; sonucu canlı siteden kontrol ediyor.
@@ -74,7 +74,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   21 sayfada mobil yatay taşma giderildi (theme.css canvas kuralı + 7 sayfa
   tek tek). Duman testi: 168 sayfada 0 JS hatası.
 - Service worker yeniden yazıldı; CI'da denetim adımı; README.
-- Keşif Defteri altyapısı + 124 defter (88 doğrulayıcı/editör aşamasından geçti; aşağıda durum tablosu).
+- Keşif Defteri altyapısı + 128 defter (92 doğrulayıcı/editör aşamasından geçti; aşağıda durum tablosu).
 - **31 Ekim 2026 oturumu:**
   - Simülasyon hataları düzeltildi: `is-enerji` (animasyon çalışmıyordu, fiziksel
     birimlerle yeniden yazıldı), `kepler-yasalari` (gezegen ekran dışındaydı;
@@ -265,6 +265,34 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   doğrulandı. Son görsel kontrolde Üç Yapım sekmelerinin ortak düğme
   stiliyle çakışması giderildi; açık/koyu tema ve mobil üç sekme yeniden
   doğrulandı. Yukarıdaki sürüm bu son arayüz düzeltmesini de içerir.
+- **10 Kasım (grup B3):** `lorenz-cekici2`, `mandelbrot+lorenz`, `fibo`
+  ve `fibo+pascal` üçer bağımsız deneyle yeniden kuruldu. Lorenz2'de gerçek
+  3B dönüşüm, yönlü Poincaré kesiti ve Euler/RK4 adım yarılama; Harita ve
+  Akış'ta kritik/deneme başlangıcı, türev/sonlu zaman ayrımı ve iki tam
+  çözüm var. Fibonacci'de gerçek kare döşemesi, BigInt alan özdeşliği ve
+  çember/logaritmik spiral eğriliği; Pascal bağlantısında sığ köşegen,
+  üretilen domino döşemeleri ve renkli sayım/üreteç fonksiyonu inceleniyor.
+  Dört yeni defter kurucu → bağımsız yazar → bağımsız doğrulayıcı/editör
+  hattından geçti. Toplam **128 defter; 92 tam hat, 26 eksik defter**;
+  eski **36** defterin inceleme durumu değişmedi.
+  `test:b3` gerçek HTML çekirdeklerinde **24.128 kontrol** yapar: Lorenz
+  için RK4'ten bağımsız 60 basamaklı Taylor referansları, değişmez eksen ve
+  kesit geometrisi; Fibonacci'de hızlı ikiye katlama, örtüşmeyen kareler ve
+  yaylar; Pascal'da toplama tablosu ve domino başlangıç bit maskeleriyle
+  bağımsız sayım. Hesaplar, sonsuz zamanlı teoremlerin kanıtı sayılmıyor.
+  Eski `lorenz-cekici` HTML/defterinde sonlu grafikten bütün periyodik
+  yörüngelere hüküm verme, evrensel t≈40 hata sınırı ve istatistiklerin
+  kesin değişmezliği iddiaları düzeltildi. Denge istisnaları, uzun zaman
+  özdeşliklerinin koşulları ve sınırlı süreli kestirimler açıklandı. Bu
+  hedefli inceleme eski A4 sayfasının tamamını yeniden onaylama değildir.
+  Menü/katalog adları ve iki eski defterin sonraki durakları yenilendi.
+  Sonuç: **169 sayfa, 128 defter, 0 statik hata, 96 uyarı**;
+  yeni defterlerde yalnız açılıp doğrulanmış Fibonacci OpenStax §3.3
+  bağlantısı uyarı verir. Mobil B3 denetimi dört sayfa/12 sekmede JS,
+  konsol, istek hatası ve yatay taşma bulmadı; defterler görünür.
+  Eski Lorenz'in üç sekmesi de mobilde yeniden denetlendi. Yayın sürümü
+  **`acelya-87a5cbb118`**. Elle yayın ve canlı dosya/sekme kontrolü bu paketle
+  tamamlanır; sıradaki üç tek-sayı-toplam sayfası B4'e bırakıldı.
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
@@ -279,14 +307,14 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.1 Kalan 30 sayfa için defter yaz (üniversite hedefine göre sıralı)
+### 4.1 Kalan 26 sayfa için defter yaz (üniversite hedefine göre sıralı)
 
 Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler). 6–7 Kasım'da
 26 ince sayfa (25'i fizik) yeniden kurulup defterlendi; ince ya da yanlış fizik
 içeren bir sayfaya defter yazmak, laboratuvar bölümünü sonra yeniden yazmak
-demektir. Kalan temel bilim sayfalarının hepsi ince: 150–680 satır, en çok 6
-denetim (yeniden kurulan laboratuvarlar 1800–2000 satır; `lorenz-cekici` 87
-satır, tek düğme ve CDN). Bu yüzden hepsi kurucudan başlar:
+demektir. B1–B3'te 11 matematik sayfası daha yeniden kuruldu. Kalan
+sayfalarda önce gerçek hesap, denetim ve ölçüm kapsamını incele; satır sayısı
+tek başına kalite ölçütü değildir. Bu listedeki sayfalar kurucudan başlar:
 
 ```
 A · kurucu → yazar → doğrulayıcı+editör (6'lık gruplar)
@@ -308,8 +336,9 @@ B · fraktallar ve görsel matematik
     koch-kar-tanesi hilbert-egrisi
     tamamlandı (B2, 10 Kasım):
     penrose-dosemesi barnsley-egreltiotu sierpinski-fraktali-peano-egrisi-altin-oran
-    sırada:
+    tamamlandı (B3, 10 Kasım):
     lorenz-cekici2 mandelbrot+lorenz fibo fibo+pascal
+    sırada (B4):
     tek-sayi-toplam3 tek-sayi-toplam4 tek-sayi-toplam5
 
 C · bilgisayar bilimi ve disiplinler arası
@@ -364,13 +393,13 @@ Tam istem metinleri bu oturumda kullanılan İngilizce halleriyle
   `shared/digest.js` slug'ı `encodeURIComponent` ile yükler, dosya adı
   birebir `fibo+pascal.js` olmalı.
 
-### 4.2 Var olan 124 defterin eksik aşamalarını tamamla
+### 4.2 Var olan 128 defterin eksik aşamalarını tamamla
 
-A7, B1 ve B2 doğrulama bulguları kapatıldı. Eski 36 defterin eksik aşamaları aşağıda. Durum (10 Kasım 2026):
+A7, B1, B2 ve B3 doğrulama bulguları kapatıldı. Eski 36 defterin eksik aşamaları aşağıda. Durum (10 Kasım 2026):
 
 | Durum | Sayfalar |
 |---|---|
-| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim, konik-kesitler, av-avci-lotka-volterra, genetik-caprazlama, ph-indikator, kristal-yapilar, denklem-denklestirme, kalp-dolasim, birim-cember, rastgele-yuruyus, pi-yaklasimi, pisagor, asal-rsa, lissajous, pascal-ucgeni, collatz, molekul, mantik-kapilari, besin-agi, mandelbrot-fraktali, julia-fraktali, koch-kar-tanesi, hilbert-egrisi, penrose-dosemesi, barnsley-egreltiotu, sierpinski-fraktali-peano-egrisi-altin-oran |
+| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim, konik-kesitler, av-avci-lotka-volterra, genetik-caprazlama, ph-indikator, kristal-yapilar, denklem-denklestirme, kalp-dolasim, birim-cember, rastgele-yuruyus, pi-yaklasimi, pisagor, asal-rsa, lissajous, pascal-ucgeni, collatz, molekul, mantik-kapilari, besin-agi, mandelbrot-fraktali, julia-fraktali, koch-kar-tanesi, hilbert-egrisi, penrose-dosemesi, barnsley-egreltiotu, sierpinski-fraktali-peano-egrisi-altin-oran, lorenz-cekici2, mandelbrot+lorenz, fibo, fibo+pascal |
 | yazar + editör (doğrulama yok) | altin-oran, pong |
 | yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
@@ -397,7 +426,8 @@ node scripts/smoke.mjs --width 390  # yatay taşma listesi boş olmalı
 ```
 
 Defter görünürlüğü: `body{overflow:hidden}` kullanan eski tam ekran fraktal
-sayfaları (altin-oran, lorenz-cekici2, mandelbrot+lorenz, fibo+pascal)
+sayfaları (ör. altin-oran; B3
+sayfaları artık normal belge akışında)
 için `digest.css` gövdeyi kaydırılabilir yapar; `--digest`
 testinde "görünmüyor" çıkarsa o sayfanın kendi CSS'ine bak.
 
@@ -431,7 +461,8 @@ tablosu hataları). Öneri:
    olmayan 25 fizik sayfası (ilk turda 10, grup A'da 4, A2'de 5, A3'te 6) ve
    6 matematik sayfası (A4), 6 kimya–biyoloji sayfası (A5) ve 6 matematik sayfası
    (A6), beş karma temel bilim sayfası (A7) ve dört fraktal laboratuvarı
-   (B1), üç geometri/limit laboratuvarı (B2); bkz. 3. bölüm.
+   (B1), üç geometri/limit laboratuvarı (B2), dört dinamik/geometri/sayım
+   laboratuvarı (B3); bkz. 3. bölüm.
    Mandelbrot'un kırpılan −2 ucu, hatalı eşitlik
    kaçış testi ve eksik eksenleri B1'de düzeltildi.
    rastgele-yuruyus'taki √n karışıklığı A6'da düzeltildi.
@@ -456,7 +487,7 @@ tablosu hataları). Öneri:
   `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
   Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
   Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
-  (30 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
+  (26 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
   bitince geçer.
 
 ## 5. Kalite çıtası (kısa hatırlatma)

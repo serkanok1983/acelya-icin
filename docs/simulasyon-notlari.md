@@ -986,3 +986,51 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
   bastıran ortak düğme stili bulundu. Üç sekmeye mevcut `app-btn-ghost`
   sınıfı eklendi; vurgu çerçevesi/alt çizgi her iki temada doğrulandı.
   Mobil üç sekme ve defter tekrar hatasız geçti.
+
+
+## B3 — Lorenz, harita–akış, Fibonacci ve Pascal (10 Kasım 2026)
+
+- ✔ `lorenz-cekici2.html`: dış 3B kütüphaneye bağlı eski animasyon yerine
+  faz uzayı/kesit/yakınsama deneyleri. Kamera yalnız görünümü değiştirir;
+  x-y, x-z ve y-z izdüşümleri aynı yörüngedendir. z=c kesitinde yön ve
+  geçiş türevi denetlenir, doğrusal ara değerleme hatası açıkça belirtilir.
+  İlk geçişleri atmak istatistiksel yakınsama kanıtı değildir; xₙ→xₙ₊₁
+  grafiği iki koordinatlı kesitin yalnız izdüşümüdür. Euler/RK4 için h,
+  h/2,h/4 ve ince referans; özel eksende gerçek üstel hata kontrolü var.
+- ✔ `mandelbrot+lorenz.html`: Mandelbrot resminin üstüne sinüsle bozulan
+  Lorenz noktaları bindiren sahne kaldırıldı. Aynı gerçek c altında kritik
+  0 ve serbest karmaşık başlangıç ayrı izlenir. c=−2'de |z|=2 kaçış
+  değildir; c=0,26'da N20 kaçışı göremez, N100 ilk n30'u bulur. Lorenz
+  türevi, tek Euler tahmini ve kısa RK4 akışı ayrı; 64/128 farkı kesin hata
+  sınırı sayılmaz. c0 haritasının kuvvet çözümü ve x=y=0 Lorenz ekseninin
+  üstel çözümü kendi koşullarıyla verilir; n ve t fiziksel olarak eşlenmez.
+- ✔ `fibo.html`: kareler gerçek köşelerle bitişik ve örtüşmesiz yerleşir;
+  geometrik alan, dış çevre ve yay uzunluğu ayrı hesaplanır. n0…500 alan
+  özdeşliği BigInt ile tam sayılıdır; bu aralıkta 500 kare çizildiği iddia
+  edilmez. Çeyrek çemberlerin gerçek uçları ve teğetleri birleşir ama
+  yarıçap değiştiğinde eğrilik sıçrar. Logaritmik karşılaştırma başlangıç
+  eğriliğini eşler; uzamsal hizalama veya en iyi uyum iddiası yoktur.
+- ✔ `fibo+pascal.html`: salınan Pascal küreleri yerine gerçek hücreler,
+  sığ köşegen ve şerit döşemeleri. k domino için C(n−k,k) gerekçesi
+  taş sayısından çıkar; Tₙ=Fₙ₊₁ indis kayması ve tek boş döşeme açık.
+  Renkli sayım ΣC(n−k,k)tᵏ ile ayrı yineleme karşılaştırılır. t renk
+  adedi, G biçimsel seri; ortalama k eş olasılıklı renkli döşeme modeline
+  aittir. Grafikteki yaklaşık yüzdeler deneysel frekans değildir.
+- ✔ Dört sayfanın üçer sekmesinde bağımsız sıfırlama, klavye erişimi,
+  etiketli denetim, mobil düzen ve Canvas'a eşdeğer sayısal tablolar var.
+  CDN ve sürekli boş animasyon kaldırıldı. Kurucu görsel kontrollerinde
+  Fibonacci/Pascal büyük sayı taşması, açık tema döşeme etiketi kontrastı,
+  Lorenz grafik kenar etiketleri ve haritada tam sayı n ekseni düzeltildi.
+- ✔ `test:b3`: 24.128 kalıcı kontrol. Taylor referansları üretimdeki RK4'ü
+  tekrar etmez; 24.mertebe/h=.01 ile 32.mertebe/h=.005 sonuç farkı 16 kısa
+  örnekte 6,7×10⁻³⁰'dan küçük. İki yüksek hassasiyetli hesabın bu uyumu
+  sertifikalı hata sınırı diye sunulmuyor. Diğer bağımsız referanslar hızlı
+  Fibonacci ikiye katlaması, Pascal toplama tablosu, domino bit maskeleri
+  ve doğrudan geometrik ölçümlerdir.
+- ✔ Eski `lorenz-cekici` HTML/defteri hedefli incelendi: örneklenmiş tepe
+  eğimleri, kesin 1B indirgeme ve bütün periyodik yörüngeler için kanıt
+  değildir. h/h2 ayrışması gerçek hata ölçümü değil; evrensel t≈40 sınırı
+  ve koşulsuz istatistik eşitliği kaldırıldı. Denge/özel eksen istisnaları,
+  sonlu Lyapunov kestirimi ve uzun zaman özdeşlikleri açıklığa kavuştu.
+  Bu çalışma eski sayfanın diğer parametre taraması iddialarının yeniden
+  tam doğrulaması değildir. Yeni Lorenz sayfalarına bağlantılar eklendi.

@@ -6,16 +6,16 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
   level: "Lisans",
   minutes: 40,
   tagline:
-    "Isıtılan bir akışkandan süzülmüş üç satırlık denklem: yörünge iki kanat arasında hiç yinelemeden gidip gelir, her hacim birim zamanda 860 bin kat küçülür, milyarda birlik fark 23 birim zamanda milyar kat büyür.",
+    "Üç denklem, düzensiz iki kanat: faz hacmi birim zamanda 860 bin kat küçülür; seçili deneyde milyarda birlik başlangıç farkı yaklaşık 23 birim zamanda bir mertebesine büyür.",
   hook:
-    "Her küçük hacmi bir birim zamanda 860 bin kat ezen bir akış düşün: içine bıraktığın her damlanın hacmi hızla sıfıra gider. Yine de yörünge hiçbir noktaya yerleşmez, hiçbir turu bir öncekini tam yinelemez ve kendini asla kesmez. Hacmi sıfır olan bir kümenin içinde sonsuza dek dolaşan bir eğri nasıl mümkün?",
+    "Her küçük hacmi bir birim zamanda 860 bin kat ezen bir akış düşün: içine bıraktığın her damlanın hacmi hızla sıfıra gider. Yine de tipik bir başlangıçtan çıkan yörünge hiçbir noktaya yerleşmez, hiçbir turu bir öncekini tam yinelemez ve kendini asla kesmez. Hacmi sıfır olan bir kümenin içinde sonsuza dek dolaşan bir eğri nasıl mümkün?",
   bigIdea:
     "Lorenz sistemi hacmi yutar (her küçük hacim e<sup>−(σ+1+β)t</sup> ile büzülür) ama komşu yörüngeleri birbirinden ayırır (λ ≈ 0.9); bu iki etkinin uzlaştığı yer, hacmi sıfır, boyutu yaklaşık 2.06 olan sonsuz katlı bir <strong>garip çekicidir</strong> ve üzerindeki hareket belirlenimci olduğu hâlde uzun vadede öngörülemez.",
   story: [
     "Lorenz'in 1961'de 12 değişkenli hava modelinde yaşadığı yuvarlama sürprizi ve ünlü kelebek konuşması <a href=\"cift-sarkac.html\">Çift Sarkaç</a> defterinde anlatılıyor; bu sayfanın hikâyesi ondan sonra gelen, çok daha küçük modelle başlar. 1962'de Barry Saltzman, alttan ısıtılıp üstten soğutulan ince bir akışkan katmanındaki konveksiyonu (Rayleigh–Bénard konveksiyonu) sonlu sayıda Fourier bileşenine indirip ortaya çıkan adi diferansiyel denklemleri bilgisayarda çözüyordu. Bazı çözümlerde üç değişken dışında hepsi zamanla sıfıra sönüyor, kalan üçü ise düzensiz, hiç yinelemeyen dalgalanmalar yapıyordu. Lorenz modeli en baştan bu üç bileşene kesti: <em>x</em> konveksiyon hücresinin dönme hızı, <em>y</em> yükselen ve inen akımlar arasındaki sıcaklık farkı, <em>z</em> düşey sıcaklık dağılımının doğrusallıktan sapması. Sonuç, Mart 1963'te <em>Journal of the Atmospheric Sciences</em>'ta çıkan 12 sayfalık <em>Deterministic Nonperiodic Flow</em> (Belirlenimci Periyodik Olmayan Akış) makalesiydi. Lorenz σ = 10, b = 8/3, r = 28 değerlerini seçti ve (0, 1, 0) noktasından başladı; bugün aynı sayılar ρ ve β harfleriyle yazılıyor. Sayısal hesapları yürütüp çizimleri hazırlayan Ellen Fetter'dı.",
-    "Makale bugün de ders kitabı gibi okunur. Lorenz önce denge noktalarını buldu ve sabit konveksiyonun kararlı kalabileceği eşiği hesapladı: r<sub>c</sub> = σ(σ + b + 3)/(σ − b − 1) = 470/19 ≈ 24.74. Seçtiği r = 28 bu eşiğin biraz üstündeydi: hiçbir denge noktası yörüngeyi tutamıyordu. Sonra her hacmin her yerde aynı hızla büzüldüğünü gösterdi ve bir sayı verdi: denge noktalarından birinin çevresindeki tipik bir tur yaklaşık 0.7 birim zaman sürer, bu sürede her hacim 0.00007'sine iner. Bütün yörüngeler hacmi sıfır olan bir kümeye çekilmeliydi. Küme tek bir yüzey gibi görünüyordu, ama yörüngeler birleşemeyeceği için öyle olamazdı; Lorenz onu “sonsuz bir yüzeyler karmaşası” diye tarif etti. En zarif adımı bir kısaltmaydı: sürekli akışı bırakıp yalnızca z'nin ardışık tepe değerlerini kaydetti ve her tepeyi bir öncekine karşı çizdi. Noktalar sivri uçlu tek bir eğriye dizildi; kendi deyişiyle eğimin büyüklüğü “görünüşe göre her yerde” 1'i aşıyordu. Üç boyutlu akış tek boyutlu bir yinelemeye inmişti ve periyodik bir çözümün neden kararlı olamayacağı birkaç satırda görülüyordu. Sayfanın Lorenz haritası sekmesi bu çizimi 3000 tepeyle yeniden yapar.",
+    "Makale bugün de ders kitabı gibi okunur. Lorenz önce denge noktalarını buldu ve sabit konveksiyonun kararlı kalabileceği eşiği hesapladı: r<sub>c</sub> = σ(σ + b + 3)/(σ − b − 1) = 470/19 ≈ 24.74. Seçtiği r = 28 bu eşiğin biraz üstündeydi: hiçbir denge noktası yakınındaki bütün küçük sapmaları geri çekmiyordu. Sonra her hacmin her yerde aynı hızla büzüldüğünü gösterdi ve bir sayı verdi: denge noktalarından birinin çevresindeki tipik bir tur yaklaşık 0.7 birim zaman sürer, bu sürede her hacim 0.00007'sine iner. Bütün yörüngeler hacmi sıfır olan bir kümeye çekilmeliydi. Küme tek bir yüzey gibi görünüyordu, ama yörüngeler birleşemeyeceği için öyle olamazdı; Lorenz onu “sonsuz bir yüzeyler karmaşası” diye tarif etti. En zarif adımı bir kısaltmaydı: sürekli akışı bırakıp yalnızca z'nin ardışık tepe değerlerini kaydetti ve her tepeyi bir öncekine karşı çizdi. Noktalar sivri uçlu tek bir eğriye dizildi; kendi deyişiyle eğimin büyüklüğü “görünüşe göre her yerde” 1'i aşıyordu. Bu yaklaşık tepe ilişkisi, tek boyutlu bir yineleme modeli kurmayı sağlıyordu. Modelde bir çevrim boyunca eğimlerin çarpımının mutlak değeri 1’i aşarsa çevrim kararsızdır; çizim gerçek akışın bütün periyodik yörüngeleri için kesin kanıt vermez. Sayfanın Lorenz haritası sekmesi bu çizimi 3000 tepeyle yeniden yapar.",
     "Lorenz'in çizdiği türden kümelere ad 1971'de verildi. David Ruelle ile Floris Takens türbülansın nasıl başladığını tartıştıkları makalede, sönümlü bir sistemin yörüngelerini kendine çeken ama bir nokta, kapalı bir eğri ya da düzgün bir yüzey olmayan kümelere <strong>garip çekici</strong> dediler; Lorenz çekicisi bu adın en ünlü örneği oldu. Aynı denklemler masaya da kondu. MIT'de Willem Malkus ve Louis Howard tabanları delik kovalarla donatılmış, tepesinden su dökülen bir çark kurdular. Su yavaş akarken çark hep aynı yöne döner; akış artınca hızlanır, yavaşlar, durur ve öngörülemez anlarda yön değiştirir. Kovaların çarkın çevresine sürekli dağıldığı ideal bir çarkta açısal hız ile kütle merkezinin iki koordinatı, değişkenler yeniden ölçeklenince tam olarak Lorenz denklemlerine uyar: çarkın yön değiştirmesi, sayfadaki yörüngenin kanat değiştirmesidir. 1975'te Hermann Haken, tek kipli bir lazerin denklemlerinin de aynı biçime indiğini gösterdi.",
-    "Çizilen şeklin gerçekten var olduğunu kanıtlamak ise kırk yıla yakın sürdü. Bilgisayar çizimleri kanıt sayılmazdı: kaotik bir yörüngede her küçük hata büyür. Sayfanın 0.005'lik RK4 adımının hataları t ≈ 30'da, 10⁻¹⁶'lık yuvarlama hataları t ≈ 40'ta yörüngenin boyuna ulaşır; ekrandaki uzun yol artık o başlangıcın gerçek çözümü değildir. 1970'lerin sonunda John Guckenheimer ile Robert Williams, bağımsız olarak da Valentin Afraimovich, Vladimir Bykov ve Leonid Şilnikov, çekicinin nasıl davranması gerektiğini anlatan geometrik bir model kurdular; ama gerçek denklemlerin bu modele uyduğunu kimse gösteremedi. Stephen Smale 1998'de yeni yüzyıl için derlediği 18 problemlik listeye bunu 14. problem olarak koydu. Warwick Tucker kanıtını 2002'de yayımladı ve listeden çözülen ilk problem bu oldu. Kanıt bilgisayar destekliydi ama yuvarlamaya teslim olmadı: <strong>aralık aritmetiği</strong> her sayıyı kesin alt ve üst sınırları olan bir aralık olarak taşıdı; yörüngelerin uzun süre oyalandığı orijin çevresindeki en zor bölge ise normal form kuramının çözümsel kestirimleriyle aşıldı. Sonuç: klasik değerlerde garip çekici gerçekten vardır ve parametrelerdeki küçük değişikliklere dayanıklıdır.",
+    "Çizilen şeklin gerçekten var olduğunu kanıtlamak ise kırk yıla yakın sürdü. Bilgisayar çizimleri kanıt sayılmazdı: kaotik bir yörüngede her küçük hata büyür. Sayfadaki adım yarılama deneyi, belirli başlangıçlarda yaklaşık 30 birim zaman sonra iki sayısal yolun belirgin biçimde ayrıldığını gösterir. Bu süre bütün başlangıçlar için aynı değildir; iki yaklaşık yolun farkı da tek başına gerçek çözüme karşı kesin hata sınırı vermez. 1970'lerin sonunda John Guckenheimer ile Robert Williams, bağımsız olarak da Valentin Afraimovich, Vladimir Bykov ve Leonid Şilnikov, çekicinin nasıl davranması gerektiğini anlatan geometrik bir model kurdular; ama gerçek denklemlerin bu modele uyduğunu kimse gösteremedi. Stephen Smale 1998'de yeni yüzyıl için derlediği 18 problemlik listeye bunu 14. problem olarak koydu. Warwick Tucker ayrıntılı bilgisayar destekli kanıtını 2002'de yayımladı. Kanıt bilgisayar destekliydi ama yuvarlamaya teslim olmadı: <strong>aralık aritmetiği</strong> her sayıyı kesin alt ve üst sınırları olan bir aralık olarak taşıdı; yörüngelerin uzun süre oyalandığı orijin çevresindeki en zor bölge ise normal form kuramının çözümsel kestirimleriyle aşıldı. Sonuç: klasik değerlerde garip çekici gerçekten vardır ve parametrelerdeki küçük değişikliklere dayanıklıdır.",
   ],
   core: [
     {
@@ -37,7 +37,7 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
     {
       heading: "Hacim yutan akış: çekici neden sıfır hacimli?",
       body:
-        "Faz uzayında küçük bir damla düşün: içindeki her nokta ayrı bir başlangıç koşulu. Damlanın hacmi, akışın <strong>ıraksaması</strong> ∇·f oranında değişir. Lorenz'de ∂ẋ/∂x + ∂ẏ/∂y + ∂ż/∂z = −σ − 1 − β: her noktada aynı ve negatif. Bu yüzden her hacim V(t) = V₀e<sup>−(σ+1+β)t</sup> ile, klasik değerlerde birim zamanda yaklaşık 860 000 kat küçülür. Öte yandan W = ρx² + σy² + σ(z − 2ρ)² için dW/dt = −2σ(ρx² + y² + β(z − ρ)² − βρ²) çıkar; W bir elipsoidin dışında hep azalır, yani her yörünge sonunda sınırlı bir bölgeye girer ve orada kalır. Sınırlı bir bölgeye hapsolan ve hacmi sıfıra büzülen her damla, sonunda hacmi sıfır olan bir kümeye, <strong>çekiciye</strong> yığılır. ρ = 28'de bu küme bir nokta olamaz (üç denge noktası da kararsız), kapalı bir eğri de olamaz (Lorenz haritası, sayısal bir kanıtla, her periyodik yörüngenin kararsız olduğunu gösterir): geriye garip çekici kalır. Çift sarkaçta durum terstir: enerji korunur, faz uzayı hacmi de korunur (Liouville teoremi) ve çekici yoktur.",
+        "Faz uzayında küçük bir damla düşün: içindeki her nokta ayrı bir başlangıç koşulu. Damlanın hacmi, akışın <strong>ıraksaması</strong> ∇·f oranında değişir. Lorenz'de ∂ẋ/∂x + ∂ẏ/∂y + ∂ż/∂z = −σ − 1 − β: her noktada aynı ve negatif. Bu yüzden her hacim V(t) = V₀e<sup>−(σ+1+β)t</sup> ile, klasik değerlerde birim zamanda yaklaşık 860 000 kat küçülür. Öte yandan W = ρx² + σy² + σ(z − 2ρ)² için dW/dt = −2σ(ρx² + y² + β(z − ρ)² − βρ²) çıkar; W bir elipsoidin dışında hep azalır, yani her yörünge sonunda sınırlı bir bölgeye girer ve orada kalır. Sınırlı bir bölgeye hapsolan ve hacmi sıfıra büzülen her damla, sonunda hacmi sıfır olan bir kümeye, <strong>çekiciye</strong> yığılır. ρ = 28'de üç denge noktası da kararsızdır; ancak tam bu noktalardan başlayan çözümler orada kalır. Tipik başlangıçların düzensiz hareketi ve çizilen dönüş ilişkisi, garip çekici resmiyle uyumludur. Bu gözlemler bütün periyodik yörüngeler için bir ispat değildir; çekicinin varlığına ilişkin kesin sonuç Tucker'ın ayrı, bilgisayar destekli kanıtına dayanır. Çift sarkaçta durum terstir: enerji korunur, faz uzayı hacmi de korunur (Liouville teoremi) ve çekici yoktur.",
       formula: "∇·f = −(σ + 1 + β),   V(t) = V₀·e<sup>−(σ+1+β)t</sup>",
       formulaNote:
         "σ = 10, β = 8/3 için −13.667. Sayfa dört yakın noktanın gerdiği hacmin logaritmasından eğimi −13.6667 ölçer; kuramla bağıl farkı 5×10⁻⁷.",
@@ -45,18 +45,18 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
     {
       heading: "Üç Lyapunov üsteli ve öngörü ufku",
       body:
-        "Çekicinin üzerinde komşu iki yörünge arasındaki küçük fark üç yönde farklı davranır. Akış boyunca ne büyür ne söner (λ₂ = 0); çekicinin yaprakları boyunca gerilir (λ₁ &gt; 0); yapraklara dik yönde ezilir (λ₃ &lt; 0). Üçünün toplamı hacim küçülme hızıdır: λ₁ + λ₂ + λ₃ = −(σ + 1 + β). Klasik değerlerde λ₁ ≈ 0.906 ve λ₃ ≈ −14.57: fark ortalama her 0.77 birim zamanda ikiye katlanır. Başlangıçtaki Δ hatası tol eşiğine t* = ln(tol/Δ)/λ₁ sürede büyür; hassasiyeti bin kat artırmak ufka yalnızca ln 1000/λ₁ ≈ 7.6 birim zaman ekler. Üsteller çekicinin boyutunu da verir: Kaplan–Yorke formülü D = 2 + λ₁/|λ₃| ≈ 2.06. Sayfa λ₁'i Benettin yöntemiyle ölçer: çok yakın bir gölge yörüngeyi her 0.1 birim zamanda referansa geri çekip logaritmik büyümeleri 2000 birim zaman boyunca toplar.",
+        "Çekicinin üzerinde komşu iki yörünge arasındaki küçük fark üç yönde farklı davranır. Akış boyunca ne büyür ne söner (λ₂ = 0); çekicinin yaprakları boyunca gerilir (λ₁ &gt; 0); yapraklara dik yönde ezilir (λ₃ &lt; 0). Üçünün toplamı hacim küçülme hızıdır: λ₁ + λ₂ + λ₃ = −(σ + 1 + β). Klasik değerlerde λ₁ ≈ 0.906 ve λ₃ ≈ −14.57: fark ortalama her 0.77 birim zamanda ikiye katlanır. Ortalama üstel büyüme yaklaşımında Δ hatasının tol eşiğine ulaşma süresi t* ≈ ln(tol/Δ)/λ₁'dir; hassasiyeti bin kat artırmak ufka yalnızca ln 1000/λ₁ ≈ 7.6 birim zaman ekler. Üsteller çekicinin boyutunu da verir: Kaplan–Yorke formülü D = 2 + λ₁/|λ₃| ≈ 2.06. Sayfa λ₁'i Benettin yöntemiyle ölçer: çok yakın bir gölge yörüngeyi her 0.1 birim zamanda referansa geri çekip logaritmik büyümeleri 2000 birim zaman boyunca toplar.",
       formula: "t* = ln(tol/Δ)/λ₁,   λ₁ + λ₂ + λ₃ = −(σ + 1 + β),   D<sub>KY</sub> = 2 + λ₁/|λ₃|",
       formulaNote:
         "Δ = 10⁻⁹, tol = 1 ve λ₁ = 0.9056 (Sprott) ile t* = 20.72/0.9056 = 22.88; sayfada ölçülen ayrılma 22.86. D<sub>KY</sub> = 2 + 0.9056/14.5723 = 2.062.",
     },
     {
-      heading: "Lorenz haritası: |eğim| > 1 neden kaos demek?",
+      heading: "Lorenz haritası: tepeler ne anlatır?",
       body:
-        "Akışın tamamını izlemek yerine yalnız z'nin ardışık tepe değerlerini kaydet ve her tepeyi bir öncekine karşı çiz: noktalar neredeyse tek bir eğri oluşturur, z<sub>n+1</sub> = f(z<sub>n</sub>). Klasik değerlerde eğri tek tepeli ve sivri uçludur, eğiminin mutlak değeri her yerde 1'den büyüktür. Bunun iki sonucu var. Birincisi: yakın iki tepe arasındaki fark her turda en az, eğimin en küçük mutlak değeri kadar (ρ = 28'de yaklaşık 1.08 kat) büyür; başlangıca duyarlılık budur. İkincisi: her k tepede bir yinelenen bir yörünge haritada f<sup>k</sup>'nin sabit noktasıdır ve zincir kuralına göre kararlılığını k eğimin çarpımı belirler; çarpımın mutlak değeri 1'den büyük olduğundan küçük sapma her dönüşte büyür. Periyodik yörüngeler vardır ama hepsi kararsızdır; yörünge hiçbirine oturamaz. Dürüst bir uyarı: harita tam bir eğri değildir, çekicinin ince katmanları ona çok küçük bir kalınlık verir. |f′| &gt; 1 de her ρ'da geçerli değildir: sayfa ρ = 35'te en küçük |eğim| için 0.96 ölçer.",
-      formula: "z<sub>n+1</sub> = f(z<sub>n</sub>),   (f<sup>k</sup>)′(z*) = f′(z₁)·f′(z₂)···f′(z<sub>k</sub>)",
+        "Akışın tamamını izlemek yerine yalnız z'nin ardışık tepe değerlerini kaydet ve her tepeyi bir öncekine karşı çiz. Noktalar yaklaşık tek bir eğri boyunca toplanır; zₙ₊₁ ≈ f(zₙ) kullanışlı bir indirgemedir. Gerçek kesit durumu iki boyutludur; yalnız z tepesini tutmak kalan bilgiyi siler. Tam bir tek boyutlu modelde, bir periyodik çevrimin kararlılığı çevrim boyunca türevlerin çarpımıyla sınanır. Her çarpanın mutlak değeri 1'den büyükse çevrim iticidir. Fakat sayfadaki sonlu nokta bulutuna uydurulan eğimler, bütün gerçek Lorenz periyodik yörüngelerinin kararlılığını kanıtlamaz. Ölçülen en küçük eğim büyüklüğü örnekleme ve parametrelere bağlıdır; ρ = 35 deneyinde 1'in altına da inebilir.",
+      formula: "Yaklaşık tepe ilişkisi: zₙ₊₁ ≈ f(zₙ)<br>Tek boyutlu modelde: (f<sup>k</sup>)′(z*) = f′(z₁)·f′(z₂)···f′(z<sub>k</sub>)",
       formulaNote:
-        "Sayfada ρ = 28 için en küçük |eğim| 1.09. Sabit nokta z* = 39.83, iki kanadı sırayla birer kez dolanan simetrik periyodik yörüngeye karşılık gelir: her turda z aynı tepeye çıkar, yörünge 1.56 birim zamanda kapanır. Sayfanın kartı oradaki eğimi −2.18 gösterir: z*'ın çevresine düşen tepe çiftlerine uydurulan doğrunun eğimi. Periyodik yörüngenin kendisinden hesaplanan değer −2.17'dir. z*'ın yanından başlayan tepeler her turda iki kattan fazla uzaklaşır ve eksi işaret yüzünden z*'ın öbür yanına geçer.",
+        "Sayfada ρ = 28 için örneklerden kestirilen en küçük |eğim| yaklaşık 1.09'dur. Yaklaşık tepe ilişkisinin köşegenle kesişimi z* ≈ 39.83; çevresindeki tepe çiftlerine uydurulan doğrunun eğimi yaklaşık −2.18'dir. Tek boyutlu modelin doğrusallaştırmasında bu eğim, küçük sapmanın büyüyüp işaret değiştirmesini anlatır. Bu değerler tam dönüş haritasının türevleri veya gerçek akışta periyodik yörünge varlığının kanıtı olarak okunmamalıdır.",
     },
   ],
   lab: {
@@ -71,7 +71,7 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
         observe:
           "t ≈ 200'de ⟨z⟩ ≈ 23.67 ± 0.09, Kuram 27.00 (C±), Fark yaklaşık −12 %; son basamak, Duraklat'a bastığın ana göre birkaç yüzde birlik oynar. Özdeşlik kartı ⟨x²⟩/β ve ⟨xy⟩/β için de 23.6–23.7 gösterir; kanat yaklaşık 100 kez değişmiştir. Hacim satırında Ölçülen −13.6667, Kuram −13.6667, Fark bağıl +5×10⁻⁷; üç üstel yaklaşık 0.81, 0.02 ve −14.50, toplamları yine −13.6667. Durum satırı ayrıca adımı yarıya indirilmiş ikiz hesabın bu yoldan t = 30.9'da ayrıldığını yazar.",
         explain:
-          "Sınırlı bir niceliğin türevinin uzun süreli ortalaması sıfırdır. ż = xy − βz'den ⟨xy⟩ = β⟨z⟩, d(x²)/dt = 2σ(xy − x²)'den ⟨x²⟩ = ⟨xy⟩ çıkar. ⟨z⟩ = 27 olsaydı x'in ortalama karesi x<sub>C</sub>² = 72 olurdu; oysa yörünge C±'da durmaz, kanat değiştirirken x ≈ 0 yakınından geçer ve ⟨x²⟩ küçülür. Hacim ise her yerde aynı hızla küçülür; üstellerin toplamı tam bu hızdır. λ₁'in 0.9'un altında kalması, sonlu sürenin bedelidir. t = 30.9'dan sonraki yol, aynı başlangıçtan çıkan gerçek çözüm değildir; ⟨z⟩ ve hacim hızı ise tek bir yolun değil çekicinin özelliğidir, bu yüzden etkilenmez.",
+          "Sınırlı bir niceliğin türevinin uzun süreli ortalaması sıfıra gider. Ortalamaların limitleri varsa ż = xy − βz ve d(x²)/dt = 2σ(xy − x²), ⟨xy⟩ = β⟨z⟩ = ⟨x²⟩ verir; sonlu sürede uç terimleri kalır. 27, C±'nın yüksekliğidir, her yolun ortalaması değildir. Tek tek üstel kestirimleri değişebilir; toplamları ıraksamayla karşılaştırılır. İkiz yolların ayrılması noktasal tahmine uyarıdır. İstatistikler daha kararlı olabilir, fakat süre ve adım denetimi gerekir.",
       },
       {
         title: "Kararlı denge, ama kim yakalanır?",
@@ -91,7 +91,7 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
         observe:
           "Benettin λ = 0.902 ± 0.004; Sprott'un 0.9056'sından −0.43 %. Kopya 1 t = 22.86'da ayrılır, kuram t* = 22.88 (−0.10 %); 2Δ'lı kopya 18.16'da. ln|δ| eğimi 0.887 (t = 1–17.7), ikiye katlanma süresi 0.765. Δ = 10⁻¹²'de ayrılma 30.43, t* = 30.51.",
         explain:
-          "ln|δ| ortalamada λ eğimiyle yükselir ama düzgün değil; sıçramalar kanat değişimlerinde gelir. 2Δ'lı kopya ortalamada yalnız ln 2/λ ≈ 0.77 öndedir; bu koşuda 4.7 önde, çünkü t ≈ 18'deki bir sıçrama onu eşiğin üstüne taşıdı, kopya 1 ise bir sonrakini bekledi. Ufuk ln(1/Δ) ile uzar: bin kat hassasiyet ln 1000/λ ≈ 7.6 birim zaman kazandırır (burada 7.57). λ'nın 2000 birim zamanlık hesabındaki yörünge, adım ve yuvarlama hataları yüzünden t ≈ 30–40'tan sonra gerçek çözümden kopar, ama istatistiği sağlamdır.",
+          "ln|δ| düzgün yükselmez; sıçramalar kanat değişimlerinde gelir. 2Δ'lı kopya ortalama büyüme yaklaşımında ln 2/λ ≈ 0.77 öndedir; bu koşuda 4.7 önde, çünkü t ≈ 18'deki sıçrama yalnız onu eşiğe taşıdı. Bin kat hassasiyet yaklaşık ln 1000/λ ≈ 7.6 birim zaman kazandırır (burada 7.57). 2000 birim zamanda ölçülen λ sonlu bir kestirimdir. Bütün başlangıçlar için ortak kopuş zamanı yoktur; istatistikler noktasal yoldan daha dayanıklı olsa bile süre ve adım değişimiyle sınanmalıdır.",
       },
       {
         title: "Bir tepe sonrakini söyler: harita ve tarama",
@@ -101,7 +101,7 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
         observe:
           "Noktalar tek tepeli, sivri uçlu bir eğriye dizilir (zₙ ≈ 30–47, uç 38 dolayında). En küçük |eğim| 1.09, Fark “sağlanıyor”; z* = 39.83, f′(z*) = −2.18. İleri tarama 25.26'da kopar (kuram 24.7368, +2.13 %); geri taramada kaos 23.08'e dek sürer (lit. 24.06, −4.06 %). ρ = 99.65'te harita altı noktaya çöker.",
         explain:
-          "|f′| &gt; 1 her yerde ise yakın tepeler her turda ayrılır ve hiçbir periyodik yörünge kararlı olamaz. Taramada her sütun yalnız 60 birim zaman koşar: ρ<sub>H</sub>'nin hemen üstünde büyüme hızı Re λ ≈ 0.03(ρ − ρ<sub>H</sub>) kopmaya yetmez; 24.06'nın altında ise geçici kaos sütundan uzun sürer. İki tarama birlikte histerezis döngüsünü, yani çift kararlılık penceresini gösterir. ρ = 99.65 periyodik bir penceredir.",
+          "Tam bir tek boyutlu modelde, çevrim boyunca bütün |f′| değerleri 1'i aşarsa o çevrim iticidir. Burada sonlu tepe örneklerinden ölçülen eğimler bu varsayımı gerçek akışın her noktasında kanıtlamaz. Taramada her sütun yalnız 60 birim zaman koşar: ρ<sub>H</sub>'nin hemen üstünde büyüme hızı Re λ ≈ 0.03(ρ − ρ<sub>H</sub>) kopmaya yetmez; 24.06'nın altında ise geçici kaos sütundan uzun sürer. İki tarama birlikte histerezis döngüsünü, yani çift kararlılık penceresini gösterir. ρ = 99.65 periyodik bir penceredir.",
       },
     ],
   },
@@ -135,18 +135,18 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
       "Sayfada dene: haritanın sekmesindeki kartlar “−13.8546; +0.0940 ± 10.1945i” ve “−22.8277; +11.8277; −2.6667” gösterir. Çekici sekmesinde ρ = 28 iken Başlangıç noktası'nı C₊'nın yanı yap: x(t) grafiğinde kesikli +x<sub>C</sub> çizgisi çevresindeki salınımın yaklaşık 0.6 birim zamanlık turlarla yavaş yavaş büyüdüğünü ve t ≈ 40'ta ilk kanat değişimini görürsün.",
     ],
     result:
-      "C± = (±8.485, ±8.485, 27); özdeğerler −13.855 ve 0.094 ± 10.195i, yani C± dışa doğru sarmal çizdiren kararsız noktalardır. ρ = 28, ρ<sub>H</sub> ≈ 24.74'ün üstünde olduğundan üç denge noktasının üçü de kararsızdır: yörünge sınırlı bir bölgede kalmak zorunda olduğu hâlde hiçbirine yerleşemez. Kaosun sahnesi böyle kurulur.",
+        "C± = (±8.485, ±8.485, 27); özdeğerler −13.855 ve 0.094 ± 10.195i, yani C± dışa doğru sarmal çizdiren kararsız noktalardır. ρ = 28, ρ<sub>H</sub> ≈ 24.74'ün üstünde olduğundan üç denge noktası da kararsızdır: çevrelerindeki bütün küçük sapmaları geri çekmezler. Tam dengede başlayan çözüm yine dengede kalır; kararlı manifold üzerindeki özel çözümler de dengeye yaklaşabilir. Bu yerel hesap tek başına kaosun kanıtı değildir.",
   },
   misconceptions: [
     {
       myth: "Kaos rastgelelik demektir; Lorenz yörüngesi zar atar gibi kanat seçer.",
       truth:
-        "Denklemlerde hiç rastlantı yok. Baştan başlat'a bas: yörünge aynı yolu, aynı kanat değişimleriyle yeniden çizer; yol yalnız dört işlemle hesaplandığı için tarayıcıdan tarayıcıya bile değişmez. Kaos, belirlenimci bir sistemin küçük farkları üstel büyütmesidir: yakın gelecek öngörülebilir, ⟨z⟩ ve λ gibi istatistikler sağlamdır. Kanat dizisi rastgele görünür, ama bir sonraki tepeyi bir öncekinin değeri belirler; Lorenz haritası tam bunu gösterir.",
+        "Denklemlerde hiç rastlantı yok. Aynı uygulamada aynı ayarlarla Baştan başlat'a basınca aynı hesap tekrarlanır. Kaotik hareket, küçük farkları ortalamada üstel büyütebilir. Uzun süreli ⟨z⟩ ve λ gibi kestirimlerin güvenilirliği ayrıca süre ve adım denetimi gerektirir. Bir sonraki durumu mevcut tam (x, y, z) durumu belirler; yalnız önceki z tepesini tutan Lorenz grafiği yaklaşık bir ilişkidir.",
     },
     {
       myth: "Daha güçlü bir bilgisayarla Lorenz sistemini istediğimiz kadar uzağa öngörebiliriz.",
       truth:
-        "Ufuk hassasiyetin yalnız logaritmasıyla uzar: t* = ln(tol/Δ)/λ. Sayfada Δ = 10⁻⁹ ile ayrılma 22.86'da, bin kat küçük Δ = 10⁻¹² ile 30.43'te: üç basamak, 7.6 birim zaman. Bilgisayarın kendisi de bir Δ'dır: 10⁻¹⁶'lık yuvarlama hataları t ≈ ln(10¹⁶)/0.9 ≈ 40'ta yörüngenin boyuna büyür; adımı yarıya indirmek bile yolu t ≈ 30'dan sonra tümüyle değiştirir. Uzun bir koşunun ⟨z⟩'si ve λ'sı doğrudur, ama o anda hangi kanatta olunacağı söylenemez.",
+        "Ufuk hassasiyetin yalnız logaritmasıyla uzar: t* = ln(tol/Δ)/λ. Sayfada Δ = 10⁻⁹ ile ayrılma 22.86'da, bin kat küçük Δ = 10⁻¹² ile 30.43'te: üç basamak, 7.6 birim zaman. Yuvarlama ve adım hataları da büyüyebilir; ancak sürekli eklenen bu hataları tek bir başlangıç farkıyla özdeşleştirip kesin bir kopuş zamanı çıkarmak doğru değildir. Sayfadaki belirli adım yarılama deneyinde yollar yaklaşık 30 birim zamanda ayrılır; bu evrensel bir sınır veya kesin hata ölçümü değildir. Uzun koşunun ⟨z⟩ ve λ kestirimleri de süre ve adım değişimine karşı denetlenmelidir.",
     },
     {
       myth: "Ekranda çizgiler kesiştiğine göre yörünge üç boyutta kendini kesiyor.",
@@ -166,14 +166,14 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
     { term: "Hopf çatallanması", definition: "Bir denge noktasının karmaşık özdeğer çifti sanal ekseni geçerken çevresinde periyodik bir yörüngenin doğması ya da yok olması; Lorenz sisteminde ρ<sub>H</sub> = 470/19 ≈ 24.74'te alt-kritiktir: kararsız yörüngeler C±'ya büzülüp kaybolur." },
     { term: "Iraksama (∇·f)", definition: "Akışın küçük hacimleri genişletme (+) ya da sıkıştırma (−) hızı, ∂ẋ/∂x + ∂ẏ/∂y + ∂ż/∂z; Lorenz sisteminde her yerde −(σ + 1 + β)." },
     { term: "Lyapunov üstelleri", definition: "Komşu yörüngeler arasındaki farkın farklı yönlerdeki ortalama üstel büyüme hızları; klasik Lorenz sisteminde yaklaşık 0.906, 0 ve −14.57." },
-    { term: "Lorenz haritası", definition: "z'nin ardışık tepe değerlerini bağlayan z<sub>n+1</sub> = f(z<sub>n</sub>) ilişkisi; üç boyutlu akışı tek boyutlu bir yinelemeye indirir." },
+    { term: "Lorenz haritası", definition: "z'nin ardışık tepe değerlerinin yaklaşık ilişkisi; üç boyutlu akışın davranışını görselleştirir, fakat bütün kesit durumunu tek sayıyla kesin olarak temsil etmez." },
     { term: "Rayleigh oranı ρ", definition: "Isıtmanın konveksiyon eşiğinin kaç katı olduğunu söyleyen oran, ρ = Ra/Ra<sub>c</sub>; ρ &lt; 1'de ısı yalnız iletimle taşınır." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
       "Lisede bir denklemi çözersin; üniversitede çözemediğin bir denklem hakkında yine de kesin şeyler söylemeyi öğrenirsin. <strong>Diferansiyel Denklemler</strong> dersinde varlık-teklik teoremi (Picard–Lindelöf) yörüngelerin neden kesişemediğini, x′ = Ax doğrusal sistemleri ve özdeğerler de denge noktalarının çevresini anlatır; çözümlü örnekteki Jacobi hesabı o dersin tipik bir sınav sorusudur. <strong>Dinamik Sistemler ve Kaos</strong> dersinde (Steven Strogatz'ın <em>Nonlinear Dynamics and Chaos</em> kitabının bütün bir bölümü Lorenz denklemlerine ayrılmıştır) çatallanma kuramı sistematik hâle gelir: ρ = 1'deki çatal, 13.93'teki homoklinik patlama, 24.06'da kaotik çekicinin doğuşu ve 24.74'teki alt-kritik Hopf; ardından Poincaré haritaları, Lyapunov üstelleri, fraktal boyut ve garip çekiciler. <strong>Akışkanlar Mekaniği</strong>'nde modelin kaynağına inersin: Navier–Stokes denklemleri, Boussinesq yaklaşımı ve Rayleigh–Bénard konveksiyonu. Lorenz'in kullandığı kaymalı sınırlarda konveksiyon Ra<sub>c</sub> = 27π⁴/4 ≈ 658'de başlar; iki katı levha arasında ise yaklaşık 1708'de.",
-      "<strong>Sayısal Analiz</strong> dersinde RK4'ün hatasının neden h⁴ ile küçüldüğünü, adım denetimli yöntemleri ve kaotik bir hesaba ne zaman güvenilebileceğini öğrenirsin. Tek bir uzun yol yanlıştır, ama gölgeleme (shadowing) sonuçları bazı sistemlerde onun yakınında gerçek bir yörünge bulunduğunu garanti eder; Tucker'ın kanıtındaki aralık aritmetiği ise yuvarlamayı tümüyle hesaba katmanın yoludur. Ölçülen ⟨z⟩ = 23.6'nın başlangıç noktasına bağlı olmaması <strong>ergodik kuramın</strong> konusudur: zaman ortalamasının, çekicinin üzerindeki doğal olasılık dağılımına göre alınan ortalamaya eşit olması. Hava tahmininde sonuç pratik bir disipline dönüşür: <strong>veri özümseme</strong> (data assimilation) modeli birkaç saatte bir yeni gözlemlerle birleştirerek Δ'yı küçük tutar, topluluk tahminleri de kalan belirsizliği ölçer. Lorenz'in üç denklemi bugün de bu yöntemlerin sınandığı oyuncak modeller arasındadır.",
+      "<strong>Sayısal Analiz</strong> dersinde RK4'ün hatasının neden h⁴ ile küçüldüğünü, adım denetimli yöntemleri ve kaotik bir hesaba ne zaman güvenilebileceğini öğrenirsin. Uzun bir sayısal yolu aynı başlangıcın gerçek çözümü olarak yorumlamak hata denetimi gerektirir. Gölgeleme (shadowing) sonuçları bazı sistemlerde yaklaşık yolun yakınında gerçek bir yörünge bulunduğunu garanti eder; Tucker'ın kanıtındaki aralık aritmetiği ise yuvarlamayı tümüyle hesaba katmanın yoludur. Tipik başlangıçların uzun zaman ortalamalarının doğal olasılık dağılımının ortalamasıyla ilişkisi <strong>ergodik kuramın</strong> konusudur. Sonlu sürede ölçülen ⟨z⟩ ≈ 23,6 bütün başlangıçlar için ortak ve kesin bir değer değildir; denge noktaları bile bu genellemenin karşı örneğidir. Hava tahmininde sonuç pratik bir disipline dönüşür: <strong>veri özümseme</strong> (data assimilation) modeli birkaç saatte bir yeni gözlemlerle birleştirerek Δ'yı küçük tutar, topluluk tahminleri de kalan belirsizliği ölçer. Lorenz'in üç denklemi bugün de bu yöntemlerin sınandığı oyuncak modeller arasındadır.",
     ],
     topics: [
       "Varlık-teklik teoremi",
@@ -198,7 +198,7 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
       ],
       answer: 2,
       explanation:
-        "ż'nin W süreli ortalaması (z(t) − z(10))/W'dir: pay sınırlı kalırken W büyüdükçe kesir sıfıra gider; kartın alt satırı tam bu uç terimini gösterir. Aynı adım d(x²)/dt = 2σ(xy − x²)'ye uygulanınca ⟨x²⟩ = ⟨xy⟩ çıkar. Özdeşlik her ρ'da ve her sınırlı yörüngede geçerlidir; ⟨z⟩'nin 27'nin altında kalması da buradan gelir: ⟨z⟩ = ⟨x²⟩/β ve kaotik yörüngede ⟨x²⟩, x<sub>C</sub>² = 72'den küçüktür.",
+        "ż'nin W süreli ortalaması [z(t) − z(t − W)]/W'dir. Pay sınırlı kalırken W büyüyünce bu uç terimi sıfıra gider. Zaman ortalamalarının limitleri varsa ⟨xy⟩ = β⟨z⟩ çıkar; d(x²)/dt = 2σ(xy − x²) de ⟨x²⟩ = ⟨xy⟩ verir. Sonlu sürede eşitlikler uç terimleriyle düzeltilir. Bunlar bütün başlangıçların ortak bir ⟨z⟩ değeri olduğunu söylemez: tam C±'da başlayan çözümün ortalaması 27'dir.",
     },
     {
       question: "Lorenz akışında her küçük hacim birim zamanda yaklaşık 860 000 kat küçülüyor. Buna göre hangisi doğrudur?",
@@ -214,7 +214,7 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
     },
     {
       question:
-        "Lorenz haritasında eğimin mutlak değeri her yerde 1'den büyükse, her 3 tepede bir kendini yineleyen bir periyodik yörünge için ne söylenebilir?",
+        "Tam bir tek boyutlu zₙ₊₁ = f(zₙ) modelinde, var olduğu bilinen üç adımlı bir çevrimin her noktasında |f′| &gt; 1 olsun. Bu çevrim için ne söylenebilir?",
       options: [
         "Kararlıdır; üç turda başa döndüğü için sapma da her seferinde sıfırlanır",
         "Var olamaz; |f′| > 1 olan bir haritada periyodik yörünge bulunmaz",
@@ -223,7 +223,7 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
       ],
       answer: 3,
       explanation:
-        "Üç turluk yörünge f³'ün sabit noktasıdır; zincir kuralıyla (f³)′ = f′(z₁)f′(z₂)f′(z₃) ve her çarpanın mutlak değeri 1'den büyüktür. Sapma her dönüşte büyür, yörünge onu terk eder. Periyodik yörüngeler yasak değildir: haritanın sabit noktası z* = 39.83 de böyle bir yörüngedir; orada |f′| ≈ 2.2 olduğundan sapma her turda iki kattan fazla büyür. |f′| > 1 bozulunca kararlı periyodik yörüngeler ortaya çıkabilir: ρ = 99.65 penceresi gibi.",
+        "Çevrim f³'ün sabit noktasıdır; zincir kuralıyla (f³)′ = f′(z₁)f′(z₂)f′(z₃). Çarpımın mutlak değeri 1'den büyük olduğundan çevrim iticidir: yeterince küçük sapmalar doğrusal yaklaşımda her üç adımda büyür. Bu sonuç çevrimin varlığını kanıtlamaz; soruda varlığı verilmiştir. Ayrıca sonlu Lorenz tepe grafiğine uydurulan eğimlerden gerçek üç boyutlu akışın bütün periyodik yörüngeleri hakkında aynı kesinlikte sonuç çıkmaz.",
     },
   ],
   next: [
@@ -238,17 +238,22 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
       why: "Yay sabiti, sönüm ve başlangıç kaydırıcılarıyla (x, v) faz düzleminde kapalı eğrileri ve içe sarmalları gör: buradaki denge, kararlılık ve faz uzayı dilinin iki boyutlu başlangıcı.",
     },
     {
-      href: "mandelbrot-fraktali.html",
-      title: "Mandelbrot Laboratuvarı",
-      why: "c parametresini ve adım sınırını değiştir; aynı yörüngede geç kaçışı gözle. Gerçek eksendeki merdiven grafiğiyle yinelemeyi, koruyan aralıkla da sınırlılık kanıtını incele.",
+      href: "mandelbrot+lorenz.html",
+      title: "Harita ve Akış",
+      why: "Mandelbrot'un parametresiyle başlangıç durumunu, bir haritanın yinelemesiyle Lorenz akışının zaman adımını karşılaştır; aynı kaçış eşiğinin iki sisteme uygulanamayacağını dene.",
     },
     {
-      href: "av-avci-lotka-volterra.html",
-      title: "Av–Avcı Modeli",
-      why: "İki değişkenli doğrusal olmayan bir sistem: α, β, δ, γ kaydırıcılarıyla faz diyagramındaki kapalı döngüleri izle. Düzlemde kaos olamaz (Poincaré–Bendixson teoremi); Lorenz'in üçüncü değişkeni bu yüzden gereklidir.",
+      href: "lorenz-cekici2.html",
+      title: "Lorenz: Faz Uzayı ve Kesit",
+      why: "Aynı yörüngeye farklı izdüşümlerden bak, yönlü düzlem geçişlerini topla ve adım boyunu değiştirerek kısa zaman hesabının güvenilirliğini sına.",
     },
   ],
   sources: [
+    {
+      title: "Warwick Tucker · A Rigorous ODE Solver and Smale's 14th Problem",
+      url: "https://research.monash.edu/en/publications/a-rigorous-ode-solver-and-smales-14th-problem/",
+      note: "2002 özgün araştırma makalesinin üniversite kaydı ve özeti: aralık aritmetiği ve normal form kuramıyla Lorenz çekicisinin varlığı, dayanıklılığı ve doğal ölçüsü. Sonlu çizimin kesin kanıttan farkı.",
+    },
     {
       title: "Wikipedia · Lorenz system",
       url: "https://en.wikipedia.org/wiki/Lorenz_system",

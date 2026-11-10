@@ -127,7 +127,7 @@ window.ACELYA_DIGEST["pascal-ucgeni"] = {
   next: [
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "Çok sayıda bağımsız denemenin çan eğrisine nasıl yaklaştığını merkezi limit deneyinde izle." },
     { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş", why: "n adımda sağa gidiş sayısı binomdur; son konumun 2X − n ile ilişkisini kur." },
-    { href: "asal-rsa.html", title: "Asal Sayılar ve RSA", why: "Lucas'taki asal modül koşulundan modüler aritmetiğin başka yapılarına geç." },
+    { href: "fibo+pascal.html", title: "Fibonacci ve Pascal", why: "Sığ köşegen toplamlarını kare ve domino döşemelerini iki yoldan sayarak kanıtla; renkli sayımdan üreteç fonksiyonuna geç." },
     { href: "sierpinski-fraktali-peano-egrisi-altin-oran.html", title: "Sierpiński: sayıdan geometriye", why: "Tek katsayıların oluşturduğu deseni üçgenleri bölerek yeniden kur; parça sayısı artarken kalan alanın nasıl azaldığını ölç." },
   ],
   sources: [

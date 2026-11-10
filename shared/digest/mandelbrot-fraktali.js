@@ -128,7 +128,7 @@ window.ACELYA_DIGEST["mandelbrot-fraktali"] = {
     { href: "julia-fraktali.html", title: "Julia Kümeleri", why: "c'yi sabit bırakıp başlangıç noktalarını değiştir; parametre haritasının sınıflandırdığı dinamik düzlemleri karşılaştır." },
     { href: "karmasik-sayilar.html", title: "Karmaşık Sayılar", why: "Kare alma, açı katlama ve ötelemenin cebir ile düzlem geometrisini birlikte incele." },
     { href: "collatz.html", title: "Collatz", why: "Başka bir basit yinelemede sonlu hesap ile bütün başlangıçlar için kanıt arasındaki farkı araştır." },
-    { href: "koch-kar-tanesi.html", title: "Koch Kar Tanesi", why: "Sonlu çizim ile limit nesnesini ayır; uzunluk, alan ve boyutun farklı sorular olduğunu gör." },
+    { href: "mandelbrot+lorenz.html", title: "Harita ve Akış", why: "Karesel haritanın bir sonraki noktasıyla Lorenz'in anlık türevini ayır; iki tam çözüm üzerinden hesapları sına." },
   ],
   sources: [
     { title: "MIT OCW · Mandelbrot hesabı", url: "https://ocw.mit.edu/courses/18-s997-introduction-to-matlab-programming-fall-2011/pages/fractals-and-chaos/truth-statements-and-logical-indexing/", note: "z₀ = 0 ile iterasyon, parametre örnekleme ve sonlu hesap; resmin sayısal kuruluşu." },

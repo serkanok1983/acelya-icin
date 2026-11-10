@@ -127,6 +127,8 @@ emin değilsen kitabın ana sayfasını ver.
 - https://tilings.math.uni-bielefeld.de/ · https://www.math.utah.edu/ · https://www.cs.toronto.edu/ (döşemeler, ders notları ve akademik çalışmalar)
 - https://www.mathworks.com/ · https://maths-people.anu.edu.au/ (Moler'in sayısal hesap kitabı ve özgün IFS araştırmaları)
 - https://webhomes.maths.ed.ac.uk/ · https://www.mit.edu/ (özgün matematik makaleleri ve üniversite ders notları)
+- https://people.ucsc.edu/ · https://underactuated.mit.edu/ · https://courses.seas.harvard.edu/ (özgün dinamik sistem makaleleri ve üniversite ders notları)
+- https://math.hmc.edu/ · https://web.williams.edu/ · https://research.monash.edu/ (özgün kombinatorik makaleleri ve üniversite araştırma yayınları)
 - https://tr.wikipedia.org/wiki/ · https://en.wikipedia.org/wiki/
 - https://tr.khanacademy.org/ · https://www.khanacademy.org/
 - http://hyperphysics.phy-astr.gsu.edu/ · https://www.feynmanlectures.caltech.edu/

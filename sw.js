@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-e4eaddd595";
+const VERSION = "acelya-87a5cbb118";
 // --- end:version ---
 
 // --- generated:core ---
@@ -260,6 +260,8 @@ const DIGESTS = [
   "shared/digest/elektronik-devre.js",
   "shared/digest/elektronik-muhendisligi.js",
   "shared/digest/enzim-kinetigi.js",
+  "shared/digest/fibo+pascal.js",
+  "shared/digest/fibo.js",
   "shared/digest/fonksiyon-grafigi.js",
   "shared/digest/fotoelektrik.js",
   "shared/digest/fotosentez-solunum.js",
@@ -293,11 +295,13 @@ const DIGESTS = [
   "shared/digest/lissajous.js",
   "shared/digest/lorentz-kuvveti.js",
   "shared/digest/lorenz-cekici.js",
+  "shared/digest/lorenz-cekici2.js",
   "shared/digest/maden-muhendisligi.js",
   "shared/digest/makine-dili-assembly-c.js",
   "shared/digest/makine-muhendisligi.js",
   "shared/digest/makine-ogrenmesi-derin-ogrenme-llm.js",
   "shared/digest/makro-ekonomi-ve-para-politikalari.js",
+  "shared/digest/mandelbrot+lorenz.js",
   "shared/digest/mandelbrot-fraktali.js",
   "shared/digest/mantik-devresi.js",
   "shared/digest/mantik-kapilari.js",

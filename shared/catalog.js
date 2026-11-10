@@ -248,6 +248,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 30
   },
+  "fibo+pascal": {
+    "title": "Fibonacci ve Pascal: Taşların Saydığı Özdeşlik",
+    "tagline": "Pascal'ın sığ köşegenlerini domino döşemeleriyle açıkla; renk seçeneklerinden bir polinom, bir üreteç fonksiyonu ve ortalama domino sayısı çıkar.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "fibo": {
+    "title": "Fibonacci: Bir Resimden Üç Ayrı Matematik",
+    "tagline": "Yedi karenin alanını tek çarpımla bul; kirişlerle yay uzunluğunu ölç, teğeti kesintisiz bir eğrinin eğriliğinin neden sıçrayabildiğini keşfet.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "fonksiyon-grafigi": {
     "title": "Fonksiyon Grafiği: Bir Kuralın Portresi",
     "tagline": "Tekrar eden sinüs, ondan çeyrek periyot önde giden kosinüs, simetrik parabol, durdurulamayan eˣ ve onun aynası ln x. Grafik bir kuralı tek bakışta gösterir; ama yalnızca pencerenin içini.",
@@ -474,10 +488,17 @@ window.ACELYA_CATALOG = {
   },
   "lorenz-cekici": {
     "title": "Lorenz Çekicisi: Üç Denklemin Garip Kelebeği",
-    "tagline": "Isıtılan bir akışkandan süzülmüş üç satırlık denklem: yörünge iki kanat arasında hiç yinelemeden gidip gelir, her hacim birim zamanda 860 bin kat küçülür, milyarda birlik fark 23 birim zamanda milyar kat büyür.",
+    "tagline": "Üç denklem, düzensiz iki kanat: faz hacmi birim zamanda 860 bin kat küçülür; seçili deneyde milyarda birlik başlangıç farkı yaklaşık 23 birim zamanda bir mertebesine büyür.",
     "field": "Matematik",
     "level": "Lisans",
     "minutes": 40
+  },
+  "lorenz-cekici2": {
+    "title": "Lorenz: Görüntüden Ölçüme",
+    "tagline": "Bir yörüngeyi farklı açılardan gör, yönlü kesitlerle örnekle ve adımı küçülterek hesabı sına. Faz uzayındaki görüntüyle sayısal kanıt arasındaki mesafeyi ölç.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "maden-muhendisligi": {
     "title": "Maden Mühendisliği: Kayadan Metale Giden Yol",
@@ -512,6 +533,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Bir ülkenin bütün alışverişini dört harfe sığdıran denklem, altı sıfır atılan bir lira ve tek bir faiz düğmesinin milyonlarca cüzdana nasıl ulaştığı: makroekonominin ve merkez bankacılığının gerçek hikâyesi.",
     "field": "Toplum ve Ekonomi",
     "level": "Lise",
+    "minutes": 35
+  },
+  "mandelbrot+lorenz": {
+    "title": "Harita ve Akış: Kuraldan Yörüngeye",
+    "tagline": "Bir sonraki noktayı veren kuralla anlık değişimi veren kuralı ayır. Kritik başlangıcı, Euler tahminini ve iki tam çözümü gerçek hesaplarla karşılaştır.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
     "minutes": 35
   },
   "mandelbrot-fraktali": {
