@@ -1138,3 +1138,52 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
   Kök ek kontrolünde 435 HSL örneği tarayıcının yerel Canvas dönüşümüyle
   en çok 1 kod düzeyi farklıydı; dokuz çevrimdışı filtre deneyi bağımsız
   kuramdan en çok 1,3×10⁻⁸ ayrıldı. Bunlar sınanan modellerin regresyonudur.
+
+## F1 — Elektrostatik, basit makineler ve statik (10 Kasım 2026)
+
+- ✔ `elektrostatik`: üç yeni deney; iki noktasal yükün vektörel alanı,
+  potansiyeli ve test yüküne kuvveti; dipolde analitik alan ile merkezi
+  farkla −grad V; küresel kabuk/hacim yükünde E, V, Q_iç ve akı. Kaynakta
+  sonlu bir değer uydurulmaz. Sıfır kaynak hesap dışında, fakat tanımsız
+  alanda sıfır test yükü için de kuvvet değeri üretilmez. Kabuk yüzeyinde
+  farklı E limitleri ve sürekli V ayrı gösterilir.
+- ✔ Gauss sekmesinin orta nokta toplamı, önceden küresel simetri/Gauss
+  kullanılarak bulunan alanı entegre eder; bağımsız yasa kanıtı diye
+  sunulmaz. Ağ hatası ile yüzey alanı yaklaşımının ilişkisi görünür.
+  Ayrı regresyonda gerçek noktasal alan, merkez dışı bir kürede
+  Gauss–Legendre yöntemiyle entegre edildi; dış yükün net akıya katkısı,
+  kapalı yol işi ve ayrık yüklerden küre kabuğu toplamı ayrıca sınandı.
+  Hacim yükü simgeleri kesitin içine, kabuk simgeleri yalnız yüzeye konur.
+- ✔ `basit-makineler`: palanga, eğik düzlem, çark–mil ve tek ağızlı vida.
+  Geometrik kuvvet oranı, uygulanan kuvvet, giriş yolu, yükselme, yararlı
+  iş ve kayıp birlikte hesaplanır. Palanga/çark/vida toplam η modeli ile
+  eğik düzlemin kinetik Coulomb sürtünmesi aynı yasa diye sunulmaz.
+  Sıfır işte iş verimi, sıfır yükte kuvvet oranı tanımsızdır. Sürtünmeli
+  yatay yolda pozitif giriş işi ve sıfır yükseltme işi için verim 0'dır.
+- ✔ Çarkın R ve milin r kontrolünün aynı ID'ye dönüşmesi gerçek tarayıcı
+  testinde yakalandı; `wheelRadius` ve `wheelAxle` ayrıldı. θ=90°'de
+  sıfır normal kuvvet, m=0'da sıfır kuvvetler oklarla varmış gibi çizilmez.
+  Dar/gizli canvas ResizeObserver yarışında negatif yarıçap önlendi;
+  yeniden görünür olduğunda çizim yenilenir. Bunlar kalıcı UI testindedir.
+  Vida çiziminde sabit somun tabana yan desteklerle bağlıdır; şaftın
+  ilerlemesi ve kolun teğet kuvveti ayrı görünümlerde açıklanır.
+- ✔ `statik`: doğrusal yayılı yükün integrali/bileşkesi ve etki noktası;
+  kiriş dış tepkileri ve temas koşulu; üç çubuk kafeste düğüm vektörleri;
+  beş mesnet düzeninde rank, yük uyumluluğu ve tepki aileleri. Yayılı
+  yükün tek kuvvete indirgenmesi iç kesme/moment dağılımını korumaz.
+  Negatif tepki yalnız iki yönlü bağlantıda mümkündür; yalnız iten temas
+  için aynı sayı gerçek kuvvet diye sunulmaz.
+- ✔ Kafeste h=0 ilk mertebe tekilliği, sonlu hareket veya ikinci mertebe
+  rijitlik hükmüyle karıştırılmaz. Yükle uyumsuz tekil sistemde kuvvet
+  tablosu temizlenir; sonsuz kuvvet bir çözüm sayılmaz. Üç paralel tepki
+  rank 2 olabilir; pim+pim rank 3 olsa da dört tepki tek başına statikten
+  belirlenmez. λ yalnız denge ailesinden bir üye seçer; elastik çözüm
+  değildir. Mukavemet/sehim/burkulma bu modellerin kapsamında değildir.
+- ✔ Üç saf hesap API'si salt okunur ve dondurulmuştur. `test:f1`, gerçek
+  HTML çekirdeklerini bağımsız integral, vektör dengesi, iş/tork bütçesi
+  ve sınır durumlarıyla; ardından gerçek Chromium kontrolleriyle sınar.
+  Çekirdek/API denetimi ile fiziksel donanım ölçümü aynı şey değildir.
+- ✔ Ortak `npm run test:f1` kapanışı: elektrostatikte 22 model senaryosu
+  ve 74 UI kontrolü; basit makinelerde 17.801 hesap + 28 UI; statikte
+  9.803 hesap + 35 UI geçti. `test:public` 35 girişsiz erişim kontrolünden
+  hatasız geçti. Kontrol adetleri genel doğruluk ispatı olarak sunulmaz.

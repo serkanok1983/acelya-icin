@@ -40,6 +40,7 @@ const SOURCE_PREFIXES = [
   "https://www.ncbi.nlm.nih.gov/", "https://pubmed.ncbi.nlm.nih.gov/", "https://www.biointeractive.org/",
   "https://tubes.mit.edu/",
   "https://math.bu.edu/", "https://dummit.cos.northeastern.edu/",
+  "https://engineeringstatics.org/", "https://engcourses-uofa.ca/",
   "https://www.numdam.org/",
   "https://pi.math.cornell.edu/", "https://mathshistory.st-andrews.ac.uk/",
   "https://tilings.math.uni-bielefeld.de/", "https://www.math.utah.edu/", "https://www.cs.toronto.edu/",

@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-2c3cde74fa";
+const VERSION = "acelya-e9ff569083";
 // --- end:version ---
 
 // --- generated:core ---
@@ -68,6 +68,7 @@ const PAGES = [
   "ay-evreleri.html",
   "barnsley-egreltiotu.html",
   "basinc.html",
+  "basit-makineler.html",
   "bayes-olasilik.html",
   "besin-agi.html",
   "bicimsel-diller-ve-otomata-teorisi.html",
@@ -95,6 +96,7 @@ const PAGES = [
   "elektrokimya.html",
   "elektronik-devre.html",
   "elektronik-muhendisligi.html",
+  "elektrostatik.html",
   "enigma-makinesi.html",
   "entropi-ve-istatistiksel-fizik.html",
   "enzim-kinetigi.html",
@@ -197,6 +199,7 @@ const PAGES = [
   "siralama-algoritmalari.html",
   "siralama-yarisi.html",
   "snake.html",
+  "statik.html",
   "takimyildiz-haritasi.html",
   "tasarim-desenleri.html",
   "taylor-serisi.html",
@@ -238,6 +241,7 @@ const DIGESTS = [
   "shared/digest/ay-evreleri.js",
   "shared/digest/barnsley-egreltiotu.js",
   "shared/digest/basinc.js",
+  "shared/digest/basit-makineler.js",
   "shared/digest/bayes-olasilik.js",
   "shared/digest/besin-agi.js",
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
@@ -259,6 +263,7 @@ const DIGESTS = [
   "shared/digest/elektrokimya.js",
   "shared/digest/elektronik-devre.js",
   "shared/digest/elektronik-muhendisligi.js",
+  "shared/digest/elektrostatik.js",
   "shared/digest/enigma-makinesi.js",
   "shared/digest/enzim-kinetigi.js",
   "shared/digest/fibo+pascal.js",
@@ -345,6 +350,7 @@ const DIGESTS = [
   "shared/digest/sierpinski-fraktali-peano-egrisi-altin-oran.js",
   "shared/digest/siralama-algoritmalari.js",
   "shared/digest/siralama-yarisi.js",
+  "shared/digest/statik.js",
   "shared/digest/takimyildiz-haritasi.js",
   "shared/digest/tasarim-desenleri.js",
   "shared/digest/taylor-serisi.js",

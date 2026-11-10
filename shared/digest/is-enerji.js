@@ -233,9 +233,9 @@ window.ACELYA_DIGEST["is-enerji"] = {
   ],
   next: [
     {
-      href: "serbest-dusme.html",
-      title: "Serbest Düşme ve Hava Direnci",
-      why: "Rampayı 90°'ye dikleştir: 100 m'den düşen cisimde Hava Direnci Katsayısı 0 iken hız √(2gh) ≈ 44 m/s'ye ulaşır; direnci açınca eksik kalan kinetik enerji havayı ısıtır.",
+      href: "basit-makineler.html",
+      title: "Basit Makineler",
+      why: "Palanga, eğik düzlem, çark–mil ve vidada kuvvet azalırken yolun nasıl değiştiğini karşılaştır; giriş işinin ne kadarının yükü yükselttiğini, ne kadarının kayıp olduğunu hesapla.",
     },
     {
       href: "sarkac.html",

@@ -122,6 +122,7 @@ emin değilsen kitabın ana sayfasını ver.
 
 - https://openstax.org/ · https://ocw.mit.edu/ · https://tubes.mit.edu/ · https://phet.colorado.edu/
 - https://math.bu.edu/ · https://dummit.cos.northeastern.edu/ (üniversite ders notları)
+- https://engineeringstatics.org/ · https://engcourses-uofa.ca/ (açık statik ders kitabı ve University of Alberta mühendislik dersleri)
 - https://www.numdam.org/ (özgün matematik yayınlarının arşivi)
 - https://pi.math.cornell.edu/ · https://mathshistory.st-andrews.ac.uk/ (ders notları ve matematik tarihi)
 - https://tilings.math.uni-bielefeld.de/ · https://www.math.utah.edu/ · https://www.cs.toronto.edu/ (döşemeler, ders notları ve akademik çalışmalar)

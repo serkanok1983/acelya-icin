@@ -61,6 +61,7 @@ npm run test:b2      # Penrose, Barnsley ve üç limit deneyinin matematiksel de
 npm run test:b3      # Lorenz/harita-akış ve Fibonacci/Pascal: bağımsız sayısal ve geometrik denetim
 npm run test:b4      # Tek sayılar: gerçek hücre eşlemesi, farklar ve tam rasyonel seri referansları
 npm run test:c       # Sekiz C laboratuvarı; sayısal referanslar ve gerçek çevrimdışı Web Audio
+npm run test:f1      # Elektrostatik, basit makineler ve statik: bağımsız fizik hesapları ve gerçek tarayıcı kontrolleri
 npm run test:public  # girişsiz erişim, eski oturum temizliği ve yerel rekorlar
 npm run shot -- sarkac --theme light --scroll digest   # ekran görüntüsü
 ```
@@ -90,7 +91,8 @@ Her kodlama turunun sonunda denetim ve build sonrasında commit oluşturulur,
 `sw.js` sürümünü sunduğu doğrulanır (kullanıcının 10 Kasım 2026 talimatı).
 Depodaki Actions workflow'u korunur; katı defter denetimi eksik defterler
 tamamlanmadan geçmez. Güncel kapsam ve devam sırası
-[`docs/DEVAM-PLANI.md`](docs/DEVAM-PLANI.md) içindedir.
+[`docs/DEVAM-PLANI.md`](docs/DEVAM-PLANI.md) içindedir. Fizikte konu–ön koşul–deney
+eşlemesi ve açık kalan kapsam [`docs/fizik-kapsam-haritasi.md`](docs/fizik-kapsam-haritasi.md) dosyasındadır.
 
 ## Yerel kayıtlar
 

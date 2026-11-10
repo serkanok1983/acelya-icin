@@ -232,7 +232,7 @@
       level: "Lise ileri–Lisans",
       duration: "75 dakika",
       labLabel: "Elektromanyetik dalga laboratuvarı",
-      prerequisites: [{ href: "lorentz-kuvveti.html", label: "Lorentz kuvveti" }, { href: "manyetik-alan.html", label: "Manyetik alan" }, { href: "cok-degiskenli-kalkulus.html", label: "Vektör kalkülüsü" }],
+      prerequisites: [{ href: "elektrostatik.html", label: "Elektrostatik" }, { href: "lorentz-kuvveti.html", label: "Lorentz kuvveti" }, { href: "manyetik-alan.html", label: "Manyetik alan" }, { href: "cok-degiskenli-kalkulus.html", label: "Vektör kalkülüsü" }],
       goals: [["Alanı tanımla", "Alanı uzayın her noktasına değer atayan fiziksel model olarak yorumla."], ["Akı ve dolaşımı ayır", "Kapalı yüzeyden geçen akıyla kapalı yol çevresindeki dolaşımın rollerini karşılaştır."], ["Dört yasayı birleştir", "Yük, akım ve zamanla değişen alanların hangi Maxwell denkleminde yer aldığını açıkla."], ["Dalga hızını çıkar", "Boşluk sabitleri ε₀ ve μ₀'ın ışık hızını nasıl belirlediğini ilişkilendir."]],
       sections: [
         { kicker: "1 · Alan fikri", title: "Uzaktan etki yerine yerel bir durum", paragraphs: ["Elektrik alan E, küçük bir pozitif test yükünün birim yük başına göreceği kuvveti; manyetik alan B ise hareketli yüklere etki eden Lorentz kuvvetinin manyetik bölümünü tanımlar. Alan, yalnız çizilmiş oklar değil, enerji ve momentum taşıyabilen fiziksel bir modeldir.", "Alan çizgileri görsel yardımcıdır: E çizgilerinin teğeti alan yönünü, çizgi yoğunluğu kabaca büyüklüğü gösterir. Çizgiler fiziksel teller değildir ve uzayda sayılabilir nesneler gibi düşünülmemelidir."], equation: "F=q(E+v×B)", equationNote: "Manyetik kuvvet hıza ve alana diktir; tek başına parçacığın kinetik enerjisini değiştirmez." },

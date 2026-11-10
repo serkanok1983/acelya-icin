@@ -239,9 +239,9 @@ window.ACELYA_DIGEST["elektrik-devresi-simulasyonu"] = {
       why: "Her devre çözümü bir G·v = i sistemidir. Çözümlü örnekteki 2×2 G matrisini bir dönüşüm, determinantını alan ölçeği olarak gör; det G ≠ 0'ın neden tek çözüm demek olduğunu oradaki 2×2 dönüşüm tezgâhında sezersin.",
     },
     {
-      href: "elektrik-muhendisligi.html",
-      title: "Elektrik Mühendisliği",
-      why: "Pil ve dirençler büyüyünce şebeke olur: üretimden prize güç sistemleri, motorlar ve transformatörler. Trafodaki bakır kayıpları (I²R) bu sayfadaki güç dengesinin büyük ölçekli hâlidir.",
+      href: "elektrostatik.html",
+      title: "Elektrostatik",
+      why: "Gerilim farkının alan diline geç: kaynak yüklerin potansiyelini topla, alanı potansiyelin değişiminden hesapla; potansiyelin sıfır olduğu yerde alanın neden sıfır olmak zorunda olmadığını gör.",
     },
   ],
   sources: [

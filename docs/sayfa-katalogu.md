@@ -74,7 +74,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `konik-kesitler` — Konik Kesitler (sayfa başlığı: Konik Kesitler: Elips, Parabol ve Hiperbol)
 - `matris-donusumleri` — Matris Dönüşümleri (sayfa başlığı: Matris Dönüşümleri (2B))
 
-## Fizik (39)
+## Fizik (42)
 
 - `optik-yansima-kirilma` — Optik: Yansıma & Kırılma (sayfa başlığı: Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma)
 - `mercek-isinlari` — Mercek Işınları (sayfa başlığı: İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu)
@@ -83,7 +83,9 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `sarkac` — Sarkaç (sayfa başlığı: Sarkaç Laboratuvarı)
 - `cift-sarkac` — Çift Sarkaç (sayfa başlığı: Çift Sarkaç: Kaos ve Başlangıç Koşullarına Duyarlılık)
 - `dairesel-hareket` — Dairesel Hareket (sayfa başlığı: Dairesel Hareket — Merkezcil Kuvvet)
-- `tork-denge` — Tork, Denge ve Statik (sayfa başlığı: Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik)
+- `tork-denge` — Tork ve Denge (sayfa başlığı: Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik)
+- `basit-makineler` — Basit Makineler (sayfa başlığı: Basit Makineler: Kuvvet, Yol ve İş)
+- `statik` — Statik: Yükler ve Mesnetler (sayfa başlığı: Statik: Yük, Mesnet ve Denge)
 - `is-enerji` — İş–Enerji (sayfa başlığı: İş–Enerji İlkesi)
 - `newton-hareket-yasalari` — Newton Yasaları (sayfa başlığı: Newton’un Hareket Yasaları ve Çarpışmalar)
 - `atislar` — Eğik Atış (sayfa başlığı: Eğik Atış: Hava Direnci ve En İyi Açı)
@@ -93,8 +95,9 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `akiskanlar-mekanigi` — Akışkanlar Mekaniği (sayfa başlığı: Akışkanlar Mekaniği: Süreklilik, Bernoulli ve Viskozite)
 - `dalga-superpozisyonu` — Dalga Süperpozisyonu
 - `doppler-etkisi` — Doppler (sayfa başlığı: Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması)
+- `elektrostatik` — Elektrostatik (sayfa başlığı: Elektrostatik: Alan, Potansiyel ve Akı)
 - `elektrik-devresi-simulasyonu` — Elektrik Devresi (sayfa başlığı: DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları)
-- `elektronik-devre` — RC Devresi (sayfa başlığı: Geçici Rejim: RC, RL ve RLC Devreleri)
+- `elektronik-devre` — RC, RL ve RLC Devreleri (sayfa başlığı: Geçici Rejim: RC, RL ve RLC Devreleri)
 - `manyetik-alan` — Manyetik Alan (sayfa başlığı: Manyetik Alan ve Elektromıknatıs Etkisi)
 - `alternatif-akim` — Alternatif Akım (sayfa başlığı: Alternatif Akım: RLC Devresi, Fazörler ve Rezonans)
 - `lorentz-kuvveti` — Lorentz Kuvveti (sayfa başlığı: Lorentz Kuvveti: Yüklü Parçacık Laboratuvarı)

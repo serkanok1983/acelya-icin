@@ -94,6 +94,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "basit-makineler": {
+    "title": "Basit Makineler: Kuvvetin Yol Bedeli",
+    "tagline": "Bir yükü daha küçük kuvvetle kaldırmak için neyi artırırsın? Palanga, eğik düzlem, çark–mil ve vidada yol, tork ve enerji hesabını aynı ilkeyle birleştir.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "bayes-olasilik": {
     "title": "Bayes Teoremi: Kanıtla Fikir Değiştirmenin Matematiği",
     "tagline": "Testin pozitif çıktı; hasta olma ihtimalin %95 mi, %9 mu? Cevap testin kalitesinde değil, hastalığın ne kadar nadir olduğunda saklı. Bayes teoremi, yeni bir kanıtla fikrini ne kadar değiştirmen gerektiğini söyler.",
@@ -239,6 +246,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Bir kum tanesinin içine birkaç yabancı atom karıştır; akımı tek yöne geçiren bir kapı, sonra bir anahtar, sonra bir bilgisayar çıkar. Elektronik mühendisliği bu zincirin her halkasını tasarlar.",
     "field": "Mühendislik",
     "level": "Lise",
+    "minutes": 35
+  },
+  "elektrostatik": {
+    "title": "Elektrostatik: Alan, Potansiyel ve Akı",
+    "tagline": "Sıfır voltluk bir noktada elektrik kuvveti olabilir. Noktasal yüklerden küresel yüzeylere geç; alanı, potansiyeli ve akıyı ayrı ayrı hesapla.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
     "minutes": 35
   },
   "enigma-makinesi": {
@@ -842,6 +856,13 @@ window.ACELYA_CATALOG = {
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
     "minutes": 32
+  },
+  "statik": {
+    "title": "Statik: Denge Neyin Cevabıdır?",
+    "tagline": "Aynı toplam yük farklı mesnet tepkileri doğurabilir; üç tepki de bir yapıyı tutmaya yetmeyebilir. Yayılı yük, kafes ve matrislerle dengenin ne söylediğini sınayalım.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "takimyildiz-haritasi": {
     "title": "Takımyıldız Haritası: Gökyüzünün Adres Defteri",

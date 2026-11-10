@@ -212,9 +212,9 @@ window.ACELYA_DIGEST["tork-denge"] = {
   ],
   next: [
     {
-      href: "makine-muhendisligi.html",
-      title: "Makine Mühendisliği",
-      why: "Statikten mukavemete: ortadan yüklü bir kirişte Yükü Artır düğmesiyle mesnet tepkilerini ve eğilme momenti üçgenini izle. Burada bulduğun R<sub>A</sub> ve R<sub>B</sub>, kirişin içindeki gerilmenin başlangıcıdır.",
+      href: "statik.html",
+      title: "Statik: Yükler ve Mesnetler",
+      why: "Kaldıraç ve noktasal yüklerden yayılı yüke geç: bileşkenin yerini bul, mesnet tepkilerini hesapla ve kafes çubuklarında çekme ile basıncı ayır.",
     },
     {
       href: "sarkac.html",
