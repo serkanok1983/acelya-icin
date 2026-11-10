@@ -121,6 +121,9 @@ bölüm sayfası) yalnızca bölüm numarası ve başlığından eminsen kullan�
 emin değilsen kitabın ana sayfasını ver.
 
 - https://openstax.org/ · https://ocw.mit.edu/ · https://tubes.mit.edu/ · https://phet.colorado.edu/
+- https://math.bu.edu/ · https://dummit.cos.northeastern.edu/ (üniversite ders notları)
+- https://www.numdam.org/ (özgün matematik yayınlarının arşivi)
+- https://pi.math.cornell.edu/ · https://mathshistory.st-andrews.ac.uk/ (ders notları ve matematik tarihi)
 - https://tr.wikipedia.org/wiki/ · https://en.wikipedia.org/wiki/
 - https://tr.khanacademy.org/ · https://www.khanacademy.org/
 - http://hyperphysics.phy-astr.gsu.edu/ · https://www.feynmanlectures.caltech.edu/

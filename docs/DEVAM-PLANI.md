@@ -7,9 +7,17 @@ standardı için `docs/icerik-rehberi.md`.
 
 Dal: `main` (eski `claude/zealous-archimedes-iwjhpu` dalı main'e birleşmiş durumda).
 6–7 Kasım oturumunun commit'leri `origin/main`'e gönderildi ve `gh-pages`'te yayında.
-Son durum tarihi: 2026-11-10 (A7 yerelde tamamlandı; sırada B grubu).
-A7 henüz yayımlanmadı; yayındaki son sürüm A6. A7 kapanışı yerel olarak
-tamamlandı; sonraki yayın bu değişiklikleri de içermeli.
+Son durum tarihi: 2026-11-10 (B1: dört fraktal laboratuvarı ve girişsiz kullanım tamamlandı).
+A7 (`1101d98`) `origin/main`'e gönderildi ve elle yayımlandı; canlı
+service worker sürümü `acelya-ffaf483948` ile doğrulandı.
+B1'in yeni yayın paketi `acelya-6d47d9ffc0` sürümündedir; canlı kapanış
+kontrolünde bu sürümü karşılaştır. Sıradaki grup B'nin kalan sayfalarıdır.
+
+**10 Kasım yayın talimatı:** Kullanıcı her kodlama turunun sonunda `main`'e
+gönderim ve elle yayın istiyor; sonucu canlı siteden kontrol ediyor.
+GitHub Actions kotası dolu. Her tamamlanmış grupta kontroller → build →
+commit → `git push origin main` → `sh scripts/deploy-manual.sh --publish`
+→ canlı sürüm kontrolü sırasını uygula; yeniden onay isteme.
 
 ## 1. Hedef (sahibinin sözleriyle)
 
@@ -34,7 +42,7 @@ Statik site, derleme yok, GitHub Pages. Önemli parçalar:
 
 | Parça | Dosya | Not |
 |---|---|---|
-| Ortak kabuk | `shared/app.js`, `shared/theme.css` | üst çubuk, tema, yıldızlar, PWA, **giriş kapısı** (oturum yoksa index.html'e yönlendirir) |
+| Ortak kabuk | `shared/app.js`, `shared/theme.css` | üst çubuk, tema, yıldızlar, PWA; bütün içerikler hesapsız açılır |
 | Keşif Defteri | `shared/digest.js`, `shared/digest.css`, `shared/digest/<slug>.js` | her sayfanın altına katmanlı içerik; veri dosyası yoksa sessizce atlanır |
 | Katalog | `shared/catalog.js` (üretilir) | ana sayfa kartlarında etiket/düzey/süre, arama |
 | Service worker | `sw.js` (listeleri üretilir) | `node scripts/build-sw.mjs` |
@@ -58,13 +66,13 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   modalının app.js bağlantıları kaldırıldı. Eski veri dosyaları
   (`shared/page-info.js`, `shared/encyclopedia-*.js/.css`) **henüz diskte**;
   yazar ajanlar bunları kaynak olarak okuyor (bkz. Yapılacaklar 4).
-- Teknik: giriş kapısı tüm sayfalarda, 404.html, eksik viewport'lar,
+- Teknik: 404.html, eksik viewport'lar,
   sürümsüz echarts sabitlendi, 3 gerçek JS hatası düzeltildi
   (kristal-yapilar NaN, elektrik-devresi null chart, mantik-devresi kapsam),
   21 sayfada mobil yatay taşma giderildi (theme.css canvas kuralı + 7 sayfa
   tek tek). Duman testi: 168 sayfada 0 JS hatası.
 - Service worker yeniden yazıldı; CI'da denetim adımı; README.
-- Keşif Defteri altyapısı + 117 defter (81 doğrulayıcı/editör aşamasından geçti; aşağıda durum tablosu).
+- Keşif Defteri altyapısı + 121 defter (85 doğrulayıcı/editör aşamasından geçti; aşağıda durum tablosu).
 - **31 Ekim 2026 oturumu:**
   - Simülasyon hataları düzeltildi: `is-enerji` (animasyon çalışmıyordu, fiziksel
     birimlerle yeniden yazıldı), `kepler-yasalari` (gezegen ekran dışındaydı;
@@ -208,6 +216,27 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   Statik denetim: **0 hata, 94 uyarı** (eksik defter kapsamı ve incelenmesi
   gereken kaynak/biçim uyarıları; A7'nin beş OpenStax uyarısındaki derin
   bağlantılar kaynak incelemesinde doğrulandı).
+- **10 Kasım (grup B1 + girişsiz kullanım):** Mandelbrot, Julia, Koch kar
+  tanesi ve Hilbert eğrisi üçer deney sekmesiyle yeniden kuruldu. Dört yeni
+  defter kurucu → bağımsız yazar → bağımsız doğrulayıcı/editör hattından
+  geçti. Toplam **121 defter; 85'i tam hattan geçmiş, 33 sayfada defter yok**.
+  Sonlu yineleme bir üyelik ispatı sayılmıyor; sonlu kırık çizgi ile ideal
+  limit nesnesi ayrı anlatılıyor. Koch'un çıkıntı yönü, Mandelbrot'un z₀ ve
+  kaçış eşitliği, Julia'nın genel başlangıçlar için kaçış yarıçapı düzeltildi.
+  Hilbert'te yakınlığın yönü gerçek hücre çiftleriyle sınanıyor; sayısal
+  geometri performans ölçümü gibi sunulmuyor. `test:fractals` dört sayfanın
+  gerçek hesap çekirdeğinde **44.278 kontrol** yapar.
+  Kullanıcı talebiyle giriş formu, açık metin hesap dosyası, etkinlik takibi
+  ve Firebase istemcisi kaldırıldı. Menü ve bütün konular doğrudan açılır;
+  `bilgi.html` herkese açık Hakkında sayfasıdır. Oyun rekorları bu cihazda
+  anonim saklanır. `test:public` **35 kontrolle** temiz tarayıcı, derin bağlantı,
+  eski oturum temizliği, yerel rekorlar ve depolama kapalıyken erişimi sınar.
+  Eski Git geçmişi ve uzak Firebase verileri bu işlemle silinmedi.
+  Doğukan'ın fotoğrafları kullanıcının tercihi gereği kapsam dışında kaldı.
+  Son statik denetim **0 hata, 95 uyarı** verdi; yeni Koch OpenStax bölüm
+  bağlantısı kaynak metniyle doğrulandı. Dört sayfanın mobil defter/12 sekme
+  denetimi hatasız; A7 geriye dönük 136 kontrolü de geçti. Manuel yayın
+  betiği ayrıca bütün 169 sayfayı tarar.
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
@@ -222,7 +251,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.1 Kalan 37 sayfa için defter yaz (üniversite hedefine göre sıralı)
+### 4.1 Kalan 33 sayfa için defter yaz (üniversite hedefine göre sıralı)
 
 Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler). 6–7 Kasım'da
 26 ince sayfa (25'i fizik) yeniden kurulup defterlendi; ince ya da yanlış fizik
@@ -244,10 +273,12 @@ A · kurucu → yazar → doğrulayıcı+editör (6'lık gruplar)
     birim-cember rastgele-yuruyus pi-yaklasimi pisagor asal-rsa lissajous
     (grup A6, 7 Kasım)
     pascal-ucgeni collatz molekul mantik-kapilari besin-agi
-    (grup A7, 10 Kasım; yerelde tamamlandı)
+    (grup A7, 10 Kasım; yayında)
 
 B · fraktallar ve görsel matematik
-    mandelbrot-fraktali julia-fraktali koch-kar-tanesi hilbert-egrisi
+    tamamlandı (B1, 10 Kasım): mandelbrot-fraktali julia-fraktali
+    koch-kar-tanesi hilbert-egrisi
+    sırada:
     penrose-dosemesi barnsley-egreltiotu sierpinski-fraktali-peano-egrisi-altin-oran
     lorenz-cekici2 mandelbrot+lorenz fibo fibo+pascal
     tek-sayi-toplam3 tek-sayi-toplam4 tek-sayi-toplam5
@@ -304,13 +335,13 @@ Tam istem metinleri bu oturumda kullanılan İngilizce halleriyle
   `shared/digest.js` slug'ı `encodeURIComponent` ile yükler, dosya adı
   birebir `fibo+pascal.js` olmalı.
 
-### 4.2 Var olan 117 defterin eksik aşamalarını tamamla
+### 4.2 Var olan 121 defterin eksik aşamalarını tamamla
 
-A7 doğrulama bulguları kapatıldı. Eski 36 defterin eksik aşamaları aşağıda. Durum (10 Kasım 2026):
+A7 ve B1 doğrulama bulguları kapatıldı. Eski 36 defterin eksik aşamaları aşağıda. Durum (10 Kasım 2026):
 
 | Durum | Sayfalar |
 |---|---|
-| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim, konik-kesitler, av-avci-lotka-volterra, genetik-caprazlama, ph-indikator, kristal-yapilar, denklem-denklestirme, kalp-dolasim, birim-cember, rastgele-yuruyus, pi-yaklasimi, pisagor, asal-rsa, lissajous, pascal-ucgeni, collatz, molekul, mantik-kapilari, besin-agi |
+| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim, konik-kesitler, av-avci-lotka-volterra, genetik-caprazlama, ph-indikator, kristal-yapilar, denklem-denklestirme, kalp-dolasim, birim-cember, rastgele-yuruyus, pi-yaklasimi, pisagor, asal-rsa, lissajous, pascal-ucgeni, collatz, molekul, mantik-kapilari, besin-agi, mandelbrot-fraktali, julia-fraktali, koch-kar-tanesi, hilbert-egrisi |
 | yazar + editör (doğrulama yok) | altin-oran, pong |
 | yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
@@ -337,7 +368,7 @@ node scripts/smoke.mjs --width 390  # yatay taşma listesi boş olmalı
 ```
 
 Defter görünürlüğü: `body{overflow:hidden}` kullanan tam ekran fraktal
-sayfaları (altin-oran, barnsley-egreltiotu, hilbert-egrisi, koch-kar-tanesi,
+sayfaları (altin-oran, barnsley-egreltiotu,
 lorenz-cekici2, mandelbrot+lorenz, penrose-dosemesi, sierpinski-…,
 fibo+pascal) için `digest.css` gövdeyi kaydırılabilir yapar; `--digest`
 testinde "görünmüyor" çıkarsa o sayfanın kendi CSS'ine bak.
@@ -371,8 +402,9 @@ tablosu hataları). Öneri:
    6–7 Kasım'da yapıldı: turev, periyodik-tablo (düzeltme ve veri), defteri
    olmayan 25 fizik sayfası (ilk turda 10, grup A'da 4, A2'de 5, A3'te 6) ve
    6 matematik sayfası (A4), 6 kimya–biyoloji sayfası (A5) ve 6 matematik sayfası
-   (A6), beş karma temel bilim sayfası (A7); bkz. 3. bölüm. B grubundan önce bilinen kusurlar:
-   mandelbrot-fraktali 0'da ortalı (−2 ucu kırpılıyor), c = −2 beyaz, eksen yok.
+   (A6), beş karma temel bilim sayfası (A7) ve dört fraktal laboratuvarı
+   (B1); bkz. 3. bölüm. Mandelbrot'un kırpılan −2 ucu, hatalı eşitlik
+   kaçış testi ve eksik eksenleri B1'de düzeltildi.
    rastgele-yuruyus'taki √n karışıklığı A6'da düzeltildi.
    Sırada defteri olan
    ama laboratuvarı zayıf temel sayfalar: integral, vektorler, serbest-dusme,
@@ -384,16 +416,18 @@ tablosu hataları). Öneri:
 
 ### 4.6 Kapanış
 
-- Firebase Realtime Database kuralları konsoldan sıkılaştırılmalı
-  (`shared/firebase-config.example.js` içindeki öneri); repodan yapılamaz.
-- Yerel `main` commit'lerini `origin/main`'e gönder (sahibinin onayıyla).
+- Hesaplar ve Firebase istemcisi 10 Kasım'da kaldırıldı. Eski Git geçmişi
+  ve önceden yazılmış uzak veriler yeniden yazılmadı/silinmedi. Yeni sürüm
+  bu verileri okumaz veya güncellemez; oyun kayıtları cihazda tutulur.
+- Yerel `main` commit'lerini her tamamlanmış kodlama turunda `origin/main`'e
+  gönder; kullanıcı 10 Kasım'da bu düzeni açıkça yetkilendirdi.
 - **Yayın (GitHub Actions kullanılamıyor):** CI'ın yaptığını yerelde
   `scripts/deploy-manual.sh` yapar: check-site → katalog/sw `--check` →
   smoke → `_site` paketi. `npm run deploy:check` yalnız denetler ve paketler;
   `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
   Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
   Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
-  (37 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
+  (33 sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
   bitince geçer.
 
 ## 5. Kalite çıtası (kısa hatırlatma)

@@ -117,8 +117,6 @@
     loadCSS("shared/game-mobile.css");
 
     const modules = [
-      "shared/auth.js",
-      "shared/firebase-config.js",
       "shared/leaderboard.js",
       "shared/game-juice.js",
       "shared/game-mobile.js",

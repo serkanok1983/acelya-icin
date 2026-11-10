@@ -1,5 +1,5 @@
 /**
- * Açelya — ortak kabuk: yıldızlar, ana sayfa, sesler, giriş rehberi
+ * Açelya — ortak kabuk: yıldızlar, ana sayfa, sesler ve keşif defterleri
  */
 
 /* Sesler — sayfa scriptlerinden önce kullanılabilir */
@@ -276,12 +276,12 @@
   const THEME_KEY = "acelya-theme";
 
   function getSavedTheme() {
-    return localStorage.getItem(THEME_KEY) || "dark";
+    try { return localStorage.getItem(THEME_KEY) || "dark"; } catch (_) { return "dark"; }
   }
 
   function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem(THEME_KEY, theme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
     updateThemeIcon(theme);
   }
 
@@ -557,24 +557,6 @@
     });
   }
 
-  function loadActivityTracker() {
-    loadScriptOnce("shared/firebase-config.js", () => {
-      loadScriptOnce("shared/activity.js", trackActivityVisit);
-    });
-  }
-
-  function trackActivityVisit() {
-    if (pageId === "bilgi") return;
-    const u =
-      window.AcelyaAuth?.getCurrentUser?.() ||
-      sessionStorage.getItem("acelya-user") ||
-      localStorage.getItem("acelya-user");
-    if (u === "acelya" && window.AcelyaActivity) {
-      const title = document.title.split("|")[0].trim();
-      AcelyaActivity.logPageVisit(pageId, title);
-    }
-  }
-
   function loadGameKit() {
     const s = document.createElement("script");
     s.src = "shared/game-kit.js";
@@ -584,28 +566,16 @@
     document.head.appendChild(s);
   }
 
-  function isLoggedIn() {
-    try {
-      return (
-        sessionStorage.getItem("loggedIn") === "true" ||
-        localStorage.getItem("loggedIn") === "true"
-      );
-    } catch (_) {
-      return true;
-    }
-  }
-
   function init() {
     const body = document.body;
     if (!body || body.dataset.page === "index") return;
-    if (!isLoggedIn()) {
-      // Giriş yapılmamışsa ana sayfadaki giriş kartına dön; hedef sayfa hatırlanır.
-      const target = location.pathname.replace(/.*\//, "") + location.search + location.hash;
+    // Eski yerel oturum bilgileri artık bir kimlik veya erişim koşulu değildir.
+    for (const storageName of ["localStorage", "sessionStorage"]) {
       try {
-        sessionStorage.setItem("acelya-after-login", target);
+        for (const key of ["acelya-user", "loggedIn", "acelya-after-login"]) {
+          window[storageName].removeItem(key);
+        }
       } catch (_) {}
-      location.replace("index.html");
-      return;
     }
     pageId =
       body.dataset.page ||
@@ -618,7 +588,6 @@
     initStars();
     initTopbar();
     loadDigest();
-    loadActivityTracker();
     loadGameKit();
   }
 

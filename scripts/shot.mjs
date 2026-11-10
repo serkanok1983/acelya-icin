@@ -32,7 +32,7 @@ const PROXY = process.env.HTTPS_PROXY || "";
 const browser = await chromium.launch(PROXY ? { args: [`--proxy-server=${PROXY}`, "--proxy-bypass-list=127.0.0.1;localhost", "--ignore-certificate-errors"] } : {});
 const ctx = await browser.newContext({ viewport: { width: Number(opt("--width", 1280)), height: Number(opt("--height", 900)) }, deviceScaleFactor: 1, locale: "tr-TR" });
 const theme = opt("--theme", "dark");
-await ctx.addInitScript((t) => { try { localStorage.setItem("acelya-user", "serkan"); localStorage.setItem("loggedIn", "true"); localStorage.setItem("acelya-theme", t); localStorage.setItem("acelya-sound-muted", "1"); } catch (_) {} }, theme);
+await ctx.addInitScript((t) => { try { localStorage.setItem("acelya-theme", t); localStorage.setItem("acelya-sound-muted", "1"); } catch (_) {} }, theme);
 const page = await ctx.newPage();
 await page.goto(`http://127.0.0.1:${server.address().port}/${slug}.html`, { waitUntil: "load" });
 await page.waitForTimeout(Number(opt("--wait", 1500)));

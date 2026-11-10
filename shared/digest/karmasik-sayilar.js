@@ -226,8 +226,8 @@ window.ACELYA_DIGEST["karmasik-sayilar"] = {
     },
     {
       href: "mandelbrot-fraktali.html",
-      title: "Mandelbrot Seti",
-      why: "Sade bir çizim: z ↦ z² + c her piksel için en çok 100 kez uygulanır, |z| 2'yi aşmayan noktalar siyah kalır. Açılıştaki çizimde kümenin −2'deki sol ucu kadraja sığmaz; Zoom Faktörü kutusuna 140 yazıp Çiz!'e basınca bütün küme görünür.",
+      title: "Mandelbrot Laboratuvarı",
+      why: "c'yi seçip sıfırın z² + c yörüngesini izle; kaçış çemberini, hesap bütçesini ve gerçek eksendeki koruyan aralık kanıtını karşılaştır.",
     },
   ],
   sources: [

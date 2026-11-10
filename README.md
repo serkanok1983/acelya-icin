@@ -23,13 +23,13 @@ Her konu sayfası iki katmandan oluşur:
    [`shared/digest/sarkac.js`](shared/digest/sarkac.js).
 
 Ortak kabuk (`shared/app.js`, `shared/theme.css`) üst çubuğu, temayı,
-yıldız arka planını, PWA kaydını ve giriş kapısını sağlar. Oyun sayfaları
+yıldız arka planını, PWA kaydını sağlar; sayfalar hesapsız açılır. Oyun sayfaları
 ayrıca skor tablosu, mobil kontroller ve ses katmanını yükler.
 
 ## Yapı
 
 ```
-index.html              giriş + ana menü (kategoriler, arama)
+index.html              ana menü (kategoriler, arama)
 bilim-atlasi.html       kavram haritası ve ön koşullu rotalar
 <slug>.html             konu sayfaları (simülasyon / oyun)
 shared/                 ortak kabuk, atlas, STEM omurgası, oyun katmanı
@@ -56,6 +56,8 @@ npm install && npx playwright install chromium
 npm run smoke        # her sayfayı Chromium'da açar; JS hatası ve defter görünürlüğü
 node scripts/smoke.mjs --only sarkac --digest --tabs --width 390
 npm run test:a7      # A7'nin beş laboratuvarında sayısal sonuçlar ve etkileşimler
+npm run test:fractals # dört fraktalın hesap çekirdekleri ve sınır durumları
+npm run test:public  # girişsiz erişim, eski oturum temizliği ve yerel rekorlar
 npm run shot -- sarkac --theme light --scroll digest   # ekran görüntüsü
 ```
 
@@ -79,16 +81,21 @@ npm run deploy       # denetler, paketler ve gh-pages dalına yayınlar
 
 Paketleme HEAD'den yapıldığı için yayınlanacak değişiklikler önce commit
 edilmelidir. Pages ayarı: **Deploy from a branch → gh-pages / (root)**.
+Her kodlama turunun sonunda denetim ve build sonrasında commit oluşturulur,
+`git push origin main` ve `npm run deploy` çalıştırılır; canlı sitenin yeni
+`sw.js` sürümünü sunduğu doğrulanır (kullanıcının 10 Kasım 2026 talimatı).
 Depodaki Actions workflow'u korunur; katı defter denetimi eksik defterler
 tamamlanmadan geçmez. Güncel kapsam ve devam sırası
 [`docs/DEVAM-PLANI.md`](docs/DEVAM-PLANI.md) içindedir.
 
-## Gizlilik ve hesaplar
+## Yerel kayıtlar
 
-Giriş kartı `shared/auth.js` içindeki aile hesaplarını kullanır; sayfalar
-oturum yoksa ana sayfaya yönlendirir. İlerleme, sınav sonuçları ve tema
-tercihi yalnızca tarayıcının `localStorage` alanında tutulur. Oyun skorları
-ve (yalnızca Açelya için) sayfa gezinti kaydı Firebase Realtime Database'e
-yazılır; yapılandırma `shared/firebase-config.js`, önerilen veritabanı
-kuralları `shared/firebase-config.example.js` içindedir. Tarayıcı
-destekliyorsa hikâyeler Web Speech API ile Türkçe seslendirilir.
+Site kullanıcı adı veya şifre istemeden açılır. İlerleme, sınav sonuçları,
+tema tercihi ve oyun skorları yalnızca bu tarayıcıda tutulur; etkinlik kaydı
+ve Firebase bağlantısı kaldırılmıştır. Oyun rekorları cihazlar arasında
+paylaşılmaz. `bilgi.html` herkese açık Hakkında sayfasıdır.
+
+Eski hesap/şifre dosyası yayından kaldırıldı; geçmiş Git commit'leri ve
+önceden yazılmış uzak veriler bu değişiklikle silinmez. Eski Firebase örnek
+ayar dosyası yalnız tarihsel başvuru olarak durur, uygulama tarafından yüklenmez.
+Tarayıcı destekliyorsa hikâyeler Web Speech API ile Türkçe seslendirilir.

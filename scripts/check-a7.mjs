@@ -15,7 +15,7 @@ let checks=0,screenshots=0;
 const errors=[];
 try {
 for(const [theme,width] of [['dark',1280],['light',390]]){const ctx=await browser.newContext({viewport:{width,height:900},locale:'tr-TR'});
-await ctx.addInitScript(theme=>{localStorage.setItem('acelya-user','serkan');localStorage.setItem('loggedIn','true');localStorage.setItem('acelya-sound-muted','1');localStorage.setItem('acelya-theme',theme);},theme);
+await ctx.addInitScript(theme=>{localStorage.setItem('acelya-sound-muted','1');localStorage.setItem('acelya-theme',theme);},theme);
 const page=await ctx.newPage();
 page.setDefaultTimeout(10000);
 page.on('pageerror',e=>errors.push(e.message));

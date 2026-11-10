@@ -94,11 +94,9 @@ const context = await browser.newContext({
   locale: "tr-TR",
   ignoreHTTPSErrors: Boolean(PROXY),
 });
-// Giriş kapısını geç: test oturumu
+// Temiz, hesapsız ziyaret: yalnız ses/tema tercihi ayarla.
 await context.addInitScript(() => {
   try {
-    localStorage.setItem("acelya-user", "serkan");
-    localStorage.setItem("loggedIn", "true");
     localStorage.setItem("acelya-sound-muted", "1");
   } catch (_) {}
 });

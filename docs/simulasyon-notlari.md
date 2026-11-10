@@ -807,7 +807,7 @@ Bu sayfalar `sarkac.html` standardında sıfırdan yazıldı (gerçek birimler, 
 
 - ✔ `rastgele-yuruyus.html` (7 Kasım, A6): ortalama uzaklık artık √n ile değil, sonlu adım sayısındaki kesin değeriyle karşılaştırılıyor. √n ortalama karekök uzaklıktır; düzlemde ortalama uzaklık yaklaşık 0.886√n.
 - ✔ `mandelbrot-fraktali.html`, `julia-fraktali.html`: jsPDF yüklenmediği için çalışmayan PDF düğmesi kaldırıldı, çizim sayfa açılınca yapılıyor.
-- ❑ `mandelbrot-fraktali.html`: görünüm 0'da ortalı (−2 ucu kırpılıyor), c = −2 beyaz çiziliyor (kaçış testi `< 4`), eksen yok (B grubu).
+- ✔ `mandelbrot-fraktali.html` (B1, 10 Kasım): −2 ucu görünür; z₀ = 0, sıkı `|z| > 2` kaçış testi, eş ölçekli eksenler ve sonlu yineleme uyarısı eklendi.
 - ❑ `matris-donusumleri.html`: özdeğerler boşluksuz yazılıyor ("1.732±1.000i").
 
 ## av-avci-lotka-volterra.html (7 Kasım 2026)
@@ -899,3 +899,38 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
   gelen bağlantıları yeni kontrollere uyarlandı. `npm run test:a7`, beş
   laboratuvarın gerçek kontrollerini iki görünümde kullanarak 136 referans
   kontrolünü çalıştırır; kaynak/arazi doğrulamasının yerini tutmaz.
+
+
+## B1 ve girişsiz kullanım — 10 Kasım 2026
+
+- ✔ `mandelbrot-fraktali.html`: parametre haritası, tek yörünge ve gerçek
+  eksen deneyi. Eski z₀ = c kayması ve `|z| = 2` kaçış hatası giderildi.
+  c = 1 üçüncü adımda kaçar, c = −2 için 0 → −2 → 2 → 2; c = 0,2501
+  ancak 312. adımda kaçar. Bütçede kaçmayan nokta üyelik kanıtı sayılmaz.
+- ✔ `julia-fraktali.html`: sabit c altında z₀ haritası, yörünge ve kritik
+  nokta deneyi. Genel z₀ için R = max(2, |c|) kullanılır; c = −6, z₀ = 3
+  sabit yörüngesi yanlışlıkla kaçmış sayılmaz. c = 0 için sayısal normun
+  1'e yuvarlanması sınır üyeliği sertifikası üretmez; küçük girdiler korunur.
+- ✔ `koch-kar-tanesi.html`: dışa dönük doğru yapım, gerçek köşelerden çevre
+  ve alan, geometrik serinin hata hedefi, sonlu çizimde hizalı ölçek deneyi.
+  n = 2, a = 9 cm için çevre 48 cm ve alan 51,9615 cm²; %0,1 limit alanı
+  hatası için en küçük n = 8. Ölçek deneyi kutu sayımı veya Hausdorff
+  boyutu ölçümü diye sunulmaz; çizimin alt ölçeğinde üs 1'e döner.
+- ✔ `hilbert-egrisi.html`: hücre merkezlerini izleme, uzunluk/örtme sınırı,
+  Hilbert–satır–Morton sıralaması. n = 3 için 64 farklı hücre, 63 komşu
+  adım; L = 10 cm için yol 78,75 cm. Komşu hücrelerde sıra farkı 53
+  olabilir. r = √2 L / (2·2ⁿ) bir üst sınırdır; yolun gerçek en uzak
+  mesafesi olarak sunulmaz. Sonlu yolun alanı 0, sürekli örten limitin
+  görüntüsünün alanı L²; yalnız uzunluğun artması örtenliği kanıtlamaz.
+- ✔ Dört defter bağımsız doğrulama/editörden geçti. İki eski defterin
+  Mandelbrot bağlantı deneyleri yeni kontrollere uyarlandı. Hilbert'in
+  kuramsal kaynağı MIT Yufei Zhao §9.6; yerellik uygulamalarıyla ilgili
+  iddiaları sorunlu olan Kanungo ön baskısı kaynaklardan çıkarıldı.
+- ✔ Giriş formu, hesap tabanlı yönlendirmeler, açık metin hesap dosyası,
+  kişisel etkinlik paneli ve Firebase okuma/yazma kodu kaldırıldı. Eski
+  oturum anahtarları temizlenir; depolama kapalıyken de içerik açılır.
+  Rekorlar yeni anonim cihaz anahtarına yazılır. Küçük skorun daha iyi
+  olduğu oyunlarda 0 geçerli rekor sayılır; eski hesap kayıtları taşınmaz.
+- Kapsam sınırı: geçmiş Git commit'leri ve uzak Firebase verileri yeniden
+  yazılmadı/silinmedi. Kullanıcı Doğukan fotoğraflarını korumayı istedi;
+  bu tur diğer depoya veya fotoğraflara dokunulmadı.

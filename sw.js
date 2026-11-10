@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-ffaf483948";
+const VERSION = "acelya-6d47d9ffc0";
 // --- end:version ---
 
 // --- generated:core ---
@@ -21,16 +21,13 @@ const CORE = [
   "index.html",
   "404.html",
   "bilim-atlasi.html",
-  "shared/activity.js",
   "shared/app.js",
   "shared/atlas.css",
   "shared/atlas.js",
-  "shared/auth.js",
   "shared/catalog.js",
   "shared/chart-safe.js",
   "shared/digest.css",
   "shared/digest.js",
-  "shared/firebase-config.js",
   "shared/game-hooks.js",
   "shared/game-juice.js",
   "shared/game-kit.js",
@@ -270,6 +267,7 @@ const DIGESTS = [
   "shared/digest/grup-teorisi.js",
   "shared/digest/gunes-sistemi.js",
   "shared/digest/hesaplama-teorisi.js",
+  "shared/digest/hilbert-egrisi.js",
   "shared/digest/ideal-gaz.js",
   "shared/digest/integral.js",
   "shared/digest/internet-ve-ag-teknolojileri.js",
@@ -277,6 +275,7 @@ const DIGESTS = [
   "shared/digest/isaretciler-ve-bellek-yonetimi.js",
   "shared/digest/isletim-sistemleri-ve-linux.js",
   "shared/digest/isletme-bilimi-ve-yonetim.js",
+  "shared/digest/julia-fraktali.js",
   "shared/digest/kaldirma-kuvveti.js",
   "shared/digest/kalp-dolasim.js",
   "shared/digest/kara-cisim-isimasi.js",
@@ -285,6 +284,7 @@ const DIGESTS = [
   "shared/digest/kimyasal-kinetik.js",
   "shared/digest/kirinim-izgarasi.js",
   "shared/digest/klasik-girisim.js",
+  "shared/digest/koch-kar-tanesi.js",
   "shared/digest/konik-kesitler.js",
   "shared/digest/kristal-yapilar.js",
   "shared/digest/kuantum-dalga.js",
@@ -297,6 +297,7 @@ const DIGESTS = [
   "shared/digest/makine-muhendisligi.js",
   "shared/digest/makine-ogrenmesi-derin-ogrenme-llm.js",
   "shared/digest/makro-ekonomi-ve-para-politikalari.js",
+  "shared/digest/mandelbrot-fraktali.js",
   "shared/digest/mantik-devresi.js",
   "shared/digest/mantik-kapilari.js",
   "shared/digest/manyetik-alan.js",

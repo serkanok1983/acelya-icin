@@ -297,6 +297,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 35
   },
+  "hilbert-egrisi": {
+    "title": "Hilbert Eğrisi: Bir Çizgi Kareyi Doldurabilir mi?",
+    "tagline": "Dört hücreden binlercesine: aynı yolu küçültüp döndür. Uzunluğun büyümesini ölç, alan dolduran limiti sonlu çizimden ayır ve komşuluğun neden tek yönde korunduğunu sınayarak gör.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "ideal-gaz": {
     "title": "İdeal Gaz: Çarpışma Kaosundan Basit Bir Yasa",
     "tagline": "Basınç, birim duvar yüzeyine saniyede yağan momentumdur; sıcaklık, ortalama hareket enerjisinin ölçüsü. Düz bir sert disk gazında PV = nRT'nin iki boyutlu hâlini, Maxwell–Boltzmann dağılımını ve ideallikten sapmayı ölç.",
@@ -345,6 +352,13 @@ window.ACELYA_CATALOG = {
     "field": "Toplum ve Ekonomi",
     "level": "Lise",
     "minutes": 30
+  },
+  "julia-fraktali": {
+    "title": "Julia: Aynı Kural, Ayrı Kaderler",
+    "tagline": "Bir başlangıç sıfıra yaklaşırken diğeri kaçar. Dolu kümeyi sınırından, bir yörüngeyi bütün dinamik sistemden ayır; kritik noktanın neden özel olduğunu keşfet.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "kaldirma-kuvveti": {
     "title": "Kaldırma Kuvveti: Suyun İçinde Tartmak",
@@ -401,6 +415,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "koch-kar-tanesi": {
+    "title": "Koch Kar Tanesi: Alan ve Sınır",
+    "tagline": "Her adımda sınırı uzat, eklenen alanı küçült. Koch yapımı, sonsuz çevreyle sonlu alanın nasıl bir arada bulunabildiğini ve ölçüm ölçeğinin neden önemli olduğunu gösterir.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 30
   },
   "konik-kesitler": {
     "title": "Konik Kesitler: Bir Koni, Bir Düzlem, Üç Eğri",
@@ -484,6 +505,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Bir ülkenin bütün alışverişini dört harfe sığdıran denklem, altı sıfır atılan bir lira ve tek bir faiz düğmesinin milyonlarca cüzdana nasıl ulaştığı: makroekonominin ve merkez bankacılığının gerçek hikâyesi.",
     "field": "Toplum ve Ekonomi",
     "level": "Lise",
+    "minutes": 35
+  },
+  "mandelbrot-fraktali": {
+    "title": "Mandelbrot: Bir Piksel Ne Kadarını Söyler?",
+    "tagline": "Sıfırın yörüngesini izle; kaçışın neden kanıt, bekleyişin neden yalnız gözlem olduğunu anla. Bir parametre haritasından koruyan aralıklara ve karmaşık dinamiğe geç.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
     "minutes": 35
   },
   "mantik-devresi": {

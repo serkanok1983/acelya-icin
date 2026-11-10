@@ -239,8 +239,8 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
     },
     {
       href: "mandelbrot-fraktali.html",
-      title: "Mandelbrot Fraktali",
-      why: "Bir yinelemenin doğurduğu fraktal: sayfa açılınca z → z² + c kümesini çizer; Zoom Faktörü kutusuna başka bir değer yazıp Çiz! ile yeniden çiz. Kümenin gerçel ekseni, Lorenz haritası gibi tek tepeli bir yinelemenin öyküsünü taşır.",
+      title: "Mandelbrot Laboratuvarı",
+      why: "c parametresini ve adım sınırını değiştir; aynı yörüngede geç kaçışı gözle. Gerçek eksendeki merdiven grafiğiyle yinelemeyi, koruyan aralıkla da sınırlılık kanıtını incele.",
     },
     {
       href: "av-avci-lotka-volterra.html",
