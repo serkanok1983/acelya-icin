@@ -1034,3 +1034,42 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
   sonlu Lyapunov kestirimi ve uzun zaman özdeşlikleri açıklığa kavuştu.
   Bu çalışma eski sayfanın diğer parametre taraması iddialarının yeniden
   tam doğrulaması değildir. Yeni Lorenz sayfalarına bağlantılar eklendi.
+
+## B4 — Hücrelerden sonlu farklara ve sonsuz seriye (10 Kasım 2026)
+
+- ✔ Üç eski tek-sayı tablosu birbirini tamamlayan dokuz deneye dönüştürüldü.
+  Sayfalar ilk açılışta hesaplanır; sonsuz satır üretimi, durdurulamayan
+  zamanlayıcılar ve Chart.js/jsPDF CDN bağımlılıkları kaldırıldı.
+- ✔ `tek-sayi-toplam3.html`: L katmanları gerçek birim hücrelerden oluşur.
+  Köşesinden m² çıkarılmış n² kare, aynı kimlikli hücrelerle (n+m)×(n−m)
+  dikdörtgenine taşınır; sayısal eşleme tablosu, boşluk/örtüşme sayımı var.
+  n=m boş eşleme, m=0 bütün kare olarak ele alınır. Bütçeden kareye
+  deneyinde 120 rakama kadar tam sayı ve tamsayı karekökü kullanılır;
+  n²≤L<(n+1)² sertifikası, kalan, yeni katmanın maliyeti ve eksik hücre
+  ayrı gösterilir. Büyük hesaplarda çizim sınırı açık; negatif/ondalık/üs
+  girdileri sessizce tam sayıya dönüştürülmez.
+- ✔ `tek-sayi-toplam4.html`: n²/n³ dizilerinde ileri, geri ve ikinci
+  ileri farkın indisleri ayrıldı. Gösterilen pencerenin dışı null;
+  bunu polinomun tanımsız olmasıyla karıştırmayan açıklamalar var.
+  İşaretli aritmetik diziler ters sıra ile eşlenir; tek sayıda terim için
+  ortadaki terim iki kopyada da sayılır, boş dizinin ortalaması yoktur.
+  2x için orta nokta toplamı her n'de tamdır; x² karşı örneğinde
+  hata −L³/(12n²) ve bölüm sayısını ikiye katlama gözlemlenir.
+  Bağımsız sol/orta/sağ toplamlar ile analitik integral karşılaştırılır.
+- ✔ `tek-sayi-toplam5.html`: Aₙ=Σ(2k−1)rᵏ⁻¹ sonlu polinomu ve r<1
+  sonsuz toplamı ayrıldı. r≥1'de sonlu deney çalışır, sonsuz limit/kalan
+  verilmez. Pozitif kuyruk G−A çıkarımıyla hesaplanmadığından yakın
+  sayılar birbirini götürmez. İlk uygun N, önceki başarısız değerle
+  gösterilir; arama sınırı yetmezse sonuç uydurulmaz. Geometrik modelde
+  olasılık kütlesi, ortalamaya sonlu katkı ve koşullu ortalama ayrı;
+  N=0'da sıfır olasılığa bölünmez. Bu bir teorik modeldir, rastgele
+  örnekleme değildir. Çift duyarlık ve çok küçük terimler açıklanır.
+- ✔ Bozuk PDF düğmesi yerine seçili sekmenin ayarlarını, okumalarını ve
+  tam tablosunu içeren tarayıcı yazdırma raporu var. Üç varsayılan rapor
+  ve 300 terimli, 11 sayfalık stres raporu üretildi; Poppler görüntüleri
+  incelendi. Devam sayfalarında tablo başlıkları tekrarlanır.
+- ✔ `test:b4`: gerçek HTML çekirdeklerinde 53.791 kalıcı kontrol.
+  Referanslar doğrudan hücre kümeleri ve uzaklıklar, karekök eşitsizliği,
+  açılmış fark polinomları, kuvvet toplamları ve BigInt ortak paydalı
+  rasyonel seri toplamlarıdır. İlk uygun N, logaritma veya kayan nokta
+  bölmesi kullanmadan tamsayı eşitsizliğiyle bağımsız bulunur.

@@ -55,9 +55,9 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `fibo+pascal` — Fibonacci ve Pascal (sayfa başlığı: Fibonacci ve Pascal: Aynı Döşemeyi İki Kez Say)
 - `pascal-ucgeni` — Pascal & Sierpinski (sayfa başlığı: Pascal Üçgeni Laboratuvarı)
 - `collatz` — Collatz (sayfa başlığı: Collatz Laboratuvarı: Deney ve Kanıt)
-- `tek-sayi-toplam3` — Tek Sayı Toplamı (Tablo) (sayfa başlığı: Tek Sayıların Toplamı ve Kareleri)
-- `tek-sayi-toplam4` — Tek Sayı Toplamı (Adım) (sayfa başlığı: Tek Sayıların Toplamı (Animasyonlu))
-- `tek-sayi-toplam5` — Tek Sayı Toplamı (Seri) (sayfa başlığı: Tek Sayıların Toplamı (Animasyonlu))
+- `tek-sayi-toplam3` — Tek Sayılardan Kareye
+- `tek-sayi-toplam4` — Farklar ve Toplamlar (sayfa başlığı: Farklar ve Toplamlar: Ayrıktan Sürekliye)
+- `tek-sayi-toplam5` — Tek Sayılar: Toplamdan Seriye
 - `mandelbrot-fraktali` — Mandelbrot (sayfa başlığı: Mandelbrot Laboratuvarı: Sınırın İki Yanı)
 - `julia-fraktali` — Julia Fraktali (sayfa başlığı: Julia Kümeleri Laboratuvarı)
 - `koch-kar-tanesi` — Koch Kar Tanesi (sayfa başlığı: Koch Kar Tanesi: Uzunluk, Alan ve Ölçek Laboratuvarı)

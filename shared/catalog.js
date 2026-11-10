@@ -815,6 +815,27 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "tek-sayi-toplam3": {
+    "title": "Tek Sayılardan Kareye: Say, Eşle, Kanıtla",
+    "tagline": "Bir kareye eklenen L katmanı neden tek sayıda hücre taşır? Hücreleri dikdörtgene eşle, ardından büyük bir bütçenin tamamlayabildiği kareyi kesin olarak bul.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 25
+  },
+  "tek-sayi-toplam4": {
+    "title": "Farklar ve Toplamlar: İki Yönde Hesap",
+    "tagline": "Karelerin arasından tek sayıları çıkar; işaretli terimleri eşleştir ve aynı tek sayıları bir integralde bul. Sonlu fark ile türevi, tam eşitlik ile yaklaşımı ayır.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "tek-sayi-toplam5": {
+    "title": "Tek Sayılar: Sonsuza Kalan Pay",
+    "tagline": "Tek sayıları geometrik ağırlıklarla topla. Sonlu hesabın kalanını ölç, gereken ilk terim sayısını bul; olasılık, ortalamaya katkı ve koşullu ortalamayı ayır.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "termodinamik": {
     "title": "Termodinamik: Isıyı İşe Çevirmenin Bedeli",
     "tagline": "Isı enerjidir ama çevrimle çalışan hiçbir makine onu tamamen işe çeviremez. Bir gazı PV diyagramında adım adım yönet, birinci yasanın defterini tut; Carnot, Otto ve Stirling'in yüzde yüze neden ulaşamadığını ölç.",

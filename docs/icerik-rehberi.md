@@ -129,6 +129,8 @@ emin değilsen kitabın ana sayfasını ver.
 - https://webhomes.maths.ed.ac.uk/ · https://www.mit.edu/ (özgün matematik makaleleri ve üniversite ders notları)
 - https://people.ucsc.edu/ · https://underactuated.mit.edu/ · https://courses.seas.harvard.edu/ (özgün dinamik sistem makaleleri ve üniversite ders notları)
 - https://math.hmc.edu/ · https://web.williams.edu/ · https://research.monash.edu/ (özgün kombinatorik makaleleri ve üniversite araştırma yayınları)
+- https://theory.stanford.edu/ (ispat, tümevarım ve ayrık matematik ders notları)
+- https://www.computerhistory.org/ (Computer History Museum, hesap makineleri ve bilgisayar tarihi)
 - https://tr.wikipedia.org/wiki/ · https://en.wikipedia.org/wiki/
 - https://tr.khanacademy.org/ · https://www.khanacademy.org/
 - http://hyperphysics.phy-astr.gsu.edu/ · https://www.feynmanlectures.caltech.edu/

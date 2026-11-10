@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-87a5cbb118";
+const VERSION = "acelya-381af50662";
 // --- end:version ---
 
 // --- generated:core ---
@@ -341,6 +341,9 @@ const DIGESTS = [
   "shared/digest/takimyildiz-haritasi.js",
   "shared/digest/tasarim-desenleri.js",
   "shared/digest/taylor-serisi.js",
+  "shared/digest/tek-sayi-toplam3.js",
+  "shared/digest/tek-sayi-toplam4.js",
+  "shared/digest/tek-sayi-toplam5.js",
   "shared/digest/termodinamik.js",
   "shared/digest/tork-denge.js",
   "shared/digest/turev.js",

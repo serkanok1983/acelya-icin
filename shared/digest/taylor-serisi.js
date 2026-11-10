@@ -210,7 +210,7 @@ window.ACELYA_DIGEST["taylor-serisi"] = {
     { href: "turev.html", title: "Türev", why: "Taylor polinomunun ilk iki terimi teğet doğrusudur; fark bölümünün kesme hatası atılan f″·h²/2 teriminden gelir ve orada kayan noktanın yuvarlamasıyla yarışır." },
     { href: "karmasik-sayilar.html", title: "Karmaşık Sayılar", why: "Tekilliklerin yaşadığı düzlem: eˣ serisine iθ koy ve kısmi toplamların birim çemberdeki e<sup>iθ</sup>'ya sarmal çizerek yaklaşmasını izle." },
     { href: "sarkac.html", title: "Sarkaç", why: "sin θ ≈ θ yaklaşımının fizikteki bedeli: başlangıç açısı 20° iken «Fark» kartı ölçülen periyodun formülden yüzde 0.77 uzun olduğunu gösterir." },
-    { href: "pi-yaklasimi.html", title: "π Yaklaşımı", why: "Leibniz serisi Monte Carlo yöntemiyle yan yana koşar: serinin hatası 1/N, rastgele noktalarınki 1/√N gibi küçülür. Hangisi daha yavaş, izle." },
+    { href: "tek-sayi-toplam5.html", title: "Tek Sayılar: Toplamdan Seriye", why: "Geometrik serinin türevinden ağırlıklı tek sayı toplamını çıkar; tam kalanla hedef doğruluğu ve yakınsama sınırını denetle." },
   ],
   sources: [
     { title: "OpenStax · Calculus Volume 2, 6.3 Taylor and Maclaurin Series", url: "https://openstax.org/books/calculus-volume-2/pages/6-3-taylor-and-maclaurin-series", note: "Taylor polinomları, kalanlı Taylor teoremi (Teorem 6.7) ve çözümlü örnekler; sonraki 6.4 Working with Taylor Series binom serisini ve kuvvet serisiyle diferansiyel denklem çözümünü işler (İngilizce, açık ders kitabı)." },

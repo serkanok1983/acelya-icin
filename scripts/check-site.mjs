@@ -47,6 +47,8 @@ const SOURCE_PREFIXES = [
   "https://webhomes.maths.ed.ac.uk/", "https://www.mit.edu/",
   "https://people.ucsc.edu/", "https://underactuated.mit.edu/", "https://courses.seas.harvard.edu/",
   "https://math.hmc.edu/", "https://web.williams.edu/", "https://research.monash.edu/",
+  "https://theory.stanford.edu/",
+  "https://www.computerhistory.org/",
   "https://science.nasa.gov/", "https://www.nasa.gov/", "https://www.esa.int/", "https://www.jpl.nasa.gov/",
   "https://nssdc.gsfc.nasa.gov/",
   "https://developer.mozilla.org/", "https://docs.python.org/", "https://www.w3.org/",

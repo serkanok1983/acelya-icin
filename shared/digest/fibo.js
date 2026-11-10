@@ -134,10 +134,10 @@ window.ACELYA_DIGEST["fibo"] = {
     { question: "Aynı m için R = 1 cm ve R = 5 cm çeyrek yaylarının kiriş hesabındaki bağıl eksiklikleri nasıl karşılaştırılır?", options: ["5 cm yarıçapta beş kat büyüktür.", "5 cm yarıçapta yirmi beş kat büyüktür.", "1 cm yarıçapta beş kat büyüktür.", "Eşittir; 1 − sin u/u ifadesinde R sadeleşir."], answer: 3, explanation: "Hem yay hem kiriş toplamı R ile orantılıdır. Mutlak uzunluk hatası beş kat büyür, bağıl hata aynı kalır; u = π/(4m)." }
   ],
   next: [
-    { href: "fibo+pascal.html", title: "Fibonacci ve Pascal", why: "Aynı yinelemenin sayma tarafına geç: merdiven yolları, binom katsayıları ve sığ köşegen toplamları." },
+    { href: "fibo+pascal.html", title: "Fibonacci ve Pascal", why: "Aynı yinelemenin sayma tarafına geç: şerit döşemeleri, binom katsayıları ve sığ köşegen toplamları." },
     { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Fibonacci yinelemesini ilerleten 2 × 2 matrisin özdeğerleriyle oran limitini bağla." },
     { href: "taylor-serisi.html", title: "Taylor Serisi", why: "Sin u/u açılımından kiriş hatasının neden m⁻² ile küçüldüğünü türet." },
-    { href: "turev.html", title: "Türev", why: "Teğetin limit tanımını ve bir fonksiyonun yerel değişimini yeniden incele; eğrilik bir adım daha ileri gider." }
+    { href: "tek-sayi-toplam3.html", title: "Tek Sayılardan Kareye", why: "Başka bir alan özdeşliğini gerçek hücrelerle kur: L katmanları, kare halkası ve aynı hücrelerden oluşan dikdörtgen." }
   ],
   sources: [
     { title: "Williams College · An Invitation to Fibonacci Digits", url: "https://web.williams.edu/Mathematics/sjmiller/public_html/math/papers/FibOutreachPaper_Digits40.pdf", note: "Cheigh ve çalışma arkadaşlarının kare döşeme etkinliği; aynı dikdörtgenin alanından kareler toplamı özdeşliği." },
