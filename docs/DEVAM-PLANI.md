@@ -11,7 +11,7 @@ Son durum tarihi: 2026-11-10 (B2: Penrose, Barnsley ve üç limit laboratuvarı)
 A7 (`1101d98`) ve B1 (`7d5dd86`) `origin/main`'e gönderildi ve elle
 yayımlandı. B1 canlıda `acelya-6d47d9ffc0` sürümü ve 14 dosyanın yerel
 kopyalarıyla birebir eşleşmesiyle doğrulandı; girişsiz erişim yayında.
-B2'nin yayın paketi `acelya-e223688040` sürümündedir; canlı kapanış
+B2'nin yayın paketi `acelya-e4eaddd595` sürümündedir; canlı kapanış
 kontrolünde bu sürümü karşılaştır. Sıradaki işler 4.1'deki B grubunun
 kalan yedi sayfasıdır.
 
@@ -259,7 +259,12 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   üç defterin 11'er bölümü görünür, 390 px genişlikte yatay taşma yok.
   Statik denetim: **169 sayfa, 124 defter, 0 hata, 95 mevcut uyarı**;
   B2'nin üç defterinde uyarı yok. Katalog ve service worker güncellendi:
-  **`acelya-e223688040`**. Elle yayın betiği ayrıca bütün siteyi tarar.
+  **`acelya-e4eaddd595`**. Elle yayın betiği 169 sayfayı JS/konsol hatası
+  olmadan taradı; 30 başarısız yerel istek yalnız eksik defterlerdi.
+  B2 ana paketi (`860c721`) canlıda sekiz dosya özeti ve dokuz sekmeyle
+  doğrulandı. Son görsel kontrolde Üç Yapım sekmelerinin ortak düğme
+  stiliyle çakışması giderildi; açık/koyu tema ve mobil üç sekme yeniden
+  doğrulandı. Yukarıdaki sürüm bu son arayüz düzeltmesini de içerir.
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık

@@ -981,3 +981,8 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
   ideal Markov süreci koşulları, Peano'da bire bir olmayan harita anlatımı
   netleştirildi. Mobil son denetim: üç sayfa, dokuz sekme, görünür üç defter;
   JS/konsol/istek hatası ve yatay taşma yok. B2 statik denetimi 0 hata/uyarı.
+
+- ✔ Canlı son görsel kontrolde Üç Yapım sekmelerinin seçili durumunu
+  bastıran ortak düğme stili bulundu. Üç sekmeye mevcut `app-btn-ghost`
+  sınıfı eklendi; vurgu çerçevesi/alt çizgi her iki temada doğrulandı.
+  Mobil üç sekme ve defter tekrar hatasız geçti.
