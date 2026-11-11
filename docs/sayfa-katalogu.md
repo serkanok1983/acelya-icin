@@ -24,17 +24,17 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 
 - `pong` — Masa Tenisi (Pong) (sayfa başlığı: Pong AI (Uzay Temalı))
 - `asteroids` — Asteroids (sayfa başlığı: Asteroids 🚀)
-- `snake` — Yılan Oyunu (sayfa başlığı: Snake 🐍)
-- `breakout` — Tuğla Kırmaca (sayfa başlığı: Breakout 🧱)
+- `snake` — Yılan Oyunu (sayfa başlığı: Snake)
+- `breakout` — Tuğla Kırmaca (sayfa başlığı: Breakout)
 - `oyun-2048` — 2048
 - `yasam-oyunu` — Yaşam Oyunu
 - `tetris` — Tetris
 - `gezegen-savunmasi` — Gezegen Savunması
 - `formul-hafiza` — Formül Hafıza
 - `mayin-tarlasi` — Mayın Tarlası
-- `hanoi-kuleleri` — Hanoi Kuleleri (sayfa başlığı: Hanoi Kuleleri 🗼)
+- `hanoi-kuleleri` — Hanoi Kuleleri
 - `uzay-kosucusu` — Uzay Koşucusu (sayfa başlığı: Uzay Koşucusu 🚀 | Açelya)
-- `isik-sondurme` — Işık Söndürme (sayfa başlığı: Işık Söndürme 💡)
+- `isik-sondurme` — Işık Söndürme
 
 ## Matematik (35)
 
@@ -74,7 +74,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `konik-kesitler` — Konik Kesitler (sayfa başlığı: Konik Kesitler: Elips, Parabol ve Hiperbol)
 - `matris-donusumleri` — Matris Dönüşümleri (sayfa başlığı: Matris Dönüşümleri (2B))
 
-## Fizik (42)
+## Fizik (45)
 
 - `optik-yansima-kirilma` — Optik: Yansıma & Kırılma (sayfa başlığı: Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma)
 - `mercek-isinlari` — Mercek Işınları (sayfa başlığı: İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu)
@@ -86,13 +86,16 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `tork-denge` — Tork ve Denge (sayfa başlığı: Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik)
 - `basit-makineler` — Basit Makineler (sayfa başlığı: Basit Makineler: Kuvvet, Yol ve İş)
 - `statik` — Statik: Yükler ve Mesnetler (sayfa başlığı: Statik: Yük, Mesnet ve Denge)
+- `mukavemet` — Mukavemet (sayfa başlığı: Mukavemet: Gerilme, Sehim ve Burkulma)
+- `celik-yapilar` — Çelik Yapılar
 - `is-enerji` — İş–Enerji (sayfa başlığı: İş–Enerji İlkesi)
 - `newton-hareket-yasalari` — Newton Yasaları (sayfa başlığı: Newton’un Hareket Yasaları ve Çarpışmalar)
 - `atislar` — Eğik Atış (sayfa başlığı: Eğik Atış: Hava Direnci ve En İyi Açı)
 - `serbest-dusme` — Serbest Düşme (sayfa başlığı: Serbest Düşme ve Hava Direnci)
 - `kaldirma-kuvveti` — Kaldırma Kuvveti (sayfa başlığı: Kaldırma Kuvveti: Arşimet İlkesi ve Yüzme)
 - `basinc` — Basınç ve Hidrolik Pres (sayfa başlığı: Basınç: Hidrostatik, Pascal İlkesi ve Hidrolik)
-- `akiskanlar-mekanigi` — Akışkanlar Mekaniği (sayfa başlığı: Akışkanlar Mekaniği: Süreklilik, Bernoulli ve Viskozite)
+- `akiskanlar-mekanigi` — Akışkanlar Mekaniği (sayfa başlığı: Akışkanlar Mekaniği: Akış, Kayıp ve Pompa)
+- `hidrolik-sistemler` — Hidrolik Sistemler (sayfa başlığı: Hidrolik Sistemler: Debi, Yük ve Güç)
 - `dalga-superpozisyonu` — Dalga Süperpozisyonu
 - `doppler-etkisi` — Doppler (sayfa başlığı: Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması)
 - `elektrostatik` — Elektrostatik (sayfa başlığı: Elektrostatik: Alan, Potansiyel ve Akı)
@@ -180,15 +183,15 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `makro-ekonomi-ve-para-politikalari` — Makro Ekonomi ve Para Politikaları
 - `mikro-ekonomi-ve-uretim-faktorleri` — Mikro Ekonomi ve Üretim Faktörleri
 - `roma-hukuku` — Roma Hukuku
-- `yoneylem-arastirmasi` — Yöneylem Araştırması
-- `uretim-planlama-ve-endustri-muhendisligi` — Üretim Planlama ve Endüstri Mühendisliği
-- `elektrik-muhendisligi` — Elektrik Mühendisliği
+- `yoneylem-arastirmasi` — Yöneylem Araştırması (sayfa başlığı: Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol)
+- `uretim-planlama-ve-endustri-muhendisligi` — Üretim Planlama ve Endüstri Mühendisliği (sayfa başlığı: Üretim Planlama: Stok, Kalite ve Akış)
+- `elektrik-muhendisligi` — Elektrik Mühendisliği (sayfa başlığı: Elektrik Mühendisliği: Güç, İletim ve Dönüşüm)
 - `elektronik-muhendisligi` — Elektronik Mühendisliği
 - `makine-muhendisligi` — Makine Mühendisliği
 - `mekatronik-muhendisligi` — Mekatronik Mühendisliği
 - `plc-hidrolik-pnomatik-cnc-cadcam` — PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM (sayfa başlığı: PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM Sistemleri)
-- `kimya-muhendisligi` — Kimya Mühendisliği
-- `gemi-makineleri-isletme-muhendisligi` — Gemi Makineleri İşletme Mühendisliği
+- `kimya-muhendisligi` — Kimya Mühendisliği (sayfa başlığı: Kimya Mühendisliği: Reaktör, Damıtma ve Isı Değiştirici)
+- `gemi-makineleri-isletme-muhendisligi` — Gemi Makineleri İşletme Mühendisliği (sayfa başlığı: Gemi Makineleri: Dizel Çevrim, Pervane ve Stabilite)
 - `ucak-muhendisligi-ve-aerodinamik` — Uçak Mühendisliği ve Aerodinamik
 - `otomotiv-muhendisligi` — Otomotiv Mühendisliği
 - `elektrikli-araclar` — Elektrikli Araçlar

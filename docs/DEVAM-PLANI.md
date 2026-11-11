@@ -7,18 +7,22 @@ standardı için `docs/icerik-rehberi.md`.
 
 Dal: `main` (eski `claude/zealous-archimedes-iwjhpu` dalı main'e birleşmiş durumda).
 6–7 Kasım oturumunun commit'leri `origin/main`'e gönderildi ve `gh-pages`'te yayında.
-Son durum tarihi: 2026-11-10 (F1: elektrostatik, basit makineler ve statik).
+Son durum tarihi: 2026-11-11 (F2, D ve E tamamlandı: her sayfanın defteri var).
 A7 (`1101d98`) ve B1 (`7d5dd86`) `origin/main`'e gönderildi ve elle
 yayımlandı. B1 canlıda `acelya-6d47d9ffc0` sürümü ve 14 dosyanın yerel
 kopyalarıyla birebir eşleşmesiyle doğrulandı; girişsiz erişim yayında.
 C grubu `88e8b67` ile main'e gönderilip elle yayımlandı; 27 canlı dosya
-özeti ve 15 sekme doğrulandı. F1'in üç yeni laboratuvarı ve Keşif Defteri de
-kurucu → bağımsız yazar → bağımsız doğrulayıcı/editör hattını tamamladı.
-Sonraki öncelik **F2: mukavemet, çelik yapılar, hidrolik sistemler ve mevcut
-akışkanlar mekaniği deneylerinin genişletilmesi** (ayrıntı 4.0'da).
-Eski D/E işleri korunuyor; fizik kapsamı bunlardan önce geliyor.
-F1 yayın paketinin sürümü **`acelya-e9ff569083`**; canlı kapanışta bu
-sürümü ve yayımlanan dosyaların özetlerini karşılaştır.
+özeti ve 15 sekme doğrulandı. F1 `c683705` ile main'e gönderilip elle
+yayımlandı; 13 canlı dosya özeti, 10 sekme ve dokuz soru geri bildirimi
+doğrulandı. F1'in üç yeni laboratuvarı ve Keşif Defteri ayrı kurucu,
+yazar ve doğrulayıcı/editör hattını tamamladı.
+F1'in doğrulanmış canlı paket sürümü **`acelya-e9ff569083`**.
+**11 Kasım:** F2, D (beş mühendislik laboratuvarı) ve E (on oyun defteri)
+yerelde tamamlandı; ayrıntı 3. bölümün sonunda. Bu tur **commit'lenmedi ve
+yayımlanmadı**: 11 Kasım oturumunda gönderim/yayın için kullanıcı onayı
+beklendi (aşağıdaki 10 Kasım talimatı o oturumda yeniden onay sayılmadı).
+Sonraki öncelik **4.2: eski 36 defterin bağımsız doğrulaması** ve 4.5'teki
+zayıf temel laboratuvarlar.
 
 **10 Kasım yayın talimatı:** Kullanıcı her kodlama turunun sonunda `main`'e
 gönderim ve elle yayın istiyor; sonucu canlı siteden kontrol ediyor.
@@ -389,6 +393,38 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
     Maxwell ön koşul bağlantısı geçti; JS/konsol/istek hatası ve 390 px
     yatay taşması yok. Yayın kapanışı aşağıdaki
     elle yayın akışını izler; sıradaki çalışma **F2**.
+- **11 Kasım (F2 kapanışı, D ve E):**
+  - **F2:** `mukavemet`, `celik-yapilar`, `hidrolik-sistemler` ve
+    `akiskanlar-mekanigi`'nin dördüncü "Boru ve pompa" sekmesi; dört defter
+    bağımsız doğrulayıcı/editörden geçti (7→8,5; 6,5→8,5; 6→8,5; 6,5→8,5).
+    Sayısal hata çıkmadı; hikâyeler, türetmeler ve Türkçe güçlendirildi.
+    `test:f2` geçiyor (mukavemet testinin defter sınavını etiketsiz alan
+    sayan denetimi düzeltildi).
+  - **D (sıfırdan beş laboratuvar):** `yoneylem-arastirmasi` (grafik DP,
+    kesirli simpleks, CPM/PERT), `uretim-planlama-ve-endustri-muhendisligi`
+    (EOQ, X̄–R ve ARL, seri hat/CONWIP), `elektrik-muhendisligi` (üç faz,
+    iletim, transformatör), `kimya-muhendisligi` (reaktörler, McCabe–Thiele,
+    ısı değiştirici), `gemi-makineleri-isletme-muhendisligi` (çift çevrim,
+    pervane yasası, enine stabilite). Her biri kurucu → farklı yazar →
+    üçüncü doğrulayıcı/editör hattından geçti (defterler 8,5→9).
+    Doğrulayıcılar yazarların bulduğu küçük sayfa sorunlarını da kapattı.
+    `test:d`: 856.470 + 1.593 + 48.891 + 389.352 + 5.725 çekirdek kontrolü
+    ve 390 açık / 1280 koyu arayüz kontrolleri.
+  - **E (on oyun):** tetris, snake, breakout, oyun-2048, mayin-tarlasi,
+    isik-sondurme, hanoi-kuleleri, yasam-oyunu, formul-hafiza defterleri
+    yazar → bağımsız doğrulayıcı/editör hattından geçti (hepsi 9).
+    `gezegen-savunmasi` oynanamaz durumdaydı; tutarlı yörünge fiziğiyle
+    sıfırdan kuruldu (`test:e`: 31.805 çekirdek kontrolü + tarayıcı), defteri
+    yeni oyuna göre baştan yazıldı ve bağımsız doğrulandı.
+    Yazar/doğrulayıcıların bulduğu oyun hataları düzeltildi: 2048'de ters
+    yukarı/aşağı ve kaybolan rekor, mayın tarlasında çalışmayan ipucu dalı,
+    Hanoi'de hep "Çok iyi!" diyen durum satırı, yaşam oyununa dört desen,
+    tetris dokunmatik düşürme, breakout raket sınırı. Kalan açıklar
+    `docs/simulasyon-notlari.md` → "11 Kasım 2026".
+  - Toplam **175 HTML, 160 defter, 124 tam inceleme; eksik defter yok**.
+    `check-site --require-digests`: 0 hata. Tam tarama: 175 sayfa, 197 sekme,
+    0 JS/konsol/istek hatası; `test:public` 35 kontrol.
+  - NIST/SEMATECH istatistik el kitabı kaynak izin listesine eklendi.
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
@@ -408,8 +444,7 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 Kullanıcı C grubu sürerken akışkanlar mekaniği, elektrostatik, basit
 makineler, statik, çelik yapılar ve hidrolik sistemlerde eksikler bildirdi.
 Mevcut sayfa sayısı, konuların eksiksiz işlendiği anlamına gelmiyor.
-**C ve F1 tamamlandı; sıradaki F2 kapsamını eski D ve E sırasından önce
-ele al.** Oyunlardan önce temel bilim boşluklarını kapat.
+**C, F1, F2, D ve E tamamlandı (11 Kasım).**
 
 Mekanik, elektrik–manyetizma, ısı, dalgalar/optik ve modern fizik için
 konu → ön koşul → mevcut deney → eksik deney eşlemesi
@@ -427,20 +462,18 @@ Menüde ilgili bir kelimenin bulunması, ünitenin tamamlandığına kanıt say�
 
 - **F1 (tamamlandı):** `elektrostatik`, `basit-makineler`, `statik`
   (yeni laboratuvar + defter + bağımsız inceleme).
-- **F2:** `mukavemet`, `celik-yapilar`, `hidrolik-sistemler` (yeni laboratuvar +
-  defter); akışkanlar sayfasının yukarıdaki kapsam genişletmesi ve değişen
-  deneylere ait defterin yeniden bağımsız incelemesi.
+- **F2 (tamamlandı, 11 Kasım):** `mukavemet`, `celik-yapilar`,
+  `hidrolik-sistemler`; akışkanlar sayfasına boru–pompa sekmesi ve defterin
+  yeniden bağımsız incelemesi.
 - Her yeni sayfa aynı kurucu → bağımsız yazar → bağımsız doğrulayıcı/editör
   hattından geçer. Yapısal örneklerde yalnız akma gerilmesini karşılaştırıp
   bir yapının güvenli olduğuna hükmedilmez; modele dahil olmayan etkiler
   açıklanır. Standartlara dayalı içerik yazılacaksa yürürlük/sürüm ve ilgili
   maddeler o çalışma sırasında birincil kaynaktan doğrulanır.
-- Aşağıdaki **15 eksik defter** sayısı yalnız bugün var olan sayfaları
-  sayar. F1’in üç yeni sayfası artık toplam ve katalogdadır; F2’nin üç
-  yeni sayfası henüz yapılmış sayılmaz. Oluşturuldukça toplamlar ve menü
-  birlikte güncellenir.
+- 11 Kasım itibarıyla eksik defter yoktur; F2'nin üç yeni sayfası toplam ve
+  katalogdadır.
 
-### 4.1 Mevcut 15 sayfa için eksik defterler (üniversite hedefine göre sıralı)
+### 4.1 Eksik defterler — tamamlandı (11 Kasım; aşağısı tarihçe)
 
 Defteri olmayan sayfalar (`node scripts/check-site.mjs` listeler). 6–7 Kasım'da
 26 ince sayfa (25'i fizik) yeniden kurulup defterlendi; ince ya da yanlış fizik
@@ -483,11 +516,11 @@ C · bilgisayar bilimi ve disiplinler arası
 F1 · temel fizik ve statik
     tamamlandı (10 Kasım): elektrostatik basit-makineler statik
 
-D · mühendislik
+D · mühendislik (tamamlandı, 11 Kasım)
     elektrik-muhendisligi kimya-muhendisligi gemi-makineleri-isletme-muhendisligi
     uretim-planlama-ve-endustri-muhendisligi yoneylem-arastirmasi
 
-E · oyunlar
+E · oyunlar (tamamlandı, 11 Kasım)
     breakout formul-hafiza gezegen-savunmasi hanoi-kuleleri isik-sondurme
     mayin-tarlasi oyun-2048 snake tetris yasam-oyunu
 ```
@@ -531,13 +564,13 @@ Tam istem metinleri bu oturumda kullanılan İngilizce halleriyle
   `shared/digest.js` slug'ı `encodeURIComponent` ile yükler, dosya adı
   birebir `fibo+pascal.js` olmalı.
 
-### 4.2 Var olan 142 defterin eksik aşamalarını tamamla
+### 4.2 Var olan 160 defterin eksik aşamalarını tamamla (sıradaki iş)
 
 A7, B1–B4, C ve F1 doğrulama bulguları kapatıldı. Eski 36 defterin eksik aşamaları aşağıda. Durum (10 Kasım 2026):
 
 | Durum | Sayfalar |
 |---|---|
-| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim, konik-kesitler, av-avci-lotka-volterra, genetik-caprazlama, ph-indikator, kristal-yapilar, denklem-denklestirme, kalp-dolasim, birim-cember, rastgele-yuruyus, pi-yaklasimi, pisagor, asal-rsa, lissajous, pascal-ucgeni, collatz, molekul, mantik-kapilari, besin-agi, mandelbrot-fraktali, julia-fraktali, koch-kar-tanesi, hilbert-egrisi, penrose-dosemesi, barnsley-egreltiotu, sierpinski-fraktali-peano-egrisi-altin-oran, lorenz-cekici2, mandelbrot+lorenz, fibo, fibo+pascal, tek-sayi-toplam3, tek-sayi-toplam4, tek-sayi-toplam5, fourier-ses, sezar-sifre, siralama-algoritmalari, siralama-yarisi, yol-bulma-algoritmalari, enigma-makinesi, ses-sentezleyici, renk-teorisi, elektrostatik, basit-makineler, statik |
+| tam hat (yazar + doğrulama + editör) | turev, roma-hukuku, dairesel-hareket, dna-replikasyon, fonksiyon-grafigi, is-enerji, kepler-yasalari, manyetik-alan, matris-donusumleri, newton-hareket-yasalari, serbest-dusme, vektorler, yay-kutle, integral, bayes-olasilik, dalga-superpozisyonu, atom-orbitalleri, molekul-sekli, kimyasal-kinetik, asit-baz-titrasyonu, mitoz-mayoz, enzim-kinetigi, fotosentez-solunum, dogal-secilim, gunes-sistemi, ay-evreleri, yildiz-yasam-dongusu, takimyildiz-haritasi, mekatronik-muhendisligi, periyodik-tablo, grup-teorisi, cizge-teorisi, lorentz-kuvveti, klasik-girisim, fotoelektrik, radyoaktif-bozunma, termodinamik, ideal-gaz, gorelilik-uzayzaman, doppler-etkisi, alternatif-akim, elektrik-devresi-simulasyonu, akiskanlar-mekanigi, tork-denge, kaldirma-kuvveti, basinc, optik-yansima-kirilma, mercek-isinlari, atislar, cift-sarkac, kuantum-dalga, duran-dalgalar, kirinim-izgarasi, elektronik-devre, kara-cisim-isimasi, kuantum-mekanigi, nukleer-fizik, lorenz-cekici, taylor-serisi, riemann-toplamlari, karmasik-sayilar, normal-dagilim, konik-kesitler, av-avci-lotka-volterra, genetik-caprazlama, ph-indikator, kristal-yapilar, denklem-denklestirme, kalp-dolasim, birim-cember, rastgele-yuruyus, pi-yaklasimi, pisagor, asal-rsa, lissajous, pascal-ucgeni, collatz, molekul, mantik-kapilari, besin-agi, mandelbrot-fraktali, julia-fraktali, koch-kar-tanesi, hilbert-egrisi, penrose-dosemesi, barnsley-egreltiotu, sierpinski-fraktali-peano-egrisi-altin-oran, lorenz-cekici2, mandelbrot+lorenz, fibo, fibo+pascal, tek-sayi-toplam3, tek-sayi-toplam4, tek-sayi-toplam5, fourier-ses, sezar-sifre, siralama-algoritmalari, siralama-yarisi, yol-bulma-algoritmalari, enigma-makinesi, ses-sentezleyici, renk-teorisi, elektrostatik, basit-makineler, statik, mukavemet, celik-yapilar, hidrolik-sistemler, yoneylem-arastirmasi, uretim-planlama-ve-endustri-muhendisligi, elektrik-muhendisligi, kimya-muhendisligi, gemi-makineleri-isletme-muhendisligi, tetris, snake, breakout, oyun-2048, mayin-tarlasi, isik-sondurme, hanoi-kuleleri, yasam-oyunu, formul-hafiza, gezegen-savunmasi |
 | yazar + editör (doğrulama yok) | altin-oran, pong |
 | yalnız yazar | algoritmalar, bicimsel-diller-ve-otomata-teorisi, bilgisayar-sistemleri-ve-mimarisi, derleyici-ve-yorumlayicilar, elektrikli-araclar, elektrokimya, elektronik-muhendisligi, hesaplama-teorisi, internet-ve-ag-teknolojileri, isaretciler-ve-bellek-yonetimi, isletim-sistemleri-ve-linux, isletme-bilimi-ve-yonetim, makine-dili-assembly-c, makine-ogrenmesi-derin-ogrenme-llm, metalurji-ve-malzeme-muhendisligi, mikro-ekonomi-ve-uretim-faktorleri, otomotiv-muhendisligi, programlama-paradigmalari, siber-guvenlik, sicim-teorisi, tasarim-desenleri, ucak-muhendisligi-ve-aerodinamik, uluslararasi-iliskiler, uzay-kosucusu, veri-yapilari, veritabanlari, yazilim-muhendisligi |
 | yazar sınır anında kesildi, **önce gözden geçir** (dosya check-site'tan geçiyor ama tamamlandığı belirsiz) | asteroids, maden-muhendisligi, makine-muhendisligi, makro-ekonomi-ve-para-politikalari, mantik-devresi, otonom-araclar-ve-iha, plc-hidrolik-pnomatik-cnc-cadcam |
@@ -625,9 +658,8 @@ tablosu hataları). Öneri:
   smoke → `_site` paketi. `npm run deploy:check` yalnız denetler ve paketler;
   `npm run deploy` commit'lenmiş hâli `gh-pages` dalına zorla gönderir.
   Tek seferlik ayar: Settings → Pages → Source = "Deploy from a branch",
-  Branch = `gh-pages` / (root). Not: betik `--require-digests` kullanmaz
-  (15 mevcut sayfanın defteri henüz yok); workflow'daki katı denetim tüm defterler
-  bitince geçer.
+  Branch = `gh-pages` / (root). 11 Kasım'dan beri betik de
+  `--require-digests` ile çalışır: defteri olmayan sayfa yayına çıkmaz.
 
 ## 5. Kalite çıtası (kısa hatırlatma)
 

@@ -266,7 +266,7 @@ window.ACELYA_DIGEST["alternatif-akim"] = {
     {
       href: "elektrik-muhendisligi.html",
       title: "Elektrik Mühendisliği",
-      why: "Hikâyenin bugünü: santralden çıkan elektriğin 154–380 kV iletim hatlarından prize uzanan yolculuğu, transformatörler ve motorlar. I²R kaybına karşı gerilimi yükseltme fikri orada iş başında.",
+      why: "Hikâyenin bugünü: üç fazlı güç ve kompanzasyon, iletim kaybının gerilimle 1/V² ölçeklenmesi ve transformatörün eşdeğer devresi. I²R kaybına karşı gerilimi yükseltme fikrini orada sayılarla sına.",
     },
   ],
   sources: [

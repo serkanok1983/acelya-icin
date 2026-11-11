@@ -123,6 +123,8 @@ emin değilsen kitabın ana sayfasını ver.
 - https://openstax.org/ · https://ocw.mit.edu/ · https://tubes.mit.edu/ · https://phet.colorado.edu/
 - https://math.bu.edu/ · https://dummit.cos.northeastern.edu/ (üniversite ders notları)
 - https://engineeringstatics.org/ · https://engcourses-uofa.ca/ (açık statik ders kitabı ve University of Alberta mühendislik dersleri)
+- https://steelconstruction.info/ (çelik yapıların davranışı ve model sınırları)
+- https://www.enerpac.com/ · https://www.parker.com/ · https://www.20sim.com/ · https://academy.boschrexroth.com/ · https://www.ksb.com/ (üreticilerin açık hidrolik/pompa eğitim belgeleri ve fiziksel model tanımları)
 - https://www.numdam.org/ (özgün matematik yayınlarının arşivi)
 - https://pi.math.cornell.edu/ · https://mathshistory.st-andrews.ac.uk/ (ders notları ve matematik tarihi)
 - https://tilings.math.uni-bielefeld.de/ · https://www.math.utah.edu/ · https://www.cs.toronto.edu/ (döşemeler, ders notları ve akademik çalışmalar)
@@ -145,7 +147,7 @@ emin değilsen kitabın ana sayfasını ver.
 - https://tr.khanacademy.org/ · https://www.khanacademy.org/
 - http://hyperphysics.phy-astr.gsu.edu/ · https://www.feynmanlectures.caltech.edu/
 - https://mathworld.wolfram.com/ · https://www.3blue1brown.com/
-- https://goldbook.iupac.org/ · https://webbook.nist.gov/ · https://www.nist.gov/ · https://physics.nist.gov/ · https://www.bipm.org/
+- https://goldbook.iupac.org/ · https://webbook.nist.gov/ · https://www.nist.gov/ · https://www.itl.nist.gov/div898/handbook/ (NIST/SEMATECH istatistik el kitabı) · https://physics.nist.gov/ · https://www.bipm.org/
 - https://www.ncbi.nlm.nih.gov/ · https://pubmed.ncbi.nlm.nih.gov/ · https://www.biointeractive.org/
 - https://science.nasa.gov/ · https://www.nasa.gov/ · https://www.esa.int/ · https://www.jpl.nasa.gov/ ·
   https://nssdc.gsfc.nasa.gov/ (NASA gezegen bilgi sayfaları)

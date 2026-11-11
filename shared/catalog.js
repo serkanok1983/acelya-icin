@@ -4,11 +4,11 @@
  */
 window.ACELYA_CATALOG = {
   "akiskanlar-mekanigi": {
-    "title": "Akışkanlar Mekaniği: Hız, Basınç ve Viskozite",
-    "tagline": "Daralan boruda su hızlanır ve basıncı düşer, tanktan fışkıran jet seviyeyle birlikte yavaşlar, ince boruda debi yarıçapın dördüncü kuvvetiyle çöker. Bernoulli, Torricelli ve Poiseuille'ü ölç, sınırlarını gör.",
+    "title": "Akışkanlar Mekaniği: Borudan Pompaya",
+    "tagline": "Daralan boruyu, boşalan tankı ve viskoz akışı karşılaştır. Boru kayıplarını hesaba kat, pompanın çalışma debisini iki eğrinin kesişiminden bul; enerji bütçesini ve model sınırlarını denetle.",
     "field": "Fizik",
     "level": "Lise–Lisans",
-    "minutes": 40
+    "minutes": 50
   },
   "algoritmalar": {
     "title": "Algoritmalar: Adımları Sayma Sanatı",
@@ -136,6 +136,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "breakout": {
+    "title": "Breakout: Yansıyan Top, Kırılan Duvar",
+    "tagline": "1976'da Pong'un tek kişilik hâli olarak doğdu; devresini Steve Wozniak dört gecede kurdu. Altında yansıma yasasının vektör hâli, kutu çarpışması ve ayrık zamanın tuzakları var.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 25
+  },
+  "celik-yapilar": {
+    "title": "Çelik Yapılar: Kesit, Bağlantı ve Kararlılık",
+    "tagline": "Bir I kesiti başka yönde eğ, bağlantıya bulon ekle, kolonu yandan tut. Her müdahale hangi hesabı değiştirir; hangi soruyu hâlâ yanıtsız bırakır?",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "cift-sarkac": {
     "title": "Çift Sarkaç: Belirlenimci ama Öngörülemez",
     "tagline": "İki çubuk, iki top, eksiksiz bilinen iki denklem; içinde hiç rastlantı yok. Yine de milyonda bir radyan farkla başlayan kopyalar 11 saniyede birbirinden kopar. Kaosu ölç, öngörünün neden bu kadar kısa kaldığını gör.",
@@ -220,6 +234,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 30
   },
+  "elektrik-muhendisligi": {
+    "title": "Elektrik Mühendisliği: Enerji Yolda Nasıl Kaybolmaz?",
+    "tagline": "Üç faz, yüksek gerilim ve transformatör aynı sorunun üç cevabıdır: enerjiyi en az kayıpla taşımak. Üç fazın gücünü topla, 1/V² yasasını ölç, bir transformatörün verim tepesini ara.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "elektrikli-araclar": {
     "title": "Elektrikli Araçlar: Pilden Tekerleğe Enerji",
     "tagline": "Saatte 100 kilometreyi aşan ilk otomobil 1899'da elektrikliydi. Yüz yıl kaybolup bir telefon piliyle geri döndü: bataryadan tekerleğe giden enerjinin muhasebesi.",
@@ -290,6 +311,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "formul-hafiza": {
+    "title": "Formül Hafıza: On Altı Kart, Sekiz Yasa",
+    "tagline": "Hiçbir şey hatırlamayan biri bu oyunu ortalama 64 hamlede, kusursuz hafızalı biri 12.4 hamlede bitirir. Aradaki farkı bellek kapatır; belleğin en iyi yardımcısı da fiziktir: bir denklemi görünce adını bilmek.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 25
+  },
   "fotoelektrik": {
     "title": "Fotoelektrik Olay: Işığın Bozuk Parası",
     "tagline": "Metalden kaçmanın bir bedeli var ve ışık onu tek tek fotonlarla öder. Birkaç renk, bir gerilim kaynağı ve bir doğruyla Planck sabitini ölç: Einstein'ı haklı çıkaran, ama ölçeni ikna edemeyen deney.",
@@ -311,10 +339,24 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "gemi-makineleri-isletme-muhendisligi": {
+    "title": "Gemi Makineleri: Silindirden Pervaneye, Pervaneden Dengeye",
+    "tagline": "Silindirde ısının ne zaman verildiği verimi, pervanenin küp yasası hızın yakıt bedelini, metasantr da teknenin doğrulma gücünü belirler. Bir makine zabitinin üç hesabı, tek sayfada.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "genetik-caprazlama": {
     "title": "Genetik Çaprazlama: Bezelyeden Gen Haritasına",
     "tagline": "Mendel'in 3 : 1'i bir kota değil, bir olasılıktır. Yavruları tek tek say ve ki-kareyle sına; X'e bağlı genleri soyağacında izle, bağlı genlerin ne sıklıkla ayrıldığından kromozom haritası çıkar.",
     "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "gezegen-savunmasi": {
+    "title": "Gezegen Savunması: Newton'un Topuyla Yörünge",
+    "tagline": "Mermin yere düşer, gezegenin arkasına dolanır ya da bir daha dönmez; hangisi olacağını enerji ile açısal momentum belirler. Newton'un dağ başındaki topunu ateşle, yörüngeyi ölç, asteroidi gezegenin öbür yüzünde yakala.",
+    "field": "Oyun",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -339,12 +381,26 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 30
   },
+  "hanoi-kuleleri": {
+    "title": "Hanoi Kuleleri: Kendini Çağıran Bulmaca",
+    "tagline": "Üç çubuk, birkaç disk, tek kural. 1883'te Paris'te satılan bu oyuncak özyinelemenin, ikili sayıların ve üstel büyümenin en temiz dersidir: n disk tam 2ⁿ − 1 hamle ister, bir eksiği olmaz.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 25
+  },
   "hesaplama-teorisi": {
     "title": "Hesaplama Teorisi: Makinelerin Yapamayacağı Şeyler",
     "tagline": "1936'da, daha ortada tek bir bilgisayar yokken, 'hesaplamak' sözcüğü tanımlandı ve aynı yıl hiçbir bilgisayarın asla cevaplayamayacağı bir soru bulundu. Bu sayfa o tanımın ve o sorunun hikâyesi.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise ileri",
     "minutes": 35
+  },
+  "hidrolik-sistemler": {
+    "title": "Hidrolik Sistemler: Debi, Yük ve Güç",
+    "tagline": "Silindirin hızını debi, basıncını yük belirler. Pompa, kısma valfi ve emniyet (relief) valfi arasında şaft gücünün nereye gittiğini watt watt izle.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 28
   },
   "hilbert-egrisi": {
     "title": "Hilbert Eğrisi: Bir Çizgi Kareyi Doldurabilir mi?",
@@ -387,6 +443,13 @@ window.ACELYA_CATALOG = {
     "field": "Bilgisayar Bilimi",
     "level": "Lise ileri",
     "minutes": 35
+  },
+  "isik-sondurme": {
+    "title": "Işık Söndürme: 1 + 1 = 0 Cebiri",
+    "tagline": "Bir düğmeye iki kez basmak hiç basmamaktır. Bu tek kural, 25 ışıklı bulmacayı iki elemanlı bir sayı sisteminde 25 bilinmeyenli bir denklem takımına çevirir; çözümü deneme yanılma değil, lineer cebirdir.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 25
   },
   "isletim-sistemleri-ve-linux": {
     "title": "İşletim Sistemi: Donanımı Paylaştıran Hakem",
@@ -443,6 +506,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise",
     "minutes": 30
+  },
+  "kimya-muhendisligi": {
+    "title": "Kimya Mühendisliği: Hacim, Kademe, Yüzey",
+    "tagline": "Bir tepkime için kaç litre, bir ayırma için kaç kademe, bir ısıtma için kaç metrekare? Üç sorunun cevabı da aynı yerden çıkar: bir korunum dengesi ve yol boyunca harcanan itici güç.",
+    "field": "Mühendislik",
+    "level": "Lisans",
+    "minutes": 40
   },
   "kimyasal-kinetik": {
     "title": "Kimyasal Kinetik: Tepkimelerin Saati",
@@ -605,6 +675,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise ileri",
     "minutes": 30
   },
+  "mayin-tarlasi": {
+    "title": "Mayın Tarlası: Sayılardan Kesinlik Çıkarmak",
+    "tagline": "Her sayı sekiz komşu hakkında bir denklemdir. 16×16'lık tahtada 40 mayını bulmak; denklem çözmek, olasılığı sayarak hesaplamak ve bilgisayar biliminin bir milyon dolarlık sorusuna dokunmak demek.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 25
+  },
   "mekatronik-muhendisligi": {
     "title": "Mekatronik: Kendi Hatasını Düzelten Makineler",
     "tagline": "Bir makineyi akıllı yapan güçlü motoru değil, kendi hatasını ölçüp düzeltebilmesidir. Sensör, kontrolcü ve motor arasında saniyede onlarca ila binlerce kez dönen tek bir döngü: geri besleme.",
@@ -654,6 +731,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "mukavemet": {
+    "title": "Mukavemet: Kuvvetten Şekil Değiştirmeye",
+    "tagline": "Denge, dayanım ve rijitlik aynı soru değildir. Bir kesiti çevirip sehimi dört katına çıkar; ince bir kolonun düşük gerilmede neden kararsızlaşabildiğini sayılarla gör.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "newton-hareket-yasalari": {
     "title": "Newton Yasaları: Kuvvet, Değişim ve Bir Çarpışma",
     "tagline": "Newton'un üç yasası iki topun tek bir çarpışmasına sığar: kuvvet yokken dümdüz giden toplar, temas anında eşit ve zıt iki itme, önce de sonra da kuruşu kuruşuna aynı kalan toplam momentum.",
@@ -695,6 +779,13 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise",
     "minutes": 35
+  },
+  "oyun-2048": {
+    "title": "2048: İkinin Kuvvetleriyle Muhasebe",
+    "tagline": "On dokuz yaşında bir geliştiricinin hafta sonu projesi, ikinin kuvvetlerini dört yöne kaydırtıyor. Skorun içinde gizli bir sayaç, tahtada bozulmayan bir toplam ve 131 072'de duran bir tavan var.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 25
   },
   "pascal-ucgeni": {
     "title": "Pascal Üçgeni: Saymak, Tartmak, Desen Bulmak",
@@ -857,6 +948,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 32
   },
+  "snake": {
+    "title": "Yılan: Izgarada Kuyruk ve Döngü",
+    "tagline": "1976'da bir oyun salonunda doğdu, yirmi yıl sonra yüz milyonlarca cebe girdi. Kuyruğunu kovalayan yılanın altında 1600 köşeli bir çizge, bir kuyruk veri yapısı ve her kareden tam bir kez geçen bir tur var.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "statik": {
     "title": "Statik: Denge Neyin Cevabıdır?",
     "tagline": "Aynı toplam yük farklı mesnet tepkileri doğurabilir; üç tepki de bir yapıyı tutmaya yetmeyebilir. Yayılı yük, kafes ve matrislerle dengenin ne söylediğini sınayalım.",
@@ -913,6 +1011,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "tetris": {
+    "title": "Tetris: Dört Karenin Matematiği",
+    "tagline": "Yedi parça, on sütun, yirmi satır. Moskova'da bir araştırmacının boş vakit oyununun arkasında polyomino sayımı, dönme matrisleri, hafızasız bir zar ve bilgisayar biliminin en ünlü açık sorusu duruyor.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "tork-denge": {
     "title": "Tork ve Denge: Kaldıraçtan Kayan Merdivene",
     "tagline": "Bir kuvvetin döndürme etkisi, büyüklüğü kadar nereye bindiğine de bağlıdır. Kaldıracı dengele, tahtanın nerede devrildiğini bul, merdivenin hangi basamakta kaydığını ölç: hepsi iki denklemle, ΣF = 0 ve Στ = 0.",
@@ -940,6 +1045,13 @@ window.ACELYA_CATALOG = {
     "field": "Toplum ve Ekonomi",
     "level": "Lise",
     "minutes": 30
+  },
+  "uretim-planlama-ve-endustri-muhendisligi": {
+    "title": "Üretim Planlama: Düz Eğriler, Dik Eğriler",
+    "tagline": "Ne kadar sipariş vermeli, süreç bozulduğunu nasıl anlamalı, işler neden kuyrukta bekler? Üç eski fabrika sorusunu türevle, normal dağılımla ve kuyruk kuramıyla ölçerek yanıtla.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "uzay-kosucusu": {
     "title": "Uzay Koşucusu: Tek Tuşla Yerçekimi",
@@ -969,6 +1081,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 35
   },
+  "yasam-oyunu": {
+    "title": "Yaşam Oyunu: İki Kuraldan Bir Evren",
+    "tagline": "Kareli bir kâğıt ve iki kural: üç komşu doğurur, iki ya da üç komşu yaşatır. Conway'in 1970'te bulduğu bu oyunda desenler yürür, çoğalır, hatta hesap yapar. Bu sayfadaki evren ise bir simit.",
+    "field": "Oyun",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "yay-kutle": {
     "title": "Yay ve Kütle: Saati Cebe Sığdıran Salınım",
     "tagline": "Sarkacı yerçekimi geri çağırır, bloğu yay. Bu tek fark periyodu kütleye bağlar, yerçekiminden kurtarır; aynı denklem cep saatinden gökdelenlere, oradan moleküllere uzanır.",
@@ -996,5 +1115,12 @@ window.ACELYA_CATALOG = {
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
     "minutes": 30
+  },
+  "yoneylem-arastirmasi": {
+    "title": "Yöneylem Araştırması: En İyi Karar Hangi Köşede?",
+    "tagline": "Bir tesise eklenen bir saat 1500 lira ederken ötekine eklenen saat hiçbir şey etmeyebilir. Köşeleri, gölge fiyatları, simpleks tablosunu ve bir projenin kritik yolunu kendi ellerinle sına.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 40
   }
 };

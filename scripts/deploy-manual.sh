@@ -23,7 +23,7 @@ if [ "$PUBLISH" = 1 ] && [ -n "$(git status --porcelain)" ]; then
 fi
 
 echo "1/4 Site denetimi (bağlantılar, meta, defter şeması)"
-node scripts/check-site.mjs
+node scripts/check-site.mjs --require-digests
 
 echo "2/4 Katalog ve service worker listesi güncel mi"
 node scripts/build-catalog.mjs --check

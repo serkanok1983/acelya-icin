@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["isletme-bilimi-ve-yonetim"] = {
   ],
   next: [
     { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi ve Üretim Faktörleri", why: "Fiyatın miktara göre düştüğü dünyada başabaş doğrusu eğriye dönüşür; marjinal maliyet ve arz-talep buradan başlar." },
-    { href: "uretim-planlama-ve-endustri-muhendisligi.html", title: "Üretim Planlama ve Endüstri Mühendisliği", why: "Taylor'ın kronometresinden Toyota'nın kanbanına: sarı maliyet doğrusunun eğimini düşürmenin mühendisliği." },
+    { href: "uretim-planlama-ve-endustri-muhendisligi.html", title: "Üretim Planlama: Stok, Kalite ve Akış", why: "Sipariş miktarı, kontrol grafikleri ve darboğaz deneyleri: sarı maliyet doğrusunun eğimini düşürmenin mühendisliği." },
     { href: "yoneylem-arastirmasi.html", title: "Yöneylem Araştırması", why: "Tek ürün yerine onlarca ürün ve kısıt varken 'en kârlı karma' doğrusal programlamayla bulunur." },
     { href: "makro-ekonomi-ve-para-politikalari.html", title: "Makro Ekonomi ve Para Politikaları", why: "Sayfadaki kamu maliyesi kartlarının devamı: Keynes çarpanı, bütçe açığı ve faizin işletmelere etkisi." },
   ],

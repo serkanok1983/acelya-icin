@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["maden-muhendisligi"] = {
   next: [
     { href: "metalurji-ve-malzeme-muhendisligi.html", title: "Metalurji ve Malzeme Mühendisliği", why: "Konsantre ergitme fırınına girdikten sonra ne olur: cüruf, mat, faz diyagramı ve çeliğin kaderi." },
     { href: "elektrokimya.html", title: "Elektrokimya", why: "Elektro-kazanımın kimyası: çözeltideki Cu²⁺ iyonu katotta nasıl yüzde 99.99 saflıkta metale döner." },
-    { href: "kimya-muhendisligi.html", title: "Kimya Mühendisliği", why: "Liç tankı, flotasyon hücresi ve değirmen birer birim işlemdir; çözümlü örnekteki kütle denkliğini genel kuralıyla gör." },
+    { href: "kimya-muhendisligi.html", title: "Kimya Mühendisliği", why: "Liç tankı, flotasyon hücresi ve değirmen birer birim işlemdir; karıştırmalı tankın ve borusal reaktörün tasarım denklemlerini mol denkliğinden kur." },
     { href: "kristal-yapilar.html", title: "Kristal Yapılar", why: "Kurşunun başlıca cevheri galen (PbS), sofra tuzuyla (halit) aynı kaya tuzu yapısındadır. X-ışını kırınımı sekmesinde iki desenin farkını gör: mineraller laboratuvarda böyle tanınır." },
   ],
   sources: [

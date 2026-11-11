@@ -143,7 +143,7 @@ window.ACELYA_DIGEST["statik"] = {
     { href: "tork-denge.html", title: "Tork ve Denge", why: "Moment kolunu ve serbest cisim diyagramını noktasal yüklerle yeniden kur." },
     { href: "integral.html", title: "İntegral", why: "Yayılı yükün alan ve birinci moment integrallerinin temelini gör." },
     { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Tepki matrisinin bağımsız yönlerini ve çözüm uzayını daha genel bir dilde incele." },
-    { href: "basit-makineler.html", title: "Basit Makineler", why: "Denge kuvvetlerini hareket kısıtına bağla; kuvvet kazancının yol ve enerji bedelini hesapla." },
+    { href: "mukavemet.html", title: "Mukavemet: Gerilme, Sehim ve Burkulma", why: "Dengeyle bulduğun iç kuvvetleri gerilmeye, kirişin eğriliğine ve kolonun kararlılık sınırına bağla." },
   ],
   sources: [
     { title: "Engineering Statics · 7.8 Distributed Loads", url: "https://engineeringstatics.org/distributed-loads.html", note: "Alan, birinci moment ve eşdeğer kuvvet; dış eşdeğerliğin iç kuvvet dağılımını korumaması." },

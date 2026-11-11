@@ -62,6 +62,9 @@ npm run test:b3      # Lorenz/harita-akış ve Fibonacci/Pascal: bağımsız say
 npm run test:b4      # Tek sayılar: gerçek hücre eşlemesi, farklar ve tam rasyonel seri referansları
 npm run test:c       # Sekiz C laboratuvarı; sayısal referanslar ve gerçek çevrimdışı Web Audio
 npm run test:f1      # Elektrostatik, basit makineler ve statik: bağımsız fizik hesapları ve gerçek tarayıcı kontrolleri
+npm run test:f2      # Mukavemet, çelik, hidrolik ve boru–pompa: fizik, sınır durumları ve mobil tarayıcı kontrolleri
+npm run test:d       # Yöneylem, üretim planlama, elektrik, kimya ve gemi makineleri laboratuvarları: bağımsız hesap ve tarayıcı kontrolleri
+npm run test:e       # Gezegen Savunması: Kepler, korunum, çarpışma ve oyun dengesi kontrolleri
 npm run test:public  # girişsiz erişim, eski oturum temizliği ve yerel rekorlar
 npm run shot -- sarkac --theme light --scroll digest   # ekran görüntüsü
 ```

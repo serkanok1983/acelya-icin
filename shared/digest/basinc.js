@@ -228,7 +228,7 @@ window.ACELYA_DIGEST["basinc"] = {
     },
     {
       href: "akiskanlar-mekanigi.html",
-      title: "Akışkanlar Mekaniği: Süreklilik, Bernoulli ve Viskozite",
+      title: "Akışkanlar Mekaniği: Akış, Kayıp ve Pompa",
       why: "Akışkan hareket edince basınç hıza da bağlanır: Bernoulli denklemi, Torricelli'nin boşalma yasası ve kan basıncını cıvalı manometreyle ölçen Poiseuille'ün adını taşıyan viskoz akış yasası.",
     },
     {
@@ -237,9 +237,9 @@ window.ACELYA_DIGEST["basinc"] = {
       why: "Gazın basıncı duvara çarpan moleküllerin momentumundan doğar. Barometrik formülde kullandığın ρ = PM/(RT) bağıntısının mikroskobik kökünü orada ölç.",
     },
     {
-      href: "kalp-dolasim.html",
-      title: "Kalp ve Dolaşım",
-      why: "120/80 mmHg, aort basıncının bir atımdaki tepe ve dip değeridir. Kalp döngüsü sekmesindeki Wiggers diyagramında bu iki sayının hangi evrede oluştuğunu ve kalp gevşerken basıncın neden sıfıra inmediğini gör.",
+      href: "hidrolik-sistemler.html",
+      title: "Hidrolik Sistemler: Debi, Yük ve Güç",
+      why: "Pascal ilkesini çift etkili silindire taşı; pompa, kısma ve relief valfiyle hızın, basıncın ve güç kayıplarının birlikte nasıl belirlendiğini hesapla.",
     },
   ],
   sources: [

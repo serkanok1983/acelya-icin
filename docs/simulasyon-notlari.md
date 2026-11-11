@@ -1187,3 +1187,121 @@ Altı sayfa yeniden kuruldu ve altı defter de doğrulayıcıdan geçti (birim �
   ve 74 UI kontrolü; basit makinelerde 17.801 hesap + 28 UI; statikte
   9.803 hesap + 35 UI geçti. `test:public` 35 girişsiz erişim kontrolünden
   hatasız geçti. Kontrol adetleri genel doğruluk ispatı olarak sunulmaz.
+
+## 10 Kasım 2026 — F2: mukavemet, çelik, hidrolik ve boru–pompa
+
+- ✔ `mukavemet`: eksenel çubukta gerilme/birim uzama ve yükleme işi;
+  basit mesnetli kirişte merkezî P veya düzgün q, V/M, dikdörtgen kesitin
+  yönü ve sehim; ideal uç koşullarıyla Euler kolon. Kirişin kapalı formu
+  eğriliğin sayısal çift integraliyle, Euler sonucu eşdeğer mafsallı
+  kolonun sonlu fark özdeğeriyle karşılaştırılır. Gerçek uçların ayrı
+  sayısal çözümü veya fiziksel ölçüm diye sunulmaz. Seçilen doğrusal
+  gerilme eşiği malzeme sertifikası değildir; aşılınca elastik uzantı
+  işaretlenir. Küçük şekil değiştirme/kayma ihmali koşulları açık.
+- ✔ Mukavemet QA: mobil canvas yüksekliği, kesit döndürme aralıkları,
+  gerçek n=40 varsayılanı, sıfır yükte tepki okları düzeltildi. Kalıcı
+  test 29 fizik senaryosunda 107 bağımsız denge/enerji/eğrilik/özdeğer
+  kontrolü ve 56 mobil/masaüstü UI kontrolü içerir.
+- ✔ `celik-yapilar`: ideal I kesitin A/I/W değerleri ve iki eksenli
+  elastik eğilme; delikli levhada nominal net/brüt gerilme, eşit paylaşılan
+  bulon yükü ve tek kesme/izdüşüm ezilmesi; iki eğilme düzleminde ideal
+  yanal bağlarla Euler kolon. Yanal burulmalı/yerel burkulma, kayma
+  gecikmesi, bağlantıdaki yerel yük aktarımı ve gerçek tasarım dayanımı
+  hesaplanmaz. E=200 GPa ve fy=250 MPa belirli kaliteye atanmayan eğitim
+  varsayımlarıdır. Her yönün Euler elastiklik sınırı ayrıca etiketlidir;
+  akma yüküyle min alıp kapasite üretmez. Test: 2041 bağımsız kesit
+  integrali/özmod/ölçek/sınır kontrolü + 65 gerçek UI kontrolü.
+- ✔ `hidrolik-sistemler`: çift etkili silindirde yük/karşı basınçtan
+  gereken giriş basıncı; debiden hız ve dönüş debisi. Pompa sekmesinde
+  deplasman/devir/verimlerle akış, tork ve şaft bütçesi. Kısma–relief
+  devresinde yük/orifis/akış düğümü birlikte çözülür. Normal, relief,
+  durma, kapalı kısma ve pompa kapalı durumları ayrıdır. Kapalı/izole
+  taraftaki bilinmeyen tutma basıncına sıfır atanmaz. Yetersiz basınçta
+  ters hareketi önleyen ideal mekanik durdurucu açıkça varsayılır;
+  genel yük tutma devresi veya valf dinamiği çözülmez.
+- ✔ Hidrolik şaft bütçesi yük + kısma + relief + dönüş + kaçak + mekanik
+  kayıptır. Pozitif basınçtaki sabit verimler sıfır basınca kesintisiz
+  gerçek kaçak yasası diye taşınmaz; yüksüz ideal sınır ayrı tanımlıdır.
+  Devre çizimi yönle besleme/dönüş portlarını değiştirir; sıfır akışta
+  akış okları yoktur. Test: 8 fizik senaryosu / 1777 bağımsız kontrol
+  (akış düğümü ayrıca bisection ile çözülür) + 66 gerçek UI kontrolü.
+- ✔ `akiskanlar-mekanigi`: ilk üç deney korunarak dördüncü **Boru ve
+  pompa** sekmesi eklendi. Darcy–Weisbach/laminer Poiseuille eşitliği,
+  türbülansta Colebrook–White ve iki açık depo için sistem eğrisi.
+  Öğretim pompasının parabolik eğrisiyle kesişim çözülür; verilen debi
+  modu ayrıca yalnız sistem gereksinimini gösterir. 2300<Re<4000 için
+  tek katsayı/kayıp uydurulmaz; bu aralıktaki çalışma noktası çözülemez
+  aralık olarak gösterilir. H0≤Δz durumunda ideal çekvalf ileri akışı
+  durdurur. Hidrolik güç sıfır olabilir; şaft gücü hesaplanmış olmaz.
+- ✔ Akışkanlar testi: 315 bağımsız Colebrook sabit nokta, Poiseuille,
+  enerji, kök ve sınır kontrolü; dört gerçek mobil sekme, hazır deneyler,
+  sıfır/geçiş/durma ve klavye. Denklem artığı modelin fiziksel doğruluğu
+  değil sayısal tutarlılığı gösterir. Geçiş akışı, NPSH, su darbesi ve
+  sıcaklık etkileri kapsam dışında. Yeni SVG ve grafik açık/koyu temaya
+  uyar; dördüncü sekmede eski zaman entegratörü ilerletilmez.
+- ✔ `npm run test:f2` dört laboratuvarın tamamında geçti. Çekirdekler
+  salt okunur/dondurulmuş API'lerle sınanır; mobil 390 px ve koyu
+  masaüstü kontrolleri fiziksel donanım deneyi değildir.
+
+## 11 Kasım 2026 — F2 kapanışı, D (mühendislik) ve E (oyunlar)
+
+### F2 doğrulama bulguları
+
+- ✔ `mukavemet`: çubuk sekmesindeki dayanaksız "dairesel kesit" ifadesi "sabit kesit" oldu.
+- ✔ `celik-yapilar`: "biçimsel elastik uzatma" ("uzama" gibi okunuyordu) açık yazıldı.
+- ✔ `akiskanlar-mekanigi`: dördüncü sekmede ham `h_f`, `H_s` etiketleri alt simge oldu; pompa modunda
+  devre dışı debi çıktısı artık "pompa ve sistem belirler" diyor.
+- ✔ `hidrolik-sistemler`: kayan nokta artığından gelen "-0 W" gösterimi giderildi.
+- ✔ `check-f2-strength.mjs`: defterin sınav seçeneklerini etiketsiz form alanı sayan denetim düzeltildi.
+- ✗ `akiskanlar-mekanigi`: dördüncü sekme ondalık virgül, ilk üç sekme nokta kullanıyor; dördüncü sekmenin
+  grafiği sabit 800×520 çiziliyor (DPR duyarlı değil).
+- ✗ `celik-yapilar`: tam eşitlikte elastik sınır karşılaştırmaları tutarsız (`<=` / `<` / `>=`); kaydırıcı
+  adımlarıyla erişilemiyor. "M_y,ref" adı y ekseniyle karışabilir.
+- ✗ `hidrolik-sistemler`: R kısayolu Cmd/Ctrl+R'de de sıfırlıyor (zararsız).
+
+### D — beş mühendislik laboratuvarı (sıfırdan)
+
+- ✔ `yoneylem-arastirmasi`: grafik DP (kesin ve ölçülen gölge fiyat, dejenere köşede aralık), BigInt kesirli
+  simpleks (Bland/Dantzig), CPM/PERT ve tohumlu Monte Carlo ayrıştırması. Hazır düzenler varsayılanlardan
+  başlar; "K1, K2 ve K3" yazımı düzeltildi. Açık: gölge fiyatın geçerlilik aralığı gösterilmiyor.
+- ✔ `uretim-planlama-ve-endustri-muhendisligi`: EOQ ve stok tükenme benzetimi, X̄–R grafikleri ve ölçülen ARL,
+  seri hat/CONWIP. Sabit süreli açık hatta toplam artık kesin (Friedman 1965 indirgeme; aynı rastgele akışlarda
+  1e-9 ile doğrulandı; atıf bellekten, kaynak açılmadı). Açık: Erlang-4'te Kingman yaklaşımı kapasiteye yakın
+  %13–25 düşük kalır (uyarılı); sabit sürede istasyon satırları toplam kartıyla toplanmaz (sayfada yazılı).
+- ✔ `elektrik-muhendisligi`: üç faz ve kompanzasyon, iletim kaybı (1/V²), transformatör eşdeğer devresi ve
+  açık/kısa devre deneyleri. İki kayıp yüzdesinin paydaları başlıkta açıklandı; hedef zaten sağlanıyorsa
+  batarya açılmıyor. Açık: "Yükün türü" çıktısı "Geri" yazıyor (seçenek "Endüktif").
+- ✔ `kimya-muhendisligi`: CSTR/seri tank/PFR ve Levenspiel, McCabe–Thiele, ısı değiştirici (LMTD, ε–NTU).
+  Son kademenin kesri artık ln[x/(1−x)] içinde ara değerlenir; toplam geri akışta Fenske'ye eşittir.
+  Gerçek madde verisi yok (α öğretim değeri). Açık: durum satırlarında alt simgeler alt çizgiyle (R_min).
+- ✔ `gemi-makineleri-isletme-muhendisligi`: çift (Sabathé) çevrim, pervane yasası ve yakıt, kutu mavnada
+  çokgen kırpmayla kesin GZ. Sıfıra yakın kolda yüzde yerine açıklama; 200 bar üstü tepe basıncında uyarı.
+  CO₂ katsayıları IMO MEPC.364(79)'dan; motor ölçüleri ve SFC eğrisi öğretim değeridir.
+
+### E — oyunlar
+
+- ✔ `gezegen-savunmasi` **sıfırdan yeniden kuruldu**: eski sürümde çekim mermi hızına göre ~73 kat güçlüydü,
+  mermiler iki adımda yok oluyor, oyun girdiden bağımsız ~3 s'de bitiyordu. Yenisi GM = R = 1 ölçekli
+  birimler, hız Verlet, Kepler yörüngeli aylar, süpürmeli çarpışma, öngörülen yol ve deney modu içerir.
+  Bilinen sınır: öngörü 4×DT ile integre eder; sıyırma vuruşları tahminden sapabilir.
+- ✔ `oyun-2048`: yukarı/aşağı (ok ve kaydırma) tersti; düzeltildi. "En iyi" cihazda saklanıyor.
+- ✔ `mayin-tarlasi`: ipucunun genel tahmin dalı hiç çalışmıyordu (`!flagged` dizinin kendisini sınıyordu);
+  doymuş sayıya komşu hücre %100; ilk tıklamadan önce doğru mesaj.
+  Açık: ipucu tek sayı kestirimlerinin en küçüğünü alır, sayıları birleştirmez (defterin 1-2-1 deneyi);
+  fazla bayrakta sonuç komşu sırasına bağlı; dokunmatikte ipucu yok.
+- ✔ `isik-sondurme`: karıştırma tamamen sönük tahta verirse yeniden karıştırır.
+  Açık: "İpucu" tek adımlık açgözlü öneridir, 5×5'te oyunların ~%0,4'ünü çözer (defter bunu deney yapar);
+  gerçek çözücü (GF(2) eleme) eklenirse defterin o deneyi yeniden yazılmalı.
+- ✔ `hanoi-kuleleri`: durum satırı ilk hamleden "Çok iyi!" diyordu; artık bulunulan dizilişten en kısa
+  çözüme göre fazla hamleyi gösterir. Seçili çubuğa yeniden tıklamak seçimi iptal eder.
+  Açık: "Çöz" hep baştan başlar; rekor disk sayılarını karıştırır.
+- ✔ `yasam-oyunu`: Blok, Hafif uzay gemisi, R-pentomino, Gosper planör topu eklendi; simit sınırı ipucunda;
+  Temizle/Rastgele benzetimi durdurur. Açık: durağanlık/periyot algılama yok; nesil sayısı "skor" diye kaydedilir.
+- ✔ `tetris`: oyun bitince dokunma kilitli; aşağı kaydırma taşı düşürür. Açık: duvar tekmesi yok, rastgele
+  seçici belleksiz (defter buna dayanır), düşme zamanlaması kare hızına yuvarlanır.
+- ✔ `breakout`: klavyeyle raket alan dışına taşabiliyordu. Açık: oyun yüklenince başlar ve ilk top klavyeyle
+  zor yakalanır; fare kontrolü yok; top kare gibi sınanır; adım başına tek tuğla.
+- ✗ `snake`: adım süresi kare hızına yuvarlanır (60 Hz'te 120 ms → 133 ms; dokuz hızlanmanın beşi görünür) —
+  defterin ölçüm deneyi buna dayanır, düzeltilirse defter güncellenmeli. Tek gözlü yön tamponu; kazanma durumu yok.
+- ✗ `formul-hafiza`: animasyon döngüsü yok (efektler tek karede donar); skor HUD'da görünmez; klavye erişimi yok.
+- ✔ Snake, Breakout, Hanoi ve Işık Söndürme başlıklarındaki emojiler kaldırıldı.

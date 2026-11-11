@@ -194,7 +194,7 @@ window.ACELYA_DIGEST["elektronik-muhendisligi"] = {
   next: [
     { href: "mantik-devresi.html", title: "Mantık Devresi Tasarımcısı", why: "Burada tek satırda okuduğun kapıları kendin bağla; gerçek bir flip-flop ve toplayıcı kur." },
     { href: "elektronik-devre.html", title: "RC Devresi", why: "Her çipin içindeki zamanlayıcı: kondansatörün dolma eğrisi ve saat darbelerinin kaynağı." },
-    { href: "elektrik-muhendisligi.html", title: "Elektrik Mühendisliği", why: "Çipin dışındaki dünya: güç, motorlar, şebeke ve bu küçük sinyallerin yönettiği büyük enerji." },
+    { href: "elektrik-muhendisligi.html", title: "Elektrik Mühendisliği", why: "Çipin dışındaki dünya: üç fazlı güç, iletim hatları, transformatörler ve bu küçük sinyallerin yönettiği büyük enerji." },
     { href: "bilgisayar-sistemleri-ve-mimarisi.html", title: "Bilgisayar Sistemleri ve Mimarisi", why: "Yarım toplayıcıdan işlemciye: kapıların nasıl bir bilgisayara örüldüğü." },
   ],
   sources: [

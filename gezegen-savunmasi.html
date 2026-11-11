@@ -2,385 +2,1254 @@
 <html class="app-root" lang="tr">
 <head>
   <meta charset="UTF-8">
-    <link rel="stylesheet" href="shared/theme.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Gezegen Savunması</title>
+  <meta name="description" content="Gezegenin tepesindeki topla asteroitleri vur: mermiler gerçek GM/r² çekiminde uçar. Yavaş mermi yere düşer, daha hızlısı elips çizip gezegenin arkasına dolanır, kaçış hızını aşan geri dönmez. Enerjiyi, yarı büyük ekseni ve periyodu ölç.">
   <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: #000;
-      color: #fff;
-      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
-      overflow: hidden;
-      touch-action: none;
+    .hud { display: grid; gap: 6px; margin-bottom: 12px; }
+    .hud h1 { margin: 0; }
+    .hud .hint { margin: 0; }
+    .hud .acelya-leaderboard { margin: 0; justify-self: start; }
+    #status { font-size: 0.95rem; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    #status strong { color: var(--accent-warm) !important; }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(270px, 1fr);
+      gap: 16px;
+      align-items: start;
     }
-    body { display: flex; flex-direction: column; min-height: 100dvh; }
-    .hud {
-      flex-shrink: 0;
-      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
-      text-align: center;
-    }
-    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); }
-    #status { font-size: clamp(0.85rem, 3.5vw, 1.05rem); }
-    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.8rem); opacity: 0.65; }
-    .controls { margin-top: 6px; }
-    button {
-      font-size: 14px;
-      padding: 8px 14px;
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .game-stage {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 10px max(10px, env(safe-area-inset-bottom));
-    }
+    .lab-stage, .lab-side { display: grid; gap: 12px; min-width: 0; }
+    .game-stage { position: relative; display: grid; place-items: center; min-width: 0; }
     #gameCanvas {
+      width: 100%;
+      max-width: 560px;
+      aspect-ratio: 1 / 1;
       display: block;
-      max-width: 100%;
-      border-radius: 4px;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      background: #070b16;
       touch-action: none;
+      cursor: crosshair;
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    [data-theme="light"] #gameCanvas { background: #eef2f9; }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-content: end center;
+      justify-items: center;
+      gap: 6px;
+      padding: 16px;
+      text-align: center;
+      pointer-events: none;
+    }
+    .overlay[hidden] { display: none; }
+    .overlay-card {
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      max-width: 300px;
+      display: grid;
+      gap: 6px;
+    }
+    .overlay-title { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .overlay-text { font-size: 0.86rem; line-height: 1.45; color: var(--text-muted); }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 9px 12px; font: inherit; cursor: pointer; min-height: 40px; flex: 1 1 auto; }
+    .row.presets button { padding: 6px 10px; font-size: 0.82rem; min-height: 36px; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; letter-spacing: 0.02em; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .model { margin-top: 16px; }
+    .model ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 0.84rem; line-height: 1.5; }
+    kbd { font: inherit; font-size: 0.78rem; padding: 1px 5px; border: 1px solid var(--border); border-radius: 5px; background: var(--bg-input); }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
     }
   </style>
   <script src="shared/app.js"></script>
 </head>
 <body class="app-page" data-page="gezegen-savunmasi">
 
-<header class="hud">
-  <h1>Gezegen Savunması</h1>
-  <div id="status">Skor: <span id="score">0</span> · Can: <span id="lives">3</span></div>
-  <div class="controls">
-    <button type="button" id="btnNew">Yeni Oyun</button>
-  </div>
-  <p class="hint">← → nişan · Space ateş · Gezegenlerin çekimi mermileri ve düşmanları eğer</p>
-</header>
+<div class="app-content">
+  <header class="hud">
+    <h1>Gezegen Savunması</h1>
+    <p class="hint">Gezegenin tepesindeki topu çevir, atış hızını dairesel hız v<sub>c</sub> cinsinden seç ve asteroitleri yere ulaşmadan vur. Mermiler de asteroitler de aynı GM/r² çekiminde uçar; merminin sonunu hız ile açı birlikte belirler. Yatay atışta 0.976 v<sub>c</sub>'den yavaş mermi yere düşer (namlu yerden 0.1 R yüksekte olduğu için eşik v<sub>c</sub> değildir), bu eşik ile v<sub>e</sub> = √2·v<sub>c</sub> arasındaki mermi elips çizip gezegenin arkasına dolanır, v<sub>e</sub>'den hızlısı geri dönmez. Namlu yukarı döndükçe yerberi alçalır ve aynı hızdaki mermi yere çarpabilir.</p>
+    <div id="status">
+      <div>Skor: <strong id="score">0</strong></div>
+      <div>Dalga: <strong id="wave">1</strong></div>
+      <div>Kalkan: <strong id="health">5</strong> / 5</div>
+      <div>Rekor: <strong id="best">0</strong></div>
+    </div>
+  </header>
 
-<div class="game-stage">
-  <canvas id="gameCanvas" width="800" height="600" role="img" aria-label="Gezegen savunması"></canvas>
+  <div class="lab">
+    <div class="lab-stage">
+      <div class="game-stage">
+        <canvas id="gameCanvas" width="720" height="720" role="img" aria-label="Oyun alanı: ortada gezegen, tepesinde top, çevresinde iki ay, mermiler ve yaklaşan asteroitler"></canvas>
+        <div class="overlay" id="overlay">
+          <div class="overlay-card">
+            <div class="overlay-title" id="overlayTitle">Başlamak için tıkla/dokun</div>
+            <div class="overlay-text" id="overlayText">Fare ya da parmakla nişan al, bırakınca ateş edilir. Kesikli çizgi merminin izleyeceği yolu gösterir.</div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <button type="button" id="fireBtn">Ateş</button>
+        <button type="button" id="toggleBtn">Başlat</button>
+        <button type="button" id="restartBtn">Yeni Oyun</button>
+        <button type="button" id="slowerBtn" aria-label="Atış hızını 0.05 azalt">Hız −</button>
+        <button type="button" id="fasterBtn" aria-label="Atış hızını 0.05 artır">Hız +</button>
+      </div>
+      <p class="note" id="statusLine" aria-live="polite">Hazır. Oyun, alana tıklayınca ya da dokununca başlar.</p>
+      <p class="note">Klavye: <kbd>←</kbd> <kbd>→</kbd> ya da <kbd>A</kbd> <kbd>D</kbd> nişan · <kbd>↑</kbd> <kbd>↓</kbd> ya da <kbd>W</kbd> <kbd>S</kbd> hız · <kbd>Enter</kbd> ya da <kbd>F</kbd> ateş · <kbd>Space</kbd> duraklat · <kbd>R</kbd> yeniden başlat. Açıyı kaydırıcıyla, hazır atışla ya da klavyeyle verdiysen fare, alana yeniden tıklayana kadar nişanı değiştirmez.</p>
+    </div>
+
+    <div class="lab-side">
+      <div class="panel" aria-label="Atış ayarları">
+        <h2>Atış ayarları</h2>
+        <div class="field">
+          <label for="speedRange">Atış hızı v <output id="speedOut">1.00 v<sub>c</sub></output></label>
+          <input type="range" id="speedRange" min="0.5" max="1.6" step="0.01" value="1">
+        </div>
+        <div class="field">
+          <label for="angleRange">Nişan açısı (düşeyden) <output id="angleOut">90°</output></label>
+          <input type="range" id="angleRange" min="-90" max="90" step="1" value="90">
+        </div>
+        <div class="row presets" role="group" aria-label="Hazır atışlar">
+          <button type="button" data-speed="0.8" data-angle="90">Düşüş 0.80</button>
+          <button type="button" data-speed="1" data-angle="90">Daire 1.00</button>
+          <button type="button" data-speed="1.2" data-angle="90">Elips 1.20</button>
+          <button type="button" data-speed="1.42" data-angle="90">Kaçış 1.42</button>
+        </div>
+        <label class="check" for="previewCheck"><input type="checkbox" id="previewCheck" checked> Öngörülen yolu göster</label>
+        <label class="check" for="labCheck"><input type="checkbox" id="labCheck"> Deney modu (asteroit gelmez, aylar engel olmaz, skor yazılmaz)</label>
+        <div class="field">
+          <label for="rateSelect">Simülasyon hızı (yalnız deney modunda) <output id="rateOut">1 τ/s</output></label>
+          <select id="rateSelect" disabled>
+            <option value="1" selected>1× · 1 τ = 1 s</option>
+            <option value="2">2×</option>
+            <option value="4">4×</option>
+            <option value="8">8×</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel" aria-label="Namlu okumaları">
+        <h2>Namluda (r₀ = 1.1 R)</h2>
+        <div class="readouts" aria-live="polite">
+          <div class="readout is-highlight"><small>Atış hızı v / v<sub>c</sub></small><strong id="ratioDisplay">1.00</strong></div>
+          <div class="readout"><small>Atış hızı v</small><strong id="vDisplay">0.953 R/τ</strong></div>
+          <div class="readout"><small>Dairesel hız v<sub>c</sub> = √(GM/r₀)</small><strong id="vcDisplay">0.953 R/τ</strong></div>
+          <div class="readout"><small>Kaçış hızı v<sub>e</sub> = √2·v<sub>c</sub></small><strong id="veDisplay">1.348 R/τ</strong></div>
+          <div class="readout"><small>Bu ayarın sonucu</small><strong id="planKind">eliptik yörünge</strong></div>
+        </div>
+        <p class="note" id="planLine">—</p>
+      </div>
+
+      <div class="panel" aria-label="Son merminin yörüngesi">
+        <h2>Son mermi</h2>
+        <div class="readouts" aria-live="polite">
+          <div class="readout"><small>Atış</small><strong id="lastShot">—</strong></div>
+          <div class="readout"><small>Özgül enerji ε = v²/2 − GM/r</small><strong id="epsDisplay">—</strong></div>
+          <div class="readout is-highlight"><small>Sınıf</small><strong id="kindDisplay">—</strong></div>
+          <div class="readout"><small>Yarı büyük eksen a = −GM/(2ε)</small><strong id="aDisplay">—</strong></div>
+          <div class="readout"><small>Yerberi / yeröte</small><strong id="apsisDisplay">—</strong></div>
+          <div class="readout"><small>Kuram: T = 2π√(a³/GM)</small><strong id="periodDisplay">—</strong></div>
+        </div>
+        <div class="readouts">
+          <div class="readout is-highlight"><small>Ölçülen periyot</small><strong id="measuredDisplay">—</strong></div>
+          <div class="readout"><small>Fark</small><strong id="diffDisplay">—</strong></div>
+          <div class="readout"><small>Ölçülen T² / a³ (kuram: 4π²/GM = 39.478 τ²/R³)</small><strong id="keplerDisplay">—</strong></div>
+          <div class="readout"><small>En büyük enerji sapması |Δε| / (GM/r₀)</small><strong id="driftDisplay">—</strong></div>
+        </div>
+        <p class="note" id="fateLine">Henüz atış yok.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel model" aria-label="Model">
+    <h2>Model ve birimler</h2>
+    <ul>
+      <li>Ölçekli birimler: uzunluk birimi gezegenin yarıçapı R, GM = 1, zaman birimi τ = √(R³/GM). Hızlar R/τ, özgül enerji GM/R cinsindendir. Ekranda 1 τ = 1 saniye akar.</li>
+      <li>Tek kuvvet gezegenin nokta kütle çekimidir: ivme = −GM/r², merkeze doğru. Mermiler ve asteroitler aynı hız Verlet (leapfrog) adımıyla, sabit Δt = 0.005 τ ile ilerletilir; ekran hızı sonucu değiştirmez.</li>
+      <li>Namlu merkezden r₀ = 1.1 R uzaktadır; nişan açısı yerel düşeyden ölçülür, ±90° yatay atıştır.</li>
+      <li>İki ay, aynı GM ile dairesel Kepler yörüngesindedir (r = 3 R, T = 32.65 τ ve r = 4.6 R, T = 61.99 τ). Aylar çekim uygulamaz; oyunda yalnızca engeldir: çarpan mermi de asteroit de yok olur. Deney modunda soluk çizilir ve engel olmazlar; ölçümler yalnız gezegenin çekimini görür.</li>
+      <li>Çarpışmalar adım içinde süpürme testiyle aranır; gezegenin yüzeyine (r = R) değen mermi silinir, asteroit bir kalkan götürür.</li>
+      <li>Mermiler birbirini, asteroitler de birbirini etkilemez; hava direnci yoktur.</li>
+    </ul>
+  </div>
 </div>
 
 <script>
-  const GAME_W = 800;
-  const GAME_H = 600;
-  const CX = GAME_W / 2;
-  const CY = GAME_H / 2;
-  const G = 1200;
+/* KERNEL-BEGIN */
+window.OrbitGame = (function () {
+  "use strict";
+  const GM = 1;            // çekim parametresi
+  const R = 1;             // gezegen yarıçapı (uzunluk birimi)
+  const R0 = 1.1;          // namlunun merkezden uzaklığı
+  const DT = 0.005;        // sabit zaman adımı (τ)
+  const VIEW = 5.5;        // ekranın yarı genişliği (R)
+  const R_SPAWN = 7.5;     // asteroitlerin doğduğu uzaklık
+  const R_FAR = 10;        // kaçan merminin silindiği uzaklık
+  const MAX_HEALTH = 5;
+  const SHELL_R = 0.06;
+  const SHELL_LIFE = 60, SHELL_LIFE_LAB = 600; // merminin ömrü (τ)
+  const MOONS = Object.freeze([
+    Object.freeze({ id: "ay1", r: 3, radius: 0.22, phase: 0.6, dir: -1 }),
+    Object.freeze({ id: "ay2", r: 4.6, radius: 0.3, phase: 3.4, dir: -1 }),
+  ]);
+  const ticks = (tau) => Math.round(tau / DT);
 
-  const canvas = document.getElementById("gameCanvas");
+  function circularSpeed(r) { return Math.sqrt(GM / r); }
+  function escapeSpeed(r) { return Math.sqrt(2 * GM / r); }
+  function period(a) { return 2 * Math.PI * Math.sqrt(a * a * a / GM); }
+
+  function setAccel(b) {
+    const r2 = b.x * b.x + b.y * b.y;
+    const k = -GM / (r2 * Math.sqrt(r2));
+    b.ax = k * b.x;
+    b.ay = k * b.y;
+  }
+  function body(x, y, vx, vy) {
+    const b = { x, y, vx, vy, ax: 0, ay: 0, px: x, py: y };
+    setAccel(b);
+    return b;
+  }
+  /* Hız Verlet (it–kay–it): simplektik, ikinci mertebe. */
+  function step(b, h) {
+    if (h === undefined) h = DT;
+    b.vx += 0.5 * h * b.ax;
+    b.vy += 0.5 * h * b.ay;
+    b.x += h * b.vx;
+    b.y += h * b.vy;
+    setAccel(b);
+    b.vx += 0.5 * h * b.ax;
+    b.vy += 0.5 * h * b.ay;
+    return b;
+  }
+  function energy(b) { return 0.5 * (b.vx * b.vx + b.vy * b.vy) - GM / Math.hypot(b.x, b.y); }
+  function angularMomentum(b) { return b.x * b.vy - b.y * b.vx; }
+  function elements(b) {
+    const r = Math.hypot(b.x, b.y);
+    const v = Math.hypot(b.vx, b.vy);
+    const eps = energy(b);
+    const h = angularMomentum(b);
+    const e = Math.sqrt(Math.max(0, 1 + (2 * eps * h * h) / (GM * GM)));
+    const rp = (h * h) / (GM * (1 + e));
+    const bound = eps < 0;
+    const a = eps === 0 ? Infinity : -GM / (2 * eps);
+    const ra = bound ? a * (1 + e) : Infinity;
+    const T = bound ? period(a) : Infinity;
+    const vr = (b.x * b.vx + b.y * b.vy) / r;
+    const kind = rp < R && (bound || vr < 0) ? "duser" : bound ? "eliptik" : "kacar";
+    return { r, v, eps, h, e, a, rp, ra, T, vr, kind };
+  }
+  function launchState(angleDeg, ratio) {
+    const v = ratio * circularSpeed(R0);
+    const al = (angleDeg * Math.PI) / 180;
+    return body(0, R0, v * Math.sin(al), v * Math.cos(al));
+  }
+  /* Özgül enerjisi eps, yerberisi q olan yaklaşma yörüngesinin rs uzaklığındaki durumu. */
+  function asteroidState(theta, eps, q, dir, rs) {
+    if (rs === undefined) rs = R_SPAWN;
+    const h = dir * Math.sqrt(Math.max(0, 2 * eps * q * q + 2 * GM * q));
+    const v2 = 2 * (eps + GM / rs);
+    const vt = h / rs;
+    const vr = -Math.sqrt(Math.max(0, v2 - vt * vt));
+    const c = Math.cos(theta), s = Math.sin(theta);
+    return body(rs * c, rs * s, vr * c - vt * s, vr * s + vt * c);
+  }
+  function moonPosition(m, t) {
+    const ang = m.phase + m.dir * t * Math.sqrt(GM / (m.r * m.r * m.r));
+    return { x: m.r * Math.cos(ang), y: m.r * Math.sin(ang) };
+  }
+  /* Süpürme testi: nokta a→b, daire merkezi c0→c1 doğrusal ilerlerken ilk temas kesri (yoksa −1). */
+  function sweep(ax, ay, bx, by, c0x, c0y, c1x, c1y, rad) {
+    const px = ax - c0x, py = ay - c0y;
+    const dx = bx - c1x - px, dy = by - c1y - py;
+    const C = px * px + py * py - rad * rad;
+    if (C <= 0) return 0;
+    const A = dx * dx + dy * dy;
+    if (A === 0) return -1;
+    const B = px * dx + py * dy;
+    if (B >= 0) return -1;
+    const D = B * B - A * C;
+    if (D < 0) return -1;
+    const t = (-B - Math.sqrt(D)) / A;
+    return t <= 1 ? t : -1;
+  }
+
+  function rand(w) {
+    let t = (w.rng = (w.rng + 0x6d2b79f5) | 0);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  function waveSpec(n) {
+    return {
+      count: Math.min(12, 3 + n),
+      interval: Math.max(1.8, 5 - 0.4 * (n - 1)),
+      epsMin: -0.03,
+      epsMax: Math.min(0.25, 0.02 + 0.02 * n),
+      qMax: 0.7,
+      bigChance: n < 3 ? 0 : Math.min(0.5, 0.15 * (n - 2)),
+      arcDeg: n === 1 ? 100 : 180,
+    };
+  }
+  function createWorld(opts) {
+    const o = opts || {};
+    return {
+      tick: 0, t: 0, rng: (o.seed === undefined ? 1 : o.seed) | 0, lab: !!o.lab, solidMoons: !o.lab,
+      health: MAX_HEALTH, score: 0, wave: 0, over: false,
+      shells: [], asteroids: [], events: [], nextId: 1,
+      cooldownTick: 0, waveActive: false, toSpawn: 0, nextSpawnTick: 0, nextWaveTick: 0,
+      waveKills: 0, waveImpacts: 0, waveCount: 0,
+      last: null, fired: 0, destroyed: 0, impacts: 0,
+    };
+  }
+  function spawnAsteroid(w) {
+    const sp = waveSpec(w.wave);
+    const theta = Math.PI / 2 + ((rand(w) * 2 - 1) * sp.arcDeg * Math.PI) / 180;
+    const eps = sp.epsMin + rand(w) * (sp.epsMax - sp.epsMin);
+    const q = rand(w) * sp.qMax;
+    const dir = rand(w) < 0.5 ? -1 : 1;
+    const big = rand(w) < sp.bigChance;
+    const a = asteroidState(theta, eps, q, dir, R_SPAWN);
+    a.id = w.nextId++;
+    a.radius = big ? 0.34 : 0.24;
+    a.hp = big ? 2 : 1;
+    a.big = big;
+    a.eps0 = eps;
+    a.q = q;
+    a.dead = false;
+    w.asteroids.push(a);
+    w.events.push({ type: "spawn", id: a.id });
+  }
+  function waveLogic(w) {
+    if (w.lab || w.over) return;
+    if (w.waveActive && w.toSpawn === 0 && w.asteroids.length === 0) {
+      w.waveActive = false;
+      const flawless = w.waveImpacts === 0;
+      const heal = flawless || w.waveKills * 2 >= w.waveCount;
+      const bonus = flawless ? 50 * w.wave : 0;
+      w.score += bonus;
+      if (heal) w.health = Math.min(MAX_HEALTH, w.health + 1);
+      w.nextWaveTick = w.tick + ticks(4);
+      w.events.push({ type: "waveClear", wave: w.wave, flawless, heal, bonus });
+    }
+    if (!w.waveActive && w.tick >= w.nextWaveTick) {
+      w.wave += 1;
+      const sp = waveSpec(w.wave);
+      w.waveActive = true;
+      w.toSpawn = sp.count;
+      w.waveCount = sp.count;
+      w.waveKills = 0;
+      w.waveImpacts = 0;
+      w.nextSpawnTick = w.tick + ticks(1.5);
+      w.events.push({ type: "waveStart", wave: w.wave });
+    }
+    if (w.waveActive && w.toSpawn > 0 && w.tick >= w.nextSpawnTick) {
+      spawnAsteroid(w);
+      w.toSpawn -= 1;
+      w.nextSpawnTick = w.tick + ticks(waveSpec(w.wave).interval);
+    }
+  }
+  function makeShell(w, angleDeg, ratio) {
+    const s = launchState(angleDeg, ratio);
+    s.el = elements(s);
+    s.eps0 = s.el.eps;
+    s.angle = angleDeg;
+    s.ratio = ratio;
+    s.bornTick = w.tick;
+    s.swept = 0;
+    s.revs = 0;
+    s.lastCross = w.tick * DT;
+    s.Tmeas = null;
+    s.driftMax = 0;
+    s.dead = false;
+    s.fate = null;
+    s.fateT = null;
+    s.hx = 0;
+    s.hy = 0;
+    return s;
+  }
+  const m0 = MOONS.map(() => ({ x: 0, y: 0 })), m1 = MOONS.map(() => ({ x: 0, y: 0 }));
+  function moonInto(out, m, t) {
+    const ang = m.phase + m.dir * t * Math.sqrt(GM / (m.r * m.r * m.r));
+    out.x = m.r * Math.cos(ang);
+    out.y = m.r * Math.sin(ang);
+  }
+  /* stride: adımın kaç DT olduğu (oyun 1 kullanır; öngörü daha iri adımla çizer). */
+  function physicsStep(w, stride) {
+    const n = stride || 1, H = n * DT;
+    const t0 = w.tick * DT, t1 = t0 + H;
+    for (let i = 0; i < MOONS.length; i++) { moonInto(m0[i], MOONS[i], t0); moonInto(m1[i], MOONS[i], t1); }
+    const shells = w.shells, rocks = w.asteroids;
+    let removed = false;
+    for (const b of shells) { b.px = b.x; b.py = b.y; step(b, H); }
+    for (const b of rocks) { b.px = b.x; b.py = b.y; step(b, H); }
+
+    for (const a of rocks) {
+      let best = sweep(a.px, a.py, a.x, a.y, 0, 0, 0, 0, R), what = best >= 0 ? "planet" : "";
+      for (let i = 0; i < MOONS.length && w.solidMoons; i++) {
+        const f = sweep(a.px, a.py, a.x, a.y, m0[i].x, m0[i].y, m1[i].x, m1[i].y, MOONS[i].radius + a.radius);
+        if (f >= 0 && (best < 0 || f < best)) { best = f; what = "moon"; }
+      }
+      if (best < 0) {
+        const r = Math.hypot(a.x, a.y);
+        if (r > 2 * R_SPAWN && a.x * a.vx + a.y * a.vy > 0) { a.dead = true; removed = true; w.events.push({ type: "rockGone", id: a.id }); }
+        continue;
+      }
+      a.dead = true;
+      removed = true;
+      const x = a.px + (a.x - a.px) * best, y = a.py + (a.y - a.py) * best;
+      if (what === "planet") {
+        w.health -= 1;
+        w.impacts += 1;
+        w.waveImpacts += 1;
+        w.events.push({ type: "impact", id: a.id, x, y });
+      } else {
+        w.events.push({ type: "moonBlock", id: a.id, x, y });
+      }
+    }
+
+    for (const s of shells) {
+      let best = sweep(s.px, s.py, s.x, s.y, 0, 0, 0, 0, R), what = best >= 0 ? "planet" : "", target = null;
+      for (let i = 0; i < MOONS.length && w.solidMoons; i++) {
+        const f = sweep(s.px, s.py, s.x, s.y, m0[i].x, m0[i].y, m1[i].x, m1[i].y, MOONS[i].radius + SHELL_R);
+        if (f >= 0 && (best < 0 || f < best)) { best = f; what = "moon"; }
+      }
+      for (const a of rocks) {
+        if (a.dead) continue;
+        const f = sweep(s.px, s.py, s.x, s.y, a.px, a.py, a.x, a.y, a.radius + SHELL_R);
+        if (f >= 0 && (best < 0 || f < best)) { best = f; what = "hit"; target = a; }
+      }
+      if (best >= 0) {
+        s.dead = true;
+        removed = true;
+        s.fate = what;
+        s.fateT = t0 + best * H;
+        s.hx = s.px + (s.x - s.px) * best;
+        s.hy = s.py + (s.y - s.py) * best;
+        if (what === "hit") {
+          s.targetId = target.id;
+          target.hp -= 1;
+          if (target.hp <= 0) {
+            target.dead = true;
+            const mult = 1 + Math.min(2, Math.floor(Math.abs(s.swept) / Math.PI));
+            const points = (target.big ? 20 : 10) * Math.max(1, w.wave) * mult;
+            w.score += points;
+            w.destroyed += 1;
+            w.waveKills += 1;
+            w.events.push({ type: "kill", id: target.id, x: s.hx, y: s.hy, points, mult });
+          } else {
+            w.events.push({ type: "chip", id: target.id, x: s.hx, y: s.hy });
+          }
+        } else {
+          w.events.push({ type: what === "planet" ? "shellGround" : "shellMoon", x: s.hx, y: s.hy });
+        }
+        continue;
+      }
+      // Süpürülen açı: tam tur anı adım içinde doğrusal ara değerle bulunur.
+      const d = Math.atan2(s.px * s.y - s.py * s.x, s.px * s.x + s.py * s.y);
+      const before = Math.abs(s.swept);
+      s.swept += d;
+      const after = Math.abs(s.swept);
+      const goal = 2 * Math.PI * (s.revs + 1);
+      if (after >= goal && after > before) {
+        const tc = t0 + ((goal - before) / (after - before)) * H;
+        s.Tmeas = tc - s.lastCross;
+        s.lastCross = tc;
+        s.revs += 1;
+      }
+      if (!w.sandbox) {
+        // Ölçek: namludaki potansiyel GM/r₀ (ε₀ sıfıra yakınken de anlamlı kalır).
+        const drift = Math.abs(energy(s) - s.eps0) / (GM / R0);
+        if (drift > s.driftMax) s.driftMax = drift;
+      }
+      if (s.eps0 >= 0 && s.x * s.x + s.y * s.y > R_FAR * R_FAR) { s.dead = true; s.fate = "escaped"; s.fateT = t1; s.hx = s.x; s.hy = s.y; removed = true; }
+      else if (!w.sandbox && w.tick + n - s.bornTick > ticks(w.lab ? SHELL_LIFE_LAB : SHELL_LIFE)) { s.dead = true; s.fate = "expired"; s.fateT = t1; s.hx = s.x; s.hy = s.y; removed = true; }
+    }
+    if (removed) {
+      w.shells = shells.filter((s) => !s.dead);
+      w.asteroids = rocks.filter((a) => !a.dead);
+    }
+    w.tick += n;
+    w.t = w.tick * DT;
+    if (!w.lab && !w.sandbox && w.health <= 0 && !w.over) {
+      w.health = 0;
+      w.over = true;
+      w.events.push({ type: "over" });
+    }
+  }
+  function advance(w) {
+    if (w.over) return w;
+    waveLogic(w);
+    physicsStep(w);
+    return w;
+  }
+  function canFire(w) { return !w.over && w.tick >= w.cooldownTick; }
+  function fire(w, angleDeg, ratio) {
+    if (!canFire(w)) return null;
+    const s = makeShell(w, angleDeg, ratio);
+    s.id = w.nextId++;
+    const cap = w.lab ? 4 : 6;
+    while (w.shells.length >= cap) {
+      const old = w.shells.shift();
+      old.dead = true; old.fate = "replaced"; old.fateT = w.tick * DT; old.hx = old.x; old.hy = old.y;
+    }
+    w.shells.push(s);
+    w.cooldownTick = w.tick + ticks(w.lab ? 0.25 : 0.6);
+    w.fired += 1;
+    w.last = s;
+    w.events.push({ type: "fire", id: s.id });
+    return s;
+  }
+  /* Şimdi ateşlenecek merminin yolunu, asteroitlerin kopyalarıyla birlikte aynı adımlarla ileri sarar. */
+  function predict(w, angleDeg, ratio, horizon, stride) {
+    const s = makeShell(w, angleDeg, ratio);
+    const m = {
+      tick: w.tick, t: w.t, lab: true, sandbox: true, solidMoons: w.solidMoons, health: 1e9, score: 0, wave: w.wave, over: false,
+      shells: [s], events: [], impacts: 0, waveImpacts: 0, waveKills: 0, destroyed: 0,
+      asteroids: w.asteroids.map((a) => ({ x: a.x, y: a.y, vx: a.vx, vy: a.vy, ax: a.ax, ay: a.ay, px: a.px, py: a.py, id: a.id, radius: a.radius, hp: a.hp, big: a.big, dead: false })),
+    };
+    const k = stride || 4;
+    const span = horizon === undefined ? (s.el.eps < 0 ? Math.min(s.el.T * 1.01, 45) : 14) : horizon;
+    const n = Math.ceil(ticks(span) / k);
+    const points = [s.x, s.y];
+    const rocks = m.asteroids.map((a) => ({ id: a.id, points: [a.x, a.y] }));
+    const byId = new Map(rocks.map((r) => [r.id, r]));
+    for (let i = 1; i <= n; i++) {
+      physicsStep(m, k);
+      m.events.length = 0;
+      if (s.dead) { points.push(s.hx, s.hy); break; }
+      if (i % 2 === 0 || i === n) {
+        points.push(s.x, s.y);
+        for (const a of m.asteroids) byId.get(a.id).points.push(a.x, a.y);
+      }
+    }
+    return {
+      points, rocks, elements: s.el,
+      fate: s.fate || "horizon",
+      time: (s.fateT === null ? m.tick * DT : s.fateT) - w.tick * DT,
+      hit: s.fate === "hit" ? { x: s.hx, y: s.hy, id: s.targetId } : null,
+    };
+  }
+
+  return Object.freeze({
+    GM, R, R0, DT, VIEW, R_SPAWN, R_FAR, MAX_HEALTH, SHELL_R, SHELL_LIFE, SHELL_LIFE_LAB, MOONS,
+    circularSpeed, escapeSpeed, period, body, step, energy, angularMomentum, elements,
+    launchState, asteroidState, moonPosition, sweep, waveSpec,
+    createWorld, advance, canFire, fire, predict,
+  });
+})();
+/* KERNEL-END */
+</script>
+<script>
+(() => {
+  "use strict";
+  const K = window.OrbitGame;
+  const $ = (id) => document.getElementById(id);
+  const canvas = $("gameCanvas");
   const ctx = canvas.getContext("2d");
-  canvas.width = GAME_W;
-  canvas.height = GAME_H;
+  const ui = {
+    speed: $("speedRange"), speedOut: $("speedOut"), angle: $("angleRange"), angleOut: $("angleOut"),
+    preview: $("previewCheck"), lab: $("labCheck"), rate: $("rateSelect"), rateOut: $("rateOut"),
+    fire: $("fireBtn"), toggle: $("toggleBtn"), restart: $("restartBtn"),
+    overlay: $("overlay"), overlayTitle: $("overlayTitle"), overlayText: $("overlayText"),
+    statusLine: $("statusLine"), score: $("score"), wave: $("wave"), health: $("health"), best: $("best"),
+    ratioDisplay: $("ratioDisplay"), vDisplay: $("vDisplay"), vcDisplay: $("vcDisplay"), veDisplay: $("veDisplay"),
+    planKind: $("planKind"), planLine: $("planLine"),
+    lastShot: $("lastShot"), eps: $("epsDisplay"), kind: $("kindDisplay"), a: $("aDisplay"), apsis: $("apsisDisplay"),
+    period: $("periodDisplay"), measured: $("measuredDisplay"), diff: $("diffDisplay"), kepler: $("keplerDisplay"), drift: $("driftDisplay"), fateLine: $("fateLine"),
+  };
+  const DEFAULT_ANGLE = 90, DEFAULT_RATIO = 1;
+  const PAGE = "gezegen-savunmasi";
+  const KIND_LABEL = { duser: "düşer", eliptik: "eliptik yörünge", kacar: "kaçar" };
+  const VC = K.circularSpeed(K.R0), VE = K.escapeSpeed(K.R0);
+  const VCH = "v<sub>c</sub>";
 
-  const scoreEl = document.getElementById("score");
-  const livesEl = document.getElementById("lives");
+  /* Tek yuvarlama yardımcısı: ondalık nokta, gerçek eksi işareti. */
+  function fmt(x, d) {
+    if (!Number.isFinite(x)) return "∞";
+    let s = x.toFixed(d);
+    if (Number(s) === 0) s = (0).toFixed(d);
+    return s.replace("-", "−");
+  }
 
-  let fx = { burst() {}, pop() {}, shake() {}, flash() {}, update() {}, draw() {} };
-  window.addEventListener("acelya-game-ready", () => {
-    if (window.AcelyaHooks) fx = AcelyaHooks.bindJuice(canvas);
+  /* Yerberi yüzeye çok yakınsa "1.000 R" yazıp sınıfla çelişmesin: ayırt edene kadar basamak ekle. */
+  function fmtRp(rp) {
+    let d = 3;
+    while (d < 6 && rp !== K.R && Number(rp.toFixed(d)) === K.R) d++;
+    return fmt(rp, d);
+  }
+  /* Bağlı ve yere inen yörüngede namludan yüzeye kadar geçen süre (Kepler denklemi, M = E − e·sin E). */
+  function fallTime(el) {
+    if (!(el.eps < 0) || !(el.rp < K.R) || !(el.e > 0)) return NaN;
+    const E = (r) => Math.acos(Math.max(-1, Math.min(1, (1 - r / el.a) / el.e)));
+    const M = (x) => x - el.e * Math.sin(x);
+    const E0 = el.vr < 0 ? -E(el.r) : E(el.r);
+    return ((M(2 * Math.PI - E(K.R)) - M(E0)) * el.T) / (2 * Math.PI);
+  }
+  const shellLife = () => (state.world.lab ? K.SHELL_LIFE_LAB : K.SHELL_LIFE);
+
+  const seedParam = new URLSearchParams(location.search).get("seed");
+  function newSeed() {
+    if (seedParam !== null && seedParam !== "" && Number.isFinite(Number(seedParam))) return Number(seedParam) | 0;
+    return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) | 0;
+  }
+
+  const state = {
+    world: K.createWorld({ seed: newSeed(), lab: false }),
+    mode: "ready", // ready | playing | paused | over
+    aim: DEFAULT_ANGLE, ratio: DEFAULT_RATIO, rate: 1,
+    acc: 0, last: 0, held: {}, aimCarry: 0, speedCarry: 0,
+    pointerDown: false, skipFire: false, overAt: 0,
+    aimSource: "none", // none | manual (kaydırıcı, klavye, hazır atış) | pointer (alanda bilerek basıldı)
+    preview: null, previewKey: "", best: 0, recorded: false,
+    effects: [], toast: null, trails: new Map(),
+  };
+  let fx = null;
+  function bootHooks() {
+    if (window.AcelyaHooks && !fx) fx = window.AcelyaHooks.bindJuice(canvas);
+    readBest();
+  }
+  window.addEventListener("acelya-game-ready", bootHooks);
+
+  function readBest() {
+    let stored = 0;
+    try { stored = Number(window.AcelyaLeaderboard?.getLocalBest(PAGE, "local")) || 0; } catch (_) { stored = 0; }
+    state.best = Math.max(state.best, stored);
+    ui.best.textContent = String(state.best);
+  }
+
+  /* ── Durum ── */
+  function setMode(mode) {
+    state.mode = mode;
+    canvas.dataset.state = mode;
+    const lab = state.world.lab;
+    ui.toggle.textContent = mode === "playing" ? "Duraklat" : mode === "paused" ? "Devam et" : "Başlat";
+    ui.toggle.setAttribute("aria-pressed", String(mode === "paused"));
+    ui.restart.textContent = lab ? "Sıfırla" : "Yeni Oyun";
+    if (mode === "playing") { ui.overlay.hidden = true; return; }
+    ui.overlay.hidden = false;
+    if (mode === "ready") {
+      ui.overlayTitle.textContent = "Başlamak için tıkla/dokun";
+      ui.overlayText.textContent = "Fare ya da parmakla nişan al, bırakınca ateş edilir. Kesikli çizgi merminin izleyeceği yolu gösterir.";
+    } else if (mode === "paused") {
+      ui.overlayTitle.textContent = "Duraklatıldı";
+      ui.overlayText.textContent = "Devam etmek için Space'e bas ya da alana dokun. Nişanı ve hızı beklerken de ayarlayabilirsin.";
+    } else {
+      ui.overlayTitle.textContent = "Kalkan tükendi";
+      ui.overlayText.textContent = `Skor ${state.world.score} · ${state.world.wave}. dalga · Rekor ${state.best}. Yeniden başlamak için tıkla/dokun ya da R'ye bas.`;
+    }
+  }
+  function say(text) { ui.statusLine.textContent = text; }
+
+  function resetAim() {
+    state.aim = DEFAULT_ANGLE;
+    state.ratio = DEFAULT_RATIO;
+    ui.angle.value = String(DEFAULT_ANGLE);
+    ui.speed.value = String(DEFAULT_RATIO);
+  }
+  function newWorld(start) {
+    const lab = ui.lab.checked;
+    state.world = K.createWorld({ seed: newSeed(), lab });
+    state.acc = 0;
+    state.effects = [];
+    state.toast = null;
+    state.trails = new Map();
+    state.preview = null;
+    state.previewKey = "";
+    state.recorded = false;
+    state.held = {};
+    state.aimSource = "none";
+    resetAim();
+    ui.rate.disabled = !lab;
+    if (!lab) { ui.rate.value = "1"; }
+    state.rate = Number(ui.rate.value);
+    ui.rateOut.textContent = `${state.rate} τ/s`;
+    setMode(lab || start ? "playing" : "ready");
+    say(lab ? "Deney modu: asteroit gelmez. Hızı ve açıyı seç, ateş et, yörüngeyi ölç." : start ? "Oyun başladı. İlk asteroit yolda." : "Hazır. Oyun, alana tıklayınca ya da dokununca başlar.");
+    updatePlan();
+    updateHud();
+    updateLast(true);
+  }
+  function start() {
+    if (state.mode === "ready" || state.mode === "paused") {
+      const first = state.mode === "ready";
+      setMode("playing");
+      if (first) say(state.world.lab ? "Deney modu açık." : "Oyun başladı. İlk asteroit yolda.");
+    }
+  }
+  function togglePause() {
+    if (state.mode === "playing") { setMode("paused"); say("Duraklatıldı."); }
+    else if (state.mode === "paused" || state.mode === "ready") start();
+    else if (state.mode === "over") newWorld(true);
+  }
+  function restart() { newWorld(true); }
+
+  function doFire() {
+    if (state.mode === "ready") { start(); return; }
+    if (state.mode !== "playing") return;
+    const s = K.fire(state.world, state.aim, state.ratio);
+    if (!s) return;
+    window.AcelyaSounds?.laser();
+    updateLast(true);
+  }
+
+  /* ── Denetimler ── */
+  function setAim(deg) {
+    const v = Math.max(-90, Math.min(90, Math.round(deg)));
+    if (v === state.aim) return;
+    state.aim = v;
+    ui.angle.value = String(v);
+    updatePlan();
+  }
+  function setRatio(r) {
+    const v = Math.max(0.5, Math.min(1.6, Math.round(r * 100) / 100));
+    if (v === state.ratio) return;
+    state.ratio = v;
+    ui.speed.value = String(v);
+    updatePlan();
+  }
+  ui.angle.addEventListener("input", () => { state.aimSource = "manual"; state.aim = Number(ui.angle.value); updatePlan(); });
+  ui.speed.addEventListener("input", () => { state.ratio = Number(ui.speed.value); updatePlan(); });
+  ui.preview.addEventListener("input", () => { state.previewKey = ""; });
+  ui.lab.addEventListener("input", () => newWorld(false));
+  ui.rate.addEventListener("input", () => { state.rate = Number(ui.rate.value); ui.rateOut.textContent = `${state.rate} τ/s`; });
+  ui.fire.addEventListener("click", doFire);
+  ui.toggle.addEventListener("click", togglePause);
+  ui.restart.addEventListener("click", restart);
+  $("slowerBtn").addEventListener("click", () => setRatio(state.ratio - 0.05));
+  $("fasterBtn").addEventListener("click", () => setRatio(state.ratio + 0.05));
+  document.querySelectorAll(".presets button").forEach((btn) => {
+    btn.addEventListener("click", () => { state.aimSource = "manual"; setRatio(Number(btn.dataset.speed)); setAim(Number(btn.dataset.angle)); });
   });
 
-  function resizeGame() {
-    const hud = document.querySelector(".hud");
-    const hudBottom = hud.getBoundingClientRect().bottom;
-    const padX = 20;
-    const padY = 16;
-    const availW = window.innerWidth - padX;
-    const availH = window.innerHeight - hudBottom - padY;
-    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
-    const w = Math.max(280, GAME_W * scale);
-    const h = w * (GAME_H / GAME_W);
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
-  }
-  window.addEventListener("resize", resizeGame);
-  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
-  resizeGame();
+  /* Fare ya da parmakla kullanılan düğme, kaydırıcı ve onay kutusu odağı bırakır; klavye kısayolları oyunda kalır.
+     Klavyeyle (Tab) gelinen denetim odağını korur. */
+  document.querySelectorAll(".lab button, .lab input[type=range], .lab input[type=checkbox]").forEach((ctl) => {
+    ctl.addEventListener("pointerup", (evt) => { if (evt.pointerType) setTimeout(() => { if (document.activeElement === ctl) ctl.blur(); }, 0); });
+  });
 
-  const planets = [
-    { x: CX, y: CY, r: 42, mass: 8000, color: "#4a90d9", name: "Ana gezegen" },
-    { x: CX + 140, y: CY - 60, r: 18, mass: 900, color: "#c9a86c", orbit: 140, angle: 0, speed: 0.012 },
-    { x: CX - 120, y: CY + 90, r: 14, mass: 600, color: "#9b7bb8", orbit: 120, angle: 2.1, speed: -0.018 },
-  ];
-
-  let turretAngle = -Math.PI / 2;
-  let bullets = [];
-  let enemies = [];
-  let particles = [];
-  let score = 0;
-  let lives = 3;
-  let spawnTimer = 0;
-  let gameOver = false;
-  let left = false, right = false, firing = false;
-
-  function playLaser() { window.AcelyaSounds?.laser(); }
-  function playHit() { window.AcelyaSounds?.hit(); }
-  function playExplode() { window.AcelyaSounds?.explode(); }
-
-  function resetGame() {
-    bullets = [];
-    enemies = [];
-    particles = [];
-    score = 0;
-    lives = 3;
-    spawnTimer = 0;
-    gameOver = false;
-    left = false;
-    right = false;
-    firing = false;
-    if (typeof frameAccumulator !== "undefined") frameAccumulator = 0;
-    last = performance.now();
-    scoreEl.textContent = "0";
-    livesEl.textContent = "3";
-  }
-
-  function applyGravity(obj) {
-    for (const p of planets) {
-      const dx = p.x - obj.x;
-      const dy = p.y - obj.y;
-      const d2 = dx * dx + dy * dy + 80;
-      const d = Math.sqrt(d2);
-      const f = (G * p.mass) / d2;
-      obj.vx += (dx / d) * f * 0.016;
-      obj.vy += (dy / d) * f * 0.016;
+  const AIM_KEYS = { ArrowLeft: -1, KeyA: -1, ArrowRight: 1, KeyD: 1 };
+  const SPEED_KEYS = { ArrowUp: 1, KeyW: 1, ArrowDown: -1, KeyS: -1 };
+  document.addEventListener("keydown", (e) => {
+    const el = e.target instanceof Element ? e.target : null;
+    // Metin kutusu ve menüde tuşlar denetimin kendisine aittir; kaydırıcı, düğme ve onay kutusunda oyun kısayolları çalışır.
+    if (el && el.matches("select, textarea, input:not([type=range]):not([type=checkbox])")) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const code = e.code;
+    if (el && el.matches("button") && (code === "Space" || code === "Enter")) return;
+    if (el && el.matches("input[type=checkbox]") && code === "Space") return;
+    // Odaktaki kaydırıcı ok tuşlarını kendisi işler (iki kez sayılmasın); harf tuşları, Space, Enter oyuna gider.
+    if (el && el.matches("input[type=range]") && /^(Arrow|Home|End|Page)/.test(code)) return;
+    if (code in AIM_KEYS) {
+      e.preventDefault();
+      state.aimSource = "manual";
+      if (!state.held[code]) { state.held[code] = performance.now(); setAim(state.aim + AIM_KEYS[code]); }
+    } else if (code in SPEED_KEYS) {
+      e.preventDefault();
+      if (!state.held[code]) { state.held[code] = performance.now(); setRatio(state.ratio + 0.01 * SPEED_KEYS[code]); }
+    } else if (code === "Space") {
+      e.preventDefault();
+      if (e.repeat) return;
+      // Dokunmatik çubuğun ateş düğmesi yapay Space gönderir; gerçek klavyede Space duraklatır.
+      if (e.isTrusted) togglePause(); else doFire();
+    } else if (code === "Enter" || code === "KeyF") {
+      e.preventDefault();
+      if (!e.repeat) doFire();
+    } else if (code === "KeyR") {
+      restart();
     }
-  }
-
-  function spawnEnemy() {
-    const edge = Math.floor(Math.random() * 4);
-    let x, y, vx, vy;
-    const speed = 1.2 + Math.random() * 1.5;
-    if (edge === 0) { x = Math.random() * GAME_W; y = -20; vx = (CX - x) * 0.002; vy = speed; }
-    else if (edge === 1) { x = GAME_W + 20; y = Math.random() * GAME_H; vx = -speed; vy = (CY - y) * 0.002; }
-    else if (edge === 2) { x = Math.random() * GAME_W; y = GAME_H + 20; vx = (CX - x) * 0.002; vy = -speed; }
-    else { x = -20; y = Math.random() * GAME_H; vx = speed; vy = (CY - y) * 0.002; }
-    enemies.push({ x, y, vx, vy, r: 10 + Math.random() * 8, hp: 1 });
-  }
-
-  function fire() {
-    playLaser();
-    const spd = 9;
-    bullets.push({
-      x: CX + Math.cos(turretAngle) * 52,
-      y: CY + Math.sin(turretAngle) * 52,
-      vx: Math.cos(turretAngle) * spd,
-      vy: Math.sin(turretAngle) * spd,
-      life: 120,
-    });
-  }
-
-  function dist(a, b) {
-    const dx = a.x - b.x, dy = a.y - b.y;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  function update(dt) {
-    if (gameOver) return;
-
-    planets[1].angle += planets[1].speed;
-    planets[1].x = CX + Math.cos(planets[1].angle) * planets[1].orbit;
-    planets[1].y = CY + Math.sin(planets[1].angle) * planets[1].orbit * 0.55;
-    planets[2].angle += planets[2].speed;
-    planets[2].x = CX + Math.cos(planets[2].angle) * planets[2].orbit;
-    planets[2].y = CY + Math.sin(planets[2].angle) * planets[2].orbit * 0.7;
-
-    if (left) turretAngle -= 0.05;
-    if (right) turretAngle += 0.05;
-    if (firing && spawnTimer % 8 === 0) fire();
-
-    spawnTimer++;
-    if (spawnTimer % 55 === 0) spawnEnemy();
-
-    for (const b of bullets) {
-      applyGravity(b);
-      b.x += b.vx;
-      b.y += b.vy;
-      b.life--;
+  });
+  document.addEventListener("keyup", (e) => { delete state.held[e.code]; });
+  window.addEventListener("blur", () => { state.held = {}; });
+  function handleHeld(el) {
+    const now = performance.now();
+    let da = 0, ds = 0;
+    for (const code in state.held) {
+      if (now - state.held[code] < 260) continue;
+      if (code in AIM_KEYS) da += AIM_KEYS[code];
+      if (code in SPEED_KEYS) ds += SPEED_KEYS[code];
     }
-    bullets = bullets.filter((b) => b.life > 0 && b.x > -40 && b.x < GAME_W + 40 && b.y > -40 && b.y < GAME_H + 40);
+    if (da) {
+      state.aimCarry += da * 75 * el;
+      const whole = Math.trunc(state.aimCarry);
+      if (whole) { state.aimCarry -= whole; setAim(state.aim + whole); }
+    } else state.aimCarry = 0;
+    if (ds) {
+      state.speedCarry += ds * 30 * el;
+      const whole = Math.trunc(state.speedCarry);
+      if (whole) { state.speedCarry -= whole; setRatio(state.ratio + whole / 100); }
+    } else state.speedCarry = 0;
+  }
 
-    for (const e of enemies) {
-      applyGravity(e);
-      e.x += e.vx;
-      e.y += e.vy;
+  function aimAt(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const x = ((evt.clientX - rect.left) / rect.width - 0.5) * 2 * K.VIEW;
+    const y = (0.5 - (evt.clientY - rect.top) / rect.height) * 2 * K.VIEW;
+    let deg = (Math.atan2(x, y - K.R0) * 180) / Math.PI;
+    if (y < K.R0) deg = x >= 0 ? 90 : -90;
+    setAim(deg);
+  }
+  canvas.addEventListener("pointerdown", (evt) => {
+    evt.preventDefault();
+    // Alana basmak fareye nişan yetkisi verir; elle verilmiş bir açı, oyun akarken alana basılana dek korunur.
+    if (state.mode === "ready" || state.mode === "paused") {
+      if (state.mode === "ready" && state.aimSource === "none") state.aimSource = "pointer";
+      start(); state.skipFire = true; return;
     }
+    if (state.mode === "over") {
+      if (performance.now() - state.overAt > 700) { newWorld(true); state.aimSource = "pointer"; }
+      state.skipFire = true;
+      return;
+    }
+    state.pointerDown = true;
+    state.skipFire = false;
+    state.aimSource = "pointer";
+    try { canvas.setPointerCapture(evt.pointerId); } catch (_) {}
+    aimAt(evt);
+  });
+  canvas.addEventListener("pointermove", (evt) => {
+    if (state.mode !== "playing") return;
+    if (state.pointerDown || (evt.pointerType === "mouse" && state.aimSource === "pointer")) aimAt(evt);
+  });
+  canvas.addEventListener("pointerup", (evt) => {
+    if (state.pointerDown && !state.skipFire && state.mode === "playing") { aimAt(evt); doFire(); }
+    state.pointerDown = false;
+    state.skipFire = false;
+  });
+  canvas.addEventListener("pointercancel", () => { state.pointerDown = false; state.skipFire = false; });
 
-    for (let i = enemies.length - 1; i >= 0; i--) {
-      const e = enemies[i];
-      for (let j = bullets.length - 1; j >= 0; j--) {
-        if (dist(e, bullets[j]) < e.r + 4) {
-          enemies.splice(i, 1);
-          bullets.splice(j, 1);
-          score += 10;
-          scoreEl.textContent = score;
-          playExplode();
-          fx.burst(e.x, e.y, "#f84", 14);
-          fx.pop(e.x, e.y, "+10", "#8cf");
-          for (let k = 0; k < 6; k++)
-            particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4, life: 25 });
-          break;
-        }
+  /* ── Okumalar ── */
+  function updatePlan() {
+    const el = K.elements(K.launchState(state.aim, state.ratio));
+    ui.speedOut.innerHTML = `${fmt(state.ratio, 2)} ${VCH}`;
+    ui.angleOut.textContent = `${fmt(state.aim, 0)}°`;
+    ui.ratioDisplay.textContent = fmt(state.ratio, 2);
+    ui.vDisplay.textContent = `${fmt(el.v, 3)} R/τ`;
+    ui.vcDisplay.textContent = `${fmt(VC, 3)} R/τ`;
+    ui.veDisplay.textContent = `${fmt(VE, 3)} R/τ`;
+    ui.planKind.textContent = kindLabel(el);
+    const head = `v = ${fmt(state.ratio, 2)} ${VCH}, açı ${fmt(state.aim, 0)}°: ε = ${fmt(el.eps, 4)} GM/R. `;
+    let tail;
+    if (el.kind === "kacar") tail = `ε ≥ 0 olduğu için mermi geri dönmez; uzaktaki hızı v<sub>∞</sub> = √(2ε) = ${fmt(Math.sqrt(2 * Math.max(0, el.eps)), 3)} R/τ.`;
+    else if (el.kind === "duser") {
+      const fall = fallTime(el), life = shellLife();
+      tail = `Yörüngenin yerberisi ${fmtRp(el.rp)} R, yüzeyin (R) altında kalıyor: mermi yere düşer.`;
+      if (fall > life) tail = `Yörüngenin yerberisi ${fmtRp(el.rp)} R, yüzeyin (R) altında kalıyor: mermi sonunda yere düşer; ama dönüşü ${fmt(fall, 0)} τ sürer, ${life} τ'luk mermi ömrüne sığmaz.`;
+    } else tail = `Yerberi ${fmtRp(el.rp)} R yüzeyin üstünde: mermi a = ${fmt(el.a, 3)} R, T = ${fmt(el.T, 3)} τ olan bir elipste dolanır.`;
+    ui.planLine.innerHTML = head + tail;
+    state.previewKey = "";
+  }
+  function kindLabel(el) {
+    if (el.kind === "eliptik" && el.e < 0.005) return "eliptik yörünge (daire, e ≈ 0)";
+    return KIND_LABEL[el.kind];
+  }
+  const FATE_TEXT = {
+    planet: "Gezegene düştü", moon: "Bir aya çarptı", hit: "Asteroidi vurdu", escaped: "Kaçtı: 10 R uzaklığı geçti",
+    expired: "Süresi doldu, silindi", replaced: "Yeni mermiye yer açmak için silindi",
+  };
+  let lastShown = "";
+  function updateLast(force) {
+    const s = state.world.last;
+    if (!s) {
+      if (force) {
+        for (const k of ["lastShot", "eps", "kind", "a", "apsis", "period", "measured", "diff", "kepler", "drift"]) ui[k].textContent = "—";
+        ui.fateLine.textContent = "Henüz atış yok.";
+        lastShown = "";
+      }
+      return;
+    }
+    const el = s.el;
+    const bound = el.eps < 0;
+    const parts = [
+      `${fmt(s.ratio, 2)} ${VCH} · ${fmt(s.angle, 0)}°`,
+      `${fmt(el.eps, 4)} GM/R`,
+      kindLabel(el),
+      bound ? `${fmt(el.a, 3)} R` : `${fmt(el.a, 3)} R (hiperbol)`,
+      bound ? `${fmtRp(el.rp)} R / ${fmt(el.ra, 3)} R` : `${fmtRp(el.rp)} R / ∞`,
+      !bound ? "tanımsız (ε ≥ 0)" : el.kind === "duser" ? `${fmt(el.T, 3)} τ (tur tamamlanamaz)` : `${fmt(el.T, 3)} τ`,
+    ];
+    let measured = "—", diff = "—", kepler = "—";
+    if (s.Tmeas !== null) {
+      measured = `${fmt(s.Tmeas, 3)} τ`;
+      diff = `${fmt((100 * (s.Tmeas - el.T)) / el.T, 2)} %`;
+      kepler = `${fmt((s.Tmeas * s.Tmeas) / (el.a * el.a * el.a), 3)} τ²/R³`;
+    } else if (!bound) measured = "periyot yok";
+    else if (s.dead || el.kind === "duser") measured = "tur tamamlanmadı";
+    else if (el.T > shellLife()) measured = "ölçülemez: T mermi ömründen uzun";
+    else measured = "ölçülüyor…";
+    const drift = `${fmt(1e6 * s.driftMax, 2)} × 10⁻⁶`;
+    const age = ((s.dead ? s.fateT : state.world.t) - s.bornTick * K.DT);
+    let fate;
+    const fall = el.kind === "duser" ? fallTime(el) : NaN, life = shellLife();
+    const late = fall > life ? ` Yere dönüşü ${fmt(fall, 0)} τ sürecek; mermi ömrü ${life} τ olduğu için düşüşü göremeyeceksin.` : "";
+    const lateDone = fall > life ? ` Yere dönüşü ${fmt(fall, 0)} τ sürecekti; ${life} τ'luk mermi ömrü buna yetmedi.` : "";
+    if (s.dead) fate = `${FATE_TEXT[s.fate] || "Silindi"}: uçuş süresi ${fmt(age, 2)} τ, ${s.revs} tam tur.${s.fate === "expired" ? lateDone : ""}`;
+    else if (!bound) fate = `Uzaklaşıyor: uçuş süresi ${fmt(age, 1)} τ, r = ${fmt(Math.hypot(s.x, s.y), 2)} R.`;
+    else fate = `Uçuşta: ${fmt(age, 1)} τ, ${s.revs} tam tur, r = ${fmt(Math.hypot(s.x, s.y), 2)} R.${late}`;
+    const key = parts.join("|") + measured + diff + kepler + drift + fate;
+    if (key === lastShown) return;
+    lastShown = key;
+    ui.lastShot.innerHTML = parts[0];
+    ui.eps.textContent = parts[1];
+    ui.kind.textContent = parts[2];
+    ui.a.textContent = parts[3];
+    ui.apsis.textContent = parts[4];
+    ui.period.textContent = parts[5];
+    ui.measured.textContent = measured;
+    ui.diff.textContent = diff;
+    ui.kepler.textContent = kepler;
+    ui.drift.textContent = drift;
+    ui.fateLine.textContent = fate;
+  }
+  function updateHud() {
+    const w = state.world;
+    ui.score.textContent = w.lab ? "—" : String(w.score);
+    ui.wave.textContent = w.lab ? "deney" : String(Math.max(1, w.wave));
+    ui.health.textContent = w.lab ? "—" : String(w.health);
+    ui.best.textContent = String(state.best);
+  }
+
+  /* ── Olaylar ── */
+  function processEvents() {
+    const w = state.world;
+    if (!w.events.length) return;
+    for (const ev of w.events) {
+      if (ev.type === "kill") {
+        burst(ev.x, ev.y, "rock", 16);
+        pop(ev.x, ev.y, `+${ev.points}${ev.mult > 1 ? ` (yörünge ×${ev.mult})` : ""}`);
+        window.AcelyaSounds?.explode();
+        fx?.shake(3);
+      } else if (ev.type === "chip") {
+        burst(ev.x, ev.y, "rock", 6);
+        window.AcelyaSounds?.hit();
+      } else if (ev.type === "impact") {
+        burst(ev.x, ev.y, "danger", 22);
+        window.AcelyaSounds?.explode();
+        fx?.shake(9);
+        fx?.flash(0.18);
+        say(`Asteroit yere düştü. Kalan kalkan: ${Math.max(0, w.health)}.`);
+      } else if (ev.type === "moonBlock") {
+        burst(ev.x, ev.y, "moon", 10);
+      } else if (ev.type === "shellGround" || ev.type === "shellMoon") {
+        burst(ev.x, ev.y, "shell", 5);
+      } else if (ev.type === "waveStart") {
+        state.toast = { text: `${ev.wave}. dalga`, until: performance.now() + 1800 };
+        say(`${ev.wave}. dalga başladı: ${K.waveSpec(ev.wave).count} asteroit geliyor.`);
+      } else if (ev.type === "waveClear") {
+        say(`${ev.wave}. dalga bitti.${ev.flawless ? ` Kusursuz savunma: +${ev.bonus} puan.` : ""}${ev.heal ? " Kalkan +1." : ""}`);
+      } else if (ev.type === "over") {
+        state.overAt = performance.now();
+        if (w.score > state.best) state.best = w.score;
+        if (!state.recorded) { state.recorded = true; window.AcelyaHooks?.recordScore(w.score); }
+        setMode("over");
+        say(`Oyun bitti. Skor ${w.score}, ${w.wave}. dalga.`);
       }
     }
-
-    const home = planets[0];
-    for (let i = enemies.length - 1; i >= 0; i--) {
-      const e = enemies[i];
-      if (dist(e, home) < home.r + e.r * 0.5) {
-        enemies.splice(i, 1);
-        lives--;
-        livesEl.textContent = lives;
-        if (lives > 0) playHit();
-        for (let k = 0; k < 12; k++)
-          particles.push({ x: e.x, y: e.y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 35, color: "#f66" });
-        if (lives <= 0 && !gameOver) {
-          playExplode();
-          fx.shake(16);
-          fx.flash(0.35);
-          window.AcelyaHooks?.recordScore(score);
-          gameOver = true;
-        }
-      }
-    }
-
-    for (const p of particles) {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life--;
-    }
-    particles = particles.filter((p) => p.life > 0);
+    w.events.length = 0;
+    updateHud();
   }
-
-  function drawPlanet(p) {
-    const grd = ctx.createRadialGradient(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.1, p.x, p.y, p.r);
-    grd.addColorStop(0, "#fff");
-    grd.addColorStop(0.35, p.color);
-    grd.addColorStop(1, "#111");
-    ctx.fillStyle = grd;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
+  function burst(x, y, kind, n) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = 0.4 + Math.random() * 1.2;
+      state.effects.push({ type: "p", x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.5 + Math.random() * 0.4, age: 0, kind });
+    }
+    if (state.effects.length > 260) state.effects.splice(0, state.effects.length - 260);
   }
+  function pop(x, y, text) { state.effects.push({ type: "t", x, y, vx: 0, vy: 0.5, life: 1.3, age: 0, text }); }
 
-  function draw() {
-    ctx.fillStyle = "#020208";
-    ctx.fillRect(0, 0, GAME_W, GAME_H);
-    ctx.fillStyle = "#fff";
-    for (let i = 0; i < 60; i++) {
-      const sx = (i * 97) % GAME_W;
-      const sy = (i * 53) % GAME_H;
-      ctx.globalAlpha = 0.3 + (i % 5) * 0.12;
-      ctx.fillRect(sx, sy, 1.5, 1.5);
+  /* ── Çizim ── */
+  function palette() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, bg: "#eef2f9", star: "rgba(30,40,70,0.18)", text: "#1a1d2e", muted: "#5a5f7a",
+      planetA: "#2aa79b", planetB: "#0f5f58", halo: "rgba(13,148,136,0.14)", moon: "#8a93a8", moonEdge: "#5f6880", orbit: "rgba(40,50,80,0.22)",
+      turret: "#1a1d2e", shell: "#b45309", trail: "rgba(180,83,9,0.45)", rock: "#8b5e34", rockEdge: "#5b3a1c",
+      preview: "#0d9488", previewHit: "#b91c1c", previewFall: "#7c3aed", previewEscape: "#2563eb", rockPath: "rgba(139,94,52,0.5)", danger: "#dc2626",
+    } : {
+      light, bg: "#070b16", star: "rgba(255,255,255,0.5)", text: "#e8ecf4", muted: "#8b95a8",
+      planetA: "#3fd9c5", planetB: "#0e3f5a", halo: "rgba(94,234,212,0.12)", moon: "#aab3c7", moonEdge: "#6f7890", orbit: "rgba(255,255,255,0.16)",
+      turret: "#f1f5f9", shell: "#fbbf24", trail: "rgba(251,191,36,0.45)", rock: "#b08968", rockEdge: "#e7c9a9",
+      preview: "#5eead4", previewHit: "#f87171", previewFall: "#c4b5fd", previewEscape: "#7dd3fc", rockPath: "rgba(231,201,169,0.4)", danger: "#f87171",
+    };
+  }
+  const STARS = (() => {
+    const out = [];
+    let s = 12345;
+    const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+    for (let i = 0; i < 80; i++) out.push([r(), r(), 0.4 + r() * 1.1]);
+    return out;
+  })();
+
+  function resize() {
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    const size = Math.max(200, Math.round(canvas.clientWidth * dpr));
+    if (canvas.width !== size || canvas.height !== size) { canvas.width = size; canvas.height = size; }
+  }
+  function ensurePreview() {
+    const w = state.world;
+    if (!ui.preview.checked || state.mode === "over") { state.preview = null; return; }
+    const key = `${Math.floor(w.tick / 12)}|${state.aim}|${state.ratio}`;
+    if (key === state.previewKey) return;
+    state.previewKey = key;
+    state.preview = K.predict(w, state.aim, state.ratio);
+  }
+  function render() {
+    const W = canvas.width, S = W / (2 * K.VIEW), c = W / 2, px = W / 560;
+    const X = (x) => c + x * S, Y = (y) => c - y * S;
+    const P = palette();
+    const w = state.world;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = P.bg;
+    ctx.fillRect(0, 0, W, W);
+    ctx.save();
+    fx?.get()?.applyTransform(ctx);
+    ctx.fillStyle = P.star;
+    for (const st of STARS) { ctx.beginPath(); ctx.arc(st[0] * W, st[1] * W, st[2] * px, 0, 6.2832); ctx.fill(); }
+
+    // Ay yörüngeleri ve aylar
+    ctx.lineWidth = 1 * px;
+    ctx.strokeStyle = P.orbit;
+    ctx.setLineDash([3 * px, 6 * px]);
+    for (const m of K.MOONS) { ctx.beginPath(); ctx.arc(c, c, m.r * S, 0, 6.2832); ctx.stroke(); }
+    ctx.setLineDash([]);
+    for (const m of K.MOONS) {
+      const p = K.moonPosition(m, w.t);
+      ctx.fillStyle = P.moon; ctx.strokeStyle = P.moonEdge; ctx.lineWidth = 1.5 * px;
+      ctx.globalAlpha = w.solidMoons ? 1 : 0.3;
+      ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), m.radius * S, 0, 6.2832); ctx.fill(); ctx.stroke();
     }
     ctx.globalAlpha = 1;
 
-    for (const p of planets) {
-      if (p.orbit) {
-        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    // Öngörü
+    const pv = state.preview;
+    if (pv) {
+      ctx.lineWidth = 1 * px;
+      ctx.strokeStyle = P.rockPath;
+      ctx.setLineDash([2 * px, 5 * px]);
+      for (const r of pv.rocks) {
         ctx.beginPath();
-        ctx.ellipse(CX, CY, p.orbit, p.orbit * (p === planets[1] ? 0.55 : 0.7), 0, 0, Math.PI * 2);
+        for (let i = 0; i < r.points.length; i += 2) { if (i) ctx.lineTo(X(r.points[i]), Y(r.points[i + 1])); else ctx.moveTo(X(r.points[i]), Y(r.points[i + 1])); }
         ctx.stroke();
       }
-      drawPlanet(p);
-    }
-
-    ctx.strokeStyle = "rgba(200,220,255,0.5)";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(CX, CY);
-    ctx.lineTo(CX + Math.cos(turretAngle) * 56, CY + Math.sin(turretAngle) * 56);
-    ctx.stroke();
-
-    ctx.fillStyle = "#8cf";
-    for (const b of bullets) {
+      const col = pv.fate === "hit" ? P.previewHit : pv.fate === "planet" || pv.fate === "moon" ? P.previewFall : pv.fate === "escaped" || pv.elements.kind === "kacar" ? P.previewEscape : P.preview;
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 1.6 * px;
+      ctx.setLineDash([6 * px, 5 * px]);
       ctx.beginPath();
-      ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
-      ctx.fill();
+      for (let i = 0; i < pv.points.length; i += 2) { if (i) ctx.lineTo(X(pv.points[i]), Y(pv.points[i + 1])); else ctx.moveTo(X(pv.points[i]), Y(pv.points[i + 1])); }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const n = pv.points.length;
+      const ex = X(pv.points[n - 2]), ey = Y(pv.points[n - 1]);
+      if (pv.fate === "hit") {
+        ctx.lineWidth = 2 * px;
+        ctx.beginPath(); ctx.arc(ex, ey, 9 * px, 0, 6.2832); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ex - 13 * px, ey); ctx.lineTo(ex + 13 * px, ey); ctx.moveTo(ex, ey - 13 * px); ctx.lineTo(ex, ey + 13 * px); ctx.stroke();
+      } else if (pv.fate === "planet" || pv.fate === "moon") {
+        ctx.lineWidth = 2 * px;
+        ctx.beginPath(); ctx.moveTo(ex - 5 * px, ey - 5 * px); ctx.lineTo(ex + 5 * px, ey + 5 * px); ctx.moveTo(ex + 5 * px, ey - 5 * px); ctx.lineTo(ex - 5 * px, ey + 5 * px); ctx.stroke();
+      }
     }
 
-    ctx.fillStyle = "#f84";
-    for (const e of enemies) {
+    // Gezegen
+    ctx.fillStyle = P.halo;
+    ctx.beginPath(); ctx.arc(c, c, 1.16 * S, 0, 6.2832); ctx.fill();
+    const g = ctx.createRadialGradient(c - 0.35 * S, c - 0.4 * S, 0.1 * S, c, c, S);
+    g.addColorStop(0, P.planetA); g.addColorStop(1, P.planetB);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(c, c, K.R * S, 0, 6.2832); ctx.fill();
+    // Kalkan halkası: kalan can kadar yay
+    if (!w.lab) {
+      ctx.lineWidth = 2.5 * px;
+      for (let i = 0; i < K.MAX_HEALTH; i++) {
+        const a0 = -Math.PI / 2 + 0.5 + (i * (2 * Math.PI - 1)) / K.MAX_HEALTH, a1 = a0 + (2 * Math.PI - 1) / K.MAX_HEALTH - 0.12;
+        ctx.strokeStyle = i < w.health ? P.preview : P.orbit;
+        ctx.beginPath(); ctx.arc(c, c, 0.8 * S, a0, a1); ctx.stroke();
+      }
+    }
+    // Top
+    const al = (state.aim * Math.PI) / 180;
+    const mx = X(0), my = Y(K.R0);
+    ctx.fillStyle = P.turret; ctx.strokeStyle = P.turret;
+    ctx.beginPath(); ctx.moveTo(X(-0.16), Y(0.985)); ctx.lineTo(X(0.16), Y(0.985)); ctx.lineTo(mx, my); ctx.closePath(); ctx.fill();
+    ctx.lineWidth = 3.2 * px; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mx + Math.sin(al) * 0.42 * S, my - Math.cos(al) * 0.42 * S); ctx.stroke();
+    ctx.lineCap = "butt";
+
+    // Mermiler
+    for (const s of w.shells) {
+      const tr = state.trails.get(s.id);
+      if (tr && tr.length > 2) {
+        ctx.strokeStyle = P.trail; ctx.lineWidth = 1.4 * px;
+        ctx.beginPath();
+        for (let i = 0; i < tr.length; i += 2) { if (i) ctx.lineTo(X(tr[i]), Y(tr[i + 1])); else ctx.moveTo(X(tr[i]), Y(tr[i + 1])); }
+        ctx.lineTo(X(s.x), Y(s.y));
+        ctx.stroke();
+      }
+      ctx.fillStyle = P.shell;
+      ctx.beginPath(); ctx.arc(X(s.x), Y(s.y), Math.max(2.6 * px, K.SHELL_R * S), 0, 6.2832); ctx.fill();
+    }
+
+    // Asteroitler
+    for (const a of w.asteroids) {
+      const r = Math.hypot(a.x, a.y);
+      const sx = X(a.x), sy = Y(a.y);
+      if (Math.abs(a.x) > K.VIEW + a.radius || Math.abs(a.y) > K.VIEW + a.radius) {
+        // Ekran dışı: kenarda yön oku
+        const k = (K.VIEW - 0.28) / Math.max(Math.abs(a.x), Math.abs(a.y));
+        const ex = X(a.x * k), ey = Y(a.y * k), ang = Math.atan2(-a.y, a.x);
+        ctx.save(); ctx.translate(ex, ey); ctx.rotate(ang);
+        ctx.fillStyle = P.danger;
+        ctx.beginPath(); ctx.moveTo(9 * px, 0); ctx.lineTo(-6 * px, -7 * px); ctx.lineTo(-6 * px, 7 * px); ctx.closePath(); ctx.fill();
+        ctx.restore();
+        continue;
+      }
+      ctx.save(); ctx.translate(sx, sy); ctx.rotate(a.id * 1.7 + w.t * (0.4 + (a.id % 3) * 0.2));
+      ctx.fillStyle = P.rock; ctx.strokeStyle = P.rockEdge; ctx.lineWidth = 1.4 * px;
       ctx.beginPath();
-      ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
-      ctx.fill();
+      for (let i = 0; i < 9; i++) {
+        const f = 0.78 + 0.22 * Math.abs(Math.sin(a.id * 12.9898 + i * 78.233));
+        const th = (i / 9) * 6.2832;
+        const rx = Math.cos(th) * a.radius * S * f, ry = Math.sin(th) * a.radius * S * f;
+        if (i) ctx.lineTo(rx, ry); else ctx.moveTo(rx, ry);
+      }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      if (a.big && a.hp > 1) { ctx.beginPath(); ctx.arc(0, 0, a.radius * S * 0.4, 0, 6.2832); ctx.stroke(); }
+      ctx.restore();
+      if (r < 2.2) { ctx.strokeStyle = P.danger; ctx.lineWidth = 1.2 * px; ctx.beginPath(); ctx.arc(sx, sy, (a.radius + 0.12) * S, 0, 6.2832); ctx.stroke(); }
     }
 
-    for (const p of particles) {
-      ctx.fillStyle = p.color || "#fc6";
-      ctx.globalAlpha = p.life / 35;
-      ctx.fillRect(p.x, p.y, 3, 3);
+    // Efektler
+    for (const e of state.effects) {
+      const k = 1 - e.age / e.life;
+      ctx.globalAlpha = Math.max(0, k);
+      if (e.type === "p") {
+        ctx.fillStyle = e.kind === "danger" ? P.danger : e.kind === "moon" ? P.moon : e.kind === "shell" ? P.shell : P.rockEdge;
+        ctx.beginPath(); ctx.arc(X(e.x), Y(e.y), (1.2 + 2 * k) * px, 0, 6.2832); ctx.fill();
+      } else {
+        ctx.fillStyle = P.shell;
+        ctx.font = `700 ${Math.round(14 * px)}px system-ui, sans-serif`;
+        ctx.textAlign = "center";
+        const tx = Math.max(70 * px, Math.min(W - 70 * px, X(e.x)));
+        ctx.fillText(e.text, tx, Math.max(20 * px, Y(e.y)));
+      }
     }
     ctx.globalAlpha = 1;
-    fx.update();
-    fx.draw(ctx, GAME_W, GAME_H);
+    ctx.restore();
 
-    if (gameOver) {
-      ctx.fillStyle = "rgba(0,0,0,0.6)";
-      ctx.fillRect(0, 0, GAME_W, GAME_H);
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 32px system-ui";
+    // Köşe yazıları
+    ctx.fillStyle = P.muted;
+    ctx.font = `${Math.round(12 * px)}px system-ui, sans-serif`;
+    ctx.textAlign = "left";
+    ctx.fillText(`t = ${fmt(w.t, 1)} τ`, 10 * px, 18 * px);
+    ctx.textAlign = "right";
+    ctx.fillText(`hız ${fmt(state.ratio, 2)} × dairesel · açı ${fmt(state.aim, 0)}°`, W - 10 * px, 18 * px);
+    if (state.toast && performance.now() < state.toast.until && state.mode === "playing") {
+      ctx.fillStyle = P.text;
+      ctx.font = `700 ${Math.round(22 * px)}px system-ui, sans-serif`;
       ctx.textAlign = "center";
-      ctx.fillText("Gezegen düştü!", GAME_W / 2, GAME_H / 2);
-      ctx.font = "18px system-ui";
-      ctx.fillText(`Skor: ${score}`, GAME_W / 2, GAME_H / 2 + 36);
+      ctx.fillText(state.toast.text, c, 52 * px);
     }
+    if (fx) { fx.update(); fx.draw(ctx, W, W); }
   }
 
-  let last = performance.now();
-  let frameAccumulator = 0;
-  const fixedStep = 1000 / 60;
-  function loop(now) {
-    let elapsed = now - last;
-    last = now;
-    if (elapsed > 100) elapsed = 0;
-    frameAccumulator += elapsed;
-    while (frameAccumulator >= fixedStep) {
-      update(fixedStep);
-      frameAccumulator -= fixedStep;
+  /* ── Döngü ── */
+  let readoutClock = 0;
+  function frame(ts) {
+    const elapsed = Math.min(0.05, Math.max(0, (ts - state.last) / 1000));
+    state.last = ts;
+    handleHeld(elapsed);
+    if (state.mode === "playing") {
+      const w = state.world;
+      state.acc += elapsed * state.rate;
+      let guard = 0;
+      while (state.acc >= K.DT && guard++ < 200) {
+        K.advance(w);
+        state.acc -= K.DT;
+        if (w.tick % 6 === 0) {
+          for (const s of w.shells) {
+            let tr = state.trails.get(s.id);
+            if (!tr) { tr = []; state.trails.set(s.id, tr); }
+            tr.push(s.x, s.y);
+            const cap = w.lab ? 6000 : 500;
+            if (tr.length > cap) tr.splice(0, tr.length - cap);
+          }
+        }
+        if (w.events.length) processEvents();
+        if (state.mode !== "playing") break;
+      }
+      if (guard >= 200) state.acc = 0;
+      if (state.trails.size > w.shells.length + 4) {
+        const alive = new Set(w.shells.map((s) => s.id));
+        for (const id of state.trails.keys()) if (!alive.has(id)) state.trails.delete(id);
+      }
+      for (const e of state.effects) { e.age += elapsed; e.x += e.vx * elapsed; e.y += e.vy * elapsed; }
+      state.effects = state.effects.filter((e) => e.age < e.life);
+      readoutClock += elapsed;
+      if (readoutClock > 0.2) { readoutClock = 0; updateLast(false); }
     }
-    draw();
-    requestAnimationFrame(loop);
+    ensurePreview();
+    render();
+    requestAnimationFrame(frame);
   }
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") { left = true; e.preventDefault(); }
-    if (e.key === "ArrowRight") { right = true; e.preventDefault(); }
-    if (e.code === "Space") { firing = true; e.preventDefault(); }
-  });
-  document.addEventListener("keyup", (e) => {
-    if (e.key === "ArrowLeft") left = false;
-    if (e.key === "ArrowRight") right = false;
-    if (e.code === "Space") firing = false;
+  /* Sınama ve defter için salt okunur anlık görüntü. */
+  window.OrbitGameUi = Object.freeze({
+    snapshot() {
+      const w = state.world;
+      return {
+        mode: state.mode, lab: w.lab, t: w.t, tick: w.tick, aim: state.aim, ratio: state.ratio, rate: state.rate,
+        score: w.score, health: w.health, wave: w.wave, fired: w.fired, destroyed: w.destroyed, impacts: w.impacts,
+        shells: w.shells.length, asteroids: w.asteroids.length,
+        preview: state.preview ? { fate: state.preview.fate, time: state.preview.time } : null,
+        last: w.last ? { eps: w.last.eps0, Tmeas: w.last.Tmeas, driftMax: w.last.driftMax, fate: w.last.fate, revs: w.last.revs } : null,
+      };
+    },
   });
 
-  canvas.addEventListener("touchmove", (e) => {
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.touches[0].clientX - rect.left) / rect.width * GAME_W;
-    const y = (e.touches[0].clientY - rect.top) / rect.height * GAME_H;
-    turretAngle = Math.atan2(y - CY, x - CX);
-  }, { passive: false });
-  canvas.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    firing = true;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.touches[0].clientX - rect.left) / rect.width * GAME_W;
-    const y = (e.touches[0].clientY - rect.top) / rect.height * GAME_H;
-    turretAngle = Math.atan2(y - CY, x - CX);
-    fire();
-  }, { passive: false });
-  canvas.addEventListener("touchend", () => { firing = false; });
-
-  document.getElementById("btnNew").addEventListener("click", resetGame);
-  resetGame();
-  requestAnimationFrame(loop);
-</script></body>
+  new ResizeObserver(resize).observe(canvas);
+  window.addEventListener("resize", resize);
+  new MutationObserver(() => { state.previewKey = ""; }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  bootHooks();
+  resize();
+  newWorld(false);
+  requestAnimationFrame((ts) => { state.last = ts; frame(ts); });
+})();
+</script>
+</body>
 </html>

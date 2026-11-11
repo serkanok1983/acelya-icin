@@ -1,6 +1,6 @@
 # Fizik kapsam haritası
 
-10 Kasım 2026 · F1 kapsam çalışması
+10 Kasım 2026 · F1–F2 kapsam çalışması
 
 Bu harita, bir konunun menüde görünmesiyle deneylerinin tamamlanmasını
 birbirinden ayırır. Mevcut kapsam, HTML kontrolleri, hesaplar ve Keşif
@@ -11,14 +11,17 @@ yazar ve doğrulayıcı/editör hattından geçti.
 
 ## Mekanik
 
-| Konu | Ön koşul | Mevcut deney / F1 katkısı | Açık kalan deney |
+| Konu | Ön koşul | Mevcut deney / F1–F2 katkısı | Açık kalan deney |
 |---|---|---|---|
 | Kinematik, kuvvet ve momentum | Birimler, vektörler, grafik eğimi/alanı | `hareket-ve-grafikler`, `atislar`, `serbest-dusme`; `momentum-itme-ve-carpismalar` ve `newton-hareket-yasalari` | İki boyutlu çarpışmada vektörel momentum ve kütle merkezi; eğrisel harekette teğetsel/normal ivmenin birlikte ölçülmesi. |
 | İş, enerji, basit makineler | Kuvvet, yer değiştirme, tork | `is-enerji`; F1 `basit-makineler`: palanga, eğik düzlem, çark–mil, vida; giriş işi–yararlı iş–kayıp bütçesi | Gerçek mekanizmalarda değişken kayıp ve hız bağımlılığı. Sabit verim modeli vida dişi sürtünmesini veya kilitlenmeyi açıklamaz. |
-| Denge ve statik | Vektör bileşenleri, moment, integral | `tork-denge`: kaldıraç, temas/devirme, merdiven; F1 `statik`: yayılı yük bileşkesi, mesnetler, üç çubuk kafes ve kısıt matrisi | F2 mukavemet: kesme/moment dağılımı, gerilme, sehim ve burkulma; çelik yapılar bu temelden sonra. Denge tek başına dayanım sonucu değildir. |
+| Denge ve statik | Vektör bileşenleri, moment, integral | `tork-denge`: kaldıraç, temas/devirme, merdiven; F1 `statik`: yayılı yük bileşkesi, mesnetler, üç çubuk kafes ve kısıt matrisi | Elastik çok açıklıklı/hiperstatik sistemler ve yer değiştirme uyumluluğu. Denge tek başına dayanım sonucu değildir. |
+| Mukavemet | Statik, integral, gerilme ve kesit geometrisi | F2 `mukavemet`: eksenel çubuk, kesme–moment, dikdörtgen kesit, Euler–Bernoulli sehim ve Euler kolon; sayısal integral/özdeğer karşılaştırması | Burulma, birleşik gerilme, plastik malzeme, yorulma; kayma deformasyonu ve kusurlu kolon. |
+| Çelik yapılar | Mukavemet, alan ikinci momenti, stabilite | F2 `celik-yapilar`: I kesitin iki ekseni, net/brüt çekme alanı ve basit bulon bağlantısı, iki eksenli ideal Euler ve yanal bağ aralığı | Yanal burulmalı/yerel burkulma, kaynaklı ve eksantrik bağlantı, çerçeve/deprem davranışı, yönetmelik boyutlandırması. Eğitim gerilmeleri tasarım dayanımı değildir. |
 | Dönme ve açısal momentum | Tork, enerji, eylemsizlik momenti | `tork-denge` kısıtlı kaldıraç dinamiği; `dairesel-hareket` merkezcil kuvvet | Kaymadan yuvarlanma, öteleme+dönme enerji paylaşımı, dış torksuz açısal momentum korunumu. Merkezcil kuvvet sayfası bunların yerine geçmez. |
 | Salınım ve kütleçekim | Newton yasaları, enerji, türev | `sarkac`, `yay-kutle`, `cift-sarkac`; `kepler-yasalari` yörünge deneyleri | Zorlanmış mekanik salınımda genlik–faz–frekans taraması; yörünge enerjisi ve kaçış sınırının ayrı deneyle sınanması. |
-| Akışkanlar | Basınç, kuvvet dengesi, enerji ve debi | `basinc`, `kaldirma-kuvveti`, `akiskanlar-mekanigi`: Venturi, Torricelli, Poiseuille | F2: boru kayıpları, pompa–sistem eğrisi, akış rejimleri ve `hidrolik-sistemler` güç bütçesi. |
+| Akışkanlar | Basınç, kuvvet dengesi, enerji ve debi | `basinc`, `kaldirma-kuvveti`, `akiskanlar-mekanigi`: Venturi, Torricelli, Poiseuille; F2 Darcy/Colebrook boru kayıpları ve pompa–sistem kesişimi | Geçiş akışının deneysel kestirimi, dallanan ağlar, su darbesi, NPSH/kavitasyon ve sıcaklık değişimi. |
+| Hidrolik sistemler | Basınç, enerji, süreklilik | F2 `hidrolik-sistemler`: çift etkili silindir, pompa verimleri, kısma–relief çalışma noktası ve tam güç bütçesi | Sıkıştırılabilirlik, geçici rejim, gerçek valf dinamiği, sızdırmazlık sürtünmesi ve yük tutma devresi. |
 
 Kapsam karşılaştırmasının temel mekanik sırası için
 [MIT 8.01SC ders izlencesi](https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/pages/syllabus/)
@@ -27,7 +30,7 @@ editoryal eşlemedir; bir kurumun site hakkındaki değerlendirmesi değildir.
 
 ## Elektrik ve manyetizma
 
-| Konu | Ön koşul | Mevcut deney / F1 katkısı | Açık kalan deney |
+| Konu | Ön koşul | Mevcut deney / F1–F2 katkısı | Açık kalan deney |
 |---|---|---|---|
 | Yük, elektrik alan, potansiyel | Vektörler, ters kare, türev | F1 `elektrostatik`: iki kaynak yük, süperpozisyon, test yükü kuvveti ve sayısal −grad V karşılaştırması | Sürekli çizgi/yüzey yüklerinin doğrudan integrali; sınır değer problemleri. |
 | Akı, Gauss, iletken ve yalıtkan | Yüzey integrali, simetri | F1 `elektrostatik`: izole iletken kabuk ve sabit hacim yükü taşıyan yalıtkan küre; iç/dış alan, potansiyel ve akı | Dış alanda indüklenen yüzey yükleri, elektrostatik ekranlama ve malzeme polarizasyonu. Küresel model bunları çözmez. |
@@ -74,7 +77,7 @@ incelendi.
 
 ## Uygulama sırası
 
-1. F1: elektrostatik, basit makineler, statik; üç yeni laboratuvar ve defter.
+1. F1 (tamamlandı): elektrostatik, basit makineler, statik; üç yeni laboratuvar ve defter.
 2. F2: mukavemet → çelik yapılar; hidrolik sistemler ve akışkanlar kapsamı.
 3. Sonraki temel fizik grupları planlanırken bu tablodaki eksikler üzerinden
    kabul ölçütü yaz: hangi kontrol, hangi hesap/ölçüm, hangi sınır durumu?
