@@ -180,10 +180,10 @@ window.ACELYA_DIGEST["denklem-denklestirme"] = {
     },
   ],
   next: [
-    { href: "asit-baz-titrasyonu.html", title: "Asit-Baz Titrasyonu", why: "Stokiyometri çözeltide: H₂SO₄ + NaOH (diprotik) seçeneğinde eşdeğerlik noktası, denklemdeki '2' yüzünden asidin iki katı mol NaOH'ta gelir." },
+    { href: "asit-baz-titrasyonu.html", title: "Asit-Baz Titrasyonu Laboratuvarı", why: "Stokiyometri çözeltide: Çok protonlu asitler sekmesinde H₂C₂O₄'ü seç; iki protonun her biri bir mol NaOH istediği için ikinci eşdeğerlik noktası birincinin tam iki katı hacimde gelir." },
     { href: "elektrokimya.html", title: "Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday", why: "Yarı tepkimeleri iki ayrı kaba koy: Daniell pilinde çinkonun verdiği elektronlar telden bakıra akar ve voltmetre bu alışverişin itici gücünü ölçer." },
-    { href: "matris-donusumleri.html", title: "Matris Dönüşümleri", why: "Determinant sıfıra inince bir 2×2 matris düzlemi bir çizgiye ezer: bir doğrultudaki bütün vektörler sıfıra gider. Sıfır uzayı ve rankın gözle görülen hâli." },
-    { href: "fotosentez-solunum.html", title: "Fotosentez ve Hücresel Solunum", why: "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O'yu burada denkleştirdin; hücrenin onu Krebs döngüsü ve ATP üretimiyle nasıl adım adım yürüttüğünü orada izle." },
+    { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Determinant sıfıra inince bir 2×2 matris düzlemi bir çizgiye ezer: bir doğrultudaki bütün vektörler sıfıra gider. Sıfır uzayı ve rankın gözle görülen hâli." },
+    { href: "fotosentez-solunum.html", title: "Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton", why: "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O'yu burada denkleştirdin; hücrenin onu Krebs döngüsü ve ATP üretimiyle nasıl adım adım yürüttüğünü orada izle." },
   ],
   sources: [
     { title: "OpenStax · Chemistry 2e, 4.1 Writing and Balancing Chemical Equations", url: "https://openstax.org/books/chemistry-2e/pages/4-1-writing-and-balancing-chemical-equations", note: "Atom sayım tablolarıyla denkleştirme, alt indisin neden değiştirilemeyeceği, iyonik ve net iyonik denklemler; bölümün devamı stokiyometri ve verim (İngilizce, açık ders kitabı)." },

@@ -144,7 +144,7 @@ window.ACELYA_DIGEST["uretim-planlama-ve-endustri-muhendisligi"] = {
     { href: "yoneylem-arastirmasi.html", title: "Yöneylem Araştırması", why: "Buradaki tek değişkenli eniyilemeyi kısıtlı problemlere, doğrusal programlamaya ve karar modellerine genişlet." },
     { href: "normal-dagilim.html", title: "Normal Dağılım ve Merkezi Limit Teoremi", why: "Alt grup ortalamasının neden σ/√n ile daraldığını ve 3σ dışındaki 0.0027'lik alanın nereden geldiğini gör." },
     { href: "turev.html", title: "Türev", why: "Maliyet eğrisinin dibini bulan ‘türevi sıfırla’ adımının ve dipteki ikinci mertebe düzlüğün temelini kur." },
-    { href: "bayes-olasilik.html", title: "Bayes Olasılığı", why: "Bir sinyal geldiğinde ‘gerçek kayma mı, yanlış alarm mı?’ sorusunu koşullu olasılıkla tart." },
+    { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Bir sinyal geldiğinde ‘gerçek kayma mı, yanlış alarm mı?’ sorusunu koşullu olasılıkla tart." },
   ],
   sources: [
     { title: "Wikipedia · Economic order quantity", url: "https://en.wikipedia.org/wiki/Economic_order_quantity", note: "Harris'in 1913 modeli, toplam maliyet fonksiyonu ve Q* türetimi; Wilson'ın 1934 makalesine gönderme." },

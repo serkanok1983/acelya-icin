@@ -224,8 +224,8 @@ window.ACELYA_DIGEST["fotoelektrik"] = {
   next: [
     { href: "kara-cisim-isimasi.html", title: "Kara Cisim Işıması", why: "h'nin doğduğu yer: Planck 1900'de sıcak cisimlerin tayfını açıklamak için enerjiyi paketlere böldü; Einstein aynı paketi ışığın kendisine taşıdı." },
     { href: "kuantum-mekanigi.html", title: "Kuantum Çift Yarık", why: "Ekrana tek tek düşen elektronlar nokta nokta birikip girişim saçakları çizer: tane ile dalganın aynı deneyde buluştuğu yer." },
-    { href: "periyodik-tablo.html", title: "Periyodik Tablo", why: "Tabloyu 1. iyonlaşma enerjisine göre renklendir: sezyum atomu 3.89 eV ister, sezyum metali 1.95 eV ile yetinir. Atomdan katıya geçince ne değiştiğini karşılaştır." },
-    { href: "atom-orbitalleri.html", title: "Atom Orbitalleri", why: "Fotoemisyon spektroskopisinin ölçtüğü bağlanma enerjileri kabaca bu orbitallerin enerjileridir; neon deneyindeki 2s ve 2p de onlardandır. s, p ve d bulutlarını üç boyutta incele." },
+    { href: "periyodik-tablo.html", title: "Periyodik Tablo Laboratuvarı", why: "Tabloyu 1. iyonlaşma enerjisine göre renklendir: sezyum atomu 3.89 eV ister, sezyum metali 1.95 eV ile yetinir. Atomdan katıya geçince ne değiştiğini karşılaştır." },
+    { href: "atom-orbitalleri.html", title: "Atom Orbitalleri: Hidrojen Benzeri Atomun Kesin Çözümü", why: "Fotoemisyon spektroskopisinin ölçtüğü bağlanma enerjileri kabaca bu orbitallerin enerjileridir; neon deneyindeki 2s ve 2p de onlardandır. s, p ve d bulutlarını üç boyutta incele." },
   ],
   sources: [
     { title: "OpenStax · University Physics Vol. 3, 6.2 Photoelectric Effect", url: "https://openstax.org/books/university-physics-volume-3/pages/6-2-photoelectric-effect", note: "Klasik fiziğin üç açmazı, Einstein denklemi, eşik frekansı ve çözümlü örnekler (İngilizce, açık ders kitabı). Tablosundaki iş fonksiyonları, ör. Na 2.46 eV, bu sayfadakilerden biraz farklıdır." },

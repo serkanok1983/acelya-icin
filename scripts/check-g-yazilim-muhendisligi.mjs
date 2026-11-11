@@ -155,7 +155,19 @@ for(const cfg of[DEFC,{...DEFC,limit:[2,2,2]},{...DEFC,limit:[1,1,1]},{...DEFC,l
   ok(r.cfd.length===121&&Math.abs(r.cfd[120][0]-60)<1e-9);r.cfd.forEach((q,i)=>{for(let j=1;j<5;j++)ok(q[j]>=q[j+1],'CFD sıralı');if(i)for(let j=1;j<=5;j++)ok(q[j]>=r.cfd[i-1][j],'CFD azalmaz');});
   const sn=r.snapshot;sn.prog.forEach((k,i)=>ok(k+sn.done[i]<=cfg.limit[i]));}
 {const a=F.kanban({...DEFC,seed:4}),b=F.kanban({...DEFC,seed:4}),c=F.kanban({...DEFC,seed:5});eq(a.W,b.W);eq(a.L,b.L);ok(a.W!==c.W);
- for(const cfg of[{...DEFC,limit:[I,I,I]},{...DEFC,lambda:1.4},{...DEFC,lambda:.9,limit:[1,1,1]},{...DEFC,s:.5}]){const r=F.kanban({...cfg,seed:1});ok(r.unstable,'kararsız olmalı '+JSON.stringify(cfg));ok(r.throughput<cfg.lambda*.98);ok(r.nEnd-r.n0>.02*r.arrivals);eq(r.arrivals-r.departures,r.nEnd-r.n0);}
+ for(const cfg of[{...DEFC,limit:[I,I,I]},{...DEFC,lambda:1.4},{...DEFC,lambda:.9,limit:[1,1,1]},{...DEFC,s:.5}]){const r=F.kanban({...cfg,seed:1});ok(r.unstable,'kararsız olmalı '+JSON.stringify(cfg));ok(r.throughput<cfg.lambda*.98);ok(r.nEnd-r.n0>.02*r.arrivals);eq(r.arrivals-r.departures,r.nEnd-r.n0);ok(r.trend.up,'eğilim sınaması büyümeyi görmeli');}
+ // Kararlılık algılayıcısı: kapasite ölçütü (sınırdaki hız μ/[1 + s(k − 1)] ≤ λ) ya da 20 dilimlik eğilim sınaması (t ≥ 3, birikim ≥ gelişlerin %0,5'i).
+ const capRef=cfg=>cfg.mu.map((m,i)=>cfg.limit[i]===I?(cfg.s>0?0:m):m/(1+cfg.s*(cfg.limit[i]-1)));
+ {const r=F.kanban({...DEFC,limit:[I,I,I],seed:1});ok(r.capLimited&&r.trend.up&&r.unstable,'sınırsız, kayıplı: iki ölçüt de');eq(r.capacity,capRef({...DEFC,limit:[I,I,I]}));}
+ {const r=F.kanban({...DEFC,lambda:.9,limit:[1,1,1],seed:1});ok(capRef({...DEFC,limit:[1,1,1]}).every(x=>x>.9)&&!r.capLimited&&r.trend.up&&r.trend.t>=3&&r.trend.rise>=.005*r.arrivals,'bloke olma kapasiteyi düşürür: yalnız eğilim yakalar');}
+ // 3/9/3: Geliştirme sınırında 1,2/1,8 ≈ 0,667 < 0,7; eski net birikim > %2 ölçütü tohum 1'i "kararlı" sayıyordu (W ≈ 451 gün).
+ for(let seed=1;seed<=10;seed++){const cfg={...DEFC,limit:[3,9,3],seed},r=F.kanban(cfg);near(r.capacity[1],1.2/1.8,1e-12);ok(r.capLimited&&r.unstable,'3/9/3 kararsız, tohum '+seed);ok(r.trend.up,'3/9/3 eğilim, tohum '+seed);ok(r.W>200,'3/9/3 W büyük');
+   if(seed<=3){const r2=F.kanban({...cfg,items:60000});ok(r2.unstable&&r2.W>1.6*r.W,'3/9/3: koşu iki katına çıkınca W de yaklaşık iki katına çıkar');}}
+ {const r=F.kanban({...DEFC,limit:[3,9,3],seed:1});near(r.W,450.8,.001,'3/9/3 tohum 1 W');ok(r.nEnd-r.n0<=.02*r.arrivals,'eski ölçüt bu koşuyu kaçırıyordu');}
+ // Kararlı ayarlar ilk 20 tohumda kararlı kalır; koşu iki katına çıkınca W değişmez (doğrusal büyüme yok).
+ for(const cfg of[DEFC,{...DEFC,mu:[1.5,1.2,1]},{...DEFC,limit:[I,I,I],s:0}])for(let seed=1;seed<=20;seed++){const r=F.kanban({...cfg,seed});ok(!r.unstable&&!r.capLimited&&!r.trend.up,'kararlı kalmalı '+JSON.stringify(cfg)+' tohum '+seed);ok(Math.abs(r.trend.rise)<.002*r.arrivals);
+   if(seed<=2){const r2=F.kanban({...cfg,seed,items:60000});ok(!r2.unstable&&Math.abs(r2.W/r.W-1)<.15,'kararlı koşuda W uzunluktan bağımsız');}}
+ ok(!F.kanban({...DEFC,limit:[8,8,8],seed:1}).unstable,'sınır 8, tohum 1: kıyıda ama kararlı');ok(F.kanban({...DEFC,limit:[9,9,9],seed:1}).capLimited,'sınır 9: kapasite ölçütü');
  const w=l=>F.kanban({...DEFC,limit:[l,l,l],seed:1}).W;ok(w(2)<w(1)&&w(3)<w(6)&&w(6)<w(8),'teslim süresi sınırın U biçimli işlevi');
  const bt=F.kanban({...DEFC,mu:[1.5,1.2,1],seed:1}),df=F.kanban({...DEFC,seed:1});ok(bt.stages[1].blocked>3*df.stages[1].blocked&&bt.stages[2].busy>df.stages[2].busy&&bt.W>df.W,'darboğaz önündeki sütunu bloke eder');
  assert.throws(()=>F.kanban({...DEFC,lambda:0}));assert.throws(()=>F.kanban({...DEFC,limit:[3,3]}));checks+=2;}
@@ -214,7 +226,8 @@ if(process.argv.includes('--browser')){
       await click('flowReset');await range('kbLim1',1);await range('kbLim2',1);await range('kbLim3',1);await has('flowW','13,09 gün');await has('kbLim1Out','1');await range('kbLambda',2);await has('flowStatus','Kararsız');await has('flowStatus','Neden: Analiz sütunu sınırına (1 iş) dayandığında hızı μ/[1 + s·(k − 1)] = 1,5 iş/gün');await has('flowStatus','aşmıyor');await range('kbLambda',.2);await has('flowStatus','Kararlı');
       // doğrulayıcı (11 Kasım): kararsızlığın nedeni ve kaba eşik uyarısı durum satırında
       await click('flowReset');for(const id of['kbLim1','kbLim2','kbLim3'])await range(id,9);await has('flowStatus','Kararsız');await has('flowStatus','Neden: Geliştirme sütunu sınırına (9 iş) dayandığında hızı μ/[1 + s·(k − 1)] = 0,667 iş/gün; bu hız geliş hızını (λ = 0,7 iş/gün) aşmıyor.');
-      await range('kbLim1',3);await range('kbLim3',3);await has('flowStatus','Kararlı');await has('flowStatus','Dikkat: Geliştirme sütunu sınırına (9 iş)');await click('flowReset');eq((await read('flowStatus')).includes('Dikkat'),false,'varsayılanda uyarı yok');
+      await range('kbLim1',3);await range('kbLim3',3);await has('kbLim2Out','9');await has('flowStatus','Kararsız');await has('flowStatus','Neden: Geliştirme sütunu sınırına (9 iş) dayandığında hızı μ/[1 + s·(k − 1)] = 0,667 iş/gün');await has('flowStatus','Eğilim: pencere 20 geliş dilimine');await has('flowL','kararlı değer yok');await has('flowW','kararlı değer yok');await has('flowWSub','450,83 gün');await has('flowLittle','uygulanamaz');eq((await read('flowStatus')).includes('Dikkat'),false,'eski uyarı yok');
+      await click('flowReset');await has('flowStatus','Kararlı: çıktı hızı geliş hızına eşit');await has('flowStatus','anlamlı bir eğilim yok');
       await range('kbLambda',.95);await has('flowStatus','Kararsız');await has('flowStatus','Neden: hiçbir sütunun kendi hızı');await click('flowReset');
       await range('kbSwitch',50);await range('kbSeed',50);await range('kbMu1',.5);await range('kbMu2',3);await has('flowTH','iş/gün');await noOverflow('flow uç');await click('flowReset');await has('flowL','4,46 iş');
       // klavye

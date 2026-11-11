@@ -21,7 +21,7 @@ const list = (dir, re) =>
     .map((f) => (dir === "." ? f : `${dir}/${f}`));
 
 const pages = list(".", /\.html$/);
-const shared = list("shared", /\.(js|css)$/).filter((f) => !/firebase-config\.example\.js$|page-info\.js$|encyclopedia-/.test(f));
+const shared = list("shared", /\.(js|css)$/).filter((f) => !/firebase-config\.example\.js$/.test(f));
 const digests = existsSync(join(ROOT, "shared/digest")) ? list("shared/digest", /\.js$/) : [];
 const media = ["hit.m4a", "explode.m4a", "laser.m4a", "thrust.m4a", "music-low.m4a", "music-high.m4a", "favicon-32.png", "favicon.svg", "apple-touch-icon.png", "manifest.json"].filter((f) => existsSync(join(ROOT, f)));
 

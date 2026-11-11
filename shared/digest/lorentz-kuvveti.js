@@ -219,12 +219,12 @@ window.ACELYA_DIGEST["lorentz-kuvveti"] = {
   next: [
     {
       href: "dairesel-hareket.html",
-      title: "Dairesel Hareket",
+      title: "Dairesel Hareket — Merkezcil Kuvvet",
       why: "|q|vB = mv²/r eşitliğinin sağ yanı: süratini değiştirmeden çemberde dönen her cismi tutan merkezcil kuvvet. Burada o görevi manyetik kuvvet üstleniyordu.",
     },
     {
       href: "manyetik-alan.html",
-      title: "Manyetik Alan ve Elektromıknatıs",
+      title: "Manyetik Alan Laboratuvarı: Akımdan Alana, Alandan Akıma",
       why: "Sayfadaki düzgün B'yi kim üretir? Akım ve sarım kaydırıcılarıyla bir bobinin alanını, B = μ₀nI bağıntısını ve amper-sarımı keşfet.",
     },
     {

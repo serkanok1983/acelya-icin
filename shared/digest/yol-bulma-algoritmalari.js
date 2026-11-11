@@ -125,7 +125,7 @@ window.ACELYA_DIGEST["yol-bulma-algoritmalari"] = {
     { question: "Başlangıç=hedef iken doğru sonuç hangisidir?", options: ["0 adım, 0 maliyet, hedef dahil 1 seçim", "1 adım, başlangıç hücresinin bedeli", "Yol yok, tanımsız maliyet", "0 adım, 0 kuyruktan alma"], answer: 0, explanation: "Geçerli yol tek düğümden oluşur; hiç kenar geçilmez ve giriş bedeli ödenmez. Algoritma başlangıcı kuyruktan alıp hedef olduğunu kontrol ettiği için seçim sayısı 1'dir." },
   ],
   next: [
-    { href: "cizge-teorisi.html", title: "Çizge Teorisi", why: "Yol problemini daha geniş çizge diliyle karşılaştır: düğüm, kenar ve bağlantı yapısı hangi soruları sormana izin verir?" },
+    { href: "cizge-teorisi.html", title: "Çizge Teorisi: Yapı, Değişmezler ve Teoremler", why: "Yol problemini daha geniş çizge diliyle karşılaştır: düğüm, kenar ve bağlantı yapısı hangi soruları sormana izin verir?" },
     { href: "siralama-yarisi.html", title: "Sıralama Yarışı: İş Sayacı", why: "Aynı girdide farklı iş türlerini ayrı say; burada kuyruk seçiminin, orada karşılaştırma ve yazmanın neden süreyle aynı olmadığını incele." },
     { href: "veri-yapilari.html", title: "Veri Yapıları Laboratuvarı", why: "FIFO kuyruğu ile öncelik kuyruğunun farkını öğren; bir algoritmanın seçme kuralını hangi yapıların taşıdığını düşün." },
   ],

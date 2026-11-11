@@ -212,10 +212,10 @@ window.ACELYA_DIGEST["konik-kesitler"] = {
     },
   ],
   next: [
-    { href: "kepler-yasalari.html", title: "Kepler Yasaları", why: "Buradaki elipsler durağandır; orada gezegen yörüngede koşar: eşit zamanda eşit alan, günberide hızlanma ve T² = a³." },
+    { href: "kepler-yasalari.html", title: "Kepler Yasaları — Gezegen Yörüngeleri", why: "Buradaki elipsler durağandır; orada gezegen yörüngede koşar: eşit zamanda eşit alan, günberide hızlanma ve T² = a³." },
     { href: "optik-yansima-kirilma.html", title: "Optik: Yansıma ve Kırılma", why: "Işığın düz bir yüzeyde yansıması ve kırılması: Snell yasası, Fresnel denklemleri, tam iç yansıma ve Fermat'ın en kısa zaman ilkesini sınayan bir çizim." },
     { href: "atislar.html", title: "Eğik Atış", why: "Düzgün yerçekiminde havasız atış bir parabol çizer; hava direncini açınca yolun artık hiçbir koniğe benzemediğini gör." },
-    { href: "matris-donusumleri.html", title: "Matris Dönüşümleri", why: "Küçük bir evi 2×2 matrisle döndür, ger, yansıt; determinant ve özdeğerler, koniğin eksenlerini veren kuadratik form matrisinin dilidir." },
+    { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Küçük bir evi 2×2 matrisle döndür, ger, yansıt; determinant ve özdeğerler, koniğin eksenlerini veren kuadratik form matrisinin dilidir." },
   ],
   sources: [
     { title: "OpenStax · Calculus Volume 2, 7.5 Conic Sections", url: "https://openstax.org/books/calculus-volume-2/pages/7-5-conic-sections", note: "Parabol, elips ve hiperbolün denklemleri, dışmerkezlik ve doğrultman, kutupsal denklem ve ikinci derece denklemin ayırıcısı; çözümlü örnekler (İngilizce, açık ders kitabı)." },

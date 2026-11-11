@@ -215,7 +215,7 @@ window.ACELYA_DIGEST["nukleer-fizik"] = {
   ],
   next: [
     { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma", why: "β ve α bozunmasının yapılabilir olup olmadığını burada Q ile buldun; ne zaman olacağını orada izle: hafızasız zar, yarı ömür ve Bateman zincirleri." },
-    { href: "yildiz-yasam-dongusu.html", title: "Yıldız Yaşam Döngüsü", why: "pp zincirinin 26.7 MeV'i bir yıldızı milyarlarca yıl ayakta tutar; H-R diyagramında füzyonun yıldız kütlesine göre ne kadar sürdüğünü ve demir çekirdeğin neden çöktüğünü oku." },
+    { href: "yildiz-yasam-dongusu.html", title: "Yıldız Yaşam Döngüsü (H-R Diyagramı)", why: "pp zincirinin 26.7 MeV'i bir yıldızı milyarlarca yıl ayakta tutar. Ana dizide ömür sekmesinde bu yakıtın kütleye göre ne kadar dayandığını hesapla, Son durak sekmesinde kalıntının beyaz cüce, nötron yıldızı ya da kara delik olacağını gör." },
     { href: "kuantum-dalga.html", title: "Kuantum Dalga Fonksiyonu", why: "Füzyonun ve α bozunmasının kapısı tünellemedir: bir dalganın engeli nasıl aştığını kuyular ve engellerle gör; kabuk modelinin basamakları da aynı kuantum kuyusu fikridir." },
     { href: "gorelilik-uzayzaman.html", title: "Özel Görelilik", why: "Q değerinin arkasındaki E = mc² aynı geometriden gelir: Minkowski diyagramında ışık saatini, ikizleri ve hiç değişmeyen uzay-zaman aralığını ölç." },
   ],

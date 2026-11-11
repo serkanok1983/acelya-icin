@@ -199,7 +199,7 @@ window.ACELYA_DIGEST["internet-ve-ag-teknolojileri"] = {
   next: [
     { href: "siber-guvenlik.html", title: "Siber Güvenlik Laboratuvarı: Şifre, Özet ve Anahtar", why: "Paket açık bir zarftır. Oyuncak boyutta Diffie–Hellman, iki ucun herkesin dinlediği bir hatta ortak anahtarı nasıl kurduğunu; SHA-256 ve HMAC de iletinin yolda değişmediğinin nasıl kanıtlandığını gösterir." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma: Az Adım mı, Az Maliyet mi?", why: "Aynı ağırlıklı ızgarada BFS, Dijkstra ve A* çalışır; bu sayfadaki 'en az atlama mı, en az gecikme mi' sorusunun algoritma tarafını adım adım izlersin." },
-    { href: "cizge-teorisi.html", title: "Çizge Teorisi (Graph Theory)", why: "Yönlendiriciler ve bağlantılar bir çizgedir; kendi ağını çiz, kenarlara ağırlık ver, Dijkstra ile en kısa yolu buldur." },
+    { href: "cizge-teorisi.html", title: "Çizge Teorisi: Yapı, Değişmezler ve Teoremler", why: "Yönlendiriciler ve bağlantılar bir çizgedir: kendi ağını çiz, kenarlara ağırlık ver; Ağaçlar sekmesinde Kruskal ya da Prim ile bütün düğümleri en ucuza bağlayan kapsayan ağacı buldur." },
     { href: "asal-rsa.html", title: "Asal Sayılar ve RSA: Elekten Şifreye", why: "Sunucunun kimliğini kanıtlayan sertifikaların altındaki aritmetik: büyük asallar, mod alma ve anahtar üretimi." },
   ],
   sources: [

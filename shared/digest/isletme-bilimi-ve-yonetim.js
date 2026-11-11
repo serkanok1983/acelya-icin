@@ -199,7 +199,7 @@ window.ACELYA_DIGEST["isletme-bilimi-ve-yonetim"] = {
   next: [
     { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma", why: "Fiyat miktara bağlı olunca doğrular eğriye döner: arz–talep dengesi, vergi ve refah kaybı; firma sekmesinde marjinal maliyetin ortalama maliyeti en düşük noktasında kesişi ve P = MC kuralı." },
     { href: "yoneylem-arastirmasi.html", title: "Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol", why: "Ürün karması sabit oranla verilmek yerine kısıtlar altında seçilirse: en kârlı karma uygun bölgenin köşelerinde aranır; kritik yol ve PERT sekmesi proje süresindeki belirsizliği ele alır." },
-    { href: "bayes-olasilik.html", title: "Bayes Olasılığı", why: "Test pazarının olumlu çıkması ile bir tıbbi testin pozitif çıkması aynı hesaptır: önsel olasılığı ve kanıtın gücünü kaydırıcılarla değiştirip güncellenen olasılığı izle." },
+    { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Test pazarının olumlu çıkması ile bir tıbbi testin pozitif çıkması aynı hesaptır: önsel olasılığı ve kanıtın gücünü kaydırıcılarla değiştirip güncellenen olasılığı izle." },
     { href: "uretim-planlama-ve-endustri-muhendisligi.html", title: "Üretim Planlama: Stok, Kalite ve Akış", why: "Sipariş miktarı, kontrol grafikleri ve darboğaz deneyleri: bu sayfada tek sayı olarak verilen birim maliyetin ve kapasitenin arkasındaki üretim kararları." },
   ],
   sources: [

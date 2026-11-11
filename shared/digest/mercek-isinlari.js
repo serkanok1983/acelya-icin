@@ -211,7 +211,7 @@ window.ACELYA_DIGEST["mercek-isinlari"] = {
   next: [
     { href: "optik-yansima-kirilma.html", title: "Optik: Yansıma ve Kırılma", why: "Merceğin her yüzeyi bir Snell sınırıdır: kırılma indisi, tam iç yansıma ve renkleri ayıran dispersiyon burada." },
     { href: "kirinim-izgarasi.html", title: "Kırınım Izgarası", why: "Kusursuz merceğin bile aşamadığı sınırın kaynağı ışığın dalga doğasıdır; Abbe çözme gücü kuramını ızgaralarla yaptığı deneylere dayandırdı." },
-    { href: "matris-donusumleri.html", title: "Matris Dönüşümleri (2B)", why: "Işın optiğinin matris dili: boşlukta ilerlemek de ince mercekten geçmek de (y, u) düzleminde birer kaydırma (shear) dönüşümüdür." },
+    { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Işın optiğinin matris dili: boşlukta ilerlemek de ince mercekten geçmek de (y, u) düzleminde birer kaydırma (shear) dönüşümüdür." },
     { href: "klasik-girisim.html", title: "Young'un Çift Yarık Deneyi", why: "Mercek yüzeyindeki yansıtmaz kaplamaların ve odaktaki kırınım halkalarının arkasındaki ilke: yol farkı ve girişim." },
   ],
   sources: [

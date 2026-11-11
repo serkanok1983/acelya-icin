@@ -233,8 +233,8 @@ window.ACELYA_DIGEST["atislar"] = {
     },
     {
       href: "is-enerji.html",
-      title: "İş ve Enerji",
-      why: "Bu sayfanın enerji defterinin aslı: rampadan kayan kutuda sürtünmenin, burada havanın yaptığı negatif iş, kinetik ve potansiyel enerjinin toplamından eksilen miktara eşittir.",
+      title: "İş, Enerji ve Güç Laboratuvarı",
+      why: "Bu sayfanın enerji defterinin aslı: Kaykay pisti sekmesinde sürtünmeyi aç; ısı çubuğu büyüdükçe kinetik ve potansiyel enerjinin toplamı tam o kadar azalır. Burada o negatif işi hava yapıyordu.",
     },
   ],
   sources: [

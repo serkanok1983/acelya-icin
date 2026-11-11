@@ -218,7 +218,7 @@ window.ACELYA_DIGEST["rastgele-yuruyus"] = {
   next: [
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "Galton tahtasındaki her top tek boyutlu bir rastgele yürüyüştür. Konum dağılımının neden çan eğrisine yaklaştığını merkezi limit teoremiyle, standart hatanın √n bedelini de güven aralıklarıyla gör." },
     { href: "ideal-gaz.html", title: "İdeal Gaz", why: "Gerçek bir rastgele yürüyüşçü: çarpışa çarpışa zikzak çizen bir gaz molekülü. Ortalama serbest yolu ve hız dağılımını sert disk simülasyonunda ölç." },
-    { href: "dogal-secilim.html", title: "Doğal Seçilim", why: "Seçilim baskısı sıfırken bir özelliğin oranı soğurucu engelleri olan bir yürüyüş gibi savrulur ve sonunda 0'da ya da 1'de takılır: genetik sürüklenme. Küçük popülasyonda bunu izle." },
+    { href: "dogal-secilim.html", title: "Doğal Seçilim: Popülasyon Genetiği Laboratuvarı", why: "Seçilim baskısı sıfırken bir özelliğin oranı soğurucu engelleri olan bir yürüyüş gibi savrulur ve sonunda 0'da ya da 1'de takılır: genetik sürüklenme. Küçük popülasyonda bunu izle." },
     { href: "pi-yaklasimi.html", title: "π Yaklaşımı", why: "Rastgele noktalarla π'yi ölçen Monte Carlo yönteminde hata 1/√N ile küçülür: √N yasasının öbür yüzü. Bu yavaş hızı Arşimet'in çokgenleri ve sonsuz serilerle aynı grafikte yarıştır." },
   ],
   sources: [

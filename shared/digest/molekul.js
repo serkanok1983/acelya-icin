@@ -124,9 +124,9 @@ window.ACELYA_DIGEST["molekul"] = {
     { question: "H₂ modelinde %75 enerjide ölçülen T = 15,172 fs, küçük titreşim T₀ = 7,586 fs. Bu fark tek başına neyi gösterir?", options: ["Sayısal çözüm kesinlikle hatalıdır", "Atomlar mutlaka ayrılmıştır", "Harmonik yaklaşım bu enerjide yeterli değildir", "H₂'nin atom kütlesi değişmiştir"], answer: 2, explanation: "Klasik Morse kuramı da T/T₀ = 1/√(1 − 0,75) = 2 verir. Bu fark anaharmonikliktir. Sayısal hatayı ölçmek için sayısal periyodu aynı enerjideki Morse sonucu ile karşılaştırmalısın." }
   ],
   next: [
-    { href: "molekul-sekli.html", title: "Molekül şekli: elektron çiftlerinden geometriye", why: "Su açısal, metan dörtyüzlü: bağlar ve ortaklanmamış çiftlerin geometriyle ilişkisini derinleştir." },
+    { href: "molekul-sekli.html", title: "Molekül Şekli (VSEPR)", why: "Su açısal, metan dörtyüzlü: bağlar ve ortaklanmamış çiftlerin geometriyle ilişkisini derinleştir." },
     { href: "yay-kutle.html", title: "Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans", why: "T = 2π√(m/k) bağıntısını makroskopik bir sistemde dene; indirgenmiş kütlenin rolünü karşılaştır." },
-    { href: "atom-orbitalleri.html", title: "Atom orbitalleri: çubukların ardındaki kuantum dili", why: "Elektronu küçük bir top olarak düşünmenin sınırlarını gör; moleküler orbital kuramının ön koşullarına yaklaş." },
+    { href: "atom-orbitalleri.html", title: "Atom Orbitalleri: Hidrojen Benzeri Atomun Kesin Çözümü", why: "Elektronu küçük bir top olarak düşünmenin sınırlarını gör; moleküler orbital kuramının ön koşullarına yaklaş." },
     { href: "taylor-serisi.html", title: "Taylor serisi: eğrinin dibindeki parabol", why: "Morse potansiyelinin küçük bir bölgede neden harmonik göründüğünü yaklaşım matematiğiyle incele." }
   ],
   sources: [

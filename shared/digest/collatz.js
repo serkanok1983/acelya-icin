@@ -126,7 +126,7 @@ window.ACELYA_DIGEST["collatz"] = {
   ],
   next: [
     { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "Bir hesabı çalıştırmakla bütün girdilerde sonlandığını göstermek arasındaki farkı derinleştir." },
-    { href: "cizge-teorisi.html", title: "Çizge Teorisi", why: "Yörüngeleri düğüm ve oklarla düşün; birleşen yolları ve döngüleri yapısal olarak incele." },
+    { href: "cizge-teorisi.html", title: "Çizge Teorisi: Yapı, Değişmezler ve Teoremler", why: "Yörüngeleri düğüm ve kenarlarla düşün: 1'e akan dallar birleşerek ağaca benzer bir yapı kurar. Ağaçlar ve kapsayan ağaç sekmesinde döngüsüz bağlı bir çizgenin neden hep n − 1 kenarlı olduğunu gör." },
     { href: "asal-rsa.html", title: "Asal Sayılar ve RSA", why: "Teklik, çiftlik ve mod 4 sınıflarından daha geniş modüler aritmetik deneylerine geç." },
     { href: "lorenz-cekici.html", title: "Lorenz Çekicisi", why: "Kesin kurallarla belirlenen başka bir dinamik sistemde davranışın nasıl incelendiğini karşılaştır." },
   ],

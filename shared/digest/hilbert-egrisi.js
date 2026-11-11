@@ -127,7 +127,7 @@ window.ACELYA_DIGEST["hilbert-egrisi"] = {
   next: [
     { href: "koch-kar-tanesi.html", title: "Koch kar tanesi: uzunluk ve alan", why: "Sınırsız uzayan sınır ile sonlu alanın başka bir ilişkisini incele; sonsuz uzunluğun tek başına alan doldurma olmadığını karşılaştır." },
     { href: "mandelbrot-fraktali.html", title: "Mandelbrot: sonlu hesap ve üyelik", why: "Bir resmin gösterdiği şeyle sonsuz süreç hakkında kanıtlanan şeyi ayırmayı başka bir fraktalda dene." },
-    { href: "cizge-teorisi.html", title: "Çizge teorisi: yollar ve bağlantılar", why: "Hücre merkezlerini köşe, ortak kenarlı komşuluğu bağlantı olarak okuyup yol kavramını soyutlaştır." },
+    { href: "cizge-teorisi.html", title: "Çizge Teorisi: Yapı, Değişmezler ve Teoremler", why: "Hücre merkezlerini köşe, ortak kenarlı komşuluğu bağlantı olarak okuyup yol kavramını soyutlaştır." },
     { href: "sierpinski-fraktali-peano-egrisi-altin-oran.html", title: "Peano: dokuz hücreden kareye", why: "Hilbert'in 2×2 kuralını Peano'nun 3×3 yapımıyla karşılaştır; hücre ziyareti ile çizginin alanını ayrı ölç." }
   ],
   sources: [

@@ -228,7 +228,7 @@ window.ACELYA_DIGEST["kuantum-dalga"] = {
     },
   ],
   next: [
-    { href: "atom-orbitalleri.html", title: "Atom Orbitalleri", why: "Aynı Schrödinger denklemi üç boyutta ve çekirdeğin 1/r potansiyelinde: kutudaki n − 1 düğüm kuralı hidrojende radyal ve açısal düğümlere bölünür. s, p ve d bulutlarını döndür." },
+    { href: "atom-orbitalleri.html", title: "Atom Orbitalleri: Hidrojen Benzeri Atomun Kesin Çözümü", why: "Aynı Schrödinger denklemi üç boyutta ve çekirdeğin 1/r potansiyelinde: kutudaki n − 1 düğüm kuralı hidrojende radyal ve açısal düğümlere bölünür. s, p ve d bulutlarını döndür." },
     { href: "kuantum-mekanigi.html", title: "Kuantum Çift Yarık", why: "Born kuralını iş başında gör: elektronlar ekrana tek tek, rastgele noktalara düşer; |ψ|² ancak binlerce isabetin dağılımında saçak olarak belirir." },
     { href: "duran-dalgalar.html", title: "Duran Dalgalar", why: "Telin modları kutunun φₙ'leriyle aynı sin(nπx/L) biçimindedir; ama telde frekans n ile, kutuda enerji n² ile büyür. Farkı denklemlerin türü yaratır: telde ω = vk, kutuda ħω = ħ²k²/2m." },
     { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma", why: "Gamow'un tünellemesinin istatistik yüzü: her çekirdek her an aynı küçük olasılıkla bozunur ve bu rastlantıdan üstel bozunma yasası doğar." },

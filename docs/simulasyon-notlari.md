@@ -1471,6 +1471,156 @@ başlıkları ve eskimiş gerekçeleri güncellendi.
   bedelleriyle; 23 desen kataloğu. Düzeltildi: "konu gözlemcilerini tanımaz" ifadesi (GoF ile çelişiyordu).
 - ✔ `yazilim-muhendisligi`: Git veri modeli, kapsama ve mutasyon testi, PERT/Monte Carlo ve Brooks öğretim
   modeli, kanban ve Little yasası. Düzeltildi: "Kararsız" durumunun nedeni, tohum duyarlılığı notu.
+  Kanbanın kararsızlık algılayıcısı aynı gün yeniden yazıldı: bir sütunun sınırındaki hızı μ/[1 + s(k − 1)]
+  ≤ λ ise ya da pencere 20 dilime bölündüğünde sistemdeki iş anlamlı biçimde büyüyorsa (eğim ≥ 3 standart
+  hata ve büyüme ≥ gelişlerin %0,5'i) "Kararsız". 3/9/3 artık tohum 1–10'da işaretleniyor; benzetim aynı
+  rastgele sayıları çektiği için defterdeki sayılar değişmedi. Açık (kenar durumları): kapasite ölçütü
+  arkadaki tıkanmayı saymadığından 1/9/1 gibi ayarlarda gereksiz "Kararsız" diyebilir; λ = 0,9'da çok yavaş
+  büyüyen birkaç tohum tek pencerede "Kararlı" görünür. Sayfanın notu bunu söylüyor.
+- ✔ `internet-ve-ag-teknolojileri` (6,5→8,5): varış TTL'i 59 gösteriyordu (60 olmalı) ve kutu ile etiket bir kayıktı; "gecikme" rastgeleydi (artık bağlantı uzunluklarından, tek yön 61,3 ms); animasyon kare hızına bağlıydı; DNS akışı yazılan adı yok sayıyordu; alt ağ hesaplayıcı bozuk IP/önek kabul ediyordu, /32 için 0 adres veriyordu. Açık: Frankfurt IXP ve Chicago düğümleri hiç kullanılmıyor; "IP sınıfı" eskimiş A/B/C gösteriyor; her ad aynı temsilî adresi alıyor; `<h1>` yok.
+- ✔ `isaretciler-ve-bellek-yonetimi` (7→9): Bellek Modeli sekmeleri çalışmıyordu; çekirdek bandı düşük adres ucundaydı (üste taşındı, altta "Eşlenmemiş (NULL)" bandı); "BSS (Sıfırlanmamış)" → "İlklenmemiş"; bölüt etiketleri kırpılıyordu; canvas renkleri; yığın tabanı "Stack Pointer" diye etiketliydi; `p = NULL` iken dereference sessizdi; "segmentation fault" kesin diye yazılmıştı (tanımsız davranış). Defterde: Morris solucanı "99 satır" (yalnız yükleyici), sızıntının "tanımsız davranış" sayılması, "260" sonucunun garanti gibi sunulması düzeltildi; C davranışları yerel clang ile derlenip çalıştırıldı. Açık: işaretçi hücresinde ad değerin üstüne biniyor ("42x"); sekme düğmelerinde seçili durum görünmüyor; benzeteç işaretçi üzerinden yazamıyor.
+- ✔ `isletim-sistemleri-ve-linux` (6,5→9): zamanlayıcının Otomatik modu hiç durmuyor, sonsuza dek gri kare ekliyordu; yeni süreçler bir fazla numaralanıyordu; terminale `/proc/cpuinfo` ve `/proc/meminfo` eklendi; Ring 3 → Ring 0 geçişi "context switch" diye yazılmıştı (kip geçişi); `/usr` "Unix System Resources" değil. Defterde: kilitlenmenin dört koşulla "kaçınılmaz" olduğu (gerekli, yeterli değil), 1973'te "ilk taşınabilir işletim sistemi", sistem çağrısı süresi düzeltildi. Açık: `ps` bayraksız daemonları listeliyor; `ls` `-a` olmadan `.bashrc` gösteriyor; süreç tuvali gerçek kuyruk kullanmıyor.
+- ✔ `bilgisayar-sistemleri-ve-mimarisi` (6→8,5): boru hattında WB sütunu hiç dolmuyordu (komut MEM'den sonra kayboluyordu); rastgele "tehlike" bazen görünmez gecikme üretiyordu; aşama kutuları komut adı yerine indeks gösteriyordu; veri yapısı tuvalinde 19 `var(--…)` renk; ikili ağaçta kenarlar yanlış ebeveyne gidiyordu; "ext4 1 EB dosya" (birim 1 EiB, dosya 16 TiB). Defterde: "ışık bir çevrimde çipi geçemez" yanlıştı; işaret-büyüklük −1; Moore yasasının 1965/1975 ifadeleri. Açık: tehlike hâlâ rastgele (komut listesindeki gerçek R1 bağımlılığı belirlenimci gösterilebilir — yeniden tasarım); kuyruk ve bağlı liste tuvali sağa taşıyor; dönüştürücü ≥ 2³² değerleri sıfırlıyor, "12abc"yi 12 okuyor.
+- ✔ `makine-dili-assembly-c` (6,5→8,5): "Aynı Fonksiyon, Üç Seviye" paneli beş yerden yanlıştı (`mov rax, rdi` "max = arr[0]" diye etiketli ama işaretçi döndürüyordu; hex `cmovge` ile AT&T `cmovll` çelişiyordu; iki atlama ofseti yanlıştı; `int len` için 64 bit sınama). 30 baytlık doğru kodla yeniden yazıldı: AT&T sütunu clang ile birebir hex sütununu üretiyor, bayt düzeyi bir emülatörde 20.000 rastgele dizide C işleviyle eşleşti. Mimari: x86-64, System V AMD64. Defterde: "telefonundaki her uygulama 48 89 F8" (telefonlar ARM), Ariane 5 ("sessiz taşma" değil, istisna bilgisayarı kapattı). Açık: "derleyici gezgini" beş girdili bir arama tablosu (sayfada artık yazıyor); alt dizgi eşlemesi yorum satırından bile dal seçiyor.
+- ✔ `otomotiv-muhendisligi` (6,5→8,5): piston üçgen dalgayla hareket ediyor, biyel kolu uzayıp kısalıyordu; gerçek krank–biyel kinematiğiyle (sabit 172 px kol) değişti. Kartlarda: Toyota HSD "paralel hibrit" (güç bölüşümlü), ESC'nin AB'de zorunluluk yılı, "vites küçüldükçe (1→6)" düzeltildi. Defterde: Bertha Benz'in aracı, vuruntunun tanımı (kıvılcımdan önce tutuşma değil, uç gazın kendiliğinden tutuşması), sıkıştırma sonu sıcaklığı. Açık: çizilen sıkıştırma oranı 4,4; İlerlet 30°'nin katlarına oturmuyor; hız kare başına (120 Hz'te iki kat); sayfa motor tuvali dışında yalnız kart.
+- ✔ `elektrikli-araclar` (6→8,5): iyon animasyonunun yönü ve yeniden doğma mantığı yanlıştı (iyonlar hep katot tarafında başlıyordu); SoC "79.69999999999999" yazıyordu; araç içi şarj kartı 7,2 kW diyordu (7,4/11/22 kW); Renault Zoe "anahtarlamalı relüktans" değil; birkaç kart düzeltildi ya da tarihlendi. Defterde: 17 Wh'lik hücre "telefon pilinin üç katı" (yaklaşık aynı), NMC orta değeri, "insanlık ilk kez 100 km/sa" (trenler geçmişti), NMC/LFP'nin "aynı laboratuvardan" çıkışı. Açık: dış devre elektronları durağan; iyonlar saniyede birkaç kez rastgele sıçrıyor; kWh/menzil/şarj hesaplayıcısı yok; hızla eskiyen kart iddiaları (ısı pompası kazancı, istasyon sayıları).
+- ✔ `mantik-devresi` (5→8,5): **girişler kapılara hiç ulaşmıyordu** (`evalGate("input", [])` hep 0; A=B=1 için AND 0 gösteriyordu, bütün doğruluk tabloları yanlıştı). Değerlendirme yeniden yazıldı; SR kilidi artık durum tutuyor; teller çıkış pininden çiziliyor; "Tümünü Temizle" çalışıyor. Kullanılabilirlik: pinler ve kapılar üst üste düşmüyor, giriş pinleri sürüklenebiliyor ve A, B, C… etiketli; tuvale `touch-action: none` eklendi. Açık: tel yalnız sürükleyerek çekiliyor; tablo ve LED yalnız son eklenen kapıyı izliyor, 3+ pinde "≥3 giriş" diyor; geri alma yok.
+- ✔ `elektronik-muhendisligi` (6,5→8,5): D flip-flop saati yok sayıyordu (`dOut = A`); artık yalnız CLK 0→1 kenarında yakalıyor. Canvas'ta 13 `var(--x)` rengi (anot/katot etiketleri görünmüyordu). Defterde: "dört NAND her kapıyı kurar", flip-flop'un "Shannon'ın mirası" oluşu (Eccles–Jordan 1918), diyot akım oranı. Açık: op-amp çizimleri şematik ve devre olarak eksik; sekmeler "NPN/PNP", "N/P kanal" vaat edip yalnız birini çiziyor; sayfa analog hiçbir şey hesaplamıyor (Vin kaydırıcısı, I–V eğrisi yok).
+- ✔ `makine-muhendisligi` (5→8): termodinamik çevrimler sabit kodlu çokgenlerdi (Carnot P–V'de dikdörtgendi; Otto/Diesel rastgele altıgen) — artık PV = sabit ve PV^k = sabit eğrilerinden hesaplanıyor, verimler yazıyor; kiriş yük oku yukarı bakıyordu; canvas renkleri; "2. yasa: entropi artar", Navier–Stokes ve Grashof kartları düzeltildi. Defterde: çözümlü örnek kirişi yalnız akma oranından "rahat" ilan ediyordu (artık σ = M·c/I ve sehim, modelin dışında kalanlarla; mukavemet sayfasında aynı sayılar okunuyor); "yüz kat" W'ye bağlanmıştı (rijitlik I ile 100×, dayanım W ile 10×); Tacoma Narrows "rezonans" (aeroelastik çırpınma); Prandtl sınır tabakası "kanadın neden kaldırdığını açıklar". Açık: kaydırıcı yok (r, sıcaklık, kesit, açıklık sabit); P–V eksenlerinde ölçek yok; canvas DPR duyarsız ve açık temada koyu zeminli; akışkan, mekanizma ve imalat panelleri yalnız kart.
+- ✔ `plc-hidrolik-pnomatik-cnc-cadcam` (5→8): merdiven mantığında mühürleme yoktu (`motor = start && stop`), oysa çizim ve durum satırı tuttuğunu söylüyordu → `(start || motor) && stop`; mühür dalı START kontağının ortasından çıkıyordu; NK kontak açıkken vurgulanıyordu; canvas renkleri. Defterde: NK kontak anlatımı kendisiyle çelişiyordu; Tower Bridge "şehir şebekesinden" (kendi akümülatörleri); çözümlü örnek hidrolik-sistemler sayfasında yeniden üretilebilir sayılarla değişti. Açık: START anlık buton değil geçiş düğmesi (1'de bırakılırsa STOP dönünce motor yeniden kalkar — defter bunu güvenlik dersi yapar); G02 satırı teğet olmayan köşe üretiyor (muhtemelen G03 kastedilmişti — değişirse defterin 4. deneyi ve 3. sorusu güncellenmeli); tarama çevrimi, zamanlayıcı yok; hidrolik/pnömatik/CAD bölümleri yalnız kart.
+- ✔ `metalurji-ve-malzeme-muhendisligi` (6,5→8,5): kristal tuvali YMK'yi 20 küreyle (kenar ortaları) çiziyordu → 14 (yüz merkezleri); SDH küp biçimindeydi → gerçek altıgen prizma (17 küre); Fe–C diyagramı ölçeksizdi ve etiketleri görünmüyordu → ölçekli Fe–Fe₃C (iki çizim işlevi yeniden yazıldı); "beş ana sınıf" (altı), ötektoid 0,8 → 0,76. Defterde: Brearley'nin "hurda yığını" efsanesi, martensit miktarının hızla değil sıcaklıkla belirlenmesi. Açık: sayısal etkileşim yok (diyagram üzerinde kaldıraç kuralı okuması gerçek laboratuvar yapardı); sınırlar doğru parçalarıyla çizili (ara sıcaklıklar onlarca °C yaklaşık).
+- ✔ `maden-muhendisligi` (7→8,5): "Kırma" kartı enerji payını yanlış veriyordu; Elektroliz/Ergitme kartı Hall–Héroult'yu mat ergitme sayıyordu; Türkiye kartlarında bor, altın, nadir toprak, krom, feldspat iddiaları kaynaklandı ya da yumuşatıldı. Koordinatör: doğrulanamayan mermer "dünya 1.'si / 4 milyar m³", linyit "en büyük enerji kaynağı / 20 milyar ton / 4,8 milyar ton", trona "dünya 2.'si", "açık ocak %80" ve "Çukurova Krom" örneği sayısız, sıralamasız ifadelere çevrildi. Defterde: Elsner denklemi ve kesme tenörü tanımı eklendi; bor payı çıplak sayı olmadan. Açık: hesaplayıcı yok (tenör/verim ya da dekapaj oranı aracı gerçek laboratuvar yapardı).
+- ✔ `isletme-bilimi-ve-yonetim` (6,5→8,5): "dikey/dikey eşitlik" → yatay/dikey; 4P/4C atıfları; Hawthorne araştırmacıların yorumu olarak ve Levitt–List 2011 çekincesiyle; Maslow 1943 (piramit ona ait değil); cari oran "ideal >1,5" → sektöre göre değişen kaba eşik; vergi oranları 2025 tarihli. Defterde: eksen otomatik ölçeklendiği için "yeşil doğru dikleşir" ve "beyaz nokta yukarıda" gözlemleri ekranda yanlıştı; Ford hat süresi tarihi ve 5 dolarlık günün karşılaştırması; başabaş grafiğinin Rautenstrauch'a atfı kaldırıldı. Açık: değişken maliyet 25'e sabit, denetimi yok; y ekseni otomatik ölçeklenince eğimler yanıltıcı; BEP > 800 iken ZARAR/KÂR etiketleri grafik dışı konumdan çiziliyor.
+- ✔ `uluslararasi-iliskiler` (6,5→8,5): tarafsızlık için kuramlar ekol olarak sunuldu (gerçekçilik, liberal kurumsalcılık, inşacılık, İngiliz Okulu); "Bandwagoning (Pezvenklik)" hakaret içeren yanlış çeviriydi → "Peşine takılma"; NATO genişlemesi (Finlandiya 2023, İsveç 2024), avro bölgesi, DTÖ üye sayısı, UNCLOS, R2P, Mackinder, Paris hedefi düzeltildi; süren çatışmalar hakkındaki yorum cümleleri çıkarıldı; canvas rengi. Defterde: Petrov "aramadı" (yanlış alarm diye bildirdi), deniz mili tanımı, veto ve demokratik barış yargıları tartışmalı olarak yazıldı. Açık: tuval durağan bir şema; "İngiliz Okulu & Rasyonalizm" kartı Wight'ın rasyonalizmini rasyonel seçimle karıştırıyor; konu kartları süren çatışmaları adıyla anıyor; güncel sayılar (avro 21, DTÖ 166, New START) bellekten.
+- ✔ `mikro-ekonomi-ve-uretim-faktorleri` (6→8,5): arz–talep tuvalinde eğimler ters çizilmişti (notlardaki eski hata) — iki doğru yeniden çizildi, denge noktası her kaymada tam kesişimde; "rant" gölgesi anlamsız iki üçgendi → tüketici ve üretici artığı; fayda tuvali bütçeyi aşan (5X, 3Y) ve MRS 0,3 gösteriyordu → (5X, 2,5Y), MRS 0,5, optimumdan geçen kayıtsızlık eğrisiyle; canvas renkleri. Defterde: kupa deneyi iki ayrı çalışmanın sayılarını karıştırıyordu; Tversky'nin Nobel aldığı izlenimi. Açık: eksenlerde sayı yok; düğmeler +1, +2, −2 döngüsünde, "azalt" yok; artık alanları yazılmıyor; sayfa yeniden kurulum adayı (esneklik kaydırıcısı, vergi kaması, maliyet eğrileri).
+- ✔ `makro-ekonomi-ve-para-politikalari` (6→8,5): döngüsel akıştaki "← emek" etiketi baş aşağıydı; "her karta tıkla" diyordu ama kartlar tıklanmıyor; "Çözüm: faiz artışı" → "yaygın reçete… tartışmalıdır"; net rezerv tanımı düzeltildi. Defterde politika yargıları tartışmalı olarak yeniden yazıldı; 70 kuralının %65 enflasyona uygulanması, Fed'in "M'yi ikiye katlaması", Almanya 1923 ve Volcker sayıları düzeltildi; Türkiye enflasyon serisi Dünya Bankası'ndan (okuma tarihiyle). Açık: sayfada hiç hesap yok — yeniden kurulum adayı (çarpan turları, MV = PY, Taylor kuralı kaydırıcıları); "Bitcoin Avusturya okulunun ruhunu taşır" görüş; cari denge tanımı transferleri atlıyor; tarihli Türkiye sayıları (Ekim 2022 %85,5; politika faizi 2023–24) bellekten.
+- ✔ `ucak-muhendisligi-ve-aerodinamik` (6,5→9): kanat profili tuvali hücum açısını yanlış öğretiyordu (notlardaki eski hata) — çizim işlevleri yeniden yazıldı (~150 satır): serbest akım yatay, yalnız profil dönüyor, arkada aşağı sapma; sürükleme oku akışa karşı bakıyordu; alt yüzey basınç okları emme gibi dışa bakıyordu; C_L perdövitesten sonra artmaya devam ediyordu (22°'de 1,93 → 0,95); okuma satırına C_D ve L/D eklendi; profil %2 yerine %12 kalınlıkta. Kartlarda ramjet aralığı, AF447, jet menzili düzeltildi. Defterde kaldırma hem basınç hem momentum (aşağı sapma) hesabıyla; "eşit geçiş süresi" açıkça reddediliyor; X-43A düzeltildi. Açık: akım çizgileri nitel el yapımı alan; hız/yoğunluk/alan denetimi yok (L = ½ρv²S·C_L keşfedilemiyor); kart panellerinde çevrilmemiş jargon.
+- ✔ `otonom-araclar-ve-iha` (7→9): tuval tıklamaları CSS ölçeğini yok sayıyordu (sağ kenarda iki hücre kayıyordu); A* yol bulamayınca sessizdi → durum satırı yol uzunluğunu ve incelenen kare sayısını yazıyor; pil kartında başıboş Çince karakterler; SAE düzeyleri (L2 "eller direksiyonda" şartı yok), LiDAR doğruluğu ve şirket iddiaları düzeltildi/tarihlendi. Defterde: Stanley "parçacık filtresi", "eğilen drone daha da eğilir", Urban Challenge'da trafik ışığı, "aynı 22 Wh ile saatlerce süzülür" yanlışları. Açık: PID/Kalman/sensör panelleri durağan kart; A*'da h = 0 (Dijkstra) seçeneği ve adım görünümü yok; pencere yeniden boyutlanınca engeller siliniyor; şirket paneli tarihli olsa da eskimeye devam edecek.
+- ✔ `pong` (7,5→9): **oyun yüklenince donuyordu** — `gameLoop()` zaman damgası olmadan çağrılıyor, biriktirici NaN oluyor, `update()` hiç çalışmıyordu; `requestAnimationFrame(gameLoop)` ile düzeldi. HUD "Hız: 3.00x" → "4.00 piksel/adım"; oyuncu raketi 0…320'ye sınırlandı. Defter (örnek defter; sesi ve yapısı korundu, 30 hedefli düzeltme): ıskalama oranları düşük verilmişti (7,40'ta uç vuruşların %40–50'si geçiyor), "hızlanma kuralı sonsuz ralliyi engeller" yanlıştı (4,00'te bilgisayar 50.000 vuruşta 0 ıskalıyor), Tennis for Two analog bilgisayarda çalışıyordu, Andy Capp's prototipi Ağustos 1972. Açık: raket çarpışması Y'de top yarıçapını yok sayıyor; ~6,9'un altında yapay zekâ yenilmez, zorluk seçeneği yok; fare denetimi ve duraklatma yok; h1'de emoji.
+- ✔ `altin-oran` (6,5→9): sayfa altın sarmal çizmiyordu — yarıçap 45°'de bir φ ile büyüyordu (tur başına φ⁸ ≈ 47×); `Math.sqrt(φ)` ile çeyrek turda φ oldu. Defterde altın oran folkloru ayıklandı (Parthenon, Leonardo, piramit, insan bedeni, "en güzel dikdörtgen", nautilus — logaritmik ama altın değil); yaprak dizilimi mekanizması düzeltildi (bitki "en sıkı paketi seçmez"; yeni taslak engellemenin en az olduğu yerde çıkar); Binet ve hata yasası eklendi. Açık: tam pencere tuval tekerlek ve dokunma kaydırmasını yutuyor (deftere üst çubuktaki kitap düğmesi, klavye ya da kaydırma çubuğuyla ulaşılıyor); `<title>` hâlâ "… - Three.js"; Three.js CDN'den yükleniyor; arayüz/açıklama yok; içteki küreler birbirine karışıyor.
+- ✔ `asteroids` (6→9): başlıktan emoji kaldırıldı; oyun masaüstü ve 390 px dokunmatikte baştan sona oynandı. Defter sayfayla çelişiyordu ("sürtünme olmadığı için" — bu gemide kare başına %2,33 sürtünme var); tarih hataları (Computer Space Nutting'indi, Atari'nin değil; satış sayıları kaynaklara göre aralık olarak). Açık: çarpışma düz uzaklıkla hesaplanıyor, ekran dikişinin iki yanındaki nesneler çarpışmıyor; lazer gemi hızını devralmıyor (defter sadeleştirme olarak anlatır); tuval yazı tipi serife düşüyor; REKOR her yeni oyunda 0'dan başlıyor.
+- ✔ `uzay-kosucusu` (6→9): hızlandırıcı etkisizdi (`gameSpeed + 0.02`; notlardaki eski hata) → `+ 3`, etkinken adım başına bir ek puan (tasarım kararı: tek `score++` satırı); "Çift zıplama" yazıyordu ama kod üç zıplama veriyor; ölüm anındaki dokunuş skor ekranını atlıyordu (0,6 s koruma); başlıktan emoji. Defterde: "ikinci lazerden sonra tek zıpla" tavsiyesi imkânsızdı (üçünün de üstünden geçmek gerek); yıldız hızı; Flappy Bird tarihi. Açık: kuyruklu yıldızın çarpışma kutusu çizimden 10 px kaymış; asteroitler elips çizilip dikdörtgen çarpışıyor; ↑ ve W oyun bitince yeniden başlatmıyor; tuval metinlerinde emoji.
+
+**Yeniden kurulum adayları (bu turda yalnız düzeltildi, laboratuvar düzeyine çıkarılmadı):**
+`makro-ekonomi-ve-para-politikalari` (hiç hesap yok), `mikro-ekonomi-ve-uretim-faktorleri`,
+`hesaplama-teorisi` (Turing makinesi ve gerçek β-indirgeyici yok), `elektrikli-araclar`,
+`otomotiv-muhendisligi`, `maden-muhendisligi`, `metalurji-ve-malzeme-muhendisligi` (kaldıraç kuralı
+okuması), `uluslararasi-iliskiler`, `programlama-paradigmalari`, `veritabanlari` (gerçek B+ağacı),
+`altin-oran` (tuval kaydırmayı yutuyor, arayüz yok), `makine-ogrenmesi-derin-ogrenme-llm` (eğitim hızı).
+
+## 11 Kasım 2026 — G: on sekiz zayıf laboratuvarın yeniden kurulumu
+
+On sekiz sayfa sıfırdan çok sekmeli laboratuvar olarak yeniden kuruldu (kurucu → farklı yazar → üçüncü,
+bağımsız doğrulayıcı/editör). Her sayfanın dondurulmuş hesap çekirdeği ve kalıcı testi var
+(`scripts/check-g-<slug>.mjs`; hepsi: `npm run test:g`). Bu bölüm, aynı sayfalar için önceki bölümlerdeki
+"açık" ve "yeniden kurulum adayı" maddelerinin yerine geçer. Doğrulayıcılar bu turda sayfanın bilimini de
+kendi hesaplarıyla yeniden türetti; hiçbir çekirdekte formül ya da sabit hatası bulunmadı. Düzeltilenler
+arayüz, metin ve kenar durumlarıydı.
+
+- ✔ `serbest-dusme`: boşlukta düşüş ve g ölçümü, hava direnci ve limit hız, tüy–çekiç ve eğik düzlem.
+  Düzeltildi: "g 200 m'de %0,01'den az değişir" yalnız Dünya için doğruydu; NASA'nın tüy kütlesi notu.
+  Öğretim değerleri: C_d = 0,47, Re sınırları. Kaldırma kuvveti ve ek kütle yok sayılır (sayfada yazılı).
+- ✔ `newton-hareket-yasalari`: sürtünme ve birinci yasa, Atwood düzenekleri, etki–tepki. Eklendi: kuvveti
+  seçilen hızda kendiliğinden kesme. Açık: sabit kuvvetlerde adım çözümü analitik olduğundan ölçülen–kuram
+  farkı %0,00; sıfırdan farklı farklar yalnız gürültü, eşik çözünürlüğü ve makara/sürtünme sistematiğinden.
+- ✔ `yay-kutle`: BHH, sönüm, zorlanma ve rezonans. Düzeltildi: "yarı genişlik" etiketi (tam genişlikti),
+  ζ etiketi, ±%5 ölçütündeki eşik açıklaması. Açık: yay kütlesi açıkken ölçülen periyot son basamaklarda oynar.
+- ✔ `vektorler`: toplama, çarpımlar, bağıl hız. Açık: ilk iki sekmede "ölçüm" bileşensiz ikinci bir sayısal
+  yoldur, fark hep 0.000; yüzde işareti sayıdan sonra yazılıyor.
+- ✔ `integral`: birikim ve temel teorem, geometri, has olmayan integraller. Doğrulayıcı sayfada kusur bulmadı.
+  Açık: uçlarında f′ sonsuz olan yarım çemberde yay uzunluğu ~1e-8 doğrulukta (sayfada yazılı).
+- ✔ `dalga-superpozisyonu`: iki dalga, vuru, atma ve paket. Düzeltildi: paket durma denetimi sabit adıma
+  alındı (okumalar oynatma hızından bağımsız). Açık: ölçülen faz hızı kuramdan küçük ve sistematik sapar
+  (yayılan pakette tek tepe izlemenin etkisi); satırda not yok, defterde var.
+- ✔ `hesaplama-teorisi`: gerçek Turing makinesi, β-indirgeyici, köşegen tablosu. Düzeltildi: "Sona kadar"
+  derin terimlerde sayfayı iki dakikadan uzun donduruyordu; "Hiç durmayan sayaç" saymıyordu. Tek bantta
+  palindrom için n² alt sınırı kaynak bulunamadığından yalnız "bu tablo için" söyleniyor. Açık: animasyonlu
+  "Çalıştır" kipinde çok derin terimlerin izi yavaş çizilir.
+- ✔ `makro-ekonomi-ve-para-politikalari`: çarpanlar, enflasyon–faiz–Taylor, Solow. Düzeltildi: q = 0 olan
+  kaydırıcı bileşimlerinde kayan nokta işaret hatası; silinen uyarı metni (sayfanın kendi testini
+  kararsızlaştırıyordu). Bütün sayılar öğretim değeridir; güncel rakam yoktur.
+- ✔ `mikro-ekonomi-ve-uretim-faktorleri`: arz–talep ve refah, tüketici seçimi, firma. Firma sekmesinde AVC'nin
+  iç minimumu için "kurulum emeği" L₀ parametresi (L₀ = 0 saf Cobb–Douglas). Hazır düzenler diğer denetimleri
+  sıfırlar (sayfada yazılı). Oyun teorisi paneli kalmadı; tutuklu ikilemi defterde bir kavram kartıdır.
+- ✔ `altin-oran`: Three.js sahnesi kaldırıldı; φ ve sürekli kesirler, sarmallar, yaprak dizilimi. Düzeltildi:
+  "en iyi açı" kartı altın açıyı tek optimum gibi etiketliyordu; zayıf ikinci sarmal ailesi artık belirtiliyor.
+  Sonlu tohum sayısında en iyi paketlenme açısı altın açının hemen yanındadır (ölçüldüğü gibi gösterilir).
+  Nautilus büyüme katsayısı öğretim değeridir.
+- ✔ `elektrikli-araclar`: direnç ve menzil, batarya ve şarj, motor ve rejenerasyon. Düzeltildi: iki sekme
+  farklı rejenerasyon verimi kullanıyordu (çekirdeğe isteğe bağlı `etaRegen` eklendi); 800 V düzeninde
+  karşılaştırma çizelgesi kayboluyordu. Marka, fiyat, pazar payı yok; araç değerleri öğretim değeridir.
+- ✔ `otomotiv-muhendisligi`: krank-biyel ve Otto döngüsü, aktarma ve çekiş, frenleme ve viraj. Düzeltildi:
+  ayrı yuvarlanmış terimler arasındaki "=" (taranan durumların dörtte birinde toplam tutmuyordu) → "≈".
+  Sınırlar: statik aks yükü, anlık vites, dönen kütle yok (0–100 süreleri iyimser); buz μ öğretim değeri.
+- ✔ `maden-muhendisligi`: tenör–verim, açık ocak ve kesme tenörü, ufalama ve havalandırma. Ülke sıralaması,
+  rezerv ve üretim rakamı yok. Eklendi: küçük ızgarada saf kuralın yanıldığı hazır düzen. Bond yasası metrik
+  tonla (özgün tanım kısa ton); metan sınırı mevzuata göre değişir, sayı verilmez.
+- ✔ `metalurji-ve-malzeme-muhendisligi`: Fe–Fe₃C ve kaldıraç kuralı, çekme deneyi, difüzyon. Ötektik 1148 °C
+  (kaynaklar 1147/1148). Faz sınırları doğru parçalarıdır. C → γ-Fe difüzyon çifti (2,3 × 10⁻⁵ m²/s,
+  148 kJ/mol) birincil kaynaktan doğrulanamadı: öğretim değeri. Boyun sonrası mühendislik eğrisi şematiktir.
+- ✔ `uluslararasi-iliskiler`: yinelenen tutuklu ikilemi, Richardson modeli, oylama gücü endeksleri. Süren
+  çatışma, güncel aktör ve tarihsiz sayı yok; ekoller ekol olarak. Cömert kısasın bağışlama oranında Stanford
+  maddesi kendi içinde çelişir (formül 1/3, düz yazı %25); sayfa formülü izler ve bunu belirtir. Çekimserlik
+  modellenmez (kaynaklı tek cümle var). Richardson denklemleri "yaygın ders kitabı biçimi" olarak etiketli.
+- ✔ `programlama-paradigmalari`: buyurgan/fonksiyonel izler, çağrı yığını, mini Prolog. Dil–paradigma işaret
+  tablosu kaldırıldı. Sol özyineleme tümce sırasıyla değil gövde hedeflerinin sırasıyla sonlanır (üç hazır düzen).
+- ✔ `veritabanlari`: SQL motoru, gerçek B+ağacı, normalizasyon ve çizelgeler. sqlite3 ile 39 sorguda eşleşti;
+  bilinçli farklar sayfada: Türkçe sıralama, tamsayıya yuvarlanmayan bölme, harfe duyarlı LIKE. Düzeltildi:
+  çizelge düzenleyicisinde çift tıklamanın taşımayı geri alması. Açık: kök bölünmesinden sonra "okunan düğüm"
+  ekleme öncesi yüksekliği gösterir; Safari'de dokunma yolu yalnız öykünmeyle sınandı.
+- ✔ `makine-ogrenmesi-derin-ogrenme-llm`: gradyan inişi, canlı sinir ağı, softmax–dikkat–bigram. Ürün adı ve
+  tarihsiz "en büyük" iddiası yok. Ağ sonuçları tohuma ve kayan nokta motoruna bağlıdır (V8); gradyan
+  denetiminin en büyük bağıl hatası son basamaklarda değişir. Açık: T = 0,05'te durum satırı p = 0,99995 için
+  "%100" yazar.
+- Ortak: 46 defterdeki bağlantı başlığı yeni sayfa başlıklarıyla eşitlendi, 18 eskimiş gerekçe yeniden yazıldı.
+  PostgreSQL ve SQLite belgeleri kaynak izin listesine eklendi. Sayı biçimi sayfadan sayfaya değişir (ondalık
+  virgül ya da nokta); her sayfa kendi içinde tutarlıdır ve eksi işareti U+2212'dir.
+- Kaynak açılamadığı için bilgiden bırakılan ayrıntılar doğrulayıcı raporlarında tek tek listelendi; başlıcaları:
+  birkaç nobelprize.org sayfası (403), Markowsky makalesi (taranmış), Hennie 1965, Callister Tablo 5.2,
+  Molander 1985, bazı ABD tarihsel rakamları.
+
+## 11 Kasım 2026 — H: yirmi bir laboratuvarın daha yeniden kurulumu
+
+"Eski 36 defter" bölümünde yalnız düzeltilmiş, laboratuvar düzeyine çıkarılmamış diye anılan yirmi bir sayfa
+G hattıyla (kurucu → farklı yazar → üçüncü, bağımsız doğrulayıcı/editör) sıfırdan yeniden kuruldu. Her
+sayfanın dondurulmuş hesap çekirdeği ve kalıcı testi var (`scripts/check-g-<slug>.mjs`; hepsi `npm run test:g`).
+Bu bölüm, aynı sayfalar için önceki bölümlerdeki "Açık" maddelerin yerine geçer; onların hepsi kapandı.
+Doğrulayıcılar çekirdekleri kendi yazdıkları başvuru kodlarıyla yeniden hesapladı; hiçbir çekirdekte formül ya
+da sabit hatası çıkmadı (iki çekirdek içi küçük düzeltme aşağıda). Düzeltilenler durum satırları, açıklama
+metinleri, hazır düzenler ve kenar durumlarıydı. Defter puanları 8–8,5'ten 9'a çıktı. Bütün meta açıklamaları
+yeni defter etiketlerinden yazıldı; öteki defterlerde bu sayfalara giden 24 "sonraki durak" bağlantısının
+başlıkları ve eskimiş gerekçeleri güncellendi.
+
+- ✔ `elektrokimya`: galvanik hücre (dokuz yarı hücre, OpenStax Ek L), Nernst ve derişim hücresi, Faraday
+  elektrolizi, pil boşalması (RK4). Daniell E° = 1,099 V. Düzeltildi: "Dengede" durumu Q/K oranını açıkça
+  yazıyor; boşalma süresi tahmini "en az" diye; karışma entropisi cümlesi. Sayfa ondalık nokta kullanır.
+- ✔ `sicim-teorisi`: klasik titreşen sicim (sonlu fark), bosonik sicim düzey sayımı ve Hagedorn, sarılı boyut
+  ve T-ikiliği, Planck ölçekleri. Düzeltildi: ölçülen frekans çekirdekte kübik sıfır geçişiyle sabitlendi;
+  Planck birimlerinin G belirsizliği yarıya. Açık: C = 1,02 kararsızlık adım sayısı tarayıcıya göre 107–108.
+- ✔ `bicimsel-diller-ve-otomata-teorisi`: DFA, NFA → DFA, Thompson regex + pompalama, CYK ve PDA.
+  Düzeltildi: pompalama durum metni ve not, alfabe değişince sınama dizgisi ipucu, LBA satırı.
+- ✔ `algoritmalar`: sıralama (olay izinden oynatma), arama, çizgeler (Bellman–Ford denetimi), büyüme ve
+  dinamik programlama. Düzeltildi (çekirdek içi): aramanın "yok" istatistiği arayüzdeki hedefle aynı noktada
+  ölçülüyor; enterpolasyon notu, DFS durumu.
+- ✔ `veri-yapilari`: dinamik dizi/bağlı liste, halka tampon, hash (Knuth sonlu-m değerleri), BST/AVL, ikili
+  yığın. Düzeltildi (çekirdek içi): halka tamponun dolanma sayacı yalnız gerçek dolanmayı sayıyor.
+- ✔ `bilgisayar-sistemleri-ve-mimarisi`: tamsayı ve IEEE 754, beş aşamalı boru hattı, LRU önbellek, başarım ve
+  Amdahl. Düzeltildi: görünür ters bölü, ön ayar adı, saat frekansı ile paralel kesrin aynı harfi.
+- ✔ `makine-dili-assembly-c`: öğretim işlemcisi ve iki geçişli çevirici, doğrulanmış x86-64 paneli (bayt bayt
+  korundu, clang ile yeniden üretildi), yığın ve çağrı, bayraklar. Düzeltildi: "üstüne yazılan hücre" sayımı
+  yazma değil ayrı hücre sayıyor; "derleyici/çevirici" ayrımı.
+- ✔ `isaretciler-ve-bellek-yonetimi`: model bellekte işaretçi aritmetiği, öbek ayırıcı, bellek hataları,
+  referans sayma ve işaretle-süpür. Düzeltildi: dizi dışı okumada modelin değeri gerçek C davranışı gibi
+  sunuluyordu; `(−1)[a]`; var olan bağlantının güçlü/zayıf dönüşümü artık bildiriliyor.
+- ✔ `isletim-sistemleri-ve-linux`: zamanlama, sanal bellek ve TLB, eşzamanlılık ve kilitlenme, model kabuk.
+  Düzeltildi: "Açlık" hazır düzeni (yaşlandırma artık her adımda etkili), `ps` çıktıları, eşitlik bozma
+  kuralları, Coffman yeterlilik notu, kabukta umask/izin/sabit bağlantı davranışları.
+- ✔ `derleyici-ve-yorumlayicilar`: gerçek mini derleyici (sözcük, ağaç, tanımlı atama, üç adresli kod, yığın
+  makinesi bayt kodu, dört yürütücü). Düzeltildi: profil grafiği ekseni, eksik EBNF kuralı, Lua cümlesi.
+- ✔ `tasarim-desenleri`: Observer, Strategy/State, Decorator/Composite, Fabrika/Adapter/Singleton sayımlarla ve
+  bedelleriyle; 23 desen kataloğu. Düzeltildi: "konu gözlemcilerini tanımaz" ifadesi (GoF ile çelişiyordu).
+- ✔ `yazilim-muhendisligi`: Git veri modeli, kapsama ve mutasyon testi, PERT/Monte Carlo ve Brooks öğretim
+  modeli, kanban ve Little yasası. Düzeltildi: "Kararsız" durumunun nedeni, tohum duyarlılığı notu.
   **Açık:** kanbanın kararsızlık algılayıcısı (net birikim > gelişlerin %2'si) dondurulmuş çekirdekte; 3/9/3
   sınırlarında tohum 1 "Kararlı" görünüp W ≈ 451 gün verebiliyor. Arayüze "Dikkat" uyarısı eklendi; asıl
   düzeltme çekirdek değişikliği ister.
@@ -1507,3 +1657,60 @@ sahne tuvalini yalnız her 97. pikselden örnekliyor ve 40 eşiğine bakıyordu;
 sahnesinde örneklem 34–48 arasında kaldı (gerçekte 4.000'den fazla boyalı piksel var). Bu testte bütün
 pikseller sayılıyor, eşik 400. Aynı seyrek örneklem 24 testte daha var (d grubu ve birçok `check-g-*`);
 bu koşuda hepsi geçti, ama bir sayfanın düzeni değişirse aynı biçimde kırılabilirler.
+
+## 12 Kasım 2026 — I: son yirmi dört eski sayfa, kanban algılayıcısı, eski veri katmanları
+
+31 Ekim–1 Kasım'da defterlenip hiç yeniden kurulmamış 24 temel sayfa G hattıyla (kurucu → farklı yazar →
+üçüncü, bağımsız doğrulayıcı/editör) sıfırdan kuruldu. Böylece oyunlar ve eski "Bilim Atlası / STEM
+Omurgası" sayfaları dışında bütün sayfalar aynı biçimdedir (bkz. `docs/YENI-SAYFA-PLANI.md`). Bu bölüm,
+aynı sayfalar için önceki bölümlerdeki "Açık" maddelerin yerine geçer. Doğrulayıcılar bilimi kendi
+kodlarıyla yeniden türetti, her deneyi tarayıcıda harfiyen izledi; defter puanları 7–8,5'ten 8,5–9'a çıktı.
+
+- Eski veri katmanları (4.4) kaldırıldı: `shared/page-info.js`, `shared/encyclopedia-*` (5 dosya); üç sayfadaki
+  gereksiz `<script>` etiketi silindi, `build-sw.mjs` dışlama deseni sadeleşti.
+- `yazilim-muhendisligi`: kanbanın kararsızlık algılayıcısı yeniden yazıldı (H bölümündeki "Açık" madde kapandı).
+
+**Fizik ve gökbilim**
+- ✔ `kepler-yasalari`: yasalar Newton kütleçekiminin sayısal tümlevinden ölçülüyor. Düzeltildi: NASA T²/a³ tablosu
+  özet sayfanın "Güneş'e uzaklık" ve tropik dönem sütunlarını kullanıyordu → gezegen sayfalarındaki yarı büyük eksen
+  ve yıldızıl dönem; iç gezegenler 1,0000–0,9998. Açık: dış gezegenlerde NSSDCA yarı büyük eksenleri JPL ortalama
+  elemanlarından %0,1–0,4 farklı (sayfa temkinli anlatır).
+- ✔ `gunes-sistemi`: ölçek, NASA verisinden karşılaştırma, enerji dengesi, sinodik dönem. Düzeltildi: ışık tablosundaki
+  "ölçülen" sütunu tanım gereği d/c olduğundan "denetim" diye adlandırıldı; Neptün akı farkının nedeni (eski yarı büyük eksenler).
+- ✔ `ay-evreleri` (artık "Ay Evreleri, Tutulmalar ve Mevsimler", 5 sekme): kurucu mevsimleri çıkarmıştı, koordinatör
+  geri ekletti. Düzeltildi: kutup dairesinde saçma ışınım oranı, Dolunay'da gecikme kartı, birkaç durum metni.
+- ✔ `yildiz-yasam-dongusu`: OpenStax tablolarına dayalı HR, ömür, son durak. Düzeltildi: "1000 bin yıl"; iki OpenStax
+  tablosunun birbiriyle −%60…+%63 uyuşmadığı artık okumaların yanında yazıyor.
+- ✔ `takimyildiz-haritasi`: Yale BSC, Meeus yıldız zamanı, koordinat dönüşümü. Düzeltildi: mevsim sütunu yarımküreye göre;
+  tarih okumaları aynı yıla. Koordinatör: tuvale tıklama son çizimin isabet listesini kullanıyordu; bekleyen bir
+  çizim varken (ör. sıfırlamadan hemen sonra) yanlış ya da hiç yıldız seçilmiyordu (ortak testte 3'te 2 düştü). Tıklama artık önce
+  bekleyen çizimi yapıyor; test 4/4 geçti.
+- ✔ `dairesel-hareket`: Düzeltildi: konik sarkaç modelinin (kütlesiz çubuk + uçta noktasal kütle) notu; kritik altı gerilim.
+- ✔ `is-enerji`: Düzeltildi: ayırıcı (separatrix) eğride sonlu gösterilen periyot artık "sonsuz"; Euler sapma iletisi.
+- ✔ `manyetik-alan`: Düzeltildi: Ampère yolunda ortalama |B| yol uzunluğuyla ağırlıklı.
+
+**Matematik ve kimya**
+- ✔ `fonksiyon-grafigi`: Düzeltildi (çekirdek): ayrıştırıcıda `constructor(x)` prototip sızıntısı, işlev argümanında
+  sessiz ondalık virgül (`log(x,2)`), 0/0 kutup sınıflandırması, iki kenarlı boşluk sayımı, üstel/log kesişim aralığı;
+  tanım uçlarında kapalı köşeli parantez; uç noktadaki tepeler ayrıca sayılıyor. Açık: `1e3` 1·e·3 okunur.
+- ✔ `bayes-olasilik`: SE'nin doğru olduğu gösterildi (kurucunun "eksik" açıklaması yanlıştı); "başka tohum dene" önerisi
+  "nüfusu büyüt" oldu; kör sunucu Monty Hall metni.
+- ✔ `matris-donusumleri`: Düzeltildi: kuvvet yinelemesi tam λ₂ yönünden başlatılınca yanlış "yakınsadı"; işaretli alan etiketi.
+- ✔ `cizge-teorisi`, `grup-teorisi`: çekirdek doğru; durum metinleri ve tarihçe düzeltildi (G(n, p) Gilbert 1959).
+- ✔ `kimyasal-kinetik`: Düzeltildi (çekirdek): derece tanıma artık ağırlıklı en küçük kareler ve [A] ölçeğinde artık
+  karşılaştırması (eski R² ölçütü %5 gürültüde ikinci dereceyi 200'de 20 kez tanıyordu, şimdi 199).
+- ✔ `molekul-sekli`: VSEPR modeli ve başarısızlıkları; SF₄ ekvator açısının yanlış yöne açıldığı açıkça yazıyor.
+- ✔ `asit-baz-titrasyonu`: tam yük dengesi; etkinlik notunun işareti bölgeye göre düzeltildi; ikinci sekmeye uç nokta kartı.
+- ✔ `atom-orbitalleri`: kesin hidrojen benzeri çözüm, NIST çizgileri; durum satırları çekirdeği (H, He⁺, ²H) belirtiyor.
+  Açık: Peck–Reeder hava formülü katsayıları yalnız Edlén ile dolaylı doğrulandı.
+- ✔ `periyodik-tablo`: NIST 103 dizilim ve 100 iyonlaşma enerjisi birebir; Lr/Sg/Hs kütle numaraları güncellendi; kaynaksız
+  üç soy gaz deneysel yarıçapı kaldırıldı.
+
+**Biyoloji ve mekatronik**
+- ✔ `dna-replikasyon`: başlangıç kodonu değişiklikleri ayrı etiket; eksi Tm yerine "—".
+- ✔ `dogal-secilim`: Türkçe ek uyumu yardımcıları; biber güvesinde 0,1–0,2 değeri düşüş hızına atfedildi (deneye değil).
+- ✔ `enzim-kinetigi`: inhibisyon türü adlarına İngilizce karşılıklar (Türkçe "yarışmasız" belirsizliği).
+- ✔ `fotosentez-solunum`: ışık eğrisi okumalarının üst sınırı seçilebilir (I₉₀ yaklaşımı); ADP yokken akış "neredeyse durur".
+- ✔ `mitoz-mayoz`: Düzeltildi (çekirdek): sabit kiazma konumunda `pos < xB` sınır hatası.
+- ✔ `mekatronik-muhendisligi`: Düzeltildi (çekirdek): diyotlu PWM ortalamaları adım içi kesim payıyla ağırlıklı (enerji
+  dengesi artık tutuyor); servo sınırında "koşu süresi yetmedi".

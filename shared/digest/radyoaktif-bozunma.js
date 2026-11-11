@@ -218,7 +218,7 @@ window.ACELYA_DIGEST["radyoaktif-bozunma"] = {
     { href: "nukleer-fizik.html", title: "Nükleer Fizik", why: "Çekirdekler neden bozunur? Bağlanma enerjisi eğrisinde ağır bir çekirdek α saldığında neden enerji açığa çıktığını gör." },
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "N₀ büyükken N(T½)'nin binom dağılımı çan eğrisine döner; ±1σ bandında ölçümlerin neden yaklaşık üçte ikisinin kaldığını örnek çekerek gör." },
     { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler", why: "dy/dt = ky ailesi ve doğrusal sistemlerin özdeğerlerle sınıflandırılması: Bateman zinciri, özdeğerleri −λ olan bir doğrusal sistemdir." },
-    { href: "kimyasal-kinetik.html", title: "Kimyasal Kinetik", why: "Aynı birinci derece yasası tepkimelerde; ama orada hız sabiti sıcaklıkla Arrhenius'a göre değişir, çekirdeğin λ'sı değişmez." },
+    { href: "kimyasal-kinetik.html", title: "Kimyasal Kinetik Laboratuvarı", why: "Aynı birinci derece yasası tepkimelerde; ama orada hız sabiti sıcaklıkla Arrhenius'a göre değişir, çekirdeğin λ'sı değişmez." },
   ],
   sources: [
     { title: "OpenStax · University Physics Vol. 3, 10.3 Radioactive Decay", url: "https://openstax.org/books/university-physics-volume-3/pages/10-3-radioactive-decay", note: "Bozunma yasasının türetilişi, aktivite, ln A – t doğrusu ve karbon tarihlemesi, çözümlü örneklerle (İngilizce, açık ders kitabı; C-14 için eski 5730 yıl değerini kullanır)." },

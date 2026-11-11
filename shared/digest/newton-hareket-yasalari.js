@@ -251,8 +251,8 @@ window.ACELYA_DIGEST["newton-hareket-yasalari"] = {
     },
     {
       href: "is-enerji.html",
-      title: "İş–Enerji İlkesi",
-      why: "İlk sekmedeki iş toplamı kartının arkasındaki ilke: <em>Eğim açısı</em> ve <em>Sürtünme μ</em> kaydırıcılarıyla, kuvvetlerin yaptığı işin kinetik enerjiyi nasıl değiştirdiğini çubuk grafikte izle.",
+      title: "İş, Enerji ve Güç Laboratuvarı",
+      why: "İlk sekmedeki iş toplamı kartının arkasındaki ilke: İş ve kuvvet–yol sekmesinde kuvvetin açısını ve <em>sürtünme katsayısını</em> değiştir, ΔK = W<sub>F</sub> + W<sub>s</sub> eşitliğinin benzetilen hızla nasıl tuttuğunu gör.",
     },
     {
       href: "tork-denge.html",

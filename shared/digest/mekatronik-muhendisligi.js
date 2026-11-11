@@ -3,100 +3,99 @@ window.ACELYA_DIGEST["mekatronik-muhendisligi"] = {
   slug: "mekatronik-muhendisligi",
   title: "Mekatronik: Kendi Hatasını Düzelten Makineler",
   field: "Mühendislik",
-  level: "Lise",
-  minutes: 35,
+  level: "Lise–Lisans",
+  minutes: 40,
   tagline:
-    "Bir makineyi akıllı yapan güçlü motoru değil, kendi hatasını ölçüp düzeltebilmesidir. Sensör, kontrolcü ve motor arasında saniyede onlarca ila binlerce kez dönen tek bir döngü: geri besleme.",
-  hook: "Gözlerini kapat ve işaret parmağını burnunun ucuna götür. Büyük ihtimalle ıskalamazsın: kasların ve eklemlerin kolunun nerede olduğunu beynine sürekli bildirir, beynin de yolda düzeltir. Bir robota aynı şeyi yaptırmak istersen ona hissetmek için sensör, karar vermek için kontrolcü, kıpırdamak için motor vermelisin; en önemlisi de ıskaladığını fark etme yeteneğini.",
+    "Motor, sensör ve denetleyici tek döngüde: DC motorun iki zaman sabiti, enkoderin sayım hatası, ADC'nin örtüşmesi, ayrık PID'nin kararlılık sınırı ve en iyi dişli oranı, hepsi ölçülüp kuramla karşılaştırılıyor.",
+  hook: "Aynı DC motor, aynı 24 V, anahtar saniyede bin kez açılıp kapanıyor ve zamanın tam yarısında açık. Kapalı dönemde motorun uçlarını kısa devre eden sürücüyle mil 2273.6 dev/dk döner, boşta hızın yarısı; uçları yalnız bir diyota bırakan sürücüyle 4397.0 dev/dk, neredeyse tam hız. Motor da kaynak da aynı; değişen tek şey, akımın sıfıra inince ne yaptığı.",
   bigIdea:
-    "Mekatronik bir sistem istediğini ölçtüğüyle karşılaştırır ve aradaki <strong>hatayı</strong> sürekli küçülten bir komut üretir; makineyi akıllı kılan bu <strong>kapalı çevrim geri beslemedir</strong>, ama döngü fazla sert ya da fazla geç tepki verirse aynı geri besleme makineyi sallar.",
+    "Mekatronik bir makinenin davranışı parçaların arasındaki bağlardan doğar: motor sabiti elektriği mekaniğe, dişli motoru yüke, enkoder ve ADC mili sayılara, denetleyici de bu sayıları komuta bağlar; her bağ kendi hatasını ve sınırını taşır ve <strong>kapalı çevrim geri besleme</strong> ancak bu sınırlar içinde çalışır.",
   story: [
     "1788'de James Watt, ortağı Matthew Boulton'ın önerisiyle buhar makinesine dönen iki ağır top ekledi. Makine hızlandıkça toplar merkezkaç etkisiyle açılıp yükseliyor, bir kol düzeneği buhar vanasını kısıyordu; makine yavaşlayınca toplar iniyor, vana açılıyordu. Fikrin kendisi yeni değildi; 17. yüzyılda yel değirmenlerinde değirmen taşlarının aralığını ayarlamak için benzer bir düzenek kullanılmıştı. Ama Watt'ın <strong>merkezkaç regülatörü</strong> buhar makineleriyle birlikte bütün sanayiye yayıldı ve kendi hızını kendisi tutan makinenin simgesi oldu. İçinde bugünkü her mekatronik sistemin üç parçası vardı: ölçen (toplar), karar veren (kol oranı) ve uygulayan (vana). İki de kusuru vardı: yük artınca makine hedef hızın biraz altında kalıyordu ve makineler hızlandıkça bazı regülatörler vanayı açıp kapayarak durmadan salınmaya başladı.",
-    "Bu salınımın ilk sistematik kararlılık analizini, elektromanyetizmanın denklemlerini yazan James Clerk Maxwell yaptı. 1868'de yayımlanan <em>On Governors</em> (Regülatörler Üzerine) makalesinde regülatörün hareketini diferansiyel denklemlerle yazdı ve sistemin sakinleşip sakinleşmeyeceğinin bu denklemlerin köklerine bağlı olduğunu gösterdi. Basit durumlar için koşulları buldu, genel problemi ise matematikçilere bıraktı. Edward Routh 1870'lerde, Adolf Hurwitz ise 1895'te ondan bağımsız olarak bu soruyu çözdü: bir sistemin kararlı olup olmadığını denklemi çözmeden söyleyen ölçütler buldular. Kontrol kuramı, bir buhar makinesinin titremesinden doğdu.",
+    "Bu salınımın ilk sistematik kararlılık analizini, elektromanyetizmanın denklemlerini yazan James Clerk Maxwell yaptı. 1868'de yayımlanan <em>On Governors</em> (Regülatörler Üzerine) makalesinde regülatörün hareketini diferansiyel denklemlerle yazdı ve sistemin sakinleşip sakinleşmeyeceğinin bu denklemlerin köklerine bağlı olduğunu gösterdi. Basit durumlar için koşulları buldu, genel problemi ise matematikçilere bıraktı. Edward Routh 1877'de Adams Ödülü'nü kazanan denemesinde, Adolf Hurwitz ise 1895'te ondan bağımsız olarak bu soruyu çözdü: bir sistemin kararlı olup olmadığını denklemi çözmeden söyleyen ölçütler buldular. Kontrol kuramı, bir buhar makinesinin titremesinden doğdu.",
     "1922'de Rus asıllı Amerikalı mühendis Nicolas Minorsky, ABD Donanması için otomatik dümen üzerinde çalışırken deneyimli dümencileri izledi. İyi bir dümenci yalnızca geminin rotadan ne kadar saptığına bakmıyordu; sapmanın ne zamandır sürdüğünü ve ne hızla büyüdüğünü de hesaba katıyordu. Minorsky bu üç sezgiyi tek bir denkleme döktü: bugün <strong>PID</strong> dediğimiz denetleyici. Yalnızca sapmaya orantılı dümen, sürekli esen sert bir rüzgârda gemiyi rotanın biraz dışında bırakıyordu; geçmişi biriktiren integral terimi bu kalıcı sapmayı siliyor, değişim hızına bakan türev terimi salınımı sönümlüyordu. Aynı üç terim sonra basınçlı havayla çalışan fabrika kontrolcülerine, oradan elektroniğe ve bugün sayısız PLC ve mikrodenetleyici yazılımına taşındı.",
-    "1961'de New Jersey'deki bir General Motors fabrikasında Unimate işe başladı: George Devol'un 1954'te patent başvurusu yaptığı, Devol ve Joseph Engelberger'in kurduğu Unimation şirketinin ürettiği, yaklaşık 1.8 ton ağırlığında, hidrolik kollu ve programını dönen bir bellek tamburunda saklayan ilk endüstriyel robot. Kalıptan çıkan sıcak döküm parçalarını insan eli değmeden taşıyordu. Mekanik, elektronik ve kontrol artık tek bir makinede iç içeydi ama bu birleşimin bir adı yoktu. 1969'da Japon Yaskawa Electric şirketinde mühendis Tetsuro Mori, <em>mechanics</em> ile <em>electronics</em> kelimelerini birleştirerek <strong>mechatronics</strong> kelimesini önerdi. (Kayıtlar kelimenin 1951'de bir Amerikan dergi reklamında da geçtiğini gösteriyor; onu bir disiplinin adı yapan Yaskawa'dır.) 1980'lerde mikroişlemciler makinelerin içine girince elektroniğin yanına yazılım da eklendi. Sayfadaki altı panel bu zincirin halkalarıdır: döngü şeması, duyular, kaslar, bir robot kol, fabrikanın beyni ve günlük hayattaki uygulamalar.",
+    "1961'de New Jersey'deki bir General Motors fabrikasında Unimate işe başladı: George Devol'un 1954'te patent başvurusu yaptığı, Devol ve Joseph Engelberger'in kurduğu Unimation şirketinin ürettiği, yaklaşık 1.8 ton ağırlığında, hidrolik kollu ve programını dönen bir bellek tamburunda saklayan ilk endüstriyel robot. Kalıptan çıkan sıcak döküm parçalarını insan eli değmeden taşıyordu. Mekanik, elektronik ve kontrol artık tek bir makinede iç içeydi ama bu birleşimin bir adı yoktu. 1969'da, şirketin kendi anlatımına göre, Japon Yaskawa Electric şirketinde mühendis Tetsuro Mori, <em>mechanics</em> ile <em>electronics</em> kelimelerini birleştirerek <strong>mechatronics</strong> kelimesini önerdi. (Kelime 1951'de Amerikan Servomechanisms şirketinin bir dergi reklamında da geçmişti; onu bir disiplinin adı yapan Yaskawa'dır.) 1980'lerde mikroişlemciler makinelerin içine girince elektroniğin yanına yazılım da eklendi. Sayfadaki dört sekme bu birleşimi parça parça kurar: önce motorun kendi fiziği, sonra mili sayıya çeviren sensörler, ardından ikisini kapalı döngüde buluşturan servo, en sonda adım motoru ve dişli seçimi.",
   ],
   core: [
     {
-      heading: "Algıla, karar ver, hareket et ve yeniden ölç",
-      body: "Her mekatronik sistem aynı döngüdür. <strong>Sensör</strong> fiziksel bir büyüklüğü (açı, sıcaklık, mesafe) elektrik sinyaline çevirir. <strong>Kontrolcü</strong> bu ölçümü hedefle karşılaştırır ve bir komut hesaplar. <strong>Aktüatör</strong> komutu harekete, ısıya ya da kuvvete çevirir. Döngüyü kapatan şey, hareketin sonucunun yeniden ölçülmesidir. Sayfadaki iki motor kartı farkı iyi gösterir: <em>Step Motor</em> kartı 'açık çevrim' der; sürücü darbe sayar ve motorun gerçekten döndüğünü varsayar. <em>Servo Motor</em> kartı 'kapalı çevrim' der; mile bağlı bir <strong>enkoder</strong>, yani dönme açısını sayan bir sensör, gerçek konumu kontrolcüye geri bildirir. Açık çevrim ucuz ve basittir ama bir şey ters giderse haberi olmaz.",
-      formula: "e = r − y",
+      heading: "DC motor: iki denklem, tek bir K sabiti",
+      body: "Fırçalı bir DC motorda elektrik ve mekanik aynı sabitle birbirine bağlıdır. Sargıdaki akım tork üretir (K·I); dönen mil de sargıda hızıyla orantılı bir <strong>zıt EMK</strong> (K·ω) doğurur. SI birimlerinde tork sabiti ile zıt EMK sabiti aynı sayıdır, sayfa ikisine de K der. Gerilim uygulandığı anda akım önce <strong>elektriksel zaman sabiti</strong> τ<sub>e</sub> = L/R ile yükselir, mil hızlandıkça zıt EMK onu geri çeker; hız ise çok daha yavaş olan <strong>mekanik zaman sabiti</strong> τ<sub>m</sub> = J·R/(K² + R·b) ile oturur. Sayfanın varsayılan motorunda τ<sub>e</sub> = 0.5 ms, τ<sub>m</sub> = 15.873 ms ve oran 31.7'dir; bu yüzden akım, kararlı değerine inmeden önce yaklaşık 1.8 ms'de 11.03 A'lik bir tepe yapar: zıt EMK büyümeye başladığında akım duruş değerinin (12 A) ancak %92'sine varmıştır. Kararlı durumda tork–hız ilişkisi bir doğrudur: boşta hız K·V/(K² + R·b), duruş torku K·V/R. Mekanik güç T·ω bu doğru üzerinde tam ortada, T<sub>s</sub>/2'de en büyüktür; verim ise çok daha hafif bir yükte zirve yapar. En güçlü nokta en verimli nokta değildir.",
+      formula: "L·dI/dt = V − R·I − K·ω<br>J·dω/dt = K·I − b·ω − T<sub>L</sub><br>ω = (K·V − R·T<sub>L</sub>)/(K² + R·b)",
       formulaNote:
-        "r ayar noktası (istenen değer), y ölçülen değer, e hata. Basit bir geri besleme kontrolcüsü dünyayı yalnızca e üzerinden görür: hata sıfırsa yapacak bir şeyi yoktur.",
+        "Varsayılanlarla (24 V, 2 Ω, 0.05 N·m/A, 200 g·cm², 10 µN·m·s/rad) boşta hız 4547.3 dev/dk, duruş torku 0.600 N·m, en büyük güç 71.43 W · 0.300 N·m, en yüksek verim yaklaşık 83.6 %, 0.05 N·m civarında (kapalı biçim 83.64 % · 0.049 N·m; dinamometrenin 25 noktalı ölçümü 83.63 % · 0.051 N·m). Bunlar öğretim değerleridir; fırça düşümü, demir kaybı ve kuru sürtünme yoktur.",
     },
     {
-      heading: "Orantılı kontrol ve inatçı kalıcı hata",
-      body: "En doğal fikir, düzeltmeyi hatayla orantılı yapmaktır: hata büyükse sert, küçükse yumuşak it. Watt'ın regülatörü tam olarak budur. Ama bir tuzak var. Robot kolu yerçekimi sürekli aşağı çekiyorsa, motorun bu çekişe karşı koyması için sürekli bir komut gerekir; orantılı kontrolcü ise komut üretebilmek için sıfırdan farklı bir hataya muhtaçtır. Sonuçta kol, hedefin biraz altında, komutun yerçekimini tam dengelediği noktada durur. Kazancı artırmak bu <strong>kalıcı durum hatasını</strong> küçültür ama sıfırlamaz; üstelik kazanç büyüdükçe sistem hedefi aşıp salınmaya yatkınlaşır. Kontrol mühendisliğinin temel gerilimi budur: hız ile sakinlik arasında bir pazarlık.",
-      formula: "u = K<sub>p</sub>·e,   e<sub>kalıcı</sub> = d / K<sub>p</sub>",
+      heading: "PWM: ortalama model ne zaman doğrudur?",
+      body: "Bir sürücü motora 'yarım gerilim' vermek için gerilimi kısmaz; anahtarı periyodun D kesri kadar açık tutar. Sargının endüktansı akımı yumuşatır ve motor çoğu zaman ortalama gerilim D·V ile beslenmiş gibi davranır. Bu <strong>ortalama model</strong>, akım hiç kesilmediği sürece kesin sonuç verir: model doğrusaldır, bir periyot üzerinden tümlenince türevler sıfırlanır ve ortalama hız tam olarak D·V'nin hızıdır. Senkron sürücüde kapalı dönemde uçlar kısa devre edilir, akım gerekirse eksiye iner ve bu koşul her zaman sağlanır. Diyotlu sürücüde ise akım sıfıra inince durur. Kabaca, ortalama akım dalgalanmanın yarısından küçükse periyodun bir kısmında akım yoktur (<strong>kesintili iletim</strong>), o aralıkta uçlarda zıt EMK görünür, ortalama uç gerilimi D·V'yi aşar ve motor beklenenden hızlı döner.",
+      formula: "ω<sub>ort</sub> = (K·D·V − R·T<sub>L</sub>)/(K² + R·b)<br>ΔI ≈ D·(1 − D)·V/(L·f)",
       formulaNote:
-        "u komut, K<sub>p</sub> orantı kazancı, d sabit bozucu etki. İkinci formül, komutu anında izleyen ideal bir motor modelinde geçerlidir; çözümlü örnekte adım adım çıkıyor.",
+        "İkinci formül, τ<sub>e</sub> periyottan çok uzunken tepeden tepeye akım dalgalanmasıdır: varsayılan 5 kHz'te 1.200 A, üstel kapalı çözüm 1.196 A. Frekansı artırmak dalgalanmayı küçültür, ortalama hızı değiştirmez.",
     },
     {
-      heading: "PID: geçmiş, şimdi ve gelecek",
-      body: "Minorsky'nin dümencisi üç soru soruyordu. <strong>P</strong> (orantılı) şimdiye bakar: şu an ne kadar uzağım? <strong>I</strong> (integral) geçmişe bakar: ne zamandır uzağım? Hata küçük ama inatçıysa integral her an biraz daha büyür, ta ki komut bozucu etkiyi tek başına dengeleyip hatayı sıfıra indirene kadar. <strong>D</strong> (türev) geleceğe bakar: hata ne hızla değişiyor? Kol hedefe hızla yaklaşıyorsa D frene basar ve aşmayı azaltır. Her terimin bedeli vardır: fazla integral aşma ve salınım yaratır, motor sınırına dayanınca (doyma) integral boşuna şişmeye devam eder, buna 'integral sarması' (windup) denir; türev ise sensör gürültüsünü büyütür, bu yüzden pratikte çoğu zaman süzülerek kullanılır ya da hiç kullanılmaz.",
-      formula: "u(t) = K<sub>p</sub>·e + K<sub>i</sub>∫e dt + K<sub>d</sub>·de/dt",
+      heading: "Mili sayıya çevirmek: enkoderin ve ADC'nin hataları",
+      body: "Artımlı enkoder diskteki N yarığı iki kanaldan (A ve B) okur. İki kanal çeyrek yarık kaymış olduğu için hangisinin önde gittiği yönü söyler; bütün kenarlar sayılınca turda C = 4N sayım çıkar. Hızı sayımdan iki yolla kestirirsin. <strong>M yöntemi</strong> sabit bir T<sub>w</sub> penceresinde kenar sayar; bir sayım fazla ya da eksik okumak Δn kadar hız hatasıdır ve bu hata hızdan bağımsızdır, yani yavaş milde göreli olarak büyür. <strong>T yöntemi</strong> iki A kenarı arasındaki saat darbelerini sayar; yavaş milde aralık uzun, darbe çok, hata küçüktür. İki yöntemin en kötü hatası belli bir hızda eşitlenir. Analog sensörde ise ADC gerilimi Δ = V<sub>ref</sub>/2<sup>N</sup> genişliğinde basamaklara böler; hata [−Δ/2, Δ/2]'ye düzgün yayılırsa RMS'i Δ/√12'dir. Örnekleme de bir bedel ister: f<sub>s</sub>/2'nin üstündeki bir frekans, örneklerde başka bir frekansla birebir aynı görünür. Buna <strong>örtüşme</strong> denir ve örneklemeden sonra hiçbir yazılım onu geri alamaz.",
+      formula: "Δn = 60/(C·T<sub>w</sub>)<br>n<sub>kesişme</sub> = 60·√(f<sub>saat</sub>/(C·N·T<sub>w</sub>))<br>e<sub>RMS</sub> = Δ/√12,  f<sub>görünen</sub> = |f − k·f<sub>s</sub>|",
       formulaNote:
-        "Üç kazanç sistemin fiziğine göre ayarlanır; buna döngü ayarı denir. 1940'larda Ziegler ve Nichols bu ayar için bugün hâlâ öğretilen deneysel bir yöntem yayımladı.",
+        "n dev/dk, T<sub>w</sub> s, f<sub>saat</sub> Hz; k, f/f<sub>s</sub>'ye en yakın tam sayıdır. Varsayılan enkoderde (N = 100, ×4, 10 ms, 1 MHz) Δn = 15.00 dev/dk ve kesişme 3000 dev/dk; varsayılan 8 bitlik, 5 V'luk ADC'de Δ = 19.53 mV.",
     },
     {
-      heading: "Örnekleme: döngü aslında adım adım döner",
-      body: "Bir mikrodenetleyici ya da PLC dünyayı sürekli izlemez; belli aralıklarla bakar. Sayfadaki PLC panelindeki 'Girişleri Oku → Programı Çalıştır → Çıkışları Güncelle → Tekrarla' zinciri tam budur ve bir tur milisaniyeler sürer. Ardışık iki ölçüm arasındaki süreye <strong>örnekleme periyodu</strong> (T<sub>s</sub>) denir. Bu sürede kontrolcü kördür ve son hesapladığı komutu uygulamaya devam eder. Örnekleme yavaş ve kazanç büyükse kontrolcü, hedefe çoktan varmış bir kolu itmeye devam eder ve hedefi aşar. Bu yüzden hızlı hareketler hızlı döngü ister: sayfadaki haberleşme kartı EtherCAT için 100 μs'lik çevrimden söz eder. Bilgisayarda integral bir toplama, türev ise iki ardışık ölçümün farkına dönüşür.",
-      formula:
-        "u[k] = K<sub>p</sub>e[k] + K<sub>i</sub>T<sub>s</sub>Σe[j] + K<sub>d</sub>(e[k] − e[k−1])/T<sub>s</sub>",
+      heading: "Ayrık PID ile servo: ikinci derece model ve örnekleme sınırı",
+      body: "Servo sekmesindeki denetleyici her T<sub>s</sub>'de enkoderi okur ve u = K<sub>p</sub>·e + K<sub>i</sub>·Σe·T<sub>s</sub> + K<sub>d</sub>·(ω<sub>ref</sub> − ω<sub>ölç</sub>) gerilimini bir sonraki örneğe kadar sabit tutar. Endüktansı ihmal edip (L = 0) motor denklemine K<sub>i</sub> = 0 olan bu yasayı koyunca, kütle–yay–sönümleyiciyle aynı biçimde ikinci derece bir denklem çıkar. K<sub>p</sub> yay gibi davranır, K<sub>d</sub> zıt EMK ile sürtünmenin yanına ek bir sönüm koyar. Buradan sönüm oranı ζ, doğal frekans ω<sub>n</sub> ve aşım gelir. Gerçek denetleyici ise sürekli bakmaz: örnekler arasında kördür ve hızı geriye dönük bir farktan hesaplar. T<sub>s</sub> büyüdükçe aynı kazançlarla aşım artar, sonunda ayrık döngü kararsızlaşır; bu sınır, ayrık kutupların |z| = 1 çemberini geçtiği T<sub>s</sub>'dir. Doğrusal kuramın görmediği iki şey daha vardır: gerilim ±V<sub>max</sub>'ta doyar ve doyma süresince integral boşuna büyüyebilir (<strong>integral şişmesi</strong>); bilinen bir hareket profilinde ise gereken gerilimi önceden veren <strong>ileri besleme</strong>, geri beslemeye yalnız modelin karşılayamadığını bırakır.",
+      formula: "J·R·θ″ + (K² + R·b + K·K<sub>d</sub>)·θ′ = K·K<sub>p</sub>·(r − θ)<br>ω<sub>n</sub> = √(K·K<sub>p</sub>/(J·R)),  ζ = (K² + R·b + K·K<sub>d</sub>)/(2·√(J·R·K·K<sub>p</sub>))",
       formulaNote:
-        "k örnek numarası. Toplam ilk örnekten k'ya kadardır. Çözümlü örnekteki basit modelde kararlılık koşulu, K<sub>p</sub>·T<sub>s</sub> çarpımının 0 ile 2 arasında kalmasıdır.",
+        "J rotor ile yükün toplamıdır. Bu kapalı biçimler örnekleme, nicemleme ve doymayı içermez; sayfa ayrık yanıtı onların yanında ölçer. Çözümlü örnek bu denklemi adım adım kurar.",
     },
     {
-      heading: "İleri kinematik: açılardan uç noktaya",
-      body: "Sayfadaki robot kolun iki eklemi vardır: θ₁ birinci kolu tabana göre, θ₂ ikinci kolu birinci kola göre döndürür. Bu yüzden ikinci kolun yere göre açısı θ₁ + θ₂'dir. Uç noktanın yeri iki vektörün toplamıdır; buna <strong>ileri kinematik</strong> denir ve her zaman tek bir cevabı vardır. Tersi, yani 'uç şu noktaya gitsin, açılar ne olmalı?' sorusu <strong>ters kinematiktir</strong> ve daha zordur: erişilebilir çoğu nokta için 'dirsek yukarı' ve 'dirsek aşağı' olmak üzere iki çözüm vardır, erişilemeyen noktalar için hiç yoktur. Uç noktanın tabana uzaklığı yalnızca θ₂'ye bağlıdır; θ₁ ise bu uzaklıkta kolu tabanın etrafında döndürür.",
-      formula: "x = l₁cos θ₁ + l₂cos(θ₁+θ₂),   y = l₁sin θ₁ + l₂sin(θ₁+θ₂)",
+      heading: "Dişli oranı: yük motor milinden nasıl görünür?",
+      body: "Motor yükü n oranlı kayıpsız bir dişliyle döndürüyorsa motor mili yükün n katı hızla döner ve motor torku yüke n kat büyüyerek ulaşır. Yükün eylemsizliği ise motor milinden J<sub>L</sub>/n² kadar görünür: <strong>yansıyan eylemsizlik</strong>. Sabit tork veren bir motorla yükü en çabuk hızlandıran oranı arıyorsan iki etki çekişir. Küçük oranda tork yüke az çarpılarak ulaşır; büyük oranda motor kendi rotorunu n² kat fazla hızlandırmak zorunda kalır. Yük ivmesi α<sub>L</sub> = n·T<sub>m</sub>/(J<sub>L</sub> + n²·J<sub>m</sub>) ifadesinin türevi sıfırlanınca en iyi oran çıkar: yansıyan eylemsizlik rotorunkine eşit olmalıdır. Bu sonuç bir varsayıma dayanır: motor torku hızdan bağımsızdır. Gerçek bir DC motorun torku hızla doğrusal düşer. Hız tavanı kısa harekette bile hissedilir: sayfadaki DC motorla 1 rad'lık harekette en iyi oran 10 değil yaklaşık 7'dir. Uzun bir harekette zamanın çoğu tavan hızda geçer; yük tarafındaki tavan ω<sub>nl</sub>/n olduğundan oran daha da küçülür (20 rad'da 3.4).",
+      formula: "n* = √(J<sub>L</sub>/J<sub>m</sub>)<br>t = √(2·θ<sub>L</sub>·(J<sub>L</sub> + n²·J<sub>m</sub>)/(n·T<sub>m</sub>))",
       formulaNote:
-        "Uzaklık r = √(l₁² + l₂² + 2l₁l₂cos θ₂). Sayfada l₁ = 90 px, l₂ = 70 px: θ₂ = 0° iken r = 160 px, θ₂ = 180° iken 20 px; çalışma alanı bu iki çember arasındaki halkadır.",
+        "İkinci formül, sabit torkla durgun hâlden θ<sub>L</sub> açısına varma süresidir (yük sona kadar ivmelenir, frenleme yoktur). Varsayılanlarla (J<sub>m</sub> = 200, J<sub>L</sub> = 20 000 g·cm², 0.30 N·m, 1 rad) n* = 10 ve en kısa süre 51.64 ms.",
     },
   ],
   lab: {
     intro:
-      "Sayfada sayı üreten tek düzenek <strong>Robotik — Kinematik ve ROS</strong> panelindeki tuvaldir. <strong>Eklemi Döndür</strong> düğmesi yalnızca birinci eklemi (θ₁) 30° çevirir; θ₂ hep 30° kalır. <strong>Sıfırla</strong> θ₁ = 45°, θ₂ = 30° konumuna döner. Tuvalin altındaki satır 'θ₁=45° · θ₂=30° · Uç konumu (tabana göre, y yukarı): (82, 131) px · Çalışma alanı: halka (20–160 px)' biçimindedir. Taban tuvalin ortasındadır ve koordinatlar ona göredir: x sağa, y yukarı doğru büyür, ekran genişliği sayıları değiştirmez. İnce çizgiler x ve y eksenlerini, iki kesikli çember çalışma alanı halkasının 20 ve 160 px'lik sınırlarını gösterir. Öteki paneller tıklanınca açıklama kutusunu dolduran kartlardır: altı sensör, altı aktüatör, dört otomasyon ve dört uygulama kartı. En üstteki döngü şeması durağandır; geri beslemeyi canlandıran bir simülasyon yok, onu çözümlü örnekte kâğıt üzerinde yapıyoruz.",
+      "Sayfa dört sekmeden oluşur ve her birinin kendi <strong>Sıfırla</strong> düğmesi vardır; form denetimi odakta değilken <kbd>R</kbd> etkin sekmeyi sıfırlar. Her kart benzetimin ölçtüğü değeri gösterir, altındaki satır kuramın verdiğini ve farkı yazar. Dinamometre, PWM, çekme torku ve dişli taraması gibi ağır ölçümler bir an 'ölçülüyor…' der, sonra dolar. <strong>01 · DC motor</strong> sekmesinde gerilim, direnç, endüktans, K, J, sürtünme ve yük torku kaydırıcıları ile PWM'in görev oranı, frekansı ve 'Kapalı dönemde' seçimi bulunur. <strong>02 · Sensörler ve sinyal</strong> enkoderi (yarık sayısı, kod çözme, mil hızı, sayım penceresi, zamanlayıcı saati) ve ADC'yi (çözünürlük, aralık, genlik, frekans, örnekleme frekansı) ayrı hazır düğmelerle sınar. <strong>03 · Servo konumlama</strong> ayrık PID'yi sürekli zamanlı eşiyle yan yana çizer; '<strong>Kararlılık sınırını ölç</strong>' düğmesi T<sub>s</sub>'yi tarar. <strong>04 · Adım motoru ve dişli seçimi</strong> bir adım motorunu ve dişli oranı taramasını içerir. Bütün motor ve sensör sayıları öğretim değeridir. Adım motorundaki salınım sönümü, sargıların etkisini temsil eden etiketli bir terimdir; dişliler kayıpsız ve boşluksuzdur. T yönteminin RMS okuması, sayım kesri 0 ya da 1'e yakınken nadir olaylarla belirlendiği için yaklaşık ±%15 oynar; deneylerde onun yerine kesin olan en büyük hata kullanılır.",
     experiments: [
       {
-        title: "Uç noktayı önce hesapla, sonra oku",
+        title: "Diyotlu PWM motoru neden hızlandırır?",
         predict:
-          "θ₁ = 45°, θ₂ = 30°, kollar 90 ve 70 piksel. Uç nokta tabanın kaç piksel sağında ve kaç piksel yukarısında olur? İkinci kolun yere göre açısını 30° mi, 75° mi alacaksın?",
-        do: "Önce kâğıtta hesapla. Sonra Sıfırla'ya bas ve tuvalin altındaki satırdaki 'Uç konumu' değerini oku; sayılar zaten tabana göredir ve y yukarı doğru pozitiftir.",
+          "Görev oranı D = 50 %, 24 V. Ortalama model motorun 12 V'ta, yani boşta hızın yarısında (2273.6 dev/dk) dönmesini bekler. Kapalı dönemde akımı bir diyota bırakan sürücüde mil daha yavaş mı, aynı mı, daha hızlı mı döner?",
+        do: "01 · DC motor sekmesinde Sıfırla'ya, sonra 'Diyotlu PWM, 1 kHz' düğmesine bas. PWM kartlarını ve son üç periyodun akım grafiğini oku. Ardından 'Kapalı dönemde' menüsünü 'senkron: uçlar kısa devre' yap ve aynı kartları yeniden oku. Son olarak diyota geri dön ve 'Sabit yük torku T<sub>L</sub>' kaydırıcısını 0.15 N·m'ye getir.",
         observe:
-          "Satır 'Uç konumu (tabana göre, y yukarı): (82, 131) px' yazar; tuvalde uç noktanın yanındaki etiket de 'Uç: (82, 131)' gösterir. Hesap: 90·cos 45° + 70·cos 75° ≈ 63.6 + 18.1 = 81.8 ve 90·sin 45° + 70·sin 75° ≈ 63.6 + 67.6 = 131.2. Sayfa en yakın tam sayıya yuvarlar; uyuşuyor.",
+          "Diyotlu sürücüde ortalama hız 4397.0 dev/dk (ortalama modelden +93.39 %), iletim kipi 'kesintili': akım sürenin 48.7 %'inde sıfır, uç geriliminin ortalaması 23.21 V, D·V'nin neredeyse iki katı. Senkron sürücüde 2273.6 dev/dk, modelle aynı; dalgalanma 5.557 A (kuram 5.545 A). T<sub>L</sub> = 0.15 N·m'de diyotlu sürücü de 'sürekli' iletime geçer ve ortalama hız 1136.8 dev/dk, ortalama modelle aynı olur.",
         explain:
-          "θ₂ göreli bir açıdır: ikinci kol birinci kolun doğrultusundan 30° döner, yere göre 45° + 30° = 75°'dedir. İleri kinematik, eklem açılarından uç noktayı bu vektör toplamıyla bulur. Ekranda ise y aşağı doğru büyür; sayfa kolu çizerken y'nin işaretini çevirir, satıra matematikteki gibi yukarı pozitif y'yi yazar. Robot yazılımları da hep böyle bir koordinat dönüşümüyle başlar.",
+          "Boştaki motor yalnız sürtünmeyi karşılayacak kadar akım ister (diyotlu sürücüde kartta 0.092 A); 1 kHz'teki 5.5 A'lik dalgalanmanın yanında bu hiçtir, akım her periyotta sıfıra çarpar. Akım yokken uçlarda zıt EMK (K·ω ≈ 23 V) görünür; ortalama uç gerilimi bu yüzden D·V'nin çok üstüne çıkar. Yük ortalama akımı (3.024 A) dalgalanmanın yarısının üstüne çıkarınca akım kesilmez, model yine doğrusal olur ve ortalama model kesinleşir. Hafif yükte diyotlu sürücüyle hızı ortalama gerilimle ayarlayamazsın; senkron sürücü ya da hız geri beslemesi gerekir.",
       },
       {
-        title: "Tek eklemle nereye ulaşılır?",
+        title: "Yavaş milde sayım, hızlı milde saat",
         predict:
-          "Eklemi Döndür'e art arda basarsan uç nokta 'halka (20–160 px)' bölgesinin her yerine uğrar mı? Uç noktanın tabana uzaklığı değişir mi? Başa dönmek için kaç basış gerekir?",
-        do: "Sıfırla, sonra Eklemi Döndür'e 12 kez bas ve her seferinde satırdaki θ₁ ile uç konumunu not et. En az iki konum için tabana uzaklığı √(x² + y²) ile hesapla.",
+          "Mil 23 dev/dk dönüyor, enkoder turda 400 sayım veriyor, pencere 10 ms. M yönteminin bir penceresine kaç kenar düşer? Hangi yöntemin hatası daha küçük çıkar? 5000 dev/dk'da sıralama değişir mi?",
+        do: "02 · Sensörler ve sinyal sekmesinde 'Yavaş mil (23 dev/dk)' düğmesine bas; M ve T yöntemi kartlarını ve kesişme hızını oku. Sonra 'Hızlı mil (5000 dev/dk)' düğmesine bas, ardından 'Mil hızı n' kaydırıcısını 4990 dev/dk'ya çek. En sonda ADC bölümünde 'Örtüşme: 950 Hz' düğmesine bas.",
         observe:
-          "θ₁ sırasıyla 75°, 105°, …, 345°, 15°, 45° olur; 12. basışta başlangıca döner. Örnek: 75°'de (5, 155), 165°'te (−155, 5), 255°'te (−5, −155), 345°'te (155, −5). Hepsinde uzaklık ≈ 155 px: uç, tuvaldeki dıştaki kesikli çemberin (160 px) hemen içinde dolaşır; iç halkaya ve aradaki bölgeye hiç uğramaz.",
+          "23 dev/dk'da pencerede beklenen sayım 1.533: M yöntemi 'RMS 7.486 · en büyük 8.000 dev/dk' okur (kuram 7.483 ve 8.000), göreli hata 34.8 %; T yönteminin en büyük hatası 0.00367 %. 5000 dev/dk'da M yönteminin en büyük hatası 10.00 dev/dk, yani 0.200 %. T kartı burada 0 % gösterir ve altındaki not nedenini söyler: her A periyoduna tam 120 saat darbesi düşer. 4990 dev/dk'da kesir bozulur ve T yönteminin en büyük hatası 0.628 %'e çıkar. Kesişme hızı 3000 dev/dk. Örtüşme hazırında 950 Hz'lik sinyal örneklerde 50.00 Hz görünür (kuram |950 − 1·1000| = 50.00 Hz).",
         explain:
-          "θ₂ sabitken uç, tabanın etrafında r = √(90² + 70² + 2·90·70·cos 30°) ≈ 154.6 px yarıçaplı tek bir çember çizer. Halkanın geri kalanına ulaşmak için θ₂'yi değiştirmek gerekir, sayfada ise bunun düğmesi yok. Üç boyutta ucun hem konumunu hem yönünü seçebilmek için altı serbestlik derecesi gerekir; yaygın endüstriyel kolların altı eklemli olmasının nedeni budur.",
+          "M yönteminin çözünürlüğü Δn = 60/(C·T<sub>w</sub>) = 15 dev/dk'dır ve hızdan bağımsızdır; 23 dev/dk'lık milde pencere 1 ya da 2 kenar görür, sonuç ya 15 ya 30 dev/dk'dır. T yönteminde bir A periyodu 1 MHz'lik saatten yaklaşık 26 000 darbe toplar, bir darbelik belirsizlik önemsizleşir. Hız arttıkça M'nin hatası küçülür, T'ninki büyür; 60·√(f<sub>saat</sub>/(C·N·T<sub>w</sub>)) = 3000 dev/dk'nın altında T, üstünde M kazanır. Hızlı mildeki 0 %, kusursuz saatle tam sayıya denk gelen hızın özel durumudur. Örtüşmede bilgi kaybolur: 950 Hz ile 50 Hz aynı örnekleri üretir; ayrımı ancak ADC'den önceki analog süzgeç yapar.",
       },
       {
-        title: "Step motor bu 30°'yi atabilir mi?",
+        title: "Örnekleme süresi bir kazançtır",
         predict:
-          "Eklemi Döndür'ün 30°'lik adımını 1.8°/adımlık bir step motorla yapmak istiyorsun. Kaç adım gerekir? Tam sayı çıkar mı?",
-        do: "Aktüatörler panelinde Step Motor kartına tıkla; adım açısını ve mikro adım satırını oku. Sonra Servo Motor kartını ve Sensörler panelindeki Pozisyon / Enkoder kartını aç ve iki motorun konumu nasıl bildiğini karşılaştır.",
+          "Kazançlar sabitken denetleyici her 1 ms yerine her 12 ms'de bir bakarsa aşım ne olur? Ayrık döngü hangi T<sub>s</sub>'de kararsızlaşır? 90° yerine 360°'lik bir basamakta, sürücü 24 V'ta doyarken integral terimi aşımı nasıl etkiler?",
+        do: "03 · Servo konumlama sekmesinde Sıfırla'ya bas ve aşım, yerleşme ve en büyük |z| kartlarını oku. 'Yavaş örnekleme (12 ms)' düğmesine bas, sonra 'Kararlılık sınırını ölç' düğmesine bas. Ardından 'Doyma ve integral şişmesi' düğmesine bas; aşımı ve doymada geçen süreyi okuduktan sonra 'İntegral şişmesine karşı koruma' kutusunu işaretle.",
         observe:
-          "Kart 1.8°/adım (200 adım/tur) ve 1/16 mikro adımda 3200 adım/tur yazar. 30 / 1.8 = 16.67: tam sayı değil. 16 adım 28.8°, 17 adım 30.6° verir. Mikro adımla bir adım 0.1125° olur; 267 mikro adım 30.04°'ye götürür, hata 0.04°'ye iner. Step kartı 'açık çevrim' ve 'adım kaçırma' der; servo kartı 'enkoder geri beslemesi' der.",
+          "Varsayılanda aşım 5.63 % (sürekli eşi 5.79 %), yerleşme 90.7 ms, en büyük |z| 0.9557. 12 ms'de aşım 25.02 %'e, yerleşme 185.3 ms'ye çıkar, sürekli eşi ise 5.79 %'te kalır; en büyük |z| 0.8214 olur. Kararlılık sınırı 17.497 ms ölçülür (kuram 17.497 ms). Doyma hazırında ilk anda K<sub>p</sub>·r = 50.27 V istenir; sürücü 27.0 ms boyunca 24 V'ta kalır ve aşım 59.99 % olur. Koruma açılınca aşım 29.66 %'e, doyma süresi 16.0 ms'ye iner.",
         explain:
-          "Step motor açısı ancak adımın katları olabilir; bir dişli oranı ya da mikro adım bu kuantumu küçültür ama sıfırlamaz. Asıl risk başka: sürücü darbe sayar ve motorun her darbeyi izlediğini varsayar. Yük fazlaysa motor adım kaçırır ve kontrolcünün bundan haberi olmaz. Servoda enkoder gerçek açıyı ölçer, kontrolcü kalan hatayı görüp düzeltir. 3B yazıcılardaki katman kaymaları çoğu zaman bu kör noktanın izidir.",
+          "|z| 'her örnekte ne kadar sönüyor' sorusunun cevabıdır; saniye başına sönüm −ln|z|/T<sub>s</sub>'dir: 1 ms'de yaklaşık 45 s⁻¹, 12 ms'de yalnız yaklaşık 16 s⁻¹. Yani daha küçük |z| burada daha hızlı sönüm demek değildir. Örnekler arasında denetleyici kördür ve hızı bir örnek geriden ölçer; bu gecikme sönüm payını yer, 17.5 ms'de tüketir. Doymada döngü fiilen açıktır: hata büyük kaldıkça integral birikir ve mil hedefi geçtikten sonra bu birikim boşalırken mili ileri iter. Sıkıştırma tipi koruma, doymadayken integralin aynı yönde büyümesini durdurur.",
       },
       {
-        title: "Mesafe sensörü aslında saat tutar",
+        title: "En iyi dişli oranı hareketin uzunluğuna bağlı mı?",
         predict:
-          "HC-SR04 1 m uzaktaki bir duvara ses gönderiyor. Yankı kaç milisaniye sonra döner? Sensör 20 °C'ye göre ayarlıysa ve oda 0 °C ise kaç metre okur?",
-        do: "Sensörler panelinde Ultrasonik / Lidar kartına tıkla, ölçüm ilkesini ve 2 cm–4 m aralığını oku. Sonra Sıcaklık Sensörü kartını aç. Havada ses hızı için c ≈ 331.3 + 0.606·T m/s yaklaşımını kullan (T °C).",
+          "J<sub>m</sub> = 200 ve J<sub>L</sub> = 20 000 g·cm². Sabit torklu bir motor için en iyi oran kaçtır? Aynı yükü 20 rad döndüren, 1. sekmedeki 24 V'luk DC motor için en iyi oran bundan büyük mü çıkar, küçük mü?",
+        do: "04 · Adım motoru ve dişli seçimi sekmesinin dişli bölümünde Sıfırla'ya bas ve en iyi oran, en kısa süre ve seçilen n'deki süre kartlarını oku. 'n'yi n*'a getir' düğmesine bas. Sonra 'Uzun hareket, DC motor' düğmesine bas; en sonda 'Seçilen dişli oranı n' kaydırıcısını 10.0'a çek.",
         observe:
-          "20 °C'de c ≈ 343 m/s; ses 2 m gidip döner: 2 / 343 ≈ 5.8 ms. 4 m'lik üst sınır ≈ 23.3 ms, 2 cm'lik alt sınır ≈ 117 μs eder. 0 °C'de c ≈ 331 m/s, yankı ≈ 6.04 ms sonra gelir; 343 m/s varsayan hesap 343 × 0.00604 / 2 ≈ 1.036 m okur: yaklaşık 3.6 cm fazla.",
+          "Sabit torkta tarama n = 10.000 bulur (kuram n* = 10.000), en kısa süre 51.64 ms; n = 5'te süre 57.74 ms ve yansıyan eylemsizlik 800.0 g·cm², rotorun 4 katı. n* düğmesinden sonra yansıyan eylemsizlik 200.0 g·cm²'ye, rotorunkine eşitlenir. DC motorla 20 rad'lık harekette en iyi oran n = 3.433, en kısa süre 269.80 ms; n = 10'da süre 451.75 ms'ye uzar ve yük tarafındaki hız tavanı 454.7 dev/dk'ya düşer.",
         explain:
-          "Sensör mesafeyi değil zamanı ölçer; mesafe, ses hızı hakkındaki bir varsayımla hesaplanır. Varsayım yanlışsa okuma da yanlıştır. Çözüm ikinci bir sensördür: bir termistör havanın sıcaklığını ölçer, kontrolcü ses hızını düzeltir. IMU kartındaki 'Kalman/Madgwick filtresi' aynı fikrin ileri hâlidir: her sensörün zayıf yanını öbürüyle kapatan <strong>sensör füzyonu</strong>.",
+          "Sabit torkta n* = √(J<sub>L</sub>/J<sub>m</sub>) = √100 = 10; bu oranda yük motor milinden rotor kadar ağır görünür. DC motorun torku hızla düşer ve uzun harekette zamanın çoğu tavan hızda geçer. Yük tarafındaki tavan ω<sub>nl</sub>/n olduğu için büyük oran hareketi yavaşlatır: n = 10'da yük en fazla 454.7 dev/dk (yaklaşık 48 rad/s) dönebilir ve 20 rad en az 0.42 s sürer. Eylemsizlik eşlemesi bir ivme kuralıdır; hız sınırlı bir harekette en iyi oranı hareketin kendisi belirler ve kapalı bir formülü yoktur.",
       },
     ],
   },
@@ -107,190 +106,186 @@ window.ACELYA_DIGEST["mekatronik-muhendisligi"] = {
     },
     {
       title: "Adı 'Sır' olan düzenek",
-      body: "Maxwell'in makalesiyle aynı yıllarda, 1868 civarında Robert Whitehead torpidosunu sabit derinlikte tutmaya uğraşıyordu. Yalnızca basınç sensörüyle çalışan düzenek dalıp çıkarak salınıyordu. Whitehead basınç ölçerin yanına, torpidonun burnunun ne kadar aşağı ya da yukarı baktığını ölçen bir sarkaç ekledi. Burnun eğimi derinliğin değişim hızını ele verir; sarkaç bugünkü türev teriminin işini görüyordu. Salınım söndü. Whitehead, sarkaçla basınç ölçeri birleştiren bu düzeneğe, işleyişi hakkında ipucu vermesin diye yalnızca 'The Secret' (Sır) adını verdi.",
+      body: "Maxwell'in makalesiyle aynı yıllarda, 1868 civarında Robert Whitehead torpidosunu sabit derinlikte tutmaya uğraşıyordu. Yalnızca basınç sensörüyle çalışan düzenek dalıp çıkarak salınıyordu. Whitehead basınç ölçerin yanına, torpidonun burnunun ne kadar aşağı ya da yukarı baktığını ölçen bir sarkaç ekledi. Burnun eğimi derinliğin değişim hızını ele verir; sarkaç bugünkü türev teriminin işini görüyordu. Salınım söndü. Sarkaçla basınç ölçeri birleştiren düzenek uzun süre sır gibi saklandı ve adı da buradan geldi: 'The Secret' (Sır).",
     },
     {
       title: "Bir zamanlar tescilli marka olan kelime",
-      body: "Yaskawa, 'mechatronics' kelimesini 1971'de Japonya'da tescilli marka olarak kaydettirdi; yani bir süre bu kelime bir şirkete aitti. Şirket daha sonra kelimenin kullanım hakkını herkese bıraktı ve kelime pek çok dile girdi. Bugün Türkiye'de de birçok üniversitede 'Mekatronik Mühendisliği' adını taşıyan bölümler var; bu adı serbestçe kullanabilmeleri, bir şirketin markasından vazgeçmesi sayesinde.",
+      body: "Yaskawa, 'mechatronics' kelimesini 1971'de Japonya'da 46-32714 numarasıyla tescilli marka olarak kaydettirdi; yani bir süre bu kelime bir şirkete aitti. Şirket daha sonra kelimenin kullanım hakkını herkese bıraktı ve kelime pek çok dile girdi. Bugün Türkiye'de de birçok üniversitede 'Mekatronik Mühendisliği' adını taşıyan bölümler var; bir mühendislik dalının adı, bir şirketin marka defterinden çıkıp ders kataloglarına girmiş oldu.",
     },
   ],
   worked: {
-    title: "Robot eklemini hedefe getirmek: P ve PI kontrol, adım adım",
+    title: "Servonun aşımı ve izleme hatası, motor denkleminden",
     prompt:
-      "Bir eklem 45°'de duruyor ve 75°'ye gitmeli (sayfadaki Eklemi Döndür'ün bir adımı). Kontrolcü her T<sub>s</sub> = 0.1 s'de enkoderi okur, hatayı hesaplar ve motora ω = K<sub>p</sub>·e açısal hız komutu verir; motor bir sonraki ölçüme kadar bu hızla döner. K<sub>p</sub> = 5 s⁻¹ ve K<sub>p</sub> = 25 s⁻¹ için hatanın gidişini bul. Sonra yerçekimini ekle: bu basit modelde yerçekimi, motorun hızından her an 10 °/s çalan sabit bir bozucu etkidir.",
+      "Servo sekmesinin varsayılan düzeni: R = 2 Ω, K = 0.05 N·m/A, b = 10 µN·m·s/rad, rotor 200 g·cm² ile yük 300 g·cm², K<sub>p</sub> = 8 V/rad, K<sub>d</sub> = 0.12 V·s/rad, K<sub>i</sub> = 0. Endüktansı ve örneklemeyi ihmal ederek (a) 90°'lik basamaktaki aşımı ve tepe zamanını, (b) mil ω<sub>max</sub> = 60 rad/s sabit hızla giderken konum hatasını, (c) hız ileri beslemesi açıkken 600 rad/s²'lik ivme evresindeki hatayı bul. Sonuçları sayfanın ölçtüğüyle karşılaştır.",
     steps: [
-      "Modeli kur. Bir örnekte açı T<sub>s</sub>·ω kadar değişir: θ[k+1] = θ[k] + T<sub>s</sub>·K<sub>p</sub>·e[k]. Hedef sabit olduğu için hata e[k+1] = e[k] − T<sub>s</sub>K<sub>p</sub>e[k] = (1 − K<sub>p</sub>T<sub>s</sub>)·e[k] olur. Birimler: K<sub>p</sub> (s⁻¹) × T<sub>s</sub> (s) boyutsuzdur; parantez, hatanın her örnekte çarpıldığı sayıdır.",
-      "K<sub>p</sub> = 5 s⁻¹: çarpan 1 − 0.5 = 0.5. Başlangıçta e = 30°, komut ω = 150 °/s; 0.1 s'de kol 15° döner, hata 15° kalır. Sonra 7.5°, 3.75°, 1.88°, 0.94°: 0.5 saniyede hata 1°'nin altına iner, kol hedefi hiç aşmaz.",
-      "K<sub>p</sub> = 25 s⁻¹: çarpan 1 − 2.5 = −1.5. İlk komut 750 °/s; 0.1 s'de kol 75° döner ve hedefi 45° geçer: e = −45°. Sonra +67.5°, −101.25°, +151.9°: her örnekte işaret değiştirip 1.5 katına çıkar. Döngü kararsızdır. Kararlılık için |1 − K<sub>p</sub>T<sub>s</sub>| değeri 1'den küçük olmalı, yani K<sub>p</sub>T<sub>s</sub> çarpımı 0 ile 2 arasında kalmalı; burada K<sub>p</sub> 20 s⁻¹'nin altında kalmalı.",
-      "Yerçekimini ekle: θ[k+1] = θ[k] + T<sub>s</sub>(K<sub>p</sub>e[k] − 10 °/s). K<sub>p</sub> = 5 s⁻¹ için bu e[k+1] = 0.5·e[k] + 1° verir. Hata 30° → 16° → 9° → 5.5° → 3.75° → … diye azalır ama 2°'ye yerleşir: o noktada komut 5 × 2 = 10 °/s olur ve yerçekimini tam dengeler. Kalıcı hata d/K<sub>p</sub> = 10/5 = 2°.",
-      "İntegrali ekle (K<sub>i</sub> = 5 s⁻²) ve yerçekimli hareketi e = 30°'den yeniden başlat: ω = K<sub>p</sub>e[k] + K<sub>i</sub>T<sub>s</sub>Σe[j]. Hata sürdükçe toplam büyür; sonunda 10 °/s'yi integral tek başına sağlar ve hata sıfıra iner. Bedeli: bilgisayarda çalıştırınca kol yaklaşık 0.7 s'de hedefi 2.6° aşar, sonra geri döner; 2 s'de hata −0.66°, 6 s'de −0.005°. Aşmanın kaynağı, toplamın hatırladığı ilk büyük hatalardır. Kol önce yalnız P ile 2°'de yerleşip integral ancak o zaman açılsaydı, hata hiç aşmadan sıfıra inerdi.",
+      "Modeli kur. L = 0'da akım I = (u − K·θ′)/R olur; J·θ″ = K·I − b·θ′ denklemine koyup R ile çarpınca J·R·θ″ = K·u − (K² + R·b)·θ′. Basamakta ω<sub>ref</sub> = 0 olduğu için u = K<sub>p</sub>·(r − θ) − K<sub>d</sub>·θ′; yerine koy: J·R·θ″ + (K² + R·b + K·K<sub>d</sub>)·θ′ = K·K<sub>p</sub>·(r − θ). Bu, kütle–yay–sönümleyici denklemidir.",
+      "Sayıları yerleştir. J = 500 g·cm² = 5.0·10⁻⁵ kg·m², J·R = 1.0·10⁻⁴; K·K<sub>p</sub> = 0.40; K² + R·b + K·K<sub>d</sub> = 0.0025 + 0.00002 + 0.006 = 0.00852 (birimleri J·R·s⁻¹ ile aynı). ω<sub>n</sub> = √(0.40/1.0·10⁻⁴) = √4000 ≈ 63.25 rad/s. ζ = 0.00852/(2·√(1.0·10⁻⁴·0.40)) = 0.00852/0.01265 ≈ 0.674.",
+      "Aşım e^(−πζ/√(1 − ζ²)) = e^(−π·0.674/0.739) ≈ e^(−2.863) ≈ 0.0571, yani 5.71 %; tepe zamanı π/(ω<sub>n</sub>·√(1 − ζ²)) = π/(63.25·0.739) ≈ 67.2 ms. Sayfa ayrık döngüde 5.63 % ve 64.3 ms, endüktansı da içeren sürekli eşinde 5.79 % ve 66.1 ms ölçer: el hesabı bir yüzde puanının onda biri kadar yakındır.",
+      "Yamuk profilde türev terimi ω<sub>ref</sub> − ω'ya uygulandığı için sabit hızda sıfırdır. θ″ = 0 ve θ′ = ω<sub>max</sub> koyunca (K² + R·b)·ω<sub>max</sub> = K·K<sub>p</sub>·e kalır: e = 0.00252·60/0.40 = 0.378 rad ≈ 21.7°. Mil hedefin hep bu kadar gerisinden koşar, çünkü zıt EMK'yı karşılayacak gerilimi yalnız hata üretebilir. Sayfa 'Yamuk profil' hazırında 21.6° ölçer.",
+      "Hız ileri beslemesi u'ya (K + R·b/K)·ω<sub>ref</sub> ekler; K ile çarpılınca tam (K² + R·b)·ω<sub>ref</sub> olur ve sabit hız hatası sıfırlanır (sayfa 0.0447° ölçer). İvme evresinde ise eylemsizlik için gereken tork karşılanmaz: J·R·α = K·K<sub>p</sub>·e, e = 1.0·10⁻⁴·600/0.40 = 0.15 rad ≈ 8.59°. Sayfa 8.46° ölçer. İvme ileri beslemesi (J·R/K)·α<sub>ref</sub> bu terimi de önceden verir; 'Hız + ivme ileri beslemesi' hazırında hareket boyunca en büyük hata 0.328°'ye iner.",
     ],
     result:
-      "K<sub>p</sub>T<sub>s</sub> = 0.5'te hata her örnekte yarıya iner; 2.5'te her örnekte 1.5 katına çıkıp işaret değiştirir. Aynı kontrolcü, yalnızca kazancı yüzünden ya mükemmel ya da tehlikelidir. Sabit bir bozucu varken P tek başına 2°'lik kalıcı hata bırakır; integral terimi onu siler, ama büyük bir başlangıç hatasından yola çıkınca bunu yaklaşık 2.6°'lik bir aşma pahasına yapar.",
+      "ω<sub>n</sub> ≈ 63.25 rad/s, ζ ≈ 0.674, aşım ≈ 5.71 %, tepe zamanı ≈ 67.2 ms; sabit hızda izleme hatası ≈ 21.7°, hız ileri beslemesiyle ivme evresinde ≈ 8.59°. Geri besleme hatayı ancak hata varken düzeltir; modeli bilinen kısmı önceden veren ileri besleme en büyük hatayı 26.2°'den 0.328°'ye indirir.",
   },
   misconceptions: [
     {
-      myth: "Kazancı artırmak, yani hataya daha sert tepki vermek, kontrolü her zaman iyileştirir.",
+      myth: "PWM ile sürülen motor her zaman ortalama gerilimin hızında döner.",
       truth:
-        "Bir noktaya kadar sistemi hızlandırır ve kalıcı hatayı küçültür. Ama ölçüm ile tepki arasında her zaman bir gecikme vardır: örnekleme aralığı, motorun ataleti, sensörün tepki süresi. Kazanç büyüdükçe kontrolcü hedefe varmış bir kolu itmeye devam eder ve hedefi aşar. Çözümlü örnekte K<sub>p</sub> 5 s⁻¹'den 25 s⁻¹'ye çıkınca sistem sakin yaklaşmaktan büyüyen salınıma geçiyor.",
+        "Bu yalnız akım hiç kesilmezken doğrudur. Sayfadaki diyotlu sürücü D = 50 %'de boştaki motoru 4397.0 dev/dk döndürür, ortalama model 2273.6 der; akım sürenin 48.7 %'inde sıfırdır ve o aralıkta uçlarda zıt EMK görünür. Yük ortalama akımı dalgalanmanın yarısının üstüne çıkarınca ya da sürücü senkron olunca ortalama model yeniden kesinleşir.",
     },
     {
-      myth: "Step motor adım saydığı için konumunu her zaman bilir.",
+      myth: "Adım motoru adım saydığı için konumunu her zaman bilir; mikroadım konumu da o kadar inceltir.",
       truth:
-        "Konumu bilen motor değil, darbeleri sayan sürücüdür ve sürücü motorun her darbeyi izlediğini varsayar. Yük fazla, ivme yüksek ya da rezonans varsa motor adım kaçırır ve kimse fark etmez; sayfadaki Step Motor kartı da bunu dezavantaj olarak yazar. Konumu gerçekten bilmek için bir enkoderle döngüyü kapatmak gerekir.",
+        "Konumu bilen motor değil, darbeleri sayan sürücüdür. Sayfadaki 'Yük fazla' hazırında 0.25 N·m'lik yük, 600 adım/s'deki çekme torkunu (0.202 N·m) aştığı için rotor 1 saniyelik koşuda 872 tam adım kaçırır; yük etkin bir tork olduğu için sonunda mili geri bile döndürür. Sürücü bunların hiçbirini bilmez. Mikroadım da çözünürlüğü artırır ama doğruluğu artırmaz: 1/16'da bir mikroadımı kaydırmak için yalnız 0.039 N·m yeter ve 0.050 N·m'lik yük rotoru durgunken 1.3 mikroadım kaydırır. Konumu gerçekten bilmek için döngüyü bir enkoderle kapatmak gerekir.",
     },
     {
-      myth: "Sensörün ekranda gösterdiği sayı ölçülen büyüklüğün kendisidir.",
+      myth: "Orantı kazancını artırmak servoyu her zaman daha iyi yapar.",
       truth:
-        "Sensörlerin çoğu başka bir şeyi ölçüp çevirir: ultrasonik sensör zamanı, termokupl milivolt düzeyinde bir gerilimi, yük hücresi bir direnç değişimini ölçer. Çeviri varsayımlara (ses hızı, kalibrasyon) dayanır ve her ölçüme gürültü karışır. Türev terimi bu gürültüyü büyüttüğü için PID'de çoğu zaman süzgeçle kullanılır.",
+        "K<sub>p</sub> artınca ω<sub>n</sub> √K<sub>p</sub> ile büyür ama ζ 1/√K<sub>p</sub> ile küçülür. Sayfada K<sub>p</sub>'yi 8'den 16 V/rad'e çıkarmak aşımı 5.63 %'ten 20.43 %'e taşır ve ayrık döngünün kararlılık sınırını 17.50 ms'den 11.10 ms'ye çeker. Hızlı yanıt, daha hızlı örnekleme ve daha fazla sönüm ister.",
     },
     {
-      myth: "Robot kolun ucunu belli bir noktaya götüren tek bir açı çifti vardır.",
+      myth: "En iyi dişli oranı her zaman yansıyan eylemsizliğin rotorunkine eşit olduğu orandır.",
       truth:
-        "İki eklemli bir kolda erişilebilir noktaların çoğuna 'dirsek yukarı' ve 'dirsek aşağı' iki farklı açı çiftiyle ulaşılır; çalışma alanı halkasının dışındaki noktalara hiç ulaşılamaz. Sayfanın 'ters kinematik çok çözümlü olabilir' notunun anlamı budur. Bilekli tipik altı eklemli endüstriyel kollarda aynı uç konumu ve yönü için sekiz farklı açı takımı bulunabilir; yazılım bunlardan eklem sınırlarına ve engellere takılmayanı seçer.",
+        "n* = √(J<sub>L</sub>/J<sub>m</sub>) torku hızdan bağımsız bir motorda en büyük ivmeyi verir. Hız tavanı olan bir DC motorla uzun bir harekette en iyi oran küçülür: sayfada 20 rad'lık harekette tarama n = 3.433 bulur, n* = 10'da hareket 269.80 ms yerine 451.75 ms sürer.",
     },
   ],
   glossary: [
     {
-      term: "Geri besleme",
+      term: "Zıt EMK",
       definition:
-        "Bir sistemin çıktısını ölçüp girişine geri vererek davranışını düzeltmesi; hatayı küçültüyorsa negatif geri besleme denir.",
+        "Dönen motor milinin sargıda ürettiği, hızla orantılı (K·ω) ve uygulanan gerilime karşı koyan gerilim.",
     },
     {
-      term: "Açık / kapalı çevrim",
+      term: "Mekanik zaman sabiti (τm)",
       definition:
-        "Açık çevrimde komut sonucu ölçülmeden verilir; kapalı çevrimde sonuç ölçülür ve bir sonraki komut bu ölçüme göre hesaplanır.",
+        "Endüktans ihmal edildiğinde motor hızının son değerinin %63.2'sine çıkma süresi, J·R/(K² + R·b).",
     },
     {
-      term: "Ayar noktası (r)",
+      term: "Görev oranı (D)",
       definition:
-        "Kontrolcünün ulaşmaya çalıştığı hedef değer; örneğin istenen eklem açısı ya da fırın sıcaklığı.",
+        "PWM periyodunda anahtarın iletimde kaldığı sürenin periyoda oranı.",
     },
     {
-      term: "Hata (e)",
+      term: "Kesintili iletim",
       definition:
-        "Ayar noktası ile ölçülen değerin farkı, e = r − y; basit bir geri besleme kontrolcüsünün tepki verdiği büyüklük.",
+        "Diyotlu bir sürücüde akımın periyodun bir kısmında sıfıra inip orada kaldığı çalışma; ortalama model bu durumda geçersizdir.",
     },
     {
-      term: "PID denetleyici",
+      term: "Dörtlü (×4) kod çözme",
       definition:
-        "Komutu hatanın kendisinin, zaman içindeki toplamının ve değişim hızının ağırlıklı toplamı olarak hesaplayan kontrol yasası.",
+        "Çeyrek yarık kaymış A ve B kanallarının bütün kenarlarını sayarak turda 4N sayım ve dönüş yönü elde etme.",
     },
     {
-      term: "Kalıcı durum hatası",
+      term: "Örtüşme",
       definition:
-        "Sistem yerleştikten sonra kalan sabit hata; sabit bir bozucu karşısında yalnız orantılı kontrol bunu sıfırlayamaz.",
+        "f<sub>s</sub>/2'nin üstündeki bir frekansın örneklerde |f − k·f<sub>s</sub>| frekanslı bir sinyalle ayırt edilemez görünmesi.",
     },
     {
-      term: "Örnekleme periyodu (Tₛ)",
+      term: "İntegral şişmesi",
       definition:
-        "Dijital kontrolcünün ardışık iki ölçümü arasındaki süre; bu aralıkta son komut değişmeden uygulanır.",
+        "Çıkış doymadayken PID'nin integral teriminin boşuna birikmesi ve hedef geçildikten sonra boşalırken aşımı büyütmesi.",
     },
     {
-      term: "Serbestlik derecesi (DOF)",
+      term: "Yansıyan eylemsizlik",
       definition:
-        "Bir mekanizmanın konumunu tam olarak belirlemek için gereken bağımsız değişken (ör. eklem açısı) sayısı; sayfadaki düzlemsel kol iki eklemle 2 serbestlik derecelidir.",
+        "n oranlı bir dişlinin ardındaki J<sub>L</sub> yükünün motor milinden görünen eylemsizliği, J<sub>L</sub>/n².",
     },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede geri besleme bir sezgidir: hatayı ölç, ters yönde it. Mekatronik ve kontrol derslerinde bu sezgi bir dile dönüşür. Motoru, kolu ya da fırını diferansiyel denklemlerle modellersin; <strong>Laplace dönüşümü</strong> bu denklemleri cebire çevirir ve sistem bir 'transfer fonksiyonu' olur. Maxwell'in 1868'de baktığı kökler burada 'kutuplar' adını alır: hepsi karmaşık düzlemin sol yarısındaysa sistem kararlıdır. Bode ve Nyquist diyagramları, çözümlü örnekteki 'kazanç fazla olunca kararsızlık' olgusunu frekans dilinde ölçer. Dijital kontrolde aynı iş Z-dönüşümüyle yapılır; örnekteki 'K<sub>p</sub>T<sub>s</sub> 0 ile 2 arasında kalsın' koşulu bu analizin en basit örneğidir.",
-      "Robotik tarafında ileri kinematik matrislerle yazılır: her eklem bir dönme ve öteleme matrisidir, kol bunların çarpımıdır. Ters kinematik doğrusal olmayan denklem sistemleri, hız ilişkileri ise <strong>Jakobiyen</strong> matrisi demektir. Sensör tarafında olasılık girer: Kalman filtresi gürültülü ölçümleri bir modelle birleştirip en iyi tahmini üretir; telefonların ve dronların yönünü bilmesi buna ya da benzeri füzyon filtrelerine dayanır. Bütün bunlar, gerçek zamanlı çalışan gömülü yazılımın içinde, mikrodenetleyicinin her milisaniyesine sığmak zorundadır. Mekatronik, makine, elektrik ve bilgisayar mühendisliğinin buluştuğu yerdir; bu üç alandan birini seçsen bile bu döngüyle karşılaşırsın.",
+      "Lisede geri besleme bir sezgidir: hatayı ölç, ters yönde it. <strong>Sistem Dinamiği</strong> ve <strong>Kontrol Sistemleri</strong> derslerinde bu sezgi bir dile dönüşür. Motoru, yükü ve dişliyi buradaki gibi diferansiyel denklemlerle yazarsın; <strong>Laplace dönüşümü</strong> onları cebire çevirir ve DC motor V'den ω'ya bir transfer fonksiyonu olur. Maxwell'in 1868'de baktığı kökler burada 'kutuplar' adını alır; iki zaman sabiti birbirinden uzakken kutuplar yaklaşık −1/τ<sub>e</sub> ve −1/τ<sub>m</sub>'dir, birbirine yaklaşınca karmaşık bir çift olurlar ('Büyük endüktans' hazırında hız bu yüzden aşıp salınır). Kök yer eğrisi, Bode ve Nyquist diyagramları, servo sekmesindeki 'kazanç büyüyünce aşım artar' olgusunu frekans dilinde ölçer. <strong>Sayısal Kontrol</strong> dersinde aynı iş Z-dönüşümüyle yapılır; sayfadaki |z| ve 17.5 ms'lik sınır bu analizin doğrudan ürünüdür.",
+      "Sensör tarafında <strong>Sinyaller ve Sistemler</strong> örnekleme kuramını kurar: örtüşmenin neden geri alınamadığı, nicemleme gürültüsünün neden Δ/√12 olduğu, süzgecin örneklemeden önce neden gerektiği. <strong>Güç Elektroniği</strong> PWM sürücüyü, H köprüsünü, senkron doğrultmayı ve kesintili iletimi ayrıntılandırır; <strong>Elektrik Makineleri</strong> fırçalı motordan adım motoruna, oradan fırçasız ve asenkron motorlara uzanır. Bütün bunlar sonunda <strong>Gömülü Sistemler</strong> dersinde bir mikrodenetleyicinin zamanlayıcısına, ADC'sine ve kesme rutinine sığmak zorundadır; enkoder sayıcısı ve PID döngüsü genellikle tam orada, sabit bir T<sub>s</sub> ile döner. Mekatronik, makine, elektrik ve bilgisayar mühendisliğinin buluştuğu yerdir; bu üç alandan birini seçsen bile bu döngüyle karşılaşırsın.",
     ],
     topics: [
-      "Sistem dinamiği ve modelleme",
+      "Sistem dinamiği ve elektromekanik modelleme",
       "Laplace ve Z-dönüşümü",
       "Kararlılık: kutuplar, Routh–Hurwitz, Nyquist",
-      "PID ayarı ve durum uzayı kontrolü",
-      "Robot kinematiği ve Jakobiyen",
-      "Kalman filtresi ve sensör füzyonu",
+      "PID ayarı, ileri besleme ve durum uzayı kontrolü",
+      "Örnekleme kuramı ve nicemleme",
+      "Güç elektroniği: PWM ve H köprüsü",
+      "Elektrik makineleri ve sürücüler",
       "Gömülü ve gerçek zamanlı sistemler",
     ],
   },
   quiz: [
     {
       question:
-        "Çözümlü örnekteki modelde T<sub>s</sub> = 0.02 s ise hangi orantı kazancı döngüyü kararsız yapar?",
+        "1. sekmedeki varsayılan motorda besleme gerilimini 24 V'tan 12 V'a indiriyorsun; öbür her şey aynı. En büyük mekanik güç ve en yüksek verim nasıl değişir?",
       options: [
-        "K<sub>p</sub> = 20 s⁻¹",
-        "K<sub>p</sub> = 50 s⁻¹",
-        "K<sub>p</sub> = 90 s⁻¹",
-        "K<sub>p</sub> = 150 s⁻¹",
-      ],
-      answer: 3,
-      explanation:
-        "Kararlılık için K<sub>p</sub>T<sub>s</sub> çarpımı 0 ile 2 arasında kalmalı, yani K<sub>p</sub> 100 s⁻¹'nin altında kalmalı. 150 × 0.02 = 3 olur; hata her örnekte (1 − 3) = −2 ile çarpılır: işaret değiştirip iki katına çıkar. Daha hızlı örnekleme daha yüksek kazanca izin verir.",
-    },
-    {
-      question:
-        "Yerçekimi bir robot kolu sürekli aşağı çekiyor ve yalnız orantılı kontrolle kol hedefin biraz altında duruyor. Bu kalıcı hatayı hangi terim sıfırlar?",
-      options: [
-        "Türev terimi, çünkü değişimi önceden sezer",
-        "İntegral terimi, çünkü hata sürdükçe komutu büyütür",
-        "Kazancı iki katına çıkarmak",
-        "Örnekleme periyodunu uzatmak",
+        "İkisi de yarıya iner",
+        "Güç dörtte bire iner, en yüksek verim değişmez",
+        "Güç yarıya iner, verim dörtte bire iner",
+        "Güç değişmez, verim artar",
       ],
       answer: 1,
       explanation:
-        "Kol durduğunda hata sabittir, değişim hızı sıfırdır; türev terimi bir şey üretmez. Kazancı artırmak hatayı küçültür ama sıfırlamaz. İntegral, küçük ama inatçı hatayı biriktirerek komutu, yerçekimini tek başına dengeleyene kadar büyütür; ancak o zaman hata sıfır olabilir.",
+        "Boşta hız da duruş torku da V ile orantılıdır; güç, T<sub>s</sub>/2'de ikisinin çarpımının dörtte biri olduğu için V² ile ölçeklenir: 71.43 W'tan 17.86 W'a. Verim ise iki gücün oranıdır; gerilim yarıya inince en verimli noktanın torku da yarıya iner (0.051'den 0.025 N·m'ye) ama oran aynı kalır: sayfa iki durumda da 83.63 % ölçer.",
     },
     {
       question:
-        "Sayfadaki kolda yalnızca θ₁ değişiyor, θ₂ = 30° sabit. Eklemi Döndür'e art arda bastıkça uç nokta ne çizer?",
+        "Varsayılan enkoderde (C = 400 sayım/tur, N = 100, T<sub>w</sub> = 10 ms) M ve T yöntemlerinin kesişme hızı 1 MHz'lik saatle 3000 dev/dk. Zamanlayıcı saatini 10 MHz'e çıkarırsan kesişme hızı yaklaşık kaç olur?",
+      options: ["300 dev/dk", "949 dev/dk", "9487 dev/dk", "30 000 dev/dk"],
+      answer: 2,
+      explanation:
+        "n<sub>kesişme</sub> = 60·√(f<sub>saat</sub>/(C·N·T<sub>w</sub>)) olduğu için saat 10 kat artınca kesişme √10 ≈ 3.16 kat yükselir: 3000·3.16 ≈ 9487 dev/dk. Hızlı saat T yöntemini daha yüksek hızlara kadar üstün tutar. 949 dev/dk ise saati 100 kHz'e düşürmenin sonucudur.",
+    },
+    {
+      question:
+        "Servoda (L = 0 modeli) K<sub>p</sub>'yi 8'den 16 V/rad'e çıkarıyorsun. Doğal frekans ω<sub>n</sub> ve sönüm oranı ζ ne olur?",
       options: [
-        "20–160 px halkasının tamamını tarar",
-        "Taban merkezli, yaklaşık 155 px yarıçaplı bir çember",
-        "Tabandan uzaklaşan bir sarmal",
-        "Yatay bir doğru parçası",
+        "ω<sub>n</sub> iki katına çıkar, ζ değişmez",
+        "ω<sub>n</sub> √2 kat artar, ζ √2 kat azalır",
+        "ω<sub>n</sub> değişmez, ζ yarıya iner",
+        "İkisi de √2 kat artar",
       ],
       answer: 1,
       explanation:
-        "Uç noktanın tabana uzaklığı yalnızca θ₂'ye bağlıdır: √(90² + 70² + 2·90·70·cos 30°) ≈ 154.6 px. θ₁ bu uzaklığı değiştirmez, yalnızca kolu tabanın etrafında döndürür. Halkanın tamamına ulaşmak için θ₂'nin de değişmesi gerekir.",
+        "ω<sub>n</sub> = √(K·K<sub>p</sub>/(J·R)) √K<sub>p</sub> ile büyür; ζ'nin payı K<sub>p</sub>'ye bağlı değildir, paydası √K<sub>p</sub> ile büyür. Sayfa ω<sub>n</sub>'yi 63.25'ten 89.44 rad/s'ye, ζ'yi 0.674'ten 0.476'ya taşır; daha az sönüm, aşımın 5.63 %'ten 20.43 %'e çıkmasının nedenidir.",
     },
   ],
   next: [
     {
-      href: "plc-hidrolik-pnomatik-cnc-cadcam.html",
-      title: "PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM Sistemleri",
-      why: "Bu sayfadaki PLC kartlarının canlı hâli: tarama çevrimini adım adım işleyen bir merdiven yorumlayıcısı, sinyal çakışmasını kaskadla çözen pnömatik sıralama, G-kodu yorumlayıcısı ve takım yolu telafisi.",
-    },
-    {
       href: "otonom-araclar-ve-iha.html",
       title: "Otonom Araçlar ve İHA Laboratuvarı",
-      why: "Algıla–kestir–planla–denetle döngüsünün dört halkası canlı deney olarak: İHA irtifasında PID, gürültülü konumda Kalman süzgeci, yol izlemede pure pursuit ve Stanley, algılama menzili ile durma mesafesi.",
+      why: "Buradaki servo döngüsünün araç ölçeğindeki eşi: rüzgârlı irtifa tutmada PID, GPS ile ivmeölçeri birleştiren Kalman süzgeci, yol izleme ve algılama menzilinden güvenlik payı.",
     },
     {
-      href: "matris-donusumleri.html",
-      title: "Matris Dönüşümleri (2B)",
-      why: "'Açı (°)' kaydırıcısıyla bir şekli döndür: robot kolun her eklemi tam bu dönme matrisini uygular.",
+      href: "plc-hidrolik-pnomatik-cnc-cadcam.html",
+      title: "PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM Sistemleri",
+      why: "Motorları ve silindirleri sıraya koyan otomasyon katmanı: tarama çevrimli merdiven mantığı, pnömatik silindir sıralaması, G-kodu yorumlama ve takım yolu hesabı.",
     },
     {
-      href: "diferansiyel-denklemler.html",
-      title: "Diferansiyel Denklemler ve Dinamik Sistemler",
-      why: "Sönümlü salınım, kararlılık ve Euler adımı: kontrol döngüsünün matematiksel iskeleti ve örneklemenin akrabası.",
+      href: "elektronik-muhendisligi.html",
+      title: "Elektronik Mühendisliği: Analog Devre Laboratuvarı",
+      why: "Sensör ile ADC arasındaki analog katman: diyot ve doğrultucu, transistörlü yükselteç, işlemsel yükselteç ve RC alçak geçiren süzgeç; örtüşmeyi örneklemeden önce durduran süzgeç türü.",
+    },
+    {
+      href: "makine-muhendisligi.html",
+      title: "Makine Mühendisliği: Çevrim, Dişli, Titreşim ve Isı",
+      why: "Buradaki kayıpsız dişlinin diş sayısıyla kurulmuş hâli: kademeli dişli zincirinde devir, tork ve kavrama verimiyle kaybolan güç.",
     },
   ],
   sources: [
     {
       title: "Wikipedia · PID controller",
       url: "https://en.wikipedia.org/wiki/PID_controller",
-      note: "Watt regülatörü, Maxwell, Whitehead torpidosu, Minorsky ve USS New Mexico denemeleri; PID terimleri, ayar yöntemleri ve dijital uygulama (İngilizce).",
+      note: "Watt regülatörü, Maxwell, Whitehead torpidosu, Minorsky ve USS New Mexico denemeleri; PID terimleri, integral şişmesi, ileri besleme ve dijital uygulama (İngilizce).",
     },
     {
       title: "Wikipedia · Mechatronics",
       url: "https://en.wikipedia.org/wiki/Mechatronics",
-      note: "Kelimenin Yaskawa'daki kökeni, marka tescili, 1951 reklamı ve disiplinin alt alanları (İngilizce).",
+      note: "Kelimenin Yaskawa'daki kökeni, marka tescili, Servomechanisms, Inc.'in 1951 reklamı ve disiplinin alt alanları (İngilizce).",
     },
     {
       title: "MIT OpenCourseWare · 2.004 Dynamics and Control II",
       url: "https://ocw.mit.edu/courses/2-004-dynamics-and-control-ii-spring-2008/",
-      note: "Geri besleme, transfer fonksiyonları, kararlılık (Routh–Hurwitz, kök yer eğrisi, Bode) ders notları; P, I ve D etkisi laboratuvar föylerinde (İngilizce).",
+      note: "Elektrik ve mekanik sistemlerin toplu parametreli modelleri, basamak ve rampa yanıtı, frekans yanıtı ve geri beslemeyle kompanzasyon; ders notları ve laboratuvarlar (İngilizce).",
     },
     {
-      title: "MIT OpenCourseWare · 2.12 Introduction to Robotics",
-      url: "https://ocw.mit.edu/courses/2-12-introduction-to-robotics-fall-2005/",
-      note: "Robot kol kinematiği, Jakobiyen ve hareket kontrolü; ders notları (İngilizce).",
+      title: "Wikipedia · Aliasing",
+      url: "https://en.wikipedia.org/wiki/Aliasing",
+      note: "Örneklenmiş sinyalde frekansların katlanması, Nyquist sınırı ve örneklemeden önce alçak geçiren süzgeç gereği (İngilizce).",
     },
   ],
   revision: "Kasım 2026",

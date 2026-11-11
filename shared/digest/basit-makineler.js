@@ -140,7 +140,7 @@ window.ACELYA_DIGEST["basit-makineler"] = {
   ],
   next: [
     { href: "tork-denge.html", title: "Tork ve Denge", why: "Çark ve palanganın öncesine dön: kuvvet kolları, ağırlık merkezi ve dönme dengesini incele." },
-    { href: "is-enerji.html", title: "İş–Enerji", why: "Sabit hızlı kaldırmanın ötesinde, net işin kinetik enerjiyi nasıl değiştirdiğini izle." },
+    { href: "is-enerji.html", title: "İş, Enerji ve Güç Laboratuvarı", why: "Sabit hızlı kaldırmanın ötesinde, net işin kinetik enerjiyi nasıl değiştirdiğini izle." },
     { href: "statik.html", title: "Statik: Yük, Mesnet ve Denge", why: "İdeal makineyi taşıyan yapıda denge denklemleri, destek kuvvetleri ve temas sınırlarını araştır." }
   ],
   sources: [

@@ -211,8 +211,8 @@ window.ACELYA_DIGEST["karmasik-sayilar"] = {
   next: [
     {
       href: "matris-donusumleri.html",
-      title: "Matris Dönüşümleri",
-      why: "a + bi ile çarpmak [a −b; b a] matrisidir. Sx = Sy = 2.00 ve Açı = 30° seç: matris [1.732 −1.000; 1.000 1.732], yani √3 + i ile çarpma olur; Özdeğerler 1.732 ± 1.000i = 2·e<sup>±i30°</sup>, Determinant 4.0000 = |√3 + i|².",
+      title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek",
+      why: "a + bi ile çarpmak [a −b; b a] matrisidir. Özvektörler sekmesinde Karmaşık (dönme benzeri) [1 −1; 1 1] hazırını seç: bu 1 + i ile çarpmadır; özdeğerler 1.000 ± 1.000 i, |λ| = 1.414 = |1 + i|, arg λ = 45°.",
     },
     {
       href: "alternatif-akim.html",

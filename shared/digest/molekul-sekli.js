@@ -3,100 +3,99 @@ window.ACELYA_DIGEST["molekul-sekli"] = {
   slug: "molekul-sekli",
   title: "Molekül Şekli: Elektron Çiftlerinin Yer Kavgası",
   field: "Kimya",
-  level: "Lise",
-  minutes: 25,
+  level: "Lise–Lisans",
+  minutes: 35,
   tagline:
-    "Su neden bükük, karbondioksit neden dümdüz? Merkez atomun çevresindeki elektron çiftleri birbirinden kaçar; bu kaçışın geometrisi kokudan buzun yüzmesine kadar çok şeyi belirler.",
+    "Su neden bükük, karbondioksit neden dümdüz? Elektron bölgelerini bir kürede birbirini itmeye bırak, açıları ölç; sonra aynı modelin nerede tuttuğunu, nerede ıskaladığını deneyle karşılaştır.",
   hook: "Karbondioksit de su da üç atomlu: ortada bir atom, iki yanında birer ortak. Ama biri ok gibi dümdüz, öbürü bumerang gibi bükük. Normal hava basıncında biri −78,5 °C'de katıdan doğrudan gaza geçer, öbürü 0 ile 100 °C arasında sıvı kalır. Bu farkın kökünde, sudaki oksijenin üstünde oturan ve formülde hiç görünmeyen iki elektron çifti var.",
   bigIdea:
     "Merkez atomun çevresindeki <strong>elektron bölgeleri</strong> (bağlar ve ortaklanmamış çiftler) birbirinden olabildiğince uzaklaşır: kaç bölge olduğu iskeleti, bu bölgelerden kaçının atom taşıdığı da molekülün görünen şeklini belirler.",
   story: [
-    "1874 Eylül'ünde Utrecht'te, doktora tezini henüz vermemiş 22 yaşındaki Jacobus van 't Hoff küçük bir broşür yayımladı. Önerisi cüretkârdı: karbonun dört bağı kâğıttaki gibi bir artı işareti çizmez, düzgün bir <strong>dörtyüzlünün</strong> (tetrahedronun) köşelerine yönelir. Aynı yıl Paris'te Joseph Achille Le Bel, daha soyut bir biçimde de olsa, aynı sonuca bağımsız olarak vardı. İkisinin de elinde güçlü ipuçları vardı. 1848'de Louis Pasteur, tartarik asidin bir tuzunun kristallerini mikroskop altında cımbızla ayırmış, birbirinin ayna görüntüsü olan iki biçim bulmuştu; çözeltileri polarize ışığı zıt yönlere çeviriyordu. Düz bir karbon bunu açıklayamazdı. Üstelik karbon düz olsaydı CH₂Cl₂ iki ayrı biçimde bulunmalıydı: klorlar yan yana ya da karşı karşıya. Oysa hep tek bir biçim bulunuyordu. Dörtyüzlüde ise hangi iki köşeyi seçersen seç, birbirlerine aynı uzaklıktadırlar.",
-    "Fikir herkesi ikna etmedi. On iki sayfalık broşür 1875'te Fransızca bir kitaba (<em>La Chimie dans l'Espace</em>) dönüştü; kitap 1877'de Almancaya çevrilince dönemin ünlü kimyacısı Hermann Kolbe sert bir yazıyla karşı çıktı. Genç adamın Utrecht'teki veteriner okulunda ders vermesiyle de alay ederek onu deneyden kopuk hayaller kurmakla iğneledi. Zaman van 't Hoff'u haklı çıkardı: 1901'de verilen ilk Nobel Kimya Ödülü ona gitti (gerçi ödül dörtyüzlü karbon için değil, kimyasal dinamiğin yasaları ve çözeltilerdeki ozmotik basınç üzerine buluşları içindi). 1916'da Amerikalı kimyacı Gilbert N. Lewis, 'Atom ve Molekül' adlı makalesinde bağın ne olduğunu söyledi: iki atomun <strong>ortaklaştığı bir elektron çifti</strong>. Ders kitaplarındaki noktalı <strong>Lewis yapıları</strong> buradan gelir. Ama Lewis yapısı kimin kime bağlı olduğunu ve kaç çiftin ortada kaldığını söyler; açıları söylemez.",
+    "1874 sonbaharında Utrecht'te, doktorasını henüz almamış 22 yaşındaki Jacobus van 't Hoff küçük bir broşür yayımladı. Önerisi cüretkârdı: karbonun dört bağı kâğıttaki gibi bir artı işareti çizmez, düzgün bir <strong>dörtyüzlünün</strong> (tetrahedronun) köşelerine yönelir. Aynı yıl Paris'te Joseph Achille Le Bel, daha soyut bir biçimde de olsa, aynı sonuca bağımsız olarak vardı. İkisinin de elinde güçlü ipuçları vardı. 1848'de Louis Pasteur, üzüm asidinin (rasemik tartarik asit) sodyum amonyum tuzunun kristallerini mikroskop altında cımbızla ayırmış, birbirinin ayna görüntüsü olan iki biçim bulmuştu; çözeltileri polarize ışığı zıt yönlere çeviriyordu. Düz bir karbon bunu açıklayamazdı. Üstelik karbon düz olsaydı CH₂Cl₂ iki ayrı biçimde bulunmalıydı: klorlar yan yana ya da karşı karşıya. Oysa hep tek bir biçim bulunuyordu. Dörtyüzlüde ise hangi iki köşeyi seçersen seç, birbirlerine aynı uzaklıktadırlar.",
+    "Fikir herkesi ikna etmedi. Felemenkçe broşür 1875'te Fransızca bir kitaba (<em>La Chimie dans l'Espace</em>) dönüştü; kitap 1877'de Almancaya çevrilince dönemin ünlü kimyacısı Hermann Kolbe sert bir yazıyla karşı çıktı. Genç adamın Utrecht'teki veteriner okulunda ders vermesiyle de alay ederek onu deneyden kopuk hayaller kurmakla iğneledi. Zaman van 't Hoff'u haklı çıkardı: 1901'de verilen ilk Nobel Kimya Ödülü ona gitti (gerçi ödül dörtyüzlü karbon için değil, kimyasal dinamiğin yasaları ve çözeltilerdeki ozmotik basınç üzerine buluşları içindi). 1916'da Amerikalı kimyacı Gilbert N. Lewis, 'Atom ve Molekül' adlı makalesinde bağın ne olduğunu söyledi: iki atomun <strong>ortaklaştığı bir elektron çifti</strong>. Ders kitaplarındaki noktalı <strong>Lewis yapıları</strong> buradan gelir. Ama Lewis yapısı kimin kime bağlı olduğunu ve kaç çiftin ortada kaldığını söyler; açıları söylemez.",
     "Açılara giden adım 1939–1940'ta atıldı. Önce 1939'da Japonya'da Ryutaro Tsuchida, ondan bağımsız olarak da 1940'ta Oxford'dan Nevil Sidgwick ile Herbert Powell, Kraliyet Derneği'nin Bakerian Konferansı'nda aynı fikri ortaya koydu: merkez atomun çevresindeki elektron çiftlerini, bağ yapsın yapmasın, say; şekli bu sayı belirler. 1957'de University College London'dan Ronald Gillespie ve Ronald Nyholm fikri kurallara bağladı: ortaklanmamış çiftler bağ çiftlerinden daha çok yer kaplar, çift ve üçlü bağlar tek bölge sayılır. Böylece model birkaç olası şekil arasında seçim yapabilir hâle geldi. Bugün <strong>VSEPR</strong> (Değerlik Kabuğu Elektron Çifti İtmesi) diye bilinen yöntem budur; Gillespie onu sonraki on yıllarda Kanada'daki McMaster Üniversitesi'nde geliştirip öğretmeyi sürdürdü.",
     "Kâğıt kalemle yapılan bu sayım şaşırtıcı derecede iyi çalışır. Bağ açıları bugün spektroskopi ve kırınım yöntemleriyle ölçülür: su için 104,5°, amonyak için yaklaşık 107°, metan için 109,5°. VSEPR bu sayıları tek tek hesaplayamaz; ama hangi şeklin çıkacağını ve açıların sıralamasını birkaç saniyelik bir sayımla doğru tahmin eder. Gillespie'nin kendisi de modelin asıl dayanağının basit bir elektrik itmesinden çok, aynı spinli elektronları birbirinden uzak tutan <em>Pauli dışlama ilkesi</em> olduğunu vurguladı. Yani 'çiftler birbirini iter' cümlesi bir benzetmedir; ama öngören, işe yarayan bir benzetme.",
   ],
   core: [
     {
       heading: "Elektron bölgelerini say",
-      body: "Bir molekülün şeklini tahmin etmek için merkez atoma bak ve çevresindeki <strong>elektron bölgelerini</strong> say. Bağlı her komşu atom bir bölgedir; bağ tekli, ikili ya da üçlü olsa da. Bağa katılmayan, yalnızca merkez atoma ait <strong>ortaklanmamış elektron çiftleri</strong> de birer bölgedir (sayfa bunları merkez atoma takılı lila loblar olarak çizer). Bölgeler negatif yüklü elektron bulutlarıdır ve birbirinden olabildiğince uzak dururlar. Toplam bölge sayısına <strong>sterik sayı</strong> denir; şeklin anahtarı odur. AXE gösteriminde A merkez atom, X bağlı atom, E ortaklanmamış çifttir: metan AX₄, amonyak AX₃E, su AX₂E₂ diye yazılır.",
+      body: "Bir molekülün şeklini tahmin etmek için merkez atoma bak ve çevresindeki <strong>elektron bölgelerini</strong> say. Bağlı her komşu atom bir bölgedir; bağ tekli, ikili ya da üçlü olsa da. Bağa katılmayan, yalnızca merkez atoma ait <strong>ortaklanmamış elektron çiftleri</strong> de birer bölgedir. Toplam bölge sayısına <strong>sterik sayı</strong> denir; iskeletin anahtarı odur. AXE gösteriminde A merkez atom, X bağlı atom, E ortaklanmamış çifttir: metan AX₄, amonyak AX₃E, su AX₂E₂. Üçünün de <strong>elektron geometrisi</strong> dörtyüzlüdür; ama deney çekirdeklerin yerini ölçtüğü için şekle adını <strong>molekül geometrisi</strong>, yani yalnız atomların çizdiği şekil verir: dörtyüzlü, üçgen piramit, açısal.",
       formula: "Sterik sayı = X + E",
       formulaNote:
         "X: merkeze bağlı atom sayısı (çift ve üçlü bağ da tek sayılır). E: merkezdeki ortaklanmamış çift sayısı.",
     },
     {
-      heading: "Bölge sayısından iskelete",
-      body: "Bir kürenin yüzeyine birkaç noktayı birbirinden en uzak olacak biçimde yerleştirdiğini düşün. İki bölge zıt uçlara gider: <strong>doğrusal</strong>, 180° (CO₂). Üç bölge bir düzlemde eşkenar üçgen kurar: <strong>düzlemsel üçgen</strong>, 120° (BF₃). Dört bölge için düzlem dar gelir; 90°'lik bir artı işareti yerine üç boyuta taşarlar ve <strong>dörtyüzlü</strong> oluşur: 109,5° (CH₄). Beş bölge üçgen bipiramit kurar (90° ve 120°, örneğin PCl₅); altı bölge ise sekiz yüzlü, yani <strong>oktahedral</strong> düzen: 90° (SF₆). Sayfadaki altı molekülden dördü (CH₄, CO₂, BF₃, SF₆) bu iskeletlerin ortaklanmamış çift içermeyen saf hâlidir.",
-      formula: "cos θ = −1/3 → θ ≈ 109,47°",
+      heading: "Küre üzerinde itişen noktalar",
+      body: "Sayfanın ilk sekmesi VSEPR'in özünü bir hesaba çevirir: n nokta birim kürede durur ve her çift 1/dᵖ ile itişir. Noktalar küreye teğet kuvvet yönünde kaydırılır (<strong>izdüşümlü gradyan inişi</strong>) ve enerji en düşüğe iner. Dörtyüzlü açısı buradan kâğıt kalemle de çıkar: eş n birim vektörün toplamı simetriden sıfırdır; toplamı kendisiyle çarpınca n + n(n − 1)cos θ = 0 bulunur. n = 2, 3, 4 için 180°, 120° ve arccos(−1/3) = 109,47°. n = 5'te bu formül cos θ = −1/4 ister; ama üç boyutta eş açılı beş vektör yoktur. Bu yüzden üçgen çift piramit 90°, 120° ve 180°'lik gruplara ayrılır. Sayfanın aralığında p'yi 1'den 12'ye çıkarmak bu beş geometriyi değiştirmez, yalnız enerjiyi değiştirir. Sınırsız da değildir: beş noktada p ≈ 15,05'in üstünde kare piramit üçgen çift piramitten daha düşük enerjili olur (kendi hesabınla sınayabileceğin, kaydırıcının dışında kalan bir eşik).",
+      formula: "E = Σ<sub>i&lt;j</sub> 1/|u<sub>i</sub> − u<sub>j</sub>|<sup>p</sup> · cos θ = −1/(n − 1)",
       formulaNote:
-        "Dörtyüzlünün bağ açısı, merkezden iki köşeye giden vektörlerin skaler çarpımından çıkar. Düzlemdeki 90°'den belirgin biçimde geniştir: üç boyut elektronlar için daha ferahtır.",
+        "p = 1 Thomson problemidir (elektrostatik itme). İkinci eşitlik yalnız bütün açıların eşit olabildiği n = 2, 3, 4 için geçerlidir.",
     },
     {
-      heading: "Şekli atomlar söyler, iskeleti elektronlar kurar",
-      body: "CH₄, NH₃ ve H₂O'nun üçünde de merkezde dört bölge vardır; üçünün de <strong>elektron geometrisi</strong> dörtyüzlüdür. Ama ortaklanmamış çiftlerin yeri doğrudan ölçülmez; deneyler çekirdeklerin yerini verir. Bu yüzden şekle adını veren <strong>molekül geometrisi</strong>, yalnızca atomların çizdiği şekildir. Dörtyüzlünün bir köşesine çift koyarsan geriye kalan dört atom bir <strong>üçgen piramit</strong> çizer: amonyak. İki köşesine koyarsan üç atom bir V harfi çizer: su, yani <strong>açısal</strong> (kıvrık) molekül. Aynı iskelet, üç farklı görünüş.",
-      formula: "AX₄ → dörtyüzlü · AX₃E → üçgen piramit · AX₂E₂ → açısal",
+      heading: "Lewis yapısı: biçimsel yükü en aza indir",
+      body: "Şekle geçmeden önce merkezde kaç bağ ve kaç çift olduğunu bilmek gerekir. Üçüncü sekmenin sayımı OpenStax'teki yönteme dayanır: değerlik elektronlarını topla, iskeleti tek bağlarla kur, uçların oktetini tamamla, kalanı merkeze koy. Sonra uçlardaki çiftleri bağa çevirmenin bütün seçeneklerini dene ve <strong>biçimsel yüklerin</strong> mutlak toplamı en küçük olanı seç. Aynı puanı alan yapılar <strong>rezonans yapılarıdır</strong>: CO₃²⁻ için üç tane çıkar, gerçek iyonda üç C–O bağı eştir. Periyot 3 ve sonrasındaki merkez atomda 8'den fazla elektron yazmak bir <em>seçimdir</em>, kutuyla açılıp kapanır. SO₂ kutu işaretliyken iki çift bağlı ve S'de 10 elektronlu çıkar; kutu kaldırılınca O=S–O, S'de +1 ve iki rezonans yapısı. Şekil (AX₂E, açısal) iki yazımda da aynıdır.",
+      formula: "BY = değerlik e⁻ − ortaklanmamış e⁻ − bağ sayısı · Σ BY = yük",
       formulaNote:
-        "Üçünün de sterik sayısı 4'tür; fark, dört köşeden kaçının atom taşıdığıdır.",
+        "Bağ sayısında çift bağ 2, üçlü bağ 3 sayılır. Eşit puanda eksi yük daha elektronegatif atoma verilir.",
     },
     {
-      heading: "Ortaklanmamış çift daha geniş yer kaplar",
-      body: "Bağ çifti iki çekirdek arasında gerilmiş, ince bir buluttur. Ortaklanmamış çift ise yalnızca tek bir çekirdeğe bağlıdır ve merkezin hemen yanında daha geniş yayılır; bu yüzden komşularını daha sert iter. Sonuç, sayfanın sarı açı yayında ve bilgi satırında okunan sıralamadır: hiç çift yokken 109,5°, bir çiftle yaklaşık 107°, iki çiftle 104,5°. VSEPR bu sıralamayı doğru öngörür ama tam sayıları hesaplayamaz; 104,5° deneyden gelir. Aynı kural çiftlerin nereye oturacağını da seçer: altı bölgenin ikisi ortaklanmamış çiftse, aralarında 90° kalmasın diye birbirinin tam karşısına geçerler. XeF₄'ün kare düzlem olmasının nedeni budur (aşağıdaki çözümlü örnek).",
-      formula: "İtme gücü: E–E > E–X > X–X",
+      heading: "Ortaklanmamış çift: iç kürede bir ayar düğmesi",
+      body: "OpenStax'in kuralı bir sıralamadır: çift–çift itmesi çift–bağdan, o da bağ–bağdan büyüktür. Sayfa bunu çifti yarıçapı ρ &lt; 1 olan iç bir küreye koyarak modeller: komşularına daha yakın olan çift onları daha sert iter. ρ bir ölçüm değil, bir <strong>öğretim parametresidir</strong>: 0,80 değeri NH₃ açısına bakılarak seçildi; o yüzden NH₃'te 106,69° ile deneyin 106,67°'sine uyması bir kanıt sayılmaz. Aynı ayar H₂O'yu 104,57° verir (deney 104,48°), bu bir öngörüdür. Ama SO₂'de 114,46° (deney 119,5°) ve SF₄'ün ekvatoral açısında 122,73° (deney 101,55°) çıkar: model bu açıyı yanlış yöne, 120°'nin üstüne açar. Çiftin nereye oturduğunu ise doğru seçer: SF₄'te ekvatoral çift eksenelden düşük enerjilidir, XeF₄'te iki çift karşı karşıya geçer. Uç değerlerde bu da bozulur: p = 1, ρ = 0,70'te ClF₃ düzlem üçgene kayar.",
+      formula: "İtme gücü: E–E &gt; E–X &gt; X–X",
       formulaNote:
-        "E ortaklanmamış çift, X bağ çifti. Çiftler mümkünse birbirinden ve bağlardan en uzak köşeleri seçer.",
+        "E ortaklanmamış çift, X bağ çifti. Üçgen çift piramitte ekvatoral köşenin 90°'lik iki komşusu, eksenel köşenin üç komşusu vardır.",
     },
     {
-      heading: "Şekil kutupluluğu belirler",
-      body: "Oksijen, karbondan ve hidrojenden daha <strong>elektronegatiftir</strong>: bağdaki elektronları kendine çeker. Böylece her O–H ya da C=O bağı küçük bir ok, bir <strong>bağ dipolü</strong> gibi davranır. Molekülün toplam kutupluluğu bu okların vektör toplamıdır. CO₂ doğrusal olduğu için iki ok zıt yönü gösterir ve birbirini götürür: molekül apolardır. Su bükük olduğu için iki ok aynı tarafa eğilir; toplamları yaklaşık 1,85 debyelik bir <strong>dipol momenti</strong> verir. CH₄, BF₃ ve SF₆'nın simetrisi de okları sıfırlar. Su moleküllerinin birbirine hidrojen bağlarıyla tutunması, 100 °C'ye kadar sıvı kalması ve tuzu çözebilmesi bu bükük, kutuplu yapıdan doğar.",
-      formula:
-        "μ<sub>toplam</sub> = μ<sub>1</sub> + μ<sub>2</sub> + … (vektörel toplam)",
+      heading: "Kutupluluk: okları topla, sınırlarını bil",
+      body: "Her bağ, uzunluğu elektronegatiflik farkı |Δχ| olan bir oktur; molekülün kutupluluğu bu okların 3B toplamıdır. AX₂'de iki okun dikey bileşenleri toplanır, yataylar birbirini götürür: |Σ| = 2|Δχ|cos(θ/2). Su 104,5°'de 1,5183 verir, θ = 180°'de sıfır. Simetri sıfırı her zaman doğru verir: CO₂, BF₃, CCl₄, XeF₄, SF₆, PCl₅ ve XeF₂ hem modelde hem deneyde kutupsuzdur. Ama model büyüklüğü ve sırayı veremez. Klorometanlarda dörtyüzlü köşelerdeki k klor okunun toplamı √(k(4 − k)/3) ile büyür; bu yüzden CH₃Cl ile CHCl₃ aynı değeri alır, CH₂Cl₂ en büyüğünü. Deneyde sıra CH₃Cl 1,870 &gt; CH₂Cl₂ 1,620 &gt; CHCl₃ 1,040 D'dir. O₃'te bütün bağlar O–O olduğu için model sıfır der; ölçülen 0,530 D'dir. Biçimsel yükler, ortaklanmamış çiftler ve bağ uzunlukları modele girmez.",
+      formula: "<span class=vec>μ</span> ∝ Σ Δχ<sub>i</sub> <span class=vec>u</span><sub>i</sub> · AX₂: |Σ| = 2|Δχ| cos(θ/2)",
       formulaNote:
-        "Kutupluluk için iki şart gerekir: kutuplu bağlar ve okları birbirini götürmeyen bir şekil. Su da amonyak da simetriktir ama okları sıfırlayacak kadar değil; CO₂, BF₃, CH₄ ve SF₆'nın simetrisi ise okları tam götürür.",
+        "Pauling birimi debye değildir; model yalnız sıfır/sıfır değil ayrımında güvenilirdir. Fizikteki dipol vektörü eksiden artıya yönelir, kimyadaki oklara zıttır.",
     },
   ],
   lab: {
     intro:
-      "Sayfada üç kontrol var: tuvalin altındaki <strong>Molekül</strong> menüsü (altı molekül: CH₄, NH₃, H₂O, CO₂, BF₃, SF₆), <strong>2D / 3D</strong> düğmesi ve 3D görünümde tuvali fareyle ya da parmakla <strong>sürükleyerek döndürme</strong>. Her topun üstünde elementin simgesi yazar; sol üstteki açıklama hangi rengin hangi element olduğunu söyler. Merkez atoma takılı, içinde iki nokta olan lila <strong>loblar</strong> ortaklanmamış elektron çiftleridir. Yerleri doğrudan ölçülemez; VSEPR'in öngördüğü yönü gösteren şemalardır. Sarı yay iki bağ arasındaki açıyı işaretler, yanındaki sayı bu açının gerçek değerini yazar. 3D'de arkadaki atomlar sönük, öndekiler biraz büyük görünür. 2D sabit, hafif eğik bir bakıştır: düz çizgi ekran düzlemindeki bağ, <strong>kama</strong> bize doğru, <strong>kesikli kama</strong> arkaya doğru giden bağdır (açıklaması sol altta). Alttaki bilgi satırları geometri adını, bağ açısını, bağlı atom, ortaklanmamış çift ve elektron bölgesi sayılarını ve bağ uzunluğunu yazar. Bağ uzunlukları ölçülmüş değerlere göre ölçeklidir (C–H 1,09 Å, S–F 1,56 Å); toplar ise etiket sığsın diye küçültülmüştür, yalnızca büyüklük sıraları korunur.",
+      "Sayfada dört sekme var. <strong>1 · Elektron bölgeleri itişir</strong>: Elektron bölgesi sayısı ve İtme üssü p kaydırıcıları; noktalar rastgele başlayıp dengeye iner, tablo ölçülen açıyı ideal açının yanına yazar. <strong>2 · Ortaklanmamış çiftler</strong>: bölge ve çift sayısı, Çiftin merkeze uzaklığı ρ, p ve NH₃'ten XeF₄'e sekiz hazır düğme; açılar CCCBDB deney değerleriyle, çiftlerin her yerleşimi enerjisiyle karşılaştırılır. <strong>3 · Lewis yapısından şekle</strong>: 25 formüllük menü, genişlemiş oktet kutusu ve rezonans düğmesi. <strong>4 · Kutupluluk</strong>: 17 molekül, AX₂ ve AX₃(E) için Bağ açısı θ kaydırıcısı ve bütün moleküllerin model–deney tablosu. 3B modeller sürükleyerek ya da ok tuşlarıyla döner; her sekmenin kendi Sıfırla düğmesi vardır.",
     experiments: [
       {
-        title: "Ortaklanmamış çift açıyı sıkıştırır",
+        title: "Beş bölge eşit paylaşamaz",
         predict:
-          "Metan, amonyak ve suyun üçünde de merkezde dört elektron bölgesi var. Üçünün bağ açısı aynı mı olur? Farklıysa hangisinin en dar olmasını beklersin?",
-        do: "3D görünümde menüden sırayla CH₄ — Metan, NH₃ — Amonyak ve H₂O — Su'yu seç. Her seferinde sarı yaydaki açıyı oku, lila lobları say ve bilgi satırındaki bağlı atom, ortaklanmamış elektron çifti ve elektron bölgesi sayılarını not et. Sonra su seçiliyken 2D / 3D düğmesine bas.",
+          "Dört nokta küreye eşit açılarla dağılıyor. Beş noktayı bırakırsan hepsi birbirine aynı açıyla mı durur? İtme yasası sertleşirse (p büyürse) düzen değişir mi?",
+        do: "1 · Elektron bölgeleri itişir sekmesinde önce varsayılanı (4 bölge, p = 1) oku. Sonra Elektron bölgesi sayısı'nı 5 yap. İtme üssü p'yi 12'ye çıkar. En son 6 bölgeyi dene.",
         observe:
-          "Yay sırayla 109,5°, 107° ve 104,5° gösterir; lob sayısı 0, 1 ve 2'dir. Üçünde de 'Elektron bölgesi: 4' yazar; amonyak ve suda ayrıca 'Elektron geometrisi: dörtyüzlü' satırı çıkar. Her ortaklanmamış çift açıyı yaklaşık 2,5° daraltır. 2D'de suyun iki O–H bağı ekran düzlemindedir; ekrana bir iletki tutsan 104,5° ölçersin. İki lob oksijenin üstünde durur, biri öne (sağa), öbürü arkaya (sola) kaymış olarak.",
+          "4 bölgede tablo 109,4712° (6) yazar, ideal de aynı; enerji 3,674235 / 3,674235 ve 8 / 8 başlangıç aynı dengeye iner. 5 bölgede tek açı yoktur: 90,0000° (6), 120,0000° (3), 180,0000° (1); enerji 6,474691. p = 12'de açılar kıpırdamaz, enerji 0,098109 olur. 6 bölgede 90,0000° (12) ve 180,0000° (3).",
         explain:
-          "Üçünün de iskeleti dörtyüzlüdür ama ortaklanmamış çift, bağ çiftinden daha geniş yer kaplar ve kalan bağları birbirine doğru sıkıştırır. İki çift, tek çiftten daha çok sıkıştırır. VSEPR bu sıralamayı öngörür; kesin dereceler ölçümden gelir.",
+          "Eş n vektörün toplamı sıfırsa cos θ = −1/(n − 1) olmalıdır. n = 4'te bu −1/3, yani 109,47°. n = 5'te −1/4 ister, ama 3B'de eş açılı beş yön yoktur; ölçülen gruplar eksenel ve ekvatoral köşelerin ayrışmasıdır. p'nin 1–12 aralığında geometriyi değiştirmemesi, şeklin büyük ölçüde itmenin ayrıntısından değil 'olabildiğince uzak dur' fikrinden geldiğini gösterir. Yine de bu bir sınırsız kural değildir: beş bölgede p ≈ 15'in üstünde kare piramit kazanır.",
       },
       {
-        title: "Kenardan bakış: amonyak gerçekten piramit mi?",
+        title: "Çift sıkıştırır, ama ρ bir ayardır",
         predict:
-          "Bir molekülü öyle bir açıdan görebilir misin ki bütün atomları tek bir çizgiye dizilsin? Düz BF₃ için mümkün mü? Piramit biçimli NH₃ için? Dörtyüzlü CH₄ için?",
-        do: "3D görünümde BF₃ — Bor triflorür'ü seç. Tuvali yavaşça sağa sürükle (yaklaşık 100 piksel yetiyor) ve bütün atomların dikey bir çizgiye dizildiği anı yakala. Bakış açısını bozmadan menüden NH₃ — Amonyak'a geç; sonra tuvali biraz yukarı sürükle (yaklaşık 25 piksel), ta ki hidrojenler yatay bir çizgide buluşsun. En son CH₄ — Metan'ı dene.",
+          "NH₃ ve H₂O'da bağ açısı 109,47°'den küçük mü olur, hangisinde daha çok? Çifti merkezden uzaklaştırıp bağlarla aynı küreye koyarsan ne olur?",
+        do: "2 · Ortaklanmamış çiftler sekmesinde NH₃ düğmesine, sonra H₂O düğmesine bas; X–A–X satırını ve Deney sütununu oku. H₂O seçiliyken ρ'yu 1,00'e, sonra 0,60'a çek. Sıfırla'ya basıp SO₂ ve SF₄ düğmelerini dene.",
         observe:
-          "BF₃ bir açıda tek bir dikey çizgiye çöker; bu doğrudur, molekül düzlemseldir. Aynı açıda NH₃ çökmez: lob yukarıda, azot ortada, hidrojenler aşağıda bir şemsiye gibi durur. Biraz yukarı sürükleyince üç hidrojen yatay bir çizgide buluşur (ikisi neredeyse üst üste biner) ve azot bu çizginin bir parça yukarısında kalır. CH₄ ise hiçbir açıda tek çizgiye inmez.",
+          "NH₃ 106,69° (deney 106,67°, +0,02°), H₂O 104,57° (deney 104,48°, +0,10°). ρ = 1,00'de ikisi de 109,47°'ye döner; 0,60'ta H₂O 101,86°'ye iner, grafik tekdüzedir. SO₂ 114,46° (deney 119,5°). SF₄ 87,78°, 122,73° ve 170,73° verir; deney 87,81°, 101,55° ve 173,07°: ortadaki fark +21,18°.",
         explain:
-          "Dört noktanın gölgesi ancak dördü aynı düzlemdeyse bir çizgiye düşebilir. Amonyakta azot, üç hidrojenin oluşturduğu düzlemin yaklaşık 0,38 Å yukarısındadır; yan bakışta azotla hidrojen çizgisi arasında kalan küçük aralık bu yüksekliktir. Piramidin tepesindeki dördüncü köşeyi ortaklanmamış çift doldurur: CH₄'ün bir hidrojenini silip yerine lobu koyarsan amonyağın iskeletini elde edersin.",
+          "Merkeze yakın çift komşularını daha sert iter; iki çift tek çiftten çok sıkıştırır. Ama ρ = 0,80 NH₃'e bakılarak seçildi, yani NH₃'teki uyum ayarın kendisidir; H₂O gerçek bir öngörüdür. SO₂'deki çoklu bağlar ve SF₄'ün eksenel/ekvatoral bağ farkı modelde yoktur: açı yanlış yöne açılır.",
       },
       {
-        title: "Kâğıtta üç boyut: kama ve kesikli kama",
+        title: "Formülden şekle: rezonans ve oktet seçimi",
         predict:
-          "CH₄'ün 4, SF₆'nın 6 dış atomu var. Düz bir ekranda hiçbiri üst üste düşmeden hepsini göstermek için ne yapardın? Hangi bağlar sana doğru, hangileri arkaya gider?",
-        do: "CH₄ — Metan seçiliyken 2D / 3D düğmesine bas; dış atomları say ve her bağın düz çizgi mi, kama mı, kesikli kama mı olduğuna bak. Sonra SF₆ — Kükürt hekzaflorür'ü seç. Son olarak düğmeye tekrar basıp 3D'ye dön ve sürükleyerek kamalı atomun gerçekten öne çıktığını doğrula.",
+          "CO₃²⁻'de üç oksijenden hangisi çift bağ yapar? SO₂'de kükürde 8'den fazla elektron yazmak şekli değiştirir mi?",
+        do: "3 · Lewis yapısından şekle sekmesinde Formül menüsünden CO₃²⁻'yi seç; Sonraki rezonans yapısı düğmesine iki kez bas. Sonra SO₂'yi seç, kutuyu kaldırıp işaretle. En son SF₆'yı seçip kutuyu kaldır.",
         observe:
-          "CH₄'ün dört hidrojeni de görünür: üstteki ikisi düz çizgiyle ekran düzlemindedir ve aralarındaki yay 109,5° gösterir; sağ alttaki kama bize, sol alttaki kesikli kama arkaya gider. Alttaki iki bağ ekranda yaklaşık 70°'lik bir açı yapıyor gibi görünür, ama gerçekte onların arasındaki açı da 109,5°'dir. SF₆'da altı flor görünür: dördü bir artı işaretinin kollarında, biri sol altta kamayla, biri sağ üstte kesikli kamayla. 2D'de sürüklemek görüntüyü değiştirmez; 3D'de döndürünce kamalı atomun öne, kesikli olanın arkaya gittiği görülür.",
+          "CO₃²⁻: 24 e⁻ (C 4 + 3 × O 6 + 2), 1 çift ve 2 tek bağ, iki O'da −1, toplam −2; düğme (1/3), (2/3), (3/3) diye üç yapıyı gezer, şekil AX₃ düzlem üçgen. SO₂ kutu işaretliyken 2 çift bağ ve S'de 10 elektron; kutu kalkınca 1 çift, 1 tek bağ, S'de +1, 2 rezonans. İkisinde de AX₂E. SF₆ kutusuz yazılamaz: 12 elektron gerekir.",
         explain:
-          "Ekran iki boyutludur; derinliği göstermek için bir kural gerekir. Kimyacılar kâğıtta bunu kama ve kesikli çizgiyle yapar. Sayfanın 2D görünümü ekran düzlemindeki bağları olduğu gibi çizer, derinliği ise yana doğru bir kaymaya çevirir. Bu yüzden iki düz çizgi arasındaki açı gerçektir; kama ya da kesikli kama içeren açılar ise bozulur. CH₄'te gerçekte hepsi 109,5° olan açılar ekranda kimi zaman 70°, kimi zaman 90°, kimi zaman 160° görünür. Ekrandan açı ölçeceksen önce iki bağın da düz çizgi olduğundan emin ol; yayın yanındaki sayı ise her zaman gerçek açıyı yazar.",
+          "Üç eş puanlı yapı, tek bir yapının yazamadığı gerçeği anlatır: üç bağ eştir. SO₂'nin iki yazımı biçimsel yükte ayrılır ama merkezde iki bağlı atom ve bir çift kalır; VSEPR için yalnız bu sayılar önemlidir. Genişlemiş oktet bir sayım tercihidir, molekülün ölçülen bir özelliği değil.",
       },
       {
-        title: "Uçlarda kim var? Çift bağ tek bölge",
+        title: "Oklar birbirini götürür mü?",
         predict:
-          "CO₂'de karbonun iki yanında hangi atomlar olmalı ve karbonun çevresinde kaç elektron bölgesi var? Uçtaki atomun türü şekli değiştirir mi?",
-        do: "Sırayla CO₂ — Karbondioksit, BF₃ — Bor triflorür ve SF₆ — Kükürt hekzaflorür'ü seç. Atom etiketlerine, bağ çizgilerine ve bilgi satırındaki bağlı atom sayısı, elektron bölgesi ve bağ uzunluğu değerlerine bak.",
+          "CO₂'nin de H₂O'nun da bağları kutuplu. Hangisi kutuplu molekül? Klor sayısı arttıkça klorometanların dipolü büyür mü?",
+        do: "4 · Kutupluluk sekmesinde H₂O'yu oku, sonra Bağ açısı θ'yı 180°'ye çek. CO₂'yi seçip θ'yı 150°'ye indir. Sonra sırayla CH₃Cl, CH₂Cl₂, CHCl₃ ve CCl₄'ü, en son O₃'ü seç; alttaki tabloya bak.",
         observe:
-          "CO₂ O=C=O diye çizilir: iki kırmızı oksijen, her biri karbona çift çizgiyle bağlı. Satır 'Bağlı atom sayısı: 2 (ikisi de çift bağ: O=C=O) · Ortaklanmamış elektron çifti: 0 · Elektron bölgesi: 2' der. BF₃'te üç, SF₆'da altı yeşil flor vardır; elektron bölgesi sırayla 3 ve 6'dır. Bağ uzunlukları C=O 1,16 Å, B–F 1,31 Å, S–F 1,56 Å'dur; SF₆'nın kolları tuvalde de gözle görülür biçimde en uzundur.",
+          "H₂O 104,5°'de 1,5183 (kapalı biçim 1,5183, deney 1,857 D); 180°'de 0,0000 ve zincir kapanır. CO₂ 150°'de 0,4607. Klorometanlar: 0,9600, 1,1085, 0,9600, 0,0000; deney 1,870, 1,620, 1,040 ve 0 D. O₃ modelde 0,0000, deneyde 0,530 D: tabloda 'uyuşmuyor'.",
         explain:
-          "VSEPR'in kaba şekli için uçtaki atomun türü değil, merkezdeki bölge sayısı önemlidir. Bir çift bağ tek bölge sayılır: karbonun çevresinde dört bağ çifti ama yalnızca iki bölge vardır, bu yüzden CO₂ 180° doğrusaldır. Satırın 'bağ sayısı' değil 'bağlı atom sayısı' yazmasının nedeni de budur: CO₂'de iki bağlı atom ama toplam dört bağ çifti vardır. BF₃'te bor yalnızca altı elektronla kalır, SF₆'da kükürdün çevresinde on iki elektron vardır; oktet kuralı esner, VSEPR yine çalışır.",
+          "Kutupluluk simetrinin işidir; toplama modeli sıfırları doğru bulur. Ama klorometanlarda formül k ile 4 − k'yı aynı sayar ve deneyin azalan sırasını göremez. O₃'te Δχ = 0 iken ortadaki O'nun +1 biçimsel yükü ve çiftleri gerçek bir dipol yaratır; model bunları bilmez.",
       },
     ],
   },
@@ -107,7 +106,7 @@ window.ACELYA_DIGEST["molekul-sekli"] = {
     },
     {
       title: "Ters dönen şemsiye",
-      body: "Amonyak piramidi yerinde durmaz: azot, kuantum tünellemesiyle üç hidrojenin düzleminden geçip öbür tarafa geçebilir ve molekül rüzgârda ters dönen bir şemsiye gibi ters yüz olur. Bu ters dönüşe karşılık gelen frekans yaklaşık 24 GHz'dir, yani dalga boyu 1,25 cm civarında bir mikrodalga. 1934'te bir molekülün mikrodalga soğurması ilk kez bu ters dönüş üzerinden ölçüldü. 1953'te Charles Townes ve ekibi Columbia Üniversitesi'nde amonyak molekülleriyle ilk <strong>maseri</strong>, yani lazerin mikrodalga atasını çalıştırdı. Düz bir molekülün ters dönecek bir tepesi olmazdı: bu frekans piramit şeklin doğrudan imzasıdır.",
+      body: "Amonyak piramidi yerinde durmaz: azot, kuantum tünellemesiyle üç hidrojenin düzleminden geçip öbür tarafa geçebilir ve molekül rüzgârda ters dönen bir şemsiye gibi ters yüz olur. Bu ters dönüşe karşılık gelen frekans yaklaşık 24 GHz'dir, yani dalga boyu 1,25 cm civarında bir mikrodalga. 1934'te Cleeton ve Williams, bir molekülün mikrodalga soğurmasını ilk kez bu ters dönüş üzerinden ölçtü. 1953–1954'te Columbia Üniversitesi'nde Charles Townes, James Gordon ve Herbert Zeiger amonyak molekülleriyle ilk <strong>maseri</strong>, yani lazerin mikrodalga atasını kurup çalıştırdı. Düz bir molekülün ters dönecek bir tepesi olmazdı: bu frekans piramit şeklin doğrudan imzasıdır.",
     },
     {
       title: "Kar tanesinin altı kolu",
@@ -115,46 +114,46 @@ window.ACELYA_DIGEST["molekul-sekli"] = {
     },
   ],
   worked: {
-    title: "Bir soy gazın kare molekülü: XeF₄",
+    title: "Amonyak piramidinde okları topla",
     prompt:
-      "Uzun süre soy gazların bileşik yapmadığı sanıldı; 1962'de ksenonun flor bileşikleri hazırlandı. Ksenon tetraflorürün (XeF₄) şeklini VSEPR ile adım adım tahmin et. İpucu: ksenon 18. gruptadır, flor bu molekülde tek bağ yapar.",
+      "NH₃'te üç N–H bağı birbiriyle θ açısı yapar ve bir eksenin çevresinde eşit dağılır. Bağ dipolü modelinde (χ_H = 2,20, χ_N = 3,04) net okun büyüklüğünü θ cinsinden türet; sayfanın 106,7° değeri için hesapla ve sonucu H₂O ile, sonra deneyle karşılaştır. Sayfada: 4 · Kutupluluk, NH₃.",
     steps: [
-      "Merkezdeki elektronları say: ksenon 18. grupta olduğu için 8 değerlik elektronu vardır. Her F, Xe ile kurduğu tekli bağa bir elektron katar: 4 × 1 = 4. Merkezin çevresinde 8 + 4 = 12 elektron, yani 6 elektron çifti vardır.",
-      "Çiftleri ayır: dört çift dört Xe–F bağını oluşturur (X = 4). Kalan 6 − 4 = 2 çift ortaklanmamıştır (E = 2). Gösterim AX₄E₂, sterik sayı 6.",
-      "İskeleti seç: altı bölge oktahedral düzen kurar. Bu, sayfadaki SF₆ ile aynı iskelettir; komşu köşeler arasındaki açılar 90°'dir.",
-      "Çiftleri yerleştir: iki ortaklanmamış çift yan yana (aralarında 90°) konursa en güçlü itme olan çift–çift itmesi büyük olur. Karşı karşıya (180°, biri üstte biri altta) konduklarında bu itme en aza iner. Dört F ortadaki kare düzlemde kalır.",
-      "Yöntemi suyla sına: oksijenin 6 değerlik elektronu + iki H'den 2 elektron = 8 elektron, 4 çift. 2 bağ, 2 ortaklanmamış çift: AX₂E₂, yani açısal. Sayfada su seçiliyken bilgi satırındaki 'Açısal (kıvrık)' ve 'Ortaklanmamış elektron çifti: 2' ifadeleriyle ve oksijene takılı iki lobla uyumlu.",
+      "Geometri: her bağ ekseni (aşağı yön) ile β açısı yapsın; birim vektörler u<sub>i</sub> = (sin β cos φ<sub>i</sub>, −cos β, sin β sin φ<sub>i</sub>), φ'ler 120° aralıklı. İki bağın iç çarpımı: u<sub>i</sub>·u<sub>j</sub> = sin²β cos 120° + cos²β = (3 cos²β − 1)/2 = cos θ. Buradan cos²β = (1 + 2 cos θ)/3.",
+      "Sayılar: cos 106,7° = −0,2874, cos²β = (1 − 0,5747)/3 = 0,1418, cos β = 0,3765, β ≈ 67,9°. θ = 109,47°'de cos β tam 1/3, θ = 120°'de sıfırdır: molekül düzleşir.",
+      "Toplam: yatay bileşenler üç yönde 120° aralıklı olduğu için birbirini götürür; dikey bileşenler toplanır. |Σ| = 3|Δχ| cos β, |Δχ| = |2,20 − 3,04| = 0,84 Pauling birimi. |Σ| = 3 × 0,84 × 0,3765 = 0,9488. Sayfanın kapalı biçim kartı da 0,9488 yazar, sayısal toplamla farkı sıfırdır.",
+      "Karşılaştırma: H₂O için 2 × 1,24 × cos(52,25°) = 1,5183. Model oranı 0,9488 / 1,5183 = 0,625; deney oranı 1,476 D / 1,857 D = 0,795. Sıra doğru (su daha kutuplu), oran değil. Ortaklanmamış çiftlerin kendi katkısı ve bağ uzunlukları modelde yoktur; Pauling birimi debyeye çevrilemez.",
+      "Bonus ölçek: N–H bağı yaklaşık 1,01 Å alınırsa azot, üç hidrojenin düzleminin 1,01 Å × 0,3765 ≈ 0,38 Å üstündedir. Kaydırıcıyı 120°'ye çekersen bu yükseklik ve net ok birlikte sıfıra iner: sayfa 0,0000 yazar.",
     ],
     result:
-      "XeF₄ <strong>kare düzlem</strong> bir moleküldür: dört F aynı düzlemdedir, komşu F–Xe–F açıları 90°, karşılıklı olanlar 180°. Ortaklanmamış çiftler molekülün üstünde ve altında oturur; atomlara bakan biri onları görmez, ama kare şekil onların izidir.",
+      "|Σ| = 3|Δχ|√((1 + 2 cos θ)/3); θ = 106,7°'de 0,9488 Pauling birimi. Model NH₃'ün H₂O'dan daha az kutuplu olduğunu doğru söyler, ama oranı 0,795 yerine 0,625 verir: bağ dipolü toplaması niteliksel bir araçtır.",
   },
   misconceptions: [
     {
       myth: "Kâğıttaki Lewis yapısı molekülün gerçek şeklidir; metan düz bir artı işaretidir ve açıları 90°'dir.",
       truth:
-        "Lewis yapısı yalnızca kimin kime bağlı olduğunu ve elektron çiftlerini gösterir; kâğıt iki boyutludur. Düzlemde dört bağ en fazla 90° aralıkla dizilebilir, üç boyutta ise 109,5°'ye açılır ve elektronlar bu ferahlığı seçer. van 't Hoff'un 1874'teki argümanlarından biri de buydu: metan düz olsaydı CH₂Cl₂ iki ayrı biçimde bulunurdu; hep tek biçim bulunur.",
-    },
-    {
-      myth: "Azotun çevresinde dört elektron çifti olduğu için amonyak dörtyüzlüdür.",
-      truth:
-        "Elektron geometrisi dörtyüzlüdür, ama molekülün şekline atomların yerine bakılarak ad verilir. Ortaklanmamış çiftin olduğu köşe boş görünür; N ve üç H bir üçgen piramit çizer. Suda bu ayrım daha da belirgindir: iskelet dörtyüzlü, molekül V biçimlidir.",
+        "Lewis yapısı yalnızca kimin kime bağlı olduğunu ve elektron çiftlerini gösterir; sayfanın Lewis çizimi de 'açıları yansıtmaz' diye uyarır. Düzlemde dört bağ en fazla 90° aralıkla dizilebilir, üç boyutta ise 109,47°'ye açılır; birinci sekmede dört nokta sekiz rastgele başlangıcın hepsinden bu açıya iner. van 't Hoff'un argümanı da buydu: metan düz olsaydı CH₂Cl₂ iki ayrı biçimde bulunurdu; hep tek biçim bulunur.",
     },
     {
       myth: "Çift bağ iki, üçlü bağ üç ayrı elektron bölgesi sayılır.",
       truth:
-        "Çoklu bağın bütün elektronları aynı iki çekirdeğin arasındadır ve tek bir yönü gösterir; bu yüzden tek bölge sayılır. CO₂'de karbonun dört bağ çifti ama yalnızca iki bölgesi vardır: molekül doğrusaldır, 180°. Dört bölge saysaydın dörtyüzlü bir iskelet ve bükük bir CO₂ beklerdin; ölçümler ise kusursuz bir doğru gösterir.",
+        "Çoklu bağın bütün elektronları aynı iki çekirdeğin arasındadır ve tek bir yönü gösterir; bu yüzden tek bölge sayılır. Üçüncü sekmede CO₂ iki çift bağla AX₂, HCN bir üçlü ve bir tek bağla yine AX₂ çıkar: ikisi de doğrusal, 180°. Dört bölge saysaydın bükük bir CO₂ beklerdin; ölçümler kusursuz bir doğru gösterir.",
     },
     {
       myth: "Polar bağları olan her molekül polardır.",
       truth:
-        "Kutupluluk, bağ dipollerinin vektör toplamıdır. CO₂'nin iki C=O bağı kutupludur ama zıt yönlere baktıkları için birbirini götürür; BF₃, CH₄ ve SF₆'da da simetri okları sıfırlar. Suyun bükük şekli ise okları aynı tarafa toplar. Bu yüzden CO₂ apolar, H₂O polardır.",
+        "Kutupluluk, bağ dipollerinin vektör toplamıdır. CO₂'nin iki C=O bağı kutupludur ama zıt yönlere baktıkları için birbirini götürür; BF₃, CCl₄ ve SF₆'da da simetri okları sıfırlar. Sayfada suyun açısını 180°'ye açınca toplam 0,0000 olur; CO₂'yi 150°'ye bükünce 0,4607 belirir. Kutupluluğu bağlar değil, şekil belirler.",
+    },
+    {
+      myth: "Bağ dipollerini toplayınca molekülün dipol momentini bulurum; model bir molekülü tutturduysa doğrudur.",
+      truth:
+        "Toplama yalnız 'sıfır mı, değil mi?' sorusunda güvenilirdir. Model CH₃Cl ile CHCl₃'e aynı 0,9600'ı verir, deney 1,870 ve 1,040 D der; O₃'e sıfır der, deney 0,530 D. Açılarda da benzer: ρ NH₃'e göre ayarlandığı için NH₃'teki 0,02°'lik uyum bir kanıt değildir, aynı ayar SF₄'te 21°'den fazla ıskalar.",
     },
   ],
   glossary: [
     {
       term: "VSEPR",
       definition:
-        "Değerlik Kabuğu Elektron Çifti İtmesi; merkez atomun çevresindeki elektron bölgelerinin birbirinden en uzak durduğu varsayımıyla molekül şeklini öngören model.",
+        "Değerlik Kabuğu Elektron Çifti İtmesi; merkez atomun çevresindeki elektron bölgelerinin birbirinden en uzak durduğu varsayımıyla molekül şeklini öngören niteliksel model.",
     },
     {
       term: "Lewis yapısı",
@@ -169,22 +168,22 @@ window.ACELYA_DIGEST["molekul-sekli"] = {
     {
       term: "Sterik sayı",
       definition:
-        "Merkez atomdaki elektron bölgelerinin toplamı (X + E); 2, 3, 4, 5 ve 6 değerleri doğrusal, düzlemsel üçgen, dörtyüzlü, üçgen bipiramit ve oktahedral iskeleti verir.",
+        "Merkez atomdaki elektron bölgelerinin toplamı (X + E); 2, 3, 4, 5 ve 6 değerleri doğrusal, düzlem üçgen, dörtyüzlü, üçgen çift piramit ve sekizyüzlü iskeleti verir.",
     },
     {
       term: "Ortaklanmamış elektron çifti",
       definition:
-        "Bağa katılmayan, yalnızca bir atoma ait elektron çifti; bağ çiftinden daha geniş yer kaplar ve sayfada merkez atoma takılı, içinde iki nokta olan lila bir lob olarak çizilir.",
+        "Bağa katılmayan, yalnızca bir atoma ait elektron çifti; bağ çiftinden daha geniş yer kaplar, sayfada mor bir lob olarak çizilir.",
     },
     {
-      term: "Molekül geometrisi",
+      term: "Biçimsel yük",
       definition:
-        "Yalnızca atom çekirdeklerinin konumuyla tanımlanan şekil; ortaklanmamış çiftler iskeleti etkiler ama adda görünmez (NH₃: üçgen piramit).",
+        "Bir atomun değerlik elektronu sayısından ortaklanmamış elektronlarının ve bağ sayısının çıkarılmasıyla bulunan muhasebe yükü; toplamı molekülün yüküne eşittir.",
     },
     {
       term: "Dipol momenti",
       definition:
-        "Bir molekülde artı ve eksi yük merkezlerinin ayrılığının ölçüsü; basit modelde bağ dipollerinin vektör toplamı olarak tahmin edilir, birimi debye (D).",
+        "Bir molekülde artı ve eksi yük merkezlerinin ayrılığının ölçüsü; birimi debye (D), basit modelde bağ dipollerinin vektör toplamıyla tahmin edilir.",
     },
     {
       term: "Kiral",
@@ -195,65 +194,82 @@ window.ACELYA_DIGEST["molekul-sekli"] = {
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede VSEPR bir sayım yöntemidir; üniversitede aynı şekiller orbitallerin diliyle yeniden anlatılır. Bunun en eski yolu, VSEPR'den bile önce, 1931'de Linus Pauling'in önerdiği <strong>hibritleşmedir</strong>: karbonun bir s ve üç p orbitali karışarak dörtyüzlünün köşelerine bakan dört eş sp³ orbitali oluşturur. Hibritleşme bilinen bir şekli betimler ama şekli kendisi öngörmez; o yüzden VSEPR ile el ele öğretilir. Asıl hesap <strong>molekül orbital kuramıyla</strong> yapılır: elektronlar tek tek bağlara değil bütün moleküle yayılan dalgalara yerleşir ve şekil, toplam enerjinin en düşük olduğu geometri olarak kuantum mekaniğiyle hesaplanır. Bu hesaplar VSEPR'in tam açıklayamadığı yerleri de açıklar: H₂S sudan çok daha dar, yaklaşık 92°'lik bir açıya sahiptir ve geçiş metali bileşiklerinin çoğu basit sayımla öngörülemez.",
-      "Şekil kimyanın her köşesine uzanır. Kiral bir ilacın iki ayna biçimi vücutta farklı davranabildiği için ayrı ayrı incelenir; enzimler ve reseptörler molekülleri biçimleriyle tanır. Moleküllerin simetrisi <strong>grup teorisi</strong> ile sınıflandırılır ve bu sınıflama bir molekülün hangi titreşimlerinin kızılötesi ışığı soğurabileceğini söyler. Bağ açıları ve uzunlukları X-ışını kristalografisi ve spektroskopiyle ölçülür; proteinlerin üç boyutlu yapısı da büyük ölçüde aynı yöntemlerle çözülür. Lisedeki 'kaç bölge var?' sorusu, lisansta 'enerji yüzeyinin en dip noktası nerede?' sorusuna dönüşür.",
+      "Genel Kimya'da VSEPR bir sayım yöntemidir; Anorganik Kimya ve Kuantum Kimyası derslerinde aynı şekiller orbitallerin diliyle yeniden anlatılır. En eski yol, 1931'de Linus Pauling'in önerdiği <strong>hibritleşmedir</strong>: karbonun bir s ve üç p orbitali karışarak dörtyüzlünün köşelerine bakan dört eş sp³ orbitali oluşturur. Hibritleşme bilinen bir şekli betimler ama şekli kendisi öngörmez. Asıl hesap <strong>molekül orbital kuramıyla</strong> yapılır: elektronlar bütün moleküle yayılan dalgalara yerleşir ve şekil, toplam enerjinin en düşük olduğu geometri olarak bulunur. Bu sayfanın birinci sekmesindeki gradyan inişi, hesaplamalı kimyadaki <strong>geometri optimizasyonunun</strong> oyuncak bir hâlidir: orada 1/dᵖ yerine kuantum mekaniğinden gelen enerji yüzeyi vardır. Bu hesaplar VSEPR'in açıklayamadığı yerleri de açıklar: H₂S sudan çok daha dar, yaklaşık 92°'lik bir açıya sahiptir ve geçiş metali bileşiklerinin çoğu basit sayımla öngörülemez. Periyot 3 atomlarında 8'den fazla elektron yazmanın fiziksel anlamı da bu hesaplarda tartışılır; sayfanın onu bir seçenek olarak sunması bu yüzdendir.",
+      "Kutupluluk tarafında, dipol momenti μ = Σ q<sub>i</sub>r<sub>i</sub> yük dağılımının birinci momentidir ve Fizik II'deki elektrik dipolüyle aynı niceliktir; kuantum kimyası onu elektron yoğunluğundan hesaplar. Bağ dipolü toplamının O₃ ve klorometanlarda bozulması, yükün bağlara bölünemediğini gösterir. Moleküllerin simetrisi <strong>grup teorisi</strong> ve nokta gruplarıyla sınıflandırılır: C<sub>3v</sub> amonyak dipol taşıyabilir, T<sub>d</sub> metan taşıyamaz; aynı sınıflama hangi titreşimlerin kızılötesi ışığı soğurabileceğini söyler. Lisedeki 'kaç bölge var?' sorusu, lisansta 'enerji yüzeyinin en dip noktası nerede ve hangi simetriye sahip?' sorusuna dönüşür.",
     ],
     topics: [
+      "Biçimsel yük ve rezonans",
       "Hibritleşme ve değerlik bağı kuramı",
       "Molekül orbital kuramı",
-      "Stereokimya ve kiralite",
       "Simetri ve nokta grupları",
-      "Titreşim ve mikrodalga spektroskopisi",
-      "X-ışını kristalografisi",
-      "Hesaplamalı kimya",
+      "Dipol momenti ve mikrodalga spektroskopisi",
+      "Geometri optimizasyonu ve hesaplamalı kimya",
+      "Stereokimya ve kiralite",
     ],
   },
   quiz: [
     {
       question:
-        "Merkez atomun çevresinde üç bağ ve bir ortaklanmamış elektron çifti olan bir molekülün şekli nedir?",
-      options: ["Düzlemsel üçgen", "Üçgen piramit", "Dörtyüzlü", "T biçimi"],
+        "n eş birim vektörün toplamı sıfırsa ve her iki vektör arasındaki açı aynıysa cos θ = −1/(n − 1) olmalıdır. Bu sonuç beş elektron bölgesi için ne söyler?",
+      options: [
+        "Beş bölge 104,48°'lik eş açılarla dizilir",
+        "3B'de eş açılı beş yön yoktur; açılar farklı gruplara ayrılmak zorundadır",
+        "Beş bölge düzlemde 72° aralıkla dizilir",
+        "İtme üssü p büyürse eş açılı düzen ortaya çıkar",
+      ],
       answer: 1,
       explanation:
-        "Toplam dört bölge dörtyüzlü bir iskelet kurar; ama bir köşede atom değil ortaklanmamış çift vardır. Atomlar bir üçgen piramit çizer: amonyak (AX₃E, yaklaşık 107°). Düzlemsel üçgen ancak dördüncü bölge hiç yoksa (BF₃) çıkar.",
+        "cos θ = −1/4 isteyen beş eş açılı yön ancak dört boyutta vardır. Üç boyutta, sayfanın p aralığında en düşük enerjili düzen üçgen çift piramittir: sayfa 90° (6), 120° (3) ve 180° (1) ölçer, p = 12'de de aynısını. Düzlemdeki 72° ise beşgendir; bölgeleri birbirine çok yaklaştırır.",
     },
     {
-      question: "CO₂ molekülünde karbonun çevresinde kaç elektron bölgesi vardır?",
-      options: ["2 bölge", "4 bölge", "6 bölge", "8 bölge"],
-      answer: 0,
+      question:
+        "Bağ dipolü modelinde CH₄'ün k hidrojeni klorla değiştiriliyor. Dörtyüzlü köşelerde net ok (χ_Cl − χ_H)·√(k(4 − k)/3) ile büyür. Model hangi sırayı öngörür?",
+      options: [
+        "CH₃Cl &lt; CH₂Cl₂ &lt; CHCl₃ &lt; CCl₄",
+        "CH₃Cl = CHCl₃ &lt; CH₂Cl₂, CCl₄ sıfır",
+        "CH₃Cl &gt; CH₂Cl₂ &gt; CHCl₃ &gt; CCl₄",
+        "Hepsi aynı, çünkü hepsi dörtyüzlü",
+      ],
+      answer: 1,
       explanation:
-        "Karbon iki oksijene çift bağla bağlıdır ve üzerinde ortaklanmamış çift yoktur. Her çift bağ tek bölge sayılır: 2 bölge, yani doğrusal molekül ve 180°. Dört, bağ çifti sayısıdır; bölge sayısı değildir.",
+        "Dört köşe vektörünün toplamı sıfır olduğu için k klorun toplamı, 4 − k hidrojenin toplamının eksisidir; k = 1 ve k = 3 aynı √1'i, k = 2 √(4/3)'ü verir: 0,9600, 1,1085, 0,9600, 0. Deney ise 1,870 &gt; 1,620 &gt; 1,040 &gt; 0 D der; model sırayı tutturamaz.",
     },
     {
-      question: "Hangi molekülün bağları kutupludur ama molekülün bütünü apolardır?",
-      options: ["H₂O", "NH₃", "CO₂", "HCl"],
-      answer: 2,
+      question:
+        "Üçgen çift piramitte tek bir ortaklanmamış çift (SF₄) hangi köşeye oturur ve neden?",
+      options: [
+        "Eksenel köşeye; orada 180°'lik bir komşusu olur",
+        "Ekvatoral köşeye; orada 90°'lik yalnız iki komşusu vardır, eksenelde üç",
+        "Fark etmez; iki yerleşimin enerjisi eşittir",
+        "Merkez atomun üstüne, bütün bağlardan eşit uzağa",
+      ],
+      answer: 1,
       explanation:
-        "CO₂'nin iki C=O bağı kutupludur, ama molekül doğrusal olduğu için iki bağ dipolü zıt yönlere bakar ve toplamları sıfırdır. Su bükük, amonyak piramit olduğu için okları birbirini götürmez; HCl'de tek bir kutuplu bağ vardır.",
+        "En sert itme en yakın (90°) komşularla olur. Ekvatoral köşenin iki, eksenel köşenin üç 90°'lik komşusu vardır. Sayfa katı köşelerde ekvatoral yerleşimi 3,20868, eksenelini 3,23790 bulur; ρ = 1'de ise çift bağdan ayırt edilemez ve iki enerji eşitlenir.",
     },
   ],
   next: [
     {
       href: "periyodik-tablo.html",
-      title: "Periyodik Tablo",
-      why: "VSEPR'in ilk adımı değerlik elektronlarını saymak. Bir kutuya tıkla, ayrıntı kutusundaki grup numarasından merkez atomun dış elektronlarını bul: O için 16. grup, 6 elektron.",
-    },
-    {
-      href: "atom-orbitalleri.html",
-      title: "Atom Orbitalleri",
-      why: "Üç p orbitali birbirine 90° diktir. Peki amonyaktaki açılar neden 90° değil de yaklaşık 107°? Orbital şekillerini döndür; hibritleşme sorusuna hazırlan.",
+      title: "Periyodik Tablo Laboratuvarı",
+      why: "Lewis sayımının girdileri oradadır: değerlik elektronlarını grup numarasından oku, tabloyu Elektronegatiflik (Pauling) değerine göre renklendirip bu sayfadaki Δχ değerleriyle karşılaştır.",
     },
     {
       href: "molekul.html",
-      title: "Moleküller ve Kimyasal Bağlar",
-      why: "Geometriden enerjiye geç: galeride su, CO₂ ve metanı döndür; Morse kuyusunda bağ titreşimini ölç; Dipol atölyesinde yönleri değiştirerek kutuplu bağların toplamının neden sıfırlanabildiğini incele.",
+      title: "Moleküller ve Kimyasal Bağlar Laboratuvarı",
+      why: "Şekilden bağın kendisine geç: Morse kuyusunda bağ titreşimini incele, Dipol atölyesinde iki vektörün açısını ve büyüklüklerini değiştirerek toplamın ne zaman sıfırlandığını gör.",
+    },
+    {
+      href: "atom-orbitalleri.html",
+      title: "Atom Orbitalleri: Hidrojen Benzeri Atomun Kesin Çözümü",
+      why: "Açısal şekiller sekmesinde üç p orbitalinin birbirine dik durduğunu gör; amonyaktaki açı neden 90° değil de 107°'ye yakın? Bu soru, köprüdeki hibritleşme fikrinin çıkış noktasıdır.",
     },
   ],
   sources: [
     {
       title: "OpenStax · Chemistry 2e, 7.6 Molecular Structure and Polarity",
       url: "https://openstax.org/books/chemistry-2e/pages/7-6-molecular-structure-and-polarity",
-      note: "VSEPR, elektron ve molekül geometrisi, ortaklanmamış çiftlerin etkisi ve kutupluluk; çözümlü örneklerle (İngilizce, açık ders kitabı).",
+      note: "VSEPR, itme sıralaması, üçgen çift piramitte ekvatoral çiftler, molekül kutupluluğu ve dipol momenti; çözümlü örneklerle (İngilizce, açık ders kitabı).",
     },
     {
       title: "PhET · Molecule Shapes (Molekül Şekilleri)",
@@ -266,9 +282,9 @@ window.ACELYA_DIGEST["molekul-sekli"] = {
       note: "Tsuchida (1939), Sidgwick–Powell (1940) ve Gillespie–Nyholm (1957) tarihçesi, AXE tablosu ve modelin istisnaları.",
     },
     {
-      title: "NobelPrize.org · Jacobus H. van 't Hoff, Biographical",
-      url: "https://www.nobelprize.org/prizes/chemistry/1901/hoff/biographical/",
-      note: "İlk Nobel Kimya Ödülü sahibinin yaşamı; 1874 tarihli 'uzayda yapı formülleri' önerisi ve Chimie dans l'Espace.",
+      title: "Wikipedia · Jacobus Henricus van 't Hoff",
+      url: "https://en.wikipedia.org/wiki/Jacobus_Henricus_van_%27t_Hoff",
+      note: "1874 sonbaharındaki Felemenkçe broşür, 1875'teki La chimie dans l'espace, Kolbe'nin eleştirisi ve 1901 Nobel Kimya Ödülü.",
     },
   ],
   revision: "Kasım 2026",

@@ -3,152 +3,152 @@ window.ACELYA_DIGEST["asit-baz-titrasyonu"] = {
   slug: "asit-baz-titrasyonu",
   title: "Asit-Baz Titrasyonu: Damla Damla Mol Saymak",
   field: "Kimya",
-  level: "Lise",
-  minutes: 30,
+  level: "Lise–Lisans",
+  minutes: 40,
   tagline:
-    "Bir büret, bir indikatör ve biraz sabır: titrasyon görünmez iyonları damla damla sayar. Yirmi mililitre boyunca kıpırdamayan pH, son dört damlada altı basamaktan fazla sıçrar; sırrı logaritmada.",
-  hook: "Erlendeki asidin üstüne baz damlatıyorsun. Yirmi mililitre boyunca pH neredeyse kıpırdamıyor: 1.00'den 1.95'e. Sonra dört damla kadar, yalnızca 0.2 mL, pH'ı 3.70'ten 10.30'a fırlatıyor ve renksiz sıvı bir anda pembeleşiyor. Bu uçurum neden tam orada? Ve sirkeyle yapınca neden 7'de değil de 8.73'te?",
+    "Büretten damla damla baz ekle, eğriyi kendin kaydet, eşdeğerliği türevin tepesinden ölç. Her noktadaki pH tek bir denklemin tam çözümü; ders kitabı formülleri yanında durur ve nerede yanıldıkları görünür.",
+  hook: "Erlendeki asidin üstüne baz damlatıyorsun. Yirmi mililitre boyunca pH 1.00'den 1.95'e sürünüyor; sonra 0.2 mL, yani dört damla, onu 3.70'ten 10.30'a fırlatıyor. Bir de şu var: 0.001 M HF'de yarı yolda pH, kuralın dediği gibi pKₐ = 3.19 olmalıydı. Sayfa 3.73 diyor. Hangisi yanılıyor?",
   bigIdea:
-    "Titrasyon bir sayma işidir: eşdeğerlik noktasında eklenen bazın molü, asidin verebileceği protonların molüne eşittir; pH'ın orada uçurum gibi sıçraması logaritmik ölçeğin sonucudur, o noktadaki pH ise her zaman 7 değil, oluşan <strong>eşlenik</strong> asidin ya da bazın gücüyle belirlenir.",
+    "Titrasyon bir mol sayımıdır: eşdeğerlik hacmi yalnız stokiyometriye bağlıdır, ama eğrinin biçimi, eşdeğerlikteki pH ve ders kitabı kısayollarının ne kadar tuttuğu, her damlada çözülen tek bir yük denkliğinden çıkar.",
   story: [
-    "Titrasyon sözcüğü kimyadan önce kuyumculuktan gelir. Fransızca <em>titre</em>, bir sikkedeki ya da takıdaki altın veya gümüşün oranını, yani ayarını anlatırdı. 1791'de François Descroizilles, dereceli bir silindire benzeyen ilk büreti yaptı. Joseph Louis Gay-Lussac yan kollu, daha kullanışlı bir sürüm geliştirdi ve 1824 tarihli bir makalesinde 'büret' ile 'pipet' sözcüklerini ilk kez kullandı; 1828'de de <em>titrer</em> fiilini 'bir örnekteki madde derişimini belirlemek' anlamında kullanan ilk kişi oldu. Karl Friedrich Mohr büreti bugünkü sade biçimine yaklaştırdı ve 1855'te konunun ilk ders kitabını yazdı. Fikir o günden beri değişmedi: derişimi bilinen bir çözeltiyi, bilinmeyenle tam tepkimeye girene kadar damla damla ekle; harcanan hacim aradığın mol sayısını söyler.",
+    "Titrasyon sözcüğü kimyadan önce kuyumculuktan gelir. 16. yüzyıl Fransızcasında <em>tiltre</em> (bugünkü <em>titre</em>), bir sikkedeki ya da takıdaki altın veya gümüşün oranını, yani ayarını anlatırdı. 1791'de François Descroizilles, dereceli bir silindire benzeyen ilk büreti yaptı. Joseph Louis Gay-Lussac yan kollu, daha kullanışlı bir sürüm geliştirdi ve 1824 tarihli bir makalesinde 'büret' ile 'pipet' sözcüklerini ilk kez kullandı; 1828'de de <em>titrer</em> fiilini 'bir örnekteki madde derişimini belirlemek' anlamında kullanan ilk kişi oldu. Karl Friedrich Mohr büreti bugünkü sade biçimine yaklaştırdı ve 1855'te konunun ilk ders kitabını yazdı. Fikir o günden beri değişmedi: derişimi bilinen bir çözeltiyi, bilinmeyenle tam tepkimeye girene kadar damla damla ekle; harcanan hacim aradığın mol sayısını söyler.",
     "Peki asit nedir? 1884'te Uppsala'da genç Svante Arrhenius, tuzların suda çözününce, elektrik akımı olmasa bile, yüklü parçacıklara, yani iyonlara ayrıldığını savunan bir doktora tezi sundu. Hocaları etkilenmedi: tez düşük bir derece olan dördüncü sınıfla değerlendirildi, savunmadan sonra üçüncü sınıfa yükseltildi. Arrhenius tezi Avrupa'daki fizikokimyacılara gönderdi; Wilhelm Ostwald ve Jacobus van 't Hoff çok daha heyecanlandı. Bu fikirden doğan tanım bugün hâlâ ilk öğrenilen asit-baz tanımıdır: asit suda <strong>H⁺</strong>, baz <strong>OH⁻</strong> iyonu verir; nötrleşme bu ikisinin buluşup su olmasıdır. İyon fikri 1903'te ona Nobel Kimya Ödülü'nü getirdi; İsveç'in ilk Nobel ödülüydü.",
     "1909'da Kopenhag'da, bira üreticisi Carlsberg'in araştırma laboratuvarında çalışan Danimarkalı kimyager Søren Peter Lauritz Sørensen, enzimler ve proteinler üzerinde çalışıyordu ve hidrojen iyonu derişiminin bu moleküller için ne kadar önemli olduğunu görmüştü. Ama derişimler 0.00001 gibi hantal sayılardı. Çözümü bir üs oldu: derişimi 10'un kuvveti olarak yaz, üssün işaretini çevir. Aynı yayında asitliği ölçmenin iki yolunu da anlattı: elektrotla ve rengi bilinen indikatörlerle karşılaştırarak. Gösterim 1924'te bugünkü <strong>pH</strong> tanımına kavuştu. Burada ince ama derin bir ayrım saklı: titrasyon asidin <em>miktarını</em>, pH ise <em>şiddetini</em> ölçer. Sayfadaki 0.100 M HCl ile 0.100 M asetik asit aynı miktarda baz tüketir, ama başlangıç pH'ları 1.00 ve 2.88'dir.",
-    "Arrhenius'un tanımı bir yerde tökezler: amonyak (NH₃) formülünde OH⁻ taşımadığı hâlde baz gibi davranır. 1923'te Danimarka'da Johannes Nicolaus Brønsted ve İngiltere'de Thomas Martin Lowry, birbirinden bağımsız olarak daha geniş bir tanım önerdi: asit proton (H⁺) veren, baz proton alan türdür. Bu gözle her asit-baz tepkimesi bir proton alışverişidir ve her asidin bir <strong>eşlenik bazı</strong> vardır. Asetik asit protonunu verince asetat iyonuna dönüşür; asetat da sudan proton kapabilir. Sayfadaki asetik asit titrasyonunda eşdeğerlik pH'ının 7 değil 8.73 çıkmasının nedeni de budur.",
+    "Arrhenius'un tanımı bir yerde tökezler: amonyak (NH₃) formülünde OH⁻ taşımadığı hâlde baz gibi davranır. 1923'te Danimarka'da Johannes Nicolaus Brønsted ve İngiltere'de Thomas Martin Lowry, birbirinden bağımsız olarak daha geniş bir tanım önerdi: asit proton (H⁺) veren, baz proton alan türdür. Bu gözle her asit-baz tepkimesi bir proton alışverişidir ve her asidin bir <strong>eşlenik bazı</strong> vardır. Asetik asit protonunu verince asetat iyonuna dönüşür; asetat da sudan proton kapabilir. Sayfadaki asetik asit titrasyonunda eşdeğerlik pH'ının 7 değil 8.72 çıkmasının nedeni de budur.",
   ],
   core: [
     {
-      heading: "pH: on katlık basamaklar",
-      body: "pH, hidrojen iyonu derişiminin eksi logaritmasıdır; bir birimlik fark derişimde on kat demektir. Sayfa 0.100 M HCl ile açılır: HCl suda tamamen iyonlaşır, [H⁺] = 0.100 = 10⁻¹ M, pH = 1.00. 25 °C'de suyun kendisi de çok az iyonlaşır ve [H⁺]·[OH⁻] çarpımı hep 1.0 × 10⁻¹⁴ kalır. Bu yüzden pH ile pOH'un toplamı 14'tür: birini biliyorsan ötekini de bilirsin. Saf su 25 °C'de pH 7'dedir.",
-      formula: "pH = −log[H⁺] &nbsp;·&nbsp; pH + pOH = 14.00 (25 °C)",
-      formulaNote:
-        "[H⁺] mol/L cinsindendir. pH 3'ten 11'e çıkmak, [H⁺]'yi yüz milyon kat azaltmak demektir.",
-    },
-    {
       heading: "Titrasyon bir mol sayımıdır",
-      body: "Bürette derişimi bilinen baz var; her damla bir miktar OH⁻ taşır ve bu OH⁻ erlendeki H⁺ ile birleşip su olur. <strong>Eşdeğerlik noktası</strong>, eklenen bazın molünün asidin verebileceği protonların molüne tam eşit olduğu andır. Sayfadaki üç çiftte erlende 0.100 M × 25.0 mL = 2.50 mmol tek protonlu asit var; 0.100 M bazdan 25.0 mL gerekir. Asidin zayıf ya da kuvvetli olması bu hacmi değiştirmez; ama bir molekülün kaç proton verdiği değiştirir: H₂SO₄ iki proton verir, iki kat baz ister. Bu yüzden sayfadaki H₂SO₄ derişimi yarıdır, 0.0500 M × 25.0 mL = 1.25 mmol; iki protonla o da 2.50 mmol eder ve eşdeğerlik yine 25.0 mL'dedir.",
+      body: "Bürette derişimi bilinen NaOH var; her damla bir miktar OH⁻ taşır ve erlendeki asidin protonlarıyla birleşip su olur. <strong>Eşdeğerlik noktası</strong>, eklenen OH⁻ molünün asidin verebileceği proton molüne eşit olduğu hacimdir. Sayfanın açılışında erlende 0.100 M × 25 mL = 2.50 mmol HCl var; 0.100 M bazdan 25.00 mL gerekir. Asidin zayıf ya da kuvvetli olması bu hacmi değiştirmez; protonların sayısı değiştirir: fosforik asidin her protonu için aynı hacim bir kez daha harcanır, eşdeğerlikler 25, 50 ve 75 mL'ye düşer. Bilinmeyen numune sekmesinde aynı denklemi tersinden kullanırsın: ölçtüğün hacimden derişimi bulursun.",
+      formula: "V<sub>eş</sub> = k · C<sub>a</sub>V<sub>a</sub> / C<sub>b</sub> &nbsp;·&nbsp; C<sub>a</sub> = C<sub>b</sub>V<sub>eş</sub> / V<sub>a</sub>",
+      formulaNote:
+        "k, sayılan protonun sırası (tek protonlu asitte 1). Pratik ipucu: mL × mol/L = mmol, hacimleri litreye çevirmeye gerek kalmaz.",
+    },
+    {
+      heading: "Sıçrama neden var, neden derişimle kısalır?",
+      body: "Eşdeğerlikten önce pH'ı kalan asit belirler ve pH onun logaritmasıdır. Kalan asit her damlada aynı miktar azalır, ama sıfıra yaklaşan bir sayının logaritması dibe çakılır. 0.100 M HCl'de eşdeğerliğin 0.10 mL öncesinde 0.010 mmol H⁺ kalır, 50 mL'de 2.0 × 10⁻⁴ M, pH 3.70; 0.10 mL sonrasında aynı miktar fazla OH⁻ vardır, pH 10.30. İki taraf da derişimle orantılıdır: asit ve bazı on kat seyreltince her biri pH 7'ye bir birim yaklaşır, sıçrama iki birim kısalır (1 M'de 8.60, 0.001 M'de 2.60). 10⁻⁴ M'de suyun kendi 10⁻⁷ M'lik iyonları araya girer ve sıçrama 0.77'ye iner: indikatör artık keskin bir renk değişimi göstermez.",
       formula:
-        "c<sub>asit</sub> · V<sub>asit</sub> · a = c<sub>baz</sub> · V<sub>baz</sub>",
+        "pH(V<sub>eş</sub> − δ) ≈ −log(C<sub>b</sub>δ / V<sub>top</sub>) &nbsp;·&nbsp; pH(V<sub>eş</sub> + δ) ≈ 14 + log(C<sub>b</sub>δ / V<sub>top</sub>)",
       formulaNote:
-        "a, bir asit molekülünün verebildiği proton sayısı (HCl için 1, H₂SO₄ için 2). Pratik ipucu: mL × mol/L = mmol.",
+        "Kuvvetli asit ve kuvvetli baz, δ eşdeğerlikten uzaklık; iki ifade pH 7 çevresinde simetriktir. Suyun iyonlarına yaklaştıkça yaklaşım bozulur.",
     },
     {
-      heading: "Uçurum neden tam orada?",
-      body: "Eşdeğerlikten önce pH'ı kalan asit belirler. Kalan asit her damlada aynı miktar azalır, ama pH onun logaritmasıdır ve sıfıra yaklaşan bir sayının logaritması dibe çakılır. HCl + NaOH için: 24.0 mL'de 0.10 mmol H⁺ kalmıştır, pH 2.69; 24.9 mL'de yalnızca 0.01 mmol, pH 3.70. 25.1 mL'de ise 0.01 mmol fazla OH⁻ vardır ve pH 10.30'dur. 0.2 mL'lik bir aralıkta [H⁺] 2.0 × 10⁻⁴ M'den 5.0 × 10⁻¹¹ M'ye iner. Kimyagerin sevdiği şey bu keskinliktir: eşdeğerlik hacmini çok dar bir aralığa sıkıştırır.",
+      heading: "Zayıf asit: tampon, yarı yol ve eşlenik baz",
+      body: "Asetik asit zayıftır: 0.100 M çözeltide pH 1 değil 2.88'den başlar. Baz eklendikçe erlende hem CH₃COOH hem asetat birikir; bu karışım bir <strong>tampon</strong>dur, eğim küçülür ve pH yavaş değişir. Yarı yolda iki tür eşit miktardadır ve Henderson–Hasselbalch (HH) pH = pKₐ der; sayfa 4.75 ölçer, tablodaki pKₐ 4.745'tir: fark binde birin altındadır. Eşdeğerlikte asit tükenmiştir ama geride eşlenik baz kalır: asetat sudan proton koparıp OH⁻ üretir ve pH 8.72 olur. Asit ne kadar zayıfsa eşlenik bazı o kadar güçlüdür: HCN'de eşdeğerlik pH'ı 11.00'dir ve sıçrama neredeyse kaybolur.",
+      formula: "pH = pK<sub>a</sub> + log([A⁻] / [HA]) &nbsp;·&nbsp; K<sub>a</sub> · K<sub>b</sub> = K<sub>w</sub>",
+      formulaNote:
+        "Asetik asit için K<sub>a</sub> = 1.8 × 10⁻⁵ (OpenStax Ek H), pKₐ = 4.74; asetatın K<sub>b</sub>'si 5.6 × 10⁻¹⁰.",
+    },
+    {
+      heading: "Tek denklem: yük denkliği",
+      body: "Ders kitabı eğriyi dört bölgeye ayırır ve her birine ayrı bir kısayol verir. Analitik kimya ise tek bir koşul yazar: çözelti elektrikçe nötrdür, artı yüklerin toplamı eksi yüklerinkine eşittir. Zayıf bir HA için [A⁻] payı α₁ = Kₐ/([H⁺] + Kₐ) ile yazılır; Na⁺ ve toplam asit derişimi seyrelmeyle bilinir. Geriye tek bilinmeyen kalır: [H⁺]. Denklemin sol yanı [H⁺] ile artar, sağ yanı azalır; bu yüzden tek bir kökü vardır ve sayfa onu log[H⁺] üzerinde 80 adımlık ikiye bölmeyle bulur. Çok protonlu asitte Σ j·αⱼ terimi gelir, yapı değişmez. Bu çözüm OpenStax Tablo 14.2'deki pH değerlerini iki ondalıkta yeniden üretir; ayrılan iki satırdan biri yuvarlama sınırıdır (HCl, 22 mL: 2.195), öteki tablonun başlangıçta √(KₐC) kısayolunu kullanmasıdır (asetik, 0 mL: 2.87'ye karşı 2.88).",
       formula:
-        "pH = −log[(n<sub>asit</sub> − n<sub>baz</sub>) / V<sub>toplam</sub>]",
+        "[H⁺] + [Na⁺] = [OH⁻] + C<sub>HA</sub> · K<sub>a</sub> / ([H⁺] + K<sub>a</sub>)",
       formulaNote:
-        "Kuvvetli asit için, eşdeğerlikten önce geçerlidir. Sonrasında aynı hesap fazla OH⁻ ile yapılır ve pOH bulunur.",
+        "[OH⁻] = K<sub>w</sub>/[H⁺], K<sub>w</sub> = 1.0 × 10⁻¹⁴ (25 °C). Aktiflik derişime eşit alınır. 0.1 M civarında gerçek pH metre, kalan H⁺'nın belirlediği bölgede yaklaşık 0.1 birim yüksek, tampon ve fazla baz bölgesinde yaklaşık 0.1 birim düşük okur.",
     },
     {
-      heading: "Zayıf asit ve tampon bölgesi",
-      body: "Asetik asit zayıftır: 0.100 M çözeltide moleküllerin yalnızca yüzde 1.3 kadarı iyonlaşır, bu yüzden pH 1 değil 2.88'den başlar. Baz eklendikçe erlende hem CH₃COOH hem de asetat iyonu (CH₃COO⁻) birikir. Bu karışım bir <strong>tampon</strong>dur: eklenen OH⁻'yi asit, eklenen H⁺'yi asetat yutar ve pH yavaş değişir. Tam yarı yolda, 12.5 mL'de, iki tür eşit miktardadır ve pH asidin pKₐ'sına eşit olur. Kanın pH'ını 7.35–7.45 arasında tutan da benzer bir tampon sistemidir: karbonik asit ve bikarbonat.",
-      formula: "pH = pK<sub>a</sub> + log([A⁻] / [HA])",
+      heading: "Kısayollar nerede bozulur?",
+      body: "Her ders kitabı formülü, yük denkliğinden bir terimi atmanın sonucudur. √(KₐC), asidin çok az iyonlaştığını (x ≪ C) varsayar; 0.001 M HF ise yüzde 54 iyonlaşır, bu yüzden formül 3.10 der, tam çözüm 3.27'dir. HH, [A⁻]'yı yalnız eklenen bazdan yazar, yani [H⁺] ≪ [Na⁺] varsayar; seyreltik HF'de asidin kendi verdiği F⁻ eklenen Na⁺ ile yarışır ve yarı yol pH'ı 3.19 değil 3.73 çıkar. K<sub>b</sub> formülü suyun OH⁻'sini atar; aynı HF'nin eşdeğerliğinde F⁻'nin ürettiği OH⁻ yalnız 0.9 × 10⁻⁷ M'dir, suyunkiyle aynı mertebede. Formül bu yüzden bazik bir çözeltiye 6.95 gibi imkânsız bir pH verir; tam çözüm 7.13'tür ve durum satırı nedenini yazar. Kural basit: atılan terim, tutulan terimin yanında küçük mü? Değilse formül değil, denklem.",
+      formula: "x ≪ C ⇒ [H⁺] ≈ √(K<sub>a</sub>C) &nbsp;·&nbsp; [H⁺] ≪ [Na⁺] ⇒ HH",
       formulaNote:
-        "Henderson–Hasselbalch denklemi. Yarı eşdeğerlikte [A⁻] = [HA], log 1 = 0, yani pH = pKₐ = 4.76.",
-    },
-    {
-      heading: "Eşdeğerlikteki pH'ı eşlenik belirler",
-      body: "Eşdeğerlikte asit ve baz tükenmiştir, ama geride ürünler kalır. HCl + NaOH'tan NaCl kalır; Cl⁻ proton kapmaya hiç hevesli değildir, pH 7.00. Asetik asitten asetat kalır; asetat sudan proton koparıp OH⁻ üretir: pH 8.73. HCl + NH₃'te NH₄⁺ kalır; NH₄⁺ suya proton verir: pH 5.28. İndikatör seçimi buradan çıkar. İndikatörün renk aralığı, eşdeğerlik çevresindeki dik bölgenin içine düşmelidir: zayıf asitte fenolftalein, zayıf bazda metil oranj, kuvvetli-kuvvetli titrasyonda üçü de iş görür.",
-      formula: "K<sub>a</sub> · K<sub>b</sub> = K<sub>w</sub> = 1.0 × 10⁻¹⁴",
-      formulaNote:
-        "Bir eşlenik çiftte asit ne kadar zayıfsa eşlenik bazı o kadar güçlüdür. Asetik asit için Kₐ = 1.74 × 10⁻⁵, asetatın K<sub>b</sub>'si 5.75 × 10⁻¹⁰.",
+        "Asit görece kuvvetli (Kₐ büyük) ve çözelti seyreltik oldukça ikisi birden bozulur. Sekme 02'deki HH tablosu hatayı her f için yazar.",
     },
   ],
   lab: {
     intro:
-      "Sayfada iki menü ve dört düğme var. <strong>Asit-Baz çifti</strong> menüsü dört titrasyon sunar; hepsinde erlende 25.0 mL asit (0.100 M; H₂SO₄'te 0.0500 M), bürette 0.100 M baz bulunur ve çift değişince sayfa sıfırlanır. <strong>İndikatör</strong> menüsü (Fenolftalein 8.2–10.0, Metil Oranj 3.1–4.4, Bromotimol Mavisi 6.0–7.6) sıfırlamadan yalnızca rengi değiştirir. <strong>0.5 mL ekle</strong> ve <strong>5 mL ekle</strong> düğmeleri adlarındaki hacmi ekler; <strong>Sıfırla</strong> hacmi sıfıra döndürür ve eğriyi siler. <strong>Otomatik titrasyon</strong> (basınca Durdur'a dönüşür) 0.5 mL'lik adımlarla ilerler, 24.0 ile 26.0 mL arasında 0.1 mL'lik adımlara iner. En çok 50.0 mL eklenebilir. Üstte pH, Eklenen (mL) ve indikatör rengi okunur; grafikte (0–50 mL) senin eğrin, soluk mor bir tahmin eğrisi ve 25 mL'de kesikli 'Eşd. noktası' çizgisi var. Sayfa pH'ı her hacimde yük dengesini çözerek hesaplar (bkz. Üniversiteye köprü); H₂SO₄'ün ikinci protonu için pKₐ = 1.99 kullanır.",
+      "Sayfa dört sekmedir. <strong>01 · Kuvvetli asit – kuvvetli baz</strong> ve <strong>02 · Zayıf asit – kuvvetli baz</strong> sekmelerinde logaritmik derişim kaydırıcıları (C<sub>a</sub>, C<sub>b</sub>: 10⁻⁴ ile 1 M), erlendeki asit hacmi V<sub>a</sub>, İndikatör, Damla hacmi ve Akış hızı var. <strong>Büreti aç</strong>, <strong>Bir damla</strong> ve <strong>Sonuna kadar ekle</strong> eğriyi damla damla kaydeder (<kbd>Boşluk</kbd> büreti açar, <kbd>R</kbd> sekmeyi sıfırlar); eşdeğerlik kaydedilen noktalardan dpH/dV'nin tepesiyle ölçülür ve stokiyometriyle karşılaştırılır. Sekme 02'de asit menüsü yedi zayıf asit sunar (K<sub>a</sub>: OpenStax Ek H), bir Henderson–Hasselbalch tablosu tam çözümle yarışır ve indikatör uç noktası kartı rengin döndüğü hacmi eşdeğerlikle karşılaştırır. <strong>03 · Çok protonlu asitler ve indikatör</strong> sekmesinde büret yok: eğri hesaplanır, Eklenen NaOH hacmi kaydırıcısıyla gezilir ve yedi indikatörün hatası tabloya yazılır. <strong>04 · Bilinmeyen numune</strong> senin sınavın: sayfa burada eşdeğerliği ölçmez; Okuma imleci ile tepeyi ve yarısındaki pH'ı kendin bulur, Cevabı denetle'ye basarsın. Numune 1'in sıçraması 30 mL dolayındadır; öteki numaralar sana kalsın.",
     experiments: [
       {
-        title: "Bir mililitrelik uçurum",
+        title: "Sıçrama derişimle kısalır",
         predict:
-          "25.0 mL 0.100 M HCl'ye 0.100 M NaOH ekliyorsun. Başlangıç pH'ı kaç? 24.5 mL'de ve 25.5 mL'de pH ne olur? pH'ı 3'ten 11'e çıkarmak için kaç mL gerekir?",
-        do: "HCl + NaOH ve Fenolftalein seçiliyken Sıfırla'ya bas. 5 mL ekle düğmesine dört kez bas (20.0 mL), sonra 0.5 mL ekle ile 26.0 mL'ye kadar ilerle; her adımda pH'ı yaz.",
+          "Sekme 01'de asit ve bazı birlikte yüz kat seyreltirsen eşdeğerlik hacmi değişir mi? Eşdeğerliğin 0.10 mL öncesi ile sonrası arasındaki sıçrama kaç birim kısalır? Fenolftalein hâlâ doğru hacimde pembeleşir mi?",
+        do: "Açılış ayarıyla (0.100 M, 25 mL) Sonuna kadar ekle'ye bas ve kartları yaz. Sonra 0.001 M hazırına bas ve yine Sonuna kadar ekle. İstersen Derişim karşılaştırması kutusunu işaretle ve dört eğriyi üst üste gör.",
         observe:
-          "Başlangıç 1.00. 20.0 mL'de yalnızca 1.95; 24.0'te 2.69, 24.5'te 3.00. Yarım mililitre sonra, 25.0 mL'de 7.00 ve '⚡ Eşdeğerlik noktası!' yazısı; fenolftalein hâlâ renksiz, çünkü aralığı 8.2'de başlar. Yarım mililitre daha: 25.5'te 11.00 ve indikatör noktası pembe. İlk 20 mL pH'ı bir birim bile oynatamadı; 24.5'ten 25.5'e geçen tek mililitre sekiz birim oynattı.",
+          "İkisinde de stokiyometri 25.00 mL, ölçülen tepe 25.000 mL. Sıçrama kartı 0.1 M'de '3.70 → 10.30 (ΔpH 6.60)', 0.001 M'de '5.70 → 8.30 (ΔpH 2.60)'. Başlangıç pH'ı 1.00'den 3.00'e çıkar, 30.00 mL'deki pH 11.96'dan 9.96'ya iner. Fenolftaleinin uç noktası 25.00 mL (+0.02 %) iken 25.50 mL (+2.02 %) olur.",
         explain:
-          "24.5 mL'de geriye 2.50 − 2.45 = 0.05 mmol H⁺ kalır; 49.5 mL'de bu 1.0 × 10⁻³ M, pH 3.00 eder. 25.5 mL'de aynı 0.05 mmol bu kez fazla OH⁻'dir: pOH 3.00, pH 11.00. Simetri tesadüf değil. Not: gerçek bir büret damlası yaklaşık 0.05 mL'dir; 0.5 mL ekle düğmesine her basış on damla, Otomatik titrasyonun 0.1 mL'lik adımı iki damla kadar eder.",
+          "Eşdeğerliğin iki yanındaki fazla H⁺ ve OH⁻ derişimle orantılıdır; on kat seyreltme iki yanı da pH 7'ye birer birim yaklaştırır. Seyreltik çözeltide pH 9'a ([OH⁻] = 10⁻⁵ M) ulaşmak için 50 mL'de 0.5 µmol fazla OH⁻ gerekir; 0.001 M bazdan bu yarım mililitredir. İndikatör hatası damla ölçeğini aşar. Damla hacmini 1.00 mL yaparsan ölçülen tepe 24.996 mL'ye kayar ve durum satırı damlanın büyük olduğunu söyler.",
       },
       {
-        title: "Tamponun inadı ve yarı yolun sırrı",
+        title: "Yarı yolda pH = pKₐ ve ne zaman değil",
         predict:
-          "Asetik asitle başlangıç pH'ı HCl'deki 1.00'den yüksek mi olur, alçak mı? 12.5 mL'de pH kaç olur? Eşdeğerlik yine 25.0 mL'de mi, pH yine 7 mi?",
-        do: "Menüden CH₃COOH + NaOH seç (sayfa sıfırlanır) ve ilk değeri oku. Bir kez 0.5 mL ekle'ye bas ve sıçramaya bak. Sonra Sıfırla'ya bas, 5 mL ekle'ye iki kez bas (10.0 mL) ve 0.5 mL ekle ile 15.0 mL'ye kadar ilerle. Ardından 5 mL ekle'ye bir kez bas (20.0 mL) ve 0.5 mL ekle ile 25.5 mL'ye kadar devam et.",
+          "0.100 M asetik asitte yarı yolda (12.50 mL) pH kaç olur? Seyreltik HF'de (pKₐ 3.19) aynı kural tutar mı? Tutmuyorsa hata hangi yönde olur?",
+        do: "Sekme 02'yi varsayılanla aç ve Sonuna kadar ekle'ye bas; Henderson–Hasselbalch tablosunu oku, istersen HH eğrisini göster. Sonra Seyreltik HF (0.001 M) hazırına bas, başlangıçtaki durum satırını oku ve yine Sonuna kadar ekle.",
         observe:
-          "Başlangıç 2.88; ilk 0.5 mL bile pH'ı 3.20'ye taşır, çünkü tampon henüz kurulmamıştır. 10.0 mL'de 4.58, 12.5 mL'de 4.76, 15.0 mL'de 4.94: beş mililitre baz pH'ı yalnızca 0.36 oynattı. Eğri bu bölgede neredeyse yataydır. 24.5'te 6.45, 25.0'te 8.73 ve eşdeğerlik uyarısı, 25.5'te 11.00.",
+          "Asetikte ölçülen V<sub>eş</sub>'in yarısında pH 4.75, pKₐ kartı '4.745 (ölçülen − tablo 0.000)'; f 0.10'da tam 3.80, HH 3.79. HF'de başlangıç 3.27, √(KₐC) formülü 3.10; durum satırı K<sub>b</sub> formülünün eşdeğerlikte 6.95 verdiğini de şimdiden yazar. Yarı yolda pH 3.73, pKₐ kartı '3.194 (ölçülen − tablo +0.541)'; f 0.10'da tam 3.35, HH 2.24 (hata −1.11). Durum satırı en büyük HH hatasını 1.11 olarak yazar.",
         explain:
-          "Zayıf asit az iyonlaşır, bu yüzden pH yüksek başlar. Baz eklendikçe CH₃COOH ile CH₃COO⁻ yan yana bulunur: bu bir tampondur. 12.5 mL'de asidin tam yarısı asetata dönmüştür; oran 1, log 1 = 0, pH = pKₐ = 4.76. Bir zayıf asidin pKₐ'sı laboratuvarda tam böyle ölçülür. Eşdeğerlik hacmi HCl ile aynıdır, ama geride kalan asetat bazik olduğu için pH 8.73'tür.",
+          "HH, [A⁻]'yı eklenen bazdan, [HA]'yı kalan asitten yazar ve asidin kendi verdiği H⁺'yı yok sayar. Asetikte yarı yolda [H⁺] = 1.8 × 10⁻⁵ M, [Na⁺] ise 0.033 M: ihmal binde birin altında. 0.001 M HF'de [H⁺] = 1.8 × 10⁻⁴ M, [Na⁺] = 3.3 × 10⁻⁴ M: ihmal edilen terim tutulanın yarısı kadar. Tampon bölgesinin asidik ucunda HH bu yüzden pH'ı düşük tahmin eder: asidin kendi iyonlaşmasıyla doğan fazla A⁻'yı görmez.",
       },
       {
-        title: "Yanlış indikatör, yanlış cevap",
+        title: "Eşdeğerlik 7'de değil; HCN'de sıçrama da yok",
         predict:
-          "Metil oranj 3.1–4.4 arasında kırmızıdan sarıya döner. Asetik asit titre edilirken tamamen sarardığında kaç mL eklenmiş olur: 25 mL'ye yakın mı? Fenolftalein ne zaman pembeleşir?",
-        do: "CH₃COOH + NaOH seçiliyken İndikatör menüsünden Metil Oranj'ı seç ve Sıfırla'ya bas. 0.5 mL ekle ile 8.0 mL'ye kadar ilerle; erlendeki sıvının ve göstergedeki noktanın rengini izle. Sonra İndikatör menüsünden Fenolftalein'e geç (hacim sıfırlanmaz), 5 mL ekle'ye üç kez bas (23.0 mL) ve 0.5 mL ekle ile 24.5, 25.0, 25.5 mL'deki rengi karşılaştır.",
+          "HCN'nin Kₐ'sı asetik asidinkinden yaklaşık 37 000 kat küçüktür. Eşdeğerlikte pH kaç olur? Sıçrama görünür mü? Fenolftalein ne zaman pembeleşmeye başlar?",
+        do: "Sekme 02'de asetik asitle Sonuna kadar ekle ve eşdeğerlik kartlarını yaz. Sonra HCN (0.1 M) hazırına bas, büreti aç ve İndikatör rengi kartını izle; en sonda Sonuna kadar ekle.",
         observe:
-          "Metil oranj başta kırmızıdır; daha ilk 0.5 mL'de (pH 3.20) turuncuya kaymaya başlar, 8.0 mL'de (pH 4.43) tamamen sarıdır. Fenolftalein 24.5 mL'de (6.45) renksiz, 25.0'te (8.73) açık pembe, 25.5'te (11.00) koyu pembedir.",
+          "Asetikte eşdeğerlik pH'ı 8.72, K<sub>b</sub> formülü de 8.72 (fark 0.00). HCN'de 11.00 ve formül 11.00. Fenolftalein daha 1.2 mL'de pembeleşmeye başlar; İndikatör uç noktası kartı '8.22 mL (−67.10 %)' yazar: rengin yarı yolu eşdeğerlikten 16.78 mL önce gelir. Ölçülen V<sub>eş</sub> 24.948 mL (−0.052) ve durum satırı eğimin tepesinin eşdeğerlikten 0.05 mL önce geldiğini yazar.",
         explain:
-          "Metil oranjın rengine güvenip 8.0 mL'de dursaydın asidin derişimini 0.100 × 8.0 / 25.0 = 0.032 M bulurdun: gerçeğin üçte birinden az. Asetik asit eğrisinin dik kısmı yaklaşık pH 7 ile 10 arasındadır. Fenolftaleinin aralığı oraya düşer; metil oranjınki ise tampon bölgesinde kalır.",
+          "Eşlenik baz CN⁻ için K<sub>b</sub> = K<sub>w</sub>/K<sub>a</sub> = 2.0 × 10⁻⁵; 0.0500 M CN⁻ sudan OH⁻ koparır ve pH 11'e çıkar. ±0.10 mL arasında pH yalnız 10.96'dan 11.04'e değişir: CN⁻'nin ürettiği 10⁻³ M OH⁻, fazla 0.10 mL bazın getirdiği 2 × 10⁻⁴ M'yi gölgede bırakır. Fenolftaleinin aralığı tampon bölgesine (pKₐ 9.31) düşer; renk 20 mL boyunca yavaşça koyulaşır. Bu yüzden çok zayıf asitler doğrudan titre edilmez.",
       },
       {
-        title: "Zayıf baz, asidik eşdeğerlik: amonyak",
+        title: "Fosforik asit: üç proton, iki basamak",
         predict:
-          "Bu kez büretteki baz zayıf: NH₃. Eşdeğerlikte erlende NH₄⁺ ve Cl⁻ kalır. pH 7'nin altında mı olur, üstünde mi? 50.0 mL'de pH, NaOH ile ulaşılan 12.52'ye yaklaşır mı?",
-        do: "HCl + NH₃ ve Metil Oranj seç. 5 mL ekle'ye dört kez bas (20.0 mL), sonra 0.5 mL ekle ile 24.5, 25.0, 25.5 ve 26.0 mL'yi oku; ardından 5 mL ekle ile 31.0 mL'ye ve oradan 50.0 mL'ye çık. Sayıları Deney 1'deki HCl + NaOH değerleriyle karşılaştır; çift değişince eski eğri silinir.",
+          "25 mL 0.100 M H₃PO₄ üç proton taşır. 0.100 M NaOH ile kaç sıçrama görürsün? Hangi indikatör hangi protonu sayar?",
+        do: "Sekme 03'ü varsayılanla aç. 1. eşdeğerliğe git ve 2. eşdeğerliğe git düğmelerine bas, Baskın tür kartını ve α grafiğini izle. İndikatör menüsünde yedi indikatörü tek tek seç ve tablodaki yargıyı oku.",
         observe:
-          "24.5 mL'ye kadar sayılar HCl + NaOH ile aynıdır (24.5'te 3.00) ve metil oranj kırmızıdır. 25.0 mL'de pH 5.28, eşdeğerlik uyarısı çıkar ve metil oranj sarıdır. Sonra pH yavaş tırmanır: 25.5'te 7.55, 26.0'da 7.85, 31.0'de 8.63, 50.0'de yalnızca 9.25. Eşdeğerlikten sonraki kısım NaOH'takinden çok daha yatıktır: 26.0 mL'de NaOH ile pH 11.29'du, burada 7.85.",
+          "25.00 mL'de ölçülen 25.000, pH 4.70 (amfoter formül 4.67), sıçrama 1.66; baskın tür H₂PO₄⁻ (%99). 50.00 mL'de 49.999, pH 9.67 (formül 9.79), sıçrama 2.17. 75.00 mL'de 'sıçrama yok' (ΔpH 0.05). Bromkrezol yeşili 24.97 mL'de (−0.14 %) uygun, fenolftalein 49.62 mL'de (−0.76 %) kabul edilebilir, bromtimol mavisi 32.03 mL'de hiçbir noktaya denk gelmez.",
         explain:
-          "Eşdeğerlikte 50.0 mL'de 2.50 mmol NH₄⁺ (0.0500 M) vardır ve NH₄⁺ zayıf bir asittir: Kₐ = K<sub>w</sub> / K<sub>b</sub> = 10<sup>−9.25</sup> = 5.6 × 10⁻¹⁰, [H⁺] = √(0.0500 × 5.6 × 10⁻¹⁰) = 5.3 × 10⁻⁶ M, pH 5.28. Eşdeğerlikten sonra erlende NH₃ ile NH₄⁺ yan yanadır: yine bir tampon. 50.0 mL'de fazla NH₃ (2.50 mmol) ile NH₄⁺ (2.50 mmol) eşittir, bu yüzden pH = pKₐ(NH₄⁺) = 9.25. Asetik asitteki yarı yol sırrının aynası.",
+          "Ardışık K'lar 10⁴ kattan fazla ayrık olduğu için ilk iki proton ayrı ayrı sayılır. Üçüncüde PO₄³⁻ o kadar güçlü bir bazdır ki (K<sub>b</sub> ≈ 0.024) 0.025 M'lik çözeltide yüzde 60'ı sudan protonunu geri alır: üçüncü proton hiç tam kopmaz, basamak oluşmaz. Fenolftalein ikinci protonu sayar; asidin derişimini doğru bulmak için 49.62 mL'yi ikiye bölmen gerekir.",
       },
     ],
   },
   wow: [
     {
       title: "İki dakikalık iş değil, dört damlalık iş",
-      body: "Kuvvetli asit titrasyonunda 24.9 mL'den 25.1 mL'ye geçerken [H⁺], 2.0 × 10⁻⁴ M'den 5.0 × 10⁻¹¹ M'ye iner: yaklaşık dört milyon kat. Gerçek bir büret damlası 0.05 mL civarında olduğu için bu fark aşağı yukarı dört damladır. Ortadaki iki damla, 24.95'ten 25.05 mL'ye, pH'ı 4.00'ten 10.00'a taşır: fenolftaleinin bütün renk aralığı bu iki damlanın içindedir. Sayfada Otomatik titrasyon bu bölgeyi 0.1 mL'lik adımlarla geçer: pH 3.70'ten 7.00'ye, oradan 10.30'a.",
+      body: "0.100 M HCl titrasyonunda 24.90 mL'den 25.10 mL'ye geçerken [H⁺], 2.0 × 10⁻⁴ M'den 5.0 × 10⁻¹¹ M'ye iner: dört milyon kat. Gerçek bir büret damlası 0.05 mL civarında olduğu için bu fark aşağı yukarı dört damladır. Ortadaki iki damla, 24.95'ten 25.05 mL'ye, pH'ı 4.00'ten 10.00'a taşır: fenolftaleinin bütün renk aralığı bu iki damlanın içindedir. Sayfanın Sıçrama kartı bunu her ayarda hesaplar: açılışta '3.70 → 10.30 (ΔpH 6.60)'.",
     },
     {
       title: "pH metreyi limon suyu icat ettirdi",
-      body: "Narenciye kooperatifi Sunkist, satılamayan limonlardan pektin ve sitrik asit üretiyor, ürüne koruyucu olarak kükürt dioksit katıyordu. Kükürt dioksit indikatör renklerini de hidrojen elektrotunu da bozuyordu; cam elektrot etkilenmiyordu ama sinyali çok zayıftı ve kolay kırılıyordu. Şirketin kimyageri Glen Joseph, Caltech'te yardımcı doçent olan Arnold Beckman'a danıştı. Beckman ölçümü hassaslaştırmaya uğraşmak yerine sinyali bir elektron tüpüyle yükseltti ve 1934'te bu 'asitlik ölçer' için patent başvurusu yaptı. Cihaz ilk ticari olarak başarılı elektronik pH ölçeri oldu; bugün titrasyon eğrileri çoğunlukla aynı ilkeyle, cam elektrot ve yükselteçle çizilir.",
+      body: "Narenciye kooperatifi Sunkist, satılamayan limonlardan pektin ve sitrik asit üretiyor, ürüne koruyucu olarak kükürt dioksit katıyordu. Kükürt dioksit indikatör renklerini de hidrojen elektrotunu da bozuyordu; cam elektrot etkilenmiyordu ama sinyali çok zayıftı ve kolay kırılıyordu. Şirketin kimyageri Glen Joseph, Caltech'te kimya hocası olan Arnold Beckman'a danıştı. Beckman ölçümü hassaslaştırmaya uğraşmak yerine sinyali bir elektron tüpüyle yükseltti ve 1934'te bu 'asitlik ölçer' için patent başvurusu yaptı. Cihaz ilk ticari olarak başarılı elektronik pH ölçeri oldu; bugün titrasyon eğrileri çoğunlukla aynı ilkeyle, cam elektrot ve yükselteçle çizilir.",
     },
     {
       title: "Sørensen 'p'yi hiç açıklamadı",
-      body: "Sørensen'in 1909'daki Almanca tanımı şöyle başlar: 'p sayısı için <em>Wasserstoffionenexponent</em> (hidrojen iyonu üssü) adını ve p<sub>H</sub> gösterimini öneriyorum.' Yani p onun için önce bir sayının, üssün adıydı; harfi neden seçtiğini söylemedi. Almanca <em>Potenz</em>, Fransızca <em>puissance</em> ve Danca <em>potens</em> (hepsi 'kuvvet', yani üs) en sık önerilen açıklamalardır. Okul kitaplarında geçen Latince <em>pondus hydrogenii</em> ise Sørensen'in tanımında yer almaz; sonradan yapılmış bir yorumdur.",
+      body: "Sørensen 1909'da Almanca şöyle yazdı: 'p sayısı için <em>Wasserstoffionenexponent</em> (hidrojen iyonu üssü) adını ve p<sub>H</sub> gösterimini öneriyorum.' Yani p onun için önce bir sayının, üssün adıydı; harfi neden seçtiğini söylemedi. Almanca <em>Potenz</em>, Fransızca <em>puissance</em> ve Danca <em>potens</em> (hepsi 'kuvvet', yani üs) en sık önerilen açıklamalardır. Bazı kitaplarda geçen Latince <em>pondus hydrogenii</em> ise Sørensen'in yazılarında yer almaz; sonradan yapılmış bir yorumdur.",
     },
   ],
   worked: {
-    title: "Mutfaktaki sirke ne kadar ekşi?",
+    title: "Seyreltik HF'de yarı yol: formül 3.19, denklem 3.73",
     prompt:
-      "Sirkeden 2.00 mL pipetle bir erlene alıyorsun, üstüne yaklaşık 25 mL saf su ve birkaç damla fenolftalein ekliyorsun. 0.100 M NaOH ile titre ettiğinde açık pembe renk 13.90 mL'de kalıcı oluyor. Sirkedeki asetik asidin derişimi (M) ve 100 mL'deki kütlesi ne? Fenolftalein doğru seçim miydi? (M<sub>CH₃COOH</sub> = 60.05 g/mol, pK<sub>a</sub> = 4.76)",
+      "25.00 mL 0.00100 M HF (K<sub>a</sub> = 6.4 × 10⁻⁴, pK<sub>a</sub> = 3.19), 0.00100 M NaOH ile titre ediliyor. 12.50 mL baz eklendiğinde, yani tam yarı yolda, pH kaçtır? Henderson–Hasselbalch'ın cevabıyla karşılaştır ve farkın nereden geldiğini göster. (25 °C, aktiflik ≈ derişim.)",
     steps: [
-      "Tepkimeyi yaz: CH₃COOH + NaOH → CH₃COONa + H₂O. Katsayılar 1:1; bir mol baz bir mol asit harcar.",
-      "Harcanan bazın molü: n = c · V = 0.100 mol/L × 0.01390 L = 1.39 × 10⁻³ mol NaOH. Eşdeğerlikte asidin molü de 1.39 × 10⁻³ mol'dür.",
-      "Eklenen su mol sayısını değiştirmez; asidin tamamı 2.00 mL sirkedeydi: c = 1.39 × 10⁻³ mol / 0.00200 L = 0.695 mol/L.",
-      "Kütleye çevir: 0.695 mol/L × 60.05 g/mol = 41.7 g/L; yani 100 mL sirkede 4.17 g asetik asit (yaklaşık %4.2 kütle/hacim).",
-      "İndikatörü denetle: eşdeğerlikte hacim 2.00 + 25 + 13.90 ≈ 40.9 mL, [CH₃COO⁻] = 1.39 × 10⁻³ mol / 0.0409 L = 0.0340 M. K<sub>b</sub> = 10⁻¹⁴ / 10<sup>−4.76</sup> = 5.75 × 10⁻¹⁰; [OH⁻] = √(0.0340 × 5.75 × 10⁻¹⁰) = 4.4 × 10⁻⁶ M; pOH = 5.35, pH = 8.65.",
+      "Seyrelmeyi hesapla. Toplam hacim 37.50 mL. Toplam HF (HF + F⁻): 0.02500 mmol / 37.50 mL = 6.67 × 10⁻⁴ M. Na⁺: 0.01250 mmol / 37.50 mL = 3.33 × 10⁻⁴ M. HH'ye göre [F⁻] = [HF] olduğundan pH = pK<sub>a</sub> = 3.19.",
+      "Yük denkliğini yaz: [H⁺] + [Na⁺] = [F⁻] + [OH⁻]. pH 3–4 civarında [OH⁻] ≈ 10⁻¹¹ M, atılabilir. [F⁻] = C·K<sub>a</sub>/([H⁺] + K<sub>a</sub>) yazılınca tek bilinmeyen h = [H⁺] kalır.",
+      "Paydaları temizle: h² + ([Na⁺] + K<sub>a</sub>)h − K<sub>a</sub>(C − [Na⁺]) = 0, yani h² + 9.73 × 10⁻⁴ h − 2.13 × 10⁻⁷ = 0. Pozitif kök h = 1.84 × 10⁻⁴ M, pH = 3.73.",
+      "Denetle: [F⁻] = 5.18 × 10⁻⁴ M, [HF] = 1.49 × 10⁻⁴ M; oran 3.47, log 3.47 = 0.54 ve 3.19 + 0.54 = 3.73. HH denklemi gerçek derişimlerle doğrudur; yanlış olan [F⁻] = [Na⁺] varsayımıdır. Asidin kendisi, eklenen bazın yarısından fazla, 1.84 × 10⁻⁴ M F⁻ üretmiştir.",
+      "Karşılaştır: 0.100 M asetik asitte aynı noktada h = 1.8 × 10⁻⁵ M, [Na⁺] = 0.033 M; ihmal binde birin altındadır ve HH ile tam çözüm aynı pH'ı verir. Kısayolun ölçütü: h ≪ [Na⁺].",
     ],
     result:
-      "Sirke yaklaşık 0.695 M asetik asit içerir: 100 mL'de 4.2 g. Eşdeğerlik pH'ı 8.65 olduğu için fenolftalein (8.2–10.0) doğru seçimdir; metil oranj, asidin üçte biri bile nötrleşmeden sararırdı.",
+      "pH = 3.73; HH 3.19 der, 0.54 birim aşağıda. Sekme 02'de Seyreltik HF (0.001 M) hazırı ve Sonuna kadar ekle ile aynı sayıyı okursun: yarı yolda '3.73 (V = 12.50 mL)', tablodaki pKₐ farkı +0.54.",
   },
   misconceptions: [
     {
       myth: "Eşdeğerlik noktasında pH her zaman 7'dir.",
       truth:
-        "Yalnızca kuvvetli asit ile kuvvetli baz için öyledir. Asetik asit titrasyonunda geride bazik asetat kalır ve sayfa 8.73 gösterir; HCl + NH₃'te geride asidik NH₄⁺ kalır ve sayfa 5.28 gösterir. 'Nötrleşme' kelimesi tepkimeyi anlatır, sonucun nötr olduğunu değil.",
+        "Yalnızca kuvvetli asit ile kuvvetli baz için, 25 °C'de öyledir. Eşdeğerlikte erlende eşlenik baz kalır: sayfada 0.1 M asetik asitte 8.72, HCN'de 11.00 okunur. 'Nötrleşme' sözcüğü tepkimeyi anlatır, sonucun nötr olduğunu değil.",
     },
     {
-      myth: "Zayıf asidi nötrleştirmek için daha az baz gerekir.",
+      myth: "Yarı eşdeğerlikte pH her zaman pKₐ'ya eşittir.",
       truth:
-        "Güç ile miktar ayrı şeylerdir. Aynı derişimde 25.0 mL HCl de asetik asit de tam 25.0 mL 0.100 M NaOH ister; sayfada iki çiftte de eşdeğerlik uyarısı 25.0 mL'de çıkar. Zayıf asit protonlarını hemen vermez ama baz geldikçe dengesi kayar ve sonunda hepsini verir.",
+        "Bu, Henderson–Hasselbalch'ın bir sonucudur ve HH asidin kendi iyonlaşmasını yok sayar. 0.1 M asetikte tutar (4.75 ile 4.745), 0.001 M HF'de tutmaz: 3.73 ile 3.19. Kuvvetli asitte ise yarı yol pH'ı bir pKₐ değil, yalnızca kalan H⁺ derişimidir; bilinmeyen numune sekmesi bunu sana hatırlatır.",
     },
     {
       myth: "İndikatör rengini değiştirdiği an eşdeğerlik noktasıdır.",
       truth:
-        "Renk değişimi <strong>dönüm noktası</strong>dır, yani gözlem; eşdeğerlik ise mol hesabıdır. İkisi ancak indikatör doğru seçilirse çakışır. Asetik asidi metil oranjla titre edersen renk 8.0 mL'de tamamen sararır; gerçek eşdeğerlik 25.0 mL'dedir.",
+        "Renk değişimi <strong>uç nokta</strong>dır, yani gözlem; eşdeğerlik mol hesabıdır. İkisi ancak indikatörün aralığı sıçramanın içine düşerse çakışır. HCN titrasyonunda fenolftalein 8.2 mL dolayında yarı pembedir, eşdeğerlik 25.00 mL'dedir; fosforik asitte bromtimol mavisi 32.03 mL'de, hiçbir eşdeğerliğin yakınında olmayan bir yerde döner.",
     },
     {
-      myth: "Tampon çözeltinin pH'ı hiç değişmez.",
+      myth: "Zayıf asidi nötrleştirmek için daha az baz gerekir.",
       truth:
-        "Tampon değişime direnir, durdurmaz; kapasitesi de sınırlıdır. Sayfada asetik asit tamponunda 10.0'dan 15.0 mL'ye pH 4.58'den 4.94'e çıkar: az ama sıfır değil. Asidin neredeyse tamamı tükenince (24.5 mL, pH 6.45) tampon çöker ve pH fırlar.",
+        "Güç ile miktar ayrı şeylerdir. Aynı derişimde 25 mL HCl de asetik asit de tam 25.00 mL 0.100 M NaOH ister; sekme 01 ve 02'de stokiyometri kartı aynı sayıyı gösterir. Zayıf asit protonlarını hemen vermez, ama baz geldikçe dengesi kayar ve sonunda hepsini verir.",
     },
   ],
   glossary: [
@@ -158,24 +158,19 @@ window.ACELYA_DIGEST["asit-baz-titrasyonu"] = {
         "Büretten damla damla eklenen, derişimi bilinen çözelti; derişimi aranan çözeltiye (analit) katılır.",
     },
     {
-      term: "Büret",
-      definition:
-        "Altında musluk olan uzun, dereceli cam tüp; çizgileri genellikle 0.1 mL aralıklıdır, göz kararıyla 0.01 mL'ye kadar okunur.",
-    },
-    {
       term: "Eşdeğerlik noktası",
       definition:
-        "Eklenen titrantın, analitle tam stokiyometrik oranda tepkimeye girdiği kuramsal an; mol hesabıyla bulunur.",
+        "Eklenen titrantın analitle tam stokiyometrik oranda tepkimeye girdiği hacim; mol hesabıyla bulunur, eğride en dik noktanın çevresindedir.",
     },
     {
-      term: "Dönüm noktası",
+      term: "Uç nokta",
       definition:
-        "İndikatörün renk değiştirdiği, deneyde gözlenen nokta; iyi seçilmiş indikatörle eşdeğerlik noktasına çok yakındır.",
+        "Deneyde gözlenen bitiş: indikatörün renk değiştirdiği ya da eğrinin en dik olduğu hacim; iyi bir titrasyonda eşdeğerlikten bir damladan az uzaktadır.",
     },
     {
       term: "İndikatör",
       definition:
-        "Asit ve baz biçimleri farklı renkte olan, belirli bir pH aralığında renk değiştiren zayıf asit ya da baz.",
+        "Asit ve baz biçimleri farklı renkte olan, kabaca pKₐ ± 1 aralığında renk değiştiren zayıf bir asit ya da baz.",
     },
     {
       term: "Tampon çözelti",
@@ -183,110 +178,110 @@ window.ACELYA_DIGEST["asit-baz-titrasyonu"] = {
         "Zayıf bir asit ile eşlenik bazının karışımı; az miktarda eklenen asit ya da baza karşı pH'ını büyük ölçüde korur.",
     },
     {
-      term: "Eşlenik asit-baz çifti",
-      definition:
-        "Yalnızca bir protonla birbirinden ayrılan iki tür; CH₃COOH ile CH₃COO⁻ ya da NH₄⁺ ile NH₃ gibi.",
-    },
-    {
       term: "pK<sub>a</sub>",
       definition:
-        "Asitlik sabitinin eksi logaritması, pKₐ = −log Kₐ; değer küçüldükçe asit kuvvetlenir. Asetik asit için 4.76.",
+        "Asitlik sabitinin eksi logaritması, pKₐ = −log Kₐ; değer küçüldükçe asit kuvvetlenir. Asetik asit için 4.74.",
+    },
+    {
+      term: "Yük denkliği",
+      definition:
+        "Çözeltide artı yüklerin toplam derişiminin eksi yüklerinkine eşit olması; denge sabitleriyle birlikte [H⁺] için tek bir denklem verir.",
+    },
+    {
+      term: "Amfoter tür",
+      definition:
+        "Hem proton verebilen hem alabilen tür; H₂PO₄⁻ gibi. Ara eşdeğerlikte pH yaklaşık iki komşu pKₐ'nın ortalamasıdır.",
     },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede titrasyon eğrisi parça parça hesaplanır: başlangıç, tampon bölgesi, eşdeğerlik, fazla baz; her bölgeye ayrı bir kısayol formül. Üniversitedeki analitik kimya dersinde bu parçalar tek bir sistemde birleşir: <strong>yük dengesi</strong> (çözeltideki artı yüklerin toplamı eksi yüklerinkine eşittir) ve <strong>kütle dengesi</strong>, Kₐ ve K<sub>w</sub> ile birlikte yazılır ve [H⁺] için tek bir denklem çıkar. Bilgisayar onu her hacim için çözer; kısayolların nerede yanıldığı da görünür olur: asetik aside ilk 0.5 mL baz eklenince Henderson–Hasselbalch pH 3.07 der, kesin çözüm 3.20'dir. Bu sayfa da pH'ı tam bu yolla hesaplar: her hacimde yük dengesini sayısal olarak çözer. Fosforik asit ve amino asitler gibi çok protonlu türler basamaklı eğriler verir; derişik çözeltilerde ise derişim yerine <em>etkinlik</em> kullanmak gerekir.",
-      "Aynı matematik biyokimyada ve tıpta her gün kullanılır. Kanın pH'ı dar bir aralıkta tutulur; karbonik asit–bikarbonat tamponu akciğerlerin CO₂ atışı ve böbreklerle birlikte çalışır ve hekimler kan gazı sonuçlarını Henderson–Hasselbalch ile yorumlar. Proteinlerin yükü pH ile değişir; amino asitlerin titrasyon eğrisinden izoelektrik nokta çıkar ve proteinleri ayıran elektroforez yöntemleri bunun üzerine kurulur. Endüstride ve kalite kontrolde titrasyon bugün çoğunlukla otomatik titratörlerle yapılır: pH elektrodu eğriyi çizer, bilgisayar en dik noktayı birinci türevin tepesi olarak bulur.",
+      "Lisede titrasyon eğrisi parça parça hesaplanır: başlangıç, tampon bölgesi, eşdeğerlik, fazla baz; her bölgeye ayrı bir kısayol. Analitik kimya dersinde bu parçalar tek bir sistemde birleşir: <strong>yük dengesi</strong> ve <strong>kütle dengesi</strong>, Kₐ ve K<sub>w</sub> ile birlikte yazılır ve [H⁺] için tek bir denklem çıkar. Bu sayfa da tam bunu yapar ve kısayolları yalnız karşılaştırma için gösterir. Bir sonraki adım <em>aktiflik</em>tir: pH aslında H⁺'nın derişiminden değil aktifliğinden tanımlanır; 0.1 M iyonik çözeltide tek yüklü bir iyonun aktiflik katsayısı Debye–Hückel tahminiyle kabaca 0.8'dir, log 0.8 ≈ −0.1. Kuvvetli asit bölgesinde [H⁺] stokiyometriyle sabit olduğu için pH metre buradakinden yaklaşık 0.1 yüksek okur; tamponda ise oran [A⁻]'nın aktifliğiyle kurulur ve görünür pKₐ yaklaşık 0.1 küçük çıkar. Sıcaklık da girer: K<sub>w</sub> ve Kₐ değişir, 25 °C dışında nötr pH 7.00 değildir.",
+      "Aynı matematik biyokimyada ve tıpta her gün kullanılır. Kanın pH'ı dar bir aralıkta tutulur; karbonik asit–bikarbonat tamponu akciğerlerin CO₂ atışı ve böbreklerle birlikte çalışır. Proteinlerin yükü pH ile değişir; amino asitlerin titrasyon eğrisinden izoelektrik nokta çıkar. Endüstride titrasyon bugün çoğunlukla otomatik titratörlerle yapılır: cam elektrot eğriyi çizer, yazılım uç noktayı birinci türevin tepesi ya da ikinci türevin sıfırı olarak bulur, yani sekme 01'deki iki ölçüm kartının yaptığını. Gerçek elektrot ise ±0.01–0.02 pH birimi gürültüyle okur; türev gürültüyü büyüttüğü için oradaki tepe buradakinden çok daha yayvandır.",
     ],
     topics: [
       "Yük ve kütle dengesi",
-      "Çok protonlu asitler ve dağılım diyagramları",
-      "Etkinlik ve iyonik şiddet",
+      "Çok protonlu asitler ve dağılım (α) diyagramları",
+      "Aktiflik, iyonik şiddet ve Debye–Hückel",
       "Potansiyometrik titrasyon ve türev analizi",
       "Kan tamponu ve asit-baz fizyolojisi",
       "Amino asitler ve izoelektrik nokta",
-      "Lewis asit-baz kuramı",
+      "Sayısal kök bulma: ikiye bölme ve Newton yöntemi",
     ],
   },
   quiz: [
     {
       question:
-        "25.0 mL 0.0500 M H₂SO₄ çözeltisi 0.100 M NaOH ile titre ediliyor. Eşdeğerlik noktasına kaç mL bazda ulaşılır?",
-      options: ["6.25 mL", "12.5 mL", "25.0 mL", "50.0 mL"],
+        "0.100 M HCl, 0.100 M NaOH ile titre edilirken eşdeğerlikten 0.10 mL önce pH 3.70'tir. Asit ve bazın ikisi de 0.0100 M olsaydı (V<sub>a</sub> yine 25 mL), aynı noktada pH kaç olurdu?",
+      options: ["3.70", "4.70", "5.70", "7.00"],
+      answer: 1,
+      explanation:
+        "Eşdeğerlikten 0.10 mL önce kalan H⁺ miktarı C<sub>b</sub> × 0.10 mL'dir ve toplam hacim aynıdır; derişim on kat düşünce [H⁺] de on kat düşer, pH bir birim artar: 4.70. Fazla baz tarafında da pH 10.30'dan 9.30'a iner, sıçrama iki birim kısalır. Sekme 01'de Derişim karşılaştırması bunu tek bakışta gösterir.",
+    },
+    {
+      question:
+        "Aşağıdaki titrasyonların hangisinde (hepsinde C<sub>a</sub> = C<sub>b</sub>) yarı yoldaki pH, Henderson–Hasselbalch'ın verdiği pKₐ'dan en çok sapar?",
+      options: [
+        "0.1 M asetik asit (Kₐ 1.8 × 10⁻⁵)",
+        "0.1 M HCN (Kₐ 4.9 × 10⁻¹⁰)",
+        "0.001 M HF (Kₐ 6.4 × 10⁻⁴)",
+        "0.1 M HClO (Kₐ 2.9 × 10⁻⁸)",
+      ],
       answer: 2,
       explanation:
-        "n(H₂SO₄) = 0.0500 × 25.0 = 1.25 mmol. Her molekül iki proton verir (H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O), yani 2.50 mmol NaOH gerekir: 2.50 / 0.100 = 25.0 mL. Sayfada H₂SO₄ + NaOH seçersen sıçramayı 25.0 mL'de görürsün. Başlangıç pH'ı 1.00 değil 1.24'tür: ilk proton tamamen kopar, ikincisi (HSO₄⁻, pKₐ ≈ 1.99) bu derişimde ancak yüzde 15 kadar. Aynı nedenle 12.5 mL'de ayrı bir basamak görünmez.",
+        "HH, asidin kendi verdiği [H⁺]'yı eklenen bazın [Na⁺]'sı yanında ihmal eder. Bu ihmal Kₐ büyüdükçe ve çözelti seyreldikçe bozulur; en büyük Kₐ ile en küçük derişim aynı seçenekte: 0.001 M HF'de yarı yol pH'ı 3.73, pKₐ 3.19. Öteki üçünde sapma 0.01 pH biriminin altındadır.",
     },
     {
       question:
-        "Asetik asit NaOH ile titre edilirken yarı eşdeğerlik noktasında (sayfada 12.5 mL) pH neye eşittir?",
-      options: [
-        "7.00",
-        "Asetik asidin pKₐ'sına, yani 4.76'ya",
-        "Başlangıç pH'ına, yani 2.88'e",
-        "Eşdeğerlik pH'ının yarısına",
-      ],
-      answer: 1,
+        "25.00 mL fosforik asit 0.100 M NaOH ile titre ediliyor ve fenolftalein 49.62 mL'de renk değiştiriyor. Bir öğrenci asidi tek protonlu sanarsa derişimini kaç bulur?",
+      options: ["0.0500 M", "0.100 M", "0.198 M", "0.298 M"],
+      answer: 2,
       explanation:
-        "Yarı yolda asidin yarısı asetata dönmüştür; [A⁻] = [HA], Henderson–Hasselbalch'taki log terimi sıfırlanır ve pH = pKₐ olur. Zayıf asitlerin pKₐ'sı deneyde böyle ölçülür.",
-    },
-    {
-      question:
-        "HCl, NH₃ ile titre ediliyor; eşdeğerlikte pH yaklaşık 5.3'tür. Aşağıdakilerden hangisi en uygundur?",
-      options: [
-        "Fenolftalein (8.2–10.0)",
-        "Metil Oranj (3.1–4.4)",
-        "Fark etmez; hepsi aynı hacmi verir",
-        "Hiçbiri; mutlaka pH metre gerekir",
-      ],
-      answer: 1,
-      explanation:
-        "Dik bölge (24.9–25.1 mL) yaklaşık pH 3.7 ile 6.9 arasındadır. Metil oranj tam sarıya (pH 4.4) 24.98 mL'de döner: hata binde birden az. Fenolftalein pH 8.2'ye ancak yaklaşık 27.2 mL'de ulaşır (sayfada 27.0 mL'de 8.15, 27.5'te 8.25): yüzde dokuz kadar hata. Sayfadaki bromotimol mavisi 25.01 mL'de dönmeye başlar ama tam maviye ancak pH 7.6'da, yaklaşık 25.6 mL'de ulaşır.",
+        "0.100 × 49.62 / 25.00 = 0.198 M. Oysa fenolftalein ikinci eşdeğerliği gösterir: o hacimde her H₃PO₄ iki proton vermiştir, doğru derişim 0.198 / 2 ≈ 0.099 M, yani 0.100 M'lik asit (fark indikatörün −0.76 %'lik hatasıdır). Üçüncü proton sıçrama vermediği için hiçbir indikatör onu saymaz.",
     },
   ],
   next: [
     {
       href: "ph-indikator.html",
-      title: "pH ve İndikatörler",
-      why: "pH'ı kaydırıcıyla kendin sür, [H₃O⁺]'yu mol/L olarak oku; İndikatörler ve renk sekmesinde fenolftaleini ve metil oranjı turnusol ve evrensel indikatörle aynı pH'ta karşılaştır.",
+      title: "pH ve İndikatörler: Logaritmik Ölçek, Su Dengesi ve Renk",
+      why: "Buradaki erlen rengi temsilî bir karışımdır. Orada İndikatörler ve renk sekmesinde rengin soğurma tayfından nasıl doğduğunu ve spektrofotometrik pK ölçümünü gör; aynı sayfada çok seyreltik HCl'de suyun pH'a katkısı da hesaplanır.",
     },
     {
       href: "kimyasal-denge-ve-gibbs-enerjisi.html",
       title: "Kimyasal Denge ve Gibbs Enerjisi",
-      why: "Kₐ, K<sub>b</sub> ve K<sub>w</sub> birer denge sabitidir. Q ile K'nın karşılaştırılmasını ve ΔG° = −RT ln K bağını orada keşfet.",
-    },
-    {
-      href: "denklem-denklestirme.html",
-      title: "Kimyasal Denklem Denkleştirme",
-      why: "H₂SO₄ + 2NaOH'taki '2' olmadan titrasyon hesabı çöker. Nötrleşme dahil on dokuz hazır tepkimede katsayıları atom sayarak bul; Stokiyometri sekmesinde mol oranının grama nasıl çevrildiğini gör.",
+      why: "Kₐ, K<sub>b</sub> ve K<sub>w</sub> birer denge sabitidir. Q ile K'nın karşılaştırılmasını ve ΔG° = −RT ln K bağını oradaki yön bulucuda dene.",
     },
     {
       href: "elektrokimya.html",
       title: "Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday",
-      why: "pH metre aslında bir voltmetredir: iki elektrot arasındaki gerilimi ölçer. Gerilimin iki yarı hücrenin farkından nasıl doğduğunu Daniell pilinde gör.",
+      why: "pH metre bir voltmetredir. Nernst ve derişim hücresi sekmesinde derişim on kat değişince gerilimin 59.16 mV kaydığını gör: cam elektrodun bir pH birimi başına okuduğu gerilim budur.",
+    },
+    {
+      href: "denklem-denklestirme.html",
+      title: "Kimyasal Denklem Denkleştirme: Atom Sayımı, Matris Yöntemi ve Stokiyometri",
+      why: "H₃PO₄ + 2NaOH'taki '2' olmadan çok protonlu asidin hesabı çöker. Nötrleşme dahil hazır tepkimelerde katsayıları bul; Stokiyometri sekmesinde mol oranının kütleye nasıl çevrildiğini gör.",
     },
   ],
   sources: [
     {
       title: "OpenStax · Chemistry 2e, 14.7 Acid-Base Titrations",
       url: "https://openstax.org/books/chemistry-2e/pages/14-7-acid-base-titrations",
-      note: "Titrasyon eğrileri, eşdeğerlik pH'ı ve indikatör seçimi; çözümlü örneklerle (İngilizce, açık ders kitabı).",
+      note: "Titrasyon eğrileri, Tablo 14.2 (sayfanın tam çözümünün karşılaştırıldığı pH değerleri) ve Şekil 14.19'daki indikatör aralıkları. Şekil metil oranj için metil kırmızısının 4.2–6.3 aralığını verir; sayfa onun yerine 3.1–4.4 kullanır.",
     },
     {
-      title: "PhET · Asit-Baz Çözeltileri",
-      url: "https://phet.colorado.edu/tr/simulations/acid-base-solutions",
-      note: "Zayıf ve kuvvetli asitleri tanecik düzeyinde karşılaştır: aynı derişimde neden farklı pH?",
+      title: "OpenStax · Chemistry 2e, Appendix H: Ionization Constants of Weak Acids",
+      url: "https://openstax.org/books/chemistry-2e/pages/h-ionization-constants-of-weak-acids",
+      note: "Sayfadaki bütün Kₐ değerlerinin (asetik, formik, HF, HNO₂, HClO, HCN, H₃BO₃, fosforik, karbonik, oksalik) kaynağı; 25 °C, iki anlamlı basamak.",
     },
     {
-      title: "Wikipedia · Acid–base titration",
-      url: "https://en.wikipedia.org/wiki/Acid%E2%80%93base_titration",
-      note: "İngilizce; titrasyonun tarihi, indikatör seçimi ve zayıf asit titrasyon eğrisinin matematiksel analizi.",
+      title: "Wikipedia · Titration",
+      url: "https://en.wikipedia.org/wiki/Titration",
+      note: "İngilizce; sözcüğün kökeni, Descroizilles'in 1791 büreti, Gay-Lussac'ın 1824 'büret' ve 'pipet' sözcükleri, 1828 'titrer' fiili ve Mohr'un 1855 ders kitabı.",
     },
     {
-      title: "Wikipedia · S. P. L. Sørensen",
-      url: "https://en.wikipedia.org/wiki/S._P._L._S%C3%B8rensen",
-      note: "Carlsberg Laboratuvarı'nda proteinler üzerine çalışmalar ve 1909'da pH ölçeğinin doğuşu.",
+      title: "Wikipedia · pH",
+      url: "https://en.wikipedia.org/wiki/PH",
+      note: "İngilizce; Sørensen'in 1909 gösterimi ve 1924 düzeltmesi, 'p' harfinin tartışmalı anlamı, Beckman'ın 1934 elektronik pH ölçeri.",
     },
   ],
   revision: "Kasım 2026",

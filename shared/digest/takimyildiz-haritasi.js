@@ -3,100 +3,101 @@ window.ACELYA_DIGEST["takimyildiz-haritasi"] = {
   slug: "takimyildiz-haritasi",
   title: "Takımyıldız Haritası: Gökyüzünün Adres Defteri",
   field: "Yer ve Uzay",
-  level: "Lise",
-  minutes: 30,
+  level: "Lise–Lisans",
+  minutes: 35,
   tagline:
-    "Takımyıldızlar uzayda değil, bizim bakışımızda bir aradadır. Kutup Yıldızı'nın yüksekliği enlemini, kadir ölçeği parlaklığı, Dünya'nın dönüşü de hangi yıldızı ne zaman göreceğini söyler.",
-  hook: "Açık bir gecede kuzeye dön, kolunu uzat ve yumruklarını ufuktan Kutup Yıldızı'na kadar üst üste koy. Ankara'da yaklaşık dört yumruk tutar ve bu sayı sana nerede durduğunu söyler. Üstelik gece boyunca bütün gökyüzü onun çevresinde döner; o ise neredeyse kıpırdamaz. Neden?",
+    "Kutup Yıldızı'nın yüksekliği enlemini söyler, yıldız günü her gece 3 dk 56 s erken doğmayı açıklar, küresel trigonometri de bir yıldızın ne zaman nerede olacağını saniyesine kadar hesaplar.",
+  hook: "Açık bir gecede kuzeye dön, kolunu uzat ve yumruklarını ufuktan Kutup Yıldızı'na kadar üst üste koy. Ankara'da yaklaşık dört yumruk tutar ve bu sayı sana nerede durduğunu söyler. Üstelik gece boyunca bütün gökyüzü onun çevresinde döner, o ise neredeyse kıpırdamaz; yarın akşam aynı yıldızlar aynı yere dört dakika erken gelir. Neden?",
   bigIdea:
-    "Gökyüzü, Dünya döndükçe çevremizde dönen bir küre gibi davranır: her yıldızın bu kürede yıllarca değişmeyen bir adresi (sağ açıklık, dik açıklık) ve bir parlaklığı (kadir) vardır; onu ne zaman ve ne yükseklikte göreceğin ise yalnızca enlemine ve saate bağlıdır.",
+    "Her yıldızın gökte yıllarca neredeyse değişmeyen bir adresi (sağ açıklık α, dik açıklık δ) vardır; onu hangi yükseklikte ve yönde göreceğin yalnız enlemine ve yerel yıldız zamanına bağlıdır, yıldız zamanı da Güneş saatinden günde 3 dk 56 s hızlı akar.",
   story: [
     "Gökyüzünü figürlere bölmek muhtemelen yazıdan da eski bir alışkanlıktır, ama elimizdeki en eski düzenli listeler Mezopotamya'dan gelir. Babil'in MUL.APIN adlı çivi yazılı tabletlerinde bugünkü Boğa, İkizler, Aslan ve Akrep'in öncüleri olan yıldız figürleri sayılır. Yunanlar bu mirası devraldı ve kendi efsaneleriyle süsledi. MS 150 civarında İskenderiyeli <strong>Klaudios Batlamyus</strong>, <em>Almagest</em> adıyla bilinen eserinde <strong>48 takımyıldıza</strong> dağılmış binden fazla yıldızın konumunu ve parlaklığını listeledi. Parlaklığı altı sınıfa ayırdı: en parlaklar 'birinci büyüklük', gözün zor seçtiği en sönükler 'altıncı büyüklük'. Gelenek bu sınıflamayı yaklaşık üç yüzyıl önce yaşamış Hipparkhos'a bağlar. Hipparkhos'un kataloğu ise büyük ölçüde kayıptır: 2022'de bir Orta Çağ parşömeninde, kazınıp üstüne yeniden yazılmış satırların altında yalnızca küçük bir parçası bulundu. Bize eksiksiz ulaşan en eski yıldız kataloğu Batlamyus'unkidir.",
-    "Batlamyus'un eseri Arapçaya çevrildi ve İslam dünyasının gökbilimcileri onu yeniden sınadı. Abdurrahman es-Sûfî 964'te yazdığı <em>Sabit Yıldızlar Kitabı</em>'nda her takımyıldızı çizdi, Arapların yerel yıldız adlarını Yunan figürleriyle eşleştirdi ve bugün Andromeda Gökadası dediğimiz 'küçük bulutu' ilk kez kayda geçirdi. Bugünkü yıldız adlarının çoğu bu Arapça adların Orta Çağ Latincesindeki yankısıdır: <em>Aldebaran</em> 'izleyen' (Ülker'in ardından doğduğu için), <em>Rigel</em> 'ayak', <em>Deneb</em> 'kuyruk' demektir; <em>Betelgeuse</em> ise 'Yed el-Cevzâ' (el-Cevzâ'nın eli) adının aktarılırken bozulmuş hâlidir. 1420'lerde Timur'un torunu <strong>Uluğ Bey</strong> Semerkant'ta bir gözlemevi kurdurdu; binanın kalbinde, cilalı mermerle kaplı, yarıçapı 40 metreyi aşan dev bir ölçüm yayı (Fahri sekstantı) vardı. Ekibi bin kadar yıldızın konumunu yeniden ölçtü; 1437 tarihli <em>Zîc-i Sultânî</em>, Batlamyus ile 16. yüzyılın büyük gözlemcisi Tycho Brahe arasında hazırlanan en büyük yıldız kataloğu sayılır. Gözlemevinin son yöneticisi Ali Kuşçu, Uluğ Bey'in 1449'da öldürülmesinden yıllar sonra İstanbul'a geldi ve bu birikimi Osmanlı medreselerine taşıdı.",
+    "Batlamyus'un eseri Arapçaya çevrildi ve İslam dünyasının gökbilimcileri onu yeniden sınadı. Abdurrahman es-Sûfî 964'te yazdığı <em>Sabit Yıldızlar Kitabı</em>'nda her takımyıldızı çizdi, Arapların yerel yıldız adlarını Yunan figürleriyle eşleştirdi ve bugün Andromeda Gökadası dediğimiz 'küçük bulutu' ilk kez kayda geçirdi. Bugünkü yıldız adlarının çoğu bu Arapça adların Orta Çağ Latincesindeki yankısıdır: <em>Aldebaran</em> 'izleyen' (Ülker'in, yani Pleiades yıldız kümesinin ardından doğduğu için), <em>Rigel</em> 'ayak', <em>Deneb</em> 'kuyruk' demektir; <em>Betelgeuse</em> ise 'Yed el-Cevzâ' (el-Cevzâ'nın eli) adının aktarılırken bozulmuş hâlidir. 1420'lerde Timur'un torunu <strong>Uluğ Bey</strong> Semerkant'ta bir gözlemevi kurdurdu; binanın kalbinde, cilalı mermerle kaplı, yarıçapı 40 metreyi aşan dev bir ölçüm yayı (Fahri sekstantı) vardı. Ekibi bin kadar yıldızın konumunu yeniden ölçtü; 1437 tarihli <em>Zîc-i Sultânî</em>, Batlamyus'tan bu yana gözlemle baştan ölçülmüş ilk büyük yıldız kataloğudur ve 16. yüzyılda Tycho Brahe'ye kadar duyarlılıkta pek aşılamadı. Gözlemevinin son yöneticisi Ali Kuşçu, Uluğ Bey'in 1449'da öldürülmesinden yıllar sonra İstanbul'a geldi ve bu birikimi Osmanlı medreselerine taşıdı.",
     "Avrupa'da harita hem genişledi hem düzene girdi. Johann Bayer 1603'te <em>Uranometria</em>'da her takımyıldızın yıldızlarını Yunan harfleriyle adlandırdı: Betelgeuse α Orionis, Rigel β Orionis oldu (harf sırası parlaklığı her zaman izlemez; Rigel çoğu zaman daha parlaktır). Avrupa'dan görünmeyen güney gökyüzü 16. yüzyıl sonunda Hollandalı denizcilerin gözlemleriyle haritaya girdi; Nicolas-Louis de Lacaille 1750'lerde oraya, çoğu bilim aletlerinin adını taşıyan 14 yeni takımyıldız ekledi (Teleskop, Mikroskop, Pusula gibi). Haritacıdan haritacıya değişen figürler sonunda bağlandı: <strong>Uluslararası Astronomi Birliği (IAU)</strong> 1922'de Roma'da üç harfli kısaltmalarla bir liste kabul etti; Eugène Delporte'un sağ açıklık ve dik açıklık çizgileri boyunca çizdiği sınırlar 1928'de onaylanıp <strong>1930</strong>'da yayımlandı. Bugün <strong>88 takımyıldız</strong> gökyüzünü, ülkelerin haritayı paylaştığı gibi boşluksuz paylaşır: gökteki her nokta tam olarak bir takımyıldıza aittir.",
-    "Sayfanın panellerindeki öyküler Yunan anlatılarıdır; aynı yıldızların başka kültürlerde başka öyküleri vardır. Türk boylarında Kutup Yıldızı, gökyüzünün çevresinde döndüğü kazık anlamında <strong>Demir Kazık</strong> diye anılır. Efsaneler kanıt değildir ama bazen gökyüzünün gerçek düzenini kodlar. Avcı ile Akrep'in 'asla aynı anda görünmemesi' buna iyi bir örnek: ikisi gökte yaklaşık on bir saatlik sağ açıklık farkıyla neredeyse karşı karşıyadır ve Türkiye'den bakınca biri batarken öteki doğar. Ayrıntılar ise anlatıcıdan anlatıcıya değişir: yaygın anlatıya göre Cassiopeia, kendisinin ya da kızı Andromeda'nın güzelliğini deniz perileri Nereidlerle kıyaslayarak tanrıları kızdırmıştı.",
+    "Sayfadaki on altı çizim Batı geleneğinin figürleridir ve IAU sınırları değil, yalnız alışılmış çizgilerdir; aynı yıldızların başka kültürlerde başka öyküleri vardır. Türk boylarında Kutup Yıldızı, gökyüzünün çevresinde döndüğü kazık anlamında <strong>Demir Kazık</strong> diye anılır. Efsaneler kanıt değildir ama bazen gökyüzünün gerçek düzenini kodlar. Avcı ile Akrep'in 'asla aynı anda görünmemesi' buna iyi bir örnek: ikisi gökte yaklaşık on bir saatlik sağ açıklık farkıyla neredeyse karşı karşıyadır ve Türkiye'den bakınca biri batarken öteki doğar. Sayfanın 03 sekmesindeki ızgara bunu sayıyla gösterir: Ankara'da gece yarısı Avcı Aralık ve Ocak'ta yüksektedir, Akrep ise yalnız Mayıs–Temmuz arasında ufkun üstündedir.",
   ],
   core: [
     {
-      heading: "Gök küresi: dönen dev bir kubbe",
-      body: "Yıldızlar bizden çok farklı uzaklıklardadır, ama gözümüz uzaklığı göremez; hepsi aynı kubbenin iç yüzüne yapışmış gibi görünür. Gökbilimciler bu görüntüyü bir model olarak kullanır: merkezinde bizim durduğumuz hayali bir <strong>gök küresi</strong>. Dünya'nın dönme ekseni uzatılınca küreyi <strong>gök kutuplarında</strong>, ekvator düzlemi ise <strong>gök ekvatorunda</strong> keser. Dünya batıdan doğuya döndüğü için küre bize doğudan batıya dönüyormuş gibi görünür: yıldızlar doğar, en yükseğe çıkar, batar. Kutba yakın yıldızlar küçük çemberler çizer. Polaris bugün kutuptan yalnızca yaklaşık 0.6° uzaktadır; gece boyunca yarıçapı dolunay çapının biraz fazlası olan minicik bir çember çizer, bu yüzden 'kıpırdamaz'.",
-      formula: "360° ÷ 23 sa 56 dk ≈ 15.04° / saat",
+      heading: "Gök küresi: dönen kubbe, değişmeyen adres",
+      body: "Yıldızlar bizden çok farklı uzaklıklardadır, ama gözümüz uzaklığı göremez; hepsi aynı kubbenin iç yüzüne yapışmış gibi görünür. Gökbilimciler bu görüntüyü bir model olarak kullanır: merkezinde bizim durduğumuz hayali bir <strong>gök küresi</strong>. Dünya'nın dönme ekseni uzatılınca küreyi <strong>gök kutuplarında</strong>, ekvator düzlemi ise <strong>gök ekvatorunda</strong> keser. Yeryüzünde enlem ve boylam neyse gökte <strong>dik açıklık</strong> (δ) ve <strong>sağ açıklık</strong> (α) odur: δ gök ekvatorunun kaç derece kuzeyinde ya da güneyinde, α ise mart ekinoksu noktasından doğuya doğru, saat cinsinden (24 sa bir tur, 1 sa 15°). Bu adresler küreyle birlikte döner; senin ufkundaki <strong>yükseklik</strong> h ve <strong>yön</strong> (azimut) A ise her an değişir. Sayfanın 01 sekmesi dönüş hızını Vega'nın bir saatlik yolundan ölçer: 15.041°/sa. Saatin 15°/sa'inden biraz hızlıdır, çünkü küre bir turunu 24 saatte değil, bir yıldız gününde tamamlar.",
+      formula: "ω = 360° / 23 sa 56 dk 4.09 s = 15.041° / sa",
       formulaNote:
-        "Gök küresinin dönme hızı. Bir saatte gökyüzü yaklaşık 15° döner: kol boyu uzatılmış bir buçuk yumruk.",
+        "Kutup çevresindeki dönüş açısı, yıldızın iki konum vektörünün kutup eksenine dik düzleme izdüşümleri arasındaki açıdır. Ölçülen ile kuramsal değer arasındaki fark sayfada 0.000°/sa çıkar.",
     },
     {
-      heading: "Gökte adres: sağ açıklık ve dik açıklık",
-      body: "Yeryüzünde enlem ve boylam neyse gökte <strong>dik açıklık</strong> (δ) ve <strong>sağ açıklık</strong> (α) odur. Dik açıklık gök ekvatorunun kaç derece kuzeyinde (+) ya da güneyinde (−) olduğunu söyler: Polaris bugün yaklaşık +89.4°, Antares −26.4°. Sağ açıklık, mart ekinoksunda Güneş'in bulunduğu noktadan doğuya doğru ölçülür ve saat cinsinden yazılır: 24 saat bir tam tur, 1 saat 15°'dir. Bu adresler yıldızla birlikte döner; bu yüzden yıllarca neredeyse sabit kalır. Senin ufkuna göre yükseklik ise enlemine ve saate bağlıdır. İki kural çok iş görür: gök kutbunun ufuktan yüksekliği enlemine eşittir ve dik açıklığı 90° − enlem değerinden büyük olan yıldız hiç batmaz.",
-      formula: "h<sub>max</sub> = 90° − |φ − δ| · kutup çevresi: δ > 90° − φ",
-      formulaNote:
-        "φ bulunduğun enlem, δ yıldızın dik açıklığı, h<sub>max</sub> yıldızın meridyenden geçerken ulaştığı en büyük yükseklik. Ankara'da (φ = 39.9°) Antares en fazla 23.7° yükselir.",
-    },
-    {
-      heading: "Kadir: ters ve çarpımsal bir parlaklık ölçeği",
-      body: "Batlamyus'un altı sınıfı bir sıralamaydı; bu yüzden ölçek terstir: küçük sayı daha parlak demektir. 1856'da Norman Pogson ölçeği sayıya bağladı: 1. kadir bir yıldız, 6. kadir bir yıldızdan tam <strong>100 kat</strong> parlaktır. Beş adım 100 kat ettiğine göre tek adım 100'ün beşinci kökü, yaklaşık 2.512 kattır. Ölçek sıfırın altına da uzanır: Sirius −1.46, Venüs −4'ün de altına iner. Karanlık bir kırda göz yaklaşık 6. kadire kadar seçer, ışıklı bir şehirde çoğu zaman 3–4'te kalır. Bu sayı <strong>görünür kadirdir</strong>: yıldızın gerçek ışıma gücünü değil, ne kadar uzakta olduğuyla birlikte bize ulaşan ışığı ölçer.",
+      heading: "Kutup yüksekliği = enlem ve iki geçişin ortası",
+      body: "Meridyen düzleminde (kuzey–başucu–güney) bir açı θ tanımla: yükselen kutbun altındaki ufuk noktasından başlar, başucunu aşarak öbür ufka gider. Kuzey gök kutbu θ = φ'dedir; bu, 'kutup yüksekliği enleme eşittir' kuralının ta kendisidir. Kutba uzaklığı p = 90° − δ olan bir yıldız, kutbun çevresinde yarıçapı p olan bir çember çizer; meridyeni iki kez keser: <strong>üst geçişte</strong> θ = φ + p, <strong>alt geçişte</strong> θ = φ − p. İkisinin ortası δ'dan bağımsız olarak φ'dir. Kutup Yıldızı'nda iki geçiş de kuzey tarafında kalır, θ doğrudan yüksekliktir: Ankara'da 40.67° ve 39.19°, ortası 39.93°. Akyıldız'da (Sirius) üst geçiş güneyde 33.35° (θ = 180° − 33.35° = 146.65°), alt geçiş kuzeyde ufkun 66.79° altındadır; orta nokta yine 39.93°. Yüksekliklerin düz ortalaması ise (33.35° − 66.79°)/2 = −16.72° verir: bu yıldızın dik açıklığıdır, enlem değil.",
       formula:
-        "F<sub>1</sub> / F<sub>2</sub> = 100<sup>(m<sub>2</sub> − m<sub>1</sub>)/5</sup> ≈ 2.512<sup>(m<sub>2</sub> − m<sub>1</sub>)</sup>",
+        "θ<sub>üst</sub> = φ + (90° − δ),  θ<sub>alt</sub> = φ − (90° − δ)  ⇒  (θ<sub>üst</sub> + θ<sub>alt</sub>) / 2 = φ",
       formulaNote:
-        "F bize ulaşan ışık akısı, m görünür kadir. Rigel (0.13) ile Polaris (1.98): 100<sup>1.85/5</sup> ≈ 5.5 kat.",
+        "Alt geçiş ufkun üstündeyse (θ<sub>alt</sub> > 0) yıldız hiç batmaz: δ > 90° − φ. Ankara için sınır 50.07°. Gerçek gözlemde bu yöntem yalnız hiç batmayan bir yıldızla, iki geçişi de görerek uygulanabilir.",
     },
     {
-      heading: "Neden kışın Avcı, yazın Akrep?",
-      body: "Dünya kendi çevresinde yıldızlara göre 23 saat 56 dakika 4 saniyede döner; buna <strong>yıldız günü</strong> denir. Güneş günü ise 24 saattir, çünkü Dünya bu sırada yörüngesinde ilerler ve Güneş'i yeniden aynı yerde görmek için biraz daha dönmesi gerekir. Sonuç: her yıldız her gece yaklaşık 4 dakika erken doğar, bir ayda 2 saat, bir yılda bir tam tur. Gece yarısı Güneş'in tam ters yönüne bakarız. Aralık ortasında Güneş Yay–Yılancı yönündedir, karşısında Avcı vardır; Akrep ise mayıs sonu–haziran başında gece yarısı en yüksekte durur. Haziranda Avcı kaybolmaz, yalnızca Güneş'le aynı yöne düşer ve gündüz gökyüzünde kalır.",
-      formula: "24 sa − 23 sa 56 dk 4 s ≈ 3 dk 56 s / gün → 30 günde ≈ 2 saat",
+      heading: "Yıldız günü: bir yılda bir fazla tur",
+      body: "Dünya Güneş'in çevresinde günde yaklaşık 360°/365.24 ≈ 0.986° ilerler. Güneş'i ertesi gün yine meridyende görmek için Dünya'nın yıldızlara göre bir turdan biraz fazla dönmesi gerekir. Meeus'ün yıldız zamanı formülündeki katsayı bunu sayıya döker: bir Güneş gününde (86 400 s) Greenwich yıldız zamanı 360.98564736629° ilerler. Öyleyse yıldızlara göre tam bir tur, yani <strong>yıldız günü</strong>, 86 164.0905 s = 23 sa 56 dk 4.09 s sürer. Aradaki 3 dk 55.91 s her gece birikir: aynı yıldız 30 günde yaklaşık 2 saat, bir yılda tam bir gün erken doğar. Yılda 365.24 Güneş günü, 366.24 yıldız günü vardır. Gece yarısı Güneş'in karşısına bakarız; bu yüzden bir takımyıldız, Güneş'in tam karşısında olduğu tarihlerde gece yarısı en yüksektedir: kuzey yarıkürenin kışında Avcı, yazında Akrep. Tarihler aynı kalır ama güney yarıkürede mevsim adları yer değiştirir: Sidney'de Avcı bir yaz takımyıldızıdır.",
+      formula: "T<sub>yıldız</sub> = 86 400 s × 360° / 360.98564736629° = 86 164.0905 s",
       formulaNote:
-        "Bu gece saat 22.00'de doğan yıldız, bir ay sonra 20.00 civarında doğar.",
+        "Günlük kayma 86 400 s − 86 164.0905 s = 235.91 s = 3 dk 55.91 s. Sayfa ardışık meridyen geçişlerini taramayla bulur ve aynı değeri 0.000 s farkla ölçer.",
     },
     {
-      heading: "Presesyon: kutup yıldızı nöbet değiştirir",
-      body: "Dünya'nın ekseni, yavaşlayan bir topacın ekseni gibi uzayda yavaşça bir koni çizer: Güneş'in ve Ay'ın, Dünya'nın ekvator şişkinliğini çekmesinin sonucu. Bir tur yaklaşık <strong>25 800 yıl</strong> sürer. Hipparkhos MÖ 2. yüzyılda kendi ölçümlerini daha eski kayıtlarla karşılaştırarak bu kaymayı fark etti. O günden bu yana ekinoks noktası yaklaşık 30° kaydı: bir burç genişliği. Gök kutbu da yer değiştirir: yaklaşık 5000 yıl önce kutba en yakın parlak yıldız Ejderha'daki Thuban'dı; Polaris kutba en çok 2100 civarında, yarım dereceden az yaklaşacak; yaklaşık 12 000 yıl sonra kutbun birkaç derece yakınında Vega duracak. Gökteki koordinat ağı da bu yüzden kayar: IAU sınırları 1875 yılının ağına göre çizildi ve bugünkü haritalarda sağ açıklık ile dik açıklık çizgilerine artık tam paralel değildir.",
-      formula: "360° ÷ 25 800 yıl ≈ 50″ / yıl ≈ 1° / 72 yıl",
+      heading: "Ekvatordan ufka: küresel trigonometri",
+      body: "Bir yıldızın gökteki adresinden ufuktaki yerine dört adımda gidilir. Yerel saatten evrensel zamanı (UT), ondan Jülyen gününü ve Greenwich yıldız zamanını θ₀ bulursun; doğu boylamını ekleyince <strong>yerel yıldız zamanı</strong> (YZ) çıkar. YZ, o an meridyenden geçen sağ açıklıktır. Yıldızın meridyenden bu yana döndüğü açı <strong>saat açısıdır</strong>: H = YZ − α. Kutup, başucu ve yıldızın oluşturduğu küresel üçgene kosinüs kuralını uygulayınca yükseklik gelir. Doğuşta ve batışta h = 0 koy: cos H₀ = −tan φ tan δ. Yıldız ufkun üstünde 2H₀ kadar (yıldız saatiyle) kalır. cos H₀ < −1 olursa denklemin çözümü yoktur ve yıldız hiç batmaz; bu koşul tan δ > tan(90° − φ), yani yine δ > 90° − φ demektir. cos H₀ > 1 ise yıldız hiç doğmaz.",
+      formula:
+        "sin h = sin φ sin δ + cos φ cos δ cos H<br>A = atan2(−cos δ sin H, sin δ cos φ − cos δ cos H sin φ)<br>cos H₀ = −tan φ tan δ",
       formulaNote:
-        "″ yay saniyesi (1° = 3600″). Bir insan ömründe kayma yaklaşık bir derecedir; çıplak gözle fark edilmez, ama yüzyıllık kayıtlarda açıkça görünür.",
+        "φ enlem, H saat açısı, A kuzeyden doğuya ölçülen yön. Ekvatorda (φ = 0) cos H₀ = 0 olur: her yıldız tam yarım yıldız günü ufkun üstündedir. Sayfa aynı doğuş anını bir de 2 dakikalık adımlarla tarayıp ikiye bölerek bulur; iki yol aynı saniyeyi verir.",
+    },
+    {
+      heading: "Modelin sınırları: presesyon ve kırılma",
+      body: "Dünya'nın ekseni, yavaşlayan bir topacın ekseni gibi uzayda yavaşça bir koni çizer: Güneş'in ve Ay'ın, Dünya'nın ekvator şişkinliğini çekmesinin sonucu. Bir tur yaklaşık <strong>25 800 yıl</strong> sürer. Hipparkhos MÖ 2. yüzyılda kendi ölçümlerini daha eski kayıtlarla karşılaştırarak bu kaymayı fark etti. Yaklaşık 5000 yıl önce kutba en yakın parlak yıldız Ejderha'daki Thuban'dı; Polaris kutba en çok 2100 civarında, yarım dereceden az yaklaşacak; yaklaşık 12 000 yıl sonra kutbun birkaç derece yakınında Vega duracak. IAU sınırları 1875 yılının ağına göre çizildiği için bugünkü haritalarda sağ açıklık ve dik açıklık çizgilerine artık tam paralel değildir. Sayfa bütün konumları <strong>J2000.0</strong> ağında tutar ve presesyonu yok sayar: hata yıldıza göre değişir, en çok 2026'da yaklaşık 0.36°, 1900 ya da 2100'de yaklaşık 1.4°'dir. Atmosferik <strong>kırılmayı</strong> da yok sayar: gerçekte ufka yakın bir yıldız yaklaşık 0.5° yukarıda görünür, bu yüzden doğuş birkaç dakika erken, batış birkaç dakika geç olur. Yaz saati de kendiliğinden uygulanmaz; saat dilimini sen seçersin.",
+      formula: "360° ÷ 25 800 yıl ≈ 50″ / yıl;  26 yıl × 50″ ≈ 1300″ ≈ 0.36°",
+      formulaNote:
+        "″ yay saniyesi (1° = 3600″). Bir insan ömründe kayma yaklaşık bir derecedir; çıplak gözle fark edilmez, ama yüzyıllık kayıtlarda ve doğuş saatlerinin dakikalarında görünür.",
     },
   ],
   lab: {
     intro:
-      "Sayfa, Ankara'dan (39.9° K) başını kaldırınca görülen gökyüzünü gerçek yıldız koordinatlarından hesaplayıp yuvarlak bir haritaya çizer. Merkez <strong>başucudur</strong> (başının tam üstündeki nokta), dış çember ufuktur; bir yıldızın merkezden uzaklığı 90° eksi yüksekliğiyle orantılıdır. Haritayı başının üstüne kaldırdığını düşün: Kuzey yukarıda, Güney aşağıda, Doğu solda, Batı sağda. Dört <strong>mevsim düğmesi</strong> gökyüzünü mevsimin ortasındaki ayın 15'inde saat 22.00'ye getirir; saat ve enlem değiştirilemez. Düz çizgi 'yüksekte' (bütün yıldızlar ufkun en az 10° üstünde), kesikli soluk çizgi 'alçakta' demektir; ufkun altında kalan takımyıldızlar sol alt köşede listelenir, kutup çevresindekilerin etiketinde 'her mevsim' yazar. Yıldız boyutu yalnızca kadire bağlıdır. Haritayı <strong>sürükleyerek</strong> gezdirebilirsin; çizili bir takımyıldızın yıldızına <strong>tıklayınca</strong> panelde efsane, o akşamki durum ve adı olan yıldızların kadirleri çıkar. Vega, Sirius gibi etiketli parlak yıldızlar yalnızca yön bulmak içindir; soluk geniş bant Samanyolu'nun orta çizgisidir, çok soluk arka plan noktaları ise süstür.",
+      "Sayfa, Yale Parlak Yıldız Kataloğu'ndan (5. baskı) V ≤ 4.5 kadir olan 904 yıldızın J2000 konumlarıyla dört sekmeli bir gök koordinatları laboratuvarıdır. <strong>01 · Gökyüzü haritası</strong> seçtiğin yer, tarih ve saatte başucu merkezli gökyüzünü çizer (kuzey yukarıda, doğu solda) ve yıldız zamanını, gök kutbunun yüksekliğini ve gökyüzünün dönüş hızını ölçer. <strong>02 · Kutup Yıldızı ve enlem</strong> bir yıldızın iki meridyen geçişinden enlemi bulur ve hiç batmayan ile hiç doğmayan yıldızları hem dönüşümle hem formülle sayar. <strong>03 · Yıldız zamanı ve mevsimler</strong> ardışık günlerin doğuş, geçiş ve batış saatlerini taramayla bulur. <strong>04 · Koordinat dönüşümü</strong> ekvator koordinatlarından ufka giden hesabı adım adım yazar ve doğuşu formülle ve taramayla iki kez bulur. Yıldız zamanı Meeus'ün formülüdür. Presesyon, kırılma, yaz saati, Ay ve gezegenler modelde yoktur; Güneş yalnız gökyüzünün aydınlık mı karanlık mı olduğunu göstermek için yaklaşık formülle hesaplanır. Yıldız adları IAU adlarıdır; Türkçe yalnız Kutup Yıldızı (Polaris) ve Akyıldız (Sirius) kullanılır.",
     experiments: [
       {
-        title: "Mevsim düğmesi neyi değiştiriyor?",
+        title: "Kutup Yıldızı enlemini söyler (02)",
         predict:
-          "Kış'tan İlkbahar'a, sonra Yaz'a geçince Avcı ne yapar: yerinde mi söner, gökte mi kayar, yoksa büsbütün mü kaybolur? Kutup Yıldızı ne yapar?",
-        do: "<strong>❄️ Kış</strong>'ı seç ve Avcı'nın yerini not et. Sonra sırasıyla <strong>🌸 İlkbahar</strong>, <strong>☀️ Yaz</strong> ve <strong>🍂 Sonbahar</strong>'a bas. Her seferinde Avcı'yı, Aslan'ı ve Kutup Yıldızı'nı izle, sol alttaki 'Ufkun altında' listesini oku.",
+          "İstanbul (41.01° K) Ankara'dan (39.93° K) yalnız bir derece kuzeyde. Kutup Yıldızı orada ne kadar yükselir? Tromsø'da (69.68° K) hiç batmayan yıldız sayısı ikiye mi, üçe mi katlanır? Ekvatorda ve Sidney'de (33.87° G) ne olur?",
+        do: "<strong>02 · Kutup Yıldızı ve enlem</strong> sekmesinde Yıldız menüsünü Kutup Yıldızı'nda bırak. Hazır düğmelere sırayla bas: Ankara, İstanbul, Tromsø, Ekvator, Sidney. Her seferinde gök kutbunun yüksekliğini, üst ve alt geçişi, hiç batmayan ve hiç doğmayan yıldız sayılarını ve göğün hiç görülmeyen payını not et.",
         observe:
-          "Kış'ta Avcı güneyde, başucunun altında 'yüksekte' durur (yıldızları 39° ile 56° arasında). İlkbahar'da batı ufkuna, yani sağ kenara yaslanır, çizgileri kesiklidir: 'alçakta'. Yaz'da ve Sonbahar'da haritada yoktur, listede yazar. Aslan aynı yolu bir mevsim geriden izler: Kış'ta doğuda alçakta, İlkbahar'da tepede. Kutup Yıldızı ise dört mevsimde de neredeyse aynı noktada, kuzeyde yaklaşık 40° yükseklikte durur.",
+          "Gök kutbunun yüksekliği 39.93° → 41.01° → 69.68° → 0.00° → 33.87°, fark her seferinde 0.00°. Kutup Yıldızı'nın üst/alt geçişi 40.67°/39.19° → 41.75°/40.27° → 70.42°/68.94° → 0.74°/−0.74° → −33.13°/−34.61°. Hiç batmayan yıldız 82 → 87 → 264 → 0 → 104, hiç doğmayan 138 → 147 → 358 → 0 → 57; formül sütunu her seferinde aynı sayıyı verir. Hiç görülmeyen pay % 11.7 → % 12.3 → % 32.6 → % 0.0 → % 8.5. Sidney'de takımyıldız tablosunda Güney Haçı 'hep görünür', Küçük Ayı ve Kraliçe 'hiç görünmez' olur.",
         explain:
-          "Yıldızlar sönmez; bütün gök Kutup Yıldızı'nın çevresinde döner. Yıldız günü 23 sa 56 dk olduğu için aynı saatte bakınca gökyüzü her ay yaklaşık 2 saat, üç ayda 6 saat, yani 90° ilerlemiş olur. Haziranda Avcı yok olmaz: Güneş'le aynı yöndedir ve gündüz gökyüzünde kalır.",
+          "Gök kutbu ufkun φ kadar üstündedir; Kutup Yıldızı kutba J2000 kataloğunda 0.74° uzak olduğu için bir yıldız gününde 1.47° oynar ve iki geçişin ortası enlemi verir. Hiç görülmeyen bölge, karşı kutbun çevresinde yarıçapı |φ| olan bir küre başlığıdır; göğün (1 − cos φ)/2'si kadardır ve Ankara'dan Tromsø'ya 2.8 kat büyür. Sayımlar kabaca aynı oranda artar (138'den 358'e 2.6 kat) ama tam orantılı değildir, çünkü parlak yıldızlar göğe düzgün dağılmamıştır. Sidney'de iki başlık eşit büyüklüktedir, yine de güney kutbunun çevresinde 104, kuzey kutbunun çevresinde 57 yıldız vardır.",
       },
       {
-        title: "Hiç batmayanlar: Kepçe, Küçük Ayı ve Kraliçe",
+        title: "Gökyüzü saatten hızlı döner (01)",
         predict:
-          "Ankara'dan (39.9° K) bakınca Kraliçe ile Büyük Kepçe yılın bir akşamında ufkun altında kalır mı? Kural: dik açıklığı 90° − enlem değerinden büyük olan yıldız hiç batmaz.",
-        do: "Dört mevsim düğmesine sırayla bas. Her seferinde Kraliçe'nin, Büyük Ayı'nın ve Küçük Ayı'nın etiketine bak; birine tıklayıp paneldeki görünürlük satırını oku.",
+          "Saat bir saat ilerlerse yerel yıldız zamanı da tam bir saat mi ilerler? Yarın akşam aynı saatte Betelgeuse aynı yerde mi olur?",
+        do: "<strong>01 · Gökyüzü haritası</strong> sekmesinde Sıfırla'ya bas (Ankara, 21 Aralık 2026, 22:00, UTC+3). Yerel yıldız zamanını ve Seçili yıldız kutusunu oku. <strong>+1 saat</strong>'e bas, yeniden oku; <strong>−1 saat</strong> ile geri dön. Sonra Tarih'i 22 Aralık 2026 yap; ardından Yerel saat kaydırıcısını 21:56'ya çek. İstersen <strong>İzler (son 2 saat)</strong> kutusunu açıp Oynat'a bas.",
         observe:
-          "Üçünün etiketinde de her mevsim 'her mevsim' yazar; hiçbiri 'Ufkun altında' listesine girmez. Kraliçe İlkbahar'da kuzey ufkunun üstünde alçaktadır (9° ile 20° arası, kesikli çizgi), Sonbahar'da başucuna yakındır. Büyük Ayı tersini yapar: İlkbahar'da tepede, Sonbahar'da kuzey ufkunun hemen üstündedir (5° ile 12° arası).",
+          "Başta YZ 03:12:50, Betelgeuse 41.3° · 120.8° (DGD), ufkun üstünde 430 / 904 yıldız. +1 saatte saat 23:00, YZ 04:13:00, Betelgeuse 50.3° · 138.0° (GD). 22 Aralık 22:00'de YZ 03:16:47 ve Betelgeuse 42.0° · 121.8°; 21:56'da YZ 03:12:46 ve Betelgeuse yine 41.3° · 120.8°. Dönüş hızı kutusu her durumda 15.041°/sa, kuram 15.041°/sa, fark 0.000°/sa. İzler, gök kutbunun çevresinde iç içe yaylar çizer.",
         explain:
-          "Ankara'da sınır 90° − 39.9° = 50.1°. Kraliçe'nin beş yıldızı +56.5° ile +63.7° arasındadır: hiçbiri batmaz. Kepçe'de yalnızca sapın ucundaki Alkaid (+49.3°) sınırın altındadır ve kuzey ufkunun 0.8° kadar altına iner. Kraliçe ile Kepçe kutbun iki karşı yanında durduğu için biri yükselirken öteki alçalır.",
+          "Bir saatlik Güneş zamanında yıldız zamanı 1 sa 0 dk 10 s ilerler; bir günde fark 3 dk 56 s'ye birikir. Bu yüzden gökyüzü yarın aynı görünümü dört dakika erken alır. Yıldızların birbirine göre yeri değişmez: değişen yalnız ufka göre konumdur, o da yalnız YZ'ye bağlıdır.",
       },
       {
-        title: "Boyut kadirdir, mevsim değil",
+        title: "Her gün 3 dk 56 s erken ve gece yarısı gökyüzü (03)",
         predict:
-          "Sayfaya göre Dubhe 1.79, Megrez 3.31 kadir. Dubhe, Megrez'den kaç kat parlaktır: 1.5 mi, 2 mi, 4 mü? Mevsim değişince yıldızların boyutu da değişir mi?",
-        do: "<strong>🌸 İlkbahar</strong>'da Büyük Ayı'ya tıkla ve paneldeki kadirleri oku. Kâsenin dış ucundaki Dubhe ile kâsenin sapa bağlandığı köşedeki Megrez'in boyutunu karşılaştır. Sonra <strong>🍂 Sonbahar</strong>'a geç ve aynı iki yıldıza yeniden bak.",
+          "Akyıldız (Sirius) bir ay boyunca her gece aynı saatte mi doğar? Güneş'in tam karşısına geldiği gün, Ankara'da saat 00:00'da en yüksekte olduğu günle aynı mıdır?",
+        do: "<strong>03 · Yıldız zamanı ve mevsimler</strong> sekmesini varsayılanlarla aç (Akyıldız, Ankara, 1 Aralık 2026, 7 gün). Tabloyu ve ölçüm kutularını oku; Gün sayısını 30'a çıkar. Sonra Gözlem yeri menüsünden Sidney'i seç; gece yarısı kutularını ve ızgaranın Mevsim sütununu karşılaştır. Son olarak yeri yeniden Ankara yap, en altta Ay = Temmuz seçip 'Seçili ayın gece yarısı gökyüzünü haritada aç' düğmesine bas.",
         observe:
-          "Megrez kepçenin en küçük noktasıdır. Sayfa yarıçapı r = 4.4 − 0.8·m piksel ile çizer (en az 0.9): Dubhe yaklaşık 3.0, Megrez 1.8 piksel; alan oranı yaklaşık 2.9. Sonbahar'da kepçe kuzey ufkuna iner ve çizgileri kesikli olur, ama yıldızların boyutu değişmez.",
+          "Doğuşlar 21:53*, 21:49*, 21:45*… (yıldız işareti: doğuş bir önceki akşama düşer), geçişler 02:54, 02:50, 02:46…, son sütun her gün −3 dk 55.9 s. Geçişler arası 23 sa 56 dk 4.09 s, günlük erken doğma 3 dk 55.91 s, 30 günde 1 sa 57 dk 57 s. Saat 00.00'da en yüksekte 14 Ocak 2027; Güneş'in karşısında 31 Aralık 2026, fark +13.5 gün. Sidney'de iki tarih de 31 Aralık 2026, fark 0.0 gün; ızgarada Avcı 'yaz', Akrep 'kış' olur. 15 Temmuz 2026 00:00 haritasında Avcı'nın bütün yıldızları ufkun altındadır; Akrep ise güney-güneybatıda alçakta, bütün yıldızlarıyla ufkun üstündedir (Antares yaklaşık 17°).",
         explain:
-          "1.52 kadirlik fark 100<sup>1.52/5</sup> ≈ 4.1 kat ışık demektir; sayfanın boyut ölçeği farkı küçültür, kadir ölçeği ise çarpımsaldır. Parlaklık yıldızın özelliğidir; mevsim yalnızca o saatte ufkun ne kadar üstünde olduğunu değiştirir. Gerçekte ufka yakın yıldızlar biraz sönük görünür, çünkü ışıkları havada daha uzun yol alır; sayfa bunu çizmez.",
+          "Durum satırı farkı iki etkene böler. Saat dilimi: Ankara UTC+3 kullanır, yani saatini 45° D meridyenine göre ayarlar; 32.85° D'de saat 00.00, ortalama Güneş gece yarısından 48 dk 36 s önce gelir ve günde 3 dk 56 s kaymayla bu 12.4 güne karşılık gelir. Zaman denklemi (Güneş'in yıl içinde düzensiz hızı) o tarihte −3.1 dk ekler; ikisi birlikte +13.2 gün öngörür, ölçülen +13.5 gün. Sidney'in boylamı (151.21° D) UTC+10'un meridyenine (150° D) çok yakın olduğu için iki tarih çakışır. Ayrıca 03 ızgarası Avcı'nın Ankara'da gece yarısı en yüksek tarihini 27 Aralık, Akrep'inkini 16 Haziran verir.",
       },
       {
-        title: "Göstergeç yıldızlar Kutup Yıldızı'nı buluyor mu?",
+        title: "Formülle tarama aynı saniyeyi bulur mu? (04)",
         predict:
-          "Gökte kâsenin dış kenarındaki Merak'tan Dubhe'ye giden çizgi, bu aralığın yaklaşık 5 katı uzatılınca Kutup Yıldızı'na varır. Haritada da öyle mi? Mevsim değişince oran bozulur mu?",
-        do: "Her mevsimde ekrana bir cetvel ya da kâğıt kenarı tut. Önce Merak–Dubhe aralığını, sonra Dubhe'den Kutup Yıldızı'na olan uzaklığı ölç. Dubhe'den çıkan sarı kesikli yay, aynı doğrultunun gökteki uzantısıdır; yanında '≈ 5 × (Merak–Dubhe)' yazar.",
+          "Betelgeuse'ün Ankara'daki doğuşunu kapalı formül (cos H₀) ve 2 dakikalık adımlarla tarama ayrı ayrı bulursa kaç saniye fark olur? Kutup Yıldızı ve Acrux için doğuş formülü ne söyler? Tromsø'dan Akyıldız ne kadar yükselir?",
+        do: "<strong>04 · Koordinat dönüşümü</strong> sekmesini varsayılanlarla aç (Betelgeuse, Ankara, 21 Aralık 2026, 22:00). Adım listesini ve doğuş, geçiş, batış kutularını oku. Sonra Yıldız menüsünde sırayla Kutup Yıldızı'nı ve Acrux'u seç. Son olarak Yıldız = Akyıldız (Sirius), Gözlem yeri = Tromsø (Norveç) yap.",
         observe:
-          "Oran dört mevsimde de 5.2 ile 5.4 arasında çıkar. İlkbahar, Yaz ve Sonbahar'da cetvelin çizgisi Polaris'in yaklaşık yarım Merak–Dubhe aralığı yakınından geçer; Kış'ta yay haritada daha çok kıvrıldığı için cetvel bir aralıktan biraz fazla ıskalar. Sarı yay ise her mevsim Polaris'in hemen yanında biter.",
+          "Betelgeuse şu an 41.320° yükseklikte, yönü 120.798° (DGD), H = −40.583°. Doğuş 18:17:57, geçiş 00:41:53, batış 07:05:49; formül ile tarama farkı üçünde de 0.00 s. En büyük yükseklik 57.477° (geçişte ölçülen 57.477°). Kutup Yıldızı'nda cos H₀ = −65.174 < −1: doğuş ve batış 'tanımsız (batmaz)', ölçüm 'ufku kesmez', yükseklik 39.19° ile 40.67° arasında. Acrux'ta cos H₀ = 1.650 > 1: 'hiç doğmaz', en yüksekte bile ufkun 13.03° altında. Tromsø'da Akyıldız şu an ufkun 0.2° altında; cos H₀ = 0.81100, doğuş 22:04:28, batış 02:50:08, en büyük yükseklik yalnız 3.604°.",
         explain:
-          "Gökte Merak–Dubhe 5.4°, Dubhe–Polaris 28.7°: oran 5.3. Polaris bu doğrultunun yaklaşık 1.9° yanında kalır; yöntem yaklaşıktır ama gökte her mevsim çalışır. Küre düz kâğıda bozulmadan çizilemez: bu harita başucundan uzaklığı doğru tutar, ufka yakın yerleri yanlara gerer. Bu yüzden gökteki büyük çemberler haritada hafifçe kıvrılır.",
+          "Kapalı biçim ile sayısal kök arama aynı modelin iki ayrı çözümüdür; uyuşmaları hesabın doğru kurulduğunu gösterir, gerçek gökyüzünü değil. Gerçekte kırılma Betelgeuse'ü birkaç dakika erken doğurur. Tromsø'da Akyıldız (δ = −16.72°) en fazla 90° − (69.68° + 16.72°) = 3.60° yükselir ve yalnız 4 sa 46 dk kadar ufkun üstünde kalır; bu kadar alçak bir yıldız için kırılma ve ufuktaki engeller sonucu belirgin biçimde değiştirir.",
       },
     ],
   },
@@ -110,61 +111,51 @@ window.ACELYA_DIGEST["takimyildiz-haritasi"] = {
       body: "Avcı'nın omzundaki kırmızı süperdev Betelgeuse genellikle 0.5 kadir civarında parlar. 2019 sonunda sönmeye başladı ve Şubat 2020'de yaklaşık +1.6 kadire indi: 100<sup>1.1/5</sup> ≈ 2.75, yani ışığının neredeyse üçte ikisini kaybetti. 'Süpernova mı geliyor?' diye konuşuldu. Hubble ve ESO'nun Çok Büyük Teleskop'u ile yapılan gözlemler en olası açıklamayı verdi: yıldızın dışarı püskürttüğü gaz soğuyup toza dönüştü ve yıldızın önüne bir perde çekti. Birkaç ay içinde parlaklık geri döndü.",
     },
     {
-      title: "Güneş'in on üçüncü durağı",
-      body: "IAU'nun 1930 sınırlarına göre Güneş'in yıllık yolu (ekliptik) on iki burç takımyıldızının yanı sıra Yılancı'dan da geçer. Güneş Akrep'te yalnızca bir hafta kadar kalır; kasımın son günlerinden aralık ortasına kadar, yaklaşık 18 gün boyunca Yılancı'dadır. Üstelik presesyon yüzünden burçlar yaklaşık 2000 yıl önceki gökyüzüne göre ayarlıdır: doğum gününde Güneş, çoğu zaman takvimdeki burcun bir öncekinde durur.",
+      title: "Bir yılda bir fazla dönüş",
+      body: "Takvim yılı 365.24 gündür, ama Dünya bu sürede yıldızlara göre 366.24 kez döner. O fazladan tur, gözümüzün önünde yavaş yavaş harcanır: her gece 3 dk 56 s, her ay yaklaşık 2 saat, bir yılda tam bir gün. Ankara'da saat 22:00'de Betelgeuse 21 Aralık'ta doğu-güneydoğuda 41° yüksekliktedir; altı ay sonra aynı saatte Güneş'le aynı yöne düşmüş, ufkun altındadır.",
     },
   ],
   worked: {
-    title: "Ankara'dan bakınca: Kutup Yıldızı, hiç batmayanlar ve alçak Akrep",
+    title: "Betelgeuse Ankara'da: saatten yüksekliğe ve doğuşa",
     prompt:
-      "Ankara 39.9° kuzey enlemindedir. (a) Kutup Yıldızı ufkun ne kadar üstünde görünür? (b) Kraliçe'nin Schedar'ı (δ ≈ +56.5°) ve Kepçe sapının ucundaki Alkaid (δ ≈ +49.3°) hiç batar mı? (c) Akrep'in kalbi Antares (δ ≈ −26.4°) en fazla ne kadar yükselir?",
+      "Ankara (φ = 39.93° K, λ = 32.85° D, UTC+3), 21 Aralık 2026, yerel saat 22:00. Betelgeuse'ün J2000 konumu α = 05:55:10.3 = 88.7930°, δ = +7.4069°. (a) Yükseklik ve yön nedir? (b) Doğuş, geçiş ve batış ne zamandır, yıldız ufkun üstünde ne kadar kalır? Presesyon ve kırılmayı yok say. Sayfada 04 sekmesinin varsayılan durumu tam olarak budur.",
     steps: [
-      "Gök kutbunun ufuktan yüksekliği enleme eşittir: Kuzey Kutbu'nda (90°) tam tepede, ekvatorda (0°) ufuktadır. Polaris kutuptan yalnızca 0.6° uzakta olduğu için Ankara'daki yüksekliği 39.9° ± 0.6°: bir yıldız günü (23 sa 56 dk) boyunca 39.3° ile 40.5° arasında gidip gelir. Kol boyu uzatılmış bir yumruk yaklaşık 10° kapladığından bu dört yumruk eder.",
-      "Bir yıldız gök kutbunun çevresinde yarıçapı (90° − δ) olan bir çember çizer; en alçak noktası h<sub>min</sub> = φ − (90° − δ) olur. Ankara için hiç batmama sınırı δ > 90° − 39.9° = 50.1°.",
-      "Schedar: h<sub>min</sub> = 39.9° − (90° − 56.5°) = 39.9° − 33.5° = +6.4°. Hiç batmaz. Alkaid: h<sub>min</sub> = 39.9° − 40.7° = −0.8°; kısa bir süre ufkun hemen altına iner. İstanbul'da (41.0°) aynı hesap +0.3° verir: ufku sıyırır. Atmosferdeki kırılma ufka yakın yıldızları yaklaşık yarım derece kaldırdığı için bu kadar küçük farklar pratikte bulanıklaşır.",
-      "Antares: h<sub>max</sub> = 90° − |φ − δ| = 90° − (39.9° + 26.4°) = 23.7°. Akrep'in iğnesindeki Shaula (δ ≈ −37.1°) için 90° − 77.0° = 13.0°. Akrep'in kuyruğunu görmek için güney ufkunun açık olması gerekir.",
-      "Sınama: Antalya'da (36.9°) aynı yöntem Polaris için 36.9° verir; Antares 26.7°'ye çıkar. Güneye indikçe Kutup Yıldızı alçalır, güney yıldızları yükselir. Dik açıklıklar sayfanın da kullandığı 2000 yılı koordinatlarıdır; presesyon o günden bu yana onları onda bir derece mertebesinde kaydırdı. Polaris için bugünkü 0.6° kullanıldı (2000'de 0.74°'ydi).",
+      "Zaman: UT = 22:00 − 3 sa = 19:00. Jülyen günü JD = 2461396.29167; J2000'den beri d = JD − 2451545.0 = 9851.29167 gün, T = d / 36525 = 0.26971367 yüzyıl.",
+      "Yıldız zamanı: θ₀ = 280.46061837° + 360.98564736629° × 9851.29167 + 0.000387933 T² − T³/38710000 = 3556455.3603°. 360°'nin katlarını atınca 15.3603° = 01:01:26.48. Doğu boylamını ekle: YZ = 15.3603° + 32.85° = 48.2103° = 03:12:50.48. Saat açısı H = YZ − α = 48.2103° − 88.7930° = −40.5826° (−2.706 sa): yıldız meridyene henüz gelmedi, doğu tarafında.",
+      "Yükseklik: sin h = sin 39.93° sin 7.4069° + cos 39.93° cos 7.4069° cos(−40.5826°) = 0.08274 + 0.57752 = 0.66027, h = 41.320°. Yön: A = atan2(−cos δ sin H, sin δ cos φ − cos δ cos H sin φ) = atan2(0.64512, −0.38454) = 120.798°; kuzeyden doğuya ölçüldüğü için doğu-güneydoğu (DGD).",
+      "Doğuş ve batış: cos H₀ = −tan 39.93° tan 7.4069° = −0.10881, H₀ = 96.247°. Bu açı yıldız zamanıyla 6.4165 sa'tir; Güneş saatine çevirmek için 360/360.9856 ile çarp: 6 sa 23 dk 56 s. Geçiş (H = 0) 22:00'den 40.5826°/15.041°/sa ≈ 2.698 sa sonra, 00:41:53'te (ertesi gün). Doğuş = geçiş − H₀ = 18:17:57, batış = geçiş + H₀ = 07:05:49 (ertesi gün).",
+      "Sınama: ufkun üstünde 2 × 6 sa 23 dk 56 s = 12 sa 47 dk 52 s; yıldız ekvatorun kuzeyinde olduğu için yarım günden uzun. En büyük yükseklik 90° − |39.93° − 7.41°| = 57.477°, alt geçiş |39.93° + 7.41°| − 90° = −42.663°. Sayfa aynı doğuşu 2 dakikalık taramayla bulur; fark 0.00 s.",
     ],
     result:
-      "Ankara'da Kutup Yıldızı yaklaşık 40° yükseklikte durur; Kraliçe hiç batmaz, Alkaid ufku kıl payı kaçırır, Antares en fazla 24° yükselir. Kutup Yıldızı'nın yüksekliğini ölçmek, enlemi ölçmek demektir.",
+      "h = 41.32°, A = 120.80° (DGD). Betelgeuse 18:17:57'de doğar, 00:41:53'te 57.48° ile en yükseğe çıkar, 07:05:49'da batar; ufkun üstünde 12 sa 47 dk 52 s kalır. Gerçek gökyüzünde kırılma doğuşu birkaç dakika öne, batışı birkaç dakika sonraya iter; 2026 için presesyon konumu yaklaşık 0.36° kaydırır.",
   },
   misconceptions: [
     {
-      myth: "Bir takımyıldızın yıldızları uzayda birbirine yakındır.",
+      myth: "Dünya kendi çevresinde tam 24 saatte bir döner.",
       truth:
-        "Yalnızca aynı yöndedirler. Avcı'da omuzdaki Betelgeuse 400–550 ışık yılı (uzaklığı hâlâ tartışmalı), ayaktaki Rigel yaklaşık 850 ışık yılı uzaktadır: yan yana görünen iki yıldız arasında yüzlerce ışık yılı vardır. Bugünkü anlamıyla takımyıldız, ülke sınırı gibi bir gökyüzü bölgesidir; içindeki yıldızlar arasında fiziksel bir bağ şart değildir.",
-    },
-    {
-      myth: "Kutup Yıldızı gökyüzünün en parlak yıldızıdır.",
-      truth:
-        "Polaris 2.0 kadir civarındadır ve en parlak yıldızlar listesinde ancak ilk elliye girer. Gecenin en parlak yıldızı Sirius'tur (−1.46): kadir farkı 3.4, yani yaklaşık 24 kat daha parlak. Polaris'i değerli kılan parlaklığı değil konumudur: gök kutbuna 0.6° uzaklıkta durduğu için gece boyunca neredeyse kıpırdamaz ve kuzeyi gösterir.",
-    },
-    {
-      myth: "Kadir değeri büyüdükçe yıldız daha parlaktır.",
-      truth:
-        "Tersi doğrudur: ölçek bir sıralamadan doğdu, 'birinci büyüklük' en parlak demekti. Küçük sayı daha parlak, negatif sayı daha da parlak demektir. Üstelik ölçek çarpımsaldır: her kadir yaklaşık 2.5 kat, her 5 kadir tam 100 kat parlaklık farkıdır. 2 kadirlik bir yıldız, 1 kadirlik bir yıldızın yarısı değil, yaklaşık 2.5'te biri kadar parlaktır.",
+        "24 saat Güneş günüdür: Güneş'in meridyene iki ardışık gelişi arasındaki süre. Yıldızlara göre bir tur 23 sa 56 dk 4.09 s sürer, çünkü Dünya bu arada yörüngesinde yaklaşık 1° ilerler ve Güneş'i yeniden yakalamak için biraz daha döner. Sayfanın 03 sekmesi bu süreyi ardışık geçişlerden ölçer; aynı fark yıldızların her gece 3 dk 56 s erken doğmasının nedenidir.",
     },
     {
       myth: "Kutup Yıldızı her yerde tam başımızın üstündedir.",
       truth:
-        "Polaris'in ufuktan yüksekliği bulunduğun enleme eşittir: Antalya'da yaklaşık 37°, İstanbul'da 41°. Yalnızca Kuzey Kutbu'nda tepeye çıkar, ekvatorda ufka iner, güney yarımküreden pratikte görülmez. Gösterdiği şey 'yukarı' değil, kuzey yönüdür; altındaki ufuk noktası coğrafi kuzeydir.",
+        "Kutup Yıldızı'nın (Polaris) ufuktan yüksekliği bulunduğun enleme eşittir: Ankara'da yaklaşık 40°, İstanbul'da 41°, Tromsø'da 70°. Yalnız Kuzey Kutbu'nda tepeye çıkar, ekvatorda ufka iner, güney yarımküreden görülmez. Gösterdiği şey 'yukarı' değil kuzey yönüdür; altındaki ufuk noktası coğrafi kuzeydir.",
+    },
+    {
+      myth: "Kutup Yıldızı gökyüzünün en parlak yıldızıdır.",
+      truth:
+        "Polaris yaklaşık 2.0 kadirdir ve en parlak yıldızlar listesinde ancak ilk elliye girer. Gecenin en parlak yıldızı Akyıldız'dır (Sirius, −1.46 kadir): kadir farkı 3.5, yani yaklaşık 25 kat daha parlak. Polaris'i değerli kılan parlaklığı değil konumudur: gök kutbuna bir dereceden az uzakta durduğu (J2000 kataloğunda 0.74°, presesyon yüzünden bugün yaklaşık 0.6°) için gece boyunca neredeyse kıpırdamaz.",
+    },
+    {
+      myth: "Bir takımyıldızın yıldızları uzayda birbirine yakındır.",
+      truth:
+        "Yalnızca aynı yöndedirler. Avcı'da omuzdaki Betelgeuse yaklaşık 550–700 ışık yılı (uzaklığı hâlâ tartışmalı), ayaktaki Rigel yaklaşık 850 ışık yılı uzaktadır: yan yana görünen iki yıldız arasında yüzlerce ışık yılı vardır. Bugünkü anlamıyla takımyıldız, ülke sınırı gibi bir gökyüzü bölgesidir; gök küresi modeli de uzaklığı bilerek yok sayar, yalnız yönü kullanır.",
     },
   ],
   glossary: [
     {
       term: "Gök küresi",
       definition:
-        "Gök cisimlerinin üzerine yansıtıldığı, merkezinde gözlemcinin bulunduğu hayali küre; konum ölçmek için kullanılan model.",
-    },
-    {
-      term: "Takımyıldız",
-      definition:
-        "IAU'nun sınırlarını 1930'da yayımladığı 88 gökyüzü bölgesinden biri; içindeki parlak yıldızların oluşturduğu figürün adını taşır.",
-    },
-    {
-      term: "Asterizm",
-      definition:
-        "Resmî takımyıldız olmayan tanıdık yıldız deseni; ör. Büyük Ayı içindeki Büyük Kepçe ya da Vega, Deneb ve Altair'in oluşturduğu Yaz Üçgeni.",
+        "Gök cisimlerinin üzerine yansıtıldığı, merkezinde gözlemcinin bulunduğu hayali küre; yalnız yönleri temsil eden bir konum modeli.",
     },
     {
       term: "Dik açıklık (δ)",
@@ -177,104 +168,120 @@ window.ACELYA_DIGEST["takimyildiz-haritasi"] = {
         "Gök ekvatoru boyunca mart ekinoksu noktasından doğuya doğru, saat cinsinden (0–24 sa) ölçülen gökteki boylam; 1 saat 15°'dir.",
     },
     {
-      term: "Görünür kadir (m)",
+      term: "Yerel yıldız zamanı (YZ)",
       definition:
-        "Yıldızın Dünya'dan görünen parlaklığının ters ve logaritmik ölçüsü; 5 kadir fark tam 100 kat parlaklık farkıdır.",
+        "O an gözlemcinin meridyeninden geçen sağ açıklık; Greenwich yıldız zamanına doğu boylamı eklenerek bulunur.",
+    },
+    {
+      term: "Saat açısı (H)",
+      definition:
+        "Bir yıldızın meridyenden bu yana batıya doğru döndüğü açı, H = YZ − α; H = 0 üst geçiş anıdır.",
+    },
+    {
+      term: "Yıldız günü",
+      definition:
+        "Dünya'nın yıldızlara göre bir tam dönüşü: 86 164.0905 s = 23 sa 56 dk 4.09 s.",
     },
     {
       term: "Kutup çevresi yıldızı",
       definition:
-        "Dik açıklığı 90° − enlem değerinden büyük olduğu için o enlemden bakıldığında hiç batmayan yıldız.",
+        "O enlemden bakıldığında hiç batmayan yıldız: kuzey yarıkürede δ > 90° − φ, güneyde δ < −(90° − |φ|).",
     },
     {
-      term: "Presesyon",
+      term: "Görünür kadir (V)",
       definition:
-        "Dünya ekseninin yaklaşık 25 800 yılda bir tur atan yavaş topaç hareketi; gök kutbunu ve ekinoks noktalarını kaydırır.",
+        "Yıldızın Dünya'dan görünen parlaklığının ters ve logaritmik ölçüsü; 5 kadir fark tam 100 kat parlaklık farkıdır.",
     },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede gökyüzü bir haritadır; üniversitede bir <strong>koordinat dönüşümü</strong> problemi. Bir yıldızın sağ açıklığı ve dik açıklığı neredeyse sabittir, ama senin ufkundaki yüksekliği saate ve enleme bağlıdır. İkisi arasındaki köprü <strong>küresel trigonometridir</strong>: sin h = sin φ · sin δ + cos φ · cos δ · cos H, burada H yıldızın meridyenden bu yana döndüğü saat açısıdır. Çözümlü örnekteki iki kural bu denklemin H = 0° ve H = 180° özel hâlleridir. Aynı dönüşüm üç boyutlu döndürme matrisleriyle de yazılır; telefonundaki gökyüzü uygulaması, teleskop motorları ve uydu antenleri bu hesabı sürekli yapar.",
+      "Lisede gökyüzü bir haritadır; üniversitede bir <strong>koordinat dönüşümü</strong> problemi. Bu sayfadaki her adım <strong>küresel astronomi</strong> (pozisyonel astronomi) dersinin konusudur: zaman ölçekleri (UT, yıldız zamanı, Jülyen günü), kutup–başucu–yıldız üçgeninde <strong>küresel trigonometri</strong> ve aynı dönüşümün <strong>Lineer Cebir</strong>'deki karşılığı olan dönme matrisleri. Ekvator koordinatlarındaki birim vektörü önce yerel yıldız zamanı kadar kutup ekseni çevresinde, sonra 90° − φ kadar doğu–batı ekseni çevresinde döndürünce ufuk koordinatları çıkar. Doğuş anını kapalı formülle ve 'ikiye bölme' ile sayısal olarak bulmak ise <strong>Sayısal Analiz</strong>'in kök bulma konusudur. Gerçek bir gözlemevi bu hesaba presesyon ve nütasyon matrislerini, sapınç ve kırılma düzeltmelerini ekler; telefonundaki gökyüzü uygulaması, teleskop motorları ve uydu antenleri bu hesabı sürekli yapar.",
       "Parlaklık tarafında kadir ölçeği <strong>fotometriye</strong> açılır: görünür kadiri yıldızın gerçek ışıma gücünü anlatan mutlak kadirle karşılaştırmak uzaklık verir, m − M = 5·log₁₀(d / 10 pc). Konum tarafında <strong>astrometri</strong> vardır: Dünya Güneş'in çevresinde dolanırken yakın yıldızların uzaktakilere göre yıllık küçük kayması (paralaks) uzaklığı doğrudan ölçer. ESA'nın Gaia uydusu bir milyardan fazla yıldızın konumunu ve hareketini bu yolla ölçtü; Büyük Kepçe'nin bir gün dağılacağını söyleyen hareketler de böyle ölçülür. Hipparkhos'un gözle yaptığı ölçümden Gaia'ya uzanan çizgi hep aynı soruyu sorar: o yıldız tam olarak nerede?",
     ],
     topics: [
       "Küresel trigonometri",
-      "Koordinat dönüşümleri ve döndürme matrisleri",
-      "Yıldız zamanı ve zaman ölçekleri",
+      "Dönme matrisleri ve koordinat dönüşümleri",
+      "Yıldız zamanı, UT ve Jülyen günü",
+      "Sayısal kök bulma (ikiye bölme)",
+      "Presesyon, nütasyon ve kırılma düzeltmeleri",
       "Fotometri ve uzaklık modülü",
       "Astrometri ve paralaks",
-      "Gök mekaniği ve presesyon",
     ],
   },
   quiz: [
     {
       question:
-        "Vega yaklaşık 0 kadirdir. Karanlık bir kırda zor seçilen 5 kadirlik bir yıldız, Vega'dan yaklaşık kaç kat sönüktür?",
-      options: ["5 kat", "25 kat", "100 kat", "500 kat"],
-      answer: 2,
-      explanation:
-        "Kadir ölçeği çarpımsaldır: her kadir yaklaşık 2.512 kat, 5 kadirlik fark ise tanım gereği tam 100 kattır (2.512<sup>5</sup> ≈ 100). '5 kat' kadirleri doğrudan karşılaştırmak, '25 kat' her adımı yanlışlıkla 5 ile çarpmak olurdu.",
-    },
-    {
-      question:
-        "İstanbul (41° K) için dik açıklığı aşağıdakilerden hangisi olan yıldız hiç batmaz?",
-      options: ["+30°", "+45°", "+52°", "−60°"],
-      answer: 2,
-      explanation:
-        "Hiç batmama sınırı 90° − enlem = 90° − 41° = 49°. Yalnızca +52° bunun üstündedir: en alçak noktası 41° − (90° − 52°) = +3°. +45°'lik yıldız kuzey ufkunun 4° altına iner; −60°'lık yıldız ise en fazla 90° − (41° + 60°) = −11°'ye çıkar, yani İstanbul'dan hiç doğmaz. Aynı enlemde Kutup Yıldızı ufkun yaklaşık 41° üstündedir.",
-    },
-    {
-      question:
-        "Bir yıldız bu gece saat 22.00'de doğuyorsa, bir ay sonra yaklaşık saat kaçta doğar?",
+        "Bir gözlemci, hiç batmayan Kutup Yıldızı'nın kuzeydeki üst geçişini 41.75°, alt geçişini 40.27° ölçüyor. Kırılmayı yok sayarsan enlemi nedir?",
       options: [
-        "Yine 22.00'de",
-        "Yaklaşık 21.56'da",
-        "Yaklaşık 24.00'te",
-        "Yaklaşık 20.00'de",
+        "41.75°: Kutup Yıldızı'nın en yüksek noktası",
+        "41.01°: iki geçişin ortası",
+        "40.27°: kutba uzaklığı düşülmüş değer",
+        "Kutup Yıldızı'nın dik açıklığı bilinmeden bulunamaz",
       ],
-      answer: 3,
+      answer: 1,
       explanation:
-        "Yıldız günü 23 sa 56 dk olduğu için yıldızlar her gece yaklaşık 4 dakika erken doğar; 30 günde bu yaklaşık 2 saat eder. 21.56 yalnızca ertesi geceki cevaptır. Mevsimlik takımyıldızların aynı saatte yavaşça batıya kayması bu birikimin sonucudur.",
+        "Yıldız gök kutbunun çevresinde simetrik bir çember çizer: üst geçiş φ + p, alt geçiş φ − p (p kutba uzaklık). Ortalarını alınca p kaybolur: (41.75° + 40.27°)/2 = 41.01°, İstanbul'un enlemi. Dik açıklık gerekmez; hatta yarı farktan p = 0.74° de çıkar. Sayfanın 02 sekmesinde İstanbul düğmesiyle aynı sayılar görünür.",
+    },
+    {
+      question:
+        "Ekvatorda (φ = 0°) dik açıklığı +7° olan Betelgeuse ile −63° olan Acrux'tan hangisi ufkun üstünde daha uzun kalır?",
+      options: [
+        "Betelgeuse, çünkü kuzey yarımküre göğündedir",
+        "Acrux, çünkü güney kutbuna yakındır",
+        "İkisi de tam yarım yıldız günü, yaklaşık 11 sa 58 dk",
+        "Acrux ekvatordan hiç doğmaz",
+      ],
+      answer: 2,
+      explanation:
+        "cos H₀ = −tan φ tan δ ve tan 0° = 0 olduğu için her yıldızda cos H₀ = 0, H₀ = 90°: her yıldız tam yarım tur, yani yarım yıldız günü (11 sa 58 dk 2 s) ufkun üstündedir. Ekvatorda iki gök kutbu da ufuktadır, her yıldız doğar ve batar; bu yüzden göğün tamamı yıl içinde görülebilir. Sayfanın 04 sekmesinde Gözlem yeri = Ekvator seçince Betelgeuse için doğuş 18:42:52, batış 06:40:54 çıkar.",
+    },
+    {
+      question:
+        "Akyıldız (Sirius) Güneş'in tam karşısına 31 Aralık'ta gelir, ama Ankara'da (UTC+3, 32.85° D) saat 00.00'da en yüksekte olduğu gün 14 Ocak'tır. Sidney'de (UTC+10, 151.21° D) bu fark yaklaşık kaç gün olur?",
+      options: [
+        "Yine yaklaşık 13.5 gün, çünkü yıldız aynı",
+        "Yaklaşık 0 gün",
+        "Yaklaşık 27 gün, çünkü Sidney güney yarımkürede",
+        "Yaklaşık 180 gün, çünkü mevsimler ters",
+      ],
+      answer: 1,
+      explanation:
+        "Ankara saati 45° D'ye göre ayarlıdır; 32.85° D'de saat 00.00 ortalama Güneş gece yarısından 48 dk 36 s önce gelir, günde 3 dk 56 s kaymayla 12.4 gün; zaman denklemi kalanını ekler. Sidney ise UTC+10'un meridyenine (150° D) yalnız 1.21°, yani yaklaşık 5 dakika uzaktır; sayfa iki tarihi de 31 Aralık verir. Yarımküre bu tarihi değiştirmez, yalnız yıldızın ne kadar yükseldiğini değiştirir.",
     },
   ],
   next: [
     {
       href: "ay-evreleri.html",
-      title: "Ay Evreleri ve Mevsimler",
-      why: "Dünya yörünge konumu kaydırıcısıyla 23.4° eğik eksenin mevsimleri nasıl ürettiğini gör; gece gökyüzünün yıl boyunca değişmesinin öteki yüzü.",
+      title: "Ay Evreleri, Tutulmalar ve Mevsimler",
+      why: "Sinodik ve yıldızıl ay sekmesinde aynı 'bir tur fazla' hesabını Ay için ölçersin; Mevsimler sekmesi Güneş'in yıl içinde değişen dik açıklığını sin δ = sin ε sin λ ile hesaplar: bu haritada gece yarısı karşısına baktığın Güneş'in öbür yüzü.",
+    },
+    {
+      href: "gunes-sistemi.html",
+      title: "Güneş Sistemi Laboratuvarı",
+      why: "Bu harita gezegenleri bilerek dışarıda bırakır; oradaki Gökyüzünde gezegenler sekmesi, Dünya'dan bakınca bir gezegenin yıldızlar arasında neden geri geri gittiğini ölçer.",
     },
     {
       href: "yildiz-yasam-dongusu.html",
       title: "Yıldız Yaşam Döngüsü (H-R Diyagramı)",
-      why: "Haritadaki Rigel, Betelgeuse, Antares ve Polaris'i H-R diyagramında bul; tıklayınca kütlelerini ve nasıl sonlanacaklarını öğren.",
-    },
-    {
-      href: "kara-cisim-isimasi.html",
-      title: "Kara Cisim Işıması",
-      why: "Hazır cisim menüsünden Betelgeuse'ü (yaklaşık 3600 K), sonra Rigel'i (yaklaşık 12 100 K) seç: turuncu-kırmızıdan mavi-beyaza geçişin arkasında Planck eğrisi ve Wien yasası var; Yıldızlar ve renk sekmesi aynı yıldızların rengini hesaplar.",
-    },
-    {
-      href: "kepler-yasalari.html",
-      title: "Kepler Yasaları",
-      why: "Dünya'nın Güneş çevresindeki yörüngesi: gökyüzünün her ay 2 saat kaymasının ve Güneş'in takımyıldızlar arasında ilerlemesinin motoru.",
+      why: "Haritada rengini B−V'den alan Betelgeuse, Rigel ve Sirius'u H-R diyagramına yerleştir; ışıtma, sıcaklık ve yarıçaplarını L = 4πR²σT⁴ ile bağla.",
     },
   ],
   sources: [
     {
       title: "OpenStax · Astronomy 2e",
       url: "https://openstax.org/details/books/astronomy-2e",
-      note: "Gök küresi, takımyıldızlar, mevsimler ve yıldız parlaklıkları için açık ders kitabı (İngilizce).",
+      note: "Gök küresi, gök koordinatları, yıldız günü ve Güneş günü, takımyıldızlar için açık ders kitabı (İngilizce).",
+    },
+    {
+      title: "Wikipedia · Sidereal time",
+      url: "https://en.wikipedia.org/wiki/Sidereal_time",
+      note: "Yıldız zamanı, yıldız günü (86 164.0905 s) ve Güneş günüyle ilişkisi; sayfanın kullandığı değer.",
     },
     {
       title: "Wikipedia · IAU designated constellations",
       url: "https://en.wikipedia.org/wiki/IAU_designated_constellations",
       note: "88 takımyıldızın listesi, 1922 kısaltmaları ve Delporte'un 1930'da yayımlanan sınırları.",
-    },
-    {
-      title: "Wikipedia · Apparent magnitude",
-      url: "https://en.wikipedia.org/wiki/Apparent_magnitude",
-      note: "Kadir ölçeğinin tarihi, Pogson oranı ve parlak gök cisimlerinin kadir tablosu.",
     },
     {
       title: "Wikipedia · Ulugh Beg Observatory",

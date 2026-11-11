@@ -222,8 +222,8 @@ window.ACELYA_DIGEST["birim-cember"] = {
     },
     {
       href: "matris-donusumleri.html",
-      title: "Matris Dönüşümleri",
-      why: "Açı kaydırıcısıyla döndürme matrisini 11 köşeli bir evin üstünde uygula; ölçek ve kaymayla birleştirince determinantın ve özdeğerlerin dönmeyi nasıl ele verdiğini gör (90°'de özdeğerler ±i).",
+      title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek",
+      why: "Hazır dönüşüm menüsünden Dönme'yi seç, açı kaydırıcısıyla evi döndür: determinant hep 1 kalır. Özvektörler sekmesine [0 −1; 1 0] yaz; 90°'de hiçbir doğrultu yerinde kalmaz, özdeğerler ±i çıkar.",
     },
     {
       href: "alternatif-akim.html",

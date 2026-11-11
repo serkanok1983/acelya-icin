@@ -229,7 +229,7 @@ window.ACELYA_DIGEST["doppler-etkisi"] = {
     },
     {
       href: "kepler-yasalari.html",
-      title: "Kepler Yasaları",
+      title: "Kepler Yasaları — Gezegen Yörüngeleri",
       why: "Radyal hız yalnızca yıldızın yalpasını ölçer; periyottan yörünge yarıçapını Kepler'in üçüncü yasası verir, yalpa hızı da gezegenin en az kütlesini. T²/a³ oranının Güneş çevresinde sabit kaldığını gör.",
     },
   ],

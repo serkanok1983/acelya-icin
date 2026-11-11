@@ -1,19 +1,19 @@
 window.ACELYA_DIGEST = window.ACELYA_DIGEST || {};
 window.ACELYA_DIGEST["ay-evreleri"] = {
   slug: "ay-evreleri",
-  title: "Ay ve Mevsimler: Gölge Değil, Geometri",
+  title: "Ay, Tutulmalar ve Mevsimler: Gölge Değil, Geometri",
   field: "Yer ve Uzay",
-  level: "Lise",
-  minutes: 30,
+  level: "Lise–Lisans",
+  minutes: 40,
   tagline:
-    "Ay'ın yarısı hep aydınlıktır; evreler, o yarının ne kadarını gördüğümüzdür. Mevsimler de Güneş'e uzaklıktan değil, 23,44 derecelik bir eğiklikten doğar.",
+    "Ay'ın yarısı hep aydınlıktır; evre, o yarının ne kadarını gördüğümüzdür. Tutulmaları 5,145°'lik bir eğiklik seyrekleştirir, mevsimleri ise uzaklık değil 23,44°'lik eksen eğikliği yaratır.",
   hook:
     "Dolunayı hiç öğle vakti gökyüzünde gördün mü? Göremezsin: dolunay aşağı yukarı Güneş batarken doğar, ince hilal ise hep Güneş'in yakınında durur. Ay'ın gökteki yeriyle biçimi arasındaki bu sıkı bağ, evrelerin sırrını ele verir: kimse Ay'ı gölgelemiyor, biz ona farklı açılardan bakıyoruz.",
   bigIdea:
-    "Güneş her an Ay'ın tam yarısını aydınlatır; <strong>evreler</strong>, Ay Dünya'nın çevresinde dolanırken bu aydınlık yarının ne kadarını gördüğümüzdür. <strong>Mevsimler</strong> ise uzayda hep aynı yöne bakan eğik eksenin, yıl boyunca Güneş'e bir yarım küreyi, sonra ötekini daha dik göstermesidir.",
+    "Güneş her an Ay'ın tam yarısını aydınlatır; <strong>evreler</strong> o yarıya hangi açıdan baktığımızı, <strong>tutulmalar</strong> bu dizilimin Ay yörüngesinin düğümlerine denk geldiği seyrek anları, <strong>mevsimler</strong> ise uzayda hep aynı yöne bakan eğik eksenin Güneş'e yıl boyunca önce bir yarım küreyi, sonra ötekini daha dik göstermesini anlatır.",
   story: [
     "Ay'ın kendi ışığı olmadığı, Güneş ışığını yansıttığı fikri Antik Yunan'da Anaksagoras'a atfedilir. Ama Ay'dan çıkarılan en güçlü sonuçlardan biri Dünya hakkındaydı. MÖ 4. yüzyılda Aristoteles, <em>Gökler Üzerine</em> adlı eserinde Dünya'nın küre olduğuna iki kanıt sıraladı. Birincisi: Ay tutulmasında Ay'ın üzerine düşen gölge Dünya'nındır ve kenarı her tutulmada kavislidir; her yönden yuvarlak gölge veren tek biçim küredir. İkincisi: kuzeye ya da güneye biraz yol alınca gökyüzü değişir; Mısır'da ve Kıbrıs çevresinde görülen bazı yıldızlar daha kuzeydeki yerlerden görülmez. Aristoteles evreleri gölgeyle karıştırmadı; tersine, hilal ve şişkin ay biçimlerinin Ay'ın da küre olduğunu gösterdiğini yazdı.",
-    "Birkaç kuşak sonra <strong>Sisamlı Aristarhus</strong>, yarım aydan bir cetvel yaptı. Ay tam yarım göründüğünde Güneş ışığı, Ay'dan Dünya'ya uzanan çizgiye dik gelir: Güneş, Ay ve Dünya, Ay köşesinde dik açı olan bir üçgen kurar. O anda Dünya'dan Ay ile Güneş arasındaki açıyı ölçersen üçgenin biçimini, dolayısıyla Güneş'in Ay'dan kaç kat uzak olduğunu bulursun. <em>Güneş ile Ay'ın Büyüklükleri ve Uzaklıkları Üzerine</em> adlı eserinde bu açıyı 87° aldı ve Güneş'in 18 ile 20 kat daha uzak olduğu sonucuna vardı. Yöntem kusursuzdu, ölçüm değil: gerçek açı yaklaşık 89,85°'dir ve oran 390 civarındadır. Üç derecelik bir hata sonucu yirmi kat değiştirmişti. Aristarhus'un Güneş'i merkeze koyan bir evren önerdiğini de Arşimet'in bir eserinden öğreniyoruz.",
+    "Birkaç kuşak sonra <strong>Sisamlı Aristarhus</strong>, yarım aydan bir cetvel yaptı. Ay tam yarım göründüğünde Güneş ışığı, Ay'dan Dünya'ya uzanan çizgiye dik gelir: Güneş, Ay ve Dünya, Ay köşesinde dik açı olan bir üçgen kurar. O anda Dünya'dan Ay ile Güneş arasındaki açıyı ölçersen üçgenin biçimini, dolayısıyla Güneş'in Ay'dan kaç kat uzak olduğunu bulursun. <em>Güneş ile Ay'ın Büyüklükleri ve Uzaklıkları Üzerine</em> adlı eserinde bu açıyı 87° aldı ve Güneş'in 18 ile 20 kat daha uzak olduğu sonucuna vardı. Geometri doğruydu, zayıf nokta ölçümdü: gerçek açı yaklaşık 89,85°'dir ve oran 390 civarındadır. Açı 90°'ye bu kadar yakınken küçük bir hata sonucu dev gibi büyütür; üç derecelik sapma oranı yirmi kat küçültmüştü. Aristarhus'un Güneş'i merkeze koyan bir evren önerdiğini de Arşimet'in bir eserinden öğreniyoruz.",
     "Evreler insanlığın ilk takvimiydi ve hâlâ öyle. Hicri takvimde her ay, yeni aydan sonra akşam batı ufkunda ilk ince <strong>hilalin</strong> görülmesiyle başlar; geleneksel uygulamada Ramazan'ın başı ve bayram bu gözleme bağlıdır. Yeni ay anında Ay, Güneş'le aynı yöndedir ve görülemez; hilalin Güneş battıktan sonra seçilebilecek kadar ondan uzaklaşması çoğu zaman bir iki gün alır. Bugün bazı ülkeler çıplak gözle gözlemi beklerken bazıları önceden hesaplanmış ölçütler kullanır: aynı gökyüzü, iki farklı karar yöntemi.",
     "24 Aralık 1968'de Apollo 8'in mürettebatı Frank Borman, Jim Lovell ve Bill Anders, Ay'ın çevresinde dolanan ilk insanlar oldu ve Dünya'dan hiç görülmeyen arka yüzü kendi gözleriyle gördü; o yüz ilk kez 1959'da Sovyet sondası Luna 3'ün fotoğraflarında ortaya çıkmıştı. Anders'in çektiği <em>Dünya Doğuşu</em> (Earthrise) fotoğrafı, Ay ufkunun üzerinde kısmen aydınlık bir Dünya gösterir: Ay'dan bakınca Dünya'nın da evreleri vardır. Temmuz 1969'da Apollo 11, Ay yüzeyine bir lazer yansıtıcısı bıraktı. O günden beri gözlemevleri bu aynalara lazer atımları gönderip ışığın dönüş süresini ölçüyor; Ay'ın bizden yavaşça uzaklaştığını böyle biliyoruz.",
   ],
@@ -21,18 +21,18 @@ window.ACELYA_DIGEST["ay-evreleri"] = {
     {
       heading: "Evre bir bakış açısıdır",
       body:
-        "Güneş her an Ay'ın bir yarısını aydınlatır; Ay'ın gece yarısı da hep vardır. Ay Dünya'nın çevresinde dolanırken biz bu aydınlık yarıya farklı açılardan bakarız. <strong>Yeni ayda</strong> Ay, Güneş ile Dünya'nın arasına yakındır ve bize gece yüzünü çevirir; <strong>dolunayda</strong> Dünya'nın Güneş'e uzak yanındadır ve aydınlık yüzü tümüyle bize bakar. Aydınlık ile karanlığı ayıran çizgi, <strong>sonlandırıcı</strong>, Ay'ın üzerinde bir yarım çemberdir; ona yandan baktığımız için yarım elips gibi görünür. Bu yüzden şişkin ayda aydınlık kısım karanlığa doğru dışa bombelidir. İnce hilalde karanlık kısmı soluk da olsa seçebilirsin: o, Dünya'dan Ay'a yansıyan ışıktır (<strong>dünya ışığı</strong>); Leonardo da Vinci bunu 16. yüzyılın başında defterlerinde doğru açıklamıştı.",
-      formula: "k = (1 − cos α) / 2",
+        "Güneş her an Ay'ın bir yarısını aydınlatır; Ay'ın gece yarısı da hep vardır. Ay dolanırken biz bu aydınlık yarıya farklı açılardan bakarız. <strong>Yeni Ay</strong>'da Ay, Güneş ile Dünya'nın arasına yakındır ve bize gece yüzünü çevirir; <strong>Dolunay</strong>'da Dünya'nın Güneş'e uzak yanındadır. Belirleyici açı <strong>faz açısı</strong> ψ'dir: Ay'ın üzerinde durup Güneş'e ve Dünya'ya baktığında iki yön arasındaki açı. Aydınlık ile karanlığı ayıran <strong>sonlandırıcı</strong>, Ay'ın üzerinde bir büyük çemberdir; yandan baktığımız için yarı genişliği r·|cos ψ| olan bir yarım elips görünür. Diskin aydınlık kısmı bir yarım daire artı (şişkin evrede) ya da eksi (hilalde) bu yarım elipstir; alanları toplayınca kesir kendiliğinden çıkar. İnce hilalde karanlık kısmı soluk da olsa seçebilirsin: o, Dünya'dan Ay'a yansıyan <strong>dünya ışığıdır</strong>; Leonardo da Vinci bunu 16. yüzyılın başında defterlerinde doğru açıklamıştı.",
+      formula: "k = (1 + cos ψ) / 2,   ψ ≈ 180° − E",
       formulaNote:
-        "k, Ay diskinin aydınlık görünen kesri; α, Ay'ın gökte Güneş'in doğusuna doğru ilerlediği açı (yeni ayda 0°, ilk dördünde 90°, dolunayda 180°, son dördünde 270°). α = 90° için k = 0,50; α = 45° için yalnızca 0,15. Sayfa bu kesri, diskin altında yüzde olarak yazar.",
+        "k, diskin aydınlık kesri; E, Ay'ın gökte Güneş'ten doğuya açısı (elongasyon). Güneş sonsuz uzakta olsaydı ψ tam 180° − E olurdu; 149,6 milyon km'lik sonlu uzaklık yüzünden İlk Dördün'de (E = 90°) ψ = 89,85° ve k = %50,13 çıkar.",
     },
     {
-      heading: "İki ayrı ay: 27,3 gün ve 29,5 gün",
+      heading: "İki ayrı ay ve her gün 50 dakika",
       body:
-        "Ay, yıldızlara göre Dünya çevresindeki bir turunu 27,32 günde tamamlar: <strong>yıldız ayı</strong>. Ama evreler 29,53 günde bir tekrarlar: <strong>kavuşum ayı</strong>. Fark, Dünya'nın da yerinde durmamasından gelir. Ay bir yıldız turunu bitirdiğinde Dünya Güneş çevresinde yaklaşık 27° ilerlemiştir ve Güneş'in Dünya'dan görünen yönü de o kadar kaymıştır. Ay'ın aynı evreye dönmesi için Güneş'i yakalaması, yani yaklaşık 2,2 gün daha yol alması gerekir. Takvimlerdeki 'ay' evreleri izlediği için kavuşum ayıdır. Bir yılda 13,37 yıldız ayı ama yalnızca 12,37 kavuşum ayı vardır: aradaki tam bir tur, Dünya'nın Güneş çevresindeki kendi dolanımıdır.",
-      formula: "1/S = 1/P − 1/Y",
+        "Ay yıldızlara göre bir turunu 27,32 günde tamamlar: <strong>yıldızıl ay</strong>. Evreler ise 29,53 günde bir tekrarlar: <strong>sinodik ay</strong> (kavuşum ayı). Fark, Dünya'nın da yerinde durmamasından gelir. Ay bir yıldızıl turu bitirdiğinde Dünya Güneş çevresinde 26,93° ilerlemiştir ve Güneş'in gökteki yönü de o kadar kaymıştır; Ay'ın Güneş'i yakalaması 2,21 gün daha sürer. Aynı geri kalma her gün de işler: Ay Güneş'e göre günde 12,19° doğuya kayar, Dünya'nın bu açıyı dönerek kapatması gerekir. Bu yüzden Ay her gün ortalama 50 dakika kadar geç doğar ve geç batar. Bir yılda 13,37 yıldızıl ay ama yalnızca 12,37 sinodik ay vardır: aradaki tam tur, Dünya'nın Güneş çevresindeki kendi dolanımıdır.",
+      formula: "1/S = 1/P − 1/Y;   günlük gecikme = 24 sa/(S − 1)",
       formulaNote:
-        "P = 27,32 gün (yıldız ayı), Y = 365,26 gün (Dünya'nın yıldızlara göre yılı), S = 29,53 gün (kavuşum ayı). Aynı yönde dönen iki hareketin açısal hızları çıkarılır.",
+        "P = 27,32 gün (yıldızıl ay), Y = 365,256 gün (yıldızıl yıl), S = 29,53 gün. Aynı yönde dönen iki hareketin açısal hızları çıkarılır. Gecikme 24 sa/S = 48,76 dk değil 50,47 dk'dır, çünkü Ay o ek sürede de ilerler.",
     },
     {
       heading: "Ay döner, ama hep aynı yüzle",
@@ -43,62 +43,65 @@ window.ACELYA_DIGEST["ay-evreleri"] = {
         "Ay hiç dönmeseydi, yörüngede bir tur boyunca bütün yüzlerini sırayla bize gösterirdi. Hep aynı yüzü görmemizin nedeni dönmemesi değil, tam bu hızda dönmesidir.",
     },
     {
-      heading: "Mevsimler: eğiklik, uzaklık değil",
+      heading: "Tutulma neden her ay olmaz, neden bazen halkadır?",
       body:
-        "Dünya'nın dönme ekseni, yörünge düzleminin dikmesine göre 23,44° eğiktir ve yıl boyunca uzayda aynı yöne, Kutup Yıldızı'nın yakınına bakar; sayfa bunu 23,4° olarak yuvarlar. Haziranda Kuzey Yarım Küre Güneş'e doğru eğiktir: İstanbul'da (yaklaşık 41° kuzey) öğle Güneş'i ufkun 72° üzerine çıkar, gündüz yaklaşık 15 saat sürer. Aralıkta öğle Güneş'i ancak 26°'ye yükselir, gündüz yaklaşık 9 saattir. Yatık ışık aynı enerjiyi daha geniş alana yayar: yatay bir metrekareye düşen güç sin h ile orantılıdır ve haziranda aralıktakinin 2,2 katıdır. Uzaklık ters yönde çalışır: Dünya ocak başında Güneş'e en yakındır (yaklaşık 147,1 milyon km), temmuz başında en uzak (152,1 milyon km). Bu fark gelen ışığı yalnızca yüzde 7 kadar değiştirir ve iki yarım küreyi aynı anda etkiler; oysa mevsimler iki yarım kürede terstir.",
-      formula: "h<sub>öğle</sub> = 90° − φ + δ",
+        "Ay'ın yörüngesi Dünya'nın yörünge düzlemine göre 5,145° eğiktir. Kavuşum anında Ay'ın <strong>ekliptik enlemi</strong> β = asin(sin i · sin u) olur; u, Ay'ın yörüngesinin ekliptiği kestiği <strong>düğüm</strong> noktasından açısıdır. Güneş tutulması için Ay ile Güneş merkezleri arasındaki yer merkezli açının yaklaşık 1,47°'den küçük olması gerekir; bu, kavuşumun bir düğümün ±16,7° yakınına düşmesi demektir. Güneş düğüm doğrultusunu yılda iki kez geçer; düğümler 18,6 yılda bir geriye doğru tur attığından bu buluşmalar yarım yıldan biraz kısa, 173,31 günde bir gelir. Tutulmalar bu <strong>tutulma mevsimlerinde</strong> toplanır. Tutulmanın türünü ise gölge konisi belirler: Ay'ın tam gölgesi benzer üçgenlerle yaklaşık 373.600 km uzunluktadır, Ay'ın altındaki yüzey noktası ise ortalama uzaklıkta 378.029 km ötededir. Gölge ucu yüzeye yetişmezse Güneş'in kenarı bir halka gibi kalır.",
+      formula: "L = (D − d) · R<sub>A</sub> / (R<sub>G</sub> − R<sub>A</sub>);   kesir ≈ (2/π) · asin(sin B / sin i)",
       formulaNote:
-        "φ enlem; δ, Güneş'in <strong>dik açıklığı</strong> (deklinasyonu), yani öğlende Güneş'in tam tepeden geldiği enlem: haziran gündönümünde +23,44°, aralıkta −23,44°, ekinokslarda 0°. Sabit 23,44°'lik eksen eğikliğiyle karıştırma: δ yıl boyunca değişir. İstanbul için haziranda 90 − 41 + 23,44 ≈ 72,4°, aralıkta ≈ 25,6°.",
+        "D, d: Güneş ve Ay uzaklıkları; R<sub>G</sub>, R<sub>A</sub>: yarıçaplar; B: tutulma sınırı, i: eğiklik. İkinci formül, düğüm açısı düzgün dağılırsa |β| &lt; B olan kavuşumların payıdır: Güneş tutulmasında %18,5.",
     },
     {
-      heading: "Tutulma neden her ay olmaz?",
+      heading: "Mevsimler: eğiklik, uzaklık değil",
       body:
-        "Her yeni ayda Ay, Güneş ile Dünya'nın arasından geçer; her dolunayda Dünya'nın arkasına geçer. Öyleyse neden her ay iki tutulma görmüyoruz? Çünkü Ay'ın yörüngesi, Dünya'nın yörünge düzlemine göre yaklaşık 5,1° eğiktir. Güneş ve Ay gökte yalnızca yarım derece genişliğinde olduğundan bu büyük bir ıskalamadır: çoğu yeni ayda Ay, Güneş'in biraz üstünden ya da altından geçer; çoğu dolunayda Dünya'nın gölgesini kaçırır. Tutulma ancak yeni ay ya da dolunay, Ay yörüngesinin Dünya'nın yörünge düzlemini kestiği iki noktanın (<strong>düğümlerin</strong>) yakınına denk gelirse olur. Bu hizalanma yaklaşık 173 günde bir tekrarlandığından tutulmalar yılda iki 'tutulma mevsiminde' toplanır. Güneş tutulması yalnızca yeni ayda, Ay tutulması yalnızca dolunayda olur.",
+        "Dünya'nın dönme ekseni yörünge düzleminin dikmesine göre ε = 23,44° eğiktir ve yıl boyunca uzayda aynı yöne bakar. Güneş'in ekliptik boylamı λ ilerledikçe <strong>dik açıklığı</strong> δ (öğlende Güneş'in tam tepeden geldiği enlem) +23,44° ile −23,44° arasında gidip gelir. Bu tek açı üç şeyi birden değiştirir: öğle yüksekliğini, gündüzün süresini ve yatay bir metrekareye düşen gücü. İstanbul'da (≈ 41° K) haziran gündönümünde öğle Güneş'i 72,44°'ye çıkar ve gündüz 14 sa 57 dk sürer; aralıkta 25,56° ve 9 sa 03 dk. Yalnız sin h oranı 2,2'dir; uzun gündüz de eklenince günlük ortalama ışınım üç kattan fazla değişir. Uzaklık ters yönde çalışır: Dünya Güneş'e ocak başında en yakındır ve akı günberide yaklaşık %3,4 fazla, günötede %3,3 eksiktir. Bu küçük fark iki yarım küreyi aynı anda etkiler; oysa mevsimler iki yarım kürede terstir.",
+      formula: "sin δ = sin ε · sin λ;   cos H₀ = −tan φ · tan δ;<br>Q = (S₀/π)(a/r)² (H₀ sin φ sin δ + cos φ cos δ sin H₀)",
+      formulaNote:
+        "φ enlem, H₀ gün batımının saat açısı (gündüz = 2H₀/15° saat), S₀ = 1361 W/m². Öğle yüksekliği 90° − |φ − δ|. Q, atmosfer üstünde günlük ortalama ışınımdır: yatay yüzeye düşen akı S₀(a/r)² sin h, Güneş'in yüksekliği h'nin sinüsüyle orantılıdır ve bu ifadenin gündüz boyunca (−H₀'dan +H₀'a) saat açısına göre integrali 24 saate bölünür.",
     },
   ],
   lab: {
     intro:
-      "Sayfada iki kaydırıcı ve bir düğme var. Üstteki çizimde Güneş hep soldadır; Ay'ın yörüngesine kuzeyden, eğik bir açıyla bakarsın ve Ay saat yönünün tersine dolanır. Dünya'nın ve küçük Ay'ın Güneş'e bakan yarısı aydınlıktır. <strong>Ay konumu (evre)</strong>, Ay'ın gökte Güneş'in doğusuna doğru ilerlediği açıyı seçer: 0 Yeni Ay (Ay, Güneş ile Dünya'nın arasında), 90 İlk Dördün, 180 Dolunay (Ay, Dünya'nın Güneş'e uzak yanında), 270 Son Dördün. 'Dünya'dan görünüş' diski Ay'ı Kuzey Yarım Küre'den bakıldığı gibi gösterir; altında evre adı, aydınlık yüzde ve Yeni Ay'dan bu yana geçen gün (kaydırıcı değeri × 29,53 / 360) yazar. <strong>Dünya yörünge konumu (mevsim)</strong>, 'Dünya'nın yörüngesi' çiziminde Dünya'yı ortadaki Güneş'in çevresinde dolaştırır: 0 Haziran gündönümü, 90 Eylül ekinoksu, 180 Aralık gündönümü, 270 Mart ekinoksu. Yeşil eksenin K ucu kuzey kutbudur. Sayfanın en altındaki yazı, Güneş'in dik açıklığını (δ) ve İstanbul'da öğle Güneş'inin ufkun kaç derece üstüne çıktığını da verir. <strong>Otomatik</strong> iki kaydırıcıyı birlikte saniyede 4 gün ilerletir (hareket azaltma ayarı açıksa 0,8 saniyede bir 1 gün); Dünya bir tur atarken Ay 12,37 evre döngüsü tamamlar. Boyutlar ve uzaklıklar ölçekli değildir; iki yörünge aynı düzlemde birer daire kabul edilir ve eğik bakıldığı için elips görünür.",
+      "Laboratuvarın beş sekmesi var ve her biri bir ölçümü bir formülün yanına koyar. <strong>01 · Evreler</strong>'de Elongasyon E kaydırıcısı ve hazır evre düğmeleriyle Ay'ı yörüngede gezdirirsin; aydınlık kesir hem formülden hem de diskte 400 × 400 ızgara sayımından gelir. <strong>02 · Sinodik ve yıldızıl ay</strong> turları sayar; Dünya'nın yıldızıl yılı Y menüsünde öğretim değerleri ve “Dünya durur” seçeneği var. <strong>03 · Ay ne zaman doğar?</strong> evreden doğuş, meridyen ve batış saatini bulur; gözlemci ekvatordadır, Ay'ın ve eksenin eğikliği, dolayısıyla enlem ve dik açıklık etkisi bu sekmede kasıtlı olarak yoktur. <strong>04 · Tutulmalar</strong> gölge konilerini çizer ve onyıl boyunca tutulmaları sayar; başlangıç açısı gerçek bir tarihe bağlı değildir, sayfa tutulma tarihi öngörmez. <strong>05 · Mevsimler</strong> Kepler yörüngesinden Güneş'in dik açıklığını, öğle yüksekliğini, gündüz süresini ve ışınımı hesaplar. Sabitler NASA'nın bilgi sayfalarından; 5. sekmedeki günberi günü (3,5. gün) bir öğretim değeridir.",
     experiments: [
       {
-        title: "Bir evre adı kaç gün sürer?",
+        title: "Yarım Ay ne zaman gerçekten yarım?",
         predict:
-          "Sayfa sekiz evre adı kullanır. Bunların dördü, Yeni Ay, İlk Dördün, Dolunay ve Son Dördün, aslında birer andır; aradaki dördü ise günlerce süren aralıklardır. Sence kaydırıcıda her ad eşit yer kaplar mı? İlk Dördün, Yeni Ay'dan kaç gün sonra gelmeli?",
-        do: "<strong>Ay konumu (evre)</strong> kaydırıcısını 0'dan 360'a yavaşça sürükle; diskin altındaki evre adının değiştiği değerleri ve gün sayacını yaz. Kaydırıcıya tıklayıp klavyenin ok tuşlarıyla birer derece ilerleyebilirsin.",
+          "İlk Dördün'de Ay tam 90° doğudadır. Disk tam %50 mi aydınlıktır? Hilal düğmesindeki 45°'te yüzde kaç beklersin?",
+        do: "<strong>01 · Evreler</strong>'de <strong>Evreleri sıfırla</strong> (E = 45°) ve kartları oku. Sonra <strong>İlk Dördün</strong>'e bas; “Tam yarım aydınlık (ψ = 90°) elongasyonu” kartına bak. En sonda Gözlemci menüsünü Güney Yarım Küre'ye çevir.",
         observe:
-          "Ad 7'de 'Büyüyen Hilal', 84'te 'İlk Dördün', 97'de 'Büyüyen Şişkin Ay', 174'te 'Dolunay', 187'de 'Küçülen Şişkin Ay', 264'te 'Son Dördün', 277'de 'Küçülen Hilal', 354'te yeniden 'Yeni Ay' olur. Dört 'an' adı, tam değerin ±6° yakınında görünür: toplam 12°, yani yaklaşık 1 gün. Aradaki adların her biri yaklaşık 78°, yani 6,4 gün ekranda kalır. Tam 90'da sayaç 7,4 gün, 180'de 14,8 gün, 270'te 22,1 gün gösterir.",
+          "45°'te Büyüyen Hilal, 3,69 gün, ψ = 134,90°; kuram ve ızgara sayımı ikisi de %14,71; “sağ yanı aydınlık”. İlk Dördün'de kuram %50,13, ölçülen %50,07 (fark −0,06 puan, ızgara çözünürlüğü), ψ = 89,85°. Tam yarım an 89,853°'de gelir: 90°'den 0,147° önce. Güney Yarım Küre'de aynı İlk Dördün'ün sol yanı aydınlıktır: gözlemci kuzeye baktığı için görüntü ters döner.",
         explain:
-          "Evre aslında sürekli değişen bir açıdır; adlar onun üzerine koyduğumuz etiketlerdir. Sayfa, dördün ve dolunay gibi anlara yarım günlük bir pay tanır, çünkü bir gün içindeki farkı çıplak gözle seçmek zordur. Gökte büyüyen ve küçülen evreleri ayırmak kolaydır: Türkiye'den bakınca büyüyen hilal akşam batıda görülür ve sağ yanı aydınlıktır; küçülen hilal şafakta doğudadır ve sol yanı aydınlıktır. Güney Yarım Küre'den, örneğin Avustralya'dan, Ay baş aşağı görünür ve sağ ile sol yer değiştirir.",
+          "Güneş sonlu uzaklıkta olduğu için ışınları Ay'a ve Dünya'ya tam paralel gelmez; ψ = 90° anı E = arccos(d/D) = 89,853°'de olur. Aristarhus'un ölçmeye çalıştığı açı buydu: 90°'den farkı yalnız 0,147°'dir ve cos 89,853° ≈ 1/389 tam olarak d/D'dir. Hilalin %14,71'i (1 + cos 134,90°)/2'dir.",
       },
       {
-        title: "Yeni ayda Ay nerede durur?",
+        title: "Ay neden her gün geç kalır?",
         predict:
-          "Çizimde Güneş solda. Yeni ayda Ay'ı göremeyiz. Sence o anda Ay, Dünya ile Güneş'in arasında mı, yoksa Dünya'nın Güneş'e uzak yanında mı olmalı? Dolunayda nerede olmalı?",
-        do: "<strong>Ay konumu (evre)</strong> kaydırıcısını sırayla 0, 90, 180 ve 270'e getir. Her seferinde Güneş–Dünya–Ay çiziminde Ay'ın yerine ve 'Dünya'dan görünüş' diskine bak.",
+          "Ay yıldızlara göre 27,32 günde döner. Evreler kaç günde tekrarlar? Ay her gün kaç dakika geç doğar: 24 saati 29,53'e bölmek yeter mi?",
+        do: "<strong>02 · Sinodik ve yıldızıl ay</strong>'da <strong>1 yıl ileri</strong>'ye bas. Sonra Y menüsünde “Dünya durur”u seçip yeniden bas. <strong>03 · Ay ne zaman doğar?</strong>'da İlk Dördün, Dolunay ve Son Dördün düğmelerini dene.",
         observe:
-          "0'da Ay elipsin sol ucunda, Güneş ile Dünya'nın arasındadır. Küçük Ay'ın aydınlık yarısı Güneş'e, yani sola bakar; Dünya'ya karanlık yarısını döner ve disk tümüyle karanlıktır: 'Yeni Ay', %0. 180'de Ay elipsin sağ ucundadır, Dünya Güneş ile Ay'ın arasında kalır; aydınlık yarı bize döner: 'Dolunay', %100. 90'da Ay elipsin önündedir (altta), 270'te arkasındadır (üstte); ikisinde de disk tam yarı aydınlıktır. Küçük Ay her konumda sola bakan yarısıyla aydınlık kalır.",
+          "365,26 günde 13 yıldızıl tur · 12 evre döngüsü; P = 27,3217, S = 29,5306 gün, S − P = 2,209 gün, açı 26,93°. Dünya durunca S = P = 27,3217 gün. İlk Dördün 12.00'de doğar, 18.13'te en yüksektedir, 18.00'de 87,0°; gecikme 50,47 dk (kaba tahmin 48,76 dk). Dolunay 18.13'te doğar, Son Dördün 05.47'de en yüksektedir.",
         explain:
-          "Güneş her an Ay'ın yarısını aydınlatır; evreyi değiştiren yalnızca bizim bakış açımızdır. Yeni ayda Ay gökte Güneş'le aynı yöndedir; güneş tutulması bu yüzden yalnızca yeni ayda olabilir. Dolunayda Ay Güneş'in tam karşısındadır, Güneş batarken doğar ve Ay tutulması yalnızca dolunayda olabilir. Modelin bir sınırı var: iki yörünge aynı düzlemde çizildiği için çizime bakan biri her ay iki tutulma bekler. Gerçekte Ay'ın yörüngesi yaklaşık 5,1° eğiktir; Ay çoğu ay Güneş'in ya da Dünya'nın gölgesinin biraz üstünden veya altından geçer.",
+          "Ay Güneş'e göre günde 360°/S = 12,19° doğuya kayar. Yer bu açıyı dönerek kapatırken Ay biraz daha ilerler; ardışık meridyen geçişleri arası 24 sa · S/(S − 1), gecikme 24 sa/(S − 1) olur. Saatler ekvator modelinden: orta enlemlerde Ay'ın dik açıklığı doğuşu bir saatten fazla kaydırabilir.",
       },
       {
-        title: "Hilal ne kadar ince olmalı?",
+        title: "Kaç yeni ay tutulma olur?",
         predict:
-          "Sayfa aydınlık kesri k = (1 − cos α)/2 ile hesaplar. 45°, 90° ve 135° için diskin yüzde kaçı aydınlık görünmeli? 225°, 270° ve 315°'te ne değişir? Önce hesapla, sonra çizime bak.",
-        do: "Kaydırıcıyı sırayla 45, 90, 135, 180, 225, 270 ve 315'e getir; her seferinde 'Dünya'dan görünüş' diskini ve altındaki yüzdeyi incele.",
+          "Ay her ay Güneş ile Dünya'nın arasından geçer. On yılda 124 yeni ayın kaçı Güneş tutulması olur? Eğiklik sıfır olsaydı?",
+        do: "<strong>04 · Tutulmalar</strong>'da <strong>Tutulmaları sıfırla</strong> (10 yıl, 30°, i = 5,145°) ve alt kartları oku. Sonra <strong>i = 0°</strong>'a bas. Son olarak sıfırlayıp Süre'yi 50 yıl yap.",
         observe:
-          "45'te sağda ince bir hilal görürsün, %15. 90'da aydınlık ile karanlığı ayıran çizgi dümdüzdür, %50. 135'te aydınlık kısım karanlığa doğru bombelidir, %85. 180'de disk tümüyle aydınlıktır. 225, 270 ve 315 aynı yüzdeleri (%85, %50, %15) verir ama şekiller ayna görüntüsüdür: büyüyen evrelerde (0–180) aydınlık taraf sağda, küçülen evrelerde (180–360) soldadır.",
+          "24 / 124 · %19,4 (geometrik tahmin %18,5); 16 dolunay tam gölgeye girer, 8'i tam. Türler 5 · 9 · 10 (tam · halkalı · parçalı). Mevsimler arası 173,5 gün (kuram 173,31), pencere ±16,7°, mevsim ≈ 32,1 gün. i = 0'da 124 / 124. 50 yılda 116 / 619 · %18,7: sayım tahmine yaklaşır.",
         explain:
-          "Sonlandırıcı Ay'ın üzerinde bir yarım çemberdir; ona eğik baktığımız için yarı genişliği r·|cos α| olan bir yarım elips gibi görünür. Büyüyen evrede aydınlık kenardan sonlandırıcıya kadar olan genişlik (1 − cos α)·r'dir, yani çapın tam k katı: 45°'te çapın yüzde 15'i. Alan oranı da aynı sonucu verir: yarım diskin alanına yarım elipsinkini ekleyip ya da ondan çıkarıp tüm diske bölersen yine (1 − cos α)/2 bulursun. 10° ya da 350°'de kesir yalnızca binde 8'dir (sayfa %1 yazar); bu kadar ince bir hilal diskte de gökte de zor seçilir.",
+          "Güneş tutulması için Ay 1,473°'den yakın geçmeli, eğiklik ise 5,145°: kavuşum düğümün ±16,7° yakınına düşmelidir, 180°'nin %18,5'i. Kavuşumlar düğüme göre ayda 30,67° kaydığından kısa süreli sayımlar birkaç puan sapar. Mevsim 32 gün, sinodik aydan uzun: bu modelde her mevsime en az bir yeni ay düşer.",
       },
       {
-        title: "Eksen yıl boyunca nereye bakar?",
+        title: "Mevsimler uzaklıktan mı?",
         predict:
-          "Haziranda Kuzey Yarım Küre'de yaz yaşanır. O zaman Dünya'nın kuzey kutbu Güneş'e doğru mu, ters yöne mi eğiktir? Altı ay sonra eksenin uzaydaki yönü değişir mi?",
-        do: "<strong>Dünya yörünge konumu (mevsim)</strong> kaydırıcısını 0, 90, 180 ve 270'e getir. 'Dünya'nın yörüngesi' çiziminde Dünya'nın Güneş'e göre yerine, yeşil eksenin K ucuna, altındaki iki satıra ve sayfanın en altındaki öğle Güneş'i yüksekliğine bak. Sonra iki kaydırıcıyı da 0'a al, <strong>Otomatik</strong> düğmesine bas ve Dünya bir tur atarken diskin kaç kez dolunay olduğunu say.",
+          "Dünya Güneş'e hangi ayda en yakın? Eksen eğik olmasaydı İstanbul'da haziran mı aralık mı daha çok ışınım alırdı?",
+        do: "<strong>05 · Mevsimler</strong>'de <strong>Mevsimleri sıfırla</strong> (21 Haziran, İstanbul) ve durum satırını oku. <strong>21 Aralık</strong>'a bas. 21 Haziran'a dönüp <strong>ε = 0°</strong>'a bas. Son olarak sıfırla, <strong>Kuzey Kutbu</strong>'nu, ardından <strong>Ekvator</strong>'u seç.",
         observe:
-          "0'da Dünya Güneş'in sağındadır (haziran konumu) ve K ucu sola, Güneş'e doğru yatar: 'Mevsim: Yaz (Haziran gündönümü)', 'Kuzey kutbu Güneş'e doğru eğik'; İstanbul'da öğle Güneş'i 72,4°. 180'de Dünya Güneş'in solundadır (aralık konumu); eksen yine sola yatar, ama bu kez Güneş'ten uzağa: 'Kış (Aralık gündönümü)', öğle Güneş'i 25,6°. 90 ve 270 ekinokslardır: eksen Güneş'e göre yana eğiktir, öğle Güneş'i 49,0°. Otomatik oynatmada eksen tur boyunca hep aynı yöne bakar; normal hızda yaklaşık 90 saniye süren bir turda disk 12 kez dolunay olur.",
+          "21 Haziran: 152,025 milyon km · %−3,17; öğle 72,44°, gündüz 14 sa 57 dk, 483,3 W/m². Durum satırı: yarım yıl sonra 149 W/m², oran 3,25; eğiklik olmasaydı 317 ve 338 W/m². 21 Aralık: 147,172 milyon km · %+3,32 ama 25,56°, 9 sa 03 dk, 148,8 W/m² (durum satırı bu kez ters oranı, 0,31'i verir). ε = 0'da δ = 0,00°, gündüz 12 sa 00 dk, 316,6 W/m², oran 0,937. Kutupta 21 Haziran: 24 sa, 524,2 W/m²; Ekvator aynı gün 384,9 W/m² alır, kutuptan az.",
         explain:
-          "Eksen uzayda hep aynı yöne, Kutup Yıldızı'nın yakınına bakar; değişen, Dünya'nın yörüngedeki yeridir. Haziranda kuzey kutbu Güneş'e doğru eğiktir; öğle Güneş'i yüksektir, gündüz uzundur: yaz. Aralıkta eksen aynı yöne bakar ama Dünya yörüngenin öbür yanındadır ve kuzey kutbu Güneş'ten uzağa düşer: kış. Güneş–Dünya–Ay çiziminde Güneş hep solda tutulduğu için oradaki eksen mevsim kaydırıcısıyla döner gibi görünür: aynı sabit eksene, Dünya ile birlikte dönen bir bakış açısından bakarsın. Bir yılda 12,37 kavuşum ayı olduğundan bir yıla, başlangıç anına göre, 12 ya da 13 dolunay düşer.",
+          "Eğiklik δ'yı ±23,44° salındırır; öğle yüksekliği 90° − |φ − δ|, gündüz cos H₀ = −tan φ tan δ ile değişir. Uzaklık tek başına aralık gününe yalnız %7 kadar üstünlük verir; mevsimi tersine çeviremez. Kutupta yaz günü 24 saat sürdüğü için, Güneş alçakta olsa da toplam ışınım ekvatoru geçer. Ölçülen ekinokslar arası 186,41 ve 178,84 gün: Eylül'den Mart'a uzanan yarı, Dünya günberi yakınında hızlı gittiği için kısadır.",
       },
     ],
   },
@@ -120,18 +123,18 @@ window.ACELYA_DIGEST["ay-evreleri"] = {
     },
   ],
   worked: {
-    title: "Evreler neden 2,2 gün geç kalır?",
+    title: "Tam mı, halkalı mı? Gölge konisinin boyu",
     prompt:
-      "Ay yıldızlara göre bir turunu 27,32 günde, Dünya Güneş çevresindeki turunu 365,26 günde atar. Bir dolunaydan ötekine geçen süreyi yalnızca bu iki sayıdan hesapla; sonra sayfadaki kaydırıcının bir derecesinin kaç saate karşılık geldiğini bul.",
+      "Yeni ayda Güneş, Ay ve Dünya merkezleri bir doğrudadır. R<sub>G</sub> = 695.700 km, R<sub>A</sub> = 1.737,4 km, R<sub>D</sub> = 6.371 km, D = 149,6 milyon km alalım. Ay ortalama uzaklıkta (d = 384.400 km) iken tam gölgesi Dünya yüzeyine ulaşır mı? Tam tutulma için Ay en çok ne kadar uzakta olabilir?",
     steps: [
-      "Ay'ın yıldızlara göre açısal hızı: 360° / 27,32 gün ≈ 13,18° / gün.",
-      "Dünya'dan bakınca Güneş de yıldızların önünde aynı yönde kayar: 360° / 365,26 gün ≈ 0,986° / gün. Bu, Dünya'nın yörüngedeki ilerleyişinin gökteki yansımasıdır.",
-      "Evreyi belirleyen, Ay'ın gökte Güneş'in ne kadar doğusunda olduğudur. Bu açı günde 13,18 − 0,986 ≈ 12,19° büyür. Açının yeniden 360° artması için 360 / 12,19 ≈ 29,53 gün gerekir.",
-      "Sağlama: 27,32 günde Güneş 0,986 × 27,32 ≈ 26,9° kaymıştır. Ay'ın onu yakalaması için gereken ek süre t: 13,18·t = 26,9 + 0,986·t, buradan t ≈ 26,9 / 12,19 ≈ 2,21 gün. 27,32 + 2,21 = 29,53 gün.",
-      "Sayfaya çevir: 360° bir kavuşum ayıysa 1° = 29,53 / 360 ≈ 0,082 gün ≈ 2 saat. Kaydırıcıda 45'ten 90'a, yani büyüyen hilalden ilk dördüne geçmek yaklaşık 3,7 gün demektir; sayfanın gün sayacı da 3,7'den 7,4'e çıkar.",
+      "Tam gölge, Güneş'in ve Ay'ın kenarlarına aynı yandan değen iki teğetin kesiştiği yerde biter. Benzer üçgenler: L/R<sub>A</sub> = (L + D − d)/R<sub>G</sub>, buradan L = (D − d)·R<sub>A</sub>/(R<sub>G</sub> − R<sub>A</sub>).",
+      "Sayılar: D − d = 149.215.600 km, R<sub>G</sub> − R<sub>A</sub> = 693.962,6 km, oran R<sub>A</sub>/(R<sub>G</sub> − R<sub>A</sub>) ≈ 0,0025036. L ≈ 149.215.600 km × 0,0025036 ≈ 373.575 km.",
+      "Ay'ın tam altındaki yüzey noktası Ay merkezinden d − R<sub>D</sub> = 384.400 − 6.371 = 378.029 km uzaktadır. Gölge ucu yüzeyden 4.454 km önce biter: <strong>halkalı tutulma</strong>. Aynı şeyi açılar söyler: Ay'ın görünür çapı 2·asin(1.737,4/378.029) ≈ 0,5267°, Güneş'inki ≈ 0,5329°; oran 0,9882.",
+      "Sınır uzaklık L = d − R<sub>D</sub> eşitliğinden: (D − d)R<sub>A</sub> = (d − R<sub>D</sub>)(R<sub>G</sub> − R<sub>A</sub>), yani d* = [D·R<sub>A</sub> + R<sub>D</sub>(R<sub>G</sub> − R<sub>A</sub>)]/R<sub>G</sub> ≈ 379.957 km. Yerberide (363.300 km) L ≈ 373.628 km, yüzeye 356.929 km: uç 16.699 km öteye geçer, tam tutulma.",
+      "Sayfada dene: 04 · Tutulmalar'da Kesit Güneş tutulması iken Dünya–Ay merkez uzaklığını 379.900 km yap: tam; 380.000 km: halkalı. “Ay yerberide” düğmesi yaklaşık 155 km'lik tam gölge izi verir.",
     ],
     result:
-      "Kavuşum ayı ≈ 29,53 gün; yıldız ayından yaklaşık 2,2 gün uzun. Genel formül 1/S = 1/P − 1/Y. Aynı geri kalma, Ay'ın her gün ortalama 50 dakika kadar geç doğmasını da açıklar: Ay, Güneş'e göre günde yaklaşık 12° geride kalır ve Dünya'nın dönerek bu açıyı kapatması 50 dakika kadar sürer.",
+      "Ortalama uzaklıkta tam gölge 373.575 km uzunluktadır ve yüzeye 4.454 km yetişmez; tutulma halkalıdır. Tam tutulma için Ay'ın, Güneş 149,6 milyon km'deyken, 379.957 km'den yakın olması gerekir. Yerberi ile yeröte arasındaki 42.200 km'lik oynama bu yüzden tutulmanın türünü belirler.",
   },
   misconceptions: [
     {
@@ -147,7 +150,7 @@ window.ACELYA_DIGEST["ay-evreleri"] = {
     {
       myth: "Yazın sıcak olması Dünya'nın Güneş'e yaklaşmasındandır.",
       truth:
-        "Dünya Güneş'e en çok ocak başında yaklaşır; Kuzey Yarım Küre o sırada kıştadır. Aynı anda Avustralya'da yaz yaşanır: uzaklık iki yarım küre için aynıdır ama mevsimler terstir. Asıl neden eksen eğikliğidir; Güneş ışınlarının geliş açısı ve gündüzün uzunluğu yıl boyunca değişir.",
+        "Dünya Güneş'e en çok ocak başında yaklaşır; Kuzey Yarım Küre o sırada kıştadır. Aynı anda Avustralya'da yaz yaşanır: uzaklık iki yarım küre için aynıdır ama mevsimler terstir. Laboratuvarda eğikliği sıfırlayınca İstanbul'un 21 Aralık'ı 21 Haziran'dan biraz fazla ışınım alır (oran 0,937); gerçek eğiklikle haziran aralığın 3,25 katıdır. Asıl neden Güneş'in geliş açısı ve gündüzün uzunluğudur.",
     },
     {
       myth: "Ay'ın arka yüzü hiç güneş görmeyen 'karanlık yüz'dür.",
@@ -156,72 +159,72 @@ window.ACELYA_DIGEST["ay-evreleri"] = {
     },
   ],
   glossary: [
-    { term: "Evre", definition: "Ay'ın Dünya'dan görünen aydınlık kısmının biçimi; gökte Ay ile Güneş arasındaki açıya ve Ay'ın Güneş'in hangi yanında (doğusunda mı, batısında mı) olduğuna bağlıdır." },
+    { term: "Elongasyon", definition: "Dünya'dan bakınca Ay ile Güneş arasındaki açı; sayfada Ay'ın Güneş'ten doğuya doğru ölçülür: Yeni Ay 0°, İlk Dördün 90°, Dolunay 180°, Son Dördün 270°." },
     { term: "Sonlandırıcı (terminatör)", definition: "Bir gök cisminin gündüz ve gece yarılarını ayıran çizgi; Ay'da yandan bakıldığı için yarım elips gibi görünür." },
-    { term: "Kavuşum ayı (sinodik ay)", definition: "Aynı evrenin art arda iki kez görülmesi arasında geçen süre; ortalama 29,53 gün." },
-    { term: "Yıldız ayı (sideral ay)", definition: "Ay'ın yıldızlara göre Dünya çevresindeki bir turu; 27,32 gün." },
-    { term: "Kütleçekim kilidi", definition: "Bir uydunun kendi çevresindeki dönme süresinin yörünge süresine eşitlenmesi; bu yüzden gezegene hep aynı yüzü döner." },
-    { term: "Librasyon", definition: "Ay'ın Dünya'dan bakınca hafifçe sallanıyor görünmesi; zamanla yüzeyin yaklaşık yüzde 59'unu görmemizi sağlar." },
-    { term: "Eksen eğikliği", definition: "Dünya'nın dönme ekseni ile yörünge düzleminin dikmesi arasındaki açı; bugün 23,44°." },
+    { term: "Sinodik ay (kavuşum ayı)", definition: "Aynı evrenin art arda iki kez görülmesi arasında geçen süre; ortalama 29,53 gün." },
+    { term: "Yıldızıl ay", definition: "Ay'ın uzak yıldızlara göre Dünya çevresindeki bir turu; 27,32 gün." },
+    { term: "Düğüm", definition: "Ay yörüngesinin Dünya'nın yörünge düzlemini (ekliptiği) kestiği iki noktadan biri; tutulmalar yalnız kavuşum bir düğümün yakınına düştüğünde olur." },
+    { term: "Tam gölge ve yarı gölge", definition: "Tam gölgede (umbra) Güneş diskinin tamamı, yarı gölgede (penumbra) bir bölümü örtülür; tam gölge ucunun ötesinde halkalı tutulma görülür." },
+    { term: "Dik açıklık (deklinasyon)", definition: "Bir gök cisminin gök ekvatorundan kuzeye ya da güneye açısı; Güneş için öğlende tam tepeden geldiği enlem." },
     { term: "Gündönümü ve ekinoks", definition: "Güneş'in gök ekvatorunun en kuzeyine ya da en güneyine ulaştığı an (gündönümü; dönencelerin dışında öğle Güneş'i o gün yılın en yüksek ya da en alçak konumundadır) ve Güneş'in gök ekvatorunu geçtiği, gece ile gündüzün yaklaşık eşitlendiği an (ekinoks)." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
       "Lisede Ay bir çember üzerinde döner; üniversitede <strong>gök mekaniği</strong> onun ne kadar huysuz olduğunu gösterir. Ay'ı hem Dünya hem Güneş çeker: bu bir <strong>üç cisim problemidir</strong> ve genel bir kapalı çözümü yoktur. Ay yörüngesinin biçimi ve yönü sürekli değişir; örneğin düğümler 18,6 yılda bir tur atar ve tutulma takvimleri bunu hesaba katmak zorundadır. Ay'ın konumunu yüzyıllar ileriye ve geriye hesaplamak, Newton'dan bu yana matematikçilerin en çetin sınavlarından biri oldu. Bugün lazer ölçümleri aynı yörüngeyi, kütleçekim kuramlarını sınamak için santimetrenin altında bir duyarlıkla izliyor.",
-      "Mevsimler <strong>küresel astronomiye</strong> açılır: ekliptik ve ekvator koordinatları arasındaki geçiş, lineer cebirdeki dönme matrislerinin ta kendisidir. Daha uzun ölçekte eksen eğikliği yaklaşık 41.000 yıllık bir döngüde 22,1° ile 24,5° arasında salınır, eksenin yönü de yaklaşık 26.000 yılda bir tur atar (<strong>presesyon</strong>). Milankoviç döngüleri denen bu yavaş değişimler buzul çağlarının zamanlamasıyla ilişkilendirilir. Gelgit sürtünmesi de <strong>açısal momentum korunumunun</strong> dev bir örneğidir: Dünya'nın dönüşü yavaşladıkça kaybettiği açısal momentum Ay'ın yörüngesine aktarılır ve Ay uzaklaşır.",
+      "Mevsimler <strong>küresel astronomiye</strong> açılır: ekliptik ve ekvator koordinatları arasındaki geçiş, lineer cebirdeki dönme matrislerinin ta kendisidir; sin δ = sin ε sin λ bu dönmenin bir satırıdır. Sayfanın mevsim sekmesi bir adım daha atar: Güneş'in o günkü yerini bulmak için <strong>Kepler denklemi</strong> M = E − e sin E'yi Newton yöntemiyle çözer, ışınımı da Simpson kuralıyla sayısal olarak integre eder; Sayısal Analiz dersinin iki temel aracı. Daha uzun ölçekte eksen eğikliği yaklaşık 41.000 yıllık bir döngüde 22,1° ile 24,5° arasında salınır, eksenin yönü de yaklaşık 26.000 yılda bir tur atar (<strong>presesyon</strong>). Milankoviç döngüleri denen bu yavaş değişimler buzul çağlarının zamanlamasıyla ilişkilendirilir. Gelgit sürtünmesi de <strong>açısal momentum korunumunun</strong> dev bir örneğidir: Dünya'nın dönüşü yavaşladıkça kaybettiği açısal momentum Ay'ın yörüngesine aktarılır ve Ay uzaklaşır.",
     ],
-    topics: ["Gök mekaniği", "Üç cisim problemi", "Açısal momentum korunumu", "Gelgit kuvvetleri", "Küresel astronomi ve koordinat dönüşümleri", "Presesyon ve Milankoviç döngüleri"],
+    topics: ["Gök mekaniği", "Üç cisim problemi", "Kepler denklemi ve Newton yöntemi", "Küresel astronomi ve koordinat dönüşümleri", "Sayısal integral", "Gelgit kuvvetleri ve açısal momentum", "Presesyon ve Milankoviç döngüleri"],
   },
   quiz: [
     {
-      question: "Güneş battıktan hemen sonra batı ufkunda ince bir hilal görüyorsun. Ay yörüngesinde nerededir?",
+      question: "Dünya Güneş çevresini 365,256 gün yerine 182,628 günde dolansaydı (yıldızıl ay yine 27,32 gün), sinodik ay yaklaşık kaç gün olurdu?",
       options: [
-        "Dünya'nın Güneş'e uzak yanında, Dünya'nın gölgesine yakın",
-        "Dünya'ya göre Güneş'le tam dik açıda; ilk dördünde",
-        "Güneş ile Dünya'nın arasına yakın; yeni aydan birkaç gün sonra",
-        "Güneş ile Dünya'nın arasına yakın; yeni aydan birkaç gün önce",
-      ],
-      answer: 2,
-      explanation:
-        "Hilal gökte Güneş'e yakın görünür, çünkü Ay ile Güneş arasındaki açı küçüktür; demek ki Ay, Güneş ile Dünya'nın arasına yakındır ve aydınlık yarısının yalnızca ince bir kenarını görürüz. Akşam batıda görünen hilal büyüyendir: Ay yeni aydan sonra Güneş'in doğusuna geçmiştir ve Güneş'ten sonra batar. Yeni aydan önceki küçülen hilal ise Güneş'ten önce doğar, şafakta doğuda görülür ve akşam gökte değildir. Dünya'nın gölgesi Güneş'in tam ters yönündedir.",
-    },
-    {
-      question: "Kavuşum ayı (29,53 gün) neden yıldız ayından (27,32 gün) uzundur?",
-      options: [
-        "Dünya da Güneş çevresinde ilerlediğinden, Ay'ın Güneş'e göre aynı dizilime dönmek için 360°'den yaklaşık 29° fazla yol alması gerektiği için",
-        "Ay'ın yörüngesi elips olduğundan Ay uzak noktada yavaşlar ve bu gecikme her ay yaklaşık 2,2 gün tutar",
-        "Dünya'nın gölgesi Ay'ı her ay yaklaşık iki gün örttüğü ve evrelerin sırasını geciktirdiği için",
-        "Ay kendi ekseni çevresinde yörüngesinden daha yavaş döndüğü için aynı yüzünü bize geç gösterir",
-      ],
-      answer: 0,
-      explanation:
-        "Bir yıldız turu sonunda Güneş'in Dünya'dan görünen yönü yaklaşık 27° kaymıştır. Ay bu farkı Güneş'e göre günde 12,2° yaklaşarak yaklaşık 2,2 günde kapatır; bu sürede Güneş 2° kadar daha kaydığından Ay, bir kavuşum ayında yıldızlara göre toplam 360° + 29° ≈ 389° yol alır: 1/S = 1/P − 1/Y. Elips yörünge ayın bir bölümünü hızlandırıp ötekini yavaşlatır ama ortalama süreyi uzatmaz; Ay da yörünge süresiyle tam aynı hızda döner.",
-    },
-    {
-      question: "Dünya ocak başında Güneş'e yılın en yakın noktasındadır. Buna rağmen Ankara'da ocakta kış olmasının asıl nedeni nedir?",
-      options: [
-        "Güneş'in ocakta daha az ışık üretmesi",
-        "Dünya ekseninin ocakta yön değiştirip Güneş'ten uzağa dönmesi",
-        "Eğiklik yüzünden Kuzey Yarım Küre'nin Güneş'e birkaç bin kilometre daha uzak kalması",
-        "Kuzey Yarım Küre'nin Güneş'ten uzağa eğik olması: Güneş öğlen alçakta kalır, gündüzler kısadır",
+        "23,77 gün: Dünya'nın hareketi Ay'a yardım eder, evreler daha sık tekrarlar",
+        "27,32 gün: sinodik ay yalnız Ay'ın hareketine bağlıdır",
+        "29,53 gün: evre süresi Dünya'nın hızından bağımsızdır",
+        "32,13 gün: Güneş gökte daha hızlı kaçar, Ay onu daha geç yakalar",
       ],
       answer: 3,
       explanation:
-        "Eksen uzayda hep aynı yöne bakar; ocakta Dünya yörüngenin öyle bir yerindedir ki kuzey kutbu Güneş'ten uzağa düşer. Işık yatık gelip geniş alana yayılır ve gündüz kısalır. Eğiklik yüzünden oluşan birkaç bin kilometrelik uzaklık farkı, 147 milyon kilometrenin yanında on binde birden azdır. Yıllık uzaklık farkı bile ışığı yalnızca yüzde 7 kadar değiştirir ve iki yarım küreyi aynı yönde etkiler; mevsimleri açıklayamaz.",
+        "Ay ile Güneş gökte aynı yönde ilerler; evreyi belirleyen bağıl hızdır: 1/S = 1/P − 1/Y = 1/27,32 − 1/182,63, buradan S ≈ 32,13 gün. 23,77 gün hızları yanlışlıkla toplamaktan çıkar. 02 · Sinodik ve yıldızıl ay sekmesinde Y menüsünden 182,628'i seçip “1 yıl ileri”ye basarak 32,1281 günü doğrulayabilirsin.",
+    },
+    {
+      question: "Ay yörüngesinin eğikliği 5,145° yerine 2,5° olsaydı, Güneş tutulması sınırı aynı kalırken (yaklaşık 1,47°) yeni ayların ne kadarı tutulma olurdu?",
+      options: [
+        "Yine yaklaşık %18,5: eğiklik yalnız tutulmanın türünü değiştirir",
+        "Yaklaşık %40: düğüm çevresindeki pencere ±36°'ye genişler",
+        "Hepsi: 2,5° zaten tutulma sınırından küçüktür",
+        "Yaklaşık %9: eğiklik yarıya inince oran da yarıya iner",
+      ],
+      answer: 1,
+      explanation:
+        "Kavuşumda Ay'ın enlemi |β| = asin(sin i · sin u) sınırdan küçük olmalı: sin u &lt; sin 1,47°/sin 2,5° ≈ 0,589, yani u ±36° içinde. Düğüm açısı düzgün dağılırsa pay (2/π)·asin(0,589) ≈ %40'tır. Eğiklik azaldıkça pencere genişler; 2,5° sınırdan büyük olduğu için hepsi değil. Sayfada i'yi 2,5° yapıp 50 yıl sayarak dene.",
+    },
+    {
+      question: "Eksen eğikliği sıfır olsaydı İstanbul'un 21 Haziran ve 21 Aralık günlük ışınımları nasıl karşılaştırılırdı?",
+      options: [
+        "Haziran üç kat fazla olurdu, bugünkü gibi",
+        "Tam eşit olurdu: eğiklik yoksa hiçbir şey değişmez",
+        "Aralık yaklaşık %7 fazla olurdu: Dünya o sırada Güneş'e daha yakındır",
+        "Haziran yaklaşık %7 fazla olurdu: Güneş yazın daha yakındır",
+      ],
+      answer: 2,
+      explanation:
+        "Eğiklik sıfırsa δ hep 0°, gündüz her yerde 12 saattir; geriye yalnız uzaklık kalır. Dünya ocak başında Güneş'e en yakın olduğundan aralık günü daha çok ışınım alır: sayfada 317 ve 338 W/m², oran 0,937. Bugünkü 3,25 kat fark tümüyle eğiklikten gelir; uzaklık onu biraz azaltır.",
     },
   ],
   next: [
-    { href: "kepler-yasalari.html", title: "Kepler Yasaları", why: "Gezegen menüsünden Dünya'yı seç: Güneş'e uzaklık r yıl boyunca yalnızca 0,983 ile 1,017 AU arasında gidip gelir. Mevsimleri yaratamayacak kadar küçük bir fark." },
-    { href: "takimyildiz-haritasi.html", title: "Takımyıldız Haritası", why: "İlkbahar, Yaz, Sonbahar ve Kış düğmeleri gece gökyüzünü değiştirir: Dünya yörüngede ilerledikçe geceleri uzayın başka bir yönüne bakarız." },
-    { href: "birim-cember.html", title: "Birim Çember", why: "Açı θ kaydırıcısıyla cos θ'yı oku ve (1 − cos θ)/2'yi hesapla: Ay diskinin aydınlık kesri tam olarak budur." },
-    { href: "dairesel-hareket.html", title: "Dairesel Hareket", why: "Ay'ı yörüngede tutan merkezcil kuvveti, yarıçap ve hız kaydırıcılarıyla F = mv²/r üzerinden dene; Ay için bu kuvveti Dünya'nın çekimi sağlar." },
+    { href: "takimyildiz-haritasi.html", title: "Takımyıldız Haritası: Gökyüzünün Koordinatları", why: "Yıldız zamanı ve mevsimler sekmesinde bir yıldızın her gün yaklaşık 4 dakika erken doğduğunu ölç: Ay'ın 50 dakika geç kalmasının karşıtı. Enlem ve dik açıklığın gökteki yolu nasıl değiştirdiğini de gösterir." },
+    { href: "gunes-sistemi.html", title: "Güneş Sistemi Laboratuvarı", why: "Gökyüzünde gezegenler sekmesi bir gezegenin kavuşum dönemini ölçer ve NASA değeriyle karşılaştırır: aynı 1/S = 1/P − 1/Y bağıntısının gezegenlerdeki hâli." },
+    { href: "kepler-yasalari.html", title: "Kepler Yasaları — Gezegen Yörüngeleri", why: "İkinci yasa sekmesinde eşit sürelerde taranan alanları ölç: gezegen günberide hızlanır. Eylül→Mart yarıyılının 178,84, Mart→Eylül'ün 186,41 gün sürmesinin nedeni budur." },
+    { href: "birim-cember.html", title: "Birim Çember: Sinüs, Kosinüs ve Dönmeler", why: "Açı θ kaydırıcısıyla cos θ'yı oku ve (1 + cos θ)/2'yi hesapla: faz açısı θ iken Ay diskinin aydınlık kesri tam olarak budur." },
   ],
   sources: [
-    { title: "NASA Science · Moon Phases", url: "https://science.nasa.gov/moon/moon-phases/", note: "Sekiz evre, yaklaşık 29,5 günlük döngü ve büyüyen/küçülen evrelerin görünüşü (İngilizce)." },
     { title: "NASA Science · Tidal Locking", url: "https://science.nasa.gov/moon/tidal-locking/", note: "Ay neden hep aynı yüzünü gösterir, kilitlenme nasıl oluştu, Ay neden uzaklaşıyor (NASA hızı yuvarlak olarak yılda 4 cm verir)." },
     { title: "Wikipedia · Lunar Laser Ranging experiments", url: "https://en.wikipedia.org/wiki/Lunar_Laser_Ranging_experiments", note: "Apollo ve Lunokhod yansıtıcıları, yaklaşık 2,5 saniyelik gidiş-dönüş ve yılda 3,8 cm'lik uzaklaşma." },
     { title: "Wikipedia · On the Sizes and Distances (Aristarchus)", url: "https://en.wikipedia.org/wiki/On_the_Sizes_and_Distances_(Aristarchus)", note: "Aristarhus'un yarım ay yöntemi, 87° varsayımı ve 18–20 kat sonucu." },
+    { title: "NASA NSSDCA · Moon Fact Sheet", url: "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html", note: "Laboratuvarın Ay sabitleri: yarıçap 1.737,4 km, yarı büyük eksen 384.400 km, yerberi 363.300 km, yeröte 405.500 km, ekliptiğe eğiklik 5,145°." },
   ],
   revision: "Kasım 2026",
 };

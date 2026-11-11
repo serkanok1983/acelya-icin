@@ -223,13 +223,13 @@ window.ACELYA_DIGEST["tork-denge"] = {
     },
     {
       href: "dairesel-hareket.html",
-      title: "Dairesel Hareket",
+      title: "Dairesel Hareket — Merkezcil Kuvvet",
       why: "Dönen kirişte pimin tepkisi neden eğik? Ağırlık merkezi bir çember yayında döner ve merkezcil kuvvet ister. Yarıçap, hız ve kütle kaydırıcılarıyla F = mv²/r'yi orada ölç.",
     },
     {
       href: "is-enerji.html",
-      title: "İş–Enerji İlkesi",
-      why: "Kirişin dayanağa varış hızını enerji verdi: ½Iω² = Mg|d|·sin θ. Eğim ve sürtünme kaydırıcılarıyla işin kinetik enerjiyi nasıl değiştirdiğini, sürtünmenin enerjiyi nasıl harcadığını izle.",
+      title: "İş, Enerji ve Güç Laboratuvarı",
+      why: "Kirişin dayanağa varış hızını enerji verdi: ½Iω² = Mg|d|·sin θ. İş ve kuvvet–yol sekmesinde kuvvetin ve sürtünmenin işini topla, Kaykay pistinde sürtünmenin enerjiyi nasıl ısıya çevirdiğini izle.",
     },
   ],
   sources: [

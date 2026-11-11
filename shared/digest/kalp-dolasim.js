@@ -234,12 +234,12 @@ window.ACELYA_DIGEST["kalp-dolasim"] = {
     },
     {
       href: "enzim-kinetigi.html",
-      title: "Enzim Kinetiği (Michaelis–Menten)",
+      title: "Enzim Kinetiği Laboratuvarı",
       why: "Tek bağlanma yerli bir sistemin hiperbolü: Hüfner'in hemoglobin için beklediği eğri buydu. K<sub>m</sub>, P₅₀'nin karşılığıdır; S biçimli eğriyi onun yanına koy.",
     },
     {
       href: "fotosentez-solunum.html",
-      title: "Fotosentez ve Hücresel Solunum",
+      title: "Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton",
       why: "Dokunun dakikada çektiği oksijen nereye gidiyor: mitokondrideki elektron taşıma sisteminin son alıcısına.",
     },
   ],

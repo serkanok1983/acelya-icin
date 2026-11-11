@@ -175,7 +175,7 @@ window.ACELYA_DIGEST["sarkac"] = {
     { href: "cift-sarkac.html", title: "Çift Sarkaç", why: "Bir sarkaç daha ekle; düzenli salınımın nasıl kaosa dönüştüğünü gör." },
     { href: "yay-kutle.html", title: "Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans", why: "Aynı sinüs dalgası, bu kez bir yayda: Hooke yasası ve basit harmonik hareketin öteki yüzü." },
     { href: "serbest-dusme.html", title: "Serbest Düşme: Galileo'dan Limit Hıza", why: "Kütlenin periyotta neden görünmediğinin kökü: her cisim aynı ivmeyle düşer." },
-    { href: "dairesel-hareket.html", title: "Dairesel Hareket", why: "Topu çember üzerinde tutan ip gerilimi ve merkezcil kuvvet." },
+    { href: "dairesel-hareket.html", title: "Dairesel Hareket — Merkezcil Kuvvet", why: "Topu çember üzerinde tutan ip gerilimi ve merkezcil kuvvet." },
   ],
   sources: [
     { title: "OpenStax · University Physics Vol. 1, 15.4 Pendulums", url: "https://openstax.org/books/university-physics-volume-1/pages/15-4-pendulums", note: "Basit ve fiziksel sarkaç, küçük açı yaklaşımı ve örnek problemler (İngilizce, açık ders kitabı)." },

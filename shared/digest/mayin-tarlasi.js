@@ -196,7 +196,7 @@ window.ACELYA_DIGEST["mayin-tarlasi"] = {
     },
   ],
   next: [
-    { href: "bayes-olasilik.html", title: "Bayes Olasılığı", why: "Her açılan sayı bir kanıttır; yeni bilgiyle olasılığı güncellemenin genel kuralı burada." },
+    { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Her açılan sayı bir kanıttır; yeni bilgiyle olasılığı güncellemenin genel kuralı burada." },
     { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "İndirgeme fikri ve çözülemezlik haritası: Kaye’nin teoreminin oturduğu zemin ve bir milyon dolarlık P–NP sorusu." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "Taşırmanın akrabaları: bir ızgarada komşudan komşuya yayılan aramalar." },
     { href: "isik-sondurme.html", title: "Işık Söndürme", why: "Yine ızgara, yine 0 ve 1; ama bu kez denklemler her zaman tam çözülür ve şansa yer yoktur." },

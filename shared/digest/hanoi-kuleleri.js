@@ -198,7 +198,7 @@ window.ACELYA_DIGEST["hanoi-kuleleri"] = {
   next: [
     { href: "sierpinski-fraktali-peano-egrisi-altin-oran.html", title: "Sierpiński Fraktali", why: "Durum çizgesinin biçimini veren üçgen: üç küçük kopya, sonsuza kadar. Aynı özyineleme, bu kez geometride." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı", why: "2ⁿ ile n·log n arasındaki uçurum; üstel duvarın neden aşılmaz olduğu ve hangi problemlerin ona çarptığı." },
-    { href: "cizge-teorisi.html", title: "Çizge Teorisi", why: "Konumlar nokta, hamleler kenar: en kısa yol, çap ve bütün noktaları dolaşan yollar burada genel hâliyle." },
+    { href: "cizge-teorisi.html", title: "Çizge Teorisi: Yapı, Değişmezler ve Teoremler", why: "Konumlar nokta, hamleler kenar: böyle bir durum çizgesini genel hâliyle incele. Derece ve Euler sekmesinde dereceleri ve her kenardan bir kez geçen turları, Ağaçlar sekmesinde bağlılığı ölç." },
     { href: "isik-sondurme.html", title: "Işık Söndürme", why: "Bir başka bulmaca, bir başka gizli cebir: ikili sayılar bu kez doğrusal denklem sistemine dönüşüyor." },
   ],
   sources: [

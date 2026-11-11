@@ -180,9 +180,9 @@ window.ACELYA_DIGEST["gezegen-savunmasi"] = {
     },
   ],
   next: [
-    { href: "kepler-yasalari.html", title: "Kepler Yasaları", why: "Burada ölçtüğün T²/a³ sabitini ve eşit alan yasasını Güneş'in çevresindeki gezegenlerde gör." },
+    { href: "kepler-yasalari.html", title: "Kepler Yasaları — Gezegen Yörüngeleri", why: "Burada ölçtüğün T²/a³ sabitini ve eşit alan yasasını Güneş'in çevresindeki gezegenlerde gör." },
     { href: "konik-kesitler.html", title: "Konik Kesitler", why: "Düşen, dolanan ve kaçan mermilerin çizdiği elips, parabol ve hiperbolün geometrisi." },
-    { href: "dairesel-hareket.html", title: "Dairesel Hareket", why: "Dairesel hızın türetildiği v²/r merkezcil ivmesinin nereden geldiğine bak." },
+    { href: "dairesel-hareket.html", title: "Dairesel Hareket — Merkezcil Kuvvet", why: "Dairesel hızın türetildiği v²/r merkezcil ivmesinin nereden geldiğine bak." },
     { href: "asteroids.html", title: "Asteroids", why: "Çekimin hiç olmadığı bir asteroit avı: orada lazer dümdüz gider; nişan almak yörünge seçmek değil, doğru çizmektir." },
   ],
   sources: [

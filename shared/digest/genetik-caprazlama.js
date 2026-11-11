@@ -198,9 +198,9 @@ window.ACELYA_DIGEST["genetik-caprazlama"] = {
     },
   ],
   next: [
-    { href: "mitoz-mayoz.html", title: "Mitoz ve Mayoz", why: "Punnett karesinin satır ve sütun başlıklarını üreten süreç: homologların Anafaz I'de ayrılması, bağımsız dağılım ve krossing-over adım adım." },
-    { href: "bayes-olasilik.html", title: "Bayes Olasılığı", why: "Baskın görünen bir yavrunun neden 2/3 olasılıkla taşıyıcı olduğunun dili: koşullu olasılık ve ters yönde sorulan sorular." },
-    { href: "dogal-secilim.html", title: "Doğal Seçilim", why: "Tek bir çaprazlamadan popülasyona: kalıtsal renk varyantlarının seçilimle nesilden nesile nasıl yayıldığını izle." },
+    { href: "mitoz-mayoz.html", title: "Mitoz ve Mayoz Laboratuvarı", why: "Punnett karesinin satır ve sütun başlıklarını üreten süreç: homologların Anafaz I'de ayrılması, bağımsız dağılım ve krossing-over adım adım." },
+    { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Baskın görünen bir yavrunun neden 2/3 olasılıkla taşıyıcı olduğunun dili: koşullu olasılık ve ters yönde sorulan sorular." },
+    { href: "dogal-secilim.html", title: "Doğal Seçilim: Popülasyon Genetiği Laboratuvarı", why: "Tek bir çaprazlamadan popülasyona: Hardy–Weinberg sekmesinde Punnett oranlarının bütün popülasyondaki karşılığını gör, Seçilim sekmesinde baskın ya da çekinik bir alelin kuşaklar boyu nasıl yayıldığını izle." },
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "Aynı χ² uyum sınaması bu kez bir Galton tahtasında, binom ile normal yaklaşımı yarıştırır; büyük N'de küçük farkların nasıl yakalandığını gör." },
   ],
   sources: [

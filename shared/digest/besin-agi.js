@@ -149,9 +149,9 @@ window.ACELYA_DIGEST["besin-agi"] = {
     },
   ],
   next: [
-    { href: "fotosentez-solunum.html", title: "Fotosentez ve Hücresel Solunum", why: "Ağın girişindeki ışığın nasıl kimyasal enerjiye çevrildiğini ve solunumda ne olduğunu molekül ölçeğinde izle." },
+    { href: "fotosentez-solunum.html", title: "Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton", why: "Ağın girişindeki ışığın nasıl kimyasal enerjiye çevrildiğini ve solunumda ne olduğunu molekül ölçeğinde izle." },
     { href: "av-avci-lotka-volterra.html", title: "Av–Avcı Laboratuvarı", why: "Kaynak yolu sorusundan nüfusun zaman içinde değişmesine geç; denklemlerin ve varsayımların neden değiştiğini gör." },
-    { href: "cizge-teorisi.html", title: "Çizge Teorisi", why: "Düğümleri, yönlü yolları ve ortak bağlantıları matematik diliyle incele." },
+    { href: "cizge-teorisi.html", title: "Çizge Teorisi: Yapı, Değişmezler ve Teoremler", why: "Besin ağını bir çizge olarak kur: Derece ve Euler sekmesinde her türün kaç bağlantısı olduğunu say, ağın kaç bağlı parçaya ayrıldığını bileşenlerden oku." },
     { href: "termodinamik.html", title: "Termodinamik", why: "Enerji korunurken işe dönüştürülebilirliğin neden azaldığını ısı, iş ve entropiyle ilişkilendir." },
   ],
   sources: [

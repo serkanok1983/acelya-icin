@@ -30,9 +30,11 @@ Kullanıcı onayıyla main'e gönderilip elle yayımlandı; paket sürümü
 **`acelya-0aa90056b8`**. **11 Kasım, dördüncü tur (H):** "eski 36 defter"
 turunda yalnız düzeltilen yirmi bir sayfa aynı hatla sıfırdan yeniden
 kuruldu (ayrıntı `docs/simulasyon-notlari.md` → "H"); 39 kalıcı laboratuvar
-testi `npm run test:g` ile koşar. Bu tur henüz commit'lenmedi/yayımlanmadı
-(kullanıcı onayı bekleniyor). Kalan işler 4.4 (eski veri katmanları) ve
-4.5'in sonunda listelenenlerdir.
+testi `npm run test:g` ile koşar. Kullanıcı onayıyla main'e gönderilip
+yayımlandı (`6c929e7`, paket `acelya-54066734f1`). **12 Kasım, beşinci tur (I):** kalan 24 eski temel sayfa
+yeniden kuruldu, kanban algılayıcısı düzeltildi, 4.4 (eski veri katmanları)
+tamamlandı. Bu tur henüz commit'lenmedi (onay bekleniyor). Sıradaki iş
+`docs/YENI-SAYFA-PLANI.md`.
 
 **10 Kasım yayın talimatı:** Kullanıcı her kodlama turunun sonunda `main`'e
 gönderim ve elle yayın istiyor; sonucu canlı siteden kontrol ediyor.
@@ -698,11 +700,10 @@ tablosu hataları). Öneri:
    assembly, isaretciler, isletim-sistemleri, derleyici, tasarim-desenleri,
    yazilim-muhendisligi, internet-ve-ag, siber-guvenlik, elektronik
    (artık analog), mantik-devresi, makine-muhendisligi, plc-cnc, ucak,
-   otonom, isletme. **Sırada**: 31 Ekim–1 Kasım'da defterlenip hiç yeniden
-   kurulmamış eski temel sayfalar (is-enerji, dairesel-hareket,
-   manyetik-alan, kepler-yasalari, matris-donusumleri, fonksiyon-grafigi,
-   bayes-olasilik, kimya ve biyoloji sayfaları) ve yazilim-muhendisligi
-   kanbanının çekirdekteki kararsızlık algılayıcısı (bkz. notlar, H). Bir sayfa yeniden kurulursa
+   otonom, isletme. 12 Kasım'da (I) son 24 eski temel sayfa da yeniden
+   kuruldu (fizik/gökbilim 8, matematik/kimya 8, biyoloji/mekatronik 8; ayrıntı
+   `docs/simulasyon-notlari.md` → "I"). **Sırada**: `docs/YENI-SAYFA-PLANI.md`
+   (eski Bilim Atlası / STEM Omurgası sayfalarının taşınması ve yeni konular). Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

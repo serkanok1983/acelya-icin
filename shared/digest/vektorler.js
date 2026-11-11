@@ -270,8 +270,8 @@ window.ACELYA_DIGEST["vektorler"] = {
     },
     {
       href: "is-enerji.html",
-      title: "İş–Enerji İlkesi",
-      why: "Buradaki sürtünmesiz eğik düzleme sürtünmeyi ekle: eğim açısı ve sürtünme katsayısı kaydırıcılarıyla, rampadan kayan kutuda yerçekiminin işinin ne kadarının kinetik enerjiye dönüştüğünü izle.",
+      title: "İş, Enerji ve Güç Laboratuvarı",
+      why: "Buradaki eğik düzleme sürtünmeyi ekle: Kaykay pistinde yerçekiminin işinin ne kadarının kinetik enerjiye, ne kadarının ısıya gittiğini çubuklarda izle; İş ve kuvvet–yol sekmesinde yalnız F cos θ bileşeninin iş yaptığını ölç.",
     },
   ],
   sources: [

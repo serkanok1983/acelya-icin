@@ -192,7 +192,7 @@ window.ACELYA_DIGEST["formul-hafiza"] = {
     { href: "newton-hareket-yasalari.html", title: "Newton'un Hareket Yasaları: Kuvvet, Kütle ve İvme", why: "F = m·a kartının arkasındaki deneyler: sürtünme eşiği, Atwood düzeneğinde ölçülen ivme ve birbirini iten iki arabada eşit ve zıt kuvvetler." },
     { href: "elektrostatik.html", title: "Elektrostatik", why: "Coulomb kartının devamı: alan, potansiyel ve ters kare yasasını küre yüzeyinden çıkaran akı fikri." },
     { href: "tek-sayi-toplam3.html", title: "Tek Sayılardan Kareye", why: "1 + 3 + 5 + … + 15 = 64 neden bir kare? Hafızasız oyuncunun n²'sinin görsel ispatı." },
-    { href: "bayes-olasilik.html", title: "Bayes Olasılığı", why: "Açılan her kart kalanlar hakkındaki olasılığı günceller; koşullu olasılığın düzenli hesabı burada." },
+    { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Açılan her kart kalanlar hakkındaki olasılığı günceller; koşullu olasılığın düzenli hesabı burada." },
   ],
   sources: [
     { title: "Wikipedia · Concentration (card game)", url: "https://en.wikipedia.org/wiki/Concentration_(card_game)", note: "Oyunun adları, strateji üzerine notlar ve Velleman–Warrington'ın 2013'teki beklenen hamle sonucu; 52 kartlık deste için yaklaşık 41 hamle (İngilizce)." },

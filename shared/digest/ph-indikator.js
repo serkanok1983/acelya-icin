@@ -224,7 +224,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
   next: [
     {
       href: "asit-baz-titrasyonu.html",
-      title: "Asit-Baz Titrasyonu",
+      title: "Asit-Baz Titrasyonu Laboratuvarı",
       why: "Tamponlar, titrasyon eğrileri ve eşdeğerlik noktasına göre indikatör seçimi; Sørensen'in pH'ı nasıl icat ettiği ve 'p'nin bilmecesi de orada.",
     },
     {
@@ -239,7 +239,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     },
     {
       href: "kimyasal-kinetik.html",
-      title: "Kimyasal Kinetik",
+      title: "Kimyasal Kinetik Laboratuvarı",
       why: "Fenolftaleinin kuvvetli bazda dakikalar süren solması derslerde klasik bir hız deneyidir; hız sabitini, yarı ömrü ve sıcaklığın etkisini orada keşfet.",
     },
   ],

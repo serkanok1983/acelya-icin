@@ -3,101 +3,102 @@ window.ACELYA_DIGEST["enzim-kinetigi"] = {
   slug: "enzim-kinetigi",
   title: "Enzim Kinetiği: Yaşamın Hız Sınırı",
   field: "Biyoloji",
-  level: "Lise ileri",
-  minutes: 30,
+  level: "Lise–Lisans",
+  minutes: 40,
   tagline:
-    "Enzimler tepkimeleri milyonlarca kat, en uç örnekte 10¹⁷ kat hızlandırır; ama her birinin bir hız tavanı vardır. Bu tavanı ve ona nasıl yaklaşıldığını anlatan temel model hâlâ 1913'te yazılmış tek bir denklemdir.",
-  hook: "78 milyon yıl. Hücrelerinin DNA ve RNA harflerinin bir kısmını (U, C ve T) yapmak için kullandığı bir tepkime, kendi hâline bırakılsa moleküllerin yarısını ancak bu kadar sürede dönüştürürdü: dinozorlar çağında başlasa bugün ancak yarılanmış olurdu. OMP dekarboksilaz enzimi aynı işi 18 milisaniyede bitirir. Peki bu kadar güçlü bir makinenin neden bir hız tavanı var?",
+    "Enzimler tepkimeleri milyonlarca kat hızlandırır, ama her birinin bir hız tavanı vardır. Tavanı anlatan 1913 denklemini tam mekanizmayla sına, nerede yanıldığını ölç.",
+  hook: "78 milyon yıl. Hücrelerimizin DNA ve RNA harflerinin bir kısmını (U, C ve T) yapmak için kullandığı bir tepkime, kendi hâline bırakılsa moleküllerin yarısını ancak bu kadar sürede dönüştürürdü: dinozorlar çağında başlasa bugün ancak yarılanmış olurdu. OMP dekarboksilaz enzimi aynı işi 18 milisaniyede bitirir: yaklaşık 10¹⁷ kat hızlanma. Peki bu kadar güçlü bir makinenin neden bir hız tavanı var?",
   bigIdea:
-    "Enzim, substratı aktif bölgesine bağlayıp ürüne çeviren ve her seferinde değişmeden geri dönen bir katalizördür; substrat arttıkça hız artar ama bütün enzimler dolunca <strong>V<sub>max</sub></strong> tavanına dayanır, <strong>K<sub>m</sub></strong> ise o tavanın yarısına ulaşmak için gereken substrat derişimidir.",
+    "Enzim, substratı aktif bölgesine bağlayıp ürüne çeviren ve her seferinde değişmeden geri dönen bir katalizördür; substrat arttıkça hız artar ama bütün enzimler dolunca <strong>V<sub>max</sub></strong> tavanına dayanır, <strong>K<sub>M</sub></strong> ise o tavanın yarısına ulaşmak için gereken substrat derişimidir. Bu tablo, enzim substrattan çok az olduğu sürece doğrudur.",
   story: [
-    "19. yüzyılda büyük bir tartışma vardı: şekeri alkole çeviren mayalanma, canlı maya hücrelerine özgü bir yaşam gücüyle mi oluyordu, yoksa hücrelerin içindeki sıradan kimyasallarla mı? Louis Pasteur mayalanmanın ancak canlı hücrelerde gerçekleşebileceğini savunuyordu. 1877'de Wilhelm Kühne bu etkinliği taşıyan maddelere Yunanca \"mayanın içinde\" anlamına gelen <strong>enzim</strong> adını verdi. 1894'te Emil Fischer, enzimlerin yalnızca belirli biçimdeki şeker türevlerini parçaladığını görünce ünlü benzetmesini yaptı: enzim ve substrat <strong>kilit ve anahtar</strong> gibi birbirine uymalıdır. 1897'de Eduard Buchner maya hücrelerini kuvars kumu ve kizelgurla ezip sıktı. Elde ettiği özsuda tek bir canlı hücre yoktu; ama şekerle karşılaşınca karbondioksit kabarcıkları çıkardı, kimi zaman günlerce. Mayalanma hücresiz de yürüyordu. Bu deney Buchner'e 1907 Nobel Kimya Ödülü'nü getirdi ve yeni bir bilimin kapısını açtı: yaşamın tepkimeleri, şişede incelenebilen kimyaydı.",
+    "19. yüzyılda büyük bir tartışma vardı: şekeri alkole çeviren mayalanma, canlı maya hücrelerine özgü bir yaşam gücüyle mi oluyordu, yoksa hücrelerin içindeki sıradan kimyasallarla mı? Louis Pasteur mayalanmanın ancak canlı hücrelerde gerçekleşebileceğini savunuyordu. 1877'de Wilhelm Kühne bu etkinliği taşıyan maddelere Yunanca \"mayanın içinde\" anlamına gelen <strong>enzim</strong> adını verdi. 1894'te Emil Fischer, enzimlerin yalnızca belirli biçimdeki şeker türevlerini parçaladığını görünce ünlü benzetmesini yaptı: enzim ve substrat <strong>kilit ve anahtar</strong> gibi birbirine uymalıdır. 1897'de Eduard Buchner maya hücrelerini kuvars kumu ve kizelgurla ezip sıktı. Elde ettiği özsuda tek bir canlı hücre yoktu; ama şekerle karşılaşınca karbondioksit kabarcıkları çıkardı. Mayalanma hücresiz de yürüyordu. Bu deney Buchner'e 1907 Nobel Kimya Ödülü'nü getirdi ve yeni bir bilimin kapısını açtı: yaşamın tepkimeleri, şişede incelenebilen kimyaydı.",
     "1912'de Kanadalı hekim <strong>Maud Menten</strong> Berlin'e, Leonor Michaelis'in laboratuvarına geldi. Menten 1911'de Toronto Üniversitesi'nden tıp doktoru olmuştu; Kanada'da bu unvanı alan ilk kadınlardan biriydi, ama ülkesinde kadınlara araştırma olanağı çok kısıtlıydı. Michaelis, pH ve tampon çözeltilerinin önde gelen uzmanıydı. İkili, sakarozu glukoz ve fruktoza ayıran <em>invertaz</em> enzimini inceledi. Bu tepkimede çözeltinin polarize ışığı döndürme yönü tersine döner; Michaelis ile Menten, farklı sakaroz derişimlerinde bu dönmeyi zamana karşı titizlikle ölçerek tepkimenin ilerleyişini izlediler. 1913'te yayımladıkları <em>Die Kinetik der Invertinwirkung</em> (İnvertin etkisinin kinetiği) makalesi, hızın substratla nasıl doyduğunu tek bir denklemle anlattı.",
-    "Benzer bir denklemi Fransız kimyacı Victor Henri on yıl kadar önce yazmıştı; bu yüzden bazı biyokimyacılar ona Henri–Michaelis–Menten denklemi der. Michaelis ve Menten'in farkı yöntemdeydi: pH'ı tamponla sabit tuttular, ürün birikmeden önceki <strong>başlangıç hızını</strong> ölçtüler ve tepkimenin baştan sona bütün seyrini de, biriken ürünün frenleyici etkisini hesaba katarak çözümlediler. 2011'de verilerini bilgisayarla yeniden inceleyen araştırmacılar, bu yüz yıllık analizin beklenmedik ölçüde titiz olduğunu gösterdi. Menten sonra Chicago Üniversitesi'nde biyokimya doktorası aldı, 1923'ten 1950'ye kadar Pittsburgh Üniversitesi tıp fakültesinde çalıştı ve 70'ten fazla yayına imza attı. Alkalen fosfataz enzimini dokuda boyayarak görünür kılan azo boya yöntemini geliştirdi; yöntem histokimyada hâlâ kullanılıyor. Buna rağmen tam profesörlüğe ancak emekliliğinden kısa süre önce, yetmiş yaşına yaklaşırken yükseltildi.",
+    "Benzer bir denklemi Fransız kimyacı Victor Henri 1902'de, on yıl kadar önce yazmıştı; bu yüzden bazı biyokimyacılar ona Henri–Michaelis–Menten denklemi der. Michaelis ve Menten'in farkı yöntemdeydi: pH'ı tamponla sabit tuttular, ürün birikmeden önceki <strong>başlangıç hızını</strong> ölçtüler ve tepkimenin baştan sona bütün seyrini de, biriken ürünün frenleyici etkisini hesaba katarak çözümlediler. 2011'de verilerini bilgisayarla yeniden inceleyen araştırmacılar, bu yüz yıllık analizin beklenmedik ölçüde titiz olduğunu gösterdi. Menten sonra Chicago Üniversitesi'nde biyokimya doktorası aldı, 1923'ten 1950'ye kadar Pittsburgh Üniversitesi tıp fakültesinde çalıştı ve 70'ten fazla yayına imza attı. Alkalen fosfataz enzimini dokuda boyayarak görünür kılan azo boya yöntemini geliştirdi; yöntem histokimyada hâlâ kullanılıyor. Buna rağmen tam profesörlüğe ancak emekliliğinden kısa süre önce, yetmiş yaşına yaklaşırken yükseltildi.",
     "Hikâye 1913'te bitmedi. 1925'te George Briggs ve J. B. S. Haldane denklemi daha genel bir varsayımla, ES kompleksinin derişiminin neredeyse sabit kaldığı <em>kararlı durum</em> fikriyle yeniden türetti; ders kitaplarındaki türetme budur. 1926'da James Sumner üreaz enzimini kristalleştirip saf bir protein olduğunu gösterdi ve 1946'da Nobel Kimya Ödülü'nü paylaştı. 1934'te Hans Lineweaver ve Dean Burk eğriyi düz bir doğruya çeviren çift ters grafiği yayımladı. 1958'de Daniel Koshland, Fischer'in katı kilidine bir düzeltme önerdi: aktif bölge substrat bağlanırken biçim değiştirir, tıpkı bir eldivenin ele oturması gibi. Bu <strong>uyarılmış uyum</strong> modeli, glukoz bağlandığında iki lobu birbirine doğru kapanan heksokinaz enziminde açıkça görülür.",
   ],
   core: [
     {
-      heading: "Aktif bölge: geçici bir kucaklaşma",
-      body: "Çoğu enzim binlerce atomdan oluşan bir proteindir (bazı RNA molekülleri de enzim gibi çalışır). Ama işin döndüğü yer, yüzeydeki küçük bir cep olan <strong>aktif bölge</strong>dir. Substrat buraya oturur ve <strong>enzim-substrat kompleksi (ES)</strong> oluşur. Aktif bölgedeki kimyasal gruplar substratı tepkimenin en zor anına, <em>geçiş durumuna</em> uygun biçimde tutar; böylece aşılması gereken enerji tepesi, yani <strong>aktivasyon enerjisi</strong> alçalır. Ürün ayrılınca enzim değişmeden geri döner ve bir sonraki substratı bekler. Grafiğin yanındaki (dar ekranda altındaki) çizim bu döngünün şemasıdır: üstte ES kompleksi, altta serbest enzim ve ürün P.",
-      formula: "E + S ⇌ ES → E + P",
+      heading: "Aktif bölge ve dört türün denklemleri",
+      body: "Çoğu enzim binlerce atomdan oluşan bir proteindir (bazı RNA molekülleri de enzim gibi çalışır). İşin döndüğü yer, yüzeydeki küçük bir cep olan <strong>aktif bölge</strong>dir. Substrat buraya oturur ve <strong>enzim-substrat kompleksi (ES)</strong> oluşur. Aktif bölgedeki gruplar substratı tepkimenin en zor anına, <em>geçiş durumuna</em> uygun biçimde tutar; aşılması gereken <strong>aktivasyon enerjisi</strong> alçalır. Ürün ayrılınca enzim değişmeden geri döner. Bu döngüyü kütle etkisi yasasıyla yazınca dört türün (E, S, ES, P) hızları birbirine bağlı diferansiyel denklemler olur. Laboratuvarın ilk sekmesi bu denklemleri hiçbir yaklaşım yapmadan, dördüncü mertebe Runge–Kutta (RK4) yöntemiyle çözer; ölçtüğü başlangıç hızı, ürün eğrisinin en dik eğimidir.",
+      formula: "d[ES]/dt = k₁[E][S] − (k₋₁ + k<sub>cat</sub>)[ES] &nbsp;;&nbsp; d[P]/dt = k<sub>cat</sub>[ES] &nbsp;;&nbsp; [E] = [E]₀ − [ES]",
       formulaNote:
-        "İlk adım iki yönlüdür: substrat bağlanabilir ya da tepkimeye girmeden ayrılabilir. İkinci adımda enzim aynen geri çıkar; tükenen yalnızca substrattır. Enzim tepkimenin denge sabitini ve ΔG'sini değiştirmez, dengeye ulaşma süresini kısaltır.",
+        "Mekanizma E + S ⇌ ES → E + P. İlk adım iki yönlüdür, ikinci adım sayfada tersinmezdir ve ürün geri bağlanmaz. Enzim tükenmez; toplam enzim [E]₀ sabittir. Tersinir bir tepkimede de enzim dengenin yerini değiştirmez, yalnızca dengeye ulaşma süresini kısaltır.",
     },
     {
-      heading: "Doygunluk: bütün kasalar dolunca",
-      body: "On kasalı bir market düşün. Müşteri azken kuyruk yoktur; kapıdan giren müşteri iki katına çıkarsa saatte çıkan müşteri de neredeyse iki katına çıkar. Ama bütün kasalar dolduktan sonra kapıdan ne kadar insan girerse girsin, saatte çıkan müşteri artmaz. Enzimler de böyledir: her enzim molekülü bir kasadır. Az substratta hız [S] ile neredeyse doğru orantılı artar; çok substratta enzimlerin neredeyse hepsi meşgul olur ve hız V<sub>max</sub>'a yaklaşır, ama ona hiçbir zaman tam ulaşmaz. Sayfadaki eğrinin önce dik yükselip sonra yataylaşmasının nedeni budur.",
-      formula: "v = V<sub>max</sub>·[S] / (K<sub>m</sub> + [S])",
-      formulaNote:
-        "[S] ≪ Km iken v ≈ (Vmax/Km)·[S], yani doğrusal; [S] ≫ Km iken v ≈ Vmax. [S]/(Km + [S]) oranı, o anda dolu olan kasaların, yani meşgul enzimlerin payıdır.",
-    },
-    {
-      heading: "Km, Vmax ve devir sayısı",
-      body: "Denklemin iki parametresi farklı şeyler söyler. <strong>K<sub>m</sub></strong> bir derişimdir (sayfada mM): hızın tam V<sub>max</sub>'ın yarısı olduğu substrat derişimi. Küçük K<sub>m</sub>, enzimin az substratla bile yarı kapasiteye çıktığı anlamına gelir. <strong>V<sub>max</sub></strong> bir hızdır (sayfada µM/s) ve ortamdaki enzim miktarına bağlıdır: enzimi iki katına çıkarırsan V<sub>max</sub> iki katına çıkar, K<sub>m</sub> değişmez. Enzimin kendine özgü hızı <strong>k<sub>cat</sub></strong>'tır: tek bir enzim molekülünün doygunlukta saniyede kaç substratı ürüne çevirdiği. K<sub>m</sub> sık sık \"bağlanma isteği\" diye yorumlanır; bu yorum, ES kompleksinin substratı ürüne çevirmekten çok daha sık geri bıraktığı durumlarda iyi çalışır, her durumda değil.",
+      heading: "Doygunluk: K<sub>M</sub>, V<sub>max</sub> ve k<sub>cat</sub>",
+      body: "On kasalı bir market düşün. Müşteri azken kapıdan giren müşteri iki katına çıkarsa saatte çıkan müşteri de neredeyse iki katına çıkar; bütün kasalar dolunca ise artmaz. Her enzim molekülü bir kasadır. Az substratta hız [S] ile doğru orantılı artar, çok substratta <strong>V<sub>max</sub></strong>'a yaklaşır ama ona hiç tam ulaşmaz. <strong>K<sub>M</sub></strong> bir derişimdir: hızın tam V<sub>max</sub>/2 olduğu [S]. V<sub>max</sub> enzim miktarına bağlıdır; enzimin kendine özgü hızı <strong>k<sub>cat</sub></strong>, tek bir molekülün doygunlukta saniyede kaç substratı ürüne çevirdiğidir. K<sub>M</sub> çoğu zaman \"bağlanma isteği\" diye okunur, ama yalnızca k<sub>cat</sub> ≪ k₋₁ iken K<sub>M</sub> ≈ K<sub>d</sub> olur. Sayfanın Briggs–Haldane hazır durumunda K<sub>d</sub> 1.000 µM iken K<sub>M</sub> 100.0 µM'dir: kompleks substratı geri bırakmaktan çok ürüne çevirir.",
       formula:
-        "V<sub>max</sub> = k<sub>cat</sub>·[E]<sub>toplam</sub> &nbsp;;&nbsp; K<sub>m</sub> = (k<sub>−1</sub> + k<sub>cat</sub>) / k<sub>1</sub>",
+        "v = V<sub>max</sub>[S]/(K<sub>M</sub> + [S]) &nbsp;;&nbsp; V<sub>max</sub> = k<sub>cat</sub>[E]₀ &nbsp;;&nbsp; K<sub>M</sub> = (k₋₁ + k<sub>cat</sub>)/k₁",
       formulaNote:
-        "k₁ bağlanma, k₋₁ ayrılma hız sabitidir. kcat, k₋₁'e göre çok küçükse Km yaklaşık olarak ES'nin ayrışma sabitine eşit olur. Enzimlerin verimliliği çoğunlukla kcat/Km oranıyla karşılaştırılır.",
+        "[S] ≪ K<sub>M</sub> iken v ≈ (k<sub>cat</sub>/K<sub>M</sub>)[E]₀[S], yani hız birinci derecedir ve verimi k<sub>cat</sub>/K<sub>M</sub> belirler; [S] ≫ K<sub>M</sub> iken v ≈ V<sub>max</sub>. Sayfanın klasik durumu: k₁ = 1 µM⁻¹s⁻¹, k₋₁ = 90 s⁻¹, k<sub>cat</sub> = 10 s⁻¹ ⇒ K<sub>M</sub> = 100 µM.",
     },
     {
-      heading: "İnhibitörler: kilidi tıkamak ya da kasayı kapatmak",
-      body: "<strong>Yarışmalı inhibitör</strong> substrata benzer ve aynı aktif bölgeye oturur; enzim aynı anda ya substratı ya inhibitörü tutar. Substrat çoksa yarışı o kazanır. Bu yüzden V<sub>max</sub> değişmez ama yarı hıza ulaşmak için daha çok substrat gerekir: görünür K<sub>m</sub> büyür. <strong>Yarışmasız inhibitör</strong> aktif bölgenin dışına bağlanır ve bağlandığı enzimi işe yaramaz hâle getirir; substrat eklemek bunu düzeltmez. V<sub>max</sub> düşer, K<sub>m</sub> aynı kalır. Tıptan bir örnek: metanol zehirlenmesinde hastaya fomepizol ya da etanol verilir; bunlar alkol dehidrogenaz enziminde metanolle yarışır ve metanolün zehirli ürünlere dönüşmesini yavaşlatır.",
+      heading: "Yarı kararlı durum: türetme ve geçerlilik koşulu",
+      body: "Briggs ve Haldane'nin adımı: kısa bir <strong>ön kararlı evreden</strong> sonra [ES] yavaş değişir, d[ES]/dt ≈ 0 alınır. Bu, k₁([E]₀ − [ES])[S] = (k₋₁ + k<sub>cat</sub>)[ES] verir; [ES]'yi çözüp k<sub>cat</sub> ile çarpınca Michaelis–Menten denklemi çıkar. Türetmenin gizli ikinci varsayımı, serbest [S]'nin toplam [S]₀'a eşit sayılmasıdır. Kompleksin içinde bekleyen substrat ihmal edilebilecek kadar azsa doğrudur; bunu ölçen küçük parametre ε'dur. Klasik durumda ε = 5.00×10⁻⁴ ve ölçülen v₀ formülden yalnız −0.04 % ayrılır. \"Enzim bol\" durumunda ([E]₀ = [S]₀ = 100 µM) ε = 0.5 olur: substratın 36.58 %'i tepede kompleksin içindedir ve ölçülen hız formülün 26.84 % altında kalır. Serbest yerine toplam substratla yazılan <em>toplam QSSA</em> farkı −4.23 %'e indirir.",
+      formula: "ε = [E]₀/([S]₀ + K<sub>M</sub>) ≪ 1 &nbsp;;&nbsp; τ ≈ 1/(k₁([S]₀ + K<sub>M</sub>))",
+      formulaNote:
+        "τ ön kararlı evrenin zaman ölçeğidir: klasik durumda 5.000 ms, oysa ürünün yarısı 119.4 s'de oluşur. Zaman ölçekleri bu kadar ayrık olduğu için [ES] hızla bir platoya oturur. Ürün eğrisinin tam biçimi V<sub>max</sub>t = ([S]₀ − [S]) + K<sub>M</sub> ln([S]₀/[S]) ile verilir.",
+    },
+    {
+      heading: "İnhibitörler: görünür parametreler ve IC50",
+      body: "<strong>Yarışmalı inhibitör</strong> yalnız serbest enzime (E) bağlanır ve aktif bölge için substratla yarışır: substrat çoksa yarışı o kazanır, V<sub>max</sub> değişmez, görünür K<sub>M</sub> büyür. Yalnız ES kompleksine bağlanan inhibitör (sayfada \"Yarışmasız (uncompetitive)\") K<sub>M</sub>'yi de V<sub>max</sub>'ı da aynı oranda küçültür. E'ye ve ES'ye aynı K<sub>i</sub> ile bağlanan inhibitör (sayfada \"Saf karma (noncompetitive)\") yalnız V<sub>max</sub>'ı düşürür; ikisine farklı sabitlerle bağlanan <strong>karma</strong> (<em>mixed</em>) inhibitör ikisini birden değiştirir. Türkçe kaynaklarda \"yarışmasız\" adı kimi zaman uncompetitive, kimi zaman noncompetitive tür için kullanılır; İngilizce terime ya da mekanizmaya bakmak en güvenlisidir. İlaç araştırmasında sık ölçülen <strong>IC50</strong>, hızı yarıya indiren [I]'dır ve deneydeki [S]'ye bağlıdır. Cheng–Prusoff bağıntısı IC50'den K<sub>i</sub>'yi geri hesaplar, ama tam olarak yalnız yarışmalı inhibitör için. Tıptan bir örnek: metanol zehirlenmesinde verilen fomepizol ya da etanol, alkol dehidrogenazda metanolle yarışır.",
       formula:
-        "Yarışmalı: K<sub>m,görünür</sub> = K<sub>m</sub>·(1 + [I]/K<sub>i</sub>) · Yarışmasız: V<sub>max,görünür</sub> = V<sub>max</sub> / (1 + [I]/K<sub>i</sub>)",
+        "K<sub>M,gör</sub> = K<sub>M</sub>(1 + [I]/K<sub>i</sub>)/(1 + [I]/K<sub>i</sub>') &nbsp;;&nbsp; V<sub>max,gör</sub> = V<sub>max</sub>/(1 + [I]/K<sub>i</sub>') &nbsp;;&nbsp; yarışmalıda IC50 = K<sub>i</sub>(1 + [S]/K<sub>M</sub>)",
       formulaNote:
-        "[I] inhibitör derişimi, Ki inhibitörün bağlanma sabitidir. Sayfada inhibitör miktarı ayarlanamaz: Yarışmalı mod Km'yi sabit 2.2 ile, Yarışmasız mod Vmax'ı sabit 0.45 ile çarpar; ikisi de [I]/Ki ≈ 1.2 durumuna denk gelir. Sayfadaki gibi Km'yi hiç değiştirmeyen saf yarışmasız inhibisyon gerçekte nadirdir; çoğu inhibitör <em>karma</em> davranır ve Km'yi de değiştirir. Yalnızca ES kompleksine bağlanan (unkompetitif) inhibitörler de vardır; ikisi de sayfada yoktur.",
+        "K<sub>i</sub> E·I kompleksinin, K<sub>i</sub>' ES·I kompleksinin ayrışma sabitidir. Yarışmalı: K<sub>i</sub>' = ∞; yalnız ES'ye bağlanan: K<sub>i</sub> = ∞; saf karma: K<sub>i</sub>' = K<sub>i</sub>; karma: K<sub>i</sub>' = αK<sub>i</sub>. Genel IC50 = (K<sub>M</sub> + [S])/(K<sub>M</sub>/K<sub>i</sub> + [S]/K<sub>i</sub>'); saf karmada bu tam K<sub>i</sub>'dir ve [S]'ye hiç bağlı değildir.",
     },
     {
-      heading: "Eğriyi doğrultmak: Lineweaver–Burk",
-      body: "Bilgisayarların olmadığı yıllarda V<sub>max</sub>'ı bir eğriden okumak zordu, çünkü eğri ona hiç dokunmaz. 1934'te Lineweaver ve Burk denklemin iki tarafının tersini aldı: 1/v'yi 1/[S]'ye karşı çizince eğri düz bir doğruya dönüşür. Doğrunun dikey ekseni kestiği yer 1/V<sub>max</sub>, eğimi K<sub>m</sub>/V<sub>max</sub>'tır. İnhibitör türleri bu grafikte hemen ayırt edilir: yarışmalı inhibitörlü ve inhibitörsüz doğrular dikey eksende, saf yarışmasızda ise yatay eksende kesişir. Sayfa bu grafiği çizmez; iki okumayla kendin kurabilirsin. Bugün parametreler çoğunlukla bilgisayarla doğrudan eğriye uydurularak bulunur; çift ters grafik ölçüm hatalarını büyüttüğü için daha çok görselleştirme aracıdır.",
-      formula: "1/v = (K<sub>m</sub>/V<sub>max</sub>)·(1/[S]) + 1/V<sub>max</sub>",
+      heading: "Sıcaklık ve pH: neden bir tepe var?",
+      body: "Sıcaklık iki şey yapar. Kimyasal adım Arrhenius bağıntısıyla hızlanır; ama protein de açılmaya (denatüre olmaya) başlar ve açık enzim çalışmaz. Sayfanın öğretim modelinde açılma iki durumlu ve tersinirdir; hız, Arrhenius çarpanı ile katlanmış kesir f<sub>N</sub>'nin çarpımıdır. ln v'nin türevini sıfıra eşitleyince şaşırtıcı derecede sade bir sonuç çıkar: optimumda enzimin Eₐ/ΔH<sub>a</sub> kadarı açıktır. pH modeli ise iki iyonlaşabilen gruba dayanır: enzim yalnız birinin protonlu, ötekinin protonsuz olduğu EH biçiminde etkindir. Etkin kesir iki pK<sub>a</sub>'nın ortasında tepe yapar. pK<sub>a</sub>'lar birbirinden uzaksa yarı yükseklik noktaları neredeyse pK<sub>a</sub>'lara denk gelir; yakınsa tepe alçalır ve yarı yükseklikten pK<sub>a</sub> okumak yanıltır. Gerçek enzimler bu modellerden karmaşıktır; sayfa yalnız optimum aralıklarını (Taq, pepsin) kaynaktan alır.",
+      formula:
+        "v(T) ∝ e<sup>−Eₐ/RT</sup>·f<sub>N</sub>(T) ⇒ f<sub>N</sub>(T<sub>opt</sub>) = 1 − Eₐ/ΔH<sub>a</sub> &nbsp;;&nbsp; f<sub>EH</sub> = 1/(1 + 10<sup>pK<sub>a1</sub> − pH</sup> + 10<sup>pH − pK<sub>a2</sub></sup>)",
       formulaNote:
-        "Sayfanın açılış ayarlarıyla: [S] = 0.50 mM'de v = 0.500 µM/s, [S] = 2.50 mM'de v = 0.833 µM/s. Ters noktalar (1/[S] mM⁻¹; 1/v s/µM) = (2.0; 2.0) ve (0.4; 1.2). Eğim 0.8/1.6 = 0.5 mM·s/µM = Km/Vmax; kesim 1.2 − 0.5·0.4 = 1.0 s/µM = 1/Vmax.",
+        "Türetme: d ln f<sub>N</sub>/dT = −(1 − f<sub>N</sub>)ΔH<sub>a</sub>/RT² (van 't Hoff), d(−Eₐ/RT)/dT = Eₐ/RT². Toplam sıfır ⇒ 1 − f<sub>N</sub> = Eₐ/ΔH<sub>a</sub>. Yalnız ΔH<sub>a</sub> &gt; Eₐ ise iç optimum vardır. pH tepesinin yüksekliği 1/(1 + 2·10<sup>−ΔpK<sub>a</sub>/2</sup>).",
     },
   ],
   lab: {
     intro:
-      "Sayfada dört kontrol var: <strong>V<sub>max</sub></strong> kaydırıcısı (0.20–2.00 µM/s), <strong>K<sub>m</sub></strong> kaydırıcısı (0.05–1.50 mM), <strong>İnhibitör modu</strong> menüsü (Yok, Yarışmalı, Yarışmasız) ve <strong>Substrat [S]</strong> kaydırıcısı (0–2.50 mM). Üstteki dört kutu o anki V<sub>max</sub>, K<sub>m</sub>, V ve [S] değerlerini gösterir; inhibitör seçiliyse kutulardaki V<sub>max</sub> ve K<sub>m</sub>, kaydırıcı etiketlerinden farklı olarak inhibitörlü <em>görünür</em> değerlerdir. Kutu etiketlerindeki µM/s, mikromolar bölü saniyedir; mM ise milimolardır, yani bin kat büyük bir derişim birimi. Grafikte sarı nokta seçtiğin [S]'deki hızı, mor nokta (K<sub>m</sub>; V<sub>max</sub>/2) noktasını gösterir; kesikli çizgiler V<sub>max</sub> ve K<sub>m</sub>'yi işaretler. Grafiğin yanındaki (dar ekranda altındaki) çizim sabit bir şemadır, yalnızca inhibitör seçince değişir. Sayfada sıcaklık, pH ya da inhibitör miktarı ayarı yoktur.",
+      "Laboratuvar dört sekmedir. <strong>01 · Michaelis–Menten</strong>: <strong>Hazır durum</strong> menüsü ve k₁, k₋₁, k<sub>cat</sub>, [E]₀, [S]₀ kutuları (sayı yazıp Enter'a bas); tam mekanizmanın RK4 çözümü düz, Michaelis–Menten yaklaşımı kesikli çizilir; kartlar ölçülen v₀'ı formülle, τ'yu ve yarılanma anını kuramla karşılaştırır, <strong>Oynat</strong> bir zaman imlecini gezdirir. <strong>02 · Parametre kestirimi</strong>: gerçek K<sub>M</sub> ve V<sub>max</sub>'ı sen seçersin; deney tasarımı, <strong>Gürültü türü</strong> ve <strong>Gürültü oranı</strong> kaydırıcılarıyla tohumlu gürültülü ölçümler üretilir, dört yöntem (Levenberg–Marquardt, Lineweaver–Burk, Eadie–Hofstee, Hanes–Woolf) aynı veriye uydurulur ve tablo 400 tekrarın dağılımını verir. <strong>03 · İnhibisyon</strong>: <strong>İnhibisyon türü</strong>, [I], K<sub>i</sub>, α ve <strong>IC50 deneyinde [S]</strong>; görünür parametreler, Lineweaver–Burk kesişimi, IC50 ve Cheng–Prusoff kartları. <strong>04 · Sıcaklık ve pH</strong>: Eₐ, ΔH<sub>a</sub>, T<sub>m</sub>, pK<sub>a1</sub>, pK<sub>a2</sub> kaydırıcıları ile <strong>Taq benzeri</strong>, <strong>Pepsin benzeri</strong> ve <strong>Yakın pK<sub>a</sub>'lar</strong> düğmeleri. Fumaraz ve pepsinin K<sub>M</sub> ile k<sub>cat</sub> değerleri ve iki optimum aralığı kaynaktandır; öteki bütün sabitler öğretim değeridir.",
     experiments: [
       {
-        title: "Km noktasını yakala",
+        title: "Yaklaşım ne zaman çöker?",
         predict:
-          "K<sub>m</sub> = 0.50 mM iken [S]'yi 0.50 mM yaparsan hız V<sub>max</sub>'ın ne kadarı olur? K<sub>m</sub>'yi 1.00 mM'ye çıkarırsan aynı [S]'de hız ne olur; yarı hızı geri almak için [S] kaç olmalı?",
-        do: "İnhibitör modu Yok ve V<sub>max</sub> 1.00 iken K<sub>m</sub>'yi 0.50 mM, Substrat [S]'yi 0.50 mM yap ve V kutusunu oku. Sonra K<sub>m</sub>'yi 1.00 mM'ye çek; ardından [S]'yi 1.00 mM'ye kaydır.",
+          "Enzim substrat kadar bol olsaydı Michaelis–Menten formülü başlangıç hızını yine doğru verir miydi? Verseydi neyi ihmal ediyor olurdu?",
+        do: "01 · Michaelis–Menten sekmesini açılış ayarında incele: v₀, ürün eğrisi sapması ve ε kartlarını yaz. Sonra Hazır durum menüsünden \"Enzim bol: [E]₀ = [S]₀\" seç ve aynı kartları yeniden oku.",
         observe:
-          "İlk okumada V = 0.500: sarı nokta mor noktanın tam üstündedir. K<sub>m</sub> 1.00 olunca V 0.333'e düşer ve mor nokta sağa kayar. [S] = 1.00 mM'de V yeniden 0.500 olur, iki nokta yine çakışır.",
+          "Klasik durumda ölçülen v₀ 0.4998 µM/s, formül 0.5000 µM/s (fark −0.04 %); ürün eğrisi sapması 0.018 %. Enzim bol durumunda v₀ 365.8 µM/s, formül 500.0 µM/s (fark −26.84 %); sapma 16.136 %, kompleks tepede [S]₀'ın 36.58 %'ini tutuyor, toplam QSSA farkı −4.23 %. Durum satırı \"çöktü\" der; iki grafikte düz ve kesikli eğriler ayrılır.",
         explain:
-          '[S] = K<sub>m</sub> yazınca denklem v = V<sub>max</sub>·K<sub>m</sub>/(2K<sub>m</sub>) = V<sub>max</sub>/2 verir. K<sub>m</sub> bir hız değil, bir derişimdir: "Yarı hız için ne kadar substrat gerekir?" sorusunun cevabı. K<sub>m</sub>\'si büyük enzim aynı yarı hıza ancak daha kalabalık bir substrat ortamında ulaşır.',
+          "Formül, serbest substratı toplam [S]₀'a eşit sayar. ε = [E]₀/([S]₀ + K<sub>M</sub>) = 100/200 = 0.5 iken substratın üçte birinden fazlası ES'nin içinde bekler; enzime çarpan serbest substrat azalır ve gerçek hız düşer. Toplam substratla kurulan ikinci derece denklem bu payı hesaba kattığı için farkı büyük ölçüde kapatır.",
       },
       {
-        title: "İki kat substrat, iki kat hız mı?",
+        title: "Çift ters grafiğin bedeli, gürültüye bağlı",
         predict:
-          "[S]'yi 0.05'ten 0.10 mM'ye ikiye katlarsan hız kaç katına çıkar? 1.00'den 2.00 mM'ye katlarsan? Kaydırıcının sonunda, 2.50 mM'de hız V<sub>max</sub>'ın yüzde kaçına ulaşır?",
-        do: "Yok modunda, V<sub>max</sub> 1.00 ve K<sub>m</sub> 0.50 iken Substrat [S]'yi sırayla 0.05, 0.10, 1.00, 2.00 ve 2.50 mM yap; her seferinde V kutusunu yaz. Sonra K<sub>m</sub>'yi 0.25 mM'ye indir ve [S] = 2.25 mM'yi dene.",
+          "Aynı sekiz ölçüme dört yöntem uydurulursa aynı K<sub>M</sub> çıkar mı? 400 tekrarda hangisi en geniş yayılır? Gürültü değerle orantılı olsaydı sıralama değişir miydi?",
+        do: "02 · Parametre kestirimi sekmesini açılış ayarında incele (gerçek K<sub>M</sub> 100 µM, Sabit gürültü, oran 3.0 %): dört yöntem kartını ve tabloyu oku. Sonra Gürültü türü menüsünü \"Orantılı: σ = oran × v\" yap.",
         observe:
-          "0.091 → 0.167 (yaklaşık 1.8 kat), 0.667 → 0.800 (yalnızca 1.2 kat). 2.50 mM'de V = 0.833: grafiğin en sağında bile eğri V<sub>max</sub> kesikli çizgisinin altında kalır. K<sub>m</sub> = 0.25 mM ve [S] = 2.25 mM'de V = 0.900.",
+          "Gösterilen deneyde LM 89.50 µM, Lineweaver–Burk 69.91 µM, Eadie–Hofstee 76.79 µM, Hanes–Woolf 93.18 µM verir. Tabloda K<sub>M</sub> %90 aralığı LB'de 0.636 – 2.028, LM'de 0.820 – 1.190: durum satırı LB aralığını LM'ninkinin 3.76 katı bulur; LB 2 tekrarda geçersizdir. Orantılı gürültüde LB 0.902 – 1.104, LM 0.894 – 1.101: oran 0.97 katına iner.",
         explain:
-          "Az substratta enzimlerin çoğu boştur, her yeni molekül yeni iş demektir; çok substratta kasalar zaten doludur. V<sub>max</sub>'ın yüzde 90'ı için [S] = 9·K<sub>m</sub> gerekir: K<sub>m</sub> = 0.50 mM için 4.5 mM, kaydırıcının bittiği yerin ötesi. K<sub>m</sub> = 0.25 mM'lik enzimde 2.25 mM yeter.",
+          "1/v'nin hatası yaklaşık σ/v²'dir. Sabit σ'da en küçük hız en büyük çubuğu alır ve LB doğrusunu neredeyse tek başına çeker. σ = oran × v ise 1/v'nin hatası oran × (1/v) olur: ters alma göreli hatayı korur, LB'nin özel cezası kalkar. Bu gürültüde eşit ağırlıklı LM de doğru ağırlıkta değildir; en küçük medyan hatayı (3.2 %) Eadie–Hofstee verir, bu tasarıma özgü bir sonuçtur.",
       },
       {
-        title: "Yarışmalı inhibitör: substratla boğ",
+        title: "Deseni oku: üç inhibitör, üç iz",
         predict:
-          "Yarışmalı inhibitör eklersen V<sub>max</sub> kutusu değişir mi? Hız 0.50 mM'de mi, 2.50 mM'de mi oransal olarak daha çok düşer?",
-        do: "V<sub>max</sub> 1.00, K<sub>m</sub> 0.50 ve [S] 0.50 mM ile başla. İnhibitör modu menüsünden Yarışmalı'yı seç ve kutuları oku. Sonra [S]'yi 1.10 ve 2.50 mM'ye kaydır. Karşılaştırmak için 2.50 mM'de menüyü bir kez Yok'a getir.",
+          "Yarışmalı inhibitör V<sub>max</sub>'ı değiştirir mi? Üç türde Lineweaver–Burk doğruları nerede kesişir? IC50 her türde K<sub>i</sub>'ye eşit mi?",
+        do: "03 · İnhibisyon sekmesini açılış ayarında incele ([I] 50 µM, K<sub>i</sub> 50 µM, IC50 deneyinde [S] 100 µM). İnhibisyon türünü sırayla Yarışmalı (competitive), Yarışmasız (uncompetitive) ve Saf karma (noncompetitive) yap; kesişim, görünür K<sub>M</sub>, IC50 ve Cheng–Prusoff kartlarını yaz.",
         observe:
-          "V<sub>max</sub> kutusu 1.00'da kalır, K<sub>m</sub> kutusu 1.100 olur; 0.50 mM'de V 0.500'den 0.313'e düşer. [S] = 1.10 mM'de V tam 0.500'dür. 2.50 mM'de inhibitörlü V = 0.694, inhibitörsüz 0.833. Mor nokta sağa kayar, V<sub>max</sub> çizgisi yerinde durur.",
+          "Görünür K<sub>M</sub> 200.16 / 50.092 / 100.12 µM; görünür V<sub>max</sub> 1.0002 / 0.50009 / 0.50009 µM/s. Kesişim (−3.80×10⁻⁷ ; 1.00), \"paralel\" ve (−0.00998 ; 0). IC50 100.01 / 100.03 / 50.000 µM. Cheng–Prusoff yarışmalıda K<sub>i</sub> = 50.00 µM'yi geri verir; saf karmada 25.00 µM bulur (fark −50.00 %).",
         explain:
-          "Kayıp 0.50 mM'de yaklaşık yüzde 37 iken 2.50 mM'de yüzde 17'ye iner: substrat çoğaldıkça aktif bölge yarışını daha sık kazanır. Sonsuz substratta inhibitörün etkisi tümüyle silinirdi. V<sub>max</sub> bu yüzden değişmez; değişen, yarı hıza ulaşmak için gereken substrattır.",
+          "Yarışmalıda doğrular dikey eksende (1/V<sub>max</sub>) buluşur; yalnız ES'ye bağlanan inhibitör eğimi değiştirmez, doğrular paralel kalır; saf karmada yatay eksende −1/K<sub>M</sub>'de kesişirler. Yarışmasızda Cheng–Prusoff'un tutması rastlantıdır: [S] = K<sub>M</sub> seçildiği için. Yarışmalı türde K<sub>i</sub> 200 µM, [S] 1000 µM yapınca IC50 formülü 2200 µM olur.",
       },
       {
-        title: "Yarışmasız inhibitör: tavan alçalır",
+        title: "Tepe neden var, tepede ne kadarı açık?",
         predict:
-          "Yarışmasız inhibitörde substrat eklemek kaybı telafi eder mi? Çok az substratta ([S] = 0.05 mM) iki inhibitör türünden hangisi daha zararlıdır?",
-        do: "V<sub>max</sub> 1.00 ve K<sub>m</sub> 0.50 iken Yarışmasız'ı seç; [S]'yi 0.50 ve 2.50 mM yapıp V'yi oku. Sonra [S] = 0.05 mM'de İnhibitör modu menüsünü Yok, Yarışmalı ve Yarışmasız arasında değiştir.",
+          "Optimum sıcaklıkta enzimin yüzde kaçı açılmıştır? İki pK<sub>a</sub> birbirine çok yaklaşırsa pH eğrisinin yarı yükseklik noktaları yine pK<sub>a</sub>'ları gösterir mi?",
+        do: "04 · Sıcaklık ve pH sekmesini açılış ayarında incele (Eₐ 50, ΔH<sub>a</sub> 400 kJ/mol, T<sub>m</sub> 55 °C); sonra Taq benzeri düğmesine bas. pH tarafında önce açılış ayarını (4.5 ve 8.5), sonra Yakın pK<sub>a</sub>'lar düğmesini dene.",
         observe:
-          "V<sub>max</sub> kutusu 0.45'e düşer, K<sub>m</sub> 0.500'de kalır. V 0.50 mM'de 0.225, 2.50 mM'de 0.375: her [S]'de inhibitörsüz değerin tam yüzde 45'i. V<sub>max</sub> çizgisi aşağı iner, mor nokta yatayda kıpırdamaz. 0.05 mM'de: Yok 0.091, Yarışmalı 0.043, Yarışmasız 0.041.",
+          "Optimum 50.70 °C, f<sub>N</sub> 0.8750 (%12.5 açık); Q₁₀ × 1.967. Taq benzeri: 76.97 °C, kaynaktaki 75–80 °C aralığında. pH: optimum 6.500, tepe 0.9804, asit tarafı yarı yükseklik 4.483. Yakın pK<sub>a</sub>'lar (6.0 ve 6.4): optimum 6.200, tepe 0.4421, yarı yükseklik 5.468, yani pK<sub>a1</sub>'den 0.532 dışarıda; durum satırı \"yanıltır\" der.",
         explain:
-          "Yarışmasız inhibitör aktif bölge için yarışmaz, bağlandığı enzimi işten çıkarır; devre dışı enzim, substrat ne kadar çok olursa olsun çalışmaz. Az substratta ise iki tür neredeyse aynı zararı verir, çünkü orada hız V<sub>max</sub>/K<sub>m</sub> oranına bağlıdır ve iki mod da bu oranı yaklaşık 2.2 kat küçültür. Türler ancak yüksek [S]'de ayrışır.",
+          "Optimumda Arrhenius kazancı, açılmanın kaybına eşittir: 1 − f<sub>N</sub> = Eₐ/ΔH<sub>a</sub> = 50/400 = 0.125. T<sub>m</sub>'yi kaydırmak bu oranı değiştirmez, yalnız tepeyi taşır. pH'ta ΔpK<sub>a</sub> = 0.4 iken EH biçimi hiçbir pH'ta baskın olamaz; tepe alçalır ve genişler, yarı yükseklik pK<sub>a</sub>'dan uzaklaşır.",
       },
     ],
   },
@@ -112,42 +113,43 @@ window.ACELYA_DIGEST["enzim-kinetigi"] = {
     },
     {
       title: "Mükemmel enzimin sınırı trafiktir",
-      body: "Bazı enzimler o kadar iyidir ki hızlarını kimya değil trafik belirler. Fumaraz ve triozfosfat izomeraz gibi enzimlerde k<sub>cat</sub>/K<sub>m</sub> 10⁸ M⁻¹s⁻¹ mertebesine çıkar; bu, substrat moleküllerinin suda yayılarak (difüzyonla) aktif bölgeye çarpabileceği en yüksek hıza yakındır. Yani aktif bölgeye ulaşan substratın neredeyse her biri ürüne dönüşür. Biyokimyacılar bu tür enzimlere <em>kinetik açıdan mükemmel</em> der: evrim burada tavana dayanmıştır, çünkü substrat daha hızlı gelemez.",
+      body: "Bazı enzimler o kadar iyidir ki hızlarını kimya değil trafik belirler. Fumaraz ve triozfosfat izomeraz gibi enzimlerde k<sub>cat</sub>/K<sub>M</sub> 10⁸ M⁻¹s⁻¹ mertebesine çıkar; bu, substrat moleküllerinin suda yayılarak aktif bölgeye çarpabileceği en yüksek hıza yakındır. Sayfanın Fumaraz hazır durumu kaynaktaki K<sub>M</sub> = 5 µM ve k<sub>cat</sub> = 800 s⁻¹ ile 1.60×10⁸ M⁻¹s⁻¹ gösterir; aynı hesap pepsinde 1670 M⁻¹s⁻¹ verir, yaklaşık yüz bin kat aşağıda. Biyokimyacılar fumaraz gibi enzimlere <em>kinetik açıdan mükemmel</em> der: substrat daha hızlı gelemez.",
     },
   ],
   worked: {
-    title: "Sayfanın enzimini hesapla",
+    title: "Pepsin: formül, ölçüm ve yaklaşımın payı",
     prompt:
-      "Sayfanın açılış enzimi: V<sub>max</sub> = 1.0 µM/s, K<sub>m</sub> = 0.50 mM. (a) [S] = 1.5 mM'de başlangıç hızı nedir? (b) V<sub>max</sub>'ın yüzde 90'ına hangi [S]'de ulaşılır? (c) Tüpte toplam 10 nM enzim varsa k<sub>cat</sub> nedir? (d) Yarışmalı inhibitör (sayfadaki gibi K<sub>m</sub> × 2.2) varken 1.5 mM'de hız ne olur?",
+      "Pepsin için K<sub>M</sub> = 3.0×10⁻⁴ M ve k<sub>cat</sub> = 0.50 s⁻¹ alınsın; [E]₀ = 1 µM, [S]₀ = 300 µM, k₁ = 0.01 µM⁻¹s⁻¹. (a) k<sub>cat</sub>/K<sub>M</sub>'yi M⁻¹s⁻¹ biriminde bul. (b) V<sub>max</sub>'ı ve başlangıç hızını hesapla. (c) ε'u ve ön kararlı evrenin τ'sunu bul. (d) Substratın yarısı ne zaman tükenir? (e) [E]₀ 10 µM olursa formül ne kadar şaşar? Sayfada Hazır durum = Pepsin.",
     steps: [
-      "(a) v = V<sub>max</sub>·[S]/(K<sub>m</sub> + [S]) = 1.0 µM/s × 1.5 mM / (0.50 mM + 1.5 mM) = 1.0 × 0.75 = 0.75 µM/s. Derişim birimleri (mM) kesirde sadeleşir; geriye hız birimi kalır. Sayfada [S] = 1.50 mM seç: V kutusu 0.750 gösterir.",
-      "(b) v/V<sub>max</sub> = [S]/(K<sub>m</sub> + [S]) = 0.90 ise [S] = 0.90·K<sub>m</sub> + 0.90·[S], yani 0.10·[S] = 0.90·K<sub>m</sub> ve [S] = 9·K<sub>m</sub> = 9 × 0.50 mM = 4.5 mM. Bu değer kaydırıcının üst sınırı olan 2.5 mM'nin ötesindedir; ekrandaki eğrinin V<sub>max</sub>'ın yüzde 83'ünde, çizgiye değmeden bitmesinin nedeni budur.",
-      "(c) k<sub>cat</sub> = V<sub>max</sub>/[E]<sub>toplam</sub>. 10 nM = 0.010 µM olduğundan k<sub>cat</sub> = (1.0 µM/s)/(0.010 µM) = 100 s⁻¹. Her enzim molekülü doygunlukta saniyede 100 substratı ürüne çevirir; 1.5 mM'de ise yüzde 75 meşgul olduğundan ortalama saniyede 75.",
-      "(d) Görünür K<sub>m</sub> = 2.2 × 0.50 mM = 1.1 mM. v = 1.0 × 1.5/(1.1 + 1.5) = 1.5/2.6 ≈ 0.577 µM/s; sayfa Yarışmalı modda 0.577 gösterir. Hızı yeniden 0.75 µM/s yapmak için [S] = 3·K<sub>m,görünür</sub> = 3.3 mM gerekir; inhibitör yokken 1.5 mM yetiyordu.",
+      "(a) k<sub>cat</sub>/K<sub>M</sub> = 0.50 s⁻¹ / 3.0×10⁻⁴ M ≈ 1.67×10³ M⁻¹s⁻¹. Sayfa 1670 M⁻¹s⁻¹ yazar. Fumarazın 1.6×10⁸ M⁻¹s⁻¹ değeriyle karşılaştır: pepsin difüzyon sınırının çok altındadır.",
+      "(b) V<sub>max</sub> = k<sub>cat</sub>[E]₀ = 0.50 s⁻¹ × 1 µM = 0.50 µM/s. [S]₀ = K<sub>M</sub> = 300 µM olduğundan v = V<sub>max</sub>/2 = 0.25 µM/s. Sayfanın ölçtüğü v₀ 0.2496 µM/s (fark −0.14 %).",
+      "(c) ε = [E]₀/([S]₀ + K<sub>M</sub>) = 1/600 ≈ 1.7×10⁻³: yaklaşım güvenli bölgede. τ = 1/(k₁([S]₀ + K<sub>M</sub>)) = 1/(0.01 µM⁻¹s⁻¹ × 600 µM) ≈ 0.167 s. k₋₁ = k₁K<sub>M</sub> − k<sub>cat</sub> = 3 − 0.5 = 2.5 s⁻¹ olur.",
+      "(d) Tümlenmiş denklem V<sub>max</sub>t = ([S]₀ − [S]) + K<sub>M</sub> ln([S]₀/[S]), [S] = [S]₀/2 için: t = (150 µM + 300 µM × ln 2)/(0.50 µM/s) = (150 + 207.9)/0.50 ≈ 715.9 s ≈ 11.93 min. Sayfanın RK4 çözümü 11.95 min ölçer; fark ön kararlı evre ve ES'de bekleyen substrattan gelir.",
+      "(e) [E]₀ = 10 µM'de ε = 10/600 ≈ 0.0167, MM formülü 2.500 µM/s. Toplam QSSA: b = [E]₀ + K<sub>M</sub> + [S]₀ = 610 µM, [ES] = 2·10·300/(610 + √(610² − 4·10·300)) ≈ 4.958 µM, v ≈ 2.479 µM/s. Sayfa 2.468 µM/s ölçer: MM'den −1.27 %, toplam QSSA'dan −0.44 %; durum \"Sınırda\".",
     ],
     result:
-      "v = 0.75 µM/s; yüzde 90 hız için 4.5 mM; k<sub>cat</sub> = 100 s⁻¹; yarışmalı inhibitörle 0.577 µM/s. Yarışmalı inhibitörün kaybı substratı iki katından fazla artırarak geri alınabilir; yarışmasız inhibitörünki alınamaz.",
+      "k<sub>cat</sub>/K<sub>M</sub> ≈ 1.67×10³ M⁻¹s⁻¹; V<sub>max</sub> = 0.50 µM/s, v₀ = 0.25 µM/s; ε ≈ 1.7×10⁻³, τ ≈ 0.167 s; yarılanma ≈ 11.93 min. Enzimi on katına çıkarmak hızı on katına çıkarır, ama formülün hatasını da yaklaşık on kat büyütür: hata ε ile ölçeklenir.",
   },
   misconceptions: [
     {
-      myth: "K<sub>m</sub> enzimin ulaşabildiği en yüksek hızdır.",
+      myth: "K<sub>M</sub> enzim ile substratın bağlanma (ayrışma) sabitidir.",
       truth:
-        'En yüksek hız V<sub>max</sub>\'tır. K<sub>m</sub> bir derişimdir (birimi mM gibi): hızın V<sub>max</sub>\'ın yarısı olduğu substrat derişimi. Sayfada birimlere bak: K<sub>m</sub> mM, V ise µM/s ile verilir. İkisini karıştırmak, "Yarı yol kaç kilometre?" sorusuna "saatte 90 kilometre" demek gibidir.',
+        "K<sub>M</sub> = (k₋₁ + k<sub>cat</sub>)/k₁, ayrışma sabiti ise K<sub>d</sub> = k₋₁/k₁. İkisi yalnız k<sub>cat</sub> ≪ k₋₁ iken yakın olur. Sayfanın Briggs–Haldane hazır durumunda K<sub>d</sub> 1.000 µM, K<sub>M</sub> 100.0 µM'dir; oran 100.0. Orada K<sub>M</sub> bağlanmanın değil, kararlı durumun sabitidir.",
     },
     {
-      myth: "Enzim tepkimede harcanır; iş bitince tükenir.",
+      myth: "Michaelis–Menten denklemi her enzim deneyinde başlangıç hızını verir.",
       truth:
-        "Enzim bir katalizördür: ES kompleksinden ürün ayrılınca enzim aynen geri döner ve aynı molekül saniyede yüzlerce, binlerce, hatta milyonlarca kez çalışabilir. Zamanla bozulabilir ya da hücre onu yıkabilir, ama bu tepkimenin kendisinden kaynaklanmaz. Tükenen substrattır.",
+        "Türetme, kompleksin içindeki substratın ihmal edilebilir olduğunu varsayar; ε = [E]₀/([S]₀ + K<sub>M</sub>) küçük olmalıdır. Hücre içinde bazı enzimler substratlarıyla aynı mertebede bulunur. Sayfanın Enzim bol durumunda ε = 0.5 ve ölçülen hız formülden 26.84 % düşüktür.",
     },
     {
-      myth: "K<sub>m</sub>'si büyük olan enzim daha hızlıdır.",
+      myth: "Lineweaver–Burk grafiği her zaman yanlış sonuç verir; doğrusallaştırmak hep kötüdür.",
       truth:
-        "Büyük K<sub>m</sub>, yarı hıza ulaşmak için daha çok substrat gerektiği anlamına gelir; az substratta böyle bir enzim daha yavaş çalışır. Doygunluktaki hızı V<sub>max</sub> ve k<sub>cat</sub> belirler. Sayfada [S] = 0.25 mM iken K<sub>m</sub>'yi 0.10'dan 1.00 mM'ye çıkar: V 0.714'ten 0.200'e düşer.",
+        "Bozulmanın büyüklüğü gürültünün yapısına bağlıdır. Sabit hatalı ölçümde LB'nin K<sub>M</sub> aralığı LM'ninkinin 3.76 katıdır; hata ölçülen değerle orantılıysa ters alma göreli hatayı korur ve oran 0.97'ye iner. Hangi gürültüyle ölçtüğünü bilmek, yöntem seçmekten önce gelir. LB yine de inhibitör türünü göz ile ayırmak için değerli bir resimdir.",
     },
     {
-      myth: "Enzim tepkimeyi ürünler yönüne iter, dengeyi kaydırır.",
+      myth: "IC50 inhibitörün K<sub>i</sub>'sidir; iki laboratuvarın IC50'leri doğrudan karşılaştırılabilir.",
       truth:
-        "Enzim ileri ve geri yönü aynı oranda hızlandırır; denge sabitini ve ΔG'yi değiştirmez. Termodinamik olarak elverişsiz bir tepkimeyi tek başına yürütemez; hücre bunu ancak elverişli bir tepkimeyle, çoğunlukla ATP harcamasıyla eşleyerek yapar.",
+        "IC50 deney koşuluna bağlıdır. Yarışmalı inhibitörde IC50 = K<sub>i</sub>(1 + [S]/K<sub>M</sub>): sayfada K<sub>i</sub> 200 µM ve [S] 1000 µM iken IC50 formülü 2200 µM'dir. Cheng–Prusoff düzeltmesi yalnız yarışmalı inhibitör için tamdır; saf karma inhibitöre uygulanınca K<sub>i</sub>/(1 + [S]/K<sub>M</sub>) verir, sayfanın [S] = K<sub>M</sub> deneyinde K<sub>i</sub>'nin yarısı.",
     },
   ],
   glossary: [
@@ -157,129 +159,119 @@ window.ACELYA_DIGEST["enzim-kinetigi"] = {
         "Canlılarda tepkimeleri hızlandıran ve tepkimeden değişmeden çıkan biyolojik katalizör; çoğu proteindir, bazıları RNA'dır (ribozim).",
     },
     {
-      term: "Substrat",
-      definition: "Enzimin aktif bölgesine bağlanıp ürüne dönüştürülen molekül.",
-    },
-    {
       term: "Aktif bölge",
-      definition:
-        "Enzim yüzeyinde substratın bağlandığı ve tepkimenin gerçekleştiği küçük cep.",
+      definition: "Enzim yüzeyinde substratın bağlandığı ve tepkimenin gerçekleştiği küçük cep.",
     },
     {
-      term: "Michaelis sabiti (Km)",
+      term: "Michaelis sabiti (K<sub>M</sub>)",
       definition:
-        "Başlangıç hızının V<sub>max</sub>'ın tam yarısı olduğu substrat derişimi.",
+        "Başlangıç hızının V<sub>max</sub>'ın tam yarısı olduğu substrat derişimi; mekanizmada (k₋₁ + k<sub>cat</sub>)/k₁.",
     },
     {
-      term: "Maksimum hız (Vmax)",
+      term: "Maksimum hız (V<sub>max</sub>)",
       definition:
-        "Bütün enzim molekülleri substratla dolu olduğunda yaklaşılan en yüksek başlangıç hızı; enzim miktarıyla orantılıdır.",
+        "Bütün enzim molekülleri substratla dolu olduğunda yaklaşılan en yüksek başlangıç hızı; k<sub>cat</sub>[E]₀'a eşittir.",
     },
     {
-      term: "Devir sayısı (kcat)",
+      term: "Devir sayısı (k<sub>cat</sub>)",
       definition:
         "Doygunlukta tek bir enzim molekülünün saniyede ürüne çevirdiği substrat sayısı; birimi s⁻¹.",
     },
     {
-      term: "Yarışmalı inhibitör",
+      term: "Yarı kararlı durum yaklaşımı (QSSA)",
       definition:
-        "Aktif bölge için substratla yarışan molekül; görünür K<sub>m</sub>'yi artırır, V<sub>max</sub>'ı değiştirmez.",
+        "Kısa bir ön evreden sonra [ES]'nin değişim hızını sıfır sayan yaklaşım; enzim substrattan çok azken (ε ≪ 1) geçerlidir.",
     },
     {
-      term: "Yarışmasız inhibitör",
+      term: "Yarışmalı inhibitör",
       definition:
-        "Aktif bölge dışına bağlanıp enzimin bir kısmını devre dışı bırakan molekül; V<sub>max</sub>'ı düşürür, saf hâlinde K<sub>m</sub>'yi değiştirmez.",
+        "Yalnız serbest enzime bağlanıp aktif bölge için substratla yarışan molekül; görünür K<sub>M</sub>'yi artırır, V<sub>max</sub>'ı değiştirmez.",
+    },
+    {
+      term: "IC50",
+      definition:
+        "Belirli bir deney koşulunda enzim hızını yarıya indiren inhibitör derişimi; K<sub>i</sub>'den farklı olarak [S]'ye bağlı olabilir.",
     },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede enzim bir kilit-anahtar resmidir; üniversite biyokimyasında bir <strong>diferansiyel denklem sistemi</strong>. E, S, ES ve P için hız denklemleri yazılır; ES derişiminin neredeyse sabit kaldığı varsayılınca (Briggs–Haldane kararlı durum yaklaşımı) Michaelis–Menten denklemi kendiliğinden çıkar. Kimyasal kinetiği, kalkülüsü ve cebiri birleştiren bu türetme, birçok öğrencinin karşılaştığı ilk matematiksel biyoloji modellerindendir. Ardından iki substratlı enzimler, k<sub>cat</sub>/K<sub>m</sub> ile özgüllük, hemoglobin ve allosterik enzimlerin S biçimli eğrileri (Hill denklemi) ve parametrelerin ölçümden doğrusal olmayan regresyonla çıkarılması gelir.",
-      "Bu matematik laboratuvarın dışında da her yerdedir. Birçok ilaç bir enzimi inhibe ederek çalışır; ilaç geliştirmede bir molekülün gücü K<sub>i</sub> ya da IC<sub>50</sub> ile ölçülür. Farmakolojide aynı doygunluk eğrisi vücudun maddeleri nasıl temizlediğini açıklar: karaciğerde alkolü yıkan enzim, sarhoşluk yaratan kan derişimlerinde zaten doymuştur; bu yüzden vücut alkolü kabaca sabit bir hızla temizler ve içilen miktar arttıkça temizlenme süresi kabaca orantılı uzar. Biyoteknolojide de, çamaşır deterjanındaki enzimlerden glukoz ölçen şeker çubuklarına kadar, K<sub>m</sub> ve k<sub>cat</sub> enzim seçiminin temel ölçütlerindendir.",
+      "Lisede enzim bir kilit-anahtar resmidir; üniversitede bir <strong>diferansiyel denklem sistemi</strong>. Biyokimya derslerinde Michaelis–Menten denklemi kararlı durum yaklaşımıyla türetilir; Fizikokimya ve Kimyasal Kinetik dersleri aynı tekniği zincir tepkimelerine uygular. Diferansiyel Denklemler dersinde bu yaklaşım, küçük bir ε parametresiyle hızlı ve yavaş zaman ölçeklerinin ayrıldığı <em>tekil pertürbasyon</em> problemlerinin klasik örneğidir; Sayısal Analiz'de ise k₋₁ büyüdükçe adımı küçülmeye zorlayan <em>katı</em> sistemlerin. Laboratuvarın ikinci sekmesi İstatistik derslerindeki bir dersi gösterir: en küçük kareler, hatanın dağılımı doğru ağırlıklandırıldığında anlamlıdır. Ardından iki substratlı enzimler, allosterik enzimlerin S biçimli eğrileri (Hill denklemi) ve geçiş durumu kuramı gelir.",
+      "Bu matematik laboratuvarın dışında da her yerdedir. Birçok ilaç bir enzimi inhibe ederek çalışır; ilaç geliştirmede bir molekülün gücü K<sub>i</sub> ya da IC<sub>50</sub> ile ölçülür ve ikisini karıştırmamak için Cheng–Prusoff türü düzeltmeler kullanılır. Farmakolojide aynı doygunluk eğrisi vücudun maddeleri nasıl temizlediğini açıklar: karaciğerde alkolü yıkan enzim, sarhoşluk yaratan kan derişimlerinde zaten doymuştur; bu yüzden vücut alkolü kabaca sabit bir hızla temizler ve içilen miktar arttıkça temizlenme süresi kabaca orantılı uzar. Biyoteknolojide de, PCR'da kullanılan ısıya dayanıklı polimerazlardan glukoz ölçen şeker çubuklarına kadar, K<sub>M</sub>, k<sub>cat</sub> ve sıcaklık optimumu enzim seçiminin temel ölçütleridir.",
     ],
     topics: [
-      "Kararlı durum yaklaşımı",
-      "kcat/Km ve özgüllük",
+      "Kararlı durum ve tekil pertürbasyon",
+      "Katı diferansiyel denklemler",
+      "Doğrusal olmayan regresyon ve ağırlıklandırma",
+      "İlaç tasarımı: K<sub>i</sub>, IC50, Cheng–Prusoff",
       "Allosteri ve Hill denklemi",
-      "İlaç tasarımı: Ki ve IC50",
-      "Doğrusal olmayan regresyon",
-      "Farmakokinetik",
+      "Protein katlanması termodinamiği",
       "Geçiş durumu kuramı",
     ],
   },
   quiz: [
     {
       question:
-        "Bir enzimde substrat derişimi K<sub>m</sub>'nin tam 3 katı. Başlangıç hızı V<sub>max</sub>'ın ne kadarıdır?",
-      options: ["Yarısı", "Dörtte üçü", "Yüzde 90'ı", "K<sub>m</sub>'nin sayısal değeri bilinmeden söylenemez"],
+        "02 · Parametre kestirimi sekmesinin açılış ayarında (K<sub>M</sub> = 100 µM, V<sub>max</sub> = 1 µM/s, sabit σ) en düşük ölçüm [S] = 20 µM, en yüksek 500 µM'dedir. 1/v'deki hata çubuğu en düşük [S]'de en yüksek [S]'dekinin kabaca kaç katıdır?",
+      options: ["Aynı boydadır", "5 katı", "25 katı", "125 katı"],
+      answer: 2,
+      explanation:
+        "v(20 µM) = 20/120 ≈ 0.167 µM/s, v(500 µM) = 500/600 ≈ 0.833 µM/s; oran 5. 1/v'nin hatası σ/v² olduğundan çubuk boyu 5² = 25 kat büyür. Eşit ağırlıklı doğru, en az güvenilir noktaya en çok kulak verir; Lineweaver–Burk'ün sabit gürültüde geniş yayılmasının nedeni budur.",
+    },
+    {
+      question:
+        "Sıcaklık modelinde ΔH<sub>a</sub> = 400 kJ/mol sabitken Eₐ'yı 50'den 100 kJ/mol'e çıkarırsan optimum sıcaklıkta enzimin ne kadarı açılmış olur?",
+      options: ["%12.5", "%25", "%50", "Optimum kaybolur, soru anlamsızdır"],
       answer: 1,
       explanation:
-        "v/Vmax = [S]/(Km + [S]) = 3Km/(Km + 3Km) = 3/4. Km sadeleşir: dolu kasaların payını yalnızca [S]/Km oranı belirler. Çözümlü örnekte 1.5 mM = 3 × 0.50 mM için 0.75 µM/s bulmuştuk. Yarı hız için [S] = Km, yüzde 90 için 9·Km gerekir.",
+        "Optimum koşulu 1 − f<sub>N</sub> = Eₐ/ΔH<sub>a</sub> = 100/400 = 0.25. Arrhenius hızlanması daha dik olduğu için enzim, kaybı göze alıp daha çok açılmaya razı olur; tepe biraz yukarı kayar (sayfada 52.56 °C, f<sub>N</sub> 0.7500). İç optimum ancak Eₐ ≥ ΔH<sub>a</sub> olunca kaybolur.",
     },
     {
       question:
-        "Hangi inhibitörün etkisi, substrat derişimi çok artırılarak neredeyse tamamen giderilebilir?",
+        "Saf karma (E'ye ve ES'ye aynı K<sub>i</sub> ile bağlanan) bir inhibitörün IC50'sini [S] = K<sub>M</sub>'de ve [S] = 10 K<sub>M</sub>'de ölçersen ne görürsün?",
       options: [
-        "Yarışmalı inhibitör",
-        "Yarışmasız inhibitör",
-        "İkisininki de",
-        "Hiçbirininki",
+        "İkisinde de IC50 = K<sub>i</sub>",
+        "Yüksek [S]'de IC50 yaklaşık 5.5 kat büyür",
+        "Yüksek [S]'de IC50 küçülür",
+        "IC50 tanımsızdır, çünkü V<sub>max</sub> değişir",
       ],
       answer: 0,
       explanation:
-        "Yarışmalı inhibitör aynı aktif bölge için substratla yarışır; substrat çoğaldıkça yarışı substrat kazanır ve hız yine Vmax'a yaklaşır. Yarışmasız inhibitör enzimin bir kısmını devre dışı bırakır; sayfada her [S]'de hız inhibitörsüz değerin yüzde 45'inde kalır.",
-    },
-    {
-      question:
-        "Bir deney tüpündeki enzim miktarını iki katına çıkarırsan (substrat bol) ne olur?",
-      options: [
-        "V<sub>max</sub> iki katına çıkar, K<sub>m</sub> değişmez",
-        "K<sub>m</sub> yarıya iner, V<sub>max</sub> değişmez",
-        "İkisi de iki katına çıkar",
-        "İkisi de değişmez",
-      ],
-      answer: 0,
-      explanation:
-        "Vmax = kcat·[E]toplam: iki kat kasa, iki kat en yüksek hız. Km ise tek bir enzim molekülünün özelliğidir, kaç tane olduğuna bağlı değildir. Sayfada Vmax'ı 1.00'dan 2.00'ye çıkar: [S] = 0.50 mM'de V 0.500'den 1.000'e çıkar, mor nokta aynı [S]'de kalır.",
+        "Genel formül IC50 = (K<sub>M</sub> + [S])/(K<sub>M</sub>/K<sub>i</sub> + [S]/K<sub>i</sub>'). K<sub>i</sub>' = K<sub>i</sub> iken pay ve payda aynı (K<sub>M</sub> + [S]) çarpanını taşır, IC50 = K<sub>i</sub> kalır. Yarışmalı inhibitör olsaydı 5.5 kat (1 + 10)/(1 + 1) büyürdü. Sayfada saf karmada IC50 50.000 µM, Cheng–Prusoff'u yine de uygularsan 25.00 µM bulursun.",
     },
   ],
   next: [
     {
       href: "kimyasal-kinetik.html",
-      title: "Kimyasal Kinetik",
-      why: "Bu sayfada olmayan sıcaklık kaydırıcısı orada: Arrhenius bağıntısını dene. Oradaki Katalizör kaydırıcısının Enzim ayarı hızı simgesel olarak yalnızca 10 kat artırır; gerçek enzimlerin çok daha ileri gittiğini burada gördün.",
+      title: "Kimyasal Kinetik Laboratuvarı",
+      why: "Hız yasaları ve tepkime derecesi, başlangıç hızları yöntemi, Arrhenius sekmesi ve ara ürünlü mekanizmalarda kararlı durum yaklaşımının hatası: buradaki enzim modelinin genel kimya temeli.",
     },
     {
-      href: "kimyasal-denge-ve-gibbs-enerjisi.html",
-      title: "Kimyasal Denge ve Gibbs Enerjisi",
-      why: "Enzimin neden dengeyi değiştirmediğini Q, K ve ΔG ile gör: katalizör yalnızca dengeye ulaşma süresini kısaltır.",
+      href: "asit-baz-titrasyonu.html",
+      title: "Asit-Baz Titrasyonu Laboratuvarı",
+      why: "pH modelindeki pK<sub>a</sub>'ları titrasyon eğrisinde gör: zayıf asidin tampon bölgesi, yarı eşdeğerlikte pH = pK<sub>a</sub> ve çok protonlu asitlerin üst üste binen basamakları.",
     },
     {
       href: "fotosentez-solunum.html",
-      title: "Fotosentez ve Hücresel Solunum",
-      why: "Enzimleri iş başında izle: Calvin döngüsünde CO₂'yi bağlayan RuBisCO ve elektron taşıma sisteminde ATP üreten ATP sentaz.",
-    },
-    {
-      href: "dna-replikasyon.html",
-      title: "DNA Replikasyonu",
-      why: "Helikaz, primaz, DNA polimeraz ve ligaz: hücrenin en kritik kopyalama işini birlikte yapan bir enzim ekibi.",
+      title: "Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton",
+      why: "Enzimleri iş başında izle: solunum zinciri komplekslerinin pompaladığı protonların ATP sentazdan ya da ayırıcıdan geri akışını say.",
     },
   ],
   sources: [
     {
       title: "OpenStax · Biology 2e, 6.5 Enzymes",
       url: "https://openstax.org/books/biology-2e/pages/6-5-enzymes",
-      note: "Aktif bölge, uyarılmış uyum, yarışmalı ve yarışmasız inhibisyon, sıcaklık ve pH etkisi (İngilizce, açık ders kitabı).",
-    },
-    {
-      title: "Vikipedi · Enzim kinetiği",
-      url: "https://tr.wikipedia.org/wiki/Enzim_kineti%C4%9Fi",
-      note: "Michaelis–Menten modeli, doğrusal grafikler ve inhibisyon türleri üzerine Türkçe ayrıntılı madde.",
+      note: "Aktif bölge, uyarılmış uyum, yarışmalı (competitive) ve noncompetitive inhibisyon (sayfada saf karma; allosterik bağlanma olarak anlatılır), sıcaklık ve pH etkisi (İngilizce, açık ders kitabı).",
     },
     {
       title: "Wikipedia · Michaelis–Menten kinetics",
       url: "https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics",
-      note: "Henri'nin öncülüğü, Briggs–Haldane türetmesi, kcat/Km tablosu ve doğrusallaştırma yöntemlerinin eleştirisi.",
+      note: "Henri'nin öncülüğü, Briggs–Haldane türetmesi, pepsin ve fumaraz için K<sub>M</sub>, k<sub>cat</sub> tablosu ve doğrusallaştırma yöntemlerinin eleştirisi.",
+    },
+    {
+      title: "Vikipedi · Enzim kinetiği",
+      url: "https://tr.wikipedia.org/wiki/Enzim_kineti%C4%9Fi",
+      note: "Michaelis–Menten modeli, Lineweaver–Burk, Eadie–Hofstee ve Hanes–Woolf grafikleri, inhibisyon türleri; uncompetitive türe sayfadaki gibi \"yarışmasız\" der (Türkçe).",
     },
     {
       title: "Wikipedia · Maud Menten",

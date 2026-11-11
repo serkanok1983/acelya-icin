@@ -199,7 +199,7 @@ window.ACELYA_DIGEST["veritabanlari"] = {
     { href: "veri-yapilari.html", title: "Veri Yapıları Laboratuvarı", why: "Dizi, bağlı liste, hash tablosu, ikili arama ağacı ve heap aynı sayfada; bir indeksin neden ağaç ya da hash tablosu olarak kurulduğunu yapıları yan yana deneyerek gör." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "O(log n), O(n) ve O(n²) arasındaki uçurumu büyüme sınıflarının grafiğinde izle; ağaç aramasının, tam taramanın ve iç içe döngülü birleştirmenin matematiği orada." },
     { href: "programlama-paradigmalari.html", title: "Programlama Paradigmaları: Aynı Problem, Farklı Düşünme Biçimleri", why: "Üçüncü sekmedeki mini Prolog da SQL gibi bildirimseldir: olguları ve kuralları yazarsın, sorgunun cevabını arama ağacı bulur; yapılan birleştirmeleri sayabilirsin." },
-    { href: "cizge-teorisi.html", title: "Çizge Teorisi (Graph Theory)", why: "Öncelik grafiğinin dili ve çizge veritabanlarının veri modeli: düğümler, kenarlar, BFS ile 'arkadaşın arkadaşı' taraması ve Dijkstra ile en kısa yol." },
+    { href: "cizge-teorisi.html", title: "Çizge Teorisi: Yapı, Değişmezler ve Teoremler", why: "Öncelik grafiğinin ve çizge veritabanlarının veri modeli: düğümler ve kenarlar. Kendi çizgeni kur, bileşenlerini oku; Boyama sekmesinde BFS'nin çizgenin iki parçalı olup olmadığını nasıl sınadığını gör." },
   ],
   sources: [
     { title: "PostgreSQL 18 Belgeleri · 13.2 Transaction Isolation", url: "https://www.postgresql.org/docs/current/transaction-iso.html", note: "Tablo 13.1: SQL standardının dört yalıtım düzeyi ile kirli okuma, yinelenemeyen okuma, hayalet okuma ve serileştirme aykırılığı tanımları; sayfadaki yalıtım tablosu buradan aktarılmıştır (İngilizce)." },
