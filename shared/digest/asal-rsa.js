@@ -207,10 +207,10 @@ window.ACELYA_DIGEST["asal-rsa"] = {
     },
   ],
   next: [
-    { href: "siber-guvenlik.html", title: "Siber Güvenlik ve Kriptografi", why: "Diffie–Hellman paneli p = 23, g = 5, Alice'in gizlisi 6 ve Bob'un gizlisi 15 ile açılır. Anahtar Değişimini Başlat iki tarafta da ortak sırrı 2 yazar. Parola entropisi, klasik şifreler ve özetin çığ etkisi de orada." },
+    { href: "siber-guvenlik.html", title: "Siber Güvenlik Laboratuvarı: Şifre, Özet ve Anahtar", why: "Aynı matematik orada oyuncak boyutta çalışır: küçük asallarla Diffie–Hellman ve RSA, kare-al-çarp adım sayısı, dinleyicinin ayrık logaritma aramasının kaç deneme sürdüğü; yanında gerçek SHA-256 ile çığ etkisi ve HMAC." },
     { href: "grup-teorisi.html", title: "Grup Teorisi", why: "Euler teoreminin öbür kanıtı: mod n'de tersi olan kalanlar bir gruptur ve Lagrange teoremi her mertebenin φ(n)'yi böldüğünü söyler; sayfadaki n = 5 tablosu oradaki Z₅ˣ'tir." },
-    { href: "algoritmalar.html", title: "Algoritmalar", why: "Adım saymanın dili orada: doğrusal arama O(n) ile ikili arama O(log n) aynı listede yan yana koşar. Big-O grafiği O(1), O(log n), O(n), O(n log n), O(n²) ve O(2ⁿ) eğrilerini üst üste çizer." },
-    { href: "internet-ve-ag-teknolojileri.html", title: "İnternet ve Ağ Teknolojileri", why: "OSI katmanları, port 443 ve TLS 1.3 kartı, HTTPS'in yığında nerede durduğunu gösterir. Bu sayfadaki sᵉ mod n doğrulaması, sertifika imzasının sayısal çekirdeğidir." },
+    { href: "algoritmalar.html", title: "Algoritmalar: Adımları Say", why: "Adım saymanın dili orada: doğrusal ve ikili arama aynı sıralı dizide yarışır, gerçek algoritmaların işlem sayıları log–log eksende çizilip eğimleri ölçülür." },
+    { href: "internet-ve-ag-teknolojileri.html", title: "İnternet ve Ağ Teknolojileri: Paket, Pencere, Önek, Ad", why: "Şifreli bağlantının üzerinde koştuğu katmanlar: paketin yönlendiriciler arasındaki yolu, kayıplı kanalda güvenilir aktarım, alt ağ hesabı ve DNS çözümlemesi bir öğretim ağında adım adım." },
   ],
   sources: [
     { title: "Vikipedi · Asal sayı", url: "https://tr.wikipedia.org/wiki/Asal_say%C4%B1", note: "Tanım, aritmetiğin temel teoremi, Öklid'in kanıtı ve Eratosthenes eleği (Türkçe)." },

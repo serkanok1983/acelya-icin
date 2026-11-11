@@ -265,7 +265,7 @@ window.ACELYA_DIGEST["fotosentez-solunum"] = {
     },
     {
       href: "elektrokimya.html",
-      title: "Elektrokimya",
+      title: "Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday",
       why: "Galvanik hücrede elektronlar potansiyel farkı boyunca akar; elektron taşıma sistemi de aynı redoks ilkesiyle çalışan biyolojik bir pildir.",
     },
   ],

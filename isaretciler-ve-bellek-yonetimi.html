@@ -1,759 +1,918 @@
-<!DOCTYPE html>
-<html class="app-root" lang="tr">
+<!doctype html>
+<html lang="tr" class="app-root">
 <head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="shared/theme.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Bir değişkenin değerini değil adresini saklamak, programcıya belleğin anahtarını verir: en hızlı veri yapıları da, 1988'de interneti durduran solucan da aynı anahtarla açıldı.">
-  <title>İşaretçiler ve Bellek Yönetimi</title>
-  <style>
-    * { box-sizing: border-box; }
-    .app-content { max-width: 860px; }
-    .panel {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px;
-      backdrop-filter: blur(12px);
-    }
-    .panel h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
-    .panel .desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; line-height: 1.5; }
-    .btn-send {
-      flex:1; min-width:90px; padding:9px 12px; font:inherit; font-size:0.82rem;
-      font-weight:600; border:none; border-radius:8px; cursor:pointer;
-      background:linear-gradient(135deg, var(--accent), #2dd4bf);
-      color:var(--btn-text); transition:filter 0.2s,transform 0.15s;
-    }
-    .btn-send:hover { filter:brightness(1.1); transform:translateY(-1px); }
-    .btn-ghost2 {
-      background:transparent; color:var(--text-muted); border:1px solid var(--border);
-      font:inherit; font-size:0.82rem; font-weight:500; padding:9px 12px;
-      border-radius:8px; cursor:pointer; transition:all 0.2s;
-    }
-    .btn-ghost2:hover { color:var(--text); border-color:var(--border-hover); }
-
-    /* ═══════ Bellek Modeli Canvas ═══════ */
-    .mem-canvas {
-      display:block; width:100%; border-radius:10px;
-      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
-      border:1px solid var(--border);
-    }
-    .mem-tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px; }
-    .mem-tab {
-      padding:6px 14px; font:inherit; font-size:0.75rem; font-weight:600;
-      border:1px solid var(--border); border-radius:6px; cursor:pointer;
-      background:transparent; color:var(--text-muted); transition:all 0.2s;
-    }
-    .mem-tab.active { background:rgba(94,234,212,0.15); border-color:var(--accent); color:var(--accent); }
-    .mem-tab:hover { border-color:var(--border-hover); color:var(--text); }
-
-    /* ═══════ İşaretçi Görsel ═══════ */
-    .ptr-viz {
-      display:flex; gap:4px; align-items:center; flex-wrap:wrap; justify-content:center;
-      font-family:ui-monospace,'SF Mono',monospace; margin:8px 0;
-    }
-    .ptr-cell {
-      width:50px; height:50px; border-radius:6px; display:flex; align-items:center;
-      justify-content:center; font-weight:700; font-size:0.75rem;
-      border:2px solid var(--border); background:rgba(255,255,255,0.03);
-      transition:all 0.3s; position:relative;
-    }
-    .ptr-cell.var { border-color:var(--accent); background:rgba(94,234,212,0.08); }
-    .ptr-cell.ptr { border-color:var(--accent-2); background:rgba(167,139,250,0.08); }
-    .ptr-cell.free { border-color:var(--border); background:rgba(255,255,255,0.02); color:var(--text-muted); font-size:0.55rem; }
-    .ptr-cell.highlight { border-color:var(--accent-warm); box-shadow:0 0 16px rgba(251,191,36,0.3); transform:translateY(-4px); }
-    .ptr-cell.leak { border-color:var(--danger); background:rgba(248,113,113,0.1); animation:pulse 1s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-    .ptr-addr {
-      position:absolute; top:-14px; font-size:0.52rem; color:var(--text-muted);
-      white-space:nowrap;
-    }
-    .ptr-controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-    .ptr-info { font-size:0.68rem; color:var(--text-muted); margin-top:6px; line-height:1.5; }
-
-    /* ═══════ Stack Frame Canvas ═══════ */
-    #stackCanvas {
-      display:block; width:100%; border-radius:10px;
-      background:radial-gradient(ellipse at center, #0d1525 0%, #060a14 100%);
-      border:1px solid var(--border);
-    }
-
-    /* ═══════ Smart Pointer Cards ═══════ */
-    .smart-grid {
-      display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:10px;
-    }
-    .smart-card {
-      padding:14px; border-radius:10px; border:1px solid var(--border);
-      background:rgba(255,255,255,0.02); transition:all 0.2s;
-    }
-    .smart-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
-    .smart-card .sc-icon { font-size:1.5rem; margin-bottom:6px; }
-    .smart-card .sc-name { font-size:0.82rem; font-weight:700; color:var(--text); }
-    .smart-card .sc-type { font-size:0.65rem; color:var(--text-muted); margin-bottom:6px; }
-    .smart-card .sc-desc { font-size:0.68rem; color:var(--text-muted); line-height:1.5; }
-    .smart-card .sc-code {
-      font-family:ui-monospace,monospace; font-size:0.62rem;
-      padding:6px 8px; background:rgba(0,0,0,0.3); border-radius:4px;
-      color:var(--accent); margin-top:6px; line-height:1.4; white-space:pre;
-    }
-
-    /* ═══════ Byte Grid ═══════ */
-    .byte-grid {
-      display:flex; gap:2px; flex-wrap:wrap; justify-content:center; margin:10px 0;
-    }
-    .byte-cell {
-      width:32px; height:32px; display:flex; align-items:center; justify-content:center;
-      border-radius:4px; font-family:ui-monospace,monospace; font-size:0.62rem;
-      border:2px solid var(--border); background:rgba(255,255,255,0.03);
-      color:var(--text-muted); transition:all 0.3s;
-    }
-    .byte-cell.highlight { border-color:var(--accent); background:rgba(94,234,212,0.12); color:var(--accent); }
-
-    /* ═══════ Leak Demo ═══════ */
-    .leak-heap {
-      display:flex; gap:4px; flex-wrap:wrap; margin:8px 0; min-height:60px;
-    }
-    .leak-block {
-      padding:6px 10px; border-radius:6px; font-size:0.68rem;
-      font-family:ui-monospace,monospace; transition:all 0.5s;
-    }
-    .leak-block.alloc { background:rgba(94,234,212,0.12); border:1px solid var(--accent); color:var(--accent); }
-    .leak-block.leaked { background:rgba(248,113,113,0.15); border:1px solid var(--danger); color:var(--danger); animation:pulse 1.5s infinite; }
-    .leak-block.freed { animation:fadeOut 0.5s forwards; }
-    @keyframes fadeOut { to { opacity:0; transform:scale(0.8); } }
-
-    @media (max-width:500px) {
-      .panel { padding:12px 14px; }
-      .ptr-cell { width:38px; height:38px; font-size:0.62rem; }
-      .smart-grid { grid-template-columns:1fr; }
-    }
-  </style>
-  <script src="shared/page-info.js"></script>
-  <script src="shared/app.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>İşaretçiler ve Bellek Yönetimi Laboratuvarı</title>
+<meta name="description" content="Bir adresi elinde tutmak hem güç hem sorumluluktur. Bayt bayt görünen bir model bellekte işaretçiyi ilerlet, ayırıcının belleği nasıl parçaladığını say, taşmayı ve sarkan işaretçiyi adım adım izle.">
+<link rel="stylesheet" href="shared/theme.css">
+<script src="shared/app.js"></script>
+<style>
+body.app-page main.app-content{max-width:1000px}
+.pm-tabs{display:flex;gap:8px;margin:26px 0 20px;flex-wrap:wrap}
+.pm-tabs button{flex:1 1 150px;padding:14px 8px;font:inherit;font-size:.86rem}
+.pm-tabs [aria-selected=true]{border-color:var(--accent)!important;box-shadow:inset 0 -3px var(--accent)}
+.pm-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(290px,1fr);gap:20px;align-items:start}
+.pm-grid>div,.pm-grid>aside{min-width:0;display:grid;gap:14px}
+.pm-plate{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0}
+.pm-plate h2{font-size:1.02rem;margin:0}
+.pm-plate h3{font-size:.9rem;margin:0;color:var(--text)}
+.pm-field{display:grid;gap:6px;min-width:0}
+.pm-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}
+.pm-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pm-field input,.pm-field select{width:100%;min-width:0;font:inherit;box-sizing:border-box}
+.pm-field select,.pm-field input[type=text]{padding:9px}
+.pm-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pm-mono,code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.pm-check{display:flex;gap:9px;align-items:center;font-size:.85rem}
+.pm-check input{width:18px;height:18px;flex:none}
+.pm-row{display:flex;gap:8px;flex-wrap:wrap}
+.pm-row button{padding:9px 12px;min-height:44px;font:inherit;font-size:.82rem}
+.pm-row button:disabled{opacity:.45;cursor:not-allowed}
+.pm-note{font-size:.84rem;line-height:1.75;margin:0}
+.pm-note code,.pm-status code,.pm-list code{font-size:.92em}
+.pm-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:12px 14px;font-size:.86rem;line-height:1.7;margin:0;overflow-wrap:anywhere}
+.pm-status.is-bad{border-left-color:var(--danger)}
+.pm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}
+.pm-stat{border:1px solid var(--border);background:var(--bg-input);border-radius:9px;padding:10px;min-width:0}
+.pm-stat small{display:block;color:var(--text-muted);font-size:.74rem;line-height:1.45}
+.pm-stat strong{display:block;font-size:1rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:4px;color:var(--text)}
+.pm-stat.is-hi strong{color:var(--accent-warm)}
+.pm-caption{font-size:.77rem;line-height:1.6;color:var(--text-muted);margin:0}
+.pm-list{margin:0;padding-left:20px;font-size:.84rem;line-height:1.75}
+.pm-wrap{overflow-x:auto}
+body.app-page table.pm-table{width:100%;margin:0;border-radius:0;box-shadow:none;overflow:visible;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums}
+body.app-page table.pm-table td,body.app-page table.pm-table th{padding:7px 8px;text-align:left;border:0!important;border-bottom:1px solid var(--border)!important;vertical-align:top;background:transparent!important}
+body.app-page table.pm-table th{font-size:.74rem;color:var(--text-muted)!important;font-weight:600}
+body.app-page table.pm-table caption{caption-side:top;text-align:left;font-size:.8rem;line-height:1.6;color:var(--text-muted);padding-bottom:6px}
+body.app-page table.pm-table td.is-bad{color:var(--danger)!important;font-weight:700}
+body.app-page table.pm-table td.is-ok{color:var(--accent)!important;font-weight:700}
+body.app-page table.pm-table tr.is-cur td{background:rgba(251,191,36,.16)!important}
+/* bayt ızgarası */
+.pm-mem{display:grid;grid-template-columns:4.2em repeat(8,minmax(0,1fr));gap:3px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8rem;line-height:2.1;text-align:center}
+.pm-mem span{border-radius:5px;min-width:0;color:var(--text)}
+.pm-mem .h{color:var(--text-muted);font-size:.7rem;text-align:left}
+.pm-mem .t{color:var(--text-muted);font-size:.68rem;line-height:1.5}
+.pm-mem .c{background:var(--bg-input);border:2px solid transparent}
+.v-s{background:rgba(94,234,212,.2)!important}.v-h{background:rgba(167,139,250,.24)!important}.v-a{background:rgba(251,191,36,.24)!important}
+.v-d{background:rgba(96,165,250,.26)!important}.v-q{background:rgba(244,114,182,.24)!important}.v-pp{background:rgba(248,113,113,.22)!important}
+.pm-mem .c.is-p{border-color:var(--accent);font-weight:700}
+.pm-mem .c.is-r{border-style:dashed;border-color:var(--accent-warm)}
+.pm-mem .c.is-p.is-r{border-style:solid;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-warm)}
+.pm-mem .c.k-buf{background:rgba(94,234,212,.2)}.pm-mem .c.k-var{background:rgba(251,191,36,.24)}.pm-mem .c.k-pad{background:var(--bg-input);color:var(--text-muted)}
+.pm-mem .c.k-fp{background:rgba(167,139,250,.24)}.pm-mem .c.k-ret{background:rgba(96,165,250,.26)}
+.pm-mem .c.is-oob{border-color:var(--danger);font-weight:700}
+.pm-mem .c.k-link{background:rgba(167,139,250,.24)}.pm-mem .c.k-used{background:rgba(94,234,212,.2)}
+.pm-mem .f{grid-column:1/-1;text-align:left;font-family:var(--font);font-size:.76rem;line-height:1.5;color:var(--text-muted);margin-top:4px}
+.pm-mem .f b{color:var(--text)}
+.pm-legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:.76rem;color:var(--text-muted);line-height:1.5}
+.pm-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px;border:1px solid var(--border-hover)}
+.pm-legend i.is-p{border:2px solid var(--accent);background:transparent}.pm-legend i.is-r{border:2px dashed var(--accent-warm);background:transparent}.pm-legend i.is-oob{border:2px solid var(--danger);background:transparent}
+/* adres alanı şeması */
+.pm-space{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:.8rem}
+.pm-space li{border:1px solid var(--border);border-left:5px solid var(--text-muted);border-radius:6px;padding:6px 10px;background:var(--bg-input);line-height:1.5}
+.pm-space li b{color:var(--text)}
+.pm-space li span{display:block;color:var(--text-muted);font-size:.76rem}
+.pm-space .s-k{border-left-color:var(--danger)}.pm-space .s-st{border-left-color:var(--accent)}.pm-space .s-hp{border-left-color:var(--accent-2)}
+.pm-space .s-bss{border-left-color:var(--accent-warm)}.pm-space .s-dt{border-left-color:#f472b6}.pm-space .s-tx{border-left-color:#60a5fa}.pm-space .s-gap,.pm-space .s-nul{border-style:dashed}
+/* kaynak listesi */
+.pm-src{margin:0;padding:0;list-style:none;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8rem;line-height:1.9;border:1px solid var(--border);border-radius:9px;background:var(--bg-input);overflow-x:auto}
+.pm-src li{white-space:pre;padding:0 10px 0 0;display:flex;color:var(--text)}
+.pm-src li i{font-style:normal;color:var(--text-muted);width:2.4em;flex:none;text-align:right;padding-right:10px}
+.pm-src li.is-cur{background:rgba(251,191,36,.22);box-shadow:inset 3px 0 var(--accent-warm)}
+.pm-chips{display:flex;flex-wrap:wrap;gap:6px}
+.pm-chips button{font:inherit;font-size:.8rem;padding:6px 10px;min-height:36px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body.app-page canvas.pm-canvas{display:block;width:100%;height:auto;aspect-ratio:2.6;border:0;border-radius:9px}
+body.app-page canvas.pm-chart{aspect-ratio:3.2}
+body.app-page canvas.pm-graph{aspect-ratio:1.45}
+[hidden]{display:none!important}
+@media(max-width:760px){
+ .pm-grid{grid-template-columns:1fr;gap:14px}
+ .pm-grid>div,.pm-grid>aside{display:contents}
+ .pm-plate{order:9}.pm-plate.o1{order:1}.pm-plate.o2{order:2}.pm-plate.o3{order:3}.pm-plate.o4{order:4}
+ .pm-plate{padding:12px}
+ .pm-tabs button{font-size:.78rem;padding:12px 6px;flex-basis:40%}
+ .pm-mem{font-size:.7rem;grid-template-columns:3.6em repeat(8,minmax(0,1fr));gap:2px}
+ .pm-mem .h{font-size:.62rem}
+ body.app-page canvas.pm-canvas{aspect-ratio:1.7}
+ body.app-page canvas.pm-chart{aspect-ratio:2}
+ body.app-page canvas.pm-graph{aspect-ratio:1.05}
+}
+</style>
 </head>
 <body class="app-page" data-page="isaretciler-ve-bellek-yonetimi">
-<div class="app-content">
+<main class="app-content">
+<h1>İşaretçiler ve Bellek Yönetimi Laboratuvarı</h1>
+<p class="hint">Her şey, baytları tek tek görünen küçük bir <strong>model bellekte</strong> çalışır. Bir işaretçiyi ilerletip adresini ölç, bir ayırıcının belleği nasıl parçaladığını say, serbest bırakılmış belleğe erişimi ve taşmayı adım adım izle. Gerçek C'de buradaki hataların çoğu tanımsız davranıştır: sonuç garanti edilmez. Model her biri için tek bir sonuç seçer ve bunu açıkça yazar.</p>
 
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!-- 1. BELLEK MODELİ                                           -->
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <div class="panel">
-    <h2>🧠 Bellek Modeli — Süreç Adres Alanı</h2>
-    <p class="desc">
-      Bir sürecin sanal adres alanı 4 ana bölgeye ayrılır. <strong>Stack</strong> aşağı doğru büyür (yerel değişkenler, fonksiyon çağrıları),
-      <strong>Heap</strong> yukarı doğru büyür (malloc/new). Aralarında büyüme payı vardır.
-      <strong>Data segment</strong> global/static değişkenleri, <strong>Text segment</strong> ise makine kodunu içerir.
-    </p>
-    <div class="mem-tabs">
-      <button class="mem-tab active" data-viz="overview">🗺️ Genel Görünüm</button>
-      <button class="mem-tab" data-viz="stack">📚 Stack</button>
-      <button class="mem-tab" data-viz="heap">📦 Heap</button>
-    </div>
-    <canvas class="mem-canvas" id="memCanvas"></canvas>
-    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;text-align:center" id="memInfo"></div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!-- 2. İŞARETÇİ GÖRSELLEŞTİRME                                  -->
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <div class="panel">
-    <h2>👉 İşaretçi (Pointer) Simülatörü</h2>
-    <p class="desc">
-      İşaretçi, başka bir değişkenin <strong>bellek adresini</strong> tutan değişkendir. <code>int x = 42;</code> bellekte bir yerde saklanır.
-      <code>int *p = &x;</code> ise x'in adresini tutar. <code>*p</code> ile bu adresteki değere erişilir (dereferencing).
-      Aşağıda bellek hücrelerini ve işaretçi ilişkilerini interaktif olarak inceleyin.
-    </p>
-    <div class="ptr-viz" id="ptrViz"></div>
-    <div class="ptr-controls">
-      <button class="btn-send" id="btnDeclare">📝 int x = 42</button>
-      <button class="btn-send" id="btnPointer" style="background:linear-gradient(135deg,var(--accent-2),#7c3aed)">🎯 int *p = &x</button>
-      <button class="btn-send" id="btnDeref" style="background:linear-gradient(135deg,#fbbf24,#d97706)">👁️ y = *p (deref)</button>
-      <button class="btn-ghost2" id="btnPtrArith">➕ p++ (aritmetik)</button>
-      <button class="btn-ghost2" id="btnPtrNull">🚫 p = NULL</button>
-      <button class="btn-ghost2" id="btnPtrReset">↺ Sıfırla</button>
-    </div>
-    <div class="ptr-info" id="ptrInfo"></div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!-- 3. STACK FRAME                                             -->
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <div class="panel">
-    <h2>📚 Çağrı Yığını (Call Stack) — Stack Frame'ler</h2>
-    <p class="desc">
-      Her fonksiyon çağrısı stack'te bir <strong>stack frame</strong> oluşturur. Frame; dönüş adresi, parametreler,
-      yerel değişkenler ve saklanan register'ları içerir. Fonksiyon döndüğünde frame yok edilir. <strong>Stack overflow</strong>,
-      çok fazla iç içe çağrı olduğunda (sonsuz özyineleme) stack'in taşmasıdır.
-    </p>
-    <canvas id="stackCanvas"></canvas>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-      <button class="btn-send" id="btnCallA">📞 main() → factorial(5)</button>
-      <button class="btn-send" id="btnCallB" style="background:linear-gradient(135deg,var(--accent-2),#7c3aed)">📞 factorial(5) → factorial(4)</button>
-      <button class="btn-ghost2" id="btnReturn">↩️ Return (geri dön)</button>
-      <button class="btn-ghost2" id="btnStackReset">↺ Sıfırla</button>
-    </div>
-    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:6px;text-align:center" id="stackInfo">
-      Stack: boş — Çağrı başlatmak için butona tıklayın.
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!-- 4. BELLEK SIZINTISI DEMO                                    -->
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <div class="panel">
-    <h2>💧 Bellek Sızıntısı (Memory Leak) Simülasyonu</h2>
-    <p class="desc">
-      <code>malloc()</code> ile heap'ten ayrılan bellek, işaretçi kaybolduğunda <strong>sızıntıya</strong> uğrar —
-      bellek artık kullanılamaz ama geri de verilemez. <code>free()</code> çağrısı belleği geri verir.
-      Uzun süre çalışan programlarda biriken sızıntılar sistemin çökmesine yol açar.
-    </p>
-    <div class="leak-heap" id="leakHeap"></div>
-    <div class="ptr-controls">
-      <button class="btn-send" id="btnMalloc">📦 malloc(16)</button>
-      <button class="btn-ghost2" id="btnFree">🗑️ free() — son bloğu serbest bırak</button>
-      <button class="btn-ghost2" id="btnLosePtr">💧 İşaretçiyi Kaybet (Sızıntı!)</button>
-      <button class="btn-ghost2" id="btnLeakReset">↺ Sıfırla</button>
-    </div>
-    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:6px;text-align:center" id="leakInfo">
-      Heap boş. <strong>malloc()</strong> ile bellek ayırın.
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!-- 5. C++ AKILLI İŞARETÇİLER                                   -->
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <div class="panel">
-    <h2>🧠 C++ Akıllı İşaretçiler (Smart Pointers)</h2>
-    <p class="desc">
-      Modern C++ (C++11 ve sonrası), ham işaretçilerin yol açtığı bellek sızıntılarını ve dangling pointer hatalarını
-      önlemek için <strong>akıllı işaretçiler</strong> sunar. RAII (Resource Acquisition Is Initialization) prensibiyle
-      bellek otomatik yönetilir.
-    </p>
-    <div class="smart-grid">
-      <div class="smart-card">
-        <div class="sc-icon">🔒</div>
-        <div class="sc-name">unique_ptr</div>
-        <div class="sc-type">Tek sahiplik (exclusive ownership)</div>
-        <div class="sc-desc">Bir kaynağın sadece bir sahibi olabilir. Kopyalanamaz, sadece <strong>move</strong> edilebilir. Scope dışına çıkınca otomatik silinir.</div>
-        <div class="sc-code">auto p = make_unique&lt;int&gt;(42);
-// p kopyalanamaz
-auto q = move(p); // sahiplik q'ya geçti
-// p artık nullptr</div>
-      </div>
-      <div class="smart-card">
-        <div class="sc-icon">👥</div>
-        <div class="sc-name">shared_ptr</div>
-        <div class="sc-type">Paylaşımlı sahiplik (reference counting)</div>
-        <div class="sc-desc">Birden çok işaretçi aynı kaynağı paylaşabilir. <strong>Referans sayacı</strong> sıfırlanınca kaynak otomatik silinir. Döngüsel referanslar sızıntıya yol açar.</div>
-        <div class="sc-code">auto p = make_shared&lt;int&gt;(42);
-auto q = p; // ref count = 2
-p.reset(); // ref count = 1
-q.reset(); // ref count = 0 → silindi</div>
-      </div>
-      <div class="smart-card">
-        <div class="sc-icon">👀</div>
-        <div class="sc-name">weak_ptr</div>
-        <div class="sc-type">Zayıf referans (no ownership)</div>
-        <div class="sc-desc">shared_ptr'in işaret ettiği nesneyi <strong>sahiplenmeden</strong> gözlemler. Döngüsel referansları kırmak için kullanılır. Kullanmadan önce <code>lock()</code> ile shared_ptr'e dönüştürülmelidir.</div>
-        <div class="sc-code">auto s = make_shared&lt;Node&gt;();
-weak_ptr&lt;Node&gt; w = s;
-if (auto sp = w.lock()) {
-  // sp geçerli, kullanabiliriz
-} // sp burada yok olur</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!-- 6. ENDIANNESS & BELLEK DÜZENİ                               -->
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <div class="panel">
-    <h2>🔄 Endianness — Byte Sıralaması</h2>
-    <p class="desc">
-      Çok baytlı sayılar bellekte iki farklı sırada saklanabilir. <strong>Little-endian</strong> (x86, ARM): en önemsiz byte en düşük adreste.
-      <strong>Big-endian</strong> (ağ protokolleri, bazı gömülü sistemler): en anlamlı byte en düşük adreste.
-      Ağ programlamada <code>htonl()</code>/<code>ntohl()</code> ile dönüşüm yapılır.
-    </p>
-    <div style="font-size:0.8rem;color:var(--text);text-align:center;margin-bottom:6px">
-      0x<span style="color:var(--accent)">0A</span><span style="color:var(--accent-2)">0B</span><span style="color:#fbbf24">0C</span><span style="color:#f472b6">0D</span> sayısının bellekteki dizilimi:
-    </div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
-      <div style="text-align:center">
-        <div style="font-size:0.7rem;font-weight:700;color:var(--accent);margin-bottom:6px">🟢 Little-Endian (x86, ARM)</div>
-        <div class="byte-grid">
-          <div class="byte-cell">0x100</div>
-          <div class="byte-cell highlight">0D</div>
-          <div class="byte-cell highlight" style="border-color:#fbbf24;background:rgba(251,191,36,0.12);color:#fbbf24">0C</div>
-          <div class="byte-cell highlight" style="border-color:var(--accent-2);background:rgba(167,139,250,0.12);color:var(--accent-2)">0B</div>
-          <div class="byte-cell highlight" style="border-color:var(--accent);background:rgba(94,234,212,0.12);color:var(--accent)">0A</div>
-          <div class="byte-cell">0x104</div>
-        </div>
-        <div style="font-size:0.6rem;color:var(--text-muted)">En önemsiz byte (0D) en düşük adreste</div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:0.7rem;font-weight:700;color:var(--accent-2);margin-bottom:6px">🔵 Big-Endian (Ağ, SPARC)</div>
-        <div class="byte-grid">
-          <div class="byte-cell">0x100</div>
-          <div class="byte-cell highlight" style="border-color:var(--accent);background:rgba(94,234,212,0.12);color:var(--accent)">0A</div>
-          <div class="byte-cell highlight" style="border-color:var(--accent-2);background:rgba(167,139,250,0.12);color:var(--accent-2)">0B</div>
-          <div class="byte-cell highlight" style="border-color:#fbbf24;background:rgba(251,191,36,0.12);color:#fbbf24">0C</div>
-          <div class="byte-cell highlight">0D</div>
-          <div class="byte-cell">0x104</div>
-        </div>
-        <div style="font-size:0.6rem;color:var(--text-muted)">En anlamlı byte (0A) en düşük adreste</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <!-- 7. İŞARETÇİ TEHLİKELERİ KARTLARI                             -->
-  <!-- ══════════════════════════════════════════════════════════ -->
-  <div class="panel">
-    <h2>⚠️ İşaretçi Hataları ve Tehlikeleri</h2>
-    <p class="desc">
-      İşaretçiler güçlüdür ama tehlikelidir. Aşağıdaki yaygın hataları anlamak,
-      C/C++'da güvenli kod yazmanın ilk adımıdır.
-    </p>
-    <div class="smart-grid" id="dangerGrid"></div>
-  </div>
-
+<div class="pm-tabs" role="tablist" aria-label="Bellek deneyleri">
+<button type="button" class="app-btn-ghost" id="tab-ptr" role="tab" aria-controls="panel-ptr" aria-selected="true" tabindex="0">01 · İşaretçi aritmetiği</button>
+<button type="button" class="app-btn-ghost" id="tab-heap" role="tab" aria-controls="panel-heap" aria-selected="false" tabindex="-1">02 · Yığın ve öbek ayırıcı</button>
+<button type="button" class="app-btn-ghost" id="tab-err" role="tab" aria-controls="panel-err" aria-selected="false" tabindex="-1">03 · Bellek hataları</button>
+<button type="button" class="app-btn-ghost" id="tab-gc" role="tab" aria-controls="panel-gc" aria-selected="false" tabindex="-1">04 · Otomatik bellek yönetimi</button>
 </div>
 
+<!-- ============================ 01 ============================ -->
+<section id="panel-ptr" role="tabpanel" aria-labelledby="tab-ptr">
+<div class="pm-grid">
+<div>
+ <div class="pm-plate o2">
+  <h2>Model bellek: 64 bayt, 0x1000 – 0x103F</h2>
+  <div class="pm-mem" id="ptGrid" role="group" aria-label="Model belleğin 64 baytı, onaltılık; değerler aşağıdaki tabloda da yazılı"></div>
+  <div class="pm-legend" aria-hidden="true">
+   <span><i class="v-s"></i>s</span><span><i class="v-h"></i>h</span><span><i class="v-a"></i>a</span><span><i class="v-d"></i>d</span><span><i class="v-q"></i>q</span><span><i class="v-pp"></i>pp</span>
+   <span><i class="is-p"></i>*p'nin okuduğu baytlar</span><span><i class="is-r"></i>r'nin gösterdiği baytlar</span>
+  </div>
+  <p class="pm-caption">Her kutu bir bayttır; satır başındaki sayı o satırın ilk baytının adresidir. Çok baytlı değerlerin düşük değerli baytı düşük adrestedir (little-endian). Model boyutları: char 1, short 2, int 4, double 8, işaretçi 8 bayt. C standardı yalnızca alt sınırları verir; bu sayılar yaygın 64 bitlik sistemlerdeki değerlerdir.</p>
+  <p class="pm-status" id="ptStatus" role="status" aria-live="polite"></p>
+ </div>
+ <div class="pm-plate">
+  <h2>Ölçülen ve hesaplanan</h2>
+  <div class="pm-stats" aria-live="polite">
+   <div class="pm-stat"><small>sizeof(T)</small><strong id="ptSize">—</strong></div>
+   <div class="pm-stat is-hi"><small>Ölçülen adres: p++ işlemi k kez sayılarak</small><strong id="ptAddrMeas">—</strong></div>
+   <div class="pm-stat"><small>Kuram: taban + k × sizeof(T)</small><strong id="ptAddrTheo">—</strong></div>
+   <div class="pm-stat"><small>Fark</small><strong id="ptAddrDiff">—</strong></div>
+   <div class="pm-stat is-hi"><small>*p (T türünde okunan değer)</small><strong id="ptValue">—</strong></div>
+   <div class="pm-stat"><small>Okunan baytlar (düşük adresten)</small><strong id="ptBytes" class="pm-mono">—</strong></div>
+   <div class="pm-stat is-hi"><small>Ölçülen p − r: adres farkı ÷ sizeof(T)</small><strong id="ptDiffMeas">—</strong></div>
+   <div class="pm-stat"><small>Kuram: k − j</small><strong id="ptDiffTheo">—</strong></div>
+  </div>
+  <p class="pm-note" id="ptSame"></p>
+ </div>
+ <div class="pm-plate">
+  <h2>Değişkenler</h2>
+  <div class="pm-wrap"><table class="pm-table"><thead><tr><th scope="col">Bildirim</th><th scope="col">Adres</th><th scope="col">Boyut</th><th scope="col">Değer</th></tr></thead><tbody id="ptVars"></tbody></table></div>
+ </div>
+ <div class="pm-plate">
+  <h2>İşaretçiye işaretçi: pp → q → a</h2>
+  <div class="pm-stats" aria-live="polite">
+   <div class="pm-stat"><small>pp (kendi adresi 0x1038)</small><strong id="ptPP">—</strong></div>
+   <div class="pm-stat"><small>*pp, yani q'nun değeri</small><strong id="ptQ">—</strong></div>
+   <div class="pm-stat is-hi"><small>**pp, yani *q</small><strong id="ptQQ">—</strong></div>
+  </div>
+  <div class="pm-row">
+   <button type="button" id="ptQInc">(*pp)++ : q'yu bir int ilerlet</button>
+   <button type="button" id="ptQDec">(*pp)-- : q'yu bir int geri al</button>
+  </div>
+  <p class="pm-caption">q bellekte 8 bayt kaplayan sıradan bir değişkendir; içindeki sayı bir adrestir. pp ise q'nun adresini tutar. (*pp)++ yazınca değişen pp değil, 0x1030 adresindeki sekiz bayttır.</p>
+ </div>
+</div>
+<aside>
+ <div class="pm-plate o1">
+  <h2>İşaretçi p</h2>
+  <div class="pm-two">
+   <div class="pm-field"><label for="ptType">Tür T (p'nin türü T *)</label>
+    <select id="ptType"><option value="char">char (1 bayt)</option><option value="short">short (2 bayt)</option><option value="int">int (4 bayt)</option><option value="double">double (8 bayt)</option></select></div>
+   <div class="pm-field"><label for="ptBase">Taban adres</label>
+    <select id="ptBase"><option value="s">s (0x1000)</option><option value="h">h (0x1008)</option><option value="a">a (0x1010)</option><option value="d">d (0x1020)</option><option value="q">&amp;q (0x1030)</option><option value="null">NULL (0)</option></select></div>
+  </div>
+  <div class="pm-field"><label for="ptK">Artırma sayısı k: p = taban + k <output id="ptKOut" for="ptK"></output></label>
+   <input type="range" id="ptK" min="-4" max="16" step="1" value="1"></div>
+  <div class="pm-field"><label for="ptJ">İkinci işaretçi: r = taban + j <output id="ptJOut" for="ptJ"></output></label>
+   <input type="range" id="ptJ" min="-4" max="16" step="1" value="0"></div>
+  <p class="pm-note pm-mono" id="ptExpr"></p>
+  <div class="pm-two">
+   <div class="pm-field"><label for="ptVal">Yazılacak değer</label><input type="text" inputmode="decimal" id="ptVal" value="99" autocomplete="off"></div>
+   <div class="pm-row" style="align-items:end"><button type="button" id="ptWrite">*p = değer yaz</button></div>
+  </div>
+  <div class="pm-row">
+   <button type="button" class="app-btn-ghost" id="ptPreWalk">int dizisinde gez</button>
+   <button type="button" class="app-btn-ghost" id="ptPreBytes">int'i bayt bayt oku</button>
+   <button type="button" class="app-btn-ghost" id="ptPreOut">Dizinin dışı</button>
+   <button type="button" class="app-btn-ghost" id="ptPreNull">NULL</button>
+   <button type="button" class="app-btn-ghost" id="ptReset">Sekmeyi sıfırla</button>
+  </div>
+  <p class="pm-caption">Sıfırlama, belleği ilk değerlerine ve denetimleri başlangıca döndürür.</p>
+ </div>
+ <div class="pm-plate">
+  <h2>Bir sürecin sanal adres alanı (şematik)</h2>
+  <ol class="pm-space" aria-label="Yüksek adresten düşük adrese bellek bölgeleri">
+   <li class="s-k"><b>Çekirdek alanı</b> (en yüksek adresler)<span>Kullanıcı kodu erişemez.</span></li>
+   <li class="s-st"><b>Yığın (stack)</b> ↓ düşük adreslere büyür<span>Yerel değişkenler, dönüş adresleri; işlev dönünce çerçeve kendiliğinden gider.</span></li>
+   <li class="s-gap"><b>Boşluk</b><span>Paylaşılan kitaplıklar ve mmap bölgeleri buraya yerleşir.</span></li>
+   <li class="s-hp"><b>Öbek (heap)</b> ↑ yüksek adreslere büyür<span>malloc ile alınır, free ile geri verilir; ömrü işlev çağrılarından bağımsızdır.</span></li>
+   <li class="s-bss"><b>BSS</b><span>İlk değeri verilmemiş global ve static değişkenler; yükleyici sıfırla doldurur.</span></li>
+   <li class="s-dt"><b>Data</b><span>İlk değeri verilmiş global ve static değişkenler.</span></li>
+   <li class="s-tx"><b>Text</b><span>Makine kodu; salt okunur.</span></li>
+   <li class="s-nul"><b>Eşlenmemiş sayfa</b> (0 adresi)<span>NULL buradadır; erişim çoğu sistemde süreci durdurur.</span></li>
+  </ol>
+  <p class="pm-caption">Klasik 32 bitlik Linux yerleşiminin şemasıdır, ölçekli değildir. Günümüz sistemleri bölgelerin adreslerini her çalıştırmada rastgele kaydırır (ASLR). Bu sekmedeki 0x1000 adresleri gerçek bir sürecin adresleri değil, öğretim değerleridir; ilk 4096 bayt (0x0000 – 0x0FFF) modelde de eşlenmemiştir.</p>
+ </div>
+</aside>
+</div>
+</section>
+
+<!-- ============================ 02 ============================ -->
+<section id="panel-heap" role="tabpanel" aria-labelledby="tab-heap" hidden>
+<div class="pm-grid">
+<div>
+ <div class="pm-plate o1">
+  <h2>Öbek haritası: 1024 baytlık arena</h2>
+  <canvas class="pm-canvas" id="alMap" role="img" aria-label="Arenadaki blokların haritası: başlıklar, kullanılan yük, dolgu ve boş alan; ayrıntılar aşağıdaki blok tablosunda"></canvas>
+  <div class="pm-legend" aria-hidden="true"><span><i id="lgH"></i>başlık (8 B)</span><span><i id="lgU"></i>istenen yük</span><span><i id="lgP"></i>iç dolgu</span><span><i id="lgF"></i>boş</span></div>
+  <p class="pm-status" id="alStatus" role="status" aria-live="polite"></p>
+  <div class="pm-field"><label for="alT">Gösterilen an: işlem dizisinin ilk t işlemi <output id="alTOut" for="alT"></output></label>
+   <input type="range" id="alT" min="0" max="0" step="1" value="0"></div>
+ </div>
+ <div class="pm-plate">
+  <h2>Sayım</h2>
+  <div class="pm-stats" aria-live="polite">
+   <div class="pm-stat"><small>Başlıklar (blok sayısı × 8)</small><strong id="alHeaders">—</strong></div>
+   <div class="pm-stat"><small>Kullanılan bloklardaki yük alanı</small><strong id="alUsed">—</strong></div>
+   <div class="pm-stat"><small>Boş bloklardaki yük alanı</small><strong id="alFree">—</strong></div>
+   <div class="pm-stat is-hi"><small>Ölçülen toplam (üçünün toplamı)</small><strong id="alSum">—</strong></div>
+   <div class="pm-stat"><small>Korunum: arena − toplam</small><strong id="alSumDiff">—</strong></div>
+   <div class="pm-stat is-hi"><small>En büyük boş blok</small><strong id="alLargest">—</strong></div>
+   <div class="pm-stat is-hi"><small>Dış parçalanma: 1 − en büyük boş ÷ toplam boş</small><strong id="alExt">—</strong></div>
+   <div class="pm-stat is-hi"><small>Ölçülen iç parçalanma: yük alanı − istenen</small><strong id="alInt">—</strong></div>
+   <div class="pm-stat"><small>Kuram: yalnız hizalama dolgusu</small><strong id="alPad">—</strong></div>
+   <div class="pm-stat"><small>Fark: bölünemeyen artık</small><strong id="alSlack">—</strong></div>
+   <div class="pm-stat"><small>Başarısız malloc</small><strong id="alFails">—</strong></div>
+   <div class="pm-stat"><small>Bunlardan toplam boş alan yettiği hâlde başarısız</small><strong id="alFragFails">—</strong></div>
+  </div>
+ </div>
+ <div class="pm-plate">
+  <h2>Dış parçalanma ve doluluk, işlem işlem</h2>
+  <canvas class="pm-canvas pm-chart" id="alChart" role="img" aria-label="Her işlemden sonra dış parçalanma ve doluluk yüzdesi; başarısız istekler altta işaretli"></canvas>
+  <div class="pm-legend" aria-hidden="true"><span><i id="lgE"></i>dış parçalanma</span><span><i id="lgD"></i>doluluk (istenen bayt ÷ arena)</span><span><i id="lgX"></i>başarısız malloc</span></div>
+ </div>
+ <div class="pm-plate">
+  <h2>Aynı işlem dizisi, altı ayırıcı</h2>
+  <div class="pm-wrap"><table class="pm-table"><caption>İşlem dizisinin tamamı, seçili hizalamayla her politika için baştan yürütülür.</caption><thead><tr><th scope="col">Politika</th><th scope="col">Birleştirme</th><th scope="col">Başarısız</th><th scope="col">Parçalanma yüzünden</th><th scope="col">En yüksek dış parçalanma</th><th scope="col">Sondaki en büyük boş</th></tr></thead><tbody id="alCompare"></tbody></table></div>
+ </div>
+ <div class="pm-plate">
+  <h2>Blok listesi</h2>
+  <div class="pm-wrap" style="max-height:300px;overflow:auto" tabindex="0" role="region" aria-label="Blok listesi"><table class="pm-table"><thead><tr><th scope="col">Başlık adresi</th><th scope="col">Blok</th><th scope="col">Durum</th><th scope="col">İstenen</th><th scope="col">Yük alanı</th></tr></thead><tbody id="alBlocks"></tbody></table></div>
+ </div>
+</div>
+<aside>
+ <div class="pm-plate o3">
+  <h2>Ayırıcı</h2>
+  <div class="pm-field"><label for="alPolicy">Yerleştirme politikası</label>
+   <select id="alPolicy"><option value="first">İlk uyan (first-fit)</option><option value="best">En iyi uyan (best-fit)</option><option value="next">Sıradaki uyan (next-fit)</option></select></div>
+  <div class="pm-field"><label for="alAlign">Hizalama: yük adresi ve blok boyu bunun katı</label>
+   <select id="alAlign"><option value="4">4 bayt</option><option value="8" selected>8 bayt</option><option value="16">16 bayt</option></select></div>
+  <label class="pm-check" for="alCoalesce"><input type="checkbox" id="alCoalesce" checked> Serbest bırakınca komşu boş blokları birleştir</label>
+  <p class="pm-caption">Ayar değişince aynı işlem dizisi yeni ayarla baştan yürütülür; böylece yalnızca ayarın etkisini görürsün.</p>
+ </div>
+ <div class="pm-plate o2">
+  <h2>Elle işlem</h2>
+  <div class="pm-field"><label for="alSize">İstek boyu n <output id="alSizeOut" for="alSize"></output></label>
+   <input type="range" id="alSize" min="1" max="256" step="1" value="100"></div>
+  <div class="pm-row"><button type="button" id="alMalloc">malloc(n)</button></div>
+  <div class="pm-field"><label for="alFreeSel">Serbest bırakılacak blok</label><select id="alFreeSel"></select></div>
+  <div class="pm-row"><button type="button" id="alFreeBtn">free(p)</button>
+   <button type="button" class="app-btn-ghost" id="alHoles">Hazır dizi: delikli düzen</button></div>
+  <p class="pm-caption">Delikli düzen: sekiz kez malloc(100), sonra p1, p3, p5 ve p7 serbest bırakılır.</p>
+ </div>
+ <div class="pm-plate o4">
+  <h2>Rastgele iş yükü</h2>
+  <div class="pm-two">
+   <div class="pm-field"><label for="alSeed">Tohum (1 – 9999)</label><input type="text" inputmode="numeric" id="alSeed" value="5" autocomplete="off"></div>
+   <div class="pm-field"><label for="alDist">İstek boyları</label>
+    <select id="alDist"><option value="small">Küçük: 8 – 32 B</option><option value="mixed" selected>Karışık: 8 – 128 B</option><option value="bimodal">İki tepeli: %80 küçük, %20 büyük</option></select></div>
+  </div>
+  <div class="pm-field"><label for="alSteps">İşlem sayısı <output id="alStepsOut" for="alSteps"></output></label>
+   <input type="range" id="alSteps" min="20" max="400" step="10" value="200"></div>
+  <div class="pm-field"><label for="alPFree">Her işlemin free olma olasılığı <output id="alPFreeOut" for="alPFree"></output></label>
+   <input type="range" id="alPFree" min="0.3" max="0.6" step="0.05" value="0.5"></div>
+  <div class="pm-row"><button type="button" id="alRun">İş yükünü üret ve yürüt</button>
+   <button type="button" class="app-btn-ghost" id="alReset">Sekmeyi sıfırla</button></div>
+  <p class="pm-caption">Aynı tohum her zaman aynı işlem dizisini üretir. Başarısız bir malloc NULL döndürür; o işaretçiye sonradan gelen free hiçbir şey yapmaz.</p>
+ </div>
+ <div class="pm-plate">
+  <h2>Model ve sınırları</h2>
+  <ul class="pm-list">
+   <li>Arena 1024 bayttır ve büyümez. Her blok 8 baytlık bir başlık ile yük alanından oluşur; bloklar adres sırasıyla arenayı boşluksuz kaplar.</li>
+   <li>İstek, başlıkla birlikte hizalamanın katına yuvarlanır. Artan parça en küçük bloktan küçükse bölünmez, bloğun tamamı verilir.</li>
+   <li>Birleştirme açıkken serbest kalan blok, bitişiğindeki boş bloklarla hemen tek blok olur. Ayırıcı kullanılan blokları taşıyamaz: C'de adresleri programın elindedir.</li>
+   <li>Gerçek ayırıcılar boyut sınıfları, ayrı boş listeleri ve iş parçacığı önbellekleri kullanır, işletim sisteminden yeni bellek de isteyebilir. Buradaki sayılar bu küçük modele aittir; politikaların sıralaması iş yüküne göre değişir.</li>
+  </ul>
+ </div>
+</aside>
+</div>
+</section>
+
+<!-- ============================ 03 ============================ -->
+<section id="panel-err" role="tabpanel" aria-labelledby="tab-err" hidden>
+<div class="pm-grid">
+<div>
+ <div class="pm-plate o2">
+  <h2>Model program</h2>
+  <ol class="pm-src" id="erSrc" aria-label="Programın kaynak satırları; son yürütülen satır işaretli"></ol>
+  <div class="pm-row">
+   <button type="button" id="erStep">Bir adım</button>
+   <button type="button" id="erBack">Bir adım geri</button>
+   <button type="button" id="erEnd">Sonuna kadar</button>
+   <button type="button" class="app-btn-ghost" id="erRestart">Baştan</button>
+  </div>
+  <p class="pm-status" id="erStatus" role="status" aria-live="polite"></p>
+ </div>
+ <div class="pm-plate" id="erHeapPlate">
+  <h2>Model öbek: 16 baytlık dört parça</h2>
+  <div class="pm-mem" id="erHeap" role="group" aria-label="Model öbeğin baytları"></div>
+  <p class="pm-note pm-mono" id="erList" aria-live="polite"></p>
+  <div class="pm-legend" aria-hidden="true"><span><i class="v-h"></i>serbest liste bağı (ilk 8 bayt)</span><span><i class="v-s"></i>kullanımdaki parça</span></div>
+  <p class="pm-caption">Model ayırıcı bilerek en yalın hâliyle kuruldu: boş parçalar tek yönlü bir listede durur, bağ parçanın ilk 8 baytına yazılır; malloc listenin başını verir, free parçayı hiçbir denetim yapmadan başa ekler.</p>
+ </div>
+ <div class="pm-plate" id="erStackPlate">
+  <h2>Model yığın çerçevesi (yüksek adres üstte)</h2>
+  <div class="pm-mem" id="erStack" role="group" aria-label="Model yığın çerçevesinin baytları"></div>
+  <div class="pm-legend" aria-hidden="true"><span><i class="v-s"></i>dizi</span><span><i class="v-a"></i>komşu değişken</span><span><i class="v-h"></i>kaydedilmiş çerçeve işaretçisi</span><span><i class="v-d"></i>dönüş adresi</span><span><i class="is-oob"></i>sınır dışına yazılan bayt</span></div>
+  <p class="pm-caption">Çerçevenin yerleşimi modele aittir. Gerçek derleyici değişkenlerin sırasını değiştirebilir, araya dolgu ya da koruma değeri koyabilir. AA, ilklenmemiş baytı gösteren model değeridir.</p>
+ </div>
+ <div class="pm-plate">
+  <h2>Değişkenler ve çıktı</h2>
+  <div class="pm-wrap"><table class="pm-table"><thead><tr><th scope="col">Değişken</th><th scope="col">Değer</th><th scope="col">Durum</th></tr></thead><tbody id="erVars"></tbody></table></div>
+  <p class="pm-note">Program çıktısı: <strong class="pm-mono" id="erOut">—</strong></p>
+ </div>
+</div>
+<aside>
+ <div class="pm-plate o1">
+  <h2>Deney</h2>
+  <div class="pm-field"><label for="erProg">Hata türü</label>
+   <select id="erProg"><option value="uaf">Serbest bıraktıktan sonra kullanma</option><option value="double">Çift serbest bırakma</option><option value="leak">Bellek sızıntısı</option><option value="stack">Yığın tamponu taşması</option><option value="obo">Bir fazla tur (off-by-one)</option></select></div>
+  <label class="pm-check" for="erFixed"><input type="checkbox" id="erFixed"> Düzeltilmiş sürümü göster</label>
+  <div class="pm-field" id="erNField"><label for="erN">Girdi uzunluğu n (karakter) <output id="erNOut" for="erN"></output></label>
+   <input type="range" id="erN" min="0" max="31" step="1" value="12"></div>
+  <div class="pm-row"><button type="button" class="app-btn-ghost" id="erReset">Sekmeyi sıfırla</button></div>
+  <p class="pm-caption">Program, hata türü ya da girdi değişince baştan başlar.</p>
+ </div>
+ <div class="pm-plate">
+  <h2>Ölçülen ve beklenen</h2>
+  <div class="pm-stats" aria-live="polite">
+   <div class="pm-stat is-hi"><small id="erL1"></small><strong id="erM1">—</strong></div>
+   <div class="pm-stat"><small id="erL2"></small><strong id="erM2">—</strong></div>
+   <div class="pm-stat is-hi"><small id="erL3"></small><strong id="erM3">—</strong></div>
+   <div class="pm-stat"><small id="erL4"></small><strong id="erM4">—</strong></div>
+  </div>
+  <p class="pm-caption">Adım <span id="erCount">0 / 0</span></p>
+ </div>
+ <div class="pm-plate">
+  <h2>Bir araç ne derdi?</h2>
+  <p class="pm-note" id="erTool"></p>
+  <h3>Düzeltme</h3>
+  <p class="pm-note" id="erFix"></p>
+ </div>
+ <div class="pm-plate">
+  <h2>Model ve sınırları</h2>
+  <p class="pm-note">C standardı bu hataların çoğu için sonucu belirlemez; buna <strong>tanımsız davranış</strong> denir. Derleyici, tanımsız davranışın hiç olmayacağını varsayarak kodu dönüştürebilir; aynı program bir makinede doğru görünüp başkasında çökebilir. Model ise her seferinde aynı tek sonucu üretir: baytlar gerçekten oraya yazılır ve sonraki satır onları olduğu gibi okur. Burada gördüğün sayılar modelin seçtiği sonuçtur, gerçek bir programdan beklenecek bir garanti değildir. Bellek sızıntısı bu listenin istisnasıdır: tanımsız davranış değildir, program doğru çalışır ama belleği geri vermez.</p>
+ </div>
+</aside>
+</div>
+</section>
+
+<!-- ============================ 04 ============================ -->
+<section id="panel-gc" role="tabpanel" aria-labelledby="tab-gc" hidden>
+<div class="pm-grid">
+<div>
+ <div class="pm-plate o1">
+  <h2>Nesne çizgesi</h2>
+  <canvas class="pm-canvas pm-graph" id="gcCanvas" role="img" aria-label="Nesneler ve aralarındaki başvurular; kararlar aşağıdaki tabloda"></canvas>
+  <div class="pm-legend" aria-hidden="true"><span><i id="lgG1"></i>köklerden erişilebilir</span><span><i id="lgG2"></i>iki yöntem de geri verir</span><span><i id="lgG3"></i>sayım sızdırır, işaretle-süpür geri verir</span><span>kesikli ok: zayıf başvuru</span></div>
+  <p class="pm-status" id="gcStatus" role="status" aria-live="polite"></p>
+ </div>
+ <div class="pm-plate">
+  <h2>Ölçülen ve kuram</h2>
+  <div class="pm-stats" aria-live="polite">
+   <div class="pm-stat"><small>Nesne sayısı</small><strong id="gcN">—</strong></div>
+   <div class="pm-stat"><small>Köklerden erişilebilen (işaretlenen)</small><strong id="gcReach">—</strong></div>
+   <div class="pm-stat is-hi"><small>İşaretle-süpürün geri verdiği</small><strong id="gcSwept">—</strong></div>
+   <div class="pm-stat"><small>Kuram: n − erişilebilen (bağımsız BFS)</small><strong id="gcSweptTheo">—</strong></div>
+   <div class="pm-stat"><small>Fark</small><strong id="gcSweptDiff">—</strong></div>
+   <div class="pm-stat"><small>Sayımın geri verdiği</small><strong id="gcRcFreed">—</strong></div>
+   <div class="pm-stat is-hi"><small>Sayımın sızdırdığı (benzetimden)</small><strong id="gcLeak">—</strong></div>
+   <div class="pm-stat"><small>Kuram: erişilemeyen döngüler ve onların gösterdikleri</small><strong id="gcLeakTheo">—</strong></div>
+   <div class="pm-stat"><small>Fark</small><strong id="gcLeakDiff">—</strong></div>
+   <div class="pm-stat"><small>Sayımda yapılan sayaç azaltma</small><strong id="gcDec">—</strong></div>
+   <div class="pm-stat"><small>İşaretlemede izlenen başvuru</small><strong id="gcScan">—</strong></div>
+   <div class="pm-stat"><small>Süpürmede taranan nesne</small><strong id="gcSweepScan">—</strong></div>
+  </div>
+ </div>
+ <div class="pm-plate">
+  <h2>Nesne nesne karar</h2>
+  <div class="pm-wrap"><table class="pm-table"><thead><tr><th scope="col">Nesne</th><th scope="col">Başlangıç sayacı</th><th scope="col">Son sayaç</th><th scope="col">Sayım</th><th scope="col">İşaret biti</th><th scope="col">İşaretle-süpür</th></tr></thead><tbody id="gcTable"></tbody></table></div>
+  <p class="pm-caption" id="gcOrder"></p>
+ </div>
+</div>
+<aside>
+ <div class="pm-plate o2">
+  <h2>Çizgeyi düzenle</h2>
+  <div class="pm-field"><label for="gcPreset">Hazır çizge</label>
+   <select id="gcPreset"><option value="karma">İki kök, bir döngü</option><option value="zincir">Zincir</option><option value="cift">Çift bağlı liste</option><option value="agac">Ağaç ve üst düğüm başvuruları</option><option value="oz">Kendini gösteren nesne</option></select></div>
+  <div class="pm-two">
+   <div class="pm-field"><label for="gcFrom">Kaynak</label><select id="gcFrom"></select></div>
+   <div class="pm-field"><label for="gcTo">Hedef</label><select id="gcTo"></select></div>
+  </div>
+  <label class="pm-check" for="gcWeak"><input type="checkbox" id="gcWeak"> Zayıf başvuru olarak ekle (sayılmaz, izlenmez)</label>
+  <div class="pm-row"><button type="button" id="gcAdd">Başvuru ekle</button>
+   <button type="button" class="app-btn-ghost" id="gcAddNode">Nesne ekle</button>
+   <button type="button" class="app-btn-ghost" id="gcDelNode">Son nesneyi sil</button></div>
+  <h3>Kök başvuruları (kaldırmak için tıkla)</h3>
+  <div class="pm-chips" id="gcRoots"></div>
+  <h3>Nesneler arası başvurular (kaldırmak için tıkla)</h3>
+  <div class="pm-chips" id="gcEdges"></div>
+  <div class="pm-row"><button type="button" id="gcDropRoots">Bütün kökleri kaldır</button>
+   <button type="button" class="app-btn-ghost" id="gcReset">Sekmeyi sıfırla</button></div>
+  <p class="pm-caption">Kök, programın doğrudan elinde tuttuğu başvurudur: yerel değişkenler, globaller, yazmaçlar. En çok 10 nesne.</p>
+ </div>
+ <div class="pm-plate">
+  <h2>İki yöntem</h2>
+  <ul class="pm-list">
+   <li><strong>Başvuru sayımı:</strong> her nesne kendisini gösteren güçlü başvuruları sayar. Sayaç sıfıra inince nesne hemen geri verilir ve gösterdiği nesnelerin sayaçları azaltılır. Birbirini gösteren nesnelerin sayacı hiç sıfıra inmez; döngü, programdan erişilemese de yaşar.</li>
+   <li><strong>İşaretle-süpür:</strong> toplayıcı köklerden başlayıp izleyebildiği her nesneyi işaretler, sonra bütün nesneleri tarayıp işaretsizleri geri verir. Ölçüt sayaç değil erişilebilirliktir; döngüler sorun olmaz. Bedeli: çöp hemen değil, toplayıcı çalışınca gider ve işaretleme canlı nesnelerin tamamını dolaşır.</li>
+   <li><strong>Zayıf başvuru:</strong> sayacı artırmaz, toplayıcı da onu izlemez. Döngünün bir kenarını zayıf yapmak sayımdaki sızıntıyı giderir; hedef geri verildiğinde zayıf başvuru boşa çıkar.</li>
+  </ul>
+ </div>
+ <div class="pm-plate">
+  <h2>Derleme zamanındaki seçenekler</h2>
+  <p class="pm-note"><strong>RAII (C++):</strong> kaynak bir nesnenin ömrüne bağlanır; nesne kapsamdan çıkınca yıkıcısı kendiliğinden çalışır ve belleği geri verir. <code>std::unique_ptr</code> tek sahipliği, <code>std::shared_ptr</code> başvuru sayımını bu kalıpla sunar. shared_ptr döngüleri de bu sekmedeki gibi sızar; çare <code>std::weak_ptr</code> kullanmaktır.</p>
+  <p class="pm-note"><strong>Sahiplik ve ödünç alma (Rust):</strong> her değerin tek bir sahibi vardır; sahip kapsamdan çıkınca değer bırakılır. Başvurular değeri ödünç alır ve derleyici, bir başvurunun gösterdiği değerden uzun yaşamadığını derleme sırasında denetler. Böylece güvenli Rust kodunda sarkan başvuru ve çift serbest bırakma derlenmez; çalışma anında toplayıcı gerekmez. Paylaşılan sahiplik için Rust da başvuru sayımı sunar (<code>Rc</code>, <code>Arc</code>) ve bunlarla kurulan döngüler sızabilir.</p>
+  <p class="pm-caption">Model, toplayıcıların yalnızca karar kuralını gösterir. Kuşaklı, artımlı ya da eşzamanlı toplama, nesne taşıma ve duraklama süreleri kapsam dışıdır.</p>
+ </div>
+</aside>
+</div>
+</section>
+</main>
 <script>
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  1. BELLEK MODELİ CANVAS                                    ║
-// ╚══════════════════════════════════════════════════════════════╝
-(function(){
-  const canvas = document.getElementById("memCanvas");
-  const ctx = canvas.getContext("2d");
-  let W = 500, H = 360;
-  let vizMode = "overview";
+/* KERNEL-BEGIN */
+const PointerLab=(()=>{
+'use strict';
+/* ---------- 1. Tipli bayt belleği (little-endian model) ---------- */
+const SIZES=Object.freeze({char:1,short:2,int:4,double:8,ptr:8});
+const BASE=0x1000,LEN=64;
+const LAYOUT=Object.freeze([
+ {name:'s',type:'char',count:8,addr:0x1000,decl:'char s[8]'},
+ {name:'h',type:'short',count:4,addr:0x1008,decl:'short h[4]'},
+ {name:'a',type:'int',count:4,addr:0x1010,decl:'int a[4]'},
+ {name:'d',type:'double',count:2,addr:0x1020,decl:'double d[2]'},
+ {name:'q',type:'ptr',count:1,addr:0x1030,decl:'int *q'},
+ {name:'pp',type:'ptr',count:1,addr:0x1038,decl:'int **pp'}].map(Object.freeze));
+function writeLE(mem,off,type,value){const n=SIZES[type];
+ if(type==='double'){const dv=new DataView(new ArrayBuffer(8));dv.setFloat64(0,value,true);for(let i=0;i<8;i++)mem[off+i]=dv.getUint8(i);return;}
+ let v=BigInt.asUintN(8*n,BigInt(Math.trunc(value)));for(let i=0;i<n;i++){mem[off+i]=Number(v&255n);v>>=8n;}}
+function readLE(mem,off,type){const n=SIZES[type];
+ if(type==='double'){const dv=new DataView(new ArrayBuffer(8));for(let i=0;i<8;i++)dv.setUint8(i,mem[off+i]);return dv.getFloat64(0,true);}
+ let v=0n;for(let i=n-1;i>=0;i--)v=(v<<8n)|BigInt(mem[off+i]);
+ return type==='ptr'?Number(v):Number(BigInt.asIntN(8*n,v));}
+function hexLE(mem,off,n){let s='';for(let i=n-1;i>=0;i--)s+=mem[off+i].toString(16).toUpperCase().padStart(2,'0');return s;}
+function initMemory(){const m=new Uint8Array(LEN);
+ const put=(name,vals)=>{const v=LAYOUT.find(x=>x.name===name);vals.forEach((x,i)=>writeLE(m,v.addr-BASE+i*SIZES[v.type],v.type,x));};
+ put('s',[77,101,114,104,97,98,97,0]);put('h',[100,200,-3,1000]);put('a',[10,20,30,40]);put('d',[1.5,-2.25]);put('q',[0x1010]);put('pp',[0x1030]);return m;}
+/* p + k: k kez tek tek ilerleyerek (sayarak) */
+function advance(addr,type,k){const s=SIZES[type];let a=addr;for(let i=0;i<Math.abs(k);i++)a+=k>0?s:-s;return a;}
+function classify(addr,n){if(addr===0)return'null';if(addr>0&&addr<BASE)return'unmapped';if(!(addr>=BASE&&addr+n<=BASE+LEN))return'range';return'ok';}
+function deref(mem,addr,type){const n=SIZES[type],why=classify(addr,n);if(why!=='ok')return{ok:false,why};
+ return{ok:true,value:readLE(mem,addr-BASE,type),bytes:Array.from(mem.subarray(addr-BASE,addr-BASE+n))};}
+function store(mem,addr,type,value){const n=SIZES[type],why=classify(addr,n);if(why!=='ok')return{ok:false,why};
+ if(!Number.isFinite(value)&&type!=='double')return{ok:false,why:'value'};writeLE(mem,addr-BASE,type,value);return{ok:true,value:readLE(mem,addr-BASE,type)};}
+function ptrDiff(p,r,type){const b=p-r,s=SIZES[type];return{bytes:b,elements:b/s,exact:b%s===0};}
+function owner(addr){return LAYOUT.find(v=>addr>=v.addr&&addr<v.addr+v.count*SIZES[v.type])||null;}
+function bounds(v,type,k){const s=SIZES[type],off=k*s,total=v.count*SIZES[v.type];if(off>=0&&off+s<=total)return'inside';if(off===total)return'onepast';return'outside';}
 
-  function resize() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    W = Math.max(340, rect.width);
-    H = Math.max(300, Math.min(400, W * 0.75));
-    canvas.width = W;
-    canvas.height = H;
-  }
+/* ---------- 2. Öbek ayırıcı: örtük blok listesi, başlık + yük ---------- */
+const roundUp=(n,a)=>Math.ceil(n/a)*a;
+function mulberry32(seed){let t=seed>>>0;return()=>{t=(t+0x6D2B79F5)>>>0;let r=Math.imul(t^(t>>>15),1|t);r=(r+Math.imul(r^(r>>>7),61|r))^r;return((r^(r>>>14))>>>0)/4294967296;};}
+function heapNew(cfg){const c=Object.assign({arena:1024,H:8,A:8,policy:'first',coalesce:true},cfg||{});
+ if(!(Number.isInteger(c.arena)&&c.arena>0)||![4,8,16].includes(c.A)||c.arena%c.A||c.H!==8||!['first','best','next'].includes(c.policy))throw new Error('Geçersiz ayırıcı ayarı');
+ return{arena:c.arena,H:c.H,A:c.A,policy:c.policy,coalesce:!!c.coalesce,base:0x2000+((c.A-c.H%c.A)%c.A),
+  blocks:[{off:0,size:c.arena,used:false,req:0,id:0}],rover:0,stats:{mallocs:0,fails:0,fragFails:0,frees:0,nullFrees:0}};}
+function heapMalloc(st,id,n){if(!(Number.isInteger(n)&&n>=1))throw new Error('Geçersiz boyut');st.stats.mallocs++;
+ const need=roundUp(n+st.H,st.A),minB=roundUp(1+st.H,st.A),B=st.blocks,fits=i=>!B[i].used&&B[i].size>=need;let pick=-1;
+ if(st.policy==='first'){for(let i=0;i<B.length;i++)if(fits(i)){pick=i;break;}}
+ else if(st.policy==='best'){for(let i=0;i<B.length;i++)if(fits(i)&&(pick<0||B[i].size<B[pick].size))pick=i;}
+ else{let s=B.findIndex(b=>b.off>=st.rover);if(s<0)s=0;for(let j=0;j<B.length;j++){const i=(s+j)%B.length;if(fits(i)){pick=i;break;}}}
+ if(pick<0){st.stats.fails++;let freeSum=0,largest=0;for(const b of B)if(!b.used){freeSum+=b.size;if(b.size>largest)largest=b.size;}
+  const frag=freeSum>=need;if(frag)st.stats.fragFails++;return{ok:false,op:'m',id,n,need,frag,freeSum,largest};}
+ const b=B[pick],rest=b.size-need,split=rest>=minB;if(split){B.splice(pick+1,0,{off:b.off+need,size:rest,used:false,req:0,id:0});b.size=need;}
+ b.used=true;b.req=n;b.id=id;st.rover=(b.off+b.size)%st.arena;
+ return{ok:true,op:'m',id,n,need,addr:st.base+b.off+st.H,cap:b.size-st.H,split};}
+function heapFree(st,id){const B=st.blocks;let i=B.findIndex(b=>b.used&&b.id===id);
+ if(i<0){st.stats.nullFrees++;return{ok:false,op:'f',id};}
+ st.stats.frees++;const b=B[i],was=b.req;b.used=false;b.req=0;b.id=0;let merged=0;
+ if(st.coalesce){if(i+1<B.length&&!B[i+1].used){b.size+=B[i+1].size;B.splice(i+1,1);merged++;}
+  if(i>0&&!B[i-1].used){B[i-1].size+=b.size;B.splice(i,1);i--;merged++;}
+  const m=B[i];if(st.rover>m.off&&st.rover<m.off+m.size)st.rover=m.off;}
+ return{ok:true,op:'f',id,n:was,merged};}
+function heapMetrics(st){const H=st.H;let nUsed=0,nFree=0,usedCap=0,freeCap=0,req=0,largest=0,alignPad=0;
+ for(const b of st.blocks){if(b.used){nUsed++;usedCap+=b.size-H;req+=b.req;alignPad+=roundUp(b.req+H,st.A)-H-b.req;}else{nFree++;freeCap+=b.size-H;if(b.size-H>largest)largest=b.size-H;}}
+ const headers=(nUsed+nFree)*H,internal=usedCap-req;
+ return{nBlocks:nUsed+nFree,nUsed,nFree,headers,usedCap,freeCap,sum:headers+usedCap+freeCap,req,internal,alignPad,slack:internal-alignPad,largest,ext:freeCap>0?1-largest/freeCap:null,util:req/st.arena};}
+function heapWorkload(seed,steps,dist,pFree){if(!['small','mixed','bimodal'].includes(dist))throw new Error('Geçersiz dağılım');
+ const rnd=mulberry32(seed),ops=[],live=[];let id=0;
+ const size=()=>{const u=rnd();if(dist==='small')return 8+Math.floor(u*25);if(dist==='mixed')return 8+Math.floor(u*121);const v=rnd();return u<0.8?8+Math.floor(v*17):96+Math.floor(v*105);};
+ for(let i=0;i<steps;i++){if(live.length&&rnd()<pFree){const j=Math.floor(rnd()*live.length);ops.push({op:'f',id:live[j]});live.splice(j,1);}else{id++;ops.push({op:'m',id,n:size()});live.push(id);}}
+ return ops;}
+function heapReplay(cfg,ops){const st=heapNew(cfg),history=[],results=[];let peakExt=null;
+ for(const o of ops){const r=o.op==='m'?heapMalloc(st,o.id,o.n):heapFree(st,o.id);results.push(r);const m=heapMetrics(st);
+  if(m.ext!==null&&(peakExt===null||m.ext>peakExt))peakExt=m.ext;history.push({fail:o.op==='m'&&!r.ok,ext:m.ext,util:m.util});}
+ return{st,history,results,metrics:heapMetrics(st),peakExt};}
+function heapCompare(cfg,ops){const rows=[];for(const policy of['first','best','next'])for(const coalesce of[true,false]){
+  const r=heapReplay(Object.assign({},cfg,{policy,coalesce}),ops);rows.push({policy,coalesce,fails:r.st.stats.fails,fragFails:r.st.stats.fragFails,peakExt:r.peakExt,finalExt:r.metrics.ext,largest:r.metrics.largest,nBlocks:r.metrics.nBlocks});}
+ return rows;}
 
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    const w = W - 140, x0 = 128;
-    const segs = [
-      { key:"kernel", label:"İşletim Sistemi", y:0.00, h:0.08, color:"#f87171", desc:"Çekirdek alanı\nKullanıcı kodu erişemez" },
-      { key:"stack", label:"Stack (Yığın)", y:0.08, h:0.20, color:"#5eead4", desc:"Yerel değişkenler\nFonksiyon çağrıları\n↓ aşağı büyür" },
-      { key:"gap", label:"↓↓ Boşluk ↑↑", y:0.28, h:0.10, color:"rgba(255,255,255,0.05)", desc:"Stack ve Heap\nbirbirine doğru büyür" },
-      { key:"heap", label:"Heap (Öbek)", y:0.38, h:0.22, color:"#a78bfa", desc:"malloc / new\nDinamik bellek\n↑ yukarı büyür" },
-      { key:"bss", label:"BSS (İlklenmemiş)", y:0.60, h:0.06, color:"#fbbf24", desc:"İlk değer verilmemiş global/static\n(yükleyici 0 ile doldurur)" },
-      { key:"data", label:"Data (Veri)", y:0.66, h:0.06, color:"#f472b6", desc:"İlk değeri verilmiş\nglobal/static değişkenler" },
-      { key:"text", label:"Text (Kod)", y:0.72, h:0.22, color:"#60a5fa", desc:"Makine kodu\nSalt okunur" },
-      { key:"null", label:"Eşlenmemiş", y:0.94, h:0.06, color:"rgba(255,255,255,0.05)", desc:"NULL (0x0) burada\nErişim → hata" },
-    ];
+/* ---------- 3. Bellek hataları: adım adım model programlar ---------- */
+const HEAP0=0x3000,CHUNK=16,NCH=4,STK0=0x7F00,STKLEN=32,RET0=0x401136,FP0=0x7F40;
+const h4=a=>'0x'+a.toString(16).toUpperCase().padStart(4,'0');
+const isChunk=a=>a>=HEAP0&&a<HEAP0+NCH*CHUNK&&(a-HEAP0)%CHUNK===0;
+function errMachine(){const S={heap:new Uint8Array(NCH*CHUNK),stack:new Uint8Array(STKLEN),head:HEAP0,alloc:new Array(NCH).fill(0),vars:[],out:[],events:[],fields:[],oobSet:[],mallocs:0,nullMallocs:0,frees:0,halt:null,usesStack:false};
+ for(let i=0;i<NCH;i++)writeLE(S.heap,i*CHUNK,'ptr',i<NCH-1?HEAP0+(i+1)*CHUNK:0);S.stack.fill(0xAA);return S;}
+function eList(S){const nodes=[],seen=new Set();let a=S.head,cyclic=false,wild=null;
+ while(a!==0){if(!isChunk(a)){wild=a;break;}if(seen.has(a)){cyclic=true;nodes.push(a);break;}seen.add(a);nodes.push(a);a=readLE(S.heap,a-HEAP0,'ptr');}
+ return{nodes,cyclic,wild,distinct:seen.size};}
+function eMalloc(S){S.mallocs++;const a=S.head;if(a===0){S.nullMallocs++;return 0;}if(!isChunk(a)){S.halt='wild-malloc';return 0;}
+ S.head=readLE(S.heap,a-HEAP0,'ptr');S.alloc[(a-HEAP0)/CHUNK]++;return a;}
+function eFree(S,a){if(a===0)return'null';S.frees++;const i=(a-HEAP0)/CHUNK;if(S.alloc[i]<=0)S.events.push('double-free');else S.alloc[i]--;
+ writeLE(S.heap,a-HEAP0,'ptr',S.head);S.head=a;for(const v of S.vars)if(v.type==='ptr'&&v.value===a)v.dangling=true;return'ok';}
+function setVar(S,name,type,value){let v=S.vars.find(x=>x.name===name);if(!v){v={name,type,value,dangling:false};S.vars.push(v);}v.value=value;v.dangling=false;return v;}
+const getVar=(S,name)=>S.vars.find(x=>x.name===name);
+const dropVar=(S,name)=>{S.vars=S.vars.filter(x=>x.name!==name);};
+function hAccess(S,name){const v=getVar(S,name);if(v.value===0){S.halt='null';S.events.push('null-deref');return null;}if(v.dangling)S.events.push('uaf');return v.value-HEAP0;}
+function hWrite(S,name,type,val){const o=hAccess(S,name);if(o===null)return false;writeLE(S.heap,o,type,val);return true;}
+function hRead(S,name,type){const o=hAccess(S,name);return o===null?null:readLE(S.heap,o,type);}
+function errProgram(prog,fixed,n){const L=[],T=[],ln=s=>L.push(s)-1,st=(line,run)=>T.push({line,run});let l;
+ if(prog==='uaf'){
+  l=ln('int *p = malloc(16);');st(l,S=>{const a=eMalloc(S);setVar(S,'p','ptr',a);return'malloc serbest listenin başındaki parçayı verdi: p = '+h4(a)+'. Parçanın içi ilklenmemiş; eski liste bağı hâlâ orada duruyor.';});
+  l=ln('*p = 42;');st(l,S=>{hWrite(S,'p','int',42);return'p üzerinden 4 bayt yazıldı: 2A 00 00 00.';});
+  l=ln('free(p);');st(l,S=>{const a=getVar(S,'p').value;eFree(S,a);return'Parça serbest listeye geri kondu; ayırıcı ilk 8 bayta liste bağını yazdı, 42 silindi. p ise hâlâ '+h4(a)+' değerini tutuyor: artık sarkan bir işaretçi.';});
+  if(fixed){l=ln('p = NULL;');st(l,S=>{setVar(S,'p','ptr',0);return'p = NULL: eski adres artık hiçbir değişkende yok. Sonraki bir yanlış kullanım sessiz kalmaz, denetlenebilir olur.';});}
+  l=ln('int *q = malloc(16);');st(l,S=>{const a=eMalloc(S);setVar(S,'q','ptr',a);const p=getVar(S,'p').value;return'Ayırıcı az önce serbest bırakılan parçayı yeniden verdi: q = '+h4(a)+(p===a?'. Bu, p’nin tuttuğu adresle aynı.':'.');});
+  l=ln('*q = 7;');st(l,S=>{hWrite(S,'q','int',7);return'q üzerinden 7 yazıldı.';});
+  l=ln(fixed?'if (p != NULL) printf("%d\\n", *p);':'printf("%d\\n", *p);');st(l,S=>{if(fixed){return'p == NULL olduğu için okuma yapılmadı. Serbest bırakılmış belleğe erişim yok.';}
+   const v=hRead(S,'p','int');S.out.push(String(v));return'*p okundu: model çıktısı '+v+'. Programcı 42 bekliyordu; p’nin gösterdiği parça artık q’ya ait. Gerçek C’de bu okuma tanımsız davranıştır: 7, 42, başka bir sayı ya da çökme, hiçbiri garanti değildir.';});
+ }else if(prog==='double'){
+  l=ln('int *a = malloc(16);');st(l,S=>{const x=eMalloc(S);setVar(S,'a','ptr',x);return'a = '+h4(x)+'.';});
+  l=ln('free(a);');st(l,S=>{eFree(S,getVar(S,'a').value);return'Parça serbest listenin başına eklendi.';});
+  if(fixed){l=ln('a = NULL;');st(l,S=>{setVar(S,'a','ptr',0);return'a = NULL.';});}
+  l=ln('free(a);');st(l,S=>{const x=getVar(S,'a').value,r=eFree(S,x);return r==='null'?'free(NULL) tanımlı bir işlemdir ve hiçbir şey yapmaz. Serbest liste bozulmadı.':'Aynı parça ikinci kez listeye eklendi: parçanın bağı artık kendisini gösteriyor, serbest liste '+h4(x)+' → '+h4(x)+' döngüsüne girdi. Model ayırıcısı bunu denetlemiyor. Gerçek C’de tanımsız davranış.';});
+  l=ln('int *c = malloc(16);');st(l,S=>{const x=eMalloc(S);setVar(S,'c','ptr',x);return'c = '+h4(x)+'.';});
+  l=ln('int *d = malloc(16);');st(l,S=>{const x=eMalloc(S);setVar(S,'d','ptr',x);return'd = '+h4(x)+(x===getVar(S,'c').value?'. Ayırıcı aynı parçayı ikinci kez verdi: c ile d aynı belleği paylaşıyor ve parça hâlâ serbest listenin başında.':'. c’den farklı bir parça.');});
+  l=ln('*c = 1;');st(l,S=>{hWrite(S,'c','int',1);const li=eList(S);return'c üzerinden 1 yazıldı.'+(li.wild!==null?' Aynı baytlar serbest listenin bağ alanıydı: liste artık '+h4(li.wild)+' gibi geçersiz bir adresi gösteriyor.':'');});
+  l=ln('*d = 2;');st(l,S=>{hWrite(S,'d','int',2);return'd üzerinden 2 yazıldı.';});
+  l=ln('printf("%d\\n", *c);');st(l,S=>{const v=hRead(S,'c','int');S.out.push(String(v));return'*c okundu: model çıktısı '+v+'. '+(v===1?'Beklenen değer.':'Programcı 1 bekliyordu; d’ye yazılan 2, c’nin değerini ezdi.');});
+ }else if(prog==='leak'){
+  const head=ln('for (int i = 0; i < 5; i++) {'),lm=ln('    char *buf = malloc(16);'),lc=ln('    if (buf == NULL) break;'),lw=ln("    buf[0] = 'A' + i;"),lf=fixed?ln('    free(buf);'):-1,le=ln('}'),la=ln('/* döngüden sonra */');
+  let broke=false;
+  for(let i=0;i<5&&!broke;i++){
+   st(head,S=>{setVar(S,'i','int',i);return'i = '+i+': koşul doğru, gövdeye girildi.';});
+   st(lm,S=>{const a=eMalloc(S);setVar(S,'buf','ptr',a);return a?'buf = '+h4(a)+'.':'Serbest liste boş: malloc NULL döndürdü.';});
+   const willFail=!fixed&&i>=NCH;
+   st(lc,S=>getVar(S,'buf').value===0?'buf == NULL: döngüden çıkılıyor. Dört parça da kullanımda sayılıyor, ama hiçbirinin adresi elde değil.':'buf geçerli, devam.');
+   if(willFail){broke=true;break;}
+   st(lw,S=>{hWrite(S,'buf','char',65+i);return'buf[0] = \''+String.fromCharCode(65+i)+'\' yazıldı.';});
+   if(fixed)st(lf,S=>{eFree(S,getVar(S,'buf').value);return'Parça geri verildi; bir sonraki turda yeniden kullanılabilir.';});
+   st(le,S=>{dropVar(S,'buf');return fixed?'buf kapsam dışına çıktı; gösterdiği parça zaten serbest.':'buf kapsam dışına çıktı. Parça hâlâ ayrılmış durumda, ama adresini tutan hiçbir değişken kalmadı: sızıntı.';});}
+  st(la,S=>{dropVar(S,'buf');dropVar(S,'i');return fixed?'Döngü beş turu da tamamladı; her turda aynı parça yeniden kullanıldı.':'Döngü, bellek tükendiği için dördüncü turdan sonra kesildi.';});
+ }else if(prog==='stack'){
+  if(!(Number.isInteger(n)&&n>=0&&n<=31))throw new Error('Girdi uzunluğu 0–31 olmalı');
+  const F=[{name:'ad[8]',addr:STK0,size:8,kind:'buf'},{name:'yetki',addr:STK0+8,size:4,kind:'var'},{name:'dolgu',addr:STK0+12,size:4,kind:'pad'},{name:'kaydedilmiş çerçeve işaretçisi',addr:STK0+16,size:8,kind:'fp'},{name:'dönüş adresi',addr:STK0+24,size:8,kind:'ret'}];
+  l=ln('void selamla(const char *girdi) {');st(l,S=>{S.usesStack=true;S.fields=F;writeLE(S.stack,16,'ptr',FP0);writeLE(S.stack,24,'ptr',RET0);return'Çerçeve kuruldu: çağıranın çerçeve işaretçisi ve dönüş adresi (0x401136) yığına kaydedildi. Yerel değişkenler ilklenmemiş; model bu baytları AA ile gösteriyor.';});
+  l=ln('    int  yetki = 0;');st(l,S=>{writeLE(S.stack,8,'int',0);return'yetki = 0.';});
+  l=ln('    char ad[8];');st(l,()=>'ad için 8 bayt ayrıldı (ilklenmemiş).');
+  l=ln(fixed?'    snprintf(ad, sizeof ad, "%s", girdi);':'    strcpy(ad, girdi);');st(l,S=>{const m=fixed?Math.min(n,7):n;for(let i=0;i<=m;i++){S.stack[i]=i<m?0x41:0;if(i>=8)S.oobSet.push(i);}
+   return fixed?'En çok 7 karakter ve sonlandırıcı sıfır yazıldı ('+(m+1)+' bayt)'+(n>7?'; girdinin '+(n-7)+' karakteri kesildi.':'.'):'strcpy uzunluğa bakmadan '+(n+1)+' bayt yazdı ('+n+' karakter + sonlandırıcı sıfır). ad yalnızca 8 bayt'+(n+1>8?': '+(n+1-8)+' bayt komşu alanlara taştı.':'; taşma yok.');});
+  l=ln('    if (yetki != 0) ozel_islem();');st(l,S=>{const v=readLE(S.stack,8,'int');if(v!==0){S.events.push('branch');S.out.push('ozel_islem() çağrıldı');return'yetki = '+v+' (0x'+hexLE(S.stack,8,4)+'): sıfır değil, ozel_islem() çağrıldı. Programın hiçbir satırı yetki’ye bu değeri atamadı.';}return'yetki = 0: ozel_islem() çağrılmadı.';});
+  l=ln('}');st(l,S=>{const ret=hexLE(S.stack,24,8),fp=hexLE(S.stack,16,8),ret0=RET0.toString(16).toUpperCase().padStart(16,'0'),fp0=FP0.toString(16).toUpperCase().padStart(16,'0');
+   if(ret!==ret0){S.events.push('ret');S.halt='bad-return';return'İşlev dönerken kaydedilmiş dönüş adresini okudu: 0x'+ret+'. Bu, çağıranın adresi (0x401136) değil. Model burada duruyor. Gerçek C’de tanımsız davranış: çoğunlukla çökme; adres girdiyle belirlendiği için tarihte bu hata denetimi ele geçirmekte kullanılmıştır.';}
+   if(fp!==fp0){S.events.push('fp');return'Dönüş adresi sağlam, ama kaydedilmiş çerçeve işaretçisi bozuldu (0x'+fp+'): çağıran işlev kendi yerel değişkenlerini yanlış adreslerde arayacak.';}
+   return'Dönüş adresi ve çerçeve işaretçisi sağlam: işlev çağırana döndü.';});
+ }else if(prog==='obo'){
+  const F=[{name:'a[4]',addr:STK0,size:16,kind:'buf'},{name:'sinir',addr:STK0+16,size:4,kind:'var'},{name:'dolgu',addr:STK0+20,size:12,kind:'pad'}],lim=fixed?4:5;
+  l=ln('int sinir = 99;');st(l,S=>{S.usesStack=true;S.fields=F;writeLE(S.stack,16,'int',99);return'sinir = 99. Model, sinir değişkenini a dizisinin hemen üstüne yerleştiriyor; gerçek derleyici başka bir sıra seçebilir.';});
+  l=ln('int a[4];');st(l,()=>'a için 16 bayt ayrıldı: a[0] … a[3]. Geçerli indisler 0–3.');
+  const lf=ln(fixed?'for (int i = 0; i < 4; i++)':'for (int i = 0; i <= 4; i++)'),lw=ln('    a[i] = i * 10;');
+  for(let i=0;i<=lim;i++){const go=i<lim;
+   st(lf,S=>{setVar(S,'i','int',i);return'i = '+i+': koşul '+(go?'doğru.':'yanlış, döngü bitti.');});
+   if(go)st(lw,S=>{writeLE(S.stack,i*4,'int',i*10);if(i>=4)for(let b=0;b<4;b++)S.oobSet.push(i*4+b);return i>=4?'a[4] dizinin dışında: yazma, bitişikteki sinir değişkeninin 4 baytına gitti (99 → 40). Gerçek C’de tanımsız davranış.':'a['+i+'] = '+(i*10)+'.';});}
+  l=ln('printf("%d\\n", sinir);');st(l,S=>{const v=readLE(S.stack,16,'int');S.out.push(String(v));return'Model çıktısı: '+v+'. '+(v===99?'Beklenen değer.':'Programcı 99 bekliyordu.');});
+ }else throw new Error('Bilinmeyen program');
+ return{lines:L,steps:T};}
+function errRun(prog,fixed,n,steps){const P=errProgram(prog,!!fixed,n),S=errMachine(),total=P.steps.length;let done=0,msg='',line=-1;
+ const limit=Math.max(0,Math.min(steps===undefined?total:steps,total));
+ while(done<limit&&!S.halt){const t=P.steps[done];msg=t.run(S);line=t.line;done++;}
+ const list=eList(S),leaked=[],shared=[];
+ for(let i=0;i<NCH;i++){const a=HEAP0+i*CHUNK,refs=S.vars.filter(v=>v.type==='ptr'&&v.value===a);if(S.alloc[i]>0&&refs.length===0)leaked.push(a);if(refs.filter(v=>!v.dangling).length>=2)shared.push(a);}
+ const count=k=>S.events.filter(e=>e===k).length;
+ return{prog,fixed:!!fixed,n,lines:P.lines,total,step:done,line,msg,finished:done>=total||!!S.halt,halt:S.halt,
+  heap:Array.from(S.heap),stack:Array.from(S.stack),head:S.head,alloc:S.alloc.slice(),list,vars:S.vars.map(v=>({name:v.name,type:v.type,value:v.value,dangling:v.dangling})),
+  out:S.out.slice(),events:S.events.slice(),fields:S.fields,usesStack:S.usesStack,oob:S.oobSet.slice(),
+  metrics:{leakedBlocks:leaked.length,leakedBytes:leaked.length*CHUNK,leaked,shared,uafAccesses:count('uaf'),doubleFrees:count('double-free'),oobBytes:S.oobSet.length,mallocs:S.mallocs,nullMallocs:S.nullMallocs,frees:S.frees,
+   yetki:S.usesStack&&prog==='stack'?readLE(S.stack,8,'int'):null,retHex:S.usesStack&&prog==='stack'?hexLE(S.stack,24,8):null,fpHex:S.usesStack&&prog==='stack'?hexLE(S.stack,16,8):null,sinir:S.usesStack&&prog==='obo'?readLE(S.stack,16,'int'):null}};}
 
-    segs.forEach(s => {
-      ctx.globalAlpha = (vizMode === "overview" || vizMode === s.key) ? 1 : 0.22;
-      const y = s.y * H;
-      const h = s.h * H;
-      ctx.fillStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? s.color : s.color + "11";
-      ctx.fillRect(x0, y, w, h);
-      ctx.strokeStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? "rgba(255,255,255,0.05)" : s.color + "44";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x0, y, w, h);
+/* ---------- 4. Otomatik bellek yönetimi: sayım ve işaretle-süpür ---------- */
+function gcAnalyze(n,roots,edges){if(!(Number.isInteger(n)&&n>=0))throw new Error('Geçersiz nesne sayısı');
+ const adj=Array.from({length:n},()=>[]);
+ for(const[f,t,w]of edges){if(!(Number.isInteger(f)&&Number.isInteger(t)&&f>=0&&f<n&&t>=0&&t<n))throw new Error('Geçersiz başvuru');if(!w)adj[f].push(t);}
+ const R=[...new Set(roots)].sort((a,b)=>a-b);for(const r of R)if(!(r>=0&&r<n))throw new Error('Geçersiz kök');
+ /* işaretle: açık yığınla derinlik öncelikli gezinti */
+ const mark=new Array(n).fill(false),order=[],stack=[];let scanned=0;
+ for(const r of R){if(mark[r])continue;mark[r]=true;order.push(r);stack.push(r);
+  while(stack.length){const u=stack.pop();for(const v of adj[u]){scanned++;if(!mark[v]){mark[v]=true;order.push(v);stack.push(v);}}}}
+ const swept=[];for(let u=0;u<n;u++)if(!mark[u])swept.push(u);
+ /* başvuru sayımı: sayacı sıfır olanı bırak, gösterdiklerinin sayacını azalt */
+ const rc=new Array(n).fill(0);for(const r of R)rc[r]++;for(let u=0;u<n;u++)for(const v of adj[u])rc[v]++;
+ const rc0=rc.slice(),freed=new Array(n).fill(false),queue=[],freeOrder=[];let decrements=0;
+ for(let u=0;u<n;u++)if(rc[u]===0)queue.push(u);
+ while(queue.length){const u=queue.shift();freed[u]=true;freeOrder.push(u);for(const v of adj[u]){rc[v]--;decrements++;if(rc[v]===0)queue.push(v);}}
+ const leaked=[];for(let u=0;u<n;u++)if(!freed[u]&&!mark[u])leaked.push(u);
+ /* kuram: erişilemeyen alt çizgede Tarjan ile güçlü bağlı bileşenler */
+ const idx=new Array(n).fill(-1),low=new Array(n).fill(0),on=new Array(n).fill(false),cyc=new Array(n).fill(false),ts=[];let c=0;
+ const visit=u=>{idx[u]=low[u]=c++;ts.push(u);on[u]=true;
+  for(const v of adj[u]){if(mark[v])continue;if(idx[v]<0){visit(v);low[u]=Math.min(low[u],low[v]);}else if(on[v])low[u]=Math.min(low[u],idx[v]);}
+  if(low[u]===idx[u]){const comp=[];let w;do{w=ts.pop();on[w]=false;comp.push(w);}while(w!==u);if(comp.length>1||adj[u].includes(u))for(const x of comp)cyc[x]=true;}};
+ for(let u=0;u<n;u++)if(!mark[u]&&idx[u]<0)visit(u);
+ const tl=cyc.slice(),bfs=[];for(let u=0;u<n;u++)if(cyc[u])bfs.push(u);
+ while(bfs.length){const u=bfs.shift();for(const v of adj[u])if(!mark[v]&&!tl[v]){tl[v]=true;bfs.push(v);}}
+ const theoryLeaked=[];for(let u=0;u<n;u++)if(tl[u])theoryLeaked.push(u);
+ return{mark,order,scanned,swept,rc0,rc,freed,freeOrder,decrements,leaked,cyc,theoryLeaked};}
 
-      ctx.fillStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? "#8b95a8" : s.color;
-      ctx.font = "bold 11px 'Outfit', sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(s.label, x0 - 8, y + h / 2 + 4);
-
-      ctx.fillStyle = "#8b95a8";
-      ctx.font = "8px 'Outfit', sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText(s.desc.split("\n").join(" · "), x0 + 10, y + h / 2 + 3, w - 20);
-    });
-
-    ctx.globalAlpha = 1;
-
-    // Adres göstergeleri
-    ctx.fillStyle = "#8b95a8";
-    ctx.font = "9px ui-monospace, monospace";
-    ctx.textAlign = "right";
-    ctx.fillText("0xFFFFFFFF", x0 + w, 12);
-    ctx.fillText("0x00000000", x0 + w, H - 4);
-
-    // Yüksek/Düşük adres okları
-    ctx.fillStyle = "#8b95a8";
-    ctx.font = "8px 'Outfit', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Yüksek adres", x0 + w / 2, 12);
-    ctx.fillText("Düşük adres", x0 + w / 2, H - 4);
-
-    const memTexts = {
-      overview: "Sanal adres alanı (32 bitlik klasik Linux yerleşimi; şematik) — her süreç kendi izole adres alanında çalışır. 64 bitlik sistemlerde kuramsal sınır 16 EiB'dir; yaygın x86-64 işlemciler bunun 48 bitini (256 TiB) kullanır.",
-      stack: "Stack: her fonksiyon çağrısı bir çerçeve ekler, fonksiyon dönünce çerçeve kendiliğinden silinir. Düşük adreslere doğru büyür; Linux'ta ana iş parçacığı için varsayılan sınır 8 MiB'dir.",
-      heap: "Heap: malloc/new ile istenir, free/delete ile geri verilir; ömrü fonksiyon çağrılarından bağımsızdır. Yüksek adreslere doğru büyür; ayırıcılar büyük istekleri çoğunlukla mmap ile ayrı bölgelerden karşılar.",
-    };
-    document.getElementById("memInfo").textContent = memTexts[vizMode] || memTexts.overview;
-  }
-
-  document.querySelectorAll("[data-viz]").forEach(tab => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll("[data-viz]").forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      vizMode = tab.dataset.viz;
-      draw();
-    });
-  });
-
-  window.addEventListener("resize", () => { resize(); draw(); });
-  resize();
-  draw();
+return Object.freeze({SIZES,BASE,LEN,LAYOUT,writeLE,readLE,hexLE,initMemory,advance,deref,store,ptrDiff,owner,bounds,
+ roundUp,mulberry32,heapNew,heapMalloc,heapFree,heapMetrics,heapWorkload,heapReplay,heapCompare,
+ ERR:Object.freeze({HEAP0,CHUNK,NCH,STK0,STKLEN,RET0,FP0}),errRun,gcAnalyze});
 })();
+/* KERNEL-END */
+if(typeof window!=='undefined')Object.defineProperty(window,'PointerLab',{value:PointerLab,writable:false,configurable:false});
 
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  2. İŞARETÇİ SİMÜLATÖRÜ                                     ║
-// ╚══════════════════════════════════════════════════════════════╝
-(function(){
-  // Bellek modeli: adres → { value, type: 'int'|'ptr', pointsTo }
-  const mem = {};
-  const vars = {}; // isim → adres
-  let nextAddr = 0x100;
+const K=PointerLab,$=id=>document.getElementById(id),put=(id,t)=>{$(id).textContent=t;};
+/* Tek sayı biçimi: tr-TR, ondalık virgül, binlik ayırıcı yok, eksi işareti U+2212; adresler 0x + büyük harf onaltılık. */
+const neg=s=>String(s).replace(/-/g,'−');
+const fmt=(n,d=0)=>n===null||n===undefined||!Number.isFinite(n)?'—':neg(n.toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d,useGrouping:false}));
+const pct=x=>x===null||x===undefined?'tanımsız':'%'+fmt(100*x,1);
+const hex=(n,w=4)=>'0x'+(n<0?BigInt.asUintN(64,BigInt(n)).toString(16):n.toString(16)).toUpperCase().padStart(w,'0');
+const hb=v=>v.toString(16).toUpperCase().padStart(2,'0');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const TABS=['ptr','heap','err','gc'];let active='ptr';
+function tval(type,v){
+ if(type==='char'){const ch=v>=32&&v<127?"'"+String.fromCharCode(v)+"'":v===0?"'\\0'":'yazdırılamaz';return fmt(v)+' ('+ch+')';}
+ if(type==='double'){if(Number.isNaN(v))return'NaN';if(!Number.isFinite(v))return v>0?'+∞':'−∞';const a=Math.abs(v);
+  if(a!==0&&(a<1e-4||a>=1e9)){const[m,e]=v.toExponential(4).split('e');return neg(m.replace('.',',')+' × 10^'+(+e));}
+  return neg(v.toLocaleString('tr-TR',{maximumFractionDigits:6,useGrouping:false}));}
+ if(type==='ptr')return v===0?'NULL':hex(v);return fmt(v);}
+function palette(){const light=document.documentElement.dataset.theme==='light';
+ return light?{bg:'#f7f9fc',ink:'#1a1d2e',grid:'#d5dbe6',muted:'#5a5f7a',accent:'#0d9488',accent2:'#5eb8ae',warm:'#c2620a',red:'#dc2626',violet:'#7c3aed',none:'#e3e8f0',head:'#475069',on:'#ffffff'}
+  :{bg:'#0b111f',ink:'#e8ecf4',grid:'#27324a',muted:'#8b95a8',accent:'#5eead4',accent2:'#2f9f92',warm:'#fbbf24',red:'#f87171',violet:'#a78bfa',none:'#1b2438',head:'#c3cbdb',on:'#041016'};}
+function surface(id){const c=$(id),r=c.getBoundingClientRect();if(!r.width||!r.height)return null;const d=Math.min(devicePixelRatio||1,2);c.width=Math.round(r.width*d);c.height=Math.round(r.height*d);
+ const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);const p=palette();g.fillStyle=p.bg;g.fillRect(0,0,r.width,r.height);return{g,w:r.width,h:r.height,p};}
+function label(s,t,x,y,col,align,size,bold){const g=s.g;g.font=(bold?'600 ':'')+(size||11)+'px Outfit, system-ui, sans-serif';g.textAlign=align||'left';g.textBaseline='alphabetic';g.fillStyle=col||s.p.muted;g.fillText(t,x,y);}
 
-  function alloc(name, value, type) {
-    const addr = nextAddr;
-    nextAddr += 4;
-    vars[name] = addr;
-    mem[addr] = { value, type: type || "int", pointsTo: null };
-    return addr;
-  }
+/* ===================== 01 · İşaretçi aritmetiği ===================== */
+const P={mem:null,type:'int',base:'a',k:1,j:0,note:'',bad:false};
+function ptSync(){$('ptType').value=P.type;$('ptBase').value=P.base;$('ptK').value=P.k;$('ptJ').value=P.j;}
+function ptDefaults(){P.mem=K.initMemory();P.type='int';P.base='a';P.k=1;P.j=0;P.note='';P.bad=false;$('ptVal').value='99';ptSync();ptRender();}
+function ptSet(type,base,k,j){P.type=type;P.base=base;P.k=k;P.j=j;P.note='';P.bad=false;ptSync();ptRender();}
+const WHY={null:'adres 0, yani NULL',unmapped:'adres eşlenmemiş ilk sayfada (0x0000 – 0x0FFF)',range:'adres model belleğin (0x1000 – 0x103F) dışında'};
+function ptRender(){const T=P.type,size=K.SIZES[T],v=K.LAYOUT.find(x=>x.name===P.base)||null,b=v?v.addr:0;
+ const addr=K.advance(b,T,P.k),theo=b+P.k*size,rAddr=K.advance(b,T,P.j),d=K.deref(P.mem,addr,T),isArr=v&&v.count>1;
+ put('ptKOut',neg(P.k));put('ptJOut',neg(P.j));
+ put('ptSize',size+' bayt');put('ptAddrMeas',hex(addr));put('ptAddrTheo',hex(b)+' + '+neg(P.k)+' × '+size+' = '+hex(theo));put('ptAddrDiff',fmt(addr-theo)+' bayt');
+ put('ptValue',d.ok?tval(T,d.value):'okunamadı');put('ptBytes',d.ok?d.bytes.map(hb).join(' '):'—');
+ const df=K.ptrDiff(addr,rAddr,T);put('ptDiffMeas',neg(df.bytes)+' bayt ÷ '+size+' = '+fmt(df.elements)+' eleman');put('ptDiffTheo',neg(P.k)+' − ('+neg(P.j)+') = '+fmt(P.k-P.j)+' eleman');
+ const nm=!v?'NULL':isArr?v.name:'&'+v.name,cast=!v?'':v.type===T&&isArr?'':'('+T+' *)',ks=P.k<0?' − '+(-P.k):' + '+P.k,js=P.j<0?' − '+(-P.j):' + '+P.j;
+ put('ptExpr',T+' *p = '+cast+nm+ks+';   '+T+' *r = '+cast+nm+js+';');
+ /* aynı ifadenin üç yazımı */
+ if(isArr&&v.type===T){const val=d.ok?tval(T,d.value):'okunamaz',kk=P.k<0?'('+neg(P.k)+')':String(P.k),inb=K.bounds(v,T,P.k)==='inside';$('ptSame').innerHTML='Aynı erişimin üç yazımı: <code>'+v.name+'['+neg(P.k)+']</code>, <code>*('+v.name+esc(ks)+')</code> ve <code>'+kk+'['+v.name+']</code>. Üçü de '+hex(b)+' + '+neg(P.k)+' × '+size+' = '+hex(addr)+' adresindeki '+size+' bayta erişim demektir'+(inb?'; üçü de <strong>'+esc(val)+'</strong> verir.':'. Bu adres dizinin içinde değil: gerçek C’de üç yazım da aynı tanımsız davranıştır. Modelin orada gösterdiği: <strong>'+esc(val)+'</strong>.');}
+ else if(v){$('ptSame').innerHTML='p, <code>'+esc(v.decl)+'</code> nesnesine <code>'+T+' *</code> türüyle bakıyor: aynı baytlar, başka bir yorum. <code>x[i]</code> yazımı her zaman <code>*(x + i)</code> demektir; adım, işaretçinin türünün boyu kadardır, gösterdiği nesnenin türü kadar değil.';}
+ else $('ptSame').textContent='NULL hiçbir nesneyi göstermez; x[i] ≡ *(x + i) eşdeğerliği yalnızca bir nesnenin içinde anlamlıdır.';
+ /* durum */
+ let msg,bad=false;
+ if(!v){bad=true;msg=(P.k===0?'p = NULL. ':'NULL üzerinde aritmetik yapıldı: p = '+hex(addr)+'. Bu hesabın kendisi de tanımsızdır. ')+'*p tanımsız davranıştır: C standardı sonucu belirlemez. Model okumayı reddedip hatayı bildiriyor ('+WHY[d.why]+'). Gerçek sistemlerde 0 adresinin sayfası çoğunlukla eşlenmemiştir ve süreç bir bölütleme hatasıyla durur; ama bu bir garanti değildir, derleyici bu erişimi içeren kodu başka biçimde de dönüştürebilir.';}
+ else{const where=K.bounds(v,T,P.k),o=d.ok?K.owner(addr):null,obj='<'+v.decl+'>';
+  if(where==='inside')msg='p = '+hex(addr)+': '+v.decl+' nesnesinin içinde, *p geçerli.';
+  else if(where==='onepast'){bad=true;msg='p = '+hex(addr)+': '+v.decl+' nesnesinin sonundan bir sonraki adres. Bu adresi hesaplamak ve aynı nesneyi gösteren işaretçilerle karşılaştırmak serbesttir; *p ile okumak ya da yazmak tanımsız davranıştır.';}
+  else{bad=true;msg='p = '+hex(addr)+': '+v.decl+' nesnesinin dışında. C standardına göre bu adresi hesaplamak bile tanımsız davranıştır.';}
+  if(where!=='inside')msg+=d.ok?' Model yine de o adresteki baytları gösteriyor'+(o?' ('+o.decl+' değişkeninin baytları)':'')+'; gerçek bir programda ne okunacağı garanti değildir.':' Model okumayı reddediyor: '+WHY[d.why]+'.';
+  if(where==='inside'&&v.type!==T&&v.type!=='ptr')msg+=T==='char'?' char * ile her nesnenin baytlarına tek tek bakmak C’de her zaman serbesttir.':' Dikkat: '+v.type+' türündeki bir nesneyi '+T+' * üzerinden okumak, gerçek C’de katı örtüşme (strict aliasing) kuralını çiğner ve tanımsızdır; model yalnızca baytları yeniden yorumluyor.'+(T==='double'?' Okunan sayı yeni bir değer değil, aynı baytların IEEE 754 double diye okunmuş hâlidir; tam sayı baytları bu yüzden 10^−313 gibi anlamsız küçüklükte bir sayı verebilir.':'');
+  if(where==='inside'&&v.type==='ptr'&&T!=='char')msg+=' Buradaki baytlar bir adresi saklıyor; onları '+T+' olarak okumak modelin gösterdiği bir yeniden yorumdur.';
+  void obj;}
+ if(P.note){msg=P.note+' '+msg;bad=bad||P.bad;}
+ put('ptStatus',msg);$('ptStatus').classList.toggle('is-bad',bad);
+ /* ızgara */
+ let h='<span class="t"></span>';for(let c=0;c<8;c++)h+='<span class="t">+'+c+'</span>';
+ for(let r=0;r<8;r++){h+='<span class="h">'+hex(K.BASE+r*8)+'</span>';for(let c=0;c<8;c++){const a=K.BASE+r*8+c,o=K.owner(a),cls=['c','v-'+o.name];if(a>=addr&&a<addr+size)cls.push('is-p');if(a>=rAddr&&a<rAddr+size)cls.push('is-r');h+='<span class="'+cls.join(' ')+'">'+hb(P.mem[a-K.BASE])+'</span>';}}
+ $('ptGrid').innerHTML=h;
+ /* değişken tablosu */
+ $('ptVars').innerHTML=K.LAYOUT.map(x=>{const vals=[];for(let i=0;i<x.count;i++)vals.push(K.readLE(P.mem,x.addr-K.BASE+i*K.SIZES[x.type],x.type));
+  let txt;if(x.type==='char'){let s='';for(const c of vals){if(c===0)break;s+=c>=32&&c<127?String.fromCharCode(c):'?';}txt='"'+s+'"  { '+vals.map(c=>fmt(c)).join(', ')+' }';}
+  else if(x.type==='ptr'){const t=K.owner(vals[0]);txt='0x'+K.hexLE(P.mem,x.addr-K.BASE,8).replace(/^0+(?=.{4})/,'')+(t?'  (→ '+t.name+')':'');}
+  else txt='{ '+vals.map(c=>tval(x.type,c)).join(', ')+' }';
+  return'<tr><td><code>'+esc(x.decl)+'</code></td><td class="pm-mono">'+hex(x.addr)+'</td><td>'+x.count*K.SIZES[x.type]+' B</td><td class="pm-mono">'+esc(txt)+'</td></tr>';}).join('');
+ /* pp → q → a */
+ const ppv=K.readLE(P.mem,0x38,'ptr'),d1=K.deref(P.mem,ppv,'ptr'),d2=d1.ok?K.deref(P.mem,d1.value,'int'):null;
+ put('ptPP',hex(ppv));put('ptQ',d1.ok?hex(d1.value):'okunamadı');const qIn=d1.ok&&d1.value>=0x1010&&d1.value<0x1020&&(d1.value-0x1010)%4===0;put('ptQQ',d2&&d2.ok?fmt(d2.value)+(qIn?'':' (q artık a dizisinin dışında; gerçek C’de tanımsız)'):'okunamadı: '+(d1.ok?WHY[d2.why]:WHY[d1.why]));
+ $('ptQInc').disabled=$('ptQDec').disabled=!d1.ok;}
+function ptWrite(){const T=P.type,v=K.LAYOUT.find(x=>x.name===P.base)||null,addr=K.advance(v?v.addr:0,T,P.k),raw=$('ptVal').value.trim().replace(',','.').replace('−','-');
+ const num=raw===''?NaN:Number(raw);P.bad=true;
+ if(!Number.isFinite(num))P.note='"'+$('ptVal').value+'" bir sayı değil; hiçbir şey yazılmadı.';
+ else if(T!=='double'&&!Number.isInteger(num))P.note=T+' tam sayı türüdür; kesirli değer yazılmadı.';
+ else{const r=K.store(P.mem,addr,T,num);
+  if(!r.ok)P.note='*p = '+tval('double',num)+' yazılamadı: '+WHY[r.why]+'. Gerçek C’de tanımsız davranış; model yazmayı reddediyor.';
+  else{P.bad=false;P.note=hex(addr)+' adresinden başlayarak '+K.SIZES[T]+' bayt yazıldı.'+(r.value!==num?' '+tval('double',num)+' değeri '+T+' türüne sığmıyor; model alt '+8*K.SIZES[T]+' biti sakladı ve '+tval(T,r.value)+' okunuyor (C’de bu dönüşümün sonucu derleyiciye bağlıdır).':'');}}
+ ptRender();}
+function ptQStep(dir){const ppv=K.readLE(P.mem,0x38,'ptr'),d1=K.deref(P.mem,ppv,'ptr');if(!d1.ok)return;K.store(P.mem,ppv,'ptr',K.advance(d1.value,'int',dir));P.note='';ptRender();}
 
-  function set(addr, value) {
-    if (mem[addr]) mem[addr].value = value;
-  }
+/* ===================== 02 · Öbek ayırıcı ===================== */
+const AL={ops:[],t:0,nextId:1,note:''};
+const POL={first:'İlk uyan',best:'En iyi uyan',next:'Sıradaki uyan'};
+const alCfg=()=>({arena:1024,H:8,A:+$('alAlign').value,policy:$('alPolicy').value,coalesce:$('alCoalesce').checked});
+function alDefaults(){AL.ops=[];AL.t=0;AL.nextId=1;AL.note='';$('alPolicy').value='first';$('alAlign').value='8';$('alCoalesce').checked=true;$('alSize').value=100;$('alSeed').value='5';$('alDist').value='mixed';$('alSteps').value=200;$('alPFree').value=0.5;alRender();}
+function alPush(op){AL.ops=AL.ops.slice(0,AL.t);AL.ops.push(op);AL.t=AL.ops.length;AL.note='';alRender();}
+function alLoad(ops,note){AL.ops=ops;AL.t=ops.length;AL.nextId=1+ops.reduce((m,o)=>Math.max(m,o.id),0);AL.note=note;alRender();}
+function alHoles(){const ops=[];for(let i=1;i<=8;i++)ops.push({op:'m',id:i,n:100});for(const i of[1,3,5,7])ops.push({op:'f',id:i});alLoad(ops,'Delikli düzen kuruldu: sekiz malloc(100), ardından p1, p3, p5 ve p7 için free.');}
+function alRun(){const raw=$('alSeed').value.trim();if(!/^\d{1,4}$/.test(raw)||+raw<1){AL.note='Tohum 1 ile 9999 arasında bir tam sayı olmalı; iş yükü üretilmedi.';alRender(true);return;}
+ const steps=+$('alSteps').value,pf=+$('alPFree').value;alLoad(K.heapWorkload(+raw,steps,$('alDist').value,pf),'Tohum '+raw+' ile '+steps+' işlemlik iş yükü üretildi ve yürütüldü.');}
+function alRender(bad){const cfg=alCfg(),ops=AL.ops.slice(0,AL.t),rep=K.heapReplay(cfg,ops),st=rep.st,m=rep.metrics,B=x=>fmt(x)+' B';
+ put('alSizeOut',$('alSize').value+' B');put('alStepsOut',$('alSteps').value);put('alPFreeOut',fmt(+$('alPFree').value,2));
+ const sl=$('alT');sl.max=AL.ops.length;sl.value=AL.t;sl.disabled=AL.ops.length===0;put('alTOut',AL.t+' / '+AL.ops.length);
+ put('alHeaders',m.nBlocks+' × 8 = '+B(m.headers));put('alUsed',B(m.usedCap));put('alFree',B(m.freeCap));put('alSum',B(m.sum));put('alSumDiff',B(st.arena-m.sum));
+ put('alLargest',m.nFree?B(m.largest):'boş blok yok');put('alExt',m.freeCap>0?pct(m.ext):'tanımsız: boş alan yok');
+ put('alInt',B(m.internal));put('alPad',B(m.alignPad));put('alSlack',B(m.slack));put('alFails',st.stats.fails+' / '+st.stats.mallocs);put('alFragFails',String(st.stats.fragFails));
+ /* durum satırı */
+ let msg,isBad=!!bad;const last=rep.results[rep.results.length-1];
+ if(!ops.length)msg='Arena boş: tek bir boş blok, 8 bayt başlık ve 1016 bayt yük alanı. malloc(n) ile başla ya da hazır bir dizi yükle.';
+ else if(last.op==='m'&&last.ok)msg='p'+last.id+' = malloc('+last.n+'): başlıkla birlikte '+last.need+' baytlık yer gerekti, yük adresi '+hex(last.addr)+', yük alanı '+last.cap+' B'+(last.split?'; boş bloğun artanı ayrı bir blok oldu.':'; artan parça bir blok olamayacak kadar küçüktü, bloğun tamamı verildi.');
+ else if(last.op==='m'){isBad=true;msg='malloc('+last.n+') başarısız, NULL döndü: bitişik '+last.need+' bayt gerekiyordu. '+(last.frag?'Boş blokların başlıklarıyla birlikte toplamı '+last.freeSum+' bayt, yani yeterdi; ama en büyüğü '+last.largest+' bayt. Bellek var, yalnızca bitişik değil: dış parçalanma.':'Boş blokların başlıklarıyla birlikte toplamı ('+last.freeSum+' bayt) zaten yetmiyordu.');}
+ else if(last.ok)msg='free(p'+last.id+'): '+last.n+' baytlık istek geri verildi'+(st.coalesce?(last.merged?'; '+last.merged+' komşu boş blokla birleştirildi.':'; bitişiğinde boş blok yoktu.'):'; birleştirme kapalı, blok olduğu gibi boş işaretlendi.');
+ else msg='free(p'+last.id+'): bu istek daha önce başarısız olmuştu, işaretçi NULL; free(NULL) hiçbir şey yapmaz.';
+ if(AL.note)msg=AL.note+(ops.length&&!bad?' Son işlem: '+msg:'');
+ if(ops.length&&AL.t<AL.ops.length)msg='Dizinin '+AL.t+'. işleminden sonraki an gösteriliyor. '+msg;
+ put('alStatus',msg);$('alStatus').classList.toggle('is-bad',isBad);
+ /* serbest bırakılacaklar */
+ const sel=$('alFreeSel'),keep=sel.value,live=st.blocks.filter(b=>b.used);
+ sel.innerHTML=live.length?live.map(b=>'<option value="'+b.id+'">p'+b.id+' · '+b.req+' B · '+hex(st.base+b.off+st.H)+'</option>').join(''):'<option value="">canlı blok yok</option>';
+ if(live.some(b=>String(b.id)===keep))sel.value=keep;sel.disabled=$('alFreeBtn').disabled=!live.length;
+ /* blok tablosu */
+ $('alBlocks').innerHTML=st.blocks.map(b=>'<tr><td class="pm-mono">'+hex(st.base+b.off)+'</td><td>'+b.size+' B</td><td>'+(b.used?'p'+b.id:'boş')+'</td><td>'+(b.used?b.req+' B':'—')+'</td><td>'+(b.size-st.H)+' B</td></tr>').join('');
+ /* karşılaştırma */
+ const rows=K.heapCompare(cfg,AL.ops);
+ $('alCompare').innerHTML=rows.map(r=>'<tr'+(r.policy===cfg.policy&&r.coalesce===cfg.coalesce?' class="is-cur"':'')+'><td>'+POL[r.policy]+'</td><td>'+(r.coalesce?'açık':'kapalı')+'</td><td>'+r.fails+'</td><td>'+r.fragFails+'</td><td>'+(r.peakExt===null?'—':pct(r.peakExt))+'</td><td>'+r.largest+' B</td></tr>').join('');
+ alDrawMap(st);alDrawChart(rep.history);}
+function alDrawMap(st){const s=surface('alMap');if(!s)return;const{g,w,h,p}=s,rows=4,per=st.arena/rows,L=50,R=8,T=8,gap=8,rowH=(h-T-6-(rows-1)*gap)/rows,pw=w-L-R,X=b=>L+pw*b/per;
+ for(const[id,c]of[['lgH',p.head],['lgU',p.accent],['lgP',p.warm],['lgF',p.none]])$(id).style.background=c;
+ const seg=(a,b,col)=>{for(let r=Math.floor(a/per);r<rows&&r*per<b;r++){const x0=X(Math.max(a,r*per)-r*per),x1=X(Math.min(b,(r+1)*per)-r*per);g.fillStyle=col;g.fillRect(x0,T+r*(rowH+gap),Math.max(0.6,x1-x0),rowH);}};
+ for(let r=0;r<rows;r++){label(s,hex(st.base+r*per),L-6,T+r*(rowH+gap)+rowH/2+4,p.muted,'right',10);g.fillStyle=p.none;g.fillRect(L,T+r*(rowH+gap),pw,rowH);}
+ for(const b of st.blocks){seg(b.off,b.off+st.H,p.head);if(b.used){seg(b.off+st.H,b.off+st.H+b.req,b.id%2?p.accent:p.accent2);seg(b.off+st.H+b.req,b.off+b.size,p.warm);}else seg(b.off+st.H,b.off+b.size,p.none);}
+ g.strokeStyle=p.bg;g.lineWidth=1.5;for(const b of st.blocks){const r=Math.floor(b.off/per),x=X(b.off-r*per);g.beginPath();g.moveTo(x,T+r*(rowH+gap));g.lineTo(x,T+r*(rowH+gap)+rowH);g.stroke();}
+ g.strokeStyle=p.grid;g.lineWidth=1;for(let r=0;r<rows;r++)g.strokeRect(L+.5,T+r*(rowH+gap)+.5,pw-1,rowH-1);
+ for(const b of st.blocks){if(!b.used)continue;const a=b.off+st.H,r=Math.floor(a/per),x0=X(a-r*per),x1=X(Math.min(a+b.req,(r+1)*per)-r*per);if(x1-x0>=24)label(s,'p'+b.id,x0+4,T+r*(rowH+gap)+rowH/2+4,p.on,'left',11,true);}}
+function alDrawChart(hist){const s=surface('alChart');if(!s)return;const{g,w,h,p}=s,L=40,R=10,T=12,Bm=26,pw=w-L-R,ph=h-T-Bm,n=Math.max(1,AL.ops.length),X=i=>L+pw*i/n,Y=v=>T+ph*(1-v);
+ for(const[id,c]of[['lgE',p.warm],['lgD',p.accent],['lgX',p.red]])$(id).style.background=c;
+ g.strokeStyle=p.grid;g.lineWidth=1;g.beginPath();for(let k=0;k<=4;k++){const y=T+ph*k/4;g.moveTo(L,y);g.lineTo(L+pw,y);}g.stroke();
+ for(let k=0;k<=4;k++)label(s,'%'+(100-25*k),L-5,T+ph*k/4+4,p.muted,'right',10);
+ label(s,'0',L,h-8,p.muted,'left',10);label(s,AL.ops.length+' işlem',L+pw,h-8,p.muted,'right',10);
+ if(!hist.length){label(s,'Henüz işlem yok',L+pw/2,T+ph/2,p.muted,'center',12);return;}
+ const line=(key,col)=>{g.strokeStyle=col;g.lineWidth=1.7;g.beginPath();let pen=false;hist.forEach((q,i)=>{const v=q[key];if(v===null){pen=false;return;}const x=X(i+1),y=Y(v);if(pen)g.lineTo(x,y);else g.moveTo(x,y);pen=true;});g.stroke();};
+ line('util',p.accent);line('ext',p.warm);
+ g.fillStyle=p.red;hist.forEach((q,i)=>{if(q.fail)g.fillRect(X(i+1)-1,T+ph-7,2,7);});}
 
-  function render() {
-    const viz = document.getElementById("ptrViz");
-    const addrs = Object.keys(mem).map(Number).sort((a,b) => a-b);
+/* ===================== 03 · Bellek hataları ===================== */
+const E={prog:'uaf',fixed:false,n:12,step:0};
+const TOOL={
+ uaf:['AddressSanitizer (<code>-fsanitize=address</code>) ilk hatalı erişimde programı durdurur ve hatayı <code>heap-use-after-free</code> diye adlandırır; belleğin nerede ayrıldığını ve nerede serbest bırakıldığını da gösterir. Valgrind (Memcheck) aynı erişimi, serbest bırakılmış bir bloğun içine geçersiz okuma olarak bildirir. Araçsız derlenen program çoğunlukla hiçbir uyarı vermeden yanlış sayıyı basar.','<code>free(p)</code> çağrısından hemen sonra <code>p = NULL</code> yaz ve işaretçiyi kullanmadan önce denetle. Daha sağlam çözüm, bir bloğun tek bir sahibi olacak biçimde tasarlamaktır: kimin serbest bırakacağı belliyse, sonradan kimin kullanamayacağı da bellidir.'],
+ double:['AddressSanitizer ikinci <code>free</code> çağrısında durur ve <code>attempting double-free</code> der. Valgrind bunu geçersiz free olarak bildirir. Bazı ayırıcılar (örneğin glibc) çift serbest bırakmaların bir bölümünü kendi denetimleriyle yakalayıp programı sonlandırır; hepsini yakalamaları garanti değildir.','Serbest bıraktığın işaretçiyi hemen <code>NULL</code> yap: <code>free(NULL)</code> tanımlıdır ve hiçbir şey yapmaz. Aynı bloğun adresi birden çok değişkende duruyorsa, hangisinin sahibi olduğunu belirle.'],
+ leak:['LeakSanitizer (AddressSanitizer ile birlikte gelir) ve Valgrind, program biterken geri verilmemiş blokları ayrıldıkları satırla birlikte listeler. Valgrind, adresi hiçbir yerde kalmamış blokları <code>definitely lost</code> (kesin kayıp) diye sınıflar. Sızıntı tanımsız davranış değildir: program doğru sonuç üretir, yalnızca belleği tükenene kadar şişer.','Her <code>malloc</code> için, bloğun adresi kaybolmadan önce çalışacak bir <code>free</code> olmalı. Erken çıkış yolları (break, return, hata dalları) en sık unutulan yerlerdir.'],
+ stack:['Derleyicinin yığın koruyucusu (<code>-fstack-protector</code>) yerel dizilerle dönüş adresi arasına bir denetim değeri (kanarya) koyar; işlev dönerken bu değer bozulmuşsa program <code>stack smashing detected</code> iletisiyle durdurulur. Kanarya, dizinin hemen yanındaki yerel değişkenin ezilmesini her zaman yakalamaz. AddressSanitizer sınırı aşan ilk yazmada <code>stack-buffer-overflow</code> der.','Hedefin boyunu bilen bir kopyalama kullan: <code>snprintf(ad, sizeof ad, "%s", girdi)</code> en çok 7 karakter ve bir sonlandırıcı sıfır yazar. Girdi kesilir, ama komşu baytlara dokunulmaz. Uzunluğunu denetlemediğin hiçbir veriyi sabit boylu bir diziye kopyalama.'],
+ obo:['AddressSanitizer <code>a[4]</code> yazımında <code>stack-buffer-overflow</code> der. Derleyiciler sınırı derleme sırasında görebildikleri durumlarda dizi sınırı uyarısı verebilir. Valgrind bu tür yığın içi tek elemanlık taşmaları çoğunlukla göremez: yazılan adres hâlâ geçerli yığın belleğidir.','Koşul <code>i &lt; 4</code> olmalı: N elemanlı dizinin geçerli indisleri 0 ile N − 1 arasındadır. Sınırı sabit yazmak yerine dizinin eleman sayısından türet.']};
+function erDefaults(){E.prog='uaf';E.fixed=false;E.n=12;E.step=0;$('erProg').value='uaf';$('erFixed').checked=false;$('erN').value=12;erRender();}
+function erRestart(){E.step=0;erRender();}
+function erRender(){const x=K.errRun(E.prog,E.fixed,E.n,E.step),total=K.errRun(E.prog,E.fixed,E.n).step,M=x.metrics,C=K.ERR;E.step=x.step;
+ $('erNField').hidden=E.prog!=='stack';put('erNOut',E.n+' karakter');
+ $('erSrc').innerHTML=x.lines.map((s,i)=>'<li'+(i===x.line?' class="is-cur" aria-current="step"':'')+'><i>'+(i+1)+'</i>'+esc(s)+'</li>').join('');
+ put('erCount',x.step+' / '+total);$('erStep').disabled=$('erEnd').disabled=x.step>=total;$('erBack').disabled=$('erRestart').disabled=x.step===0;
+ put('erStatus',x.step===0?'Henüz hiçbir satır yürütülmedi. "Bir adım" ile programı satır satır çalıştır.':(x.line+1)+'. satır: '+x.msg+(x.step>=total&&!x.halt?' Program bitti.':''));
+ $('erStatus').classList.toggle('is-bad',!!x.halt||x.events.length>0||M.leakedBlocks>0||M.oobBytes>0);
+ /* öbek */
+ const stackProg=E.prog==='stack'||E.prog==='obo';$('erHeapPlate').hidden=stackProg;$('erStackPlate').hidden=!stackProg;
+ if(!stackProg){let h='<span class="t"></span>';for(let c=0;c<8;c++)h+='<span class="t">+'+c+'</span>';
+  for(let i=0;i<C.NCH;i++){const a=C.HEAP0+i*C.CHUNK,inList=x.list.nodes.includes(a),al=x.alloc[i],refs=x.vars.filter(v=>v.type==='ptr'&&v.value===a);
+   for(let r=0;r<2;r++){h+='<span class="h">'+hex(a+r*8)+'</span>';for(let c=0;c<8;c++)h+='<span class="c '+(inList&&r===0?'k-link':al>0?'k-used':'')+'">'+hb(x.heap[i*C.CHUNK+r*8+c])+'</span>';}
+   let stt=al>=2?'aynı anda iki kez verilmiş':al===1&&inList?'kullanımda, ama serbest listede de duruyor':al===1?'kullanımda':inList?'boş, serbest listede':'boş';
+   if(al>0&&!refs.length)stt+='; adresini tutan değişken yok (sızıntı)';
+   const names=refs.map(v=>v.name+(v.dangling?' (sarkan)':''));
+   h+='<span class="f"><b>'+hex(a)+'</b>: '+stt+(names.length?'. Gösteren: '+esc(names.join(', ')):'')+'</span>';}
+  $('erHeap').innerHTML=h;
+  let chain='serbest liste: baş → '+x.list.nodes.map(a=>hex(a)).join(' → ');if(x.list.cyclic)chain+=' → … (döngü: liste hiç bitmiyor)';else if(x.list.wild!==null)chain+=(x.list.nodes.length?' → ':'')+hex(x.list.wild)+' (geçersiz adres)';else chain+=(x.list.nodes.length?' → ':'')+'NULL';
+  put('erList',chain);}
+ else{let h='<span class="t"></span>';for(let c=0;c<8;c++)h+='<span class="t">+'+c+'</span>';
+  const fieldAt=o=>x.fields.find(f=>C.STK0+o>=f.addr&&C.STK0+o<f.addr+f.size)||null;
+  for(let r=3;r>=0;r--){h+='<span class="h">'+hex(C.STK0+r*8)+'</span>';const names=[];
+   for(let c=0;c<8;c++){const o=r*8+c,f=fieldAt(o);if(f&&!names.includes(f.name))names.push(f.name);h+='<span class="c '+(f?'k-'+f.kind:'k-pad')+(x.oob.includes(o)?' is-oob':'')+'">'+hb(x.stack[o])+'</span>';}
+   h+='<span class="f">'+(names.length?'<b>'+esc(names.join(' · '))+'</b>':'henüz kurulmadı')+'</span>';}
+  $('erStack').innerHTML=h;}
+ /* değişkenler */
+ const rows=x.vars.map(v=>'<tr><td><code>'+esc(v.name)+'</code></td><td class="pm-mono">'+(v.type==='ptr'?(v.value===0?'NULL':hex(v.value)):fmt(v.value))+'</td><td'+(v.dangling?' class="is-bad"':'')+'>'+(v.type!=='ptr'?'tam sayı':v.value===0?'hiçbir yeri göstermiyor':v.dangling?'sarkan: gösterdiği parça serbest bırakıldı':'geçerli parçayı gösteriyor')+'</td></tr>');
+ if(stackProg)for(const f of x.fields){if(f.kind==='pad'||f.kind==='buf')continue;const o=f.addr-C.STK0;rows.push('<tr><td><code>'+esc(f.name)+'</code></td><td class="pm-mono">'+(f.size===4?fmt(K.readLE(x.stack,o,'int')):'0x'+K.hexLE(x.stack,o,8))+'</td><td>'+hex(f.addr)+' adresinde, '+f.size+' bayt</td></tr>');}
+ $('erVars').innerHTML=rows.join('')||'<tr><td colspan="3">Henüz değişken yok.</td></tr>';
+ put('erOut',x.out.length?x.out.join(' | '):'—');
+ /* kartlar */
+ const yn=b=>b?'evet':'hayır',out=x.out.length?x.out.join(', '):'henüz yok',card=(i,l,v)=>{put('erL'+i,l);put('erM'+i,v);};
+ if(E.prog==='uaf'){const p=x.vars.find(v=>v.name==='p'),q=x.vars.find(v=>v.name==='q');
+  card(1,'Serbest bırakılmış belleğe erişim (sayım)',String(M.uafAccesses));card(2,'Beklenen: 0',x.finished?'fark '+M.uafAccesses:'program sürüyor');
+  card(3,'q ile p aynı adresi mi tutuyor?',p&&q?yn(p.value===q.value)+(p.value===q.value?' ('+hex(q.value)+')':''):'q henüz yok');card(4,'Model çıktısı (programcının beklediği: '+(E.fixed?'çıktı yok':'42')+')',E.fixed&&x.finished&&!x.out.length?'çıktı yok':out);}
+ else if(E.prog==='double'){const used=x.alloc.filter(a=>a>0).length,walk=x.list.distinct;
+  card(1,'Serbest listede yürüyerek sayılan parça',walk+(x.list.cyclic?' (döngü var)':x.list.wild!==null?' (sonu geçersiz adres)':''));card(2,'Gerçekte boş parça: 4 − kullanımdaki',String(C.NCH-used));
+  card(3,'Fark (0 değilse liste bozuk)',fmt(walk-(C.NCH-used))+(x.list.cyclic||x.list.wild!==null?'; liste bozuk':''));card(4,'Model çıktısı (beklenen: 1)',out+(M.shared.length?'; c ve d aynı parçada':''));}
+ else if(E.prog==='leak'){const allocd=M.mallocs-M.nullMallocs-M.frees,known=x.alloc.filter((a,i)=>a>0&&x.vars.some(v=>v.type==='ptr'&&v.value===C.HEAP0+i*C.CHUNK)).length;
+  card(1,'Erişilemeyen blok (öbeği tarayarak)',M.leakedBlocks+' blok, '+M.leakedBytes+' B');card(2,'Kuram: (başarılı malloc − free) − adresi bilinen',allocd+' − '+known+' = '+(allocd-known));
+  card(3,'Fark',fmt(M.leakedBlocks-(allocd-known)));card(4,'Başarısız malloc',M.nullMallocs+' / '+M.mallocs);}
+ else if(E.prog==='stack'){const th=E.fixed?0:Math.max(0,E.n+1-8),ok=M.retHex===C.RET0.toString(16).toUpperCase().padStart(16,'0'),built=x.step>0;
+  card(1,'Dizinin dışına yazılan bayt (sayım)',String(M.oobBytes));card(2,E.fixed?'Kuram: 0 (kopya dizinin boyuyla sınırlı)':'Kuram: max(0, n + 1 − 8), kopyadan sonra',th+(x.step>=4?'; fark '+(M.oobBytes-th):''));
+  card(3,'yetki (atanan değer: 0)',built&&x.step>=2?fmt(M.yetki)+(M.yetki?' = 0x'+K.hexLE(x.stack,8,4):''):'henüz atanmadı');card(4,'Kaydedilmiş dönüş adresi',built?'0x'+M.retHex.replace(/^0+(?=.{6})/,'')+(ok?' (sağlam)':' (bozuk)'):'henüz kaydedilmedi');}
+ else{const th=E.fixed?0:4;
+  card(1,'Dizinin dışına yazılan bayt (sayım)',String(M.oobBytes));card(2,E.fixed?'Kuram: 0 (i en çok 3)':'Kuram: 1 fazla tur × 4 bayt, döngü bitince',th+(x.finished?'; fark '+(M.oobBytes-th):''));
+  card(3,'sinir (atanan değer: 99)',x.step>0?fmt(M.sinir):'henüz atanmadı');card(4,'Model çıktısı (beklenen: 99)',out);}
+ $('erTool').innerHTML=TOOL[E.prog][0];$('erFix').innerHTML=TOOL[E.prog][1];}
 
-    viz.innerHTML = addrs.map(addr => {
-      const cell = mem[addr];
-      const varName = Object.entries(vars).find(([,a]) => a === addr)?.[0] || "";
-      let cls = "ptr-cell";
-      if (cell.type === "ptr") cls += " ptr";
-      else cls += " var";
-      if (cell.leak) cls += " leak";
+/* ===================== 04 · Otomatik bellek yönetimi ===================== */
+const G={n:0,roots:[],edges:[],note:''};
+const NAME=i=>String.fromCharCode(65+i);
+const GP={karma:{n:6,roots:[0,3],edges:[[0,1],[1,2],[3,4],[4,3],[4,5]]},zincir:{n:4,roots:[0],edges:[[0,1],[1,2],[2,3]]},cift:{n:4,roots:[0],edges:[[0,1],[1,0],[1,2],[2,1],[2,3],[3,2]]},agac:{n:5,roots:[0],edges:[[0,1],[0,2],[1,3],[1,4],[1,0],[2,0],[3,1],[4,1]]},oz:{n:2,roots:[0],edges:[[0,1],[1,1]]}};
+function gcLoad(key){const p=GP[key];G.note='';G.n=p.n;G.roots=p.roots.slice();G.edges=p.edges.map(e=>({f:e[0],t:e[1],w:false}));$('gcPreset').value=key;$('gcWeak').checked=false;gcFill();gcRender();}
+function gcFill(){const f=$('gcFrom'),t=$('gcTo'),kf=f.value,kt=t.value,opts=[];for(let i=0;i<G.n;i++)opts.push('<option value="'+i+'">'+NAME(i)+'</option>');
+ f.innerHTML='<option value="root">Kök</option>'+opts.join('');t.innerHTML=opts.join('');if([...f.options].some(o=>o.value===kf))f.value=kf;if([...t.options].some(o=>o.value===kt))t.value=kt;}
+/* Çekirdekten bağımsız denetim: kuyrukla genişlik öncelikli erişilebilirlik */
+function gcBfs(){const seen=new Set(G.roots),q=[...G.roots];while(q.length){const u=q.shift();for(const e of G.edges)if(!e.w&&e.f===u&&!seen.has(e.t)){seen.add(e.t);q.push(e.t);}}return seen.size;}
+function gcRender(){const r=K.gcAnalyze(G.n,G.roots,G.edges.map(e=>[e.f,e.t,e.w])),reach=r.mark.filter(Boolean).length,bfs=gcBfs(),rcFreed=r.freed.filter(Boolean).length,list=a=>a.length?a.map(NAME).join(', '):'yok';
+ put('gcN',String(G.n));put('gcReach',reach+' ('+list(r.order)+')');put('gcSwept',r.swept.length+' ('+list(r.swept)+')');put('gcSweptTheo',G.n+' − '+bfs+' = '+(G.n-bfs));put('gcSweptDiff',fmt(r.swept.length-(G.n-bfs)));
+ put('gcRcFreed',rcFreed+' ('+list(r.freeOrder)+')');put('gcLeak',r.leaked.length+' ('+list(r.leaked)+')');put('gcLeakTheo',r.theoryLeaked.length+' ('+list(r.theoryLeaked)+')');put('gcLeakDiff',fmt(r.leaked.length-r.theoryLeaked.length));
+ put('gcDec',String(r.decrements));put('gcScan',String(r.scanned));put('gcSweepScan',String(G.n));
+ $('gcTable').innerHTML=Array.from({length:G.n},(_,i)=>{const leak=r.leaked.includes(i);return'<tr><td><strong>'+NAME(i)+'</strong></td><td>'+r.rc0[i]+'</td><td>'+r.rc[i]+'</td><td class="'+(leak?'is-bad':'')+'">'+(r.freed[i]?'geri verildi':leak?'sızdı: sayaç sıfıra inmiyor':'yaşıyor')+'</td><td>'+(r.mark[i]?'1':'0')+'</td><td>'+(r.mark[i]?'yaşıyor':'geri verildi')+'</td></tr>';}).join('');
+ put('gcOrder','İşaretleme sırası: '+(r.order.length?r.order.map(NAME).join(' → '):'kök yok, hiçbir nesne işaretlenmedi')+'. Sayımın bırakma sırası: '+(r.freeOrder.length?r.freeOrder.map(NAME).join(' → '):'bırakılan yok')+'.');
+ let msg;const weakDead=G.edges.filter(e=>e.w&&!r.mark[e.t]).length;
+ if(!G.roots.length&&G.n)msg='Hiç kök yok: program bu nesnelerin hiçbirine ulaşamaz, hepsi çöptür. ';else msg=reach+' nesne köklerden erişilebilir ve iki yöntemde de yaşar. ';
+ if(r.leaked.length)msg+='Başvuru sayımı '+r.leaked.length+' nesneyi ('+list(r.leaked)+') geri veremiyor: erişilemiyorlar, ama bir döngünün içinde oldukları ya da bir döngüden gösterildikleri için sayaçları sıfıra inmiyor. İşaretle-süpür aynı nesneleri işaretsiz bulup geri veriyor.';
+ else if(r.swept.length)msg+='Erişilemeyen '+r.swept.length+' nesneyi iki yöntem de geri veriyor; aralarında döngü yok, sayaçlar zincirleme sıfıra iniyor.';
+ else msg+='Geri verilecek nesne yok.';
+ if(weakDead)msg+=' '+weakDead+' zayıf başvurunun hedefi geri verildi; bu başvurular artık boşa çıkar.';
+ if(G.note)msg=G.note+' '+msg;put('gcStatus',msg);$('gcStatus').classList.toggle('is-bad',r.leaked.length>0);
+ $('gcRoots').innerHTML=G.roots.length?G.roots.slice().sort((a,b)=>a-b).map(i=>'<button type="button" class="app-btn-ghost" data-root="'+i+'" aria-label="kök → '+NAME(i)+' başvurusunu kaldır">kök → '+NAME(i)+' ×</button>').join(''):'<span class="pm-caption">Kök başvurusu yok.</span>';
+ $('gcEdges').innerHTML=G.edges.length?G.edges.map((e,i)=>'<button type="button" class="app-btn-ghost" data-edge="'+i+'" aria-label="'+NAME(e.f)+' → '+NAME(e.t)+(e.w?' zayıf':'')+' başvurusunu kaldır">'+NAME(e.f)+(e.w?' ⇢ ':' → ')+NAME(e.t)+(e.w?' (zayıf)':'')+' ×</button>').join(''):'<span class="pm-caption">Nesneler arasında başvuru yok.</span>';
+ $('gcAddNode').disabled=G.n>=10;$('gcDelNode').disabled=G.n<=1;$('gcDropRoots').disabled=!G.roots.length;
+ gcDraw(r);}
+function gcDraw(r){const s=surface('gcCanvas');if(!s)return;const{g,w,h,p}=s,cx=w/2,cy=h/2,nr=Math.max(15,Math.min(21,w/26)),R=Math.max(40,Math.min(w*0.34,h/2-nr-52));
+ for(const[id,c]of[['lgG1',p.accent],['lgG2',p.none],['lgG3',p.red]])$(id).style.background=c;
+ const pos=i=>{const a=-Math.PI/2+2*Math.PI*i/Math.max(1,G.n);return G.n===1?[cx,cy]:[cx+R*Math.cos(a),cy+R*Math.sin(a)];};
+ const head=(x,y,ang,col)=>{g.fillStyle=col;g.beginPath();g.moveTo(x,y);g.lineTo(x-9*Math.cos(ang-0.42),y-9*Math.sin(ang-0.42));g.lineTo(x-9*Math.cos(ang+0.42),y-9*Math.sin(ang+0.42));g.closePath();g.fill();};
+ /* kök okları */
+ for(const i of G.roots){const[x,y]=pos(i),dx=G.n===1?0:x-cx,dy=G.n===1?-1:y-cy,l=Math.hypot(dx,dy)||1,ux=dx/l,uy=dy/l,x0=x+ux*(nr+34),y0=y+uy*(nr+34),x1=x+ux*(nr+2),y1=y+uy*(nr+2);
+  g.strokeStyle=p.ink;g.lineWidth=1.6;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();head(x1,y1,Math.atan2(y1-y0,x1-x0),p.ink);label(s,'kök',x0+ux*12,y0+uy*12+4,p.ink,'center',11,true);}
+ /* kenarlar */
+ for(const e of G.edges){const[x0,y0]=pos(e.f),[x1,y1]=pos(e.t),col=e.w?p.muted:p.violet;g.strokeStyle=col;g.lineWidth=1.6;g.setLineDash(e.w?[5,4]:[]);
+  if(e.f===e.t){const dx=G.n===1?1:x0-cx,dy=G.n===1?0:y0-cy,l=Math.hypot(dx,dy)||1,ux=dx/l,uy=dy/l,lx=x0+ux*(nr+11),ly=y0+uy*(nr+11);g.beginPath();g.arc(lx,ly,12,0,7);g.stroke();g.setLineDash([]);head(x0+ux*nr-uy*5,y0+uy*nr+ux*5,Math.atan2(-uy,-ux)+0.9,col);continue;}
+  const dx=x1-x0,dy=y1-y0,l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l,nx=-uy,ny=ux,bend=Math.min(26,l*0.16),mx=(x0+x1)/2+nx*bend,my=(y0+y1)/2+ny*bend;
+  const a0=Math.atan2(my-y0,mx-x0),a1=Math.atan2(y1-my,x1-mx),sx=x0+nr*Math.cos(a0),sy=y0+nr*Math.sin(a0),ex=x1-(nr+2)*Math.cos(a1),ey=y1-(nr+2)*Math.sin(a1);
+  g.beginPath();g.moveTo(sx,sy);g.quadraticCurveTo(mx,my,ex,ey);g.stroke();g.setLineDash([]);head(ex,ey,a1,col);}
+ g.setLineDash([]);
+ /* düğümler */
+ for(let i=0;i<G.n;i++){const[x,y]=pos(i),leak=r.leaked.includes(i),live=r.mark[i];g.beginPath();g.arc(x,y,nr,0,7);g.fillStyle=live?p.accent:leak?p.red:p.none;g.fill();g.lineWidth=2;g.strokeStyle=live?p.accent:leak?p.red:p.muted;g.setLineDash(live||leak?[]:[4,3]);g.stroke();g.setLineDash([]);
+  label(s,NAME(i),x,y+1,live||leak?p.on:p.ink,'center',13,true);label(s,'s='+r.rc[i],x,y+12,live||leak?p.on:p.muted,'center',9);}
+ label(s,'s: nesnenin son sayacı',8,h-8,p.muted,'left',10);}
+function gcAdd(){const f=$('gcFrom').value,t=+$('gcTo').value,w=$('gcWeak').checked;if(!(t>=0&&t<G.n))return;
+ G.note='';
+ if(f==='root'){if(G.roots.includes(t))G.note='kök → '+NAME(t)+' başvurusu zaten var; çizge değişmedi.';else{G.roots.push(t);if(w)G.note='kök → '+NAME(t)+' eklendi. Kök başvurusu her zaman güçlüdür; "zayıf" kutusu köke uygulanmaz.';}}
+ else{const ex=G.edges.find(e=>e.f===+f&&e.t===t),nm=NAME(+f)+' → '+NAME(t);
+  if(!ex)G.edges.push({f:+f,t,w});
+  else if(ex.w===w)G.note=nm+' başvurusu zaten var ('+(w?'zayıf':'güçlü')+'); çizge değişmedi.';
+  else{ex.w=w;G.note=nm+' başvurusu zaten vardı: yeni bir başvuru eklenmedi, var olan '+(w?'güçlüden zayıfa':'zayıftan güçlüye')+' çevrildi.';}}
+ gcRender();}
 
-      let label = cell.value;
-      if (cell.type === "ptr" && cell.pointsTo !== null) {
-        label = "→" + cell.pointsTo.toString(16);
-      }
-      if (cell.type === "ptr" && cell.value === 0) {
-        label = "NULL";
-      }
+/* ===================== Ortak: sekmeler ve olaylar ===================== */
+function render(){if(active==='ptr')ptRender();else if(active==='heap')alRender();else if(active==='err')erRender();else gcRender();}
+function tab(t){active=t;for(const k of TABS){const on=k===t;$('tab-'+k).setAttribute('aria-selected',on?'true':'false');$('tab-'+k).tabIndex=on?0:-1;$('panel-'+k).hidden=!on;}render();}
+TABS.forEach((t,i)=>{$('tab-'+t).onclick=()=>tab(t);$('tab-'+t).onkeydown=e=>{const n=TABS.length,j=e.key==='ArrowRight'?(i+1)%n:e.key==='ArrowLeft'?(i+n-1)%n:e.key==='Home'?0:e.key==='End'?n-1:null;if(j!==null){e.preventDefault();tab(TABS[j]);$('tab-'+TABS[j]).focus();}};});
 
-      return `<div class="${cls}">
-        <span class="ptr-addr">0x${addr.toString(16)}</span>
-        ${label}
-        ${varName ? `<div style="font-size:0.5rem;color:var(--accent-warm);margin-top:-4px">${varName}</div>` : ""}
-      </div>`;
-    }).join("");
+$('ptType').onchange=()=>{P.type=$('ptType').value;P.note='';ptRender();};
+$('ptBase').onchange=()=>{P.base=$('ptBase').value;P.note='';ptRender();};
+$('ptK').oninput=()=>{P.k=+$('ptK').value;P.note='';ptRender();};
+$('ptJ').oninput=()=>{P.j=+$('ptJ').value;P.note='';ptRender();};
+$('ptWrite').onclick=ptWrite;$('ptVal').onkeydown=e=>{if(e.key==='Enter')ptWrite();};
+$('ptQInc').onclick=()=>ptQStep(1);$('ptQDec').onclick=()=>ptQStep(-1);
+$('ptPreWalk').onclick=()=>ptSet('int','a',2,0);$('ptPreBytes').onclick=()=>ptSet('char','a',4,0);$('ptPreOut').onclick=()=>ptSet('int','a',5,0);$('ptPreNull').onclick=()=>ptSet('int','null',0,0);
+$('ptReset').onclick=ptDefaults;
 
-    // İşaretçi okları için metinsel gösterim
-    const info = document.getElementById("ptrInfo");
-    let infoText = "";
-    addrs.forEach(addr => {
-      const cell = mem[addr];
-      const varName = Object.entries(vars).find(([,a]) => a === addr)?.[0] || `0x${addr.toString(16)}`;
-      if (cell.type === "ptr") {
-        infoText += `${varName} → `;
-        if (cell.pointsTo !== null) {
-          const target = mem[cell.pointsTo];
-          const tName = Object.entries(vars).find(([,a]) => a === cell.pointsTo)?.[0] || `0x${cell.pointsTo.toString(16)}`;
-          infoText += `${tName} (değer: ${target?.value ?? "?"})`;
-        } else if (cell.value === 0) {
-          infoText += `NULL (geçersiz!)`;
-        }
-        infoText += "<br>";
-      }
-    });
-    info.innerHTML = infoText || "Henüz değişken tanımlanmadı.";
-  }
+for(const id of['alPolicy','alAlign','alCoalesce'])$(id).onchange=()=>{AL.note='Ayar değişti: aynı işlem dizisi yeni ayarla baştan yürütüldü.';alRender();};
+for(const id of['alSize','alSteps','alPFree'])$(id).oninput=()=>{put('alSizeOut',$('alSize').value+' B');put('alStepsOut',$('alSteps').value);put('alPFreeOut',fmt(+$('alPFree').value,2));};
+$('alT').oninput=()=>{AL.t=+$('alT').value;AL.note='';alRender();};
+$('alMalloc').onclick=()=>alPush({op:'m',id:AL.nextId++,n:+$('alSize').value});
+$('alFreeBtn').onclick=()=>{const v=$('alFreeSel').value;if(v!=='')alPush({op:'f',id:+v});};
+$('alHoles').onclick=alHoles;$('alRun').onclick=alRun;$('alSeed').onkeydown=e=>{if(e.key==='Enter')alRun();};$('alReset').onclick=alDefaults;
 
-  function reset() {
-    Object.keys(mem).forEach(k => delete mem[k]);
-    Object.keys(vars).forEach(k => delete vars[k]);
-    nextAddr = 0x100;
-    alloc("x", 42, "int");
-    render();
-    document.getElementById("ptrInfo").innerHTML = "x = 42 — Bellekte 0x100 adresinde.";
-  }
+$('erProg').onchange=()=>{E.prog=$('erProg').value;E.step=0;erRender();};
+$('erFixed').onchange=()=>{E.fixed=$('erFixed').checked;E.step=0;erRender();};
+$('erN').oninput=()=>{E.n=+$('erN').value;E.step=0;erRender();};
+$('erStep').onclick=()=>{E.step++;erRender();};$('erBack').onclick=()=>{E.step=Math.max(0,E.step-1);erRender();};
+$('erEnd').onclick=()=>{E.step=1e9;erRender();};$('erRestart').onclick=erRestart;$('erReset').onclick=erDefaults;
 
-  document.getElementById("btnDeclare").addEventListener("click", () => {
-    reset();
-  });
+$('gcPreset').onchange=()=>gcLoad($('gcPreset').value);$('gcAdd').onclick=gcAdd;
+$('gcAddNode').onclick=()=>{if(G.n<10){G.note='';G.n++;gcFill();gcRender();}};
+$('gcDelNode').onclick=()=>{if(G.n>1){G.note='';G.n--;G.roots=G.roots.filter(i=>i<G.n);G.edges=G.edges.filter(e=>e.f<G.n&&e.t<G.n);gcFill();gcRender();}};
+$('gcRoots').onclick=e=>{const b=e.target.closest('[data-root]');if(b){G.note='';G.roots=G.roots.filter(i=>i!==+b.dataset.root);gcRender();}};
+$('gcEdges').onclick=e=>{const b=e.target.closest('[data-edge]');if(b){G.note='';G.edges.splice(+b.dataset.edge,1);gcRender();}};
+$('gcDropRoots').onclick=()=>{G.note='';G.roots=[];gcRender();};$('gcReset').onclick=()=>gcLoad('karma');
 
-  document.getElementById("btnPointer").addEventListener("click", () => {
-    if (!vars["x"]) reset();
-    const pAddr = alloc("p", 0, "ptr");
-    mem[pAddr].pointsTo = vars["x"];
-    mem[pAddr].value = vars["x"];
-    render();
-    document.getElementById("ptrInfo").innerHTML = "p = &x — p, x'in adresini (0x100) tutuyor. *p ile x'in değerine (42) erişilebilir.";
-  });
-
-  document.getElementById("btnDeref").addEventListener("click", () => {
-    if (!vars["p"]) {
-      document.getElementById("ptrInfo").innerHTML = "Önce p işaretçisini tanımlayın!";
-      return;
-    }
-    const pAddr = vars["p"];
-    const target = mem[pAddr]?.pointsTo;
-    if (target && mem[target]) {
-      alloc("y", mem[target].value, "int");
-      render();
-      document.getElementById("ptrInfo").innerHTML = `y = *p — p'nin gösterdiği adresteki değer (${mem[target].value}) y'ye kopyalandı.`;
-    } else if (mem[pAddr].value === 0) {
-      document.getElementById("ptrInfo").innerHTML = "⚠️ p şu an NULL: *p tanımsız davranıştır. Çoğu sistemde program segmentation fault ile durdurulur; y oluşturulmadı.";
-    } else {
-      document.getElementById("ptrInfo").innerHTML = `⚠️ p, 0x${mem[pAddr].value.toString(16)} adresini gösteriyor ama orada tanımlı bir değişken yok: okumak tanımsız davranıştır; y oluşturulmadı.`;
-    }
-  });
-
-  document.getElementById("btnPtrArith").addEventListener("click", () => {
-    if (!vars["p"]) {
-      document.getElementById("ptrInfo").innerHTML = "Önce p işaretçisini tanımlayın!";
-      return;
-    }
-    const pAddr = vars["p"];
-    if (mem[pAddr].pointsTo !== null && mem[pAddr].value > 0) {
-      mem[pAddr].value += 4;
-      mem[pAddr].pointsTo += 4;
-      render();
-      document.getElementById("ptrInfo").innerHTML = "p++ — İşaretçi 4 byte ilerledi (int boyutu kadar). Şimdi sonraki bellek hücresini gösteriyor.";
-    }
-  });
-
-  document.getElementById("btnPtrNull").addEventListener("click", () => {
-    if (!vars["p"]) {
-      document.getElementById("ptrInfo").innerHTML = "Önce p işaretçisini tanımlayın!";
-      return;
-    }
-    const pAddr = vars["p"];
-    mem[pAddr].value = 0;
-    mem[pAddr].pointsTo = null;
-    render();
-    document.getElementById("ptrInfo").innerHTML = "⚠️ p = NULL — İşaretçi artık hiçbir yeri göstermiyor. Dereference etmek tanımsız davranıştır; çoğu sistemde segmentation fault!";
-  });
-
-  document.getElementById("btnPtrReset").addEventListener("click", reset);
-
-  reset();
-})();
-
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  3. STACK FRAME CANVAS                                      ║
-// ╚══════════════════════════════════════════════════════════════╝
-(function(){
-  const canvas = document.getElementById("stackCanvas");
-  const ctx = canvas.getContext("2d");
-  let W = 500, H = 280;
-  let frames = []; // [{ name, params, locals, returnAddr }]
-
-  function resize() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    W = Math.max(340, rect.width);
-    H = Math.max(220, Math.min(300, W * 0.52));
-    canvas.width = W;
-    canvas.height = H;
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    const fw = W - 150, fx = 130, gap = 4;
-
-    if (frames.length === 0) {
-      ctx.fillStyle = "#8b95a8";
-      ctx.font = "12px 'Outfit', sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("Stack boş. Çağrı başlatın.", W / 2, H / 2);
-      return;
-    }
-
-    const colors = ["#5eead4","#60a5fa","#a78bfa","#f472b6","#fbbf24"];
-    const totalH = Math.min(H - 40, frames.length * 80);
-    const fh = Math.min(70, totalH / frames.length - gap);
-
-    // Stack tabanı
-    ctx.strokeStyle = "rgba(255,255,255,0.3)";
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(fx, H - 15); ctx.lineTo(fx + fw, H - 15); ctx.stroke();
-    ctx.fillStyle = "#8b95a8";
-    ctx.font = "9px 'Outfit', sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText("yığın tabanı (yüksek adres)", fx + fw, H - 4);
-
-    frames.forEach((f, i) => {
-      const y = H - 20 - (i + 1) * (fh + gap);
-      const color = colors[i % colors.length];
-
-      ctx.fillStyle = color + "11";
-      ctx.strokeStyle = color + "55";
-      ctx.lineWidth = 2;
-      ctx.beginPath(); roundRect(fx, y, fw, fh, 8);
-      ctx.fill(); ctx.stroke();
-
-      // Frame başlığı
-      ctx.fillStyle = color;
-      ctx.font = "bold 11px 'Outfit', sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText(f.name + "()", fx + 12, y + 16);
-
-      // Frame içeriği
-      ctx.fillStyle = "#8b95a8";
-      ctx.font = "8px ui-monospace, monospace";
-      // Ayrıntılar tek satırda: çerçeveler daraldığında üst üste binmesin
-      const detail = [
-        f.params ? `param: ${f.params}` : "",
-        f.locals ? `locals: ${f.locals}` : "",
-        `dönüş: 0x${(0x4000 + i * 16).toString(16)}`,
-      ].filter(Boolean).join("  ·  ");
-      if (fh >= 34) ctx.fillText(detail, fx + 12, y + 30, fw - 24);
-      else ctx.fillText(detail, fx + 100, y + 16, fw - 112);
-
-      // Çerçeve etiketi
-      ctx.fillStyle = color;
-      ctx.textAlign = "right";
-      ctx.fillText(`Frame ${frames.length - i}`, fx - 10, y + fh / 2 + 3);
-    });
-
-    // Yukarı ok
-    ctx.fillStyle = "#5eead4";
-    ctx.font = "9px 'Outfit', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("↑ yeni çerçeve üste eklenir · adresler küçülür ↑", fx + fw / 2, 14);
-
-    document.getElementById("stackInfo").textContent =
-      `${frames.length} frame stack'te — Stack Pointer: 0x${(0x7FF0 - frames.length * 64).toString(16)}`;
-  }
-
-  function roundRect(x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x, y + r);
-    ctx.closePath();
-  }
-
-  document.getElementById("btnCallA").addEventListener("click", () => {
-    if (frames.length === 0) {
-      frames.push({ name:"main", params:"argc=1, argv", locals:"result (int)", returnAddr:"_start" });
-      draw();
-    }
-    if (frames.length === 1) {
-      frames.push({ name:"factorial", params:"n=5", locals:"—", returnAddr:"main+0x14" });
-      draw();
-    }
-  });
-  document.getElementById("btnCallB").addEventListener("click", () => {
-    const last = frames[frames.length - 1];
-    if (!last || !last.name.includes("factorial")) return;
-    const n = parseInt(last.params?.match(/n=(\d+)/)?.[1] || "5");
-    if (n <= 1) return;
-    frames.push({ name:"factorial", params:`n=${n-1}`, locals:"—", returnAddr:`factorial(${n})+0x0C` });
-    draw();
-  });
-  document.getElementById("btnReturn").addEventListener("click", () => {
-    if (frames.length > 0) {
-      frames.pop();
-      draw();
-    }
-  });
-  document.getElementById("btnStackReset").addEventListener("click", () => {
-    frames = [];
-    draw();
-    document.getElementById("stackInfo").textContent = "Stack: boş — Çağrı başlatmak için butona tıklayın.";
-  });
-
-  window.addEventListener("resize", () => { resize(); draw(); });
-  resize();
-  draw();
-})();
-
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  4. MEMORY LEAK DEMO                                        ║
-// ╚══════════════════════════════════════════════════════════════╝
-(function(){
-  let blocks = []; // { id, size, leaked }
-  let nextId = 1;
-
-  function render() {
-    const heap = document.getElementById("leakHeap");
-    heap.innerHTML = blocks.map(b => {
-      let cls = b.leaked ? "leak-block leaked" : "leak-block alloc";
-      return `<div class="${cls}">[${b.id}] ${b.size}B ${b.leaked ? '💧' : '✓'}</div>`;
-    }).join("");
-    const totalAlloc = blocks.filter(b => !b.leaked).reduce((s,b) => s + b.size, 0);
-    const totalLeaked = blocks.filter(b => b.leaked).reduce((s,b) => s + b.size, 0);
-    document.getElementById("leakInfo").innerHTML =
-      `Ayrılan: <strong>${totalAlloc} B</strong> | Sızan: <strong style="color:var(--danger)">${totalLeaked} B</strong> | Toplam blok: ${blocks.length}`;
-  }
-
-  document.getElementById("btnMalloc").addEventListener("click", () => {
-    blocks.push({ id:nextId++, size:16, leaked:false });
-    render();
-  });
-  document.getElementById("btnFree").addEventListener("click", () => {
-    const valid = blocks.filter(b => !b.leaked);
-    if (valid.length > 0) {
-      const last = valid[valid.length - 1];
-      last._freed = true;
-      blocks = blocks.filter(b => !b._freed);
-      render();
-    }
-  });
-  document.getElementById("btnLosePtr").addEventListener("click", () => {
-    const valid = blocks.filter(b => !b.leaked);
-    if (valid.length > 0) {
-      valid[valid.length - 1].leaked = true;
-      render();
-    }
-  });
-  document.getElementById("btnLeakReset").addEventListener("click", () => {
-    blocks = [];
-    nextId = 1;
-    render();
-  });
-
-  render();
-})();
-
-// ╔══════════════════════════════════════════════════════════════╗
-// ║  5. İŞARETÇİ TEHLİKELERİ KARTLARI                            ║
-// ╚══════════════════════════════════════════════════════════════╝
-(function(){
-  const dangers = [
-    { icon:"💀", name:"Dangling Pointer", desc:"free() edilmiş belleği gösteren işaretçi. Dereference edilirse <strong>undefined behavior</strong>. Çözüm: free()'den sonra ptr = NULL yapmak.", code:"int *p = malloc(4);\nfree(p);\n*p = 42; // TEHLİKE!" },
-    { icon:"💧", name:"Memory Leak", desc:"Ayrılan belleğin işaretçisi kaybolduğunda bellek geri verilemez. Uzun çalışan programlarda birikerek sistemi çökertir.", code:"void loop() {\n  int *p = malloc(1024);\n  // free(p) UNUTULDU!\n}" },
-    { icon:"💥", name:"Buffer Overflow", desc:"Dizinin sınırlarını aşan yazma. Stack'te dönüş adresinin üzerine yazarak saldırgana kod çalıştırtabilir.", code:"char buf[8];\nstrcpy(buf, \"çok uzun metin\");\n// 8 byte'lık buf taştı!" },
-    { icon:"🔄", name:"Double Free", desc:"Aynı belleği iki kez free() etmek. Heap yapısını bozar, çökmelere veya güvenlik açıklarına yol açar.", code:"int *p = malloc(4);\nfree(p);\nfree(p); // double free!" },
-    { icon:"⚡", name:"Use After Free", desc:"free() edilmiş belleği okumak/yazmak. Bellek başka bir değişkene tahsis edilmiş olabilir.", code:"int *p = malloc(4);\nfree(p);\nprintf(\"%d\", *p); // UAF!" },
-    { icon:"🎯", name:"Wild Pointer", desc:"İlk değer atanmamış (uninitialized) işaretçi. İçinde ne olduğu belirsizdir; dereference etmek tanımsız davranıştır (çökebilir ya da sessizce başka bir veriyi bozabilir).", code:"int *p; // wild!\n*p = 42; // nereye yazıyor?" },
-  ];
-
-  const grid = document.getElementById("dangerGrid");
-  grid.innerHTML = dangers.map(d => `
-    <div class="smart-card">
-      <div class="sc-icon">${d.icon}</div>
-      <div class="sc-name">${d.name}</div>
-      <div class="sc-desc">${d.desc}</div>
-      <div class="sc-code">${d.code}</div>
-    </div>
-  `).join("");
-})();
+P.mem=K.initMemory();ptDefaults();alDefaults();erDefaults();gcLoad('karma');tab('ptr');
+new ResizeObserver(render).observe(document.querySelector('.app-content'));
+new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 </script>
 </body>
 </html>

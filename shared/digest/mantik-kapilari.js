@@ -161,9 +161,9 @@ window.ACELYA_DIGEST["mantik-kapilari"] = {
     }
   ],
   next: [
-    { href: "mantik-devresi.html", title: "Mantık Devresi Tasarımcısı", why: "Tek kapının sözleşmesini öğrendin; şimdi kapıları bağlantılarla birleştiren daha geniş devreleri incele." },
-    { href: "bilgisayar-sistemleri-ve-mimarisi.html", title: "Bilgisayar Sistemleri ve Mimarisi", why: "Toplayıcının işlemci, bellek ve komut yürütme yapısının neresinde bulunduğunu araştır." },
-    { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata", why: "Yalnız mevcut girdiye bakan kapılardan, geçmişi bir durumla hatırlayan makinelere geç." },
+    { href: "mantik-devresi.html", title: "Mantık Devreleri Laboratuvarı", why: "Tek kapının sözleşmesini öğrendin; şimdi kapıları bağlantılarla birleştiren daha geniş devreleri incele." },
+    { href: "bilgisayar-sistemleri-ve-mimarisi.html", title: "Bilgisayar Mimarisi Laboratuvarı", why: "Toplayıcının işlemci, bellek ve komut yürütme yapısının neresinde bulunduğunu araştır." },
+    { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata Teorisi", why: "Yalnız mevcut girdiye bakan kapılardan, geçmişi bir durumla hatırlayan makinelere geç." },
     { href: "elektronik-devre.html", title: "RC, RL ve RLC Devreleri", why: "Mantık modelindeki anlık cevabın ötesinde, fiziksel devrelerin zamana bağlı davranışını incele." }
   ],
   sources: [

@@ -205,7 +205,7 @@ window.ACELYA_DIGEST["elektrikli-araclar"] = {
     },
   ],
   next: [
-    { href: "elektrokimya.html", title: "Elektrokimya — Galvanik Hücre", why: "Buradaki hücre eğrisi hazır verildi; gerilimin nereden geldiğini görmek için iki yarı hücreyi voltaj merdiveninde kendin eşleştir." },
+    { href: "elektrokimya.html", title: "Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday", why: "Buradaki hücre eğrisi hazır verildi; gerilimin nereden geldiğini görmek için dokuz yarı hücreden anot ile katodu kendin seç, derişimi değiştir ve Nernst geriliminin nasıl kaydığını izle." },
     { href: "elektrik-muhendisligi.html", title: "Elektrik Mühendisliği: Güç, İletim ve Dönüşüm", why: "800 volt dersinin şebekedeki karşılığı: iletim gerilimini yükseltince hat kaybının nasıl düştüğünü ölç, üç fazlı gücü ve transformatörü incele." },
     { href: "otomotiv-muhendisligi.html", title: "Otomotiv Mühendisliği: Motor, Aktarma ve Araç Dinamiği", why: "Aynı çekiş kuvveti–direnç kesişimini bu kez vitesli, içten yanmalı bir aktarmayla kur; krank-biyel mekanizmasını, durma mesafesini ve viraj sınırlarını sına." },
     { href: "termodinamik.html", title: "Termodinamik: PV Diyagramı, İş, Isı ve Çevrimler", why: "Benzinli motorun yakıttaki enerjinin çoğunu neden tekerleğe ulaştıramadığını Otto ve Carnot çevrimlerinin veriminde gör." },

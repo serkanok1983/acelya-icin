@@ -197,7 +197,7 @@ window.ACELYA_DIGEST["cizge-teorisi"] = {
   ],
   next: [
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "Aynı Dijkstra'yı bir ızgara üzerinde, engellerle ve A* gibi hızlandırmalarla izle." },
-    { href: "veri-yapilari.html", title: "Veri Yapıları", why: "BFS'yi BFS yapan kuyruk, DFS'nin elle yazılmış hâlindeki yığın: bu yapıların kendisi." },
+    { href: "veri-yapilari.html", title: "Veri Yapıları Laboratuvarı", why: "BFS'yi BFS yapan kuyruk, DFS'nin elle yazılmış hâlindeki yığın: bu yapıların kendisi." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı", why: "O(|V|² + |E|) ile O((|V| + |E|) log |V|) arasındaki fark neden milyon düğümde hayati?" },
     { href: "besin-agi.html", title: "Besin Ağı", why: "Kim kimi yiyor: ekosistem de düğüm ve kenarlardan kurulu yönlü bir çizgedir." },
   ],

@@ -1,770 +1,1152 @@
-<!DOCTYPE html>
-<html class="app-root" lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="shared/theme.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Yedi küçük kapı, iki voltaj seviyesi ve bir doğruluk tablosu: 1847'de bir ayakkabıcının oğlunun bulduğu cebir, 1937'de 21 yaşındaki bir öğrencinin elinde devreye dönüştü. Bugün cebindeki telefonun içinde milyarlarca kopyası var.">
-  <title>Mantık Devresi Tasarımcısı</title>
-  <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0; min-height: 100%; min-height: 100dvh;
-      background: var(--bg-deep); color: var(--text);
-      font-family: var(--font);
-    }
-    body { display: flex; flex-direction: column; padding-top: 0; }
-    .hud {
-      flex-shrink: 0;
-      padding: max(8px, env(safe-area-inset-top)) 14px 10px;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-    }
-    .hud h1 { margin: 0 0 2px; font-size: clamp(1.05rem, 4vw, 1.4rem); font-weight: 600; }
-    .main-layout {
-      flex: 1; min-height: 0;
-      display: flex; overflow: hidden;
-    }
-    .sidebar {
-      flex-shrink: 0; width: 180px;
-      background: var(--bg-card);
-      border-right: 1px solid var(--border);
-      padding: 10px; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 6px;
-    }
-    .sidebar h3 {
-      margin: 0 0 4px; font-size: 0.78rem;
-      color: var(--text-muted); text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .gate-btn {
-      width: 100%; padding: 8px 10px;
-      background: var(--bg-input); color: var(--text);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      cursor: pointer; font-size: 0.75rem; font-weight: 500;
-      font-family: var(--font); text-align: left;
-      transition: all 0.15s; display: flex; align-items: center; gap: 6px;
-    }
-    .gate-btn:hover { border-color: var(--accent); background: rgba(94,234,212,0.08); }
-    .gate-btn .gate-icon {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 28px; height: 22px; border-radius: 4px;
-      font-weight: 700; font-size: 0.62rem;
-      background: var(--accent); color: var(--btn-text, #041016);
-      flex-shrink: 0;
-    }
-    .gate-btn .gate-icon.input-gate { background: var(--accent-warm); }
-    .gate-btn .gate-icon.not-gate { background: var(--accent-2); }
-    .gate-btn .gate-icon.special { background: var(--danger); }
-    .canvas-area {
-      flex: 1; min-width: 0; position: relative;
-      overflow: hidden;
-    }
-    #mainCanvas {
-      display: block; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.15);
-      cursor: crosshair;
-    }
-    .info-panel {
-      flex-shrink: 0; width: 200px;
-      background: var(--bg-card);
-      border-left: 1px solid var(--border);
-      padding: 10px; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    .info-panel h3 {
-      margin: 0; font-size: 0.78rem; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .truth-table {
-      width: 100%; border-collapse: collapse; font-size: 0.7rem;
-    }
-    .truth-table th, .truth-table td {
-      padding: 3px 5px; text-align: center;
-      border: 1px solid var(--border);
-    }
-    .truth-table th { background: var(--bg-input); color: var(--text-muted); }
-    .truth-table td.output-cell { font-weight: 700; color: var(--accent); }
-    .output-led {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px; background: var(--bg-input); border-radius: var(--radius);
-      font-size: 0.75rem;
-    }
-    .led {
-      width: 14px; height: 14px; border-radius: 50%;
-      background: #374151; transition: background 0.2s;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
-    }
-    .led.on { background: #22c55e; box-shadow: 0 0 12px #22c55e; }
-    .led.off { background: #374151; }
-    .example-btn {
-      width: 100%; padding: 6px 8px; font-size: 0.7rem;
-      background: var(--bg-input); color: var(--text-muted);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      cursor: pointer; font-family: var(--font);
-    }
-    .example-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .controls-row {
-      flex-shrink: 0; padding: 8px 14px max(10px, env(safe-area-inset-bottom));
-      border-top: 1px solid var(--border); text-align: center;
-    }
-    .controls-row button {
-      padding: 8px 16px;
-      background: var(--accent); color: var(--btn-text, #041016);
-      border: none; border-radius: var(--radius);
-      cursor: pointer; font-size: 0.8rem; font-weight: 600;
-      font-family: var(--font); margin: 0 4px;
-    }
-    .controls-row button.secondary {
-      background: var(--bg-input); color: var(--text); border: 1px solid var(--border);
-    }
-    .controls-row button:hover { filter: brightness(1.1); }
-    @media (max-width: 700px) {
-      .main-layout { flex-direction: column; }
-      .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; gap: 4px; padding: 6px; }
-      .sidebar h3 { flex-basis: 100%; margin: 0; }
-      .gate-btn { flex: 0 0 auto; width: auto; padding: 6px 8px; font-size: 0.68rem; }
-      .gate-btn .gate-icon { width: 22px; height: 18px; font-size: 0.55rem; }
-      .info-panel { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 6px; gap: 6px; }
-      .info-panel h3 { flex-basis: 100%; }
-      .canvas-area { min-height: 280px; }
-    }
-  </style>
-  <script src="shared/app.js"></script>
-</head>
-<body class="app-page" data-page="mantik-devresi">
+<!doctype html><html lang="tr" class="app-root"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Mantık Devreleri Laboratuvarı</title><meta name="description" content="Yedi küçük kapı, iki voltaj seviyesi, bir doğruluk tablosu: 1847'de bir ayakkabıcının oğlunun kurduğu cebir, 1937'de 21 yaşındaki bir öğrencinin elinde devreye dönüştü. Bugün cebinde milyarlarca kopyası var."><link rel="stylesheet" href="shared/theme.css"><script src="shared/app.js"></script><style>
+.ld-tabs{display:flex;gap:8px;margin:26px 0 20px;flex-wrap:wrap}.ld-tabs button{flex:1 1 150px;padding:13px 8px;font:inherit;font-size:.84rem}.ld-tabs [aria-selected=true]{border-color:var(--accent)!important;color:var(--text);box-shadow:inset 0 -3px var(--accent)}
+.ld-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(270px,1fr);gap:20px;align-items:start}.ld-grid>div,.ld-grid>aside{min-width:0}
+.ld-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:18px;display:grid;gap:14px}.ld-panel h2,.ld-plate h2{font-size:1.02rem;margin:0}
+.ld-field{display:grid;gap:7px}.ld-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}.ld-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ld-field input,.ld-field select{width:100%;min-width:0;font:inherit;box-sizing:border-box}.ld-field select,.ld-field input[type=text]{padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);color:var(--text)}
+.ld-field input[type=text]{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92rem}
+.ld-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ld-check{display:flex;gap:9px;align-items:center;font-size:.85rem;min-height:36px}.ld-check input{width:20px;height:20px;flex:none}
+.ld-row{display:flex;gap:8px;flex-wrap:wrap}.ld-row button{padding:9px 12px;min-height:44px;font:inherit;font-size:.82rem}
+.ld-row button[aria-pressed=true]{border-color:var(--accent);color:var(--text);box-shadow:inset 0 0 0 1px var(--accent)}
+.ld-row button:disabled{opacity:.45;cursor:not-allowed}
+.ld-note{font-size:.84rem;line-height:1.75;margin:0}.ld-err{font-size:.83rem;line-height:1.6;margin:0;color:var(--danger)}
+.ld-formula{padding:13px;background:var(--bg-input);border-radius:8px;line-height:1.9;font-size:.88rem;overflow-wrap:anywhere}
+.ld-mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.ld-plate{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}.ld-plate h2{padding:13px 16px;border-bottom:1px solid var(--border)}
+body.app-page canvas.ld-canvas{display:block;width:100%;height:auto;aspect-ratio:1.9;border:0;border-radius:0}
+body.app-page canvas#edCanvas{aspect-ratio:1.55;touch-action:none;cursor:crosshair}
+.ld-caption{padding:10px 16px;font-size:.78rem;line-height:1.65;color:var(--text-muted);margin:0}
+.ld-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}.ld-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:12px;min-width:0}.ld-stat small{display:block;color:var(--text-muted);font-size:.76rem;line-height:1.55}.ld-stat strong{display:block;font-size:1.02rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:5px}
+.ld-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:12px 15px;font-size:.86rem;line-height:1.75;margin:12px 0}
+.ld-table-wrap{overflow:auto;max-height:420px;border:1px solid var(--border);border-radius:9px;margin:16px 0}.ld-table{width:100%;border-collapse:collapse;font-size:.84rem;font-variant-numeric:tabular-nums}
+.ld-table td,.ld-table th{padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap}.ld-table thead th{background:var(--bg-panel);position:sticky;top:0}
+.ld-table caption{padding:11px;text-align:left;line-height:1.6;color:var(--text-muted);white-space:normal}.ld-table tr.is-now td,.ld-table tr.is-now th{background:var(--bg-input)}.ld-table tr.is-now>:first-child{box-shadow:inset 4px 0 var(--accent)}
+.ld-table td.is-one{color:var(--accent);font-weight:700}.ld-table td.is-bad{color:var(--danger);font-weight:700}.ld-table td.is-left,.ld-table th.is-left{text-align:left;white-space:normal}
+.ld-bottom{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:18px 0}.ld-bottom h2{font-size:1.02rem}.ld-bottom article{min-width:0}
+.ld-kmap{position:relative;padding:14px;display:grid;gap:6px;justify-content:center;align-items:center}
+.ld-kmap .ld-kh{font-size:.8rem;color:var(--text-muted);text-align:center;font-variant-numeric:tabular-nums;font-family:ui-monospace,Menlo,monospace}
+.ld-kmap button{width:100%;aspect-ratio:1;min-width:44px;font:inherit;font-size:1.25rem;font-weight:700;border:1px solid var(--border)!important;border-radius:8px;background:var(--bg-input)!important;color:var(--text)!important;cursor:pointer;position:relative;padding:0;box-shadow:none!important}
+.ld-kmap button small{position:absolute;right:5px;bottom:3px;font-size:.62rem;font-weight:400;color:var(--text-muted)}.ld-kmap button[data-v="1"]{color:var(--accent)!important}.ld-kmap button[data-v="X"]{color:var(--accent-warm)!important}
+.ld-kmap canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;border:0!important;border-radius:0;background:transparent!important}
+.ld-sources{margin-top:28px;font-size:.85rem;line-height:1.9}.ld-sources summary{cursor:pointer;color:var(--accent)}
+.ld-syntax{font-size:.82rem;line-height:1.8}.ld-syntax summary{cursor:pointer;color:var(--accent)}.ld-syntax code{font-family:ui-monospace,Menlo,monospace;background:var(--bg-input);padding:1px 5px;border-radius:4px}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}[hidden]{display:none!important}
+@media(max-width:760px){.ld-grid,.ld-bottom{grid-template-columns:1fr}.ld-panel{padding:15px}.ld-tabs button{font-size:.76rem;padding:11px 6px;flex-basis:30%}.ld-stat strong{font-size:.95rem}body.app-page canvas.ld-canvas{aspect-ratio:1.25}.ld-table{font-size:.78rem}.ld-table td,.ld-table th{padding:7px 6px}.ld-kmap{padding:10px 6px}}
+</style></head><body class="app-page" data-page="mantik-devresi"><main class="app-content"><h1>Mantık Devreleri Laboratuvarı</h1><p class="hint">Bir ifade yaz, tablosunu ve kapılarını gör; sonra aynı işi daha az kapıyla yap. Kapıların gecikmesi ve geri besleme devreye ne katar?</p>
+<div class="ld-tabs" role="tablist" aria-label="Mantık devresi deneyleri"><button type="button" class="app-btn-ghost" id="tab-expr" role="tab" aria-controls="panel-expr" aria-selected="true" tabindex="0">01 · Kapılar ve doğruluk tablosu</button><button type="button" class="app-btn-ghost" id="tab-build" role="tab" aria-controls="panel-build" aria-selected="false" tabindex="-1">02 · Devre kurucu</button><button type="button" class="app-btn-ghost" id="tab-kmap" role="tab" aria-controls="panel-kmap" aria-selected="false" tabindex="-1">03 · Sadeleştirme (Karnaugh)</button><button type="button" class="app-btn-ghost" id="tab-adder" role="tab" aria-controls="panel-adder" aria-selected="false" tabindex="-1">04 · Toplayıcılar ve gecikme</button><button type="button" class="app-btn-ghost" id="tab-seq" role="tab" aria-controls="panel-seq" aria-selected="false" tabindex="-1">05 · Ardışıl mantık</button></div>
 
-<div class="hud">
-  <h1>🔌 Mantık Devresi Tasarımcısı</h1>
-</div>
+<section id="panel-expr" role="tabpanel" aria-labelledby="tab-expr"><div class="ld-grid"><div>
+<div class="ld-plate"><h2>İfadenin kapı şeması</h2><canvas class="ld-canvas" id="exCanvas" role="img" aria-label="Seçili ifadenin kapı düzeyinde şeması"></canvas><p class="ld-caption" id="exCaption">Şema ifadeden kendiliğinden çizilir. Art arda gelen VE, VEYA ve XOR işlemleri çok girişli tek kapıda toplanır; turkuaz tel 1, soluk tel 0 taşır. Değerler tabloda seçili satıra aittir.</p></div>
+<div class="ld-stats" aria-live="polite"><div class="ld-stat"><small>Değişken / tablo satırı</small><strong id="exVars"></strong></div><div class="ld-stat"><small>Çıkışı 1 olan satır (ifade 1)</small><strong id="exOnes"></strong></div><div class="ld-stat"><small>Kapı sayısı / derinlik (çizilen)</small><strong id="exGates"></strong></div><div class="ld-stat"><small>Karşılaştırma: eşit satır / toplam</small><strong id="exEq"></strong></div></div>
+<p class="ld-status" id="exStatus" role="status"></p></div>
+<aside class="ld-panel"><h2>İfadeyi yaz</h2>
+<div class="ld-field"><label for="exA">İfade 1</label><input id="exA" type="text" value="¬(A·B)" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="exErrA"></div><p class="ld-err" id="exErrA" role="alert" hidden></p>
+<div class="ld-field"><label for="exB">İfade 2 (karşılaştırma için; boş bırakılabilir)</label><input id="exB" type="text" value="¬A + ¬B" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="exErrB"></div><p class="ld-err" id="exErrB" role="alert" hidden></p>
+<div class="ld-field"><label for="exDraw">Şeması çizilen ifade</label><select id="exDraw"><option value="a">İfade 1</option><option value="b">İfade 2</option></select></div>
+<div class="ld-field"><label for="exRow">Şemada gösterilen tablo satırı<output id="exRowOut"></output></label><input id="exRow" type="range" min="0" max="3" step="1" value="3"></div>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="exDM1">De Morgan 1</button><button type="button" class="app-btn-ghost" id="exDM2">De Morgan 2</button><button type="button" class="app-btn-ghost" id="exDist">Dağılma</button><button type="button" class="app-btn-ghost" id="exAbs">Yutma</button><button type="button" class="app-btn-ghost" id="exXor">XOR açılımı</button><button type="button" class="app-btn-ghost" id="exCons">Konsensüs</button><button type="button" class="app-btn-ghost" id="exWrong">Yanlış özdeşlik</button><button type="button" class="app-btn-ghost" id="exprReset">İfadeleri sıfırla</button></div>
+<details class="ld-syntax"><summary>Yazım kuralları ve öncelik</summary><p>Değişkenler: <code>A</code> <code>B</code> <code>C</code> <code>D</code>; sabitler <code>0</code> <code>1</code>. Büyük-küçük harf ayrımı yoktur.</p><p>DEĞİL: <code>¬A</code>, <code>!A</code>, <code>~A</code>, <code>NOT A</code>, <code>DEĞİL A</code> ya da arkaya kesme: <code>A'</code>.<br>VE: <code>A·B</code>, <code>A&amp;B</code>, <code>A*B</code>, <code>A AND B</code>, <code>A VE B</code> ya da yan yana yazım: <code>AB</code>, <code>A(B+C)</code>.<br>VEYA: <code>A+B</code>, <code>A|B</code>, <code>A OR B</code>, <code>A VEYA B</code>.<br>XOR: <code>A^B</code>, <code>A⊕B</code>, <code>A XOR B</code>. Ayrıca <code>NAND</code>, <code>NOR</code>, <code>XNOR</code>.</p><p>Öncelik, yüksekten düşüğe: parantez; DEĞİL; VE ve NAND; XOR ve XNOR; VEYA ve NOR. Aynı düzeydeki işlemler soldan sağa birleşir: <code>A NAND B NAND C</code>, <code>(A NAND B) NAND C</code> demektir. Anahtar sözcükler harflerden önce tanınır; bu yüzden <code>AND</code> üç değişkenin çarpımı değil, VE işlecidir.</p></details>
+</aside></div>
+<div class="ld-table-wrap" tabindex="0" role="region" aria-label="Doğruluk tablosu"><table class="ld-table"><caption id="exTableCap">Doğruluk tablosu. Satır numarası, en soldaki değişken en anlamlı bit sayılarak okunur.</caption><thead id="exHead"></thead><tbody id="exRows"></tbody></table></div>
+<div class="ld-bottom"><article><h2>Minterim ve maksterim listeleri</h2><div class="ld-formula" id="exLists" aria-live="polite"></div><p class="ld-note">Minterim, tablonun tek bir satırında 1 veren çarpımdır; 1 olan satırların minterimleri toplanınca ifadenin kanonik çarpımlar toplamı çıkar. Maksterim, tek bir satırda 0 veren toplamdır; 0 olan satırlarınki çarpılınca kanonik toplamlar çarpımı elde edilir.</p></article><article><h2>Özdeşlik nasıl sınanır?</h2><p class="ld-note">İki ifade, ortak değişkenlerinin bütün 2ⁿ atamasında aynı çıkışı veriyorsa özdeştir. Burada n en çok 4 olduğundan en çok 16 satır vardır ve hepsi tek tek denenir; bu bir örnekleme değil, eksiksiz bir kanıttır. Fark varsa ilk karşı örnek satırı gösterilir. Değişken sayısı büyüdükçe satır sayısı ikiye katlanır; 64 girişli bir devre için aynı yöntem uygulanamaz.</p><div class="ld-formula" id="exParsed"></div></article></div></section>
 
-<div class="main-layout">
-  <div class="sidebar">
-    <h3>🚪 Girişler</h3>
-    <button class="gate-btn" data-gate="input" title="Tıklayarak 0/1 değiştirilebilir giriş pini"><span class="gate-icon input-gate">IN</span> Giriş Pini</button>
-    <h3>🔧 Kapılar</h3>
-    <button class="gate-btn" data-gate="and"><span class="gate-icon">AND</span> AND</button>
-    <button class="gate-btn" data-gate="or"><span class="gate-icon">OR</span> OR</button>
-    <button class="gate-btn" data-gate="not"><span class="gate-icon not-gate">NOT</span> NOT</button>
-    <button class="gate-btn" data-gate="nand"><span class="gate-icon">NAND</span> NAND</button>
-    <button class="gate-btn" data-gate="nor"><span class="gate-icon">NOR</span> NOR</button>
-    <button class="gate-btn" data-gate="xor"><span class="gate-icon">XOR</span> XOR</button>
-    <button class="gate-btn" data-gate="xnor"><span class="gate-icon">XNOR</span> XNOR</button>
-    <h3>🧩 Hazır Devre</h3>
-    <button class="gate-btn" data-gate="sr-latch"><span class="gate-icon special">SR</span> SR Kilidi (NAND)</button>
-  </div>
+<section id="panel-build" role="tabpanel" aria-labelledby="tab-build" hidden>
+<div class="ld-plate"><h2>Tuval: kapıları yerleştir, pimleri bağla</h2><canvas class="ld-canvas" id="edCanvas" role="img" aria-label="Devre tuvali. Klavye için aşağıdaki Bağlantılar bölümünü kullan."></canvas><p class="ld-caption">Bağlamak için önce bir çıkış pimine (sağdaki nokta), sonra bir giriş pimine (soldaki nokta) dokun ya da pimden pime sürükle. Gövdeden sürükleyince eleman taşınır; bir giriş anahtarına dokununca değeri değişir. Turkuaz tel 1, soluk tel 0 taşır.</p></div>
+<div class="ld-row" role="group" aria-label="Eleman ekle"><button type="button" class="app-btn-ghost" id="edAddIN">+ Giriş</button><button type="button" class="app-btn-ghost" id="edAddAND">+ AND</button><button type="button" class="app-btn-ghost" id="edAddOR">+ OR</button><button type="button" class="app-btn-ghost" id="edAddNOT">+ NOT</button><button type="button" class="app-btn-ghost" id="edAddNAND">+ NAND</button><button type="button" class="app-btn-ghost" id="edAddNOR">+ NOR</button><button type="button" class="app-btn-ghost" id="edAddXOR">+ XOR</button><button type="button" class="app-btn-ghost" id="edAddXNOR">+ XNOR</button><button type="button" class="app-btn-ghost" id="edAddOUT">+ Çıkış</button></div>
+<div class="ld-row" style="margin-top:8px"><button type="button" class="app-btn-ghost" id="edUndo">Geri al</button><button type="button" class="app-btn-ghost" id="edDelete">Seçileni sil</button><button type="button" class="app-btn-ghost" id="edClear">Tuvali temizle</button><button type="button" class="app-btn-ghost" id="buildReset">Devreyi sıfırla</button></div>
+<div class="ld-row" style="margin-top:8px" role="group" aria-label="Giriş anahtarları" id="edInputs"></div>
+<div class="ld-stats" aria-live="polite"><div class="ld-stat"><small>Kapı / tel sayısı</small><strong id="edGates"></strong></div><div class="ld-stat"><small>En uzun yol (kapı)</small><strong id="edDepth"></strong></div><div class="ld-stat"><small>Geri besleme</small><strong id="edFeedback"></strong></div><div class="ld-stat"><small>Hedefle uyuşan satır / toplam</small><strong id="edMatch"></strong></div></div>
+<p class="ld-status" id="edStatus" role="status"></p>
+<div class="ld-grid"><div><div class="ld-table-wrap" tabindex="0" role="region" aria-label="Devrenin doğruluk tablosu"><table class="ld-table"><caption>Her çıkış için doğruluk tablosu. T: çıkış önceki duruma bağlı (devre tutuyor). S: bu girişlerde kararlı durum yok (devre salınır). İşaretli satır, anahtarların şu anki konumudur.</caption><thead id="edHead"></thead><tbody id="edRows"></tbody></table></div><div class="ld-formula" id="edExprs" aria-live="polite"></div></div>
+<aside class="ld-panel"><h2>Bağlantılar (klavye ile de)</h2>
+<div class="ld-field"><label for="edPreset">Hazır devre</label><select id="edPreset"><option value="half">Yarım toplayıcı</option><option value="full">Tam toplayıcı</option><option value="mux">2:1 seçici (C seçer)</option><option value="latch">SR kilidi (iki NOR; A = S, B = R)</option><option value="xornand">Dört NAND ile XOR</option></select></div>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="edLoad">Hazır devreyi yükle</button></div>
+<div class="ld-field"><label for="edSrc">Kaynak (çıkış pimi)</label><select id="edSrc"></select></div>
+<div class="ld-field"><label for="edDst">Hedef (giriş pimi)</label><select id="edDst"></select></div>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="edConnect">Bağla</button><button type="button" class="app-btn-ghost" id="edDisconnect">Hedefin telini sök</button></div>
+<div class="ld-field"><label for="edSel">Seçili eleman</label><select id="edSel"></select></div>
+<div class="ld-field"><label for="edName">Çıkışın adı (en çok 4 harf)</label><input id="edName" type="text" maxlength="4" autocomplete="off" spellcheck="false"></div>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="edRename">Adı uygula</button></div>
+<div class="ld-field"><label for="edTarget">Hedef işlevler (isteğe bağlı)</label><input id="edTarget" type="text" autocomplete="off" spellcheck="false" aria-describedby="edTargetErr"></div><p class="ld-err" id="edTargetErr" role="alert" hidden></p>
+<p class="ld-note">Hedef biçimi: <span class="ld-mono">S = A ^ B; E = A B</span>. Her çıkışın tablosu, yazdığın ifadenin tablosuyla satır satır karşılaştırılır. En çok 4 giriş (A–D), 20 kapı, 6 çıkış. Bağlanmamış giriş pimi 0 sayılır ve durum satırında bildirilir.</p>
+<p class="ld-note">Model: her kapı bir birim gecikmelidir ve hepsi aynı anda güncellenir; değerler değişmeyene kadar adım atılır. Simetrik bir geri besleme bu modelde sonsuza dek salınabilir; o zaman kapılar sırayla güncellenir ve durum satırı bunun bir yarış olduğunu söyler. Gerçek devrede yarışı kapılar arasındaki küçük gecikme farkı çözer.</p>
+</aside></div></section>
 
-  <div class="canvas-area">
-    <canvas id="mainCanvas" style="touch-action: none"></canvas>
-  </div>
+<section id="panel-kmap" role="tabpanel" aria-labelledby="tab-kmap" hidden><div class="ld-grid"><div>
+<div class="ld-plate"><h2 id="kmTitle">Karnaugh haritası</h2><div class="ld-kmap" id="kmGrid"></div><p class="ld-caption">Bir hücreye basınca değeri 0 → 1 → X (önemsiz) → 0 diye döner. Satır ve sütun başlıkları Gray koduyla sıralıdır: komşu hücreler tek bitte ayrılır; haritanın karşılıklı kenarları da komşudur. Renkli çerçeveler seçilen grupları gösterir; kenarda açık kalan çerçeve karşı kenardan devam eder.</p></div>
+<div class="ld-stats" aria-live="polite"><div class="ld-stat"><small>Kanonik biçim: terim / değişken harfi / kapı</small><strong id="kmBefore"></strong></div><div class="ld-stat"><small>Sadeleşmiş: terim / değişken harfi / kapı</small><strong id="kmAfter"></strong></div><div class="ld-stat"><small>Kapı girişi sayısı: önce → sonra</small><strong id="kmSaving"></strong></div><div class="ld-stat"><small>Eşdeğerlik: tutan satır / denenen</small><strong id="kmVerify"></strong></div></div>
+<p class="ld-status" id="kmStatus" role="status"></p>
+<div class="ld-plate"><h2>Sadeleşmiş ifadenin şeması</h2><canvas class="ld-canvas" id="kmCanvas" role="img" aria-label="Sadeleşmiş ifadenin iki düzeyli kapı şeması"></canvas><p class="ld-caption">Şema, bulunan en küçük örtünün iki düzeyli gerçeklemesidir. DEĞİL kapıları burada her kullanımda ayrı çizilir; sayaçta aynı değişkenin değili tek kapı sayılır.</p></div></div>
+<aside class="ld-panel"><h2>Harita ve hedef</h2>
+<div class="ld-field"><label for="kmN">Değişken sayısı</label><select id="kmN"><option value="2">2 (A, B)</option><option value="3">3 (A, B, C)</option><option value="4" selected>4 (A, B, C, D)</option></select></div>
+<div class="ld-field"><label for="kmKind">Biçim</label><select id="kmKind"><option value="sop">Çarpımlar toplamı (1'leri grupla)</option><option value="pos">Toplamlar çarpımı (0'ları grupla)</option></select></div>
+<div class="ld-field"><label for="kmExpr">Haritayı ifadeden doldur</label><input id="kmExpr" type="text" autocomplete="off" spellcheck="false" placeholder="A·B + ¬C·D" aria-describedby="kmErr"></div><p class="ld-err" id="kmErr" role="alert" hidden></p>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="kmFill">İfadeden doldur</button></div>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="kmSeg">7 parçalı gösterge: a parçası</button><button type="button" class="app-btn-ghost" id="kmMaj">Çoğunluk (3 giriş)</button><button type="button" class="app-btn-ghost" id="kmChecker">Dama tahtası</button><button type="button" class="app-btn-ghost" id="kmCorners">Dört köşe</button><button type="button" class="app-btn-ghost" id="kmZero">Hepsini 0 yap</button><button type="button" class="app-btn-ghost" id="kmapReset">Haritayı sıfırla</button></div>
+<div class="ld-formula" id="kmResult" aria-live="polite"></div>
+<p class="ld-note">Yöntem: Quine–McCluskey ile bütün asal implikantlar bulunur; ardından en az terimli, eşitlikte en az değişken harfli örtü kesin aramayla seçilir. X hücreleri grubu büyütmek için kullanılabilir ama örtülmeleri gerekmez. Sonuç, X olmayan bütün satırlarda özgün tabloyla karşılaştırılır.</p>
+<p class="ld-note">Maliyet ölçüsü iki düzeyli gerçeklemedir: her çok harfli terime bir kapı, terimleri birleştiren bir kapı, değili kullanılan her değişkene bir DEĞİL. Çok düzeyli çarpanlara ayırma ve kapı paylaşımı (örneğin XOR kullanmak) bu ölçünün dışındadır.</p>
+</aside></div>
+<div class="ld-table-wrap" tabindex="0" role="region" aria-label="Asal implikantlar"><table class="ld-table"><caption>Asal implikantlar: daha büyük bir gruba katılamayan gruplar. Zorunlu olan, başka hiçbir asalın örtmediği bir hücreyi örter.</caption><thead><tr><th scope="col" class="is-left">Terim</th><th scope="col">Hücreler</th><th scope="col">Zorunlu mu?</th><th scope="col">Seçildi mi?</th></tr></thead><tbody id="kmPrimes"></tbody></table></div></section>
 
-  <div class="info-panel">
-    <h3>📊 Doğruluk Tablosu</h3>
-    <div style="overflow-x:auto;">
-      <table class="truth-table" id="truthTable">
-        <tbody></tbody>
-      </table>
-    </div>
-    <h3>💡 Canlı Çıkış</h3>
-    <div class="output-led" id="ledPanel">
-      <div class="led off" id="outputLed"></div>
-      <span id="outputLabel">—</span>
-    </div>
-    <button class="example-btn" id="clearBtn">🗑️ Tümünü Temizle</button>
-  </div>
-</div>
+<section id="panel-adder" role="tabpanel" aria-labelledby="tab-adder" hidden><div class="ld-grid"><div>
+<div class="ld-plate"><h2>Toplayıcı zinciri: t anındaki değerler</h2><canvas class="ld-canvas" id="adChain" role="img" aria-label="Toplayıcı blokları ve seçili andaki elde değerleri"></canvas><p class="ld-caption" id="adChainCap">Sağdaki blok en düşük bittir. Turkuaz elde 1, soluk elde 0. Turuncu çerçeve, o blokta çıkışın henüz son değerine oturmadığını gösterir.</p></div>
+<div class="ld-plate"><h2>Zamanlama diyagramı</h2><canvas class="ld-canvas" id="adTiming" role="img" aria-label="Elde ve toplam bitlerinin zamanlama diyagramı"></canvas><p class="ld-caption">Yatay eksen τ cinsinden zaman; girişler t = 0'da değişir. Kesikli turuncu çizgi formülün verdiği en kötü süre, düz turkuaz çizgi bu uyarımda ölçülen yerleşme anıdır. Bir çıkışın son değerine varmadan yaptığı fazladan gidiş gelişler (glitch) burada görünür.</p></div>
+<div class="ld-stats" aria-live="polite"><div class="ld-stat"><small>Bu uyarımda ölçülen yerleşme</small><strong id="adSettle"></strong></div><div class="ld-stat"><small>Ölçülen en kötü durum</small><strong id="adWorst"></strong></div><div class="ld-stat"><small>Formül (bu yapı için)</small><strong id="adFormula"></strong></div><div class="ld-stat"><small>Ölçülen − formül</small><strong id="adDiff"></strong></div><div class="ld-stat"><small>Fazladan geçiş (glitch) sayısı</small><strong id="adGlitch"></strong></div><div class="ld-stat"><small>Sonuç: devre / aritmetik</small><strong id="adSum"></strong></div></div>
+<p class="ld-status" id="adStatus" role="status"></p></div>
+<aside class="ld-panel"><h2>Yapı ve uyarım</h2>
+<div class="ld-field"><label for="adArch">Toplayıcı yapısı</label><select id="adArch"><option value="ripple">Dalgalı elde (tam toplayıcı zinciri)</option><option value="cla">Elde öngörülü (4 bit)</option></select></div>
+<div class="ld-field"><label for="adN">Bit sayısı N<output id="adNOut"></output></label><input id="adN" type="range" min="1" max="8" step="1" value="4"></div>
+<div class="ld-field"><label for="adTau">Kapı gecikmesi τ<output id="adTauOut"></output></label><input id="adTau" type="range" min="1" max="20" step="1" value="10"></div>
+<div class="ld-field"><label for="adK">XOR kapısının gecikmesi</label><select id="adK"><option value="1">1 τ (bütün kapılar eşit)</option><option value="2">2 τ (XOR iki kat yavaş)</option></select></div>
+<div class="ld-two"><div class="ld-field"><label for="adA0">Önceki A</label><input id="adA0" type="text" inputmode="numeric" value="0" autocomplete="off"></div><div class="ld-field"><label for="adB0">Önceki B</label><input id="adB0" type="text" inputmode="numeric" value="0" autocomplete="off"></div></div>
+<label class="ld-check" for="adC0"><input id="adC0" type="checkbox" checked>Önceki giriş eldesi C₀ = 1</label>
+<div class="ld-two"><div class="ld-field"><label for="adA1">Sonraki A</label><input id="adA1" type="text" inputmode="numeric" value="15" autocomplete="off"></div><div class="ld-field"><label for="adB1">Sonraki B</label><input id="adB1" type="text" inputmode="numeric" value="0" autocomplete="off"></div></div>
+<label class="ld-check" for="adC1"><input id="adC1" type="checkbox" checked>Sonraki giriş eldesi C₀ = 1</label>
+<p class="ld-err" id="adErr" role="alert" hidden></p>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="adChainBtn">Elde zinciri</button><button type="button" class="app-btn-ghost" id="adGlitchBtn">Glitch örneği</button><button type="button" class="app-btn-ghost" id="adRandom">Rastgele çift</button><button type="button" class="app-btn-ghost" id="adSearch">En kötü çifti ara</button></div>
+<div class="ld-field"><label for="adTime">Gösterilen an t<output id="adTimeOut"></output></label><input id="adTime" type="range" min="0" max="12" step="1" value="0"></div>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="adPlay" aria-pressed="false">Oynat</button><button type="button" class="app-btn-ghost" id="adderReset">Toplayıcıyı sıfırla</button></div>
+<p class="ld-note">A ve B, 0 ile 2ᴺ − 1 arasında onluk tam sayıdır. N ya da yapı değişince uyarım “elde zinciri” çiftine döner; “Glitch örneği” ise yapıyı dalgalı eldeye, N'yi 4 bite getirir. Devre önce "önceki" girişlerle bütünüyle yerleşmiş sayılır; t = 0'da girişler "sonraki" değerlere geçer. τ = 10 ns bir öğretim değeridir; gerçek kapıların gecikmesi teknolojiye, yüke ve sıcaklığa göre değişir.</p>
+<p class="ld-note">Model: saf taşıma gecikmesi. Her kapı, girişindeki her değişikliği kendi gecikmesi kadar sonra çıkışına yansıtır; çok kısa darbeler de geçer. Tel gecikmesi, yük etkisi ve yükselme süresi yoktur.</p>
+</aside></div>
+<div class="ld-table-wrap" tabindex="0" role="region" aria-label="Dört bitlik iki toplayıcının karşılaştırması"><table class="ld-table"><caption id="adCmpCap">Dört bitlik iki yapının karşılaştırması. Ölçülen en kötü durum, 512 × 512 = 262.144 (önceki, sonraki) giriş çiftinin hepsi benzetilerek bulunur.</caption><thead><tr><th scope="col" class="is-left">Yapı</th><th scope="col">Kapı</th><th scope="col">Kapı girişi</th><th scope="col">En geniş kapı</th><th scope="col">Formül</th><th scope="col">Ölçülen en kötü</th></tr></thead><tbody id="adCmp"></tbody></table></div>
+<div class="ld-bottom"><article><h2>Formül nereden geliyor?</h2><div class="ld-formula" id="adFormulaText"></div><p class="ld-note">Tam toplayıcı burada beş kapıdır: P = A ⊕ B, G = A·B, T = P·C, C' = G + T, S = P ⊕ C. Elde, her blokta bir VE ve bir VEYA kapısından geçer: blok başına 2τ. İlk blokta P'nin hazır olması bir XOR gecikmesi daha ister.</p></article><article><h2>Öngörü neyi satın alır?</h2><p class="ld-note">Elde öngörülü yapıda her elde, P ve G sinyallerinden iki kapı düzeyinde doğrudan hesaplanır: C₄ = G₃ + P₃G₂ + P₃P₂G₁ + P₃P₂P₁G₀ + P₃P₂P₁P₀C₀. Gecikme bit sayısıyla büyümez; bedeli daha çok ve daha geniş kapıdır. Beş girişli bir kapının iki girişli bir kapıyla aynı τ gecikmesine sahip olduğu varsayımı iyimserdir; gerçekte geniş kapı daha yavaştır ve büyük toplayıcılar öngörüyü 4 bitlik öbekler hâlinde kademelendirir.</p></article></div></section>
 
-<div class="controls-row">
-  <button id="clearCanvasBtn" class="secondary">🗑️ Devreyi Temizle</button>
-  <button id="saveCircuitBtn" class="secondary">💾 Devreyi Kaydet</button>
-  <button id="loadCircuitBtn" class="secondary">📂 Devreyi Yükle</button>
-</div>
+<section id="panel-seq" role="tabpanel" aria-labelledby="tab-seq" hidden><div class="ld-grid"><div>
+<div class="ld-plate"><h2>Zamanlama diyagramı</h2><canvas class="ld-canvas" id="sqTiming" role="img" aria-label="Saat, giriş ve çıkış sinyallerinin zamanlama diyagramı"></canvas><p class="ld-caption">Yatay eksen saat periyodu T cinsinden zaman. Üçgenler yükselen saat kenarlarıdır; kırmızı üçgen kurulum süresi ihlalini gösterir. Veri satırında her kenarın hemen solundaki gölgeli bant kurulum penceresidir. Taralı kırmızı bölge, değerin bilinmediği (X) aralıktır.</p></div>
+<div class="ld-plate"><h2 id="sqDiagramTitle">Eleman</h2><canvas class="ld-canvas" id="sqDiagram" role="img" aria-label="Seçili elemanın simgesi ya da durum diyagramı"></canvas><p class="ld-caption" id="sqDiagramCap"></p></div>
+<div class="ld-stats" aria-live="polite"><div class="ld-stat"><small>Yükselen kenar / kurulum ihlali</small><strong id="sqEdges"></strong></div><div class="ld-stat"><small id="sqM1Label">Ölçülen</small><strong id="sqM1"></strong></div><div class="ld-stat"><small id="sqM2Label">Kuram</small><strong id="sqM2"></strong></div><div class="ld-stat"><small>Şu anki çıkış</small><strong id="sqNow"></strong></div></div>
+<p class="ld-status" id="sqStatus" role="status"></p></div>
+<aside class="ld-panel"><h2>Eleman ve saat</h2>
+<div class="ld-field"><label for="sqKind">Devre</label><select id="sqKind"><option value="dpair">D kilidi ve D flip-flop (yan yana)</option><option value="sr">SR kilidi (saatsiz)</option><option value="jk">JK flip-flop</option><option value="t">T flip-flop</option><option value="counter">Eşzamanlı sayıcı</option><option value="shift">Kaydırmalı yazmaç</option><option value="fsm">Dizi algılayıcı (durum makinesi)</option></select></div>
+<div class="ld-row" role="group" aria-label="Giriş anahtarları"><button type="button" class="app-btn-ghost" id="sqIn0" aria-pressed="false"></button><button type="button" class="app-btn-ghost" id="sqIn1" aria-pressed="false"></button></div>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="sqClk" aria-pressed="false">CLK'yi çevir</button><button type="button" class="app-btn-ghost" id="sqPulse">Tam vuruş</button><button type="button" class="app-btn-ghost" id="sqWait">Yarım periyot bekle</button></div>
+<label class="ld-check" for="sqAuto"><input id="sqAuto" type="checkbox">Otomatik saat (gerçek zamanlı)</label>
+<div class="ld-field"><label for="sqPeriod">Saat periyodu T (ekranda)<output id="sqPeriodOut"></output></label><input id="sqPeriod" type="range" min="0.5" max="4" step="0.5" value="2"></div>
+<div class="ld-field"><label for="sqTsu">Kurulum süresi t_k<output id="sqTsuOut"></output></label><input id="sqTsu" type="range" min="0" max="0.2" step="0.01" value="0.1"></div>
+<div class="ld-field" id="sqBitsField"><label for="sqBits">Bit sayısı</label><select id="sqBits"><option value="3">3</option><option value="4" selected>4</option></select></div>
+<div class="ld-field" id="sqPatternField"><label for="sqPattern">Aranan örüntü (2–4 bit)</label><input id="sqPattern" type="text" inputmode="numeric" maxlength="4" value="101" autocomplete="off" aria-describedby="sqErr"></div>
+<div class="ld-field" id="sqOverlapField"><label for="sqOverlap">Örtüşen eşleşmeler</label><select id="sqOverlap"><option value="1">Sayılır (örtüşmeli)</option><option value="0">Sayılmaz (eşleşmeden sonra baştan)</option></select></div>
+<p class="ld-err" id="sqErr" role="alert" hidden></p>
+<div class="ld-row"><button type="button" class="app-btn-ghost" id="sqDemo">Örnek senaryo</button><button type="button" class="app-btn-ghost" id="sqViolate">Kurulum ihlali senaryosu</button><button type="button" class="app-btn-ghost" id="seqReset">Ardışılı sıfırla</button></div>
+<p class="ld-note" id="sqHelp"></p>
+<p class="ld-note">Model davranışsaldır: elemanların iç kapıları çözülmez, çıkış gecikmesi sıfır alınır. Kenar tetiklemeli eleman, yükselen kenardan hemen önceki girişi örnekler. Veri girişi kenardan önceki t_k süresi içinde (ya da tam kenar anında) değişmişse sonuç X olarak işaretlenir: gerçek flip-flop böyle bir anda 0'a da 1'e de düşebilir, bir süre kararsız da kalabilir. Sınır kuralı: kenardan tam t_k önce gelen değişim temiz sayılır; ihlal, kenara t_k'den daha yakın değişimdir. D kilidinde aynı pencere, kilidin kapandığı düşen kenardan önce aranır; orada çiğnenirse kilidin çıkışı X olur, ama bu ihlal sayacına girmez (sayaç yalnız yükselen kenarları sayar). Tutma süresi ayrıca modellenmez.</p>
+</aside></div>
+<div class="ld-table-wrap" tabindex="0" role="region" aria-label="Durum tablosu"><table class="ld-table"><caption id="sqTableCap"></caption><thead id="sqHead"></thead><tbody id="sqRows"></tbody></table></div></section>
 
-<script>
-(function () {
-  const canvas = document.getElementById("mainCanvas");
-  const ctx = canvas.getContext("2d");
-  const truthTableBody = document.querySelector("#truthTable tbody");
-  const outputLed = document.getElementById("outputLed");
-  const outputLabel = document.getElementById("outputLabel");
-
-  // ---- Data model ----
-  let components = [];      // { id, type, x, y, value, inputs:[id|"A"|"B"], outputId }
-  let wires = [];           // { from: componentId, to: componentId, fromPin: 0|"out", toPin: 0|1 }
-  let nextId = 0;
-  let dragComp = null;      // component being dragged
-  let dragOffsetX = 0, dragOffsetY = 0;
-  let dragStartX = 0, dragStartY = 0, dragMoved = false;
-  let wireStart = null;     // { compId, pin, x, y }
-  let mouseX = 0, mouseY = 0;
-
-  // Gate definitions
-  const GATE_INFO = {
-    input:  { label: "IN",  inputs: 0, color: "#fbbf24", outColor: "#fbbf24" },
-    and:    { label: "AND", inputs: 2, color: "#5eead4", outColor: "#5eead4" },
-    or:     { label: "OR",  inputs: 2, color: "#5eead4", outColor: "#5eead4" },
-    not:    { label: "NOT", inputs: 1, color: "#a78bfa", outColor: "#a78bfa" },
-    nand:   { label: "NAND",inputs: 2, color: "#5eead4", outColor: "#f87171" },
-    nor:    { label: "NOR", inputs: 2, color: "#5eead4", outColor: "#f87171" },
-    xor:    { label: "XOR", inputs: 2, color: "#5eead4", outColor: "#5eead4" },
-    xnor:   { label: "XNOR",inputs: 2, color: "#5eead4", outColor: "#5eead4" },
+<details class="ld-sources"><summary>Model sınırları ve sayı biçimi</summary><p>Bu sayfa ideal ikili mantığı işler: sinyaller yalnız 0 ve 1'dir (ardışıl sekmede ayrıca bilinmeyen X). Gerilim düzeyleri, gürültü payı, akım, güç tüketimi ve transistör düzeyi davranış burada yoktur; bunlar Elektronik Mühendisliği sayfasının konusudur. İkiye tümleyen ve taşma bayrakları Bilgisayar Sistemleri ve Mimarisi ile Makine Dili sayfalarında işlenir. Bütün gecikmeler öğretim değeridir ve τ'nun tam katlarıdır. Sayılar Türkçe biçimde yazılır: ondalık ayırıcı virgül, binlik ayırıcı noktadır. R tuşu, bir form denetiminin içinde değilken etkin sekmeyi sıfırlar; boşluk tuşu 4. sekmede oynatmayı, 5. sekmede otomatik saati başlatıp durdurur.</p></details>
+</main><script>
+(()=>{'use strict';
+/* KERNEL-BEGIN */
+const VARS='ABCD';
+/* ---------- 1. Boole ifadeleri: sözcükleme, ayrıştırma, tablo ---------- */
+const KEYWORDS=[['XNOR','xnor'],['NAND','nand'],['DEĞIL','not'],['DEGIL','not'],['VEYA','or'],['NOR','nor'],['NOT','not'],['XOR','xor'],['AND','and'],['VE','and'],['OR','or']];
+const SYMBOLS={'!':'not','~':'not','¬':'not','&':'and','*':'and','·':'and','∧':'and','.':'and','+':'or','|':'or','∨':'or','^':'xor','⊕':'xor'};
+const OPNAME={and:'VE',or:'VEYA',xor:'XOR',nand:'NAND',nor:'NOR',xnor:'XNOR',not:'DEĞİL'};
+function fail(msg,pos){const e=new Error(msg);e.pos=pos;e.logic=true;throw e;}
+function tokenize(src){
+  if(typeof src!=='string')fail('İfade metin olmalı.',0);
+  if(src.length>200)fail('İfade çok uzun (en çok 200 karakter).',200);
+  const out=[];let i=0;
+  while(i<src.length){
+    const ch=src[i];
+    if(/\s/.test(ch)){i++;continue;}
+    if(ch==='('||ch===')'){out.push({t:ch,pos:i});i++;continue;}
+    if(ch==='0'||ch==='1'){out.push({t:'const',v:+ch,pos:i});i++;continue;}
+    if(ch==="'"||ch==='’'||ch==='′'){out.push({t:'post',pos:i});i++;continue;}
+    if(SYMBOLS[ch]){const k=SYMBOLS[ch];out.push({t:k==='not'?'not':'bin',op:k,pos:i,text:ch});i+=((ch==='&'||ch==='|')&&src[i+1]===ch)?2:1;continue;}
+    if(/[A-Za-zĞğİıÜüŞşÖöÇç]/.test(ch)){
+      let j=i;while(j<src.length&&/[A-Za-zĞğİıÜüŞşÖöÇç]/.test(src[j]))j++;
+      const run=src.slice(i,j).toUpperCase().replace(/İ/g,'I');let p=0;
+      while(p<run.length){
+        const kw=KEYWORDS.find(k=>run.startsWith(k[0],p));
+        if(kw){out.push({t:kw[1]==='not'?'not':'bin',op:kw[1],pos:i+p,text:kw[0]});p+=kw[0].length;continue;}
+        const vi=VARS.indexOf(run[p]);
+        if(vi<0)fail((i+p+1)+'. karakterde tanınmayan ad “'+src[i+p]+'”. Değişkenler yalnız A, B, C, D olabilir.',i+p);
+        out.push({t:'var',i:vi,pos:i+p});p++;
+      }
+      i=j;continue;
+    }
+    fail((i+1)+'. karakterde tanınmayan simge “'+ch+'”.',i);
+  }
+  return out;
+}
+function parse(src){
+  const toks=tokenize(src);if(!toks.length)fail('İfade boş. Örnek: A·B + ¬C',0);
+  let k=0,depth=0;const peek=()=>toks[k],end=src.length;
+  const starts=t=>t&&(t.t==='var'||t.t==='const'||t.t==='('||t.t==='not');
+  function primary(){
+    const t=peek();
+    if(!t)fail('İfade yarım kaldı: sonda bir terim eksik.',end);
+    if(t.t==='var'){k++;return{op:'var',i:t.i};}
+    if(t.t==='const'){k++;return{op:'const',v:t.v};}
+    if(t.t==='('){k++;if(++depth>40)fail('Parantezler çok derin.',t.pos);if(peek()&&peek().t===')')fail((t.pos+1)+'. karakterdeki parantezin içi boş.',t.pos);const e=orLevel();const c=peek();if(!c||c.t!==')')fail((t.pos+1)+'. karakterde açılan “(” kapatılmamış.',t.pos);k++;depth--;return e;}
+    if(t.t===')')fail((t.pos+1)+'. karakterde “)” var ama ondan önce bir terim bekleniyordu.',t.pos);
+    if(t.t==='post')fail((t.pos+1)+'. karakterdeki kesme işareti bir terimin hemen arkasına yazılmalı.',t.pos);
+    fail((t.pos+1)+'. karakterde “'+t.text+'” işlecinin solunda bir terim eksik.',t.pos);
+  }
+  function unary(){
+    const t=peek();
+    if(t&&t.t==='not'){k++;if(++depth>40)fail('Değil işaretleri çok derin.',t.pos);if(!peek())fail('İfade yarım kaldı: “'+t.text+'” işaretinin sağında bir terim eksik.',end);const a=unary();depth--;return{op:'not',a:[a]};}
+    let e=primary();
+    while(peek()&&peek().t==='post'){k++;e={op:'not',a:[e]};}
+    return e;
+  }
+  function binLevel(next,ops,implicit){
+    let l=next();
+    for(;;){
+      const t=peek();
+      if(t&&t.t==='bin'&&ops.includes(t.op)){k++;if(!peek())fail('İfade yarım kaldı: “'+t.text+'” işlecinin sağında bir terim eksik.',end);l={op:t.op,a:[l,next()]};}
+      else if(implicit&&starts(t))l={op:'and',a:[l,next()]};
+      else return l;
+    }
+  }
+  const andLevel=()=>binLevel(unary,['and','nand'],true),xorLevel=()=>binLevel(andLevel,['xor','xnor'],false),orLevel=()=>binLevel(xorLevel,['or','nor'],false);
+  const ast=orLevel();
+  if(k<toks.length){const t=toks[k];fail(t.t===')'?(t.pos+1)+'. karakterdeki “)” için açılmış bir parantez yok.':(t.pos+1)+'. karakterde beklenmeyen simge.',t.pos);}
+  return ast;
+}
+function gate(type,v){
+  let ones=0;for(let i=0;i<v.length;i++)ones+=v[i]?1:0;
+  switch(type){case'and':return+(ones===v.length);case'nand':return+(ones!==v.length);case'or':return+(ones>0);case'nor':return+(ones===0);case'xor':return ones&1;case'xnor':return 1-(ones&1);case'not':return+!v[0];case'buf':return+!!v[0];}
+  throw RangeError('Bilinmeyen kapı: '+type);
+}
+function evalAst(n,bits){if(n.op==='var')return bits[n.i]?1:0;if(n.op==='const')return n.v;return gate(n.op,n.a.map(x=>evalAst(x,bits)));}
+function varsOf(n,set=new Set()){if(n.op==='var')set.add(n.i);else if(n.a)n.a.forEach(x=>varsOf(x,set));return[...set].sort((a,b)=>a-b);}
+/* Satır r'de vars[0] en anlamlı bittir. */
+function rowBits(r,vars){const b=[0,0,0,0];vars.forEach((v,j)=>b[v]=(r>>(vars.length-1-j))&1);return b;}
+function table(ast,vars=varsOf(ast)){const t=[];for(let r=0;r<(1<<vars.length);r++)t.push(evalAst(ast,rowBits(r,vars)));return t;}
+function compare(a,b){
+  const vars=[...new Set([...varsOf(a),...varsOf(b)])].sort((x,y)=>x-y),ta=table(a,vars),tb=table(b,vars),diff=[];
+  ta.forEach((v,r)=>{if(v!==tb[r])diff.push(r);});
+  return{vars,ta,tb,rows:ta.length,diff,equal:!diff.length,counter:diff.length?{row:diff[0],bits:rowBits(diff[0],vars),a:ta[diff[0]],b:tb[diff[0]]}:null};
+}
+/* VE, VEYA, XOR zincirlerini çok girişli tek kapıya indirger (NAND/NOR birleşmeli değildir, dokunulmaz). */
+function flatten(n){
+  if(!n.a)return n;const a=n.a.map(flatten);
+  if(n.op==='and'||n.op==='or'||n.op==='xor'){const out=[];a.forEach(c=>{if(c.op===n.op)out.push(...c.a);else out.push(c);});return{op:n.op,a:out};}
+  return{op:n.op,a};
+}
+function gateStats(ast){
+  const f=flatten(ast),by={};let gates=0,inputs=0;
+  const walk=n=>{if(!n.a)return 0;gates++;inputs+=n.a.length;by[n.op]=(by[n.op]||0)+1;return 1+Math.max(...n.a.map(walk));};
+  const depth=walk(f);return{gates,inputs,depth,by};
+}
+const PREC={or:1,nor:1,xor:2,xnor:2,and:3,nand:3,not:4,var:5,const:5};
+const SYM={and:'·',or:' + ',xor:' ⊕ ',nand:' NAND ',nor:' NOR ',xnor:' XNOR '};
+function show(n,full=false){
+  if(n.op==='var')return VARS[n.i];if(n.op==='const')return String(n.v);
+  if(n.op==='not'){const c=n.a[0];return'¬'+(c.a&&c.op!=='not'?'('+show(c,full)+')':show(c,full));}
+  return n.a.map((c,i)=>{const s=show(c,full);const need=c.a&&c.op!=='not'&&(full||PREC[c.op]<PREC[n.op]||(PREC[c.op]===PREC[n.op]&&(c.op!==n.op||n.op==='nand'||n.op==='nor'||n.op==='xnor'||i>0)));return need?'('+s+')':s;}).join(SYM[n.op]);
+}
+/* ---------- 2. Quine–McCluskey ve kesin örtü ---------- */
+function popcount(x){let c=0;while(x){x&=x-1;c++;}return c;}
+function primeImplicants(n,on,dc=[]){
+  const full=(1<<n)-1;let cur=new Map();[...on,...dc].forEach(m=>cur.set(m+'/0',{v:m,m:0}));const primes=[];
+  while(cur.size){
+    const list=[...cur.values()],used=new Set(),next=new Map();
+    for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){
+      const a=list[i],b=list[j];if(a.m!==b.m)continue;const d=a.v^b.v;if(popcount(d)!==1)continue;
+      used.add(i);used.add(j);const v=a.v&~d,m=a.m|d;next.set(v+'/'+m,{v,m});
+    }
+    list.forEach((p,i)=>{if(!used.has(i))primes.push(p);});cur=next;
+  }
+  const lits=p=>n-popcount(p.m&full);
+  return primes.filter(p=>on.some(x=>(x&~p.m)===p.v)).sort((a,b)=>lits(a)-lits(b)||a.v-b.v||a.m-b.m);
+}
+function minimise(n,on,dc=[]){
+  if(!(n>=1&&n<=4))throw RangeError('Değişken sayısı 1–4 olmalı');
+  const size=1<<n,seen=new Set();
+  for(const x of[...on,...dc]){if(!Number.isInteger(x)||x<0||x>=size)throw RangeError('Minterim aralık dışı');if(seen.has(x))throw RangeError('Minterim iki kez verilmiş');seen.add(x);}
+  const lits=p=>n-popcount(p.m);
+  if(!on.length)return{n,primes:[],essential:[],solutions:[[]],cover:[],terms:0,literals:0,constant:0};
+  const primes=primeImplicants(n,on,dc),covers=on.map(x=>primes.map((p,i)=>(x&~p.m)===p.v?i:-1).filter(i=>i>=0));
+  const essential=[...new Set(covers.filter(c=>c.length===1).map(c=>c[0]))].sort((a,b)=>a-b);
+  let best=[Infinity,Infinity];const sols=new Map();
+  const mask=primes.map(p=>on.reduce((s,x,i)=>s|((x&~p.m)===p.v?1<<i:0),0)),all=(1<<on.length)-1;
+  (function go(covered,chosen,terms,literals){
+    if(terms>best[0]||(terms===best[0]&&literals>best[1]))return;
+    if(covered===all){
+      if(terms<best[0]||literals<best[1]){best=[terms,literals];sols.clear();}
+      const key=[...chosen].sort((a,b)=>a-b).join(',');if(sols.size<64)sols.set(key,key);return;
+    }
+    let pick=-1,cnt=Infinity;
+    for(let i=0;i<on.length;i++)if(!(covered>>i&1)&&covers[i].length<cnt){cnt=covers[i].length;pick=i;}
+    for(const pi of covers[pick])if(!chosen.includes(pi))go(covered|mask[pi],[...chosen,pi],terms+1,literals+lits(primes[pi]));
+  })(0,[],0,0);
+  const solutions=[...sols.keys()].sort().map(k=>k.split(',').map(i=>primes[+i]));
+  return{n,primes,essential:essential.map(i=>primes[i]),solutions,cover:solutions[0],terms:best[0],literals:best[1],constant:best[1]===0?1:null};
+}
+/* kind 'sop': on kümesini örten çarpımlar; 'pos': kapalı (0) kümesini örten çarpımların De Morgan eşleniği. */
+function minimal(n,on,dc=[],kind='sop'){
+  if(kind==='sop')return{kind,...minimise(n,on,dc)};
+  const off=[];for(let x=0;x<(1<<n);x++)if(!on.includes(x)&&!dc.includes(x))off.push(x);
+  return{kind,...minimise(n,off,dc)};
+}
+function termText(p,n,kind='sop'){
+  const parts=[];for(let j=0;j<n;j++){const bit=1<<(n-1-j);if(p.m&bit)continue;const one=!!(p.v&bit);parts.push((kind==='sop'?one:!one)?VARS[j]:'¬'+VARS[j]);}
+  if(!parts.length)return kind==='sop'?'1':'0';
+  return kind==='sop'?parts.join('·'):(parts.length>1?'('+parts.join(' + ')+')':parts[0]);
+}
+function coverText(cover,n,kind='sop'){
+  if(!cover.length)return kind==='sop'?'0':'1';
+  return cover.map(p=>termText(p,n,kind)).join(kind==='sop'?' + ':'·');
+}
+function evalCover(cover,x,kind='sop'){const hit=cover.some(p=>(x&~p.m)===p.v);return kind==='sop'?+hit:+!hit;}
+function verifyCover(n,on,dc,cover,kind='sop'){
+  let checked=0;for(let x=0;x<(1<<n);x++){if(dc.includes(x))continue;checked++;const want=+on.includes(x);if(evalCover(cover,x,kind)!==want)return{ok:false,checked,counter:x};}
+  return{ok:true,checked,counter:null};
+}
+/* İki düzeyli gerçekleme maliyeti: terim kapıları + toplayan kapı + paylaşılan DEĞİL kapıları. */
+function coverCost(cover,n){
+  let literals=0,termGates=0,neg=0;
+  for(const p of cover){const l=n-popcount(p.m);literals+=l;if(l>=2)termGates++;}
+  for(let j=0;j<n;j++){const bit=1<<(n-1-j);if(cover.some(p=>!(p.m&bit)&&!(p.v&bit)))neg|=bit;}
+  const join=cover.length>=2?1:0,nots=popcount(neg);
+  return{terms:cover.length,literals,termGates,join,nots,gates:termGates+join+nots,inputs:literals+(join?cover.length:0)+nots};
+}
+function canonicalCover(n,on,kind='sop'){
+  if(kind==='sop')return on.map(v=>({v,m:0}));
+  const out=[];for(let x=0;x<(1<<n);x++)if(!on.includes(x))out.push({v:x,m:0});return out;
+}
+const GRAY=[0,1,3,2];
+function kmap(n){
+  if(n<2||n>4)throw RangeError('Karnaugh haritası 2–4 değişken içindir');
+  const rb=n===4?2:1,cb=n-rb,rows=rb===2?GRAY:[0,1],cols=cb===2?GRAY:[0,1];
+  return{n,rowBits:rb,colBits:cb,rows,cols,rowVars:VARS.slice(0,rb),colVars:VARS.slice(rb,n),cell:(r,c)=>(rows[r]<<cb)|cols[c]};
+}
+function runs(set,len){
+  if(set.length===len)return[{a:0,b:len-1,openA:false,openB:false}];
+  const has=i=>set.includes(((i%len)+len)%len);let s=set.find(i=>!has(i-1));
+  if(s+set.length<=len)return[{a:s,b:s+set.length-1,openA:false,openB:false}];
+  return[{a:s,b:len-1,openA:false,openB:true},{a:0,b:s+set.length-len-1,openA:true,openB:false}];
+}
+/* Bir implikantın haritadaki dikdörtgen parçaları; kenardan sarıyorsa parça açık kenarla işaretlenir. */
+function groupRects(p,n){
+  const k=kmap(n),R=[],C=[];
+  k.rows.forEach((code,r)=>{if(k.cols.some((_,c)=>(k.cell(r,c)&~p.m)===p.v))R.push(r);});
+  k.cols.forEach((code,c)=>{if(k.rows.some((_,r)=>(k.cell(r,c)&~p.m)===p.v))C.push(c);});
+  const out=[];for(const r of runs(R,k.rows.length))for(const c of runs(C,k.cols.length))out.push({r0:r.a,r1:r.b,c0:c.a,c1:c.b,openTop:r.openA,openBottom:r.openB,openLeft:c.openA,openRight:c.openB});
+  return out;
+}
+/* ---------- 3. Kapı ağı: birim gecikmeli yerleşme, geri besleme, tablo ---------- */
+const GATE_TYPES=['AND','OR','NOT','NAND','NOR','XOR','XNOR'];
+function nodeValue(node,get){return gate(node.type.toLowerCase(),node.ins.map(s=>s==null?0:get(s)));}
+function isGate(n){return n.type!=='IN'&&n.type!=='OUT';}
+function settle(nodes,state={},maxSteps){
+  const gates=nodes.filter(isGate),limit=maxSteps||2*gates.length+6;
+  const base={};nodes.forEach(n=>{base[n.id]=n.type==='IN'?(n.value?1:0):(state[n.id]?1:0);});
+  const finish=(s,extra)=>{nodes.forEach(n=>{if(n.type==='OUT')s[n.id]=n.ins[0]==null?0:s[n.ins[0]];});return{state:s,...extra};};
+  let s={...base};
+  for(let step=0;step<=limit;step++){
+    const nx={...s};let changed=false;
+    for(const g of gates){const v=nodeValue(g,id=>s[id]);if(v!==s[g.id]){nx[g.id]=v;changed=true;}}
+    if(!changed)return finish(s,{stable:true,race:false,steps:step});
+    s=nx;
+  }
+  /* Eşzamanlı güncelleme yerleşmedi: kapıları sırayla güncelleyerek simetrik yarışı çöz. */
+  let a={...base};
+  for(let sweep=0;sweep<=limit;sweep++){
+    let changed=false;
+    for(const g of gates){const v=nodeValue(g,id=>a[id]);if(v!==a[g.id]){a[g.id]=v;changed=true;}}
+    if(!changed)return finish(a,{stable:true,race:true,steps:sweep});
+  }
+  return finish(a,{stable:false,race:false,steps:limit});
+}
+function feedbackGates(nodes){
+  const by=new Map(nodes.map(n=>[n.id,n])),out=[];
+  for(const g of nodes.filter(isGate)){
+    const seen=new Set(),stack=[...g.ins.filter(x=>x!=null)];let found=false;
+    while(stack.length&&!found){const id=stack.pop();if(id===g.id){found=true;break;}if(seen.has(id))continue;seen.add(id);const n=by.get(id);if(n&&isGate(n))stack.push(...n.ins.filter(x=>x!=null));}
+    if(found)out.push(g.id);
+  }
+  return out;
+}
+function depthOf(nodes){
+  if(feedbackGates(nodes).length)return null;
+  const by=new Map(nodes.map(n=>[n.id,n])),memo=new Map();
+  const d=id=>{if(id==null)return 0;if(memo.has(id))return memo.get(id);const n=by.get(id);const v=!n||n.type==='IN'?0:(n.type==='OUT'?0:1)+Math.max(0,...n.ins.map(d));memo.set(id,v);return v;};
+  return Math.max(0,...nodes.filter(n=>n.type==='OUT').map(n=>d(n.id)));
+}
+/* Her giriş satırı için kararlı durumları (sabit noktaları) sayar. Hücre: 0/1, 'T' (tutar: çıkış önceki duruma bağlı), 'S' (kararlı durum yok: salınır). */
+function circuitTable(nodes){
+  const ins=nodes.filter(n=>n.type==='IN').sort((a,b)=>a.name<b.name?-1:1),outs=nodes.filter(n=>n.type==='OUT'),gates=nodes.filter(isGate),fb=feedbackGates(nodes);
+  if(ins.length>4)throw RangeError('En çok 4 giriş');
+  if(fb.length>12)return{ins,outs,rows:null,feedback:fb,tooBig:true};
+  const rest=gates.filter(g=>!fb.includes(g.id)),rows=[];
+  for(let r=0;r<(1<<ins.length);r++){
+    const fixed=[];
+    for(let asg=0;asg<(1<<fb.length);asg++){
+      const s={};ins.forEach((n,j)=>s[n.id]=(r>>(ins.length-1-j))&1);fb.forEach((id,j)=>s[id]=(asg>>j)&1);rest.forEach(g=>s[g.id]=0);
+      for(let it=0;it<=rest.length;it++){let ch=false;for(const g of rest){const v=nodeValue(g,id=>s[id]||0);if(v!==s[g.id]){s[g.id]=v;ch=true;}}if(!ch)break;}
+      if(fb.every(id=>nodeValue(gates.find(g=>g.id===id),x=>s[x]||0)===s[id]))fixed.push(s);
+    }
+    rows.push({bits:ins.map((n,j)=>(r>>(ins.length-1-j))&1),fixed:fixed.length,cells:outs.map(o=>{if(!fixed.length)return'S';const vals=new Set(fixed.map(s=>o.ins[0]==null?0:(s[o.ins[0]]||0)));return vals.size>1?'T':[...vals][0];})});
+  }
+  return{ins,outs,rows,feedback:fb,tooBig:false};
+}
+const mk=(id,type,x,y,ins=[],extra={})=>({id,type,x,y,ins,...extra});
+const PRESETS={
+  half:{title:'Yarım toplayıcı',target:'S = A ^ B; E = A B',nodes:[mk('i1','IN',30,90,[],{name:'A',value:0}),mk('i2','IN',30,250,[],{name:'B',value:0}),mk('g1','XOR',270,90,['i1','i2']),mk('g2','AND',270,240,['i1','i2']),mk('o1','OUT',480,95,['g1'],{name:'S'}),mk('o2','OUT',480,245,['g2'],{name:'E'})]},
+  full:{title:'Tam toplayıcı',target:'S = A ^ B ^ C; E = A B + C (A ^ B)',nodes:[mk('i1','IN',20,50,[],{name:'A',value:0}),mk('i2','IN',20,150,[],{name:'B',value:0}),mk('i3','IN',20,300,[],{name:'C',value:0}),mk('g1','XOR',150,80,['i1','i2']),mk('g2','XOR',330,60,['g1','i3']),mk('g3','AND',330,180,['g1','i3']),mk('g4','AND',150,290,['i1','i2']),mk('g5','OR',450,250,['g3','g4']),mk('o1','OUT',540,65,['g2'],{name:'S'}),mk('o2','OUT',550,255,['g5'],{name:'E'})]},
+  mux:{title:'2:1 seçici',target:'Y = A ¬C + B C',nodes:[mk('i1','IN',20,60,[],{name:'A',value:0}),mk('i2','IN',20,200,[],{name:'B',value:0}),mk('i3','IN',20,320,[],{name:'C',value:0}),mk('g1','NOT',140,315,['i3']),mk('g2','AND',280,70,['i1','g1']),mk('g3','AND',280,210,['i2','i3']),mk('g4','OR',420,140,['g2','g3']),mk('o1','OUT',540,145,['g4'],{name:'Y'})]},
+  latch:{title:'SR kilidi (iki NOR)',target:'',state:{g1:0,g2:1},nodes:[mk('i1','IN',30,60,[],{name:'A',value:0}),mk('i2','IN',30,290,[],{name:'B',value:0}),mk('g1','NOR',280,280,['g2','i2']),mk('g2','NOR',280,70,['i1','g1']),mk('o1','OUT',490,285,['g1'],{name:'Q'}),mk('o2','OUT',490,75,['g2'],{name:'Qn'})]},
+  xornand:{title:'Dört NAND ile XOR',target:'Y = A ^ B',nodes:[mk('i1','IN',20,80,[],{name:'A',value:0}),mk('i2','IN',20,280,[],{name:'B',value:0}),mk('g1','NAND',150,180,['i1','i2']),mk('g2','NAND',290,80,['i1','g1']),mk('g3','NAND',290,280,['g1','i2']),mk('g4','NAND',430,180,['g2','g3']),mk('o1','OUT',550,185,['g4'],{name:'Y'})]}
+};
+function preset(name){const p=PRESETS[name];if(!p)throw RangeError('Hazır devre yok');return JSON.parse(JSON.stringify(p));}
+/* ---------- 4. Olay güdümlü benzetim (taşıma gecikmesi), toplayıcılar ---------- */
+function compile(net){
+  const idx=new Map();const sig=name=>{if(!idx.has(name))idx.set(name,idx.size);return idx.get(name);};
+  net.inputs.forEach(sig);
+  const G=net.gates.map(g=>{for(const i of g.ins)if(!idx.has(i))throw RangeError('Kapılar sırayla tanımlanmalı: '+i);if(!(Number.isInteger(g.d)&&g.d>=1))throw RangeError('Gecikme pozitif tam sayı olmalı');return{type:g.type,ins:g.ins.map(sig),out:sig(g.out),d:g.d};});
+  const fan=Array.from({length:idx.size},()=>[]);G.forEach((g,i)=>g.ins.forEach(s=>{if(!fan[s].includes(i))fan[s].push(i);}));
+  const arrive=new Array(idx.size).fill(0);G.forEach(g=>{arrive[g.out]=g.d+Math.max(...g.ins.map(s=>arrive[s]));});
+  return{net,idx,names:[...idx.keys()],G,fan,arrive,horizon:Math.max(0,...arrive),outputs:net.outputs.map(o=>idx.get(o)),inputs:net.inputs.map(o=>idx.get(o))};
+}
+function evalG(g,v){
+  const ins=g.ins;let ones=0;for(let i=0;i<ins.length;i++)ones+=v[ins[i]];
+  switch(g.type){case'and':return ones===ins.length?1:0;case'or':return ones?1:0;case'xor':return ones&1;case'nand':return ones===ins.length?0:1;case'nor':return ones?0:1;case'xnor':return 1-(ones&1);case'not':return 1-ones;}
+  throw RangeError('Bilinmeyen kapı: '+g.type);
+}
+function dcState(c,inputVals){
+  const v=new Uint8Array(c.names.length);c.inputs.forEach((s,i)=>v[s]=inputVals[i]?1:0);
+  for(const g of c.G)v[g.out]=evalG(g,v);
+  return v;
+}
+/* v0: önceki girişlerle yerleşmiş durum (değiştirilmez). t = 0 anında girişler next olur. Zaman, τ biriminde tam sayıdır. */
+function runFrom(c,v0,next,record=false){
+  const H=c.horizon+1;
+  if(!c.scratch)c.scratch={v:new Uint8Array(c.names.length),buckets:Array.from({length:H+1},()=>[]),stamp:new Int32Array(c.G.length),trans:new Int32Array(c.names.length),isOut:(()=>{const o=new Uint8Array(c.names.length);c.outputs.forEach(s=>o[s]=1);return o;})(),dirty:[]};
+  const S=c.scratch,v=S.v,buckets=S.buckets,stamp=S.stamp,trans=S.trans,isOut=S.isOut,dirty=S.dirty;
+  v.set(v0);stamp.fill(-1);trans.fill(0);for(let t=0;t<=H;t++)buckets[t].length=0;
+  const waves=record?c.names.map((_,s)=>[[-1,v[s]]]):null;
+  let settle=0,settleAll=0,events=0;
+  for(let i=0;i<c.inputs.length;i++){const s=c.inputs[i],nv=next[i]?1:0;if(nv!==v[s])buckets[0].push(s,nv);}
+  for(let t=0;t<=H;t++){
+    const b=buckets[t];if(!b.length)continue;dirty.length=0;
+    for(let i=0;i<b.length;i+=2){const s=b[i],nv=b[i+1];if(v[s]===nv)continue;v[s]=nv;events++;trans[s]++;if(record)waves[s].push([t,nv]);if(t>0){settleAll=t;if(isOut[s])settle=t;}const f=c.fan[s];for(let q=0;q<f.length;q++){const gi=f[q];if(stamp[gi]!==t){stamp[gi]=t;dirty.push(gi);}}}
+    for(let q=0;q<dirty.length;q++){const g=c.G[dirty[q]];buckets[t+g.d].push(g.out,evalG(g,v));}
+  }
+  let glitches=0;for(const s of c.outputs)glitches+=trans[s]-(v0[s]!==v[s]?1:0);
+  return{settle,settleAll,events,glitches,final:record?Uint8Array.from(v):v,waves,transitions:record?Int32Array.from(trans):trans};
+}
+function simulate(c,prev,next,record=false){const r=runFrom(c,dcState(c,prev),next,true);if(!record)r.waves=null;return r;}
+function rippleAdder(n,k=1){
+  if(!(Number.isInteger(n)&&n>=1&&n<=8))throw RangeError('Bit sayısı 1–8 olmalı');if(k!==1&&k!==2)throw RangeError('XOR gecikme katsayısı 1 ya da 2 olmalı');
+  const inputs=[],gates=[],outputs=[];for(let i=0;i<n;i++)inputs.push('a'+i);for(let i=0;i<n;i++)inputs.push('b'+i);inputs.push('c0');
+  for(let i=0;i<n;i++){gates.push({out:'p'+i,type:'xor',ins:['a'+i,'b'+i],d:k},{out:'g'+i,type:'and',ins:['a'+i,'b'+i],d:1},{out:'t'+i,type:'and',ins:['p'+i,'c'+i],d:1},{out:'c'+(i+1),type:'or',ins:['g'+i,'t'+i],d:1},{out:'s'+i,type:'xor',ins:['p'+i,'c'+i],d:k});outputs.push('s'+i);}
+  outputs.push('c'+n);return{kind:'ripple',n,k,inputs,gates,outputs};
+}
+function lookaheadAdder(k=1){
+  const n=4;if(k!==1&&k!==2)throw RangeError('XOR gecikme katsayısı 1 ya da 2 olmalı');
+  const inputs=[],gates=[],outputs=[];for(let i=0;i<n;i++)inputs.push('a'+i);for(let i=0;i<n;i++)inputs.push('b'+i);inputs.push('c0');
+  for(let i=0;i<n;i++)gates.push({out:'p'+i,type:'xor',ins:['a'+i,'b'+i],d:k},{out:'g'+i,type:'and',ins:['a'+i,'b'+i],d:1});
+  for(let i=1;i<=n;i++){
+    const terms=['g'+(i-1)];
+    for(let j=i-2;j>=-1;j--){const ins=[];for(let q=i-1;q>j;q--)ins.push('p'+q);ins.push(j>=0?'g'+j:'c0');const name='m'+i+'_'+(j+1);gates.push({out:name,type:'and',ins,d:1});terms.push(name);}
+    gates.push({out:'c'+i,type:'or',ins:terms,d:1});
+  }
+  for(let i=0;i<n;i++){gates.push({out:'s'+i,type:'xor',ins:['p'+i,'c'+i],d:k});outputs.push('s'+i);}
+  outputs.push('c'+n);return{kind:'cla',n,k,inputs,gates,outputs};
+}
+function netStats(net){let inputs=0,fanin=0;const by={};for(const g of net.gates){inputs+=g.ins.length;fanin=Math.max(fanin,g.ins.length);by[g.type]=(by[g.type]||0)+1;}return{gates:net.gates.length,inputs,fanin,by};}
+function adderInputs(n,a,b,cin){const v=[];for(let i=0;i<n;i++)v.push((a>>i)&1);for(let i=0;i<n;i++)v.push((b>>i)&1);v.push(cin?1:0);return v;}
+function adderValue(c,final){let x=0;c.outputs.forEach((s,i)=>{x+=final[s]*2**i;});return x;}
+function adderRun(c,prev,next,record=true){
+  const n=c.net.n,r=simulate(c,adderInputs(n,prev.a,prev.b,prev.cin),adderInputs(n,next.a,next.b,next.cin),record);
+  return{...r,value:adderValue(c,r.final),expected:next.a+next.b+(next.cin?1:0)};
+}
+/* Bu yapı için kapalı biçim (birim: τ): elde çıkışı 2n + k, son toplam biti 2n − 2 + 2k. */
+function rippleFormula(n,k=1){return Math.max(2*n+k,2*n-2+2*k);}
+function lookaheadFormula(k=1){return 2*k+2;}
+function mulberry(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+/* En kötü yerleşme süresi: n ≤ 4 için bütün (önceki, sonraki) giriş çiftleri; daha büyük n için örneklem + elde zinciri çiftleri. */
+function worstCase(c,opts={}){
+  const n=c.net.n,bits=2*n+1,size=2**bits,full=n<=(opts.exhaustiveUpTo??4);
+  let best=-1,pair=null,pairs=0;const dec=x=>({a:x&((1<<n)-1),b:(x>>n)&((1<<n)-1),cin:(x>>(2*n))&1}),vec=x=>{const d=dec(x);return adderInputs(n,d.a,d.b,d.cin);};
+  const tryPair=(p,q,v0)=>{pairs++;const r=runFrom(c,v0||dcState(c,vec(p)),vec(q));if(r.settle>best){best=r.settle;pair=[dec(p),dec(q)];}};
+  if(full){const vs=[];for(let q=0;q<size;q++)vs.push(vec(q));for(let p=0;p<size;p++){const v0=dcState(c,vs[p]);for(let q=0;q<size;q++){pairs++;const r=runFrom(c,v0,vs[q]);if(r.settle>best){best=r.settle;pair=[dec(p),dec(q)];}}}}
+  else{
+    const M=(1<<n)-1,enc=(a,b,cin)=>a+b*2**n+cin*2**(2*n);
+    for(const cin of[0,1])for(const a of[0,M,1])for(const b of[0,M,1])for(const cin2 of[0,1])for(const a2 of[0,M,1])for(const b2 of[0,M,1])tryPair(enc(a,b,cin),enc(a2,b2,cin2));
+    const rnd=mulberry(opts.seed??12345),count=opts.samples??20000;for(let i=0;i<count;i++)tryPair(Math.floor(rnd()*size),Math.floor(rnd()*size));
+  }
+  return{settle:best,pair,pairs,exhaustive:full};
+}
+/* ---------- 5. Ardışıl mantık: davranışsal modeller ---------- */
+/* Olaylar {t, sig, v}; aynı t'deki olaylar tek an sayılır. Kenar tetiklemeli elemanlar kenardan hemen önceki girişi örnekler. */
+function kmpTable(pattern,overlap=true){
+  if(!/^[01]{2,4}$/.test(pattern))throw RangeError('Örüntü 2–4 bitlik 0/1 dizisi olmalı');
+  const n=pattern.length,next=[];
+  for(let i=0;i<=n;i++){
+    const row=[];
+    for(const b of'01'){
+      if(i===n&&!overlap){row.push(pattern[0]===b?1:0);continue;}
+      const s=pattern.slice(0,i)+b;let k=Math.min(n,s.length);
+      while(k>0&&s.slice(s.length-k)!==pattern.slice(0,k))k--;
+      row.push(k);
+    }
+    next.push(row);
+  }
+  return{pattern,overlap,states:n+1,next,out:next.map((_,i)=>+(i===n)),flipflops:Math.ceil(Math.log2(n+1))};
+}
+function detectorRun(pattern,overlap,stream){const m=kmpTable(pattern,overlap);let s=0;const states=[],z=[];for(const ch of stream){s=m.next[s][+ch];states.push(s);z.push(m.out[s]);}return{machine:m,states,z,hits:z.reduce((a,b)=>a+b,0)};}
+const SEQ={
+  dpair:{inputs:['D'],clocked:true,data:['D'],outs:['QL','QF'],init:{QL:0,QF:0}},
+  sr:{inputs:['S','R'],clocked:false,data:[],outs:['Q','Qn'],init:{Q:0,Qn:1}},
+  jk:{inputs:['J','K'],clocked:true,data:['J','K'],outs:['Q'],init:{Q:0}},
+  t:{inputs:['T'],clocked:true,data:['T'],outs:['Q'],init:{Q:0}},
+  counter:{inputs:['EN'],clocked:true,data:['EN'],outs:['Q0','Q1','Q2','Q3'],init:{Q0:0,Q1:0,Q2:0,Q3:0}},
+  shift:{inputs:['D'],clocked:true,data:['D'],outs:['Q0','Q1','Q2','Q3'],init:{Q0:0,Q1:0,Q2:0,Q3:0}},
+  fsm:{inputs:['X'],clocked:true,data:['X'],outs:['Z'],init:{Z:0}}
+};
+function seqRun(kind,stim,opts={}){
+  const def=SEQ[kind];if(!def)throw RangeError('Bilinmeyen eleman');
+  const tsu=opts.tsu||0,bits=opts.bits||4,machine=kind==='fsm'?kmpTable(opts.pattern||'101',opts.overlap!==false):null;
+  const sigs=[...def.inputs,...(def.clocked?['CLK']:[])],cur={};sigs.forEach(s=>cur[s]=stim.init&&stim.init[s]?1:0);
+  const outs=kind==='counter'||kind==='shift'?def.outs.slice(0,bits):def.outs,q={};outs.forEach(o=>q[o]=def.init[o]);
+  let state=0;const waves={};[...sigs,...outs].forEach(s=>waves[s]=[[0,s in cur?cur[s]:q[s]]]);if(machine)waves.STATE=[[0,0]];
+  const lastChange={};def.data.forEach(s=>lastChange[s]=-Infinity);
+  const edges=[],sampled=[];let violations=0;
+  const ev=stim.changes.map((e,i)=>({...e,i})).sort((a,b)=>a.t-b.t||a.i-b.i);
+  const setQ=(o,v,t)=>{if(q[o]!==v){q[o]=v;waves[o].push([t,v]);}};
+  for(let i=0;i<ev.length;){
+    const t=ev[i].t;if(!(t>=0)||(i&&t<ev[i-1].t))throw RangeError('Olay zamanı geçersiz');
+    const pre={...cur};let j=i;while(j<ev.length&&ev[j].t===t){if(!(ev[j].sig in cur))throw RangeError('Bilinmeyen sinyal: '+ev[j].sig);cur[ev[j].sig]=ev[j].v?1:0;j++;}
+    const changed=sigs.filter(s=>pre[s]!==cur[s]);changed.forEach(s=>{waves[s].push([t,cur[s]]);if(s in lastChange)lastChange[s]=t;});
+    const rising=def.clocked&&pre.CLK===0&&cur.CLK===1,falling=def.clocked&&pre.CLK===1&&cur.CLK===0;
+    const bad=def.data.some(s=>lastChange[s]===t||t-lastChange[s]<tsu-1e-9);
+    if(rising){edges.push({t,violation:bad});if(bad)violations++;sampled.push(def.data.map(s=>pre[s]));}
+    if(kind==='dpair'){
+      if(rising)setQ('QF',bad?'X':pre.D,t);
+      if(cur.CLK===1)setQ('QL',cur.D,t);else if(falling)setQ('QL',bad?'X':pre.D,t);
+    }else if(kind==='sr'){
+      if(cur.S&&cur.R){setQ('Q',0,t);setQ('Qn',0,t);}
+      else if(cur.S){setQ('Q',1,t);setQ('Qn',0,t);}
+      else if(cur.R){setQ('Q',0,t);setQ('Qn',1,t);}
+      else if(pre.S&&pre.R){setQ('Q','X',t);setQ('Qn','X',t);}
+    }else if(rising){
+      if(kind==='jk'){const v=bad?'X':pre.J&&pre.K?(q.Q==='X'?'X':1-q.Q):pre.J?1:pre.K?0:q.Q;setQ('Q',v,t);}
+      else if(kind==='t'){setQ('Q',bad||q.Q==='X'?'X':pre.T?1-q.Q:q.Q,t);}
+      else if(kind==='counter'){
+        /* Eşzamanlı sayıcı: T0 = EN, Ti = EN·Q0·…·Q(i−1); her T flip-flop Ti = 1 ise çevirir. */
+        const old=outs.map(o=>q[o]);let carry=pre.EN;outs.forEach((o,b)=>{const T=carry;carry=carry&old[b];setQ(o,T?1-old[b]:old[b],t);});
+      }else if(kind==='shift'){const old=outs.map(o=>q[o]);outs.forEach((o,b)=>setQ(o,b?old[b-1]:pre.D,t));}
+      else if(kind==='fsm'){state=machine.next[state][pre.X];waves.STATE.push([t,state]);setQ('Z',machine.out[state],t);}
+    }
+    i=j;
+  }
+  return{kind,waves,edges,violations,sampled,final:{...q},state,machine,outs,sigs};
+}
+/* Dalga biçiminden değer okuma: t anındaki (t dahil) son değişim. */
+function waveAt(w,t){let v=w[0][1];for(const p of w){if(p[0]<=t)v=p[1];else break;}return v;}
+const LogicLab=Object.freeze({VARS,parse,evalAst,varsOf,rowBits,table,compare,flatten,gateStats,show,gate,primeImplicants,minimise,minimal,termText,coverText,evalCover,verifyCover,coverCost,canonicalCover,kmap,groupRects,GATE_TYPES,settle,feedbackGates,depthOf,circuitTable,preset,presetNames:Object.freeze(Object.keys(PRESETS)),compile,dcState,simulate,rippleAdder,lookaheadAdder,netStats,adderInputs,adderRun,rippleFormula,lookaheadFormula,worstCase,kmpTable,detectorRun,seqRun,waveAt,mulberry});
+Object.defineProperty(window,'LogicLab',{value:LogicLab,writable:false,configurable:false});
+/* KERNEL-END */
+const K=LogicLab,$=id=>document.getElementById(id),put=(id,t)=>{const e=$(id);if(e.textContent!==t)e.textContent=t;},htmlCache=new Map(),html=(id,h)=>{if(htmlCache.get(id)!==h){htmlCache.set(id,h);$(id).innerHTML=h;}};
+const fmt=(x,d=2)=>x===null||x===undefined||!Number.isFinite(x)?'—':(Math.abs(x)<.5*10**-d?0:x).toLocaleString('tr-TR',{maximumFractionDigits:d});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SUB='₀₁₂₃₄₅₆₇₈₉',sub=n=>String(n).split('').map(d=>SUB[+d]).join('');
+const showErr=(id,msg)=>{const e=$(id);e.hidden=!msg;e.textContent=msg||'';};
+let active='expr';
+function surface(id,height){
+  const c=$(id);if(height){c.style.aspectRatio='auto';c.style.height=Math.round(height)+'px';}
+  const r=c.getBoundingClientRect();if(!r.width)return null;
+  const d=Math.min(devicePixelRatio||1,2);c.width=Math.round(r.width*d);c.height=Math.round(r.height*d);
+  const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);
+  const light=document.documentElement.dataset.theme==='light';
+  const p=light?{bg:'#f8fafc',fill:'#ffffff',ink:'#1d2b3a',grid:'#d5dde8',muted:'#8793a6',dim:'#b4bfce',accent:'#0b8a7e',warm:'#b85a0d',red:'#c0303a',violet:'#6b3fd0',groups:['#0b8a7e','#b85a0d','#6b3fd0','#c0303a','#2563c9','#7a8a12']}
+    :{bg:'#0c1422',fill:'#16233a',ink:'#e4ecf6',grid:'#27364d',muted:'#8f9db5',dim:'#4b5b75',accent:'#5eead4',warm:'#fbbf24',red:'#ff8a92',violet:'#b9a3ff',groups:['#5eead4','#fbbf24','#b9a3ff','#ff8a92','#7fb4ff','#c9e265']};
+  g.fillStyle=p.bg;g.fillRect(0,0,r.width,r.height);g.lineJoin='round';g.lineCap='round';
+  return{g,w:r.width,h:r.height,p};
+}
+function seg(s,pts,col,width=1.6,dash=[]){const g=s.g;g.strokeStyle=col;g.lineWidth=width;g.setLineDash(dash);g.beginPath();g.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)g.lineTo(pts[i],pts[i+1]);g.stroke();g.setLineDash([]);}
+function label(s,t,x,y,col,align='center',size=12,weight=''){const g=s.g;g.font=(weight?weight+' ':'')+size+'px Outfit, system-ui, sans-serif';g.textAlign=align;g.textBaseline='middle';g.fillStyle=col||s.p.ink;g.fillText(t,x,y);}
+function gateShape(s,type,x,y,w,h,stroke){
+  const g=s.g,inv=type==='NAND'||type==='NOR'||type==='XNOR'||type==='NOT',bw=inv?w-8:w,base=type==='NAND'?'AND':type==='NOR'?'OR':type==='XNOR'?'XOR':type;
+  g.lineWidth=1.6;g.strokeStyle=stroke||s.p.ink;g.fillStyle=s.p.fill;g.setLineDash([]);g.beginPath();
+  if(base==='AND'){g.moveTo(x,y);g.lineTo(x+bw*.5,y);g.bezierCurveTo(x+bw*1.16,y,x+bw*1.16,y+h,x+bw*.5,y+h);g.lineTo(x,y+h);g.closePath();}
+  else if(base==='NOT'){g.moveTo(x,y+2);g.lineTo(x+bw,y+h/2);g.lineTo(x,y+h-2);g.closePath();}
+  else{g.moveTo(x,y);g.quadraticCurveTo(x+bw*.62,y,x+bw,y+h/2);g.quadraticCurveTo(x+bw*.62,y+h,x,y+h);g.quadraticCurveTo(x+bw*.28,y+h/2,x,y);}
+  g.fill();g.stroke();
+  if(base==='XOR'){g.beginPath();g.moveTo(x-5,y);g.quadraticCurveTo(x-5+bw*.28,y+h/2,x-5,y+h);g.stroke();}
+  if(inv){g.beginPath();g.arc(x+bw+4,y+h/2,3.5,0,7);g.fill();g.stroke();}
+  if(base!=='NOT')label(s,type,x+bw*(base==='AND'?.47:.5),y+h/2+.5,s.p.muted,'center',h<24?8:9);
+}
+/* ---------- İfade ağacının şeması ---------- */
+function drawTree(id,ast,bits,outName){
+  const f=K.flatten(ast);let leaves=0;
+  const lay=n=>{if(!n.a)return{n,kids:[],h:0,y:leaves++,v:bits?K.evalAst(n,bits):null};const kids=n.a.map(lay);return{n,kids,h:1+Math.max(...kids.map(k=>k.h)),y:kids.reduce((a,k)=>a+k.y,0)/kids.length,v:bits?K.evalAst(n,bits):null};};
+  const root=lay(f),rowH=30,s=surface(id,Math.max(130,leaves*rowH+34));if(!s)return;
+  const H=root.h,left=30,gw=42,right=s.w-44,colW=H>1?Math.min(104,(right-gw-left-26)/(H-1)):0,x0=H>1?Math.max(left+26,(left+26+right-gw-(H-1)*colW)/2):Math.max(left+40,(s.w-gw)/2);
+  const top=(s.h-leaves*rowH)/2+rowH/2,Y=y=>top+y*rowH,X=h=>x0+(h-1)*colW,col=v=>v===1?s.p.accent:v===0?s.p.dim:s.p.muted;
+  const gh=n=>Math.min(Math.max(26,n.kids.length*9+8),Math.max(26,(n.kids.length-1)*rowH+22));
+  const draw=n=>{
+    if(!n.kids.length)return;const x=X(n.h),h=gh(n),y=Y(n.y)-h/2,type=n.n.op.toUpperCase(),m=n.kids.length;
+    n.kids.forEach((k,i)=>{
+      const py=y+h*(i+1)/(m+1),cy=Y(k.y),from=k.kids.length?X(k.h)+gw:left+2,off=cy<=py?i:m-1-i,bend=x-9-Math.min(5,Math.max(2,(colW-gw-14)/Math.max(1,m)))*off;
+      seg(s,[from,cy,bend,cy,bend,py,x+gw*.2,py],col(k.v),k.v===1?2:1.5);
+      if(!k.kids.length)label(s,k.n.op==='const'?String(k.n.v):K.VARS[k.n.i],left-4,cy,k.v===1?s.p.accent:s.p.ink,'right',13,'600');
+    });
+    n.kids.forEach(draw);gateShape(s,type,x,y,gw,h);
   };
-
-  function evalGate(type, inputs) {
-    switch (type) {
-      case "input": return inputs[0] !== undefined ? inputs[0] : 0;
-      case "and":   return inputs[0] && inputs[1] ? 1 : 0;
-      case "or":    return inputs[0] || inputs[1] ? 1 : 0;
-      case "not":   return inputs[0] ? 0 : 1;
-      case "nand":  return (!(inputs[0] && inputs[1])) ? 1 : 0;
-      case "nor":   return (!(inputs[0] || inputs[1])) ? 1 : 0;
-      case "xor":   return inputs[0] !== inputs[1] ? 1 : 0;
-      case "xnor":  return inputs[0] === inputs[1] ? 1 : 0;
-      default: return 0;
+  draw(root);
+  const ox=root.kids.length?X(root.h)+gw:left+2,oy=Y(root.y);
+  if(!root.kids.length)label(s,root.n.op==='const'?String(root.n.v):K.VARS[root.n.i],left-4,oy,root.v===1?s.p.accent:s.p.ink,'right',13,'600');
+  seg(s,[ox,oy,right+4,oy],col(root.v),root.v===1?2:1.5);label(s,outName+(root.v===null?'':' = '+root.v),right+8,oy,root.v===1?s.p.accent:s.p.ink,'left',12,'600');
+}
+/* ---------- 1. sekme ---------- */
+const ex={a:null,b:null,vars:[],ta:[],tb:null};
+const EXPRESETS={exDM1:['¬(A·B)','¬A + ¬B'],exDM2:['¬(A + B)','¬A·¬B'],exDist:['A·(B + C)','A·B + A·C'],exAbs:['A + A·B','A'],exXor:['A ⊕ B','A·¬B + ¬A·B'],exCons:['A·B + ¬A·C + B·C','A·B + ¬A·C'],exWrong:['A + B·C','(A + B)·C']};
+function rowText(vars,bits){return vars.map(v=>K.VARS[v]+' = '+bits[v]).join(', ');}
+function updateExpr(){
+  let a=null,b=null;const tb=$('exB').value.trim();
+  try{a=K.parse($('exA').value);showErr('exErrA','');}catch(e){if(!e.logic)throw e;showErr('exErrA','İfade 1: '+e.message);}
+  if(tb){try{b=K.parse($('exB').value);showErr('exErrB','');}catch(e){if(!e.logic)throw e;showErr('exErrB','İfade 2: '+e.message);}}else showErr('exErrB','');
+  ex.a=a;ex.b=b;
+  if(!a){['exVars','exOnes','exGates','exEq'].forEach(id=>put(id,'—'));put('exStatus','İfade 1 okunamadı; hata iletisi kutunun altında. Düzeltince tablo ve şema yeniden kurulur.');$('exHead').innerHTML='';$('exRows').innerHTML='';put('exLists','—');put('exParsed','—');const s=surface('exCanvas',130);if(s)label(s,'Çizilecek geçerli bir ifade yok',s.w/2,s.h/2,s.p.muted);return;}
+  const vars=b?K.compare(a,b).vars:K.varsOf(a),ta=K.table(a,vars),tbl=b?K.table(b,vars):null,rows=ta.length;
+  ex.vars=vars;ex.ta=ta;ex.tb=tbl;
+  const slider=$('exRow');slider.max=rows-1;if(+slider.value>rows-1)slider.value=rows-1;slider.disabled=rows<2;const row=+slider.value,bits=K.rowBits(row,vars);
+  put('exRowOut',rows<2?'tek satır':'satır '+row+(vars.length?' · '+vars.map(v=>bits[v]).join(''):''));
+  const which=$('exDraw').value==='b'&&b?'b':'a';if($('exDraw').value==='b'&&!b)$('exDraw').value='a';
+  const drawn=which==='b'?b:a,st=K.gateStats(drawn),ones=ta.reduce((x,y)=>x+y,0);
+  put('exVars',vars.length+' / '+rows);put('exOnes',ones+' / '+rows);put('exGates',st.gates+' / '+st.depth);
+  const diff=[];if(tbl)ta.forEach((v,r)=>{if(v!==tbl[r])diff.push(r);});
+  put('exEq',tbl?(rows-diff.length)+' / '+rows:(tb?'—':'İfade 2 yok'));
+  put('exStatus',!tbl?(tb?'İfade 2 okunamadı; karşılaştırma yapılmadı.':'Tek ifade inceleniyor: '+rows+' satırın '+ones+' tanesinde çıkış 1. Karşılaştırmak için ikinci ifadeyi yaz.')
+    :!diff.length?'Özdeş: iki ifade '+rows+' satırın '+rows+' tanesinde aynı çıkışı veriyor. Bütün atamalar denendiği için bu bir kanıttır.'
+    :'Özdeş değil: '+diff.length+' satırda ayrışıyorlar. İlk karşı örnek satır '+diff[0]+' ('+(rowText(vars,K.rowBits(diff[0],vars))||'değişken yok')+'): ifade 1 → '+ta[diff[0]]+', ifade 2 → '+tbl[diff[0]]+'.');
+  $('exHead').innerHTML='<tr><th scope="col">Satır</th>'+vars.map(v=>'<th scope="col">'+K.VARS[v]+'</th>').join('')+'<th scope="col">F₁</th>'+(tbl?'<th scope="col">F₂</th>':'')+'</tr>';
+  $('exRows').innerHTML=ta.map((v,r)=>{const bt=K.rowBits(r,vars);return'<tr data-row="'+r+'"'+(r===row?' class="is-now"':'')+'><th scope="row">'+r+'</th>'+vars.map(x=>'<td>'+bt[x]+'</td>').join('')+'<td class="'+(v?'is-one':'')+'">'+v+'</td>'+(tbl?'<td class="'+(tbl[r]!==v?'is-bad':tbl[r]?'is-one':'')+'">'+tbl[r]+'</td>':'')+'</tr>';}).join('');
+  const lists=(name,t)=>{const mn=[],mx=[];t.forEach((v,r)=>(v?mn:mx).push(r));return name+' = Σm('+(mn.join(', ')||'yok')+') = ΠM('+(mx.join(', ')||'yok')+')';};
+  $('exLists').innerHTML=esc(lists('F₁',ta))+(tbl?'<br>'+esc(lists('F₂',tbl)):'')+'<br>Değişken sırası: '+(vars.map(v=>K.VARS[v]).join(', ')||'yok (sabit)');
+  $('exParsed').innerHTML='Okunan biçim (tam parantezli):<br>F₁ = '+esc(K.show(a,true))+(b?'<br>F₂ = '+esc(K.show(b,true)):'');
+  drawTree('exCanvas',drawn,bits,which==='b'?'F₂':'F₁');
+}
+/* ---------- 3. sekme: Karnaugh ---------- */
+const km={n:4,cells:[],built:0};
+const KMDEF={2:[0,1,1,1],3:[0,0,0,1,0,1,1,1],4:[1,0,1,1,0,1,1,1,1,1,'X','X','X','X','X','X']};
+function kmBuild(){
+  const k=K.kmap(km.n),grid=$('kmGrid');grid.style.gridTemplateColumns='auto repeat('+k.cols.length+',minmax(44px,68px))';
+  const code=(v,b)=>v.toString(2).padStart(b,'0');let h='<div class="ld-kh">'+k.rowVars+' \\ '+k.colVars+'</div>'+k.cols.map(c=>'<div class="ld-kh">'+code(c,k.colBits)+'</div>').join('');
+  k.rows.forEach((rc,r)=>{h+='<div class="ld-kh">'+code(rc,k.rowBits)+'</div>';k.cols.forEach((cc,c)=>{const m=k.cell(r,c);h+='<button type="button" class="app-btn-ghost" id="kmCell'+m+'" data-m="'+m+'"></button>';});});
+  grid.innerHTML=h+'<canvas id="kmOverlay" aria-hidden="true"></canvas>';km.built=km.n;
+  put('kmTitle','Karnaugh haritası: '+km.n+' değişken, '+(1<<km.n)+' hücre');
+}
+function kmSet(n,cells){km.n=n;km.cells=cells.slice();$('kmN').value=n;if(km.built!==n)kmBuild();updateKmap();}
+function updateKmap(){
+  if(km.built!==km.n)kmBuild();
+  const n=km.n,kind=$('kmKind').value,on=[],dc=[],off=[];km.cells.forEach((v,m)=>(v===1?on:v==='X'?dc:off).push(m));
+  km.cells.forEach((v,m)=>{const b=$('kmCell'+m),bits=m.toString(2).padStart(n,'0');b.dataset.v=v;b.innerHTML=v+'<small>'+m+'</small>';b.setAttribute('aria-label','Hücre m'+m+' ('+bits.split('').map((x,j)=>K.VARS[j]+'='+x).join(', ')+'): değer '+(v==='X'?'önemsiz':v)+'. Değiştirmek için bas.');});
+  const res=K.minimal(n,on,dc,kind),cover=res.cover,text=K.coverText(cover,n,kind);
+  const canon=K.canonicalCover(n,kind==='sop'?on:[...on,...dc],kind),c0=K.coverCost(canon,n),c1=K.coverCost(cover,n);
+  let ok=0,checked=0;for(let x=0;x<(1<<n);x++){if(dc.includes(x))continue;checked++;if(K.evalCover(cover,x,kind)===+on.includes(x))ok++;}
+  put('kmBefore',c0.terms+' / '+c0.literals+' / '+c0.gates);put('kmAfter',c1.terms+' / '+c1.literals+' / '+c1.gates);put('kmSaving',c0.inputs+' → '+c1.inputs);put('kmVerify',ok+' / '+checked);
+  const target=kind==='sop'?on:off,word=kind==='sop'?'1':'0';
+  $('kmResult').innerHTML='F = '+esc(text)+(res.solutions.length>1?'<br>Aynı maliyette '+res.solutions.length+(res.solutions.length>=64?'+':'')+' farklı örtü var; diğerlerinden biri:<br>F = '+esc(K.coverText(res.solutions[1],n,kind)):'<br>Bu maliyette tek örtü var.');
+  const wraps=cover.filter(p=>K.groupRects(p,n).length>1);
+  put('kmStatus',!target.length?(kind==='sop'?'Haritada hiç 1 yok: işlev sabit 0 olarak gerçeklenebilir, kapı gerekmez.':'Haritada hiç 0 yok: işlev sabit 1 olarak gerçeklenebilir, kapı gerekmez.')
+    :res.constant===1?'Bütün hücreler '+word+' ya da X: tek grup haritanın tamamını kaplıyor, işlev sabit '+(kind==='sop'?1:0)+'.'
+    :res.primes.length+' asal implikanttan '+res.essential.length+' tanesi zorunlu; en küçük örtü '+cover.length+' grup kullanıyor. Kapı girişi sayısı '+c0.inputs+' → '+c1.inputs+(c0.inputs?' (%'+fmt(100*(c0.inputs-c1.inputs)/c0.inputs,0)+' azalma)':'')+'. '+(wraps.length?wraps.length+' grup haritanın kenarından sarıyor ('+wraps.map(p=>K.termText(p,n,kind)).join('; ')+'). ':'')+(ok===checked?'Sadeleşmiş ifade X olmayan '+checked+' satırın hepsinde özgün tabloyla aynı.':'UYARI: eşdeğerlik sınaması tutmadı.'));
+  $('kmPrimes').innerHTML=res.primes.length?res.primes.map(p=>{const cells=[];for(let x=0;x<(1<<n);x++)if((x&~p.m)===p.v)cells.push(x);const ci=cover.indexOf(p);return'<tr><th scope="row" class="is-left">'+esc(K.termText(p,n,kind))+'</th><td>'+cells.join(', ')+'</td><td>'+(res.essential.includes(p)?'evet':'hayır')+'</td><td'+(ci>=0?' class="is-one"':'')+'>'+(ci>=0?'evet · '+(ci+1)+'. grup':'hayır')+'</td></tr>';}).join(''):'<tr><td colspan="4">Gruplanacak hücre yok.</td></tr>';
+  kmOverlay(cover,n);
+  let ast;try{ast=K.parse(text);}catch(e){ast=null;}
+  if(ast)drawTree('kmCanvas',ast,null,'F');
+}
+function kmOverlay(cover,n){
+  const grid=$('kmGrid'),c=$('kmOverlay'),gr=grid.getBoundingClientRect();if(!gr.width)return;
+  const d=Math.min(devicePixelRatio||1,2);c.width=Math.round(gr.width*d);c.height=Math.round(gr.height*d);const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,gr.width,gr.height);
+  const light=document.documentElement.dataset.theme==='light',cols=light?['#0b8a7e','#b85a0d','#6b3fd0','#c0303a','#2563c9','#7a8a12']:['#5eead4','#fbbf24','#b9a3ff','#ff8a92','#7fb4ff','#c9e265'];
+  const k=K.kmap(n),rect=(r,cc)=>{const b=$('kmCell'+k.cell(r,cc)).getBoundingClientRect();return{x:b.left-gr.left,y:b.top-gr.top,w:b.width,h:b.height};};
+  const a=rect(0,0),z=rect(k.rows.length-1,k.cols.length-1),box={x:a.x-7,y:a.y-7,w:z.x+z.w-a.x+14,h:z.y+z.h-a.y+14};
+  cover.forEach((p,i)=>{
+    const inset=3+(i%4)*2.5;g.save();g.beginPath();g.rect(box.x,box.y,box.w,box.h);g.clip();g.strokeStyle=cols[i%cols.length];g.fillStyle=cols[i%cols.length];g.lineWidth=2.4;
+    for(const q of K.groupRects(p,n)){
+      const p0=rect(q.r0,q.c0),p1=rect(q.r1,q.c1);let x=p0.x+inset,y=p0.y+inset,X=p1.x+p1.w-inset,Y=p1.y+p1.h-inset;
+      if(q.openLeft)x-=40;if(q.openRight)X+=40;if(q.openTop)y-=40;if(q.openBottom)Y+=40;
+      g.beginPath();g.roundRect(x,y,X-x,Y-y,12);g.globalAlpha=.1;g.fill();g.globalAlpha=1;g.stroke();
     }
+    g.restore();
+  });
+}
+/* ---------- 2. sekme: devre kurucu ---------- */
+const EW=620,EH=400,ED_MAX={IN:4,OUT:6,GATE:20},OUTNAMES=['Y','Z','W','V','U','T'];
+const ed={nodes:[],state:{},sel:null,pend:null,undo:[],drag:null,res:null,table:null,msg:'',scale:1};
+const edIsGate=n=>n.type!=='IN'&&n.type!=='OUT',edSize=n=>edIsGate(n)?{w:58,h:40}:n.type==="OUT"?{w:60,h:30}:{w:48,h:30};
+function edPins(n){const{w,h}=edSize(n);return{out:n.type==='OUT'?null:{x:n.x+w,y:n.y+h/2},ins:n.ins.map((_,j)=>({x:n.x,y:n.y+h*(j+1)/(n.ins.length+1)}))};}
+const edNode=id=>ed.nodes.find(n=>n.id===id);
+function edTitle(n){return n.type==='IN'?n.name+' girişi':n.type==='OUT'?n.name+' çıkışı':n.label+' · '+n.type;}
+function edSnap(){ed.undo.push(JSON.stringify({nodes:ed.nodes,state:ed.state}));if(ed.undo.length>60)ed.undo.shift();}
+function edLabel(){let k=1;while(ed.nodes.some(n=>n.label==='K'+k))k++;return'K'+k;}
+function edFree(type){
+  const sz=edSize({type}),hit=(x,y)=>ed.nodes.some(n=>{const s=edSize(n);return x<n.x+s.w+10&&x+sz.w+10>n.x&&y<n.y+s.h+10&&y+sz.h+10>n.y;});
+  const xs=type==='IN'?[20]:type==='OUT'?[545]:[150,250,350,450];
+  for(let y=20;y<=EH-sz.h-10;y+=50)for(const x of xs)if(!hit(x,y))return{x,y};
+  return{x:xs[0]+Math.random()*40,y:20+Math.random()*(EH-80)};
+}
+function edAdd(type){
+  const count=ed.nodes.filter(n=>type==='IN'||type==='OUT'?n.type===type:edIsGate(n)).length,max=ED_MAX[type]||ED_MAX.GATE;
+  if(count>=max){ed.msg='Sınır doldu: en çok '+max+' '+(type==='IN'?'giriş':type==='OUT'?'çıkış':'kapı')+' eklenebilir.';return refreshEd();}
+  edSnap();let id=1;while(edNode('n'+id))id++;const pos=edFree(type),n={id:'n'+id,type,x:pos.x,y:pos.y,ins:type==='IN'?[]:type==='NOT'||type==='OUT'?[null]:[null,null]};
+  if(type==='IN'){n.name=[...K.VARS].find(c=>!ed.nodes.some(m=>m.type==='IN'&&m.name===c));n.value=0;}
+  else if(type==='OUT')n.name=OUTNAMES.find(c=>!ed.nodes.some(m=>m.type==='OUT'&&m.name===c))||'Y'+id;
+  else n.label=edLabel();
+  ed.nodes.push(n);ed.sel={node:n.id};ed.pend=null;ed.msg=edTitle(n)+' eklendi. Pimlerini bağlamak için önce bir çıkış pimine, sonra bir giriş pimine dokun.';refreshEd();
+}
+function edLoad(name){
+  const p=K.preset(name);ed.nodes=p.nodes;let k=1;ed.nodes.forEach(n=>{if(edIsGate(n))n.label='K'+k++;});
+  ed.state=p.state||{};ed.sel=null;ed.pend=null;$('edTarget').value=p.target;$('edPreset').value=name;ed.msg='“'+p.title+'” yüklendi.';refreshEd();
+}
+function edConnect(src,dst,idx){
+  const s=edNode(src),d=edNode(dst);if(!s||!d||s.type==='OUT'||d.type==='IN'||idx>=d.ins.length)return;
+  edSnap();d.ins[idx]=src;ed.pend=null;ed.sel={wire:[dst,idx]};ed.msg='Bağlandı: '+edTitle(s)+' → '+edTitle(d)+(d.ins.length>1?' ('+(idx+1)+'. giriş)':'')+'.';refreshEd();
+}
+function edDelete(){
+  if(!ed.sel){ed.msg='Silmek için önce bir eleman ya da bir tel seç (tel için bağlı olduğu giriş pimine dokun).';return refreshEd();}
+  edSnap();
+  if(ed.sel.wire){const n=edNode(ed.sel.wire[0]);if(n)n.ins[ed.sel.wire[1]]=null;ed.msg='Tel söküldü.';}
+  else{const id=ed.sel.node,n=edNode(id);ed.nodes=ed.nodes.filter(x=>x.id!==id);ed.nodes.forEach(x=>x.ins=x.ins.map(v=>v===id?null:v));delete ed.state[id];ed.msg=(n?edTitle(n):'Eleman')+' silindi.';}
+  ed.sel=null;ed.pend=null;refreshEd();
+}
+function edTargets(table){
+  const text=$('edTarget').value.trim(),out={list:[],err:''};if(!text)return out;
+  for(const part of text.split(';')){
+    if(!part.trim())continue;const eq=part.indexOf('=');if(eq<0){out.err='Hedef “AD = ifade” biçiminde olmalı: “'+part.trim()+'”.';return out;}
+    const name=part.slice(0,eq).trim(),oi=table.outs.findIndex(o=>o.name.toUpperCase()===name.toUpperCase());
+    if(oi<0){out.err='Devrede “'+name+'” adlı bir çıkış yok.';return out;}
+    let ast;try{ast=K.parse(part.slice(eq+1));}catch(e){if(!e.logic)throw e;out.err=name+' hedefi: '+e.message;return out;}
+    const miss=K.varsOf(ast).find(v=>!table.ins.some(n=>n.name===K.VARS[v]));if(miss!==undefined){out.err=name+' hedefi '+K.VARS[miss]+' değişkenini kullanıyor ama devrede '+K.VARS[miss]+' girişi yok.';return out;}
+    out.list.push({oi,name:table.outs[oi].name,ast});
   }
-
-  function addComponent(type, x, y) {
-    const info = GATE_INFO[type];
-    const comp = {
-      id: nextId++,
-      type,
-      x, y,
-      value: type === "input" ? 0 : undefined,
-      inputs: info.inputs > 0 ? Array(info.inputs).fill(null) : [],
-      outputConnections: [], // [{toId, toPin}]
-    };
-    components.push(comp);
-
-    // Auto-connect to input pins A, B if this is an output
-    if (type !== "input") {
-      const inputPins = components.filter(c => c.type === "input" && c.outputConnections.length === 0);
-      for (let i = 0; i < Math.min(info.inputs, inputPins.length); i++) {
-        addWire(inputPins[i].id, comp.id, 0, i);
-      }
+  return out;
+}
+function refreshEd(){
+  ed.res=K.settle(ed.nodes,ed.state);ed.state=ed.res.state;ed.table=K.circuitTable(ed.nodes);
+  const t=ed.table,gates=ed.nodes.filter(edIsGate),wires=ed.nodes.reduce((s,n)=>s+n.ins.filter(x=>x!=null).length,0),depth=K.depthOf(ed.nodes),floating=ed.nodes.reduce((s,n)=>s+n.ins.filter(x=>x==null).length,0);
+  put('edGates',gates.length+' / '+wires);put('edDepth',depth===null?'tanımsız (döngü var)':String(depth));put('edFeedback',t.feedback.length?'var · '+t.feedback.length+' kapı döngüde':'yok');
+  /* giriş anahtarları */
+  $('edInputs').innerHTML=t.ins.map(n=>'<button type="button" class="app-btn-ghost" data-in="'+n.id+'" aria-pressed="'+(n.value?'true':'false')+'">'+esc(n.name)+' = '+(n.value?1:0)+'</button>').join('')||'<span class="ld-note">Henüz giriş yok. “+ Giriş” ile ekle.</span>';
+  /* hedef karşılaştırması */
+  const tg=t.rows?edTargets(t):{list:[],err:''};showErr('edTargetErr',tg.err);
+  const bad=new Set();let cells=0,okc=0,firstBad='';
+  if(t.rows)for(const g of tg.list)t.rows.forEach((r,ri)=>{const b=[0,0,0,0];t.ins.forEach((n,j)=>b[K.VARS.indexOf(n.name)]=r.bits[j]);const want=K.evalAst(g.ast,b);cells++;if(r.cells[g.oi]===want)okc++;else{bad.add(ri+':'+g.oi);if(!firstBad)firstBad=g.name+' çıkışı '+(t.ins.map((n,j)=>n.name+' = '+r.bits[j]).join(', ')||'tek satırda')+' için '+(r.cells[g.oi]==='T'?'önceki duruma bağlı':r.cells[g.oi]==='S'?'kararsız':r.cells[g.oi])+'; hedef '+want+'.';}});
+  put('edMatch',tg.err?'—':tg.list.length?okc+' / '+cells:'hedef yok');
+  /* tablo */
+  if(!t.rows){$('edHead').innerHTML='';$('edRows').innerHTML='<tr><td>Döngüdeki kapı sayısı 12\'yi aşıyor; tablo çıkarılmadı.</td></tr>';}
+  else if(!t.outs.length){$('edHead').innerHTML='';$('edRows').innerHTML='<tr><td>Tablo için en az bir çıkış ekle ve bir kapıya bağla.</td></tr>';}
+  else{
+    const now=t.ins.reduce((s,n)=>s*2+(n.value?1:0),0);
+    $('edHead').innerHTML='<tr>'+t.ins.map(n=>'<th scope="col">'+esc(n.name)+'</th>').join('')+t.outs.map(o=>'<th scope="col">'+esc(o.name)+'</th>').join('')+'</tr>';
+    $('edRows').innerHTML=t.rows.map((r,ri)=>'<tr'+(ri===now?' class="is-now"':'')+'>'+r.bits.map(b=>'<td>'+b+'</td>').join('')+r.cells.map((c,oi)=>'<td class="'+(bad.has(ri+':'+oi)?'is-bad':c===1?'is-one':'')+'">'+c+'</td>').join('')+'</tr>').join('');
+  }
+  /* en sade ifadeler */
+  let exprs='';
+  if(t.rows&&t.outs.length){
+    exprs=t.outs.map((o,oi)=>{const col=t.rows.map(r=>r.cells[oi]);if(col.some(c=>c==='T'||c==='S'))return esc(o.name)+': tabloyla tanımlanamaz (devre '+(col.includes('S')?'bazı girişlerde salınıyor':'durum tutuyor')+').';
+      if(!t.ins.length)return esc(o.name)+' = '+col[0];const on=[];col.forEach((c,i)=>{if(c===1)on.push(i);});const m=K.minimal(t.ins.length,on,[],'sop');
+      return esc(o.name)+' = '+esc(K.coverText(m.cover,t.ins.length).replace(/[ABCD]/g,ch=>t.ins[K.VARS.indexOf(ch)].name));}).join('<br>');
+    exprs='Tablodan çıkan en sade çarpımlar toplamı:<br>'+exprs;
+  }
+  $('edExprs').innerHTML=exprs||'Çıkış eklenince her birinin en sade ifadesi burada yazılır.';
+  /* durum satırı */
+  const outsNow=t.outs.map(o=>o.name+' = '+(ed.state[o.id]||0)).join(', ');
+  let st=ed.msg?ed.msg+' ':'';
+  if(ed.pend){const n=edNode(ed.pend.node);st+=ed.pend.kind==='out'?'Kaynak seçildi: '+edTitle(n)+'. Şimdi bir giriş pimine dokun.':'Hedef seçildi: '+edTitle(n)+'. Şimdi bir çıkış pimine dokun.';}
+  else if(!ed.res.stable)st+='Devre salınıyor: bu girişlerde hiçbir kararlı durum yok ve değerler adım adım değişmeyi sürdürüyor. Gösterilen değerler '+ed.res.steps+'. adımdaki anlık görüntüdür.';
+  else if(ed.res.race)st+='Yarış: kapıların hepsi aynı anda güncellenince değerler yerleşmedi; kapılar sırayla güncellenerek bir kararlı duruma varıldı ('+outsNow+'). Gerçek devrede hangi duruma düşüleceğini küçük gecikme farkları belirler.';
+  else st+='Devre '+ed.res.steps+' adımda yerleşti'+(outsNow?': '+outsNow+'.':'.');
+  if(floating)st+=' '+floating+' giriş pimi bağlı değil; 0 sayılıyor.';
+  if(tg.list.length&&!tg.err)st+=okc===cells?' Hedefle '+cells+' hücrenin hepsinde uyuşuyor.':' Hedefle uyuşmuyor: '+firstBad;
+  const fbRows=t.rows?t.rows.filter(r=>r.fixed>1).length:0;if(fbRows)st+=' Tablonun '+fbRows+' satırında birden çok kararlı durum var: devre bit saklıyor.';
+  put('edStatus',st);ed.msg='';
+  /* klavye seçenekleri */
+  const keep=(id,html)=>{const e=$(id),v=e.value;e.innerHTML=html;if([...e.options].some(o=>o.value===v))e.value=v;};
+  keep('edSrc',ed.nodes.filter(n=>n.type!=='OUT').map(n=>'<option value="'+n.id+'">'+esc(edTitle(n))+'</option>').join('')||'<option value="">kaynak yok</option>');
+  keep('edDst',ed.nodes.flatMap(n=>n.ins.map((src,j)=>'<option value="'+n.id+':'+j+'">'+esc(edTitle(n))+(n.ins.length>1?' · '+(j+1)+'. giriş':'')+(src!=null&&edNode(src)?' ← '+esc(edNode(src).type==='IN'?edNode(src).name:edNode(src).label):' (boş)')+'</option>')).join('')||'<option value="">hedef yok</option>');
+  $('edSel').innerHTML='<option value="">seçili eleman yok</option>'+ed.nodes.map(n=>'<option value="'+n.id+'">'+esc(edTitle(n))+'</option>').join('');$('edSel').value=ed.sel&&ed.sel.node?ed.sel.node:'';
+  const sn=ed.sel&&ed.sel.node?edNode(ed.sel.node):null;$('edName').disabled=!(sn&&sn.type==='OUT');$('edRename').disabled=$('edName').disabled;if(sn&&sn.type==='OUT'&&document.activeElement!==$('edName'))$('edName').value=sn.name;else if(!sn||sn.type!=='OUT')$('edName').value='';
+  $('edUndo').disabled=!ed.undo.length;$('edDelete').disabled=!ed.sel;
+  $('edAddIN').disabled=t.ins.length>=ED_MAX.IN;$('edAddOUT').disabled=t.outs.length>=ED_MAX.OUT;K.GATE_TYPES.forEach(ty=>$('edAdd'+ty).disabled=gates.length>=ED_MAX.GATE);
+  drawEd();
+}
+function drawEd(){
+  const s=surface('edCanvas');if(!s)return;const g=s.g,sc=Math.min(s.w/EW,s.h/EH),ox=(s.w-EW*sc)/2,oy=(s.h-EH*sc)/2;ed.scale=sc;ed.ox=ox;ed.oy=oy;
+  g.save();g.translate(ox,oy);g.scale(sc,sc);
+  g.fillStyle=s.p.grid;for(let x=20;x<EW;x+=40)for(let y=20;y<EH;y+=40)g.fillRect(x-.7,y-.7,1.4,1.4);
+  const val=id=>ed.state[id]?1:0,col=v=>v?s.p.accent:s.p.dim,lw=1/Math.max(sc,.6);
+  /* teller */
+  for(const n of ed.nodes){const pins=edPins(n);n.ins.forEach((src,j)=>{
+    const from=src!=null&&edNode(src);if(!from)return;const a=edPins(from).out,b=pins.ins[j],v=val(src),selw=ed.sel&&ed.sel.wire&&ed.sel.wire[0]===n.id&&ed.sel.wire[1]===j;
+    g.strokeStyle=selw?s.p.warm:col(v);g.lineWidth=(selw?3.2:v?2.4:1.8)*lw;g.beginPath();g.moveTo(a.x,a.y);
+    if(b.x>a.x+16){const dx=Math.max(26,(b.x-a.x)/2);g.bezierCurveTo(a.x+dx,a.y,b.x-dx,b.y,b.x,b.y);}
+    else{const my=Math.abs(b.y-a.y)<50?Math.max(a.y,b.y)+70:(a.y+b.y)/2;g.bezierCurveTo(a.x+90,my,b.x-90,my,b.x,b.y);}
+    g.stroke();
+  });}
+  if(ed.drag&&ed.drag.kind==='wire'&&ed.drag.moved){const n=edNode(ed.drag.pin.node),pp=edPins(n),a=ed.drag.pin.kind==='out'?pp.out:pp.ins[ed.drag.pin.idx];seg(s,[a.x,a.y,ed.drag.cur.x,ed.drag.cur.y],s.p.warm,2*lw,[6,5]);}
+  /* elemanlar */
+  for(const n of ed.nodes){
+    const{w,h}=edSize(n),pins=edPins(n),sel=ed.sel&&ed.sel.node===n.id,v=val(n.id);
+    if(edIsGate(n)){
+      pins.ins.forEach(p=>seg(s,[p.x,p.y,p.x+12,p.y],s.p.muted,1.4));
+      gateShape(s,n.type,n.x,n.y,w,h,sel?s.p.warm:s.p.ink);
+      label(s,n.label,n.x+2,n.y-8,sel?s.p.warm:s.p.muted,'left',10);
+    }else{
+      g.lineWidth=1.6;g.strokeStyle=sel?s.p.warm:s.p.ink;g.fillStyle=v?(n.type==='IN'?s.p.accent:s.p.fill):s.p.fill;g.beginPath();g.roundRect(n.x,n.y,w,h,n.type==='IN'?7:15);g.fill();g.stroke();
+      if(n.type==='OUT'){g.beginPath();g.arc(n.x+13,n.y+h/2,6,0,7);g.fillStyle=v?s.p.accent:s.p.bg;g.fill();g.stroke();label(s,n.name+'='+v,n.x+22,n.y+h/2+.5,s.p.ink,'left',10.5,'600');}
+      else label(s,n.name+' = '+v,n.x+w/2,n.y+h/2+.5,v?s.p.bg:s.p.ink,'center',11.5,'700');
     }
-
-    return comp;
+    const dot=(p,kind,idx)=>{const pend=ed.pend&&ed.pend.node===n.id&&ed.pend.kind===kind&&(kind==='out'||ed.pend.idx===idx),empty=kind==='in'&&n.ins[idx]==null;
+      g.beginPath();g.arc(p.x,p.y,pend?7:4.2,0,7);g.fillStyle=pend?s.p.warm:s.p.bg;g.strokeStyle=empty?s.p.warm:s.p.ink;g.lineWidth=1.5;g.fill();g.stroke();};
+    pins.ins.forEach((p,j)=>dot(p,'in',j));if(pins.out)dot(pins.out,'out',0);
   }
-
-  function addWire(fromId, toId, fromPin, toPin) {
-    // Remove existing wire to same pin
-    wires = wires.filter(w => !(w.to === toId && w.toPin === toPin));
-    wires.push({ from: fromId, to: toId, fromPin, toPin });
-    const fromComp = components.find(c => c.id === fromId);
-    const toComp = components.find(c => c.id === toId);
-    if (fromComp && !fromComp.outputConnections.some(c => c.toId === toId && c.toPin === toPin)) {
-      fromComp.outputConnections.push({ toId, toPin });
+  if(!ed.nodes.length)label(s,'Tuval boş. Aşağıdaki düğmelerle eleman ekle ya da hazır bir devre yükle.',EW/2,EH/2,s.p.muted,'center',14);
+  g.restore();
+}
+function edPoint(e){const r=$('edCanvas').getBoundingClientRect();return{x:(e.clientX-r.left-ed.ox)/ed.scale,y:(e.clientY-r.top-ed.oy)/ed.scale};}
+function edHitPin(p){
+  let best=null,bd=Math.max(13,22/ed.scale);
+  for(const n of ed.nodes){const pins=edPins(n),test=(q,kind,idx)=>{const d=Math.hypot(q.x-p.x,q.y-p.y);if(d<bd){bd=d;best={node:n.id,kind,idx};}};pins.ins.forEach((q,j)=>test(q,'in',j));if(pins.out)test(pins.out,'out',0);}
+  return best;
+}
+function edHitNode(p){for(let i=ed.nodes.length-1;i>=0;i--){const n=ed.nodes[i],s=edSize(n);if(p.x>=n.x-4&&p.x<=n.x+s.w+4&&p.y>=n.y-4&&p.y<=n.y+s.h+4)return n;}return null;}
+function edJoin(a,b){if(a.kind===b.kind)return false;const o=a.kind==='out'?a:b,i=a.kind==='out'?b:a;edConnect(o.node,i.node,i.idx);return true;}
+function edInit(){
+  const c=$('edCanvas');
+  c.addEventListener('pointerdown',e=>{
+    if(e.button>0)return;e.preventDefault();const p=edPoint(e),node=edHitNode(p),pin=edHitPin(p);
+    /* gövdenin içindeyse ve pime çok yakın değilse gövde kazanır */
+    const pinNear=pin&&(()=>{const n=edNode(pin.node),pp=edPins(n),q=pin.kind==='out'?pp.out:pp.ins[pin.idx];return Math.hypot(q.x-p.x,q.y-p.y);})();
+    if(pin&&(!node||pinNear<Math.max(9,12/ed.scale)))ed.drag={kind:'wire',pin,start:p,cur:p,moved:false};
+    else if(node){ed.drag={kind:'node',id:node.id,dx:p.x-node.x,dy:p.y-node.y,start:p,moved:false};ed.sel={node:node.id};}
+    else{ed.drag=null;ed.sel=null;ed.pend=null;refreshEd();return;}
+    try{c.setPointerCapture(e.pointerId);}catch(_){}
+    drawEd();
+  });
+  c.addEventListener('pointermove',e=>{
+    const d=ed.drag;if(!d)return;const p=edPoint(e);
+    if(!d.moved&&Math.hypot(p.x-d.start.x,p.y-d.start.y)>Math.max(4,6/ed.scale)){d.moved=true;if(d.kind==='node')edSnap();}
+    if(!d.moved)return;
+    if(d.kind==='node'){const n=edNode(d.id),s=edSize(n);n.x=Math.max(4,Math.min(EW-s.w-4,p.x-d.dx));n.y=Math.max(12,Math.min(EH-s.h-4,p.y-d.dy));}else d.cur=p;
+    drawEd();
+  });
+  const up=e=>{
+    const d=ed.drag;if(!d)return;ed.drag=null;const p=edPoint(e);
+    if(d.kind==='wire'){
+      if(d.moved){const t=edHitPin(p);if(!(t&&edJoin(d.pin,t))){ed.msg=t?'Bir çıkış pimi ancak bir giriş pimine bağlanır.':'Tel boşa bırakıldı; bağlantı kurulmadı.';ed.pend=null;refreshEd();}return;}
+      if(ed.pend&&ed.pend.kind!==d.pin.kind){edJoin(ed.pend,d.pin);return;}
+      if(ed.pend&&ed.pend.node===d.pin.node&&ed.pend.kind===d.pin.kind&&ed.pend.idx===d.pin.idx)ed.pend=null;
+      else{ed.pend=d.pin;const n=edNode(d.pin.node);ed.sel=d.pin.kind==='in'&&n.ins[d.pin.idx]!=null?{wire:[n.id,d.pin.idx]}:ed.sel;}
+      refreshEd();return;
     }
-    if (toComp) toComp.inputs[toPin] = fromId;
+    const n=edNode(d.id);if(!d.moved&&n&&n.type==='IN'){n.value=n.value?0:1;}
+    refreshEd();
+  };
+  c.addEventListener('pointerup',up);c.addEventListener('pointercancel',()=>{ed.drag=null;drawEd();});
+  ['IN','OUT',...K.GATE_TYPES].forEach(t=>$('edAdd'+t).onclick=()=>edAdd(t));
+  $('edUndo').onclick=()=>{const s=ed.undo.pop();if(!s)return;const o=JSON.parse(s);ed.nodes=o.nodes;ed.state=o.state;ed.sel=null;ed.pend=null;ed.msg='Son değişiklik geri alındı.';refreshEd();};
+  $('edDelete').onclick=edDelete;
+  $('edClear').onclick=()=>{if(ed.nodes.length)edSnap();ed.nodes=[];ed.state={};ed.sel=null;ed.pend=null;$('edTarget').value='';ed.msg='Tuval temizlendi; “Geri al” eski devreyi getirir.';refreshEd();};
+  $('edLoad').onclick=()=>{if(ed.nodes.length)edSnap();edLoad($('edPreset').value);};
+  $('edInputs').addEventListener('click',e=>{const b=e.target.closest('button[data-in]');if(!b)return;const n=edNode(b.dataset.in);n.value=n.value?0:1;refreshEd();const nb=$('edInputs').querySelector('[data-in="'+n.id+'"]');if(nb)nb.focus();});
+  $('edConnect').onclick=()=>{const src=$('edSrc').value,dst=$('edDst').value;if(!src||!dst){ed.msg='Bağlamak için bir kaynak ve bir hedef gerekir.';return refreshEd();}const[id,j]=dst.split(':');edConnect(src,id,+j);};
+  $('edDisconnect').onclick=()=>{const dst=$('edDst').value;if(!dst)return;const[id,j]=dst.split(':'),n=edNode(id);if(n&&n.ins[+j]!=null){edSnap();n.ins[+j]=null;ed.sel=null;ed.msg='Tel söküldü.';}else ed.msg='Bu giriş pimi zaten boş.';refreshEd();};
+  $('edSel').onchange=()=>{ed.sel=$('edSel').value?{node:$('edSel').value}:null;ed.pend=null;refreshEd();};
+  $('edRename').onclick=()=>{const n=ed.sel&&ed.sel.node&&edNode(ed.sel.node),v=$('edName').value.trim();if(!n||n.type!=='OUT')return;
+    if(!/^[A-Za-z][A-Za-z0-9]{0,3}$/.test(v)){ed.msg='Ad bir harfle başlamalı; en çok 4 harf ya da rakam olabilir.';return refreshEd();}
+    if(ed.nodes.some(m=>m!==n&&m.type==='OUT'&&m.name.toUpperCase()===v.toUpperCase())){ed.msg='Bu ad başka bir çıkışta kullanılıyor.';return refreshEd();}
+    edSnap();n.name=v;ed.msg='Çıkışın adı '+v+' oldu.';refreshEd();};
+  $('edTarget').addEventListener('input',refreshEd);
+}
+/* ---------- 4. sekme: toplayıcılar ---------- */
+const ad={c:null,run:null,t:0,playing:false,cache:{},pending:{},key:''};
+const adCfg=()=>({arch:$('adArch').value,n:+$('adN').value,k:+$('adK').value,tau:+$('adTau').value});
+const adNet=(arch,n,k)=>arch==='cla'?K.lookaheadAdder(k):K.rippleAdder(n,k);
+function adWorst(arch,n,k,sync){
+  const key=arch+n+'/'+k;if(ad.cache[key])return ad.cache[key];
+  const go=()=>{ad.cache[key]=K.worstCase(K.compile(adNet(arch,n,k)),{samples:6000});delete ad.pending[key];};
+  if(sync||(arch==='ripple'&&n<=3)){go();return ad.cache[key];}
+  if(!ad.pending[key]){ad.pending[key]=true;setTimeout(()=>{go();if(active==='adder')updateAdder(true);},40);}
+  return null;
+}
+function adInt(id,name,max){const t=$(id).value.trim();if(!/^\d{1,4}$/.test(t)||+t>max)throw Object.assign(new Error(name+' 0 ile '+max+' arasında bir tam sayı olmalı.'),{logic:true});return+t;}
+function adSetStim(a0,b0,c0,a1,b1,c1){$('adA0').value=a0;$('adB0').value=b0;$('adC0').checked=!!c0;$('adA1').value=a1;$('adB1').value=b1;$('adC1').checked=!!c1;}
+function tauText(x,tau){return fmt(x,0)+' τ = '+fmt(x*tau,0)+' ns';}
+function updateAdder(keepTime){
+  const cf=adCfg();if(cf.arch==='cla'&&cf.n!==4){$('adN').value=4;cf.n=4;}$('adN').disabled=cf.arch==='cla';
+  put('adNOut',cf.n+' bit');put('adTauOut',fmt(cf.tau,0)+' ns');
+  const max=2**cf.n-1,formula=cf.arch==='cla'?K.lookaheadFormula(cf.k):K.rippleFormula(cf.n,cf.k);
+  put('adFormula',tauText(formula,cf.tau));
+  const w=adWorst(cf.arch,cf.n,cf.k);
+  put('adWorst',w?tauText(w.settle,cf.tau)+(w.exhaustive?'':' (örneklem)'):'ölçülüyor…');put('adDiff',w?fmt(w.settle-formula,0)+' τ':'ölçülüyor…');
+  $('adFormulaText').innerHTML='Dalgalı elde: son elde 2N + k, son toplam biti 2N − 2 + 2k kapı gecikmesinde oturur (k: XOR gecikmesinin τ cinsinden katı).<br>T = max(2N + k, 2N − 2 + 2k)·τ; N = '+cf.n+', k = '+cf.k+' için '+K.rippleFormula(cf.n,cf.k)+' τ.<br>Elde öngörülü (4 bit): T = (2k + 2)·τ = '+K.lookaheadFormula(cf.k)+' τ.';
+  /* karşılaştırma tablosu */
+  $('adCmp').innerHTML=[['ripple','Dalgalı elde, 4 bit',K.rippleFormula(4,cf.k)],['cla','Elde öngörülü, 4 bit',K.lookaheadFormula(cf.k)]].map(([arch,name,f])=>{const st=K.netStats(adNet(arch,4,cf.k)),m=adWorst(arch,4,cf.k);return'<tr><th scope="row" class="is-left">'+name+'</th><td>'+st.gates+'</td><td>'+st.inputs+'</td><td>'+st.fanin+' girişli</td><td>'+tauText(f,cf.tau)+'</td><td>'+(m?tauText(m.settle,cf.tau):'ölçülüyor…')+'</td></tr>';}).join('');
+  let prev,next;
+  try{prev={a:adInt('adA0','Önceki A',max),b:adInt('adB0','Önceki B',max),cin:+$('adC0').checked};next={a:adInt('adA1','Sonraki A',max),b:adInt('adB1','Sonraki B',max),cin:+$('adC1').checked};showErr('adErr','');}
+  catch(e){if(!e.logic)throw e;showErr('adErr',e.message);ad.run=null;ad.playing=false;['adSettle','adGlitch','adSum'].forEach(id=>put(id,'—'));put('adStatus','Uyarım geçersiz: '+e.message+' Düzeltince benzetim yeniden koşar.');drawAdder();return;}
+  const key=[cf.arch,cf.n,cf.k,prev.a,prev.b,prev.cin,next.a,next.b,next.cin].join(',');
+  ad.c=K.compile(adNet(cf.arch,cf.n,cf.k));ad.run=K.adderRun(ad.c,prev,next,true);ad.prev=prev;ad.next=next;ad.formula=formula;ad.cf=cf;
+  if(ad.note){if(ad.noteKey==null)ad.noteKey=key;else if(ad.noteKey!==key)ad.note='';}
+  const tm=$('adTime');tm.max=ad.c.horizon+1;if(key!==ad.key){ad.t=0;ad.playing=false;}ad.key=key;if(ad.t>+tm.max)ad.t=+tm.max;
+  const r=ad.run;
+  put('adSettle',r.settle?tauText(r.settle,cf.tau):'0 τ · çıkış değişmedi');put('adGlitch',String(r.glitches));put('adSum',r.value+' / '+r.expected+(r.value===r.expected?' · tutuyor':' · TUTMUYOR'));
+  const last=name=>{const wv=r.waves[ad.c.idx.get(name)];return wv[wv.length-1][0];},carries=[];for(let i=1;i<=cf.n;i++){const t=last('c'+i);if(t>0)carries.push('C'+sub(i)+': '+t+' τ');}
+  put('adStatus',(ad.note||'')+(r.settle?'Girişler t = 0\'da değişti; son çıkış '+r.settle+' τ ('+fmt(r.settle*cf.tau,0)+' ns) sonra oturdu. ':'Bu geçişte hiçbir çıkış değişmedi. ')+(carries.length?'Eldelerin son değişim anları: '+carries.join(', ')+'. ':'Hiçbir elde değişmedi. ')+(r.glitches?r.glitches+' fazladan geçiş var: bazı çıkışlar son değerine varmadan önce yanlış bir değere uğradı. ':'')+(w?(r.settle===w.settle?'Bu uyarım, ölçülen en kötü duruma eşit. ':'Ölçülen en kötü durum '+w.settle+' τ. ')+(w.settle===formula?'Formül ile en kötü durum ölçümü aynı: '+formula+' τ.':'Formül '+formula+' τ veriyor'+(w.exhaustive?'.':'; örneklem en kötü çifti yakalamamış olabilir.')):'En kötü durum taranıyor…'));
+  drawAdder();
+}
+function drawAdder(){
+  const cf=ad.cf||adCfg(),r=ad.run,tm=$('adTime');tm.value=Math.floor(ad.t+1e-9);put('adTimeOut','t = '+fmt(Math.floor(ad.t+1e-9),0)+' τ = '+fmt(Math.floor(ad.t+1e-9)*cf.tau,0)+' ns');
+  $('adPlay').textContent=ad.playing?'Duraklat':'Oynat';$('adPlay').setAttribute('aria-pressed',String(ad.playing));$('adPlay').disabled=!r;
+  const s=surface('adChain');if(!s)return;
+  if(!r){label(s,'Geçerli bir uyarım bekleniyor',s.w/2,s.h/2,s.p.muted);const s2=surface('adTiming');if(s2)label(s2,'Geçerli bir uyarım bekleniyor',s2.w/2,s2.h/2,s2.p.muted);return;}
+  const n=cf.n,t=Math.floor(ad.t+1e-9),W=name=>r.waves[ad.c.idx.get(name)],at=name=>K.waveAt(W(name),t),done=name=>{const wv=W(name);return wv[wv.length-1][0]<=t;},col=v=>v?s.p.accent:s.p.dim;
+  const cla=cf.arch==='cla',mx=30,bw=Math.min(74,(s.w-2*mx-30)/n-10),gap=(s.w-2*mx-30-n*bw)/Math.max(1,n),by=cla?s.h*.2:s.h*.34,bh=Math.min(70,s.h*.3),bx=i=>s.w-mx-30-(i+1)*bw-i*gap,small=bw<46;
+  if(cla){const ux=bx(n-1)-6,uw=bx(0)+bw-ux+6,uy=by+bh+34;s.g.strokeStyle=s.p.ink;s.g.fillStyle=s.p.fill;s.g.lineWidth=1.5;s.g.beginPath();s.g.roundRect(ux,uy,uw,30,7);s.g.fill();s.g.stroke();label(s,'Elde öngörü birimi: 14 kapı, iki düzey',ux+uw/2,uy+15,s.p.muted,'center',small?9.5:11);}
+  for(let i=0;i<n;i++){
+    const x=bx(i),ok=done('s'+i)&&done('c'+(i+1)),a=(ad.next.a>>i)&1,b=(ad.next.b>>i)&1,sv=at('s'+i),cv=at('c'+(i+1)),ci=at('c'+i);
+    s.g.lineWidth=ok?1.5:2.6;s.g.strokeStyle=ok?s.p.ink:s.p.warm;s.g.fillStyle=s.p.fill;s.g.beginPath();s.g.roundRect(x,by,bw,bh,8);s.g.fill();s.g.stroke();
+    label(s,cla?'P·G·S':'TT'+sub(i),x+bw/2,by+bh/2,s.p.muted,'center',small?9:11);
+    label(s,(small?'':'A'+sub(i)+'=')+a,x+bw*.28,by-22,s.p.ink,'center',small?10:11);label(s,(small?'':'B'+sub(i)+'=')+b,x+bw*.72,by-22,s.p.ink,'center',small?10:11);
+    seg(s,[x+bw*.28,by-13,x+bw*.28,by],s.p.muted,1.2);seg(s,[x+bw*.72,by-13,x+bw*.72,by],s.p.muted,1.2);
+    seg(s,[x+bw/2,by+bh,x+bw/2,by+bh+(cla?10:14)],col(sv),sv?2.4:1.6);
+    if(cla){label(s,'S'+sub(i)+'='+sv,x+bw*.5,by+bh+20,sv?s.p.accent:s.p.ink,'center',small?9.5:11,'600');seg(s,[x+bw*.85,by+bh+34,x+bw*.85,by+bh],col(ci),ci?2.4:1.6);}
+    else{if(small){label(s,'S'+sub(i),x+bw/2,by+bh+24,s.p.muted,'center',9.5);label(s,String(sv),x+bw/2,by+bh+38,sv?s.p.accent:s.p.ink,'center',11,'700');}else label(s,'S'+sub(i)+' = '+sv,x+bw/2,by+bh+26,sv?s.p.accent:s.p.ink,'center',12,'600');
+      const xr=x+bw,xl=i?bx(i-1):xr+gap;seg(s,[i?xl:xr+Math.max(12,gap),by+bh/2,xr,by+bh/2],col(ci),ci?2.6:1.6);if(gap>26||!i)label(s,'C'+sub(i)+(gap>40||!i?'='+ci:''),xr+(i?gap/2:Math.max(12,gap)/2+8),by+bh/2-11,ci?s.p.accent:s.p.muted,'center',10);}
+    if(i===n-1){seg(s,[x-Math.max(12,Math.min(gap,26)),by+bh/2,x,by+bh/2],col(cv),cv?2.6:1.6);label(s,'C'+sub(n)+'='+cv,x-4,by+bh/2-12,cv?s.p.accent:s.p.ink,'right',10.5,'600');}
   }
-
-  function removeComponent(id) {
-    const comp = components.find(c => c.id === id);
-    if (!comp) return;
-    // Remove all wires connected to this component
-    wires = wires.filter(w => w.from !== id && w.to !== id);
-    // Clear references
-    components.forEach(c => {
-      c.outputConnections = c.outputConnections.filter(oc => oc.toId !== id);
-      c.inputs = c.inputs.map(inp => inp === id ? null : inp);
-    });
-    components = components.filter(c => c.id !== id);
+  if(cla){const c0=at('c0');label(s,'C₀='+c0,bx(0)+bw+4,by+bh+49,c0?s.p.accent:s.p.muted,'left',10);}
+  let val=0;ad.c.net.outputs.forEach((o,i)=>{val+=at(o)*2**i;});
+  label(s,'t = '+t+' τ   ·   çıkış = '+val+'   ·   beklenen '+ad.next.a+' + '+ad.next.b+' + '+ad.next.cin+' = '+r.expected,s.w/2,s.h-14,val===r.expected?s.p.accent:s.p.warm,'center',small?11:12.5,'600');
+  /* zamanlama */
+  const rows=[['C₀','c0']];for(let i=1;i<=n;i++)rows.push(['C'+sub(i),'c'+i]);for(let i=0;i<n;i++)rows.push(['S'+sub(i),'s'+i]);
+  const rh=rows.length>12?17:21,s2=surface('adTiming',rows.length*rh+52);if(!s2)return;
+  const L=40,R=s2.w-14,t0=-1,t1=ad.c.horizon+1.5,X=tt=>L+(tt-t0)*(R-L)/(t1-t0),top=14;
+  for(let q=0;q<=ad.c.horizon+1;q++){const major=ad.c.horizon<=12||q%2===0;seg(s2,[X(q),top,X(q),top+rows.length*rh],s2.p.grid,1);if(major)label(s2,String(q),X(q),top+rows.length*rh+12,s2.p.muted,'center',10);}
+  label(s2,'t / τ',R,top+rows.length*rh+27,s2.p.muted,'right',10);
+  rows.forEach(([nm,sig],ri)=>{
+    const y1=top+ri*rh+4,y0=top+(ri+1)*rh-4,wv=W(sig),Yv=v=>v?y1:y0,pts=[X(t0),Yv(wv[0][1])];
+    for(let i=1;i<wv.length;i++){pts.push(X(wv[i][0]),Yv(wv[i-1][1]),X(wv[i][0]),Yv(wv[i][1]));}
+    pts.push(X(t1),Yv(wv[wv.length-1][1]));label(s2,nm,L-8,(y0+y1)/2,s2.p.ink,'right',10.5);seg(s2,pts,sig==='c0'?s2.p.muted:sig[0]==='c'?s2.p.violet:s2.p.accent,1.8);
+  });
+  seg(s2,[X(ad.formula),top-4,X(ad.formula),top+rows.length*rh],s2.p.warm,1.6,[5,4]);
+  if(r.settle)seg(s2,[X(r.settle),top-4,X(r.settle),top+rows.length*rh],s2.p.accent,1.3);
+  seg(s2,[X(ad.t),top-8,X(ad.t),top+rows.length*rh+3],s2.p.ink,1.2,[2,3]);
+}
+function adInitUI(){
+  ['adArch','adK'].forEach(id=>$(id).addEventListener('change',()=>{if(id==='adArch'&&$('adArch').value==='cla'){$('adN').value=4;adChainStim();}updateAdder();}));
+  $('adN').addEventListener('input',()=>{adChainStim();updateAdder();});$('adTau').addEventListener('input',()=>updateAdder(true));
+  ['adA0','adB0','adA1','adB1'].forEach(id=>$(id).addEventListener('input',()=>updateAdder()));['adC0','adC1'].forEach(id=>$(id).addEventListener('change',()=>updateAdder()));
+  $('adTime').addEventListener('input',()=>{ad.t=+$('adTime').value;ad.playing=false;drawAdder();});
+  $('adChainBtn').onclick=()=>{adChainStim();updateAdder();};
+  $('adGlitchBtn').onclick=()=>{const was=adCfg();$('adArch').value='ripple';$('adN').value=4;adSetStim(15,15,0,15,0,1);ad.note=was.arch!=='ripple'||was.n!==4?'Glitch örneği dalgalı elde ve N = 4 bit için tanımlıdır; '+(was.arch!=='ripple'?'yapı dalgalı eldeye'+(was.n!==4?', bit sayısı 4\'e':''):'bit sayısı 4\'e')+' getirildi. ':'';ad.noteKey=null;updateAdder();};
+  $('adRandom').onclick=()=>{const m=2**+$('adN').value,r=()=>Math.floor(Math.random()*m);adSetStim(r(),r(),Math.random()<.5,r(),r(),Math.random()<.5);updateAdder();};
+  $('adSearch').onclick=()=>{const cf=adCfg(),w=adWorst(cf.arch,cf.arch==='cla'?4:cf.n,cf.k,true),[p,q]=w.pair;adSetStim(p.a,p.b,p.cin,q.a,q.b,q.cin);updateAdder();};
+  $('adPlay').onclick=()=>{if(!ad.run)return;if(!ad.playing&&ad.t>=+$('adTime').max)ad.t=0;ad.playing=!ad.playing;drawAdder();kick();};
+}
+function adChainStim(){const n=$('adArch').value==='cla'?4:+$('adN').value;adSetStim(0,0,1,2**n-1,0,1);}
+/* ---------- 5. sekme: ardışıl mantık ---------- */
+const SQ={dpair:{ins:['D'],title:'D kilidi ve D flip-flop',help:'D\'yi çevir, sonra saati çevir. Kilit, CLK = 1 olduğu sürece D\'yi izler; flip-flop yalnız yükselen kenardaki D\'yi alır ve bir sonraki kenara kadar tutar.'},
+  sr:{ins:['S','R'],title:'SR kilidi (iki NOR)',help:'Saat yok: S kurar (Q = 1), R sıfırlar (Q = 0), ikisi de 0 iken devre tutar. S = R = 1 yasak durumdur; ikisi aynı anda bırakılırsa sonuç belirsizdir. Örnek senaryo bunu gösterir.'},
+  jk:{ins:['J','K'],title:'JK flip-flop',help:'Yükselen kenarda: J = K = 0 tutar, J = 1 kurar, K = 1 sıfırlar, J = K = 1 çevirir.'},
+  t:{ins:['T'],title:'T flip-flop',help:'T = 1 iken her yükselen kenarda çevirir: çıkışın periyodu saatin iki katıdır (frekans bölücü).'},
+  counter:{ins:['EN'],title:'Eşzamanlı ikili sayıcı',help:'Bütün flip-floplar aynı saati görür. Bir bit, altındaki bütün bitler 1 iken çevirir: T₀ = EN, Tᵢ = EN·Q₀·…·Qᵢ₋₁.'},
+  shift:{ins:['D'],title:'Kaydırmalı yazmaç',help:'Her yükselen kenarda bitler bir kat ilerler: Q₀ ← D, Qᵢ ← Qᵢ₋₁. Seri giren veri birkaç kenar sonra paralel okunur.'},
+  fsm:{ins:['X'],title:'Dizi algılayıcı (Moore makinesi)',help:'Makine her yükselen kenarda X\'i okur; durum, örüntünün şimdiye dek tutan ön ekinin uzunluğudur. Örüntü tamamlanınca Z = 1 olur.'}};
+const sq={kind:'dpair',events:[],init:{},cur:{},now:0,lastClk:0,auto:false,res:null,full:false};
+const sqCfg=()=>({tsu:+$('sqTsu').value,bits:+$('sqBits').value,pattern:$('sqPattern').value.trim(),overlap:$('sqOverlap').value==='1'});
+function sqStart(kind){
+  sq.kind=kind;sq.events=[];sq.now=0;sq.lastClk=0;sq.full=false;sq.init=kind==='counter'?{EN:1}:{};sq.cur={CLK:0};SQ[kind].ins.forEach(s=>sq.cur[s]=sq.init[s]||0);
+  sq.auto=false;$('sqAuto').checked=false;
+}
+function sqLastT(){return sq.events.length?sq.events[sq.events.length-1].t:0;}
+function sqPush(sig,v,t){if(sq.events.length>=400){sq.full=true;sq.auto=false;$('sqAuto').checked=false;return false;}t=Math.max(t,sqLastT());sq.events.push({t,sig,v});sq.cur[sig]=v;sq.now=Math.max(sq.now,t);return true;}
+function sqToggleClk(){const t=Math.max(sq.lastClk+.5,sqLastT());if(sqPush('CLK',sq.cur.CLK?0:1,t))sq.lastClk=t;}
+function sqToggleIn(sig){
+  if(sq.auto)sqPush(sig,sq.cur[sig]?0:1,sq.now);
+  else if(sq.kind==='sr'){const t=sqLastT()+.5;sqPush(sig,sq.cur[sig]?0:1,t);sq.lastClk=t;}
+  else sqPush(sig,sq.cur[sig]?0:1,sq.lastClk+.25);
+}
+function sqScript(list){sqStart(sq.kind);for(const[t,sig,v]of list){sq.events.push({t,sig,v});sq.cur[sig]=v;sq.now=t;if(sig==='CLK')sq.lastClk=t;}if(sq.kind==='sr')sq.lastClk=sq.now;}
+function sqPulses(n,from=0,extra=[]){const l=[...extra];for(let i=0;i<n;i++)l.push([from+i+.5,'CLK',1],[from+i+1,'CLK',0]);return l.sort((a,b)=>a[0]-b[0]);}
+function sqDemo(){
+  const k=sq.kind,c=sqCfg();
+  if(k==='dpair')sqScript(sqPulses(4,0,[[.25,'D',1],[.7,'D',0],[.85,'D',1],[1.25,'D',0],[1.75,'D',1],[2.62,'D',0],[2.8,'D',1],[3.3,'D',0]]));
+  else if(k==='sr')sqScript([[.5,'S',1],[1,'S',0],[1.5,'R',1],[2,'R',0],[2.5,'S',1],[3,'R',1],[3.5,'S',0],[3.5,'R',0],[4.5,'S',1],[5,'S',0]]);
+  else if(k==='jk')sqScript(sqPulses(6,0,[[.25,'J',1],[1.25,'J',0],[1.25,'K',1],[2.25,'J',1],[4.25,'J',0],[4.25,'K',0]]));
+  else if(k==='t')sqScript(sqPulses(8,0,[[.25,'T',1],[6.25,'T',0]]));
+  else if(k==='counter')sqScript(sqPulses(3*(1<<c.bits)/2+2));
+  else if(k==='shift')sqScript(sqPulses(8,0,[[.25,'D',1],[1.25,'D',0],[2.25,'D',1],[4.25,'D',0]]));
+  else{const stream='1101011010';const ex=[];let cur=0;[...stream].forEach((ch,i)=>{if(+ch!==cur){ex.push([i+.25,'X',+ch]);cur=+ch;}});sqScript(sqPulses(stream.length,0,ex));}
+}
+function sqViolation(){
+  const k=sq.kind,c=sqCfg(),sig=SQ[k].ins[0],late=c.tsu>0?1.5-c.tsu/2:1.5,l=sqPulses(4,0,[[.25,sig,1],[late,sig,0],[2.25,sig,1]]);
+  sqScript(l);
+}
+const sqV=v=>v==='X'?'X':String(v);
+function updateSeq(){
+  const k=sq.kind,def=SQ[k],c=sqCfg();
+  let patErr='';if(k==='fsm'&&!/^[01]{2,4}$/.test(c.pattern)){patErr='Örüntü yalnız 0 ve 1 içeren 2–4 bitlik bir dizi olmalı; 101 kullanılıyor.';c.pattern='101';}showErr('sqErr',patErr);
+  $('sqBitsField').hidden=!(k==='counter'||k==='shift');$('sqPatternField').hidden=$('sqOverlapField').hidden=k!=='fsm';
+  const clocked=k!=='sr';['sqClk','sqPulse'].forEach(id=>$(id).hidden=!clocked);$('sqWait').hidden=clocked;$('sqAuto').closest('label').hidden=!clocked;$('sqPeriod').closest('.ld-field').hidden=!clocked;$('sqTsu').closest('.ld-field').hidden=!clocked;
+  $('sqViolate').hidden=!(k==='dpair'||k==='jk'||k==='t');
+  def.ins.forEach((s,i)=>{const b=$('sqIn'+i);b.hidden=false;b.textContent=s+' = '+(sq.cur[s]||0);b.setAttribute('aria-pressed',String(!!sq.cur[s]));});if(def.ins.length<2)$('sqIn1').hidden=true;
+  $('sqClk').textContent='CLK\'yi çevir (şimdi '+(sq.cur.CLK||0)+')';$('sqClk').setAttribute('aria-pressed',String(!!sq.cur.CLK));
+  put('sqPeriodOut',fmt(+$('sqPeriod').value,1)+' s');put('sqTsuOut',fmt(c.tsu,2)+' T');put('sqHelp',def.help);put('sqDiagramTitle',def.title);
+  const res=K.seqRun(k,{init:sq.init,changes:sq.events},c);sq.res=res;sq.c=c;
+  const W=res.waves,edges=res.edges,clean=edges.filter(e=>!e.violation),vio=edges.map((e,i)=>e.violation?(i+1)+'. kenar':'').filter(Boolean).join(', '),isEdge=t=>edges.some(e=>e.t===t),chg=name=>W[name].slice(1);
+  put('sqEdges',clocked?edges.length+' / '+res.violations:'saat yok');
+  let m1l='Ölçülen',m1='—',m2l='Kuram',m2='—',now='',status='';
+  const before=(name,t)=>{let v=W[name][0][1];for(const p of W[name]){if(p[0]<t)v=p[1];else break;}return v;};
+  if(k==='dpair'){
+    const offL=chg('QL').filter(p=>!isEdge(p[0])).length,offF=chg('QF').filter(p=>!isEdge(p[0])).length,held=clean.filter(e=>K.waveAt(W.QF,e.t)===before('D',e.t)).length;
+    m1l='Kenar dışında Q değişimi: kilit / flip-flop';m1=offL+' / '+offF;m2l='Kenar öncesi D\'yi tutan / temiz kenar';m2=held+' / '+clean.length;now='kilit Q = '+sqV(res.final.QL)+', flip-flop Q = '+sqV(res.final.QF);
+    status=!edges.length?'Henüz yükselen kenar yok. D\'yi çevir, sonra saati çevir.':'Flip-flop '+edges.length+' yükselen kenarın dışında '+offF+' kez değişti; kilit '+offL+' kez. '+(offL?'Kilit, saat 1 iken D\'deki her oynamayı çıkışa geçirdi. ':'Kilidin farkını görmek için CLK = 1 iken D\'yi çevir. ')+(W.QL.some(p=>p[1]==='X')?'Kilit kapanırken (düşen kenar) D kurulum penceresi içinde değişmişti: kilidin çıkışı saat yeniden 1 olana kadar X oldu; bu da kilidin kenar dışı değişimlerine sayıldı. ':'')+(res.violations?res.violations+' kenarda ('+vio+') D, kurulum penceresi içinde değişti; o kenarın sonucu X'+(res.final.QF==='X'?'.':'. Flip-flop, ardından gelen temiz kenara kadar X\'te kaldı (diyagramdaki taralı bölge); şu anki çıkış daha sonraki temiz bir kenardan geliyor.'):'');
+  }else if(k==='sr'){
+    const forb=chg('S').concat(chg('R')).map(p=>p[0]).filter((t,i,a)=>a.indexOf(t)===i).filter(t=>K.waveAt(W.S,t)===1&&K.waveAt(W.R,t)===1&&!(before('S',t)===1&&before('R',t)===1)).length;
+    const q=res.final.Q,qn=res.final.Qn;m1l='Q ile Qn birbirinin tersi mi?';m1=q==='X'?'bilinmiyor (X)':q!==qn?'evet':'hayır · ikisi de '+q;m2l='Yasak duruma (S = R = 1) giriş sayısı';m2=String(forb);now='Q = '+sqV(q)+', Qn = '+sqV(qn);
+    status=q==='X'?'S ve R aynı anda bırakıldı: iki NOR da 1 olmaya çalışır, hangisinin kazanacağını gecikme farkı belirler. Model bunu X ile gösterir; S ya da R yeniden 1 olunca belirlilik döner.':q===0&&qn===0?'Yasak durum: S = R = 1 iken iki çıkış da 0; Qn artık Q\'nun tersi değil.':'S = '+sq.cur.S+', R = '+sq.cur.R+': '+(sq.cur.S?'kur':sq.cur.R?'sıfırla':'tut')+'. Q = '+q+'.';
+  }else if(k==='jk'||k==='t'){
+    let qp=0,exp=0,unk=false;edges.forEach((e,i)=>{if(e.violation){unk=true;return;}const sm=res.sampled[i];if(unk){if(k==='jk'&&sm[0]!==sm[1]){qp=sm[0];unk=false;}return;}const nx=k==='jk'?(sm[0]&(1-qp))|((1-sm[1])&qp):sm[0]^qp;if(nx!==qp)exp++;qp=nx;});
+    const meas=chg('Q').filter(p=>p[1]!=='X'&&before('Q',p[0])!=='X').length;
+    m1l='Ölçülen Q değişimi (X hariç)';m1=String(meas);m2l=k==='jk'?'Q⁺ = J·¬Q + ¬K·Q ile beklenen':'Q⁺ = T ⊕ Q ile beklenen';m2=String(exp);now='Q = '+sqV(res.final.Q);
+    status=!edges.length?'Henüz yükselen kenar yok.':edges.length+' kenarın '+meas+' tanesinde Q değişti; karakteristik denklem '+exp+' değişim öngörüyor.'+(res.violations?' '+res.violations+' kenarda ('+vio+') kurulum süresi çiğnendi; '+(k==='t'?'T flip-flop X\'ten kendi başına çıkamaz (çevirmek, bilinmeyeni yine bilinmeyen yapar); sıfırlamak gerekir.':'Q, J ≠ K olan ilk temiz kenara kadar X.'):'')+(k==='t'&&meas>=2?' T = 1 iken Q, saatin yarı frekansında salınır.':'');
+  }else if(k==='counter'){
+    const per=res.outs.map(o=>{const up=chg(o).filter(p=>p[1]===1).map(p=>p[0]);return up.length>=2?up[up.length-1]-up[up.length-2]:null;});
+    m1l='Ölçülen periyotlar Q₀…Q'+sub(c.bits-1)+' (T)';m1=per.map(p=>p===null?'—':fmt(p,2)).join('; ');m2l='Kuram: 2^(i+1)·T';m2=res.outs.map((_,i)=>2**(i+1)).join('; ');
+    const val=res.outs.reduce((s,o,i)=>s+res.final[o]*2**i,0);now='Q = '+res.outs.map(o=>res.final[o]).reverse().join('')+'₂ = '+val;
+    status=edges.length+' yükselen kenar sayıldı; sayaç '+val+' gösteriyor ('+edges.length+' mod '+(1<<c.bits)+' = '+(edges.length%(1<<c.bits))+', EN hep 1 ise). Periyot ölçümü, bir bitin art arda iki yükselişi arasındaki süredir; iki yükseliş görülmeden yazılmaz.';
+  }else if(k==='shift'){
+    const last=res.sampled.slice(-c.bits).map(x=>x[0]).reverse();while(last.length<c.bits)last.push(0);
+    m1l='Yazmaç içeriği Q₀…Q'+sub(c.bits-1);m1=res.outs.map(o=>res.final[o]).join(' ');m2l='Son '+c.bits+' kenarda okunan D (yeniden eskiye)';m2=last.join(' ');now='Q = '+res.outs.map(o=>res.final[o]).join(' ');
+    status=edges.length+' kenar geçti. Bir bit Q₀\'a girdikten '+(c.bits-1)+' kenar sonra Q'+sub(c.bits-1)+'\'e varır; yazmaç, girişin son '+c.bits+' örneğini saklar.';
+  }else{
+    const stream=res.sampled.map(x=>x[0]).join(''),hits=W.STATE.slice(1).filter(p=>p[1]===res.machine.states-1).length;let direct=0;
+    if(c.overlap){for(let i=c.pattern.length;i<=stream.length;i++)if(stream.slice(i-c.pattern.length,i)===c.pattern)direct++;}else{let i=0;while(true){const j=stream.indexOf(c.pattern,i);if(j<0)break;direct++;i=j+c.pattern.length;}}
+    m1l='Makinenin bulduğu eşleşme';m1=String(hits);m2l='Okunan dizide doğrudan arama';m2=String(direct);now='durum D'+sub(res.state)+', Z = '+res.final.Z;
+    status='Okunan dizi: '+(stream||'henüz yok')+'. Makine '+hits+', doğrudan arama '+direct+' eşleşme buldu. '+res.machine.states+' durum için en az '+res.machine.flipflops+' flip-flop gerekir.';
   }
-
-  function clearAll() {
-    components = [];
-    wires = [];
-    nextId = 0;
-    memory = {};
+  if(sq.full)status='Kayıt doldu (400 olay); devam etmek için sıfırla. '+status;
+  put('sqM1Label',m1l);put('sqM1',m1);put('sqM2Label',m2l);put('sqM2',m2);put('sqNow',now);put('sqStatus',status);
+  sqTable(res,c);drawSeq(res,c);
+}
+function sqTable(res,c){
+  const k=sq.kind,head=h=>html('sqHead','<tr>'+h.map(x=>'<th scope="col">'+x+'</th>').join('')+'</tr>'),body=(rows,nowi)=>html('sqRows',rows.map((r,i)=>'<tr'+(i===nowi?' class="is-now"':'')+'>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join(''));
+  if(k==='dpair'){put('sqTableCap','Karakteristik tablo. ↑ yükselen kenar; Q⁺ işlemden sonraki çıkış.');head(['CLK','D','Kilit Q⁺','Flip-flop Q⁺']);body([['0','0 ya da 1','Q (tutar)','Q (tutar)'],['1','0','0 (izler)','Q (tutar)'],['1','1','1 (izler)','Q (tutar)'],['↑','0','0','0'],['↑','1','1','1']],-1);}
+  else if(k==='sr'){put('sqTableCap','SR kilidinin karakteristik tablosu (iki NOR; girişler 1 iken etkin).');head(['S','R','Q⁺','Qn⁺','Anlamı']);body([['0','0','Q','Qn','tut'],['0','1','0','1','sıfırla'],['1','0','1','0','kur'],['1','1','0','0','yasak']],(sq.cur.S||0)*2+(sq.cur.R||0));}
+  else if(k==='jk'){put('sqTableCap','JK flip-flop: yükselen kenardaki davranış.');head(['J','K','Q⁺','Anlamı']);body([['0','0','Q','tut'],['0','1','0','sıfırla'],['1','0','1','kur'],['1','1','¬Q','çevir']],(sq.cur.J||0)*2+(sq.cur.K||0));}
+  else if(k==='t'){put('sqTableCap','T flip-flop: yükselen kenardaki davranış.');head(['T','Q⁺','Anlamı']);body([['0','Q','tut'],['1','¬Q','çevir']],sq.cur.T||0);}
+  else if(k==='counter'){
+    const n=c.bits,val=res.outs.reduce((s,o,i)=>s+res.final[o]*2**i,0),bin=v=>v.toString(2).padStart(n,'0');put('sqTableCap','Durum tablosu (EN = 1). T sütunu, o durumda hangi flip-flopların çevireceğini gösterir (soldan sağa T'+sub(n-1)+'…T₀).');
+    head(['Durum','Q'+sub(n-1)+'…Q₀','T'+sub(n-1)+'…T₀','Sonraki']);body(Array.from({length:1<<n},(_,v)=>{const nx=(v+1)%(1<<n);return[v,bin(v),bin(v^nx),bin(nx)+' ('+nx+')'];}),val);
+  }else if(k==='shift'){
+    put('sqTableCap','Son kenarlar: her yükselen kenarda okunan D ve kenardan sonraki yazmaç içeriği.');head(['Kenar','Okunan D',...res.outs.map((_,i)=>'Q'+sub(i))]);
+    const rows=res.edges.map((e,i)=>[i+1,res.sampled[i][0],...res.outs.map(o=>K.waveAt(res.waves[o],e.t))]).slice(-10);body(rows.length?rows:[['—','—',...res.outs.map(()=>'—')]],rows.length-1);
+  }else{
+    const m=res.machine;put('sqTableCap','Durum tablosu. Dᵢ: örüntünün ilk i biti tutuyor. Örüntü: '+m.pattern+'; '+(m.overlap?'örtüşen eşleşmeler sayılır.':'eşleşmeden sonra makine baştan başlar.'));
+    head(['Durum','Tutan ön ek','X = 0 ise','X = 1 ise','Z']);body(m.next.map((r,i)=>['D'+sub(i),i?m.pattern.slice(0,i):'(boş)','D'+sub(r[0]),'D'+sub(r[1]),m.out[i]]),res.state);
   }
-
-  // Geri beslemeli devreler (SR kilidi) için bir önceki kararlı değerler
-  let memory = {};
-
-  function evaluateAll(commit) {
-    // Giriş pinleri kendi değerini verir; kapılar bir önceki durumdan başlar ve
-    // değerler değişmeyene kadar yeniden hesaplanır. Bağlı olmayan giriş 0 sayılır.
-    const values = {};
-    components.forEach(c => {
-      values[c.id] = c.type === "input" ? (c.value ? 1 : 0) : (memory[c.id] === 1 ? 1 : 0);
-    });
-    const gateList = components.filter(c => c.type !== "input");
-    for (let pass = 0; pass <= gateList.length + 1; pass++) {
-      let changed = false;
-      for (const comp of gateList) {
-        const inputVals = comp.inputs.map(inp => (typeof inp === "number" && values[inp] === 1) ? 1 : 0);
-        const result = evalGate(comp.type, inputVals);
-        if (result !== values[comp.id]) { values[comp.id] = result; changed = true; }
-      }
-      if (!changed) break;
-    }
-    if (commit) memory = values;
-    return values;
-  }
-
-  function getTopLevelOutputs() {
-    // Components with no downstream connections (or explicitly marked)
-    const hasDownstream = new Set();
-    wires.forEach(w => hasDownstream.add(w.from));
-    return components.filter(c => !hasDownstream.has(c.id));
-  }
-
-  function updateTruthTable() {
-    const gates = components.filter(c => c.type !== "input");
-    if (gates.length === 0) {
-      truthTableBody.innerHTML = '<tr><td colspan="3" style="color:var(--text-muted)">Devre boş</td></tr>';
-      outputLed.className = "led off";
-      outputLabel.textContent = "—";
-      return;
-    }
-
-    // Find input pins
-    const inputs = components.filter(c => c.type === "input").sort((a,b) => a.id - b.id);
-    const mainGate = gates[gates.length - 1]; // show last gate's truth table
-
-    if (inputs.length <= 2 && mainGate) {
-      let html = "";
-      const headerCols = inputs.map((_, i) => String.fromCharCode(65 + i));
-      html = `<tr>${headerCols.map(c => `<th>${c}</th>`).join("")}<th>Çıkış</th></tr>`;
-      const n = inputs.length;
-      const savedInputs = inputs.map((inp) => inp.value);
-      for (let mask = 0; mask < (1 << n); mask++) {
-        // Set input values
-        inputs.forEach((inp, i) => { inp.value = (mask >> (n - 1 - i)) & 1; });
-        const vals = evaluateAll();
-        const outVal = vals[mainGate.id] !== undefined ? vals[mainGate.id] : 0;
-        html += `<tr>${inputs.map(inp => `<td>${inp.value}</td>`).join("")}<td class="output-cell">${outVal}</td></tr>`;
-      }
-      truthTableBody.innerHTML = html;
-
-      // Kullanıcının giriş değerlerini geri yükle ve LED'i gerçek duruma göre güncelle
-      inputs.forEach((inp, i) => { inp.value = savedInputs[i]; });
-      const currentVals = evaluateAll();
-      const currentOut = currentVals[mainGate.id] !== undefined ? currentVals[mainGate.id] : 0;
-      outputLed.className = "led " + (currentOut ? "on" : "off");
-      outputLabel.textContent = currentOut ? "1 (YÜKSEK)" : "0 (DÜŞÜK)";
-    } else {
-      truthTableBody.innerHTML = '<tr><td colspan="3" style="color:var(--text-muted)">≥3 giriş</td></tr>';
-      evaluateAll();
-      const outputs = getTopLevelOutputs();
-      const vals = evaluateAll();
-      if (outputs.length > 0) {
-        const outVal = vals[outputs[0].id] !== undefined ? vals[outputs[0].id] : 0;
-        outputLed.className = "led " + (outVal ? "on" : "off");
-        outputLabel.textContent = outVal ? "1 (YÜKSEK)" : "0 (DÜŞÜK)";
-      }
-    }
-  }
-
-  // ---- Rendering ----
-  const COMP_W = 70, COMP_H = 50;
-  const PIN_RADIUS = 6;
-
-  function getComponentCenter(comp) {
-    return { x: comp.x + COMP_W / 2, y: comp.y + COMP_H / 2 };
-  }
-
-  function getInputPinPos(comp, pinIdx) {
-    const total = comp.inputs.length || 1;
-    const spacing = COMP_H / (total + 1);
-    return { x: comp.x, y: comp.y + spacing * (pinIdx + 1) };
-  }
-
-  function getOutputPinPos(comp) {
-    return { x: comp.x + COMP_W, y: comp.y + COMP_H / 2 };
-  }
-
-  function draw() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    // Background
-    ctx.fillStyle = "rgba(0,0,0,0.15)";
-    ctx.fillRect(0, 0, w, h);
-
-    // Grid
-    ctx.strokeStyle = "rgba(255,255,255,0.03)";
-    ctx.lineWidth = 1;
-    for (let x = 0; x < w; x += 30) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-    for (let y = 0; y < h; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-
-    // Draw wires
-    const vals = evaluateAll(true);
-    wires.forEach(wire => {
-      const fromComp = components.find(c => c.id === wire.from);
-      const toComp = components.find(c => c.id === wire.to);
-      if (!fromComp || !toComp) return;
-      const fromPos = getOutputPinPos(fromComp);
-      const toPos = getInputPinPos(toComp, wire.toPin);
-      const active = vals[wire.from] === 1;
-      ctx.strokeStyle = active ? "#22c55e" : "rgba(148,163,184,0.4)";
-      ctx.lineWidth = active ? 2.5 : 1.5;
-      ctx.beginPath();
-      const midX = (fromPos.x + toPos.x) / 2;
-      ctx.moveTo(fromPos.x, fromPos.y);
-      ctx.bezierCurveTo(midX, fromPos.y, midX, toPos.y, toPos.x, toPos.y);
-      ctx.stroke();
-    });
-
-    // Draw wire-in-progress
-    if (wireStart) {
-      ctx.strokeStyle = "rgba(94,234,212,0.6)";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-      ctx.beginPath();
-      ctx.moveTo(wireStart.x, wireStart.y);
-      ctx.lineTo(mouseX, mouseY);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-
-    // Draw components
-    components.forEach(comp => {
-      const info = GATE_INFO[comp.type];
-      const val = vals[comp.id];
-
-      // Body
-      const bodyColor = comp.type === "input"
-        ? (comp.value ? "#fbbf24" : "#78350f")
-        : "rgba(14,20,36,0.9)";
-      ctx.fillStyle = bodyColor;
-      ctx.strokeStyle = val === 1 ? "#22c55e" : (info.color || "#5eead4");
-      ctx.lineWidth = val === 1 ? 2.5 : 1.5;
-      ctx.beginPath();
-      ctx.roundRect(comp.x, comp.y, COMP_W, COMP_H, 8);
-      ctx.fill();
-      ctx.stroke();
-
-      // Label
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 11px Outfit, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      const pinLabel = comp.type === "input"
-        ? String.fromCharCode(65 + components.filter(c => c.type === "input" && c.id < comp.id).length)
-        : info.label;
-      ctx.fillText(pinLabel, comp.x + COMP_W / 2, comp.y + COMP_H / 2 - 6);
-
-      // Value for input
-      if (comp.type === "input") {
-        ctx.fillStyle = comp.value ? "#000" : "#fff";
-        ctx.font = "bold 10px Outfit, sans-serif";
-        ctx.fillText(comp.value, comp.x + COMP_W / 2, comp.y + COMP_H / 2 + 9);
-      } else if (val !== undefined) {
-        ctx.fillStyle = val ? "#22c55e" : "#94a3b8";
-        ctx.font = "bold 9px Outfit, sans-serif";
-        ctx.fillText(val, comp.x + COMP_W / 2, comp.y + COMP_H / 2 + 9);
-      }
-
-      // Input pins
-      for (let i = 0; i < comp.inputs.length; i++) {
-        const p = getInputPinPos(comp, i);
-        const isConnected = comp.inputs[i] !== null;
-        ctx.fillStyle = isConnected ? "#22c55e" : "rgba(148,163,184,0.5)";
-        ctx.strokeStyle = "rgba(255,255,255,0.2)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, PIN_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      }
-
-      // Output pin
-      if (comp.type !== "input") {
-        const p = getOutputPinPos(comp);
-        const hasOut = comp.outputConnections && comp.outputConnections.length > 0;
-        ctx.fillStyle = hasOut ? "#22c55e" : "rgba(148,163,184,0.5)";
-        ctx.strokeStyle = "rgba(255,255,255,0.2)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, PIN_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      } else {
-        // Input component: output pin on the right
-        const p = getOutputPinPos(comp);
-        const hasOut = comp.outputConnections && comp.outputConnections.length > 0;
-        ctx.fillStyle = hasOut ? "#22c55e" : "rgba(148,163,184,0.5)";
-        ctx.strokeStyle = "rgba(255,255,255,0.2)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, PIN_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      }
-    });
-
-    updateTruthTable();
-  }
-
-  // ---- Hit testing ----
-  function hitTestComponent(mx, my) {
-    for (let i = components.length - 1; i >= 0; i--) {
-      const c = components[i];
-      if (mx >= c.x && mx <= c.x + COMP_W && my >= c.y && my <= c.y + COMP_H) {
-        return c;
-      }
-    }
-    return null;
-  }
-
-  function hitTestOutputPin(comp, mx, my) {
-    const p = getOutputPinPos(comp);
-    const dist = Math.hypot(mx - p.x, my - p.y);
-    return dist <= PIN_RADIUS + 4 ? p : null;
-  }
-
-  function hitTestInputPin(comp, mx, my) {
-    for (let i = 0; i < comp.inputs.length; i++) {
-      const p = getInputPinPos(comp, i);
-      const dist = Math.hypot(mx - p.x, my - p.y);
-      if (dist <= PIN_RADIUS + 4) return { pos: p, pinIdx: i };
-    }
-    return null;
-  }
-
-  // ---- Events ----
-  function getCanvasPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-  }
-
-  canvas.addEventListener("pointerdown", (e) => {
-    const pos = getCanvasPos(e);
-    const comp = hitTestComponent(pos.x, pos.y);
-
-    if (comp) {
-      // Check if clicking on input pin (to start wire connection TO this pin)
-      const inputHit = hitTestInputPin(comp, pos.x, pos.y);
-      if (inputHit && !wireStart) {
-        // Clicking input pin: we could connect FROM a previous wire start
-        return;
-      }
-      // Check output pin for wire start
-      const outHit = hitTestOutputPin(comp, pos.x, pos.y);
-      if (outHit && !wireStart) {
-        wireStart = { compId: comp.id, pin: "out", x: outHit.x, y: outHit.y };
-        draw();
-        return;
-      }
-      // If wire in progress and clicked on input pin, complete wire
-      if (wireStart && comp.type !== "input") {
-        const inp = hitTestInputPin(comp, pos.x, pos.y);
-        if (inp) {
-          addWire(wireStart.compId, comp.id, 0, inp.pinIdx);
-          wireStart = null;
-          draw();
-          return;
-        }
-      }
-      // If input component, try completing wire
-      if (wireStart && comp.type === "input") {
-        const outP = hitTestOutputPin(comp, pos.x, pos.y);
-        if (outP) {
-          // Wire to input component output... unusual, but allow
-          addWire(wireStart.compId, comp.id, 0, 0);
-          wireStart = null;
-          draw();
-          return;
-        }
-      }
-      // Start drag (giriş pini sürüklenmeden bırakılırsa değeri 0/1 değişir)
-      dragComp = comp;
-      dragMoved = false;
-      dragStartX = pos.x; dragStartY = pos.y;
-      dragOffsetX = pos.x - comp.x;
-      dragOffsetY = pos.y - comp.y;
-      canvas.style.cursor = "grabbing";
-      return;
-    }
-
-    // Click on empty space: cancel wire
-    if (wireStart) {
-      wireStart = null;
-      draw();
-      return;
+}
+function drawSeq(res,c){
+  const k=sq.kind,W=res.waves,names=[...res.sigs.filter(s=>s==='CLK'),...res.sigs.filter(s=>s!=='CLK'),...res.outs],rows=names.length+(k==='fsm'?1:0),rh=30;
+  const s=surface('sqTiming',rows*rh+50);if(!s)return;
+  const tEnd=Math.max(sq.now,sqLastT())+.5,span=Math.max(6,Math.min(12,tEnd)),t1=Math.max(span,tEnd),t0=t1-span,L=46,R=s.w-12,X=t=>L+(Math.max(t0,Math.min(t1,t))-t0)*(R-L)/(t1-t0),top=12,bot=top+rows*rh;
+  for(let q=Math.ceil(t0);q<=t1;q++){seg(s,[X(q),top,X(q),bot],s.p.grid,1);label(s,String(q),X(q),bot+12,s.p.muted,'center',10);}
+  label(s,'t / T',R,bot+27,s.p.muted,'right',10);
+  const dataRows=names.map((n,i)=>[n,i]).filter(([n])=>SQ[k].ins.includes(n));
+  for(const e of res.edges){if(e.t<t0)continue;
+    if(c.tsu>0&&k!=='sr')for(const[,ri]of dataRows){s.g.fillStyle=e.violation?s.p.red:s.p.warm;s.g.globalAlpha=e.violation?.35:.16;s.g.fillRect(X(e.t-c.tsu),top+ri*rh+3,X(e.t)-X(e.t-c.tsu),rh-6);s.g.globalAlpha=1;}
+    seg(s,[X(e.t),top,X(e.t),bot],e.violation?s.p.red:s.p.dim,1,[3,4]);
+    s.g.fillStyle=e.violation?s.p.red:s.p.ink;s.g.beginPath();s.g.moveTo(X(e.t)-5,top+rh-3);s.g.lineTo(X(e.t)+5,top+rh-3);s.g.lineTo(X(e.t),top+rh-11);s.g.fill();}
+  names.forEach((nm,ri)=>{
+    const y1=top+ri*rh+6,y0=top+(ri+1)*rh-6,wv=W[nm],isOut=res.outs.includes(nm),col=nm==='CLK'?s.p.muted:isOut?s.p.accent:s.p.violet;
+    label(s,nm==='QL'?'Q kilit':nm==='QF'?'Q ff':nm,L-7,(y0+y1)/2,s.p.ink,'right',nm.length>2||nm==='QL'||nm==='QF'?9.5:11);
+    for(let i=0;i<wv.length;i++){
+      const a=wv[i][0],b=i+1<wv.length?wv[i+1][0]:t1,v=wv[i][1];if(b<t0)continue;const xa=X(a),xb=X(b);
+      if(v==='X'){s.g.fillStyle=s.p.red;s.g.globalAlpha=.22;s.g.fillRect(xa,y1,xb-xa,y0-y1);s.g.globalAlpha=1;for(let x=xa;x<xb-3;x+=7)seg(s,[x,y0,Math.min(x+7,xb),y1],s.p.red,1);seg(s,[xa,y1,xb,y1],s.p.red,1.2);seg(s,[xa,y0,xb,y0],s.p.red,1.2);}
+      else seg(s,[xa,v?y1:y0,xb,v?y1:y0],col,2);
+      if(i+1<wv.length&&wv[i+1][0]>=t0&&v!=='X'&&wv[i+1][1]!=='X')seg(s,[xb,y1,xb,y0],col,2);
     }
   });
-
-  canvas.addEventListener("pointermove", (e) => {
-    const pos = getCanvasPos(e);
-    mouseX = pos.x;
-    mouseY = pos.y;
-
-    if (dragComp) {
-      if (Math.hypot(pos.x - dragStartX, pos.y - dragStartY) > 4) dragMoved = true;
-      if (!dragMoved) return;
-      dragComp.x = pos.x - dragOffsetX;
-      dragComp.y = pos.y - dragOffsetY;
-      draw();
-      return;
-    }
-
-    if (wireStart) {
-      draw();
-    }
-
-    // Hover cursor
-    const comp = hitTestComponent(pos.x, pos.y);
-    if (comp) {
-      const outHit = hitTestOutputPin(comp, pos.x, pos.y);
-      const inpHit = comp.type !== "input" ? hitTestInputPin(comp, pos.x, pos.y) : null;
-      if (outHit || inpHit) {
-        canvas.style.cursor = "pointer";
-      } else {
-        canvas.style.cursor = "grab";
-      }
-    } else {
-      canvas.style.cursor = wireStart ? "crosshair" : "crosshair";
-    }
-  });
-
-  canvas.addEventListener("pointerup", (e) => {
-    if (dragComp) {
-      if (dragComp.type === "input" && !dragMoved) dragComp.value = dragComp.value ? 0 : 1;
-      dragComp = null;
-      canvas.style.cursor = "crosshair";
-      draw();
-      return;
-    }
-
-    // Check if we dropped wire on an input pin
-    if (wireStart) {
-      const pos = getCanvasPos(e);
-      for (const comp of components) {
-        if (comp.id === wireStart.compId) continue;
-        const inp = hitTestInputPin(comp, pos.x, pos.y);
-        if (inp) {
-          addWire(wireStart.compId, comp.id, 0, inp.pinIdx);
-          wireStart = null;
-          draw();
-          return;
-        }
-        // Also check output pin of input components
-        if (comp.type === "input") {
-          const outP = hitTestOutputPin(comp, pos.x, pos.y);
-          if (outP) {
-            addWire(wireStart.compId, comp.id, 0, 0);
-            wireStart = null;
-            draw();
-            return;
-          }
-        }
-      }
-      // Drop on empty: cancel
-      wireStart = null;
-      draw();
-    }
-  });
-
-  canvas.addEventListener("pointerleave", () => {
-    dragComp = null;
-    canvas.style.cursor = "crosshair";
-    draw();
-  });
-
-  canvas.addEventListener("dblclick", (e) => {
-    const pos = getCanvasPos(e);
-    const comp = hitTestComponent(pos.x, pos.y);
-    if (comp) {
-      removeComponent(comp.id);
-      draw();
-    }
-  });
-
-  // ---- Sidebar buttons ----
-  document.querySelectorAll(".gate-btn[data-gate]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const gateType = btn.dataset.gate;
-
-      if (gateType === "sr-latch") {
-        // Create SR Latch example
-        clearAll();
-        const s = addComponent("input", 80, 80);
-        s.value = 0;
-        const r = addComponent("input", 80, 200);
-        r.value = 0;
-        const nand1 = addComponent("nand", 250, 80);
-        const nand2 = addComponent("nand", 250, 200);
-
-        // Wire S → NAND1 input 0
-        addWire(s.id, nand1.id, 0, 0);
-        // Wire R → NAND2 input 1
-        addWire(r.id, nand2.id, 0, 1);
-        // Wire NAND1 output → NAND2 input 0
-        addWire(nand1.id, nand2.id, 0, 0);
-        // Wire NAND2 output → NAND1 input 1
-        addWire(nand2.id, nand1.id, 0, 1);
-
-        draw();
-        return;
-      }
-
-      // Yeni bileşenler üst üste binmesin: giriş pinleri solda, kapılar ortada sıralanır
-      const isInput = gateType === "input";
-      const n = components.filter(c => (c.type === "input") === isInput).length;
-      const cx = isInput ? 40 : Math.max(130, (canvas.clientWidth / 2) - COMP_W / 2 + (n % 3 - 1) * 95);
-      const cy = 30 + (n % 4) * 62;
-      addComponent(gateType, cx, cy);
-      draw();
-    });
-  });
-
-  ["clearCanvasBtn", "clearBtn"].forEach(id => {
-    document.getElementById(id).addEventListener("click", () => {
-      clearAll();
-      draw();
-    });
-  });
-
-  // Save/Load to localStorage
-  document.getElementById("saveCircuitBtn").addEventListener("click", () => {
-    const data = { components, wires, nextId };
-    localStorage.setItem("mantik-devresi", JSON.stringify(data));
-    alert("Devre kaydedildi!");
-  });
-
-  document.getElementById("loadCircuitBtn").addEventListener("click", () => {
-    const raw = localStorage.getItem("mantik-devresi");
-    if (!raw) { alert("Kayıtlı devre bulunamadı."); return; }
-    try {
-      const data = JSON.parse(raw);
-      components = data.components || [];
-      wires = data.wires || [];
-      nextId = data.nextId || 0;
-      memory = {};
-      draw();
-    } catch (e) {
-      alert("Devre yüklenirken hata oluştu.");
-    }
-  });
-
-  // ---- Resize ----
-  function resize() {
-    draw();
+  if(k==='fsm'){const ri=names.length,y=top+ri*rh+rh/2,wv=W.STATE;label(s,'durum',L-7,y,s.p.ink,'right',9.5);for(let i=0;i<wv.length;i++){const a=wv[i][0],b=i+1<wv.length?wv[i+1][0]:t1;if(b<t0)continue;const xa=X(a),xb=X(b);seg(s,[xa,y-9,xa,y+9],s.p.muted,1);if(xb-xa>16)label(s,'D'+sub(wv[i][1]),(xa+xb)/2,y,wv[i][1]===res.machine.states-1?s.p.accent:s.p.ink,'center',10.5);}}
+  if(sq.auto)seg(s,[X(sq.now),top-6,X(sq.now),bot],s.p.ink,1.2,[2,3]);
+  /* simge ya da durum diyagramı */
+  const d=surface('sqDiagram');if(!d)return;const g=d.g,cx=d.w/2,cy=d.h/2;
+  const box=(x,y,w,h,title,ins,outs)=>{g.lineWidth=1.6;g.strokeStyle=d.p.ink;g.fillStyle=d.p.fill;g.beginPath();g.roundRect(x,y,w,h,8);g.fill();g.stroke();label(d,title,x+w/2,y+h/2,d.p.muted,'center',11);
+    ins.forEach(([n,v],i)=>{const py=y+h*(i+1)/(ins.length+1);seg(d,[x-26,py,x,py],v===1?d.p.accent:d.p.dim,v===1?2.4:1.6);label(d,n+'='+v,x-30,py,v===1?d.p.accent:d.p.ink,'right',11,'600');if(n==='CLK'&&title!=='D kilidi'){seg(d,[x,py-5,x+7,py,x,py+5],d.p.ink,1.3);}});
+    outs.forEach(([n,v],i)=>{const py=y+h*(i+1)/(outs.length+1);seg(d,[x+w,py,x+w+26,py],v===1?d.p.accent:v==='X'?d.p.red:d.p.dim,v===1?2.4:1.6);label(d,n+'='+sqV(v),x+w+30,py,v===1?d.p.accent:v==='X'?d.p.red:d.p.ink,'left',11,'600');});};
+  const cur=sq.cur,F=res.final;let cap='';
+  if(k==='dpair'){const w=Math.min(110,d.w*.24),h=Math.min(84,d.h*.5);box(d.w*.27-w/2,cy-h/2,w,h,'D kilidi',[['D',cur.D],['CLK',cur.CLK]],[['Q',F.QL]]);box(d.w*.73-w/2,cy-h/2,w,h,'D flip-flop',[['D',cur.D],['CLK',cur.CLK]],[['Q',F.QF]]);cap='İki eleman aynı D ve aynı saati görür. Soldaki düzeye, sağdaki kenara duyarlıdır; flip-flopun saat girişindeki küçük üçgen kenar tetiklemeyi simgeler.';}
+  else if(k==='sr'||k==='jk'||k==='t'){const w=Math.min(130,d.w*.3),h=Math.min(96,d.h*.56),ins=SQ[k].ins.map(n=>[n,cur[n]||0]);if(k!=='sr')ins.splice(1,0,['CLK',cur.CLK]);box(cx-w/2,cy-h/2,w,h,SQ[k].title.split(' (')[0],ins,k==='sr'?[['Q',F.Q],['Qn',F.Qn]]:[['Q',F.Q]]);cap=k==='sr'?'İki NOR kapısı çapraz bağlıdır; iç yapısını 2. sekmedeki hazır devrede kurup deneyebilirsin.':'Çıkış yalnız CLK\'nin yükselen kenarında değişebilir.';}
+  else if(k==='shift'){const n=c.bits,w=Math.min(64,(d.w-90)/n-14),gap=(d.w-90-n*w)/n,h=Math.min(60,d.h*.4),y=cy-h/2;let x=50;label(d,'D='+cur.D,x-8,cy,cur.D?d.p.accent:d.p.ink,'right',11,'600');
+    res.outs.forEach((o,i)=>{const v=F[o],pv=i?F[res.outs[i-1]]:cur.D;seg(d,[x-(i?gap:6),cy,x,cy],pv?d.p.accent:d.p.dim,pv?2.4:1.6);g.lineWidth=1.6;g.strokeStyle=d.p.ink;g.fillStyle=v?d.p.accent:d.p.fill;g.beginPath();g.roundRect(x,y,w,h,8);g.fill();g.stroke();label(d,'Q'+sub(i),x+w/2,y-12,d.p.muted,'center',10.5);label(d,String(v),x+w/2,cy,v?d.p.bg:d.p.ink,'center',16,'700');x+=w+gap;});cap='Her kutu bir D flip-flop; hepsi aynı saatle tetiklenir. Dolu kutu 1 saklıyor.';}
+  else{
+    const states=k==='counter'?1<<c.bits:res.machine.states,curS=k==='counter'?res.outs.reduce((a,o,i)=>a+F[o]*2**i,0):res.state,rad=Math.min(d.w*.36,d.h*.34),nr=k==='counter'?(states>8?11:14):17;
+    const P=i=>{const a=-Math.PI/2+2*Math.PI*i/states;return[cx+rad*Math.cos(a)*(d.w>d.h*1.5?1.5:1),cy+rad*Math.sin(a)];};
+    const arrow=(a,b,txt,colr,bend)=>{const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len,nx=-uy,ny=ux,m=[(a[0]+b[0])/2+nx*bend,(a[1]+b[1])/2+ny*bend],sa=[a[0]+ux*nr+nx*bend*.3,a[1]+uy*nr+ny*bend*.3],eb=[b[0]-ux*nr+nx*bend*.3,b[1]-uy*nr+ny*bend*.3];
+      g.strokeStyle=colr;g.lineWidth=1.4;g.beginPath();g.moveTo(sa[0],sa[1]);g.quadraticCurveTo(m[0],m[1],eb[0],eb[1]);g.stroke();const ang=Math.atan2(eb[1]-m[1],eb[0]-m[0]);g.fillStyle=colr;g.beginPath();g.moveTo(eb[0],eb[1]);g.lineTo(eb[0]-8*Math.cos(ang-.4),eb[1]-8*Math.sin(ang-.4));g.lineTo(eb[0]-8*Math.cos(ang+.4),eb[1]-8*Math.sin(ang+.4));g.fill();if(txt)label(d,txt,(sa[0]+2*m[0]+eb[0])/4+nx*7,(sa[1]+2*m[1]+eb[1])/4+ny*7,colr,'center',10.5,'600');};
+    const loop=(p,i,txt,colr)=>{const a=-Math.PI/2+2*Math.PI*i/states,ox=Math.cos(a),oy=Math.sin(a),c0=[p[0]+ox*(nr+9),p[1]+oy*(nr+9)];g.strokeStyle=colr;g.lineWidth=1.4;g.beginPath();g.arc(c0[0],c0[1],9,0,7);g.stroke();label(d,txt,c0[0]+ox*17,c0[1]+oy*15,colr,'center',10.5,'600');};
+    if(k==='counter'){for(let i=0;i<states;i++)arrow(P(i),P((i+1)%states),'',d.p.muted,0);}
+    else{const m=res.machine;m.next.forEach((r,i)=>{if(r[0]===r[1]){if(r[0]===i)loop(P(i),i,'0,1',d.p.muted);else arrow(P(i),P(r[0]),'0,1',d.p.muted,14);return;}r.forEach((to,b)=>{const colr=b?d.p.violet:d.p.warm;if(to===i)loop(P(i),i,String(b),colr);else arrow(P(i),P(to),String(b),colr,Math.abs(to-i)===1||Math.abs(to-i)===states-1?12:26);});});}
+    for(let i=0;i<states;i++){const p=P(i),on=i===curS,acc=k==='fsm'&&i===states-1;g.lineWidth=on?3:1.5;g.strokeStyle=on?d.p.accent:d.p.ink;g.fillStyle=d.p.fill;g.beginPath();g.arc(p[0],p[1],nr,0,7);g.fill();g.stroke();if(acc){g.lineWidth=1.2;g.beginPath();g.arc(p[0],p[1],nr-4,0,7);g.stroke();}label(d,k==='counter'?String(i):'D'+sub(i),p[0],p[1]+.5,on?d.p.accent:d.p.ink,'center',k==='counter'&&states>8?10:11.5,'600');}
+    cap=k==='counter'?'Durum diyagramı: sayaç her yükselen kenarda bir sonraki sayıya geçer ve en büyük sayıdan 0\'a sarar. Kalın halka şu anki durumdur.':'Durum diyagramı: turuncu oklar X = 0, mor oklar X = 1 geçişleridir. Çift halkalı durumda Z = 1; kalın halka şu anki durumdur.';
   }
-  window.addEventListener("resize", resize);
-
-  // ---- Init ----
-  // Start with a simple AND gate example
-  const a = addComponent("input", 60, 120);
-  a.value = 0;
-  const b = addComponent("input", 60, 220);
-  b.value = 0;
-  const andGate = addComponent("and", 260, 170);
-
-  // Wire them
-  addWire(a.id, andGate.id, 0, 0);
-  addWire(b.id, andGate.id, 0, 1);
-
-  resize();
-})();
-</script>
-
-</body>
-</html>
+  put('sqDiagramCap',cap);
+}
+function sqInitUI(){
+  $('sqKind').addEventListener('change',()=>{sqStart($('sqKind').value);updateSeq();});
+  [0,1].forEach(i=>$('sqIn'+i).onclick=()=>{const sig=SQ[sq.kind].ins[i];if(sig){sqToggleIn(sig);updateSeq();}});
+  $('sqClk').onclick=()=>{sqToggleClk();updateSeq();};$('sqPulse').onclick=()=>{if(sq.cur.CLK)sqToggleClk();sqToggleClk();sqToggleClk();updateSeq();};
+  $('sqWait').onclick=()=>{sq.now=sqLastT()+.5;sq.events.push({t:sq.now,sig:'S',v:sq.cur.S||0});sq.lastClk=sq.now;updateSeq();};
+  $('sqAuto').addEventListener('change',()=>{sq.auto=$('sqAuto').checked&&!sq.full&&sq.kind!=='sr';$('sqAuto').checked=sq.auto;if(sq.auto){sq.now=Math.max(sq.now,sqLastT());kick();}else sq.lastClk=Math.max(sq.lastClk,[...sq.events].reverse().find(e=>e.sig==='CLK')?.t||0);updateSeq();});
+  ['sqPeriod','sqTsu'].forEach(id=>$(id).addEventListener('input',updateSeq));['sqBits','sqOverlap'].forEach(id=>$(id).addEventListener('change',()=>{sqStart(sq.kind);updateSeq();}));
+  $('sqPattern').addEventListener('input',()=>{sqStart(sq.kind);updateSeq();});
+  $('sqDemo').onclick=()=>{sqDemo();updateSeq();};$('sqViolate').onclick=()=>{sqViolation();updateSeq();};
+}
+function sqAdvance(el){
+  const T=+$('sqPeriod').value;sq.now+=el/T;
+  while(sq.auto){const next=Math.max(sq.lastClk+.5,sqLastT());if(next>sq.now)break;if(!sqPush('CLK',sq.cur.CLK?0:1,next))break;sq.lastClk=next;}
+  updateSeq();
+}
+/* ---------- ortak: sekmeler, sıfırlama, döngü ---------- */
+const tabs=['expr','build','kmap','adder','seq'];
+function render(){if(active==='expr')updateExpr();else if(active==='build')refreshEd();else if(active==='kmap')updateKmap();else if(active==='adder')updateAdder(true);else updateSeq();}
+function reset(name){
+  if(name==='expr'){$('exA').value='¬(A·B)';$('exB').value='¬A + ¬B';$('exDraw').value='a';$('exRow').max=3;$('exRow').value=3;updateExpr();}
+  else if(name==='build'){ed.undo=[];edLoad('half');}
+  else if(name==='kmap'){$('kmKind').value='sop';$('kmExpr').value='';showErr('kmErr','');kmSet(4,KMDEF[4]);}
+  else if(name==='adder'){$('adArch').value='ripple';$('adN').value=4;$('adTau').value=10;$('adK').value='1';adChainStim();ad.key='';ad.t=0;ad.playing=false;updateAdder();}
+  else{$('sqKind').value='dpair';$('sqPeriod').value=2;$('sqTsu').value=.1;$('sqBits').value='4';$('sqPattern').value='101';$('sqOverlap').value='1';sqStart('dpair');updateSeq();}
+}
+function tab(name){active=name;tabs.forEach(t=>{$('panel-'+t).hidden=t!==name;$('tab-'+t).setAttribute('aria-selected',String(t===name));$('tab-'+t).tabIndex=t===name?0:-1;});if(name!=='adder')ad.playing=false;if(name!=='seq'&&sq.auto){sq.auto=false;$('sqAuto').checked=false;}render();}
+tabs.forEach((t,i)=>{$('tab-'+t).onclick=()=>tab(t);$(t+'Reset').onclick=()=>reset(t);$('tab-'+t).onkeydown=e=>{const n=tabs.length,j=e.key==='ArrowRight'?(i+1)%n:e.key==='ArrowLeft'?(i+n-1)%n:e.key==='Home'?0:e.key==='End'?n-1:null;if(j!==null){e.preventDefault();tab(tabs[j]);$('tab-'+tabs[j]).focus();}};});
+let rafOn=false,last=0;
+function frame(ts){
+  rafOn=false;const el=Math.min(.05,Math.max(0,(ts-last)/1000));last=ts;let need=false;
+  if(active==='adder'&&ad.playing){ad.t+=el*2;const mx=+$('adTime').max;if(ad.t>=mx){ad.t=mx;ad.playing=false;}drawAdder();need=ad.playing;}
+  if(active==='seq'&&sq.auto){sqAdvance(el);need=sq.auto;}
+  if(need)kick();
+}
+function kick(){if(rafOn)return;rafOn=true;last=performance.now();requestAnimationFrame(frame);}
+/* 1. sekme olayları */
+['exA','exB'].forEach(id=>$(id).addEventListener('input',updateExpr));$('exDraw').addEventListener('change',updateExpr);$('exRow').addEventListener('input',updateExpr);
+Object.entries(EXPRESETS).forEach(([id,[a,b]])=>$(id).onclick=()=>{$('exA').value=a;$('exB').value=b;$('exDraw').value='a';$('exRow').max=15;$('exRow').value=15;updateExpr();});
+$('exRows').addEventListener('click',e=>{const tr=e.target.closest('tr[data-row]');if(tr){$('exRow').value=tr.dataset.row;updateExpr();}});
+/* 3. sekme olayları */
+$('kmGrid').addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;const m=+b.dataset.m,v=km.cells[m];km.cells[m]=v===0?1:v===1?'X':0;updateKmap();});
+$('kmN').addEventListener('change',()=>{const n=+$('kmN').value;showErr('kmErr','');kmSet(n,KMDEF[n]);});$('kmKind').addEventListener('change',updateKmap);
+$('kmFill').onclick=()=>{let ast;try{ast=K.parse($('kmExpr').value);}catch(e){if(!e.logic)throw e;return showErr('kmErr',e.message);}const over=K.varsOf(ast).find(v=>v>=km.n);if(over!==undefined)return showErr('kmErr','İfade '+K.VARS[over]+' değişkenini kullanıyor; harita '+km.n+' değişkenli. Önce değişken sayısını artır.');showErr('kmErr','');kmSet(km.n,K.table(ast,Array.from({length:km.n},(_,i)=>i)));};
+$('kmSeg').onclick=()=>kmSet(4,KMDEF[4]);$('kmMaj').onclick=()=>kmSet(3,KMDEF[3]);$('kmChecker').onclick=()=>kmSet(4,Array.from({length:16},(_,m)=>[...m.toString(2)].filter(x=>x==='1').length&1));$('kmCorners').onclick=()=>kmSet(4,Array.from({length:16},(_,m)=>+[0,2,8,10].includes(m)));$('kmZero').onclick=()=>kmSet(km.n,Array(1<<km.n).fill(0));
+edInit();adInitUI();sqInitUI();
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||e.target.closest('input,select,button,a,textarea,summary'))return;
+  if(e.key.toLowerCase()==='r')reset(active);
+  else if(e.key===' '&&active==='adder'){e.preventDefault();$('adPlay').click();}
+  else if(e.key===' '&&active==='seq'&&sq.kind!=='sr'){e.preventDefault();$('sqAuto').checked=!$('sqAuto').checked;$('sqAuto').dispatchEvent(new Event('change'));}
+});
+/* başlangıç durumu */
+km.cells=KMDEF[4].slice();sqStart('dpair');adChainStim();{const p=K.preset('half');ed.nodes=p.nodes;let q=1;ed.nodes.forEach(n=>{if(edIsGate(n))n.label='K'+q++;});$('edTarget').value=p.target;}
+const redraw=()=>{if(active==='build')drawEd();else render();};new ResizeObserver(redraw).observe(document.querySelector('.app-content'));new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});render();
+})();</script></body></html>

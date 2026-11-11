@@ -208,8 +208,8 @@ window.ACELYA_DIGEST["programlama-paradigmalari"] = {
   next: [
     { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "Buyurgan ve fonksiyonel tarzın iki atasını kendin çalıştır: kurallarını yazdığın bir Turing makinesi ve adım adım indirgenen lambda terimleri; sonunda ikisinin de cevaplayamadığı soru." },
     { href: "veritabanlari.html", title: "Veritabanları: İlişkisel Model, Sorgular ve İndeksler", why: "Bildirimsel tarzın en yaygın örneği: bir SQL sorgusu yaz, motorun onu hangi plana çevirdiğini ve kaç satıra dokunduğunu say; aynı sorguyu indeksle yeniden çalıştır." },
-    { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "Bu sayfadaki yorumlayıcıların büyüğü nasıl kurulur: kaynak kodun token'lara, sözdizimi ağacına ve makine koduna dönüşmesi; derleme ile yorumlamanın farkı." },
-    { href: "tasarim-desenleri.html", title: "Tasarım Desenleri", why: "Burada yorumlayıcısı olmayan nesne yönelimli tarzın olgun hâli: 23 klasik desen, sık birlikte kullanılanlar ve yanlış kullanımlar." },
+    { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "Bu sayfadaki yorumlayıcıların büyüğü nasıl kurulur: kendi yazdığın küçük programın token'lara, sözdizimi ağacına, üç adresli koda ve bir yığın makinesinin bayt koduna dönüşmesi; dört yürütücü aynı sonucu verir mi?" },
+    { href: "tasarim-desenleri.html", title: "Tasarım Desenleri: Say, Karşılaştır, Bedelini Gör", why: "Nesne yönelimli tarzın olgun hâli: Observer, Strategy, Decorator gibi desenler sayfada çalışan küçük programlarla sayılır ve her birinin bedeli de gösterilir; 23 klasik desenin kataloğu da orada." },
   ],
   sources: [
     { title: "Wikipedia · Programming paradigm", url: "https://en.wikipedia.org/wiki/Programming_paradigm", note: "Paradigma ailelerinin genel haritası ve tarihçesi (İngilizce)." },

@@ -1428,3 +1428,82 @@ arayüz, metin ve kenar durumlarıydı.
 - Kaynak açılamadığı için bilgiden bırakılan ayrıntılar doğrulayıcı raporlarında tek tek listelendi; başlıcaları:
   birkaç nobelprize.org sayfası (403), Markowsky makalesi (taranmış), Hennie 1965, Callister Tablo 5.2,
   Molander 1985, bazı ABD tarihsel rakamları.
+
+## 11 Kasım 2026 — H: yirmi bir laboratuvarın daha yeniden kurulumu
+
+"Eski 36 defter" bölümünde yalnız düzeltilmiş, laboratuvar düzeyine çıkarılmamış diye anılan yirmi bir sayfa
+G hattıyla (kurucu → farklı yazar → üçüncü, bağımsız doğrulayıcı/editör) sıfırdan yeniden kuruldu. Her
+sayfanın dondurulmuş hesap çekirdeği ve kalıcı testi var (`scripts/check-g-<slug>.mjs`; hepsi `npm run test:g`).
+Bu bölüm, aynı sayfalar için önceki bölümlerdeki "Açık" maddelerin yerine geçer; onların hepsi kapandı.
+Doğrulayıcılar çekirdekleri kendi yazdıkları başvuru kodlarıyla yeniden hesapladı; hiçbir çekirdekte formül ya
+da sabit hatası çıkmadı (iki çekirdek içi küçük düzeltme aşağıda). Düzeltilenler durum satırları, açıklama
+metinleri, hazır düzenler ve kenar durumlarıydı. Defter puanları 8–8,5'ten 9'a çıktı. Bütün meta açıklamaları
+yeni defter etiketlerinden yazıldı; öteki defterlerde bu sayfalara giden 24 "sonraki durak" bağlantısının
+başlıkları ve eskimiş gerekçeleri güncellendi.
+
+- ✔ `elektrokimya`: galvanik hücre (dokuz yarı hücre, OpenStax Ek L), Nernst ve derişim hücresi, Faraday
+  elektrolizi, pil boşalması (RK4). Daniell E° = 1,099 V. Düzeltildi: "Dengede" durumu Q/K oranını açıkça
+  yazıyor; boşalma süresi tahmini "en az" diye; karışma entropisi cümlesi. Sayfa ondalık nokta kullanır.
+- ✔ `sicim-teorisi`: klasik titreşen sicim (sonlu fark), bosonik sicim düzey sayımı ve Hagedorn, sarılı boyut
+  ve T-ikiliği, Planck ölçekleri. Düzeltildi: ölçülen frekans çekirdekte kübik sıfır geçişiyle sabitlendi;
+  Planck birimlerinin G belirsizliği yarıya. Açık: C = 1,02 kararsızlık adım sayısı tarayıcıya göre 107–108.
+- ✔ `bicimsel-diller-ve-otomata-teorisi`: DFA, NFA → DFA, Thompson regex + pompalama, CYK ve PDA.
+  Düzeltildi: pompalama durum metni ve not, alfabe değişince sınama dizgisi ipucu, LBA satırı.
+- ✔ `algoritmalar`: sıralama (olay izinden oynatma), arama, çizgeler (Bellman–Ford denetimi), büyüme ve
+  dinamik programlama. Düzeltildi (çekirdek içi): aramanın "yok" istatistiği arayüzdeki hedefle aynı noktada
+  ölçülüyor; enterpolasyon notu, DFS durumu.
+- ✔ `veri-yapilari`: dinamik dizi/bağlı liste, halka tampon, hash (Knuth sonlu-m değerleri), BST/AVL, ikili
+  yığın. Düzeltildi (çekirdek içi): halka tamponun dolanma sayacı yalnız gerçek dolanmayı sayıyor.
+- ✔ `bilgisayar-sistemleri-ve-mimarisi`: tamsayı ve IEEE 754, beş aşamalı boru hattı, LRU önbellek, başarım ve
+  Amdahl. Düzeltildi: görünür ters bölü, ön ayar adı, saat frekansı ile paralel kesrin aynı harfi.
+- ✔ `makine-dili-assembly-c`: öğretim işlemcisi ve iki geçişli çevirici, doğrulanmış x86-64 paneli (bayt bayt
+  korundu, clang ile yeniden üretildi), yığın ve çağrı, bayraklar. Düzeltildi: "üstüne yazılan hücre" sayımı
+  yazma değil ayrı hücre sayıyor; "derleyici/çevirici" ayrımı.
+- ✔ `isaretciler-ve-bellek-yonetimi`: model bellekte işaretçi aritmetiği, öbek ayırıcı, bellek hataları,
+  referans sayma ve işaretle-süpür. Düzeltildi: dizi dışı okumada modelin değeri gerçek C davranışı gibi
+  sunuluyordu; `(−1)[a]`; var olan bağlantının güçlü/zayıf dönüşümü artık bildiriliyor.
+- ✔ `isletim-sistemleri-ve-linux`: zamanlama, sanal bellek ve TLB, eşzamanlılık ve kilitlenme, model kabuk.
+  Düzeltildi: "Açlık" hazır düzeni (yaşlandırma artık her adımda etkili), `ps` çıktıları, eşitlik bozma
+  kuralları, Coffman yeterlilik notu, kabukta umask/izin/sabit bağlantı davranışları.
+- ✔ `derleyici-ve-yorumlayicilar`: gerçek mini derleyici (sözcük, ağaç, tanımlı atama, üç adresli kod, yığın
+  makinesi bayt kodu, dört yürütücü). Düzeltildi: profil grafiği ekseni, eksik EBNF kuralı, Lua cümlesi.
+- ✔ `tasarim-desenleri`: Observer, Strategy/State, Decorator/Composite, Fabrika/Adapter/Singleton sayımlarla ve
+  bedelleriyle; 23 desen kataloğu. Düzeltildi: "konu gözlemcilerini tanımaz" ifadesi (GoF ile çelişiyordu).
+- ✔ `yazilim-muhendisligi`: Git veri modeli, kapsama ve mutasyon testi, PERT/Monte Carlo ve Brooks öğretim
+  modeli, kanban ve Little yasası. Düzeltildi: "Kararsız" durumunun nedeni, tohum duyarlılığı notu.
+  **Açık:** kanbanın kararsızlık algılayıcısı (net birikim > gelişlerin %2'si) dondurulmuş çekirdekte; 3/9/3
+  sınırlarında tohum 1 "Kararlı" görünüp W ≈ 451 gün verebiliyor. Arayüze "Dikkat" uyarısı eklendi; asıl
+  düzeltme çekirdek değişikliği ister.
+- ✔ `internet-ve-ag-teknolojileri`: öğretim ağında paketin yolu ve sarmalama, ARQ ve tıkanıklık denetimi,
+  CIDR/VLSM/IPv6, yinelemeli DNS. Düzeltildi: VLSM taşma iletisi toplam gereksinimi yazıyor; DNS tuvali okları.
+- ✔ `siber-guvenlik` (savunma odaklı, saldırı yükü yok): Türkçe 29 harfli klasik şifreler ve frekans
+  analizi, entropi ve PBKDF2, oyuncak Diffie–Hellman/RSA, SHA-256 çığ etkisi, doğum günü, HMAC. Düzeltildi:
+  büyük aralıklı kaydırıcılara tam değer kutuları; doğum günü "2/3" farkının sabit olduğu; PBKDF2 sayım koşulu.
+- ✔ `elektronik-muhendisligi`: artık analog laboratuvar (diyot ve doğrultucu, ortak emetörlü BJT, işlemsel
+  yükselteç, süzgeçler); dijital içerik `mantik-devresi`'ne taşındı. Düzeltildi: dar bant RLC'de −3 dB kenarı
+  düğmesi tam frekansa gidiyor; büyük R·C'de oturmamış dalgalanma artık ölçüm diye sunulmuyor.
+  Açık: diyot tepe akımı adım ızgarasına bağlı (320 / ~324 mA); çok büyük R·C kararlı duruma ulaşmıyor (uyarı var).
+- ✔ `mantik-devresi`: ifade → doğruluk tablosu, dokunmatik devre kurucu, Karnaugh/Quine–McCluskey, toplayıcı
+  gecikmesi ve kesik darbeler, ardışıl mantık. Düzeltildi (çekirdek içi): kurulum süresi sınırı kayan noktaya
+  bağlıydı; artık sınır kuralı yazılı.
+- ✔ `makine-muhendisligi`: Brayton merkezli güç çevrimleri, dişli zincirleri (Willis), titreşim yalıtımı,
+  ısı geçişi. Düzeltildi: küçük Biot değerleri bilimsel gösterimde; rejeneratör ve rezonans durum metinleri.
+- ✔ `plc-hidrolik-pnomatik-cnc-cadcam`: tarama çevrimli merdiven yorumlayıcısı, pnömatik sıralama ve kaskad,
+  G-kodu yorumlayıcısı, CAM. Hidrolik yalnız `hidrolik-sistemler`'e bağlantı. Düzeltildi: zamanlayıcı
+  gecikmesinin ölçüm noktası, ilk trafik periyodu, çakışma iletisinin görünürlüğü, ±%4 ızgara payı.
+- ✔ `ucak-muhendisligi-ve-aerodinamik`: Joukowski profilinde tam potansiyel akış (eşit geçiş süresi ölçümle
+  çürütülüyor), kutup eğrisi, ISA ve dönüş, Breguet menzili. Düzeltildi: basınç merkezi C_l → 0'da "çok uzakta",
+  transonik Mach notu, sıfır kaldırma açısında "neredeyse aynı anda".
+- ✔ `otonom-araclar-ve-iha` (şirket ve ürün adı yok): İHA irtifasında PID ve Routh–Hurwitz sınırı, Kalman
+  süzgeci ve NEES tutarlılığı, pure pursuit/Stanley yol izleme, algılama menzili, durma mesafesi ve lidar.
+  Izgarada yol bulma `yol-bulma-algoritmalari`'nda. Düzeltildi: integral kutbu varken periyot cümlesi artık
+  koşullu; yerleşmemiş yanıtta kalıcı hata "—"; ortak yuvarlama.
+- ✔ `isletme-bilimi-ve-yonetim` (yansız): başabaş ve kaldıraç, NBD/İVO, çift taraflı kayıtla mali tablolar ve
+  DuPont, karar ağacı ve bilgi değeri. Düzeltildi: eşit değerli dallar "budandı" gösterilmiyor; hazır düzenler
+  tam durum kuruyor; kapasiteye takılan satış değişimi bildiriliyor.
+
+**Test notu (H):** Ortak `npm run test:g` koşusunda `check-g-otonom-araclar-ve-iha` tuval denetimi düştü:
+sahne tuvalini yalnız her 97. pikselden örnekliyor ve 40 eşiğine bakıyordu; ince çizgili yol izleme
+sahnesinde örneklem 34–48 arasında kaldı (gerçekte 4.000'den fazla boyalı piksel var). Bu testte bütün
+pikseller sayılıyor, eşik 400. Aynı seyrek örneklem 24 testte daha var (d grubu ve birçok `check-g-*`);
+bu koşuda hepsi geçti, ama bir sayfanın düzeni değişirse aynı biçimde kırılabilirler.

@@ -12,10 +12,10 @@ window.ACELYA_CATALOG = {
   },
   "algoritmalar": {
     "title": "Algoritmalar: Adımları Sayma Sanatı",
-    "tagline": "Aynı 40 çubuğu sıralamak için bir yöntem 780 karşılaştırma yapar, öteki 165 dolayında bitirir. Fark bilgisayarın hızında değil, adımların girdiyle nasıl büyüdüğünde gizli.",
+    "tagline": "Aynı 32 sayıyı bir yöntem 496, bir başkası 123 karşılaştırmayla sıralar. Bu laboratuvar saniye ölçmez, işlem sayar ve her sayacın yanına kuramın o girdi için söylediği değeri koyar.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "alternatif-akim": {
     "title": "Alternatif Akım: Fazörler, Rezonans ve Güç",
@@ -117,17 +117,17 @@ window.ACELYA_CATALOG = {
   },
   "bicimsel-diller-ve-otomata-teorisi": {
     "title": "Otomatlar: Dört Daireyle Düşünen Makine",
-    "tagline": "Dört daire ve sekiz ok, bir dizgiyi 'evet' ya da 'hayır' diye yargılayabilir; ama parantez saymak için bir yığın, her hesabı yapabilmek için bir bant gerekir. Hangi makine neyi başarabilir, bu sayfanın sorusu.",
-    "field": "Bilgisayar Bilimi",
-    "level": "Lise–Lisans",
-    "minutes": 35
-  },
-  "bilgisayar-sistemleri-ve-mimarisi": {
-    "title": "Bilgisayar Mimarisi: Bir Saat Döngüsünün İçi",
-    "tagline": "Telefonundaki çip saniyede milyarlarca kez tik tak eder ve her tikte bir komut bir adım ilerler. Von Neumann'ın 1945 taslağından işlem hattına, ikiye tümleyenden önbelleğe: makinenin içindeki düzen.",
+    "tagline": "Dört daire bir dizgiyi yargılar, bir yığın parantez sayar. Makineni kur; NFA'yı DFA'ya çevir, düzenli ifadeyi otomata dönüştür, ayrıştırma ağaçlarını say ve her iddiayı bütün kısa dizgilerde sına.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "bilgisayar-sistemleri-ve-mimarisi": {
+    "title": "Bilgisayar Mimarisi: Bir Saat Çevriminin İçi",
+    "tagline": "Bir komut bitlerle başlar, saat çevrimleriyle biter. İkiye tümleyen ve kayan nokta, beş aşamalı boru hattı, önbellek ve Amdahl yasası: dört deneyde sayfanın saydığını kuramın söylediğiyle karşılaştır.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "birim-cember": {
     "title": "Birim Çember: Dönen Bir Noktanın Gölgeleri",
@@ -194,10 +194,10 @@ window.ACELYA_CATALOG = {
   },
   "derleyici-ve-yorumlayicilar": {
     "title": "Derleyici ve Yorumlayıcı: Kodun Makineye Yolculuğu",
-    "tagline": "Yazdığın dört satır kod, işlemciye varana kadar beş kez kılık değiştirir: harfler token olur, tokenlar ağaç, ağaç ara kod, ara kod makine komutu. Bu sayfada o dönüşümü adım adım kendin yaparsın.",
+    "tagline": "Küçük bir dilde yazdığın program gözünün önünde tokenlara, ağaca, ara koda ve bytecode'a dönüşür; dört ayrı yürütücü aynı sonucu bulup bulmadığını komut komut sayarak gösterir.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 40
+    "minutes": 45
   },
   "dna-replikasyon": {
     "title": "DNA Replikasyonu: Kendi Kalıbını Taşıyan Molekül",
@@ -250,10 +250,10 @@ window.ACELYA_CATALOG = {
   },
   "elektrokimya": {
     "title": "Elektrokimya: Pilin İçindeki Merdiven",
-    "tagline": "Bir çinko parçası neden bakır iyonlarına elektron verir de tersi olmaz? Cevap, metallerin dizildiği bir voltaj merdiveninde gizli: pilin gerilimi, iki basamak arasındaki mesafedir.",
+    "tagline": "İki yarı hücreden pil kur, derişimle gerilimi kaydır, elektrolizde yükü grama çevir ve bir Daniell pilini bitene kadar boşalt: gerilim bir basamak farkıdır, akan yük ise atomları sayar.",
     "field": "Kimya",
     "level": "Lise–Lisans",
-    "minutes": 30
+    "minutes": 40
   },
   "elektronik-devre": {
     "title": "Geçici Rejim: Kondansatör Neden Bir Anda Dolmaz?",
@@ -263,11 +263,11 @@ window.ACELYA_CATALOG = {
     "minutes": 35
   },
   "elektronik-muhendisligi": {
-    "title": "Elektronik: Kumdan Düşünen Makineye",
-    "tagline": "Bir kum tanesinin içine birkaç yabancı atom karıştır; akımı tek yöne geçiren bir kapı, sonra bir anahtar, sonra bir bilgisayar çıkar. Elektronik mühendisliği bu zincirin her halkasını tasarlar.",
+    "title": "Analog Elektronik: Kum Tanesinden Yükseltece",
+    "tagline": "Bir kum tanesine birkaç yabancı atom karıştır: önce akımı tek yöne geçiren bir kapı, sonra işareti iki yüz kat büyüten bir yükselteç çıkar. Dört analog devrede el hesabını ölçümle yarıştır.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "elektrostatik": {
     "title": "Elektrostatik: Alan, Potansiyel ve Akı",
@@ -424,11 +424,11 @@ window.ACELYA_CATALOG = {
     "minutes": 40
   },
   "internet-ve-ag-teknolojileri": {
-    "title": "İnternet: Paketlerin Dünya Turu",
-    "tagline": "Bir tıklamayla yola çıkan veri küçük paketlere bölünür, denizaltı kablolarında ışık hızının üçte ikisiyle gider; yolu yönlendiriciler, adresi DNS, güvenilirliği TCP sağlar. Dört deneyle zinciri tek tek aç.",
+    "title": "İnternet: Paket, Pencere, Önek, Ad",
+    "tagline": "Paket yolunu nasıl bulur, kaybolan veri nasıl tamamlanır, bir adres hangi ağa aittir, bir ad nasıl sayıya döner? Dört sekmeli öğretim ağında gecikmeyi, verimi, önekleri ve DNS sorgularını say, kuramla karşılaştır.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "is-enerji": {
     "title": "İş ve Enerji: Doğanın Muhasebe Defteri",
@@ -439,10 +439,10 @@ window.ACELYA_CATALOG = {
   },
   "isaretciler-ve-bellek-yonetimi": {
     "title": "İşaretçiler ve Bellek: Adresi Elinde Tutmak",
-    "tagline": "Bir değişkenin değerini değil adresini saklamak, programcıya belleğin anahtarını verir: en hızlı veri yapıları da, 1988'de interneti durduran solucan da aynı anahtarla açıldı.",
+    "tagline": "Bir adresi elinde tutmak hem güç hem sorumluluktur. Bayt bayt görünen bir model bellekte işaretçiyi ilerlet, ayırıcının belleği nasıl parçaladığını say, taşmayı ve sarkan işaretçiyi adım adım izle.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "isik-sondurme": {
     "title": "Işık Söndürme: 1 + 1 = 0 Cebiri",
@@ -453,17 +453,17 @@ window.ACELYA_CATALOG = {
   },
   "isletim-sistemleri-ve-linux": {
     "title": "İşletim Sistemi: Donanımı Paylaştıran Hakem",
-    "tagline": "Tek bir işlemci, yüzlerce program: hepsi aynı anda çalışıyormuş gibi görünür. Bu yanılsamayı kuran, belleği paylaştıran ve her şeyi dosyaya çeviren yazılıma işletim sistemi denir; Linux onun en çok kopyalanan örneğidir.",
+    "tagline": "Tek işlemci, sınırlı bellek, ortak bir sayaç, tek bir disk: işletim sistemi dördünü de paylaştırır. Bekleyişi, sayfa hatalarını, kaybolan güncellemeleri ve inode'ları say; her sayıyı kuramıyla karşılaştır.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "isletme-bilimi-ve-yonetim": {
-    "title": "İşletme: Kârın Başladığı Çizgi",
-    "tagline": "Bir atölye kaçıncı üründe kendini öder? Başabaş noktası, katkı payı ve faaliyet kaldıracı: grafikte beş düğmeyle kârın matematiğini kur, sonra Pacioli'den Toyota'ya yönetimin hikâyesini oku.",
+    "title": "İşletme Bilimi: Dört Model, Dört Soru",
+    "tagline": "Kaç adette zarar biter, yarınki para bugün ne eder, kâr neden kasadaki para değildir, belirsizken hangi dal seçilir? Dört model, her biri kendi varsayımlarıyla: önce say, sonra formülle karşılaştır.",
     "field": "Toplum ve Ekonomi",
     "level": "Lise–Lisans",
-    "minutes": 30
+    "minutes": 40
   },
   "julia-fraktali": {
     "title": "Julia: Aynı Kural, Ayrı Kaderler",
@@ -607,17 +607,17 @@ window.ACELYA_CATALOG = {
   },
   "makine-dili-assembly-c": {
     "title": "Makine Dili, Assembly ve C: Soyutlamanın Üç Katı",
-    "tagline": "Bilgisayarındaki her program sonunda 89 F8 gibi byte dizilerine iner. Assembly o byte'lara ad verir, C ise 'hangi işlemci' sorusunu derleyiciye bırakır. Üç kat, tek makine.",
+    "tagline": "Her program sonunda bir bayt dizisine iner. Küçük bir öğretim işlemcisine assembly yaz, aynı işlevi C ve x86-64 baytlarıyla satır satır eşleştir; yığını ve bayrakları kendin say.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 40
+    "minutes": 45
   },
   "makine-muhendisligi": {
-    "title": "Makine Mühendisliği: Kuvvet, Isı ve Akışın Dili",
-    "tagline": "Bir cetveli dik çevirince yüz kat sertleşir, bir motorun ideal verimi sıkıştırma oranına bakar, bir akışın düzenli mi girdaplı mı olacağını tek bir sayı söyler. Makine mühendisliği bu üç dili birlikte konuşur.",
+    "title": "Makine Mühendisliği: Çevrim, Dişli, Titreşim ve Isı",
+    "tagline": "Gaz türbininde verim neden sıcaklığa değil basınç oranına bakar, yay titreşimi ne zaman keser, beş santim köpük neden tuğla duvardan çok yalıtır? Dört deneyde önce ölç, sonra formülle karşılaştır.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "makine-ogrenmesi-derin-ogrenme-llm": {
     "title": "Makine Öğrenmesi: Hatadan Öğrenen Makineler",
@@ -649,10 +649,10 @@ window.ACELYA_CATALOG = {
   },
   "mantik-devresi": {
     "title": "Mantık Devresi: Kapılardan Hesaplamaya",
-    "tagline": "Yedi küçük kapı, iki voltaj seviyesi ve bir doğruluk tablosu: 1847'de bir ayakkabıcının oğlunun bulduğu cebir, 1937'de 21 yaşındaki bir öğrencinin elinde devreye dönüştü. Bugün cebindeki telefonun içinde milyarlarca kopyası var.",
+    "tagline": "Yedi küçük kapı, iki voltaj seviyesi, bir doğruluk tablosu: 1847'de bir ayakkabıcının oğlunun kurduğu cebir, 1937'de 21 yaşındaki bir öğrencinin elinde devreye dönüştü. Bugün cebinde milyarlarca kopyası var.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 30
+    "minutes": 40
   },
   "mantik-kapilari": {
     "title": "Mantık Kapıları: Karardan Hesaba",
@@ -774,11 +774,11 @@ window.ACELYA_CATALOG = {
     "minutes": 40
   },
   "otonom-araclar-ve-iha": {
-    "title": "Otonom Araçlar ve İHA: Gören, Planlayan, Düzelten Makineler",
-    "tagline": "Sürücüsüz bir araç saniyede onlarca kez üç soru sorar: Neredeyim, ne görüyorum, nereden gideyim? Lazer, radar, 1968 tarihli bir algoritma ve yüz yıllık bir geri besleme fikri bu soruları yanıtlar.",
+    "title": "Otonom Araçlar ve İHA: Ölçen, Kestiren, Düzelten Makineler",
+    "tagline": "Sürücüsüz araç da drone da aynı döngüyü döndürür: algıla, kestir, planla, denetle. Dört canlı deneyde PID'yi, Kalman süzgecini, yol izlemeyi ve durma mesafesini önce ölç, sonra kuramla karşılaştır.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "oyun-2048": {
     "title": "2048: İkinin Kuvvetleriyle Muhasebe",
@@ -831,10 +831,10 @@ window.ACELYA_CATALOG = {
   },
   "plc-hidrolik-pnomatik-cnc-cadcam": {
     "title": "Otomasyon: Beyin, Kas ve Dijital Köprü",
-    "tagline": "Bir fabrika üç şeyden kuruludur: karar veren bir beyin (PLC), itip çeken kaslar (hidrolik, pnömatik, dişli) ve çizimi parçaya çeviren dijital bir zincir (CAD, CAM, G-kodu). Hepsi birkaç basit yasaya dayanır.",
+    "tagline": "Bir otomasyon hattının dört katmanı: tarama tarama karar veren merdiven programı, sıraya giren pnömatik silindirler, tezgâhın okuduğu G-kodu ve o kodu üreten takım yolu hesabı. Dördünü de çalıştır, ölç, kuramla kıyasla.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "pong": {
     "title": "Pong: Bir Topun Geometrisi",
@@ -915,17 +915,17 @@ window.ACELYA_CATALOG = {
   },
   "siber-guvenlik": {
     "title": "Siber Güvenlik: Tersi Zor Olan İşlemler",
-    "tagline": "Herkesin dinlediği bir hatta iki yabancı nasıl ortak bir sır kurar? Parola gücü neden bitle ölçülür, bir noktanın değişmesi özetin yarısını neden alt üst eder? Hepsi tek fikre dayanır: bir yönde kolay, tersi zor işlem.",
+    "tagline": "Herkesin dinlediği hatta iki yabancı nasıl ortak sır kurar? Parola neden bitle ölçülür, tek bitlik değişiklik özetin yarısını neden çevirir? Hepsi tek fikre dayanır: bir yönde kolay, tersi zor işlem.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "sicim-teorisi": {
-    "title": "Sicim Teorisi: Evrenin Notaları",
-    "tagline": "Parçacık yerine titreşen minicik bir ip koyarsan kütle çekimi kendiliğinden belirir, ama uzayzaman 10 boyutlu olmak zorunda kalır. Yarım yüzyılı aşkın bir fikrin yükselişi, vaatleri ve hâlâ sınanamamış olması.",
+    "title": "Sicim Teorisi: Hesaplanabilen Kısım",
+    "tagline": "Bir teli ölç, sicimin durumlarını tek tek say, sarılı boyutta T-ikiliğini sına, Planck ölçeğine uzaklığı hesapla. Kuramın kesin matematiği bir yanda, deneyle sınanmamış iddiaları öbür yanda.",
     "field": "Fizik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "sierpinski-fraktali-peano-egrisi-altin-oran": {
     "title": "Üç Yapım: Limite Ne Kalır?",
@@ -970,11 +970,11 @@ window.ACELYA_CATALOG = {
     "minutes": 30
   },
   "tasarim-desenleri": {
-    "title": "Tasarım Desenleri: Programcıların Ortak Sözlüğü",
-    "tagline": "Bir mimarın 1977'de evler için yazdığı 253 'desen', 1994'te dört programcının elinde 23 yazılım desenine dönüştü. Sayfada 23'ünü de aç, kodunu oku, akrabalarını haritada izle; ilk wiki bile bu desenleri tartışmak için kurulmuştu.",
+    "title": "Tasarım Desenleri: Her Çözümün Bir Bedeli",
+    "tagline": "Dokuz tasarım deseni bu sayfada gerçekten çalışıyor: çağrıları, sınıfları ve dokunulan birimleri say, formülle karşılaştır. Her desen bir şey verip bir şey alır; 23 desenlik katalog bedeli de yazar.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "taylor-serisi": {
     "title": "Taylor Serisi: Tek Noktadan Ne Kadar Uzağa?",
@@ -1034,10 +1034,10 @@ window.ACELYA_CATALOG = {
   },
   "ucak-muhendisligi-ve-aerodinamik": {
     "title": "Aerodinamik: Havayı Aşağı İten Kanat",
-    "tagline": "Dört yüz tonluk bir uçağı havada tutan şey, atmosfer basıncının yüzde yedisi kadar bir fark. Kanadın bu farkı nasıl yarattığı, ne zaman yaratamadığı ve bunu ilk ölçen iki bisiklet tamircisinin hikâyesi.",
+    "tagline": "Kanat havayı saptırır, hava kanadı taşır. Dört sekmede kaldırmayı hem basınçtan hem momentumdan ölç, en az sürükleme hızını bul, 60° yatışta iki kat ağırlaş ve bir depo yakıtın menzilini hesapla.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "uluslararasi-iliskiler": {
     "title": "Uluslararası İlişkiler: Polisi Olmayan Dünyanın Modelleri",
@@ -1069,10 +1069,10 @@ window.ACELYA_CATALOG = {
   },
   "veri-yapilari": {
     "title": "Veri Yapıları: Doğru Rafı Seçmek",
-    "tagline": "Aynı sayılar bir dizide, bir zincirde, yedi yuvalı bir tabloda ya da bir ağaçta saklanabilir. Hangisini seçtiğin, bir aramanın sekiz milyar adım mı yoksa otuz üç adım mı süreceğini belirler.",
+    "tagline": "Aynı veriyi beş farklı rafa diz ve her işlemin bedelini say: kopyalanan eleman, izlenen işaretçi, yoklanan yuva, yapılan karşılaştırma. Sayacın yanında kuramın söylediği sayı durur.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "veritabanlari": {
     "title": "Veritabanları: Soruyu Sor, Yolu Bilme",
@@ -1100,7 +1100,7 @@ window.ACELYA_CATALOG = {
     "tagline": "Bir satır kod yazmak kolaydır; on milyon satırı yüz kişiyle, on yıl boyunca, kimseyi öldürmeden değiştirmek değil. Yazılım mühendisliği bu ikinci işin disiplinidir.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "yildiz-yasam-dongusu": {
     "title": "Yıldızların Hayatı: Kaderi Kütle Yazar",

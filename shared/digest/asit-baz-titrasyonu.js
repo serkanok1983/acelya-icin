@@ -263,7 +263,7 @@ window.ACELYA_DIGEST["asit-baz-titrasyonu"] = {
     },
     {
       href: "elektrokimya.html",
-      title: "Elektrokimya",
+      title: "Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday",
       why: "pH metre aslında bir voltmetredir: iki elektrot arasındaki gerilimi ölçer. Gerilimin iki yarı hücrenin farkından nasıl doğduğunu Daniell pilinde gör.",
     },
   ],

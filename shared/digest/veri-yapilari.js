@@ -4,102 +4,102 @@ window.ACELYA_DIGEST["veri-yapilari"] = {
   title: "Veri Yapıları: Doğru Rafı Seçmek",
   field: "Bilgisayar Bilimi",
   level: "Lise–Lisans",
-  minutes: 35,
+  minutes: 40,
   tagline:
-    "Aynı sayılar bir dizide, bir zincirde, yedi yuvalı bir tabloda ya da bir ağaçta saklanabilir. Hangisini seçtiğin, bir aramanın sekiz milyar adım mı yoksa otuz üç adım mı süreceğini belirler.",
+    "Aynı veriyi beş farklı rafa diz ve her işlemin bedelini say: kopyalanan eleman, izlenen işaretçi, yoklanan yuva, yapılan karşılaştırma. Sayacın yanında kuramın söylediği sayı durur.",
   hook:
     "Bin sayfalık bir sözlükte 'zürafa'yı bulmak için birinci sayfadan başlamazsın; kitabı ortasından açar, yarısını tek bakışta elersin ve en çok on açışta doğru sayfadasındır. Peki bir bilgisayar, dünyadaki sekiz milyar insanın listesinde bir ismi kaç adımda bulur? Cevap listenin büyüklüğüne değil, nasıl saklandığına bağlıdır: yanlış rafta sekiz milyar adım, doğru rafta otuz üç.",
   bigIdea:
-    "Bir <strong>veri yapısı</strong> yalnızca veriyi saklamaz; hangi işlemin ucuz, hangisinin pahalı olacağını belirleyen bir sözleşmedir. Dizi erişimi, bağlı liste eklemeyi, hash tablosu aramayı, ağaç sıralı tutmayı ucuzlatır; hiçbiri her şeyi birden ucuzlatamaz.",
+    "Bir <strong>veri yapısı</strong> yalnızca veriyi saklamaz; hangi işlemin ucuz, hangisinin pahalı olacağını belirleyen bir sözleşmedir. Dizi erişimi, bağlı liste uçlara eklemeyi, hash tablosu aramayı, ağaç sıralı tutmayı ucuzlatır; hiçbiri her şeyi birden ucuzlatamaz.",
   story: [
-    "1945'te John von Neumann, EDVAC raporunda bilgisayar belleğini numaralı hücrelerden oluşan tek bir sıra olarak tarif etti. <strong>Dizi</strong> bu fikrin doğrudan çocuğudur: yan yana hücreler, bir başlangıç adresi ve bir çarpma işlemiyle istediğin elemana tek adımda ulaşırsın. Ama daha o yıllarda bu sıranın yetmediği görüldü. Alan Turing 1946'daki ACE raporunda, bir alt programa dalarken dönüş adresini 'gömmek' (bury) ve işi bitince 'çıkarmak' (unbury) gerektiğini yazdı; bugün buna <strong>yığın</strong> diyoruz. 1957'de Münih'te Friedrich Bauer ve Klaus Samelson aynı fikri formül çözümlemek için kullandı ve 'Keller' (mahzen) ilkesi adıyla patent başvurusu yaptı; Avustralya'da Charles Hamblin aynı yıl bağımsız olarak aynı yapıya ulaştı.",
-    "Bağlı liste bir yapay zekâ programının ihtiyacından doğdu. 1955–56'da RAND'da Allen Newell, Cliff Shaw ve Herbert Simon, mantık teoremlerini ispatlayan Logic Theorist'i yazarken ispatların ne kadar uzayacağını önceden bilmiyorlardı; bu yüzden her parçanın bir sonrakinin adresini taşıdığı, istenildiği yerden büyüyebilen zincirler kurdular ve bunun için IPL dilini tasarladılar. Hash tablosunun ilk kaydı daha da eskidir: IBM'den Hans Peter Luhn, Ocak 1953 tarihli bir iç yazışmada anahtarları yuvalara dağıtıp çakışanları zincirlemeyi önerdi. 1962'de Moskova'da Georgy Adelson-Velsky ve Evgenii Landis, ekleme sırasında kendini dengeleyen ilk ağacı (AVL) yayımladı; 1964'te J. W. J. Williams, Communications of the ACM'de 'Algorithm 232: Heapsort' ile heap'i tanıttı.",
-    "1968'de Donald Knuth, The Art of Computer Programming'in birinci cildinin büyük bölümünü bu yapılara ayırdı; 1976'da Niklaus Wirth ders kitabına 'Algoritmalar + Veri Yapıları = Programlar' adını verdi. Konu bugün de merkezdedir: Python'daki her sözlük (dict) bir hash tablosu, Linux çekirdeğinin işlem zamanlayıcısı bekleyen işleri bir kırmızı-siyah ağaçta tutar, tarayıcının geri tuşu bir yığındır. Linus Torvalds 2006'da bir e-postada 'kötü programcılar kodu, iyi programcılar veri yapılarını ve aralarındaki ilişkileri dert eder' diye yazmıştı. Bu sayfadaki beş küçük laboratuvar tam da o dertle ilgilidir: aynı sayıları farklı raflara koyup hangi işlemin ucuzladığını, hangisinin pahalılaştığını kendi gözünle görmek.",
+    "1945'te John von Neumann, EDVAC raporunda bilgisayar belleğini numaralı hücrelerden oluşan tek bir sıra olarak tarif etti. <strong>Dizi</strong> bu fikrin doğrudan çocuğudur: yan yana hücreler, bir başlangıç adresi ve bir çarpma işlemiyle istediğin elemana tek adımda ulaşırsın. Ama daha o yıllarda bu sıranın yetmediği görüldü. Alan Turing, 1945 sonunda yazıp 1946'da sunduğu ACE raporunda, bir alt programa dalarken dönüş adresini 'gömmek' (bury) ve işi bitince 'çıkarmak' (unbury) gerektiğini yazdı; bugün buna <strong>yığın</strong> diyoruz. 1957'de Münih'te Friedrich Bauer ve Klaus Samelson aynı fikri formül çözümlemek için kullandı ve 'Keller' (mahzen) ilkesi adıyla patent başvurusu yaptı; Avustralya'da Charles Hamblin aynı yıl bağımsız olarak aynı yapıya ulaştı.",
+    "Bağlı liste bir yapay zekâ programının ihtiyacından doğdu. 1955–56'da RAND Corporation'dan Allen Newell ile Cliff Shaw ve Carnegie Teknoloji Enstitüsü'nden Herbert Simon, mantık teoremlerini ispatlayan Logic Theorist'i yazarken ispatların ne kadar uzayacağını önceden bilmiyorlardı; bu yüzden her parçanın bir sonrakinin adresini taşıdığı, istenildiği yerden büyüyebilen zincirler kurdular ve bunun için IPL dilini tasarladılar. Hash tablosunun ilk kaydı daha da eskidir: IBM'den Hans Peter Luhn, Ocak 1953 tarihli bir iç yazışmada anahtarları yuvalara dağıtıp çakışanları zincirlemeyi önerdi. 1962'de Moskova'da Georgy Adelson-Velsky ve Evgenii Landis, ekleme sırasında kendini dengeleyen ilk ağacı (AVL) yayımladı; 1964'te J. W. J. Williams, Communications of the ACM'de 'Algorithm 232: Heapsort' ile heap'i tanıttı; aynı yıl Robert Floyd, bir diziyi aşağıdan yukarı heap'e çeviren ve beşinci sekmede adıyla anılan kurulum yöntemini yayımladı.",
+    "1968'de Donald Knuth, The Art of Computer Programming'in birinci cildinin iki bölümünden birini, kitabın kabaca yarısını bu yapılara ayırdı; 1976'da Niklaus Wirth ders kitabına 'Algoritmalar + Veri Yapıları = Programlar' adını verdi. Konu bugün de merkezdedir: Python'daki her sözlük (dict) bir hash tablosu, Linux çekirdeğinin işlem zamanlayıcısı bekleyen işleri bir kırmızı-siyah ağaçta tutar, tarayıcının geri tuşu bir yığındır. Linus Torvalds 2006'da bir e-postada 'kötü programcılar kodu, iyi programcılar veri yapılarını ve aralarındaki ilişkileri dert eder' diye yazmıştı. Bu sayfadaki beş laboratuvar tam da o dertle ilgilidir: aynı veriyi farklı raflara koyup her işlemin bedelini tek tek saymak ve sayacın gösterdiğini kuramın söylediğiyle yan yana görmek.",
   ],
   core: [
     {
-      heading: "Dizi: adres hesabı tek adımda",
+      heading: "Dizi ve bağlı liste: kaydırmak ya da yürümek",
       body:
-        "Dizinin bütün gücü bitişik bellekten gelir. Beşinci elemanı istediğinde bilgisayar beş hücre saymaz; başlangıç adresine beş kere eleman boyunu ekler ve doğrudan oraya gider. Bu yüzden <strong>erişim O(1)</strong>'dir: eleman sayısı on da olsa on milyon da olsa aynı sürede. Bedeli ise sıkışıklıktır. Başa bir eleman eklemek istediğinde yer açmak için var olan her elemanı bir sağa kaydırmak gerekir; n elemanlık dizide bu n taşıma demektir. Sayfadaki Dizi sekmesinin bilgi satırı bu yüzden 'Başa ekleme/çıkarma O(n), Sona ekleme O(1) amortized' der; 'Başa Ekle'ye her bastığında bütün kutuların bir sağa kaydığını görürsün.",
-      formula: "adres(i) = taban + i × eleman_boyu",
-      formulaNote: "Çarpma ve toplama sabit sürede yapılır; i ne kadar büyük olursa olsun tek adımdır.",
+        "Dizinin gücü bitişik bellekten gelir. 5 numaralı hücreyi istediğinde bilgisayar hücreleri tek tek saymaz; başlangıç adresine beş kere eleman boyunu ekler ve doğrudan oraya gider. Erişim bu yüzden n ne olursa olsun tek adımdır. Bedeli sıkışıklıktır: n elemanlı dizide i. konuma yer açmak için i ve sonrasındaki <strong>n − i</strong> eleman birer hücre kayar; başa eklemek bütün diziyi oynatır. Bağlı listede ise her <strong>düğüm</strong> değerin yanında bir sonraki düğümün adresini, yani bir <strong>işaretçi</strong> taşır. Araya eklemek yalnızca iki işaretçi yazmaktır, kimse kaydırılmaz; ama adres hesaplanamadığı için o konuma baştan yürümek gerekir: tek yönlü listede i − 1 adım. İkisi aynı işin iki ayrı faturasıdır; birinci sekmenin alt bölümü ikisini aynı işlemde yan yana sayar.",
+      formula: "adres(i) = taban + i × eleman_boyu<br>Dizi, i. konuma ekleme: n − i kaydırma<br>Tek yönlü liste: i − 1 işaretçi izleme + 2 işaretçi yazma",
+      formulaNote: "n, işlemden önceki eleman sayısıdır. Uçlarda (i = 0 ve i = n) liste hiç yürümez; çift yönlü liste yakın uçtan yürüdüğü için adım sayısı min(i, n − 1 − i) olur.",
     },
     {
-      heading: "Bağlı liste: ucuz ekleme, pahalı bulma",
+      heading: "Yığın, kuyruk ve halka tampon: sözleşme ile bellek ayrı şeylerdir",
       body:
-        "Bağlı listede her <strong>düğüm</strong> iki şey taşır: değerin kendisi ve bir sonraki düğümün adresi, yani bir <strong>işaretçi</strong>. Elemanlar bellekte dağınık durabilir; zincir onları adreslerle birbirine bağlar. Başa eklemek iki adres değiştirmekten ibarettir, kimse kaydırılmaz. Ama 'sekizinci düğüme git' demek baştan sekiz işaretçi izlemek demektir; <strong>erişim O(n)</strong>. Sık yapılan hata şudur: 'ortaya ekleme O(1)' demek, ortayı bulma maliyetini unutmaktır. Düğümü elinde tutuyorsan ekleme ucuz, düğümü aramak hâlâ pahalıdır.",
-      formula: "düğüm = { değer, sonraki }",
-      formulaNote: "Çift yönlü listede bir de 'önceki' alanı vardır; sondan silme de O(1) olur, bellek bir işaretçi daha yer.",
+        "Yığın (stack) ve kuyruk (queue) bellek düzeni değil, <strong>soyut veri tipi</strong>dir: neyin nerede durduğunu değil, hangi işlemlerin yapılabileceğini söylerler. Yığında yalnızca tepeye koyar, tepeden alırsın: son giren ilk çıkar. Kuyrukta arkaya koyar, önden alırsın: ilk giren ilk çıkar. Deque iki ucu da açar. Kuyruğu düz bir diziyle kurarsan önden her çıkarışta kalan herkesi bir hücre öne çekmen gerekir. <strong>Halka tampon</strong> bunu bir indis hilesiyle çözer: elemanlar yerinde durur, yalnızca «baş» ve «son» indisleri ilerler ve dizinin ucuna gelince başa dolanır. İkinci sekmede aynı dizinin üç sözleşmeyle nasıl davrandığını, altında da yığının iki klasik işini görürsün: parantez denetimi ve sonek (postfix) hesabı.",
+      formula: "son = (baş + adet) mod kapasite",
+      formulaNote: "Dolu tamponda da boş tamponda da baş ile son aynı hücreyi gösterir; ikisini ayırt etmek için adet ayrıca tutulur. Dört uç işlemi de O(1)'dir, hiçbir eleman taşınmaz.",
     },
     {
-      heading: "Yığın ve kuyruk: davranış sözleşmesi",
+      heading: "Hash tablosu: yük faktörü ve iki çakışma çözümü",
       body:
-        "Yığın (stack) ve kuyruk (queue) aslında bellek düzeni değil, <strong>soyut veri tipi</strong>dir: ne saklandığını değil, hangi işlemlerin yapılabileceğini söylerler. Yığında yalnızca tepeye koyar, tepeden alırsın: son giren ilk çıkar (LIFO). Kuyrukta arkaya koyar, önden alırsın: ilk giren ilk çıkar (FIFO). İkisi de dizi ya da bağlı listeyle kurulabilir, önemli olan sözleşmedir. Bir fonksiyon başka bir fonksiyonu çağırdığında dönüş adresi yığına konur; geri al (undo) tuşu yığındır; yazıcı kuyruğu ve genişlik öncelikli arama ise kuyruk. Sayfada aynı beş sayı iki sekmede iki farklı sırayla çıkar.",
-      formula: "Yığın: push, pop, peek · Kuyruk: enqueue, dequeue, peek",
-      formulaNote: "Hepsi O(1): yalnızca uçlara dokunulur, ortaya hiç bakılmaz.",
+        "Hash tablosu aramayı adres hesabına çevirir: bir <strong>hash fonksiyonu</strong> anahtarı m yuvadan birinin numarasına dönüştürür. Aynı yuvaya düşen anahtarlar <strong>çakışır</strong>. <strong>Zincirleme</strong> çakışanları o yuvaya bağlı bir listeye dizer; <strong>doğrusal yoklama</strong> ise sağdaki ilk boş yuvaya yerleştirir. Her şeyi <strong>yük faktörü</strong> α = n ÷ m yönetir. Her anahtar yuvalara eşit olasılıkla ve bağımsız düşüyorsa bir zincirin beklenen uzunluğu α'dır; tabloda olmayan bir anahtar o zincirin tamamını tarar, yani ortalama α karşılaştırma yapar. Bulunan anahtar için hesabı kendin kurabilirsin: i. sırada eklenen anahtarın zincirinde ondan önce ortalama (i − 1) ÷ m anahtar vardır; bunu i = 1…n için ortalarsan 1 + (n − 1) ÷ 2m çıkar. Doğrusal yoklamada dolu yuvalar bitişik <strong>kümeler</strong> oluşturur ve her yeni çakışma kümeyi uzatır; tabloda olmayan bir anahtarı aramanın maliyeti α ile değil, kabaca 1 ÷ (1 − α)² ile büyür. Ders kitaplarındaki doğrusal yoklama formülleri m → ∞ limitidir. Sayfa, Donald Knuth'un çözümlemesindeki sonlu m değerini kuram sütununa, limiti de yanına yazar: m = 64, α = 0,750'de bulunmayan arama için limit 8,500 derken tam değer 6,134'tür.",
+      formula: "Zincirleme: bulunmayan α · bulunan 1 + (n − 1) ÷ 2m<br>Doğrusal yoklama (m → ∞): bulunan ½(1 + 1 ÷ (1 − α)) · bulunmayan ½(1 + 1 ÷ (1 − α)²)",
+      formulaNote: "Zincirlemede anahtar karşılaştırması, doğrusal yoklamada bakılan yuva sayılır. α = 0,750'de bulunmayan aramanın tam değeri m büyüdükçe 8,500 limitine yaklaşır: m = 64 için 6,134; m = 128 için 6,981; m = 512 için 8,003.",
     },
     {
-      heading: "Hash tablosu: anahtardan yuvaya tek atlayış",
+      heading: "Arama ağaçları: yükseklik her şeydir",
       body:
-        "Hash tablosu aramayı adres hesabına çevirir. Bir <strong>hash fonksiyonu</strong> anahtarı bir yuva numarasına dönüştürür; sayfadaki tablo bunun en yalın hâlini kullanır: anahtarın 7'ye bölümünden kalan. 42 için kalan 0, 15 için 1. Aynı yuvaya düşen anahtarlar <strong>çakışır</strong> ve bir zincire eklenir. Aramanın gerçek maliyeti bu zincirin uzunluğudur. Elemanların yuvalara oranına <strong>yük faktörü</strong> α denir; her anahtar m yuvadan birine eşit olasılıkla düşüyorsa belli bir yuvaya düşen eleman sayısının beklenen değeri n × (1/m) = α'dır; başarısız bir arama ortalama α, başarılı bir arama yaklaşık 1 + α/2 eleman yoklar. Ama kötü bir fonksiyon ya da kötü niyetli girdi her şeyi tek yuvaya yığabilir; o zaman hash tablosu sıradan bir bağlı listeye döner.",
-      formula: "h(k) = k mod 7 · α = n / m",
-      formulaNote: "n eleman sayısı, m yuva sayısı (sayfada 7). Başlangıçtaki 9 eleman için α = 9/7 ≈ 1,29; sayfa bunu 'Yük faktörü: 1.29' diye yazar.",
+        "İkili arama ağacında (BST) her düğümün solunda kendinden küçükler, sağında büyükler durur. Arama her düğümde bir karşılaştırma yapıp bir alt ağacı tümden eler; sözlüğü ortadan açmanın aynısı. Maliyeti düğüm sayısı değil <strong>yükseklik</strong> belirler: sayfanın kullandığı tanımla kökten en uzak yaprağa giden yoldaki kenar sayısı. Yüksekliği h olan ağaç en çok 2<sup>h+1</sup> − 1 düğüm alır; n düğüm için bu, yüksekliğin ⌊log₂ n⌋'den küçük olamayacağını söyler. Sekiz milyar anahtarı olabilecek en sığ ağaca dizersen yükseklik 32 kenar olur; bir arama en çok 33 karşılaştırma yapar. Ama BST biçimini ekleme sırasından alır: sıralı girdi onu tek kollu bir zincire çevirir, h = n − 1. <strong>AVL ağacı</strong> her düğümde iki alt ağacın yükseklik farkını en çok 1 tutar; fark 2 olunca tek ya da çift <strong>dönüş</strong>le toparlanır. Güvencesi bir sayma sorusundan çıkar: yüksekliği h olan en seyrek AVL ağacı, kökün altında h − 1 ve h − 2 yükseklikli en seyrek iki ağaç taşır. Bu Fibonacci benzeri yineleme 1, 2, 4, 7, 12, 20, 33… diye büyür; düğüm sayısı üstel arttığına göre yükseklik logaritmik kalmak zorundadır.",
+      formula: "N(h) = N(h − 1) + N(h − 2) + 1, N(0) = 1, N(1) = 2<br>h<sub>AVL</sub> ≤ 1,44 log₂(n + 2) − 1,33<br>Rastgele sırayla kurulan BST, ortalama arama: 2(1 + 1 ÷ n)H<sub>n</sub> − 3",
+      formulaNote: "H<sub>n</sub> = 1 + 1/2 + … + 1/n. 15 anahtarda 12 ≤ 15 < 20 olduğundan AVL yüksekliği 4'ü aşamaz; 31 anahtarda sınır 5'tir. Rastgele sıra beklenen değeri n = 15 için 4,079 karşılaştırmadır ve büyük n'de yaklaşık 1,39 log₂ n gibi büyür.",
     },
     {
-      heading: "Ağaçlar: yükseklik her şeydir",
+      heading: "Heap: dizide saklanan ağaç ve doğrusal kurulum",
       body:
-        "İkili arama ağacında (BST) her düğümün solunda kendinden küçükler, sağında büyükler durur. Arama her adımda bir karşılaştırma yapıp bir alt ağacı tümden eler; sözlüğü ortadan açmanın aynısı. Maliyet düğüm sayısı değil, kökten en uzak yaprağa olan <strong>derinlik</strong>tir. Dengeli ağaçta derinlik yaklaşık log₂ n olur, çünkü d katlı dolu bir ağaç 2<sup>d</sup> − 1 düğüm alır: bir milyon düğüm için yirmi, sekiz milyar için otuz üç. Sıralı veri gelirse ağaç tek yönlü zincire dönüşür ve derinlik n'ye çıkar; AVL ve kırmızı-siyah ağaçlar bunu döndürmelerle engeller. Heap ise ağacın daha gevşek bir akrabasıdır: yalnızca 'ebeveyn çocuktan küçük' kuralı vardır, bu da en küçüğü hep kökte tutar ve ağaç işaretçisiz, düz bir dizide saklanabilir.",
-      formula: "derinlik<sub>dengeli</sub> ≈ log₂ n · heap: çocuklar 2i+1, 2i+2 · ebeveyn ⌊(i−1)/2⌋",
-      formulaNote: "log₂(1 000 000) ≈ 19,9; log₂(8 000 000 000) ≈ 32,9. Heap dizisinde i indeksli düğümün çocukları hesapla bulunur, adresle değil.",
+        "İkili yığın (heap) arama ağacının daha gevşek bir akrabasıdır: tek kuralı 'ebeveyn çocuğundan küçük'tür. Kardeşler arasında sıra yoktur, ama en küçük eleman hep köktedir. Ağaç soldan sağa boşluksuz dolduğu için işaretçi gerekmez; düz bir dizide durur ve çocukların yeri hesapla bulunur. Eklenen eleman dizinin sonuna konur ve ebeveyninden küçük olduğu sürece yukarı çıkar: düzey başına 1, toplamda en çok ⌊log₂ n⌋ karşılaştırma. En küçüğü çıkarınca son eleman köke taşınır ve küçük çocuğuyla yer değiştirerek iner: düzey başına en çok 2 karşılaştırma. Bir diziyi toptan heap'e çevirmenin yolu ise Floyd yöntemidir: son ebeveynden köke doğru her düğümü aşağı indir. Düğümlerin yarısı yapraktır ve hiç inmez, dörtte biri en çok bir düzey, sekizde biri en çok iki düzey iner. İnilen düzeylerin toplamı n ÷ 4 + 2n ÷ 8 + 3n ÷ 16 + … serisiyle sınırlıdır ve bu seri n'ye yakınsar; düzey başına 2 karşılaştırmayla kurulum 2n'nin altında kalır.",
+      formula: "çocuklar: 2i + 1, 2i + 2 · ebeveyn: ⌊(i − 1) ÷ 2⌋<br>Floyd: karşılaştırma ≤ 2(n − s) &lt; 2n<br>n ardışık ekleme, en kötü durum: ⌊log₂ 1⌋ + ⌊log₂ 2⌋ + … + ⌊log₂ n⌋",
+      formulaNote: "s, n'nin ikilik yazımındaki 1'lerin sayısıdır. n = 1000 = 1111101000₂ için s = 6, sınır 2 × 994 = 1988; ardışık eklemenin en kötü durumu 7987 karşılaştırmadır.",
     },
   ],
   lab: {
     intro:
-      "Sayfada beş ayrı laboratuvar var: dizi/bağlı liste sekmeleri ('Başa Ekle', 'Sona Ekle', 'Baştan Sil', 'Ortaya Ekle'), yığın/kuyruk/deque sekmeleri ('Push / Enqueue', 'Pop / Dequeue', 'Peek (Gözetle)'; Deque sekmesinde ayrıca 'Öne Ekle' ve 'Önden Çıkar'), 'Değer ekle' kutulu yedi yuvalı hash tablosu ('Ekle', 'Sil', 'Ara'), değer kutulu ikili arama ağacı tuvali ('Ekle', 'Sil', 'Ara'; düğümler soldan sağa küçükten büyüğe dizilir) ve 'Ekle (insert)' / 'Min. Çıkar (extract-min)' düğmeli min-heap. Eklenen sayılar dizi ve yığın panellerinde rastgele (10–99) gelir; hash, ağaç ve heap panellerinde sayıyı sen yazarsın. Her panelin altındaki bilgi satırı eleman sayısını, yük faktörünü, derinliği ya da en küçük elemanı anında yazar; tahminlerini o satırla karşılaştır.",
+      "Sayfada beş sekme var ve her biri gerçek bir uygulamanın işlem sayaçlarını gösterir; süre ölçülmez. «01 · Dizi ve bağlı liste»de büyüyen dizinin kopya sayacı ile araya ekleme ve silme karşılaştırması; «02 · Yığın, kuyruk, deque»de halka tampon, parantez denetimi ve sonek hesaplayıcı; «03 · Hash tablosu»nda aynı anahtarları tutan zincirleme ve doğrusal yoklama tabloları; «04 · Arama ağaçları»nda aynı ekleme sırasıyla büyüyen BST ve AVL; «05 · İkili yığın (heap)»te etkileşimli min-heap ve kurulum deneyi durur. Kartlarda '(ölçülen)' yazan sayı sayaçtan, altındaki satır kuramdan gelir. Rastgelelik tohumludur: aynı ayar her zaman aynı sayıyı verir. Her sekmenin kendi «Sekmeyi sıfırla» düğmesi vardır; klavyede <kbd>R</kbd> aynı işi yapar. En altta altı yapıyı beş işlemde karşılaştıran gerekçeli bir tablo bulunur.",
     experiments: [
       {
-        title: "Aynı beş sayı, iki farklı çıkış sırası",
+        title: "Aynı işlem, iki fatura: dizi kaydırır, liste yürür",
         predict:
-          "Yığın ve kuyruk sekmeleri aynı beş sayıyla başlar: 42, 17, 93, 8, 56. Her ikisinde de üç kez çıkarma yaparsan hangi iki sayı kalır? Önce yaz, sonra dene.",
+          "On elemanlı bir dizi ile baş ve kuyruk işaretçisi tutan tek yönlü bir liste var. Başa eklemek, ortaya eklemek ve son elemanı silmek: hangisinde hangi yapı daha az iş yapar? Kuyruk işaretçisi elindeyken son elemanı silmek bedava mıdır?",
         do:
-          "'Stack (LIFO)' sekmesinde 'Pop / Dequeue' düğmesine üç kez bas, kalanı not et. Sonra 'Queue (FIFO)' sekmesine geç (sekme değişince veri kendiliğinden sıfırlanır) ve yine üç kez bas. Her sekmede bir de 'Peek (Gözetle)' düğmesini dene.",
+          "Birinci sekmenin alt bölümüne in ('Araya ekleme ve silme') ve «Sekmeyi sıfırla»ya bas. Sırayla şunları yap, her seferinde dört kartı oku: «Baş (i = 0)» ve «i. konuma ekle»; «Sonun ardı (i = n)» ve «i. konuma ekle»; «Orta» ve «i. konuma ekle»; «Son eleman (i = n − 1)» ve «i. elemanı sil». Sonra 'Liste türü'nü «Çift yönlü» yap (yapı on elemanla yeniden kurulur), «Son eleman (i = n − 1)» ve «i. elemanı sil»e bas.",
         observe:
-          "Yığında 42 ve 17 kalır; 56, 8 ve 93 sondan gitmiştir ('←TOP' etiketi hep en sağdadır). Kuyrukta 8 ve 56 kalır; 42, 17 ve 93 önden gitmiştir. Peek yığında 56'yı, kuyrukta 'FRONT→' yazan 42'yi bir saniye kadar aydınlatır ve hiçbir şeyi çıkarmaz. Deque sekmesinde iki ucu da kullanabilirsin: 'Önden Çıkar' 42'yi, 'Pop / Dequeue' 56'yı alır.",
+          "Başa eklemede 'Dizi: kaydırılan eleman' 10, 'Liste: izlenen işaretçi' 0, 'Liste: yazılan işaretçi' 2 olur. Sonun ardına eklemede ikisi de 0'dır. Ortada (n = 12, i = 6) dizi 6 eleman kaydırır, liste 5 işaretçi izler. Son elemanı silerken (n = 13) dizi 0 kaydırır, liste 11 işaretçi izler; 'Bu oturumun toplamı' 16 · 16'da eşitlenir. Çift yönlü listede aynı silme 0 işaretçi izler ve 2 işaretçi yazar.",
         explain:
-          "İki yapı da aynı diziyi kullanıyor; farkı yaratan tek şey hangi uca dokunulduğu sözleşmesidir. Yığın en son koyulanı geri verir, kuyruk en eskiyi; deque (çift uçlu kuyruk) ikisine de izin verir. Bilgi satırındaki 'Push O(1) · Pop O(1)' bu yüzden doğrudur: hiçbir işlem ortadaki elemanlara bakmaz.",
+          "Dizi n − i eleman kaydırır: başta en pahalı, sonda bedava. Liste i − 1 adım yürür: başta bedava, ortaya doğru pahalı. Şaşırtan satır son elemanın silinmesidir: kuyruk işaretçisi son düğümü gösterir ama ondan öncekini göstermez; yeni kuyruğu bulmak için baştan n − 2 = 11 adım yürümek gerekir. Çift yönlü liste her düğümde bir 'önceki' işaretçisi daha taşıyarak bu yürüyüşü siler; bedeli düğüm başına fazladan bir işaretçilik bellek ve araya eklemede 2 yerine 4 yazımdır.",
       },
       {
-        title: "Yedi yuvalı tabloda bir yuvanın şişmesi",
+        title: "Sekiz hücrede on bir ekleme: kuyruk başa dolanır",
         predict:
-          "hash(k) = k mod 7. Sıfırlanmış tabloda 15, 8, 50 ve 64 zaten [1] yuvasındadır. 29, 36 ve 43'ü eklersen hangi yuvaya düşerler? 4'ü eklersen? 'En uzun zincir' ve 'Yük faktörü' kaç olur?",
+          "Sekiz hücrelik bir dizide kuyruk tutuyorsun: 6 eleman ekle, 4'ünü önden çıkar, 5 eleman daha ekle. Son elemanlar nereye yazılır? Başı hep 0. hücrede tutan düz bir dizi bu arada kaç eleman kaydırırdı, halka tampon kaç eleman taşır?",
         do:
-          "'Sıfırla' ile örnek verileri yükle ve bilgi satırını oku. 'Değer ekle' kutusuna 64 yazıp 'Ara'ya bas. Sonra sırayla 29, 36, 43 yazıp her birinde 'Ekle'ye bas ve 43'ü 'Ara' ile ara. En son 4'ü ekle ve onu da ara.",
+          "İkinci sekmede «Sarma gösterisi»ne bas ve kartları oku. Sonra iki kez «Arkaya ekle»ye (kutuda sırayla 12 ve 13 yazar), bir kez de «Önden çıkar»a bas. Aşağıdaki sonek hesaplayıcıda 'Hazır ifade'den «5 + (1 + 2) × 4 − 3»ü seç ve «Bir adım» ile ilerle; parantez dengesinde «Yanlış sıra: ([)]» seçip «Sonuna kadar»a bas.",
         observe:
-          "Başlangıç: 'Toplam 9 · Yük faktörü 1.29 · En uzun zincir 4'. 64 için 'Yuva [1], zincir 4. sırada'. 29, 36 ve 43 üçü de [1] yuvasına gider; satır 'Toplam 12 · Yük faktörü 1.71 · En uzun zincir 7' olur ve 43 'zincir 7. sırada' bulunur. 4 ise boş [4] yuvasına düşer ve 'zincir 1. sırada' bulunur; yük faktörü 1.86'ya çıkar ama en uzun zincir 7'de kalır.",
+          "Gösteriden sonra 'baş indisi' 4, 'son indisi' 3 = (4 + 7) mod 8, 'Adet / kapasite' 7 / 8'dir ve altında 'dizinin ucundan dolanma: 1 kez' yazar; 9, 10 ve 11 dizinin başındaki 0., 1. ve 2. hücrelere yazılmıştır. 'Taşınan eleman' 0'dır; düz dizi 14 eleman kaydırırdı. 12, 3. hücreye yazılır (8 / 8); 13 'Taşma' iletisiyle reddedilir. «Önden çıkar» 5'i 4. hücreden alır. Sonek yığını 5 · 5 1 · 5 1 2 · 5 3 · 5 3 4 · 5 12 · 17 · 17 3 · 14 diye ilerler: sonuç 14, en büyük derinlik 3. Parantezde ileti: '2. konumdaki «)», yığının tepesindeki «[» (1. konum) ile eşleşmiyor'.",
         explain:
-          "29, 36 ve 43'ün hepsi 7k+1 biçimindedir; 7'ye bölümünden kalan 1'dir. Hash fonksiyonu anahtarları ayırt edemediğinde 'O(1) ortalama' iddiası çöker: [1] yuvası yedi elemanlık bir bağlı listeye dönüşmüştür. Yük faktörü ortalamayı söyler (12/7 ≈ 1,71), en kötü zinciri değil; sayfa bulduğu her elemanın yanına yine 'O(1) ortalama' yazar, zincirdeki sıra numarası gerçek maliyettir. Gerçek tablolar yük faktörü belli bir eşiği aşınca yuva sayısını artırıp her şeyi yeniden dağıtır; sayfadaki tablo bunu bilerek yapmaz ki şişmeyi görebilesin.",
+          "Kuyruğun önünden çıkan her eleman arkasında boş bir hücre bırakır; son indisi dizinin ucuna gelince mod işlemiyle o boşluklara döner; sayaçtaki tek dolanma budur. Düz dizinin 14 kaydırması dört çıkarmadan gelir: geride kalan 5, 4, 3 ve 2 eleman birer hücre öne çekilirdi. Dolu tamponda baş ile son yine aynı hücreyi gösterdiği için doluluk indislerden değil adetten anlaşılır. Sonek yazımında parantez ve öncelik kuralı gerekmez, çünkü yığın 'en son bekleyen iki sayıyı' kendiliğinden verir; parantez denetimi de aynı kurala dayanır: en son açılan önce kapanmalıdır.",
       },
       {
-        title: "Sıralı ekleme ağacı zincire çevirir",
+        title: "Tablo dolarken: zincir uzar, küme patlar",
         predict:
-          "'Sıfırla' 11 düğümlü, derinliği 4 olan dengeli bir ağaç yükler. 95, 100, 105 ve 110'u bu sırayla eklersen derinlik kaç olur? Dört düğüm için derinlik dört mü artar, bir mi?",
+          "64 yuvalı tabloda 48 anahtar var (α = 0,750). Tabloda olmayan bir anahtarı aramak zincirlemede ve doğrusal yoklamada ortalama kaç adım tutar? Ders kitabı limiti doğrusal yoklama için 8,5 diyor; 64 yuvada tutar mı? 10 anahtar daha eklersen maliyet yüzde kaç artar? Hash fonksiyonu kötüyse?",
         do:
-          "'Sıfırla'ya bas ve bilgi satırını oku. Değer kutusuna 95 yazıp 'Ekle', sonra 100, 105, 110 için aynısını yap; her eklemede derinliği not et. Ardından yeniden 'Sıfırla', kutuya 50 yazıp 'Sil'e bas ve kökte kimin oturduğuna bak.",
+          "Üçüncü sekmede «Sekmeyi sıfırla»ya bas ve tablonun dört satırını oku. 'Anahtar sayısı n'yi 58 yap. Sonra n'yi 48'e geri al ve «Tabloyu ikiye katla (m → 2m)»ye bas. Son olarak sekmeyi sıfırla ve 'Hash fonksiyonu'nu «Kötü: rakamların toplamı mod m» yap.",
         observe:
-          "'BST — 11 düğüm · Derinlik: 4' ile başlar; her eklemede derinlik birer artar: 12 düğüm/5, 13/6, 14/7, 15 düğüm/8. Yeni düğümler 90'ın sağından aşağı inen tek sıra bir merdiven oluşturur; tuval ağacı sığdırmak için katları sıkıştırır. 50 silindiğinde kökte 55 belirir; düğüm sayısı 10, derinlik yine 4.",
+          "Başlangıçta 'Doğrusal yoklama, bulunmayan' satırı 9,287 | 6,271 | 6,134 (limit 8,500) | +2,2 % yazar; 'Zincirleme, bulunmayan' 0,751 | 0,740 | 0,750 | −1,3 %. n = 58'de α 0,906 olur: zincirleme 0,908 | 0,897 | 0,906'ya, doğrusal yoklama 24,699 | 16,871 | 16,566'ya (limit 57,389) çıkar; en uzun küme 54 yuvadır. İkiye katlayınca durum satırı 48 anahtardan 32'sinin yuva değiştirdiğini söyler; α 0,375'e, doğrusal yoklama 2,115 | 1,763 | 1,753'e iner. Kötü fonksiyonda yalnızca 21 / 64 yuva kullanılır: zincirleme bulunmayan 2,274 (kuram 0,750), doğrusal yoklama bulunmayan 34,452 (kuram 6,134) olur.",
         explain:
-          "Her yeni değer ağaçtaki her şeyden büyük olduğu için hep sağa gider; dört ekleme dört kat derinlik. Aynı 11 sayıyı küçükten büyüğe eklesen derinlik 11 olurdu, yani düz bir bağlı liste. Silmede kökün yerini sağ alt ağacın en küçüğü (55) alır; böylece 'sol küçük, sağ büyük' kuralı bozulmaz. AVL ve kırmızı-siyah ağaçların işi, bu merdiveni her eklemede döndürmelerle yeniden dengelemektir.",
+          "Zincirlemede maliyet α ile doğru orantılıdır: yüzde 21 fazla anahtar, yüzde 21 fazla karşılaştırma. Doğrusal yoklamada dolu yuvalar birleşip kümeler kurar ve olmayan bir anahtar, düştüğü kümenin sonuna kadar yürür; aynı on anahtar maliyeti 2,7 katına çıkarır. Tabloyu büyütmenin bedeli bütün anahtarları yeniden yerleştirmektir. 'Bu tablo' tek bir örnektir ve rastgele sapar; kuramla 100 tablonun ortalaması karşılaştırılır. Limit formülü sonsuz büyük tablo içindir, 64 yuvada fazla söyler. Kötü fonksiyon ise kuramın varsayımını, düzgün dağılımı bozar: rakam toplamları dar bir aralığa yığılır.",
       },
       {
-        title: "'Min. Çıkar' düğmesi aslında bir sıralama makinesi",
+        title: "Girdi sırası: ağacı zincire çevirir, heap'i yorar",
         predict:
-          "Heap dizisi [3, 8, 15, 17, 22, 42, 50, 30] ile başlar. Bir kez 'Min. Çıkar'dan sonra dizi küçükten büyüğe sıralı mı olur? Sekiz kez basarsan çıkan sayılar hangi sırada gelir?",
+          "Aynı 15 anahtarı rastgele yerine küçükten büyüğe eklersen BST'nin yüksekliği kaç olur, AVL'ninki kaç? 31 anahtarda? Bir heap'i bin elemanı tek tek ekleyerek kurmak her zaman n log n karşılaştırma mı tutar?",
         do:
-          "'Sıfırla'ya bas, diziyi ve altındaki ağaç satırlarını oku. 'Min. Çıkar (extract-min)' düğmesine bir kez bas; 0.4 saniyelik vurgudan sonra yeni diziyi yaz. Sonra heap boşalana kadar basmayı sürdür (yedi kez daha) ve her basıştan önce 'Min:' değerini not et. En son 'Sıfırla' yap, kutuya 1 yazıp 'Ekle (insert)'e bas.",
+          "Dördüncü sekmede «Sekmeyi sıfırla»ya bas ve kartları oku. 'Ekleme sırası'nı «Küçükten büyüğe (sıralı)» yap; sonra 'Başlangıç anahtar sayısı'nı 31'e çek. Beşinci sekmeye geç, alttaki 'Yığını kurmak' bölümünde n = 1000 iken 'Girdi sırası'nı sırayla «Rastgele», «Büyükten küçüğe (ekleme için en kötü)» ve «Küçükten büyüğe (zaten bir heap)» yap.",
         observe:
-          "İlk çıkarmadan sonra dizi [8, 17, 15, 30, 22, 42, 50] olur: 17, 15'in önünde durur, yani dizi sıralı değildir; ama kökte doğru şekilde 8 oturur. Çıkanlar sırayla 3, 8, 15, 17, 22, 30, 42, 50: küçükten büyüğe. 1 eklendiğinde önce dizinin sonuna (9. hücre) iner, sonra üç basamak yukarı çıkıp köke oturur: [1, 3, 15, 8, 22, 42, 50, 30, 17].",
+          "Rastgele sırada BST yüksekliği 6, AVL yüksekliği 4'tür; ortalama arama 4,267 ve 3,333 karşılaştırma, AVL 8 dönüş yapmıştır. Sıralı girdide BST yüksekliği 14'e, ortalama arama 8,000'e çıkar; AVL 11 dönüşle yüksekliği 3'te, ortalamayı 3,267'de tutar. 31 anahtarda BST 30 ve 16,000; AVL 4 (üst sınır 5) ve 4,161 gösterir, 26 dönüşle. Heap kurulumunda rastgele girdi: Floyd 1885, ardışık ekleme 2309 karşılaştırma (eleman başına 2,309; en kötü durum 7987). Büyükten küçüğe: Floyd 1982, ardışık ekleme 7987 (kuramla fark 0), Floyd'un 4,03 katı. Küçükten büyüğe: ikisi de 999.",
         explain:
-          "Heap yalnızca 'ebeveyn ≤ çocuk' kuralını tutar; kardeşler arasında sıra yoktur, bu yüzden dizi karışık görünür ama kök hep en küçüktür. Her çıkarma son elemanı (30) köke taşıyıp aşağı yüzdürür: 30 önce 8'le, sonra 17'yle yer değiştirir; en fazla derinlik kadar, yani yaklaşık log₂ n adım. Sekiz çıkarma sıralı bir dizi üretir; 1964'te Williams'ın tarif ettiği heapsort tam olarak budur ve n log n adımda biter. Yukarı yüzen 1 ise her seviyede ebeveyniyle bir kez karşılaştırılır: 8 elemanlık heap'te en fazla üç karşılaştırma.",
+          "Sıralı girdide her yeni anahtar öncekilerin hepsinden büyüktür ve en sağa asılır: BST bir bağlı listeye döner, yükseklik n − 1, ortalama arama (n + 1) ÷ 2 olur. AVL aynı girdiyi dönüşlerle karşılar; dönüş birkaç işaretçi değiştirir, sıralı dolaşmayı bozmaz. Heap'te azalan girdi en kötü durumdur: her yeni eleman köke kadar çıkar, toplam ⌊log₂ 1⌋ + … + ⌊log₂ 1000⌋ = 7987 eder. Rastgele girdide yeni eleman çoğu zaman alt düzeylerde kalır ve ardışık ekleme de doğrusal büyür: 'n log n' ortalama değil, en kötü durumdur. Floyd'un sınırı girdiye bağlı değildir; bin elemanda 1988'i aşamaz.",
       },
     ],
   },
@@ -107,7 +107,7 @@ window.ACELYA_DIGEST["veri-yapilari"] = {
     {
       title: "Bir hatanın adını taşıyan site",
       body:
-        "Her fonksiyon çağrısı dönüş adresini çağrı yığınına koyar. Bir fonksiyon kendini durmadan çağırırsa yığın için ayrılan bellek dolar ve program 'stack overflow' (yığın taşması) hatasıyla çöker. 2008'de Jeff Atwood ve Joel Spolsky, programcıların soru-cevap sitesine bu hatanın adını verdi: Stack Overflow. Bir veri yapısının en ünlü kazası, böylece programcıların en bilinen soru-cevap sitesinin adı oldu.",
+        "Her fonksiyon çağrısı dönüş adresini çağrı yığınına koyar. Bir fonksiyon kendini durmadan çağırırsa yığın için ayrılan bellek dolar ve program 'stack overflow' (yığın taşması) hatasıyla çöker. 2008'de Jeff Atwood ve Joel Spolsky'nin programcılar için kurduğu soru-cevap sitesi adını bu hatadan aldı: Stack Overflow. Bir veri yapısının en ünlü kazası, böylece yazılım dünyasının en çok başvurulan adreslerinden birinin tabelası oldu.",
     },
     {
       title: "Kredi kartındaki son rakam Luhn'un imzasıdır",
@@ -117,91 +117,97 @@ window.ACELYA_DIGEST["veri-yapilari"] = {
     {
       title: "Çekirdeğin içindeki kırmızı-siyah ağaç",
       body:
-        "Linux çekirdeğinin 2007'de (sürüm 2.6.23) gelen Tamamen Adil Zamanlayıcısı (CFS), çalışmayı bekleyen her işlemi şimdiye kadar aldığı işlemci süresine göre bir kırmızı-siyah ağaca yerleştirir. Sıradaki işlem her zaman ağacın en solundaki düğümdür; ekleme ve çıkarma binlerce işlemde bile log n adımda biter. 2023'te CFS'in yerini alan EEVDF zamanlayıcısı da işleri aynı tür ağaçta tutar; Android telefonlar Linux çekirdeği kullandığından, uygulamalar arasında geçerken cebinde bu ağaç çalışır.",
+        "Linux çekirdeğinin 2007'de (sürüm 2.6.23) gelen Tamamen Adil Zamanlayıcısı (CFS), çalışmayı bekleyen her işlemi şimdiye kadar aldığı (önceliğine göre ağırlıklandırılmış) işlemci süresine göre bir kırmızı-siyah ağaca yerleştirir. Sıradaki işlem her zaman ağacın en solundaki düğümdür; ekleme ve çıkarma binlerce işlemde bile log n adımda biter. 2023'te CFS'in yerini alan EEVDF zamanlayıcısı da işleri aynı tür ağaçta tutar; Android telefonlar Linux çekirdeği kullandığından, uygulamalar arasında geçerken cebinde bu ağaç çalışır.",
     },
   ],
   worked: {
-    title: "Sekiz milyar isimde bir isim: üç raf, üç maliyet",
+    title: "Bin ekleme: ikiye katlamak mı, sekizer sekizer büyümek mi?",
     prompt:
-      "Dünyadaki 8 000 000 000 kişinin kimlik numarası bir yerde saklanacak ve tek bir numara aranacak. Bilgisayar saniyede yaklaşık 10⁹ karşılaştırma yapsın. Sırasız dizi, dengeli ikili arama ağacı ve yük faktörü 0,67 olan hash tablosu için en kötü ve ortalama arama süresini bul.",
+      "Boş bir dinamik diziye art arda n = 1000 eleman ekleniyor. Dizi dolduğunda yeni bir blok ayrılıyor ve eski elemanların hepsi oraya kopyalanıyor. (a) Kapasite 1'den başlayıp her seferinde ikiye katlanırsa, (b) 8'den başlayıp her seferinde 8 hücre artarsa toplam kaç ek kopya yapılır ve ekleme başına kaç kopya düşer? (c) n = 2000 olunca ne değişir? Sonuçları birinci sekmedeki 'Ekleme sayısı n', 'Büyüme kuralı' ve 'Sabit artış k' denetimleriyle karşılaştır.",
     steps: [
-      "Sırasız dizi ya da bağlı liste: aranan numara en sonda olabilir, en kötü durumda 8 × 10⁹ karşılaştırma gerekir. Süre: 8 × 10⁹ / 10⁹ = 8 saniye. Ortalama durumda yarısı, yani yaklaşık 4 saniye.",
-      "Dengeli ikili arama ağacı: her karşılaştırma kalan adayların yarısını eler. Adım sayısı log₂(8 × 10⁹) = log₂(8) + log₂(10⁹) ≈ 3 + 29,9 = 32,9, yani en fazla 33 karşılaştırma. Süre: 33 × 10⁻⁹ s = 33 nanosaniye; tek bir saniyede 30 milyon arama.",
-      "Hash tablosu: önce anahtardan yuva hesaplanır (1 işlem), sonra o yuvadaki zincir taranır. İyi dağılımla ortalama zincir yük faktörü kadar, yani 0,67 elemandır; başarılı bir arama ortalama 1 + α/2 ≈ 1,3 eleman yoklar. Yuva hesabıyla birlikte yaklaşık 2 işlem, 2 nanosaniye. Ama en kötü durumda (bütün anahtarlar aynı yuvada) yeniden 8 saniyeye döner.",
-      "Bedelleri karşılaştır: dizi en az belleği kullanır ama aramada çaresizdir; ağaç 33 adımda bulur ve üstelik 'bu numaradan büyük ilk numara' gibi sıralı soruları da yanıtlar; hash tablosu en hızlıdır ama sıra bilmez ve 8 milyar eleman için 12 milyar yuvalık yer ayırır (8 / 0,67 ≈ 12). Bu sayılar karşılaştırma sayan bir modeldir; gerçek bellekte her adım bir önbellek ıskası olabilir ve nanosaniyeler yüz kat büyür, ama sıralama değişmez.",
+      "İkiye katlama: dizi 1, 2, 4, …, 512 kapasitelerinde dolar ve her seferinde o anki bütün elemanlar kopyalanır. Bu 10 yeniden boyutlandırmadır; toplam = 1 + 2 + 4 + … + 512 = 2¹⁰ − 1 = 1023 kopya. Son kapasite 1024'tür, 24 hücre (% 2,3) boş bekler.",
+      "Ekleme başına 1023 kopya ÷ 1000 ekleme = 1,023 kopya. Genel hâli: toplam = 2<sup>⌈log₂ n⌉</sup> − 1 ve 2<sup>⌈log₂ n⌉</sup> < 2n olduğundan toplam hep 2n'den küçüktür. En kötü an büyümenin hemen sonrasıdır: n = 1025'te toplam 2047 kopya, ekleme başına 1,997; sınır 2 aşılmaz.",
+      "Sabit artış, k = 8: kapasiteler 8, 16, 24, … diye gider. 1000 ekleme için j = ⌈1000 ÷ 8⌉ − 1 = 124 kez büyünür ve sırasıyla 8, 16, …, 992 eleman kopyalanır. Toplam = 8 × (1 + 2 + … + 124) = 8 × 124 × 125 ÷ 2 = 62 000 kopya; ekleme başına 62 kopya (sayfada 62,000). Hiç boş hücre kalmaz, ama iş 60 katına çıkmıştır.",
+      "n = 2000: katlamada toplam 2¹¹ − 1 = 2047 kopya, ekleme başına 1,024; değişmedi sayılır. Sabit artışta j = 249, toplam = 8 × 249 × 250 ÷ 2 = 249 000 kopya, ekleme başına 124,500. Eleman sayısı iki katına çıkınca toplam yaklaşık dört katına (249 000 ÷ 62 000 ≈ 4,02), ekleme başına kopya iki katına çıkmıştır: birincisi bir geometrik seri, ikincisi bir aritmetik seridir.",
+      "Ölçeği büyüt: bir milyon eklemede katlama 2 000 000'dan az kopya yapar. Sabit artışta j = 124 999 olur ve toplam 8 × 124 999 × 125 000 ÷ 2 ≈ 6,25 × 10¹⁰ kopyaya varır. Sayfanın kaydırıcısı 4096'da biter; bu son adım formülün uzatılmasıdır, bir ölçüm değildir.",
     ],
     result:
-      "Aynı veri, aynı bilgisayar: 8 saniye, 33 nanosaniye ya da 2 nanosaniye. Yapı seçimi donanımı değiştirmeden hızı yüz milyonlarca kat değiştirebilir; buna karşılık her yapı bir şeyden vazgeçer: bellek, sıra ya da en kötü durum güvencesi.",
+      "İkiye katlamada 1000 ekleme 1023 ek kopya (ekleme başına 1,023), sekizer büyümede 62 000 ek kopya (ekleme başına 62) ister. Katlamalı büyümede eklemenin <strong>amortize</strong> maliyeti sabittir, sabit artışta n ile doğru orantılı büyür. Bedel bellektir: katlanan dizi büyümenin hemen ardından yarı yarıya boştur. Model yalnızca kopyaları sayar; bellek ayırmanın kendi süresi ve önbellek etkileri hesapta yoktur.",
   },
   misconceptions: [
     {
       myth: "Bağlı listede ekleme her zaman O(1)'dir.",
       truth:
-        "Ekleme, yerini bildiğin düğümün yanına O(1)'dir. 'Ortaya ekle' dediğinde önce ortayı bulmak gerekir ve bu baştan n/2 işaretçi izlemek demektir. Sayfadaki karşılaştırma tablosunda Bağlı Liste satırındaki yıldızı (O(1)*) böyle oku: düğüm elindeyse ucuz, aranacaksa O(n). Sayfa yıldızın anlamını yazmaz.",
+        "Sabit olan işaretçi yazımıdır, konuma varmak değil. Sayfada on elemanlı tek yönlü listenin ortasına (i = 5) eklerken liste 2 işaretçi yazar ama önce 4 işaretçi izler; yol i ile büyür. Ekleme ancak düğüm zaten elindeyse ya da uçlardaysan O(1)'dir. Tek yönlü listede son elemanı silmek ise kuyruk işaretçisine rağmen n − 2 adım ister.",
     },
     {
       myth: "Hash tablosunda arama her zaman tek adımdır.",
       truth:
-        "O(1) ortalama bir beklentidir; iyi bir hash fonksiyonu ve makul bir yük faktörü ister. Sayfada 29, 36 ve 43'ü eklediğinde [1] yuvasının zinciri yediye çıkar ve 43'ü bulmak yedi karşılaştırma alır. Gerçek tablolar yük faktörü eşiği aşınca büyüyüp yeniden dağıtır; bu da tek seferlik O(n) bir iştir.",
+        "O(1) bir ortalamadır ve iki şey ister: anahtarları düzgün dağıtan bir fonksiyon ve makul bir yük faktörü. Sayfada «Kötü: rakamların toplamı mod m» seçildiğinde doğrusal yoklamada olmayan bir anahtar ortalama 34,452 yuvaya bakar; iyi fonksiyonla aynı tabloda kuram 6,134'tür. İyi fonksiyonda bile α 0,750'den 0,906'ya çıkınca bu sayı 6,134'ten 16,566'ya fırlar.",
     },
     {
-      myth: "Min-heap küçükten büyüğe sıralı bir dizidir.",
+      myth: "Bir heap'i elemanları tek tek ekleyerek kurmak her zaman n log n sürer.",
       truth:
-        "Heap yalnızca ebeveyn-çocuk ilişkisini sıralar, kardeşleri değil. İlk 'Min. Çıkar'dan sonra sayfadaki dizi [8, 17, 15, 30, 22, 42, 50] olur: 17, 15'ten önce gelir ama kural bozulmamıştır. Heap sana 'en küçük hangisi' sorusunu O(1)'de yanıtlar; 'üçüncü en küçük hangisi' sorusu için üç çıkarma gerekir.",
+        "n log n en kötü durumdur ve azalan girdide yaşanır: bin elemanda 7987 karşılaştırma. Rastgele girdide yeni eleman çoğu zaman birkaç düzeyden fazla çıkmaz; sayfa aynı bin eleman için 2309 karşılaştırma sayar ve n = 2000'de eleman başına sayı neredeyse aynı kalır (2,313). Girdi ne olursa olsun doğrusal kalan yöntem Floyd'unkidir.",
     },
     {
       myth: "İkili arama ağacında arama hep log n sürer.",
       truth:
-        "Yalnızca ağaç dengeliyse. 10, 20, 30, …, 110'u sırayla eklersen her değer bir öncekinin sağına gider ve 11 düğümlük ağacın derinliği 11 olur: bu bir bağlı listedir ve arama O(n)'dir. Sayfada 95, 100, 105, 110'u ekleyerek merdiveni kendin kur; AVL ve kırmızı-siyah ağaçlar bu yüzden icat edildi.",
+        "Yalnızca ağaç dengeliyse. Sayfada 15 anahtarı «Küçükten büyüğe (sıralı)» eklediğinde BST'nin yüksekliği 14 olur ve ortalama arama 8,000 karşılaştırmaya çıkar: bu bir bağlı listedir. Aynı girdide AVL yüksekliği 3'te tutar. Güvence ağacın adından değil, dengeleme kuralından gelir.",
     },
   ],
   glossary: [
-    { term: "Soyut veri tipi", definition: "Verinin nasıl saklandığını değil, hangi işlemlerin yapılabileceğini tanımlayan sözleşme; yığın ve kuyruk böyle tanımlanır." },
-    { term: "Büyük-O, O(n)", definition: "Bir işlemin maliyetinin eleman sayısı n büyüdükçe en fazla nasıl büyüdüğünü söyleyen gösterim; O(1) sabit, O(log n) çok yavaş, O(n) doğrusal büyür." },
+    { term: "Soyut veri tipi", definition: "Verinin nasıl saklandığını değil, hangi işlemlerin yapılabileceğini tanımlayan sözleşme; yığın, kuyruk ve deque böyle tanımlanır." },
+    { term: "Büyük-O, O(n)", definition: "Bir işlemin maliyetinin eleman sayısı n büyüdükçe en fazla nasıl büyüdüğünü söyleyen gösterim; O(1) sabit kalır, O(log n) çok yavaş, O(n) doğrusal büyür." },
     { term: "Amortize maliyet", definition: "Nadir ve pahalı bir işlemin (örneğin dizinin büyütülmesi) bedelini uzun bir işlem dizisine yayınca işlem başına düşen maliyet." },
-    { term: "İşaretçi", definition: "Başka bir verinin bellekteki adresini tutan değer; bağlı listede 'sonraki' alanı budur." },
-    { term: "Yük faktörü (α)", definition: "Hash tablosundaki eleman sayısının yuva sayısına oranı; ortalama zincir uzunluğunun ölçüsü." },
-    { term: "Çakışma", definition: "İki farklı anahtarın aynı yuvaya düşmesi; zincirleme ya da açık adresleme ile çözülür." },
-    { term: "Derinlik (yükseklik)", definition: "Ağaçta kökten en uzak yaprağa giden yoldaki düğüm sayısı; arama maliyetinin üst sınırı." },
-    { term: "Tam ikili ağaç", definition: "Son seviye dışında her seviyesi dolu, son seviyesi soldan sağa doldurulmuş ağaç; heap'in dizide boşluksuz saklanmasını sağlar." },
+    { term: "Halka tampon", definition: "Baş ve son indisleri dizinin ucundan başa dolanan sabit kapasiteli dizi; iki uçtan ekleme ve çıkarmayı eleman taşımadan yapar." },
+    { term: "Yük faktörü (α)", definition: "Hash tablosundaki anahtar sayısının yuva sayısına oranı, α = n ÷ m; zincirlemede bir zincirin beklenen uzunluğudur." },
+    { term: "Doğrusal yoklama", definition: "Çakışan anahtarı sağdaki ilk boş yuvaya yerleştiren açık adresleme yöntemi; bitişik dolu yuvalar küme oluşturur ve n < m ister." },
+    { term: "Yükseklik", definition: "Ağaçta kökten en uzak yaprağa giden yoldaki kenar sayısı (tek düğümde 0); bir aramanın en çok yükseklik + 1 karşılaştırma yapacağını söyler." },
+    { term: "Tam ikili ağaç", definition: "Son düzeyi dışında her düzeyi dolu, son düzeyi soldan sağa doldurulmuş ağaç; heap'in dizide boşluksuz saklanmasını sağlar." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede 'ekleme O(n)' demek yeter; lisansta bu cümlenin üç ayrı anlamı olduğunu öğrenirsin: en kötü durum, ortalama durum ve <strong>amortize</strong> durum. Dinamik dizi dolunca iki katına çıkarılır; o tek işlem O(n)'dir, ama n ekleme boyunca yapılan kopyalamaların toplamı 1 + 2 + 4 + … + n < 2n'dir; toplam maliyet O(n) kaldığı için işlem başına O(1) düşer. Hash tablosunda 'ortalama' sözcüğü de bir olasılık varsayımı taşır; evrensel hash aileleri bu varsayımı kötü niyetli girdiye karşı bile güvenceye alır. Bir de modelin görmediği şey vardır: bellek hiyerarşisi. Dizi önbellek satırlarını sırayla doldurur, bağlı liste her düğümde belleğe ayrı bir yolculuk yapar; bu yüzden küçük ve orta boyutlarda 'O(n) kaydırma' ölçümlerde sık sık 'O(1) işaretçi takibi'ni geçer.",
+      "Lisede 'ekleme O(n)' demek yeter; lisansta, genellikle <strong>Veri Yapıları</strong> ve <strong>Algoritma Analizi</strong> derslerinde, bu cümlenin üç ayrı anlamı olduğunu öğrenirsin: en kötü durum, ortalama durum ve <strong>amortize</strong> durum. Dinamik dizi dolunca iki katına çıkarılır; o tek işlem O(n)'dir, ama n ekleme boyunca yapılan kopyalamaların toplamı 1 + 2 + 4 + … < 2n kalır ve işlem başına O(1) düşer. Hash tablosunda 'ortalama' sözcüğü bir olasılık varsayımı taşır; evrensel hash aileleri bu varsayımı kötü niyetli girdiye karşı bile güvenceye alır. Bir de bu sayfanın saymadığı şey vardır: bellek hiyerarşisi. Dizi önbellek satırlarını sırayla doldurur, bağlı liste her düğümde belleğe ayrı bir yolculuk yapar; bu yüzden küçük ve orta boyutlarda 'O(n) kaydırma' ölçümlerde sık sık 'O(1) işaretçi takibi'ni geçer. Doğrusal yoklamanın gerçek tablolarda hâlâ kullanılmasının bir nedeni de budur: yokladığı yuvalar bellekte yan yanadır.",
       "İleri derslerde ağaçlar diskle buluşur: veritabanı indeksleri, her düğümü bir disk bloğu kadar geniş olan <strong>B-ağaçları</strong>dır ve milyarlarca kaydı üç dört okumayla bulur. Fibonacci heap bazı işlemleri amortize O(1)'e indirir, kalıcı (persistent) veri yapıları eski sürümleri silmeden yeni sürüm üretir ve fonksiyonel dillerin temelidir. Çizgeler için komşuluk listesi ile matris seçimi, algoritmanın O(V+E) mi O(V²) mi olacağını belirler. Sonunda her veri yapısı aynı sorunun bir cevabıdır: hangi işlemleri ucuz tutmak istiyorsun ve bunun için neyden vazgeçmeye razısın?",
     ],
-    topics: ["Amortize analiz", "Bellek hiyerarşisi ve önbellek yerelliği", "AVL, kırmızı-siyah ve B-ağaçları", "Evrensel hashing", "Fibonacci heap", "Kalıcı veri yapıları", "Çizge gösterimleri"],
+    topics: ["Amortize analiz", "Bellek hiyerarşisi ve önbellek yerelliği", "AVL, kırmızı-siyah ve B-ağaçları", "Evrensel hashing ve açık adresleme", "Fibonacci heap", "Kalıcı veri yapıları", "Çizge gösterimleri"],
   },
   quiz: [
     {
-      question: "Sayfadaki tabloda hash(k) = k mod 7'dir ve 15 numaralı anahtar [1] yuvasındadır. Aşağıdakilerden hangisi 15 ile aynı yuvaya düşer?",
-      options: ["29", "30", "31", "32"],
-      answer: 0,
-      explanation: "29 = 4 × 7 + 1, kalan 1. 30, 31 ve 32'nin kalanları sırasıyla 2, 3 ve 4'tür. Aynı kalanı veren anahtarlar çakışır ve aynı zincire eklenir.",
+      question: "Kapasitesini her dolduğunda 8 hücre artıran bir diziye 1000 eleman eklemek 62 000 ek kopya gerektiriyor. Aynı diziye 2000 eleman eklenirse toplam ek kopya yaklaşık kaç olur?",
+      options: ["Yaklaşık 64 000; yalnızca birkaç büyüme daha eklenir", "Yaklaşık 124 000; eleman iki katı, kopya iki katı", "Yaklaşık 249 000; eleman iki katı, kopya dört katı", "Yaklaşık 4000; ekleme başına 2 kopyayı geçemez"],
+      answer: 2,
+      explanation: "Sabit artışta kopyalar 8 + 16 + 24 + … biçiminde bir aritmetik seridir ve toplamı n² ÷ (2k) gibi büyür: n iki katına çıkınca toplam dört katına çıkar (sayfada tam değer 249 000). 'Ekleme başına 2 kopya' sınırı yalnızca ikiye katlayan dizi için geçerlidir; orada 2000 ekleme 2047 kopya ister.",
     },
     {
-      question: "Bir min-heap'in dizi gösterimi için hangisi doğrudur?",
+      question: "64 yuvalı tabloda 48 anahtar var (α = 0,750). Tablo 128 yuvaya büyütülüp anahtarlar yeniden yerleştiriliyor. Tabloda olmayan bir anahtarı aramanın beklenen maliyeti nasıl değişir?",
       options: [
-        "Dizi her zaman küçükten büyüğe sıralıdır.",
-        "Her ebeveyn çocuklarından küçük ya da eşittir; dizinin sıralı olması gerekmez.",
-        "En büyük eleman her zaman dizinin son hücresindedir.",
-        "Herhangi bir elemanı aramak O(log n) sürer.",
+        "İki yöntemde de tam yarıya iner, çünkü α yarıya inmiştir.",
+        "Zincirlemede yarıya iner (0,750 → 0,375); doğrusal yoklamada yarıdan çok daha fazla düşer (6,134 → 1,753).",
+        "Zincirlemede değişmez, yalnızca doğrusal yoklamada düşer.",
+        "İkisinde de değişmez; anahtar sayısı aynı kaldı.",
       ],
       answer: 1,
-      explanation: "Heap kuralı yalnızca ebeveyn ile çocuk arasındadır; sayfadaki [8, 17, 15, 30, 22, 42, 50] dizisi geçerli bir heap'tir ama sıralı değildir. En büyük eleman bir yapraktadır ama hangi yaprak olduğu belli değildir; rastgele arama O(n)'dir.",
+      explanation: "Zincirlemede olmayan anahtar bir zincirin tamamını tarar ve beklenen zincir uzunluğu α'dır: maliyet α ile doğru orantılıdır. Doğrusal yoklamada maliyet 1 ÷ (1 − α)² ile büyüdüğü için dolu tabloda α'daki küçük bir düşüş bile büyük kazanç getirir; sayfanın sonlu m değerleriyle 6,134'ten 1,753'e, yaklaşık 3,5 kat. Tabloları yük faktörü bir eşiği aşınca büyütmenin gerekçesi budur.",
     },
     {
-      question: "Boş bir ikili arama ağacına 10, 20, 30, …, 110 sayıları bu sırayla eklenirse ağacın derinliği kaç olur?",
-      options: ["Derinlik 4", "Derinlik 11", "Yaklaşık log₂ 11 ≈ 3,5", "Derinlik 110"],
-      answer: 1,
-      explanation: "Her yeni sayı ağaçtaki her şeyden büyük olduğu için hep sağa gider; 11 düğüm tek bir zincir oluşturur ve derinlik 11'dir. Aynı sayılar dengeli eklenseydi derinlik 4 olurdu (sayfadaki örnek ağaç gibi).",
+      question: "Bin eleman boş bir min-heap'e tek tek ekleniyor. Girdi rastgele sıradayken sayfa eleman başına 2,309 karşılaştırma, büyükten küçüğe sıradayken 7,987 karşılaştırma sayıyor. Eleman sayısı 2000'e çıkarılırsa bu iki sayı için hangisi beklenir?",
+      options: [
+        "İkisi de iki katına çıkar.",
+        "İkisi de yaklaşık 1 artar, çünkü ağaca bir düzey eklenmiştir.",
+        "Rastgele girdide neredeyse aynı kalır; azalan girdide yaklaşık 1 artar.",
+        "Rastgele girdide yaklaşık 1 artar; azalan girdide aynı kalır.",
+      ],
+      answer: 2,
+      explanation: "Azalan girdide her yeni eleman köke kadar çıkar, yani ⌊log₂ i⌋ karşılaştırma yapar; n iki katına çıkınca ağaca bir düzey eklenir ve ortalama yaklaşık 1 artar (sayfada 8,982). Rastgele girdide yeni eleman çoğu zaman alt düzeylerde durur; eleman başına maliyet ağacın yüksekliğine bağlı değildir ve neredeyse sabit kalır (sayfada 2,313). 'n log n' en kötü durumun adıdır, her girdinin değil.",
     },
   ],
   next: [
-    { href: "algoritmalar.html", title: "Algoritmalar", why: "Kuyruk BFS'i, yığın DFS'i yönetir; aynı on düğümlü grafta iki keşif sırasını izle, sıralama ve ikili aramada adımları say." },
-    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "O, Ω ve Θ'nın farkı; en kötü, ortalama ve amorti edilmiş analiz. Dinamik dizinin 'O(1) amortize' eklemesinin hesabı orada." },
-    { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma: Az Adım mı, Az Maliyet mi?", why: "BFS düz kuyrukla en az adımı, Dijkstra ve A* öncelik sırasıyla en az maliyeti bulur; kuyruktan alınan hücreleri aynı haritada say." },
+    { href: "algoritmalar.html", title: "Algoritmalar: Adımları Say", why: "Kuyruk BFS'i, yığın DFS'i yönetir; çizgeler sekmesinde BFS, DFS ve Dijkstra'yı çalıştır, sıralama ve aramada karşılaştırmaları kuramla yan yana say." },
+    { href: "veritabanlari.html", title: "Veritabanları: İlişkisel Model, Sorgular ve İndeksler", why: "Diskteki indeksler ikili ağaç değil, düğüm başına çok anahtar tutan B+ağacıdır; ikinci sekmede kendin kur ve aramanın kaç düğüm okuduğunu say." },
+    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "O, Ω ve Θ'nın farkı; en kötü, ortalama ve amorti edilmiş analizin hangi soruyu yanıtladığı ve büyüme sınıflarının karşılaştırması." },
     { href: "isaretciler-ve-bellek-yonetimi.html", title: "İşaretçiler ve Bellek Yönetimi", why: "Bağlı listedeki 'sonraki' adresinin ve çağrı yığınının bellekte gerçekten neye karşılık geldiğini keşfet." },
   ],
   sources: [

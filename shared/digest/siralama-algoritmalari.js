@@ -70,8 +70,8 @@ window.ACELYA_DIGEST["siralama-algoritmalari"] = {
   ],
   next: [
     { href: "siralama-yarisi.html", title: "Sıralama Yarışı: İş Sayacı", why: "Aynı girdide karşılaştırma, ana dizi ve tampon yazmalarının ayrı maliyetlerini karşılaştır." },
-    { href: "algoritmalar.html", title: "Algoritmalar", why: "Adım, doğruluk ve çalışma maliyeti düşüncesini başka problemlere taşı." },
-    { href: "veri-yapilari.html", title: "Veri Yapıları", why: "Kaydı hangi yapıda tuttuğunun taşıma ve erişim maliyetini nasıl değiştirdiğini incele." }
+    { href: "algoritmalar.html", title: "Algoritmalar: Adımları Say", why: "Adım, doğruluk ve çalışma maliyeti düşüncesini başka problemlere taşı." },
+    { href: "veri-yapilari.html", title: "Veri Yapıları Laboratuvarı", why: "Kaydı hangi yapıda tuttuğunun taşıma ve erişim maliyetini nasıl değiştirdiğini incele." }
   ],
   sources: [
     { title: "NIST DADS · Bubble sort", url: "https://xlinux.nist.gov/dads/HTML/bubblesort.html", note: "Komşu takası, takassız turda durma ve kararlılık. Deney sayaçları sayfanın belirli uygulamasından hesaplandı." },

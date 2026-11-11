@@ -130,7 +130,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `kimyasal-kinetik` — Kimyasal Kinetik (sayfa başlığı: Kimyasal Kinetik | Açelya)
 - `atom-orbitalleri` — Atom Orbitalleri (sayfa başlığı: Atom Orbitalleri — s, p, d)
 - `kristal-yapilar` — Kristal Yapılar (sayfa başlığı: Kristal Yapılar: Birim Hücre, Paketleme ve X-Işını Kırınımı)
-- `elektrokimya` — Elektrokimya (sayfa başlığı: Elektrokimya — Galvanik Hücre | Açelya)
+- `elektrokimya` — Elektrokimya (sayfa başlığı: Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday)
 - `ideal-gaz` — İdeal Gaz (sayfa başlığı: İdeal Gaz: Moleküllerden Basınca (Kinetik Teori))
 - `ph-indikator` — pH & İndikatörler (sayfa başlığı: pH ve İndikatörler: Logaritmik Ölçek, Su Dengesi ve Renk)
 - `molekul-sekli` — Molekül Şekli (sayfa başlığı: Molekül Şekli (VSEPR))
@@ -155,29 +155,29 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `bayes-olasilik` — Bayes Olasılığı
 - `yol-bulma-algoritmalari` — Yol Bulma Algoritmaları (sayfa başlığı: Yol Bulma: Az Adım mı, Az Maliyet mi?)
 - `siralama-yarisi` — Sıralama Yarışı: İş Sayacı (sayfa başlığı: Sıralama Yarışı: Aynı Girdi, Farklı İş)
-- `mantik-devresi` — Mantık Devresi (sayfa başlığı: Mantık Devresi Tasarımcısı)
+- `mantik-devresi` — Mantık Devresi (sayfa başlığı: Mantık Devreleri Laboratuvarı)
 - `enigma-makinesi` — Enigma Makinesi (sayfa başlığı: Enigma: Rotor, Adım ve Elektrik Yolu)
 - `ses-sentezleyici` — Ses Sentezi: Zarf ve Tını (sayfa başlığı: Ses Sentezleyici: Zarf ve Tını)
 - `renk-teorisi` — Renk: Kod, Işık ve Karışım
-- `internet-ve-ag-teknolojileri` — İnternet ve Ağ Teknolojileri
-- `siber-guvenlik` — Siber Güvenlik ve Kriptografi
-- `isletim-sistemleri-ve-linux` — İşletim Sistemleri ve Linux
-- `bilgisayar-sistemleri-ve-mimarisi` — Bilgisayar Sistemleri ve Mimarisi
-- `algoritmalar` — Algoritmalar
-- `veri-yapilari` — Veri Yapıları
+- `internet-ve-ag-teknolojileri` — İnternet ve Ağ Teknolojileri (sayfa başlığı: İnternet ve Ağ Teknolojileri: Paket, Pencere, Önek, Ad)
+- `siber-guvenlik` — Siber Güvenlik ve Kriptografi (sayfa başlığı: Siber Güvenlik Laboratuvarı: Şifre, Özet ve Anahtar)
+- `isletim-sistemleri-ve-linux` — İşletim Sistemleri ve Linux (sayfa başlığı: İşletim Sistemleri ve Linux Laboratuvarı)
+- `bilgisayar-sistemleri-ve-mimarisi` — Bilgisayar Sistemleri ve Mimarisi (sayfa başlığı: Bilgisayar Mimarisi Laboratuvarı)
+- `algoritmalar` — Algoritmalar (sayfa başlığı: Algoritmalar: Adımları Say)
+- `veri-yapilari` — Veri Yapıları (sayfa başlığı: Veri Yapıları Laboratuvarı)
 - `veritabanlari` — Veritabanları (sayfa başlığı: Veritabanları: İlişkisel Model, Sorgular ve İndeksler)
-- `isaretciler-ve-bellek-yonetimi` — İşaretçiler ve Bellek Yönetimi
+- `isaretciler-ve-bellek-yonetimi` — İşaretçiler ve Bellek Yönetimi (sayfa başlığı: İşaretçiler ve Bellek Yönetimi Laboratuvarı)
 - `derleyici-ve-yorumlayicilar` — Derleyici ve Yorumlayıcılar
-- `yazilim-muhendisligi` — Yazılım Mühendisliği
+- `yazilim-muhendisligi` — Yazılım Mühendisliği (sayfa başlığı: Yazılım Mühendisliği: Sürüm, Test, Tahmin ve Akış)
 - `bicimsel-diller-ve-otomata-teorisi` — Biçimsel Diller ve Otomata Teorisi
 - `hesaplama-teorisi` — Hesaplama Teorisi (sayfa başlığı: Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik)
 - `grup-teorisi` — Grup Teorisi
-- `sicim-teorisi` — Sicim Teorisi
-- `tasarim-desenleri` — Tasarım Desenleri
+- `sicim-teorisi` — Sicim Teorisi (sayfa başlığı: Sicim Teorisi: Hesaplanabilen Kısım)
+- `tasarim-desenleri` — Tasarım Desenleri (sayfa başlığı: Tasarım Desenleri: Say, Karşılaştır, Bedelini Gör)
 - `programlama-paradigmalari` — Programlama Paradigmaları (sayfa başlığı: Programlama Paradigmaları: Aynı Problem, Farklı Düşünme Biçimleri)
 - `makine-dili-assembly-c` — Makine Dili → Assembly → C
 - `makine-ogrenmesi-derin-ogrenme-llm` — Makine Öğrenmesi, Derin Öğrenme ve LLM (sayfa başlığı: Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri)
-- `otonom-araclar-ve-iha` — Otonom Araçlar ve İHA (sayfa başlığı: Otonom Araçlar ve İnsansız Hava Araçları)
+- `otonom-araclar-ve-iha` — Otonom Araçlar ve İHA (sayfa başlığı: Otonom Araçlar ve İHA Laboratuvarı)
 - `metalurji-ve-malzeme-muhendisligi` — Metalurji ve Malzeme Mühendisliği (sayfa başlığı: Malzeme Bilimi: Faz Diyagramı, Çekme Deneyi ve Difüzyon)
 - `maden-muhendisligi` — Maden Mühendisliği (sayfa başlığı: Maden Mühendisliği: Tenör, Açık Ocak ve Cevher Hazırlama)
 - `makro-ekonomi-ve-para-politikalari` — Makro Ekonomi ve Para Politikaları (sayfa başlığı: Makro Ekonomi: Çarpanlar, Para ve Büyüme Modelleri)
@@ -186,14 +186,14 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `yoneylem-arastirmasi` — Yöneylem Araştırması (sayfa başlığı: Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol)
 - `uretim-planlama-ve-endustri-muhendisligi` — Üretim Planlama ve Endüstri Mühendisliği (sayfa başlığı: Üretim Planlama: Stok, Kalite ve Akış)
 - `elektrik-muhendisligi` — Elektrik Mühendisliği (sayfa başlığı: Elektrik Mühendisliği: Güç, İletim ve Dönüşüm)
-- `elektronik-muhendisligi` — Elektronik Mühendisliği
-- `makine-muhendisligi` — Makine Mühendisliği
+- `elektronik-muhendisligi` — Elektronik Mühendisliği (sayfa başlığı: Elektronik Mühendisliği: Analog Devre Laboratuvarı)
+- `makine-muhendisligi` — Makine Mühendisliği (sayfa başlığı: Makine Mühendisliği: Çevrim, Dişli, Titreşim ve Isı)
 - `mekatronik-muhendisligi` — Mekatronik Mühendisliği
 - `plc-hidrolik-pnomatik-cnc-cadcam` — PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM (sayfa başlığı: PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM Sistemleri)
 - `kimya-muhendisligi` — Kimya Mühendisliği (sayfa başlığı: Kimya Mühendisliği: Reaktör, Damıtma ve Isı Değiştirici)
 - `gemi-makineleri-isletme-muhendisligi` — Gemi Makineleri İşletme Mühendisliği (sayfa başlığı: Gemi Makineleri: Dizel Çevrim, Pervane ve Stabilite)
-- `ucak-muhendisligi-ve-aerodinamik` — Uçak Mühendisliği ve Aerodinamik
+- `ucak-muhendisligi-ve-aerodinamik` — Uçak Mühendisliği ve Aerodinamik (sayfa başlığı: Uçak Mühendisliği ve Aerodinamik: Kanat, Performans ve Menzil)
 - `otomotiv-muhendisligi` — Otomotiv Mühendisliği (sayfa başlığı: Otomotiv Mühendisliği: Motor, Aktarma ve Araç Dinamiği)
 - `elektrikli-araclar` — Elektrikli Araçlar (sayfa başlığı: Elektrikli Araçlar: Enerji, Batarya ve Menzil)
 - `uluslararasi-iliskiler` — Uluslararası İlişkiler (sayfa başlığı: Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri)
-- `isletme-bilimi-ve-yonetim` — İşletme Bilimi ve Yönetim
+- `isletme-bilimi-ve-yonetim` — İşletme Bilimi ve Yönetim (sayfa başlığı: İşletme Bilimi: Başabaş, Yatırım, Mali Tablolar ve Karar)

@@ -74,7 +74,7 @@ window.ACELYA_DIGEST["siralama-yarisi"] = {
   next: [
     { href: "siralama-algoritmalari.html", title: "Sıralama: Adım ve Kararlılık", why: "İş maliyetinden kayıt kimliklerine dön; eşit anahtarların korunmasını ve tur değişmezlerini incele." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "Benzer sayım sorusunu aramada sor: az hücre seçmek az toplam işlem anlamına gelir mi?" },
-    { href: "veri-yapilari.html", title: "Veri Yapıları", why: "Dizi, tampon ve kuyruk seçiminin işlemlere etkisini araştır." }
+    { href: "veri-yapilari.html", title: "Veri Yapıları Laboratuvarı", why: "Dizi, tampon ve kuyruk seçiminin işlemlere etkisini araştır." }
   ],
   sources: [
     { title: "NIST DADS · Bubble sort", url: "https://xlinux.nist.gov/dads/HTML/bubblesort.html", note: "Komşu kıyasları ve takassız turda erken durma; laboratuvarın C sayacı ayrıca koddan doğrulandı." },

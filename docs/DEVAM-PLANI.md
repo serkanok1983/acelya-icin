@@ -27,8 +27,12 @@ eşleşmesi doğrulandı.
 main'e gönderilip elle yayımlandı; paket sürümü **`acelya-b57bf83881`**. **11 Kasım, üçüncü tur (G):** 4.5'teki on sekiz zayıf laboratuvar sıfırdan
 yeniden kuruldu; defterleri yeni sayfalara göre yazılıp bağımsız doğrulandı.
 Kullanıcı onayıyla main'e gönderilip elle yayımlandı; paket sürümü
-**`acelya-0aa90056b8`**. Kalan
-işler 4.4 (eski veri katmanları) ve 4.5'in sonunda listelenenlerdir.
+**`acelya-0aa90056b8`**. **11 Kasım, dördüncü tur (H):** "eski 36 defter"
+turunda yalnız düzeltilen yirmi bir sayfa aynı hatla sıfırdan yeniden
+kuruldu (ayrıntı `docs/simulasyon-notlari.md` → "H"); 39 kalıcı laboratuvar
+testi `npm run test:g` ile koşar. Bu tur henüz commit'lenmedi/yayımlanmadı
+(kullanıcı onayı bekleniyor). Kalan işler 4.4 (eski veri katmanları) ve
+4.5'in sonunda listelenenlerdir.
 
 **10 Kasım yayın talimatı:** Kullanıcı her kodlama turunun sonunda `main`'e
 gönderim ve elle yayın istiyor; sonucu canlı siteden kontrol ediyor.
@@ -689,20 +693,16 @@ tablosu hataları). Öneri:
    hesaplama-teorisi, makro ve mikro ekonomi, altin-oran, elektrikli-araclar,
    otomotiv, maden, metalurji, uluslararasi-iliskiler,
    programlama-paradigmalari, veritabanlari, makine-ogrenmesi.
-   **Sırada**, düzeltilmiş ama laboratuvar düzeyine çıkarılmamış sayfalar
-   (çoğu kart ağırlıklı; ayrıntı `docs/simulasyon-notlari.md` → "eski 36
-   defter"): elektrokimya, sicim-teorisi, bicimsel-diller-ve-otomata-teorisi,
-   algoritmalar, veri-yapilari, bilgisayar-sistemleri-ve-mimarisi,
-   makine-dili-assembly-c, isaretciler-ve-bellek-yonetimi,
-   isletim-sistemleri-ve-linux, derleyici-ve-yorumlayicilar,
-   tasarim-desenleri, yazilim-muhendisligi, internet-ve-ag-teknolojileri,
-   siber-guvenlik, elektronik-muhendisligi, mantik-devresi,
-   makine-muhendisligi, plc-hidrolik-pnomatik-cnc-cadcam,
-   ucak-muhendisligi-ve-aerodinamik, otonom-araclar-ve-iha,
-   isletme-bilimi-ve-yonetim; ayrıca 31 Ekim–1 Kasım'da defterlenip hiç
-   yeniden kurulmamış eski temel sayfalar (is-enerji, dairesel-hareket,
+   11 Kasım'da (H) yirmi bir sayfa daha: elektrokimya, sicim-teorisi,
+   bicimsel-diller, algoritmalar, veri-yapilari, bilgisayar mimarisi,
+   assembly, isaretciler, isletim-sistemleri, derleyici, tasarim-desenleri,
+   yazilim-muhendisligi, internet-ve-ag, siber-guvenlik, elektronik
+   (artık analog), mantik-devresi, makine-muhendisligi, plc-cnc, ucak,
+   otonom, isletme. **Sırada**: 31 Ekim–1 Kasım'da defterlenip hiç yeniden
+   kurulmamış eski temel sayfalar (is-enerji, dairesel-hareket,
    manyetik-alan, kepler-yasalari, matris-donusumleri, fonksiyon-grafigi,
-   bayes-olasilik, kimya ve biyoloji sayfaları). Bir sayfa yeniden kurulursa
+   bayes-olasilik, kimya ve biyoloji sayfaları) ve yazilim-muhendisligi
+   kanbanının çekirdekteki kararsızlık algılayıcısı (bkz. notlar, H). Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

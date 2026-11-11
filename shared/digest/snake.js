@@ -207,7 +207,7 @@ window.ACELYA_DIGEST["snake"] = {
   ],
   next: [
     { href: "cizge-teorisi.html", title: "Çizge Teorisi", why: "Köşeler, kenarlar, boyama ve turlar; yılanın tahtasını çizge olarak görmenin bütün araçları burada." },
-    { href: "veri-yapilari.html", title: "Veri Yapıları", why: "Kuyruk, yığın ve dizi: yılanın gövdesini taşıyan yapıyı ve işlemlerin maliyetini yakından incele." },
+    { href: "veri-yapilari.html", title: "Veri Yapıları Laboratuvarı", why: "Kuyruk, yığın ve dizi: yılanın gövdesini taşıyan yapıyı ve işlemlerin maliyetini yakından incele." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "Yeme engellerin arasından en kısa yolu bulan aramalar; açgözlü oyuncunun kullandığı yöntem." },
     { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş", why: "Aynı ızgarada bu kez yönü zar belirliyor: beklenen uzaklık ve geri dönüş olasılığı." },
   ],

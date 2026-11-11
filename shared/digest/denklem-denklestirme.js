@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["denklem-denklestirme"] = {
   ],
   next: [
     { href: "asit-baz-titrasyonu.html", title: "Asit-Baz Titrasyonu", why: "Stokiyometri çözeltide: H₂SO₄ + NaOH (diprotik) seçeneğinde eşdeğerlik noktası, denklemdeki '2' yüzünden asidin iki katı mol NaOH'ta gelir." },
-    { href: "elektrokimya.html", title: "Elektrokimya", why: "Yarı tepkimeleri iki ayrı kaba koy: Daniell pilinde çinkonun verdiği elektronlar telden bakıra akar ve voltmetre bu alışverişin itici gücünü ölçer." },
+    { href: "elektrokimya.html", title: "Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday", why: "Yarı tepkimeleri iki ayrı kaba koy: Daniell pilinde çinkonun verdiği elektronlar telden bakıra akar ve voltmetre bu alışverişin itici gücünü ölçer." },
     { href: "matris-donusumleri.html", title: "Matris Dönüşümleri", why: "Determinant sıfıra inince bir 2×2 matris düzlemi bir çizgiye ezer: bir doğrultudaki bütün vektörler sıfıra gider. Sıfır uzayı ve rankın gözle görülen hâli." },
     { href: "fotosentez-solunum.html", title: "Fotosentez ve Hücresel Solunum", why: "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O'yu burada denkleştirdin; hücrenin onu Krebs döngüsü ve ATP üretimiyle nasıl adım adım yürüttüğünü orada izle." },
   ],

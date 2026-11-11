@@ -127,7 +127,7 @@ window.ACELYA_DIGEST["yol-bulma-algoritmalari"] = {
   next: [
     { href: "cizge-teorisi.html", title: "Çizge Teorisi", why: "Yol problemini daha geniş çizge diliyle karşılaştır: düğüm, kenar ve bağlantı yapısı hangi soruları sormana izin verir?" },
     { href: "siralama-yarisi.html", title: "Sıralama Yarışı: İş Sayacı", why: "Aynı girdide farklı iş türlerini ayrı say; burada kuyruk seçiminin, orada karşılaştırma ve yazmanın neden süreyle aynı olmadığını incele." },
-    { href: "veri-yapilari.html", title: "Veri Yapıları", why: "FIFO kuyruğu ile öncelik kuyruğunun farkını öğren; bir algoritmanın seçme kuralını hangi yapıların taşıdığını düşün." },
+    { href: "veri-yapilari.html", title: "Veri Yapıları Laboratuvarı", why: "FIFO kuyruğu ile öncelik kuyruğunun farkını öğren; bir algoritmanın seçme kuralını hangi yapıların taşıdığını düşün." },
   ],
   sources: [
     { title: "E. W. Dijkstra · A Note on Two Problems in Connexion with Graphs (1959)", url: "https://www.cs.yale.edu/homes/lans/readings/routing/dijkstra-routing-1959.pdf", note: "Numerische Mathematik 1, 269–271; özgün makalenin Yale arşivindeki kopyası. İkinci problem en kısa yoldur." },

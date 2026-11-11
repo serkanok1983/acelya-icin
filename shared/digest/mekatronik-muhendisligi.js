@@ -252,13 +252,13 @@ window.ACELYA_DIGEST["mekatronik-muhendisligi"] = {
   next: [
     {
       href: "plc-hidrolik-pnomatik-cnc-cadcam.html",
-      title: "PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM",
-      why: "Bu sayfadaki PLC kartlarının canlı hâli: START/STOP butonlu merdiven diyagramı, hidrolik ve pnömatik kartlar ve örnek bir G-kodu programı.",
+      title: "PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM Sistemleri",
+      why: "Bu sayfadaki PLC kartlarının canlı hâli: tarama çevrimini adım adım işleyen bir merdiven yorumlayıcısı, sinyal çakışmasını kaskadla çözen pnömatik sıralama, G-kodu yorumlayıcısı ve takım yolu telafisi.",
     },
     {
       href: "otonom-araclar-ve-iha.html",
-      title: "Otonom Araçlar ve İHA",
-      why: "PID ve MPC yan yana; drone uçuş kontrolcüsünün PID döngüsü, Kalman filtresi ve 'Yol Bul' düğmeli bir yol planlama tuvali.",
+      title: "Otonom Araçlar ve İHA Laboratuvarı",
+      why: "Algıla–kestir–planla–denetle döngüsünün dört halkası canlı deney olarak: İHA irtifasında PID, gürültülü konumda Kalman süzgeci, yol izlemede pure pursuit ve Stanley, algılama menzili ile durma mesafesi.",
     },
     {
       href: "matris-donusumleri.html",
