@@ -194,7 +194,7 @@ window.ACELYA_DIGEST["uzay-kosucusu"] = {
   ],
   next: [
     { href: "atislar.html", title: "Eğik Atış: Hava Direnci ve En İyi Açı", why: "Geminin çizdiği parabol burada açı, hız ve hava direnciyle karşına çıkar; menzilin neden 45°'de en büyük olduğunu ve havanın bunu nasıl bozduğunu görürsün." },
-    { href: "serbest-dusme.html", title: "Serbest Düşme ve Hava Direnci", why: "Zıplamanın iniş yarısı gerçek birimlerle: havasız ortamda sabit ivme, havada hızın karesiyle büyüyen fren ve limit hız." },
+    { href: "serbest-dusme.html", title: "Serbest Düşme: Galileo'dan Limit Hıza", why: "Zıplamanın iniş yarısı gerçek birimlerle: havasız ortamda sabit ivme, havada hızın karesiyle büyüyen fren ve limit hız." },
     { href: "gezegen-savunmasi.html", title: "Gezegen Savunması", why: "Yerçekimi sabit olmayınca atış hareketi ne olur? Mermiler GM/r² çekiminde düşer, elips çizer ya da kaçar; yörüngeyi kendin ölçersin." },
     { href: "asteroids.html", title: "Asteroids", why: "Aynı oyun döngüsü, bu kez yerçekimsiz: itiş, eylemsizlik ve kenarları birbirine yapışık bir uzay." },
   ],

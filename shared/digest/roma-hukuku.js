@@ -180,9 +180,9 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
     },
   ],
   next: [
-    { href: "uluslararasi-iliskiler.html", title: "Uluslararası İlişkiler", why: "Bütün halklara uygulanan ius gentium, 16. ve 17. yüzyılda Vitoria ve Grotius'la devletler arası 'milletler hukuku'na dönüştü; sayfanın Uluslararası Hukuk panelinde bugünkü hâlini gör." },
-    { href: "makro-ekonomi-ve-para-politikalari.html", title: "Makro Ekonomi ve Para Politikaları", why: "Veratius'un 25 aslık tokadı, sabit tutarların enflasyonla nasıl eridiğinin erken bir dersiydi: paranın değeri neden düşer, merkez bankası buna nasıl karşı koyar?" },
-    { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi ve Üretim Faktörleri", why: "Mülkiyet ve sözleşme olmadan piyasa kurulamaz; Roma'nın dominium ve obligatio kavramlarının ekonomideki karşılığı." },
+    { href: "uluslararasi-iliskiler.html", title: "Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri", why: "Bütün halklara uygulanan ius gentium, 16. ve 17. yüzyılda Vitoria ve Grotius’la devletler arası ‘milletler hukuku’na dönüştü; sayfanın uluslararası hukuk kartında bugünkü çerçeveyi, laboratuvarlarında işbirliği modellerini gör." },
+    { href: "makro-ekonomi-ve-para-politikalari.html", title: "Makro Ekonomi: Çarpanlar, Para ve Büyüme Modelleri", why: "Veratius’un 25 aslık tokadı, sabit tutarların enflasyonla nasıl eridiğinin erken bir dersiydi: fiyat düzeyinin bileşik büyümesini ve katlanma süresini enflasyon sekmesinde hesapla." },
+    { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma", why: "Mülkiyet ve sözleşme olmadan piyasa kurulamaz; Roma'nın dominium ve obligatio kavramlarının ekonomideki karşılığı." },
     { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Formula bir koşul cümlesi, exceptio da onun 'VE DEĞİL' kolu gibi düşünülebilir. VE ile DEĞİL kapılarının doğruluk tablolarını inceleyerek bu mantıksal benzetimi sorgula." },
   ],
   sources: [

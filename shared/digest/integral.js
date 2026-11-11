@@ -1,101 +1,101 @@
 window.ACELYA_DIGEST = window.ACELYA_DIGEST || {};
 window.ACELYA_DIGEST["integral"] = {
   slug: "integral",
-  title: "İntegral: Sonsuz İnce Dilimlerin Toplamı",
+  title: "İntegral: Birikimin Hesabı",
   field: "Matematik",
-  level: "Lise",
-  minutes: 30,
+  level: "Lise–Lisans",
+  minutes: 40,
   tagline:
-    "Arşimet bir parabolün alanını dilimleyerek buldu, Leibniz o dilimlerin toplamına uzun bir S çizdi. İntegral, küçük katkıları biriktirip tek ve kesin bir sayıya varmanın sanatıdır.",
-  hook: "Bir arabanın kilometre sayacı bozuk, yalnızca hız göstergesi çalışıyor: bir saatlik yolculuğun sonunda kaç kilometre gittiğini yine de bulabilir misin? Bulabilirsin; zamanı ince dilimlere böl, her dilimde hız × süreyi hesapla, hepsini topla ve dilimler inceldikçe toplamın hangi sayıya yerleştiğine bak. Sayfadaki mor dikdörtgenler, kökü 2200 yıldan eski bu fikrin çalışan bir maketidir.",
+    "Hızdan yolu, kuvvetten işi, eğriden hacmi veren tek fikir: birikim. Temel teoremi kendi elinle ölç, küreyi iki ayrı yoldan dilimle, sonsuza uzanan bir borunun hacminin neden π'yi aşamadığını gör.",
+  hook: "Bir arabanın kilometre sayacı bozuk, yalnızca hız göstergesi çalışıyor: bir saatlik yolculuğun sonunda kaç kilometre gittiğini yine de bulabilir misin? Bulabilirsin; her an için hız × kısacık süreyi biriktirirsin. Peki biriken yolun o andaki artış hızı nedir? Göstergenin o an gösterdiği sayı. Kalkülüsün en büyük teoremi bu kadar tanıdık bir cümledir.",
   bigIdea:
-    "Belirli integral, aralığı dilimlere bölüp her dilimde <em>yükseklik × genişlik</em> topladığında, dilimler incelirken bu toplamın yerleştiği sayıdır; türevi f olan bir F bulunabiliyorsa o sayı tek satırda gelir: <em>∫<sub>a</sub><sup>b</sup> f(x) dx = F(b) − F(a)</em>.",
+    "İntegral bir birikimdir: a'dan x'e biriken A(x)'in değişim hızı, f'nin sürekli olduğu her noktada f(x)'in kendisidir; bu yüzden türevi f olan bir F bulduğunda birikim tek satırda gelir: <em>∫<sub>a</sub><sup>b</sup> f(x) dx = F(b) − F(a)</em>.",
   story: [
-    "MÖ 3. yüzyılda Sirakuzalı Arşimet, bir parabolün bir doğruyla kestiği parçanın alanının, içine çizilen üçgenin tam 4/3'ü olduğunu ispatladı. Elinde ne cebir ne koordinat vardı. Knidoslu Eudoksos'tan miras kalan <strong>tüketme yöntemini</strong> kullandı: alanı içten ve dıştan, giderek incelen bilinen parçalarla sıkıştırdı ve aradaki farkın istenen her miktardan küçük yapılabileceğini gösterdi. Bugünün diliyle bu, alt ve üst toplamların aynı sayıya yaklaştığını ispatlamaktır. Sonucu sayfada görebilirsin: x² seç, a = −1, b = 1, n = 100 yap. Okuma 0.666600 olur; gerçek değer 2/3. Parabol ile y = 1 doğrusu arasındaki parça, 2 × 1'lik dikdörtgenden bu 2/3 çıkınca kalan 4/3'tür; içine çizilen (−1, 1), (0, 0), (1, 1) üçgeninin alanı ise tam 1. Arşimet'in oranı, ekranda.",
-    "Arşimet'ten bin iki yüz yılı aşkın bir süre sonra Kahire'de İbnü'l-Heysem, dördüncü kuvvetlerin toplamı için bir formül bulup bir paraboloidin hacmini hesapladı. 1600'lerde fikir hız kazandı. Johannes Kepler 1613'te evine şarap alırken tüccarların fıçı hacmini tek bir çubukla ölçtüğünü gördü; bu gözlem onu farklı biçimli kapların hacmini dilimleyerek incelemeye götürdü. Bonaventura Cavalieri 1635'te alanları sonsuz ince çizgilerden, 'bölünemezler'den oluşmuş gibi ele alan yöntemini yayımladı. Asıl sıçrama, iki ayrı sorunun aslında tek sorun olduğunun görülmesiydi: eğrinin altındaki alanı bulmak ile teğetini bulmak birbirinin tersidir. Bu ilişkinin ilk basılı ispatını James Gregory 1668'de verdi; Isaac Barrow, Cambridge'deki geometri derslerinde daha genel bir biçimini ispatladı. İlişkiyi hesap yapan bir makineye dönüştürenler ise yöntemini 1665–66'da geliştiren Isaac Newton (Barrow'un Cambridge'deki halefi) ve ondan bağımsız olarak, 1670'lerin ortasında Gottfried Wilhelm Leibniz oldu.",
-    "Yöntem işliyordu ama 'sonsuz ince dilim' tam olarak neydi? 1823'te Augustin-Louis Cauchy integrali, sürekli fonksiyonlar için sonlu toplamların <strong>limiti</strong> olarak tanımladı. Bernhard Riemann 1854'te Göttingen'de sunduğu, ölümünden sonra 1868'de yayımlanan çalışmasında soruyu tersine çevirdi: hangi fonksiyonların integrali vardır? Ölçütü şuydu: her dilimin içinden <em>herhangi</em> bir nokta seçilebilmeli ve dilimler inceldikçe bütün seçimler aynı sayıya yaklaşmalı. Bugün onun adını taşıyan bu toplamlar her kalkülüs kitabında; sayfanın kullandığı orta nokta, Riemann'ın izin verdiği seçimlerden yalnızca biridir.",
-    "İntegral bugün birikim ölçülen her yerde çalışır: hızdan yol, güçten enerji, yoğunluktan kütle, olasılık yoğunluğundan olasılık. İşin ilginç yanı, bilgisayarlar integrallerin çoğunu formülle değil, bu sayfadaki fikrin daha akıllı sürümleriyle dilimleyip toplayarak hesaplar. Ters türevi formülle yazılamayan fonksiyonlarda çoğu zaman en pratik yol budur; mühendislik yazılımlarının içinde çalışan şey, Arşimet'in sıkıştırmasının hızlandırılmış bir torunudur.",
+    "MÖ 3. yüzyılda Sirakuzalı Arşimet, bir parabolün bir doğruyla kestiği parçanın alanının, içine çizilen üçgenin tam 4/3'ü olduğunu ispatladı. Elinde ne cebir ne koordinat vardı. Knidoslu Eudoksos'tan miras kalan <strong>tüketme yöntemini</strong> kullandı: alanı içten ve dıştan, giderek incelen bilinen parçalarla sıkıştırdı ve aradaki farkın istenen her miktardan küçük yapılabileceğini gösterdi. Bugünün diliyle bu, alt ve üst toplamların aynı sayıya yaklaştığını ispatlamaktır. Sonucu sayfada görebilirsin: ilk sekmede 'x² (polinom)' seç, taban noktası a'yı −1'e, üst sınır x'i 1'e getir. A(x) kartı 0.6666666667 yazar; yani 2/3. Parabol ile y = 1 doğrusu arasındaki parça, 2 × 1'lik dikdörtgenden bu 2/3 çıkınca kalan 4/3'tür; içine çizilen (−1, 1), (0, 0), (1, 1) üçgeninin alanı ise tam 1. Arşimet'in oranı, ekranda.",
+    "Arşimet'ten bin iki yüz yılı aşkın bir süre sonra Kahire'de İbnü'l-Heysem, dördüncü kuvvetlerin toplamı için bir formül bulup bir paraboloidin hacmini hesapladı. 1600'lerde fikir hız kazandı. Johannes Kepler 1613'te evine şarap alırken tüccarların fıçı hacmini tek bir çubukla ölçtüğünü gördü; bu gözlem onu farklı biçimli kapların hacmini dilimleyerek incelemeye götürdü. Bonaventura Cavalieri 1635'te alanları sonsuz ince çizgilerden, 'bölünemezler'den oluşmuş gibi ele alan yöntemini yayımladı. Asıl sıçrama, iki ayrı sorunun aslında tek sorun olduğunun görülmesiydi: eğrinin altındaki alanı bulmak ile teğetini bulmak birbirinin tersidir. Bu ilişkinin geometri diliyle yazılmış ilk basılı ispatını James Gregory 1668'de verdi; Isaac Barrow, Cambridge'deki geometri derslerinde daha genel bir biçimini ispatladı. İlişkiyi hesap yapan bir makineye dönüştürenler ise yöntemini 1665–66'da geliştiren Isaac Newton (Barrow'un Cambridge'deki halefi) ve ondan bağımsız olarak, 1670'lerin ortasında Gottfried Wilhelm Leibniz oldu.",
+    "Yöntem işliyordu ama 'sonsuz ince dilim' tam olarak neydi? 1823'te Augustin-Louis Cauchy integrali, sürekli fonksiyonlar için sonlu toplamların <strong>limiti</strong> olarak tanımladı. Bernhard Riemann 1854'te Göttingen'de sunduğu, ölümünden sonra 1868'de yayımlanan çalışmasında soruyu tersine çevirdi: hangi fonksiyonların integrali vardır? Ölçütü şuydu: her dilimin içinden <em>herhangi</em> bir nokta seçilebilmeli ve dilimler inceldikçe bütün seçimler aynı sayıya yaklaşmalı. Bugün onun adını taşıyan bu toplamlar her kalkülüs kitabında yer alır. Dikdörtgenleri tek tek görmek istersen sitedeki Riemann Toplamları sayfası tam bunun için kuruldu; bu sayfa o limitin ne anlama geldiğini ve ne işe yaradığını sorar.",
+    "İntegral bugün birikim ölçülen her yerde çalışır: hızdan yol, güçten enerji, yoğunluktan kütle, olasılık yoğunluğundan olasılık. İşin ilginç yanı, bilgisayarlar integrallerin çoğunu formülle değil, dilimleyip toplayarak hesaplar. Bu sayfadaki her sayı da öyle üretilir: önce sayısal olarak hesaplanır, sonra varsa ters türevden gelen değerin yanına konur. Ters türevi formülle yazılamayan fonksiyonlarda zaten başka yol yoktur; mühendislik yazılımlarının içinde çalışan şey, Arşimet'in sıkıştırmasının hızlandırılmış bir torunudur.",
   ],
   core: [
     {
-      heading: "Dilimle, çarp, topla",
-      body: "[a, b] aralığını n eşit dilime böl. Her dilimin genişliği Δx = (b − a)/n'dir. Her dilimde bir nokta seç, fonksiyonun oradaki değerini yükseklik al ve yükseklik × genişliği topla. Bu toplama <strong>Riemann toplamı</strong> denir. Sayfa noktayı dilimin tam ortasından seçer. Açılış ayarında (x², a = −1, b = 2, n = 5) Δx = 0.6, orta noktalar −0.7, −0.1, 0.5, 1.1 ve 1.7'dir. Kareleri 0.49 + 0.01 + 0.25 + 1.21 + 2.89 = 4.85; 0.6 ile çarpınca 2.91. Sayfanın yazdığı 2.910000 tam olarak budur.",
-      formula: "S<sub>n</sub> = Σ f(x<sub>k</sub>*)·Δx,   Δx = (b − a)/n",
+      heading: "Birikim fonksiyonu: alan değil, işaretli toplam",
+      body: "Bir a noktası seç ve oradan x'e kadar biriken miktara A(x) de. A bir sayı değil, x'in fonksiyonudur: x ilerledikçe f'nin eksenin üstündeki parçaları toplamı artırır, altındaki parçaları azaltır. Bu yüzden integral 'eğrinin altındaki alan'dan daha genel bir şeydir: <strong>işaretli birikim</strong>. İlk sekmede 'x³ − 3x: −2'den 2'ye' düğmesine bas: eksenin üstündeki alan 2.5, altındaki alan 2.5, A(x) ise 0. x'i a'nın soluna çekersen toplama yönü ters döner ve işaret değişir. Birim de birikimden gelir: f'nin birimi ile x'in birimi çarpılır; hız (m/s) zamana (s) göre integrallenince metre çıkar.",
+      formula: "A(x) = ∫<sub>a</sub><sup>x</sup> f(t) dt,   A(a) = 0,   ∫<sub>x</sub><sup>a</sup> f = −∫<sub>a</sub><sup>x</sup> f",
       formulaNote:
-        "x<sub>k</sub>* k'inci dilimden seçilen nokta; bu sayfada dilimin orta noktası. Toplam k = 1'den n'ye kadar alınır.",
+        "t yalnızca toplama değişkenidir; sonuç a'ya ve x'e bağlıdır. Net birikim ∫f, toplam büyüklük ∫|f| ile hesaplanır.",
     },
     {
-      heading: "Limit: dilimler incelirken toplamın yerleştiği sayı",
-      body: "Tek bir Riemann toplamı bir tahmindir. n'yi büyüttükçe dikdörtgenler eğriye sarılır, toplam bir sayıya yerleşir. Bu sayıya <strong>belirli integral</strong> denir. Gösterimin kendisi bu öyküyü anlatır: ∫, Leibniz'in 'toplam' için seçtiği uzatılmış S harfidir; dx ise sonsuz incelen Δx'tir. Bu yüzden integralin birimi, f'nin birimi ile x'in biriminin çarpımıdır: hız (m/s) zamana (s) göre integrallenince metre çıkar.",
-      formula: "∫<sub>a</sub><sup>b</sup> f(x) dx = lim<sub>n→∞</sub> S<sub>n</sub>",
+      heading: "Temel teorem, 1. kısım: birikimin eğimi f'dir",
+      body: "A'nın x'teki eğimini ölçmek için x'i h kadar ilerlet: A(x + h) − A(x), x ile x + h arasındaki ince şeridin alanıdır. f sürekliyse <strong>integraller için ortalama değer teoremi</strong> bu şeritte öyle bir c noktası bulur ki şeridin alanı tam f(c)·h olur. Demek ki fark oranı f(c)'ye eşittir. h küçülürken c, x ile x + h arasında sıkışır ve süreklilik f(c)'yi f(x)'e taşır: A′(x) = f(x). İspatın tek dayanağı sürekliliktir. Sayfanın basamak fonksiyonu x = 1'de 1'den 2'ye sıçrar; orada şeridin solu 1, sağı 2 yüksekliğindedir, soldan eğim 1, sağdan eğim 2 çıkar. A süreklidir ama köşe yapar; türevi yoktur.",
+      formula: "[A(x + h) − A(x)]/h = (1/h)·∫<sub>x</sub><sup>x+h</sup> f(t) dt = f(c<sub>h</sub>) → f(x)",
       formulaNote:
-        "Sürekli fonksiyonlarda sol uç, sağ uç ya da orta nokta seçimi limiti değiştirmez; yalnızca yaklaşma hızını değiştirir.",
+        "c<sub>h</sub>, x ile x + h arasında bir noktadır. Soldan ve sağdan eğimin ortalaması f(x)'ten yaklaşık f″(x)·h²/6 kadar sapar; sayfada sin x, x = 4, h = 0.01 için fark 1.26·10⁻⁵.",
     },
     {
-      heading: "Alan değil, işaretli birikim",
-      body: "Fonksiyon eksenin altına indiğinde yükseklik negatiftir; o dilimin katkısı toplamdan düşülür. Bu yüzden integral, 'eğrinin altındaki alan'dan daha genel bir şeydir: <strong>işaretli birikim</strong>. x³ için −2 ile 2 arası, iki tarafta da alanı 4 olan iki bölge vardır ama biri eksi, biri artı sayılır ve toplam sıfırdır. Hız eksiye düşerse (geri gidiş) integral net yer değiştirmeyi verir; toplam yol için hızın mutlak değeri integrallenir.",
-      formula:
-        "∫<sub>−2</sub><sup>2</sup> x³ dx = 0,   ∫<sub>−2</sub><sup>2</sup> |x³| dx = 8",
-      formulaNote: "Aynı eğri, iki farklı soru: net birikim mi, toplam büyüklük mü?",
+      heading: "2. kısım ve +C: taban noktası yalnızca kaydırır",
+      body: "Türevi f olan herhangi bir F bul. A'nın türevi de f olduğuna göre A − F'nin türevi her yerde sıfırdır; bir aralıkta türevi sıfır olan fonksiyon sabittir. O sabit x = a konarak bulunur: A(a) = 0 olduğundan sabit −F(a)'dır. Sonuç: A(x) = F(x) − F(a). Toplamı hiç yapmadan birikimi veren satır budur. Taban noktasını a'dan a₂'ye taşırsan iki birikim eğrisi arasındaki fark, a ile a₂ arasındaki integraldir ve x'e hiç bağlı değildir: eğri yalnızca yukarı ya da aşağı kayar, eğimi aynı kalır. Belirsiz integralin sonuna yazılan <strong>+C</strong> bu kaymanın adıdır.",
+      formula: "F′ = f  ⇒  ∫<sub>a</sub><sup>b</sup> f(x) dx = F(b) − F(a);   A<sub>a</sub>(x) − A<sub>a₂</sub>(x) = ∫<sub>a</sub><sup>a₂</sup> f(t) dt",
+      formulaNote:
+        "x² için F(x) = x³/3. a = 0, a₂ = 1 iken iki eğrinin farkı her x'te 1/3'tür; sayfa 0.33333333 yazar.",
     },
     {
-      heading: "Temel teorem: alan ile eğim aynı madalyonun iki yüzü",
-      body: "a'dan x'e kadar biriken alana A(x) de. x'i çok küçük bir h kadar ilerletirsen alan, yüksekliği yaklaşık f(x), genişliği h olan ince bir şerit kadar büyür: A(x + h) − A(x) ≈ f(x)·h. İki yanı h'ye bölüp h'yi sıfıra götürünce A′(x) = f(x) çıkar. Yani biriken alanın değişim hızı, eğrinin o noktadaki yüksekliğidir. Türevi f olan herhangi bir F bulursan, toplamı hiç yapmadan sonucu alırsın. Sayfa bu teoremi 'Temel İntegral Teoremi' diye anıyor; ders kitaplarında <strong>kalkülüsün temel teoremi</strong> adıyla geçer.",
-      formula: "F′(x) = f(x)  ⇒  ∫<sub>a</sub><sup>b</sup> f(x) dx = F(b) − F(a)",
+      heading: "Disk ve kabuk neden aynı hacmi verir?",
+      body: "Her uygulama aynı reçetedir: ince bir dilimin ölçüsünü yaz, sonra dilimleri integralle topla. Dönel cisimde reçetenin çekirdeği şudur: bölgedeki küçük bir dA parçası eksenden y kadar uzaktaysa, dönerken çevresi 2πy olan bir halka süpürür; hacme katkısı 2πy·dA'dır. Bu katkıları önce düşey sütunlar boyunca topla: dx genişliğindeki bir sütunda y, 0'dan f(x)'e çıkar ve 2πy'nin toplamı ∫<sub>0</sub><sup>f(x)</sup> 2πy dy = π·f(x)² eder; bu, π·f(x)² alanlı, dx kalınlığında bir <strong>disktir</strong>. Önce yatay şeritler boyunca toplarsan y yüksekliğindeki şeridin bütün noktaları eksene aynı uzaklıktadır; uzunluğu w(y) ise katkısı 2πy·w(y)·dy olur: 2πy·w(y) alanlı, dy kalınlığında silindirik bir <strong>kabuk</strong>. Toplanan şey aynıdır, yalnızca toplama sırası değişir. İki sonucun tutması bu yüzden bir tesadüf değil, hesabın sağlamasıdır.",
+      formula: "V = π∫ f(x)² dx = 2π∫ y·w(y) dy;   küre: π∫<sub>−r</sub><sup>r</sup> (r² − x²) dx = 4π∫<sub>0</sub><sup>r</sup> y·√(r² − y²) dy = 4πr³/3",
       formulaNote:
-        "x² için F(x) = x³/3: F(2) − F(−1) = 8/3 + 1/3 = 3. Sayfanın n = 100'de gösterdiği 2.999775 bu 3'e yaklaşıyor.",
+        "x ekseni çevresinde, altı eksen üstü f olan bölge için. Kürede y yüksekliğindeki şeridin uzunluğu w(y) = 2√(r² − y²)'dir. r = 1 için sayfa iki yoldan da 4.188790205 bulur.",
     },
     {
-      heading: "Orta nokta ne kadar ve hangi yöne yanılır?",
-      body: "Orta nokta dikdörtgeninin alanı, orta noktadaki teğetin altında kalan yamuğun alanına eşittir; çünkü teğet, dilimin bir yarısında ne kadar yukarıdaysa öbür yarısında o kadar aşağıdadır. x² gibi <strong>yukarı bükük</strong> bir eğri teğetinin üstünde kalır, dikdörtgen eksik sayar. sin(x)'in 0 ile π arasındaki tümseği gibi <strong>aşağı bükük</strong> bir eğri teğetinin altındadır, dikdörtgen fazla sayar. Hatanın büyüklüğü ise 1/n² ile küçülür: dilim sayısını iki katına çıkarmak hatayı dörtte birine indirir.",
-      formula: "I − M<sub>n</sub> = (b − a)³·f″(ξ) / (24n²)",
+      heading: "Sonsuza uzanan toplam: p testi",
+      body: "Sonsuz bir aralıkta integral, sonlu bir T'ye kadar alınan kısmi integralin T büyürken yaklaştığı sayıdır; böyle bir sayı yoksa integral <strong>ıraksaktır</strong>. 1/x<sup>p</sup> için hesap açıktır: p ≠ 1 iken ters türev x<sup>1−p</sup>/(1 − p)'dir ve T<sup>1−p</sup> terimi ancak p &gt; 1 ise söner. Aynı şeyi onluk onluk da görebilirsin: [T, 10T] aralığının katkısı, bir önceki onluğun katkısının 10<sup>1−p</sup> katıdır. p &gt; 1 ise katkılar oranı 1'den küçük bir geometrik dizi gibi erir ve toplam biter. p = 1'de her onluk aynı miktarı, ln 10 ≈ 2.30259'u ekler; toplam yavaş ama sınırsız büyür. Fonksiyonun sıfıra gitmesi yetmez, yeterince hızlı gitmesi gerekir.",
+      formula: "∫<sub>1</sub><sup>T</sup> x<sup>−p</sup> dx = (T<sup>1−p</sup> − 1)/(1 − p)  →  1/(p − 1)   (p &gt; 1, T → ∞)",
       formulaNote:
-        "ξ aralıktaki bir nokta, f″ ikinci türev. x² için f″ = 2 olduğundan hata tam (b − a)³/(12n²); açılış ayarında 27/300 = 0.09.",
+        "p = 1'de integral ln T'dir, p ≤ 1 için limit yoktur. 0'a yaklaşırken eşik aynı yerde ters çalışır: ∫<sub>ε</sub><sup>1</sup> x<sup>−p</sup> dx yalnızca p &lt; 1 için sonlu kalır.",
     },
   ],
   lab: {
     intro:
-      "Sol panelde bir menü ve üç kaydırıcı var: <strong>Fonksiyon Seç</strong> (x^2, x^3, sin(x)); −5 ile 0 arasında 0.1 adımla kayan <strong>Başlangıç (a)</strong>; 0 ile 5 arasında kayan <strong>Bitiş (b)</strong>; 1 ile 100 arasında <strong>Bölme Sayısı (n)</strong>. Açılışta x², a = −1, b = 2, n = 5 seçilidir. Kesin bir değere (ör. n = 48 ya da b = 3.1) ulaşmak için kaydırıcıya tıkla, sonra klavyenin ok tuşlarıyla adım adım ilerle. <strong>Yaklaşık integral</strong> satırındaki yeşil sayı, orta nokta Riemann toplamını noktadan sonra altı basamakla verir. Sayfa gerçek değeri yazmaz; onu F(b) − F(a) ile sen bulursun (deneylerde verdik). Üç sınırı bil: a 0'ın sağına, b 0'ın soluna geçemez, yani aralık hep 0'ı içerir; grafik dikeyde yalnızca −10 ile 10 arasını gösterir, x² ve x³ büyük |x|'te çerçeveden çıkar; sin(x) dikeyde birimi 20 piksel olduğu için basık görünür. Dikdörtgenlerin hafif titreşimi süstür, hesaba girmez.",
+      "Laboratuvar üç sekmedir. <strong>01 · Birikim ve temel teorem</strong>: bir fonksiyon seçersin, <strong>Taban noktası a</strong> ve <strong>Üst sınır x</strong> kaydırıcılarıyla (ya da grafiğin üstünde sürükleyerek) birikimi oluşturursun; alttaki grafik A(x)'i çizer, kartlar A'nın soldan, sağdan ve merkezî eğimini f(x)'in yanına koyar. <strong>02 · Geometri uygulamaları</strong>: <strong>Hesap türü</strong> menüsü iki eğri arasındaki alan, dönel cisim hacmi, yay uzunluğu ve Gabriel borusu arasında geçer. <strong>03 · Has olmayan integraller ve fizik</strong>: <strong>Deney türü</strong> menüsünde p testi ve Gauss, kinematik ve değişken kuvvetin işi vardır. Kaydırıcı adımı 0.05'tir; π ya da e gibi değerleri kaydırıcının altındaki kutuya <code>pi</code>, <code>pi/2</code>, <code>e</code> diye yazabilirsin. Sayılar ondalık noktayla ve gereksiz sıfırlar atılarak gösterilir. Bütün integraller sayısal olarak (uyarlamalı Gauss–Kronrod kuralıyla) hesaplanır ve her birinin yanında bir <strong>Hata tahmini</strong> kartı durur; bu bir tahmindir, garanti değil. Fark yuvarlama düzeyindeyse kart '≈ 0 (yuvarlama)' yazar. Sayfa sonsuzu hiç hesaplamaz: her sayı sonlu bir sınıra aittir. Fizik modelleri de sadedir: tek boyutlu hareket, ideal yay, küresel ve dönmeyen bir Dünya (sabitler NASA Earth Fact Sheet'ten). Boş kalan bir köşe için ek görev: 02 sekmesinde 'Yay uzunluğu ve dönel yüzey' açılışında zincir eğrisinin boyu 2.350402387, 8 parçalı kırık çizgi 2.34588419'dur; parça sayısını 16 yap ve açığın dörtte bire indiğini gör.",
     experiments: [
       {
-        title: "Hata dörtte bire iner",
+        title: "Birikimin eğimini ölç; sonra sıçramaya git",
         predict:
-          "Açılış ayarında (x², a = −1, b = 2) gerçek değer 3'tür. n = 5'te okuma 2.910000, yani hata 0.09. n'yi iki katına, 10'a çıkarırsan hata yarıya mı iner, dörtte bire mi?",
-        do: "Yalnızca <strong>Bölme Sayısı (n)</strong> kaydırıcısını oynat: n = 5, 10, 20, 50 ve 100'de <strong>Yaklaşık integral</strong> satırını not et ve her birini 3'ten çıkar.",
+          "Açılışta sin x seçili, a = 0, x = 4 ve A(x) = 1.653643621. A grafiğinin x = 4'teki eğimi kaç olmalı? Eğim ölçüm adımı h'yi on kat küçültürsen ölçümle f(x) arasındaki fark kaç kat küçülür? Basamak fonksiyonunun sıçradığı noktada eğim için ne beklersin?",
+        do: "01 sekmesinde <strong>Eğim ölçüm adımı h</strong> menüsünü sırayla 0.2, 0.1, 0.01 ve 0.001 yap; her seferinde 'Merkezî eğim' ve 'Merkezî eğim − f(x)' kartlarını oku. Sonra <strong>Basamak: x = 1</strong> düğmesine bas, kartlara bak ve <strong>Üst sınır x</strong>'i 2'ye çek.",
         observe:
-          "2.910000, 2.977500, 2.994375, 2.999100, 2.999775. Hatalar 0.09, 0.0225, 0.005625, 0.0009 ve 0.000225: n iki katına çıkınca hata dörtte birine, on katına çıkınca yüzde birine iner. Okuma hep 3'ün altında kalır, asla üstüne çıkmaz.",
+          "f(x) hep −0.7568025. Merkezî eğim −0.75176723, −0.75554179, −0.75678988, −0.75680237; fark 0.00504, 0.00126, 1.26·10⁻⁵, 1.26·10⁻⁷. Basamakta x = 1: A(x) = 1; h hangi değerde olursa olsun soldan eğim 1, sağdan eğim 2, 'f(x): sol limit; sağ limit' kartı 1; 2 ve fark kartı 'tanımsız: A′(x) yok'. A grafiğinde köşe görünür. x = 2'de A(x) = 3, iki eğim de 2; ortalama değer 1.5, 'f(c) = ortalama olan c' kartı ise 'yok'.",
         explain:
-          "x² için orta nokta hatası tam olarak (b − a)³/(12n²) = 27/(12n²) = 2.25/n²'dir. Hatanın 1/n² ile küçülmesi, orta noktayı hatası 1/n ile küçülen sol ve sağ uç kurallarından çok daha hızlı yapar. Hep altta kalmasının nedeni eğrinin yukarı bükük olmasıdır; dördüncü deneyde tersini göreceksin.",
+          "Fark oranı ince şeridin ortalama yüksekliğidir; f sürekli olduğunda h küçülürken f(x)'e iner. Merkezî ölçümün hatası h² ile küçülür: h on kat, fark yüz kat. Sıçramada şeridin iki yanı farklı yüksekliktedir, iki tek taraflı eğim iki ayrı limite gider ve A′(1) yoktur. Basamak 1.5 değerini hiç almadığı için ortalama değer teoremi de işlemez: iki teorem de sürekliliğe yaslanır.",
       },
       {
-        title: "Tek dikdörtgenin yalanı",
+        title: "+C'yi gözünle gör",
         predict:
-          "x² seçiliyken a = −5, b = 5 ve n = 1 yaparsan sayfa ne der? Gerçek değer 250/3 ≈ 83.33. n = 2'de ne olur?",
-        do: "<strong>Başlangıç (a)</strong> kaydırıcısını en sola (−5), <strong>Bitiş (b)</strong> kaydırıcısını en sağa (5) çek, <strong>Bölme Sayısı (n)</strong>'yi 1 yap. Ardından n = 2, 3, 10 ve 100'ü dene.",
+          "x² için birikimi önce a = 0'dan, sonra a₂ = 1'den başlat. İki birikim eğrisi arasındaki fark x büyüdükçe açılır mı, kapanır mı, sabit mi kalır? Sabitse kaçtır?",
+        do: "01 sekmesinde <strong>Fonksiyon f</strong> menüsünden 'x² (polinom)' seç (a = 0, x = 2 gelir). <strong>İkinci taban noktası a₂ ile karşılaştır (+C)</strong> kutusunu işaretle; a₂ = 1'dir. Üst sınır x'i sırayla 1, −1.5 ve 3 yap. Sonra <strong>İkinci taban noktası a₂</strong> kaydırıcısını 2'ye getir.",
         observe:
-          "n = 1'de okuma 0.000000; tek dikdörtgenin yüksekliği sıfır olduğu için ekranda yalnızca eksen üzerinde titreşen, kıl inceliğinde bir şerit kalır. n = 2'de 62.500000, n = 3'te 74.074074, n = 10'da 82.500000, n = 100'de 83.325000. Mavi eğri |x| ≈ 3.16'dan sonra çerçevenin üstünden çıkar; büyük n'de dikdörtgenlerin tepesi de kesilir, ama sayı doğrudur.",
+          "x = 2'de A(x) = 2.666666667; 'A_a(x) − A_a₂(x)' kartı 0.33333333, '∫ₐ^(a₂) f(t) dt (sabit C)' kartı 0.33333333. x = 1'de A(x) = 0.3333333333, x = −1.5'te −1.125, x = 3'te 9 olur; fark kartı hep 0.33333333 kalır. Alttaki grafikte mor kesikli eğri, A eğrisinin 1/3 kadar aşağı kaymış bir kopyasıdır. a₂ = 2 yapınca fark 2.6666667'ye sıçrar ve yine x'ten bağımsızdır.",
         explain:
-          "Tek dilimin orta noktası x = 0'dır ve orada x² = 0; genişlik 10 olsa da yükseklik sıfırdır. n = 2'de orta noktalar ±2.5, yükseklik 6.25: 2 × 6.25 × 5 = 62.5. Az sayıda örnekle fonksiyonu en kötü yerinden ölçebilirsin; n büyüdükçe bu şanssızlık kaybolur ve hata (10³/12)/n² hızıyla erir: n = 100'de yalnızca 0.0083.",
+          "İki birikimin farkı, a ile a₂ arasındaki integraldir: 1³/3 = 1/3, a₂ = 2 için 8/3. Bu parça x'e bağlı olmadığı için iki eğrinin eğimi her x'te aynıdır; ikisinin de türevi x²'dir. Ters türev tek bir fonksiyon değil, birbirinin düşey kaydırması olan bir ailedir. Belirli integralde C sadeleşir, çünkü F(b) − F(a) farkında iki kez görünür.",
       },
       {
-        title: "Sıfır çıkan integral",
+        title: "Küreyi iki kez dilimle",
         predict:
-          "x³ için a = −2, b = 2 iken ekranda iki büyük mor bölge görünür: biri eksenin üstünde, biri altında. Okuma kaç olur? n'yi değiştirmek sonucu değiştirir mi?",
-        do: "Menüden x^3 seç; a = −2, b = 2 yap ve n'yi 1 ile 100 arasında birkaç değerde dene. Sonra a'yı −1'e getir ve n = 100 yap.",
+          "Birim küreyi önce eksene dik disklerle, sonra iç içe silindirik kabuklarla dilimle. İki integral aynı sayıyı verir mi? Yarıçapı 2 yaparsan hacim kaç katına çıkar? İki eğri arasındaki bir bölgeyi x ekseni yerine y ekseni çevresinde döndürmek hacmi hep değiştirir mi?",
+        do: "02 sekmesinde <strong>Hesap türü</strong> menüsünden 'Dönel cisim hacmi: disk/pul ve kabuk' seç; bölge 'Yarım çember … küre', eksen x ekseni, r = 1 gelir. Kartları oku, <strong>Yarıçap r</strong>'yi 2 yap. Sonra <strong>Döndürülen bölge</strong> menüsünden 'y = √x ile y = x² arası (pul)' seç ve <strong>Dönme ekseni</strong>'ni x'ten y'ye çevir.",
         observe:
-          "Her n için 0.000000 (bazı n'lerde −0.000000; bu, 10<sup>−15</sup> mertebesinde bir bilgisayar yuvarlama artığıdır). a = −1, b = 2, n = 100'de okuma 3.749662.",
+          "r = 1: disk 4.188790205, kabuk 4.188790205, kuram 4πr³/3 = 4.188790205; 'Disk/pul − kabuk' kartı '≈ 0 (yuvarlama)'. r = 2: üçü de 33.51032164, tam 8 katı. Pul bölgesinde iki eksen için de disk/pul ve kabuk 0.9424777961 (kuram 3π/10).",
         explain:
-          "x³ tek fonksiyondur: −x'teki değeri x'tekinin eksisidir. Eksenin altındaki dikdörtgenler negatif sayılır ve üsttekileri birebir siler. Her bölgenin alanı x⁴/4 ile hesaplanınca 4'tür; toplam geometrik alan 8, işaretli toplam 0. a = −1 iken [−1, 1] kısmı yine kendini siler; geriye ∫<sub>1</sub><sup>2</sup> x³ dx = 16/4 − 1/4 = 3.75 kalır.",
+          "Disk ve kabuk aynı 2πy·dA katkılarını farklı sırayla toplar; sonuç ortak olmak zorundadır. Hacim uzunluğun küpüyle ölçeklenir: r iki katına çıkınca 2³ = 8. Pul bölgesi y = x doğrusuna göre simetriktir (√x ile x² birbirinin tersidir), bu yüzden iki eksen aynı hacmi verir; bu bir kural değildir. Koniyi dene: r = 1, h = 2 için x ekseni 2.094395102, y ekseni 8.37758041 verir.",
       },
       {
-        title: "Orta nokta kimden yana yanılır?",
+        title: "Sonsuza uzanıp biten toplamlar",
         predict:
-          "x²'de orta nokta okuması hep gerçek değerin altındaydı. sin(x) için a = 0, b = 3.1'de (gerçek değer 1 − cos 3.1 ≈ 1.999135) altında mı kalır, üstüne mi çıkar?",
-        do: "Menüden sin(x) seç, a = 0, b = 3.1 yap. n = 1, 5, 10 ve 100'de okumayı kaydet. Eğri dikeyde ezik görünür (1 birim yalnızca 20 piksel); sayılara güven.",
+          "y = 1/x eğrisini x = 1'den b'ye kadar x ekseni çevresinde döndür. b'yi 10'dan bir milyona çıkarırsan hacim mi daha çok büyür, yüzey mi? 1 kg'ı Dünya'dan sonsuza taşımanın işi sonlu mudur?",
+        do: "02 sekmesinde 'Gabriel borusu: sonlu hacim, sonsuz yüzey' seç; <strong>b = 10^k</strong> kaydırıcısıyla b = 10, 1000 ve 1000000 yap. Sonra 03 sekmesinde <strong>p = 1 (eşik)</strong> ve <strong>p = 2</strong> düğmelerine bas (T = 1000). Son olarak <strong>Deney türü</strong> 'Değişken kuvvetin işi', <strong>Kuvvet</strong> 'Kütle çekimi…' seç ve yükseklik kaydırıcısını en sağa, h = 10⁷ km'ye çek.",
         observe:
-          "3.099330, 2.031517, 2.007163 ve 1.999215: hepsi gerçek değerin üstünde. Hata n = 5'te 0.0324, n = 10'da 0.0080; yine yaklaşık dörtte bir. n = 1'de tek dikdörtgen, sin'in tepesindeki yüksekliği bütün aralığa yayar.",
+          "Hacim 2.827433388, 3.138451061, 3.141589512: π'ye kalan 3.142·10⁻⁶'ya iner. Yüzey 15.17744987, 44.11266606, 87.51537254: her onlukta yaklaşık 14.4676 artar. p = 1: kısmi integral 6.907755279, ölçülen onluk oranı 1, son onluğun katkısı 2.30259. p = 2: 0.999, oran 0.1, limit 1. Çekim: iş 62.52491189 MJ, kaçış enerjisi 62.564747 MJ'nin 99.9363 %'i.",
         explain:
-          "Orta nokta dikdörtgeni, orta noktadaki teğetin altındaki yamukla aynı alana sahiptir. Aşağı bükük tümsek teğetinin altında kalır, dikdörtgen fazla sayar; yukarı bükük x² teğetinin üstündedir, dikdörtgen eksik sayar. Hatanın işaretini ikinci türevin işareti belirler. b 0.1 adımla ilerlediği için π'ye tam ulaşamazsın; ulaşabilseydin ∫<sub>0</sub><sup>π</sup> sin x dx = 2 olurdu.",
+          "Hacim integralinde x⁻² vardır (p = 2): katkılar onda bire düşe düşe π'de biter. Yüzey integralindeki (1/x)·√(1 + x⁻⁴) her yerde 1/x'ten büyüktür, yani p = 1 eşiğinin ıraksak tarafındadır; yüzey en az 2π·ln b kadardır. Çekim kuvveti de 1/r² ile azalır: sonsuza kadar toplanan iş GMm/R'de biter. Kaçış hızının (11.1861 km/s) sonlu olmasının nedeni bu yakınsamadır.",
       },
     ],
   },
@@ -109,44 +109,44 @@ window.ACELYA_DIGEST["integral"] = {
       body: "∫ işareti ilk kez Leibniz'in 29 Ekim 1675 tarihli bir el yazması notunda göründü; Ekim 2026'da 351 yaşını doldurdu. Leibniz onu o dönemin yazısındaki uzun s (ſ) harfinden türetti, çünkü integrali sonsuz küçük parçaların toplamı (Latince <em>summa</em>) olarak düşünüyordu. İşaret basılı olarak ilk kez Haziran 1686'da <em>Acta Eruditorum</em> dergisinde çıktı. Yani her ∫ f(x) dx, aslında 'f(x) yüksekliğindeki, dx genişliğindeki dilimlerin toplamı' diye okunan kısaltılmış bir cümledir.",
     },
     {
-      title: "Kepler'in fıçı kuralı",
-      body: "Kepler'in şarap fıçısı merakı 1615'te <em>Nova stereometria doliorum vinariorum</em> (Şarap Fıçılarının Yeni Hacim Ölçümü) adlı kitaba dönüştü; Kepler kitabı kendi parasıyla Linz'de bastırdı ve bu, kentte basılan ilk kitap oldu. Almancada sayısal integralin en ünlü yöntemlerinden Simpson kuralı bugün hâlâ <em>Keplersche Fassregel</em>, 'Kepler'in fıçı kuralı' diye anılır. Kural, orta nokta (M) ve yamuk (T) toplamlarını (2M + T)/3 diye harmanlar. Sayfanın açılışta gösterdiği M = 2.91, aynı beş dilimin yamuk toplamı T = 3.18 ile birleşince (2 × 2.91 + 3.18)/3 = 3 çıkar. Bu tam sonuçtur, çünkü Simpson kuralı üçüncü dereceye kadar her polinomda hiç yanılmaz.",
+      title: "Hacmi π'yi geçemeyen sonsuz boru",
+      body: "y = 1/x eğrisinin x ≥ 1 parçasını x ekseni çevresinde döndürünce oluşan sonsuz uzun boruyu ilk inceleyen Evangelista Torricelli'dir: 1643'te yazdığı çalışma ertesi yıl <em>Opera geometrica</em> içinde basıldı. Borunun hacmi π'yi aşamaz, yüzeyi ise her sınırı aşar. Sayfada b = 1000000 iken hacim 3.141589512, yüzey 87.51537254'tür. 'İçi sonlu boyayla dolar ama yüzeyi boyanamaz' çelişkisi görünüştedir: gerçek boyanın bir kalınlığı vardır, boru ise sonunda her kalınlıktan daha dar olur. Bugünkü adı, Gabriel borusu, Torricelli'den gelmez.",
     },
   ],
   worked: {
-    title: "Hız göstergesinden yol",
+    title: "İvmeden hıza, hızdan yola: yer değiştirme ile yol",
     prompt:
-      "Duraktan kalkan bir bisikletlinin hızı ilk 2 saniyede v(t) = t² m/s (t saniye cinsinden) olarak artıyor; 2. saniyede 4 m/s'ye ulaşıyor. Bu 2 saniyede kaç metre yol aldı? Önce 4 dilimli orta nokta toplamıyla tahmin et, sonra temel teoremle kesin değeri bul.",
+      "Durmakta olan bir araba düz bir yolda x = 0'dan kalkıyor. İvmesi ilk 2 saniyede 2 m/s², sonraki 2 saniyede 0, 4–6 s arasında −3 m/s², 6–8 s arasında −1 m/s². 8. saniyede hızı, yer değiştirmesi ve aldığı toplam yol nedir? (03 sekmesindeki Kinematik deneyinin açılış ayarı budur.)",
     steps: [
-      "Soruyu integrale çevir: yol = ∫<sub>0</sub><sup>2</sup> v(t) dt. Birim kontrolü: (m/s) × s = m. Hız hep pozitif olduğu için net yer değiştirme ile alınan yol aynıdır.",
-      "4 dilim: Δt = 2/4 = 0.5 s. Orta anlar 0.25, 0.75, 1.25 ve 1.75 s; bu anlardaki hızlar 0.0625, 0.5625, 1.5625 ve 3.0625 m/s. Toplam 5.25 m/s; Δt ile çarp: 5.25 × 0.5 = 2.625 m.",
-      "Sayfada doğrula: x^2 seç, a = 0, b = 2, n = 4 yap; okuma 2.625000. (t yerine x yazıldı; hesap aynı.)",
-      "Kesin değer: türevi t² olan fonksiyon F(t) = t³/3. Yol = F(2) − F(0) = 8/3 − 0 ≈ 2.667 m. Tahminin hatası 8/3 − 2.625 ≈ 0.042 m; n = 8'de sayfa 2.656250 gösterir, hata 0.010 m'ye, yani dörtte birine düşer.",
-      "Sağduyu kontrolü: hep son hızla, 4 m/s ile gitseydi 8 m yol alırdı. Parabolün altındaki alan, onu çevreleyen 2 × 4'lük dikdörtgenin tam üçte biridir; 8/3 bununla tutarlı.",
+      "Hız, ivmenin birikimidir: v(t) = v₀ + ∫<sub>0</sub><sup>t</sup> a dτ. İvme parça parça sabit olduğundan hız parça parça doğrusaldır: v(2) = 0 + 2·2 = 4 m/s; v(4) = 4 m/s; v(6) = 4 − 3·2 = −2 m/s; v(8) = −2 − 1·2 = −4 m/s. Birim kontrolü: (m/s²) × s = m/s.",
+      "Hızın işaret değiştirdiği anı bul: 4–6 s arasında v(t) = 4 − 3(t − 4). Sıfır olduğu an t = 4 + 4/3 ≈ 5.3333 s. Araba bu anda durur ve geri dönmeye başlar.",
+      "Hız–zaman grafiğinin işaretli alanlarını parça parça yaz: 0–2 s üçgeni 4 m; 2–4 s dikdörtgeni 8 m; 4–5.3333 s üçgeni (1/2)·(4/3)·4 = 8/3 m; 5.3333–6 s üçgeni −(1/2)·(2/3)·2 = −2/3 m; 6–8 s yamuğu −(2 + 4)/2·2 = −6 m.",
+      "Yer değiştirme işaretli toplamdır: ∫v dt = 4 + 8 + 8/3 − 2/3 − 6 = 8 m. Alınan yol büyüklüklerin toplamıdır: ∫|v| dt = 4 + 8 + 8/3 + 2/3 + 6 = 64/3 ≈ 21.333 m. Arabanın en uzak noktası dönüş anındaki 44/3 ≈ 14.667 m'dir.",
+      "Sayfada doğrula: 03 sekmesi, Deney türü 'Kinematik: ivmeden hıza ve konuma', Gözlem anı t = 8 s. Kartlar v(t) = −4 m/s, yer değiştirme 8 m, alınan yol 21.333333 m, dönüş anı 5.3333 s yazar. t'yi 4 s'ye çekersen ikisi de 12 m olur ve dönüş kartı 'yok' der: hız işaret değiştirmeden yol ile yer değiştirme ayrışmaz.",
     ],
     result:
-      "Bisikletli 2 saniyede 8/3 ≈ 2.67 m yol alır; ortalama hızı 1.33 m/s'dir. Dört dilimli tahmin yalnızca 4 santimetre şaşar ve hep eksik kalır, çünkü t² eğrisi yukarı büküktür.",
+      "8. saniyede araba −4 m/s hızla geri gelmektedir; başlangıcın 8 m ilerisindedir ama 64/3 ≈ 21.33 m yol almıştır. Ortalama hızı (yer değiştirme/süre) 1 m/s, ortalama sürati (yol/süre) yaklaşık 2.67 m/s'dir. Aradaki 13.33 m'lik fark, dönüşten sonra geri gidilen 6.67 m'den gelir: bu parça yola eklenir, yer değiştirmeden ise düşülür.",
   },
   misconceptions: [
     {
       myth: "Belirli integral eğrinin altındaki alandır; o yüzden hiçbir zaman sıfır ya da negatif olamaz.",
       truth:
-        "Eksenin altındaki katkılar eksi sayılır. Sayfada x^3 seçip a = −2, b = 2 yap: ekranda iki büyük mor bölge varken okuma 0.000000'dır. sin(x) için a = −3.1, b = 0 yaparsan okuma eksidir (n = 100'de −1.999215). Toplam geometrik alan isteniyorsa |f| integrallenir ya da parçalar ayrı ayrı hesaplanıp büyüklükleri toplanır.",
+        "Eksenin altındaki katkılar eksi sayılır. İlk sekmede 'x³ − 3x: −2'den 2'ye' düğmesine bas: grafikte iki boyalı bölge varken A(x) = 0'dır; 'Eksenin üstündeki alan' ve 'Eksenin altındaki alan' kartlarının ikisi de 2.5 yazar. Geometri sekmesinde y = x³ ile y = x çifti aynı şeyi söyler: alan 0.5, işaretli integral 0. Toplam büyüklük isteniyorsa |f| integrallenir; yol ile yer değiştirmenin farkı da budur.",
     },
     {
-      myth: "n = 100'de dikdörtgenler eğriyle kaynaştı; artık sonuç tam.",
+      myth: "Fonksiyon sıfıra gidiyorsa sonsuza kadar integrali de sonludur.",
       truth:
-        "Açılış ayarında n = 100 okuması 2.999775'tir; gerçek değer 3. Aradaki 0.000225 bir alandır; 3 birimlik genişliğe yayılınca ortalama 0.000075'lik bir yükseklik farkı eder, grafikte bir pikselin yüzde birinden bile küçük. Göz göremez ama hata oradadır. İntegral bir resim değil, limittir: sonlu her n yalnızca bir yaklaşımdır.",
-    },
-    {
-      myth: "Sondaki dx yalnızca süstür; integralin bittiği yeri gösterir.",
-      truth:
-        "dx, dilim genişliği Δx'in limitteki hâlidir ve birim taşır: ∫ v dt'de m/s ile s çarpılır, sonuç metredir. Hangi değişkene göre toplandığını da söyler; ileride değişken değiştirme yaparken dx'i doğru dönüştürmek sonucun doğru çıkmasının şartıdır.",
+        "1/x sıfıra gider ama integrali bitmez. 03 sekmesinde 'p = 1 (eşik)' düğmesine bas: T = 1000'de kısmi integral 6.907755279, T = 10⁶'da 13.81551056; her onluk 2.30259 ekler ve bu ekleme hiç küçülmez. 'p = 2' ise T = 1000'de 0.999'a varmıştır ve 1'i aşamaz. Belirleyici olan sıfıra gitmek değil, ne kadar hızlı gidildiğidir; eşik p = 1'dir.",
     },
     {
       myth: "Ters türevin sonundaki +C önemsizdir, yazmasan da olur.",
       truth:
-        "x³/3 ile x³/3 + 5'in ikisinin de türevi x²'dir; ters türev tek bir fonksiyon değil, bir ailedir. Belirli integralde C, F(b) − F(a) farkında sadeleşir. Ama hızdan konum bulurken C başlangıç konumudur: atlarsan bisikletlinin duraktan değil, rastgele bir yerden kalktığını kabul etmiş olursun.",
+        "x³/3 ile x³/3 + 5'in ikisinin de türevi x²'dir; ters türev tek bir fonksiyon değil, bir ailedir. Sayfada ikinci taban noktasını açtığında bu aileyi görürsün: aynı eğimli, düşeyde kaymış iki birikim eğrisi. Belirli integralde C, F(b) − F(a) farkında sadeleşir. Ama hızdan konum bulurken C başlangıç konumudur: atlarsan arabanın nereden kalktığını bilmeden nerede olduğunu söylemiş olursun.",
+    },
+    {
+      myth: "Her integral bir formülle hesaplanır; formülü bulunamıyorsa integral de yoktur.",
+      truth:
+        "İlk sekmede 'e^(−x²)' seç: ters türev kartı 'temel ters türev yok' yazar, ama A(x) = 0.7468241328 olarak hesaplanır ve ikinci bir yöntemle (Simpson) aynı çıkar. Sürekli her fonksiyonun bir birikim fonksiyonu vardır; temel teoremin 1. kısmı bunu garanti eder. Olmayan şey, onu bildik fonksiyonlarla yazan bir formüldür. Yine de aynı eğrinin bütün doğru üzerindeki integrali tam √π'dir; 03 sekmesindeki Gauss deneyinde T = 3'te 1.77241469652 görürsün.",
     },
   ],
   glossary: [
@@ -156,24 +156,9 @@ window.ACELYA_DIGEST["integral"] = {
         "Bir fonksiyonun [a, b] aralığındaki işaretli birikimini veren tek sayı; Riemann toplamlarının dilimler incelirken yaklaştığı limit.",
     },
     {
-      term: "Riemann toplamı",
+      term: "Birikim fonksiyonu",
       definition:
-        "Aralığı dilimlere bölüp her dilimde seçilen noktadaki f değeri ile dilim genişliğinin çarpımlarını toplayan yaklaşık değer.",
-    },
-    {
-      term: "Orta nokta kuralı",
-      definition:
-        "Her dikdörtgenin yüksekliğini dilimin tam ortasındaki f değerinden alan Riemann toplamı; bu sayfanın yöntemi.",
-    },
-    {
-      term: "Bölme sayısı (n) ve Δx",
-      definition:
-        "n aralığın kaç eşit dilime bölündüğü, Δx = (b − a)/n ise her dilimin genişliğidir.",
-    },
-    {
-      term: "İşaretli alan",
-      definition:
-        "x ekseninin üstünde kalan bölgelerin artı, altında kalanların eksi sayıldığı toplam.",
+        "Sabit bir a taban noktasından değişken x'e kadar alınan integral, A(x) = ∫<sub>a</sub><sup>x</sup> f(t) dt; f'nin sürekli olduğu noktalarda türevi f(x)'tir.",
     },
     {
       term: "Ters türev",
@@ -187,22 +172,37 @@ window.ACELYA_DIGEST["integral"] = {
     {
       term: "Kalkülüsün temel teoremi",
       definition:
-        "F′ = f ise ∫<sub>a</sub><sup>b</sup> f(x) dx = F(b) − F(a); birikim ile anlık değişimin birbirinin tersi olduğunu söyler.",
+        "Sürekli f için birikim fonksiyonunun türevinin f olduğunu ve F′ = f ise ∫<sub>a</sub><sup>b</sup> f(x) dx = F(b) − F(a) olduğunu söyleyen iki kısımlı teorem.",
+    },
+    {
+      term: "Ortalama değer (integral)",
+      definition:
+        "Birikimin aralık uzunluğuna bölümü, A(x)/(x − a); aynı net alanı veren dikdörtgenin yüksekliğidir ve sürekli f bu değeri aralıkta en az bir c noktasında alır.",
+    },
+    {
+      term: "Disk ve kabuk yöntemleri",
+      definition:
+        "Dönel cismin hacmini eksene dik dilimlerle (disk, pul) ya da eksene paralel silindirik katmanlarla (kabuk) toplayan iki integral kuruluşu.",
+    },
+    {
+      term: "Has olmayan integral",
+      definition:
+        "Aralığı sonsuza uzanan ya da fonksiyonu bir uçta sınırsız büyüyen integral; sonlu sınırlı integrallerin limiti olarak tanımlanır, limit yoksa ıraksaktır.",
     },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede integral bir kurallar tablosudur; üniversitede önce sınırları sorgulanır. Riemann integrali her fonksiyonda çalışmaz: rasyonel sayılarda 1, irrasyonellerde 0 olan Dirichlet fonksiyonunda her dilimde iki tür nokta da bulunur; [0, 1] aralığında toplamlar seçime göre 0 ile 1 arasında oynar ve hiçbir sayıya yerleşmez. Henri Lebesgue 1902'deki doktora tezinde dilimlemeyi yatay eksenden dikey eksene taşıdı: 'f hangi değerleri ne kadarlık bir kümede alıyor?' diye sordu. Lebesgue integrali bugün olasılık kuramının ve kuantum mekaniğinin temel dilidir. Aynı dönemde integral boyut kazanır: çift ve üç katlı integrallerle hacim, kütle ve ağırlık merkezi; eğri ve yüzey integralleriyle iş ve akı hesaplanır; Gauss ve Stokes teoremleri temel teoremin yüksek boyutlu kuzenleridir.",
-      "İkinci köprü sayısaldır. Ters türevi formülle yazılamayan integraller çoktur; çan eğrisi e<sup>−x²</sup> bunun en ünlü örneğidir. Bilgisayar bu durumda tam bu sayfanın yaptığını yapar, ama daha akıllıca: orta nokta hatası 1/n² ile küçülür, Simpson kuralınınki düzgün fonksiyonlarda 1/n⁴ ile; Gauss kuadratürü örnek noktalarını da en iyi yerlere koyar. Boyut çok artınca dilimlemek imkânsızlaşır ve rastgele noktalarla Monte Carlo integrasyonu devreye girer; hatası 1/√N ile küçülür ve boyuttan bağımsızdır. Diferansiyel denklemleri adım adım çözen Euler yöntemi de özünde bir Riemann toplamıdır: uydu yörüngesinden hava tahminine kadar, ekrandaki her simülasyonun içinde küçük dikdörtgenler toplanır.",
+      "Lisede integral bir kurallar tablosudur; üniversitede önce sınırları sorgulanır. Riemann integrali her fonksiyonda çalışmaz: rasyonel sayılarda 1, irrasyonellerde 0 olan Dirichlet fonksiyonunda her dilimde iki tür nokta da bulunur; [0, 1] aralığında toplamlar seçime göre 0 ile 1 arasında oynar ve hiçbir sayıya yerleşmez. Henri Lebesgue 1902'deki doktora tezinde dilimlemeyi yatay eksenden dikey eksene taşıdı: 'f hangi değerleri ne kadarlık bir kümede alıyor?' diye sordu. Lebesgue integrali bugün olasılık kuramının ve kuantum mekaniğinin temel dilidir. Aynı dönemde integral boyut kazanır: çift ve üç katlı integrallerle hacim, kütle ve ağırlık merkezi; eğri ve yüzey integralleriyle iş ve akı hesaplanır. Disk ile kabuğun aynı hacmi vermesi, çift katlı integralde toplama sırasının değiştirilebilmesinin (Fubini teoremi) ilk örneğidir; Gauss ve Stokes teoremleri de temel teoremin yüksek boyutlu kuzenleridir.",
+      "İkinci köprü sayısaldır. Ters türevi formülle yazılamayan integraller çoktur; çan eğrisi e<sup>−x²</sup> bunun en ünlü örneğidir, sin x eğrisinin yay uzunluğu bir başkasıdır. Bilgisayar bu durumda dilimleyip toplar, ama akıllıca: orta nokta hatası 1/n² ile küçülür, Simpson kuralınınki düzgün fonksiyonlarda 1/n⁴ ile; Gauss kuadratürü örnek noktalarını da en iyi yerlere koyar. Bu sayfanın kullandığı uyarlamalı Gauss–Kronrod kuralı bir adım daha atar: iki ayrı kuralın farkından kendi hatasını tahmin eder ve tahmini en büyük olan parçayı ikiye böler. Boyut çok artınca dilimlemek imkânsızlaşır ve rastgele noktalarla Monte Carlo integrasyonu devreye girer; hatası 1/√N ile küçülür ve boyuttan bağımsızdır. Diferansiyel denklemleri adım adım çözen Euler yöntemi de özünde bir Riemann toplamıdır: v = ∫a dt ve x = ∫v dt zinciri, Fizik I'in bütün hareket problemlerinin iskeletidir.",
     ],
     topics: [
       "Değişken değiştirme ve kısmi integrasyon",
-      "Lebesgue integrali",
-      "Çok katlı integraller",
+      "Has olmayan integraller ve karşılaştırma testi",
+      "Çok katlı integraller ve Fubini teoremi",
       "Gauss ve Stokes teoremleri",
-      "Sayısal integrasyon (yamuk, Simpson, Gauss)",
-      "Monte Carlo integrasyonu",
+      "Sayısal integrasyon (Simpson, Gauss–Kronrod)",
+      "Lebesgue integrali",
       "Diferansiyel denklemler",
       "Olasılık yoğunluğu",
     ],
@@ -210,71 +210,71 @@ window.ACELYA_DIGEST["integral"] = {
   quiz: [
     {
       question:
-        "Sayfada x^2 seçili, a = 0, b = 2 ve n = 1 iken 'Yaklaşık integral' satırı ne gösterir?",
-      options: ["2.666667", "2.000000", "4.000000", "8.000000"],
+        "f, x &lt; 1 için 1, x ≥ 1 için 2 değerini alan basamak fonksiyonu; A(x) = ∫<sub>0</sub><sup>x</sup> f(t) dt. x = 1 noktası için hangisi doğrudur?",
+      options: [
+        "A orada süreksizdir: değeri 1'den 2'ye sıçrar",
+        "A süreklidir ama köşe yapar: soldan eğimi 1, sağdan eğimi 2'dir",
+        "A türevlidir ve A′(1) = 1.5'tir",
+        "f süreksiz olduğu için integral tanımsızdır",
+      ],
       answer: 1,
       explanation:
-        "Tek dilimin genişliği 2, orta noktası x = 1; yükseklik f(1) = 1, toplam 1 × 2 = 2. 2.666667 gerçek değerdir (8/3) ama sayfa onu yazmaz; 8.000000 ise sağ uç kuralının cevabı olurdu. Tek dikdörtgen yukarı bükük eğriyi eksik sayar; n arttıkça okuma 8/3'e hep alttan yaklaşır (n = 4'te 2.625).",
+        "Sıçrayan f'dir, A değil: ince bir şeridin alanı h ile birlikte sıfıra gider, bu yüzden birikim hiç kopmaz (A(1) = 1). Ama şeridin yüksekliği solda 1, sağda 2'dir; iki tek taraflı eğim farklıdır ve türev yoktur. 1.5 yalnızca bu iki eğimin ortalamasıdır. Sayfada 'Basamak: x = 1' düğmesi tam bunu gösterir: 1, 2 ve 'tanımsız: A′(x) yok'.",
     },
     {
       question:
-        "Bir depoya dolan suyun debisi r(t) litre/dakika, t ise dakika; debi hiç eksiye düşmüyor. ∫<sub>0</sub><sup>10</sup> r(t) dt neyi verir?",
-      options: [
-        "10. dakikadaki debiyi (litre/dakika)",
-        "Debinin ne kadar hızlı değiştiğini (litre/dakika²)",
-        "İlk 10 dakikadaki ortalama debiyi (litre/dakika)",
-        "İlk 10 dakikada depoya giren toplam suyu (litre)",
-      ],
-      answer: 3,
+        "∫<sub>1</sub><sup>T</sup> x<sup>−1.5</sup> dx kısmi integrali T = 100'de 1.8, T = 10⁴'te 1.98 çıkıyor. T = 10⁶'da kaç olur?",
+      options: ["2.16", "1.998", "1.9998", "Tam 2"],
+      answer: 1,
       explanation:
-        "İntegral yükseklik × genişlik toplar: (litre/dakika) × dakika = litre. Her ince dilimde r(t)·Δt o dilimde akan sudur; hepsinin toplamı 10 dakikada biriken sudur. Değişim hızı türevin işidir; ortalama debi ise bu integralin 10 dakikaya bölünmesiyle bulunur.",
+        "p = 1.5 &gt; 1 olduğundan limit 1/(p − 1) = 2'dir ve limite kalan miktar T<sup>−0.5</sup>/0.5 = 2/√T'dir: 0.2, 0.02, 0.002. T yüz katına çıkınca kalan onda bire iner, çünkü her onluğun katkısı bir öncekinin 10<sup>−0.5</sup> ≈ 0.316 katıdır. 2.16 diyen farkın sabit kaldığını, 'tam 2' diyen limite sonlu bir T'de varıldığını sanır. Sayfada p = 1.5, T = 10⁶ için okuma 1.998'dir.",
     },
     {
       question:
-        "Açılış ayarında (x², a = −1, b = 2) orta nokta hatası n = 10'da 0.0225'tir. Hatanın 0.001'in altına inmesi için n en az kaç olmalı?",
-      options: ["225", "100", "48", "20"],
+        "1 kg'lık bir kütle Dünya yüzeyinden tam bir Dünya yarıçapı kadar yükseğe (h = R) kaldırılıyor. Sabit çekim varsayan m·g₀·h formülü gerçek işi nasıl tahmin eder?",
+      options: [
+        "Doğru verir; fark ancak çok daha yükseklerde başlar",
+        "Yarısını verir",
+        "İki katını verir; bu sayı tam kaçış enerjisidir",
+        "Dört katını verir, çünkü çekim 1/r² ile azalır",
+      ],
       answer: 2,
       explanation:
-        "Bu ayarda hata tam 2.25/n²'dir. 2.25/n² < 0.001 için n² > 2250 gerekir; √2250 ≈ 47.4, yani n = 48. Sayfada doğrula: n = 47'de 2.998981 (hata 0.001019), n = 48'de 2.999023 (hata 0.000977). Hatanın n ile orantılı küçüldüğünü sanan 0.0225/0.001 = 22.5'ten n = 225 der; oysa hata n² ile küçüldüğü için n'yi √22.5 ≈ 4.7 katına çıkarmak yeter. n = 20 hatayı yalnızca 0.005625'e indirir.",
+        "Gerçek iş W = GMm(1/R − 1/r) = GMm·h/(R·r), sabit çekim ise m·g₀·h = GMm·h/R² verir; oranları tam r/R = 1 + h/R'dir. h = R'de oran 2'dir: formül GMm/R'yi, yani kaçış enerjisinin tamamını (62.564747 MJ) söyler, gerçek iş ise bunun yarısıdır. Sayfada h = 1000 km için fazla tahmin 15.696 %'tir; bu tam 1000/6371'dir.",
     },
   ],
   next: [
     {
       href: "riemann-toplamlari.html",
-      title: "Riemann Toplamları",
-      why: "Sol uç, sağ uç, orta nokta, yamuk ve Simpson'ı aynı aralıkta yarıştır; Hata ve yakınsama hızı sekmesi hatayı log–log grafikte çizip eğimleri ölçer (−1, −2, −4). Monte Carlo sekmesi rastgele noktaların neden çok boyutta kazandığını gösterir.",
+      title: "Riemann Toplamları ve Sayısal İntegral",
+      why: "Bu sayfanın anlatmadığı dikdörtgenler orada: sol uç, sağ uç, orta nokta, yamuk ve Simpson'ı aynı aralıkta yarıştır; Hata ve yakınsama hızı sekmesi hatanın n ile hangi kuvvette küçüldüğünü log–log grafikten ölçer.",
     },
     {
       href: "turev.html",
-      title: "Türev",
-      why: "Temel teoremin öteki yüzü: kesenin teğete dönüşmesi ve kuvvet kuralı. Ters türev, o kuralı geriye doğru okumaktır.",
+      title: "Türev: Kesenden Teğete (Limit Laboratuvarı)",
+      why: "Temel teoremin öteki yüzü: kesenin eğimi h küçüldükçe teğetin eğimine iner. İleri, geri ve merkezî fark oranlarını |x|'in köşesinde de dene; buradaki eğim ölçümünün ikizidir.",
     },
     {
       href: "hareket-ve-grafikler.html",
       title: "Hareket ve Grafikler",
-      why: "Hız–zaman grafiğinin işaretli alanı yer değiştirmedir, yol için alanların büyüklükleri toplanır: çözümlü örneğin fiziği.",
-    },
-    {
-      href: "normal-dagilim.html",
-      title: "Normal Dağılım",
-      why: "Olasılık bir integraldir: Alanlar ve güven aralıkları sekmesi çan eğrisinin altındaki alanı N dilimli sayısal integralle hesaplar; toplam alan 1, ortalamanın ±1σ çevresindeki pay yaklaşık % 68.",
+      why: "Çözümlü örneğin fiziği, grafik diliyle: konum–zaman grafiğinin eğimi hızdır, hız–zaman grafiğinin işaretli alanı yer değiştirmedir; yol için alanların büyüklükleri toplanır.",
     },
   ],
   sources: [
     {
       title: "OpenStax · Calculus Vol. 1, 5.3 The Fundamental Theorem of Calculus",
       url: "https://openstax.org/books/calculus-volume-1/pages/5-3-the-fundamental-theorem-of-calculus",
-      note: "Temel teoremin iki parçası, ispat fikri ve çözümlü örnekler (İngilizce, açık ders kitabı).",
+      note: "Temel teoremin iki kısmı, integraller için ortalama değer teoremi ve ispatlar (İngilizce, açık ders kitabı).",
     },
     {
-      title: "OpenStax · Calculus Vol. 2, 3.6 Numerical Integration",
-      url: "https://openstax.org/books/calculus-volume-2/pages/3-6-numerical-integration",
-      note: "Orta nokta, yamuk ve Simpson kuralları; hata sınırları ve 1/n² davranışı.",
+      title: "OpenStax · Calculus Vol. 2, 3.7 Improper Integrals",
+      url: "https://openstax.org/books/calculus-volume-2/pages/3-7-improper-integrals",
+      note: "Has olmayan integralin limit tanımı, karşılaştırma teoremi ve Gabriel borusunun hacmi.",
     },
     {
-      title: "3Blue1Brown · Integration and the fundamental theorem of calculus",
-      url: "https://www.3blue1brown.com/lessons/integration",
-      note: "Dikdörtgenlerden integrale ve temel teoreme görsel bir yolculuk (İngilizce video ve metin).",
+      title: "Wikipedia · Gabriel's horn",
+      url: "https://en.wikipedia.org/wiki/Gabriel%27s_horn",
+      note: "Torricelli'nin 1643 tarihli çalışması, hacim ve yüzey hesapları, boyacı paradoksunun çözümü.",
     },
     {
       title: "Wikipedia · Archimedes Palimpsest",

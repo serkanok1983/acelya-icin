@@ -195,7 +195,7 @@ window.ACELYA_DIGEST["tasarim-desenleri"] = {
     },
   ],
   next: [
-    { href: "programlama-paradigmalari.html", title: "Programlama Paradigmaları", why: "Desenlerin üstünde durduğu zemin: kapsülleme, kalıtım, çok biçimlilik ve fonksiyonel bakış." },
+    { href: "programlama-paradigmalari.html", title: "Programlama Paradigmaları: Aynı Problem, Farklı Düşünme Biçimleri", why: "Desenlerin üstünde durduğu zemin: aynı görevi durum değiştirerek ve dönüştürerek çözen iki yorumlayıcı, görünür çağrı yığını ve bildirimsel bir sorgu motoru yan yana." },
     { href: "yazilim-muhendisligi.html", title: "Yazılım Mühendisliği", why: "Desenlerin büyük resmi: gereksinim, mimari, test ve bakım; kodun altı ay sonra da değiştirilebilir kalması." },
     { href: "veri-yapilari.html", title: "Veri Yapıları", why: "Composite'in ağacı, Iterator'ın dolaştığı liste: desenlerin üzerinde çalıştığı yapılar." },
     { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "Interpreter ve Visitor desenlerinin doğal yuvası olan sözdizimi ağacı." },

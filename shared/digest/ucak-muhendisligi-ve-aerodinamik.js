@@ -187,7 +187,7 @@ window.ACELYA_DIGEST["ucak-muhendisligi-ve-aerodinamik"] = {
   next: [
     { href: "akiskanlar-mekanigi.html", title: "Akışkanlar Mekaniği: Akış, Kayıp ve Pompa", why: "Venturi sekmesinde daralan boruda hız artarken basıncın düştüğünü ölç; viskoz akış sekmesi sınır tabakanın kökündeki sürtünmeyi gösterir." },
     { href: "doppler-etkisi.html", title: "Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması", why: "Kaynak hızını ses hızının üstüne çıkar, Mach konisini gör: Yeager'ın 1947'de aştığı sınırın dalga resmi." },
-    { href: "serbest-dusme.html", title: "Serbest Düşme ve Hava Direnci", why: "Hızın karesiyle büyüyen sürüklemenin en yalın hâli: düşen top ve limit hız." },
+    { href: "serbest-dusme.html", title: "Serbest Düşme: Galileo'dan Limit Hıza", why: "Hızın karesiyle büyüyen sürüklemenin en yalın hâli: düşen top ve limit hız." },
     { href: "otonom-araclar-ve-iha.html", title: "Otonom Araçlar ve İnsansız Hava Araçları", why: "Dört pervaneli drone ağırlığını kanatla değil itkiyle taşır; askı gücü hesabı ve onu dengede tutan PID döngüsü." },
   ],
   sources: [

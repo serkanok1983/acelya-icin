@@ -173,8 +173,8 @@ window.ACELYA_DIGEST["sarkac"] = {
   ],
   next: [
     { href: "cift-sarkac.html", title: "Çift Sarkaç", why: "Bir sarkaç daha ekle; düzenli salınımın nasıl kaosa dönüştüğünü gör." },
-    { href: "yay-kutle.html", title: "Yay-Kütle Sistemi", why: "Aynı sinüs dalgası, bu kez bir yayda: Hooke yasası ve basit harmonik hareketin öteki yüzü." },
-    { href: "serbest-dusme.html", title: "Serbest Düşme", why: "Kütlenin periyotta neden görünmediğinin kökü: her cisim aynı ivmeyle düşer." },
+    { href: "yay-kutle.html", title: "Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans", why: "Aynı sinüs dalgası, bu kez bir yayda: Hooke yasası ve basit harmonik hareketin öteki yüzü." },
+    { href: "serbest-dusme.html", title: "Serbest Düşme: Galileo'dan Limit Hıza", why: "Kütlenin periyotta neden görünmediğinin kökü: her cisim aynı ivmeyle düşer." },
     { href: "dairesel-hareket.html", title: "Dairesel Hareket", why: "Topu çember üzerinde tutan ip gerilimi ve merkezcil kuvvet." },
   ],
   sources: [

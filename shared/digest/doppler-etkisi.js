@@ -224,7 +224,7 @@ window.ACELYA_DIGEST["doppler-etkisi"] = {
     },
     {
       href: "dalga-superpozisyonu.html",
-      title: "Dalga Süperpozisyonu",
+      title: "Dalga Süperpozisyonu: Girişim, Vuru ve Dalga Paketleri",
       why: "Çözümlü örnekteki 1.6 kHz'lik 'vuş vuş' sesi bir vurudur: cihaz giden 5 MHz'i dönen yankıyla karıştırıp farkı duyurur. Vurunun neden |f₁ − f₂| olduğunu süperpozisyonla öğren.",
     },
     {

@@ -3,106 +3,110 @@ window.ACELYA_DIGEST["vektorler"] = {
   slug: "vektorler",
   title: "Vektörler: Yönü Olan Sayıların Aritmetiği",
   field: "Matematik",
-  level: "Lise",
-  minutes: 30,
+  level: "Lise–Lisans",
+  minutes: 40,
   tagline:
-    "3 + 4 her zaman 7 etmez: yönü olan nicelikler uç uca eklenir, sonucu aradaki açı belirler. Stevin'in top zincirinden Hamilton'ın köprüsüne ve rüzgârda yan yan uçan uçağa, okların aritmetiği.",
-  hook: "3 adım kuzeye, ardından 4 adım doğuya yürü. Toplam 7 adım attın, ama başladığın yerden yalnızca 5 adım uzaktasın. Aynı iki yürüyüş, adımları hangi yönlere attığına göre 1 ile 7 arasındaki her sonucu verebilir. 3 + 4'ün kaç ettiği nereye baktığına bağlıysa, bu toplamanın kuralı ne?",
+    "3 + 4 her zaman 7 etmez: oklar uç uca eklenir, iki ayrı biçimde çarpılır, hızlar da aynı kuralla toplanır. Stevin'in zincirinden Hamilton'ın köprüsüne ve akıntıda karşıya geçen tekneye, vektörlerin cebiri.",
+  hook: "4 adım doğuya, ardından 3 adım kuzeye yürü. Toplam 7 adım attın, ama başladığın yerden yalnızca 5 adım uzaktasın. Aynı iki yürüyüş, adımları hangi yönlere attığına göre 1 ile 7 arasındaki her sonucu verebilir. 3 + 4'ün kaç ettiği nereye baktığına bağlıysa, bu toplamanın kuralı ne?",
   bigIdea:
-    "Vektörler boyları toplanarak değil <strong>uç uca eklenerek</strong> toplanır; sayılarla bu, bileşen bileşen toplamak demektir, <em>A + B = (Aₓ + Bₓ, Aᵧ + Bᵧ)</em>, ve toplamın boyunu iki ok arasındaki açı belirler.",
+    "Vektör, eksen seçiminden bağımsız bir oktur: <strong>uç uca eklenerek</strong> toplanır, <em>A·B</em> ile bir okun öbürü üzerindeki payını, <em>A×B</em> ile ikisinin gerdiği yönlü alanı verir; bileşenler bu okun yalnızca seçtiğin eksenlerdeki tarifidir.",
   story: [
     "Yönlü nicelikleri toplama kuralı, kendi adından çok daha yaşlıdır. Aristoteles'e atfedilen ama büyük olasılıkla onun okulundan birinin yazdığı <em>Mekanik Problemler</em>'de, iki hareketi aynı anda yapan bir noktanın bir paralelkenarın köşegeni boyunca gittiği fikri vardır. 1586'da Flaman mühendis Simon Stevin, üçgen bir prizmanın üzerine dolanmış, eşit aralıklı toplardan oluşan kapalı bir zincir çizdi ve bununla bir düşünce deneyi kurdu: zincir kendiliğinden kaymaya başlasaydı sonsuza dek dönerdi; bu olanaksız olduğuna göre dengededir. Buradan, eğik düzlemdeki bir ağırlığın ne kadarının yokuş aşağı çektiğini çıkardı. Sloganı bu buluşa çok yakışır: 'Wonder en is gheen wonder', yani mucize gibi ama mucize değil. 1687'de Newton, <em>Principia</em>'da hareket yasalarının hemen ardından gelen ilk sonuçta kuralı açıkça yazdı: aynı anda iki kuvvetin etkisindeki bir cisim, kuvvetler ayrı ayrı uygulansaydı çizeceği kenarlardan oluşan paralelkenarın köşegenini aynı sürede kateder.",
     "Yine de 19. yüzyılın ortasına kadar bugünkü anlamıyla 'vektör' diye bir sözcük yoktu. İrlandalı matematikçi William Rowan Hamilton, karmaşık sayılarla düzlemdeki noktaları çarpabildiği gibi uzaydaki noktaları da çarpmak istiyordu. Sonradan oğluna yazdığı mektuba göre, 1843 Ekim'inin ilk günlerinde çocukları her sabah kahvaltıda 'Babacığım, üçlüleri çarpabiliyor musun?' diye sorar, o da üzgün bir baş sallayışla 'Hayır, onları yalnızca toplayıp çıkarabiliyorum' derdi. 16 Ekim 1843'te eşiyle Dublin'de Kraliyet Kanalı boyunca yürürken cevap aklına geldi: üçlüler değil, dörtlüler. Temel kuralı, <em>i² = j² = k² = ijk = −1</em>, Brougham (bugünkü Broom) Köprüsü'nün bir taşına kazıdı. Kazıdan iz kalmadı ama köprüde bugün bir plaket var. Hamilton bu dörtlülere <strong>kuaterniyon</strong> dedi; üç parçalı kısmına Latincede 'taşıyıcı' anlamına gelen <em>vector</em>, tek sayılık kısmına <em>scalar</em> adını verdi.",
-    "Kuaterniyonlar güçlüydü ama hantaldı. 1880'lerde iki kişi birbirinden bağımsız olarak aynı ameliyatı yaptı: Yale'de Josiah Willard Gibbs ve 16 yaşında okulu bırakmak zorunda kalıp telgrafçı olarak çalışmış, kendi kendini yetiştirmiş İngiliz Oliver Heaviside. İkisi de kuaterniyonun vektör kısmını kesip ayırdı ve iki ayrı çarpım tanımladı: bugün nokta (·) ve çarpı (×) dediğimiz çarpımlar. Gibbs <em>Elements of Vector Analysis</em>'in ilk yarısını 1881'de öğrencileri için bastırdı; Heaviside 1884'te Maxwell'in onlarca denklemlik elektromanyetizmasını bugün ders kitaplarında gördüğümüz dört vektör denklemine indirdi. Kuaterniyon taraftarlarıyla sert bir tartışma koptu; Heaviside, kendi ihtiyacı olan vektör hesabı için kuaterniyonun 'yalnızca gereksiz değil, küçümsenemeyecek boyutta bir kötülük' olduğunu yazdı. 1901'de Edwin Bidwell Wilson'ın Gibbs'in derslerinden derlediği <em>Vector Analysis</em>, vektör hesabını kuaterniyonlara dayanmadan, kendi başına ayakta duran bir sistem olarak kurdu; bugün kullandığımız gösterim büyük ölçüde bu çizgiden gelir.",
+    "Kuaterniyonlar güçlüydü ama hantaldı. 1880'lerde iki kişi birbirinden bağımsız olarak aynı ameliyatı yaptı: Yale'de Josiah Willard Gibbs ve 16 yaşında okulu bırakmak zorunda kalıp telgrafçı olarak çalışmış, kendi kendini yetiştirmiş İngiliz Oliver Heaviside. İkisi de kuaterniyonun vektör kısmını kesip ayırdı ve iki ayrı çarpım tanımladı: bugün nokta (·) ve çarpı (×) dediğimiz çarpımlar. Gibbs <em>Elements of Vector Analysis</em>'in ilk yarısını 1881'de öğrencileri için bastırdı; Heaviside 1884'te Maxwell'in yirmi denklemlik elektromanyetizmasını bugün ders kitaplarında gördüğümüz dört vektör denklemine indirdi. Kuaterniyon taraftarlarıyla sert bir tartışma koptu; Heaviside, kendi ihtiyacı olan vektör hesabı için kuaterniyonun 'yalnızca gereksiz değil, küçümsenemeyecek boyutta bir kötülük' olduğunu yazdı. 1901'de Edwin Bidwell Wilson'ın Gibbs'in derslerinden derlediği <em>Vector Analysis</em>, vektör hesabını kuaterniyonlara dayanmadan, kendi başına ayakta duran bir sistem olarak kurdu; bugün kullandığımız gösterim büyük ölçüde bu çizgiden gelir.",
   ],
   core: [
     {
-      heading: "Ok: büyüklük artı yön",
-      body: "Kütle, sıcaklık, süre tek bir sayı ve birimle tam söylenir; bunlara <strong>skaler</strong> denir. Ama 'beş kilometre yürüdüm' dersen nereye vardığını bilemem; yön eksik. <strong>Vektör</strong>, büyüklüğü ve yönü birlikte taşıyan niceliktir ve ok olarak çizilir: okun boyu büyüklük, ucu yön. Ok kâğıtta nereye kaydırılırsa kaydırılsın, boyu ve yönü aynı kaldıkça aynı vektördür. Sayfada üç ok da beyaz başlangıç noktasından çıkar; bu bir çizim tercihidir, vektörün zorunluluğu değil.",
-      formula: "A = (|A|, θ)  ⟷  A = (A<sub>x</sub>, A<sub>y</sub>)",
-      formulaNote:
-        "Aynı ok iki dilde yazılır: boy ve açı ya da iki bileşen. Sayfanın kaydırıcıları birinci dili, üstteki okuma ikinci dili konuşur.",
-    },
-    {
-      heading: "Bileşenler: oku eksenlere düşür",
-      body: "Bir okun iki gölgesini düşün. Işığı y eksenine paralel, tepeden düşürürsen okun x eksenine düşen gölgesi <strong>x bileşenidir</strong>; ışığı x eksenine paralel, yandan düşürürsen y eksenine düşen gölge <strong>y bileşenidir</strong>. Kural tek: ışık, gölgenin düştüğü eksene her seferinde dik gelir. Açı, sağı gösteren x ekseninden saat yönünün tersine ölçülür. Sayfanın açılış değerinde A, 30°'de 3.0 birimdir: bileşenleri (2.60, 1.50). B ise 120°'de 2.0 birimdir: (−1.00, 1.73). B'nin x bileşeni negatif, çünkü ok sola eğiliyor; işaret, yönün bir parçasıdır.",
-      formula: "A<sub>x</sub> = |A|·cos θ,  A<sub>y</sub> = |A|·sin θ",
-      formulaNote:
-        "Geri dönüş Pisagor'la: |A| = √(Aₓ² + Aᵧ²). Okumadaki yuvarlanmış sayılarla 2.60² + 1.50² = 9.01 ≈ 3.0².",
-    },
-    {
-      heading: "Toplama: uç uca ekle",
-      body: "İki vektörü toplamak için ikincisinin kuyruğunu birincinin ucuna taşı; başlangıçtan son uca çizilen ok toplamdır. Buna <strong>bileşke</strong> denir. Sayfadaki kesikli çizgi tam olarak budur: B'nin, A'nın ucuna taşınmış hâli; açık yeşil ok da başlangıçtan oraya uzanır. Aynı şeyi sayılarla yapmak daha kolaydır: x'leri kendi aralarında, y'leri kendi aralarında topla. Önce B sonra A yürüsen de aynı köşeye varırsın; iki yol bir paralelkenar oluşturur, bileşke onun köşegenidir.",
+      heading: "Bileşenler: ok aynı, tarif değişir",
+      body: "Kütle, sıcaklık, süre tek bir sayı ve birimle tam söylenir; bunlara <strong>skaler</strong> denir. 'Beş kilometre yürüdüm' dersen nereye vardığını bilemem; yön eksik. <strong>Vektör</strong>, büyüklüğü ve yönü birlikte taşıyan niceliktir ve ok olarak çizilir. Oku sayıya çevirmek için birbirine dik iki <strong>birim vektör</strong> seçersin, <span class=hat>i</span> ve <span class=hat>j</span>; okun bunlar boyunca payları <strong>bileşenleridir</strong>. Ama eksen seçimi senindir. Eksenleri φ kadar döndürürsen ok yerinde durur, onu tarif eden iki sayı değişir. Sayfada bileşke R = (4.00, 3.00) iken <strong>Eksenleri döndür φ</strong> 30° yapıldığında bileşenler (4.96, 0.60), 90° yapıldığında (3.00, −4.00) olur; büyüklük hep 5.00 kalır. Fizik yasaları bu yüzden vektörlerle yazılır: bir vektör eşitliği, hangi eksenleri seçersen seç doğrudur.",
       formula:
-        "A + B = (A<sub>x</sub> + B<sub>x</sub>, A<sub>y</sub> + B<sub>y</sub>)",
+        "A = A<sub>x</sub> <span class=hat>i</span> + A<sub>y</sub> <span class=hat>j</span>,  A<sub>x</sub> = |A| cos θ,  A<sub>y</sub> = |A| sin θ<br>A<sub>x′</sub> = A<sub>x</sub> cos φ + A<sub>y</sub> sin φ,  A<sub>y′</sub> = −A<sub>x</sub> sin φ + A<sub>y</sub> cos φ",
       formulaNote:
-        "Açılış değerleriyle (2.60 − 1.00, 1.50 + 1.73) = (1.60, 3.23). Sıra önemsizdir: A + B = B + A.",
+        "İkinci satırın karelerini topla: çapraz terimler birbirini götürür, cos²φ + sin²φ = 1 kalır. A<sub>x′</sub>² + A<sub>y′</sub>² = A<sub>x</sub>² + A<sub>y</sub>², yani büyüklük eksenlerden bağımsızdır.",
     },
     {
-      heading: "Aradaki açı her şeydir",
-      body: "Boyları sabit iki ok, aralarındaki açıya göre çok farklı toplamlar verir. Aynı yöndeyseler boylar toplanır, zıt yöndeyseler çıkarılır, dik iseler Pisagor devreye girer. Arası <strong>kosinüs teoremiyle</strong> doldurulur. Şaşırtıcı bir sonucu var: 3 birimlik bir oka 2 birimlik bir ok eklemek, aradaki açı yaklaşık 109.5°'yi geçince toplamı 3'ün altına düşürür; 138.6°'den sonra bileşke iki oktan da kısadır. Ne olursa olsun bileşkenin boyu ||A| − |B|| ile |A| + |B| arasında kalır.",
-      formula: "|A + B|² = |A|² + |B|² + 2|A||B|·cos φ",
+      heading: "Toplama: uç uca ekle, bileşen bileşen topla",
+      body: "İki vektörü toplamak için ikincisinin kuyruğunu birincinin ucuna taşı; başlangıçtan son uca çizilen ok <strong>bileşkedir</strong>. Önce B sonra A yürüsen de aynı köşeye varırsın: iki yol bir paralelkenar kurar, bileşke onun köşegenidir. Sayılarla iş daha da kolaydır, x'ler kendi aralarında, y'ler kendi aralarında toplanır. Çıkarma ayrı bir işlem değildir: A − B, A'ya (−1)·B eklemektir. Bileşkenin boyunu aradaki γ açısı belirler; boyları 4 ve 3 olan iki ok aynı yönde 7, dik durumda 5, zıt yönde 1 verir. Hangi açıyı seçersen seç bileşke bu iki uç değerin dışına çıkamaz; buna <strong>üçgen eşitsizliği</strong> denir ve sayfa bunu her an 1.00 ≤ 5.00 ≤ 7.00 biçiminde yazar.",
+      formula:
+        "A + B = (A<sub>x</sub> + B<sub>x</sub>, A<sub>y</sub> + B<sub>y</sub>)<br>|A + B|² = |A|² + |B|² + 2|A||B| cos γ<br>||A| − |B|| ≤ |A + B| ≤ |A| + |B|",
       formulaNote:
-        "φ, iki ok arasındaki açı. φ = 0° → |A| + |B|; φ = 90° → √(|A|² + |B|²); φ = 180° → ||A| − |B||.",
+        "γ, kuyrukları aynı noktaya konmuş iki ok arasındaki açıdır. cos γ, −1 ile 1 arasında kaldığı için üçüncü satır ikinciden hemen çıkar.",
     },
     {
-      heading: "Çıkarma: ters oku ekle",
-      body: "<strong>Ters vektör</strong> −B, B ile aynı boyda ama tam zıt yöndedir: açısına 180° eklenmiş B. Vektör çıkarmanın tek sırrı budur: A − B, A'ya −B eklemektir. Geometride A − B, B'nin ucundan A'nın ucuna giden oktur; 'B'den A'ya nasıl giderim?' sorusunun cevabı. Yağmurda koşarken şemsiyeyi öne eğmen de bir çıkarmadır: sana göre yağmurun hızı, yağmurun hızı eksi senin hızındır. Bir vektörü kendi tersiyle toplarsan boyu sıfır, yönü tanımsız olan <strong>sıfır vektörü</strong> bulursun.",
-      formula: "A − B = A + (−B),  −B: |B| aynı, açı θ<sub>B</sub> + 180°",
+      heading: "Skaler çarpım: kosinüs teoremini saklayan sayı",
+      body: "İki vektörden tek bir sayı üreten çarpımı bileşenlerle tanımla: A·B = A<sub>x</sub>B<sub>x</sub> + A<sub>y</sub>B<sub>y</sub> + A<sub>z</sub>B<sub>z</sub>. Bu tanımla A·A = |A|² olur. Şimdi A, B ve A − B oklarının kurduğu üçgene iki yoldan bak. Cebir der ki |A − B|² = (A − B)·(A − B) = |A|² + |B|² − 2 A·B. Kosinüs teoremi der ki |A − B|² = |A|² + |B|² − 2|A||B| cos θ. İkisi aynı uzunluğu anlattığına göre A·B = |A||B| cos θ. <strong>Skaler çarpım</strong> böylece bir okun öbürü yönündeki payını ölçer: oklar dikse sıfırdır, zıt yönlere bakıyorlarsa negatiftir. Sayfanın açılışında A = (4, 1, 0) ve B = (2, 3, 0) için 4·2 + 1·3 = 11.00; aynı sayı, ölçülen θ = 42.27° ile |A||B| cos θ'dan da çıkar. Fizikte iş tam olarak budur: W = F·d.",
+      formula:
+        "A·B = A<sub>x</sub>B<sub>x</sub> + A<sub>y</sub>B<sub>y</sub> + A<sub>z</sub>B<sub>z</sub> = |A||B| cos θ",
       formulaNote:
-        "Sayfada çıkarma düğmesi yok; B'nin açı kaydırıcısını 180° çevirmek aynı işi görür: 120° → 300°, 200° → 20°.",
+        "A'nın B üzerindeki izdüşümü A·B/|B| kadardır; açılış değerlerinde sayfa bunu 3.05 diye yazar. A·B = 0 ise ve iki ok da sıfır değilse oklar diktir.",
+    },
+    {
+      heading: "Vektörel çarpım: yönü olan alan",
+      body: "İkinci çarpımın sonucu bir vektördür. <strong>Vektörel çarpım</strong> A × B'nin büyüklüğü |A||B| sin θ, yani iki okun gerdiği paralelkenarın alanıdır; yönü bu paralelkenara diktir ve sağ el kuralıyla seçilir: dört parmağın A'dan B'ye kıvrılırken başparmağın A × B'yi gösterir. Sıra değişince parmaklar ters yöne kıvrılır: B × A = −(A × B). Bir okun kendisiyle çarpımı sıfırdır, çünkü gerilen alan yoktur. Açılış değerlerinde A × B = (0.00, 0.00, 10.00): alan 10.00, yön ekrandan sana doğru. İki çarpım birbirini tamamlar: 11² + 10² = 221 = 17 × 13 = |A|²|B|², çünkü cos²θ + sin²θ = 1. Üçüncü bir C eklenince A·(B × C) üç okun gerdiği paralelyüzün işaretli hacmini verir; sayfadaki C = (1, 1, 3) ile 30.00. Fizikteki karşılığı torktur: τ = r × F.",
+      formula:
+        "A × B = (A<sub>y</sub>B<sub>z</sub> − A<sub>z</sub>B<sub>y</sub>) <span class=hat>i</span> + (A<sub>z</sub>B<sub>x</sub> − A<sub>x</sub>B<sub>z</sub>) <span class=hat>j</span> + (A<sub>x</sub>B<sub>y</sub> − A<sub>y</sub>B<sub>x</sub>) <span class=hat>k</span><br>|A × B|² + (A·B)² = |A|²|B|²",
+      formulaNote:
+        "İlk satır, satırları (<span class=hat>i</span>, <span class=hat>j</span>, <span class=hat>k</span>), (A<sub>x</sub>, A<sub>y</sub>, A<sub>z</sub>) ve (B<sub>x</sub>, B<sub>y</sub>, B<sub>z</sub>) olan 3×3 determinantın açılımıdır. İki satırın yeri değişince determinant işaret değiştirir; ters değişme kuralı buradan gelir.",
+    },
+    {
+      heading: "Galileo'nun hız toplaması: yere göre hız bir vektör toplamıdır",
+      body: "Tekne suya göre, su da kıyıya göre hareket ediyorsa teknenin kıyıya göre konumu iki konum vektörünün toplamıdır. İki tarafın da zamana göre türevini al: <strong>bağıl hızlar</strong> vektör olarak toplanır. Bu adım, herkesin saatinin aynı işlediğini varsayar; gündelik hızlarda kusursuz çalışır, ışık hızına yaklaşıldığında yerini özel göreliliğin toplama kuralına bırakır. Genişliği w olan nehirde akıntı u kıyıya paralel, teknenin suya göre hızı v ve burnu tam karşıdan akıntıya karşı θ kadar çevrilmiş olsun. Karşıya doğru bileşen v cos θ'dır ve içinde u yoktur: akıntı geçiş süresini değiştirmez, yalnızca tekneyi yana taşır. En kısa süre bu yüzden θ = 0'dadır; sürüklenmeyi sıfırlamak ise v sin θ = u ister ve yalnızca v &gt; u iken mümkündür. Yan rüzgârda uçan uçağın yengeç açısı aynı denklemin başka birimlerle okunuşudur.",
+      formula:
+        "v<sub>yer</sub> = v<sub>araç/ortam</sub> + u<sub>ortam</sub><br>t = w / (v cos θ),  sürüklenme = (u − v sin θ)·t",
+      formulaNote:
+        "Sayfanın modeli: noktasal araç, yol boyunca sabit v ve θ, kıyıya paralel ve zamanla değişmeyen akıntı. Gerçek bir nehirde akıntı kıyıya ve derinliğe göre değişir.",
     },
   ],
   lab: {
     intro:
-      "Sayfada dört kaydırıcı var, ikişer ikişer. Mavi <strong>A</strong> satırında üstteki kaydırıcı <strong>|A|</strong> büyüklüğünü 0.5 ile 5.0 arasında 0.1 adımla, alttaki <strong>açı</strong> kaydırıcısı yönü 0° ile 360° arasında 1° adımla ayarlar; turuncu <strong>B</strong> satırı aynı biçimde çalışır. Açılışta A = 3.0 ve 30°, B = 2.0 ve 120°'dir. Üstteki okuma A'nın, B'nin ve A + B'nin bileşenlerini, <strong>|A+B|</strong>'yi ve bileşkenin açısı <strong>θ</strong>'yı verir. Okuma θ'yı −180° ile 180° arasında yazar, kaydırıcılar ise 0°–360° diliyle konuşur: okumadaki −90° ile kaydırıcıdaki 270° aynı yöndür. Toplam sıfır olduğunda θ'nın gösterdiği sayı anlamsızdır. Tuvalde ızgaranın her karesi 1 birimdir; açık yeşil ok A + B, ok ucu olmayan kesikli çizgi B'nin A'nın ucuna taşınmış hâlidir. Sayfa yalnızca toplar; çıkarmayı 4. deneydeki numarayla yaparsın. Başlangıç noktası sol alt köşeye yakın olduğu için sola ya da aşağı yaklaşık 2.9 birimden uzun uzanan oklar çerçeveden taşar; sayılar yine doğrudur.",
+      "Sayfa üç sekmeli bir laboratuvardır ve her sekmenin kendi <strong>Sıfırla</strong> düğmesi vardır. <strong>01 · Toplama ve bileşenler</strong> sekmesinde dört oka kadar vektörü ucundaki halkadan sürükler ya da <strong>Seçili vektör</strong> menüsünden seçip <strong>x bileşeni V<sub>x</sub></strong> ve <strong>y bileşeni V<sub>y</sub></strong> kaydırıcılarıyla (0.1 adım) ayarlarsın; <strong>Büyüklük |V|</strong> ve <strong>Yön açısı θ (°)</strong> kutularına yazıp Enter'a basarsan ok kutupsal olarak kurulur. Tablo bileşkeyi iki ayrı yoldan verir: <em>Bileşenlerden</em> ve yalnız boy, açı ve kosinüs teoremi kullanan <em>Çizimden</em>. <strong>02 · Skaler ve vektörel çarpım</strong> sekmesinde A ve B'nin üçer bileşeni vardır; altındaki <strong>Uygulama</strong> menüsü eğik düzlemde işi ve anahtarda torku hesaplar (g = 9.81 m/s², sürtünme yok). <strong>03 · Bağıl hız</strong> sekmesinde bir tekne akıntıda karşıya geçer; tablo simülasyonun ölçtüğünü kuramın yanına yazar, <strong>Senaryo</strong> menüsü aynı problemi yan rüzgârdaki uçak olarak yeniden etiketler. Sayılar ondalık noktayla ve iki basamakla yazılır; birinci sekmede yön açıları +x ekseninden saat yönünün tersine, 0° ile 360° arasında verilir. Bir uyarı: ilk iki sekmedeki Fark sütunları bir ölçüm hatası değil, aynı niceliği veren iki bağımsız formülün uyuşmasıdır; 0.000 görmen beklenen sonuçtur. Birinci sekmede vektörler birimsizdir; kuvvet için N, yer değiştirme için m diye okuyabilirsin.",
     experiments: [
       {
-        title: "Açılış ekranındaki gizli dik üçgen",
+        title: "3 ile 4 ne zaman 7, 5, 1 eder?",
         predict:
-          "Sayfa açıldığında |A| = 3.0 ve |B| = 2.0. |A+B| için 5 mi dersin, 1 mi, arada bir yer mi? Açılar 30° ve 120°: bu iki ok arasında kaç derece var?",
-        do: "Hiçbir kaydırıcıya dokunmadan üstteki iki satırı oku. Sonra kendi hesabını yap: aradaki açı 120° − 30° = 90° ise Pisagor ne der? Bileşkenin A'dan ne kadar saptığını arctan ile tahmin et.",
+          "Boyları 4 ve 3 olan iki okun bileşkesi en çok ve en az kaç olabilir? B'yi ters çevirip A − B'yi kurarsan |R| değişir mi? Eksenleri 30° döndürmek bileşkenin boyunu etkiler mi?",
+        do: "01 sekmesinde “Sıfırla”ya bas ve tabloyu oku. Seçili vektör menüsünden B'yi seç; x bileşenini 3.00, y bileşenini 0.00 yap. “Zıt oklar” düğmesine bas. Yeniden “Sıfırla”, B'yi seç ve “Seçili oku ters çevir (k → −k)” düğmesine bas. Son olarak “Sıfırla”dan sonra Eksenleri döndür φ kaydırıcısını 30°, 37° ve 90° yap; en sonda “Kapalı üçgen”i dene.",
         observe:
-          "A = (2.60, 1.50), B = (−1.00, 1.73), A + B = (1.60, 3.23), |A+B| = 3.61, θ ≈ 64°. Yeşil ok iki okun tam ortasında değil; uzun olan A'ya daha yakın.",
+          "Açılışta |R| iki sütunda da 5.00, yön 36.87°, farklar 0.000; ilk iki ok arasındaki açı 90.00°, üçgen eşitsizliği kartı 1.00 ≤ 5.00 ≤ 7.00. B = (3, 0) iken |R| = 7.00 ve açı 0.00°; “Zıt oklar”da |R| = 1.00 ve açı 180.00°. Ters çevirince R = (4.00, −3.00), |R| yine 5.00, yön 323.13°. Döndürülmüş eksenlerde bileşenler sırasıyla (4.96, 0.60), (5.00, −0.01) ve (3.00, −4.00) olur; yanındaki kart hep 5.00 · fark 0.000 yazar. “Kapalı üçgen”de |R| = 0.00, yön “tanımsız”.",
         explain:
-          "Oklar dik olduğu için |A+B| = √(3² + 2²) = √13 ≈ 3.61. Bileşke A'dan arctan(2/3) ≈ 33.7° sapar; 30°'ye eklenince 63.7° ≈ 64°. Uzun vektör, toplamın yönünü kendine doğru çeker.",
+          "Bileşke aradaki açıya bağlıdır: |R|² = 16 + 9 + 24 cos γ, yani γ = 0°, 90° ve 180° için 7, 5 ve 1. Dik oklarda cos γ = 0 olduğundan B'yi ters çevirmek boyu değiştirmez, yalnız yönü x ekseninin öbür yanına atar. Eksen döndürmede 4 cos 30° + 3 sin 30° = 4.96 ve −4 sin 30° + 3 cos 30° = 0.60; y′ bileşeni tan φ = 3/4, yani φ = 36.87° iken sıfırlanır, kaydırıcı 1° adımlı olduğu için 37°'de −0.01 kalır. Üç ok uç uca kapalı bir üçgen çizdiğinde bileşke sıfır vektörüdür ve yönü yoktur.",
       },
       {
-        title: "Bir ok eklemek toplamı kısaltabilir mi?",
+        title: "İki çarpım, iki uç durum",
         predict:
-          "A = 3.0 ve 0°'de, B = 2.0 olsun. B'nin açısını 0°'den 180°'ye çevirirken |A+B| hangi değerden hangisine iner? Hangi açıdan sonra bileşke, A'nın tek başına 3.0'lık boyundan bile kısa olur: 90° mi, daha fazlası mı?",
-        do: "|A| = 3.0, A'nın açısı 0°, |B| = 2.0 yap. B'nin açısını sırayla 0°, 60°, 90°, 120°, 180°'ye getirip |A+B|'yi kaydet. Sonra 109° ile 110° arasında, ardından 138° ile 139° arasında gidip gel.",
+          "A = (4, 1, 0) ve B = (2, 3, 0) için A·B ve |A × B| kaç eder? Oklar dikleştiğinde bu iki sayıdan hangisi sıfırlanır, hangisi en büyük değerini alır? B × A, A × B'den nasıl ayrılır?",
+        do: "02 sekmesinde “Sıfırla”ya bas; tablonun üç satırını ve altındaki kartları oku. Sırayla “Dik”, “Paralel” ve “Uzayda” düğmelerine bas. “Uzayda” düzeninde “Sırayı değiştir: B × A'yı çiz” kutusunu işaretle. İstersen “İleri: üçüncü vektör C ve hacim” bölümünü açıp “C'yi ve paralelyüzü çiz” kutusuyla paralelyüzü gör.",
         observe:
-          "Sırasıyla 5.00, 4.36, 3.61, 2.65, 1.00. 109°'de 3.02, 110°'de 2.98: eşik burada. 138°'de 2.02, 139°'de 1.99: bundan sonra bileşke iki oktan da kısadır. 180°'de θ ≈ 0°, çünkü A daha uzundur.",
+          "Açılışta A·B iki sütunda da 11.00, |A×B| = alan 10.00; hacim satırı, altında yazan C = (1.00, 1.00, 3.00) ile 30.00; farklar 0.000. Açı 42.27° · cos θ = 0.740, A × B = (0.00, 0.00, 10.00), yön “+z: ekrandan sana doğru”. “Dik”te A·B = 0.00, alan 13.00; “Paralel”de A·B = 10.00, alan 0.00 ve yön “tanımsız (A × B = 0)”. “Uzayda” A·B = 3.00, A × B = (−5.00, −4.00, 7.00), |A×B| = 9.49, θ = 72.45°, hacim 12.00 verir; kutuyu işaretleyince B × A = (5.00, 4.00, −7.00) çizilir.",
         explain:
-          "|A+B|² = 9 + 4 + 12·cos φ. Bunu 9'a eşitlersen cos φ = −1/3, φ ≈ 109.5°; 4'e eşitlersen cos φ = −0.75, φ ≈ 138.6°. 90°'de B yana bakar ve A'yı hiç geri çekmez, toplam yine uzar. Kısalma için B'nin A doğrultusundaki bileşeni yeterince geriye, −0.67'nin altına düşmelidir.",
+          "Bileşenlerden: 4·2 + 1·3 = 11 ve 4·3 − 1·2 = 10. İki sayı birbirine bağlıdır: 11² + 10² = 221 = |A|²|B|² = 17 × 13. Dik oklarda cos θ = 0 skaler çarpımı siler, sin θ = 1 alanı en büyük değerine, |A||B| = 13'e çıkarır; paralel oklarda roller değişir. Sıra değişince her bileşen işaret değiştirir, büyüklük aynı kalır. Açılıştaki hacim, taban alanı 10 ile C'nin tabana dik yüksekliği C<sub>z</sub> = 3'ün çarpımıdır. Geometriden sütunu bu sonuçlara bileşen formüllerini kullanmadan, köşegenlerden ölçülen açı ve çokgen alanıyla varır.",
       },
       {
-        title: "Takas et: paralelkenarın öbür kenarı",
+        title: "İş ve tork: aynı açının iki ayrı rolü",
         predict:
-          "A ile B'nin değerlerini takas edersen (A = 2.0 ve 120°, B = 3.0 ve 30°) yeşil ok kıpırdar mı? Kesikli çizgi nereye gider?",
-        do: "Önce açılış değerlerinde kesikli çizginin yerini aklına yaz: A'nın ucundan yeşilin ucuna. Sonra |A| = 2.0, A'nın açısı 120°, |B| = 3.0, B'nin açısı 30° yap ve iki ekranı karşılaştır.",
+          "Eğik düzlemde 50 N'luk çekme kuvvetini yüzeye paralel tutmak yerine 20° yukarı kaldırırsan yaptığı iş artar mı, azalır mı? Anahtara kuvveti 90° yerine 30° ile uygularsan tork kaça iner?",
+        do: "02 sekmesinin altında Uygulama menüsünde “İş: eğik düzlemde çekilen blok” seçiliyken “Uygulamayı sıfırla”ya bas ve tabloyu oku. F'nin yüzeyle açısı β kaydırıcısını 0°, sonra 60° yap. Ardından menüden “Tork: anahtarla cıvata sıkmak”ı seç; r'den F'ye açı φ kaydırıcısını 90°, 30°, 0° ve −90° yap.",
         observe:
-          "Okumanın ilk satırı yer değiştirir: A = (−1.00, 1.73) · B = (2.60, 1.50). İkinci satır kıpırdamaz: A + B = (1.60, 3.23), |A+B| = 3.61, θ ≈ 64°. Tuvalde mavi ile turuncu yer değiştirir; kesikli çizgi yeşil okun öbür yanına geçer. İki kesikli çizgiyi birlikte düşünürsen bir paralelkenar tamamlanır ve yeşil ok onun köşegeni olur.",
+          "β = 20° iken W<sub>F</sub> iki sütunda da 187.94 J, W<sub>g</sub> = −98.10 J, ölçülen ΔK = 89.84 J ve W<sub>net</sub> = 89.84 J; durum satırına göre blok 1.33 s sonra 5.99 m/s hızla yolun sonundadır. β = 0°'de W<sub>F</sub> = 200.00 J, ΔK = 101.90 J. β = 60°'de W<sub>F</sub> = 100.00 J'e düşer, ama sayfa bloğun yüzeyden kalktığını söyler ve ΔK yerine “—” yazar. Torkta φ = 90° için 20.00 N·m; 30° için 10.00 N·m ve moment kolu 0.125 m; 0° için 0.00, “cıvata dönmez”; −90° için −20.00 N·m.",
         explain:
-          "Bileşenler sayıdır ve sayı toplamında sıra önemsizdir: 2.60 + (−1.00) = (−1.00) + 2.60. Geometride bu, 'önce A sonra B' ile 'önce B sonra A' yollarının aynı köşeye varması demektir: Newton'un paralelkenarı. Sayfa her seferinde yalnızca bir kenarı çizer; öbürünü takas ederek görürsün.",
+          "İş bir skaler çarpımdır: W<sub>F</sub> = F d cos β = 50 N × 4 m × cos 20° = 187.94 J. Yerçekimi yola geniş açıyla baktığı için negatif iş yapar: −m g d sin α = −98.10 J; yola dik olan normal kuvvetin işi sıfırdır. Toplam iş, sayfanın hareketi adım adım izleyerek ölçtüğü ΔK'ye eşittir. β = 60°'de kuvvetin yüzeye dik bileşeni 43.30 N, ağırlığınki 42.48 N'dur: blok havalanır, model geçersizleşir. Tork ise vektörel çarpımdır: τ = r F sin φ = 0.25 m × 80 N × sin 30° = 10.00 N·m. Kosinüs işte paralel bileşeni, sinüs torkta dik bileşeni seçer.",
       },
       {
-        title: "Çıkarma düğmesi yok, ters ok var",
+        title: "Karşıya geçmek: en hızlı mı, en doğru mu?",
         predict:
-          "Açılış değerlerinde A − B'yi bulmak için B'yi ters çevirmen yeter: aynı boy, açıya +180°. |A − B|, |A + B| olan 3.61'den büyük mü çıkar, küçük mü? Sayfa yönü kaç derece diye yazar?",
-        do: "A'yı 3.0 ve 30°'de bırak, |B| = 2.0 kalsın, B'nin açısını 120°'den 300°'ye çevir. Sonra |B|'yi 3.0, açısını 210° yaparak A + (−A)'yı dene.",
+          "Nehir 100 m, akıntı 3 m/s, teknen suya göre 5 m/s. En çabuk geçmek için burnu tam karşıya mı tutmalısın, akıntıya karşı mı çevirmelisin? Tam karşıdaki B noktasına çıkmak kaç saniyeye mal olur? Akıntı tekneden hızlıysa B'ye çıkabilir misin?",
+        do: "03 sekmesinde “Sıfırla”ya, sonra “Sonuca atla”ya bas. “En az sürüklenme rotası” düğmesine ve yine “Sonuca atla”ya bas. Şimdi Akıntı hızı u'yu 5.0 m/s, Teknenin suya göre hızı v'yi 3.0 m/s yap; “En kısa süre rotası” ve “En az sürüklenme rotası”nı sırayla dene, her birinden sonra “Sonuca atla”ya bas. Sonra “θ'yı yazarak gir” kutusuna 60 yazıp Enter'a ve “Sonuca atla”ya bas. Son olarak “Sıfırla”ya bas, Ortamın hız dağılımı menüsünden “Kıyıda 0, ortada 1.5u (ortalaması u)” seçeneğini seç ve yine “Sonuca atla”ya bas.",
         observe:
-          "B = (1.00, −1.73), toplam (3.60, −0.23), |A+B| = 3.61, θ ≈ −4°: A − B'nin boyu A + B ile aynı. İkinci denemede toplam (0.00, −0.00) ve büyüklük 0.00 görünür, ama θ ≈ −90° yazar.",
+          "θ = 0.00° iken süre iki sütunda da 20.00 s, sürüklenme 60.00 m, yer hızı 5.83 m/s, iz açısı 30.96°, yol 116.62 m. θ = 36.87° iken süre 25.00 s, sürüklenme 0.00 m, yer hızı 4.00 m/s. Kuram ile tarama aynı açıları bulur. u = 5, v = 3 yapınca en kısa süre 33.33 s ve sürüklenme 166.67 m; en az sürüklenme satırı 36.87° · 133.33 m yazar ve o rotada geçiş 41.67 s sürer. θ = 60° yazınca sürüklenme 160.13 m'ye geri büyür. Parabolik dağılımda iz S biçiminde eğrilir, yol 119.06 m'ye uzar, süre ve sürüklenme aynı kalır.",
         explain:
-          "Dik oklarda cos 90° = 0 olduğundan kosinüs teoremindeki ± terimi düşer: |A − B| = |A + B|. Sayfa açıyı −180° ile 180° arasında verir; −4°, kaydırıcıların diliyle 356°'dir. Sıfır vektörün yönü yoktur: −90°, 10⁻¹⁶ mertebesinde bir yuvarlama artığının işaretinden doğar. A = 3.0 ve 0°, B = 3.0 ve 180° denersen aynı sıfır için 90° yazar.",
+          "Karşıya doğru hız v cos θ'dır; θ = 0'da en büyüktür ve akıntıya bağlı değildir. Sürüklenmeyi sıfırlamak için sin θ = u/v = 3/5 gerekir; karşıya doğru hız 5 × 0.8 = 4 m/s'ye iner ve geçiş 25 s sürer: 3-4-5 üçgeni bu kez hızlarla kurulmuştur. Düğme kesin açıyı 0.01°'ye yuvarlar; durum satırı bu yüzden “gösterilen duyarlıkta 0.00 m” der. Akıntı tekneden hızlıysa v sin θ hiçbir açıda u'ya yetişemez; en iyi açı sin θ = v/u'yu sağlar, burnu daha çok çevirmek sürüklenmeyi yeniden büyütür. Parabolik dağılımda tekne her şeritte eşit süre kaldığı için sürüklenme yalnız akıntının ortalamasına bağlıdır.",
       },
     ],
   },
   wow: [
     {
       title: "Yıldızlar da şemsiye eğdirir",
-      body: "Aralık 1725'te Gamma Draconis yıldızını izlemeye başlayan James Bradley, yıldızın eylülden marta 40 yay saniyesi kadar güneye kayıp sonra geri döndüğünü gördü; aranan paralaks bu deseni veremezdi. 1728'de açıklamayı buldu: Dünya yörüngesinde saniyede yaklaşık 30 km hızla koşarken yıldız ışığı, yağmur gibi, biraz önden geliyormuş gibi görünür. Sapma en fazla v/c ≈ 30/300 000 = 10⁻⁴ radyan, yani yaklaşık 20.6 yay saniyesidir (ölçülen değer 20.5″): 200 m öteden bakılan 2 cm'lik bir düğme kadar. Bradley bundan ışık hızını da hesapladı. Thames'te bir teknenin flamasından esinlendiği anlatılır; hikâye büyük olasılıkla efsanedir.",
+      body: "Aralık 1725'te Gamma Draconis yıldızını izlemeye başlayan James Bradley, yıldızın eylülden marta 40 yay saniyesi kadar güneye kayıp sonra geri döndüğünü gördü; aranan paralaks bu deseni veremezdi. 1728'de açıklamayı buldu: Dünya yörüngesinde saniyede yaklaşık 30 km hızla koşarken yıldız ışığı, yağmur gibi, biraz önden geliyormuş gibi görünür. Sapma en fazla v/c ≈ 30/300 000 = 10⁻⁴ radyan, yani yaklaşık 20.6 yay saniyesidir (ölçülen değer 20.5″): 200 m öteden bakılan 2 cm'lik bir düğme kadar. Bradley bundan ışık hızını da hesapladı. Thames'te bir teknenin flamasından esinlendiği anlatılır; ama bu öykü Bradley'nin kendi anlatımında geçmez.",
     },
     {
       title: "Yatay atılan ile bırakılan aynı anda düşer",
@@ -114,39 +118,39 @@ window.ACELYA_DIGEST["vektorler"] = {
     },
   ],
   worked: {
-    title: "Rüzgârda kuzeye uçmak",
+    title: "Akıntı senden hızlıysa: en az sürüklenme rotası",
     prompt:
-      "Bir uçak havaya göre 250 km/sa hızla uçuyor; rüzgâr batıdan doğuya 50 km/sa esiyor. Pilot tam kuzeye gitmek istiyor. Uçağın burnunu hangi yöne çevirmeli ve yere göre hızı kaç olur? Açıları doğudan (x ekseni) saat yönünün tersine ölç; kuzey 90°'dir.",
+      "Genişliği w = 100 m olan bir nehirde akıntı her yerde u = 5 m/s. Teknenin suya göre hızı v = 3 m/s; burnu, tam karşı yönden akıntıya karşı θ kadar çevrili ve yol boyunca sabit. (a) Geçiş süresini ve sürüklenmeyi θ'nın fonksiyonu olarak yaz. (b) En kısa süreyi veren rotayı bul. (c) Tam karşıya çıkmak olanaksız olduğuna göre, karşı kıyıda en az sürüklenmeyi veren θ'yı türev alarak bul ve o rotadaki süreyi hesapla.",
     steps: [
-      "Vektörleri yaz: rüzgâr W = (50, 0) km/sa. Uçağın havaya göre hızı V = (250·cos α, 250·sin α) km/sa. Yere göre hız bunların toplamıdır: G = V + W.",
-      "Kuzeye gitmek, G'nin x bileşeninin sıfır olması demektir: 250·cos α + 50 = 0, yani cos α = −0.2 ve α ≈ 101.5°. Burun kuzeyden yaklaşık 11.5° batıya, rüzgâra doğru döner.",
-      "Yere göre hız, G'nin y bileşenidir: 250·sin α = 250·√(1 − 0.2²) = 250·√0.96 ≈ 250 × 0.9798 = 244.95 km/sa. Pisagor'la denetle: V hipotenüs, rüzgârı karşılayan 50 km/sa ile yere göre hız dik kenarlardır: 244.95² + 50² ≈ 62 500 = 250².",
-      "Saf yaklaşımla karşılaştır: burun tam kuzeye tutulsaydı G = (50, 250) km/sa olurdu; uçak 255 km/sa hızla ama kuzeyden yaklaşık 11.3° doğuya kayarak giderdi, yani her saatte 50 km rotadan sapardı.",
-      "Sayfada dene, 1 birim = 50 km/sa olsun: |A| = 5.0 ve açı 102°, |B| = 1.0 ve açı 0°. Okuma A + B = (−0.04, 4.89), |A+B| = 4.89, θ ≈ 90° gösterir; 4.89 × 50 ≈ 245 km/sa. 101°'de (0.05, 4.91) ve θ ≈ 89° çıkar: tam değer 101.5°, iki tamsayının arasındadır.",
+      "Eksenleri seç: x akıntı yönünde, y karşı kıyıya doğru. Yere göre hız iki vektörün toplamıdır: suya göre hız (−v sin θ, v cos θ) ile akıntı (u, 0). Bileşenleri v<sub>x</sub> = u − v sin θ ve v<sub>y</sub> = v cos θ. Geçiş yalnız y bileşenine bağlıdır: t(θ) = w/(v cos θ). Sürüklenme x(θ) = v<sub>x</sub>·t = w (u − v sin θ)/(v cos θ).",
+      "En kısa süre: t(θ) paydadaki cos θ en büyükken en küçüktür, yani θ = 0. t = 100 m / 3 m/s = 33.33 s; bu sürede akıntı tekneyi x = 5 m/s × 33.33 s = 166.67 m aşağı taşır.",
+      "En az sürüklenme: x(θ)'nın türevini al. d/dθ [(u − v sin θ)/cos θ] = (−v cos²θ + u sin θ − v sin²θ)/cos²θ = (u sin θ − v)/cos²θ. Demek ki dx/dθ = (w/v)(u sin θ − v)/cos²θ. Türev sin θ = v/u = 3/5 iken sıfırdır: θ = 36.87°. Daha küçük açılarda türev negatif, daha büyük açılarda pozitiftir; bulunan nokta bir minimumdur.",
+      "Değerleri yerine koy: cos θ = 0.8 olduğundan t = 100 m / (3 m/s × 0.8) = 41.67 s. x = 100 m × (5 − 3 × 0.6)/(3 × 0.8) = 100 m × 3.2/2.4 = 133.33 m. Kapalı biçimi x = w √(u² − v²)/v = 100 m × 4/3'tür.",
+      "Geometrik denetim: bu rotada yere göre hız (3.2, 2.4) m/s, suya göre hız (−1.8, 2.4) m/s'dir. Skaler çarpımları −5.76 + 5.76 = 0: en iyi rotada tekne, suya göre hızını yere göre hızına dik tutar. Yere göre hızın büyüklüğü √(3.2² + 2.4²) = 4.00 m/s. Sayfada 03 sekmesinde u = 5.0, v = 3.0 yapıp “En az sürüklenme rotası” ve “Sonuca atla”ya basarsan 41.67 s, 133.33 m ve 4.00 m/s'yi okursun; θ = 20° için 140.97 m, θ = 60° için 160.13 m çıkar, ikisi de daha kötüdür.",
     ],
     result:
-      "Burun 101.5°'ye, yani kuzeyden yaklaşık 11.5° batıya; yere göre hız yaklaşık 245 km/sa. Uçak burnunun gösterdiği yere değil, iki vektörün toplamının gösterdiği yere gider. Pilotlar yan rüzgârda bu yüzden hafifçe yan yan uçar; buna rüzgâr düzeltme açısı denir.",
+      "En kısa süre θ = 0'da 33.33 s'dir ve 166.67 m sürüklenmeye mal olur. En az sürüklenme sin θ = v/u = 0.6, yani θ = 36.87° ile 133.33 m'dir ve geçiş 41.67 s sürer. Aradaki 33 metrelik kazancın bedeli 8 saniyeden biraz fazladır: hangi rotanın “en iyi” olduğu neyi en aza indirmek istediğine bağlıdır.",
   },
   misconceptions: [
     {
       myth: "3 N ile 4 N'luk iki kuvvetin bileşkesi 7 N'dur.",
       truth:
-        "7 N yalnızca iki kuvvet aynı yöndeyse doğrudur. Zıt yöndeyseler 1 N, dik iseler 5 N olur; ara açılarda sonuç 1 ile 7 N arasında herhangi bir değer olabilir. Büyüklükler ancak aynı yönlü vektörlerde doğrudan toplanır.",
+        "7 N yalnızca iki kuvvet aynı yöndeyse doğrudur. Zıt yöndeyseler 1 N, dik iseler 5 N olur; ara açılarda sonuç 1 ile 7 N arasında herhangi bir değer alabilir. Sayfanın üçgen eşitsizliği kartı bu iki sınırı her an gösterir: 1.00 ≤ |R| ≤ 7.00. Büyüklükler ancak aynı yönlü vektörlerde doğrudan toplanır.",
     },
     {
-      myth: "Bir vektöre başka bir vektör eklemek toplamı her zaman büyütür.",
+      myth: "Bileşkenin yönü her zaman θ = arctan(R<sub>y</sub>/R<sub>x</sub>) ile bulunur.",
       truth:
-        "Eklenen vektörün ilk vektör doğrultusundaki bileşeni yeterince geriye bakıyorsa toplam kısalır. Sayfada A = 3.0 ve 0°, B = 2.0 yap: B'nin açısı 110° olduğunda |A+B| = 2.98, yani A'nın tek başına boyundan kısa. Halat çekmede karşı takımın kuvveti de böyle 'eklenir'.",
-    },
-    {
-      myth: "Bileşkenin yönü her zaman θ = arctan(Rᵧ/Rₓ) ile bulunur.",
-      truth:
-        "arctan yalnızca −90° ile 90° arasında değer döndürür; (2, 2) ile (−2, −2) için aynı 45°'yi verir. İkincisinin gerçek yönü 225°'dir. Bileşenlerin işaretine bakıp hangi çeyrekte olduğunu belirlemek ya da iki işareti birlikte kullanan atan2 fonksiyonunu kullanmak gerekir. Sayfa atan2 kullanır ve aynı yönü −135° diye yazar.",
+        "arctan yalnızca −90° ile 90° arasında değer döndürür; (2, 2) ile (−2, −2) için aynı 45°'yi verir. İkincisinin gerçek yönü 225°'dir. Bileşenlerin işaretine bakıp okun hangi çeyrekte olduğunu belirlemek ya da iki işareti birlikte kullanan atan2 fonksiyonunu kullanmak gerekir. Sayfada Vektör sayısını 1 yapıp A'yı (−2, −2)'ye getir: yön 225.00° yazar.",
     },
     {
       myth: "Bileşenler bir vektörün değişmez kimliğidir.",
       truth:
-        "Bileşenler eksen seçimine bağlıdır; boy ve iki vektör arasındaki açı ise bağlı değildir. Sayfada açılış değerlerinden iki açıya da 60° ekle (A 90°'de, B 180°'de): A + B'nin bileşenleri (1.60, 3.23)'ten (−2.00, 3.00)'e değişir, ama |A+B| yine 3.61 kalır ve θ tam 60° artarak 64°'den 124°'ye çıkar. Eksenleri döndürmek, bütün okları ters yönde döndürmekle aynı şeydir.",
+        "Bileşenler eksen seçimine bağlıdır; boy ve iki vektör arasındaki açı bağlı değildir. Açılış değerlerinde Eksenleri döndür φ kaydırıcısını 90° yap: R'nin bileşenleri (4.00, 3.00)'ten (3.00, −4.00)'e değişir, büyüklük 5.00 kalır. Skaler çarpım da böyle bir değişmezdir; iki ok birlikte döndürülünce A·B kıpırdamaz.",
+    },
+    {
+      myth: "Karşı kıyıya en kısa yoldan gitmek, en çabuk geçmektir.",
+      truth:
+        "Sayfanın açılış değerlerinde tam karşıya çıkan rota 100 m'lik en kısa yoldur ama 25.00 s sürer; burnu tam karşıya tutan tekne 116.62 m yol alır ve 20.00 s'de geçer. Burnu akıntıya karşı çevirmek, hızın bir kısmını akıntıyı karşılamaya harcar ve karşıya doğru bileşeni v cos θ'ya düşürür.",
     },
   ],
   glossary: [
@@ -161,14 +165,9 @@ window.ACELYA_DIGEST["vektorler"] = {
         "Büyüklüğü ve yönü birlikte olan, uç uca eklenerek toplanan nicelik; yer değiştirme, hız ve kuvvet gibi.",
     },
     {
-      term: "Büyüklük (|A|)",
-      definition:
-        "Vektörün uzunluğu; bileşenlerden √(Aₓ² + Aᵧ²) ile bulunur ve hiçbir zaman negatif değildir.",
-    },
-    {
       term: "Bileşen",
       definition:
-        "Vektörün bir eksen boyunca payı, örneğin Aₓ = |A|·cos θ; işareti o eksende hangi yöne baktığını söyler.",
+        "Vektörün seçilen bir eksen boyunca payı, örneğin A<sub>x</sub> = |A| cos θ; değeri eksen seçimine bağlıdır.",
     },
     {
       term: "Bileşke",
@@ -176,83 +175,103 @@ window.ACELYA_DIGEST["vektorler"] = {
         "Birden çok vektörün toplamı; hepsinin yerine tek başına aynı etkiyi yapan vektör.",
     },
     {
-      term: "Ters vektör (−A)",
-      definition:
-        "A ile aynı boyda ve tam zıt yönde olan vektör; A ile toplanınca sıfır vektörü verir.",
-    },
-    {
-      term: "Sıfır vektörü",
-      definition:
-        "Boyu sıfır olan ve yönü tanımsız tek vektör; herhangi bir vektöre eklendiğinde onu değiştirmez.",
-    },
-    {
       term: "Birim vektör",
       definition:
-        "Boyu tam 1 olan, yalnızca yön bildiren vektör; x ve y eksenleri boyunca î ve ĵ ile gösterilir.",
+        "Boyu tam 1 olan, yalnızca yön bildiren vektör; sıfırdan farklı her A için A/|A| ile bulunur.",
+    },
+    {
+      term: "Skaler çarpım (A·B)",
+      definition:
+        "İki vektörden |A||B| cos θ sayısını üreten çarpım; dik vektörler için sıfırdır.",
+    },
+    {
+      term: "Vektörel çarpım (A × B)",
+      definition:
+        "İki vektöre de dik, büyüklüğü gerdikleri paralelkenarın alanına eşit, yönü sağ el kuralıyla belirlenen vektör.",
+    },
+    {
+      term: "Bağıl hız",
+      definition:
+        "Bir cismin seçilen bir gözlemciye ya da ortama göre hızı; yere göre hız, ortama göre hız ile ortamın hızının vektör toplamıdır.",
     },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede vektör bir oktur; üniversitede tanım tersine döner: toplanabilen ve bir sayıyla çarpılabilen, bu işlemler belirli kurallara uyan her şey bir vektördür. Polinomlar, ses sinyalleri, üç sayıyla yazılan renkler, bir fotoğrafın milyonlarca pikseli birer <strong>vektör uzayının</strong> elemanıdır. <strong>Lineer cebir</strong> bu uzayların ve onları birbirine götüren makinelerin, yani matrislerin dilidir. Kosinüs teoremindeki 2|A||B|·cos φ terimi de tesadüf değildir: o, <em>A·B = |A||B|·cos φ</em> diye tanımlanan <strong>skaler çarpımın</strong> iki katıdır. Fizikte iş, gölge, açı ve benzerlik hesapları hep bu çarpımdan geçer.",
-      "Bir adım ötede, uzayın her noktasına bir ok iliştirilir: rüzgâr haritaları, elektrik ve manyetik alanlar birer <strong>vektör alanıdır</strong>. Heaviside'ın vektör diliyle yazdığı Maxwell denklemleri, bu alanların nasıl değiştiğini dört satırda anlatır; çok değişkenli kalkülüsteki gradyan da en dik yükseliş yönünü gösteren bir vektördür. Yapay zekâda sözcükler ve görüntüler yüzlerce boyutlu vektörlerle temsil edilir; iki sözcüğün anlamca ne kadar yakın olduğu, sayfadaki iki ok arasındaki açıya bakmanın yüksek boyutlu karşılığıyla ölçülür.",
+      "Bu sayfadaki üç araç, <strong>Fizik I</strong> dersinin neredeyse her haftasında yeniden karşına çıkar: kuvvetler bileşenlerine ayrılır, iş bir skaler çarpımdır, tork ve açısal momentum birer vektörel çarpımdır, bağıl hız ise eylemsiz gözlemciler arasındaki Galileo dönüşümünün ilk örneğidir. <strong>Lineer Cebir</strong> dersinde tanım tersine döner: toplanabilen ve bir sayıyla çarpılabilen, bu işlemler belirli kurallara uyan her şey bir vektördür. Polinomlar, ses sinyalleri, üç sayıyla yazılan renkler, bir fotoğrafın milyonlarca pikseli birer <strong>vektör uzayının</strong> elemanıdır; skaler çarpım da uzunluk ve açı kavramlarını bu uzaylara taşıyan <strong>iç çarpıma</strong> genelleşir. Eksenleri döndürünce bileşenleri değiştiren iki satırlık kural bir dönme matrisidir, paralelyüzün hacmini veren üçlü çarpım ise 3×3 determinantın ta kendisidir.",
+      "Bir adım ötede, <strong>çok değişkenli kalkülüste</strong> uzayın her noktasına bir ok iliştirilir: rüzgâr haritaları, elektrik ve manyetik alanlar birer <strong>vektör alanıdır</strong>. Heaviside'ın vektör diliyle yazdığı Maxwell denklemleri, bu alanların nasıl değiştiğini dört satırda anlatır; gradyan da en dik yükseliş yönünü gösteren bir vektördür. Yapay zekâda sözcükler ve görüntüler yüzlerce boyutlu vektörlerle temsil edilir; iki sözcüğün anlamca ne kadar yakın olduğu, sayfadaki cos θ okumasının yüksek boyutlu karşılığıyla, yani iki vektörün skaler çarpımının boylarının çarpımına oranıyla ölçülür.",
     ],
     topics: [
-      "Vektör uzayları",
-      "Skaler (iç) çarpım",
-      "Vektörel çarpım",
-      "Matrisler ve doğrusal dönüşümler",
-      "Vektör alanları",
-      "Gradyan",
+      "Vektör uzayları ve tabanlar",
+      "İç çarpım uzayları",
+      "Determinant ve yönlü hacim",
+      "Dönme matrisleri",
+      "Galileo dönüşümü ve eylemsiz çerçeveler",
+      "Vektör alanları ve gradyan",
       "Kuaterniyonlar ve 3B dönme",
     ],
   },
   quiz: [
     {
       question:
-        "|A| = 3 ve |B| = 4 olan iki vektörün toplamının büyüklüğü aşağıdakilerden hangisi OLAMAZ?",
-      options: ["0.5 birim", "1 birim", "5 birim", "7 birim"],
+        "Büyüklükleri 5 N, 3 N ve 1 N olan üç kuvvet, yönleri dilediğin gibi seçilerek dengeye getirilebilir mi?",
+      options: [
+        "Evet; uygun açılarla bileşke her zaman sıfırlanabilir",
+        "Hayır; bileşke en az 1 N olur",
+        "Hayır; bileşke en az 3 N olur",
+        "Evet; ama yalnızca üçü aynı doğru üzerindeyse",
+      ],
+      answer: 1,
+      explanation:
+        "Dengede üç ok uç uca kapalı bir üçgen çizmelidir; bunun için en uzun kenar öbür ikisinin toplamını aşmamalıdır. Burada 5 &gt; 3 + 1 olduğundan üçgen kapanmaz: iki kısa ok, uzun okun tam karşısına dizilse bile 5 − 4 = 1 N artar. Sayfada A = (5, 0), B = (−3, 0), C = (−1, 0) kurarsan üçgen eşitsizliği kartı 1.00 ≤ 1.00 ≤ 9.00 yazar; alt sınır sıfır olmadıkça denge olanaksızdır.",
+    },
+    {
+      question:
+        "Açılış değerlerinde A·B = 11.00, |A × B| = 10.00 ve θ = 42.27°. A'nın boyunu 2, B'nin boyunu 3 katına çıkarırsan (yönler aynı kalsın) bu üç okuma ne olur?",
+      options: [
+        "A·B = 16, |A × B| = 15, θ = 42.27°",
+        "A·B = 66, |A × B| = 10, θ = 42.27°",
+        "A·B = 66, |A × B| = 60, θ = 42.27°",
+        "A·B = 66, |A × B| = 60, θ = 84.54°",
+      ],
+      answer: 2,
+      explanation:
+        "İki çarpım da her çarpana göre doğrusaldır: (2A)·(3B) = 6 A·B = 66 ve |(2A) × (3B)| = 6 |A × B| = 60. Açı ise boylardan bağımsızdır; tan θ = |A × B|/(A·B) = 60/66 = 10/11 oranı değişmez, θ = 42.27° kalır. Boyları eklemek yerine çarpmak gerektiğini alan sezgisi de söyler: kenarları 2 ve 3 kat uzayan paralelkenarın alanı 6 katına çıkar.",
+    },
+    {
+      question:
+        "Nehir 100 m genişliğinde, tekne suya göre 5 m/s hızla ve burnu tam karşıya dönük (θ = 0) gidiyor. Akıntı 2 m/s'den 4 m/s'ye çıkarsa geçiş süresi ve sürüklenme nasıl değişir?",
+      options: [
+        "Süre 20 s kalır, sürüklenme 40 m'den 80 m'ye çıkar",
+        "Süre iki katına çıkar, sürüklenme aynı kalır",
+        "Süre de sürüklenme de iki katına çıkar",
+        "Süre kısalır, çünkü teknenin yere göre hızı artar",
+      ],
       answer: 0,
       explanation:
-        "Bileşkenin boyu ||A| − |B|| = 1 ile |A| + |B| = 7 arasında kalır: 7 aynı yönde, 1 zıt yönde, 5 dik açıda elde edilir. 0.5 için 3 birimlik okun 4 birimlik oku neredeyse tamamen silmesi gerekirdi; en iyi ihtimalle 1 birim artar. Üçgenin bir kenarı, öbür ikisinin farkından kısa olamaz.",
-    },
-    {
-      question:
-        "Açılış değerlerinde A ile B diktir ve okuma |A+B| = 3.61 gösterir. B'nin açısını 120°'den 300°'ye çevirerek A − B'yi elde edersen |A − B| kaç olur?",
-      options: ["1.00", "3.00", "3.61", "5.00"],
-      answer: 2,
-      explanation:
-        "−B, B ile aynı boyda ama zıt yönde bir oktur ve A'ya hâlâ diktir, yalnızca öbür yana bakar. Pisagor aynı iki kenarı görür: √(3² + 2²) ≈ 3.61. Kosinüs teoreminde cos 90° = 0 olduğundan 2|A||B|·cos φ terimi düşer. Değişen boy değil yöndür: θ ≈ 64°'den θ ≈ −4°'ye, yani 356°'ye geçer.",
-    },
-    {
-      question:
-        "Bir bileşke R = (−2, −2). Hesap makinesi arctan(Rᵧ/Rₓ) = arctan(1) = 45° verir. R'nin gerçek yönü nedir (x ekseninden saat yönünün tersine)?",
-      options: ["45°", "135°", "225°", "315°"],
-      answer: 2,
-      explanation:
-        "İki bileşen de negatif: ok sola ve aşağı bakar, yani üçüncü çeyrektedir. arctan bu bilgiyi kaybeder; doğru açı 45° + 180° = 225°'dir. Sayfa atan2 kullandığı için aynı yönü −135° diye yazar; ikisi aynı oktur. Boyu ise √8 ≈ 2.83.",
+        "Hareketin iki bileşeni birbirinden bağımsızdır. Karşıya doğru hız v cos θ = 5 m/s'dir ve akıntıyı içermez: t = 100/5 = 20 s. Akıntı yalnızca kıyıya paralel bileşeni belirler: sürüklenme u·t, yani 2 × 20 = 40 m'den 4 × 20 = 80 m'ye çıkar. Yere göre hız gerçekten artar (5.39 m/s'den 6.40 m/s'ye), ama artan kısım karşıya değil yana doğrudur; yol uzar, süre uzamaz.",
     },
   ],
   next: [
     {
-      href: "matris-donusumleri.html",
-      title: "Matris Dönüşümleri",
-      why: "Okları bir makineye sok: 2×2 matris her vektörü döndürür, uzatır, büker. Döndürme açısını 90° yap: matrisin ilk sütunu (0, 1) olur, çünkü î artık ĵ'nin yerindedir.",
-    },
-    {
-      href: "birim-cember.html",
-      title: "Birim Çember",
-      why: "Boyu 1 olan bir okun bileşenleri tam olarak cos θ ve sin θ'dır. Açıyı 30° yap, cos θ = 0.866 oku; 3 ile çarpınca A'nın açılıştaki x bileşeni 2.60 çıkar.",
+      href: "newton-hareket-yasalari.html",
+      title: "Newton'un Hareket Yasaları: Kuvvet, Kütle ve İvme",
+      why: "ΣF = ma bir vektör denklemidir. Üç sekmede bir bloğu sürtünmeye karşı iter, bir arabayı asılı kütleyle çeker, iki arabayı yayla ayırırsın; her birinde ölçülen ivme kuramın yanında durur.",
     },
     {
       href: "atislar.html",
-      title: "Atış Simülasyonu",
-      why: "Bağımsız bileşenler iş başında: açı ve hız kaydırıcılarıyla seçtiğin ilk hız v·cos α ve v·sin α diye ikiye ayrılır; yatay pay sabit kalır, düşey pay g yüzünden değişir ve yol bir parabol olur.",
+      title: "Eğik Atış: Hava Direnci ve En İyi Açı",
+      why: "Bağımsız bileşenler iş başında: ilk hız yatay ve düşey paylara ayrılır. Oradaki açı taraması, buradaki dümen açısı taramasının kardeşidir; boşlukta yerden atışta en iyi açı 45°, havada daha azdır.",
     },
     {
-      href: "newton-hareket-yasalari.html",
-      title: "Newton'un Hareket Yasaları",
-      why: "Momentum da bir vektördür; bu tek boyutlu çarpışmada yönü yalnızca işaret taşır. Hız grafiğinde Top 1'in hızı +3'ten −3'e döner: büyüklük aynı, yön ters.",
+      href: "tork-denge.html",
+      title: "Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik",
+      why: "Anahtardaki r × F'yi kaldıraca, iki destekli kirişe ve duvara dayalı merdivene taşı. İşaret kuralı aynıdır: saat yönünün tersine dönme pozitif.",
+    },
+    {
+      href: "is-enerji.html",
+      title: "İş–Enerji İlkesi",
+      why: "Buradaki sürtünmesiz eğik düzleme sürtünmeyi ekle: eğim açısı ve sürtünme katsayısı kaydırıcılarıyla, rampadan kayan kutuda yerçekiminin işinin ne kadarının kinetik enerjiye dönüştüğünü izle.",
     },
   ],
   sources: [
@@ -260,23 +279,25 @@ window.ACELYA_DIGEST["vektorler"] = {
       title:
         "OpenStax · University Physics Vol. 1, 2.2 Coordinate Systems and Components of a Vector",
       url: "https://openstax.org/books/university-physics-volume-1/pages/2-2-coordinate-systems-and-components-of-a-vector",
-      note: "Bileşenler, büyüklük ve yön açısı; çözümlü örneklerle (İngilizce, açık ders kitabı).",
+      note: "Bileşenler, birim vektörler, büyüklük ve yön açısı; çözümlü örneklerle (İngilizce, açık ders kitabı).",
     },
     {
-      title: "PhET · Vektör Ekleme",
-      url: "https://phet.colorado.edu/tr/simulations/vector-addition",
-      note: "Okları sürükleyip yerleştirebildiğin, bileşenleri ayrıca çizen bir başka simülasyon; buradaki sonuçlarla karşılaştır.",
+      title:
+        "OpenStax · University Physics Vol. 1, 2.4 Products of Vectors",
+      url: "https://openstax.org/books/university-physics-volume-1/pages/2-4-products-of-vectors",
+      note: "Skaler ve vektörel çarpımın tanımları, bileşen formülleri; iş ve tork örnekleri (İngilizce).",
+    },
+    {
+      title:
+        "OpenStax · University Physics Vol. 1, 4.5 Relative Motion in One and Two Dimensions",
+      url: "https://openstax.org/books/university-physics-volume-1/pages/4-5-relative-motion-in-one-and-two-dimensions",
+      note: "İki boyutta bağıl hız ve hızların vektör toplamı; rüzgârda uçan uçak örneği (İngilizce).",
     },
     {
       title: "Wikipedia · Euclidean vector",
       url: "https://en.wikipedia.org/wiki/Euclidean_vector",
       note: "Tarihçe bölümü: Bellavitis, Hamilton, Grassmann, Gibbs ve Wilson; sözcüğün kökeni (İngilizce).",
     },
-    {
-      title: "3Blue1Brown · Linear Algebra",
-      url: "https://www.3blue1brown.com/topics/linear-algebra",
-      note: "Vektörden matrise, determinanttan özdeğere görsel bir yolculuk; köprü bölümünün doğal devamı (İngilizce).",
-    },
   ],
-  revision: "Ekim 2026",
+  revision: "Kasım 2026",
 };

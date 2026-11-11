@@ -270,8 +270,8 @@ window.ACELYA_DIGEST["termodinamik"] = {
     },
     {
       href: "otomotiv-muhendisligi.html",
-      title: "Otomotiv Mühendisliği",
-      why: "Otto çevriminin metal hâli: dört zamanlı motorun zamanlarını izle, benzinli ve dizel motorların sıkıştırma oranlarını karşılaştır.",
+      title: "Otomotiv Mühendisliği: Motor, Aktarma ve Araç Dinamiği",
+      why: "Otto çevriminin metal hâli: krank açısıyla eşzamanlı p–V döngüsünü izle, çevrim işinden torka ve güce geç; ardından vitesler, çekiş kuvveti ve frenleme.",
     },
   ],
   sources: [

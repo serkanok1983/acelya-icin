@@ -218,7 +218,7 @@ window.ACELYA_DIGEST["atislar"] = {
   next: [
     {
       href: "serbest-dusme.html",
-      title: "Serbest Düşme",
+      title: "Serbest Düşme: Galileo'dan Limit Hıza",
       why: "Atışın düşey yarısı tek başına: Galileo'nun rampaları, Ay'da çekiç ile tüy ve limit hıza giden düşüşün tam çözümü.",
     },
     {

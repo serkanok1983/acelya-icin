@@ -229,7 +229,7 @@ window.ACELYA_DIGEST["kaldirma-kuvveti"] = {
     },
     {
       href: "yay-kutle.html",
-      title: "Yay–Kütle (Basit Harmonik Hareket)",
+      title: "Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans",
       why: "Yüzen silindir, sertliği ρ<sub>s</sub>gA olan bir yaydı. Aynı T = 2π√(m/k) bağıntısını bu kez gerçek bir yayda, kütle ve yay sabiti kaydırıcılarıyla dene.",
     },
     {

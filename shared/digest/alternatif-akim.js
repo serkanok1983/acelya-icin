@@ -260,7 +260,7 @@ window.ACELYA_DIGEST["alternatif-akim"] = {
     },
     {
       href: "yay-kutle.html",
-      title: "Yay–Kütle Sistemi",
+      title: "Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans",
       why: "Aynı ikinci mertebe denklemin mekanik ikizi: kütle bobinin, yay sabiti 1/C'nin yerini alır. Kütle m ve Yay sabiti k ile ölçtüğün T = 2π√(m/k), buradaki 1/f₀ = 2π√(LC)'nin karşılığıdır.",
     },
     {

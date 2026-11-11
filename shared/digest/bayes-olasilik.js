@@ -256,7 +256,7 @@ window.ACELYA_DIGEST["bayes-olasilik"] = {
     },
     {
       href: "makine-ogrenmesi-derin-ogrenme-llm.html",
-      title: "Makine Öğrenmesi, Derin Öğrenme ve LLM",
+      title: "Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri",
       why: "Spam filtresi bir sınıflandırma örneği, softmax ise modelin çıktısını bir olasılık dağılımına çeviren katman: çözümlü örneğin büyük kardeşleri.",
     },
     {

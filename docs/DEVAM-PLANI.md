@@ -24,8 +24,11 @@ onayıyla `84e28e2` olarak main'e gönderildi ve elle yayımlandı; canlıda
 eşleşmesi doğrulandı.
 **11 Kasım, ikinci tur:** eski 36 defterin bağımsız doğrulaması tamamlandı
 (4.2); 160 defterin hepsi tam hattan geçmiş durumda. Kullanıcı onayıyla
-main'e gönderilip elle yayımlandı; paket sürümü **`acelya-b57bf83881`**. Sonraki öncelik
-**4.5: zayıf temel laboratuvarlar ve yeniden kurulum adayları**.
+main'e gönderilip elle yayımlandı; paket sürümü **`acelya-b57bf83881`**. **11 Kasım, üçüncü tur (G):** 4.5'teki on sekiz zayıf laboratuvar sıfırdan
+yeniden kuruldu; defterleri yeni sayfalara göre yazılıp bağımsız doğrulandı.
+Kullanıcı onayıyla main'e gönderilip elle yayımlandı; paket sürümü
+**`acelya-0aa90056b8`**. Kalan
+işler 4.4 (eski veri katmanları) ve 4.5'in sonunda listelenenlerdir.
 
 **10 Kasım yayın talimatı:** Kullanıcı her kodlama turunun sonunda `main`'e
 gönderim ve elle yayın istiyor; sonucu canlı siteden kontrol ediyor.
@@ -445,6 +448,29 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
   Toplumsal sayfalarda (makro, uluslararası ilişkiler, işletme) tartışmalı
   yargılar ekol/görüş olarak yeniden yazıldı; hızla eskiyen sayılar
   tarihlendi ya da çıkarıldı.
+- **11 Kasım, üçüncü tur (G: on sekiz laboratuvar):** `serbest-dusme`,
+  `newton-hareket-yasalari`, `yay-kutle`, `vektorler`, `integral`,
+  `dalga-superpozisyonu`, `hesaplama-teorisi`,
+  `makro-ekonomi-ve-para-politikalari`, `mikro-ekonomi-ve-uretim-faktorleri`,
+  `altin-oran`, `elektrikli-araclar`, `otomotiv-muhendisligi`,
+  `maden-muhendisligi`, `metalurji-ve-malzeme-muhendisligi`,
+  `uluslararasi-iliskiler`, `programlama-paradigmalari`, `veritabanlari`,
+  `makine-ogrenmesi-derin-ogrenme-llm` üç sekmeli laboratuvar olarak yeniden
+  kuruldu. Hat: kurucu (sayfa + `scripts/check-g-<slug>.mjs` + rapor) →
+  farklı yazar (defterin sayfaya bağlı bölümleri; doğrulanmış tarih korunur)
+  → üçüncü ajan (sayfanın bilimini kendi hesabıyla yeniden türetir, küçük
+  sayfa kusurlarını düzeltir, defteri çürütmeye çalışır). Ortak görev
+  tanımları `.shots/briefs/_kurucu-ortak.md`, `_yazar-ortak.md`,
+  `_dogrulayici-ortak.md`. Defter puanları 8–8,5'ten 9'a çıktı; hiçbir
+  çekirdekte formül hatası çıkmadı, düzeltmeler arayüz/metin/kenar
+  durumlarındaydı (en önemlisi: hesaplama teorisinde sayfayı donduran
+  indirgeme, makroda q = 0 işaret hatası, otomotivde tutmayan "=").
+  Toplam test: `npm run test:g`. Toplumsal sayfalar (makro, mikro,
+  uluslararası ilişkiler) varsayımları yazılı modellerdir; güncel rakam,
+  süren çatışma ve güncel aktör içermez. 46 defter bağlantısının başlığı ve
+  18 gerekçesi yeni sayfalara göre güncellendi. Kullanım limiti altı ajanı
+  yarıda kesti; hepsi `SendMessage` ile bağlamları korunarak sürdürüldü.
+  Ayrıntı ve açık kalanlar: `docs/simulasyon-notlari.md` → "G".
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
@@ -658,11 +684,26 @@ tablosu hataları). Öneri:
    Mandelbrot'un kırpılan −2 ucu, hatalı eşitlik
    kaçış testi ve eksik eksenleri B1'de düzeltildi.
    rastgele-yuruyus'taki √n karışıklığı A6'da düzeltildi.
-   Sırada defteri olan
-   ama laboratuvarı zayıf temel sayfalar: integral, vektorler, serbest-dusme,
-   yay-kutle, newton-hareket-yasalari, dalga-superpozisyonu (aynı yönlü iki
-   dalga, faz denetimi yok; duran dalgaların ön koşulu). Bunlar yeniden kurulursa
-   defterlerinin laboratuvar bölümü de yeniden yazılmalı (kurucu raporu ile).
+   11 Kasım'da (G) on sekiz sayfa daha yeniden kuruldu: integral, vektorler,
+   serbest-dusme, yay-kutle, newton-hareket-yasalari, dalga-superpozisyonu,
+   hesaplama-teorisi, makro ve mikro ekonomi, altin-oran, elektrikli-araclar,
+   otomotiv, maden, metalurji, uluslararasi-iliskiler,
+   programlama-paradigmalari, veritabanlari, makine-ogrenmesi.
+   **Sırada**, düzeltilmiş ama laboratuvar düzeyine çıkarılmamış sayfalar
+   (çoğu kart ağırlıklı; ayrıntı `docs/simulasyon-notlari.md` → "eski 36
+   defter"): elektrokimya, sicim-teorisi, bicimsel-diller-ve-otomata-teorisi,
+   algoritmalar, veri-yapilari, bilgisayar-sistemleri-ve-mimarisi,
+   makine-dili-assembly-c, isaretciler-ve-bellek-yonetimi,
+   isletim-sistemleri-ve-linux, derleyici-ve-yorumlayicilar,
+   tasarim-desenleri, yazilim-muhendisligi, internet-ve-ag-teknolojileri,
+   siber-guvenlik, elektronik-muhendisligi, mantik-devresi,
+   makine-muhendisligi, plc-hidrolik-pnomatik-cnc-cadcam,
+   ucak-muhendisligi-ve-aerodinamik, otonom-araclar-ve-iha,
+   isletme-bilimi-ve-yonetim; ayrıca 31 Ekim–1 Kasım'da defterlenip hiç
+   yeniden kurulmamış eski temel sayfalar (is-enerji, dairesel-hareket,
+   manyetik-alan, kepler-yasalari, matris-donusumleri, fonksiyon-grafigi,
+   bayes-olasilik, kimya ve biyoloji sayfaları). Bir sayfa yeniden kurulursa
+   G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.
 

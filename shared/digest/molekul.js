@@ -125,7 +125,7 @@ window.ACELYA_DIGEST["molekul"] = {
   ],
   next: [
     { href: "molekul-sekli.html", title: "Molekül şekli: elektron çiftlerinden geometriye", why: "Su açısal, metan dörtyüzlü: bağlar ve ortaklanmamış çiftlerin geometriyle ilişkisini derinleştir." },
-    { href: "yay-kutle.html", title: "Yay–kütle: molekülün küçük salınım akrabası", why: "T = 2π√(m/k) bağıntısını makroskopik bir sistemde dene; indirgenmiş kütlenin rolünü karşılaştır." },
+    { href: "yay-kutle.html", title: "Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans", why: "T = 2π√(m/k) bağıntısını makroskopik bir sistemde dene; indirgenmiş kütlenin rolünü karşılaştır." },
     { href: "atom-orbitalleri.html", title: "Atom orbitalleri: çubukların ardındaki kuantum dili", why: "Elektronu küçük bir top olarak düşünmenin sınırlarını gör; moleküler orbital kuramının ön koşullarına yaklaş." },
     { href: "taylor-serisi.html", title: "Taylor serisi: eğrinin dibindeki parabol", why: "Morse potansiyelinin küçük bir bölgede neden harmonik göründüğünü yaklaşım matematiğiyle incele." }
   ],

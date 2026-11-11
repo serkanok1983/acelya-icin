@@ -127,7 +127,7 @@ window.ACELYA_DIGEST["ses-sentezleyici"] = {
   next: [
     { href: "fourier-ses.html", title: "Fourier: Ses ve Örnekleme", why: "Tınıdaki bileşenleri ayrı ayrı kur; sonlu kayıtta frekans kutularını ve pencere etkisini incele." },
     { href: "duran-dalgalar.html", title: "Duran Dalgalar", why: "Elektronik osilatör yerine tel ve hava sütununda hangi frekansların seçildiğini gör." },
-    { href: "integral.html", title: "İntegral", why: "Zarfın ortalama karesini alan ve birikim hesabıyla yeniden türet." },
+    { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Zarfın ortalama karesini alan ve birikim hesabıyla yeniden türet." },
   ],
   sources: [
     { title: "W3C · Web Audio API", url: "https://www.w3.org/TR/2021/REC-webaudio-20210617/", note: "§1.6 doğrusal AudioParam rampaları; §1.13.5 dijital filtre katsayıları ve fark denklemi; OfflineAudioContext ve osilatör modeli. Birincil teknik standart." },

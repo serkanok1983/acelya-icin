@@ -215,7 +215,7 @@ window.ACELYA_DIGEST["riemann-toplamlari"] = {
     },
   ],
   next: [
-    { href: "integral.html", title: "İntegral", why: "Riemann toplamının limiti olarak belirli integral, kalkülüsün temel teoremi ve Simpson kuralının Kepler'in şarap fıçısına uzanan öyküsü." },
+    { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Toplamların vardığı yer: imleci sürüklerken biriken işaretli alan, eğimi f(x) olan birikim fonksiyonu ve kalkülüsün temel teoremi; ardından hacimler ve has olmayan integraller." },
     { href: "taylor-serisi.html", title: "Taylor Serisi", why: "Bu sayfadaki hata terimlerinin kaynağı: bir dilimde f'yi Taylor polinomuyla açınca Δx, Δx², Δx⁴ kuvvetleri ortaya çıkar; Lagrange kalanı hata sınırını verir." },
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "Monte Carlo tahmini bir örneklem ortalamasıdır: merkezi limit teoremi hatanın neden çan eğrisine uyduğunu ve ±σ/√n'nin ne sıklıkla ıskaladığını gösterir." },
     { href: "tek-sayi-toplam4.html", title: "Farklar ve Toplamlar", why: "2x'in orta nokta toplamını tek sayılarla ilişkilendir; doğrusal fonksiyonda tam çıkan hesabın x² için neden hata verdiğini karşılaştır." },

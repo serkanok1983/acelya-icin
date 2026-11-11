@@ -192,7 +192,7 @@ window.ACELYA_DIGEST["bicimsel-diller-ve-otomata-teorisi"] = {
     },
   ],
   next: [
-    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi", why: "Hiyerarşinin tepesinden sonrası: durma probleminin beş adımlık kanıtı, lambda hesabı türetmeleri ve karar verilebilirlik tablosu." },
+    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "Hiyerarşinin tepesinden sonrası: tablosunu düzenleyebildiğin gerçek bir Turing makinesi, adım adım çalışan bir lambda indirgeyicisi ve köşegen tablosuyla durma probleminin kanıtı." },
     { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "Düzenli ifade sözcükleri, bağlamdan bağımsız gramer yapıyı tanır: tokenleştirici simülatörü ve sözdizimi ağacıyla kuramın derleyiciye dönüşmesi." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "Çözülebilen problemler ne kadar pahalı? Big-O ve büyüme sınıflarını karşılaştıran etkileşimli grafik." },
     { href: "yasam-oyunu.html", title: "Yaşam Oyunu", why: "İki kurallı bir hücresel otomatın Turing makinesi kadar güçlü olması: evrenselliğin en yalın yüzlerinden biri." },

@@ -54,7 +54,7 @@ const SOURCE_PREFIXES = [
   "https://www.computerhistory.org/",
   "https://www.cryptomuseum.com/", "https://www.codesandciphers.org.uk/", "https://blog.sciencemuseum.org.uk/",
   "https://www.cs.cornell.edu/", "https://courses.cs.cornell.edu/",
-  "https://xlinux.nist.gov/dads/", "https://inst.eecs.berkeley.edu/~cs188/", "https://en.bilgem.tubitak.gov.tr/",
+  "https://xlinux.nist.gov/dads/", "https://www.postgresql.org/docs/", "https://www.sqlite.org/", "https://inst.eecs.berkeley.edu/~cs188/", "https://en.bilgem.tubitak.gov.tr/",
   "https://alvyray.com/",
   "https://newt.phys.unsw.edu.au/",
   "https://penelope.uchicago.edu/",

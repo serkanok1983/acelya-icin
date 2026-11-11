@@ -136,6 +136,7 @@ emin değilsen kitabın ana sayfasını ver.
 - https://www.computerhistory.org/ (Computer History Museum, hesap makineleri ve bilgisayar tarihi)
 - https://www.cryptomuseum.com/ · https://www.codesandciphers.org.uk/ · https://blog.sciencemuseum.org.uk/ (özgün şifreleme aygıtları, teknik incelemeler ve müze araştırmaları)
 - https://www.cs.cornell.edu/ · https://courses.cs.cornell.edu/ (bilgisayar bilimi ders notları)
+- https://www.postgresql.org/docs/ · https://www.sqlite.org/ (veritabanı sistemlerinin birincil belgeleri: yalıtım düzeyleri, NULL davranışı)
 - https://xlinux.nist.gov/dads/ · https://inst.eecs.berkeley.edu/~cs188/ (algoritma tanımları ve arama yöntemleri)
 - https://en.bilgem.tubitak.gov.tr/ (TÜBİTAK BİLGEM kriptoloji etkinlikleri)
 - https://alvyray.com/ (Alvy Ray Smith'in özgün renk dönüşümü makaleleri)

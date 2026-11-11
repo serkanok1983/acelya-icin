@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["yazilim-muhendisligi"] = {
   ],
   next: [
     { href: "tasarim-desenleri.html", title: "Tasarım Desenleri", why: "Bu sayfadaki on beş kartın ötesi: 23 desenin hepsi, her biri için UML, kod, artı-eksi ve desenler arası ilişki haritası." },
-    { href: "programlama-paradigmalari.html", title: "Programlama Paradigmaları", why: "SOLID'in dayandığı nesne yönelimi, fonksiyonel düşünceyle yan yana: aynı sorunu farklı dillerde çözmek." },
+    { href: "programlama-paradigmalari.html", title: "Programlama Paradigmaları: Aynı Problem, Farklı Düşünme Biçimleri", why: "SOLID’in dayandığı nesne yönelimi, fonksiyonel ve mantıksal düşünceyle yan yana: aynı sorunun farklı paradigmalarda adım adım çözülüşü." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "n(n−1)/2'nin neden 'O(n²)' olduğunu ve ölçeğin neden her şeyi değiştirdiğini matematiğiyle gör." },
     { href: "siber-guvenlik.html", title: "Siber Güvenlik ve Kriptografi", why: "Commit kimliklerini üreten özet fonksiyonları ve 'geçmişi sessizce değiştiremezsin' sözünün kriptografik temeli." },
   ],

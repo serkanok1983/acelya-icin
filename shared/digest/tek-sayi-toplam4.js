@@ -152,7 +152,7 @@ window.ACELYA_DIGEST["tek-sayi-toplam4"] = {
     { href: "tek-sayi-toplam3.html", title: "Tek Sayılardan Kareye", why: "Aynı özdeşliği kareye eklenen katmanlar ve tam sayı bütçesiyle incele." },
     { href: "tek-sayi-toplam5.html", title: "Tek Sayılar: Toplamdan Seriye", why: "Tek sayılara geometrik ağırlık ekle; sonlu toplamı sonsuz seri ve kalan hedefinden ayır." },
     { href: "turev.html", title: "Türev", why: "Birim adımlı sonlu farktan, adım küçülürken ortaya çıkan değişim hızına geç." },
-    { href: "integral.html", title: "İntegral", why: "Dikdörtgen toplamı ile integral arasındaki bağı daha geniş bir laboratuvarda sürdür." },
+    { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Dikdörtgen toplamı ile integral arasındaki bağı daha geniş bir laboratuvarda sürdür." },
   ],
   sources: [
     { title: "Computer History Museum · The Engines", url: "https://www.computerhistory.org/babbage/engines/", note: "Babbage'ın 1821 başlangıcı, yalnız toplamaya dayanan fark makineleri, 1847–1849 No. 2 tasarımı ve yaşamında yalnız kısmi düzeneklerin tamamlanması." },

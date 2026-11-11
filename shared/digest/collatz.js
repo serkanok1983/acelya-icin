@@ -125,7 +125,7 @@ window.ACELYA_DIGEST["collatz"] = {
     { question: "Tek 13 için 3·13 + 1 = 40 = 2³·5. 13'ten sonraki tek sayı 5'e geçiş kaç standart adımdır?", options: ["1 adım; tek bir sıçrama var", "3 adım; üs üç", "4 adım; bir 3n + 1 ve üç bölme", "5 adım; varılan sayı beş"], answer: 2, explanation: "13 → 40 → 20 → 10 → 5, dört T dönüşümüdür. Tekten teke S haritasında aynı yol bir sıçrama olarak sayılır. İki sayaç farklı şeyleri sayar." },
   ],
   next: [
-    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi", why: "Bir hesabı çalıştırmakla bütün girdilerde sonlandığını göstermek arasındaki farkı derinleştir." },
+    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "Bir hesabı çalıştırmakla bütün girdilerde sonlandığını göstermek arasındaki farkı derinleştir." },
     { href: "cizge-teorisi.html", title: "Çizge Teorisi", why: "Yörüngeleri düğüm ve oklarla düşün; birleşen yolları ve döngüleri yapısal olarak incele." },
     { href: "asal-rsa.html", title: "Asal Sayılar ve RSA", why: "Teklik, çiftlik ve mod 4 sınıflarından daha geniş modüler aritmetik deneylerine geç." },
     { href: "lorenz-cekici.html", title: "Lorenz Çekicisi", why: "Kesin kurallarla belirlenen başka bir dinamik sistemde davranışın nasıl incelendiğini karşılaştır." },

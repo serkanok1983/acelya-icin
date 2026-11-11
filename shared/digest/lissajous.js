@@ -195,8 +195,8 @@ window.ACELYA_DIGEST["lissajous"] = {
     },
   ],
   next: [
-    { href: "yay-kutle.html", title: "Yay–Kütle", why: "Buradaki iki yayın her biri, tek boyutta aynı denklemi çözer: x'' + (k/m)x = 0." },
-    { href: "dalga-superpozisyonu.html", title: "Dalga Süperpozisyonu", why: "Osiloskoptaki iki saniyelik turun işitsel kuzeni vurudur; periyot yine 1/|f₁ − f₂|'dir." },
+    { href: "yay-kutle.html", title: "Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans", why: "Buradaki iki yayın her biri, tek boyutta aynı denklemi çözer: x'' + (k/m)x = 0." },
+    { href: "dalga-superpozisyonu.html", title: "Dalga Süperpozisyonu: Girişim, Vuru ve Dalga Paketleri", why: "Osiloskoptaki iki saniyelik turun işitsel kuzeni vurudur; periyot yine 1/|f₁ − f₂|'dir." },
     { href: "konik-kesitler.html", title: "Konik Kesitler", why: "1:1 bir elips, A = B ve 90° bir çember, 2:1 ve 90° ise x = 1 − 2y² parabolüdür." },
     { href: "cift-sarkac.html", title: "Çift Sarkaç", why: "Sarkaçlar birbirine bağlanınca ayrışma biter; kapanan eğrinin yerini kaotik hareket alır." },
   ],

@@ -180,10 +180,10 @@ window.ACELYA_DIGEST["isletme-bilimi-ve-yonetim"] = {
     },
   ],
   next: [
-    { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi ve Üretim Faktörleri", why: "Fiyat miktara bağlı olunca doğrular eğriye döner: arz-talep, marjinal maliyet ve 'marjinal gelir = marjinal maliyet' kuralı oradaki maliyet analizi kartlarında." },
+    { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma", why: "Fiyat miktara bağlı olunca doğrular eğriye döner: arz–talep dengesi, vergi ve refah kaybı; firma sekmesinde marjinal maliyetin ortalama maliyeti en düşük noktasında kesişi ve P = MC kuralı." },
     { href: "uretim-planlama-ve-endustri-muhendisligi.html", title: "Üretim Planlama: Stok, Kalite ve Akış", why: "Sipariş miktarı, kontrol grafikleri ve darboğaz deneyleri: birim maliyeti düşürmenin mühendisliği, kaydırıcılarla." },
     { href: "yoneylem-arastirmasi.html", title: "Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol", why: "Tek ürün yerine birkaç ürün ve kısıt varken en kârlı karma, uygun bölgenin köşelerinde aranır; eş kâr doğrusu bu sayfadaki kâr denkleminin iki boyutlusudur." },
-    { href: "makro-ekonomi-ve-para-politikalari.html", title: "Makro Ekonomi ve Para Politikaları", why: "Sayfadaki kamu maliyesi kartlarının devamı: Keynesyen çarpan, enflasyon ve merkez bankasının faiz araçları." },
+    { href: "makro-ekonomi-ve-para-politikalari.html", title: "Makro Ekonomi: Çarpanlar, Para ve Büyüme Modelleri", why: "Tek işletmeden bütün ekonomiye: harcama çarpanının tur tur toplanışı, enflasyonun bileşik etkisi ve Taylor kuralıyla faiz; hepsi varsayımları yazılı modeller olarak." },
   ],
   sources: [
     { title: "OpenStax · Principles of Accounting, Vol. 2: Managerial Accounting", url: "https://openstax.org/details/books/principles-managerial-accounting", note: "Maliyet-hacim-kâr analizi, katkı payı, başabaş, güvenlik payı ve faaliyet kaldıracı (İngilizce, açık ders kitabı)." },

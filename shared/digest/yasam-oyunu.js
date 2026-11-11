@@ -202,7 +202,7 @@ window.ACELYA_DIGEST["yasam-oyunu"] = {
     },
   ],
   next: [
-    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi", why: "Turing makinesi, durma problemi ve karar verilemezlik: planörlerle kurulan bilgisayarın kuramsal sınırları." },
+    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "Turing makinesi, durma problemi ve karar verilemezlik: planörlerle kurulan bilgisayarın kuramsal sınırları." },
     { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata Teorisi", why: "Sonlu durumlu makineler: bu sayfadaki simidin neden yalnızca çok büyük bir sonlu otomat olduğunu gör." },
     { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Planör akışlarından kurulan VE, VEYA, DEĞİL kapılarının gerçek devrelerdeki karşılığı." },
     { href: "av-avci-lotka-volterra.html", title: "Av–Avcı Modeli", why: "Nüfus dalgalanmasının sürekli denklemlerle anlatımı; yerel kural yerine oranlar ve türevler." },

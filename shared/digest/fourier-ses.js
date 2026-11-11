@@ -127,7 +127,7 @@ window.ACELYA_DIGEST["fourier-ses"] = {
   next: [
     { href: "ses-sentezleyici.html", title: "Ses Sentezi: Zarf ve Tını", why: "Sabit spektrumdan zamanla değişen genliğe geç; sesin başlangıç ve bitişini zarfla kur." },
     { href: "duran-dalgalar.html", title: "Duran Dalgalar", why: "Tam sayı harmoniklerinin tel ve hava sütununun sınır koşullarından nasıl doğduğunu incele." },
-    { href: "integral.html", title: "İntegral", why: "RMS'deki zaman ortalamasını sonlu toplam ve integral arasındaki ilişkiyle yeniden kur." },
+    { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "RMS'deki zaman ortalamasını sonlu toplam ve integral arasındaki ilişkiyle yeniden kur." },
   ],
   sources: [
     { title: "MIT OpenCourseWare · Sampling and the Discrete Fourier Transform", url: "https://ocw.mit.edu/courses/2-161-signal-processing-continuous-and-discrete-fall-2008/80ec6fb9bd027f30adcdc16577e8ab16_samplingdft.pdf", note: "Derek Rowell'in ders notu; örnekleme ve katlanma, DFT/FFT ayrımı, kayıt süresi ve pencereleme. PDF §1, §4 ve §5; İngilizce." },

@@ -193,7 +193,7 @@ window.ACELYA_DIGEST["pong"] = {
   next: [
     { href: "breakout.html", title: "Tuğla Kırmaca (Breakout)", why: "Aynı top, aynı raket kuralı; bu kez üstte kırılacak tuğlalar var. Yansıma geometrisini bir adım ileri taşı." },
     { href: "optik-yansima-kirilma.html", title: "Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma", why: "Duvardaki sekmenin fizik dersi karşılığı: geliş açısı eşittir yansıma açısı, bu kez ışıkla; üstüne kırılma ve tam iç yansıma." },
-    { href: "vektorler.html", title: "Vektörler", why: "İki oku büyüklük ve açı kaydırıcılarıyla kur, uç uca ekle; v·cos θ ve v·sin θ'nın geldiği yer." },
+    { href: "vektorler.html", title: "Vektörler: Bileşenler, Çarpımlar ve Bağıl Hareket", why: "İki oku ucundan sürükleyerek ya da büyüklük ve açısını yazarak kur, uç uca ekle; v·cos θ ve v·sin θ’nın geldiği yer." },
     { href: "birim-cember.html", title: "Birim Çember: Sinüs, Kosinüs ve Dönmeler", why: "Raket açısını hıza çeviren sinüs ve kosinüsü çember üzerinde gör." },
   ],
   sources: [

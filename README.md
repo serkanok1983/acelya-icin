@@ -65,6 +65,7 @@ npm run test:f1      # Elektrostatik, basit makineler ve statik: bağımsız fiz
 npm run test:f2      # Mukavemet, çelik, hidrolik ve boru–pompa: fizik, sınır durumları ve mobil tarayıcı kontrolleri
 npm run test:d       # Yöneylem, üretim planlama, elektrik, kimya ve gemi makineleri laboratuvarları: bağımsız hesap ve tarayıcı kontrolleri
 npm run test:e       # Gezegen Savunması: Kepler, korunum, çarpışma ve oyun dengesi kontrolleri
+npm run test:g       # Yeniden kurulan 18 laboratuvar: bağımsız hesap ve tarayıcı kontrolleri (tek sayfa: node scripts/check-g-all.mjs --only <slug>)
 npm run test:public  # girişsiz erişim, eski oturum temizliği ve yerel rekorlar
 npm run shot -- sarkac --theme light --scroll digest   # ekran görüntüsü
 ```

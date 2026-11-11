@@ -215,7 +215,7 @@ window.ACELYA_DIGEST["pisagor"] = {
     },
   ],
   next: [
-    { href: "vektorler.html", title: "Vektörler", why: "Bir okun boyu √(x² + y²)'dir; aradaki açı kosinüs teoremiyle dolar. Dik oklarda cos 90° = 0 olduğu için çapraz terim düşer." },
+    { href: "vektorler.html", title: "Vektörler: Bileşenler, Çarpımlar ve Bağıl Hareket", why: "Bir okun boyu √(x² + y²)'dir; aradaki açı kosinüs teoremiyle dolar. Dik oklarda cos 90° = 0 olduğu için çapraz terim düşer." },
     { href: "birim-cember.html", title: "Birim Çember", why: "cos γ ve sin γ, yarıçapı 1 olan çemberdeki noktanın iki koordinatıdır. Buradaki cos 60° = 1/2 ve cos 120° = −1/2 orada okunur." },
     { href: "konik-kesitler.html", title: "Konik Kesitler", why: "Üçlüler grafiğindeki isteğe bağlı eğriler, odağı başlangıçta olan parabollerdir. Konik sayfası parabolü, elipsi ve hiperbolü tek bir dışmerkezlikle kurar." },
     { href: "gorelilik-uzayzaman.html", title: "Özel Görelilik", why: "Işık saati bir dik üçgendir; ayrıntı o sayfadadır. Buradaki küresel üçgen ise düz uzay bitince açılar toplamının neden 180°'de kalmadığını gösterir." },

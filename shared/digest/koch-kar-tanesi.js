@@ -161,7 +161,7 @@ window.ACELYA_DIGEST["koch-kar-tanesi"] = {
     },
   ],
   next: [
-    { href: "integral.html", title: "İntegral", why: "Alanı sonlu toplamlarla yaklaştırıp limite götürmenin başka bir yolunu incele." },
+    { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Alanı sonlu toplamlarla yaklaştırıp limite götürmenin başka bir yolunu incele." },
     { href: "hilbert-egrisi.html", title: "Hilbert Eğrisi", why: "Sonlu çizim ile limit nesnesini ayır; bir sürekli eğrinin kareyi doldurmasıyla karşılaştır." },
     { href: "julia-fraktali.html", title: "Julia Fraktalı", why: "Geometrik yerine cebirsel bir yineleme kullan; sonlu hesapla limit kümesi arasındaki ayrımı sürdür." },
   ],

@@ -228,8 +228,8 @@ window.ACELYA_DIGEST["elektronik-devre"] = {
     },
     {
       href: "yay-kutle.html",
-      title: "Yay–Kütle Sistemi",
-      why: "RLC'nin sönümsüz mekanik ikizi: Kütle m ve Yay sabiti k kaydırıcılarını değiştirirken ekranda okuduğun T = 2π√(m/k), buradaki 2π√(LC)'nin karşılığıdır (L ↔ m, 1/C ↔ k).",
+      title: "Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans",
+      why: "RLC’nin mekanik ikizi: kütle bobinin, yay sabiti 1/C’nin, sönüm de direncin yerini alır. Periyodu T = 2π√(m/k) ile ölç, sonra sönümün üç rejimini ve rezonans eğrisini aynı denklemin öteki yüzü olarak gör.",
     },
     {
       href: "diferansiyel-denklemler.html",

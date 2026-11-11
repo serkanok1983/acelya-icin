@@ -29,7 +29,7 @@ window.ACELYA_CATALOG = {
     "tagline": "Bir çubuğu öyle böl ki kalan parça bütünün küçük kopyası olsun: φ = 1,618… Beşgende, Fibonacci dizisinde ve ayçiçeğinin sarmallarında gerçekten var; Parthenon'da ve insan yüzünde ise çoğunlukla sonradan uydurulmuş.",
     "field": "Matematik",
     "level": "Lise–Lisans",
-    "minutes": 30
+    "minutes": 35
   },
   "asal-rsa": {
     "title": "Asal Sayılar ve RSA: Elekten Şifreye",
@@ -180,10 +180,10 @@ window.ACELYA_CATALOG = {
   },
   "dalga-superpozisyonu": {
     "title": "Dalga Süperpozisyonu: Sesle Sessizlik Yapmak",
-    "tagline": "İki dalga karşılaştığında yalnızca toplanır; ama bu basit toplama, ışığın dalga olduğunu kanıtladı, kulaklıklara sessizlik getirdi ve kara deliklerin çarpışmasını duydu.",
+    "tagline": "İki dalga karşılaşınca yalnızca toplanır. Bu tek kural girişimi, duran dalgayı, vuruyu ve dalga paketini doğurur; laboratuvarda dördünü de ölç ve kuramla karşılaştır.",
     "field": "Fizik",
-    "level": "Lise",
-    "minutes": 25
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "denklem-denklestirme": {
     "title": "Denklem Denkleştirme: Atom Sayımından Sıfır Uzayına",
@@ -243,10 +243,10 @@ window.ACELYA_CATALOG = {
   },
   "elektrikli-araclar": {
     "title": "Elektrikli Araçlar: Pilden Tekerleğe Enerji",
-    "tagline": "Saatte 100 kilometreyi aşan ilk otomobil 1899'da elektrikliydi. Yüz yıl kaybolup bir telefon piliyle geri döndü: bataryadan tekerleğe giden enerjinin muhasebesi.",
+    "tagline": "Menzili en çok uzatan hız neden saatte 30 kilometre, kışın neden 55? Yolun istediği kuvvetten bataryaya, şarj eğrisinden motor zarfına bir elektrikli aracın enerji hesabını kur ve kuramla karşılaştır.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 30
+    "minutes": 35
   },
   "elektrokimya": {
     "title": "Elektrokimya: Pilin İçindeki Merdiven",
@@ -390,10 +390,10 @@ window.ACELYA_CATALOG = {
   },
   "hesaplama-teorisi": {
     "title": "Hesaplama Teorisi: Makinelerin Yapamayacağı Şeyler",
-    "tagline": "1936'da, daha ortada tek bir bilgisayar yokken, 'hesaplamak' sözcüğü tanımlandı ve aynı yıl hiçbir bilgisayarın asla cevaplayamayacağı bir soru bulundu. Bu sayfa o tanımın ve o sorunun hikâyesi.",
+    "tagline": "1936'da, ortada tek bir bilgisayar yokken 'hesaplamak' sözcüğü tanımlandı ve hiçbir makinenin cevaplayamayacağı bir soru bulundu. Burada o makineyi kendin kurar, o soruya köşegende kendi gözünle bakarsın.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "hidrolik-sistemler": {
     "title": "Hidrolik Sistemler: Debi, Yük ve Güç",
@@ -417,11 +417,11 @@ window.ACELYA_CATALOG = {
     "minutes": 35
   },
   "integral": {
-    "title": "İntegral: Sonsuz İnce Dilimlerin Toplamı",
-    "tagline": "Arşimet bir parabolün alanını dilimleyerek buldu, Leibniz o dilimlerin toplamına uzun bir S çizdi. İntegral, küçük katkıları biriktirip tek ve kesin bir sayıya varmanın sanatıdır.",
+    "title": "İntegral: Birikimin Hesabı",
+    "tagline": "Hızdan yolu, kuvvetten işi, eğriden hacmi veren tek fikir: birikim. Temel teoremi kendi elinle ölç, küreyi iki ayrı yoldan dilimle, sonsuza uzanan bir borunun hacminin neden π'yi aşamadığını gör.",
     "field": "Matematik",
-    "level": "Lise",
-    "minutes": 30
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "internet-ve-ag-teknolojileri": {
     "title": "İnternet: Paketlerin Dünya Turu",
@@ -600,10 +600,10 @@ window.ACELYA_CATALOG = {
   },
   "maden-muhendisligi": {
     "title": "Maden Mühendisliği: Kayadan Metale Giden Yol",
-    "tagline": "Bir ton kayada bir gram altın, yüz tonda bir ton bakır: maden mühendisi, değersiz görünen taşı bulan, çıkaran ve ayıran kişidir. Sayfadaki kartlar bu yolun duraklarıdır.",
+    "tagline": "Yüz ton kayanın bir tonu bakırsa hangi blok kazılır, hangi tane yüzdürülür, değirmen ve fan kaç kilovat ister? Üç sekmeli laboratuvarda madenciliğin hesabını kütle dengesi ve parayla kendin yap.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "makine-dili-assembly-c": {
     "title": "Makine Dili, Assembly ve C: Soyutlamanın Üç Katı",
@@ -621,17 +621,17 @@ window.ACELYA_CATALOG = {
   },
   "makine-ogrenmesi-derin-ogrenme-llm": {
     "title": "Makine Öğrenmesi: Hatadan Öğrenen Makineler",
-    "tagline": "Sayfadaki ağın dokuz ağırlığı var; 2020'de GPT-3'ün 175 milyardı. İkisi de aynı şeyi yapar: tahmin et, hatayı ölç, her sayıyı eğimin tersine bir tık kaydır. Öğrenme dediğimiz şey, bu üç adımın milyarlarca kez tekrarıdır.",
+    "tagline": "Tahmin et, hatayı ölç, her sayıyı eğimin tersine azıcık kaydır. Sayfadaki 17 parametreli ağ da, 2020'de 175 milyar parametreli GPT-3 de böyle eğitildi. Üç sekmede bu adımı kendin atıp kuramla karşılaştırıyorsun.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 40
+    "minutes": 45
   },
   "makro-ekonomi-ve-para-politikalari": {
-    "title": "Makroekonomi: Faiz, Fiyat ve Paranın Büyük Resmi",
-    "tagline": "Bir ülkenin bütün alışverişini dört harfe sığdıran özdeşlik, altı sıfırı atılan bir lira ve iktisatçıların yüz yıldır bitmeyen kavgası: harcama mı, para mı, beklenti mi? Kartları oku, hesabı kendin yap.",
+    "title": "Makroekonomi: Çarpan, Para, Faiz ve Büyüme Modelleri",
+    "tagline": "Çarpanı tur tur say, 70 kuralının nerede şaştığını ölç, Taylor kuralında tek bir işareti çevir, Solow modelinde tasarrufu ikiye katla. Her model varsayımlarıyla, her sonuç itirazlarıyla birlikte.",
     "field": "Toplum ve Ekonomi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "mandelbrot+lorenz": {
     "title": "Harita ve Akış: Kuraldan Yörüngeye",
@@ -698,17 +698,17 @@ window.ACELYA_CATALOG = {
   },
   "metalurji-ve-malzeme-muhendisligi": {
     "title": "Metalurji ve Malzeme: Atomların Dizilişi, Çeliğin Kaderi",
-    "tagline": "Aynı demir, aynı karbon; birkaç saniyelik soğutma farkı yumuşak bir çubuğu cam gibi sert bir bıçağa çevirir. Malzeme mühendisliği, atomların dizilişini okuyup yeniden yazma sanatıdır.",
+    "tagline": "Aynı demir, aynı karbon; birkaç saniyelik soğutma farkı yumuşak bir çubuğu cam gibi sert bir bıçağa çevirir. Faz diyagramını oku, bir numuneyi kopana dek çek, karbonu çeliğin içine yürüt.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "mikro-ekonomi-ve-uretim-faktorleri": {
     "title": "Mikroekonomi: Kıtlık, Fiyat ve Seçim",
-    "tagline": "Su hayat kurtarır, elmas kimseyi kurtarmaz; yine de elmasa servet ödenir. Bu bilmeceyi 'son bardak' fikri çözdü. Sayfadaki iki grafikte denge fiyatını ve tüketicinin en iyi sepetini düğmelerle kendin oynat.",
+    "tagline": "Su hayat kurtarır ama ucuzdur; elmas kimseyi kurtarmaz ama pahalıdır. Üç sekmede denge fiyatını, vergi yükünü, tüketicinin sepetini ve firmanın maliyet eğrilerini önce ölç, sonra formülle karşılaştır.",
     "field": "Toplum ve Ekonomi",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "mitoz-mayoz": {
     "title": "Mitoz ve Mayoz: Kopyalamak ve Karıştırmak",
@@ -739,11 +739,11 @@ window.ACELYA_CATALOG = {
     "minutes": 35
   },
   "newton-hareket-yasalari": {
-    "title": "Newton Yasaları: Kuvvet, Değişim ve Bir Çarpışma",
-    "tagline": "Newton'un üç yasası iki topun tek bir çarpışmasına sığar: kuvvet yokken dümdüz giden toplar, temas anında eşit ve zıt iki itme, önce de sonra da kuruşu kuruşuna aynı kalan toplam momentum.",
+    "title": "Newton Yasaları: Kuvvet, Kütle ve İvme",
+    "tagline": "Bir bloğu it, sürtünmenin itmene nasıl yanıt verdiğini ölç; asılı kütleyle bir arabayı çekip a–F doğrusundan kütleyi tart; yayla ayrılan iki arabada etki ile tepkiyi yan yana gör.",
     "field": "Fizik",
-    "level": "Lise",
-    "minutes": 30
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "normal-dagilim": {
     "title": "Normal Dağılım: Toplanan Rastlantıların Çan Eğrisi",
@@ -767,11 +767,11 @@ window.ACELYA_CATALOG = {
     "minutes": 35
   },
   "otomotiv-muhendisligi": {
-    "title": "Otomotiv Mühendisliği: Patlamadan Tekerleğe",
-    "tagline": "Bir otomobil, saniyede yüz kez tekrarlanan küçük patlamaları düzgün bir dönüşe, o dönüşü de yola çeviren makinedir. Motordan frene her parçası birkaç basit fizik yasasının ürünüdür.",
+    "title": "Otomotiv Mühendisliği: Pistondan Tekerleğe, Tekerlekten Yola",
+    "tagline": "Pistonun gidip gelişi nasıl dönüşe, dönüş çekiş kuvvetine, kuvvet hıza ve durma mesafesine dönüşür? Krank-biyeli, Otto çevrimini, vitesi, freni ve virajı üç sekmede ölç, formülle karşılaştır.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
-    "minutes": 35
+    "minutes": 40
   },
   "otonom-araclar-ve-iha": {
     "title": "Otonom Araçlar ve İHA: Gören, Planlayan, Düzelten Makineler",
@@ -844,11 +844,11 @@ window.ACELYA_CATALOG = {
     "minutes": 25
   },
   "programlama-paradigmalari": {
-    "title": "Programlama Paradigmaları: Aynı Soruya Beş Kafa",
-    "tagline": "1936'da iki matematikçi 'hesaplamak nedir' sorusuna iki farklı cevap verdi; biri bugünkü döngülerin, öteki map ve filter'ın atasıdır. Aynı altı sayıyı beş ayrı kafayla işleyip neden hep [4, 16, 36] çıktığını görüyoruz.",
+    "title": "Programlama Paradigmaları: Aynı İş, Farklı Kafalar",
+    "tagline": "Aynı işi üç küçük yorumlayıcıda adım adım çalıştır; atamaları, fonksiyon uygulamalarını, yığın derinliğini ve birleştirmeleri say. Sonuç hep aynı çıkar; sayılar ise her düşünme biçiminin bedelini gösterir.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 40
+    "minutes": 45
   },
   "radyoaktif-bozunma": {
     "title": "Radyoaktif Bozunma: Zar Atan Çekirdeklerin Saati",
@@ -894,10 +894,10 @@ window.ACELYA_CATALOG = {
   },
   "serbest-dusme": {
     "title": "Serbest Düşme: Tüy, Çekiç ve Hava",
-    "tagline": "Havasız ortamda tüy ile çekiç yere aynı anda değer; havada ise hızın karesiyle büyüyen bir fren her düşüşü bir limit hızla sınırlar. Aristoteles'ten Ay'daki çekice, yağmurdan paraşüte uzanan bir hikâye.",
+    "tagline": "Stroboskop izlerinden Galileo'nun tek sayılarını ve g'yi ölç; havada limit hızın kütleye nasıl bağlandığını gör; Ay'daki tüy ile çekici ve yuvarlanan bilyenin 5/7 çarpanını sına.",
     "field": "Fizik",
-    "level": "Lise",
-    "minutes": 30
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "ses-sentezleyici": {
     "title": "Ses Sentezi: Bir Notanın Yaşamı",
@@ -1040,11 +1040,11 @@ window.ACELYA_CATALOG = {
     "minutes": 35
   },
   "uluslararasi-iliskiler": {
-    "title": "Uluslararası İlişkiler: Polisi Olmayan Dünya",
-    "tagline": "Devletlerin üstünde ne hükümet ne polis var; yine de uçaklar iner, mektuplar ulaşır, antlaşmalara çoğunlukla uyulur. Üstte kimse yokken düzen nasıl mümkün olur? Uİ'nin soruları bu sorunun çevresinde döner.",
+    "title": "Uluslararası İlişkiler: Polisi Olmayan Dünyanın Modelleri",
+    "tagline": "Devletlerin üstünde bir polis yok; peki işbirliği, silahlanma ve oy gücü nasıl hesaplanır? Üç biçimsel model, varsayımları ve eleştirileriyle: yinelenen ikilem, Richardson denklemleri, güç endeksleri.",
     "field": "Toplum ve Ekonomi",
     "level": "Lise–Lisans",
-    "minutes": 30
+    "minutes": 35
   },
   "uretim-planlama-ve-endustri-muhendisligi": {
     "title": "Üretim Planlama: Düz Eğriler, Dik Eğriler",
@@ -1062,10 +1062,10 @@ window.ACELYA_CATALOG = {
   },
   "vektorler": {
     "title": "Vektörler: Yönü Olan Sayıların Aritmetiği",
-    "tagline": "3 + 4 her zaman 7 etmez: yönü olan nicelikler uç uca eklenir, sonucu aradaki açı belirler. Stevin'in top zincirinden Hamilton'ın köprüsüne ve rüzgârda yan yan uçan uçağa, okların aritmetiği.",
+    "tagline": "3 + 4 her zaman 7 etmez: oklar uç uca eklenir, iki ayrı biçimde çarpılır, hızlar da aynı kuralla toplanır. Stevin'in zincirinden Hamilton'ın köprüsüne ve akıntıda karşıya geçen tekneye, vektörlerin cebiri.",
     "field": "Matematik",
-    "level": "Lise",
-    "minutes": 30
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "veri-yapilari": {
     "title": "Veri Yapıları: Doğru Rafı Seçmek",
@@ -1076,10 +1076,10 @@ window.ACELYA_CATALOG = {
   },
   "veritabanlari": {
     "title": "Veritabanları: Soruyu Sor, Yolu Bilme",
-    "tagline": "1970'te bir IBM matematikçisi, verinin diskte nerede durduğunu bilmeden soru sorulabileceğini iddia etti. Bugün cebindeki telefon bu fikrin onlarca kopyasını taşıyor: tablolar, anahtarlar, JOIN ve bir ağaç.",
+    "tagline": "1970'te bir IBM araştırmacısı, verinin diskte nerede durduğunu bilmeden soru sorulabileceğini öne sürdü. Burada o fikri çalıştırırsın: sorgu yaz, motorun okuduğu satırları say, indeksi aç ve farkı gör.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
-    "minutes": 40
+    "minutes": 45
   },
   "yasam-oyunu": {
     "title": "Yaşam Oyunu: İki Kuraldan Bir Evren",
@@ -1090,10 +1090,10 @@ window.ACELYA_CATALOG = {
   },
   "yay-kutle": {
     "title": "Yay ve Kütle: Saati Cebe Sığdıran Salınım",
-    "tagline": "Sarkacı yerçekimi geri çağırır, bloğu yay. Bu tek fark periyodu kütleye bağlar, yerçekiminden kurtarır; aynı denklem cep saatinden gökdelenlere, oradan moleküllere uzanır.",
+    "tagline": "Yay geri çağırır, sönüm yavaşlatır, dış kuvvet besler. Tek bir denklem periyodu, üç sönüm rejimini ve rezonans eğrisini verir; üç sekmede hepsini ölç ve kuramla yan yana koy.",
     "field": "Fizik",
-    "level": "Lise",
-    "minutes": 25
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "yazilim-muhendisligi": {
     "title": "Yazılım Mühendisliği: Kodun Ötesindeki Zanaat",

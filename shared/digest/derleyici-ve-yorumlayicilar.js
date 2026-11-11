@@ -193,7 +193,7 @@ window.ACELYA_DIGEST["derleyici-ve-yorumlayicilar"] = {
   next: [
     { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata Teorisi", why: "Lexer'ın arkasındaki sonlu otomatı DFA simülatöründe ve düzenli ifade deney alanında kendin çalıştır; Chomsky hiyerarşisinde parser'ın gramerinin hangi basamakta durduğunu gör." },
     { href: "makine-dili-assembly-c.html", title: "Makine Dili → Assembly → C", why: "Kod üretimi aşamasının vardığı yer: aynı işlevi makine kodu, assembly ve C olarak üç düzeyde yan yana gör." },
-    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi", why: "'Program da bir veridir' fikrinin kuramsal kökü: lambda hesabında β-indirgemeyi adım adım izle, durma probleminin neden çözülemediğini gör." },
+    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "'Program da bir veridir' fikrinin kuramsal kökü: lambda hesabında β-indirgemeyi adım adım izle, durma probleminin neden çözülemediğini gör." },
     { href: "veri-yapilari.html", title: "Veri Yapıları", why: "AST bir ağaçtır, sembol tablosu bir hash tablosudur, ayrıştırıcı bir yığınla çalışır; derleyicinin kullandığı yapıları tek tek dene." },
   ],
   sources: [

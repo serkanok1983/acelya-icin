@@ -1357,3 +1357,74 @@ sayılanlar kapanmıştır, "Açık" diye yazılanlar sürmektedir. Puanlar doğ
 `otomotiv-muhendisligi`, `maden-muhendisligi`, `metalurji-ve-malzeme-muhendisligi` (kaldıraç kuralı
 okuması), `uluslararasi-iliskiler`, `programlama-paradigmalari`, `veritabanlari` (gerçek B+ağacı),
 `altin-oran` (tuval kaydırmayı yutuyor, arayüz yok), `makine-ogrenmesi-derin-ogrenme-llm` (eğitim hızı).
+
+## 11 Kasım 2026 — G: on sekiz zayıf laboratuvarın yeniden kurulumu
+
+On sekiz sayfa sıfırdan çok sekmeli laboratuvar olarak yeniden kuruldu (kurucu → farklı yazar → üçüncü,
+bağımsız doğrulayıcı/editör). Her sayfanın dondurulmuş hesap çekirdeği ve kalıcı testi var
+(`scripts/check-g-<slug>.mjs`; hepsi: `npm run test:g`). Bu bölüm, aynı sayfalar için önceki bölümlerdeki
+"açık" ve "yeniden kurulum adayı" maddelerinin yerine geçer. Doğrulayıcılar bu turda sayfanın bilimini de
+kendi hesaplarıyla yeniden türetti; hiçbir çekirdekte formül ya da sabit hatası bulunmadı. Düzeltilenler
+arayüz, metin ve kenar durumlarıydı.
+
+- ✔ `serbest-dusme`: boşlukta düşüş ve g ölçümü, hava direnci ve limit hız, tüy–çekiç ve eğik düzlem.
+  Düzeltildi: "g 200 m'de %0,01'den az değişir" yalnız Dünya için doğruydu; NASA'nın tüy kütlesi notu.
+  Öğretim değerleri: C_d = 0,47, Re sınırları. Kaldırma kuvveti ve ek kütle yok sayılır (sayfada yazılı).
+- ✔ `newton-hareket-yasalari`: sürtünme ve birinci yasa, Atwood düzenekleri, etki–tepki. Eklendi: kuvveti
+  seçilen hızda kendiliğinden kesme. Açık: sabit kuvvetlerde adım çözümü analitik olduğundan ölçülen–kuram
+  farkı %0,00; sıfırdan farklı farklar yalnız gürültü, eşik çözünürlüğü ve makara/sürtünme sistematiğinden.
+- ✔ `yay-kutle`: BHH, sönüm, zorlanma ve rezonans. Düzeltildi: "yarı genişlik" etiketi (tam genişlikti),
+  ζ etiketi, ±%5 ölçütündeki eşik açıklaması. Açık: yay kütlesi açıkken ölçülen periyot son basamaklarda oynar.
+- ✔ `vektorler`: toplama, çarpımlar, bağıl hız. Açık: ilk iki sekmede "ölçüm" bileşensiz ikinci bir sayısal
+  yoldur, fark hep 0.000; yüzde işareti sayıdan sonra yazılıyor.
+- ✔ `integral`: birikim ve temel teorem, geometri, has olmayan integraller. Doğrulayıcı sayfada kusur bulmadı.
+  Açık: uçlarında f′ sonsuz olan yarım çemberde yay uzunluğu ~1e-8 doğrulukta (sayfada yazılı).
+- ✔ `dalga-superpozisyonu`: iki dalga, vuru, atma ve paket. Düzeltildi: paket durma denetimi sabit adıma
+  alındı (okumalar oynatma hızından bağımsız). Açık: ölçülen faz hızı kuramdan küçük ve sistematik sapar
+  (yayılan pakette tek tepe izlemenin etkisi); satırda not yok, defterde var.
+- ✔ `hesaplama-teorisi`: gerçek Turing makinesi, β-indirgeyici, köşegen tablosu. Düzeltildi: "Sona kadar"
+  derin terimlerde sayfayı iki dakikadan uzun donduruyordu; "Hiç durmayan sayaç" saymıyordu. Tek bantta
+  palindrom için n² alt sınırı kaynak bulunamadığından yalnız "bu tablo için" söyleniyor. Açık: animasyonlu
+  "Çalıştır" kipinde çok derin terimlerin izi yavaş çizilir.
+- ✔ `makro-ekonomi-ve-para-politikalari`: çarpanlar, enflasyon–faiz–Taylor, Solow. Düzeltildi: q = 0 olan
+  kaydırıcı bileşimlerinde kayan nokta işaret hatası; silinen uyarı metni (sayfanın kendi testini
+  kararsızlaştırıyordu). Bütün sayılar öğretim değeridir; güncel rakam yoktur.
+- ✔ `mikro-ekonomi-ve-uretim-faktorleri`: arz–talep ve refah, tüketici seçimi, firma. Firma sekmesinde AVC'nin
+  iç minimumu için "kurulum emeği" L₀ parametresi (L₀ = 0 saf Cobb–Douglas). Hazır düzenler diğer denetimleri
+  sıfırlar (sayfada yazılı). Oyun teorisi paneli kalmadı; tutuklu ikilemi defterde bir kavram kartıdır.
+- ✔ `altin-oran`: Three.js sahnesi kaldırıldı; φ ve sürekli kesirler, sarmallar, yaprak dizilimi. Düzeltildi:
+  "en iyi açı" kartı altın açıyı tek optimum gibi etiketliyordu; zayıf ikinci sarmal ailesi artık belirtiliyor.
+  Sonlu tohum sayısında en iyi paketlenme açısı altın açının hemen yanındadır (ölçüldüğü gibi gösterilir).
+  Nautilus büyüme katsayısı öğretim değeridir.
+- ✔ `elektrikli-araclar`: direnç ve menzil, batarya ve şarj, motor ve rejenerasyon. Düzeltildi: iki sekme
+  farklı rejenerasyon verimi kullanıyordu (çekirdeğe isteğe bağlı `etaRegen` eklendi); 800 V düzeninde
+  karşılaştırma çizelgesi kayboluyordu. Marka, fiyat, pazar payı yok; araç değerleri öğretim değeridir.
+- ✔ `otomotiv-muhendisligi`: krank-biyel ve Otto döngüsü, aktarma ve çekiş, frenleme ve viraj. Düzeltildi:
+  ayrı yuvarlanmış terimler arasındaki "=" (taranan durumların dörtte birinde toplam tutmuyordu) → "≈".
+  Sınırlar: statik aks yükü, anlık vites, dönen kütle yok (0–100 süreleri iyimser); buz μ öğretim değeri.
+- ✔ `maden-muhendisligi`: tenör–verim, açık ocak ve kesme tenörü, ufalama ve havalandırma. Ülke sıralaması,
+  rezerv ve üretim rakamı yok. Eklendi: küçük ızgarada saf kuralın yanıldığı hazır düzen. Bond yasası metrik
+  tonla (özgün tanım kısa ton); metan sınırı mevzuata göre değişir, sayı verilmez.
+- ✔ `metalurji-ve-malzeme-muhendisligi`: Fe–Fe₃C ve kaldıraç kuralı, çekme deneyi, difüzyon. Ötektik 1148 °C
+  (kaynaklar 1147/1148). Faz sınırları doğru parçalarıdır. C → γ-Fe difüzyon çifti (2,3 × 10⁻⁵ m²/s,
+  148 kJ/mol) birincil kaynaktan doğrulanamadı: öğretim değeri. Boyun sonrası mühendislik eğrisi şematiktir.
+- ✔ `uluslararasi-iliskiler`: yinelenen tutuklu ikilemi, Richardson modeli, oylama gücü endeksleri. Süren
+  çatışma, güncel aktör ve tarihsiz sayı yok; ekoller ekol olarak. Cömert kısasın bağışlama oranında Stanford
+  maddesi kendi içinde çelişir (formül 1/3, düz yazı %25); sayfa formülü izler ve bunu belirtir. Çekimserlik
+  modellenmez (kaynaklı tek cümle var). Richardson denklemleri "yaygın ders kitabı biçimi" olarak etiketli.
+- ✔ `programlama-paradigmalari`: buyurgan/fonksiyonel izler, çağrı yığını, mini Prolog. Dil–paradigma işaret
+  tablosu kaldırıldı. Sol özyineleme tümce sırasıyla değil gövde hedeflerinin sırasıyla sonlanır (üç hazır düzen).
+- ✔ `veritabanlari`: SQL motoru, gerçek B+ağacı, normalizasyon ve çizelgeler. sqlite3 ile 39 sorguda eşleşti;
+  bilinçli farklar sayfada: Türkçe sıralama, tamsayıya yuvarlanmayan bölme, harfe duyarlı LIKE. Düzeltildi:
+  çizelge düzenleyicisinde çift tıklamanın taşımayı geri alması. Açık: kök bölünmesinden sonra "okunan düğüm"
+  ekleme öncesi yüksekliği gösterir; Safari'de dokunma yolu yalnız öykünmeyle sınandı.
+- ✔ `makine-ogrenmesi-derin-ogrenme-llm`: gradyan inişi, canlı sinir ağı, softmax–dikkat–bigram. Ürün adı ve
+  tarihsiz "en büyük" iddiası yok. Ağ sonuçları tohuma ve kayan nokta motoruna bağlıdır (V8); gradyan
+  denetiminin en büyük bağıl hatası son basamaklarda değişir. Açık: T = 0,05'te durum satırı p = 0,99995 için
+  "%100" yazar.
+- Ortak: 46 defterdeki bağlantı başlığı yeni sayfa başlıklarıyla eşitlendi, 18 eskimiş gerekçe yeniden yazıldı.
+  PostgreSQL ve SQLite belgeleri kaynak izin listesine eklendi. Sayı biçimi sayfadan sayfaya değişir (ondalık
+  virgül ya da nokta); her sayfa kendi içinde tutarlıdır ve eksi işareti U+2212'dir.
+- Kaynak açılamadığı için bilgiden bırakılan ayrıntılar doğrulayıcı raporlarında tek tek listelendi; başlıcaları:
+  birkaç nobelprize.org sayfası (403), Markowsky makalesi (taranmış), Hennie 1965, Callister Tablo 5.2,
+  Molander 1985, bazı ABD tarihsel rakamları.

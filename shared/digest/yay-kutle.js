@@ -3,13 +3,13 @@ window.ACELYA_DIGEST["yay-kutle"] = {
   slug: "yay-kutle",
   title: "Yay ve Kütle: Saati Cebe Sığdıran Salınım",
   field: "Fizik",
-  level: "Lise",
-  minutes: 25,
+  level: "Lise–Lisans",
+  minutes: 45,
   tagline:
-    "Sarkacı yerçekimi geri çağırır, bloğu yay. Bu tek fark periyodu kütleye bağlar, yerçekiminden kurtarır; aynı denklem cep saatinden gökdelenlere, oradan moleküllere uzanır.",
+    "Yay geri çağırır, sönüm yavaşlatır, dış kuvvet besler. Tek bir denklem periyodu, üç sönüm rejimini ve rezonans eğrisini verir; üç sekmede hepsini ölç ve kuramla yan yana koy.",
   hook: "Sarkaçlı bir duvar saatini Ay'a götürsen yaklaşık iki buçuk kat yavaş işler. Kolundaki mekanik saati götürsen tik-takı neredeyse hiç değişmez. Fark tek bir parçada saklı: içindeki salınıcıyı yerçekimi değil, saç teli inceliğinde bir yay geri çağırır.",
   bigIdea:
-    "Geri çağıran kuvvet dengeden uzaklıkla doğru orantılı olduğunda (<em>F = −kx</em>) hareket kusursuz bir sinüs dalgasına dönüşür ve periyodu yalnızca kütlenin yay sertliğine oranı belirler: <em>T = 2π√(m/k)</em>; genlik de yerçekimi de bu formülde yoktur.",
+    "Geri çağıran kuvvet dengeden uzaklıkla doğru orantılıysa (<em>F = −kx</em>) periyodu yalnızca m/k oranı belirler; genlik de yerçekimi de karışmaz. Sönüm ve dış kuvvet eklendiğinde ise tek bir sayı, <em>Q</em>, hem salınımın ne kadar çabuk söndüğünü hem rezonans tepesinin ne kadar keskin olduğunu söyler.",
   story: [
     "1676'da Robert Hooke, yayımladığı bir metne anlamsız görünen bir harf dizisi ekledi: <em>ceiiinosssttuv</em>. Dönemin bilginleri bir buluşun önceliğini, içeriğini ele vermeden güvenceye almak için böyle şifreler yayımlardı. 1678'de <em>De Potentia Restitutiva, or of Spring</em> (Geri Getirme Gücü ya da Yay Üzerine) adlı çalışmasında şifreyi çözdü: harfler, alfabetik sıraya dizilmiş <strong>ut tensio, sic vis</strong> cümlesiydi; 'uzama nasılsa, kuvvet de öyle'. Hooke aynı çalışmada yasayı 1660'tan beri bildiğini yazar; bunu yalnızca kendi beyanından biliyoruz.",
     "Hooke'un aklındaki uygulama saatti. Cep saatlerinde ileri geri dönen çark, yaysız haliyle saati süren ana yayın gücüne çok duyarlıydı; ana yay gevşedikçe saat yavaşlıyordu. Çarka ince, sarmal bir <strong>denge yayı</strong> eklemek onu kendi doğal frekansında salınan bir harmonik salınıcıya dönüştürdü. Buluşun kime ait olduğu bugün de tartışmalıdır: fikir büyük olasılıkla Hooke'tan çıktı, ama 1670'lerin ortasında çalışan ilk denge yaylı saati Christiaan Huygens yaptırdı. Kaba tahminlere göre cep saatlerinin hatası günde birkaç saatten on dakika mertebesine indi; saat bir süs eşyası olmaktan çıkıp gerçek bir ölçüm aletine dönüştü.",
@@ -17,84 +17,84 @@ window.ACELYA_DIGEST["yay-kutle"] = {
   ],
   core: [
     {
-      heading: "Hooke yasası: uzama kadar kuvvet",
-      body: "Bloğu denge konumundan x kadar çekersen yay onu ters yönde, x ile orantılı bir kuvvetle geri çeker: iki kat çekersen iki kat kuvvet. Orantı katsayısı <strong>yay sabiti</strong> k'dır ve birimi N/m'dir; 20 N/m'lik bir yayı 10 cm uzatmak 2 N ister. Bu doğrusallık bir sınıra kadar geçerlidir: gerçek bir yayı fazla zorlarsan kalıcı biçimde uzar ve yasa bozulur. Sayfadaki yay ise ideal bir modeldir; her uzamada Hooke yasasına tam uyar.",
-      formula: "F = −k·x",
+      heading: "Hooke yasası ve yer değiştiren denge",
+      body: "Bloğu dengeden x kadar çekersen yay onu ters yönde, x ile orantılı bir kuvvetle geri çağırır. Orantı katsayısı <strong>yay sabiti</strong> k'dir (N/m): 20 N/m'lik yayı 10 cm uzatmak 2 N ister. Yayı düşey asınca işe yerçekimi karışır, ama sanıldığından çok daha az. Yük yayı k·Δ = m·g olana dek uzatır; x'i bu yeni denge noktasından ölçersen net kuvvet m·g − k·(Δ + x) = −k·x olur. Sabit bir kuvvet denklemden tümüyle düşer; geriye yalnızca kaymış bir denge kalır. Sayfada <strong>Düzen</strong> menüsünden düşeyi seçtiğinde 0.50 kg'lık kütle 20 N/m'lik yayı 0.2453 m uzatır, periyot ise yataydakiyle aynı kalır. Gerçek bir yay fazla zorlanınca kalıcı biçimde uzar ve doğrusallığını yitirir; sayfadaki yay her uzamada ve sıkışmada yasaya tam uyan ideal bir modeldir.",
+      formula: "F = −k·x,  Δ = m·g/k",
       formulaNote:
-        "Eksi işareti, kuvvetin daima yer değiştirmenin tersine, yani dengeye doğru baktığını söyler.",
+        "Eksi işareti kuvvetin hep dengeye baktığını söyler. Δ düşey yayın durgun uzamasıdır; periyot formülüne girmez.",
     },
     {
-      heading: "İvme konumu kovalar",
-      body: "Newton'un ikinci yasasını Hooke yasasıyla birleştir: ma = −kx, yani a = −(k/m)·x. İvme konumla orantılıdır ve hep ters yöndedir; blok dengeden ne kadar uzaksa o kadar sert geri çağrılır. Bu koşulu sağlayan hareket sinüs biçimli bir salınımdır. Sayfa hareketi küçük zaman adımlarıyla hesaplamaz; doğrudan bu çözümü çizer: blok her seferinde x = 0.80 m'den durgun bırakılır ve <em>x = 0.8·cos(ωt)</em> boyunca gidip gelir.",
-      formula: "x(t) = A·cos(ωt),  ω = √(k/m)",
+      heading: "Hareket denklemi: periyotta genlik neden yok?",
+      body: "Newton'un ikinci yasasını Hooke yasasıyla birleştir: m·x″ = −k·x, yani x″ = −ω₀²·x ve ω₀ = √(k/m). İkinci türevi kendisinin eksi bir katı olan fonksiyonlar sinüs ve kosinüstür; durgun bırakılan blok için çözüm x = x₀·cos ω₀t olur. Hız v = −x₀ω₀·sin ω₀t, konumun çeyrek periyot önünde gider: blok uçta bir an durur, dengeden en hızlı geçer. Genliğin periyotta görünmemesi denklemin <strong>doğrusal</strong> olmasındandır: bir çözümü iki ile çarparsan yine çözümdür. İki kat uzağa çekilen blok iki kat yol alır, ama her anda iki kat hızlıdır; süre değişmez. Sarkaçta bu yalnızca küçük açılarda yaklaşık doğrudur, ideal yayda tam doğrudur. Kütle ise sarkaçtakinin tersine sadeleşmez, çünkü yay ağır bloğa fazladan kuvvet uygulamaz. Yayın kendi kütlesi de salınıma katılır: hızı sabit uçta sıfırdan blokta v'ye doğrusal arttığından kinetik enerjisi ½·(m<sub>s</sub>/3)·v² eder ve hafif yaylar için m yerine m + m<sub>s</sub>/3 yazmak yeter.",
+      formula: "x(t) = x₀·cos ω₀t,  ω₀ = √(k/m),  T = 2π√(m/k)",
       formulaNote:
-        "ω açısal frekanstır (rad/s); sayfanın üst satırındaki ilk sayı budur.",
+        "Varsayılan ayarda (m = 0.50 kg, k = 20 N/m) ω₀ = 6.325 rad/s ve T = 0.9935 s. Kütleyi dört katına çıkarmak periyodu iki katına çıkarır.",
     },
     {
-      heading: "Periyot: genlik neden yok?",
-      body: "Bir tam gidiş-dönüş, ωt açısı 2π kadar ilerlediğinde tamamlanır. Genliğin formülde olmamasının sezgisel nedeni şu: bloğu iki kat uzağa çekersen iki kat yol alır, ama yay da onu iki kat kuvvetle iter. Hareket, eskisinin iki kat büyütülmüş bir kopyası olur: büyütülmüş yolun karşılık gelen her noktasında (örneğin dengeden geçerken ya da yolun yarısında) hız da tam iki kattır. Yol ve hız aynı oranda büyür, süre değişmez. Aynı x noktasında ise hızlar iki kat farklı değildir; hız v = ω√(A² − x²) ile hem genliğe hem konuma bağlıdır. Sarkaçta bu yalnızca küçük açılarda yaklaşık doğrudur; ideal yayda tam doğrudur. Bir fark daha var: sarkacın periyodunda kütle yoktur, burada vardır. Çünkü geri çağıran kuvveti yerçekimi değil yay sağlar ve yay ağır bloğa fazladan kuvvet uygulamaz.",
-      formula: "T = 2π√(m/k)",
+      heading: "Enerji, faz uzayı ve sayısal yöntemin sınavı",
+      body: "Gerilmiş yay ½k·x², hareket eden blok ½m·v² taşır; sürtünme yoksa toplamları sabittir. (x, v) düzleminde bu, durum noktasının bir elipsin üzerinde dolaşması demektir; sayfadaki <strong>faz uzayı</strong> grafiğindeki kesikli eğri o elipstir. Enerji korunumu aynı zamanda bir hesap yönteminin doğruluk sınavıdır. En basit yöntem olan <strong>açık Euler</strong> bir adımda x'i h·v, v'yi −h·ω₀²·x kadar değiştirir; yerine koyarsan çapraz terimler birbirini götürür ve yeni enerji, eskisinin tam (1 + ω₀²h²) katı çıkar. Adım ne kadar küçük olursa olsun çarpan 1'den büyüktür: enerji her adımda artar, iz elipsten dışarı doğru sarmal çizer. Varsayılan ayarda h = 1 ms için çarpan 1.000040'tır; 10 saniyede 10 000 adım atılır ve enerji 1.000040<sup>10 000</sup> ≈ 1.49 katına çıkar. <strong>Hız-Verlet</strong> de enerjiyi tam korumaz, ama sapmasını dar bir aralıkta tutar (bu ayarda en çok (ω₀h)²/4); uzun benzetimlerde (gezegen yörüngeleri, molekül dinamiği) bu yüzden yeğlenir.",
+      formula: "E = ½k·x² + ½m·v² = ½k·x₀²;  Euler: E<sub>n+1</sub> = (1 + ω₀²h²)·E<sub>n</sub>",
       formulaNote:
-        "Kütleyi 4 katına çıkarmak periyodu 2 katına çıkarır; yay sabitini 4 katına çıkarmak yarıya indirir. Yalnızca m/k oranı önemlidir.",
+        "Sayısal yöntem menüsünden Açık Euler'i seç: tablodaki enerji sapması 10. saniyede 0.49'a ulaşır (tam 10 s için 0.4918), büyümeyi sürdürür ve her an beklenen değerle örtüşür (fark 0.00 %).",
     },
     {
-      heading: "Hız ve çeyrek periyotluk kayma",
-      body: "Hız, konumun değişim hızıdır ve hız eğrisi konum eğrisinden çeyrek periyot kaymıştır. Blok uç noktada bir an durur (v = 0), dengeden geçerken en hızlıdır. En büyük hız, genlikle açısal frekansın çarpımıdır. Grafikte mavi eğri x'i, turuncu eğri v'yi çizer: mavi eğri tepedeyken turuncu sıfırdan geçer, mavi sıfırdan geçerken turuncu tepededir.",
-      formula: "v(t) = −Aω·sin(ωt),  v<sub>max</sub> = Aω",
+      heading: "Sönüm: karakteristik denklem ve üç rejim",
+      body: "Hızla orantılı bir direnç ekle: m·x″ + b·x′ + k·x = 0. Doğrusal ve sabit katsayılı bu denklemde x = e<sup>st</sup> denemek yeter; türevler s çarpanı getirir ve geriye bir ikinci derece denklem kalır: s² + 2γ·s + ω₀² = 0, γ = b/2m. Kökün altındaki γ² − ω₀² farkının işareti her şeyi belirler; bunu tek sayıyla <strong>sönüm oranı</strong> ζ = γ/ω₀ = b/(2√(km)) özetler. ζ &lt; 1 ise kökler karmaşıktır: blok ω<sub>d</sub> = √(ω₀² − γ²) frekansıyla salınır, genliği e<sup>−γt</sup> zarfıyla küçülür (<strong>az sönümlü</strong>). ζ = 1'de kökler çakışır: x = x₀·(1 + ω₀t)·e<sup>−ω₀t</sup>, salınım yoktur (<strong>kritik</strong>). ζ &gt; 1'de iki ayrı üstel vardır ve yavaş olanı, ω₀·(ζ − √(ζ² − 1)), sönüm arttıkça daha da yavaşlar (<strong>aşırı sönümlü</strong>). Az sönümlü rejimde ardışık iki tepenin oranı sabittir; doğal logaritması <strong>logaritmik azalma</strong> δ = γ·T<sub>d</sub>'dir. Enerji genliğin karesiyle gittiğinden her turda enerjinin 1 − e<sup>−2δ</sup> kadarı ısıya döner.",
+      formula: "s = −γ ± √(γ² − ω₀²),  ζ = b/(2√(km)),  Q = √(km)/b = 1/(2ζ)",
       formulaNote:
-        "Sayfada A = 0.8 m olduğundan v<sub>max</sub> = 0.8·ω; varsayılan ayarda 0.8 × 4.47 ≈ 3.58 m/s.",
+        "Q kalite çarpanıdır. Sönüm çok küçükken bir turdaki enerji kaybı yaklaşık 2π/Q olur; Q = 10'da bu yaklaşım bile kabadır (0.6283'e karşı ölçülen 0.4669).",
     },
     {
-      heading: "Enerji: yayda saklanan, blokta koşan",
-      body: "Gerilmiş ya da sıkışmış yay enerji depolar: ½kx². Hareket eden blok kinetik enerji taşır: ½mv². Uç noktada enerjinin tamamı yaydadır, dengede tamamı bloktadır; toplam hep aynıdır. Sayfa enerji göstermez ama hesabı kolaydır: varsayılan ayarda (k = 20 N/m, A = 0.8 m) toplam enerji 6.4 J'dür. Gerçek bir yayda sürtünme bu enerjiyi yavaş yavaş ısıya çevirir; sayfada sönüm olmadığı için genlik hiç küçülmez.",
-      formula: "E = ½kx² + ½mv² = ½kA²",
+      heading: "Zorlanma: karmaşık genlik ve rezonans",
+      body: "Sağ tarafa F₀·cos ωt koy. Doğal salınım e<sup>−γt</sup> ile söner (<strong>geçici rejim</strong>); geriye sürücünün frekansında bir salınım kalır (<strong>kalıcı durum</strong>). Onu bulmanın kısa yolu kuvveti F₀·e<sup>iωt</sup>'nin gerçek kısmı saymak ve x = X·e<sup>iωt</sup> denemektir: türevler iω çarpanına dönüşür, diferansiyel denklem cebire iner ve X = F₀/(k − mω² + i·bω) çıkar. Paydanın büyüklüğü genliği, açısı faz gecikmesini verir. Üç bölge var. Yavaş sürüşte yay belirler: A ≈ F₀/k, blok kuvvetle birlikte gider. Hızlı sürüşte kütle belirler: A ≈ F₀/(mω²), blok kuvvetin tersine gider. ω = ω₀'da yay ve atalet terimleri birbirini götürür, geriye yalnızca sönüm kalır: A = F₀/(bω₀) = Q·F₀/k, gecikme tam 90°. O anda hız kuvvetle aynı fazdadır, sürücü her an pozitif iş yapar ve soğurulan ortalama güç en büyük değerine, F₀²/2b'ye ulaşır. Genliğin tepesi ise biraz daha aşağıda, ω₀√(1 − 2ζ²)'dedir; ζ ≥ 0.707 olunca tepe tümüyle kaybolur.",
+      formula: "A(ω) = F₀/√((k − mω²)² + (bω)²),  tan φ = bω/(k − mω²),  P = ½·b·ω²·A²",
       formulaNote:
-        "Toplam enerji kütleye değil, yay sabitine ve genliğin karesine bağlıdır.",
+        "Güç eğrisinin yarı yükseklikteki tam genişliği tam olarak Δω = b/m = ω₀/Q'dur: Q büyüdükçe tepe yükselir ve daralır.",
     },
   ],
   lab: {
     intro:
-      "Sayfada iki kaydırıcı var: <strong>Kütle m</strong> (0.5–5.0 kg, 0.1 kg adımlarla) ve <strong>Yay sabiti k</strong> (5–80 N/m, 1 N/m adımlarla). Üst satır anlık ω, T, x ve v değerlerini gösterir. <strong>Konum / hız grafiği</strong> kutusu işaretliyken alttaki grafikte mavi eğri x'i, turuncu eğri v'yi çizer; grafik dolunca son yaklaşık 4.5 saniyelik simülasyon zamanını gösterir. <strong>Sıfırla</strong> düğmesi ve kaydırıcıların her oynatılışı hareketi baştan başlatır: blok x = 0.80 m'den durgun bırakılır. Genlik 0.8 m'de sabittir; sönüm ve duraklatma düğmesi yoktur. Simülasyon her ekran karesinde 0.016 s ilerler: 60 Hz'lik bir ekranda gerçek zamandan yaklaşık %4 yavaş, 120 Hz'lik bir ekranda neredeyse iki kat hızlı akar. Bu yüzden süreyi kronometreyle değil, üst satırdaki T değerinden ve grafikteki dalga sayısından oku.",
+      "Sayfa üç sekmeli bir laboratuvar ve her sekmede benzetimden <strong>ölçülen</strong> değer, <strong>kuram</strong> değeri ve <strong>fark</strong> yan yana durur. <strong>01 · Basit harmonik hareket</strong>: <strong>Kütle m</strong> (0.05–2.00 kg), <strong>Yay sabiti k</strong> (5–100 N/m), <strong>Başlangıç genliği x₀</strong> (0.01–0.30 m), <strong>Düzen</strong> (yatay ya da düşey), düşeyde <strong>Yerçekimi g</strong> (Ay, Mars, Dünya, Jüpiter), <strong>Yay</strong> menüsünde üç gizli yay, <strong>İleri düzey: yayın kendi kütlesi var</strong> kutusu, <strong>Sayısal yöntem</strong> ve <strong>Zaman adımı h</strong>; bloğu sürükleyip de bırakabilirsin. <strong>02 · Sönümlü salınım</strong>: <strong>Sönüm katsayısı b</strong> kaydırıcısı ζ üzerinden ilerler, etiketi b'yi (kg/s) ve ζ'yı birlikte yazar; üç hazır düğme ve beş düzeni yarıştıran dengeye dönüş tablosu var. <strong>03 · Zorlanma ve rezonans</strong>: aynı sönüm kaydırıcısı (etiketi b, ζ ve Q'yu yazar), <strong>Kuvvet genliği F₀</strong>, <strong>Sürücü frekansı ω</strong>, dört hazır düğme, <strong>Kalıcı duruma atla</strong> ve <strong>Frekansı tara</strong>. Sayılar ondalık noktayla, farklar <em>−25.69 %</em> biçiminde yazılır. <kbd>Boşluk</kbd> duraklatır, <kbd>R</kbd> etkin sekmeyi sıfırlar. Deneylerden sonra kendi başına dene: <strong>Vuru: ζ = 0.005, ω = 0.90 ω₀</strong> düğmesine bas; sürücüyle henüz sönmemiş doğal salınım üst üste biner ve genlik kabarıp iner; tablo vuru periyodunun kuram değerini 9.936 s, ilk çukurlardan ölçüleni yaklaşık 9.9 s verir. Model ideal yay ve hızla orantılı sönümdür; kuru sürtünme ve yayın doğrusallıktan sapması yoktur.",
     experiments: [
       {
-        title: "Dört kat kütle, kaç kat süre?",
+        title: "Periyot neye bağlı, neye değil?",
         predict:
-          "k = 20 N/m iken kütleyi 1.0 kg'dan 4.0 kg'a çıkarırsan periyot ne olur: dört katına mı çıkar, iki katına mı, yoksa sarkaçtaki gibi hiç değişmez mi?",
-        do: "Yay sabiti k'yı 20 N/m'de bırak, Kütle m'yi 1.0 kg yap ve üst satırdaki ω ile T'yi not et. Sonra kütleyi 4.0 kg yap. Her iki ayarda grafiğin dolmasını bekleyip pencereye kaç tam dalga sığdığını say.",
+          "Varsayılan ayarda (m = 0.50 kg, k = 20 N/m) periyot 0.9935 s. Genliği üç katına çıkarırsan ne olur? Kütleyi dört katına çıkarırsan? Yayı düşey asıp Dünya'dan Ay'a götürürsen?",
+        do: "01 sekmesinde <strong>Başlangıç genliği x₀</strong>'ı 0.30 m yap, birkaç salınım bekle ve tablodaki Periyot T satırını oku. x₀'ı 0.10 m'ye döndürüp <strong>Kütle m</strong>'yi 2.00 kg yap. Sonra m'yi 0.50 kg'a geri al, <strong>Düzen</strong> menüsünden Düşey, yerçekimli'yi seç ve <strong>Yerçekimi g</strong>'yi önce Dünya'da, sonra Ay'da dene.",
         observe:
-          "1.0 kg'da ω = 4.47 rad/s, T = 1.40 s; 4.0 kg'da ω = 2.24 rad/s, T = 2.81 s. Grafikteki dalga sayısı yaklaşık 3.2'den 1.6'ya iner. 2.81 tam olarak 2 × 1.40 değildir, çünkü gerçek değerler 1.405 ve 2.810 s'dir; ekran yuvarlar.",
+          "x₀ = 0.30 m'de ölçülen T yine 0.9935 s, fark 0.000 %; toplam enerji ise 0.1000 J'den 0.9000 J'ye, dokuz katına çıkar. m = 2.00 kg'da T = 1.9869 s olur. Düşeyde Dünya'da denge uzaması 0.2453 m, Ay'da 0.0405 m; ikisinde de T = 0.9935 s. Ay'da durum satırı genliğin denge uzamasından büyük olduğunu, yayın üst noktada sıkıştığını yazar.",
         explain:
-          "T kütlenin kareköküyle büyür: √4 = 2. Sarkaçta kütle sadeleşir, çünkü yerçekimi ağır cisme orantılı olarak daha büyük kuvvet uygular. Yay ise ağır bloğa fazladan kuvvet uygulamaz; aynı kuvvet daha büyük kütleyi daha yavaş ivmelendirir.",
+          "T = 2π√(m/k) içinde ne x₀ ne g var. Genlik enerjiyi karesiyle büyütür ama süreyi değiştirmez; kütle periyoda karekökle girer (√4 = 2). Yerçekimi sabit bir kuvvettir: denge noktasını m·g/k kadar aşağı taşır, o noktanın çevresindeki geri çağırıcı kuvvet yine −k·x'tir.",
       },
       {
-        title: "Sert yay, hızlı blok",
+        title: "Gizli yayın sabitini iki bağımsız yoldan bul",
         predict:
-          "m = 1.0 kg iken yay sabitini 20'den 80 N/m'ye çıkarırsan periyot ve en büyük hız nasıl değişir? Grafikteki mavi eğrinin yüksekliği değişir mi?",
-        do: "Kütle m = 1.0 kg, Yay sabiti k = 20 N/m ile başla. Değerler hızla aktığı için, blok kesikli 'denge' çizgisinden geçerken üst satırdaki v'nin ulaştığı en büyük büyüklüğü birkaç geçiş boyunca izle; grafikte turuncu tepelerin yüksekliğine de bak. Sonra k'yı 80 N/m yap ve aynısını tekrarla.",
+          "Sabitini bilmediğin bir yay, birkaç kütle, bir cetvel ve bir kronometren var. k'yi hiç süre ölçmeden bulabilir misin? Hiç uzama ölçmeden? İki sonuç tutar mı?",
+        do: "01 sekmesinde <strong>Yay</strong> menüsünden Gizli yay B'yi seç (düzen düşeye kilitlenir; g Dünya'da kalsın). <strong>Kütle m</strong> 0.20, 0.50 ve 1.00 kg iken en az iki tam salınım bekleyip <strong>Ölçümü kaydet</strong>'e bas, sonra <strong>k'yi göster</strong>. Ardından <strong>İleri düzey: yayın kendi kütlesi var</strong> kutusunu aç (m<sub>s</sub> = 0.15 kg; defter kendiliğinden temizlenir) ve üç ölçümü yinele.",
         observe:
-          "T 1.40 s'den 0.70 s'ye iner, ω 4.47'den 8.94 rad/s'ye çıkar. Dengeden geçerken |v| yaklaşık 3.58 m/s'den 7.16 m/s'ye yükselir. Mavi x eğrisinin tepeleri yine ±0.8 m'dedir; turuncu v eğrisinin tepeleri iki kat yükselir ve pencereye altıdan fazla dalga sığar.",
+          "Uzamalar 0.0604, 0.1509, 0.3018 m; periyotlar 0.4929, 0.7793, 1.1021 s. Sonuç satırı uzama doğrusunun eğiminden k = 32.51 N/m, T² doğrusunun eğiminden k = 32.50 N/m verir; gerçek değer 32.5 N/m. Yay kütlesi açıkken uzamalar 0.0830, 0.1736, 0.3245 m'ye, periyotlar yaklaşık 0.553, 0.818, 1.130 s'ye çıkar (son basamak kayıt anına göre oynar). Eğimler yine k'yi verir (uzamadan 32.50, periyottan yaklaşık 32.55 N/m), ama doğrular artık sıfırdan geçmez: sonuç satırına göre etkin kütle durgun uzamadan 0.075 kg, periyottan yaklaşık 0.052 kg çıkar.",
         explain:
-          "Dört kat sert yay periyodu √4 = 2 kat kısaltır. Genlik sabit kaldığı için blok aynı yolu yarı sürede almak zorundadır; bu yüzden en büyük hız v<sub>max</sub> = Aω da iki katına çıkar.",
+          "Δ = (m + m<sub>s</sub>/2)·g/k ve T² = (4π²/k)·(m + m<sub>s</sub>/3): iki doğru da m'ye göre doğrusaldır, eğimleri birbirinden bağımsız iki k verir. Kesişimler yayın etkin kütlesidir: durgun asılıyken kütlesinin yarısı, salınırken yaklaşık üçte biri sayılır. Üçte bir oranı hafif yay için geçerli bir yaklaşımdır: tam çözüm β·tan β = m<sub>s</sub>/m, ω = β·√(k/m<sub>s</sub>) denkleminden gelir ve m<sub>s</sub> = m olduğunda yaklaşım periyodu %0.7 kısa verir. Periyottan bulunan k'nin 32.50 yerine 32.55 çıkması da bu yüzdendir.",
       },
       {
-        title: "İkiz sistemler",
+        title: "Üç sönüm rejimi ve dengeye dönüş yarışı",
         predict:
-          "m = 0.5 kg, k = 10 N/m düzeneği ile m = 4.0 kg, k = 80 N/m düzeneğinden hangisi daha hızlı salınır? Hangisinde daha çok enerji vardır?",
-        do: "Önce Kütle m = 0.5 kg, Yay sabiti k = 10 N/m yap; ω, T ve grafiği incele. Sonra m = 4.0 kg, k = 80 N/m yap. İstersen ara ayar olarak m = 2.0 kg, k = 40 N/m'yi de dene.",
+          "Bir kapıyı çarpmadan ve en kısa sürede kapatacak sönümü arıyorsun. Blok ±%5 bandına hangi sönüm oranında en erken yerleşir: ζ = 0.70, 1 (kritik) ya da 2?",
+        do: "02 sekmesinde varsayılanda (ζ = 0.05) tabloyu oku. Sonra <strong>Kritik ζ = 1</strong> ve <strong>Aşırı ζ = 2</strong> düğmelerine bas; her seferinde grafiğe ve dengeye dönüş tablosuna bak. Son olarak <strong>Sönüm katsayısı b</strong> kaydırıcısıyla ζ = 0.70, ardından ζ = 0.69 yap (etiket ζ'yı da yazar) ve tablonun Seçili satırını izle; grafiğin altındaki notu oku.",
         observe:
-          "Üç ayarda da ω = 4.47 rad/s ve T = 1.40 s; animasyon da grafik de birebir aynıdır. Ekrandaki hiçbir şey bu düzenekleri birbirinden ayırt ettirmez.",
+          "ζ = 0.05: T<sub>d</sub> = 0.9947 s, δ = 0.3146, Q = 10.000; bir turda enerji kaybı 0.4669, 2π/Q = 0.6283 ile farkı −25.69 %, tam ifadeyle 0.000 %. Kritikte b = 6.325 kg/s, salınım yok, t₅% = 0.750 s, aşma 0.0. ζ = 2'de t₅% = 1.812 s. ζ = 0.70'te t₅% = 0.459 s ama blok dengeyi %4.6 aşar. ζ = 0.69'da tablo aşmayı 5.0 yazar (tam değeri %5.004) ve süre birden 0.693 s'ye sıçrar.",
         explain:
-          "Hareket yalnızca k/m oranına bağlıdır ve üç ayarda da oran 20 s⁻²'dir. Ama düzenekler aynı değildir: toplam enerji ½kA² ile 3.2 J'den 25.6 J'ye, uç noktadaki yay kuvveti kA ile 8 N'dan 64 N'a çıkar. Aynı hareketin arkasında sekiz kat farklı kuvvetler olabilir.",
+          "Kritik sönüm dengeyi hiç aşmadan en çabuk dönen düzendir. %5'lik bir pay tanırsan hafif az sönümlü sistem kazanır: ζ = 0.70'te ilk aşma bandın içinde kalır, blok banda ilk girişinde yerleşmiş sayılır. ζ = 0.69'da aynı aşma bandın kıl payı dışına taşar, blok ancak geri dönerken yerleşir; sıçramanın nedeni budur. Yani 0.70 sihirli bir sayı değil, %5'lik ölçütün eşiğidir (tam eşik ζ ≈ 0.6901); bandı %2 seçseydin başka bir değer çıkardı. Sönümü kritiğin üstüne çıkarmak dönüşü hızlandırmaz, yavaş üsteli daha da yavaşlatır.",
       },
       {
-        title: "2π saniyelik saat ve öteki uç",
+        title: "Rezonans eğrisini kendin çıkar",
         predict:
-          "m = 5.0 kg ve k = 5 N/m için ω kaç olur, periyot neden tam 2π saniye çıkmalı? Sonra öteki uç olan m = 0.5 kg, k = 80 N/m için periyodu tahmin et.",
-        do: "Kütle m'yi 5.0 kg, Yay sabiti k'yı 5 N/m yap; üst satırı oku ve grafiğin dolmasını bekle. Ardından m = 0.5 kg, k = 80 N/m yap.",
+          "0.5 N'luk kuvvet 20 N/m'lik yayı durgunken yalnızca 0.025 m uzatır. Aynı kuvvet tam ω₀'da uygulanırsa genlik kaç olur? Genliğin en büyük olduğu frekans ile gücün en büyük olduğu frekans aynı mıdır?",
+        do: "03 sekmesinde varsayılanda (ω = 0.80 ω₀) <strong>Kalıcı duruma atla</strong>'ya bas ve tabloyu oku. <strong>Rezonans: ω = ω₀</strong>, yeniden <strong>Kalıcı duruma atla</strong>. Sonra <strong>Frekansı tara</strong>'ya bas ve tarama kartını incele. Son olarak <strong>Sönüm katsayısı b</strong>'yi etiketi 1.265 kg/s · ζ = 0.200 · Q = 2.5 gösterene dek artır ve bir kez daha tara.",
         observe:
-          "İlk ayarda ω = 1.00 rad/s, T = 6.28 s; en büyük hız yalnızca 0.80 m/s, turuncu eğri neredeyse düzdür ve pencereye bir dalganın ancak yaklaşık dörtte üçü sığar. İkinci ayarda ω = 12.65 rad/s, T = 0.50 s; pencereye dokuz dalga sığar ve turuncu hız eğrisinin tepeleri grafiğin dışına taşar.",
+          "0.80 ω₀'da A = 0.0678 m, φ = 12.53°, güç 0.0186 W. Tam ω₀'da A = 0.2500 m, φ = 90.00°, güç 0.3953 W; sürücünün gücü ile sönümde harcanan eşittir. Tarama: genlik tepesi 6.309 rad/s'de (0.2503 m), güç tepesi 6.325 rad/s'de (0.3953 W), yarı yükseklikteki tam genişlik Δω = 0.632 rad/s. ζ = 0.200'de genlik tepesi 6.066 rad/s'ye iner ve 0.0638 m'ye alçalır; güç tepesi yine 6.325 rad/s'dedir ama 0.0988 W'a iner, Δω = 2.530 rad/s olur.",
         explain:
-          "ω = 1 rad/s, faz açısının saniyede 1 radyan ilerlemesidir; tam tur 2π radyan olduğu için 2π ≈ 6.28 s sürer. İki uç arasındaki periyot oranı √160 ≈ 12.6'dır, çünkü m/k oranı 1'den 1/160'a iner. Grafiğin hız ölçeği sabittir: k/m yaklaşık 120 s⁻²'yi (ω ≈ 11 rad/s) aşınca hız tepeleri pencereden taşar. Bu fiziğin değil, çizimin sınırıdır.",
+          "Rezonansta genlik durgun uzamanın Q katıdır: 10 × 0.025 m. Güç tepesi sönüm ne olursa olsun tam ω₀'dadır, çünkü hız yalnızca orada kuvvetle aynı fazdadır; genlik tepesi ω₀√(1 − 2ζ²)'ye kayar. Sönümü dört katına çıkarmak Q'yu 10'dan 2.5'e indirir, güç eğrisini dört kat genişletir. Kalıcı durumda sürücünün verdiği enerjinin tamamı sönümde ısıya döner.",
       },
     ],
   },
@@ -105,7 +105,7 @@ window.ACELYA_DIGEST["yay-kutle"] = {
     },
     {
       title: "Molekül de bir yay",
-      body: "Hidrojen klorür (HCl) molekülündeki bağ, yay sabiti yaklaşık 500 N/m olan bir yay gibi davranır; sayfadaki en sert yaydan altı kat serttir. Ama klor atomu neredeyse hiç kıpırdamaz, salınan hidrojendir ve kütlesi yaklaşık 1.7×10⁻²⁷ kg'dır. ω = √(k/m) bu yüzden devasa çıkar: bağ saniyede yaklaşık 8.7×10¹³ kez titreşir ve dalga boyu yaklaşık 3.5 mikrometre olan kızılötesi ışığı soğurur. Kızılötesi spektroskopi molekülleri bu 'yay seslerinden' tanır.",
+      body: "Hidrojen klorür (HCl) molekülündeki bağ, yay sabiti yaklaşık 500 N/m olan bir yay gibi davranır; bu sayfadaki en sert yaydan (100 N/m) beş kat serttir. Ama klor atomu neredeyse hiç kıpırdamaz, salınan hidrojendir ve kütlesi yaklaşık 1.7×10⁻²⁷ kg'dır. ω = √(k/m) bu yüzden devasa çıkar: bağ saniyede yaklaşık 8.7×10¹³ kez titreşir ve dalga boyu yaklaşık 3.5 mikrometre olan kızılötesi ışığı soğurur. Kızılötesi spektroskopi molekülleri bu 'yay seslerinden' tanır.",
     },
     {
       title: "Saniyede 32 768 titreşim",
@@ -113,39 +113,39 @@ window.ACELYA_DIGEST["yay-kutle"] = {
     },
   ],
   worked: {
-    title: "Periyottan kütle bulmak",
+    title: "Tek salınıcının kimlik kartı: ω₀, ζ, Q ve rezonans",
     prompt:
-      "k = 20 N/m'lik bir yaya bağlı bilinmeyen bir kütlenin periyodu 2.51 s ölçülüyor. Kütleyi bul. Sonra A = 0.80 m genlik için en büyük hızı ve toplam enerjiyi hesapla; sonucu sayfada doğrula.",
+      "m = 0.50 kg'lık blok, k = 20 N/m'lik yaya ve b = 0.3162 kg/s'lik viskoz sönümleyiciye bağlı. (a) ω₀, ζ ve Q'yu bul. (b) Sönümlü periyodu, logaritmik azalmayı ve bir turda yitirilen enerji oranını hesapla; 2π/Q kestirimiyle karşılaştır. (c) Sistem F₀ = 0.5 N genlikli kuvvetle tam ω₀'da sürülürse kalıcı genlik ve soğurulan ortalama güç ne olur? (d) Güç eğrisinin genişliği nedir?",
     steps: [
-      "Periyot formülünü kütle için çöz: T = 2π√(m/k) ise T² = 4π²·m/k, yani m = kT²/(4π²).",
-      "Sayıları yerleştir: T² = 2.51² ≈ 6.30 s², 4π² ≈ 39.48. m = 20 N/m × 6.30 s² / 39.48 ≈ 3.19 kg; sayfa kütleyi 0.1 kg adımlarla ayarladığı için 3.2 kg al. Birim denetimi: (N/m)·s² = (kg·m/s²)·s²/m = kg.",
-      "Açısal frekansı bul: ω = √(k/m) = √(20/3.2) = √6.25 = 2.50 rad/s. En büyük hız: v<sub>max</sub> = Aω = 0.80 m × 2.50 rad/s = 2.0 m/s.",
-      "Toplam enerji uç noktada tamamen yaydadır: E = ½kA² = ½ × 20 N/m × (0.80 m)² = 6.4 J. Denetim: dengede tamamen kinetiktir, ½·m·v<sub>max</sub>² = ½ × 3.2 kg × (2.0 m/s)² = 6.4 J.",
-      "Sayfada dene: Kütle m = 3.2 kg, Yay sabiti k = 20 N/m. Üst satırda ω = 2.50 rad/s ve T = 2.51 s görmelisin; blok dengeden geçerken |v| 2.0 m/s'ye yaklaşır.",
+      "(a) ω₀ = √(k/m) = √(20 N/m ÷ 0.50 kg) = √40 s⁻² = 6.325 rad/s. γ = b/2m = 0.3162 s⁻¹. ζ = γ/ω₀ = 0.3162/6.325 = 0.050. Q = √(km)/b = √(10 kg²/s²)/(0.3162 kg/s) = 3.162/0.3162 = 10.0. ζ &lt; 1 olduğundan sistem az sönümlüdür.",
+      "(b) ω<sub>d</sub> = √(ω₀² − γ²) = √(40 − 0.100) s⁻¹ = 6.317 rad/s, T<sub>d</sub> = 2π/ω<sub>d</sub> = 0.9947 s; sönümsüz 0.9935 s'den yalnızca %0.13 uzun. δ = γ·T<sub>d</sub> = 0.31623 × 0.99470 = 0.3146. Ardışık tepelerin oranı e<sup>−δ</sup> = 0.730: her turda genliğin %27'si gider.",
+      "Enerji genliğin karesiyle orantılıdır: bir tur sonra kalan oran e<sup>−2δ</sup> = e<sup>−0.6291</sup> = 0.5331, yitirilen oran 1 − 0.5331 = 0.4669. Kestirim 2π/Q = 0.6283 ise üstelin ilk terimidir (1 − e<sup>−u</sup> ≈ u, u = 2δ); u = 0.63 küçük sayılamayacağı için kaybı üçte bir kadar fazla gösterir. Sayfa aynı farkı ölçülenden bakarak −25.69 % diye yazar.",
+      "(c) ω = ω₀'da k − mω² = 0 olur, paydada yalnızca sönüm kalır: A = F₀/(bω₀) = 0.5 N/(0.3162 kg/s × 6.325 rad/s) = 0.2500 m. Bu, durgun uzama F₀/k = 0.025 m'nin Q = 10 katıdır. Hız genliği ω₀A = 1.581 m/s'dir ve kuvvetle aynı fazdadır: P = ½·F₀·ω₀A = ½ × 0.5 N × 1.581 m/s = 0.3953 W. Denetim: F₀²/2b = 0.25/0.6325 = 0.3953 W.",
+      "(d) Gücün yarıya indiği iki frekans arasındaki fark Δω = b/m = 0.3162/0.50 = 0.632 rad/s, yani ω₀/Q = 6.325/10. Sayfada doğrula: 02 sekmesinin varsayılanı (b) şıkkındaki değerleri, 03 sekmesinde Rezonans: ω = ω₀ ile Kalıcı duruma atla (c) şıkkını, Frekansı tara (d) şıkkını verir.",
     ],
     result:
-      "m ≈ 3.2 kg, v<sub>max</sub> = 2.0 m/s, E = 6.4 J. Bu yöntem tartıya, dolayısıyla yerçekimine ihtiyaç duymaz; bilinen bir yay ve bir saat yeter. İlke olarak ağırlıksız bir uzay istasyonunda da aynı biçimde çalışır.",
+      "ω₀ = 6.325 rad/s, ζ = 0.05, Q = 10; T<sub>d</sub> = 0.9947 s, δ = 0.3146, tur başına enerji kaybı 0.4669; rezonansta A = 0.2500 m ve P = 0.3953 W; Δω = 0.632 rad/s. Q üç ayrı yerde karşına çıktı: sönmenin hızında, rezonanstaki büyütmede ve tepenin darlığında. Birini ölçersen öbür ikisini bilirsin.",
   },
   misconceptions: [
     {
       myth: "Bloğu daha uzağa çekersen bir gidiş-dönüş daha uzun sürer.",
       truth:
-        "İdeal yayda periyot genlikten tamamen bağımsızdır: iki kat yol, iki kat hızla alınır. Sarkaçta bu yalnızca küçük açılarda yaklaşık doğrudur; yay–kütlede yay Hooke bölgesinde kaldıkça tam doğrudur. Sayfada genlik 0.8 m'de sabit olduğundan bunu doğrudan deneyemezsin; ama T = 2π√(m/k) formülünde A yoktur.",
+        "İdeal yayda periyot genlikten tümüyle bağımsızdır: iki kat yol, her anda iki kat hızla alınır. 01 sekmesinde x₀'ı 0.10 m'den 0.30 m'ye çıkar; enerji dokuz katına çıkar, ölçülen T yine 0.9935 s'dir. Sarkaçta bu yalnızca küçük açılarda yaklaşık doğrudur; gerçek bir yayda da yay Hooke bölgesinde kaldığı sürece geçerlidir.",
     },
     {
-      myth: "Sarkaçta olduğu gibi, yayda da kütle periyodu etkilemez.",
+      myth: "Yay–kütle saati de Ay'da yavaşlar; yayı düşey asınca yerçekimi periyodu değiştirir.",
       truth:
-        "Sarkaçta geri çağıran kuvvet yerçekimidir ve kütleyle orantılı büyür; bu yüzden kütle sadeleşir. Yayın kuvveti yalnızca uzamaya bağlıdır, kütleyi umursamaz. Sayfada k = 20 N/m iken kütleyi 1.0 kg'dan 4.0 kg'a çıkar: T 1.40 s'den 2.81 s'ye çıkar.",
+        "g periyot formülünde yoktur. Yayı düşey asmak denge konumunu m·g/k kadar aşağı kaydırır (sayfada Dünya'da 0.2453 m, Ay'da 0.0405 m), ama blok yeni dengenin çevresinde aynı T = 2π√(m/k) ile salınır. Sarkaç ise Ay'da yaklaşık 2.5 kat yavaşlar.",
     },
     {
-      myth: "Denge noktasında kuvvet sıfır olduğuna göre blok orada durur.",
+      myth: "Dengeye en çabuk dönen sistem kritik sönümlü olandır.",
       truth:
-        "Kuvvet ve ivme dengede sıfırdır ama hız en büyüktür; blok dengeden en hızlı geçer. Durduğu yerler uç noktalardır ve orada kuvvet en büyüktür. Grafikte mavi eğri sıfırdan geçerken turuncu eğrinin tepede olduğuna bak.",
+        "Doğrusu şu: kritik sönüm, dengeyi hiç <em>aşmadan</em> en çabuk dönendir. Küçük bir aşmaya razıysan biraz az sönümlü sistem daha hızlıdır: sayfadaki yarışta ±%5 bandına ζ = 0.70 düzeni 0.459 s'de, kritik düzen 0.750 s'de yerleşir; ilki dengeyi %4.6 aşar. Hangisinin iyi olduğu işe göre değişir: bir kapı çarpmamalı, bir ölçü aletinin ibresi ise çabuk durulmalıdır.",
     },
     {
-      myth: "Yay–kütle saati de Ay'da yavaşlar; düşey asılırsa yerçekimi periyodu değiştirir.",
+      myth: "Rezonans, sürücü frekansının doğal frekansa tam eşit olduğu ve genliğin en büyük olduğu tek noktadır.",
       truth:
-        "g periyot formülünde yoktur. Yayı düşey asmak denge konumunu mg/k kadar aşağı kaydırır, ama blok bu yeni denge çevresinde aynı T = 2π√(m/k) ile salınır. Bu yüzden yay–kütle düzeneği Ay'da da Dünya'daki periyotla çalışır; sarkaç ise yaklaşık 2.45 kat yavaşlar.",
+        "Sönüm varsa iki ayrı tepe vardır. Soğurulan güç tam ω₀'da en büyüktür; genlik ise ω₀√(1 − 2ζ²)'de, yani biraz daha düşük bir frekansta. ζ = 0.05'te fark küçüktür (6.309'a karşı 6.325 rad/s), ζ = 0.200'de belirgindir (6.066 rad/s), ζ ≥ 0.707'de genlik tepesi hiç yoktur. Ayrıca genlik rezonansta sonsuza gitmez: sönüm onu Q·F₀/k ile sınırlar.",
     },
   ],
   glossary: [
@@ -160,118 +160,125 @@ window.ACELYA_DIGEST["yay-kutle"] = {
         "Yayın sertliği, yani metre başına uzama için gereken kuvvet; birimi N/m (= kg/s²), 20 N/m'lik yay 10 cm uzayınca 2 N ile çeker.",
     },
     {
-      term: "Denge konumu",
+      term: "Doğal açısal frekans (ω₀)",
       definition:
-        "Bloğa etkiyen net kuvvetin sıfır olduğu konum; bu yatay düzenekte yayın hiç kuvvet uygulamadığı, kesikli 'denge' çizgisiyle gösterilen yerdir (düşey asılı yayda ise mg/k kadar aşağı kayar).",
+        "Sönümsüz ve sürülmeyen sistemin kendi salınım hızı, rad/s; yay–kütlede ω₀ = √(k/m) = 2π/T₀.",
     },
     {
-      term: "Genlik (A)",
-      definition: "Denge konumundan en büyük uzaklaşma; bu sayfada sabit 0.8 m.",
+      term: "Sönüm oranı (ζ)",
+      definition:
+        "Sönüm katsayısının kritik değere oranı, ζ = b/(2√(km)); 1'den küçükse sistem salınarak, 1 ve üstündeyse salınmadan dengeye döner.",
     },
     {
-      term: "Periyot (T) ve frekans (f)",
+      term: "Logaritmik azalma (δ)",
       definition:
-        "T bir tam gidiş-dönüşün süresidir; f = 1/T saniyedeki salınım sayısıdır, birimi hertz.",
+        "Az sönümlü salınımda ardışık iki tepenin oranının doğal logaritması; δ = γ·T<sub>d</sub>, γ = b/2m.",
     },
     {
-      term: "Açısal frekans (ω)",
+      term: "Kalite çarpanı (Q)",
       definition:
-        "Salınımın faz açısının değişim hızı, rad/s; yay–kütlede ω = √(k/m) = 2π/T.",
+        "Salınıcının ne kadar az kayıpla çalıştığını ölçen boyutsuz sayı, Q = √(km)/b = 1/(2ζ); rezonanstaki büyütmeyi ve güç eğrisinin darlığını (Δω = ω₀/Q) belirler.",
     },
     {
-      term: "Faz",
+      term: "Geçici rejim ve kalıcı durum",
       definition:
-        "x = A·cos(ωt + φ) ifadesindeki açı; salınımın döngünün hangi noktasında olduğunu söyler.",
+        "Sürülen salınıcıda doğal salınımın e<sup>−bt/2m</sup> ile söndüğü ilk evre geçici rejimdir; sonrasında yalnızca sürücünün frekansındaki kalıcı salınım kalır.",
     },
     {
-      term: "Esneklik sınırı",
+      term: "Rezonans",
       definition:
-        "Bir cismin kuvvet kalkınca eski biçimine dönebildiği en büyük zorlanma; aşılırsa kalıcı şekil değişimi başlar.",
+        "Sürücü frekansı doğal frekansa yaklaştığında sistemin sürücüden en çok enerji soğurması ve genliğinin büyümesi; tepeyi sönüm sınırlar.",
     },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede yay–kütle bir formüldür; üniversitede ilk tanıştığın <strong>diferansiyel denklemlerden</strong> biridir: m·x″ + k·x = 0. Bu denklem 'ikinci türevi kendisinin eksi bir katı olan fonksiyon hangisi?' diye sorar; cevap sinüs ve kosinüstür. Denkleme hızla orantılı bir sürtünme terimi c·x′ eklersen <strong>sönümlü salınıcı</strong> elde edersin. Sağ tarafa periyodik bir dış kuvvet F₀·cos(Ωt) koyarsan sürülen salınıcı olur: sürücü frekans Ω doğal frekans ω₀ = √(k/m)'ye yaklaştıkça genlik büyür. Buna <em>rezonans</em> denir; tepenin ne kadar yükseleceğini sönüm belirler. Ayarlı kütle sönümleyiciler bu denklemin iki kütleli bir sürümüyle tasarlanır. Aynı denklem elektronikte bir LC devresini anlatır: bobinin indüktansı kütlenin, kondansatörün 1/C değeri yay sabitinin rolünü oynar.",
-      "Yay–kütlenin her yerde karşına çıkmasının derin bir nedeni var. Bir sistemin enerjisi kararlı bir denge noktasında en küçük değerini alıyorsa, o noktanın çok yakınında enerji eğrisi hemen her zaman ½kx² gibi bir paraboldür (Taylor açılımının ilk anlamlı terimi). Yani kararlı dengenin çevresindeki küçük salınımların çoğu harmoniktir. Birbirine yaylarla bağlı çok sayıda kütle <strong>normal modlara</strong> ayrışır; bunları bulmak lineer cebirdeki özdeğer problemidir ve zincir uzadıkça modlar dalgalara dönüşür. Kuantum mekaniğinde aynı salınıcının enerjisi yalnızca ħω(n + ½) basamaklarında bulunabilir; HCl'nin kızılötesi soğurması bu basamaklar arasındaki bir atlamadır.",
+      "Bu sayfanın denklemi, m·x″ + b·x′ + k·x = F(t), Fizik I'in son haftalarında ve Diferansiyel Denklemler dersinin ilk yarısında karşına çıkar: ikinci mertebeden, doğrusal, sabit katsayılı denklemlerin örnek problemidir. Fizik II'de aynı denklem kılık değiştirir: seri <strong>RLC devresinde</strong> yük için L·q″ + R·q′ + q/C = V(t) yazılır; indüktans kütlenin, direnç sönümün, 1/C yay sabitinin yerini alır ve Q = √(L/C)/R olur. Radyonun istasyon seçmesi, sayfadaki güç eğrisinin dar tepesidir. Denklem doğrusal olduğu için kuvvetleri tek tek ele alıp yanıtları toplayabilirsin; <strong>Fourier analizi</strong> her periyodik kuvveti sinüslere ayırır, buradaki karmaşık genlik X(ω) de her birine verilecek yanıtı söyler. Mühendislikte aynı nesnenin adı <strong>transfer fonksiyonudur</strong> ve Laplace dönüşümüyle, kontrol kuramıyla, titreşim analiziyle birlikte öğretilir. Ayarlı kütle sönümleyiciler bu denklemin iki kütleli bir sürümüyle tasarlanır.",
+      "Yay–kütlenin her yerde karşına çıkmasının derin bir nedeni var. Bir sistemin enerjisi kararlı bir denge noktasında en küçük değerini alıyorsa, o noktanın çok yakınında enerji eğrisi hemen her zaman ½kx² gibi bir paraboldür (Taylor açılımının ilk anlamlı terimi). Yani kararlı dengenin çevresindeki küçük salınımların çoğu harmoniktir. Birbirine yaylarla bağlı çok sayıda kütle <strong>normal modlara</strong> ayrışır; bunları bulmak lineer cebirdeki özdeğer problemidir ve zincir uzadıkça modlar dalgalara dönüşür. Sayfadaki kütleli yay bunun küçük bir örneğidir: on iki parçalı bir zincir olarak çözülür. Enerji sapmasını ölçtüğün integratörler Sayısal Analiz dersinin konusudur: yöntemin mertebesi, kararlılığı ve enerjiyi uzun vadede koruyan simplektik yöntemler. Kuantum mekaniğinde aynı salınıcının enerjisi yalnızca ħω(n + ½) basamaklarında bulunabilir; HCl'nin kızılötesi soğurması bu basamaklar arasındaki bir atlamadır.",
     ],
     topics: [
-      "Diferansiyel denklemler",
+      "İkinci mertebeden doğrusal diferansiyel denklemler",
       "Sönümlü ve sürülen salınıcı",
-      "Rezonans",
+      "RLC devreleri ve rezonans",
+      "Fourier analizi ve transfer fonksiyonu",
       "Normal modlar ve özdeğerler",
-      "LC devreleri",
+      "Simplektik integratörler",
       "Kuantum harmonik salınıcı",
     ],
   },
   quiz: [
     {
       question:
-        "Bir yay–kütle düzeneği 1.4 s periyotla salınıyor. Yay sabiti 8 katına, kütle 2 katına çıkarılırsa yeni periyot kaç saniye olur?",
-      options: ["5.6 s", "1.4 s (değişmez)", "0.7 s", "0.35 s"],
-      answer: 2,
+        "Az sönümlü bir yay–kütle sisteminde yay ve sönümleyici aynı bırakılıp kütle dört katına çıkarılıyor. Kalite çarpanı Q ve güç eğrisinin genişliği Δω nasıl değişir?",
+      options: [
+        "Q iki katına çıkar, Δω dörtte birine iner",
+        "Q dört katına çıkar, Δω değişmez",
+        "Q yarıya iner, Δω iki katına çıkar",
+        "İkisi de değişmez; yalnızca ω₀ yarıya iner",
+      ],
+      answer: 0,
       explanation:
-        "T, √(m/k) ile orantılıdır. m/k oranı 2/8 = 1/4 katına iner; karekökü 1/2 olduğundan T = 1.4 s × ½ = 0.7 s. 0.35 s karekökü unutmanın, 5.6 s ise oranı ters çevirmenin sonucudur. Kural: yalnızca m/k oranı önemlidir ve periyoda karekök olarak yansır.",
+        "Q = √(km)/b kütleye karekökle bağlıdır: √4 = 2 kat. Δω = b/m ise doğrudan 1/m ile gider: dörtte bir. Denetim: Δω = ω₀/Q; ω₀ yarıya iner, Q iki katına çıkar, oran dörtte bire düşer. Ağır salınıcı hem daha yavaş söner hem daha keskin seçer.",
     },
     {
       question:
-        "Bir yay–kütle düzeneği Dünya'dan Ay'a (yerçekimi yaklaşık altı kat küçük) götürülüp düşey asılıyor. Periyodu ne olur?",
-      options: [
-        "Yaklaşık 2.45 kat uzar",
-        "Değişmez",
-        "Altı kat uzar",
-        "Salınım hiç olmaz",
-      ],
+        "Aynı x₀'dan bırakılan dört sistemden hangisi ±%5 bandına en erken yerleşir (m = 0.50 kg, k = 20 N/m)?",
+      options: ["ζ = 0.05", "ζ = 0.70", "ζ = 1 (kritik sönüm)", "ζ = 2"],
       answer: 1,
       explanation:
-        "g, T = 2π√(m/k) içinde yoktur; yerçekimi yalnızca denge konumunu mg/k kadar kaydırır. 2.45 kat uzama sarkaç için doğru cevaptır; iki salınıcıyı ayıran temel fark budur.",
+        "ζ = 0.70 düzeni 0.459 s'de yerleşir; kritik sönüm 0.750 s, ζ = 2 ise 1.812 s ister, ζ = 0.05 saniyelerce salınır (9.469 s). Kritik sönümün ayrıcalığı hız değil, dengeyi hiç aşmamasıdır; ζ = 0.70 dengeyi %4.6 aşar ama bu aşma bandın içinde kalır.",
     },
     {
       question:
-        "Sayfada m = 1.0 kg, k = 80 N/m iken (A = 0.8 m) blok dengeden geçerken hızı yaklaşık kaçtır?",
-      options: ["0.70 m/s", "3.58 m/s", "7.16 m/s", "64 m/s"],
+        "Sürülen bir salınıcıda sönüm katsayısı b yarıya indiriliyor (m, k, F₀ aynı). Tam ω₀'daki kalıcı genlik, oradaki ortalama güç ve güç eğrisinin genişliği nasıl değişir?",
+      options: [
+        "Genlik iki katına, güç dört katına çıkar; genişlik değişmez",
+        "Genlik ve güç değişmez; genişlik yarıya iner",
+        "Genlik ve güç iki katına çıkar; genişlik yarıya iner",
+        "Genlik iki katına çıkar; güç ve genişlik yarıya iner",
+      ],
       answer: 2,
       explanation:
-        "ω = √(80/1.0) ≈ 8.94 rad/s ve v<sub>max</sub> = Aω = 0.8 × 8.94 ≈ 7.16 m/s. 0.70 bu ayardaki periyodun saniye cinsinden değeri, 64 ise uç noktadaki kuvvet kA'nın newton cinsinden değeridir; birimlere bakmak bu tuzakları ayıklar.",
+        "ω₀'da A = F₀/(bω₀) ve P = F₀²/2b: ikisi de 1/b ile büyür. Güç genliğin karesiyle dört katına çıkmaz, çünkü P = ½·b·ω²·A² içindeki b de yarıya inmiştir. Genişlik Δω = b/m yarıya iner. Az sönüm, daha yüksek ve daha dar bir tepe demektir; güç eğrisinin ω eksenindeki alanı (πF₀²/4m) b'den bağımsızdır, yükseklik ile genişliğin çarpımı da bu yüzden değişmez.",
     },
   ],
   next: [
     {
       href: "sarkac.html",
-      title: "Sarkaç",
-      why: "Aynı sinüs, farklı geri çağıran kuvvet: orada Kütle m kaydırıcısı periyodu kıpırdatmaz, Yerçekimi g menüsünden Ay'ı seçmek ise yaklaşık 2.5 kat uzatır. Burada olanın tam tersi.",
+      title: "Sarkaç Laboratuvarı",
+      why: "Geri çağıran yerçekimi olunca tablo tersine döner: Kütle m periyodu kıpırdatmaz, Yerçekimi g menüsü değiştirir. Büyük Başlangıç açısı θ₀'da periyot genliğe de bağlanır; yayda hiç olmayan şey.",
     },
     {
-      href: "is-enerji.html",
-      title: "İş–Enerji İlkesi",
-      why: "Yay yok ama enerji hesabı aynı: Eğim açısı ve Sürtünme μ kaydırıcılarıyla eğik düzlemde kayan bloğun KE, PE, W_net ve Isı çubuklarını izle; bu sayfada olmayan sürtünmenin mekanik enerjiyi nasıl ısıya çevirdiğini gör.",
+      href: "alternatif-akim.html",
+      title: "Alternatif Akım: RLC Devresi, Fazörler ve Rezonans",
+      why: "Aynı denklemin elektrik kılığı: İndüktans L kütlenin, Direnç R sönümün, Sığa C yayın yerinde. Rezonansa git düğmesiyle akımın tepesini bul, dönen fazörlerde buradaki faz gecikmesini tanı.",
     },
     {
       href: "duran-dalgalar.html",
-      title: "Duran Dalgalar",
-      why: "Yaylarla bağlı kütleler sonsuz küçülüp sıklaşırsa gerilmiş bir tele dönüşür ve tek frekans yerine bir merdiven çıkar: f<sub>n</sub> = n·v/2L. Rezonans eğrisini tara düğmesiyle basamakları, titreştiriciyi bir basamağa getirince düğümleri gör.",
+      title: "Duran Dalgalar: Tel, Hava Sütunu ve Harmonikler",
+      why: "Tek kütlenin tek rezonansı vardı; gerilmiş telin bir dizi rezonansı var. Titreşen tel sekmesinde titreştiricinin frekansını gezdir, tel her harmonikte yeniden kabarsın.",
     },
     {
-      href: "diferansiyel-denklemler.html",
-      title: "Diferansiyel Denklemler",
-      why: "Bu sayfada olmayan iki şey orada var: Sönüm c = 0 iken Başlangıç konumu kaydırıcısıyla genliği değiştir ve x(t) tepelerinin aralığının değişmediğini gör; sonra Sönüm c'yi aç, faz düzlemindeki kapalı elips içe doğru sarmala döner.",
+      href: "dalga-superpozisyonu.html",
+      title: "Dalga Süperpozisyonu: Girişim, Vuru ve Dalga Paketleri",
+      why: "Rezonans yakınında geçici rejimde gördüğün kabarıp inen genlik bir vurudur. 02 · Vuru sekmesinde yakın frekanslı iki tonu toplayıp aynı zarfı ölç ve dinle.",
     },
   ],
   sources: [
     {
       title: "OpenStax · University Physics Vol. 1, 15.1 Simple Harmonic Motion",
       url: "https://openstax.org/books/university-physics-volume-1/pages/15-1-simple-harmonic-motion",
-      note: "Hooke yasasından periyot ve enerji formüllerine, çözümlü örneklerle (İngilizce, açık ders kitabı).",
+      note: "Hooke yasasından basit harmonik hareketin denklemine ve periyot formülüne, çözümlü örneklerle; hemen ardından gelen 15.2 enerjiyi işler (İngilizce, açık ders kitabı).",
     },
     {
       title: "PhET · Kütleler ve Yaylar",
       url: "https://phet.colorado.edu/tr/simulations/masses-and-springs",
-      note: "Sönüm, yerçekimi ve enerji gösterimi olan bir yay laboratuvarı; bu sayfada olmayanları orada dene.",
+      note: "Türkçe arayüzlü yay ve kütle benzetimi; aynı deneyleri başka bir araçta yineleyip bu sayfadaki sonuçlarla karşılaştırmak için.",
     },
     {
-      title: "HyperPhysics · Simple Harmonic Motion",
-      url: "http://hyperphysics.phy-astr.gsu.edu/hbase/shm.html",
-      note: "Basit harmonik hareketin denklemleri ve kısa, formül odaklı özetler.",
+      title: "OpenStax · University Physics Vol. 1, 15.5 Damped Oscillations",
+      url: "https://openstax.org/books/university-physics-volume-1/pages/15-5-damped-oscillations",
+      note: "Az sönümlü, kritik ve aşırı sönümlü üç durumun b² ile 4mk karşılaştırmasından çıkarılışı; ardından gelen 15.6 zorlanmış salınımı ve rezonansı işler (İngilizce).",
     },
     {
       title: "Wikipedia · Hooke's law",
@@ -279,5 +286,5 @@ window.ACELYA_DIGEST["yay-kutle"] = {
       note: "Yasanın tarihi: Hooke'un 1660 iddiası, 1676'da yayımlanan ceiiinosssttuv anagramı ve 1678'deki çözümü 'ut tensio, sic vis' (İngilizce).",
     },
   ],
-  revision: "Ekim 2026",
+  revision: "Kasım 2026",
 };

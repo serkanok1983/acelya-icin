@@ -194,7 +194,7 @@ window.ACELYA_DIGEST["oyun-2048"] = {
     { href: "hanoi-kuleleri.html", title: "Hanoi Kuleleri", why: "Bir başka ikiye katlama: her yeni disk hamle sayısını 2ⁿ − 1 kuralıyla büyütür; yineleme bağıntısı çözmenin en temiz örneği." },
     { href: "mayin-tarlasi.html", title: "Mayın Tarlası", why: "Şans yine işin içinde, ama bu kez gizli bilgi var: olasılığı sayarak bulmak ve NP-tamlık." },
     { href: "isik-sondurme.html", title: "Işık Söndürme", why: "Şanssız, saf cebir bir bulmaca: ikili sayılar bu kez 1 + 1 = 0 kuralıyla toplanır." },
-    { href: "makine-ogrenmesi-derin-ogrenme-llm.html", title: "Makine Öğrenmesi, Derin Öğrenme ve LLM", why: "Değer fonksiyonunu elle yazmak yerine veriden öğrenen yöntemlerin genel resmi." },
+    { href: "makine-ogrenmesi-derin-ogrenme-llm.html", title: "Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri", why: "Değer fonksiyonunu elle yazmak yerine veriden öğrenen yöntemlerin genel resmi." },
   ],
   sources: [
     { title: "Wikipedia · 2048 (video game)", url: "https://en.wikipedia.org/wiki/2048_(video_game)", note: "Cirulli'nin anlatımı, 9 Mart 2014 tarihi, Threes ve 1024 ile ilişkisi, 131 072 tavanı ve yapay zekâ denemelerinin sonuçları (İngilizce)." },

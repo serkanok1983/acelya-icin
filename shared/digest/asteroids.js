@@ -191,10 +191,10 @@ window.ACELYA_DIGEST["asteroids"] = {
     },
   ],
   next: [
-    { href: "vektorler.html", title: "Vektörler", why: "Eski hız artı yeni itiş: iki oku uç uca ekle, bileşenlerine ayır ve laboratuvardaki 40°'lik çaprazın nereden geldiğini kendi elinle bul." },
-    { href: "newton-hareket-yasalari.html", title: "Newton’un Hareket Yasaları ve Çarpışmalar", why: "Kuvvet yokken dümdüz giden toplar ve çarpışmada korunan toplam momentum: geminin süzülmesinin ve kayaların atladığı kuralın sayfası." },
+    { href: "vektorler.html", title: "Vektörler: Bileşenler, Çarpımlar ve Bağıl Hareket", why: "Eski hız artı yeni itiş: iki oku uç uca ekle, bileşenlerine ayır ve laboratuvardaki 40°'lik çaprazın nereden geldiğini kendi elinle bul." },
+    { href: "newton-hareket-yasalari.html", title: "Newton'un Hareket Yasaları: Kuvvet, Kütle ve İvme", why: "Kuvvet kesilince cisim neden süzülmeye devam eder? Sürtünmesiz hava rayında birinci yasayı, Atwood düzeneğinde F = m·a’yı ve iki arabanın birbirini ittiği deneyde etki–tepkiyi ölç." },
     { href: "gezegen-savunmasi.html", title: "Gezegen Savunması", why: "Aynı gemi mantığı, bu kez gerçek GM/r² çekiminde: mermin düşer, elips çizer ya da kaçar; enerjiyi, yarı büyük ekseni ve periyodu ölçersin." },
-    { href: "serbest-dusme.html", title: "Serbest Düşme ve Hava Direnci", why: "Sabit ivmede t² ile büyüyen yol ve hıza bağlı frenin limit hızı: oyunun iki hareket rejiminin gerçek birimlerle laboratuvarı." },
+    { href: "serbest-dusme.html", title: "Serbest Düşme: Galileo'dan Limit Hıza", why: "Sabit ivmede t² ile büyüyen yol ve hıza bağlı frenin limit hızı: oyunun iki hareket rejiminin gerçek birimlerle laboratuvarı." },
   ],
   sources: [
     { title: "Wikipedia · Asteroids (video game)", url: "https://en.wikipedia.org/wiki/Asteroids_(video_game)", note: "Rains ve Logg'un tasarımı, vektör donanımı, satış sayıları, pusu taktiği ve rekorlar (İngilizce)." },

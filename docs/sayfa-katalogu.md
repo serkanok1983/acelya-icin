@@ -39,18 +39,18 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 ## Matematik (35)
 
 - `birim-cember` — Birim Çember (sayfa başlığı: Birim Çember: Sinüs, Kosinüs ve Dönmeler)
-- `vektorler` — Vektörler
+- `vektorler` — Vektörler (sayfa başlığı: Vektörler: Bileşenler, Çarpımlar ve Bağıl Hareket)
 - `fonksiyon-grafigi` — Fonksiyon Grafiği
 - `riemann-toplamlari` — Riemann Toplamları (sayfa başlığı: Riemann Toplamları ve Sayısal İntegral)
 - `turev` — Türev (sayfa başlığı: Türev: Kesenden Teğete (Limit Laboratuvarı))
-- `integral` — İntegral (sayfa başlığı: İntegral Nedir? - Riemann Toplamı)
+- `integral` — İntegral (sayfa başlığı: İntegral: Birikim, Temel Teorem ve Uygulamalar)
 - `taylor-serisi` — Taylor Serisi (sayfa başlığı: Taylor Serisi: Fonksiyonları Polinomlarla Yakalamak)
 - `pisagor` — Pisagor Teoremi (sayfa başlığı: Pisagor Teoremi: Kanıtlar, Üçlüler ve Eğri Yüzey)
 - `asal-rsa` — Asal & RSA (sayfa başlığı: Asal Sayılar ve RSA: Elekten Şifreye)
 - `rastgele-yuruyus` — Rastgele Yürüyüş (sayfa başlığı: Rastgele Yürüyüş: √N Yasası, Difüzyon ve Geri Dönüş)
 - `lissajous` — Lissajous (sayfa başlığı: Lissajous Eğrileri: Frekans Oranı, Faz ve Harmonograf)
 - `normal-dagilim` — Normal Dağılım (sayfa başlığı: Normal Dağılım ve Merkezi Limit Teoremi)
-- `altin-oran` — Altın Oran (sayfa başlığı: Altın Oran & Fibonacci Spirali - Three.js)
+- `altin-oran` — Altın Oran (sayfa başlığı: Altın Oran: φ Sayısı, Sarmallar ve Yaprak Dizilimi)
 - `fibo` — Fibonacci Kareleri (sayfa başlığı: Fibonacci: Kareler, Alan ve Eğrilik)
 - `fibo+pascal` — Fibonacci ve Pascal (sayfa başlığı: Fibonacci ve Pascal: Aynı Döşemeyi İki Kez Say)
 - `pascal-ucgeni` — Pascal & Sierpinski (sayfa başlığı: Pascal Üçgeni Laboratuvarı)
@@ -79,7 +79,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `optik-yansima-kirilma` — Optik: Yansıma & Kırılma (sayfa başlığı: Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma)
 - `mercek-isinlari` — Mercek Işınları (sayfa başlığı: İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu)
 - `klasik-girisim` — Klasik Girişim (sayfa başlığı: Young'un Çift Yarık Deneyi: Işığın Girişimi)
-- `yay-kutle` — Yay–Kütle (SHM)
+- `yay-kutle` — Yay–Kütle (SHM) (sayfa başlığı: Yay-Kütle Sistemi: Salınım, Sönüm ve Rezonans)
 - `sarkac` — Sarkaç (sayfa başlığı: Sarkaç Laboratuvarı)
 - `cift-sarkac` — Çift Sarkaç (sayfa başlığı: Çift Sarkaç: Kaos ve Başlangıç Koşullarına Duyarlılık)
 - `dairesel-hareket` — Dairesel Hareket (sayfa başlığı: Dairesel Hareket — Merkezcil Kuvvet)
@@ -89,14 +89,14 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `mukavemet` — Mukavemet (sayfa başlığı: Mukavemet: Gerilme, Sehim ve Burkulma)
 - `celik-yapilar` — Çelik Yapılar
 - `is-enerji` — İş–Enerji (sayfa başlığı: İş–Enerji İlkesi)
-- `newton-hareket-yasalari` — Newton Yasaları (sayfa başlığı: Newton’un Hareket Yasaları ve Çarpışmalar)
+- `newton-hareket-yasalari` — Newton Yasaları (sayfa başlığı: Newton'un Hareket Yasaları: Kuvvet, Kütle ve İvme)
 - `atislar` — Eğik Atış (sayfa başlığı: Eğik Atış: Hava Direnci ve En İyi Açı)
-- `serbest-dusme` — Serbest Düşme (sayfa başlığı: Serbest Düşme ve Hava Direnci)
+- `serbest-dusme` — Serbest Düşme (sayfa başlığı: Serbest Düşme: Galileo'dan Limit Hıza)
 - `kaldirma-kuvveti` — Kaldırma Kuvveti (sayfa başlığı: Kaldırma Kuvveti: Arşimet İlkesi ve Yüzme)
 - `basinc` — Basınç ve Hidrolik Pres (sayfa başlığı: Basınç: Hidrostatik, Pascal İlkesi ve Hidrolik)
 - `akiskanlar-mekanigi` — Akışkanlar Mekaniği (sayfa başlığı: Akışkanlar Mekaniği: Akış, Kayıp ve Pompa)
 - `hidrolik-sistemler` — Hidrolik Sistemler (sayfa başlığı: Hidrolik Sistemler: Debi, Yük ve Güç)
-- `dalga-superpozisyonu` — Dalga Süperpozisyonu
+- `dalga-superpozisyonu` — Dalga Süperpozisyonu (sayfa başlığı: Dalga Süperpozisyonu: Girişim, Vuru ve Dalga Paketleri)
 - `doppler-etkisi` — Doppler (sayfa başlığı: Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması)
 - `elektrostatik` — Elektrostatik (sayfa başlığı: Elektrostatik: Alan, Potansiyel ve Akı)
 - `elektrik-devresi-simulasyonu` — Elektrik Devresi (sayfa başlığı: DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları)
@@ -165,23 +165,23 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `bilgisayar-sistemleri-ve-mimarisi` — Bilgisayar Sistemleri ve Mimarisi
 - `algoritmalar` — Algoritmalar
 - `veri-yapilari` — Veri Yapıları
-- `veritabanlari` — Veritabanları
+- `veritabanlari` — Veritabanları (sayfa başlığı: Veritabanları: İlişkisel Model, Sorgular ve İndeksler)
 - `isaretciler-ve-bellek-yonetimi` — İşaretçiler ve Bellek Yönetimi
 - `derleyici-ve-yorumlayicilar` — Derleyici ve Yorumlayıcılar
 - `yazilim-muhendisligi` — Yazılım Mühendisliği
 - `bicimsel-diller-ve-otomata-teorisi` — Biçimsel Diller ve Otomata Teorisi
-- `hesaplama-teorisi` — Hesaplama Teorisi
+- `hesaplama-teorisi` — Hesaplama Teorisi (sayfa başlığı: Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik)
 - `grup-teorisi` — Grup Teorisi
 - `sicim-teorisi` — Sicim Teorisi
 - `tasarim-desenleri` — Tasarım Desenleri
-- `programlama-paradigmalari` — Programlama Paradigmaları
+- `programlama-paradigmalari` — Programlama Paradigmaları (sayfa başlığı: Programlama Paradigmaları: Aynı Problem, Farklı Düşünme Biçimleri)
 - `makine-dili-assembly-c` — Makine Dili → Assembly → C
-- `makine-ogrenmesi-derin-ogrenme-llm` — Makine Öğrenmesi, Derin Öğrenme ve LLM (sayfa başlığı: Makine Öğrenmesi, Derin Öğrenme ve LLM'ler)
+- `makine-ogrenmesi-derin-ogrenme-llm` — Makine Öğrenmesi, Derin Öğrenme ve LLM (sayfa başlığı: Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri)
 - `otonom-araclar-ve-iha` — Otonom Araçlar ve İHA (sayfa başlığı: Otonom Araçlar ve İnsansız Hava Araçları)
-- `metalurji-ve-malzeme-muhendisligi` — Metalurji ve Malzeme Mühendisliği
-- `maden-muhendisligi` — Maden Mühendisliği
-- `makro-ekonomi-ve-para-politikalari` — Makro Ekonomi ve Para Politikaları
-- `mikro-ekonomi-ve-uretim-faktorleri` — Mikro Ekonomi ve Üretim Faktörleri
+- `metalurji-ve-malzeme-muhendisligi` — Metalurji ve Malzeme Mühendisliği (sayfa başlığı: Malzeme Bilimi: Faz Diyagramı, Çekme Deneyi ve Difüzyon)
+- `maden-muhendisligi` — Maden Mühendisliği (sayfa başlığı: Maden Mühendisliği: Tenör, Açık Ocak ve Cevher Hazırlama)
+- `makro-ekonomi-ve-para-politikalari` — Makro Ekonomi ve Para Politikaları (sayfa başlığı: Makro Ekonomi: Çarpanlar, Para ve Büyüme Modelleri)
+- `mikro-ekonomi-ve-uretim-faktorleri` — Mikro Ekonomi ve Üretim Faktörleri (sayfa başlığı: Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma)
 - `roma-hukuku` — Roma Hukuku
 - `yoneylem-arastirmasi` — Yöneylem Araştırması (sayfa başlığı: Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol)
 - `uretim-planlama-ve-endustri-muhendisligi` — Üretim Planlama ve Endüstri Mühendisliği (sayfa başlığı: Üretim Planlama: Stok, Kalite ve Akış)
@@ -193,7 +193,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `kimya-muhendisligi` — Kimya Mühendisliği (sayfa başlığı: Kimya Mühendisliği: Reaktör, Damıtma ve Isı Değiştirici)
 - `gemi-makineleri-isletme-muhendisligi` — Gemi Makineleri İşletme Mühendisliği (sayfa başlığı: Gemi Makineleri: Dizel Çevrim, Pervane ve Stabilite)
 - `ucak-muhendisligi-ve-aerodinamik` — Uçak Mühendisliği ve Aerodinamik
-- `otomotiv-muhendisligi` — Otomotiv Mühendisliği
-- `elektrikli-araclar` — Elektrikli Araçlar
-- `uluslararasi-iliskiler` — Uluslararası İlişkiler
+- `otomotiv-muhendisligi` — Otomotiv Mühendisliği (sayfa başlığı: Otomotiv Mühendisliği: Motor, Aktarma ve Araç Dinamiği)
+- `elektrikli-araclar` — Elektrikli Araçlar (sayfa başlığı: Elektrikli Araçlar: Enerji, Batarya ve Menzil)
+- `uluslararasi-iliskiler` — Uluslararası İlişkiler (sayfa başlığı: Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri)
 - `isletme-bilimi-ve-yonetim` — İşletme Bilimi ve Yönetim

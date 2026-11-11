@@ -215,7 +215,7 @@ window.ACELYA_DIGEST["klasik-girisim"] = {
   next: [
     { href: "kirinim-izgarasi.html", title: "Kırınım Izgarası", why: "İki yarıktan yüzlerce yarığa geç: tepeler aynı d·sin θ = mλ açılarında kalır ama incelir ve beyaz ışık keskin bir tayfa ayrılır." },
     { href: "kuantum-mekanigi.html", title: "Kuantum Çift Yarık", why: "Aynı saçaklar parçacıklar tek tek gönderildiğinde de nokta nokta birikir; bu kez toplanan şey olasılık genliğidir." },
-    { href: "dalga-superpozisyonu.html", title: "Dalga Süperpozisyonu", why: "cos²'nin kökü: faz farkının toplam genliği nasıl belirlediğini ve şiddetin neden genliğin karesi olduğunu iki dalgayla gör." },
+    { href: "dalga-superpozisyonu.html", title: "Dalga Süperpozisyonu: Girişim, Vuru ve Dalga Paketleri", why: "cos²'nin kökü: faz farkının toplam genliği nasıl belirlediğini ve şiddetin neden genliğin karesi olduğunu iki dalgayla gör." },
     { href: "renk-teorisi.html", title: "Renk Teorisi", why: "Beyaz ışık saçaklarındaki renkler toplamsal karışımdır; Young'ın üç tür renk alıcısı fikrinin izini RGB karışımında sür." },
   ],
   sources: [

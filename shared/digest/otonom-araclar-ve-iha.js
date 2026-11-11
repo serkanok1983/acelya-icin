@@ -211,7 +211,7 @@ window.ACELYA_DIGEST["otonom-araclar-ve-iha"] = {
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma: Az Adım mı, Az Maliyet mi?", why: "BFS, Dijkstra ve A*'ı aynı ağırlıklı haritada tek tek adımlat ve üçünü karşılaştır; buradaki 'incelenen kare' sayısının arkasındaki kuyruğu gör." },
     { href: "doppler-etkisi.html", title: "Doppler Etkisi: Dalga Cepheleri ve Ses Patlaması", why: "Radarın dayandığı frekans kaymasını dalga tepelerini sayarak ölç: kaynak hareket edince öndeki ve arkadaki gözlemci neden farklı frekans duyar?" },
     { href: "ucak-muhendisligi-ve-aerodinamik.html", title: "Uçak Mühendisliği ve Aerodinamik", why: "Sabit kanatlı İHA'yı saatlerce havada tutan L/D oranını kanat profili üzerinde açı açı oku." },
-    { href: "elektrikli-araclar.html", title: "Elektrikli Araçlar", why: "Drone'u ve otonom aracı besleyen lityum iyon hücrenin şarj-deşarj animasyonu, batarya ve motor kartları." },
+    { href: "elektrikli-araclar.html", title: "Elektrikli Araçlar: Enerji, Batarya ve Menzil", why: "Drone’u ve otonom aracı besleyen bataryanın hesabı: paketin gerilimi ve akımı, şarj eğrisi, sürüş direncinden menzil ve frenlemede geri kazanılan enerji." },
   ],
   sources: [
     { title: "Wikipedia · A* search algorithm", url: "https://en.wikipedia.org/wiki/A*_search_algorithm", note: "Hart, Nilsson ve Raphael'in 1968 makalesi, kabul edilebilirlik ve sezgisel seçimi (İngilizce)." },

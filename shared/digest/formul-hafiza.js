@@ -189,7 +189,7 @@ window.ACELYA_DIGEST["formul-hafiza"] = {
     },
   ],
   next: [
-    { href: "newton-hareket-yasalari.html", title: "Newton'un Hareket Yasaları", why: "F = m·a ve p = m·v kartlarının arkasındaki deneyler: kuvvet, ivme ve çarpışmalarda momentum." },
+    { href: "newton-hareket-yasalari.html", title: "Newton'un Hareket Yasaları: Kuvvet, Kütle ve İvme", why: "F = m·a kartının arkasındaki deneyler: sürtünme eşiği, Atwood düzeneğinde ölçülen ivme ve birbirini iten iki arabada eşit ve zıt kuvvetler." },
     { href: "elektrostatik.html", title: "Elektrostatik", why: "Coulomb kartının devamı: alan, potansiyel ve ters kare yasasını küre yüzeyinden çıkaran akı fikri." },
     { href: "tek-sayi-toplam3.html", title: "Tek Sayılardan Kareye", why: "1 + 3 + 5 + … + 15 = 64 neden bir kare? Hafızasız oyuncunun n²'sinin görsel ispatı." },
     { href: "bayes-olasilik.html", title: "Bayes Olasılığı", why: "Açılan her kart kalanlar hakkındaki olasılığı günceller; koşullu olasılığın düzenli hesabı burada." },
