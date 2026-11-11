@@ -392,6 +392,8 @@
         <div class="ds-controls">
           <button class="btn-send" id="btnStackPush">➕ Push / Enqueue</button>
           <button class="btn-ghost2" id="btnStackPop">➖ Pop / Dequeue</button>
+          <button class="btn-ghost2" id="btnDequePushFront" style="display: none">➕ Öne Ekle</button>
+          <button class="btn-ghost2" id="btnDequePopFront" style="display: none">➖ Önden Çıkar</button>
           <button class="btn-ghost2" id="btnStackPeek">👁️ Peek (Gözetle)</button>
           <button class="btn-ghost2" id="btnStackReset">↺ Sıfırla</button>
         </div>
@@ -474,7 +476,7 @@
         <h2>🌳 İkili Arama Ağacı (Binary Search Tree — BST)</h2>
         <p class="desc">
           BST'de her düğümün
-          <strong>sol çocuğu kendinden küçük, sağ çocuğu kendinden büyük</strong>tür.
+          <strong>sol alt ağacındaki bütün değerler kendinden küçük, sağ alt ağacındakiler büyük</strong>tür.
           Dengeli ağaçta arama/ekleme/silme O(log n), dengesizde en kötü O(n). AVL ve
           Red-Black ağaçları dengeyi korur. Değer ekleyip silerek ağacın nasıl
           değiştiğini izleyin.
@@ -568,7 +570,7 @@
           çocuklardan küçük (min-heap) veya büyük (max-heap) olduğu bir veri
           yapısıdır. Dizi ile temsil edilir:
           <code>sol çocuk = 2i+1, sağ çocuk = 2i+2, ebeveyn = ⌊(i-1)/2⌋</code>.
-          Ekleme O(log n), minimumu alma O(1). Dijkstra ve Heap Sort'un temelidir.
+          Ekleme ve minimumu çıkarma O(log n), minimuma yalnızca bakmak O(1). Dijkstra ve Heap Sort'un temelidir.
         </p>
         <div class="heap-array" id="heapArray"></div>
         <div class="heap-tree" id="heapTree"></div>
@@ -836,10 +838,24 @@
           const ops = {
             stack: "Push O(1) · Pop O(1)",
             queue: "Enqueue O(1) · Dequeue O(1)",
-            deque: "Ön/Arka ekleme/çıkarma O(1)",
+            deque: "Push/Pop arka uçta, Öne Ekle/Önden Çıkar ön uçta · hepsi O(1)",
           };
           infoEl.innerHTML = `<strong>${labels[sqMode]}</strong> — ${data.length} eleman — ${ops[sqMode]}`;
+          ["btnDequePushFront", "btnDequePopFront"].forEach((id) => {
+            document.getElementById(id).style.display = sqMode === "deque" ? "" : "none";
+          });
         }
+
+        document.getElementById("btnDequePushFront").addEventListener("click", () => {
+          data.unshift(Math.floor(Math.random() * 90) + 10);
+          peekIdx = -1;
+          render();
+        });
+        document.getElementById("btnDequePopFront").addEventListener("click", () => {
+          peekIdx = -1;
+          if (data.length) data.shift();
+          render();
+        });
 
         document.querySelectorAll("[data-sq]").forEach((tab) => {
           tab.addEventListener("click", () => {
@@ -1048,32 +1064,33 @@
           canvas.height = H;
         }
 
-        function drawNode(node, x, y, spread, depth) {
+        function drawNode(node, lay) {
           if (!node) return;
-          const r = 18;
-          const vGap = 58 * Math.min(1, 300 / H);
+          const r = lay.r;
+          const x = lay.x(node);
+          const y = lay.y(node);
 
           if (node.left) {
-            const childX = x - spread;
-            const childY = y + vGap;
+            const childX = lay.x(node.left);
+            const childY = lay.y(node.left);
             ctx.beginPath();
             ctx.moveTo(x, y + r);
             ctx.lineTo(childX, childY - r);
             ctx.strokeStyle = "rgba(255,255,255,0.15)";
             ctx.lineWidth = 1.5;
             ctx.stroke();
-            drawNode(node.left, childX, childY, spread / 2, depth + 1);
+            drawNode(node.left, lay);
           }
           if (node.right) {
-            const childX = x + spread;
-            const childY = y + vGap;
+            const childX = lay.x(node.right);
+            const childY = lay.y(node.right);
             ctx.beginPath();
             ctx.moveTo(x, y + r);
             ctx.lineTo(childX, childY - r);
             ctx.strokeStyle = "rgba(255,255,255,0.15)";
             ctx.lineWidth = 1.5;
             ctx.stroke();
-            drawNode(node.right, childX, childY, spread / 2, depth + 1);
+            drawNode(node.right, lay);
           }
 
           // Düğüm
@@ -1090,12 +1107,12 @@
           ctx.arc(x, y, r, 0, Math.PI * 2);
           ctx.fillStyle = isHL ? "rgba(251,191,36,0.2)" : "rgba(94,234,212,0.12)";
           ctx.fill();
-          ctx.strokeStyle = isHL ? "#fbbf24" : "var(--accent)";
+          ctx.strokeStyle = isHL ? "#fbbf24" : "#5eead4";
           ctx.lineWidth = isHL ? 3 : 2;
           ctx.stroke();
 
           ctx.fillStyle = "#fff";
-          ctx.font = "bold 12px ui-monospace, monospace";
+          ctx.font = `bold ${r >= 14 ? 12 : 9}px ui-monospace, monospace`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(node.val, x, y);
@@ -1120,10 +1137,26 @@
 
           if (bstRoot) {
             const depth = getDepth(bstRoot);
-            const spread = Math.min(W * 0.18, (W / Math.pow(2, depth + 1)) * 4);
-            drawNode(bstRoot, W / 2, 30, spread, 0);
+            const n = countNodes(bstRoot);
+            // Sıra içi (in-order) yerleşim: her düğümün kendi sütunu olur, derin ağaç da tuvale sığar
+            const order = new Map();
+            let k = 0;
+            (function walk(nd, d) {
+              if (!nd) return;
+              walk(nd.left, d + 1);
+              order.set(nd, [k++, d]);
+              walk(nd.right, d + 1);
+            })(bstRoot, 0);
+            const stepX = n > 1 ? Math.min(64, (W - 56) / (n - 1)) : 0;
+            const x0 = (W - stepX * (n - 1)) / 2;
+            const vGap = depth > 1 ? Math.min(58, (H - 60) / (depth - 1)) : 0;
+            drawNode(bstRoot, {
+              r: n > 1 ? Math.max(7, Math.min(18, stepX * 0.9)) : 18,
+              x: (nd) => x0 + order.get(nd)[0] * stepX,
+              y: (nd) => 30 + order.get(nd)[1] * vGap,
+            });
           } else {
-            ctx.fillStyle = "var(--text-muted)";
+            ctx.fillStyle = "#8b95a8";
             ctx.font = "13px 'Outfit', sans-serif";
             ctx.textAlign = "center";
             ctx.fillText("Ağaç boş. Değer ekleyin.", W / 2, H / 2);

@@ -3,34 +3,34 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
   slug: "otomotiv-muhendisligi",
   title: "Otomotiv Mühendisliği: Patlamadan Tekerleğe",
   field: "Mühendislik",
-  level: "Lise",
+  level: "Lise–Lisans",
   minutes: 35,
   tagline:
     "Bir otomobil, saniyede yüz kez tekrarlanan küçük patlamaları düzgün bir dönüşe, o dönüşü de yola çeviren makinedir. Motordan frene her parçası birkaç basit fizik yasasının ürünüdür.",
   hook:
-    "Ağustos 1888'de Bertha Benz, kocasına haber vermeden iki oğluyla dünyanın ilk otomobiline bindi ve Mannheim'dan Pforzheim'a yaklaşık 106 km gitti; yakıtı bir eczaneden aldı, tıkanan boruyu şapka iğnesiyle açtı. Motor tek silindirliydi ve bir beygir bile değildi. Peki silindirdeki bir patlama nasıl düzgün bir dönüşe, o dönüş nasıl yola dönüşür?",
+    "Ağustos 1888'de Bertha Benz, kocasına haber vermeden iki oğluyla Patent-Motorwagen'in üçüncü modeline bindi ve Mannheim'dan Pforzheim'a yaklaşık 106 km gitti; yakıtı bir eczaneden aldı, tıkanan yakıt borusunu şapka iğnesiyle açtı. Arkadaki tek silindirli motor topu topu birkaç beygir gücündeydi. Peki silindirdeki bir patlama nasıl düzgün bir dönüşe, o dönüş nasıl yola dönüşür?",
   bigIdea:
     "Otomobil bir <strong>enerji dönüştürme zinciridir</strong>: yakıtın kimyasal enerjisi silindirde basınca, basınç krankta torka, tork dişlilerde ve lastikte ileri kuvvete dönüşür; fren aynı enerjiyi ısıya çevirir. Her halkada korunan şey güçtür (<em>P = τ·ω</em>), değişen şey tork ile hızın paylaşımıdır.",
   story: [
-    "1862'de Fransız mühendis Alphonse Beau de Rochas, bir gaz motorunun verimli çalışması için gereken sırayı kâğıda döktü: emme, sıkıştırma, yanma ile genişleme, egzoz. Hiç motor yapmadı. 1876'da Köln yakınındaki Deutz'ta Nikolaus Otto bu sırayı çalışan bir makineye çevirdi; karışımı yakmadan önce sıkıştırmanın ne kadar fark yarattığını deneyle görmüştü. Kayıtlara göre Alman mahkemesi 1886'da Beau de Rochas'nın yazısını gerekçe göstererek Otto'nun patentini iptal etti; ama 'Otto çevrimi' adı kaldı. Otto'nun motoru hâlâ ağır, yavaş dönen bir fabrika motoruydu. Onu bir araca sığdıranlar, Otto'nun fabrikasında çalışmış iki mühendis oldu: Gottlieb Daimler ve Wilhelm Maybach 1885'te hafif ve hızlı dönen bir benzinli motor yaptı. Aynı yıl Mannheim'da Karl Benz üç tekerlekli <strong>Patent-Motorwagen</strong>'i tamamladı; 29 Ocak 1886 tarihli 37435 numaralı Alman patenti bugün otomobilin doğum belgesi sayılır. Tek silindirli motoru 954 cm³ hacimden yaklaşık 0.75 beygir çıkarıyordu.",
-    "Rudolf Diesel, Münih'te öğrenciyken Carnot'nun ideal ısı makinesi dersini dinlemiş ve daha yüksek verimli bir motor hayal etmişti. Fikri, yakıtı bujiyle değil sıkıştırmayla tutuşturmaktı: havayı 15–20 kat sıkıştırırsan sıcaklığı 700 °C'yi aşar ve püskürtülen yakıt kendiliğinden yanar. 1892'de patentini aldı; 1897'de Augsburg'daki MAN fabrikasında çalışan ilk motoru, dönemin buhar makinelerinin iki katından fazla, yaklaşık %26 verime ulaştı. Diesel 1913'te Londra'ya giden bir gemiden kayboldu; cesedi günler sonra denizde bulundu. Kaza mı, intihar mı, cinayet mi olduğu hiç çözülmedi; kesin olan yalnızca o gece kamarasını terk ettiğidir.",
-    "Motor sorunu çözülünce sıra üretime geldi. 1913'te Henry Ford, Detroit yakınındaki Highland Park fabrikasında şasiyi işçilerin önünden kayan bir hatta koydu: bir Model T şasisinin montajı 12.5 saatten 93 dakikaya indi. Fiyat 1908'de 850 dolardan 1925'te 260 dolara düştü; 1927'ye kadar 15 milyon Model T üretildi. Otomobil ucuzlayınca yollar doldu ve yeni bir mühendislik sorunu doğdu: kaza. 1959'da Volvo mühendisi Nils Bohlin <strong>üç noktalı emniyet kemerini</strong> tasarladı ve Volvo patenti bütün üreticilere açtı. 1978'de Bosch ilk seri ABS'yi Mercedes S sınıfına taktı, 1995'te aynı ikili ESP'yi getirdi. Bugün bir otomobilin mühendisliği eşit ölçüde yanma, metal ve yazılımdır.",
+    "1862'de Fransız mühendis Alphonse Beau de Rochas, bir gaz motorunun verimli çalışması için gereken sırayı kâğıda döktü: emme, sıkıştırma, yanma ile genişleme, egzoz. Hiç motor yapmadı. 1876'da Köln yakınındaki Deutz'ta Nikolaus Otto bu sırayı çalışan bir makineye çevirdi; karışımı yakmadan önce sıkıştırmanın ne kadar fark yarattığını deneyle görmüştü. Kayıtlara göre Alman mahkemesi 1886'da Beau de Rochas'nın yazısını gerekçe göstererek Otto'nun patentini iptal etti; ama 'Otto çevrimi' adı kaldı. Otto'nun motoru hâlâ ağır, yavaş dönen bir fabrika motoruydu. Onu bir araca sığdıranlar, Otto'nun fabrikasında çalışmış iki mühendis oldu: Gottlieb Daimler ve Wilhelm Maybach 1885'te hafif ve hızlı dönen bir benzinli motor yaptı. Aynı yıl Mannheim'da Karl Benz üç tekerlekli <strong>Patent-Motorwagen</strong>'i tamamladı; 29 Ocak 1886 tarihli 37435 numaralı Alman patenti bugün otomobilin doğum belgesi sayılır. İlk modelin 954 cm³'lük tek silindirli motoru bir beygirin altında, yaklaşık 0.5 kW güç veriyordu.",
+    "Rudolf Diesel, Münih'te öğrenciyken hocası Carl von Linde'den Carnot'nun ideal ısı makinesini dinlemiş ve buhar makinesinden çok daha verimli bir motor hayal etmişti. Fikri, yakıtı bujiyle değil sıkıştırmayla tutuşturmaktı: havayı 16–20 kat sıkıştırırsan sıcaklığı 600 °C'yi aşar ve içine püskürtülen yakıt kendiliğinden yanar. 1892'de patent başvurusunu yaptı; 1897'de Augsburg'daki MAN fabrikasında çalışan ilk motoru, dönemin buhar makinelerinin iki katından fazla, yaklaşık %26 verime ulaştı. Diesel 1913'te İngiltere'ye giden bir posta vapurundan kayboldu; cesedi günler sonra denizde bulundu. Kaza mı, intihar mı, cinayet mi olduğu hiç çözülmedi; kesin olan yalnızca o gece kamarasını terk ettiğidir.",
+    "Motor sorunu çözülünce sıra üretime geldi. 1913'te Henry Ford, Detroit yakınındaki Highland Park fabrikasında şasiyi işçilerin önünden kayan bir hatta koydu: bir yıl içinde bir Model T şasisinin montajı yaklaşık 12.5 saatten 93 dakikaya indi. Fiyat 1908'de 850 dolardan 1925'te 260 dolara düştü; 1927'ye kadar 15 milyon Model T üretildi. Otomobil ucuzlayınca yollar doldu ve yeni bir mühendislik sorunu doğdu: kaza. 1959'da Volvo mühendisi Nils Bohlin <strong>üç noktalı emniyet kemerini</strong> tasarladı ve Volvo patenti bütün üreticilere açtı. 1978'de Bosch ilk seri ABS'yi Mercedes S sınıfına taktı, 1995'te aynı ikili ESP'yi getirdi. Bugün bir otomobilin mühendisliği eşit ölçüde yanma, metal ve yazılımdır.",
     "1997'de Toyota Prius ile ilk seri üretim hibrit yola çıktı ve zincirin ilk halkası değişmeye başladı. Elektrik motoru dört zamanın hiçbirine ihtiyaç duymaz: sıfır devirde tam tork verir, çok kademeli dişli kutusuna neredeyse gerek bırakmaz ve frenlerken jeneratöre dönüşür. Ama süspansiyon, fren, direksiyon, gövde ve çarpışma güvenliği aynı fizikle tasarlanmaya devam ediyor. Bu sayfadaki piston belki bir gün müzeye kalkacak; tork, sürtünme ve enerji korunumu kalkmayacak.",
   ],
   core: [
     {
       heading: "Dört zaman, iki tur, tek itiş",
       body:
-        "Sayfadaki piston bir çevrimde dört kez yol alır: emme (iner, emme supabı açık), sıkıştırma (çıkar, ikisi kapalı), iş (iner, yanmış gaz iter) ve egzoz (çıkar, egzoz supabı açık). Krank bu sırada iki tam tur, yani 720° döner. Dört zamanın yalnızca biri iş üretir; öbür üçü o işten çalınan enerjiyle, <strong>volan</strong> denen ağır diskin dönme ataletiyle tamamlanır. Çok silindirli motorlar bu boşluğu kapatır: dört silindirde her 180°'de bir silindir ateşler, dönüş pürüzsüzleşir.",
+        "Sayfadaki piston bir çevrimde dört kez yol alır: emme (iner, emme supabı açık), sıkıştırma (çıkar, ikisi kapalı), iş (iner, yanan gaz iter) ve egzoz (çıkar, egzoz supabı açık). Krank bu sırada iki tam tur, yani 720° döner. Dört zamanın yalnızca biri iş üretir; öbür üçü o işten çalınan enerjiyle, <strong>volan</strong> denen ağır diskin dönme ataletiyle tamamlanır. Çok silindirli motorlar bu boşluğu kapatır: dört silindirde her 180°'de bir silindir ateşler, dönüş pürüzsüzleşir.",
       formula: "1 çevrim = 4 zaman = 720° krank = 2 tur",
       formulaNote: "n dev/dk'da her silindir dakikada n/2 kez ateşler: 3000 dev/dk'daki dört silindirli bir motorda saniyede 100 iş zamanı.",
     },
     {
       heading: "Sıkıştırma oranı ve Otto verimi",
       body:
-        "<strong>Sıkıştırma oranı</strong> r, pistonun en altındaki silindir hacminin en üstündekine oranıdır. İdeal Otto çevriminde verim yalnızca r'ye bağlıdır: γ ≈ 1.4 alınırsa r = 10 için %60, r = 18 için %69. Gerçek motor bunun yarısına yakınını alır (sayfadaki kartlar %25–35 diyor): silindir duvarından ısı kaçar, sürtünme ve gaz pompalama iş yer, yanma tam olmaz. Benzinli motor neden r = 18'e çıkmaz? Karışım o kadar sıkışınca buji çakmadan kendiliğinden tutuşur; buna <strong>vuruntu</strong> denir ve pistonu dövmeye başlar. Dizel tam bu olguyu kullanır: yalnızca hava sıkıştırılır, yakıt en son püskürtülür.",
+        "<strong>Sıkıştırma oranı</strong> r, pistonun en altındaki silindir hacminin en üstündekine oranıdır. İdeal Otto çevriminde verim yalnızca r'ye bağlıdır: γ ≈ 1.4 alınırsa r = 10 için %60, r = 18 için %69. Nedeni iki adyabatik eğride saklıdır: sıkıştırma da genişleme de aynı iki hacim arasında yapılır, T·V<sup>γ−1</sup> = sabit bağıntısı iki uçta aynı sıcaklık oranını verir ve η = 1 − Q<sub>atılan</sub>/Q<sub>alınan</sub> ifadesi 1 − T₁/T₂'ye iner. Gerçek motor bunun yarısına yakınını alır (sayfadaki kartlar %25–35 diyor): silindir duvarından ısı kaçar, sürtünme ve gaz pompalama iş yer, yanma anlık değildir. Benzinli motor neden r = 18'e çıkmaz? Buji çaktıktan sonra alev ilerlerken, henüz yanmamış karışım sıkışıp ısınır ve alev ona ulaşmadan kendiliğinden patlar; buna <strong>vuruntu</strong> denir ve pistonu çekiçle dövmeye benzer. Dizel aynı olguyu işe koşar: yalnızca hava sıkıştırılır, yakıt en son püskürtülür.",
       formula: "η<sub>Otto</sub> = 1 − 1/r<sup>γ−1</sup>",
-      formulaNote: "γ havanın ısı kapasiteleri oranı, yaklaşık 1.4. Sıkıştırma sonundaki sıcaklık da T₂ = T₁·r^(γ−1): 300 K'den r = 18 ile ideal olarak yaklaşık 950 K.",
+      formulaNote: "γ = c<sub>p</sub>/c<sub>v</sub>, hava için yaklaşık 1.4. Sıkıştırma sonundaki sıcaklık T₂ = T₁·r<sup>γ−1</sup>: 300 K'den r = 10 ile yaklaşık 750 K, r = 18 ile yaklaşık 950 K. Diesel çevriminde ısı sabit basınçta verildiği için aynı r'de verim Otto'nunkinden düşüktür; dizel üstünlüğünü daha yüksek r'den alır.",
     },
     {
       heading: "Tork, güç ve dişli: güç korunur",
@@ -42,21 +42,21 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
     {
       heading: "Fren: kinetik enerjiyi ısıya göndermek",
       body:
-        "1500 kg'lık araç 100 km/sa'te (27.8 m/s) ½mv² ≈ 579 kJ kinetik enerji taşır; durmak, bu enerjiyi balata ile diskte ısıya çevirmektir. Ne kadar yolda? Yavaşlatan kuvvet μ·m·g, enerji ½mv² olunca kütle sadeleşir: <em>d = v²/(2μg)</em>. Kuru asfaltta (μ ≈ 0.8) 100 km/sa'ten durmak yaklaşık 49 m, ıslakta (μ ≈ 0.4) 98 m ister. Hızı iki katına çıkarmak mesafeyi dört katına çıkarır. Tekerlek kilitlenirse kayma sürtünmesi devreye girer ve direksiyon işlevini yitirir; <strong>ABS</strong> basıncı saniyede onlarca kez gevşetip sıkarak tekerleği en iyi tutunma bandında, kısmi kaymada tutar.",
+        "1500 kg'lık araç 100 km/sa'te (27.8 m/s) ½mv² ≈ 579 kJ kinetik enerji taşır; durmak, bu enerjiyi balata ile diskte ısıya çevirmektir. Ne kadar yolda? Yavaşlatan kuvvet μ·m·g, enerji ½mv² olunca kütle sadeleşir: <em>d = v²/(2μg)</em>. Kuru asfaltta (μ ≈ 0.8) 100 km/sa'ten durmak yaklaşık 49 m, ıslakta (μ ≈ 0.4) 98 m ister. Hızı iki katına çıkarmak mesafeyi dört katına çıkarır. Tekerlek kilitlenirse kayma sürtünmesi devreye girer ve direksiyon işlevini yitirir; <strong>ABS</strong> basıncı saniyede 15–20 kez gevşetip sıkarak tekerleği en iyi tutunma bandında, kısmi kaymada tutar.",
       formula: "d = v² / (2μg)",
-      formulaNote: "Reaksiyon süresi hariç. v m/s, g = 9.81 m/s². Kütle formülde yok: ağır araç da hafif araç da aynı μ ile aynı mesafede durur; ısınan fren o kadar ağır olmasa.",
+      formulaNote: "Reaksiyon süresi hariç; v m/s, g = 9.81 m/s². Kütle sadeleştiği için aynı lastik ve aynı yolda ağır araç da hafif araç da aynı mesafede durur; fark, ağır aracın frenlerinin daha çok ısı atmak zorunda kalmasındadır. Bir saniyelik reaksiyon, 100 km/sa'te mesafeye 28 m daha ekler.",
     },
     {
       heading: "Çarpışma: mesafe satın almak",
       body:
         "Çarpışmada araç durur; soru kaç metrede durduğudur. 50 km/sa (13.9 m/s) ile giden 1500 kg'lık araç 145 kJ taşır. Ön bölge 0.6 m ezilerek bu enerjiyi yutarsa ortalama kuvvet 145 kJ / 0.6 m ≈ 240 kN ve yavaşlama v²/(2Δx) ≈ 160 m/s², yani 16 g olur. Aynı iş 10 cm'de yapılsaydı 98 g. <strong>Ezilme bölgesi</strong> (crash box), ön gerdiricili kemer ve hava yastığı hep aynı şeyi yapar: durma mesafesini ve süresini uzatıp kuvveti düşürür. Yolcu kabini ise tam tersine sert yapılır; o ezilmemelidir.",
       formula: "F<sub>ort</sub>·Δx = ½mv²  ⇒  a<sub>ort</sub> = v²/(2Δx)",
-      formulaNote: "Δx ezilme mesafesi. Kuvvet gövdeye değil, kemerin tuttuğu yolcuya da aynı mantıkla uygulanır; kemersiz yolcu kendi Δx'ini ön camda bulur.",
+      formulaNote: "Δx ezilme mesafesi. Aynı bağıntı yolcu için de geçerlidir: kemer ve hava yastığı yolcunun durma mesafesini uzatır; kemersiz yolcu kendi Δx'ini ön camda, birkaç santimetrede bulur.",
     },
   ],
   lab: {
     intro:
-      "Sayfanın tek canlı deneyi en üstteki motor tuvalidir. Dört düğme var: <strong>▶ Oynat/Durdur</strong>, <strong>⏭ İlerlet</strong> (animasyonu durdurup krankı tam 30° ilerletir), <strong>🐢 Yavaşlat</strong> ve <strong>🐇 Hızlandır</strong> (kare başına dönüşü 0.15° ile 3° arasında ayarlar; açılışta 0.6°). Tuvalin sağındaki halka 720°'lik çevrimi dört renkli yaya böler ve ortasında <em>Krank: …°</em> yazar; tuvalin altındaki satır zamanı, pistonun yönünü ve iki supabın açık/kapalı durumunu söyler. Hız 'kare başına' tanımlı olduğu için süreler ekranın tazeleme hızına bağlıdır; aşağıdaki sayılar saniyede 60 kare çizen sıradan bir ekran içindir. Alt bölümlerdeki kartlar tıklanınca açıklama gösterir; onları deneyler arasında başvuru olarak kullan.",
+      "Sayfanın tek canlı deneyi en üstteki motor tuvalidir. Dört düğme var: <strong>▶ Oynat/Durdur</strong>, <strong>⏭ İlerlet</strong> (animasyonu durdurup krankı tam 30° ilerletir), <strong>🐢 Yavaşlat</strong> ve <strong>🐇 Hızlandır</strong> (kare başına dönüşü 0.15° ile 3° arasında ayarlar; açılışta 0.6°). Tuvalin sağındaki halka 720°'lik çevrimi dört renkli yaya böler ve ortasında <em>Krank: …°</em> yazar; tuvalin altındaki satır zamanı, pistonun yönünü ve iki supabın açık/kapalı durumunu söyler. Animasyonu durdurduğunda sayaç rastgele bir açıda kalır; İlerlet adımları bu yüzden çoğunlukla 30'un tam katlarına denk gelmez. Hız 'kare başına' tanımlı olduğu için süreler ekranın tazeleme hızına bağlıdır; aşağıdaki sayılar saniyede 60 kare çizen sıradan bir ekran içindir. Alt bölümlerdeki kartlar tıklanınca açıklama gösterir; onları deneyler arasında başvuru olarak kullan.",
     experiments: [
       {
         title: "Bir çevrim kaç saniye, krank kaç devir?",
@@ -69,22 +69,22 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
         title: "Supaplar ve ölü noktalar: 24 adımda bir çevrim",
         predict: "İlerlet 30° atlar; bir çevrim 24 adımdır. Emme supabı kaç adımda açık görünecek? İki supabın birden kapalı olduğu kaç adım var? Piston hangi açılarda en üstte olacak?",
         do: "Durdur'a bas, sonra İlerlet'e 24 kez bas. Her basışta halkadaki Krank değerini, zamanın adını, pistonun yerini ve alt satırdaki supap durumlarını bir tabloya yaz.",
-        observe: "Emme supabı 0°–150° arası 6 adımda açık (turkuaz), 180°–510° arası 12 adım boyunca ikisi de kapalı, egzoz 540°–690° arası 6 adımda açık (kırmızı). Piston 0° ve 360°'de en üstte, 180° ve 540°'de en altta; zamanın adı tam 180°, 360° ve 540°'de değişir. Yanma odası sıkıştırmada soluk, iş zamanının ilk 72°'sinde koyu kırmızıdır.",
+        observe: "Nereden başlarsan başla emme supabı 6 adımda açık (turkuaz), ardından 12 adım boyunca iki supap da kapalı, sonra egzoz 6 adımda açık (kırmızı) görünür: 180° + 360° + 180°. Piston Krank 0° ve 360° yakınında en üstte, 180° ve 540° yakınında en altta durur; zamanın adı sayaç 180°, 360° ve 540°'yi geçtiği adımda değişir. Yanma odası sıkıştırmada soluk, iş zamanının ilk 72°'sinde (Krank 360°–432°) koyu kırmızıdır.",
         explain: "İki tam tur, iki üst ölü nokta (ÜÖN): biri sıkıştırmanın sonu, biri egzozun sonu. Sayfada supaplar tam ölü noktalarda açılıp kapanır; gerçek motorda egzoz supabı alt ölü noktadan onlarca derece önce açılır, emme supabı ÜÖN'den önce açılır ve ikisi kısa bir süre birlikte açık kalır (<strong>supap bindirmesi</strong>). Gazın ataletini kullanmak için, bir kapıyı kalabalık gelmeden açmak gibi.",
       },
       {
         title: "Kıvılcımı yakalamak: 20 derecelik pencere",
         predict: "Buji yalnızca Krank 340° ile 360° arasındayken parlar; İlerlet ise 30° atlar. Nerede durduğundan bağımsız olarak her çevrimde kıvılcımı göreceğini düşünüyor musun?",
         do: "Durdur'a bas ve Krank değerini not et. İlerlet'e 24 kez basarken 330°–360° civarındaki adımlarda silindirin tepesindeki bujiye bak. Sonra Oynat'a bas, üç kez Yavaşlat ve Krank 341°–359° arasındayken durdurmayı dene.",
-        observe: "Durduğun açının 30'a bölümünden kalan 10'dan küçükse (örneğin 5° ya da 185°) adımların 335°'e düşer ve kıvılcımı hiç görmezsin; kalan 10'dan büyükse (örneğin 17°) 347°'de buji sarı-beyaz parlar. Oynatırken kıvılcım açılış hızında yaklaşık yarım saniye, en yavaşta yaklaşık 2 saniye görünür; hemen ardından 360°'de yazı 'İş'e döner ve yanma odası kırmızıya boyanır.",
+        observe: "Durduğun açının 30'a bölümünden kalan 10 ya da daha küçükse (örneğin 5° ya da 185°) adımların 335°'e düşer ve kıvılcımı hiç görmezsin; kalan 10'dan büyükse (örneğin 17°) 347°'de buji sarı-beyaz parlar. Oynatırken kıvılcım açılış hızında yaklaşık yarım saniye, en yavaşta yaklaşık 2 saniye görünür; hemen ardından 360°'de yazı 'İş'e döner ve yanma odası kırmızıya boyanır.",
         explain: "Bu bir örnekleme dersi: 20°'lik bir olayı 30°'lik adımlarla tararsan bazen kaçırırsın. Gerçek motorda buji ÜÖN'den 10–40° önce çakar; buna <strong>ateşleme avansı</strong> denir. Alev cephesi yanma odasını birkaç milisaniyede kat eder, basıncın tepe değeri piston inmeye başladıktan hemen sonra gelmelidir. Sayfadaki 20° makul bir orta değerdir; devir arttıkça gerçek avans büyür.",
       },
       {
-        title: "Çizimdeki sıkıştırma oranı ve esneyen biyel",
-        predict: "Piston en üstteyken üstünde kalan boşluk, en alttakinin kaçta biri? Çizimin sıkıştırma oranı benzinli motorun 9–12'sine ulaşıyor mu? Biyel her konumda aynı uzunlukta mı?",
-        do: "İlerlet ile 0°'de (piston tepede) ve 180°'de (piston dipte) dur; pistonun üstündeki boşluğun yüksekliğini ekrana cetvel tutarak ölç. Aynı iki konumda pistonu kranka bağlayan çubuğun uzunluğunu da karşılaştır.",
-        observe: "Tepedeki boşluk dipteki boşluğun yaklaşık altıda biri: oran ≈ 5.7, gerçek benzinli motorun altında. Biyel 0°'de 180°'dekinden yaklaşık dörtte bir daha uzun görünür; çubuk çevrim boyunca uzayıp kısalır.",
-        explain: "Çizim pistonu krank açısıyla doğrusal indirip çıkarır (üçgen dalga), krank pimi ise çember çizer; iki hareket uyuşmayınca biyel esner. Gerçek biyel sabit boydadır ve piston konumu x = r·cos θ + √(l² − r²·sin²θ) ile verilir: piston ÜÖN yakınında AÖN yakınından daha hızlı hareket eder. Otto formülü 5.7 için ideal verimi %50, 10 için %60 verir; sayfa oranı düşük çizmiş ama fikir yerinde.",
+        title: "Piston yolun yarısına 90°'de mi varır?",
+        predict: "Krank ÜÖN'den 90° döndüğünde piston strokun tam yarısını mı inmiş olur, daha azını mı, fazlasını mı? Bir de şunu tahmin et: çizimin sıkıştırma oranı benzinli motorun 9–12'sine ulaşıyor mu?",
+        do: "Durdur'a bas; İlerlet ile Krank 0° (ya da 360°), 90° ve 180° yakınındaki adımlara gel. Sayaç tam bu değerlere düşmezse en yakın adımı kullan. Her birinde ekrana cetvel tutup silindirin tavanı ile pistonun üst yüzü arasındaki boşluğu ölç. 90°'deki inişi toplam stroka, 180°'deki boşluğu 0°'dekine böl.",
+        observe: "Çizimin kendi biriminde (ekran pikseli; cetvelde oranlar aynı kalır) boşluk 0°'de 25, 90°'de yaklaşık 72, 180°'de 109'dur. Piston 90°'de 84 birimlik strokun 47'sini, yani %56'sını inmiştir; yarı yola 90°'de değil, yaklaşık 83°'de varır. Boşlukların oranı 109/25 ≈ 4.4 çıkar.",
+        explain: "Biyel sabit boyda olduğu için piston pimi ile krank merkezi arasındaki uzaklık x = r·cos θ + √(l² − r²·sin²θ) olur; çizimde r = 42, l = 172 birim. θ = 90°'de biyel yana yatar ve piston, yalnız r·cos θ'nın söylediğinden l − √(l² − r²) ≈ 5 birim daha aşağıdadır. Sonuç: piston strokun üst yarısını alt yarısından daha kısa sürede geçer ve ÜÖN'deki ivmesi AÖN'dekinin (1 + r/l)/(1 − r/l) ≈ 1.6 katıdır. Sıkıştırma oranına gelince, supaplara yer açmak için tepe boşluğu büyük çizilmiş: 4.4 için Otto formülü %45, gerçek bir benzinli motorun r = 10'u için %60 verir.",
       },
     ],
   },
@@ -97,7 +97,7 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
     {
       title: "12.5 saatten 93 dakikaya",
       body:
-        "1913'te Ford'un Highland Park fabrikasında şasi, duran işçilerin önünden hareket eden bir hatta kaydırılmaya başlandı. Montaj süresi 12 saat 28 dakikadan 1 saat 33 dakikaya düştü. İşçi devri o kadar arttı ki Ford 1914'te günlük ücreti 5 dolara, sektör ortalamasının yaklaşık iki katına çıkardı. Montaj hattı, otomobil kadar yirminci yüzyılı değiştiren bir icattır.",
+        "1913'te Ford'un Highland Park fabrikasında şasi, duran işçilerin önünden hareket eden bir hatta kaydırılmaya başlandı. Bir yıl içinde bir şasinin montajı yaklaşık 12.5 saatten 93 dakikaya düştü. Ama tekdüze iş insanları kaçırdı; işçi devri o kadar arttı ki Ford Ocak 1914'te günlük ücreti 5 dolara, sektör ortalamasının yaklaşık iki katına çıkardı. Montaj hattı, otomobil kadar yirminci yüzyılı değiştiren bir icattır.",
     },
     {
       title: "Bir geyik testi, bir elektronik devrim",
@@ -138,13 +138,13 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
     {
       myth: "Dizel motorda da buji vardır, sadece yakıtı farklıdır.",
       truth:
-        "Dizel sıkıştırmayla tutuşur: yalnızca hava 16–22 kat sıkıştırılıp 700 °C'nin üstüne ısınır, yakıt o anda püskürtülür ve kendiliğinden yanar. Soğuk çalıştırmada kullanılan kızdırma bujisi ateşlemez, yalnızca odayı ısıtır. Benzinli motorun r = 18'e çıkamamasının nedeni, karışımın tam bu şekilde kendiliğinden tutuşmasıdır: vuruntu.",
+        "Dizel sıkıştırmayla tutuşur: yalnızca hava 16–22 kat sıkıştırılıp 600 °C'nin üstüne ısınır, yakıt o anda püskürtülür ve kendiliğinden yanar. Soğuk çalıştırmada kullanılan kızdırma bujisi ateşlemez, yalnızca odayı ısıtır. Benzinli motorun r = 18'e çıkamamasının nedeni de aynı olgudur: önceden karışmış yakıt ve hava, alev ulaşmadan kendiliğinden tutuşur ve vuruntu yapar.",
     },
   ],
   glossary: [
     { term: "ÜÖN / AÖN", definition: "Üst ve alt ölü nokta: pistonun yön değiştirdiği en üst ve en alt konumlar; krank 0° ve 180°." },
     { term: "Sıkıştırma oranı (r)", definition: "Piston AÖN'deyken silindir hacminin ÜÖN'deki hacme oranı; benzinlide 9–12, dizelde 16–22." },
-    { term: "Vuruntu", definition: "Karışımın buji çakmadan, sıkıştırma ısısıyla kendiliğinden tutuşması; benzinli motorda r'nin üst sınırını koyar." },
+    { term: "Vuruntu", definition: "Henüz yanmamış karışımın, alev cephesi ona ulaşmadan sıkışma ısısıyla kendiliğinden tutuşması; benzinli motorda r'nin üst sınırını koyar." },
     { term: "Tork (τ)", definition: "Bir eksen etrafında döndürme etkisi, kuvvet çarpı kol uzunluğu; birimi N·m." },
     { term: "Dişli oranı (i)", definition: "Çıkış dişlisinin diş sayısının giriş dişlisininkine oranı; torku i katına çıkarır, dönüş hızını i'ye böler." },
     { term: "Diferansiyel", definition: "Virajda iç ve dış tekerleğin farklı hızlarda dönmesine izin verirken torku ikisine paylaştıran dişli düzeneği." },
@@ -154,7 +154,7 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede motor bir çizim, üniversitede bir <strong>termodinamik çevrim</strong>dir: Otto ve Diesel çevrimleri p–V diyagramında dört eğriyle çizilir, verim bu eğrilerin kapattığı alandan okunur ve Carnot sınırıyla karşılaştırılır. Yanma kimyası (λ, NOx, partikül), gazların silindire girişi (akışkanlar mekaniği, turboşarj) ve ısı transferi (soğutma, intercooler) aynı dersin devamıdır. Krank-biyel mekanizması ise makine dinamiğinde ilk örnektir: deneyde gördüğün 'esneyen biyel', gerçekte x = r·cos θ + √(l² − r²·sin²θ) denklemiyle çözülür ve pistonun ivmesinden motorun titreşim dengeleme ağırlıkları hesaplanır.",
+      "Lisede motor bir çizim, üniversitede bir <strong>termodinamik çevrim</strong>dir: Otto ve Diesel çevrimleri p–V diyagramında dört eğriyle çizilir, verim bu eğrilerin kapattığı alandan okunur ve Carnot sınırıyla karşılaştırılır. Yanma kimyası (λ, NOx, partikül), gazların silindire girişi (akışkanlar mekaniği, turboşarj) ve ısı transferi (soğutma, intercooler) aynı dersin devamıdır. Krank-biyel mekanizması ise Makine Dinamiği dersinin ilk örneğidir: deneyde ölçtüğün x = r·cos θ + √(l² − r²·sin²θ) bağıntısının zamana göre türevi piston hızını, ikinci türevi ivmesini verir; ÜÖN'de ivme yaklaşık r·ω²·(1 + r/l) olur ve motorun dengeleme ağırlıkları bu atalet kuvvetinden hesaplanır.",
       "İkinci sıçrama, aracın bütününe bakmaktır. Süspansiyon bir yay-kütle-sönüm sistemidir; çeyrek araç modelinde ω<sub>n</sub> = √(k/m) ve ζ, konforla yol tutuşu arasındaki pazarlığı iki sayıya indirger. Viraj alan araç için 'bisiklet modeli', lastik kayma açısı ve yanal kuvvet ilişkisiyle savrulmayı önceden hesaplar; ESP bu modelin gerçek zamanlı bir geri besleme denetleyicisidir. Çarpışma güvenliği ise sonlu elemanlar yöntemiyle, gövdenin milyonlarca küçük parçaya bölünüp milisaniye milisaniye ezilmesinin bilgisayarda hesaplanmasıyla tasarlanır. Elektrifikasyonla güç elektroniği, batarya kimyası ve yazılım da aynı masaya oturur.",
     ],
     topics: ["Otto ve Diesel çevrimleri (p–V diyagramı)", "Yanma ve emisyon kimyası", "Krank-biyel kinematiği ve dengeleme", "Çeyrek araç modeli ve titreşim", "Lastik mekaniği ve araç dinamiği", "Geri beslemeli denetim (ABS, ESP)", "Sonlu elemanlar ile çarpışma analizi", "Güç elektroniği ve batarya"],
@@ -168,9 +168,9 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
     },
     {
       question: "Benzinli bir motorun sıkıştırma oranı neden dizel gibi 18'e çıkarılmaz?",
-      options: ["Buji o basınçta çalışmaz", "Karışım buji çakmadan kendiliğinden tutuşur (vuruntu)", "Otto formülüne göre verim düşer", "Piston o kadar yükselemez"],
+      options: ["Buji o basınçta çalışmaz", "Karışım, alev ona ulaşmadan kendiliğinden tutuşur (vuruntu)", "Otto formülüne göre verim düşer", "Piston o kadar yükselemez"],
       answer: 1,
-      explanation: "Otto formülü r arttıkça verimin arttığını söyler; sınırı koyan hava-yakıt karışımının sıkıştırma ısısıyla erken tutuşmasıdır. Dizel yalnızca havayı sıkıştırıp yakıtı sonra püskürttüğü için bu sorunu yaşamaz, hatta ondan yararlanır.",
+      explanation: "Otto formülü r arttıkça verimin arttığını söyler; sınırı koyan, önceden karışmış hava ve yakıtın sıkışma ısısıyla denetimsiz tutuşmasıdır. Dizel yalnızca havayı sıkıştırıp yakıtı sonra püskürttüğü için bu sorunu yaşamaz, hatta ondan yararlanır.",
     },
     {
       question: "Kuru asfaltta 50 km/sa'ten yaklaşık 12 m'de duran bir araç, aynı yüzeyde 100 km/sa'ten kaç metrede durur? (Reaksiyon süresi hariç.)",
@@ -180,9 +180,9 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
     },
   ],
   next: [
-    { href: "termodinamik.html", title: "Termodinamik: PV Diyagramı ve Çevrimler", why: "Sıkıştırılan havanın neden ısındığını ve Otto verim formülünün nereden geldiğini PV = nRT ile gör." },
+    { href: "termodinamik.html", title: "Termodinamik: PV Diyagramı, İş, Isı ve Çevrimler", why: "Çevrim menüsünden Otto'yu seç, sıkıştırma oranını değiştir; PV alanından ölçülen verimi 1 − r<sup>1−γ</sup> formülüyle ve Carnot sınırıyla karşılaştır." },
     { href: "is-enerji.html", title: "İş–Enerji İlkesi", why: "Fren mesafesi ve ezilme bölgesi hesaplarının kaynağı: kuvvet çarpı yol, kinetik enerjiye eşittir." },
-    { href: "makine-muhendisligi.html", title: "Makine Mühendisliği", why: "Krank-biyel mekanizması, dişliler ve malzeme dayanımı: motoru taşıyan daha geniş disiplin." },
+    { href: "gemi-makineleri-isletme-muhendisligi.html", title: "Gemi Makineleri: Dizel Çevrim, Pervane ve Stabilite", why: "Isının bir kısmı sabit hacimde, bir kısmı sabit basınçta girerse ne olur? Karma çevrimi p–V diyagramında kur; Otto ve Diesel onun iki sınırıdır." },
     { href: "elektrikli-araclar.html", title: "Elektrikli Araçlar", why: "Dört zamanı tümüyle atan tahrik: sıfır devirde tork, rejeneratif fren ve batarya." },
   ],
   sources: [
@@ -191,5 +191,5 @@ window.ACELYA_DIGEST["otomotiv-muhendisligi"] = {
     { title: "Wikipedia · Four-stroke engine", url: "https://en.wikipedia.org/wiki/Four-stroke_engine", note: "Dört zamanın tarihçesi: Beau de Rochas, Otto, Diesel; supap zamanlaması ve sıkıştırma oranı." },
     { title: "Wikipedia · Bertha Benz", url: "https://en.wikipedia.org/wiki/Bertha_Benz", note: "1888 Mannheim–Pforzheim yolculuğu: eczaneden alınan yakıt, yolda yapılan onarımlar ve otomobilin ilk reklamı." },
   ],
-  revision: "Ekim 2026",
+  revision: "Kasım 2026",
 };

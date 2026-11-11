@@ -814,7 +814,7 @@
             icon: "🔗",
             cls: "l-syscall",
             detail:
-              "<strong>open(), read(), write(), fork(), exec(), mmap(), socket()…</strong> Kullanıcı programlarının çekirdekten hizmet talep ettiği kontrollü geçiş noktaları. Linux'ta ~350 sistem çağrısı vardır. Her syscall, CPU'yu Ring 3'ten Ring 0'a geçirir (context switch).",
+              "<strong>open(), read(), write(), fork(), exec(), mmap(), socket()…</strong> Kullanıcı programlarının çekirdekten hizmet talep ettiği kontrollü geçiş noktaları. Linux'ta ~350 sistem çağrısı vardır. Her syscall, CPU'yu Ring 3'ten Ring 0'a geçirir (kip geçişi; süreç değişmediği için bağlam değiştirme sayılmaz).",
           },
           {
             name: "Çekirdek (Kernel)",
@@ -1058,7 +1058,8 @@
         }
 
         function addProcess() {
-          processes.push({ id: nextPid++, state: "new", label: "P" + nextPid });
+          const pid = nextPid++;
+        processes.push({ id: pid, state: "new", label: "P" + pid });
           updateInfo();
           draw();
         }
@@ -1161,6 +1162,16 @@
           "/usr": { type: "dir" },
           "/usr/bin": { type: "dir" },
           "/proc": { type: "dir" },
+      "/proc/cpuinfo": {
+        type: "file",
+        content:
+          "processor\t: 0\nmodel name\t: Ornek x86_64 islemci @ 3.20GHz\ncpu MHz\t\t: 3200.000\ncache size\t: 8192 KB\ncpu cores\t: 4\naddress sizes\t: 39 bits physical, 48 bits virtual\n(processor 1, 2, 3 için aynı blok yinelenir)",
+      },
+      "/proc/meminfo": {
+        type: "file",
+        content:
+          "MemTotal:       15728640 kB\nMemFree:         8493466 kB\nMemAvailable:   10485760 kB\nBuffers:          262144 kB\nCached:          2568806 kB\nSwapTotal:       8388608 kB\nSwapFree:        7864320 kB",
+      },
         };
 
         let cwd = "/home/serkan";
@@ -1475,7 +1486,7 @@
                 children: {},
               },
               usr: {
-                desc: "Kullanıcı programları ve verileri (Unix System Resources)",
+                desc: "Kullanıcı programları ve salt okunur veriler (ad, eski 'user' dizininden kalma)",
                 children: {
                   "bin/": { desc: "Kullanıcı komutlarının çoğu" },
                   "lib/": { desc: "Kütüphaneler" },
@@ -1626,11 +1637,16 @@
           // Sonraki hazır süreci bul (round-robin)
           const readyProcs = procs.filter((p) => p.state === "ready");
           if (readyProcs.length === 0) {
-            timeline.push({ cls: "idle" });
-            currentIdx = -1;
-            render();
-            return;
+          // Hazır süreç kalmadı: bütün işler bitti, otomatik modu durdur
+          currentIdx = -1;
+          render();
+          if (autoInterval) {
+            clearInterval(autoInterval);
+            autoInterval = null;
+            document.getElementById("btnSchedAuto").textContent = "▶️ Otomatik";
           }
+          return;
+        }
 
           // Round-robin: currentIdx'den sonraki ilk ready
           let next = -1;

@@ -23,7 +23,7 @@
     }
     .mat-card {
       padding:12px; border-radius:8px; border:1px solid var(--border);
-      text-align:center; cursor:pointer; transition:all 0.2s;
+      text-align:center; transition:all 0.2s;
       background:rgba(255,255,255,0.02);
     }
     .mat-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
@@ -126,7 +126,7 @@
   <div class="panel">
     <h2>🧱 Malzeme Sınıfları — Mühendislik Malzemeleri</h2>
     <p class="desc">
-      Mühendislik malzemeleri beş ana sınıfa ayrılır. Her sınıfın kendine özgü atomik yapısı, özellikleri ve kullanım alanları vardır.
+      Mühendislik malzemeleri burada altı sınıfta toplanır. Her sınıfın kendine özgü atomik yapısı, özellikleri ve kullanım alanları vardır.
       Doğru malzeme seçimi, bir ürünün başarısındaki en kritik mühendislik kararlarından biridir.
     </p>
     <div class="mat-grid" id="matGrid"></div>
@@ -160,11 +160,11 @@
     <p class="desc">
       Fe-C faz diyagramı, çelik üretiminin kutsal kitabıdır. Sıcaklık ve karbon yüzdesine bağlı olarak hangi fazların
       (ferrit, ostenit, sementit, perlit, beynit, martenzit) oluşacağını gösterir.
-      <strong>Ötektoid nokta (727°C, %0.8 C):</strong> Perlitin oluştuğu kritik nokta.
+      <strong>Ötektoid nokta (727°C, %0.76 C):</strong> Perlitin oluştuğu kritik nokta. Çizim ölçeklidir; sınır eğrileri doğrularla sadeleştirilmiştir.
     </p>
     <canvas id="stressCanvas"></canvas>
     <div class="phase-info" id="phaseInfo">
-      ⚙️ Fazlar: α-ferrit (BCC, yumuşak) · γ-ostenit (FCC, yüksek sıcaklık) · Fe₃C sementit (sert, kırılgan) · Perlit (α + Fe₃C lamelleri)
+      ⚙️ Fazlar: α-ferrit (BCC, yumuşak; en çok %0.022 C çözdüğü için sol eksene yapışık ince şerit) · γ-ostenit (FCC, yüksek sıcaklık) · δ-ferrit (BCC, sol üst köşe) · Fe₃C sementit (%6.7 C, sert, kırılgan) · Perlit (α + Fe₃C lamelleri)
     </div>
   </div>
 
@@ -187,7 +187,7 @@
   <div class="panel">
     <h2>🔩 Çelik Ailesi — Karbon ve Alaşım Çelikleri</h2>
     <p class="desc">
-      Çelik, %2.06'ya kadar karbon içeren demir-karbon alaşımıdır. Karbon miktarı ve alaşım elementleri çeliğin özelliklerini belirler.
+      Çelik, yaklaşık %2.1'e kadar karbon içeren demir-karbon alaşımıdır. Karbon miktarı ve alaşım elementleri çeliğin özelliklerini belirler.
     </p>
     <div class="steel-grid" id="steelGrid"></div>
   </div>
@@ -256,81 +256,89 @@
 
   let drag = false, lastX, lastY;
 
+  // Dönme + ortografik izdüşüm; d = bakış doğrultusundaki derinlik (büyük d = uzak)
   function project(x, y, z) {
     const cosX = Math.cos(angleX), sinX = Math.sin(angleX);
     const cosY = Math.cos(angleY), sinY = Math.sin(angleY);
     const x1 = x * cosY - z * sinY;
     const z1 = x * sinY + z * cosY;
     const y1 = y * cosX - z1 * sinX;
-    return { x: x1, y: y1 };
+    const d = y * sinX + z1 * cosX;
+    return { x: x1, y: y1, d: d };
+  }
+
+  function buildCell(s) {
+    const atoms = [], edges = [];
+    if (xtal === "hcp") {
+      // Altıgen prizma: 12 köşe + 2 taban merkezi + 3 orta düzlem atomu (c/a = 1.633)
+      const a = s * 0.5, c = 1.633 * a, top = [], bot = [];
+      for (let k = 0; k < 6; k++) {
+        const th = k * Math.PI / 3;
+        top.push([a * Math.cos(th), -c / 2, a * Math.sin(th)]);
+        bot.push([a * Math.cos(th),  c / 2, a * Math.sin(th)]);
+      }
+      for (let k = 0; k < 6; k++) {
+        edges.push([top[k], top[(k + 1) % 6]], [bot[k], bot[(k + 1) % 6]], [top[k], bot[k]]);
+        atoms.push({ x: top[k][0], y: top[k][1], z: top[k][2], r: 6 });
+        atoms.push({ x: bot[k][0], y: bot[k][1], z: bot[k][2], r: 6 });
+      }
+      atoms.push({ x: 0, y: -c / 2, z: 0, r: 6 }, { x: 0, y: c / 2, z: 0, r: 6 });
+      for (const deg of [30, 150, 270]) {
+        const th = deg * Math.PI / 180, q = a / Math.sqrt(3);
+        atoms.push({ x: q * Math.cos(th), y: 0, z: q * Math.sin(th), r: 7 });
+      }
+      return { atoms, edges };
+    }
+    const h = s / 2;
+    const corners = [[-h,-h,-h],[h,-h,-h],[h,h,-h],[-h,h,-h],[-h,-h,h],[h,-h,h],[h,h,h],[-h,h,h]];
+    for (let i = 0; i < 4; i++)
+      for (const [p, q] of [[i,(i+1)%4],[i+4,(i+1)%4+4],[i,i+4]]) edges.push([corners[p], corners[q]]);
+    corners.forEach(c => atoms.push({ x: c[0], y: c[1], z: c[2], r: 6 }));
+    if (xtal === "bcc") {
+      atoms.push({ x: 0, y: 0, z: 0, r: 8 }); // merkez atom
+    } else {
+      // FCC: altı yüzün merkezi
+      for (const sg of [-1, 1]) {
+        atoms.push({ x: sg * h, y: 0, z: 0, r: 7 });
+        atoms.push({ x: 0, y: sg * h, z: 0, r: 7 });
+        atoms.push({ x: 0, y: 0, z: sg * h, r: 7 });
+      }
+    }
+    return { atoms, edges };
   }
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    const cx = W/2, cy = H/2, s = Math.min(W, H) * 0.28;
-
-    let atoms = [];
-    if (xtal === "bcc") {
-      for (let i = 0; i <= 1; i++)
-        for (let j = 0; j <= 1; j++)
-          for (let k = 0; k <= 1; k++)
-            atoms.push({ x:(i-0.5)*s, y:(j-0.5)*s, z:(k-0.5)*s, r:6 });
-      atoms.push({ x:0, y:0, z:0, r:8 }); // merkez atom
-    } else if (xtal === "fcc") {
-      for (let i = 0; i <= 1; i++)
-        for (let j = 0; j <= 1; j++)
-          for (let k = 0; k <= 1; k++)
-            atoms.push({ x:(i-0.5)*s, y:(j-0.5)*s, z:(k-0.5)*s, r:7 });
-      // Yüzey merkezleri
-      for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) atoms.push({ x:(i-0.5)*s, y:(j-0.5)*s, z:0, r:7 });
-      for (let i = 0; i < 2; i++) for (let k = 0; k < 2; k++) atoms.push({ x:(i-0.5)*s, y:0, z:(k-0.5)*s, r:7 });
-      for (let j = 0; j < 2; j++) for (let k = 0; k < 2; k++) atoms.push({ x:0, y:(j-0.5)*s, z:(k-0.5)*s, r:7 });
-    } else if (xtal === "hcp") {
-      for (let i = 0; i <= 1; i++)
-        for (let j = 0; j <= 1; j++)
-          for (let k = 0; k <= 1; k++)
-            atoms.push({ x:(i-0.5)*s, y:(j-0.5)*s, z:(k-0.5)*s, r:6 });
-      // Orta katman atomları
-      atoms.push({ x:s*0.17, y:s*0.17, z:0, r:7 });
-      atoms.push({ x:-s*0.17, y:-s*0.17, z:0, r:7 });
-      atoms.push({ x:s*0.17, y:-s*0.17, z:0, r:7 });
-    }
-
-    // Derinlik sıralaması
-    atoms.sort((a,b) => {
-      const pa = project(a.x, a.y, a.z), pb = project(b.x, b.y, b.z);
-      return pa.y - pb.y;
-    });
+    const cx = W/2, cy = H/2, s = Math.min(W, H) * 0.38;
+    const cell = buildCell(s);
 
     // Birim hücre kenarları
     ctx.strokeStyle = "rgba(255,255,255,0.2)";
     ctx.lineWidth = 1.5;
-    const corners = [[-s/2,-s/2,-s/2],[s/2,-s/2,-s/2],[s/2,s/2,-s/2],[-s/2,s/2,-s/2],
-                     [-s/2,-s/2,s/2],[s/2,-s/2,s/2],[s/2,s/2,s/2],[-s/2,s/2,s/2]];
-    for (let i = 0; i < 4; i++) {
-      for (const [a,b] of [[i,(i+1)%4],[i+4,(i+1)%4+4],[i,i+4]]) {
-        const p1 = project(corners[a][0],corners[a][1],corners[a][2]);
-        const p2 = project(corners[b][0],corners[b][1],corners[b][2]);
-        ctx.beginPath(); ctx.moveTo(cx+p1.x, cy+p1.y); ctx.lineTo(cx+p2.x, cy+p2.y); ctx.stroke();
-      }
-    }
+    cell.edges.forEach(([p, q]) => {
+      const p1 = project(p[0], p[1], p[2]), p2 = project(q[0], q[1], q[2]);
+      ctx.beginPath(); ctx.moveTo(cx+p1.x, cy+p1.y); ctx.lineTo(cx+p2.x, cy+p2.y); ctx.stroke();
+    });
 
-    // Atomlar
-    atoms.forEach(a => {
-      const p = project(a.x, a.y, a.z);
+    // Derinlik sıralaması: uzaktaki önce çizilir, yakındaki biraz büyük ve parlak
+    const pts = cell.atoms.map(a => ({ a, p: project(a.x, a.y, a.z) }));
+    pts.sort((u, v) => v.p.d - u.p.d);
+    pts.forEach(({ a, p }) => {
+      const near = Math.max(0, Math.min(1, 0.5 - p.d / (2 * s)));   // 0 uzak … 1 yakın
+      const r = a.r * (0.8 + 0.4 * near), alpha = 0.45 + 0.45 * near;
       const sx = cx + p.x, sy = cy + p.y;
-      const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, a.r*2);
-      glow.addColorStop(0, "rgba(94,234,212,0.5)");
+      const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, r*2);
+      glow.addColorStop(0, "rgba(94,234,212," + (0.5 * alpha).toFixed(2) + ")");
       glow.addColorStop(1, "transparent");
-      ctx.beginPath(); ctx.arc(sx, sy, a.r*2, 0, Math.PI*2); ctx.fillStyle = glow; ctx.fill();
-      ctx.beginPath(); ctx.arc(sx, sy, a.r, 0, Math.PI*2);
-      ctx.fillStyle = "rgba(94,234,212,0.7)"; ctx.fill();
+      ctx.beginPath(); ctx.arc(sx, sy, r*2, 0, Math.PI*2); ctx.fillStyle = glow; ctx.fill();
+      ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI*2);
+      ctx.fillStyle = "rgba(94,234,212," + alpha.toFixed(2) + ")"; ctx.fill();
     });
 
     document.getElementById("crystalInfo").textContent = xtalInfo[xtal].info;
   }
 
-  canvas.addEventListener("mousedown", e => { drag = true; lastX = e.clientX; lastY = e.clientY; });
+  canvas.addEventListener("mousedown", e => { drag = true; lastX = e.clientX; lastY = e.clientY; e.preventDefault(); });
   canvas.addEventListener("mousemove", e => {
     if (!drag) return;
     angleY += (e.clientX - lastX) * 0.01;
@@ -341,15 +349,19 @@
   });
   canvas.addEventListener("mouseup", () => { drag = false; });
   canvas.addEventListener("mouseleave", () => { drag = false; });
+  canvas.addEventListener("touchstart", e => {
+    if (e.touches.length === 1) { lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; }
+  }, { passive: true });
   canvas.addEventListener("touchmove", e => {
     if (e.touches.length === 1) {
-      angleY += (e.touches[0].clientX - (lastX||e.touches[0].clientX)) * 0.01;
-      angleX += (e.touches[0].clientY - (lastY||e.touches[0].clientY)) * 0.01;
+      e.preventDefault();
+      angleY += (e.touches[0].clientX - lastX) * 0.01;
+      angleX += (e.touches[0].clientY - lastY) * 0.01;
       angleX = Math.max(-1.2, Math.min(1.2, angleX));
       lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
       draw();
     }
-  });
+  }, { passive: false });
 
   document.querySelectorAll(".crystal-tab").forEach(tab => {
     tab.addEventListener("click", () => {
@@ -383,69 +395,84 @@
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    const pad = { l:55, r:25, t:25, b:40 };
+    const pad = { l:55, r:25, t:18, b:40 };
     const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
-    const cx = pad.l, cy = pad.t;
+    const C_MAX = 6.7, T_MIN = 400, T_MAX = 1600;
+    const X = c => pad.l + c / C_MAX * pw;
+    const Y = T => pad.t + (T_MAX - T) / (T_MAX - T_MIN) * ph;
+    const ACCENT = "#5eead4", MUTED = "rgba(226,232,240,0.75)", WARM = "#fbbf24";
 
-    // Arka plan bölgeleri
-    const phases = [
-      { label:"Sıvı (L)", x1:0, y1:0, x2:1, y2:0.15, x3:1, y3:0.05, x4:0, y4:0, color:"rgba(248,113,113,0.08)" },
-      { label:"γ (Ostenit)", x1:0, y1:0.15, x2:0.2, y2:0.25, x3:0.8, y3:0.25, x4:1, y4:0.15, color:"rgba(251,191,36,0.08)" },
-      { label:"α + γ", x1:0, y1:0.25, x2:0.2, y2:0.55, x3:0.6, y3:0.55, x4:0.8, y4:0.25, color:"rgba(94,234,212,0.06)" },
-      { label:"α (Ferrit)", x1:0, y1:0.55, x2:0, y2:1, x3:0.2, y3:1, x4:0.2, y4:0.55, color:"rgba(96,165,250,0.06)" },
-      { label:"α + Fe₃C", x1:0.2, y1:0.55, x2:0.2, y2:1, x3:0.8, y3:1, x4:0.8, y4:0.55, color:"rgba(167,139,250,0.06)" },
-      { label:"γ + Fe₃C", x1:0.8, y1:0.25, x2:0.7, y2:0.55, x3:1, y3:0.55, x4:1, y4:0.25, color:"rgba(244,114,182,0.06)" },
-      { label:"Sıvı + γ", x1:0.15, y1:0.08, x2:0.5, y2:0.08, x3:0.8, y3:0.15, x4:0.2, y4:0.15, color:"rgba(248,113,113,0.04)" },
+    // Ölçekli Fe–Fe₃C diyagramı (karbon % ağırlık, sıcaklık °C); eğriler doğrularla sadeleştirildi
+    const regions = [
+      { pts:[[0,1538],[0.53,1493],[4.3,1147],[6.7,1227],[6.7,1600],[0,1600]], color:"rgba(248,113,113,0.10)" },   // sıvı
+      { pts:[[0,1538],[0.09,1493],[0,1394]], color:"rgba(96,165,250,0.14)" },                                   // δ
+      { pts:[[0,1538],[0.53,1493],[0.09,1493]], color:"rgba(248,113,113,0.05)" },                               // sıvı + δ
+      { pts:[[0.09,1493],[0.17,1493],[0,1394]], color:"rgba(94,234,212,0.06)" },                                // δ + γ
+      { pts:[[0,1394],[0.17,1493],[2.14,1147],[0.76,727],[0,912]], color:"rgba(251,191,36,0.12)" },             // γ
+      { pts:[[0.17,1493],[0.53,1493],[4.3,1147],[2.14,1147]], color:"rgba(248,113,113,0.05)" },                 // sıvı + γ
+      { pts:[[4.3,1147],[6.7,1227],[6.7,1147]], color:"rgba(248,113,113,0.05)" },                               // sıvı + Fe₃C
+      { pts:[[2.14,1147],[6.7,1147],[6.7,727],[0.76,727]], color:"rgba(244,114,182,0.08)" },                    // γ + Fe₃C
+      { pts:[[0,912],[0.76,727],[0.022,727]], color:"rgba(94,234,212,0.10)" },                                  // α + γ
+      { pts:[[0,912],[0.022,727],[0.005,400],[0,400]], color:"rgba(96,165,250,0.30)" },                         // α
+      { pts:[[0.022,727],[6.7,727],[6.7,400],[0.005,400]], color:"rgba(167,139,250,0.08)" },                    // α + Fe₃C
     ];
-
-    phases.forEach(p => {
+    regions.forEach(r => {
       ctx.beginPath();
-      ctx.moveTo(cx + p.x1*pw, cy + p.y1*ph);
-      ctx.lineTo(cx + p.x2*pw, cy + p.y2*ph);
-      ctx.lineTo(cx + p.x3*pw, cy + p.y3*ph);
-      ctx.lineTo(cx + p.x4*pw, cy + p.y4*ph);
-      ctx.fillStyle = p.color; ctx.fill();
+      r.pts.forEach(([c, T], i) => i ? ctx.lineTo(X(c), Y(T)) : ctx.moveTo(X(c), Y(T)));
+      ctx.closePath();
+      ctx.fillStyle = r.color; ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.28)"; ctx.lineWidth = 1; ctx.stroke();
     });
 
-    // Eksenler
-    ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy+ph); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx, cy+ph); ctx.lineTo(cx+pw, cy+ph); ctx.stroke();
+    // Çelik / dökme demir sınırı (%2.14 C)
+    ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.beginPath(); ctx.moveTo(X(2.14), Y(1147)); ctx.lineTo(X(2.14), Y(T_MIN)); ctx.stroke(); ctx.restore();
 
-    // Önemli noktalar
-    const points = [
-      { x:0, y:0.25, label:"A₃", desc:"911°C" },
-      { x:0.2, y:0.55, label:"A₁", desc:"727°C" },
-      { x:0.8, y:0.55, label:"A₁", desc:"727°C" },
-      { x:0.8, y:0.25, label:"Acm", desc:"1147°C" },
-      { x:0.8, y:0.15, label:"Ötektik", desc:"%4.3 C" },
-    ];
-
-    points.forEach(p => {
-      const x = cx + p.x * pw, y = cy + p.y * ph;
-      ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2);
-      ctx.fillStyle = "var(--accent)"; ctx.fill();
-      ctx.fillStyle = "var(--accent)";
-      ctx.font = "bold 8px 'Outfit',sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText(`${p.label} (${p.desc})`, x + 8, y + 3);
+    // Eksenler ve ölçek çizgileri
+    ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(X(0), Y(T_MAX)); ctx.lineTo(X(0), Y(T_MIN)); ctx.lineTo(X(C_MAX), Y(T_MIN)); ctx.stroke();
+    ctx.lineWidth = 1; ctx.fillStyle = MUTED; ctx.font = "10px 'Outfit',sans-serif";
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    [400, 727, 912, 1147, 1394, 1538].forEach(T => {
+      ctx.beginPath(); ctx.moveTo(X(0) - 4, Y(T)); ctx.lineTo(X(0), Y(T)); ctx.stroke();
+      ctx.fillText(String(T), X(0) - 7, Y(T));
     });
-
-    // Etiketler
-    ctx.fillStyle = "var(--text-muted)"; ctx.font = "9px 'Outfit',sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Karbon (% ağırlık)", cx + pw/2, cy + ph + 25);
-    ctx.save(); ctx.translate(cx - 35, cy + ph/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    [[0,"0"],[0.76,"0.76"],[2.14,"2.14"],[4.3,"4.3"],[6.7,"6.7"]].forEach(([c, t]) => {
+      ctx.beginPath(); ctx.moveTo(X(c), Y(T_MIN)); ctx.lineTo(X(c), Y(T_MIN) + 4); ctx.stroke();
+      ctx.fillText(t, X(c), Y(T_MIN) + 6);
+    });
+    ctx.fillText("Karbon (% ağırlık)", pad.l + pw/2, Y(T_MIN) + 22);
+    ctx.save(); ctx.translate(14, pad.t + ph/2); ctx.rotate(-Math.PI/2);
     ctx.fillText("Sıcaklık (°C)", 0, 0); ctx.restore();
 
-    // Perlit noktası vurgusu
-    const px = cx + 0.8 * pw, py = cy + 0.55 * ph;
-    ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI*2);
-    ctx.strokeStyle = "var(--accent-warm)"; ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillStyle = "var(--accent-warm)"; ctx.font = "bold 10px 'Outfit',sans-serif";
-    ctx.fillText("← Ötektoid Nokta", px + 14, py + 4);
-    ctx.fillText("%0.8 C, 727°C", px + 14, py + 16);
+    // Bölge etiketleri
+    ctx.textBaseline = "middle"; ctx.fillStyle = "rgba(241,245,249,0.9)";
+    ctx.font = "bold 11px 'Outfit',sans-serif";
+    ctx.fillText("Sıvı (L)", X(3.3), Y(1430));
+    ctx.fillText("γ", X(0.85), Y(1130));
+    ctx.fillText("L + γ", X(1.95), Y(1290));
+    ctx.fillText("γ + Fe₃C", X(3.9), Y(930));
+    ctx.fillText("α + Fe₃C", X(3.9), Y(580));
+    ctx.font = "9px 'Outfit',sans-serif"; ctx.fillStyle = MUTED;
+    ctx.fillText("L + Fe₃C", X(5.9), Y(1172));
+    ctx.fillText("çelik", X(1.07), Y(445));
+    ctx.fillText("dökme demir", X(4.4), Y(445));
+    ctx.textAlign = "left";
+    ctx.fillText("α + γ", X(0.02) + 3, Y(800));
+
+    // Ötektik nokta
+    ctx.beginPath(); ctx.arc(X(4.3), Y(1147), 4, 0, Math.PI*2); ctx.fillStyle = ACCENT; ctx.fill();
+    ctx.font = "bold 10px 'Outfit',sans-serif";
+    ctx.fillText("Ötektik: %4.3 C, 1147°C", X(4.3) - 30, Y(1147) + 13);
+
+    // Ötektoid (perlit) noktası vurgusu
+    const px = X(0.76), py = Y(727);
+    ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI*2);
+    ctx.strokeStyle = WARM; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = WARM;
+    ctx.fillText("← Ötektoid: %0.76 C, 727°C", px + 12, py + 12);
+    ctx.textBaseline = "alphabetic";
   }
 
   window.addEventListener("resize", () => { resize(); draw(); });
@@ -517,13 +544,13 @@
 (function(){
   const materials = [
     { icon:"🖤", name:"Karbon Fiber", color:"#5eead4",
-      detail:"<strong>Karbon Fiber Takviyeli Polimer (CFRP):</strong> Çelikten 5x hafif, 10x dayanıklı. <strong>Üretim:</strong> PAN (polyacrylonitrile) elyafın kontrollü pirolizi. <strong>Kullanım:</strong> F1, uçak (Boeing 787 %50 CFRP), uzay, lüks otomobil. <strong>Dezavantaj:</strong> Pahalı, tamiri zor, geri dönüşüm sorunu." },
+      detail:"<strong>Karbon Fiber Takviyeli Polimer (CFRP):</strong> Çelikten yaklaşık 5 kat hafif; kilogram başına dayanımı çeliğinkinin birkaç katı. <strong>Üretim:</strong> PAN (polyacrylonitrile) elyafın kontrollü pirolizi. <strong>Kullanım:</strong> F1, uçak (Boeing 787 %50 CFRP), uzay, lüks otomobil. <strong>Dezavantaj:</strong> Pahalı, tamiri zor, geri dönüşüm sorunu." },
     { icon:"🔷", name:"Grafen", color:"#60a5fa",
       detail:"<strong>Grafen:</strong> Tek atom kalınlığında karbon tabakası. <strong>Özellikler:</strong> Çelikten 200x dayanıklı, bakırdan daha iletken, esnek, saydam. Nobel 2010 (Geim ve Novoselov). <strong>Kullanım:</strong> Henüz laboratuvar aşamasında — batarya, sensör, kompozit katkısı, su filtreleme." },
     { icon:"🔄", name:"Şekil Hafızalı Alaşımlar", color:"#a78bfa",
       detail:"<strong>Şekil Hafızalı Alaşımlar (SMA):</strong> Deforme edildikten sonra ısıtılınca orijinal şekline döner. <strong>Nitinol (NiTi):</strong> En yaygın SMA. <strong>Kullanım:</strong> Stentler (damar açıcı), gözlük çerçevesi, uydu antenleri, robotik aktüatörler. <strong>Mekanizma:</strong> Martenzit-ostenit faz dönüşümü." },
     { icon:"🧪", name:"Metalik Cam", color:"#fbbf24",
-      detail:"<strong>Metalik Cam (Amorf Metal):</strong> Kristal yapısı olmayan metal. <strong>Üretim:</strong> Ergimiş metalin ~10⁶ K/s hızla soğutulması (sıçratma soğutma). <strong>Özellikler:</strong> Aşırı elastik limit (%2), yüksek dayanım, korozyon direnci. <strong>Kullanım:</strong> Golf sopası, saat kasası, transformatör çekirdeği." },
+      detail:"<strong>Metalik Cam (Amorf Metal):</strong> Kristal yapısı olmayan metal. <strong>Üretim:</strong> İlk şerit camlarda ergimiş metalin ~10⁶ K/s hızla soğutulması (sıçratma soğutma); bugünkü hacimli metalik camlar çok daha yavaş soğutmayla elde edilir. <strong>Özellikler:</strong> Aşırı elastik limit (%2), yüksek dayanım, korozyon direnci. <strong>Kullanım:</strong> Golf sopası, saat kasası, transformatör çekirdeği." },
     { icon:"🔬", name:"Nanomalzemeler", color:"#f472b6",
       detail:"<strong>Nanomalzemeler:</strong> 1-100 nm boyutunda yapılar. <strong>Tipler:</strong> Karbon nanotüp (CNT), nanotel, kuantum noktacıkları, nanoparçacıklar. <strong>Özellik:</strong> Yüzey/hacim oranı çok yüksek → kuantum etkileri. <strong>Kullanım:</strong> İlaç taşıma, güneş pili, katalizör, gıda ambalajı." },
     { icon:"🦴", name:"Biyomimetik Malzemeler", color:"#a3e635",
@@ -531,7 +558,7 @@
     { icon:"🏗️", name:"Kendi Kendini Onaran", color:"#c084fc",
       detail:"<strong>Self-Healing Materials:</strong> Hasarı otonom olarak tamir eden malzemeler. <strong>Mekanizmalar:</strong> Mikrokapsüller (çatlak kapsülü patlatır, iyileştirici salınır), vasküler ağlar, tersinir bağlar. <strong>Kullanım:</strong> Beton, boya/kaplama, kompozitler. Henüz ticari yaygınlık sınırlı." },
     { icon:"💡", name:"Aerogel", color:"#fb923c",
-      detail:"<strong>Aerogel (Donmuş Duman):</strong> %99.8 hava, dünyanın en hafif katısı. <strong>Özellikler:</strong> Mükemmel ısı yalıtımı (0.015 W/mK), 500°C+ dayanım. <strong>Kullanım:</strong> Uzay giysileri (NASA), endüstriyel yalıtım, yağ sızıntısı temizleme. Silika aerogel en yaygın, kırılganlık sorunu." },
+      detail:"<strong>Aerogel (Donmuş Duman):</strong> Hacminin %99'undan fazlası hava; bilinen en hafif katılardan biri. <strong>Özellikler:</strong> Mükemmel ısı yalıtımı (0.015 W/mK), 500°C+ dayanım. <strong>Kullanım:</strong> Uzay giysileri (NASA), endüstriyel yalıtım, yağ sızıntısı temizleme. Silika aerogel en yaygın, kırılganlık sorunu." },
   ];
 
   const grid = document.getElementById("futureGrid");

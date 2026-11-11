@@ -74,7 +74,7 @@
   <div class="panel">
     <h2>🌬️ Aerodinamik — Kanat Profili (Airfoil) ve Akış</h2>
     <p class="desc">
-      <strong>Aerodinamik</strong> havanın cisimlerle etkileşimini inceler. <strong>Bernoulli Prensibi:</strong> Hız↑ → Basınç↓. Kanat üst yüzeyinde hızlanan hava düşük basınç, alt yüzeyde yavaşlayan hava yüksek basınç oluşturur → <strong>Kaldırma Kuvveti (L)</strong>. <strong>Hücum Açısı (α)</strong> arttıkça kaldırma artar, ancak ~15-16°'de akış ayrılır → <strong>Stall (tutunma kaybı)</strong>. NACA 4-haneli profiller (örn. 2412) endüstride standarttır.
+      <strong>Aerodinamik</strong> havanın cisimlerle etkileşimini inceler. <strong>Bernoulli Prensibi:</strong> Hız↑ → Basınç↓. Kanat üst yüzeyinde hızlanan hava düşük basınç, alt yüzeyde yavaşlayan hava yüksek basınç oluşturur → <strong>Kaldırma Kuvveti (L)</strong>. Aynı olayın öteki yüzü: kanat havayı aşağı saptırır, hava da kanadı yukarı iter. <strong>Hücum Açısı (α)</strong> arttıkça kaldırma artar, ancak ~15-16°'de akış ayrılır → <strong>Stall (tutunma kaybı)</strong>. Çizim niteldir: serbest akım hep yataydır, yalnız kanat döner; L ve D oklarının boyu C<sub>L</sub> ve C<sub>D</sub> ile orantılıdır. NACA 4-haneli profiller (örn. 2412) endüstride standarttır.
     </p>
     <canvas id="airfoilCanvas"></canvas>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
@@ -83,7 +83,7 @@
       <button class="btn-ghost2" id="btnAoAReset" style="flex:0 0 auto;min-width:auto;padding:6px 12px;font-size:0.65rem">↺ Sıfırla (0°)</button>
     </div>
     <div style="font-size:0.62rem;color:var(--text-muted);text-align:center;margin-top:6px" id="airfoilInfo">
-      α=0° · C<sub>L</sub>≈0.2 · Akış: Tutunmuş (laminer) · L = ½ρv²SC<sub>L</sub>
+      α=0° · C<sub>L</sub>≈0.25 · Akış: Tutunmuş akış · L = ½ρv²SC<sub>L</sub>
     </div>
   </div>
 
@@ -166,151 +166,160 @@
     ctx.setTransform(dpr,0,0,dpr,0,0);
   }
 
+  // Sayfanın kaba modeli: 14°'ye kadar doğrusal, ötesinde ayrılmış akışla düşen C_L
+  function liftCoef(a){ return a<=14 ? 0.25+0.09*a : 1.51-0.07*(a-14); }
+  // Sonlu kanat (AR≈7.5, e≈0.8) için indüklenmiş sürükleme + tutunma kaybında basınç sürüklemesi
+  function dragCoef(a){ const cl=liftCoef(a); return 0.012+cl*cl/18.85+(a>14?0.02*(a-14):0); }
+
   function drawAirfoilShape(cx,cy,chord,alphaRad,thickness){
     // NACA-like airfoil using bezier curves (simplified 4-digit shape)
     ctx.save();
     ctx.translate(cx,cy);
-    ctx.rotate(-alphaRad);
+    ctx.rotate(alphaRad); // hücum kenarı solda: pozitif α burnu yukarı kaldırır
 
     const halfChord=chord/2;
-    const maxThick=thickness*chord*0.18; // ~max thickness at 30% chord
+    const maxThick=thickness*chord*0.9;
     const camber=0.02*chord; // 2% camber (like NACA 24xx)
 
     ctx.beginPath();
-    // Upper surface — from trailing edge to leading edge and back
-    ctx.moveTo(halfChord,0); // trailing edge upper
+    ctx.moveTo(halfChord,0); // trailing edge
     ctx.bezierCurveTo(
-      halfChord*0.4, -maxThick*0.4,  // control 1
-      -halfChord*0.5, -maxThick*1.0,  // control 2 (leading edge top)
-      -halfChord, -camber*0.3          // leading edge
+      halfChord*0.4, -maxThick*0.4,
+      -halfChord*0.5, -maxThick*1.0,
+      -halfChord, -camber*0.3
     );
-    // Lower surface
     ctx.bezierCurveTo(
-      -halfChord*0.5, maxThick*0.7,   // control 3 (leading edge bottom)
-      halfChord*0.4, maxThick*0.3,    // control 4
-      halfChord, camber*0.3            // back to trailing edge
+      -halfChord*0.5, maxThick*0.7,
+      halfChord*0.4, maxThick*0.3,
+      halfChord, 0
     );
     ctx.closePath();
 
-    // Fill and stroke
     const grad=ctx.createLinearGradient(-halfChord,0,halfChord,0);
-    grad.addColorStop(0,"rgba(148,163,184,0.25)");
-    grad.addColorStop(1,"rgba(148,163,184,0.15)");
+    grad.addColorStop(0,"rgba(71,85,105,0.95)");
+    grad.addColorStop(1,"rgba(51,65,85,0.95)");
     ctx.fillStyle=grad;
     ctx.fill();
-    ctx.strokeStyle="rgba(148,163,184,0.7)"; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.strokeStyle="rgba(148,163,184,0.8)"; ctx.lineWidth=1.5; ctx.stroke();
 
     ctx.restore();
   }
 
+  // Akım çizgileri dünya çerçevesinde: serbest akım yatay kalır, yalnız kanat döner.
+  // Nitel resim: önde yukarı sapma (upwash), kanat boyunca veteri izleme, arkada aşağı sapma (downwash).
+  function streamY(x,y0,chord,alphaRad,stalled){
+    const hc=chord/2*Math.cos(alphaRad), tanA=Math.tan(alphaRad);
+    const side=y0<0?-1:1, a=Math.abs(y0);
+    const near=Math.exp(-a/(0.45*chord));          // gövdeden uzaklaştıkça etki söner
+    let g, xc=Math.max(-hc,Math.min(hc,x));
+    if(x<-hc) g=Math.exp(-Math.pow((x+hc)/110,2));
+    else if(x>hc) g=0.6+0.4*Math.exp(-Math.pow((x-hc)/130,2)); // kalıcı aşağı sapma
+    else g=1;
+    const xi=(xc+hc)/(2*hc);
+    const thick=0.075*chord*Math.pow(Math.sin(Math.PI*Math.min(1,Math.max(0,xi))),0.6)*(side<0?1:0.75);
+    const bodyW=(x<-hc||x>hc)?Math.exp(-Math.pow((Math.abs(x)-hc)/95,2)):1;
+    const squeeze=side<0 ? 1-Math.min(0.45,0.12+0.02*Math.max(0,aoa))*bodyW : 1+0.08*bodyW;
+    let y=g*near*xc*tanA + side*(a*squeeze + thick*bodyW*near);
+    if(stalled && side<0){
+      // Ayrılma: sırttaki çizgiler veterin ilk çeyreğinden sonra yüzeyle birlikte alçalmaz
+      const xs=-hc*0.45;
+      if(x>xs){
+        const lift=(Math.min(x,hc)-xs)*tanA*0.95*Math.exp(-a/(0.5*chord));
+        y-=lift*(x>hc ? 0.65+0.35*Math.exp(-Math.pow((x-hc)/130,2)) : 1);
+      }
+    }
+    return y;
+  }
+
   function drawStreamlines(cx,cy,chord,alphaRad){
-    const halfChord=chord/2;
-    const nStreamlines=9;
-    const offsets=[-0.8,-0.55,-0.35,-0.2,0,0,0.2,0.35,0.55,0.8];
-    // Heights above/below airfoil (fraction of chord)
-    const heights=[0.5,0.3,0.18,0.1,0.01,-0.01,-0.1,-0.18,-0.3,-0.5];
+    const heights=[-0.62,-0.42,-0.27,-0.15,-0.05,0.06,0.17,0.3,0.46,0.64];
+    const stalled=aoa>14;
+    const x0=-cx+4, x1=W-cx-4;
 
     ctx.save();
     ctx.translate(cx,cy);
-    ctx.rotate(-alphaRad);
-
-    // If stalled, draw separation region
-    const stalled=Math.abs(aoa)>14;
-
-    for(let i=0;i<nStreamlines;i++){
-      const h=heights[i]*chord;
-      const isUpper=h>0;
-      const farY=h*1.8; // far upstream
-
+    heights.forEach((hf,i)=>{
+      const y0=hf*chord*0.62;
       ctx.beginPath();
-      ctx.moveTo(halfChord+60, farY);
-
-      if(!stalled || Math.abs(aoa)<=14){
-        // Attached flow — smooth curve following airfoil contour
-        const midX=halfChord*0.3;
-        const midY=h*0.7;
-        ctx.bezierCurveTo(halfChord+20, farY*0.7, midX, midY, -halfChord-60, farY*0.8);
-      } else {
-        // Separated flow — streamlines detach after ~30% chord
-        const sepX=halfChord*0.2; // separation point
-        const sepY=h*0.6;
-        ctx.bezierCurveTo(halfChord+20, farY*0.7, sepX, sepY, sepX-20, sepY+15*(isUpper?1:-1));
-        ctx.lineTo(-halfChord-60, sepY+40*(isUpper?1:-1));
+      for(let x=x0;x<=x1;x+=5){
+        const y=streamY(x,y0,chord,alphaRad,stalled);
+        if(x===x0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
       }
+      ctx.strokeStyle=`rgba(96,165,250,${0.28+0.06*(i%3)})`;
+      ctx.lineWidth=1; ctx.stroke();
+    });
 
-      const alpha=0.15+0.05*(i%3);
-      ctx.strokeStyle=`rgba(96,165,250,${alpha})`;
-      ctx.lineWidth=0.8; ctx.stroke();
-    }
-
-    // If stalled, draw turbulent wake
+    // Tutunma kaybında sırtın üstünde girdaplı ölü bölge
     if(stalled){
+      const hc=chord/2*Math.cos(alphaRad), tanA=Math.tan(alphaRad), xs=-hc*0.45;
+      const top=x=>streamY(x,-0.05*chord*0.62,chord,alphaRad,true);
+      const surf=x=>Math.min(x,hc)*tanA-(x<hc?10:0);
       for(let i=0;i<5;i++){
-        const yOff=(i-2)*15;
         ctx.beginPath();
-        ctx.moveTo(halfChord*0.1, yOff);
-        for(let j=0;j<8;j++){
-          const tx=-halfChord*0.3-j*18;
-          const ty=yOff+Math.sin(j*1.5+i*0.7)*12;
-          ctx.lineTo(tx+Math.random()*6, ty);
+        for(let j=0;j<=26;j++){
+          const x=xs+12+j*(hc+70-xs)/26;
+          const f=(i+0.6)/5.4;
+          const y=surf(x)+(top(x)-surf(x))*f+Math.sin(j*1.3+i*1.9)*5+(Math.random()-0.5)*3;
+          if(j===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
         }
-        ctx.strokeStyle=`rgba(248,113,113,${0.08+i*0.02})`;
+        ctx.strokeStyle=`rgba(248,113,113,${0.3+i*0.05})`;
         ctx.lineWidth=1; ctx.stroke();
       }
     }
-
     ctx.restore();
   }
 
   function drawPressureDist(cx,cy,chord,alphaRad){
     const halfChord=chord/2;
     const nPts=18;
-    const color=Math.abs(aoa)>14?"rgba(248,113,113,0.5)":"rgba(96,165,250,0.45)";
-    const colorNeg="rgba(94,234,212,0.45)";
+    const stalled=aoa>14;
+    const cl=liftCoef(aoa);
+    const k=Math.max(0,Math.min(1.7,cl/0.6));       // ok boyu C_L ile ölçeklenir
+    const colorNeg=stalled?"rgba(248,113,113,0.6)":"rgba(94,234,212,0.6)";
+    const color="rgba(96,165,250,0.6)";
 
     ctx.save();
     ctx.translate(cx,cy);
-    ctx.rotate(-alphaRad);
+    ctx.rotate(alphaRad);
 
-    // Pressure distribution arrows on upper surface (suction)
+    // Üst yüzey: emme (oklar yüzeyden dışarı). Tutunma kaybında tepe çöker, dağılım düzleşir.
     ctx.strokeStyle=colorNeg; ctx.lineWidth=1.2;
     for(let i=0;i<nPts;i++){
       const frac=i/(nPts-1);
       const x=-halfChord+frac*chord;
-      const dist=1-Math.abs(frac-0.3)*1.5; // peak suction at ~30% chord
-      const arrowLen=-Math.max(0,dist)*35;
+      const dist=stalled ? 0.45 : 1-Math.abs(frac-0.22)*1.4; // tepe emme veterin ön çeyreğinde
+      const arrowLen=-Math.max(0,dist)*34*k;
       if(arrowLen<-3){
-        const baseY=-4-Math.sin(frac*Math.PI)*12;
+        const baseY=-5-Math.pow(Math.sin(Math.PI*Math.min(1,frac*1.15)),0.7)*0.1*chord*(1-0.35*frac);
         ctx.beginPath();
         ctx.moveTo(x,baseY);
         ctx.lineTo(x,baseY+arrowLen);
         ctx.stroke();
-        // arrowhead
         ctx.beginPath();
-        ctx.moveTo(x,baseY+arrowLen);
-        ctx.lineTo(x-3,baseY+arrowLen+5);
-        ctx.lineTo(x+3,baseY+arrowLen+5);
+        ctx.moveTo(x,baseY+arrowLen-5);
+        ctx.lineTo(x-3,baseY+arrowLen);
+        ctx.lineTo(x+3,baseY+arrowLen);
         ctx.closePath(); ctx.fillStyle=colorNeg; ctx.fill();
       }
     }
 
-    // Lower surface pressure
+    // Alt yüzey: basınç fazlası (oklar yüzeye doğru, yani yukarı iter)
     ctx.strokeStyle=color; ctx.lineWidth=1.2;
     for(let i=0;i<nPts;i++){
       const frac=i/(nPts-1);
       const x=-halfChord+frac*chord;
-      const dist=(1-Math.abs(frac-0.3)*1.5)*0.5;
-      const arrowLen=Math.max(0,dist)*18;
-      if(arrowLen>2){
-        const baseY=4+Math.sin(frac*Math.PI)*8;
+      const dist=(1-Math.abs(frac-0.25)*1.3)*0.5;
+      const arrowLen=Math.max(0,dist)*30*k;
+      if(arrowLen>3){
+        const baseY=6+Math.pow(Math.sin(Math.PI*Math.min(1,frac*1.2)),0.7)*0.06*chord*(1-0.5*frac);
         ctx.beginPath();
-        ctx.moveTo(x,baseY);
-        ctx.lineTo(x,baseY+arrowLen);
+        ctx.moveTo(x,baseY+5);
+        ctx.lineTo(x,baseY+5+arrowLen);
         ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(x,baseY+arrowLen);
-        ctx.lineTo(x-3,baseY+arrowLen-5);
-        ctx.lineTo(x+3,baseY+arrowLen-5);
+        ctx.moveTo(x,baseY);
+        ctx.lineTo(x-3,baseY+5);
+        ctx.lineTo(x+3,baseY+5);
         ctx.closePath(); ctx.fillStyle=color; ctx.fill();
       }
     }
@@ -318,105 +327,71 @@
     ctx.restore();
   }
 
+  function arrow(x0,y0,x1,y1,color,width){
+    const ang=Math.atan2(y1-y0,x1-x0);
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1);
+    ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash([]); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x1-Math.cos(ang-0.45)*9, y1-Math.sin(ang-0.45)*9);
+    ctx.lineTo(x1-Math.cos(ang+0.45)*9, y1-Math.sin(ang+0.45)*9);
+    ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+  }
+
   function draw(){
     ctx.clearRect(0,0,W,H);
 
-    const cx=W/2, cy=H/2-10, chord=Math.min(W*0.7,380);
+    const cx=W/2, cy=H/2+8, chord=Math.min(W*0.55,340);
     const alphaRad=aoa*Math.PI/180;
+    const cl=liftCoef(aoa), cd=dragCoef(aoa);
 
     // Grid lines
     ctx.strokeStyle="rgba(148,163,184,0.04)"; ctx.lineWidth=0.5;
     for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
     for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 
-    // Draw streamlines first (behind airfoil)
     drawStreamlines(cx,cy,chord,alphaRad);
 
-    // Freestream indicators
-    ctx.save();
-    ctx.translate(cx,cy);
-    ctx.rotate(-alphaRad);
-    const farLeft=-chord/2-70;
-    ctx.strokeStyle="rgba(96,165,250,0.3)"; ctx.lineWidth=1;
-    for(let y=-60;y<=60;y+=30){
-      ctx.beginPath();
-      ctx.moveTo(farLeft+10,y);
-      ctx.lineTo(farLeft+45,y);
-      ctx.stroke();
-      // arrowhead
-      ctx.beginPath();
-      ctx.moveTo(farLeft+45,y);
-      ctx.lineTo(farLeft+38,y-4);
-      ctx.lineTo(farLeft+38,y+4);
-      ctx.fillStyle="rgba(96,165,250,0.3)"; ctx.fill();
+    // Serbest akım: her açıda yatay, soldan sağa
+    for(let y=-90;y<=90;y+=45){
+      arrow(14,cy+y,50,cy+y,"rgba(96,165,250,0.55)",1);
     }
-    ctx.restore();
+    ctx.fillStyle="rgba(96,165,250,0.7)"; ctx.font="10px system-ui"; ctx.textAlign="left";
+    ctx.fillText("V∞ (serbest akım)",14,cy-102);
 
-    drawPressureDist(cx,cy,chord,alphaRad);
     drawAirfoilShape(cx,cy,chord,alphaRad,0.12);
+    drawPressureDist(cx,cy,chord,alphaRad);
 
-    // Lift and Drag arrows (in world coordinates, not rotated)
-    const arrowLen=Math.min(110,30+Math.abs(aoa)*5);
-    const liftLen=Math.min(arrowLen*1.2, 120);
-    const dragLen=Math.min(arrowLen*0.6, 50);
-
-    // Lift arrow (perpendicular to freestream)
-    const liftAngle=alphaRad+Math.PI/2;
-    const lx=cx+Math.cos(liftAngle)*liftLen*0.6;
-    const ly=cy-Math.sin(liftAngle)*liftLen*0.6;
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(lx,ly);
-    ctx.strokeStyle="#5eead4"; ctx.lineWidth=2; ctx.setLineDash([]); ctx.stroke();
-    // Arrowhead
-    ctx.beginPath();
-    ctx.moveTo(lx,ly);
-    ctx.lineTo(lx-Math.cos(liftAngle-0.5)*10, ly+Math.sin(liftAngle-0.5)*10);
-    ctx.lineTo(lx-Math.cos(liftAngle+0.5)*10, ly+Math.sin(liftAngle+0.5)*10);
-    ctx.closePath(); ctx.fillStyle="#5eead4"; ctx.fill();
-
-    // Drag arrow (parallel to freestream, backwards)
-    const dragAngle=alphaRad+Math.PI;
-    const dx=cx+Math.cos(dragAngle)*dragLen;
-    const dy=cy-Math.sin(dragAngle)*dragLen;
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(dx,dy);
-    ctx.strokeStyle="#f87171"; ctx.lineWidth=1.5; ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(dx,dy);
-    ctx.lineTo(dx-Math.cos(dragAngle-0.5)*8, dy+Math.sin(dragAngle-0.5)*8);
-    ctx.lineTo(dx-Math.cos(dragAngle+0.5)*8, dy+Math.sin(dragAngle+0.5)*8);
-    ctx.closePath(); ctx.fillStyle="#f87171"; ctx.fill();
-
-    // Labels
+    // Kaldırma: serbest akıma dik (yukarı), boyu C_L ile orantılı.
+    // Sürükleme: akım yönünde (sağa), boyu C_D ile orantılı.
+    const px=cx-chord*0.2*Math.cos(alphaRad), py=cy-chord*0.2*Math.sin(alphaRad);
+    const liftLen=10+62*Math.max(0,cl), dragLen=12+230*cd;
+    arrow(px,py,px,py-liftLen,"#5eead4",2.5);
+    arrow(px,py,px+dragLen,py,"#f87171",2);
     ctx.fillStyle="#5eead4"; ctx.font="bold 11px system-ui";
-    ctx.fillText("L (Kaldırma)", lx+8, ly-4);
-    ctx.fillStyle="#f87171"; ctx.font="bold 11px system-ui";
-    ctx.fillText("D (Sürükleme)", dx-65, dy+14);
+    ctx.fillText("L (Kaldırma)", px+8, py-liftLen+4);
+    ctx.fillStyle="#f87171";
+    ctx.fillText("D (Sürükleme)", px+dragLen+6, py+4);
 
-    // AoA indicator
-    const indLen=60;
-    const indX=cx-Math.cos(alphaRad)*indLen;
-    const indY=cy+Math.sin(alphaRad)*indLen;
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(indX,indY);
-    ctx.strokeStyle="#fbbf24"; ctx.lineWidth=1; ctx.setLineDash([4,3]); ctx.stroke();
+    // Hücum açısı: yatay serbest akım doğrultusu ile veter çizgisi arasındaki açı
+    const lex=cx-chord/2*Math.cos(alphaRad), ley=cy-chord/2*Math.sin(alphaRad);
+    const tex=cx+chord/2*Math.cos(alphaRad), tey=cy+chord/2*Math.sin(alphaRad);
+    ctx.strokeStyle="#fbbf24"; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(tex,tey); ctx.lineTo(lex-55*Math.cos(alphaRad),ley-55*Math.sin(alphaRad)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(tex,tey); ctx.lineTo(tex-chord-70,tey); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle="#fbbf24"; ctx.font="10px system-ui";
-    ctx.fillText(`α=${aoa}°`, indX-35, indY+4);
+    ctx.fillText(`α=${aoa}°`, Math.max(56,tex-chord-64), tey+(aoa>=0?14:-6));
 
     // Update info
-    const clApprox=Math.max(0.1,0.25+aoa*0.09-(aoa>14?0.3:0));
     let flowDesc;
-    if(aoa<4) flowDesc="Tutunmuş (laminer)";
-    else if(aoa<10) flowDesc="Tutunmuş (türbülansa geçiş)";
-    else if(aoa<14) flowDesc="Sınır tabaka kalınlaşıyor";
-    else if(aoa<17) flowDesc="⚠️ Akış ayrılması — STALL başlangıcı";
-    else flowDesc="❌ Derin STALL — Tutunma tamamen kayboldu";
+    if(aoa<10) flowDesc="Tutunmuş akış";
+    else if(aoa<14) flowDesc="Tutunmuş · sınır tabaka kalınlaşıyor";
+    else if(aoa===14) flowDesc="Kritik açı · C<sub>L</sub> en büyük";
+    else if(aoa<18) flowDesc="⚠️ Akış ayrıldı — STALL (tutunma kaybı)";
+    else flowDesc="❌ Derin STALL — akış sırttan tümüyle koptu";
     document.getElementById("airfoilInfo").innerHTML=
-      `α=${aoa}° · C<sub>L</sub>≈${clApprox.toFixed(2)} · Akış: ${flowDesc} · L = ½ρv²SC<sub>L</sub>`;
+      `α=${aoa}° · C<sub>L</sub>≈${cl.toFixed(2)} · C<sub>D</sub>≈${cd.toFixed(3)} · L/D≈${(cl/cd).toFixed(1)} · Akış: ${flowDesc} · L = ½ρv²SC<sub>L</sub>`;
   }
 
   document.getElementById("btnAoAUp").addEventListener("click",()=>{
@@ -474,7 +449,7 @@
     { icon:"🔧", name:"Piston Motor (Reciprocating)", color:"#a78bfa",
       detail:"<strong>4 zamanlı Otto/Diesel çevrimi.</strong> Hafif uçaklarda (Cessna 172, Piper PA-28) kullanılır. <strong>Boxer tipi (horizontally opposed):</strong> Düşük CG, kompakt. <strong>Lycoming IO-360:</strong> 180 HP, hava soğutmalı. <strong>Manyeto:</strong> Elektrik sisteminden bağımsız ateşleme. Karışım (mixture) kolu irtifaya göre ayarlanır." },
     { icon:"🔥", name:"Ramjet & Scramjet", color:"#f472b6",
-      detail:"<strong>Ramjet:</strong> Dönen parça yok! Yüksek hızda hava ram etkisiyle sıkışır. <strong>Mach 3+</strong> çalışır, Mach 0'da çalışmaz (booster gerekir). <strong>Scramjet (Supersonic Combustion):</strong> Yanma odasında akış süpersonik kalır → Mach 5+. <strong>Uygulama:</strong> X-43A (Mach 9.6 rekor), hipersonik füzeler, uzay uçağı konseptleri." },
+      detail:"<strong>Ramjet:</strong> Dönen parça yok! Yüksek hızda hava ram etkisiyle sıkışır. Ses üstü hızlarda, en iyi <strong>Mach 2–4</strong> dolayında çalışır; dururken itki üretemez (booster gerekir). <strong>Scramjet (Supersonic Combustion):</strong> Yanma odasında akış süpersonik kalır → Mach 5+. <strong>Uygulama:</strong> X-43A (Mach 9.6 rekor), hipersonik füzeler, uzay uçağı konseptleri." },
   ];
 
   const grid=document.getElementById("engineGrid"), detail=document.getElementById("engineDetail");
@@ -494,7 +469,7 @@
   const structs=[
     { icon:"🪶", name:"Al 2024-T3", desc:"Al-Cu alaşımı. Yüksek dayanım/ağırlık, yorulma direnci. <strong>Fuselage skin</strong> standardı. Bakır içeriği korozyona hassas → Alclad kaplama (saf Al yüzey). σ_y≈345 MPa." },
     { icon:"🔩", name:"Al 7075-T6", desc:"Al-Zn-Mg-Cu alaşımı. 2024'ten %50 daha güçlü. <strong>Kanat sparları, bulkhead'ler.</strong> σ_y≈503 MPa. Gerilme korozyonuna dikkat. Boeing yapısal elemanlarda yaygın." },
-    { icon:"🧬", name:"CFRP (Karbon Fiber)", desc:"Karbon fiber + epoksi matris. <strong>Yüksek dayanım, ultra hafif.</strong> Boeing 787 gövdesinin %50'si, A350'nin %53'ü. E-modül: yöne bağlı (anizotropik). Otoklavda kürlenir." },
+    { icon:"🧬", name:"CFRP (Karbon Fiber)", desc:"Karbon fiber + epoksi matris. <strong>Yüksek dayanım, ultra hafif.</strong> Boeing 787 yapısının ağırlıkça ~%50'si, A350'nin ~%53'ü. E-modül: yöne bağlı (anizotropik). Otoklavda kürlenir." },
     { icon:"🪟", name:"GFRP (Cam Elyaf)", desc:"Cam fiber + polyester/epoksi. CFRP'den ucuz, radar geçirgen. <strong>Radom, fairing, iç kabin.</strong> Düşük modül (~40 GPa vs CFRP~130 GPa). Tekne ve küçük uçak gövdelerinde." },
     { icon:"🔪", name:"Ti-6Al-4V", desc:"Titanyum alaşımı. <strong>Yüksek sıcaklık dayanımı (400°C+).</strong> Motor parçaları, iniş takımı, bağlantı elemanları. σ_y≈880 MPa, ρ≈4.43 g/cm³. Galvanik korozyon: CFRP ile temas edince izole edilmeli." },
     { icon:"🍯", name:"Bal Peteği (Honeycomb)", desc:"Alüminyum veya Nomex (aramid) petek + ince yüzey levhaları. <strong>Sandviç panel:</strong> Çok hafif, yüksek eğilme rijitliği. <strong>Kullanım:</strong> Zemin panelleri, kontrol yüzeyleri, jet motoru nacelle." },
@@ -521,7 +496,7 @@
     { icon:"⬆️", name:"Tırmanış (Climb)", color:"#60a5fa",
       detail:"<strong>Tırmanış açısı (γ):</strong> sin(γ) = (T−D)/W. <strong>Maksimum tırmanma oranı (ROC):</strong> Fazla gücün maksimum olduğu hızda. <strong>Servis tavanı:</strong> ROC=100 ft/dk'daki irtifa. <strong>Mutlak tavan:</strong> ROC=0. <strong>Step climb:</strong> Yakıt azaldıkça irtifa artırma." },
     { icon:"✈️", name:"Seyir — Breguet Denklemi", color:"#fbbf24",
-      detail:"<strong>Breguet Menzil (Jet):</strong> R = (V/Cⱼ)·(L/D)·ln(W₀/W₁). <strong>Max menzil için:</strong> L/D maksimum hızda uç. <strong>Max havada kalma (Endurance):</strong> Minimum yakıt debisi hızı. <strong>TSFC (Thrust Specific Fuel Consumption):</strong> lb/(lbf·h) veya g/(kN·s). CFM LEAP-1B: TSFC~0.53." },
+      detail:"<strong>Breguet Menzil (Jet):</strong> R = (V/Cⱼ)·(L/D)·ln(W₀/W₁). <strong>Max menzil için:</strong> V·(L/D) çarpımını en büyük yapan hızda uç (jette L/D'nin en büyük olduğu hızdan biraz hızlı). <strong>Max havada kalma (Endurance):</strong> Minimum yakıt debisi hızı. <strong>TSFC (Thrust Specific Fuel Consumption):</strong> lb/(lbf·h) veya g/(kN·s). CFM LEAP-1B: TSFC~0.53." },
     { icon:"🛬", name:"İniş Performansı", color:"#f472b6",
       detail:"<strong>İniş mesafesi:</strong> Yaklaşma (50 ft → pist) + flare + yerde durma. <strong>V_ref (V_AT):</strong> 1.3 × V_SO (tam flap stall hızı). <strong>Reverse thrust:</strong> İnişten sonra ters itki. <strong>Otopilot (Autoland):</strong> CAT III ILS ile sıfır görüşte iniş (Decision Height < 100 ft veya 0). Spoiler/speedbrake: inişte lift dump." },
     { icon:"📊", name:"Yük-Taşıma-Menzil Diyagramı", color:"#a78bfa",
@@ -544,7 +519,7 @@
 (function(){
   const topics=[
     { icon:"🌡️", name:"Pitot-Statik Sistem", color:"#5eead4",
-      detail:"<strong>Pitot tüpü:</strong> Toplam basınç (Pₜ=P_statik+½ρv²). <strong>Statik port:</strong> Ortam basıncı. <strong>Hava Hız Göstergesi (ASI):</strong> IAS (belirtilen) → CAS (kalibre) → TAS (gerçek). <strong>İrtifa (Altimetre):</strong> P_statik azaldıkça irtifa artar. <strong>Variometre (VSI):</strong> P_statik değişim oranı. Pitot-stat ikaz: Pitot tıkanması Air France 447 kazasının ana nedeni." },
+      detail:"<strong>Pitot tüpü:</strong> Toplam basınç (Pₜ=P_statik+½ρv²). <strong>Statik port:</strong> Ortam basıncı. <strong>Hava Hız Göstergesi (ASI):</strong> IAS (belirtilen) → CAS (kalibre) → TAS (gerçek). <strong>İrtifa (Altimetre):</strong> P_statik azaldıkça irtifa artar. <strong>Variometre (VSI):</strong> P_statik değişim oranı. Pitot tüplerinin buzlanması Air France 447 kazasını (2009) başlatan olaydı; ardından uçak tutunma kaybına girdi." },
     { icon:"🧭", name:"INS/IRS (Ataletsel)", color:"#60a5fa",
       detail:"<strong>Ring Lazer Jiroskop (RLG) veya Fiber Optik Jiroskop (FOG) + ivmeölçerler.</strong> GPS'ten bağımsız, harici sinyal gerektirmez. <strong>Alignment (hizalama):</strong> Yerde ~10 dk (GPS ile hızlı ~30 sn). <strong>Sapma (drift):</strong> 0.4-0.8 NM/saat. <strong>IRU:</strong> Ataletsel Referans Birimi. Ticari uçaklarda 3 IRU + GPS hibrit navigasyon." },
     { icon:"🛰️", name:"GPS/GNSS Navigasyon", color:"#a78bfa",

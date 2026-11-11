@@ -7,7 +7,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-  <meta name="description" content="Bir tıklamayla yola çıkan veri küçük paketlere bölünür, denizaltı kablolarında ışık hızının üçte ikisiyle gider; yolu yönlendiriciler, adresi DNS, güvenilirliği TCP sağlar. Beş deneyle zinciri tek tek aç.">
+  <meta name="description" content="Bir tıklamayla yola çıkan veri küçük paketlere bölünür, denizaltı kablolarında ışık hızının üçte ikisiyle gider; yolu yönlendiriciler, adresi DNS, güvenilirliği TCP sağlar. Dört deneyle zinciri tek tek aç.">
     <title>İnternet ve Ağ Teknolojileri</title>
     <style>
       * {
@@ -528,7 +528,7 @@
         <p class="desc">
           İnternette veri, paket adı verilen küçük parçalara ayrılarak iletilir. Her
           paket, yönlendiriciler (router) aracılığıyla kaynaktan hedefe ulaşır.
-          <strong>Başlat</strong> tuşuna basarak bir paketin İstanbul'dan San
+          <strong>Paket Gönder</strong> tuşuna basarak bir paketin İstanbul'dan San
           Francisco'ya yolculuğunu izleyin.
         </p>
         <canvas id="netCanvas"></canvas>
@@ -539,7 +539,7 @@
         </div>
         <div class="pkt-info">
           <span class="stat">Atlama (hop): <strong id="hopCount">0</strong></span>
-          <span class="stat">Gecikme: <strong id="latency">—</strong></span>
+          <span class="stat">Gecikme (tek yön, fiberde en az): <strong id="latency">—</strong></span>
           <span class="stat">TTL: <strong id="ttlVal">64</strong></span>
           <span class="stat">Protokol: <strong>TCP/HTTP</strong></span>
         </div>
@@ -583,7 +583,7 @@
             "
           >
             <div id="synMsg" class="tcp-packet" style="align-self: flex-start">
-              SYN → seq=0
+              SYN → seq=1000
             </div>
             <div
               id="synMsg2"
@@ -596,14 +596,14 @@
                 margin: 2px 0;
               "
             >
-              SYN + ACK → seq=0, ack=1
+              SYN + ACK → seq=5000, ack=1001
             </div>
             <div
               id="ackMsg"
               class="tcp-packet"
               style="opacity: 0.35; font-size: 0.65rem; align-self: flex-start"
             >
-              ACK → seq=1, ack=1
+              ACK → seq=1001, ack=5001
             </div>
           </div>
           <div class="tcp-btn-row">
@@ -856,6 +856,19 @@
 
         // Yönlendirme tablosu — paketlerin izleyeceği yol
         const routePath = ["src", "r1", "r3", "r4", "r6", "dst"];
+        // Rota hatlarının yaklaşık büyük daire uzunlukları (km): İstanbul–ISS, –Londra, –New York, –San Jose, –San Francisco
+        const linkKm = [20, 2500, 5570, 4100, 70];
+        const FIBER_KM_PER_MS = 200; // camda ışık ≈ 200 000 km/s
+        let lastTs = null;
+        function latencyText(seg) {
+          let km = 0;
+          for (let i = 0; i < Math.min(seg, linkKm.length); i++) km += linkKm[i];
+          return Math.round((km / FIBER_KM_PER_MS) * 10) / 10 + " ms (" + km + " km)";
+        }
+        // Hattaki paketin TTL değeri: her yönlendirici 1 azaltır, hedef bilgisayar azaltmaz
+        function ttlAt(seg) {
+          return Math.max(0, TTL_INIT - Math.min(seg, routePath.length - 2));
+        }
 
         function nodePos(n) {
           return { x: n.x * W, y: n.y * H };
@@ -1004,34 +1017,27 @@
             ctx.fillStyle = "#fff";
             ctx.font = "bold 7px ui-monospace, monospace";
             ctx.textAlign = "center";
-            ctx.fillText(
-              "TTL:" + Math.max(0, TTL_INIT - (segIndex + 1)),
-              px,
-              py - 9,
-            );
+            ctx.fillText("TTL:" + ttlAt(segIndex), px, py - 9);
           });
         }
 
-        function animate() {
+        function animate(ts) {
+          // Kare hızından bağımsız ilerleme: geçen süreyle ölç, 50 ms ile sınırla
+          const dt =
+            lastTs === null || typeof ts !== "number"
+              ? 1 / 60
+              : Math.min(0.05, Math.max(0, (ts - lastTs) / 1000));
+          lastTs = typeof ts === "number" ? ts : null;
           let active = false;
           packets.forEach((pkt) => {
             if (pkt.segment >= routePath.length - 1) return;
             active = true;
-            pkt.progress += 0.012 * speed;
+            pkt.progress += 0.72 * speed * dt;
             if (pkt.progress >= 1) {
               pkt.progress = 0;
               pkt.segment++;
               hopCount = pkt.segment;
               updateStats(pkt.segment);
-              if (pkt.segment >= routePath.length - 1) {
-                // Hedefe ulaştı
-                lastLatency = Math.round(30 + Math.random() * 180);
-                document.getElementById("latency").textContent = lastLatency + " ms";
-                document.getElementById("ttlVal").textContent = Math.max(
-                  0,
-                  TTL_INIT - pkt.segment,
-                );
-              }
             }
           });
           draw();
@@ -1044,22 +1050,14 @@
             seg,
             routePath.length - 1,
           );
-          document.getElementById("ttlVal").textContent = Math.max(
-            0,
-            TTL_INIT - seg,
-          );
-          if (seg >= routePath.length - 1) {
-            document.getElementById("latency").textContent =
-              (lastLatency || "≈120") + " ms";
-          } else {
-            document.getElementById("latency").textContent =
-              Math.round(10 + Math.random() * 40) + " ms";
-          }
+          document.getElementById("ttlVal").textContent = ttlAt(seg);
+          document.getElementById("latency").textContent = latencyText(seg);
         }
 
         function sendPacket() {
           if (animId) cancelAnimationFrame(animId);
           packets = [{ segment: 0, progress: 0 }];
+          lastTs = null;
           animId = requestAnimationFrame(animate);
           hopCount = 0;
           lastLatency = null;
@@ -1105,11 +1103,11 @@
         function resetTCP() {
           tcpStep = 0;
           synMsg.style.opacity = "0.35";
-          synMsg.textContent = "SYN → seq=0";
+          synMsg.textContent = "SYN → seq=1000";
           synMsg2.style.opacity = "0.35";
-          synMsg2.textContent = "SYN + ACK → seq=0, ack=1";
+          synMsg2.textContent = "SYN + ACK → seq=5000, ack=1001";
           ackMsg.style.opacity = "0.35";
-          ackMsg.textContent = "ACK → seq=1, ack=1";
+          ackMsg.textContent = "ACK → seq=1001, ack=5001";
           status.textContent = "Bağlantı kapalı (CLOSED)";
         }
 
@@ -1262,27 +1260,37 @@
           { role: "Recursive\nResolver", msg: "Önbellekte yok → root sunucuya sor" },
           { role: "Root Sunucu", msg: ".com TLD sunucusuna yönlendir (198.41.0.4)" },
           { role: "TLD (.com)", msg: "example.com yetkili sunucusuna yönlendir" },
-          { role: "Yetkili NS", msg: "www.example.com → 93.184.216.34 (A kaydı)" },
+          { role: "Yetkili NS", msg: "www.example.com → 192.0.2.34 (A kaydı, temsilî adres)" },
           {
             role: "Recursive\nResolver",
             msg: "Cevap önbelleğe alındı → istemciye iletilir",
           },
-          { role: "İstemci", msg: "✅ 93.184.216.34 — Bağlantı kuruluyor!" },
+          { role: "İstemci", msg: "✅ 192.0.2.34 — Bağlantı kuruluyor!" },
         ];
 
         function buildDNSFlow(domain) {
           dnsFlow.innerHTML = "";
+          // Girilen addan TLD'yi ve alan adını (bölgeyi) ayır; akış bir şablondur, gerçek sorgu yapılmaz
+          const labels = domain.toLowerCase().replace(/\.$/, "").split(".").filter(Boolean);
+          const tld = labels.length > 1 ? labels[labels.length - 1] : "com";
+          const ikinciDuzey = ["com", "org", "net", "edu", "gov", "k12", "bel", "gen", "av", "pol", "co", "ac"];
+          const n =
+            labels.length >= 3 && tld.length === 2 && ikinciDuzey.includes(labels[labels.length - 2])
+              ? 3
+              : 2;
+          const zone = labels.slice(-n).join(".") || domain;
           dnsRoles.forEach((r, i) => {
             const row = document.createElement("div");
             row.className = "dns-row";
             const roleSpan = document.createElement("span");
             roleSpan.className = "dns-role";
-            roleSpan.textContent = r.role;
+            roleSpan.textContent = r.role.replace(".com", "." + tld);
             const msgSpan = document.createElement("span");
             msgSpan.className = "dns-msg";
             msgSpan.textContent = r.msg
               .replace("www.example.com", domain)
-              .replace("example.com", domain.replace(/^www\./, ""));
+              .replace("example.com", zone)
+              .replace(".com TLD", "." + tld + " TLD");
             row.appendChild(roleSpan);
             row.appendChild(msgSpan);
             dnsFlow.appendChild(row);
@@ -1337,12 +1345,19 @@
         }
 
         function calc(ipStr, cidr) {
+          const okt = ipStr.trim().split(".");
+          if (
+            okt.length !== 4 ||
+            okt.some((o) => !/^\d{1,3}$/.test(o) || parseInt(o, 10) > 255) ||
+            !(cidr >= 0 && cidr <= 32)
+          )
+            throw new Error("geçersiz");
           const ipNum = ipToNum(ipStr);
           const mask = maskFromCIDR(cidr);
           const network = (ipNum & mask) >>> 0;
           const broadcast = (network | (~mask >>> 0)) >>> 0;
           const totalHosts =
-            cidr >= 31 ? (cidr === 32 ? 0 : 2) : Math.pow(2, 32 - cidr);
+            cidr >= 31 ? (cidr === 32 ? 1 : 2) : Math.pow(2, 32 - cidr);
           const usable = totalHosts > 2 ? totalHosts - 2 : totalHosts;
           const firstHost = cidr >= 31 ? network : (network + 1) >>> 0;
           const lastHost = cidr >= 31 ? broadcast : (broadcast - 1) >>> 0;
@@ -1486,7 +1501,7 @@
             name: "Wi-Fi 6",
             layer: "Fiziksel (L1)",
             detail:
-              "<strong>Wi-Fi 6 (802.11ax)</strong> — OFDMA, 1024-QAM, MU-MIMO, Target Wake Time. 2.4/5 GHz, yakında 6 GHz (Wi-Fi 6E). Teorik hız: 9.6 Gbps.",
+              "<strong>Wi-Fi 6 (802.11ax)</strong> — OFDMA, 1024-QAM, MU-MIMO, Target Wake Time. 2.4 ve 5 GHz; 6 GHz bandı Wi-Fi 6E ile eklendi. Teorik hız: 9.6 Gbps.",
           },
           {
             icon: "🌳",

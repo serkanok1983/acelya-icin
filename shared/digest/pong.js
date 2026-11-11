@@ -8,13 +8,13 @@ window.ACELYA_DIGEST["pong"] = {
   tagline:
     "1972'de bir barın bozuk para kutusunu dolduran oyun, aslında saf geometri: hız vektörü, duvarda yansıma ve raketin ucundaki 60 derecelik sır. Bilgisayarı yenmenin formülü de burada.",
   hook:
-    "Sunnyvale, Kaliforniya, 1972 sonbaharı. Bir barın köşesine konan tahta kutu birkaç gün sonra bozulur; teknisyen kapağı açınca arızayı bulur: bozuk para kutusu tıka basa doludur. Ekranda iki çizgi ve bir kare vardır, o kadar. Bu kadar basit bir şey insanları neden saatlerce tutar ve bu sayfadaki topu raketin neresine vurursan bilgisayar kaçırır?",
+    "Sunnyvale, Kaliforniya, 1972 yazının sonu. Bir barın köşesine konan tahta kutu birkaç gün sonra bozulur; teknisyen kapağı açınca arızayı bulur: bozuk para kutusu tıka basa doludur. Ekranda iki çizgi ve bir kare vardır, o kadar. Bu kadar basit bir şey insanları neden saatlerce tutar ve bu sayfadaki topu raketin neresine vurursan bilgisayar kaçırır?",
   bigIdea:
     "Pong'daki top bir <strong>hız vektörüdür</strong>: v<sub>x</sub> = v·cos θ ve v<sub>y</sub> = v·sin θ. Duvar yalnızca dikey bileşenin işaretini çevirir; raket ise açıyı yansıma yasasıyla değil, topun raketin <em>neresine</em> çarptığıyla belirler.",
   story: [
-    "Ekranda top sektiren ilk oyun bir bilgisayar oyunu bile değildi. 1958'de Brookhaven Ulusal Laboratuvarı'nda fizikçi William Higinbotham, yıllık ziyaretçi gününde insanlar sıkılmasın diye bir osiloskopa iki düğme bağladı ve <strong>Tennis for Two</strong>'yu yaptı: yandan görünen bir tenis kortu, yerçekimiyle düşen bir nokta, ağa takılan toplar. Ziyaretçiler saatlerce kuyruk oldu. İki ziyaretçi gününden sonra cihaz söküldü, parçaları başka deneylere gitti; Higinbotham patent bile almadı. Yıllar sonra, oyunla değil nükleer silahlanmaya karşı çalışmalarıyla hatırlanmak istediğini söyleyecekti.",
-    "Asıl zincir 1960'ların sonunda Ralph Baer'le başladı. Televizyona bağlanan bir oyun kutusu fikrini bir mühendislik şirketinde gizlice geliştirdi; prototipine 'Brown Box' deniyordu ve içinde bir masa tenisi oyunu vardı. Bu kutu 1972'de <strong>Magnavox Odyssey</strong> adıyla satışa çıktı: tarihin ilk ev konsolu. Mayıs 1972'de Burlingame'deki bir tanıtımda Nolan Bushnell o tenis oyununu oynadı; birkaç hafta sonra Ted Dabney ile Atari'yi kurdu ve işe aldığı genç mühendis Allan Alcorn'a bir 'alıştırma' verdi: bir top, iki raket. Bushnell bunun General Electric için sipariş olduğunu söylemişti; değildi. Alcorn alıştırmayı ciddiye aldı ve oyunu oyun yapan üç şeyi ekledi: raketi bölümlere ayırıp her bölümün topu farklı açıyla göndermesini sağladı, topu oyunda kaldıkça hızlandırdı ve bir vuruş sesi koydu. Mikroişlemci yoktu, yazılım yoktu; her şey onlarca mantık çipiyle, elle kurulmuş devreydi.",
-    "Prototip 1972 sonbaharında Sunnyvale'deki Andy Capp's Tavern'e kondu. Birkaç gün sonra barın sahibi makinenin bozulduğunu bildirdi; Alcorn gidip baktığında bozuk para kutusunun dolup taştığını gördü. Hikâyenin bu kısmı Alcorn ve Bushnell'in anlatımıdır; ama rakamlar anlatıdan ibaret değil: Atari aynı yıl Pong salon makinesini üretime aldı, binlerce kabin sattı ve dünyanın her yerinde kopyaları çıktı. Baer'in patentini elinde tutan Magnavox dava açtı; anlaşmazlık 1976'da Atari'nin lisans alıp ödeme yapmasıyla kapandı. 1975'te Sears kataloğundan satılan ev tipi Pong ise bir konsolu Noel hediyesine çevirdi. Bugün hangi oyunu açarsan aç, çekirdeğinde hâlâ Alcorn'un döngüsü döner: konumu güncelle, çarpışmayı denetle, çiz; saniyede altmış kez.",
+    "Ekranda top sektiren ilk oyunlardan biri sayısal bir bilgisayarda bile çalışmıyordu. 1958'de Brookhaven Ulusal Laboratuvarı'nda fizikçi William Higinbotham, yıllık ziyaretçi gününde insanlar sıkılmasın diye mermi yörüngesi hesaplayan bir analog bilgisayarı osiloskopa bağladı ve <strong>Tennis for Two</strong>'yu yaptı: yandan görünen bir tenis kortu, yerçekimiyle düşen bir nokta, ağa takılan toplar; her oyuncunun elinde bir vuruş düğmesi ve açıyı ayarlayan bir topuz. Yüzlerce ziyaretçi sıraya girdi. 1959'daki ikinci gösteriden sonra cihaz söküldü, parçaları başka deneylere gitti; Higinbotham patent bile almadı. Yıllar sonra, oyunla değil nükleer silahlanmaya karşı çalışmalarıyla hatırlanmak istediğini söyleyecekti.",
+    "Asıl zincir 1960'ların sonunda Ralph Baer'le başladı. Televizyona bağlanan bir oyun kutusu fikrini, çalıştığı savunma elektroniği şirketi Sanders Associates'te küçük bir ekiple geliştirdi; prototipine 'Brown Box' deniyordu ve içinde bir masa tenisi oyunu vardı. Bu kutu 1972'de <strong>Magnavox Odyssey</strong> adıyla satışa çıktı: tarihin ilk ev konsolu. Mayıs 1972'de Burlingame'deki bir tanıtımda Nolan Bushnell o tenis oyununu oynadı; bir ay kadar sonra Ted Dabney ile Atari'yi kurdu ve işe aldığı genç mühendis Allan Alcorn'a bir 'alıştırma' verdi: bir top, iki raket. Bushnell bunun General Electric için sipariş olduğunu söylemişti; değildi. Alcorn alıştırmayı ciddiye aldı ve oyunu oyun yapan üç şeyi ekledi: raketi sekiz bölüme ayırıp her bölümün topu farklı açıyla göndermesini sağladı, topu oyunda kaldıkça hızlandırdı ve bir vuruş sesi koydu. Mikroişlemci yoktu, yazılım yoktu; her şey onlarca mantık çipiyle, elle kurulmuş devreydi.",
+    "Prototip Ağustos 1972'de Sunnyvale'deki Andy Capp's Tavern'e kondu. Birkaç gün sonra barın sahibi makinenin bozulduğunu bildirdi; Alcorn gidip baktığında bozuk para kutusunun dolup taştığını gördü. Hikâyenin bu kısmı Alcorn ve Bushnell'in anlatımıdır; ama rakamlar anlatıdan ibaret değil: Atari Pong'u Kasım 1972'de duyurdu, 1974 sonuna kadar 8000'den fazla kabin sattı ve dünyanın her yerinde kopyaları çıktı. Baer'in patentlerinin lisansını elinde tutan Magnavox dava açtı; anlaşmazlık 1976'da Atari'nin lisans alıp ödeme yapmasıyla kapandı. 1975'te Sears kataloğundan satılan ev tipi Pong ise bir konsolu Noel hediyesine çevirdi. Bugün hangi oyunu açarsan aç, çekirdeğinde Alcorn'un çiplerle kurduğu işin yazılım hâli döner: konumu güncelle, çarpışmayı denetle, çiz; saniyede altmış kez.",
   ],
   core: [
     {
@@ -48,14 +48,14 @@ window.ACELYA_DIGEST["pong"] = {
     {
       heading: "Rakibin beyni: üç satırlık kontrolcü",
       body:
-        "Sağdaki raket düşünmez, kovalar. Her adımda raket merkezi topun 20 piksel üstündeyse aşağı, 20 piksel altındaysa yukarı kayar; aradaysa durur. Adım boyu senin raketinin yüzde 70'idir: sen 8 piksel, o 5.6 piksel. Bu üç satırın iki sonucu var. Birincisi, yavaş toplarda bilgisayar topu en çok 20 piksel sapmayla karşılar, yani vuruşları 30°'yi pek aşmaz; raketi kenara dayandığında 48°'ye çıkabilir. Dik vuruşu ancak top ondan hızlı kaçıp raketin ucuna çarptığında yapar; o da zaten kaçırmak üzereyken. İkincisi, topun dikey hızı 5.6'yı aştığında rakip adım adım geride kalır: 60°'lik vuruşta bu, v > 6.47 demektir. Ama geride kalmak kaçırmak değildir; duvar sekmesi topu geri döndürüp raketin kucağına bırakabilir. Kodun aynısıyla yapılan benzetimde ilk kaçışlar 7.40'ta başlar, 10.00'da bile uç vuruşların ancak yarısı geçer.",
+        "Sağdaki raket düşünmez, kovalar. Her adımda raket merkezi topun 20 piksel üstündeyse aşağı, 20 piksel altındaysa yukarı kayar; aradaysa durur. Adım boyu senin raketinin yüzde 70'idir: sen 8 piksel, o 5.6 piksel. Bu üç satırın iki sonucu var. Birincisi, yavaş toplarda bilgisayar topu en çok 20 piksel sapmayla karşılar, yani vuruşları 30°'yi pek aşmaz; raketi kenara dayandığında 48°'ye çıkabilir. Dik vuruşu ancak top ondan hızlı kaçıp raketin ucuna çarptığında yapar; o da zaten kaçırmak üzereyken (Hız 6.86 ve üstünde, senin uç vuruşlarına karşı). İkincisi, topun dikey hızı 5.6'yı aştığında rakip adım adım geride kalır: 60°'lik vuruşta bu, v > 6.47 demektir. Ama geride kalmak kaçırmak değildir; duvar sekmesi topu geri döndürüp raketin kucağına bırakabilir. Kodun aynısıyla yapılan benzetimde 6.86'da tek top bile geçmez; ilk kaçışlar 7.40'ta başlar ve 10.00'da bile uç vuruşların ancak üçte ikisi geçer.",
       formula: "|y<sub>raket</sub> − y<sub>top</sub>| > 20 ⇒ 5.6 piksel/adım yaklaş",
       formulaNote: "20 piksellik aralığa 'ölü bölge' denir; raketin titremesini önler ama vuruş açısını da sınırlar.",
     },
   ],
   lab: {
     intro:
-      "Kontroller az ama yeterli: <strong>↑ ↓</strong> tuşları (ya da dokunmatikte parmağını kaydırmak) raketi oynatır, <strong>Space</strong> topun hızını her basışta yüzde 8 artırır, üstteki <strong>Hız</strong> göstergesi piksel/adım cinsinden anlık hızı yazar. Her 5 toplam sayıda hız kendiliğinden yüzde 10 artar; oyun 20 sayıda biter. Deneyler için yavaş başla: Space'e dokunmadan Hız 4.00'da kal.",
+      "Kontroller az ama yeterli: <strong>↑ ↓</strong> tuşları (ya da dokunmatikte parmağını kaydırmak) raketi oynatır, <strong>Space</strong> topun hızını her basışta yüzde 8 artırır, üstteki <strong>Hız</strong> göstergesi piksel/adım cinsinden anlık hızı yazar. İki tarafın toplam sayısı 5'in katına her ulaştığında hız kendiliğinden yüzde 10 artar; 20 sayıya ilk ulaşan kazanır. Ralli sırasında hız kendi kendine değişmez. Deneyler için yavaş başla: Space'e dokunmadan Hız 4.00'da kal.",
     experiments: [
       {
         title: "Ortadan mı, uçtan mı?",
@@ -63,7 +63,7 @@ window.ACELYA_DIGEST["pong"] = {
           "Topu raketin tam ortasıyla karşılarsan nasıl bir çizgi çizer? En ucuyla karşılarsan karşıya varana kadar kaç kez duvara çarpar: bir mi, üç mü, on mu?",
         do: "Hız 4.00'da raketi topun hizasına getir ve topun raketin ortasına denk gelmesini sağla. Sonraki vuruşta raketi öyle ayarla ki top raketin en üst ya da en alt birkaç pikseline çarpsın.",
         observe:
-          "Ortadan vuruş dümdüz yatay bir çizgi: top hiç duvara değmeden yaklaşık 3.2 saniyede karşıya ulaşır. Uç vuruş dik bir zikzak: 60°'ye yakın bir çizgi, karşıya varana kadar üç ya da dört duvar sekmesi ve yaklaşık 6.4 saniye.",
+          "Ortadan vuruş dümdüz yatay bir çizgi: top hiç duvara değmeden yaklaşık 3.2 saniyede karşıya ulaşır. Uç vuruş dik bir zikzak: 60°'ye yakın bir çizgi, karşıya varana kadar üç ya da dört duvar sekmesi ve 6 saniyeyi aşan bir yolculuk (tam uçta 6.4 saniye; uçtan 4 piksel içeride 5.4).",
         explain:
           "Ortada θ = 0°, cos 0 = 1: hızın tamamı yataydır. Uçta θ = 60°, cos 60° = 0.5: yatay ilerleme yarıya iner, karşıya varmak iki kat uzun sürer; dikey bileşen 3.46 piksel/adım olduğundan top yolda 1300 piksel kadar aşağı yukarı gider, 384 piksellik alanda bu üç dört sekme eder.",
       },
@@ -83,19 +83,19 @@ window.ACELYA_DIGEST["pong"] = {
           "Bilgisayar da senin gibi 60°'lik dik vuruş yapabilir mi? Ona dümdüz yatay bir top gönderirsen nasıl geri gelir?",
         do: "Hız 4.00'da birkaç ralli oyna; bilgisayarın geri gönderdiği topların eğimini kendi uç vuruşlarınla karşılaştır. Sonra ortadan vurup yatay top gönder ve dönüşü izle.",
         observe:
-          "Bilgisayarın vuruşları hep daha yatıktır; çoğu 30° dolayında ya da altında. Yalnızca raketi en üstte ya da en altta sıkıştığında daha dik, en çok 48° civarında döner. Yatay gönderdiğin top neredeyse yatay geri gelir.",
+          "Bilgisayarın vuruşları hep daha yatıktır; onda dokuzu 35°'nin altında kalır. Yalnızca raketi en üstte ya da en altta sıkıştığında daha dik, en çok 48° civarında döner. Yatay gönderdiğin top neredeyse yatay geri gelir.",
         explain:
-          "Rakip, merkezi topa 20 pikselden yakınken durur; 20/40 = 0.5, 0.5 × 60° = 30°. Kenarda raket 0 ile 320 arasına sıkıştırılır, merkezi 40'tan yukarı çıkamaz; top 8'e kadar inebildiğinden sapma 32 piksel, açı 0.8 × 60° = 48° olur. 60° için topun raketin tam ucuna gelmesi gerekir; yavaş topta ölü bölge buna izin vermez. Hız 8'i geçince raket geride kalmaya başlar ve top ara sıra onun ucuna da çarpar; o zaman rakibin dönüşü de dikleşir.",
+          "Rakip, merkezi topa 20 pikselden yakınken durur; 20/40 = 0.5, 0.5 × 60° = 30°. Top o son adımda birkaç piksel daha kayabildiği için açı 30°'yi biraz aşabilir. Kenarda raket 0 ile 320 arasına sıkıştırılır, merkezi 40'tan yukarı çıkamaz; top 8'e kadar inebildiğinden sapma 32 piksel, açı 0.8 × 60° = 48° olur. 60° için topun raketin tam ucuna gelmesi gerekir; yavaş topta ölü bölge buna izin vermez. Hız 6.86'ya çıkınca uç vuruşların karşısında raket geride kalmaya başlar ve top ara sıra onun ucuna da çarpar; o zaman rakibin dönüşü de 60°'ye kadar dikleşir.",
       },
       {
         title: "Bilgisayarı yenmenin eşiği",
         predict:
           "Rakip raket adımda 5.6 piksel kayabiliyor. 60°'lik vuruşun dikey hızı v·sin 60° olduğuna göre hangi Hız değerinden sonra rakip geride kalmaya başlar? Geride kalmak kaçırmak için yeterli mi?",
-        do: "Space'e 7 kez basıp Hız'ı 6.86'ya getir; on kadar uç vuruş dene ve kaçının geçtiğini say. Sonra 8. basışla 7.40'a, 9. basışla 8.00'e çık ve her hızda sayımı tekrarla. Son olarak 10.00'da hem uçtan hem ortadan vur.",
+        do: "Space'e 7 kez basıp Hız'ı 6.86'ya getir; on kadar uç vuruş (raketin son üç dört pikseli) dene ve kaçının geçtiğini say. Sonra 8. basışla 7.40'a, 9. basışla 8.00'e çık ve her hızda sayımı tekrarla. Son olarak 10.00'da hem uçtan hem ortadan vur.",
         observe:
-          "6.86'da rakip her şeyi yakalar; raket topun peşinden koşar ama hep yetişir. 7.40'ta ilk kaçışlar başlar: on uç vuruştan belki biri. 8.00'de üç dört vuruştan biri, 10.00'da yaklaşık yarısı geçer. Geçip geçmeyeceğini çoğu kez topun son duvar sekmesi belirler: sekme rakibe yakınsa top geri dönüp onun kucağına düşer, uzaktaysa raket geride kalır. Ortadan vuruşları ise rakip hiçbir hızda kaçırmaz.",
+          "6.86'da rakip her şeyi yakalar; raket topun peşinden koşar ama hep yetişir. 7.40'ta ilk kaçışlar başlar: tam uca gelen vuruşların yarıya yakını geçer, uçtan dört piksel içeridekilerin ise onda biri bile geçmez. 8.00'de uç vuruşların yarıdan biraz fazlası, 10.00'da yaklaşık üçte ikisi geçer. Geçip geçmeyeceğini çoğu kez topun son duvar sekmesi belirler: sekme rakibe yakınsa top geri dönüp onun kucağına düşer, uzaktaysa raket geride kalır. Ortadan ve raketin yarı noktasından (30°) vuruşları ise rakip hiçbir hızda kaçırmaz.",
         explain:
-          "v·sin 60° > 5.6 koşulu v > 6.47 verir; ama bu gerekli, yeterli değil. Hız 10.00'da bile topun dikey hızı 10 × sin 60° ≈ 8.66: açık adımda en çok 3 piksel büyür, 7.40'ta yalnızca 0.8. Raketin yarı boyu 40 piksel olduğundan topun sekmesiz on küsur adım kaçması gerekir; duvar sekmesi ise topu geri çevirip açığı sıfırlar. Eşik bu yüzden 6.47'den 7.40'a kayar. Ortadan vuruşta dikey hız sıfırdır; kovalayacak bir şey olmayınca rakip asla kaybetmez. Strateji: önce hızı yükselt, sonra uçla vur ve sabırlı ol; hiçbir vuruş garanti değil.",
+          "v·sin 60° > 5.6 koşulu v > 6.47 verir; ama bu gerekli, yeterli değil. Hız 10.00'da dikey hız 10 × sin 60° ≈ 8.66: açık adımda en çok 3 piksel büyür, 7.40'ta 0.8. Raketin yarı boyu 40 piksel olduğundan topun sekmesiz on küsur adım kaçması gerekir; duvar sekmesi ise açığı sıfırlar. Eşik bu yüzden 6.47'den 6.9 dolayına kayar; Space basamaklarında bu 7.40 demektir. Ortadan vuruşta dikey hız sıfırdır, yarı noktadan vuruşta 10.00'da bile 10 × sin 30° = 5; ikisi de 5.6'nın altında kaldığından rakip bunları asla kaçırmaz. Strateji: önce hızı yükselt, sonra uçla vur; hiçbir vuruş garanti değil.",
       },
     ],
   },
@@ -108,12 +108,12 @@ window.ACELYA_DIGEST["pong"] = {
     {
       title: "Mikroişlemcisiz oyun",
       body:
-        "Alcorn'un 1972'deki Pong'unda ne işlemci ne yazılım vardı. Topun konumu, raketlerin hareketi, skor ve ses onlarca mantık çipinin elle çizilmiş devresiyle üretiliyordu; oyun bir programdan çok bir makineydi. Kabinin tek talimatı da buna yakışır kadar kısaydı: 'Yüksek skor için topu kaçırmayın.'",
+        "Alcorn'un 1972'deki Pong'unda ne işlemci ne yazılım vardı. Topun konumu, raketlerin hareketi, skor ve ses onlarca mantık çipinin elle çizilmiş devresiyle üretiliyordu; oyun bir programdan çok bir makineydi. Kabindeki talimat da buna yakışır kadar kısaydı; üç satırın sonuncusu şuydu: 'Yüksek skor için topu kaçırmayın.'",
     },
     {
       title: "Hatadan doğan özellik",
       body:
-        "Orijinal Pong'da raketler ekranın en üstüne ulaşamıyordu; sebebi devredeki küçük bir kusurdu. Alcorn bunu düzeltmek yerine bıraktı: iyi iki oyuncu aksi hâlde rallileri sonsuza kadar sürdürebilirdi, oysa bir salon makinesinin bozuk para almak için oyunları bitirmesi gerekiyordu. Bu sayfadaki raket ise kenara kadar gider; sonsuz ralliyi burada rakibin 20 piksellik ölü bölgesi değil, hızlanma kuralı engeller.",
+        "Orijinal Pong'da raketler ekranın en üstüne ulaşamıyordu; sebebi devredeki küçük bir kusurdu. Alcorn bunu düzeltmek yerine bıraktı: iyi iki oyuncu aksi hâlde rallileri sonsuza kadar sürdürebilirdi, oysa bir salon makinesinin bozuk para almak için oyunları bitirmesi gerekiyordu. Bu sayfadaki raket ise kenara kadar gider ve ralli sırasında top kendiliğinden hızlanmaz: Hız 4.00'da rakip hiçbir topu kaçırmadığına göre ralliyi bitirecek tek şey senin hatan ya da Space tuşudur.",
     },
   ],
   worked: {
@@ -124,7 +124,7 @@ window.ACELYA_DIGEST["pong"] = {
       "Açıyı bul: uç vuruşta relativeHit = 1, θ = 1 × 60° = 60°.",
       "Bileşenlere ayır: v<sub>x</sub> = 4.00 × cos 60° = 2.00 piksel/adım, v<sub>y</sub> = 4.00 × sin 60° ≈ 3.46 piksel/adım. Kontrol: 2.00² + 3.46² ≈ 16 = 4².",
       "Yatay yolu hesapla: senin raketinin yakalama çizgisi x = 18, rakibinki x = 782; aradaki mesafe 764 piksel. 764 / 2.00 = 382 adım; 60 adım bir saniye olduğundan 382 / 60 ≈ 6.4 saniye.",
-      "Dikey yolu hesapla: 382 adım × 3.46 ≈ 1323 piksel. Top 8 ile 392 arasında, yani 384 piksellik bir şeritte gidip gelir; 1323 / 384 ≈ 3.4, yani başlangıç noktasına göre üç ya da dört duvar sekmesi.",
+      "Dikey yolu hesapla: 382 adım × 3.46 ≈ 1323 piksel. Top 8 ile 392 arasında, yani 384 piksellik bir şeritte gidip gelir; 1323 / 384 ≈ 3.4, yani vuruşun yüksekliğine ve yönüne göre üç ya da dört duvar sekmesi.",
       "Ortadan vuruşla karşılaştır: θ = 0°, v<sub>x</sub> = 4.00; 764 / 4.00 = 191 adım ≈ 3.2 saniye, sıfır sekme.",
     ],
     result:
@@ -139,12 +139,12 @@ window.ACELYA_DIGEST["pong"] = {
     {
       myth: "Hız artınca top daha çok duvara çarpar.",
       truth:
-        "Çarpma sayısı yalnızca açıya bağlıdır. Space'e basınca iki bileşen aynı oranla çarpılır, çizginin eğimi değişmez; top aynı zikzağı daha kısa sürede çizer. Sayfada hız 4.00'dan 10.00'a çıkarken 60°'lik topun sekme sayısı aynı kalır, süresi 6.4 saniyeden 2.6 saniyeye iner.",
+        "Çarpma sayısı yalnızca açıya bağlıdır. Space'e basınca iki bileşen aynı oranla çarpılır, çizginin eğimi değişmez; top aynı zikzağı daha kısa sürede çizer. Sayfada hız 4.00'dan 10.00'a çıkarken aynı noktadan atılan 60°'lik topun sekme sayısı aynı kalır, süresi 6.4 saniyeden 2.5 saniyeye iner.",
     },
     {
       myth: "Bilgisayar topun nereye gideceğini önceden biliyor, o yüzden kaçırmıyor.",
       truth:
-        "Hiçbir şey hesaplamıyor; sadece topun o anki yüksekliğini senin raketinin yüzde 70 hızıyla kovalıyor. Yavaş toplarda bu yeterlidir, bu yüzden yenilmez görünür. Topun dikey hızı raketin 5.6 piksel/adım sınırını aşınca kovalamak yetmez; Hız 7.40'tan sonra uç vuruşlar ara ara, 10.00'da yarı yarıya geçmeye başlar.",
+        "Hiçbir şey hesaplamıyor; sadece topun o anki yüksekliğini senin raketinin yüzde 70 hızıyla kovalıyor. Yavaş toplarda bu yeterlidir, bu yüzden yenilmez görünür. Topun dikey hızı raketin 5.6 piksel/adım sınırını aşınca kovalamak yetmez; Hız 7.40'tan başlayarak uç vuruşların yaklaşık yarısı, 10.00'da üçte ikisi geçer.",
     },
     {
       myth: "Hız göstergesindeki 4.00 topun saniyedeki hızıdır.",
@@ -166,7 +166,7 @@ window.ACELYA_DIGEST["pong"] = {
     heading: "Üniversiteye köprü",
     body: [
       "Bu sayfadaki döngü, bir oyun motorunun ve bir fizik simülasyonunun küçültülmüş hâlidir. Üniversitede 'konum artı hız çarpı zaman' adımı <strong>sayısal integrasyon</strong> adıyla karşına çıkar; Euler yönteminin hatası, enerjiyi koruyan daha iyi şemalar (Verlet, Runge–Kutta) ve bir adımda engelden geçip giden cisimler için <em>sürekli çarpışma tespiti</em> bu dersin konularıdır. Rakip raketin üç satırı ise kontrol teorisinin en küçük örneğidir: hatayı ölç, hata büyükse düzelt, küçükse dur. Ölü bölgeli bir açma-kapama kontrolcüsü; termostat da aynı mantıkla çalışır, bir dronun irtifa tutması ise bunun oransal-türevsel-integral (PID) gibi daha ince sürümlerini kullanır.",
-      "Pong'un ikinci üniversite hayatı yapay zekâdadır. 2013'te DeepMind'ın araştırmacıları, yalnızca ekran piksellerini gören ve skoru ödül olarak alan bir derin sinir ağını yedi Atari oyununda eğitti; Pong bunlardan biriydi ve ağ, kurallar hiç anlatılmadan insan düzeyini geçti. Bu çalışma <strong>derin pekiştirmeli öğrenme</strong> alanını başlattı. Aynı yöntemin arkasında ise lisede tanıştığın araçlar vardır: vektörler, olasılık, türev. Bir topun açısını hesaplamakla bir ajana topu vurmayı öğretmek arasındaki yol, sanıldığından kısadır.",
+      "Pong'un ikinci üniversite hayatı yapay zekâdadır. 2013'te DeepMind'ın araştırmacıları, yalnızca ekran piksellerini gören ve skoru ödül olarak alan bir derin sinir ağını yedi Atari oyununda eğitti; Pong, ağın kurallar hiç anlatılmadan deneyimli bir insan oyuncuyu geçtiği üç oyundan biriydi. Bu çalışma <strong>derin pekiştirmeli öğrenme</strong> alanının önünü açtı. Aynı yöntemin arkasında ise lisede tanıştığın araçlar vardır: vektörler, olasılık, türev. Bir topun açısını hesaplamakla bir ajana topu vurmayı öğretmek arasındaki yol, sanıldığından kısadır.",
     ],
     topics: ["Sayısal integrasyon (Euler, Verlet, Runge–Kutta)", "Çarpışma tespiti ve oyun fiziği", "Kontrol teorisi ve PID", "Pekiştirmeli öğrenme", "Doğrusal cebir ve 2B dönüşümler", "Ayrık zamanlı dinamik sistemler"],
   },
@@ -192,9 +192,9 @@ window.ACELYA_DIGEST["pong"] = {
   ],
   next: [
     { href: "breakout.html", title: "Tuğla Kırmaca (Breakout)", why: "Aynı top, aynı raket kuralı; bu kez üstte kırılacak tuğlalar var. Yansıma geometrisini bir adım ileri taşı." },
-    { href: "optik-yansima-kirilma.html", title: "Optik: Yansıma ve Kırılma", why: "Duvardaki sekmenin fizik dersi karşılığı: geliş açısı eşittir gidiş açısı, bu kez ışıkla." },
-    { href: "vektorler.html", title: "Vektörler", why: "v·cos θ ve v·sin θ'nın geldiği yer; bileşenlere ayırma ve toplama alıştırmaları." },
-    { href: "birim-cember.html", title: "Birim Çember", why: "Raket açısını hıza çeviren sinüs ve kosinüsü çember üzerinde gör." },
+    { href: "optik-yansima-kirilma.html", title: "Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma", why: "Duvardaki sekmenin fizik dersi karşılığı: geliş açısı eşittir yansıma açısı, bu kez ışıkla; üstüne kırılma ve tam iç yansıma." },
+    { href: "vektorler.html", title: "Vektörler", why: "İki oku büyüklük ve açı kaydırıcılarıyla kur, uç uca ekle; v·cos θ ve v·sin θ'nın geldiği yer." },
+    { href: "birim-cember.html", title: "Birim Çember: Sinüs, Kosinüs ve Dönmeler", why: "Raket açısını hıza çeviren sinüs ve kosinüsü çember üzerinde gör." },
   ],
   sources: [
     { title: "Wikipedia · Pong", url: "https://en.wikipedia.org/wiki/Pong", note: "Alcorn'un tasarım kararları, Andy Capp's Tavern anlatısı ve Magnavox davası (İngilizce)." },
@@ -202,5 +202,5 @@ window.ACELYA_DIGEST["pong"] = {
     { title: "MDN · 2D Breakout game using pure JavaScript", url: "https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript", note: "Bu sayfadakine çok benzeyen bir top-raket oyununu sıfırdan yazdıran adım adım öğretici." },
     { title: "arXiv · Playing Atari with Deep Reinforcement Learning (2013)", url: "https://arxiv.org/abs/1312.5602", note: "Pong dahil yedi Atari oyununu piksellerden öğrenen DeepMind makalesi; köprü bölümündeki çalışma." },
   ],
-  revision: "Ekim 2026",
+  revision: "Kasım 2026",
 };

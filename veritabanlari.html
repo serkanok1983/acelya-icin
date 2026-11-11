@@ -617,9 +617,9 @@ SELECT * FROM ogrenciler</textarea>
         <p class="desc">
           NoSQL, şemasız (schema-less) yapısıyla büyük veri, gerçek zamanlı
           uygulamalar ve yatay ölçekleme için idealdir.
-          <strong>CAP teoremi</strong> gereği dağıtık sistemler aynı anda
-          Consistency, Availability ve Partition Tolerance'ın ancak ikisini garanti
-          edebilir. Her karta tıklayarak detayları görün.
+          <strong>CAP teoremi</strong> gereği ağ bölündüğünde (partition) dağıtık
+          bir sistem tutarlılık (Consistency) ile erişilebilirlikten (Availability)
+          birinden vazgeçmek zorundadır. Her karta tıklayarak detayları görün.
         </p>
         <div class="nosql-grid" id="nosqlGrid"></div>
         <div class="nosql-detail" id="nosqlDetail">
@@ -715,7 +715,8 @@ SELECT * FROM ogrenciler</textarea>
                 out.innerHTML = `<div class="sql-error">Tablo '${tbl}' bulunamadı.</div>`;
                 return;
               }
-              const filtered = filterData(data, cond);
+              const rawCond = (sql.trim().match(/\swhere\s+(.+)$/i) || [])[1] || cond;
+              const filtered = filterData(data, rawCond);
               renderTable(out, Object.keys(data[0]), filtered);
               return;
             }
@@ -727,6 +728,11 @@ SELECT * FROM ogrenciler</textarea>
               const data = { ogrenciler, kitaplar, odunc }[tbl];
               if (!data) {
                 out.innerHTML = `<div class="sql-error">Tablo '${tbl}' bulunamadı.</div>`;
+                return;
+              }
+              const bilinmeyen = cols.filter((c) => !(c in data[0]));
+              if (bilinmeyen.length) {
+                out.innerHTML = `<div class="sql-error">'${bilinmeyen[0]}' sütunu ${tbl} tablosunda yok (bu küçük motor ifade ve fonksiyon hesaplamaz).</div>`;
                 return;
               }
               const projected = data.map((row) => {
@@ -748,8 +754,9 @@ SELECT * FROM ogrenciler</textarea>
             ) {
               const t1 = m[1],
                 t2 = m[3];
-              const t1col = m[5],
-                t2col = m[7];
+              // ON koşulundaki sütunları tablo adına göre eşle (yazılış sırası serbest)
+              const t1col = m[4] === t1 ? m[5] : m[7],
+                t2col = m[4] === t1 ? m[7] : m[5];
               const d1 = { ogrenciler, kitaplar, odunc }[t1];
               const d2 = { ogrenciler, kitaplar, odunc }[t2];
               if (!d1 || !d2) {
@@ -760,7 +767,15 @@ SELECT * FROM ogrenciler</textarea>
               d1.forEach((r1) => {
                 d2.forEach((r2) => {
                   if (r1[t1col] === r2[t2col]) {
-                    joined.push({ ...r1, ...r2 });
+                    // İki tabloda aynı adlı sütun varsa gerçek SQL gibi ikisini de göster
+                    const row = {};
+                    Object.keys(r1).forEach((k) => {
+                      row[k in r2 ? `${t1}.${k}` : k] = r1[k];
+                    });
+                    Object.keys(r2).forEach((k) => {
+                      row[k in r1 ? `${t2}.${k}` : k] = r2[k];
+                    });
+                    joined.push(row);
                   }
                 });
               });
@@ -822,29 +837,41 @@ SELECT * FROM ogrenciler</textarea>
         }
 
         function filterData(data, cond) {
-          return data.filter((r) => {
-            // Basit: kolon = 'deger' veya kolon = sayi veya kolon is null / is not null
-            let m;
-            if ((m = cond.trim().match(/^(\w+)\s*=\s*'([^']+)'$/))) {
-              return r[m[1]] === m[2];
-            }
-            if ((m = cond.trim().match(/^(\w+)\s*=\s*(\d+)$/))) {
-              return r[m[1]] === parseInt(m[2]);
-            }
-            if ((m = cond.trim().match(/^(\w+)\s+is\s+null$/))) {
-              return r[m[1]] === null || r[m[1]] === undefined;
-            }
-            if ((m = cond.trim().match(/^(\w+)\s+is\s+not\s+null$/))) {
-              return r[m[1]] !== null && r[m[1]] !== undefined;
-            }
-            if ((m = cond.trim().match(/^(\w+)\s*>\s*(\d+)$/))) {
-              return r[m[1]] > parseInt(m[2]);
-            }
-            if ((m = cond.trim().match(/^(\w+)\s*<\s*(\d+)$/))) {
-              return r[m[1]] < parseInt(m[2]);
-            }
-            return true;
-          });
+          // Basit: kolon = 'deger' veya kolon = sayi veya kolon is null / is not null
+          // Anahtar sözcükler ve sütun adları harf duyarsız; tırnak içindeki metin olduğu gibi karşılaştırılır.
+          const c = cond.trim();
+          const col = (name) => {
+            const k = name.toLowerCase();
+            if (data.length && !(k in data[0])) throw new Error(`'${name}' sütunu bulunamadı.`);
+            return k;
+          };
+          let m, test;
+          if ((m = c.match(/^(\w+)\s*=\s*'([^']*)'$/))) {
+            const k = col(m[1]);
+            test = (r) => r[k] === m[2];
+          } else if ((m = c.match(/^(\w+)\s*=\s*(\d+)$/))) {
+            const k = col(m[1]);
+            test = (r) => r[k] === parseInt(m[2]);
+          } else if ((m = c.match(/^(\w+)\s*(=|<>|!=)\s*null$/i))) {
+            // Gerçek SQL'de NULL ile = karşılaştırması hiçbir satırda doğru çıkmaz
+            col(m[1]);
+            test = () => false;
+          } else if ((m = c.match(/^(\w+)\s+is\s+null$/i))) {
+            const k = col(m[1]);
+            test = (r) => r[k] === null || r[k] === undefined;
+          } else if ((m = c.match(/^(\w+)\s+is\s+not\s+null$/i))) {
+            const k = col(m[1]);
+            test = (r) => r[k] !== null && r[k] !== undefined;
+          } else if ((m = c.match(/^(\w+)\s*>\s*(\d+)$/))) {
+            const k = col(m[1]);
+            test = (r) => r[k] !== null && r[k] > parseInt(m[2]);
+          } else if ((m = c.match(/^(\w+)\s*<\s*(\d+)$/))) {
+            const k = col(m[1]);
+            test = (r) => r[k] !== null && r[k] < parseInt(m[2]);
+          } else {
+            throw new Error("Bu küçük motor WHERE'de yalnızca tek koşul tanır: sütun = 'metin', sütun = sayı, sütun > sayı, sütun < sayı, sütun IS NULL, sütun IS NOT NULL.");
+          }
+          return data.filter(test);
         }
 
         function renderTable(out, cols, rows) {
@@ -951,20 +978,36 @@ SELECT * FROM ogrenciler</textarea>
 
           // Vurgulama
           ctx.save();
-          ctx.beginPath();
-          ctx.ellipse(lx, cy, rx * 0.9, ry * 0.9, 0, 0, Math.PI * 2);
+          const ell = (x) => {
+            ctx.beginPath();
+            ctx.ellipse(x, cy, rx * 0.9, ry * 0.9, 0, 0, Math.PI * 2);
+          };
           if (joinType === "inner") {
-            ctx.ellipse(rx2, cy, rx * 0.9, ry * 0.9, 0, 0, Math.PI * 2);
-            ctx.clip("evenodd");
+            // kesişim: iki kırpma art arda
+            ell(lx);
+            ctx.clip();
+            ell(rx2);
+            ctx.clip();
+          } else if (joinType === "left") {
+            ell(lx);
+            ctx.clip();
+          } else if (joinType === "right") {
+            ell(rx2);
+            ctx.clip();
           } else {
+            // full ve cross: iki küme birlikte
+            ctx.beginPath();
+            ctx.ellipse(lx, cy, rx * 0.9, ry * 0.9, 0, 0, Math.PI * 2);
+            ctx.moveTo(rx2 + rx * 0.9, cy);
+            ctx.ellipse(rx2, cy, rx * 0.9, ry * 0.9, 0, 0, Math.PI * 2);
             ctx.clip();
           }
-          ctx.fillStyle = "rgba(94,234,212,0.15)";
+          ctx.fillStyle = "rgba(94,234,212,0.3)";
           ctx.fillRect(0, 0, W, H);
           ctx.restore();
 
           // Etiketler
-          ctx.fillStyle = "var(--text)";
+          ctx.fillStyle = "#e2e8f0";
           ctx.font = "bold 12px 'Outfit', sans-serif";
           ctx.textAlign = "center";
           ctx.fillText("A", lx - 55, cy - 40);
@@ -982,7 +1025,8 @@ SELECT * FROM ogrenciler</textarea>
             full: "FULL OUTER JOIN: Her iki tablodaki tüm satırlar (4 satır)",
             cross: "CROSS JOIN: Kartezyen çarpım (3×3 = 9 satır)",
           };
-          ctx.fillStyle = "var(--text-muted)";
+          ctx.fillStyle = "#94a3b8";
+          ctx.textAlign = "center";
           ctx.font = "10px 'Outfit', sans-serif";
           ctx.fillText(descs[joinType] || "", cx, H - 15);
 
@@ -997,7 +1041,7 @@ SELECT * FROM ogrenciler</textarea>
             ctx.fillStyle = color;
             ctx.fill();
 
-            ctx.fillStyle = "var(--text)";
+            ctx.fillStyle = "#e2e8f0";
             ctx.font = "9px ui-monospace, monospace";
             ctx.textAlign = isLeft ? "right" : "left";
             ctx.fillText(
@@ -1047,9 +1091,11 @@ SELECT * FROM ogrenciler</textarea>
             case "cross":
               rows = [];
               leftData.forEach((l) =>
-                rightData.forEach((r) => rows.push({ ...l, ...r })),
+                rightData.forEach((r) =>
+                  rows.push({ "A.id": l.id, ad: l.ad, "B.id": r.id, kitap: r.kitap }),
+                ),
               );
-              cols = ["id", "ad", "kitap"];
+              cols = ["A.id", "ad", "B.id", "kitap"];
               break;
           }
           out.innerHTML = `<table><thead><tr>${cols.map((c) => `<th>${c}</th>`).join("")}</tr></thead>
@@ -1123,7 +1169,7 @@ SELECT * FROM ogrenciler</textarea>
           },
           {
             title: "3️⃣ 3NF — Geçişsiz Bağımlılık",
-            bad: "❌ Geçişli bağımlılık var (şehir → ilçe)",
+            bad: "❌ Geçişli bağımlılık var (müşteri → şehir → bölge)",
             good: "✅ Anahtar olmayan sütunlar birbirine bağlı değil",
             tables: [
               { title: "musteriler", rows: "id: 1 | ad: Ali | sehir_id: 34" },
@@ -1351,14 +1397,14 @@ SELECT * FROM ogrenciler</textarea>
           keys.forEach((k, i) => {
             const kx = x + 8 + (i * (w - 16)) / keys.length;
             const isHL = hlVal !== null && k === hlVal;
-            ctx.fillStyle = isHL ? "#fbbf24" : "var(--text)";
+            ctx.fillStyle = isHL ? "#fbbf24" : "#e2e8f0";
             ctx.font = "bold 10px ui-monospace, monospace";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(k, kx, y + h / 2);
 
             if (i < keys.length - 1) {
-              ctx.fillStyle = "var(--text-muted)";
+              ctx.fillStyle = "#94a3b8";
               ctx.fillText("|", kx + (w - 16) / keys.length / 2, y + h / 2);
             }
           });
@@ -1461,7 +1507,7 @@ SELECT * FROM ogrenciler</textarea>
             name: "Neo4j",
             type: "Graf (Graph)",
             detail:
-              "<strong>Neo4j</strong> — Düğümler ve ilişkiler olarak veri modeli, Cypher sorgu dili. İlişki ağırlıklı sorgularda (arkadaşın arkadaşı) SQL'den binlerce kat hızlı. <strong>Kullanım:</strong> Sosyal ağ, öneri motoru, fraud detection, ağ topolojisi.",
+              "<strong>Neo4j</strong> — Düğümler ve ilişkiler olarak veri modeli, Cypher sorgu dili. İlişki ağırlıklı sorgularda (arkadaşın arkadaşı) çok sayıda JOIN gerektiren SQL sorgusundan çok daha hızlı olabilir. <strong>Kullanım:</strong> Sosyal ağ, öneri motoru, fraud detection, ağ topolojisi.",
           },
           {
             icon: "🐘",

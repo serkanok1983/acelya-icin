@@ -23,7 +23,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 ## Oyunlar (13)
 
 - `pong` — Masa Tenisi (Pong) (sayfa başlığı: Pong AI (Uzay Temalı))
-- `asteroids` — Asteroids (sayfa başlığı: Asteroids 🚀)
+- `asteroids` — Asteroids
 - `snake` — Yılan Oyunu (sayfa başlığı: Snake)
 - `breakout` — Tuğla Kırmaca (sayfa başlığı: Breakout)
 - `oyun-2048` — 2048
@@ -33,7 +33,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `formul-hafiza` — Formül Hafıza
 - `mayin-tarlasi` — Mayın Tarlası
 - `hanoi-kuleleri` — Hanoi Kuleleri
-- `uzay-kosucusu` — Uzay Koşucusu (sayfa başlığı: Uzay Koşucusu 🚀 | Açelya)
+- `uzay-kosucusu` — Uzay Koşucusu
 - `isik-sondurme` — Işık Söndürme
 
 ## Matematik (35)

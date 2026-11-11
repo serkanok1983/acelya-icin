@@ -3,81 +3,81 @@ window.ACELYA_DIGEST["yazilim-muhendisligi"] = {
   slug: "yazilim-muhendisligi",
   title: "Yazılım Mühendisliği: Kodun Ötesindeki Zanaat",
   field: "Mühendislik",
-  level: "Lise",
+  level: "Lise–Lisans",
   minutes: 35,
   tagline:
-    "Bir satır kod yazmak kolaydır; on milyon satırı yüz kişiyle, on yıl boyunca, kimseyi öldürmeden değiştirmek değil. Yazılım mühendisliği bu ikinci işin bilimidir.",
+    "Bir satır kod yazmak kolaydır; on milyon satırı yüz kişiyle, on yıl boyunca, kimseyi öldürmeden değiştirmek değil. Yazılım mühendisliği bu ikinci işin disiplinidir.",
   hook:
-    "1 Ağustos 2012 sabahı, New York'ta bir aracı kurumun sunucularına yeni bir sürüm yüklendi; sekiz sunucudan yedisi güncellendi, biri unutuldu. Kırk beş dakika sonra şirket 440 milyon dolar kaybetmişti ve kodun tek bir satırı bile yanlış değildi. Yanlış olan, kodun nasıl dağıtıldığıydı. Peki 'doğru kod' neden yetmez?",
+    "1 Ağustos 2012 sabahı, New York'ta bir aracı kurumun sunucularına yeni bir sürüm yüklendi; sekiz sunucudan yedisi güncellendi, biri unutuldu. Borsa açıldıktan kırk beş dakika sonra şirket yaklaşık 440 milyon dolar kaybetmişti. Yeni sürüm, yüklendiği yedi sunucuda doğru çalışıyordu; yanlış olan, kodun nasıl dağıtıldığıydı. Peki 'doğru kod' neden yetmez?",
   bigIdea:
     "Yazılım mühendisliği, kodu değil <strong>değişimi</strong> yönetir: gereksinimler değişir, ekipler büyür, hatalar geç bulundukça pahalılaşır; bu yüzden işi küçük adımlara böler, her adımı test eder, her sürümü geri alınabilir tutar.",
   story: [
-    "Terim bir kışkırtma olarak doğdu. 1968 Ekim'inde NATO Bilim Komitesi, Almanya'nın Garmisch kasabasında yaklaşık elli bilgisayar bilimcisini topladı; toplantıya 'yazılım mühendisliği' adını veren Friedrich L. Bauer, bu adı özellikle seçmişti: köprü yapan mühendisler gibi hesaplı, ölçülü ve sorumlu çalışmayı henüz kimse yazılımda beceremiyordu. Toplantının tutanaklarında bugün de kullanılan bir deyim geçer: <strong>yazılım krizi</strong>. Projeler bütçeyi iki üç katına aşıyor, yıllarca gecikiyor, teslim edildiğinde de çalışmıyordu. Aynı yıllarda Boston'da, MIT Alet Laboratuvarı'nda Apollo uçuş yazılımını yöneten Margaret Hamilton da aynı deyimi kullanıyordu; ekibinin işinin donanım mühendisliği kadar ciddiye alınması için.",
-    "Krizin en ünlü anatomisini Fred Brooks yazdı. IBM'in OS/360 işletim sistemi projesini yönetmiş, geciken projeye adam ekledikçe daha da geciktiğini görmüştü. 1975'te yayımladığı <em>The Mythical Man-Month</em> (Efsanevi Adam-Ay) bu gözlemi bir yasaya çevirdi: 'Geç kalmış bir yazılım projesine insan eklemek onu daha da geciktirir.' Nedeni basit aritmetikti: n kişilik bir ekipte n(n−1)/2 iletişim yolu vardır; beş kişide 10, yirmi kişide 190. Yeni gelenlerin eğitimi ve çoğalan konuşmalar, eklenen iş gücünü yer. 1970'te Winston Royce'un yayımladığı bir makale, analizden bakıma uzanan sıralı aşamaları çizmişti; ironik olan, Royce'un bu düz akışın (sonradan <strong>şelale</strong> denecek modelin) riskli olduğunu, geri dönüşler gerektiğini aynı makalede söylemesidir. Yıllarca yalnızca şema hatırlandı, uyarı unutuldu.",
-    "Bedeli yalnızca para değildi. 1985–1987 arasında Therac-25 adlı radyoterapi cihazı, bir yarış koşulu (iki işlemin zamanlamasına bağlı hata) yüzünden hastalara planlananın kat kat üstünde doz verdi; altı kaza, en az üç ölüm. Önceki modellerdeki donanım kilitleri kaldırılmış, güvenlik tümüyle yazılıma bırakılmıştı. 4 Haziran 1996'da Avrupa'nın yeni roketi Ariane 5, ilk uçuşunda kalkıştan kırk saniye kadar sonra kendini imha etti: Ariane 4'ten aynen alınan bir yönlendirme kodu, 64 bitlik bir ondalık sayıyı 16 bitlik bir tam sayıya sığdırmaya çalışırken taştı. Daha hızlı roket, eski varsayımı geçersiz kılmıştı. 1999'da NASA'nın Mars Climate Orbiter aracı, bir yazılım itme kuvvetini pound-saniye, öteki newton-saniye beklediği için gezegene fazla alçaktan girip kayboldu. Üç kazada da hata tek bir satırda değil, parçaların birbirine güvendiği yerdeydi.",
-    "Cevap yavaş yavaş biçimlendi. 1994'te dört yazar (Gamma, Helm, Johnson, Vlissides; 'Dörtlü Çete') tekrar eden tasarım sorunlarına 23 adlandırılmış çözüm katalogladı; sayfadaki tasarım deseni kartları o kitaptan gelir. Şubat 2001'de Utah'ta Snowbird kayak merkezinde on yedi yazılımcı <strong>Çevik Manifesto</strong>'yu imzaladı: kapsamlı belgeden çok çalışan yazılım, plana körü körüne uymaktan çok değişime yanıt. Nisan 2005'te Linus Torvalds, Linux çekirdeğinin binlerce katkıcısını yönetebilmek için Git'i birkaç hafta içinde yazdı; 2010'da Vincent Driessen'in bir blog yazısı, sayfadaki tuvalin çizdiği Git Flow dallanma modelini yaydı. Bugün büyük bir ekipte kod, yazıldığı anda otomatik testlerden geçer, dakikalar içinde üretime çıkar ve gerekirse tek tuşla geri alınır. Mühendislik, kahramanlıktan rutine dönüştüğünde başarmış demektir.",
+    "Terim bir kışkırtma olarak doğdu. 1968 Ekim'inde NATO Bilim Komitesi, Almanya'nın Garmisch kasabasında yaklaşık elli bilgisayar bilimcisini topladı; toplantının başlığına o günlerde pek bilinmeyen 'yazılım mühendisliği' sözünü koyduran Friedrich L. Bauer, bu adı bile bile kışkırtıcı olsun diye seçmişti: köprü yapan mühendisler gibi hesaplı, ölçülü ve sorumlu çalışmayı yazılımda henüz kimse beceremiyordu. Toplantının tutanaklarında bugün de kullanılan bir deyim geçer: <strong>yazılım krizi</strong>. Projeler bütçesini aşıyor, gecikiyor, teslim edildiğinde de beklenen işi görmüyordu. Söz büsbütün yeni değildi: Anthony Oettinger 1966'da bir ACM yazısında kullanmıştı; aynı yıllarda MIT Alet Laboratuvarı'nda Apollo uçuş yazılımı ekibini yöneten Margaret Hamilton da işine 'yazılım mühendisliği' diyordu, ekibinin emeği donanım mühendisliği kadar ciddiye alınsın diye.",
+    "Krizin en ünlü anatomisini Fred Brooks yazdı. IBM'in OS/360 işletim sistemi projesini yönetmiş, geciken projeye adam ekledikçe daha da geciktiğini görmüştü. 1975'te yayımladığı <em>The Mythical Man-Month</em> (Efsanevi Adam-Ay) bu gözlemi bir yasaya çevirdi: 'Geç kalmış bir yazılım projesine insan eklemek onu daha da geciktirir.' Nedeni basit aritmetikti: n kişilik bir ekipte n(n−1)/2 iletişim yolu vardır; beş kişide 10, yirmi kişide 190. Yeni gelenlerin eğitimi ve çoğalan konuşmalar, eklenen iş gücünü yer. 1970'te Winston Royce'un yayımladığı bir makale, gereksinimden işletime uzanan yedi sıralı aşamayı çizmişti. Makalede 'şelale' sözcüğü geçmez; ad sonradan takıldı. Daha ironik olan, Royce'un bu düz akış için aynı makalede 'risklidir ve başarısızlığa davet çıkarır' demesi, aşamalar arasında geri dönüşler ve işin iki kez yapılmasını (önce bir deneme sürümü) önermesidir. Yıllarca yalnızca ilk şema hatırlandı, uyarı unutuldu.",
+    "Bedeli yalnızca para değildi. 1985–1987 arasında Therac-25 adlı radyoterapi cihazı, bir yarış koşulu (iki işlemin zamanlamasına bağlı hata) yüzünden hastalara planlananın kat kat üstünde doz verdi; belgelenen altı kazada hastalar ağır yaralandı, bir bölümü hayatını kaybetti. Önceki modellerdeki donanım kilitleri kaldırılmış, güvenlik tümüyle yazılıma bırakılmıştı. 4 Haziran 1996'da Avrupa'nın yeni roketi Ariane 5, ilk uçuşunda kalkıştan kırk saniye kadar sonra kendini imha etti: Ariane 4'ten aynen alınan atalet referans sistemi kodu, 64 bitlik bir kayan noktalı sayıyı 16 bitlik işaretli bir tam sayıya sığdırmaya çalışırken taştı. Daha hızlı roket, eski varsayımı geçersiz kılmıştı. 1999'da NASA'nın Mars Climate Orbiter aracı, bir yazılım iticilerin itmesini (impuls) pound-kuvvet·saniye olarak yazdığı, öteki newton·saniye beklediği için gezegene fazla alçaktan girip kayboldu. Üç kazada da hata tek bir satırda değil, parçaların birbirine güvendiği yerdeydi.",
+    "Cevap yavaş yavaş biçimlendi. 1994'te dört yazar (Gamma, Helm, Johnson, Vlissides; 'Dörtlü Çete') tekrar eden tasarım sorunlarına 23 adlandırılmış çözüm katalogladı; sayfadaki tasarım deseni kartları o kitaptan gelir. Şubat 2001'de Utah'ta Snowbird kayak merkezinde on yedi yazılımcı <strong>Çevik Manifesto</strong>'yu imzaladı: kapsamlı belgeden çok çalışan yazılım, plana körü körüne uymaktan çok değişime yanıt. Nisan 2005'te Linux çekirdeği ekibi, kullandığı BitKeeper adlı aracın ücretsiz lisansını yitirdi; Linus Torvalds yerine koyacağı Git'in ilk sürümünü günler içinde yazdı, birkaç hafta sonra çekirdek artık Git ile yönetiliyordu; 2010'da Vincent Driessen'in bir blog yazısı, sayfadaki tuvalin çizdiği Git Flow dallanma modelini yaydı. Bugün iyi kurulmuş bir ekipte kod, gönderildiği anda otomatik testlerden geçer, kısa sürede üretime çıkar ve gerekirse tek komutla geri alınır. Mühendislik, kahramanlıktan rutine dönüştüğünde başarmış demektir.",
   ],
   core: [
     {
       heading: "Ölçek her şeyi değiştirir: Brooks yasası",
       body:
-        "Tek başına yazdığın bir programda bütün bilgi kafandadır. İkinci kişi gelince bir iletişim yolu açılır; üçüncüde üç, onuncuda kırk beş. Herkesin herkesle konuşması gereken bir ekipte eklenen her kişi, kendi işinden fazlasını toplantıya götürür. Brooks'un yasası bunun sonucudur: işi parçalara bölmek, parçaların arasına net <strong>arayüzler</strong> koymak ve iletişim yollarını azaltmak, daha çok insan eklemekten daha güçlüdür. Mikroservis mimarisinin 'takım otonomisi' vaadi de, bir fonksiyonun 5–15 satır olması önerisi de aynı fikrin farklı ölçeklerdeki yansımasıdır.",
+        "Tek başına yazdığın bir programda bütün bilgi kafandadır. İkinci kişi gelince bir iletişim yolu açılır; üçüncüde üç, onuncuda kırk beş. Herkesin herkesle konuşması gereken bir ekipte eklenen her kişi, kendi işinden fazlasını toplantıya götürür. Brooks'un yasası bunun sonucudur: işi parçalara bölmek, parçaların arasına net <strong>arayüzler</strong> koymak ve iletişim yollarını azaltmak, daha çok insan eklemekten daha güçlüdür. Madalyonun öteki yüzünü Melvin Conway 1968'de yazdı: bir kurumun tasarladığı sistem, o kurumun iletişim yapısının kopyası olur. Brooks bu gözleme kitabında 'Conway yasası' adını verdi. Sayfadaki mikroservis kartının 'takım otonomisi' vaadi bu yasayı tersinden kullanır: önce ekipleri böl, mimari arkasından gelsin.",
       formula: "Yol sayısı = n(n − 1)/2",
-      formulaNote: "n ekip büyüklüğü. 5 kişi: 10 yol; 10 kişi: 45; 20 kişi: 190. İnsan iki katına çıkınca iletişim dörde katlanır.",
+      formulaNote: "n ekip büyüklüğü; n kişiden 2'li seçim sayısı C(n, 2). 5 kişi: 10 yol; 10 kişi: 45; 20 kişi: 190. Büyük n için yol sayısı ≈ n²/2: insan iki katına çıkınca iletişim yaklaşık dörde katlanır.",
     },
     {
       heading: "Hatanın fiyatı bulunduğu aşamaya göre artar",
       body:
-        "Gereksinim toplanırken fark edilen bir yanlış anlama bir cümleyle düzelir. Aynı yanlış tasarıma geçmişse birkaç diyagram, koda geçmişse yüzlerce satır, üretime çıkmışsa müşteri verisi ve itibar değişir. Barry Boehm'un 1981'de derlediği proje verileri bu artışın kat kat, çoğu projede on katlar düzeyinde olduğunu gösteriyordu. Sayfadaki SDLC şeridinde 'Test' aşamasına tıkladığında göreceğin <strong>sola kaydırma</strong> (shift-left) fikri buradan çıkar: testi sona bırakma, en başa çek. Çevik yöntemlerin iki haftalık döngüleri de aynı amaca hizmet eder; her döngü sonunda çalışan bir parça teslim edilir, yanlış anlama en geç iki hafta sonra ortaya çıkar.",
-      formula: "Düzeltme maliyeti ∝ (aşama sayısı)↑",
-      formulaNote: "Kesin bir denklem değil, gözlemsel bir eğilim; oran projeye göre değişir ama yönü değişmez.",
+        "Gereksinim toplanırken fark edilen bir yanlış anlama bir cümleyle düzelir. Aynı yanlış tasarıma geçmişse birkaç diyagram, koda geçmişse yüzlerce satır, üretime çıkmışsa müşteri verisi ve itibar değişir. Bu eğilimi sayıya döken Barry Boehm'dur: 1981 tarihli <em>Software Engineering Economics</em> kitabında derlediği proje verilerine dayanarak, 2001'de Victor Basili ile birlikte, teslimden sonra bulunan bir hatayı düzeltmenin büyük projelerde gereksinim aşamasındakinin çoğu kez 100 katına, küçük ve kritik olmayan projelerde ise 5 katı dolayına mal olduğunu yazdı. Sık sık 'her projede 100 kat' diye aktarılan sayı bu yüzden yanıltıcıdır: oran bir doğa sabiti değil, projenin büyüklüğüne ve değişikliğin ne kadar kolay geri alınabildiğine bağlı bir gözlemdir. Sayfadaki SDLC şeridinde 'Test' aşamasına tıkladığında göreceğin <strong>sola kaydırma</strong> (shift-left) fikri buradan çıkar: testi sona bırakma, en başa çek. Çevik yöntemlerin iki-dört haftalık döngüleri de aynı amaca hizmet eder: her döngü sonunda çalışan bir parça teslim edilir, yanlış anlama aylar sonra değil haftalar içinde ortaya çıkar ve eğrinin dik kısmına hiç varılmaz.",
+      formula: "M<sub>teslim sonrası</sub> / M<sub>gereksinim</sub> ≈ 5 (küçük proje) … 100 (büyük proje)",
+      formulaNote: "Boehm ve Basili'nin (2001) özetlediği gözlemsel aralık; bir denklem değil. M, aynı hatayı o aşamada düzeltmenin maliyeti. Oran projeye göre değişir, yönü değişmez.",
     },
     {
       heading: "Sürüm kontrolü bir çizgedir",
       body:
-        "Git'te her <strong>commit</strong>, dosyaların o anki tam fotoğrafı artı 'ebeveyn' commit'inin kimliğidir. Kimlik, içeriğin SHA-1 özetinden türeyen 40 karakterlik bir onaltılık sayıdır; tek bir harf değişse kimlik değişir, bu yüzden geçmişi sessizce değiştirmek imkânsızdır. Bir <strong>dal</strong> (branch) yalnızca bir commit'i gösteren hareketli bir etikettir; dal açmak bir satırlık bir işlemdir, kopya çıkarmak değil. <strong>Birleştirme</strong> (merge) ise iki ebeveyni olan özel bir commit'tir. Sayfadaki tuval tam bunu çizer: develop satırındaki noktalar, feature/login satırına çıkan kesikli ok ve geri dönen 'merge' noktası. Git Flow, bu çizgeye bir düzen önerir: main yalnızca yayımlanmış sürümleri, develop entegrasyonu, feature dalları yarım işleri taşır.",
+        "Git'te her <strong>commit</strong>, dosyaların o anki tam fotoğrafı artı 'ebeveyn' commit'inin kimliğidir. Kimlik, içeriğin SHA-1 özetinden türeyen 40 karakterlik bir onaltılık sayıdır; tek bir harf değişse kimlik değişir. Her commit ebeveyninin kimliğini de içerdiğinden eski bir commit'i değiştirmek ondan sonraki bütün kimlikleri değiştirir; geçmişle fark edilmeden oynanamaz. Bir <strong>dal</strong> (branch) yalnızca bir commit'i gösteren hareketli bir etikettir; dal açmak bir satırlık bir işlemdir, kopya çıkarmak değil. <strong>Birleştirme</strong> (merge) ise iki ebeveyni olan özel bir commit'tir. Sayfadaki tuval tam bunu çizer: develop satırındaki noktalar, son develop commit'inden feature satırına çıkan kesikli ok ve dalın ucundan develop'taki 'merge' noktasına dönen ikinci ok. Git Flow, bu çizgeye bir düzen önerir: main yalnızca yayımlanmış sürümleri, develop entegrasyonu, feature dalları yarım işleri taşır.",
       formula: "commit = (ağaç, ebeveyn(ler), mesaj, yazar) → SHA-1 (40 hex)",
-      formulaNote: "Merge commit'inin iki ebeveyni vardır; geçmişi okumak, bu yönlü çizgeyi gezmektir.",
+      formulaNote: "Merge commit'inin iki ebeveyni vardır. Oklar hep geçmişe baktığı için çizgede döngü oluşamaz: geçmiş, yönlü ve döngüsüz bir çizgedir (DAG).",
     },
     {
       heading: "SOLID: değişime karşı tasarlamak",
       body:
-        "Beş ilke tek bir soruya cevap arar: gereksinim değiştiğinde kaç dosyaya dokunman gerekir? Bir sınıfın tek değişim nedeni olsun (S); yeni davranış eski kodu değiştirerek değil, yanına ekleyerek gelsin (O); alt sınıf üst sınıfın yerine geçtiğinde program bozulmasın (L); kimse kullanmadığı yöntemleri taşımak zorunda kalmasın (I); büyük parçalar küçük parçalara değil soyutlamalara yaslansın (D). L harfi Barbara Liskov'a aittir; 1987'de ortaya attığı ilke, sayfadaki 'Kare extends Dikdortgen' örneğinin neden tuzak olduğunu söyler: karenin bir kenarını değiştirince öteki de değişir, dikdörtgen bekleyen kod şaşırır. Liskov 2008'de Turing Ödülü aldı.",
+        "Beş ilke tek bir soruya cevap arar: gereksinim değiştiğinde kaç dosyaya dokunman gerekir? Bir sınıfın tek değişim nedeni olsun (S); yeni davranış eski kodu değiştirerek değil, yanına ekleyerek gelsin (O); alt sınıf üst sınıfın yerine geçtiğinde program bozulmasın (L); kimse kullanmadığı yöntemleri taşımak zorunda kalmasın (I); büyük parçalar küçük parçalara değil soyutlamalara yaslansın (D). Beşliyi 2000'de Robert C. Martin derledi, baş harflerden SOLID sözcüğünü Michael Feathers türetti; ilkelerin kendisi daha eskidir. O harfi Bertrand Meyer'in 1988'deki kitabından, L harfi Barbara Liskov'dan gelir; Liskov'un 1987'de ortaya attığı ilke, sayfadaki 'Kare extends Dikdortgen' örneğinin neden tuzak olduğunu söyler: karenin bir kenarını değiştirince öteki de değişir, dikdörtgen bekleyen kod şaşırır. Liskov 2008'de Turing Ödülü aldı.",
       formula: "Alt tür T, üst tür S'nin yerine geçtiğinde program davranışı korunmalı",
       formulaNote: "Kalıtım 'bir tür ...dır' cümlesini değil, 'onun yerine geçebilir' sözünü gerektirir.",
     },
     {
       heading: "Test piramidi ve sürekli entegrasyon",
       body:
-        "Dijkstra'nın 1970 dolayındaki uyarısı hâlâ geçerlidir: test, hatanın varlığını gösterebilir, yokluğunu asla. Yine de iyi kurulmuş bir test paketi her değişikliğin ardından dakikalar içinde 'bildiğimiz hiçbir şeyi bozmadın' der. Sayfadaki piramit (Mike Cohn, 2009) bunun ekonomisini çizer: milisaniyeler süren binlerce <strong>birim testi</strong> altta, saniyeler süren yüzlerce entegrasyon testi ortada, dakikalar süren onlarca uçtan uca test tepede. <strong>Sürekli entegrasyon</strong> (CI) bu paketi her commit'te otomatik çalıştırır; sürekli dağıtım (CD) geçen sürümü üretime taşır. Knight Capital'in 440 milyon dolarlık sabahı, 'Deploy' adımının elle yapıldığı bir zincirin fiyatıdır.",
+        "Dijkstra'nın 1970 dolayındaki uyarısı hâlâ geçerlidir: test, hatanın varlığını gösterebilir, yokluğunu asla. Yine de iyi kurulmuş bir test paketi her değişikliğin ardından dakikalar içinde 'bildiğimiz hiçbir şeyi bozmadın' der. Sayfadaki piramit (Mike Cohn, 2009) bunun ekonomisini çizer: milisaniyeler süren binlerce <strong>birim testi</strong> altta, saniyeler süren yüzlerce entegrasyon testi ortada, dakikalar süren onlarca uçtan uca test tepede. <strong>Sürekli entegrasyon</strong> (CI) bu paketi her commit'te otomatik çalıştırır; sürekli dağıtım (CD) geçen sürümü üretime taşır. Knight Capital'in 440 milyon dolarlık sabahı, 'Deploy' adımının elle ve ikinci bir göz denetlemeden yapıldığı bir zincirin fiyatıdır.",
       formula: "T<sub>toplam</sub> = Σ (test sayısı × test süresi)",
       formulaNote: "Piramit ters çevrilirse aynı kapsama saatler sürer; çözümlü örnekte hesaplıyoruz.",
     },
   ],
   lab: {
     intro:
-      "Sayfada dört etkileşimli alan var: tıklanabilir altı aşamalı <strong>SDLC</strong> şeridi (Analiz … Bakım), üç sekmeli <strong>Tasarım Desenleri</strong> paneli (her sekmede beş kart), dört düğmeli <strong>Git Flow</strong> tuvali (<strong>➕ Commit</strong>, <strong>🌿 Feature Branch</strong>, <strong>🔀 Merge</strong>, <strong>↺ Sıfırla</strong>) ve sekiz kartlı <strong>Kod Kalitesi</strong> paneli. Tuval sayı göstermez; gözlem aracın nokta sayısı, aralıklar ve oklar. Sayfanın kendi kodu da bir inceleme nesnesi: aşağıdaki deneylerden biri gerçek bir hatayı bulduruyor.",
+      "Sayfada dört etkileşimli alan var: tıklanabilir altı aşamalı <strong>SDLC</strong> şeridi (Analiz … Bakım), üç sekmeli <strong>Tasarım Desenleri</strong> paneli (her sekmede beş kart), dört düğmeli <strong>Git Flow</strong> tuvali (<strong>➕ Commit</strong>, <strong>🌿 Feature Branch</strong>, <strong>🔀 Merge</strong>, <strong>↺ Sıfırla</strong>) ve sekiz kartlı <strong>Kod Kalitesi</strong> paneli. Tuvalin altındaki durum satırı her hamleden sonra toplam commit sayısını, dallara dağılımını ve açık bir feature dalı olup olmadığını yazar; ölçüm aracın bu satır, noktalar ve kesikli oklardır.",
     experiments: [
       {
-        title: "Üçüncü commit'te sıkışan zaman çizgisi",
-        predict: "Tuval üç noktayla açılır (init, setu, core). ➕ Commit'e her bastığında noktaların arası daralır mı, yoksa bir süre aynı kalıp sonra mı daralır? Yeni noktaların üstünde ne yazacak?",
-        do: "↺ Sıfırla'ya bas. ➕ Commit'e bir kez bas, aralığı göz kararı ölçüsüne al (bir cetveli ekrana tutabilirsin); ikinci ve üçüncü kez bas, her seferinde ilk üç noktanın yerini karşılaştır.",
-        observe: "İlk iki tıklamada eski noktalar kıpırdamaz, yeni nokta sağa eklenir. Üçüncü tıklamada bütün noktalar sola kayar ve aralık yaklaşık yedide bir daralır; sonraki her tıklama biraz daha sıkıştırır. Yeni noktaların etiketi hep 'feat'.",
-        explain: "Kod aralığı (genişlik − 80) / max(6, n+1) ile hesaplar; n sıradaki commit numarası. Tuvalde toplam altı commit olana kadar payda 6'da sabit kalır; altıncı commit (üçüncü basış) paydayı 7'ye çıkarır ve sonraki her commit biraz daha büyütür: geniş ekranda 124 piksel, 106, 93… Etiketler 'feat-4', 'feat-5' diye üretilir ama yalnızca ilk dört harf çizilir.",
+        title: "Fast-forward mı, gerçek birleştirme mi?",
+        predict: "Bir dal açıp hemen birleştirirsen 'merge' noktasına kaç yönden çizgi gelir? Dal açıkken develop'a bir commit daha eklenirse resimde ne değişir? İki durumdan hangisinde Git, merge commit'i hiç oluşturmadan da işi bitirebilirdi?",
+        do: "↺ Sıfırla, 🌿 Feature Branch, 🔀 Merge; resmi ve durum satırını not et. Sonra ↺ Sıfırla, 🌿 Feature Branch, ➕ Commit, 🔀 Merge ve iki resmi karşılaştır.",
+        observe: "İlk dizide 'login' noktası 'core'un tam üstünde belirir, kesikli ok 'core'dan çıkar; 'wip'ten inen ikinci ok 'merge' noktasına varır. Durum satırı: toplam 6 commit, develop 4, feature/login 2. İkinci dizide develop satırında 'core' ile 'merge' arasına 'c5' girer; satır 7 commit, develop 5 der. İki resimde de 'merge' noktasına iki yoldan gelinir: develop çizgisinden ve feature'dan inen oktan.",
+        explain: "İlk dizide develop, dal ayrıldıktan sonra hiç ilerlemedi: 'wip', 'core'un doğrudan torunu. Git böyle bir durumda varsayılan olarak <strong>fast-forward</strong> yapar, yani yeni commit üretmeden develop etiketini 'wip'e kaydırır. Git Flow ise dalın izini geçmişte tutmak için merge commit'ini zorlar (--no-ff); tuval bunu çizer. İkinci dizide geçmiş çatallanmıştır: 'c5' ile 'wip'in ortak atası 'core'dur ve iki ebeveynli bir commit kaçınılmazdır. Git bu durumda üç sürümü karşılaştırır (ortak ata ve iki uç); buna üç yollu birleştirme denir.",
       },
       {
-        title: "Dal aç, birleştir, oku kimden çıkıyor?",
-        predict: "🌿 Feature Branch'e basınca yeni satır nereden dallanır: son develop commit'inden mi, ilkinden mi? 🔀 Merge'den sonra geri dönen ok, dalın son noktasından mı başlar?",
-        do: "↺ Sıfırla, sonra bir kez 🌿 Feature Branch. Üst satırdaki iki yeni noktayı ve kesikli oku incele. Ardından 🔀 Merge'e bas ve develop satırına eklenen 'merg' noktasına gelen oku izle.",
-        observe: "Üst satırda 'logi' noktası tam 'core'un üstünde, 'wip' bir yuva sağda belirir; satırın adı ve kesikli kılavuz çizgisi yoktur, noktalar beyazdır. Dallanma oku 'core'dan değil, en soldaki 'init'ten çıkar. Merge oku da 'wip'ten değil 'logi'den gelir.",
-        explain: "Mantık doğru, uygulama hatalı: kod kaynak commit'i 'x'i küçük olan ilk eşleşme' ile arar; ilk eşleşme her zaman en eski commit'tir, oysa en yakını gerekir. Renk tablosu 'feature' anahtarını tanır, commit ise 'feature/login' adını taşır; bu uyuşmazlık satırı etiketsiz bırakır. İki küçük hata, bir kod incelemesinde yakalanacak türden.",
+        title: "Altıncı commit'te sıkışan zaman çizgisi",
+        predict: "Tuval üç noktayla açılır (init, setup, core). ➕ Commit'e her bastığında noktaların arası daralır mı, yoksa bir süre aynı kalıp sonra mı daralır?",
+        do: "↺ Sıfırla. ➕ Commit'e bir kez bas ve 'init' ile 'setup' arasını göz kararı ölç (ekrana bir kâğıt şeridi tutabilirsin). İkinci ve üçüncü kez bas; her seferinde ilk üç noktanın yerini karşılaştır.",
+        observe: "İlk iki basışta eski noktalar kıpırdamaz; 'c4' ve 'c5' sağa eklenir. Üçüncü basışta ('c6', durum satırında toplam 6 commit) bütün noktalar sola kayar ve aralık yedide bir kadar daralır; sonraki her basış biraz daha sıkıştırır.",
+        explain: "Kod aralığı (genişlik − 80) / max(6, k + 1) piksel olarak hesaplar; k o ana kadar kullanılan yuva sayısıdır. Beş commit'e kadar payda 6'da sabittir; altıncı commit paydayı 7 yapar ve aralık 6/7'sine iner, sonra 7/8'ine, 8/9'una… Sabit genişliğe gittikçe daha çok nokta sığdırmanın bedeli budur: nokta yarıçapı 7 piksel olduğundan aralık 14 pikselin altına inince noktalar birbirine değer. Gerçek araçlar bu yüzden geçmişi kaydırılabilir bir liste olarak gösterir.",
       },
       {
-        title: "Düğme hiçbir şey yapmadığında",
-        predict: "Hiç dal açmadan 🔀 Merge'e basarsan ne olur: hata mı, boş bir merge noktası mı, hiçbir şey mi? Peki araya commit koymadan iki kez 🌿 Feature Branch'e basarsan kaç yeni nokta görürsün?",
-        do: "↺ Sıfırla, doğrudan 🔀 Merge'e bas. Sonra 🌿 Feature Branch'e arka arkaya iki kez bas ve üst satırdaki noktaları say.",
-        observe: "Merge tek başına hiçbir şey çizmez; sayfa sessiz kalır. İki Feature Branch sonrasında üst satırda üç nokta görürsün, dört değil: ikinci 'logi' birincisinin tam üstüne biner, 'wip' noktaları ise iki ayrı yuvaya düşer.",
-        explain: "Merge kodu bir koruma cümlesiyle başlar: dal yoksa çık. Bu, çökmeyi önleyen doğru bir savunma; ama kullanıcıya hiçbir şey söylemediği için eksik bir arayüz. Dallanma noktası her zaman son develop commit'inin yuvasına yerleşir; develop ilerlemediyse aynı yere iki nokta çizilir. İyi bir arayüz düğmeyi geçersiz durumda devre dışı bırakırdı.",
+        title: "Geçersiz hamle: iki durumlu bir makine",
+        predict: "Hiç dal açmadan 🔀 Merge'e basarsan ne olur? Dal açıkken ikinci kez 🌿 Feature Branch'e basarsan? Sonra şu dizinin sonunda durum satırının hangi sayıları yazacağını hesapla: Feature, Commit, Commit, Merge, Feature, Merge.",
+        do: "↺ Sıfırla, doğrudan 🔀 Merge'e bas ve durum satırını oku. 🌿 Feature Branch'e arka arkaya iki kez bas. Sonra ↺ Sıfırla ve yukarıdaki altı hamlelik diziyi uygula.",
+        observe: "Merge tek başına hiçbir nokta çizmez; satır 'Birleştirilecek açık dal yok' der. İkinci Feature Branch de reddedilir ('zaten açık'), sayı 5'te kalır. Altı hamlelik dizinin sonunda satır 'Toplam 11 commit: develop 7, feature/login 4 · açık feature dalı: yok' yazar; tuvalde iki ayrı dal ve iki 'merge' noktası görürsün.",
+        explain: "Tuvalin iki durumu var: dal kapalı ve dal açık. Feature Branch yalnızca birincide, Merge yalnızca ikincide geçerli; Commit ikisinde de. Her hamlenin bedeli sabit: Commit +1, Feature +2 ('login' ve 'wip'), Merge +1. Başlangıçtaki 3'e 2 + 1 + 1 + 1 + 2 + 1 eklenir: 11. Kodun başındaki 'koşul tutmuyorsa çık' satırlarına koruma cümlesi (guard clause) denir; iyi bir arayüz reddettiği hamleyi sessizce yutmaz, nedenini söyler.",
       },
       {
         title: "Kare, dikdörtgenin yerine geçebilir mi?",
@@ -92,17 +92,17 @@ window.ACELYA_DIGEST["yazilim-muhendisligi"] = {
     {
       title: "Kırk beş dakikada 440 milyon dolar",
       body:
-        "1 Ağustos 2012'de Knight Capital, borsa yazılımının yeni sürümünü sekiz sunucudan yedisine yükledi. Sekizincide, yıllardır kullanılmayan eski bir test kodu duruyordu ve yeni sürümün yeniden anlam verdiği bir bayrak o kodu uyandırdı. Sunucu piyasa açılır açılmaz milyonlarca hatalı emir gönderdi; borsa açılışından yaklaşık kırk beş dakika sonra zarar 440 milyon dolara ulaşmıştı. Şirket haftalar içinde satıldı. Kod hatasız sayılırdı; dağıtım süreci değildi.",
+        "1 Ağustos 2012'de Knight Capital, borsa yazılımının yeni sürümünü sekiz sunucudan yedisine yükledi. Sekizincide, ABD borsa denetçisi SEC'in raporuna göre 2003'ten beri kullanılmayan eski bir emir işlevinin kodu duruyordu ve yeni sürümün başka bir anlamla yeniden kullandığı bayrak o kodu uyandırdı. Sunucu piyasa açılır açılmaz durmadan emir gönderdi; kırk beş dakikada 154 hissede milyonlarca işlem gerçekleşti, zarar 440 milyon doları geçti. Şirket ancak günler içinde bulunan 400 milyon dolarlık bir kurtarma yatırımıyla ayakta kaldı, ertesi yıl da bir rakibiyle birleşti. Yeni kod doğruydu; ölü kodu silmeyen ve dağıtımı elle yapan süreç değildi.",
     },
     {
       title: "Ay'a inerken alarm çalan bilgisayar",
       body:
-        "20 Temmuz 1969'da Apollo 11'in iniş aracı Ay yüzeyine yaklaşırken bilgisayar '1202' ve '1201' alarmları verdi: yanlış konumlanmış bir radar anahtarı yüzünden işlemciye kapasitesinin üstünde iş yağıyordu. Margaret Hamilton'ın ekibinin tasarladığı yazılım, işleri önceliğe göre sıralıyor ve dolunca düşük öncelikli olanları bırakıyordu. Bilgisayar çökmedi, iniş hesaplarını sürdürdü ve Armstrong indi. Hamilton 2016'da Başkanlık Özgürlük Madalyası aldı.",
+        "20 Temmuz 1969'da Apollo 11'in iniş aracı Ay yüzeyine yaklaşırken bilgisayar '1202' ve '1201' alarmları verdi: randevu radarının elektroniği, o an gereği olmadığı hâlde bilgisayara durmadan sinyal yağdırıyor, işlemci zamanının bir bölümünü çalıyordu. MIT'de Margaret Hamilton'ın yönettiği ekibin uçuş yazılımı işleri önceliğe göre sıralıyordu; iş kuyruğu taşınca bilgisayar kendini saniyeler içinde yeniden başlattı, düşük öncelikli işleri bıraktı ve iniş hesaplarını kaldığı yerden sürdürdü. Armstrong ve Aldrin indi. Hamilton 2016'da Başkanlık Özgürlük Madalyası aldı.",
     },
     {
       title: "İki milyar satırlık tek depo",
       body:
-        "Google mühendisleri 2016'da yayımladıkları bir makalede şirketin neredeyse bütün kodunu tek bir depoda tuttuğunu anlattı: yaklaşık iki milyar satır kod, 86 terabayt veri ve günde on binlerce commit. Böyle bir ölçekte 'merge' bir düğme değil, saniyede binlerce testi çalıştıran devasa bir sistemdir. Sayfadaki tuvalde elli commit sonra noktalar birbirine değer; gerçek dünyada o noktaları insanlar değil makineler çizer.",
+        "Google mühendisleri 2016'da yayımladıkları bir makalede şirketin neredeyse bütün kodunu tek bir depoda tuttuğunu anlattı: yaklaşık iki milyar satır kod, 86 terabayt veri ve günde on binlerce commit. Böyle bir ölçekte 'merge' bir düğme değil, her değişikliği otomatik testlerden geçiren koca bir altyapıdır; makalenin anlattığına göre commit'lerin büyük bölümünü de insanlar değil otomatik araçlar atar. Sayfadaki tuvalde elli kadar commit'ten sonra noktalar birbirine değmeye başlar; Google'ın günlük akışı o tuvali saniyeler içinde doldururdu.",
     },
   ],
   worked: {
@@ -113,16 +113,17 @@ window.ACELYA_DIGEST["yazilim-muhendisligi"] = {
       "Her katmanın süresini sayı × süre olarak yaz. Birim: 1000 × 0.010 s = 10 s. Entegrasyon: 100 × 1 s = 100 s. Uçtan uca: 10 × 30 s = 300 s.",
       "Topla: 10 + 100 + 300 = 410 s ≈ 6.8 dakika. Her commit'te bu kadar beklemek, bir çay molası; sürekli entegrasyon için kabul edilebilir.",
       "Ters piramit: birim 10 × 0.010 s = 0.1 s; entegrasyon yine 100 s; uçtan uca 1000 × 30 s = 30 000 s.",
-      "Topla: 0.1 + 100 + 30 000 ≈ 30 100 s ≈ 8.4 saat. Aynı 1110 test, 74 kat daha uzun sürer; hiçbir ekip her commit'te bir iş günü beklemez, testler kapatılır ve hata üretime kaçar.",
+      "Topla: 0.1 + 100 + 30 000 ≈ 30 100 s ≈ 8.4 saat. Aynı 1110 test yaklaşık 73 kat daha uzun sürer; hiçbir ekip her commit'te bir iş günü beklemez, testler kapatılır ve hata üretime kaçar.",
+      "Süre tek bedel değil. Uçtan uca testler ağ, tarayıcı ve zamanlama yüzünden kod doğruyken de arada bir kalır. Her birinin böyle 'boş yere' kalma olasılığı p = 0.005 ve testler bağımsız olsun. Paketin temiz geçme olasılığı (1 − p)<sup>N</sup>'dir: N = 10 için 0.995<sup>10</sup> ≈ 0.951, yani yirmi çalıştırmadan biri boş yere kırmızı. N = 1000 için 0.995<sup>1000</sup> ≈ e<sup>−5</sup> ≈ 0.007: paket neredeyse her seferinde kırmızıdır ve kimse ona güvenmez.",
     ],
     result:
-      "Normal piramit 6.8 dakika, ters piramit 8.4 saat. Tepedeki testler tek başına yavaş değil, pahalı olanın sayısı kritik: süreyi belirleyen en ağır katmanın çarpımıdır.",
+      "Normal piramit 6.8 dakika sürer ve yaklaşık %95 olasılıkla temiz geçer; ters piramit 8.4 saat sürer ve temiz geçme olasılığı %1'in altındadır. Süreyi sayı × süre çarpımı en büyük olan katman, güveni ise en kırılgan testlerin sayısı belirler.",
   },
   misconceptions: [
     {
       myth: "Yazılım mühendisliği, iyi kod yazmaktır.",
       truth:
-        "Kod işin görünen kısmı. Knight Capital'de kod hatasızdı, dağıtım yarım kaldı; Mars Climate Orbiter'da iki program ayrı ayrı doğruydu, birimleri uyuşmadı. Mühendislik; gereksinimi anlamayı, parçaların sözleşmesini yazmayı, test etmeyi, sürümü geri alabilmeyi ve ekibi örgütlemeyi kapsar. Sayfadaki SDLC şeridinde 'Geliştirme' altı aşamadan yalnızca biridir.",
+        "Kod işin görünen kısmı. Knight Capital'de yeni kod doğruydu, dağıtım yarım kaldı; Mars Climate Orbiter'da iki program ayrı ayrı doğruydu, birimleri uyuşmadı. Mühendislik; gereksinimi anlamayı, parçaların sözleşmesini yazmayı, test etmeyi, sürümü geri alabilmeyi ve ekibi örgütlemeyi kapsar. Sayfadaki SDLC şeridinde 'Geliştirme' altı aşamadan yalnızca biridir.",
     },
     {
       myth: "Proje gecikiyorsa daha çok programcı almak işi hızlandırır.",
@@ -137,7 +138,7 @@ window.ACELYA_DIGEST["yazilim-muhendisligi"] = {
     {
       myth: "Git'te dal açmak dosyaların kopyasını çıkarır.",
       truth:
-        "Bir dal, tek bir commit'i gösteren küçük bir etikettir; açmak milisaniye sürer ve disk yer kaplamaz. Commit'ler ise içeriğin özetiyle adlandırıldığı için aynı dosya yüz dalda da bir kez saklanır. Tuvalde 🌿 Feature Branch'in çizdiği yeni satır, kopya değil, çizgede yeni bir yoldur.",
+        "Bir dal, tek bir commit'in kimliğini tutan 41 baytlık bir dosyadır; açmak milisaniyeler sürer. Commit'ler ise içeriğin özetiyle adlandırıldığı için aynı dosya yüz dalda da bir kez saklanır. Tuvalde 🌿 Feature Branch'in çizdiği yeni satır, kopya değil, çizgede yeni bir yoldur.",
     },
   ],
   glossary: [
@@ -148,13 +149,13 @@ window.ACELYA_DIGEST["yazilim-muhendisligi"] = {
     { term: "Commit", definition: "Git'te dosyaların bir anlık görüntüsü, ebeveyn bağlantısı ve açıklama; 40 karakterlik SHA-1 özetiyle adlandırılır." },
     { term: "Merge (birleştirme)", definition: "İki dalın geçmişini tek noktada buluşturan, iki ebeveyni olan commit." },
     { term: "Sürekli entegrasyon (CI)", definition: "Her commit'te derleme ve test paketinin otomatik çalışması; hatayı dakikalar içinde yüzeye çıkarır." },
-    { term: "Bug (hata)", definition: "Programın beklenen davranıştan sapması; Grace Hopper'ın ekibi 1947'de Harvard Mark II'nin rölesine sıkışan gerçek bir güveyi kayıt defterine yapıştırmıştı." },
+    { term: "Bug (hata)", definition: "Programın beklenen davranıştan sapması; sözcük mühendislikte eskiden beri kullanılır; Grace Hopper'ın ekibi 1947'de Harvard Mark II'nin rölesine sıkışan gerçek bir güveyi kayıt defterine yapıştırıp ünlendirdi." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede programlama tek kişilik bir iştir: yaz, çalıştır, gör. Üniversitede yazılım mühendisliği dersi ilk kez başkasının kodunu okumayı, bir <strong>belirtim</strong> (spec) yazmayı ve ona karşı test üretmeyi öğretir. Önkoşul, sonkoşul ve değişmez (invariant) kavramları, bir fonksiyonun 'sözleşmesi' olarak biçimselleşir; Liskov ilkesi bu sözleşmelerin kalıtımda nasıl korunacağını söyleyen bir teoreme dönüşür. Tasarım desenleri ezberlenecek bir liste değil, bu sözleşmeleri değişime dayanıklı kurmanın örüntüleri olarak yeniden okunur.",
-      "Daha ileride yollar ayrılır. <strong>Biçimsel yöntemler</strong>, Therac-25 ya da Ariane gibi hatayı test ile değil matematiksel ispatla dışlamayı amaçlar; uçak ve tren yazılımları bu yolla doğrulanır. <strong>Dağıtık sistemler</strong> dersi, mikroservis kartındaki 'eventual consistency' sözünün arkasındaki teoremleri (CAP, uzlaşma algoritmaları) açar. Yazılım ekonomisi ve süreç yönetimi, Brooks'un gözlemlerini ölçülebilir modellere çevirir. Ve her yolda aynı soru yürür: değişen bir dünyada, çalışan bir şeyi bozmadan nasıl değiştirirsin?",
+      "Lisede programlama tek kişilik bir iştir: yaz, çalıştır, gör. Üniversitede yazılım mühendisliği dersi ilk kez başkasının kodunu okumayı, bir <strong>belirtim</strong> (spec) yazmayı ve ona karşı test üretmeyi öğretir. Önkoşul, sonkoşul ve değişmez (invariant) kavramları, bir fonksiyonun 'sözleşmesi' olarak biçimselleşir; Liskov ilkesi, Liskov ve Jeannette Wing'in 1994'teki makalesiyle bu sözleşmelerin kalıtımda nasıl korunacağını söyleyen biçimsel bir tanıma dönüşür: alt tür önkoşulu sıkılaştıramaz, sonkoşulu gevşetemez. Tasarım desenleri ezberlenecek bir liste değil, bu sözleşmeleri değişime dayanıklı kurmanın örüntüleri olarak yeniden okunur.",
+      "Daha ileride yollar ayrılır. <strong>Biçimsel yöntemler</strong>, Therac-25 ya da Ariane gibi hatayı test ile değil matematiksel ispatla dışlamayı amaçlar; sürücüsüz metro hatlarının ve uçak kontrol sistemlerinin bazı yazılımları bu yolla doğrulanır. <strong>Dağıtık sistemler</strong> dersi, mikroservis kartındaki 'eventual consistency' sözünün arkasındaki teoremleri (CAP, uzlaşma algoritmaları) açar. Yazılım ekonomisi ve süreç yönetimi, Brooks'un gözlemlerini ölçülebilir modellere çevirir. Ve her yolda aynı soru yürür: değişen bir dünyada, çalışan bir şeyi bozmadan nasıl değiştirirsin?",
     ],
     topics: ["Belirtim ve sözleşmeyle tasarım", "Biçimsel doğrulama ve model denetimi", "Dağıtık sistemler ve tutarlılık", "Yazılım mimarisi", "Sürüm kontrol teorisi (çizgeler, üç yollu birleştirme)", "Yazılım ölçümü ve proje ekonomisi"],
   },
@@ -169,26 +170,26 @@ window.ACELYA_DIGEST["yazilim-muhendisligi"] = {
       question: "Git'te 'merge' commit'ini sıradan bir commit'ten ayıran nedir?",
       options: ["Dosyaların kopyasını içermesi", "SHA-1 özeti olmaması", "İki ebeveyni olması", "Yalnızca main dalında bulunabilmesi"],
       answer: 2,
-      explanation: "Birleştirme, iki dalın geçmişini buluşturur; bu yüzden commit çizgesinde iki ebeveyne bağlanır. Tuvalde 'merg' noktasına hem develop satırından hem feature satırından çizgi gelmesi bunun resmidir.",
+      explanation: "Birleştirme, iki dalın geçmişini buluşturur; bu yüzden commit çizgesinde iki ebeveyne bağlanır. Tuvalde 'merge' noktasına hem develop çizgisinin hem de feature dalından inen kesikli okun varması bunun resmidir.",
     },
     {
-      question: "Sayfadaki tuvalde ↺ Sıfırla'dan sonra ➕ Commit'e kaçıncı basışta eski noktalar ilk kez yer değiştirir?",
-      options: ["Birinci", "İkinci", "Üçüncü", "Hiçbir zaman; yalnızca yeni nokta eklenir"],
+      question: "Bir uçtan uca test, kod doğruyken bile %1 olasılıkla kalıyor. Birbirinden bağımsız 100 böyle testten oluşan bir paketin tek çalıştırmada tamamen yeşil geçme olasılığı yaklaşık kaçtır?",
+      options: ["%99", "%90", "%37", "%1"],
       answer: 2,
-      explanation: "Aralık (genişlik − 80)/max(6, yuva+1) ile hesaplanır; 'yuva' bir sonraki commit'in sırasıdır ve başta 3'tür. Birinci ve ikinci basıştan sonra 4 ve 5 olur, payda hâlâ 6'dır. Üçüncü basıştan sonra yuva 6, payda 7 olur ve bütün noktalar sıkışır.",
+      explanation: "Hepsinin geçmesi gerekir: 0.99¹⁰⁰ ≈ e⁻¹ ≈ 0.37. Tek tek güvenilir görünen testler çoğalınca paket üç çalıştırmanın ikisinde boş yere kırmızı olur. Test piramidinin tepesinin dar tutulmasının ikinci nedeni budur; birincisi süredir.",
     },
   ],
   next: [
-    { href: "tasarim-desenleri.html", title: "Tasarım Desenleri", why: "Bu sayfadaki on beş kartın ötesi: Dörtlü Çete'nin kataloğunu daha derin ve etkileşimli incele." },
+    { href: "tasarim-desenleri.html", title: "Tasarım Desenleri", why: "Bu sayfadaki on beş kartın ötesi: 23 desenin hepsi, her biri için UML, kod, artı-eksi ve desenler arası ilişki haritası." },
     { href: "programlama-paradigmalari.html", title: "Programlama Paradigmaları", why: "SOLID'in dayandığı nesne yönelimi, fonksiyonel düşünceyle yan yana: aynı sorunu farklı dillerde çözmek." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "n(n−1)/2'nin neden 'O(n²)' olduğunu ve ölçeğin neden her şeyi değiştirdiğini matematiğiyle gör." },
     { href: "siber-guvenlik.html", title: "Siber Güvenlik ve Kriptografi", why: "Commit kimliklerini üreten özet fonksiyonları ve 'geçmişi sessizce değiştiremezsin' sözünün kriptografik temeli." },
   ],
   sources: [
-    { title: "MIT OpenCourseWare · 6.005 Software Construction (Spring 2016)", url: "https://ocw.mit.edu/courses/6-005-software-construction-spring-2016/", note: "Belirtim, test, sürüm kontrolü ve değişime dayanıklı tasarım; üniversite birinci sınıf düzeyinde açık ders (İngilizce)." },
-    { title: "Wikipedia · Software engineering", url: "https://en.wikipedia.org/wiki/Software_engineering", note: "1968 NATO konferansı, yazılım krizi ve disiplinin tarihçesi için başlangıç noktası." },
-    { title: "Wikipedia · The Mythical Man-Month", url: "https://en.wikipedia.org/wiki/The_Mythical_Man-Month", note: "Brooks yasası, OS/360 deneyimi ve iletişim yolları aritmetiği." },
-    { title: "Vikipedi · Git", url: "https://tr.wikipedia.org/wiki/Git", note: "Git'in 2005'teki doğuşu, commit çizgesi ve dallanma kavramları (Türkçe)." },
+    { title: "MIT OpenCourseWare · 6.005 Software Construction (Spring 2016)", url: "https://ocw.mit.edu/courses/6-005-software-construction-spring-2016/", note: "Belirtim ve değişmezler, test, soyut veri türleri, tasarım desenleri ve eşzamanlılık; lisans düzeyinde açık ders (İngilizce)." },
+    { title: "Wikipedia · Software engineering", url: "https://en.wikipedia.org/wiki/Software_engineering", note: "Terimin 1965-1966'daki ilk kullanımları, 7-11 Ekim 1968 Garmisch konferansı ve yazılım krizi (İngilizce)." },
+    { title: "Wikipedia · The Mythical Man-Month", url: "https://en.wikipedia.org/wiki/The_Mythical_Man-Month", note: "Brooks yasasının özgün cümlesi, OS/360 deneyimi ve n(n − 1)/2 iletişim yolu hesabı (İngilizce)." },
+    { title: "Vikipedi · Git (yazılım)", url: "https://tr.wikipedia.org/wiki/Git_(yazılım)", note: "Git'in 2005'te BitKeeper'ın yerine doğuşu ve dağıtık sürüm kontrolünün tasarım hedefleri (Türkçe)." },
   ],
-  revision: "Ekim 2026",
+  revision: "Kasım 2026",
 };

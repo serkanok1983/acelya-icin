@@ -151,18 +151,17 @@
     <button class="gate-btn" data-gate="xor"><span class="gate-icon">XOR</span> XOR</button>
     <button class="gate-btn" data-gate="xnor"><span class="gate-icon">XNOR</span> XNOR</button>
     <h3>🧩 Hazır Devre</h3>
-    <button class="gate-btn" data-gate="sr-latch"><span class="gate-icon special">SR</span> SR Latch (Flip-Flop)</button>
+    <button class="gate-btn" data-gate="sr-latch"><span class="gate-icon special">SR</span> SR Kilidi (NAND)</button>
   </div>
 
   <div class="canvas-area">
-    <canvas id="mainCanvas"></canvas>
+    <canvas id="mainCanvas" style="touch-action: none"></canvas>
   </div>
 
   <div class="info-panel">
     <h3>📊 Doğruluk Tablosu</h3>
     <div style="overflow-x:auto;">
       <table class="truth-table" id="truthTable">
-        <thead><tr><th>A</th><th>B</th><th>Çıkış</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -195,6 +194,7 @@
   let nextId = 0;
   let dragComp = null;      // component being dragged
   let dragOffsetX = 0, dragOffsetY = 0;
+  let dragStartX = 0, dragStartY = 0, dragMoved = false;
   let wireStart = null;     // { compId, pin, x, y }
   let mouseX = 0, mouseY = 0;
 
@@ -276,34 +276,30 @@
     components = [];
     wires = [];
     nextId = 0;
+    memory = {};
   }
 
-  function evaluateAll() {
+  // Geri beslemeli devreler (SR kilidi) için bir önceki kararlı değerler
+  let memory = {};
+
+  function evaluateAll(commit) {
+    // Giriş pinleri kendi değerini verir; kapılar bir önceki durumdan başlar ve
+    // değerler değişmeyene kadar yeniden hesaplanır. Bağlı olmayan giriş 0 sayılır.
     const values = {};
-    const visited = new Set();
-    const visiting = new Set();
-
-    function dfs(id) {
-      if (visited.has(id)) return values[id];
-      if (visiting.has(id)) return 0; // cycle guard
-      visiting.add(id);
-      const comp = components.find(c => c.id === id);
-      if (!comp) return 0;
-      const inputVals = [];
-      for (const inp of comp.inputs) {
-        if (inp === "A") inputVals.push(comp.value !== undefined ? comp.value : 0);
-        else if (typeof inp === "number") inputVals.push(dfs(inp));
-        else inputVals.push(0);
+    components.forEach(c => {
+      values[c.id] = c.type === "input" ? (c.value ? 1 : 0) : (memory[c.id] === 1 ? 1 : 0);
+    });
+    const gateList = components.filter(c => c.type !== "input");
+    for (let pass = 0; pass <= gateList.length + 1; pass++) {
+      let changed = false;
+      for (const comp of gateList) {
+        const inputVals = comp.inputs.map(inp => (typeof inp === "number" && values[inp] === 1) ? 1 : 0);
+        const result = evalGate(comp.type, inputVals);
+        if (result !== values[comp.id]) { values[comp.id] = result; changed = true; }
       }
-      const result = evalGate(comp.type, inputVals);
-      values[id] = result;
-      visited.add(id);
-      visiting.delete(id);
-      return result;
+      if (!changed) break;
     }
-
-    // Evaluate all components
-    components.forEach(c => { if (!visited.has(c.id)) dfs(c.id); });
+    if (commit) memory = values;
     return values;
   }
 
@@ -398,12 +394,12 @@
     for (let y = 0; y < h; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
 
     // Draw wires
-    const vals = evaluateAll();
+    const vals = evaluateAll(true);
     wires.forEach(wire => {
       const fromComp = components.find(c => c.id === wire.from);
       const toComp = components.find(c => c.id === wire.to);
       if (!fromComp || !toComp) return;
-      const fromPos = wire.fromPin === "out" ? getOutputPinPos(fromComp) : getInputPinPos(fromComp, wire.fromPin);
+      const fromPos = getOutputPinPos(fromComp);
       const toPos = getInputPinPos(toComp, wire.toPin);
       const active = vals[wire.from] === 1;
       ctx.strokeStyle = active ? "#22c55e" : "rgba(148,163,184,0.4)";
@@ -449,11 +445,14 @@
       ctx.font = "bold 11px Outfit, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(info.label, comp.x + COMP_W / 2, comp.y + COMP_H / 2 - (comp.type === "input" ? 0 : 6));
+      const pinLabel = comp.type === "input"
+        ? String.fromCharCode(65 + components.filter(c => c.type === "input" && c.id < comp.id).length)
+        : info.label;
+      ctx.fillText(pinLabel, comp.x + COMP_W / 2, comp.y + COMP_H / 2 - 6);
 
       // Value for input
       if (comp.type === "input") {
-        ctx.fillStyle = "#000";
+        ctx.fillStyle = comp.value ? "#000" : "#fff";
         ctx.font = "bold 10px Outfit, sans-serif";
         ctx.fillText(comp.value, comp.x + COMP_W / 2, comp.y + COMP_H / 2 + 9);
       } else if (val !== undefined) {
@@ -574,14 +573,10 @@
           return;
         }
       }
-      // Toggle input value on double-click or right-click
-      if (comp.type === "input") {
-        comp.value = comp.value ? 0 : 1;
-        draw();
-        return;
-      }
-      // Start drag
+      // Start drag (giriş pini sürüklenmeden bırakılırsa değeri 0/1 değişir)
       dragComp = comp;
+      dragMoved = false;
+      dragStartX = pos.x; dragStartY = pos.y;
       dragOffsetX = pos.x - comp.x;
       dragOffsetY = pos.y - comp.y;
       canvas.style.cursor = "grabbing";
@@ -602,6 +597,8 @@
     mouseY = pos.y;
 
     if (dragComp) {
+      if (Math.hypot(pos.x - dragStartX, pos.y - dragStartY) > 4) dragMoved = true;
+      if (!dragMoved) return;
       dragComp.x = pos.x - dragOffsetX;
       dragComp.y = pos.y - dragOffsetY;
       draw();
@@ -629,6 +626,7 @@
 
   canvas.addEventListener("pointerup", (e) => {
     if (dragComp) {
+      if (dragComp.type === "input" && !dragMoved) dragComp.value = dragComp.value ? 0 : 1;
       dragComp = null;
       canvas.style.cursor = "crosshair";
       draw();
@@ -707,17 +705,21 @@
         return;
       }
 
-      // Add a new component at center of visible area
-      const cx = (canvas.clientWidth / 2) - COMP_W / 2;
-      const cy = (canvas.clientHeight / 2) - COMP_H / 2 + Math.random() * 60 - 30;
+      // Yeni bileşenler üst üste binmesin: giriş pinleri solda, kapılar ortada sıralanır
+      const isInput = gateType === "input";
+      const n = components.filter(c => (c.type === "input") === isInput).length;
+      const cx = isInput ? 40 : Math.max(130, (canvas.clientWidth / 2) - COMP_W / 2 + (n % 3 - 1) * 95);
+      const cy = 30 + (n % 4) * 62;
       addComponent(gateType, cx, cy);
       draw();
     });
   });
 
-  document.getElementById("clearCanvasBtn").addEventListener("click", () => {
-    clearAll();
-    draw();
+  ["clearCanvasBtn", "clearBtn"].forEach(id => {
+    document.getElementById(id).addEventListener("click", () => {
+      clearAll();
+      draw();
+    });
   });
 
   // Save/Load to localStorage
@@ -735,6 +737,7 @@
       components = data.components || [];
       wires = data.wires || [];
       nextId = data.nextId || 0;
+      memory = {};
       draw();
     } catch (e) {
       alert("Devre yüklenirken hata oluştu.");

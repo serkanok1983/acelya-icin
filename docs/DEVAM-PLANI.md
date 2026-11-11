@@ -22,8 +22,10 @@ tamamlandı; ayrıntı 3. bölümün sonunda. Kullanıcının o oturumdaki açı
 onayıyla `84e28e2` olarak main'e gönderildi ve elle yayımlandı; canlıda
 **`acelya-3ed95942af`** sürümü ve 21 dosyanın yerel kopyalarla birebir
 eşleşmesi doğrulandı.
-Sonraki öncelik **4.2: eski 36 defterin bağımsız doğrulaması** ve 4.5'teki
-zayıf temel laboratuvarlar.
+**11 Kasım, ikinci tur:** eski 36 defterin bağımsız doğrulaması tamamlandı
+(4.2); 160 defterin hepsi tam hattan geçmiş durumda. Kullanıcı onayıyla
+main'e gönderilip elle yayımlandı; paket sürümü **`acelya-b57bf83881`**. Sonraki öncelik
+**4.5: zayıf temel laboratuvarlar ve yeniden kurulum adayları**.
 
 **10 Kasım yayın talimatı:** Kullanıcı her kodlama turunun sonunda `main`'e
 gönderim ve elle yayın istiyor; sonucu canlı siteden kontrol ediyor.
@@ -426,6 +428,23 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
     `check-site --require-digests`: 0 hata. Tam tarama: 175 sayfa, 197 sekme,
     0 JS/konsol/istek hatası; `test:public` 35 kontrol.
   - NIST/SEMATECH istatistik el kitabı kaynak izin listesine eklendi.
+- **11 Kasım, ikinci tur (eski 36 defter):** 18 doğrulayıcı/editör ajanı
+  ikişer defter aldı (ortak görev tanımı `.shots/briefs/_eski-defter-dogrulama.md`).
+  Puanlar 5–7,5'ten 8–9'a çıktı; hatasız sayfa çıkmadı. Öne çıkan sayfa
+  hataları: `mantik-devresi` (girişler kapılara hiç ulaşmıyordu, bütün
+  tablolar yanlıştı), `pong` (oyun yüklenince donuyordu), `altin-oran`
+  (çizilen eğri altın sarmal değildi), `ucak-muhendisligi-ve-aerodinamik`
+  (hücum açısı ve ok yönleri; tuval yeniden yazıldı),
+  `makine-dili-assembly-c` (üç seviye paneli; makine kodu yeniden yazılıp
+  derleyici ve emülatörle doğrulandı), `makine-ogrenmesi-derin-ogrenme-llm`
+  (Eğit → NaN), `mikro-ekonomi-ve-uretim-faktorleri` (ters eğimler, bütçeyi
+  aşan sepet), `veritabanlari` (SQL alanı ve Venn), `plc-…` (mühürleme),
+  `bicimsel-diller-…` (DFA metni), birçok sayfada canvas'a verilen
+  `var(--…)` renkleri. Ayrıntı ve kalan açıklar
+  `docs/simulasyon-notlari.md` → "eski 36 defterin bağımsız doğrulaması".
+  Toplumsal sayfalarda (makro, uluslararası ilişkiler, işletme) tartışmalı
+  yargılar ekol/görüş olarak yeniden yazıldı; hızla eskiyen sayılar
+  tarihlendi ya da çıkarıldı.
 - **Hattın yeni sırası (6 Kasım):** ince ya da yanlış sayfa → **kurucu**
   (sayfayı yeniden yazar, raporunu `.shots/briefs/<slug>.md`'ye bırakır) →
   **yazar** (raporla) → **doğrulayıcı + editör tek oturumda**. Ajanlar 5–6'lık
@@ -565,9 +584,9 @@ Tam istem metinleri bu oturumda kullanılan İngilizce halleriyle
   `shared/digest.js` slug'ı `encodeURIComponent` ile yükler, dosya adı
   birebir `fibo+pascal.js` olmalı.
 
-### 4.2 Var olan 160 defterin eksik aşamalarını tamamla (sıradaki iş)
+### 4.2 Var olan 160 defterin aşamaları — tamamlandı (11 Kasım)
 
-A7, B1–B4, C ve F1 doğrulama bulguları kapatıldı. Eski 36 defterin eksik aşamaları aşağıda. Durum (10 Kasım 2026):
+11 Kasım 2026 itibarıyla 160 defterin hepsi yazar + bağımsız doğrulama + editör aşamalarından geçti. Aşağıdaki tablo 10 Kasım'daki durumu tarihçe olarak tutar; alt satırlardaki 36 defter 11 Kasım'da doğrulandı.
 
 | Durum | Sayfalar |
 |---|---|

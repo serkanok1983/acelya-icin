@@ -337,18 +337,20 @@ if (auto sp = w.lock()) {
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    const w = W - 120, x0 = 60;
+    const w = W - 140, x0 = 128;
     const segs = [
-      { label:"Stack (Yığın)", y:0.06, h:0.20, color:"#5eead4", desc:"Yerel değişkenler\nFonksiyon çağrıları\n↓ aşağı büyür" },
-      { label:"↓↓ Boşluk ↓↓", y:0.26, h:0.10, color:"rgba(255,255,255,0.05)", desc:"Stack ve Heap\nbirbirine doğru büyür" },
-      { label:"Heap (Öbek)", y:0.36, h:0.22, color:"#a78bfa", desc:"malloc / new\nDinamik bellek\n↑ yukarı büyür" },
-      { label:"BSS (Sıfırlanmamış)", y:0.58, h:0.06, color:"#fbbf24", desc:"Global değişkenler\n(başlangıç değeri 0)" },
-      { label:"Data (Veri)", y:0.64, h:0.06, color:"#f472b6", desc:"static değişkenler\nsabit string'ler" },
-      { label:"Text (Kod)", y:0.70, h:0.22, color:"#60a5fa", desc:"Makine kodu\nSalt okunur" },
-      { label:"İşletim Sistemi", y:0.92, h:0.08, color:"#f87171", desc:"Çekirdek alanı\nErişilemez" },
+      { key:"kernel", label:"İşletim Sistemi", y:0.00, h:0.08, color:"#f87171", desc:"Çekirdek alanı\nKullanıcı kodu erişemez" },
+      { key:"stack", label:"Stack (Yığın)", y:0.08, h:0.20, color:"#5eead4", desc:"Yerel değişkenler\nFonksiyon çağrıları\n↓ aşağı büyür" },
+      { key:"gap", label:"↓↓ Boşluk ↑↑", y:0.28, h:0.10, color:"rgba(255,255,255,0.05)", desc:"Stack ve Heap\nbirbirine doğru büyür" },
+      { key:"heap", label:"Heap (Öbek)", y:0.38, h:0.22, color:"#a78bfa", desc:"malloc / new\nDinamik bellek\n↑ yukarı büyür" },
+      { key:"bss", label:"BSS (İlklenmemiş)", y:0.60, h:0.06, color:"#fbbf24", desc:"İlk değer verilmemiş global/static\n(yükleyici 0 ile doldurur)" },
+      { key:"data", label:"Data (Veri)", y:0.66, h:0.06, color:"#f472b6", desc:"İlk değeri verilmiş\nglobal/static değişkenler" },
+      { key:"text", label:"Text (Kod)", y:0.72, h:0.22, color:"#60a5fa", desc:"Makine kodu\nSalt okunur" },
+      { key:"null", label:"Eşlenmemiş", y:0.94, h:0.06, color:"rgba(255,255,255,0.05)", desc:"NULL (0x0) burada\nErişim → hata" },
     ];
 
     segs.forEach(s => {
+      ctx.globalAlpha = (vizMode === "overview" || vizMode === s.key) ? 1 : 0.22;
       const y = s.y * H;
       const h = s.h * H;
       ctx.fillStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? s.color : s.color + "11";
@@ -357,35 +359,39 @@ if (auto sp = w.lock()) {
       ctx.lineWidth = 1;
       ctx.strokeRect(x0, y, w, h);
 
-      ctx.fillStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? "var(--text-muted)" : s.color;
+      ctx.fillStyle = typeof s.color === "string" && s.color.startsWith("rgba") ? "#8b95a8" : s.color;
       ctx.font = "bold 11px 'Outfit', sans-serif";
       ctx.textAlign = "right";
       ctx.fillText(s.label, x0 - 8, y + h / 2 + 4);
 
-      ctx.fillStyle = "var(--text-muted)";
+      ctx.fillStyle = "#8b95a8";
       ctx.font = "8px 'Outfit', sans-serif";
       ctx.textAlign = "left";
-      s.desc.split("\n").forEach((line, i) => {
-        ctx.fillText(line, x0 + w + 10, y + h/3 + i * 12);
-      });
+      ctx.fillText(s.desc.split("\n").join(" · "), x0 + 10, y + h / 2 + 3, w - 20);
     });
 
+    ctx.globalAlpha = 1;
+
     // Adres göstergeleri
-    ctx.fillStyle = "var(--text-muted)";
+    ctx.fillStyle = "#8b95a8";
     ctx.font = "9px ui-monospace, monospace";
     ctx.textAlign = "right";
     ctx.fillText("0xFFFFFFFF", x0 + w, 12);
     ctx.fillText("0x00000000", x0 + w, H - 4);
 
     // Yüksek/Düşük adres okları
-    ctx.fillStyle = "var(--text-muted)";
+    ctx.fillStyle = "#8b95a8";
     ctx.font = "8px 'Outfit', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Yüksek adres", x0 + w / 2, 12);
     ctx.fillText("Düşük adres", x0 + w / 2, H - 4);
 
-    document.getElementById("memInfo").textContent =
-      "Sanal adres alanı — her süreç kendi izole adres alanında çalışır. 64-bit sistemlerde teorik limit 16 EB, pratikte 48-bit (256 TB) kullanılır.";
+    const memTexts = {
+      overview: "Sanal adres alanı (32 bitlik klasik Linux yerleşimi; şematik) — her süreç kendi izole adres alanında çalışır. 64 bitlik sistemlerde kuramsal sınır 16 EiB'dir; yaygın x86-64 işlemciler bunun 48 bitini (256 TiB) kullanır.",
+      stack: "Stack: her fonksiyon çağrısı bir çerçeve ekler, fonksiyon dönünce çerçeve kendiliğinden silinir. Düşük adreslere doğru büyür; Linux'ta ana iş parçacığı için varsayılan sınır 8 MiB'dir.",
+      heap: "Heap: malloc/new ile istenir, free/delete ile geri verilir; ömrü fonksiyon çağrılarından bağımsızdır. Yüksek adreslere doğru büyür; ayırıcılar büyük istekleri çoğunlukla mmap ile ayrı bölgelerden karşılar.",
+    };
+    document.getElementById("memInfo").textContent = memTexts[vizMode] || memTexts.overview;
   }
 
   document.querySelectorAll("[data-viz]").forEach(tab => {
@@ -504,6 +510,10 @@ if (auto sp = w.lock()) {
       alloc("y", mem[target].value, "int");
       render();
       document.getElementById("ptrInfo").innerHTML = `y = *p — p'nin gösterdiği adresteki değer (${mem[target].value}) y'ye kopyalandı.`;
+    } else if (mem[pAddr].value === 0) {
+      document.getElementById("ptrInfo").innerHTML = "⚠️ p şu an NULL: *p tanımsız davranıştır. Çoğu sistemde program segmentation fault ile durdurulur; y oluşturulmadı.";
+    } else {
+      document.getElementById("ptrInfo").innerHTML = `⚠️ p, 0x${mem[pAddr].value.toString(16)} adresini gösteriyor ama orada tanımlı bir değişken yok: okumak tanımsız davranıştır; y oluşturulmadı.`;
     }
   });
 
@@ -530,7 +540,7 @@ if (auto sp = w.lock()) {
     mem[pAddr].value = 0;
     mem[pAddr].pointsTo = null;
     render();
-    document.getElementById("ptrInfo").innerHTML = "⚠️ p = NULL — İşaretçi artık hiçbir yeri göstermiyor. Dereference edilirse segmentation fault!";
+    document.getElementById("ptrInfo").innerHTML = "⚠️ p = NULL — İşaretçi artık hiçbir yeri göstermiyor. Dereference etmek tanımsız davranıştır; çoğu sistemde segmentation fault!";
   });
 
   document.getElementById("btnPtrReset").addEventListener("click", reset);
@@ -560,7 +570,7 @@ if (auto sp = w.lock()) {
     const fw = W - 150, fx = 130, gap = 4;
 
     if (frames.length === 0) {
-      ctx.fillStyle = "var(--text-muted)";
+      ctx.fillStyle = "#8b95a8";
       ctx.font = "12px 'Outfit', sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("Stack boş. Çağrı başlatın.", W / 2, H / 2);
@@ -575,10 +585,10 @@ if (auto sp = w.lock()) {
     ctx.strokeStyle = "rgba(255,255,255,0.3)";
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(fx, H - 15); ctx.lineTo(fx + fw, H - 15); ctx.stroke();
-    ctx.fillStyle = "var(--text-muted)";
+    ctx.fillStyle = "#8b95a8";
     ctx.font = "9px 'Outfit', sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText("← Stack Pointer (SP)", fx + fw + 6, H - 12);
+    ctx.textAlign = "right";
+    ctx.fillText("yığın tabanı (yüksek adres)", fx + fw, H - 4);
 
     frames.forEach((f, i) => {
       const y = H - 20 - (i + 1) * (fh + gap);
@@ -597,18 +607,16 @@ if (auto sp = w.lock()) {
       ctx.fillText(f.name + "()", fx + 12, y + 16);
 
       // Frame içeriği
-      ctx.fillStyle = "var(--text-muted)";
+      ctx.fillStyle = "#8b95a8";
       ctx.font = "8px ui-monospace, monospace";
-      let detailY = y + 34;
-      if (f.params) {
-        ctx.fillText(`param: ${f.params}`, fx + 12, detailY);
-        detailY += 14;
-      }
-      if (f.locals) {
-        ctx.fillText(`locals: ${f.locals}`, fx + 12, detailY);
-        detailY += 14;
-      }
-      ctx.fillText(`dönüş: 0x${(0x4000 + i * 16).toString(16)}`, fx + 12, detailY);
+      // Ayrıntılar tek satırda: çerçeveler daraldığında üst üste binmesin
+      const detail = [
+        f.params ? `param: ${f.params}` : "",
+        f.locals ? `locals: ${f.locals}` : "",
+        `dönüş: 0x${(0x4000 + i * 16).toString(16)}`,
+      ].filter(Boolean).join("  ·  ");
+      if (fh >= 34) ctx.fillText(detail, fx + 12, y + 30, fw - 24);
+      else ctx.fillText(detail, fx + 100, y + 16, fw - 112);
 
       // Çerçeve etiketi
       ctx.fillStyle = color;
@@ -617,10 +625,10 @@ if (auto sp = w.lock()) {
     });
 
     // Yukarı ok
-    ctx.fillStyle = "var(--accent)";
+    ctx.fillStyle = "#5eead4";
     ctx.font = "9px 'Outfit', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("↓ Stack büyüme yönü ↓", fx + fw / 2, 14);
+    ctx.fillText("↑ yeni çerçeve üste eklenir · adresler küçülür ↑", fx + fw / 2, 14);
 
     document.getElementById("stackInfo").textContent =
       `${frames.length} frame stack'te — Stack Pointer: 0x${(0x7FF0 - frames.length * 64).toString(16)}`;
@@ -733,7 +741,7 @@ if (auto sp = w.lock()) {
     { icon:"💥", name:"Buffer Overflow", desc:"Dizinin sınırlarını aşan yazma. Stack'te dönüş adresinin üzerine yazarak saldırgana kod çalıştırtabilir.", code:"char buf[8];\nstrcpy(buf, \"çok uzun metin\");\n// 8 byte'lık buf taştı!" },
     { icon:"🔄", name:"Double Free", desc:"Aynı belleği iki kez free() etmek. Heap yapısını bozar, çökmelere veya güvenlik açıklarına yol açar.", code:"int *p = malloc(4);\nfree(p);\nfree(p); // double free!" },
     { icon:"⚡", name:"Use After Free", desc:"free() edilmiş belleği okumak/yazmak. Bellek başka bir değişkene tahsis edilmiş olabilir.", code:"int *p = malloc(4);\nfree(p);\nprintf(\"%d\", *p); // UAF!" },
-    { icon:"🎯", name:"Wild Pointer", desc:"İlk değer atanmamış (uninitialized) işaretçi. Rastgele bir adresi gösterir, dereference edilirse segmentation fault.", code:"int *p; // wild!\n*p = 42; // nereye yazıyor?" },
+    { icon:"🎯", name:"Wild Pointer", desc:"İlk değer atanmamış (uninitialized) işaretçi. İçinde ne olduğu belirsizdir; dereference etmek tanımsız davranıştır (çökebilir ya da sessizce başka bir veriyi bozabilir).", code:"int *p; // wild!\n*p = 42; // nereye yazıyor?" },
   ];
 
   const grid = document.getElementById("dangerGrid");

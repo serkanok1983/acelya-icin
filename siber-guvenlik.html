@@ -561,8 +561,8 @@ Merhaba Dünya!</textarea>
         <p class="desc">
           Kriptografik hash fonksiyonlarının en kritik özelliği
           <strong>çığ etkisi</strong>dir (avalanche effect): Girişteki tek bir bit
-          değişikliği, çıkışın ortalama <strong>%50</strong>'sinin değişmesine yol
-          açar. Aşağıda iki benzer metnin hash değerlerini karşılaştırarak bu etkiyi
+          değişikliği, çıkış bitlerinin ortalama <strong>%50</strong>'sinin
+          değişmesine yol açar. Aşağıda iki benzer metnin hash değerlerini karşılaştırarak bu etkiyi
           gözlemleyin.
           <span
             style="
@@ -688,9 +688,10 @@ Merhaba Dünya!</textarea>
         <h2>🛡️ Güvenlik Duvarı (Firewall) Kural Simülatörü</h2>
         <p class="desc">
           Güvenlik duvarları, gelen ve giden ağ trafiğini önceden tanımlanmış
-          kurallara göre filtreler. Aşağıda basit bir
-          <strong>durum bilgili (stateful) güvenlik duvarı</strong> simülasyonu
-          görebilirsiniz. Kurallar yukarıdan aşağıya değerlendirilir; ilk eşleşen
+          kurallara göre filtreler. Aşağıda yalnızca hedef porta bakan basit bir
+          <strong>paket süzgeci (durumsuz güvenlik duvarı)</strong> simülasyonu
+          görebilirsiniz; gerçek durum bilgili (stateful) duvarlar ayrıca bağlantının
+          geçmişini izler. Kurallar yukarıdan aşağıya değerlendirilir; ilk eşleşen
           kural uygulanır.
         </p>
         <div class="fw-rules" id="fwRules">
@@ -703,7 +704,7 @@ Merhaba Dünya!</textarea>
         </div>
         <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 6px">
           Port 22 (SSH) → RED, Port 80/443 (HTTP/HTTPS) → İZİN, Port 3306 (MySQL) →
-          RED, Diğer → İZİN
+          RED, Port 25 (SMTP) → RED, Port 53 (DNS) → İZİN, Diğer → İZİN
         </div>
       </div>
 
@@ -760,11 +761,13 @@ Merhaba Dünya!</textarea>
             return { val: (seconds / 3600).toFixed(1), unit: "saat" };
           if (seconds < 31536000)
             return { val: (seconds / 86400).toFixed(0), unit: "gün" };
-          if (seconds < 315360000)
-            return { val: (seconds / 31536000).toFixed(0), unit: "yıl" };
-          if (seconds < 31536000 * 1000)
-            return { val: (seconds / 31536000 / 100).toFixed(0), unit: "yüzyıl" };
-          return { val: (seconds / 31536000 / 1e6).toFixed(0), unit: "milyon yıl" };
+          const years = seconds / 31536000;
+          if (years < 1000) return { val: years.toFixed(0), unit: "yıl" };
+          if (years < 1e6) return { val: (years / 1e3).toFixed(1), unit: "bin yıl" };
+          if (years < 1e9) return { val: (years / 1e6).toFixed(1), unit: "milyon yıl" };
+          if (years < 1e12)
+            return { val: (years / 1e9).toFixed(1), unit: "milyar yıl" };
+          return { val: "10^" + Math.floor(Math.log10(years)), unit: "yıl" };
         }
 
         function analyze() {
@@ -826,6 +829,9 @@ Merhaba Dünya!</textarea>
         let cipher = "xor";
 
         const ALPHA = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ";
+        // Türkçe büyük/küçük harf: i ↔ İ, ı ↔ I
+        const trUpper = (t) => t.toLocaleUpperCase("tr-TR");
+        const trLower = (t) => t.toLocaleLowerCase("tr-TR");
 
         function xorEncrypt(text, key) {
           let result = "";
@@ -842,11 +848,11 @@ Merhaba Dünya!</textarea>
           const s = decrypt ? (29 - shift) % 29 : shift;
           let result = "";
           for (const ch of text) {
-            const upper = ch.toUpperCase();
+            const upper = trUpper(ch);
             const idx = ALPHA.indexOf(upper);
             if (idx >= 0) {
               const c = ALPHA[(idx + s) % 29];
-              result += ch === upper ? c : c.toLowerCase();
+              result += ch === upper ? c : trLower(c);
             } else {
               result += ch;
             }
@@ -856,17 +862,19 @@ Merhaba Dünya!</textarea>
 
         function vigenere(text, key, decrypt) {
           if (!key) return text;
-          const upperKey = key.toUpperCase().replace(/[^A-ZÇĞİÖŞÜ]/g, "");
+          const upperKey = [...trUpper(key)]
+            .filter((c) => ALPHA.includes(c))
+            .join("");
           if (!upperKey) return text;
           let result = "",
             ki = 0;
           for (const ch of text) {
-            const upper = ch.toUpperCase();
+            const upper = trUpper(ch);
             const idx = ALPHA.indexOf(upper);
             if (idx >= 0) {
               const kIdx = ALPHA.indexOf(upperKey[ki % upperKey.length]);
               const s = decrypt ? (29 + idx - kIdx) % 29 : (idx + kIdx) % 29;
-              result += ch === upper ? ALPHA[s] : ALPHA[s].toLowerCase();
+              result += ch === upper ? ALPHA[s] : trLower(ALPHA[s]);
               ki++;
             } else {
               result += ch;
@@ -878,11 +886,11 @@ Merhaba Dünya!</textarea>
         function atbash(text) {
           let result = "";
           for (const ch of text) {
-            const upper = ch.toUpperCase();
+            const upper = trUpper(ch);
             const idx = ALPHA.indexOf(upper);
             if (idx >= 0) {
               const c = ALPHA[28 - idx];
-              result += ch === upper ? c : c.toLowerCase();
+              result += ch === upper ? c : trLower(c);
             } else {
               result += ch;
             }
@@ -983,7 +991,17 @@ Merhaba Dünya!</textarea>
           }
           diffEl.innerHTML = diffHtml;
           const pct = ((changed / b1.length) * 100).toFixed(1);
-          statsEl.innerHTML = `<strong>${changed}</strong> / ${b1.length} byte değişti (<strong>%${pct}</strong>) — İdeal çığ etkisi: ~%50`;
+          let bits = 0;
+          for (let i = 0; i < b1.length; i++) {
+            let x = parseInt(b1[i], 16) ^ parseInt(b2[i], 16);
+            while (x) {
+              bits += x & 1;
+              x >>= 1;
+            }
+          }
+          const totalBits = b1.length * 8;
+          const bitPct = ((bits / totalBits) * 100).toFixed(1);
+          statsEl.innerHTML = `<strong>${changed}</strong> / ${b1.length} byte değişti (<strong>%${pct}</strong>) · <strong>${bits}</strong> / ${totalBits} bit değişti (<strong>%${bitPct}</strong>) — İdeal çığ etkisi: bitlerin ~%50'si`;
 
           val1.style.color = "var(--accent)";
           val2.style.color = "var(--accent-2)";
@@ -1057,7 +1075,19 @@ Merhaba Dünya!</textarea>
           // Asal sayılar listesinden seç
           const primes = [13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
           p = primes[Math.floor(Math.random() * primes.length)];
-          g = Math.floor(Math.random() * (p - 2)) + 2;
+          // g gerçekten üreteç olsun: mertebesi p−1 olana kadar yeniden seç
+          const order = (x) => {
+            let k = 1,
+              y = x % p;
+            while (y !== 1) {
+              y = (y * x) % p;
+              k++;
+            }
+            return k;
+          };
+          do {
+            g = Math.floor(Math.random() * (p - 2)) + 2;
+          } while (order(g) !== p - 1);
           a = Math.floor(Math.random() * (p - 2)) + 1;
           b = Math.floor(Math.random() * (p - 2)) + 1;
           updateDH();
@@ -1188,7 +1218,7 @@ Merhaba Dünya!</textarea>
             name: "SQL Injection",
             cat: "Web Uygulama",
             detail:
-              "<strong>SQL Injection</strong> — Kullanıcı girdilerine SQL komutları enjekte ederek veritabanını manipüle etme. ' OR '1'='1 gibi payload'larla kimlik doğrulama atlatılabilir. OWASP Top 10'da sürekli ilk 3'te. <strong>Savunma:</strong> Prepared statements, ORM kullanımı, input validasyonu, WAF.",
+              "<strong>SQL Injection</strong> — Kullanıcı girdisi sorgu metnine doğrudan yapıştırılırsa, veri olması gereken girdi komut gibi yorumlanır ve sorgunun mantığı değişir; saldırgan böylece görmemesi gereken kayıtlara ulaşabilir. OWASP Top 10 listelerinde yıllardır yer alan bir açık sınıfıdır. <strong>Savunma:</strong> Prepared statements, ORM kullanımı, input validasyonu, WAF.",
           },
           {
             icon: "📜",
@@ -1223,7 +1253,7 @@ Merhaba Dünya!</textarea>
             name: "Zero-Day",
             cat: "Sızma",
             detail:
-              "<strong>Zero-Day (Sıfırıncı Gün)</strong> — Henüz yaması yayınlanmamış bir güvenlik açığından yararlanan saldırı. Keşfedildiği andan itibaren yama gelene kadar geçen sürede en tehlikeli saldırı türüdür. <strong>Savunma:</strong> Anomali tespiti, EDR/XDR sistemleri, sıfır güven mimarisi.",
+              "<strong>Zero-Day (Sıfırıncı Gün)</strong> — Henüz yaması yayınlanmamış bir güvenlik açığından yararlanan saldırı. Yama yayımlanana kadar savunanların elinde hazır bir düzeltme yoktur; tehlikesi buradan gelir. <strong>Savunma:</strong> Anomali tespiti, EDR/XDR sistemleri, sıfır güven mimarisi.",
           },
           {
             icon: "🔓",
@@ -1237,7 +1267,7 @@ Merhaba Dünya!</textarea>
             name: "Ransomware",
             cat: "Malware",
             detail:
-              "<strong>Ransomware (Fidye Yazılımı)</strong> — Dosyaları şifreleyip fidye talep eden kötü amaçlı yazılım. WannaCry (2017) 150 ülkede 200.000+ bilgisayarı etkiledi. <strong>Savunma:</strong> Düzenli yedekleme (3-2-1 kuralı), segmentasyon, EDR, yama yönetimi.",
+              "<strong>Ransomware (Fidye Yazılımı)</strong> — Dosyaları şifreleyip fidye talep eden kötü amaçlı yazılım. WannaCry (Mayıs 2017) birkaç gün içinde yaklaşık 150 ülkede 200.000'den fazla bilgisayarı etkiledi; kullandığı açığın yaması iki ay önce yayımlanmıştı. <strong>Savunma:</strong> Düzenli yedekleme (3-2-1 kuralı), segmentasyon, EDR, yama yönetimi.",
           },
           {
             icon: "📊",
@@ -1251,14 +1281,14 @@ Merhaba Dünya!</textarea>
             name: "Supply Chain",
             cat: "Tedarik Zinciri",
             detail:
-              "<strong>Supply Chain Attack</strong> — Güvenilir bir yazılım tedarikçisini tehlikeye atarak müşterilerine kötü amaçlı kod bulaştırma. SolarWinds (2020) 18.000+ kuruluşu etkileyen en büyük tedarik zinciri saldırısıdır. <strong>Savunma:</strong> SBOM, kod imzalama, bağımlılık taraması, zero-trust.",
+              "<strong>Supply Chain Attack</strong> — Güvenilir bir yazılım tedarikçisini tehlikeye atarak müşterilerine kötü amaçlı kod bulaştırma. SolarWinds olayında (2020) yaklaşık 18.000 kuruluş, içine arka kapı yerleştirilmiş bir güncellemeyi indirdi. <strong>Savunma:</strong> SBOM, kod imzalama, bağımlılık taraması, zero-trust.",
           },
           {
             icon: "🧬",
             name: "Buffer Overflow",
             cat: "Bellek",
             detail:
-              "<strong>Buffer Overflow</strong> — Ayrılan bellek alanının sınırlarını aşarak bitişik belleğe yazma. Saldırganın rastgele kod çalıştırmasına (RCE) yol açabilir. Morris Worm (1988) ilk büyük buffer overflow saldırısıydı. <strong>Savunma:</strong> ASLR, DEP/NX, Stack canaries, güvenli diller (Rust, Go).",
+              "<strong>Buffer Overflow</strong> — Ayrılan bellek alanının sınırlarını aşarak bitişik belleğe yazma. Saldırganın rastgele kod çalıştırmasına (RCE) yol açabilir. Morris solucanı (1988) bu açığı kullanan ilk büyük internet olayıydı. <strong>Savunma:</strong> ASLR, DEP/NX, Stack canaries, güvenli diller (Rust, Go).",
           },
         ];
 
