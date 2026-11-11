@@ -18,9 +18,10 @@ doğrulandı. F1'in üç yeni laboratuvarı ve Keşif Defteri ayrı kurucu,
 yazar ve doğrulayıcı/editör hattını tamamladı.
 F1'in doğrulanmış canlı paket sürümü **`acelya-e9ff569083`**.
 **11 Kasım:** F2, D (beş mühendislik laboratuvarı) ve E (on oyun defteri)
-yerelde tamamlandı; ayrıntı 3. bölümün sonunda. Bu tur **commit'lenmedi ve
-yayımlanmadı**: 11 Kasım oturumunda gönderim/yayın için kullanıcı onayı
-beklendi (aşağıdaki 10 Kasım talimatı o oturumda yeniden onay sayılmadı).
+tamamlandı; ayrıntı 3. bölümün sonunda. Kullanıcının o oturumdaki açık
+onayıyla `84e28e2` olarak main'e gönderildi ve elle yayımlandı; canlıda
+**`acelya-3ed95942af`** sürümü ve 21 dosyanın yerel kopyalarla birebir
+eşleşmesi doğrulandı.
 Sonraki öncelik **4.2: eski 36 defterin bağımsız doğrulaması** ve 4.5'teki
 zayıf temel laboratuvarlar.
 
