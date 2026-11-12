@@ -163,7 +163,7 @@ window.ACELYA_DIGEST["elektrik-muhendisligi"] = {
   ],
   next: [
     { href: "alternatif-akim.html", title: "Alternatif Akım: RLC Devresi, Fazörler ve Rezonans", why: "Faz açısının nereden geldiğini tek fazlı RLC devresinde gör; buradaki cos φ'nin kaynağı oradaki empedanstır." },
-    { href: "karmasik-sayilar.html", title: "Karmaşık Sayılar", why: "Fazörleri döndüren ve 120° arayla dizen aritmetiği düzlemde izle; j ile çarpmanın neden çeyrek tur olduğunu gör." },
+    { href: "yenilenebilir-enerji.html", title: "Yenilenebilir Enerji: Rüzgâr, Güneş Hücresi ve Hidroelektrik", why: "Elektriğin kaynağına bir bakış: rüzgârda Betz sınırı, güneş hücresinin I–V eğrisi ve hidroelektrikte P = ηρgQH fizik ve mühendislik olarak." },
     { href: "manyetik-alan.html", title: "Manyetik Alan Laboratuvarı: Akımdan Alana, Alandan Akıma", why: "Transformatörün çekirdeğini ve sargılarını birbirine bağlayan manyetik alanın temelini kur." },
     { href: "elektrik-devresi-simulasyonu.html", title: "DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları", why: "I²R kaybının ve gerilim düşümünün doğru akımdaki en yalın hâline dön." },
   ],

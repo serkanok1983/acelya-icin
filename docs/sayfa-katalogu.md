@@ -79,7 +79,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `sayisal-analiz` — Sayısal Analiz (sayfa başlığı: Sayısal Analiz: Kök Bulma, Kayan Nokta, Sayısal Türev ve İntegral) · Lisans
 - `optimizasyon-ve-gradyan-inisi` — Optimizasyon ve Gradyan İnişi (sayfa başlığı: Optimizasyon ve Gradyan İnişi: Dışbükeylik, Öğrenme Oranı ve Momentum) · Lisans
 
-## Fizik (45)
+## Fizik (49)
 
 - `optik-yansima-kirilma` — Optik: Yansıma & Kırılma (sayfa başlığı: Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma)
 - `mercek-isinlari` — Mercek Işınları (sayfa başlığı: İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu)
@@ -126,8 +126,12 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `nukleer-fizik` — Nükleer Fizik (sayfa başlığı: Çekirdek Bağlanma Enerjisi: Kütle Açığı, Fisyon ve Füzyon)
 - `yildiz-yasam-dongusu` — Yıldız Yaşam Döngüsü) (sayfa başlığı: Yıldız Yaşam Döngüsü (H-R Diyagramı))
 - `takimyildiz-haritasi` — Takımyıldız Haritası (sayfa başlığı: Takımyıldız Haritası: Gökyüzünün Koordinatları)
+- `elektromanyetik-dalgalar-ve-polarizasyon` — EM Dalgalar ve Polarizasyon (sayfa başlığı: Elektromanyetik Dalgalar ve Polarizasyon: Malus, Brewster, Dalga Plakaları) · Lise–Lisans
+- `yari-iletkenler-ve-bant-yapisi` — Yarı İletkenler ve Bant Yapısı (sayfa başlığı: Yarı İletkenler ve Bant Yapısı: Bant Aralığı, Katkı ve p–n Eklemi) · Lisans
+- `lazer-ve-uyarilmis-salim` — Lazer ve Uyarılmış Salım (sayfa başlığı: Lazer ve Uyarılmış Salım: Einstein Katsayılarından Rezonatöre) · Lisans
+- `yenilenebilir-enerji` — Yenilenebilir Enerji (sayfa başlığı: Yenilenebilir Enerji: Rüzgâr, Güneş Hücresi ve Hidroelektrik) · Lise–Lisans
 
-## Kimya (10)
+## Kimya (14)
 
 - `periyodik-tablo` — Periyodik Tablo (sayfa başlığı: Periyodik Tablo Laboratuvarı)
 - `denklem-denklestirme` — Denklem Denkleştirme (sayfa başlığı: Kimyasal Denklem Denkleştirme: Atom Sayımı, Matris Yöntemi ve Stokiyometri)
@@ -139,6 +143,10 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `ideal-gaz` — İdeal Gaz (sayfa başlığı: İdeal Gaz: Moleküllerden Basınca (Kinetik Teori))
 - `ph-indikator` — pH & İndikatörler (sayfa başlığı: pH ve İndikatörler: Logaritmik Ölçek, Su Dengesi ve Renk)
 - `molekul-sekli` — Molekül Şekli (sayfa başlığı: Molekül Şekli (VSEPR))
+- `termokimya-ve-hess-yasasi` — Termokimya ve Hess Yasası (sayfa başlığı: Termokimya ve Hess Yasası: Kalorimetre, Döngüler ve Bağlar) · Lise–Lisans
+- `cozeltiler-ve-koligatif-ozellikler` — Çözeltiler ve Koligatif Özellikler (sayfa başlığı: Çözeltiler ve Koligatif Özellikler: Raoult, Donma, Kaynama ve Osmoz) · Lise–Lisans
+- `spektroskopi-beer-lambert` — Spektroskopi ve Beer–Lambert (sayfa başlığı: Spektroskopi ve Beer–Lambert Yasası: Absorbans, Kalibrasyon, UV–Vis ve IR) · Lise–Lisans
+- `organik-kimya-ve-izomeri` — Organik Kimya ve İzomeri (sayfa başlığı: Organik Kimya ve İzomeri: Fonksiyonel Gruplar, İzomerler ve Kiralite) · Lise–Lisans
 
 ## Biyoloji (13)
 

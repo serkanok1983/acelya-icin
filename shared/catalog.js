@@ -199,6 +199,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "cozeltiler-ve-koligatif-ozellikler": {
+    "title": "Çözeltiler: Tanecik Saymanın Gücü",
+    "tagline": "Suya bir şey çözündüğünde buhar basıncı düşer, donma noktası iner, zarın iki yanında basınç doğar. Seyreltik çözeltide dördü de çözünenin ne olduğuna değil, kaç tane olduğuna bakar.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "dairesel-hareket": {
     "title": "Dairesel Hareket: Hiç Yere Varmayan Düşüş",
     "tagline": "Sürat hiç değişmese bile çemberdeki cisim ivmelenir. Bu ivmeyi hız farkından ölç, onu hangi gerçek kuvvetin sağladığını bul, sonra aynı hareketi dönen bir diskin üstünden izle.",
@@ -296,6 +303,13 @@ window.ACELYA_CATALOG = {
     "field": "Kimya",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "elektromanyetik-dalgalar-ve-polarizasyon": {
+    "title": "Polarizasyon: Işığın Titreştiği Yön",
+    "tagline": "Işık enine bir dalgadır ve elektrik alanının hangi yönde titreştiği ölçülebilir. Alan ucunun elipsinden Malus yasasına, Brewster açısından dalga plakalarına polarizasyonun fiziği.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "elektronik-devre": {
     "title": "Geçici Rejim: Kondansatör Neden Bir Anda Dolmaz?",
@@ -668,6 +682,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "lazer-ve-uyarilmis-salim": {
+    "title": "Lazer ve Uyarılmış Salım: Einstein Katsayılarından Rezonatöre",
+    "tagline": "Einstein 1916–1917'de Planck yasasını tutarlı kılmak için ışığa bir terim ekledi: gelen foton, uyarılmış bir atomdan kendi kopyasını koparabiliyordu. Lazer, o terimin kırk yıl sonra bir aynalı kutuda büyütülmesidir.",
+    "field": "Fizik",
+    "level": "Lisans",
+    "minutes": 35
+  },
   "levha-tektonigi": {
     "title": "Levha Tektoniği: Okyanus Tabanının Kayıt Bandı",
     "tagline": "Okyanus tabanı, levhaların ne hızla ve hangi yöne gittiğini yazan bir kayıt bandıdır. Yaşından, derinliğinden, manyetik şeritlerinden ve volkan zincirlerinden hızı kendin ölç.",
@@ -913,6 +934,13 @@ window.ACELYA_CATALOG = {
     "level": "Lisans",
     "minutes": 35
   },
+  "organik-kimya-ve-izomeri": {
+    "title": "Organik Kimya ve İzomeri: Aynı Formül, Başka Molekül",
+    "tagline": "C₁₀H₂₂ formülü tek bir madde değil, 75 ayrı molekül demektir. Karbon iskeletini bir ağaç gibi okuyunca izomerleri saymak, aynalardaki farkı görmek ve dönen bağların nüfusunu hesaplamak mümkün olur.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "otomotiv-muhendisligi": {
     "title": "Otomotiv Mühendisliği: Pistondan Tekerleğe, Tekerlekten Yola",
     "tagline": "Pistonun gidip gelişi nasıl dönüşe, dönüş çekiş kuvvetine, kuvvet hıza ve durma mesafesine dönüşür? Krank-biyeli, Otto çevrimini, vitesi, freni ve virajı üç sekmede ölç, formülle karşılaştır.",
@@ -1130,6 +1158,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 30
   },
+  "spektroskopi-beer-lambert": {
+    "title": "Spektroskopi ve Beer–Lambert: Işığın Soğurulmasıyla Ölçmek",
+    "tagline": "Bir çözeltinin içinden geçen ışığı saymak, içinde ne kadar madde olduğunu söyler. Beer–Lambert yasasını foton foton ölç, kalibrasyonla bilinmeyeni bul, renkten ve IR tepelerinden molekülü tanı.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "statik": {
     "title": "Statik: Denge Neyin Cevabıdır?",
     "tagline": "Aynı toplam yük farklı mesnet tepkileri doğurabilir; üç tepki de bir yapıyı tutmaya yetmeyebilir. Yayılı yük, kafes ve matrislerle dengenin ne söylediğini sınayalım.",
@@ -1185,6 +1220,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "termokimya-ve-hess-yasasi": {
+    "title": "Termokimya ve Hess Yasası: Isıyı Ölçmek, Döngüyü Kapatmak",
+    "tagline": "Isı ölçmek göründüğünden zordur: termometre geç kalır, kap ısı çalar, bomba ΔH değil ΔU verir. Hess yasası ise hiç ölçemediğin bir entalpiyi ölçebildiklerinden kurar.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "tetris": {
     "title": "Tetris: Dört Karenin Matematiği",
@@ -1256,6 +1298,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "yari-iletkenler-ve-bant-yapisi": {
+    "title": "Yarı İletkenler: Bantlar, Katkı ve p–n Eklemi",
+    "tagline": "Silisyumu metalden de camdan da ayıran tek bir sayı var: bant aralığı. Bantların nasıl açıldığını, bir milyonda bir katkının neden her şeyi değiştirdiğini ve diyotun neden 0,6 V civarında açıldığını ölç.",
+    "field": "Fizik",
+    "level": "Lisans",
+    "minutes": 40
+  },
   "yasam-oyunu": {
     "title": "Yaşam Oyunu: İki Kuraldan Bir Evren",
     "tagline": "Kareli bir kâğıt ve iki kural: üç komşu doğurur, iki ya da üç komşu yaşatır. Conway'in 1970'te bulduğu bu oyunda desenler yürür, çoğalır, hatta hesap yapar. Bu sayfadaki evren ise bir simit.",
@@ -1276,6 +1325,13 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "yenilenebilir-enerji": {
+    "title": "Yenilenebilir Enerji: Rüzgâr, Güneş Hücresi ve Hidroelektrik",
+    "tagline": "Rüzgâr, güneş ışığı ve yüksekteki su: üçü de fiziğin koyduğu sınırlarla elektriğe döner. Bir rotor rüzgârın en çok 16/27'sini alabilir, bir hücre ısındıkça gerilim kaybeder, su ise yüksekliği kadar enerji taşır.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "yildiz-yasam-dongusu": {
     "title": "Yıldızların Hayatı: Kaderi Kütle Yazar",

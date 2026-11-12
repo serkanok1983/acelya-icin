@@ -705,7 +705,8 @@ tablosu hataları). Öneri:
    `docs/simulasyon-notlari.md` → "I"). 12 Kasım'da (J) `docs/YENI-SAYFA-PLANI.md`
    1. aşama grup A: sekiz STEM Omurgası sayfası standart kabuğa geçti ve defterlendi. Aynı gün (K) grup B: 3 Bilim Atlası
    dersi taşındı ve "Yer ve Çevre Bilimleri" kategorisi 5 sayfayla açıldı. Aynı gün (L) 2. aşamanın ilk grubu:
-   matematik/istatistik ve biyolojide 9 yeni sayfa. **Sırada**: 2. aşama, fizik ve kimya (8 yeni sayfa). Bir sayfa yeniden kurulursa
+   matematik/istatistik ve biyolojide 9 yeni sayfa; (M) fizik ve kimyada 8 yeni sayfa. **Sırada**: 2. aşama,
+   disiplinlerarası ve mühendislik (6 yeni sayfa) ve biriken küçük düzeltmeler. Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

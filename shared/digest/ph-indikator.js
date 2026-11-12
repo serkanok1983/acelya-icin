@@ -227,11 +227,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
       title: "Asit-Baz Titrasyonu Laboratuvarı",
       why: "Tamponlar, titrasyon eğrileri ve eşdeğerlik noktasına göre indikatör seçimi; Sørensen'in pH'ı nasıl icat ettiği ve 'p'nin bilmecesi de orada.",
     },
-    {
-      href: "kara-cisim-isimasi.html",
-      title: "Kara Cisim Işıması",
-      why: "Aynı renk araçları (CIE 1931 eşleme fonksiyonları, sRGB dönüşümü) orada kızgın bir cismin rengini bulur: burada D65 gün ışığı küvetten süzülür, orada ışığı Planck tayfıyla cismin kendisi saçar.",
-    },
+    { href: "spektroskopi-beer-lambert.html", title: "Spektroskopi ve Beer–Lambert Yasası: Absorbans, Kalibrasyon, UV–Vis ve IR", why: "İndikatör renginin sayıya dönüşmesi: absorbans, kalibrasyon doğrusu ve bromtimol mavisinin izosbestik noktası ölçülür." },
     {
       href: "kimyasal-denge-ve-gibbs-enerjisi.html",
       title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük",

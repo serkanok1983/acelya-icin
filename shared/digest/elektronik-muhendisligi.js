@@ -196,7 +196,7 @@ window.ACELYA_DIGEST["elektronik-muhendisligi"] = {
     },
   ],
   next: [
-    { href: "mantik-devresi.html", title: "Mantık Devreleri Laboratuvarı", why: "Transistörü yükselteç değil anahtar olarak kullanınca açılan dünya: kapılar ve doğruluk tabloları, Karnaugh ile sadeleştirme, toplayıcıların gecikmesi ve bir biti tutan ardışıl devreler." },
+    { href: "yari-iletkenler-ve-bant-yapisi.html", title: "Yarı İletkenler ve Bant Yapısı: Bant Aralığı, Katkı ve p–n Eklemi", why: "Diyot ve transistörün altındaki fizik: bant aralığı, katkılama, Fermi düzeyi ve p–n ekleminin yerleşik gerilimi sayısal olarak çözülür." },
     { href: "elektronik-devre.html", title: "Geçici Rejim: RC, RL ve RLC Devreleri", why: "Süzgeç sekmesindeki basamak yanıtının ayrıntısı: kondansatörün dolma eğrisinden τ'yu ölç, kare dalgayı RC süzgeçten geçir, RLC devresinde aşmayı ve sönüm oranını incele." },
     { href: "alternatif-akim.html", title: "Alternatif Akım: RLC Devresi, Fazörler ve Rezonans", why: "Buradaki genlik oranı ve faz kartlarının arkasındaki dil: seri RLC devresini sinüsle sür, dönen fazörleri izle, rezonansta empedansın R'ye inişini gör." },
     { href: "elektrik-muhendisligi.html", title: "Elektrik Mühendisliği: Güç, İletim ve Dönüşüm", why: "Milivoltlardan kilovoltlara: üç fazlı güç, iletim hattı kayıpları ve transformatör verimi; doğrultucunun bağlandığı şebekenin öteki ucu." },

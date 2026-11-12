@@ -268,11 +268,7 @@ window.ACELYA_DIGEST["termodinamik"] = {
       title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük",
       why: "Köprüdeki G = H − TS'nin kimyadaki işi: ΔG°, ΔG ve K sekmesinde tepkimeyi, sıcaklığı ve ilerleme imlecini değiştir; ΔG° = −RT ln K ve Q ile K'nın karşılaştırması tepkimenin hangi yöne yürüyeceğini söyler.",
     },
-    {
-      href: "otomotiv-muhendisligi.html",
-      title: "Otomotiv Mühendisliği: Motor, Aktarma ve Araç Dinamiği",
-      why: "Otto çevriminin metal hâli: krank açısıyla eşzamanlı p–V döngüsünü izle, çevrim işinden torka ve güce geç; ardından vitesler, çekiş kuvveti ve frenleme.",
-    },
+    { href: "termokimya-ve-hess-yasasi.html", title: "Termokimya ve Hess Yasası: Kalorimetre, Döngüler ve Bağlar", why: "Birinci yasa kimyada: kalorimetre, ΔU ile ΔH farkı, Hess döngüleri, bağ enerjileri ve adyabatik alev sıcaklığı ölçülerek." },
   ],
   sources: [
     {

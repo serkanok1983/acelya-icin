@@ -264,6 +264,7 @@ window.ACELYA_DIGEST["molekul-sekli"] = {
       title: "Atom Orbitalleri: Hidrojen Benzeri Atomun Kesin Çözümü",
       why: "Açısal şekiller sekmesinde üç p orbitalinin birbirine dik durduğunu gör; amonyaktaki açı neden 90° değil de 107°'ye yakın? Bu soru, köprüdeki hibritleşme fikrinin çıkış noktasıdır.",
     },
+    { href: "organik-kimya-ve-izomeri.html", title: "Organik Kimya ve İzomeri: Fonksiyonel Gruplar, İzomerler ve Kiralite", why: "Şekilden yapıya: karbon iskeletleri, fonksiyonel gruplar, yapı izomerleri, kiralite ve konformasyon sayarak ve döndürerek incelenir." },
   ],
   sources: [
     {

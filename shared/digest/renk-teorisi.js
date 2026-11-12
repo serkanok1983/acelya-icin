@@ -128,6 +128,7 @@ window.ACELYA_DIGEST["renk-teorisi"] = {
     { href: "kara-cisim-isimasi.html", title: "Kara Cisim Işıması", why: "Bir sıcaklıkla bütün bir ışık tayfı arasındaki ilişkiye geç; tepe dalga boyunun görünen renk demek olmadığını incele." },
     { href: "ph-indikator.html", title: "pH ve İndikatörler", why: "İdeal üç kanal filtresinden soğurma tayfına ilerle: indikatör dengesi ve Beer–Lambert modeliyle rengin nasıl değiştiğini gör." },
     { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Koordinatları ve lineer dönüşümü düzlemde incele; renk kodlarının transfer eğrisiyle farkını düşün." },
+    { href: "spektroskopi-beer-lambert.html", title: "Spektroskopi ve Beer–Lambert Yasası: Absorbans, Kalibrasyon, UV–Vis ve IR", why: "Rengin ölçülmesi: bir çözelti tamamlayıcı rengi soğurur; Beer–Lambert yasası soğurulan ışıktan derişimi hesaplatır." },
   ],
   sources: [
     { title: "Alvy Ray Smith · Color Gamut Transform Pairs (1978)", url: "https://alvyray.com/Papers/CG/color78.pdf", note: "Yazarın arşivindeki özgün SIGGRAPH makalesi; HSV geometrisi ve RGB dönüşümleri. Makalenin doğrusal ekran varsayımı ile burada kullanılan kodlanmış sRGB ayrıdır." },

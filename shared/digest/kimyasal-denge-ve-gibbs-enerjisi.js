@@ -213,7 +213,7 @@ window.ACELYA_DIGEST["kimyasal-denge-ve-gibbs-enerjisi"] = {
   ],
   next: [
     { href: "kimyasal-kinetik.html", title: "Kimyasal Kinetik Laboratuvarı", why: "Dengenin \"nereye\" sorusunun yanında \"ne kadar hızlı\" sorusu: hız yasaları, Arrhenius ve katalizörün K'yi değiştirmeden dengeye varışı nasıl hızlandırdığı." },
-    { href: "asit-baz-titrasyonu.html", title: "Asit-Baz Titrasyonu Laboratuvarı", why: "Aynı Q–K düşüncesi çözeltide: zayıf asitlerin Ka dengesi, tampon bölgesi ve çok protonlu asitlerin titrasyon eğrileri." },
+    { href: "termokimya-ve-hess-yasasi.html", title: "Termokimya ve Hess Yasası: Kalorimetre, Döngüler ve Bağlar", why: "ΔG = ΔH − TΔS'nin ilk terimi: tepkime entalpileri kalorimetreyle ölçülür, Hess yasasıyla birleştirilir ve sıcaklıkla Kirchhoff yasasına göre değişir." },
     { href: "elektrokimya.html", title: "Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday", why: "ΔG = −nFE ile Gibbs enerjisi voltaja dönüşür; Nernst denklemi, ΔG = ΔG° + RT ln Q'nun elektrokimyasal biçimidir." },
     { href: "entropi-ve-istatistiksel-fizik.html", title: "Entropi ve İstatistiksel Fizik: Mikro Durumlar, Boltzmann ve Ising", why: "Gibbs eğrisini dibe çeken karışma entropisinin mikro durumlarla sayılan kökeni." },
   ],

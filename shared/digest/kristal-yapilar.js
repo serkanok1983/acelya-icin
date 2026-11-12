@@ -191,7 +191,7 @@ window.ACELYA_DIGEST["kristal-yapilar"] = {
   ],
   next: [
     { href: "kirinim-izgarasi.html", title: "Kırınım Izgarası", why: "Bragg yasasının tek boyutlu akrabası, d·sin θ = mλ. Yarık sayısı N'yi 2'den 10'a çıkarınca tepeler keskinleşir; milyonlarca düzlemli bir kristalin Bragg tepelerinin neden bu kadar dar olduğunun cevabı da budur." },
-    { href: "grup-teorisi.html", title: "Grup Teorisi: Simetrinin Cebiri", why: "Simetri işlemlerinin cebiri. O sayfanın defteri düzlemin yalnız 17 duvar kâğıdı deseni olduğunu ve Fedorov ile Schoenflies'in 230 uzay grubu listesini mektuplaşarak nasıl ayıkladığını anlatır." },
+    { href: "yari-iletkenler-ve-bant-yapisi.html", title: "Yarı İletkenler ve Bant Yapısı: Bant Aralığı, Katkı ve p–n Eklemi", why: "Düzenli örgünün elektronlar için sonucu: periyodik potansiyel izinli bantlar ve yasak aralıklar açar; silisyumun yarı iletkenliği buradan gelir." },
     { href: "metalurji-ve-malzeme-muhendisligi.html", title: "Malzeme Bilimi: Faz Diyagramı, Çekme Deneyi ve Difüzyon", why: "BCC ferrit ile FCC östenit çeliğin içinde: demir–karbon diyagramında bir nokta seç, kaldıraç kuralıyla faz oranlarını oku; çekme deneyinde pekleşmeyi, difüzyon sekmesinde karbürlemeyi izle." },
     { href: "periyodik-tablo.html", title: "Periyodik Tablo Laboratuvarı", why: "Bu sayfadaki elementleri tabloda bul: Aile vurgula menüsünde Metaller seçeneği Fe, W, Cu, Al, Mg ve Zn'yi, Yarı metaller seçeneği elmas yapılı Si ile Ge'yi ve basit kübik polonyumu öne çıkarır." },
   ],

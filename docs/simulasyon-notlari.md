@@ -1836,3 +1836,43 @@ Koordinatör: menü (Matematik +5, Biyoloji +4), `docs/sayfa-katalogu.md`, meta 
 uzun başlıklar kısaltıldı (regresyon, hipotez testi, optimizasyon, homeostaz) ve gelen bağlantılar güncellendi;
 komşu defterlerden yeni sayfalara 12 "sonraki durak" bağlantısı (normal dağılım, Bayes, Pascal, Riemann, makine
 öğrenmesi, yöneylem, elektrokimya, av–avcı ×2, kalp, enzim, bilimsel yöntem).
+
+## 12 Kasım 2026 — M: fizik ve kimyada sekiz yeni sayfa (Yeni sayfa planı, 2. aşama, ikinci grup)
+
+Sekiz sayfa G hattıyla kuruldu (kurucu → farklı yazar → üçüncü, bağımsız doğrulayıcı/editör). Kurucuların başlıkları
+80 karakter sınırıyla istendi; hepsi uydu. `check-site.mjs`: NREL, energy.gov, refractiveindex.info, Ioffe NSM
+(http ve https) ve NIST-JANAF izinli kaynaklara eklendi. Defter puanları 6,5–7,5'ten 8,5–9'a çıktı. Kullanıcı bu
+turdan itibaren tur bitip testler geçince sormadan yayımlamayı ve sonraki tura geçmeyi onayladı.
+
+**Fizik**
+- ✔ `elektromanyetik-dalgalar-ve-polarizasyon`: polarizasyon elipsi ve Stokes, foton Monte Carlo ile Malus ve üç
+  polarizör, sınır koşullarından Fresnel ve Brewster, Jones hesabı FDTD ve dönen analizörle sınanır. Düzeltildi:
+  Fresnel eşkenar dörtgeni (45° fark 47,9° / 55,2°'de), S₃ işaretinin de kurala bağlı olduğu; defterde s payı %91
+  (%82,5 polarizasyon derecesi), yarım dalga plakası 2(θ − α) döndürür, Fresnel kronolojisi.
+- ✔ `yari-iletkenler-ve-bant-yapisi`: Kronig–Penney ve N atomlu zincir, Varshni ve Fermi–Dirac integrali, eksik
+  iyonlaşmalı katkılama, sayısal Poisson–Boltzmann ile p–n eklemi ve Shockley diyotu. Düzeltildi: tükenim farkının
+  işareti, 40 K'de anlamsız iletkenlik oranı, Ge 500 K'de Pauli düzeltmesi; Arrhenius eğimi E_g − T·dE_g/dT.
+- ✔ `lazer-ve-uyarilmis-salim`: Einstein katsayıları (B₂₁ olmadan Wien biçimi), iki/üç/dört düzey, hız denklemleri ve
+  gevşeme salınımları, kipler, kip kilitleme ve Gauss demeti. Düzeltildi: tayf altyazısı; defterde iki deneyin
+  harfiyen izlenemeyen adımları, maser 1953/1954, Zeiger'in rolü çıkarıldı.
+- ✔ `yenilenebilir-enerji`: Betz sınırı ve Weibull ortalama küp etkisi, tek diyotlu güneş hücresi, güneş geometrisi
+  ve eğim, hidroelektrik ve pompaj depolama. Yansızlık temiz. Düzeltildi: ondalık nokta → virgül (sitenin biçimi),
+  sapma açısı etiketi, Shockley–Queisser %33,16 (1,34 eV), sıcaklık katsayısının n'ye bağlılığı; Betz 1920.
+
+**Kimya**
+- ✔ `termokimya-ve-hess-yasasi`: ısı kayıplı kalorimetre ve kalibrasyon, ΔU/ΔH, Hess yasası Ac = b, Born–Haber,
+  bağ enerjileri, Shomate ile Kirchhoff ve adyabatik alev. Düzeltildi: OpenStax'in 769 kJ değeri "kaynağı belirtilmez"
+  (uydurma "farklı veri seti" kaldırıldı); defterde Δn·RT etkisi, Lavoisier–Laplace kobayı.
+- ✔ `cozeltiler-ve-koligatif-ozellikler`: Raoult (oyuncak model benzetme olarak), benzen–toluen T–x–y, Margules
+  azeotropları, K_f/K_b türetimi, soğuma eğrisi, U-borusu, ters osmoz, molar kütle. Düzeltildi: U-borusunun sol kolu
+  boşalan ayarlarda uyarı (Δh ≤ 2h₀), benzen K_b farkının gerekçesi; defterde Sourirajan o dönem UCLA'da.
+- ✔ `spektroskopi-beer-lambert`: foton Monte Carlo ve dilim yanlılığı, sapmalar, kalibrasyon ve ters kestirim,
+  CIE renk ve iki bileşenli analiz, NIST tayflarıyla IR, harmonik/Morse ve izotop kayması. Düzeltildi: kalın dilim
+  durum yüzdesi, kesit alanında 1000 çarpanı; defterde Beer 1852'nin içeriği, Luther–Nikolopulos 1913.
+- ✔ `organik-kimya-ve-izomeri`: ızgarada molekül kurucu ve fonksiyonel grup bulma, alkan izomerleri (OEIS A000602,
+  n ≤ 14), CIP ve R/S, mezo sayımı, E/Z, bütan ve siklohekzan popülasyonları. Düzeltildi: sandalye ve R/S etiket
+  çizimi; defterde Wöhler–Liebig 1824–26, Berichte, CIP 1956/1966, 3,4,5-trimetilheptan.
+
+Koordinatör: menü (Fizik +4, Kimya +4), katalog, meta açıklamaları; komşu defterlerden 12 yeni "sonraki durak"
+(Maxwell, optik, kara cisim, elektronik müh., kristal yapılar, elektrik müh., termodinamik, kimyasal denge, ideal
+gaz, renk, pH, molekül şekli); gelen başlıklar eşitlendi.

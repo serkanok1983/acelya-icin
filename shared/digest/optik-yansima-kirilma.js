@@ -214,7 +214,7 @@ window.ACELYA_DIGEST["optik-yansima-kirilma"] = {
   ],
   next: [
     { href: "mercek-isinlari.html", title: "Mercek Işın Diyagramı", why: "Snell yasasını iki eğri yüzeye uygula: ince merceğin odak uzaklığı, görüntünün yeri ve büyütme aynı kırılmadan çıkar." },
-    { href: "kirinim-izgarasi.html", title: "Kırınım Izgarası", why: "Prizma renkleri indis farkıyla, ızgara girişimle ayırır. Sıra terstir: prizmada kırmızı en az, ızgarada en çok sapar." },
+    { href: "elektromanyetik-dalgalar-ve-polarizasyon.html", title: "Elektromanyetik Dalgalar ve Polarizasyon: Malus, Brewster, Dalga Plakaları", why: "Snell yasası ışığın nereye gittiğini söyler, Fresnel denklemleri ne kadarının yansıdığını: Brewster açısında yansıyan ışık tamamen polarize olur." },
     { href: "klasik-girisim.html", title: "Young'un Çift Yarık Deneyi", why: "Yansıtmaz kaplamaların ve sabun köpüğü renklerinin arkasındaki ilke: yol farkı ve girişim." },
     { href: "maxwell-denklemleri-ve-alanlar.html", title: "Maxwell Denklemleri ve Alanlar: Akı, Dolaşım ve Işık", why: "Fresnel denklemlerinin kaynağı: ışık bir elektromanyetik dalgadır ve sınırda alanların teğet bileşenleri süreklidir." },
   ],

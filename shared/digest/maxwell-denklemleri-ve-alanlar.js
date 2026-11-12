@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["maxwell-denklemleri-ve-alanlar"] = {
   next: [
     { href: "manyetik-alan.html", title: "Manyetik Alan Laboratuvarı: Akımdan Alana, Alandan Akıma", why: "B'nin kaynakları ayrıntısıyla: halkanın Biot–Savart toplamı, Ampère yolu, paralel tellerin çekimi ve bobinden mıknatıs geçirerek Faraday–Lenz." },
     { href: "lorentz-kuvveti.html", title: "Lorentz Kuvveti: Yüklü Parçacık Laboratuvarı", why: "Alanların yüklere ne yaptığı: F = q(E + v×B) ile çember ve sarmal yörüngeler, siklotron ve kütle spektrometresi." },
-    { href: "elektrostatik.html", title: "Elektrostatik: Alan, Potansiyel ve Akı", why: "Gauss yasasının durağan tarafı: iki yükün alanı, potansiyelin gradyanı ve iletken kabukla yalıtkan kürede akı." },
+    { href: "elektromanyetik-dalgalar-ve-polarizasyon.html", title: "Elektromanyetik Dalgalar ve Polarizasyon: Malus, Brewster, Dalga Plakaları", why: "Denklemlerin öngördüğü dalganın yönü: doğrusal, dairesel ve eliptik polarizasyon, Malus yasası, Fresnel katsayıları ve Brewster açısı ölçülerek." },
     { href: "optik-yansima-kirilma.html", title: "Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma", why: "03. sekmedeki r ve R'nin eğik gelişe genişlemesi: Snell yasası, Fresnel katsayıları ve tam iç yansıma." },
   ],
   sources: [

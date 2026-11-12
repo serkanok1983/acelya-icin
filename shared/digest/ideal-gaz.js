@@ -192,7 +192,7 @@ window.ACELYA_DIGEST["ideal-gaz"] = {
     { href: "termodinamik.html", title: "Termodinamik", why: "Aynı gazın makroskobik yüzü: PV diyagramında izotermal ve adyabatik süreçler, eğrinin altındaki iş ve motor çevrimleri." },
     { href: "entropi-ve-istatistiksel-fizik.html", title: "Entropi ve İstatistiksel Fizik: Mikro Durumlar, Boltzmann ve Ising", why: "Herkese aynı hız düzeninin neden kendiliğinden çözüldüğünü mikrodurum sayarak gör: S = k ln Ω ve en olası enerji paylaşımı." },
     { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş", why: "Bir molekülün zikzaklı yolu: adım sayısı büyüdükçe net uzaklığın neden yalnızca √N ile arttığını, kokunun neden yavaş yayıldığını izle." },
-    { href: "normal-dagilim.html", title: "Normal Dağılım", why: "Maxwell dağılımının yapı taşı: her hız bileşeni standart sapması √(kT/m) olan bir çan eğrisidir; gazı ısıtmak çanı genişletir. Alanlar ve güven aralıkları sekmesinde ortalamanın ±1σ ve ±2σ çevresine düşen payları ölç." },
+    { href: "cozeltiler-ve-koligatif-ozellikler.html", title: "Çözeltiler ve Koligatif Özellikler: Raoult, Donma, Kaynama ve Osmoz", why: "Çözünen tanecikler de gaz gibi davranır: van 't Hoff'un osmotik basıncı Π = iMRT, ideal gaz denkleminin çözeltideki benzeridir." },
   ],
   sources: [
     { title: "OpenStax · University Physics Vol. 2, 2.4 Distribution of Molecular Speeds", url: "https://openstax.org/books/university-physics-volume-2/pages/2-4-distribution-of-molecular-speeds", note: "Üç boyutlu Maxwell–Boltzmann dağılımı, karakteristik hızlar ve azotla çözümlü örnek; bölümün önceki kısımları basınç, rms hız ve eşbölüşümü işler (İngilizce, açık ders kitabı)." },

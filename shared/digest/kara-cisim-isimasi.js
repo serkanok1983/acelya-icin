@@ -229,7 +229,7 @@ window.ACELYA_DIGEST["kara-cisim-isimasi"] = {
   next: [
     { href: "fotoelektrik.html", title: "Fotoelektrik Olay", why: "Planck'ın kara cisim eğrisine uydurarak bulduğu h'yi bu kez cıva lambasının çizgileri ve durdurma gerilimiyle ölç; Einstein 1905'te enerji paketlerini ışığın kendisine taşıdı." },
     { href: "yildiz-yasam-dongusu.html", title: "Yıldız Yaşam Döngüsü (H-R Diyagramı)", why: "H-R diyagramının yatay ekseni buradaki sıcaklıktır: L = 4πR²σT⁴ ile Betelgeuse'ün dev, Sirius B'nin cüce olduğunu diyagramdaki yerinden oku." },
-    { href: "kirinim-izgarasi.html", title: "Kırınım Izgarası ve Spektrometre", why: "Tayfı ölçmenin aracı: spektrometre sekmesinde beyaz ışığın sürekli tayfını hidrojen, sodyum ve cıva lambalarının ayrık çizgileriyle karşılaştır." },
+    { href: "lazer-ve-uyarilmis-salim.html", title: "Lazer ve Uyarılmış Salım: Einstein Katsayılarından Rezonatöre", why: "Planck yasasının ikinci yüzü: Einstein uyarılmış salımı eklemeden dengeyi kuramadı. Aynı terim nüfus terslenmesiyle lazeri mümkün kılar." },
     { href: "termodinamik.html", title: "Termodinamik", why: "Boltzmann T⁴'ü, çalışma maddesi gaz yerine ışık olan bir ısı makinesiyle türetti. PV diyagramında Carnot, Otto ve Stirling çevrimlerini kur, verimlerini Carnot sınırıyla karşılaştır." },
   ],
   sources: [
