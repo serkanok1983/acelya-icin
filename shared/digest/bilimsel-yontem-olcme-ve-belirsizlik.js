@@ -192,7 +192,7 @@ window.ACELYA_DIGEST["bilimsel-yontem-olcme-ve-belirsizlik"] = {
     { href: "normal-dagilim.html", title: "Normal Dağılım ve Merkezi Limit Teoremi", why: "Ortalamanın neden σ/√n ile daraldığının ve k = 2'nin neden yaklaşık % 95 verdiğinin kökü: toplanan rastlantıların çan eğrisi." },
     { href: "sarkac.html", title: "Sarkaç Laboratuvarı", why: "Bütçesini çıkardığın g ölçümünün arkasındaki fizik; büyük açıda periyodun formülden neden saptığını, yani sistematik bir model hatasını da görürsün." },
     { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş: √N Yasası, Difüzyon ve Geri Dönüş", why: "Bağımsız rastgele adımların toplamının neden N ile değil √N ile büyüdüğü; belirsizliklerin kareler hâlinde toplanmasının öbür yüzü." },
-    { href: "vektorler.html", title: "Vektörler: Bileşenler, Çarpımlar ve Bağıl Hareket", why: "Bilim Atlası'nın mekanik rotasında sıradaki durak: ölçtüğün nicelikler artık yönü de olan büyüklüklere dönüşüyor." },
+    { href: "regresyon-ve-korelasyon.html", title: "Regresyon ve Korelasyon: En Küçük Kareler, Artıklar ve Nedensellik", why: "Doğru uydurmanın devamı: en küçük karelerin varsayımları, artık çizimleri, etkili noktalar ve korelasyonun neden nedensellik olmadığı." },
   ],
   sources: [
     { title: "NIST · Evaluating uncertainty components: Type B", url: "https://physics.nist.gov/cuu/Uncertainty/typeb.html", note: "B türü değerlendirme ve dikdörtgen dağılımda u = a/√3; % 95 ve % 99 güven aralıklarını 1,960 ve 2,576'ya bölerek standart belirsizliğe çevirme (İngilizce)." },

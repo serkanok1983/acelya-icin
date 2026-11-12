@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["elektrokimya"] = {
     { href: "kimyasal-denge-ve-gibbs-enerjisi.html", title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük", why: "Nernst denkleminin çıktığı yer: Q ile K'yı karşılaştır, ΔG = ΔG° + RT ln Q ve ΔG° = −RT ln K ilişkilerini ΔG°, ΔG ve K sekmesinde, tepkime ilerledikçe ΔG'nin sıfıra inişini izleyerek dene." },
     { href: "elektrikli-araclar.html", title: "Elektrikli Araçlar: Enerji, Batarya ve Menzil", why: "Merdivenin çok aşağısındaki lityum bir arabayı nasıl yürütür: hücrelerden kurulan paketin gerilimi, akımı ve ısısı, şarj eğrisi ve bir dolumla gidilen yolun hesabı." },
     { href: "elektrik-devresi-simulasyonu.html", title: "DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları", why: "Pilin gerilimi bir devrede ne yapar: iç direnç uç gerilimini nasıl düşürür, akım ve güç dirençlere nasıl paylaşılır." },
-    { href: "periyodik-tablo.html", title: "Periyodik Tablo Laboratuvarı", why: "Magnezyum neden merdivenin dibinde, gümüş neden tepesinde: elementlerin iyonlaşma enerjisi ve elektronegatiflik değerlerine bak." },
+    { href: "sinir-hucresi-ve-aksiyon-potansiyeli.html", title: "Sinir Hücresi ve Aksiyon Potansiyeli: Nernst, Hodgkin–Huxley, Eşik ve İletim", why: "Nernst denklemi canlı hücrede: iyon derişim farkları zar potansiyelini kurar, Hodgkin–Huxley kanalları da onu bir aksiyon potansiyeline çevirir." },
   ],
   sources: [
     { title: "OpenStax · Chemistry 2e, 17.4 Potential, Free Energy, and Equilibrium", url: "https://openstax.org/books/chemistry-2e/pages/17-4-potential-free-energy-and-equilibrium", note: "ΔG° = −nFE°, E° ile K ilişkisi ve Nernst denklemi; 0.0592 V katsayısının kaynağı (İngilizce, açık ders kitabı)." },

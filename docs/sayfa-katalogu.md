@@ -36,7 +36,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `uzay-kosucusu` — Uzay Koşucusu
 - `isik-sondurme` — Işık Söndürme
 
-## Matematik (35)
+## Matematik (40)
 
 - `birim-cember` — Birim Çember (sayfa başlığı: Birim Çember: Sinüs, Kosinüs ve Dönmeler)
 - `vektorler` — Vektörler (sayfa başlığı: Vektörler: Bileşenler, Çarpımlar ve Bağıl Hareket)
@@ -73,6 +73,11 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `pi-yaklasimi` — π Yaklaşımı (sayfa başlığı: π'yi Hesaplamak: Arşimet, Seriler ve Monte Carlo)
 - `konik-kesitler` — Konik Kesitler (sayfa başlığı: Konik Kesitler: Elips, Parabol ve Hiperbol)
 - `matris-donusumleri` — Matris Dönüşümleri) (sayfa başlığı: Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek)
+- `kombinatorik-ve-sayma` — Kombinatorik ve Sayma (sayfa başlığı: Kombinatorik ve Sayma: Seçimler, Güvercin Yuvası, İçerme–Dışlama ve Catalan) · Lise–Lisans
+- `hipotez-testi-ve-guven-araligi` — Hipotez Testi ve Güven Aralığı (sayfa başlığı: Hipotez Testi ve Güven Aralığı: Örnekleme, p-Değeri, Hata Türleri ve Güç) · Lisans
+- `regresyon-ve-korelasyon` — Regresyon ve Korelasyon (sayfa başlığı: Regresyon ve Korelasyon: En Küçük Kareler, Artıklar ve Nedensellik) · Lise–Lisans
+- `sayisal-analiz` — Sayısal Analiz (sayfa başlığı: Sayısal Analiz: Kök Bulma, Kayan Nokta, Sayısal Türev ve İntegral) · Lisans
+- `optimizasyon-ve-gradyan-inisi` — Optimizasyon ve Gradyan İnişi (sayfa başlığı: Optimizasyon ve Gradyan İnişi: Dışbükeylik, Öğrenme Oranı ve Momentum) · Lisans
 
 ## Fizik (45)
 
@@ -133,9 +138,9 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `elektrokimya` — Elektrokimya (sayfa başlığı: Elektrokimya Laboratuvarı: Hücre, Nernst, Faraday)
 - `ideal-gaz` — İdeal Gaz (sayfa başlığı: İdeal Gaz: Moleküllerden Basınca (Kinetik Teori))
 - `ph-indikator` — pH & İndikatörler (sayfa başlığı: pH ve İndikatörler: Logaritmik Ölçek, Su Dengesi ve Renk)
-- `molekul-sekli` — Molekül Şekli) (sayfa başlığı: Molekül Şekli (VSEPR))
+- `molekul-sekli` — Molekül Şekli (sayfa başlığı: Molekül Şekli (VSEPR))
 
-## Biyoloji (9)
+## Biyoloji (13)
 
 - `dna-replikasyon` — DNA Replikasyonu (sayfa başlığı: DNA ve Replikasyon Laboratuvarı)
 - `mitoz-mayoz` — Mitoz & Mayoz (sayfa başlığı: Mitoz ve Mayoz Laboratuvarı)
@@ -146,6 +151,10 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `enzim-kinetigi` — Enzim Kinetiği (sayfa başlığı: Enzim Kinetiği Laboratuvarı)
 - `fotosentez-solunum` — Fotosentez & Solunum (sayfa başlığı: Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton)
 - `genetik-caprazlama` — Genetik Çaprazlama (sayfa başlığı: Genetik Çaprazlama: Mendel Oranları, Ki-Kare ve Bağlı Genler)
+- `sinir-hucresi-ve-aksiyon-potansiyeli` — Sinir Hücresi ve Aksiyon Potansiyeli (sayfa başlığı: Sinir Hücresi ve Aksiyon Potansiyeli: Nernst, Hodgkin–Huxley, Eşik ve İletim) · Lise–Lisans
+- `homeostaz-ve-geri-besleme` — Homeostaz ve Geri Besleme (sayfa başlığı: Homeostaz ve Geri Besleme: Döngü, Glukoz–İnsülin, Isı ve İki Durumluluk) · Lise–Lisans
+- `salgin-modelleri-sir` — Salgın Modelleri (SIR) (sayfa başlığı: Salgın Modelleri (SIR): R₀, Sürü Bağışıklığı, Rastlantı ve Ağlar) · Lise–Lisans
+- `nufus-ekolojisi` — Nüfus Ekolojisi (sayfa başlığı: Nüfus Ekolojisi: Lojistik Büyüme, Kaos, Leslie Matrisi ve Rekabet) · Lisans
 
 ## Yer ve Çevre Bilimleri (5)
 

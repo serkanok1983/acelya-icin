@@ -255,6 +255,7 @@ window.ACELYA_DIGEST["bayes-olasilik"] = {
       title: "Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri",
       why: "Softmax bir modelin çıktısını olasılık dağılımına çevirir, çapraz entropi ise doğru cevaba verilen olasılığın logaritmasıyla öğrenir: log oranların ve olabilirliğin makine öğrenmesindeki karşılığı.",
     },
+    { href: "hipotez-testi-ve-guven-araligi.html", title: "Hipotez Testi ve Güven Aralığı: Örnekleme, p-Değeri, Hata Türleri ve Güç", why: "Öteki okul: p-değeri ve güven aralığı veriyi sabit hipotez altında değerlendirir. İkisinin neyi söyleyip neyi söylemediğini yan yana görmek için." },
   ],
   sources: [
     {

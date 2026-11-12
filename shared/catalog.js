@@ -472,6 +472,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "hipotez-testi-ve-guven-araligi": {
+    "title": "Hipotez Testi ve Güven Aralığı: Belirsizliği Ölçmek",
+    "tagline": "Tek bir örneklem tek bir sayı verir; o sayıya ne kadar güvenebileceğini görmek için aynı deneyi binlerce kez yaparsın. Standart hata, güven aralığı, p-değeri ve güç bu tekrarın dilidir.",
+    "field": "Matematik",
+    "level": "Lisans",
+    "minutes": 35
+  },
+  "homeostaz-ve-geri-besleme": {
+    "title": "Homeostaz ve Geri Besleme: Dengeyi Tutan Döngüler",
+    "tagline": "Ayar noktası, algılayıcı, denetleyici ve etkileyici: aynı döngü glukozu, vücut ısısını ve iki durumlu bir anahtarı yönetir. Kazancın hatayı nasıl böldüğünü, gecikmenin neden salınım doğurduğunu ölç.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "ideal-gaz": {
     "title": "İdeal Gaz: Çarpışma Kaosundan Basit Bir Yasa",
     "tagline": "Basınç, birim duvar yüzeyine saniyede yağan momentumdur; sıcaklık, ortalama hareket enerjisinin ölçüsü. Düz bir sert disk gazında PV = nRT'nin iki boyutlu hâlini, Maxwell–Boltzmann dağılımını ve ideallikten sapmayı ölç.",
@@ -618,6 +632,13 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 30
+  },
+  "kombinatorik-ve-sayma": {
+    "title": "Kombinatorik: Listelemeden Saymanın Sanatı",
+    "tagline": "23 kişilik bir odada iki kişinin aynı gün doğmuş olma olasılığı neden yarıyı aşar? Seçimleri, güvercinleri, şapkaları ve parantezleri önce formülle say, sonra bilgisayara tek tek saydır.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "konik-kesitler": {
     "title": "Konik Kesitler: Bir Koni, Bir Düzlem, Üç Eğri",
@@ -857,6 +878,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "nufus-ekolojisi": {
+    "title": "Nüfus Ekolojisi: Büyüme, Kaos ve Yaş Yapısı",
+    "tagline": "On bireyle başlayan bir nüfus önce yaklaşık her 1,4 günde ikiye katlanır, sonra frene basar. Aynı basit kural kuşak kuşak işletilince kaos, bir matrisle yazılınca yaş piramidi doğar.",
+    "field": "Biyoloji",
+    "level": "Lisans",
+    "minutes": 40
+  },
   "nukleer-fizik": {
     "title": "Bağlanma Enerjisi: Çekirdeğin Eksik Kütlesi",
     "tagline": "Bir helyum çekirdeği, kendisini oluşturan iki proton ve iki nötrondan binde 7.5 hafiftir. Bu eksik kütle yıldızları yakar, reaktörleri ısıtır; eğrinin tepesi hangi tepkimenin enerji vereceğini söyler.",
@@ -876,6 +904,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Işık camın yüzeyinde yön değiştirir, bir kısmı geri döner, belli bir açıdan sonra hiç dışarı çıkamaz. İbn Sehl'in 984'teki oranından kıtaları bağlayan cam ipliklere, kırılma ve yansımanın fiziği.",
     "field": "Fizik",
     "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "optimizasyon-ve-gradyan-inisi": {
+    "title": "Optimizasyon ve Gradyan İnişi: Vadiden Aşağı Akıllı Adımlar",
+    "tagline": "Yokuş aşağı adım atmak en eski arama yöntemidir; ama adım biraz uzarsa iniş patlar, vadi daralırsa sürünür. Dışbükeylik, κ, momentum ve köşedeki optimumun matematiği.",
+    "field": "Matematik",
+    "level": "Lisans",
     "minutes": 35
   },
   "otomotiv-muhendisligi": {
@@ -976,6 +1011,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "regresyon-ve-korelasyon": {
+    "title": "Regresyon ve Korelasyon: En Küçük Kareler, Artıklar ve Nedensellik",
+    "tagline": "Bir nokta bulutundan geçen en iyi doğru iki satırlık bir denklemle bulunur. Zor olan, o doğrunun ne zaman yalan söylediğini anlamaktır: artıklar, tek bir uzak nokta ve gizli bir ortak neden.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "renk-teorisi": {
     "title": "Renk: Kodun Yarısı, Işığın Yarısı",
     "tagline": "Siyahla beyazın ortası neden bazen 128, bazen 188? Renk koordinatlarını, ışıkta karışımı ve ideal filtreleri aynı hesapta birbirinden ayır.",
@@ -997,12 +1039,26 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "salgin-modelleri-sir": {
+    "title": "Salgın Modelleri: Üç Kutu, İki Hız, Bir Eşik",
+    "tagline": "Üç kutu, iki hız ve tek bir eşik: SIR modeli bir salgının ne zaman büyüdüğünü, neden zirveden sonra da sürdüğünü ve şansın onu nasıl söndürebildiğini hesaplatır.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "sarkac": {
     "title": "Sarkaç: Zamanı Ölçen Salınım",
     "tagline": "Bir ipin ucundaki küçük bir ağırlık, üç yüzyıl boyunca insanlığın en hassas saatiydi. Nedeni salınımın matematiğinde gizli: periyot kütleye değil, ipin boyuna bakar.",
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 25
+  },
+  "sayisal-analiz": {
+    "title": "Sayısal Analiz: Yaklaşık Hesabın Kesin Bilimi",
+    "tagline": "Bilgisayar 0,1 + 0,2'yi 0,3 bulmaz; ama hatasının ne kadar olacağını önceden söyleyebilir. Kök bulmadan integrale, yaklaşık hesabın hatasını ölçen ve evcilleştiren matematik.",
+    "field": "Matematik",
+    "level": "Lisans",
+    "minutes": 40
   },
   "serbest-dusme": {
     "title": "Serbest Düşme: Tüy, Çekiç ve Hava",
@@ -1043,6 +1099,13 @@ window.ACELYA_CATALOG = {
     "title": "Üç Yapım: Limite Ne Kalır?",
     "tagline": "Alanı azalan bir üçgen, limitte kareyi örten bir yol ve altın orana yaklaşan sayılar. Üç deneyde sonlu hesabı, geometrik ölçüyü ve yakınsama hatasını birbirinden ayır.",
     "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "sinir-hucresi-ve-aksiyon-potansiyeli": {
+    "title": "Sinir Hücresi: Dinlenimden Ateşlemeye ve İletime",
+    "tagline": "Bir sinir hücresinin içi dışına göre yaklaşık 65 mV negatiftir; bir milisaniyelik akım bunu +40 mV'ye fırlatır ve uyarı aksonda saniyede metrelerle ilerler. Üçünün de arkasında birkaç iyon ve bir kondansatör vardır.",
+    "field": "Biyoloji",
     "level": "Lise–Lisans",
     "minutes": 35
   },

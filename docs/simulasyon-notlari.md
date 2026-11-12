@@ -1790,3 +1790,49 @@ NASA iklim/Earth Observatory) izinli listeye eklendi. Defter puanları 6,5–8'd
 Koordinatör: `index.html` menüsüne yeni kategori, `docs/sayfa-katalogu.md`'ye bölüm; sekiz sayfanın meta açıklaması
 defter taglinelarından; gelen bağlantıların başlıkları ve bir gerekçe (newton → momentum) güncellendi; önceki turun
 dört uzun `why` metni kısaltıldı.
+
+## 12 Kasım 2026 — L: matematik/istatistik ve biyolojide dokuz yeni sayfa (Yeni sayfa planı, 2. aşama, ilk grup)
+
+Plandaki listede 9 sayfa vardı (5 matematik/istatistik + 4 biyoloji); dokuzu da G hattıyla kuruldu (kurucu → farklı
+yazar → üçüncü, bağımsız doğrulayıcı/editör). Defterler sıfırdan yazıldı; bütün tarih iddiaları doğrulanmamış sayıldı.
+Komşu sayfaların içeriği tekrarlanmadı (normal dağılım, Bayes, yöneylem araştırması, Lotka–Volterra, gen ağı vb.).
+Salgın ve homeostaz sayfaları yalnız model olarak sunulur; tıbbi, sağlık politikası ya da beslenme tavsiyesi yok.
+`check-site.mjs`: oeis.org izinli kaynaklara eklendi. Defter puanları 6,5–7,5'ten 8,5–9'a çıktı.
+
+**Matematik ve istatistik**
+- ✔ `hipotez-testi-ve-guven-araligi`: örnekleme dağılımı ve MLT, z/t aralıklarının ölçülen kapsaması, p-değeri ve
+  hata türleri, güç ve çoklu test. Kendi normal/t/merkezsiz t yordamları NIST tablolarına karşı sınanır. Düzeltildi:
+  Cohen etiketleri uzlaşım olarak; defterde Gosset'in Guinness'e girişi 1899 (Wikipedia'daki 1884 yanlış), t
+  dağılımını Helmert–Lüroth 1876'da türetmişti.
+- ✔ `regresyon-ve-korelasyon`: normal denklemler ve türevsiz arama, artık tanıları ve Anscombe dörtlüsü, kaldıraç ve
+  Cook uzaklığı (formül = silip yeniden uydurma), Theil–Sen, karıştırıcı, Simpson, aralık kısıtlaması. Düzeltildi:
+  "p = < 10⁻⁶", Pearson/Spearman cümlesi, normal hata gerekçesi Gauss 1809. Cook 1977 başlığı tekil (Crossref).
+- ✔ `kombinatorik-ve-sayma`: dört seçim durumu sayarak (BigInt), güvercin yuvası ve doğum günü, içerme–dışlama ve
+  düzensizlikler, Catalan'ın dört ailesi. Düzeltildi: Catalan cümlesi (1838 makalesi çokgen bölme üzerine; adı
+  Riordan koydu; Euler 1751), kaynak notları.
+- ✔ `sayisal-analiz`: kök bulma ve ölçülen mertebe, IEEE 754 ve iptal, toplama hatası ve Kahan, sayısal türev ve
+  en iyi h, Gauss–Legendre ve Runge. Düzeltildi: 32 bit harmonik toplamın donduğu yer k = 2²¹ = 2 097 152 (yarım ulp
+  eşitliği); defterde Simpson–Newton iddiası, YBC 7289 tarihi, Patriot olayı kaynaklı ve yansız.
+- ✔ `optimizasyon-ve-gradyan-inisi`: dışbükeylik (kiriş testi), öğrenme oranı ve 2/L sınırı, ağır top / Nesterov /
+  Adam / Newton, havzalar, tavlama, DP ve bariyer yöntemi. Düzeltildi: kontur açıklaması (yarıya iner), çift kök
+  notu, Rastrigin durum satırı, κ biçimi, mobilde 3. sekme haritası; defterde giriş paragrafı (η = 2'de salınım).
+
+**Biyoloji**
+- ✔ `sinir-hucresi-ve-aksiyon-potansiyeli`: Nernst ve GHK, Hodgkin–Huxley (NEURON hh.mod parametreleri), refrakter
+  dönem ve güç–süre eğrisi, kablo ve iletim hızı. Düzeltildi: iki parametre takımı (memeli derişimleri E_Na 65,7 mV;
+  kalamar öğretim modeli 50 mV) açıkça ayrıldı; refrakter Δ ilk uyarının başlangıcından; Tip II başlangıç (alt
+  kritik Hopf, iki durumluluk). Defterde Nernst derişim pili için, GHK Goldman 1943 / Hodgkin–Katz 1949 uygulaması.
+- ✔ `salgin-modelleri-sir`: SIR ve son büyüklük denklemi, sürü bağışıklığı eşiği ve aşırı atış, iki aşı modeli,
+  Gillespie ve erken sönme, SEIR/SIRS ve ağ R₀. Düzeltildi: doruktaki duyarlı oran 33,333 % (örnekleme sıklaştırıldı),
+  sürü bağışıklığı cümlesi; defterde Kermack kimyacı, Pastor-Satorras–Vespignani SIS.
+- ✔ `nufus-ekolojisi`: lojistik büyüme ve uydurma, Ricker ve lojistik harita, Leslie matrisi, rekabet / Allee / avlanma.
+  Düzeltildi: ilkel olmayan Leslie matrisinde kararlı pay ve üreme değeri (kuvvet yinelemesi yakınsamıyordu; artık
+  kapalı biçim); kaotik λ ≈ 0,386 (yalnız iki ondalık güvenilir, test aralıkla); Leslie 1945 başlığı.
+- ✔ `homeostaz-ve-geri-besleme`: gecikmeli P denetimi ve salınım eşiği, Bergman tipi glukoz–insülin modeli (sadeleşmiş
+  insülin denklemi, sayfada yazılı), ısı dengesi, iki durumlu anahtar ve histerezis. Düzeltildi: "normal aralık"
+  ifadeleri kaldırıldı (test bunu denetler), birim notu; gecikmenin oturmayı kısaltmasının nedeni (baskın kök).
+
+Koordinatör: menü (Matematik +5, Biyoloji +4), `docs/sayfa-katalogu.md`, meta açıklamaları defter taglinelarından;
+uzun başlıklar kısaltıldı (regresyon, hipotez testi, optimizasyon, homeostaz) ve gelen bağlantılar güncellendi;
+komşu defterlerden yeni sayfalara 12 "sonraki durak" bağlantısı (normal dağılım, Bayes, Pascal, Riemann, makine
+öğrenmesi, yöneylem, elektrokimya, av–avcı ×2, kalp, enzim, bilimsel yöntem).

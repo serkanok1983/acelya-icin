@@ -238,9 +238,9 @@ window.ACELYA_DIGEST["kalp-dolasim"] = {
       why: "Tek bağlanma yerli bir sistemin hiperbolü: Hüfner'in hemoglobin için beklediği eğri buydu. K<sub>m</sub>, P₅₀'nin karşılığıdır; S biçimli eğriyi onun yanına koy.",
     },
     {
-      href: "fotosentez-solunum.html",
-      title: "Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton",
-      why: "Dokunun dakikada çektiği oksijen nereye gidiyor: mitokondrideki elektron taşıma sisteminin son alıcısına.",
+      href: "homeostaz-ve-geri-besleme.html",
+      title: "Homeostaz ve Geri Besleme: Döngü, Glukoz–İnsülin, Isı ve İki Durumluluk",
+      why: "Dolaşım da düzenlenir: ayar noktası, algılayıcı ve etkileyiciden oluşan geri besleme döngüsü, glukoz–insülin ve ısı dengesi sadeleştirilmiş modellerle.",
     },
   ],
   sources: [

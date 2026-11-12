@@ -256,6 +256,7 @@ window.ACELYA_DIGEST["enzim-kinetigi"] = {
       title: "Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton",
       why: "Enzimleri iş başında izle: solunum zinciri komplekslerinin pompaladığı protonların ATP sentazdan ya da ayırıcıdan geri akışını say.",
     },
+    { href: "homeostaz-ve-geri-besleme.html", title: "Homeostaz ve Geri Besleme: Döngü, Glukoz–İnsülin, Isı ve İki Durumluluk", why: "Tepkime hızlarından düzenlemeye: tepkimeler bir döngüye bağlanınca negatif geri besleme dengeyi korur, pozitif geri besleme iki durumlu bir anahtar kurar." },
   ],
   sources: [
     {

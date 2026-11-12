@@ -35,7 +35,7 @@ const SOURCE_PREFIXES = [
   "https://tr.wikipedia.org/wiki/", "https://en.wikipedia.org/wiki/",
   "https://tr.khanacademy.org/", "https://www.khanacademy.org/",
   "http://hyperphysics.phy-astr.gsu.edu/", "https://www.feynmanlectures.caltech.edu/",
-  "https://mathworld.wolfram.com/", "https://www.3blue1brown.com/",
+  "https://mathworld.wolfram.com/", "https://www.3blue1brown.com/", "https://oeis.org/",
   "https://goldbook.iupac.org/", "https://webbook.nist.gov/", "https://www.nist.gov/", "https://www.itl.nist.gov/div898/handbook/", "https://physics.nist.gov/", "https://www.bipm.org/",
   "https://www.ncbi.nlm.nih.gov/", "https://pubmed.ncbi.nlm.nih.gov/", "https://www.biointeractive.org/",
   "https://tubes.mit.edu/",

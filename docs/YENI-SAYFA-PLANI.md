@@ -102,7 +102,7 @@ Toplam: 1. aşamada 11, 2. aşamada 28 sayfa. Sekizerli 5 grup olur; her grup bi
 
 1. **1. aşama, grup A:** 8 STEM Omurgası sayfası (lineer cebir … algoritma karmaşıklığı). ✔ 12 Kasım (J; `docs/simulasyon-notlari.md`).
 2. **1. aşama, grup B:** 3 Bilim Atlası dersi, artı Yer bilimlerinden 5 sayfa. Yeni kategori ve menü düzeni bu grupta kurulur. ✔ 12 Kasım (K).
-3. **2. aşama:** matematik/istatistik ile biyoloji (8).
+3. **2. aşama:** matematik/istatistik ile biyoloji (listede 9 sayfa). ✔ 12 Kasım (L).
 4. **2. aşama:** fizik ile kimya (8).
 5. **2. aşama:** disiplinlerarası ve mühendislik (6), artı ilk dört grupta biriken düzeltmeler.
 
@@ -125,6 +125,11 @@ Toplam: 1. aşamada 11, 2. aşamada 28 sayfa. Sekizerli 5 grup olur; her grup bi
   (`iklim-ve-sera-etkisi` kurucusunun notu). Kaynak açılıp güncellenmeli.
 - `diferansiyel-denklemler`: ifade ipucu `log`, `sinh`, `cosh` desteğini söylemiyor; LV satırında karışık
   hassasiyet ("×1.00" / "×1.0").
+
+- `homeostaz-ve-geri-besleme`: ateş senaryosunda ayar noktası sıçraması son RK4 aşamasına düşüyor (terleme tepesi
+  404 W, ince adımla 407 W; ≈ %1). Çekirdek dondurulmuş; sıçramayı adım sınırına hizalamak gerekir.
+- `sinir-hucresi-ve-aksiyon-potansiyeli`: "sürekli ateşleme eşiği 6,228" 400 ms protokolünden; 3 s'de ≈ 6,234 µA/cm².
+  Başlık metni protokolü söylüyor; uzun protokol seçeneği eklenebilir.
 
 ## Uzun vadeli vizyon (kullanıcı, 12 Kasım 2026)
 

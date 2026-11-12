@@ -128,7 +128,7 @@ window.ACELYA_DIGEST["pascal-ucgeni"] = {
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "Çok sayıda bağımsız denemenin çan eğrisine nasıl yaklaştığını merkezi limit deneyinde izle." },
     { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş", why: "n adımda sağa gidiş sayısı binomdur; son konumun 2X − n ile ilişkisini kur." },
     { href: "fibo+pascal.html", title: "Fibonacci ve Pascal", why: "Sığ köşegen toplamlarını kare ve domino döşemelerini iki yoldan sayarak kanıtla; renkli sayımdan üreteç fonksiyonuna geç." },
-    { href: "sierpinski-fraktali-peano-egrisi-altin-oran.html", title: "Sierpiński: sayıdan geometriye", why: "Tek katsayıların oluşturduğu deseni üçgenleri bölerek yeniden kur; parça sayısı artarken kalan alanın nasıl azaldığını ölç." },
+    { href: "kombinatorik-ve-sayma.html", title: "Kombinatorik ve Sayma: Seçimler, Güvercin Yuvası, İçerme–Dışlama ve Catalan", why: "Üçgendeki sayılar birer seçim sayısıdır. Permütasyon, tekrarlı seçim, içerme–dışlama ve Catalan sayıları tek tek sayılarak formülle karşılaştırılır." },
   ],
   sources: [
     { title: "OpenStax · College Algebra 2e, Binomial Theorem", url: "https://openstax.org/books/college-algebra-2e/pages/9-6-binomial-theorem", note: "Kombinasyon, binom açılımı, katsayı simetrisi ve Pascal üçgeni; açık ders kitabı." },
