@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const SLUG='mikro-ekonomi-ve-uretim-faktorleri';
 const html=fs.readFileSync(new URL(`../${SLUG}.html`,import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -135,7 +136,7 @@ if(process.argv.includes('--browser')){
    const click=id=>page.locator('#'+id).click(),read=async id=>(await page.locator('#'+id).textContent()).trim(),range=(id,v)=>page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},v),
     has=async(id,text)=>{const t=await read(id);assert(t.includes(text),`${theme} ${id}: "${t}" içinde "${text}" yok`);checks++;},is=async(id,text)=>{eq(await read(id),text,`${theme} ${id}`);},
     fits=async tag=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${theme} ${tag}: yatay taşma`);},
-    painted=async id=>{eq(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]<<16|d[i+1]<<8|d[i+2]);return s.size>3;}),true,`${theme} ${id} boş`);};
+    painted=async id=>{eq(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:`${theme} ${id}`}),true,`${theme} ${id} boş`);};
    // erişilebilirlik: her denetimin etiketi, her tuvalin rolü
    eq(await page.evaluate(()=>[...document.querySelectorAll('main input,main select')].every(e=>e.id&&document.querySelector(`label[for="${e.id}"]`))),true,'etiketler');
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].every(c=>c.getAttribute('role')==='img'&&c.getAttribute('aria-label'))),true,'tuval rolleri');

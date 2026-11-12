@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["homeostaz-ve-geri-besleme"] = {
     { href: "gen-ifadesi-ve-molekuler-biyoloji.html", title: "Gen İfadesi ve Moleküler Bilgi Akışı Laboratuvarı", why: "Gen ağları sekmesinde birbirini baskılayan iki genle kurulan anahtarı ve üç genin saatini ölç; buradaki tek değişkenli anahtarın iki boyutlu eşi." },
     { href: "mekatronik-muhendisligi.html", title: "Mekatronik Mühendisliği Laboratuvarı", why: "Aynı geri besleme ilkesi bir motorda: enkoder ve örneklemeyle çalışan ayrık PID konum denetimi ve onun kararlılık sınırı." },
     { href: "sinir-hucresi-ve-aksiyon-potansiyeli.html", title: "Sinir Hücresi ve Aksiyon Potansiyeli: Nernst, Hodgkin–Huxley, Eşik ve İletim", why: "Dinlenim gerilimini, eşiği ve refrakter dönemi Hodgkin–Huxley denklemleriyle ölç: bir eşiği aşınca kendi kendini sürdüren bir olayın başka bir örneği." },
-    { href: "enzim-kinetigi.html", title: "Enzim Kinetiği Laboratuvarı", why: "Michaelis–Menten doyması, anahtardaki üretim teriminin n = 1 hâliyle aynı biçimdedir; hız tavanını ve inhibisyonu ölç." },
+    { href: "kontrol-kurami.html", title: "Kontrol Kuramı: Transfer Fonksiyonu, Kök Yeri, Bode ve PID", why: "Geri beslemenin mühendislik dili: basamak yanıtı, kök yeri, Bode ve Nyquist ile kararlılık payı, gecikmenin payı nasıl yediği ve PID ayarı." },
   ],
   sources: [
     { title: "OpenStax · Anatomy and Physiology 2e, 1.5 Homeostasis", url: "https://openstax.org/books/anatomy-and-physiology-2e/pages/1-5-homeostasis", note: "Ayar noktası, algılayıcı, denetim merkezi ve etkileyici tanımları; ısı ve glukoz döngüleri; doğum ve pıhtılaşmada pozitif geri besleme (İngilizce, açık ders kitabı)." },

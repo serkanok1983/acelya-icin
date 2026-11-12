@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const html = fs.readFileSync(new URL('../sicim-teorisi.html', import.meta.url), 'utf8');
 const source = html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -274,8 +275,7 @@ if (process.argv.includes('--browser')) {
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `[${width}] yatay taşma: ${label}`); checks++;
       };
       const painted = async (id) => { // tuval boş değil
-        const n = await page.locator('#' + id).evaluate((c) => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let k = 0; for (let i = 3; i < d.length; i += 16) if (d[i]) k++; return k; });
-        assert(n > 50, `[${width}] ${id} boş`); checks++;
+        assertCanvasDrawn(await canvasInk(page, '#' + id), { minInk: 200, minDistinct: 2, label: `[${width}] ${id}` }); checks++;
       };
       // Erişilebilirlik: her denetimin etiketi, her tuvalin rolü ve adı, sekme yapısı
       const a11y = await page.evaluate(() => ({

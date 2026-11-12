@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const html = fs.readFileSync(new URL('../dna-replikasyon.html', import.meta.url), 'utf8');
 const source = html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -196,7 +197,7 @@ if (process.argv.includes('--browser')) {
       const select = (id, v) => page.locator('#' + id).selectOption(v);
       const type = (v) => page.locator('#hSeq').fill(v);
       const noOverflow = async (label) => { ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `[${width}] yatay taşma: ${label}`); };
-      const painted = async (id) => { ok(await page.locator('#' + id).evaluate((c) => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; const s = new Set(); for (let i = 0; i < d.length; i += 4 * 97) s.add(d[i] + ',' + d[i + 1] + ',' + d[i + 2]); return c.width > 100 && s.size > 4; }), `[${width}] ${id} çizilmedi`); };
+      const painted = async (id) => { ok(assertCanvasDrawn(await canvasInk(page, '#' + id), { minW: 100, minDistinct: 5, label: `[${width}] ${id}` }), `[${width}] ${id} çizilmedi`); };
       const rangeReach = async (id, v) => ok(await page.locator('#' + id).evaluate((e, v) => { const mn = +e.min, st = +e.step; return Math.abs(((v - mn) / st) - Math.round((v - mn) / st)) < 1e-9 && v >= mn && v <= +e.max; }, v), `${id}=${v} adımla erişilebilir`);
 
       ok(await page.evaluate(() => [...document.querySelectorAll('main input, main select')].every((e) => document.querySelector(`label[for="${e.id}"]`))), 'her denetimin etiketi var');

@@ -211,7 +211,7 @@ window.ACELYA_DIGEST["otonom-araclar-ve-iha"] = {
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma: Az Adım mı, Az Maliyet mi?", why: "Döngünün bu sayfada olmayan halkası: BFS, Dijkstra ve A*'ı aynı ağırlıklı haritada adım adım çalıştır, hangisinin kaç kareye baktığını karşılaştır." },
     { href: "otomotiv-muhendisligi.html", title: "Otomotiv Mühendisliği: Motor, Aktarma ve Araç Dinamiği", why: "Buradaki µ·g'lik fren ivmesinin arkasını gör: 'Frenleme ve viraj' sekmesinde durma mesafesi ve virajda tutunma, aktarma sekmesinde çekiş kuvveti ölçülür." },
     { href: "ucak-muhendisligi-ve-aerodinamik.html", title: "Uçak Mühendisliği ve Aerodinamik: Kanat, Performans ve Menzil", why: "Sabit kanatlı bir İHA'yı havada tutan fizik: kanat profili, kutup eğrisi, en az itkiyle uçuş, yatışta yük katsayısı ve menzil hesabı." },
-    { href: "normal-dagilim.html", title: "Normal Dağılım ve Merkezi Limit Teoremi", why: "Kalman süzgecinin varsaydığı Gauss gürültüsünü ve 400 koşunun ortalamasının neden yüzde birkaç oynadığını (standart hata) deneyle gör." },
+    { href: "robotik-ve-kinematik.html", title: "Robotik ve Kinematik: Eklem Açılarından Uç Noktaya ve Geri", why: "Hareketin geometrisi: iki eklemli kolda ileri ve ters kinematik, Jacobian ile hız ve kuvvet, yörünge planlama ve engel denetimi." },
   ],
   sources: [
     { title: "Wikipedia · PID controller", url: "https://en.wikipedia.org/wiki/PID_controller", note: "Minorsky'nin 1922 çalışmasından ayarlama yöntemlerine; üç terimin etkisi ve integral şişmesi (İngilizce)." },

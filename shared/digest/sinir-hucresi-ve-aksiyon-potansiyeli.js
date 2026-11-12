@@ -97,7 +97,7 @@ window.ACELYA_DIGEST["sinir-hucresi-ve-aksiyon-potansiyeli"] = {
     {
       title: "Hodgkin–Huxley aksonu yavaş ateşleyemez",
       body:
-        "Sabit akımı yavaş yavaş artırınca HH zarı 1 Hz, 5 Hz diye başlamaz. Sayfanın 400 ms'lik protokolünde, akım dinlenimden birden açılınca, sürekli ateşleme 6,228 µA/cm²'de doğrudan 48,8 Hz'le başlar. Dinlenim noktası ise ancak 9,749 µA/cm²'de bir Hopf çatallanmasıyla kararlılığını yitirir; orada doğrusallaştırılmış sistemin salınım frekansı (Im λ/2π) 93,3 Hz'dir. Arada dinlenim ile sürekli ateşleme birlikte kararlıdır: 8 µA/cm²'de akım birden açılırsa hücre ateşler, oysa aynı akımın denge noktasına yavaşça getirilen bir zar sessiz kalır.",
+        "Sabit akımı yavaş yavaş artırınca HH zarı 1 Hz, 5 Hz diye başlamaz. Sayfanın 400 ms'lik protokolünde, akım dinlenimden birden açılınca, sürekli ateşleme 6,228 µA/cm²'de doğrudan 48,8 Hz'le başlar (3 s'lik protokolde eşik ≈ 6,234 µA/cm²). Dinlenim noktası ise ancak 9,749 µA/cm²'de bir Hopf çatallanmasıyla kararlılığını yitirir; orada doğrusallaştırılmış sistemin salınım frekansı (Im λ/2π) 93,3 Hz'dir. Arada dinlenim ile sürekli ateşleme birlikte kararlıdır: 8 µA/cm²'de akım birden açılırsa hücre ateşler, oysa aynı akımın denge noktasına yavaşça getirilen bir zar sessiz kalır.",
     },
     {
       title: "Demir telden kurbağa sinirine",

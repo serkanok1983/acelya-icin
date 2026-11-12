@@ -68,7 +68,7 @@ window.ACELYA_DIGEST["diferansiyel-denklemler"] = {
         title: "Doğrusallaştırma ne zaman susar?",
         predict: "Sönümlü sarkaçta b'yi 0'a indirirsen θ = 0 dengesinin doğrusal sınıfı ne olur? Benzetim ne der?",
         do: "Sekme 02'de Merkez düğmesine bas ve yarıçap oranını oku. Sekme 03'te Sönümlü sarkaç, b = 0.3 ile (0, 0) satırını oku; sonra b'yi 0 yap. Son olarak Model menüsünden Av–avcı (Lotka–Volterra) seç.",
-        observe: "Merkez: λ = 0.000 ± 1.414i, periyot 4.4429, oran 1.0000. Sarkaçta b = 0.3 iken λ = −0.150 ± 0.989i, kararlı sarmal, “uyumlu”. b = 0'da λ = 0.000 ± 1.000i, doğrusal sınıf “merkez: karar veremez”, benzetim ileri ×1.0, geri ×1.0; Uyum: “doğrusal test susuyor; benzetim: merkez”. Lotka–Volterra'nın (1, 2) dengesi de 0.000 ± 1.414i ile aynı durumdadır.",
+        observe: "Merkez: λ = 0.000 ± 1.414i, periyot 4.4429, oran 1.0000. Sarkaçta b = 0.3 iken λ = −0.150 ± 0.989i, kararlı sarmal, “uyumlu”. b = 0'da λ = 0.000 ± 1.000i, doğrusal sınıf “merkez: karar veremez”, benzetim ileri ×1.00, geri ×1.00; Uyum: “doğrusal test susuyor; benzetim: merkez”. Lotka–Volterra'nın (1, 2) dengesi de 0.000 ± 1.414i ile aynı durumdadır.",
         explain: "Re λ = 0 iken doğrusal olmayan terimler, küçük de olsa, yörüngeyi içe ya da dışa itebilir; Hartman–Grobman burada bir şey söylemez. Sarkaçta enerji, Lotka–Volterra'da V korunur. Bu yüzden yörüngeler kapalı kalır.",
       },
       {

@@ -43,6 +43,8 @@ for (const [src, fn] of [['2x^2 - 3y', (x, y) => 2 * x * x - 3 * y], ['-x^2', x 
   }
 }
 for (const bad of ['sin x', '(x', 'x y z', 'xy', '2..3', 'x $ y', '', 'foo(x)', 'x^', 'ln(-1-x^2-y^2)']) { assert.throws(() => K.makeFn(bad), undefined, bad); checks++; }
+// sabit üslü kuvvet kuralı: üs aritmetiği metinde sadeleşir (x^(−2 − 1) değil x^(−3))
+for (const [src, fx] of [['x^(-2)*y', '−2·x^(−3)·y'], ['x^-2', '−2x^(−3)'], ['x^(1/3)+y', '1 / 3·x^(−2 / 3)'], ['(x^2+y^2)^(-3/2)', '−3·(x² + y²)^(−2.5)·x'], ['x^(2-3)', '−x^(−2)'], ['x^3*y^2', '3·x²·y²']]) { const F = K.makeFn(src); eq(F.fxText, fx, src + ' metni'); for (const [x, y] of [[0.7, 1.3], [1.9, -0.4]]) { const h = 1e-6; near(F.fx(x, y), (F.f(x + h, y) - F.f(x - h, y)) / (2 * h), 1e-6, src + ' sade türev değeri'); } }
 // merkezî fark: büyük h'de hata h² ile (kubik, fxxx = 6 → hata = h²)
 { const F = K.makeFn(K.PRESETS.kubik.src); for (const h of [1e-1, 1e-2, 1e-3]) near(K.partials(F, 0.5, 1.5, h).fx - (-2.25), h * h, 1e-6, 'merkezî fark hatası h²'); }
 

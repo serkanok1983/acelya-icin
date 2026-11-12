@@ -218,7 +218,7 @@ window.ACELYA_DIGEST["kuantum-mekanigi"] = {
     { href: "klasik-girisim.html", title: "Young'ın Çift Yarığı", why: "Aynı Δy = λL/d bu kez ışıkla: Young'ın 1803 kart deneyi, fazörlerle cos², zarf, eksik mertebeler ve saçakları silen uyum eksikliği." },
     { href: "kuantum-dalga.html", title: "Kuantum Kuyuları", why: "Dalga fonksiyonunu bir kuyuya kapat: enerji basamakları, süperpozisyonda çalkalanan |ψ|² ve ince bir engelden tünelleme." },
     { href: "fotoelektrik.html", title: "Fotoelektrik Olay", why: "Işığın tane yüzü: her foton enerjisini tek bir elektrona hf olarak öder; birkaç renk, bir gerilim kaynağı ve bir ampermetreyle Planck sabitini ölç." },
-    { href: "kirinim-izgarasi.html", title: "Kırınım Izgarası", why: "İki yarıktan binlerce yarığa: tepeler incelir, renkler ayrışır. Arndt'ın C₆₀ ızgarasının ışıktaki kuzeniyle hidrojen, sodyum ve cıva çizgilerini ölç." },
+    { href: "kuantum-hesaplama.html", title: "Kuantum Hesaplama: Kübit, Dolanıklık, Deutsch–Jozsa ve Grover", why: "Süperpozisyon ve girişim hesap yapınca: kübit ve Bloch küresi, dolanıklık ve CHSH, Deutsch–Jozsa ve Grover algoritmaları benzetimle." },
   ],
   sources: [
     { title: "The Feynman Lectures on Physics · Vol. III, Ch. 1: Quantum Behavior", url: "https://www.feynmanlectures.caltech.edu/III_01.html", note: "Kurşunlar, su dalgaları ve elektronlarla çift yarık; 'tek gizem', yol bilgisinin saçakları nasıl sildiği ve deneyin neden düşünce deneyi olarak anlatıldığı (İngilizce, ücretsiz)." },

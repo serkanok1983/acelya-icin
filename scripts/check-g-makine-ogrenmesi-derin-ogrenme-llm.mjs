@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const SLUG='makine-ogrenmesi-derin-ogrenme-llm';
 const html=fs.readFileSync(new URL(`../${SLUG}.html`,import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -175,7 +176,7 @@ if(process.argv.includes('--browser')){
     box=async(id,v)=>{await page.locator('#'+id).fill(v);await page.locator('#'+id).dispatchEvent('change');},
     clean=async panel=>{const t=await page.locator('#'+panel).innerText();ok(!/(^|[\s(=%])-\d/.test(t),`[${width}] ${panel}: eksi işareti U+2212 olmalı: ${(t.match(/.{0,20}[\s(=%]-\d.{0,10}/)||[''])[0]}`);ok(!/NaN|undefined|Infinity|\bnull\b/.test(t),`[${width}] ${panel}: bozuk sayı metni: ${(t.match(/.{0,40}(NaN|undefined|Infinity|null).{0,20}/)||[''])[0]}`);},
     noOverflow=async()=>eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`[${width}] yatay taşma`),
-    painted=async id=>ok(await page.locator('#'+id).evaluate(c=>{const g=c.getContext('2d'),d=g.getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>3;}),`[${width}] ${id} boş`);
+    painted=async id=>ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:`[${width}] ${id}`}),`[${width}] ${id} boş`);
    eq(await page.title(),'Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri');eq(await page.evaluate(()=>Object.isFrozen(MLLab)&&!Object.getOwnPropertyDescriptor(window,'MLLab').writable),true);
    // her denetimin etiketi, her tuvalin rolü
    eq(await page.evaluate(()=>[...document.querySelectorAll('.app-content input,.app-content select')].filter(e=>!e.labels||!e.labels.length).map(e=>e.id).join()),'','etiketsiz denetim');

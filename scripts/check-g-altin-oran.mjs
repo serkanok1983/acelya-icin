@@ -3,6 +3,7 @@
 // kesir araması, logaritmik sarmalın kapalı biçimleri, O(n²) komşu araması. `--browser` arayüzü de sınar.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../altin-oran.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'Çekirdek sınır işaretleri gerekli');
@@ -152,7 +153,7 @@ if(process.argv.includes('--browser')){
    await has('mythTol','8/5, 13/8');await has('mythTol','5 tanesi');
    eq(await page.evaluate(()=>Object.isFrozen(GoldenLab)&&!Object.getOwnPropertyDescriptor(window,'GoldenLab').writable),true);
    // Tuvaller gerçekten çizilmiş (tek renk değil)
-   for(const[tabId,ids]of[['tab-phi',['segCanvas','rectCanvas','pentCanvas','cfCanvas']],['tab-spiral',['spCanvas','spChart','spDevChart']],['tab-leaf',['leafCanvas','leafChart','leafZoom']]]){await click(tabId);await page.waitForTimeout(300);for(const id of ids)ok(await page.evaluate(id=>{const c=document.getElementById(id),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]<<16|d[i+1]<<8|d[i+2]);return s.size>3;},id),id+' boş');await noflow(tabId);}
+   for(const[tabId,ids]of[['tab-phi',['segCanvas','rectCanvas','pentCanvas','cfCanvas']],['tab-spiral',['spCanvas','spChart','spDevChart']],['tab-leaf',['leafCanvas','leafChart','leafZoom']]]){await click(tabId);await page.waitForTimeout(300);for(const id of ids)ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:id}),id+' boş');await noflow(tabId);}
    assert.deepEqual(errors,[]);checks++;assert.deepEqual(foreign,[]);checks++;await ctx.close();}
   console.log(`G altın oran: ${checks-before} tarayıcı kontrolü (390 px aydınlık + 1280 px koyu; sekmeler, hazır ayarlar, sınırlar, klavye, taşma) PASS`);
  }finally{await browser?.close();await new Promise(r=>{server.closeAllConnections?.();server.close(r);});}

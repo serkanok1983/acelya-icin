@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["entropi-ve-istatistiksel-fizik"] = {
   next: [
     { href: "termodinamik.html", title: "Termodinamik: PV Diyagramı, İş, Isı ve Çevrimler", why: "Aynı entropiyi makroskobik dille gör: izotermal, adyabatik süreçler, TS diyagramı ve Carnot ile Otto çevrimlerinde iş ve ısı." },
     { href: "ideal-gaz.html", title: "İdeal Gaz: Moleküllerden Basınca (Kinetik Teori)", why: "Buradaki konumsuz çarpışma modelinin gerçek karşılığı: sert disklerin moleküler dinamiği, basınç ve Maxwell–Boltzmann hız dağılımı." },
-    { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş: √N Yasası, Difüzyon ve Geri Dönüş", why: "Dalgalanmaların neden √N ile büyüdüğünü ve Pólya'nın geri dönüş sonucunu ayrı bir laboratuvarda ölç." },
+    { href: "bilgi-kurami-ve-sikistirma.html", title: "Bilgi Kuramı ve Sıkıştırma: Entropi, Huffman, LZ ve Kanal Kapasitesi", why: "Aynı logaritma bilgide: Shannon entropisi bir kaynağın sürprizini ölçer; Huffman ve LZ sıkıştırması ile kanal kapasitesi bu sınıra dayanır." },
     { href: "kimyasal-denge-ve-gibbs-enerjisi.html", title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük", why: "Entropinin enerjiyle birlikte bir tepkimenin yönünü ve denge sabitini nasıl belirlediğini ΔG = ΔH − TΔS ile izle." },
   ],
   sources: [

@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html = fs.readFileSync(new URL('../takimyildiz-haritasi.html', import.meta.url), 'utf8');
 const source = html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source, 'Çekirdek sınırları (KERNEL-BEGIN/END) gerekli');
@@ -131,7 +132,7 @@ if (process.argv.includes('--browser')) {
       const click = (id) => page.locator('#' + id).click(), read = async (id) => (await page.locator('#' + id).textContent()).trim(), set = (id, v) => page.locator('#' + id).evaluate((e, v) => { if (e.type === 'checkbox') e.checked = v; else e.value = v; e.dispatchEvent(new Event(e.tagName === 'SELECT' || e.type === 'checkbox' || e.type === 'date' ? 'change' : 'input', { bubbles: true })); }, v);
       const is = async (id, t) => { assert.equal(await read(id), t, id); checks++; }, has = async (id, t) => { const g = await read(id); assert(g.includes(t), `${id}: "${g}" içinde "${t}" yok`); checks++; };
       const noflow = async (tag) => eq(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'yatay taşma: ' + tag + ' @' + width);
-      const painted = async (id) => ok(await page.evaluate((id) => { const c = document.getElementById(id), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, s = new Set(); for (let i = 0; i < d.length; i += 4 * 97) s.add(d[i] + ',' + d[i + 1] + ',' + d[i + 2]); return c.width > 200 && s.size > 4; }, id), id + ' boş');
+      const painted = async (id) => ok(assertCanvasDrawn(await canvasInk(page, '#' + id), { minW: 200, minDistinct: 5, label: id }), id + ' boş');
       eq(await page.evaluate(() => [...document.querySelectorAll('.app-content input,.app-content select')].filter((e) => !e.labels?.length && !e.getAttribute('aria-label')).map((e) => e.id).join(',')), '', 'etiketsiz denetim');
       eq(await page.evaluate(() => [...document.querySelectorAll('.app-content canvas')].every((c) => c.getAttribute('role') === 'img' && c.getAttribute('aria-label'))), true);
       eq(await page.evaluate(() => /-\d/.test(document.querySelector('.app-content').innerText.replace(/\d{4}-\d{2}-\d{2}/g, ''))), false, 'kısa çizgili eksi');

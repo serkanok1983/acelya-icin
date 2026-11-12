@@ -148,6 +148,14 @@ for (const Ta of [0, 22, 30, 40]) { const rows = K.effectorTable({ Ta }); rows.f
 { // ateş kavramı: yükselişte titreme, inişte terleme
   const s = K.thermoSim({ Ta: 22, T0: 37, tEnd: 12 * 3600, dt: 20, setSchedule: [[0, 37], [3600, 38.5], [6 * 3600, 37]] });
   ok(Math.max(...s.S.subarray(180, 360)) === 350, "yükselişte titreme doyar"); ok(Math.max(...s.E.subarray(1080, 1260)) > 300, "inişte terleme"); ok(s.T[Math.round(5.9 * 3600 / 20)] > 38 && s.T[Math.round(5.9 * 3600 / 20)] < 38.5, "oransal hata kalır");
+  // basamak RK4 aşamasının içine düşmez: 20 s'lik sonuç 1 s'lik ince integrasyonla %0,2 içinde (terleme tepesi ≈ 407 W)
+  const f = K.thermoSim({ Ta: 22, T0: 37, tEnd: 12 * 3600, dt: 1, setSchedule: [[0, 37], [3600, 38.5], [6 * 3600, 37]] });
+  const pk = (x, a, b, h) => Math.max(...x.subarray(Math.round(a / h), Math.round(b / h)));
+  near(pk(s.E, 6 * 3600, 7 * 3600, 20), pk(f.E, 6 * 3600, 7 * 3600, 1), 2e-3, "terleme tepesi kaba = ince"); ok(Math.round(pk(s.E, 6 * 3600, 7 * 3600, 20)) === 407, "terleme tepesi 407 W");
+  for (const tt of [3620, 4000, 21620, 22000, 43200]) near(s.T[tt / 20], f.T[tt], 1e-5, "ateş T kaba = ince @" + tt);
+  // basamak adımın ortasına düşse de (dt = 7 s) ince sonuçla aynı
+  const g = K.thermoSim({ Ta: 22, T0: 37, tEnd: 7 * 3600, dt: 7, setSchedule: [[0, 37], [3600, 38.5], [6 * 3600, 37]] });
+  near(g.T[Math.round(22001 / 7)], f.T[Math.round(22001 / 7) * 7], 1e-5, "bölünmüş adım");
 }
 
 /* ══ 4 · İki durumlu anahtar ══ */

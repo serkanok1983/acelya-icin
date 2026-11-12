@@ -465,13 +465,17 @@ function thermoSim(cfg) {
   const t = new Float64Array(N + 1), T = new Float64Array(N + 1), S = new Float64Array(N + 1), E = new Float64Array(N + 1), Gd = new Float64Array(N + 1), SP = new Float64Array(N + 1);
   T[0] = cfg.T0 ?? p.Tset;
   const q = { ...p };
-  const rhs = (tt, y) => { q.Tset = setAt(tt); return [heatTerms(y[0], q).net / C]; };
+  // RK4 aşamaları boyunca ayar noktası sabit tutulur (parça başındaki değer); bir basamak adımın içine
+  // ya da tam sonuna düşerse adım basamakta bölünür. Böylece hiçbir aşama sonraki parçanın değerini görmez.
+  const rhs = (tt, y) => [heatTerms(y[0], q).net / C];
+  const cuts = sched ? sched.map((r) => r[0]) : [];
   for (let k = 0; k <= N; k++) {
     const tk = k * h; q.Tset = setAt(tk); const ht = heatTerms(T[k], q);
     t[k] = tk; S[k] = ht.S; E[k] = ht.E; Gd[k] = ht.dry; SP[k] = q.Tset;
     if (k < N) {
-      // ayar noktası basamağı adımın içine düşmesin
-      T[k + 1] = rk4Step(rhs, tk, [T[k]], h)[0];
+      let a = tk, y = T[k]; const b = tk + h;
+      for (const c of cuts) if (c > a + 1e-9 && c < b - 1e-9) { q.Tset = setAt(a); y = rk4Step(rhs, a, [y], c - a)[0]; a = c; }
+      q.Tset = setAt(a); T[k + 1] = rk4Step(rhs, a, [y], b - a)[0];
     }
   }
   return { p, t, T, S, E, Gd, SP, h };

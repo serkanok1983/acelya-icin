@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../makine-dili-assembly-c.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'KERNEL-BEGIN / KERNEL-END sınırları gerekli');
@@ -250,7 +251,7 @@ if(process.argv.includes('--browser')){
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].filter(c=>c.getAttribute('role')!=='img'||!c.getAttribute('aria-label')).length),0);
    eq(await page.evaluate(()=>Object.isFrozen(MachineLab)&&!Object.getOwnPropertyDescriptor(window,'MachineLab').writable),true);
    for(const t of['cpu','c','stack','alu']){await click('tab-'+t);await page.waitForTimeout(60);await fits('son '+t);}
-   for(const id of['cpuTrace','stChart','aluMap']){await click(id==='cpuTrace'?'tab-cpu':id==='stChart'?'tab-stack':'tab-alu');ok(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;const s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>1;}),id+' boş değil');}
+   for(const id of['cpuTrace','stChart','aluMap']){await click(id==='cpuTrace'?'tab-cpu':id==='stChart'?'tab-stack':'tab-alu');ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:2,label:id}),id+' boş değil');}
    assert.deepEqual(errors,[],theme+' konsol hataları');checks++;await page.close();}
   console.log(`G makine-dili-assembly-c: ${(checks-before).toLocaleString('tr-TR')} tarayıcı kontrolü PASS (390 px açık + 1280 px koyu; dört sekme, hazırlar, sınırlar, klavye)`);
  }finally{await browser?.close();await new Promise(r=>server.close(r));}

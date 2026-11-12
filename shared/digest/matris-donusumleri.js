@@ -252,11 +252,7 @@ window.ACELYA_DIGEST["matris-donusumleri"] = {
       title: "Karmaşık Sayılar: Düzlemde Döndürme ve Büyütme",
       why: "03'teki [1 −1; 1 1] matrisi 1 + i ile çarpmadır. Oradaki 'Düzlemde işlemler' sekmesinde z ile w'yi sürükleyip çarpımda açıların toplandığını, uzunlukların çarpıldığını ölç: λ = 1.000 ± 1.000 i'nin geometrisi budur.",
     },
-    {
-      href: "barnsley-egreltiotu.html",
-      title: "Barnsley Eğreltiotu: Dört Kuraldan Bir Yaprak",
-      why: "Dört afin dönüşümden bir yaprak çıkar. 'Afin dönüşümler' sekmesinde tek bir kuralı parçalarına ayırıp alanın küçülmesi (|det|) ile uzaklıkların küçülmesinin (en büyük tekil değer) neden ayrı koşullar olduğunu sına.",
-    },
+    { href: "robotik-ve-kinematik.html", title: "Robotik ve Kinematik: Eklem Açılarından Uç Noktaya ve Geri", why: "Dönüşüm matrisleri bir robot kolunda: homojen matrislerle ileri kinematik, ters kinematik, Jacobian ve tekillik." },
     {
       href: "grup-teorisi.html",
       title: "Grup Teorisi: Simetrinin Cebiri",

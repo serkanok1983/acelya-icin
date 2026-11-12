@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../integral.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'integral.html: KERNEL sınırları gerekli');
@@ -135,7 +136,7 @@ if(process.argv.includes('--browser')){
    const click=id=>page.locator('#'+id).click(),read=async id=>(await page.locator('#'+id).textContent()).trim(),has=async(id,t)=>{const s=await read(id);if(process.env.IG_SOFT){if(!s.includes(t))console.log(`[${width}] #${id}: "${s}" içinde "${t}" yok`);}else assert(s.includes(t),`[${width}] #${id}: "${s}" içinde "${t}" yok`);checks++;};
    const range=(id,v)=>page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},v),pick=(id,v)=>page.locator('#'+id).selectOption(v),type=async(id,v)=>{await page.locator('#'+id).fill(v);await page.locator('#'+id).press('Enter');};
    const noOverflow=async w=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`[${width}] yatay taşma: ${w}`);};
-   const painted=async id=>{ok(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>3;}),`[${width}] ${id} boş`);};
+   const painted=async id=>{ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:`[${width}] ${id}`}),`[${width}] ${id} boş`);};
    // etiketler
    eq(await page.evaluate(()=>[...document.querySelectorAll('main input,main select')].filter(e=>!(e.labels&&e.labels.length)&&!e.getAttribute('aria-label')).map(e=>e.id).join()),'','etiketsiz denetim');
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].every(c=>c.getAttribute('role')==='img'&&c.getAttribute('aria-label'))),true);

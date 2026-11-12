@@ -294,7 +294,7 @@
           <button type="button" class="app-btn-ghost" id="sReset">Sekmeyi sıfırla</button>
         </div>
         <div class="kd-formula">Ksp = [M]ᵐ[A]ᵃ (doymuş çözeltide)<br>Qsp &gt; Ksp → çökelir; &nbsp; Qsp &lt; Ksp → çökelmez<br>(c₊ + m s)ᵐ (c₋ + a s)ᵃ = Ksp</div>
-        <p class="kd-note">Derişimler etkinlik yerine kullanılır, yani etkinlik katsayıları 1 alınır. İyon şiddeti büyüdükçe (kabaca 0.01 mol/L üstünde) bu yaklaşım bozulur ve gerçek çözünürlük daha büyük olur. Model kompleks iyonları (örneğin yüksek Cl⁻ derişiminde AgCl₂⁻), hidrolizi ve iyon çiftlerini içermez. Kaynak tuzların (AgNO₃, NaCl, …) tamamen çözündüğü ve hacimlerin toplandığı varsayılır.</p>
+        <p class="kd-note">Derişimler etkinlik yerine kullanılır, yani etkinlik katsayıları 1 alınır. İyon şiddeti büyüdükçe bu yaklaşım bozulur (sayfa I ≥ 0.01 mol/L'de uyarır; bu eşikte etkinlik katsayısı yaklaşık 0.9'dur) ve gerçek çözünürlük daha büyük olur. Model kompleks iyonları (örneğin yüksek Cl⁻ derişiminde AgCl₂⁻), hidrolizi ve iyon çiftlerini içermez. Kaynak tuzların (AgNO₃, NaCl, …) tamamen çözündüğü ve hacimlerin toplandığı varsayılır.</p>
       </aside>
     </div>
   </section>
@@ -905,6 +905,8 @@
   /* ═════════ 04 · Çözünürlük dengesi ═════════ */
   const sDefaults = { sSalt: "AgCl", sCommon: "none", sCLog: -2, sC1: -3, sV1: 50, sC2: -3, sV2: 50 };
   const pow10 = (v) => 10 ** v;
+  // Etkinlik uyarısı eşiği: I ≥ 0.01 mol/L (göreli 10⁻⁶ pay: 0.010 M tuzun kendi I'si tam 0.01 olsa da yuvarlamayla kaybolmasın)
+  const highI = (I) => I >= 0.01 * (1 - 1e-6);
   function sUpdate() {
     const key = $("sSalt").value, S = L.SALTS[key], mode = $("sCommon").value, cc = pow10(num("sCLog"));
     $("sCLog").disabled = mode === "none";
@@ -923,7 +925,7 @@
     if (mode === "an" && cc >= 0.1 && /Ag|Pb/.test(key) && /Cl|Br|I/.test(key)) { st += " Bu kadar yüksek halojenür derişiminde gerçek çözünürlük, kompleks iyonlar (AgCl₂⁻ gibi) yüzünden yeniden artar; model bunu içermez."; warn = true; }
     const spect = mode === "cat" ? cc * S.catSpec[0] * S.catSpec[1] ** 2 : mode === "an" ? cc * S.anSpec[0] * S.anSpec[1] ** 2 : 0;
     const Iown = 0.5 * (sol.cM * S.zc ** 2 + sol.cA * S.za ** 2 + spect);
-    if (Iown > 0.01) { st += ` İyon şiddeti yaklaşık ${g(Iown, 2)} mol/L: etkinlik katsayıları 1'den belirgin sapar, gerçek çözünürlük gösterilenden büyüktür.`; warn = true; }
+    if (highI(Iown)) { st += ` İyon şiddeti yaklaşık ${g(Iown, 2)} mol/L: etkinlik katsayıları 1'den belirgin sapar, gerçek çözünürlük gösterilenden büyüktür.`; warn = true; }
     $("sStatus").textContent = st; $("sStatus").classList.toggle("is-warn", warn);
     // karışım
     const c1 = pow10(num("sC1")), c2 = pow10(num("sC2")), V1 = num("sV1"), V2 = num("sV2"), mx = L.mix(key, c1, V1, c2, V2);
@@ -932,10 +934,10 @@
     const lim = Math.min(mx.cM / S.m, mx.cA / S.a), frac = lim > 0 ? mx.x / lim : 0;
     put("sPpt", mx.precipitates ? `${g(mx.mmol, 4)} mmol ${S.label}` : "Çökelti yok"); put("sFrac", mx.precipitates ? `Sınırlayıcı iyonun çöken kesri ${fx(frac * 100, frac > 0.999 ? 4 : 2)} %` : "");
     put("sRem", `[${S.cat}] = ${g(mx.cMf, 3)}, [${S.an}] = ${g(mx.cAf, 3)} mol/L`); put("sRemi", `Kalan çarpım / Ksp = ${g(mx.Qf / S.Ksp, 4)}`);
-    put("sI", g(mx.I, 3) + " mol/L"); put("sIi", mx.I > 0.01 ? "0.01 mol/L üstü: derişimle Ksp kullanımı kaba" : "Seyreltik: etkinlik yaklaşımı makul");
+    put("sI", g(mx.I, 3) + " mol/L"); put("sIi", highI(mx.I) ? "0.01 mol/L ve üstü: derişimle Ksp kullanımı kaba" : "Seyreltik: etkinlik yaklaşımı makul");
     let ms = mx.precipitates ? `Karıştırınca Qsp = ${g(mx.Q, 3)}, Ksp'nin ${g(mx.ratio, 3)} katı: ${g(mx.mmol, 3)} mmol ${S.label} çöker ve çözelti tam Ksp'de doymuş kalır.` : `Qsp = ${g(mx.Q, 3)}, Ksp'nin ${g(mx.ratio, 3)} katı: çökelme olmaz. ${S.cat} ve ${S.an} çözeltide kalır.`, mw = false;
     if (mx.precipitates && mx.ratio < 10) { ms += " Q, Ksp'ye çok yakın. Gerçekte aşırı doygunluk ve etkinlik etkileri yüzünden çökelme gecikebilir ya da hiç görülmeyebilir."; mw = true; }
-    if (mx.I > 0.01) { ms += " İyon şiddeti yüksek: etkinlik katsayıları 1'den küçük, gerçek Q daha küçük ve sınır kayar."; mw = true; }
+    if (highI(mx.I)) { ms += " İyon şiddeti yüksek: etkinlik katsayıları 1'den küçük, gerçek Q daha küçük ve sınır kayar."; mw = true; }
     $("sMixStatus").textContent = ms; $("sMixStatus").classList.toggle("is-warn", mw);
     const all = Object.entries(L.SALTS).map(([k, v]) => [k, v, L.simpleS(k)]), order = all.slice().sort((a, b) => a[2] - b[2]).map((a) => a[0]);
     $("sRows").innerHTML = all.map(([k, v, s]) => `<tr${k === key ? ' style="font-weight:700"' : ""}><th scope="row">${v.label}</th><td>${v.m === 1 && v.a === 1 ? "1:1" : v.m === 2 ? "2:1" : "1:2"}</td><td>${g(v.Ksp, 2)}</td><td>${g(s, 3)}</td><td>${order.indexOf(k) + 1}</td></tr>`).join("");

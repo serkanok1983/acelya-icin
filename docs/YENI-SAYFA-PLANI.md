@@ -104,7 +104,7 @@ Toplam: 1. aşamada 11, 2. aşamada 28 sayfa. Sekizerli 5 grup olur; her grup bi
 2. **1. aşama, grup B:** 3 Bilim Atlası dersi, artı Yer bilimlerinden 5 sayfa. Yeni kategori ve menü düzeni bu grupta kurulur. ✔ 12 Kasım (K).
 3. **2. aşama:** matematik/istatistik ile biyoloji (listede 9 sayfa). ✔ 12 Kasım (L).
 4. **2. aşama:** fizik ile kimya (8). ✔ 12 Kasım (M).
-5. **2. aşama:** disiplinlerarası ve mühendislik (6), artı ilk dört grupta biriken düzeltmeler.
+5. **2. aşama:** disiplinlerarası ve mühendislik (6), artı ilk dört grupta biriken düzeltmeler. ✔ 12 Kasım (N). Plan tamamlandı.
 
 ## Kararlar (kullanıcı, 12 Kasım 2026)
 
@@ -112,30 +112,15 @@ Toplam: 1. aşamada 11, 2. aşamada 28 sayfa. Sekizerli 5 grup olur; her grup bi
 - STEM Omurgası ve Bilim Atlası dersleri standart laboratuvar kabuğuna geçecek; atlas haritası (`bilim-atlasi.html`) kalır.
 - Plan bu sırayla başlıyor: önce 1. aşama, grup A (8 STEM Omurgası sayfası).
 
-## Küçük açık işler (bir sonraki turda)
+## Küçük açık işler
 
-- `fonksiyon-grafigi`: `1e3` bilimsel gösterimi 1·e·3 diye okunuyor. Sözdizimi kutusunda belirtilmeli ya da desteklenmeli.
-- Seyrek piksel örneklemli tuval denetimi 24 testte duruyor (bkz. `docs/simulasyon-notlari.md`, H test notu). Hepsi bütün pikselleri sayan bir ortak yardımcıya taşınmalı.
-- `kimyasal-denge-ve-gibbs-enerjisi`: çözünürlük sekmesinde 0,010 M Cl⁻ varsayılanında iyonik şiddet
-  uyarısı tam eşiğin üstünde (I = 0,0100000160 > 0,01). Eşik biraz değişirse uyarı kaybolur; eşik ya da
-  varsayılan bilinçli seçilmeli.
-- `cok-degiskenli-kalkulus`: türev metni bazen sadeleşmemiş görünüyor (`2x^(−2 − 1)`); matematik doğru.
-- `lineer-cebir-ve-ozdegerler`: en küçük kareler grafiğinde eksen etiketleri yuvarlanıyor (0,75 → "0,8").
-- `kara-cisim-isimasi`: Mars yüzey sıcaklığı 208 K; NASA Mars bilgi sayfası şimdi ≈ 214 K veriyor
-  (`iklim-ve-sera-etkisi` kurucusunun notu). Kaynak açılıp güncellenmeli.
-- `diferansiyel-denklemler`: ifade ipucu `log`, `sinh`, `cosh` desteğini söylemiyor; LV satırında karışık
-  hassasiyet ("×1.00" / "×1.0").
+12 Kasım'da (N turu) önceki listenin hepsi kapandı: `1e3` gösterimi, iyonik şiddet eşiği, türev metni, eksen
+etiketleri, Mars 214 K (NASA bilgi sayfası, 19 Mayıs 2025), ifade ipucu, ateş senaryosunda RK4 adımı, ateşleme eşiği
+protokolü, "hekz" yazımı, U-borusu çizimi, lazer kip düğmesi; seyrek piksel örneklemi 36 testte ortak
+`scripts/lib/canvas-check.mjs` yardımcısına taşındı (bütün pikseller, en az 400 mürekkep pikseli).
 
-- `homeostaz-ve-geri-besleme`: ateş senaryosunda ayar noktası sıçraması son RK4 aşamasına düşüyor (terleme tepesi
-  404 W, ince adımla 407 W; ≈ %1). Çekirdek dondurulmuş; sıçramayı adım sınırına hizalamak gerekir.
-- `sinir-hucresi-ve-aksiyon-potansiyeli`: "sürekli ateşleme eşiği 6,228" 400 ms protokolünden; 3 s'de ≈ 6,234 µA/cm².
-  Başlık metni protokolü söylüyor; uzun protokol seçeneği eklenebilir.
-
-- `organik-kimya-ve-izomeri`: zincirde "hekzan", halkada "sikloheksan" yazılıyor; sitede tek yazım seçilmeli.
-- `cozeltiler-ve-koligatif-ozellikler`: geçersiz ayarlarda (Δh > 2h₀) U-borusu animasyonu sol kolu zarın altına
-  çiziyor; uyarı var, kısıtlama çekirdek değişikliği ister.
-- `lazer-ve-uyarilmis-salim`: kip kilitleme oyuncağı kendi N kaydırıcısını kullanıyor; üstteki rezonatörün kip
-  sayısıyla bağlanabilir.
+- `kara-cisim-isimasi`: kalıcı `check-g` testi yok; yazılmalı.
+- Tam pikselli ama yardımcıyı kullanmayan 15 test, tutarlı iletiler için yardımcıya taşınabilir (acil değil).
 
 ## Uzun vadeli vizyon (kullanıcı, 12 Kasım 2026)
 

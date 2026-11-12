@@ -4,6 +4,7 @@
 // üsteli ve karakteristik polinom, oylama için bütün sıralamaların kaba kuvvet sayımı ve Konsey kuralının doğrudan sayımı.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const SLUG='uluslararasi-iliskiler';
 const html=fs.readFileSync(new URL(`../${SLUG}.html`,import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -153,7 +154,7 @@ if(process.argv.includes('--browser')){
    const click=async id=>{await page.locator('#'+id).click();await settle();},read=id=>page.locator('#'+id).textContent(),has=async(id,t)=>{const s=await read(id);assert(s.includes(t),`${id}: «${t}» yok → ${s.slice(0,260)}`);checks++;},lacks=async(id,t)=>{const s=await read(id);assert(!s.includes(t),`${id}: «${t}» olmamalı`);checks++;};
    const range=async(id,v)=>{await page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},v);await settle();},type=async(id,v)=>{await page.locator('#'+id).fill(v);await settle();},sel=async(id,v)=>{await page.locator('#'+id).selectOption(v);await settle();};
    const noOverflow=async tag=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`yatay taşma: ${tag} @${width}`);};
-   const painted=async id=>{eq(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]<<16|d[i+1]<<8|d[i+2]);return s.size>3;}),true,'tuval boş: '+id);};
+   const painted=async id=>{eq(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:id}),true,'tuval boş: '+id);};
    // erişilebilirlik: her denetimin etiketi, her tuvalin rolü
    eq(await page.evaluate(()=>[...document.querySelectorAll('main input,main select')].every(e=>e.id&&document.querySelector('label[for="'+e.id+'"]'))),true,'etiket');
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].every(c=>c.getAttribute('role')==='img'&&c.getAttribute('aria-label'))),true,'tuval rolü');

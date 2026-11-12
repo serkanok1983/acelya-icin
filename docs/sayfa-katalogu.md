@@ -172,7 +172,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `atmosfer-ve-hava` — Atmosfer ve Hava (sayfa başlığı: Atmosfer ve Hava: Basınç, Bulut Tabanı, Kararlılık ve Coriolis) · Lise–Lisans
 - `okyanus-ve-gelgitler` — Okyanus ve Gelgitler (sayfa başlığı: Okyanus ve Gelgitler: Gelgit Kuvveti, Deniz Suyu ve Dalgalar) · Lise–Lisans
 
-## Disiplinler Arası (48)
+## Disiplinler Arası (54)
 
 - `fourier-ses` — Fourier: Ses ve Örnekleme (sayfa başlığı: Fourier: Sesten Örneklere)
 - `sezar-sifre` — Sezar Şifresi (sayfa başlığı: Sezar Şifresi: Harf Değişir, İz Kalır)
@@ -222,3 +222,9 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `elektrikli-araclar` — Elektrikli Araçlar (sayfa başlığı: Elektrikli Araçlar: Enerji, Batarya ve Menzil)
 - `uluslararasi-iliskiler` — Uluslararası İlişkiler (sayfa başlığı: Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri)
 - `isletme-bilimi-ve-yonetim` — İşletme Bilimi ve Yönetim (sayfa başlığı: İşletme Bilimi: Başabaş, Yatırım, Mali Tablolar ve Karar)
+- `bilgi-kurami-ve-sikistirma` — Bilgi Kuramı ve Sıkıştırma (sayfa başlığı: Bilgi Kuramı ve Sıkıştırma: Entropi, Huffman, LZ ve Kanal Kapasitesi) · Lise–Lisans
+- `sinyal-isleme-ve-modulasyon` — Sinyal İşleme ve Modülasyon (sayfa başlığı: Sinyal İşleme ve Modülasyon: Örnekleme, FFT, AM–FM ve Süzgeçler) · Lisans
+- `kontrol-kurami` — Kontrol Kuramı (sayfa başlığı: Kontrol Kuramı: Transfer Fonksiyonu, Kök Yeri, Bode ve PID) · Lisans
+- `robotik-ve-kinematik` — Robotik ve Kinematik (sayfa başlığı: Robotik ve Kinematik: Eklem Açılarından Uç Noktaya ve Geri) · Lise–Lisans
+- `kuantum-hesaplama` — Kuantum Hesaplama (sayfa başlığı: Kuantum Hesaplama: Kübit, Dolanıklık, Deutsch–Jozsa ve Grover) · Lisans
+- `oyun-kurami` — Oyun Kuramı (sayfa başlığı: Oyun Kuramı: Nash Dengesi, Minimaks ve İşbirliğinin Evrimi) · Lise–Lisans

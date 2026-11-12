@@ -26,6 +26,8 @@ const ok = (c, label) => { assert(c, label); checks++; };
 // ── Ayrıştırıcı: JS Math ile karşılaştır; zararlı/bozuk girdileri reddet ──
 const cases = [['y*(1 - y/4)', (t, y) => y * (1 - y / 4)], ['sin(t) - y/2', (t, y) => Math.sin(t) - y / 2], ['-2ty', (t, y) => -2 * t * y], ['2^-1*y', (t, y) => 0.5 * y],
   ['-y^2', (t, y) => -(y * y)], ['exp(-t)cos(2pi t)', (t, y) => Math.exp(-t) * Math.cos(2 * Math.PI * t)], ['sqrt(abs(y)) + ln(1+t^2)', (t, y) => Math.sqrt(Math.abs(y)) + Math.log(1 + t * t)], ['3(y - t)', (t, y) => 3 * (y - t)], ['y − t', (t, y) => y - t], ['2^3^2', () => 512], ['0,5y', (t, y) => 0.5 * y]];
+// ipucu kutusunda listelenen her ad gerçekten ayrıştırılır
+cases.push(['log(1+t^2) + sinh(y/4) - cosh(t/3) + tanh(y) + atan(t) + arctan(y) + tan(t/9) + π*e', (t, y) => Math.log(1 + t * t) + Math.sinh(y / 4) - Math.cosh(t / 3) + Math.tanh(y) + Math.atan(t) + Math.atan(y) + Math.tan(t / 9) + Math.PI * Math.E]);
 for (const [src, ref] of cases) { const r = K.parseExpression(src); ok(r.ok, 'ayrıştırılamadı: ' + src); for (const [t, y] of [[0.3, -1.2], [1.7, 0.4], [2.2, 3.1]]) near(r.fn(t, y), ref(t, y), 1e-12, src); }
 for (const bad of ['', 'y;', 'constructor', 'alert(1)', 'sin y', '(y', 'y)', 'x + y', '2**3', 'y = 1', 'this.y', '`y`', 'a'.repeat(200)]) ok(!K.parseExpression(bad).ok, 'reddedilmeliydi: ' + bad);
 
@@ -201,7 +203,7 @@ if (process.argv.includes('--browser')) {
       await page.selectOption('#f1Method', 'rk4'); await has('f1P', '(+'); await page.selectOption('#f1H', '0.025'); await clean('rk4 küçük h');
       await page.selectOption('#f1Preset', 'linear'); await range('f1Y0', 1); await has('f1Status', 'yuvarlama düzeyinde kesin'); await has('f1SlopeE', 'tanımsız');
       await page.selectOption('#f1Preset', 'gauss'); await page.selectOption('#f1Method', 'euler'); await page.selectOption('#f1H', '1'); await has('f1Status', 'kararlılık sınırı'); await has('f1Status', 'en düşük −4.00'); await has('f1EqRows', 'zamanla değişir');
-      await page.fill('#f1Expr', 'y^2 - t)'); await page.click('#f1Apply'); await has('f1ExprMsg', 'okunamadı'); assert.equal(await page.locator('#f1Preset').inputValue(), 'gauss'); checks++;
+      await page.fill('#f1Expr', 'y^2 - t)'); await page.click('#f1Apply'); await has('f1ExprMsg', 'okunamadı'); await has('f1ExprMsg', 'log (log da doğal logaritmadır, ln ile aynı), sqrt, abs, atan (arctan), sinh, cosh, tanh'); assert.equal(await page.locator('#f1Preset').inputValue(), 'gauss'); checks++;
       await page.fill('#f1Expr', 'y*(1-y)*(y-2)'); await page.press('#f1Expr', 'Enter'); assert.equal(await page.locator('#f1Preset').inputValue(), 'custom'); checks++; await has('f1Exact', 'başvuru'); await has('f1EqRows', '2.0000'); await has('f1EqRows', '1.0000');
       { await page.locator('#f1Field').scrollIntoViewIfNeeded(); const box = await page.locator('#f1Field').boundingBox(); await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.4); } await clean('tıklama');
       await ends(['f1Y0'], 'f1');
@@ -221,7 +223,7 @@ if (process.argv.includes('--browser')) {
       await page.click('#tab-nonlin'); await has('n3EqRows', '(3.142, 0.000)'); await has('n3EqRows', 'eyer'); await has('n3EqRows', 'uyumlu'); await has('n3Fate', 'dengesine yaklaştı'); await has('n3Amp', 'yalnız van der Pol');
       await range('n3B', 0); await has('n3EqRows', 'merkez'); await has('n3Status', 'b = 0');
       await page.selectOption('#n3Sys', 'competition'); await has('n3EqRows', '(1.000, 1.000)'); await has('n3EqRows', '(3.000, 0.000)'); await clean('rekabet');
-      await page.selectOption('#n3Sys', 'lv'); await has('n3EqRows', 'kapalı yörünge'); await clean('lv');
+      await page.selectOption('#n3Sys', 'lv'); await has('n3EqRows', 'kapalı yörünge'); await has('n3EqRows', 'ileri ×1.00, geri ×1.00'); await clean('lv');
       await page.selectOption('#n3Sys', 'vdp'); await has('n3Amp', '2.0025'); await has('n3PerT', '6.3814'); await has('n3Per', '6.3807'); await has('n3Fate', 'limit çevrim'); await clean('vdp');
       await ends(['n3Mu', 'n3X0', 'n3Y0'], 'vdp');
       await page.click('#n3Reset'); await has('n3BOut', '0.30'); assert.equal(await page.locator('#n3MuField').isHidden(), true); checks++;

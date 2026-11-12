@@ -260,11 +260,7 @@ window.ACELYA_DIGEST["mekatronik-muhendisligi"] = {
       title: "Elektronik Mühendisliği: Analog Devre Laboratuvarı",
       why: "Sensör ile ADC arasındaki analog katman: diyot ve doğrultucu, transistörlü yükselteç, işlemsel yükselteç ve RC alçak geçiren süzgeç; örtüşmeyi örneklemeden önce durduran süzgeç türü.",
     },
-    {
-      href: "makine-muhendisligi.html",
-      title: "Makine Mühendisliği: Çevrim, Dişli, Titreşim ve Isı",
-      why: "Buradaki kayıpsız dişlinin diş sayısıyla kurulmuş hâli: kademeli dişli zincirinde devir, tork ve kavrama verimiyle kaybolan güç.",
-    },
+    { href: "kontrol-kurami.html", title: "Kontrol Kuramı: Transfer Fonksiyonu, Kök Yeri, Bode ve PID", why: "Ayrık PID'in arkasındaki kuram: transfer fonksiyonu, kök yeri, Bode ve kararlılık payları, Ziegler–Nichols ayarı ve integral doyması." },
   ],
   sources: [
     {

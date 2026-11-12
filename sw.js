@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-9e46341801";
+const VERSION = "acelya-63b6355438";
 // --- end:version ---
 
 // --- generated:core ---
@@ -73,6 +73,7 @@ const PAGES = [
   "bayes-olasilik.html",
   "besin-agi.html",
   "bicimsel-diller-ve-otomata-teorisi.html",
+  "bilgi-kurami-ve-sikistirma.html",
   "bilgi.html",
   "bilgisayar-sistemleri-ve-mimarisi.html",
   "bilimsel-yontem-olcme-ve-belirsizlik.html",
@@ -149,8 +150,10 @@ const PAGES = [
   "koch-kar-tanesi.html",
   "kombinatorik-ve-sayma.html",
   "konik-kesitler.html",
+  "kontrol-kurami.html",
   "kristal-yapilar.html",
   "kuantum-dalga.html",
+  "kuantum-hesaplama.html",
   "kuantum-mekanigi.html",
   "lazer-ve-uyarilmis-salim.html",
   "levha-tektonigi.html",
@@ -192,6 +195,7 @@ const PAGES = [
   "otomotiv-muhendisligi.html",
   "otonom-araclar-ve-iha.html",
   "oyun-2048.html",
+  "oyun-kurami.html",
   "pascal-ucgeni.html",
   "penrose-dosemesi.html",
   "periyodik-tablo.html",
@@ -206,6 +210,7 @@ const PAGES = [
   "regresyon-ve-korelasyon.html",
   "renk-teorisi.html",
   "riemann-toplamlari.html",
+  "robotik-ve-kinematik.html",
   "roma-hukuku.html",
   "salgin-modelleri-sir.html",
   "sarkac.html",
@@ -217,6 +222,7 @@ const PAGES = [
   "sicim-teorisi.html",
   "sierpinski-fraktali-peano-egrisi-altin-oran.html",
   "sinir-hucresi-ve-aksiyon-potansiyeli.html",
+  "sinyal-isleme-ve-modulasyon.html",
   "siralama-algoritmalari.html",
   "siralama-yarisi.html",
   "snake.html",
@@ -272,6 +278,7 @@ const DIGESTS = [
   "shared/digest/bayes-olasilik.js",
   "shared/digest/besin-agi.js",
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
+  "shared/digest/bilgi-kurami-ve-sikistirma.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
   "shared/digest/bilimsel-yontem-olcme-ve-belirsizlik.js",
   "shared/digest/birim-cember.js",
@@ -347,8 +354,10 @@ const DIGESTS = [
   "shared/digest/koch-kar-tanesi.js",
   "shared/digest/kombinatorik-ve-sayma.js",
   "shared/digest/konik-kesitler.js",
+  "shared/digest/kontrol-kurami.js",
   "shared/digest/kristal-yapilar.js",
   "shared/digest/kuantum-dalga.js",
+  "shared/digest/kuantum-hesaplama.js",
   "shared/digest/kuantum-mekanigi.js",
   "shared/digest/lazer-ve-uyarilmis-salim.js",
   "shared/digest/levha-tektonigi.js",
@@ -390,6 +399,7 @@ const DIGESTS = [
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
   "shared/digest/oyun-2048.js",
+  "shared/digest/oyun-kurami.js",
   "shared/digest/pascal-ucgeni.js",
   "shared/digest/penrose-dosemesi.js",
   "shared/digest/periyodik-tablo.js",
@@ -404,6 +414,7 @@ const DIGESTS = [
   "shared/digest/regresyon-ve-korelasyon.js",
   "shared/digest/renk-teorisi.js",
   "shared/digest/riemann-toplamlari.js",
+  "shared/digest/robotik-ve-kinematik.js",
   "shared/digest/roma-hukuku.js",
   "shared/digest/salgin-modelleri-sir.js",
   "shared/digest/sarkac.js",
@@ -415,6 +426,7 @@ const DIGESTS = [
   "shared/digest/sicim-teorisi.js",
   "shared/digest/sierpinski-fraktali-peano-egrisi-altin-oran.js",
   "shared/digest/sinir-hucresi-ve-aksiyon-potansiyeli.js",
+  "shared/digest/sinyal-isleme-ve-modulasyon.js",
   "shared/digest/siralama-algoritmalari.js",
   "shared/digest/siralama-yarisi.js",
   "shared/digest/snake.js",

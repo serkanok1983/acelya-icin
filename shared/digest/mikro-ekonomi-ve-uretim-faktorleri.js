@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["mikro-ekonomi-ve-uretim-faktorleri"] = {
   next: [
     { href: "makro-ekonomi-ve-para-politikalari.html", title: "Makro Ekonomi: Çarpanlar, Para ve Büyüme Modelleri", why: "Tek piyasadan bütün ekonomiye: harcama çarpanı, enflasyon ile faiz ve Cobb–Douglas üretimle kurulan Solow büyüme modeli; yine varsayımları açık yazılmış üç sekme." },
     { href: "yoneylem-arastirmasi.html", title: "Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol", why: "Kıt kaynağı en iyi dağıtma problemi: bir doğrusal programı grafikle çöz ve gölge fiyatı, yani bir kaynağın bir birim fazlasının değerini ölç." },
-    { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Artık bir alandır: buradaki tüketici ve üretici artığı birer belirli integraldir. Birikim fikrini ve sayısal toplamın kesin değere nasıl yaklaştığını orada dene." },
+    { href: "oyun-kurami.html", title: "Oyun Kuramı: Nash Dengesi, Minimaks ve İşbirliğinin Evrimi", why: "Stratejik karar modeli: en iyi yanıt, Nash dengesi, sıfır toplamlı oyunlarda minimaks ve tekrarlanan oyunlarda işbirliği, varsayımlarıyla." },
     { href: "turev.html", title: "Türev: Kesenden Teğete (Limit Laboratuvarı)", why: "'Marjinal' sözcüğünün matematiği: çözümlü örnekteki MC = 2,5·Q, toplam maliyet eğrisinin teğet eğimidir." },
   ],
   sources: [

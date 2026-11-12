@@ -7,6 +7,7 @@
 // `--browser`: 390 px açık ve 1280 px koyu temada gerçek arayüz denetimi.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const html = fs.readFileSync(new URL('../gen-ifadesi-ve-molekuler-biyoloji.html', import.meta.url), 'utf8');
 const source = html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -224,7 +225,7 @@ if (process.argv.includes('--browser')) {
       const range = (id, v) => page.locator('#' + id).evaluate((e, v) => { e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); }, v);
       const select = (id, v) => page.locator('#' + id).selectOption(v);
       const noOverflow = async (label) => { ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `[${width}] yatay taşma: ${label}`); };
-      const painted = async (id) => { ok(await page.locator('#' + id).evaluate((c) => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; const s = new Set(); for (let i = 0; i < d.length; i += 4 * 97) s.add(d[i] + ',' + d[i + 1] + ',' + d[i + 2]); return c.width > 100 && s.size > 5; }), `[${width}] boş tuval ${id}`); };
+      const painted = async (id) => { ok(assertCanvasDrawn(await canvasInk(page, '#' + id), { minW: 100, minDistinct: 6, label: `[${width}] ${id}` }), `[${width}] boş tuval ${id}`); };
       const noNaN = async (panel) => { const t = await page.locator('#panel-' + panel).innerText(); ok(!/NaN|undefined|Infinity/.test(t), `[${width}] ${panel} NaN/undefined`); };
       const rangeReach = async (id, v) => ok(await page.locator('#' + id).evaluate((e, v) => { const mn = +e.min, st = +e.step; return Math.abs(((v - mn) / st) - Math.round((v - mn) / st)) < 1e-6 && v >= mn && v <= +e.max; }, v), `${id}=${v} adımla erişilebilir`);
 

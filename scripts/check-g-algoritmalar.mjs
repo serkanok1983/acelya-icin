@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../algoritmalar.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'Çekirdek sınır işaretleri gerekli');
@@ -183,7 +184,7 @@ if(process.argv.includes('--browser')){
       await set('sortSpeed',0);await page.locator('h1').click();await page.keyboard.press(' ');eq(await read('sortPause'),'Duraklat');await page.keyboard.press(' ');eq(await read('sortPause'),'Sürdür');await click('sortReset');
       for(const t of['search','graph','growth','sort']){await click('tab-'+t);await fits();eq(await page.locator('#panel-'+t).isVisible(),true);}
       // Tuvaller boş değil: ilk tuvalde arka plandan farklı piksel var.
-      eq(await page.evaluate(()=>{const c=document.getElementById('sortCanvas'),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>1;}),true);
+      eq(assertCanvasDrawn(await canvasInk(page,'#sortCanvas'),{minDistinct:2,label:'sortCanvas'}),true);
       assert.deepEqual(errors,[]);checks++;await page.close();}
     console.log(`G algoritmalar: ${checks-before} tarayıcı kontrolü PASS (390 px açık, 1280 px koyu)`);
   }finally{await browser?.close();await new Promise(r=>server.close(r));}

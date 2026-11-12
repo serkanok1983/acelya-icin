@@ -127,6 +127,7 @@ window.ACELYA_DIGEST["sezar-sifre"] = {
   next: [
     { href: "enigma-makinesi.html", title: "Enigma Makinesi", why: "Sabit kaydırma yerine her harften önce değişen eşlemeyi ve aynı başlangıca dönerek çözmeyi incele." },
     { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Tersinir bir harf eşlemesini, farklı girişleri aynı çıkışa götürebilen mantık işlemleriyle karşılaştır." },
+    { href: "bilgi-kurami-ve-sikistirma.html", title: "Bilgi Kuramı ve Sıkıştırma: Entropi, Huffman, LZ ve Kanal Kapasitesi", why: "Harf sıklıklarının arkasındaki kuram: entropi, fazlalık ve bir metnin neden sıkıştırılabildiği; şifreyi ele veren de bu fazlalıktır." },
   ],
   sources: [
     { title: "Suetonius · Julius Caesar'ın Yaşamı, 56.6", url: "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Suetonius/12Caesars/Julius*.html#56", note: "University of Chicago arşivindeki antik metnin Loeb çevirisi; özel yazışmalardaki alfabe kaydırmasına tanıklık. Modern 26 harfli alfabenin tarihsel kanıtı olarak kullanılmıyor." },

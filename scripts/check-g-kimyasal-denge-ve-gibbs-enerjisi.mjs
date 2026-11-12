@@ -295,6 +295,9 @@ if (process.argv.includes("--browser")) {
       await click("tab-sol"); await has("sKsp", "1.6×10⁻¹⁰"); await has("sS", "1.265×10⁻⁵ mol/L"); await has("sS0Diff", "0.00 %"); await has("sQ", "Q/K = 1560"); await has("sPpt", "0.04874 mmol AgCl"); await has("sFrac", "97.47 %"); await has("sRemi", "1.000");
       eq(await page.locator("#sCLog").isDisabled(), true, "saf suda derişim kapalı");
       await pick("sCommon", "an"); await has("sS", "1.600×10⁻⁸ mol/L"); await has("sSaDiff", "+1.6×10⁻⁴ %"); await has("sSaDiff", "s ≈ Ksp/c₋ ·"); await has("sStatus", "tutuyor");
+      // I eşiği bilinçli: 0.010 M Cl⁻ (I = 0.0100000160) "I ≥ 0.01" tarafında uyarır; 10⁻²·¹ M (I ≈ 0.0079) uyarmaz
+      await has("sStatus", "İyon şiddeti yaklaşık"); eq(await page.locator("#sStatus").evaluate((e) => e.classList.contains("is-warn")), true, "0.010 M Cl⁻ iyon şiddeti uyarısı");
+      await range("sCLog", -2.1); eq((await read("sStatus")).includes("İyon şiddeti"), false, "I ≈ 0.008 uyarı vermez"); eq(await page.locator("#sStatus").evaluate((e) => e.classList.contains("is-warn")), false, "I ≈ 0.008 uyarı sınıfı yok");
       await range("sCLog", 0); await has("sStatus", "kompleks"); await pick("sCommon", "cat"); await range("sCLog", -6); await has("sS", "1.216×10⁻⁵"); await has("sStatus", "tutmuyor");
       await click("sChromate"); await has("sS", "1.310×10⁻⁴ mol/L"); await has("sQ", "Q/K = 13.9"); await has("sPpt", "0.01677 mmol"); await has("sRows", "1.31×10⁻⁴");
       await click("sEdge"); await has("sPpt", "Çökelti yok"); await has("sPred", "çökelme yok");

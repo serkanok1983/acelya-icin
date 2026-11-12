@@ -15,6 +15,8 @@ const eq=(a,b,msg)=>{assert.equal(a,b,msg);checks++;};
 const ok=(c,msg)=>{assert(c,msg);checks++;};
 const near=(a,b,tol,msg)=>{assert(Math.abs(a-b)<=tol,(msg||'')+` ${a} ≠ ${b}`);checks++;};
 ok(Object.isFrozen(K)&&Object.isFrozen(K.EL)&&Object.isFrozen(K.A_VALUES));
+// yazım birliği: zincirde de halkada da 'hekz' (hekzan, siklohekzan); sayfa metninde ve defterde 'heks' kalmaz
+{const outside=html.replace(source,'');const dg=fs.readFileSync(new URL('../shared/digest/organik-kimya-ve-izomeri.js',import.meta.url),'utf8');ok(!/heks/i.test(outside),'sayfada heks yazımı kaldı');ok(!/heks/i.test(dg),'defterde heks yazımı kaldı');ok(/siklohekzan/i.test(outside)&&/hekzan/.test(outside));}
 
 /* ── Bağımsız referanslar ── */
 const A602=[1,1,1,1,2,3,5,9,18,35,75,159,355,802,1858]; // OEIS A000602, a(0) …

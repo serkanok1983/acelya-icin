@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const html = fs.readFileSync(new URL('../levha-tektonigi.html', import.meta.url), 'utf8');
 const source = html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -255,7 +256,7 @@ if (process.argv.includes('--browser')) {
       // keyboard tabs
       await page.locator('#tab-iso').focus(); await page.keyboard.press('Home'); eq(await page.locator('#tab-spread').getAttribute('aria-selected'), 'true'); await page.keyboard.press('ArrowLeft'); eq(await page.locator('#tab-iso').getAttribute('aria-selected'), 'true'); await page.keyboard.press('End'); eq(await page.locator('#tab-iso').getAttribute('aria-selected'), 'true'); await page.keyboard.press('ArrowRight'); eq(await page.locator('#tab-spread').getAttribute('aria-selected'), 'true');
       // canvases have pixels; no horizontal overflow on any tab
-      for (const t of ['spread', 'mag', 'hot', 'iso']) { await page.click('#tab-' + t); await page.waitForTimeout(200); eq(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true); const blank = await page.evaluate((t) => [...document.querySelectorAll('#panel-' + t + ' canvas')].filter((c) => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; const set = new Set(); for (let i = 0; i < d.length; i += 4 * 97) set.add(d[i] + ',' + d[i + 1] + ',' + d[i + 2]); return set.size < 4; }).map((c) => c.id), t); assert.deepEqual(blank, []); checks++; }
+      for (const t of ['spread', 'mag', 'hot', 'iso']) { await page.click('#tab-' + t); await page.waitForTimeout(200); eq(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true); for (const st of await canvasInkAll(page, '#panel-' + t + ' canvas')) assertCanvasDrawn(st, { minDistinct: 4, label: t + ' ' + st.id }); checks++; }
       eq(await page.evaluate(() => Object.isFrozen(window.TectonicsLab) && !Object.getOwnPropertyDescriptor(window, 'TectonicsLab').writable), true);
       assert.deepEqual(errors, []); checks++;
       await page.close();

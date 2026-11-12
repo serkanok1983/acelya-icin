@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../isletme-bilimi-ve-yonetim.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'KERNEL sınırları gerekli');
@@ -205,7 +206,7 @@ if(process.argv.includes('--browser')){
     has=async(id,text)=>{const t=await read(id);assert(t.includes(text),`${width}px ${id}: “${text}” yok → ${t.slice(0,260)}`);checks++;},
     lacks=async(id,text)=>{const t=await read(id);assert(!t.includes(text),`${width}px ${id}: “${text}” olmamalı`);checks++;},
     fits=async()=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,width+'px yatay taşma');},
-    painted=async id=>{yes(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>3;}),id+' boş');};
+    painted=async id=>{yes(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:id}),id+' boş');};
    // Her denetimin etiketi var
    eq(await page.evaluate(()=>[...document.querySelectorAll('main input,main select')].filter(e=>!document.querySelector('label[for="'+e.id+'"]')).map(e=>e.id)),[]);
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].filter(c=>c.getAttribute('role')!=='img'||!c.getAttribute('aria-label')).length),0);

@@ -210,7 +210,7 @@ window.ACELYA_DIGEST["asal-rsa"] = {
     { href: "siber-guvenlik.html", title: "Siber Güvenlik Laboratuvarı: Şifre, Özet ve Anahtar", why: "Aynı matematik orada oyuncak boyutta çalışır: küçük asallarla Diffie–Hellman ve RSA, kare-al-çarp adım sayısı, dinleyicinin ayrık logaritma aramasının kaç deneme sürdüğü; yanında gerçek SHA-256 ile çığ etkisi ve HMAC." },
     { href: "grup-teorisi.html", title: "Grup Teorisi: Simetrinin Cebiri", why: "Euler teoreminin öbür kanıtı: mod n'de tersi olan kalanlar bir gruptur ve Lagrange teoremi her mertebenin φ(n)'yi böldüğünü söyler; sayfadaki n = 5 tablosu oradaki Z₅ˣ'tir." },
     { href: "algoritmalar.html", title: "Algoritmalar: Adımları Say", why: "Adım saymanın dili orada: doğrusal ve ikili arama aynı sıralı dizide yarışır, gerçek algoritmaların işlem sayıları log–log eksende çizilip eğimleri ölçülür." },
-    { href: "internet-ve-ag-teknolojileri.html", title: "İnternet ve Ağ Teknolojileri: Paket, Pencere, Önek, Ad", why: "Şifreli bağlantının üzerinde koştuğu katmanlar: paketin yönlendiriciler arasındaki yolu, kayıplı kanalda güvenilir aktarım, alt ağ hesabı ve DNS çözümlemesi bir öğretim ağında adım adım." },
+    { href: "kuantum-hesaplama.html", title: "Kuantum Hesaplama: Kübit, Dolanıklık, Deutsch–Jozsa ve Grover", why: "RSA'nın kuantum tehdidi nedir, ne değildir: kübitler, girişim ve Grover'ın karesel hızlanması; Shor'un neden büyük, hatasız makine gerektirdiği." },
   ],
   sources: [
     { title: "Vikipedi · Asal sayı", url: "https://tr.wikipedia.org/wiki/Asal_say%C4%B1", note: "Tanım, aritmetiğin temel teoremi, Öklid'in kanıtı ve Eratosthenes eleği (Türkçe)." },

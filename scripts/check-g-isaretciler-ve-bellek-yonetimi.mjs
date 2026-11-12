@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const SLUG='isaretciler-ve-bellek-yonetimi';
 const html=fs.readFileSync(new URL(`../${SLUG}.html`,import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -213,7 +214,7 @@ if(process.argv.includes('--browser')){
    for(let i=0;i<9;i++)await click('gcDelNode');await is('gcN','1');eq(await page.locator('#gcDelNode').isDisabled(),true);await is('gcLeakDiff','0');
    await click('gcReset');await is('gcN','6');await has('gcLeak','0 (yok)');eq(await page.locator('#gcPreset').inputValue(),'karma');await noflow();
    // tuvaller gerçekten çizildi mi (boş değil)
-   for(const[t,c]of[['heap','alMap'],['heap','alChart'],['gc','gcCanvas']]){await click('tab-'+t);if(c!=='gcCanvas')await click('alHoles');eq(await page.locator('#'+c).evaluate(cv=>{const d=cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]<<16|d[i+1]<<8|d[i+2]);return s.size>=3&&cv.width>100;}),true,c);}
+   for(const[t,c]of[['heap','alMap'],['heap','alChart'],['gc','gcCanvas']]){await click('tab-'+t);if(c!=='gcCanvas')await click('alHoles');eq(assertCanvasDrawn(await canvasInk(page,'#'+c),{minW:100,minDistinct:3,label:c}),true,c);}
    assert.deepEqual(errors,[]);checks++;await ctx.close();}
   console.log(`G ${SLUG}: ${checks-before} tarayıcı denetimi (390 px açık + 1280 px koyu; dört sekme, hazır düzenler, sınır değerler, klavye, sıfırlama, etiketler, taşma) PASS`);
  }finally{await browser?.close();server.closeAllConnections?.();await new Promise(r=>server.close(r));}

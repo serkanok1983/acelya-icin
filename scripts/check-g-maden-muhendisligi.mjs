@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const html = fs.readFileSync(new URL('../maden-muhendisligi.html', import.meta.url), 'utf8');
 const source = html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -292,7 +293,7 @@ if (process.argv.includes('--browser')) {
       const has = async (id, text) => { const t = await read(id); if (process.env.G_DEBUG && !t.includes(text)) { console.log(`  ${theme} ${id}: "${t}" içinde "${text}" yok`); return; } assert(t.includes(text), `${theme} ${id}: "${t}" içinde "${text}" yok`); checks++; };
       const noOverflow = async (label) => { ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${theme} yatay taşma: ${label}`); };
       const sane = async (label) => { const t = await page.locator('main.app-content').innerText(); ok(!/NaN|undefined|Infinity|\[object/.test(t), `${theme} bozuk metin (${label}): ${(t.match(/.{0,30}(NaN|undefined|Infinity|\[object).{0,30}/) || [''])[0]}`); };
-      const painted = async (id) => { ok(await page.locator('#' + id).evaluate((c) => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, seen = new Set(); for (let i = 0; i < d.length; i += 4 * 97) seen.add(d[i] + ',' + d[i + 1] + ',' + d[i + 2]); return seen.size > 3; }), `${theme} ${id} boş`); };
+      const painted = async (id) => { ok(assertCanvasDrawn(await canvasInk(page, '#' + id), { minDistinct: 4, label: `${theme} ${id}` }), `${theme} ${id} boş`); };
       ok((await page.title()).startsWith('Maden Mühendisliği'), 'başlık');
       ok(await page.evaluate(() => Object.isFrozen(MadenLab) && !Object.getOwnPropertyDescriptor(window, 'MadenLab').writable), 'çekirdek dondurulmuş');
       // Her denetimin etiketi, her kaydırıcının çıktısı var; hazır değerler adım ızgarasında

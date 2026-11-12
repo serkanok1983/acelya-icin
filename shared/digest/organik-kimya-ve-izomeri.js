@@ -49,14 +49,14 @@ window.ACELYA_DIGEST["organik-kimya-ve-izomeri"] = {
     {
       heading: "Konformerler Boltzmann'a uyar",
       body:
-        "Tek bağ etrafındaki dönme serbesttir ama eşit değildir. Bütanda merkez C–C bağı döndükçe enerji V(φ) değişir: anti (φ = 180°) en düşük, gauche (≈ 60°) 3,8 kJ/mol yukarıda, metillerin örtüştüğü biçim 19 kJ/mol yukarıdadır. Bir dengede bir biçimin payı e<sup>−V/RT</sup> ile orantılıdır. Kaba üç durumlu hesap anti payını 1/(1 + 2e<sup>−3,8/RT</sup>) verir; 298 K'de 69,9 %. Sürekli integral 68,6 % bulur, çünkü kuyuların genişlikleri eşit değildir. Sikloheksanda aynı fikir iki koltuk arasındadır: bir grup aksiyelken 1,3-diaksiyel hidrojenlerle sıkışır. Bu cezanın serbest enerjisine <strong>A-değeri</strong> denir; metil için 7,6, tert-bütil için 22,8 kJ/mol.",
+        "Tek bağ etrafındaki dönme serbesttir ama eşit değildir. Bütanda merkez C–C bağı döndükçe enerji V(φ) değişir: anti (φ = 180°) en düşük, gauche (≈ 60°) 3,8 kJ/mol yukarıda, metillerin örtüştüğü biçim 19 kJ/mol yukarıdadır. Bir dengede bir biçimin payı e<sup>−V/RT</sup> ile orantılıdır. Kaba üç durumlu hesap anti payını 1/(1 + 2e<sup>−3,8/RT</sup>) verir; 298 K'de 69,9 %. Sürekli integral 68,6 % bulur, çünkü kuyuların genişlikleri eşit değildir. Siklohekzanda aynı fikir iki koltuk arasındadır: bir grup aksiyelken 1,3-diaksiyel hidrojenlerle sıkışır. Bu cezanın serbest enerjisine <strong>A-değeri</strong> denir; metil için 7,6, tert-bütil için 22,8 kJ/mol.",
       formula: "p(I) = 1 / (1 + e<sup>−ΔG/RT</sup>) · K = e<sup>ΔG/RT</sup>",
       formulaNote: "ΔG = G(II) − G(I); 298 K'de RT = 2,48 kJ/mol. Her 5,7 kJ/mol, denge sabitini yaklaşık on kat büyütür.",
     },
   ],
   lab: {
     intro:
-      "Laboratuvarın dört sekmesi var. <strong>01 · Fonksiyonel gruplar</strong>'da 8 × 6'lık bir ızgaraya atom ve bağ koyarak (ya da <strong>Hazır molekül</strong> menüsünden seçerek) molekül kurarsın; sayfa kapalı formülü, mol kütlesini, iki yoldan doymamışlığı ve grupları yazar. <strong>02 · Yapı izomerleri</strong> bütün alkan iskeletlerini kurup sayar, adlandırır ve OEIS değeriyle karşılaştırır; altında alkol/eter ailesi ve kaynama noktası–Wiener indeksi saçılımı vardır. <strong>03 · Kiralite</strong> seçili karbonun 3-B modelinden R/S'yi ölçer, ayna testini 12 dönmeyle yapar ve stereoizomerleri sayar. <strong>04 · Cis–trans ve konformasyon</strong> E/Z adlandırmayı, bütanın anti/gauche dengesini ve sikloheksan koltuğunu hesaplar. Her sekmenin <strong>Sekmeyi sıfırla</strong> düğmesi var.",
+      "Laboratuvarın dört sekmesi var. <strong>01 · Fonksiyonel gruplar</strong>'da 8 × 6'lık bir ızgaraya atom ve bağ koyarak (ya da <strong>Hazır molekül</strong> menüsünden seçerek) molekül kurarsın; sayfa kapalı formülü, mol kütlesini, iki yoldan doymamışlığı ve grupları yazar. <strong>02 · Yapı izomerleri</strong> bütün alkan iskeletlerini kurup sayar, adlandırır ve OEIS değeriyle karşılaştırır; altında alkol/eter ailesi ve kaynama noktası–Wiener indeksi saçılımı vardır. <strong>03 · Kiralite</strong> seçili karbonun 3-B modelinden R/S'yi ölçer, ayna testini 12 dönmeyle yapar ve stereoizomerleri sayar. <strong>04 · Cis–trans ve konformasyon</strong> E/Z adlandırmayı, bütanın anti/gauche dengesini ve siklohekzan koltuğunu hesaplar. Her sekmenin <strong>Sekmeyi sıfırla</strong> düğmesi var.",
     experiments: [
       {
         title: "Aynı formül, iki madde",
@@ -108,16 +108,16 @@ window.ACELYA_DIGEST["organik-kimya-ve-izomeri"] = {
   worked: {
     title: "Koltuktaki metil",
     prompt:
-      "Metilsikloheksanda metil grubunun aksiyel olması 7,6 kJ/mol'lük bir cezadır (A-değeri). 298 K'de moleküllerin yüzde kaçı metili ekvatoryal tutar? cis-1-tert-bütil-4-metilsikloheksanda (tert-bütil için A = 22,8 kJ/mol) bu oran ne olur? Bir konformerin 99 % baskın olması için ne kadar ΔG gerekir?",
+      "Metilsiklohekzanda metil grubunun aksiyel olması 7,6 kJ/mol'lük bir cezadır (A-değeri). 298 K'de moleküllerin yüzde kaçı metili ekvatoryal tutar? cis-1-tert-bütil-4-metilsiklohekzanda (tert-bütil için A = 22,8 kJ/mol) bu oran ne olur? Bir konformerin 99 % baskın olması için ne kadar ΔG gerekir?",
     steps: [
       "RT'yi hesapla: R = 8,314 J/(mol·K), T = 298 K için RT = 2 478 J/mol = 2,478 kJ/mol.",
-      "Metilsikloheksan: konformer I ekvatoryal (G = 0), II aksiyel (G = 7,6 kJ/mol). K = [I]/[II] = e<sup>ΔG/RT</sup> = e<sup>7,6/2,478</sup> = e<sup>3,067</sup> ≈ 21,5. Ekvatoryal payı K/(1 + K) = 21,48/22,48 = 0,9555, yani 95,55 %; aksiyel yalnız 4,45 %.",
+      "Metilsiklohekzan: konformer I ekvatoryal (G = 0), II aksiyel (G = 7,6 kJ/mol). K = [I]/[II] = e<sup>ΔG/RT</sup> = e<sup>7,6/2,478</sup> = e<sup>3,067</sup> ≈ 21,5. Ekvatoryal payı K/(1 + K) = 21,48/22,48 = 0,9555, yani 95,55 %; aksiyel yalnız 4,45 %.",
       "cis-1,4 ilişkisinde iki grubun biri aksiyel, öteki ekvatoryal olmak zorundadır. I: tert-bütil ekvatoryal, metil aksiyel (G = 7,6); II: tert-bütil aksiyel, metil ekvatoryal (G = 22,8). Toplanabilirlik varsayımıyla ΔG = 22,8 − 7,6 = 15,2 kJ/mol.",
       "K = e<sup>15,2/2,478</sup> ≈ 461,6 ve p(I) = 461,6/462,6 ≈ 99,78 %. Molekül, metili aksiyele itme pahasına tert-bütili ekvatoryalde tutar: büyük grup halkayı \"kilitler\".",
       "Tersini sor: p = 0,99 için K = 99, ΔG = RT·ln 99 = 2,478 × 4,595 ≈ 11,4 kJ/mol. Sayfada 04 · Cis–trans ve konformasyon sekmesinde Metil ve cis-1-tert-bütil-4-metil düğmeleriyle ilk iki sonucu oku: 7,6 kJ/mol, 95,55 %, K 21,5; 15,2 kJ/mol, 99,78 %, K 461,6.",
     ],
     result:
-      "Metilsikloheksan 298 K'de 95,55 % ekvatoryal (K ≈ 21,5); cis-1-tert-bütil-4-metilsikloheksan 99,78 % tert-bütil ekvatoryal (K ≈ 461,6). 99 % baskınlık için yaklaşık 11,4 kJ/mol yeter.",
+      "Metilsiklohekzan 298 K'de 95,55 % ekvatoryal (K ≈ 21,5); cis-1-tert-bütil-4-metilsiklohekzan 99,78 % tert-bütil ekvatoryal (K ≈ 461,6). 99 % baskınlık için yaklaşık 11,4 kJ/mol yeter.",
   },
   misconceptions: [
     {
@@ -149,12 +149,12 @@ window.ACELYA_DIGEST["organik-kimya-ve-izomeri"] = {
     { term: "Diastereomer", definition: "Birbirinin ayna görüntüsü olmayan stereoizomerler; ör. L-tartarik asit ile mezo-tartarik asit." },
     { term: "Mezo bileşik", definition: "Stereomerkezleri olduğu hâlde kendi ayna görüntüsüyle çakışan, bu yüzden kiral olmayan molekül." },
     { term: "Konformer", definition: "Aynı molekülün yalnız tek bağlar etrafındaki dönmeyle birbirine geçebilen biçimleri; ör. bütanın anti ve gauche biçimleri." },
-    { term: "A-değeri", definition: "Sikloheksanda bir grubun ekvatoryalden aksiyele geçmesinin serbest enerji bedeli; kJ/mol ile verilir." },
+    { term: "A-değeri", definition: "Siklohekzanda bir grubun ekvatoryalden aksiyele geçmesinin serbest enerji bedeli; kJ/mol ile verilir." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Lisede izomeri çoğu zaman \"aynı formül, farklı yapı\" cümlesiyle geçeriz. Üniversitede <strong>Organik Kimya I</strong> dersi bunu bir dil hâline getirir: IUPAC adlandırma, CIP öncelikleri, R/S ve E/Z, Newman ve koltuk izdüşümleri, enantiyomer ile diastereomer ayrımı. Aynı ders kısa süre sonra bu geometrinin tepkimeyi nasıl yönettiğini gösterir: SN2'de merkez ters döner, E2 eliminasyonu sikloheksanda iki ayrılan grubun aksiyel ve anti olmasını ister, ilaçların bir enantiyomeri etkili, öteki etkisiz ya da zararlı olabilir. Konformer nüfusları ise <strong>Fizikokimya</strong> ve istatistik mekaniğin Boltzmann dağılımıdır; sayfadaki Monte Carlo örneklemesi, hesaplamalı kimyanın moleküler simülasyon araçlarının en sade biçimidir.",
+      "Lisede izomeri çoğu zaman \"aynı formül, farklı yapı\" cümlesiyle geçeriz. Üniversitede <strong>Organik Kimya I</strong> dersi bunu bir dil hâline getirir: IUPAC adlandırma, CIP öncelikleri, R/S ve E/Z, Newman ve koltuk izdüşümleri, enantiyomer ile diastereomer ayrımı. Aynı ders kısa süre sonra bu geometrinin tepkimeyi nasıl yönettiğini gösterir: SN2'de merkez ters döner, E2 eliminasyonu siklohekzanda iki ayrılan grubun aksiyel ve anti olmasını ister, ilaçların bir enantiyomeri etkili, öteki etkisiz ya da zararlı olabilir. Konformer nüfusları ise <strong>Fizikokimya</strong> ve istatistik mekaniğin Boltzmann dağılımıdır; sayfadaki Monte Carlo örneklemesi, hesaplamalı kimyanın moleküler simülasyon araçlarının en sade biçimidir.",
       "Sayma tarafı <strong>Ayrık Matematik</strong> ve <strong>Kombinatorik</strong> derslerine bağlanır. Etiketsiz ağaç sayımı, simetri altında yörünge saymayı gerektirir; Burnside önsavı ve Pólya'nın sayma kuramı bu soruların genel çözümüdür ve kimyasal bileşik sayımı onların klasik örneğidir. Ağaçların eşyapı sınaması doğrusal zamanda yapılabilir; genel çizgeler için ise eşyapı hâlâ ünlü bir açık hesaplama sorusudur. Wiener indeksi gibi çizge değişmezleri bugün <strong>kemoinformatik</strong>te, molekül yapısından özellik tahmin eden QSPR/QSAR modellerinin ilk tanımlayıcıları arasındadır.",
     ],
     topics: ["Stereokimya ve CIP kuralları", "Konformasyon analizi", "SN2 ve E2 stereokimyası", "Boltzmann dağılımı", "Burnside önsavı ve Pólya sayımı", "Çizge eşyapısı", "Kemoinformatik ve QSPR"],
@@ -162,9 +162,9 @@ window.ACELYA_DIGEST["organik-kimya-ve-izomeri"] = {
   quiz: [
     {
       question: "Kapalı formülü C₆H₁₀ olan bir molekül aşağıdakilerden hangisi OLAMAZ?",
-      options: ["Sikloheksen", "Heks-1-in", "Heksa-1,3-dien", "Sikloheksan"],
+      options: ["Siklohekzen", "Hekz-1-in", "Hekza-1,3-dien", "Siklohekzan"],
       answer: 3,
-      explanation: "DBE = 6 − 10/2 + 1 = 2: iki halka, bir halka + bir π bağı, iki π bağı ya da bir üçlü bağ olmalı. Sikloheksen (1 halka + 1 π), heksin (üçlü bağ = 2 π) ve dien (2 π) uyar. Sikloheksanın DBE'si 1'dir; formülü C₆H₁₂'dir.",
+      explanation: "DBE = 6 − 10/2 + 1 = 2: iki halka, bir halka + bir π bağı, iki π bağı ya da bir üçlü bağ olmalı. Siklohekzen (1 halka + 1 π), hekzin (üçlü bağ = 2 π) ve dien (2 π) uyar. Siklohekzanın DBE'si 1'dir; formülü C₆H₁₂'dir.",
     },
     {
       question: "Tartarik asidin iki stereomerkezi vardır. 2² = 4 olduğu hâlde neden yalnız 3 stereoizomeri vardır?",
@@ -192,7 +192,7 @@ window.ACELYA_DIGEST["organik-kimya-ve-izomeri"] = {
   ],
   sources: [
     { title: "OEIS · A000602: n karbonlu alkan sayısı", url: "https://oeis.org/A000602", note: "1, 1, 1, 1, 2, 3, 5, 9, 18, 35, 75, … dizisi; Cayley'nin 1875 tarihli Berichte yazısı ve Henze–Blair 1931 kaynakları (İngilizce)." },
-    { title: "OpenStax · Organic Chemistry", url: "https://openstax.org/details/books/organic-chemistry", note: "Açık ders kitabı: bütan konformasyonları (3.7), sikloheksan A-değerleri (4.7), stereokimya ve CIP kuralları (5. bölüm) (İngilizce)." },
+    { title: "OpenStax · Organic Chemistry", url: "https://openstax.org/details/books/organic-chemistry", note: "Açık ders kitabı: bütan konformasyonları (3.7), siklohekzan A-değerleri (4.7), stereokimya ve CIP kuralları (5. bölüm) (İngilizce)." },
     { title: "Wikipedia · Cahn–Ingold–Prelog priority rules", url: "https://en.wikipedia.org/wiki/Cahn%E2%80%93Ingold%E2%80%93Prelog_priority_rules", note: "Öncelik kuralları, kopya atomlar, R/S ve E/Z; 1966 \"Specification of Molecular Chirality\" makalesi (İngilizce)." },
     { title: "Wikipedia · Wöhler synthesis", url: "https://en.wikipedia.org/wiki/W%C3%B6hler_synthesis", note: "1828 üre sentezi, kullanılan tepkimeler ve canlılık kuramının \"yıkılışı\" efsanesine yönelik tarihçi eleştirileri (İngilizce)." },
   ],

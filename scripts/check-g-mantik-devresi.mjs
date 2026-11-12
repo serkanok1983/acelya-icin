@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../mantik-devresi.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'Çekirdek sınırları gerekli');
@@ -178,7 +179,7 @@ if(process.argv.includes('--browser')){
     await page.goto(`http://127.0.0.1:${server.address().port}/mantik-devresi.html`);
     const click=id=>page.locator('#'+id).click(),read=id=>page.locator('#'+id).textContent(),has=async(id,text)=>{const t=await read(id);assert(t.includes(text),`${id}: “${t}” içinde “${text}” yok (${width})`);checks++;},
       fill=async(id,v)=>{await page.locator('#'+id).fill(v);},range=(id,v)=>page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},v),sel=(id,v)=>page.locator('#'+id).selectOption(v),
-      noflow=async tag=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'yatay taşma: '+tag+' '+width);},painted=async id=>{ok(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,seen=new Set();for(let i=0;i<d.length;i+=4*97)seen.add(d[i]+','+d[i+1]+','+d[i+2]);return seen.size>2;}),id+' boş');};
+      noflow=async tag=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'yatay taşma: '+tag+' '+width);},painted=async id=>{ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:3,label:id}),id+' boş');};
     /* 1. sekme */
     await has('exEq','4 / 4');await has('exStatus','Özdeş: iki ifade 4 satırın 4');await has('exVars','2 / 4');await has('exOnes','3 / 4');await has('exGates','2 / 2');await has('exLists','F₁ = Σm(0, 1, 2) = ΠM(3)');await painted('exCanvas');
     for(const[id,res]of[['exDM2','4 / 4'],['exDist','8 / 8'],['exAbs','4 / 4'],['exXor','4 / 4'],['exCons','8 / 8']]){await click(id);await has('exEq',res);await has('exStatus','Özdeş:');}

@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../isletim-sistemleri-ve-linux.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'KERNEL sınırları gerekli');
@@ -222,7 +223,7 @@ if(process.argv.includes('--browser')){
       const click=id=>page.locator('#'+id).click(),read=async id=>(await page.locator('#'+id).textContent()).trim(),has=async(id,t)=>{const v=await read(id);assert(v.includes(t),`${id}: "${v}" içinde "${t}" yok (${width})`);checks++;},
         set=(id,v)=>page.locator('#'+id).evaluate((e,v)=>{if(e.type==='checkbox')e.checked=v;else e.value=v;e.dispatchEvent(new Event(e.tagName==='SELECT'||e.type==='checkbox'?'change':'input',{bubbles:true}));},v),
         noOverflow=async l=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)<=0,true,'yatay taşma: '+l+' '+width);},
-        painted=async id=>{ok(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>2;}),id+' boş çizildi');};
+        painted=async id=>{ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:3,label:id}),id+' boş çizildi');};
       eq(await page.evaluate(()=>document.documentElement.dataset.theme==='light'),theme==='light');
       // --- 01
       await has('cpuWaitMeas','12,75');await has('cpuWaitTheory','12,75');await has('cpuWaitDiff','0,00');await has('cpuResp','2,00');await has('cpuSwitches','12');await has('cpuBrute','24 sıranın');await painted('ganttCanvas');

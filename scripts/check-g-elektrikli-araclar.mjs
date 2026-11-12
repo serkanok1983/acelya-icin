@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../elektrikli-araclar.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'Çekirdek sınırları (KERNEL-BEGIN/END) gerekli');
@@ -117,7 +118,7 @@ if(process.argv.includes('--browser')){
  for(const[width,theme]of[[390,'light'],[1280,'dark']]){const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:width<500?2:1});await page.addInitScript(t=>{localStorage.setItem('acelya-theme',t);localStorage.setItem('acelya-sound-muted','1');},theme);page.setDefaultTimeout(5000);const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/404/.test(m.text()))errors.push(m.text());});await page.goto(`http://127.0.0.1:${server.address().port}/elektrikli-araclar.html`);
   const click=id=>page.locator('#'+id).click(),read=id=>page.locator('#'+id).textContent(),range=(id,v)=>page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},v),has=async(id,text)=>{const t=await read(id);assert(t.includes(text),`${width}px ${id}: "${t}" içinde "${text}" yok`);checks++;};
   const clean=async tag=>{const bad=await page.evaluate(()=>[...document.querySelectorAll('section:not([hidden]) strong[id],section:not([hidden]) em[id],section:not([hidden]) [role=status],section:not([hidden]) td,section:not([hidden]) output,section:not([hidden]) caption')].filter(e=>/NaN|undefined|Infinity|null/.test(e.textContent)||(e.matches('strong[id],[role=status],output')&&!e.textContent.trim())).map(e=>(e.id||e.tagName)+': '+e.textContent));assert.deepEqual(bad,[],width+'px '+tag);checks++;eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,width+'px taşma '+tag);assert.deepEqual(errors,[],width+'px '+tag);checks++;};
-  const painted=async id=>{eq(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]<<16|d[i+1]<<8|d[i+2]);return s.size>3;}),true,width+'px tuval '+id);};
+  const painted=async id=>{eq(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:width+'px tuval '+id}),true,width+'px tuval '+id);};
   // erişilebilirlik: her denetimin etiketi, her tuvalin rolü
   eq(await page.evaluate(()=>[...document.querySelectorAll('main.app-content input,main.app-content select,main.app-content textarea')].every(e=>e.id&&document.querySelector('label[for="'+e.id+'"]'))),true,'etiketler');eq(await page.evaluate(()=>[...document.querySelectorAll('main.app-content canvas')].every(c=>c.getAttribute('role')==='img'&&!!c.getAttribute('aria-label'))),true);eq(await page.evaluate(()=>document.querySelectorAll('main.app-content input[type=range]').length),35);
   eq(await page.evaluate(()=>[...document.querySelectorAll('main.app-content input[type=range]')].every(e=>{const n=(+e.value-+e.min)/+e.step;return Math.abs(n-Math.round(n))<1e-6;})),true,'varsayılanlar adım ızgarasında');

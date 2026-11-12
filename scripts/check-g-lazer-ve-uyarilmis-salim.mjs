@@ -259,6 +259,9 @@ if (process.argv.includes("--browser")) {
       await range("lockN", 1); await has("lockStatus", "Tek kip"); await range("lockN", 60);
       await page.locator("#beamLam").selectOption("1064"); await range("beamW0", 0.1); await page.waitForTimeout(200); await has("beamThTh", "3,387 mrad");
       await click("modeReset"); await has("modeCount", "3"); await has("lockW", "178 ps"); await noOverflow("kipler");
+      // oyuncağın N'i rezonatörden bağımsız: not görünür, "Rezonatörden al" N'yi sayılan kipe eşitler
+      await has("lockStatus", "bu rezonatörde 3 kip salınıyor"); await has("lockFromCavity", "N = 3"); await click("lockFromCavity"); await has("lockNOut", "3"); await has("lockPk", "3,00"); ok(!(await read("lockStatus")).includes("Not:"), "N = sayılan kip iken not yok");
+      await range("modeG", 1); await has("modeCount", "0"); ok(await page.locator("#lockFromCavity").isDisabled(), "kip yokken düğme kapalı"); await click("modeReset"); await has("lockNOut", "10");
       // klavye: sekmeler ve R kısayolu
       await page.locator("#tab-mode").focus(); await page.keyboard.press("Home"); ok((await page.locator("#tab-ein").getAttribute("aria-selected")) === "true", "Home");
       await page.keyboard.press("ArrowRight"); ok((await page.locator("#tab-inv").getAttribute("aria-selected")) === "true", "ArrowRight");

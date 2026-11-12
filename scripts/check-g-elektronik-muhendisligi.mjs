@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const html = fs.readFileSync(new URL('../elektronik-muhendisligi.html', import.meta.url), 'utf8');
 const source = html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -223,7 +224,7 @@ if (process.argv.includes('--browser')) {
       const has = async (id, text) => { const t = await read(id); assert(t.includes(text), `${width}px #${id}: "${t}" içinde "${text}" yok`); checks++; };
       const hidden = async (id, want) => { assert.equal(await page.locator('#' + id).isHidden(), want, `#${id} hidden=${want}`); checks++; };
       const clean = async (tab, note) => { const t = await page.locator('#panel-' + tab).innerText(); assert(!/NaN|undefined|Infinity|null|\[object/.test(t), `${width}px ${tab} ${note}: bozuk metin: ${(t.match(/.{0,40}(NaN|undefined|Infinity|null|\[object).{0,40}/) || [''])[0]}`); checks++; };
-      const painted = async (tab) => { const r = await page.evaluate((tab) => [...document.querySelectorAll('#panel-' + tab + ' canvas')].map((c) => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, seen = new Set(); for (let i = 0; i < d.length; i += 4 * 97) seen.add(d[i] << 16 | d[i + 1] << 8 | d[i + 2]); return [c.id, c.width, seen.size]; }), tab); for (const [id, w, n] of r) { assert(w > 0 && n > 3, `${width}px tuval ${id} boş (${w}, ${n})`); checks++; } };
+      const painted = async (tab) => { for (const st of await canvasInkAll(page, '#panel-' + tab + ' canvas')) { assertCanvasDrawn(st, { minDistinct: 4, label: `${width}px tuval ${st.id}` }); checks++; } };
       const noOverflow = async (note) => { const ov = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); assert(ov <= 0, `${width}px ${note}: yatay taşma ${ov}px`); checks++; };
       const sweep = async (tab) => { // her kaydırıcı en küçük ve en büyük değerinde
         const ids = await page.evaluate((tab) => [...document.querySelectorAll('#panel-' + tab + ' input[type=range]')].filter((e) => e.offsetParent !== null).map((e) => [e.id, e.min, e.max, e.value]), tab);

@@ -9,6 +9,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const SLUG='ucak-muhendisligi-ve-aerodinamik';
 const html=fs.readFileSync(new URL(`../${SLUG}.html`,import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -199,7 +200,7 @@ if(process.argv.includes('--browser')){
    const noOverflow=async w=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'yatay taşma: '+w);};
    const clean=async name=>{const t=await page.locator('#panel-'+name).innerText();ok(!/NaN|undefined|Infinity|null|∞/.test(t),name+' panelinde bozuk sayı: '+(t.match(/.{0,30}(NaN|undefined|Infinity|null|∞).{0,30}/)||[''])[0]);};
    const sweep=async(name,ids)=>{for(const id of ids)for(const end of['min','max']){await page.locator('#'+id).evaluate((e,end)=>{e.value=e[end];e.dispatchEvent(new Event('input',{bubbles:true}));},end);await clean(name);}};
-   const painted=id=>page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size;});
+   const painted=async id=>{const st=await canvasInk(page,'#'+id);assertCanvasDrawn(st,{minDistinct:2,label:id});return st.distinct;};
    // erişilebilirlik
    eq(await page.evaluate(()=>[...document.querySelectorAll('main input,main select')].every(e=>e.labels&&e.labels.length>0&&e.labels[0].textContent.trim().length>2)),true,'etiketler');
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].every(c=>c.getAttribute('role')==='img'&&c.getAttribute('aria-label').length>20)),true,'tuval rolleri');

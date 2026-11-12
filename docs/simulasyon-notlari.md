@@ -1876,3 +1876,39 @@ turdan itibaren tur bitip testler geçince sormadan yayımlamayı ve sonraki tur
 Koordinatör: menü (Fizik +4, Kimya +4), katalog, meta açıklamaları; komşu defterlerden 12 yeni "sonraki durak"
 (Maxwell, optik, kara cisim, elektronik müh., kristal yapılar, elektrik müh., termodinamik, kimyasal denge, ideal
 gaz, renk, pH, molekül şekli); gelen başlıklar eşitlendi.
+
+## 12 Kasım 2026 — N: disiplinlerarası altı yeni sayfa ve biriken düzeltmeler (Yeni sayfa planı, son grup)
+
+Altı sayfa G hattıyla kuruldu (kurucu → farklı yazar → üçüncü, bağımsız doğrulayıcı/editör); menüde "Disiplinler
+Arası" altında. `check-site` bu menü adını alan olarak kabul etmediği için defter alanları: Bilgisayar Bilimi (bilgi
+kuramı, kuantum hesaplama), Mühendislik (sinyal, kontrol, robotik), Toplum ve Ekonomi (oyun kuramı). Defter puanları
+7–8'den 8,5–9'a çıktı. Bu grupla `docs/YENI-SAYFA-PLANI.md`'nin iki aşaması tamamlandı.
+
+- ✔ `bilgi-kurami-ve-sikistirma`: Shannon entropisi, Huffman ve aritmetik kodlama, LZ77/LZ78 ve DEFLATE, güvercin
+  yuvası, ikili simetrik kanal, tekrar kodu ve Hamming(7,4). Harf sıklıkları yalnız sayfanın kendi örnek metinlerinden.
+  Düzeltildi: "ğ'den sonra ünlü" yanlışı, Enigma bağlantısı, Huffman ağacının tek olmadığı, bit/blok hatası etiketi;
+  defterde Model V anekdotu, GIF–PNG zaman çizelgesi.
+- ✔ `sinyal-isleme-ve-modulasyon`: örnekleme ve örtüşme, nicemleme SQNR, FFT ve pencereleme, AM/FM (Bessel, Carson),
+  FIR/IIR süzgeçler ve kutuplar. Düzeltildi: iki ton durum satırının göstergelerle çelişmesi, kuram sütunu notu, AM
+  bandı; defterde Fessenden 1906 (doğrulanmamış), Nyquist ve Carson ifadeleri.
+- ✔ `kontrol-kurami`: transfer fonksiyonu ve basamak yanıtı, kök yeri ve Routh, Bode/Nyquist ve gecikme, Ziegler–Nichols
+  ve integral doyması. Düzeltildi: hazır ayarlar ω_n ve K'yi de kuruyor; ZN 1942 atfı; defterde Huygens, Bode, Evans.
+- ✔ `robotik-ve-kinematik`: ileri/ters kinematik, çalışma alanı, Jacobian ve tekillik, τ = JᵀF, kübik/beşinci derece
+  yörünge ve engel. Düzeltildi: Jacobian altyazısı; defterde 1. deneyin düğme sırası, ızgara hatasının ½·çevre·h oluşu,
+  Unimate'in ilk görevi.
+- ✔ `kuantum-hesaplama`: Bloch küresi ve kapılar, Bell durumları ve CHSH, Deutsch–Jozsa, Grover ve gürültü. Abartı yok.
+  Düzeltildi: altyazı ve durum cümlesi; defterde Deutsch 1985 / 1992 / 1998 ayrımı, BBBV 1997.
+- ✔ `oyun-kurami`: Nash dengesi ve karma stratejiler, minimaks ve kurgusal oyun, tekrarlanan tutsak ikilemi turnuvası
+  ve şantaj stratejisi, çoğaltıcı dinamik ve ESS. Yansızlık temiz. Düzeltildi: Pareto tanımı, 2004 turnuvası notu.
+
+**Biriken düzeltmeler (aynı tur):** `fonksiyon-grafigi` `1e3` gösterimi; `kimyasal-denge` iyonik şiddet eşiği
+(I ≥ 0,01); `cok-degiskenli-kalkulus` üs sadeleştirme; `lineer-cebir` eksen basamakları; `kara-cisim-isimasi` Mars
+214 K (NASA bilgi sayfası) ve yeni kalıcı test (780 + 476 denetim), aria-label'daki birleşik işaret; `diferansiyel-
+denklemler` ifade ipucu (önceden görünmüyordu) ve LV hassasiyeti; `homeostaz` ateş senaryosunda RK4 adım hizalaması
+(407 W); `sinir-hucresi` ateşleme eşiği protokolü; `organik-kimya` "hekz" yazımı; `cozeltiler` U-borusu çizimi;
+`lazer` "Rezonatörden al" düğmesi. Test notu (H)'deki seyrek piksel borcu kapandı: 36 test ortak
+`scripts/lib/canvas-check.mjs` yardımcısına taşındı (bütün pikseller, en az 400 mürekkep pikseli); seyrek örneklem
+yapan test kalmadı.
+
+Koordinatör: menü (+6), katalog, meta; komşu defterlerden 11 yeni bağlantı (Fourier, entropi, Sezar, mekatronik,
+homeostaz, matris dönüşümleri, otonom araçlar, kuantum mekaniği, RSA, uluslararası ilişkiler, mikro ekonomi).

@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const SLUG='makro-ekonomi-ve-para-politikalari';
 const html=fs.readFileSync(new URL(`../${SLUG}.html`,import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -135,7 +136,7 @@ if(process.argv.includes('--browser')){
     has=async(id,text)=>{const t=await read(id);assert(t.includes(text),`${id}: "${t}" içinde "${text}" yok`);checks++;},
     clean=async panel=>{const t=await page.locator('#panel-'+panel).innerText();assert(!/NaN|undefined|Infinity|null|\[object/.test(t),`${panel}: bozuk metin`);checks++;},
     fits=async()=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'yatay taşma '+width);},
-    inked=async id=>{ok(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>3;}),id+' boş');},
+    inked=async id=>{ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:id}),id+' boş');},
     extremes=async panel=>{const ids=await page.locator(`#panel-${panel} input[type=range]`).evaluateAll(a=>a.map(e=>e.id));
      for(const which of['min','max']){for(const id of ids)await page.locator('#'+id).evaluate((e,w)=>{if(!e.disabled){e.value=e[w];e.dispatchEvent(new Event('input',{bubbles:true}));}},which);await clean(panel);await fits();}};
    // Etiketler: her denetimin <label for> ve her kaydırıcının çıktısı var.

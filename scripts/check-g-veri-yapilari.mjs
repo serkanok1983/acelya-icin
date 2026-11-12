@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../veri-yapilari.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'KERNEL sınırları gerekli');
@@ -252,7 +253,7 @@ if(process.argv.includes('--browser')){
    const has=async(id,text)=>{const t=await read(id);assert(t.includes(text),`[${width}] ${id}: «${t}» içinde «${text}» yok`);checks++;};
    const is=async(id,text)=>{const t=await read(id);assert.equal(t,text,`[${width}] ${id}`);checks++;};
    const noOverflow=async tag=>{const d=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert(d<=0,`[${width}] yatay taşma ${tag}: ${d}`);checks++;};
-   const inked=async id=>{const n=await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size;});assert(n>=3,`[${width}] ${id} boş çiziliyor`);checks++;};
+   const inked=async id=>{assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:3,label:`[${width}] ${id}`});checks++;};
    eq(await page.evaluate(()=>document.documentElement.dataset.theme==='light'),theme==='light');
    eq(await page.evaluate(()=>Object.isFrozen(VeriLab)&&!Object.getOwnPropertyDescriptor(window,'VeriLab').writable),true);
 

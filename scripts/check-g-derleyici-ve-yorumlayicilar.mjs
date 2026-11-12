@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const SLUG='derleyici-ve-yorumlayicilar';
 const html=fs.readFileSync(new URL(`../${SLUG}.html`,import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -186,7 +187,7 @@ if(process.argv.includes('--browser')){
  try{browser=await chromium.launch();
   for(const[theme,width]of[['light',390],['dark',1280]]){const before=checks,page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:width<500?2:1});await page.addInitScript(t=>{localStorage.setItem('acelya-theme',t);localStorage.setItem('acelya-sound-muted','1');},theme);page.setDefaultTimeout(5000);const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/.test(m.text()))errors.push(m.text());});await page.goto(`http://127.0.0.1:${server.address().port}/${SLUG}.html`);
    const click=id=>page.locator('#'+id).click(),read=id=>page.locator('#'+id).textContent(),has=async(id,text)=>{const t=await read(id);assert(t.includes(text),`${id}: “${t}” içinde “${text}” yok`);checks++;},range=(id,v)=>page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},String(v)),type=v=>page.locator('#src').fill(v),sel=(id,v)=>page.locator('#'+id).selectOption(v),count=q=>page.locator(q).count(),val=id=>page.locator('#'+id).inputValue(),
-    noflow=async()=>eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'yatay taşma'),painted=async id=>ok(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,first=[d[0],d[1],d[2]];for(let i=0;i<d.length;i+=16)if(Math.abs(d[i]-first[0])+Math.abs(d[i+1]-first[1])+Math.abs(d[i+2]-first[2])>60)return true;return false;}),id+' boş');
+    noflow=async()=>eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'yatay taşma'),painted=async id=>ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:2,label:id}),id+' boş');
    // Ortak düzenleyici ve 01 · Sözcük çözümleme
    eq(await val('preset'),'oncelik');await has('stages','20 token');await has('stages','15 düğüm');await has('stages','1 değişken');await has('stages','15 → 7 komut');await has('stages','2 çıktı');await has('srcStatus','Çıktı: 14, 20');await has('srcGutter','5');eq(await page.locator('#srcGoto').isHidden(),true);
    await has('tokCount','20 token');await has('tokTile','77 · 77 karakter');await has('tokTileNote','fark 0 · token 28 + boşluk 16 + yorum 33');await has('lexErrs','0');await has('tokKinds','Sayı 6 · Ad 2 · Anahtar sözcük 2 · İşleç 5 · Ayraç 5');eq(await count('#tokRows tr'),21);eq(await count('#tokStrip span'),21);await has('tokRows','2:13');

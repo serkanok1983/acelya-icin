@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../dogal-secilim.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'dogal-secilim.html: KERNEL sınırları gerekli');
@@ -105,7 +106,7 @@ if(process.argv.includes('--browser')){
    const range=(id,v)=>page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},v),pick=(id,v)=>page.locator('#'+id).selectOption(String(v));
    const settled=()=>page.waitForFunction(()=>!/ölçülüyor/.test(document.getElementById('drFix').textContent+document.getElementById('muFix').textContent),null,{timeout:60000});
    const noOverflow=async w=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`[${width}] yatay taşma: ${w}`);};
-   const painted=async id=>{ok(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>3;}),`[${width}] ${id} boş`);};
+   const painted=async id=>{ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:`[${width}] ${id}`}),`[${width}] ${id} boş`);};
    eq(await page.evaluate(()=>[...document.querySelectorAll('main input,main select')].filter(e=>!(e.labels&&e.labels.length)&&!e.getAttribute('aria-label')).map(e=>e.id).join()),'','etiketsiz denetim');
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].every(c=>c.getAttribute('role')==='img'&&c.getAttribute('aria-label'))),true);
    eq(await page.evaluate(()=>[...document.querySelectorAll('input[type=range]')].every(e=>{const d=(+e.max-+e.min)/+e.step;return Math.abs(d-Math.round(d))<1e-9&&Math.abs(((+e.value-+e.min)/+e.step)-Math.round((+e.value-+e.min)/+e.step))<1e-9;})),true,'adım ızgarası');

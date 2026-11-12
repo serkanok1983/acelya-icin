@@ -332,6 +332,14 @@ function sMul(a, b) {
 }
 function sDiv(a, b) { if (isN(a, 0)) return nm(0); if (isN(b, 1)) return a; if (isN(a) && isN(b) && b.v !== 0) return nm(a.v / b.v); return { t: 'bin', op: '/', a, b }; }
 function sPow(a, b) { if (isN(b, 0)) return nm(1); if (isN(b, 1)) return a; if (isN(a) && isN(b)) return nm(Math.pow(a.v, b.v)); return { t: 'bin', op: '^', a, b }; }
+const hasName = n => (n.t === 'num' && !!n.name) || (!!n.a && hasName(n.a)) || (!!n.b && hasName(n.b));
+// Sabit sayısal üssü (ör. −2 − 1, 1/3 − 1) tek bir sayıya indir: tamsayı ya da kısa ondalık sayı düğümü, değilse p/q kesri.
+function niceNum(v) {
+  const r = Math.round(v); if (Math.abs(v - r) < 1e-12) return nm(r);
+  const d = Math.round(v * 1000) / 1000; if (Math.abs(v - d) < 1e-12) return nm(d);
+  for (let q = 2; q <= 12; q++) { const pq = Math.round(v * q); if (Math.abs(v * q - pq) < 1e-9) { const f = { t: 'bin', op: '/', a: nm(Math.abs(pq)), b: nm(q) }; return pq < 0 ? { t: 'neg', a: f } : f; } }
+  return nm(v);
+}
 function sNeg(a) { if (isN(a)) return nm(-a.v); if (a.t === 'neg') return a.a; if (a.t === 'bin' && a.op === '*' && isN(a.a)) return sMul(nm(-a.a.v), a.b); return { t: 'neg', a }; }
 function sFn(f, a) { if (isN(a)) return nm(FN1[f](a.v)); return { t: 'fn', f, a }; }
 function deriv(n, v) {
@@ -345,7 +353,7 @@ function deriv(n, v) {
       if (op === '-') return sSub(da, db);
       if (op === '*') return sAdd(sMul(da, b), sMul(a, db));
       if (op === '/') return sDiv(sSub(sMul(da, b), sMul(a, db)), sPow(b, nm(2)));
-      if (!hasVar(b)) return sMul(sMul(b, sPow(a, sSub(b, nm(1)))), da);
+      if (!hasVar(b)) { if (hasName(b)) return sMul(sMul(b, sPow(a, sSub(b, nm(1)))), da); const k = compile(b)(0, 0); return sMul(sMul(niceNum(k), sPow(a, niceNum(k - 1))), da); }
       if (!hasVar(a)) return sMul(sMul(n, sFn('ln', a)), db);
       return sMul(n, sAdd(sMul(db, sFn('ln', a)), sDiv(sMul(b, da), a)));
     }

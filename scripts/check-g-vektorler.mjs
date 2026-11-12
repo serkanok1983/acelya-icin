@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../vektorler.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'Çekirdek sınırları (KERNEL-BEGIN/END) gerekli');
@@ -171,7 +172,7 @@ if(process.argv.includes('--browser')){
   // sekme klavyesi
   await page.locator('#tab-river').focus();await page.keyboard.press('Home');eq(await page.locator('#tab-vec').getAttribute('aria-selected'),'true');await page.keyboard.press('ArrowRight');eq(await page.locator('#tab-prod').getAttribute('aria-selected'),'true');await page.keyboard.press('End');eq(await page.locator('#tab-river').getAttribute('aria-selected'),'true');await page.keyboard.press('ArrowRight');eq(await page.locator('#tab-vec').getAttribute('aria-selected'),'true');eq(await page.locator('#panel-prod').isHidden(),true);await is('vRmag','5.00');
   // tuvaller gerçekten çiziliyor
-  for(const[tabId,ids]of[['tab-vec',['vecCanvas']],['tab-prod',['dotCanvas','crossCanvas','appCanvas']],['tab-river',['rvCanvas','rvVec']]]){await click(tabId);await page.waitForTimeout(150);for(const id of ids)ok(await page.evaluate(id=>{const c=document.getElementById(id),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return c.width>200&&s.size>4;},id),id+' boş');}
+  for(const[tabId,ids]of[['tab-vec',['vecCanvas']],['tab-prod',['dotCanvas','crossCanvas','appCanvas']],['tab-river',['rvCanvas','rvVec']]]){await click(tabId);await page.waitForTimeout(150);for(const id of ids)ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minW:200,minDistinct:5,label:id}),id+' boş');}
   await noflow('son');assert.deepEqual(errors,[]);checks++;await ctx.close();}
  console.log(`G vektörler: ${checks-before} arayüz kontrolü PASS (390 px aydınlık + 1280 px karanlık)`);
  }finally{await browser?.close();await new Promise(r=>server.close(r));}

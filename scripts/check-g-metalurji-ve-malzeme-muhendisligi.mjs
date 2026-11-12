@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const SLUG = 'metalurji-ve-malzeme-muhendisligi';
 const html = fs.readFileSync(new URL(`../${SLUG}.html`, import.meta.url), 'utf8');
@@ -186,7 +187,7 @@ if (process.argv.includes('--browser')) {
       const has = async (id, text) => { const t = await read(id); assert(t.includes(text), `[${theme} ${width}] #${id}: "${t}" içinde "${text}" yok`); checks++; };
       const lacks = async (id, text) => { const t = await read(id); assert(!t.includes(text), `[${theme} ${width}] #${id}: "${text}" olmamalı`); checks++; };
       const noOverflow = async (tag) => { eq(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `yatay taşma (${tag}, ${width})`); };
-      const painted = async (id) => { ok(await page.locator('#' + id).evaluate((c) => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, seen = new Set(); for (let i = 0; i < d.length; i += 4 * 97) seen.add(d[i] + ',' + d[i + 1] + ',' + d[i + 2]); return c.width > 100 && seen.size > 3; }), 'tuval çizildi: ' + id); };
+      const painted = async (id) => { ok(assertCanvasDrawn(await canvasInk(page, '#' + id), { minW: 100, minDistinct: 4, label: id }), 'tuval çizildi: ' + id); };
       eq(await page.evaluate(() => document.documentElement.dataset.theme || 'dark'), theme);
       // Erişilebilirlik: her denetimin etiketi, tuvallerin rolü, canlı okumalar
       eq(await page.evaluate(() => [...document.querySelectorAll('main input, main select')].filter((e) => !document.querySelector(`label[for="${e.id}"]`)).map((e) => e.id).join()), '', 'etiketsiz denetim');

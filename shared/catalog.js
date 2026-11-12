@@ -136,6 +136,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "bilgi-kurami-ve-sikistirma": {
+    "title": "Bilgi Kuramı ve Sıkıştırma: Şaşkınlığı Bitle Ölçmek",
+    "tagline": "Bir mesaj kaç bite sığar, gürültülü bir hat saniyede kaç bit taşır? Shannon'ın iki sınırı, ZIP dosyasından cep telefonuna kadar her dijital iletişimin görünmez tavanıdır.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "bilgisayar-sistemleri-ve-mimarisi": {
     "title": "Bilgisayar Mimarisi: Bir Saat Çevriminin İçi",
     "tagline": "Bir komut bitlerle başlar, saat çevrimleriyle biter. İkiye tümleyen ve kayan nokta, beş aşamalı boru hattı, önbellek ve Amdahl yasası: dört deneyde sayfanın saydığını kuramın söylediğiyle karşılaştır.",
@@ -661,6 +668,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 30
   },
+  "kontrol-kurami": {
+    "title": "Kontrol Kuramı: Kutuplar, Paylar ve PID",
+    "tagline": "Termostat, hız sabitleyici, dümen: hepsi ölçer, karşılaştırır, düzeltir. Bir çevrimin sakin mi kalacağını, salınıp mı duracağını birkaç sayı söyler: kutuplar, sınır kazancı ve faz payı.",
+    "field": "Mühendislik",
+    "level": "Lisans",
+    "minutes": 35
+  },
   "kristal-yapilar": {
     "title": "Kristal Yapılar: Küre İstiflerinden X Işını Desenlerine",
     "tagline": "Bir milimetrelik tuz kristali, aynı küçük kutunun milyarlarca milyar kez tekrarıdır. Küreleri istifle, düzlemleri çiz, X ışınlarının yansıdığı açıları ölç: atomları görmeden dizilişlerini böyle okuruz.",
@@ -674,6 +688,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lisans",
     "minutes": 45
+  },
+  "kuantum-hesaplama": {
+    "title": "Kuantum Hesaplama: Kübit, Dolanıklık ve Girişim",
+    "tagline": "Bir kübit, ölçülene kadar bir küre üzerindeki oktur; iki kübit, hiçbir klasik talimatın taklit edemediği biçimde birbirine bağlanabilir. Kuantum algoritmaları bu genliklerin girişimiyle çalışır, sihirle değil.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lisans",
+    "minutes": 40
   },
   "kuantum-mekanigi": {
     "title": "Kuantum Çift Yarık: Tek Elektron, İki Yol",
@@ -962,6 +983,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 25
   },
+  "oyun-kurami": {
+    "title": "Oyun Kuramı: Denge, Minimaks ve İşbirliği",
+    "tagline": "Senin en iyi hamlen rakibinin hamlesine, onunki de seninkine bağlıysa nerede durulur? Nash dengesi, minimaks, tutsak ikilemi turnuvaları ve evrimsel oyunlar: kararların matematiği, varsayımlarıyla birlikte.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "pascal-ucgeni": {
     "title": "Pascal Üçgeni: Saymak, Tartmak, Desen Bulmak",
     "tagline": "İki komşunun toplamı nasıl seçimleri sayar, olasılık dağılımına dönüşür ve tek sayılardan bir fraktal çıkarır? Pascal üçgenini kombinasyondan Lucas teoremine kadar izle.",
@@ -1060,6 +1088,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "robotik-ve-kinematik": {
+    "title": "Robotik ve Kinematik: Eklem Açılarından Uç Noktaya ve Geri",
+    "tagline": "Açılardan uç noktaya gitmek tek satırlık bir hesap; geri dönmek ise iki, bir ya da hiç çözümü olan bir bulmaca. Jacobian bu iki yönü birbirine bağlar ve kolun nerede çaresiz kaldığını söyler.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "roma-hukuku": {
     "title": "Roma Hukuku: Taş Kaybolur, Kural Kalır",
     "tagline": "Bir ipotek, bir kira sözleşmesi, bir miras davası: üçünün de iskeleti Roma'da kuruldu. Kanun kitabı değil, bin yıl boyunca dava dava biriken bir düşünme yönteminin hikâyesi.",
@@ -1136,6 +1171,13 @@ window.ACELYA_CATALOG = {
     "field": "Biyoloji",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "sinyal-isleme-ve-modulasyon": {
+    "title": "Sinyal İşleme ve Modülasyon: Örnekleme, FFT, AM–FM ve Süzgeçler",
+    "tagline": "Telefonundaki ses, radyodaki şarkı, kameradaki görüntü: hepsi önce sayılara dönüşür, sonra frekanslarına ayrılır, bir taşıyıcıya bindirilir ve gürültüden süzülür. Bu sayfa o zincirin her halkasını ölçerek gösterir.",
+    "field": "Mühendislik",
+    "level": "Lisans",
+    "minutes": 45
   },
   "siralama-algoritmalari": {
     "title": "Sıralama: Sonucun Sakladığı Bilgi",

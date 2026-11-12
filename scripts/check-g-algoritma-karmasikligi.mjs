@@ -3,6 +3,7 @@
 // alt küme taraması, kapalı biçimler). `--browser` gerçek arayüzü 390 px açık ve 1280 px koyu temada dener.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../algoritma-karmasikligi.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'Çekirdek sınır işaretleri gerekli');
@@ -174,7 +175,7 @@ if(process.argv.includes('--browser')){
       await set('tN',5);await page.locator('h1').click();await page.keyboard.press('r');await is('tNOut','8');
       await page.locator('#tab-approx').focus();await page.keyboard.press('Home');eq(await page.locator('#tab-growth').getAttribute('aria-selected'),'true');
       for(const t of['np','red','approx','growth']){await click('tab-'+t);await fits();eq(await page.locator('#panel-'+t).isVisible(),true);
-        eq(await page.evaluate(t=>{const c=document.querySelector('#panel-'+t+' canvas'),d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>2;},t),true,t+' tuvali boş');}
+        eq(assertCanvasDrawn(await canvasInk(page,'#panel-'+t+' canvas'),{minDistinct:3,label:t+' tuvali'}),true,t+' tuvali boş');}
       assert.deepEqual(errors,[]);checks++;await page.close();}
     console.log(`G algoritma-karmasikligi: ${checks-before} tarayıcı kontrolü PASS (390 px açık, 1280 px koyu)`);
   }finally{await browser?.close();await new Promise(r=>server.close(r));}

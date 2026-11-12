@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const SLUG='internet-ve-ag-teknolojileri';
 const html=fs.readFileSync(new URL(`../${SLUG}.html`,import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -233,7 +234,7 @@ if(process.argv.includes('--browser')){
       const type=async(id,v)=>{await page.locator('#'+id).fill(v);};
       const choose=(id,v)=>page.locator('#'+id).selectOption(v);
       const noOverflow=async tag=>{const[sw,iw]=await page.evaluate(()=>[document.documentElement.scrollWidth,innerWidth]);assert(sw<=iw,`[${width}] ${tag}: yatay taşma ${sw} > ${iw}`);checks++;};
-      const painted=async id=>{const n=await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size;});assert(n>=4,`[${width}] ${id} boş görünüyor (${n} renk)`);checks++;};
+      const painted=async id=>{assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:`[${width}] ${id}`});checks++;};
       eq(await page.evaluate(()=>document.documentElement.dataset.theme||'dark'),theme);
       eq(await page.locator('h1').count(),1);eq(await page.locator('main.app-content > p.hint').count(),1);
       // Erişilebilirlik: her denetimin etiketi, her tuvalin rolü

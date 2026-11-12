@@ -150,7 +150,9 @@ ok(K.threshold({ dur: 1, ttx: true, y0, max: 1000 }) === null, "TTX: eşik yok")
     for (let s = 0; s < 12000; s++) { y = f(y); t += 0.005; const d = y[0] - yy[0]; if (prev < 0 && d >= 0) zc.push(t - 0.005 * d / (d - prev)); prev = d; }
     const per = (zc[zc.length - 1] - zc[1]) / (zc.length - 2); nearAbs(1000 / per, H.f, 0.5, "Hopf yakınında küçük salınım frekansı"); ok(P.vmax < yy[0] + 1, "küçük kalır");
   }
-  const Fi = K.fiCurve(); nearAbs(Fi.onset, 6.228, 2e-3, "sürekli ateşleme eşiği"); nearAbs(Fi.fmin, 48.8, 0.2, "eşikteki frekans");
+  const Fi = K.fiCurve(); nearAbs(Fi.onset, 6.228, 2e-3, "sürekli ateşleme eşiği");
+  { // uzun protokol (3 s, tepeler 2–3 s penceresinde): sayfadaki not ≈ 6,234
+    let lo = 6.2, hi = 6.3; while (hi - lo > 2e-4) { const m = (lo + hi) / 2; if (K.firing({ I: m, tEnd: 3000, tA: 2000 }).f > 0) hi = m; else lo = m; } nearAbs((lo + hi) / 2, 6.234, 1e-3, "3 s protokolünde sürekli ateşleme eşiği"); } nearAbs(Fi.fmin, 48.8, 0.2, "eşikteki frekans");
   const sus = (I) => { const r = own({ y0, bias: I, tEnd: 400, dt: 0.01 }); return r.cross.filter((t) => t >= 150).length >= 2; };
   ok(!sus(Fi.onset - 0.01) && sus(Fi.onset + 0.01), "ateşleme eşiği (bağımsız)");
   ok(Fi.onset < Fi.hopf.I && Fi.fmin > 40, "II. tip: sonlu frekansla başlar, Hopf'tan önce (iki kararlılık)");
@@ -259,7 +261,7 @@ if (process.argv.includes("--browser")) {
       await until(() => !/hesaplan/.test(document.getElementById("t3Onset").textContent), 60000);
       await has("t3Abs", "7,28 ms"); await has("t3Rel", "15,44 ms"); await has("t3Thr1", "13,241"); await has("t3Thr2", "46,37"); await has("t3Second", "var"); await has("t3Super", "0,851");
       await has("t3Rh", "2,236"); await has("t3Chron", "1,658 ms"); await has("t3Lap", "1,888 ms"); await has("t3Weiss", "2,497 ms"); await has("t3ID", "6,903");
-      await has("t3Onset", "6,228"); await has("t3Fmin", "48,8 Hz"); await has("t3Hopf", "9,749"); await has("t3HopfF", "93,3 Hz"); await has("t3F", "68,4 Hz");
+      await has("t3Onset", "6,228"); await has("t3OnsetLong", "6,234 µA/cm²"); await has("t3Fmin", "48,8 Hz"); await has("t3Hopf", "9,749"); await has("t3HopfF", "93,3 Hz"); await has("t3F", "68,4 Hz");
       await range("t3Gap", 5); await settle(); await has("t3Second", "yok"); await has("t3Thr2", "bile yok"); await has("t3Status", "mutlak dönemin içinde");
       await range("t3Gap", 20); await range("t3A2", 11.3); await settle(); await has("t3Second", "var"); await has("t3Status", "dışında"); await has("t3Status", "İlk uyarının başlangıcından sonra"); ok((await page.locator("#panel-hh").textContent()).includes("İki ayrı parametre takımı"), "E_Na farkı açıklanıyor");
       await range("t3A2", 11.2); await settle(); await has("t3Second", "yok");

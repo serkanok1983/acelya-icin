@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../fonksiyon-grafigi.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'fonksiyon-grafigi.html: KERNEL sınırları gerekli');
@@ -22,7 +23,8 @@ const PI=Math.PI;
 // 1) Çözümleyici: JS'nin kendi değerlendirmesiyle karşılaştır (yalnız test tarafında)
 const cases=[['x^2','x**2'],['2x+1','2*x+1'],['-x^2','-(x**2)'],['2^3^2','2**(3**2)'],['3x^2-2x+1','3*x**2-2*x+1'],['(x+1)(x-1)','(x+1)*(x-1)'],['2sin(x)cos(x)','2*Math.sin(x)*Math.cos(x)'],
  ['x/2/3','x/2/3'],['1/x^2','1/(x**2)'],['2^-x','2**(-x)'],['e^x','Math.E**x'],['pi*x','Math.PI*x'],['π x','Math.PI*x'],['ln(abs(x))+log(100)','Math.log(Math.abs(x))+2'],['sqrt(x^2+1)','Math.sqrt(x*x+1)'],
- ['floor(x)-x','Math.floor(x)-x'],['tan(x)','Math.tan(x)'],['exp(-x^2)','Math.exp(-(x**2))'],['cbrt(x)','Math.cbrt(x)'],['2,5x','2.5*x'],['x − 1','x-1'],['3·x','3*x'],['-(-x)','x'],['--x','x'],['+x','x'],['x^0.5','x**0.5'],['(x-1)^3','(x-1)**3'],['SIN(X)','Math.sin(x)'],['2x^2','2*x**2'],['x(x+1)','x*(x+1)']];
+ ['floor(x)-x','Math.floor(x)-x'],['tan(x)','Math.tan(x)'],['exp(-x^2)','Math.exp(-(x**2))'],['cbrt(x)','Math.cbrt(x)'],['2,5x','2.5*x'],['x − 1','x-1'],['3·x','3*x'],['-(-x)','x'],['--x','x'],['+x','x'],['x^0.5','x**0.5'],['(x-1)^3','(x-1)**3'],['SIN(X)','Math.sin(x)'],['2x^2','2*x**2'],['x(x+1)','x*(x+1)'],
+ ['1e3','1e3'],['2.5e-3','2.5e-3'],['2,5e-3x','2.5e-3*x'],['1E+2','1e2'],['3e−2','3e-2'],['2e','2*Math.E'],['2e-x','2*Math.E-x'],['2e^x','2*Math.E**x'],['2e-3x','2e-3*x'],['x*e','x*Math.E'],['e3','Math.E*3'],['e^2','Math.E**2']];
 for(const[e,js]of cases){const r=K.parse(e);ok(r.ok,'çözümlenemedi: '+e);const ref=new Function('x','return '+js);for(const x of[-2.3,-1,0,.5,1,1.7,3.2]){const a=r.f(x),b=ref(x);if(Number.isNaN(b))ok(Number.isNaN(a),e+' NaN');else if(!Number.isFinite(b))eq(a,b,e);else near(a,b,1e-14,e+' @'+x);}}
 for(const[e,pos,word]of[['',1,'boş'],['x^',3,'üs'],['sinx',1,'sin(x)'],['x(',3,'eksik'],['(x+1',5,'kapanmadı'],['x+1)',4,'Fazladan'],['3 4',3,'işlem'],['|x|',1,'abs'],['x²',2,'^2'],['y+1',1,'Bilinmeyen'],['xx',1,'x*x'],['2*',3,'terim'],['sin x',1,'parantez'],['x#2',2,'Tanınmayan'],['()',2,'Boş parantez'],['.',1,'nokta'],['x'.repeat(241),241,'uzun']]){
  const r=K.parse(e);eq(r.ok,false,'hata beklenirdi: '+e);eq(r.pos,pos,'konum '+e+' '+r.error);ok(r.error.includes(word),e+': '+r.error);}
@@ -158,7 +160,7 @@ if(process.argv.includes('--browser')){
    const click=id=>page.locator('#'+id).click(),read=async id=>(await page.locator('#'+id).textContent()).trim(),has=async(id,t)=>{const s=await read(id);assert(s.includes(t),`[${width}] #${id}: "${s}" içinde "${t}" yok`);checks++;};
    const range=(id,v)=>page.locator('#'+id).evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},v),pick=(id,v)=>page.locator('#'+id).selectOption(v),settle=()=>page.waitForTimeout(120);
    const noOverflow=async w=>{eq(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,`[${width}] yatay taşma: ${w}`);};
-   const painted=async id=>{ok(await page.locator('#'+id).evaluate(c=>{const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data,s=new Set();for(let i=0;i<d.length;i+=4*97)s.add(d[i]+','+d[i+1]+','+d[i+2]);return s.size>3;}),`[${width}] ${id} boş`);};
+   const painted=async id=>{ok(assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:4,label:`[${width}] ${id}`}),`[${width}] ${id} boş`);};
    eq(await page.evaluate(()=>[...document.querySelectorAll('main input,main select')].filter(e=>!(e.labels&&e.labels.length)&&!e.getAttribute('aria-label')).map(e=>e.id).join()),'','etiketsiz denetim');
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].every(c=>c.getAttribute('role')==='img'&&c.getAttribute('aria-label'))),true);
    eq(await page.evaluate(()=>[...document.querySelectorAll('main button')].filter(b=>!b.textContent.trim()&&!b.getAttribute('aria-label')).length),0,'adsız düğme');

@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 const html=fs.readFileSync(new URL('../siber-guvenlik.html',import.meta.url),'utf8');
 const source=html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
 assert(source,'KERNEL-BEGIN / KERNEL-END işaretleri gerekli');
@@ -177,7 +178,7 @@ if(process.argv.includes('--browser')){
    const has=async(id,text)=>{const t=await read(id);assert(t.includes(text),`${id}: “${t}” içinde “${text}” yok`);checks++;};
    const lacks=async(id,text)=>{const t=await read(id);assert(!t.includes(text),`${id}: “${t}” içinde “${text}” olmamalı`);checks++;};
    const noOverflow=async where=>{const o=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);assert(o<=0,`${width}px ${where}: yatay taşma ${o}px`);checks++;};
-   const painted=async id=>{const n=await page.locator('#'+id).evaluate(cv=>{const d=cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data,set=new Set();for(let i=0;i<d.length;i+=4*97)set.add(d[i]<<16|d[i+1]<<8|d[i+2]);return set.size;});assert(n>=3,id+' boş çizilmiş');checks++;};
+   const painted=async id=>{assertCanvasDrawn(await canvasInk(page,'#'+id),{minDistinct:3,label:id});checks++;};
    eq(await page.evaluate(()=>Object.isFrozen(window.SiberCore)),true);eq(await page.evaluate(()=>document.body.dataset.page),'siber-guvenlik');
    eq(await page.evaluate(()=>[...document.querySelectorAll('input,select,textarea')].filter(e=>!e.labels||!e.labels.length).map(e=>e.id)),[]);
    eq(await page.evaluate(()=>[...document.querySelectorAll('main canvas')].filter(c=>c.getAttribute('role')!=='img'||!c.getAttribute('aria-label')).length),0);

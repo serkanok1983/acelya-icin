@@ -6,6 +6,7 @@
 // Kullanım: node scripts/check-g-ay-evreleri.mjs [--browser]
 import fs from "node:fs";
 import assert from "node:assert/strict";
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const html = fs.readFileSync(new URL("../ay-evreleri.html", import.meta.url), "utf8");
 const source = html.split("/* KERNEL-BEGIN */")[1]?.split("/* KERNEL-END */")[0];
@@ -237,7 +238,7 @@ if (process.argv.includes("--browser")) {
       const eq = (a, b, label) => { assert.equal(a, b, `[${width}] ${label || ""}`); checks++; };
       const clean = async (sel) => { const t = await page.locator(sel).innerText(); assert(!/NaN|Infinity|undefined|null/.test(t), `[${width}] ${sel} bozuk sayı`); checks++; };
       const noOverflow = async () => eq(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "yatay taşma");
-      const drawn = async (id) => eq(await page.evaluate((id) => { const c = document.getElementById(id), d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data; const set = new Set(); for (let i = 0; i < d.length; i += 4 * 97) set.add(d[i] + "," + d[i + 1] + "," + d[i + 2]); return set.size > 4; }, id), true, id + " boş");
+      const drawn = async (id) => eq(assertCanvasDrawn(await canvasInk(page, "#" + id), { minDistinct: 5, label: id }), true, id + " boş");
 
       eq(await page.evaluate(() => [...document.querySelectorAll(".app-content input, .app-content select")].filter((e) => !document.querySelector(`label[for="${e.id}"]`)).length), 0, "etiketsiz denetim");
       eq(await page.evaluate(() => [...document.querySelectorAll(".app-content canvas")].filter((c) => c.getAttribute("role") !== "img" || !c.getAttribute("aria-label")).length), 0, "rolsüz tuval");

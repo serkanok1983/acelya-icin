@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import { canvasInk, canvasInkAll, assertCanvasDrawn } from './lib/canvas-check.mjs';
 
 const html = fs.readFileSync(new URL('../periyodik-tablo.html', import.meta.url), 'utf8');
 const source = html.split('/* KERNEL-BEGIN */')[1]?.split('/* KERNEL-END */')[0];
@@ -186,7 +187,7 @@ if (process.argv.includes('--browser')) {
       const has = async (id, text) => { const t = await read(id); assert(t.includes(text), `[${width}] ${id}: "${t}" içinde "${text}" yok`); checks++; };
       const select = (id, v) => page.locator('#' + id).selectOption(String(v));
       const noOverflow = async (label) => { ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `[${width}] yatay taşma: ${label}`); };
-      const painted = async (id) => { ok(await page.locator('#' + id).evaluate((c) => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; const s = new Set(); for (let i = 0; i < d.length; i += 4 * 97) s.add(d[i] + ',' + d[i + 1] + ',' + d[i + 2] + ',' + d[i + 3]); return c.width > 100 && s.size > 4; }), `[${width}] ${id} çizilmedi`); };
+      const painted = async (id) => { ok(assertCanvasDrawn(await canvasInk(page, '#' + id), { minW: 100, minDistinct: 5, label: `[${width}] ${id}` }), `[${width}] ${id} çizilmedi`); };
       const cellVal = async (z) => (await page.locator(`.cell[data-z="${z}"] .val`).textContent()).trim();
 
       // İskelet ve erişilebilirlik
