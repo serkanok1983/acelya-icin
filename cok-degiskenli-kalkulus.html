@@ -60,7 +60,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 <body class="app-page" data-page="cok-degiskenli-kalkulus">
 <main class="app-content">
 <h1>Çok Değişkenli Kalkülüs: Gradyan, Lagrange ve Çift İntegral</h1>
-<p class="hint">Bir dağın üzerindesin: en dik yokuş hangi yönde? Noktayı haritada sürükle, kısmi türevleri sayısal olarak ölçüp formülle karşılaştır; sonra bir yön seç, bir eğri üzerinde en yüksek noktayı ara ve bir yüzeyin altındaki hacmi küçük hücrelerle topla.</p>
+<p class="hint">Bir dağın üzerindesin: en dik yokuş hangi yönde? Noktayı haritada sürükle, kısmi türevleri sayısal olarak ölçüp formülle karşılaştır; sonra bir yön seç, bir eğri üzerinde en yüksek noktayı ara ve bir yüzeyin altındaki hacmi küçük hücrelerle topla. Telefonda noktaya dokunup sürükle, yüzeyi yatay sürükleyerek döndür; dikey parmak hareketi sayfayı kaydırır.</p>
 
 <div class="mc-tabs" role="tablist" aria-label="Çok değişkenli kalkülüs deneyleri">
 <button type="button" class="app-btn-ghost" id="tab-g" role="tab" aria-controls="panel-g" aria-selected="true" tabindex="0">01 · Kısmi türev ve gradyan</button>
@@ -805,15 +805,24 @@ function draw3d(id, F, pt, plane) {
 }
 function attachRotate(id, redraw) {
   const c = $(id); let drag = null;
+  // Dokunmatik ekranda dikey parmak hareketi sayfayı kaydırır; yatay sürükleme yüzeyi döndürür.
+  window.AcelyaTouch?.guard(c);
   c.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY]; c.setPointerCapture(e.pointerId); });
   c.addEventListener('pointermove', e => { if (!drag) return; const v = views[id]; v.yaw -= (e.clientX - drag[0]) * 0.01; v.pitch = Math.max(0.15, Math.min(1.5, v.pitch + (e.clientY - drag[1]) * 0.01)); drag = [e.clientX, e.clientY]; redraw(); });
   const end = () => { drag = null; }; c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
   c.addEventListener('keydown', e => { const v = views[id], m = { ArrowLeft: [0.12, 0], ArrowRight: [-0.12, 0], ArrowUp: [0, -0.08], ArrowDown: [0, 0.08] }[e.key]; if (!m) return; e.preventDefault(); v.yaw += m[0]; v.pitch = Math.max(0.15, Math.min(1.5, v.pitch + m[1])); redraw(); });
 }
 function attachPick(id, xId, yId, getMap) {
-  const c = $(id); let drag = false;
+  const c = $(id); let drag = false, tap = null;
   const set = e => { const m = getMap(); if (!m) return; const r = c.getBoundingClientRect(); const [x, y] = m.inv(e.clientX - r.left, e.clientY - r.top); setXY(xId, yId, x, y); };
-  c.addEventListener('pointerdown', e => { drag = true; c.setPointerCapture(e.pointerId); set(e); });
+  // Dokunmatik ekranda yalnız seçili noktaya değen parmak onu sürükler; başka yere kısa dokunuş noktayı
+  // oraya taşır, parmağı kaydırmak sayfayı kaydırır.
+  const near = (cx, cy) => { const m = getMap(); if (!m) return false; const r = c.getBoundingClientRect(); return Math.hypot(cx - r.left - m.X(num(xId)), cy - r.top - m.Y(num(yId))) < 44; };
+  const coarse = e => e.pointerType === 'touch' && window.AcelyaTouch?.isCoarse();
+  window.AcelyaTouch?.guard(c, near);
+  c.addEventListener('pointerdown', e => { if (coarse(e) && !near(e.clientX, e.clientY)) { tap = { id: e.pointerId, x: e.clientX, y: e.clientY }; return; } drag = true; c.setPointerCapture(e.pointerId); set(e); });
+  c.addEventListener('pointerup', e => { if (tap && tap.id === e.pointerId && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 12) set(e); tap = null; });
+  c.addEventListener('pointercancel', () => { tap = null; });
   c.addEventListener('pointermove', e => { if (drag) set(e); });
   const end = () => { drag = false; }; c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
   c.addEventListener('keydown', e => { const m = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key]; if (!m) return; e.preventDefault(); setXY(xId, yId, num(xId) + 0.05 * m[0], num(yId) + 0.05 * m[1]); });
@@ -1117,7 +1126,7 @@ $('dToLevel').addEventListener('click', () => { const F = fnState.d, x = num('dX
 $('qGaussPi').addEventListener('click', () => applyValues({ qFn: 'gauss', qReg: 'disk', qA: 4, qN: 200, qMcK: 4, qSeed: 1 }));
 $('qFubini').addEventListener('click', () => applyValues({ qFn: 'xy', qReg: 'ucgen', qA: 2, qN: 16, qMcK: 4, qSeed: 1 }));
 attachRotate('g3d', () => { if (active === 'g') renderG(); }); attachRotate('d3d', () => { if (active === 'd') renderD(); });
-attachPick('gMap', 'gX', 'gY', () => gMapInfo); attachPick('dMap', 'dX', 'dY', () => dMapInfo);
+attachPick('gMap', 'gX', 'gY', () => gMapInfo); ['lMap', 'lCurve', 'qCells'].forEach(id => window.AcelyaTouch?.guard($(id))); attachPick('dMap', 'dX', 'dY', () => dMapInfo);
 document.addEventListener('keydown', e => { if ((e.key === 'r' || e.key === 'R') && !e.target.closest('input,select,button,a,textarea,summary,canvas') && !e.ctrlKey && !e.metaKey && !e.altKey) reset(active); });
 let raf = 0; const later = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(render); };
 new ResizeObserver(later).observe(document.querySelector('.app-content'));

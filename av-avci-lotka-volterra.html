@@ -148,7 +148,7 @@
 
 <div class="app-content">
   <h1>Av–Avcı Modeli: Lotka–Volterra Döngüleri ve Ötesi</h1>
-  <p class="hint">Av x ve avcı y bin birey, zaman yıl cinsinden. Faz diyagramına dokunarak ya da kaydırıcılarla başlangıç noktasını seç; ölçülen periyot, döngü ortalamaları, kararlılık ve son durum kuramla yan yana yazılır.</p>
+  <p class="hint">Av x ve avcı y bin birey, zaman yıl cinsinden. Faz diyagramına dokunarak ya da kaydırıcılarla başlangıç noktasını seç (telefonda noktayı tutup sürükle ya da boş yere kısa dokun; parmağı kaydırmak sayfayı kaydırır); ölçülen periyot, döngü ortalamaları, kararlılık ve son durum kuramla yan yana yazılır.</p>
 
   <div class="tabs" role="tablist" aria-label="Deney bölümleri">
     <button type="button" class="tab app-btn-ghost" role="tab" id="tab-lotka-volterra" data-tab="lotka-volterra" aria-selected="true" aria-controls="labPanel">Lotka–Volterra</button>
@@ -1766,13 +1766,34 @@
     restart(T);
     setRunning(T, true);
   }
+  // Dokunmatik ekranda yalnız başlangıç noktasına değen parmak onu sürükler; tuvalin başka yerine
+  // kısa dokunuş yeni başlangıç seçer, parmağı kaydırmak sayfayı kaydırır.
+  function nearStart(cx, cy) {
+    const T = TABS[S.tab], rect = stage.getBoundingClientRect(), k = stage.width / rect.width;
+    const ax = phaseBox(stage.width, stage.height, T.view);
+    const px = (cx - rect.left) * k, py = (cy - rect.top) * (stage.height / rect.height);
+    return Math.hypot(px - ax.X(T.x0), py - ax.Y(T.y0)) < 44 * k;
+  }
+  window.AcelyaTouch?.guard(stage, nearStart);
+  let tap = null;
   stage.addEventListener("pointerdown", (e) => {
     if (e.button !== undefined && e.button > 0) return;
+    if (e.pointerType === "touch" && window.AcelyaTouch?.isCoarse() && !nearStart(e.clientX, e.clientY)) {
+      tap = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      return;
+    }
     ptr = { id: e.pointerId };
     stage.setPointerCapture(e.pointerId);
     pickStart(e);
   });
   stage.addEventListener("pointermove", (e) => { if (ptr && ptr.id === e.pointerId) pickStart(e); });
+  stage.addEventListener("pointerup", (e) => {
+    if (!tap || tap.id !== e.pointerId) return;
+    const moved = Math.hypot(e.clientX - tap.x, e.clientY - tap.y);
+    tap = null;
+    if (moved < 12) { pickStart(e); restart(TABS[S.tab]); }
+  });
+  stage.addEventListener("pointercancel", () => { tap = null; });
   const endPtr = () => {
     if (!ptr) return;
     ptr = null;

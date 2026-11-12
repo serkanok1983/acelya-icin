@@ -134,7 +134,7 @@
 
 <div class="app-content">
   <h1>Işığın Yansıması ve Kırılması: Snell, Fresnel ve Tam İç Yansıma</h1>
-  <p class="hint">Bir senaryo seç; ışık kaynağını sürükle ya da kaydırıcıları değiştir. Sınırda ışığın doğrultusunu Snell yasası (n₁ sin θ₁ = n₂ sin θ₂), yansıyan ve geçen gücü Fresnel denklemleri belirler; kritik açının ötesinde ışığın tamamı geri döner.</p>
+  <p class="hint">Bir senaryo seç; ışık kaynağını sürükle ya da kaydırıcıları değiştir. Telefonda kaynağa dokunup sürükle ya da ışını çevirmek istediğin yere dokun; boş yerde parmak sayfayı kaydırır. Sınırda ışığın doğrultusunu Snell yasası (n₁ sin θ₁ = n₂ sin θ₂), yansıyan ve geçen gücü Fresnel denklemleri belirler; kritik açının ötesinde ışığın tamamı geri döner.</p>
 
   <div class="tabs" role="tablist" aria-label="Deney senaryoları">
     <button type="button" class="tab app-btn-ghost" role="tab" id="tab-arayuz" data-tab="arayuz" aria-selected="true" aria-controls="labPanel">Arayüz</button>
@@ -656,7 +656,7 @@
       "Fiber grafiği: giriş açısına karşı 1 m sonra kalan güç ve eksenel ışına göre gecikme; kabul açısı işareti",
     ],
   };
-  const S = { tab: "arayuz", paused: false, t: 0 };
+  const S = { tab: "arayuz", paused: false, t: 0, handle: {} };
   let dirty = true, dpr = 1;
 
   function theme() {
@@ -1045,6 +1045,7 @@
 
     const st = Math.sin(SA.th), ct = Math.cos(SA.th);
     const srcX = ox - Rp * st, srcY = oy - Rp * ct;
+    S.handle.arayuz = [srcX, srcY];
     const refl = [st, -ct], tLen = edgeT(ox, oy, refl[0], refl[1], W, H);
     const has2 = !f.tir && Number.isFinite(r.th2m);
     const tr = has2 ? [Math.sin(r.th2m), Math.cos(r.th2m)] : null;
@@ -1333,6 +1334,7 @@
     const back = edgeT(M1[0], M1[1], -din[0], -din[1], W, H);
     const Ls = Math.max(30 * dpr, Math.min(0.95 * L.s, back - 16 * dpr));
     const src = [M1[0] - din[0] * Ls, M1[1] - din[1] * Ls];
+    S.handle.prizma = src;
 
     // Normaller (kesikli)
     const n1 = G.faces[0].n, n2 = G.faces[1].n, nl = 0.3 * L.s;
@@ -1622,6 +1624,7 @@
 
     // Giriş: lazer, gelen ve yansıyan ışın
     const th0 = SC.th0, lx = x0 - L.Rl * Math.cos(th0), ly = yc - L.Rl * Math.sin(th0);
+    S.handle.fiber = [lx, ly];
     const rgb = th.beam, Pin = tr.ent.T;
     beam(g, lx, ly, x0, yc, rgb, 1, th, 8);
     beam(g, x0, yc, x0 - L.Rl * 0.6 * Math.cos(th0), yc + L.Rl * 0.6 * Math.sin(th0), rgb, tr.ent.R, th, 8);
@@ -1884,7 +1887,28 @@
     stage.classList.remove("is-dragging");
   }
   const pointerFor = { arayuz: pointerA, prizma: pointerB, fiber: pointerC };
+  // Telefonda yalnız kaynağa (≈44 CSS px) değen parmak sürükler; başka yere dokunup
+  // bırakmak ışını oraya çevirir; tuvalin geri kalanında parmak sayfayı kaydırır.
+  function nearSource(cx, cy) {
+    const h = S.handle[S.tab];
+    if (!h) return false;
+    const [sx, sy] = canvasPoint({ clientX: cx, clientY: cy }, stage), k = stage.width / stage.getBoundingClientRect().width;
+    return Math.hypot(sx - h[0], sy - h[1]) < 44 * k;
+  }
+  window.AcelyaTouch?.guard(stage, nearSource);
+  let tap = null;
+  const touchy = (evt) => evt.pointerType === "touch" && window.AcelyaTouch?.isCoarse();
+  stage.addEventListener("pointerup", (evt) => {
+    if (!tap || tap.id !== evt.pointerId) return;
+    const t = tap;
+    tap = null;
+    if (Math.hypot(evt.clientX - t.x, evt.clientY - t.y) > 10) return;
+    const [sx, sy] = canvasPoint(evt, stage);
+    pointerFor[S.tab](sx, sy);
+  });
+  stage.addEventListener("pointercancel", () => { tap = null; });
   stage.addEventListener("pointerdown", (evt) => {
+    if (touchy(evt) && !nearSource(evt.clientX, evt.clientY)) { tap = { id: evt.pointerId, x: evt.clientX, y: evt.clientY }; return; }
     const [sx, sy] = canvasPoint(evt, stage);
     if (!pointerFor[S.tab](sx, sy)) return;
     drag = S.tab;
@@ -1909,9 +1933,24 @@
     else if (S.tab === "prizma") setTh1B(f * 90 * D2R);
     else setTh0(f * 80 * D2R);
   }
-  chart.addEventListener("pointerdown", (evt) => { chartDrag = true; chart.setPointerCapture(evt.pointerId); chartSet(evt); });
-  chart.addEventListener("pointermove", (evt) => { if (chartDrag) chartSet(evt); });
-  const endChart = () => { chartDrag = false; };
+  // Telefonda grafik: dokunup bırakmak ya da yana sürüklemek açıyı seçer; dikey parmak sayfayı kaydırır.
+  let chartTouch = null;
+  chart.addEventListener("pointerdown", (evt) => {
+    if (touchy(evt)) { chartTouch = { id: evt.pointerId, x: evt.clientX, y: evt.clientY }; return; }
+    chartDrag = true; chart.setPointerCapture(evt.pointerId); chartSet(evt);
+  });
+  chart.addEventListener("pointermove", (evt) => {
+    if (chartTouch && !chartDrag) {
+      const ax = Math.abs(evt.clientX - chartTouch.x), ay = Math.abs(evt.clientY - chartTouch.y);
+      if (ax < 8 || ax < ay) return;
+      chartDrag = true;
+    }
+    if (chartDrag) chartSet(evt);
+  });
+  chart.addEventListener("pointerup", (evt) => {
+    if (chartTouch && !chartDrag && Math.hypot(evt.clientX - chartTouch.x, evt.clientY - chartTouch.y) <= 10) chartSet(evt);
+  });
+  const endChart = () => { chartDrag = false; chartTouch = null; };
   chart.addEventListener("pointerup", endChart);
   chart.addEventListener("pointercancel", endChart);
 

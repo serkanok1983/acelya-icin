@@ -214,7 +214,7 @@
           <button type="button" id="shmToggle">Duraklat</button>
           <button type="button" id="shmReset">Sekmeyi sıfırla</button>
         </div>
-        <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> etkin sekmeyi sıfırla. Bloğu sürükleyip bıraktığında genlik en yakın 0.01 m'ye yuvarlanır ve hareket durgun hâlden başlar. Herhangi bir ayar değişince hareket x₀'dan yeniden başlar.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> etkin sekmeyi sıfırla. Bloğu sürükleyip bıraktığında genlik en yakın 0.01 m'ye yuvarlanır ve hareket durgun hâlden başlar. Telefonda yatay yayda parmağı yana kaydırarak, düşey yayda bloğa dokunarak çek; dikey parmak hareketi sayfayı kaydırır. Herhangi bir ayar değişince hareket x₀'dan yeniden başlar.</p>
         <p class="note">Model: Hooke yasasına sınırsız uyan ideal yay (F = −k·x, hem çekmede hem sıkışmada), sürtünmesiz zemin, hava direnci yok. Yay kütlesi açıkken yay 12 eşit parçalı kütleli bir zincir olarak çözülür; yöntem RK4, adım 1 ms olarak kilitlenir. Gizli yaylarda düzen düşeydir: uzama cetvelden 0.1 mm, periyot 0.0001 s çözünürlükle okunur.</p>
       </div>
     </div>
@@ -762,7 +762,7 @@
       const cx = bx + bw / 2;
       if (o.vmax > 0) arrow(s, cx, y - bh / 2 - 12, clamp((o.v / o.vmax) * 46, -60, 60), 0, p.c1);
       if (o.force !== undefined && o.fmax > 0) arrow(s, cx, y - bh / 2 - 28, (o.force / o.fmax) * 46, 0, p.c4);
-      geom = { vertical: false, origin: eq, scale };
+      geom = { vertical: false, origin: eq, scale, block: [bx, y - bh / 2, bw, bh] };
     } else {
       const top = 14, above = Math.max(o.range - o.xEq, 0), below = o.xEq + o.range, natMin = clamp(h * 0.16, 36, 70);
       const scale = (h - top - bh - natMin - 18) / Math.max(above + below, 1e-6), nat = natMin + above * scale, cx = w * 0.5;
@@ -776,7 +776,7 @@
       g.fillStyle = p.block; g.fillRect(cx - bw / 2, by, bw, bh); g.strokeStyle = p.ink; g.lineWidth = 1.2; g.strokeRect(cx - bw / 2, by, bw, bh);
       txt(s, "m", cx, by + bh / 2 + 4, "#1a1d2e", "center", 13);
       if (o.vmax > 0) arrow(s, cx - bw / 2 - 14, by, 0, clamp((o.v / o.vmax) * 40, -50, 50), p.c1);
-      geom = { vertical: true, origin: yNat, scale };
+      geom = { vertical: true, origin: yNat, scale, block: [cx - bw / 2, by, bw, bh] };
     }
     if (o.caption) txt(s, o.caption, 10, h - 8, p.muted, "left");
     return geom;
@@ -965,9 +965,36 @@
       S.sign = sgn; $("shmX0").value = String(amp); S.p.x0 = amp; put("shmX0Out", `${fmt(amp, 2)} m`);
       const n = S.M.n; for (let i = 0; i < n; i++) { S.sim.x[i] = S.xeq[i] + (sgn * amp * (i + 1)) / n; S.sim.v[i] = 0; }
     };
-    cv.addEventListener("pointerdown", (evt) => { if (!S.geom) return; S.drag = true; cv.classList.add("is-dragging"); cv.setPointerCapture(evt.pointerId); apply(evt); });
-    cv.addEventListener("pointermove", (evt) => { if (S.drag) apply(evt); });
-    const release = () => { if (!S.drag) return; S.drag = false; cv.classList.remove("is-dragging"); const sgn = S.sign; S.note = ""; shmStart(); S.sign = sgn; setRunning(true); };
+    /* Telefonda dikey parmak hareketi sayfayı kaydırır (touch-action: pan-y). Yatay yayda blok
+       yana sürüklenerek çekilir; düşey yayda yalnız bloğa değen parmak onu tutar. */
+    const onBlock = (cx, cy) => {
+      const g = S.geom; if (!g || !g.block) return false;
+      const r = cv.getBoundingClientRect(), x = cx - r.left, y = cy - r.top, [bx, by, bw, bh] = g.block, m = 14;
+      return x > bx - m && x < bx + bw + m && y > by - m && y < by + bh + m;
+    };
+    window.AcelyaTouch?.guard(cv, (cx, cy) => !!S.geom?.vertical && onBlock(cx, cy));
+    let pend = null;
+    const begin = (evt) => { S.drag = true; cv.classList.add("is-dragging"); cv.setPointerCapture(evt.pointerId); apply(evt); };
+    cv.addEventListener("pointerdown", (evt) => {
+      if (!S.geom) return;
+      if (evt.pointerType === "touch" && window.AcelyaTouch?.isCoarse()) {
+        if (S.geom.vertical) { if (onBlock(evt.clientX, evt.clientY)) begin(evt); }
+        else pend = { id: evt.pointerId, x: evt.clientX, y: evt.clientY };
+        return;
+      }
+      begin(evt);
+    });
+    cv.addEventListener("pointermove", (evt) => {
+      if (pend && pend.id === evt.pointerId && !S.drag) {
+        const ax = Math.abs(evt.clientX - pend.x), ay = Math.abs(evt.clientY - pend.y);
+        if (ax < 8 || ax < ay) return;
+        pend = null;
+        begin(evt);
+        return;
+      }
+      if (S.drag) apply(evt);
+    });
+    const release = () => { pend = null; if (!S.drag) return; S.drag = false; cv.classList.remove("is-dragging"); const sgn = S.sign; S.note = ""; shmStart(); S.sign = sgn; setRunning(true); };
     cv.addEventListener("pointerup", release); cv.addEventListener("pointercancel", release);
   })();
 

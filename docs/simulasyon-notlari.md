@@ -1912,3 +1912,24 @@ yapan test kalmadı.
 
 Koordinatör: menü (+6), katalog, meta; komşu defterlerden 11 yeni bağlantı (Fourier, entropi, Sezar, mekatronik,
 homeostaz, matris dönüşümleri, otonom araçlar, kuantum mekaniği, RSA, uluslararası ilişkiler, mikro ekonomi).
+
+## 12 Kasım 2026 — O: mobil uyum ve tam sayfa kaydırma
+
+Kullanıcı siteyi telefonda da kullanacak. İki yeni denetim betiği (`npm run test:mobile`):
+- `scripts/audit-mobile.mjs`: her sayfa ve sekme telefon gibi (dokunmatik, DPR 3) açılır; yatay taşma, 32 px altı
+  dokunma hedefi, 11 px altı yazı (alt/üst simge ve SVG yazısı hariç), geniş tuval. 360×740 ve 768×1024'te 0 sorun.
+- `scripts/audit-scroll.mjs`: gerçek parmak kaydırma hareketi (CDP synthesizeScrollGesture) sayfa kenarından ve her
+  tuval/SVG/kaydırıcı üstünden; ayrıca asıl içeriğin küçük bir iç kutuda kaydığı yerleri yakalar. 375×740'ta 0 engel.
+
+Düzeltmeler:
+- **Ana sayfa:** kabuk ekran yüksekliğiyle sınırlıydı, konu listesi telefonda 38 px'lik bir iç kutuda kayıyordu.
+  900 px altı ve alçak ekranlarda sayfa tek parça kayar; kategoriler tek sıra yatay şerit, tanıtım kutusu kısa.
+- **Ortak CSS (yalnız dokunmatik):** düğme/sekme/özet/giriş en az 40 px, kaydırıcı 32 px, onay kutusu 22 px, giriş
+  yazısı 16 px (iOS yakınlaştırmasın), defter bağlantıları ve Bilim Atlası bağlantıları büyük; uzun tablo ve kod
+  blokları telefonda iç kutuda kaymaz.
+- **`AcelyaTouch.guard(el, hit)` (shared/app.js):** sürüklemeli tuvaller dokunmatikte dikey kaydırmaya açık;
+  yalnız parmak bir tutamağa değince sürükleme başlar. 35 laboratuvar sayfasına uygulandı (örnek: sarkac `nearBob`).
+- **Oyunlar (11):** 9 oyun `touch-action: none`'ı bütün sayfaya veriyordu; kaldırıldı. Telefonda oyun alanı ekranın
+  en çok %62'si; 2048/Snake/Tetris'te tahta dokunarak "etkinleşir", Pong'da sol yarı raket, sağ yarı kaydırma.
+- 25 sayfada sayfaya özgü küçük boyut/taşma düzeltmesi; tablet boyutunda 4 taşma.
+Gerçek cihazda denenmedi; kullanıcı canlıda kontrol edecek.

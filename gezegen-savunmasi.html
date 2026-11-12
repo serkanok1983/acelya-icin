@@ -33,6 +33,10 @@
       box-shadow: 0 0 0 1px var(--border);
     }
     [data-theme="light"] #gameCanvas { background: #eef2f9; }
+    /* Telefonda tuval ekranın tamamını kaplamasın: altta sayfayı kaydıracak yer kalsın */
+    @media (pointer: coarse) { #gameCanvas { max-width: min(560px, 62svh); } }
+    .touch-note { display: none; }
+    @media (pointer: coarse) { .touch-note { display: inline; } }
     .overlay {
       position: absolute;
       inset: 0;
@@ -131,7 +135,7 @@
         <button type="button" id="fasterBtn" aria-label="Atış hızını 0.05 artır">Hız +</button>
       </div>
       <p class="note" id="statusLine" aria-live="polite">Hazır. Oyun, alana tıklayınca ya da dokununca başlar.</p>
-      <p class="note">Klavye: <kbd>←</kbd> <kbd>→</kbd> ya da <kbd>A</kbd> <kbd>D</kbd> nişan · <kbd>↑</kbd> <kbd>↓</kbd> ya da <kbd>W</kbd> <kbd>S</kbd> hız · <kbd>Enter</kbd> ya da <kbd>F</kbd> ateş · <kbd>Space</kbd> duraklat · <kbd>R</kbd> yeniden başlat. Açıyı kaydırıcıyla, hazır atışla ya da klavyeyle verdiysen fare, alana yeniden tıklayana kadar nişanı değiştirmez.</p>
+      <p class="note">Klavye: <kbd>←</kbd> <kbd>→</kbd> ya da <kbd>A</kbd> <kbd>D</kbd> nişan · <kbd>↑</kbd> <kbd>↓</kbd> ya da <kbd>W</kbd> <kbd>S</kbd> hız · <kbd>Enter</kbd> ya da <kbd>F</kbd> ateş · <kbd>Space</kbd> duraklat · <kbd>R</kbd> yeniden başlat. Açıyı kaydırıcıyla, hazır atışla ya da klavyeyle verdiysen fare, alana yeniden tıklayana kadar nişanı değiştirmez.<span class="touch-note"> Telefonda oyun akarken tuvaldeki parmak nişan alır; sayfayı tuvalin dışından kaydır.</span></p>
     </div>
 
     <div class="lab-side">
@@ -824,18 +828,28 @@ window.OrbitGame = (function () {
     if (y < K.R0) deg = x >= 0 ? 90 : -90;
     setAim(deg);
   }
-  canvas.addEventListener("pointerdown", (evt) => {
-    evt.preventDefault();
+  /* Telefonda oyun akarken tuvaldeki parmak nişan alır (sayfa kaymaz). Oyun beklerken, dururken ya da
+     bitince tuvalde sürüklenen parmak sayfayı kaydırır; başlatma/sürdürme dokunup kaldırınca olur. */
+  const touchCoarse = (evt) => evt.pointerType === "touch" && Boolean(window.AcelyaTouch?.isCoarse());
+  window.AcelyaTouch?.guard(canvas, () => state.mode === "playing");
+  let touchTap = false;
+  function pressIdle() {
     // Alana basmak fareye nişan yetkisi verir; elle verilmiş bir açı, oyun akarken alana basılana dek korunur.
     if (state.mode === "ready" || state.mode === "paused") {
       if (state.mode === "ready" && state.aimSource === "none") state.aimSource = "pointer";
-      start(); state.skipFire = true; return;
+      start(); state.skipFire = true; return true;
     }
     if (state.mode === "over") {
       if (performance.now() - state.overAt > 700) { newWorld(true); state.aimSource = "pointer"; }
       state.skipFire = true;
-      return;
+      return true;
     }
+    return false;
+  }
+  canvas.addEventListener("pointerdown", (evt) => {
+    evt.preventDefault();
+    if (state.mode !== "playing" && touchCoarse(evt)) { touchTap = true; return; } // kaydırma mı dokunma mı, kalkınca belli olur
+    if (pressIdle()) return;
     state.pointerDown = true;
     state.skipFire = false;
     state.aimSource = "pointer";
@@ -847,11 +861,12 @@ window.OrbitGame = (function () {
     if (state.pointerDown || (evt.pointerType === "mouse" && state.aimSource === "pointer")) aimAt(evt);
   });
   canvas.addEventListener("pointerup", (evt) => {
+    if (touchTap) { touchTap = false; pressIdle(); state.skipFire = false; return; }
     if (state.pointerDown && !state.skipFire && state.mode === "playing") { aimAt(evt); doFire(); }
     state.pointerDown = false;
     state.skipFire = false;
   });
-  canvas.addEventListener("pointercancel", () => { state.pointerDown = false; state.skipFire = false; });
+  canvas.addEventListener("pointercancel", () => { touchTap = false; state.pointerDown = false; state.skipFire = false; });
 
   /* ── Okumalar ── */
   function updatePlan() {

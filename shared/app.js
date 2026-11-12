@@ -3,6 +3,47 @@
  */
 
 /* Sesler — sayfa scriptlerinden önce kullanılabilir */
+/* —— Dokunmatik ekranda sayfa kaydırma koruması ——
+   Sürüklemeli bir tuval `touch-action: none` ise, telefonda parmak tuvale
+   değdiği her yerde sayfa kaymaz; tuval ekranı kaplıyorsa sayfa kilitlenir.
+   AcelyaTouch.guard(el, hit) tuvali dikey kaydırmaya açar (touch-action: pan-y)
+   ve yalnız hit(clientX, clientY) doğru dönerse, yani parmak sürüklenebilir bir
+   öğeye değdiyse, o dokunuşta kaydırmayı engeller; böylece sürükleme çalışır.
+   hit verilmezse dikey kaydırma her zaman sayfaya gider, yatay hareketler
+   tuvalde kalır. Fare ve kalemde davranış değişmez. */
+window.AcelyaTouch = (function () {
+  const coarse = () => window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+  function guard(el, hit, opts) {
+    if (!el) return;
+    el.__acelyaHit = typeof hit === "function" ? hit : null;
+    if (el.__acelyaGuarded) return;
+    el.__acelyaGuarded = true;
+    el.setAttribute("data-touch-guard", "");
+    const axis = (opts && opts.axis) || "pan-y";
+    const apply = () => {
+      el.style.touchAction = coarse() ? axis : "";
+    };
+    apply();
+    window.matchMedia && window.matchMedia("(pointer: coarse)").addEventListener?.("change", apply);
+    el.addEventListener(
+      "touchstart",
+      (e) => {
+        if (e.touches.length !== 1) return;
+        const t = e.touches[0];
+        let grab = false;
+        try {
+          grab = el.__acelyaHit ? Boolean(el.__acelyaHit(t.clientX, t.clientY, e)) : false;
+        } catch (_) {
+          grab = false;
+        }
+        if (grab && e.cancelable) e.preventDefault();
+      },
+      { passive: false }
+    );
+  }
+  return { guard, isCoarse: coarse };
+})();
+
 (function initSounds() {
   const SOUND_PREF_KEY = "acelya-sound-muted";
   const SOUND_FILES = {

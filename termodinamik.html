@@ -107,7 +107,7 @@
 
 <div class="app-content">
   <h1>Termodinamik: PV Diyagramı, İş, Isı ve Çevrimler</h1>
-  <p class="hint">Bir süreç seç, hedefi kaydırıcıyla ya da diyagramda sürükleyerek belirle ve Uygula'ya bas. Gazın yaptığı iş eğrinin altındaki alandır; yol başlangıca dönünce çevrelenen alan net iştir.</p>
+  <p class="hint">Bir süreç seç, hedefi kaydırıcıyla ya da diyagramda sürükleyerek belirle ve Uygula'ya bas. Telefonda hedef noktasını sürükle ya da diyagramda istediğin yere dokun; boş yerde parmak sayfayı kaydırır. Gazın yaptığı iş eğrinin altındaki alandır; yol başlangıca dönünce çevrelenen alan net iştir.</p>
 
   <div class="lab">
     <div class="lab-stage">
@@ -1518,7 +1518,27 @@
     const p = Math.max(0.01, ((L.t + L.h - y) / L.h) * view.P);
     return (p * current().V) / (gas.n * R); // izokorik: basınçtan sıcaklığa
   }
+  // Telefonda yalnız hedef noktasına (yoksa şimdiki duruma) değen parmak sürükler; başka yere
+  // dokunup bırakmak hedefi oraya koyar; tuvalin geri kalanında parmak sayfayı kaydırır.
+  function nearHandle(cx, cy) {
+    if (path.closed) return false;
+    const rect = pvC.getBoundingClientRect(), L = pvLayout(), s = preview ? preview.b : current();
+    const x = ((cx - rect.left) / rect.width) * pvC.width, y = ((cy - rect.top) / rect.height) * pvC.height;
+    return Math.hypot(x - L.X(s.V), y - L.Y(pres(s))) < 36 * (pvC.width / rect.width);
+  }
+  window.AcelyaTouch?.guard(pvC, nearHandle);
+  let tap = null;
+  pvC.addEventListener("pointerup", (evt) => {
+    if (!tap || tap.id !== evt.pointerId) return;
+    const t = tap;
+    tap = null;
+    if (Math.hypot(evt.clientX - t.x, evt.clientY - t.y) > 10) return;
+    if (path.closed) { say("Yol kapalı: yeni adım için Geri al ya da Temizle."); return; }
+    setTarget(pointerTarget(evt), true);
+  });
+  pvC.addEventListener("pointercancel", () => { tap = null; });
   pvC.addEventListener("pointerdown", (evt) => {
+    if (evt.pointerType === "touch" && window.AcelyaTouch?.isCoarse() && !nearHandle(evt.clientX, evt.clientY)) { tap = { id: evt.pointerId, x: evt.clientX, y: evt.clientY }; return; }
     if (path.closed) { say("Yol kapalı: yeni adım için Geri al ya da Temizle."); return; }
     dragging = true;
     pvC.setPointerCapture(evt.pointerId);

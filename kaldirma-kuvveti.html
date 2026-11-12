@@ -247,7 +247,7 @@
           <button type="button" id="toggleA" aria-pressed="false">Duraklat</button>
           <button type="button" id="resetA">Sıfırla</button>
         </div>
-        <p class="note">Cisim düşey eksenli bir silindirdir (yan yüzleri düşey). y₀, alt yüzün sıvı yüzeyine göre yüksekliğidir: + yüzeyin üstü, − altı. Silindiri tuvalde yukarı aşağı sürükleyip bırakabilirsin; kaydırıcı aynı işi yapar. Havuz geniştir: cisim batınca yüzey seviyesi değişmez. Havuz derinliği 40 cm.</p>
+        <p class="note">Cisim düşey eksenli bir silindirdir (yan yüzleri düşey). y₀, alt yüzün sıvı yüzeyine göre yüksekliğidir: + yüzeyin üstü, − altı. Silindiri tuvalde yukarı aşağı sürükleyip bırakabilirsin; kaydırıcı aynı işi yapar. Telefonda parmağını silindirin üstüne koy; boş yerde parmak sayfayı kaydırır. Havuz geniştir: cisim batınca yüzey seviyesi değişmez. Havuz derinliği 40 cm.</p>
         <p class="note">Model: m·a = ρ<sub>s</sub>gAh − mg − bv − ½ρ<sub>s</sub>C<sub>d</sub>A|v|v (h: batan yükseklik, A = πD²/4, b = 2ζ√(mρ<sub>s</sub>gA)). Sönüm yalnız cisim ıslakken etkir; havanın direnci ve eklenmiş kütle (cisimle birlikte ivmelenen sıvı) ihmal edilir. Tabana çarpan cisim sekmez, durur (esnek olmayan çarpışma). Sayısal yöntem: RK4, Δt = 1 ms. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla.</p>
       </div>
 
@@ -279,7 +279,7 @@
           <button type="button" id="toggleB" aria-pressed="false">Duraklat</button>
           <button type="button" id="resetB">Baştan başla</button>
         </div>
-        <p class="note">Cisim, taban alanı 10.0 cm² (çap 3.57 cm) olan düşey bir silindirdir. Taşırma kabı 12 cm çaplıdır; başta taşma ağzına (tabandan 15 cm) kadar doludur. Taşan sıvı, darası alınmış terazideki behere akar. Askı 4 cm/s hızla iner; cisim her an dengede kabul edilir. Cismi tuvalde sürükleyerek de indirebilirsin.</p>
+        <p class="note">Cisim, taban alanı 10.0 cm² (çap 3.57 cm) olan düşey bir silindirdir. Taşırma kabı 12 cm çaplıdır; başta taşma ağzına (tabandan 15 cm) kadar doludur. Taşan sıvı, darası alınmış terazideki behere akar. Askı 4 cm/s hızla iner; cisim her an dengede kabul edilir. Cismi tuvalde sürükleyerek de indirebilirsin (telefonda parmağını cisme koy; boş yerde parmak sayfayı kaydırır).</p>
         <p class="note">Dinamometre bir yaydır: ölçek boyu 6 cm, aralığı cismin ağırlığına göre seçilir (yay sabiti = aralık / 6 cm). Cisim yükselip sıvı seviyesi ağızdan aşağı inerse kap artık dolu değildir; yeni bir ölçüm için “Baştan başla” düğmesini kullan. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> baştan başla.</p>
       </div>
 
@@ -1806,22 +1806,36 @@
     const rect = stage.getBoundingClientRect();
     return { px: ((evt.clientX - rect.left) / rect.width) * stage.width, py: ((evt.clientY - rect.top) / rect.height) * stage.height };
   }
-  stage.addEventListener("pointerdown", (evt) => {
+  // Sürüklenebilir cisme (serbest: blok, dinamometre: yay ve yük) değiyor mu? Dokunmatikte pay biraz geniştir.
+  function grabHit(evt, touch) {
     const { px, py } = canvasPoint(evt);
+    const k = touch ? 1.6 : 1;
     if (tab === "serbest" && viewA) {
-      const M = A.M, S = A.S, w = viewA.toWorld(px, py), tol = 14 * dpr / viewA.s;
-      if (Math.abs(w.x) > M.D / 2 + tol || w.z < S.y - tol || w.z > S.y + M.H + tol) return;
+      const M = A.M, S = A.S, w = viewA.toWorld(px, py), tol = k * 14 * dpr / viewA.s;
+      return Math.abs(w.x) > M.D / 2 + tol || w.z < S.y - tol || w.z > S.y + M.H + tol ? null : w;
+    }
+    if (tab === "dinamometre" && viewB) {
+      const S = B.S, w = viewB.toWorld(px, py), tol = k * 16 * dpr / viewB.s;
+      // Dokunmatikte yalnız cismin gövdesi tutulur; ip ve yay boyunca parmak sayfayı kaydırır.
+      const zTop = touch ? S.r.zb + B.M.H : S.r.zb + HOOK_REACH + 0.09;
+      return Math.abs(w.x) > 0.03 + tol || w.z < S.r.zb - tol || w.z > zTop + tol ? null : w;
+    }
+    return null;
+  }
+  // Telefonda yalnız cisme değen parmak onu tutar; tuvalin geri kalanında sayfa kayar.
+  window.AcelyaTouch?.guard(stage, (cx, cy) => Boolean(grabHit({ clientX: cx, clientY: cy }, true)));
+  stage.addEventListener("pointerdown", (evt) => {
+    const w = grabHit(evt, evt.pointerType === "touch");
+    if (!w) return;
+    if (tab === "serbest") {
       A.dragging = true;
-      A.grabDy = w.z - S.y;
-    } else if (tab === "dinamometre" && viewB) {
-      const S = B.S, w = viewB.toWorld(px, py), tol = 16 * dpr / viewB.s;
-      const zTop = S.r.zb + HOOK_REACH + 0.09;
-      if (Math.abs(w.x) > 0.03 + tol || w.z < S.r.zb - tol || w.z > zTop + tol) return;
+      A.grabDy = w.z - A.S.y;
+    } else {
       B.dragging = true;
       B.grabZ = w.z;
       B.grabZh = Number(ui.zB.value);
-      S.fast = true;
-    } else return;
+      B.S.fast = true;
+    }
     stage.classList.add("is-dragging");
     stage.setPointerCapture(evt.pointerId);
     evt.preventDefault();

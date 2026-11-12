@@ -17,7 +17,7 @@
       color: #fff;
       font-family: system-ui, -apple-system, Segoe UI, sans-serif;
       overflow: hidden;
-      touch-action: none;
+      touch-action: manipulation;
     }
     body {
       display: flex;
@@ -106,6 +106,9 @@
     button:hover {
       background: #0056b3;
     }
+    /* Telefona özel kısa not */
+    .touch-note { display: none; }
+    @media (pointer: coarse) { .touch-note { display: inline; } }
   </style>
   <script src="shared/app.js"></script>
 </head>
@@ -117,7 +120,7 @@
   <h1>Pong AI 🌌</h1>
   <div id="score">Sen: <span id="playerScore">0</span> | Bilgisayar: <span id="computerScore">0</span></div>
   <div id="speed">Hız: <span id="speedValue">4.00</span> piksel/adım</div>
-  <p class="hint">Masaüstü: ↑ ↓ / Space &nbsp;·&nbsp; Mobil: parmağınızı oyun alanında yukarı/aşağı kaydırın</p>
+  <p class="hint">Masaüstü: ↑ ↓ / Space &nbsp;·&nbsp; Mobil: parmağınızı oyun alanının sol yarısında yukarı/aşağı kaydırın<span class="touch-note"> · Sağ yarıda parmak sayfayı kaydırır</span></p>
 </header>
 
 <div class="game-stage">
@@ -195,7 +198,7 @@
     const padX = 20;
     const padY = 16;
     const availW = window.innerWidth - padX;
-    const availH = window.innerHeight - hudBottom - padY;
+    const availH = Math.min(window.innerHeight - hudBottom - padY, window.AcelyaTouch?.isCoarse() ? window.innerHeight * 0.62 : Infinity); // telefonda altta kaydırma payı kalsın
     const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
     const w = Math.max(280, GAME_W * scale);
     const h = w * (GAME_H / GAME_W);
@@ -266,9 +269,20 @@
     return t * GAME_H;
   }
 
+  // Telefonda raketi oyun alanının sol yarısında (senin tarafında) parmakla sür; sağ yarıda parmak sayfayı kaydırır.
+  const onPlayerSide = (clientX) => {
+    const rect = canvas.getBoundingClientRect();
+    return clientX - rect.left < rect.width * 0.45;
+  };
+  window.AcelyaTouch?.guard(canvas, (x) => onPlayerSide(x));
+  const touchDrives = (e) => !window.AcelyaTouch?.isCoarse() || (e.touches.length && onPlayerSide(e.touches[0].clientX));
+  let touchDriving = false;
+
   canvas.addEventListener(
     "touchstart",
     (e) => {
+      touchDriving = touchDrives(e);
+      if (!touchDriving) return;
       e.preventDefault();
       if (e.touches.length) {
         const y = canvasCssToGameY(e.touches[0].clientY);
@@ -281,6 +295,7 @@
   canvas.addEventListener(
     "touchmove",
     (e) => {
+      if (!touchDriving) return;
       e.preventDefault();
       if (e.touches.length) {
         const y = canvasCssToGameY(e.touches[0].clientY);

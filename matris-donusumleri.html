@@ -33,7 +33,8 @@
 .mt-plate{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
 .mt-plate h2{padding:11px 15px;border-bottom:1px solid var(--border)}
 body.app-page canvas.mt-canvas{display:block;width:100%;height:auto;border:0;border-radius:0;box-shadow:none}
-.mt-c-sq{aspect-ratio:1.25;touch-action:none}
+.mt-c-sq{aspect-ratio:1.25}
+#mapCanvas{touch-action:none}
 .mt-c-wide{aspect-ratio:2.3}
 .mt-c-mid{aspect-ratio:1.6}
 .mt-caption{padding:9px 15px;font-size:.77rem;line-height:1.6;color:var(--text-muted);margin:0;border-top:1px solid var(--border)}
@@ -95,7 +96,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 <div class="mt-plate"><h2>Izgara, birim kare ve ev aynı matrisle dönüşür</h2>
 <canvas id="mapCanvas" class="mt-canvas mt-c-sq" role="img" aria-label="Özgün ve dönüşmüş ızgara, birim karenin görüntüsü, iki sütun oku ve dönüşmüş ev"></canvas>
 <p class="mt-live" id="mCols" aria-live="polite"></p>
-<p class="mt-caption">Turuncu ok Aî (A'nın birinci sütunu), turkuaz ok Aĵ (ikinci sütun); uçlarındaki halkaları sürükle (0.05 adım). Soluk çizgiler özgün ızgara, renkli çizgiler aynı ızgaranın görüntüsü. Kesikli ev özgün, dolu ev görüntü. Birim karenin içindeki yay O → î → î+ĵ → ĵ dolaşım yönünü gösterir.</p></div>
+<p class="mt-caption">Turuncu ok Aî (A'nın birinci sütunu), turkuaz ok Aĵ (ikinci sütun); uçlarındaki halkaları sürükle (0.05 adım). Telefonda parmağını halkaya koy; boş yerde parmak sayfayı kaydırır. Soluk çizgiler özgün ızgara, renkli çizgiler aynı ızgaranın görüntüsü. Kesikli ev özgün, dolu ev görüntü. Birim karenin içindeki yay O → î → î+ĵ → ĵ dolaşım yönünü gösterir.</p></div>
 <div class="mt-stats" aria-live="polite">
 <div class="mt-stat is-meas"><small>det, ölçülen: birim kare görüntüsünün işaretli alanı</small><strong id="mDetMeas"></strong></div>
 <div class="mt-stat"><small>det, formül: ad − bc</small><strong id="mDetForm"></strong></div>
@@ -508,7 +509,11 @@ function resetMap(){stopPlay();$('mFamily').value=M1D.fam;$('mParamField').hidde
 $('mapReset').addEventListener('click',resetMap);
 // sürükleme
 (()=>{const c=$('mapCanvas');const pos=e=>{const r=c.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];};
- c.addEventListener('pointerdown',e=>{if(!T1.V)return;const[x,y]=pos(e),V=T1.V,M=K.lerpI(T1.M,T1.t),tips=[[M[0][0],M[1][0]],[M[0][1],M[1][1]]];let best=-1,bd=22;tips.forEach((q,i)=>{const d=Math.hypot(V.X(q[0])-x,V.Y(q[1])-y);if(d<bd){bd=d;best=i;}});if(best<0)return;e.preventDefault();stopPlay();if(T1.t<1){T1.M=M;setT(1);}T1.drag={col:best};c.setPointerCapture(e.pointerId);c.style.cursor='grabbing';});
+ /* Telefonda yalnız bir ok ucuna değen parmak onu tutar (pay 32 px); tuvalin geri kalanında sayfa kayar. */
+ const touchMode=e=>e.pointerType==='touch'&&!!window.AcelyaTouch?.isCoarse();
+ const nearTip=(x,y,r)=>{if(!T1.V)return false;const V=T1.V,M=K.lerpI(T1.M,T1.t);return[[M[0][0],M[1][0]],[M[0][1],M[1][1]]].some(q=>Math.hypot(V.X(q[0])-x,V.Y(q[1])-y)<r);};
+ window.AcelyaTouch?.guard(c,(cx,cy)=>{const r=c.getBoundingClientRect();return nearTip(cx-r.left,cy-r.top,32);});
+ c.addEventListener('pointerdown',e=>{if(!T1.V)return;const[x,y]=pos(e),V=T1.V,M=K.lerpI(T1.M,T1.t),tips=[[M[0][0],M[1][0]],[M[0][1],M[1][1]]];let best=-1,bd=touchMode(e)?32:22;tips.forEach((q,i)=>{const d=Math.hypot(V.X(q[0])-x,V.Y(q[1])-y);if(d<bd){bd=d;best=i;}});if(best<0)return;e.preventDefault();stopPlay();if(T1.t<1){T1.M=M;setT(1);}T1.drag={col:best};c.setPointerCapture(e.pointerId);c.style.cursor='grabbing';});
  c.addEventListener('pointermove',e=>{const[x,y]=pos(e);if(!T1.drag){if(!T1.V)return;const V=T1.V,M=K.lerpI(T1.M,T1.t),near=[[M[0][0],M[1][0]],[M[0][1],M[1][1]]].some(q=>Math.hypot(V.X(q[0])-x,V.Y(q[1])-y)<22);c.style.cursor=near?'grab':'default';return;}const V=T1.V,snap=v=>Math.max(-3,Math.min(3,Math.round(v/0.05)*0.05)),wx=snap(V.ix(x)),wy=snap(V.iy(y)),M=T1.M.map(r=>[...r]);M[0][T1.drag.col]=+wx.toFixed(2);M[1][T1.drag.col]=+wy.toFixed(2);T1.M=M;$('mFamily').value='serbest';$('mParamField').hidden=true;render();});
  const up=()=>{if(!T1.drag)return;T1.drag=null;T1.R=null;c.style.cursor='default';render();};c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);})();
 

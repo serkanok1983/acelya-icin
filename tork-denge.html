@@ -132,7 +132,7 @@
 
 <div class="app-content">
   <h1>Tork ve Denge: Kaldıraç, Ağırlık Merkezi ve Statik</h1>
-  <p class="hint">Bir deney seç; cisimleri tuvalde sürükle ya da kaydırıcılarla ayarla. İşaret kuralı: saat yönünün tersine dönme pozitif, bu yüzden desteğin x kadar sağındaki m kütlesinin torku τ = −mgx. Sayfa ölçtüğü ve sayısal bulduğu değerleri formüllerle karşılaştırır.</p>
+  <p class="hint">Bir deney seç; cisimleri tuvalde sürükle ya da kaydırıcılarla ayarla. Telefonda cisme dokunup sürükle (kirişte yana); boş yerde parmak sayfayı kaydırır. İşaret kuralı: saat yönünün tersine dönme pozitif, bu yüzden desteğin x kadar sağındaki m kütlesinin torku τ = −mgx. Sayfa ölçtüğü ve sayısal bulduğu değerleri formüllerle karşılaştırır.</p>
 
   <div class="tabs" role="tablist" aria-label="Deney">
     <button type="button" class="tab app-btn-ghost" role="tab" id="tab-lever" aria-selected="true" aria-controls="labPanel" tabindex="0">Kaldıraç</button>
@@ -1965,10 +1965,20 @@
     }
     if (changed) { ui.ldPreset.value = "ozel"; readLadder(); refresh(); }
   }
+  // Telefonda yalnız sürüklenebilir bir öğeye (kütle, destek, kişi, kutu, merdiven ucu) değen
+  // parmak sürükler; tuvalin geri kalanında parmak sayfayı kaydırır.
+  // Kirişte bütün öğeler yalnız yatay kayar: orada dikey parmak her yerde sayfayı kaydırır,
+  // öğeye değip yana kayan parmak onu sürükler.
+  window.AcelyaTouch?.guard(canvas, (cx, cy) => active !== "beam" && !!hitTest(...pointerXY({ clientX: cx, clientY: cy })));
+  let pend = null;
   canvas.addEventListener("pointerdown", (evt) => {
     const [px, py] = pointerXY(evt);
     const hit = hitTest(px, py);
     if (!hit) return;
+    if (active === "beam" && evt.pointerType === "touch" && window.AcelyaTouch?.isCoarse()) { pend = { id: evt.pointerId, x: evt.clientX, y: evt.clientY, hit }; return; }
+    startDrag(evt, hit, px, py);
+  });
+  function startDrag(evt, hit, px, py) {
     if (active === "beam" && bm.walking) setWalking(false);
     if (active === "ladder" && ld.climbing) setClimbing(false);
     drag = hit;
@@ -1976,13 +1986,21 @@
     canvas.style.cursor = "grabbing";
     evt.preventDefault();
     dragTo(px, py);
-  });
+  }
   canvas.addEventListener("pointermove", (evt) => {
     const [px, py] = pointerXY(evt);
+    if (pend && !drag && pend.id === evt.pointerId) {
+      const ax = Math.abs(evt.clientX - pend.x), ay = Math.abs(evt.clientY - pend.y);
+      if (ax < 8 || ax < ay) return;
+      const hit = pend.hit;
+      pend = null;
+      startDrag(evt, hit, px, py);
+      return;
+    }
     if (drag) { dragTo(px, py); return; }
     canvas.style.cursor = hitTest(px, py) ? "grab" : "default";
   });
-  const endDrag = () => { if (!drag) return; drag = null; canvas.style.cursor = "default"; };
+  const endDrag = () => { pend = null; if (!drag) return; drag = null; canvas.style.cursor = "default"; };
   canvas.addEventListener("pointerup", endDrag);
   canvas.addEventListener("pointercancel", endDrag);
 

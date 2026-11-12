@@ -18,7 +18,7 @@
       color: #fff;
       font-family: system-ui, -apple-system, Segoe UI, sans-serif;
       overflow: hidden;
-      touch-action: none;
+      touch-action: manipulation;
     }
     body {
       display: flex;
@@ -66,6 +66,11 @@
       touch-action: none;
       background: #0a2e0a;
     }
+    /* Telefona özel kısa not */
+    .touch-note { display: none; }
+    @media (pointer: coarse) { .touch-note { display: inline; } }
+    /* Telefonda tahta dokunuşla oyuna bağlanınca belli olsun */
+    canvas.touch-armed { outline: 2px solid #5eead4; outline-offset: 3px; }
   </style>
   <script src="shared/icons.js"></script>
   <script src="shared/app.js"></script>
@@ -76,7 +81,7 @@
   <h1>Snake</h1>
   <div id="score">Skor: <span id="scoreValue">0</span></div>
   <div class="controls"><button type="button" id="btnNew">Yeni Oyun</button></div>
-  <p class="hint">Ok tuşları veya kaydırma · Kenarlardan karşı tarafa geç</p>
+  <p class="hint">Ok tuşları veya kaydırma · Kenarlardan karşı tarafa geç<span class="touch-note"> · Telefonda tahtaya bir kez dokun, sonra dört yöne kaydır; tahta dışında parmak sayfayı kaydırır</span></p>
 </header>
 
 <div class="game-stage">
@@ -114,7 +119,7 @@
     const padX = 20;
     const padY = 16;
     const availW = window.innerWidth - padX;
-    const availH = window.innerHeight - hudBottom - padY;
+    const availH = Math.min(window.innerHeight - hudBottom - padY, window.AcelyaTouch?.isCoarse() ? window.innerHeight * 0.62 : Infinity); // telefonda altta kaydırma payı kalsın
     const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
     const w = Math.max(260, GAME_W * scale);
     const h = w;
@@ -156,27 +161,58 @@
 
   let touchStartX = 0;
   let touchStartY = 0;
+  let tapX = 0;
+  let tapY = 0;
+
+  /* Telefonda: tahtaya bir kez dokununca tahta oyuna bağlanır ve dört yöne kaydırma yılanı çevirir.
+     Bağlanmadan önce yatay kaydırma yine çevirir, dikey kaydırma sayfayı kaydırır;
+     tahtanın dışına dokununca bağ çözülür. Fare ve klavyede değişen bir şey yok. */
+  const coarse = () => Boolean(window.AcelyaTouch?.isCoarse());
+  let touchArmed = false;
+  const setArmed = (on) => {
+    touchArmed = on;
+    canvas.classList.toggle("touch-armed", on);
+  };
+  window.AcelyaTouch?.guard(canvas, () => touchArmed, { axis: "pan-y" });
+  document.addEventListener(
+    "touchstart",
+    (e) => {
+      if (touchArmed && !canvas.contains(e.target) && !e.target.closest?.("#gameTouchBar")) setArmed(false);
+    },
+    { passive: true }
+  );
 
   canvas.addEventListener(
     "touchstart",
     (e) => {
-      e.preventDefault();
+      if (!coarse() || touchArmed) e.preventDefault();
       if (e.touches.length) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
+        touchStartX = tapX = e.touches[0].clientX;
+        touchStartY = tapY = e.touches[0].clientY;
       }
     },
     { passive: false }
   );
 
   canvas.addEventListener(
+    "touchend",
+    (e) => {
+      const t = e.changedTouches[0];
+      if (coarse() && t && Math.hypot(t.clientX - tapX, t.clientY - tapY) < 12) setArmed(true);
+    },
+    { passive: true }
+  );
+
+  canvas.addEventListener(
     "touchmove",
     (e) => {
-      e.preventDefault();
+      const free = !coarse() || touchArmed;
+      if (free && e.cancelable) e.preventDefault();
       if (!e.touches.length) return;
       const dx = e.touches[0].clientX - touchStartX;
       const dy = e.touches[0].clientY - touchStartY;
       if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+      if (!free && Math.abs(dy) >= Math.abs(dx)) return; // dikey hareket sayfayı kaydırıyor
       if (Math.abs(dx) > Math.abs(dy)) {
         if (dx > 0 && direction !== "LEFT") nextDirection = "RIGHT";
         else if (dx < 0 && direction !== "RIGHT") nextDirection = "LEFT";

@@ -62,6 +62,7 @@
     [data-theme="light"] .chart-canvas { background: #f7f9fc; }
     .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
     .legend span { white-space: nowrap; }
+    @media (max-width: 620px) { .legend span { white-space: normal; } }
     .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
     .legend i.dash { border-top-style: dashed; }
     .legend i.k-acc { border-top-color: var(--accent); }
@@ -310,7 +311,7 @@
           <button type="button" class="app-btn-ghost" id="bClear">Kayıtları sil</button>
           <button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button>
         </div>
-        <p class="note">Dürbünü kaydırıcıyla, ince ayar düğmeleriyle, sahnede sürükleyerek ya da okülerdeki görüntüyü yana kaydırarak çevir. Çizgiyi kıl çizgisine getirip okumayı kaydet, aynı çizgiyi öbür yanda (−m) da ölç: θ = (φ₊ − φ₋)/2 ölçeğin sıfır hatasını götürür. Ölçek 0.01° adımla okunur.</p>
+        <p class="note">Dürbünü kaydırıcıyla, ince ayar düğmeleriyle, sahnede sürükleyerek ya da okülerdeki görüntüyü yana kaydırarak çevir. Telefonda sahnede dürbünün kendisini tut; boş yerde parmak sayfayı kaydırır. Çizgiyi kıl çizgisine getirip okumayı kaydet, aynı çizgiyi öbür yanda (−m) da ölç: θ = (φ₊ − φ₋)/2 ölçeğin sıfır hatasını götürür. Ölçek 0.01° adımla okunur.</p>
         <p class="note">Dalga boyları havadadır (15 °C, 101 325 Pa standart hava). Kaynak: NIST ASD ve NIST Atomic Spectroscopic Handbook (H, Na); Hg için Sansonetti, Salit ve Reader (1996). Izgara denklemi havada d·sin θ = mλ<sub>hava</sub>; Rydberg formülü vakum dalga boyunu verir: λ<sub>vak</sub> = n<sub>hava</sub>·λ<sub>hava</sub>, n<sub>hava</sub> Peck ve Reeder (1972) formülünden (Hα'da n − 1 = 2.76 × 10⁻⁴).</p>
         <p class="note">Çizgi görüntüsünün genişliği ızgaranın çözme gücüyle sınırlıdır: tepeden ilk sıfıra Δθ = λ/(W cos θ), W = N·d. Kolimatör yarığı sonsuz ince, bütün mertebeler eşit verimli varsayıldı. İki çizgi R = |m|·N ≥ λ/Δλ ise (Rayleigh ölçütü) ayrılır. Kısayollar: <kbd>←</kbd> <kbd>→</kbd> dürbünü 0.01° (<kbd>Shift</kbd> ile 0.1°) çevirir, <kbd>R</kbd> sekmeyi sıfırlar.</p>
       </div>
@@ -2328,9 +2329,20 @@
     if (Math.abs(t) > TH_MAX * D2R) t = Math.sign(t || 1) * TH_MAX * D2R;
     setPhi(t / D2R + SB.delta);
   }
+  // Dürbüne değiyor mu? (dürbün 0.3R–1.22R arasında, SB.res.th açısında uzanır)
+  function nearScope(sx, sy) {
+    if (S.tab !== "spektrometre" || !SB.res) return false;
+    const { R, cx, cy } = goniometer(), t = SB.res.th, dx = sx - cx, dy = sy - cy;
+    const u = dx * Math.cos(t) - dy * Math.sin(t), v = dx * Math.sin(t) + dy * Math.cos(t);
+    return u > 0.2 * R && u < 1.32 * R && Math.abs(v) < 30 * dpr;
+  }
+  const touchMode = (evt) => evt.pointerType === "touch" && !!window.AcelyaTouch?.isCoarse();
+  // Telefonda dürbünü yalnız ona değen parmak döndürür; tuvalin geri kalanında sayfa kayar.
+  window.AcelyaTouch?.guard(stage, (cx, cy) => nearScope(...canvasPoint({ clientX: cx, clientY: cy }, stage)));
   stage.addEventListener("pointerdown", (evt) => {
     if (S.tab !== "spektrometre") return;
     const [sx, sy] = canvasPoint(evt, stage);
+    if (touchMode(evt) && !nearScope(sx, sy)) return;
     drag = "stage";
     stage.setPointerCapture(evt.pointerId);
     stage.classList.add("is-dragging");
@@ -2345,8 +2357,21 @@
   stage.addEventListener("pointerup", endDrag);
   stage.addEventListener("pointercancel", endDrag);
 
-  let chartDrag = null;
+  let chartDrag = null, chartTap = null;
+  // Grafik yatay sürüklenir: telefonda dikey parmak hareketi sayfayı kaydırır (touch-action: pan-y).
+  // Dokunuşta seçim parmak kalkınca ya da yatay hareket başlayınca yapılır; kaydırma sayılırsa yapılmaz.
+  window.AcelyaTouch?.guard(chart);
+  chart.addEventListener("pointercancel", () => { chartTap = null; });
+  chart.addEventListener("pointerup", (evt) => {
+    if (!chartTap || evt.pointerId !== chartTap.id) return;
+    const e = chartTap.evt; chartTap = null; chartDown(e);
+    chartDrag = null;
+  });
   chart.addEventListener("pointerdown", (evt) => {
+    if (touchMode(evt)) { chartTap = { id: evt.pointerId, evt: { clientX: evt.clientX, clientY: evt.clientY, pointerId: evt.pointerId } }; return; }
+    chartDown(evt);
+  });
+  function chartDown(evt) {
     const [sx] = canvasPoint(evt, chart);
     if (S.tab === "desen") {
       const c = chartLayoutA();
@@ -2356,7 +2381,7 @@
       if (m >= 1 && m <= SA.res.mTop) { SA.ui.ord.value = String(m); syncA("ord"); }
       return;
     }
-    chart.setPointerCapture(evt.pointerId);
+    try { chart.setPointerCapture(evt.pointerId); } catch (_) {}
     if (S.tab === "spektrometre") chartDrag = { x0: sx, phi0: SB.phi };
     else {
       const c = chartLayoutC();
@@ -2365,8 +2390,15 @@
       chartDrag = { key };
       setCursorC(key, y * 100);
     }
-  });
+  }
   chart.addEventListener("pointermove", (evt) => {
+    if (chartTap && evt.pointerId === chartTap.id && S.tab !== "desen") {
+      // parmak önce belirgin biçimde yana gitmeli; dikey başlayan hareket sayfanındır
+      const ax = Math.abs(evt.clientX - chartTap.evt.clientX), ay = Math.abs(evt.clientY - chartTap.evt.clientY);
+      if (Math.max(ax, ay) < 8) return;
+      if (ay >= ax) { chartTap = null; return; }
+      const e = chartTap.evt; chartTap = null; chartDown(e);
+    }
     if (!chartDrag) return;
     const [sx] = canvasPoint(evt, chart);
     if (S.tab === "spektrometre") {

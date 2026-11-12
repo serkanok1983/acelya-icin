@@ -75,7 +75,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 <div class="rb-grid"><div>
 <div class="rb-plate"><h2>Düzlemsel kol ve çalışma alanı</h2>
 <canvas class="rb-canvas is-stage" id="fkStage" tabindex="0" role="img" aria-label="Düzlemsel robot kolu, eklem çerçeveleri ve örneklenmiş çalışma alanı; eklemler sürüklenebilir, ok tuşları θ1 ve θ2'yi değiştirir"></canvas>
-<p class="rb-caption">Eklemleri (dirsek ya da uç) sürükle; tuval seçiliyken ←/→ θ₁'i, ↑/↓ θ₂'yi 1° değiştirir. Boyalı hücreler: eklem açıları örneklenerek uç noktanın düştüğü ızgara hücreleri. Kesikli çemberler: kuramsal sınırlar. Küçük oklar: her eklemin yerel x ekseni (homojen matrislerin ilk sütunu).</p></div>
+<p class="rb-caption">Eklemleri (dirsek ya da uç) sürükle (telefonda parmağı ekleme koyup sürükle; boş yerde parmak sayfayı kaydırır); tuval seçiliyken ←/→ θ₁'i, ↑/↓ θ₂'yi 1° değiştirir. Boyalı hücreler: eklem açıları örneklenerek uç noktanın düştüğü ızgara hücreleri. Kesikli çemberler: kuramsal sınırlar. Küçük oklar: her eklemin yerel x ekseni (homojen matrislerin ilk sütunu).</p></div>
 <div class="rb-stats" aria-live="polite">
 <div class="rb-stat"><small>Uç, trigonometriyle (x; y)</small><strong id="fkTrig"></strong></div>
 <div class="rb-stat is-meas"><small>Uç, matrislerin çarpımıyla</small><strong id="fkMat"></strong></div>
@@ -125,7 +125,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 <div class="rb-grid"><div>
 <div class="rb-plate"><h2>Hedef, iki analitik çözüm ve sayısal arayış</h2>
 <canvas class="rb-canvas is-stage" id="ikStage" tabindex="0" role="img" aria-label="Hedef noktası, dirsek yukarı ve dirsek aşağı analitik çözümler, seçili sayısal yöntemin uç nokta izi"></canvas>
-<p class="rb-caption">Hedefi tıkla ya da sürükle; tuval seçiliyken ok tuşları hedefi 0,01 m (Shift ile 0,1 m) kaydırır. Turkuaz kesikli: dirsek yukarı çözümü, mor kesikli: dirsek aşağı. Turuncu kol ve noktalar: seçili sayısal yöntemin son durumu ve her yinelemede uç noktanın yeri. Soluk kol: başlangıç tahmini. Gri halka: erişilebilir bölge.</p></div>
+<p class="rb-caption">Hedefi tıkla ya da sürükle (telefonda hedef noktasından sürükle ya da gideceği yere dokun; boş yerde parmak sayfayı kaydırır); tuval seçiliyken ok tuşları hedefi 0,01 m (Shift ile 0,1 m) kaydırır. Turkuaz kesikli: dirsek yukarı çözümü, mor kesikli: dirsek aşağı. Turuncu kol ve noktalar: seçili sayısal yöntemin son durumu ve her yinelemede uç noktanın yeri. Soluk kol: başlangıç tahmini. Gri halka: erişilebilir bölge.</p></div>
 <div class="rb-stats" aria-live="polite">
 <div class="rb-stat"><small>Dirsek yukarı (θ₁; θ₂)</small><strong id="ikUp"></strong></div>
 <div class="rb-stat"><small>Dirsek aşağı (θ₁; θ₂)</small><strong id="ikDown"></strong></div>
@@ -819,6 +819,28 @@ function stageView(id, E) { const c = $(id), r = c.getBoundingClientRect(); retu
 function evPos(e) { const r = e.currentTarget.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
 function clampSet(id, val) { const e = $(id), st = Number(e.step), mn = Number(e.min), mx = Number(e.max); let v = Math.round((val - mn) / st) * st + mn; v = Math.max(mn, Math.min(mx, v)); e.value = String(Number(v.toFixed(6))); }
 let drag = null;
+/* Telefonda: yalnız eklemlere, hedefe ya da A/B/engel noktalarına değen parmak sürükler;
+   tuvalin geri kalanında parmak sayfayı kaydırır. Hedef tuvalinde boş yere dokunup bırakmak
+   hedefi oraya taşır. */
+const touchy = (e) => e.pointerType === "touch" && window.AcelyaTouch?.isCoarse();
+function localPt(id, cx, cy) { const r = $(id).getBoundingClientRect(); return [cx - r.left, cy - r.top]; }
+function fkHit(cx, cy) {
+  const c = fkCfg(), v = stageView("fkStage", R.workspaceTheory(c.L, c.lim).R * 1.08), [px, py] = localPt("fkStage", cx, cy), pts = R.fk(c.L, c.th).pts;
+  return pts.some((q, i) => i && Math.hypot(v.X(q[0]) - px, v.Y(q[1]) - py) < 26);
+}
+function ikHit(cx, cy) {
+  const c = ikCfg(), E = Math.max(c.L[0] + c.L[1], Math.hypot(...c.target)) * 1.1, v = stageView("ikStage", E), [px, py] = localPt("ikStage", cx, cy);
+  return Math.hypot(v.X(c.target[0]) - px, v.Y(c.target[1]) - py) < 32;
+}
+function trajHit(cx, cy) {
+  const c = trCfg(), v = stageView("trajStage", 1.9), [px, py] = localPt("trajStage", cx, cy), cand = [c.A, c.B]; if (c.obs) cand.push([c.obs.x, c.obs.y]);
+  return cand.some((p) => Math.hypot(v.X(p[0]) - px, v.Y(p[1]) - py) < 28);
+}
+window.AcelyaTouch?.guard($("fkStage"), fkHit);
+window.AcelyaTouch?.guard($("ikStage"), ikHit);
+window.AcelyaTouch?.guard($("trajStage"), trajHit);
+window.AcelyaTouch?.guard($("jacStage"));
+let ikTap = null;
 // 1: eklem sürükleme
 $("fkStage").addEventListener("pointerdown", (e) => {
   const c = fkCfg(), v = stageView("fkStage", R.workspaceTheory(c.L, c.lim).R * 1.08), [px, py] = evPos(e), pts = R.fk(c.L, c.th).pts;
@@ -833,7 +855,12 @@ $("fkStage").addEventListener("pointermove", (e) => {
 for (const ev of ["pointerup", "pointercancel"]) for (const id of ["fkStage", "ikStage", "trajStage"]) $(id).addEventListener(ev, () => { drag = null; });
 // 2: hedef
 function ikSetFromEvent(e) { const c = ikCfg(), E = Math.max(c.L[0] + c.L[1], Math.hypot(...c.target)) * 1.1, w = stageView("ikStage", drag ? drag.E : E).inv(...evPos(e)); clampSet("ikX", w[0]); clampSet("ikY", w[1]); render(); }
-$("ikStage").addEventListener("pointerdown", (e) => { const c = ikCfg(); drag = { tab: "ik", E: Math.max(c.L[0] + c.L[1], Math.hypot(...c.target)) * 1.1 }; e.currentTarget.setPointerCapture(e.pointerId); ikSetFromEvent(e); });
+$("ikStage").addEventListener("pointerup", (e) => {
+  if (!ikTap || ikTap.id !== e.pointerId) return; const t = ikTap; ikTap = null;
+  if (Math.hypot(e.clientX - t.x, e.clientY - t.y) <= 10) ikSetFromEvent(e);
+});
+$("ikStage").addEventListener("pointercancel", () => { ikTap = null; });
+$("ikStage").addEventListener("pointerdown", (e) => { if (touchy(e) && !ikHit(e.clientX, e.clientY)) { ikTap = { id: e.pointerId, x: e.clientX, y: e.clientY }; return; } const c = ikCfg(); drag = { tab: "ik", E: Math.max(c.L[0] + c.L[1], Math.hypot(...c.target)) * 1.1 }; e.currentTarget.setPointerCapture(e.pointerId); ikSetFromEvent(e); });
 $("ikStage").addEventListener("pointermove", (e) => { if (drag && drag.tab === "ik") ikSetFromEvent(e); });
 // 4: A, B, engel
 $("trajStage").addEventListener("pointerdown", (e) => {

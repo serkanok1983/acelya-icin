@@ -271,7 +271,7 @@
           <button type="button" class="app-btn-ghost" data-kpreset="g90">γ = 90°</button>
         </div>
         <p class="note">Köşeler C = (0, 0), B = (a, 0), A = (b cos γ, b sin γ); br uzunluk birimidir. Alanlar çokgenlerin köşelerinden ayakkabı bağı formülüyle ölçülür: S = ½|Σ(xᵢyᵢ₊₁ − xᵢ₊₁yᵢ)|. c, A ile B'nin koordinatlarından hesaplanan uzaklıktır. γ ≠ 90° iken a ve b dik kenar değil, γ'yı kuşatan iki kenardır; sahne kosinüs teoremini gösterir.</p>
-        <p class="note">Sahnede B köşesini sürükle (a değişir) ya da A köşesini sürükle (b ve γ değişir; γ, 90°'ye 1.5°'den yakınsa 90°'ye yapışır). Kaydırıcılar ve kutular aynı işi yapar.</p>
+        <p class="note">Sahnede B köşesini sürükle (a değişir) ya da A köşesini sürükle (b ve γ değişir; γ, 90°'ye 1.5°'den yakınsa 90°'ye yapışır). Kaydırıcılar ve kutular aynı işi yapar. Telefonda köşeye dokunup sürükle; boş yerde parmak sayfayı kaydırır.</p>
       </div>
       <div class="panel" data-for="kanitlar" role="group" aria-labelledby="ttlK2">
         <h2 id="ttlK2">Kanıt</h2>
@@ -384,7 +384,7 @@
         <div class="row">
           <button type="button" class="app-btn-ghost" id="sCenter">Üçgeni ortala</button>
         </div>
-        <p class="note">Küreyi sürükleyerek döndür; iki kaydırıcı aynı işi yapar. Kısayol: <kbd>R</kbd> bu sekmeyi sıfırla (Dünya, 1000 km × 1000 km).</p>
+        <p class="note">Küreyi sürükleyerek döndür; iki kaydırıcı aynı işi yapar. Telefonda parmağı önce yana kaydır; dikey hareket sayfayı kaydırır. Kısayol: <kbd>R</kbd> bu sekmeyi sıfırla (Dünya, 1000 km × 1000 km).</p>
       </div>
       <div class="panel" data-for="kure" role="group" aria-labelledby="ttlS3" hidden>
         <h2 id="ttlS3">Düz uzayda çok boyut</h2>
@@ -1284,7 +1284,7 @@
     if (start) {
       if (!canDragK()) return false;
       const P = (p) => [V.ox + p[0] * V.sc, V.oy - p[1] * V.sc];
-      const da = Math.hypot(P(T.A)[0] - sx, P(T.A)[1] - sy), db = Math.hypot(P(T.B)[0] - sx, P(T.B)[1] - sy), lim = 22 * dpr;
+      const da = Math.hypot(P(T.A)[0] - sx, P(T.A)[1] - sy), db = Math.hypot(P(T.B)[0] - sx, P(T.B)[1] - sy), lim = (touchGrab ? 30 : 22) * dpr;
       if (Math.min(da, db) > lim) return false;
       KA.drag = da <= db ? "A" : "B";
       KA.frozen = V;
@@ -1779,6 +1779,15 @@
     if (start) {
       if (Math.hypot(sx - V.cx, sy - V.cy) > V.R0 + 30 * dpr && V.R0 < Math.max(V.W, V.H)) return false;
       SC.drag = [sx, sy];
+      SC.lock = touchGrab ? [sx, sy] : null;
+      return true;
+    }
+    if (SC.lock) {
+      // Telefonda döndürme yatay başlayan sürüklemeyle açılır; dikey parmak sayfayı kaydırır.
+      const ax = Math.abs(sx - SC.lock[0]), ay = Math.abs(sy - SC.lock[1]);
+      if (ax < 8 * dpr || ax < ay) return true;
+      SC.lock = null;
+      SC.drag = [sx, sy];
       return true;
     }
     const dx = sx - SC.drag[0], dy = sy - SC.drag[1];
@@ -1871,11 +1880,32 @@
   }
 
   /* ── Etkileşim ── */
-  let dragTab = null;
+  let dragTab = null, touchGrab = false, tapU = null;
+  // Telefonda: Kanıtlar'da yalnız A ya da B köşesine değen parmak sürükler, küre yatay
+  // başlayan sürüklemeyle döner, üçlüler grafiğinde dokunup bırakmak seçer; başka her yerde
+  // parmak sayfayı kaydırır.
+  const touchy = (evt) => evt.pointerType === "touch" && window.AcelyaTouch?.isCoarse();
+  function nearCorner(cx, cy) {
+    if (S.tab !== "kanitlar" || !canDragK()) return false;
+    const V = KA.frozen || KA.view, T = KA.T;
+    if (!V) return false;
+    const [sx, sy] = canvasPoint({ clientX: cx, clientY: cy }, stage), P = (p) => [V.ox + p[0] * V.sc, V.oy - p[1] * V.sc];
+    return Math.min(Math.hypot(P(T.A)[0] - sx, P(T.A)[1] - sy), Math.hypot(P(T.B)[0] - sx, P(T.B)[1] - sy)) <= 30 * dpr;
+  }
+  window.AcelyaTouch?.guard(stage, nearCorner);
+  stage.addEventListener("pointerup", (evt) => {
+    if (!tapU || tapU.id !== evt.pointerId) return;
+    const t = tapU;
+    tapU = null;
+    if (S.tab !== "ucluler" || Math.hypot(evt.clientX - t.x, evt.clientY - t.y) > 10) return;
+    const [sx, sy] = canvasPoint(evt, stage);
+    pointerU(sx, sy);
+  });
+  stage.addEventListener("pointercancel", () => { tapU = null; });
   function endDrag() {
     if (!dragTab) return;
     if (dragTab === "kanitlar") { KA.drag = null; KA.frozen = null; KA.view = null; }
-    if (dragTab === "kure") SC.drag = null;
+    if (dragTab === "kure") { SC.drag = null; SC.lock = null; }
     dragTab = null;
     stage.classList.remove("is-dragging");
     dirty = true;
@@ -1883,6 +1913,8 @@
   stage.addEventListener("pointerdown", (evt) => {
     const [sx, sy] = canvasPoint(evt, stage);
     let ok = false;
+    touchGrab = touchy(evt);
+    if (S.tab === "ucluler" && touchGrab) { tapU = { id: evt.pointerId, x: evt.clientX, y: evt.clientY }; return; }
     if (S.tab === "kanitlar") ok = pointerK(sx, sy, true);
     else if (S.tab === "ucluler") { pointerU(sx, sy); return; }
     else ok = pointerS(sx, sy, true);

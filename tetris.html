@@ -25,7 +25,7 @@
           Segoe UI,
           sans-serif;
         overflow: hidden;
-        touch-action: none;
+        touch-action: manipulation;
       }
       body {
         display: flex;
@@ -84,6 +84,11 @@
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
         touch-action: none;
       }
+      /* Telefona özel kısa not */
+      .touch-note { display: none; }
+      @media (pointer: coarse) { .touch-note { display: inline; } }
+      /* Telefonda tahta dokunuşla oyuna bağlanınca belli olsun */
+      canvas.touch-armed { outline: 2px solid #5eead4; outline-offset: 3px; }
     </style>
     <script src="shared/app.js"></script>
   </head>
@@ -98,7 +103,7 @@
         <button type="button" id="btnNew">Yeni Oyun</button>
       </div>
       <p class="hint">
-        ← → hareket · ↑ döndür · ↓ hızlı düşür · Space: anında düşür · Dokunmatik: dokun döndür, yana kaydır hareket, aşağı kaydır düşür
+        ← → hareket · ↑ döndür · ↓ hızlı düşür · Space: anında düşür · Dokunmatik: dokun döndür, yana kaydır hareket, aşağı kaydır düşür<span class="touch-note"> · Tahtaya ilk dokunuş onu oyuna bağlar; tahta dışında parmak sayfayı kaydırır</span>
       </p>
     </header>
 
@@ -196,7 +201,7 @@
         const padX = 20;
         const padY = 16;
         const availW = window.innerWidth - padX;
-        const availH = window.innerHeight - hudBottom - padY;
+        const availH = Math.min(window.innerHeight - hudBottom - padY, window.AcelyaTouch?.isCoarse() ? window.innerHeight * 0.62 : Infinity); // telefonda altta kaydırma payı kalsın
         const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
         const w = Math.max(220, GAME_W * scale);
         const h = w * (GAME_H / GAME_W);
@@ -472,6 +477,24 @@
         }
       });
 
+      /* Telefonda: tahtaya dokununca (döndürme) tahta oyuna bağlanır, sonra aşağı kaydırma da taşı düşürür.
+         Bağlanmadan önce dokunma ve yatay kaydırma yine oynar, dikey kaydırma sayfayı kaydırır;
+         tahtanın dışına dokununca bağ çözülür. Fare ve klavyede değişen bir şey yok. */
+      const coarse = () => Boolean(window.AcelyaTouch?.isCoarse());
+      let touchArmed = false;
+      const setArmed = (on) => {
+        touchArmed = on;
+        canvas.classList.toggle("touch-armed", on);
+      };
+      window.AcelyaTouch?.guard(canvas, () => touchArmed, { axis: "pan-y" });
+      document.addEventListener(
+        "touchstart",
+        (e) => {
+          if (touchArmed && !canvas.contains(e.target) && !e.target.closest?.("#gameTouchBar")) setArmed(false);
+        },
+        { passive: true },
+      );
+
       let touchX = 0;
       let touchY = 0;
       canvas.addEventListener(
@@ -479,17 +502,20 @@
         (e) => {
           touchX = e.touches[0].clientX;
           touchY = e.touches[0].clientY;
-          e.preventDefault();
+          if (!coarse() || touchArmed) e.preventDefault();
         },
         { passive: false },
       );
       canvas.addEventListener(
         "touchend",
         (e) => {
-          e.preventDefault();
-          if (gameOver) return;
+          if (e.cancelable) e.preventDefault();
           const dx = e.changedTouches[0].clientX - touchX;
           const dy = e.changedTouches[0].clientY - touchY;
+          const free = !coarse() || touchArmed;
+          if (coarse() && Math.hypot(dx, dy) < 12) setArmed(true);
+          if (gameOver) return;
+          if (!free && Math.abs(dy) >= 30 && Math.abs(dy) >= Math.abs(dx)) return; // dikey hareket sayfayı kaydırdı
           if (dy > 60 && dy > Math.abs(dx)) hardDrop();
           else if (Math.abs(dx) < 30) {
             const rot = rotate(piece.matrix);

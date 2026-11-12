@@ -60,6 +60,7 @@
     [data-theme="light"] .chart-canvas { background: #f7f9fc; }
     .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; }
     .legend span { white-space: nowrap; }
+    @media (max-width: 620px) { .legend span { white-space: normal; } }
     .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
     .legend i.dash { border-top-style: dashed; }
     .legend i.k-r1 { border-top-color: var(--accent); }
@@ -140,7 +141,7 @@
 
 <div class="app-content">
   <h1>İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu</h1>
-  <p class="hint">Bir sekme seç; cismi, odak noktalarını ya da ikinci merceği sürükle veya kaydırıcıları kullan. Görüntünün yerini çizilen ışınların kesişiminden ölç, ince mercek denklemi 1/s<sub>o</sub> + 1/s<sub>i</sub> = 1/f ile karşılaştır.</p>
+  <p class="hint">Bir sekme seç; cismi, odak noktalarını ya da ikinci merceği sürükle veya kaydırıcıları kullan. Görüntünün yerini çizilen ışınların kesişiminden ölç, ince mercek denklemi 1/s<sub>o</sub> + 1/s<sub>i</sub> = 1/f ile karşılaştır. Telefonda sürüklemek için parmağını cisme, odağa ya da merceğe koy; boş yerde parmak sayfayı kaydırır.</p>
 
   <div class="tabs" role="tablist" aria-label="Deney senaryoları">
     <button type="button" class="tab app-btn-ghost" role="tab" id="tab-tek" data-tab="tek" aria-selected="true" aria-controls="labPanel">Tek mercek</button>
@@ -1113,15 +1114,16 @@
     } else tag(g, "s_o = f: s_i → ∞", L.X(so) + 6 * dpr, L.t + 28 * dpr, th.warm, th, 10, "left");
   }
 
-  function hitA(sx, sy) {
+  function hitA(sx, sy, k = 1) {
     const V = viewA(), f = fA(), ox = V.X(-A.so), oy0 = V.Y(0), oy1 = V.Y(A.ho);
-    if (Math.hypot(sx - ox, sy - oy1) < 16 * dpr) return "tip";
-    if (Math.abs(sx - ox) < 12 * dpr && sy < oy0 + 6 * dpr && sy > oy1) return "stem";
-    for (const x of [-f, f]) if (Math.abs(sx - V.X(x)) < 14 * dpr && Math.abs(sy - V.ay) < 22 * dpr) return "f";
+    if (Math.hypot(sx - ox, sy - oy1) < 16 * k * dpr) return "tip";
+    if (Math.abs(sx - ox) < 12 * k * dpr && sy < oy0 + 6 * k * dpr && sy > oy1) return "stem";
+    // F ile F′ arası dar olabilir: yatay payı dokunmatikte bile az büyüt, aradaki mercek boşluğu kaydırmaya kalsın.
+    for (const x of [-f, f]) if (Math.abs(sx - V.X(x)) < 14 * Math.min(k, 1.2) * dpr && Math.abs(sy - V.ay) < 22 * k * dpr) return "f";
     return null;
   }
   function pointerA(sx, sy, start) {
-    if (start) { A.drag = hitA(sx, sy); if (!A.drag) return false; }
+    if (start) { A.drag = hitA(sx, sy, start === "touch" ? 1.6 : 1); if (!A.drag) return false; }
     const V = viewA(), x = V.ix(sx);
     if (A.drag === "f") setRange(A.ui.f, Math.abs(x));
     else {
@@ -1665,20 +1667,20 @@
     tag(g, `P = ${fmtPow(Pn)} · f_{eş} = ${fmtLen(C.res.T.feq, 2, true)}`, L.X(d) + (right ? -8 : 8) * dpr, L.Y(Pn) + (Pn > (y0 + y1) / 2 ? 16 : -16) * dpr, th.warm, th, 10, right ? "right" : "left");
   }
 
-  function hitC(sx, sy) {
+  function hitC(sx, sy, k = 1) {
     const V = viewC();
     if (!C.inf) {
       const ox = V.X(-C.so), oy0 = V.Y(0), oy1 = V.Y(C.ho);
-      if (Math.hypot(sx - ox, sy - oy1) < 16 * dpr) return "tip";
-      if (Math.abs(sx - ox) < 12 * dpr && sy < oy0 + 6 * dpr && sy > oy1) return "stem";
+      if (Math.hypot(sx - ox, sy - oy1) < 16 * k * dpr) return "tip";
+      if (Math.abs(sx - ox) < 12 * k * dpr && sy < oy0 + 6 * k * dpr && sy > oy1) return "stem";
     }
     const lh = 0.86 * V.Y0 * V.ky;
-    if (Math.abs(sx - V.X(C.d)) < 14 * dpr && Math.abs(sy - V.ay) < lh + 10 * dpr) return "lens2";
+    if (Math.abs(sx - V.X(C.d)) < 14 * k * dpr && Math.abs(sy - V.ay) < lh + 10 * k * dpr) return "lens2";
     return null;
   }
   function pointerC(sx, sy, start) {
     if (start) {
-      const k = hitC(sx, sy);
+      const k = hitC(sx, sy, start === "touch" ? 1.6 : 1);
       if (!k) return false;
       C.view = viewC(true);
       C.drag = k;
@@ -1767,11 +1769,18 @@
     stage.classList.remove("is-dragging");
     dirty = true;
   }
+  // Telefonda yalnız cisme, odağa ya da merceğe değen parmak onu tutar; sahnenin geri kalanında sayfa kayar.
+  const touchMode = (evt) => evt.pointerType === "touch" && !!window.AcelyaTouch?.isCoarse();
+  window.AcelyaTouch?.guard(stage, (cx, cy) => {
+    const [sx, sy] = stagePoint({ clientX: cx, clientY: cy }, stage);
+    return Boolean(S.tab === "tek" ? hitA(sx, sy, 1.6) : S.tab === "iki" ? hitC(sx, sy, 1.6) : null);
+  });
   stage.addEventListener("pointerdown", (evt) => {
     const [sx, sy] = stagePoint(evt, stage);
     let ok = false;
-    if (S.tab === "tek") ok = pointerA(sx, sy, true);
-    else if (S.tab === "iki") ok = pointerC(sx, sy, true);
+    const st = touchMode(evt) ? "touch" : true;
+    if (S.tab === "tek") ok = pointerA(sx, sy, st);
+    else if (S.tab === "iki") ok = pointerC(sx, sy, st);
     if (!ok) return;
     drag = S.tab;
     stage.setPointerCapture(evt.pointerId);

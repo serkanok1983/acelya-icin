@@ -103,6 +103,7 @@
     .cbox { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
     .cbox.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .cbox label { display: grid; gap: 2px; font-size: 0.74rem; font-weight: 600; color: var(--text) !important; min-width: 0; }
+    .cbox select { width: 100%; min-width: 0; }
     .cbox input { width: 100%; min-width: 0; box-sizing: border-box; padding: 5px 6px; font: inherit; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
     .row { display: flex; flex-wrap: wrap; gap: 8px; }
     .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
@@ -175,7 +176,7 @@
 
 <div class="app-content">
   <h1>Karmaşık Sayılar: Düzlemde Döndürme ve Büyütme</h1>
-  <p class="hint">Bir sekme seç. z ile w'yi sürükle ya da kutulara yaz; işlemin sonucunu çizimden ölç (cetvel ve iletki), cebirle karşılaştır. Çarpma döndürür ve büyütür: açılar toplanır, uzunluklar çarpılır.</p>
+  <p class="hint">Bir sekme seç. z ile w'yi sürükle ya da kutulara yaz; işlemin sonucunu çizimden ölç (cetvel ve iletki), cebirle karşılaştır. Çarpma döndürür ve büyütür: açılar toplanır, uzunluklar çarpılır. Telefonda sürüklemek için parmağını noktaya koy; boş yerde parmak sayfayı kaydırır.</p>
 
   <div class="tabs" role="tablist" aria-label="Deney senaryoları">
     <button type="button" class="tab app-btn-ghost" role="tab" id="tab-islemler" data-tab="islemler" aria-selected="true" aria-controls="labPanel">Düzlemde işlemler</button>
@@ -2408,9 +2409,9 @@
     else if (S.tab === "euler") syncB();
     else syncC();
   }
-  function pickHandle(sx, sy) {
+  function pickHandle(sx, sy, touch) {
     const near = (z, V) => Math.hypot(V.X(z.re) - sx, V.Y(z.im) - sy);
-    const R0 = 26 * dpr;
+    const R0 = (touch ? 36 : 26) * dpr;
     if (S.tab === "islemler") {
       const V = planeView(stage, SA.half);
       const dz = near(SA.z, V), dw = SA.op === "conj" ? Infinity : near(SA.w, V);
@@ -2423,8 +2424,25 @@
       if (SB.mode === "kuvvet") return near(SB.p, V) <= R0 ? { key: "p", V } : null;
       return near(SB.c, V) <= R0 ? { key: "c", V } : null;
     }
-    return { key: "z0", V: viewsC().VZ };
+    const VZ = viewsC().VZ;
+    // Dokunmatikte kare yalnız kendisine değen parmakla tutulur; düzleme dokunmak onu oraya taşır.
+    if (touch && near(SC.z0, VZ) > R0) return null;
+    return { key: "z0", V: VZ };
   }
+  // Telefonda yalnız bir tutamağa değen parmak onu sürükler; tuvalin geri kalanında sayfa kayar.
+  const touchMode = (evt) => evt.pointerType === "touch" && !!window.AcelyaTouch?.isCoarse();
+  window.AcelyaTouch?.guard(stage, (cx, cy) => !!pickHandle(...canvasPoint({ clientX: cx, clientY: cy }, stage), true));
+  let tapId = null;
+  stage.addEventListener("pointercancel", () => { tapId = null; });
+  stage.addEventListener("pointerup", (evt) => {
+    if (tapId === null || evt.pointerId !== tapId) return;
+    tapId = null;
+    if (S.tab !== "fonksiyonlar") return;
+    const [sx, sy] = canvasPoint(evt, stage);
+    drag = { key: "z0", V: viewsC().VZ };
+    dragTo(sx, sy);
+    endDrag();
+  });
   function dragTo(sx, sy) {
     const V = drag.V, x = V.ix(sx), y = V.iy(sy);
     const zs = C(snapDrag(x), snapDrag(y));
@@ -2451,8 +2469,8 @@
   stage.addEventListener("pointerdown", (evt) => {
     if (evt.pointerType === "mouse" && evt.button !== 0) return;
     const [sx, sy] = canvasPoint(evt, stage);
-    const h = pickHandle(sx, sy);
-    if (!h) return;
+    const h = pickHandle(sx, sy, touchMode(evt));
+    if (!h) { if (touchMode(evt)) tapId = evt.pointerId; return; }
     stopAnimA();
     stopPlayB();
     drag = h;

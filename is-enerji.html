@@ -120,7 +120,7 @@
           </table>
         </div>
         <canvas id="wChart" class="ie-canvas ie-chart ie-drag" role="img" aria-label="Kuvvet–yol grafiği: F cosθ eğrisi, sürtünme kuvveti ve bloğun şimdiye dek taradığı alan"></canvas>
-        <p class="ie-cap">Kuvvet–yol grafiği. Dolu alan, uygulanan kuvvetin x ekseni boyunca bileşeninin (F·cosθ) şimdiye dek yaptığı iştir: eksenin altındaki alan negatif iştir. Kesikli çizgi, ileri giden bloğa etkiyen sürtünme kuvvetidir (−μN). Parçalı profilde düğümleri bu grafikte sürükleyebilirsin.</p>
+        <p class="ie-cap">Kuvvet–yol grafiği. Dolu alan, uygulanan kuvvetin x ekseni boyunca bileşeninin (F·cosθ) şimdiye dek yaptığı iştir: eksenin altındaki alan negatif iştir. Kesikli çizgi, ileri giden bloğa etkiyen sürtünme kuvvetidir (−μN). Parçalı profilde düğümleri bu grafikte sürükleyebilirsin (telefonda parmağını düğüme koy; boş yerde parmak sayfayı kaydırır).</p>
       </div>
       <div class="panel" aria-label="İş deneyi ayarları">
         <h2>Deney ayarları</h2>
@@ -1052,8 +1052,16 @@
   {
     const cv = $("wChart"); let drag = -1;
     const pick = (e) => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    // Dokunmatikte yalnız bir düğüme değen parmak düğümü tutar; grafiğin geri kalanında sayfa kayar.
+    const nearNode = (cx, cy) => {
+      if (Wk.M.kind !== "piece" || !Wk.chart) return false;
+      const r = cv.getBoundingClientRect(), A = Wk.chart, x = cx - r.left, y = cy - r.top;
+      return K.WORK_X.some((xn) => Math.hypot(A.X(xn) - x, A.Y(Wk.M.Fx(xn)) - y) < 36);
+    };
+    window.AcelyaTouch?.guard(cv, nearNode);
     cv.addEventListener("pointerdown", (e) => {
       if (Wk.M.kind !== "piece" || !Wk.chart) return;
+      if (e.pointerType === "touch" && window.AcelyaTouch?.isCoarse() && !nearNode(e.clientX, e.clientY)) return;
       const q = pick(e), A = Wk.chart; let best = -1, bd = 30;
       K.WORK_X.forEach((x, i) => { const d = Math.abs(A.X(x) - q.x); if (d < bd) { bd = d; best = i; } });
       if (best >= 0) { drag = best; cv.setPointerCapture(e.pointerId); e.preventDefault(); }
@@ -1350,12 +1358,22 @@
   $("pPreSmall").addEventListener("click", () => pSet({ pX0: POT_PRE[$("pKind").value].small, pV0: "0" }));
   $("pPreBig").addEventListener("click", () => pSet({ pX0: POT_PRE[$("pKind").value].big, pV0: "0" }));
   $("pPreTop").addEventListener("click", () => { const t = POT_PRE[$("pKind").value].top; if (t) pSet({ pX0: t, pV0: "0" }); });
+  // Dokunmatikte konum parmak kalkınca seçilir: eğri üstünde kaydırma sayfayı kaydırır,
+  // tarayıcı hareketi kaydırma sayınca pointercancel gelir ve seçim yapılmaz.
+  window.AcelyaTouch?.guard($("pStage"));
+  let pTouch = null;
+  $("pStage").addEventListener("pointercancel", () => { pTouch = null; });
+  $("pStage").addEventListener("pointerup", (e) => { if (pTouch !== null && e.pointerId === pTouch) { pTouch = null; pPick(e); } });
   $("pStage").addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch" && window.AcelyaTouch?.isCoarse()) { pTouch = e.pointerId; return; }
+    pPick(e);
+  });
+  function pPick(e) {
     const A = Pt.stageA; if (!A) return;
     const r = $("pStage").getBoundingClientRect(), x = Pt.P.dom[0] + ((e.clientX - r.left - A.L) / (A.R - A.L)) * (Pt.P.dom[1] - Pt.P.dom[0]);
     const el = $("pX0"), v = clamp(Math.round(x * 100) / 100, +el.min, +el.max);
     el.value = String(v); $("pV0").value = "0"; pStart(); setRunning(true);
-  });
+  }
 
   /* ═════════════ 04 · Güç ve verim ═════════════ */
   const GD = { gScen: "lift", gM: "500", gH: "20", gPin: "10", gEta: "0.8", gBm: "80", gGrade: "6", gBP: "250", gD: "2", gBeta: "0.97", gSpeed: "1" };

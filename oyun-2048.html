@@ -15,7 +15,7 @@
       color: #fff;
       font-family: system-ui, -apple-system, Segoe UI, sans-serif;
       overflow: hidden;
-      touch-action: none;
+      touch-action: manipulation;
     }
     body {
       display: flex;
@@ -57,6 +57,11 @@
       box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
       touch-action: none;
     }
+    /* Telefona özel kısa not */
+    .touch-note { display: none; }
+    @media (pointer: coarse) { .touch-note { display: inline; } }
+    /* Telefonda tahta dokunuşla oyuna bağlanınca belli olsun */
+    canvas.touch-armed { outline: 2px solid #5eead4; outline-offset: 3px; }
   </style>
   <script src="shared/app.js"></script>
 </head>
@@ -68,7 +73,7 @@
   <div class="controls">
     <button type="button" id="btnNew">Yeni Oyun</button>
   </div>
-  <p class="hint">Ok tuşları veya kaydır · Aynı sayıları birleştir, 2048’e ulaş!</p>
+  <p class="hint">Ok tuşları veya kaydır · Aynı sayıları birleştir, 2048’e ulaş!<span class="touch-note"> · Telefonda tahtaya bir kez dokun, sonra dört yöne kaydır; tahta dışında parmak sayfayı kaydırır</span></p>
 </header>
 
 <div class="game-stage">
@@ -112,7 +117,7 @@
     const padX = 20;
     const padY = 16;
     const availW = window.innerWidth - padX;
-    const availH = window.innerHeight - hudBottom - padY;
+    const availH = Math.min(window.innerHeight - hudBottom - padY, window.AcelyaTouch?.isCoarse() ? window.innerHeight * 0.62 : Infinity); // telefonda altta kaydırma payı kalsın
     const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
     const w = Math.max(260, GAME_W * scale);
     const h = w;
@@ -326,19 +331,36 @@
     }
   });
 
+  /* Telefonda: tahtaya bir kez dokununca tahta oyuna bağlanır ve dört yöne kaydırma taşları kaydırır.
+     Bağlanmadan önce yatay kaydırma yine oynar, dikey kaydırma sayfayı kaydırır;
+     tahtanın dışına dokununca bağ çözülür. Fare ve klavyede değişen bir şey yok. */
+  const coarse = () => Boolean(window.AcelyaTouch?.isCoarse());
+  let touchArmed = false;
+  const setArmed = (on) => {
+    touchArmed = on;
+    canvas.classList.toggle("touch-armed", on);
+  };
+  window.AcelyaTouch?.guard(canvas, () => touchArmed, { axis: "pan-y" });
+  document.addEventListener("touchstart", (e) => {
+    if (touchArmed && !canvas.contains(e.target)) setArmed(false);
+  }, { passive: true });
+
   let touchX = 0, touchY = 0;
   canvas.addEventListener("touchstart", (e) => {
-    e.preventDefault();
+    if (!coarse() || touchArmed) e.preventDefault();
     touchX = e.touches[0].clientX;
     touchY = e.touches[0].clientY;
   }, { passive: false });
   canvas.addEventListener("touchend", (e) => {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     const dx = e.changedTouches[0].clientX - touchX;
     const dy = e.changedTouches[0].clientY - touchY;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) {
+      if (coarse() && Math.hypot(dx, dy) < 12) setArmed(true);
+      return;
+    }
     if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
-    else move(dy > 0 ? "down" : "up");
+    else if (!coarse() || touchArmed) move(dy > 0 ? "down" : "up"); // bağlı değilken dikey hareket sayfayı kaydırdı
   }, { passive: false });
 
   document.getElementById("btnNew").addEventListener("click", newGame);
