@@ -258,6 +258,7 @@ window.ACELYA_DIGEST["kepler-yasalari"] = {
       title: "Güneş Sistemi Laboratuvarı",
       why: "Tycho'nun kaydettiği türden veriye Dünya'dan bak: 'Gökyüzünde gezegenler' sekmesinde iki çember yörüngedeki gezegenin ekliptik boylamını izle, geri hareketin süresini ölç ve kuramla karşılaştır.",
     },
+    { href: "bilim-tarihinden-deneyler.html", title: "Bilim Tarihinden Deneyler: Eratosthenes, Galileo, Kepler, Cavendish, Rømer", why: "Yasaların nasıl bulunduğu: Tycho'nun Mars verisinde dairenin 8 yay dakikasıyla şaşması; Eratosthenes, Galileo, Cavendish ve Rømer de yeniden kurularak." },
   ],
   sources: [
     {

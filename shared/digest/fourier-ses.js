@@ -127,7 +127,7 @@ window.ACELYA_DIGEST["fourier-ses"] = {
   next: [
     { href: "ses-sentezleyici.html", title: "Ses Sentezi: Zarf ve Tını", why: "Sabit spektrumdan zamanla değişen genliğe geç; sesin başlangıç ve bitişini zarfla kur." },
     { href: "duran-dalgalar.html", title: "Duran Dalgalar", why: "Tam sayı harmoniklerinin tel ve hava sütununun sınır koşullarından nasıl doğduğunu incele." },
-    { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "RMS'deki zaman ortalamasını sonlu toplam ve integral arasındaki ilişkiyle yeniden kur." },
+    { href: "muzik-kurami-ve-akort.html", title: "Müzik Kuramı ve Akort: Harmonikler, Komalar ve Makam Perdeleri", why: "Tınıyı oluşturan harmoniklerin müzikteki karşılığı: aralıklar, uyuşum kuramları ve bir akort sisteminin komayı nereye sakladığı." },
     { href: "sinyal-isleme-ve-modulasyon.html", title: "Sinyal İşleme ve Modülasyon: Örnekleme, FFT, AM–FM ve Süzgeçler", why: "Sesi örneklere çevirmenin kuralları: Nyquist sınırı ve örtüşme, FFT ve pencereleme, AM ve FM modülasyonu, sayısal süzgeçler ölçülerek." },
   ],
   sources: [

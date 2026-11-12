@@ -197,7 +197,7 @@ window.ACELYA_DIGEST["bilgi-kurami-ve-sikistirma"] = {
     { href: "entropi-ve-istatistiksel-fizik.html", title: "Entropi ve İstatistiksel Fizik: Mikro Durumlar, Boltzmann ve Ising", why: "Aynı logaritmanın fizikteki yüzü: mikro durumları say, S = k ln W'yi kur, Boltzmann dağılımını ve Ising modelini dene." },
     { href: "kombinatorik-ve-sayma.html", title: "Kombinatorik ve Sayma: Seçimler, Güvercin Yuvası, İçerme–Dışlama ve Catalan", why: "Rastgele verinin neden sıkışmadığını söyleyen güvercin yuvası ilkesi ve doğum günü sorusu, sayma tekniklerinin içinde." },
     { href: "siber-guvenlik.html", title: "Siber Güvenlik Laboratuvarı: Şifre, Özet ve Anahtar", why: "Frekans analiziyle kırılan klasik şifreler, bit cinsinden parola entropisi, özetler ve açık anahtarlı şifreleme." },
-    { href: "sezar-sifre.html", title: "Sezar Şifresi: Harf Değişir, İz Kalır", why: "Artıklığın bir şifreyi nasıl ele verdiğini gör: harfler kayar ama sıklık izi kalır ve sayılarak bulunur." },
+    { href: "zipf-yasasi-ve-dil-istatistigi.html", title: "Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni", why: "Gerçek dilin istatistiği: sözcük sıklığı sırayla nasıl düşer, sözcük dağarcığı nasıl büyür ve rastgele yazan bir maymun da aynı eğriyi çizer mi?" },
   ],
   sources: [
     { title: "Wikipedia · History of information theory", url: "https://en.wikipedia.org/wiki/History_of_information_theory", note: "Nyquist 1924, Hartley 1928 ve log Sⁿ ölçüsü, Shannon'ın 1948 makalesi ve tanıttığı kavramlar (İngilizce)." },

@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["oyun-kurami"] = {
     { href: "uluslararasi-iliskiler.html", title: "Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri", why: "Yinelenen tutuklu ikilemi, gürültü ve tetikçi eşiği burada uluslararası ilişkiler modelleri içinde; yanında Richardson silahlanma modeli ve oylama gücü endeksleri." },
     { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma", why: "Stratejik etkileşimden önceki adım: bütçe kısıtı altında fayda, firma maliyeti ve piyasa dengesi; modelin sınırı olarak davranışsal bulgular." },
     { href: "dogal-secilim.html", title: "Doğal Seçilim: Popülasyon Genetiği Laboratuvarı", why: "Hardy–Weinberg, seçilim ve genetik sürüklenme: yineleyici denkleminin ve sonlu nüfus benzetiminin biyolojideki kökü." },
-    { href: "yoneylem-arastirmasi.html", title: "Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol", why: "Oyunun değerini hesaplayan yöntemin kendisi: uygun bölge, simpleks adım adım ve ikil sorundan gelen gölge fiyatlar." },
+    { href: "karar-ve-bilissel-yanliliklar.html", title: "Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?", why: "Rasyonel oyuncu varsayımının sınavı: insanların gerçek seçimleri beklenen faydadan nasıl ayrılır; beklenti kuramı ve rakip okullar." },
   ],
   sources: [
     { title: "Stanford Encyclopedia of Philosophy · Prisoner's Dilemma", url: "https://plato.stanford.edu/entries/prisoner-dilemma/", note: "Kazanç koşulları, Flood–Dresher deneyi, Axelrod turnuvaları ve 2004 turnuvası, gürültü, cömert kısas, Pavlov ve Press–Dyson gaspçı stratejileri (İngilizce)." },

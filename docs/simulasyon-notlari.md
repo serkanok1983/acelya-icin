@@ -1933,3 +1933,31 @@ Düzeltmeler:
   en çok %62'si; 2048/Snake/Tetris'te tahta dokunarak "etkinleşir", Pong'da sol yarı raket, sağ yarı kaydırma.
 - 25 sayfada sayfaya özgü küçük boyut/taşma düzeltmesi; tablet boyutunda 4 taşma.
 Gerçek cihazda denenmedi; kullanıcı canlıda kontrol edecek.
+
+## 12 Kasım 2026 — P: yeni alanlar, 1. grup (8 sayfa, 6 yeni kategori)
+
+STEM planı bitti; `docs/YENI-ALANLAR-PLANI.md` başladı. İlke (kullanıcı): bilgi biçimden önce gelir; kalıp zorunlu
+değil, konuya en uygun anlatım. Yeni kurucu ek tanımı `.shots/briefs/_kurucu-yeni-alanlar.md`. Altı yeni menü
+kategorisi ve defter alanı: Dil ve Edebiyat, Zihin ve Davranış, Tarih ve Toplum, Felsefe ve Mantık, Sanat ve Müzik,
+İnsan Bedeni. İzinli kaynaklara SEP, IEP, Britannica, TDK, Nişanyan, OWID, ICS, LoC, Gutenberg, müzeler eklendi.
+Hat aynı (kurucu → ayrı yazar → bağımsız doğrulayıcı); her sayfa mobil boyut ve kaydırma taramasından geçti.
+
+- ✔ `muzik-kurami-ve-akort`: harmonikler, Sethares/Plomp–Levelt uyuşum eğrisi, Pisagor/saf/ortalama-ton/eşit akort
+  ve −23,46 sent değişmezi, 12 ve 53, AEU ve makam perdeleri (kuram–icra tartışması yansız; Yekta ilişkisi kaynaklı).
+- ✔ `turkcenin-ses-yapisi`: ünlü küpü, ek motoru (kural kapatılabilir), TDK sözlük verisiyle kural–istisna, sınav.
+  Doğrulamada 226 biçim 0 hata; "geldiyken" düzeltildi, "arkifonem".
+- ✔ `zipf-yasasi-ve-dil-istatistigi`: Zipf/Heaps/kısalma, dürüst üs kestirimi (kâhin karşılaştırması), maymun tartışması.
+  Telif: metinler hem Türkiye'de (yazar 1956'dan önce ölmüş) hem ABD'de (1930 ve öncesi) kamu malı olmalı; Türkçe
+  derlem 11 Osmanlı dönemi metni (9 473 sözcük), sadeleştirilmemiş, Vikikaynak ham kaynağıyla birebir doğrulandı.
+- ✔ `algi-psikolojisi`: okur denek; yanılsamalar, Weber merdiveni (dönüş ortalaması yanlılığı), Fechner–Stevens, sinyal
+  saptama, Hick. Hiçbir yanıt saklanmaz ya da gönderilmez (test denetler).
+- ✔ `karar-ve-bilissel-yanliliklar`: klasik sorular ve yayımlanmış oranlar, St. Petersburg, beklenti kuramı, rakip
+  okullar, tarihli tekrarlama durumu.
+- ✔ `mantik-ve-argumantasyon`: formül tezgâhı, karşı model, Fitch kanıt denetleyicisi (4 000 saldırgan kanıta sağlam),
+  safsatalar, paradokslar.
+- ✔ `derin-zaman-ve-radyometrik-tarihleme`: ICS v2026/06 (bütün sınırlar PDF ile doğrulandı), göreli tarihleme
+  bulmacaları, izokron ve konkordiya, Signor–Lipps, Dünya tarihi tek günde. Holmes 1940'lar iddiası düzeltildi.
+- ✔ `bilim-tarihinden-deneyler`: Eratosthenes, Galileo, Kepler–Tycho, Cavendish, Rømer; efsaneler kaynakla. Wikipedia'nın
+  Cavendish kuvveti (1,74 × 10⁻⁷ N) kendi ölçüleriyle tutmuyor; sayfa 1,5 × 10⁻⁷ N kullanır.
+
+Koordinatör: menüde 5 yeni kategori (+ derin zaman Yer'e), katalog, meta; komşu defterlerden 12 yeni bağlantı.

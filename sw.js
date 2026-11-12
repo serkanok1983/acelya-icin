@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-bf9db47cf2";
+const VERSION = "acelya-2ec4f386f0";
 // --- end:version ---
 
 // --- generated:core ---
@@ -55,6 +55,7 @@ const CORE = [
 // --- generated:pages ---
 const PAGES = [
   "akiskanlar-mekanigi.html",
+  "algi-psikolojisi.html",
   "algoritma-karmasikligi.html",
   "algoritmalar.html",
   "alternatif-akim.html",
@@ -76,6 +77,7 @@ const PAGES = [
   "bilgi-kurami-ve-sikistirma.html",
   "bilgi.html",
   "bilgisayar-sistemleri-ve-mimarisi.html",
+  "bilim-tarihinden-deneyler.html",
   "bilimsel-yontem-olcme-ve-belirsizlik.html",
   "birim-cember.html",
   "breakout.html",
@@ -89,6 +91,7 @@ const PAGES = [
   "dalga-superpozisyonu.html",
   "denklem-denklestirme.html",
   "depremler-ve-sismik-dalgalar.html",
+  "derin-zaman-ve-radyometrik-tarihleme.html",
   "derleyici-ve-yorumlayicilar.html",
   "diferansiyel-denklemler.html",
   "dna-replikasyon.html",
@@ -140,6 +143,7 @@ const PAGES = [
   "kaldirma-kuvveti.html",
   "kalp-dolasim.html",
   "kara-cisim-isimasi.html",
+  "karar-ve-bilissel-yanliliklar.html",
   "karmasik-sayilar.html",
   "kepler-yasalari.html",
   "kimya-muhendisligi.html",
@@ -171,6 +175,7 @@ const PAGES = [
   "mandelbrot-fraktali.html",
   "mantik-devresi.html",
   "mantik-kapilari.html",
+  "mantik-ve-argumantasyon.html",
   "manyetik-alan.html",
   "matris-donusumleri.html",
   "maxwell-denklemleri-ve-alanlar.html",
@@ -184,6 +189,7 @@ const PAGES = [
   "molekul.html",
   "momentum-itme-ve-carpismalar.html",
   "mukavemet.html",
+  "muzik-kurami-ve-akort.html",
   "newton-hareket-yasalari.html",
   "normal-dagilim.html",
   "nufus-ekolojisi.html",
@@ -239,6 +245,7 @@ const PAGES = [
   "tetris.html",
   "tork-denge.html",
   "turev.html",
+  "turkcenin-ses-yapisi.html",
   "ucak-muhendisligi-ve-aerodinamik.html",
   "uluslararasi-iliskiler.html",
   "uretim-planlama-ve-endustri-muhendisligi.html",
@@ -254,12 +261,14 @@ const PAGES = [
   "yildiz-yasam-dongusu.html",
   "yol-bulma-algoritmalari.html",
   "yoneylem-arastirmasi.html",
+  "zipf-yasasi-ve-dil-istatistigi.html",
 ];
 // --- end:pages ---
 
 // --- generated:digests ---
 const DIGESTS = [
   "shared/digest/akiskanlar-mekanigi.js",
+  "shared/digest/algi-psikolojisi.js",
   "shared/digest/algoritma-karmasikligi.js",
   "shared/digest/algoritmalar.js",
   "shared/digest/alternatif-akim.js",
@@ -280,6 +289,7 @@ const DIGESTS = [
   "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
   "shared/digest/bilgi-kurami-ve-sikistirma.js",
   "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
+  "shared/digest/bilim-tarihinden-deneyler.js",
   "shared/digest/bilimsel-yontem-olcme-ve-belirsizlik.js",
   "shared/digest/birim-cember.js",
   "shared/digest/breakout.js",
@@ -293,6 +303,7 @@ const DIGESTS = [
   "shared/digest/dalga-superpozisyonu.js",
   "shared/digest/denklem-denklestirme.js",
   "shared/digest/depremler-ve-sismik-dalgalar.js",
+  "shared/digest/derin-zaman-ve-radyometrik-tarihleme.js",
   "shared/digest/derleyici-ve-yorumlayicilar.js",
   "shared/digest/diferansiyel-denklemler.js",
   "shared/digest/dna-replikasyon.js",
@@ -344,6 +355,7 @@ const DIGESTS = [
   "shared/digest/kaldirma-kuvveti.js",
   "shared/digest/kalp-dolasim.js",
   "shared/digest/kara-cisim-isimasi.js",
+  "shared/digest/karar-ve-bilissel-yanliliklar.js",
   "shared/digest/karmasik-sayilar.js",
   "shared/digest/kepler-yasalari.js",
   "shared/digest/kimya-muhendisligi.js",
@@ -375,6 +387,7 @@ const DIGESTS = [
   "shared/digest/mandelbrot-fraktali.js",
   "shared/digest/mantik-devresi.js",
   "shared/digest/mantik-kapilari.js",
+  "shared/digest/mantik-ve-argumantasyon.js",
   "shared/digest/manyetik-alan.js",
   "shared/digest/matris-donusumleri.js",
   "shared/digest/maxwell-denklemleri-ve-alanlar.js",
@@ -388,6 +401,7 @@ const DIGESTS = [
   "shared/digest/molekul.js",
   "shared/digest/momentum-itme-ve-carpismalar.js",
   "shared/digest/mukavemet.js",
+  "shared/digest/muzik-kurami-ve-akort.js",
   "shared/digest/newton-hareket-yasalari.js",
   "shared/digest/normal-dagilim.js",
   "shared/digest/nufus-ekolojisi.js",
@@ -443,6 +457,7 @@ const DIGESTS = [
   "shared/digest/tetris.js",
   "shared/digest/tork-denge.js",
   "shared/digest/turev.js",
+  "shared/digest/turkcenin-ses-yapisi.js",
   "shared/digest/ucak-muhendisligi-ve-aerodinamik.js",
   "shared/digest/uluslararasi-iliskiler.js",
   "shared/digest/uretim-planlama-ve-endustri-muhendisligi.js",
@@ -458,6 +473,7 @@ const DIGESTS = [
   "shared/digest/yildiz-yasam-dongusu.js",
   "shared/digest/yol-bulma-algoritmalari.js",
   "shared/digest/yoneylem-arastirmasi.js",
+  "shared/digest/zipf-yasasi-ve-dil-istatistigi.js",
 ];
 // --- end:digests ---
 

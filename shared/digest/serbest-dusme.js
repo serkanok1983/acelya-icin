@@ -238,11 +238,7 @@ window.ACELYA_DIGEST["serbest-dusme"] = {
     },
   ],
   next: [
-    {
-      href: "tek-sayi-toplam3.html",
-      title: "Tek Sayılardan Kareye",
-      why: "Galileo'nun 1 : 3 : 5 : 7 kuralının sayı tarafı: bir kareyi büyütmek için her seferinde neden bir tek sayı kadar hücre gerektiğini katman katman kur.",
-    },
+    { href: "bilim-tarihinden-deneyler.html", title: "Bilim Tarihinden Deneyler: Eratosthenes, Galileo, Kepler, Cavendish, Rømer", why: "Galileo gerçekte ne ölçtü? Eğik düzlemde su saatiyle zamanlama, Pisa efsanesinin kaynağı ve tarihî deneylerin bugün nasıl yeniden kurulduğu." },
     {
       href: "atislar.html",
       title: "Eğik Atış: Hava Direnci ve En İyi Açı",

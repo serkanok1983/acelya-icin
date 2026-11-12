@@ -245,11 +245,7 @@ window.ACELYA_DIGEST["bayes-olasilik"] = {
       title: "Normal Dağılım ve Merkezi Limit Teoremi",
       why: "Wald aralığının ve z değerinin arkasındaki çan eğrisi: Galton tahtası, ortalamaların çana döndüğünü gösteren merkezi limit teoremi ve “Alanlar ve güven aralıkları” sekmesinde örneklem büyüklüğüyle daralan aralık.",
     },
-    {
-      href: "genetik-caprazlama.html",
-      title: "Genetik Çaprazlama: Mendel Oranları, Ki-Kare ve Bağlı Genler",
-      why: "02 sekmesindeki ki-kare testi orada tohumlu yavru sayımlarına uygulanıyor. Punnett karesi olasılığı ileri yönde verir; tersini sen sor: Aa × Aa çaprazlamasında baskın görünen bir yavrunun taşıyıcı olma olasılığı neden 2/3'tür?",
-    },
+    { href: "karar-ve-bilissel-yanliliklar.html", title: "Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?", why: "İnsanlar Bayes'i nasıl uygular? Taban oranı yanılgısı, doğal sıklıkların etkisi, beklenti kuramı ve çerçeveleme; klasik sorulara kendin yanıt ver." },
     {
       href: "makine-ogrenmesi-derin-ogrenme-llm.html",
       title: "Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri",

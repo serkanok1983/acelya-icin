@@ -164,7 +164,7 @@ window.ACELYA_DIGEST["mantik-kapilari"] = {
     { href: "mantik-devresi.html", title: "Mantık Devreleri Laboratuvarı", why: "Tek kapının sözleşmesini öğrendin; şimdi kapıları bağlantılarla birleştiren daha geniş devreleri incele." },
     { href: "bilgisayar-sistemleri-ve-mimarisi.html", title: "Bilgisayar Mimarisi Laboratuvarı", why: "Toplayıcının işlemci, bellek ve komut yürütme yapısının neresinde bulunduğunu araştır." },
     { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata Teorisi", why: "Yalnız mevcut girdiye bakan kapılardan, geçmişi bir durumla hatırlayan makinelere geç." },
-    { href: "elektronik-devre.html", title: "RC, RL ve RLC Devreleri", why: "Mantık modelindeki anlık cevabın ötesinde, fiziksel devrelerin zamana bağlı davranışını incele." }
+    { href: "mantik-ve-argumantasyon.html", title: "Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar", why: "Kapıların arkasındaki mantık: doğruluk tabloları, geçerli ve geçersiz argüman kalıpları, doğal çıkarımla kanıt, safsatalar ve paradokslar." }
   ],
   sources: [
     { title: "MIT OCW · Computation Structures, 4.1: Combinational Logic", url: "https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/pages/c4/c4s1/", note: "Doğruluk tabloları, De Morgan dönüşümleri, NAND/NOR'un işlevsel tamlığı ve devre maliyetleri." },

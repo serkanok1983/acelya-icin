@@ -128,6 +128,7 @@ window.ACELYA_DIGEST["ses-sentezleyici"] = {
     { href: "fourier-ses.html", title: "Fourier: Ses ve Örnekleme", why: "Tınıdaki bileşenleri ayrı ayrı kur; sonlu kayıtta frekans kutularını ve pencere etkisini incele." },
     { href: "duran-dalgalar.html", title: "Duran Dalgalar", why: "Elektronik osilatör yerine tel ve hava sütununda hangi frekansların seçildiğini gör." },
     { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Zarfın ortalama karesini alan ve birikim hesabıyla yeniden türet." },
+    { href: "muzik-kurami-ve-akort.html", title: "Müzik Kuramı ve Akort: Harmonikler, Komalar ve Makam Perdeleri", why: "Sesten müziğe: harmonik dizi, aralıklar ve uyuşum, Pisagor ile eşit akort arasındaki koma ve makam müziğinin 53 komalık perde sistemi." },
   ],
   sources: [
     { title: "W3C · Web Audio API", url: "https://www.w3.org/TR/2021/REC-webaudio-20210617/", note: "§1.6 doğrusal AudioParam rampaları; §1.13.5 dijital filtre katsayıları ve fark denklemi; OfflineAudioContext ve osilatör modeli. Birincil teknik standart." },

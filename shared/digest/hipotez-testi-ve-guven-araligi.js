@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["hipotez-testi-ve-guven-araligi"] = {
   next: [
     { href: "normal-dagilim.html", title: "Normal Dağılım ve Merkezi Limit Teoremi", why: "Galton tahtası, normal eğrinin alanları ve merkezi limit teoremi: bu sayfadaki 1,96'nın ve σ/√n'nin geldiği yer." },
     { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "p-değerinin vermediği şey: önsel ve veriyle bir hipotezin olasılığını güncellemek; koşullu olasılığın iki yönünü karıştırmamak." },
-    { href: "bilimsel-yontem-olcme-ve-belirsizlik.html", title: "Bilimsel Yöntem, Ölçme ve Belirsizlik: Basamak, Yayılım, Hata ve Uydurma", why: "Güven aralığının görmediği sistematik hata, ölçüm belirsizliği ve anlamlı basamaklar." },
+    { href: "algi-psikolojisi.html", title: "Algı Psikolojisi: Yanılsamalar, Eşikler, Sinyal Saptama ve Tepki Süresi", why: "Okurun kendisi denek: Weber yasası, sinyal saptama kuramında d′ ve ölçüt, tepki süresi; ölçümün belirsizliği gerçek bir deneyde." },
     { href: "regresyon-ve-korelasyon.html", title: "Regresyon ve Korelasyon: En Küçük Kareler, Artıklar ve Nedensellik", why: "Aynı çıkarım fikirleri iki değişkenli veride: en küçük kareler doğrusu, artıklar, etkili noktalar ve korelasyonun nedensellik olmadığı." },
   ],
   sources: [

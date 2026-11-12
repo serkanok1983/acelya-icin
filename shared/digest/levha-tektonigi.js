@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["levha-tektonigi"] = {
   next: [
     { href: "depremler-ve-sismik-dalgalar.html", title: "Depremler ve Sismik Dalgalar: P ve S, Merkez Üssü, Büyüklük ve Gutenberg–Richter", why: "Levha sınırlarında biriken gerilim depremle boşalır: P ve S dalgalarıyla merkez üssünü bul, fayın boyutundan büyüklüğü, binlerce depremden istatistiği hesapla." },
     { href: "bilimsel-yontem-olcme-ve-belirsizlik.html", title: "Bilimsel Yöntem, Ölçme ve Belirsizlik: Basamak, Yayılım, Hata ve Uydurma", why: "Yaş–uzaklık uydurmasının arkasındaki araçlar: belirsizlik yayılımı, sistematik ve rastgele hata, grafik uydurma ve artıklar." },
-    { href: "kaldirma-kuvveti.html", title: "Kaldırma Kuvveti: Arşimet İlkesi ve Yüzme", why: "İzostazinin özü Arşimet ilkesidir: cismin sıvıda dengeye oturuşunu ve kaldırma kuvvetini ölçerek yüzen kabuğun fiziğini temelden kur." },
+    { href: "derin-zaman-ve-radyometrik-tarihleme.html", title: "Derin Zaman ve Radyometrik Tarihleme: Kayaçların ve Yaşamın Yaşı", why: "Levhaların yavaş hareketine zaman veren ölçek: göreli tarihleme ilkeleri, radyometrik saatler ve Dünya tarihinin tek bir güne sığdırılmış hâli." },
     { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma: Rastlantıdan Doğan Yasa", why: "Kayaların yaşı radyoaktif saatlerle ölçülür: bozunmanın rastlantıdan doğan üstel yasasını ve yarı ömürle tarihlendirmeyi gör." },
   ],
   sources: [

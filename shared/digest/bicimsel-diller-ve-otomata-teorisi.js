@@ -234,7 +234,7 @@ window.ACELYA_DIGEST["bicimsel-diller-ve-otomata-teorisi"] = {
     { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "Merdivenin tepesi: tablosunu düzenleyebildiğin bir Turing makinesi, adım adım çalışan bir lambda indirgeyicisi ve köşegen tablosuyla durma probleminin kanıtı." },
     { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "Düzenli ifade sözcükleri, gramer yapıyı tanır: birkaç satır kodun önce tokenlara, sonra ağaca, ara koda ve makine komutlarına dönüşmesini adım adım kendin yaparsın." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme: Sınıflar, NP ve Yaklaşık Çözümler", why: "CYK'nın n³'ü ile alt küme kurulumunun 2ⁿ'si aynı grafikte nasıl ayrışır? Big-O ve büyüme sınıflarını karşılaştıran etkileşimli grafik." },
-    { href: "yasam-oyunu.html", title: "Yaşam Oyunu", why: "Başka türden bir otomat: iki yerel kuralla çalışan hücresel otomatta desenler yürür, çoğalır, hatta hesap yapar." },
+    { href: "turkcenin-ses-yapisi.html", title: "Türkçenin Ses Yapısı: Ünlü Uyumu, Ünsüz Değişimi ve Hece", why: "Kurallı bir dilin canlı örneği: Türkçenin ünlü uyumu ve ses olayları adım adım işleyen bir ek motoruyla; kural ve istisna sözlük verisiyle." },
   ],
   sources: [
     { title: "MIT OpenCourseWare · 18.404J Theory of Computation (Sipser, 2020)", url: "https://ocw.mit.edu/courses/18-404j-theory-of-computation-fall-2020/", note: "Sonlu otomatlardan Turing makinelerine ve karmaşıklığa, ders videoları ve notlarıyla tam bir lisans dersi (İngilizce)." },

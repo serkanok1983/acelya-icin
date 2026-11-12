@@ -706,8 +706,10 @@ tablosu hataları). Öneri:
    1. aşama grup A: sekiz STEM Omurgası sayfası standart kabuğa geçti ve defterlendi. Aynı gün (K) grup B: 3 Bilim Atlası
    dersi taşındı ve "Yer ve Çevre Bilimleri" kategorisi 5 sayfayla açıldı. Aynı gün (L) 2. aşamanın ilk grubu:
    matematik/istatistik ve biyolojide 9 yeni sayfa; (M) fizik ve kimyada 8 yeni sayfa; (N) disiplinlerarası 6 yeni sayfa ve biriken
-   düzeltmeler. `docs/YENI-SAYFA-PLANI.md` tamamlandı. **Sırada**: uzun vadeli vizyon (STEM dışı alanlar) için
-   yeni bir plan; kullanıcıyla birlikte kapsam ve sıra belirlenecek. Bir sayfa yeniden kurulursa
+   düzeltmeler. `docs/YENI-SAYFA-PLANI.md` tamamlandı. Ardından (O) mobil uyum ve tam sayfa kaydırma; (P)
+   `docs/YENI-ALANLAR-PLANI.md` 1. grup: 8 sayfa, 6 yeni kategori. **Sırada**: yeni alanlar 2. grup (önerilen:
+   anatomi ve fizyoloji, etimoloji ve dil aileleri, tarih verisi ve haritalar, sosyal modeller, perspektif ve simetri,
+   felsefi düşünce deneyleri, epistemoloji, aruz ve hece ölçüsü) — kullanıcıyla kesinleştirilecek. Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

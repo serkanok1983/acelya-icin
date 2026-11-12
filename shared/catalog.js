@@ -10,6 +10,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 50
   },
+  "algi-psikolojisi": {
+    "title": "Algı Psikolojisi: Duyumu Ölçmek",
+    "tagline": "İki çizgi aynı uzunlukta, ama biri açıkça uzun görünüyor. Ne kadar uzun? Psikofizik algıyı sayıya döker; bu sayfada denek sensin: eşiğini, ölçütünü ve tepki süreni kendin ölç.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "algoritma-karmasikligi": {
     "title": "Algoritma Karmaşıklığı: Büyüme, NP ve Yaklaşık Çözümler",
     "tagline": "Bin kat hızlı bir bilgisayar, 2ⁿ adımlık bir aramaya yalnızca on öğe ekler. Büyüme sınıfları, P ve NP, indirgeme ve kanıtlı yaklaşık çözümler: hangi problemin ölçeklendiğini sayarak gör.",
@@ -150,6 +157,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "bilim-tarihinden-deneyler": {
+    "title": "Bilim Tarihinden Beş Deney: Ölçüm, Belge ve Efsane",
+    "tagline": "Dünya'nın çevresi, t² yasası, Mars'ın elipsi, Dünya'nın yoğunluğu ve ışığın gecikmesi: beş ünlü ölçümü yeniden kur, ne ölçüldüğünü ve bunu bugün hangi belgelerden bildiğimizi gör.",
+    "field": "Tarih ve Toplum",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "bilimsel-yontem-olcme-ve-belirsizlik": {
     "title": "Ölçme ve Belirsizlik: Bir Sayının Ne Kadarı Bilgi?",
     "tagline": "Her ölçüm üç şey taşır: sayı, birim ve belirsizlik. Bir ölçeği oku, belirsizliği formülden ve Monte Carlo ile geçir, sistematik hatayı kalibrasyonla yakala, modelini artıklara sorgulat.",
@@ -237,6 +251,13 @@ window.ACELYA_CATALOG = {
   "depremler-ve-sismik-dalgalar": {
     "title": "Depremler ve Sismik Dalgalar: Kayaçtan Gelen Haber",
     "tagline": "P ve S dalgalarının hızı kayacın sertliğinden gelir; aralarındaki gecikme uzaklığı, fayın boyutu büyüklüğü, binlerce depremin sayımı istatistiği verir. Dördünü de ölç ve kuramla karşılaştır.",
+    "field": "Yer ve Çevre Bilimleri",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "derin-zaman-ve-radyometrik-tarihleme": {
+    "title": "Derin Zaman: Kayaçların ve Yaşamın Yaşı",
+    "tagline": "Yer'in 4,5 milyar yıllık tarihini kimse görmedi; yine de onu yüzde bir dolayında bir belirsizlikle biliyoruz. Katmanların sırası ve kayaçlardaki radyoaktif saatler bunu nasıl başarıyor?",
     "field": "Yer ve Çevre Bilimleri",
     "level": "Lise–Lisans",
     "minutes": 35
@@ -598,6 +619,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "karar-ve-bilissel-yanliliklar": {
+    "title": "Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?",
+    "tagline": "Kesin 3000 mü, %80 olasılıkla 4000 mü? Klasik karar problemlerini kendin yanıtla, seçimini 1979'daki oranlarla karşılaştır; sonra beklenen faydanın ve beklenti kuramının bu seçimleri nasıl açıkladığını sına.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "karmasik-sayilar": {
     "title": "Karmaşık Sayılar: Çarpmak Döndürmektir",
     "tagline": "i ile çarpmak düzlemi 90° döndürür; her karmaşık sayıyla çarpmak bir döndürme ve bir büyütmedir. Euler formülü, birim kökler ve açıları koruyan dönüşümler bu tek fikrin üstüne kurulur.",
@@ -815,6 +843,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "mantik-ve-argumantasyon": {
+    "title": "Mantık ve Argümantasyon: Biçim, Kanıt ve Paradoks",
+    "tagline": "Doğru bir sonuç, iyi bir argüman demek değildir. Doğruluk tablosu kur, karşı model ara, kuralları tek tek uygulayarak kanıt yaz; sonra safsatalara ve iki bin yılı aşkın paradokslara bak.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "manyetik-alan": {
     "title": "Manyetik Alan: Akımdan Alana, Alandan Akıma",
     "tagline": "Bir halkayı çokgen parçalarla topla, Ampère yolunu yıldıza çevir, iki telin çekimini ölç, bobinden mıknatıs geçir: alanın akımdan doğduğunu, değişen akının da yeniden akım doğurduğunu sayılarla sına.",
@@ -903,6 +938,13 @@ window.ACELYA_CATALOG = {
     "title": "Mukavemet: Kuvvetten Şekil Değiştirmeye",
     "tagline": "Denge, dayanım ve rijitlik aynı soru değildir. Bir kesiti çevirip sehimi dört katına çıkar; ince bir kolonun düşük gerilmede neden kararsızlaşabildiğini sayılarla gör.",
     "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "muzik-kurami-ve-akort": {
+    "title": "Müzik Kuramı ve Akort: Oranlar, Komalar, Perdeler",
+    "tagline": "On iki saf beşli yedi oktava oturmaz; aradaki 23,46 sentlik koma hiçbir akortla yok edilemez, yalnızca dağıtılır. Harmoniklerden makam perdelerine, müziğin içindeki sayı kuramı.",
+    "field": "Sanat ve Müzik",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -1291,6 +1333,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "turkcenin-ses-yapisi": {
+    "title": "Türkçenin Ses Yapısı: Kural, Ek ve İstisna",
+    "tagline": "Kitapta ama kalemde, kitabı ama atı: her Türkçe konuşan bu seçimleri düşünmeden yapar. Sekiz ünlü, birkaç ses kuralı ve bir sözlük bunun nasıl işlediğini adım adım gösteriyor.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "ucak-muhendisligi-ve-aerodinamik": {
     "title": "Aerodinamik: Havayı Aşağı İten Kanat",
     "tagline": "Kanat havayı saptırır, hava kanadı taşır. Dört sekmede kaldırmayı hem basınçtan hem momentumdan ölç, en az sürükleme hızını bul, 60° yatışta iki kat ağırlaş ve bir depo yakıtın menzilini hesapla.",
@@ -1395,5 +1444,12 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "zipf-yasasi-ve-dil-istatistigi": {
+    "title": "Zipf Yasası: Sözcüklerin Sıklığı, Sırası ve Maymunun Metni",
+    "tagline": "Bir metnin en sık sözcüğü, ikincisinin kabaca iki, üçüncüsünün üç katı geçer. Bu düzeni gerçek metinlerde ölç, üssünü dürüstçe kestir ve rastgele tuşlayan bir maymunun da aynı eğriyi çizip çizmediğini tart.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
   }
 };

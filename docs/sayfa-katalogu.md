@@ -164,13 +164,36 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `salgin-modelleri-sir` — Salgın Modelleri (SIR) (sayfa başlığı: Salgın Modelleri (SIR): R₀, Sürü Bağışıklığı, Rastlantı ve Ağlar) · Lise–Lisans
 - `nufus-ekolojisi` — Nüfus Ekolojisi (sayfa başlığı: Nüfus Ekolojisi: Lojistik Büyüme, Kaos, Leslie Matrisi ve Rekabet) · Lisans
 
-## Yer ve Çevre Bilimleri (5)
+## Yer ve Çevre Bilimleri (6)
 
 - `depremler-ve-sismik-dalgalar` — Depremler ve Sismik Dalgalar (sayfa başlığı: Depremler ve Sismik Dalgalar: P ve S, Merkez Üssü, Büyüklük ve Gutenberg–Richter) · Lise–Lisans
 - `levha-tektonigi` — Levha Tektoniği (sayfa başlığı: Levha Tektoniği: Yayılan Sırtlar, Manyetik Şeritler, Sıcak Noktalar ve İzostazi) · Lise–Lisans
 - `iklim-ve-sera-etkisi` — İklim ve Sera Etkisi (sayfa başlığı: İklim ve Sera Etkisi: Enerji Dengesi, Zorlama ve Geri Beslemeler) · Lise–Lisans
 - `atmosfer-ve-hava` — Atmosfer ve Hava (sayfa başlığı: Atmosfer ve Hava: Basınç, Bulut Tabanı, Kararlılık ve Coriolis) · Lise–Lisans
 - `okyanus-ve-gelgitler` — Okyanus ve Gelgitler (sayfa başlığı: Okyanus ve Gelgitler: Gelgit Kuvveti, Deniz Suyu ve Dalgalar) · Lise–Lisans
+- `derin-zaman-ve-radyometrik-tarihleme` — Derin Zaman ve Radyometrik Tarihleme (sayfa başlığı: Derin Zaman ve Radyometrik Tarihleme: Kayaçların ve Yaşamın Yaşı) · Lise–Lisans
+
+## Dil ve Edebiyat (2)
+
+- `turkcenin-ses-yapisi` — Türkçenin Ses Yapısı (sayfa başlığı: Türkçenin Ses Yapısı: Ünlü Uyumu, Ünsüz Değişimi ve Hece) · Lise–Lisans
+- `zipf-yasasi-ve-dil-istatistigi` — Zipf Yasası ve Dil İstatistiği (sayfa başlığı: Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni) · Lise–Lisans
+
+## Zihin ve Davranış (2)
+
+- `algi-psikolojisi` — Algı Psikolojisi (sayfa başlığı: Algı Psikolojisi: Yanılsamalar, Eşikler, Sinyal Saptama ve Tepki Süresi) · Lise–Lisans
+- `karar-ve-bilissel-yanliliklar` — Karar ve Bilişsel Yanlılıklar (sayfa başlığı: Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?) · Lise–Lisans
+
+## Felsefe ve Mantık (1)
+
+- `mantik-ve-argumantasyon` — Mantık ve Argümantasyon (sayfa başlığı: Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar) · Lise–Lisans
+
+## Sanat ve Müzik (1)
+
+- `muzik-kurami-ve-akort` — Müzik Kuramı ve Akort (sayfa başlığı: Müzik Kuramı ve Akort: Harmonikler, Komalar ve Makam Perdeleri) · Lise–Lisans
+
+## Tarih ve Toplum (1)
+
+- `bilim-tarihinden-deneyler` — Bilim Tarihinden Deneyler (sayfa başlığı: Bilim Tarihinden Deneyler: Eratosthenes, Galileo, Kepler, Cavendish, Rømer) · Lise–Lisans
 
 ## Disiplinler Arası (54)
 
