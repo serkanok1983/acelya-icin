@@ -260,13 +260,13 @@ window.ACELYA_DIGEST["termodinamik"] = {
     },
     {
       href: "entropi-ve-istatistiksel-fizik.html",
-      title: "Entropi ve İstatistiksel Fizik",
+      title: "Entropi ve İstatistiksel Fizik: Mikro Durumlar, Boltzmann ve Ising",
       why: "Burada hacmi iki katına çıkan 1 mol gazda ΔS = R ln 2 = 5.76 J/K buldun. Orada aynı sayıya mikrodurum sayarak ulaş: her molekül iki yarıdan birinde olabildiği için Ω 2<sup>N</sup> kat büyür, S = k<sub>B</sub> ln Ω de N·k<sub>B</sub> ln 2 = R ln 2 artar.",
     },
     {
       href: "kimyasal-denge-ve-gibbs-enerjisi.html",
-      title: "Kimyasal Denge ve Gibbs Enerjisi",
-      why: "Köprüdeki G = H − TS'nin kimyadaki işi: ΔG°'yi, sıcaklığı ve tepkime bölümü Q'yu değiştir; ΔG° = −RT ln K ve Q ile K'nın karşılaştırması tepkimenin hangi yöne yürüyeceğini söyler.",
+      title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük",
+      why: "Köprüdeki G = H − TS'nin kimyadaki işi: ΔG°, ΔG ve K sekmesinde tepkimeyi, sıcaklığı ve ilerleme imlecini değiştir; ΔG° = −RT ln K ve Q ile K'nın karşılaştırması tepkimenin hangi yöne yürüyeceğini söyler.",
     },
     {
       href: "otomotiv-muhendisligi.html",

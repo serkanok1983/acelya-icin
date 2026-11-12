@@ -235,8 +235,8 @@ window.ACELYA_DIGEST["elektrik-devresi-simulasyonu"] = {
     },
     {
       href: "lineer-cebir-ve-ozdegerler.html",
-      title: "Lineer Cebir ve Özdeğerler",
-      why: "Her devre çözümü bir G·v = i sistemidir. Çözümlü örnekteki 2×2 G matrisini bir dönüşüm, determinantını alan ölçeği olarak gör; det G ≠ 0'ın neden tek çözüm demek olduğunu oradaki 2×2 dönüşüm tezgâhında sezersin.",
+      title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum",
+      why: "Her devre çözümü bir G·v = i sistemidir. Çözümlü örnekteki 2×2 G matrisini oradaki Gauss eleme ve rank sekmesine elle gir; iki pivot da sıfırdan farklı kaldıkça rank tamdır ve çözüm tektir: det G ≠ 0'ın anlamını satır işlemlerinde adım adım görürsün.",
     },
     {
       href: "elektrostatik.html",

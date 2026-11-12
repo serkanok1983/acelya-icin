@@ -180,7 +180,7 @@ window.ACELYA_DIGEST["kimyasal-kinetik"] = {
   ],
   next: [
     { href: "enzim-kinetigi.html", title: "Enzim Kinetiği Laboratuvarı", why: "Biyolojinin katalizörleri: substrat derişimi arttıkça hızın Vmax'a doyduğu Michaelis–Menten eğrisi ve inhibitör modunun Km ile Vmax'ı nasıl değiştirdiği." },
-    { href: "kimyasal-denge-ve-gibbs-enerjisi.html", title: "Kimyasal Denge ve Gibbs Enerjisi", why: "Kinetik 'ne kadar hızlı' diye sorar; oradaki yön bulucu Q'yu K ile karşılaştırıp 'hangi yöne, nereye kadar' sorusunu yanıtlar ve K'yı Gibbs enerjisine bağlar: 04 sekmesindeki K = e<sup>−ΔH/RT</sup> sadeleştirmesinin eksiği ΔS'dir." },
+    { href: "kimyasal-denge-ve-gibbs-enerjisi.html", title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük", why: "Kinetik 'ne kadar hızlı' diye sorar; oradaki laboratuvar Q'yu K ile karşılaştırıp 'hangi yöne, nereye kadar' sorusunu yanıtlar ve K'yı Gibbs enerjisine bağlar: 04 sekmesindeki K = e<sup>−ΔH/RT</sup> sadeleştirmesinin eksiği ΔS'dir." },
     { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma: Rastlantıdan Doğan Yasa", why: "Birinci derece yasa çekirdeklerde; bozunma zinciri modunda Mo-99 → Tc-99m → Tc-99, 04 sekmesindeki A → I → P ile aynı denklemleri izler." },
     { href: "kimya-muhendisligi.html", title: "Kimya Mühendisliği: Reaktör, Damıtma ve Isı Değiştirici", why: "Reaktörler sekmesi bu sayfada ölçtüğün k·Cⁿ hız yasasını karıştırmalı tank ve borusal reaktörün tasarım denklemlerine yerleştirir." },
   ],

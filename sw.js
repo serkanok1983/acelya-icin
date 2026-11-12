@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-eed28c4b22";
+const VERSION = "acelya-d7e33d34a4";
 // --- end:version ---
 
 // --- generated:core ---
@@ -232,6 +232,7 @@ const PAGES = [
 // --- generated:digests ---
 const DIGESTS = [
   "shared/digest/akiskanlar-mekanigi.js",
+  "shared/digest/algoritma-karmasikligi.js",
   "shared/digest/algoritmalar.js",
   "shared/digest/alternatif-akim.js",
   "shared/digest/altin-oran.js",
@@ -254,11 +255,13 @@ const DIGESTS = [
   "shared/digest/celik-yapilar.js",
   "shared/digest/cift-sarkac.js",
   "shared/digest/cizge-teorisi.js",
+  "shared/digest/cok-degiskenli-kalkulus.js",
   "shared/digest/collatz.js",
   "shared/digest/dairesel-hareket.js",
   "shared/digest/dalga-superpozisyonu.js",
   "shared/digest/denklem-denklestirme.js",
   "shared/digest/derleyici-ve-yorumlayicilar.js",
+  "shared/digest/diferansiyel-denklemler.js",
   "shared/digest/dna-replikasyon.js",
   "shared/digest/dogal-secilim.js",
   "shared/digest/doppler-etkisi.js",
@@ -271,6 +274,7 @@ const DIGESTS = [
   "shared/digest/elektronik-muhendisligi.js",
   "shared/digest/elektrostatik.js",
   "shared/digest/enigma-makinesi.js",
+  "shared/digest/entropi-ve-istatistiksel-fizik.js",
   "shared/digest/enzim-kinetigi.js",
   "shared/digest/fibo+pascal.js",
   "shared/digest/fibo.js",
@@ -280,6 +284,7 @@ const DIGESTS = [
   "shared/digest/fotosentez-solunum.js",
   "shared/digest/fourier-ses.js",
   "shared/digest/gemi-makineleri-isletme-muhendisligi.js",
+  "shared/digest/gen-ifadesi-ve-molekuler-biyoloji.js",
   "shared/digest/genetik-caprazlama.js",
   "shared/digest/gezegen-savunmasi.js",
   "shared/digest/gorelilik-uzayzaman.js",
@@ -304,6 +309,7 @@ const DIGESTS = [
   "shared/digest/karmasik-sayilar.js",
   "shared/digest/kepler-yasalari.js",
   "shared/digest/kimya-muhendisligi.js",
+  "shared/digest/kimyasal-denge-ve-gibbs-enerjisi.js",
   "shared/digest/kimyasal-kinetik.js",
   "shared/digest/kirinim-izgarasi.js",
   "shared/digest/klasik-girisim.js",
@@ -312,6 +318,7 @@ const DIGESTS = [
   "shared/digest/kristal-yapilar.js",
   "shared/digest/kuantum-dalga.js",
   "shared/digest/kuantum-mekanigi.js",
+  "shared/digest/lineer-cebir-ve-ozdegerler.js",
   "shared/digest/lissajous.js",
   "shared/digest/lorentz-kuvveti.js",
   "shared/digest/lorenz-cekici.js",
@@ -327,6 +334,7 @@ const DIGESTS = [
   "shared/digest/mantik-kapilari.js",
   "shared/digest/manyetik-alan.js",
   "shared/digest/matris-donusumleri.js",
+  "shared/digest/maxwell-denklemleri-ve-alanlar.js",
   "shared/digest/mayin-tarlasi.js",
   "shared/digest/mekatronik-muhendisligi.js",
   "shared/digest/mercek-isinlari.js",

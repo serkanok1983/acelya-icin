@@ -261,7 +261,7 @@ window.ACELYA_DIGEST["manyetik-alan"] = {
     },
     {
       href: "maxwell-denklemleri-ve-alanlar.html",
-      title: "Maxwell Denklemleri ve Alanlar",
+      title: "Maxwell Denklemleri ve Alanlar: Akı, Dolaşım ve Işık",
       why: "Ampère, Faraday ve kapalı alan çizgileri tek bir kuramda birleşir; akı, dolaşım ve indüksiyonun elektromanyetik dalgaya nasıl vardığını gör.",
     },
   ],

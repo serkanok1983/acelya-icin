@@ -182,8 +182,8 @@ window.ACELYA_DIGEST["makine-ogrenmesi-derin-ogrenme-llm"] = {
   ],
   next: [
     { href: "turev.html", title: "Türev: Kesenden Teğete (Limit Laboratuvarı)", why: "Gradyan denetimindeki merkezî farkın kaynağı: fark bölümünün h küçülürken eğime yaklaşmasını, h fazla küçülünce bilgisayarın yanılmasını izle." },
-    { href: "cok-degiskenli-kalkulus.html", title: "Çok Değişkenli Kalkülüs", why: "Kısmi türevi, gradyanı ve zincir kuralını seviye haritası üzerinde gör; buradaki kayıp yüzeyinin ve eş yükselti eğrilerinin matematiği orada." },
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Adım sınırını belirleyen λ_max bir özdeğerdir: özvektörü, özdeğeri ve tekrarlanan bir dönüşümde en büyük özdeğerin neden baskın çıktığını 2×2 tezgâhta gör." },
+    { href: "cok-degiskenli-kalkulus.html", title: "Çok Değişkenli Kalkülüs: Gradyan, Lagrange ve Çift İntegral", why: "Kısmi türevi, gradyanı ve zincir kuralını seviye haritası üzerinde gör; buradaki kayıp yüzeyinin ve eş yükselti eğrilerinin matematiği orada." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Adım sınırını belirleyen λ_max bir özdeğerdir: Özdeğerler sekmesinde bir matrisin özdeğerlerini ve özvektörlerini bul, QR yinelemesinde her alt köşegen girdisinin |λᵢ₊₁/λᵢ| hızıyla sönerek özdeğerleri büyükten küçüğe nasıl dizdiğini izle." },
     { href: "normal-dagilim.html", title: "Normal Dağılım ve Merkezi Limit Teoremi", why: "Örnekleme deneyindeki 1/√N kuralının evi: standart hata, 'dört kat ölçüm, iki kat kesinlik' ve ölçümün kuramdan kaç standart hata uzakta olduğu sorusu." },
   ],
   sources: [

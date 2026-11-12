@@ -136,7 +136,7 @@ window.ACELYA_DIGEST["fibo+pascal"] = {
   next: [
     { href: "fibo.html", title: "Fibonacci: Kareler, Alan ve Eğrilik", why: "Aynı diziyi kare kenarlarına dönüştür; bir bölgenin alanını iki yoldan hesaplamakla burada nesneleri iki yoldan saymayı karşılaştır." },
     { href: "pascal-ucgeni.html", title: "Pascal Üçgeni Laboratuvarı", why: "Binom katsayılarının kombinasyon, binom açılımı ve modüler desenlerle ilişkisini genişlet." },
-    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı", why: "Bütün döşemeleri üretmekle yalnız sayısını bir yinelemeyle bulmanın işlem ve çıktı maliyetlerini ayır." }
+    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme: Sınıflar, NP ve Yaklaşık Çözümler", why: "Bütün döşemeleri üretmenin üstel işiyle sayıyı yinelemeyle bulmanın doğrusal işini ayır; farkı Büyüme sınıfları sekmesinde 2ⁿ ile n'yi yarıştırarak gör." }
   ],
   sources: [
     { title: "Benjamin ve Quinn · An Alternate Approach to Alternating Sums", url: "https://math.hmc.edu/benjamin/wp-content/uploads/sites/5/2019/06/An-Alternate-Approach-to-Alternating-Sums.pdf", note: "Yazarların özgün makalesi; sığ köşegen toplamı ve k dominolu şeritlerin C(n−k,k) ile sayımı. Makaledeki fₙ, bu defterin Fₙ₊₁ sayısına karşılık gelir." },

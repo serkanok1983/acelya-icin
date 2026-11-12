@@ -126,7 +126,7 @@ window.ACELYA_DIGEST["barnsley-egreltiotu"] = {
   ],
   next: [
     { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Sütunları, alan çarpanını ve yönelimi tanıdık bir şeklin üzerinde değiştirerek incele." },
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "AᵀA özdeğerleriyle uzunluk çarpanları arasındaki bağlantıya ilerle." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "AᵀA özdeğerleriyle uzunluk çarpanları arasındaki bağlantıya ilerle." },
     { href: "sierpinski-fraktali-peano-egrisi-altin-oran.html", title: "Üç Yapım, Üç Ayrı Limit", why: "Sierpiński sekmesinde üç yarı ölçekli kopyayla deterministik yapımı incele; sonlu parçalarla ideal limit kümesini karşılaştır." },
     { href: "mandelbrot-fraktali.html", title: "Mandelbrot Kümesi", why: "Bir kural ailesinin sınırlı yörüngelerini incele; farklı fraktalların aynı üretim mekanizmasına sahip olmadığını gör." },
   ],

@@ -142,7 +142,7 @@ window.ACELYA_DIGEST["statik"] = {
   next: [
     { href: "tork-denge.html", title: "Tork ve Denge", why: "Moment kolunu ve serbest cisim diyagramını noktasal yüklerle yeniden kur." },
     { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Yayılı yükün alan ve birinci moment integrallerinin temelini gör." },
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Tepki matrisinin bağımsız yönlerini ve çözüm uzayını daha genel bir dilde incele." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Tepki matrisinin bağımsız yönlerini ve çözüm uzayını daha genel bir dilde incele." },
     { href: "mukavemet.html", title: "Mukavemet: Gerilme, Sehim ve Burkulma", why: "Dengeyle bulduğun iç kuvvetleri gerilmeye, kirişin eğriliğine ve kolonun kararlılık sınırına bağla." },
   ],
   sources: [

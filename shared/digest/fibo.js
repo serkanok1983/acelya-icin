@@ -135,7 +135,7 @@ window.ACELYA_DIGEST["fibo"] = {
   ],
   next: [
     { href: "fibo+pascal.html", title: "Fibonacci ve Pascal", why: "Aynı yinelemenin sayma tarafına geç: şerit döşemeleri, binom katsayıları ve sığ köşegen toplamları." },
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Fibonacci yinelemesini ilerleten 2 × 2 matrisin özdeğerleriyle oran limitini bağla." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Fibonacci yinelemesini ilerleten 2 × 2 matrisin özdeğerleriyle oran limitini bağla." },
     { href: "taylor-serisi.html", title: "Taylor Serisi", why: "Sin u/u açılımından kiriş hatasının neden m⁻² ile küçüldüğünü türet." },
     { href: "tek-sayi-toplam3.html", title: "Tek Sayılardan Kareye", why: "Başka bir alan özdeşliğini gerçek hücrelerle kur: L katmanları, kare halkası ve aynı hücrelerden oluşan dikdörtgen." }
   ],

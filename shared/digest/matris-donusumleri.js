@@ -244,8 +244,8 @@ window.ACELYA_DIGEST["matris-donusumleri"] = {
   next: [
     {
       href: "lineer-cebir-ve-ozdegerler.html",
-      title: "Lineer Cebir ve Özdeğerler | Üniversite STEM Omurgası",
-      why: "STEM omurgasının bir durağı: matrisin geometrisi, özel doğrultular, baz değiştirme ve izdüşüm bölümleri, küçük bir 2×2 tezgâh. Buradaki AᵀA'nın en küçük kareler problemindeki rolüne (AᵀAx = Aᵀb) oradan geçebilirsin.",
+      title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum",
+      why: "STEM omurgasının bir durağı: Gauss eleme, dört temel alt uzay, QR ile özdeğerler ve SVD sekmeleri. Buradaki AᵀA'nın en küçük kareler problemindeki rolünü (AᵀAx = Aᵀb) oradaki En küçük kareler ve SVD sekmesinde, normal denklemleri QR ile karşılaştırarak görebilirsin.",
     },
     {
       href: "karmasik-sayilar.html",

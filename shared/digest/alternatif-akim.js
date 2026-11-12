@@ -255,8 +255,8 @@ window.ACELYA_DIGEST["alternatif-akim"] = {
     },
     {
       href: "diferansiyel-denklemler.html",
-      title: "Diferansiyel Denklemler",
-      why: "Geçici rejimin kendisi: Sönüm c kaydırıcısını artır, faz düzlemindeki sarmalın salınmadan dengeye çöktüğü eşiği bul (m = 1 için c = 2√k). RLC'de bunun karşılığı R = 2√(L/C), yani Q = ½.",
+      title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa",
+      why: "Geçici rejimin kendisi: İkinci mertebe ve rezonans sekmesinde c kaydırıcısını artır, homojen kısmın salınmadan söndüğü eşiği bul (ζ = 1, yani c = 2√(mk); varsayılan m = 1, k = 4 için c = 4). RLC'de bunun karşılığı R = 2√(L/C), yani Q = ½.",
     },
     {
       href: "yay-kutle.html",

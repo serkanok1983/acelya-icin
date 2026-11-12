@@ -702,8 +702,9 @@ tablosu hataları). Öneri:
    (artık analog), mantik-devresi, makine-muhendisligi, plc-cnc, ucak,
    otonom, isletme. 12 Kasım'da (I) son 24 eski temel sayfa da yeniden
    kuruldu (fizik/gökbilim 8, matematik/kimya 8, biyoloji/mekatronik 8; ayrıntı
-   `docs/simulasyon-notlari.md` → "I"). **Sırada**: `docs/YENI-SAYFA-PLANI.md`
-   (eski Bilim Atlası / STEM Omurgası sayfalarının taşınması ve yeni konular). Bir sayfa yeniden kurulursa
+   `docs/simulasyon-notlari.md` → "I"). 12 Kasım'da (J) `docs/YENI-SAYFA-PLANI.md`
+   1. aşama grup A: sekiz STEM Omurgası sayfası standart kabuğa geçti ve defterlendi. **Sırada**: grup B
+   (3 Bilim Atlası dersi + Yer ve Çevre Bilimleri kategorisinden 5 yeni sayfa). Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

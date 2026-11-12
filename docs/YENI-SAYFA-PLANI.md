@@ -100,7 +100,7 @@ Toplam: 1. aşamada 11, 2. aşamada 28 sayfa. Sekizerli 5 grup olur; her grup bi
 
 ## Sıralama önerisi
 
-1. **1. aşama, grup A:** 8 STEM Omurgası sayfası (lineer cebir … algoritma karmaşıklığı).
+1. **1. aşama, grup A:** 8 STEM Omurgası sayfası (lineer cebir … algoritma karmaşıklığı). ✔ 12 Kasım (J; `docs/simulasyon-notlari.md`).
 2. **1. aşama, grup B:** 3 Bilim Atlası dersi, artı Yer bilimlerinden 5 sayfa. Yeni kategori ve menü düzeni bu grupta kurulur.
 3. **2. aşama:** matematik/istatistik ile biyoloji (8).
 4. **2. aşama:** fizik ile kimya (8).
@@ -116,6 +116,13 @@ Toplam: 1. aşamada 11, 2. aşamada 28 sayfa. Sekizerli 5 grup olur; her grup bi
 
 - `fonksiyon-grafigi`: `1e3` bilimsel gösterimi 1·e·3 diye okunuyor. Sözdizimi kutusunda belirtilmeli ya da desteklenmeli.
 - Seyrek piksel örneklemli tuval denetimi 24 testte duruyor (bkz. `docs/simulasyon-notlari.md`, H test notu). Hepsi bütün pikselleri sayan bir ortak yardımcıya taşınmalı.
+- `kimyasal-denge-ve-gibbs-enerjisi`: çözünürlük sekmesinde 0,010 M Cl⁻ varsayılanında iyonik şiddet
+  uyarısı tam eşiğin üstünde (I = 0,0100000160 > 0,01). Eşik biraz değişirse uyarı kaybolur; eşik ya da
+  varsayılan bilinçli seçilmeli.
+- `cok-degiskenli-kalkulus`: türev metni bazen sadeleşmemiş görünüyor (`2x^(−2 − 1)`); matematik doğru.
+- `lineer-cebir-ve-ozdegerler`: en küçük kareler grafiğinde eksen etiketleri yuvarlanıyor (0,75 → "0,8").
+- `diferansiyel-denklemler`: ifade ipucu `log`, `sinh`, `cosh` desteğini söylemiyor; LV satırında karışık
+  hassasiyet ("×1.00" / "×1.0").
 
 ## Uzun vadeli vizyon (kullanıcı, 12 Kasım 2026)
 

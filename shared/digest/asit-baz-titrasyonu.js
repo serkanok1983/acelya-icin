@@ -248,8 +248,8 @@ window.ACELYA_DIGEST["asit-baz-titrasyonu"] = {
     },
     {
       href: "kimyasal-denge-ve-gibbs-enerjisi.html",
-      title: "Kimyasal Denge ve Gibbs Enerjisi",
-      why: "Kₐ, K<sub>b</sub> ve K<sub>w</sub> birer denge sabitidir. Q ile K'nın karşılaştırılmasını ve ΔG° = −RT ln K bağını oradaki yön bulucuda dene.",
+      title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük",
+      why: "Kₐ, K<sub>b</sub> ve K<sub>w</sub> birer denge sabitidir. Q ile K'nın karşılaştırılmasını oradaki Q, K ve Le Chatelier sekmesinde, ΔG° = −RT ln K bağını ΔG°, ΔG ve K sekmesinde dene.",
     },
     {
       href: "elektrokimya.html",

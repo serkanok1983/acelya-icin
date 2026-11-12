@@ -214,7 +214,7 @@ window.ACELYA_DIGEST["penrose-dosemesi"] = {
     },
     {
       "href": "lineer-cebir-ve-ozdegerler.html",
-      "title": "Lineer Cebir ve Özdeğerler",
+      "title": "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum",
       "why": "Sayı vektörünü dönüştüren matrisin baskın yönünü özvektör diliyle incele."
     },
     {

@@ -213,7 +213,7 @@ window.ACELYA_DIGEST["kimya-muhendisligi"] = {
   next: [
     { href: "kimyasal-kinetik.html", title: "Kimyasal Kinetik Laboratuvarı", why: "Reaktöre yerleştirdiğin −r = k·Cⁿ yasasının nereden geldiğini ve k'nin sıcaklıkla nasıl değiştiğini gör." },
     { href: "termodinamik.html", title: "Termodinamik", why: "Isının neden sıcaktan soğuğa aktığını ve Q_maks sınırının arkasındaki yasaları incele." },
-    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler", why: "PFR ve ısı değiştirici denklemlerinin üstel çözümlerini ve sayısal integrasyonu genel dilde çalış." },
+    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa", why: "PFR ve ısı değiştirici denklemlerinin üstel çözümlerini ve sayısal integrasyonu genel dilde çalış." },
     { href: "akiskanlar-mekanigi.html", title: "Akışkanlar Mekaniği", why: "Bu sayfada verilmiş kabul edilen debilerin borularda hangi basınç kaybı ve pompa gücüyle sağlandığına bak." },
   ],
   sources: [

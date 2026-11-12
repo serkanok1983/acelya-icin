@@ -223,7 +223,7 @@ window.ACELYA_DIGEST["atislar"] = {
     },
     {
       href: "diferansiyel-denklemler.html",
-      title: "Diferansiyel Denklemler",
+      title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa",
       why: "Bu sayfanın çözdüğü denklemin türü: hareket yasasını değişim yasası olarak oku; denge, kararlılık, faz düzlemi ve adım adım sayısal çözüm.",
     },
     {

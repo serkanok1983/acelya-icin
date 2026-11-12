@@ -10,6 +10,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 50
   },
+  "algoritma-karmasikligi": {
+    "title": "Algoritma Karmaşıklığı: Büyüme, NP ve Yaklaşık Çözümler",
+    "tagline": "Bin kat hızlı bir bilgisayar, 2ⁿ adımlık bir aramaya yalnızca on öğe ekler. Büyüme sınıfları, P ve NP, indirgeme ve kanıtlı yaklaşık çözümler: hangi problemin ölçeklendiğini sayarak gör.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "algoritmalar": {
     "title": "Algoritmalar: Adımları Sayma Sanatı",
     "tagline": "Aynı 32 sayıyı bir yöntem 496, bir başkası 123 karşılaştırmayla sıralar. Bu laboratuvar saniye ölçmez, işlem sayar ve her sayacın yanına kuramın o girdi için söylediği değeri koyar.",
@@ -164,6 +171,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "cok-degiskenli-kalkulus": {
+    "title": "Çok Değişkenli Kalkülüs: Dağda Pusula, Kısıtta Fiyat",
+    "tagline": "Sisli bir dağda en dik yokuşu bulmak, bir çember üzerinde en yüksek noktayı aramak, bir çan eğrisinin altından π'yi çıkarmak: hepsi aynı fikir, birden çok girdiyi aynı anda değiştirmek.",
+    "field": "Matematik",
+    "level": "Lisans",
+    "minutes": 45
+  },
   "collatz": {
     "title": "Collatz: İki Kural, Bitmeyen Soru",
     "tagline": "27 sayısı 1'e gitmeden önce 9232'ye yükselir. Kesin tam sayılarla bu yolu izle; durma süresini, karşı örneği ve hesap ile ispat arasındaki farkı ayır.",
@@ -197,6 +211,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Küçük bir dilde yazdığın program gözünün önünde tokenlara, ağaca, ara koda ve bytecode'a dönüşür; dört ayrı yürütücü aynı sonucu bulup bulmadığını komut komut sayarak gösterir.",
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
+    "minutes": 45
+  },
+  "diferansiyel-denklemler": {
+    "title": "Diferansiyel Denklemler: Yerel Kuraldan Bütün Öyküye",
+    "tagline": "Denklem her noktada yalnızca “şimdi nasıl değişiyorum” der. Dört sekmede o yerel kuraldan bütün öyküyü çıkar: sayısal hatayı ölç, dengeleri özdeğerlerle sına, limit çevrimi ve rezonansı yakala.",
+    "field": "Matematik",
+    "level": "Lisans",
     "minutes": 45
   },
   "dna-replikasyon": {
@@ -283,6 +304,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 32
   },
+  "entropi-ve-istatistiksel-fizik": {
+    "title": "Entropi: Sayarak Anlaşılan Yasa",
+    "tagline": "Kırık bardak neden kendiliğinden birleşmez? Bunu yasaklayan bir kuvvet yok; yalnızca sayım var. Mikro durumları say, sıcaklığı bir türev olarak bul, Ising örgüsünde faz geçişini ölç.",
+    "field": "Fizik",
+    "level": "Lisans",
+    "minutes": 45
+  },
   "enzim-kinetigi": {
     "title": "Enzim Kinetiği: Yaşamın Hız Sınırı",
     "tagline": "Enzimler tepkimeleri milyonlarca kat hızlandırır, ama her birinin bir hız tavanı vardır. Tavanı anlatan 1913 denklemini tam mekanizmayla sına, nerede yanıldığını ölç.",
@@ -343,6 +371,13 @@ window.ACELYA_CATALOG = {
     "title": "Gemi Makineleri: Silindirden Pervaneye, Pervaneden Dengeye",
     "tagline": "Silindirde ısının ne zaman verildiği verimi, pervanenin küp yasası hızın yakıt bedelini, metasantr da teknenin doğrulma gücünü belirler. Bir makine zabitinin üç hesabı, tek sayfada.",
     "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "gen-ifadesi-ve-molekuler-biyoloji": {
+    "title": "Gen İfadesi: DNA'dan Proteine, Anahtardan Saate",
+    "tagline": "Bir geni mRNA'ya yaz, kodon kodon proteine çevir; sonra aynı genin hücrede kaç protein yaptığını say, bir hücrenin geçmişini nasıl hatırladığını ve üç genin nasıl saat kurduğunu ölç.",
+    "field": "Biyoloji",
     "level": "Lise–Lisans",
     "minutes": 40
   },
@@ -514,6 +549,13 @@ window.ACELYA_CATALOG = {
     "level": "Lisans",
     "minutes": 40
   },
+  "kimyasal-denge-ve-gibbs-enerjisi": {
+    "title": "Kimyasal Denge: Q, K ve Gibbs Enerjisi",
+    "tagline": "Bir tepkime nerede durur, bozulunca nereye kayar? Q ile K'yi karşılaştır, Gibbs eğrisinin dibini bul ve Le Chatelier kuralının yanıldığı gerçek bir durumu kendi gözünle gör.",
+    "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "kimyasal-kinetik": {
     "title": "Kimyasal Kinetik: Tepkimelerin Saati",
     "tagline": "Şeker yanmak 'ister' ama yerinden kıpırdamaz. Hız yasasını eğriden ve başlangıç hızlarından ölç, Arrhenius doğrusundan Eₐ çıkar, ara ürünlü mekanizmada ve katalizörde kuramı sına.",
@@ -568,6 +610,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Elektronlar ekrana tek tek, kestirilemeyen noktalara düşer; binlercesi birikince saçak çizer. Genliklerin toplandığı, yol bilgisinin saçağı sildiği ve tenis topunun saçağının neden hiç görülemeyeceği yer.",
     "field": "Fizik",
     "level": "Lise–Lisans",
+    "minutes": 45
+  },
+  "lineer-cebir-ve-ozdegerler": {
+    "title": "Lineer Cebir: Eleme, Alt Uzaylar ve Spektrum",
+    "tagline": "Bir matrise dört soru sorulur: denklem takımı çözülür mü, hangi yönler sıfıra gider, hangileri yalnız ölçeklenir, tam çözüm yoksa en iyisi ne? Kesirlerle tam cevaplar ve kayan noktanın bunlardan sapışı.",
+    "field": "Matematik",
+    "level": "Lisans",
     "minutes": 45
   },
   "lissajous": {
@@ -674,6 +723,13 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "maxwell-denklemleri-ve-alanlar": {
+    "title": "Maxwell Denklemleri: Akı, Dolaşım ve Işık",
+    "tagline": "Dört denklem, iki soru: kapalı bir yüzeyden ne kadar alan çıkıyor, kapalı bir yol boyunca alan ne kadar dönüyor? İkisini birlikte sorunca ışığın hızı kendiliğinden ortaya çıkıyor.",
+    "field": "Fizik",
+    "level": "Lisans",
+    "minutes": 40
   },
   "mayin-tarlasi": {
     "title": "Mayın Tarlası: Sayılardan Kesinlik Çıkarmak",

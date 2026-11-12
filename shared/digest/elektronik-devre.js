@@ -233,8 +233,8 @@ window.ACELYA_DIGEST["elektronik-devre"] = {
     },
     {
       href: "diferansiyel-denklemler.html",
-      title: "Diferansiyel Denklemler",
-      why: "Sönümün faz düzlemindeki yüzü: kütlenin 1 alındığı modelde Sönüm c kaydırıcısını 2√k'nin iki yanında gezdir (varsayılan k = 2 için 2.83). Sarmalın salınmadan dengeye çöktüğü eşik, buradaki R<sub>kritik</sub> = 2√(L/C)'dir.",
+      title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa",
+      why: "Sönümün denklemdeki yüzü: İkinci mertebe ve rezonans sekmesinde m = 1 iken k'yı 2'ye çek, c kaydırıcısını 2√k ≈ 2.83'ün iki yanında gezdir; Rejim satırı az sönümlüden aşırı sönümlüye geçer. Bu eşik, buradaki R<sub>kritik</sub> = 2√(L/C)'dir.",
     },
   ],
   sources: [

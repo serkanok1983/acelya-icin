@@ -180,8 +180,8 @@ window.ACELYA_DIGEST["uluslararasi-iliskiler"] = {
     },
   ],
   next: [
-    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler", why: "Denge, kararlılık ve faz düzlemi: Richardson sekmesindeki yörüngeleri okumanın genel dili. Sayısal çözümün adım hatasını da orada görürsün." },
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Richardson modelinin −0,5 ve −1,5 özdeğerleri 2×2'lik bir matristen çıkar; özvektör ile özdeğerin geometrik anlamı bu sayfanın laboratuvarında." },
+    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa", why: "Denge, kararlılık ve faz düzlemi: Richardson sekmesindeki yörüngeleri okumanın genel dili. Sayısal çözümün adım hatasını da orada görürsün." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Richardson modelinin −0,5 ve −1,5 özdeğerleri 2×2'lik bir matristen çıkar; o matrisi oradaki Özdeğerler sekmesine elle girip özdeğerleri, özvektörleri ve karakteristik polinomu kendin hesapla." },
     { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma", why: "Keşif Defteri'ndeki mahkûm ikilemi kartı aynı oyunu hapis yıllarıyla kurar; laboratuvarları ise kimsenin fiyatı tek başına etkilemediği piyasaları inceler." },
     { href: "roma-hukuku.html", title: "Roma Hukuku", why: "Bütün halklarda ortak sayılan ilkeler anlamındaki ius gentium ile ahde vefa (pacta sunt servanda) ilkesinin kökleri; uluslararası hukuk kartının tarihsel arka planı." },
   ],

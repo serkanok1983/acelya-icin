@@ -234,7 +234,7 @@ window.ACELYA_DIGEST["ph-indikator"] = {
     },
     {
       href: "kimyasal-denge-ve-gibbs-enerjisi.html",
-      title: "Kimyasal Denge ve Gibbs Enerjisi",
+      title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük",
       why: "K<sub>a</sub> ve K<sub>w</sub> birer denge sabitidir; tepkime bölümü Q'yu K ile karşılaştırarak yönü bulmayı ve K'nın Gibbs enerjisiyle bağını orada keşfet.",
     },
     {

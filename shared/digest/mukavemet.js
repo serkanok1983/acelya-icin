@@ -144,7 +144,7 @@ window.ACELYA_DIGEST["mukavemet"] = {
     { href: "statik.html", title: "Statik: Yük, Mesnet ve Denge", why: "Gerilme hesabından önce gereken dış tepkileri ve kafes iç kuvvetlerini yük dağılımı ve dengeyle kur." },
     { href: "celik-yapilar.html", title: "Çelik Yapılar", why: "I kesitin iki eksenini, bulonlu bağlantının nominal gerilmelerini ve yanal bağların ideal kolon modeline etkisini incele." },
     { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Enerjinin kuvvet–uzama alanını ve momentten sehime giden birikimi integral diliyle yeniden düşün." },
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Kolonun ayrık biçimlerini seçen özdeğer fikrini matrisler üzerinden incele." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Kolonun ayrık biçimlerini seçen özdeğer fikrini matrisler üzerinden incele." },
   ],
   sources: [
     { title: "OpenStax University Physics 1 · 12.3 Stress, Strain, and Elastic Modulus", url: "https://openstax.org/books/university-physics-volume-1/pages/12-3-stress-strain-and-elastic-modulus", note: "Gerilme, boyutsuz birim uzama ve elastik modül; Table 12.1'deki yaklaşık çelik 200 GPa, alüminyum 70 GPa değerleri." },

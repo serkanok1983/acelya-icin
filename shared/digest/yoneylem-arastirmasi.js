@@ -196,7 +196,7 @@ window.ACELYA_DIGEST["yoneylem-arastirmasi"] = {
     },
   ],
   next: [
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Simpleks tablosundaki satır işlemlerinin ve tabanın arkasındaki matris dilini kur." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Simpleks tablosundaki satır işlemlerinin ve tabanın arkasındaki matris dilini kur." },
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "PERT'in yaslandığı merkezi limit teoremini ve çarpık toplamların normale ne kadar çabuk yaklaştığını dene." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma Algoritmaları", why: "Kritik yol en uzun yoldur; aynı çizge düşüncesinin en kısa yol yüzünü gör." },
     { href: "uretim-planlama-ve-endustri-muhendisligi.html", title: "Üretim Planlama ve Endüstri Mühendisliği", why: "Buradaki darboğaz bir gölge fiyattı; orada bir hattın akışını belirleyen istasyon. Sipariş miktarı, kontrol grafikleri ve akış deneyleriyle aynı karar mantığını sürdür." },

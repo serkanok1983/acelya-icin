@@ -202,8 +202,8 @@ window.ACELYA_DIGEST["makro-ekonomi-ve-para-politikalari"] = {
   ],
   next: [
     { href: "mikro-ekonomi-ve-uretim-faktorleri.html", title: "Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma", why: "Büyük sayıların altındaki küçük kararlar: arz ve talep doğrularını kaydırıp vergi kamasını ölç, bütçe doğrusunda en iyi sepeti ara, üretim fonksiyonundan maliyet eğrilerini türet." },
-    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler", why: "Solow'daki durağan durum ve yarı ömür; denge, kararlılık ve sayısal çözüm fikirlerinin bir uygulamasıdır. Aynı kavramları genel hâliyle, faz düzleminde çalış." },
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Taylor bölümündeki 0,8431 ve −0,5931 birer özdeğerdir; özvektör ile özdeğerin ne olduğunu matrisler üzerinde, etkileşimli olarak gör." },
+    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa", why: "Solow'daki durağan durum ve yarı ömür; denge, kararlılık ve sayısal çözüm fikirlerinin bir uygulamasıdır. Aynı kavramları genel hâliyle, faz düzleminde çalış." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Taylor bölümündeki 0,8431 ve −0,5931 birer özdeğerdir; özvektör ile özdeğerin ne olduğunu matrisler üzerinde, etkileşimli olarak gör." },
     { href: "uluslararasi-iliskiler.html", title: "Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri", why: "Aynı yöntem, başka bir alan: yinelenen tutuklu ikilemi, Richardson silahlanma modeli ve oylama gücü endeksleri. Silahlanma modelinde kararlılığı yine faz düzleminden okursun." },
   ],
   sources: [

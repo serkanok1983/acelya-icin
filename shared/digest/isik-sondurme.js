@@ -196,7 +196,7 @@ window.ACELYA_DIGEST["isik-sondurme"] = {
     },
   ],
   next: [
-    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler", why: "Rank, çekirdek ve sütun uzayının gerçek sayılardaki hâli; bu bulmacanın oturduğu kuram." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Rank, çekirdek ve sütun uzayının gerçek sayılardaki hâli; bu bulmacanın oturduğu kuram." },
     { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Mod 2 toplama, devrelerdeki XOR kapısıdır; bir ışığı çevirmenin elektronikteki karşılığını kur." },
     { href: "yasam-oyunu.html", title: "Yaşam Oyunu", why: "Komşularına bakan hücreler bu kez zamanda ilerler: Sutner'in teoreminin doğduğu hücresel otomat dünyası." },
     { href: "mayin-tarlasi.html", title: "Mayın Tarlası", why: "Yine ızgarada 0-1 bilinmeyenler, ama toplama mod 2 değil; denklemler bu kez her zaman çözülmez." },

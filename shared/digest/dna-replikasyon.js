@@ -255,8 +255,8 @@ window.ACELYA_DIGEST["dna-replikasyon"] = {
     },
     {
       href: "gen-ifadesi-ve-molekuler-biyoloji.html",
-      title: "Gen İfadesi ve Moleküler Bilgi Akışı",
-      why: "Kopyalanan genler nasıl okunur? DNA'dan RNA'ya ve proteine bilgi akışını, promotörleri ve RNA işlenmesini oku; laboratuvarında transkripsiyon, translasyon ve yıkım hızlarını değiştirip mRNA ile proteinin yeni dengeye yaklaşmasını izle.",
+      title: "Gen İfadesi ve Moleküler Bilgi Akışı Laboratuvarı",
+      why: "Kopyalanan genler nasıl okunur? Kendi yazdığın bir genden promotörden başlayan transkripsiyonu ve kodon kodon çeviriyi izle; mRNA ve protein dinamiği sekmesinde transkripsiyon, çeviri ve yıkım hızlarını değiştirip mRNA ile proteinin yeni dengeye yaklaşmasını gör.",
     },
     {
       href: "dogal-secilim.html",

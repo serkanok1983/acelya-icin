@@ -11,14 +11,14 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 
 ## Üniversite STEM Omurgası (8)
 
-- `lineer-cebir-ve-ozdegerler` — Lineer Cebir ve Özdeğerler (sayfa başlığı: Lineer Cebir ve Özdeğerler | Üniversite STEM Omurgası) · Lise sonu–Lisans
-- `cok-degiskenli-kalkulus` — Çok Değişkenli Kalkülüs (sayfa başlığı: Çok Değişkenli Kalkülüs | Üniversite STEM Omurgası) · Lise sonu–Lisans
-- `diferansiyel-denklemler` — Diferansiyel Denklemler ve Dinamik Sistemler (sayfa başlığı: Diferansiyel Denklemler ve Dinamik Sistemler | Üniversite STEM Omurgası) · Lisans başlangıcı
-- `maxwell-denklemleri-ve-alanlar` — Maxwell Denklemleri ve Alanlar (sayfa başlığı: Maxwell Denklemleri ve Alanlar | Üniversite STEM Omurgası) · Lise ileri–Lisans
-- `entropi-ve-istatistiksel-fizik` — Entropi ve İstatistiksel Fizik (sayfa başlığı: Entropi ve İstatistiksel Fizik | Üniversite STEM Omurgası) · Lise ileri–Lisans
-- `kimyasal-denge-ve-gibbs-enerjisi` — Kimyasal Denge ve Gibbs Enerjisi (sayfa başlığı: Kimyasal Denge ve Gibbs Enerjisi | Üniversite STEM Omurgası) · Lise ileri–Lisans
-- `gen-ifadesi-ve-molekuler-biyoloji` — Gen İfadesi ve Moleküler Bilgi Akışı (sayfa başlığı: Gen İfadesi ve Moleküler Bilgi Akışı | Üniversite STEM Omurgası) · Lise ileri–Lisans
-- `algoritma-karmasikligi` — Algoritma Karmaşıklığı ve Ölçeklenme (sayfa başlığı: Algoritma Karmaşıklığı ve Ölçeklenme | Üniversite STEM Omurgası) · Lise ileri–Lisans
+- `lineer-cebir-ve-ozdegerler` — Lineer Cebir ve Özdeğerler (sayfa başlığı: Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum) · Lise sonu–Lisans
+- `cok-degiskenli-kalkulus` — Çok Değişkenli Kalkülüs (sayfa başlığı: Çok Değişkenli Kalkülüs: Gradyan, Lagrange ve Çift İntegral) · Lise sonu–Lisans
+- `diferansiyel-denklemler` — Diferansiyel Denklemler ve Dinamik Sistemler (sayfa başlığı: Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa) · Lisans başlangıcı
+- `maxwell-denklemleri-ve-alanlar` — Maxwell Denklemleri ve Alanlar (sayfa başlığı: Maxwell Denklemleri ve Alanlar: Akı, Dolaşım ve Işık) · Lise ileri–Lisans
+- `entropi-ve-istatistiksel-fizik` — Entropi ve İstatistiksel Fizik (sayfa başlığı: Entropi ve İstatistiksel Fizik: Mikro Durumlar, Boltzmann ve Ising) · Lise ileri–Lisans
+- `kimyasal-denge-ve-gibbs-enerjisi` — Kimyasal Denge ve Gibbs Enerjisi (sayfa başlığı: Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük) · Lise ileri–Lisans
+- `gen-ifadesi-ve-molekuler-biyoloji` — Gen İfadesi ve Moleküler Bilgi Akışı (sayfa başlığı: Gen İfadesi ve Moleküler Bilgi Akışı Laboratuvarı) · Lise ileri–Lisans
+- `algoritma-karmasikligi` — Algoritma Karmaşıklığı ve Ölçeklenme (sayfa başlığı: Algoritma Karmaşıklığı ve Ölçeklenme: Sınıflar, NP ve Yaklaşık Çözümler) · Lise ileri–Lisans
 
 ## Oyunlar (13)
 

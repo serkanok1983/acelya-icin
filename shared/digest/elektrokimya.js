@@ -180,7 +180,7 @@ window.ACELYA_DIGEST["elektrokimya"] = {
     },
   ],
   next: [
-    { href: "kimyasal-denge-ve-gibbs-enerjisi.html", title: "Kimyasal Denge ve Gibbs Enerjisi", why: "Nernst denkleminin çıktığı yer: Q ile K'yı karşılaştır, ΔG = ΔG° + RT ln Q ve ΔG° = −RT ln K ilişkilerini Q–K yön bulucuda dene." },
+    { href: "kimyasal-denge-ve-gibbs-enerjisi.html", title: "Kimyasal Denge ve Gibbs Enerjisi: Q, K, ΔG ve Çözünürlük", why: "Nernst denkleminin çıktığı yer: Q ile K'yı karşılaştır, ΔG = ΔG° + RT ln Q ve ΔG° = −RT ln K ilişkilerini ΔG°, ΔG ve K sekmesinde, tepkime ilerledikçe ΔG'nin sıfıra inişini izleyerek dene." },
     { href: "elektrikli-araclar.html", title: "Elektrikli Araçlar: Enerji, Batarya ve Menzil", why: "Merdivenin çok aşağısındaki lityum bir arabayı nasıl yürütür: hücrelerden kurulan paketin gerilimi, akımı ve ısısı, şarj eğrisi ve bir dolumla gidilen yolun hesabı." },
     { href: "elektrik-devresi-simulasyonu.html", title: "DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları", why: "Pilin gerilimi bir devrede ne yapar: iç direnç uç gerilimini nasıl düşürür, akım ve güç dirençlere nasıl paylaşılır." },
     { href: "periyodik-tablo.html", title: "Periyodik Tablo Laboratuvarı", why: "Magnezyum neden merdivenin dibinde, gümüş neden tepesinde: elementlerin iyonlaşma enerjisi ve elektronegatiflik değerlerine bak." },

@@ -190,7 +190,7 @@ window.ACELYA_DIGEST["ideal-gaz"] = {
   ],
   next: [
     { href: "termodinamik.html", title: "Termodinamik", why: "Aynı gazın makroskobik yüzü: PV diyagramında izotermal ve adyabatik süreçler, eğrinin altındaki iş ve motor çevrimleri." },
-    { href: "entropi-ve-istatistiksel-fizik.html", title: "Entropi ve İstatistiksel Fizik", why: "Herkese aynı hız düzeninin neden kendiliğinden çözüldüğünü mikrodurum sayarak gör: S = k ln Ω ve en olası enerji paylaşımı." },
+    { href: "entropi-ve-istatistiksel-fizik.html", title: "Entropi ve İstatistiksel Fizik: Mikro Durumlar, Boltzmann ve Ising", why: "Herkese aynı hız düzeninin neden kendiliğinden çözüldüğünü mikrodurum sayarak gör: S = k ln Ω ve en olası enerji paylaşımı." },
     { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş", why: "Bir molekülün zikzaklı yolu: adım sayısı büyüdükçe net uzaklığın neden yalnızca √N ile arttığını, kokunun neden yavaş yayıldığını izle." },
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "Maxwell dağılımının yapı taşı: her hız bileşeni standart sapması √(kT/m) olan bir çan eğrisidir; gazı ısıtmak çanı genişletir. Alanlar ve güven aralıkları sekmesinde ortalamanın ±1σ ve ±2σ çevresine düşen payları ölç." },
   ],

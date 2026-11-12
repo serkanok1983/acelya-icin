@@ -1714,3 +1714,41 @@ kodlarıyla yeniden türetti, her deneyi tarayıcıda harfiyen izledi; defter pu
 - ✔ `mitoz-mayoz`: Düzeltildi (çekirdek): sabit kiazma konumunda `pos < xB` sınır hatası.
 - ✔ `mekatronik-muhendisligi`: Düzeltildi (çekirdek): diyotlu PWM ortalamaları adım içi kesim payıyla ağırlıklı (enerji
   dengesi artık tutuyor); servo sınırında "koşu süresi yetmedi".
+
+## 12 Kasım 2026 — J: STEM Omurgası'nın sekiz sayfası standart kabuğa geçti (Yeni sayfa planı, 1. aşama, grup A)
+
+Eski "Üniversite STEM Omurgası" sayfaları (`shared/stem-content.js` + `stem-bridge.js`, Google Fonts, defter yok)
+G hattıyla sıfırdan kuruldu: kurucu (4 sekmeli laboratuvar, dondurulmuş çekirdek, `check-g-*` testi) → farklı
+yazar (defteri sıfırdan, `sarkac.js` yapısında) → üçüncü, bağımsız doğrulayıcı/editör. Defterler ilk kez
+yazıldığından bütün tarih iddiaları doğrulanmamış sayıldı. Dosya adları ve `data-page` korunur; testlerdeki
+defter 404 hoşgörüsü kaldırıldı. Defter puanları 6,5–7,5'ten 8,5–9'a çıktı.
+
+- ✔ `lineer-cebir-ve-ozdegerler`: eleme ve sayım, dört alt uzay, özdeğerler ve QR, en küçük kareler ve SVD.
+  Düzeltildi: sayım notu (pivotun sağındaki girdiler, b dahil); yüzde biçimi. Eklendi: 04'te "01'in dört noktası"
+  hazır ayarı (c₀ = c₁ = 0,9, ‖r‖² = 0,70) — defterin çalışılmış örneği ekranda tekrarlanabilir. Tarih: SVD için
+  Jacobi tipi yöntemler (Kogbetliantz, Hestenes) Golub–Kahan'dan önce; Golub–Reinsch 1970.
+- ✔ `cok-degiskenli-kalkulus`: gradyan, yönlü türev ve doğrusallaştırma, Lagrange, çift integral. Düzeltildi:
+  yuvarlama terimi notu (10⁻¹⁶·|f|/h); defter deneyi 2 harfiyen izlenince tekrarlanamıyordu (θ 27°'de kalıyordu).
+- ✔ `diferansiyel-denklemler`: Euler/Heun/RK4 mertebeleri ve kararlılık, faz düzlemi, van der Pol, rezonans.
+  Düzeltildi: kararlılık uyarısında "en çok" → "en düşük"; sönümsüz durumda "söner" yazısı. Defterde Hopf ve kaos
+  cümleleri kaynağa göre düzeltildi.
+- ✔ `maxwell-denklemleri-ve-alanlar`: Gauss, Faraday, yerdeğiştirme akımı, 1-B FDTD. Düzeltildi (çekirdek): yol
+  plakalar arasındayken S₂ plaka payını yine ekliyordu; yol plaka düzlemindeyken anlamsız Biot–Savart sonucu artık
+  "—". Eklendi: "Yol plakaların arasında" hazır ayarı ve yoldaki B okuması (boşlukta 1,001 µT, kuram 1,000 µT).
+  Heaviside satırı (yerdeğiştirme akımını Maxwell ekledi).
+- ✔ `entropi-ve-istatistiksel-fizik`: mikro durum sayımı, Einstein katıları ve Boltzmann, Ising, serbest genleşme
+  ve Ehrenfest. Düzeltildi: N = 2000'de "%100,00" (gerçek %99,9993); hız ters çevirmede dönüş anı rastlantısal
+  bir örnekten alınıyordu, artık tam 2·t_r'de denetleniyor.
+- ✔ `kimyasal-denge-ve-gibbs-enerjisi`: Q ve K, ΔG ve ξ, K(T) (Shomate, NIST), çözünürlük. Düzeltildi: ısıtmada
+  "Q değil K değişir" sabit hacimde yanlıştı (Q da (T₂/T₁)^Δn ile değişir); sıfır kayma "+0 mol"; Natron Gölü →
+  Natron Vadisi (Mısır).
+- ✔ `gen-ifadesi-ve-molekuler-biyoloji`: kodon okuma ve ORF sayımı, mRNA/protein ve gürültü, lac operon, anahtar
+  ve repressilatör. Düzeltildi: OpenStax tablosu sütunu kaynağın kendi sözleriyle (hayır/biraz/hayır/evet); ORF
+  formülünde i tanımı.
+- ✔ `algoritma-karmasikligi`: büyüme ve bütçe, alt küme toplamı, 3-SAT → bağımsız küme, TSP ve tepe örtüsü.
+  Düzeltildi: "NP ile co-NP arasındaki fark" kanıtlanmamış bir farkı kesin söylüyordu. Tarih: Hartmanis–Stearns
+  1965 yalnız zaman karmaşıklığı.
+
+Koordinatör: sekiz sayfanın `<meta name="description">` alanı defter taglinelarından, gelen 59 bağlantının başlığı
+yeni `<title>`'lara göre güncellendi; gelen gerekçeler yeni içeriğe göre tarandı. Açık küçük işler
+`docs/YENI-SAYFA-PLANI.md` → "Küçük açık işler".

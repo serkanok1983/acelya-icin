@@ -207,7 +207,7 @@ window.ACELYA_DIGEST["veri-yapilari"] = {
   next: [
     { href: "algoritmalar.html", title: "Algoritmalar: Adımları Say", why: "Kuyruk BFS'i, yığın DFS'i yönetir; çizgeler sekmesinde BFS, DFS ve Dijkstra'yı çalıştır, sıralama ve aramada karşılaştırmaları kuramla yan yana say." },
     { href: "veritabanlari.html", title: "Veritabanları: İlişkisel Model, Sorgular ve İndeksler", why: "Diskteki indeksler ikili ağaç değil, düğüm başına çok anahtar tutan B+ağacıdır; ikinci sekmede kendin kur ve aramanın kaç düğüm okuduğunu say." },
-    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "O, Ω ve Θ'nın farkı; en kötü, ortalama ve amorti edilmiş analizin hangi soruyu yanıtladığı ve büyüme sınıflarının karşılaştırması." },
+    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme: Sınıflar, NP ve Yaklaşık Çözümler", why: "O, Ω ve Θ'nın farkı: Büyüme sınıfları sekmesinde tanık sabitleriyle bir maliyetin sınıfını sına, sınıfları aynı grafikte yarıştırıp daha hızlı bir makinenin neden çok daha büyük n kazandırmadığını gör." },
     { href: "isaretciler-ve-bellek-yonetimi.html", title: "İşaretçiler ve Bellek Yönetimi", why: "Bağlı listedeki 'sonraki' adresinin ve çağrı yığınının bellekte gerçekten neye karşılık geldiğini keşfet." },
   ],
   sources: [

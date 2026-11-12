@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["av-avci-lotka-volterra"] = {
     { href: "lorenz-cekici.html", title: "Lorenz Çekicisi", why: "Düzlemde kaos olamaz, üç boyutta olabilir: üçüncü bir değişken eklenince yörüngelerin garip bir çekiciye nasıl dolandığını gör." },
     { href: "enzim-kinetigi.html", title: "Enzim Kinetiği Laboratuvarı", why: "Holling'in II. tip tepkisiyle aynı doyan eğri: Michaelis–Menten'deki V<sub>max</sub> ve K<sub>m</sub>, burada 1/h ve 1/(βh)." },
     { href: "dogal-secilim.html", title: "Doğal Seçilim: Popülasyon Genetiği Laboratuvarı", why: "Avcı avın evrimini de yönlendirir: Göç, mutasyon, doğa sekmesinde kuşların açık ve koyu güveleri ne oranda yediğine bak, koyu forma karşı seçilimi ayarla. Rotifer–alg döngülerini değiştiren de hızla evrimleşen alglerdi." },
-    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler", why: "Lojistik denklem, faz düzlemi ve Euler yönteminin hatası. Euler'in kaba adımı Lotka–Volterra'nın kapalı halkalarını dışa açılan sarmallara çevirir; bu sayfanın RK4 kullanmasının nedeni budur." },
+    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa", why: "Lojistik denklem, faz düzlemi ve Euler yönteminin hatası. Euler'in kaba adımı Lotka–Volterra'nın kapalı halkalarını dışa açılan sarmallara çevirir; bu sayfanın RK4 kullanmasının nedeni budur." },
   ],
   sources: [
     { title: "Wikipedia · Lotka–Volterra equations", url: "https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations", note: "Model, korunan nicelik, dengeler ve tarihçe: Lotka 1910–1925, Volterra 1926 ve D'Ancona'nın Adriyatik verisi (İngilizce)." },

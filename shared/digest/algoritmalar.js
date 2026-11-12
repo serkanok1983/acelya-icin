@@ -200,7 +200,7 @@ window.ACELYA_DIGEST["algoritmalar"] = {
     { href: "siralama-algoritmalari.html", title: "Sıralama: Adımlar ve Kararlılık", why: "Kabarcık, seçmeli ve eklemeli sıralamayı etiketli kayıtlarda adım adım izle: eşit anahtarlar yer değiştiriyor mu, hangi bölge kesinleşti, döngü değişmezi ne diyor?" },
     { href: "siralama-yarisi.html", title: "Sıralama Yarışı: Aynı Girdi, Farklı İş", why: "Kabarcık, son-pivotlu hızlı ve birleştirmeli sıralama aynı dizinin kopyasında yarışır; karşılaştırmalar, ana diziye ve tampona yazmalar ayrı sayılır." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma: Az Adım mı, Az Maliyet mi?", why: "Bu sayfada olmayan A* orada: hücre bedelleri farklı bir ızgarada BFS en az adımı, Dijkstra ve A* en az maliyeti bulur; aynı haritada karşılaştır." },
-    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "O, Ω ve Θ'yı birbirinden ayır; en kötü, ortalama ve amorti edilmiş analizin hangi soruyu yanıtladığını büyüme sınıfları karşılaştırıcısıyla gör." },
+    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme: Sınıflar, NP ve Yaklaşık Çözümler", why: "O, Ω ve Θ'yı birbirinden ayır: Büyüme sınıfları sekmesinde bir T(n) için alt ve üst sabitleri (c₁, c₂) kendin dene, iki maliyet eğrisini yarıştırıp sabitlerin neden gizlendiğini gör." },
   ],
   sources: [
     { title: "MIT OpenCourseWare · 6.006 Introduction to Algorithms (Spring 2020)", url: "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/", note: "Ders videoları ve notlar: sıralama, ikili arama, graf taraması, dinamik programlama (İngilizce, açık ders)." },

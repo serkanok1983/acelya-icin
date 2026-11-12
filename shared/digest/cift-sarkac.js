@@ -234,13 +234,13 @@ window.ACELYA_DIGEST["cift-sarkac"] = {
     },
     {
       href: "lineer-cebir-ve-ozdegerler.html",
-      title: "Lineer Cebir ve Özdeğerler",
-      why: "Normal modlar bir özdeğer problemidir: Ω² özdeğer, mod biçimi özvektördür. Oradaki 2×2 tezgâhta a, b, d kaydırıcılarıyla bir matris kur ve kendi doğrultusunda kalan özel yönleri izle.",
+      title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum",
+      why: "Normal modlar bir özdeğer problemidir: Ω² özdeğer, mod biçimi özvektördür. Oradaki Özdeğerler sekmesinde yay zinciri matrisini seç; QR yinelemesinin özdeğerleri nasıl ayıkladığını izle, her mod biçimini özvektör sütununda oku.",
     },
     {
       href: "diferansiyel-denklemler.html",
-      title: "Diferansiyel Denklemler ve Dinamik Sistemler",
-      why: "Yay sabiti, sönüm ve başlangıç kaydırıcılarıyla (x, v) faz düzleminde elipsleri ve içe spiralleri gör, Euler adımının hatasını tart: buradaki dört boyutlu faz uzayına ve RK4'e iki boyutta hazırlık.",
+      title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa",
+      why: "Doğrusal sistemler sekmesinde a, b, c, d kaydırıcılarıyla faz portresinde merkezleri ve içe sarmalları gör, Yön alanı sekmesinde Euler, Heun ve RK4'ün hatasını adım boyuyla tart: buradaki dört boyutlu faz uzayına ve RK4'e iki boyutta hazırlık.",
     },
     {
       href: "lorenz-cekici.html",

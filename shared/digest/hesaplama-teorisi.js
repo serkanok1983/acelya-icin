@@ -205,7 +205,7 @@ window.ACELYA_DIGEST["hesaplama-teorisi"] = {
   ],
   next: [
     { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata Teorisi", why: "Bu sayfanın alt katı: Chomsky hiyerarşisi, adım adım çalışan bir sonlu otomat ve regex deney alanı. Haritadaki 'çözülebilir' bölgenin DFA sorularının neden kolay olduğunu orada görürsün." },
-    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "Burada tek bir makinede ölçtüğün n² büyümesinin genel dili: O, Ω ve Θ gösterimi ile büyüme sınıflarının girdi büyüdükçe nasıl ayrıştığı." },
+    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme: Sınıflar, NP ve Yaklaşık Çözümler", why: "Burada tek bir makinede ölçtüğün n² büyümesinin genel dili: O, Ω ve Θ gösterimi ile büyüme sınıflarının girdi büyüdükçe nasıl ayrıştığı." },
     { href: "yasam-oyunu.html", title: "Yaşam Oyunu", why: "İki kurallı bir hücre ızgarası Turing tamdır: 'bu desen sönecek mi' sorusu da bu yüzden genel olarak karar verilemez. Planörle başla." },
     { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "Kuramın mühendisliğe döküldüğü yer: tokenleştirici, sözdizimi ağacı ve derleme aşamaları; program davranışı hakkındaki sorular Rice teoremi yüzünden orada hep temkinle yanıtlanır." },
   ],

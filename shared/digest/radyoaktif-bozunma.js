@@ -217,7 +217,7 @@ window.ACELYA_DIGEST["radyoaktif-bozunma"] = {
   next: [
     { href: "nukleer-fizik.html", title: "Nükleer Fizik", why: "Çekirdekler neden bozunur? Bağlanma enerjisi eğrisinde ağır bir çekirdek α saldığında neden enerji açığa çıktığını gör." },
     { href: "normal-dagilim.html", title: "Normal Dağılım", why: "N₀ büyükken N(T½)'nin binom dağılımı çan eğrisine döner; ±1σ bandında ölçümlerin neden yaklaşık üçte ikisinin kaldığını örnek çekerek gör." },
-    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler", why: "dy/dt = ky ailesi ve doğrusal sistemlerin özdeğerlerle sınıflandırılması: Bateman zinciri, özdeğerleri −λ olan bir doğrusal sistemdir." },
+    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa", why: "dy/dt = ky ailesi ve doğrusal sistemlerin özdeğerlerle sınıflandırılması: Bateman zinciri, özdeğerleri −λ olan bir doğrusal sistemdir." },
     { href: "kimyasal-kinetik.html", title: "Kimyasal Kinetik Laboratuvarı", why: "Aynı birinci derece yasası tepkimelerde; ama orada hız sabiti sıcaklıkla Arrhenius'a göre değişir, çekirdeğin λ'sı değişmez." },
   ],
   sources: [

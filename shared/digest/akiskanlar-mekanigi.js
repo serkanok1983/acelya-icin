@@ -233,7 +233,7 @@ window.ACELYA_DIGEST["akiskanlar-mekanigi"] = {
     },
     {
       href: "diferansiyel-denklemler.html",
-      title: "Diferansiyel Denklemler ve Dinamik Sistemler",
+      title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa",
       why: "Boşalan tankın A·dh/dt = −C<sub>d</sub>·a·√(2gh) denklemi bir değişim yasasıdır; denge, kararlılık ve Euler yöntemiyle bu tür denklemlerin genel dilini öğren.",
     },
   ],

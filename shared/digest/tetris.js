@@ -213,7 +213,7 @@ window.ACELYA_DIGEST["tetris"] = {
   next: [
     { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "↑ tuşunun yaptığı 90°'lik dönmeyi ve determinantı −1 olan yansımayı kendi matrislerinle dene." },
     { href: "grup-teorisi.html", title: "Grup Teorisi: Simetrinin Cebiri", why: "Dört dönmenin oluşturduğu grup ve simetri altında sayma; 19'dan 7'ye, 7'den 5'e inen hesabın dili." },
-    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme", why: "Bir problemin 'zor' olmasının ne demek olduğunu büyüme hızlarıyla gör; NP-tamlığa giden ilk adım." },
+    { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme: Sınıflar, NP ve Yaklaşık Çözümler", why: "Bir problemin 'zor' olmasının ne demek olduğunu büyüme hızlarıyla gör; NP-tamlığa giden ilk adım." },
     { href: "oyun-2048.html", title: "2048", why: "Yine bir ızgara, yine rastgele gelen taşlar; bu kez arkasında ikinin kuvvetleri ve üstel büyüme var." },
   ],
   sources: [

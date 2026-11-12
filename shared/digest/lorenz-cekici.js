@@ -234,8 +234,8 @@ window.ACELYA_DIGEST["lorenz-cekici"] = {
     },
     {
       href: "diferansiyel-denklemler.html",
-      title: "Diferansiyel Denklemler ve Dinamik Sistemler",
-      why: "Yay sabiti, sönüm ve başlangıç kaydırıcılarıyla (x, v) faz düzleminde kapalı eğrileri ve içe sarmalları gör: buradaki denge, kararlılık ve faz uzayı dilinin iki boyutlu başlangıcı.",
+      title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa",
+      why: "Doğrusal olmayan sistemler sekmesinde sıfır eğrilerini, dengeleri, Jacobian özdeğerleriyle kararlılık sınamasını ve van der Pol'un limit çevrimini gör: buradaki denge, kararlılık ve faz uzayı dilinin iki boyutlu başlangıcı.",
     },
     {
       href: "mandelbrot+lorenz.html",

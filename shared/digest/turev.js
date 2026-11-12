@@ -217,8 +217,8 @@ window.ACELYA_DIGEST["turev"] = {
   next: [
     { href: "taylor-serisi.html", title: "Taylor Serisi", why: "Kesme hatasının kaynağı: teğet doğrusuna h², h³… terimleri eklendikçe sin x'in polinom yaklaşımı nasıl iyileşir, nerede yetersiz kalır." },
     { href: "integral.html", title: "İntegral: Birikim, Temel Teorem ve Uygulamalar", why: "Türevin ters işlemi: eğimden birikime. Birikim fonksiyonunun eğimini ölçüp f(x) ile karşılaştır; temel teoremin sıçramalı bir fonksiyonda nerede bozulduğunu gör." },
-    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler", why: "Türev bir denklemin içine girince: Euler yöntemi y<sub>n+1</sub> = y<sub>n</sub> + h·f ileri farkı tersinden okur ve aynı h ikilemini taşır." },
-    { href: "cok-degiskenli-kalkulus.html", title: "Çok Değişkenli Kalkülüs", why: "Aynı fark bölümü, bu kez her yöne ayrı: kısmi türev, gradyan ve en dik tırmanış yönü." },
+    { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa", why: "Türev bir denklemin içine girince: Euler yöntemi y<sub>n+1</sub> = y<sub>n</sub> + h·f ileri farkı tersinden okur ve aynı h ikilemini taşır." },
+    { href: "cok-degiskenli-kalkulus.html", title: "Çok Değişkenli Kalkülüs: Gradyan, Lagrange ve Çift İntegral", why: "Aynı fark bölümü, bu kez her yöne ayrı: kısmi türev, gradyan ve en dik tırmanış yönü." },
   ],
   sources: [
     { title: "OpenStax · Calculus Vol. 1, 3.1 Defining the Derivative", url: "https://openstax.org/books/calculus-volume-1/pages/3-1-defining-the-derivative", note: "Kesenden teğete geçiş, limit tanımı ve çözümlü örnekler (İngilizce, açık ders kitabı)." },

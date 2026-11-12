@@ -229,7 +229,7 @@ window.ACELYA_DIGEST["lorentz-kuvveti"] = {
     },
     {
       href: "maxwell-denklemleri-ve-alanlar.html",
-      title: "Maxwell Denklemleri ve Alanlar",
+      title: "Maxwell Denklemleri ve Alanlar: Akı, Dolaşım ve Işık",
       why: "Lorentz kuvveti alanların yüklere ne yaptığını söyler; Maxwell denklemleri yüklerin ve akımların alanları nasıl ürettiğini. İkisi birlikte klasik elektromanyetizmanın tamamıdır.",
     },
     {
