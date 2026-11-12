@@ -28,7 +28,7 @@ const warn = (m) => warnings.push(m);
 
 const SKIP_DIGEST = new Set(["index", "404", "bilgi", "bilim-atlasi"]);
 const ALLOWED_TAGS = new Set(["p", "strong", "em", "b", "i", "sup", "sub", "code", "kbd", "var", "br", "span", "small", "ul", "ol", "li", "a", "mark"]);
-const FIELDS = new Set(["Matematik", "Fizik", "Kimya", "Biyoloji", "Bilgisayar Bilimi", "Yer ve Uzay", "Mühendislik", "Toplum ve Ekonomi", "Oyun"]);
+const FIELDS = new Set(["Matematik", "Fizik", "Kimya", "Biyoloji", "Bilgisayar Bilimi", "Yer ve Uzay", "Yer ve Çevre Bilimleri", "Mühendislik", "Toplum ve Ekonomi", "Oyun"]);
 const LEVELS = new Set(["Lise hazırlık", "Lise", "Lise ileri", "Lise–Lisans", "Lisans"]);
 const SOURCE_PREFIXES = [
   "https://openstax.org/", "https://ocw.mit.edu/", "https://phet.colorado.edu/",
@@ -61,6 +61,11 @@ const SOURCE_PREFIXES = [
   "https://www.cs.yale.edu/", "https://www.cs.auckland.ac.nz/", "https://moogfoundation.org/",
   "https://science.nasa.gov/", "https://www.nasa.gov/", "https://www.esa.int/", "https://www.jpl.nasa.gov/",
   "https://nssdc.gsfc.nasa.gov/",
+  "https://earthobservatory.nasa.gov/", "https://climate.nasa.gov/",
+  "https://www.noaa.gov/", "https://gml.noaa.gov/", "https://www.weather.gov/", "https://oceanservice.noaa.gov/",
+  "https://tidesandcurrents.noaa.gov/", "https://www.ngdc.noaa.gov/", "https://www.ncei.noaa.gov/",
+  "https://www.usgs.gov/", "https://earthquake.usgs.gov/", "https://pubs.usgs.gov/",
+  "https://www.ipcc.ch/", "https://www.iris.edu/", "https://www.wmo.int/", "https://wmo.int/",
   "https://developer.mozilla.org/", "https://docs.python.org/", "https://www.w3.org/",
   "https://plato.stanford.edu/entries/", "https://www.nobelprize.org/", "https://arxiv.org/abs/",
   "https://acikders.tuba.gov.tr/", "https://bilimgenc.tubitak.gov.tr/", "https://www.tubitak.gov.tr/",

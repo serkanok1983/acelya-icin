@@ -703,8 +703,9 @@ tablosu hataları). Öneri:
    otonom, isletme. 12 Kasım'da (I) son 24 eski temel sayfa da yeniden
    kuruldu (fizik/gökbilim 8, matematik/kimya 8, biyoloji/mekatronik 8; ayrıntı
    `docs/simulasyon-notlari.md` → "I"). 12 Kasım'da (J) `docs/YENI-SAYFA-PLANI.md`
-   1. aşama grup A: sekiz STEM Omurgası sayfası standart kabuğa geçti ve defterlendi. **Sırada**: grup B
-   (3 Bilim Atlası dersi + Yer ve Çevre Bilimleri kategorisinden 5 yeni sayfa). Bir sayfa yeniden kurulursa
+   1. aşama grup A: sekiz STEM Omurgası sayfası standart kabuğa geçti ve defterlendi. Aynı gün (K) grup B: 3 Bilim Atlası
+   dersi taşındı ve "Yer ve Çevre Bilimleri" kategorisi 5 sayfayla açıldı. **Sırada**: 2. aşama, matematik/istatistik
+   ve biyoloji (8 yeni sayfa). Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

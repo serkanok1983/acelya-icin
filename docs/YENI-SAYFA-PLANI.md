@@ -101,7 +101,7 @@ Toplam: 1. aşamada 11, 2. aşamada 28 sayfa. Sekizerli 5 grup olur; her grup bi
 ## Sıralama önerisi
 
 1. **1. aşama, grup A:** 8 STEM Omurgası sayfası (lineer cebir … algoritma karmaşıklığı). ✔ 12 Kasım (J; `docs/simulasyon-notlari.md`).
-2. **1. aşama, grup B:** 3 Bilim Atlası dersi, artı Yer bilimlerinden 5 sayfa. Yeni kategori ve menü düzeni bu grupta kurulur.
+2. **1. aşama, grup B:** 3 Bilim Atlası dersi, artı Yer bilimlerinden 5 sayfa. Yeni kategori ve menü düzeni bu grupta kurulur. ✔ 12 Kasım (K).
 3. **2. aşama:** matematik/istatistik ile biyoloji (8).
 4. **2. aşama:** fizik ile kimya (8).
 5. **2. aşama:** disiplinlerarası ve mühendislik (6), artı ilk dört grupta biriken düzeltmeler.
@@ -121,6 +121,8 @@ Toplam: 1. aşamada 11, 2. aşamada 28 sayfa. Sekizerli 5 grup olur; her grup bi
   varsayılan bilinçli seçilmeli.
 - `cok-degiskenli-kalkulus`: türev metni bazen sadeleşmemiş görünüyor (`2x^(−2 − 1)`); matematik doğru.
 - `lineer-cebir-ve-ozdegerler`: en küçük kareler grafiğinde eksen etiketleri yuvarlanıyor (0,75 → "0,8").
+- `kara-cisim-isimasi`: Mars yüzey sıcaklığı 208 K; NASA Mars bilgi sayfası şimdi ≈ 214 K veriyor
+  (`iklim-ve-sera-etkisi` kurucusunun notu). Kaynak açılıp güncellenmeli.
 - `diferansiyel-denklemler`: ifade ipucu `log`, `sinh`, `cosh` desteğini söylemiyor; LV satırında karışık
   hassasiyet ("×1.00" / "×1.0").
 

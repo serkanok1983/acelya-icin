@@ -5,9 +5,9 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 ## Bilim Atlası (4)
 
 - `bilim-atlasi` — Bilim Atlası — Büyük Harita (sayfa başlığı: Bilim Atlası | Açelya'nın Yeri) · Tüm düzeyler
-- `bilimsel-yontem-olcme-ve-belirsizlik` — Bilimsel Yöntem, Ölçme ve Belirsizlik (sayfa başlığı: Bilimsel Yöntem, Ölçme ve Belirsizlik | Bilim Atlası) · Başlangıç
-- `hareket-ve-grafikler` — Hareket ve Grafikler (sayfa başlığı: Hareket ve Grafikler | Bilim Atlası) · Başlangıç–Orta
-- `momentum-itme-ve-carpismalar` — Momentum, İtme ve Çarpışmalar (sayfa başlığı: Momentum, İtme ve Çarpışmalar | Bilim Atlası) · Orta
+- `bilimsel-yontem-olcme-ve-belirsizlik` — Bilimsel Yöntem, Ölçme ve Belirsizlik (sayfa başlığı: Bilimsel Yöntem, Ölçme ve Belirsizlik: Basamak, Yayılım, Hata ve Uydurma) · Başlangıç
+- `hareket-ve-grafikler` — Hareket ve Grafikler (sayfa başlığı: Hareket ve Grafikler: Eğim, Alan ve Ölçüm Gürültüsü) · Başlangıç–Orta
+- `momentum-itme-ve-carpismalar` — Momentum, İtme ve Çarpışmalar (sayfa başlığı: Momentum, İtme ve Çarpışmalar: Kuvvetin Zamandaki İzi) · Orta
 
 ## Üniversite STEM Omurgası (8)
 
@@ -143,9 +143,17 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `besin-agi` — Besin Ağı (sayfa başlığı: Besin Ağı ve Enerji Akışı Laboratuvarı)
 - `av-avci-lotka-volterra` — Av–Avcı Modeli (sayfa başlığı: Av–Avcı Modeli: Lotka–Volterra Döngüleri ve Ötesi)
 - `dogal-secilim` — Doğal Seçilim (sayfa başlığı: Doğal Seçilim: Popülasyon Genetiği Laboratuvarı)
-- `enzim-kinetigi` — Enzim Kinetiği | Açelya) (sayfa başlığı: Enzim Kinetiği Laboratuvarı)
+- `enzim-kinetigi` — Enzim Kinetiği (sayfa başlığı: Enzim Kinetiği Laboratuvarı)
 - `fotosentez-solunum` — Fotosentez & Solunum (sayfa başlığı: Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton)
 - `genetik-caprazlama` — Genetik Çaprazlama (sayfa başlığı: Genetik Çaprazlama: Mendel Oranları, Ki-Kare ve Bağlı Genler)
+
+## Yer ve Çevre Bilimleri (5)
+
+- `depremler-ve-sismik-dalgalar` — Depremler ve Sismik Dalgalar (sayfa başlığı: Depremler ve Sismik Dalgalar: P ve S, Merkez Üssü, Büyüklük ve Gutenberg–Richter) · Lise–Lisans
+- `levha-tektonigi` — Levha Tektoniği (sayfa başlığı: Levha Tektoniği: Yayılan Sırtlar, Manyetik Şeritler, Sıcak Noktalar ve İzostazi) · Lise–Lisans
+- `iklim-ve-sera-etkisi` — İklim ve Sera Etkisi (sayfa başlığı: İklim ve Sera Etkisi: Enerji Dengesi, Zorlama ve Geri Beslemeler) · Lise–Lisans
+- `atmosfer-ve-hava` — Atmosfer ve Hava (sayfa başlığı: Atmosfer ve Hava: Basınç, Bulut Tabanı, Kararlılık ve Coriolis) · Lise–Lisans
+- `okyanus-ve-gelgitler` — Okyanus ve Gelgitler (sayfa başlığı: Okyanus ve Gelgitler: Gelgit Kuvveti, Deniz Suyu ve Dalgalar) · Lise–Lisans
 
 ## Disiplinler Arası (48)
 

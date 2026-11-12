@@ -240,7 +240,7 @@ window.ACELYA_DIGEST["cift-sarkac"] = {
     {
       href: "diferansiyel-denklemler.html",
       title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa",
-      why: "Doğrusal sistemler sekmesinde a, b, c, d kaydırıcılarıyla faz portresinde merkezleri ve içe sarmalları gör, Yön alanı sekmesinde Euler, Heun ve RK4'ün hatasını adım boyuyla tart: buradaki dört boyutlu faz uzayına ve RK4'e iki boyutta hazırlık.",
+      why: "Doğrusal sistemler sekmesinde faz portresindeki merkezleri ve sarmalları gör, Yön alanı sekmesinde Euler, Heun ve RK4'ün hatasını adım boyuyla tart: buradaki dört boyutlu faz uzayına iki boyutta hazırlık.",
     },
     {
       href: "lorenz-cekici.html",

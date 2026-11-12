@@ -208,7 +208,7 @@ window.ACELYA_DIGEST["breakout"] = {
   next: [
     { href: "pong.html", title: "Masa Tenisi (Pong)", why: "Aynı raket kuralının atası: 60°'lik uç vuruş ve bilgisayar rakibi yenmenin eşiği." },
     { href: "optik-yansima-kirilma.html", title: "Optik: Yansıma ve Kırılma", why: "Geliş açısı eşittir gidiş açısı; bu kez topla değil ışıkla, aynalar ve görüntülerle." },
-    { href: "momentum-itme-ve-carpismalar.html", title: "Momentum, İtme ve Çarpışmalar", why: "Duvardan seken topun fiziği: esnek çarpışma, momentum değişimi ve itme." },
+    { href: "momentum-itme-ve-carpismalar.html", title: "Momentum, İtme ve Çarpışmalar: Kuvvetin Zamandaki İzi", why: "Duvardan seken topun fiziği: esnek çarpışma, momentum değişimi ve itme." },
     { href: "vektorler.html", title: "Vektörler: Bileşenler, Çarpımlar ve Bağıl Hareket", why: "Hızı bileşenlere ayırma, iç çarpım ve v − 2(v·n)n formülünün arkasındaki araçlar." },
   ],
   sources: [

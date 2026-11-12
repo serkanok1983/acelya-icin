@@ -245,7 +245,7 @@ window.ACELYA_DIGEST["matris-donusumleri"] = {
     {
       href: "lineer-cebir-ve-ozdegerler.html",
       title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum",
-      why: "STEM omurgasının bir durağı: Gauss eleme, dört temel alt uzay, QR ile özdeğerler ve SVD sekmeleri. Buradaki AᵀA'nın en küçük kareler problemindeki rolünü (AᵀAx = Aᵀb) oradaki En küçük kareler ve SVD sekmesinde, normal denklemleri QR ile karşılaştırarak görebilirsin.",
+      why: "Buradaki 2×2 dünyanın n×n hâli: Gauss eleme, dört temel alt uzay, QR ile özdeğerler ve SVD. AᵀAx = Aᵀb'nin rolünü En küçük kareler ve SVD sekmesinde, normal denklemleri QR ile karşılaştırarak gör.",
     },
     {
       href: "karmasik-sayilar.html",

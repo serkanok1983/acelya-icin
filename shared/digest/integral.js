@@ -256,7 +256,7 @@ window.ACELYA_DIGEST["integral"] = {
     },
     {
       href: "hareket-ve-grafikler.html",
-      title: "Hareket ve Grafikler",
+      title: "Hareket ve Grafikler: Eğim, Alan ve Ölçüm Gürültüsü",
       why: "Çözümlü örneğin fiziği, grafik diliyle: konum–zaman grafiğinin eğimi hızdır, hız–zaman grafiğinin işaretli alanı yer değiştirmedir; yol için alanların büyüklükleri toplanır.",
     },
   ],

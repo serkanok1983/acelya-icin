@@ -1752,3 +1752,41 @@ defter 404 hoşgörüsü kaldırıldı. Defter puanları 6,5–7,5'ten 8,5–9'a
 Koordinatör: sekiz sayfanın `<meta name="description">` alanı defter taglinelarından, gelen 59 bağlantının başlığı
 yeni `<title>`'lara göre güncellendi; gelen gerekçeler yeni içeriğe göre tarandı. Açık küçük işler
 `docs/YENI-SAYFA-PLANI.md` → "Küçük açık işler".
+
+## 12 Kasım 2026 — K: Bilim Atlası'nın üç dersi ve yeni "Yer ve Çevre Bilimleri" kategorisi (Yeni sayfa planı, 1. aşama, grup B)
+
+Üç Bilim Atlası dersi (atlas.css/atlas.js, Google Fonts, defter yok) standart laboratuvar kabuğuna taşındı; beş yeni
+sayfa ile menüye "Yer ve Çevre Bilimleri" kategorisi eklendi. Hepsi G hattıyla kuruldu (kurucu → farklı yazar →
+üçüncü, bağımsız doğrulayıcı/editör); defterler sıfırdan yazıldığı için bütün tarih iddiaları doğrulanmamış sayıldı.
+`check-site.mjs`: yeni alan "Yer ve Çevre Bilimleri" ve kurum kaynakları (NOAA, NWS, USGS, IPCC, IRIS, WMO,
+NASA iklim/Earth Observatory) izinli listeye eklendi. Defter puanları 6,5–8'den 8,5–9'a çıktı.
+
+**Bilim Atlası dersleri** (atlas haritasına geri bağlantı korunur)
+- ✔ `bilimsel-yontem-olcme-ve-belirsizlik`: okuma ve yuvarlama, yayılım (doğrusal ve Monte Carlo), sistematik ve
+  rastgele hata, ağırlıklı uydurma ve artıklar. Düzeltildi: 1/x, x = 5,0 ± 0,2'de "doğrusal yaklaşım yetersiz"
+  aşırı sertti (u_c yeterli, yalnız aralık çarpık); anlamlı basamak hükmünün varsayımları yazıldı. Defter GUM'un
+  kendi tanımlarına (JCGM 100:2008, 2.3.1) uyduruldu.
+- ✔ `hareket-ve-grafikler`: grafik okuma ve fark mertebeleri, Riemann toplamları, sensör gürültüsü ve en iyi
+  örnekleme hızı, grafik bulmacası. Düzeltildi: a–t orta nokta "tam" durumunun nedeni; tek tohumlu gürültü
+  okumasının kuramdan sapabileceği. Defter: Oresme'ye "ilk grafik" değil ilk ispat (Casali aynı dönemde).
+- ✔ `momentum-itme-ve-carpismalar`: itme (dört atım biçimi), asimetrik tamponla 1-B çarpışma (k / k/e²: her hızda
+  tam e), 2-B olay sürümlü çarpışma, roket denklemi ve kademeler. Düzeltildi: iki not metni (uzun-alçak atım;
+  kütleçekimi varken momentum).
+
+**Yer ve Çevre Bilimleri (yeni)**
+- ✔ `depremler-ve-sismik-dalgalar`: P/S hızları (FD, Δx² hatası), üç istasyondan konum, M₀ ve M_w, Gutenberg–Richter
+  ve Poisson. USGS büyüklükleri FDSN sorgusuyla doğrulandı. Defter: Oldham 1906 ve Mohorovičić 1909 ayrıntıları,
+  Kanamori 1977 (9,1) / Hanks–Kanamori 1979 (9,05) türetmesi. Ton: tahmin yok, can kaybı yok.
+- ✔ `levha-tektonigi`: yayılma hızı ve ters uydurma yanlılığı, GTS2020 şeritleri, Hawaii–İmparator zinciri, izostazi
+  ve buzul sonrası yükselme. Düzeltildi: Hawaii durum metni veriden türetiliyor; bükülme açısı.
+- ✔ `iklim-ve-sera-etkisi`: 0-B enerji dengesi, gri katmanlar, logaritmik zorlama ve iki kutulu model, buz–albedo
+  çoklu dengesi. Yansızlık denetimi temiz. Defter: Mauna Loa Mart 1958 = 315,71 ppm (313 değil); 2021 Nobel bölüşümü.
+- ✔ `atmosfer-ve-hava`: 1976 standart atmosferi, bulut tabanı ve föhn, kararlılık ve CAPE, Coriolis ve jeostrofik
+  denge. Düzeltildi: ekvatorda sürtünmeli durumda "sabit ivme"; üçlü nokta 611,657 Pa. Defter: Spearfish 1943 bir
+  chinook değil, gidip gelen bir Arktik cephe (NWS).
+- ✔ `okyanus-ve-gelgitler`: gelgit kuvveti ve denge gelgiti, M₂/S₂/K₁/O₁ ve harmonik uydurma, UNESCO 1981 durum
+  denklemi ve cabbeling, derin/sığ su dalgaları ve Green yasası. Düzeltildi: dört durum metni.
+
+Koordinatör: `index.html` menüsüne yeni kategori, `docs/sayfa-katalogu.md`'ye bölüm; sekiz sayfanın meta açıklaması
+defter taglinelarından; gelen bağlantıların başlıkları ve bir gerekçe (newton → momentum) güncellendi; önceki turun
+dört uzun `why` metni kısaltıldı.

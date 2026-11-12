@@ -66,6 +66,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 30
   },
+  "atmosfer-ve-hava": {
+    "title": "Atmosfer ve Hava: Basınçtan Buluta, Buluttan Rüzgâra",
+    "tagline": "Havanın kütlesinin yarısı ilk 5,5 km'dedir, yükselen hava her kilometrede yaklaşık 10 derece soğur ve rüzgâr alçak basınca doğru değil, izobarlara paralel eser. Hepsi birkaç denklemden çıkar.",
+    "field": "Yer ve Çevre Bilimleri",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "atom-orbitalleri": {
     "title": "Atom Orbitalleri: Hidrojenin Kesin Çözümü",
     "tagline": "Tek elektronlu atom, Schrödinger denkleminin kâğıt üstünde tam çözülebilen nadir problemlerinden biridir. Düğümleri say, olasılık bulutunu örnekle, hidrojenin kırmızı çizgisini NIST ölçümüyle karşılaştır.",
@@ -136,6 +143,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "bilimsel-yontem-olcme-ve-belirsizlik": {
+    "title": "Ölçme ve Belirsizlik: Bir Sayının Ne Kadarı Bilgi?",
+    "tagline": "Her ölçüm üç şey taşır: sayı, birim ve belirsizlik. Bir ölçeği oku, belirsizliği formülden ve Monte Carlo ile geçir, sistematik hatayı kalibrasyonla yakala, modelini artıklara sorgulat.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "birim-cember": {
     "title": "Birim Çember: Dönen Bir Noktanın Gölgeleri",
     "tagline": "Yarıçapı 1 olan çemberde her açı bir noktadır; kosinüs ve sinüs onun iki gölgesi. İki dönmeyi art arda yapmak toplama formüllerini verir; sinüs de küçük dönmeleri kaydırıp toplayarak hesaplanabilir.",
@@ -203,6 +217,13 @@ window.ACELYA_CATALOG = {
     "title": "Denklem Denkleştirme: Atom Sayımından Sıfır Uzayına",
     "tagline": "Lavoisier'nin terazisinden lineer cebire: her atomu ve yükü iki tarafta eşitleyen katsayılar, A·v = 0 sisteminin çözümüdür. Elektronları say, sınırlayıcı gireni bul, verimi hesapla.",
     "field": "Kimya",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "depremler-ve-sismik-dalgalar": {
+    "title": "Depremler ve Sismik Dalgalar: Kayaçtan Gelen Haber",
+    "tagline": "P ve S dalgalarının hızı kayacın sertliğinden gelir; aralarındaki gecikme uzaklığı, fayın boyutu büyüklüğü, binlerce depremin sayımı istatistiği verir. Dördünü de ölç ve kuramla karşılaştır.",
+    "field": "Yer ve Çevre Bilimleri",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -423,6 +444,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 25
   },
+  "hareket-ve-grafikler": {
+    "title": "Hareket ve Grafikler: Eğim, Alan ve Gürültü",
+    "tagline": "Bir eğrinin eğimi hızı, altındaki alan yer değiştirmeyi söyler. Bu iki okuma türev ile integralin ta kendisidir; gürültülü bir sensörde ise türev almanın neden tehlikeli olduğunu da gösterir.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "hesaplama-teorisi": {
     "title": "Hesaplama Teorisi: Makinelerin Yapamayacağı Şeyler",
     "tagline": "1936'da, ortada tek bir bilgisayar yokken 'hesaplamak' sözcüğü tanımlandı ve hiçbir makinenin cevaplayamayacağı bir soru bulundu. Burada o makineyi kendin kurar, o soruya köşegende kendi gözünle bakarsın.",
@@ -450,6 +478,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "iklim-ve-sera-etkisi": {
+    "title": "İklim ve Sera Etkisi: Enerji Dengesinden Geri Beslemeye",
+    "tagline": "Bir gezegenin sıcaklığı tek bir hesapla başlar: soğurduğu güneş ışığı kadar kızılötesi yaymalıdır. Dört oyuncak modelle 255 K'den katmanlara, logaritmik zorlamaya ve geri beslemelere yürü.",
+    "field": "Yer ve Çevre Bilimleri",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "integral": {
     "title": "İntegral: Birikimin Hesabı",
@@ -611,6 +646,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 45
+  },
+  "levha-tektonigi": {
+    "title": "Levha Tektoniği: Okyanus Tabanının Kayıt Bandı",
+    "tagline": "Okyanus tabanı, levhaların ne hızla ve hangi yöne gittiğini yazan bir kayıt bandıdır. Yaşından, derinliğinden, manyetik şeritlerinden ve volkan zincirlerinden hızı kendin ölç.",
+    "field": "Yer ve Çevre Bilimleri",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "lineer-cebir-ve-ozdegerler": {
     "title": "Lineer Cebir: Eleme, Alt Uzaylar ve Spektrum",
@@ -787,6 +829,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "momentum-itme-ve-carpismalar": {
+    "title": "Momentum ve İtme: Kuvvetin Zamandaki İzi",
+    "tagline": "Hava yastığı darbeyi küçültmez, yalnız zamana yayar. Kuvvet–zaman alanını ölç, arabaları ve diskleri çarpıştır, roketi yakıtını geriye atarak hızlandır: momentum hep korunur, enerji her zaman korunmaz.",
+    "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "mukavemet": {
     "title": "Mukavemet: Kuvvetten Şekil Değiştirmeye",
     "tagline": "Denge, dayanım ve rijitlik aynı soru değildir. Bir kesiti çevirip sehimi dört katına çıkar; ince bir kolonun düşük gerilmede neden kararsızlaşabildiğini sayılarla gör.",
@@ -814,6 +863,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "okyanus-ve-gelgitler": {
+    "title": "Okyanus ve Gelgitler: Çekim Farkından Tsunamiye",
+    "tagline": "Güneş Dünya'yı Ay'dan 179 kat güçlü çeker, ama gelgiti Ay yönetir. Gelgit çekimin değil çekim farkının işidir; aynı okyanusta tuz ve sıcaklık suyu katmanlara ayırır, derinlik dalganın hızını belirler.",
+    "field": "Yer ve Çevre Bilimleri",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "optik-yansima-kirilma": {
     "title": "Sınırdaki Işık: Snell'den Optik Fibere",

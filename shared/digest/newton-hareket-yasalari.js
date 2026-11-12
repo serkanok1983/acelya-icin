@@ -241,8 +241,8 @@ window.ACELYA_DIGEST["newton-hareket-yasalari"] = {
   next: [
     {
       href: "momentum-itme-ve-carpismalar.html",
-      title: "Momentum, İtme ve Çarpışmalar",
-      why: "Yay deneyindeki eşit ve zıt itmelerin devamı: <strong>Çarpışma türü</strong> menüsünde e = 1, 0,5 ve 0'ı seç; toplam momentum hep aynı kalırken kinetik enerjinin ne kadarının kaybolduğunu izle.",
+      title: "Momentum, İtme ve Çarpışmalar: Kuvvetin Zamandaki İzi",
+      why: "Yay deneyindeki eşit ve zıt itmelerin devamı: 1-B çarpışmalar sekmesinde <strong>Esneklik katsayısı e</strong>'yi 1, 0,5 ve 0 yap; toplam momentum hep aynı kalırken kinetik enerjinin ne kadarının kaybolduğunu izle.",
     },
     {
       href: "serbest-dusme.html",
