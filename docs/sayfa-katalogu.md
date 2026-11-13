@@ -173,7 +173,7 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `okyanus-ve-gelgitler` — Okyanus ve Gelgitler (sayfa başlığı: Okyanus ve Gelgitler: Gelgit Kuvveti, Deniz Suyu ve Dalgalar) · Lise–Lisans
 - `derin-zaman-ve-radyometrik-tarihleme` — Derin Zaman ve Radyometrik Tarihleme (sayfa başlığı: Derin Zaman ve Radyometrik Tarihleme: Kayaçların ve Yaşamın Yaşı) · Lise–Lisans
 
-## Dil ve Edebiyat (6)
+## Dil ve Edebiyat (8)
 
 - `turkcenin-ses-yapisi` — Türkçenin Ses Yapısı (sayfa başlığı: Türkçenin Ses Yapısı: Ünlü Uyumu, Ünsüz Değişimi ve Hece) · Lise–Lisans
 - `zipf-yasasi-ve-dil-istatistigi` — Zipf Yasası ve Dil İstatistiği (sayfa başlığı: Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni) · Lise–Lisans
@@ -181,12 +181,17 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `aruz-ve-hece-olcusu` — Aruz ve Hece Ölçüsü (sayfa başlığı: Aruz ve Hece Ölçüsü: Türk Şiirinde Vezin ve Taktî) · Lise–Lisans
 - `sozdizimi-ve-dilbilgisi` — Sözdizimi ve Dilbilgisi (sayfa başlığı: Sözdizimi ve Dilbilgisi: Biçimbirim, Öbek, Ağaç ve Sözcük Dizimi) · Lise–Lisans
 - `anlambilim-ve-edimbilim` — Anlambilim ve Edimbilim (sayfa başlığı: Anlambilim ve Edimbilim: Anlam İlişkileri, Frege, Kapsam, Grice, Söz Edimleri) · Lise–Lisans
+- `anlati-yapisi-ve-edebiyat-cozumlemesi` — Anlatı Yapısı ve Edebiyat Çözümlemesi (sayfa başlığı: Anlatı Yapısı: Aristoteles, Propp ve Genette ile Metin Çözümleme) · Lise–Lisans
+- `uslup-istatistigi-ve-yazar-tanima` — Üslup İstatistiği ve Yazar Tanıma (sayfa başlığı: Üslup İstatistiği ve Yazar Tanıma: Sözcük Sayarak Yazarı Bulmak) · Lise–Lisans
 
-## Zihin ve Davranış (3)
+## Zihin ve Davranış (6)
 
 - `algi-psikolojisi` — Algı Psikolojisi (sayfa başlığı: Algı Psikolojisi: Yanılsamalar, Eşikler, Sinyal Saptama ve Tepki Süresi) · Lise–Lisans
 - `karar-ve-bilissel-yanliliklar` — Karar ve Bilişsel Yanlılıklar (sayfa başlığı: Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?) · Lise–Lisans
 - `bellek-ve-ogrenme` — Bellek ve Öğrenme (sayfa başlığı: Bellek ve Öğrenme: Unutma Eğrisi, Seri Konum, Çalışma Belleği, Yanlış Anılar) · Lise–Lisans
+- `bilinc-kuramlari` — Bilinç Kuramları (sayfa başlığı: Bilinç: Zor Sorun, Maskeleme, Dikkat Kırpması, Kuramlar ve Cogitate) · Lise–Lisans
+- `psikometri-ve-olcme` — Psikometri ve Ölçme (sayfa başlığı: Psikometri: Güvenirlik, Geçerlik, Faktör Analizi, Madde Tepki Kuramı, Normlar) · Lise–Lisans
+- `psikiyatri-tarihi-ve-tani-sistemleri` — Psikiyatri Tarihi ve Tanı Sistemleri (sayfa başlığı: Psikiyatri Tarihi ve Tanı Sistemleri: Sınıflama, Güvenilirlik, Taban Oranı) · Lise–Lisans
 
 ## Felsefe ve Mantık (4)
 
@@ -195,11 +200,20 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `felsefi-dusunce-deneyleri` — Felsefi Düşünce Deneyleri (sayfa başlığı: Felsefi Düşünce Deneyleri: Tramvay, Theseus, Çin Odası, Mary ve Peçe) · Lise–Lisans
 - `bilim-felsefesi` — Bilim Felsefesi (sayfa başlığı: Bilim Felsefesi: Sınır Çizme, Duhem–Quine, Kuhn, Lakatos, Gerçekçilik) · Lise–Lisans
 
+## Din ve İnanç (2)
+
+- `karsilastirmali-dinler-tarihi` — Karşılaştırmalı Dinler Tarihi (sayfa başlığı: Karşılaştırmalı Dinler Tarihi: Tanımlar, Gelenekler, Kutsal Metinler, Sayılar) · Lise–Lisans
+- `din-felsefesi-ve-kelam` — Din Felsefesi ve Kelâm (sayfa başlığı: Din Felsefesi ve Kelâm: Tanrı Argümanları, Kötülük, İman ve Akıl) · Lise–Lisans
+
 ## Sanat ve Müzik (3)
 
 - `muzik-kurami-ve-akort` — Müzik Kuramı ve Akort (sayfa başlığı: Müzik Kuramı ve Akort: Harmonikler, Komalar ve Makam Perdeleri) · Lise–Lisans
 - `perspektif-ve-simetri` — Perspektif ve Simetri (sayfa başlığı: Perspektif ve Simetri: Kaçış Noktaları, Duvar Kâğıdı Grupları ve Girih) · Lise–Lisans
 - `mimarlik-tarihi-ve-yapi` — Mimarlık Tarihi ve Yapı (sayfa başlığı: Mimarlık Tarihi ve Yapı: Kemer, Kubbe, İtki Çizgisi ve Oran) · Lise–Lisans
+
+## Sinema (1)
+
+- `sinema-dili-ve-kurgu` — Sinema Dili ve Kurgu (sayfa başlığı: Sinema Dili ve Kurgu: Kare Hızı, Kadraj, 180° Kuralı ve Montaj) · Lise–Lisans
 
 ## Tarih ve Toplum (6)
 

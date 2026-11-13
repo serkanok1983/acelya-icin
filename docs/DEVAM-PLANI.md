@@ -728,8 +728,8 @@ tablosu hataları). Öneri:
    düzeltmeler. `docs/YENI-SAYFA-PLANI.md` tamamlandı. Ardından (O) mobil uyum ve tam sayfa kaydırma; (P)
    `docs/YENI-ALANLAR-PLANI.md` 1. grup: 8 sayfa, 6 yeni kategori; 13 Kasım (Q) üst çubuk çentik düzeltmesi; (R) 2. grup: 8 sayfa, İnsan Bedeni
    kategorisi açıldı; (S) 3. grup, yakın konular: 8 sayfa (dilbilim ikiye bölündü, bellek, bilim felsefesi, arkeoloji,
-   demografi, takvimler, mimarlık). **Sırada**: 4. grup, üçüncü halka (teoloji, psikiyatri, bilinç, edebiyat ve sinema; sayfa
-   listesi kullanıcıya danışılarak), sonra 4.S Öğrenme Yolları ve Önşart. Bir sayfa yeniden kurulursa
+   demografi, takvimler, mimarlık). (T) 4. grup, üçüncü halka: 8 sayfa, iki yeni kategori (Din ve İnanç, Sinema), ayrı kurallar `.shots/briefs/_ucuncu-halka.md`;
+   genişleme planı tamamlandı. **Sırada**: 4.S Öğrenme Yolları ve Önşart (yollar ve önşart listeleri kullanıcıya danışılarak). Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

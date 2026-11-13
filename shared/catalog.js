@@ -59,6 +59,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "anlati-yapisi-ve-edebiyat-cozumlemesi": {
+    "title": "Anlatı Yapısı: Bir Öyküyü Parçalarına Ayırmak",
+    "tagline": "Bir öykünün ne anlattığı başka, nasıl anlattığı başka. Aristoteles, Freytag, Propp ve Genette'nin araçlarıyla Oidipus'u, iki masalı, Odysseia'yı ve Poe'nun anlatıcısını kendin çözümle; araçların nerede yetmediğini de gör.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "arkeoloji-ve-tarihleme": {
     "title": "Arkeoloji ve Tarihleme: Geçmişin Sırası ve Yaşı",
     "tagline": "Bir çukurun dolgusu kestiği tabakadan neden gençtir, bir radyokarbon yaşı neden tek bir yıl değil de birkaç aralık verir? Arkeoloji geçmişin önce sırasını, sonra yaşını bulur; yöntemler birbirini denetler.",
@@ -213,6 +220,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "bilinc-kuramlari": {
+    "title": "Bilinç: Zor Sorun ve Yarışan Kuramlar",
+    "tagline": "Bir kırmızıyı görmenin nasıl bir şey olduğunu beyin nasıl üretir? Felsefenin sorusu, laboratuvarın yöntemi, beş yarışan kuram ve 2023–2025 tartışması; hiçbiri kazanan ilan edilmeden.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "birim-cember": {
     "title": "Birim Çember: Dönen Bir Noktanın Gölgeleri",
     "tagline": "Yarıçapı 1 olan çemberde her açı bir noktadır; kosinüs ve sinüs onun iki gölgesi. İki dönmeyi art arda yapmak toplama formüllerini verir; sinüs de küçük dönmeleri kaydırıp toplayarak hesaplanabilir.",
@@ -324,6 +338,13 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lisans",
     "minutes": 45
+  },
+  "din-felsefesi-ve-kelam": {
+    "title": "Din Felsefesi ve Kelâm: Argümanı Öncül Öncül Okumak",
+    "tagline": "Tanrı’nın varlığına ve yokluğuna dair argümanların neredeyse hepsi biçimce geçerlidir; bin yıllık tartışma öncüllerde sürer. Hangi öncülü kabul ettiğine göre neyin çıktığını gör; kazanan ilan edilmez.",
+    "field": "Din ve İnanç",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "dna-replikasyon": {
     "title": "DNA Replikasyonu: Kendi Kalıbını Taşıyan Molekül",
@@ -702,6 +723,13 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "karsilastirmali-dinler-tarihi": {
+    "title": "Karşılaştırmalı Dinler Tarihi: Tanımdan Sayıma",
+    "tagline": "Din araştırması inançların doğru olup olmadığını sormaz; insanların neye inandığını, metinlerini nasıl aktardığını ve kendilerini nasıl saydırdığını sorar. Tanımları, tarihleri ve sayımları kendin sına.",
+    "field": "Din ve İnanç",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "kepler-yasalari": {
     "title": "Kepler Yasaları: Sekiz Yay Dakikalık İnat",
@@ -1179,6 +1207,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "psikiyatri-tarihi-ve-tani-sistemleri": {
+    "title": "Psikiyatride Tanı: Bir Adın Tarihi ve İstatistiği",
+    "tagline": "Edirne'deki dârüşşifâdan DSM-5-TR ve ICD-11'e: ruhsal bozukluklara verilen adlar nasıl kuruldu, iki hekim aynı ada ne sıklıkla varır ve seyrek bir durumda pozitif bir sonuç ne anlama gelir?",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "psikometri-ve-olcme": {
+    "title": "Psikometri: Görülmeyeni Ölçmenin Kuramı",
+    "tagline": "Bir yeteneği cetvelle ölçemezsin; psikometri onu yanıtların arasındaki ilişkilerden çıkarır. Güvenirlik, geçerlik, faktörler, madde tepki kuramı ve normlar: hepsi benzetilmiş verilerle, elinin altında.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "radyoaktif-bozunma": {
     "title": "Radyoaktif Bozunma: Zar Atan Çekirdeklerin Saati",
     "tagline": "Tek bir çekirdeğin ne zaman bozunacağını kimse söyleyemez; milyarlarcasının yarısının ne zaman gideceğini ise şaşmadan söyleriz. Rastlantı, sayı büyüdükçe yasaya dönüşür.",
@@ -1288,6 +1330,13 @@ window.ACELYA_CATALOG = {
     "title": "Üç Yapım: Limite Ne Kalır?",
     "tagline": "Alanı azalan bir üçgen, limitte kareyi örten bir yol ve altın orana yaklaşan sayılar. Üç deneyde sonlu hesabı, geometrik ölçüyü ve yakınsama hatasını birbirinden ayır.",
     "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "sinema-dili-ve-kurgu": {
+    "title": "Sinema Dili ve Kurgu: Kareden Montaja",
+    "tagline": "Saniyede yirmi dört durağan resim nasıl akan bir dünyaya dönüşür? Kare hızı, mercek, 180° kuralı ve montaj: sinemanın dilbilgisini kendi kameranla, kendi kesmelerinle dene.",
+    "field": "Sinema",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -1472,6 +1521,13 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "uslup-istatistigi-ve-yazar-tanima": {
+    "title": "Üslup İstatistiği: Küçük Sözcüklerin Ele Verdiği Yazar",
+    "tagline": "Bir yazarı konusundan değil, farkında olmadan kullandığı “upon”, “ve”, “bu” gibi küçük sözcüklerden tanımak mümkün mü? Üç kuşak yöntemi gerçek kamu malı metinlerde dene ve ne zaman yanıldıklarını ölç.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "uzay-kosucusu": {
     "title": "Uzay Koşucusu: Tek Tuşla Yerçekimi",

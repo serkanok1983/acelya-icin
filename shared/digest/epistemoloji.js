@@ -190,7 +190,7 @@ window.ACELYA_DIGEST["epistemoloji"] = {
     { href: "mantik-ve-argumantasyon.html", title: "Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar", why: "Şüphecinin modus tollens'i ile Moore'un modus ponens'i aynı biçimin iki yönü: doğruluk tabloları, karşı modeller ve doğal çıkarımla geçerliliği kendin sına." },
     { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Kuzgun hesabının arkasındaki araçlar: tanı testinde taban oranı, önselden sonsala beta–binom güncellemesi ve ardışık güncelleme." },
     { href: "bilim-felsefesi.html", title: "Bilim Felsefesi: Sınır Çizme, Duhem–Quine, Kuhn, Lakatos, Gerçekçilik", why: "Bilgi kuramından bilimin kuramına: yanlışlanabilirlik, Duhem–Quine, Kuhn'un paradigmaları, Lakatos'un araştırma programları ve gerçekçilik tartışması." },
-    { href: "felsefi-dusunce-deneyleri.html", title: "Felsefi Düşünce Deneyleri: Tramvay, Theseus, Çin Odası, Mary ve Peçe", why: "Gettier vakaları gibi sezgiyle çalışan başka deneyler; son sekmesi, sezgilerin felsefede kanıt sayılıp sayılamayacağını doğrudan tartışır." },
+    { href: "din-felsefesi-ve-kelam.html", title: "Din Felsefesi ve Kelâm: Tanrı Argümanları, Kötülük, İman ve Akıl", why: "Gerekçe ve kanıt sorularının din üzerine uygulanışı: Clifford ve James, reformcu epistemoloji, kötülük sorununun Bayesçi biçimi." },
   ],
   sources: [
     { title: "Stanford Encyclopedia of Philosophy · The Analysis of Knowledge", url: "https://plato.stanford.edu/entries/knowledge-analysis/", note: "Üçlü çözümleme ve Theaetetus, Gettier vakaları, yanlış dayanak, duyarlılık, güvenlik, Zagzebski'nin tarifi, sahte ambarlar ve önce bilgi yaklaşımı (İngilizce)." },

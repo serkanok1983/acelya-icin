@@ -28,7 +28,7 @@ const warn = (m) => warnings.push(m);
 
 const SKIP_DIGEST = new Set(["index", "404", "bilgi", "bilim-atlasi"]);
 const ALLOWED_TAGS = new Set(["p", "strong", "em", "b", "i", "sup", "sub", "code", "kbd", "var", "br", "span", "small", "ul", "ol", "li", "a", "mark"]);
-const FIELDS = new Set(["Matematik", "Fizik", "Kimya", "Biyoloji", "Bilgisayar Bilimi", "Yer ve Uzay", "Yer ve Çevre Bilimleri", "Mühendislik", "Toplum ve Ekonomi", "Oyun", "Dil ve Edebiyat", "Zihin ve Davranış", "Tarih ve Toplum", "Felsefe ve Mantık", "Sanat ve Müzik", "İnsan Bedeni"]);
+const FIELDS = new Set(["Matematik", "Fizik", "Kimya", "Biyoloji", "Bilgisayar Bilimi", "Yer ve Uzay", "Yer ve Çevre Bilimleri", "Mühendislik", "Toplum ve Ekonomi", "Oyun", "Dil ve Edebiyat", "Zihin ve Davranış", "Tarih ve Toplum", "Felsefe ve Mantık", "Sanat ve Müzik", "İnsan Bedeni", "Din ve İnanç", "Sinema"]);
 const LEVELS = new Set(["Lise hazırlık", "Lise", "Lise ileri", "Lise–Lisans", "Lisans"]);
 const SOURCE_PREFIXES = [
   "https://openstax.org/", "https://ocw.mit.edu/", "https://phet.colorado.edu/",
@@ -38,6 +38,7 @@ const SOURCE_PREFIXES = [
   "https://mathworld.wolfram.com/", "https://www.3blue1brown.com/", "https://oeis.org/",
   "https://plato.stanford.edu/", "https://iep.utm.edu/", "https://www.britannica.com/", "https://sozluk.gov.tr/", "https://www.nisanyansozluk.com/", "https://ourworldindata.org/", "https://stratigraphy.org/", "https://www.loc.gov/", "https://www.gutenberg.org/", "https://www.metmuseum.org/", "https://www.si.edu/", "https://www.nps.gov/", "https://www.tdk.gov.tr/", "https://islamansiklopedisi.org.tr/",
   "https://psychclassics.yorku.ca/",
+  "https://archive.org/", "https://www.pewresearch.org/", "https://www.who.int/", "https://icd.who.int/", "https://www.psychiatry.org/", "https://www.nimh.nih.gov/", "https://www.saglik.gov.tr/", "https://tr.wikisource.org/", "https://en.wikisource.org/", "https://www.mevzuat.gov.tr/", "https://europepmc.org/", "https://www.ebi.ac.uk/europepmc/", "https://www.ncbi.nlm.nih.gov/", "https://pubmed.ncbi.nlm.nih.gov/", "https://pmc.ncbi.nlm.nih.gov/",
   "https://journals.plos.org/",
   "https://aa.usno.navy.mil/",
   "https://www5.tbmm.gov.tr/",
@@ -47,7 +48,7 @@ const SOURCE_PREFIXES = [
   "https://intcal.org/", "https://www.cambridge.org/", "https://whc.unesco.org/", "https://www.unesco.org/",
   "https://www.nrel.gov/", "https://www.energy.gov/", "https://refractiveindex.info/", "https://www.ioffe.ru/SVA/NSM/", "http://www.ioffe.ru/SVA/NSM/", "https://janaf.nist.gov/",
   "https://goldbook.iupac.org/", "https://webbook.nist.gov/", "https://www.nist.gov/", "https://www.itl.nist.gov/div898/handbook/", "https://physics.nist.gov/", "https://www.bipm.org/",
-  "https://www.ncbi.nlm.nih.gov/", "https://pubmed.ncbi.nlm.nih.gov/", "https://www.biointeractive.org/",
+  "https://www.ncbi.nlm.nih.gov/", "https://pubmed.ncbi.nlm.nih.gov/", "https://pmc.ncbi.nlm.nih.gov/", "https://www.biointeractive.org/",
   "https://tubes.mit.edu/",
   "https://math.bu.edu/", "https://dummit.cos.northeastern.edu/",
   "https://engineeringstatics.org/", "https://engcourses-uofa.ca/",

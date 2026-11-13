@@ -2021,3 +2021,24 @@ arşivi, Resmî Gazete, BM nüfus, TÜİK, HMD, IntCal, Cambridge, UNESCO, WALS 
   kuvvetleri, büyük kubbeler zaman çizelgesi, Vitruvius modülleri, altın oran tartışması, plan–kesit–görünüş.
 
 Koordinatör: menüye 8 sayfa; komşu defterlerden 10 bağlantı; katalog.
+
+## 13 Kasım 2026 — T: yeni alanlar, 4. grup (8 sayfa, üçüncü halka)
+
+Ayrı kurallar `.shots/briefs/_ucuncu-halka.md` (din: yansızlık, gelenek ve tarihsel-eleştirel görüş yan yana; psikiyatri:
+tanı/tarama/tedavi yok, telifli ölçüt yok; bilinç: çatışan okullar; edebiyat/sinema: yalnız kamu malı). Her doğrulayıcı
+kuralları tek tek PASS/FAIL raporladı.
+- ✔ `karsilastirmali-dinler-tarihi` (Din ve İnanç): tanım sınayıcı, gelenekler zaman/harita, kanon ve el yazması tarihleme,
+  ay takvimi kayması, Pew 2012/2015/2025 ve sayım yöntemi; doğrulayıcı gelenek kutularındaki dengesizlikleri giderdi.
+- ✔ `din-felsefesi-ve-kelam` (Din ve İnanç): argüman haritası (doğruluk tablosu, karşı model, itiraz–öncül eşlemesi), kötülük
+  sorunu tutarlılık sınayıcısı ve oyuncak Bayes, Pascal matrisi, kelâm okulları tablosu; kazanan ilan edilmez.
+- ✔ `psikiyatri-tarihi-ve-tani-sistemleri` (Zihin): sınıflama tarihçesi, Cohen kappa, taban oranı ve PPV, kategorik–boyutsal.
+- ✔ `psikometri-ve-olcme` (Zihin): klasik test kuramı, α/ω, Spearman–Brown, MTMM, Spearman 1904 g, IRT ve uyarlamalı test, normlar.
+- ✔ `bilinc-kuramlari` (Zihin): maskeleme (tek aralıklı tanıma; d′ = 2·z(p) olarak düzeltildi), dikkat kırpması, değişim
+  körlüğü, beş kuram, öğretim amaçlı Φ_öğr (IIT Φ'si değil), Cogitate ve açık mektup tartışması.
+- ✔ `anlati-yapisi-ve-edebiyat-cozumlemesi` (Dil): Freytag/Oidipus, Propp işlevleri iki masalda, Odysseia sıra ve düzeyler, Genette.
+- ✔ `uslup-istatistigi-ve-yazar-tanima` (Dil): Mendenhall eğrileri, Federalist Poisson–Bayes, Burrows/Cosine Delta, Türkçe kör atama.
+- ✔ `sinema-dili-ve-kurgu` (Sinema): kare hızı ve teker etkisi, sanal kamera ve alan derinliği, 180°/30° kuralı, Kuleşov
+  tartışması, ortalama çekim süresi, FSEK'e göre kamu malı hesaplayıcı; film görüntüsü yok.
+
+Koordinatör: menüye 8 sayfa ve iki kategori; izinli kaynaklara archive.org, Pew, WHO/ICD, APA, NIMH, PMC, Europe PMC,
+Vikikaynak, mevzuat.gov.tr, saglik.gov.tr; katalog.

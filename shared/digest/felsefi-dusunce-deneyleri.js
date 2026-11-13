@@ -189,7 +189,7 @@ window.ACELYA_DIGEST["felsefi-dusunce-deneyleri"] = {
   next: [
     { href: "epistemoloji.html", title: "Epistemoloji: Bilgi, Gettier, Şüphecilik, Gerekçe ve Tümevarım", why: "Gettier durumları da birer düşünce deneyidir: bilginin tanımını tek bir karşı örnekle sarsan senaryoları ve sezgilerin bilgi kuramındaki yerini incele." },
     { href: "mantik-ve-argumantasyon.html", title: "Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar", why: "Norton'a göre her düşünce deneyi bir argümandır: geçerlilik, olmayana ergi, safsatalar ve yığın gibi paradokslarla argümanın iskeletini çıkarmayı öğren." },
-    { href: "karar-ve-bilissel-yanliliklar.html", title: "Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?", why: "Peçenin ardındaki seçimin psikolojik yüzü: beklenen fayda, Allais paradoksu, risk karşısındaki tutumlar ve çerçeveleme etkileri." },
+    { href: "bilinc-kuramlari.html", title: "Bilinç: Zor Sorun, Maskeleme, Dikkat Kırpması, Kuramlar ve Cogitate", why: "Mary'nin odasının ve Çin odasının bilim tarafı: bilincin nöral bağıntıları nasıl aranır, hangi kuram neyi öngörür, okur üzerinde maskeleme deneyi." },
     { href: "makine-ogrenmesi-derin-ogrenme-llm.html", title: "Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri", why: "Çin odası tartışmasının bugünkü karşılığı: dil modellerinin metni gerçekte nasıl ürettiğini, gradyan inişinden sinir ağlarına adım adım gör." },
   ],
   sources: [

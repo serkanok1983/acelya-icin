@@ -64,7 +64,7 @@ window.ACELYA_DIGEST = window.ACELYA_DIGEST || {};
 window.ACELYA_DIGEST["<slug>"] = {
   slug: "<slug>",
   title: "Başlık: Alt başlık",            // 3–8 kelime, sayfa başlığından daha iyi olabilir
-  field: "Fizik",                          // Matematik | Fizik | Kimya | Biyoloji | Bilgisayar Bilimi | Yer ve Uzay | Yer ve Çevre Bilimleri | Mühendislik | Toplum ve Ekonomi | Oyun | Dil ve Edebiyat | Zihin ve Davranış | Tarih ve Toplum | Felsefe ve Mantık | Sanat ve Müzik | İnsan Bedeni
+  field: "Fizik",                          // Matematik | Fizik | Kimya | Biyoloji | Bilgisayar Bilimi | Yer ve Uzay | Yer ve Çevre Bilimleri | Mühendislik | Toplum ve Ekonomi | Oyun | Dil ve Edebiyat | Zihin ve Davranış | Tarih ve Toplum | Felsefe ve Mantık | Sanat ve Müzik | İnsan Bedeni | Din ve İnanç | Sinema
   level: "Lise",                           // Lise hazırlık | Lise | Lise ileri | Lise–Lisans | Lisans
   minutes: 25,                             // okuma + deney süresi
   tagline: "…",                            // 1–2 cümle, ≤ 220 karakter; meta description olarak da kullanılır

@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["aruz-ve-hece-olcusu"] = {
   next: [
     { href: "turkcenin-ses-yapisi.html", title: "Türkçenin Ses Yapısı: Ünlü Uyumu, Ünsüz Değişimi ve Hece", why: "Buradaki heceleme kuralının (ilk heceden sonra her hece tek ünsüzle başlar) arka planı: Türkçenin hece yapısı, ünlü uyumu ve ünsüz değişimleri, kendi sözlüğüyle." },
     { href: "etimoloji-ve-dil-aileleri.html", title: "Etimoloji ve Dil Aileleri: Ses Denklikleri, Soy Ağaçları, Alıntılar", why: "Uzun ünlüler Türkçeye Arapça ve Farsça alıntılarla girdi; Türkçenin alıntı katmanlarını ve dil ailelerini orada sına." },
-    { href: "muzik-kurami-ve-akort.html", title: "Müzik Kuramı ve Akort: Harmonikler, Komalar ve Makam Perdeleri", why: "Aruz da bir ritim düzenidir; şiirdeki kısa–uzun dizilişinin yanına müziğin oranlarını, komalarını ve makam perdelerini koy." },
+    { href: "anlati-yapisi-ve-edebiyat-cozumlemesi.html", title: "Anlatı Yapısı: Aristoteles, Propp ve Genette ile Metin Çözümleme", why: "Ölçüden yapıya: olay örgüsü, masal işlevleri, anlatı sırası ve odaklanma; çözümlemeyi kamu malı metinler üzerinde kendin yap." },
     { href: "zipf-yasasi-ve-dil-istatistigi.html", title: "Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni", why: "04 sekmesindeki gibi dili sayarak okumanın bir başka yolu: gerçek metinlerde sözcük sıklıklarını ölç." },
   ],
   sources: [

@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["regresyon-ve-korelasyon"] = {
     { href: "hipotez-testi-ve-guven-araligi.html", title: "Hipotez Testi ve Güven Aralığı: Örnekleme, p-Değeri, Hata Türleri ve Güç", why: "Eğimin t aralığının arkasındaki fikir: örnekleme dağılımı, aralıkların gerçek kapsaması, p-değeri ve testin gücü." },
     { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "En küçük kareler sekmesinde normal denklemlerin geometrisi: sütun uzayına izdüşüm, QR ve SVD ile çözüm." },
     { href: "bilimsel-yontem-olcme-ve-belirsizlik.html", title: "Bilimsel Yöntem, Ölçme ve Belirsizlik: Basamak, Yayılım, Hata ve Uydurma", why: "Ölçüm belirsizliğiyle ağırlıklı grafik uydurma ve artıkların modeli sorgulaması." },
-    { href: "makine-ogrenmesi-derin-ogrenme-llm.html", title: "Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri", why: "Aynı kareler toplamı çanağını bu kez gradyan inişiyle yürümek ve kayıp yüzeyinden sinir ağlarına geçmek." },
+    { href: "psikometri-ve-olcme.html", title: "Psikometri: Güvenirlik, Geçerlik, Faktör Analizi, Madde Tepki Kuramı, Normlar", why: "Korelasyonun ölçme kuramındaki yeri: güvenirlik, düşüklük düzeltmesi, faktör analizi ve görünmeyen bir özelliği ölçmenin sınırları." },
   ],
   sources: [
     { title: "Wikipedia · Least squares", url: "https://en.wikipedia.org/wiki/Least_squares", note: "Yöntemin tarihi: Piazzi ve Ceres (1801), Gauss'un tahmini, Legendre 1805, Gauss 1809 ve öncelik tartışması (İngilizce)." },

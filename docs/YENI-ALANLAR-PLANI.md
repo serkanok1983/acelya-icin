@@ -72,7 +72,18 @@ Nişanyan Sözlük, Our World in Data, ICS stratigrafi, Library of Congress, Pro
 | `bilim-felsefesi` | Felsefe ve Mantık | sınır çizme sorunu, yanlışlanabilirlik, Duhem–Quine, Kuhn ve paradigmalar, Lakatos, bilimsel gerçekçilik tartışması |
 | `takvimler-ve-zaman-olcumu` | Tarih ve Toplum | Jülyen ve Gregoryen takvim, Hicrî ve Rumî takvim, Metonik döngü, artık yıl kuralları, tarih dönüştürme |
 
-## 4. grup: üçüncü halka (sıradaki; 3. grup yayımlanınca)
+## 4. grup: üçüncü halka (8 sayfa) ✔ 13 Kasım (T) — kullanıcı listeyi onayladı; genişleme planı tamamlandı
 
-Teoloji, psikiyatri, bilinç, edebiyat ve sinema; yukarıdaki ayrı kurallarla. Bu grupla genişleme planı tamamlanır;
-ardından `docs/DEVAM-PLANI.md` 4.S (Öğrenme Yolları ve Önşart, atlas ve omurganın kaldırılması) gelir.
+Ayrı kurallar: `.shots/briefs/_ucuncu-halka.md` (kurucu, yazar, doğrulayıcı için bağlayıcı). İki yeni kategori: Din ve İnanç, Sinema.
+Bu grupla genişleme planı tamamlanır; ardından `docs/DEVAM-PLANI.md` 4.S (Öğrenme Yolları ve Önşart, atlas ve omurganın kaldırılması) gelir.
+
+| Sayfa | Kategori | Öz |
+|---|---|---|
+| `karsilastirmali-dinler-tarihi` | Din ve İnanç | din biliminin yöntemi, "din" tanımları, geleneklerin doğuşu ve yayılışı, kutsal metinlerin derlenme tarihi, nüfus tahminleri; hiçbir inanç doğrulanmaz ya da çürütülmez |
+| `din-felsefesi-ve-kelam` | Din ve İnanç | ontolojik, kozmolojik, tasarım argümanları ve itirazları, kötülük sorunu, Pascal'ın bahsi, kelâm okulları ve felsefe; argüman haritası, kazanan ilan edilmez |
+| `psikiyatri-tarihi-ve-tani-sistemleri` | Zihin ve Davranış | Kraepelin'den DSM-5-TR ve ICD-11'e, güvenirlik ve kappa, taban oranı ve tarama istatistiği, kategorik ve boyutsal modeller; tanı ya da tedavi tavsiyesi yok |
+| `psikometri-ve-olcme` | Zihin ve Davranış | klasik test kuramı, güvenirlik ve Cronbach alfa, geçerlik, faktör analizi, madde tepki kuramı; yalnız yapay veri |
+| `bilinc-kuramlari` | Zihin ve Davranış | zor sorun, bilincin nöral bağıntıları, maskeleme ve dikkat kırpması deneyleri, küresel çalışma alanı, bütünleşik bilgi kuramı, yüksek düzey kuramlar; çatışan okullar |
+| `anlati-yapisi-ve-edebiyat-cozumlemesi` | Dil ve Edebiyat | Aristoteles, Freytag, Propp'un işlevleri, Genette (sıra, süre, odaklanma), çerçeve öyküler; yalnız kamu malı metinler |
+| `uslup-istatistigi-ve-yazar-tanima` | Dil ve Edebiyat | Mendenhall, Federalist yazıları ve Mosteller–Wallace, Burrows Delta, Türkçe kamu malı metinlerle yazar tanıma |
+| `sinema-dili-ve-kurgu` | Sinema | kare hızı ve hareket algısı, çekim ölçekleri, 180 derece kuralı, Kuleşov etkisi, montaj kuramları, ortalama çekim süresi; yalnız kamu malı filmler |

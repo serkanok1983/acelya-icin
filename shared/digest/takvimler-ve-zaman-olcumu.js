@@ -186,7 +186,7 @@ window.ACELYA_DIGEST["takvimler-ve-zaman-olcumu"] = {
   ],
   next: [
     { href: "ay-evreleri.html", title: "Ay Evreleri, Tutulmalar ve Mevsimler", why: "Takvimlerin dayandığı iki saati gökte izle: sinodik ile yıldızıl ayın farkı, tutulmalar ve mevsimleri eksen eğikliğinin yarattığı." },
-    { href: "kepler-yasalari.html", title: "Kepler Yasaları — Gezegen Yörüngeleri", why: "Ilımdan ılıma sürenin yörüngede nereden ölçüldüğüne bağlı olmasının kökü: Dünya eliptik yörüngede eşit sürelerde eşit alan tarar, hızı değişir." },
+    { href: "karsilastirmali-dinler-tarihi.html", title: "Karşılaştırmalı Dinler Tarihi: Tanımlar, Gelenekler, Kutsal Metinler, Sayılar", why: "Takvimlerin dinî bayramlarla bağı: güneş, ay ve ay-güneş takvimli bayramlar, ay yılının mevsimler içinde kayması ve din biliminin yöntemi." },
     { href: "arkeoloji-ve-tarihleme.html", title: "Arkeoloji ve Tarihleme: Stratigrafi, Radyokarbon, Ağaç Halkaları, Seriasyon", why: "Yazılı takvimin ulaşamadığı geçmiş: stratigrafiyle sıra, radyokarbon ve IntCal20 kalibrasyonuyla yaş, ağaç halkalarıyla yıl yıl kronoloji." },
     { href: "tarihsel-veri-ve-haritalar.html", title: "Tarihsel Veri ve Haritalar: Minard, Snow, Nüfus Tahminleri ve Kaynak Eleştirisi", why: "Belgedeki tarihi okuduktan sonra belgenin kendisini tart: Minard'ın 1812 haritası, Snow'un kolera verisi ve kaynak eleştirisi." },
   ],
