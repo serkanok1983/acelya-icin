@@ -20,7 +20,7 @@ const abs = (a, b, tol, label = "") => { assert(Number.isFinite(a) && Math.abs(a
 const ok = (c, label) => { assert(c, label); checks++; };
 ok(Object.isFrozen(K), "çekirdek dondurulmuş");
 assert(!/fonts\.googleapis|atlas\.css|atlas\.js|cdn\./.test(html), "atlas dosyası, Google Fonts ya da CDN yok"); checks++;
-ok(/data-page="bilimsel-yontem-olcme-ve-belirsizlik"/.test(html) && /href="bilim-atlasi\.html"/.test(html), "slug ve Bilim Atlası bağlantısı");
+ok(/data-page="bilimsel-yontem-olcme-ve-belirsizlik"/.test(html) && /href="onsart\.html#temel-fizik"/.test(html), "slug ve Önşart (Temel Fizik) bağlantısı");
 ok(!/[̀-ͯ]/.test(html), "birleşik işaret yok");
 
 // Bağımsız üreteç (LCG) ve normal sayılar

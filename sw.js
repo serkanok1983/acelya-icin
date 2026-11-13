@@ -13,17 +13,16 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-3dee8df10a";
+const VERSION = "acelya-4209bc9e94";
 // --- end:version ---
 
 // --- generated:core ---
 const CORE = [
   "index.html",
   "404.html",
-  "bilim-atlasi.html",
+  "ogrenme-yollari.html",
+  "onsart.html",
   "shared/app.js",
-  "shared/atlas.css",
-  "shared/atlas.js",
   "shared/catalog.js",
   "shared/chart-safe.js",
   "shared/digest.css",
@@ -35,10 +34,10 @@ const CORE = [
   "shared/game-mobile.js",
   "shared/icons.js",
   "shared/leaderboard.js",
-  "shared/stem-bridge.css",
-  "shared/stem-bridge.js",
-  "shared/stem-content.js",
   "shared/theme.css",
+  "shared/yollar-view.js",
+  "shared/yollar.css",
+  "shared/yollar.js",
   "hit.m4a",
   "explode.m4a",
   "laser.m4a",

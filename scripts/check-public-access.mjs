@@ -76,6 +76,30 @@ try {
   await page.waitForSelector('#kesif-defteri');
   check(await page.locator('#kesif-defteri').isVisible(), true, 'Depolama kapalıyken defter');
   await blocked.close();
+
+  // Telefonda duraklat → devam et: katman ekranı kaplar, sayfa yerinden oynamaz, dokunmatik geri gelir.
+  // (13 Kasım hatası: theme.css'teki genel position: relative kuralı katmanı sayfa sonuna düşürüyordu.)
+  const phone = await browser.newContext({ viewport: { width: 412, height: 839 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2, serviceWorkers: 'block' });
+  for (const game of ['snake', 'tetris', 'pong']) {
+    const gp = await phone.newPage(); track(gp);
+    await gp.goto(`${base}/${game}.html`);
+    await gp.waitForTimeout(400);
+    const y0 = await gp.evaluate(() => scrollY);
+    const pb = await gp.locator('#appPauseBtn').boundingBox();
+    await gp.touchscreen.tap(pb.x + pb.width / 2, pb.y + pb.height / 2);
+    check(await gp.evaluate(() => getComputedStyle(document.getElementById('appPauseOverlay')).position), 'fixed', `${game}: duraklatma katmanı sabit`);
+    check(await gp.evaluate(() => { const r = document.getElementById('appPauseResume').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), true, `${game}: Devam et ekranda`);
+    check(await gp.evaluate(() => scrollY), y0, `${game}: duraklatınca sayfa kaymaz`);
+    const rb = await gp.locator('#appPauseResume').boundingBox();
+    await gp.touchscreen.tap(rb.x + rb.width / 2, rb.y + rb.height / 2);
+    check(await gp.evaluate(() => [window.AcelyaPause.isPaused(), [...document.body.children].some((e) => e.inert), document.body.style.overflow]), [false, false, ''], `${game}: devam edince kilit kalmaz`);
+    const cv = await gp.locator('.game-stage canvas').first().boundingBox();
+    check(await gp.evaluate(([x, y]) => document.elementFromPoint(x, y)?.tagName, [cv.x + cv.width / 2, Math.min(cv.y + cv.height / 2, 800)]), 'CANVAS', `${game}: oyun alanı yine dokunuşa açık`);
+    await gp.close();
+  }
+  await phone.close();
+  check(await (async () => { const tp = await browser.newPage(); await tp.goto(`${base}/snake.html`); const v = await tp.evaluate(() => getComputedStyle(document.getElementById('acelyaGameToast') || document.body).position); await tp.close(); return v; })(), 'fixed', 'Oyun bildirimi sabit konumda');
+
   check(retiredRequests, [], 'Kimlik/etkinlik/Firebase isteği yok');
   check(errors, [], 'JavaScript hatası yok');
   console.log(JSON.stringify({ checks, errors, retiredRequests }));

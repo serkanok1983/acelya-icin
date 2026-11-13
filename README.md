@@ -1,8 +1,8 @@
-# Açelya'nın Yeri — Temel Bilimler Atlası
+# Açelya'nın Yeri — Etkileşimli Ansiklopedi
 
-Liseden üniversite temellerine uzanan, Türkçe, etkileşimli bir bilim
-ansiklopedisi. Matematik, fizik, kimya, biyoloji, bilgisayar bilimi,
-yer-uzay bilimleri ve mühendislik konuları; her biri çalışan bir
+Liseden üniversite temellerine uzanan, Türkçe, etkileşimli bir
+ansiklopedi. Matematik, fen bilimleri, bilgisayar bilimi ve mühendislikten
+insan ve topluma, dil, felsefe ve sanata uzanan konular; her biri çalışan bir
 simülasyon ya da oyunla, altında da katmanlı bir **Keşif Defteri** ile
 sunulur. Amaç bilgi vermekten öte merak uyandırmak: tahmin et, dene,
 gözle, açıkla.
@@ -30,9 +30,10 @@ ayrıca skor tablosu, mobil kontroller ve ses katmanını yükler.
 
 ```
 index.html              ana menü (kategoriler, arama)
-bilim-atlasi.html       kavram haritası ve ön koşullu rotalar
+ogrenme-yollari.html    meslek hedefine göre sıralı dersler (veri: shared/yollar.js)
+onsart.html             temelden başlayan önşart dizileri
 <slug>.html             konu sayfaları (simülasyon / oyun)
-shared/                 ortak kabuk, atlas, STEM omurgası, oyun katmanı
+shared/                 ortak kabuk, katalog, yol verisi, oyun katmanı
 shared/digest/          sayfa başına Keşif Defteri verisi
 docs/                   içerik rehberi ve sayfa kataloğu
 scripts/                denetim ve bakım betikleri

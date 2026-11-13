@@ -26,7 +26,7 @@ const warnings = [];
 const err = (m) => errors.push(m);
 const warn = (m) => warnings.push(m);
 
-const SKIP_DIGEST = new Set(["index", "404", "bilgi", "bilim-atlasi"]);
+const SKIP_DIGEST = new Set(["index", "404", "bilgi", "ogrenme-yollari", "onsart"]);
 const ALLOWED_TAGS = new Set(["p", "strong", "em", "b", "i", "sup", "sub", "code", "kbd", "var", "br", "span", "small", "ul", "ol", "li", "a", "mark"]);
 const FIELDS = new Set(["Matematik", "Fizik", "Kimya", "Biyoloji", "Bilgisayar Bilimi", "Yer ve Uzay", "Yer ve Çevre Bilimleri", "Mühendislik", "Toplum ve Ekonomi", "Oyun", "Dil ve Edebiyat", "Zihin ve Davranış", "Tarih ve Toplum", "Felsefe ve Mantık", "Sanat ve Müzik", "İnsan Bedeni", "Din ve İnanç", "Sinema"]);
 const LEVELS = new Set(["Lise hazırlık", "Lise", "Lise ileri", "Lise–Lisans", "Lisans"]);
@@ -111,7 +111,7 @@ for (const p of pages) {
 const menuHrefs = new Set([...html.index.matchAll(/href: "([^"]+\.html)"/g)].map((m) => m[1]));
 for (const h of menuHrefs) if (!existsSync(join(ROOT, h))) err(`index.html menüsü var olmayan sayfaya gidiyor: ${h}`);
 for (const p of pages) {
-  if (["index", "404", "bilgi"].includes(p)) continue;
+  if (["index", "404", "bilgi", "ogrenme-yollari", "onsart"].includes(p)) continue;
   if (!menuHrefs.has(`${p}.html`)) warn(`${p}.html ana menüde yok`);
 }
 

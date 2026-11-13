@@ -38,8 +38,8 @@ const replaceBlock = (name, body) => {
   src = src.replace(re, `$1${body}$2`);
 };
 replaceBlock("version", `const VERSION = "${version}";`);
-replaceBlock("core", `const CORE = [\n${fmt(["index.html", "404.html", "bilim-atlasi.html", ...shared, ...media])}\n];`);
-replaceBlock("pages", `const PAGES = [\n${fmt(pages.filter((p) => !["index.html", "404.html", "bilim-atlasi.html"].includes(p)))}\n];`);
+replaceBlock("core", `const CORE = [\n${fmt(["index.html", "404.html", "ogrenme-yollari.html", "onsart.html", ...shared, ...media])}\n];`);
+replaceBlock("pages", `const PAGES = [\n${fmt(pages.filter((p) => !["index.html", "404.html", "ogrenme-yollari.html", "onsart.html"].includes(p)))}\n];`);
 replaceBlock("digests", `const DIGESTS = [\n${fmt(digests)}\n];`);
 
 const current = readFileSync(SW, "utf8");

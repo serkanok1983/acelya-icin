@@ -491,7 +491,14 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 
 ## 4. Yapılacaklar (sırayla)
 
-### 4.S Sıradaki: Öğrenme Yolları ve Önşart (13 Kasım; genişleme planı bütünüyle bittikten sonra)
+### 4.S Öğrenme Yolları ve Önşart (13 Kasım) — proje planı: `docs/OGRENME-YOLLARI-PLANI.md`
+
+**U1 tamam (13 Kasım):** menü on dengeli gruba ve ara başlıklara geçti; Bilim Atlası ve STEM Omurgası kaldırıldı
+(konuları gruplara, mekanik rotası Temel Fizik önşartına, STEM rotası yolların ileri basamaklarına dağıldı);
+`ogrenme-yollari.html`, `onsart.html`, `shared/yollar.js`, `scripts/check-yollar.mjs` (`npm run test:yollar`).
+**Sırada U2:** önşart matematik ve programlama (8 ders). Sonra U3–U5 (planda).
+
+İlk istek (kayıt için):
 
 Sıra (kullanıcı 13 Kasım): önce yeni alanlar 3. grup (yakın konular), sonra üçüncü halka (teoloji, psikiyatri,
 bilinç, edebiyat ve sinema; `docs/YENI-ALANLAR-PLANI.md` ayrı kurallarıyla), genişleme planı tamamlanınca bu yapı.
@@ -729,7 +736,7 @@ tablosu hataları). Öneri:
    `docs/YENI-ALANLAR-PLANI.md` 1. grup: 8 sayfa, 6 yeni kategori; 13 Kasım (Q) üst çubuk çentik düzeltmesi; (R) 2. grup: 8 sayfa, İnsan Bedeni
    kategorisi açıldı; (S) 3. grup, yakın konular: 8 sayfa (dilbilim ikiye bölündü, bellek, bilim felsefesi, arkeoloji,
    demografi, takvimler, mimarlık). (T) 4. grup, üçüncü halka: 8 sayfa, iki yeni kategori (Din ve İnanç, Sinema), ayrı kurallar `.shots/briefs/_ucuncu-halka.md`;
-   genişleme planı tamamlandı. **Sırada**: 4.S Öğrenme Yolları ve Önşart (yollar ve önşart listeleri kullanıcıya danışılarak). Bir sayfa yeniden kurulursa
+   genişleme planı tamamlandı. (U1) Öğrenme Yolları, Önşart ve on grup; **Sırada**: U2 önşart matematik ve programlama (`docs/OGRENME-YOLLARI-PLANI.md`). Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.
