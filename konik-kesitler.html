@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Konik Kesitler: Elips, Parabol ve Hiperbol</title>
+  <meta name="description" content="Bir koniyi düzlemle kes: eğime göre çember, elips, parabol ya da hiperbol çıkar. Tek bir sayı, dışmerkezlik, dördünü birleştirir; gezegen yörüngelerinden çanak antenlere uzanan bir geometri.">
+  <style>
+    body.app-page .app-content { max-width: 1100px; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(270px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage, .side { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+      cursor: grab;
+    }
+    .lab[data-tab="odak"] .sim-canvas, .lab[data-tab="yansima"] .sim-canvas { aspect-ratio: 3 / 2; cursor: pointer; }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .lab[data-tab="odak"] .chart-canvas { aspect-ratio: 5 / 2; }
+    .lab[data-tab="yansima"] .chart-canvas { aspect-ratio: 3 / 1; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; }
+    .legend span { white-space: nowrap; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.dot { width: 9px; height: 9px; border: 0; border-radius: 50%; background: var(--text-muted); }
+    .legend i.k-cone { border-top-color: #93c5fd; }
+    .legend i.k-plane { border-top-color: #c4b5fd; }
+    .legend i.k-curve { border-top-color: var(--accent-warm); }
+    .legend i.k-sph { border-top-color: var(--accent); }
+    .legend i.k-foc { background: #f472b6; }
+    .legend i.k-blue { border-top-color: #60a5fa; }
+    .legend i.k-acc { border-top-color: var(--accent); }
+    .legend i.k-acc.dot { background: var(--accent); }
+    .legend i.k-warm { border-top-color: var(--accent-warm); }
+    .legend i.k-ac2 { border-top-color: var(--accent-2); }
+    .legend i.k-dir { border-top-color: var(--danger); }
+    .legend i.k-ink { border-top-color: var(--text); }
+    .legend i.k-ink.dot { background: var(--text); }
+    .legend i.k-pink { border-top-color: #f472b6; }
+    [data-theme="light"] .legend i.k-cone { border-top-color: #1e40af; }
+    [data-theme="light"] .legend i.k-plane { border-top-color: #7c3aed; }
+    [data-theme="light"] .legend i.k-foc { background: #db2777; }
+    [data-theme="light"] .legend i.k-blue { border-top-color: #2563eb; }
+    [data-theme="light"] .legend i.k-pink { border-top-color: #db2777; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; min-width: 0; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .pair { display: grid; grid-template-columns: minmax(0, 1fr) 6.4em; gap: 8px; align-items: center; }
+    .pair input[type="text"] { width: 100%; min-width: 0; box-sizing: border-box; padding: 5px 6px; font: inherit; font-size: 0.84rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 7px 10px; font: inherit; font-size: 0.82rem; cursor: pointer; }
+    .app-content button:disabled { opacity: 0.45; cursor: not-allowed; filter: none !important; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts-wrap { display: grid; gap: 10px; min-width: 0; }
+    .group { display: grid; gap: 10px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.8rem; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 36%; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    @media (max-width: 760px) {
+      .tabs { gap: 6px; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .lab-stage, .side { display: contents; }
+      .sim-canvas { order: 1; }
+      .legend { order: 2; }
+      .side .panel { order: 3; }
+      .chart-canvas { order: 4; }
+      .lab[data-tab="odak"] .chart-canvas { aspect-ratio: 2 / 1; }
+      .lab[data-tab="yansima"] .chart-canvas { aspect-ratio: 2 / 1; }
+      .readouts-wrap { order: 5; }
+      .lab table.cmp { font-size: 0.78rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="konik-kesitler">
+
+<div class="app-content">
+  <h1>Konik Kesitler: Elips, Parabol ve Hiperbol</h1>
+  <p class="hint">Bir sekme seç. Koniyi bir düzlemle kes, dışmerkezliği kesitin kendisinden ölçüp e = cos β / cos α ile karşılaştır; odak–doğrultman tanımını (PF = e·PD) ve konik aynaların ışığı odağa nasıl topladığını dene.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney senaryoları">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-kes" data-tab="kes" aria-selected="true" aria-controls="labPanel">Koniyi kes</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-odak" data-tab="odak" aria-selected="false" aria-controls="labPanel" tabindex="-1">Odak ve doğrultman</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-yansima" data-tab="yansima" aria-selected="false" aria-controls="labPanel" tabindex="-1">Yansıma özellikleri</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-kes" data-tab="kes">
+    <div class="lab-stage">
+      <canvas id="stageCanvas" class="sim-canvas" width="900" height="675" role="img" aria-label="Sahne"></canvas>
+      <p class="legend" data-for="kes">
+        <span><i class="k-cone"></i>çift koni</span>
+        <span><i class="k-plane"></i>kesen düzlem</span>
+        <span><i class="k-curve"></i>kesit (arka yüzde soluk)</span>
+        <span><i class="k-sph"></i>Dandelin küresi, değme çemberi</span>
+        <span><i class="k-foc dot"></i>kürenin düzleme değdiği nokta</span>
+      </p>
+      <p class="legend" data-for="odak" hidden>
+        <span><i class="k-blue"></i>eğri r = ℓ/(1 + e cos θ)</span>
+        <span><i class="k-acc dot"></i>örneklenen nokta (PF = e·PD)</span>
+        <span><i class="k-acc"></i>PF</span>
+        <span><i class="k-warm"></i>PD</span>
+        <span><i class="k-ac2"></i>PF₂</span>
+        <span><i class="k-dir dash"></i>doğrultman</span>
+      </p>
+      <p class="legend" data-for="yansima" hidden>
+        <span><i class="k-acc"></i>gelen ışın</span>
+        <span><i class="k-warm"></i>yansıyan ışın</span>
+        <span><i class="k-pink"></i>incelenen ışın</span>
+        <span><i class="k-ink"></i>ayna</span>
+        <span><i class="k-ink dot"></i>ışık atması (hepsi aynı hızla)</span>
+      </p>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Grafik"></canvas>
+
+      <div class="readouts-wrap" aria-live="polite">
+        <div class="group" data-for="kes">
+          <div class="cards">
+            <div class="readout is-highlight"><small>Kesitin türü</small><strong id="aKind">—</strong></div>
+            <div class="readout"><small>β ile α karşılaştırması</small><strong id="aCmp">—</strong></div>
+            <div class="readout"><small>Dandelin küreleri: yarıçap r = |z| sin α</small><strong id="aSph">—</strong></div>
+            <div class="readout"><small>Asimptotlar arası açı (hiperbol) ya da doğrular arası açı</small><strong id="aAsym">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Koniyi kes: izlenen kesitten ölçülen değerler ile kapalı formüller</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (kesitten)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Dışmerkezlik e: uydurma ile cos β / cos α</th><td id="aEm">—</td><td id="aEt">—</td><td id="aEd" class="diff">—</td></tr>
+              <tr><th scope="row" id="aALabel">Büyük yarı eksen a</th><td id="aAm">—</td><td id="aAt">—</td><td id="aAd" class="diff">—</td></tr>
+              <tr><th scope="row" id="aBLabel">Küçük yarı eksen b</th><td id="aBm">—</td><td id="aBt">—</td><td id="aBd" class="diff">—</td></tr>
+              <tr><th scope="row">Yarı latus rectum ℓ = b²/a ile d·tan α</th><td id="aLm">—</td><td id="aLt">—</td><td id="aLd" class="diff">—</td></tr>
+              <tr><th scope="row">Uydurulan odak ile küre değme noktası arası</th><td id="aFm">—</td><td id="aFt">—</td><td id="aFd" class="diff">—</td></tr>
+              <tr><th scope="row" id="aSLabel">PF₁ + PF₂, en çok sapan nokta</th><td id="aSm">—</td><td id="aSt">—</td><td id="aSd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Ölçüm: 720 doğuran düzlemle tek tek kesilir; bu noktalara genel konik Ax² + Bxy + Cy² + Dx + Ey + F = 0 en küçük kareler yöntemiyle oturtulur (6×6 matrisin en küçük özdeğerinin özvektörü). e, a, b, ℓ ve odaklar bu katsayılardan hesaplanır; hiçbiri formülden alınmaz. Kuram sütunu düzlem geometrisinden gelir: a = d sin α cos α / |sin²β − sin²α|, b = d sin α / √|sin²β − sin²α|. Odak satırındaki "kuram 0", Dandelin kürelerinin değme noktalarının odak olmasıdır. Tam çemberde (β = 90°) e katsayılardan bir karekökle çıktığı için 10⁻¹⁶'lık yuvarlama 10⁻⁸ düzeyinde bir e verir; β = 89°–89.99° arasında fark 10⁻¹¹'i geçmez.</p>
+          <p class="status" id="aStatus"></p>
+        </div>
+
+        <div class="group" data-for="odak" hidden>
+          <div class="cards">
+            <div class="readout is-highlight"><small>Eğrinin türü</small><strong id="bKind">—</strong></div>
+            <div class="readout"><small>Yarı latus rectum ℓ = e·k</small><strong id="bEll">—</strong></div>
+            <div class="readout"><small>Büyük yarı eksen a</small><strong id="bA">—</strong></div>
+            <div class="readout"><small>Küçük yarı eksen b</small><strong id="bB">—</strong></div>
+            <div class="readout"><small>Merkez–odak uzaklığı c = ae</small><strong id="bC">—</strong></div>
+            <div class="readout"><small>Asimptot doğrultusu θ<sub>∞</sub>: 1 + e cos θ = 0</small><strong id="bAsym">—</strong></div>
+            <div class="readout"><small>P'nin uzaklıkları: odağa PF, doğrultmana PD</small><strong id="bDist">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Odak ve doğrultman: P noktasında ölçülen uzaklıklar ile tanımlar</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (çizimden)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">PF / PD ile e</th><td id="bRm">—</td><td id="bRt">—</td><td id="bRd" class="diff">—</td></tr>
+              <tr><th scope="row" id="bPLabel">r = PF ile ℓ/(1 + e cos θ)</th><td id="bPm">—</td><td id="bPt">—</td><td id="bPd" class="diff">—</td></tr>
+              <tr><th scope="row" id="bTLabel">PF₁ + PF₂ ile 2a</th><td id="bTm">—</td><td id="bTt">—</td><td id="bTd" class="diff">—</td></tr>
+              <tr><th scope="row" id="bSLabel">Örneklenen noktalar: en büyük |PF − e·PD|</th><td id="bSm">—</td><td id="bSt">—</td><td id="bSd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <table class="cmp">
+            <caption class="visually-hidden">Gerçek yörüngeler: kutupsal denklemle çizilen eğriden ölçülen günberi ve günöte uzaklıkları</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Yörünge (grafikte)</th><th scope="col">q = ℓ/(1 + e)</th><th scope="col">Q = ℓ/(1 − e)</th><th scope="col">(Q − q)/(Q + q)</th></tr></thead>
+            <tbody>
+              <tr><th scope="row" id="oName0">Dünya</th><td id="oQ0">—</td><td id="oA0">—</td><td id="oE0">—</td></tr>
+              <tr><th scope="row" id="oName1">Halley</th><td id="oQ1">—</td><td id="oA1">—</td><td id="oE1">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Ölçüm: PF ve PD, P'nin çizimdeki koordinatlarından uzaklık olarak hesaplanır; P, kutupsal denklemle konumlanır, PF/PD ise odak–doğrultman tanımıdır. Noktalar ayrı bir yolla örneklenir: doğrultmana s uzaklıktaki doğru ile F merkezli e·s yarıçaplı çemberin kesişimi (pergel ve cetvel yapısı). Yörünge tablosunda q ve Q, grafikte çizilen eğrinin 3600 noktasındaki en küçük ve en büyük r'dir; son sütun bunlardan bulunan dışmerkezliktir.</p>
+          <p class="status" id="bStatus"></p>
+        </div>
+
+        <div class="group" data-for="yansima" hidden>
+          <div class="cards">
+            <div class="readout is-highlight"><small>Ayna</small><strong id="cKind">—</strong></div>
+            <div class="readout"><small>İncelenen ışın: geliş açısı θ<sub>g</sub></small><strong id="cThI">—</strong></div>
+            <div class="readout"><small>Yansıma açısı θ<sub>y</sub></small><strong id="cThR">—</strong></div>
+            <div class="readout"><small>Çarpma noktasından odağa giden doğrunun normalle açısı</small><strong id="cThF">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Yansıma: ışın izlemeden ölçülen açılar, odak kaçırma uzaklıkları ve yol uzunlukları</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (ışın izleme)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">İncelenen ışın: θ<sub>y</sub> ile θ<sub>g</sub></th><td id="cAm">—</td><td id="cAt">—</td><td id="cAd" class="diff">—</td></tr>
+              <tr><th scope="row" id="cMLabel">İncelenen ışın: yansıyanın F₂'ye uzaklığı</th><td id="cMm">—</td><td id="cMt">—</td><td id="cMd" class="diff">—</td></tr>
+              <tr><th scope="row" id="cXLabel">Bütün ışınlar: en büyük F₂ kaçırma uzaklığı</th><td id="cXm">—</td><td id="cXt">—</td><td id="cXd" class="diff">—</td></tr>
+              <tr><th scope="row" id="cLLabel">Yol uzunluğu F₁ → P → F₂: en çok sapan ışın</th><td id="cLm">—</td><td id="cLt">—</td><td id="cLd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Işın izleme: her ışının aynayla kesişimi ikinci derece denklemin kararlı biçimde çözülmesiyle bulunur, ışın kapalı denklemin gradyanı olan normale göre yansıtılır: r = d − 2(d·n)n. Açılar ise ayrı ölçülür: normal, aynanın çizilen eğrisinden sonlu farkla alınan teğetten çıkarılır. Kaçırma uzaklığı, odağın yansıyan ışının doğrusuna dik uzaklığıdır; yol uzunluğu kaynaktan aynaya, oradan da odağa en çok yaklaşılan noktaya kadardır.</p>
+          <p class="status" id="cStatus"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="panel" data-for="kes" role="group" aria-labelledby="ttlA">
+        <h2 id="ttlA">Koni ve kesen düzlem</h2>
+        <div class="field">
+          <label for="aAlpha"><span class="lt">Koninin yarı açısı α</span><output id="aAlphaOut" for="aAlpha aAlphaNum">30.00°</output></label>
+          <div class="pair">
+            <input type="range" id="aAlpha" min="10" max="60" step="0.5" value="30">
+            <label class="visually-hidden" for="aAlphaNum">Koninin yarı açısı α, derece</label>
+            <input type="text" id="aAlphaNum" data-min="10" data-max="60" value="30" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="aBeta"><span class="lt">Düzlemin eksenle açısı β</span><output id="aBetaOut" for="aBeta aBetaNum">60.00°</output></label>
+          <div class="pair">
+            <input type="range" id="aBeta" min="0" max="90" step="0.1" value="60">
+            <label class="visually-hidden" for="aBetaNum">Düzlemin eksenle açısı β, derece</label>
+            <input type="text" id="aBetaNum" data-min="0" data-max="90" value="60" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="aD"><span class="lt">Tepenin düzleme uzaklığı d</span><output id="aDOut" for="aD aDNum">0.80 br</output></label>
+          <div class="pair">
+            <input type="range" id="aD" min="0" max="1.5" step="0.01" value="0.8">
+            <label class="visually-hidden" for="aDNum">Tepenin düzleme uzaklığı d, birim</label>
+            <input type="text" id="aDNum" data-min="0" data-max="1.5" value="0.8" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="aAz"><span class="lt">Görüş: eksen çevresinde döndür</span><output id="aAzOut" for="aAz">−50°</output></label>
+          <input type="range" id="aAz" min="-180" max="180" step="1" value="-50">
+        </div>
+        <div class="field">
+          <label for="aEl"><span class="lt">Görüş: yükseklik açısı</span><output id="aElOut" for="aEl">22°</output></label>
+          <input type="range" id="aEl" min="-30" max="60" step="1" value="22">
+        </div>
+        <label class="check" for="aSpheres"><input type="checkbox" id="aSpheres" checked> Dandelin kürelerini göster</label>
+        <div class="row" role="group" aria-label="Hazır kesitler (α = 30°, d = 0.80 br)">
+          <button type="button" class="app-btn-ghost" data-preset-a="cember">Çember · β = 90°</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="elips">Elips · β = 60°</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="parabol">Parabol · β = 30°</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="hiperbol">Hiperbol · β = 15°</button>
+          <button type="button" class="app-btn-ghost" data-preset-a="paralel">Hiperbol · β = 0°</button>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aApex">Düzlemi tepeden geçir · d = 0</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Sıfırla</button>
+        </div>
+        <p class="note">α, koninin ekseni ile doğuranı arasındaki açıdır. β, kesen düzlem ile eksen arasındaki açıdır: β = 90° düzlem eksene diktir, β = α düzlem bir doğurana paraleldir, β = 0° düzlem eksene paraleldir. d, koninin tepesinden düzleme dik uzaklıktır; br uzunluk birimidir. Hazır kesitler α = 30° ve d = 0.80 br alır.</p>
+        <p class="note">Neden e = cos β / cos α? Küre düzleme F'de, koniye bir çember boyunca değer. Kesitin P noktası için PF, P'den küreye çizilen teğettir ve doğuran boyunca o çembere olan uzaklığa eşittir: PF = h / cos α (h, P'nin çemberin düzlemine yüksekliği). Çemberin düzlemi kesen düzlemi doğrultman doğrusunda keser ve PD = h / cos β. Oran PF/PD = cos β / cos α.</p>
+        <p class="note">Sahneyi sürükle: yatay hareket koniyi ekseni çevresinde döndürür, düşey hareket yükseklik açısını değiştirir. Telefonda yatay parmak hareketi koniyi döndürür, düşey hareket sayfayı kaydırır. Kısayol: <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="odak" role="group" aria-labelledby="ttlB" hidden>
+        <h2 id="ttlB">Odak, doğrultman ve dışmerkezlik</h2>
+        <div class="field">
+          <label for="bE"><span class="lt">Dışmerkezlik e</span><output id="bEOut" for="bE bENum">0.6000</output></label>
+          <div class="pair">
+            <input type="range" id="bE" min="0" max="2" step="0.01" value="0.6">
+            <label class="visually-hidden" for="bENum">Dışmerkezlik e</label>
+            <input type="text" id="bENum" data-min="0" data-max="2" value="0.6" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="bKeep"><span class="lt">e değişirken sabit kalan</span><output id="bKeepOut" for="bKeep">k</output></label>
+          <select id="bKeep">
+            <option value="k" selected>Odak–doğrultman uzaklığı k</option>
+            <option value="ell">Yarı latus rectum ℓ (Kepler yörüngeleri gibi)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bK"><span class="lt" id="bKLabel">Odak–doğrultman uzaklığı k</span><output id="bKOut" for="bK bKNum">1.50 br</output></label>
+          <div class="pair">
+            <input type="range" id="bK" min="0.2" max="3" step="0.01" value="1.5">
+            <label class="visually-hidden" for="bKNum" id="bKNumLabel">Odak–doğrultman uzaklığı k, birim</label>
+            <input type="text" id="bKNum" data-min="0.2" data-max="3" value="1.5" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label for="bTh"><span class="lt">P'nin kutup açısı θ (F'de, doğrultmana doğru 0°)</span><output id="bThOut" for="bTh">60°</output></label>
+          <input type="range" id="bTh" min="-180" max="180" step="1" value="60">
+        </div>
+        <label class="check" for="bBuild"><input type="checkbox" id="bBuild" checked> Pergel ve cetvel yapısını göster</label>
+        <div class="row" role="group" aria-label="Hazır dışmerkezlikler">
+          <button type="button" class="app-btn-ghost" data-preset-b="cember">Çember · e = 0</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="elips">e = 0.5</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="parabol">e = 1</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="hiperbol">e = 1.5</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="dunya">Dünya · e = 0.0167</button>
+          <button type="button" class="app-btn-ghost" data-preset-b="halley">Halley · e = 0.967</button>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="bSample">Yeniden örnekle</button>
+          <button type="button" class="app-btn-ghost" id="bPause" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button>
+        </div>
+        <p class="note">Tanım: P noktasının F odağına uzaklığı, doğrultman doğrusuna uzaklığının e katıdır, PF = e·PD. e &lt; 1 elips, e = 1 parabol, e &gt; 1 hiperbol verir. e &gt; 1 iken doğrultmanın öbür yanında ikinci bir kol da vardır. Kutupsal biçim r = ℓ/(1 + e cos θ), θ odakta doğrultmana doğru ölçülür; ℓ = e·k, odaktan eksene dik çıkan yarı kirişin boyudur.</p>
+        <p class="note">Gezegen ve kuyruklu yıldız yörüngeleri bu denklemdir (Güneş odakta, θ = 0 günberi): <a href="kepler-yasalari.html">Kepler yasaları</a>. Grafikteki değerler: Dünya e = 0.0167086, a = 1.000001 AU; Halley (1P) e = 0.96714, a = 17.834 AU, ℓ = a(1 − e²). İki yörünge aynı düzlemde çizilir; gerçekte Halley'in yörünge düzlemi ekliptiğe yaklaşık 162° eğiktir, yani kuyruklu yıldız gezegenlere ters yönde dolanır. k sabitken e = 0 eğriyi tek noktaya büzer; çember, ℓ sabit tutulup doğrultman sonsuza giderken elde edilir.</p>
+        <p class="note">P'yi sahnede sürükle ya da θ kaydırıcısını kullan (telefonda parmağını P'ye koy ya da eğriye dokun; boş yerde parmak sayfayı kaydırır); θ'ya göre 1 + e cos θ &lt; 0 ise P öbür koldadır (r &lt; 0). Kısayollar: <kbd>Boşluk</kbd> örneklemeyi duraklatır, <kbd>R</kbd> sıfırlar.</p>
+      </div>
+
+      <div class="panel" data-for="yansima" role="group" aria-labelledby="ttlC" hidden>
+        <h2 id="ttlC">Konik ayna</h2>
+        <div class="field">
+          <label for="cMirror"><span class="lt">Ayna</span><output id="cMirrorOut" for="cMirror">elips</output></label>
+          <select id="cMirror">
+            <option value="elips" selected>Elips: fısıldayan galeri</option>
+            <option value="parabol">Parabol: çanak anten ve far</option>
+            <option value="hiperbol">Hiperbol: Cassegrain teleskobu</option>
+          </select>
+        </div>
+        <div class="field" id="cEField">
+          <label for="cE"><span class="lt">Elipsin dışmerkezliği e (a = 3 br)</span><output id="cEOut" for="cE">0.60</output></label>
+          <input type="range" id="cE" min="0" max="0.9" step="0.01" value="0.6">
+        </div>
+        <div class="field" id="cPField" hidden>
+          <label for="cP"><span class="lt">Parabolün odak uzaklığı p</span><output id="cPOut" for="cP">1.20 br</output></label>
+          <input type="range" id="cP" min="0.5" max="3" step="0.05" value="1.2">
+        </div>
+        <div class="field" id="cHField" hidden>
+          <label for="cH"><span class="lt">Hiperbolün dışmerkezliği e (c = 2.2 br)</span><output id="cHOut" for="cH">1.60</output></label>
+          <input type="range" id="cH" min="1.1" max="3" step="0.01" value="1.6">
+        </div>
+        <div class="field">
+          <label for="cN"><span class="lt">Işın sayısı</span><output id="cNOut" for="cN">13</output></label>
+          <input type="range" id="cN" min="3" max="41" step="2" value="13">
+        </div>
+        <div class="field" id="cOffField">
+          <label for="cOff"><span class="lt" id="cOffLabel">Kaynağı F₁'den merkeze doğru kaydır δ</span><output id="cOffOut" for="cOff">0.00 br</output></label>
+          <input type="range" id="cOff" min="0" max="1.5" step="0.01" value="0">
+        </div>
+        <div class="field" id="cTiltField" hidden>
+          <label for="cTilt"><span class="lt">Demetin eksenle açısı τ</span><output id="cTiltOut" for="cTilt">0.0°</output></label>
+          <input type="range" id="cTilt" min="0" max="10" step="0.5" value="0">
+        </div>
+        <div class="field">
+          <label for="cSel"><span class="lt">İncelenen ışın</span><output id="cSelOut" for="cSel">4 / 13</output></label>
+          <input type="range" id="cSel" min="1" max="13" step="1" value="4">
+        </div>
+        <label class="check" for="cPulse"><input type="checkbox" id="cPulse" checked> Işık atmaları (animasyon)</label>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="cPause" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="cReset">Sıfırla</button>
+        </div>
+        <p class="note">Elips: F₁'den her yöne çıkan ışın yansıyıp F₂'den geçer ve PF₁ + PF₂ = 2a olduğu için hepsi aynı yolu alır; F₁'de fısıldanan söz F₂'ye aynı anda varır. Parabol: eksene paralel gelen ışınlar odakta toplanır; giriş doğrusundan odağa yol hep aynıdır, bu yüzden düzlem dalga odakta aynı evrede buluşur. Hiperbol: F₁'e doğru giden ışınlar dış bükey kola çarpıp F₂'ye yönelir; |PF₂ − PF₁| = 2a olduğundan F₁'e yaklaşan küresel dalga F₂'ye yaklaşan küresel dalgaya dönüşür.</p>
+        <p class="note">Kaynağı odaktan kaydırınca (ya da parabolde demeti eğince) ışınlar artık tek noktada buluşmaz: odak özelliği yalnız odağa aittir. Sahnede kaynağı (halka) sürükle ya da bir ışının çarpma noktasına dokunarak onu incele. Telefonda halkayı parmakla tut; boş yerde parmak sayfayı kaydırır. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  /* ── MATEMATİK (doğrulama betiği bu bloğu ayıklar; DOM'a dokunmaz) ── */
+  // >>> MATH
+  const M = (() => {
+    const D2R = Math.PI / 180, R2D = 180 / Math.PI, TAU = 2 * Math.PI;
+
+    /* (a) Çift koni x² + y² = z² tan²α: tepe orijinde, eksen z. Doğuran X = t·g(φ), g = (sin α cos φ, sin α sin φ, cos α);
+       t > 0 üst koni, t < 0 alt koni. Kesen düzlem eksenle β açısı yapar: birim normal n = (−cos β, 0, sin β),
+       düzlemdeki eksenler u = (sin β, 0, cos β) (en dik doğrultu) ve v = (0, 1, 0); denklemi n·X = d.
+       d tepenin düzleme dik uzaklığıdır; düzlem koordinatları U = X·u, V = X·v. */
+    function cut(al, be, d, phi) {
+      const sa = Math.sin(al), ca = Math.cos(al), sb = Math.sin(be), cb = Math.cos(be);
+      const gx = sa * Math.cos(phi), gy = sa * Math.sin(phi);
+      const ng = -cb * gx + sb * ca;
+      if (Math.abs(ng) < 1e-15) return null;            // doğuran düzleme paralel: kesişme sonsuzda
+      const t = d / ng, x = t * gx, y = t * gy, z = t * ca;
+      return { phi, t, x, y, z, U: x * sb + z * cb, V: y };
+    }
+    // Tür, denetimlerdeki (derece) değerlerle kesin karşılaştırılır: β = α tam parabol, d = 0 dejenere
+    function kindOf(aDeg, bDeg, d) {
+      if (!(d > 0)) return bDeg > aDeg ? "nokta" : bDeg === aDeg ? "dogru" : "dogrular";
+      if (bDeg === 90) return "cember";
+      return bDeg > aDeg ? "elips" : bDeg === aDeg ? "parabol" : "hiperbol";
+    }
+    /* Kapalı formüller. P = sin(β − α)·sin(β + α) = sin²β − sin²α.
+       Elips ve hiperbol: a = d sin α cos α / |P|, b = d sin α / √|P|; parabol: tepe–odak p = (d tan α)/2.
+       Her türde yarı latus rectum ℓ = b²/a = d tan α. Dandelin küreleri eksende z = d/(sin β ± sin α),
+       yarıçap |z| sin α; düzleme U = z cos β noktasında değer, koniye z_c = z cos²α yüksekliğindeki çember boyunca değer. */
+    function theoryA(aDeg, bDeg, d) {
+      const al = aDeg * D2R, be = bDeg * D2R;
+      const sa = Math.sin(al), ca = Math.cos(al), sb = Math.sin(be), cb = bDeg === 90 ? 0 : Math.cos(be);
+      const kind = kindOf(aDeg, bDeg, d);
+      const T = { kind, aDeg, bDeg, al, be, sa, ca, sb, cb, d, e: cb / ca, P: Math.sin(be - al) * Math.sin(be + al), ell: (d * sa) / ca, spheres: [] };
+      if (!(d > 0)) {
+        if (kind !== "nokta") {
+          // Düzlemde kalan doğuranlar: n·g = 0 → cos φ₀ = tan β / tan α
+          T.phi0 = Math.acos(Math.min(1, Math.tan(be) / Math.tan(al)));
+          const c2 = Math.cos(2 * T.phi0);
+          T.gamma = Math.acos(Math.max(-1, Math.min(1, sa * sa * c2 + ca * ca)));
+        }
+        return T;
+      }
+      if (kind === "parabol") {
+        T.p = (d * sa) / (2 * ca);
+        T.Uv = (d * Math.cos(2 * al)) / Math.sin(2 * al);
+      } else {
+        const aP = Math.abs(T.P);
+        T.a = (d * sa * ca) / aP;
+        T.b = (d * sa) / Math.sqrt(aP);
+        T.c = kind === "hiperbol" ? Math.hypot(T.a, T.b) : Math.sqrt(Math.max(0, T.a * T.a - T.b * T.b));
+        T.Uc = (d * sb * cb) / T.P;
+        if (kind === "hiperbol") T.gamma = 2 * Math.atan(T.b / T.a);
+      }
+      const zs = [d / (sb + sa)];
+      if (kind !== "parabol") zs.push(d / (sb - sa));
+      T.spheres = zs.map((z) => ({ z, r: Math.abs(z) * sa, U: z * cb, zc: z * ca * ca, rc: Math.abs(z) * ca * sa, Ud: cb > 0 ? (z * ca * ca - d * sb) / cb : NaN }));
+      // PF₁ + PF₂ (elips, çember) ya da |PF₁ − PF₂| (hiperbol): iki değme çemberi arasındaki doğuran parçası
+      T.sumTheory = kind === "parabol" ? 1 : Math.abs(zs[0] - zs[1]) * ca;
+      return T;
+    }
+
+    // Ölçüm için örnek: N doğuran; en yakın tepe noktasının 8 katı uzaklığa kadar (pencere d ile ölçeklenir)
+    function sampleA(aDeg, bDeg, d, N) {
+      const al = aDeg * D2R, be = bDeg * D2R, tMax = (8 * d) / Math.sin(al + be), pts = [];
+      for (let i = 0; i < N; i++) {
+        const h = cut(al, be, d, (TAU * i) / N);
+        if (h && Math.abs(h.t) <= tMax) pts.push(h);
+      }
+      return pts;
+    }
+    // Simetrik matrisin özdeğerleri (dönel Jacobi yöntemi)
+    function jacobi(S) {
+      const n = S.length, a = S.map((r) => r.slice()), v = S.map((_, i) => S.map((__, j) => (i === j ? 1 : 0)));
+      for (let sweep = 0; sweep < 60; sweep++) {
+        let off = 0, diag = 0;
+        for (let p = 0; p < n; p++) { diag += a[p][p] * a[p][p]; for (let q = p + 1; q < n; q++) off += a[p][q] * a[p][q]; }
+        if (off <= 1e-36 * diag) break;
+        for (let p = 0; p < n - 1; p++) {
+          for (let q = p + 1; q < n; q++) {
+            const apq = a[p][q];
+            if (apq === 0) continue;
+            const th = (a[q][q] - a[p][p]) / (2 * apq);
+            const t = Math.abs(th) > 1e150 ? 1 / (2 * th) : (th >= 0 ? 1 : -1) / (Math.abs(th) + Math.sqrt(th * th + 1));
+            const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+            for (let k = 0; k < n; k++) { const kp = a[k][p], kq = a[k][q]; a[k][p] = c * kp - s * kq; a[k][q] = s * kp + c * kq; }
+            for (let k = 0; k < n; k++) { const pk = a[p][k], qk = a[q][k]; a[p][k] = c * pk - s * qk; a[q][k] = s * pk + c * qk; }
+            for (let k = 0; k < n; k++) { const kp = v[k][p], kq = v[k][q]; v[k][p] = c * kp - s * kq; v[k][q] = s * kp + c * kq; }
+          }
+        }
+      }
+      return { values: a.map((r, i) => r[i]), vectors: v };
+    }
+    /* Genel konik uydurma: Σ(Ax² + Bxy + Cy² + Dx + Ey + F)² en küçük, ‖katsayılar‖ = 1.
+       Noktalar önce ağırlık merkezine taşınıp ölçeklenir (koşullanma), sonra katsayılar geri dönüştürülür. */
+    function fitConic(pts) {
+      const N = pts.length;
+      if (N < 6) return null;
+      let mx = 0, my = 0;
+      for (const p of pts) { mx += p.U; my += p.V; }
+      mx /= N; my /= N;
+      let s2 = 0;
+      for (const p of pts) s2 += (p.U - mx) ** 2 + (p.V - my) ** 2;
+      const s = Math.sqrt(s2 / (2 * N)) || 1;
+      const S = Array.from({ length: 6 }, () => new Array(6).fill(0));
+      for (const p of pts) {
+        const x = (p.U - mx) / s, y = (p.V - my) / s, r = [x * x, x * y, y * y, x, y, 1];
+        for (let i = 0; i < 6; i++) for (let j = i; j < 6; j++) S[i][j] += r[i] * r[j];
+      }
+      for (let i = 0; i < 6; i++) for (let j = 0; j < i; j++) S[i][j] = S[j][i];
+      const { values, vectors } = jacobi(S);
+      let k = 0;
+      for (let i = 1; i < 6; i++) if (values[i] < values[k]) k = i;
+      const [a1, b1, c1, d1, e1, f1] = vectors.map((row) => row[k]);
+      const ss = s * s;
+      return {
+        A: a1 / ss, B: b1 / ss, C: c1 / ss,
+        D: d1 / s - (2 * a1 * mx + b1 * my) / ss,
+        E: e1 / s - (b1 * mx + 2 * c1 * my) / ss,
+        F: f1 - (d1 * mx + e1 * my) / s + (a1 * mx * mx + b1 * mx * my + c1 * my * my) / ss,
+        n: N,
+      };
+    }
+    // Katsayılardan dışmerkezlik: e² = 2√((A−C)² + B²) / (η(A + C) + √((A−C)² + B²)), η = −işaret(det)
+    function eccOf(q) {
+      const { A, B, C, D, E, F } = q;
+      const root = Math.hypot(A - C, B);
+      const det3 = A * (C * F - (E * E) / 4) - (B / 2) * ((B * F) / 2 - (E * D) / 4) + (D / 2) * ((B * E) / 4 - (C * D) / 2);
+      const eta = det3 < 0 ? 1 : -1;
+      const den = eta * (A + C) + root;
+      return den > 0 ? Math.sqrt(Math.max(0, (2 * root) / den)) : NaN;
+    }
+    // Uydurulan koniğin merkezi, yarı eksenleri ve odakları (tür ipucu denetimlerden gelir)
+    function conicGeom(q, kind) {
+      const { A, B, C, D, E, F } = q;
+      const e = eccOf(q);
+      const th = 0.5 * Math.atan2(B, A - C), ct = Math.cos(th), st = Math.sin(th);
+      const l1 = A * ct * ct + B * st * ct + C * st * st;     // (ct, st) doğrultusundaki özdeğer
+      const l2 = A * st * st - B * st * ct + C * ct * ct;     // (−st, ct) doğrultusundaki özdeğer
+      if (kind === "parabol") {
+        const useFirst = Math.abs(l1) < Math.abs(l2);
+        const w = useFirst ? [ct, st] : [-st, ct], m = useFirst ? [-st, ct] : [ct, st], lm = useFirst ? l2 : l1;
+        const Dw = D * w[0] + E * w[1], Dm = D * m[0] + E * m[1];
+        const Y0 = -Dm / (2 * lm), X0 = ((Dm * Dm) / (4 * lm) - F) / Dw, k4 = -Dw / lm;   // (Y − Y0)² = k4 (X − X0)
+        const p = Math.abs(k4) / 4, sg = Math.sign(k4);
+        const vx = X0 * w[0] + Y0 * m[0], vy = X0 * w[1] + Y0 * m[1];
+        return { e, p, ell: 2 * p, vertex: [vx, vy], foci: [[vx + sg * p * w[0], vy + sg * p * w[1]]], axis: w };
+      }
+      const det2 = 4 * A * C - B * B;
+      const x0 = (B * E - 2 * C * D) / det2, y0 = (B * D - 2 * A * E) / det2;
+      const F0 = F + (D * x0 + E * y0) / 2;
+      const s1 = -F0 / l1, s2 = -F0 / l2;
+      let a, b, c, dir;
+      if (kind === "hiperbol") {
+        if (s1 > 0) { a = Math.sqrt(s1); b = Math.sqrt(-s2); dir = [ct, st]; } else { a = Math.sqrt(s2); b = Math.sqrt(-s1); dir = [-st, ct]; }
+        c = Math.hypot(a, b);
+      } else {
+        if (s1 >= s2) { a = Math.sqrt(s1); b = Math.sqrt(s2); dir = [ct, st]; } else { a = Math.sqrt(s2); b = Math.sqrt(s1); dir = [-st, ct]; }
+        c = Math.sqrt(Math.max(0, a * a - b * b));
+      }
+      return { e, a, b, c, ell: (b * b) / a, center: [x0, y0], foci: [[x0 - c * dir[0], y0 - c * dir[1]], [x0 + c * dir[0], y0 + c * dir[1]]], axis: dir };
+    }
+    function measureA(aDeg, bDeg, d) {
+      const T = theoryA(aDeg, bDeg, d);
+      if (!(d > 0)) return { T, ok: false };
+      const pts = sampleA(aDeg, bDeg, d, 720);
+      const q = fitConic(pts);
+      const G = conicGeom(q, T.kind);
+      const tp = T.spheres.map((s) => [s.U, 0]);
+      const dist = (f, t) => Math.hypot(f[0] - t[0], f[1] - t[1]);
+      let fDist;
+      if (T.kind === "parabol") fDist = dist(G.foci[0], tp[0]);
+      else fDist = Math.min(Math.max(dist(G.foci[0], tp[0]), dist(G.foci[1], tp[1])), Math.max(dist(G.foci[0], tp[1]), dist(G.foci[1], tp[0])));
+      // İki odak tanımı (parabolde odak–doğrultman oranı), kesitin her noktasında
+      let worst = NaN, dev = -1;
+      for (const p of pts) {
+        const r1 = Math.hypot(p.U - tp[0][0], p.V);
+        let v;
+        if (T.kind === "parabol") v = r1 / Math.abs(p.U - T.spheres[0].Ud);
+        else { const r2 = Math.hypot(p.U - tp[1][0], p.V); v = T.kind === "hiperbol" ? Math.abs(r1 - r2) : r1 + r2; }
+        const dv = Math.abs(v - T.sumTheory);
+        if (dv > dev) { dev = dv; worst = v; }
+      }
+      return { T, ok: true, pts, q, G, fDist, sumWorst: worst };
+    }
+    /* Çizim için kesit: doğuranlar φ'de taranır, |z| ≤ zMax dışı atılır; uzun aralıklar ikiye bölünerek
+       inceltilir, kırpma sınırı ikiye bölme aramasıyla bulunur. Dönüş: çoklu çizgi listesi. */
+    function traceA(aDeg, bDeg, d, zMax, tol) {
+      const al = aDeg * D2R, be = bDeg * D2R, at = (phi) => cut(al, be, d, phi);
+      const inside = (h, s) => !!h && Math.abs(h.z) <= zMax && (s === 0 || Math.sign(h.t) === s);
+      const N0 = 360, lines = [];
+      function edge(pIn, hIn, pOut) {
+        const s = Math.sign(hIn.t);
+        let a = pIn, b = pOut, ha = hIn;
+        for (let i = 0; i < 44; i++) { const m = (a + b) / 2, hm = at(m); if (inside(hm, s)) { a = m; ha = hm; } else b = m; }
+        return ha;
+      }
+      function refine(pa, ha, pb, hb, depth, out) {
+        if (depth < 12 && Math.hypot(hb.U - ha.U, hb.V - ha.V) > tol) {
+          const pm = (pa + pb) / 2, hm = at(pm);
+          if (inside(hm, Math.sign(ha.t))) { refine(pa, ha, pm, hm, depth + 1, out); refine(pm, hm, pb, hb, depth + 1, out); return; }
+        }
+        out.push(hb);
+      }
+      let cur = null, pPrev = 0, hPrev = at(0), okPrev = inside(hPrev, 0);
+      if (okPrev) cur = [hPrev];
+      for (let i = 1; i <= N0; i++) {
+        const p = (TAU * i) / N0, h = at(p), ok = inside(h, 0);
+        if (okPrev && ok && Math.sign(h.t) === Math.sign(hPrev.t)) refine(pPrev, hPrev, p, h, 0, cur);
+        else {
+          if (okPrev) { cur.push(edge(pPrev, hPrev, p)); lines.push(cur); cur = null; }
+          if (ok) cur = [edge(p, h, pPrev), h];
+        }
+        pPrev = p; hPrev = h; okPrev = ok;
+      }
+      if (cur) lines.push(cur);
+      if (lines.length > 1 && inside(at(0), 0)) {         // φ = 0 ile 2π aynı doğuran: baştaki ve sondaki parça birleşir
+        const first = lines.shift(), last = lines.pop();
+        lines.push(last.concat(first.slice(1)));
+      }
+      return lines;
+    }
+
+    /* (b) Odak orijinde, doğrultman x = k. PF = e·PD ⇔ r = ℓ/(1 + e cos θ), ℓ = e·k.
+       r < 0 çözümleri hiperbolün doğrultmanın öbür yanındaki koludur. */
+    function polarR(e, ell, th) {
+      const den = 1 + e * Math.cos(th);
+      return Math.abs(den) < 1e-12 ? NaN : ell / den;
+    }
+    function infoB(e, ell) {
+      const I = { e, ell };
+      if (e === 0) Object.assign(I, { kind: ell > 0 ? "cember" : "nokta", a: ell, b: ell, c: 0, f2: 0, cx: 0 });
+      else if (e < 1) { const a = ell / (1 - e * e); Object.assign(I, { kind: "elips", a, b: ell / Math.sqrt(1 - e * e), c: a * e, f2: -2 * a * e, cx: -a * e }); }
+      else if (e === 1) Object.assign(I, { kind: "parabol", p: ell / 2, f2: NaN });
+      else { const a = ell / (e * e - 1); Object.assign(I, { kind: "hiperbol", a, b: ell / Math.sqrt(e * e - 1), c: a * e, f2: 2 * a * e, cx: a * e, thInf: Math.acos(-1 / e) }); }
+      return I;
+    }
+    // Pergel–cetvel örneklemesi: doğrultmana s uzaklıktaki doğru (x = k ∓ s) ile F merkezli e·s yarıçaplı çemberin kesişimi
+    function locusAt(e, k, s, side) {
+      const x = k + side * s, y2 = e * e * s * s - x * x;
+      if (!(y2 >= 0)) return [];
+      const y = Math.sqrt(y2);
+      return y > 0 ? [{ x, y, s }, { x, y: -y, s }] : [{ x, y: 0, s }];
+    }
+    // Kesişim olan s aralığı: odak yanı (side −1) e·s ≥ |k − s|, öbür yan (side +1) e·s ≥ k + s
+    function locusRange(e, k, side) {
+      if (!(k > 0) || !Number.isFinite(k)) return null;
+      if (side < 0) return e < 1 ? [k / (1 + e), k / (1 - e)] : [k / (1 + e), Infinity];
+      return e > 1 ? [k / (e - 1), Infinity] : null;
+    }
+
+    /* (c) Konik aynalar. Elips: merkez orijinde, a = 3 br; F₁ = (−c, 0), F₂ = (c, 0).
+       Parabol: tepe (2.4, 0), sola açılır, odak (2.4 − p, 0); ışınlar x = −4.6'daki giriş doğrusundan gelir.
+       Hiperbol: odaklar (∓2.2, 0); ayna sol kol, ışınlar F₁'e doğru 5 br yarıçaplı yaydan gelir, F₂'ye yansır. */
+    const C_A = 3, C_XV = 2.4, C_X0 = -4.6, C_H = 2.7, C_HC = 2.2, C_R0 = 5, C_PSI = 40 * D2R;
+    function mirrorC(type, par) {
+      if (type === "elips") { const a = C_A, e = par, c = a * e; return { type, a, b: a * Math.sqrt(1 - e * e), c, e, F1: [-c, 0], F2: [c, 0] }; }
+      if (type === "parabol") { const p = par; return { type, p, xv: C_XV, F1: null, F2: [C_XV - p, 0] }; }
+      const e = par, c = C_HC, a = c / e;
+      return { type, a, b: Math.sqrt(c * c - a * a), c, e, F1: [-c, 0], F2: [c, 0] };
+    }
+    function solveQuad(A, B, C) {
+      const sc = Math.abs(A) + Math.abs(B) + Math.abs(C);
+      if (Math.abs(A) <= 1e-14 * sc) return B !== 0 ? [-C / B] : [];
+      const disc = B * B - 4 * A * C;
+      if (disc < 0) return [];
+      const q = -0.5 * (B + (B >= 0 ? 1 : -1) * Math.sqrt(disc));
+      return q !== 0 ? [q / A, C / q] : [-B / (2 * A)];
+    }
+    function hitC(m, S, d) {
+      let A, B, C;
+      if (m.type === "elips") {
+        const ia = 1 / (m.a * m.a), ib = 1 / (m.b * m.b);
+        A = d[0] * d[0] * ia + d[1] * d[1] * ib; B = 2 * (S[0] * d[0] * ia + S[1] * d[1] * ib); C = S[0] * S[0] * ia + S[1] * S[1] * ib - 1;
+      } else if (m.type === "parabol") {
+        A = d[1] * d[1]; B = 2 * S[1] * d[1] + 4 * m.p * d[0]; C = S[1] * S[1] + 4 * m.p * (S[0] - m.xv);
+      } else {
+        const ia = 1 / (m.a * m.a), ib = 1 / (m.b * m.b);
+        A = d[0] * d[0] * ia - d[1] * d[1] * ib; B = 2 * (S[0] * d[0] * ia - S[1] * d[1] * ib); C = S[0] * S[0] * ia - S[1] * S[1] * ib - 1;
+      }
+      let best = NaN;
+      for (const t of solveQuad(A, B, C)) {
+        if (!(t > 1e-9)) continue;
+        if (m.type === "hiperbol" && S[0] + t * d[0] >= 0) continue;   // yalnız sol kol aynadır
+        if (!(t >= best)) best = t;
+      }
+      return best;
+    }
+    function gradC(m, P) {
+      if (m.type === "elips") return [(2 * P[0]) / (m.a * m.a), (2 * P[1]) / (m.b * m.b)];
+      if (m.type === "parabol") return [4 * m.p, 2 * P[1]];
+      return [(2 * P[0]) / (m.a * m.a), (-2 * P[1]) / (m.b * m.b)];
+    }
+    function curveC(m, s) {
+      if (m.type === "elips") return [m.a * Math.cos(s), m.b * Math.sin(s)];
+      if (m.type === "parabol") return [m.xv - (s * s) / (4 * m.p), s];
+      return [-m.a * Math.cosh(s), m.b * Math.sinh(s)];
+    }
+    function paramC(m, P) {
+      if (m.type === "elips") return Math.atan2(P[1] / m.b, P[0] / m.a);
+      if (m.type === "parabol") return P[1];
+      return Math.asinh(P[1] / m.b);
+    }
+    function pathTheoryC(m) {
+      if (m.type === "elips") return 2 * m.a;
+      if (m.type === "parabol") return m.xv + m.p - C_X0;     // giriş doğrusundan doğrultmana uzaklık
+      return C_R0 + 2 * m.a;
+    }
+    function raysC(type, par, N, off) {
+      const m = mirrorC(type, par), rays = [];
+      for (let i = 0; i < N; i++) {
+        let S, d, tag;
+        if (type === "elips") {
+          const psi = -Math.PI + (TAU * (i + 0.5)) / N;
+          S = [m.F1[0] + off, 0]; d = [Math.cos(psi), Math.sin(psi)]; tag = psi;
+        } else if (type === "parabol") {
+          const y = N > 1 ? -C_H + (2 * C_H * i) / (N - 1) : 0;
+          d = [Math.cos(off), Math.sin(off)]; S = [C_X0 - y * Math.sin(off), y * Math.cos(off)]; tag = y;
+        } else {
+          const psi = N > 1 ? -C_PSI + (2 * C_PSI * i) / (N - 1) : 0;
+          S = [m.F1[0] + off + C_R0 * Math.cos(psi), C_R0 * Math.sin(psi)]; d = [-Math.cos(psi), -Math.sin(psi)]; tag = psi;
+        }
+        const t = hitC(m, S, d);
+        if (!Number.isFinite(t)) { rays.push({ S, d, tag, hit: false }); continue; }
+        const P = [S[0] + t * d[0], S[1] + t * d[1]];
+        const gr = gradC(m, P), gl = Math.hypot(gr[0], gr[1]), n = [gr[0] / gl, gr[1] / gl];
+        const dn = d[0] * n[0] + d[1] * n[1];
+        let r = [d[0] - 2 * dn * n[0], d[1] - 2 * dn * n[1]];
+        const rl = Math.hypot(r[0], r[1]);
+        r = [r[0] / rl, r[1] / rl];
+        const w = [m.F2[0] - P[0], m.F2[1] - P[1]];
+        const along = w[0] * r[0] + w[1] * r[1];
+        rays.push({ S, d, tag, hit: true, t, P, n, r, along, miss: Math.abs(w[0] * r[1] - w[1] * r[0]), L: t + along });
+      }
+      return { m, rays, Lth: pathTheoryC(m) };
+    }
+    // Açı ölçümü: normal, çizilen eğriden sonlu farkla bulunan teğete diktir (yansıtmada kullanılan gradyandan bağımsız)
+    function anglesC(m, ray) {
+      const s = paramC(m, ray.P), h = 1e-6;
+      const p1 = curveC(m, s - h), p2 = curveC(m, s + h);
+      let tx = p2[0] - p1[0], ty = p2[1] - p1[1];
+      const tl = Math.hypot(tx, ty); tx /= tl; ty /= tl;
+      let nx = -ty, ny = tx;
+      if (nx * ray.d[0] + ny * ray.d[1] > 0) { nx = -nx; ny = -ny; }
+      const ang = (ux, uy) => Math.atan2(Math.abs(ux * ny - uy * nx), ux * nx + uy * ny);
+      const w = [m.F2[0] - ray.P[0], m.F2[1] - ray.P[1]], wl = Math.hypot(w[0], w[1]);
+      return { thI: ang(-ray.d[0], -ray.d[1]), thR: ang(ray.r[0], ray.r[1]), thF: wl > 1e-12 ? ang(w[0] / wl, w[1] / wl) : NaN, n: [nx, ny] };
+    }
+
+    /* Gerçek yörüngeler (Güneş odakta, θ = 0 günberi), r = ℓ/(1 + e cos θ), ℓ = a(1 − e²).
+       Dünya: e = 0.0167086, a = 1.000001018 AU (J2000). Halley (1P): e = 0.96714, a = 17.834 AU (JPL). */
+    const ORBITS = [
+      { key: "dunya", name: "Dünya", e: 0.0167086, a: 1.000001018 },
+      { key: "halley", name: "Halley", e: 0.96714, a: 17.834 },
+    ];
+    function orbitC(o, N) {
+      const ell = o.a * (1 - o.e * o.e), pts = [];
+      let q = Infinity, Q = 0, ymax = 0;
+      for (let i = 0; i <= N; i++) {
+        const th = (TAU * i) / N, r = ell / (1 + o.e * Math.cos(th));
+        const x = r * Math.cos(th), y = r * Math.sin(th);
+        pts.push([x, y]);
+        q = Math.min(q, r); Q = Math.max(Q, r); ymax = Math.max(ymax, Math.abs(y));
+      }
+      return { ell, pts, q, Q, e: (Q - q) / (Q + q), bMeas: ymax };
+    }
+
+    return {
+      D2R, R2D, TAU, cut, kindOf, theoryA, sampleA, jacobi, fitConic, eccOf, conicGeom, measureA, traceA,
+      polarR, infoB, locusAt, locusRange, C_A, C_XV, C_X0, C_H, C_HC, C_R0, C_PSI, mirrorC, solveQuad, hitC, gradC,
+      curveC, paramC, pathTheoryC, raysC, anglesC, ORBITS, orbitC,
+    };
+  })();
+  // <<< MATH
+
+  const { D2R, R2D, TAU } = M;
+
+  /* ── Biçimlendirme: tek yuvarlama yardımcısı fix() ── */
+  const MINUS = "−";
+  // 1e-12 payı: ikili sistemde …4999 diye saklanan değerler elle hesaptaki gibi yukarı yuvarlansın
+  function fix(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
+  }
+  function sgn(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r > 0 ? "+" : MINUS) + Math.abs(r).toFixed(d);
+  }
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  function sci(x, d) {
+    const ex = Math.floor(Math.log10(Math.abs(x)));
+    let m = x / 10 ** ex, ee = ex;
+    if (Math.abs(Number(m.toFixed(d))) >= 10) { m /= 10; ee += 1; }
+    return `${fix(m, d)}×10${String(ee).replace(/./g, (c) => SUP[c] || c)}`;
+  }
+  // Çok küçük sayılar bilimsel gösterimle: ölçülen ile kuram arasındaki gerçek sayısal fark görünsün
+  function small(x, d, unit) {
+    if (!Number.isFinite(x)) return "—";
+    const u = unit ? ` ${unit}` : "";
+    if (x === 0) return `0${u}`;
+    if (Math.abs(x) < 5 * 10 ** -(d + 1)) return `${sci(x, 1)}${u}`;
+    return `${fix(x, d)}${u}`;
+  }
+  function diff(x, d, unit) {
+    if (!Number.isFinite(x)) return "—";
+    const u = unit ? ` ${unit}` : "";
+    if (x === 0) return `0${u}`;
+    if (Math.abs(x) < 5 * 10 ** -(d + 1)) return `${x > 0 ? "+" : MINUS}${sci(Math.abs(x), 1)}${u}`;
+    return `${sgn(x, d)}${u}`;
+  }
+  const br = (x, d = 3) => (Number.isFinite(x) ? `${fix(x, d)} br` : "—");
+  const deg = (r, d = 2) => (Number.isFinite(r) ? `${fix(r * R2D, d)}°` : "—");
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const round = (v, dec) => Math.round(v * 10 ** dec) / 10 ** dec;
+
+  /* ── Ortak arayüz ── */
+  const stage = $("stageCanvas"), sg = stage.getContext("2d");
+  const chart = $("chartCanvas"), cg = chart.getContext("2d");
+  const labPanel = $("labPanel");
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((t) => t.dataset.tab);
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  const setAria = (el, s) => { if (el.getAttribute("aria-label") !== s) el.setAttribute("aria-label", s); };
+  const S = { tab: "kes", paused: false };
+  let dirty = true, dpr = 1;
+  const REDUCED = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", faint: "rgba(26,29,46,0.3)", grid: "rgba(0,0,0,0.07)", axis: "rgba(26,29,46,0.5)",
+      accent: "#0d9488", accent2: "#7c3aed", warm: "#d97706", danger: "#dc2626", blue: "#2563eb", pink: "#db2777", tagBg: "rgba(255,255,255,0.92)",
+      coneFill: "rgba(37,99,235,0.07)", coneEdge: "rgba(30,64,175,0.6)", genFront: "rgba(30,64,175,0.3)", genBack: "rgba(30,64,175,0.12)",
+      planeFill: "rgba(124,58,237,0.1)", planeEdge: "rgba(124,58,237,0.55)", sphere: [13, 148, 136], curveBack: "rgba(217,119,6,0.4)",
+      dot: "rgba(13,148,136,0.95)", sel: "#db2777",
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", faint: "rgba(232,236,244,0.3)", grid: "rgba(255,255,255,0.07)", axis: "rgba(232,236,244,0.5)",
+      accent: "#5eead4", accent2: "#a78bfa", warm: "#fbbf24", danger: "#f87171", blue: "#60a5fa", pink: "#f472b6", tagBg: "rgba(8,12,22,0.85)",
+      coneFill: "rgba(96,165,250,0.08)", coneEdge: "rgba(147,197,253,0.6)", genFront: "rgba(147,197,253,0.28)", genBack: "rgba(147,197,253,0.1)",
+      planeFill: "rgba(167,139,250,0.13)", planeEdge: "rgba(196,181,253,0.65)", sphere: [94, 234, 212], curveBack: "rgba(251,191,36,0.4)",
+      dot: "rgba(94,234,212,0.95)", sel: "#f472b6",
+    };
+  }
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+  const font = (px, w) => `${w ? w + " " : ""}${px * dpr}px Outfit, system-ui, sans-serif`;
+  function line(g, x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+  function text(g, s, x, y, color, size, align, base, weight) {
+    g.font = font(size || 11, weight);
+    g.fillStyle = color;
+    g.textAlign = align || "left";
+    g.textBaseline = base || "middle";
+    g.fillText(s, x, y);
+  }
+  function tag(g, s, x, y, color, th, size, align) {
+    g.font = font(size || 11, "600");
+    const w = g.measureText(s).width + 10 * dpr, h = (size || 11) * dpr + 8 * dpr;
+    let bx = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    bx = Math.max(2 * dpr, Math.min(bx, g.canvas.width - w - 2 * dpr));
+    const by = Math.max(2 * dpr, Math.min(y - h / 2, g.canvas.height - h - 2 * dpr));
+    g.fillStyle = th.tagBg;
+    g.beginPath(); g.roundRect(bx, by, w, h, 5 * dpr); g.fill();
+    g.fillStyle = color;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(s, bx + w / 2, by + h / 2 + 0.5 * dpr);
+    return { x: bx, y: by, w, h };
+  }
+  function dashed(g, color, w, x1, y1, x2, y2, pat) {
+    g.save();
+    g.setLineDash(pat || [5 * dpr, 4 * dpr]);
+    g.strokeStyle = color;
+    g.lineWidth = w;
+    line(g, x1, y1, x2, y2);
+    g.restore();
+  }
+  function dot(g, x, y, r, color) { g.fillStyle = color; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+  function ring(g, x, y, r, color, w) { g.strokeStyle = color; g.lineWidth = w || 1.6 * dpr; g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke(); }
+  function polyPath(g, pts, close) {
+    g.beginPath();
+    pts.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])));
+    if (close) g.closePath();
+  }
+  function arrowHead(g, x, y, ang, size, color) {
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x - size * Math.cos(ang - 0.42), y - size * Math.sin(ang - 0.42));
+    g.lineTo(x - size * Math.cos(ang + 0.42), y - size * Math.sin(ang + 0.42));
+    g.closePath();
+    g.fill();
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  const tickText = (v, step) => fix(v, step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9)));
+  // Eşit ölçekli dünya → piksel dönüşümü ve ızgara
+  function gridFrame(g, th, L, unit, opts) {
+    const o = opts || {};
+    const step = niceStep((L.x1 - L.x0) / (o.n || 8));
+    g.lineWidth = 1 * dpr;
+    g.strokeStyle = th.grid;
+    g.font = font(9);
+    g.fillStyle = th.muted;
+    for (let v = Math.ceil(L.x0 / step) * step; v <= L.x1 + 1e-9; v += step) {
+      const x = L.X(v);
+      line(g, x, L.top, x, L.bot);
+      if (!o.noLabels) { g.textAlign = "center"; g.textBaseline = "bottom"; g.fillText(tickText(v, step), x, L.bot - 2 * dpr); }
+    }
+    for (let v = Math.ceil(L.y0 / step) * step; v <= L.y1 + 1e-9; v += step) {
+      const y = L.Y(v);
+      line(g, L.left, y, L.right, y);
+      if (!o.noLabels && Math.abs(v) > 1e-9) { g.textAlign = "left"; g.textBaseline = "middle"; g.fillText(tickText(v, step), L.left + 3 * dpr, y); }
+    }
+    if (unit && !o.noLabels) text(g, unit, L.right - 4 * dpr, L.bot - 12 * dpr, th.muted, 9, "right", "bottom");
+    return step;
+  }
+  function canvasPoint(evt, c) {
+    const r = c.getBoundingClientRect();
+    return [((evt.clientX - r.left) / r.width) * c.width, ((evt.clientY - r.top) / r.height) * c.height];
+  }
+  // Andrew'un tekdüze zincir yöntemiyle dışbükey zarf (koni gövdesinin izdüşümü)
+  function convexHull(points) {
+    const p = points.map((q) => [q[0], q[1]]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    for (const q of p) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+    for (let i = p.length - 1; i >= 0; i--) { const q = p[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+    up.pop(); lo.pop();
+    return lo.concat(up);
+  }
+  // Sayı kutusu: virgül ya da nokta kabul eder; yazarken kutu yeniden yazılmaz, onaylanınca sınırlara çekilir
+  const parseNum = (str) => { const t = String(str).trim().replace(",", "."); return /^[-+]?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : NaN; };
+  const setBox = (el, v) => { if (document.activeElement !== el) el.value = String(v); };
+  function bindPair(range, num, dec, apply) {
+    const lo = Number(num.dataset.min), hi = Number(num.dataset.max);
+    range.addEventListener("input", () => { const v = Number(range.value); num.value = String(v); apply(v); });
+    num.addEventListener("input", () => {
+      const v = parseNum(num.value);
+      if (!Number.isFinite(v) || v < lo || v > hi) return;
+      range.value = String(v);
+      apply(round(v, dec));
+    });
+    num.addEventListener("change", () => {
+      let v = parseNum(num.value);
+      if (!Number.isFinite(v)) v = Number(range.value);
+      v = clamp(round(v, dec), lo, hi);
+      num.value = String(v);
+      range.value = String(v);
+      apply(v);
+    });
+  }
+  const KIND_TR = { cember: "çember", elips: "elips", parabol: "parabol", hiperbol: "hiperbol", nokta: "nokta (dejenere)", dogru: "tek doğru (dejenere)", dogrular: "kesişen iki doğru (dejenere)" };
+
+  /* ══════════ (a) Koniyi kes ══════════ */
+  const ZC = 3;    // çizilen koninin yarı yüksekliği, br
+  const A_DEF = { alpha: 30, beta: 60, d: 0.8, az: -50, el: 22, spheres: true };
+  const SA = {
+    ...A_DEF, res: null,
+    ui: {
+      alpha: $("aAlpha"), alphaNum: $("aAlphaNum"), alphaOut: $("aAlphaOut"),
+      beta: $("aBeta"), betaNum: $("aBetaNum"), betaOut: $("aBetaOut"),
+      d: $("aD"), dNum: $("aDNum"), dOut: $("aDOut"),
+      az: $("aAz"), azOut: $("aAzOut"), el: $("aEl"), elOut: $("aElOut"),
+      spheres: $("aSpheres"), apex: $("aApex"), reset: $("aReset"),
+      kind: $("aKind"), cmp: $("aCmp"), sph: $("aSph"), asym: $("aAsym"),
+      em: $("aEm"), et: $("aEt"), ed: $("aEd"), aLabel: $("aALabel"), am: $("aAm"), at: $("aAt"), ad: $("aAd"),
+      bLabel: $("aBLabel"), bm: $("aBm"), bt: $("aBt"), bd: $("aBd"), lm: $("aLm"), lt: $("aLt"), ld: $("aLd"),
+      fm: $("aFm"), ft: $("aFt"), fd: $("aFd"), sLabel: $("aSLabel"), sm: $("aSm"), st: $("aSt"), sd: $("aSd"),
+      status: $("aStatus"),
+    },
+  };
+  function computeA() {
+    const r = M.measureA(SA.alpha, SA.beta, SA.d);
+    if (r.T.d > 0) {
+      r.linesIn = M.traceA(SA.alpha, SA.beta, SA.d, ZC, 0.01);
+      r.linesOut = M.traceA(SA.alpha, SA.beta, SA.d, 4 * ZC, 0.03);
+    }
+    SA.res = r;
+  }
+  function syncA() {
+    const u = SA.ui;
+    computeA();
+    u.alpha.value = String(SA.alpha); setBox(u.alphaNum, SA.alpha);
+    u.beta.value = String(SA.beta); setBox(u.betaNum, SA.beta);
+    u.d.value = String(SA.d); setBox(u.dNum, SA.d);
+    u.az.value = String(SA.az); u.el.value = String(SA.el);
+    u.spheres.checked = SA.spheres;
+    setText(u.alphaOut, `${fix(SA.alpha, 2)}°`);
+    setText(u.betaOut, `${fix(SA.beta, 2)}°`);
+    setText(u.dOut, br(SA.d, 2));
+    setText(u.azOut, `${fix(SA.az, 0)}°`);
+    setText(u.elOut, `${fix(SA.el, 0)}°`);
+    dirty = true;
+  }
+  function setA(o) { Object.assign(SA, o); syncA(); }
+  const resetA = () => setA({ ...A_DEF });
+  const PRESET_A = { cember: { beta: 90 }, elips: { beta: 60 }, parabol: { beta: 30 }, hiperbol: { beta: 15 }, paralel: { beta: 0 } };
+
+  function readoutsA() {
+    const u = SA.ui, r = SA.res, T = r.T, k = T.kind;
+    setText(u.kind, KIND_TR[k]);
+    const cmpTxt = SA.beta === 90 ? "β = 90°: eksene dik" : SA.beta > SA.alpha ? `β > α (${fix(SA.beta, 2)}° > ${fix(SA.alpha, 2)}°)` : SA.beta === SA.alpha ? `β = α = ${fix(SA.alpha, 2)}°` : `β < α (${fix(SA.beta, 2)}° < ${fix(SA.alpha, 2)}°)`;
+    setText(u.cmp, cmpTxt);
+    setText(u.sph, r.ok ? T.spheres.map((s, i) => `r${i ? "₂" : "₁"} = ${br(s.r, 3)}`).join(" · ") + (k === "parabol" ? " · ikincisi yok" : "") : "yok (d = 0)");
+    setText(u.asym, k === "hiperbol" || k === "dogrular" ? deg(T.gamma, 2) : k === "dogru" ? "0° (tek doğru)" : "—");
+    const eTh = fix(T.e, 4);
+    setText(u.et, k === "cember" ? "0 (cos 90° = 0)" : eTh);
+    if (!r.ok) {
+      const why = k === "nokta" ? "tanımsız: kesit tek nokta" : k === "dogru" ? "tanımsız: kesit doğru" : "tanımsız: kesit iki doğru";
+      setText(u.em, why); setText(u.ed, "—");
+      setText(u.aLabel, "Büyük yarı eksen a"); setText(u.bLabel, "Küçük yarı eksen b");
+      for (const [m, t, dd] of [[u.am, u.at, u.ad], [u.bm, u.bt, u.bd], [u.lm, u.lt, u.ld], [u.fm, u.ft, u.fd], [u.sm, u.st, u.sd]]) { setText(m, "—"); setText(t, "—"); setText(dd, "—"); }
+      setText(u.lt, br(0, 4)); setText(u.sLabel, "PF₁ + PF₂: kesit dejenere");
+    } else {
+      const G = r.G;
+      setText(u.em, fix(G.e, 4));
+      setText(u.ed, diff(G.e - (k === "cember" ? 0 : T.e), 4));
+      if (k === "parabol") {
+        setText(u.aLabel, "Tepe–odak uzaklığı p ile (d tan α)/2");
+        setText(u.am, br(G.p, 4)); setText(u.at, br(T.p, 4)); setText(u.ad, diff(G.p - T.p, 4, "br"));
+        setText(u.bLabel, "Küçük yarı eksen b: parabolde yok");
+        setText(u.bm, "—"); setText(u.bt, "sonsuz"); setText(u.bd, "—");
+      } else {
+        setText(u.aLabel, k === "cember" ? "Yarıçap a = b" : "Büyük yarı eksen a");
+        setText(u.am, br(G.a, 4)); setText(u.at, br(T.a, 4)); setText(u.ad, diff(G.a - T.a, 4, "br"));
+        setText(u.bLabel, k === "hiperbol" ? "Sanal yarı eksen b" : "Küçük yarı eksen b");
+        setText(u.bm, br(G.b, 4)); setText(u.bt, br(T.b, 4)); setText(u.bd, diff(G.b - T.b, 4, "br"));
+      }
+      setText(u.lm, br(G.ell, 4)); setText(u.lt, br(T.ell, 4)); setText(u.ld, diff(G.ell - T.ell, 4, "br"));
+      setText(u.fm, small(r.fDist, 4, "br")); setText(u.ft, "0 br"); setText(u.fd, diff(r.fDist, 4, "br"));
+      setText(u.sLabel, k === "parabol" ? "PF / PD (küre değme noktası ve doğrultman), en çok sapan nokta" : k === "hiperbol" ? "|PF₁ − PF₂| ile 2a, en çok sapan nokta" : "PF₁ + PF₂ ile 2a, en çok sapan nokta");
+      setText(u.sm, k === "parabol" ? fix(r.sumWorst, 6) : br(r.sumWorst, 6));
+      setText(u.st, k === "parabol" ? "1 = e" : `${br(T.sumTheory, 6)}`);
+      setText(u.sd, diff(r.sumWorst - T.sumTheory, 6, k === "parabol" ? "" : "br"));
+    }
+    // Durum satırı: türü denetimlerden okur; kartlarla aynı yuvarlama
+    const A = fix(SA.alpha, 2), B = fix(SA.beta, 2);
+    let s;
+    if (k === "cember") s = `Çember: düzlem eksene dik (β = 90°), e = cos 90° / cos α = 0. İki Dandelin küresi düzleme aynı noktada, çemberin merkezinde değer; doğrultman sonsuzdadır. Yarıçap d·tan α = ${br(T.a, 4)}.`;
+    else if (k === "elips") s = `Elips: β = ${B}° > α = ${A}°, düzlem koninin yalnız üst yarısını keser ve kapalı bir eğri çıkar. e = cos β / cos α = ${eTh} < 1. İki Dandelin küresi düzleme odaklarda değer; kesitin her P noktası için PF₁ + PF₂, iki değme çemberi arasındaki doğuran parçasına eşittir: 2a = ${br(T.sumTheory, 4)}.`;
+    else if (k === "parabol") s = `Parabol: β = α = ${A}°, düzlem bir doğurana paraleldir; o doğuran düzlemi hiç kesmediği için eğri sonsuza açılır. e = 1. Tek Dandelin küresi vardır (ikincisi sonsuza gitmiştir); P'nin küre değme noktasına uzaklığı doğrultmana uzaklığına eşittir.`;
+    else if (k === "hiperbol") s = `Hiperbol: β = ${B}° < α = ${A}°, düzlem iki yarı koniyi de keser ve iki kol çıkar. e = cos β / cos α = ${eTh} > 1. Kürelerden biri üst, öbürü alt yarı konidedir; her P için |PF₁ − PF₂| = 2a = ${br(T.sumTheory, 4)}. Asimptotlar, düzleme paralel iki doğurana paraleldir.`;
+    else if (k === "nokta") s = `Dejenere kesit: düzlem tepeden geçiyor (d = 0) ve β > α; kesit tek noktadır, dışmerkezlik bu kesitten ölçülemez. Aynı α ve β ile d > 0 iken e = ${eTh} olan bir elips çıkar; e d'ye bağlı olmadığı için d → 0 iken elips biçimini koruyarak noktaya büzülür.`;
+    else if (k === "dogru") s = `Dejenere kesit: düzlem tepeden geçiyor ve β = α; düzlem koniye bir doğuran boyunca değer, kesit tek doğrudur. d > 0 iken parabol çıkar.`;
+    else s = `Dejenere kesit: düzlem tepeden geçiyor ve β < α; kesit, tepede ${deg(T.gamma, 2)} açıyla kesişen iki doğrudur. d > 0 iken bu doğrulara paralel asimptotları olan bir hiperbol çıkar (e = ${eTh}).`;
+    if (r.ok && SA.spheres) {
+      const out = T.spheres.filter((sp) => Math.abs(sp.z) > ZC * 1.25);
+      if (out.length) s += ` Bir Dandelin küresinin merkezi çizilen koninin dışında (z = ${br(out[0].z, 2)}), bu yüzden çizilmedi.`;
+    }
+    setText(u.status, s);
+    u.status.className = `status ${r.ok ? "is-good" : "is-warn"}`;
+    setAria(stage, `Çift koni (yarı açı α = ${A}°), eksenle β = ${B}° açı yapan yarı saydam kesen düzlem ve kesit: ${KIND_TR[k]}${r.ok && SA.spheres ? "; Dandelin küreleri, değme çemberleri ve düzleme değdikleri noktalar" : ""}; α ve β açı yayları.`);
+    setAria(chart, r.ok ? `Kesitin düzlemdeki gerçek biçimi: ${KIND_TR[k]}; Dandelin değme noktaları (dolu), uydurulan konikten bulunan odaklar (halka), doğrultmanlar ve koni ekseninin düzlemi deldiği nokta (çarpı); koninin çizilen bölümünün dışında kalan kısım kesikli.` : `Kesitin düzlemdeki biçimi: ${KIND_TR[k]}.`);
+  }
+
+  function viewA() {
+    const W = stage.width, H = stage.height;
+    const az = SA.az * D2R, el = SA.el * D2R, c1 = Math.cos(az), s1 = Math.sin(az), ce = Math.cos(el), se = Math.sin(el);
+    const R = ZC * Math.tan(SA.alpha * D2R);
+    const halfW = Math.max(R, 1.2) * 1.18, halfH = (ZC * ce + R * Math.abs(se)) * 1.06 + 0.1;
+    const Sc = Math.min((W * 0.5) / halfW, (H * 0.5 - 8 * dpr) / halfH);
+    const cx = W / 2, cy = H / 2;
+    const P = (x, y, z) => { const xr = x * c1 + y * s1, yr = -x * s1 + y * c1; return [cx + Sc * xr, cy - Sc * (yr * se + z * ce), -yr * ce + z * se]; };
+    return { W, H, Sc, P, cam: [ce * s1, -ce * c1, se], R };
+  }
+  function drawA() {
+    const th = theme(), g = sg, V = viewA(), { W, H, P, cam, R, Sc } = V, r = SA.res, T = r.T;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const al = SA.alpha * D2R, ta = Math.tan(al);
+    const O = P(0, 0, 0);
+    const rimPts = (z) => { const a = []; for (let i = 0; i <= 96; i++) { const f = (TAU * i) / 96; a.push(P(R * Math.cos(f), R * Math.sin(f), z)); } return a; };
+    // Koni gövdeleri: tepe ile taban çemberinin izdüşümünün dışbükey zarfı
+    for (const z of [ZC, -ZC]) {
+      const hull = convexHull([O, ...rimPts(z)]);
+      g.fillStyle = th.coneFill; polyPath(g, hull, true); g.fill();
+    }
+    // Doğuranlar ve taban çemberleri (önde düz, arkada soluk)
+    g.lineWidth = 1 * dpr;
+    for (const z of [ZC, -ZC]) {
+      const c = P(0, 0, z);
+      for (let i = 0; i < 16; i++) {
+        const f = (TAU * i) / 16, q = P(R * Math.cos(f), R * Math.sin(f), z);
+        g.strokeStyle = q[2] >= c[2] ? th.genFront : th.genBack;
+        line(g, O[0], O[1], q[0], q[1]);
+      }
+      const pts = rimPts(z);
+      g.lineWidth = 1.3 * dpr;
+      for (const front of [false, true]) {
+        g.strokeStyle = front ? th.coneEdge : th.genFront;
+        g.setLineDash(front ? [] : [4 * dpr, 4 * dpr]);
+        g.beginPath();
+        for (let i = 0; i < 96; i++) {
+          const a = pts[i], b = pts[i + 1];
+          if (((a[2] + b[2]) / 2 >= c[2]) !== front) continue;
+          g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]);
+        }
+        g.stroke();
+      }
+      g.setLineDash([]);
+      const hull = convexHull([O, ...pts]);
+      g.strokeStyle = th.coneEdge; g.lineWidth = 1.3 * dpr; polyPath(g, hull, true); g.stroke();
+    }
+    // Eksen
+    { const a = P(0, 0, -ZC * 1.1), b = P(0, 0, ZC * 1.1); dashed(g, th.faint, 1 * dpr, a[0], a[1], b[0], b[1], [6 * dpr, 5 * dpr]); }
+    // Kesen düzlem: koninin sınır kutusuna sığan dikdörtgen
+    const { sb, cb, d } = T;
+    const X3 = (U, Vv) => P(-d * cb + U * sb, Vv, d * sb + U * cb);
+    let lo = -Infinity, hi = Infinity;
+    if (cb > 1e-9) { lo = Math.max(lo, (-ZC - d * sb) / cb); hi = Math.min(hi, (ZC - d * sb) / cb); }
+    if (sb > 1e-9) { lo = Math.max(lo, (-R + d * cb) / sb); hi = Math.min(hi, (R + d * cb) / sb); }
+    if (lo < hi) {
+      const vm = R * 1.02, cs = [X3(lo, -vm), X3(hi, -vm), X3(hi, vm), X3(lo, vm)];
+      g.fillStyle = th.planeFill; polyPath(g, cs, true); g.fill();
+      g.strokeStyle = th.planeEdge; g.lineWidth = 1.2 * dpr; g.stroke();
+    }
+    // Dandelin küreleri
+    if (r.ok && SA.spheres) {
+      for (const s of T.spheres) {
+        if (Math.abs(s.z) > ZC * 1.25) continue;
+        const C = P(0, 0, s.z), rad = s.r * Sc;
+        const gr = g.createRadialGradient(C[0] - rad * 0.35, C[1] - rad * 0.4, rad * 0.05, C[0], C[1], rad);
+        gr.addColorStop(0, rgba(th.sphere, th.light ? 0.28 : 0.32));
+        gr.addColorStop(1, rgba(th.sphere, th.light ? 0.08 : 0.07));
+        g.fillStyle = gr;
+        g.beginPath(); g.arc(C[0], C[1], rad, 0, TAU); g.fill();
+        ring(g, C[0], C[1], rad, rgba(th.sphere, 0.75), 1.2 * dpr);
+        // Değme çemberi
+        const cc = P(0, 0, s.zc);
+        for (const front of [false, true]) {
+          g.strokeStyle = rgba(th.sphere, front ? 0.95 : 0.45);
+          g.lineWidth = (front ? 1.8 : 1.1) * dpr;
+          g.setLineDash(front ? [] : [3 * dpr, 3 * dpr]);
+          g.beginPath();
+          for (let i = 0; i < 72; i++) {
+            const f0 = (TAU * i) / 72, f1 = (TAU * (i + 1)) / 72;
+            const a = P(s.rc * Math.cos(f0), s.rc * Math.sin(f0), s.zc), b = P(s.rc * Math.cos(f1), s.rc * Math.sin(f1), s.zc);
+            if (((a[2] + b[2]) / 2 >= cc[2]) !== front) continue;
+            g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]);
+          }
+          g.stroke();
+        }
+        g.setLineDash([]);
+      }
+    }
+    // Kesit: yüzey normali kameraya bakıyorsa önde (kalın), değilse arkada (soluk)
+    const visible = (h) => h.x * cam[0] + h.y * cam[1] - h.z * ta * ta * cam[2] > 0;
+    if (r.ok) {
+      g.lineCap = "round";
+      for (const L of r.linesIn) {
+        for (let i = 0; i + 1 < L.length; i++) {
+          const a = L[i], b = L[i + 1], va = visible(a);
+          const pa = P(a.x, a.y, a.z), pb = P(b.x, b.y, b.z);
+          g.strokeStyle = va ? th.warm : th.curveBack;
+          g.lineWidth = (va ? 3 : 1.8) * dpr;
+          line(g, pa[0], pa[1], pb[0], pb[1]);
+        }
+      }
+      g.lineCap = "butt";
+    } else if (T.kind !== "nokta") {
+      // Dejenere: düzlemde kalan doğuranlar (tepe üzerinden iki yarı koni boyunca)
+      const tl = ZC / Math.cos(al);
+      for (const sg2 of T.kind === "dogru" ? [1] : [1, -1]) {
+        const f = sg2 * T.phi0, gx = Math.sin(al) * Math.cos(f), gy = Math.sin(al) * Math.sin(f), gz = Math.cos(al);
+        const a = P(-tl * gx, -tl * gy, -tl * gz), b = P(tl * gx, tl * gy, tl * gz);
+        g.strokeStyle = th.warm; g.lineWidth = 3 * dpr; line(g, a[0], a[1], b[0], b[1]);
+      }
+    }
+    // Odaklar: kürelerin düzleme değdiği noktalar
+    if (r.ok) {
+      T.spheres.forEach((s, i) => {
+        const z = d * sb + s.U * cb;
+        if (Math.abs(z) > ZC * 1.25) return;
+        const p = X3(s.U, 0);
+        dot(g, p[0], p[1], 4.5 * dpr, th.pink);
+        tag(g, T.spheres.length > 1 ? `F${i ? "₂" : "₁"}` : "F", p[0] + 8 * dpr, p[1] - 12 * dpr, th.pink, th, 11, "left");
+      });
+    }
+    // Tepe ve açılar (xz düzleminde)
+    dot(g, O[0], O[1], (T.kind === "nokta" ? 5 : 3) * dpr, T.kind === "nokta" ? th.warm : th.ink);
+    text(g, "tepe", O[0] + 8 * dpr, O[1] + 2 * dpr, th.muted, 10, "left", "top");
+    // Açı yayı xz düzleminde: ekseninden (zs = ±1) başlayıp x yönüne (xs = ±1) doğru
+    const arc3 = (cz, rho, a1, color, xs = 1, zs = 1) => {
+      g.strokeStyle = color; g.lineWidth = 1.6 * dpr; g.beginPath();
+      for (let i = 0; i <= 24; i++) { const s = (a1 * i) / 24, q = P(xs * rho * Math.sin(s), 0, cz + zs * rho * Math.cos(s)); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }
+      g.stroke();
+      return P(xs * rho * 1.45 * Math.sin(a1 / 2), 0, cz + zs * rho * 1.45 * Math.cos(a1 / 2));
+    };
+    // α: alt yarı konide, eksen ile bir doğuran arasında (üstte küre ve kesitle karışmasın)
+    { const q = arc3(0, 1.1, al, th.accent2, -1, -1); text(g, "α", q[0], q[1], th.accent2, 12, "center", "middle", "600"); }
+    if (sb > 1e-6 && d > 0) {
+      const z0 = d / sb;
+      if (z0 <= ZC) {
+        const K = P(0, 0, z0), uEnd = P(0.9 * sb, 0, z0 + 0.9 * cb);
+        g.strokeStyle = th.planeEdge; g.lineWidth = 1.4 * dpr; line(g, K[0], K[1], uEnd[0], uEnd[1]);
+        const q = arc3(z0, 0.45, T.be, th.accent2);
+        text(g, "β", q[0], q[1], th.accent2, 12, "center", "middle", "600");
+        dot(g, K[0], K[1], 2.5 * dpr, th.accent2);
+      }
+    } else if (d === 0 && SA.beta > 0) {
+      const q = arc3(0, 0.95, T.be, th.accent2);
+      text(g, "β", q[0], q[1], th.accent2, 12, "center", "middle", "600");
+    }
+    // Yazılar
+    text(g, `α = ${fix(SA.alpha, 2)}° · β = ${fix(SA.beta, 2)}° · d = ${fix(SA.d, 2)} br`, 10 * dpr, H - 12 * dpr, th.muted, 11, "left", "middle");
+    text(g, `Kesit: ${KIND_TR[T.kind]}${r.ok ? ` · e = ${T.kind === "cember" ? "0" : fix(T.e, 4)}` : ""}`, 10 * dpr, 16 * dpr, th.ink, 12, "left", "middle", "600");
+    text(g, "sürükle: döndür", W - 10 * dpr, 16 * dpr, th.muted, 10, "right", "middle");
+  }
+
+  // Kesitin düzlemdeki gerçek biçimi (eşit ölçek)
+  function drawChartA() {
+    const th = theme(), g = cg, W = chart.width, H = chart.height, r = SA.res, T = r.T;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    const add = (u, v) => { x0 = Math.min(x0, u); x1 = Math.max(x1, u); y0 = Math.min(y0, v); y1 = Math.max(y1, v); };
+    const degLines = [];
+    if (r.ok) {
+      for (const L of r.linesIn) for (const p of L) add(p.U, p.V);
+      if (!Number.isFinite(x0)) for (const L of r.linesOut) for (const p of L) add(p.U, p.V);
+      for (const s of T.spheres) if (Number.isFinite(s.U) && Math.abs(s.U) < 40) add(s.U, 0);
+      if (T.kind === "parabol") add(T.Uv, 0);
+    } else {
+      add(-1, -1); add(1, 1);
+      if (T.kind !== "nokta") {
+        const tl = ZC / Math.cos(T.al);
+        for (const sg2 of T.kind === "dogru" ? [1] : [1, -1]) {
+          const f = sg2 * T.phi0, U = tl * (T.sa * Math.cos(f) * T.sb + T.ca * T.cb), Vv = tl * T.sa * Math.sin(f);
+          degLines.push([U, Vv]);
+        }
+      }
+    }
+    const top = 26 * dpr, bot = H - 6 * dpr, left = 6 * dpr, right = W - 6 * dpr;
+    let sx = Math.max(x1 - x0, 0.3) * 1.18, sy = Math.max(y1 - y0, 0.3) * 1.18;
+    const Sc = Math.min((right - left) / sx, (bot - top) / sy);
+    const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+    const L = { left, right, top, bot };
+    L.X = (u) => (left + right) / 2 + (u - mx) * Sc;
+    L.Y = (v) => (top + bot) / 2 - (v - my) * Sc;
+    L.x0 = mx - (right - left) / 2 / Sc; L.x1 = mx + (right - left) / 2 / Sc;
+    L.y0 = my - (bot - top) / 2 / Sc; L.y1 = my + (bot - top) / 2 / Sc;
+    g.save();
+    g.beginPath(); g.rect(left, top, right - left, bot - top); g.clip();
+    gridFrame(g, th, L, "br");
+    // Simetri ekseni (u)
+    dashed(g, th.faint, 1 * dpr, left, L.Y(0), right, L.Y(0), [6 * dpr, 5 * dpr]);
+    const drawLines = (lines, color, w, dash) => {
+      g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []);
+      for (const Ln of lines) { g.beginPath(); Ln.forEach((p, i) => (i ? g.lineTo(L.X(p.U), L.Y(p.V)) : g.moveTo(L.X(p.U), L.Y(p.V)))); g.stroke(); }
+      g.setLineDash([]);
+    };
+    if (r.ok) {
+      drawLines(r.linesOut, th.curveBack, 1.4 * dpr, [5 * dpr, 4 * dpr]);
+      drawLines(r.linesIn, th.warm, 2.6 * dpr);
+      // Doğrultmanlar
+      T.spheres.forEach((s, i) => {
+        if (!Number.isFinite(s.Ud)) return;
+        const x = L.X(s.Ud);
+        if (x < left - 2 || x > right + 2) return;
+        dashed(g, th.danger, 1.3 * dpr, x, top, x, bot, [6 * dpr, 4 * dpr]);
+        text(g, `doğrultman${T.spheres.length > 1 ? (i ? " 2" : " 1") : ""}`, x + 4 * dpr, top + 10 * dpr + i * 13 * dpr, th.danger, 9, "left", "middle");
+      });
+      // Merkez, odaklar (dolu: küre değme noktası; halka: uydurmadan)
+      if (T.kind === "elips" || T.kind === "hiperbol") { dot(g, L.X(T.Uc), L.Y(0), 3 * dpr, th.ink); text(g, "M", L.X(T.Uc) + 5 * dpr, L.Y(0) + 9 * dpr, th.muted, 10, "left", "middle"); }
+      // Koni ekseninin düzlemi deldiği nokta: z = d/sin β, U = d·cos β / sin β (elipste merkezde değil)
+      if (T.sb > 1e-9) {
+        const ax = L.X((T.d * T.cb) / T.sb), ay = L.Y(0), q = 4 * dpr;
+        if (ax > left && ax < right) {
+          g.strokeStyle = th.ink; g.lineWidth = 1.4 * dpr;
+          line(g, ax - q, ay - q, ax + q, ay + q); line(g, ax - q, ay + q, ax + q, ay - q);
+          text(g, "eksen", ax - 5 * dpr, ay + 10 * dpr, th.muted, 9, "right", "middle");
+        }
+      }
+      T.spheres.forEach((s, i) => {
+        dot(g, L.X(s.U), L.Y(0), 4.5 * dpr, th.pink);
+        text(g, T.spheres.length > 1 ? `F${i ? "₂" : "₁"}` : "F", L.X(s.U) + 6 * dpr, L.Y(0) - 11 * dpr, th.pink, 11, "left", "middle", "600");
+      });
+      for (const f of r.G.foci) ring(g, L.X(f[0]), L.Y(f[1]), 8 * dpr, th.ink, 1.3 * dpr);
+    } else {
+      if (T.kind === "nokta") dot(g, L.X(0), L.Y(0), 5 * dpr, th.warm);
+      else for (const q of degLines) { g.strokeStyle = th.warm; g.lineWidth = 2.6 * dpr; line(g, L.X(-q[0]), L.Y(-q[1]), L.X(q[0]), L.Y(q[1])); }
+    }
+    g.restore();
+    text(g, `Kesitin gerçek biçimi (düzlemde, eşit ölçek) · ${KIND_TR[T.kind]}`, 8 * dpr, 13 * dpr, th.ink, 11, "left", "middle", "600");
+    if (r.ok) text(g, "dolu: küre değme noktası · halka: uydurulan odak · kesikli: çizilen koninin dışı", W - 8 * dpr, 13 * dpr, th.muted, 9, "right", "middle");
+  }
+  function pointerA(sx, sy, start) {
+    if (start) { SA.drag = { x: sx, y: sy, az: SA.az, el: SA.el }; return true; }
+    const dd = SA.drag, k = 180 / Math.max(240 * dpr, stage.width * 0.6);
+    let az = dd.az - (sx - dd.x) * k;
+    az = ((((az + 180) % 360) + 360) % 360) - 180;
+    SA.az = Math.round(az);
+    SA.el = Math.round(clamp(dd.el + (sy - dd.y) * k, -30, 60));
+    syncA();
+    return true;
+  }
+
+  /* ══════════ (b) Odak ve doğrultman ══════════ */
+  const B_DEF = { e: 0.6, keep: "k", k: 1.5, ell: 0.9, th: 60, build: true };
+  const SB = {
+    ...B_DEF, res: null, sweep: { on: false, u: 1 },
+    ui: {
+      e: $("bE"), eNum: $("bENum"), eOut: $("bEOut"), keep: $("bKeep"), keepOut: $("bKeepOut"),
+      k: $("bK"), kNum: $("bKNum"), kOut: $("bKOut"), kLabel: $("bKLabel"), kNumLabel: $("bKNumLabel"),
+      th: $("bTh"), thOut: $("bThOut"), build: $("bBuild"), sample: $("bSample"), pause: $("bPause"), reset: $("bReset"),
+      kind: $("bKind"), ellC: $("bEll"), a: $("bA"), b: $("bB"), c: $("bC"), asym: $("bAsym"), dist: $("bDist"),
+      rm: $("bRm"), rt: $("bRt"), rd: $("bRd"), pLabel: $("bPLabel"), pm: $("bPm"), pt: $("bPt"), pd: $("bPd"),
+      tLabel: $("bTLabel"), tm: $("bTm"), tt: $("bTt"), td: $("bTd"), sLabel: $("bSLabel"), sm: $("bSm"), st: $("bSt"), sd: $("bSd"),
+      oQ: [$("oQ0"), $("oQ1")], oA: [$("oA0"), $("oA1")], oE: [$("oE0"), $("oE1")], status: $("bStatus"),
+    },
+  };
+  const SWEEP_T = 6;     // s: örnekleme süpürmesinin süresi
+  function layoutB() {
+    const W = stage.width, H = stage.height, Sc = Math.min(W / 10.6, H / 7);
+    const ox = W * 0.5, oy = H * 0.5;
+    return { W, H, Sc, ox, oy, X: (x) => ox + x * Sc, Y: (y) => oy - y * Sc, x0: -ox / Sc, x1: (W - ox) / Sc, y0: -(H - oy) / Sc, y1: oy / Sc };
+  }
+  function computeB() {
+    const e = SB.e, k = SB.keep === "k" ? SB.k : e > 0 ? SB.ell / e : Infinity, ell = SB.keep === "k" ? e * SB.k : SB.ell;
+    const I = M.infoB(e, ell), th = SB.th * D2R;
+    const r = M.polarR(e, ell, th);
+    const res = { e, k, ell, I, th, r };
+    if (Number.isFinite(r)) {
+      const P = [r * Math.cos(th), r * Math.sin(th)];
+      res.P = P;
+      res.PF = Math.hypot(P[0], P[1]);
+      res.PD = Number.isFinite(k) ? Math.abs(k - P[0]) : Infinity;
+      res.ratio = Number.isFinite(res.PD) ? (res.PD > 0 ? res.PF / res.PD : NaN) : 0;
+      if (Number.isFinite(I.f2)) res.PF2 = Math.hypot(P[0] - I.f2, P[1]);
+    }
+    // Örnekleme (görünen bölge için s aralıkları, her yanda 90 nokta)
+    const Lb = layoutB();
+    const samples = [], ranges = [];
+    for (const side of [-1, 1]) {
+      const rg = M.locusRange(e, k, side);
+      if (!rg) continue;
+      const vlo = side < 0 ? k - Lb.x1 : Lb.x0 - k, vhi = side < 0 ? k - Lb.x0 : Lb.x1 - k;
+      const lo = Math.max(rg[0], side < 0 ? Math.max(0, vlo) : vlo), hi = Math.min(rg[1], vhi);
+      if (!(hi > lo)) continue;
+      ranges.push({ side, lo, hi });
+      for (let j = 0; j < 40; j++) {
+        const s = lo + ((hi - lo) * (j + 0.5)) / 40;
+        for (const p of M.locusAt(e, k, s, side)) samples.push({ ...p, side, u: (j + 0.5) / 40 });
+      }
+    }
+    let worst = 0;
+    for (const p of samples) worst = Math.max(worst, Math.abs(Math.hypot(p.x, p.y) - e * Math.abs(k - p.x)));
+    Object.assign(res, { samples, ranges, worst });
+    res.orbits = M.ORBITS.map((o) => ({ o, ...M.orbitC(o, 3600) }));
+    SB.res = res;
+  }
+  function syncB() {
+    const u = SB.ui;
+    computeB();
+    u.e.value = String(SB.e); setBox(u.eNum, SB.e);
+    u.keep.value = SB.keep;
+    const val = SB.keep === "k" ? SB.k : SB.ell;
+    u.k.value = String(val); setBox(u.kNum, val);
+    u.th.value = String(SB.th); u.build.checked = SB.build;
+    setText(u.eOut, fix(SB.e, 4));
+    setText(u.keepOut, SB.keep === "k" ? "k" : "ℓ");
+    setText(u.kLabel, SB.keep === "k" ? "Odak–doğrultman uzaklığı k" : "Yarı latus rectum ℓ");
+    setText(u.kNumLabel, SB.keep === "k" ? "Odak–doğrultman uzaklığı k, birim" : "Yarı latus rectum ℓ, birim");
+    setText(u.kOut, br(val, 2));
+    setText(u.thOut, `${fix(SB.th, 0)}°`);
+    dirty = true;
+  }
+  function setB(o) { Object.assign(SB, o); if (SB.keep === "k") SB.ell = SB.e * SB.k; else if (SB.e > 0 && SB.ell / SB.e <= 3 && SB.ell / SB.e >= 0.2) SB.k = round(SB.ell / SB.e, 2); syncB(); }
+  function resetB() { SB.sweep = { on: false, u: 1 }; setB({ ...B_DEF }); }
+  const PRESET_B = {
+    cember: { e: 0, keep: "ell", ell: 1.5, th: 60 }, elips: { e: 0.5, keep: "k", k: 1.5, th: 60 }, parabol: { e: 1, keep: "k", k: 1.5, th: 60 },
+    hiperbol: { e: 1.5, keep: "k", k: 1.5, th: 60 }, dunya: { e: 0.0167086, keep: "ell", ell: 1.5, th: 60 }, halley: { e: 0.96714, keep: "ell", ell: 1.2, th: 60 },
+  };
+  function readoutsB() {
+    const u = SB.ui, r = SB.res, I = r.I, e = r.e;
+    setText(u.kind, I.kind === "nokta" ? "nokta (dejenere)" : KIND_TR[I.kind]);
+    setText(u.ellC, br(r.ell, 4));
+    const has2 = I.kind === "elips" || I.kind === "hiperbol" || I.kind === "cember";
+    setText(u.a, I.kind === "parabol" ? "sonsuz" : br(I.a, 4));
+    setText(u.b, I.kind === "parabol" ? "sonsuz" : br(I.b, 4));
+    setText(u.c, I.kind === "parabol" ? `odak–tepe p = ${br(I.p, 4)}` : br(I.c, 4));
+    setText(u.asym, I.kind === "hiperbol" ? `±${deg(I.thInf, 2)}` : I.kind === "parabol" ? "±180° (tek doğrultu)" : I.kind === "nokta" ? "—" : "yok (kapalı eğri)");
+    setText(u.rt, fix(e, 6));
+    setText(u.dist, Number.isFinite(r.r) ? `PF = ${br(r.PF, 6)} · PD = ${Number.isFinite(r.PD) ? br(r.PD, 6) : "∞ (doğrultman yok)"}` : "— (P sonsuzda)");
+    const onFar = Number.isFinite(r.r) && r.r < 0;
+    if (!Number.isFinite(r.r)) {
+      for (const el of [u.rm, u.rd, u.pm, u.pt, u.pd, u.tm, u.tt, u.td]) setText(el, "—");
+      setText(u.pLabel, "r = PF: P sonsuzda (1 + e cos θ = 0)");
+    } else {
+      setText(u.rm, Number.isFinite(r.PD) ? (r.PD > 0 ? fix(r.ratio, 6) : "—") : "0 (PD = ∞)");
+      setText(u.rd, Number.isFinite(r.ratio) ? diff(r.ratio - e, 6) : "—");
+      setText(u.pLabel, onFar ? "r = PF ile |ℓ/(1 + e cos θ)| (öbür kol, r < 0)" : "r = PF ile ℓ/(1 + e cos θ)");
+      setText(u.pm, br(r.PF, 6));
+      setText(u.pt, br(Math.abs(r.r), 6));
+      setText(u.pd, diff(r.PF - Math.abs(r.r), 6, "br"));
+      if (I.kind === "elips" || I.kind === "cember") {
+        setText(u.tLabel, "PF₁ + PF₂ ile 2a");
+        setText(u.tm, br(r.PF + r.PF2, 6)); setText(u.tt, br(2 * I.a, 6)); setText(u.td, diff(r.PF + r.PF2 - 2 * I.a, 6, "br"));
+      } else if (I.kind === "hiperbol") {
+        setText(u.tLabel, "|PF₁ − PF₂| ile 2a");
+        const v = Math.abs(r.PF - r.PF2);
+        setText(u.tm, br(v, 6)); setText(u.tt, br(2 * I.a, 6)); setText(u.td, diff(v - 2 * I.a, 6, "br"));
+      } else {
+        setText(u.tLabel, I.kind === "parabol" ? "İki odak tanımı: parabolün ikinci odağı sonsuzda" : "İki odak tanımı: eğri tek nokta");
+        setText(u.tm, "—"); setText(u.tt, I.kind === "parabol" ? "tanımsız" : "—"); setText(u.td, "—");
+      }
+    }
+    if (r.samples.length) {
+      setText(u.sLabel, `Örneklenen ${r.samples.length} nokta: en büyük |PF − e·PD|`);
+      setText(u.sm, small(r.worst, 6, "br")); setText(u.st, "0 br"); setText(u.sd, diff(r.worst, 6, "br"));
+    } else {
+      setText(u.sLabel, "Örneklenen noktalar");
+      setText(u.sm, Number.isFinite(r.k) ? "nokta yok" : "yapılamaz (doğrultman sonsuzda)"); setText(u.st, "—"); setText(u.sd, "—");
+    }
+    r.orbits.forEach((o, i) => {
+      setText(u.oQ[i], `${fix(o.q, 4)} AU`);
+      setText(u.oA[i], `${fix(o.Q, i ? 2 : 4)} AU`);
+      setText(u.oE[i], `${fix(o.e, 5)} (katalog ${fix(o.o.e, 5)})`);
+    });
+    let s;
+    const E = fix(e, 4);
+    if (I.kind === "nokta") s = `e = 0 ve k sabit: PF = 0·PD olmalı, geometrik yer yalnız F noktasıdır (dejenere). Çemberi görmek için "ℓ sabit" seç: o zaman k = ℓ/e sonsuza gider ve doğrultman kaybolur.`;
+    else if (I.kind === "cember") s = `Çember: e = 0, ℓ = ${br(r.ell, 3)} sabit. Doğrultman sonsuza gitmiştir (k = ℓ/e = ∞), iki odak merkezde çakışır; r = ℓ her θ için.`;
+    else if (I.kind === "elips") s = `Elips: e = ${E} < 1. P nerede olursa olsun PF = e·PD ve PF₁ + PF₂ = 2a = ${br(2 * I.a, 4)}. İkinci odak F₂, F'den ${br(2 * I.c, 3)} solda. Kepler: gezegen yörüngeleri bu biçimdedir, Güneş F'dedir.`;
+    else if (I.kind === "parabol") s = `Parabol: e = 1, PF = PD. Tepe noktası F ile doğrultmanın tam ortasında (F'den ${br(I.p, 3)}); θ = 180° yönünde eğri sonsuza açılır, ikinci odak yoktur. Kaçış hızıyla giden bir cisim bu yörüngeyi izler.`;
+    else s = `Hiperbol: e = ${E} > 1. Doğrultmanın iki yanında birer kol vardır; |PF₁ − PF₂| = 2a = ${br(2 * I.a, 4)}. Odaktan bakınca asimptotlar θ = ±${deg(I.thInf, 2)} doğrultusundadır (1 + e cos θ = 0). Güneş sistemine dışarıdan gelen ʻOumuamua böyle bir yörünge izledi.`;
+    if (!Number.isFinite(r.r) && I.kind !== "nokta") s += ` θ = ${fix(SB.th, 0)}° tam asimptot doğrultusu: bu yönde eğrinin noktası yok, P sonsuzdadır.`;
+    else if (onFar) s += ` P şu an öbür kolda: kutupsal denklem bu θ için r < 0 verir, nokta θ + 180° yönündedir.`;
+    if (SB.sweep.on) s += " Örnekleme sürüyor: doğrultmana s uzaklıktaki doğru ile e·s yarıçaplı çemberin kesişimleri işaretleniyor.";
+    setText(u.status, s);
+    u.status.className = `status ${I.kind === "nokta" || !Number.isFinite(r.r) ? "is-warn" : "is-good"}`;
+    setAria(stage, `Odak F, ${Number.isFinite(r.k) ? "doğrultman doğrusu" : "doğrultman yok (sonsuzda)"} ve PF = e·PD eğrisi (${KIND_TR[I.kind] || I.kind}, e = ${E}); pergel–cetvel örnekleme noktaları, P noktası ve PF, PD${Number.isFinite(I.f2) ? ", PF₂" : ""} parçaları.`);
+    setAria(chart, "Dünya (e = 0.0167) ve Halley (e = 0.967) yörüngeleri r = ℓ/(1 + e cos θ) ile aynı ölçekte, Güneş odakta; sağda Güneş çevresinin büyütülmüş görünümü: Dünya yörüngesi, merkezi Güneş'te olan karşılaştırma çemberi ve Halley'in günberi yayı.");
+  }
+  function curvePolylinesB(e, ell, Rmax) {
+    const out = [];
+    let cur = null, prevSign = 0;
+    const N = 1440;
+    for (let i = 0; i <= N; i++) {
+      const th = -Math.PI + (TAU * i) / N, r = M.polarR(e, ell, th);
+      const ok = Number.isFinite(r) && Math.abs(r) <= Rmax;
+      const sgn2 = Math.sign(r);
+      if (!ok || (cur && sgn2 !== prevSign)) { if (cur && cur.length > 1) out.push(cur); cur = null; }
+      if (ok) { (cur || (cur = [])).push([r * Math.cos(th), r * Math.sin(th)]); prevSign = sgn2; }
+    }
+    if (cur && cur.length > 1) out.push(cur);
+    return out;
+  }
+  function drawB() {
+    const th = theme(), g = sg, L = layoutB(), r = SB.res, I = r.I, { W, H, X, Y } = L;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    gridFrame(g, th, { ...L, left: 0, right: W, top: 0, bot: H }, "br", { n: 12 });
+    dashed(g, th.faint, 1 * dpr, 0, Y(0), W, Y(0), [6 * dpr, 5 * dpr]);
+    const k = r.k, e = r.e;
+    // Doğrultman
+    if (Number.isFinite(k)) {
+      dashed(g, th.danger, 1.6 * dpr, X(k), 0, X(k), H, [7 * dpr, 5 * dpr]);
+      text(g, "doğrultman", X(k) + 5 * dpr, 14 * dpr, th.danger, 10, "left", "middle", "600");
+    } else text(g, "doğrultman sonsuzda", W - 8 * dpr, 14 * dpr, th.danger, 10, "right", "middle", "600");
+    // Asimptotlar
+    if (I.kind === "hiperbol") {
+      const sl = I.b / I.a, cx = I.cx, ext = 30;
+      for (const s of [-1, 1]) dashed(g, th.faint, 1 * dpr, X(cx - ext), Y(-s * sl * ext), X(cx + ext), Y(s * sl * ext), [4 * dpr, 5 * dpr]);
+    }
+    // Eğri (kutupsal denklem)
+    g.strokeStyle = th.blue; g.lineWidth = 1.8 * dpr;
+    for (const pl of curvePolylinesB(e, r.ell, 80)) { polyPath(g, pl.map((p) => [X(p[0]), Y(p[1])])); g.stroke(); }
+    // Yapı: P için (ya da süpürmedeki s için) doğru ve çember
+    const sweepOn = SB.sweep.on || SB.sweep.u < 1;
+    const showUpTo = sweepOn ? SB.sweep.u : 1;
+    if (SB.build && Number.isFinite(k)) {
+      const sList = [];
+      if (sweepOn) for (const rg of r.ranges) sList.push({ s: rg.lo + (rg.hi - rg.lo) * showUpTo, side: rg.side });
+      else if (r.P && Number.isFinite(r.PD)) sList.push({ s: r.PD, side: r.P[0] <= k ? -1 : 1 });
+      for (const q of sList) {
+        const xl = k + q.side * q.s;
+        g.strokeStyle = rgba(th.light ? [217, 119, 6] : [251, 191, 36], 0.55); g.lineWidth = 1.2 * dpr;
+        line(g, X(xl), 0, X(xl), H);
+        g.strokeStyle = rgba(th.light ? [13, 148, 136] : [94, 234, 212], 0.55);
+        g.beginPath(); g.arc(X(0), Y(0), e * q.s * L.Sc, 0, TAU); g.stroke();
+        for (const p of M.locusAt(e, k, q.s, q.side)) ring(g, X(p.x), Y(p.y), 6 * dpr, th.ink, 1.4 * dpr);
+      }
+    }
+    // Örneklenen noktalar
+    g.fillStyle = th.dot;
+    for (const p of r.samples) {
+      if (p.u > showUpTo + 1e-9) continue;
+      g.beginPath(); g.arc(X(p.x), Y(p.y), 2 * dpr, 0, TAU); g.fill();
+    }
+    // Odaklar
+    dot(g, X(0), Y(0), 5 * dpr, th.pink);
+    text(g, Number.isFinite(I.f2) && I.kind !== "cember" ? "F₁ = F" : "F", X(0) - 7 * dpr, Y(0) + 13 * dpr, th.pink, 11, "right", "middle", "600");
+    if (Number.isFinite(I.f2) && I.kind !== "cember" && I.kind !== "nokta") {
+      ring(g, X(I.f2), Y(0), 5 * dpr, th.accent2, 2 * dpr);
+      text(g, "F₂", X(I.f2) + 7 * dpr, Y(0) + 13 * dpr, th.accent2, 11, "left", "middle", "600");
+    }
+    // P ve uzaklıklar
+    if (r.P) {
+      const px = X(r.P[0]), py = Y(r.P[1]);
+      if (Number.isFinite(r.PF2) && I.kind !== "cember") { g.strokeStyle = th.accent2; g.lineWidth = 1.8 * dpr; line(g, px, py, X(I.f2), Y(0)); }
+      g.strokeStyle = th.accent; g.lineWidth = 2.4 * dpr; line(g, px, py, X(0), Y(0));
+      if (Number.isFinite(k)) {
+        g.strokeStyle = th.warm; g.lineWidth = 2.4 * dpr; line(g, px, py, X(k), py);
+        dot(g, X(k), py, 3.5 * dpr, th.warm);
+        text(g, "D", X(k) + (r.P[0] <= k ? 6 : -6) * dpr, py - 9 * dpr, th.warm, 11, r.P[0] <= k ? "left" : "right", "middle", "600");
+      }
+      dot(g, px, py, 6 * dpr, th.ink);
+      ring(g, px, py, 10 * dpr, th.ink, 1.5 * dpr);
+      text(g, "P", px + 12 * dpr, py - 12 * dpr, th.ink, 12, "left", "middle", "600");
+    }
+    tag(g, `e = ${fix(e, 4)} · ${SB.keep === "k" ? `k = ${fix(r.k, 2)} br` : `ℓ = ${fix(r.ell, 2)} br`} · ${KIND_TR[I.kind] || "nokta"}`, 8 * dpr, 16 * dpr, th.ink, th, 11, "left");
+    if (r.P) {
+      const t1 = tag(g, `PF = ${fix(r.PF, 3)}`, 8 * dpr, 40 * dpr, th.accent, th, 11, "left");
+      const t2 = tag(g, `PD = ${Number.isFinite(r.PD) ? fix(r.PD, 3) : "∞"}`, t1.x + t1.w + 6 * dpr, 40 * dpr, th.warm, th, 11, "left");
+      if (Number.isFinite(r.PF2) && I.kind !== "cember") tag(g, `PF₂ = ${fix(r.PF2, 3)}`, t2.x + t2.w + 6 * dpr, 40 * dpr, th.accent2, th, 11, "left");
+    }
+  }
+  function drawChartB() {
+    const th = theme(), g = cg, W = chart.width, H = chart.height, r = SB.res;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const [earth, halley] = r.orbits;
+    const split = Math.round(W * 0.68), pad = 6 * dpr, top = 24 * dpr;
+    // Sol: iki yörünge aynı ölçekte
+    const x0 = -36.4, x1 = 1.6, Sc = Math.min((split - 2 * pad) / (x1 - x0), (H - top - pad) / 11);
+    const ox = pad + -x0 * Sc, oy = top + (H - top - pad) / 2;
+    const XL = (x) => ox + x * Sc, YL = (y) => oy - y * Sc;
+    g.save(); g.beginPath(); g.rect(pad, top, split - 2 * pad, H - top - pad); g.clip();
+    gridFrame(g, th, { left: pad, right: split - pad, top, bot: H - pad, X: XL, Y: YL, x0: (pad - ox) / Sc, x1: (split - pad - ox) / Sc, y0: (oy - (H - pad)) / Sc, y1: (oy - top) / Sc }, "AU", { n: 8 });
+    g.strokeStyle = th.warm; g.lineWidth = 2 * dpr; polyPath(g, halley.pts.map((p) => [XL(p[0]), YL(p[1])]), true); g.stroke();
+    g.strokeStyle = th.blue; g.lineWidth = 1.8 * dpr; polyPath(g, earth.pts.map((p) => [XL(p[0]), YL(p[1])]), true); g.stroke();
+    dot(g, XL(0), YL(0), 4 * dpr, th.warm);
+    dot(g, XL(-halley.Q), YL(0), 3 * dpr, th.warm);
+    text(g, `günöte Q = ${fix(halley.Q, 2)} AU`, XL(-halley.Q) + 6 * dpr, YL(0) - 10 * dpr, th.warm, 10, "left", "middle");
+    text(g, `Halley · e = ${fix(halley.o.e, 3)} · a = ${fix(halley.o.a, 2)} AU`, XL(-17.8), YL(halley.bMeas) - 9 * dpr, th.warm, 10, "center", "middle", "600");
+    g.restore();
+    // Sağ: Güneş çevresi büyütülmüş
+    const R2 = 1.35, cx2 = (split + W) / 2, cy2 = top + (H - top - pad) / 2, S2 = Math.min((W - split - 2 * pad) / (2 * R2), (H - top - pad) / (2 * R2));
+    const X2 = (x) => cx2 + x * S2, Y2 = (y) => cy2 - y * S2;
+    g.strokeStyle = th.grid; g.lineWidth = 1 * dpr; line(g, split, top, split, H - pad);
+    g.save(); g.beginPath(); g.rect(split + pad, top, W - split - 2 * pad, H - top - pad); g.clip();
+    gridFrame(g, th, { left: split + pad, right: W - pad, top, bot: H - pad, X: X2, Y: Y2, x0: -((cx2 - split - pad) / S2), x1: (W - pad - cx2) / S2, y0: -((H - pad - cy2) / S2), y1: (cy2 - top) / S2 }, "AU", { n: 4 });
+    g.strokeStyle = th.warm; g.lineWidth = 2 * dpr; polyPath(g, halley.pts.map((p) => [X2(p[0]), Y2(p[1])])); g.stroke();
+    g.strokeStyle = th.blue; g.lineWidth = 2.4 * dpr; polyPath(g, earth.pts.map((p) => [X2(p[0]), Y2(p[1])]), true); g.stroke();
+    g.save(); g.setLineDash([3 * dpr, 5 * dpr]); g.strokeStyle = th.ink; g.lineWidth = 1 * dpr;
+    g.beginPath(); g.arc(X2(0), Y2(0), earth.o.a * S2, 0, TAU); g.stroke(); g.restore();
+    dot(g, X2(0), Y2(0), 4 * dpr, th.warm);
+    dot(g, X2(-earth.o.a * earth.o.e), Y2(0), 2 * dpr, th.blue);
+    g.restore();
+    const narrow = W < 760 * dpr;
+    text(g, narrow ? "r = ℓ/(1 + e cos θ), Güneş odakta" : "Gerçek yörüngeler: r = ℓ/(1 + e cos θ), Güneş odakta", 8 * dpr, 12 * dpr, th.ink, narrow ? 10 : 11, "left", "middle", "600");
+    text(g, narrow ? "Güneş çevresi" : `Güneş çevresi: Dünya e = ${fix(earth.o.e, 4)}`, split + 8 * dpr, 12 * dpr, th.blue, 10, "left", "middle", "600");
+    text(g, narrow ? "kesikli: r = a" : "kesikli: Güneş merkezli r = a", split + 8 * dpr, 26 * dpr, th.muted, 9, "left", "middle");
+  }
+  function pointerB(sx, sy) {
+    const r = SB.res, L = layoutB();
+    const x = (sx - L.ox) / L.Sc, y = (L.oy - sy) / L.Sc;
+    let best = null;
+    for (const add of [0, Math.PI]) {
+      let th = Math.atan2(y, x) + add;
+      th = Math.atan2(Math.sin(th), Math.cos(th));
+      const thD = Math.round(th * R2D), rr = M.polarR(r.e, r.ell, thD * D2R);
+      if (!Number.isFinite(rr)) continue;
+      const dd = Math.hypot(rr * Math.cos(thD * D2R) - x, rr * Math.sin(thD * D2R) - y);
+      if (!best || dd < best.dd) best = { dd, thD };
+    }
+    if (best) { SB.th = best.thD === -180 ? 180 : best.thD; syncB(); }
+    return true;
+  }
+
+  /* ══════════ (c) Yansıma özellikleri ══════════ */
+  const C_DEF = { mirror: "elips", eE: 0.6, p: 1.2, eH: 1.6, n: 13, off: 0, offH: 0, tilt: 0, sel: 4, pulse: !REDUCED };
+  const SC = {
+    ...C_DEF, res: null, clock: 0,
+    ui: {
+      mirror: $("cMirror"), mirrorOut: $("cMirrorOut"), e: $("cE"), eOut: $("cEOut"), eField: $("cEField"),
+      p: $("cP"), pOut: $("cPOut"), pField: $("cPField"), h: $("cH"), hOut: $("cHOut"), hField: $("cHField"),
+      n: $("cN"), nOut: $("cNOut"), off: $("cOff"), offOut: $("cOffOut"), offField: $("cOffField"), offLabel: $("cOffLabel"),
+      tilt: $("cTilt"), tiltOut: $("cTiltOut"), tiltField: $("cTiltField"), sel: $("cSel"), selOut: $("cSelOut"),
+      pulse: $("cPulse"), pause: $("cPause"), reset: $("cReset"),
+      kind: $("cKind"), thI: $("cThI"), thR: $("cThR"), thF: $("cThF"),
+      am: $("cAm"), at: $("cAt"), ad: $("cAd"), mLabel: $("cMLabel"), mm: $("cMm"), mt: $("cMt"), md: $("cMd"),
+      xLabel: $("cXLabel"), xm: $("cXm"), xt: $("cXt"), xd: $("cXd"), lLabel: $("cLLabel"), lm: $("cLm"), lt: $("cLt"), ld: $("cLd"), status: $("cStatus"),
+    },
+  };
+  const MIRROR_TR = { elips: "elips", parabol: "parabol", hiperbol: "hiperbol" };
+  const PULSE_V = 1.6;    // br/s
+  function parC() { return SC.mirror === "elips" ? SC.eE : SC.mirror === "parabol" ? SC.p : SC.eH; }
+  function offC() { return SC.mirror === "elips" ? SC.off : SC.mirror === "parabol" ? SC.tilt * D2R : SC.offH; }
+  function computeC() {
+    const R = M.raysC(SC.mirror, parC(), SC.n, offC());
+    const hits = R.rays.filter((q) => q.hit);
+    R.maxMiss = hits.reduce((m, q) => Math.max(m, q.miss), 0);
+    let worst = NaN, dev = -1;
+    for (const q of hits) { const dv = Math.abs(q.L - R.Lth); if (dv > dev) { dev = dv; worst = q.L; } }
+    R.Lworst = worst;
+    R.Lmax = hits.reduce((m, q) => Math.max(m, q.L), 0);
+    SC.sel = clamp(SC.sel, 1, SC.n);
+    const ray = R.rays[SC.sel - 1];
+    R.sel = ray;
+    R.ang = ray && ray.hit ? M.anglesC(R.m, ray) : null;
+    SC.res = R;
+  }
+  function syncC() {
+    const u = SC.ui;
+    computeC();
+    u.mirror.value = SC.mirror;
+    u.e.value = String(SC.eE); u.p.value = String(SC.p); u.h.value = String(SC.eH);
+    u.n.value = String(SC.n); u.sel.max = String(SC.n); u.sel.value = String(SC.sel);
+    u.off.value = String(SC.mirror === "hiperbol" ? SC.offH : SC.off);
+    u.off.max = SC.mirror === "hiperbol" ? "1" : "1.5";
+    u.tilt.value = String(SC.tilt);
+    u.pulse.checked = SC.pulse;
+    u.eField.hidden = SC.mirror !== "elips";
+    u.pField.hidden = SC.mirror !== "parabol";
+    u.hField.hidden = SC.mirror !== "hiperbol";
+    u.offField.hidden = SC.mirror === "parabol";
+    u.tiltField.hidden = SC.mirror !== "parabol";
+    setText(u.mirrorOut, MIRROR_TR[SC.mirror]);
+    setText(u.eOut, fix(SC.eE, 2)); setText(u.pOut, br(SC.p, 2)); setText(u.hOut, fix(SC.eH, 2));
+    setText(u.nOut, String(SC.n));
+    setText(u.offLabel, SC.mirror === "hiperbol" ? "Hedef noktayı F₁'den kaydır δ" : "Kaynağı F₁'den merkeze doğru kaydır δ");
+    setText(u.offOut, br(SC.mirror === "hiperbol" ? SC.offH : SC.off, 2));
+    setText(u.tiltOut, `${fix(SC.tilt, 1)}°`);
+    setText(u.selOut, `${SC.sel} / ${SC.n}`);
+    dirty = true;
+  }
+  function setC(o) { Object.assign(SC, o); syncC(); }
+  function resetC() { SC.clock = 0; setC({ ...C_DEF }); }
+  function readoutsC() {
+    const u = SC.ui, R = SC.res, m = R.m, ray = R.sel, A = R.ang;
+    const f2 = m.type === "parabol" ? "F" : "F₂";
+    setText(u.kind, m.type === "elips" ? `elips · a = 3, b = ${fix(m.b, 3)} br` : m.type === "parabol" ? `parabol · p = ${fix(m.p, 2)} br` : `hiperbol · a = ${fix(m.a, 3)} br`);
+    if (A) {
+      setText(u.thI, deg(A.thI, 3)); setText(u.thR, deg(A.thR, 3)); setText(u.thF, deg(A.thF, 3));
+      setText(u.am, deg(A.thR, 4)); setText(u.at, deg(A.thI, 4));
+      const dd = (A.thR - A.thI) * R2D;
+      setText(u.ad, `${diff(dd, 4)}°`);
+      setText(u.mm, small(ray.miss, 4, "br")); setText(u.mt, "0 br"); setText(u.md, diff(ray.miss, 4, "br"));
+    } else {
+      for (const el of [u.thI, u.thR, u.thF, u.am, u.at, u.ad, u.mm, u.mt, u.md]) setText(el, "—");
+    }
+    setText(u.mLabel, `İncelenen ışın: yansıyanın ${f2}'ye uzaklığı`);
+    setText(u.xLabel, `Bütün ışınlar: en büyük ${f2} kaçırma uzaklığı`);
+    setText(u.xm, small(R.maxMiss, 4, "br")); setText(u.xt, "0 br"); setText(u.xd, diff(R.maxMiss, 4, "br"));
+    setText(u.lLabel, m.type === "elips" ? "Yol: kaynak → P → F₂ ile 2a, en çok sapan ışın" : m.type === "parabol" ? "Yol: giriş doğrusu → P → F, en çok sapan ışın" : "Yol: dalga cephesi → P → F₂ ile R₀ + 2a, en çok sapan ışın");
+    setText(u.lm, br(R.Lworst, 6)); setText(u.lt, br(R.Lth, 6)); setText(u.ld, diff(R.Lworst - R.Lth, 6, "br"));
+    const pert = offC() !== 0;
+    let s;
+    if (m.type === "elips") {
+      s = pert ? `Kaynak F₁'den ${br(SC.off, 2)} uzakta: yansıyan ışınlar artık F₂'de buluşmaz (en büyük kaçırma ${br(R.maxMiss, 3)}) ve yolları eşit değildir; ışınlar bir yakıcı eğri (kostik) boyunca yoğunlaşır.`
+        : `Fısıldayan galeri: F₁'den çıkan ${SC.n} ışının hepsi F₂'den geçer (en büyük kaçırma ${small(R.maxMiss, 3, "br")}). Yolları eşittir, PF₁ + PF₂ = 2a = ${br(R.Lth, 3)}: F₁'de çıkan ses F₂'ye aynı anda ulaşır. ${SC.eE === 0 ? "e = 0'da iki odak merkezde çakışır, her ışın kendi üstüne döner." : ""}`;
+    } else if (m.type === "parabol") {
+      s = pert ? `Demet eksenle ${fix(SC.tilt, 1)}° açı yapıyor: ışınlar odakta buluşmaz (en büyük kaçırma ${br(R.maxMiss, 3)}). Eksen dışı gelen ışıkta parabolün görüntüsü bulanıklaşır (koma); teleskoplar bu yüzden dar bir görüş alanında keskindir.`
+        : `Eksene paralel ${SC.n} ışının hepsi odaktan geçer (en büyük kaçırma ${small(R.maxMiss, 3, "br")}). Giriş doğrusundan odağa yol hep ${br(R.Lth, 3)}: düzlem dalga odakta aynı evrede toplanır. Çanak anten bu yüzden zayıf sinyali odaktaki alıcıda toplar; farda ise ampul odaktadır ve ışık paralel çıkar. Eksen boyunca gelen ışın tepeden kendi üstüne döner (geliş açısı 0°).`;
+    } else {
+      s = pert ? `Işınlar F₁ yerine ${br(SC.offH, 2)} sağdaki bir noktaya yönelmiş: yansıyanlar F₂'de buluşmaz (en büyük kaçırma ${br(R.maxMiss, 3)}).`
+        : `Cassegrain: birincil aynadan F₁'e doğru gelen ${SC.n} ışın, dış bükey hiperbolik ikincil aynadan yansıyıp F₂'den geçer (en büyük kaçırma ${small(R.maxMiss, 3, "br")}). |PF₂ − PF₁| = 2a = ${br(2 * m.a, 3)} olduğundan F₁'e yaklaşan dalga cephesi F₂'ye yaklaşan bir cephe olur; yol hep R₀ + 2a = ${br(R.Lth, 3)}.`;
+    }
+    setText(u.status, s);
+    u.status.className = `status ${pert ? "is-warn" : "is-good"}`;
+    setAria(stage, `${m.type === "elips" ? "Elips ayna: F₁'den çıkan" : m.type === "parabol" ? "Parabol ayna: eksene" + (pert ? " eğik" : " paralel") + " gelen" : "Hiperbolik ayna: F₁'e yönelen"} ${SC.n} ışın ve yansımaları${pert ? " (odak dışı: ışınlar tek noktada buluşmuyor)" : `, ${f2} noktasında buluşuyor`}; ${SC.pulse ? "aynı hızla ilerleyen ışık atmaları ve dalga cephesi; " : ""}incelenen ışında normal, geliş ve yansıma açıları.`);
+    setAria(chart, `Işın başına yol uzunluğunun kuramdan farkı ve yansıyan ışının ${f2}'ye uzaklığı; odaktaki kaynakta ikisi de 0.`);
+  }
+  function layoutC() {
+    const W = stage.width, H = stage.height, Sc = Math.min(W / 9.9, H / 6.9);
+    const ox = W / 2, oy = H / 2;
+    return { W, H, Sc, ox, oy, X: (x) => ox + x * Sc, Y: (y) => oy - y * Sc, x0: -ox / Sc, x1: (W - ox) / Sc, y0: -(H - oy) / Sc, y1: oy / Sc };
+  }
+  function rayExit(L, P, r) {
+    let t = Infinity;
+    if (r[0] > 1e-12) t = Math.min(t, (L.x1 - P[0]) / r[0]); else if (r[0] < -1e-12) t = Math.min(t, (L.x0 - P[0]) / r[0]);
+    if (r[1] > 1e-12) t = Math.min(t, (L.y1 - P[1]) / r[1]); else if (r[1] < -1e-12) t = Math.min(t, (L.y0 - P[1]) / r[1]);
+    return Math.max(0, t);
+  }
+  function drawC() {
+    const th = theme(), g = sg, L = layoutC(), R = SC.res, m = R.m, { W, H, X, Y } = L;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    gridFrame(g, th, { ...L, left: 0, right: W, top: 0, bot: H }, "br", { n: 10, noLabels: true });
+    dashed(g, th.faint, 1 * dpr, 0, Y(0), W, Y(0), [6 * dpr, 5 * dpr]);
+    // Ayna
+    const mir = [];
+    if (m.type === "elips") for (let i = 0; i <= 240; i++) mir.push(M.curveC(m, (TAU * i) / 240));
+    else if (m.type === "parabol") for (let i = 0; i <= 160; i++) mir.push(M.curveC(m, -3.2 + (6.4 * i) / 160));
+    else { const smax = Math.asinh(3.1 / m.b); for (let i = 0; i <= 160; i++) mir.push(M.curveC(m, -smax + (2 * smax * i) / 160)); }
+    g.strokeStyle = th.ink; g.lineWidth = 3.2 * dpr; polyPath(g, mir.map((p) => [X(p[0]), Y(p[1])])); g.stroke();
+    // Işınlar
+    const exitLen = (ray) => {
+      const after = Math.max(0.8, ray.along + 1.2);
+      return Math.min(after, rayExit(L, ray.P, ray.r));
+    };
+    R.rays.forEach((ray, i) => {
+      const isSel = i === SC.sel - 1;
+      if (!ray.hit) return;
+      const Sx = X(ray.S[0]), Sy = Y(ray.S[1]), Px = X(ray.P[0]), Py = Y(ray.P[1]);
+      const e2 = exitLen(ray), Ex = X(ray.P[0] + ray.r[0] * e2), Ey = Y(ray.P[1] + ray.r[1] * e2);
+      g.lineWidth = (isSel ? 2.4 : 1.3) * dpr;
+      g.strokeStyle = isSel ? th.sel : rgba(th.light ? [13, 148, 136] : [94, 234, 212], 0.8);
+      line(g, Sx, Sy, Px, Py);
+      g.strokeStyle = isSel ? th.sel : rgba(th.light ? [217, 119, 6] : [251, 191, 36], 0.8);
+      line(g, Px, Py, Ex, Ey);
+      if (!isSel) arrowHead(g, (Sx + Px) / 2, (Sy + Py) / 2, Math.atan2(Py - Sy, Px - Sx), 6 * dpr, rgba(th.light ? [13, 148, 136] : [94, 234, 212], 0.9));
+    });
+    // İncelenen ışında normal ve açılar
+    const ray = R.sel, A = R.ang;
+    if (ray && ray.hit && A) {
+      const Px = X(ray.P[0]), Py = Y(ray.P[1]), nl = 0.9;
+      dashed(g, th.ink, 1.2 * dpr, X(ray.P[0] - A.n[0] * 0.25), Y(ray.P[1] - A.n[1] * 0.25), X(ray.P[0] + A.n[0] * nl), Y(ray.P[1] + A.n[1] * nl), [4 * dpr, 3 * dpr]);
+      const rad = 30 * dpr, an = Math.atan2(-A.n[1], A.n[0]);
+      const ai = Math.atan2(ray.d[1], -ray.d[0]), ar = Math.atan2(-ray.r[1], ray.r[0]);
+      const arcTo = (a0, a1, color) => { let dd = a1 - a0; dd -= TAU * Math.round(dd / TAU); if (Math.abs(dd) < 1e-4) return; g.strokeStyle = color; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(Px, Py, rad, a0, a0 + dd, dd < 0); g.stroke(); };
+      arcTo(an, ai, th.accent);
+      arcTo(an, ar, th.warm);
+      dot(g, Px, Py, 4 * dpr, th.sel);
+      tag(g, `θg = ${fix(A.thI * R2D, 1)}° · θy = ${fix(A.thR * R2D, 1)}°`, Px + 12 * dpr, Py - 22 * dpr, th.sel, th, 10, "left");
+    }
+    // Odaklar ve kaynak
+    if (m.F1) { dot(g, X(m.F1[0]), Y(0), 5 * dpr, th.pink); tag(g, "F₁", X(m.F1[0]), Y(0) + 17 * dpr, th.pink, th, 11); }
+    dot(g, X(m.F2[0]), Y(0), 5 * dpr, th.pink);
+    tag(g, m.type === "parabol" ? "F" : "F₂", X(m.F2[0]), Y(0) + 17 * dpr, th.pink, th, 11);
+    const hdl = handleC(L);
+    if (hdl) { ring(g, hdl[0], hdl[1], 9 * dpr, th.ink, 2 * dpr); }
+    // Işık atmaları ve dalga cephesi
+    if (SC.pulse) {
+      const s = SC.clock * PULSE_V, pts = [];
+      R.rays.forEach((ray2) => {
+        if (!ray2.hit) { pts.push(null); return; }
+        let p;
+        if (s <= ray2.t) p = [ray2.S[0] + ray2.d[0] * s, ray2.S[1] + ray2.d[1] * s];
+        else { const q = s - ray2.t; p = [ray2.P[0] + ray2.r[0] * q, ray2.P[1] + ray2.r[1] * q]; }
+        pts.push(p);
+      });
+      g.strokeStyle = th.faint; g.lineWidth = 1.2 * dpr; g.beginPath();
+      let started = false;
+      const closed = m.type === "elips";
+      const seq = closed ? pts.concat([pts[0]]) : pts;
+      for (const p of seq) { if (!p) { started = false; continue; } if (!started) { g.moveTo(X(p[0]), Y(p[1])); started = true; } else g.lineTo(X(p[0]), Y(p[1])); }
+      g.stroke();
+      for (const p of pts) if (p) dot(g, X(p[0]), Y(p[1]), 3.2 * dpr, th.ink);
+    }
+    const caption = m.type === "elips" ? `elips · e = ${fix(m.e, 2)} · 2a = ${fix(2 * m.a, 2)} br` : m.type === "parabol" ? `parabol · p = ${fix(m.p, 2)} br · y² = −4p(x − ${fix(M.C_XV, 1)})` : `hiperbol · e = ${fix(m.e, 2)} · 2a = ${fix(2 * m.a, 3)} br · ayna: sol kol`;
+    text(g, caption, 10 * dpr, H - 12 * dpr, th.muted, 11, "left", "middle");
+  }
+  function handleC(L) {
+    const m = SC.res.m;
+    if (m.type === "elips") return [L.X(m.F1[0] + SC.off), L.Y(0)];
+    if (m.type === "hiperbol") return [L.X(m.F1[0] + SC.offH), L.Y(0)];
+    const tau = SC.tilt * D2R, h = 2.9;
+    return [L.X(M.C_X0 - h * Math.sin(tau)), L.Y(h * Math.cos(tau))];
+  }
+  function drawChartC() {
+    const th = theme(), g = cg, W = chart.width, H = chart.height, R = SC.res, m = R.m;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const hits = R.rays.filter((q) => q.hit);
+    const xs = hits.map((q) => (m.type === "parabol" ? q.tag : q.tag * R2D));
+    const xLo = m.type === "elips" ? -180 : m.type === "parabol" ? -M.C_H : -M.C_PSI * R2D, xHi = -xLo;
+    let ymax = 0.05;
+    for (const q of hits) ymax = Math.max(ymax, Math.abs(q.L - R.Lth), q.miss);
+    const yStep = niceStep((ymax * 1.15) / 2), yTop = Math.ceil((ymax * 1.15) / yStep) * yStep;
+    const l = 46 * dpr, rr = 10 * dpr, t = 26 * dpr, b = 22 * dpr, w = W - l - rr, h = H - t - b;
+    const XX = (v) => l + ((v - xLo) / (xHi - xLo)) * w, YY = (v) => t + h / 2 - (v / yTop) * (h / 2);
+    g.lineWidth = 1 * dpr; g.strokeStyle = th.grid; g.font = font(9); g.fillStyle = th.muted;
+    const xStep = niceStep((xHi - xLo) / 6);
+    g.textAlign = "center"; g.textBaseline = "top";
+    for (let v = Math.ceil(xLo / xStep) * xStep; v <= xHi + 1e-9; v += xStep) { line(g, XX(v), t, XX(v), t + h); g.fillText(tickText(v, xStep), XX(v), t + h + 4 * dpr); }
+    g.textAlign = "right"; g.textBaseline = "middle";
+    for (let v = -yTop; v <= yTop + 1e-12; v += yStep) { line(g, l, YY(v), l + w, YY(v)); g.fillText(tickText(v, yStep), l - 4 * dpr, YY(v)); }
+    g.strokeStyle = th.axis; g.lineWidth = 1.2 * dpr; line(g, l, YY(0), l + w, YY(0));
+    const series = (vals, color, dashd) => {
+      g.strokeStyle = color; g.lineWidth = 2 * dpr; g.setLineDash(dashd ? [5 * dpr, 4 * dpr] : []);
+      g.beginPath(); vals.forEach((v, i) => (i ? g.lineTo(XX(xs[i]), YY(v)) : g.moveTo(XX(xs[i]), YY(v)))); g.stroke(); g.setLineDash([]);
+      vals.forEach((v, i) => dot(g, XX(xs[i]), YY(v), 2.6 * dpr, color));
+    };
+    series(hits.map((q) => q.L - R.Lth), th.accent, false);
+    series(hits.map((q) => q.miss), th.warm, true);
+    const si = R.rays.indexOf(R.sel);
+    if (R.sel && R.sel.hit) { const xv = m.type === "parabol" ? R.sel.tag : R.sel.tag * R2D; dashed(g, th.sel, 1.2 * dpr, XX(xv), t, XX(xv), t + h, [3 * dpr, 3 * dpr]); }
+    text(g, `yol − kuram (br) ve kaçırma uzaklığı (br) · ışın ${si + 1} işaretli`, 8 * dpr, 12 * dpr, th.ink, 11, "left", "middle", "600");
+    g.font = font(9); g.textAlign = "right"; g.textBaseline = "middle";
+    g.fillStyle = th.accent; g.fillText("— yol farkı", W - 120 * dpr, 12 * dpr);
+    g.fillStyle = th.warm; g.fillText("- - kaçırma", W - 10 * dpr, 12 * dpr);
+    text(g, m.type === "parabol" ? "x: ışının yüksekliği (br)" : m.type === "elips" ? "x: çıkış açısı ψ (°)" : "x: geliş doğrultusu ψ (°)", 4 * dpr, H - 3 * dpr, th.muted, 9, "left", "bottom", "600");
+  }
+  function pointerC(sx, sy, start) {
+    const L = layoutC(), x = (sx - L.ox) / L.Sc, y = (L.oy - sy) / L.Sc;
+    if (start) {
+      const hdl = handleC(L);
+      if (hdl && Math.hypot(sx - hdl[0], sy - hdl[1]) < 22 * dpr) { SC.drag = "src"; return true; }
+      let best = -1, bd = Infinity;
+      SC.res.rays.forEach((q, i) => { if (!q.hit) return; const dd = Math.hypot(X0(q.P[0]) - sx, Y0(q.P[1]) - sy); if (dd < bd) { bd = dd; best = i; } });
+      function X0(v) { return L.X(v); }
+      function Y0(v) { return L.Y(v); }
+      if (best >= 0 && bd < 40 * dpr) { setC({ sel: best + 1 }); SC.drag = null; return false; }
+      return false;
+    }
+    if (SC.drag !== "src") return false;
+    const m = SC.res.m;
+    if (m.type === "elips") setC({ off: round(clamp(x - m.F1[0], 0, 1.5), 2) });
+    else if (m.type === "hiperbol") setC({ offH: round(clamp(x - m.F1[0], 0, 1), 2) });
+    else setC({ tilt: round(clamp(Math.atan2(-(x - M.C_X0), Math.max(0.5, y)) * R2D * 2, 0, 10), 0) / 2 });
+    return true;
+  }
+
+  /* ── Sekmeler ── */
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = el.dataset.for !== key; });
+    if (fromUser) {
+      try { history.replaceState(null, "", `#${key}`); } catch (_) {}
+    }
+    endDrag();
+    resize();
+    if (key === "odak") syncB();
+    dirty = true;
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+
+  /* ── Döngü ── */
+  let lastFrame = 0, lastTheme = "";
+  const animating = () => (S.tab === "odak" && SB.sweep.on) || (S.tab === "yansima" && SC.pulse);
+  function stepSim(dt) {
+    if (S.tab === "odak" && SB.sweep.on) {
+      SB.sweep.u = Math.min(1, SB.sweep.u + dt / SWEEP_T);
+      if (SB.sweep.u >= 1) { SB.sweep.on = false; dirty = true; }
+    }
+    if (S.tab === "yansima" && SC.pulse) {
+      SC.clock += dt;
+      if (SC.clock * PULSE_V > SC.res.Lmax + 1.6) SC.clock = 0;
+    }
+  }
+  function render(full) {
+    if (S.tab === "kes") { drawA(); if (full) { drawChartA(); readoutsA(); } }
+    else if (S.tab === "odak") { drawB(); if (full) { drawChartB(); readoutsB(); } }
+    else { drawC(); if (full) { drawChartC(); readoutsC(); } }
+  }
+  let readoutTimer = 0;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const thm = document.documentElement.dataset.theme || "dark";
+    if (thm !== lastTheme) { lastTheme = thm; dirty = true; }
+    let anim = false;
+    if (!S.paused && !window.AcelyaPause?.isPaused?.()) {
+      anim = animating();
+      if (anim) stepSim(elapsed);
+    }
+    if (dirty) { render(true); dirty = false; }
+    else if (anim) {
+      render(false);
+      readoutTimer += elapsed;
+      if (S.tab === "odak" && readoutTimer > 0.25) { readoutTimer = 0; readoutsB(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    if (S.tab === "odak" && SB.res) computeB();
+    dirty = true;
+  }
+
+  /* ── Etkileşim ── */
+  function setPaused(p) {
+    S.paused = p;
+    for (const b of [SB.ui.pause, SC.ui.pause]) {
+      setText(b, p ? "Devam et" : "Duraklat");
+      b.setAttribute("aria-pressed", String(p));
+    }
+    dirty = true;
+  }
+  function resetTab() {
+    if (S.tab === "kes") resetA();
+    else if (S.tab === "odak") resetB();
+    else resetC();
+  }
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button")) return;
+    if (e.code === "Space" && S.tab !== "kes") { e.preventDefault(); setPaused(!S.paused); }
+    else if (e.key === "r" || e.key === "R") resetTab();
+  });
+
+  let drag = null;
+  function endDrag() {
+    if (!drag) return;
+    drag = null;
+    SC.drag = null;
+    stage.classList.remove("is-dragging");
+  }
+  // Telefonda: (a)'da yatay parmak hareketi koniyi döndürür, dikey hareket sayfayı kaydırır;
+  // (b)'de P noktası, (c)'de kaynak tutamağı yalnız kendisine değen parmakla sürüklenir.
+  // Boş yere dokunmak (b)'de P'yi oraya, (c)'de ışın seçimini parmak kalkınca yapar.
+  const touchMode = (evt) => evt.pointerType === "touch" && !!window.AcelyaTouch?.isCoarse();
+  function touchGrab(sx, sy) {
+    const R0 = 34 * dpr;
+    if (S.tab === "odak") {
+      const P = SB.res && SB.res.P, L = layoutB();
+      return !!P && Math.hypot(L.X(P[0]) - sx, L.Y(P[1]) - sy) < R0;
+    }
+    if (S.tab === "yansima") {
+      const hdl = SC.res && handleC(layoutC());
+      return !!hdl && Math.hypot(sx - hdl[0], sy - hdl[1]) < R0;
+    }
+    return false;
+  }
+  window.AcelyaTouch?.guard(stage, (cx, cy) => touchGrab(...canvasPoint({ clientX: cx, clientY: cy }, stage)));
+  let tapId = null;
+  stage.addEventListener("pointercancel", () => { tapId = null; });
+  stage.addEventListener("pointerup", (evt) => {
+    if (tapId === null || evt.pointerId !== tapId) return;
+    tapId = null;
+    const [sx, sy] = canvasPoint(evt, stage);
+    if (S.tab === "odak") pointerB(sx, sy);
+    else if (S.tab === "yansima") { pointerC(sx, sy, true); SC.drag = null; }
+  });
+  stage.addEventListener("pointerdown", (evt) => {
+    const [sx, sy] = canvasPoint(evt, stage);
+    if (touchMode(evt) && S.tab !== "kes" && !touchGrab(sx, sy)) { tapId = evt.pointerId; return; }
+    if (touchMode(evt) && S.tab === "yansima") { SC.drag = "src"; drag = S.tab; stage.setPointerCapture(evt.pointerId); stage.classList.add("is-dragging"); return; }
+    let ok;
+    if (S.tab === "kes") ok = pointerA(sx, sy, true);
+    else if (S.tab === "odak") ok = pointerB(sx, sy);
+    else ok = pointerC(sx, sy, true);
+    if (!ok) return;
+    drag = S.tab;
+    // Telefonda (a)'daki döndürme, parmak önce belirgin biçimde yana gidince başlar; dikey hareket sayfanındır.
+    SA.wait = S.tab === "kes" && touchMode(evt);
+    stage.setPointerCapture(evt.pointerId);
+    stage.classList.add("is-dragging");
+    evt.preventDefault();
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    if (!drag || drag !== S.tab) return;
+    const [sx, sy] = canvasPoint(evt, stage);
+    if (drag === "kes" && SA.wait) {
+      const ax = Math.abs(sx - SA.drag.x), ay = Math.abs(sy - SA.drag.y);
+      if (Math.max(ax, ay) < 8 * dpr) return;
+      if (ay >= ax) { endDrag(); return; }
+      SA.wait = false;
+    }
+    if (S.tab === "kes") pointerA(sx, sy, false);
+    else if (S.tab === "odak") pointerB(sx, sy);
+    else pointerC(sx, sy, false);
+  });
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+
+  // (a)
+  bindPair(SA.ui.alpha, SA.ui.alphaNum, 2, (v) => setA({ alpha: v }));
+  bindPair(SA.ui.beta, SA.ui.betaNum, 2, (v) => setA({ beta: v }));
+  bindPair(SA.ui.d, SA.ui.dNum, 2, (v) => setA({ d: v }));
+  SA.ui.az.addEventListener("input", () => setA({ az: Number(SA.ui.az.value) }));
+  SA.ui.el.addEventListener("input", () => setA({ el: Number(SA.ui.el.value) }));
+  SA.ui.spheres.addEventListener("change", () => setA({ spheres: SA.ui.spheres.checked }));
+  document.querySelectorAll("[data-preset-a]").forEach((b) => b.addEventListener("click", () => setA({ alpha: 30, d: 0.8, ...PRESET_A[b.dataset.presetA] })));
+  SA.ui.apex.addEventListener("click", () => setA({ d: 0 }));
+  SA.ui.reset.addEventListener("click", resetA);
+  // (b)
+  bindPair(SB.ui.e, SB.ui.eNum, 7, (v) => setB({ e: v }));
+  bindPair(SB.ui.k, SB.ui.kNum, 2, (v) => (SB.keep === "k" ? setB({ k: v }) : setB({ ell: v })));
+  SB.ui.keep.addEventListener("change", () => {
+    const keep = SB.ui.keep.value;
+    if (keep === "ell") setB({ keep, ell: round(clamp(SB.res.ell > 0 ? SB.res.ell : SB.ell, 0.2, 3), 2) });
+    else setB({ keep, k: round(clamp(Number.isFinite(SB.res.k) ? SB.res.k : SB.k, 0.2, 3), 2) });
+  });
+  SB.ui.th.addEventListener("input", () => setB({ th: Number(SB.ui.th.value) }));
+  SB.ui.build.addEventListener("change", () => setB({ build: SB.ui.build.checked }));
+  document.querySelectorAll("[data-preset-b]").forEach((b) => b.addEventListener("click", () => setB({ ...PRESET_B[b.dataset.presetB] })));
+  SB.ui.sample.addEventListener("click", () => { SB.sweep = { on: true, u: 0 }; if (S.paused) setPaused(false); dirty = true; });
+  SB.ui.pause.addEventListener("click", () => setPaused(!S.paused));
+  SB.ui.reset.addEventListener("click", resetB);
+  // (c)
+  SC.ui.mirror.addEventListener("change", () => setC({ mirror: SC.ui.mirror.value, sel: Math.min(SC.sel, SC.n) }));
+  SC.ui.e.addEventListener("input", () => setC({ eE: Number(SC.ui.e.value) }));
+  SC.ui.p.addEventListener("input", () => setC({ p: Number(SC.ui.p.value) }));
+  SC.ui.h.addEventListener("input", () => setC({ eH: Number(SC.ui.h.value) }));
+  SC.ui.n.addEventListener("input", () => { const n = Number(SC.ui.n.value); setC({ n, sel: Math.min(SC.sel, n) }); });
+  SC.ui.off.addEventListener("input", () => (SC.mirror === "hiperbol" ? setC({ offH: Number(SC.ui.off.value) }) : setC({ off: Number(SC.ui.off.value) })));
+  SC.ui.tilt.addEventListener("input", () => setC({ tilt: Number(SC.ui.tilt.value) }));
+  SC.ui.sel.addEventListener("input", () => setC({ sel: Number(SC.ui.sel.value) }));
+  SC.ui.pulse.addEventListener("change", () => { SC.clock = 0; setC({ pulse: SC.ui.pulse.checked }); });
+  SC.ui.pause.addEventListener("click", () => setPaused(!S.paused));
+  SC.ui.reset.addEventListener("click", resetC);
+
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Başlat ── */
+  resetA();
+  resetB();
+  resetC();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "kes", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

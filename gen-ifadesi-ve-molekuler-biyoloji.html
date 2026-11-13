@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="tr" class="app-root">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gen İfadesi ve Moleküler Bilgi Akışı Laboratuvarı</title>
+<meta name="description" content="Bir geni mRNA'ya yaz, kodon kodon proteine çevir; sonra aynı genin hücrede kaç protein yaptığını say, bir hücrenin geçmişini nasıl hatırladığını ve üç genin nasıl saat kurduğunu ölç.">
+<link rel="stylesheet" href="shared/theme.css">
+<script src="shared/app.js"></script>
+<style>
+.ge-tabs{display:flex;gap:8px;margin:26px 0 20px;flex-wrap:wrap}
+.ge-tabs button{flex:1 1 150px;padding:14px 8px;font:inherit;font-size:.86rem}
+.ge-tabs [aria-selected=true]{border-color:var(--accent)!important;box-shadow:inset 0 -3px var(--accent)}
+.ge-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:20px;align-items:start}
+.ge-grid>div{min-width:0}
+.ge-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:20px;display:grid;gap:16px;min-width:0}
+.ge-panel h2,.ge-plate h2{font-size:1.05rem;margin:0}
+.ge-panel h3{font-size:.92rem;margin:6px 0 0;color:var(--accent)}
+.ge-field{display:grid;gap:8px;min-width:0}
+.ge-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}
+.ge-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ge-field input,.ge-field select{width:100%;min-width:0;font:inherit}
+.ge-field input[type=text]{padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em;box-sizing:border-box}
+.ge-field select{padding:10px}
+.ge-row{display:flex;gap:8px;flex-wrap:wrap}
+.ge-row button{padding:10px 13px;min-height:44px;font:inherit;font-size:.83rem}
+.ge-note{font-size:.84rem;line-height:1.8;margin:0}
+.ge-formula{padding:14px;background:var(--bg-input);border-radius:8px;line-height:1.9;font-size:.88rem;overflow-wrap:anywhere}
+.ge-plate{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.ge-plate h2{padding:14px 17px;border-bottom:1px solid var(--border)}
+body.app-page canvas.ge-canvas{display:block;width:100%;height:auto;aspect-ratio:1.8;border:0;border-radius:0}
+body.app-page canvas.ge-chart{aspect-ratio:2.2}
+body.app-page canvas.ge-square{aspect-ratio:1.25}
+.ge-caption{padding:10px 16px;font-size:.77rem;line-height:1.65;color:var(--text-muted);margin:0}
+.ge-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.ge-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:13px;min-width:0}
+.ge-stat small{display:block;color:var(--text-muted);font-size:.76rem;line-height:1.6}
+.ge-stat strong{display:block;font-size:1.02rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:6px}
+.ge-stat.is-measured{border-color:var(--accent)}
+.ge-stat.is-wide{grid-column:1/-1}
+.ge-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:13px 16px;font-size:.86rem;line-height:1.8;margin:0 0 14px}
+.ge-status.is-warn{border-left-color:var(--accent-warm,#f4ad6c)}
+.ge-seq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.84rem;line-height:1.7;overflow-wrap:anywhere;word-break:break-all;margin:0;padding:12px 16px;display:grid;gap:4px}
+.ge-seq b{font-family:system-ui,sans-serif;font-size:.74rem;color:var(--text-muted);font-weight:600}
+.ge-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:9px;margin:0 0 14px}
+.ge-table{width:100%;border-collapse:collapse;font-size:.83rem;font-variant-numeric:tabular-nums}
+.ge-table td,.ge-table th{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+.ge-table td.mono{font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all;min-width:160px}
+.ge-table thead th{background:var(--bg-input)}
+.ge-table caption{padding:10px 12px;text-align:left;line-height:1.6;color:var(--text-muted);font-size:.8rem}
+.ge-ok{color:var(--accent)}
+.ge-bad{color:#d0505a}
+.ge-bottom{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+.ge-bottom article{min-width:0;display:grid;gap:12px;align-content:start}
+.ge-bottom h2{font-size:1.05rem;margin:0}
+.ge-sub{font-size:1.1rem;margin:26px 0 12px}
+.ge-sources{margin-top:28px;font-size:.85rem;line-height:1.9}
+.ge-sources summary{cursor:pointer;color:var(--accent)}
+.ge-sources a{overflow-wrap:anywhere}
+.ge-err{color:#d0505a}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,canvas:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+@media(max-width:760px){
+.ge-grid,.ge-bottom{grid-template-columns:1fr}
+.ge-panel{padding:16px}
+.ge-tabs button{font-size:.78rem;padding:12px 6px;flex-basis:40%}
+.ge-stat strong{font-size:.95rem}
+body.app-page canvas.ge-canvas{aspect-ratio:1.1}
+body.app-page canvas.ge-chart{aspect-ratio:1.4}
+body.app-page canvas.ge-square{aspect-ratio:1}
+}
+</style>
+</head>
+<body class="app-page" data-page="gen-ifadesi-ve-molekuler-biyoloji">
+<main class="app-content">
+<h1>Gen İfadesi ve Moleküler Bilgi Akışı Laboratuvarı</h1>
+<p class="hint">Bir geni mRNA'ya yaz ve kodon kodon proteine çevir. Sonra aynı genin kaç mRNA ve kaç protein ürettiğini hem ortalama denklemlerle hem de tek tek molekül olaylarıyla say. lac operonunda bir hücrenin geçmişini nasıl hatırladığını, iki genin bir anahtar, üç genin bir saat kurduğunu ölç. Her sekmede simülasyonun ölçtüğü değer, kuramın verdiği değerin yanında durur.</p>
+
+<div class="ge-tabs" role="tablist" aria-label="Gen ifadesi deneyleri">
+<button type="button" class="app-btn-ghost" id="tab-tx" role="tab" aria-controls="panel-tx" aria-selected="true" tabindex="0">01 · Transkripsiyon ve çeviri</button>
+<button type="button" class="app-btn-ghost" id="tab-dyn" role="tab" aria-controls="panel-dyn" aria-selected="false" tabindex="-1">02 · mRNA ve protein dinamiği</button>
+<button type="button" class="app-btn-ghost" id="tab-lac" role="tab" aria-controls="panel-lac" aria-selected="false" tabindex="-1">03 · lac operonu</button>
+<button type="button" class="app-btn-ghost" id="tab-net" role="tab" aria-controls="panel-net" aria-selected="false" tabindex="-1">04 · Gen ağları: anahtar ve saat</button>
+</div>
+
+<!-- ═════════ 01 · Transkripsiyon ve çeviri ═════════ -->
+<section id="panel-tx" role="tabpanel" aria-labelledby="tab-tx">
+<div class="ge-grid"><div>
+<div class="ge-plate"><h2>DNA'dan mRNA'ya, mRNA'dan proteine</h2>
+<canvas class="ge-canvas" id="txCanvas" role="img" aria-label="Kodlayan ve kalıp iplik, promotör ve sonlandırıcı, sentezlenen mRNA, kodonlar ve amino asit zinciri"></canvas>
+<p class="ge-caption">Üstte kodlayan iplik (5′→3′), altında kalıp iplik (3′→5′). RNA polimeraz promotörden başlar, kalıbı 3′→5′ okur ve mRNA'yı 5′→3′ uzatır; sonlandırıcıda bırakır. Ribozom ilk AUG'dan başlayıp kodon kodon ilerler. Pencere uzun dizilerde etkin bölgeyi izler.</p></div>
+<div class="ge-plate"><h2>Üç iplik yan yana</h2><div class="ge-seq" id="txStrands" aria-live="polite"></div></div>
+<div class="ge-stats" aria-live="polite">
+<div class="ge-stat"><small>Kopyalanan bölge</small><strong id="txLen"></strong></div>
+<div class="ge-stat"><small>İlk AUG (mRNA'da, 5′ ucundan)</small><strong id="txAUG"></strong></div>
+<div class="ge-stat is-measured"><small>Protein uzunluğu</small><strong id="txPLen"></strong></div>
+<div class="ge-stat"><small>Dur kodonu</small><strong id="txStop"></strong></div>
+<div class="ge-stat is-wide"><small>Protein (tek harf ve üç harf)</small><strong id="txProt"></strong></div>
+</div>
+<p class="ge-status" id="txStatus" role="status"></p>
+<div class="ge-table-wrap" tabindex="0" role="region" aria-label="Üç okuma çerçevesi"><table class="ge-table"><caption>mRNA'nın üç okuma çerçevesi. Her harf bir kodondur; * dur kodonu. Çerçeve +1 birinci nükleotitten başlar.</caption><thead><tr><th scope="col">Çerçeve</th><th scope="col">Çeviri</th><th scope="col">Dur</th><th scope="col">En uzun ORF</th></tr></thead><tbody id="txFrames"></tbody></table></div>
+</div>
+<aside class="ge-panel"><h2>Gen</h2>
+<div class="ge-field"><label for="txSeq"><span>DNA dizisi, 5′ ucundan 3′ ucuna</span> <output id="txSeqOut"></output></label><input id="txSeq" type="text" autocomplete="off" spellcheck="false" maxlength="400" value="AGGAGGTCAGCTATGGCATCCAAAGGTGAAGAACTGTTCACCGGTTGGCACTAAGCTCGAGC"></div>
+<div class="ge-field"><label for="txStrand">Yazdığın iplik</label><select id="txStrand"><option value="coding">Kodlayan iplik (mRNA ile aynı dizi, T yerine U)</option><option value="template">Kalıp iplik (polimerazın okuduğu iplik)</option></select></div>
+<div class="ge-row"><button type="button" class="app-btn-ghost" id="txPGene">Örnek gen</button><button type="button" class="app-btn-ghost" id="txPNoStop">Dur kodonu yok</button><button type="button" class="app-btn-ghost" id="txPNoAug">AUG yok</button><button type="button" class="app-btn-ghost" id="txPRand">Rastgele 120 baz</button></div>
+<div class="ge-field"><label for="txSpeed"><span>Oynatma hızı</span> <output id="txSpeedOut"></output></label><input id="txSpeed" type="range" min="2" max="30" step="1" value="8" data-unit=" nt/s"></div>
+<div class="ge-row"><button type="button" class="app-btn" id="txPlay">Oynat</button><button type="button" class="app-btn-ghost" id="txReset">Sekmeyi sıfırla</button></div>
+<p class="ge-note">Kopyalanan bölge, yazdığın dizinin tamamıdır: promotör ondan hemen önce, sonlandırıcı hemen sonra durur. Model sadedir: intron ve kırpma yok; çeviri ilk AUG'dan başlar. Gerçekte bakterilerde ribozom bağlanma dizisi, ökaryotlarda 5′ başlıktan taramayla bulunan bağlam başlangıcı seçer.</p>
+<p class="ge-note">Kısayollar (form denetimi dışında): <kbd>Boşluk</kbd> oynat/duraklat, <kbd>R</kbd> sekmeyi sıfırla.</p>
+</aside></div>
+
+<h2 class="ge-sub">Rastgele dizide açık okuma çerçevesi: gen mi, tesadüf mü?</h2>
+<div class="ge-grid"><div>
+<div class="ge-plate"><h2>Dizi başına ORF sayısı</h2>
+<canvas class="ge-canvas ge-chart" id="orfChart" role="img" aria-label="Rastgele dizilerde sayılan ORF sayısının histogramı ve Poisson yaklaşımı"></canvas>
+<p class="ge-caption">Sütunlar: M rastgele dizide sayılan ORF sayısının dağılımı. Noktalar: ortalaması tam beklenen değere eşit Poisson dağılımı (yaklaşım: ORF'ler bağımsız değil, iç içe olabilir).</p></div>
+<div class="ge-stats" aria-live="polite">
+<div class="ge-stat is-measured"><small>Ölçülen ortalama ORF / dizi (± standart hata)</small><strong id="orfMeas"></strong></div>
+<div class="ge-stat"><small>Kuram: tam beklenen değer</small><strong id="orfExp"></strong></div>
+<div class="ge-stat"><small>Fark</small><strong id="orfDiff"></strong></div>
+<div class="ge-stat"><small>Uzun dizi yaklaşımı (L/64)·(61/64)<sup>k−1</sup></small><strong id="orfAsym"></strong></div>
+<div class="ge-stat"><small>Bütün dizilerde en uzun ORF</small><strong id="orfLong"></strong></div>
+<div class="ge-stat"><small>Yukarıdaki gende ≥ k kodonluk ORF</small><strong id="orfGene"></strong></div>
+</div>
+<p class="ge-status" id="orfStatus" role="status"></p>
+</div>
+<aside class="ge-panel"><h2>Sayım ayarları</h2>
+<div class="ge-field"><label for="orfL"><span>Dizi uzunluğu L</span> <output id="orfLOut"></output></label><input id="orfL" type="range" min="300" max="3000" step="100" value="1000" data-unit=" nt"></div>
+<div class="ge-field"><label for="orfK"><span>En kısa ORF k</span> <output id="orfKOut"></output></label><input id="orfK" type="range" min="5" max="100" step="5" value="30" data-unit=" kodon"></div>
+<div class="ge-field"><label for="orfM"><span>Rastgele dizi sayısı M</span> <output id="orfMOut"></output></label><input id="orfM" type="range" min="20" max="1000" step="20" value="200" data-unit=""></div>
+<div class="ge-field"><label for="orfSeed"><span>Rastgele tohum</span> <output id="orfSeedOut"></output></label><input id="orfSeed" type="range" min="1" max="20" step="1" value="1" data-unit=""></div>
+<div class="ge-formula">P(bir konumda AUG) = 1/64<br>P(sonraki kodon dur değil) = 61/64<br>E = Σ<sub>i</sub> (1/64)[(61/64)<sup>k−1</sup> − (61/64)<sup>J<sub>i</sub></sup>]<br>J<sub>i</sub> = ⌊(L − i)/3⌋ − 1, i = 0, 1, …, L − 3</div>
+<p class="ge-note">ORF: AUG ile başlayan, aynı çerçevede bir dur kodonuyla biten ve AUG dahil, dur hariç en az k kodon süren bölge. Üç ileri çerçeve sayılır; her AUG ayrı bir başlangıçtır (iç içe olanlar da). Dört baz eşit olasılıklı ve bağımsız seçilir. i, AUG'un 0'dan sayılan konumudur; J<sub>i</sub> bu konumdan başlayıp dur kodonuna yer bulan en uzun ORF'nin kodon sayısıdır. Bu terim, dizinin sonuna yakın başlayan bir ORF'nin dur kodonuna yer kalmamasını hesaba katar; uzun dizi yaklaşımı bunu yok sayar.</p>
+</aside></div>
+</section>
+
+<!-- ═════════ 02 · mRNA ve protein dinamiği ═════════ -->
+<section id="panel-dyn" role="tabpanel" aria-labelledby="tab-dyn" hidden>
+<div class="ge-grid"><div>
+<div class="ge-plate"><h2>Gen açıldıktan sonra: ortalama denklemler</h2>
+<canvas class="ge-canvas ge-chart" id="dynCanvas" role="img" aria-label="mRNA ve protein düzeylerinin zamanla yükselişi; sayısal çözüm ve kapalı biçim çözüm"></canvas>
+<p class="ge-caption">t = 0'da gen açılır; m(0) = p(0) = 0. Kalın çizgiler RK4 sayısal çözümü, kesikli çizgiler kapalı biçim çözümü; ikisi de denge düzeyine bölünmüştür. Dikey çizgiler ölçülen yarı yükselme anları.</p></div>
+<div class="ge-stats" aria-live="polite">
+<div class="ge-stat"><small>Denge mRNA m* = k<sub>m</sub>/γ<sub>m</sub></small><strong id="dMs"></strong></div>
+<div class="ge-stat"><small>Denge protein p* = k<sub>m</sub>k<sub>p</sub>/(γ<sub>m</sub>γ<sub>p</sub>)</small><strong id="dPs"></strong></div>
+<div class="ge-stat is-measured"><small>mRNA yarıya ulaşma: ölçülen · kuram ln 2/γ<sub>m</sub></small><strong id="dTm"></strong></div>
+<div class="ge-stat is-measured"><small>mRNA %63.2'ye ulaşma: ölçülen · kuram 1/γ<sub>m</sub></small><strong id="dTm63"></strong></div>
+<div class="ge-stat is-measured"><small>Protein yarıya ulaşma: ölçülen · kapalı biçim</small><strong id="dTp"></strong></div>
+<div class="ge-stat is-measured"><small>Protein %63.2'ye ulaşma: ölçülen · kapalı biçim · 1/γ<sub>p</sub></small><strong id="dTp63"></strong></div>
+<div class="ge-stat is-wide"><small>RK4 ile kapalı biçim arasındaki en büyük göreli fark (adım 0.05 dk)</small><strong id="dErr"></strong></div>
+</div>
+<div class="ge-plate"><h2>Tek bir hücre: Gillespie benzetimi</h2>
+<canvas class="ge-canvas ge-chart" id="gilCanvas" role="img" aria-label="Tek hücrede protein ve mRNA sayısının rastlantısal zaman izi"></canvas>
+<p class="ge-caption">Turuncu: protein sayısı; ince yatay çizgiler ölçülen ortalama ve ± bir standart sapma. Altta mavi: mRNA sayısı (ayrı ölçek). Gösterilen, gözlem penceresinin ilk 8/γ<sub>p</sub> kadarı; istatistik bütün pencereden.</p></div>
+<div class="ge-stats" aria-live="polite">
+<div class="ge-stat is-measured"><small>Ölçülen ortalama mRNA · kuram m*</small><strong id="dMm"></strong></div>
+<div class="ge-stat is-measured"><small>Ölçülen ortalama protein · kuram p*</small><strong id="dPm"></strong></div>
+<div class="ge-stat is-measured"><small>mRNA Fano (varyans/ortalama) · kuram 1 (Poisson)</small><strong id="dFm"></strong></div>
+<div class="ge-stat is-measured"><small>Protein Fano · kuram 1 + k<sub>p</sub>/(γ<sub>m</sub>+γ<sub>p</sub>)</small><strong id="dFp"></strong></div>
+<div class="ge-stat is-measured"><small>Patlama boyu: protein / mRNA · kuram b = k<sub>p</sub>/γ<sub>m</sub></small><strong id="dB"></strong></div>
+<div class="ge-stat"><small>Kaba kural 1 + b · olay sayısı</small><strong id="dRule"></strong></div>
+</div>
+<p class="ge-status" id="dynStatus" role="status"></p>
+</div>
+<aside class="ge-panel"><h2>Hız sabitleri (öğretim değerleri)</h2>
+<div class="ge-field"><label for="dKm"><span>Transkripsiyon k<sub>m</sub></span> <output id="dKmOut"></output></label><input id="dKm" type="range" min="0.1" max="5" step="0.1" value="1" data-unit=" mRNA/dk"></div>
+<div class="ge-field"><label for="dGm"><span>mRNA yıkımı γ<sub>m</sub></span> <output id="dGmOut"></output></label><input id="dGm" type="range" min="0.05" max="1" step="0.05" value="0.2" data-unit=" /dk"></div>
+<div class="ge-field"><label for="dKp"><span>Çeviri k<sub>p</sub></span> <output id="dKpOut"></output></label><input id="dKp" type="range" min="0.1" max="10" step="0.1" value="2" data-unit=" protein/(mRNA·dk)"></div>
+<div class="ge-field"><label for="dGp"><span>Protein kaybı γ<sub>p</sub> (yıkım + seyrelme)</span> <output id="dGpOut"></output></label><input id="dGp" type="range" min="0.005" max="0.2" step="0.005" value="0.02" data-unit=" /dk"></div>
+<div class="ge-field"><label for="dWin">Gillespie gözlem süresi</label><select id="dWin"><option value="100">100 protein ömrü (hızlı, kaba)</option><option value="500" selected>500 protein ömrü</option><option value="2000">2000 protein ömrü (yavaş, kesin)</option></select></div>
+<div class="ge-field"><label for="dSeed"><span>Rastgele tohum</span> <output id="dSeedOut"></output></label><input id="dSeed" type="range" min="1" max="20" step="1" value="1" data-unit=""></div>
+<div class="ge-row"><button type="button" class="app-btn-ghost" id="dPBurst">Büyük patlamalar (b = 50)</button><button type="button" class="app-btn-ghost" id="dPCalm">Sakin gen (b = 1)</button><button type="button" class="app-btn-ghost" id="dynReset">Sekmeyi sıfırla</button></div>
+<div class="ge-formula">dm/dt = k<sub>m</sub> − γ<sub>m</sub>m<br>dp/dt = k<sub>p</sub>m − γ<sub>p</sub>p<br>m(t) = m*(1 − e<sup>−γ<sub>m</sub>t</sup>)<br>p(t) = p*[1 − (γ<sub>m</sub>e<sup>−γ<sub>p</sub>t</sup> − γ<sub>p</sub>e<sup>−γ<sub>m</sub>t</sup>)/(γ<sub>m</sub> − γ<sub>p</sub>)]</div>
+<p class="ge-note">Gillespie benzetimi dört olayı (mRNA yapımı, mRNA yıkımı, protein yapımı, protein kaybı) tek tek ve gerçek olasılıklarıyla seçer. Isınma 5/γ<sub>p</sub> + 5/γ<sub>m</sub>; ortalama ve varyans zaman ağırlıklıdır. ± değeri, pencere 20 parçaya bölünerek bulunan parça ortalamalarının standart hatasıdır. Hücre bölünmesi, gen kopya sayısı ve promotörün açılıp kapanması modelde yok.</p>
+</aside></div>
+<div class="ge-bottom"><article><h2>Neden protein geç kalır?</h2><p class="ge-note">mRNA tek basamaklı bir süreçtir: e-katlı zaman sabiti tam 1/γ<sub>m</sub>. Protein ise mRNA'nın yükselmesini bekleyen ikinci basamaktır; yanıtı bir sigmoid gibi başlar. γ<sub>m</sub> ≫ γ<sub>p</sub> iken protein zaman sabiti 1/γ<sub>p</sub>'ye yaklaşır, üstüne yaklaşık 1/γ<sub>m</sub> gecikme eklenir. Kararlı proteinler yavaş yanıt verir: hücrede çoğu proteinin kaybını bölünmeyle seyrelme belirler.</p></article>
+<article><h2>Gürültü nereden gelir?</h2><p class="ge-note">Her mRNA, ömrü boyunca ortalama b = k<sub>p</sub>/γ<sub>m</sub> protein yapar ve bu proteinler bir arada, patlama hâlinde gelir. Yalnız mRNA sayısı Poisson dağılır (Fano 1). Protein için moment denklemleri Fano = 1 + k<sub>p</sub>/(γ<sub>m</sub> + γ<sub>p</sub>) verir; γ<sub>p</sub> ≪ γ<sub>m</sub> iken bu 1 + b'ye iner. Aynı ortalama, çok farklı hücreden hücreye çeşitlilik demek olabilir.</p></article></div>
+</section>
+
+<!-- ═════════ 03 · lac operonu ═════════ -->
+<section id="panel-lac" role="tabpanel" aria-labelledby="tab-lac" hidden>
+<div class="ge-grid"><div>
+<div class="ge-plate"><h2>Mantık: baskılayıcı ve CAP birlikte karar verir</h2>
+<div class="ge-table-wrap" tabindex="0" role="region" aria-label="lac operonunun doğruluk tablosu" style="margin:0;border:0;border-radius:0"><table class="ge-table"><caption>Sayfanın modelinden hesaplanan doğruluk tablosu (Hill katsayısı n ile). Son sütun OpenStax Biology 2e, Tablo 16.2'nin transkripsiyon sütunu (No / Some / Yes: hayır / biraz / evet); model sınıfı yok / düşük / yüksek bunlarla karşılaştırılır.</caption><thead><tr><th scope="col">Glukoz</th><th scope="col">Laktoz</th><th scope="col">CAP bağlı</th><th scope="col">Baskılayıcı bağlı</th><th scope="col">Model düzeyi</th><th scope="col">OpenStax</th></tr></thead><tbody id="lTruth"></tbody></table></div></div>
+<div class="ge-plate"><h2>Doz–yanıt: indükleyici arttıkça transkripsiyon</h2>
+<canvas class="ge-canvas ge-chart" id="lacCurve" role="img" aria-label="Transkripsiyon düzeyinin indükleyici derişimine göre eğrisi, glukoz varken ve yokken"></canvas>
+<p class="ge-caption">Turkuaz: glukoz yok (CAP bağlı). Turuncu: glukoz var. Kesikli dikey çizgi: seçili indükleyici I. Yatay ince çizgiler: "yok / düşük / yüksek" sınıf sınırları (%5 ve %50). Logaritmik I ekseni.</p></div>
+<div class="ge-plate"><h2>Permease geri beslemesi: süpürme ve histerezis</h2>
+<canvas class="ge-canvas ge-chart" id="lacLoop" role="img" aria-label="İndükleyici artırılıp azaltılırken permease düzeyi; yukarı ve aşağı süpürme ile kuramsal denge eğrisi"></canvas>
+<p class="ge-caption">Yeşil: I artırılırken (her adımda bir önceki durumdan başlayarak dengeye kadar çözüm), mor: I azaltılırken. Gri kesikli: kuramsal denge eğrisi, ortadaki parça kararsız. Turuncu nokta: seçili I ve geçmişle hücrenin vardığı durum.</p></div>
+<div class="ge-stats" aria-live="polite">
+<div class="ge-stat"><small>Seçili I'de basit model düzeyi</small><strong id="lLevel"></strong></div>
+<div class="ge-stat"><small>Seçili I'de denge durumları (kararlı / hepsi)</small><strong id="lStates"></strong></div>
+<div class="ge-stat is-measured"><small>Açılma eşiği: süpürmede ölçülen · katlanma noktası</small><strong id="lOn"></strong></div>
+<div class="ge-stat is-measured"><small>Kapanma eşiği: süpürmede ölçülen · katlanma noktası</small><strong id="lOff"></strong></div>
+<div class="ge-stat"><small>Histerezis genişliği (ölçülen)</small><strong id="lWidth"></strong></div>
+<div class="ge-stat"><small>Bu geçmişle hücrenin durumu y</small><strong id="lCur"></strong></div>
+</div>
+<p class="ge-status" id="lacStatus" role="status"></p>
+</div>
+<aside class="ge-panel"><h2>Girdiler</h2>
+<div class="ge-field"><label for="lGlu">Ortamda glukoz</label><select id="lGlu"><option value="0">Yok: cAMP yüksek, CAP bağlanır</option><option value="1">Var: cAMP düşük, CAP bağlanmaz</option></select></div>
+<div class="ge-field"><label for="lI"><span>İndükleyici I (allolaktoz ya da IPTG), K birimi</span> <output id="lIOut"></output></label><input id="lI" type="range" min="0" max="5" step="0.01" value="2.4" data-unit=" K"></div>
+<div class="ge-field"><label for="lN"><span>İşbirliği (Hill katsayısı) n</span> <output id="lNOut"></output></label><input id="lN" type="range" min="1" max="4" step="0.5" value="2" data-unit=""></div>
+<div class="ge-field"><label for="lA0"><span>Permeasesiz giriş a<sub>0</sub></span> <output id="lA0Out"></output></label><input id="lA0" type="range" min="0.01" max="0.2" step="0.01" value="0.02" data-unit=""></div>
+<div class="ge-field"><label for="lHist">Hücrenin geçmişi</label><select id="lHist"><option value="off">Daha önce indüklenmemiş (y = ε)</option><option value="on">Daha önce tam indüklenmiş (y = 1)</option></select></div>
+<div class="ge-row"><button type="button" class="app-btn-ghost" id="lPN1">n = 1: işbirliği yok</button><button type="button" class="app-btn-ghost" id="lPMid">I = 2.4 K, iki geçmiş</button><button type="button" class="app-btn-ghost" id="lacReset">Sekmeyi sıfırla</button></div>
+<div class="ge-formula">F(I) = I<sup>n</sup>/(K<sup>n</sup> + I<sup>n</sup>)<br>düzey = [ε<sub>R</sub> + (1 − ε<sub>R</sub>)F] · (glukoz ? ε<sub>C</sub> : 1)<br>dy/dt = ε + (1 − ε)F(I·(a<sub>0</sub> + y)) − y</div>
+<p class="ge-note">Öğretim değerleri: K = 1, baskılayıcı bağlıyken sızıntı ε<sub>R</sub> = 0.01, CAP'siz etkinlik ε<sub>C</sub> = 0.1, geri besleme modelinde taban ε = 0.01. Sınıflar: %5'in altı "yok", %5–50 "düşük", üstü "yüksek". Laktoz "var" satırları I = 10 K ile hesaplanır.</p>
+<p class="ge-note">Geri besleme modeli glukozsuz ortamı varsayar. y: operonun ürünü olan permeasenin (LacY) en yüksek düzeye oranı; içerideki indükleyici, dışarıdakinin a<sub>0</sub> + y katıdır. Zaman, protein seyrelme süresi biriminde. Süpürme adımı 0.01 K; ölçülen eşik, sıçramanın olduğu iki adımın ortasıdır (± 0.005 K).</p>
+</aside></div>
+</section>
+
+<!-- ═════════ 04 · Gen ağları ═════════ -->
+<section id="panel-net" role="tabpanel" aria-labelledby="tab-net" hidden>
+<h2 class="ge-sub">Genetik anahtar: iki gen birbirini baskılar</h2>
+<div class="ge-grid"><div>
+<div class="ge-plate"><h2>Faz düzlemi ve sıfır eğimli eğriler</h2>
+<canvas class="ge-canvas ge-square" id="togCanvas" role="img" aria-label="Genetik anahtarın faz düzlemi: iki sıfır eğimli eğri, denge noktaları, yön alanı ve başlangıç noktasından yörünge" tabindex="0"></canvas>
+<p class="ge-caption">Turkuaz: du/dt = 0 eğrisi; turuncu: dv/dt = 0 eğrisi. Dolu daire kararlı, boş daire kararsız denge. Gri oklar yön alanı. Kırmızı: seçili başlangıçtan RK4 yörüngesi. Tuvale tıklayarak başlangıç noktası seç.</p></div>
+<div class="ge-stats" aria-live="polite">
+<div class="ge-stat"><small>Denge noktaları (kararlı / hepsi)</small><strong id="gFixed"></strong></div>
+<div class="ge-stat is-measured"><small>Ölçülen son durum (t = 50) · kuram</small><strong id="gEnd"></strong></div>
+<div class="ge-stat is-measured"><small>İki kararlılık eşiği α<sub>c</sub>: taramada ölçülen · kuram</small><strong id="gAc"></strong></div>
+<div class="ge-stat"><small>Simetrik noktada kazanç çarpımı (1'den büyükse kararsız)</small><strong id="gGain"></strong></div>
+</div>
+<p class="ge-status" id="togStatus" role="status"></p>
+</div>
+<aside class="ge-panel"><h2>Anahtar ayarları</h2>
+<div class="ge-field"><label for="gA"><span>Azami üretim α</span> <output id="gAOut"></output></label><input id="gA" type="range" min="0.5" max="20" step="0.1" value="10" data-unit=""></div>
+<div class="ge-field"><label for="gN"><span>Hill katsayısı n</span> <output id="gNOut"></output></label><input id="gN" type="range" min="1" max="4" step="0.1" value="2" data-unit=""></div>
+<div class="ge-field"><label for="gU0"><span>Başlangıç u<sub>0</sub></span> <output id="gU0Out"></output></label><input id="gU0" type="range" min="0" max="20" step="0.1" value="3" data-unit=""></div>
+<div class="ge-field"><label for="gV0"><span>Başlangıç v<sub>0</sub></span> <output id="gV0Out"></output></label><input id="gV0" type="range" min="0" max="20" step="0.1" value="2" data-unit=""></div>
+<div class="ge-row"><button type="button" class="app-btn-ghost" id="gPulse">Anahtarı çevir: düşük gene darbe</button><button type="button" class="app-btn-ghost" id="gPWeak">α = 1.5: tek durum</button><button type="button" class="app-btn-ghost" id="togReset">Anahtarı sıfırla</button></div>
+<div class="ge-formula">du/dt = α/(1 + v<sup>n</sup>) − u<br>dv/dt = α/(1 + u<sup>n</sup>) − v<br>α<sub>c</sub> = s·n/(n − 1), s = (n − 1)<sup>−1/n</sup></div>
+<p class="ge-note">u ve v iki baskılayıcının derişimi; birim, yarı baskılama derişimi. Zaman, protein ömrü birimi. Eşik taraması: α'yı 0.02 adımla artırır, simetrik dengeden ±0.001 asimetriyle başlar; asimetri t = 200'de ikiye katlanmışsa simetrik nokta kararsızdır. Sistem simetrik olduğundan u<sub>0</sub> &gt; v<sub>0</sub> olan her başlangıç u'nun yüksek olduğu duruma gider (u<sub>0</sub> = v<sub>0</sub> köşegeni ayırıcıdır).</p>
+</aside></div>
+
+<h2 class="ge-sub">Repressilatör: üç gen bir halkada</h2>
+<div class="ge-grid"><div>
+<div class="ge-plate"><h2>Protein düzeyleri ve halka</h2>
+<canvas class="ge-canvas ge-chart" id="repCanvas" role="img" aria-label="Repressilatörde üç proteinin zamanla salınımı ve halkanın anlık durumu"></canvas>
+<p class="ge-caption">Solda halka: A, B'yi; B, C'yi; C, A'yı baskılar (oklar baskı yönünde). Daire büyüklüğü anlık protein düzeyi. Sağda üç protein, ilk 300 zaman birimi; dikey çizgi oynatma imleci. Periyot, son yarıda p<sub>A</sub>'nın ortalamasını yukarı yönde kesme anlarından (adım içinde ara değerle) ölçülür.</p></div>
+<div class="ge-stats" aria-live="polite">
+<div class="ge-stat is-measured"><small>Ölçülen periyot</small><strong id="rPer"></strong></div>
+<div class="ge-stat"><small>Doğrusal kuram 2π/Im λ (yalnız eşiğe yakın)</small><strong id="rPerLin"></strong></div>
+<div class="ge-stat"><small>En büyük Re λ (dengede)</small><strong id="rRe"></strong></div>
+<div class="ge-stat"><small>Genlik (son yarı, en büyük − en küçük)/ortalama</small><strong id="rAmp"></strong></div>
+<div class="ge-stat is-measured"><small>Salınım için gereken n: taramada ölçülen · kuram</small><strong id="rNc"></strong></div>
+<div class="ge-stat"><small>Dakika cinsinden periyot (seçili mRNA yarı ömrüyle)</small><strong id="rMin"></strong></div>
+</div>
+<p class="ge-status" id="repStatus" role="status"></p>
+</div>
+<aside class="ge-panel"><h2>Halka ayarları</h2>
+<div class="ge-field"><label for="rA"><span>Azami transkripsiyon α</span> <output id="rAOut"></output></label><input id="rA" type="range" min="5" max="500" step="5" value="100" data-unit=""></div>
+<div class="ge-field"><label for="rA0"><span>Sızıntı α<sub>0</sub></span> <output id="rA0Out"></output></label><input id="rA0" type="range" min="0" max="5" step="0.1" value="0" data-unit=""></div>
+<div class="ge-field"><label for="rB"><span>Protein/mRNA yıkım oranı β</span> <output id="rBOut"></output></label><input id="rB" type="range" min="0.05" max="2" step="0.05" value="0.2" data-unit=""></div>
+<div class="ge-field"><label for="rN"><span>Hill katsayısı n</span> <output id="rNOut"></output></label><input id="rN" type="range" min="1" max="4" step="0.05" value="2" data-unit=""></div>
+<div class="ge-field"><label for="rHalf">mRNA yarı ömrü (zamanı dakikaya çevirmek için)</label><select id="rHalf"><option value="2" selected>2 dk</option><option value="5">5 dk</option><option value="10">10 dk</option></select></div>
+<div class="ge-row"><button type="button" class="app-btn" id="rPlay">Oynat</button><button type="button" class="app-btn-ghost" id="rSweep">n eşiğini tara</button><button type="button" class="app-btn-ghost" id="rPNear">n = 1.65: eşiğe yakın</button><button type="button" class="app-btn-ghost" id="repReset">Halkayı sıfırla</button></div>
+<div class="ge-formula">dm<sub>i</sub>/dt = −m<sub>i</sub> + α/(1 + p<sub>j</sub><sup>n</sup>) + α<sub>0</sub><br>dp<sub>i</sub>/dt = −β(p<sub>i</sub> − m<sub>i</sub>)<br>(λ + 1)(λ + β) = −aβω, ω³ = 1</div>
+<p class="ge-note">j, halkada i'yi baskılayan gen. Zaman birimi mRNA ortalama ömrü (yarı ömür / ln 2). Başlangıç: m = (1, 0, 0), p = (2, 1, 3); t = 0…800, RK4 adımı 0.01. a, dengede baskılama eğrisinin eğimidir. Tarama n'yi 0.05 adımla artırır ve son çeyrekteki genliğin bir önceki çeyreğinkinin %90'ından küçük olmadığı ilk n'yi bildirir (t = 0…400, adım 0.05). Doğrusal periyot yalnız salınımın doğduğu eşikte geçerlidir; uzakta salınım doğrusal olmayan bir limit çevrimidir.</p>
+</aside></div>
+</section>
+
+<details class="ge-sources"><summary>Model sınırları, sayı biçimi ve kaynaklar</summary>
+<p>Bütün hızlar ve parametreler öğretim değerleridir; belirli bir organizmanın ölçülmüş değerleri değildir. Sayı biçimi: ondalık nokta (2.5), eksi işareti −, yüzdeler " %" ile; ± standart hatadır. Modeller iyi karışmış tek bir hücre varsayar; hücre bölünmesi, DNA kopya sayısı, kromatin, RNA işlenmesi ve uzaysal yapı yoktur.</p>
+<ul>
+<li><a href="https://openstax.org/books/biology-2e/pages/15-1-the-genetic-code">OpenStax · Biology 2e, 15.1</a>: 64 üçlüden 61'i amino asit, 3'ü dur kodonu; AUG hem metiyonin hem başlangıç; okuma çerçevesini 5′ ucuna yakın AUG belirler; Crick ve Brenner'ın proflavinle üçlü kodu gösteren deneyi.</li>
+<li><a href="https://openstax.org/books/biology-2e/pages/16-2-prokaryotic-gene-regulation">OpenStax · Biology 2e, 16.2</a>: lac baskılayıcısı, allolaktoz, glukoz azalınca cAMP–CAP; Tablo 16.2'deki dört koşul.</li>
+<li><a href="https://en.wikipedia.org/wiki/Lac_operon">Wikipedia · lac operon</a>: Jacob ve Monod, "Genetic regulatory mechanisms in the synthesis of proteins", J. Mol. Biol. 3, 318–356 (1961); 1965 Nobel ödülü; IPTG'nin baskılayıcıya bağlanıp parçalanmayan indükleyici olması.</li>
+<li><a href="https://en.wikipedia.org/wiki/Synthetic_biological_circuit">Wikipedia · Synthetic biological circuit</a>: Gardner, Cantor ve Collins'in genetik anahtarı (Nature 403, 339–342, 2000) ve Elowitz ile Leibler'in repressilatörü (Nature 403, 335–338, 2000): iki karşılıklı baskılayıcı ile üç baskılayıcılı negatif geri besleme halkası.</li>
+</ul></details>
+</main>
+<script>
+(()=>{'use strict';
+/* KERNEL-BEGIN */
+const MAXLEN=300;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+// ── Standart genetik şifre (mRNA kodonları, U C A G sırası) ──
+const CODE=(()=>{const b='UCAG',a='FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',m={};let i=0;for(const x of b)for(const y of b)for(const z of b)m[x+y+z]=a[i++];return Object.freeze(m);})();
+const AA3=Object.freeze({F:'Phe',L:'Leu',S:'Ser',Y:'Tyr',C:'Cys',W:'Trp',P:'Pro',H:'His',Q:'Gln',R:'Arg',I:'Ile',M:'Met',T:'Thr',N:'Asn',K:'Lys',V:'Val',A:'Ala',D:'Asp',E:'Glu',G:'Gly','*':'Dur'});
+const STOPS=Object.freeze(['UAA','UAG','UGA']);
+const PAIR=Object.freeze({A:'T',T:'A',G:'C',C:'G'});
+function parseDNA(raw){const s=String(raw).toUpperCase().replace(/[\s\d]+/g,'');if(!s.length)return{ok:false,error:'empty'};if(s.length>MAXLEN)return{ok:false,error:'long',length:s.length};for(let i=0;i<s.length;i++){const c=s[i];if(!PAIR[c])return{ok:false,error:c==='U'?'rna':'char',pos:i+1,ch:c};}return{ok:true,seq:s};}
+function complement(s){let o='';for(const c of s)o+=PAIR[c];return o;}
+// strand: 'coding' → girdi kodlayan iplik 5′→3′; 'template' → girdi kalıp iplik 5′→3′ yazılmış
+function transcribe(seq,strand){const coding=strand==='template'?complement(seq).split('').reverse().join(''):seq;const template=complement(coding);// kalıp, kodlayanın altında 3′→5′ hizalı
+return{coding,template,mrna:coding.replace(/T/g,'U')};}
+function translate(mrna,start){const codons=[];let stop=null;if(start<0)return{codons,stop,complete:false};for(let i=start;i+3<=mrna.length;i+=3){const c=mrna.slice(i,i+3),aa=CODE[c];if(aa==='*'){stop={codon:c,pos:i};break;}codons.push({codon:c,aa,pos:i});}return{codons,stop,complete:!!stop};}
+function frames(mrna){const out=[];for(let f=0;f<3;f++){let s='';for(let i=f;i+3<=mrna.length;i+=3)s+=CODE[mrna.slice(i,i+3)];out.push(s);}return out;}
+// ORF: AUG ile başlar, çerçeve içi dur kodonuyla biter; uzunluk = AUG dahil, dur hariç kodon sayısı. Her AUG ayrı başlangıçtır.
+function orfs(mrna,k){const out=[];for(let i=0;i+3<=mrna.length;i++){if(mrna[i]!=='A'||mrna[i+1]!=='U'||mrna[i+2]!=='G')continue;let j=1,p=i+3;for(;p+3<=mrna.length;p+=3,j++){if(CODE[mrna.slice(p,p+3)]==='*')break;}if(p+3<=mrna.length&&j>=k)out.push({start:i,codons:j,frame:i%3});}return out;}
+// Rastgele dizide (dört baz eşit olasılıklı) beklenen ORF sayısı: i'de AUG (1/64), sonraki j−1 kodon anlamlı (61/64 her biri),
+// sonra dur (3/64): Σ_{j=k}^{J_i} (1/64)(61/64)^{j−1}(3/64) = (1/64)[(61/64)^{k−1} − (61/64)^{J_i}], J_i = ⌊(L−i)/3⌋ − 1
+function orfExpected(L,k){const r=61/64;let e=0;for(let i=0;i+3<=L;i++){const J=Math.floor((L-i)/3)-1;if(J>=k)e+=(Math.pow(r,k-1)-Math.pow(r,J))/64;}return e;}
+function orfAsymptotic(L,k){return L/64*Math.pow(61/64,k-1);}
+function randomRNA(L,rnd){let s='';for(let i=0;i<L;i++)s+='ACGU'[Math.floor(rnd()*4)];return s;}
+function orfStudy(L,k,M,seed){const r=mulberry32(seed),counts=[];let longest=0;for(let q=0;q<M;q++){const o=orfs(randomRNA(L,r),k);counts.push(o.length);for(const x of o)longest=Math.max(longest,x.codons);}const mean=counts.reduce((a,b)=>a+b,0)/M,v=M>1?counts.reduce((a,b)=>a+(b-mean)**2,0)/(M-1):NaN;return{counts,mean,sd:Math.sqrt(v),se:Math.sqrt(v/M),M,longest};}
+// ── mRNA ve protein: dm/dt = k_m − γ_m m, dp/dt = k_p m − γ_p p ──
+function exprCheck(q){for(const x of[q.km,q.gm,q.kp,q.gp])if(!(x>0&&Number.isFinite(x)))throw RangeError('Hız sabitleri pozitif olmalı');}
+function exprSteady(q){exprCheck(q);return{m:q.km/q.gm,p:q.km*q.kp/(q.gm*q.gp),burst:q.kp/q.gm,fanoM:1,fanoP:1+q.kp/(q.gm+q.gp)};}
+function exprAnalytic(q,t){const S=exprSteady(q),a=q.gm,g=q.gp;const m=S.m*(1-Math.exp(-a*t));let p;if(Math.abs(a-g)<1e-9*a)p=S.p*(1-(1+a*t)*Math.exp(-a*t));else p=S.p*(1-(a*Math.exp(-g*t)-g*Math.exp(-a*t))/(a-g));return{m,p};}
+function exprAnalyticCross(q,which,frac){const S=exprSteady(q),target=frac*(which==='m'?S.m:S.p);let lo=0,hi=1;while(exprAnalytic(q,hi)[which]<target)hi*=2;for(let i=0;i<200;i++){const mid=(lo+hi)/2;if(exprAnalytic(q,mid)[which]<target)lo=mid;else hi=mid;}return(lo+hi)/2;}
+// RK4, m(0)=p(0)=0; eşik geçiş anları adım içinde kübik Hermite ara değeriyle (uç türevleriyle), ikiye bölerek
+function exprIntegrate(q,T,dt){exprCheck(q);const S=exprSteady(q),f=(m,p)=>[q.km-q.gm*m,q.kp*m-q.gp*p];let m=0,p=0,t=0;const tr=[[0,0,0]],cross={m50:null,m63:null,p50:null,p63:null},lv={m50:.5*S.m,m63:(1-Math.exp(-1))*S.m,p50:.5*S.p,p63:(1-Math.exp(-1))*S.p};let maxErr=0;const every=Math.max(1,Math.round(T/dt/400));let n=0;
+while(t<T-1e-12){const h=Math.min(dt,T-t),[a1,b1]=f(m,p),[a2,b2]=f(m+h/2*a1,p+h/2*b1),[a3,b3]=f(m+h/2*a2,p+h/2*b2),[a4,b4]=f(m+h*a3,p+h*b3);const m1=m+h/6*(a1+2*a2+2*a3+a4),p1=p+h/6*(b1+2*b2+2*b3+b4);
+for(const key of['m50','m63','p50','p63']){const isM=key[0]==='m',x0=isM?m:p,x1=isM?m1:p1,L=lv[key];if(cross[key]===null&&x0<L&&x1>=L){const d0=h*(isM?a1:b1),e1=f(m1,p1),d1=h*(isM?e1[0]:e1[1]),H=u=>{const u2=u*u,u3=u2*u;return(2*u3-3*u2+1)*x0+(u3-2*u2+u)*d0+(-2*u3+3*u2)*x1+(u3-u2)*d1;};let lo=0,hi=1;for(let k=0;k<50;k++){const c=(lo+hi)/2;if(H(c)<L)lo=c;else hi=c;}cross[key]=t+h*(lo+hi)/2;}}
+m=m1;p=p1;t+=h;n++;const A=exprAnalytic(q,t);maxErr=Math.max(maxErr,Math.abs(m-A.m)/S.m,Math.abs(p-A.p)/S.p);if(n%every===0)tr.push([t,m,p]);}
+return{tr,cross,maxErr,m,p};}
+// Gillespie (doğrudan yöntem): dört tepkime; zaman ağırlıklı ortalama ve varyans, ısınma sonrası; parti ortalamalarıyla belirsizlik
+function gillespie(q,o){exprCheck(q);const r=mulberry32(o.seed||1),burn=o.burn,T=burn+o.window,B=o.batches||20,bw=o.window/B;let m=0,p=0,t=0,nm=0,np=0;
+const sm=new Float64Array(B),sm2=new Float64Array(B),sp=new Float64Array(B),sp2=new Float64Array(B);const tr=[],recFrom=o.recFrom??0,recTo=Math.min(T,o.recTo??T),dtRec=o.record?(recTo-recFrom)/o.record:Infinity;let nextRec=o.record?recFrom:Infinity;let events=0;
+const acc=(t0,t1)=>{// [t0,t1) aralığında durum sabit; ısınma sonrası parçaları partilere dağıt
+let a=Math.max(t0,burn),bi=Math.min(B-1,Math.floor((a-burn)/bw));while(a<t1){const b=Math.min(t1,bi>=B-1?t1:burn+(bi+1)*bw),w=b-a;if(w>0){const j=Math.min(bi,B-1);sm[j]+=w*m;sm2[j]+=w*m*m;sp[j]+=w*p;sp2[j]+=w*p*p;}a=Math.max(a,b);bi++;}};// bölme sınırında yuvarlama olursa bi yine ilerler
+while(t<T){const a1=q.km,a2=q.gm*m,a3=q.kp*m,a4=q.gp*p,a0=a1+a2+a3+a4;const tau=-Math.log(1-r())/a0,tn=Math.min(T,t+tau);
+while(nextRec<=tn&&nextRec<=recTo+1e-9){tr.push([nextRec,m,p]);nextRec+=dtRec;}
+if(tn>burn)acc(t,tn);t=tn;if(t>=T)break;const u=r()*a0;if(u<a1){m++;if(t>=burn)nm++;}else if(u<a1+a2)m--;else if(u<a1+a2+a3){p++;if(t>=burn)np++;}else p--;events++;}
+const stat=(s,s2)=>{const means=[],vars=[];let S=0,S2=0;for(let i=0;i<B;i++){S+=s[i];S2+=s2[i];const mu=s[i]/bw;means.push(mu);vars.push(s2[i]/bw-mu*mu);}const mean=S/o.window,variance=S2/o.window-mean*mean,fanos=means.map((mu,i)=>vars[i]/mu);const fm=fanos.reduce((x,y)=>x+y,0)/B,fs=Math.sqrt(fanos.reduce((x,y)=>x+(y-fm)**2,0)/(B-1)/B);return{mean,variance,fano:variance/mean,fanoSE:fs,meanSE:Math.sqrt(means.reduce((x,y)=>x+(y-mean)**2,0)/(B-1)/B)};};
+return{m:stat(sm,sm2),p:stat(sp,sp2),burst:nm?np/nm:NaN,mRNAmade:nm,proteinsMade:np,events,tr};}
+// ── lac operonu (öğretim modeli) ──
+const LAC=Object.freeze({K:1,epsR:0.01,epsC:0.1,low:0.05,high:0.5});
+function lacFree(I,K,n){if(I<=0)return 0;const x=Math.pow(I/K,n);return x/(1+x);}
+function lacLevel(o){const F=lacFree(o.I,o.K??LAC.K,o.n),eR=o.epsR??LAC.epsR,eC=o.epsC??LAC.epsC;return(eR+(1-eR)*F)*(o.glucose?eC:1);}
+function lacClass(v){return v<LAC.low?'yok':v<LAC.high?'düşük':'yüksek';}
+function lacTruth(n){const rows=[];for(const glucose of[true,false])for(const lactose of[false,true]){const v=lacLevel({glucose,I:lactose?10*LAC.K:0,n});rows.push({glucose,lactose,cap:!glucose,repressor:!lactose,level:v,cls:lacClass(v)});}return rows;}
+// Pozitif geri besleme: içerideki indükleyici I_in = I_dış·(a0 + y); y = LacY (permease) düzeyi, en çok 1
+function fbF(y,I,p){const Iin=I*(p.a0+y),x=Iin<=0?0:Math.pow(Iin/p.K,p.n);return p.eps+(1-p.eps)*x/(1+x);}
+function fbRelax(y,I,p,Tmax=600){const h=0.05;let t=0;for(;t<Tmax;t+=h){const k1=fbF(y,I,p)-y,k2=fbF(y+h/2*k1,I,p)-(y+h/2*k1),k3=fbF(y+h/2*k2,I,p)-(y+h/2*k2),k4=fbF(y+h*k3,I,p)-(y+h*k3);const dy=h/6*(k1+2*k2+2*k3+k4);y+=dy;if(Math.abs(dy)<1e-11&&t>5)break;}return y;}
+function fbSweep(p,Imax,dI){const up=[],down=[],N=Math.round(Imax/dI);let y=p.eps;for(let i=0;i<=N;i++){const I=i*dI;y=fbRelax(y,I,p);up.push([I,y]);}for(let i=N;i>=0;i--){const I=i*dI;y=fbRelax(y,I,p);down.push([I,y]);}
+let ju={d:0,I:null},jd={d:0,I:null};for(let i=1;i<up.length;i++){const d=up[i][1]-up[i-1][1];if(d>ju.d)ju={d,I:(up[i][0]+up[i-1][0])/2};}for(let i=1;i<down.length;i++){const d=down[i-1][1]-down[i][1];if(d>jd.d)jd={d,I:(down[i][0]+down[i-1][0])/2};}
+const jump=0.1;return{up,down,Ion:ju.d>jump?ju.I:null,Ioff:jd.d>jump?jd.I:null,jumpUp:ju.d,jumpDown:jd.d};}
+// Kuram: y dengede ise f(I(a0+y)) = y → I(y) = K·((y−ε)/(1−y))^{1/n}/(a0+y). Bu eğrinin yerel uçları katlanma noktalarıdır.
+function fbIofY(y,p){return p.K*Math.pow((y-p.eps)/(1-y),1/p.n)/(p.a0+y);}
+function fbFolds(p){const N=4000,ys=[],Is=[];for(let i=1;i<N;i++){const y=p.eps+(1-p.eps)*i/N;ys.push(y);Is.push(fbIofY(y,p));}let mx=null,mn=null;
+const refine=(i,sgn)=>{let a=ys[i-1],b=ys[i+1];const g=(1+Math.sqrt(5))/2;for(let k=0;k<100;k++){const c=b-(b-a)/g,d=a+(b-a)/g;if(sgn*fbIofY(c,p)>sgn*fbIofY(d,p))b=d;else a=c;}const y=(a+b)/2;return{y,I:fbIofY(y,p)};};
+for(let i=1;i<Is.length-1;i++){if(mx===null&&Is[i]>Is[i-1]&&Is[i]>=Is[i+1])mx=refine(i,1);else if(mx!==null&&mn===null&&Is[i]<Is[i-1]&&Is[i]<=Is[i+1])mn=refine(i,-1);}
+return{bistable:!!(mx&&mn),on:mx,off:mn,curve:ys.map((y,i)=>[Is[i],y])};}
+function fbSteadyStates(I,p){// f(I(a0+y)) − y = 0 kökleri
+const g=y=>fbF(y,I,p)-y,N=2000,out=[];let y0=0,g0=g(0);for(let i=1;i<=N;i++){const y1=i/N,g1=g(y1);if(g0===0)out.push(y0);else if(g0*g1<0){let a=y0,b=y1;for(let k=0;k<80;k++){const c=(a+b)/2;if(g(a)*g(c)<=0)b=c;else a=c;}const y=(a+b)/2,h=1e-6,s=(g(y+h)-g(y-h))/(2*h);out.push({y,stable:s<0});}y0=y1;g0=g1;}return out.map(x=>typeof x==='number'?{y:x,stable:true}:x);}
+// ── Genetik anahtar: du/dt = α/(1+v^n) − u, dv/dt = α/(1+u^n) − v ──
+function hill(x,n){return 1/(1+Math.pow(Math.max(0,x),n));}
+function toggleRun(u,v,a,n,T,h=0.02,keep=300){const tr=[[u,v]],f=(u,v)=>[a*hill(v,n)-u,a*hill(u,n)-v],N=Math.ceil(T/h),every=Math.max(1,Math.floor(N/keep));for(let i=1;i<=N;i++){const[k1,l1]=f(u,v),[k2,l2]=f(u+h/2*k1,v+h/2*l1),[k3,l3]=f(u+h/2*k2,v+h/2*l2),[k4,l4]=f(u+h*k3,v+h*l3);u+=h/6*(k1+2*k2+2*k3+k4);v+=h/6*(l1+2*l2+2*l3+l4);if(i%every===0)tr.push([u,v]);}return{u,v,tr};}
+function toggleFixed(a,n){const g=u=>a*hill(a*hill(u,n),n)-u,N=6000,out=[];let x0=0,g0=g(0);for(let i=1;i<=N;i++){const x1=a*i/N,g1=g(x1);if(g0*g1<0||g1===0){let lo=x0,hi=x1;for(let k=0;k<100;k++){const c=(lo+hi)/2;if(g(lo)*g(c)<=0)hi=c;else lo=c;}const u=(lo+hi)/2,v=a*hill(u,n),du=a*n*Math.pow(u,n-1)/Math.pow(1+Math.pow(u,n),2),dv=a*n*Math.pow(v,n-1)/Math.pow(1+Math.pow(v,n),2),prod=du*dv;out.push({u,v,prod,stable:prod<1,eig:[-1+Math.sqrt(prod),-1-Math.sqrt(prod)]});}x0=x1;g0=g1;}return out;}
+function toggleAlphaCrit(n){if(!(n>1))return Infinity;const u=Math.pow(n-1,-1/n);return u*n/(n-1);}
+function toggleSym(a,n){let lo=0,hi=a;for(let k=0;k<200;k++){const c=(lo+hi)/2;if(c<a*hill(c,n))lo=c;else hi=c;}return(lo+hi)/2;}
+// Tarama: simetrik denge noktasından ±0.001 asimetriyle başla; asimetri büyürse (ikiye katlanırsa) simetrik nokta kararsız → iki kararlı durum
+function toggleGrows(a,n,T=200){const s=toggleSym(a,n),r=toggleRun(s+1e-3,s-1e-3,a,n,T,0.05,1);return Math.abs(r.u-r.v)>2e-3;}
+// önce 25 kat kaba adımla, sonra bulunan aralıkta ince adımla süpür (sonuç ince taramayla aynı; eşiğin üstünde asimetri hep büyür)
+function toggleSweep(n,aMin,aMax,da){const N=Math.round((aMax-aMin)/da),C=25;let from=0;for(let i=0;i<=N;i+=C){if(toggleGrows(aMin+i*da,n)){from=Math.max(0,i-C+1);break;}if(i+C>N){from=i+1;}}for(let i=from;i<=N;i++){const a=aMin+i*da;if(toggleGrows(a,n))return{alpha:a,prev:i?a-da:null};}return null;}
+// ── Repressilatör: dm_i/dt = −m_i + α/(1+p_{i−1}^n) + α0, dp_i/dt = −β(p_i − m_i) (zaman: mRNA ömrü birimi) ──
+function repRun(q,T,h=0.01,keep=1200){const y=Float64Array.from([1,0,0,2,1,3]),f=(s,o)=>{for(let i=0;i<3;i++){const j=(i+2)%3;o[i]=-s[i]+q.a*hill(s[3+j],q.n)+q.a0;o[3+i]=-q.b*(s[3+i]-s[i]);}};
+const k1=new Float64Array(6),k2=new Float64Array(6),k3=new Float64Array(6),k4=new Float64Array(6),tmp=new Float64Array(6);const N=Math.ceil(T/h),every=Math.max(1,Math.floor(N/keep)),tr=[[0,y[3],y[4],y[5]]];const half=T/2;let ups=[],mx=-Infinity,mn=Infinity,sum=0,cnt=0,prev=y[3];const pts=[];
+for(let s=1;s<=N;s++){f(y,k1);for(let i=0;i<6;i++)tmp[i]=y[i]+h/2*k1[i];f(tmp,k2);for(let i=0;i<6;i++)tmp[i]=y[i]+h/2*k2[i];f(tmp,k3);for(let i=0;i<6;i++)tmp[i]=y[i]+h*k3[i];f(tmp,k4);for(let i=0;i<6;i++)y[i]+=h/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]);const t=s*h;if(s%every===0)tr.push([t,y[3],y[4],y[5]]);if(t>=half){pts.push(y[3]);sum+=y[3];cnt++;mx=Math.max(mx,y[3]);mn=Math.min(mn,y[3]);}}
+const mean=sum/cnt;// yukarı yönlü ortalama geçişleri (son yarıda)
+for(let i=1;i<pts.length;i++)if(pts[i-1]<mean&&pts[i]>=mean)ups.push(half+h*(i-1)+h*(mean-pts[i-1])/(pts[i]-pts[i-1]));
+const amp=(mx-mn)/Math.max(mean,1e-12),H=pts.length>>1,rng=a=>Math.max(...a)-Math.min(...a),early=rng(pts.slice(0,H)),late=rng(pts.slice(H)),ratio=early>0?late/early:0;
+// sürekli salınım: son çeyrekteki genlik, önceki çeyreğinkinin %90'ından küçük değil (sönen salınım elenir)
+const sustained=ups.length>=3&&late/Math.max(mean,1e-12)>1e-3&&ratio>0.9;let period=null;if(sustained)period=(ups[ups.length-1]-ups[0])/(ups.length-1);
+return{tr,period,amp,ratio,sustained,mean,crossings:ups.length,final:Array.from(y)};}
+function repFixed(q){let lo=0,hi=q.a+q.a0+1;for(let k=0;k<200;k++){const p=(lo+hi)/2;if(p<q.a*hill(p,q.n)+q.a0)lo=p;else hi=p;}return(lo+hi)/2;}
+// Doğrusal kararlılık: halka için Fourier kipi ω (ω³ = 1), (λ+1)(λ+β) = −aβω, a = α n p^{n−1}/(1+p^n)²
+function repLinear(q){const p=repFixed(q),a=q.a*q.n*Math.pow(p,q.n-1)/Math.pow(1+Math.pow(p,q.n),2);let best={re:-Infinity,im:0};for(let k=0;k<3;k++){const wr=Math.cos(2*Math.PI*k/3),wi=Math.sin(2*Math.PI*k/3);// λ² + (1+β)λ + β(1 + aω) = 0
+const B=1+q.b,Cr=q.b*(1+a*wr),Ci=q.b*a*wi,Dr=B*B-4*Cr,Di=-4*Ci,mod=Math.hypot(Dr,Di),sr=Math.sqrt((mod+Dr)/2),si=(Di>=0?1:-1)*Math.sqrt(Math.max(0,(mod-Dr)/2));for(const sg of[1,-1]){const re=(-B+sg*sr)/2,im=sg*si/2;if(re>best.re)best={re,im:Math.abs(im)};}}
+return{p,a,re:best.re,im:best.im,period:best.im>0?2*Math.PI/best.im:null,oscillates:best.re>0};}
+function repNCrit(q){const g=n=>repLinear({...q,n}).re;let lo=1,hi=8;if(g(hi)<0)return null;if(g(lo)>0)return lo;for(let k=0;k<80;k++){const c=(lo+hi)/2;if(g(c)>0)hi=c;else lo=c;}return(lo+hi)/2;}
+function repSweepN(q,nMin,nMax,dn,T=400){for(let n=nMin;n<=nMax+1e-9;n+=dn){const nn=Math.round(n/dn)*dn,r=repRun({...q,n:nn},T,0.02,10);if(r.sustained)return nn;}return null;}
+Object.defineProperty(window,'GeneLab',{value:Object.freeze({MAXLEN,CODE,AA3,STOPS,LAC,mulberry32,parseDNA,complement,transcribe,translate,frames,orfs,orfExpected,orfAsymptotic,randomRNA,orfStudy,exprSteady,exprAnalytic,exprAnalyticCross,exprIntegrate,gillespie,lacFree,lacLevel,lacClass,lacTruth,fbF,fbRelax,fbSweep,fbIofY,fbFolds,fbSteadyStates,hill,toggleRun,toggleFixed,toggleAlphaCrit,toggleSym,toggleGrows,toggleSweep,repRun,repFixed,repLinear,repNCrit,repSweepN}),writable:false,configurable:false});
+/* KERNEL-END */
+const K=window.GeneLab;
+// ── Sayı biçimi: ondalık nokta, U+2212 eksi ──
+const $=id=>document.getElementById(id),num=id=>+$(id).value,put=(id,t)=>{const e=$(id);if(e.textContent!==t)e.textContent=t;},html=(id,t)=>{const e=$(id);if(e.dataset.h!==t){e.dataset.h=t;e.innerHTML=t;}};
+const MINUS='−';
+function fx(x,d=2){if(!Number.isFinite(x))return'—';const s=Math.abs(x).toFixed(d);return(x<0&&+s!==0?MINUS:'')+s;}
+function sg(x,p=3){if(!Number.isFinite(x))return'—';if(x===0)return'0';const a=Math.abs(x);const d=Math.max(0,p-1-Math.floor(Math.log10(a)+1e-12));return fx(x,Math.min(d,6));}
+const sfx=(x,d=1)=>(x>0&&+Math.abs(x).toFixed(d)!==0?'+':'')+fx(x,d);
+function sci(x,p=2){if(!Number.isFinite(x))return'—';if(x===0)return'0';const SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};let e=Math.floor(Math.log10(Math.abs(x))),m=x/10**e;if(+Math.abs(m).toFixed(p-1)>=10){m/=10;e++;}return fx(m,p-1)+'×10'+String(e).split('').map(c=>SUP[c]).join('');}
+const small=(x,p=2)=>Math.abs(x)>=1e-3||x===0?sg(x,p):sci(x,p);
+const pdiff=(m,t,d=1)=>Number.isFinite(m)&&Number.isFinite(t)&&t!==0?sfx((m-t)/t*100,d)+' %':'—';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+let active='tx';
+
+// ── Çizim yardımcıları ──
+function surface(id){const c=$(id),r=c.getBoundingClientRect();if(!r.width)return null;const d=Math.min(devicePixelRatio||1,2),W=Math.round(r.width*d),H=Math.round(r.height*d);if(c.width!==W||c.height!==H){c.width=W;c.height=H;}const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);const light=document.documentElement.dataset.theme==='light',p=light?{light,bg:'#fafbf7',ink:'#203840',grid:'#d2dedb',muted:'#5d6e72',accent:'#137d79',warm:'#ad501e',red:'#c0353d',blue:'#2f66c4',purple:'#7c3aed',green:'#2e7d3a',A:'#c0353d',U:'#2f66c4',T:'#2f66c4',G:'#2e7d3a',C:'#b0600c'}:{light,bg:'#10232a',ink:'#e3efec',grid:'#30474d',muted:'#9cb2b5',accent:'#76d8cc',warm:'#f4ad6c',red:'#ff8990',blue:'#8ab4ff',purple:'#c4a7ff',green:'#86d993',A:'#ff8990',U:'#8ab4ff',T:'#8ab4ff',G:'#86d993',C:'#f4bd6c'};g.fillStyle=p.bg;g.fillRect(0,0,r.width,r.height);return{g,w:r.width,h:r.height,p};}
+function line(s,x,y,X,Y,col,width=1.5,dash=[]){const g=s.g;g.strokeStyle=col;g.lineWidth=width;g.setLineDash(dash);g.beginPath();g.moveTo(x,y);g.lineTo(X,Y);g.stroke();g.setLineDash([]);}
+function text(s,t,x,y,col,align='left',size=11,bold=false){const g=s.g;g.font=(bold?'600 ':'')+size+'px system-ui, sans-serif';g.textAlign=align;g.fillStyle=col;g.fillText(t,x,y);}
+function poly(s,pts,col,width=2,dash=[]){if(pts.length<2)return;const g=s.g;g.strokeStyle=col;g.lineWidth=width;g.setLineDash(dash);g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();g.setLineDash([]);}
+function dot(s,x,y,r,col,filled=true){const g=s.g;g.beginPath();g.arc(x,y,r,0,7);if(filled){g.fillStyle=col;g.fill();}else{g.fillStyle=s.p.bg;g.fill();g.strokeStyle=col;g.lineWidth=2;g.stroke();}}
+function niceStep(range,count=5){const raw=range/count,e=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/e;return(f<1.5?1:f<3.5?2:f<7.5?5:10)*e;}
+function tickLabel(v,step){const d=Math.max(0,-Math.floor(Math.log10(step)+1e-9));return fx(v,d);}
+// Eksen kutusu: doğrusal ya da logaritmik x
+function axes(s,o){const L=o.left??48,R=o.right??14,T=o.top??22,B=o.bottom??34,x0=L,x1=Math.max(L+20,(o.w??s.w)-R+(o.x??0)-(o.x??0)),xs=o.x??0;const X0=xs+L,X1=xs+(o.w??s.w)-R,Y0=s.h-B,Y1=T;
+const fxm=o.logx?v=>X0+(Math.log10(v)-Math.log10(o.xr[0]))/(Math.log10(o.xr[1])-Math.log10(o.xr[0]))*(X1-X0):v=>X0+(v-o.xr[0])/(o.xr[1]-o.xr[0])*(X1-X0),fym=v=>Y0-(v-o.yr[0])/(o.yr[1]-o.yr[0])*(Y0-Y1);
+const g=s.g;g.font='10px system-ui, sans-serif';
+const ys=niceStep(o.yr[1]-o.yr[0],o.yticks??4);for(let v=Math.ceil(o.yr[0]/ys-1e-9)*ys;v<=o.yr[1]+1e-9*ys;v+=ys){const y=fym(v);line(s,X0,y,X1,y,s.p.grid,1);text(s,tickLabel(v,ys),X0-5,y+3.5,s.p.muted,'right',10);}
+if(o.logx){for(let e=Math.ceil(Math.log10(o.xr[0])-1e-9);e<=Math.log10(o.xr[1])+1e-9;e++){const v=Math.pow(10,e),x=fxm(v);line(s,x,Y1,x,Y0,s.p.grid,1);text(s,e>=0?String(v):fx(v,-e),x,Y0+14,s.p.muted,'center',10);}}
+else{const xsN=niceStep(o.xr[1]-o.xr[0],o.xticks??5);for(let v=Math.ceil(o.xr[0]/xsN-1e-9)*xsN;v<=o.xr[1]+1e-9*xsN;v+=xsN){const x=fxm(v);line(s,x,Y1,x,Y0,s.p.grid,1);text(s,tickLabel(v,xsN),x,Y0+14,s.p.muted,'center',10);}}
+line(s,X0,Y0,X1,Y0,s.p.muted,1);line(s,X0,Y1,X0,Y0,s.p.muted,1);
+if(o.xl)text(s,o.xl,(X0+X1)/2,s.h-6,s.p.muted,'center',10);if(o.yl)text(s,o.yl,X0+4,Y1-8,s.p.muted,'left',10);
+return{X:fxm,Y:fym,X0,X1,Y0,Y1};}
+
+// ═════════ 01 · Transkripsiyon ve çeviri ═════════
+const TX_DEFAULT='AGGAGGTCAGCTATGGCATCCAAAGGTGAAGAACTGTTCACCGGTTGGCACTAAGCTCGAGC';
+let tx=null,txAnim={phase:'done',pos:0,playing:false},txRandSeed=1,txErr=null;
+function txCompute(){const r=K.parseDNA($('txSeq').value);if(!r.ok){txErr=r;if(tx)return;r.seq=TX_DEFAULT;}else txErr=null;const seq=r.ok?r.seq:TX_DEFAULT,strand=$('txStrand').value,T=K.transcribe(seq,strand),aug=T.mrna.indexOf('AUG'),tr=K.translate(T.mrna,aug),fr=K.frames(T.mrna),orfAll=K.orfs(T.mrna,1);tx={seq,strand,...T,aug,tr,fr,orfAll};}
+function txErrText(e){return e.error==='empty'?'Dizi boş: son geçerli dizi gösteriliyor.':e.error==='long'?`Dizi ${e.length} baz; en çok ${K.MAXLEN} baz kabul edilir. Son geçerli dizi gösteriliyor.`:e.error==='rna'?`${e.pos}. konumda U var: burada DNA yazılır (T kullan). mRNA'yı sayfa kendisi üretir.`:`${e.pos}. konumdaki "${esc(e.ch)}" bir DNA bazı değil (yalnız A, C, G, T). Son geçerli dizi gösteriliyor.`;}
+function txUpdate(){const t=tx,L=t.mrna.length;put('txSeqOut',L+' nt');put('txLen',L+' nt · '+(t.strand==='template'?'kalıptan çevrildi':'kodlayan iplik'));
+const grp=(s,start=0)=>{let o='';for(let i=0;i<s.length;i++){if(i&&i%10===0)o+=' ';o+=s[i];}return o;};
+html('txStrands',`<span><b>Kodlayan iplik</b><br>5′-${grp(t.coding)}-3′</span><span><b>Kalıp iplik (polimeraz bunu okur)</b><br>3′-${grp(t.template)}-5′</span><span><b>mRNA (kodlayan ile aynı, T yerine U)</b><br>5′-${grp(t.mrna)}-3′</span>`);
+put('txAUG',t.aug<0?'yok':(t.aug+1)+'. nükleotit · çerçeve +'+(t.aug%3+1));const n=t.tr.codons.length;put('txPLen',t.aug<0?'—':n+' amino asit'+(t.tr.complete?'':' (dur yok)'));put('txStop',t.aug<0?'—':t.tr.stop?t.tr.stop.codon+' · '+(t.tr.stop.pos+1)+'. nükleotitte':'yok');
+put('txProt',t.aug<0?'—':t.tr.codons.map(c=>c.aa).join('')+'  ·  '+t.tr.codons.map(c=>K.AA3[c.aa]).join('–')+(t.tr.stop?'–Dur':''));
+const longest=f=>{const o=t.orfAll.filter(x=>x.frame===f);return o.length?Math.max(...o.map(x=>x.codons))+' kodon':'yok';};
+html('txFrames',t.fr.map((s,f)=>`<tr><th scope="row">+${f+1}</th><td class="mono">${s.replace(/\*/g,'<b class="ge-bad">*</b>')}</td><td>${(s.match(/\*/g)||[]).length}</td><td>${longest(f)}</td></tr>`).join(''));
+let st;if(txErr)st=txErrText(txErr);else if(t.aug<0)st='Bu mRNA\'da AUG yok: ribozomun başlayacağı kodon olmadığından protein yapılmaz. mRNA yine de yazılır; transkripsiyon ile çeviri ayrı adımlardır.';
+else if(!t.tr.complete)st=`Çeviri ${t.aug+1}. nükleotitteki AUG'dan başlar ama aynı çerçevede dur kodonu yok: ribozom mRNA'nın sonuna kadar ${n} kodon okur ve takılır. Hücrede böyle "dursuz" mRNA'lar için ayrı kurtarma yolları vardır; bu model onları içermez.`;
+else st=`mRNA ${L} nükleotit; polimeraz kalıbı 3′→5′ okudu, mRNA 5′→3′ uzadı. Çeviri ${t.aug+1}. nükleotitteki AUG ile çerçeve +${t.aug%3+1}'de başlar ve ${t.tr.stop.codon} dur kodonunda biter: ${n} kodon, ${n} amino asit. Dur kodonu bir amino asit eklemez. Öteki iki çerçeve başka, anlamsız diziler okur.`+(t.strand==='template'?' Kalıp ipliği yazdığın için mRNA, onun ters tamamlayıcısıdır.':'');
+put('txStatus',st);$('txStatus').classList.toggle('is-warn',!!txErr||t.aug<0||!t.tr.complete);drawTx();orfGene();}
+function drawTx(){const s=surface('txCanvas');if(!s||!tx)return;const p=s.p,t=tx,L=t.mrna.length,cw=s.w<500?15:18,W=Math.floor((s.w-20)/cw),lab=s.w<500?9:10;
+const ph=txAnim.phase,pos=txAnim.pos;// pos: transkripsiyonda nükleotit, çeviride kodon
+let focus;if(ph==='tx')focus=pos;else if(ph==='tl')focus=t.aug+3*pos;else focus=t.aug>=0?t.aug:0;let start=ph==='done'&&focus+3<W-8?-8:Math.round(focus-W*0.45);start=Math.max(-8,Math.min(start,L+8-W));
+const X=i=>10+(i-start)*cw+cw/2,yC=s.h*0.2,yT=yC+cw+6,yM=s.h*0.5,yP=s.h*0.74;
+text(s,'kodlayan iplik 5′→3′',s.w-10,yC-cw*0.95,p.muted,'right',lab);text(s,'kalıp iplik 3′→5′',s.w-10,yT+cw*1.3,p.muted,'right',lab);
+const mrnaEnd=ph==='tx'?Math.floor(pos):L;
+for(let i=start;i<start+W;i++){const x=X(i);if(i<0||i>=L){line(s,x-cw/2,yC,x+cw/2,yC,p.muted,2);line(s,x-cw/2,yT,x+cw/2,yT,p.muted,2);continue;}
+text(s,t.coding[i],x,yC+4,p[t.coding[i]],'center',cw-4,true);text(s,t.template[i],x,yT+4,p[t.template[i]],'center',cw-4,true);
+if(i<mrnaEnd){text(s,t.mrna[i],x,yM+4,p[t.mrna[i]],'center',cw-4,true);}}
+// promotör ve sonlandırıcı kutuları
+const g=s.g;const box=(a,b,lbl,col)=>{const xa=Math.max(10,X(a)-cw/2),xb=Math.min(s.w-10,X(b)+cw/2);if(xb<=xa+4)return;g.strokeStyle=col;g.lineWidth=2;g.strokeRect(xa,yC-cw*0.75,xb-xa,yT-yC+cw*1.25);text(s,lbl,(xa+xb)/2,yT+cw*1.35,col,'center',lab,true);};
+box(-8,-1,'promotör',p.purple);box(L,L+7,'sonlandırıcı',p.purple);
+if(start<=0&&start+W>0){const x=X(0)-cw/2;line(s,x,yC-cw*0.9,x,yC-cw*1.6,p.purple,2);line(s,x,yC-cw*1.6,x+cw*1.5,yC-cw*1.6,p.purple,2);text(s,'+1',x+cw*1.7,yC-cw*1.4,p.purple,'left',lab);}
+// mRNA iplik çizgisi ve uç etiketleri
+if(mrnaEnd>0){const a=Math.max(start,0),b=Math.min(start+W,mrnaEnd);if(b>a){line(s,X(a)-cw/2,yM+8,X(b-1)+cw/2,yM+8,p.blue,2);}if(start<=0)text(s,'5′',X(0)-cw,yM+4,p.blue,'right',lab,true);if(ph!=='tx'&&start+W>=L)text(s,'3′',X(L-1)+cw,yM+4,p.blue,'left',lab,true);}
+text(s,'mRNA 5′→3′',s.w-10,yM-cw*0.95,p.muted,'right',lab);
+if(ph==='tx'){const x=X(pos);g.fillStyle=p.light?'rgba(124,58,237,.18)':'rgba(196,167,255,.22)';g.beginPath();g.ellipse(x,(yT+yM)/2,cw*2.2,(yM-yC)*0.62,0,0,7);g.fill();text(s,'RNA polimeraz',x,yM+cw*1.6,p.purple,'center',lab,true);}
+// kodonlar ve amino asitler
+if(t.aug>=0&&ph!=='tx'){const nC=ph==='tl'?Math.floor(pos):t.tr.codons.length+(t.tr.stop?1:0);const all=[...t.tr.codons];if(t.tr.stop)all.push({codon:t.tr.stop.codon,aa:'*',pos:t.tr.stop.pos});
+all.forEach((c,k)=>{const a=c.pos,x0=X(a)-cw/2,x1=X(a+2)+cw/2;if(x1<10||x0>s.w-10)return;g.strokeStyle=c.aa==='*'?p.red:p.muted;g.lineWidth=1.2;g.strokeRect(x0+1,yM-cw*0.75,x1-x0-2,cw*1.25);
+if(k<nC){const cx=(x0+x1)/2;if(c.aa==='*'){text(s,'Dur',cx,yP+4,p.red,'center',lab,true);}else{dot(s,cx,yP,cw*0.85,k===0?p.warm:p.accent);text(s,c.aa,cx,yP+4,p.bg,'center',cw-5,true);if(k>0&&k<nC)line(s,cx-cw*3+cw*0.85,yP,cx-cw*0.85,yP,p.muted,2);text(s,K.AA3[c.aa],cx,yP+cw*1.7,p.muted,'center',lab);}}});
+if(ph==='tl'){const k=Math.min(Math.floor(pos),all.length-1),c=all[k];if(c){const x=(X(c.pos)+X(c.pos+2))/2;g.fillStyle=p.light?'rgba(173,80,30,.16)':'rgba(244,173,108,.2)';g.beginPath();g.ellipse(x,yM+cw*0.4,cw*2.6,cw*1.5,0,0,7);g.fill();text(s,'ribozom',x,yM+cw*2.2,p.warm,'center',lab,true);}}}
+const cap=ph==='tx'?`Transkripsiyon: ${Math.min(L,Math.floor(pos))} / ${L} nt`:ph==='tl'?`Çeviri: ${Math.floor(pos)}. kodon`:t.aug<0?'AUG yok: çeviri yok':`${t.tr.codons.length} amino asit`;text(s,cap,10,s.h-10,p.muted,'left',lab+1);}
+function txSetPlaying(on){txAnim.playing=on;$('txPlay').textContent=on?'Duraklat':(txAnim.phase==='done'?'Oynat':'Sürdür');$('txPlay').setAttribute('aria-pressed',String(on));}
+function txStop(){txAnim={phase:'done',pos:0,playing:false};txSetPlaying(false);}
+$('txPlay').onclick=()=>{if(txAnim.playing){txSetPlaying(false);return;}if(txAnim.phase==='done'){txAnim.phase='tx';txAnim.pos=-8;}txSetPlaying(true);};
+function txTick(dt){if(!txAnim.playing||active!=='tx')return;const v=num('txSpeed');if(txAnim.phase==='tx'){txAnim.pos+=v*dt;if(txAnim.pos>=tx.mrna.length+6){if(tx.aug<0){txStop();}else{txAnim.phase='tl';txAnim.pos=0;}}}else if(txAnim.phase==='tl'){txAnim.pos+=v/3*dt;const nAll=tx.tr.codons.length+(tx.tr.stop?1:0);if(txAnim.pos>=nAll+0.999){txStop();}}drawTx();}
+function txSet(seq,strand='coding'){$('txSeq').value=seq;$('txStrand').value=strand;txStop();txCompute();txUpdate();}
+$('txSeq').addEventListener('input',()=>{txStop();txCompute();txUpdate();});$('txStrand').addEventListener('change',()=>{txStop();txCompute();txUpdate();});
+$('txPGene').onclick=()=>txSet(TX_DEFAULT);$('txPNoStop').onclick=()=>txSet(TX_DEFAULT.replace('CACTAAGC','CACTACGC'));$('txPNoAug').onclick=()=>txSet('AGGAGGTCAGCTTTGGCATCCAAAGGTGAAGAACTGTTCACCGGTTGGCACTAAGC');
+$('txPRand').onclick=()=>{const r=K.mulberry32(1000+txRandSeed++);txSet(K.randomRNA(120,r).replace(/U/g,'T'));};
+// ORF sayımı
+let orfRes=null;
+function orfGene(){if(!tx)return;const k=num('orfK'),o=K.orfs(tx.mrna,k);put('orfGene',o.length+' ORF (gen '+tx.mrna.length+' nt; en uzunu '+(tx.orfAll.length?Math.max(...tx.orfAll.map(x=>x.codons)):0)+' kodon)');}
+function orfUpdate(){const L=num('orfL'),k=num('orfK'),M=num('orfM'),seed=num('orfSeed'),r=K.orfStudy(L,k,M,seed),E=K.orfExpected(L,k),A=K.orfAsymptotic(L,k);orfRes={...r,E,L,k};
+put('orfMeas',sg(r.mean,3)+' ± '+sg(r.se,2));put('orfExp',sg(E,3));put('orfAsym',sg(A,3)+' ('+pdiff(A,E,0)+' tam değerden)');
+const z=r.se>0?(r.mean-E)/r.se:NaN;put('orfDiff',E>0?pdiff(r.mean,E)+' · '+fx(Math.abs(z),1)+' standart hata':'—');put('orfLong',r.longest?r.longest+' kodon':'ORF yok');orfGene();
+put('orfStatus',(E<0.05?`Bu eşikte rastgele bir ${L} nükleotitlik dizide ${k} kodonluk ORF neredeyse hiç beklenmez (${sg(E,2)}). Uzun bir ORF, rastlantıdan çok seçilimle korunmuş bir gene işaret eder. `:`Rastgele dizide de ORF çıkar: ortalama ${sg(E,3)} tane. Ölçülen ortalama, kuramdan ${fx(Math.abs(z),1)} standart hata uzakta`+(Math.abs(z)<2?' (istatistik dalgalanması içinde). ':Math.abs(z)<3?' (yaklaşık 20 denemede bir görülen bir sapma; tohumu değiştirip yeniden say). ':' (rastlantıyla açıklanması zor bir sapma). '))+`Rastgele dizide dur kodonları ortalama 64/3 ≈ 21.3 kodonda bir gelir; bu yüzden ORF sayısı k ile (61/64)^(k−1) gibi üstel düşer. Kısa dizide sondaki ORF'lerin dur kodonuna yeri kalmaz: tam değer, uzun dizi yaklaşımından ${fx((A-E)/A*100,0)} % küçüktür.`);drawOrf();}
+function drawOrf(){const s=surface('orfChart');if(!s||!orfRes)return;const{counts,E,M}=orfRes,maxC=Math.max(...counts,Math.ceil(E+3*Math.sqrt(E)+1),3),hist=new Array(maxC+1).fill(0);counts.forEach(c=>hist[c]++);const pois=k=>{let lp=-E+k*Math.log(Math.max(E,1e-300));for(let i=2;i<=k;i++)lp-=Math.log(i);return E===0?(k===0?1:0):Math.exp(lp);};
+const ymax=Math.max(...hist.map(h=>h/M),...hist.map((_,k)=>pois(k)))*1.12;const a=axes(s,{xr:[-0.5,maxC+0.5],yr:[0,ymax],xl:'dizi başına ORF sayısı',yl:'oran',left:44});const bw=(a.X(1)-a.X(0))*0.7;
+hist.forEach((h,k)=>{const x=a.X(k);s.g.fillStyle=s.p.accent;s.g.globalAlpha=.75;s.g.fillRect(x-bw/2,a.Y(h/M),bw,a.Y(0)-a.Y(h/M));s.g.globalAlpha=1;dot(s,x,a.Y(pois(k)),3.5,s.p.warm);});
+text(s,`M = ${M} · ortalama ${sg(orfRes.mean,3)} · kuram ${sg(E,3)}`,a.X1,a.Y1-8,s.p.muted,'right',10);}
+['orfL','orfK','orfM','orfSeed'].forEach(id=>$(id).addEventListener('input',()=>{outputs();orfUpdate();}));
+
+// ═════════ 02 · mRNA ve protein ═════════
+let dyn=null;
+function dynParams(){return{km:num('dKm'),gm:num('dGm'),kp:num('dKp'),gp:num('dGp')};}
+function dynUpdate(){const q=dynParams(),S=K.exprSteady(q),T=8*Math.max(1/q.gp,1/q.gm),I=K.exprIntegrate(q,T,0.05),rate=2*(q.km+q.kp*S.m),winAsk=num('dWin')/q.gp,burn=5/q.gp+5/q.gm,win=Math.min(winAsk,3e6/rate),G=K.gillespie(q,{burn,window:win,seed:num('dSeed'),record:600,recFrom:burn,recTo:burn+8/q.gp,batches:20});
+const th={m50:Math.LN2/q.gm,m63:1/q.gm,p50:K.exprAnalyticCross(q,'p',.5),p63:K.exprAnalyticCross(q,'p',1-Math.exp(-1))};dyn={q,S,I,G,th,T,win,winAsk,burn};
+const tt=x=>sg(x,3)+' dk';put('dMs',sg(S.m,3)+' mRNA');put('dPs',sg(S.p,3)+' protein');
+put('dTm',tt(I.cross.m50)+' · '+tt(th.m50)+' · '+pdiff(I.cross.m50,th.m50,3));put('dTm63',tt(I.cross.m63)+' · '+tt(th.m63)+' · '+pdiff(I.cross.m63,th.m63,3));
+put('dTp',tt(I.cross.p50)+' · '+tt(th.p50)+' · '+pdiff(I.cross.p50,th.p50,3));put('dTp63',tt(I.cross.p63)+' · '+tt(th.p63)+' · '+tt(1/q.gp));
+put('dErr',small(I.maxErr,2));
+put('dMm',sg(G.m.mean,3)+' ± '+sg(G.m.meanSE,2)+' · '+sg(S.m,3));put('dPm',sg(G.p.mean,3)+' ± '+sg(G.p.meanSE,2)+' · '+sg(S.p,3));
+put('dFm',fx(G.m.fano,3)+' ± '+fx(G.m.fanoSE,3)+' · 1');put('dFp',sg(G.p.fano,3)+' ± '+sg(G.p.fanoSE,2)+' · '+sg(S.fanoP,4)+' ('+pdiff(G.p.fano,S.fanoP)+')');
+put('dB',sg(G.burst,3)+' · '+sg(S.burst,3));put('dRule',sg(1+S.burst,3)+' · '+String(G.events).replace(/\B(?=(\d{3})+(?!\d))/g,' ')+' olay');
+const zf=(G.p.fano-S.fanoP)/G.p.fanoSE,few=S.m<1;
+put('dynStatus',(win<winAsk*0.999?`Olay sayısını sınırlamak için gözlem süresi ${sg(win*q.gp,3)} protein ömrüne kısaltıldı`+(win*q.gp<50?'; bu kadar kısa pencerede Fano ölçümü kabadır. ':'. '):'')+(few?`Ortalamada ${sg(S.m,2)} mRNA var: hücre çoğu zaman hiç mRNA taşımaz, protein patlamalar arasında azalır. `:'')+`Ortalama denklemler: mRNA ${tt(th.m50)}'da yarı yola gelir, protein ${tt(th.p50)}'da; protein, mRNA'dan ${fx(th.p50/th.m50,1)} kat yavaştır. Tek hücrede protein Fano ${sg(G.p.fano,3)}, kuram ${sg(S.fanoP,4)}: fark ${fx(Math.abs(zf),1)} standart hata`+(Math.abs(zf)<2.5?'.':' (gözlem süresini uzat).')+` Bir mRNA ortalama ${sg(G.burst,3)} protein yapıp yıkılıyor; ${sg(S.burst,3)} kuramdır. γp/γm = ${sg(q.gp/q.gm,2)} olduğundan kaba kural 1 + b = ${sg(1+S.burst,3)}`+(Math.abs(1+S.burst-S.fanoP)/S.fanoP<0.02?' tam formüle yakın.':`, tam formülden ${pdiff(1+S.burst,S.fanoP)} sapar.`));drawDyn();drawGil();}
+function drawDyn(){const s=surface('dynCanvas');if(!s||!dyn)return;const{I,S,q,th,T}=dyn,a=axes(s,{xr:[0,T],yr:[0,1.08],xl:'zaman / dk',yl:'düzey / denge düzeyi'});
+const N=240,am=[],ap=[];for(let i=0;i<=N;i++){const t=T*i/N,A=K.exprAnalytic(q,t);am.push([a.X(t),a.Y(A.m/S.m)]);ap.push([a.X(t),a.Y(A.p/S.p)]);}
+poly(s,I.tr.map(([t,m])=>[a.X(t),a.Y(m/S.m)]),s.p.blue,3);poly(s,I.tr.map(([t,,p])=>[a.X(t),a.Y(p/S.p)]),s.p.warm,3);poly(s,am,s.p.ink,1.2,[4,4]);poly(s,ap,s.p.ink,1.2,[4,4]);
+line(s,a.X0,a.Y(.5),a.X1,a.Y(.5),s.p.muted,1,[2,4]);for(const[x,c]of[[I.cross.m50,s.p.blue],[I.cross.p50,s.p.warm]])if(x!==null)line(s,a.X(x),a.Y(0),a.X(x),a.Y(.5),c,1.5,[3,3]);
+text(s,'mRNA',a.X(T*0.1),a.Y(1)+16,s.p.blue,'left',11,true);text(s,'protein',a.X(T*0.62),a.Y(K.exprAnalytic(q,T*0.62).p/S.p)+16,s.p.warm,'center',11,true);}
+function drawGil(){const s=surface('gilCanvas');if(!s||!dyn)return;const{G,S,q,burn}=dyn,span=8/q.gp,tr=G.tr.filter(r=>r[0]>=burn&&r[0]<=burn+span);if(tr.length<2)return;const pmax=Math.max(...tr.map(r=>r[2]),S.p*1.5)*1.05,mmax=Math.max(...tr.map(r=>r[1]),2);
+const a=axes(s,{xr:[0,span],yr:[0,pmax],xl:'ısınmadan sonra zaman / dk',yl:'protein sayısı'});
+const sd=Math.sqrt(G.p.variance);for(const[v,d]of[[G.p.mean,[]],[G.p.mean+sd,[3,4]],[Math.max(0,G.p.mean-sd),[3,4]]])line(s,a.X0,a.Y(v),a.X1,a.Y(v),s.p.muted,1,d);
+const mh=(a.Y0-a.Y1)*0.22;poly(s,tr.map(([t,m])=>[a.X(t-burn),a.Y0-m/mmax*mh]),s.p.blue,1.2);poly(s,tr.map(([t,,p])=>[a.X(t-burn),a.Y(p)]),s.p.warm,1.8);
+text(s,'mRNA (en çok '+mmax+')',a.X0+6,a.Y0-mh-4,s.p.blue,'left',10);}
+['dKm','dGm','dKp','dGp','dSeed'].forEach(id=>$(id).addEventListener('input',()=>{outputs();dynUpdate();}));$('dWin').addEventListener('change',dynUpdate);
+const dynSet=v=>{for(const[k,x]of Object.entries(v))$(k).value=x;outputs();dynUpdate();};
+$('dPBurst').onclick=()=>dynSet({dKm:0.2,dGm:0.1,dKp:5,dGp:0.02});$('dPCalm').onclick=()=>dynSet({dKm:5,dGm:0.5,dKp:0.5,dGp:0.02});
+
+// ═════════ 03 · lac operonu ═════════
+let lac=null;const LACP=()=>({K:1,eps:0.01,a0:num('lA0'),n:num('lN')});let lacSweepKey='',lacSweep=null,lacFolds=null;
+function lacUpdate(){const n=num('lN'),p=LACP(),key=n+'|'+p.a0;if(key!==lacSweepKey){lacSweep=K.fbSweep(p,5,0.01);lacFolds=K.fbFolds(p);lacSweepKey=key;}
+const I=num('lI'),glu=$('lGlu').value==='1',lev=K.lacLevel({glucose:glu,I,n}),y0=$('lHist').value==='on'?1:p.eps,y=K.fbRelax(y0,I,p,2000),ss=K.fbSteadyStates(I,p);lac={I,glu,n,p,y,ss};
+const lbl={yok:'yok',düşük:'düşük ("biraz")',yüksek:'yüksek'},os=[['yok','no'],['düşük','some'],['yok','no'],['yüksek','high']];
+html('lTruth',K.lacTruth(n).map((r,i)=>{const ok=r.cls===os[i][0];return`<tr><td>${r.glucose?'var':'yok'}</td><td>${r.lactose?'var':'yok'}</td><td>${r.cap?'evet':'hayır'}</td><td>${r.repressor?'evet':'hayır'}</td><td>${fx(r.level*100,1)} % · ${lbl[r.cls]}</td><td class="${ok?'ge-ok':'ge-bad'}">${['hayır','biraz','hayır','evet'][i]} ${ok?'· uyuşuyor':'· uyuşmuyor'}</td></tr>`;}).join(''));
+put('lLevel',fx(lev*100,1)+' % · '+lbl[K.lacClass(lev)]);put('lStates',ss.filter(x=>x.stable).length+' / '+ss.length+' · y = '+ss.map(x=>fx(x.y,3)+(x.stable?'':' (kararsız)')).join(', '));
+const S=lacSweep,F=lacFolds,kI=v=>fx(v,3)+' K';
+put('lOn',S.Ion!==null&&F.bistable?kI(S.Ion)+' · '+kI(F.on.I)+' · '+pdiff(S.Ion,F.on.I,2):F.bistable?'süpürmede sıçrama yok':'sıçrama yok · katlanma yok');
+put('lOff',S.Ioff!==null&&F.bistable?kI(S.Ioff)+' · '+kI(F.off.I)+' · '+pdiff(S.Ioff,F.off.I,2):F.bistable?'süpürmede sıçrama yok':'sıçrama yok · katlanma yok');
+put('lWidth',S.Ion!==null&&S.Ioff!==null?kI(S.Ion-S.Ioff):'0 (tek değerli yanıt)');put('lCur',fx(y,3)+' · '+(y>0.5?'indüklenmiş':y<0.15?'kapalı':'ara düzey'));
+let st;if(!F.bistable)st=`n = ${fx(n,1)}, a₀ = ${fx(p.a0,2)}: yanıt tek değerli. I artarken ve azalırken aynı yoldan geçilir; geçmiş önemsizdir. `+(n===1?'İşbirliği yokken (n = 1) geri besleme tek başına iki kararlı durum kuramaz: F(I(a₀ + y)) y\'ye göre içbükeydir ve y doğrusunu bir kez keser.':'Permeasesiz giriş a₀ büyüdükçe geri besleme zayıflar ve iki kararlılık kaybolur.');
+else{const two=ss.filter(x=>x.stable).length===2;st=`İki kararlılık: I ${kI(F.off.I)} ile ${kI(F.on.I)} arasında iki kararlı durum var. Süpürmede açılma ${kI(S.Ion)}, kapanma ${kI(S.Ioff)}'de ölçüldü; ikisi de katlanma noktalarıyla adım çözünürlüğü (0.005 K) içinde uyuşuyor. `+(two?`Seçili I = ${kI(I)} bu aralıkta: aynı ortamda hücre, geçmişine göre ${y>0.5?'açık':'kapalı'} kalır (y = ${fx(y,3)}). Geçmişi değiştir ve farkı gör.`:`Seçili I = ${kI(I)} bu aralığın dışında: geçmiş ne olursa olsun tek bir durum var.`);}
+put('lacStatus',st+(glu?' Glukoz varken CAP bağlanmaz: basit modelde düzey en çok %10\'a çıkar (katabolit baskısı).':''));drawLacCurve();drawLacLoop();}
+function drawLacCurve(){const s=surface('lacCurve');if(!s||!lac)return;const a=axes(s,{xr:[0.01,100],yr:[0,1.05],logx:true,xl:'indükleyici I / K',yl:'transkripsiyon / en yüksek'});
+for(const v of[0.05,0.5])line(s,a.X0,a.Y(v),a.X1,a.Y(v),s.p.muted,1,[2,4]);
+for(const[glu,col]of[[false,s.p.accent],[true,s.p.warm]]){const pts=[];for(let i=0;i<=200;i++){const I=Math.pow(10,-2+4*i/200);pts.push([a.X(I),a.Y(K.lacLevel({glucose:glu,I,n:lac.n}))]);}poly(s,pts,col,2.5);}
+if(lac.I>=0.01){const x=a.X(lac.I);line(s,x,a.Y0,x,a.Y1,s.p.red,1.5,[4,4]);dot(s,x,a.Y(K.lacLevel({glucose:lac.glu,I:lac.I,n:lac.n})),4.5,s.p.red);}
+text(s,'glukoz yok',a.X(20),a.Y(0.93),s.p.accent,'center',11,true);text(s,'glukoz var',a.X(20),a.Y(0.16),s.p.warm,'center',11,true);}
+function drawLacLoop(){const s=surface('lacLoop');if(!s||!lac)return;const a=axes(s,{xr:[0,5],yr:[0,1.05],xl:'dış indükleyici I / K',yl:'permease y'});const F=lacFolds,S=lacSweep;
+poly(s,F.curve.filter(([I])=>I<=5).map(([I,y])=>[a.X(I),a.Y(y)]),s.p.muted,1.5,[5,4]);
+poly(s,S.up.map(([I,y])=>[a.X(I),a.Y(y)]),s.p.green,2.5);poly(s,S.down.map(([I,y])=>[a.X(I),a.Y(y)]),s.p.purple,2.5,[1,0]);
+if(S.Ion!==null){const x=a.X(S.Ion);s.g.fillStyle=s.p.green;text(s,'↑ '+fx(S.Ion,2),x+6,a.Y(0.45),s.p.green,'left',11,true);}if(S.Ioff!==null){text(s,fx(S.Ioff,2)+' ↓',a.X(S.Ioff)-6,a.Y(0.45),s.p.purple,'right',11,true);}
+dot(s,a.X(lac.I),a.Y(lac.y),6,s.p.warm);}
+['lI','lN','lA0'].forEach(id=>$(id).addEventListener('input',()=>{outputs();lacUpdate();}));['lGlu','lHist'].forEach(id=>$(id).addEventListener('change',lacUpdate));
+$('lPN1').onclick=()=>{$('lN').value=1;outputs();lacUpdate();};$('lPMid').onclick=()=>{$('lI').value=2.4;$('lN').value=2;$('lA0').value=0.02;$('lHist').value=$('lHist').value==='on'?'off':'on';outputs();lacUpdate();};
+
+// ═════════ 04 · Genetik anahtar ═════════
+let tog=null,togSweepKey='',togSweep=null;
+function togUpdate(){const a=num('gA'),n=num('gN'),u0=num('gU0'),v0=num('gV0');if(togSweepKey!==String(n)){togSweep=n>1?K.toggleSweep(n,0.5,20,0.02):null;togSweepKey=String(n);}
+const fp=K.toggleFixed(a,n),run=K.toggleRun(u0,v0,a,n,50,0.02,400),stable=fp.filter(f=>f.stable),ac=K.toggleAlphaCrit(n),sym=K.toggleSym(a,n),gain=n*Math.pow(sym,n)/(1+Math.pow(sym,n));tog={a,n,u0,v0,fp,run,stable};
+put('gFixed',stable.length+' / '+fp.length);
+let pred;if(stable.length===1)pred=stable[0];else if(stable.length>=2)pred=u0>v0?stable.reduce((b,f)=>f.u>b.u?f:b):u0<v0?stable.reduce((b,f)=>f.v>b.v?f:b):fp.find(f=>!f.stable)||null;else pred=null;
+put('gEnd','(u, v) = ('+fx(run.u,2)+', '+fx(run.v,2)+') · '+(pred?'('+fx(pred.u,2)+', '+fx(pred.v,2)+')':'—'));
+put('gAc',n>1?(togSweep?fx(togSweep.alpha,2)+' (önceki adım '+fx(togSweep.prev,2)+') · '+fx(ac,3):'α ≤ 20\'de yok · '+fx(ac,3)):'n = 1: hiçbir α\'da iki kararlılık yok');put('gGain',fx(gain*gain,3)+' ('+(gain*gain>1?'> 1':'≤ 1')+')');
+const dist=pred?Math.hypot(run.u-pred.u,run.v-pred.v):NaN;let st;
+if(stable.length===1)st=`Tek kararlı denge: (${fx(stable[0].u,2)}, ${fx(stable[0].v,2)}). α = ${fx(a,1)}, n = ${fx(n,1)} için iki gen birbirini yeterince bastıramıyor`+(n>1?`; iki kararlılık için α > ${fx(ac,3)} gerekir.`:'; n = 1 iken hiçbir α yetmez: kazanç çarpımı 1\'i aşamaz.');
+else if(u0===v0)st=`Başlangıç tam köşegen üzerinde (u₀ = v₀): yörünge simetrik kararsız noktaya gider ve orada durur. En küçük bir fark onu iki duruma ayırır; gerçek hücrede gürültü bu dengede bırakmaz.`;
+else st=`İki kararlı durum: (${fx(stable[0].u,2)}, ${fx(stable[0].v,2)}) ve (${fx(stable[stable.length-1].u,2)}, ${fx(stable[stable.length-1].v,2)}); aralarındaki eyer noktası kararsız. u₀ ${u0>v0?'>':'<'} v₀ olduğundan hücre ${u0>v0?"u'nun":"v'nin"} yüksek olduğu duruma gitti (t = 50'de kurama uzaklık ${small(dist,2)}). Sinyal kalksa da durum korunur: bu bir hücre hafızasıdır.`;
+put('togStatus',st);drawTog();}
+function drawTog(){const s=surface('togCanvas');if(!s||!tog)return;const{a,n,fp,run}=tog,R=Math.max(a*1.08,2),side=Math.min(s.w,s.h),ax=axes(s,{xr:[0,R],yr:[0,R],xl:'u',yl:'v',left:42,bottom:32,x:(s.w-side)/2+0,w:side+0});
+// yön alanı
+const N=13;for(let i=0;i<N;i++)for(let j=0;j<N;j++){const u=(i+.5)*R/N,v=(j+.5)*R/N,du=a*K.hill(v,n)-u,dv=a*K.hill(u,n)-v,L=Math.hypot(du,dv);if(L<1e-9)continue;const sc=(ax.X1-ax.X0)/N*0.38,x=ax.X(u),y=ax.Y(v),ex=x+du/L*sc,ey=y-dv/L*sc;line(s,x,y,ex,ey,s.p.grid,1.2);dot(s,ex,ey,1.4,s.p.muted);}
+const c1=[],c2=[];for(let i=0;i<=200;i++){const v=R*i/200;c1.push([ax.X(a*K.hill(v,n)),ax.Y(v)]);const u=R*i/200;c2.push([ax.X(u),ax.Y(a*K.hill(u,n))]);}poly(s,c1,s.p.accent,2.2);poly(s,c2,s.p.warm,2.2);
+line(s,ax.X(0),ax.Y(0),ax.X(R),ax.Y(R),s.p.muted,1,[2,5]);
+poly(s,run.tr.map(([u,v])=>[ax.X(u),ax.Y(v)]),s.p.red,2);dot(s,ax.X(tog.u0),ax.Y(tog.v0),4,s.p.red);
+for(const f of fp)dot(s,ax.X(f.u),ax.Y(f.v),5.5,s.p.ink,f.stable);
+text(s,'du/dt = 0',ax.X(a*K.hill(R*0.85,n))+6,ax.Y(R*0.85),s.p.accent,'left',10,true);text(s,'dv/dt = 0',ax.X(R*0.8),ax.Y(a*K.hill(R*0.8,n))-6,s.p.warm,'center',10,true);}
+['gA','gN','gU0','gV0'].forEach(id=>$(id).addEventListener('input',()=>{outputs();togUpdate();}));
+$('gPulse').onclick=()=>{const r=tog.run,hi=Math.max(r.u,r.v,1),U=r.u>r.v?r.u:r.u+hi,V=r.u>r.v?r.v+hi:r.v;$('gU0').value=Math.min(20,Math.round(U*10)/10);$('gV0').value=Math.min(20,Math.round(V*10)/10);outputs();togUpdate();};
+$('gPWeak').onclick=()=>{$('gA').value=1.5;outputs();togUpdate();};
+$('togCanvas').addEventListener('pointerdown',e=>{const c=$('togCanvas'),r=c.getBoundingClientRect(),a=num('gA'),R=Math.max(a*1.08,2),side=Math.min(r.width,r.height),x0=(r.width-side)/2+42,x1=(r.width-side)/2+side-14,y0=r.height-32,y1=22;const u=(e.clientX-r.left-x0)/(x1-x0)*R,v=(y0-(e.clientY-r.top))/(y0-y1)*R;if(u<0||v<0||u>R||v>R)return;$('gU0').value=Math.min(20,Math.max(0,Math.round(u*10)/10));$('gV0').value=Math.min(20,Math.max(0,Math.round(v*10)/10));outputs();togUpdate();});
+
+// ═════════ 04 · Repressilatör ═════════
+let rep=null,repAnim={t:0,playing:false},repSweepRes=null;
+function repParams(){return{a:num('rA'),a0:num('rA0'),b:num('rB'),n:num('rN')};}
+function repUpdate(keepSweep=false){const q=repParams(),r=K.repRun(q,800,0.01,1600),L=K.repLinear(q),nc=K.repNCrit(q);if(!keepSweep)repSweepRes=null;rep={q,r,L,nc};const half=num('rHalf'),unit=half/Math.LN2;
+put('rPer',r.period!==null?fx(r.period,2)+' (t birimi)':'salınım yok');put('rPerLin',L.period?fx(L.period,2)+(r.period!==null?' · ölçülenden '+pdiff(L.period,r.period,1):''):'—');
+put('rRe',sfx(L.re,4)+(L.re>0?' (denge kararsız)':' (denge kararlı)'));put('rAmp',fx(r.amp,3));
+put('rNc',(repSweepRes===null?'tara düğmesine bas':repSweepRes.n===null?'n ≤ 4\'te yok':fx(repSweepRes.n,2)+' (önceki '+fx(repSweepRes.n-0.05,2)+')')+' · '+(nc===null?'n ≤ 8\'de yok':fx(nc,3)));
+put('rMin',r.period!==null?fx(r.period*unit,1)+' dk (mRNA ömrü '+fx(unit,2)+' dk)':'—');
+let st;if(r.period!==null)st=`Halka salınıyor: periyot ${fx(r.period,2)} mRNA ömrü, yani ${fx(r.period*unit,1)} dk. Denge noktası kararsız (Re λ = ${sfx(L.re,3)}); sistem bir limit çevrime oturuyor. Doğrusal kuram ${L.period?fx(L.period,2):'—'} veriyor; fark, salınımın eşikten uzakta doğrusal olmamasından gelir: n'yi eşiğe (${nc?fx(nc,2):'—'}) yaklaştır, fark küçülür.`;
+else st=`Salınım yok: üç protein dengeye yerleşiyor (Re λ = ${sfx(L.re,3)} < 0). Baskı yeterince keskin değil; bu α, α₀ ve β ile salınım için n > ${nc?fx(nc,3):'8'} gerekir. Negatif geri besleme kendi başına saat yapmaz; gecikme ve doğrusal olmayan baskı gerekir.`;
+if(r.period!==null&&Math.abs(L.re)<0.01)st+=' Eşiğe çok yakınsın: salınım yavaş büyür ya da yavaş söner; ölçüm için t = 800 kısa kalabilir.';put('repStatus',st);drawRep();}
+function drawRep(){const s=surface('repCanvas');if(!s||!rep)return;const{r}=rep,tr=r.tr,cols=[s.p.accent,s.p.warm,s.p.purple],ringW=Math.min(s.w*0.32,170),pmax=Math.max(...tr.map(x=>Math.max(x[1],x[2],x[3])))*1.08||1;
+const TV=300,a=axes(s,{xr:[0,TV],yr:[0,pmax],xl:'t / mRNA ömrü (ilk 300)',yl:'protein',x:ringW,w:s.w-ringW,left:40}),vis=tr.filter(row=>row[0]<=TV);
+for(let k=0;k<3;k++)poly(s,vis.map(row=>[a.X(row[0]),a.Y(row[k+1])]),cols[k],1.6);
+const idx=Math.min(tr.length-1,Math.max(0,Math.round(repAnim.t/800*(tr.length-1)))),cur=tr[idx];line(s,a.X(cur[0]),a.Y0,a.X(cur[0]),a.Y1,s.p.red,1.5,[4,3]);
+// halka
+const cx=ringW/2,cy=s.h/2,Rr=Math.min(ringW,s.h)*0.3;const P=[0,1,2].map(k=>[cx+Rr*Math.sin(2*Math.PI*k/3),cy-Rr*Math.cos(2*Math.PI*k/3)]);
+for(let k=0;k<3;k++){const j=(k+1)%3,[x1,y1]=P[k],[x2,y2]=P[j],d=Math.hypot(x2-x1,y2-y1),ux=(x2-x1)/d,uy=(y2-y1)/d,sx=x1+ux*22,sy=y1+uy*22,ex=x2-ux*24,ey=y2-uy*24;line(s,sx,sy,ex,ey,s.p.muted,2);line(s,ex-uy*7,ey+ux*7,ex+uy*7,ey-ux*7,s.p.muted,3);}
+for(let k=0;k<3;k++){const v=cur[k+1]/pmax;dot(s,P[k][0],P[k][1],6+14*Math.sqrt(Math.max(0,v)),cols[k]);text(s,'ABC'[k],P[k][0],P[k][1]+4,s.p.bg,'center',11,true);}
+text(s,'t = '+fx(cur[0],0),cx,s.h-10,s.p.muted,'center',10);}
+function repSetPlaying(on){repAnim.playing=on;$('rPlay').textContent=on?'Duraklat':'Oynat';$('rPlay').setAttribute('aria-pressed',String(on));}
+$('rPlay').onclick=()=>{if(!repAnim.playing&&repAnim.t>=300)repAnim.t=0;repSetPlaying(!repAnim.playing);};
+function repTick(dt){if(!repAnim.playing||active!=='net')return;repAnim.t+=dt*20;if(repAnim.t>=300){repAnim.t=300;repSetPlaying(false);}drawRep();}
+$('rSweep').onclick=()=>{const q=repParams(),n=K.repSweepN(q,1,4,0.05);repSweepRes={n};repUpdate(true);};
+$('rPNear').onclick=()=>{$('rN').value=1.65;outputs();repUpdate();};
+['rA','rA0','rB','rN'].forEach(id=>$(id).addEventListener('input',()=>{outputs();repUpdate();}));$('rHalf').addEventListener('change',()=>repUpdate(true));
+
+// ═════════ Ortak ═════════
+function outputs(){document.querySelectorAll('input[type=range]').forEach(e=>{const o=$(e.id+'Out');if(!o)return;const st=+e.step,d=st>=1?0:Math.max(0,-Math.floor(Math.log10(st)+1e-9));put(e.id+'Out',fx(+e.value,d)+(e.dataset.unit||''));});}
+const defaults={tx:{txSeq:TX_DEFAULT,txStrand:'coding',txSpeed:8,orfL:1000,orfK:30,orfM:200,orfSeed:1},dyn:{dKm:1,dGm:0.2,dKp:2,dGp:0.02,dWin:'500',dSeed:1},lac:{lGlu:'0',lI:2.4,lN:2,lA0:0.02,lHist:'off'},net:{gA:10,gN:2,gU0:3,gV0:2,rA:100,rA0:0,rB:0.2,rN:2,rHalf:'2'}};
+function render(name=active){if(name==='tx'){txUpdate();orfUpdate();}else if(name==='dyn')dynUpdate();else if(name==='lac')lacUpdate();else{togUpdate();repUpdate(true);}}
+function reset(name){for(const[id,v]of Object.entries(defaults[name]))$(id).value=v;outputs();if(name==='tx'){txStop();txRandSeed=1;txCompute();}if(name==='net'){repAnim={t:0,playing:false};repSetPlaying(false);repSweepRes=null;}render(name);}
+$('txReset').onclick=()=>reset('tx');$('dynReset').onclick=()=>reset('dyn');$('lacReset').onclick=()=>reset('lac');$('togReset').onclick=()=>{for(const id of['gA','gN','gU0','gV0'])$(id).value=defaults.net[id];outputs();togUpdate();};
+$('repReset').onclick=()=>{for(const id of['rA','rA0','rB','rN','rHalf'])$(id).value=defaults.net[id];outputs();repAnim={t:0,playing:false};repSetPlaying(false);repUpdate();};
+const tabs=['tx','dyn','lac','net'];
+function tab(name){active=name;tabs.forEach(t=>{$('panel-'+t).hidden=t!==name;$('tab-'+t).setAttribute('aria-selected',String(t===name));$('tab-'+t).tabIndex=t===name?0:-1;});if(name!=='tx'&&txAnim.playing)txSetPlaying(false);if(name!=='net'&&repAnim.playing)repSetPlaying(false);render(name);}
+tabs.forEach((t,i)=>{$('tab-'+t).onclick=()=>tab(t);$('tab-'+t).onkeydown=e=>{const j=e.key==='ArrowRight'?(i+1)%4:e.key==='ArrowLeft'?(i+3)%4:e.key==='Home'?0:e.key==='End'?3:null;if(j!==null){e.preventDefault();tab(tabs[j]);$('tab-'+tabs[j]).focus();}};});
+document.addEventListener('keydown',e=>{if(e.target.closest('input,select,button,a,textarea,summary')||e.ctrlKey||e.metaKey||e.altKey)return;if(e.key==='r'||e.key==='R'){if(active==='net'){$('togReset').click();$('repReset').click();}else reset(active);}else if(e.code==='Space'){if(active==='tx'){e.preventDefault();$('txPlay').click();}else if(active==='net'){e.preventDefault();$('rPlay').click();}}});
+let last=0;function frame(now){const dt=last?Math.min(0.05,(now-last)/1000):0;last=now;const paused=window.AcelyaPause?.isPaused?.();if(!paused){txTick(dt);repTick(dt);}requestAnimationFrame(frame);}
+let rz=0;const redraw=()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{if(active==='tx'){drawTx();drawOrf();}else if(active==='dyn'){drawDyn();drawGil();}else if(active==='lac'){drawLacCurve();drawLacLoop();}else{drawTog();drawRep();}});};
+new ResizeObserver(redraw).observe(document.querySelector('.app-content'));new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+outputs();txCompute();render('tx');requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

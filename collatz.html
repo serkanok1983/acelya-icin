@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Collatz Laboratuvarı: Deney ve Kanıt</title>
+  <meta name="description" content="Tekse 3n+1, çiftse n/2: Collatz yörüngelerini kesin tam sayılarla izle, durma sürelerini karşılaştır ve sonlu bir deneyin neden genel kanıt olmadığını keşfet.">
+  <link rel="stylesheet" href="shared/theme.css">
+  <style>
+    .lab-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}.lab-tabs button{padding:10px 16px;font:inherit;border:1px solid var(--border);border-radius:9px;cursor:pointer;background:var(--bg-card);color:var(--text)}.lab-tabs button[aria-selected=true]{background:var(--accent);color:#081522}.lab-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(270px,1fr);gap:18px;align-items:start}.lab-stage,.lab-panel{min-width:0;display:grid;gap:14px}.lab-panel{padding:20px;border:1px solid var(--border);background:var(--bg-card);border-radius:14px}.lab-panel h2{font-size:1.05rem;margin:0}.lab-field{display:grid;gap:7px}.lab-field label{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}.lab-field output{color:var(--accent);font-variant-numeric:tabular-nums}.lab-field input[type=range]{width:100%;margin:0}.lab-field select,.lab-field input[type=text]{box-sizing:border-box;min-width:0;width:100%;font:inherit;padding:9px 10px}.lab-row{display:flex;gap:8px;flex-wrap:wrap}.lab-row button{font:inherit;padding:8px 13px;cursor:pointer}.lab-canvas{width:100%;display:block;aspect-ratio:3/2;border:1px solid var(--border);border-radius:14px;background:var(--bg-card)}.lab-canvas.short{aspect-ratio:2/1}.lab-readouts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.lab-readout{padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);min-width:0}.lab-readout small{display:block;color:var(--text-muted);font-size:.76rem;margin-bottom:6px}.lab-readout strong{font-size:1.12rem;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.lab-note{font-size:.87rem;line-height:1.65;margin:0}.lab-status{padding:13px 16px;border-left:3px solid var(--accent);background:var(--bg-card);font-size:.9rem;line-height:1.6;overflow-wrap:anywhere}.lab-formula{font-size:1.1rem;line-height:1.8;padding:14px;background:var(--bg-input);border-radius:9px;overflow-wrap:anywhere}.lab-table-wrap{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:10px}.lab-table{width:100%;border-collapse:collapse;font-size:.85rem}.lab-table th,.lab-table td{text-align:left;border-bottom:1px solid var(--border);padding:8px 12px;overflow-wrap:anywhere}.lab-table th{background:var(--bg-input)}.lab-table tr.current{background:var(--bg-input)}.lab-sources{font-size:.85rem;line-height:1.6;margin-top:22px}.lab-grid button:focus-visible,.lab-tabs button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}[hidden]{display:none!important}@media(max-width:760px){.lab-grid{grid-template-columns:1fr}.lab-panel{padding:16px}.lab-canvas{aspect-ratio:1/1}.lab-canvas.short{aspect-ratio:4/3}.lab-tabs button{flex:1;padding:10px 8px;font-size:.85rem}}
+
+    .lab-table td:nth-child(2){max-width:210px;word-break:break-all}.exact-value{word-break:break-all}.lab-check{display:flex;align-items:center;gap:8px;font-size:.9rem}.lab-progress{width:100%;height:10px;accent-color:var(--accent)}
+    body.app-page .lab-table tr.current td{background:color-mix(in srgb,var(--accent) 18%,var(--bg-card))!important}.lab-row button:disabled{opacity:.45;cursor:default}
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="collatz">
+<div class="app-content">
+  <h1>Collatz: İki Kural, Açık Bir Soru</h1>
+  <p class="hint">Sayı çiftse ikiye böl; tekse üç katının bir fazlasını al. 27 ile başla: 1'e gitmeden önce nereye kadar yükselir? Bir örneği hesaplamakla bütün sayılar için kanıtlamak arasındaki mesafeyi gör.</p>
+  <div class="lab-tabs" role="tablist" aria-label="Collatz deneyleri">
+    <button id="tab-orbit" class="app-btn-ghost" role="tab" aria-selected="true" aria-controls="orbit-panel">Bir sayının yolculuğu</button>
+    <button id="tab-survey" class="app-btn-ghost" role="tab" aria-selected="false" aria-controls="survey-panel" tabindex="-1">Başlangıçları karşılaştır</button>
+  </div>
+  <section id="orbit-panel" role="tabpanel" aria-labelledby="tab-orbit">
+    <div class="lab-grid">
+      <div class="lab-stage">
+        <canvas id="orbitCanvas" class="lab-canvas short" role="img" aria-label="Collatz yörüngesi: yatay eksen dönüşüm sayısı, düşey eksen sayı veya logaritması"></canvas>
+        <div class="lab-readouts" aria-live="polite">
+          <div class="lab-readout"><small>1'e ilk varış: toplam durma süresi</small><strong id="totalSteps">—</strong></div>
+          <div class="lab-readout"><small>Hesaplanan yolun tepe değeri</small><strong id="peakValue" class="exact-value">—</strong></div>
+          <div class="lab-readout"><small>Başlangıcın altına ilk iniş</small><strong id="firstDrop">—</strong></div>
+          <div class="lab-readout"><small>Hesaplanan dönüşüm sayısı</small><strong id="computedSteps">—</strong></div>
+        </div>
+        <p class="lab-status" id="orbitStatus" aria-live="polite"></p>
+        <div class="lab-panel">
+          <div class="lab-field"><label for="stepCursor">İncelenen adım j <output id="stepCursorOut">0</output></label><input id="stepCursor" type="range" min="0" max="111" value="0" step="1"></div>
+          <div class="lab-row"><button id="previousStep" aria-label="Önceki adıma git">Önceki</button><button id="nextStep" aria-label="Sonraki adıma git">Sonraki</button><button id="playButton" aria-pressed="false">Oynat</button><button id="lastStep">Son adıma git</button></div>
+          <p id="transition" class="lab-formula exact-value" aria-live="polite"></p>
+          <p class="lab-note" id="oddCompression"></p>
+        </div>
+        <details><summary>İncelenen adımın çevresindeki kesin değerler</summary><div class="lab-table-wrap"><table class="lab-table"><thead><tr><th scope="col">Adım</th><th scope="col">Sayı</th><th scope="col">Sonraki işlem</th></tr></thead><tbody id="orbitTable"></tbody></table></div></details>
+      </div>
+      <div class="lab-panel">
+        <h2>Bir başlangıç seç</h2>
+        <div class="lab-field"><label for="startNumber">Pozitif tam sayı n₀</label><input id="startNumber" type="text" inputmode="numeric" value="27" maxlength="60" aria-describedby="inputNote"></div>
+        <p id="inputNote" class="lab-note">En çok 60 rakam; kesir, işaret ve bilimsel gösterim kabul edilmez. Hesaplar büyük tam sayılarla kesindir.</p>
+        <div class="lab-field"><label for="stepLimit">Dönüşüm sınırı</label><select id="stepLimit"><option>100</option><option>500</option><option>1000</option><option selected>10000</option></select></div>
+        <div class="lab-row"><button id="calculateButton">Hesapla</button><button id="orbitReset">Sıfırla</button></div>
+        <div class="lab-row" aria-label="Hazır başlangıçlar"><button data-start="16">16</button><button data-start="27">27</button><button data-start="97">97</button><button data-start="9007199254740993">2⁵³ + 1</button></div>
+        <label class="lab-check" for="logScale"><input id="logScale" type="checkbox" checked>Logaritmik düşey eksen (log₁₀ n)</label>
+        <div class="lab-formula">T(n) = n/2 &nbsp; (n çift)<br>T(n) = 3n + 1 &nbsp; (n tek)</div>
+        <p class="lab-note">Bir <strong>adım</strong>, yukarıdaki kurallardan bir uygulamadır. Başlangıç j = 0'dadır. Yörünge ilk kez 1'e varınca durdurulur; kural sürse 1 → 4 → 2 → 1 döngüsünü izler.</p>
+        <p class="lab-note">Dönüşüm sınırında durmak karşı örnek bulmak değildir: yalnızca hesap yarım kalmıştır. Ayrıca 4096 bitlik değer sınırı vardır. Grafiğin koordinatları yaklaşık, tabloda yazan tam sayılar kesindir.</p>
+        <p class="lab-note">R başlangıca döner; boşluk oynatır/durdurur. Metin kutularında, düğmelerde ve diğer kontrollerde bu kısayollar devreye girmez.</p>
+      </div>
+    </div>
+  </section>
+  <section id="survey-panel" role="tabpanel" aria-labelledby="tab-survey" hidden>
+    <div class="lab-grid">
+      <div class="lab-stage">
+        <canvas id="surveyCanvas" class="lab-canvas short" role="img" aria-label="Başlangıç sayısına göre 1'e ilk varış adımları; tamamlanamayanlar turuncu çarpıdır"></canvas>
+        <div class="lab-readouts" aria-live="polite">
+          <div class="lab-readout"><small>Taranan / istenen başlangıç</small><strong id="surveyCount">—</strong></div>
+          <div class="lab-readout"><small>1'e ulaşan / sınırda kalan</small><strong id="surveyCompleted">—</strong></div>
+          <div class="lab-readout"><small>Ulaşanlar içinde en uzun yol</small><strong id="surveyRecord">—</strong></div>
+          <div class="lab-readout"><small>Ulaşanların ortalama süresi</small><strong id="surveyMean">—</strong></div>
+        </div>
+        <progress id="surveyProgress" class="lab-progress" max="100" value="0" aria-label="Tarama ilerlemesi"></progress>
+        <p class="lab-status" id="surveyStatus" aria-live="polite">Henüz tarama yok. Aralığı seçip taramayı başlat.</p>
+        <div class="lab-row"><button id="inspectRecord" disabled>Rekor başlangıcı incele</button></div>
+      </div>
+      <div class="lab-panel">
+        <h2>Düzen var mı?</h2>
+        <div class="lab-field"><label for="surveyN">Son başlangıç N <output id="surveyNOut">100</output></label><input id="surveyN" type="range" min="10" max="2000" step="10" value="100"></div>
+        <div class="lab-field"><label for="surveyLimit">Her başlangıç için adım sınırı</label><select id="surveyLimit"><option value="100">100</option><option value="1000" selected>1000</option><option value="10000">10000</option></select></div>
+        <div class="lab-row"><button id="scanButton">Taramayı başlat</button><button id="stopScan" disabled>Durdur</button><button id="surveyReset">Sıfırla</button></div>
+        <p class="lab-note">1'den N'ye kadar her başlangıç ayrı ayrı hesaplanır. Bir noktanın yüksekliği toplam durma süresidir. Daha büyük başlangıç her zaman daha uzun yol demek değildir: 2'nin kuvvetleri art arda ikiye bölünür.</p>
+        <p class="lab-note">Turuncu çarpılar hesap sınırında kalan başlangıçları gösterir; işaretin yüksekliği süre olarak yorumlanamaz. İstatistikler yalnızca 1'e ulaşmış yollardan hesaplanır. Eşit rekorlarda en küçük başlangıç gösterilir.</p>
+        <div class="lab-formula">n₀ = 2ᵐ ⇒ Tᵐ(n₀) = 1</div>
+        <p class="lab-note">Bu özel aile için genel bir gerekçe var: her adım üssü bir azaltır. Bütün pozitif tam sayılar için aynı sonucun geçerli olduğu ise Collatz varsayımıdır. Sonlu tarama, sonsuz kümenin kanıtı değildir.</p>
+      </div>
+    </div>
+  </section>
+  <p class="lab-sources">Kuramsal çerçeve: <a href="https://arxiv.org/abs/math/0309224" target="_blank" rel="noopener">Jeffrey Lagarias · 3x + 1 problemi, açıklamalı kaynakça</a>; <a href="https://arxiv.org/abs/1909.03562" target="_blank" rel="noopener">Terence Tao · Collatz yörüngeleri üzerine kısmi sonuç</a>. Tao'nun sonucu tüm başlangıçların 1'e vardığını kanıtlamaz.</p>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),fmt=(v,d=2)=>Number(v).toLocaleString('tr-TR',{maximumFractionDigits:d});
+function colors(){const light=document.documentElement.dataset.theme==='light';return light?{bg:'#f7f9fc',text:'#243248',muted:'#596b80',grid:'#d5dfe9',accent:'#006d87',warm:'#ad4826',other:'#7453ab'}:{bg:'#101b2d',text:'#e7eef8',muted:'#a8b9d0',grid:'#2c405a',accent:'#55cee1',warm:'#ffb17c',other:'#b9a0ed'};}
+function surface(id){const cv=$(id),r=cv.getBoundingClientRect();if(!r.width)return null;const d=Math.min(devicePixelRatio||1,2);cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d);const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);const p=colors();c.fillStyle=p.bg;c.fillRect(0,0,r.width,r.height);c.font='12px system-ui';return {c,w:r.width,h:r.height,p};}
+function text(c,s,x,y,color,align='left',size=12){c.fillStyle=color;c.font=`${size}px system-ui`;c.textAlign=align;c.fillText(String(s),x,y);}
+function line(c,x1,y1,x2,y2,color,width=1){c.strokeStyle=color;c.lineWidth=width;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
+function tabs(){const buttons=[...document.querySelectorAll('[role=tab]')];function select(b){buttons.forEach(t=>{const on=t===b;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;$(t.getAttribute('aria-controls')).hidden=!on;});requestAnimationFrame(drawAll);}buttons.forEach((b,i)=>{b.addEventListener('click',()=>select(b));b.addEventListener('keydown',e=>{let k=i;if(e.key==='ArrowRight')k=(i+1)%buttons.length;else if(e.key==='ArrowLeft')k=(i+buttons.length-1)%buttons.length;else if(e.key==='Home')k=0;else if(e.key==='End')k=buttons.length-1;else return;e.preventDefault();select(buttons[k]);buttons[k].focus();});});}
+
+const BIT_LIMIT=1n<<4096n;
+function trajectory(start,limit){let n=start,values=[n],peak=n,peakStep=0,drop=null;for(let j=1;j<=limit&&n!==1n;j++){const next=n%2n===0n?n/2n:3n*n+1n;if(next>=BIT_LIMIT)return{start,values,peak,peakStep,drop,status:'bits'};n=next;values.push(n);if(n>peak){peak=n;peakStep=j;}if(drop===null&&n<start)drop=j;}return{start,values,peak,peakStep,drop,status:n===1n?'complete':'limit'};}
+function logBig(n){const s=n.toString(),take=Math.min(15,s.length);return Math.log10(Number(s.slice(0,take)))+s.length-take;}
+let orbit=trajectory(27n,10000),playing=false,lastTime=0,accumulator=0,survey=null,scanToken=0;
+function stopPlay(){playing=false;$('playButton').textContent='Oynat';$('playButton').setAttribute('aria-pressed','false');}
+function calculate(){stopPlay();const raw=$('startNumber').value.trim();if(!/^[0-9]{1,60}$/.test(raw)||BigInt(raw)===0n){$('startNumber').setAttribute('aria-invalid','true');$('orbitStatus').textContent='Pozitif bir tam sayı gir: 1–60 rakam, kesir veya bilimsel gösterim olmadan. Aşağıdaki yol son geçerli hesaplamaya aittir.';return;}$('startNumber').removeAttribute('aria-invalid');orbit=trajectory(BigInt(raw),+$('stepLimit').value);$('stepCursor').max=orbit.values.length-1;$('stepCursor').value=0;updateOrbit();}
+function updateOrbit(){const o=orbit,steps=o.values.length-1;$('totalSteps').textContent=o.status==='complete'?`${steps} adım`:'Henüz belirlenmedi';$('peakValue').textContent=`${o.peak.toLocaleString('tr-TR')} (j = ${o.peakStep})`;$('firstDrop').textContent=o.start===1n?'Yok (başlangıç 1)':o.drop===null?'Hesaplanan yolda yok':`${o.drop} adım`;$('computedSteps').textContent=steps;$('orbitStatus').textContent=o.status==='complete'?`${o.start} başlangıcı, ${steps} dönüşüm sonra ilk kez 1'e ulaştı. Bu sonuç yalnızca bu başlangıcı doğrular.`:o.status==='bits'?'4096 bitlik değer sınırına ulaşıldı; sonraki değer kaydedilmedi. Bu bir karşı örnek değildir.':'Seçilen dönüşüm sınırında duruldu; 1 henüz görülmedi. Toplam durma süresi bilinmiyor. Sınırı büyütüp yeniden hesaplayabilirsin.';updateCursor();}
+function updateCursor(){const j=+$('stepCursor').value,n=orbit.values[j],next=orbit.values[j+1];$('stepCursorOut').value=j;$('previousStep').disabled=j===0;$('nextStep').disabled=j===orbit.values.length-1;$('lastStep').disabled=j===orbit.values.length-1;$('transition').textContent=next!==undefined?(n%2n===0n?`${n} / 2 = ${next}`:`3 × ${n} + 1 = ${next}`):n===1n?'1 → 4 → 2 → 1: hesap ilk 1’de durduruldu.':`${n}: hesaplanan son değer; devamı bu koşuda yok.`;
+if(n>1n&&n%2n===1n){let m=3n*n+1n,r=0;while(m%2n===0n){m/=2n;r++;}$('oddCompression').textContent=`Tekten teke kısayol: (3 × ${n} + 1) / 2^${r} = ${m}. Bu tek sıçrama, standart kurala göre ${r+1} dönüşümdür; grafikte adımlar sıkıştırılmadı.`;}else $('oddCompression').textContent='Tek bir n > 1 seçince, 3n + 1 sonrasındaki bütün ikiye bölmeleri tek bir sıçramada da inceleyebilirsin. Bu kısayolun sayacı standart adım sayısıyla aynı değildir.';
+let rows='';for(let i=Math.max(0,j-4);i<=Math.min(orbit.values.length-1,j+4);i++){const v=orbit.values[i];rows+=`<tr${i===j?' class="current"':''}><th scope="row">${i}</th><td>${v}</td><td>${v===1n?'Dur':v%2n===0n?'n / 2':'3n + 1'}</td></tr>`;}$('orbitTable').innerHTML=rows;drawOrbit();}
+function drawOrbit(){const s=surface('orbitCanvas');if(!s)return;const{c,w,h,p}=s,values=orbit.values,log=$('logScale').checked,ys=values.map(v=>log?logBig(v):Number(v*1000000000000000n/orbit.peak)/1e15),max=Math.max(...ys,1)*1.07,left=58,right=w-18,top=32,bottom=h-42;for(let i=0;i<=4;i++){const y=bottom-(bottom-top)*i/4;line(c,left,y,right,y,p.grid);const value=max*i/4;const magnitude=logBig(orbit.peak);const label=log?fmt(value,1):value===0?'0':magnitude<6?fmt(Number(orbit.peak)*value,0):`${fmt(10**((magnitude+Math.log10(value))%1),1)}e${Math.floor(magnitude+Math.log10(value))}`;text(c,label,left-7,y+4,p.muted,'right',10);}const x=j=>left+(right-left)*j/Math.max(1,values.length-1),y=v=>bottom-v/max*(bottom-top);c.strokeStyle=p.accent;c.lineWidth=1.5;c.beginPath();ys.forEach((v,j)=>j?c.lineTo(x(j),y(v)):c.moveTo(x(j),y(v)));c.stroke();const j=+$('stepCursor').value;line(c,x(j),top,x(j),bottom,p.warm);c.fillStyle=p.warm;c.beginPath();c.arc(x(j),y(ys[j]),4,0,Math.PI*2);c.fill();text(c,log?'log₁₀ n':'n (doğrusal)',left,18,p.muted);for(let i=0;i<=4;i++){const k=Math.round((values.length-1)*i/4);text(c,k,x(k),bottom+18,p.muted,'center',10);}text(c,'Dönüşüm sayısı j',w/2,h-7,p.muted,'center');}
+function clearSurvey(){scanToken++;$('scanButton').disabled=false;$('stopScan').disabled=true;survey=null;$('surveyNOut').value=$('surveyN').value;$('surveyCount').textContent='—';$('surveyCompleted').textContent='—';$('surveyRecord').textContent='—';$('surveyMean').textContent='—';$('surveyProgress').value=0;$('inspectRecord').disabled=true;$('surveyStatus').textContent='Henüz tarama yok. Aralığı seçip taramayı başlat.';drawSurvey();}
+function updateSurvey(state){const s=survey;if(!s)return;const complete=s.results.filter(r=>r.complete);s.best=complete.reduce((b,r)=>!b||r.steps>b.steps?r:b,null);$('surveyCount').textContent=`${s.results.length} / ${s.n}`;$('surveyCompleted').textContent=`${complete.length} / ${s.results.length-complete.length}`;$('surveyRecord').textContent=s.best?`n₀ = ${s.best.n}: ${s.best.steps} adım`:'Henüz ulaşan yok';$('surveyMean').textContent=complete.length?`${fmt(complete.reduce((a,r)=>a+r.steps,0)/complete.length)} adım`:'—';$('surveyProgress').max=s.n;$('surveyProgress').value=s.results.length;$('inspectRecord').disabled=!s.best;$('surveyStatus').textContent=`${state} Her başlangıçta sınır ${s.limit} dönüşüm. ${s.results.length} başlangıç incelendi; ${complete.length} tanesi 1'e ulaştı. Bu sonlu tarama genel bir ispat değildir.`;drawSurvey();}
+async function scan(){clearSurvey();const token=scanToken,n=+$('surveyN').value,limit=+$('surveyLimit').value;survey={n,limit,results:[],best:null};$('scanButton').disabled=true;$('stopScan').disabled=false;for(let start=1;start<=n;start++){if(token!==scanToken)return;const o=trajectory(BigInt(start),limit);survey.results.push({n:start,steps:o.values.length-1,complete:o.status==='complete'});if(start%25===0){updateSurvey('Tarama sürüyor.');await new Promise(r=>setTimeout(r,0));}}if(token!==scanToken)return;$('scanButton').disabled=false;$('stopScan').disabled=true;updateSurvey('Tarama tamamlandı.');}
+function drawSurvey(){const s=surface('surveyCanvas');if(!s)return;const{c,w,h,p}=s,left=44,right=w-18,top=30,bottom=h-42,n=survey?.n||+$('surveyN').value,points=survey?.results||[],max=Math.max(10,...points.filter(r=>r.complete).map(r=>r.steps))*1.12;for(let i=0;i<=4;i++){const y=bottom-(bottom-top)*i/4;line(c,left,y,right,y,p.grid);text(c,fmt(max*i/4,0),left-6,y+4,p.muted,'right',10);}for(const r of points){const x=left+(right-left)*(r.n-1)/Math.max(1,n-1),y=r.complete?bottom-r.steps/max*(bottom-top):top+3;c.fillStyle=p.accent;if(r.complete){c.beginPath();c.arc(x,y,Math.max(1.3,Math.min(3,180/n)),0,Math.PI*2);c.fill();}else{line(c,x-2,y-2,x+2,y+2,p.warm);line(c,x-2,y+2,x+2,y-2,p.warm);}}text(c,'1’e ilk varış (adım)',left,17,p.muted);text(c,1,left,bottom+18,p.muted,'center',10);text(c,n,right,bottom+18,p.muted,'center',10);text(c,'Başlangıç n₀',w/2,h-7,p.muted,'center');}
+function drawAll(){drawOrbit();drawSurvey();}
+$('calculateButton').onclick=calculate;$('startNumber').addEventListener('keydown',e=>{if(e.key==='Enter')calculate();});$('startNumber').oninput=()=>{stopPlay();$('orbitStatus').textContent=`Yeni girdi henüz hesaplanmadı. Görünen yol n₀ = ${orbit.start} için; Hesapla düğmesine bas.`;};$('stepLimit').onchange=calculate;$('orbitReset').onclick=()=>{$('startNumber').value=27;$('stepLimit').value=10000;$('logScale').checked=true;calculate();};document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>{$('startNumber').value=b.dataset.start;calculate();});$('logScale').onchange=drawOrbit;$('stepCursor').oninput=()=>{stopPlay();updateCursor();};function move(d){stopPlay();$('stepCursor').value=Math.min(orbit.values.length-1,Math.max(0,+$('stepCursor').value+d));updateCursor();}$('previousStep').onclick=()=>move(-1);$('nextStep').onclick=()=>move(1);$('lastStep').onclick=()=>move(orbit.values.length);$('playButton').onclick=()=>{if(playing){stopPlay();return;}if(+$('stepCursor').value===orbit.values.length-1)$('stepCursor').value=0;playing=true;accumulator=0;lastTime=0;$('playButton').textContent='Durdur';$('playButton').setAttribute('aria-pressed','true');updateCursor();};
+function frame(time){const dt=lastTime?Math.min(.05,(time-lastTime)/1000):0;lastTime=time;if(playing){accumulator+=dt;if(accumulator>=.16){accumulator-=.16;const j=+$('stepCursor').value;if(j<orbit.values.length-1){$('stepCursor').value=j+1;updateCursor();}else stopPlay();}}requestAnimationFrame(frame);}requestAnimationFrame(frame);
+['surveyN','surveyLimit'].forEach(id=>$(id).addEventListener('input',clearSurvey));$('scanButton').onclick=scan;$('stopScan').onclick=()=>{scanToken++;$('scanButton').disabled=false;$('stopScan').disabled=true;updateSurvey('Kullanıcı durdurdu; sonuçlar kısmi.');};$('surveyReset').onclick=()=>{$('surveyN').value=100;$('surveyLimit').value=1000;clearSurvey();};$('inspectRecord').onclick=()=>{if(!survey?.best)return;$('startNumber').value=survey.best.n;$('stepLimit').value=survey.limit;calculate();$('tab-orbit').click();$('tab-orbit').focus();};
+document.addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea,button,a,summary,[contenteditable=true]')||$('orbit-panel').hidden)return;if(e.code==='Space'){e.preventDefault();$('playButton').click();}else if(e.key.toLowerCase()==='r'){e.preventDefault();move(-orbit.values.length);}});
+tabs();calculate();clearSurvey();new ResizeObserver(drawAll).observe(document.querySelector('.app-content'));new MutationObserver(drawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>
+</body>
+</html>

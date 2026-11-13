@@ -1,0 +1,626 @@
+<!doctype html><html lang="tr" class="app-root"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Derleyici ve Yorumlayıcılar</title><meta name="description" content="Küçük bir dilde yazdığın program gözünün önünde tokenlara, ağaca, ara koda ve bytecode'a dönüşür; dört ayrı yürütücü aynı sonucu bulup bulmadığını komut komut sayarak gösterir."><link rel="stylesheet" href="shared/theme.css"><script src="shared/app.js"></script><style>
+.dy-tabs{display:flex;gap:8px;margin:22px 0 20px;flex-wrap:wrap}.dy-tabs button{flex:1 1 150px;padding:14px 8px;font:inherit;font-size:.86rem}.dy-tabs [aria-selected=true]{border-color:var(--accent)!important;box-shadow:inset 0 -3px var(--accent)}
+.dy-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:20px;align-items:start}.dy-grid>div,.dy-grid>aside{min-width:0}.dy-side{display:grid;gap:16px}
+.dy-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:18px;display:grid;gap:14px;min-width:0}.dy-panel h2,.dy-plate h2,.dy-bottom h2,.dy-sum h2{font-size:1.05rem;margin:0}
+.dy-field{display:grid;gap:7px;min-width:0}.dy-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}.dy-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dy-field input,.dy-field select{width:100%;min-width:0;font:inherit;box-sizing:border-box}.dy-field select{padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-input);color:var(--text)}
+.dy-check{display:flex;gap:10px;align-items:flex-start;font-size:.86rem;line-height:1.5;min-height:32px}.dy-check input{width:20px;height:20px;flex:none;margin:1px 0 0}.dy-check small{display:block;color:var(--text-muted);font-size:.76rem}
+.dy-row{display:flex;gap:8px;flex-wrap:wrap}.dy-row button{padding:10px 13px;min-height:44px;font:inherit;font-size:.83rem}
+.dy-note{font-size:.84rem;line-height:1.8;margin:0}.dy-note+.dy-note{margin-top:10px}.dy-formula{padding:14px;background:var(--bg-input);border-radius:8px;line-height:1.75;font-size:.8rem;overflow-x:auto;white-space:pre;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:12px 0}
+.dy-plate{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}.dy-plate h2{padding:14px 17px;border-bottom:1px solid var(--border)}
+body.app-page canvas.dy-canvas{display:block;width:100%;height:auto;aspect-ratio:2.6;border:0;border-radius:0}body.app-page canvas.dy-free{display:block;border:0;border-radius:0;max-width:none}
+.dy-scroll{overflow:auto;max-height:560px}.dy-caption{padding:10px 16px;font-size:.77rem;line-height:1.65;color:var(--text-muted);margin:0}
+.dy-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dy-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:13px;min-width:0}.dy-stat.dy-wide{grid-column:1/-1}.dy-stat small{display:block;color:var(--text-muted);font-size:.76rem;line-height:1.6}.dy-stat strong{display:block;font-size:1rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:6px;line-height:1.5}.dy-stat em{display:block;font-style:normal;font-size:.78rem;color:var(--text-muted);margin-top:4px;line-height:1.5;overflow-wrap:anywhere}
+.dy-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:13px 16px;font-size:.86rem;line-height:1.8;overflow-wrap:anywhere;min-width:0}.dy-status.dy-err{border-left-color:var(--danger)}.dy-status.dy-warn{border-left-color:var(--accent-warm)}
+.dy-status pre,.dy-pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8rem;line-height:1.6;margin:8px 0 0;overflow-x:auto;white-space:pre}.dy-pre{margin:0;padding:12px 16px}
+.dy-table-wrap{overflow:auto;max-height:340px;border-top:1px solid var(--border)}.dy-panel .dy-table-wrap,.dy-bottom .dy-table-wrap,.dy-sum .dy-table-wrap{border:1px solid var(--border);border-radius:9px;margin:12px 0}
+.dy-table{width:100%;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums}.dy-table td,.dy-table th{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}.dy-table thead th{background:var(--bg-card);box-shadow:inset 0 -1px var(--border);position:sticky;top:0;font-size:.76rem;color:var(--text-muted)}.dy-table caption{padding:10px 12px;text-align:left;line-height:1.6;color:var(--text-muted);white-space:normal;font-size:.78rem}
+.dy-table.dy-wrap td{white-space:normal;line-height:1.6}.dy-table td.dy-num,.dy-table th.dy-num{text-align:right}.dy-table .dy-mono,.dy-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.dy-table tr.dy-now td,.dy-table tr.dy-now th{background:color-mix(in srgb,var(--accent) 20%,transparent);font-weight:700}.dy-table tr.dy-skip td,.dy-table tr.dy-skip th{color:var(--text-muted)}.dy-table tr.dy-bad td{color:var(--danger)}.dy-table tr.dy-sel td,.dy-table tr.dy-sel th{box-shadow:inset 3px 0 var(--accent)}
+.dy-editor{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:20px;align-items:start;margin-top:22px}.dy-editor>*{min-width:0}.dy-editor .dy-plate{margin:0}
+.dy-code{display:flex;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:16px;line-height:1.5}
+.dy-gutter{margin:0;padding:12px 8px 12px 10px;min-width:2.2em;text-align:right;color:var(--text-muted);background:var(--bg-input);overflow:hidden;height:270px;box-sizing:border-box;user-select:none;font:inherit;border-right:1px solid var(--border)}
+body.app-page textarea.dy-src{flex:1;min-width:0;height:270px;box-sizing:border-box;padding:12px;margin:0;border:0!important;border-radius:0;background:transparent!important;color:var(--text);font:inherit;resize:none;white-space:pre;overflow:auto;tab-size:2}
+.dy-stages{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:.83rem}.dy-stages li{display:flex;justify-content:space-between;gap:10px;padding:8px 11px;border:1px solid var(--border);border-radius:8px;border-left-width:4px}.dy-stages li b{font-weight:400;color:var(--text-muted);text-align:right;font-variant-numeric:tabular-nums}.dy-stages li.dy-ok{border-left-color:var(--accent)}.dy-stages li.dy-fail{border-left-color:var(--danger)}.dy-stages li.dy-fail b{color:var(--danger)}.dy-stages li.dy-hold{border-left-color:var(--accent-warm)}.dy-stages li.dy-idle{opacity:.6}
+.dy-strip{display:flex;flex-wrap:wrap;gap:5px;padding:14px;align-items:center;max-height:260px;overflow:auto}.dy-tok{display:inline-block;padding:3px 7px;border-radius:6px;border:1px solid var(--border);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88rem;line-height:1.5;background:var(--bg-input);white-space:pre}
+.dy-k-NUMBER{border-color:var(--accent-warm)}.dy-k-IDENT{border-color:var(--accent)}.dy-k-KEYWORD{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,transparent);font-weight:700}.dy-k-OP{border-style:dashed;border-color:var(--text-muted)}.dy-k-ERROR{border:2px solid var(--danger);color:var(--danger);font-weight:700}.dy-k-EOF,.dy-k-skip{color:var(--text-muted);border-style:dotted;font-size:.76rem}
+.dy-legend{display:flex;flex-wrap:wrap;gap:6px 10px;padding:0 14px 12px;font-size:.76rem;color:var(--text-muted);align-items:center}.dy-legend .dy-tok{font-size:.74rem;padding:1px 6px}
+.dy-two{display:grid;grid-template-columns:1fr 1fr}.dy-two>div{min-width:0}.dy-two>div+div{border-left:1px solid var(--border)}.dy-two h3{font-size:.78rem;font-weight:600;color:var(--text-muted);margin:0;padding:9px 16px;border-bottom:1px solid var(--border)}.dy-two .dy-pre{max-height:320px;overflow:auto}
+.dy-machine{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);border-top:1px solid var(--border)}.dy-machine>div{min-width:0}.dy-machine>div+div{border-left:1px solid var(--border);padding:12px 14px;display:grid;gap:12px;align-content:start}.dy-machine .dy-table-wrap{border-top:0;max-height:330px}
+.dy-machine h3{font-size:.76rem;font-weight:600;color:var(--text-muted);margin:0 0 5px}
+.dy-stack{list-style:none;margin:0;padding:0;display:flex;flex-direction:column-reverse;gap:3px;min-height:34px}.dy-stack li{border:1px solid var(--border);border-radius:5px;text-align:center;padding:4px 10px;font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--bg-input);font-size:.86rem}.dy-stack li:last-child{border:2px solid var(--accent)}.dy-stack li.dy-empty{border-style:dashed;color:var(--text-muted);font-family:inherit;font-size:.78rem}
+.dy-kv{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86rem;line-height:1.7;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:150px;overflow:auto}
+.dy-bottom{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}.dy-bottom article{min-width:0}
+.dy-sum{margin-top:34px;border-top:1px solid var(--border);padding-top:24px}.dy-sum p{font-size:.88rem;line-height:1.85}.dy-sum ul{font-size:.86rem;line-height:1.85;padding-left:1.2em}.dy-sum h2+h2,.dy-sum .dy-table-wrap+h2,.dy-sum p+h2,.dy-sum ul+h2{margin-top:26px}
+details.dy-more{padding:0 16px 12px;font-size:.82rem}details.dy-more summary{cursor:pointer;color:var(--accent);padding:6px 0}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:3px}textarea.dy-src:focus-visible{outline-offset:-3px}[hidden]{display:none!important}
+@media(max-width:760px){.dy-grid,.dy-bottom,.dy-editor,.dy-machine{grid-template-columns:1fr}.dy-machine>div+div{border-left:0;border-top:1px solid var(--border)}.dy-panel{padding:15px}.dy-tabs button{font-size:.78rem;padding:12px 6px;flex-basis:40%}.dy-stat strong{font-size:.93rem}body.app-page canvas.dy-canvas{aspect-ratio:1.7}.dy-table{font-size:.76rem}.dy-table td,.dy-table th{padding:7px 7px}.dy-two{grid-template-columns:1fr}.dy-two>div+div{border-left:0;border-top:1px solid var(--border)}}
+.dy-bottom h2{margin-bottom:10px}.dy-table.dy-wrap td.dy-nw{white-space:nowrap}.dy-stack li.dy-empty:last-child{border:1px dashed var(--border)}
+</style></head><body class="app-page" data-page="derleyici-ve-yorumlayicilar"><main class="app-content"><h1>Derleyici ve Yorumlayıcılar</h1><p class="hint">Kendi yazdığın küçük bir program gözünün önünde tokenlara, ağaca, ara koda ve bytecode'a dönüşür; sonra birbirinden bağımsız yürütücüler aynı sonucu bulup bulmadıklarını sayarak gösterir.</p>
+<section class="dy-editor" aria-label="Kaynak program ve derleme aşamaları">
+<div class="dy-plate"><h2>Kaynak program</h2><div class="dy-code"><pre class="dy-gutter" id="srcGutter" aria-hidden="true">1</pre><textarea class="dy-src" id="src" wrap="off" spellcheck="false" autocomplete="off" autocapitalize="off" maxlength="4000" aria-label="Kaynak program (Mini dili)" aria-describedby="srcHelp"></textarea></div><p class="dy-caption" id="srcHelp">Dil: tam sayılar, + - * / %, tekli eksi, parantez, karşılaştırma (== != &lt; &lt;= &gt; &gt;=), değişken, atama, if / else, while, print. Her atama ve print “;” ile biter; gövdeler süslü parantez ister; # satır sonuna kadar yorumdur. Yazdıkça dört sekme de bu metinden yeniden hesaplanır.</p></div>
+<aside class="dy-panel"><h2>Örnekler ve derleme hattı</h2>
+<div class="dy-field"><label for="preset">Hazır program</label><select id="preset"></select></div>
+<div class="dy-row"><button type="button" class="app-btn-ghost" id="srcReset">Örneği yeniden yükle</button><button type="button" class="app-btn-ghost" id="srcGoto" hidden>Hatayı metinde göster</button></div>
+<ol class="dy-stages" id="stages" aria-label="Derleme aşamalarının durumu"></ol>
+<div class="dy-status" id="srcStatus" role="status" aria-live="polite"></div>
+</aside></section>
+<div class="dy-tabs" role="tablist" aria-label="Derleyici aşamaları"><button type="button" class="app-btn-ghost" id="tab-lex" role="tab" aria-controls="panel-lex" aria-selected="true" tabindex="0">01 · Sözcük çözümleme</button><button type="button" class="app-btn-ghost" id="tab-parse" role="tab" aria-controls="panel-parse" aria-selected="false" tabindex="-1">02 · Ayrıştırma</button><button type="button" class="app-btn-ghost" id="tab-gen" role="tab" aria-controls="panel-gen" aria-selected="false" tabindex="-1">03 · Kod üretimi ve iyileştirme</button><button type="button" class="app-btn-ghost" id="tab-run" role="tab" aria-controls="panel-run" aria-selected="false" tabindex="-1">04 · Yürütme</button></div>
+
+<section id="panel-lex" role="tabpanel" aria-labelledby="tab-lex"><div class="dy-grid"><div>
+<div class="dy-plate"><h2>Token akışı</h2><div class="dy-strip" id="tokStrip" role="img" aria-label="Kaynak metnin token şeridi"></div><div class="dy-legend" aria-hidden="true"><span class="dy-tok dy-k-NUMBER">sayı</span><span class="dy-tok dy-k-IDENT">ad</span><span class="dy-tok dy-k-KEYWORD">anahtar</span><span class="dy-tok dy-k-OP">işleç</span><span class="dy-tok">ayraç</span><span class="dy-tok dy-k-ERROR">hata</span></div><p class="dy-caption">Lexer metni soldan sağa tek geçişte okur ve her konumda eşleşebilen en uzun parçayı alır. Şerit ve tablo aynı tokenları gösterir.</p></div>
+<div class="dy-plate"><h2>Token tablosu</h2><div class="dy-table-wrap" tabindex="0" role="region" aria-label="Token tablosu"><table class="dy-table"><thead><tr><th scope="col">No</th><th scope="col">Tür</th><th scope="col">Metin</th><th scope="col">Satır:Sütun</th><th scope="col">Değer</th></tr></thead><tbody id="tokRows"></tbody></table></div><p class="dy-caption">Satır ve sütun 1'den başlar; sütun karakter sayar (sekme tek karakterdir). “Değer” yalnız sayılarda doludur: metin “007”, değer 7 olabilir.</p></div>
+</div><aside class="dy-side"><div class="dy-panel"><h2>Ölçüm ve denetim</h2>
+<div class="dy-stats"><div class="dy-stat"><small>Token sayısı</small><strong id="tokCount"></strong><em id="tokCountNote"></em></div><div class="dy-stat"><small>Sözcük hatası</small><strong id="lexErrs"></strong><em id="lexErrsNote"></em></div>
+<div class="dy-stat dy-wide"><small>Karakter dökümü: ölçülen toplam · kaynak uzunluğu</small><strong id="tokTile"></strong><em id="tokTileNote"></em></div>
+<div class="dy-stat dy-wide"><small>Türlere göre</small><strong id="tokKinds"></strong></div></div>
+<label class="dy-check" for="lexWs"><input type="checkbox" id="lexWs"><span>Atlanan parçaları da göster<small>Boşluk, satır sonu ve yorumlar token değildir; ayrıştırıcı onları hiç görmez.</small></span></label>
+<div class="dy-status" id="lexStatus" role="status" aria-live="polite"></div>
+<div class="dy-row"><button type="button" class="app-btn-ghost" id="lexReset">Sekmeyi sıfırla</button></div></div></aside></div>
+<div class="dy-bottom"><article><h2>Sözcük kuralları</h2><div class="dy-formula" tabindex="0" role="region" aria-label="Sözcük kuralları">boşluk  = " " | sekme | satır sonu       (atlanır)
+yorum   = "#" satır sonuna kadar          (atlanır)
+SAYI    = rakam { rakam }                 0 … 2147483647
+AD      = harf { harf | rakam }           harf: Unicode harfi ya da "_"
+ANAHTAR = "if" | "else" | "while" | "print"
+İŞLEÇ   = "+" "-" "*" "/" "%" "="
+          "==" "!=" "&lt;" "&lt;=" "&gt;" "&gt;="
+AYRAÇ   = "(" ")" "{" "}" ";"</div><p class="dy-note">Belirsizlik iki kuralla çözülür. En uzun eşleşme: “&lt;=” tek token, “ifade” tek bir addır (if + ade değil). Anahtar sözcük önceliği: tam olarak “if” yazan parça ad değil anahtar sözcüktür; büyük-küçük harf ayrımı vardır, “Print” bir addır.</p></article>
+<article><h2>Hatalar nasıl sınıflanır?</h2><p class="dy-note">Rakamla başlayan bir parça hemen ardından harf ya da nokta ile sürüyorsa bütün öbek tek bir “hatalı sayı”dır: 1.2.3, 3.14, 10e5, 0x1F, 12abc. Böylece “10e5” sessizce 10 ve e5 diye ikiye bölünmez. 2147483647'den büyük sayı “çok büyük” hatasıdır. Tek başına “!” hatadır (yalnız “!=” var). Alfabede olmayan her karakter (tırnak, nokta, virgül, $, &amp;, |…) kendi konumuyla ayrı bir hata verir.</p><p class="dy-note">Lexer hata görünce durmaz, hatalı parçayı işaretleyip okumayı sürdürür (en çok 50 hata); ama tek bir sözcük hatası bile ayrıştırmayı durdurur. Lexer yalnız sözcüklere bakar: “) ( ; ;” onun için kusursuz dört tokendır, yanlışlığını ayrıştırıcı bulur.</p></article></div></section>
+
+<section id="panel-parse" role="tabpanel" aria-labelledby="tab-parse" hidden><div class="dy-grid"><div>
+<div class="dy-plate"><h2>Soyut söz dizimi ağacı</h2><div class="dy-scroll" id="treeWrap" tabindex="0" role="region" aria-label="Soyut söz dizimi ağacı, kaydırılabilir"><canvas class="dy-free" id="treeCanvas" role="img" aria-label="Kaynak programın soyut söz dizimi ağacı"></canvas></div><p class="dy-caption">Köşeli kutular deyim, yuvarlak düğümler işleç, alttaki kutular yaprak (sayı ya da ad). Ağaç, o an yazılı metnin tokenlarından her seferinde yeniden kurulur. Parantez, “;” ve “=” ağaçta yoktur: işlerini ağacın biçimi görür.</p><details class="dy-more"><summary>Ağacın metin dökümü</summary><pre class="dy-pre" id="astText" tabindex="0" role="region" aria-label="Ağacın metin dökümü"></pre></details></div>
+<div class="dy-plate"><h2>Aynı tokenlar, üç ayrı kural</h2><div class="dy-table-wrap" tabindex="0" role="region" aria-label="Ayrıştırma kurallarının karşılaştırması"><table class="dy-table dy-wrap"><thead><tr><th scope="col">Kural</th><th scope="col">Tam parantezli okuma</th><th scope="col">Çıktı</th></tr></thead><tbody id="ruleRows"></tbody></table></div><p class="dy-caption">Tam parantezli okuma ağacın biçimini metne döker. Çıktı, o ağaç ağaç gezen yorumlayıcıyla çalıştırılarak ölçülür. Yalnız standart kural bu dilin gerçek grameridir; öbür ikisi “öncelik ve birleşme olmasaydı ne olurdu?” sorusunun deneyidir.</p></div>
+</div><aside class="dy-side"><div class="dy-panel"><h2>Ağacı incele</h2>
+<div class="dy-field"><label for="parseStmt">Gösterilen</label><select id="parseStmt"></select></div>
+<div class="dy-field"><label for="parseMode">Ayrıştırma kuralı</label><select id="parseMode"><option value="std">Standart: * / % önce, sola birleşir</option><option value="flat">Önceliksiz: beş işleç eşit, sola birleşir</option><option value="right">Sağa birleşen: * / % önce</option></select></div>
+<div class="dy-stats"><div class="dy-stat dy-wide"><small>Düğüm sayısı: ölçülen (ağaç gezilerek) · kuram (yalnız tokenlardan)</small><strong id="astNodes"></strong><em id="astNodesNote"></em></div>
+<div class="dy-stat"><small>Yükseklik</small><strong id="astHeight"></strong><em id="astHeightNote"></em></div><div class="dy-stat"><small>Yaprak · iç düğüm</small><strong id="astLeaves"></strong><em id="astLeavesNote"></em></div></div>
+<div class="dy-status" id="parseStatus" role="status" aria-live="polite"></div>
+<div class="dy-row"><button type="button" class="app-btn-ghost" id="parseReset">Sekmeyi sıfırla</button></div></div></aside></div>
+<div class="dy-bottom"><article><h2>Gramer (EBNF)</h2><div class="dy-formula" tabindex="0" role="region" aria-label="Dilin grameri">program = { deyim }
+deyim   = AD "=" ifade ";"
+        | "print" ifade ";"
+        | "if" "(" ifade ")" blok [ "else" ( blok | if-deyimi ) ]
+        | "while" "(" ifade ")" blok
+blok    = "{" { deyim } "}"
+ifade   = toplam [ karşılaştırma toplam ]
+karşılaştırma = "==" | "!=" | "&lt;" | "&lt;=" | "&gt;" | "&gt;="
+toplam  = çarpım { ( "+" | "-" ) çarpım }
+çarpım  = tekli  { ( "*" | "/" | "%" ) tekli }
+tekli   = "-" tekli | birincil
+birincil= SAYI | AD | "(" ifade ")"</div><p class="dy-note">Öncelik gramerin katlarından doğar: çarpım, toplamın içinde bir alt kuraldır, bu yüzden ağaçta daha aşağıya iner ve önce hesaplanır. Tekrar ({ … }) soldan sağa biriktiği için aynı düzeydeki işleçler sola birleşir: a - b - c, (a - b) - c demektir.</p></article>
+<article><h2>Ayrıştırıcı nasıl çalışır, nerede durur?</h2><p class="dy-note">Her gramer kuralı bir işlevdir (özyinelemeli iniş); ikili işleçler tek bir döngüde “bağlama gücü” karşılaştırılarak toplanır (öncelik tırmanma). Karşılaştırmalar birleşmez: a &lt; b &lt; c bir söz dizimi hatasıdır, çünkü (a &lt; b) &lt; c çoğu zaman kastedilen şey değildir.</p><p class="dy-note">Düğüm sayısının kuramı ağaca hiç bakmaz: 1 (program) + sayılar + adlar + “=” dışındaki işleçler + print, if, while + “{”. Her biri tam bir düğüm üretir; parantez, “;”, “=”, “}” ve else hiç üretmez. İki sayı farklı çıkarsa ya ayrıştırıcı ya bu sayım yanlıştır.</p><p class="dy-note">Sınırlar: ayrıştırıcı ilk söz dizimi hatasında durur ve yalnız onu bildirir; iç içelik 200 düzeyi aşamaz; 600 düğümden büyük ağaç çizilmez (tek bir deyim seçilebilir).</p></article></div></section>
+
+<section id="panel-gen" role="tabpanel" aria-labelledby="tab-gen" hidden><div class="dy-grid"><div>
+<div class="dy-plate"><h2>Üç adresli kod</h2><div class="dy-two"><div><h3>İyileştirmeden</h3><pre class="dy-pre" id="tacRaw" tabindex="0" role="region" aria-label="İyileştirilmemiş üç adresli kod"></pre></div><div><h3>Seçili iyileştirmelerle</h3><pre class="dy-pre" id="tacOpt" tabindex="0" role="region" aria-label="İyileştirilmiş üç adresli kod"></pre></div></div><p class="dy-caption">Her satırda en çok bir işleç ve en çok üç ad vardır: iki işlenen, bir hedef. t1, t2… derleyicinin ürettiği geçici adlardır. L1: gibi etiketler komut sayılmaz.</p></div>
+<div class="dy-plate"><h2>Yığın makinesi bytecode'u</h2><div class="dy-table-wrap" tabindex="0" role="region" aria-label="Bytecode listesi"><table class="dy-table"><thead><tr><th scope="col">Adres</th><th scope="col">Baytlar</th><th scope="col">Komut</th><th scope="col">Kaynak</th></tr></thead><tbody id="bcRows"></tbody></table></div><p class="dy-caption">Adres komutun sıra numarasıdır; atlamalar bu numarayı hedefler. “Baytlar” komutun kodlanmış hâlidir (onaltılık): 1 bayt işlem kodu, ardından varsa işlenen. “Kaynak” komutu doğuran tokenın satır:sütun konumudur.</p></div>
+<div class="dy-plate"><h2>Uygulanan dönüşümler</h2><div class="dy-table-wrap" tabindex="0" role="region" aria-label="Uygulanan dönüşümler"><table class="dy-table dy-wrap"><thead><tr><th scope="col">Dönüşüm</th><th scope="col">Konum</th><th scope="col">Önce</th><th scope="col">Sonra</th></tr></thead><tbody id="optRows"></tbody></table></div><details class="dy-more"><summary>İyileştirilmiş ağacın kaynak karşılığı</summary><pre class="dy-pre" id="optSrc" tabindex="0" role="region" aria-label="İyileştirilmiş programın kaynak karşılığı"></pre></details></div>
+</div><aside class="dy-side"><div class="dy-panel"><h2>İyileştirmeler</h2>
+<label class="dy-check" for="optFold"><input type="checkbox" id="optFold" checked><span>Sabit katlama<small>İki sabitin işlemini derleme anında yapar: 3 * 4 → 12.</small></span></label>
+<label class="dy-check" for="optSimplify"><input type="checkbox" id="optSimplify" checked><span>Cebirsel sadeleştirme<small>x + 0, x - 0, x * 1, x / 1 → x; x * 0 → 0; -(-x) → x.</small></span></label>
+<label class="dy-check" for="optDce"><input type="checkbox" id="optDce" checked><span>Ölü kod eleme<small>Koşulu sabit olan if ve while'ın hiç çalışmayacak dalını atar.</small></span></label>
+<div class="dy-field"><label for="genView">Bytecode listesi</label><select id="genView"><option value="opt">Seçili iyileştirmelerle</option><option value="raw">İyileştirmeden</option></select></div>
+<div class="dy-stats"><div class="dy-stat"><small>Üç adresli kod</small><strong id="tacCount"></strong><em id="tacCountNote"></em></div><div class="dy-stat"><small>Bytecode</small><strong id="bcCount"></strong><em id="bcCountNote"></em></div>
+<div class="dy-stat dy-wide"><small>Kodlanmış boyut</small><strong id="bcBytes"></strong><em id="bcBytesNote"></em></div>
+<div class="dy-stat dy-wide"><small>Komut sayısı: ölçülen (üretilen kod) · kuram (ağaçtaki düğümlerden)</small><strong id="genTheory"></strong><em id="genTheoryNote"></em></div>
+<div class="dy-stat dy-wide"><small>Anlam eşitliği: iki bytecode da çalıştırıldı</small><strong id="genEq"></strong><em id="genEqNote"></em></div></div>
+<div class="dy-status" id="genStatus" role="status" aria-live="polite"></div>
+<div class="dy-row"><button type="button" class="app-btn-ghost" id="genReset">Sekmeyi sıfırla</button></div></div></aside></div>
+<div class="dy-bottom"><article><h2>Yığın makinesinin komut kümesi</h2><div class="dy-table-wrap" tabindex="0" role="region" aria-label="Komut kümesi"><table class="dy-table dy-wrap"><thead><tr><th scope="col">Kod</th><th scope="col">Komut</th><th scope="col">İşlenen</th><th scope="col">Yığın</th><th scope="col">Ne yapar?</th></tr></thead><tbody id="opRows"></tbody></table></div><p class="dy-note">“Yığın” sütunu komuttan önceki ve sonraki tepeyi gösterir (sağdaki en üsttedir). Sabitler 4 bayt (küçük uçlu), değişken yuvası 1 bayt, atlama hedefi 2 bayt tutar. Makinenin yazmacı yoktur: her işlem işlenenlerini yığının tepesinden alır.</p></article>
+<article><h2>İyileştirici neye dikkat eder, neyi yapmaz?</h2><p class="dy-note">Bir dönüşüm ancak programın gözlenen davranışını değiştirmiyorsa uygulanır. 1 / 0 katlanmaz: hata derleme anına taşınmamalı, program oraya hiç varmayabilir. x * 0, x'in içinde sıfıra bölebilecek bir işlem varsa 0 yapılmaz; yoksa o hata sessizce kaybolurdu. Katlama, makinenin 32 bit sarmalı aritmetiğini aynen kullanır.</p><p class="dy-note">Ölü kod eleme yalnız değeri derleme anında bilinen koşullara bakar; “2 &gt; 3” gibi bir koşulu sabite çeviren ise sabit katlamadır. Bu yüzden iki kutu birlikte, tek başlarına olduklarından fazlasını yapar. Koşulu sıfırdan farklı bir sabit olan while hiç bitmeyeceği için ardındaki deyimler de ulaşılamazdır ve atılır.</p><p class="dy-note">Yapılmayanlar: sabit yayma (x = 7 dedikten sonra x yerine 7 koymak), ortak alt ifadelerin birleştirilmesi, döngü iyileştirmeleri, yazmaç ataması. Dönüşümler ağaç üzerinde yapılır; üç adresli kod ve bytecode iyileştirilmiş ağaçtan yeniden üretilir.</p></article></div></section>
+
+<section id="panel-run" role="tabpanel" aria-labelledby="tab-run" hidden><div class="dy-grid"><div>
+<div class="dy-plate"><h2>Aynı program, dört yürütücü</h2><div class="dy-table-wrap" tabindex="0" role="region" aria-label="Yürütücülerin sonuçları"><table class="dy-table dy-wrap"><thead><tr><th scope="col">Yürütücü</th><th scope="col">Durum</th><th scope="col">Çıktı</th><th scope="col" class="dy-num">Sayım</th></tr></thead><tbody id="execRows"></tbody></table></div><p class="dy-caption">Ağaç gezen yorumlayıcı ağacı doğrudan gezer; iki yığın makinesi aynı sanal makinede ham ve iyileştirilmiş bytecode'u çalıştırır; dördüncü satır üç adresli kodu ayrı bir yorumlayıcıyla yürütür. Yorumlayıcı, yığın makinesi ve üç adresli kod yürütücüsü birbirinden ayrı yazılmıştır; uyuşmaları bu yüzden bir sınamadır.</p></div>
+<div class="dy-plate"><h2>Yığın makinesi, adım adım</h2><div class="dy-machine"><div><div class="dy-table-wrap" id="vmWrap" tabindex="0" role="region" aria-label="Çalışan bytecode"><table class="dy-table"><thead><tr><th scope="col">Adres</th><th scope="col">Komut</th><th scope="col">Kaynak</th><th scope="col" class="dy-num">Kaç kez</th></tr></thead><tbody id="vmRows"></tbody></table></div></div>
+<div aria-live="off"><div><h3>Program sayacı ve sıradaki komut</h3><p class="dy-kv" id="vmPc"></p></div><div><h3>Yığın (tepe üstte)</h3><ol class="dy-stack" id="vmStack" aria-label="Yığın, tepe en üstte"></ol></div><div><h3>Değişkenler</h3><p class="dy-kv" id="vmVars"></p></div><div><h3>Çıktı</h3><p class="dy-kv" id="vmOut"></p></div></div></div><p class="dy-caption">Vurgulu satır sıradaki komuttur. “Kaç kez” o komutun şu ana kadar kaç kez yürütüldüğünü sayar.</p></div>
+<div class="dy-plate"><h2>Komut başına yürütülme sayısı</h2><canvas class="dy-canvas" id="profCanvas" role="img" aria-label="Her bytecode komutunun kaç kez yürütüldüğünü gösteren sütun grafiği"></canvas><p class="dy-caption">Yatay eksen komut adresi, sütun yüksekliği o komutun bütün çalıştırma boyunca kaç kez yürütüldüğü. Yüksek sütunlar döngü gövdesidir; turuncu sütun adım adım makinenin sıradaki komutu. Bir JIT derleyici tam bu sayaçlara bakıp “sıcak” bölgeyi makine koduna çevirir.</p></div>
+</div><aside class="dy-side"><div class="dy-panel"><h2>Makineyi çalıştır</h2>
+<div class="dy-field"><label for="vmWhich">Adım adım çalışan kod</label><select id="vmWhich"><option value="raw">Ham bytecode</option><option value="opt">İyileştirilmiş bytecode</option></select></div>
+<div class="dy-row"><button type="button" class="app-btn-ghost" id="vmStep">Adım</button><button type="button" class="app-btn-ghost" id="vmPlay">Çalıştır</button><button type="button" class="app-btn-ghost" id="vmEnd">Sona git</button><button type="button" class="app-btn-ghost" id="vmRewind">Başa sar</button></div>
+<div class="dy-field"><label for="vmSpeed">Hız<output id="vmSpeedOut" for="vmSpeed"></output></label><input id="vmSpeed" type="range" min="1" max="60" step="1" value="8"></div>
+<div class="dy-field"><label for="runLimit">Adım sınırı (sonsuz döngü koruması)</label><select id="runLimit"><option value="10000">10.000 komut</option><option value="100000" selected>100.000 komut</option><option value="1000000">1.000.000 komut</option></select></div>
+<div class="dy-stats"><div class="dy-stat dy-wide"><small>Yürütücüler uyuşuyor mu?</small><strong id="runAgree"></strong><em id="runAgreeNote"></em></div>
+<div class="dy-stat dy-wide"><small>Yürütülen komut: ölçülen (makine) · kuram (yorumlayıcının sayaçlarından)</small><strong id="runSteps"></strong><em id="runStepsNote"></em></div>
+<div class="dy-stat"><small>Yığın derinliği: ölçülen · üst sınır</small><strong id="runStack"></strong><em id="runStackNote"></em></div><div class="dy-stat"><small>İyileştirmenin kazancı</small><strong id="runGain"></strong><em id="runGainNote"></em></div></div>
+<div class="dy-status" id="runStatus" role="status" aria-live="polite"></div>
+<div class="dy-row"><button type="button" class="app-btn-ghost" id="runReset">Sekmeyi sıfırla</button></div></div></aside></div>
+<div class="dy-bottom"><article><h2>İyileştirme kendini kaç çalıştırmada öder?</h2><div class="dy-field"><label for="runCount">Programın çalıştırılma sayısı N<output id="runCountOut" for="runCount"></output></label><input id="runCount" type="range" min="1" max="1000" step="1" value="100"></div><div class="dy-stats" style="margin-top:12px"><div class="dy-stat dy-wide"><small>Toplam iş (komut + düğüm ziyareti)</small><strong id="payback"></strong><em id="paybackNote"></em></div></div><p class="dy-note" style="margin-top:12px">Bu bir sayım modelidir, süre ölçümü değil: iyileştiricinin gezdiği her düğüm ile makinenin yürüttüğü her komut 1 iş birimi sayılır. Gerçek bir sistemde bu bedeller eşit değildir; ama denge aynı biçimdedir: çeviriye harcanan iş bir kez ödenir, kazanç her çalıştırmada yeniden alınır. Bir kez çalışacak kısa betikte iyileştirme israf, milyon kez dönecek kodda ucuzdur; JIT bu kararı çalışma sırasında, sayaçlara bakarak verir.</p></article>
+<article><h2>Sayaçlar neyi ölçer, neyi ölçmez?</h2><p class="dy-note">Kuram sütunu makineye hiç bakmaz: ağaç gezen yorumlayıcı değerlendirdiği her yaprağı, işleci, atamayı, print'i, koşul sınamasını ve geri atlamayı sayar; bunlar yığın makinesinin komutlarıyla bire bir eşleşir (sona 1 HALT eklenir). İki ayrı program aynı sayıyı buluyorsa ikisi de aynı yolu yürümüştür.</p><p class="dy-note">Yığın derinliğinin üst sınırı ağaçtan hesaplanır: yaprak 1, tekli işleç çocuğu kadar, ikili işleç en çok(sol, 1 + sağ). Sola yatık a - b - c için 2, sağa yatık a - (b - c) için 3 yer gerekir. En derin ifade çalışmayan bir dalda kalırsa ölçülen değer sınırın altında kalır.</p><p class="dy-note">Durma: sayfa bir döngünün sonsuz olduğunu kanıtlayamaz (genel olarak hiçbir program kanıtlayamaz); yalnız adım sınırının aşıldığını bildirir. Sınır aşıldığında çıktılar yalnız ortak başlangıçları kadar karşılaştırılabilir.</p></article></div></section>
+
+<section class="dy-sum" aria-labelledby="sumTitle"><h2 id="sumTitle">Derleyici, yorumlayıcı, sanal makine, JIT: dört ayrı yol</h2><div class="dy-table-wrap" tabindex="0" role="region" aria-label="Bir programı çalıştırmanın dört yolu"><table class="dy-table dy-wrap"><thead><tr><th scope="col">Yol</th><th scope="col">Çeviri ne zaman?</th><th scope="col">Çalışan şey</th><th scope="col">Bu sayfada</th><th scope="col">Örnek</th></tr></thead><tbody>
+<tr><th scope="row">Önceden derleme</th><td>Çalıştırmadan önce, bir kez</td><td>İşlemcinin kendi makine kodu</td><td>Yok. Üç adresli kod bu yolun ara durağıdır; sayfa makine kodu üretmez.</td><td>C, C++, Rust ve Go derleyicileri</td></tr>
+<tr><th scope="row">Ağaç gezen yorumlayıcı</th><td>Hiç; ağaç her çalıştırmada yeniden gezilir</td><td>Soyut söz dizimi ağacı</td><td>“Ağaç gezen yorumlayıcı” satırı</td><td>Öğretim yorumlayıcılarının çoğu</td></tr>
+<tr><th scope="row">Bytecode ve sanal makine</th><td>Çalıştırmadan önce, sanal bir makinenin koduna</td><td>Bytecode; bir yorumlayıcı döngüsü komutları tek tek yürütür</td><td>“Yığın makinesi” satırları ve adım adım makine</td><td>CPython; JVM'in yorumlama katı</td></tr>
+<tr><th scope="row">JIT (tam zamanında derleme)</th><td>Çalışırken, yalnız sık çalışan bölümler</td><td>Önce bytecode, sonra o bölümlerin makine kodu</td><td>Yok. Komut başına sayaçlar bir JIT'in izlediği ölçümdür; sayfa makine kodu üretmez.</td><td>HotSpot (JVM), V8 (JavaScript), .NET çalışma zamanı, PyPy</td></tr></tbody></table></div>
+<p>Derlenmek ya da yorumlanmak dilin değil, o dili çalıştıran programın özelliğidir: aynı dil için hem derleyici hem yorumlayıcı yazılabilir, çoğu modern sistem de bu yolların birkaçını art arda kullanır. Java bytecode'u ve .NET'in CIL'i <strong>yığın tabanlı</strong> ara biçimlerdir, üç adresli kod değildir: işlenenler adla değil, yığındaki yerleriyle anılır; tıpkı bu sayfadaki makinede olduğu gibi. Üç adresli kod ve türevleri ise daha çok derleyicilerin iç iyileştirme katlarında yaşar; yazmaç tabanlı sanal makinelerin (örneğin Lua 5) komutları da işlenenlerini adla, yani yazmaç numarasıyla anar ve üç adresli koda daha yakındır.</p>
+<p>Dürüstlük payı: bu sayfadaki dört yürütücünün hepsi tarayıcının JavaScript motorunda çalışan yorumlayıcılardır. Sayfa süre değil komut sayar; komut sayısı hızın kaba bir vekilidir, çünkü gerçek bir işlemcide her komutun bedeli aynı değildir.</p>
+<h2>Model ve sınırlar</h2><ul><li>Bütün değerler 32 bit işaretli tam sayıdır; taşma sarar: 2147483647 + 1 = -2147483648. Bölme sıfıra doğru yuvarlar (-7 / 2 = -3), kalanın işareti bölünenle aynıdır (-7 % 2 = -1). Sıfıra bölme ve sıfıra göre kalan çalışma hatasıdır.</li><li>Karşılaştırmalar 1 ya da 0 üretir; if ve while 0'ı yanlış, öbür her değeri doğru sayar. Mantıksal işleç (ve, veya, değil), fonksiyon, dizi, metin ve ondalık sayı yoktur. Değişkenlerin hepsi geneldir.</li><li>Anlam denetimi bir değişkenin okunmadan önce <em>her yoldan</em> değer almış olmasını ister ve koşulların değerine bakmaz: “if (1) { x = 1; } print x;” reddedilir, çünkü denetim if'in çalışacağını varsaymaz.</li><li>En küçük sayı sabit olarak yazılamaz (tekli eksi bir işleçtir): -2147483648 yerine -2147483647 - 1 yazılır.</li><li>Kaynak en çok 4000 karakter, en çok 256 değişken. Adım sınırı seçilebilir; varsayılanı 100.000 komuttur.</li><li>Sayılar: sayımlar Türkçe biçimde (binlik ayırıcı nokta, ondalık virgül) yazılır; programın çıktıları ve koddaki sabitler ise makinenin yazdığı gibi ayırıcısız ve ASCII eksi işaretiyle gösterilir.</li></ul>
+<p>Yakın sayfalar: lexer'ın ardındaki sonlu otomatlar ve gramerler <a href="bicimsel-diller-ve-otomata-teorisi.html">Biçimsel Diller ve Otomata Teorisi</a> sayfasında, gerçek bir işlemcinin makine kodu <a href="makine-dili-assembly-c.html">Makine Dili, Assembly ve C</a> sayfasında denenir.</p></section>
+</main>
+<script>
+/* KERNEL-BEGIN */
+(function(){'use strict';
+/* Mini dili: sözcük çözümleyici, ayrıştırıcı, anlam denetimi, iyileştirici, üç adresli kod, yığın makinesi bytecode'u ve üç yürütücü. DOM'a dokunmaz. */
+const LIMITS=Object.freeze({source:4000,nesting:200,intMax:2147483647,intMin:-2147483648,vars:256,code:65535,lexErrors:50,semErrors:20});
+const KEYWORDS=Object.freeze(['if','else','while','print']);
+const REL=Object.freeze(['==','!=','<','<=','>','>=']),ARITH=Object.freeze(['+','-','*','/','%']);
+const isDigit=c=>c!==undefined&&c>='0'&&c<='9';
+const isLetter=c=>c!==undefined&&(c==='_'||/^\p{L}$/u.test(c));
+const showChar=c=>/^[\p{L}\p{N}\p{P}\p{S}]$/u.test(c)?'“'+c+'”':'U+'+c.codePointAt(0).toString(16).toUpperCase().padStart(4,'0');
+
+/* ---------- 1 · sözcük çözümleme ---------- */
+function lex(src){
+ const ch=Array.from(String(src)),n=ch.length,tokens=[],errors=[],skipped=[];
+ let i=0,line=1,col=1;
+ const text=(o,len)=>ch.slice(o,o+len).join('');
+ const tok=(kind,o,len,l,c,value)=>{const t={kind,text:text(o,len),offset:o,length:len,line:l,col:c};if(value!==undefined)t.value=value;tokens.push(t);};
+ const err=(code,msg,o,len,l,c)=>{tok('ERROR',o,len,l,c);if(errors.length<LIMITS.lexErrors)errors.push({code,msg,offset:o,length:len,line:l,col:c,text:text(o,len)});};
+ if(n>LIMITS.source){errors.push({code:'long',msg:'Kaynak '+LIMITS.source+' karakteri aşıyor ('+n+' karakter).',offset:0,length:0,line:1,col:1,text:''});return{tokens:[{kind:'EOF',text:'',offset:0,length:0,line:1,col:1}],errors,skipped,length:n};}
+ while(i<n){const c=ch[i],o=i,l=line,k=col;
+  if(c===' '||c==='\t'||c==='\r'||c==='\n'){while(i<n&&(ch[i]===' '||ch[i]==='\t'||ch[i]==='\r'||ch[i]==='\n')){if(ch[i]==='\n'){line++;col=1;}else col++;i++;}skipped.push({kind:'ws',offset:o,length:i-o,line:l,col:k});continue;}
+  if(c==='#'){while(i<n&&ch[i]!=='\n')i++;col+=i-o;skipped.push({kind:'comment',offset:o,length:i-o,line:l,col:k});continue;}
+  if(isDigit(c)){while(isDigit(ch[i]))i++;
+   if(isLetter(ch[i])||ch[i]==='.'){let hasDot=false;while(isDigit(ch[i])||isLetter(ch[i])||ch[i]==='.'){if(ch[i]==='.')hasDot=true;i++;}col+=i-o;
+    err('number',hasDot?'Hatalı sayı “'+text(o,i-o)+'”: bu dilde yalnız tam sayılar var, sayının içinde nokta olamaz.':'Hatalı sayı “'+text(o,i-o)+'”: sayı harfle devam edemez (üstel yazım ve ad-sayı bitişmesi yok).',o,i-o,l,k);continue;}
+   col+=i-o;const digits=text(o,i-o),v=Number(digits);
+   if(v>LIMITS.intMax){err('range','Sayı çok büyük: “'+digits+'” en büyük değer olan 2147483647\'yi aşıyor.',o,i-o,l,k);continue;}
+   tok('NUMBER',o,i-o,l,k,v);continue;}
+  if(isLetter(c)){while(isLetter(ch[i])||isDigit(ch[i]))i++;col+=i-o;const w=text(o,i-o);tok(KEYWORDS.includes(w)?'KEYWORD':'IDENT',o,i-o,l,k);continue;}
+  const two=c+(ch[i+1]||'');
+  if(two==='=='||two==='!='||two==='<='||two==='>='){i+=2;col+=2;tok('OP',o,2,l,k);continue;}
+  if('+-*/%<>='.includes(c)){i++;col++;tok('OP',o,1,l,k);continue;}
+  if('(){};'.includes(c)){i++;col++;tok('PUNCT',o,1,l,k);continue;}
+  i++;col++;
+  if(c==='!')err('bang','“!” tek başına bir işleç değil; eşit değil karşılaştırması “!=” biçiminde yazılır.',o,1,l,k);
+  else err('char','Tanınmayan karakter '+showChar(c)+': dilin alfabesinde yok.',o,1,l,k);}
+ tokens.push({kind:'EOF',text:'',offset:n,length:0,line,col});
+ return{tokens,errors,skipped,length:n};}
+
+/* ---------- 2 · ayrıştırma (özyinelemeli iniş + öncelik tırmanma) ---------- */
+/* mode: 'std' (çarpma > toplama, sola birleşme), 'flat' (beş işleç tek düzey, sola), 'right' (std öncelik, sağa birleşme) */
+function parse(tokens,mode){mode=mode||'std';if(!['std','flat','right'].includes(mode))throw new RangeError('Bilinmeyen ayrıştırma kuralı: '+mode);
+ let p=0,depth=0;
+ const cur=()=>tokens[p],fixed=t=>t.kind==='KEYWORD'||t.kind==='OP'||t.kind==='PUNCT',is=s=>fixed(tokens[p])&&tokens[p].text===s;
+ const found=t=>t.kind==='EOF'?'kaynağın sonu':'“'+t.text+'”';
+ const fail=(expected,hint)=>{const t=cur();throw{syntax:true,line:t.line,col:t.col,offset:t.offset,length:t.length,expected,found:found(t),msg:'Beklenen: '+expected+' · bulunan: '+found(t)+(hint?' ('+hint+')':'')};};
+ const eat=(s,hint)=>{if(!is(s))fail('“'+s+'”',hint);return tokens[p++];};
+ const node=(type,t,props)=>Object.assign({type,line:t.line,col:t.col},props);
+ const deeper=()=>{if(++depth>LIMITS.nesting)fail('daha sığ bir yapı','iç içelik '+LIMITS.nesting+' düzeyi aşamaz');};
+ const bp=op=>mode==='flat'?2:(op==='+'||op==='-')?2:3;
+ function primary(){const t=cur();
+  if(t.kind==='NUMBER'){p++;return node('Num',t,{value:t.value});}
+  if(t.kind==='IDENT'){p++;return node('Var',t,{name:t.text});}
+  if(is('(')){p++;deeper();const e=expr();depth--;eat(')',t.line+':'+t.col+' konumunda açılan parantez kapanmadı');return e;}
+  fail('sayı, ad ya da “(”');}
+ function unary(){const t=cur();if(is('-')){p++;deeper();const e=unary();depth--;return node('Unary',t,{op:'-',expr:e});}return primary();}
+ function arith(min){let left=unary();
+  while(fixed(cur())&&ARITH.includes(cur().text)&&bp(cur().text)>=min){const t=tokens[p++],b=bp(t.text),right=arith(mode==='right'?b:b+1);left=node('Binary',t,{op:t.text,left,right});}
+  return left;}
+ function expr(){const left=arith(2);
+  if(fixed(cur())&&REL.includes(cur().text)){const t=tokens[p++],right=arith(2);
+   if(fixed(cur())&&REL.includes(cur().text))fail('“;”, “)” ya da bir aritmetik işleç','karşılaştırmalar zincirlenemez; parantez kullan');
+   return node('Binary',t,{op:t.text,left,right});}
+  return left;}
+ function block(){const t=cur();if(!is('{'))fail('“{”','if, else ve while gövdesi süslü parantez ister');p++;deeper();const body=[];
+  while(!is('}')){if(cur().kind==='EOF')fail('“}”',t.line+':'+t.col+' konumunda açılan blok kapanmadı');body.push(statement());}
+  p++;depth--;return node('Block',t,{body});}
+ function ifStatement(){const t=tokens[p++];eat('(','koşul parantez içinde yazılır');const cond=expr();eat(')');const then=block();let other=null;
+  if(is('else')){p++;if(is('if')){deeper();other=ifStatement();depth--;}else other=block();}
+  return node('If',t,{cond,then,else:other});}
+ function statement(){const t=cur();
+  if(t.kind==='IDENT'){p++;if(!is('='))fail('“=”','bir ad ile başlayan deyim atamadır');p++;const e=expr();eat(';','her atama noktalı virgülle biter');return node('Assign',t,{name:t.text,expr:e});}
+  if(is('print')){p++;const e=expr();eat(';','her print noktalı virgülle biter');return node('Print',t,{expr:e});}
+  if(is('if'))return ifStatement();
+  if(is('while')){p++;eat('(','koşul parantez içinde yazılır');const cond=expr();eat(')');return node('While',t,{cond,body:block()});}
+  fail('deyim (ad, print, if ya da while)',is('else')?'else, bir if bloğunun hemen ardından gelmeli':is(';')?'boş deyim yok':is('}')?'açılmamış bir blok kapatılıyor':'');}
+ try{const body=[];while(cur().kind!=='EOF')body.push(statement());return{ok:true,ast:{type:'Program',line:1,col:1,body},error:null,mode};}
+ catch(e){if(e&&e.syntax){delete e.syntax;return{ok:false,ast:null,error:e,mode};}throw e;}}
+
+const kids=n=>{switch(n.type){case'Program':case'Block':return n.body;case'Assign':case'Print':case'Unary':return[n.expr];case'If':return n.else?[n.cond,n.then,n.else]:[n.cond,n.then];case'While':return[n.cond,n.body];case'Binary':return[n.left,n.right];default:return[];}};
+const prec=e=>e.type!=='Binary'?9:REL.includes(e.op)?1:(e.op==='+'||e.op==='-')?2:3;
+const numText=v=>v===LIMITS.intMin?'(-2147483647 - 1)':String(v);
+/* tam parantezli okuma: ağacın biçimini metne döker */
+function paren(e){return e.type==='Num'?numText(e.value):e.type==='Var'?e.name:e.type==='Unary'?'(-'+paren(e.expr)+')':'('+paren(e.left)+' '+e.op+' '+paren(e.right)+')';}
+/* en az parantezli yazım: standart kuralla yeniden ayrıştırılınca aynı ağacı verir */
+function pretty(e){const wrap=(c,need)=>c.type==='Num'&&c.value===LIMITS.intMin?pretty(c):need||c.type==='Unary'||(c.type==='Num'&&c.value<0)?'('+pretty(c)+')':pretty(c);
+ if(e.type==='Num')return numText(e.value);if(e.type==='Var')return e.name;
+ if(e.type==='Unary')return'-'+wrap(e.expr,e.expr.type==='Binary');
+ const q=prec(e),rel=q===1;return wrap(e.left,prec(e.left)<q||(rel&&prec(e.left)===1))+' '+e.op+' '+wrap(e.right,prec(e.right)<=q);}
+function prettyProgram(ast){const out=[];const list=(body,ind)=>{for(const s of body)stmt(s,ind);};
+ const stmt=(s,ind,lead)=>{const pad=lead===undefined?ind:lead;
+  if(s.type==='Assign')out.push(pad+s.name+' = '+pretty(s.expr)+';');else if(s.type==='Print')out.push(pad+'print '+pretty(s.expr)+';');
+  else if(s.type==='While'){out.push(pad+'while ('+pretty(s.cond)+') {');list(s.body.body,ind+'  ');out.push(ind+'}');}
+  else if(s.type==='If'){out.push(pad+'if ('+pretty(s.cond)+') {');list(s.then.body,ind+'  ');
+   if(!s.else)out.push(ind+'}');else if(s.else.type==='If'){const at=out.length;stmt(s.else,ind,'');out[at]=ind+'} else '+out[at];}else{out.push(ind+'} else {');list(s.else.body,ind+'  ');out.push(ind+'}');}}};
+ list(ast.body,'');return out.join('\n');}
+
+/* ağaç ölçüleri */
+function stats(ast){const count={Program:0,Block:0,Assign:0,Print:0,If:0,While:0,Binary:0,Unary:0,Num:0,Var:0};let nodes=0,leaves=0,ifElse=0,assignLeaf=0,stackNeed=0,height=0;
+ const need=e=>e.type==='Binary'?Math.max(need(e.left),1+need(e.right)):e.type==='Unary'?need(e.expr):1;
+ const walk=(n,d)=>{nodes++;count[n.type]++;if(d>height)height=d;const k=kids(n);if(!k.length)leaves++;
+  if(n.type==='If'&&n.else)ifElse++;if(n.type==='Assign'&&(n.expr.type==='Num'||n.expr.type==='Var'))assignLeaf++;
+  if(n.type==='Assign'||n.type==='Print')stackNeed=Math.max(stackNeed,need(n.expr));if(n.type==='If'||n.type==='While')stackNeed=Math.max(stackNeed,need(n.cond));
+  for(const c of k)walk(c,d+1);};
+ walk(ast,0);
+ return{count,nodes,leaves,height,ifElse,assignLeaf,stackNeed,
+  bytecodeLength:count.Num+count.Var+count.Binary+count.Unary+count.Assign+count.Print+count.If+ifElse+2*count.While+1,
+  tacLength:count.Binary+count.Unary+assignLeaf+count.Print+count.If+ifElse+2*count.While};}
+/* düğüm sayısının yalnız token sayımından kestirimi: parantez, “;”, “=”, “}” ve else düğüm üretmez */
+function nodesFromTokens(tokens){let n=1;for(const t of tokens){if(t.kind==='NUMBER'||t.kind==='IDENT')n++;else if(t.kind==='OP'&&t.text!=='=')n++;else if(t.kind==='KEYWORD'&&t.text!=='else')n++;else if(t.kind==='PUNCT'&&t.text==='{')n++;}return n;}
+
+/* ---------- 3 · anlam denetimi: kesin atama ---------- */
+function check(ast){const errors=[],vars=[];
+ const expr=(e,set)=>{if(e.type==='Var'){if(!set.has(e.name)){if(errors.length<LIMITS.semErrors)errors.push({code:'unassigned',name:e.name,line:e.line,col:e.col,msg:'“'+e.name+'” bu noktada değer almamış olabilir: her yoldan önce bir atama gerekir.'});set.add(e.name);}}else for(const c of kids(e))expr(c,set);};
+ const list=(body,set)=>{for(const s of body)stmt(s,set);};
+ const stmt=(s,set)=>{if(s.type==='Assign'){expr(s.expr,set);set.add(s.name);if(!vars.includes(s.name))vars.push(s.name);}
+  else if(s.type==='Print')expr(s.expr,set);
+  else if(s.type==='While'){expr(s.cond,set);list(s.body.body,new Set(set));}
+  else if(s.type==='If'){expr(s.cond,set);const a=new Set(set),b=new Set(set);list(s.then.body,a);if(s.else){if(s.else.type==='If')stmt(s.else,b);else list(s.else.body,b);}for(const v of a)if(b.has(v))set.add(v);}};
+ list(ast.body,new Set);
+ if(vars.length>LIMITS.vars)errors.push({code:'vars',name:'',line:1,col:1,msg:'Değişken sayısı '+LIMITS.vars+' sınırını aşıyor.'});
+ return{errors,vars};}
+
+/* ---------- 32 bit tam sayı aritmetiği ---------- */
+function arith(op,a,b){switch(op){case'+':return(a+b)|0;case'-':return(a-b)|0;case'*':return Math.imul(a,b);
+ case'/':if(b===0)return null;return Math.trunc(a/b)|0;case'%':if(b===0)return null;return(a%b)|0;
+ case'==':return+(a===b);case'!=':return+(a!==b);case'<':return+(a<b);case'<=':return+(a<=b);case'>':return+(a>b);case'>=':return+(a>=b);}
+ throw new RangeError('Bilinmeyen işleç: '+op);}
+const trapMsg=op=>op==='/'?'Sıfıra bölme':'Sıfıra göre kalan';
+
+/* ---------- 4 · iyileştirme (ağaç üzerinde) ---------- */
+function optimize(ast,opts){const o={fold:!!(opts&&opts.fold),simplify:!!(opts&&opts.simplify),dce:!!(opts&&opts.dce)},log=[];let visits=0;const any=o.fold||o.simplify||o.dce;
+ const num=(at,value)=>({type:'Num',line:at.line,col:at.col,value});
+ const isNum=(e,v)=>e.type==='Num'&&(v===undefined||e.value===v);
+ const trapFree=e=>e.type==='Binary'?(!(e.op==='/'||e.op==='%')||(e.right.type==='Num'&&e.right.value!==0))&&trapFree(e.left)&&trapFree(e.right):e.type==='Unary'?trapFree(e.expr):true;
+ const note=(rule,at,before,after)=>log.push({rule,line:at.line,col:at.col,before,after});
+ function rewrite(e){
+  if(o.fold){if(e.type==='Unary'&&isNum(e.expr))return['fold',num(e,(-e.expr.value)|0)];
+   if(e.type==='Binary'&&isNum(e.left)&&isNum(e.right)){const v=arith(e.op,e.left.value,e.right.value);if(v!==null)return['fold',num(e,v)];}}
+  if(o.simplify){if(e.type==='Unary'&&e.expr.type==='Unary')return['simplify',e.expr.expr];
+   if(e.type==='Binary'){const L=e.left,R=e.right;
+    if((e.op==='+'||e.op==='-')&&isNum(R,0))return['simplify',L];if(e.op==='+'&&isNum(L,0))return['simplify',R];
+    if((e.op==='*'||e.op==='/')&&isNum(R,1))return['simplify',L];if(e.op==='*'&&isNum(L,1))return['simplify',R];
+    if(e.op==='*'&&isNum(R,0)&&trapFree(L))return['simplify',num(e,0)];if(e.op==='*'&&isNum(L,0)&&trapFree(R))return['simplify',num(e,0)];}}
+  return null;}
+ function expr(e){visits++;
+  if(e.type==='Binary')e=Object.assign({},e,{left:expr(e.left),right:expr(e.right)});else if(e.type==='Unary')e=Object.assign({},e,{expr:expr(e.expr)});else return e;
+  const r=rewrite(e);if(r){note(r[0],e,pretty(e),pretty(r[1]));return r[1];}return e;}
+ const endless=s=>o.dce&&s&&s.type==='While'&&isNum(s.cond)&&s.cond.value!==0;
+ function list(body){const out=[];for(let i=0;i<body.length;i++){for(const s of stmt(body[i]))out.push(s);
+   if(endless(out[out.length-1])&&i<body.length-1){note('dce',body[i+1],'while ('+pretty(out[out.length-1].cond)+') { … } sonrasındaki '+(body.length-1-i)+' deyim','silindi (ulaşılamaz)');break;}}
+  return out;}
+ function stmt(s){visits++;
+  if(s.type==='Assign'||s.type==='Print')return[Object.assign({},s,{expr:expr(s.expr)})];
+  if(s.type==='While'){const cond=expr(s.cond);if(o.dce&&isNum(cond,0)){note('dce',s,'while (0) { … }','silindi (gövde hiç çalışmaz)');return[];}
+   return[Object.assign({},s,{cond,body:block(s.body)})];}
+  const cond=expr(s.cond);
+  if(o.dce&&isNum(cond)){if(cond.value!==0){note('dce',s,'if ('+pretty(cond)+') { … }'+(s.else?' else { … }':''),'yalnız if gövdesi kaldı');return list(s.then.body);}
+   note('dce',s,'if (0) { … }'+(s.else?' else { … }':''),s.else?'yalnız else gövdesi kaldı':'silindi');if(!s.else)return[];if(s.else.type==='If')return stmt(s.else);return list(s.else.body);}
+  let other=null;if(s.else){if(s.else.type==='If'){const r=stmt(s.else);other=r.length===1&&r[0].type==='If'?r[0]:r.length?{type:'Block',line:s.else.line,col:s.else.col,body:r}:null;}else other=block(s.else);}
+  return[Object.assign({},s,{cond,then:block(s.then),else:other})];}
+ function block(b){visits++;return Object.assign({},b,{body:list(b.body)});}
+ if(!any)return{ast,log,visits:0,options:o};
+ visits++;return{ast:Object.assign({},ast,{body:list(ast.body)}),log,visits,options:o};}
+
+/* ---------- 5 · üç adresli kod ---------- */
+function tac(ast){const code=[];let temps=0,labels=0;
+ const leaf=e=>e.type==='Num'?{k:'num',v:e.value}:e.type==='Var'?{k:'var',name:e.name}:null;
+ const ex=(e,dst)=>{const l=leaf(e);if(l)return l;
+  if(e.type==='Binary'){const a=ex(e.left),b=ex(e.right),d=dst||{k:'tmp',n:++temps};code.push({op:'bin',dst:d,a,bop:e.op,b,line:e.line,col:e.col});return d;}
+  const a=ex(e.expr),d=dst||{k:'tmp',n:++temps};code.push({op:'neg',dst:d,a,line:e.line,col:e.col});return d;};
+ const label=()=>'L'+(++labels),mark=name=>code.push({op:'label',name});
+ const list=body=>{for(const s of body)stmt(s);};
+ const stmt=s=>{if(s.type==='Assign'){const dst={k:'var',name:s.name},l=leaf(s.expr);if(l)code.push({op:'copy',dst,a:l,line:s.line,col:s.col});else ex(s.expr,dst);}
+  else if(s.type==='Print')code.push({op:'print',a:ex(s.expr),line:s.line,col:s.col});
+  else if(s.type==='While'){const top=label(),end=label();mark(top);code.push({op:'ifFalse',a:ex(s.cond),label:end,line:s.line,col:s.col});list(s.body.body);code.push({op:'goto',label:top,line:s.line,col:s.col});mark(end);}
+  else if(s.type==='If'){const c=ex(s.cond);if(!s.else){const end=label();code.push({op:'ifFalse',a:c,label:end,line:s.line,col:s.col});list(s.then.body);mark(end);}
+   else{const other=label(),end=label();code.push({op:'ifFalse',a:c,label:other,line:s.line,col:s.col});list(s.then.body);code.push({op:'goto',label:end,line:s.line,col:s.col});mark(other);if(s.else.type==='If')stmt(s.else);else list(s.else.body);mark(end);}}
+  else if(s.type==='Block')list(s.body);};
+ list(ast.body);return{code,count:code.filter(i=>i.op!=='label').length,temps,labels};}
+const opndText=a=>a.k==='num'?String(a.v):a.k==='var'?a.name:'t'+a.n;
+function tacText(i){switch(i.op){case'bin':return opndText(i.dst)+' = '+opndText(i.a)+' '+i.bop+' '+opndText(i.b);case'neg':return opndText(i.dst)+' = -'+opndText(i.a);case'copy':return opndText(i.dst)+' = '+opndText(i.a);
+ case'print':return'print '+opndText(i.a);case'ifFalse':return'ifFalse '+opndText(i.a)+' goto '+i.label;case'goto':return'goto '+i.label;case'label':return i.name+':';}
+ throw new RangeError('Bilinmeyen üç adresli komut');}
+function runTac(prog,maxSteps){const code=prog.code,at={},vars=new Map,tmp=new Map,output=[];code.forEach((i,k)=>{if(i.op==='label')at[i.name]=k;});
+ const max=maxSteps||100000,get=a=>a.k==='num'?a.v:a.k==='var'?vars.get(a.name):tmp.get(a.n),set=(d,v)=>d.k==='var'?vars.set(d.name,v):tmp.set(d.n,v);
+ let pc=0,steps=0;
+ while(pc<code.length){const i=code[pc++];if(i.op==='label')continue;if(steps>=max)return{status:'limit',error:null,output,steps,vars:Object.fromEntries(vars)};steps++;
+  if(i.op==='bin'){const v=arith(i.bop,get(i.a),get(i.b));if(v===null)return{status:'error',error:{code:'div0',msg:trapMsg(i.bop),line:i.line,col:i.col},output,steps,vars:Object.fromEntries(vars)};set(i.dst,v);}
+  else if(i.op==='neg')set(i.dst,(-get(i.a))|0);else if(i.op==='copy')set(i.dst,get(i.a));else if(i.op==='print')output.push(get(i.a));
+  else if(i.op==='goto')pc=at[i.label];else if(i.op==='ifFalse'){if(get(i.a)===0)pc=at[i.label];}}
+ return{status:'done',error:null,output,steps,vars:Object.fromEntries(vars)};}
+
+/* ---------- 6 · yığın makinesi bytecode'u ---------- */
+/* [ad, işlenen baytı, yığın etkisi, açıklama] — işlem kodu = dizideki sıra */
+const OPCODES=Object.freeze([['HALT',0,'—','Programı bitirir.'],['PUSH',4,'→ n','32 bitlik sabiti yığına koyar.'],['LOAD',1,'→ v','Değişken yuvasındaki değeri yığına koyar.'],['STORE',1,'v →','Tepedeki değeri alır, değişken yuvasına yazar.'],
+ ['ADD',0,'a b → a+b','Toplar.'],['SUB',0,'a b → a−b','Çıkarır.'],['MUL',0,'a b → a·b','Çarpar.'],['DIV',0,'a b → a/b','Böler, sıfıra doğru yuvarlar; b = 0 ise hata.'],['MOD',0,'a b → a%b','Kalan, işareti bölünenle aynı; b = 0 ise hata.'],['NEG',0,'a → −a','İşaret değiştirir.'],
+ ['EQ',0,'a b → 0|1','a = b ise 1.'],['NE',0,'a b → 0|1','a ≠ b ise 1.'],['LT',0,'a b → 0|1','a < b ise 1.'],['LE',0,'a b → 0|1','a ≤ b ise 1.'],['GT',0,'a b → 0|1','a > b ise 1.'],['GE',0,'a b → 0|1','a ≥ b ise 1.'],
+ ['JMP',2,'—','Koşulsuz atlar: pc = hedef.'],['JZ',2,'v →','Tepedeki değeri alır; 0 ise hedefe atlar.'],['PRINT',0,'v →','Tepedeki değeri alır, çıktıya yazar.']].map(Object.freeze));
+const OPNUM=Object.freeze(Object.fromEntries(OPCODES.map((o,i)=>[o[0],i])));
+const BINOP=Object.freeze({'+':'ADD','-':'SUB','*':'MUL','/':'DIV','%':'MOD','==':'EQ','!=':'NE','<':'LT','<=':'LE','>':'GT','>=':'GE'});
+const OPSYM=Object.freeze(Object.fromEntries(Object.entries(BINOP).map(([s,n])=>[n,s])));
+function bytecode(ast){const code=[],vars=[];
+ const slot=name=>{let i=vars.indexOf(name);if(i<0){i=vars.length;vars.push(name);}return i;};
+ const emit=(op,arg,at)=>{code.push({op,arg:arg===undefined?null:arg,line:at.line,col:at.col});return code.length-1;};
+ const ex=e=>{if(e.type==='Num')emit('PUSH',e.value,e);else if(e.type==='Var')emit('LOAD',slot(e.name),e);else if(e.type==='Unary'){ex(e.expr);emit('NEG',undefined,e);}else{ex(e.left);ex(e.right);emit(BINOP[e.op],undefined,e);}};
+ const list=body=>{for(const s of body)stmt(s);};
+ const stmt=s=>{if(s.type==='Assign'){ex(s.expr);emit('STORE',slot(s.name),s);}else if(s.type==='Print'){ex(s.expr);emit('PRINT',undefined,s);}
+  else if(s.type==='While'){const top=code.length;ex(s.cond);const jz=emit('JZ',0,s);list(s.body.body);emit('JMP',top,s);code[jz].arg=code.length;}
+  else if(s.type==='If'){ex(s.cond);const jz=emit('JZ',0,s);list(s.then.body);if(!s.else)code[jz].arg=code.length;else{const jmp=emit('JMP',0,s);code[jz].arg=code.length;if(s.else.type==='If')stmt(s.else);else list(s.else.body);code[jmp].arg=code.length;}}
+  else if(s.type==='Block')list(s.body);};
+ list(ast.body);emit('HALT',undefined,{line:0,col:0});
+ if(code.length>LIMITS.code)throw new RangeError('Program '+LIMITS.code+' komutu aşıyor');
+ return{code,vars};}
+function insText(i,vars){const o=OPCODES[OPNUM[i.op]];return o[1]===0?i.op:i.op+' '+(o[1]===1&&vars?vars[i.arg]:i.arg);}
+function insBytes(i){const n=OPNUM[i.op],w=OPCODES[n][1],out=[n];if(w===4){const v=i.arg>>>0;out.push(v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255);}else if(w===2)out.push(i.arg&255,(i.arg>>>8)&255);else if(w===1)out.push(i.arg&255);return out;}
+function encode(code){const bytes=[],offsets=[];for(const i of code){offsets.push(bytes.length);for(const b of insBytes(i))bytes.push(b);}return{bytes,offsets};}
+function decode(bytes){const code=[];let p=0;while(p<bytes.length){const o=OPCODES[bytes[p]];if(!o)throw new RangeError('Geçersiz işlem kodu: '+bytes[p]);const w=o[1];if(p+w>=bytes.length)throw new RangeError('Bayt dizisi komutun ortasında bitiyor');
+  let arg=null;if(w===4)arg=(bytes[p+1]|(bytes[p+2]<<8)|(bytes[p+3]<<16)|(bytes[p+4]<<24))|0;else if(w===2)arg=bytes[p+1]|(bytes[p+2]<<8);else if(w===1)arg=bytes[p+1];code.push({op:o[0],arg});p+=1+w;}return code;}
+
+/* ---------- 7 · yığın makinesi ---------- */
+function vmStart(prog,maxSteps){return{code:prog.code,vars:prog.vars,pc:0,last:-1,stack:[],slots:new Array(prog.vars.length).fill(null),output:[],steps:0,maxStack:0,maxSteps:maxSteps||100000,status:'run',error:null,hits:new Array(prog.code.length).fill(0)};}
+function vmStep(s){if(s.status!=='run')return s;if(s.steps>=s.maxSteps){s.status='limit';return s;}
+ const i=s.code[s.pc],st=s.stack,stop=(code,msg)=>{s.status='error';s.error={code,msg,line:i?i.line:0,col:i?i.col:0};return s;};
+ if(!i){s.steps++;return stop('pc','Program sayacı kodun dışına çıktı');}
+ s.steps++;s.hits[s.pc]++;s.last=s.pc;s.pc++;const need=n=>st.length>=n;
+ switch(i.op){
+  case'HALT':s.status='done';s.pc=s.last;break;
+  case'PUSH':st.push(i.arg|0);break;
+  case'LOAD':if(s.slots[i.arg]===null||s.slots[i.arg]===undefined)return stop('undef','Değer almamış değişken okundu');st.push(s.slots[i.arg]);break;
+  case'STORE':if(!need(1))return stop('stack','Yığın boşken değer alınmak istendi');s.slots[i.arg]=st.pop();break;
+  case'NEG':if(!need(1))return stop('stack','Yığın boşken değer alınmak istendi');st.push((-st.pop())|0);break;
+  case'PRINT':if(!need(1))return stop('stack','Yığın boşken değer alınmak istendi');s.output.push(st.pop());break;
+  case'JMP':s.pc=i.arg;break;
+  case'JZ':if(!need(1))return stop('stack','Yığın boşken değer alınmak istendi');if(st.pop()===0)s.pc=i.arg;break;
+  default:{const sym=OPSYM[i.op];if(!sym)return stop('op','Bilinmeyen komut: '+i.op);if(!need(2))return stop('stack','Yığında iki değer yokken işlem istendi');const b=st.pop(),a=st.pop(),v=arith(sym,a,b);if(v===null)return stop('div0',trapMsg(sym));st.push(v);}}
+ if(st.length>s.maxStack)s.maxStack=st.length;return s;}
+function vmResult(s){const vars={};s.vars.forEach((n,i)=>{if(s.slots[i]!==null)vars[n]=s.slots[i];});return{status:s.status,error:s.error,output:s.output,steps:s.steps,vars,maxStack:s.maxStack,hits:s.hits};}
+function runVM(prog,maxSteps){const s=vmStart(prog,maxSteps);while(s.status==='run')vmStep(s);return vmResult(s);}
+
+/* ---------- 8 · ağaç gezen yorumlayıcı ---------- */
+/* Sayaç birimleri yığın makinesinin komutlarıyla bire bir eşlenir; toplamı VM'in yürüteceği komut sayısının kestirimidir. */
+function interpret(ast,maxSteps){const max=maxSteps||100000,vars=new Map,output=[],ev={leaf:0,operator:0,assign:0,print:0,test:0,jump:0,halt:0};let steps=0;
+ const tick=k=>{if(steps>=max)throw{stop:'limit'};steps++;ev[k]++;};
+ const ex=e=>{if(e.type==='Num'){tick('leaf');return e.value;}if(e.type==='Var'){tick('leaf');return vars.get(e.name);}
+  if(e.type==='Unary'){const v=ex(e.expr);tick('operator');return(-v)|0;}
+  const a=ex(e.left),b=ex(e.right);tick('operator');const v=arith(e.op,a,b);if(v===null)throw{stop:'error',error:{code:'div0',msg:trapMsg(e.op),line:e.line,col:e.col}};return v;};
+ const list=body=>{for(const s of body)stmt(s);};
+ const stmt=s=>{if(s.type==='Assign'){const v=ex(s.expr);tick('assign');vars.set(s.name,v);}
+  else if(s.type==='Print'){const v=ex(s.expr);tick('print');output.push(v);}
+  else if(s.type==='While'){for(;;){const c=ex(s.cond);tick('test');if(c===0)break;list(s.body.body);tick('jump');}}
+  else if(s.type==='If'){const c=ex(s.cond);tick('test');if(c!==0){list(s.then.body);if(s.else)tick('jump');}else if(s.else){if(s.else.type==='If')stmt(s.else);else list(s.else.body);}}
+  else if(s.type==='Block')list(s.body);};
+ let status='done',error=null;
+ try{list(ast.body);tick('halt');}catch(e){if(e&&e.stop){status=e.stop;error=e.error||null;}else throw e;}
+ return{status,error,output,steps,vars:Object.fromEntries(vars),events:ev};}
+
+/* iki yürütme sonucunun karşılaştırması */
+function agree(a,b){const same=(x,y)=>x.length===y.length&&x.every((v,i)=>v===y[i]);
+ if(a.status==='limit'||b.status==='limit'){const n=Math.min(a.output.length,b.output.length);return same(a.output.slice(0,n),b.output.slice(0,n))?'prefix':'diff';}
+ if(a.status!==b.status||!same(a.output,b.output))return'diff';
+ if(a.status==='error'&&(a.error.code!==b.error.code||a.error.line!==b.error.line||a.error.col!==b.error.col))return'diff';
+ return'exact';}
+
+/* ---------- boru hattı ---------- */
+function compile(src,opts){const out={stage:'lex',lex:lex(src)};if(out.lex.errors.length)return out;
+ out.parse=parse(out.lex.tokens,'std');if(!out.parse.ok){out.stage='parse';return out;}
+ out.ast=out.parse.ast;out.sem=check(out.ast);if(out.sem.errors.length){out.stage='sem';return out;}
+ out.stage='ok';out.stats=stats(out.ast);out.opt=optimize(out.ast,opts);out.optStats=stats(out.opt.ast);
+ out.tac0=tac(out.ast);out.tac1=tac(out.opt.ast);out.bc0=bytecode(out.ast);out.bc1=bytecode(out.opt.ast);return out;}
+
+const PRESETS=Object.freeze({
+ oncelik:{label:'Öncelik: 2 + 3 * 4',src:'# Çarpma, toplamadan önce yapılır\nx = 2 + 3 * 4;\nprint x;\nprint (2 + 3) * 4;\n'},
+ parantez:{label:'Parantez: (a + b) * c',src:'a = 2; b = 3; c = 4;\nprint (a + b) * c;\nprint a + b * c;\n'},
+ birlesme:{label:'Birleşme: a - b - c',src:'a = 10; b = 4; c = 3;\nprint a - b - c;\nprint a - (b - c);\n'},
+ faktoriyel:{label:'Faktöriyel döngüsü',src:'n = 5;\nf = 1;\nwhile (n > 1) {\n  f = f * n;\n  n = n - 1;\n}\nprint f;\n'},
+ ebob:{label:'EBOB (Öklid algoritması)',src:'a = 1071; b = 462;\nwhile (b != 0) {\n  t = a % b;\n  a = b;\n  b = t;\n}\nprint a;\n'},
+ iyilestir:{label:'İyileştirilecek program',src:'gun = 60 * 60 * 24;\nx = 7;\ny = x * 1 + 0;\nif (2 > 3) {\n  print 111;\n} else {\n  print y + gun;\n}\nwhile (0) {\n  print 999;\n}\n'},
+ sozcukHatasi:{label:'Hatalı: sözcük hataları',src:'x = 3 $ 4;\ny = 1.2.3;\nz = 10e5;\nc = \'a\';\n'},
+ sozdizimHatasi:{label:'Hatalı: kapanmayan parantez',src:'x = (2 + 3 * 4;\nprint x;\n'},
+ anlamHatasi:{label:'Hatalı: değer almamış değişken',src:'a = 5;\nif (a > 3) {\n  b = 1;\n}\nprint a + b;\n'},
+ sifiraBolme:{label:'Çalışma hatası: sıfıra bölme',src:'a = 10;\nb = a - 10;\nprint 1;\nprint a / b;\nprint 2;\n'},
+ sonsuz:{label:'Bitmeyen döngü',src:'i = 0;\nwhile (1) {\n  i = i + 1;\n}\nprint i;\n'}});
+for(const k in PRESETS)Object.freeze(PRESETS[k]);
+
+const api=Object.freeze({LIMITS,KEYWORDS,OPCODES,PRESETS,lex,parse,check,optimize,stats,nodesFromTokens,kids,paren,pretty,prettyProgram,tac,tacText,runTac,bytecode,insText,insBytes,encode,decode,vmStart,vmStep,vmResult,runVM,interpret,agree,arith,compile});
+Object.defineProperty(window,'CompilerLab',{value:api,writable:false,configurable:false,enumerable:true});
+})();
+/* KERNEL-END */
+(function(){'use strict';
+const K=window.CompilerLab,$=id=>document.getElementById(id),put=(id,t)=>{$(id).textContent=t;};
+/* Sayı biçimi: sayımlar tr-TR (binlik nokta, ondalık virgül); program değerleri ham, ASCII eksiyle. */
+const nf=n=>n.toLocaleString('tr-TR'),pct=x=>'%'+(100*x).toLocaleString('tr-TR',{minimumFractionDigits:1,maximumFractionDigits:1});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KIND={NUMBER:'Sayı',IDENT:'Ad',KEYWORD:'Anahtar sözcük',OP:'İşleç',PUNCT:'Ayraç',EOF:'Kaynak sonu',ERROR:'Hata'};
+const MODES={std:'Standart',flat:'Önceliksiz',right:'Sağa birleşen'};
+const RULES={fold:'Sabit katlama',simplify:'Cebirsel sadeleştirme',dce:'Ölü kod eleme'};
+const DEF={preset:'oncelik',speed:8,limit:100000,runs:100};
+const S={stmt:'all',mode:'std',fold:true,simplify:true,dce:true,view:'opt',which:'raw',limit:DEF.limit};
+let C=null,R=null,M=null,active='lex',playing=false,lastT=0,acc=0,errAt=null;
+const visible=s=>s.replace(/ /g,'␣').replace(/\t/g,'⇥').replace(/\r/g,'').replace(/\n/g,'↵');
+const outText=(o,max)=>o.length?o.slice(0,max).join(', ')+(o.length>max?' … (toplam '+nf(o.length)+' değer)':''):'(çıktı yok)';
+const status=(id,text,cls)=>{const e=$(id);e.textContent=text;e.className='dy-status'+(cls?' dy-'+cls:'');};
+const state=r=>r.status==='done'?'bitti':r.status==='error'?'hata: '+r.error.msg+' ('+r.error.line+':'+r.error.col+')':'adım sınırı ('+nf(S.limit)+') aşıldı';
+function excerpt(line,col){const text=($('src').value.split('\n')[line-1]||'').replace(/\t/g,' '),head=line+' | ';return head+text+'\n'+' '.repeat(head.length+Math.max(0,col-1))+'^';}
+function statusWithCode(id,text,cls,line,col){status(id,text,cls);if(line){const pre=document.createElement('pre');pre.textContent=excerpt(line,col);$(id).appendChild(pre);}}
+
+/* ---------- hesap ---------- */
+function compute(){const src=$('src').value;C=K.compile(src,{fold:S.fold,simplify:S.simplify,dce:S.dce});R=null;errAt=null;
+ if(C.stage==='ok'){R={tree:K.interpret(C.ast,S.limit),vm0:K.runVM(C.bc0,S.limit),vm1:K.runVM(C.bc1,S.limit),tac:K.runTac(C.tac0,S.limit)};
+  R.pairs=[K.agree(R.vm0,R.tree),K.agree(R.vm0,R.vm1),K.agree(R.vm0,R.tac)];
+  if(R.vm0.status==='error')errAt=R.vm0.error;}
+ else if(C.stage==='lex')errAt=C.lex.errors[0];else if(C.stage==='parse')errAt=C.parse.error;else errAt=C.sem.errors[0];
+ vmRewind(false);}
+function vmRewind(draw){stop();M=C&&C.stage==='ok'?K.vmStart(S.which==='opt'?C.bc1:C.bc0,S.limit):null;if(draw!==false)render();}
+
+/* ---------- ortak: düzenleyici ve aşamalar ---------- */
+function gutter(){const n=$('src').value.split('\n').length;let t='';for(let i=1;i<=n;i++)t+=i+'\n';$('srcGutter').textContent=t;$('srcGutter').scrollTop=$('src').scrollTop;}
+function shared(){gutter();const st=C.stage,rank={lex:0,parse:1,sem:2,ok:3}[st],L=C.lex,item=(name,cls,val)=>'<li class="dy-'+cls+'"><span>'+name+'</span><b>'+esc(val)+'</b></li>';
+ const cls=i=>rank>i?'ok':rank===i?'fail':'idle';let h=item('1 · Sözcük çözümleme',cls(0),rank>0?nf(L.tokens.length-1)+' token':nf(L.errors.length)+' hata');
+ h+=item('2 · Ayrıştırma',cls(1),rank>1?nf(K.stats(C.ast).nodes)+' düğüm':rank===1?'söz dizimi hatası':'bekliyor');
+ h+=item('3 · Anlam denetimi',cls(2),rank>2?nf(C.sem.vars.length)+' değişken':rank===2?nf(C.sem.errors.length)+' hata':'bekliyor');
+ h+=item('4 · Kod üretimi',rank===3?'ok':'idle',rank===3?nf(C.bc0.code.length)+' → '+nf(C.bc1.code.length)+' komut':'bekliyor');
+ h+=item('5 · Yürütme',rank<3?'idle':R.vm0.status==='done'?'ok':R.vm0.status==='error'?'fail':'hold',rank<3?'bekliyor':R.vm0.status==='done'?nf(R.vm0.output.length)+' çıktı':R.vm0.status==='error'?'çalışma hatası':'adım sınırı');
+ $('stages').innerHTML=h;$('srcGoto').hidden=!errAt||!errAt.line;
+ if(st==='lex'){const e=L.errors[0];statusWithCode('srcStatus','Sözcük hatası ('+e.line+':'+e.col+'): '+e.msg+(L.errors.length>1?' Toplam '+nf(L.errors.length)+' sözcük hatası var; ayrıştırma başlamadı.':' Ayrıştırma başlamadı.'),'err',e.code==='long'?0:e.line,e.col);}
+ else if(st==='parse'){const e=C.parse.error;statusWithCode('srcStatus','Söz dizimi hatası ('+e.line+':'+e.col+'): '+e.msg+'. Ağaç kurulamadı.','err',e.line,e.col);}
+ else if(st==='sem'){const e=C.sem.errors[0];statusWithCode('srcStatus','Anlam hatası ('+e.line+':'+e.col+'): '+e.msg+' Kod üretilmedi.','err',e.line,e.col);}
+ else if(R.vm0.status==='error'){const e=R.vm0.error;statusWithCode('srcStatus','Derleme tamam; çalışma hatası ('+e.line+':'+e.col+'): '+e.msg+'. Hatadan önceki çıktı: '+outText(R.vm0.output,12)+'.','err',e.line,e.col);}
+ else if(R.vm0.status==='limit')status('srcStatus','Derleme tamam; program '+nf(S.limit)+' komutluk adım sınırını aştı ve durduruldu. Döngü bitmiyor olabilir. O ana kadarki çıktı: '+outText(R.vm0.output,12)+'.','warn');
+ else status('srcStatus','Beş aşama da tamam. Çıktı: '+outText(R.vm0.output,12)+'. '+nf(R.vm0.steps)+' komut yürütüldü.');}
+
+/* ---------- 01 · sözcük çözümleme ---------- */
+function renderLex(){const L=C.lex,toks=L.tokens,ws=$('lexWs').checked,items=toks.map(t=>({t,o:t.offset})).concat(ws?L.skipped.map(s=>({s,o:s.offset})):[]).sort((a,b)=>a.o-b.o||(a.s?-1:1)),ch=Array.from($('src').value);
+ let strip='',rows='',no=0;
+ for(const it of items){if(it.s){const text=visible(ch.slice(it.s.offset,it.s.offset+it.s.length).join('')),name=it.s.kind==='ws'?'Boşluk (atlanır)':'Yorum (atlanır)';strip+='<span class="dy-tok dy-k-skip" title="'+name+'">'+esc(text.length>24?text.slice(0,24)+'…':text)+'</span>';rows+='<tr class="dy-skip"><th scope="row">·</th><td>'+name+'</td><td class="dy-mono">'+esc(text.length>40?text.slice(0,40)+'…':text)+'</td><td>'+it.s.line+':'+it.s.col+'</td><td>—</td></tr>';continue;}
+  const t=it.t;no++;strip+='<span class="dy-tok dy-k-'+t.kind+'" title="'+KIND[t.kind]+' · '+t.line+':'+t.col+'">'+(t.kind==='EOF'?'son':esc(t.text))+'</span>';
+  rows+='<tr'+(t.kind==='ERROR'?' class="dy-bad"':t.kind==='EOF'?' class="dy-skip"':'')+'><th scope="row">'+(t.kind==='EOF'?'·':no)+'</th><td>'+KIND[t.kind]+'</td><td class="dy-mono">'+(t.kind==='EOF'?'—':esc(t.text))+'</td><td>'+t.line+':'+t.col+'</td><td class="dy-mono">'+(t.kind==='NUMBER'?t.value:'—')+'</td></tr>';}
+ $('tokStrip').innerHTML=strip;$('tokRows').innerHTML=rows;
+ const real=toks.filter(t=>t.kind!=='EOF'),tokChars=real.reduce((a,t)=>a+t.length,0),wsChars=L.skipped.filter(s=>s.kind==='ws').reduce((a,s)=>a+s.length,0),comChars=L.skipped.filter(s=>s.kind==='comment').reduce((a,s)=>a+s.length,0),sum=tokChars+wsChars+comChars;
+ const long=L.errors.length&&L.errors[0].code==='long';
+ put('tokCount',long?'—':nf(real.length)+' token');put('tokCountNote',long?'kaynak çok uzun':'ayrıca 1 kaynak sonu işareti');
+ put('lexErrs',nf(L.errors.length));put('lexErrsNote',L.errors.length?'ilki '+L.errors[0].line+':'+L.errors[0].col+' konumunda':'bütün karakterler tanındı');
+ put('tokTile',long?'—':nf(sum)+' · '+nf(L.length)+' karakter');put('tokTileNote',long?'kaynak 4.000 karakteri aşıyor':'fark '+nf(L.length-sum)+' · token '+nf(tokChars)+' + boşluk '+nf(wsChars)+' + yorum '+nf(comChars));
+ const by={};for(const t of real)by[t.kind]=(by[t.kind]||0)+1;put('tokKinds',real.length?['NUMBER','IDENT','KEYWORD','OP','PUNCT','ERROR'].filter(k=>by[k]).map(k=>KIND[k]+' '+nf(by[k])).join(' · '):'Token yok');
+ if(L.errors.length){const list=L.errors.slice(0,6).map(e=>e.line+':'+e.col+' '+e.msg).join(' · ');status('lexStatus',nf(L.errors.length)+' sözcük hatası. '+list+(L.errors.length>6?' · …':''),'err');}
+ else if(!real.length)status('lexStatus','Kaynak boş (ya da yalnız boşluk ve yorum): token yok. Boş program geçerlidir ve hiçbir şey yazdırmaz.');
+ else status('lexStatus',nf(real.length)+' token, hata yok. Kaynağın '+nf(L.length)+' karakterinin '+nf(wsChars+comChars)+' tanesi (boşluk ve yorum) ayrıştırıcıya hiç ulaşmaz. Lexer parantezlerin eşleşip eşleşmediğine bakmaz; o iş bir sonraki aşamanındır.');}
+
+/* ---------- çizim ---------- */
+function palette(){return document.documentElement.dataset.theme==='light'?{bg:'#fafbf7',ink:'#1c3239',grid:'#b9cac6',muted:'#55686d',accent:'#0f736f',fill:'#d5efea',warm:'#a8480f',warmFill:'#fbe6d3',red:'#b5363c'}:{bg:'#10232a',ink:'#e6f1ee',grid:'#3d575d',muted:'#a3b8bb',accent:'#76d8cc',fill:'#18474a',warm:'#f4ad6c',warmFill:'#4a3320',red:'#ff8990'};}
+function fit(c,w,h){const d=Math.min(window.devicePixelRatio||1,2);c.style.width=w+'px';c.style.height=h+'px';c.width=Math.round(w*d);c.height=Math.round(h*d);const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);const p=palette();g.fillStyle=p.bg;g.fillRect(0,0,w,h);g.lineJoin='round';return{g,w,h,p};}
+function surface(id){const c=$(id);c.style.width='';c.style.height='';const r=c.getBoundingClientRect();if(!r.width||!r.height)return null;return fit(c,r.width,r.height);}
+const MONO='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',SANS='Outfit, system-ui, sans-serif';
+function message(s,lines){const g=s.g;g.font='13px '+SANS;g.textAlign='center';g.textBaseline='middle';g.fillStyle=s.p.muted;lines.forEach((t,i)=>g.fillText(t,s.w/2,s.h/2+(i-(lines.length-1)/2)*20));}
+const clip=t=>{const a=Array.from(String(t));return a.length>10?a.slice(0,9).join('')+'…':String(t);};
+function nodeLabel(n){switch(n.type){case'Program':return'program';case'Block':return'blok';case'Assign':return clip(n.name)+' =';case'Print':return'print';case'If':return'if';case'While':return'while';case'Binary':return n.op;case'Unary':return'tekli -';case'Num':return String(n.value);default:return clip(n.name);}}
+function drawTree(root,note){const c=$('treeCanvas'),wrapW=Math.max(260,$('treeWrap').clientWidth);if(!$('treeWrap').clientWidth)return;
+ if(note){message(fit(c,wrapW,150),note);return;}
+ const g0=c.getContext('2d');g0.font='600 13px '+MONO;const GAP=10,LEVEL=wrapW<430?50:56,BOX=28;
+ const build=(n,edge)=>{const names=n.type==='If'?['koşul','doğruysa','değilse']:n.type==='While'?['koşul','gövde']:[],t={n,edge,label:nodeLabel(n),kids:K.kids(n).map((k,i)=>build(k,names[i]||''))};t.w=Math.max(BOX,g0.measureText(t.label).width+18);t.span=Math.max(t.w+GAP,t.kids.reduce((a,k)=>a+k.span,0));return t;};
+ const tree=build(root,'');let depth=0;const place=(t,left,d)=>{t.x=left+t.span/2;t.y=22+d*LEVEL;if(d>depth)depth=d;let x=left+(t.span-t.kids.reduce((a,k)=>a+k.span,0))/2;for(const k of t.kids){place(k,x,d+1);x+=k.span;}};
+ const total=tree.span+16;if(total>6000||depth>70){message(fit(c,wrapW,150),['Bu ağaç çizilemeyecek kadar büyük.','“Gösterilen” listesinden tek bir deyim seç.']);return;}
+ place(tree,Math.max(8,(wrapW-tree.span)/2),0);const s=fit(c,Math.max(wrapW,total),depth*LEVEL+58),g=s.g,p=s.p;
+ const edges=t=>{for(const k of t.kids){g.strokeStyle=p.grid;g.lineWidth=1.5;g.beginPath();g.moveTo(t.x,t.y+BOX/2);g.lineTo(k.x,k.y-BOX/2);g.stroke();if(k.edge){g.font='10px '+SANS;g.textAlign='center';g.textBaseline='middle';const mx=(t.x+k.x)/2,my=(t.y+k.y)/2,tw=g.measureText(k.edge).width;g.fillStyle=p.bg;g.fillRect(mx-tw/2-3,my-7,tw+6,14);g.fillStyle=p.muted;g.fillText(k.edge,mx,my);}edges(k);}};
+ const nodes=t=>{const ty=t.n.type,op=ty==='Binary'||ty==='Unary',leaf=ty==='Num'||ty==='Var',x=t.x-t.w/2,y=t.y-BOX/2,r=op?BOX/2:leaf?4:7;g.beginPath();g.roundRect(x,y,t.w,BOX,r);g.fillStyle=op?p.warmFill:leaf?p.bg:p.fill;g.fill();g.strokeStyle=op?p.warm:leaf?p.muted:p.accent;g.lineWidth=leaf?1.3:1.8;g.stroke();
+  g.font=(leaf?'':'600 ')+'13px '+MONO;g.textAlign='center';g.textBaseline='middle';g.fillStyle=p.ink;g.fillText(t.label,t.x,t.y+.5);t.kids.forEach(nodes);};
+ edges(tree);nodes(tree);}
+function drawProfile(){const s=surface('profCanvas');if(!s)return;if(!R){message(s,['Çalıştırılacak kod yok: önce kaynak programdaki hatayı düzelt.']);return;}
+ const g=s.g,p=s.p,prog=S.which==='opt'?C.bc1:C.bc0,hits=(S.which==='opt'?R.vm1:R.vm0).hits,n=hits.length,max=Math.max(1,...hits),L=46,B=24,T=14,W=s.w-L-10,H=s.h-B-T,bw=W/n;
+ g.strokeStyle=p.grid;g.lineWidth=1;g.font='11px '+SANS;g.textBaseline='middle';g.textAlign='right';g.fillStyle=p.muted;
+ for(const v of[...new Set([0,Math.round(max/2),max])]){const y=T+H-v/max*H;g.beginPath();g.moveTo(L,y);g.lineTo(L+W,y);g.stroke();g.fillText(nf(v),L-6,y);}
+ for(let i=0;i<n;i++){const h=hits[i]/max*H,cur=M&&M.status==='run'&&M.pc===i;g.fillStyle=cur?p.warm:p.accent;g.fillRect(L+i*bw+Math.min(1,bw*.12),T+H-h,Math.max(1,bw-2*Math.min(1,bw*.12)),Math.max(hits[i]?1.5:0,h));if(cur&&!hits[i]){g.fillRect(L+i*bw,T+H-3,Math.max(1,bw),3);}}
+ g.textAlign='center';g.textBaseline='top';g.fillStyle=p.muted;const every=Math.max(1,Math.ceil(n/(s.w<430?8:16)));for(let i=0;i<n;i+=every)g.fillText(String(i),L+(i+.5)*bw,T+H+6);void prog;}
+
+/* ---------- 02 · ayrıştırma ---------- */
+function exprList(ast){const out=[];const walk=n=>{const e=n.type==='Assign'||n.type==='Print'?n.expr:n.type==='If'||n.type==='While'?n.cond:null;if(e&&(e.type==='Binary'||e.type==='Unary'))out.push(K.paren(e).replace(/^\((.*)\)$/,'$1'));if(n.type!=='Assign'&&n.type!=='Print')for(const k of K.kids(n))if(k.type!=='Binary'&&k.type!=='Unary'&&k.type!=='Num'&&k.type!=='Var')walk(k);};walk(ast);return out;}
+function outline(n,ind){let t=ind+nodeLabel(n)+(n.type==='Num'||n.type==='Var'||n.type==='Program'?'':'   ['+n.line+':'+n.col+']')+'\n';for(const k of K.kids(n))t+=outline(k,ind+'  ');return t;}
+function stmtOptions(){const sel=$('parseStmt'),ast=C.ast;let h='<option value="all">Bütün program</option>';if(ast)ast.body.forEach((s,i)=>{const one=K.prettyProgram({body:[s]}).split('\n')[0];h+='<option value="'+i+'">'+(i+1)+'. deyim: '+esc(one.length>26?one.slice(0,25)+'…':one)+'</option>';});sel.innerHTML=h;if(S.stmt!=='all'&&!(ast&&+S.stmt<ast.body.length))S.stmt='all';sel.value=S.stmt;sel.disabled=!ast||!ast.body.length;}
+function renderParse(){stmtOptions();const blank=()=>{for(const id of['astNodes','astHeight','astLeaves'])put(id,'—');for(const id of['astNodesNote','astHeightNote','astLeavesNote'])put(id,'');$('ruleRows').innerHTML='<tr><td colspan="3">Ağaç kurulamadığı için karşılaştırma yok.</td></tr>';put('astText','(ağaç yok)');};
+ $('parseMode').disabled=!C.ast;
+ if(C.stage==='lex'){blank();drawTree(null,['Ağaç yok: sözcük hataları yüzünden ayrıştırma başlamadı.','Önce 01 sekmesindeki hataları düzelt.']);const e=C.lex.errors[0];statusWithCode('parseStatus','Ayrıştırıcı çalışmadı: tokenların arasında hatalı parça var ('+e.line+':'+e.col+'). '+e.msg,'err',e.code==='long'?0:e.line,e.col);return;}
+ if(C.stage==='parse'){blank();const e=C.parse.error;drawTree(null,['Ağaç yok: söz dizimi hatası ('+e.line+':'+e.col+').','Beklenen: '+e.expected+' · bulunan: '+e.found]);statusWithCode('parseStatus','Söz dizimi hatası ('+e.line+':'+e.col+'). '+e.msg+'. Ayrıştırıcı ilk hatada durur; sonrasını görmez.','err',e.line,e.col);return;}
+ const trees={};for(const m of['std','flat','right'])trees[m]=m==='std'?C.ast:K.parse(C.lex.tokens,m).ast;
+ const ast=trees[S.mode],st=K.stats(ast),theory=K.nodesFromTokens(C.lex.tokens),root=S.stmt==='all'?ast:ast.body[+S.stmt];
+ put('astNodes',nf(st.nodes)+' · '+nf(theory));put('astNodesNote','fark '+nf(st.nodes-theory)+' · bütün program için');
+ put('astHeight',nf(st.height)+' kenar');put('astHeightNote','kökten en derin yaprağa');put('astLeaves',nf(st.leaves)+' · '+nf(st.nodes-st.leaves));put('astLeavesNote',nf(st.count.Binary+st.count.Unary)+' işleç düğümü');
+ put('astText',outline(root,''));
+ let rows='';const outs={};for(const m of['std','flat','right']){const list=exprList(trees[m]),r=C.stage==='ok'?K.interpret(trees[m],S.limit):null;outs[m]=r?JSON.stringify([r.status,r.output]):'';
+  rows+='<tr'+(m===S.mode?' class="dy-sel"':'')+'><th scope="row">'+MODES[m]+'</th><td class="dy-mono">'+(list.length?esc(list.slice(0,4).join('  ·  '))+(list.length>4?'  ·  …':''):'(işleçli ifade yok)')+'</td><td class="dy-mono dy-nw">'+(r?esc(r.status==='done'?outText(r.output,8):outText(r.output,8)+' → '+state(r)):'—')+'</td></tr>';}
+ $('ruleRows').innerHTML=rows;
+ if(st.nodes>600&&S.stmt==='all')drawTree(null,['Ağaçta '+nf(st.nodes)+' düğüm var: bütünü çizilmiyor.','“Gösterilen” listesinden tek bir deyim seç.']);else drawTree(root);
+ const diff=C.stage==='ok'&&(outs.flat!==outs.std||outs.right!==outs.std);
+ let msg=(S.mode==='std'?'Standart kural: ':'Deney kuralı (“'+MODES[S.mode]+'”): öbür sekmeler her zaman standart kuralı kullanır. ')+nf(C.lex.tokens.length-1)+' tokendan '+nf(st.nodes)+' düğümlü ağaç kuruldu. ';
+ msg+=C.stage==='ok'?(diff?'Üç kural aynı tokenlardan farklı ağaç kuruyor ve çıktı değişiyor: öncelik ve birleşme, anlamın parçasıdır.':'Bu programda üç kural da aynı çıktıyı veriyor: sonucu değiştirecek bir işleç dizisi yok (ya da parantezler biçimi zaten sabitliyor).'):'';
+ if(C.stage==='sem'){const e=C.sem.errors[0];statusWithCode('parseStatus',msg+'Ağaç kuruldu ama anlam denetimi geçmedi ('+e.line+':'+e.col+'): '+e.msg,'err',e.line,e.col);}else status('parseStatus',msg);}
+
+/* ---------- 03 · kod üretimi ---------- */
+const hex=b=>b.map(x=>x.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+function tacListing(t){let n=0;return t.code.length?t.code.map(i=>i.op==='label'?K.tacText(i):String(++n).padStart(3,' ')+'  '+K.tacText(i)).join('\n'):'(komut yok)';}
+function bcListing(prog,cur,hits){return prog.code.map((i,a)=>'<tr'+(a===cur?' class="dy-now" aria-current="true"':'')+'><th scope="row">'+a+'</th>'+(hits?'':'<td class="dy-mono">'+hex(K.insBytes(i))+'</td>')+'<td class="dy-mono">'+esc(K.insText(i,prog.vars))+'</td><td>'+(i.line?i.line+':'+i.col:'—')+'</td>'+(hits?'<td class="dy-num">'+nf(hits[a])+'</td>':'')+'</tr>').join('');}
+function renderGen(){$('opRows').innerHTML||($('opRows').innerHTML=K.OPCODES.map((o,i)=>'<tr><th scope="row" class="dy-mono">'+hex([i])+'</th><td class="dy-mono">'+o[0]+'</td><td>'+(o[1]?o[1]+' bayt':'—')+'</td><td class="dy-mono">'+esc(o[2])+'</td><td>'+esc(o[3])+'</td></tr>').join(''));
+ const ids=['tacCount','bcCount','bcBytes','genTheory','genEq'];
+ if(C.stage!=='ok'){for(const id of ids){put(id,'—');put(id+'Note','');}put('tacRaw','(kod yok)');put('tacOpt','(kod yok)');put('optSrc','(kod yok)');$('bcRows').innerHTML='<tr><td colspan="4">Kod üretilmedi.</td></tr>';$('optRows').innerHTML='<tr><td colspan="4">Kod üretilmedi.</td></tr>';
+  status('genStatus','Kod üretilmedi: kaynak program '+({lex:'sözcük çözümleme',parse:'ayrıştırma',sem:'anlam denetimi'})[C.stage]+' aşamasında takıldı. Hatalı programdan kod üretmek, yanlış programı doğruymuş gibi çalıştırmak olurdu.','err');return;}
+ const t0=C.tac0.count,t1=C.tac1.count,b0=C.bc0.code.length,b1=C.bc1.code.length,y0=K.encode(C.bc0.code).bytes.length,y1=K.encode(C.bc1.code).bytes.length,drop=(a,b)=>a===b?'değişmedi':a?pct((a-b)/a)+' azalma':'—';
+ put('tacCount',nf(t0)+' → '+nf(t1)+' komut');put('tacCountNote',drop(t0,t1)+' · geçici ad '+nf(C.tac0.temps)+' → '+nf(C.tac1.temps));
+ put('bcCount',nf(b0)+' → '+nf(b1)+' komut');put('bcCountNote',drop(b0,b1));put('bcBytes',nf(y0)+' → '+nf(y1)+' bayt');put('bcBytesNote',drop(y0,y1)+' · '+nf(C.bc1.vars.length)+' değişken yuvası');
+ const opt=S.view==='opt',prog=opt?C.bc1:C.bc0,st=opt?C.optStats:C.stats,tc=opt?t1:t0;
+ put('genTheory','bytecode '+nf(prog.code.length)+' · '+nf(st.bytecodeLength)+'   üç adresli '+nf(tc)+' · '+nf(st.tacLength));put('genTheoryNote','fark '+nf(prog.code.length-st.bytecodeLength)+' ve '+nf(tc-st.tacLength)+' · '+(opt?'iyileştirilmiş':'ham')+' ağaç: '+nf(st.nodes)+' düğüm');
+ const a=R.pairs[1];put('genEq',a==='exact'?'Aynı sonuç':a==='prefix'?'Sınır içinde uyumlu':'FARKLI SONUÇ');
+ put('genEqNote',(a==='prefix'?'adım sınırı aşıldı; çıktılar ortak başlangıçları kadar aynı':'ham: '+state(R.vm0)+' · iyileştirilmiş: '+state(R.vm1))+' · çıktı '+outText(R.vm1.output,6)+' · yürütülen '+nf(R.vm0.steps)+' → '+nf(R.vm1.steps)+' komut');
+ put('tacRaw',tacListing(C.tac0));put('tacOpt',tacListing(C.tac1));$('bcRows').innerHTML=bcListing(prog,-1,null);
+ const log=C.opt.log;$('optRows').innerHTML=log.length?log.map(l=>'<tr><th scope="row">'+RULES[l.rule]+'</th><td>'+l.line+':'+l.col+'</td><td class="dy-mono">'+esc(l.before)+'</td><td class="dy-mono">'+esc(l.after)+'</td></tr>').join(''):'<tr><td colspan="4">'+(S.fold||S.simplify||S.dce?'Seçili dönüşümlerin uygulanabileceği bir yer bulunamadı.':'Üç kutu da kapalı: ağaç olduğu gibi kullanılıyor.')+'</td></tr>';
+ put('optSrc',K.prettyProgram(C.opt.ast)||'(boş program: bütün deyimler elendi)');
+ const cnt=r=>log.filter(l=>l.rule===r).length,on=[S.fold&&'sabit katlama',S.simplify&&'cebirsel sadeleştirme',S.dce&&'ölü kod eleme'].filter(Boolean);
+ status('genStatus',!on.length?'İyileştirme kapalı: iki sütun aynı kodu gösteriyor ('+nf(b0)+' bytecode komutu).':log.length?nf(log.length)+' dönüşüm uygulandı: '+nf(cnt('fold'))+' sabit katlama, '+nf(cnt('simplify'))+' sadeleştirme, '+nf(cnt('dce'))+' ölü kod eleme. Bytecode '+nf(b0)+' komuttan '+nf(b1)+' komuta indi; iki sürüm çalıştırıldı ve '+(a==='exact'?'aynı sonucu verdi.':a==='prefix'?'adım sınırına kadar uyumlu kaldı.':'FARKLI sonuç verdi: bu bir hatadır.'):'Açık dönüşümler ('+on.join(', ')+') bu programda uygulanacak yer bulamadı; kod değişmedi.',a==='diff'?'err':'');}
+
+/* ---------- 04 · yürütme ---------- */
+function stop(){playing=false;const b=$('vmPlay');if(b)b.textContent='Çalıştır';}
+function vmView(){const prog=S.which==='opt'?C.bc1:C.bc0;$('vmRows').innerHTML=bcListing(prog,M.status==='run'?M.pc:-1,M.hits);
+ const row=$('vmRows').querySelector('.dy-now'),wrap=$('vmWrap');if(row){const top=row.offsetTop-34,bot=row.offsetTop+row.offsetHeight;if(top<wrap.scrollTop)wrap.scrollTop=Math.max(0,top);else if(bot>wrap.scrollTop+wrap.clientHeight)wrap.scrollTop=bot-wrap.clientHeight;}
+ const i=prog.code[M.pc];put('vmPc',M.status==='run'?'pc = '+M.pc+'\n'+K.insText(i,prog.vars)+(i.line?'   (kaynak '+i.line+':'+i.col+')':''):M.status==='done'?'pc = '+M.pc+'\nHALT: program bitti':M.status==='error'?'pc = '+M.last+'\nhata: '+M.error.msg:'pc = '+M.pc+'\nadım sınırında durduruldu');
+ $('vmStack').innerHTML=M.stack.length?M.stack.map(v=>'<li>'+v+'</li>').join(''):'<li class="dy-empty">boş</li>';
+ put('vmVars',prog.vars.length?prog.vars.map((n,k)=>n+' = '+(M.slots[k]===null?'—':M.slots[k])).join('\n'):'(değişken yok)');
+ put('vmOut',M.output.length?M.output.slice(-40).join('\n'):'(henüz çıktı yok)');
+ const done=M.status!=='run';$('vmStep').disabled=done;$('vmPlay').disabled=done;$('vmEnd').disabled=done;}
+function renderRun(){put('vmSpeedOut',$('vmSpeed').value+' komut/s');put('runCountOut',nf(+$('runCount').value)+' kez');
+ const ids=['runAgree','runSteps','runStack','runGain','payback'];
+ if(C.stage!=='ok'){for(const id of ids){put(id,'—');put(id+'Note','');}$('execRows').innerHTML='<tr><td colspan="4">Çalıştırılacak kod yok.</td></tr>';$('vmRows').innerHTML='<tr><td colspan="4">Kod yok.</td></tr>';put('vmPc','—');$('vmStack').innerHTML='<li class="dy-empty">boş</li>';put('vmVars','—');put('vmOut','—');for(const id of['vmStep','vmPlay','vmEnd','vmRewind'])$(id).disabled=true;drawProfile();
+  status('runStatus','Program çalıştırılmadı: derleme '+({lex:'sözcük çözümleme',parse:'ayrıştırma',sem:'anlam denetimi'})[C.stage]+' aşamasında durdu. Derleyici hatalı programı çalıştırmayı reddeder; hata çalışmadan önce yakalanmıştır.','err');return;}
+ $('vmRewind').disabled=false;const unit=['değerlendirme','komut','komut','komut'];
+ $('execRows').innerHTML=[['Ağaç gezen yorumlayıcı',R.tree],['Yığın makinesi · ham bytecode',R.vm0],['Yığın makinesi · iyileştirilmiş bytecode',R.vm1],['Üç adresli kod yorumlayıcısı',R.tac]].map(([name,r],k)=>'<tr'+((k===1&&S.which==='raw')||(k===2&&S.which==='opt')?' class="dy-sel"':'')+'><th scope="row">'+name+'</th><td>'+esc(state(r))+'</td><td class="dy-mono">'+esc(outText(r.output,16))+'</td><td class="dy-num">'+nf(r.steps)+' '+unit[k]+'</td></tr>').join('');
+ const bad=R.pairs.includes('diff'),lim=R.pairs.includes('prefix');
+ put('runAgree',bad?'UYUŞMAZLIK VAR':lim?'Sınır içinde uyumlu':'Dördü de aynı sonucu verdi');
+ put('runAgreeNote',bad?'yürütücülerden biri farklı çıktı ya da hata üretti: bu, sayfada bir hata demektir':lim?'adım sınırı aşıldı; çıktılar ortak başlangıçları kadar aynı, kesin karşılaştırma yapılamaz':R.vm0.status==='error'?'aynı çıktı, aynı konumda aynı hata ('+R.vm0.error.line+':'+R.vm0.error.col+')':nf(R.vm0.output.length)+' çıktı değeri tek tek karşılaştırıldı');
+ const ev=R.tree.events;put('runSteps',nf(R.vm0.steps)+' · '+nf(R.tree.steps)+' komut');put('runStepsNote','fark '+nf(R.vm0.steps-R.tree.steps)+' · yaprak '+nf(ev.leaf)+' + işleç '+nf(ev.operator)+' + atama '+nf(ev.assign)+' + print '+nf(ev.print)+' + sınama '+nf(ev.test)+' + atlama '+nf(ev.jump)+' + bitiş '+nf(ev.halt));
+ put('runStack',nf(R.vm0.maxStack)+' · '+nf(C.stats.stackNeed));put('runStackNote',R.vm0.maxStack===C.stats.stackNeed?'sınıra ulaşıldı (ham kod)':'en derin ifade bu çalıştırmada tamamlanmadı');
+ const s0=R.vm0.steps,s1=R.vm1.steps,both=R.vm0.status!=='limit'&&R.vm1.status!=='limit';
+ put('runGain',both?nf(s0)+' → '+nf(s1)+' komut':'—');put('runGainNote',both?(s0===s1?'kazanç yok':pct((s0-s1)/s0)+' daha az komut'):'adım sınırı aşıldığı için ölçülemedi');
+ const N=+$('runCount').value,v=C.opt.visits;
+ if(R.vm0.status==='done'&&R.vm1.status==='done'){put('payback','ham '+nf(N*s0)+' · iyileştirilmiş '+nf(v+N*s1));put('paybackNote',s0===s1?(v?'iyileştirici '+nf(v)+' düğüm gezdi ama çalıştırma başına kazanç yok: bedel hiç geri dönmez':'iyileştirme kapalı: iki toplam aynı'):'iyileştirici '+nf(v)+' düğüm gezdi; her çalıştırma '+nf(s0-s1)+' komut kazandırıyor: '+nf(Math.floor(v/(s0-s1))+1)+'. çalıştırmadan başlayarak kârlı');}
+ else{put('payback','—');put('paybackNote','program düzgün bitmediği için toplam iş tanımlı değil');}
+ vmView();drawProfile();
+ const prog=S.which==='opt'?'iyileştirilmiş':'ham';
+ if(M.status==='run')status('runStatus','Adım adım makine ('+prog+' bytecode): '+nf(M.steps)+' komut yürütüldü, sıradaki adres '+M.pc+'. Boşluk tuşu bir adım atar.'+(M.steps===0&&R.vm0.status==='limit'?' Dikkat: bu program adım sınırını aşıyor; “Sona git” sınırda durur.':''));
+ else if(M.status==='done')status('runStatus','Makine HALT komutuna vardı: '+nf(M.steps)+' komut, en çok '+nf(M.maxStack)+' yığın gözü, çıktı '+outText(M.output,12)+'. Aynı çıktıyı ağaç gezen yorumlayıcı da '+nf(R.tree.steps)+' değerlendirmeyle buldu.');
+ else if(M.status==='error')statusWithCode('runStatus','Çalışma hatası: '+M.error.msg+' (kaynak '+M.error.line+':'+M.error.col+', adres '+M.last+'). Makine durdu; hatadan önce '+nf(M.steps)+' komut yürütüldü, çıktı '+outText(M.output,12)+'. Derleyici bunu önceden göremez: bölen ancak çalışırken belli olur.','err',M.error.line,M.error.col);
+ else status('runStatus','Adım sınırı: makine '+nf(S.limit)+' komuttan sonra durduruldu. Bu, döngünün sonsuz olduğunun kanıtı değildir; yalnız sınırın aşıldığını gösterir. Sınırı yükseltip yeniden deneyebilirsin.','warn');}
+function step(){if(!M||M.status!=='run')return false;K.vmStep(M);if(M.status==='run'&&M.steps>=M.maxSteps)K.vmStep(M);return M.status==='run';}
+function frame(t){if(!playing)return;const dt=Math.min(.05,(t-lastT)/1000);lastT=t;acc+=dt*+$('vmSpeed').value;let moved=false;while(acc>=1&&playing){acc-=1;moved=true;if(!step())stop();}if(moved)renderRun();if(playing)requestAnimationFrame(frame);}
+
+/* ---------- ortak ---------- */
+function render(){shared();if(active==='lex')renderLex();else if(active==='parse')renderParse();else if(active==='gen')renderGen();else renderRun();}
+function recompute(){compute();render();}
+function loadPreset(id){$('preset').value=id;$('src').value=K.PRESETS[id].src;$('src').scrollTop=0;S.stmt='all';recompute();}
+function reset(name){if(name==='lex')$('lexWs').checked=false;
+ else if(name==='parse'){S.stmt='all';S.mode='std';$('parseMode').value='std';}
+ else if(name==='gen'){S.fold=S.simplify=S.dce=true;$('optFold').checked=$('optSimplify').checked=$('optDce').checked=true;S.view='opt';$('genView').value='opt';}
+ else{S.which='raw';$('vmWhich').value='raw';$('vmSpeed').value=DEF.speed;S.limit=DEF.limit;$('runLimit').value=String(DEF.limit);$('runCount').value=DEF.runs;}
+ recompute();}
+const tabs=['lex','parse','gen','run'];
+function tab(name){stop();active=name;tabs.forEach(t=>{$('panel-'+t).hidden=t!==name;$('tab-'+t).setAttribute('aria-selected',String(t===name));$('tab-'+t).tabIndex=t===name?0:-1;});render();}
+tabs.forEach((t,i)=>{$('tab-'+t).onclick=()=>tab(t);$(t+'Reset').onclick=()=>reset(t);$('tab-'+t).onkeydown=e=>{const j=e.key==='ArrowRight'?(i+1)%4:e.key==='ArrowLeft'?(i+3)%4:e.key==='Home'?0:e.key==='End'?3:null;if(j!==null){e.preventDefault();tab(tabs[j]);$('tab-'+tabs[j]).focus();}};});
+{const groups=[['Örnek programlar',['oncelik','parantez','birlesme','faktoriyel','ebob','iyilestir']],['Hatalı ve sınırdaki programlar',['sozcukHatasi','sozdizimHatasi','anlamHatasi','sifiraBolme','sonsuz']]];
+ $('preset').innerHTML=groups.map(([g,ids])=>'<optgroup label="'+g+'">'+ids.map(id=>'<option value="'+id+'">'+esc(K.PRESETS[id].label)+'</option>').join('')+'</optgroup>').join('')+'<option value="custom">Kendi programın</option>';}
+$('preset').onchange=()=>{const v=$('preset').value;if(v!=='custom')loadPreset(v);};
+$('srcReset').onclick=()=>loadPreset($('preset').value==='custom'?DEF.preset:$('preset').value);
+$('src').addEventListener('input',()=>{const v=$('src').value,hit=Object.keys(K.PRESETS).find(id=>K.PRESETS[id].src===v);$('preset').value=hit||'custom';recompute();});
+$('src').addEventListener('scroll',()=>{$('srcGutter').scrollTop=$('src').scrollTop;});
+$('srcGoto').onclick=()=>{if(!errAt||!errAt.line)return;const ta=$('src'),lines=ta.value.split('\n');let o=0;for(let i=0;i<errAt.line-1;i++)o+=lines[i].length+1;const line=Array.from(lines[errAt.line-1]||''),a=o+line.slice(0,errAt.col-1).join('').length,len=line.slice(errAt.col-1,errAt.col-1+Math.max(1,errAt.length||1)).join('').length;ta.focus();ta.setSelectionRange(a,a+len);};
+$('lexWs').onchange=render;
+$('parseStmt').onchange=()=>{S.stmt=$('parseStmt').value;render();};$('parseMode').onchange=()=>{S.mode=$('parseMode').value;render();};
+$('optFold').onchange=()=>{S.fold=$('optFold').checked;recompute();};$('optSimplify').onchange=()=>{S.simplify=$('optSimplify').checked;recompute();};$('optDce').onchange=()=>{S.dce=$('optDce').checked;recompute();};
+$('genView').onchange=()=>{S.view=$('genView').value;render();};
+$('vmWhich').onchange=()=>{S.which=$('vmWhich').value;vmRewind();};
+$('runLimit').onchange=()=>{S.limit=+$('runLimit').value;recompute();};
+$('vmSpeed').oninput=()=>{put('vmSpeedOut',$('vmSpeed').value+' komut/s');};$('runCount').oninput=()=>renderRun();
+$('vmStep').onclick=()=>{stop();step();renderRun();};
+$('vmPlay').onclick=()=>{if(playing){stop();return;}if(!M||M.status!=='run')return;playing=true;$('vmPlay').textContent='Duraklat';lastT=performance.now();acc=0;requestAnimationFrame(frame);};
+$('vmEnd').onclick=()=>{stop();while(step());renderRun();};
+$('vmRewind').onclick=()=>vmRewind();
+document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||e.target.closest('input,select,button,a,textarea,summary,[role=tab]'))return;if(e.key.toLowerCase()==='r')reset(active);else if(e.key===' '&&active==='run'){e.preventDefault();stop();step();renderRun();}});
+$('src').value=K.PRESETS[DEF.preset].src;$('preset').value=DEF.preset;compute();
+new ResizeObserver(()=>render()).observe(document.querySelector('.app-content'));new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});render();
+})();
+</script></body></html>

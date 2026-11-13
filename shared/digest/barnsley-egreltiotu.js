@@ -1,0 +1,138 @@
+window.ACELYA_DIGEST = window.ACELYA_DIGEST || {};
+window.ACELYA_DIGEST["barnsley-egreltiotu"] = {
+  slug: "barnsley-egreltiotu",
+  title: "Barnsley: Rastgele Seçimden Bir Yaprak",
+  field: "Matematik",
+  level: "Lise–Lisans",
+  minutes: 35,
+  tagline: "Dört matrisle bir eğreltiotu çiz. Alan küçülmesini uzaklık küçülmesinden, ideal şekli ziyaret yoğunluğundan ayır; sonlu örneğin ortalamasını denklemle sınayarak ilerle.",
+  hook: "Bir noktayı her seferinde dört kuraldan biriyle taşıyorsun. Seçimler rastgele, ortaya çıkan şekil tanıdık: bir eğreltiotu. Kuralları sabit tutup seçilme olasılıklarını değiştirirsen yaprağın şekli mi, görünürlüğü mü değişir?",
+  bigIdea: "Dönüşümler ideal çekicinin geometrisini kurar; seçim olasılıkları bu küme üzerindeki ziyaret dağılımını, sonlu örnek ise ekranda görebildiğimiz ayrıntıları belirler.",
+  story: [
+    "Bir yaprağın her küçük kıvrımını tek tek çizmek yerine, görüntünün bazı parçalarının nasıl küçültülüp taşındığını tarif ettiğini düşün. Michael Barnsley'nin Fractals Everywhere kitabında anlattığı eğreltiotu örneği bu fikri görünür kılar. Cleve Moler'in Numerical Computing with MATLAB kitabındaki uygulama yalnız dört afin dönüşüm kullanır. Buradaki laboratuvar aynı katsayıları kullanıyor; sap kuralını f₁ diye numaralandırıyor.",
+    "Şeklin arkasında, tek tek noktaları çizmekten daha genel bir soru var: küçük kopyalarının birleşimi yine kendisini veren bir küme var mı? John E. Hutchinson'ın 1981 tarihli Fractals and Self Similarity makalesi, kontraksiyonlardan oluşan sistemlerin değişmez kümelerini ve üzerlerindeki olasılık ölçülerini bir çerçevede inceler. Geometrinin varlığıyla, bir noktanın bu geometriyi hangi sıklıklarla ziyaret ettiği ayrı sorulardır.",
+    "Bu ayrım resme bakarken de işe yarar. On bin kayıtta belirgin görünen bir yaprakçık, yüz kayıtta görünmeyebilir. Bir köşenin koyulaşması orada daha çok alan bulunduğunu değil, daha çok noktanın aynı piksellere düştüğünü gösterebilir. Üstelik bir bitkiye benzemek, onun biyolojik büyümesini modellemek değildir: burada hücreler, besin veya ışık yok; matrisler ve olasılıklar var.",
+  ],
+  core: [
+    {
+      heading: "Bir matris, bir öteleme, yeni bir nokta",
+      body: "<strong>Afin dönüşüm</strong>, bir doğrusal dönüşüme öteleme ekler. z = (x; y) noktasına önce A matrisi uygulanır, sonra b vektörü eklenir. f₂ için x′ = 0,85x + 0,04y ve y′ = −0,04x + 0,85y + 1,6. P = (1; 2) böylece (0,93; 3,26)'ya gider. İki yeni koordinat da aynı eski x ve y ile hesaplanır; x'i güncelleyip onu y hesabına sokmak başka bir dönüşümdür.",
+      formula: "fᵢ(z) = Aᵢz + bᵢ; zₙ₊₁ = fᵢₙ(zₙ)",
+      formulaNote: "iₙ, n. geçişte seçilen kuraldır. Koordinatlar, matris katsayıları ve adım sayıları boyutsuzdur; n fiziksel zaman değildir. bᵢ bir öteleme vektörüdür.",
+    },
+    {
+      heading: "Alanı küçültmek, her uzaklığı küçültmez",
+      body: "A = [[a, b], [c, d]] birim kareyi paralelkenara, tekil durumda ise doğru parçasına veya noktaya dönüştürür; alan çarpanı |ad − bc|'dir. Negatif determinant yönelimi ters çevirir. <strong>Kontraksiyon</strong> ise bütün nokta çiftlerinin uzaklığını, 1'den küçük ortak bir çarpanla sınırlar. Öklid uzaklığında bu çarpanın en küçüğü, A'nın en büyük tekil değeri σₘₐₓ'tır. diag(2; 0,2) alanı 0,4 katına indirir ama yatay uzaklıkları iki katına çıkarır: kontraksiyon değildir.",
+      formula: "Alan çarpanı = |det A|; ∥f(P) − f(Q)∥ ≤ σₘₐₓ(A) ∥P − Q∥",
+      formulaNote: "Tekil değerler AᵀA'nın özdeğerlerinin karekökleridir. Bu dört kuralda σₘₐₓ sırasıyla 0,16; 0,85094; 0,34071; 0,37915'tir: hepsi 1'den küçük. Öteleme, iki noktanın farkında yok olur.",
+    },
+    {
+      heading: "Küme ile dağılım farklı nesnelerdir",
+      body: "Bu dört kontraktif harita, kendi görüntülerinin birleşimine eşit tek bir boş olmayan kompakt <strong>çekici küme</strong> K belirler. Kuralların her biri pozitif olasılıkla seçildiğinde ideal durağan dağılımın desteği bu K'dir; olasılıkları değiştirmek K'yi değiştirmez. Ancak bazı bölgeler daha sık ziyaret edilir. Bir olasılık sıfıra inince ilgili harita örneklemeye katılmaz; özgün K ile aynı destek garantisi artık yoktur.",
+      formula: "K = f₁(K) ∪ f₂(K) ∪ f₃(K) ∪ f₄(K)",
+      formulaNote: "Destek, çevresindeki her açık komşuluğun pozitif olasılık aldığı noktalardan oluşur. K, genel afin görüntülerinden kurulur; her parçası aynı oranla küçülmüş bir benzerlik kopyası olmak zorunda değildir.",
+    },
+    {
+      heading: "Bir seçimin olasılığı, bölgenin alanı değildir",
+      body: "Klasik olasılıklar f₁,…,f₄ için (0,01; 0,85; 0,07; 0,07)'dir. N = 10.000 bağımsız seçimli ideal modelde f₂ sayımının beklentisi 8.500'dür; her sonlu denemenin tam bu sayıyı vermesi gerekmez. Renk son seçilen kuralı kodlar. Aynı piksele farklı adımlar düşebilir; seçim sayısı, ayrı bir yaprak bölgesinin alanını ölçmez. Sayfanın tohumlu üreteci de gerçek bağımsız rastgeleliğin yerine kullanılan tekrarlanabilir, deterministik bir hesap yöntemidir.",
+      formula: "pᵢ = wᵢ / ∑wⱼ; E[Cᵢ] = Npᵢ; gözlenen pay = Cᵢ / N",
+      formulaNote: "wᵢ ≥ 0 ve ∑wᵢ > 0 gerekir. p ve paylar boyutsuzdur. İlk 100 dönüşüm kayda alınmaz; gösterilen N, bundan sonraki noktaların ve seçimlerin sayısıdır.",
+    },
+    {
+      heading: "Durağan ortalamayı çizmeden bulabilirsin",
+      body: "İdeal modelde yeni kural mevcut noktadan bağımsız seçilsin. Durağan durumda noktanın beklenen konumu m değişmez. Beklentinin doğrusallığı m = ∑pᵢ(Aᵢm + bᵢ) verir. Ağırlıklı matris ve ötelemeyi hesaplayınca iki bilinmeyenli doğrusal sistem elde ederiz. Bu m, ideal ziyaret dağılımının ortalamasıdır; görüntüdeki sınırın veya kümenin geometrik alan merkezinin tanımı değildir.",
+      formula: "(I − ∑pᵢAᵢ)m = ∑pᵢbᵢ",
+      formulaNote: "I birim matristir. Sayfa bu sistemi çözer ve örnek ortalamasına Öklid uzaklığını gösterir. Ardışık noktalar ilişkili olduğundan bağımsız örnekler için kullanılan σ/√N hata çubuğu doğrudan uygulanmaz.",
+    },
+  ],
+  lab: {
+    intro: "Üç sekme kendi ayarlarını korur. Her deneyde ilgili sekmenin Sıfırla düğmesiyle başla. İlk nokta (0; 0), kayda alınmayan ilk adım sayısı 100'dür. Nokta sayısı değişince aynı tohumdan yeniden üretilir; tohum kutusundaki değişiklik için üretme veya uygulama düğmesine bas. Geçersiz tohum ve sıfır toplam ağırlık sonuçları temizler.",
+    experiments: [
+      {
+        title: "Yüz seçimde kaybolan sap",
+        predict: "Sap kuralının olasılığı %1 ise 100 kayıtta mutlaka bir kez seçilir mi? Aynı tohumu yeniden çalıştırınca sayımlar değişir mi?",
+        do: "Noktaları üret sekmesini sıfırla. Rastgele sayı tohumu 2026 kalsın; Kaydedilen nokta sayısı N'yi 100 yap. Seçim tablosunu oku. Sonra N = 10.000 seç ve Aynı tohumla üret'e iki kez bas. Son kurala göre renklendir'i aç; renkleri tablodaki son seçim sayılarıyla birlikte yorumla.",
+        observe: "N = 100 için f₁,…,f₄ sayımları 0, 85, 6, 9'dur. N = 10.000 için 107, 8.460, 690, 743 olur; f₂'nin gözlenen payı %84,60'tır. Son nokta (−0,6256; 3,6352), son kural f₂; örnek ortalaması (0,7905; 6,1044). Aynı tohumla yeniden üretmek bunları aynen tekrarlar.",
+        explain: "Beklenen f₁ sayısı N = 100 için 1'dir; zorunlu sonuç değildir. Sonlu örnekte bir kuralın hiç seçilmemesi, ideal çekicide onun katkısının yokluğu demek değildir. N artınca aynı dizinin daha uzun bir öneki kullanılır. Bir belirli örneğin her hatasının her artışta azalacağı garantisi yoktur.",
+      },
+      {
+        title: "Alan küçülürken bir yön büyüyebilir",
+        predict: "Birim karenin alanı küçüldüğünde, içindeki her iki noktanın uzaklığı da küçülmek zorunda mı?",
+        do: "Afin dönüşümler sekmesini sıfırla; İncelenecek dönüşüm f₂, Girdi P: x = 1 ve y = 2 olur. Nokta, alan ve uzunluk kartlarını karşılaştır. Alan küçülmesi yeter mi? düğmesine bas. Son olarak menüden f₄ · sağ alt kopya'yı seç ve Yönelim kartını oku.",
+        observe: "f₂: f(P) = (0,9300; 3,2600), alan 0,7241 / 0,7241; iki uzunluk çarpanı da 0,85094. Karşı örnek: f(P) = (2,0000; 0,4000), alan 0,4000; uzunluk çarpanları 2,00000 ve 0,20000. f₄: f(P) = (0,4100; 1,1800), alan 0,1088; yönelim ters döner.",
+        explain: "Alan iki bağımsız yöndeki gerilmenin birleşimini ölçer; bir yöndeki büyümeyi diğerindeki güçlü küçülme gizleyebilir. f₄'ün det A = −0,1088 işareti yönelim değişimini, mutlak değeri alanı anlatır. Ötelemeler alanı ve nokta çiftlerinin uzaklığını değiştirmez.",
+      },
+      {
+        title: "Aynı çekici, farklı ziyaret ortalaması",
+        predict: "Dört ağırlığı eşit yapmak, aynı noktaların yalnız çizilme sırasını mı değiştirir? Nokta bulutunun ortalaması nerede olur?",
+        do: "Olasılık ve yoğunluk sekmesini sıfırla: Ağırlık hazırı Eşit · 25, 25, 25, 25; her panelde N = 10.000 ve ortak tohum 2026. İki resimle dört ortalama kartını karşılaştır. Ardından Ağırlık hazırı'nı Klasik · 1, 85, 7, 7 yap; son olarak Sap ağırlıklı · 40, 40, 10, 10 seç.",
+        observe: "Eşit ağırlıkta seçili sayımlar 2.583, 2.423, 2.411, 2.583; örnek ortalaması (0,0346; 1,3997), durağan ortalama (0,0279; 1,4437), fark 0,0445'tir. Klasik başvuruda teori (0,7968; 6,1676), fark 0,0635. Klasik hazırı seçince iki örnek aynı olur. Sap ağırlıklıda teori (0,0422; 1,5371), örnek (0,0441; 1,4969)'dur.",
+        explain: "Bu üç hazırda bütün olasılıklar pozitiftir; ideal K aynı kalırken ziyaret dağılımı değişir. Aynı tohum aynı sayısal diziyi verir, fakat farklı seçim eşikleri farklı haritaları seçer. Sonlu resimde bazı ayrıntıların solması, tek başına ideal kümenin değiştiğini göstermez.",
+      },
+      {
+        title: "Dört kuraldan yalnız biri kalırsa",
+        predict: "f₂ her seferinde seçilirse rastgelelik ve eğreltiotunun geri kalanı ne olur? Kartta 0,0000 fark görmek tam eşitlik midir?",
+        do: "Olasılık ve yoğunluk sekmesini sıfırla; Ağırlık hazırı'ndan Yalnız f₂ · 0, 100, 0, 0 seç. Nokta sayısı 10.000 ve tohum 2026 kalsın. Sonra f₁ ağırlığını 100, f₂ ağırlığını 0 yap; f₃ ve f₄ zaten 0'dır. Sayım, ortalama ve durum satırını incele.",
+        observe: "Yalnız f₂ için sayımlar 0, 10.000, 0, 0; örnek ve teori dört ondalıkta (2,6556; 9,9585), fark 0,0000 görünür. Gerçek hesapta ortalama farkı yaklaşık 5,52 × 10⁻¹⁰'dur. Yalnız f₁ bırakıldığında bütün kayıtlar (0; 0), seçim sayımları 10.000, 0, 0, 0 olur.",
+        explain: "Etkin sistem tek kontraktif haritaya düştü. f₂'nin sabit noktası (I − A₂)z = b₂ çözümü, yani (640/241; 2400/241)'dir. f₁'in sabit noktası orijindir; deney zaten oradan başlar. Pozitif olasılık koşulunu kaldırınca özgün eğreltiotu desteğinin korunması beklenemez. Dört ondalık gösterim küçük farkları sıfıra yuvarlar.",
+      },
+    ],
+  },
+  wow: [
+    { title: "Sıfır alan, tek nokta demek değil", body: "Sap kuralı f₁(x; y) = (0; 0,16y). Birim kareyi uzunluğu 0,16 olan bir doğru parçasına indirir: alan 0, ama bütün noktalar aynı yere gitmez. Örneğin (0; 0) ile (0; 1), aralarında 0,16 uzaklık kalacak biçimde dönüşür. Determinantın sıfır olması, matrisin tamamının sıfır olması değildir." },
+    { title: "Aynı seçimlerle başlangıç unutulur", body: "İki farklı başlangıca aynı kural dizisini uygula. Bütün haritaların en büyük uzaklık çarpanı r = √0,7241 ≈ 0,850940656 olduğundan, 100 adım sonra aralarındaki uzaklık en çok r¹⁰⁰ ≈ 9,77 × 10⁻⁸ katına iner. Bu, tam aritmetikte bütün seçim dizileri için bir üst sınırdır. İlk 100 adımı atmanın neden yararlı olduğunu açıklar; sonlu örneğin tam durağan dağılım olduğunu kanıtlamaz." },
+    { title: "Yüz seçim, sapı kaçırabilir", body: "İdeal bağımsız seçim modelinde p₁ = 0,01 olsun. 100 seçim boyunca f₁'in hiç seçilmeme olasılığı (1 − 0,01)¹⁰⁰ ≈ 0,3660; yani yaklaşık %36,6'dır. Bu oran, tek bir sabit tohumun 'rastgelelik miktarı' değildir. Seçimlerin bağımsız olduğu ideal deneyler topluluğuna aittir; oluşan nokta konumları ise ardışık dönüşümler nedeniyle birbirine bağlıdır." },
+  ],
+  worked: {
+    title: "Eşit ağırlıklı bulutun merkezini hesapla",
+    prompt: "Dört kuralın her biri pᵢ = 1/4 olasılıkla seçilsin. Durağan ziyaret dağılımının ortalaması m = (mₓ; mᵧ) nedir? Tohum 2026 ve N = 10.000 örneğiyle karşılaştır.",
+    steps: [
+      "Durağanlık ve yeni kuralın mevcut noktadan bağımsız seçilmesi, m = (∑pᵢAᵢ)m + ∑pᵢbᵢ verir. Matrisleri eşit ağırlıkla topla: ∑pᵢAᵢ = [[0,225; 0,015], [0,1125; 0,3675]], ∑pᵢbᵢ = (0; 0,91). Bu katsayılar dört kuralın aritmetik ortalamalarıdır.",
+      "Bileşenleri yaz: 0,775mₓ − 0,015mᵧ = 0 ve −0,1125mₓ + 0,6325mᵧ = 0,91. İlk denklemden mₓ = (3/155)mᵧ çıkar.",
+      "İkinci denklemde yerine koy: [0,6325 − 0,1125·(3/155)]mᵧ = 0,91. Buradan mᵧ = 2821/1954 ≈ 1,443705220; ardından mₓ = 273/9770 ≈ 0,027942682 bulunur.",
+      "Olasılık ve yoğunluk sekmesini sıfırla. Eşit ağırlık, N = 10.000 ve tohum 2026 için örnek ortalaması yaklaşık (0,034615066; 1,399660964)'tür. Teoriye uzaklığı √[(0,034615066 − mₓ)² + (1,399660964 − mᵧ)²] ≈ 0,044546798; kartta 0,0445 görünür.",
+      "Noktalar, alanın her yerinden eşit olasılıkla seçilmedi. Hesaplanan merkez ziyaret dağılımına aittir. Sonlu N ve başlangıç geçişi yüzünden örnek merkezinin teoriyle tam çakışması gerekmez; tek fark sayısı bir güven aralığı da değildir.",
+    ],
+    result: "Durağan ortalama (0,0279; 1,4437); bu koşudaki örnek ortalaması (0,0346; 1,3997). Bütün koordinatlar ve aralarındaki Öklid farkı boyutsuzdur. Aynı küme, farklı olasılıklarla farklı ziyaret merkezlerine sahip olabilir.",
+  },
+  misconceptions: [
+    { myth: "Alanı küçülen her afin harita kontraksiyondur.", truth: "diag(2; 0,2) alanı 0,4 ile çarpar ama yatay uzaklıkları ikiye katlar. Öklid uzaklığında kontraksiyonu en büyük tekil değerin 1'den küçük olmasıyla denetleriz." },
+    { myth: "%85 olasılık, yaprağın alanının %85'i demektir.", truth: "Bu sayı f₂'nin seçilme olasılığıdır. Son kuralın sayımı, noktaların konum dağılımı ve geometrik alan farklı niceliklerdir. Piksel üst üste binmeleri de görüntünün koyuluğunu etkiler." },
+    { myth: "Olasılıkları nasıl değiştirirsem değiştireyim aynı destek kalır.", truth: "Dört kuralın hepsi pozitif olasılıkla seçilirken aynı ideal K desteği korunur. Sıfır ağırlık ilgili kuralı etkin sistemden çıkarır; aynı destek garantisi kalkar. Yalnız f₂ örneğinde çekici tek sabit noktadır." },
+    { myth: "Bu resim gerçek eğreltiotunun nasıl büyüdüğünü açıklar.", truth: "Bu matematiksel model bir yaprağı andırır; biyolojik mekanizma içermez. Sonlu çizim ideal çekicinin tamamı değildir. Ayrıca genel afin dönüşümlerin determinantlarını bir benzerlik-boyutu formülüne yerleştirmek geçerli olmaz." },
+  ],
+  glossary: [
+    { term: "Afin dönüşüm", definition: "Bir doğrusal dönüşüme öteleme ekleyen kural: f(z) = Az + b." },
+    { term: "Kontraksiyon", definition: "Bütün nokta çiftlerinin uzaklığını 1'den küçük ortak bir katsayıyla sınırlayan dönüşüm." },
+    { term: "Yinelenen fonksiyon sistemi (IFS)", definition: "Aynı uzay üzerinde tekrar tekrar uygulanan sonlu bir dönüşüm ailesi; burada dört kontraktif afin harita." },
+    { term: "Çekici küme", definition: "Bu sistemde kendi görüntülerinin birleşimine eşit, boş olmayan tek kompakt küme K." },
+    { term: "Tekil değer", definition: "Bir matrisin doğrultular boyunca uzunluk değişimini anlatan çarpan; AᵀA özdeğerlerinin karekökleriyle bulunur." },
+    { term: "Durağan dağılım", definition: "Rastgele dönüşümün bir adımı uygulandığında değişmeden kalan olasılık dağılımı." },
+    { term: "Destek", definition: "Her açık komşuluğu pozitif olasılığa sahip noktaların oluşturduğu kapalı küme." },
+    { term: "Tohum", definition: "Sözde rastgele sayı üretecinin başlangıç durumunu belirleyen sayı; aynı hesap koşullarında deneyi tekrarlanabilir yapar." },
+  ],
+  bridge: {
+    heading: "Üniversiteye köprü",
+    body: [
+      "<strong>Lineer Cebir</strong> dersinde matris sütunları, determinant ve tekil değerleri aynı şekil üzerinde okuyabilirsin. f₂ özel olarak dönme ve eş ölçekli küçülmedir: A₂ᵀA₂ = 0,7241I. Bu yüzden her yöndeki uzunluk çarpanı √0,7241'dir. f₃ ve f₄ için iki tekil değer farklıdır; çember elipse dönüşür. Alanın çarpanı tekil değerlerin çarpımıdır, yönelimin işareti ise determinantta saklıdır.",
+      "<strong>Olasılık</strong> ve <strong>Sayısal Analiz</strong> derslerinde, kuralların bağımsız seçildiği ideal modeli bir Markov süreci olarak incelersin: sonraki noktanın dağılımını mevcut nokta ve sabit seçim olasılıkları belirler. Durağan ortalama denklemi, sonsuz dağılım sorusunun iki sayıya indirgenebilen bir parçasıdır. Kontraksiyon teoremleri geometrik varlığı sağlar; sonlu örnek, başlangıç geçişi ve aritmetik hatası ayrıca denetlenir. Benzerlik dönüşümleri için boyut bağıntılarının ek koşulları vardır; bu genel afin aileye otomatik taşınmazlar.",
+    ],
+    topics: ["Afin dönüşümler", "Determinant ve yönelim", "Tekil değerler ve matris normu", "Kontraksiyonlar", "Markov süreçleri", "Durağan beklenti", "Bağımlı örnekler ve sayısal hata"],
+  },
+  quiz: [
+    { question: "A = diag(2; 0,2) için hangisi doğrudur?", options: ["Alan küçüldüğü için bütün uzaklıklar küçülür", "Alan 0,4 katına iner; yatay uzaklık iki katına çıktığından kontraksiyon değildir", "det A negatif olduğundan yönelim ters döner", "Öteleme eklenince σₘₐₓ mutlaka azalır"], answer: 1, explanation: "|det A| = 2·0,2 = 0,4, fakat σₘₐₓ = 2. Alan çarpanı ile en büyük uzunluk çarpanı aynı nicelik değildir; öteleme uzaklık farkını değiştirmez." },
+    { question: "Dört pozitif ağırlığı değiştirince bazı yaprakçıklar sonlu resimde silikleşiyor. En iyi açıklama hangisi?", options: ["İdeal çekici mutlaka değişti", "Her pozitif ağırlık aynı ziyaret yoğunluğunu verir", "Geometrik kurallar aynı; ideal destek korunurken ziyaret yoğunluğu ve sonlu görünürlük değişir", "Görünmeyen her noktaya sıfır olasılık atanmıştır"], answer: 2, explanation: "Bu kontraktif ailede bütün olasılıklar pozitif kaldığı sürece ideal destek aynı K'dir. Nadir ziyaretler küçük N'de görünmeyebilir; resmin tek başına küme üyeliği veya alan kararı vermesi beklenmez." },
+    { question: "Yalnız f₂ açıkken örnek ve teori kartlarının ikisi de (2,6556; 9,9585), fark kartı 0,0000. Ne çıkar?", options: ["Bütün kaydedilmiş noktalar matematiksel olarak tam eşittir", "Dört ondalık gösterim altında fark ayırt edilemiyor; daha küçük bir fark kalabilir", "Diğer üç kural gizlice seçiliyordur", "Durağan ortalama artık olasılıklardan bağımsızdır"], answer: 1, explanation: "Bu koşuda gerçek örnek ortalama farkı yaklaşık 5,52 × 10⁻¹⁰'dur. Görüntüleme hassasiyeti ile tam eşitlik ayrıdır. Tek etkin haritanın kontraksiyonu, sabit noktasına yaklaşmayı ayrıca açıklar." },
+  ],
+  next: [
+    { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Sütunları, alan çarpanını ve yönelimi tanıdık bir şeklin üzerinde değiştirerek incele." },
+    { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "AᵀA özdeğerleriyle uzunluk çarpanları arasındaki bağlantıya ilerle." },
+    { href: "sierpinski-fraktali-peano-egrisi-altin-oran.html", title: "Üç Yapım, Üç Ayrı Limit", why: "Sierpiński sekmesinde üç yarı ölçekli kopyayla deterministik yapımı incele; sonlu parçalarla ideal limit kümesini karşılaştır." },
+    { href: "mandelbrot-fraktali.html", title: "Mandelbrot Kümesi", why: "Bir kural ailesinin sınırlı yörüngelerini incele; farklı fraktalların aynı üretim mekanizmasına sahip olmadığını gör." },
+  ],
+  sources: [
+    { title: "Cleve Moler · Numerical Computing with MATLAB · Fractal Fern", url: "https://www.mathworks.com/content/dam/mathworks/mathworks-dot-com/moler/intro.pdf", note: "Yazarın MathWorks yayını, §1.3: Barnsley örneği, dört matris ve klasik olasılıklar. Kaynağın kural sırası farklıdır; burada sap f₁ olarak numaralandırılır." },
+    { title: "John E. Hutchinson · Fractals and Self Similarity", url: "https://maths-people.anu.edu.au/~john/Assets/Research%20Papers/fractals_self-similarity.pdf", note: "1981 tarihli özgün makalenin yazar tarafından yeniden dizilmiş sürümü; §3–4 kontraktif sistemlerin değişmez kümeleri ve ölçüleri. Benzerlik boyutu sonuçlarının ek koşulları §5'te ayrı ele alınır." },
+  ],
+  revision: "Kasım 2026",
+};

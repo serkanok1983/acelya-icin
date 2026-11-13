@@ -1,0 +1,1160 @@
+<!doctype html>
+<html lang="tr" class="app-root">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kontrol Kuramı: Transfer Fonksiyonu, Kök Yeri, Bode ve PID</title>
+<meta name="description" content="Termostat, hız sabitleyici, dümen: hepsi ölçer, karşılaştırır, düzeltir. Bir çevrimin sakin mi kalacağını, salınıp mı duracağını birkaç sayı söyler: kutuplar, sınır kazancı ve faz payı.">
+<link rel="stylesheet" href="shared/theme.css">
+<script src="shared/app.js"></script>
+<style>
+.kk-tabs{display:flex;gap:8px;margin:26px 0 20px;flex-wrap:wrap}
+.kk-tabs button{flex:1 1 150px;padding:13px 8px;font:inherit;font-size:.86rem;min-height:44px}
+.kk-tabs [aria-selected=true]{border-color:var(--accent)!important;box-shadow:inset 0 -3px var(--accent)}
+.kk-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:20px;align-items:start;margin-bottom:22px}
+.kk-grid>div{min-width:0}
+.kk-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:20px;display:grid;gap:15px;min-width:0}
+.kk-panel h2,.kk-plate h2{font-size:1.02rem;margin:0}
+.kk-field{display:grid;gap:7px}
+.kk-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}
+.kk-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kk-field input,.kk-field select{width:100%;min-width:0;font:inherit;box-sizing:border-box}
+.kk-field select{padding:9px 10px}
+.kk-check{display:flex;gap:8px;align-items:center;font-size:.85rem}
+.kk-row{display:flex;gap:8px;flex-wrap:wrap}
+.kk-row button{padding:9px 12px;min-height:44px;font:inherit;font-size:.83rem}
+.kk-note{font-size:.84rem;line-height:1.75;margin:0}
+.kk-lead{font-size:.88rem;line-height:1.75;margin:10px 0 0;color:var(--text-muted)}
+.kk-formula{padding:13px;background:var(--bg-input);border-radius:8px;line-height:1.9;font-size:.88rem;overflow-wrap:anywhere}
+.kk-plate{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.kk-plate h2{padding:13px 16px;border-bottom:1px solid var(--border)}
+body.app-page canvas.kk-canvas{display:block;width:100%;height:auto;aspect-ratio:1.9;border:0;border-radius:0}
+body.app-page canvas.kk-canvas.is-low{aspect-ratio:2.6}
+body.app-page canvas.kk-canvas.is-sq{aspect-ratio:1.45;cursor:crosshair;touch-action:manipulation}
+.kk-caption{padding:10px 16px;font-size:.77rem;line-height:1.65;color:var(--text-muted);margin:0}
+.kk-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.kk-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:12px;min-width:0}
+.kk-stat small{display:block;color:var(--text-muted);font-size:.76rem;line-height:1.55}
+.kk-stat strong{display:block;font-size:1.02rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:5px}
+.kk-stat.is-meas strong{color:var(--accent-warm)!important}
+.kk-stat.is-wide{grid-column:1/-1}
+.kk-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:13px 16px;font-size:.86rem;line-height:1.8;margin:0 0 14px}
+.kk-tablewrap{overflow-x:auto;margin:0 0 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card)}
+.kk-table{border-collapse:collapse;width:100%;font-size:.76rem;font-variant-numeric:tabular-nums}
+.kk-table th,.kk-table td{padding:7px 7px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+.kk-table th:first-child,.kk-table td:first-child{text-align:left}
+.kk-table caption{caption-side:top;text-align:left;padding:10px 12px;font-size:.8rem;color:var(--text-muted)}
+.kk-table td.is-first{color:var(--accent-warm)}
+.kk-sources{margin-top:28px;font-size:.85rem;line-height:1.9}
+.kk-sources summary{cursor:pointer;color:var(--accent)}
+.kk-sources a{overflow-wrap:anywhere}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+@media(max-width:760px){
+ .kk-grid{grid-template-columns:1fr}
+ .kk-panel{padding:16px}
+ .kk-tabs button{font-size:.76rem;padding:11px 6px;flex-basis:40%}
+ .kk-stats{gap:6px}
+ .kk-stat{padding:9px 8px}
+ .kk-stat small{font-size:.7rem}
+ .kk-stat strong{font-size:.84rem}
+ .kk-table{font-size:.72rem}
+ .kk-table th,.kk-table td{padding:6px 5px}
+ body.app-page canvas.kk-canvas{aspect-ratio:1.35}
+ body.app-page canvas.kk-canvas.is-low{aspect-ratio:1.8}
+ body.app-page canvas.kk-canvas.is-sq{aspect-ratio:1.05}
+}
+</style>
+</head>
+<body class="app-page" data-page="kontrol-kurami">
+<main class="app-content">
+<h1>Kontrol Kuramı</h1>
+<p class="hint">Bir denetleyici ölçtüğünü hedefle karşılaştırır ve farkı küçültecek biçimde tesisi sürer. Bütün davranış birkaç sayıda saklıdır: kutuplar yanıtın hızını ve salınımını, kök yeri kazancın onları nereye taşıdığını, faz payı gecikmeye ne kadar dayanılacağını söyler. Her sekmede bu sayıları önce benzetimle ölç, sonra formülle karşılaştır.</p>
+<p class="kk-lead">Komşu laboratuvarlar: gecikmeli oransal denetim ve salınım eşiği K<sub>c</sub> <a href="homeostaz-ve-geri-besleme.html">Homeostaz ve Geri Besleme</a>; enkoderli ayrık PID ile servo konumlama <a href="mekatronik-muhendisligi.html">Mekatronik Mühendisliği</a>; doğrusal sistemler ve faz portresi <a href="diferansiyel-denklemler.html">Diferansiyel Denklemler</a>; s düzlemindeki sayıların geometrisi <a href="karmasik-sayilar.html">Karmaşık Sayılar</a>; endüstride mantık denetimi <a href="plc-hidrolik-pnomatik-cnc-cadcam.html">PLC, Hidrolik, CNC</a>.</p>
+
+<div class="kk-tabs" role="tablist" aria-label="Kontrol kuramı deneyleri">
+<button type="button" class="app-btn-ghost" id="tab-tf" role="tab" aria-controls="panel-tf" aria-selected="true" tabindex="0">01 · Transfer fonksiyonu ve basamak yanıtı</button>
+<button type="button" class="app-btn-ghost" id="tab-rl" role="tab" aria-controls="panel-rl" aria-selected="false" tabindex="-1">02 · Kök yeri</button>
+<button type="button" class="app-btn-ghost" id="tab-bd" role="tab" aria-controls="panel-bd" aria-selected="false" tabindex="-1">03 · Bode ve kararlılık payları</button>
+<button type="button" class="app-btn-ghost" id="tab-pd" role="tab" aria-controls="panel-pd" aria-selected="false" tabindex="-1">04 · PID ayarı</button>
+</div>
+
+<!-- ───────── 1 · Transfer fonksiyonu ───────── -->
+<section id="panel-tf" role="tabpanel" aria-labelledby="tab-tf">
+<div class="kk-grid"><div>
+<div class="kk-plate"><h2>s düzlemi: kutuplar ve sıfırlar</h2>
+<canvas class="kk-canvas is-low" id="tfPlane" role="img" aria-label="Karmaşık s düzleminde tesisin kutupları (çarpı) ve sıfırları (halka); ikinci mertebede ω_n çemberi ve sönüm oranı doğrusu"></canvas>
+<p class="kk-caption">Çarpı: kutup, halka: sıfır. İkinci mertebede kesikli çember yarıçapı ω<sub>n</sub>, kesikli ışın negatif gerçel eksenle cos θ = ζ açısını yapar. Sol yarı düzlemdeki kutup sönen bir terim, sanal eksendeki kutup sönmeyen bir salınım verir.</p></div>
+<div class="kk-plate"><h2>Birim basamak yanıtı</h2>
+<canvas class="kk-canvas" id="tfStep" role="img" aria-label="Basamak yanıtı: RK4 sayısal integrali ve kapalı biçimli çözüm, son değer çevresinde yüzde iki bandı"></canvas>
+<p class="kk-caption">Turkuaz: denklemin RK4 ile sayısal integrali. Turuncu kesikli: kısmi kesirlerden kapalı biçimli çözüm (iki eğri üst üste biner). Gri kesikli çizgiler: ölçülen son değerin ±%2 bandı; mor dikey çizgi ölçülen tepe zamanı, turuncu dikey çizgi ölçülen yerleşme süresi.</p></div>
+<div class="kk-stats" aria-live="polite">
+<div class="kk-stat is-wide"><small>Kutuplar · sıfırlar</small><strong id="tfPoles"></strong></div>
+<div class="kk-stat"><small id="tfParLabel">ζ · ω<sub>n</sub></small><strong id="tfPar"></strong></div>
+<div class="kk-stat"><small>RK4 − kapalı biçim, en büyük fark</small><strong id="tfErr"></strong></div>
+<div class="kk-stat"><small>Ters yanıt (alt aşma)</small><strong id="tfUnder"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen aşma</small><strong id="tfOS"></strong></div>
+<div class="kk-stat"><small id="tfOSThLabel">Formül 100·e<sup>−πζ/√(1−ζ²)</sup></small><strong id="tfOSTh"></strong></div>
+<div class="kk-stat"><small>Fark (yüzde puan)</small><strong id="tfOSDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen tepe zamanı</small><strong id="tfTp"></strong></div>
+<div class="kk-stat"><small>Formül π/ω<sub>d</sub></small><strong id="tfTpTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="tfTpDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen yükselme süresi (%10 → %90)</small><strong id="tfTr"></strong></div>
+<div class="kk-stat"><small id="tfTrThLabel">Kapalı biçimden</small><strong id="tfTrTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="tfTrDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen yerleşme süresi (±%2)</small><strong id="tfTs"></strong></div>
+<div class="kk-stat"><small id="tfTsThLabel">Zarf formülü</small><strong id="tfTsTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="tfTsDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen son değer y(t<sub>son</sub>)</small><strong id="tfFinal"></strong></div>
+<div class="kk-stat"><small>Son değer kuramı lim<sub>s→0</sub> s·G(s)·(1/s) = G(0)</small><strong id="tfFinalTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="tfFinalDiff"></strong></div>
+<div class="kk-stat is-wide"><small>Kaba kural t<sub>s</sub> ≈ 4/(ζω<sub>n</sub>)</small><strong id="tfTs4"></strong></div>
+</div>
+<p class="kk-status" id="tfStatus" role="status"></p>
+</div>
+<aside class="kk-panel" aria-label="Transfer fonksiyonu ayarları"><h2>Tesis</h2>
+<div class="kk-field"><label for="tfPlant">Tesis modeli</label><select id="tfPlant"><option value="first">Birinci mertebe K/(τs + 1)</option><option value="second" selected>İkinci mertebe Kωₙ²/(s² + 2ζωₙs + ωₙ²)</option><option value="motor">DC motor hızı ω/V (öğretim değerleri)</option></select></div>
+<div class="kk-field" id="tfKF"><label for="tfK"><span>DC kazancı K</span> <output id="tfKOut"></output></label><input id="tfK" type="range" min="0.5" max="5" step="0.1" value="1"></div>
+<div class="kk-field" id="tfTauF"><label for="tfTau"><span>Zaman sabiti τ</span> <output id="tfTauOut"></output></label><input id="tfTau" type="range" min="0.1" max="5" step="0.05" value="1"></div>
+<div class="kk-field" id="tfZetaF"><label for="tfZeta"><span>Sönüm oranı ζ</span> <output id="tfZetaOut"></output></label><input id="tfZeta" type="range" min="0" max="2" step="0.01" value="0.5"></div>
+<div class="kk-field" id="tfWnF"><label for="tfWn"><span>Doğal frekans ω<sub>n</sub></span> <output id="tfWnOut"></output></label><input id="tfWn" type="range" min="0.5" max="10" step="0.1" value="2"></div>
+<div class="kk-field" id="tfZeroF"><label for="tfZero">Ek sıfır</label><select id="tfZero"><option value="none" selected>Yok</option><option value="lhp">Sol yarı düzlemde: (1 + s/a)</option><option value="rhp">Sağ yarı düzlemde: (1 − s/a)</option></select></div>
+<div class="kk-field" id="tfAF"><label for="tfA"><span>Sıfırın uzaklığı a</span> <output id="tfAOut"></output></label><input id="tfA" type="range" min="0.2" max="10" step="0.1" value="1"></div>
+<div class="kk-field" id="tfLF"><label for="tfL"><span>Sargı endüktansı L</span> <output id="tfLOut"></output></label><input id="tfL" type="range" min="0.1" max="50" step="0.1" value="1"></div>
+<div class="kk-field" id="tfJF"><label for="tfJ"><span>Rotor eylemsizliği J</span> <output id="tfJOut"></output></label><input id="tfJ" type="range" min="20" max="2000" step="10" value="200"></div>
+<div class="kk-row">
+<button type="button" class="app-btn-ghost" id="tfLow">ζ = 0,2 (az sönümlü)</button>
+<button type="button" class="app-btn-ghost" id="tfCrit">ζ = 1 (kritik)</button>
+<button type="button" class="app-btn-ghost" id="tfUndamped">ζ = 0 (sönümsüz)</button>
+<button type="button" class="app-btn-ghost" id="tfRhp">Sağ yarı düzlem sıfırı</button>
+<button type="button" class="app-btn-ghost" id="tfMotorL">Motor, L = 20 mH</button>
+<button type="button" class="app-btn-ghost" id="tfReset">Sekmeyi sıfırla</button>
+</div>
+<div class="kk-formula">G(s) = Y(s)/U(s), u(t) = 1 (t ≥ 0)<br>kutuplar: s = −ζω<sub>n</sub> ± jω<sub>n</sub>√(1 − ζ²)<br>%OS = 100·e<sup>−πζ/√(1−ζ²)</sup>; t<sub>p</sub> = π/ω<sub>d</sub><br>zarf: t<sub>s</sub> = −ln(0,02·√(1 − ζ²))/(ζω<sub>n</sub>)<br>motor: ω/V = K/[(Js + b)(Ls + R) + K²]</div>
+<p class="kk-note">Model: doğrusal, zamanla değişmeyen tek girişli tek çıkışlı tesis, başlangıçta durgun. Sayısal çözüm: denetlenebilir kanonik durum uzayında RK4, adım hem t<sub>son</sub>/6000'den hem en hızlı kutbun zaman sabitinin onda birinden küçük. Kapalı biçim: aynı aktarım işlevinin ters Laplace dönüşümü (az sönümlü, kritik ve aşırı sönümlü durumlar ayrı formüllerle). Ölçümler örneklenmiş eğriden ara değerle okunur; bant ölçülen son değerin çevresindedir.</p>
+<p class="kk-note">DC motor: R = 2 Ω, K = 0,05 N·m/A (= V·s/rad), b = 10 µN·m·s/rad; L ve J değiştirilebilir (varsayılan 1 mH, 200 g·cm²). Bu sayılar <a href="mekatronik-muhendisligi.html">mekatronik sayfasındaki</a> öğretim değerleriyle aynıdır, bir ürünün veri sayfasından alınmamıştır. Çıkış milin açısal hızıdır (1 V basamağa).</p>
+</aside></div>
+</section>
+
+<!-- ───────── 2 · Kök yeri ───────── -->
+<section id="panel-rl" role="tabpanel" aria-labelledby="tab-rl" hidden>
+<div class="kk-grid"><div>
+<div class="kk-plate"><h2>Kök yeri: 1 + K·G(s) = 0'ın kökleri, K = 0'dan sonsuza</h2>
+<canvas class="kk-canvas is-sq" id="rlLocus" role="img" aria-label="Kök yeri: kapalı çevrim kutuplarının K ile izlediği dallar, asimptotlar, sanal ekseni kestiği noktalar ve seçili K'daki kutuplar. Bir noktaya tıklayınca o noktanın K değeri seçilir."></canvas>
+<p class="kk-caption">Her dal başka renkte; K = 0'da açık çevrim kutuplarından (çarpı) başlar, sıfırlara (halka) ya da asimptotlar boyunca sonsuza gider. Kesikli ışınlar: asimptotlar. Kırmızı halka: sanal ekseni kestiği nokta (sınır kazancı). Mor baklava: ayrılma ya da birleşme noktası. Beyaz/siyah dolu noktalar: seçili K'daki kapalı çevrim kutupları. Dalın bir noktasına tıklarsan K o noktaya ayarlanır.</p></div>
+<div class="kk-stats" aria-live="polite">
+<div class="kk-stat is-wide"><small>Seçili K'da kapalı çevrim kutupları (Aberth–Ehrlich)</small><strong id="rlPoles"></strong></div>
+<div class="kk-stat"><small>Sağ yarı düzlem kök sayısı: kök bulucu · Routh</small><strong id="rlRhp"></strong></div>
+<div class="kk-stat"><small>Kök bulucu denetimi: Aberth − Durand–Kerner</small><strong id="rlGap"></strong></div>
+<div class="kk-stat"><small>Kalan |Δ(s)| / ölçek, en büyük</small><strong id="rlResid"></strong></div>
+<div class="kk-stat is-meas"><small id="rlKuLabel">Ölçülen sınır kazancı (kök yerinden)</small><strong id="rlKuMeas"></strong></div>
+<div class="kk-stat"><small>Routh–Hurwitz (ilk sütunda işaret)</small><strong id="rlKuTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="rlKuDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen kesişme frekansı |Im s|</small><strong id="rlWuMeas"></strong></div>
+<div class="kk-stat"><small>Yardımcı polinom As² + B = 0: ω = √(B/A)</small><strong id="rlWuTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="rlWuDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen asimptot merkezi (K = 10⁹·K<sub>ölçek</sub>)</small><strong id="rlCentMeas"></strong></div>
+<div class="kk-stat"><small>Kural σ = (Σp − Σz)/(n − m)</small><strong id="rlCentTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="rlCentDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen asimptot açıları</small><strong id="rlAngMeas"></strong></div>
+<div class="kk-stat"><small>Kural (2k + 1)·180°/(n − m)</small><strong id="rlAngTh"></strong></div>
+<div class="kk-stat"><small>En büyük fark</small><strong id="rlAngDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen ayrılma/birleşme noktaları s (K)</small><strong id="rlBrkMeas"></strong></div>
+<div class="kk-stat"><small>Kural: N·dD/ds − D·dN/ds = 0, K = −D/N &gt; 0</small><strong id="rlBrkTh"></strong></div>
+<div class="kk-stat"><small>En büyük fark |Δs|</small><strong id="rlBrkDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen aşma (kapalı çevrim basamağı)</small><strong id="rlOS"></strong></div>
+<div class="kk-stat"><small>Baskın kutup çifti yaklaşımı</small><strong id="rlOSTh"></strong></div>
+<div class="kk-stat"><small>Ölçülen yerleşme (±%2) · son değer</small><strong id="rlTs"></strong></div>
+</div>
+<p class="kk-status" id="rlStatus" role="status"></p>
+<div class="kk-tablewrap"><table class="kk-table" id="rlRouth" aria-label="Seçili K için Routh tablosu"></table></div>
+<div class="kk-plate"><h2>Seçili K'da kapalı çevrim basamak yanıtı</h2>
+<canvas class="kk-canvas" id="rlStep" role="img" aria-label="Seçili kazançta kapalı çevrimin birim basamağa yanıtı"></canvas>
+<p class="kk-caption">Birim negatif geri beslemeli çevrim: y = K·G/(1 + K·G)·r, r birim basamak. Kesikli yatay çizgi: kuramsal son değer K·G(0)/(1 + K·G(0)) (G'nin s = 0'da kutbu varsa 1).</p></div>
+</div>
+<aside class="kk-panel" aria-label="Kök yeri ayarları"><h2>Açık çevrim ve kazanç</h2>
+<div class="kk-field"><label for="rlPlant">Açık çevrim G(s)</label><select id="rlPlant"><option value="p3" selected>1/[s(s + 1)(s + 2)]</option><option value="p4">1/[(s + 1)(s + 2)(s + 3)(s + 4)]</option><option value="pz">(s + 3)/[s(s + 1)]</option><option value="unst">(s + 1)/[s(s − 1)(s + 4)] (açık çevrim kararsız)</option><option value="motor">DC motor konumu θ/V (1 mH, 200 g·cm²)</option></select></div>
+<div class="kk-field"><label for="rlK"><span>Kazanç K (logaritmik)</span> <output id="rlKOut"></output></label><input id="rlK" type="range" min="-2" max="4" step="0.001" value="0"></div>
+<div class="kk-row">
+<button type="button" class="app-btn-ghost" id="rlAtKu">K'yı sınır kazancına getir</button>
+<button type="button" class="app-btn-ghost" id="rlAtBrk">K'yı ayrılma noktasına getir</button>
+<button type="button" class="app-btn-ghost" id="rlReset">Sekmeyi sıfırla</button>
+</div>
+<div class="kk-formula">Δ(s) = D(s) + K·N(s) = 0, G = N/D<br>açı koşulu: ∠G(s) = ±180°(2k + 1)<br>büyüklük koşulu: K = 1/|G(s)|<br>n − m dal sonsuza gider</div>
+<p class="kk-note">Kök yeri, K'nın 0 ile 10⁵·K<sub>ölçek</sub> arasında logaritmik aralıklı 700 değerinde karakteristik polinomun bütün kökleri bulunarak çizilir; bir K'dan ötekine kökler en yakın eşleşmeyle (bütün permütasyonlar denenerek) aynı dala bağlanır. Kök bulucu Aberth–Ehrlich yöntemidir; Durand–Kerner yöntemiyle bağımsız olarak denetlenir. Sınır kazancı iki yoldan bulunur: kök bulucuyla en sağdaki kökün işaret değiştirdiği K (ölçülen) ve kök bulmadan Routh tablosundaki işaret değişimi sayısının değiştiği K (kuram); ikisi de ikiye bölmeyle daraltılır.</p>
+<p class="kk-note">Tesis seçilince K o tesisin varsayılanına döner (1/[s(s+1)(s+2)] ve (s+3)/[s(s+1)] için 1, ötekiler için 10). Motor konumu: θ/V = K<sub>m</sub>/{s[(Js + b)(Ls + R) + K<sub>m</sub>²]}, birinci sekmedeki öğretim değerleriyle; birimi V/rad.</p>
+</aside></div>
+</section>
+
+<!-- ───────── 3 · Bode ───────── -->
+<section id="panel-bd" role="tabpanel" aria-labelledby="tab-bd" hidden>
+<div class="kk-grid"><div>
+<div class="kk-plate"><h2>Bode çizimi: |L(jω)| (dB)</h2>
+<canvas class="kk-canvas is-low" id="bdMag" role="img" aria-label="Açık çevrim büyüklüğü desibel olarak frekansa karşı; formülden çizgi, benzetimden noktalar"></canvas></div>
+<div class="kk-plate"><h2>Bode çizimi: ∠L(jω) (derece)</h2>
+<canvas class="kk-canvas is-low" id="bdPhase" role="img" aria-label="Açık çevrim fazı derece olarak frekansa karşı; formülden çizgi, benzetimden noktalar, −180 derece çizgisi"></canvas>
+<p class="kk-caption">Çizgi: L(jω) = K·G(jω)·e<sup>−jωT</sup> formülden. Noktalar: tesis sinüsle sürülüp geçici bölüm söndükten sonra 8 tam periyot boyunca sin ve cos ile çarpılıp ortalanarak (kilitli algılama) ölçülen genlik oranı ve faz. Turkuaz dikey çizgi: kazanç kesişimi ω<sub>c</sub>; turuncu dikey çizgi: faz kesişimi ω<sub>180</sub>.</p></div>
+<div class="kk-stats" aria-live="polite">
+<div class="kk-stat is-meas"><small>Kazanç kesişimi ω<sub>c</sub> (|L| = 1)</small><strong id="bdWc"></strong></div>
+<div class="kk-stat is-meas"><small>Faz payı PM = 180° + ∠L(jω<sub>c</sub>)</small><strong id="bdPM"></strong></div>
+<div class="kk-stat is-meas"><small>Faz kesişimi ω<sub>180</sub></small><strong id="bdW180"></strong></div>
+<div class="kk-stat is-meas"><small>Kazanç payı GM = 1/|L(jω<sub>180</sub>)|</small><strong id="bdGM"></strong></div>
+<div class="kk-stat"><small>Routh'tan K<sub>u</sub>/K (gecikmesiz)</small><strong id="bdGMRouth"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="bdGMDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Benzetimle ölçülen kritik gecikme T*</small><strong id="bdTcMeas"></strong></div>
+<div class="kk-stat"><small>Kuram T* = PM₀/ω<sub>c</sub> (PM₀ radyan, gecikmesiz)</small><strong id="bdTcTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="bdTcDiff"></strong></div>
+<div class="kk-stat is-meas"><small>T*'da ölçülen salınım frekansı</small><strong id="bdWo"></strong></div>
+<div class="kk-stat"><small>Kuram ω<sub>c</sub></small><strong id="bdWoTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="bdWoDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Nyquist: −1'in saat yönünde sarılma sayısı N</small><strong id="bdN"></strong></div>
+<div class="kk-stat"><small>Açık çevrimde sağ yarı düzlem kutbu P</small><strong id="bdP"></strong></div>
+<div class="kk-stat"><small>Z = N + P (kapalı çevrimde kararsız kutup)</small><strong id="bdZ"></strong></div>
+<div class="kk-stat is-wide"><small id="bdCheckLabel">Denetim</small><strong id="bdCheck"></strong></div>
+</div>
+<p class="kk-status" id="bdStatus" role="status"></p>
+<div class="kk-tablewrap"><table class="kk-table" id="bdTable" aria-label="Benzetimle ölçülen frekans yanıtı noktaları ve formül değerleri"></table></div>
+<div class="kk-plate"><h2>Nyquist çizimi: L(jω), −∞ &lt; ω &lt; ∞</h2>
+<canvas class="kk-canvas is-sq" id="bdNyq" role="img" aria-label="Nyquist eğrisi: L(jω) karmaşık düzlemde, eksi bir noktası ve birim çember"></canvas>
+<p class="kk-caption">Kalın çizgi ω &gt; 0, ince kesikli çizgi ω &lt; 0 (aynadaki eş). Kırmızı çarpı −1; kesikli çember |L| = 1 (kazanç kesişimi bu çemberin üstündedir). Ok, ω'nın arttığı yönü gösterir. s = 0'da kutup olan tesislerde eğri ω → 0'da sonsuza kaçar; sayım, sağdan dolanan küçük yarım çemberin sonsuzdaki karşılığını da içerir.</p></div>
+</div>
+<aside class="kk-panel" aria-label="Bode ayarları"><h2>Açık çevrim, kazanç ve gecikme</h2>
+<div class="kk-field"><label for="bdPlant">Açık çevrim G(s)</label><select id="bdPlant"><option value="p3" selected>1/[s(s + 1)(s + 2)]</option><option value="p4">1/[(s + 1)(s + 2)(s + 3)(s + 4)]</option><option value="pz">(s + 3)/[s(s + 1)]</option><option value="unst">(s + 1)/[s(s − 1)(s + 4)] (açık çevrim kararsız)</option><option value="motor">DC motor konumu θ/V (1 mH, 200 g·cm²)</option></select></div>
+<div class="kk-field"><label for="bdK"><span>Kazanç K (logaritmik)</span> <output id="bdKOut"></output></label><input id="bdK" type="range" min="-2" max="4" step="0.001" value="0"></div>
+<div class="kk-field"><label for="bdT"><span>Ölü zaman T</span> <output id="bdTOut"></output></label><input id="bdT" type="range" min="0" max="3" step="0.01" value="0"></div>
+<div class="kk-row">
+<button type="button" class="app-btn-ghost" id="bdAtCrit">T'yi kritik gecikmenin yakınına getir</button>
+<button type="button" class="app-btn-ghost" id="bdHigh">K ≈ 3 (payları daralt)</button>
+<button type="button" class="app-btn-ghost" id="bdReset">Sekmeyi sıfırla</button>
+</div>
+<div class="kk-formula">L(jω) = K·G(jω)·e<sup>−jωT</sup><br>|e<sup>−jωT</sup>| = 1, ∠e<sup>−jωT</sup> = −ωT<br>PM(T) = PM₀ − ω<sub>c</sub>T·180°/π<br>Z = N + P (Nyquist)</div>
+<p class="kk-note">Gecikme tam olarak modellenir: Bode ve Nyquist'te faz −ωT (Padé yaklaşımı kullanılmaz), benzetimde girişteki işaret T kadar önceki değerinden (adımlar arasında doğrusal ara değerle) okunur. Gecikme büyüklüğü değiştirmez, yalnız fazı düşürür; bu yüzden ω<sub>c</sub> değişmez ve faz payı T ile doğrusal azalır. T* ölçümü: K sabit, gecikme ikiye katlanarak kararsızlık aşılır, sonra benzetimin son iki çeyreğindeki tepe-tepe genlik oranının 1 olduğu T ikiye bölmeyle bulunur.</p>
+<p class="kk-note">Gecikme kaydırıcısının birimi tesisin zaman ölçeğine göredir: motor için ms, ötekiler için s. Faz ölçümünde 360°'nin katları belirsizdir; ölçülen faza, formül değerine en yakın olacak biçimde 360°'nin katı eklenir. Açık çevrimi kararsız tesiste kalıcı sinüs yanıtı yoktur, frekans yanıtı benzetimle ölçülmez.</p>
+</aside></div>
+</section>
+
+<!-- ───────── 4 · PID ───────── -->
+<section id="panel-pd" role="tabpanel" aria-labelledby="tab-pd" hidden>
+<div class="kk-grid"><div>
+<div class="kk-plate"><h2>Çıkış y(t): seçili ayar ve Ziegler–Nichols</h2>
+<canvas class="kk-canvas" id="pdResp" role="img" aria-label="Kapalı çevrim çıkışı: seçili PID ayarı ve Ziegler–Nichols ayarı; hedef ve yük bozucusunun geldiği an"></canvas>
+<p class="kk-caption">Turkuaz: seçili kazançlar. Turuncu kesikli: benzetimle ölçülen K<sub>u</sub>, T<sub>u</sub>'dan klasik Ziegler–Nichols PID kazançları. Gri: hedef r. Mor dikey çizgi: yük bozucusu d'nin tesis girişine eklendiği an (t = 40 s).</p></div>
+<div class="kk-plate"><h2>Denetleyici çıkışı u(t)</h2>
+<canvas class="kk-canvas is-low" id="pdU" role="img" aria-label="Denetleyici çıkışı zamana karşı; doyma sınırları ve kenetlemesiz ya da kenetlemeli karşı benzetim"></canvas>
+<p class="kk-caption">Turkuaz: seçili ayarın u(t)'si. Doyma açıksa kırmızı kesikli çizgiler ±u<sub>maks</sub>, mor kesikli eğri aynı ayarın kenetleme seçeneği ters çevrilmiş benzetimidir.</p></div>
+<div class="kk-stats" aria-live="polite">
+<div class="kk-stat is-meas"><small>Benzetimle ölçülen sınır kazancı K<sub>u</sub></small><strong id="pdKuMeas"></strong></div>
+<div class="kk-stat"><small>Kuram: ∠G(jω<sub>u</sub>) = −180°, K<sub>u</sub> = 1/|G(jω<sub>u</sub>)|</small><strong id="pdKuTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="pdKuDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen salınım periyodu T<sub>u</sub></small><strong id="pdTuMeas"></strong></div>
+<div class="kk-stat"><small>Kuram 2π/ω<sub>u</sub></small><strong id="pdTuTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="pdTuDiff"></strong></div>
+<div class="kk-stat is-wide"><small>Ziegler–Nichols PID: K<sub>p</sub> = 0,6K<sub>u</sub>, T<sub>i</sub> = T<sub>u</sub>/2, T<sub>d</sub> = T<sub>u</sub>/8 (ölçülen K<sub>u</sub>, T<sub>u</sub> ile, 0,01'e yuvarlanmış)</small><strong id="pdZN"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen kalıcı hata, bozucudan önce</small><strong id="pdEssPre"></strong></div>
+<div class="kk-stat"><small id="pdEssPreThLabel">Kuram</small><strong id="pdEssPreTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="pdEssPreDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Ölçülen kalıcı hata, bozucudan sonra</small><strong id="pdEssPost"></strong></div>
+<div class="kk-stat"><small id="pdEssPostThLabel">Kuram</small><strong id="pdEssPostTh"></strong></div>
+<div class="kk-stat"><small>Fark</small><strong id="pdEssPostDiff"></strong></div>
+<div class="kk-stat is-meas"><small>Doymada aşma, kenetleme kapalı</small><strong id="pdWindOff"></strong></div>
+<div class="kk-stat is-meas"><small>Doymada aşma, kenetleme açık</small><strong id="pdWindOn"></strong></div>
+<div class="kk-stat"><small>u'nun doymada geçtiği süre oranı</small><strong id="pdSatFrac"></strong></div>
+</div>
+<p class="kk-status" id="pdStatus" role="status"></p>
+<div class="kk-tablewrap"><table class="kk-table" id="pdTable" aria-label="Seçili ayar ile Ziegler–Nichols ayarının ölçülen başarımı"></table></div>
+</div>
+<aside class="kk-panel" aria-label="PID ayarları"><h2>Tesis ve denetleyici</h2>
+<div class="kk-field"><label for="pdPlant">Tesis G(s)</label><select id="pdPlant"><option value="lag3" selected>1/(s + 1)³ (üç eşit gecikme)</option><option value="fopdt">1/(5s + 1) ve ölü zaman</option></select></div>
+<div class="kk-field"><label for="pdDelay"><span>Ölü zaman T</span> <output id="pdDelayOut"></output></label><input id="pdDelay" type="range" min="0" max="3" step="0.05" value="0"></div>
+<div class="kk-field"><label for="pdKp"><span>Oransal kazanç K<sub>p</sub></span> <output id="pdKpOut"></output></label><input id="pdKp" type="range" min="0" max="20" step="0.01" value="2"></div>
+<div class="kk-field"><label for="pdKi"><span>İntegral kazancı K<sub>i</sub></span> <output id="pdKiOut"></output></label><input id="pdKi" type="range" min="0" max="10" step="0.01" value="0.6"></div>
+<div class="kk-field"><label for="pdKd"><span>Türev kazancı K<sub>d</sub></span> <output id="pdKdOut"></output></label><input id="pdKd" type="range" min="0" max="20" step="0.01" value="1.6"></div>
+<div class="kk-field"><label for="pdR"><span>Hedef basamağı r</span> <output id="pdROut"></output></label><input id="pdR" type="range" min="0.5" max="5" step="0.1" value="1"></div>
+<div class="kk-field"><label for="pdD"><span>Yük bozucusu d (t = 40 s'de)</span> <output id="pdDOut"></output></label><input id="pdD" type="range" min="-1" max="1" step="0.05" value="0.5"></div>
+<label class="kk-check" for="pdSat"><input type="checkbox" id="pdSat"> <span>Eyleyici doyması |u| ≤ u<sub>maks</sub></span></label>
+<div class="kk-field" id="pdUmaxF"><label for="pdUmax"><span>Doyma sınırı u<sub>maks</sub></span> <output id="pdUmaxOut"></output></label><input id="pdUmax" type="range" min="0.5" max="10" step="0.1" value="2"></div>
+<label class="kk-check" for="pdAw"><input type="checkbox" id="pdAw"> <span>İntegral kenetleme (anti-windup)</span></label>
+<div class="kk-row">
+<button type="button" class="app-btn-ghost" id="pdLoadZN">Ziegler–Nichols kazançlarını yükle</button>
+<button type="button" class="app-btn-ghost" id="pdManual">Elle ayar örneği</button>
+<button type="button" class="app-btn-ghost" id="pdPonly">Yalnız P, K<sub>p</sub> = 3</button>
+<button type="button" class="app-btn-ghost" id="pdWindup">Doyma ve windup</button>
+<button type="button" class="app-btn-ghost" id="pdReset">Sekmeyi sıfırla</button>
+</div>
+<div class="kk-formula">u = K<sub>p</sub>e + K<sub>i</sub>∫e dt − K<sub>d</sub>·dy<sub>f</sub>/dt, e = r − y<br>y<sub>f</sub>: y'nin T<sub>f</sub> = K<sub>d</sub>/(10K<sub>p</sub>) süzgeçli hâli<br>tesis girişi: sat(u)(t − T) + d<br>kenetleme: doymadayken e aynı yöne itiyorsa ∫e durur<br>yalnız P: e<sub>∞</sub> = (r − G(0)d)/(1 + K<sub>p</sub>G(0))</div>
+<p class="kk-note">Türev terimi hataya değil ölçülen çıkışa uygulanır (hedef basamağında "türev tekmesi" olmaz) ve on kat daha hızlı bir süzgeçten geçer. Gecikme denetleyici ile tesis arasındadır; bozucu tesis girişine gecikmeden sonra eklenir. Benzetim RK4, Δt = 5 ms, 80 s; hedef basamağı t = 0'da, bozucu t = 40 s'de. Ölçümler: aşma, yükselme ve ±%2 yerleşme 0–40 s aralığında hedefe göre; IAE = ∫|e|dt (0–40 s); bozucuda en büyük sapma ve toparlanma (son değerin ±%2r bandına dönüş) 40 s'den sonra.</p>
+<p class="kk-note">K<sub>u</sub>'nun benzetimle ölçümü: yalnız P denetimiyle kazanç ikiye katlanarak salınımın büyüdüğü kazanç aşılır, sonra son iki çeyrekteki tepe-tepe genlik oranının 1 olduğu kazanç ikiye bölmeyle aranır; T<sub>u</sub> o kazançtaki salınımın ortalamaya göre yukarı geçişlerinden okunur. Ziegler–Nichols kuralları 1942'de deneysel olarak önerilmiş çeyrek sönüm hedefli bir başlangıç ayarıdır; çoğu tesiste büyük aşma verir ve elle inceltilir.</p>
+</aside></div>
+</section>
+
+<details class="kk-sources"><summary>Model sınırları, sayı biçimi ve kaynaklar</summary>
+<p>Sayılar ondalık virgülle yazılır, eksi işareti "−"dir; on binden büyük sayılarda binler dar boşlukla ayrılır; çok büyük ya da küçük sayılar a × 10ᵇ biçimindedir. Farklar (ölçülen − kuram)/|kuram| olarak yüzdeyle verilir; kuram sıfır ya da tanımsızsa fark yazılmaz (aşmada fark yüzde puandır). Süreler, tesisin ölçeğine göre s ya da ms ile yazılır. R tuşu, form denetiminde değilken etkin sekmeyi sıfırlar; sekmeler arasında ok tuşları, Home ve End ile gezilir.</p>
+<p>Bütün tesisler doğrusal ve zamanla değişmeyendir; yalnız dördüncü sekmedeki doyma doğrusal değildir. Gerçek denetim sistemlerinde ölçüm gürültüsü, örnekleme (sayısal denetleyici), sürtünme, boşluk ve parametre belirsizliği önemlidir; bu sayfada yoktur (örnekleme etkisi için mekatronik sayfasının servo sekmesine bak). Kararlılık sınırlarının benzetimle ölçümü sonlu süreli bir benzetimin genlik oranına dayanır; sınıra çok yakın kazançlarda sonuç benzetim süresine bağlıdır.</p>
+<ul>
+<li>Son değer kuramı, kök yeri kuralları (asimptot merkezi ve açıları, ayrılma noktası koşulu), Routh–Hurwitz ölçütü, Nyquist ölçütü Z = N + P ve kazanç/faz payı tanımları standart lisans denetim ders kitaplarının konusudur; bu sayfadaki her biri ayrıca sayısal olarak (kök bularak, benzeterek) doğrulanır.</li>
+<li>J. G. Ziegler ve N. B. Nichols, "Optimum Settings for Automatic Controllers", <em>Transactions of the ASME</em> 64 (1942), s. 759–768: sınır kazancı yöntemi ve PID tablosu (K<sub>p</sub> = 0,6K<sub>u</sub>, T<sub>i</sub> = T<sub>u</sub>/2, T<sub>d</sub> = T<sub>u</sub>/8).</li>
+<li>OpenStax, <a href="https://openstax.org/details/books/calculus-volume-3">Calculus Volume 3</a>: ikinci mertebe doğrusal diferansiyel denklemler ve sönümlü salınım (arka plan).</li>
+<li>DC motor parametreleri, tesis seçenekleri ve PID varsayılanları öğretim değerleridir; belirli bir ürünü temsil etmez.</li>
+</ul></details>
+</main>
+<script>
+(() => {
+"use strict";
+/* KERNEL-BEGIN */
+const PI = Math.PI;
+function fin(...v) { if (v.some((x) => !Number.isFinite(x))) throw RangeError("Sonlu sayı gerekli"); }
+
+/* ── Karmaşık sayılar ── */
+const cx = (re, im = 0) => ({ re, im });
+const cadd = (a, b) => cx(a.re + b.re, a.im + b.im), csub = (a, b) => cx(a.re - b.re, a.im - b.im);
+const cmul = (a, b) => cx(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
+function cdiv(a, b) { const d = b.re * b.re + b.im * b.im; return cx((a.re * b.re + a.im * b.im) / d, (a.im * b.re - a.re * b.im) / d); }
+const cabs = (a) => Math.hypot(a.re, a.im), carg = (a) => Math.atan2(a.im, a.re);
+
+/* ── Polinomlar: katsayılar en yüksek dereceden başlar, gerçek ── */
+function ptrim(p) { let i = 0; while (i < p.length - 1 && p[i] === 0) i++; return p.slice(i); }
+function padd(a, b) { const n = Math.max(a.length, b.length), r = new Array(n).fill(0); a.forEach((v, i) => { r[n - a.length + i] += v; }); b.forEach((v, i) => { r[n - b.length + i] += v; }); return ptrim(r); }
+function pmul(a, b) { const r = new Array(a.length + b.length - 1).fill(0); a.forEach((x, i) => b.forEach((y, j) => { r[i + j] += x * y; })); return r; }
+const pscale = (a, k) => a.map((v) => v * k);
+function pder(p) { const n = p.length - 1; return n <= 0 ? [0] : p.slice(0, -1).map((v, i) => v * (n - i)); }
+const pfromRoots = (rs) => rs.reduce((acc, r) => pmul(acc, [1, -r]), [1]);
+function pevalC(p, z) { let re = 0, im = 0; for (const c of p) { const nr = re * z.re - im * z.im + c; im = re * z.im + im * z.re; re = nr; } return cx(re, im); }
+function pevalR(p, x) { let v = 0; for (const c of p) v = v * x + c; return v; }
+
+/* ── Kök bulucular. Önce s = 0 kökleri tam olarak ayrılır, polinom tekil (monik) yapılır. ── */
+function prepRoots(p) {
+  p = ptrim(p.map(Number)); fin(...p); if (p[0] === 0) throw RangeError("Sıfır polinom");
+  let zeros = 0; while (p.length > 1 && p[p.length - 1] === 0) { p = p.slice(0, -1); zeros++; }
+  return { m: p.map((v) => v / p[0]), zeros };
+}
+function initGuess(m) {
+  const n = m.length - 1, r = Math.pow(Math.abs(m[n]), 1 / n) || 1;
+  return Array.from({ length: n }, (_, k) => cx(r * Math.cos(2 * PI * k / n + 0.4), r * Math.sin(2 * PI * k / n + 0.4)));
+}
+function tidy(z) { return Math.abs(z.im) <= 1e-12 * (1 + Math.abs(z.re)) ? cx(z.re, 0) : z; }
+function sortRoots(rs) { return rs.slice().sort((a, b) => (a.re - b.re) || (a.im - b.im)); }
+// Aberth–Ehrlich: bütün kökleri birlikte, Newton adımını öteki köklerin itmesiyle düzelterek arar.
+function rootsAberth(p) {
+  const { m, zeros } = prepRoots(p), n = m.length - 1, out = Array.from({ length: zeros }, () => cx(0, 0));
+  if (n === 0) return out; if (n === 1) return out.concat([cx(-m[1], 0)]);
+  const d = pder(m), z = initGuess(m);
+  for (let it = 0; it < 1000; it++) {
+    let worst = 0;
+    for (let k = 0; k < n; k++) {
+      const pv = pevalC(m, z[k]); if (pv.re === 0 && pv.im === 0) continue;
+      let dv = pevalC(d, z[k]); if (dv.re === 0 && dv.im === 0) dv = cx(1e-300, 0);
+      const ratio = cdiv(pv, dv); let s = cx(0, 0);
+      for (let j = 0; j < n; j++) if (j !== k) s = cadd(s, cdiv(cx(1), csub(z[k], z[j])));
+      const w = cdiv(ratio, csub(cx(1), cmul(ratio, s)));
+      z[k] = csub(z[k], w); worst = Math.max(worst, cabs(w) / (1 + cabs(z[k])));
+    }
+    if (worst < 1e-15) break;
+  }
+  return out.concat(z.map(tidy));
+}
+// Durand–Kerner (Weierstrass): denetim için ikinci, bağımsız yöntem.
+function rootsDK(p) {
+  const { m, zeros } = prepRoots(p), n = m.length - 1, out = Array.from({ length: zeros }, () => cx(0, 0));
+  if (n === 0) return out; if (n === 1) return out.concat([cx(-m[1], 0)]);
+  const z = initGuess(m);
+  for (let it = 0; it < 4000; it++) {
+    let worst = 0;
+    for (let k = 0; k < n; k++) {
+      let den = cx(1, 0); for (let j = 0; j < n; j++) if (j !== k) den = cmul(den, csub(z[k], z[j]));
+      if (den.re === 0 && den.im === 0) den = cx(1e-300, 0);
+      const w = cdiv(pevalC(m, z[k]), den); z[k] = csub(z[k], w); worst = Math.max(worst, cabs(w) / (1 + cabs(z[k])));
+    }
+    if (worst < 1e-15) break;
+  }
+  return out.concat(z.map(tidy));
+}
+// İki kök kümesinin en iyi eşleşmedeki en büyük farkı (küçük n için bütün permütasyonlar)
+function perms(n) { if (n <= 1) return [[0].slice(0, n)]; const out = []; for (const q of perms(n - 1)) for (let i = 0; i <= q.length; i++) out.push([...q.slice(0, i), n - 1, ...q.slice(i)]); return out; }
+const PERMS = [0, 1, 2, 3, 4, 5].map(perms);
+function matchRoots(prev, cur) {
+  const n = cur.length; if (n !== prev.length || n > 5) return cur;
+  let best = null, bestCost = Infinity;
+  for (const q of PERMS[n]) { let c = 0; for (let i = 0; i < n; i++) { const dr = cur[q[i]].re - prev[i].re, di = cur[q[i]].im - prev[i].im; c += dr * dr + di * di; } if (c < bestCost) { bestCost = c; best = q; } }
+  return best.map((i) => cur[i]);
+}
+function rootGap(a, b) { const m = matchRoots(sortRoots(a), sortRoots(b)); let g = 0; sortRoots(a).forEach((r, i) => { g = Math.max(g, cabs(csub(r, m[i])) / (1 + cabs(r))); }); return g; }
+
+/* ── Routh–Hurwitz tablosu: kök bulmadan sağ yarı düzlem kök sayısı ── */
+function routh(p) {
+  p = ptrim(p.map(Number)); fin(...p); const n = p.length - 1, W = Math.floor(n / 2) + 1;
+  const rows = [Array.from({ length: W }, (_, i) => p[2 * i] ?? 0)];
+  if (n >= 1) rows.push(Array.from({ length: W }, (_, i) => p[2 * i + 1] ?? 0));
+  const notes = []; let marginal = false;
+  for (let k = 2; k <= n; k++) {
+    const a = rows[k - 2]; let b = rows[k - 1];
+    const tol = 1e-13 * Math.max(...a.map(Math.abs), ...b.map(Math.abs), 1e-300);
+    if (b.every((v) => Math.abs(v) <= tol)) { const ord = n - (k - 2); b = a.map((v, i) => v * (ord - 2 * i)); rows[k - 1] = b; notes.push({ kind: "zero-row", row: k - 1, aux: a.slice(), order: ord }); marginal = true; }
+    if (Math.abs(b[0]) <= tol) { b = b.slice(); b[0] = 1e-9 * Math.max(...b.map(Math.abs), ...a.map(Math.abs), 1e-300); rows[k - 1] = b; notes.push({ kind: "epsilon", row: k - 1 }); }
+    const c = Array.from({ length: W }, (_, i) => (i + 1 < W ? (b[0] * a[i + 1] - a[0] * (b[i + 1] ?? 0)) / b[0] : 0));
+    rows.push(c);
+  }
+  const first = rows.map((r) => r[0]); let changes = 0;
+  for (let i = 1; i < first.length; i++) if (Math.sign(first[i]) !== Math.sign(first[i - 1]) && first[i] !== 0 && first[i - 1] !== 0) changes++;
+  return { n, rows, first, changes, notes, marginal };
+}
+
+/* ── Döngüdeki tesisler (2–3. sekme). Motor sayıları öğretim değeridir (mekatronik sayfasındakiyle aynı). ── */
+const MOTOR = { R: 2, Lh: 1e-3, K: 0.05, J: 2e-5, b: 1e-5 };
+function motorSpeedTF(Lh = MOTOR.Lh, J = MOTOR.J) { const { R, K, b } = MOTOR; return { num: [K], den: [J * Lh, J * R + b * Lh, b * R + K * K] }; }
+const LOOP = Object.freeze({
+  p3: Object.freeze({ N: [1], D: [1, 3, 2, 0], kdef: 1, kref: 6, view: [-5, 2, -3.6, 3.6], tunit: 1 }),
+  p4: Object.freeze({ N: [1], D: pfromRoots([-1, -2, -3, -4]), kdef: 10, kref: 126, view: [-7.5, 2.5, -5, 5], tunit: 1 }),
+  pz: Object.freeze({ N: [1, 3], D: [1, 1, 0], kdef: 1, kref: 1, view: [-9, 2, -4.5, 4.5], tunit: 1 }),
+  unst: Object.freeze({ N: [1, 1], D: [1, 3, -4, 0], kdef: 10, kref: 6, view: [-6, 3, -4, 4], tunit: 1 }),
+  motor: Object.freeze({ N: [MOTOR.K], D: [...motorSpeedTF().den, 0], kdef: 10, kref: 100, view: [-2300, 500, -1300, 1300], tunit: 1e-3 }),
+});
+function loopPlant(key) { const p = LOOP[key]; if (!p) throw RangeError("Bilinmeyen tesis"); return p; }
+const charPoly = (N, D, K) => padd(D, pscale(N, K));
+
+/* ── Kök yeri ── */
+function locusKs(kref, count = 700) { const Ks = [0]; for (let i = 0; i < count; i++) Ks.push(kref * 10 ** (-5 + 10 * i / (count - 1))); return Ks; }
+function rootLocus(N, D, Ks) {
+  let prev = null; const pts = [];
+  for (const K of Ks) { let r = sortRoots(rootsAberth(charPoly(N, D, K))); if (prev) r = matchRoots(prev, r); pts.push(r); prev = r; }
+  return { Ks, pts };
+}
+const maxRe = (N, D, K) => Math.max(...rootsAberth(charPoly(N, D, K)).map((z) => z.re));
+function bisect(f, lo, hi, iters = 80, logScale = true) {
+  let flo = f(lo);
+  for (let i = 0; i < iters; i++) { const mid = logScale ? Math.sqrt(lo * hi) : (lo + hi) / 2, fm = f(mid); if ((fm > 0) === (flo > 0)) { lo = mid; flo = fm; } else hi = mid; }
+  return logScale ? Math.sqrt(lo * hi) : (lo + hi) / 2;
+}
+// Ölçülen sınır: kök bulucuyla en sağdaki kökün gerçel kısmı işaret değiştirdiği K
+function locusCritical(N, D, kref) {
+  const Ks = locusKs(kref, 400).slice(1), out = []; let prev = maxRe(N, D, Ks[0]);
+  for (let i = 1; i < Ks.length; i++) {
+    const cur = maxRe(N, D, Ks[i]);
+    if ((cur > 0) !== (prev > 0)) { const K = bisect((k) => maxRe(N, D, k), Ks[i - 1], Ks[i]); const rs = rootsAberth(charPoly(N, D, K)); const top = rs.reduce((a, b) => (b.re > a.re ? b : a)); out.push({ K, omega: Math.abs(top.im), toStable: cur < 0 }); }
+    prev = cur;
+  }
+  return out;
+}
+// Kuram: Routh tablosundaki işaret değişimi sayısının değiştiği K; ω, s² satırının yardımcı polinomundan
+function routhCritical(N, D, kref) {
+  const Ks = locusKs(kref, 400).slice(1), cnt = (K) => routh(charPoly(N, D, K)).changes, out = []; let prev = cnt(Ks[0]);
+  for (let i = 1; i < Ks.length; i++) {
+    const cur = cnt(Ks[i]);
+    if (cur !== prev) {
+      const target = prev, K = bisect((k) => (cnt(k) === target ? -1 : 1), Ks[i - 1], Ks[i]);
+      const t = routh(charPoly(N, D, K)), row2 = t.rows[t.n - 2], w2 = row2 && row2[0] !== 0 ? row2[1] / row2[0] : NaN;
+      out.push({ K, omega: w2 > 0 ? Math.sqrt(w2) : null, from: prev, to: cur });
+    }
+    prev = cur;
+  }
+  return out;
+}
+function asymptotes(N, D) {
+  const P = rootsAberth(D), Z = N.length > 1 ? rootsAberth(N) : [], q = P.length - Z.length;
+  if (q < 1) return { q, sigma: null, angles: [] };
+  const sigma = (P.reduce((s, z) => s + z.re, 0) - Z.reduce((s, z) => s + z.re, 0)) / q;
+  return { q, sigma: q >= 2 ? sigma : null, angles: Array.from({ length: q }, (_, k) => (2 * k + 1) * 180 / q) };
+}
+// Çok büyük K'da uzaklaşan q kökün ağırlık merkezi ve açıları (ölçüm)
+function asymptotesMeasured(N, D, kref, factor = 1e9) {
+  const q = (D.length - 1) - (N.length - 1); if (q < 2) return { q, sigma: null, angles: [] };
+  const rs = rootsAberth(charPoly(N, D, kref * factor)).sort((a, b) => cabs(b) - cabs(a)).slice(0, q);
+  const sigma = rs.reduce((s, z) => s + z.re, 0) / q;
+  const angles = rs.map((z) => { let a = Math.atan2(z.im, z.re - sigma) * 180 / PI; if (a < 0) a += 360; return a; }).sort((a, b) => a - b);
+  return { q, sigma, angles, K: kref * factor };
+}
+// Kuram: N·D′ − N′·D = 0'ın gerçel kökleri; K = −D/N > 0 olanlar köklerin birleştiği/ayrıldığı noktalardır
+function breakaway(N, D) {
+  const q = padd(pmul(N, pder(D)), pscale(pmul(pder(N), D), -1));
+  return rootsAberth(q).filter((z) => Math.abs(z.im) <= 1e-7 * (1 + Math.abs(z.re))).map((z) => ({ s: z.re, K: -pevalR(D, z.re) / pevalR(N, z.re) })).filter((b) => b.K > 0 && Number.isFinite(b.K)).sort((a, b) => a.K - b.K);
+}
+// Ölçüm: K taramasında karmaşık kök sayısının değiştiği yer; s, birleşen iki gerçel kökün ortalaması
+function breakawayMeasured(N, D, kref) {
+  const scale = Math.max(1, ...rootsAberth(D).map(cabs)), tol = 1e-6 * scale;
+  const ncx = (K) => rootsAberth(charPoly(N, D, K)).filter((z) => Math.abs(z.im) > tol).length;
+  const Ks = locusKs(kref, 600).slice(1), out = []; let prev = ncx(Ks[0]);
+  for (let i = 1; i < Ks.length; i++) {
+    const cur = ncx(Ks[i]);
+    if (cur !== prev) {
+      const target = prev; let lo = Ks[i - 1], hi = Ks[i];
+      for (let j = 0; j < 80; j++) { const mid = Math.sqrt(lo * hi); if (ncx(mid) === target) lo = mid; else hi = mid; }
+      const realSide = prev < cur ? lo : hi, reals = rootsAberth(charPoly(N, D, realSide)).filter((z) => Math.abs(z.im) <= tol).map((z) => z.re).sort((a, b) => a - b);
+      const gaps = []; for (let j = 1; j < reals.length; j++) gaps.push({ j, g: reals[j] - reals[j - 1] }); gaps.sort((a, b) => a.g - b.g);
+      const used = new Set(), pairs = Math.max(1, Math.abs(cur - prev) / 2);
+      for (const { j } of gaps) { if (used.size / 2 >= pairs) break; if (used.has(j) || used.has(j - 1)) continue; used.add(j); used.add(j - 1); out.push({ K: Math.sqrt(lo * hi), s: (reals[j] + reals[j - 1]) / 2, kind: prev < cur ? "ayrılma" : "birleşme" }); }
+    }
+    prev = cur;
+  }
+  return out;
+}
+
+/* ── Durum uzayı ve benzetim (RK4) ── */
+function ss(num, den) {
+  den = ptrim(den); num = ptrim(num); const n = den.length - 1;
+  if (n < 1 || num.length > n + 1) throw RangeError("Uygun olmayan aktarım işlevi");
+  const a = den.slice(1).map((v) => v / den[0]), b = new Array(n + 1 - num.length).fill(0).concat(num.map((v) => v / den[0]));
+  const D = b[0], c = b.slice(1).map((v, i) => v - a[i] * D); return { n, a, c, D };
+}
+// Açık çevrim: u(t) bilinen bir işlev (gecikme tam olarak t − T ile uygulanır)
+function simOpen(num, den, uFn, tEnd, dt, delay = 0) {
+  fin(tEnd, dt, delay); const S = ss(num, den), n = S.n, steps = Math.round(tEnd / dt);
+  const u = (t) => (t - delay >= -1e-9 * dt ? uFn(Math.max(0, t - delay)) : 0); // adım sınırındaki yuvarlama ölü zamanı kaydırmasın
+  const f = (t, x, out) => { let acc = u(t); for (let k = 1; k <= n; k++) acc -= S.a[k - 1] * x[n - k]; for (let j = 0; j < n - 1; j++) out[j] = x[j + 1]; out[n - 1] = acc; };
+  const yOf = (t, x) => { let y = S.D * u(t); for (let k = 1; k <= n; k++) y += S.c[k - 1] * x[n - k]; return y; };
+  const x = new Float64Array(n), k1 = new Float64Array(n), k2 = new Float64Array(n), k3 = new Float64Array(n), k4 = new Float64Array(n), tmp = new Float64Array(n);
+  const T = new Float64Array(steps + 1), Y = new Float64Array(steps + 1); Y[0] = yOf(0, x);
+  for (let i = 0; i < steps; i++) {
+    const t = i * dt;
+    f(t, x, k1); for (let j = 0; j < n; j++) tmp[j] = x[j] + dt / 2 * k1[j];
+    f(t + dt / 2, tmp, k2); for (let j = 0; j < n; j++) tmp[j] = x[j] + dt / 2 * k2[j];
+    f(t + dt / 2, tmp, k3); for (let j = 0; j < n; j++) tmp[j] = x[j] + dt * k3[j];
+    f(t + dt, tmp, k4); for (let j = 0; j < n; j++) x[j] += dt / 6 * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]);
+    T[i + 1] = (i + 1) * dt; Y[i + 1] = yOf(T[i + 1], x);
+  }
+  return { t: T, y: Y };
+}
+// Kapalı çevrim: PID (türev ölçüme, birinci mertebe süzgeçli), girişte gecikme, doyma, kenetleme, yük bozucusu
+function simLoop(o) {
+  const S = ss(o.num, o.den); if (S.D !== 0) throw RangeError("Tesis tam uygun (strictly proper) olmalı");
+  const n = S.n, Kp = o.Kp ?? 0, Ki = o.Ki ?? 0, Kd = o.Kd ?? 0, Nf = o.Nf ?? 10, Td = o.delay ?? 0, umax = o.umax ?? Infinity, aw = !!o.aw, r = o.r ?? 1, d = o.d ?? 0, td = o.td ?? Infinity, dt = o.dt;
+  fin(Kp, Ki, Kd, Td, r, d, dt, o.tEnd); if (dt <= 0 || Td < 0) throw RangeError("dt > 0, T ≥ 0");
+  const steps = Math.round(o.tEnd / dt), every = o.every ?? 1, Tf = Kd > 0 ? (Kp > 0 ? Kd / (Kp * Nf) : 4 * dt) : 1;
+  const m = n + 2, x = new Float64Array(m), k1 = new Float64Array(m), k2 = new Float64Array(m), k3 = new Float64Array(m), k4 = new Float64Array(m), tmp = new Float64Array(m);
+  const uh = new Float64Array(steps + 2); let kNow = 0;
+  const yOf = (s) => { let y = 0; for (let k = 1; k <= n; k++) y += S.c[k - 1] * s[n - k]; return y; };
+  const ctrl = (s) => { const y = yOf(s), e = r - y, raw = Kp * e + Ki * s[n] + (Kd > 0 ? -Kd * (y - s[n + 1]) / Tf : 0); return { y, e, raw, u: Math.max(-umax, Math.min(umax, raw)) }; };
+  const delayed = (t, uNow) => { if (Td <= 0) return uNow; const tq = t - Td; if (tq < 0) return 0; const q = tq / dt, i = Math.floor(q + 1e-9); if (i >= kNow) return uh[kNow]; const fr = Math.max(0, q - i); return uh[i] + (uh[i + 1] - uh[i]) * fr; };
+  const f = (t, s, out) => {
+    const c = ctrl(s), up = delayed(t, c.u) + (t >= td - 1e-9 * dt ? d : 0);
+    let acc = up; for (let k = 1; k <= n; k++) acc -= S.a[k - 1] * s[n - k]; for (let j = 0; j < n - 1; j++) out[j] = s[j + 1]; out[n - 1] = acc;
+    out[n] = aw && c.raw !== c.u && Math.sign(c.e) === Math.sign(c.raw) ? 0 : c.e;
+    out[n + 1] = Kd > 0 ? (c.y - s[n + 1]) / Tf : 0;
+  };
+  const N = Math.floor(steps / every) + 1, T = new Float64Array(N), Y = new Float64Array(N), U = new Float64Array(N), I = new Float64Array(N);
+  let diverged = false, rec = 0;
+  const record = (i) => { const c = ctrl(x); T[rec] = i * dt; Y[rec] = c.y; U[rec] = c.u; I[rec] = x[n]; rec++; };
+  record(0);
+  for (let i = 0; i < steps; i++) {
+    const t = i * dt; kNow = i; uh[i] = ctrl(x).u;
+    f(t, x, k1); for (let j = 0; j < m; j++) tmp[j] = x[j] + dt / 2 * k1[j];
+    f(t + dt / 2, tmp, k2); for (let j = 0; j < m; j++) tmp[j] = x[j] + dt / 2 * k2[j];
+    f(t + dt / 2, tmp, k3); for (let j = 0; j < m; j++) tmp[j] = x[j] + dt * k3[j];
+    f(t + dt, tmp, k4); for (let j = 0; j < m; j++) x[j] += dt / 6 * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]);
+    if ((i + 1) % every === 0) record(i + 1);
+    if (!(Math.abs(yOf(x)) < 1e9)) { diverged = true; break; }
+  }
+  return { t: T.slice(0, rec), y: Y.slice(0, rec), u: U.slice(0, rec), xi: I.slice(0, rec), diverged, dt, r, td };
+}
+// Salınım büyümesi: son çeyrekteki tepe-tepe genliğin bir önceki çeyreğe oranının logaritması (> 0: büyüyor)
+function growth(sim) {
+  if (sim.diverged) return Infinity;
+  const { t, y } = sim, H = t[t.length - 1]; let scale = 0; for (const v of y) scale = Math.max(scale, Math.abs(v));
+  const pp = (a, b) => { let lo = Infinity, hi = -Infinity; for (let i = 0; i < t.length; i++) if (t[i] >= a && t[i] <= b) { lo = Math.min(lo, y[i]); hi = Math.max(hi, y[i]); } return hi - lo; };
+  const A1 = pp(0.5 * H, 0.75 * H), A2 = pp(0.75 * H, H), floor = 1e-11 * Math.max(scale, 1e-300);
+  if (A2 <= floor) return -Infinity; if (A1 <= floor) return Infinity; return Math.log(A2 / A1);
+}
+function periodOf(sim) {
+  const { t, y } = sim, H = t[t.length - 1]; let s = 0, c = 0; for (let i = 0; i < t.length; i++) if (t[i] >= H / 2) { s += y[i]; c++; }
+  const mean = s / c, ups = [];
+  for (let i = 1; i < t.length; i++) if (t[i - 1] >= H / 2 && y[i - 1] - mean < 0 && y[i] - mean >= 0) ups.push(t[i - 1] + (t[i] - t[i - 1]) * (mean - y[i - 1]) / (y[i] - y[i - 1]));
+  return ups.length >= 3 ? (ups[ups.length - 1] - ups[0]) / (ups.length - 1) : null;
+}
+// Tesisin zaman ölçeği (yalnız kutuplardan; kuramsal sınır değerlerinden bağımsız)
+function timeScale(den, delay = 0) {
+  const ps = rootsAberth(den).filter((z) => cabs(z) > 1e-12), slow = ps.length ? Math.min(...ps.map(cabs)) : 1, fast = ps.length ? Math.max(...ps.map(cabs)) : 1;
+  return { slow, fast, span: ps.reduce((s, z) => s + 1 / cabs(z), 0) + delay };
+}
+// Benzetimle sınır kazanç: yalnız P denetimi; kazanç ikiye katlanarak kararsızlık aşılır, sonra ikiye bölünür.
+// Süre H önce tesisin zaman ölçeğinden seçilir, sonra kararsız tarafta ölçülen periyodun 30 katına büyütülür.
+function ultimateSim(num, den, delay = 0, o = {}) {
+  const ts = timeScale(den, delay), kmax = o.kmax ?? 256;
+  let H = 30 * ts.span; const dt0 = Math.min(0.25 / ts.fast, delay > 0 ? delay / 10 : Infinity);
+  const run = (K) => simLoop({ num, den, Kp: K, delay, dt: Math.min(dt0, H / 20000), tEnd: H, r: 1 });
+  let lo = 0, hi = o.k0 ?? 0.5;
+  while (growth(run(hi)) < 0) { lo = hi; hi *= 2; if (hi > kmax) return null; }
+  const P0 = periodOf(run(hi)); if (P0) H = Math.max(H, 30 * P0);
+  if (lo === 0) { lo = hi / 2; while (growth(run(lo)) > 0) { hi = lo; lo /= 2; if (lo < 1e-9) return null; } }
+  while (growth(run(lo)) > 0) { hi = lo; lo /= 2; }
+  const K = bisect((k) => growth(run(k)), lo, hi, o.iters ?? 32), sim = run(K);
+  return { K, T: periodOf(sim), H, dt: Math.min(dt0, H / 20000), sim };
+}
+// Benzetimle kritik gecikme: K sabit, girişteki gecikme T büyütülerek kapalı çevrimin kararlılığı yitirdiği T aranır.
+// Süre en az 40 gecikme ve (bulunduğunda) 30 salınım periyodu kadardır.
+function criticalDelaySim(num, den, K, o = {}) {
+  const ts = timeScale(den, 0); let H0 = 30 * ts.span, dt = Math.min(0.25 / ts.fast, H0 / 20000);
+  const run = (T) => { const H = Math.max(H0, 40 * T); return simLoop({ num, den, Kp: K, delay: T, dt: Math.max(dt, H / 60000), tEnd: H, r: 1 }); };
+  if (!(growth(run(0)) < 0)) return null;
+  let lo = 0, hi = 0.05 * ts.span;
+  while (growth(run(hi)) < 0) { lo = hi; hi *= 2; if (hi > (o.tmax ?? 400 * ts.span)) return { T: Infinity, period: null, omega: null }; }
+  for (let k = 0; k < 6; k++) { const P0 = periodOf(run(hi)); if (P0) { H0 = Math.max(H0, 30 * P0); break; } H0 *= 2; }
+  dt = Math.min(0.25 / ts.fast, H0 / 20000, hi / 40);
+  while (lo > 0 && growth(run(lo)) > 0) { hi = lo; lo /= 2; if (lo < 1e-6 * ts.span) lo = 0; }
+  const T = bisect((x) => growth(run(x)), lo, hi, o.iters ?? 30, false), P = periodOf(run(T));
+  return { T, period: P, omega: P ? 2 * PI / P : null, H: Math.max(H0, 40 * T), dt };
+}
+
+/* ── Frekans yanıtı: çarpanlardan sürekli (sarılmamış) faz ── */
+// Katlı kökler (ör. (s + 1)³) doğrusal yakınsar ve ≈ 10⁻⁵ hatayla bulunur. m katlı bir kümenin yerine p'nin
+// (m − 1). türevinin basit kökü Newton ile cilalanır; o kök kümenin tam ortasıdır ve tam duyarlıkla bulunur.
+function clusterRoots(rs, p, tol = 1e-4) {
+  const out = [], used = new Array(rs.length).fill(false);
+  for (let i = 0; i < rs.length; i++) {
+    if (used[i]) continue; const grp = [i]; used[i] = true;
+    for (let j = i + 1; j < rs.length; j++) if (!used[j] && cabs(csub(rs[i], rs[j])) <= tol * (1 + cabs(rs[i]))) { grp.push(j); used[j] = true; }
+    let m = cx(grp.reduce((s, k) => s + rs[k].re, 0) / grp.length, grp.reduce((s, k) => s + rs[k].im, 0) / grp.length);
+    if (grp.length > 1 && p) { let q = ptrim(p); for (let k = 1; k < grp.length; k++) q = pder(q); const dq = pder(q); for (let it = 0; it < 40; it++) { const dv = pevalC(dq, m); if (dv.re === 0 && dv.im === 0) break; const st = cdiv(pevalC(q, m), dv); m = csub(m, st); if (cabs(st) <= 1e-16 * (1 + cabs(m))) break; } if (Math.abs(m.im) <= 1e-9 * (1 + Math.abs(m.re))) m = cx(m.re, 0); }
+    grp.forEach(() => out.push(tidy(m)));
+  }
+  return out;
+}
+function factorForm(N, D) {
+  const z = N.length > 1 ? clusterRoots(rootsAberth(N), N) : [], p = clusterRoots(rootsAberth(D), D), lead = ptrim(N)[0] / ptrim(D)[0];
+  return { zeros: z, poles: p, lead, P: p.filter((q) => q.re > 1e-12).length, onAxis: p.filter((q) => Math.abs(q.re) <= 1e-12).length };
+}
+function freq(ff, K, T, w) {
+  const s = cx(0, w); let mag = Math.abs(K * ff.lead), ph = K * ff.lead < 0 ? -PI : 0;
+  for (const z of ff.zeros) { const d = csub(s, z); mag *= cabs(d); ph += carg(d); }
+  for (const p of ff.poles) { const d = csub(s, p); mag /= cabs(d); ph -= carg(d); }
+  return { mag, phase: ph - w * T, db: 20 * Math.log10(mag) };
+}
+function Lof(ff, K, T, s) { let v = cx(K * ff.lead, 0); for (const z of ff.zeros) v = cmul(v, csub(s, z)); for (const p of ff.poles) v = cdiv(v, csub(s, p)); if (T > 0) { const e = Math.exp(-s.re * T); v = cmul(v, cx(e * Math.cos(-s.im * T), e * Math.sin(-s.im * T))); } return v; }
+function margins(ff, K, T, wmin, wmax) {
+  const M = 3000, ws = Array.from({ length: M + 1 }, (_, i) => wmin * (wmax / wmin) ** (i / M));
+  const gain = [], phase = [];
+  const fg = (w) => freq(ff, K, T, w).db, fp = (w, k) => freq(ff, K, T, w).phase + PI + 2 * PI * k;
+  for (let i = 1; i <= M; i++) {
+    if ((fg(ws[i]) > 0) !== (fg(ws[i - 1]) > 0)) gain.push(bisect(fg, ws[i - 1], ws[i], 70));
+    for (let k = -1; k <= 4; k++) if ((fp(ws[i], k) > 0) !== (fp(ws[i - 1], k) > 0)) phase.push(bisect((w) => fp(w, k), ws[i - 1], ws[i], 70));
+  }
+  const pmOf = (w) => { let p = freq(ff, K, T, w).phase * 180 / PI + 180; p = ((p % 360) + 540) % 360 - 180; return p; };
+  const gc = gain.map((w) => ({ w, pm: pmOf(w) })).sort((a, b) => a.pm - b.pm), pc = phase.map((w) => ({ w, gm: 1 / freq(ff, K, T, w).mag })).sort((a, b) => Math.abs(Math.log(a.gm)) - Math.abs(Math.log(b.gm)));
+  return { wc: gc[0]?.w ?? null, pm: gc[0]?.pm ?? null, w180: pc[0]?.w ?? null, gm: pc[0]?.gm ?? null, gains: gc, phases: pc };
+}
+// Nyquist: 1 + L(s)'nin D-çevresi boyunca (saat yönünde, eksendeki kutupların çevresinden sağdan dolanarak) sarma sayısı
+function nyquist(ff, K, T, o = {}) {
+  const scale = Math.max(1, ...ff.poles.map(cabs), ...ff.zeros.map(cabs)), eps = o.eps ?? 1e-6 * scale, R = o.R ?? 1e5 * scale;
+  const F = (s) => cadd(cx(1), Lof(ff, K, T, s));
+  const segs = [
+    (u) => cx(0, eps * (R / eps) ** u),
+    (u) => cx(R * Math.cos(PI / 2 - PI * u), R * Math.sin(PI / 2 - PI * u)),
+    (u) => cx(0, -R * (eps / R) ** u),
+    (u) => cx(eps * Math.cos(-PI / 2 + PI * u), eps * Math.sin(-PI / 2 + PI * u)),
+  ];
+  let total = 0, evals = 0;
+  const walk = (seg, u0, u1, f0, f1, depth) => {
+    let d = carg(f1) - carg(f0); d -= 2 * PI * Math.round(d / (2 * PI));
+    if ((Math.abs(d) > 0.2 && depth < 40) || depth < 2) { const um = (u0 + u1) / 2, fm = F(seg(um)); evals++; walk(seg, u0, um, f0, fm, depth + 1); walk(seg, um, u1, fm, f1, depth + 1); }
+    else total += d;
+  };
+  for (const seg of segs) { const pieces = 400; let fPrev = F(seg(0)); for (let i = 1; i <= pieces; i++) { const fCur = F(seg(i / pieces)); walk(seg, (i - 1) / pieces, i / pieces, fPrev, fCur, 2); fPrev = fCur; } }
+  const Ncw = Math.round(-total / (2 * PI));
+  return { Ncw, P: ff.P, Z: Ncw + ff.P, raw: -total / (2 * PI), evals };
+}
+// Benzetimle frekans yanıtı: sinüs girişi, geçici bölüm söndükten sonra tam periyotlar üzerinde kilitli algılama
+function measureFreq(num, den, K, T, w, o = {}) {
+  const ts = timeScale(den, 0), per = 2 * PI / w, settle = Math.max(8 * per, 14 / ts.slow + T), meas = (o.periods ?? 8) * per;
+  const dt = Math.min(per / 400, 0.25 / ts.fast), nSettle = Math.ceil(settle / per) * per;
+  const sim = simOpen(pscale(num, K), den, (t) => Math.sin(w * t), nSettle + meas, dt, T);
+  let a = 0, b = 0, cnt = 0; const i0 = Math.round(nSettle / dt), i1 = sim.t.length - 1;
+  for (let i = i0; i <= i1; i++) { const wt = (i === i0 || i === i1) ? 0.5 : 1, ph = w * sim.t[i]; a += wt * sim.y[i] * Math.sin(ph); b += wt * sim.y[i] * Math.cos(ph); cnt += wt; }
+  a *= 2 / cnt; b *= 2 / cnt;
+  return { mag: Math.hypot(a, b), phase: Math.atan2(b, a), steps: sim.t.length };
+}
+
+/* ── 1. sekme: tesisler ve kapalı biçimler ── */
+function stdSecond(zeta, wn, t) {
+  if (zeta < 1 - 1e-9) { const r = Math.sqrt(1 - zeta * zeta), wd = wn * r, e = Math.exp(-zeta * wn * t); return { s: 1 - e * (Math.cos(wd * t) + zeta / r * Math.sin(wd * t)), h: wn / r * e * Math.sin(wd * t) }; }
+  if (zeta <= 1 + 1e-9) { const e = Math.exp(-wn * t); return { s: 1 - (1 + wn * t) * e, h: wn * wn * t * e }; }
+  const q = Math.sqrt(zeta * zeta - 1), p1 = wn * (-zeta + q), p2 = wn * (-zeta - q), e1 = Math.exp(p1 * t), e2 = Math.exp(p2 * t);
+  return { s: 1 + (p2 * e1 - p1 * e2) / (p1 - p2), h: p1 * p2 * (e1 - e2) / (p1 - p2) };
+}
+function plantTF(c) {
+  if (c.kind === "first") { fin(c.K, c.tau); if (c.tau <= 0) throw RangeError("τ > 0"); return { kind: "first", K: c.K, tau: c.tau, num: [c.K], den: [c.tau, 1], dc: c.K, closed: (t) => c.K * (1 - Math.exp(-t / c.tau)) }; }
+  if (c.kind === "second") {
+    fin(c.K, c.zeta, c.wn); if (c.wn <= 0 || c.zeta < 0) throw RangeError("ω_n > 0, ζ ≥ 0");
+    const zs = c.zero === "lhp" ? 1 : c.zero === "rhp" ? -1 : 0, a = c.a ?? 1, w2 = c.wn * c.wn;
+    const num = zs ? [c.K * w2 * zs / a, c.K * w2] : [c.K * w2];
+    return { kind: "second", K: c.K, zeta: c.zeta, wn: c.wn, zero: zs, a, num, den: [1, 2 * c.zeta * c.wn, w2], dc: c.K, closed: (t) => { const q = stdSecond(c.zeta, c.wn, t); return c.K * (q.s + zs * q.h / a); } };
+  }
+  if (c.kind === "motor") {
+    const Lh = c.Lmh * 1e-3, J = c.Jg * 1e-7; fin(Lh, J); if (Lh <= 0 || J <= 0) throw RangeError("L, J > 0");
+    const tf = motorSpeedTF(Lh, J), [A, B, C0] = tf.den, wn = Math.sqrt(C0 / A), zeta = B / (2 * Math.sqrt(A * C0)), dc = MOTOR.K / C0;
+    return { kind: "motor", Lh, J, zeta, wn, num: tf.num, den: tf.den, dc, closed: (t) => dc * stdSecond(zeta, wn, t).s };
+  }
+  throw RangeError("Bilinmeyen tesis");
+}
+function stepRun(c) {
+  const pl = plantTF(c), poles = clusterRoots(rootsAberth(pl.den), pl.den), zeros = pl.num.length > 1 ? rootsAberth(pl.num) : [];
+  const sig = Math.min(...poles.map((p) => -p.re)), fast = Math.max(...poles.map(cabs));
+  const period = pl.zeta !== undefined && pl.zeta < 1 ? 2 * PI / (pl.wn * Math.sqrt(1 - pl.zeta * pl.zeta)) : 0;
+  const tEnd = sig > 1e-9 ? Math.max(14 / sig, 3 * period) : 10 * period, dt = Math.min(tEnd / 6000, 0.1 / fast);
+  const sim = simOpen(pl.num, pl.den, () => 1, tEnd, dt);
+  let err = 0; for (let i = 0; i < sim.t.length; i++) err = Math.max(err, Math.abs(sim.y[i] - pl.closed(sim.t[i])));
+  return { pl, poles, zeros, sim, tEnd, dt, sigma: sig, err, scale: Math.abs(pl.dc) };
+}
+function stepMetrics(t, y, final, o = {}) {
+  const t0 = o.t0 ?? 0, t1 = o.t1 ?? Infinity, band = o.band ?? 0.02, sg = final < 0 ? -1 : 1, F = Math.abs(final);
+  if (!(F > 0)) return null;
+  const idx = []; for (let i = 0; i < t.length; i++) if (t[i] >= t0 - 1e-12 && t[i] <= t1 + 1e-12) idx.push(i);
+  const z = (i) => sg * y[i];
+  let im = idx[0], zmin = Infinity; for (const i of idx) { if (z(i) > z(im)) im = i; zmin = Math.min(zmin, z(i)); }
+  let zpk = z(im), tpk = t[im];
+  if (im > idx[0] && im < idx[idx.length - 1]) { const a = z(im - 1), b = z(im), c = z(im + 1), den = a - 2 * b + c; if (den < 0) { const d = 0.5 * (a - c) / den; zpk = b - 0.25 * (a - c) * d; tpk = t[im] + d * (t[im + 1] - t[im]); } }
+  const os = zpk > F * (1 + 1e-9) && im < idx[idx.length - 1] ? (zpk - F) / F * 100 : 0;
+  const cross = (lv) => { for (let j = 1; j < idx.length; j++) { const i = idx[j]; if (z(i - 1) < lv && z(i) >= lv) return t[i - 1] + (t[i] - t[i - 1]) * (lv - z(i - 1)) / (z(i) - z(i - 1)) - t0; } return null; };
+  const t10 = cross(0.1 * F), t90 = cross(0.9 * F);
+  let last = -1; for (let j = 0; j < idx.length; j++) if (Math.abs(z(idx[j]) - F) > band * F) last = j;
+  let ts; if (last < 0) ts = 0; else if (last === idx.length - 1) ts = null; else { const i = idx[last], a = Math.abs(z(i) - F) - band * F, b = Math.abs(z(i + 1) - F) - band * F; ts = t[i] + (t[i + 1] - t[i]) * a / (a - b) - t0; }
+  return { os, tp: os > 0 ? tpk - t0 : null, tr: t10 !== null && t90 !== null ? t90 - t10 : null, ts, under: Math.min(0, zmin) / F * 100, peak: sg * zpk };
+}
+// Formüller (ikinci mertebe, sıfırsız): klasik %OS, t_p, zarf ve 4/(ζω_n)
+function secondFormulas(zeta, wn) {
+  if (zeta <= 0) return { os: 100, tp: PI / wn, tsEnv: null, ts4: null };
+  if (zeta >= 1) return { os: 0, tp: null, tsEnv: null, ts4: 4 / (zeta * wn) };
+  const r = Math.sqrt(1 - zeta * zeta); return { os: 100 * Math.exp(-PI * zeta / r), tp: PI / (wn * r), tsEnv: -Math.log(0.02 * r) / (zeta * wn), ts4: 4 / (zeta * wn) };
+}
+// Kapalı biçimden yükselme ve yerleşme süreleri (sıkı örnekleme + ikiye bölme)
+function closedTimes(fn, final, tEnd) {
+  const n = 40000, F = Math.abs(final), sg = final < 0 ? -1 : 1, z = (t) => sg * fn(t), h = tEnd / n;
+  const first = (lv) => { for (let i = 1; i <= n; i++) if (z((i - 1) * h) < lv && z(i * h) >= lv) return bisect((t) => z(t) - lv, (i - 1) * h, i * h, 60, false); return null; };
+  let lastOut = -1; for (let i = 0; i <= n; i++) if (Math.abs(z(i * h) - F) > 0.02 * F) lastOut = i;
+  const ts = lastOut < 0 ? 0 : lastOut === n ? null : bisect((t) => Math.abs(z(t) - F) - 0.02 * F, lastOut * h, (lastOut + 1) * h, 60, false);
+  const a = first(0.1 * F), b = first(0.9 * F); return { tr: a !== null && b !== null ? b - a : null, ts };
+}
+
+/* ── 4. sekme: PID tesisleri ── */
+const PID_PLANTS = Object.freeze({
+  lag3: Object.freeze({ num: [1], den: [1, 3, 3, 1], delay: 0, tEnd: 80 }),
+  fopdt: Object.freeze({ num: [1], den: [5, 1], delay: 1, tEnd: 80 }),
+});
+// Kuram: faz −180° olduğu frekans (gecikme dahil), K_u = 1/|G|, T_u = 2π/ω_u
+function ultimateTheory(num, den, delay) {
+  const ff = factorForm(num, den), ph = (w) => freq(ff, 1, delay, w).phase + PI;
+  const ws = Array.from({ length: 2001 }, (_, i) => 1e-4 * 1e8 ** (i / 2000));
+  for (let i = 1; i < ws.length; i++) if (ph(ws[i]) <= 0 && ph(ws[i - 1]) > 0) { const w = bisect(ph, ws[i - 1], ws[i], 80); return { w, K: 1 / freq(ff, 1, delay, w).mag, T: 2 * PI / w }; }
+  return null;
+}
+function zieglerNichols(Ku, Tu) { const Kp = 0.6 * Ku, Ti = Tu / 2, Td = Tu / 8; return { Kp, Ti, Td, Ki: Kp / Ti, Kd: Kp * Td }; }
+function pidRun(o) {
+  const pl = PID_PLANTS[o.plant]; if (!pl) throw RangeError("Bilinmeyen tesis");
+  const tEnd = pl.tEnd, td = tEnd / 2, dt = o.dt ?? 0.005;
+  const sim = simLoop({ num: pl.num, den: pl.den, Kp: o.Kp, Ki: o.Ki, Kd: o.Kd, delay: o.delay, umax: o.sat ? o.umax : Infinity, aw: o.aw, r: o.r, d: o.d, td, dt, tEnd, every: o.every ?? 4 });
+  const g0 = pevalR(pl.num, 0) / pevalR(pl.den, 0);
+  const pre = stepMetrics(sim.t, sim.y, o.r, { t1: td - 1e-9 });
+  const avg = (a, b) => { let s = 0, c = 0, lo = Infinity, hi = -Infinity; for (let i = 0; i < sim.t.length; i++) if (sim.t[i] >= a && sim.t[i] <= b) { s += sim.y[i]; c++; lo = Math.min(lo, sim.y[i]); hi = Math.max(hi, sim.y[i]); } return { mean: s / c, spread: hi - lo }; };
+  const seg1 = avg(td - 4, td - 1e-9), seg2 = avg(tEnd - 4, tEnd);
+  let iae = 0, dev = 0, rec = 0; for (let i = 1; i < sim.t.length; i++) { const h = sim.t[i] - sim.t[i - 1]; if (sim.t[i] <= td) iae += h * Math.abs(o.r - sim.y[i]); else { const e = Math.abs(sim.y[i] - seg1.mean); if (e > dev) dev = e; } }
+  let lastOut = null; for (let i = 0; i < sim.t.length; i++) if (sim.t[i] > td && Math.abs(sim.y[i] - seg2.mean) > 0.02 * Math.abs(o.r)) lastOut = sim.t[i];
+  rec = lastOut === null ? 0 : lastOut >= tEnd - 1e-9 ? null : lastOut - td;
+  const essTh = o.Ki > 0 ? { pre: 0, post: 0 } : { pre: o.r / (1 + o.Kp * g0), post: (o.r - g0 * o.d) / (1 + o.Kp * g0) };
+  let usat = 0; for (const u of sim.u) if (o.sat && Math.abs(u) >= o.umax * (1 - 1e-12)) usat++;
+  return { sim, pre, iae, dev, rec, td, tEnd, g0, essPre: o.r - seg1.mean, essPost: o.r - seg2.mean, settledPre: seg1.spread < 0.01 * Math.abs(o.r), settledPost: seg2.spread < 0.01 * Math.abs(o.r), essTh, satFrac: usat / sim.u.length, diverged: sim.diverged || growth(sim) > 0.05 && !(seg2.spread < 0.01) };
+}
+
+Object.defineProperty(window, "ControlLab", { value: Object.freeze({ MOTOR, LOOP, PID_PLANTS, cx, cabs, carg, ptrim, padd, pmul, pscale, pder, pfromRoots, pevalC, pevalR, rootsAberth, rootsDK, clusterRoots, sortRoots, matchRoots, rootGap, routh, loopPlant, charPoly, locusKs, rootLocus, maxRe, bisect, locusCritical, routhCritical, asymptotes, asymptotesMeasured, breakaway, breakawayMeasured, ss, simOpen, simLoop, growth, periodOf, timeScale, ultimateSim, criticalDelaySim, factorForm, freq, Lof, margins, nyquist, measureFreq, stdSecond, plantTF, stepRun, stepMetrics, secondFormulas, closedTimes, ultimateTheory, zieglerNichols, pidRun, motorSpeedTF }), writable: false, configurable: false });
+/* KERNEL-END */
+
+/* ───────── Biçim yardımcıları (tek yuvarlama yolu) ───────── */
+const $ = (id) => document.getElementById(id), num = (id) => Number($(id).value), put = (id, t) => { $(id).textContent = t; }, html = (id, t) => { $(id).innerHTML = t; };
+const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+function fx(x, d) { if (x === null || !Number.isFinite(x)) return "—"; const r = Number(x.toFixed(d)); return (Object.is(r, -0) ? 0 : r).toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: Math.abs(r) >= 10000 }).replace(/\./g, " ").replace("-", "−"); }
+function supNum(e) { return "10" + String(e).replace("-", "−").split("").map((c) => (c === "−" ? "⁻" : SUP[c])).join(""); }
+function sig(x, s = 3) {
+  if (x === null || !Number.isFinite(x)) return "—"; if (x === 0) return "0";
+  let e = Math.floor(Math.log10(Math.abs(x))), m = Number((x / 10 ** e).toFixed(s - 1));
+  if (Math.abs(m) >= 10) { e += 1; m = Number((x / 10 ** e).toFixed(s - 1)); }
+  if (e >= 5 || e < -3) return fx(m, s - 1) + " × " + supNum(e);
+  return fx(x, Math.max(0, s - 1 - e));
+}
+const PREF = [[1, ""], [1e-3, "m"], [1e-6, "µ"]];
+function si(x, unit, s = 4) { if (x === null || !Number.isFinite(x)) return "—"; if (x === 0) return "0 " + unit; const a = Math.abs(x); for (const [f, p] of PREF) if (a >= f * 0.9995) return sig(x / f, s) + " " + p + unit; return sig(x, s) + " " + unit; }
+function pct(m, t, d = 2) { if (m === null || t === null || !Number.isFinite(m) || !Number.isFinite(t) || t === 0) return "—"; const v = (m - t) / Math.abs(t) * 100; const r = Number(v.toFixed(d)); return (r > 0 ? "+" : "") + fx(r, d) + " %"; }
+function dif(m, t, d, unit = "") { if (m === null || t === null || !Number.isFinite(m) || !Number.isFinite(t)) return "—"; const r = Number((m - t).toFixed(d)); return (r > 0 ? "+" : "") + fx(r, d) + unit; }
+function fmtC(z, s = 4) { const tol = 1e-9 * (1 + Math.abs(z.re)); if (Math.abs(z.im) <= tol) return sig(z.re, s); return (Math.abs(z.re) <= 1e-12 ? "" : sig(z.re, s) + " ") + (z.im < 0 ? "− " : "± ") + sig(Math.abs(z.im), s) + "j"; }
+function rootList(rs, s = 4) { const out = []; for (const z of L.sortRoots(rs)) { if (z.im < -1e-9 * (1 + Math.abs(z.re))) continue; out.push(fmtC(z, s)); } return out.join("; ") || "yok"; }
+const deg = (r) => r * 180 / Math.PI;
+
+/* ───────── Tuval yardımcıları ───────── */
+function surface(id) {
+  const c = $(id), r = c.getBoundingClientRect(); if (!r.width) return null;
+  const d = Math.min(devicePixelRatio || 1, 2); c.width = Math.round(r.width * d); c.height = Math.round(r.height * d);
+  const g = c.getContext("2d"); g.setTransform(d, 0, 0, d, 0, 0);
+  const light = document.documentElement.dataset.theme === "light";
+  const p = light ? { bg: "#f8f9fc", ink: "#1d2433", grid: "#d6dbe6", axis: "#8a93a8", muted: "#5d6578", accent: "#0f7f78", warm: "#b4541c", violet: "#6d3fc4", red: "#b5363c", blue: "#2563c9" }
+    : { bg: "#0f1626", ink: "#e6ebf4", grid: "#2b3550", axis: "#56617c", muted: "#9aa5bb", accent: "#5eead4", warm: "#f5a25c", violet: "#b39cff", red: "#ff8a90", blue: "#7fb0ff" };
+  g.fillStyle = p.bg; g.fillRect(0, 0, r.width, r.height); return { g, w: r.width, h: r.height, p, light };
+}
+function line(s, x, y, X, Y, col, width = 2, dash = []) { const g = s.g; g.strokeStyle = col; g.lineWidth = width; g.setLineDash(dash); g.beginPath(); g.moveTo(x, y); g.lineTo(X, Y); g.stroke(); g.setLineDash([]); }
+function text(s, t, x, y, col, align = "left", size = 11) { const g = s.g; g.font = size + "px Outfit, system-ui, sans-serif"; g.textAlign = align; g.fillStyle = col || s.p.ink; const tw = g.measureText(t).width; let xx = x; if (align === "center") xx = Math.max(tw / 2 + 3, Math.min(s.w - tw / 2 - 3, x)); else if (align === "left") xx = Math.min(x, s.w - tw - 3); else xx = Math.max(x, tw + 3); g.fillText(t, xx, y); }
+function niceStep(span, n) { const raw = span / n, mag = 10 ** Math.floor(Math.log10(raw)); return [1, 2, 2.5, 5, 10].map((m) => m * mag).find((v) => v >= raw); }
+function plot(s, o) {
+  const pad = { l: o.padL ?? 54, r: 14, t: 18, b: 34 }, W = s.w - pad.l - pad.r, Hh = s.h - pad.t - pad.b;
+  const tx = (v, a) => (a.log ? Math.log10(v) : v), X = (v) => pad.l + (tx(v, o.x) - tx(o.x.min, o.x)) / (tx(o.x.max, o.x) - tx(o.x.min, o.x)) * W;
+  const Y = (v) => pad.t + Hh - (tx(v, o.y) - tx(o.y.min, o.y)) / (tx(o.y.max, o.y) - tx(o.y.min, o.y)) * Hh;
+  const ticks = (a, n) => { if (a.log) { const out = [], lo = Math.ceil(Math.log10(a.min) - 1e-9), hi = Math.floor(Math.log10(a.max) + 1e-9); for (let e = lo; e <= hi; e++) out.push(10 ** e); return out; } const step = a.step ?? niceStep(a.max - a.min, n), out = []; for (let v = Math.ceil(a.min / step - 1e-9) * step; v <= a.max + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v); return out; };
+  const nx = s.w < 420 ? 4 : 6;
+  for (const v of ticks(o.x, nx)) { const x = X(v); line(s, x, pad.t, x, pad.t + Hh, s.p.grid, 1); text(s, o.x.log ? supNum(Math.round(Math.log10(v))) : (o.x.fmt ? o.x.fmt(v) : sig(v, 3)), x, s.h - pad.b + 15, s.p.muted, "center", 10); }
+  for (const v of ticks(o.y, 4)) { const y = Y(v); line(s, pad.l, y, pad.l + W, y, s.p.grid, 1); text(s, o.y.fmt ? o.y.fmt(v) : sig(v, 3), pad.l - 5, y + 4, s.p.muted, "right", 10); }
+  text(s, o.x.label, pad.l + W / 2, s.h - 4, s.p.muted, "center", 10.5);
+  text(s, o.y.label, pad.l + 2, pad.t - 5, s.p.muted, "left", 10.5);
+  const g = s.g; g.save(); g.beginPath(); g.rect(pad.l, pad.t - 2, W, Hh + 4); g.clip();
+  for (const v of o.hlines || []) if (v.y >= o.y.min && v.y <= o.y.max) line(s, pad.l, Y(v.y), pad.l + W, Y(v.y), v.col, v.width || 1.2, v.dash || [5, 4]);
+  for (const v of o.vlines || []) if (v.x !== null && Number.isFinite(v.x) && v.x >= o.x.min && v.x <= o.x.max) line(s, X(v.x), pad.t, X(v.x), pad.t + Hh, v.col, v.width || 1.5, v.dash || [5, 4]);
+  for (const se of o.series || []) {
+    const ok = (q) => Number.isFinite(q[0]) && Number.isFinite(q[1]) && (!o.x.log || q[0] > 0) && (!o.y.log || q[1] > 0);
+    if (se.dots) { g.fillStyle = se.col; for (const q of se.pts) if (ok(q)) { g.beginPath(); g.arc(X(q[0]), Y(q[1]), se.r || 3.5, 0, 7); g.fill(); } continue; }
+    g.strokeStyle = se.col; g.lineWidth = se.width || 2; g.setLineDash(se.dash || []); g.beginPath(); let on = false;
+    for (const q of se.pts) { if (!ok(q)) { on = false; continue; } const xx = X(q[0]), yy = Math.max(-5e3, Math.min(5e3, Y(q[1]))); if (on) g.lineTo(xx, yy); else { g.moveTo(xx, yy); on = true; } }
+    g.stroke(); g.setLineDash([]);
+  }
+  g.restore(); return { X, Y, pad, W, Hh };
+}
+// Eşit ölçekli karmaşık düzlem
+function plane(s, v, labels = ["Re s", "Im s"]) {
+  const pad = { l: 46, r: 12, t: 16, b: 30 }, W = s.w - pad.l - pad.r, Hh = s.h - pad.t - pad.b;
+  const sc = Math.min(W / (v[1] - v[0]), Hh / (v[3] - v[2])), c0 = (v[0] + v[1]) / 2, c1 = (v[2] + v[3]) / 2;
+  const X = (re) => pad.l + W / 2 + (re - c0) * sc, Y = (im) => pad.t + Hh / 2 - (im - c1) * sc;
+  const inv = (px, py) => ({ re: c0 + (px - pad.l - W / 2) / sc, im: c1 - (py - pad.t - Hh / 2) / sc });
+  const lo = inv(pad.l, pad.t + Hh), hi = inv(pad.l + W, pad.t), st = niceStep(hi.re - lo.re, s.w < 420 ? 4 : 7);
+  for (let x = Math.ceil(lo.re / st) * st; x <= hi.re + 1e-9 * st; x += st) { const xx = X(x); line(s, xx, pad.t, xx, pad.t + Hh, s.p.grid, 1); text(s, sig(Math.abs(x) < st * 1e-9 ? 0 : x, 3), xx, s.h - pad.b + 14, s.p.muted, "center", 10); }
+  for (let y = Math.ceil(lo.im / st) * st; y <= hi.im + 1e-9 * st; y += st) { const yy = Y(y); line(s, pad.l, yy, pad.l + W, yy, s.p.grid, 1); text(s, sig(Math.abs(y) < st * 1e-9 ? 0 : y, 3), pad.l - 5, yy + 4, s.p.muted, "right", 10); }
+  if (lo.re <= 0 && hi.re >= 0) line(s, X(0), pad.t, X(0), pad.t + Hh, s.p.axis, 1.4);
+  if (lo.im <= 0 && hi.im >= 0) line(s, pad.l, Y(0), pad.l + W, Y(0), s.p.axis, 1.4);
+  text(s, labels[0], pad.l + W - 2, s.h - 4, s.p.muted, "right", 10.5); text(s, labels[1], pad.l + 2, pad.t - 4, s.p.muted, "left", 10.5);
+  const g = s.g; g.save(); g.beginPath(); g.rect(pad.l, pad.t, W, Hh); g.clip();
+  return { X, Y, inv, sc, pad, W, Hh, done: () => g.restore() };
+}
+function cross(s, x, y, col, r = 6, w = 2.2) { line(s, x - r, y - r, x + r, y + r, col, w); line(s, x - r, y + r, x + r, y - r, col, w); }
+function ring(s, x, y, col, r = 6, w = 2) { const g = s.g; g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.arc(x, y, r, 0, 7); g.stroke(); }
+function dot(s, x, y, col, r = 4.5, edge) { const g = s.g; g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); if (edge) { g.strokeStyle = edge; g.lineWidth = 1.5; g.stroke(); } }
+function diamond(s, x, y, col, r = 6) { const g = s.g; g.fillStyle = col; g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fill(); }
+function yRange(arrs, extra = []) { let lo = Infinity, hi = -Infinity; for (const a of arrs) for (const v of a) if (Number.isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); } for (const v of extra) if (Number.isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); } if (!(hi > lo)) { hi = lo + 1; } const m = 0.08 * (hi - lo); return { min: lo - m, max: hi + m }; }
+function decimate(t, y, n = 900, sx = 1) { const st = Math.max(1, Math.floor(t.length / n)), out = []; for (let i = 0; i < t.length; i += st) out.push([t[i] * sx, y[i]]); out.push([t[t.length - 1] * sx, y[y.length - 1]]); return out; }
+
+const L = window.ControlLab;
+let active = "tf";
+
+/* ───────── 1 · Transfer fonksiyonu ───────── */
+function tfCfg() { return { kind: $("tfPlant").value, K: num("tfK"), tau: num("tfTau"), zeta: num("tfZeta"), wn: num("tfWn"), zero: $("tfZero").value, a: num("tfA"), Lmh: num("tfL"), Jg: num("tfJ") }; }
+function criticalL(Jg) { const { R, K, b } = L.MOTOR, J = Jg * 1e-7, A = b * b, B = 2 * J * R * b - 4 * J * (b * R + K * K), C = J * J * R * R, d = Math.sqrt(B * B - 4 * A * C); return (-B - d) / (2 * A); }
+function updateTf() {
+  const c = tfCfg(), kind = c.kind, sec = kind === "second";
+  $("tfKF").hidden = kind === "motor"; $("tfTauF").hidden = kind !== "first"; $("tfZetaF").hidden = !sec; $("tfWnF").hidden = !sec; $("tfZeroF").hidden = !sec; $("tfAF").hidden = !sec || c.zero === "none"; $("tfLF").hidden = kind !== "motor"; $("tfJF").hidden = kind !== "motor";
+  put("tfKOut", fx(c.K, 1)); put("tfTauOut", fx(c.tau, 2) + " s"); put("tfZetaOut", fx(c.zeta, 2)); put("tfWnOut", fx(c.wn, 1) + " rad/s"); put("tfAOut", fx(c.a, 1) + " s⁻¹"); put("tfLOut", fx(c.Lmh, 1) + " mH"); put("tfJOut", fx(c.Jg, 0) + " g·cm²");
+  const run = L.stepRun(c), pl = run.pl, sim = run.sim, n = sim.y.length, yEnd = sim.y[n - 1], fv = run.sigma > 1e-9, unit = kind === "motor" ? " rad/s" : "";
+  const zeta = pl.zeta, m = L.stepMetrics(sim.t, sim.y, fv ? yEnd : pl.dc);
+  // kuram
+  let th = { os: null, tp: null, tr: null, ts: null }, trLabel = "Kapalı biçimden (ikiye bölme)", tsLabel = "Zarf formülü", osLabel = "Formül 100·e<sup>−πζ/√(1−ζ²)</sup>";
+  const ct = fv ? L.closedTimes(pl.closed, pl.dc, run.tEnd) : { tr: L.closedTimes(pl.closed, pl.dc, run.tEnd).tr, ts: null };
+  if (kind === "first") { th = { os: 0, tp: null, tr: pl.tau * Math.log(9), ts: pl.tau * Math.log(50) }; trLabel = "Formül τ·ln 9"; tsLabel = "Formül τ·ln 50"; osLabel = "Birinci mertebe: aşma yok"; }
+  else { const f = L.secondFormulas(zeta, pl.wn); th = { os: f.os, tp: f.tp, tr: ct.tr, ts: zeta > 0 && zeta < 1 && !pl.zero ? f.tsEnv : ct.ts, ts4: f.ts4 }; if (!(zeta > 0 && zeta < 1) || pl.zero) tsLabel = "Kapalı biçimden (ikiye bölme)"; if (pl.zero) osLabel = "Formül (sıfırsız sistem için) 100·e<sup>−πζ/√(1−ζ²)</sup>"; if (zeta >= 1) osLabel = "ζ ≥ 1: formül aşma vermez"; }
+  html("tfOSThLabel", osLabel); put("tfTrThLabel", trLabel); put("tfTsThLabel", tsLabel);
+  const T = (x) => si(x, "s");
+  html("tfPoles", "kutuplar: " + rootList(run.poles) + (run.zeros.length ? " · sıfır: " + rootList(run.zeros) : " · sıfır yok"));
+  if (kind === "first") { html("tfParLabel", "τ · kutup −1/τ"); put("tfPar", T(pl.tau) + " · " + sig(-1 / pl.tau, 4) + " s⁻¹"); }
+  else { html("tfParLabel", "ζ · ω<sub>n</sub> · ω<sub>d</sub>"); put("tfPar", fx(zeta, 3) + " · " + sig(pl.wn, 4) + " rad/s · " + (zeta < 1 ? sig(pl.wn * Math.sqrt(1 - zeta * zeta), 4) + " rad/s" : "salınım yok")); }
+  put("tfErr", sig(run.err / run.scale, 2) + " (göreli)");
+  put("tfUnder", m.under < -1e-6 ? fx(-m.under, 2) + " %" : "yok");
+  put("tfOS", fx(m.os, 2) + " %"); put("tfOSTh", th.os === null ? "—" : fx(th.os, 2) + " %"); put("tfOSDiff", dif(m.os, th.os, 2, " puan"));
+  put("tfTp", m.tp === null ? "aşma yok" : T(m.tp)); put("tfTpTh", th.tp === null ? "tanımsız (aşma yok)" : T(th.tp)); put("tfTpDiff", pct(m.tp, th.tp));
+  put("tfTr", T(m.tr)); put("tfTrTh", T(th.tr)); put("tfTrDiff", pct(m.tr, th.tr));
+  put("tfTs", m.ts === null ? "oturmuyor" : T(m.ts)); put("tfTsTh", th.ts === null ? "tanımsız" : T(th.ts)); put("tfTsDiff", pct(m.ts, th.ts));
+  if (fv) { put("tfFinal", sig(yEnd, 5) + unit); put("tfFinalTh", sig(pl.dc, 5) + unit); put("tfFinalDiff", pct(yEnd, pl.dc, 4)); }
+  else { put("tfFinal", "tanımsız: y salınıyor"); put("tfFinalTh", "uygulanamaz (kutup sanal eksende)"); put("tfFinalDiff", "—"); }
+  put("tfTs4", kind === "first" || !th.ts4 ? "—" : T(th.ts4) + " · ölçülene göre " + (m.ts === null ? "—" : pct(m.ts, th.ts4)));
+  // durum
+  let st;
+  if (kind === "first") st = `Birinci mertebe: tek gerçel kutup s = −1/τ = ${sig(-1 / pl.tau, 4)} s⁻¹. Yanıt aşmasızdır; %63,2'ye τ'da, %90'a 2,303τ'da varır. Ölçülen yükselme ${T(m.tr)}, formül τ·ln 9 = ${T(th.tr)}.`;
+  else if (zeta === 0) st = `Sönümsüz (ζ = 0): kutuplar sanal eksende, s = ±j${sig(pl.wn, 4)}. Yanıt hiç oturmaz, 0 ile ${sig(2 * pl.dc, 3)}${unit} arasında sonsuza dek salınır (ölçülen aşma %${fx(m.os, 2)}). Son değer kuramı yalnız s·Y(s)'nin bütün kutupları sol yarı düzlemdeyse geçerlidir; burada geçerli değildir, yerleşme süresi de tanımsızdır.`;
+  else if (pl.zero === 1) st = `Sol yarı düzlemde sıfır (s = −${sig(pl.a, 3)}): yanıt y = K[s(t) + h(t)/a], yani basamak yanıtına dürtü yanıtının bir payı eklenir; yükselme hızlanır, aşma artar. Ölçülen aşma %${fx(m.os, 2)}, sıfırsız sistemin formülü %${fx(th.os, 2)}. Formüller ancak sıfır kutuplardan çok uzaktayken (a ≫ ζω<sub>n</sub>) geçerlidir.`;
+  else if (pl.zero === -1) st = `Sağ yarı düzlemde sıfır (s = +${sig(pl.a, 3)}): yanıt önce ters yöne gider (ölçülen alt aşma %${fx(-m.under, 2)}), sonra hedefe döner. Böyle "minimum fazlı olmayan" tesislerde hızlı denetim zordur: denetleyici ilk ters hareketi düzeltmeye çalıştıkça işi büyütür.`;
+  else if (zeta < 1) st = `Az sönümlü: kutuplar −ζω<sub>n</sub> ± jω<sub>d</sub> = ${rootList(run.poles)}. Aşma ve tepe zamanı formülleri bu sistem için tamdır (fark yalnız örnekleme ve sayısal hata kadar). Zarf formülü bir üst sınırdır: yanıt bandı zarftan biraz önce terk eder, ölçülen yerleşme ${T(m.ts)} ≤ ${T(th.ts)}. Kaba kural 4/(ζω<sub>n</sub>) = ${T(th.ts4)}.`;
+  else if (zeta === 1) st = `Kritik sönüm: çift kutup s = −ω<sub>n</sub> = ${sig(-pl.wn, 4)}. Aşmasız en hızlı yanıt budur; ζ biraz küçülürse aşma başlar, büyürse yanıt yavaşlar.`;
+  else st = `Aşırı sönümlü (ζ = ${fx(zeta, 2)}): iki gerçel kutup ${rootList(run.poles)}. Yavaş kutup yanıtı belirler; ζ büyüdükçe o kutup sıfıra yaklaşır ve yanıt yavaşlar. Aşma formülü burada uygulanmaz.`;
+  if (kind === "motor") { const Lc = criticalL(c.Jg); st = `DC motor hızı: elektriksel ve mekanik iki kutup ${rootList(run.poles)} s⁻¹. ` + (zeta > 1 ? `L küçükken elektriksel kutup çok hızlıdır, yanıt birinci mertebeye benzer (aşma yok). ` : zeta < 1 ? `Kutuplar karmaşık: hız aşarak oturur (ölçülen aşma %${fx(m.os, 2)}, formül %${fx(th.os, 2)}). ` : "") + `Bu J'de ζ = 1, L ≈ ${fx(Lc * 1e3, 2)} mH'de olur. Son hız ${sig(pl.dc, 4)} rad/s per V = K/(bR + K²).`; }
+  if (fv && Math.abs(yEnd - pl.dc) > 1e-3 * Math.abs(pl.dc)) st += " Benzetim süresi son değere oturmak için kısa kaldı.";
+  html("tfStatus", st);
+  drawTfPlane(run); drawTfStep(run, m, fv ? yEnd : null, kind === "motor");
+}
+function drawTfPlane(run) {
+  const s = surface("tfPlane"); if (!s) return; const pl = run.pl, pts = [...run.poles, ...run.zeros];
+  const R = Math.max(...pts.map((z) => L.cabs(z)), 0.5), xr = Math.max(0.35 * R, ...pts.map((z) => z.re * 1.25 + 0.1 * R)), yr = Math.max(0.55 * R, ...pts.map((z) => Math.abs(z.im) * 1.25));
+  const P = plane(s, [-1.15 * R, xr, -yr, yr]);
+  if (pl.zeta !== undefined && pl.kind === "second") {
+    const g = s.g; g.strokeStyle = s.p.violet; g.lineWidth = 1.2; g.setLineDash([4, 4]); g.beginPath(); g.arc(P.X(0), P.Y(0), pl.wn * P.sc, 0, 7); g.stroke(); g.setLineDash([]);
+    if (pl.zeta < 1) { const th = Math.acos(pl.zeta); for (const sg of [1, -1]) line(s, P.X(0), P.Y(0), P.X(-3 * R * Math.cos(th)), P.Y(sg * 3 * R * Math.sin(th)), s.p.violet, 1.2, [4, 4]); }
+  }
+  for (const z of run.poles) cross(s, P.X(z.re), P.Y(z.im), s.p.warm, 7, 2.6);
+  for (const z of run.zeros) ring(s, P.X(z.re), P.Y(z.im), s.p.accent, 7, 2.4);
+  P.done();
+  if (pl.kind === "second") { const g = s.g; g.font = "11px Outfit, system-ui, sans-serif"; const lbl = `ωₙ = ${sig(pl.wn, 3)} rad/s · ζ = ${fx(pl.zeta, 2)}`, tw = g.measureText(lbl).width; g.fillStyle = s.p.bg; g.fillRect(52, 18, tw + 8, 16); text(s, lbl, 56, 30, s.p.violet, "left", 11); }
+}
+function drawTfStep(run, m, final, motor) {
+  const s = surface("tfStep"); if (!s) return; const sim = run.sim, sx = motor ? 1e3 : 1, pts = decimate(sim.t, sim.y, 900, sx), cl = [];
+  for (let i = 0; i <= 500; i++) { const t = run.tEnd * i / 500; cl.push([t * sx, run.pl.closed(t)]); }
+  const yr = yRange([sim.y], [0, final ?? run.pl.dc]);
+  const hl = final !== null ? [{ y: final * 1.02, col: s.p.muted }, { y: final * 0.98, col: s.p.muted }] : [{ y: run.pl.dc, col: s.p.muted }];
+  plot(s, { x: { min: 0, max: run.tEnd * sx, label: motor ? "t / ms" : "t / s" }, y: { min: yr.min, max: yr.max, label: motor ? "ω / (rad/s)" : "y(t)" }, hlines: hl, vlines: [{ x: m.tp !== null ? m.tp * sx : null, col: s.p.violet }, { x: m.ts !== null ? m.ts * sx : null, col: s.p.warm }], series: [{ pts, col: s.p.accent, width: 2.6 }, { pts: cl, col: s.p.warm, width: 1.6, dash: [6, 5] }] });
+}
+
+/* ───────── 2 · Kök yeri ───────── */
+const rlCache = {};
+function rlData(key) {
+  if (!rlCache[key]) { const p = L.LOOP[key]; rlCache[key] = { p, loc: L.rootLocus(p.N, p.D, L.locusKs(p.kref)), crit: L.locusCritical(p.N, p.D, p.kref), routh: L.routhCritical(p.N, p.D, p.kref), asy: L.asymptotes(p.N, p.D), asyM: L.asymptotesMeasured(p.N, p.D, p.kref), brk: L.breakaway(p.N, p.D), brkM: L.breakawayMeasured(p.N, p.D, p.kref), ts: L.timeScale(p.D) }; }
+  return rlCache[key];
+}
+const isType1 = (D) => D[D.length - 1] === 0;
+function closedFinal(p, K) { if (isType1(p.D)) return 1; const g0 = L.pevalR(p.N, 0) / L.pevalR(p.D, 0); return K * g0 / (1 + K * g0); }
+function closedStep(p, K, roots, ts) {
+  const scale = Math.max(1, ...roots.map(L.cabs)), mr = Math.max(...roots.map((z) => z.re)), top = roots.reduce((a, b) => (b.re > a.re ? b : a));
+  let tEnd;
+  if (mr < -1e-3 * ts.slow) tEnd = Math.min(12 / -mr, 400 * ts.span);
+  else if (mr > 1e-3 * ts.slow) tEnd = Math.min(5 / mr, 60 * ts.span);
+  else tEnd = Math.abs(top.im) > 0 ? 8 * 2 * Math.PI / Math.abs(top.im) : 60 * ts.span;
+  if (Math.abs(top.im) > 0) tEnd = Math.max(tEnd, Math.min(4 * 2 * Math.PI / Math.abs(top.im), 400 * ts.span));
+  const dt = Math.min(tEnd / 5000, 0.2 / scale);
+  return { sim: L.simLoop({ num: p.N, den: p.D, Kp: K, r: 1, dt, tEnd, every: Math.max(1, Math.round(tEnd / dt / 3000)) }), tEnd, mr, top };
+}
+let rlView = null;
+function updateRl() {
+  const key = $("rlPlant").value, d = rlData(key), p = d.p, K = 10 ** num("rlK"), unitK = key === "motor" ? " V/rad" : "";
+  put("rlKOut", "K = " + sig(K, 4) + unitK);
+  const poly = L.charPoly(p.N, p.D, K), roots = L.rootsAberth(poly), rDK = L.rootsDK(poly), sc = Math.max(1, ...roots.map(L.cabs));
+  let resid = 0; for (const z of roots) { const v = L.cabs(L.pevalC(poly, z)); let den = 0; poly.forEach((c, i) => { den += Math.abs(c) * L.cabs(z) ** (poly.length - 1 - i); }); resid = Math.max(resid, v / den); }
+  html("rlPoles", rootList(roots, 4));
+  const tol = 1e-9 * sc, rhp = roots.filter((z) => z.re > tol).length, nearAxis = roots.some((z) => Math.abs(z.re) <= 1e-3 * Math.max(d.ts.slow, L.cabs(z))), rt = L.routh(poly);
+  put("rlRhp", `${rhp} · ${rt.changes}` + (rt.marginal ? " (sıfır satırı)" : ""));
+  put("rlGap", sig(L.rootGap(roots, rDK), 2) + " (göreli)"); put("rlResid", sig(resid, 2));
+  // sınır kazancı
+  const cm = d.crit[0], cr = d.routh[0];
+  put("rlKuLabel", cm && cm.toStable ? "Ölçülen kararlılık eşiği (K > K* kararlı)" : "Ölçülen sınır kazancı (kök yerinden)");
+  if (cm && cr) { put("rlKuMeas", sig(cm.K, 6) + unitK); put("rlKuTh", sig(cr.K, 6) + unitK); put("rlKuDiff", pct(cm.K, cr.K, 6)); put("rlWuMeas", sig(cm.omega, 6) + " rad/s"); put("rlWuTh", sig(cr.omega, 6) + " rad/s"); put("rlWuDiff", pct(cm.omega, cr.omega, 6)); }
+  else { put("rlKuMeas", "yok: kökler sanal ekseni kesmez"); put("rlKuTh", "yok: ilk sütunda işaret değişmez"); ["rlKuDiff", "rlWuMeas", "rlWuTh", "rlWuDiff"].forEach((id) => put(id, "—")); }
+  // asimptotlar
+  if (d.asy.q >= 2) { put("rlCentMeas", sig(d.asyM.sigma, 6)); put("rlCentTh", sig(d.asy.sigma, 6)); put("rlCentDiff", "|Δσ| = " + sig(Math.abs(d.asyM.sigma - d.asy.sigma), 2)); put("rlAngMeas", d.asyM.angles.map((a) => fx(a, 3) + "°").join("; ")); put("rlAngTh", d.asy.angles.map((a) => fx(a, 1) + "°").join("; ")); put("rlAngDiff", fx(Math.max(...d.asy.angles.map((a, i) => Math.abs(a - d.asyM.angles[i]))), 5) + "°"); }
+  else { put("rlCentMeas", "tanımsız: tek dal sonsuza gider"); put("rlCentTh", "n − m = 1: merkez tanımsız"); put("rlCentDiff", "—"); put("rlAngMeas", "180° (negatif gerçel eksen boyunca)"); put("rlAngTh", d.asy.angles.map((a) => fx(a, 1) + "°").join("; ")); put("rlAngDiff", "—"); }
+  // ayrılma noktaları
+  const bm = d.brkM.slice().sort((a, b) => a.s - b.s), bt = d.brk.slice().sort((a, b) => a.s - b.s);
+  put("rlBrkMeas", bm.length ? bm.map((b) => sig(b.s, 6) + " (" + b.kind + ", K = " + sig(b.K, 5) + ")").join("; ") : "yok");
+  put("rlBrkTh", bt.length ? bt.map((b) => sig(b.s, 6) + " (K = " + sig(b.K, 5) + ")").join("; ") : "yok");
+  put("rlBrkDiff", bm.length === bt.length && bm.length ? sig(Math.max(...bm.map((b, i) => Math.abs(b.s - bt[i].s))), 2) : "—");
+  // basamak
+  const cs = closedStep(p, K, roots, d.ts), fin = closedFinal(p, K), stable = rhp === 0 && !nearAxis;
+  const dom = cs.top, zDom = Math.abs(dom.im) > 0 ? -dom.re / L.cabs(dom) : 1;
+  if (stable) {
+    const m = L.stepMetrics(cs.sim.t, cs.sim.y, fin), osDom = zDom < 1 ? 100 * Math.exp(-Math.PI * zDom / Math.sqrt(1 - zDom * zDom)) : 0;
+    put("rlOS", fx(m.os, 2) + " %"); put("rlOSTh", (zDom < 1 ? "ζ = " + fx(zDom, 3) + " → " : "baskın kutup gerçel → ") + fx(osDom, 2) + " %");
+    put("rlTs", (m.ts === null ? "oturmuyor" : si(m.ts, "s")) + " · " + sig(cs.sim.y[cs.sim.y.length - 1], 4) + " (kuram " + sig(fin, 4) + ")");
+  } else { put("rlOS", nearAxis ? "sınırda: salınım neredeyse sabit genlikte" : "kararsız: yanıt büyüyor"); put("rlOSTh", "—"); put("rlTs", "—"); }
+  // durum
+  let st;
+  if (nearAxis) st = `K = ${sig(K, 4)}: en sağdaki kök sanal eksene çok yakın (Re s = ${sig(cs.mr, 3)}, |s| = ${sig(L.cabs(cs.top), 4)}); çevrim kararlılık sınırında, basamak yanıtı neredeyse sönmeyen bir salınıma döner. ${rhp > 0 ? `Kökler sağ yarı düzlemin hemen içinde: K, sınırın biraz üstünde (kaydırıcının adımı 0,001 log birimi); salınım çok yavaş büyür.` : `Kökler sol yarı düzlemin hemen içinde: salınım çok yavaş söner.`}`;
+  else if (rhp > 0) st = `K = ${sig(K, 4)}: kapalı çevrimde ${rhp} kök sağ yarı düzlemde; çevrim kararsız. Routh tablosunun ilk sütununda ${rt.changes} işaret değişimi var; ikisi aynı sayıyı vermeli.`;
+  else st = `K = ${sig(K, 4)}: bütün kökler sol yarı düzlemde, çevrim kararlı. Baskın kutup ${fmtC({ re: dom.re, im: Math.abs(dom.im) }, 4)}${zDom < 1 ? ` (ζ = ${fx(zDom, 3)})` : ""}.`;
+  if (key === "pz") st += " Bu tesiste kök yeri (s + 3) sıfırının çevresinde bir çember çizer ve hiçbir K'da sağ yarı düzleme geçmez.";
+  if (key === "unst") st += " Açık çevrimin s = 1'de kararsız bir kutbu var; geri besleme ancak K > 6 olunca onu sol yarı düzleme çeker (koşullu kararlılık).";
+  if (key === "p4") st += " Dört kutup, dört asimptot: ±45° ve ±135°, merkez −2,5.";
+  if (key === "motor") st += " Motor konumu: s = 0'daki kutup mili döndüren integraldir; hızlı elektriksel kutup (≈ −1937 s⁻¹) sınır kazancını belirler.";
+  html("rlStatus", st);
+  rlRouthTable(rt);
+  drawRl(d, roots, K); drawRlStep(cs, fin, stable);
+}
+function rlRouthTable(rt) {
+  const w = rt.rows[0].length; let h = `<caption>Routh tablosu (seçili K): ilk sütundaki işaret değişimi sayısı = sağ yarı düzlemdeki kök sayısı${rt.notes.length ? " · " + rt.notes.map((n) => n.kind === "zero-row" ? "sıfır satırı: yardımcı polinomun türevi kullanıldı (kökler sanal eksende)" : "ilk eleman sıfır: küçük ε ile değiştirildi").join(" · ") : ""}</caption><tr><th>Satır</th>${Array.from({ length: w }, (_, i) => `<th>${i + 1}. sütun</th>`).join("")}</tr>`;
+  rt.rows.forEach((r, i) => { const ord = rt.n - i; h += `<tr><td>s${String(ord).split("").map((c) => SUP[c]).join("")}</td>${r.map((v, j) => `<td${j === 0 ? ' class="is-first"' : ""}>${sig(v, 5)}</td>`).join("")}</tr>`; });
+  $("rlRouth").innerHTML = h;
+}
+const BR = ["accent", "warm", "violet", "blue", "red"];
+function drawRl(d, roots, K) {
+  const s = surface("rlLocus"); if (!s) return; const P = plane(s, d.p.view); rlView = P;
+  if (d.asy.q >= 2) for (const a of d.asy.angles) { const r = 5 * (d.p.view[1] - d.p.view[0]); line(s, P.X(d.asy.sigma), P.Y(0), P.X(d.asy.sigma + r * Math.cos(a * Math.PI / 180)), P.Y(r * Math.sin(a * Math.PI / 180)), s.p.muted, 1.1, [6, 5]); }
+  const n = d.loc.pts[0].length, g = s.g;
+  for (let b = 0; b < n; b++) { g.strokeStyle = s.p[BR[b % BR.length]]; g.lineWidth = 2.4; g.beginPath(); d.loc.pts.forEach((rs, k) => { const x = P.X(rs[b].re), y = P.Y(rs[b].im); if (k) g.lineTo(x, y); else g.moveTo(x, y); }); g.stroke(); }
+  for (const c of d.crit) for (const sg of [1, -1]) ring(s, P.X(0), P.Y(sg * c.omega), s.p.red, 6, 2.2);
+  for (const b of d.brkM) diamond(s, P.X(b.s), P.Y(0), s.p.violet, 6);
+  for (const z of L.rootsAberth(d.p.D)) cross(s, P.X(z.re), P.Y(z.im), s.p.ink, 6.5, 2.4);
+  if (d.p.N.length > 1) for (const z of L.rootsAberth(d.p.N)) ring(s, P.X(z.re), P.Y(z.im), s.p.ink, 6.5, 2.2);
+  for (const z of roots) dot(s, P.X(z.re), P.Y(z.im), s.light ? "#1d2433" : "#ffffff", 5, s.p.bg);
+  P.done();
+  text(s, "K = " + sig(K, 4), s.w - 14, 32, s.p.ink, "right", 12);
+}
+function drawRlStep(cs, fin, stable) {
+  const s = surface("rlStep"); if (!s) return; const motor = $("rlPlant").value === "motor", sx = motor ? 1e3 : 1, sim = cs.sim;
+  let yr = yRange([sim.y], [0, fin]); if (!stable) { yr = { min: Math.max(yr.min, -2.5 * Math.max(1, Math.abs(fin))), max: Math.min(yr.max, 3.5 * Math.max(1, Math.abs(fin))) }; }
+  plot(s, { x: { min: 0, max: sim.t[sim.t.length - 1] * sx, label: motor ? "t / ms" : "t / s" }, y: { min: yr.min, max: yr.max, label: motor ? "θ / rad (r = 1 rad)" : "y(t)" }, hlines: [{ y: fin, col: s.p.muted }], series: [{ pts: decimate(sim.t, sim.y, 900, sx), col: stable ? s.p.accent : s.p.red, width: 2.4 }] });
+}
+$("rlLocus").addEventListener("click", (e) => {
+  if (!rlView) return; const r = $("rlLocus").getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, d = rlData($("rlPlant").value);
+  // en yakın dal parçasına dik izdüşüm; K iki örnek arasında logaritmik ara değerle
+  let best = null, bd = Infinity; const P = d.loc.pts, Ks = d.loc.Ks;
+  for (let k = 2; k < P.length; k++) for (let b = 0; b < P[k].length; b++) {
+    const ax = rlView.X(P[k - 1][b].re), ay = rlView.Y(P[k - 1][b].im), bx = rlView.X(P[k][b].re), by = rlView.Y(P[k][b].im), l2 = (bx - ax) ** 2 + (by - ay) ** 2;
+    const t = l2 > 0 ? Math.max(0, Math.min(1, ((px - ax) * (bx - ax) + (py - ay) * (by - ay)) / l2)) : 0, dd = Math.hypot(ax + t * (bx - ax) - px, ay + t * (by - ay) - py);
+    if (dd < bd) { bd = dd; best = Ks[k - 1] * (Ks[k] / Ks[k - 1]) ** t; }
+  }
+  if (best !== null && bd < 60) { const el = $("rlK"); el.value = String(Math.min(4, Math.max(-2, Math.round(Math.log10(best) * 1000) / 1000))); renderNow(); }
+});
+
+/* ───────── 3 · Bode ───────── */
+const BODE = { p3: [0.01, 100], p4: [0.01, 100], pz: [0.01, 100], unst: [0.01, 100], motor: [1, 1e5] };
+const bdCache = { crit: {}, meas: {} };
+function bdCfg() { const key = $("bdPlant").value, p = L.LOOP[key]; return { key, p, K: 10 ** num("bdK"), T: num("bdT") * p.tunit, tu: p.tunit === 1 ? " s" : " ms", tScale: 1 / p.tunit }; }
+function updateBd() {
+  const c = bdCfg(), p = c.p, ff = L.factorForm(p.N, p.D), [lo, hi] = BODE[c.key];
+  put("bdKOut", "K = " + sig(c.K, 4) + (c.key === "motor" ? " V/rad" : "")); put("bdTOut", fx(num("bdT"), 2) + c.tu);
+  const mg = L.margins(ff, c.K, c.T, lo / 10, hi * 10), mg0 = c.T > 0 ? L.margins(ff, c.K, 0, lo / 10, hi * 10) : mg;
+  const W = (w) => sig(w, 5) + " rad/s";
+  put("bdWc", mg.wc === null ? "yok: |L| hiç 1 olmuyor" : W(mg.wc)); put("bdPM", mg.pm === null ? "sonsuz (kazanç kesişimi yok)" : fx(mg.pm, 3) + "°");
+  put("bdW180", mg.w180 === null ? "yok: faz −180°'yi kesmiyor" : W(mg.w180)); put("bdGM", mg.gm === null ? "sonsuz" : sig(mg.gm, 6) + " (" + fx(20 * Math.log10(mg.gm), 2) + " dB)");
+  const rc = L.routhCritical(p.N, p.D, p.kref)[0];
+  if (c.T === 0 && rc && mg.gm !== null) { put("bdGMRouth", sig(rc.K / c.K, 6)); put("bdGMDiff", pct(mg.gm, rc.K / c.K, 5)); }
+  else { put("bdGMRouth", c.T > 0 ? "uygulanamaz: gecikme polinom değil" : "yok"); put("bdGMDiff", "—"); }
+  // kritik gecikme
+  const ck = c.key + "|" + c.K; if (!(ck in bdCache.crit)) bdCache.crit[ck] = L.criticalDelaySim(p.N, p.D, c.K);
+  const cd = bdCache.crit[ck], tTh = mg0.pm !== null && mg0.pm > 0 ? mg0.pm * Math.PI / 180 / mg0.wc : mg0.pm === null ? Infinity : null;
+  const Tf = (x) => (x === Infinity ? "sonsuz" : x === null ? "—" : sig(x * c.tScale, 5) + c.tu);
+  put("bdTcMeas", cd === null ? "tanımsız: T = 0'da bile kararsız" : cd.T === Infinity ? "bulunamadı (çok büyük T'de de kararlı)" : Tf(cd.T));
+  put("bdTcTh", tTh === null ? "tanımsız (PM ≤ 0)" : Tf(tTh)); put("bdTcDiff", cd && Number.isFinite(cd.T) && Number.isFinite(tTh) ? pct(cd.T, tTh, 4) : "—");
+  put("bdWo", cd && cd.omega ? W(cd.omega) : "—"); put("bdWoTh", mg0.wc ? W(mg0.wc) : "—"); put("bdWoDiff", cd && cd.omega && mg0.wc ? pct(cd.omega, mg0.wc, 4) : "—");
+  // Nyquist
+  const nq = L.nyquist(ff, c.K, c.T); put("bdN", fx(nq.Ncw, 0)); put("bdP", fx(nq.P, 0)); put("bdZ", fx(nq.Z, 0));
+  let stableSim = null;
+  if (c.T === 0) { const rs = L.rootsAberth(L.charPoly(p.N, p.D, c.K)), tol = 1e-3 * L.timeScale(p.D).slow, z = rs.filter((q) => q.re > tol).length; put("bdCheckLabel", "Denetim: kök bulucuyla kapalı çevrimin sağ yarı düzlem kutbu"); put("bdCheck", `${z} (Nyquist Z = ${nq.Z}${z === nq.Z ? ", uyuşuyor" : ", uyuşmuyor"})`); }
+  else { const ts = L.timeScale(p.D), H = Math.max(30 * ts.span, 40 * c.T, cd && cd.period ? 30 * cd.period : 0), g = L.growth(L.simLoop({ num: p.N, den: p.D, Kp: c.K, delay: c.T, dt: Math.max(Math.min(0.25 / ts.fast, H / 20000), H / 60000), tEnd: H, r: 1 })); stableSim = g < 0; put("bdCheckLabel", "Denetim: gecikmeli kapalı çevrimin benzetimi"); put("bdCheck", (stableSim ? "kararlı (salınım sönüyor)" : "kararsız (salınım büyüyor)") + (stableSim === (nq.Z === 0) ? ", Nyquist ile uyuşuyor" : ", Nyquist ile uyuşmuyor")); }
+  // ölçülen frekans noktaları
+  const ws = Array.from({ length: 7 }, (_, i) => lo * 10 * (hi / lo / 100) ** (i / 6)), mk = c.key + "|" + c.K + "|" + c.T;
+  if (!(mk in bdCache.meas)) bdCache.meas[mk] = ff.P > 0 ? null : ws.map((w) => ({ w, ...L.measureFreq(p.N, p.D, c.K, c.T, w) }));
+  const meas = bdCache.meas[mk];
+  let tb = `<caption>Benzetimle ölçülen frekans yanıtı (${meas ? "kilitli algılama, 8 periyot" : "açık çevrim kararsız: kalıcı sinüs yanıtı yok, ölçülmedi"})</caption><tr><th>ω (rad/s)</th><th>|L| formül (dB)</th><th>ölçülen</th><th>fark</th><th>∠L formül</th><th>ölçülen</th><th>fark</th></tr>`;
+  for (const w of ws) { const f = L.freq(ff, c.K, c.T, w), m = meas ? meas.find((q) => q.w === w) : null, fd = deg(f.phase); let md = null, mdb = null; if (m) { md = deg(m.phase); md += 360 * Math.round((fd - md) / 360); mdb = 20 * Math.log10(m.mag); } tb += `<tr><td>${sig(w, 3)}</td><td>${fx(f.db, 3)}</td><td>${mdb === null ? "—" : fx(mdb, 3)}</td><td>${dif(mdb, f.db, 4)}</td><td>${fx(fd, 2)}°</td><td>${md === null ? "—" : fx(md, 2) + "°"}</td><td>${dif(md, fd, 3, "°")}</td></tr>`; }
+  $("bdTable").innerHTML = tb;
+  // durum
+  let st;
+  if (ff.P > 0) st = `Açık çevrim kararsız (P = ${nq.P}). Bode payları burada yanıltıcıdır: kazanç payı ${mg.gm === null ? "—" : sig(mg.gm, 3)} < 1, yani K'yı ${mg.gm === null ? "" : sig(1 / mg.gm, 3) + " kat "}düşürmek çevrimi bozar. Kararlılığı Nyquist sayımı söyler: Z = N + P = ${fx(nq.Ncw, 0)} + ${nq.P} = ${nq.Z}${nq.Z === 0 ? ", kapalı çevrim kararlı (eğri −1'i saat yönünün tersine bir kez sarıyor)" : ", kapalı çevrim kararsız"}.`;
+  else if (nq.Z > 0) st = `Kapalı çevrim kararsız: Nyquist eğrisi −1'i saat yönünde ${nq.Ncw} kez sarıyor, Z = ${nq.Z}. ${mg.pm !== null && mg.pm < 0 ? `Faz payı negatif (${fx(mg.pm, 2)}°).` : ""}`;
+  else st = `Kapalı çevrim kararlı: eğri −1'i sarmıyor. Faz payı ${mg.pm === null ? "sonsuz" : fx(mg.pm, 2) + "°"}, kazanç payı ${mg.gm === null ? "sonsuz" : fx(20 * Math.log10(mg.gm), 2) + " dB"}.`;
+  if (c.T > 0 && mg0.pm !== null && ff.P === 0) st += ` Gecikme ${Tf(c.T)} fazı ω<sub>c</sub>'de ${fx(deg(mg0.wc * c.T), 2)}° düşürdü: PM₀ = ${fx(mg0.pm, 2)}° → ${fx(mg.pm, 2)}°.`;
+  if (Number.isFinite(tTh) && tTh !== null && cd && Number.isFinite(cd.T)) st += ` Kritik gecikme: benzetim ${Tf(cd.T)}, PM₀/ω<sub>c</sub> = ${Tf(tTh)}.`;
+  if (mg0.wc === null && ff.P === 0) st += " |L| her frekansta 1'den küçük: eğri birim çemberin içinde kalır, hiçbir gecikme çevrimi bozamaz.";
+  html("bdStatus", st);
+  drawBode(c, ff, mg, meas, ws); drawNyq(c, ff, mg);
+}
+function drawBode(c, ff, mg, meas, ws) {
+  const [lo, hi] = BODE[c.key], pts = [], ph = [];
+  for (let i = 0; i <= 400; i++) { const w = lo * (hi / lo) ** (i / 400), f = L.freq(ff, c.K, c.T, w); pts.push([w, f.db]); ph.push([w, deg(f.phase)]); }
+  const mPts = [], pPts = []; if (meas) for (const m of meas) { const fd = deg(L.freq(ff, c.K, c.T, m.w).phase); let md = deg(m.phase); md += 360 * Math.round((fd - md) / 360); mPts.push([m.w, 20 * Math.log10(m.mag)]); pPts.push([m.w, md]); }
+  const vl = (s) => [{ x: mg.wc, col: s.p.accent }, { x: mg.w180, col: s.p.warm }];
+  let s = surface("bdMag"); if (s) { const yr = yRange([pts.map((q) => q[1])], [0]); plot(s, { x: { min: lo, max: hi, log: true, label: "ω / (rad/s)" }, y: { min: Math.max(yr.min, -120), max: Math.min(yr.max, 120), label: "|L| / dB", fmt: (v) => fx(v, 0) }, hlines: [{ y: 0, col: s.p.muted }], vlines: vl(s), series: [{ pts, col: s.p.accent, width: 2.4 }, { pts: mPts, col: s.p.warm, dots: true, r: 4 }] }); }
+  s = surface("bdPhase"); if (s) { const lo2 = Math.max(Math.min(...ph.map((q) => q[1])), -720), hi2 = Math.max(...ph.map((q) => q[1])); const a = Math.floor(Math.min(lo2, -180) / 90) * 90, b = Math.ceil(Math.max(hi2, -90) / 90) * 90; plot(s, { x: { min: lo, max: hi, log: true, label: "ω / (rad/s)" }, y: { min: a, max: b, step: (b - a) > 360 ? 180 : 90, label: "∠L / derece", fmt: (v) => fx(v, 0) + "°" }, hlines: [{ y: -180, col: s.p.red }], vlines: vl(s), series: [{ pts: ph, col: s.p.accent, width: 2.4 }, { pts: pPts, col: s.p.warm, dots: true, r: 4 }] }); }
+}
+function drawNyq(c, ff, mg) {
+  const s = surface("bdNyq"); if (!s) return; const [lo, hi] = BODE[c.key], pts = [];
+  for (let i = 0; i <= 2400; i++) { const w = lo / 100 * (hi * 10 / (lo / 100)) ** (i / 2400), f = L.freq(ff, c.K, c.T, w); pts.push([f.mag * Math.cos(f.phase), f.mag * Math.sin(f.phase), w]); }
+  const R = Math.max(2.2, mg.gm ? 1.4 / mg.gm : 0);
+  const P = plane(s, [-1.6 * R, 0.9 * R, -1.1 * R, 1.1 * R], ["Re L", "Im L"]), g = s.g;
+  g.strokeStyle = s.p.muted; g.lineWidth = 1.2; g.setLineDash([4, 4]); g.beginPath(); g.arc(P.X(0), P.Y(0), P.sc, 0, 7); g.stroke(); g.setLineDash([]);
+  const path = (sg, col, w, dash) => { g.strokeStyle = col; g.lineWidth = w; g.setLineDash(dash); g.beginPath(); let on = false; for (const q of pts) { const x = P.X(q[0]), y = P.Y(sg * q[1]); if (Math.abs(q[0]) > 50 * R || Math.abs(q[1]) > 50 * R) { on = false; continue; } if (on) g.lineTo(x, y); else { g.moveTo(x, y); on = true; } } g.stroke(); g.setLineDash([]); };
+  path(-1, s.p.violet, 1.3, [5, 4]); path(1, s.p.accent, 2.6, []);
+  // yön oku: ω_c ya da orta frekansta
+  const wa = mg.wc ?? Math.sqrt(lo * hi), fa = L.freq(ff, c.K, c.T, wa), fb = L.freq(ff, c.K, c.T, wa * 1.15), ax = P.X(fa.mag * Math.cos(fa.phase)), ay = P.Y(fa.mag * Math.sin(fa.phase)), bx = P.X(fb.mag * Math.cos(fb.phase)), by = P.Y(fb.mag * Math.sin(fb.phase)), an = Math.atan2(by - ay, bx - ax);
+  g.fillStyle = s.p.warm; g.beginPath(); g.moveTo(ax + 10 * Math.cos(an), ay + 10 * Math.sin(an)); g.lineTo(ax + 9 * Math.cos(an + 2.5), ay + 9 * Math.sin(an + 2.5)); g.lineTo(ax + 9 * Math.cos(an - 2.5), ay + 9 * Math.sin(an - 2.5)); g.fill();
+  cross(s, P.X(-1), P.Y(0), s.p.red, 7, 2.6);
+  P.done(); text(s, "−1", P.X(-1) - 4, P.Y(0) + 20, s.p.red, "center", 11);
+}
+
+/* ───────── 4 · PID ───────── */
+const pdCache = {};
+function pdUlt(plant, T) { const k = plant + "|" + T; if (!pdCache[k]) { const pl = L.PID_PLANTS[plant]; pdCache[k] = { sim: L.ultimateSim(pl.num, pl.den, T), th: L.ultimateTheory(pl.num, pl.den, T) }; } return pdCache[k]; }
+const r2 = (x) => Math.round(x * 100) / 100;
+function znGains(u) { if (!u.sim || !u.sim.T) return null; const z = L.zieglerNichols(u.sim.K, u.sim.T); return { Kp: Math.min(20, r2(z.Kp)), Ki: Math.min(10, r2(z.Ki)), Kd: Math.min(20, r2(z.Kd)), raw: z }; }
+function pdCfg() { return { plant: $("pdPlant").value, delay: num("pdDelay"), Kp: num("pdKp"), Ki: num("pdKi"), Kd: num("pdKd"), r: num("pdR"), d: num("pdD"), sat: $("pdSat").checked, umax: num("pdUmax"), aw: $("pdAw").checked }; }
+let pdLast = null;
+function updatePd() {
+  const c = pdCfg(); $("pdUmaxF").hidden = !c.sat;
+  put("pdDelayOut", fx(c.delay, 2) + " s"); put("pdKpOut", fx(c.Kp, 2)); put("pdKiOut", fx(c.Ki, 2) + " s⁻¹"); put("pdKdOut", fx(c.Kd, 2) + " s"); put("pdROut", fx(c.r, 1)); put("pdDOut", fx(c.d, 2)); put("pdUmaxOut", fx(c.umax, 1));
+  const u = pdUlt(c.plant, c.delay), zn = znGains(u);
+  $("pdLoadZN").disabled = !zn; $("pdWindup").disabled = !zn;
+  if (u.sim && u.th) { put("pdKuMeas", sig(u.sim.K, 6)); put("pdKuTh", sig(u.th.K, 6)); put("pdKuDiff", pct(u.sim.K, u.th.K, 4)); put("pdTuMeas", si(u.sim.T, "s", 6)); put("pdTuTh", si(u.th.T, "s", 6)); put("pdTuDiff", pct(u.sim.T, u.th.T, 4)); }
+  else { put("pdKuMeas", "yok: K ≤ 256'da salınım büyümüyor"); put("pdKuTh", "yok: faz −180°'ye inmiyor"); ["pdKuDiff", "pdTuMeas", "pdTuTh", "pdTuDiff"].forEach((id) => put(id, "—")); }
+  html("pdZN", zn ? `K<sub>p</sub> = ${fx(zn.Kp, 2)} · K<sub>i</sub> = ${fx(zn.Ki, 2)} s⁻¹ (T<sub>i</sub> = ${si(zn.raw.Ti, "s")}) · K<sub>d</sub> = ${fx(zn.Kd, 2)} s (T<sub>d</sub> = ${si(zn.raw.Td, "s")})` : "uygulanamaz: sınır kazancı yok (ölü zamansız birinci mertebe tesis her kazançta kararlıdır)");
+  const cur = L.pidRun(c), znr = zn ? L.pidRun({ ...c, Kp: zn.Kp, Ki: zn.Ki, Kd: zn.Kd }) : null, alt = c.sat ? L.pidRun({ ...c, aw: !c.aw }) : null;
+  pdLast = { cur, znr };
+  // kalıcı hata
+  const unstable = cur.diverged;
+  const essP = (m, ok) => (unstable ? "kararsız" : ok ? sig(m, 4) : "oturmadı");
+  put("pdEssPre", essP(cur.essPre, cur.settledPre)); put("pdEssPost", essP(cur.essPost, cur.settledPost));
+  put("pdEssPreThLabel", c.Ki > 0 ? "Kuram: integral etkisiyle 0" : "Kuram r/(1 + K<sub>p</sub>G(0))"); put("pdEssPostThLabel", c.Ki > 0 ? "Kuram: integral etkisiyle 0" : "Kuram (r − G(0)d)/(1 + K<sub>p</sub>G(0))");
+  html("pdEssPreThLabel", c.Ki > 0 ? "Kuram: integral etkisiyle 0" : "Kuram r/(1 + K<sub>p</sub>G(0))"); html("pdEssPostThLabel", c.Ki > 0 ? "Kuram: integral etkisiyle 0" : "Kuram (r − G(0)d)/(1 + K<sub>p</sub>G(0))");
+  put("pdEssPreTh", sig(cur.essTh.pre, 4)); put("pdEssPostTh", sig(cur.essTh.post, 4));
+  const essD = (m, t, ok) => (unstable || !ok ? "—" : t === 0 ? "|Δ| = " + sig(Math.abs(m), 2) : pct(m, t, 3));
+  put("pdEssPreDiff", essD(cur.essPre, cur.essTh.pre, cur.settledPre)); put("pdEssPostDiff", essD(cur.essPost, cur.essTh.post, cur.settledPost));
+  // windup
+  if (c.sat) { const off = c.aw ? alt : cur, on = c.aw ? cur : alt; put("pdWindOff", off.diverged ? "kararsız" : fx(off.pre.os, 2) + " %"); put("pdWindOn", on.diverged ? "kararsız" : fx(on.pre.os, 2) + " %"); put("pdSatFrac", fx(cur.satFrac * 100, 1) + " %"); }
+  else { put("pdWindOff", "doyma kapalı"); put("pdWindOn", "doyma kapalı"); put("pdSatFrac", "—"); }
+  // tablo
+  const col = (r) => r ? (r.diverged ? Array(6).fill("kararsız") : [fx(r.pre.os, 2) + " %", si(r.pre.tr, "s"), r.pre.ts === null ? "oturmuyor" : si(r.pre.ts, "s"), sig(r.iae, 4), sig(r.dev, 4), r.rec === null ? "dönmüyor" : si(r.rec, "s")]) : Array(6).fill("—");
+  const a = col(cur), b = col(znr), names = ["Aşma (0–40 s)", "Yükselme süresi %10 → %90", "Yerleşme süresi ±%2", "IAE = ∫|e|dt (0–40 s)", "Bozucuda en büyük sapma", "Toparlanma süresi (±%2r)"];
+  $("pdTable").innerHTML = `<caption>Ölçülen başarım: seçili kazançlar ve ölçülen K<sub>u</sub>, T<sub>u</sub>'dan Ziegler–Nichols${c.sat ? " (ikisi de aynı doyma ve kenetleme ayarıyla)" : ""}</caption><tr><th>Ölçüt</th><th>Seçili ayar</th><th>Ziegler–Nichols</th></tr>` + names.map((n, i) => `<tr><td>${n}</td><td>${a[i]}</td><td>${b[i]}</td></tr>`).join("");
+  // durum
+  let st;
+  if (unstable) st = `Seçili kazançlarla çevrim kararsız: salınım büyüyor. ${u.sim ? `Yalnız P'de sınır K<sub>u</sub> = ${sig(u.sim.K, 4)}; integral ve gecikme sınırı daha da aşağı çeker.` : ""}`;
+  else if (c.Ki === 0) st = `Yalnız P (ya da PD): integral yok, kalıcı hata kalır. Ölçülen ${sig(cur.essPre, 4)}, kuram r/(1 + K<sub>p</sub>G(0)) = ${sig(cur.essTh.pre, 4)}. Bozucudan sonra hata (r − G(0)d)/(1 + K<sub>p</sub>G(0)) = ${sig(cur.essTh.post, 4)} olur; K<sub>p</sub> büyüdükçe hata küçülür ama çevrim salınıma yaklaşır.`;
+  else if (cur.pre.ts === null && !cur.settledPre) st = `Yanıt oturmuyor: ${c.sat && L.pidRun({ ...c, sat: false }).diverged ? "doyma olmasa çevrim kararsız olurdu (aynı kazançlarla doğrusal benzetim büyüyor); doyma salınımı sabit genlikli bir sınır çevrimine (sürekli salınıma) hapsediyor" : "salınım sönmüyor ya da 40 s içinde ±%2 bandına girmiyor"}. Kazançları düşür.`;
+  else { st = `PID: integral terimi kalıcı hatayı sıfırlar (ölçülen ${cur.settledPre ? sig(cur.essPre, 2) : "—"}). Seçili ayar: aşma %${fx(cur.pre.os, 1)}, yerleşme ${si(cur.pre.ts, "s")}; Ziegler–Nichols: ${znr ? `aşma %${fx(znr.pre.os, 1)}, yerleşme ${si(znr.pre.ts, "s")}, bozucuda sapma ${sig(znr.dev, 3)} (seçili ${sig(cur.dev, 3)})` : "uygulanamaz"}.`; if (znr && !znr.diverged && znr.pre.os > cur.pre.os) st += " ZN ayarı bozucuyu daha sert bastırır ama hedef basamağında daha çok aşar; klasik bir değiş tokuş."; }
+  if (c.sat) st += ` Doyma: u, sürenin %${fx(cur.satFrac * 100, 1)}'inde sınırda. Kenetleme ${c.aw ? "açık" : "kapalı"}; ${c.aw ? "doymadayken integral durduğu için aşma %" + fx(cur.pre.os, 1) : "integral doymadayken de birikiyor (windup), aşma %" + fx(cur.pre.os, 1)} (öteki seçenekte %${fx(alt.pre.os, 1)}).`;
+  if (c.delay > 0) st += ` Ölü zaman ${fx(c.delay, 2)} s, sınır kazancını ${u.th ? sig(u.th.K, 3) : "—"}'e indiriyor.`;
+  html("pdStatus", st);
+  drawPd(c, cur, znr, alt);
+}
+function drawPd(c, cur, znr, alt) {
+  let s = surface("pdResp");
+  if (s) { const ys = [cur.sim.y]; if (znr && !znr.diverged) ys.push(znr.sim.y); let yr = yRange(ys, [0, c.r]); yr = { min: Math.max(yr.min, -1.5 * c.r), max: Math.min(yr.max, 2.6 * c.r) }; const ser = [{ pts: [[0, c.r], [cur.tEnd, c.r]], col: s.p.muted, width: 1.4 }]; if (znr) ser.push({ pts: decimate(znr.sim.t, znr.sim.y), col: s.p.warm, width: 1.8, dash: [6, 5] }); ser.push({ pts: decimate(cur.sim.t, cur.sim.y), col: cur.diverged ? s.p.red : s.p.accent, width: 2.6 }); plot(s, { x: { min: 0, max: cur.tEnd, label: "t / s" }, y: { min: yr.min, max: yr.max, label: "y(t)" }, vlines: [{ x: cur.td, col: s.p.violet }], series: ser }); }
+  s = surface("pdU");
+  if (s) { const ys = [cur.sim.u]; if (alt) ys.push(alt.sim.u); let yr = yRange(ys, [0]); const cap = Math.max(10, 3 * c.r * Math.max(1, c.Kp)); yr = { min: Math.max(yr.min, -cap), max: Math.min(yr.max, cap) }; const ser = []; if (alt) ser.push({ pts: decimate(alt.sim.t, alt.sim.u), col: s.p.violet, width: 1.5, dash: [5, 4] }); ser.push({ pts: decimate(cur.sim.t, cur.sim.u), col: s.p.accent, width: 2.2 }); plot(s, { x: { min: 0, max: cur.tEnd, label: "t / s" }, y: { min: yr.min, max: yr.max, label: "u(t)" }, hlines: c.sat ? [{ y: c.umax, col: s.p.red }, { y: -c.umax, col: s.p.red }] : [], vlines: [{ x: cur.td, col: s.p.violet }], series: ser }); }
+}
+
+/* ───────── Sekmeler, sıfırlama, olaylar ───────── */
+const defaults = {
+  tf: { tfPlant: "second", tfK: 1, tfTau: 1, tfZeta: 0.5, tfWn: 2, tfZero: "none", tfA: 1, tfL: 1, tfJ: 200 },
+  rl: { rlPlant: "p3", rlK: 0 },
+  bd: { bdPlant: "p3", bdK: 0, bdT: 0 },
+  pd: { pdPlant: "lag3", pdDelay: 0, pdKp: 2, pdKi: 0.6, pdKd: 1.6, pdR: 1, pdD: 0.5, pdSat: false, pdUmax: 2, pdAw: false },
+};
+const updaters = { tf: updateTf, rl: updateRl, bd: updateBd, pd: updatePd };
+let pending = false;
+function render() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; updaters[active](); }); }
+function renderNow() { updaters[active](); }
+function setValues(v) { Object.entries(v).forEach(([id, x]) => { const e = $(id); if (e.type === "checkbox") e.checked = x; else e.value = x; }); renderNow(); }
+function reset(name) { setValues(defaults[name]); }
+const tabs = ["tf", "rl", "bd", "pd"];
+function tab(name) { active = name; tabs.forEach((t) => { $("panel-" + t).hidden = t !== name; $("tab-" + t).setAttribute("aria-selected", String(t === name)); $("tab-" + t).tabIndex = t === name ? 0 : -1; }); renderNow(); }
+tabs.forEach((t, i) => {
+  $("tab-" + t).addEventListener("click", () => tab(t));
+  $(t + "Reset").addEventListener("click", () => reset(t));
+  $("tab-" + t).addEventListener("keydown", (e) => { const j = e.key === "ArrowRight" ? (i + 1) % 4 : e.key === "ArrowLeft" ? (i + 3) % 4 : e.key === "Home" ? 0 : e.key === "End" ? 3 : null; if (j !== null) { e.preventDefault(); tab(tabs[j]); $("tab-" + tabs[j]).focus(); } });
+});
+for (const e of document.querySelectorAll("main input, main select")) e.addEventListener(e.tagName === "SELECT" || e.type === "checkbox" ? "change" : "input", render);
+const logK = (k) => String(Math.round(Math.log10(k) * 1000) / 1000);
+$("rlPlant").addEventListener("change", () => setValues({ rlK: logK(L.LOOP[$("rlPlant").value].kdef) }));
+$("bdPlant").addEventListener("change", () => setValues({ bdK: logK(L.LOOP[$("bdPlant").value].kdef), bdT: 0 }));
+$("pdPlant").addEventListener("change", () => setValues({ pdDelay: L.PID_PLANTS[$("pdPlant").value].delay }));
+$("tfLow").onclick = () => setValues({ tfPlant: "second", tfK: 1, tfZeta: 0.2, tfWn: 2, tfZero: "none" });
+$("tfCrit").onclick = () => setValues({ tfPlant: "second", tfK: 1, tfZeta: 1, tfWn: 2, tfZero: "none" });
+$("tfUndamped").onclick = () => setValues({ tfPlant: "second", tfK: 1, tfZeta: 0, tfWn: 2, tfZero: "none" });
+$("tfRhp").onclick = () => setValues({ tfPlant: "second", tfK: 1, tfZeta: 0.5, tfWn: 2, tfZero: "rhp", tfA: 1 });
+$("tfMotorL").onclick = () => setValues({ tfPlant: "motor", tfL: 20, tfJ: 200 });
+$("rlAtKu").onclick = () => { const d = rlData($("rlPlant").value); if (d.crit[0]) setValues({ rlK: logK(d.crit[0].K) }); };
+$("rlAtBrk").onclick = () => { const d = rlData($("rlPlant").value); if (d.brkM[0]) setValues({ rlK: logK(d.brkM[0].K) }); };
+$("bdAtCrit").onclick = () => { const c = bdCfg(), ck = c.key + "|" + c.K, cd = bdCache.crit[ck] ?? L.criticalDelaySim(c.p.N, c.p.D, c.K); bdCache.crit[ck] = cd; if (cd && Number.isFinite(cd.T)) setValues({ bdT: String(Math.min(3, Math.round(cd.T / c.p.tunit * 0.98 * 100) / 100)) }); };
+$("bdHigh").onclick = () => setValues({ bdPlant: "p3", bdK: "0.477", bdT: 0 });
+$("pdLoadZN").onclick = () => { const zn = znGains(pdUlt($("pdPlant").value, num("pdDelay"))); if (zn) setValues({ pdKp: zn.Kp, pdKi: zn.Ki, pdKd: zn.Kd }); };
+$("pdManual").onclick = () => setValues({ pdKp: 2, pdKi: 0.6, pdKd: 1.6 });
+$("pdPonly").onclick = () => setValues({ pdKp: 3, pdKi: 0, pdKd: 0 });
+$("pdWindup").onclick = () => { const zn = znGains(pdUlt($("pdPlant").value, num("pdDelay"))); if (zn) setValues({ pdKp: zn.Kp, pdKi: zn.Ki, pdKd: zn.Kd, pdSat: true, pdUmax: 2, pdAw: false }); };
+document.addEventListener("keydown", (e) => { if ((e.key === "r" || e.key === "R") && !e.target.closest("input,select,button,a,textarea,summary") && !e.ctrlKey && !e.metaKey && !e.altKey) reset(active); });
+new ResizeObserver(render).observe(document.querySelector(".app-content"));
+new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+renderNow();
+})();
+</script>
+</body>
+</html>

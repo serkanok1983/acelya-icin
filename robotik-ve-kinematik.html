@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="tr" class="app-root">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Robotik ve Kinematik: Eklem Açılarından Uç Noktaya ve Geri</title>
+<meta name="description" content="Açılardan uç noktaya gitmek tek satırlık bir hesap; geri dönmek ise iki, bir ya da hiç çözümü olan bir bulmaca. Jacobian bu iki yönü birbirine bağlar ve kolun nerede çaresiz kaldığını söyler.">
+<link rel="stylesheet" href="shared/theme.css">
+<script src="shared/app.js"></script>
+<style>
+.rb-tabs{display:flex;gap:8px;margin:26px 0 20px;flex-wrap:wrap}
+.rb-tabs button{flex:1 1 150px;padding:13px 8px;font:inherit;font-size:.86rem;min-height:44px}
+.rb-tabs [aria-selected=true]{border-color:var(--accent)!important;box-shadow:inset 0 -3px var(--accent)}
+.rb-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:20px;align-items:start;margin-bottom:22px}
+.rb-grid>div{min-width:0}
+.rb-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:20px;display:grid;gap:15px;min-width:0}
+.rb-panel h2,.rb-plate h2{font-size:1.02rem;margin:0}
+.rb-field{display:grid;gap:7px}
+.rb-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}
+.rb-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rb-field input,.rb-field select{width:100%;min-width:0;font:inherit;box-sizing:border-box}
+.rb-field select{padding:9px 10px}
+.rb-check{display:flex;gap:8px;align-items:center;font-size:.85rem}
+.rb-row{display:flex;gap:8px;flex-wrap:wrap}
+.rb-row button{padding:9px 12px;min-height:44px;font:inherit;font-size:.83rem}
+.rb-note{font-size:.84rem;line-height:1.75;margin:0}
+.rb-formula{padding:13px;background:var(--bg-input);border-radius:8px;line-height:1.9;font-size:.88rem;overflow-wrap:anywhere}
+.rb-mat{font-variant-numeric:tabular-nums;white-space:pre;overflow-x:auto;font-size:.82rem;line-height:1.6}
+.rb-plate{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.rb-plate h2{padding:13px 16px;border-bottom:1px solid var(--border)}
+body.app-page canvas.rb-canvas{display:block;width:100%;height:auto;aspect-ratio:1.6;border:0;border-radius:0}
+body.app-page canvas.rb-canvas.is-stage{aspect-ratio:1.25;touch-action:none;cursor:crosshair}
+body.app-page canvas.rb-canvas.is-low{aspect-ratio:2.3}
+body.app-page canvas.rb-canvas:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.rb-caption{padding:10px 16px;font-size:.77rem;line-height:1.65;color:var(--text-muted);margin:0}
+.rb-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.rb-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:12px;min-width:0}
+.rb-stat small{display:block;color:var(--text-muted);font-size:.76rem;line-height:1.55}
+.rb-stat strong{display:block;font-size:1.02rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:5px}
+.rb-stat.is-meas strong{color:var(--accent-warm)!important}
+.rb-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:13px 16px;font-size:.86rem;line-height:1.8;margin:0 0 14px}
+.rb-sources{margin-top:28px;font-size:.85rem;line-height:1.9}
+.rb-sources summary{cursor:pointer;color:var(--accent)}
+.rb-sources a{overflow-wrap:anywhere}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+@media(max-width:760px){
+ .rb-grid{grid-template-columns:1fr}
+ .rb-panel{padding:16px}
+ .rb-tabs button{font-size:.76rem;padding:11px 6px;flex-basis:40%}
+ .rb-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .rb-stat{padding:9px 8px}
+ .rb-stat small{font-size:.7rem}
+ .rb-stat strong{font-size:.84rem}
+ body.app-page canvas.rb-canvas{aspect-ratio:1.3}
+ body.app-page canvas.rb-canvas.is-stage{aspect-ratio:1}
+ body.app-page canvas.rb-canvas.is-low{aspect-ratio:1.6}
+}
+</style>
+</head>
+<body class="app-page" data-page="robotik-ve-kinematik">
+<main class="app-content">
+<h1>Robotik ve Kinematik</h1>
+<p class="hint">Bir robot kolu yalnız eklem açılarını bilir; iş ise uç noktada, bir koordinatta yapılır. Açılardan konuma gitmek kolaydır (ileri kinematik). Konumdan açılara dönmek zordur: bazen iki çözüm vardır, bazen hiç yoktur. Jacobian ikisini birbirine bağlar ve kolun "kilitlendiği" yerleri haber verir.</p>
+
+<div class="rb-tabs" role="tablist" aria-label="Robotik deneyleri">
+<button type="button" class="app-btn-ghost" id="tab-fk" role="tab" aria-controls="panel-fk" aria-selected="true" tabindex="0">01 · İleri kinematik</button>
+<button type="button" class="app-btn-ghost" id="tab-ik" role="tab" aria-controls="panel-ik" aria-selected="false" tabindex="-1">02 · Ters kinematik</button>
+<button type="button" class="app-btn-ghost" id="tab-jac" role="tab" aria-controls="panel-jac" aria-selected="false" tabindex="-1">03 · Jacobian ve tekillik</button>
+<button type="button" class="app-btn-ghost" id="tab-traj" role="tab" aria-controls="panel-traj" aria-selected="false" tabindex="-1">04 · Yörünge planlama</button>
+</div>
+
+<!-- ───────── 1 · İleri kinematik ───────── -->
+<section id="panel-fk" role="tabpanel" aria-labelledby="tab-fk">
+<div class="rb-grid"><div>
+<div class="rb-plate"><h2>Düzlemsel kol ve çalışma alanı</h2>
+<canvas class="rb-canvas is-stage" id="fkStage" tabindex="0" role="img" aria-label="Düzlemsel robot kolu, eklem çerçeveleri ve örneklenmiş çalışma alanı; eklemler sürüklenebilir, ok tuşları θ1 ve θ2'yi değiştirir"></canvas>
+<p class="rb-caption">Eklemleri (dirsek ya da uç) sürükle (telefonda parmağı ekleme koyup sürükle; boş yerde parmak sayfayı kaydırır); tuval seçiliyken ←/→ θ₁'i, ↑/↓ θ₂'yi 1° değiştirir. Boyalı hücreler: eklem açıları örneklenerek uç noktanın düştüğü ızgara hücreleri. Kesikli çemberler: kuramsal sınırlar. Küçük oklar: her eklemin yerel x ekseni (homojen matrislerin ilk sütunu).</p></div>
+<div class="rb-stats" aria-live="polite">
+<div class="rb-stat"><small>Uç, trigonometriyle (x; y)</small><strong id="fkTrig"></strong></div>
+<div class="rb-stat is-meas"><small>Uç, matrislerin çarpımıyla</small><strong id="fkMat"></strong></div>
+<div class="rb-stat"><small>Fark |Δp|</small><strong id="fkDiff"></strong></div>
+<div class="rb-stat"><small>Uç yönelimi φ = Σθ</small><strong id="fkPhi"></strong></div>
+<div class="rb-stat"><small>Tabana uzaklık r</small><strong id="fkR"></strong></div>
+<div class="rb-stat"><small>Erişim sınırları r<sub>iç</sub> … r<sub>dış</sub></small><strong id="fkBounds"></strong></div>
+<div class="rb-stat is-meas"><small>Ölçülen alan (dolu hücre × h²)</small><strong id="fkArea"></strong></div>
+<div class="rb-stat"><small>Kuram π(r<sub>dış</sub>² − r<sub>iç</sub>²)</small><strong id="fkAreaTh"></strong></div>
+<div class="rb-stat"><small>Fark</small><strong id="fkAreaDiff"></strong></div>
+<div class="rb-stat is-meas"><small>½∬|det J| dθ₁dθ₂ (sayısal)</small><strong id="fkAreaJ"></strong></div>
+<div class="rb-stat"><small>Fark (Jacobian integrali)</small><strong id="fkAreaJDiff"></strong></div>
+<div class="rb-stat"><small>Hücre kenarı h · örnek sayısı</small><strong id="fkCell"></strong></div>
+</div>
+<p class="rb-status" id="fkStatus" role="status"></p>
+<div class="rb-plate"><h2>Bileşke dönüşüm T = A₁A₂…</h2>
+<div class="rb-formula rb-mat" id="fkMatrix" aria-live="polite"></div>
+<p class="rb-caption">Her eklem için A<sub>i</sub> = Rot(θ<sub>i</sub>)·Trans(L<sub>i</sub>, 0), 3×3 homojen matris. Sol üst 2×2 blok uç çerçevenin dönmesi (cos φ, sin φ), son sütun uç noktanın konumudur. Değerler 4 basamağa yuvarlanmıştır.</p></div>
+</div>
+<aside class="rb-panel" aria-label="İleri kinematik ayarları"><h2>Kol</h2>
+<div class="rb-field"><label for="fkL1"><span>Birinci bağlantı L₁</span> <output id="fkL1Out"></output></label><input id="fkL1" type="range" min="0.3" max="1.5" step="0.05" value="1"></div>
+<div class="rb-field"><label for="fkL2"><span>İkinci bağlantı L₂</span> <output id="fkL2Out"></output></label><input id="fkL2" type="range" min="0.2" max="1.5" step="0.05" value="0.7"></div>
+<div class="rb-field"><label for="fkT1"><span>Omuz açısı θ₁</span> <output id="fkT1Out"></output></label><input id="fkT1" type="range" min="-180" max="180" step="1" value="40"></div>
+<div class="rb-field"><label for="fkT2"><span>Dirsek açısı θ₂</span> <output id="fkT2Out"></output></label><input id="fkT2" type="range" min="-180" max="180" step="1" value="60"></div>
+<label class="rb-check" for="fkThird"><input type="checkbox" id="fkThird"> Üçüncü bağlantıyı (bilek) ekle</label>
+<div id="fkThirdFields" hidden>
+<div class="rb-field"><label for="fkL3"><span>Üçüncü bağlantı L₃</span> <output id="fkL3Out"></output></label><input id="fkL3" type="range" min="0.1" max="0.8" step="0.05" value="0.3"></div>
+<div class="rb-field"><label for="fkT3"><span>Bilek açısı θ₃</span> <output id="fkT3Out"></output></label><input id="fkT3" type="range" min="-180" max="180" step="1" value="-30"></div>
+</div>
+<div class="rb-field"><label for="fkLim"><span>Dirsek sınırı |θ₂| ≤</span> <output id="fkLimOut"></output></label><input id="fkLim" type="range" min="30" max="180" step="5" value="180"></div>
+<div class="rb-field"><label for="fkCells">Alan ızgarası (hücre sayısı, bir kenarda)</label><select id="fkCells"><option value="60">60 (kaba)</option><option value="120">120</option><option value="240" selected>240 (ince)</option></select></div>
+<div class="rb-row">
+<button type="button" class="app-btn-ghost" id="fkStraight">Gergin kol (θ₂ = 0°)</button>
+<button type="button" class="app-btn-ghost" id="fkFolded">Katlı kol (θ₂ = 180°)</button>
+<button type="button" class="app-btn-ghost" id="fkEqual">Eşit bağlantılar</button>
+<button type="button" class="app-btn-ghost" id="fkLimit">Dirsek ±90° ile sınırlı</button>
+<button type="button" class="app-btn-ghost" id="fkReset">Sekmeyi sıfırla</button>
+</div>
+<div class="rb-formula">x = L₁cos θ₁ + L₂cos(θ₁ + θ₂)<br>y = L₁sin θ₁ + L₂sin(θ₁ + θ₂)<br>|L₁ − L₂| ≤ r ≤ L₁ + L₂<br>Alan = π[(L₁ + L₂)² − (L₁ − L₂)²] = 4πL₁L₂</div>
+<p class="rb-note">Model: rijit, kütlesiz çubuklar; eklemler tek eksenli döner (revolute) ve kol düzlemde kalır. Açılar saat yönünün tersine pozitiftir; θ₂, ikinci bağlantının birinciye göre açısıdır. Bağlantı uzunlukları öğretim değerleridir.</p>
+<p class="rb-note">Alan ölçümü kuramı kullanmaz: θ₁ ve θ₂ (bilekte θ₃ de) 10⁶ noktada örneklenir, uç noktanın düştüğü hücreler sayılır. Sınırdaki hücreler kısmen dolu olsa da tam sayıldığından ölçüm biraz büyük çıkar; fark hücre kenarı h ile orantılıdır. Dirsek sınırı ±lim olunca iç sınır r<sub>iç</sub>² = L₁² + L₂² + 2L₁L₂cos(lim) olur.</p>
+</aside></div>
+</section>
+
+<!-- ───────── 2 · Ters kinematik ───────── -->
+<section id="panel-ik" role="tabpanel" aria-labelledby="tab-ik" hidden>
+<div class="rb-grid"><div>
+<div class="rb-plate"><h2>Hedef, iki analitik çözüm ve sayısal arayış</h2>
+<canvas class="rb-canvas is-stage" id="ikStage" tabindex="0" role="img" aria-label="Hedef noktası, dirsek yukarı ve dirsek aşağı analitik çözümler, seçili sayısal yöntemin uç nokta izi"></canvas>
+<p class="rb-caption">Hedefi tıkla ya da sürükle (telefonda hedef noktasından sürükle ya da gideceği yere dokun; boş yerde parmak sayfayı kaydırır); tuval seçiliyken ok tuşları hedefi 0,01 m (Shift ile 0,1 m) kaydırır. Turkuaz kesikli: dirsek yukarı çözümü, mor kesikli: dirsek aşağı. Turuncu kol ve noktalar: seçili sayısal yöntemin son durumu ve her yinelemede uç noktanın yeri. Soluk kol: başlangıç tahmini. Gri halka: erişilebilir bölge.</p></div>
+<div class="rb-stats" aria-live="polite">
+<div class="rb-stat"><small>Dirsek yukarı (θ₁; θ₂)</small><strong id="ikUp"></strong></div>
+<div class="rb-stat"><small>Dirsek aşağı (θ₁; θ₂)</small><strong id="ikDown"></strong></div>
+<div class="rb-stat"><small>cos θ₂ = (r² − L₁² − L₂²)/(2L₁L₂)</small><strong id="ikC2"></strong></div>
+<div class="rb-stat is-meas"><small>Jᵀ: yineleme · son hata</small><strong id="ikJt"></strong></div>
+<div class="rb-stat is-meas"><small>DLS: yineleme · son hata</small><strong id="ikDls"></strong></div>
+<div class="rb-stat is-meas"><small>Newton: yineleme · son hata</small><strong id="ikNewton"></strong></div>
+<div class="rb-stat is-meas"><small>DLS ölçülen oran e<sub>k+1</sub>/e<sub>k</sub></small><strong id="ikDlsRate"></strong></div>
+<div class="rb-stat"><small>Kuram λ²/(σ<sub>min</sub>² + λ²)</small><strong id="ikDlsRateTh"></strong></div>
+<div class="rb-stat"><small>Fark</small><strong id="ikDlsRateDiff"></strong></div>
+<div class="rb-stat is-meas"><small>Newton ölçülen mertebe q</small><strong id="ikOrder"></strong></div>
+<div class="rb-stat is-meas"><small>Jᵀ ölçülen oran e<sub>k+1</sub>/e<sub>k</sub></small><strong id="ikJtRate"></strong></div>
+<div class="rb-stat is-meas"><small id="ikPickLabel">Seçili yöntemin bulduğu çözüm</small><strong id="ikPick"></strong></div>
+</div>
+<p class="rb-status" id="ikStatus" role="status"></p>
+<div class="rb-plate"><h2>Yakınsama: hata |e| = |hedef − uç|, yinelemeye karşı</h2>
+<canvas class="rb-canvas" id="ikConv" role="img" aria-label="Logaritmik eksenlerde üç sayısal yöntemin hatası ve yineleme sayısı"></canvas>
+<p class="rb-caption">Dikey eksen log₁₀|e| (m), yatay eksen yineleme + 1 (logaritmik). Turuncu: Jacobian devriği, turkuaz: sönümlü en küçük kareler (DLS), mor: Newton. Seçili yöntem kalın. Kesikli yatay çizgi: durdurma eşiği 10⁻⁹ m; erişim dışı hedefte ikinci kesikli çizgi en kısa uzaklık d.</p></div>
+</div>
+<aside class="rb-panel" aria-label="Ters kinematik ayarları"><h2>Hedef ve yöntem</h2>
+<div class="rb-field"><label for="ikL1"><span>Birinci bağlantı L₁</span> <output id="ikL1Out"></output></label><input id="ikL1" type="range" min="0.3" max="1.5" step="0.05" value="1"></div>
+<div class="rb-field"><label for="ikL2"><span>İkinci bağlantı L₂</span> <output id="ikL2Out"></output></label><input id="ikL2" type="range" min="0.2" max="1.5" step="0.05" value="0.7"></div>
+<div class="rb-field"><label for="ikX"><span>Hedef x</span> <output id="ikXOut"></output></label><input id="ikX" type="range" min="-3" max="3" step="0.01" value="1.2"></div>
+<div class="rb-field"><label for="ikY"><span>Hedef y</span> <output id="ikYOut"></output></label><input id="ikY" type="range" min="-3" max="3" step="0.01" value="0.6"></div>
+<div class="rb-field"><label for="ikS1"><span>Başlangıç tahmini θ₁</span> <output id="ikS1Out"></output></label><input id="ikS1" type="range" min="-180" max="180" step="1" value="0"></div>
+<div class="rb-field"><label for="ikS2"><span>Başlangıç tahmini θ₂</span> <output id="ikS2Out"></output></label><input id="ikS2" type="range" min="-180" max="180" step="1" value="30"></div>
+<div class="rb-field"><label for="ikMethod">Tuvalde gösterilen yöntem</label><select id="ikMethod"><option value="jt">Jacobian devriği (Jᵀ)</option><option value="dls" selected>Sönümlü en küçük kareler (DLS)</option><option value="newton">Newton (J⁻¹)</option></select></div>
+<div class="rb-field"><label for="ikLambda"><span>DLS sönümü λ</span> <output id="ikLambdaOut"></output></label><input id="ikLambda" type="range" min="0.01" max="1" step="0.01" value="0.1"></div>
+<div class="rb-row">
+<button type="button" class="app-btn-ghost" id="ikFar">Erişim dışı (2,00; 0,50)</button>
+<button type="button" class="app-btn-ghost" id="ikHole">İç boşlukta (0,10; 0,10)</button>
+<button type="button" class="app-btn-ghost" id="ikEdge">Sınıra yakın (1,69; 0)</button>
+<button type="button" class="app-btn-ghost" id="ikSing">Gergin başlangıç (θ₂ = 0°)</button>
+<button type="button" class="app-btn-ghost" id="ikOther">Öbür dala başla (θ₂ = −30°)</button>
+<button type="button" class="app-btn-ghost" id="ikReset">Sekmeyi sıfırla</button>
+</div>
+<div class="rb-formula">θ₂ = ± arccos c₂, θ₁ = atan2(y, x) − atan2(L₂sin θ₂, L₁ + L₂cos θ₂)<br>Jᵀ: Δθ = α Jᵀe, α = ⟨e, JJᵀe⟩/|JJᵀe|²<br>DLS: Δθ = Jᵀ(JJᵀ + λ²I)⁻¹ e<br>Newton: Δθ = J⁻¹ e</div>
+<p class="rb-note">Durdurma: |e| &lt; 10⁻⁹ m, ya da adım 10⁻¹³ rad'ın altına inerse ("durdu"), ya da 2000 yineleme. Üç yöntem de aynı başlangıçtan aynı hedefe koşar; ölçümler gerçek yinelemelerden gelir. "Dirsek yukarı" θ₂ &lt; 0 dalıdır: dirsek, tabandan hedefe bakan doğrunun sol yanında kalır (hedef sağdayken gerçekten yukarıda).</p>
+<p class="rb-note">Erişim dışı hedefte kol en yakın erişilebilir noktaya uzanmalıdır: d = r − (L₁ + L₂) ya da d = |L₁ − L₂| − r. Jᵀ ve yeterince büyük λ'lı DLS hatayı d'ye indirir (gereken λ, d büyüdükçe artar); Newton tekil J yüzünden savrulur; küçük λ'lı DLS tekilliğin yanında sıçrar.</p>
+</aside></div>
+</section>
+
+<!-- ───────── 3 · Jacobian ───────── -->
+<section id="panel-jac" role="tabpanel" aria-labelledby="tab-jac" hidden>
+<div class="rb-grid"><div>
+<div class="rb-plate"><h2>Yöndürülebilirlik elipsi, hız ve kuvvet</h2>
+<canvas class="rb-canvas is-stage" id="jacStage" tabindex="0" role="img" aria-label="Kol, uçta birim eklem hızlarının ürettiği hız elipsi, istenen uç hızı ve uygulanan kuvvet okları"></canvas>
+<p class="rb-caption">Turkuaz elips: |θ′| = 1 rad/s olan bütün eklem hızlarının uçta ürettiği hızlar (metre ölçeğinde, kolla aynı ölçek). Turuncu ok: istenen uç hızı v (2 s'de alınacak yol olarak çizildi). Mor ok: ucun ortama uyguladığı kuvvet F (1 N = 2 cm). Tuval seçiliyken ←/→ θ₁'i, ↑/↓ θ₂'yi 1° değiştirir.</p></div>
+<div class="rb-stats" aria-live="polite">
+<div class="rb-stat"><small>det J, kuram L₁L₂ sin θ₂</small><strong id="jacDetTh"></strong></div>
+<div class="rb-stat is-meas"><small>det J, sonlu farklarla ölçülen</small><strong id="jacDetFd"></strong></div>
+<div class="rb-stat"><small>En büyük |J − J<sub>sonlu fark</sub>| öğesi</small><strong id="jacJDiff"></strong></div>
+<div class="rb-stat"><small>Tekil değerler σ₁ · σ₂</small><strong id="jacSig"></strong></div>
+<div class="rb-stat is-meas"><small>Elips alanı (çokgenle ölçülen)</small><strong id="jacArea"></strong></div>
+<div class="rb-stat"><small>Kuram π|det J|</small><strong id="jacAreaTh"></strong></div>
+<div class="rb-stat"><small>Gereken θ′ = J⁻¹v</small><strong id="jacRate"></strong></div>
+<div class="rb-stat is-meas"><small>Ölçülen θ′ (ters kinematik, p ± vΔt)</small><strong id="jacRateMeas"></strong></div>
+<div class="rb-stat"><small>Fark (|θ′| üzerinden)</small><strong id="jacRateDiff"></strong></div>
+<div class="rb-stat"><small>Tork τ = JᵀF (τ₁; τ₂)</small><strong id="jacTau"></strong></div>
+<div class="rb-stat is-meas"><small>Sanal işle ölçülen τ = F·∂p/∂θ</small><strong id="jacTauMeas"></strong></div>
+<div class="rb-stat"><small>Koşul sayısı σ₁/σ₂</small><strong id="jacCond"></strong></div>
+</div>
+<p class="rb-status" id="jacStatus" role="status"></p>
+<div class="rb-plate"><h2>Sabit uç hızı için gereken eklem hızı, dirsek açısına karşı</h2>
+<canvas class="rb-canvas" id="jacChart" role="img" aria-label="Logaritmik eksende gereken eklem hızı büyüklüğü, theta2'ye karşı; tekilliklerde sonsuza gider"></canvas>
+<p class="rb-caption">Çizgi: |J⁻¹v| (θ₁ ve v sabit, θ₂ taranıyor). Noktalar: her 10°'de ters kinematikle ölçülen değer. Dikey kesikli çizgi: seçili θ₂. θ₂ = 0° (gergin) ve ±180° (katlı) tekilliklerinde det J = 0 olur. Radyal yönde |θ′₂| = r|r′|/(L₁L₂|sin θ₂|). Üs işareti zamana göre türevdir: θ′ = dθ/dt, θ″ = d²θ/dt².</p></div>
+</div>
+<aside class="rb-panel" aria-label="Jacobian ayarları"><h2>Yapılandırma, hız ve kuvvet</h2>
+<div class="rb-field"><label for="jacL1"><span>Birinci bağlantı L₁</span> <output id="jacL1Out"></output></label><input id="jacL1" type="range" min="0.3" max="1.5" step="0.05" value="1"></div>
+<div class="rb-field"><label for="jacL2"><span>İkinci bağlantı L₂</span> <output id="jacL2Out"></output></label><input id="jacL2" type="range" min="0.2" max="1.5" step="0.05" value="0.7"></div>
+<div class="rb-field"><label for="jacT1"><span>Omuz açısı θ₁</span> <output id="jacT1Out"></output></label><input id="jacT1" type="range" min="-180" max="180" step="1" value="30"></div>
+<div class="rb-field"><label for="jacT2"><span>Dirsek açısı θ₂</span> <output id="jacT2Out"></output></label><input id="jacT2" type="range" min="-180" max="180" step="1" value="60"></div>
+<div class="rb-field"><label for="jacDir">Uç hızının yönü</label><select id="jacDir"><option value="in" selected>Radyal, tabana doğru</option><option value="out">Radyal, dışa doğru</option><option value="tan">Teğet (tabanın çevresinde)</option><option value="x">+x (yatay)</option><option value="y">+y (dikey)</option></select></div>
+<div class="rb-field"><label for="jacV"><span>Uç hızı |v|</span> <output id="jacVOut"></output></label><input id="jacV" type="range" min="0.05" max="1" step="0.05" value="0.2"></div>
+<div class="rb-field"><label for="jacFx"><span>Kuvvet F<sub>x</sub></span> <output id="jacFxOut"></output></label><input id="jacFx" type="range" min="-20" max="20" step="0.5" value="0"></div>
+<div class="rb-field"><label for="jacFy"><span>Kuvvet F<sub>y</sub></span> <output id="jacFyOut"></output></label><input id="jacFy" type="range" min="-20" max="20" step="0.5" value="-10"></div>
+<div class="rb-row">
+<button type="button" class="app-btn-ghost" id="jacNear">Tekilliğe yakın (θ₂ = 2°)</button>
+<button type="button" class="app-btn-ghost" id="jacStraight">Gergin (θ₂ = 0°)</button>
+<button type="button" class="app-btn-ghost" id="jacFolded">Katlı (θ₂ = 180°)</button>
+<button type="button" class="app-btn-ghost" id="jacRight">Dik dirsek (θ₂ = 90°)</button>
+<button type="button" class="app-btn-ghost" id="jacReset">Sekmeyi sıfırla</button>
+</div>
+<div class="rb-formula">J = [[−L₁s₁ − L₂s₁₂, −L₂s₁₂], [L₁c₁ + L₂c₁₂, L₂c₁₂]]<br>v = J θ′,  τ = JᵀF<br>det J = L₁L₂ sin θ₂<br>elips yarı eksenleri σ₁, σ₂; alan πσ₁σ₂ = π|det J|</div>
+<p class="rb-note">Ölçümler kuramın formüllerini kullanmaz: J, uç konumunun ±10⁻⁶ rad'lık merkezî farklarıyla; θ′, analitik ters kinematiğin p + vΔt ve p − vΔt noktalarındaki çözümlerinin farkıyla; τ, küçük sanal yer değiştirmede F'nin yaptığı işle bulunur. Kütleler ve yerçekimi yoktur: τ yalnız uçtaki F'yi dengeleyen torktur.</p>
+</aside></div>
+</section>
+
+<!-- ───────── 4 · Yörünge ───────── -->
+<section id="panel-traj" role="tabpanel" aria-labelledby="tab-traj" hidden>
+<div class="rb-grid"><div>
+<div class="rb-plate"><h2>A'dan B'ye iki yol: eklem uzayında doğru, Kartezyen doğru</h2>
+<canvas class="rb-canvas is-stage" id="trajStage" tabindex="0" role="img" aria-label="Çalışma alanı, A ve B noktaları, engel çemberi, eklem uzayı yolunun ve Kartezyen doğrunun uç izleri, anlık iki kol"></canvas>
+<p class="rb-caption">Turkuaz: eklem uzayında doğrusal yol (iki açı aynı s(t) ile), uç eğri çizer. Turuncu: Kartezyen doğru (her noktada ters kinematik). A, B ve engelin merkezi sürüklenebilir. Kırmızı işaret: engelle ilk çarpışma. Oynat iki kolu birlikte gerçek zamanda yürütür.</p></div>
+<div class="rb-stats" aria-live="polite">
+<div class="rb-stat"><small>Δθ₁ · Δθ₂ (eklem yolu)</small><strong id="trDth"></strong></div>
+<div class="rb-stat is-meas"><small>Ölçülen tepe |θ′| (sayısal türev)</small><strong id="trVPk"></strong></div>
+<div class="rb-stat"><small id="trVPkThLabel">Kuram k<sub>v</sub>|Δθ|/T</small><strong id="trVPkTh"></strong></div>
+<div class="rb-stat is-meas"><small>Ölçülen tepe |θ″|</small><strong id="trAPk"></strong></div>
+<div class="rb-stat"><small id="trAPkThLabel">Kuram k<sub>a</sub>|Δθ|/T²</small><strong id="trAPkTh"></strong></div>
+<div class="rb-stat is-meas"><small>Uçlarda θ′(0) · θ′(T), en büyük eklem</small><strong id="trEnds"></strong></div>
+<div class="rb-stat is-meas"><small>Başlangıç ivmesi θ″(0), en büyük eklem</small><strong id="trA0"></strong></div>
+<div class="rb-stat is-meas"><small>Eklem yolunun AB doğrusundan en büyük sapması</small><strong id="trDev"></strong></div>
+<div class="rb-stat is-meas"><small>Kartezyen yolun sapması</small><strong id="trDevC"></strong></div>
+<div class="rb-stat is-meas"><small>Kartezyen yolda tepe |θ′| (θ₁; θ₂)</small><strong id="trCPk"></strong></div>
+<div class="rb-stat"><small>En kısa süre T<sub>min</sub>: eklem · Kartezyen</small><strong id="trTmin"></strong></div>
+<div class="rb-stat is-meas"><small>Engele en yakın geçiş: eklem · Kartezyen</small><strong id="trClear"></strong></div>
+</div>
+<p class="rb-status" id="trStatus" role="status"></p>
+<div class="rb-plate"><h2>Eklem uzayı: θ₁–θ₂ düzleminde iki yol</h2>
+<canvas class="rb-canvas is-low" id="trajJoint" role="img" aria-label="Theta1-theta2 düzleminde eklem uzayı yolu doğru, Kartezyen yolun açıları eğri"></canvas>
+<p class="rb-caption">Eklem uzayında doğrusal yol burada doğrudur, uçta eğridir; Kartezyen doğru ise burada eğri olur. Noktalar 0,1·T aralıklarla.</p></div>
+<div class="rb-plate"><h2>Eklem hızları ve ivmeleri, zamana karşı</h2>
+<canvas class="rb-canvas is-low" id="trajVel" role="img" aria-label="İki eklemin hızları zamana karşı: eklem uzayı yolu düz çizgi, Kartezyen yol kesikli; kırmızı kesikli çizgiler hız sınırı"></canvas>
+<canvas class="rb-canvas is-low" id="trajAcc" role="img" aria-label="Eklem uzayı yolunda iki eklemin ivmeleri: çizgi sayısal ikinci türev, noktalar analitik polinom"></canvas>
+<p class="rb-caption">θ′ = dθ/dt (eklem hızı), θ″ = d²θ/dt² (eklem ivmesi). Üstte θ′(t): düz çizgiler eklem yolu, kesikli çizgiler Kartezyen yol (turkuaz θ₁, mor θ₂); kırmızı kesikli: ±ω<sub>max</sub>. Altta eklem yolunun θ″(t): çizgi konum örneklerinin sayısal ikinci türevi, noktalar polinomun analitik ivmesi. Kübik profilde ivme t = 0'da sıfırdan birden sıçrar; beşinci derecede sıfırdan başlar.</p></div>
+</div>
+<aside class="rb-panel" aria-label="Yörünge ayarları"><h2>Uçlar, profil ve engel</h2>
+<div class="rb-field"><label for="trAx"><span>A noktası x</span> <output id="trAxOut"></output></label><input id="trAx" type="range" min="-1.7" max="1.7" step="0.05" value="1.4"></div>
+<div class="rb-field"><label for="trAy"><span>A noktası y</span> <output id="trAyOut"></output></label><input id="trAy" type="range" min="-1.7" max="1.7" step="0.05" value="-0.3"></div>
+<div class="rb-field"><label for="trBx"><span>B noktası x</span> <output id="trBxOut"></output></label><input id="trBx" type="range" min="-1.7" max="1.7" step="0.05" value="-0.2"></div>
+<div class="rb-field"><label for="trBy"><span>B noktası y</span> <output id="trByOut"></output></label><input id="trBy" type="range" min="-1.7" max="1.7" step="0.05" value="1.3"></div>
+<div class="rb-field"><label for="trBranch">Dirsek dalı (iki uçta da)</label><select id="trBranch"><option value="up" selected>Dirsek yukarı (θ₂ &lt; 0)</option><option value="down">Dirsek aşağı (θ₂ &gt; 0)</option></select></div>
+<div class="rb-field"><label for="trProfile">Zaman profili s(t)</label><select id="trProfile"><option value="cubic" selected>Kübik: 3u² − 2u³</option><option value="quintic">Beşinci derece: 10u³ − 15u⁴ + 6u⁵</option></select></div>
+<div class="rb-field"><label for="trT"><span>Hareket süresi T</span> <output id="trTOut"></output></label><input id="trT" type="range" min="0.5" max="6" step="0.1" value="2"></div>
+<div class="rb-field"><label for="trW"><span>Eklem hız sınırı ω<sub>max</sub></span> <output id="trWOut"></output></label><input id="trW" type="range" min="0.2" max="4" step="0.1" value="2"></div>
+<label class="rb-check" for="trObs"><input type="checkbox" id="trObs" checked> Engel var</label>
+<div id="trObsFields">
+<div class="rb-field"><label for="trOx"><span>Engel merkezi x</span> <output id="trOxOut"></output></label><input id="trOx" type="range" min="-1.7" max="1.7" step="0.05" value="1"></div>
+<div class="rb-field"><label for="trOy"><span>Engel merkezi y</span> <output id="trOyOut"></output></label><input id="trOy" type="range" min="-1.7" max="1.7" step="0.05" value="1"></div>
+<div class="rb-field"><label for="trOr"><span>Engel yarıçapı</span> <output id="trOrOut"></output></label><input id="trOr" type="range" min="0.05" max="0.6" step="0.05" value="0.15"></div>
+</div>
+<div class="rb-row">
+<button type="button" class="app-btn-ghost" id="trPlay">Oynat</button>
+<button type="button" class="app-btn-ghost" id="trQuintic">Beşinci derece profil</button>
+<button type="button" class="app-btn-ghost" id="trSlow">Sıkı hız sınırı (ω<sub>max</sub> = 1,0)</button>
+<button type="button" class="app-btn-ghost" id="trEdge">Deliğin kıyısından geçen doğru</button>
+<button type="button" class="app-btn-ghost" id="trHole">Delikten geçen doğru</button>
+<button type="button" class="app-btn-ghost" id="trajReset">Sekmeyi sıfırla</button>
+</div>
+<div class="rb-formula">θ(t) = θ<sub>A</sub> + s(t/T)·(θ<sub>B</sub> − θ<sub>A</sub>)<br>kübik: k<sub>v</sub> = 1,5, k<sub>a</sub> = 6<br>beşinci derece: k<sub>v</sub> = 1,875, k<sub>a</sub> = 10/√3 ≈ 5,774<br>T<sub>min</sub> = k<sub>v</sub> max|Δθ<sub>i</sub>| / ω<sub>max</sub></div>
+<p class="rb-note">Kol: L₁ = 1,00 m, L₂ = 0,70 m (öğretim değerleri). Yol 800 eşit zaman adımında örneklenir; hız ve ivme bu konum örneklerinden sayısal türevle ölçülür (uçlarda ikinci mertebeden tek yanlı farklar). Δθ₁ en kısa yönde (|Δθ₁| ≤ 180°) alınır.</p>
+<p class="rb-note">Engel denetimi bir öğretim modelidir: bağlantılar kalınlıksız doğru parçaları, engel bir çemberdir; denetim yalnız örnek anlarında yapılır, dinamik ve kontrol hatası yoktur. Gerçek planlayıcılar güvenlik payı bırakır ve sürekli çarpışma denetimi kullanır.</p>
+</aside></div>
+</section>
+
+<details class="rb-sources"><summary>Model sınırları, sayı biçimi ve kaynaklar</summary>
+<p>Sayılar ondalık virgülle yazılır, eksi işareti "−"dir; on binden büyük sayılarda binler dar boşlukla ayrılır; çok büyük ya da küçük sayılar a × 10ᵇ biçimindedir. Farklar (ölçülen − kuram)/kuram olarak yüzdeyle verilir; kuram sıfır ya da tanımsızsa fark yazılmaz. Açılar derece, uzunluklar metre, hızlar m/s ve rad/s, kuvvet newton, tork N·m'dir. R tuşu, form denetiminde değilken etkin sekmeyi sıfırlar.</p>
+<p>Bu sayfa yalnız kinematiği (ve dördüncü sekmede zamanlamayı) inceler: kütle, eylemsizlik, motor torku sınırı, esneklik, dişli boşluğu ve kontrol döngüsü yoktur. Gerçek kollar altı eklemli ve üç boyutludur; aynı fikirler (homojen matrisler, Jacobian, tekillik, ters kinematik dalları) orada 4×4 matrislerle sürer.</p>
+<ul id="rbSourceList">
+<li>Wikipedia, "Inverse kinematics" (açıldı: 12 Kasım 2026): Jacobian tersi ve Moore–Penrose sözde tersiyle yinelemeli çözüm; analitik çözücülerin sonlu sayıda çözüm verdiği. Sayfadaki Jᵀ, DLS ve Newton güncellemeleri ders kitabı biçimleridir.</li>
+<li>Jᵀ adım boyu α = ⟨e, JJᵀe⟩/|JJᵀe|² ve DLS güncellemesi S. R. Buss'un "Introduction to Inverse Kinematics with Jacobian Transpose, Pseudoinverse and Damped Least Squares methods" (2004) notlarında anlatılır; bu sayfa yazılırken o belge açılamadı, formüller burada kendi kodumuzla sınandı.</li>
+<li>Kübik ve beşinci derece zaman profilleri, yöndürülebilirlik elipsi ve τ = JᵀF: standart robotik ders konuları (genel arka plan). Kol boyutları, hız sınırı ve engel öğretim değerleridir; belirli bir robotu temsil etmez.</li>
+</ul></details>
+</main>
+<script>
+(() => {
+"use strict";
+/* KERNEL-BEGIN */
+const PI = Math.PI, TAU = 2 * PI, DEG = PI / 180;
+function wrap(a) { let x = (a + PI) % TAU; if (x < 0) x += TAU; return x - PI; }
+function mulberry32(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function links(L) { if (!Array.isArray(L) || L.length < 2 || L.length > 3 || !L.every((v) => Number.isFinite(v) && v > 0)) throw new RangeError("2 ya da 3 pozitif bağlantı uzunluğu gerekir"); return L; }
+function angles(L, th) { if (!Array.isArray(th) || th.length !== L.length || !th.every(Number.isFinite)) throw new RangeError("her bağlantıya bir sonlu eklem açısı gerekir"); return th; }
+function point(p) { if (!Array.isArray(p) || p.length !== 2 || !p.every(Number.isFinite)) throw new RangeError("nokta (x, y) sonlu olmalı"); return p; }
+// İleri kinematik, trigonometriyle: φ_i = θ_1 + … + θ_i, p = Σ L_i (cos φ_i, sin φ_i)
+function fk(L, th) {
+  links(L); angles(L, th); let x = 0, y = 0, phi = 0; const pts = [[0, 0]];
+  for (let i = 0; i < L.length; i++) { phi += th[i]; x += L[i] * Math.cos(phi); y += L[i] * Math.sin(phi); pts.push([x, y]); }
+  return { x, y, phi: wrap(phi), pts };
+}
+// Homojen dönüşüm: eklemde θ kadar dön, sonra bağlantı boyunca L kadar ötele: Rot(θ)·Trans(L, 0)
+function homog(theta, len) { const c = Math.cos(theta), s = Math.sin(theta); return [[c, -s, len * c], [s, c, len * s], [0, 0, 1]]; }
+function matMul(A, B) { return A.map((r) => B[0].map((_, j) => r.reduce((s, a, k) => s + a * B[k][j], 0))); }
+function fkMatrix(L, th) {
+  links(L); angles(L, th); let T = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]; const frames = [T];
+  for (let i = 0; i < L.length; i++) { T = matMul(T, homog(th[i], L[i])); frames.push(T); }
+  return { T, x: T[0][2], y: T[1][2], phi: Math.atan2(T[1][0], T[0][0]), frames };
+}
+function reach(L) { links(L); const s = L.reduce((a, b) => a + b, 0), m = Math.max(...L); return { R: s, r: Math.max(0, 2 * m - s) }; }
+// Kuram: θ₁ tam tur, θ₂ ∈ [−lim, lim] (iki bağlantı) → halka r(lim) ≤ r ≤ L₁ + L₂
+function workspaceTheory(L, lim2 = PI) {
+  links(L); const { R, r } = reach(L), lim = Math.min(PI, Math.max(0, lim2));
+  if (L.length === 2) { const rin2 = Math.max(0, L[0] ** 2 + L[1] ** 2 + 2 * L[0] * L[1] * Math.cos(lim)); return { R, r: lim >= PI ? r : Math.sqrt(rin2), area: PI * (R * R - (lim >= PI ? r * r : rin2)) }; }
+  if (lim < PI) return { R, r: null, area: null };
+  return { R, r, area: PI * (R * R - r * r) };
+}
+// Ölçüm: eklem uzayından titreşimli ızgarayla örnek al, uç noktanın düştüğü hücreleri say
+function workspaceGrid(L, { lim2 = PI, cells = 240, n = 1000, seed = 1 } = {}) {
+  links(L); if (!(cells >= 10 && cells <= 1000) || !(n >= 10)) throw new RangeError("ızgara ayarı geçersiz");
+  const R = L.reduce((a, b) => a + b, 0), h = 2 * R / cells, occ = new Uint8Array(cells * cells), rnd = mulberry32(seed), lim = Math.min(PI, Math.max(0, lim2));
+  let count = 0, samples = 0;
+  const hit = (x, y) => { samples++; const i = Math.floor((x + R) / h), j = Math.floor((y + R) / h); if (i < 0 || j < 0 || i >= cells || j >= cells) return; const k = j * cells + i; if (!occ[k]) { occ[k] = 1; count++; } };
+  if (L.length === 2) {
+    for (let a = 0; a < n; a++) {
+      const t1 = -PI + (a + rnd()) * TAU / n, c1 = L[0] * Math.cos(t1), s1 = L[0] * Math.sin(t1);
+      for (let b = 0; b < n; b++) { const t12 = t1 - lim + (b + rnd()) * 2 * lim / n; hit(c1 + L[1] * Math.cos(t12), s1 + L[1] * Math.sin(t12)); }
+    }
+  } else {
+    for (let k = 0; k < n * n; k++) {
+      const t1 = TAU * rnd(), t12 = t1 - lim + 2 * lim * rnd(), t123 = t12 + TAU * rnd();
+      hit(L[0] * Math.cos(t1) + L[1] * Math.cos(t12) + L[2] * Math.cos(t123), L[0] * Math.sin(t1) + L[1] * Math.sin(t12) + L[2] * Math.sin(t123));
+    }
+  }
+  return { area: count * h * h, count, h, cells, R, occ, samples };
+}
+// Değişken değiştirme: Alan = (1/2)∬|det J| dθ₁dθ₂ (her iç nokta ±θ₂ ile iki kez kaplanır)
+function workspaceJacobian(L, lim2 = PI, m = 4000) {
+  links(L); if (L.length !== 2) return null; const lim = Math.min(PI, Math.max(0, lim2)), d = 2 * lim / m; let s = 0;
+  for (let i = 0; i < m; i++) s += Math.abs(L[0] * L[1] * Math.sin(-lim + (i + 0.5) * d));
+  return TAU * s * d / 2;
+}
+function jacobian(L, th) {
+  links(L); angles(L, th); const n = L.length, phi = []; let a = 0;
+  for (let i = 0; i < n; i++) { a += th[i]; phi.push(a); }
+  const J = [Array(n).fill(0), Array(n).fill(0)];
+  for (let i = 0; i < n; i++) for (let k = i; k < n; k++) { J[0][i] -= L[k] * Math.sin(phi[k]); J[1][i] += L[k] * Math.cos(phi[k]); }
+  return J;
+}
+function jacobianFD(L, th, h = 1e-6) {
+  links(L); angles(L, th); const n = L.length, J = [Array(n).fill(0), Array(n).fill(0)];
+  for (let i = 0; i < n; i++) { const a = th.slice(), b = th.slice(); a[i] += h; b[i] -= h; const pa = fk(L, a), pb = fk(L, b); J[0][i] = (pa.x - pb.x) / (2 * h); J[1][i] = (pa.y - pb.y) / (2 * h); }
+  return J;
+}
+const det2 = (J) => J[0][0] * J[1][1] - J[0][1] * J[1][0];
+function solve2(A, v) { const d = det2(A); if (!(Math.abs(d) > 0) || !Number.isFinite(d)) return null; return [(A[1][1] * v[0] - A[0][1] * v[1]) / d, (-A[1][0] * v[0] + A[0][0] * v[1]) / d]; }
+// Analitik ters kinematik (iki bağlantı). Erişilemeyen hedefte en yakın erişilebilir noktaya çözer.
+function ikAnalytic(L1, L2, x, y) {
+  links([L1, L2]); point([x, y]);
+  const r = Math.hypot(x, y), R = L1 + L2, rmin = Math.abs(L1 - L2);
+  let px = x, py = y, reachable = true, d = 0;
+  if (r > R) { reachable = false; d = r - R; px = x * R / r; py = y * R / r; }
+  else if (r < rmin) { reachable = false; d = rmin - r; const ux = r > 0 ? x / r : 1, uy = r > 0 ? y / r : 0; px = ux * rmin; py = uy * rmin; }
+  const c2 = Math.max(-1, Math.min(1, (px * px + py * py - L1 * L1 - L2 * L2) / (2 * L1 * L2)));
+  const sols = [-1, 1].map((sg) => { const t2 = sg * Math.acos(c2), t1 = wrap(Math.atan2(py, px) - Math.atan2(L2 * Math.sin(t2), L1 + L2 * Math.cos(t2))); return { th: [t1, t2], elbow: sg < 0 ? "up" : "down" }; });
+  const single = Math.abs(Math.abs(c2) - 1) < 1e-12, anyTheta1 = Math.hypot(px, py) < 1e-12;
+  return { reachable, d, r, R, rmin, closest: [px, py], c2, sols, single, anyTheta1 };
+}
+// Sayısal ters kinematik: Jacobian devriği (Buss'un en iyi adımı), sönümlü en küçük kareler, Newton
+function ikNumeric(L, target, th0, { method = "dls", lambda = 0.1, tol = 1e-9, maxIter = 2000 } = {}) {
+  links(L); if (L.length !== 2) throw new RangeError("sayısal ters kinematik iki bağlantı içindir"); angles(L, th0); point(target);
+  if (!["jt", "dls", "newton"].includes(method) || !(lambda >= 0)) throw new RangeError("yöntem ya da λ geçersiz");
+  let th = th0.slice(), status = "maxiter"; const errs = [], path = [];
+  for (let k = 0; ; k++) {
+    const p = fk(L, th), e = [target[0] - p.x, target[1] - p.y], en = Math.hypot(e[0], e[1]);
+    errs.push(en); path.push([p.x, p.y]);
+    if (!Number.isFinite(en)) { status = "nan"; break; }
+    if (en < tol) { status = "converged"; break; }
+    if (k >= maxIter) break;
+    const J = jacobian(L, th); let dth;
+    if (method === "jt") {
+      const g = [J[0][0] * e[0] + J[1][0] * e[1], J[0][1] * e[0] + J[1][1] * e[1]], Jg = [J[0][0] * g[0] + J[0][1] * g[1], J[1][0] * g[0] + J[1][1] * g[1]], den = Jg[0] ** 2 + Jg[1] ** 2;
+      if (!(den > 1e-300)) { status = "stalled"; break; }
+      const a = (e[0] * Jg[0] + e[1] * Jg[1]) / den; dth = [a * g[0], a * g[1]];
+    } else if (method === "dls") {
+      const l2 = lambda * lambda, A = [[J[0][0] ** 2 + J[0][1] ** 2 + l2, J[0][0] * J[1][0] + J[0][1] * J[1][1]], [J[0][0] * J[1][0] + J[0][1] * J[1][1], J[1][0] ** 2 + J[1][1] ** 2 + l2]], f = solve2(A, e);
+      if (!f) { status = "singular"; break; }
+      dth = [J[0][0] * f[0] + J[1][0] * f[1], J[0][1] * f[0] + J[1][1] * f[1]];
+    } else {
+      if (Math.abs(det2(J)) < 1e-12 * L[0] * L[1]) { status = "singular"; break; }
+      dth = solve2(J, e);
+    }
+    if (!dth || !dth.every(Number.isFinite)) { status = "nan"; break; }
+    th = [wrap(th[0] + dth[0]), wrap(th[1] + dth[1])];
+    if (Math.hypot(dth[0], dth[1]) < 1e-13) { const q = fk(L, th); errs.push(Math.hypot(target[0] - q.x, target[1] - q.y)); path.push([q.x, q.y]); status = errs[errs.length - 1] < tol ? "converged" : "stalled"; break; }
+  }
+  return { th, errs, path, status, iters: errs.length - 1, err: errs[errs.length - 1] };
+}
+// Ölçülen yakınsama: Newton için mertebe q = ln(e₊/e)/ln(e/e₋), doğrusal yöntemler için oran e₊/e
+function convOrder(errs, floor = 1e-11) { const e = errs.filter((v) => v > floor); for (let i = e.length - 1; i >= 2; i--) { const q = Math.log(e[i] / e[i - 1]) / Math.log(e[i - 1] / e[i - 2]); if (Number.isFinite(q) && e[i] < e[i - 1] && e[i - 1] < e[i - 2]) return q; } return null; }
+function convRate(errs, floor = 1e-10) { const e = errs.filter((v) => v > floor); if (e.length < 3) return null; const a = e[e.length - 2], b = e[e.length - 1]; return b < a ? b / a : null; }
+function svd2(J) { const a = J[0][0] ** 2 + J[0][1] ** 2, b = J[0][0] * J[1][0] + J[0][1] * J[1][1], c = J[1][0] ** 2 + J[1][1] ** 2, m = (a + c) / 2, q = Math.hypot((a - c) / 2, b); return { s1: Math.sqrt(m + q), s2: Math.sqrt(Math.max(0, m - q)), angle: 0.5 * Math.atan2(2 * b, a - c) }; }
+// DLS'nin kuramsal asimptotik oranı: en yavaş yön λ²/(σ_min² + λ²)
+function dlsRate(L, th, lambda) { const { s2 } = svd2(jacobian(L, th)); return lambda * lambda / (s2 * s2 + lambda * lambda); }
+// Yöndürülebilirlik elipsi: birim eklem hızı çemberinin J altındaki görüntüsü; alan çokgenle ölçülür
+function manipulability(L, th, m = 3600) {
+  const J = jacobian(L, th), sv = svd2(J); let A = 0, prev = null; const pts = [];
+  for (let i = 0; i <= m; i++) { const t = TAU * i / m, q = [J[0][0] * Math.cos(t) + J[0][1] * Math.sin(t), J[1][0] * Math.cos(t) + J[1][1] * Math.sin(t)]; if (prev) A += prev[0] * q[1] - q[0] * prev[1]; prev = q; pts.push(q); }
+  return { J, det: det2(J), s1: sv.s1, s2: sv.s2, angle: sv.angle, areaPoly: Math.abs(A) / 2, pts };
+}
+function jointRates(L, th, v) { point(v); const J = jacobian(L, th); if (L.length !== 2 || Math.abs(det2(J)) < 1e-12 * L[0] * L[1]) return null; return solve2(J, v); }
+// Bağımsız ölçüm: analitik ters kinematiği p ± v·Δt noktalarında çöz, aynı dalda Δθ/Δt al (J kullanılmaz)
+function jointRatesIK(L, th, v) {
+  links(L); angles(L, th); point(v); if (L.length !== 2) return null;
+  const sp = Math.hypot(v[0], v[1]); if (!(sp > 0)) return [0, 0];
+  if (Math.abs(Math.sin(th[1])) < 1e-9) return null;
+  const p = fk(L, th), r = Math.hypot(p.x, p.y), margin = Math.min(L[0] + L[1] - r, r - Math.abs(L[0] - L[1]));
+  const disp = Math.min(1e-6 * (L[0] + L[1]), 0.002 * margin), dt = disp / sp, br = th[1] > 0 ? 1 : 0;
+  const a = ikAnalytic(L[0], L[1], p.x + v[0] * dt, p.y + v[1] * dt), b = ikAnalytic(L[0], L[1], p.x - v[0] * dt, p.y - v[1] * dt);
+  if (!a.reachable || !b.reachable) return null;
+  const ta = a.sols[br].th, tb = b.sols[br].th; return [wrap(ta[0] - tb[0]) / (2 * dt), (ta[1] - tb[1]) / (2 * dt)];
+}
+function staticTorque(L, th, F) { point(F); const J = jacobian(L, th); return J[0].map((_, i) => J[0][i] * F[0] + J[1][i] * F[1]); }
+// Sanal iş: τ_i = F·∂p/∂θ_i, konumların merkezî farkıyla (J formülü kullanılmaz)
+function virtualWorkTorque(L, th, F, h = 1e-6) { point(F); return th.map((_, i) => { const a = th.slice(), b = th.slice(); a[i] += h; b[i] -= h; const pa = fk(L, a), pb = fk(L, b); return (F[0] * (pa.x - pb.x) + F[1] * (pa.y - pb.y)) / (2 * h); }); }
+// Yörünge: s(u), u = t/T; kübik 3u² − 2u³, beşinci derece 10u³ − 15u⁴ + 6u⁵
+const PROFILE = Object.freeze({
+  cubic: Object.freeze({ s: (u) => u * u * (3 - 2 * u), v: (u) => 6 * u * (1 - u), a: (u) => 6 - 12 * u, kv: 1.5, ka: 6 }),
+  quintic: Object.freeze({ s: (u) => u * u * u * (10 - 15 * u + 6 * u * u), v: (u) => 30 * u * u * (1 - u) ** 2, a: (u) => 60 * u * (1 - u) * (1 - 2 * u), kv: 1.875, ka: 10 / Math.sqrt(3) }),
+});
+function diff1(y, dt) { const n = y.length, d = new Array(n); for (let i = 1; i < n - 1; i++) d[i] = (y[i + 1] - y[i - 1]) / (2 * dt); d[0] = (-3 * y[0] + 4 * y[1] - y[2]) / (2 * dt); d[n - 1] = (3 * y[n - 1] - 4 * y[n - 2] + y[n - 3]) / (2 * dt); return d; }
+function diff2(y, dt) { const n = y.length, d = new Array(n), h2 = dt * dt; for (let i = 1; i < n - 1; i++) d[i] = (y[i + 1] - 2 * y[i] + y[i - 1]) / h2; d[0] = (2 * y[0] - 5 * y[1] + 4 * y[2] - y[3]) / h2; d[n - 1] = (2 * y[n - 1] - 5 * y[n - 2] + 4 * y[n - 3] - y[n - 4]) / h2; return d; }
+function segDist(p, a, b) { const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy, u = l2 > 0 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2)) : 0; return Math.hypot(p[0] - a[0] - u * dx, p[1] - a[1] - u * dy); }
+function trajectory({ L = [1, 0.7], A, B, branch = "up", T = 2, type = "cubic", n = 800, obstacle = null } = {}) {
+  links(L); if (L.length !== 2) throw new RangeError("yörünge iki bağlantı içindir"); point(A); point(B);
+  if (!(T > 0) || !PROFILE[type] || !(n >= 8) || !["up", "down"].includes(branch)) throw new RangeError("yörünge ayarı geçersiz");
+  const P = PROFILE[type], bi = branch === "up" ? 0 : 1, ia = ikAnalytic(L[0], L[1], A[0], A[1]), ib = ikAnalytic(L[0], L[1], B[0], B[1]);
+  if (!ia.reachable || !ib.reachable) return { ok: false, reason: !ia.reachable ? "A" : "B" };
+  const thA = ia.sols[bi].th, thB = ib.sols[bi].th, dth = [wrap(thB[0] - thA[0]), thB[1] - thA[1]], dt = T / n;
+  const t = [], jt = [[], []], jp = [], ct = [[], []], cp = []; let cartBad = -1, prev1 = thA[0];
+  for (let i = 0; i <= n; i++) {
+    const u = i / n, s = P.s(u); t.push(u * T);
+    const q = [thA[0] + s * dth[0], thA[1] + s * dth[1]]; jt[0].push(q[0]); jt[1].push(q[1]); const f = fk(L, q); jp.push(f.pts);
+    const x = A[0] + s * (B[0] - A[0]), y = A[1] + s * (B[1] - A[1]), ik = ikAnalytic(L[0], L[1], x, y);
+    if (!ik.reachable && cartBad < 0) cartBad = i;
+    const c = ik.sols[bi].th, c1 = prev1 + wrap(c[0] - prev1); prev1 = c1; ct[0].push(c1); ct[1].push(c[1]); cp.push(fk(L, [c1, c[1]]).pts);
+  }
+  const jv = jt.map((y) => diff1(y, dt)), ja = jt.map((y) => diff2(y, dt)), cv = ct.map((y) => diff1(y, dt)), ca = ct.map((y) => diff2(y, dt));
+  const maxAbs = (arr) => arr.reduce((m, v) => Math.max(m, Math.abs(v)), 0);
+  let devJ = 0, devJi = 0, devC = 0, lenJ = 0;
+  for (let i = 0; i <= n; i++) { const dj = segDist(jp[i][2], A, B), dc = segDist(cp[i][2], A, B); if (dj > devJ) { devJ = dj; devJi = i; } devC = Math.max(devC, dc); if (i) lenJ += Math.hypot(jp[i][2][0] - jp[i - 1][2][0], jp[i][2][1] - jp[i - 1][2][1]); }
+  const peak = { jv: [maxAbs(jv[0]), maxAbs(jv[1])], ja: [maxAbs(ja[0]), maxAbs(ja[1])], cv: [maxAbs(cv[0]), maxAbs(cv[1])], ca: [maxAbs(ca[0]), maxAbs(ca[1])] };
+  const theory = { vPeak: dth.map((d) => P.kv * Math.abs(d) / T), aPeak: dth.map((d) => P.ka * Math.abs(d) / (T * T)), a0: dth.map((d) => P.a(0) * d / (T * T)) };
+  const collide = (pts) => { if (!obstacle) return null; point([obstacle.x, obstacle.y]); let clear = Infinity, first = -1, link = -1; for (let i = 0; i < pts.length; i++) for (let k = 0; k < 2; k++) { const c = segDist([obstacle.x, obstacle.y], pts[i][k], pts[i][k + 1]) - obstacle.r; if (c < clear) clear = c; if (c < 0 && first < 0) { first = i; link = k; } } return { clear, first, tFirst: first >= 0 ? first * dt : null, link }; };
+  return { ok: true, n, dt, t, thA, thB, dth, joint: { th: jt, v: jv, a: ja, pts: jp }, cart: { th: ct, v: cv, a: ca, pts: cp, bad: cartBad, tBad: cartBad >= 0 ? cartBad * dt : null }, peak, theory, devJ, devJt: devJi * dt, devC, lenJ, lenAB: Math.hypot(B[0] - A[0], B[1] - A[1]), coll: { joint: collide(jp), cart: collide(cp) }, ends: { v0: [jv[0][0], jv[1][0]], vT: [jv[0][n], jv[1][n]], a0: [ja[0][0], ja[1][0]], aT: [ja[0][n], ja[1][n]] } };
+}
+// Zaman ölçekleme: hızlar 1/T ile ölçeklenir → T_min = T·(ölçülen tepe)/ω_max
+function minTime(tr, wmax) { if (!(wmax > 0)) throw new RangeError("ω_max pozitif olmalı"); const T = tr.t[tr.n]; return { joint: T * Math.max(...tr.peak.jv) / wmax, cart: T * Math.max(...tr.peak.cv) / wmax }; }
+Object.defineProperty(window, "RobotLab", { value: Object.freeze({ DEG, wrap, mulberry32, fk, homog, matMul, fkMatrix, reach, workspaceTheory, workspaceGrid, workspaceJacobian, jacobian, jacobianFD, det2, solve2, ikAnalytic, ikNumeric, convOrder, convRate, svd2, dlsRate, manipulability, jointRates, jointRatesIK, staticTorque, virtualWorkTorque, PROFILE, trajectory, minTime, segDist }), writable: false, configurable: false });
+/* KERNEL-END */
+
+/* ───────── Biçim yardımcıları (tek yuvarlama yolu) ───────── */
+const $ = (id) => document.getElementById(id), num = (id) => Number($(id).value), put = (id, t) => { $(id).textContent = t; };
+const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+function fx(x, d) { if (x === null || x === undefined || !Number.isFinite(x)) return "—"; const r = Number(x.toFixed(d)); return (Object.is(r, -0) ? 0 : r).toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: Math.abs(r) >= 10000 }).replace(/\./g, " ").replace("-", "−"); }
+function supNum(e) { return "10" + String(e).replace("-", "−").split("").map((c) => (c === "−" ? "⁻" : SUP[c])).join(""); }
+function sig(x, s = 3) {
+  if (x === null || x === undefined || !Number.isFinite(x)) return "—"; if (x === 0) return "0";
+  let e = Math.floor(Math.log10(Math.abs(x))), m = Number((x / 10 ** e).toFixed(s - 1));
+  if (Math.abs(m) >= 10) { e += 1; m = Number((x / 10 ** e).toFixed(s - 1)); }
+  if (e >= 5 || e < -3) return fx(m, s - 1) + " × " + supNum(e);
+  return fx(x, Math.max(0, s - 1 - e));
+}
+function pct(m, t, d = 2) { if (m === null || t === null || m === undefined || t === undefined || !Number.isFinite(m) || !Number.isFinite(t) || t === 0) return "—"; const r = Number(((m - t) / Math.abs(t) * 100).toFixed(d)); return (r > 0 ? "+" : "") + fx(r, d) + " %"; }
+const D = Math.PI / 180;
+const deg = (rad, d = 1) => fx(rad / D, d) + "°";
+const pair = (a, b, d = 4) => "(" + fx(a, d) + "; " + fx(b, d) + ")";
+const angPair = (th, d = 2) => "(" + deg(th[0], d) + "; " + deg(th[1], d) + ")";
+
+/* ───────── Tuval yardımcıları ───────── */
+function surface(id) {
+  const c = $(id), r = c.getBoundingClientRect(); if (!r.width) return null;
+  const d = Math.min(devicePixelRatio || 1, 2); c.width = Math.round(r.width * d); c.height = Math.round(r.height * d);
+  const g = c.getContext("2d"); g.setTransform(d, 0, 0, d, 0, 0);
+  const light = document.documentElement.dataset.theme === "light";
+  const p = light ? { bg: "#f8f9fc", ink: "#1d2433", grid: "#d6dbe6", muted: "#5d6578", accent: "#0f7f78", warm: "#b4541c", violet: "#6d3fc4", red: "#c0262d", fill: "rgba(15,127,120,0.16)", ring: "rgba(93,101,120,0.13)", obs: "rgba(192,38,45,0.18)" }
+    : { bg: "#0f1626", ink: "#e6ebf4", grid: "#2b3550", muted: "#9aa5bb", accent: "#5eead4", warm: "#f5a25c", violet: "#b39cff", red: "#ff6b73", fill: "rgba(94,234,212,0.16)", ring: "rgba(154,165,187,0.12)", obs: "rgba(255,107,115,0.22)" };
+  g.fillStyle = p.bg; g.fillRect(0, 0, r.width, r.height); return { g, w: r.width, h: r.height, p, light, el: c };
+}
+function line(s, x, y, X, Y, col, width = 2, dash = []) { const g = s.g; g.strokeStyle = col; g.lineWidth = width; g.setLineDash(dash); g.beginPath(); g.moveTo(x, y); g.lineTo(X, Y); g.stroke(); g.setLineDash([]); }
+function text(s, t, x, y, col, align = "left", size = 11) { const g = s.g; g.font = size + "px Outfit, system-ui, sans-serif"; g.textAlign = align; g.fillStyle = col || s.p.ink; const tw = g.measureText(t).width; let xx = x; if (align === "center") xx = Math.max(tw / 2 + 3, Math.min(s.w - tw / 2 - 3, x)); else if (align === "left") xx = Math.max(3, Math.min(x, s.w - tw - 3)); else xx = Math.max(x, tw + 3); g.fillText(t, xx, y); }
+function arrow(s, x, y, X, Y, col, width = 2) { const len = Math.hypot(X - x, Y - y); if (len < 2) return; line(s, x, y, X, Y, col, width); const a = Math.atan2(Y - y, X - x), hd = Math.min(9, 4 + width * 1.2), g = s.g; g.fillStyle = col; g.beginPath(); g.moveTo(X, Y); g.lineTo(X - hd * Math.cos(a - 0.45), Y - hd * Math.sin(a - 0.45)); g.lineTo(X - hd * Math.cos(a + 0.45), Y - hd * Math.sin(a + 0.45)); g.fill(); }
+function dot(s, x, y, r, col) { const g = s.g; g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); }
+function circle(s, x, y, r, col, width = 1.2, dash = []) { const g = s.g; g.strokeStyle = col; g.lineWidth = width; g.setLineDash(dash); g.beginPath(); g.arc(x, y, Math.max(0, r), 0, 7); g.stroke(); g.setLineDash([]); }
+// Dünya → ekran: taban ortada, y yukarı
+function view(s, E, cx = 0, cy = 0) { const k = Math.min(s.w, s.h) / (2 * E) * 0.94, ox = s.w / 2 - cx * k, oy = s.h / 2 + cy * k; return { k, X: (x) => ox + x * k, Y: (y) => oy - y * k, inv: (px, py) => [(px - ox) / k, (oy - py) / k] }; }
+function axesWorld(s, v, E) { const step = E > 2 ? 1 : 0.5; for (let a = -Math.ceil(E / step) * step; a <= E + 1e-9; a += step) { line(s, v.X(a), 0, v.X(a), s.h, s.p.grid, 0.6); line(s, 0, v.Y(a), s.w, v.Y(a), s.p.grid, 0.6); } line(s, v.X(0), 0, v.X(0), s.h, s.p.grid, 1.2); line(s, 0, v.Y(0), s.w, v.Y(0), s.p.grid, 1.2); text(s, fx(step, 1) + " m ızgara", 8, s.h - 8, s.p.muted, "left", 10); }
+function drawArm(s, v, pts, col, width = 5, ghost = false) {
+  const g = s.g; g.lineCap = "round"; g.globalAlpha = ghost ? 0.35 : 1;
+  for (let i = 0; i < pts.length - 1; i++) line(s, v.X(pts[i][0]), v.Y(pts[i][1]), v.X(pts[i + 1][0]), v.Y(pts[i + 1][1]), col, width);
+  for (let i = 0; i < pts.length; i++) { dot(s, v.X(pts[i][0]), v.Y(pts[i][1]), i === 0 ? 6 : 4.5, i === pts.length - 1 ? s.p.ink : col); }
+  g.globalAlpha = 1; g.lineCap = "butt";
+}
+function dashedArm(s, v, pts, col) { for (let i = 0; i < pts.length - 1; i++) line(s, v.X(pts[i][0]), v.Y(pts[i][1]), v.X(pts[i + 1][0]), v.Y(pts[i + 1][1]), col, 2.2, [6, 4]); for (const q of pts.slice(1)) circle(s, v.X(q[0]), v.Y(q[1]), 4, col, 1.6); }
+function base(s, v) { const g = s.g; g.fillStyle = s.p.muted; g.fillRect(v.X(0) - 12, v.Y(0) + 4, 24, 6); }
+// Genel grafik
+function plot(s, o) {
+  const pad = { l: o.padL ?? 54, r: o.padR ?? 14, t: 18, b: 34 }, W = s.w - pad.l - pad.r, Hh = s.h - pad.t - pad.b;
+  const tx = (v, a) => (a.log ? Math.log10(v) : v), X = (v) => pad.l + (tx(v, o.x) - tx(o.x.min, o.x)) / (tx(o.x.max, o.x) - tx(o.x.min, o.x)) * W;
+  const Y = (v, a = o.y) => pad.t + Hh - (tx(v, a) - tx(a.min, a)) / (tx(a.max, a) - tx(a.min, a)) * Hh;
+  const ticks = (a, n) => { if (a.ticks) return a.ticks; if (a.log) { const out = [], lo = Math.ceil(Math.log10(a.min) - 1e-9), hi = Math.floor(Math.log10(a.max) + 1e-9), st = Math.max(1, Math.ceil((hi - lo) / n)); for (let e = lo; e <= hi; e += st) out.push(10 ** e); return out; } const span = a.max - a.min, raw = span / n, mag = 10 ** Math.floor(Math.log10(raw)), step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((v) => v >= raw); const out = []; for (let v = Math.ceil(a.min / step - 1e-9) * step; v <= a.max + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v); return out; };
+  const nx = s.w < 420 ? 4 : 6;
+  for (const v of ticks(o.x, nx)) { const x = X(v); line(s, x, pad.t, x, pad.t + Hh, s.p.grid, 1); text(s, o.x.log ? supNum(Math.round(Math.log10(v))) : (o.x.fmt ? o.x.fmt(v) : sig(v, 3)), x, s.h - pad.b + 15, s.p.muted, "center", 10); }
+  for (const v of ticks(o.y, 4)) { const y = Y(v); line(s, pad.l, y, pad.l + W, y, s.p.grid, 1); text(s, o.y.log ? supNum(Math.round(Math.log10(v))) : (o.y.fmt ? o.y.fmt(v) : sig(v, 3)), pad.l - 5, y + 4, s.p.muted, "right", 10); }
+  text(s, o.x.label, pad.l + W / 2, s.h - 4, s.p.muted, "center", 10.5);
+  text(s, o.y.label, pad.l + 2, pad.t - 5, s.p.muted, "left", 10.5);
+  const g = s.g; g.save(); g.beginPath(); g.rect(pad.l, pad.t - 2, W, Hh + 4); g.clip();
+  for (const v of o.vlines || []) if (v.x !== null && Number.isFinite(v.x) && v.x >= o.x.min && v.x <= o.x.max) line(s, X(v.x), pad.t, X(v.x), pad.t + Hh, v.col, v.width || 1.5, v.dash || [5, 4]);
+  for (const v of o.hlines || []) if (v.y >= o.y.min && v.y <= o.y.max) line(s, pad.l, Y(v.y), pad.l + W, Y(v.y), v.col, v.width || 1.2, v.dash || [5, 4]);
+  for (const se of o.series || []) {
+    const ok = (q) => Number.isFinite(q[0]) && Number.isFinite(q[1]) && (!o.x.log || q[0] > 0) && (!o.y.log || q[1] > 0);
+    if (se.dots) { g.fillStyle = se.col; for (const q of se.pts) if (ok(q)) { g.beginPath(); g.arc(X(q[0]), Y(q[1]), se.r || 3, 0, 7); g.fill(); } continue; }
+    g.strokeStyle = se.col; g.lineWidth = se.width || 2; g.setLineDash(se.dash || []); g.beginPath(); let on = false;
+    for (const q of se.pts) { if (!ok(q) || q.br) { on = false; if (!ok(q)) continue; } const xx = X(q[0]), yy = Math.max(-5e3, Math.min(5e3, Y(q[1]))); if (on) g.lineTo(xx, yy); else { g.moveTo(xx, yy); on = true; } }
+    g.stroke(); g.setLineDash([]);
+  }
+  g.restore(); return { X, Y, pad, W, Hh };
+}
+function legend(s, items, x0, y0) { let x = x0; for (const [label, col, dash] of items) { line(s, x, y0 - 4, x + 18, y0 - 4, col, 2.4, dash || []); text(s, label, x + 22, y0, s.p.muted, "left", 10); s.g.font = "10px Outfit, system-ui, sans-serif"; x += 30 + s.g.measureText(label).width; } }
+
+const R = window.RobotLab;
+let active = "fk";
+
+/* ───────── 1 · İleri kinematik ───────── */
+let wsCache = { key: "", grid: null, img: null };
+function fkCfg() { const third = $("fkThird").checked, L = [num("fkL1"), num("fkL2")], th = [num("fkT1") * D, num("fkT2") * D]; if (third) { L.push(num("fkL3")); th.push(num("fkT3") * D); } return { L, th, third, lim: num("fkLim") * D, cells: Number($("fkCells").value) }; }
+function fkWorkspace(c) {
+  const key = c.L.join(",") + "|" + c.lim + "|" + c.cells;
+  if (wsCache.key !== key) {
+    const grid = R.workspaceGrid(c.L, { lim2: c.lim, cells: c.cells, n: 1000, seed: 1 }), off = document.createElement("canvas"); off.width = off.height = c.cells;
+    wsCache = { key, grid, off, theme: null };
+  }
+  return wsCache;
+}
+function updateFk() {
+  const c = fkCfg();
+  put("fkL1Out", fx(c.L[0], 2) + " m"); put("fkL2Out", fx(c.L[1], 2) + " m"); put("fkL3Out", fx(num("fkL3"), 2) + " m");
+  put("fkT1Out", fx(num("fkT1"), 0) + "°"); put("fkT2Out", fx(num("fkT2"), 0) + "°"); put("fkT3Out", fx(num("fkT3"), 0) + "°"); put("fkLimOut", "±" + fx(num("fkLim"), 0) + "°");
+  $("fkThirdFields").hidden = !c.third;
+  const limited = num("fkLim") < 180, outOfLimit = Math.abs(num("fkT2")) > num("fkLim");
+  const f = R.fk(c.L, c.th), m = R.fkMatrix(c.L, c.th), dp = Math.hypot(f.x - m.x, f.y - m.y), r = Math.hypot(f.x, f.y);
+  const th = R.workspaceTheory(c.L, c.lim), ws = fkWorkspace(c), gr = ws.grid, aj = R.workspaceJacobian(c.L, c.lim);
+  put("fkTrig", pair(f.x, f.y) + " m"); put("fkMat", pair(m.x, m.y) + " m"); put("fkDiff", dp === 0 ? "0 m (aynı bitler)" : sig(dp, 2) + " m");
+  put("fkPhi", deg(f.phi, 1) + " · matris " + deg(m.phi, 1)); put("fkR", fx(r, 4) + " m");
+  put("fkBounds", (th.r === null ? "—" : fx(th.r, 3)) + " … " + fx(th.R, 3) + " m");
+  put("fkArea", fx(gr.area, 4) + " m²"); put("fkAreaTh", th.area === null ? "kapalı biçim yok" : fx(th.area, 4) + " m²"); put("fkAreaDiff", pct(gr.area, th.area));
+  put("fkAreaJ", aj === null ? "yalnız iki bağlantıda" : fx(aj, 4) + " m²"); put("fkAreaJDiff", aj === null ? "—" : pct(aj, th.area, 4));
+  put("fkCell", fx(gr.h * 100, 2) + " cm · " + fx(gr.samples / 1e6, 1) + " milyon");
+  $("fkMatrix").textContent = m.T.map((row) => row.map((v) => fx(v, 4).padStart(8, " ")).join("  ")).join("\n");
+  const st = [];
+  const s2 = Math.sin(c.th[1]);
+  st.push(`Uç noktası iki yoldan aynı çıkıyor: trigonometrik toplam ile ${c.third ? "üç" : "iki"} homojen matrisin çarpımı arasındaki fark ${dp === 0 ? "tam sıfır" : sig(dp, 2) + " m, yani kayan nokta yuvarlaması düzeyinde"}.`);
+  if (Math.abs(s2) < 1e-9) st.push(Math.cos(c.th[1]) > 0 ? "θ₂ = 0°: iki bağlantı aynı doğrultuda, kol gergin. Uç dış sınırda; bu tekil bir duruştur (det J = 0), uç bu anda dışa doğru hiç hareket edemez." : "θ₂ = ±180°: kol kendi üstüne katlanmış, uç iç sınırda. Bu da tekil bir duruştur (det J = 0).");
+  if (outOfLimit) st.push(`Dikkat: θ₂ = ${fx(num("fkT2"), 0)}° seçili dirsek sınırının (±${fx(num("fkLim"), 0)}°) dışında; kol çiziliyor ama boyalı alan bu duruşu içermiyor.`);
+  if (th.area !== null) st.push(`Çalışma alanı: ölçülen ${fx(gr.area, 3)} m², kuram ${fx(th.area, 3)} m² (fark ${pct(gr.area, th.area)}). Fark sınır hücrelerinden gelir: hücre kenarı h = ${fx(gr.h * 100, 2)} cm; ızgarayı inceltince fark kabaca yarıya iner.`);
+  else st.push(`Üç bağlantıda dirsek sınırlıyken alanın basit bir kapalı biçimi yok; ölçülen alan ${fx(gr.area, 3)} m².`);
+  if (aj !== null) st.push(`Jacobian yolu: her iç nokta ±θ₂ ile iki kez kaplandığından alan ½∬|L₁L₂ sin θ₂| dθ₁dθ₂ = ${fx(aj, 4)} m²; kuramla fark ${pct(aj, th.area, 4)}.`);
+  if (!c.third && Math.abs(c.L[0] - c.L[1]) < 1e-9 && !limited) st.push("L₁ = L₂ olduğundan iç boşluk kapandı: kol tabanın kendisine de uzanabilir; alan bir tam disk, πR².");
+  if (c.third) st.push(`Bilek eklendi: dış sınır L₁ + L₂ + L₃ = ${fx(th.R, 2)} m. Bilek, ucun yönelimini (φ) konumdan bağımsız seçmeye yarar; alan formülü yine π(R² − r²), r = max(0, 2·max L − ΣL).`);
+  put("fkStatus", st.join(" "));
+  drawFk(c, f, m, ws, th);
+}
+function drawFk(c, f, m, ws, th) {
+  const s = surface("fkStage"); if (!s) return; const E = th.R * 1.08, v = view(s, E), gr = ws.grid;
+  axesWorld(s, v, E);
+  // Dolu hücreler
+  if (ws.theme !== s.p.fill) { const g2 = ws.off.getContext("2d"), img = g2.createImageData(gr.cells, gr.cells), col = s.light ? [15, 127, 120] : [94, 234, 212]; for (let j = 0; j < gr.cells; j++) for (let i = 0; i < gr.cells; i++) { if (!gr.occ[j * gr.cells + i]) continue; const o = 4 * ((gr.cells - 1 - j) * gr.cells + i); img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 58; } g2.putImageData(img, 0, 0); ws.theme = s.p.fill; }
+  s.g.imageSmoothingEnabled = false; s.g.drawImage(ws.off, v.X(-gr.R), v.Y(gr.R), 2 * gr.R * v.k, 2 * gr.R * v.k);
+  circle(s, v.X(0), v.Y(0), th.R * v.k, s.p.accent, 1.4, [6, 4]); if (th.r) circle(s, v.X(0), v.Y(0), th.r * v.k, s.p.accent, 1.4, [6, 4]);
+  base(s, v);
+  drawArm(s, v, f.pts, s.p.warm, 6);
+  // yerel eksenler: çerçevelerin ilk sütunu
+  m.frames.forEach((T, i) => { if (i === 0) return; const x = T[0][2], y = T[1][2], L = 0.18 * th.R / 1.7; arrow(s, v.X(x), v.Y(y), v.X(x + L * T[0][0]), v.Y(y + L * T[1][0]), s.p.violet, 1.6); });
+  // θ₂ yayı
+  const e = f.pts[1], a0 = c.th[0], r0 = 22, g = s.g; g.strokeStyle = s.p.violet; g.lineWidth = 1.5; g.beginPath(); g.arc(v.X(e[0]), v.Y(e[1]), r0, -a0, -(a0 + c.th[1]), c.th[1] > 0); g.stroke();
+  line(s, v.X(e[0]), v.Y(e[1]), v.X(e[0]) + 34 * Math.cos(-a0), v.Y(e[1]) + 34 * Math.sin(-a0), s.p.violet, 1, [3, 3]);
+  text(s, "θ₂", v.X(e[0]) + 26 * Math.cos(-(a0 + c.th[1] / 2)) + 4, v.Y(e[1]) + 26 * Math.sin(-(a0 + c.th[1] / 2)) + 4, s.p.violet, "left", 11);
+  text(s, `uç (${fx(f.x, 3)}; ${fx(f.y, 3)}) m`, v.X(f.x) + 16, v.Y(f.y) + 18, s.p.ink, "left", 11);
+}
+
+/* ───────── 2 · Ters kinematik ───────── */
+const METHOD_NAME = { jt: "Jacobian devriği", dls: "DLS", newton: "Newton" };
+const STATUS_NAME = { converged: "yakınsadı", stalled: "durdu", maxiter: "2000'de bitti", singular: "tekil J", nan: "sayısal taşma" };
+function ikCfg() { return { L: [num("ikL1"), num("ikL2")], target: [num("ikX"), num("ikY")], th0: [num("ikS1") * D, num("ikS2") * D], method: $("ikMethod").value, lambda: num("ikLambda") }; }
+function updateIk() {
+  const c = ikCfg();
+  put("ikL1Out", fx(c.L[0], 2) + " m"); put("ikL2Out", fx(c.L[1], 2) + " m"); put("ikXOut", fx(c.target[0], 2) + " m"); put("ikYOut", fx(c.target[1], 2) + " m");
+  put("ikS1Out", fx(num("ikS1"), 0) + "°"); put("ikS2Out", fx(num("ikS2"), 0) + "°"); put("ikLambdaOut", fx(c.lambda, 2) + " m");
+  const an = R.ikAnalytic(c.L[0], c.L[1], c.target[0], c.target[1]);
+  const runs = {}; for (const mth of ["jt", "dls", "newton"]) runs[mth] = R.ikNumeric(c.L, c.target, c.th0, { method: mth, lambda: c.lambda });
+  const showSol = (s) => an.anyTheta1 ? "θ₁ keyfi; θ₂ = " + deg(s.th[1], 2) : angPair(s.th);
+  put("ikUp", showSol(an.sols[0]) + (an.reachable ? "" : " *")); put("ikDown", an.single ? "aynı (tek çözüm)" : showSol(an.sols[1]) + (an.reachable ? "" : " *"));
+  const c2raw = (c.target[0] ** 2 + c.target[1] ** 2 - c.L[0] ** 2 - c.L[1] ** 2) / (2 * c.L[0] * c.L[1]);
+  put("ikC2", fx(c2raw, 4) + (Math.abs(c2raw) > 1 ? " (|c₂| > 1)" : ""));
+  const runText = (r) => fx(r.iters, 0) + " · " + sig(r.err, 2) + " m";
+  put("ikJt", runText(runs.jt)); put("ikDls", runText(runs.dls)); put("ikNewton", runs.newton.status === "singular" && runs.newton.iters === 0 ? "başlamadı: det J = 0" : runText(runs.newton));
+  // DLS oranı: yalnız gerçek bir çözüme yakınsadıysa tanımlı
+  const dRate = runs.dls.status === "converged" ? R.convRate(runs.dls.errs) : null, dTh = runs.dls.status === "converged" ? R.dlsRate(c.L, runs.dls.th, c.lambda) : null;
+  put("ikDlsRate", dRate === null ? "—" : sig(dRate, 4)); put("ikDlsRateTh", dTh === null ? "—" : sig(dTh, 4)); put("ikDlsRateDiff", dRate === null ? "—" : pct(dRate, dTh, 1));
+  const q = runs.newton.status === "converged" ? R.convOrder(runs.newton.errs) : null; put("ikOrder", q === null ? "—" : fx(q, 2) + " (kuram 2)");
+  const jr = runs.jt.status === "converged" ? R.convRate(runs.jt.errs) : null; put("ikJtRate", jr === null ? "—" : fx(jr, 3));
+  const sel = runs[c.method];
+  // Bulunan çözümü analitik dallarla karşılaştır
+  const angDist = (a, b) => Math.hypot(R.wrap(a[0] - b[0]), R.wrap(a[1] - b[1])) / D;
+  let pickText = "—", pickIdx = -1, pickD = null;
+  if (sel.status === "converged" || sel.status === "stalled") { const d0 = angDist(sel.th, an.sols[0].th), d1 = angDist(sel.th, an.sols[1].th); pickIdx = d0 <= d1 ? 0 : 1; pickD = Math.min(d0, d1); pickText = (an.single ? "tek çözüm" : pickIdx === 0 ? "dirsek yukarı" : "dirsek aşağı") + ", fark " + sig(pickD, 2) + "°"; if (an.anyTheta1) pickText = "θ₂ = " + deg(sel.th[1], 2) + " (θ₁ keyfi)"; }
+  put("ikPickLabel", METHOD_NAME[c.method] + " hangi çözümü buldu"); put("ikPick", pickText);
+  const st = [];
+  if (an.reachable) {
+    st.push(an.anyTheta1 ? "Hedef tabanın tam üstünde ve L₁ = L₂: kol katlanınca uç tabana değer, θ₁ ne olursa olsun. Sonsuz çözüm var." : an.single ? `Hedef erişim halkasının sınırında: kol ${an.c2 > 0 ? "gergin" : "katlı"}, iki dal tek çözümde birleşir (tekil duruş).` : `Hedef erişilebilir; iki çözüm var: dirsek yukarı ${angPair(an.sols[0].th, 1)}, dirsek aşağı ${angPair(an.sols[1].th, 1)}. İkisi de aynı uç noktayı verir.`);
+    const parts = ["jt", "dls", "newton"].map((k) => `${METHOD_NAME[k]} ${STATUS_NAME[runs[k].status]} (${fx(runs[k].iters, 0)} yineleme)`);
+    st.push("Aynı başlangıçtan: " + parts.join(", ") + ".");
+    if (q !== null) st.push(`Newton'un hatası her adımda kabaca karesine iniyor: ölçülen mertebe ${fx(q, 2)}.`);
+    if (dRate !== null) st.push(`DLS doğrusal yakınsar; son adımda oran ${sig(dRate, 3)}, çözümdeki en küçük tekil değerden beklenen λ²/(σ²+λ²) = ${sig(dTh, 3)}.`);
+    if (runs.newton.status === "singular") st.push("Newton başlamadan durdu: başlangıçta θ₂ = 0, det J = 0 ve J⁻¹ yok. Jᵀ ve DLS tekil noktada da adım atabilir.");
+    if (runs.jt.status !== "converged") st.push(`Jᵀ 2000 yinelemede 10⁻⁹ m'ye inemedi (son hata ${sig(runs.jt.err, 2)} m): hedef tekilliğe yakınken J'nin küçük tekil değeri adımları çok küçültür.`);
+    if (pickIdx >= 0 && !an.single && !an.anyTheta1) st.push(`${METHOD_NAME[c.method]}, başlangıç tahmininin bulunduğu taraftaki ${pickIdx === 0 ? "dirsek yukarı" : "dirsek aşağı"} çözümüne gitti; başlangıç θ₂'nin işaretini değiştirerek öbür dalı dene.`);
+  } else {
+    const where = an.r > an.R ? `en uzak erişim ${fx(an.R, 2)} m, hedef ${fx(an.r, 3)} m uzakta` : `iç boşlukta (r = ${fx(an.r, 3)} m < |L₁ − L₂| = ${fx(an.rmin, 2)} m)`;
+    st.push(`Hedef erişim dışında: ${where}. En yakın erişilebilir nokta (${fx(an.closest[0], 3)}; ${fx(an.closest[1], 3)}) m, uzaklık d = ${fx(an.d, 4)} m; yıldızlı açılar o noktanın çözümüdür (kol ${an.c2 > 0 ? "gergin" : "katlı"}).`);
+    const res = ["jt", "dls", "newton"].map((k) => `${METHOD_NAME[k]} ${sig(runs[k].err, 4)} m (${STATUS_NAME[runs[k].status]})`);
+    st.push("Son hatalar: " + res.join(", ") + ".");
+    const dl = runs.dls; if (Math.abs(dl.err - an.d) > 1e-4 * Math.max(1, an.d)) { let good = null; for (let k = 1; k <= 10 && good === null; k++) { const lam = k / 10; if (lam <= c.lambda + 1e-9) continue; const t = R.ikNumeric(c.L, c.target, c.th0, { method: "dls", lambda: lam }); if (Math.abs(t.err - an.d) < 1e-4 * Math.max(1, an.d)) good = lam; }
+      st.push(`DLS d'ye inmedi: tekilliğin yanında σ ≈ λ olduğunda adım |e|/(2λ) kadar büyür ve kol sıçrar. ` + (good === null ? "λ = 1'e kadar denenen değerler de yetmedi." : `λ'yı büyüt: bu hedefte ve bu başlangıçta denenen değerlerden (0,1 adımla) en küçük işe yarayan λ = ${fx(good, 2)} m.`)); } else st.push("DLS hatayı en kısa uzaklığa indirdi: kol hedefe doğru uzanıp durdu.");
+    if (runs.newton.status !== "converged") st.push("Newton tutarlı bir yere varmaz: hedef dışarıdayken J⁻¹ tekilliğe yaklaştıkça adımlar büyür.");
+  }
+  put("ikStatus", st.join(" "));
+  drawIk(c, an, runs);
+}
+function drawIk(c, an, runs) {
+  const s = surface("ikStage"); if (!s) return; const Rr = c.L[0] + c.L[1], E = Math.max(Rr, Math.hypot(...c.target)) * 1.1, v = view(s, E), g = s.g;
+  axesWorld(s, v, E);
+  g.fillStyle = s.p.ring; g.beginPath(); g.arc(v.X(0), v.Y(0), Rr * v.k, 0, 7); g.moveTo(v.X(0) + an.rmin * v.k, v.Y(0)); g.arc(v.X(0), v.Y(0), an.rmin * v.k, 0, 7); g.fill("evenodd");
+  circle(s, v.X(0), v.Y(0), Rr * v.k, s.p.muted, 1); if (an.rmin > 0) circle(s, v.X(0), v.Y(0), an.rmin * v.k, s.p.muted, 1);
+  base(s, v);
+  drawArm(s, v, R.fk(c.L, c.th0).pts, s.p.muted, 4, true);
+  dashedArm(s, v, R.fk(c.L, an.sols[0].th).pts, s.p.accent); if (!an.single) dashedArm(s, v, R.fk(c.L, an.sols[1].th).pts, s.p.violet);
+  const sel = runs[c.method];
+  g.fillStyle = s.p.warm; for (const q of sel.path) { g.globalAlpha = 0.55; g.beginPath(); g.arc(v.X(q[0]), v.Y(q[1]), 2.2, 0, 7); g.fill(); } g.globalAlpha = 1;
+  if (sel.th.every(Number.isFinite)) drawArm(s, v, R.fk(c.L, sel.th).pts, s.p.warm, 5);
+  // hedef
+  const tx = v.X(c.target[0]), ty = v.Y(c.target[1]); line(s, tx - 9, ty, tx + 9, ty, s.p.red, 2); line(s, tx, ty - 9, tx, ty + 9, s.p.red, 2); circle(s, tx, ty, 6, s.p.red, 1.5);
+  if (!an.reachable) { line(s, tx, ty, v.X(an.closest[0]), v.Y(an.closest[1]), s.p.red, 1.2, [3, 3]); text(s, "d = " + fx(an.d, 3) + " m", (tx + v.X(an.closest[0])) / 2 + 6, (ty + v.Y(an.closest[1])) / 2 - 6, s.p.red, "left", 11); }
+  text(s, "hedef", tx + 10, ty - 10, s.p.red, "left", 11);
+  // grafik
+  const ch = surface("ikConv"); if (!ch) return;
+  const all = ["jt", "dls", "newton"].map((k) => runs[k]), maxIt = Math.max(10, ...all.map((r) => r.errs.length));
+  const xmax = 10 ** Math.ceil(Math.log10(maxIt + 1));
+  const series = [["jt", ch.p.warm], ["dls", ch.p.accent], ["newton", ch.p.violet]].map(([k, col]) => ({ pts: runs[k].errs.map((e, i) => [i + 1, Math.max(1e-16, e)]), col, width: k === c.method ? 3 : 1.4 }));
+  const hl = [{ y: 1e-9, col: ch.p.muted }]; if (!an.reachable) hl.push({ y: an.d, col: ch.p.red });
+  plot(ch, { x: { min: 1, max: xmax, log: true, label: "yineleme + 1" }, y: { min: 1e-16, max: 10, log: true, label: "|e| / m" }, series, hlines: hl });
+  legend(ch, [["Jᵀ", ch.p.warm], ["DLS", ch.p.accent], ["Newton", ch.p.violet]], ch.w - 190, 14);
+}
+
+/* ───────── 3 · Jacobian ───────── */
+function jacCfg() { return { L: [num("jacL1"), num("jacL2")], th: [num("jacT1") * D, num("jacT2") * D], dir: $("jacDir").value, sp: num("jacV"), F: [num("jacFx"), num("jacFy")] }; }
+function velVec(L, th, dir, sp) {
+  if (dir === "x") return [sp, 0]; if (dir === "y") return [0, sp];
+  const p = R.fk(L, th), r = Math.hypot(p.x, p.y); const u = r > 1e-12 ? [p.x / r, p.y / r] : [1, 0];
+  if (dir === "in") return [-sp * u[0], -sp * u[1]]; if (dir === "out") return [sp * u[0], sp * u[1]]; return [-sp * u[1], sp * u[0]];
+}
+function updateJac() {
+  const c = jacCfg();
+  put("jacL1Out", fx(c.L[0], 2) + " m"); put("jacL2Out", fx(c.L[1], 2) + " m"); put("jacT1Out", fx(num("jacT1"), 0) + "°"); put("jacT2Out", fx(num("jacT2"), 0) + "°");
+  put("jacVOut", fx(c.sp, 2) + " m/s"); put("jacFxOut", fx(c.F[0], 1) + " N"); put("jacFyOut", fx(c.F[1], 1) + " N");
+  const J = R.jacobian(c.L, c.th), JF = R.jacobianFD(c.L, c.th), detTh = c.L[0] * c.L[1] * Math.sin(c.th[1]), detFd = R.det2(JF), mp = R.manipulability(c.L, c.th);
+  const singular = Math.abs(Math.sin(c.th[1])) < 1e-9;
+  let jd = 0; for (let i = 0; i < 2; i++) for (let k = 0; k < 2; k++) jd = Math.max(jd, Math.abs(J[i][k] - JF[i][k]));
+  put("jacDetTh", fx(singular ? 0 : detTh, 4) + " m²"); put("jacDetFd", fx(detFd, 4) + " m²"); put("jacJDiff", sig(jd, 2) + " m");
+  put("jacSig", fx(mp.s1, 4) + " · " + fx(mp.s2, 4) + " m");
+  put("jacArea", fx(mp.areaPoly, 4) + " m²"); put("jacAreaTh", fx(Math.PI * Math.abs(singular ? 0 : mp.det), 4) + " m²");
+  put("jacCond", singular ? "∞ (tekil)" : sig(mp.s1 / mp.s2, 4));
+  const v = velVec(c.L, c.th, c.dir, c.sp), rt = singular ? null : R.jointRates(c.L, c.th, v), rm = singular ? null : R.jointRatesIK(c.L, c.th, v);
+  const ratePair = (q) => q === null ? "—" : "(" + fx(q[0], 3) + "; " + fx(q[1], 3) + ") rad/s";
+  put("jacRate", singular ? "tanımsız: det J = 0" : ratePair(rt)); put("jacRateMeas", rm === null ? (singular ? "tanımsız" : "—") : ratePair(rm));
+  put("jacRateDiff", rt && rm ? pct(Math.hypot(...rm), Math.hypot(...rt), 4) : "—");
+  const tau = R.staticTorque(c.L, c.th, c.F), tvw = R.virtualWorkTorque(c.L, c.th, c.F);
+  put("jacTau", "(" + fx(tau[0], 3) + "; " + fx(tau[1], 3) + ") N·m"); put("jacTauMeas", "(" + fx(tvw[0], 3) + "; " + fx(tvw[1], 3) + ") N·m");
+  const st = [];
+  const p = R.fk(c.L, c.th), r = Math.hypot(p.x, p.y);
+  st.push(`J analitik ve sonlu farklarla aynı (en büyük öğe farkı ${sig(jd, 2)} m). det J = L₁L₂ sin θ₂ = ${fx(detTh, 4)} m²; elips alanı ${fx(mp.areaPoly, 4)} m² = π|det J|.`);
+  if (singular) {
+    st.push(Math.cos(c.th[1]) > 0 ? "Kol gergin (θ₂ = 0°): elips bir doğru parçasına çöktü, uç yalnız tabanın çevresinde (teğet) hareket edebilir. Radyal bir hız için hiçbir sonlu eklem hızı yetmez; J⁻¹ yok." : "Kol katlı (θ₂ = 180°): elips bir doğru parçasına çöktü; uç radyal yönde hareket edemez, J⁻¹ yok.");
+    st.push(`Kuvvet tarafında tersi olur: radyal bir kuvveti yapı tek başına taşır. Şu anki τ = (${fx(tau[0], 3)}; ${fx(tau[1], 3)}) N·m.`);
+  } else {
+    const n = Math.hypot(...rt), s2 = Math.abs(Math.sin(c.th[1]));
+    st.push(`İstenen uç hızı ${fx(c.sp, 2)} m/s için gereken eklem hızı |θ′| = ${fx(n, 3)} rad/s; ters kinematikle ölçülen ${fx(Math.hypot(...rm), 3)} rad/s (fark ${pct(Math.hypot(...rm), n, 4)}).`);
+    if (c.dir === "in" || c.dir === "out") st.push(`Radyal yönde θ′₂ = ∓r·|v|/(L₁L₂ sin θ₂) = ${fx(-Math.sign(Math.sin(c.th[1])) * (c.dir === "in" ? -1 : 1) * r * c.sp / (c.L[0] * c.L[1] * s2), 3)} rad/s: sin θ₂ küçüldükçe büyür. θ₂ = 2°'de bu değer, 60°'dekinin yaklaşık ${fx(Math.sin(60 * D) / Math.sin(2 * D) * Math.sqrt(c.L[0] ** 2 + c.L[1] ** 2 + 2 * c.L[0] * c.L[1] * Math.cos(2 * D)) / Math.sqrt(c.L[0] ** 2 + c.L[1] ** 2 + 2 * c.L[0] * c.L[1] * Math.cos(60 * D)), 0)} katıdır.`);
+    if (mp.s1 / mp.s2 > 20) st.push(`Koşul sayısı ${sig(mp.s1 / mp.s2, 3)}: tekilliğe yakınsın. Elipsin dar ekseni boyunca hareket için eklemler çok hızlı dönmeli.`);
+    if (c.dir === "tan") st.push("Teğet yön tekillikte bile mümkündür; bu yüzden eğri θ₂ → 0'da sonlu kalır, yalnız katlı duruşa yaklaşırken (L₁ ≠ L₂) büyür.");
+  }
+  st.push(`Statik: τ = JᵀF = (${fx(tau[0], 3)}; ${fx(tau[1], 3)}) N·m; sanal işle ölçülen (${fx(tvw[0], 3)}; ${fx(tvw[1], 3)}) N·m. Hız ve kuvvet aynı matrisle, biri J, öbürü Jᵀ ile taşınır.`);
+  put("jacStatus", st.join(" "));
+  drawJac(c, J, mp, v, p);
+}
+function drawJac(c, J, mp, v, p) {
+  const s = surface("jacStage"); if (!s) return; const Rr = c.L[0] + c.L[1], E = Math.max(Math.hypot(p.x, p.y) / 2 + mp.s1, Rr * 0.7) * 1.08, w = view(s, E, p.x / 2, p.y / 2), g = s.g;
+  axesWorld(s, w, E); circle(s, w.X(0), w.Y(0), Rr * w.k, s.p.muted, 1, [4, 4]); base(s, w);
+  const pts = R.fk(c.L, c.th).pts; drawArm(s, w, pts, s.p.warm, 6);
+  g.fillStyle = s.p.fill; g.strokeStyle = s.p.accent; g.lineWidth = 1.8; g.beginPath(); mp.pts.forEach((q, i) => { const x = w.X(p.x + q[0]), y = w.Y(p.y + q[1]); if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.closePath(); g.fill(); g.stroke();
+  // yarı eksenler
+  const a = mp.angle; line(s, w.X(p.x - mp.s1 * Math.cos(a)), w.Y(p.y - mp.s1 * Math.sin(a)), w.X(p.x + mp.s1 * Math.cos(a)), w.Y(p.y + mp.s1 * Math.sin(a)), s.p.accent, 1, [3, 3]);
+  line(s, w.X(p.x + mp.s2 * Math.sin(a)), w.Y(p.y - mp.s2 * Math.cos(a)), w.X(p.x - mp.s2 * Math.sin(a)), w.Y(p.y + mp.s2 * Math.cos(a)), s.p.accent, 1, [3, 3]);
+  arrow(s, w.X(p.x), w.Y(p.y), w.X(p.x + 2 * v[0]), w.Y(p.y + 2 * v[1]), s.p.warm, 2.6);
+  arrow(s, w.X(p.x), w.Y(p.y), w.X(p.x + 0.02 * c.F[0]), w.Y(p.y + 0.02 * c.F[1]), s.p.violet, 2.6);
+  text(s, "σ₁ = " + fx(mp.s1, 3) + " m/rad · σ₂ = " + fx(mp.s2, 3) + " m/rad", 8, 16, s.p.accent, "left", 11);
+  text(s, "v", w.X(p.x + 2 * v[0]) + 6, w.Y(p.y + 2 * v[1]) - 4, s.p.warm, "left", 12); text(s, "F", w.X(p.x + 0.02 * c.F[0]) + 6, w.Y(p.y + 0.02 * c.F[1]) + 12, s.p.violet, "left", 12);
+  // grafik
+  const ch = surface("jacChart"); if (!ch) return; const curve = [], dots = [];
+  for (let d = -179.5; d <= 179.5; d += 0.5) { if (Math.abs(d) < 0.25) { curve.push([0, NaN]); continue; } const th = [c.th[0], d * D], vv = velVec(c.L, th, c.dir, c.sp), q = R.jointRates(c.L, th, vv); const pnt = [d, q ? Math.hypot(...q) : NaN]; if (d === 0.5) pnt.br = true; curve.push(pnt); }
+  for (let d = -170; d <= 170; d += 10) { if (d === 0) continue; const th = [c.th[0], d * D], vv = velVec(c.L, th, c.dir, c.sp), q = R.jointRatesIK(c.L, th, vv); if (q) dots.push([d, Math.hypot(...q)]); }
+  const ys = curve.map((q) => q[1]).filter((y) => Number.isFinite(y) && y > 0), ymin = 10 ** Math.floor(Math.log10(Math.min(...ys))), ymax = 10 ** Math.ceil(Math.log10(Math.max(...ys)));
+  plot(ch, { x: { min: -180, max: 180, label: "θ₂ / derece", ticks: [-180, -90, 0, 90, 180], fmt: (x) => fx(x, 0) }, y: { min: ymin, max: Math.max(ymax, ymin * 100), log: true, label: "|θ′| / (rad/s)" }, series: [{ pts: curve, col: ch.p.accent, width: 2 }, { pts: dots, col: ch.p.warm, dots: true, r: 3.2 }], vlines: [{ x: c.th[1] / D, col: ch.p.violet }, { x: 0, col: ch.p.red, dash: [2, 3], width: 1 }, { x: -180, col: ch.p.red, dash: [2, 3], width: 1 }, { x: 180, col: ch.p.red, dash: [2, 3], width: 1 }] });
+}
+
+/* ───────── 4 · Yörünge ───────── */
+const TR_L = [1, 0.7];
+let anim = { on: false, t: 0, last: 0 }, lastTraj = null;
+function trCfg() { return { A: [num("trAx"), num("trAy")], B: [num("trBx"), num("trBy")], branch: $("trBranch").value, type: $("trProfile").value, T: num("trT"), w: num("trW"), obs: $("trObs").checked ? { x: num("trOx"), y: num("trOy"), r: num("trOr") } : null }; }
+function updateTraj() {
+  const c = trCfg();
+  for (const id of ["trAx", "trAy", "trBx", "trBy", "trOx", "trOy", "trOr"]) put(id + "Out", fx(num(id), 2) + " m");
+  put("trTOut", fx(c.T, 1) + " s"); put("trWOut", fx(c.w, 1) + " rad/s"); $("trObsFields").hidden = !c.obs;
+  const tr = R.trajectory({ L: TR_L, A: c.A, B: c.B, branch: c.branch, T: c.T, type: c.type, obstacle: c.obs });
+  lastTraj = { c, tr };
+  const ids = ["trDth", "trVPk", "trVPkTh", "trAPk", "trAPkTh", "trEnds", "trA0", "trDev", "trDevC", "trCPk", "trTmin", "trClear"];
+  if (!tr.ok) { ids.forEach((id) => put(id, "—")); put("trStatus", `${tr.reason} noktası erişim halkasının dışında (0,30 m ≤ r ≤ 1,70 m olmalı); yörünge kurulamaz. Noktayı halkaya taşı.`); anim.on = false; put("trPlay", "Oynat"); drawTraj(c, tr); return; }
+  const P = R.PROFILE[c.type], j = Math.abs(tr.dth[0]) >= Math.abs(tr.dth[1]) ? 0 : 1, kvTxt = fx(P.kv, 3).replace(/0+$/, "").replace(/,$/, ""), mt = R.minTime(tr, c.w);
+  put("trVPkThLabel", "Kuram " + kvTxt + "·|Δθ|/T (θ" + (j ? "₂" : "₁") + ")"); put("trAPkThLabel", "Kuram " + (c.type === "cubic" ? "6" : "5,774") + "·|Δθ|/T² (θ" + (j ? "₂" : "₁") + ")");
+  put("trDth", deg(tr.dth[0], 2) + " · " + deg(tr.dth[1], 2));
+  put("trVPk", fx(tr.peak.jv[j], 4) + " rad/s"); put("trVPkTh", fx(tr.theory.vPeak[j], 4) + " rad/s");
+  put("trAPk", fx(tr.peak.ja[j], 4) + " rad/s²"); put("trAPkTh", fx(tr.theory.aPeak[j], 4) + " rad/s²");
+  put("trEnds", fx(tr.ends.v0[j], 4) + " · " + fx(tr.ends.vT[j], 4) + " rad/s");
+  put("trA0", fx(tr.ends.a0[j], 3) + " rad/s² (kuram " + fx(tr.theory.a0[j], 3) + ")");
+  put("trDev", fx(tr.devJ * 100, 1) + " cm (t = " + fx(tr.devJt, 2) + " s)");
+  const cartOk = tr.cart.bad < 0;
+  put("trDevC", cartOk ? sig(tr.devC, 2) + " m" : "—");
+  put("trCPk", cartOk ? "(" + fx(tr.peak.cv[0], 3) + "; " + fx(tr.peak.cv[1], 3) + ") rad/s" : "erişim dışı");
+  put("trTmin", fx(mt.joint, 2) + " s · " + (cartOk ? fx(mt.cart, 2) + " s" : "—"));
+  const cl = (k) => { const q = tr.coll[k]; if (!q) return "engel yok"; return q.first >= 0 ? "çarpışma t = " + fx(q.tFirst, 2) + " s" : fx(q.clear * 100, 1) + " cm"; };
+  put("trClear", c.obs ? cl("joint") + " · " + (cartOk ? cl("cart") : "—") : "engel yok");
+  const st = [];
+  st.push(`Eklem uzayında doğrusal yol: Δθ₁ = ${deg(tr.dth[0], 1)}, Δθ₂ = ${deg(tr.dth[1], 1)}, ikisi aynı ${c.type === "cubic" ? "kübik" : "beşinci derece"} s(t) ile. Ölçülen tepe hız ${fx(tr.peak.jv[j], 4)} rad/s, kuram ${kvTxt}·|Δθ|/T = ${fx(tr.theory.vPeak[j], 4)} rad/s (fark ${pct(tr.peak.jv[j], tr.theory.vPeak[j], 3)}).`);
+  st.push(c.type === "cubic" ? `Hız uçlarda sıfır, ama ivme t = 0'da birden ${fx(tr.ends.a0[j], 2)} rad/s²'ye sıçrar (sonsuz sarsıntı); beşinci derece profil bunu da sıfırlar.` : `Beşinci derecede hız da ivme de uçlarda sıfır (ölçülen θ″(0) = ${fx(tr.ends.a0[j], 3)} rad/s²); bedeli daha yüksek tepe hız: k<sub>v</sub> 1,5 yerine 1,875.`.replace(/<\/?sub>/g, ""));
+  st.push(`Uç, A ile B arasındaki doğrudan en çok ${fx(tr.devJ * 100, 1)} cm sapıyor; uç yolu ${fx(tr.lenJ, 3)} m, doğru ${fx(tr.lenAB, 3)} m.`);
+  if (cartOk) st.push(`Kartezyen doğru tam düz (sapma ${sig(tr.devC, 2)} m), ama eklemlerden tepe ${fx(Math.max(...tr.peak.cv), 3)} rad/s istiyor.`);
+  else st.push(`Kartezyen doğru t = ${fx(tr.cart.tBad, 2)} s'de iç boşluğa (r < 0,30 m) giriyor: bu doğru izlenemez; ters kinematik orada en yakın noktaya çözüyor, çizim o kesimde geçersiz.`);
+  const over = (tmin) => tmin > c.T + 1e-9;
+  st.push(`Hız sınırı ${fx(c.w, 1)} rad/s için en kısa süre: eklem yolu ${fx(mt.joint, 2)} s ${over(mt.joint) ? "(seçili T = " + fx(c.T, 1) + " s yetmiyor)" : "(T yeterli)"}` + (cartOk ? `, Kartezyen yol ${fx(mt.cart, 2)} s ${over(mt.cart) ? "(T yetmiyor)" : "(T yeterli)"}.` : "."));
+  if (cartOk && Math.max(...tr.peak.cv) > 3 * Math.max(...tr.peak.jv)) st.push("Kartezyen doğru katlı kol tekilliğine (iç sınır) yakın geçiyor: orada sabit uç hızı çok büyük eklem hızı ister.");
+  if (c.obs) {
+    if (Math.hypot(c.obs.x, c.obs.y) < c.obs.r) st.push("Engel tabanın üstünde: her duruş çarpışır.");
+    const jc = tr.coll.joint, cc = tr.coll.cart;
+    st.push(`Engel: eklem yolu ${jc.first >= 0 ? `t = ${fx(jc.tFirst, 2)} s'de ${jc.link ? "ikinci" : "birinci"} bağlantıyla çarpışıyor` : `en yakın ${fx(jc.clear * 100, 1)} cm ile geçiyor`}; Kartezyen yol ${!cartOk ? "geçersiz" : cc.first >= 0 ? `t = ${fx(cc.tFirst, 2)} s'de ${cc.link ? "ikinci" : "birinci"} bağlantıyla çarpışıyor` : `en yakın ${fx(cc.clear * 100, 1)} cm ile geçiyor`}. (Öğretim modeli: kalınlıksız bağlantılar, 801 anlık denetim.)`);
+  }
+  put("trStatus", st.join(" "));
+  drawTraj(c, tr);
+}
+function drawTraj(c, tr) {
+  const s = surface("trajStage"); if (!s) return; const E = 1.9, v = view(s, E), g = s.g;
+  axesWorld(s, v, E);
+  g.fillStyle = s.p.ring; g.beginPath(); g.arc(v.X(0), v.Y(0), 1.7 * v.k, 0, 7); g.moveTo(v.X(0) + 0.3 * v.k, v.Y(0)); g.arc(v.X(0), v.Y(0), 0.3 * v.k, 0, 7); g.fill("evenodd");
+  base(s, v);
+  if (c.obs) { g.fillStyle = s.p.obs; g.beginPath(); g.arc(v.X(c.obs.x), v.Y(c.obs.y), c.obs.r * v.k, 0, 7); g.fill(); circle(s, v.X(c.obs.x), v.Y(c.obs.y), c.obs.r * v.k, s.p.red, 1.6); text(s, "engel", v.X(c.obs.x) + c.obs.r * v.k + 4, v.Y(c.obs.y) + 4, s.p.red, "left", 10.5); }
+  line(s, v.X(c.A[0]), v.Y(c.A[1]), v.X(c.B[0]), v.Y(c.B[1]), s.p.muted, 1, [3, 4]);
+  if (tr.ok) {
+    const path = (pts, col, dash) => { g.strokeStyle = col; g.lineWidth = 2.4; g.setLineDash(dash); g.beginPath(); pts.forEach((q, i) => { const x = v.X(q[2][0]), y = v.Y(q[2][1]); if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.stroke(); g.setLineDash([]); };
+    path(tr.joint.pts, s.p.accent, []); path(tr.cart.pts, s.p.warm, tr.cart.bad >= 0 ? [4, 4] : []);
+    const k = Math.min(tr.n, Math.max(0, Math.round(anim.t / tr.dt)));
+    drawArm(s, v, tr.joint.pts[k], s.p.accent, 5); drawArm(s, v, tr.cart.pts[k], s.p.warm, 5);
+    for (const key of ["joint", "cart"]) { const q = tr.coll[key]; if (q && q.first >= 0 && !(key === "cart" && tr.cart.bad >= 0)) { const pp = tr[key].pts[q.first]; const a = pp[q.link], b = pp[q.link + 1]; line(s, v.X(a[0]), v.Y(a[1]), v.X(b[0]), v.Y(b[1]), s.p.red, 3); const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; circle(s, v.X(m[0]), v.Y(m[1]), 7, s.p.red, 2); } }
+    text(s, "t = " + fx(k * tr.dt, 2) + " s", s.w - 10, 16, s.p.ink, "right", 11);
+  }
+  for (const [p, lab] of [[c.A, "A"], [c.B, "B"]]) { dot(s, v.X(p[0]), v.Y(p[1]), 6, s.p.ink); text(s, lab, v.X(p[0]) + 9, v.Y(p[1]) - 8, s.p.ink, "left", 13); }
+  legend(s, [["eklem uzayı yolu", s.p.accent], ["Kartezyen doğru", s.p.warm]], 10, 16);
+  if (!tr.ok) return;
+  // θ₁–θ₂ düzlemi
+  const sj = surface("trajJoint");
+  if (sj) {
+    const jp = tr.joint.th[0].map((a, i) => [a / D, tr.joint.th[1][i] / D]), cp = tr.cart.th[0].map((a, i) => [a / D, tr.cart.th[1][i] / D]);
+    const xs = jp.concat(cp).map((q) => q[0]), ys = jp.concat(cp).map((q) => q[1]);
+    const pad = (lo, hi) => { const m = Math.max(10, (hi - lo) * 0.1); return [Math.floor((lo - m) / 10) * 10, Math.ceil((hi + m) / 10) * 10]; };
+    const [x0, x1] = pad(Math.min(...xs), Math.max(...xs)), [y0, y1] = pad(Math.min(...ys), Math.max(...ys)), step = Math.round(tr.n / 10);
+    plot(sj, { x: { min: x0, max: x1, label: "θ₁ / derece", fmt: (x) => fx(x, 0) }, y: { min: y0, max: y1, label: "θ₂ / derece", fmt: (x) => fx(x, 0) }, series: [{ pts: jp, col: sj.p.accent, width: 2.4 }, { pts: cp, col: sj.p.warm, width: 2.4, dash: tr.cart.bad >= 0 ? [4, 4] : [] }, { pts: jp.filter((_, i) => i % step === 0), col: sj.p.accent, dots: true }, { pts: cp.filter((_, i) => i % step === 0), col: sj.p.warm, dots: true }] });
+  }
+  const sv = surface("trajVel");
+  if (sv) {
+    const T = c.T, mk = (arr) => arr.map((y, i) => [tr.t[i], y]), all = [...tr.joint.v[0], ...tr.joint.v[1], ...(tr.cart.bad < 0 ? [...tr.cart.v[0], ...tr.cart.v[1]] : []), c.w, -c.w].map(Math.abs), ym = Math.min(12, Math.max(...all) * 1.12);
+    const series = [{ pts: mk(tr.joint.v[0]), col: sv.p.accent }, { pts: mk(tr.joint.v[1]), col: sv.p.violet }];
+    if (tr.cart.bad < 0) series.push({ pts: mk(tr.cart.v[0]), col: sv.p.accent, dash: [6, 4], width: 1.6 }, { pts: mk(tr.cart.v[1]), col: sv.p.violet, dash: [6, 4], width: 1.6 });
+    plot(sv, { x: { min: 0, max: T, label: "t / s", fmt: (x) => fx(x, 1) }, y: { min: -ym, max: ym, label: "θ′ / (rad/s)", fmt: (x) => fx(x, 1) }, series, hlines: [{ y: c.w, col: sv.p.red }, { y: -c.w, col: sv.p.red }, { y: 0, col: sv.p.muted, dash: [], width: 0.8 }], vlines: [{ x: anim.t, col: sv.p.muted, dash: [2, 3], width: 1 }] });
+    legend(sv, [["θ′₁", sv.p.accent], ["θ′₂", sv.p.violet], ["Kartezyen", sv.p.muted, [6, 4]]], sv.w - 200, 14);
+  }
+  const sa = surface("trajAcc");
+  if (sa) {
+    const T = c.T, P = R.PROFILE[c.type], mk = (arr) => arr.map((y, i) => [tr.t[i], y]), ym = Math.max(...tr.joint.a[0].map(Math.abs), ...tr.joint.a[1].map(Math.abs), 1e-6) * 1.15;
+    const ana = (k) => { const out = []; for (let i = 0; i <= 20; i++) { const u = i / 20; out.push([u * T, P.a(u) * tr.dth[k] / (T * T)]); } return out; };
+    // dinlenme kesimleri: t < 0 ve t > T'de ivme sıfır (grafik yalnız [0, T])
+    plot(sa, { x: { min: 0, max: T, label: "t / s", fmt: (x) => fx(x, 1) }, y: { min: -ym, max: ym, label: "θ″ / (rad/s²)", fmt: (x) => fx(x, 1) }, series: [{ pts: mk(tr.joint.a[0]), col: sa.p.accent }, { pts: mk(tr.joint.a[1]), col: sa.p.violet }, { pts: ana(0), col: sa.p.accent, dots: true, r: 3 }, { pts: ana(1), col: sa.p.violet, dots: true, r: 3 }], hlines: [{ y: 0, col: sa.p.muted, dash: [], width: 0.8 }] });
+  }
+}
+function animFrame(now) {
+  if (!anim.on) return;
+  if (!anim.last) anim.last = now; const el = Math.min(0.05, (now - anim.last) / 1000); anim.last = now;
+  if (active === "traj" && lastTraj && lastTraj.tr.ok) { anim.t += el; if (anim.t >= lastTraj.c.T) { anim.t = lastTraj.c.T; anim.on = false; put("trPlay", "Yeniden oynat"); } drawTraj(lastTraj.c, lastTraj.tr); }
+  if (anim.on) requestAnimationFrame(animFrame);
+}
+
+/* ───────── İşaretçi ve klavye ───────── */
+function stageView(id, E) { const c = $(id), r = c.getBoundingClientRect(); return view({ w: r.width, h: r.height }, E); }
+function evPos(e) { const r = e.currentTarget.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+function clampSet(id, val) { const e = $(id), st = Number(e.step), mn = Number(e.min), mx = Number(e.max); let v = Math.round((val - mn) / st) * st + mn; v = Math.max(mn, Math.min(mx, v)); e.value = String(Number(v.toFixed(6))); }
+let drag = null;
+/* Telefonda: yalnız eklemlere, hedefe ya da A/B/engel noktalarına değen parmak sürükler;
+   tuvalin geri kalanında parmak sayfayı kaydırır. Hedef tuvalinde boş yere dokunup bırakmak
+   hedefi oraya taşır. */
+const touchy = (e) => e.pointerType === "touch" && window.AcelyaTouch?.isCoarse();
+function localPt(id, cx, cy) { const r = $(id).getBoundingClientRect(); return [cx - r.left, cy - r.top]; }
+function fkHit(cx, cy) {
+  const c = fkCfg(), v = stageView("fkStage", R.workspaceTheory(c.L, c.lim).R * 1.08), [px, py] = localPt("fkStage", cx, cy), pts = R.fk(c.L, c.th).pts;
+  return pts.some((q, i) => i && Math.hypot(v.X(q[0]) - px, v.Y(q[1]) - py) < 26);
+}
+function ikHit(cx, cy) {
+  const c = ikCfg(), E = Math.max(c.L[0] + c.L[1], Math.hypot(...c.target)) * 1.1, v = stageView("ikStage", E), [px, py] = localPt("ikStage", cx, cy);
+  return Math.hypot(v.X(c.target[0]) - px, v.Y(c.target[1]) - py) < 32;
+}
+function trajHit(cx, cy) {
+  const c = trCfg(), v = stageView("trajStage", 1.9), [px, py] = localPt("trajStage", cx, cy), cand = [c.A, c.B]; if (c.obs) cand.push([c.obs.x, c.obs.y]);
+  return cand.some((p) => Math.hypot(v.X(p[0]) - px, v.Y(p[1]) - py) < 28);
+}
+window.AcelyaTouch?.guard($("fkStage"), fkHit);
+window.AcelyaTouch?.guard($("ikStage"), ikHit);
+window.AcelyaTouch?.guard($("trajStage"), trajHit);
+window.AcelyaTouch?.guard($("jacStage"));
+let ikTap = null;
+// 1: eklem sürükleme
+$("fkStage").addEventListener("pointerdown", (e) => {
+  const c = fkCfg(), v = stageView("fkStage", R.workspaceTheory(c.L, c.lim).R * 1.08), [px, py] = evPos(e), pts = R.fk(c.L, c.th).pts;
+  let best = -1, bd = 26; pts.forEach((q, i) => { if (!i) return; const d = Math.hypot(v.X(q[0]) - px, v.Y(q[1]) - py); if (d < bd) { bd = d; best = i; } });
+  if (best < 0) return; drag = { tab: "fk", idx: best }; e.currentTarget.setPointerCapture(e.pointerId);
+});
+$("fkStage").addEventListener("pointermove", (e) => {
+  if (!drag || drag.tab !== "fk") return; const c = fkCfg(), v = stageView("fkStage", R.workspaceTheory(c.L, c.lim).R * 1.08), w = v.inv(...evPos(e)), pts = R.fk(c.L, c.th).pts, i = drag.idx;
+  const a = Math.atan2(w[1] - pts[i - 1][1], w[0] - pts[i - 1][0]); let prev = 0; for (let k = 0; k < i - 1; k++) prev += c.th[k];
+  clampSet(["fkT1", "fkT2", "fkT3"][i - 1], Math.round(R.wrap(a - prev) / D)); render();
+});
+for (const ev of ["pointerup", "pointercancel"]) for (const id of ["fkStage", "ikStage", "trajStage"]) $(id).addEventListener(ev, () => { drag = null; });
+// 2: hedef
+function ikSetFromEvent(e) { const c = ikCfg(), E = Math.max(c.L[0] + c.L[1], Math.hypot(...c.target)) * 1.1, w = stageView("ikStage", drag ? drag.E : E).inv(...evPos(e)); clampSet("ikX", w[0]); clampSet("ikY", w[1]); render(); }
+$("ikStage").addEventListener("pointerup", (e) => {
+  if (!ikTap || ikTap.id !== e.pointerId) return; const t = ikTap; ikTap = null;
+  if (Math.hypot(e.clientX - t.x, e.clientY - t.y) <= 10) ikSetFromEvent(e);
+});
+$("ikStage").addEventListener("pointercancel", () => { ikTap = null; });
+$("ikStage").addEventListener("pointerdown", (e) => { if (touchy(e) && !ikHit(e.clientX, e.clientY)) { ikTap = { id: e.pointerId, x: e.clientX, y: e.clientY }; return; } const c = ikCfg(); drag = { tab: "ik", E: Math.max(c.L[0] + c.L[1], Math.hypot(...c.target)) * 1.1 }; e.currentTarget.setPointerCapture(e.pointerId); ikSetFromEvent(e); });
+$("ikStage").addEventListener("pointermove", (e) => { if (drag && drag.tab === "ik") ikSetFromEvent(e); });
+// 4: A, B, engel
+$("trajStage").addEventListener("pointerdown", (e) => {
+  const c = trCfg(), v = stageView("trajStage", 1.9), [px, py] = evPos(e), cand = [["A", c.A], ["B", c.B]]; if (c.obs) cand.push(["O", [c.obs.x, c.obs.y]]);
+  let best = null, bd = 28; for (const [k, p] of cand) { const d = Math.hypot(v.X(p[0]) - px, v.Y(p[1]) - py); if (d < bd) { bd = d; best = k; } }
+  if (!best) return; drag = { tab: "traj", key: best }; e.currentTarget.setPointerCapture(e.pointerId);
+});
+$("trajStage").addEventListener("pointermove", (e) => {
+  if (!drag || drag.tab !== "traj") return; const w = stageView("trajStage", 1.9).inv(...evPos(e)), ids = { A: ["trAx", "trAy"], B: ["trBx", "trBy"], O: ["trOx", "trOy"] }[drag.key];
+  clampSet(ids[0], w[0]); clampSet(ids[1], w[1]); anim.t = 0; render();
+});
+function nudge(id, d) { clampSet(id, num(id) + d); render(); }
+$("fkStage").addEventListener("keydown", (e) => { const m = { ArrowLeft: ["fkT1", -1], ArrowRight: ["fkT1", 1], ArrowUp: ["fkT2", 1], ArrowDown: ["fkT2", -1] }[e.key]; if (m) { e.preventDefault(); nudge(...m); } });
+$("ikStage").addEventListener("keydown", (e) => { const s = e.shiftKey ? 0.1 : 0.01, m = { ArrowLeft: ["ikX", -s], ArrowRight: ["ikX", s], ArrowUp: ["ikY", s], ArrowDown: ["ikY", -s] }[e.key]; if (m) { e.preventDefault(); nudge(...m); } });
+$("jacStage").addEventListener("keydown", (e) => { const m = { ArrowLeft: ["jacT1", -1], ArrowRight: ["jacT1", 1], ArrowUp: ["jacT2", 1], ArrowDown: ["jacT2", -1] }[e.key]; if (m) { e.preventDefault(); nudge(...m); } });
+$("trajStage").addEventListener("keydown", (e) => { const m = { ArrowLeft: ["trBx", -0.05], ArrowRight: ["trBx", 0.05], ArrowUp: ["trBy", 0.05], ArrowDown: ["trBy", -0.05] }[e.key]; if (m) { e.preventDefault(); anim.t = 0; nudge(...m); } });
+
+/* ───────── Sekmeler, sıfırlama, olaylar ───────── */
+const defaults = {
+  fk: { fkL1: 1, fkL2: 0.7, fkT1: 40, fkT2: 60, fkThird: false, fkL3: 0.3, fkT3: -30, fkLim: 180, fkCells: "240" },
+  ik: { ikL1: 1, ikL2: 0.7, ikX: 1.2, ikY: 0.6, ikS1: 0, ikS2: 30, ikMethod: "dls", ikLambda: 0.1 },
+  jac: { jacL1: 1, jacL2: 0.7, jacT1: 30, jacT2: 60, jacDir: "in", jacV: 0.2, jacFx: 0, jacFy: -10 },
+  traj: { trAx: 1.4, trAy: -0.3, trBx: -0.2, trBy: 1.3, trBranch: "up", trProfile: "cubic", trT: 2, trW: 2, trObs: true, trOx: 1, trOy: 1, trOr: 0.15 },
+};
+const updaters = { fk: updateFk, ik: updateIk, jac: updateJac, traj: updateTraj };
+let pending = false;
+function render() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; updaters[active](); }); }
+function renderNow() { updaters[active](); }
+function setValues(v) { Object.entries(v).forEach(([id, x]) => { const e = $(id); if (e.type === "checkbox") e.checked = x; else e.value = x; }); if (active === "traj" || Object.keys(v).some((k) => k.startsWith("tr"))) { anim.on = false; anim.t = 0; put("trPlay", "Oynat"); } renderNow(); }
+function reset(name) { setValues(defaults[name]); }
+const tabs = ["fk", "ik", "jac", "traj"];
+function tab(name) { active = name; tabs.forEach((t) => { $("panel-" + t).hidden = t !== name; $("tab-" + t).setAttribute("aria-selected", String(t === name)); $("tab-" + t).tabIndex = t === name ? 0 : -1; }); renderNow(); }
+tabs.forEach((t, i) => {
+  $("tab-" + t).addEventListener("click", () => tab(t));
+  $(t + "Reset").addEventListener("click", () => reset(t));
+  $("tab-" + t).addEventListener("keydown", (e) => { const j = e.key === "ArrowRight" ? (i + 1) % 4 : e.key === "ArrowLeft" ? (i + 3) % 4 : e.key === "Home" ? 0 : e.key === "End" ? 3 : null; if (j !== null) { e.preventDefault(); tab(tabs[j]); $("tab-" + tabs[j]).focus(); } });
+});
+for (const e of document.querySelectorAll("main input, main select")) e.addEventListener(e.tagName === "SELECT" || e.type === "checkbox" ? "change" : "input", () => { if (e.id.startsWith("tr")) { anim.on = false; anim.t = 0; put("trPlay", "Oynat"); } render(); });
+$("fkStraight").onclick = () => setValues({ fkT2: 0 });
+$("fkFolded").onclick = () => setValues({ fkT2: 180 });
+$("fkEqual").onclick = () => setValues({ fkL1: 1, fkL2: 1, fkThird: false, fkLim: 180 });
+$("fkLimit").onclick = () => setValues({ fkLim: 90, fkThird: false });
+$("ikFar").onclick = () => setValues({ ikX: 2, ikY: 0.5, ikS1: 0, ikS2: 30 });
+$("ikHole").onclick = () => setValues({ ikX: 0.1, ikY: 0.1, ikS1: 0, ikS2: 30 });
+$("ikEdge").onclick = () => setValues({ ikX: 1.69, ikY: 0, ikS1: 0, ikS2: 30 });
+$("ikSing").onclick = () => setValues({ ikS1: 0, ikS2: 0 });
+$("ikOther").onclick = () => setValues({ ikS1: 0, ikS2: -30 });
+$("jacNear").onclick = () => setValues({ jacT2: 2 });
+$("jacStraight").onclick = () => setValues({ jacT2: 0 });
+$("jacFolded").onclick = () => setValues({ jacT2: 180 });
+$("jacRight").onclick = () => setValues({ jacT2: 90 });
+$("trQuintic").onclick = () => setValues({ trProfile: "quintic" });
+$("trSlow").onclick = () => setValues({ trW: 1 });
+$("trEdge").onclick = () => setValues({ trAx: 1.2, trAy: 0.35, trBx: -1.2, trBy: 0.35, trObs: false });
+$("trHole").onclick = () => setValues({ trAx: 1.2, trAy: 0.2, trBx: -1.2, trBy: 0.1, trObs: false });
+$("trPlay").onclick = () => {
+  if (!lastTraj || !lastTraj.tr.ok) return;
+  if (anim.on) { anim.on = false; put("trPlay", "Devam et"); return; }
+  if (anim.t >= lastTraj.c.T) anim.t = 0;
+  anim.on = true; anim.last = 0; put("trPlay", "Duraklat"); requestAnimationFrame(animFrame);
+};
+document.addEventListener("keydown", (e) => { if ((e.key === "r" || e.key === "R") && !e.target.closest("input,select,button,a,textarea,summary") && !e.ctrlKey && !e.metaKey && !e.altKey) reset(active); });
+new ResizeObserver(render).observe(document.querySelector(".app-content"));
+new MutationObserver(() => { wsCache.theme = null; render(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+renderNow();
+})();
+</script>
+</body>
+</html>

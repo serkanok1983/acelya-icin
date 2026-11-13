@@ -1,0 +1,263 @@
+window.ACELYA_DIGEST = window.ACELYA_DIGEST || {};
+window.ACELYA_DIGEST["akiskanlar-mekanigi"] = {
+  slug: "akiskanlar-mekanigi",
+  title: "Akışkanlar Mekaniği: Borudan Pompaya",
+  field: "Fizik",
+  level: "Lise–Lisans",
+  minutes: 50,
+  tagline:
+    "Daralan boruyu, boşalan tankı ve viskoz akışı karşılaştır. Boru kayıplarını hesaba kat, pompanın çalışma debisini iki eğrinin kesişiminden bul; enerji bütçesini ve model sınırlarını denetle.",
+  hook:
+    "Musluğu hafifçe aç: akan su aşağı indikçe incelir. Bir boruyu daralt: su hızlanır ve basıncı artmaz, düşer. Bir damarın yarıçapı yalnızca yüzde 10 daralsın: aynı basınç farkıyla geçen kan üçte bir azalır. Üçü de iki muhasebenin sonucudur: akan su yolda kaybolmaz, mekanik enerjisi de ancak sürtünmeyle azalır.",
+  bigIdea:
+    "Akan akışkanda kütle korunur (<em>Q = Av</em>), mekanik enerji ise bir bütçedir: basınç, hız ve yükseklik arasında el değiştirir, pompa ekler, sürtünme eksiltir; bir borudan ne kadar su geçeceğini de bu bütçenin denkleştiği nokta belirler.",
+  story: [
+    "1643'te, Galileo'nun ömrünün son aylarında yanında çalışmış olan Evangelista Torricelli, bir kabın yan duvarındaki delikten fışkıran suyu ustasının serbest düşme yasalarıyla açıklamaya girişti. 1644'te <em>Opera Geometrica</em>'nın bir ekinde yayımladığı varsayım cesurdu: delikten çıkan su, yüzeyden deliğe kadar serbestçe düşen bir damlanın hızına sahiptir. Deneyin bunu doğruladığını savundu: yukarı yönelen bir jet neredeyse su yüzeyinin seviyesine kadar yükseliyordu; tam ulaşamamasını hava direncine ve düşen damlaların yükselenlerle çarpışmasına bağladı. Akıl yürütmesi bugün eksik sayılır: serbest jetin içindeki basıncın çevredeki havanınkine eşit olduğunu hesaba katmıyordu, çünkü akışkanlarda basınç kavramı henüz olgunlaşmamıştı. v = √(2gh) yazımı da sonradan geldi. Deliğin gerçek debisi ise bu hesabın verdiğinden belirgin biçimde azdı. 1738'de Daniel Bernoulli farkı, jetin delikten çıkınca daralmasına bağladı; bu daralmaya bugün <strong>vena contracta</strong> diyoruz.",
+    "Daniel Bernoulli tıp eğitimi almış bir matematikçiydi; Basel'de 1721'de solunum üzerine bir tezle doktor olmuştu. 1738'de yayımladığı <em>Hydrodynamica</em>'da sonuçlarını tek bir ilkeden, o zamanki adıyla 'canlı kuvvetin' (vis viva, kinetik enerjinin atası) korunumundan türetti ve hızın arttığı yerde basıncın düştüğü sonucuna vardı. Anlatılanlara göre babası Johann Bernoulli, Paris Bilimler Akademisi'nin ödülünü oğluyla paylaşınca onu evinden kovdu; oğlunun fikirlerini kendi <em>Hydraulica</em>'sına aktarıp kitabı daha erken bir tarihe attığı da ileri sürülür. Bugün bildiğimiz P + ½ρv² + ρgy = sabit yazımı ise Daniel'in değil, 1752'de Leonhard Euler'indir; Euler akışkan hareketinin genel denklemlerini 1757'de yayımladı. İtalyan fizikçi Giovanni Battista Venturi daralan borulardaki deneylerini 1797'de yayımladı. Neredeyse doksan yıl sonra, 1886'da, Amerikalı su mühendisi Clemens Herschel Holyoke'daki su değirmenlerinin her birinin ne kadar su kullandığını ölçmek için daralan boruyu bir ölçü aletine dönüştürmeye girişti. Adını Venturi'den alan <strong>venturimetre</strong>, büyük ölçekte su debisini doğru ölçen ilk aygıt oldu.",
+    "Sürtünmenin yasası kan dolaşımından geldi. Fransız fizikçi ve fizyolog Jean Léonard Marie Poiseuille 1828'de kalbin gücü üzerine bir doktora tezi yazmış, atların ve köpeklerin atardamar basıncını ölçmek için U borulu cıvalı manometreyi geliştirmişti. Kanın en ince damarlarda nasıl aktığını anlamak için suyu ince cam borulardan geçirdi ve 1838'de debinin basınç farkıyla doğru, boru uzunluğuyla ters, çapın ise dördüncü kuvvetiyle orantılı olduğunu buldu. Alman su mühendisi Gotthilf Hagen aynı sonuca bağımsız olarak vardı ve 1839'da yayımladı; Poiseuille'ün ayrıntılı çalışmaları 1840–1846 arasında çıktı. Yasanın kuramsal gerekçesini 1845'te George Stokes verdi. CGS sistemindeki viskozite birimi <strong>poise</strong> bugün Poiseuille'ün adını taşır; 20 °C'deki suyun viskozitesi neredeyse tam 1 santipoazdır (1.002 mPa·s).",
+    "Poiseuille yasası yalnızca yavaş akışta geçerliydi. Hızlı akışın neden başka davrandığını 1883'te Manchester'da Osborne Reynolds gösterdi. Cam bir borudan akan suyun ortasına ince bir boya şeridi bıraktı: hız düşükken şerit borunun sonuna kadar dümdüz gidiyor, hız artınca bir noktada titreşip dağılıyor ve bütün kesiti boyuyordu. Reynolds geçişin hız, çap, yoğunluk ve viskoziteden oluşan tek bir boyutsuz birleşime bağlı olduğunu buldu. Makalesinin başlığı akışı 'doğrudan' (direct) ya da 'kıvrımlı' (sinuous) diye ayırıyordu; bugün laminer ve türbülanslı diyoruz. Sayının fikri aslında 1851'de George Stokes'tan gelir; 'Reynolds sayısı' adını 1908'de Arnold Sommerfeld koydu. Reynolds'un düzeneği hâlâ Manchester Üniversitesi'nde duruyor.",
+  ],
+  core: [
+    {
+      heading: "Süreklilik: borudan su kaybolmaz",
+      body:
+        "Musluktan akan su düştükçe hızlanır ve incelir. Sebep bir muhasebedir: kararlı akışta bir kesitten saniyede geçen kütle her kesitte aynı olmalıdır, çünkü arada akışkan birikemez ve yok olamaz. Kütle debisi ṁ = ρAv'dir. Sıvılar neredeyse sıkıştırılamaz, ρ sabit kalır; bu yüzden hacim debisi Q = Av korunur ve kesit dörtte birine inerse hız dört katına çıkar. Çap oranı β = D₂/D₁ olan bir boğazda hız oranı 1/β²'dir: sayfanın varsayılan Venturi borusunda (β = 0.50) giriş hızı 1.02 m/s, boğaz hızı 4.07 m/s'dir. Lisans dilinde aynı ilke yerel bir denklemdir, ∂ρ/∂t + ∇·(ρ<strong>v</strong>) = 0; ρ sabitse ∇·<strong>v</strong> = 0 olur, yani hız alanında hiçbir yerde kaynak ya da kuyu yoktur. Gazlar da Mach sayısı 0.3'ün altında kaldıkça yoğunlukları yüzde 5'ten az değiştiği için sıkıştırılamaz sayılabilir.",
+      formula: "ρ₁A₁v₁ = ρ₂A₂v₂   ⇒   Q = A₁v₁ = A₂v₂",
+      formulaNote: "İkinci biçim yalnız sabit yoğunlukta geçerlidir. Debinin birimi m³/s; sayfada L/s (1 L/s = 10⁻³ m³/s).",
+    },
+    {
+      heading: "Bernoulli: birim hacim başına enerji",
+      body:
+        "Boğazda hızlanan suyu bir şey itmelidir; akışkanda bu iş basınç farkının işidir. Kararlı akışta bir akım çizgisi boyunca ilerleyen küçük bir akışkan parçasına Newton'un ikinci yasasını yaz: ρv·dv/ds = −dP/ds − ρg·dy/ds. ρ sabitken integral almak aşağıdaki toplamı verir. Her terim birim hacim başına bir enerjidir (1 Pa = 1 J/m³): P basınç işinin, ½ρv² kinetik enerjinin, ρgy potansiyel enerjinin payı. Hız artarsa statik basınç düşmek zorundadır; varsayılan Venturi'de ½ρ(v₂² − v₁²) = 7.77 kPa. Denklemi ρg'ye bölünce terimler uzunluğa döner: gösterge basıncıyla yazılan p/(ρg) + y açık piyezometre tüpündeki sıvının yükseldiği seviyedir, v²/(2g) ise hız yüküdür; sayfadaki kesikli mor enerji çizgisi ikisinin toplamıdır. Dört varsayım vardır: akış kararlı, sürtünmesiz ve sıkıştırılamazdır, hesap tek bir akım çizgisi üzerinde yapılır (akış girdapsızsa her yerde aynı sabit geçerlidir). Gerçek boruda sürtünme toplamı akış yönünde azaltır (yük kaybı); boğaz basıncı suyun buhar basıncının altına inerse su kaynar ve model çöker.",
+      formula: "P + ½ρv² + ρgy = sabit   (akım çizgisi boyunca)",
+      formulaNote: "Yatay borunun iki kesiti için P₁ − P₂ = ½ρ(v₂² − v₁²). Hız iki katına çıkınca dinamik basınç dört katına çıkar.",
+    },
+    {
+      heading: "Torricelli ve boşalan tankın denklemi",
+      body:
+        "Bernoulli'yi tankın serbest yüzeyiyle delikten çıkan jet arasına yaz. İki noktada da basınç atmosferiktir; delik tank kesitine göre küçükse (a ≪ A) yüzeyin iniş hızı ihmal edilir ve v = √(2gh) kalır: su, h yüksekliğinden serbest düşen bir taşın hızıyla çıkar. Seviye indikçe hız azalır; boşalma bu yüzden bir diferansiyel denklemdir. Değişkenleri ayırınca d(√h)/dt sabit çıkar: √h zamanla doğrusal azalır ve h(t) = h₀(1 − t/T)² bir paraboldür. Sonuç şaşırtıcıdır: seviye h₀/4'e tam T/2'de iner, yani suyun dörtte üçü sürenin ilk yarısında, son dörtte biri ikinci yarısında akar. Gerçek keskin kenarlı delikte jet çıkışta daralır (vena contracta, C<sub>c</sub> ≈ 0.62) ve biraz yavaşlar (C<sub>v</sub> ≈ 0.98); debi katsayısı C<sub>d</sub> = C<sub>c</sub>·C<sub>v</sub> ≈ 0.61'dir. Debiyi asıl düşüren daralmadır: debi %39 azalır, jet hızı yalnızca %2. Hassas ölçümler bu küçük hız kaybının bile neredeyse sıfır olduğunu gösterir. Delik yerden H yüksekteyse jet yatay atış yapar ve x = 2C<sub>v</sub>√(hH) uzağa varır. Yüzeyin yerden yüksekliği h + H sabitse ideal jet en uzağa, delik tam ortadayken (h = H) düşer; menzil o zaman yüzeyin yüksekliğine eşittir.",
+      formula: "A·dh/dt = −C<sub>d</sub>·a·√(2gh)   ⇒   T = (A/(C<sub>d</sub>·a))·√(2h₀/g)",
+      formulaNote: "Varsayılan tankta A/a = 900 ve h₀ = 1.00 m: T = 900 × 0.4515 s = 406.4 s. Gerçek delikte 406.4 s / 0.6076 = 668.8 s.",
+    },
+    {
+      heading: "Viskozite ve Hagen–Poiseuille: dördüncü kuvvet",
+      body:
+        "Bal dolu bir pipette sürtünmeyi yok sayamazsın. Viskozite, akışkan katmanlarının birbirine sürtünmesidir: Newton tipi bir akışkanda kayma gerilmesi hız gradyanıyla orantılıdır, τ = −η·dv/dr. Duvara değen akışkan duvara yapışır (<strong>kaymazlık koşulu</strong>); hız duvarda sıfır, eksende en büyüktür. Borunun içinde yarıçapı r olan bir akışkan silindiri için kuvvet dengesi ΔP·πr² = τ·2πrL'dir; buradan τ = ΔP·r/(2L) bulunur ve bir integral parabolik profili verir: v(r) = ΔP(R² − r²)/(4ηL). Profili kesit üzerinde toplamak (Q = ∫v·2πr dr) Hagen–Poiseuille yasasını verir. R⁴'ün iki kaynağı vardır: kesit alanı R² ile, ortalama hız da R² ile büyür. Yarıçapı yarıya indirmek debiyi 16'da birine düşürür; aynı debiyi korumak için 16 kat basınç farkı gerekir. Sayfanın varsayılanında (su, R = 2.00 mm, L = 1.00 m, ΔP = 100 Pa) Q = 627.1 µL/s ve v<sub>maks</sub> = 99.80 mm/s = 2<span class=ov>v</span>. Ohm yasasındaki gibi ΔP = Q·R<sub>h</sub> yazılır; seri bağlı borularda dirençler toplanır.",
+      formula: "Q = πR⁴ΔP/(8ηL),   R<sub>h</sub> = 8ηL/(πR⁴),   v<sub>maks</sub> = ΔP·R²/(4ηL) = 2<span class=ov>v</span>",
+      formulaNote: "Yalnız Newton tipi akışkanın laminer ve tam gelişmiş akışında geçerlidir. η'nin birimi Pa·s; 20 °C'de su 1.002 mPa·s, sayfadaki bal 10 Pa·s.",
+    },
+    {
+      heading: "Reynolds sayısı, yük kaybı ve çalışma noktası",
+      body:
+        "Musluğu az açınca su cam gibi akar, sonuna kadar açınca çalkalanır. Hangisinin olacağını <strong>Reynolds sayısı</strong> Re = ρvD/η kestirir: eylemsizlik kuvvetinin viskoz kuvvete oranı. Sayfa boruda Re ≤ 2300'ü laminer, Re ≥ 4000'i türbülanslı sayar; eşikler evrensel değildir, geçişi girişteki bozucular da belirler. Sürtünmenin bedeli <strong>yük</strong> kaybıdır; yük, birim ağırlıktaki akışkanın metreyle ölçülen mekanik enerjisidir. <strong>Darcy–Weisbach</strong> bağıntısı düz borudaki kaybı h<sub>f</sub> = f(L/D)v²/(2g) diye yazar. Laminer akışta f = 64/Re, Poiseuille yasasının başka bir yazımıdır: ρgh<sub>f</sub> = 128ηLQ/(πD⁴). Türbülansta f bağıl pürüzlülük ε/D'ye de bağlanır; f'nin iki yanda da durduğu <strong>Colebrook–White</strong> denklemi <a href='https://www.cs.cornell.edu/courses/cs4220/2026sp/lec/2026-03-20.html'>sayısal olarak çözülür</a>, Moody diyagramı onun çizimidir. Kayıp debinin karesine yaklaşır ama tam karesi değildir: varsayılan boruda debi 1'den 4 L/s'ye çıkınca f 0.0267'den 0.0221'e iner, h<sub>f</sub> 16 değil 13 katına çıkar. Vana ve dirsek gibi yerel kayıplar ΣK·v²/(2g) ekler. Gereken toplam yük debiye karşı <strong>sistem eğrisi</strong>ni çizer; pompanın verdiği yük ise debi arttıkça düşer. <a href='https://www.ksb.com/en-global/centrifugal-pump-lexicon/article/operating-point-1117036'>Çalışma noktası</a> iki eğrinin kesişimidir. Sayfadaki pompa eğrisi H₀[1 − (Q/Q₀)²] bir öğretim eğrisidir, katalog verisi değil.",
+      formula: "1/√f = −2·log₁₀[(ε/D)/3.7 + 2.51/(Re·√f)];   H<sub>s</sub>(Q) = Δz + [f·L/D + ΣK]·v²/(2g) = H<sub>p</sub>(Q)",
+      formulaNote: "İlki Colebrook–White denklemi (Re ≥ 4000), ikincisi çalışma noktası koşuludur. Yükler metre cinsindendir; v = 4Q/(πD²) ortalama hızdır. f Darcy katsayısıdır, Fanning katsayısının dört katı. Suya aktarılan hidrolik güç ρgQH'dir; pompanın şaft gücü, verim payı kadar daha büyüktür. Boru ve pompa sekmesi viskoziteyi μ ile gösterir; önceki kartlardaki η ile aynı niceliktir.",
+    },
+  ],
+  lab: {
+    intro:
+      "Laboratuvarın dört sekmesi var. İlk üçü kendi benzetiminde ölçtüğünü kuramla bir <strong>Ölçülen · Kuram · Fark</strong> tablosunda yan yana koyar. <strong>Venturi borusu</strong> sekmesinde Akışkan menüsü ile Giriş çapı D₁, Çap oranı β, Debi Q, Giriş gösterge basıncı p₁ ve Boğazın yükselmesi Δy kaydırıcıları var; boğaz hızı izleyici parçacıkların geçiş süresinden, debi de iki piyezometre arasındaki farkın 1 mm çözünürlükle okunmasından 'ölçülür'. Bir ayar değişince sütunlar yaklaşık bir saniyede yeni seviyelerine kayar. Varsayılan giriş basıncında (15 kPa) boğaz 2.78 L/s'nin üstünde atmosferin altına iner ve açık piyezometre hava emer; debiyi 2.50 L/s'nin üstüne çıkaracaksan önce giriş basıncını artır. <strong>Torricelli</strong> sekmesinde Tank çapı, Delik çapı, Başlangıç seviyesi h₀, Deliğin yerden yüksekliği H, Gerçek keskin kenarlı delik kutusu ve Zaman hızı menüsü var; Otomatik hızda bir boşalma ekranda 10–25 saniye sürer ve her ayar değişikliği tankı yeniden doldurur. <strong>Viskoz akış</strong> sekmesinde Akışkan, Boru yarıçapı R, Boru uzunluğu L ve Basınç farkı ΔP var; her değişiklik akışı durgun hâlden başlatır ve tablonun soluk italik ölçüm hücreleri, akış tam gelişince (yaklaşık 5 saniye sonra) normal yazıya döner. İzleyicilerin ekrandaki hızı her koşuda yeniden ölçeklenir: bal ile su arasındaki 10⁴ katlık farkı sayılar ve grafik gösterir. Dördüncü sekme, <strong>Boru ve pompa</strong>, ölçmez, hesaplar: iki açık depo, aralarında tek bir boru ve 20 °C'de su. Deney menüsünün Pompa–sistem kesişimi seçeneği çalışma debisini iki eğrinin kesişiminden bulur; Debiyi ben belirleyeyim seçeneği Verilen debi Q kaydırıcısını açar ve o debi için gereken yükü gösterir. Kaydırıcılar Boru çapı D, Boru uzunluğu L, Pürüz yüksekliği ε, Yerel kayıp toplamı ΣK, Depoların seviye farkı Δz, Pompanın kapalı vana yükü H₀ ve Pompa eğrisinin sıfır yük debisi Q₀'dır; Başlangıç, Laminer örnek, Geçiş örneği ve Yük yetmiyor düğmeleri hazır düzenler kurar. Hesabı denetle kutusu laminerde Poiseuille ile Darcy basınç kayıplarını, türbülansta Colebrook denkleminin artığını, çalışma noktasında da pompa ile sistem yükünün farkını yazar; bunlar sayısal çözümün tutarlılığını gösterir, modelin deneyle doğrulandığını değil. Bu sekme sayıları ondalık virgül ve binlik noktayla yazar (3,578 L/s; Re = 90.774); defter o sekmenin değerlerini ekranda göründüğü gibi aktarır. Sayfa adresine #torricelli, #poiseuille ya da #network eklenirse sayfa doğrudan o sekmede açılır. Deneyler varsayılan ayarlardan başlar; emin değilsen sayfayı yenile, dördüncü sekmede Başlangıç'a bas.",
+    experiments: [
+      {
+        title: "Boğazı yarıya daralt: hız iki kat mı, dört kat mı?",
+        predict:
+          "Debi 2.00 L/s'de sabitken boğaz çapını girişin yarısına indirirsen boğazdaki hız kaç katına çıkar? Boğazda basınç artar mı, azalır mı? Sonra debiyi yarıya indirirsen piyezometreler arasındaki Δh yarıya mı iner, dörtte birine mi?",
+        do: "Venturi borusu sekmesinde (Su, D₁ = 5.0 cm, Q = 2.00 L/s, p₁ = 15 kPa) Çap oranı β'yı 1.00'e getir ve sütunlar oturana kadar bekle. Sonra β'yı 0.50'ye indir; tablodan boğaz hızını, Δh'yi ve Δh'den hesaplanan debiyi oku. En sonda Debi Q kaydırıcısını 1.00 L/s yap.",
+        observe:
+          "β = 1.00'de iki sütun da 1.532 m'dedir ve debi satırı 'ölçülemez' der. β = 0.50'de parçacık zamanlaması boğaz hızını 4.074 m/s ölçer (kuram 4.074 m/s), boğaz sütunu 73.9 cm'ye iner: Δh = 79.3 cm (kuram 79.32 cm), basınç düşüşü 7.767 kPa, Δh'den bulunan debi 2.000 L/s (−0.01 %). Q = 1.00 L/s'de Δh 19.8 cm'ye, Δh'den debi 999.2 mL/s'ye iner.",
+        explain:
+          "Çap yarıya inince kesit dörtte birine iner; süreklilik hızı dört katına çıkarır. Artan kinetik enerjiyi basınç öder: ½ρ(v₂² − v₁²) = 7.77 kPa. Δh hızların karesiyle, yani debinin karesiyle büyür; debi yarıya inince Δh dörtte birine düşer. Venturimetre bu ilişkiyi tersine çevirir, Q ∝ √Δh: Δh'deki bağıl okuma hatası debiye yarı büyüklükte geçer (−0.03 % yerine −0.01 %).",
+      },
+      {
+        title: "Dört kat yükseklik, iki kat süre; gerçek delikte ne değişir?",
+        predict:
+          "1.00 m'den boşalan tankta suyun yarısı sürenin yarısında mı akar? h₀'ı dörtte birine indirirsen boşalma süresi kaç katına iner? Gerçek bir delik debiyi yaklaşık %39 azaltıyorsa jet de %39 kısa mı düşer?",
+        do: "Torricelli sekmesinde varsayılan ayarlarla (D = 30 cm, d = 10 mm, h₀ = H = 1.00 m, Zaman hızı Otomatik) tank boşalana kadar izle. Sonra Başlangıç seviyesi h₀'ı 0.25 m yap ve yine bekle. En sonda h₀'ı 1.00 m'ye döndür ve Gerçek keskin kenarlı delik kutusunu işaretle.",
+        observe:
+          "1.00 m'de T = 406.4 s ölçülür (Fark 0.00 %); seviye h₀/4'e 203.2 s'de, yani tam T/2'de iner; ilk damla 2.000 m'ye düşmüştür. 0.25 m'de T = 203.2 s, menzil 1.000 m. Gerçek delikte Katsayılar kartı 0.62 · 0.98 · 0.608 yazar; boşalma 668.8 s sürer, h₀/4'e iniş 334.4 s, ama ilk damlanın menzili 1.960 m'dir.",
+        explain:
+          "√h zamanla doğrusal azaldığından T, √h₀ ile orantılıdır: dört kat yükseklik iki kat süre. Seviye dörtte birine indiğinde √h yarıya inmiştir, bu da T/2 demektir. Gerçek delikte debiyi asıl düşüren jetin daralmasıdır (C<sub>c</sub> = 0.62); süre 1/C<sub>d</sub> = 1.646 kat uzar. Menzil 2C<sub>v</sub>√(hH) olduğundan yalnızca hız katsayısını görür ve %2 kısalır.",
+      },
+      {
+        title: "Yarıçap yarıya, debi on altıda bire; bal on binde bire",
+        predict:
+          "Aynı basınç farkı ve uzunlukta yarıçapı 2 mm'den 1 mm'ye indirirsen debi yarıya mı, dörtte birine mi, on altıda birine mi iner? Suyun yerine viskozitesi yaklaşık 10⁴ kat büyük bal koyarsan ne olur?",
+        do: "Viskoz akış sekmesinde varsayılan ayarlarla (Su, R = 2.00 mm, L = 1.00 m, ΔP = 100 Pa) tablodaki soluk italik değerler normal yazıya dönene kadar, yaklaşık 5 saniye bekle. Boru yarıçapı R'yi 1.00 mm yap ve yine bekle. R'yi 2.00 mm'ye döndürüp bekledikten sonra Akışkan menüsünden Bal'ı seç.",
+        observe:
+          "Akış gelişirken v<sub>maks</sub>/<span class=ov>v</span> 1'e yakın bir değerden 2.000'e tırmanır; tam gelişince Q = 627.1 µL/s ve v<sub>maks</sub> = 99.80 mm/s olur. R = 1.00 mm'de Q = 39.19 µL/s ve Q/Q<sub>önceki</sub> satırı 0.0625 (kuram 0.0625) gösterir. Balda Q = 62.83 nL/s ve oran 1.00×10⁻⁴ olur. İzleyiciler balda da suda olduğu kadar hızlı görünür; farkı yalnızca sayılar ve grafik gösterir.",
+        explain:
+          "Q = πR⁴ΔP/(8ηL): yarıçap yarıya inince (1/2)⁴ = 0.0625. Debi viskoziteyle ters orantılıdır: 1.002 mPa·s / 10 Pa·s = 1.002×10⁻⁴. Akış başlarken çekirdek bir tıkaç gibi düzgün hızlanır, duvardaki sınır tabakaları içe doğru kalınlaşır; profil, zaman sabitinin (suda 689 ms) birkaç katı sonra parabole oturur. Reynolds kartı burada 199 gösterir; ΔP = 1.20 kPa'da 2 386 olur ve kart 'geçiş bölgesi' yazar. Sekme yine de laminer çözümü hesaplamayı sürdürür, gerçek debi bunun altında kalırdı; türbülanslı borunun kaybı Boru ve pompa sekmesinin işidir.",
+      },
+      {
+        title: "Vanayı kıs: debi düşer, peki güç?",
+        predict:
+          "Pompa aynı kalırken Yerel kayıp toplamı ΣK'yı 5'ten 50'ye çıkarırsan (yarı kapalı bir vana gibi) çalışma debisi onda birine mi iner, yoksa çok daha az mı değişir? Suya aktarılan hidrolik güç azalır mı, artar mı? Depoların seviye farkı pompanın kapalı vana yükünü aşarsa ne olur?",
+        do: "Boru ve pompa sekmesinde Başlangıç'a bas (Pompa–sistem kesişimi; D = 50 mm, L = 50 m, ε = 0,05 mm, ΣK = 5, Δz = 10 m, H₀ = 30 m, Q₀ = 5 L/s) ve kartları oku. ΣK'yı önce 50, sonra 100 yap; her seferinde Debi, Sistem yükü ve Taşınan hidrolik güç kartlarını not et. Ardından sırayla Laminer örnek, Geçiş örneği ve Yük yetmiyor düğmelerine bas.",
+        observe:
+          "Başlangıçta Q = 3,578 L/s, Re = 90.774, f = 0,022385; boru kaybı 3,789 m, yerel kayıp 0,846 m, sistem yükü 14,635 m, hidrolik güç 512,816 W (350,394 yükselme + 132,766 boru + 29,656 yerel). ΣK = 50'de Q = 3,041 L/s, yük 18,899 m, güç 562,882 W; ΣK = 100'de 2,659 L/s, 21,513 m, 560,243 W. Laminer örnekte Re = 1.268, f = 0,050457; Hesabı denetle kutusunda Poiseuille ve Darcy aynı 408,252 Pa'yı verir. Geçiş örneğinde (Re = 2.537) f, boru kaybı, sistem yükü ve güç 'Belirlenmiyor' yazar. Yük yetmiyor'da Δz = 40 m, H₀ = 30 m'yi aşar: durum satırı 'İleri akış yok' der, debi 0 L/s, güç 0 W olur.",
+        explain:
+          "Kayıp katsayısı on katına çıktı, debi yalnızca %15 düştü: sistem eğrisi dikleşince kesişim pompa eğrisi boyunca daha yüksek yüke kayar, hız düştüğü için kayıp da küçülür. Nokta pompa eğrisi üzerinde kaldığından güç P = ρgH₀·Q[1 − (Q/Q₀)²] olur ve Q₀/√3 ≈ 2,887 L/s'de tepe yapar (565,4 W). Başlangıç debisi tepenin sağındadır: kısmak gücü önce artırır, sonra azaltır. Laminer örnekteki eşitlik doğrulama değil özdeşliktir: f = 64/Re, Poiseuille yasasının kendisidir. Geçişte sayfa uydurma bir f yazmaz. Yük yetmeyince model ideal bir çekvalf varsayar; kavitasyon ve pompa verimi modelin dışındadır.",
+      },
+    ],
+  },
+  wow: [
+    {
+      title: "Kıskacından kabarcık fırlatan karides",
+      body:
+        "Tabanca karidesi (<em>Alpheus heterochaelis</em>) kıskacını öyle hızlı kapatır ki fışkıran su yaklaşık 25 m/s'ye ulaşır. Bernoulli'ye göre bu hız ½ρv² ≈ 3×10⁵ Pa'lık bir basınç düşüşü ister; oysa çevredeki suyun basıncı yalnızca 10⁵ Pa dolayındadır, yani jetteki basınç buhar basıncının altına iner. Versluis ve arkadaşları 2000'de saniyede 40 500 kare çeken bir kamerayla gösterdi: jette bir kavitasyon kabarcığı büyür ve çöker; duyulan 'şak' kıskacın çarpmasından değil bu çöküşten gelir ve avı sersemletir. 2001'de aynı ekip çöküşte gözle görülmeyecek kadar sönük bir ışık yakaladı; ışık ısıl kökenliyse kabarcığın içi en az 5000 K olmalıydı. Sayfada debiyi 8 L/s yap: boğazda da kavitasyon başlar.",
+    },
+    {
+      title: "Yüz yıla yakın süredir damlayan zift",
+      body:
+        "Queensland Üniversitesi'nde Thomas Parnell 1927'de ısıttığı zifti bir huniye döktü, üç yıl oturmasını bekledi ve Ekim 1930'da huninin ağzını kesti. İlk damla Aralık 1938'de düştü, dokuzuncusu Nisan 2014'te koptu. Sekizinci damladan sonraki hesap ziftin viskozitesini suyunkinin yaklaşık 230 milyar katı buldu. Guinness'e göre bu, kesintisiz süren en uzun laboratuvar deneyidir. Düşüşü görmek zordur: 1988'de bakıcısı John Mainstone tam o sırada bir şey içmeye çıkmıştı, 2000'de teknik bir arıza kaydı engelledi; bir damlanın düşüşü ilk kez 2013'te Dublin'deki bir eşinde filme alındı. Sayfadaki bal suyun yalnızca 10⁴ katı viskozdur; aynı boruda zift baldan yaklaşık 23 milyon kat yavaş akardı.",
+    },
+    {
+      title: "2300 bir doğa yasası değil",
+      body:
+        "Reynolds 1883'te boru girişindeki bozucuları azaltarak türbülansın başlangıcını Re ≈ 2000'den 13 000'e itebildi; 1961'de Pfenninger akışı Re = 100 000'de bile laminer tuttu. Sebebi şaşırtıcı: Hagen–Poiseuille akışı sonsuz küçük bozuculara karşı, incelenen en yüksek Reynolds sayılarına kadar (belki de hepsinde) kararlıdır; türbülans ancak yeterince büyük bir sarsıntıyla tetiklenir. Peki kendini ne zaman sürdürür? Avila ve arkadaşları 2011'de borudaki türbülans 'puflarının' sönme ve bölünerek çoğalma sürelerini binlerce ölçüm ve bilgisayar benzetimiyle karşılaştırdı; iki süre Re = 2040 ± 10'da eşitleniyordu. Sayfadaki 2300 ve 4000, sıradan bozucuları olan borular için mühendislik eşikleridir.",
+    },
+  ],
+  worked: {
+    title: "Venturimetreyle debi ölçmek",
+    prompt:
+      "Su (20 °C, ρ = 998.2 kg/m³) taşıyan bir boruya giriş çapı D₁ = 5.0 cm, boğaz çapı D₂ = 2.5 cm olan bir venturimetre takılmış. Giriş ve boğazdaki piyezometrelerin seviye farkı Δh = 79.3 cm. Sürtünmesiz akış varsayarak debiyi ve iki hızı bul. Giriş gösterge basıncı 15 kPa ise boğazın mutlak basıncını hesapla; hava emme ve kavitasyon tehlikesini değerlendir. Reynolds sayısıyla modelin güvenilirliğini yorumla.",
+    steps: [
+      "Denklemleri kur. Süreklilik: v₁ = v₂·(A₂/A₁) = v₂β², burada β = D₂/D₁ = 0.5. Yatay boruda Bernoulli: P₁ − P₂ = ½ρ(v₂² − v₁²). Piyezometreler aynı basınç farkını su sütunu olarak gösterir: P₁ − P₂ = ρgΔh. İkisini birleştirince ρ sadeleşir: v₂ = √(2gΔh/(1 − β⁴)).",
+      "Sayıları koy: β⁴ = 0.0625; 2gΔh = 2 × 9.81 m/s² × 0.793 m = 15.56 m²/s²; 15.56/0.9375 = 16.60 m²/s², v₂ = 4.074 m/s. Boğaz kesiti A₂ = π(0.0125 m)² = 4.909×10⁻⁴ m², dolayısıyla Q = A₂v₂ = 2.000×10⁻³ m³/s = 2.00 L/s. Giriş hızı v₁ = v₂β² ≈ 1.018 m/s.",
+      "Basınçlar: P₁ − P₂ = ρgΔh = 998.2 kg/m³ × 9.81 m/s² × 0.793 m = 7.77 kPa. Mutlak giriş basıncı 101.3 + 15 = 116.3 kPa, boğazda P₂ = 108.6 kPa: atmosferin (101.3 kPa) üstünde, buhar basıncının (2.34 kPa) çok üstünde. Açık piyezometre okunur, kavitasyon yok. ΔP ∝ Q² olduğundan boğaz Q = 2.00 L/s × √(15/7.77) ≈ 2.78 L/s'de atmosfer basıncına iner.",
+      "Modeli denetle: Re₁ = ρv₁D₁/η = 998.2 × 1.018 × 0.050 / 1.002×10⁻³ ≈ 5.07×10⁴; akış türbülanslıdır. Bu, tek boyutlu Bernoulli'nin işine yarar: türbülansta hız profili düze yakındır ve kesite tek bir v yazmak iyi bir yaklaşımdır (laminer parabolde ½ρ<span class=ov>v</span>² kinetik enerjiyi yarı yarıya eksik sayardı). Giriş ile boğaz arasındaki sürtünme debiyi yine biraz düşürür; endüstride formül deneyle bulunan, 1'e çok yakın bir debi katsayısıyla çarpılır. Sayfanın sürtünmesiz modelinde bu katsayı tam 1'dir.",
+      "Sayfada dene: Venturi borusu sekmesinin varsayılan ayarları bu problemdir. Tablo Δh = 79.3 cm (kuram 79.32 cm) ve Δh'den debi 2.000 L/s (−0.01 %) gösterir; kartlarda basınç düşüşü 7.767 kPa, boğaz basıncı 108.6 kPa ve Reynolds 50 736 okunur. Debiyi 3.00 L/s yapınca boğaz piyezometresi boşalır ve tablo Δh için 'okunamaz' yazar.",
+    ],
+    result:
+      "Q ≈ 2.00 L/s; v₁ ≈ 1.02 m/s, v₂ ≈ 4.07 m/s; P₁ − P₂ ≈ 7.77 kPa ve boğazda P₂ ≈ 108.6 kPa (mutlak). Q ∝ √Δh olduğundan Δh'deki bağıl okuma hatası debiye yarı büyüklükte geçer. Yoğunluk sonuçta yer almaz: aynı Δh deniz suyunda da 2.00 L/s demektir.",
+  },
+  misconceptions: [
+    {
+      myth: "Kanadın üstündeki hava, alttakiyle arka kenarda aynı anda buluşmak için hızlanır; kaldırma kuvveti bundan doğar.",
+      truth:
+        "Havanın arka kenarda buluşmasını gerektiren bir yasa yoktur. Rüzgâr tüneli deneyleri ve hesaplar, üstten geçen havanın arka kenara alttakinden önce vardığını gösterir; yani üstteki hız 'eşit süre' kuralının öngördüğünden de büyüktür. Bernoulli yanlış değildir: hız alanı biliniyorsa basınç farkını doğru verir. Eksik olan hızın nereden geldiğidir: kanat havayı aşağı saptırır ve çevresinde bir sirkülasyon oluşturur; basınç dili ile momentum dili aynı fiziği anlatır.",
+    },
+    {
+      myth: "Hızlı akan akışkanın basıncı yüksektir; hortumdan fışkıran su eli bu yüzden sert iter.",
+      truth:
+        "Statik basınç ile akışın taşıdığı momentum karıştırılıyor. Venturi borusunda en hızlı yer boğazdır ve basınç en düşük oradadır: varsayılan ayarda 116.3 kPa'dan 108.6 kPa'ya iner. Serbest bir jetin içindeki basınç çevredeki havanınkine eşittir. Eli iten, durdurulan suyun momentum kaybıdır; avucun ortasında su durur ve basınç ½ρv² kadar yükselir (durma basıncı). Hızlı akışkan yüksek basınç değil, basınca dönüşebilecek kinetik enerji taşır.",
+    },
+    {
+      myth: "Dar boğazdan daha az su geçer; su orada sıkışır ve yavaşlar.",
+      truth:
+        "Kararlı, sıkıştırılamaz akışta her kesitten aynı debi geçer: Venturi boğazında su dört kat hızlanır ve yine 2.00 L/s akar. Bir daralma debiyi ancak devreye kayıp ekleyerek değiştirir: Boru ve pompa sekmesinde ΣK büyüyünce pompa eğrisiyle kesişim daha küçük bir debiye kayar ve o debi yine her kesitte aynıdır. Debiyi asıl kısan, uzun ve dar borunun sürtünme direncidir: basınç farkı sabitken laminer akışta Q ∝ R⁴, iki kat yarıçap 16 kat debi demektir (pürüzsüz boruda türbülansta yaklaşık 6.6 kat). Seri bağlı borularda dirençler (R<sub>h</sub> ∝ L/R⁴) toplanır.",
+    },
+    {
+      myth: "Tankın yarısı, boşalma süresinin yarısında boşalır.",
+      truth:
+        "Çıkış hızı √h ile azaldığı için boşalma giderek yavaşlar. √h zamanla doğrusal düştüğünden seviye T/2'de h₀/4'tür: sayfada 1.00 m'lik tank 406.4 s'de boşalır ve 203.2 s'de seviye 25 cm'ye inmiştir. Suyun dörtte üçü ilk yarıda, son dörtte biri ikinci yarıda akar. Seviyenin yarıya inmesi ise T(1 − 1/√2) ≈ 0.29T, yani yaklaşık 119 s sürer.",
+    },
+  ],
+  glossary: [
+    { term: "Debi (Q)", definition: "Bir kesitten birim zamanda geçen akışkan hacmi; birimi m³/s, sayfada L/s." },
+    { term: "Akım çizgisi", definition: "Her noktasında hız vektörüne teğet olan eğri; kararlı akışta akışkan parçacıkları bu eğriler boyunca ilerler ve Bernoulli denklemi bu eğri boyunca yazılır." },
+    { term: "Dinamik basınç", definition: "Birim hacmin kinetik enerjisi, ½ρv²; akış bir engelde durdurulunca statik basınca eklenen pay." },
+    { term: "Viskozite (η)", definition: "Akışkanın kaymaya karşı iç direnci; kayma gerilmesinin hız gradyanına oranı, birimi Pa·s." },
+    { term: "Yük ve yük kaybı", definition: "Yük, birim ağırlıktaki akışkanın mekanik enerjisinin metre cinsinden ifadesidir; yük kaybı sürtünmenin bu enerjiden aldığı paydır ve düz boruda Darcy–Weisbach bağıntısıyla f(L/D)v²/(2g) kadardır." },
+    { term: "Çalışma noktası", definition: "Pompanın sağladığı yük ile sistemin istediği yükün eşitlendiği debi ve yük çifti; pompa eğrisi ile sistem eğrisinin kesişimi." },
+    { term: "Reynolds sayısı (Re)", definition: "Eylemsizlik kuvvetlerinin viskoz kuvvetlere oranını ölçen boyutsuz sayı, Re = ρvD/η; boruda akışın laminer mi türbülanslı mı olacağını kestirir." },
+    { term: "Kavitasyon", definition: "Sıvıda yerel basınç buhar basıncının altına inince buhar kabarcıklarının oluşması ve basınç yükselince şiddetle çökmesi; pompaları ve pervaneleri aşındırır." },
+  ],
+  bridge: {
+    heading: "Üniversiteye köprü",
+    body: [
+      "Lisede süreklilik ve Bernoulli iki ayrı formüldür; <strong>Fizik I</strong>'in akışkanlar bölümünde ikisi de birer korunum yasası olarak çıkar: biri kütlenin, öteki enerjinin. Mühendislik fakültelerinin <strong>Akışkanlar Mekaniği</strong> dersi aynı yasaları bir kontrol hacmi için yazar (Reynolds taşınım teoremi) ve onlara momentum denklemini ekler. Yolun sonunda <strong>Navier–Stokes denklemleri</strong> durur: ρ(∂<strong>v</strong>/∂t + (<strong>v</strong>·∇)<strong>v</strong>) = −∇P + η∇²<strong>v</strong> + ρ<strong>g</strong>, ∇·<strong>v</strong> = 0. Viskozite sıfırlanınca Euler denklemleri kalır; bunlar kararlı akışta bir akım çizgisi boyunca integre edilince Bernoulli çıkar. Uzun, düz bir boruda ise tam çözüm Hagen–Poiseuille parabolüdür. İlk üç sekme sürtünmesiz kararlı akış, yavaşça boşalan tank ve tam gelişmiş viskoz akış örnekleridir. Dördüncü sekme ise türbülansın üç boyutlu hız alanını çözmez: tek boyutlu enerji bütçesine Darcy–Weisbach kaybını ve deneylere yaslanan Colebrook bağıntısını ekleyerek pompa ile borunun çalışma noktasını bulur; mühendisliğin boru hesabı bugün de böyle yapılır. Üç boyutlu Navier–Stokes çözümlerinin her zaman düzgün kalıp kalmadığı hâlâ bilinmiyor; Clay Matematik Enstitüsü 2000'de bu soruyu bir milyon dolar ödüllü Milenyum Problemleri arasına aldı.",
+      "Duvarın yakınında viskozite hiçbir zaman ihmal edilemez. Ludwig Prandtl 1904'te, hızın sıfırdan akış hızına çıktığı ince bir <strong>sınır tabakası</strong> fikriyle sürtünmesiz akış kuramını gerçek dünyaya bağladı; kanatlardaki sürükleme, akış ayrılması ve tutunma kaybı bu tabakada belirlenir. <strong>Türbülans</strong> klasik fiziğin en zor açık problemlerinden biridir; Kolmogorov'un 1941'deki ölçekleme kuramı enerjinin büyük girdaplardan küçüklere nasıl aktığını anlatır. <strong>Isı ve Kütle Transferi</strong> dersinde aynı Reynolds sayısı ısı taşınımını belirler: tam gelişmiş laminer boruda Nusselt sayısı sabittir, türbülansta Re ile büyür. <strong>Biyomekanik</strong> ve fizyoloji derslerinde Poiseuille yasası damar direncinin temelidir; ama kan Newton tipi değildir, damarlar esner, nabız akışı zamana bağlı kılar. Bu düzeltmeler Womersley akışı ve Fåhræus–Lindqvist etkisi gibi adlarla karşına çıkar.",
+    ],
+    topics: [
+      "Navier–Stokes denklemleri",
+      "Sınır tabakası ve akış ayrılması",
+      "Türbülans ve Kolmogorov ölçeklemesi",
+      "Moody diyagramı, boru kayıpları ve pompa–sistem kesişimi",
+      "Boyut analizi ve dinamik benzerlik",
+      "Potansiyel akış ve sirkülasyon",
+      "Sıkıştırılabilir akış ve Mach sayısı",
+      "Kan akışı ve damar direnci",
+    ],
+  },
+  quiz: [
+    {
+      question: "Laminer akan bir damarın yarıçapı %10 daralıyor; uzunluk ve kanın viskozitesi aynı. Debinin değişmemesi için damarın iki ucu arasındaki basınç farkı yaklaşık ne kadar artmalıdır?",
+      options: ["%10", "%23", "%52", "%100"],
+      answer: 2,
+      explanation:
+        "ΔP = Q·R<sub>h</sub> ve R<sub>h</sub> = 8ηL/(πR⁴) olduğundan aynı Q için ΔP, 1/0.9⁴ = 1/0.656 ≈ 1.52 katına çıkmalıdır: yaklaşık %52. %23 (1/0.9² ≈ 1.23) yalnızca kesit alanının küçülmesini sayar; ortalama hız da R² ile düştüğü için ikinci bir 1/0.81 çarpanı gelir. Basınç farkı aynı kalsaydı debi %34 azalırdı. Sayfada R'yi 2.00 mm'den 1.00 mm'ye indirince Q/Q<sub>önceki</sub> = 0.0625 = (1/2)⁴ çıkar.",
+    },
+    {
+      question:
+        "Venturi borusunda suyu deniz suyuyla değiştirip boğazı 0.30 m yükseltiyorsun; debi, D₁ ve β aynı kalıyor. Piyezometreler arasındaki Δh ne olur?",
+      options: [
+        "Artar, çünkü basınç düşüşü artar",
+        "Azalır, çünkü deniz suyu daha yoğundur",
+        "Değişmez; Δh = (v₂² − v₁²)/2g yalnızca hızlara bağlıdır",
+        "Sıfıra iner, çünkü yükselen boğaz hız farkını dengeler",
+      ],
+      answer: 2,
+      explanation:
+        "Piyezometre basınç yükünü ve yüksekliği birlikte gösterir: Δh = (P₁ − P₂)/(ρg) − Δy. Bernoulli bu farkı (v₂² − v₁²)/2g'ye eşitler; ρ ve Δy düşer. Basınç düşüşü ise değişir: sayfada su için 7.767 kPa, deniz suyu ve 0.30 m yükseltiyle 10.99 kPa. Δh iki durumda da 79.3 cm'dir.",
+    },
+    {
+      question:
+        "Boru ve pompa sekmesinin varsayılan düzeninde ΣK 5'ten 50'ye çıkarılınca çalışma debisi 3,578 L/s'den 3,041 L/s'ye düşüyor, sistem yükü 14,635 m'den 18,899 m'ye çıkıyor. Pompanın suya aktardığı hidrolik güç ne olur?",
+      options: [
+        "Yaklaşık %15 azalır; güç debiyle orantılıdır",
+        "Yaklaşık %10 artar; güç Q·H çarpımıyla orantılıdır",
+        "Değişmez; pompa eğrisi aynı kalmıştır",
+        "Yaklaşık %29 artar; güç yalnızca yükle orantılıdır",
+      ],
+      answer: 1,
+      explanation:
+        "Hidrolik güç ρgQH'dir, yani iki sayının çarpımına bakılır: 3,578 × 14,635 ≈ 52,4 iken 3,041 × 18,899 ≈ 57,5; oran 1,098'dir ve güç 512,816 W'tan 562,882 W'a çıkar. Debi %15 azalmış, yük %29 artmıştır; tek başına hiçbiri gücü vermez. Artış sürmez: bu pompa eğrisinde Q·H çarpımı Q₀/√3 ≈ 2,887 L/s'de tepe yapar ve ΣK = 100'de güç 560,243 W'a geriler. Bunlar yalnız suya aktarılan güçtür; şaft ve elektrik gücü için pompa ve motor verimleri de gerekir.",
+    },
+  ],
+  next: [
+    {
+      href: "basinc.html",
+      title: "Basınç: Hidrostatik, Pascal İlkesi ve Hidrolik",
+      why: "Bernoulli'nin hızların sıfır olduğu hâli: durgun sıvıda P = P₀ + ρgh. Piyezometre sütunlarının neden yükseldiğini ve Torricelli'nin öbür buluşu barometreyi orada ölç.",
+    },
+    {
+      href: "hidrolik-sistemler.html",
+      title: "Hidrolik Sistemler: Debi, Yük ve Güç",
+      why: "Açık depolar arasındaki akıştan pompa, kısma valfi ve silindirden oluşan kapalı devreye geç: orada debiyi pompa, basıncı yük belirler; kısılan valfte gücün nereye gittiğini aynı bütçeyle izle.",
+    },
+    {
+      href: "kalp-dolasim.html",
+      title: "Kalp ve Dolaşım",
+      why: "Poiseuille'ün r⁴ yasası damarda: Frank–Starling ve yük sekmesinde arteriyol yarıçapını %16 küçült; arteriyol direnci iki katına çıkar ve ortalama kan basıncı yükselir. Aort ise esnek bir depo gibi çalışır (windkessel).",
+    },
+    {
+      href: "diferansiyel-denklemler.html",
+      title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa",
+      why: "Boşalan tankın A·dh/dt = −C<sub>d</sub>·a·√(2gh) denklemi bir değişim yasasıdır; denge, kararlılık ve Euler yöntemiyle bu tür denklemlerin genel dilini öğren.",
+    },
+  ],
+  sources: [
+    {
+      title: "OpenStax · University Physics Vol. 1, 14.6 Bernoulli's Equation",
+      url: "https://openstax.org/books/university-physics-volume-1/pages/14-6-bernoullis-equation",
+      note: "Bernoulli denkleminin iş-enerji teoremiyle türetilişi, hızlı akışın çevresindeki akışkanı içine çekmesi (entrainment), Pitot tüpü ve itfaiye hortumu örnekleri (İngilizce, açık ders kitabı).",
+    },
+    {
+      title: "OpenStax · University Physics Vol. 1, 14.7 Viscosity and Turbulence",
+      url: "https://openstax.org/books/university-physics-volume-1/pages/14-7-viscosity-and-turbulence",
+      note: "Viskozitenin tanımı ve tablosu, Poiseuille yasası ve akış direnci, Reynolds sayısıyla laminer–türbülanslı ayrımı (2000 ve 3000 eşikleriyle); çözümlü örneklerle. Tablodaki zeytinyağı değeri (138 mPa·s) sayfanın kullandığı 84 mPa·s'den yüksektir; böyle tablo değerleri kaynağa göre değişir.",
+    },
+    {
+      title: "Feynman Lectures on Physics, Cilt II, Bölüm 41: The Flow of Wet Water",
+      url: "https://www.feynmanlectures.caltech.edu/II_41.html",
+      note: "Viskozite, Reynolds sayısı ve benzerlik, silindir çevresindeki akışın Re ile nasıl değiştiği; lisans düzeyi (İngilizce).",
+    },
+    {
+      title: "Wikipedia · Torricelli's law",
+      url: "https://en.wikipedia.org/wiki/Torricelli%27s_law",
+      note: "Boşalma süresi formülü, debi katsayısı ve vena contracta, jet menzili, su saati problemi ve Torricelli'nin 1644'teki özgün akıl yürütmesi (İngilizce).",
+    },
+  ],
+  revision: "Kasım 2026",
+};

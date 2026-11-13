@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+    <link rel="stylesheet" href="shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Kareli bir kâğıt ve iki kural: üç komşu doğurur, iki ya da üç komşu yaşatır. Conway'in 1970'te bulduğu bu oyunda desenler yürür, çoğalır, hatta hesap yapar. Bu sayfadaki evren ise bir simit.">
+  <title>Yaşam Oyunu</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    body { display: flex; flex-direction: column; min-height: 100dvh; }
+    .hud {
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 { margin: 0 0 4px; font-size: clamp(1rem, 4vw, 1.5rem); }
+    #info { font-size: clamp(0.85rem, 3.5vw, 1.05rem); opacity: 0.9; }
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+    .control-select { display: inline-flex; align-items: center; gap: 5px; font-size: 0.76rem; color: #9aa8b6; }
+    .control-select select { padding: 6px 8px; font-size: 0.78rem; }
+    button {
+      font-size: 14px;
+      padding: 8px 12px;
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button.secondary { background: #30363d; }
+    button.active { background: #1f6feb; }
+    button:hover { filter: brightness(1.08); }
+    .hint { margin: 6px 0 0; font-size: clamp(0.7rem, 2.8vw, 0.8rem); opacity: 0.65; }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #gameCanvas {
+      display: block;
+      max-width: 100%;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      touch-action: none;
+      cursor: crosshair;
+    }
+    /* Telefona özel kısa not */
+    .touch-note { display: none; }
+    @media (pointer: coarse) { .touch-note { display: inline; } }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="yasam-oyunu">
+
+<header class="hud">
+  <h1>Conway Yaşam Oyunu</h1>
+  <div id="info">Nesil: <span id="gen">0</span> · Canlı: <span id="alive">0</span></div>
+  <div class="controls">
+    <button type="button" id="btnDraw" class="active">Çiz</button>
+    <button type="button" id="btnPlay">Oynat</button>
+    <button type="button" id="btnStep" class="secondary">Adım</button>
+    <button type="button" id="btnClear" class="secondary">Temizle</button>
+    <button type="button" id="btnRandom" class="secondary">Rastgele</button>
+    <label class="control-select" for="patternSelect">Desen
+      <select id="patternSelect">
+        <option value="glider">Planör</option>
+        <option value="blinker">Titreşen</option>
+        <option value="toad">Kurbağa</option>
+        <option value="block">Blok</option>
+        <option value="lwss">Hafif uzay gemisi</option>
+        <option value="rpentomino">R-pentomino</option>
+        <option value="gosper">Gosper planör topu</option>
+      </select>
+    </label>
+    <button type="button" id="btnPattern" class="secondary">Deseni Kur</button>
+    <label class="control-select" for="speedSelect">Hız
+      <select id="speedSelect">
+        <option value="240">Yavaş</option>
+        <option value="120" selected>Normal</option>
+        <option value="60">Hızlı</option>
+      </select>
+    </label>
+  </div>
+  <p class="hint">Çiz modunda hücrelere tıkla · Oynat: otomatik nesil · Adım: tek nesil · Tahta 80×50 bir simittir: kenardan çıkan desen karşı kenardan girer<span class="touch-note"> · Telefonda çizmek için parmağı tahtada kısaca tutup sürükle; hemen sürüklersen sayfa kayar</span></p>
+</header>
+
+<div class="game-stage">
+  <canvas id="gameCanvas" width="800" height="500" role="img" aria-label="Yaşam oyunu ızgarası"></canvas>
+</div>
+
+<script>
+  const GAME_W = 800;
+  const GAME_H = 500;
+  const COLS = 80;
+  const ROWS = 50;
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  const genEl = document.getElementById("gen");
+  const aliveEl = document.getElementById("alive");
+  const btnDraw = document.getElementById("btnDraw");
+  const btnPlay = document.getElementById("btnPlay");
+  const patternSelect = document.getElementById("patternSelect");
+  const speedSelect = document.getElementById("speedSelect");
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = Math.min(window.innerHeight - hudBottom - padY, window.AcelyaTouch?.isCoarse() ? window.innerHeight * 0.62 : Infinity); // telefonda altta kaydırma payı kalsın
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(280, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+  window.addEventListener("resize", resizeGame);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", resizeGame);
+  resizeGame();
+
+  let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  let next = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  let generation = 0;
+  let drawMode = true;
+  let playing = false;
+  let intervalId = null;
+  let painting = 1;
+  let peakGeneration = 0;
+  let lastRecordedGeneration = 0;
+  let simulationSpeed = 120;
+
+  const PATTERNS = {
+    glider: [[0, 1], [1, 2], [2, 0], [2, 1], [2, 2]],
+    blinker: [[0, 0], [0, 1], [0, 2]],
+    toad: [[0, 1], [0, 2], [0, 3], [1, 0], [1, 1], [1, 2]],
+  };
+
+  function playCellOn() { window.AcelyaSounds?.hit(); }
+  function playBurst() { window.AcelyaSounds?.explode(); }
+
+  const cellW = GAME_W / COLS;
+  const cellH = GAME_H / ROWS;
+
+  function countAlive() {
+    let n = 0;
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++) if (grid[r][c]) n++;
+    return n;
+  }
+
+  function neighbors(r, c) {
+    let n = 0;
+    for (let dr = -1; dr <= 1; dr++)
+      for (let dc = -1; dc <= 1; dc++) {
+        if (!dr && !dc) continue;
+        const rr = (r + dr + ROWS) % ROWS;
+        const cc = (c + dc + COLS) % COLS;
+        n += grid[rr][cc];
+      }
+    return n;
+  }
+
+  function stepOnce() {
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++) {
+        const alive = grid[r][c];
+        const n = neighbors(r, c);
+        next[r][c] = alive ? (n === 2 || n === 3 ? 1 : 0) : n === 3 ? 1 : 0;
+      }
+    const tmp = grid;
+    grid = next;
+    next = tmp;
+    generation++;
+    if (generation > peakGeneration) {
+      peakGeneration = generation;
+    }
+    updateHud();
+    draw();
+  }
+
+  function updateHud() {
+    genEl.textContent = generation;
+    aliveEl.textContent = countAlive();
+  }
+
+  function recordRun() {
+    if (peakGeneration <= 0 || peakGeneration === lastRecordedGeneration) return;
+    lastRecordedGeneration = peakGeneration;
+    window.AcelyaHooks?.recordScore(peakGeneration);
+  }
+
+  function rle(code) {
+    const cells = [];
+    let r = 0, c = 0, num = "";
+    for (const ch of code) {
+      if (ch >= "0" && ch <= "9") { num += ch; continue; }
+      const k = num ? Number(num) : 1;
+      num = "";
+      if (ch === "b") c += k;
+      else if (ch === "o") { for (let i = 0; i < k; i++) cells.push([r, c++]); }
+      else if (ch === "$") { r += k; c = 0; }
+    }
+    return cells;
+  }
+  PATTERNS.block = rle("2o$2o");
+  PATTERNS.lwss = rle("bo2bo$o4b$o3bo$4o");
+  PATTERNS.rpentomino = rle("b2o$2ob$bo");
+  PATTERNS.gosper = rle("24bo11b$22bobo11b$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o14b$2o8bo3bob2o4bobo11b$10bo5bo7bo11b$11bo3bo20b$12b2o");
+
+  function loadPattern(name) {
+    recordRun();
+    clearInterval(intervalId);
+    playing = false;
+    drawMode = true;
+    grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    const pattern = PATTERNS[name] || PATTERNS.glider;
+    const minR = Math.min(...pattern.map(([r]) => r));
+    const maxR = Math.max(...pattern.map(([r]) => r));
+    const minC = Math.min(...pattern.map(([, c]) => c));
+    const maxC = Math.max(...pattern.map(([, c]) => c));
+    const startR = Math.floor((ROWS - (maxR - minR + 1)) / 2);
+    const startC = Math.floor((COLS - (maxC - minC + 1)) / 2);
+    pattern.forEach(([r, c]) => { grid[startR + r - minR][startC + c - minC] = 1; });
+    generation = 0;
+    peakGeneration = 0;
+    lastRecordedGeneration = 0;
+    btnPlay.textContent = "Oynat";
+    btnPlay.classList.remove("active");
+    btnDraw.classList.add("active");
+    updateHud();
+    draw();
+    window.AcelyaGame?.announce?.(`${patternSelect.selectedOptions[0].text} deseni kuruldu.`);
+  }
+
+  function draw() {
+    ctx.fillStyle = "#161b22";
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+    ctx.fillStyle = "#3fb950";
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (grid[r][c])
+          ctx.fillRect(c * cellW, r * cellH, cellW - 0.5, cellH - 0.5);
+    if (drawMode && !playing) {
+      ctx.strokeStyle = "rgba(88, 166, 255, 0.35)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, GAME_W - 2, GAME_H - 2);
+    }
+  }
+
+  function cellFromEvent(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX ?? e.touches?.[0]?.clientX) - rect.left) / rect.width;
+    const y = ((e.clientY ?? e.touches?.[0]?.clientY) - rect.top) / rect.height;
+    const c = Math.floor(x * COLS);
+    const r = Math.floor(y * ROWS);
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return null;
+    return { r, c };
+  }
+
+  function toggleCell(r, c, force) {
+    const was = grid[r][c];
+    grid[r][c] = force !== undefined ? force : grid[r][c] ? 0 : 1;
+    if (grid[r][c] && !was) playCellOn();
+    updateHud();
+    draw();
+  }
+
+  function pointerDown(e) {
+    if (!drawMode || playing) return;
+    e.preventDefault();
+    const cell = cellFromEvent(e);
+    if (!cell) return;
+    painting = grid[cell.r][cell.c] ? 0 : 1;
+    toggleCell(cell.r, cell.c, painting);
+  }
+
+  function pointerMove(e) {
+    if (!drawMode || playing) return;
+    e.preventDefault();
+    const cell = cellFromEvent(e);
+    if (cell) toggleCell(cell.r, cell.c, painting);
+  }
+
+  canvas.addEventListener("mousedown", pointerDown);
+  canvas.addEventListener("mousemove", (e) => { if (e.buttons === 1) pointerMove(e); });
+  /* Telefonda: dokunma bir hücreyi açar/kapar; çizmek için parmağı tahtada kısa bir süre tutup sürükle.
+     Hemen sürüklenen parmak sayfayı kaydırır. Fare ve kalemde değişen bir şey yok. */
+  const coarse = () => Boolean(window.AcelyaTouch?.isCoarse());
+  window.AcelyaTouch?.guard(canvas, null, { axis: "pan-y" });
+  let touchHold = null; // { x, y, timer, ready, moved, ev }
+  canvas.addEventListener("touchstart", (e) => {
+    if (!coarse()) { pointerDown(e); return; }
+    if (e.touches.length !== 1 || !drawMode || playing) { touchHold = null; return; }
+    const t = e.touches[0];
+    const hold = { x: t.clientX, y: t.clientY, ready: false, moved: false };
+    hold.timer = setTimeout(() => {
+      if (touchHold !== hold || hold.moved) return;
+      hold.ready = true;
+      pointerDown({ clientX: hold.x, clientY: hold.y, preventDefault() {} });
+      if (navigator.vibrate) navigator.vibrate(10);
+    }, 260);
+    touchHold = hold;
+  }, { passive: false });
+  canvas.addEventListener("touchmove", (e) => {
+    if (!coarse()) { pointerMove(e); return; }
+    const hold = touchHold;
+    if (!hold) return;
+    if (hold.ready) { pointerMove(e); return; }
+    const t = e.touches[0];
+    if (t && Math.hypot(t.clientX - hold.x, t.clientY - hold.y) > 10) {
+      hold.moved = true; // parmak hemen kaydı: sayfa kaysın
+      clearTimeout(hold.timer);
+      touchHold = null;
+    }
+  }, { passive: false });
+  canvas.addEventListener("touchend", (e) => {
+    if (!coarse()) return;
+    const hold = touchHold;
+    touchHold = null;
+    if (!hold) return;
+    clearTimeout(hold.timer);
+    if (e.cancelable) e.preventDefault(); // eşlenik fare olayı hücreyi ikinci kez çevirmesin
+    if (!hold.ready && !hold.moved) pointerDown({ clientX: hold.x, clientY: hold.y, preventDefault() {} });
+  }, { passive: false });
+  canvas.addEventListener("touchcancel", () => {
+    if (touchHold) clearTimeout(touchHold.timer);
+    touchHold = null;
+  });
+
+  btnDraw.addEventListener("click", () => {
+    recordRun();
+    drawMode = true;
+    playing = false;
+    clearInterval(intervalId);
+    btnDraw.classList.add("active");
+    btnPlay.classList.remove("active");
+    btnPlay.textContent = "Oynat";
+    draw();
+  });
+
+  btnPlay.addEventListener("click", () => {
+    if (playing) {
+      recordRun();
+      playing = false;
+      drawMode = true;
+      clearInterval(intervalId);
+      btnPlay.textContent = "Oynat";
+      btnPlay.classList.remove("active");
+      btnDraw.classList.add("active");
+    } else {
+      playing = true;
+      drawMode = false;
+      btnPlay.textContent = "Durdur";
+      btnPlay.classList.add("active");
+      btnDraw.classList.remove("active");
+      intervalId = setInterval(stepOnce, simulationSpeed);
+    }
+    draw();
+  });
+
+  document.getElementById("btnStep").addEventListener("click", () => {
+    if (!playing) stepOnce();
+  });
+
+  document.getElementById("btnClear").addEventListener("click", () => {
+    recordRun();
+    playing = false;
+    drawMode = true;
+    clearInterval(intervalId);
+    btnPlay.textContent = "Oynat";
+    btnPlay.classList.remove("active");
+    btnDraw.classList.add("active");
+    grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    generation = 0;
+    peakGeneration = 0;
+    lastRecordedGeneration = 0;
+    updateHud();
+    draw();
+  });
+
+  document.getElementById("btnRandom").addEventListener("click", () => {
+    recordRun();
+    playing = false;
+    drawMode = true;
+    clearInterval(intervalId);
+    btnPlay.textContent = "Oynat";
+    btnPlay.classList.remove("active");
+    btnDraw.classList.add("active");
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++) grid[r][c] = Math.random() < 0.28 ? 1 : 0;
+    generation = 0;
+    peakGeneration = 0;
+    lastRecordedGeneration = 0;
+    playBurst();
+    updateHud();
+    draw();
+  });
+
+  document.getElementById("btnPattern").addEventListener("click", () => {
+    loadPattern(patternSelect.value);
+  });
+
+  speedSelect.addEventListener("change", () => {
+    simulationSpeed = Number(speedSelect.value);
+    if (playing) {
+      clearInterval(intervalId);
+      intervalId = setInterval(stepOnce, simulationSpeed);
+    }
+  });
+
+  updateHud();
+  draw();
+</script></body>
+</html>

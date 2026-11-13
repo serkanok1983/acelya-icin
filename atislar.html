@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Eğik Atış: Hava Direnci ve En İyi Açı</title>
+  <meta name="description" content="Boşlukta top bir parabol çizer ve en uzağa 45° ile gider. Havada yol bozulur, menzil kısalır, en iyi açı düşer. Tartaglia'nın güllelerinden Ay'daki golf vuruşuna atışın matematiği.">
+  <style>
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage, .side { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+      cursor: crosshair;
+    }
+    .sim-canvas.is-aiming { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .lab .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; cursor: pointer; }
+    .toolbar button { flex: 1 1 auto; }
+    .app-content button:disabled { opacity: 0.45; cursor: not-allowed; filter: none !important; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
+    .check span { color: var(--text) !important; }
+    .check input:disabled + span { opacity: 0.6; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .chart-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .chart-head label { font-size: 0.86rem; font-weight: 600; white-space: nowrap; }
+    .chart-head select { flex: 1 1 auto; min-width: 0; padding: 6px 8px; font: inherit; }
+    .readouts { display: grid; gap: 10px; min-width: 0; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.8rem; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 34%; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; min-width: 0; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .trails { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: -4px 0 0; padding: 0; list-style: none; font-size: 0.78rem; line-height: 1.35; font-variant-numeric: tabular-nums; min-width: 0; }
+    .trails li { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .trails i { display: inline-block; flex: none; width: 16px; height: 3px; border-radius: 2px; }
+    .trails .sw0 { background: #a78bfa; }
+    .trails .sw1 { background: #fbbf24; }
+    .trails .sw2 { background: #f472b6; }
+    .trails .sw3 { background: #60a5fa; }
+    .trails .sw4 { background: #4ade80; }
+    [data-theme="light"] .trails .sw0 { background: #7c3aed; }
+    [data-theme="light"] .trails .sw1 { background: #d97706; }
+    [data-theme="light"] .trails .sw2 { background: #be185d; }
+    [data-theme="light"] .trails .sw3 { background: #2563eb; }
+    [data-theme="light"] .trails .sw4 { background: #15803d; }
+    .cards.live { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .live .readout { padding: 6px 8px; }
+    .live .readout strong { font-size: 0.86rem; white-space: nowrap; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status:empty { display: none; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; gap: 12px; }
+      .lab-stage, .side { display: contents; }
+      .sim-canvas { order: 1; aspect-ratio: 3 / 2; }
+      .trails { order: 2; }
+      .live { order: 3; }
+      .cards.live { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .toolbar { order: 4; }
+      #launchPanel { order: 5; }
+      .readouts { order: 6; }
+      .chart-head { order: 7; }
+      .chart-canvas { order: 8; aspect-ratio: 2 / 1; }
+      #ballPanel { order: 9; }
+      #envPanel { order: 10; }
+      .lab table.cmp { font-size: 0.8rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+      .lab table.cmp col.c-name { width: 31%; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="atislar">
+
+<div class="app-content">
+  <h1>Eğik Atış: Hava Direnci ve En İyi Açı</h1>
+  <p class="hint">Topu, hızı, açıyı ve atış yüksekliğini seç; Fırlat'a bas ya da sahnede sürükleyip bırak. Telefonda nişan almak için v₀ okuna dokunup sürükle; boş yerde parmak sayfayı kaydırır. Sayfa uçuştan ölçtüğü menzil, yükseklik, süre ve çarpma hızını boşluk formülleriyle karşılaştırır. Açı taraması her açının menzilini hesaplayıp en iyi açıyı bulur: boşlukta yerden atışta 45°, havada daha az.</p>
+
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="stageCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Atış sahnesi: zemin cetveli, atış oku ve açısı, hava dirençli yörünge, kesikli boşluk yörüngesi, önceki atışların izleri, tepe ve iniş işaretleri, topun üzerinde hız (v), hava direnci (F_d) ve ağırlık (mg) vektörleri"></canvas>
+      <ul class="trails" id="trailList" aria-label="Önceki atışların izleri, en yenisi önce" hidden></ul>
+
+      <div class="cards live" aria-live="off">
+        <div class="readout"><small>Zaman t</small><strong id="liveT">—</strong></div>
+        <div class="readout"><small>Konum x</small><strong id="liveX">—</strong></div>
+        <div class="readout"><small>Yükseklik y</small><strong id="liveY">—</strong></div>
+        <div class="readout"><small>Hız |v|</small><strong id="liveV">—</strong></div>
+        <div class="readout"><small>Anlık F<sub>d</sub>/mg</small><strong id="liveF">—</strong></div>
+      </div>
+
+      <div class="row toolbar" role="group" aria-label="Atış denetimleri">
+        <button type="button" id="launchBtn">Fırlat</button>
+        <button type="button" id="pauseBtn" class="app-btn-ghost" aria-pressed="false">Duraklat</button>
+        <button type="button" id="resetBtn" class="app-btn-ghost">Sıfırla</button>
+        <button type="button" id="clearBtn" class="app-btn-ghost">İzleri temizle</button>
+        <button type="button" id="sweepBtn" class="app-btn-ghost">Açı taraması</button>
+      </div>
+
+      <div class="chart-head">
+        <label for="chartSelect">Grafik</label>
+        <select id="chartSelect">
+          <option value="yx" selected>Yörünge y(x)</option>
+          <option value="vt">Hız v(t)</option>
+          <option value="et">Enerji E(t)</option>
+          <option value="rth">Menzil–açı R(θ), açı taraması</option>
+        </select>
+      </div>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="300" role="img" aria-label="Yörünge grafiği y(x)"></canvas>
+
+      <div class="readouts" aria-live="polite">
+        <table class="cmp">
+          <caption class="visually-hidden">Benzetimde ölçülen değerler ile hava direnci olmayan (boşluk) formüllerin karşılaştırması</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Benzetim</th><th scope="col">Boşlukta (formül)</th><th scope="col">Fark</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Menzil R</th><td id="rRm">—</td><td id="rRt">—</td><td id="rRd" class="diff">—</td></tr>
+            <tr><th scope="row">En büyük yükseklik H</th><td id="rHm">—</td><td id="rHt">—</td><td id="rHd" class="diff">—</td></tr>
+            <tr><th scope="row">Uçuş süresi T</th><td id="rTm">—</td><td id="rTt">—</td><td id="rTd" class="diff">—</td></tr>
+            <tr><th scope="row">Çarpma hızı v<sub>son</sub></th><td id="rVm">—</td><td id="rVt">—</td><td id="rVd" class="diff">—</td></tr>
+            <tr><th scope="row">İniş açısı (yatayla)</th><td id="rAm">—</td><td id="rAt">—</td><td id="rAd" class="diff">—</td></tr>
+            <tr><th scope="row">En iyi açı θ* (tarama)</th><td id="rOm">—</td><td id="rOt">—</td><td id="rOd" class="diff">—</td></tr>
+            <tr><th scope="row">En büyük menzil R<sub>maks</sub> (tarama)</th><td id="rXm">—</td><td id="rXt">—</td><td id="rXd" class="diff">—</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Benzetim sütunu RK4 ile hesaplanan uçuştan ölçülür. Boşluk sütunu hava direnci olmayan formüllerdir: T = (v₀ sin θ + √(v₀² sin²θ + 2gh₀))/g, R = v₀ cos θ · T, H = h₀ + v₀² sin²θ/(2g), v<sub>son</sub> = √(v₀² + 2gh₀); h₀ = 0 için R = v₀² sin 2θ/g. En iyi açı: tan θ* = v₀/√(v₀² + 2gh₀). Hava direnci kapalıyken fark yalnız sayısal hatadır; açıkken hava direncinin etkisidir.</p>
+        <div class="cards">
+          <div class="readout"><small>Limit hız v<sub>t</sub> = √(2mg/(ρC<sub>d</sub>A))</small><strong id="vtOut">—</strong></div>
+          <div class="readout"><small>Fırlatmada F<sub>d</sub>/mg = (v₀/v<sub>t</sub>)²</small><strong id="dwOut">—</strong></div>
+          <div class="readout is-highlight"><small>Havaya giden enerji W<sub>d</sub></small><strong id="wOut">—</strong></div>
+          <div class="readout"><small>Menzil oranı R/R<sub>boşluk</sub></small><strong id="ratioOut">—</strong></div>
+          <div class="readout"><small>Enerji dengesi (E<sub>k</sub> + E<sub>p</sub> + W<sub>d</sub>)/E₀</small><strong id="balOut">—</strong></div>
+        </div>
+        <p class="status" id="statusOut"></p>
+        <p class="status" id="sweepOut"></p>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="panel" id="launchPanel" role="group" aria-labelledby="ttlLaunch">
+        <h2 id="ttlLaunch">Atış</h2>
+        <div class="field">
+          <label for="speedRange"><span class="lt">Atış hızı v₀</span> <output id="speedOut" for="speedRange">25.0 m/s</output></label>
+          <input type="range" id="speedRange" min="0" max="100" step="0.5" value="25">
+        </div>
+        <div class="field">
+          <label for="angleRange"><span class="lt">Atış açısı θ</span> <output id="angleOut" for="angleRange">45°</output></label>
+          <input type="range" id="angleRange" min="0" max="90" step="1" value="45">
+        </div>
+        <div class="field">
+          <label for="heightRange"><span class="lt">Atış yüksekliği h₀</span> <output id="heightOut" for="heightRange">0.0 m</output></label>
+          <input type="range" id="heightRange" min="0" max="50" step="0.1" value="0">
+        </div>
+        <div class="row">
+          <button type="button" id="typicalBtn" class="app-btn-ghost">Tipik atışı yükle</button>
+        </div>
+        <p class="note" id="typicalNote"></p>
+      </div>
+
+      <div class="panel" id="ballPanel" role="group" aria-labelledby="ttlBall">
+        <h2 id="ttlBall">Top</h2>
+        <div class="field">
+          <label for="ballSelect">Top türü</label>
+          <select id="ballSelect">
+            <option value="futbol" selected>Futbol topu · 430 g, 22.0 cm</option>
+            <option value="beyzbol">Beyzbol topu · 145 g, 7.37 cm</option>
+            <option value="golf">Golf topu · 45.9 g, 4.27 cm</option>
+            <option value="masa">Masa tenisi topu · 2.70 g, 4.00 cm</option>
+            <option value="gulle">Gülle (erkek) · 7.26 kg, 12.0 cm</option>
+            <option value="ozel">Özel</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="massRange"><span class="lt">Kütle m</span> <output id="massOut" for="massRange">430 g</output></label>
+          <input type="range" id="massRange" min="-3" max="1.3" step="0.005" value="-0.365">
+        </div>
+        <div class="field">
+          <label for="diamRange"><span class="lt">Çap d</span> <output id="diamOut" for="diamRange">22.0 cm</output></label>
+          <input type="range" id="diamRange" min="-2" max="-0.302" step="0.002" value="-0.658">
+        </div>
+        <div class="field">
+          <label for="cdRange"><span class="lt">Sürüklenme katsayısı C<sub>d</sub></span> <output id="cdOut" for="cdRange">0.20</output></label>
+          <input type="range" id="cdRange" min="0.05" max="1.5" step="0.01" value="0.2">
+        </div>
+        <p class="note">Kütle ve çaplar oyun kurallarındaki sınırlardan alındı (FIFA, MLB, R&amp;A–USGA, ITTF, World Athletics). C<sub>d</sub> değerleri tipik ve yaklaşıktır: futbol 0.20 (dönmeyen top ≈ 0.15, dönen top ≈ 0.25), beyzbol 0.35, gamzeli golf topu 0.25, düz küre (masa tenisi, gülle) 0.45. Kaydırıcılardan birini oynatınca top "Özel" olur.</p>
+        <p class="note">Bu model gerçek toplardaki iki etkiyi içermez: dönen topa etkiyen kaldırma (Magnus) kuvveti ve C<sub>d</sub>'nin hızla değişmesi (sürüklenme krizi). Geri dönüşlü golf ve beyzbol vuruşlarında kaldırma menzili belirgin biçimde uzatır.</p>
+      </div>
+
+      <div class="panel" id="envPanel" role="group" aria-labelledby="ttlEnv">
+        <h2 id="ttlEnv">Ortam ve görünüm</h2>
+        <div class="field">
+          <label for="envSelect"><span class="lt">Gök cismi ve hava</span> <output id="envOut" for="envSelect">ρ = 1.204 kg/m³</output></label>
+          <select id="envSelect">
+            <option value="dunya" selected>Dünya, deniz düzeyi, 20 °C · g 9.81</option>
+            <option value="denver">Dünya, 1609 m irtifa (Denver) · g 9.81</option>
+            <option value="mars">Mars yüzeyi · g 3.71</option>
+            <option value="ay">Ay (atmosfer yok) · g 1.62</option>
+          </select>
+        </div>
+        <label class="check" for="dragCheck"><input type="checkbox" id="dragCheck" checked> <span id="dragText">Hava direnci</span></label>
+        <label class="check" for="vacCheck"><input type="checkbox" id="vacCheck" checked> <span>Boşluktaki yolu da göster</span></label>
+        <div class="field">
+          <label for="playSelect"><span class="lt">Oynatma hızı</span> <output id="playOut" for="playSelect">1×</output></label>
+          <select id="playSelect">
+            <option value="auto" selected>Otomatik (uzun uçuşlarda hızlanır)</option>
+            <option value="0.25">0.25× ağır çekim</option>
+            <option value="0.5">0.5×</option>
+            <option value="1">1× gerçek zaman</option>
+            <option value="2">2×</option>
+            <option value="5">5×</option>
+            <option value="10">10×</option>
+          </select>
+        </div>
+        <p class="note">Hava yoğunluğu: 20 °C ve 101.325 kPa'da kuru hava 1.204 kg/m³; 1609 m için ISA standart atmosferi 1.047 kg/m³ verir. Mars yüzeyinde ortalama 0.020 kg/m³ (NASA). Ay'da atmosfer yoktur, hava direnci de yoktur.</p>
+        <p class="note">Model: noktasal top; ağırlık mg ve hızın tersi yönde F<sub>d</sub> = ½ρC<sub>d</sub>Av², A = πd²/4. Sayısal yöntem: RK4, sabit adım Δt = 1 ms; tepe ve iniş anı son adımın içinde Newton yöntemiyle bulunur. Açı taraması 0°–90° arasını 0.5° aralıkla hesaplar, en iyi açıyı altın oran aramasıyla 0.001°'ye kadar inceltir. Top ve oklar ölçekli değildir; yörüngeler ölçeklidir.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> fırlat ya da duraklat, <kbd>R</kbd> sıfırla, <kbd>C</kbd> izleri temizle. Sahnede sürükle: okun yönü açıyı, uzunluğu hızı verir; bırakınca top fırlar.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── FİZİK (doğrulama betiği bu bloğu ayıklar) ── */
+  // >>> PHYS
+  const PHYS = (() => {
+    /* Toplar: kütle ve çap kurallardaki sınırlardan; C_d sabit ve yaklaşık.
+       futbol   0.430 kg, d 22.0 cm   FIFA Oyun Kuralları, Kural 2: çevre 68–70 cm, kütle 410–450 g.
+                C_d 0.20             aşırı kritik bölgede dönmeyen top ≈ 0.15, dönen top ≈ 0.25 (Asai ve ark., Sports Eng. 2007).
+       beyzbol  0.145 kg, d 7.37 cm  MLB Resmî Kurallar 3.01: 5–5¼ ons (142–149 g), çevre 9–9¼ inç.
+                C_d 0.35             atış verilerinden 0.31–0.35 (The Physics Teacher 52, 278, 2014); Adair'in limit hızı ≈ 95 mi/sa.
+       golf     45.93 g, d 42.67 mm  R&A–USGA donanım kuralları: en çok 45.93 g, en az 42.67 mm.
+                C_d 0.25             gamzeli top, sürüş hızlarında; 70 m/s'de sürüklenme ağırlığın iki katını aşar.
+       masa     2.70 g, d 40.0 mm    ITTF: 40 mm, 2.7 g.
+                C_d 0.45             düz küre, Re ≈ 750–2×10⁵ aralığında ≈ 0.445 (French, Exp. Techniques 2006).
+       gülle    7.26 kg, d 12.0 cm   World Athletics: erkek güllesi 7.26 kg, çap 110–130 mm. C_d 0.45 düz küre.
+       Tipik atışlar yaklaşık değerlerdir (v₀ m/s, θ derece, h₀ m). */
+    const BALLS = {
+      futbol: { name: "Futbol topu", m: 0.43, d: 0.22, cd: 0.2, typical: { v: 25, th: 35, h: 0, what: "uzun vuruş" } },
+      beyzbol: { name: "Beyzbol topu", m: 0.145, d: 0.0737, cd: 0.35, typical: { v: 45, th: 30, h: 1, what: "sert vuruş, ≈ 160 km/sa" } },
+      golf: { name: "Golf topu", m: 0.04593, d: 0.04267, cd: 0.25, typical: { v: 70, th: 12, h: 0, what: "sopayla uzun vuruş" } },
+      masa: { name: "Masa tenisi topu", m: 0.0027, d: 0.04, cd: 0.45, typical: { v: 15, th: 20, h: 0.9, what: "masa üstünden vuruş" } },
+      gulle: { name: "Gülle", m: 7.26, d: 0.12, cd: 0.45, typical: { v: 13.5, th: 38, h: 2, what: "usta atıcının bırakışı" } },
+    };
+    /* Ortamlar: g (m/s²) ve hava yoğunluğu ρ (kg/m³).
+       Dünya 9.81; kuru hava 20 °C, 101.325 kPa: ρ = P/(R_d·T) = 1.204.
+       1609 m: ISA (T₀ = 288.15 K, L = 6.5 K/km, üs 5.25588) → T = 277.69 K, P = 83.43 kPa, ρ = 1.047.
+       Mars 3.71 ve ρ ≈ 0.020; Ay 1.62 ve atmosfer yok (NASA gezegen bilgi sayfaları). */
+    const ENVS = {
+      dunya: { name: "Dünya, deniz düzeyi", g: 9.81, rho: 1.204 },
+      denver: { name: "Dünya, 1609 m", g: 9.81, rho: 1.047 },
+      mars: { name: "Mars", g: 3.71, rho: 0.02 },
+      ay: { name: "Ay", g: 1.62, rho: 0 },
+    };
+    const DT = 0.001;   // s, canlı uçuşun sabit adımı
+    const D2R = Math.PI / 180;
+
+    // o: { m, d, cd, g, rho, drag, v0, thDeg, h0 }
+    function params(o) {
+      const A = (Math.PI * o.d * o.d) / 4;
+      const rho = o.drag ? o.rho : 0;
+      const k = 0.5 * rho * o.cd * A;
+      const p = { m: o.m, d: o.d, cd: o.cd, A, g: o.g, rho, k, c: k / o.m, v0: o.v0, h0: o.h0 };
+      return withAngle(p, o.thDeg);
+    }
+    function withAngle(p, thDeg) {
+      const th = thDeg * D2R;
+      return { ...p, thDeg, th, vx0: thDeg >= 90 ? 0 : p.v0 * Math.cos(th), vy0: thDeg <= 0 ? 0 : p.v0 * Math.sin(th) };
+    }
+    const terminal = (p) => (p.k > 0 ? Math.sqrt((p.m * p.g) / p.k) : Infinity);
+
+    // Boşluk (hava direnci yok) formülleri
+    function vacuum(p) {
+      const g = p.g, vx = p.vx0, vy = p.vy0, h = p.h0, v0 = p.v0;
+      const disc = Math.sqrt(vy * vy + 2 * g * h);
+      const T = (vy + disc) / g;
+      const tA = vy > 0 ? vy / g : 0;
+      const root = Math.sqrt(v0 * v0 + 2 * g * h);
+      return {
+        T,
+        R: vx * T,
+        H: h + (vy > 0 ? (vy * vy) / (2 * g) : 0),
+        tA,
+        xA: vx * tA,
+        vImp: root,
+        angImp: T > 0 ? Math.atan2(disc, vx) / D2R : NaN,
+        thOpt: v0 > 0 ? Math.atan(v0 / root) / D2R : NaN,
+        Rmax: (v0 / g) * root,
+      };
+    }
+    const vacAt = (p, t) => [p.vx0 * t, p.h0 + p.vy0 * t - 0.5 * p.g * t * t];
+
+    /* RK4: durum (x, y, vx, vy, W); ivme yalnız hıza bağlı:
+       a = −g ŷ − (k/m)|v| v,  dW/dt = k|v|³ (hava direncine giden güç) */
+    function rk4(s, dt, p) {
+      const g = p.g, c = p.c, vx = s.vx, vy = s.vy;
+      let v = Math.sqrt(vx * vx + vy * vy);
+      const ax1 = -c * v * vx, ay1 = -g - c * v * vy, p1 = v * v * v;
+      const vx2 = vx + 0.5 * dt * ax1, vy2 = vy + 0.5 * dt * ay1;
+      v = Math.sqrt(vx2 * vx2 + vy2 * vy2);
+      const ax2 = -c * v * vx2, ay2 = -g - c * v * vy2, p2 = v * v * v;
+      const vx3 = vx + 0.5 * dt * ax2, vy3 = vy + 0.5 * dt * ay2;
+      v = Math.sqrt(vx3 * vx3 + vy3 * vy3);
+      const ax3 = -c * v * vx3, ay3 = -g - c * v * vy3, p3 = v * v * v;
+      const vx4 = vx + dt * ax3, vy4 = vy + dt * ay3;
+      v = Math.sqrt(vx4 * vx4 + vy4 * vy4);
+      const ax4 = -c * v * vx4, ay4 = -g - c * v * vy4, p4 = v * v * v;
+      const h6 = dt / 6;
+      s.x += h6 * (vx + 2 * vx2 + 2 * vx3 + vx4);
+      s.y += h6 * (vy + 2 * vy2 + 2 * vy3 + vy4);
+      s.vx = vx + h6 * (ax1 + 2 * ax2 + 2 * ax3 + ax4);
+      s.vy = vy + h6 * (ay1 + 2 * ay2 + 2 * ay3 + ay4);
+      s.w += p.k * h6 * (p1 + 2 * p2 + 2 * p3 + p4);
+      s.t += dt;
+    }
+    const copy = (s) => ({ t: s.t, x: s.x, y: s.y, vx: s.vx, vy: s.vy, w: s.w });
+    function sub(s0, tau, p) {
+      const q = copy(s0);
+      if (tau > 0) rk4(q, tau, p);
+      return q;
+    }
+    // Adım içinde kök: f(τ) = y (iniş) ya da vy (tepe); Newton, her deneme RK4 alt adımıyla
+    function root(s0, dt, p, f0, f1, val, der) {
+      let tau = f0 === f1 ? 0 : Math.min(dt, Math.max(0, (dt * f0) / (f0 - f1)));
+      let q = sub(s0, tau, p);
+      for (let i = 0; i < 8; i++) {
+        const dv = der(q);
+        if (!dv) break;
+        const nt = Math.min(dt, Math.max(0, tau - val(q) / dv));
+        const done = Math.abs(nt - tau) < 1e-14;
+        tau = nt;
+        q = sub(s0, tau, p);
+        if (done) break;
+      }
+      return q;
+    }
+    const ayOf = (q, p) => -p.g - p.c * Math.sqrt(q.vx * q.vx + q.vy * q.vy) * q.vy;
+
+    function createShot(p) {
+      const s = { t: 0, x: 0, y: p.h0, vx: p.vx0, vy: p.vy0, w: 0 };
+      const sh = { p, s, apex: null, land: null, steps: 0 };
+      if (p.vy0 <= 0) sh.apex = copy(s);
+      if (p.h0 <= 0 && p.vy0 <= 0) sh.land = { ...copy(s), y: 0 };
+      return sh;
+    }
+    /* Bir sabit adım; iniş olduysa true. Hava direnci çok güçlüyse (c·|v|·dt > 0.05, yalnız uç
+       "Özel" toplarda) adım eşit alt adımlara bölünür: RK4 böylece kararlı ve doğru kalır. */
+    function advance(sh, dt) {
+      if (sh.land) return true;
+      const s = sh.s, p = sh.p;
+      const n = p.c > 0 ? Math.min(4000, Math.max(1, Math.ceil((p.c * Math.hypot(s.vx, s.vy) * dt) / 0.05))) : 1;
+      const h = dt / n;
+      sh.steps++;
+      for (let i = 0; i < n; i++) {
+        const s0 = copy(s);
+        rk4(s, h, p);
+        if (!sh.apex && s0.vy > 0 && s.vy <= 0) {
+          sh.apex = root(s0, h, p, s0.vy, s.vy, (q) => q.vy, (q) => ayOf(q, p));
+        }
+        if (s.y < 0) {
+          const L = root(s0, h, p, s0.y, s.y, (q) => q.y, (q) => q.vy);
+          L.y = 0;
+          Object.assign(s, L);
+          sh.land = L;
+          return true;
+        }
+      }
+      return false;
+    }
+    function result(sh) {
+      const L = sh.land, p = sh.p;
+      if (!L) return null;
+      const v = Math.hypot(L.vx, L.vy), E0 = 0.5 * p.m * p.v0 * p.v0 + p.m * p.g * p.h0;
+      const Ek = 0.5 * p.m * v * v;
+      return {
+        R: L.x, H: sh.apex ? sh.apex.y : p.h0, xA: sh.apex ? sh.apex.x : 0, T: L.t, vImp: v,
+        angImp: L.t > 0 ? Math.atan2(-L.vy, L.vx) / D2R : NaN,
+        W: L.w, E0, balance: E0 > 0 ? (Ek + L.w) / E0 : NaN,
+      };
+    }
+    function simulate(p, dt, onStep) {
+      const sh = createShot(p);
+      let n = 0;
+      while (!sh.land && n < 5e6) {
+        advance(sh, dt);
+        n++;
+        if (onStep) onStep(sh);
+      }
+      return sh;
+    }
+    /* Tarama ve görünüm önizlemesi için adım: uçuş başına ≈ 4000 adım, hava direncinin zaman ölçeğinin 1/50'si.
+       Uçuş süresi ölçeği: düşey atışın boşluk süresi + en büyük yükseklikten limit hızla iniş süresi. */
+    function coarseDt(p) {
+      const T90 = (p.v0 + Math.sqrt(p.v0 * p.v0 + 2 * p.g * p.h0)) / p.g, vt = terminal(p);
+      let dt = (T90 + (Number.isFinite(vt) ? (p.h0 + (p.v0 * p.v0) / (2 * p.g)) / vt : 0)) / 4000;
+      if (p.c > 0 && p.v0 > 0) dt = Math.min(dt, 0.02 / (p.c * p.v0));
+      return Math.min(0.05, Math.max(1e-4, dt));
+    }
+    const rangeAt = (p, thDeg, dt) => simulate(withAngle(p, thDeg), dt).land.x;
+
+    /* Açı taraması: 0°–90°, 0.5° aralık; en iyi açı ızgaradaki en büyüğün iki komşusu
+       arasında altın oran aramasıyla 0.001°'ye kadar inceltilir. Her çağrı tek uçuş hesaplar. */
+    const PHI = (Math.sqrt(5) - 1) / 2;
+    function createSweep(p) {
+      const N = 181, th = new Float64Array(N), R = new Float64Array(N).fill(NaN);
+      for (let i = 0; i < N; i++) th[i] = i * 0.5;
+      return { p, dt: coarseDt(p), N, th, R, i: 0, k: 0, phase: "grid", gs: null, best: null, evals: 0 };
+    }
+    function sweepStep(sw) {
+      if (sw.phase === "done") return true;
+      const f = (a) => { sw.evals++; return rangeAt(sw.p, a, sw.dt); };
+      if (sw.phase === "grid") {
+        sw.R[sw.i] = f(sw.th[sw.i]);
+        if (++sw.i < sw.N) return false;
+        let k = 0;
+        for (let j = 1; j < sw.N; j++) if (sw.R[j] > sw.R[k]) k = j;
+        sw.k = k;
+        if (!(sw.R[k] > 0)) { sw.phase = "done"; return true; }
+        const a = sw.th[Math.max(0, k - 1)], b = sw.th[Math.min(sw.N - 1, k + 1)];
+        const c = b - PHI * (b - a), d = a + PHI * (b - a);
+        sw.gs = { a, b, c, d, fc: f(c), fd: f(d) };
+        sw.phase = "refine";
+        return false;
+      }
+      const s = sw.gs;
+      if (s.b - s.a > 1e-3) {
+        if (s.fc > s.fd) { s.b = s.d; s.d = s.c; s.fd = s.fc; s.c = s.b - PHI * (s.b - s.a); s.fc = f(s.c); }
+        else { s.a = s.c; s.c = s.d; s.fc = s.fd; s.d = s.a + PHI * (s.b - s.a); s.fd = f(s.d); }
+        return false;
+      }
+      const th = (s.a + s.b) / 2;
+      sw.best = { th, R: f(th) };
+      if (sw.best.R < sw.R[sw.k]) sw.best = { th: sw.th[sw.k], R: sw.R[sw.k] };
+      sw.phase = "done";
+      return true;
+    }
+    function runSweep(p) {
+      const sw = createSweep(p);
+      while (!sweepStep(sw));
+      return sw;
+    }
+
+    /* Biçimlendirme (sayfadaki yazılarla aynı) */
+    const MINUS = "−";
+    function num(x, d) {
+      if (!Number.isFinite(x)) return "—";
+      const s = Math.abs(x).toFixed(d);
+      return (x < 0 && Number(s) !== 0 ? MINUS : "") + s;
+    }
+    function sig(x, n) {
+      if (!Number.isFinite(x)) return "—";
+      if (x === 0) return "0";
+      const e = Math.floor(Math.log10(Math.abs(x)));
+      return num(x, Math.max(0, Math.min(6, n - 1 - e)));
+    }
+    const fmtM = (x) => `${sig(x, 4)} m`;
+    const fmtS = (x) => `${sig(x, 4)} s`;
+    const fmtV = (x) => `${sig(x, 4)} m/s`;
+    const fmtJ = (x) => `${sig(x, 4)} J`;
+    const fmtDeg = (x, d = 2) => (Number.isFinite(x) ? `${num(x, d)}°` : "—");
+    function pct(meas, th) {
+      if (!Number.isFinite(meas) || !Number.isFinite(th) || th === 0) return "—";
+      const d = ((meas - th) / Math.abs(th)) * 100;
+      if (Math.abs(d) < 0.005) return "0.00 %";
+      return `${d > 0 ? "+" : MINUS}${Math.abs(d).toFixed(2)} %`;
+    }
+    function dDeg(meas, th) {
+      if (!Number.isFinite(meas) || !Number.isFinite(th)) return "—";
+      const d = meas - th;
+      if (Math.abs(d) < 0.005) return "0.00°";
+      return `${d > 0 ? "+" : MINUS}${Math.abs(d).toFixed(2)}°`;
+    }
+    const fmtMass = (m) => (m < 1 ? `${sig(m * 1000, 3)} g` : `${sig(m, 3)} kg`);
+    const fmtDiam = (d) => `${sig(d * 100, 3)} cm`;
+
+    return {
+      BALLS, ENVS, DT, params, withAngle, terminal, vacuum, vacAt, rk4, createShot, advance, result, simulate,
+      coarseDt, rangeAt, createSweep, sweepStep, runSweep,
+      fmt: { num, sig, fmtM, fmtS, fmtV, fmtJ, fmtDeg, pct, dDeg, fmtMass, fmtDiam },
+    };
+  })();
+  // <<< PHYS
+
+  const F = PHYS.fmt;
+  const $ = (id) => document.getElementById(id);
+  const stage = $("stageCanvas"), sctx = stage.getContext("2d");
+  const chart = $("chartCanvas"), cctx = chart.getContext("2d");
+  const ui = {
+    v: $("speedRange"), th: $("angleRange"), h: $("heightRange"),
+    vOut: $("speedOut"), thOut: $("angleOut"), hOut: $("heightOut"),
+    typical: $("typicalBtn"), typicalNote: $("typicalNote"),
+    ball: $("ballSelect"), m: $("massRange"), d: $("diamRange"), cd: $("cdRange"),
+    mOut: $("massOut"), dOut: $("diamOut"), cdOut: $("cdOut"),
+    env: $("envSelect"), envOut: $("envOut"), drag: $("dragCheck"), dragText: $("dragText"), vac: $("vacCheck"),
+    play: $("playSelect"), playOut: $("playOut"), chartSel: $("chartSelect"),
+    launch: $("launchBtn"), pause: $("pauseBtn"), reset: $("resetBtn"), clear: $("clearBtn"), sweep: $("sweepBtn"),
+    liveT: $("liveT"), liveX: $("liveX"), liveY: $("liveY"), liveV: $("liveV"), liveF: $("liveF"),
+    vt: $("vtOut"), dw: $("dwOut"), w: $("wOut"), ratio: $("ratioOut"), bal: $("balOut"),
+    status: $("statusOut"), sweepOut: $("sweepOut"), trailList: $("trailList"),
+  };
+  const ROWS = ["R", "H", "T", "V", "A", "O", "X"].map((k) => [$(`r${k}m`), $(`r${k}t`), $(`r${k}d`)]);
+  const CHART_ARIA = {
+    yx: "Yörünge grafiği y(x): hava dirençli yol, kesikli boşluk yolu ve tepe noktası",
+    vt: "Hız-zaman grafiği: hız büyüklüğü, yatay hız bileşeni, boşluktaki hız ve limit hız çizgisi",
+    et: "Enerji-zaman grafiği: kinetik, potansiyel, havaya giden enerji ve toplam",
+    rth: "Menzil-açı grafiği: her atış açısı için menzil, boşluk eğrisi ve en iyi açı işaretleri",
+  };
+
+  const cfg = { ball: "futbol", m: 0.43, d: 0.22, cd: 0.2, env: "dunya", drag: true, v0: 25, thDeg: 45, h0: 0, showVac: true };
+  let P = null, VAC = null, PLAN = null, shot = null, samples = null, trails = [], sweep = null, sweepWanted = false;
+  let paused = false, acc = 0, lastFrame = 0, lastTheme = "", dpr = 1, dirty = true, uiDirty = true, lastUi = 0;
+  let view = null, aim = null, timeScale = 1, trailSeq = 0;
+  const MAX_TRAILS = 10;
+
+  /* ── Ayarlar ── */
+  function readControls() {
+    cfg.v0 = Number(ui.v.value);
+    cfg.thDeg = Number(ui.th.value);
+    cfg.h0 = Number(ui.h.value);
+    cfg.cd = Number(ui.cd.value);
+    cfg.env = ui.env.value;
+    cfg.showVac = ui.vac.checked;
+    const env = PHYS.ENVS[cfg.env];
+    const airless = env.rho === 0;
+    ui.drag.disabled = airless;
+    cfg.drag = ui.drag.checked && !airless;
+    ui.dragText.textContent = airless ? "Hava direnci (Ay'da hava yok)" : "Hava direnci";
+    P = PHYS.params({ m: cfg.m, d: cfg.d, cd: cfg.cd, g: env.g, rho: env.rho, drag: cfg.drag, v0: cfg.v0, thDeg: cfg.thDeg, h0: cfg.h0 });
+    VAC = PHYS.vacuum(P);
+    PLAN = PHYS.result(PHYS.simulate(P, PHYS.coarseDt(P)));
+    ui.vOut.textContent = `${F.num(cfg.v0, 1)} m/s`;
+    ui.thOut.textContent = `${cfg.thDeg}°`;
+    ui.hOut.textContent = `${F.num(cfg.h0, 1)} m`;
+    ui.mOut.textContent = F.fmtMass(cfg.m);
+    ui.dOut.textContent = F.fmtDiam(cfg.d);
+    ui.cdOut.textContent = F.num(cfg.cd, 2);
+    ui.envOut.textContent = airless ? "hava yok" : `ρ = ${F.num(env.rho, 3)} kg/m³`;
+    const ball = PHYS.BALLS[cfg.ball];
+    ui.typical.disabled = !ball;
+    ui.typicalNote.textContent = ball
+      ? `Tipik atış (${ball.typical.what}): v₀ = ${F.num(ball.typical.v, 1)} m/s, θ = ${ball.typical.th}°, h₀ = ${F.num(ball.typical.h, 1)} m. Yaklaşık değerlerdir.`
+      : "Özel topun tipik atışı yok; hızı, açıyı ve yüksekliği kendin seç.";
+    const sel = ui.play.value;
+    if (sel === "auto") {
+      const T = Math.max(PLAN ? PLAN.T : 0, cfg.showVac ? VAC.T : 0);
+      timeScale = [1, 2, 5, 10, 20, 50, 100].find((k) => T / k <= 7) || 100;
+    } else timeScale = Number(sel);
+    ui.playOut.textContent = `${timeScale < 1 ? F.num(timeScale, 2) : timeScale}×`;
+  }
+
+  function setBall(key) {
+    const b = PHYS.BALLS[key];
+    cfg.ball = key;
+    ui.ball.value = key;
+    if (!b) return;
+    cfg.m = b.m;
+    cfg.d = b.d;
+    ui.m.value = Math.log10(b.m).toFixed(3);
+    ui.d.value = Math.log10(b.d).toFixed(3);
+    ui.cd.value = b.cd;
+  }
+
+  function onSettings() {
+    retireShot();
+    readControls();
+    if (sweepWanted) sweep = PHYS.createSweep(P);
+    else sweep = null;
+    dirty = true;
+    forceUi();
+  }
+
+  /* ── Atış yaşam döngüsü ── */
+  function retireShot() {
+    if (shot && samples && samples.length > 2 && shot.s.t > 0) {
+      const pts = [];
+      const n = samples.length / 6, stepK = Math.max(1, Math.ceil(n / 400));
+      for (let i = 0; i < n; i += stepK) pts.push(samples[6 * i + 1], samples[6 * i + 2]);
+      pts.push(shot.s.x, shot.s.y);
+      const r = PHYS.result(shot);
+      const p = shot.p, v0 = F.num(p.v0, p.v0 % 1 ? 1 : 0);
+      const label = `${SHORT[shot.ball] || "Özel"} · ${p.thDeg}° · ${v0} m/s${p.h0 > 0 ? ` · h₀ ${F.num(p.h0, 1)} m` : ""}${p.c === 0 ? " · havasız" : ""} → ${r ? `${F.sig(r.R, 3)} m` : "yarıda"}`;
+      trails.push({ pts, idx: trailSeq++, label, end: [shot.s.x, shot.s.y] });
+      if (trails.length > MAX_TRAILS) trails.shift();
+      renderTrails();
+    }
+    shot = null;
+    samples = null;
+  }
+  function renderTrails() {
+    const list = ui.trailList;
+    list.textContent = "";
+    for (const tr of trails.slice().reverse()) {
+      const li = document.createElement("li"), sw = document.createElement("i"), sp = document.createElement("span");
+      sw.className = `sw${tr.idx % 5}`;
+      sw.setAttribute("aria-hidden", "true");
+      sp.textContent = tr.label;
+      li.append(sw, sp);
+      list.appendChild(li);
+    }
+    list.hidden = trails.length === 0;
+  }
+  function clearTrails() {
+    trails = [];
+    renderTrails();
+    dirty = true;
+  }
+  function forceUi() {
+    uiDirty = true;
+    lastUi = -Infinity;
+  }
+  let sampleEvery = 1;
+  function record() {
+    const s = shot.s;
+    samples.push(s.t, s.x, s.y, s.vx, s.vy, s.w);
+  }
+  function fire() {
+    retireShot();
+    readControls();
+    shot = PHYS.createShot(P);
+    shot.ball = cfg.ball;
+    samples = [];
+    sampleEvery = Math.max(1, Math.round((Math.max(PLAN.T, 0.01) / 1500) / PHYS.DT));
+    record();
+    acc = 0;
+    setPaused(false);
+    if (shot.land) onLanded();
+    dirty = true;
+    forceUi();
+  }
+  function onLanded() {
+    record();
+    window.AcelyaSounds?.hit?.();
+    forceUi();
+  }
+  function stepShot() {
+    const landed = PHYS.advance(shot, PHYS.DT);
+    if (landed) { onLanded(); return; }
+    if (shot.steps % sampleEvery === 0) record();
+  }
+  function resetShot() {
+    shot = null;
+    samples = null;
+    setPaused(false);
+    dirty = true;
+    forceUi();
+  }
+  function setPaused(p) {
+    paused = p;
+    ui.pause.textContent = p ? "Devam et" : "Duraklat";
+    ui.pause.setAttribute("aria-pressed", String(p));
+    dirty = true;
+    forceUi();
+  }
+
+  /* ── Okumalar ── */
+  const set = (el, text) => { if (el.textContent !== text) el.textContent = text; };
+  function updateReadouts() {
+    const r = shot ? PHYS.result(shot) : null;
+    const flying = shot && !shot.land;
+    const pend = flying ? "uçuşta…" : "—";
+    const rows = [
+      [r ? r.R : null, VAC.R, F.fmtM, false],
+      [shot && shot.apex ? shot.apex.y : null, VAC.H, F.fmtM, false],
+      [r ? r.T : null, VAC.T, F.fmtS, false],
+      [r ? r.vImp : null, VAC.vImp, F.fmtV, false],
+      [r ? r.angImp : null, VAC.angImp, (x) => F.fmtDeg(x, 1), true],
+    ];
+    rows.forEach(([m, t, fmt, ang], i) => {
+      const [cm, ct, cd] = ROWS[i];
+      set(cm, m === null ? pend : fmt(m));
+      set(ct, fmt(t));
+      set(cd, m === null ? "—" : ang ? F.dDeg(m, t) : F.pct(m, t));
+    });
+    const done = sweep && sweep.phase === "done";
+    const best = done ? sweep.best : null;
+    const sweepPend = sweep && !done ? "taranıyor…" : "—";
+    set(ROWS[5][0], best ? F.fmtDeg(best.th) : sweepPend);
+    set(ROWS[5][1], F.fmtDeg(VAC.thOpt));
+    set(ROWS[5][2], best ? F.dDeg(best.th, VAC.thOpt) : "—");
+    set(ROWS[6][0], best ? F.fmtM(best.R) : sweepPend);
+    set(ROWS[6][1], F.fmtM(VAC.Rmax));
+    set(ROWS[6][2], best ? F.pct(best.R, VAC.Rmax) : "—");
+
+    const vt = PHYS.terminal(P);
+    set(ui.vt, Number.isFinite(vt) ? F.fmtV(vt) : cfg.drag ? "—" : "∞ (hava direnci yok)");
+    set(ui.dw, Number.isFinite(vt) ? F.sig((P.v0 / vt) ** 2, 3) : "0");
+    if (r) {
+      set(ui.w, r.E0 > 0 ? `${F.fmtJ(r.W)} · ${F.num((r.W / r.E0) * 100, 1)} % E₀` : F.fmtJ(r.W));
+      set(ui.ratio, VAC.R > 0 ? F.num(r.R / VAC.R, 3) : "—");
+      set(ui.bal, Number.isFinite(r.balance) ? F.num(r.balance, 6) : "—");
+    } else {
+      set(ui.w, pend);
+      set(ui.ratio, pend);
+      set(ui.bal, pend);
+    }
+    set(ui.status, statusText(r, flying));
+    set(ui.sweepOut, sweepText());
+    updateLive();
+  }
+  function updateLive() {
+    if (!shot) {
+      for (const el of [ui.liveT, ui.liveX, ui.liveY, ui.liveV, ui.liveF]) set(el, "—");
+      return;
+    }
+    const s = shot.s, v = Math.hypot(s.vx, s.vy);
+    set(ui.liveT, `${F.num(s.t, 2)} s`);
+    set(ui.liveX, `${F.num(s.x, 1)} m`);
+    set(ui.liveY, `${F.num(s.y, 1)} m`);
+    set(ui.liveV, `${F.num(v, 1)} m/s`);
+    set(ui.liveF, shot.land ? "—" : F.sig((P.k * v * v) / (P.m * P.g), 3));
+  }
+  function statusText(r, flying) {
+    if (flying) return paused ? "Duraklatıldı. Oklar topun şimdiki hızını, hava direncini ve ağırlığını gösteriyor." : "Uçuşta…";
+    if (!r) return "Fırlat'a bas, Boşluk tuşunu kullan ya da sahnede sürükleyip bırak.";
+    const env = PHYS.ENVS[cfg.env];
+    if (P.c === 0) {
+      let s = "Hava direnci yok: benzetim boşluk formülleriyle aynı sonucu veriyor, fark yalnız sayısal yuvarlamadır.";
+      if (cfg.h0 === 0 && cfg.thDeg > 0 && cfg.thDeg < 90) s += " Yörünge simetrik bir paraboldür; iniş açısı çıkış açısına eşittir.";
+      if (cfg.env === "ay") {
+        const earth = PHYS.vacuum({ ...P, g: PHYS.ENVS.dunya.g });
+        s += ` Ay'da g = ${F.num(env.g, 2)} m/s²: aynı atış Dünya'daki boşluk atışından ${F.num(VAC.R / earth.R, 2)} kat uzağa gider ve ${F.num(VAC.T / earth.T, 2)} kat uzun sürer.`;
+      }
+      return s;
+    }
+    if (!(VAC.R > 0)) return "Yatay hız yok: top düşey doğrultuda hareket etti.";
+    const ratio = r.R / VAC.R, loss = (1 - ratio) * 100;
+    if (ratio > 0.99) {
+      return `Hava direnci menzili yalnız ${F.num(loss, 2)} % kısalttı: bu top için fırlatmadaki sürüklenme ağırlığın ${F.sig((P.v0 / PHYS.terminal(P)) ** 2, 2)} katı, yani küçük.`;
+    }
+    let s = `Hava direnci menzili ${F.num(loss, 1)} % kısalttı (R/R_boşluk = ${F.num(ratio, 3)}) ve başlangıç enerjisinin ${F.num((r.W / r.E0) * 100, 1)} %'ini havaya verdi.`;
+    if (Number.isFinite(r.angImp) && Number.isFinite(VAC.angImp)) s += ` Top yere ${F.num(r.angImp, 1)}° ile indi; boşlukta ${F.num(VAC.angImp, 1)}° olurdu. Yörünge simetrik değil, iniş kolu daha diktir.`;
+    return s;
+  }
+  function sweepText() {
+    if (!sweep) return "";
+    if (sweep.phase !== "done") return `Açı taraması sürüyor: ${Math.min(sweep.i, sweep.N)}/${sweep.N} açı hesaplandı.`;
+    if (!sweep.best) return "Açı taraması: bu ayarlarda menzil her açıda sıfır.";
+    const b = sweep.best, th = cfg.thDeg, i1 = Math.round(th * 2), i2 = Math.round((90 - th) * 2);
+    let s = `Açı taraması: en iyi açı ${F.fmtDeg(b.th)}, R_maks = ${F.fmtM(b.R)}; boşluk formülü ${F.fmtDeg(VAC.thOpt)} ve ${F.fmtM(VAC.Rmax)} verir.`;
+    if (th > 0 && th < 90 && th !== 45) {
+      s += ` Şimdiki açı ${th}° ile tümleri ${90 - th}°: R = ${F.fmtM(sweep.R[i1])} ve ${F.fmtM(sweep.R[i2])}.`;
+      if (P.c === 0 && cfg.h0 === 0) s += " Boşlukta ve yerden atışta tümler açılar aynı menzili verir: sin 2θ = sin(180° − 2θ).";
+    }
+    return s;
+  }
+
+  /* ── Çizim yardımcıları ── */
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.07)" : "rgba(255,255,255,0.07)",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      pink: light ? "#be185d" : "#f472b6",
+      blue: light ? "#2563eb" : "#60a5fa",
+      green: light ? "#15803d" : "#4ade80",
+      red: light ? "#dc2626" : "#f87171",
+      ground: light ? "rgba(120,98,60,0.16)" : "rgba(168,149,107,0.14)",
+      groundLine: light ? "#7a6a48" : "#a8956b",
+      platform: light ? "rgba(26,29,46,0.12)" : "rgba(232,236,244,0.12)",
+      pill: light ? "rgba(255,255,255,0.85)" : "rgba(8,12,22,0.72)",
+      edge: light ? "#1a1d2e" : "#0b1020",
+    };
+  }
+  const SHORT = { futbol: "Futbol", beyzbol: "Beyzbol", golf: "Golf", masa: "Masa t.", gulle: "Gülle", ozel: "Özel" };
+  const BALL_COLORS = { futbol: ["#f8fafc", "#f1f5f9"], beyzbol: ["#fdf6e3", "#fbf1d6"], golf: ["#ffffff", "#ffffff"], masa: ["#fb923c", "#ea580c"], gulle: ["#cbd5e1", "#64748b"], ozel: ["#f472b6", "#db2777"] };
+  const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+  function niceStep(x) {
+    if (!(x > 0) || !Number.isFinite(x)) return 1;
+    const e = Math.floor(Math.log10(x)), b = 10 ** e, f = x / b;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * b;
+  }
+  const tickLabel = (v, step) => F.num(v, Math.max(0, -Math.floor(Math.log10(step) + 1e-9)));
+  const distLabel = (v, step) => (step >= 1000 ? `${tickLabel(v / 1000, step / 1000)} km` : `${tickLabel(v, step)} m`);
+  function arrow(g, x, y, dx, dy, color, label, width = 2.2) {
+    const len = Math.hypot(dx, dy);
+    if (len < 3 * dpr) return;
+    const ux = dx / len, uy = dy / len, hd = Math.min(9 * dpr, len * 0.45);
+    g.strokeStyle = color;
+    g.fillStyle = color;
+    g.lineWidth = width * dpr;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + dx - ux * hd * 0.6, y + dy - uy * hd * 0.6);
+    g.stroke();
+    g.beginPath();
+    g.moveTo(x + dx, y + dy);
+    g.lineTo(x + dx - ux * hd - uy * hd * 0.5, y + dy - uy * hd + ux * hd * 0.5);
+    g.lineTo(x + dx - ux * hd + uy * hd * 0.5, y + dy - uy * hd - ux * hd * 0.5);
+    g.closePath();
+    g.fill();
+    if (label && len > 12 * dpr) {
+      g.font = font(12, 600);
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText(label, x + dx + ux * 11 * dpr, y + dy + uy * 11 * dpr);
+      g.textBaseline = "alphabetic";
+    }
+  }
+  function pill(g, x, y, w, h, t) {
+    g.fillStyle = t.pill;
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, 6 * dpr); else g.rect(x, y, w, h);
+    g.fill();
+  }
+  // Yarı saydam zeminli etiket; tuval içinde kalır. Kutuyu döndürür.
+  function tagBox(g, text, x, align, size = 11) {
+    g.font = font(size, 600);
+    const w = g.measureText(text).width, pad = 4 * dpr;
+    let left = align === "center" ? x - w / 2 : align === "right" ? x - w : x;
+    left = Math.max(2 * dpr + pad, Math.min(g.canvas.width - 2 * dpr - pad - w, left));
+    return { l: left - pad, r: left + w + pad, x: left, w, h: (size + 6) * dpr, size };
+  }
+  function tag(g, t, text, x, y, align, color, size = 11) {
+    const b = tagBox(g, text, x, align, size);
+    pill(g, b.l, y - b.h / 2, b.r - b.l, b.h, t);
+    g.font = font(size, 600);
+    g.fillStyle = color;
+    g.textAlign = "left";
+    g.textBaseline = "middle";
+    g.fillText(text, b.x, y + 0.5 * dpr);
+    return { ...b, t: y - b.h / 2, b: y + b.h / 2 };
+  }
+  function clampText(g, text, x, y, minX, maxX) {
+    const w = g.measureText(text).width;
+    const left = g.textAlign === "center" ? x - w / 2 : g.textAlign === "right" ? x - w : x;
+    const shift = Math.max(minX - left, Math.min(0, maxX - (left + w)));
+    g.fillText(text, x + shift, y);
+  }
+
+  /* ── Sahne ── */
+  function infoLine() {
+    const b = PHYS.BALLS[cfg.ball], env = PHYS.ENVS[cfg.env];
+    const air = P.c > 0 ? `ρ = ${F.num(env.rho, 3)} kg/m³` : env.rho === 0 ? "hava yok" : "hava direnci kapalı";
+    return `${b ? b.name : "Özel top"} · g = ${F.num(env.g, 2)} m/s² · ${air}`;
+  }
+  function computeLayout() {
+    const W = stage.width, H = stage.height, f = (v) => v * dpr;
+    sctx.font = font(11);
+    const info = infoLine(), timeW = sctx.measureText("t = 00.00 s · 100×").width;
+    const twoLines = sctx.measureText(info).width + timeW + f(30) > W;
+    const top = f(twoLines ? 44 : 30), bottom = f(38), right = f(14), X0 = f(50);
+    const groundY = H - bottom;
+    let xMax = Math.max(PLAN ? PLAN.R : 0, cfg.showVac ? VAC.R : 0, 1);
+    let yMax = Math.max(PLAN ? PLAN.H : 0, cfg.showVac ? VAC.H : 0, cfg.h0, 0.5);
+    const s = Math.min((W - right - X0) / (xMax * 1.03), (groundY - top) / (yMax * 1.04));
+    return { W, H, s, X0, groundY, top, twoLines, X: (x) => X0 + x * s, Y: (y) => groundY - y * s };
+  }
+  const pxPerMs = (L) => 0.0048 * Math.min(L.W, 1.5 * L.H);
+
+  function drawPath(g, pts, X, Y) {
+    g.beginPath();
+    g.moveTo(X(pts[0]), Y(pts[1]));
+    for (let i = 2; i < pts.length; i += 2) g.lineTo(X(pts[i]), Y(pts[i + 1]));
+    g.stroke();
+  }
+  function drawStage() {
+    const W = stage.width, H = stage.height;
+    if (!W || !H) return;
+    const t = theme(), g = sctx, f = (v) => v * dpr;
+    const L = aim ? aim.L : computeLayout();
+    view = L;
+    const { X, Y, s, X0, groundY } = L;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+
+    // Izgara ve cetvel
+    const step = niceStep(f(60) / s);
+    g.lineWidth = f(1);
+    g.strokeStyle = t.grid;
+    g.beginPath();
+    for (let k = 1; Y(k * step) > L.top - f(8); k++) { g.moveTo(X0, Y(k * step)); g.lineTo(W, Y(k * step)); }
+    for (let k = 1; X(k * step) < W; k++) { g.moveTo(X(k * step), groundY); g.lineTo(X(k * step), L.top - f(8)); }
+    g.stroke();
+    g.font = font(10);
+    g.fillStyle = t.muted;
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (let k = 1; Y(k * step) > L.top - f(4); k++) g.fillText(distLabel(k * step, step), X0 - f(18), Y(k * step));
+    g.fillStyle = t.ground;
+    g.fillRect(0, groundY, W, H - groundY);
+    g.strokeStyle = t.groundLine;
+    g.lineWidth = f(1.5);
+    g.beginPath();
+    g.moveTo(0, groundY);
+    g.lineTo(W, groundY);
+    for (let k = 0; X(k * step) <= W; k++) {
+      g.moveTo(X(k * step), groundY);
+      g.lineTo(X(k * step), groundY + f(6));
+      if (s * step >= f(120)) for (let j = 1; j < 5; j++) { const xm = X((k + j / 5) * step); g.moveTo(xm, groundY); g.lineTo(xm, groundY + f(3)); }
+    }
+    g.stroke();
+    g.fillStyle = t.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let k = 0; X(k * step) <= W - f(8); k++) {
+      const label = k === 0 ? "0" : distLabel(k * step, step);
+      g.fillText(label, X(k * step), groundY + f(9));
+    }
+
+    // Atış kulesi
+    if (cfg.h0 > 0) {
+      const yTop = Y(cfg.h0);
+      g.fillStyle = t.platform;
+      g.fillRect(X0 - f(14), yTop, f(14), groundY - yTop);
+      g.strokeStyle = t.groundLine;
+      g.lineWidth = f(1);
+      g.strokeRect(X0 - f(14) + 0.5, yTop + 0.5, f(14) - 1, groundY - yTop - 1);
+    }
+
+    // Boşluk yolu (kesikli)
+    if (cfg.showVac && VAC.T > 0) {
+      g.save();
+      g.setLineDash([f(5), f(5)]);
+      g.strokeStyle = t.muted;
+      g.lineWidth = f(1.4);
+      g.beginPath();
+      for (let i = 0; i <= 160; i++) {
+        const [x, y] = PHYS.vacAt(P, (VAC.T * i) / 160);
+        if (i) g.lineTo(X(x), Y(y)); else g.moveTo(X(x), Y(y));
+      }
+      g.stroke();
+      g.restore();
+      if (VAC.H > cfg.h0) {
+        g.strokeStyle = t.muted;
+        g.lineWidth = f(1.2);
+        g.beginPath();
+        g.arc(X(VAC.xA), Y(VAC.H), f(3.5), 0, Math.PI * 2);
+        g.stroke();
+      }
+    }
+
+    // Önceki atışların izleri (etiketleri sağ üstteki listede)
+    const palette = [t.accent2, t.warm, t.pink, t.blue, t.green];
+    g.lineWidth = f(1.5);
+    trails.forEach((tr) => {
+      const col = palette[tr.idx % palette.length];
+      g.globalAlpha = 0.5;
+      g.strokeStyle = col;
+      drawPath(g, tr.pts, X, Y);
+      g.globalAlpha = 0.9;
+      g.fillStyle = col;
+      g.beginPath();
+      g.arc(X(tr.end[0]), Y(tr.end[1]), f(3), 0, Math.PI * 2);
+      g.fill();
+      g.globalAlpha = 1;
+    });
+
+    // Fırlatıcı: açı yayı ve v₀ oku (yolun altında; uçuşta ve inişten sonra soluk)
+    const lx0 = X(0), ly0 = Y(cfg.h0), kv = pxPerMs(L);
+    const flying = shot && !shot.land;
+    const aimAlpha = flying ? 0.35 : shot ? 0.55 : 1;
+    const th = (cfg.thDeg * Math.PI) / 180, ra = f(26);
+    g.globalAlpha = aimAlpha;
+    g.strokeStyle = t.accent2;
+    g.lineWidth = f(1.6);
+    g.beginPath();
+    g.moveTo(lx0 + ra, ly0);
+    g.arc(lx0, ly0, ra, 0, -th, true);
+    g.stroke();
+    g.save();
+    g.setLineDash([f(3), f(3)]);
+    g.strokeStyle = t.muted;
+    g.lineWidth = f(1);
+    g.beginPath();
+    g.moveTo(lx0, ly0);
+    g.lineTo(lx0 + ra + f(10), ly0);
+    g.stroke();
+    g.restore();
+    arrow(g, lx0, ly0, cfg.v0 * kv * Math.cos(th), -cfg.v0 * kv * Math.sin(th), t.warm, "", 2.6);
+    g.globalAlpha = 1;
+
+    // Şimdiki atış
+    if (shot && samples) {
+      g.strokeStyle = t.accent;
+      g.lineWidth = f(2.4);
+      g.lineJoin = "round";
+      g.beginPath();
+      g.moveTo(X(samples[1]), Y(samples[2]));
+      for (let i = 6; i < samples.length; i += 6) g.lineTo(X(samples[i + 1]), Y(samples[i + 2]));
+      g.lineTo(X(shot.s.x), Y(shot.s.y));
+      g.stroke();
+      if (shot.apex && shot.apex.y > cfg.h0 + 1e-9) {
+        const ax = X(shot.apex.x), ay = Y(shot.apex.y);
+        g.save();
+        g.setLineDash([f(3), f(4)]);
+        g.strokeStyle = t.accent;
+        g.globalAlpha = 0.6;
+        g.lineWidth = f(1);
+        g.beginPath();
+        g.moveTo(ax, ay);
+        g.lineTo(ax, groundY);
+        g.stroke();
+        g.restore();
+        g.fillStyle = t.accent;
+        g.beginPath();
+        g.moveTo(ax, ay - f(5)); g.lineTo(ax + f(4.5), ay + f(3)); g.lineTo(ax - f(4.5), ay + f(3));
+        g.closePath();
+        g.fill();
+        tag(g, t, `H = ${F.fmtM(shot.apex.y)}`, ax, ay - f(16), "center", t.accent);
+      }
+    }
+
+    // İniş işaretleri ve etiketleri: R yere değdiği noktanın sağında, boşluk menzili kendi çentiğinin solunda
+    const r = shot ? PHYS.result(shot) : null;
+    let rBox = null;
+    if (r && r.R > 0) {
+      const lx = X(r.R);
+      g.fillStyle = t.accent;
+      g.beginPath();
+      g.moveTo(lx, groundY); g.lineTo(lx - f(5), groundY - f(9)); g.lineTo(lx + f(5), groundY - f(9));
+      g.closePath();
+      g.fill();
+      rBox = tag(g, t, `R = ${F.fmtM(r.R)}`, lx + f(9), groundY - f(12), "left", t.accent);
+    }
+    if (cfg.showVac && VAC.R > 0 && P.c > 0) {
+      const vx = X(VAC.R);
+      g.strokeStyle = t.muted;
+      g.lineWidth = f(1.5);
+      g.beginPath();
+      g.moveTo(vx, groundY); g.lineTo(vx, groundY - f(8));
+      g.stroke();
+      const text = `boşlukta ${F.fmtM(VAC.R)}`, box = tagBox(g, text, vx - f(5), "right", 10);
+      const clash = rBox && box.l < rBox.r + f(4) && box.r > rBox.l - f(4);
+      tag(g, t, text, vx - f(5), groundY - f(clash ? 32 : 12), "right", t.muted, 10);
+    }
+
+    // Açı ve v₀ etiketleri
+    g.globalAlpha = Math.max(aimAlpha, 0.6);
+    g.font = font(11, 600);
+    g.fillStyle = t.accent2;
+    g.textAlign = "left";
+    g.textBaseline = "middle";
+    const lab = cfg.thDeg < 18 ? th + (14 * Math.PI) / 180 : th / 2;
+    g.fillText(`${cfg.thDeg}°`, lx0 + (ra + f(6)) * Math.cos(lab) + f(2), ly0 - (ra + f(6)) * Math.sin(lab) - f(2));
+    const tipX = lx0 + cfg.v0 * kv * Math.cos(th), tipY = ly0 - cfg.v0 * kv * Math.sin(th);
+    if ((!shot || aim) && cfg.v0 > 0) tag(g, t, `v₀ = ${F.num(cfg.v0, 1)} m/s`, tipX + f(8), Math.max(L.top - f(6), tipY - f(10)), "left", t.warm);
+    g.globalAlpha = 1;
+
+    // Top ve vektörler (oklar topun üstünde: kısa F_d de görünür)
+    const bs = shot ? shot.s : { x: 0, y: cfg.h0, vx: 0, vy: 0 };
+    const bx = X(bs.x), by = Y(bs.y);
+    const cols = BALL_COLORS[cfg.ball] || BALL_COLORS.ozel, rb = f(6.5);
+    const grad = g.createRadialGradient(bx - rb * 0.35, by - rb * 0.35, rb * 0.1, bx, by, rb);
+    grad.addColorStop(0, cols[0]);
+    grad.addColorStop(1, cols[1]);
+    g.fillStyle = grad;
+    g.beginPath();
+    g.arc(bx, by, rb, 0, Math.PI * 2);
+    g.fill();
+    g.strokeStyle = t.edge;
+    g.lineWidth = f(1.3);
+    g.stroke();
+    if (flying) {
+      const v = Math.hypot(bs.vx, bs.vy), LW = f(32), cap = f(130);
+      const ratio = (P.k * v * v) / (P.m * P.g);
+      arrow(g, bx, by, 0, LW, t.accent2, "mg");
+      if (ratio > 0.004 && v > 0) {
+        let len = ratio * LW, label = "F_d";
+        if (len > cap) { len = cap; label = `F_d ≈ ${F.sig(ratio, 2)} mg`; }
+        arrow(g, bx, by, (-bs.vx / v) * len, (bs.vy / v) * len, t.red, label);
+      }
+      arrow(g, bx, by, bs.vx * kv, -bs.vy * kv, t.accent, "v");
+    }
+
+    // Üst bilgi satırı ve zaman
+    g.font = font(11);
+    g.textBaseline = "middle";
+    g.textAlign = "left";
+    g.fillStyle = t.muted;
+    g.fillText(infoLine(), f(10), f(15));
+    g.textAlign = "right";
+    g.fillStyle = t.ink;
+    const tNow = shot ? shot.s.t : 0;
+    g.fillText(`t = ${F.num(tNow, 2)} s · ${timeScale < 1 ? F.num(timeScale, 2) : timeScale}×${paused && flying ? " · durdu" : ""}`, W - f(10), f(L.twoLines ? 31 : 15));
+    if (!shot && !aim) {
+      g.textAlign = "left";
+      g.fillStyle = t.muted;
+      g.font = font(10.5);
+      clampText(g, "Sürükle: yön açıyı, uzunluk hızı verir · bırak: fırlat", lx0 + f(34), groundY - f(10), f(2), W - f(2));
+    }
+  }
+
+  /* ── Grafik ── */
+  function chartFrame(g, t, o) {
+    const W = chart.width, H = chart.height, f = (v) => v * dpr;
+    g.font = font(11);
+    const rows = [[]];
+    let x = f(52);
+    for (const item of o.legend) {
+      const w = g.measureText(item[0]).width + f(item[2] === "none" ? 10 : 30);
+      if (x + w > W - f(8) && rows[rows.length - 1].length) { rows.push([]); x = f(52); }
+      rows[rows.length - 1].push([item, x]);
+      x += w;
+    }
+    const padT = f(12) + rows.length * f(15), padL = f(52), padR = f(12), padB = f(30);
+    const box = { l: padL, r: W - padR, t: padT, b: H - padB };
+    const X = (v) => box.l + ((v - o.x0) / (o.x1 - o.x0)) * (box.r - box.l);
+    const Y = (v) => box.b - ((v - o.y0) / (o.y1 - o.y0)) * (box.b - box.t);
+    rows.forEach((row, ri) => {
+      const ly = f(14) + ri * f(15);
+      for (const [[text, col, style], lx] of row) {
+        g.strokeStyle = col;
+        g.fillStyle = col;
+        g.lineWidth = f(2);
+        g.save();
+        if (style === "dash") g.setLineDash([f(4), f(3)]);
+        if (style !== "none") { g.beginPath(); g.moveTo(lx, ly); g.lineTo(lx + f(18), ly); g.stroke(); }
+        g.restore();
+        g.textAlign = "left";
+        g.textBaseline = "middle";
+        g.fillText(text, lx + (style === "none" ? 0 : f(22)), ly);
+      }
+    });
+    g.lineWidth = f(1);
+    g.strokeStyle = t.grid;
+    g.fillStyle = t.muted;
+    g.font = font(10);
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    g.beginPath();
+    for (let k = Math.ceil(o.y0 / o.yStep - 1e-9); k * o.yStep <= o.y1 * (1 + 1e-9); k++) {
+      const v = k * o.yStep;
+      g.moveTo(box.l, Y(v)); g.lineTo(box.r, Y(v));
+      g.fillText(tickLabel(v, o.yStep), box.l - f(6), Y(v));
+    }
+    g.stroke();
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    g.beginPath();
+    for (let k = Math.ceil(o.x0 / o.xStep - 1e-9); k * o.xStep <= o.x1 * (1 + 1e-9); k++) {
+      const v = k * o.xStep;
+      g.moveTo(X(v), box.t); g.lineTo(X(v), box.b);
+      g.fillText(tickLabel(v, o.xStep), X(v), box.b + f(5));
+    }
+    g.stroke();
+    g.strokeStyle = t.muted;
+    g.beginPath();
+    g.moveTo(box.l, box.t); g.lineTo(box.l, box.b); g.lineTo(box.r, box.b);
+    g.stroke();
+    g.textAlign = "right";
+    g.textBaseline = "bottom";
+    g.fillText(o.xLabel, box.r, H - f(2));
+    g.textAlign = "left";
+    g.fillText(o.yLabel, f(4), H - f(2));
+    return { X, Y, box };
+  }
+  function niceTop(v) {
+    const st = niceStep(v / 4);
+    return { top: Math.max(st, Math.ceil((v * 1.04) / st) * st), step: st };
+  }
+  function series(g, n, xy, color, width, dash) {
+    if (n < 2) return;
+    g.save();
+    g.strokeStyle = color;
+    g.lineWidth = width * dpr;
+    g.lineJoin = "round";
+    if (dash) g.setLineDash(dash.map((d) => d * dpr));
+    g.beginPath();
+    for (let i = 0; i < n; i++) {
+      const [x, y] = xy(i);
+      if (i) g.lineTo(x, y); else g.moveTo(x, y);
+    }
+    g.stroke();
+    g.restore();
+  }
+  function drawChart() {
+    const W = chart.width, H = chart.height;
+    if (!W || !H) return;
+    const t = theme(), g = cctx, mode = ui.chartSel.value;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const S = samples || [], n = S.length / 6, showV = cfg.showVac;
+    const live = shot ? [shot.s.t, shot.s.x, shot.s.y, shot.s.vx, shot.s.vy, shot.s.w] : null;
+    const at = (i, k) => (i < n ? S[6 * i + k] : live[k]);
+    const m = live ? n + 1 : 0;
+    if (mode === "yx") {
+      const xm = niceTop(Math.max(PLAN.R, showV ? VAC.R : 0, 0.5)), ym = niceTop(Math.max(PLAN.H, showV ? VAC.H : 0, 0.2));
+      const fr = chartFrame(g, t, { x0: 0, x1: xm.top, y0: 0, y1: ym.top, xStep: xm.step, yStep: ym.step, xLabel: "x (m)", yLabel: "y (m)",
+        legend: [["hava dirençli", t.accent, "solid"], ...(showV ? [["boşlukta", t.muted, "dash"]] : []), ["eksenler eşit ölçekli değil", t.muted, "none"]] });
+      if (showV && VAC.T > 0) series(g, 121, (i) => { const [x, y] = PHYS.vacAt(P, (VAC.T * i) / 120); return [fr.X(x), fr.Y(y)]; }, t.muted, 1.4, [5, 4]);
+      series(g, m, (i) => [fr.X(at(i, 1)), fr.Y(at(i, 2))], t.accent, 2.2);
+      if (shot && shot.apex && shot.apex.y > cfg.h0) {
+        g.fillStyle = t.accent;
+        g.beginPath();
+        g.arc(fr.X(shot.apex.x), fr.Y(shot.apex.y), 3.5 * dpr, 0, Math.PI * 2);
+        g.fill();
+      }
+      return;
+    }
+    if (mode === "vt") {
+      const Tm = Math.max(PLAN.T, showV ? VAC.T : 0, 0.1), tx = niceTop(Tm), vy = niceTop(Math.max(VAC.vImp, P.v0, 1));
+      const vt = PHYS.terminal(P);
+      const fr = chartFrame(g, t, { x0: 0, x1: tx.top, y0: 0, y1: vy.top, xStep: tx.step, yStep: vy.step, xLabel: "t (s)", yLabel: "m/s",
+        legend: [["|v|", t.accent, "solid"], ["vₓ", t.accent2, "solid"], ...(showV ? [["boşlukta |v|", t.muted, "dash"]] : []), ...(Number.isFinite(vt) && vt < vy.top ? [["limit hız vₜ", t.warm, "dash"]] : [])] });
+      if (Number.isFinite(vt) && vt < vy.top) series(g, 2, (i) => [fr.X(i * tx.top), fr.Y(vt)], t.warm, 1.4, [6, 4]);
+      if (showV && VAC.T > 0) series(g, 121, (i) => { const tt = (VAC.T * i) / 120; return [fr.X(tt), fr.Y(Math.hypot(P.vx0, P.vy0 - P.g * tt))]; }, t.muted, 1.4, [5, 4]);
+      series(g, m, (i) => [fr.X(at(i, 0)), fr.Y(at(i, 3))], t.accent2, 2);
+      series(g, m, (i) => [fr.X(at(i, 0)), fr.Y(Math.hypot(at(i, 3), at(i, 4)))], t.accent, 2.2);
+      return;
+    }
+    if (mode === "et") {
+      const E0 = 0.5 * P.m * P.v0 * P.v0 + P.m * P.g * P.h0;
+      const Tm = Math.max(PLAN.T, 0.1), tx = niceTop(Tm), ey = niceTop(Math.max(E0, 1e-6));
+      const fr = chartFrame(g, t, { x0: 0, x1: tx.top, y0: 0, y1: ey.top, xStep: tx.step, yStep: ey.step, xLabel: "t (s)", yLabel: "J",
+        legend: [["Eₖ kinetik", t.accent, "solid"], ["Eₚ = mgy", t.accent2, "solid"], ["W_d havaya", t.warm, "solid"], ["toplam", t.ink, "dash"]] });
+      const ek = (i) => 0.5 * P.m * (at(i, 3) ** 2 + at(i, 4) ** 2), ep = (i) => P.m * P.g * at(i, 2);
+      series(g, m, (i) => [fr.X(at(i, 0)), fr.Y(ep(i))], t.accent2, 2);
+      series(g, m, (i) => [fr.X(at(i, 0)), fr.Y(at(i, 5))], t.warm, 2);
+      series(g, m, (i) => [fr.X(at(i, 0)), fr.Y(ek(i))], t.accent, 2.2);
+      series(g, m, (i) => [fr.X(at(i, 0)), fr.Y(ek(i) + ep(i) + at(i, 5))], t.ink, 1.4, [6, 4]);
+      return;
+    }
+    // R(θ)
+    const sw = sweep;
+    let Rtop = showV ? VAC.Rmax : 0;
+    if (sw) for (let i = 0; i < sw.N; i++) if (sw.R[i] > Rtop) Rtop = sw.R[i];
+    const ry = niceTop(Math.max(Rtop, PLAN.R, 0.5));
+    const fr = chartFrame(g, t, { x0: 0, x1: 90, y0: 0, y1: ry.top, xStep: 15, yStep: ry.step, xLabel: "θ (°)", yLabel: "R (m)",
+      legend: [[P.c > 0 ? "hava dirençli R(θ)" : "benzetim R(θ)", t.accent, "solid"], ...(showV ? [["boşlukta", t.muted, "dash"]] : []), ["en iyi açı", t.warm, "dash"], ["şimdiki açı", t.pink, "none"]] });
+    if (showV) series(g, 181, (i) => { const a = i * 0.5; return [fr.X(a), fr.Y(PHYS.vacuum(PHYS.withAngle(P, a)).R)]; }, t.muted, 1.4, [5, 4]);
+    if (sw) series(g, Math.min(sw.i, sw.N), (i) => [fr.X(sw.th[i]), fr.Y(sw.R[i])], t.accent, 2.2);
+    const vline = (a, col, text, row) => {
+      if (!Number.isFinite(a)) return;
+      g.save();
+      g.setLineDash([4 * dpr, 4 * dpr]);
+      g.strokeStyle = col;
+      g.lineWidth = 1.3 * dpr;
+      g.beginPath();
+      g.moveTo(fr.X(a), fr.box.t);
+      g.lineTo(fr.X(a), fr.box.b);
+      g.stroke();
+      g.restore();
+      g.fillStyle = col;
+      g.font = font(10.5, 600);
+      g.textAlign = a > 60 ? "right" : "left";
+      g.textBaseline = "top";
+      g.fillText(text, fr.X(a) + (a > 60 ? -4 : 4) * dpr, fr.box.t + (2 + 13 * row) * dpr);
+    };
+    if (showV) vline(VAC.thOpt, t.muted, `boşluk ${F.fmtDeg(VAC.thOpt, 1)}`, 1);
+    if (sw && sw.best) vline(sw.best.th, t.warm, `θ* = ${F.fmtDeg(sw.best.th, 1)}`, 0);
+    if (sw && sw.phase === "done") {
+      const R0 = sw.R[Math.round(cfg.thDeg * 2)];
+      g.fillStyle = t.pink;
+      g.beginPath();
+      g.arc(fr.X(cfg.thDeg), fr.Y(R0), 4 * dpr, 0, Math.PI * 2);
+      g.fill();
+    }
+    if (!sw) {
+      g.fillStyle = t.muted;
+      g.font = font(12);
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillText("Açı taraması'na bas: her açı için ayrı bir uçuş hesaplanır.", (fr.box.l + fr.box.r) / 2, (fr.box.t + fr.box.b) / 2);
+    }
+  }
+
+  /* ── Döngü ── */
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    dirty = true;
+  }
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) { lastTheme = th; dirty = true; }
+    const gp = window.AcelyaPause?.isPaused?.();
+    if (shot && !shot.land && !paused && !gp) {
+      acc += elapsed * timeScale;
+      let k = 0;
+      while (acc >= PHYS.DT && !shot.land && k < 40000) { stepShot(); acc -= PHYS.DT; k++; }
+      if (k >= 40000) acc = 0;
+      dirty = true;
+      uiDirty = true;
+    } else acc = 0;
+    if (sweep && sweep.phase !== "done" && !gp) {
+      const t0 = performance.now();
+      while (performance.now() - t0 < 7 && !PHYS.sweepStep(sweep));
+      dirty = true;
+      uiDirty = true;
+    }
+    if (dirty) { drawStage(); drawChart(); dirty = false; }
+    if (uiDirty && (now - lastUi > 120 || !(shot && !shot.land))) { updateReadouts(); uiDirty = false; lastUi = now; }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  function startSweep() {
+    sweepWanted = true;
+    sweep = PHYS.createSweep(P);
+    ui.chartSel.value = "rth";
+    chart.setAttribute("aria-label", CHART_ARIA.rth);
+    dirty = true;
+    forceUi();
+  }
+  ui.launch.addEventListener("click", fire);
+  ui.pause.addEventListener("click", () => setPaused(!paused));
+  ui.reset.addEventListener("click", resetShot);
+  ui.clear.addEventListener("click", clearTrails);
+  ui.sweep.addEventListener("click", startSweep);
+  ui.chartSel.addEventListener("change", () => {
+    chart.setAttribute("aria-label", CHART_ARIA[ui.chartSel.value]);
+    if (ui.chartSel.value === "rth" && !sweepWanted) startSweep();
+    dirty = true;
+  });
+  ui.ball.addEventListener("change", () => { setBall(ui.ball.value); onSettings(); });
+  ui.m.addEventListener("input", () => { cfg.m = Number((10 ** Number(ui.m.value)).toPrecision(3)); setBall("ozel"); onSettings(); });
+  ui.d.addEventListener("input", () => { cfg.d = Number((10 ** Number(ui.d.value)).toPrecision(3)); setBall("ozel"); onSettings(); });
+  ui.cd.addEventListener("input", () => { setBall("ozel"); onSettings(); });
+  [ui.v, ui.th, ui.h].forEach((el) => el.addEventListener("input", onSettings));
+  [ui.env, ui.drag, ui.vac, ui.play].forEach((el) => el.addEventListener("change", onSettings));
+  ui.typical.addEventListener("click", () => {
+    const b = PHYS.BALLS[cfg.ball];
+    if (!b) return;
+    ui.v.value = b.typical.v;
+    ui.th.value = b.typical.th;
+    ui.h.value = b.typical.h;
+    onSettings();
+  });
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button")) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      if (shot && !shot.land) setPaused(!paused);
+      else fire();
+    } else if (e.key === "r" || e.key === "R") resetShot();
+    else if (e.key === "c" || e.key === "C") clearTrails();
+  });
+
+  function aimAt(evt) {
+    const rect = stage.getBoundingClientRect(), L = aim.L;
+    const sx = ((evt.clientX - rect.left) / rect.width) * stage.width;
+    const sy = ((evt.clientY - rect.top) / rect.height) * stage.height;
+    const dx = sx - L.X(0), dy = L.Y(cfg.h0) - sy;
+    const th = Math.round(Math.min(90, Math.max(0, (Math.atan2(dy, dx) * 180) / Math.PI)));
+    const v = Math.min(100, Math.max(0, Math.round((Math.hypot(dx, dy) / pxPerMs(L)) * 2) / 2));
+    if (Number(ui.th.value) === th && Number(ui.v.value) === v) return;
+    ui.th.value = th;
+    ui.v.value = v;
+    onSettings();
+  }
+  // Dokunmatik ekranda yalnız v₀ okuna (ve ucuna) değen parmak nişan alır;
+  // tuvalin geri kalanında parmak sayfayı kaydırır.
+  function nearArrow(cx, cy) {
+    const L = view || computeLayout(), rect = stage.getBoundingClientRect();
+    const k = stage.width / rect.width;
+    const sx = (cx - rect.left) * k, sy = (cy - rect.top) * (stage.height / rect.height);
+    const ax = L.X(0), ay = L.Y(cfg.h0), th = (cfg.thDeg * Math.PI) / 180, len = cfg.v0 * pxPerMs(L);
+    const bx = ax + len * Math.cos(th), by = ay - len * Math.sin(th);
+    const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+    const u = l2 ? Math.max(0, Math.min(1, ((sx - ax) * dx + (sy - ay) * dy) / l2)) : 0;
+    return Math.hypot(sx - (ax + u * dx), sy - (ay + u * dy)) < 40 * k;
+  }
+  window.AcelyaTouch?.guard(stage, nearArrow);
+  stage.addEventListener("pointerdown", (evt) => {
+    if (evt.button !== 0) return;
+    if (evt.pointerType === "touch" && window.AcelyaTouch?.isCoarse() && !nearArrow(evt.clientX, evt.clientY)) return;
+    if (!view) view = computeLayout();
+    retireShot();
+    aim = { L: view, id: evt.pointerId };
+    stage.setPointerCapture(evt.pointerId);
+    stage.classList.add("is-aiming");
+    aimAt(evt);
+    dirty = true;
+    evt.preventDefault();
+  });
+  stage.addEventListener("pointermove", (evt) => { if (aim && evt.pointerId === aim.id) aimAt(evt); });
+  const endAim = (launch) => (evt) => {
+    if (!aim || evt.pointerId !== aim.id) return;
+    aim = null;
+    stage.classList.remove("is-aiming");
+    if (launch) fire();
+    dirty = true;
+  };
+  stage.addEventListener("pointerup", endAim(true));
+  stage.addEventListener("pointercancel", endAim(false));
+
+  /* ── Başlat ── */
+  setBall("futbol");
+  readControls();
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  fire();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

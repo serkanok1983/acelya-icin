@@ -1,0 +1,112 @@
+# Açelya'nın Yeri — Etkileşimli Ansiklopedi
+
+Liseden üniversite temellerine uzanan, Türkçe, etkileşimli bir
+ansiklopedi. Matematik, fen bilimleri, bilgisayar bilimi ve mühendislikten
+insan ve topluma, dil, felsefe ve sanata uzanan konular; her biri çalışan bir
+simülasyon ya da oyunla, altında da katmanlı bir **Keşif Defteri** ile
+sunulur. Amaç bilgi vermekten öte merak uyandırmak: tahmin et, dene,
+gözle, açıkla.
+
+Serkan ❤️ Açelya
+
+## Sayfa anatomisi
+
+Her konu sayfası iki katmandan oluşur:
+
+1. **Laboratuvar** — sayfanın kendi simülasyonu ya da oyunu (`<slug>.html`).
+2. **Keşif Defteri** — sayfanın altına `shared/digest.js` tarafından
+   `shared/digest/<slug>.js` verisinden üretilen içerik: kanca, büyük fikir,
+   hikâye, kavramlar, simülasyonda yapılacak deneyler, "vay" notları,
+   çözümlü örnek, yanılgılar, sözlük, üniversiteye köprü, geri bildirimli
+   mini sınav, sonraki duraklar ve kaynaklar. Yazım standardı ve şema:
+   [`docs/icerik-rehberi.md`](docs/icerik-rehberi.md); örnek:
+   [`shared/digest/sarkac.js`](shared/digest/sarkac.js).
+
+Ortak kabuk (`shared/app.js`, `shared/theme.css`) üst çubuğu, temayı,
+yıldız arka planını, PWA kaydını sağlar; sayfalar hesapsız açılır. Oyun sayfaları
+ayrıca skor tablosu, mobil kontroller ve ses katmanını yükler.
+
+## Yapı
+
+```
+index.html              ana menü (kategoriler, arama)
+ogrenme-yollari.html    meslek hedefine göre sıralı dersler (veri: shared/yollar.js)
+onsart.html             temelden başlayan önşart dizileri
+<slug>.html             konu sayfaları (simülasyon / oyun)
+shared/                 ortak kabuk, katalog, yol verisi, oyun katmanı
+shared/digest/          sayfa başına Keşif Defteri verisi
+docs/                   içerik rehberi ve sayfa kataloğu
+scripts/                denetim ve bakım betikleri
+sw.js                   service worker (listeleri scripts/build-sw.mjs üretir)
+```
+
+## Geliştirme
+
+Derleme adımı yoktur; statik bir sunucu yeter:
+
+```bash
+npm start            # python3 -m http.server 8000 → http://localhost:8000/
+```
+
+Denetimler (Node 22+):
+
+```bash
+npm run check        # bağlantılar, meta etiketleri, defter şeması, sw listesi
+npm run build:sw     # sw.js önbellek listelerini ve sürüm adını yeniler
+npm install && npx playwright install chromium
+npm run smoke        # her sayfayı Chromium'da açar; JS hatası ve defter görünürlüğü
+node scripts/smoke.mjs --only sarkac --digest --tabs --width 390
+npm run test:a7      # A7'nin beş laboratuvarında sayısal sonuçlar ve etkileşimler
+npm run test:fractals # dört fraktalın hesap çekirdekleri ve sınır durumları
+npm run test:b2      # Penrose, Barnsley ve üç limit deneyinin matematiksel denetimi
+npm run test:b3      # Lorenz/harita-akış ve Fibonacci/Pascal: bağımsız sayısal ve geometrik denetim
+npm run test:b4      # Tek sayılar: gerçek hücre eşlemesi, farklar ve tam rasyonel seri referansları
+npm run test:c       # Sekiz C laboratuvarı; sayısal referanslar ve gerçek çevrimdışı Web Audio
+npm run test:f1      # Elektrostatik, basit makineler ve statik: bağımsız fizik hesapları ve gerçek tarayıcı kontrolleri
+npm run test:f2      # Mukavemet, çelik, hidrolik ve boru–pompa: fizik, sınır durumları ve mobil tarayıcı kontrolleri
+npm run test:d       # Yöneylem, üretim planlama, elektrik, kimya ve gemi makineleri laboratuvarları: bağımsız hesap ve tarayıcı kontrolleri
+npm run test:e       # Gezegen Savunması: Kepler, korunum, çarpışma ve oyun dengesi kontrolleri
+npm run test:g       # Yeniden kurulan 18 laboratuvar: bağımsız hesap ve tarayıcı kontrolleri (tek sayfa: node scripts/check-g-all.mjs --only <slug>)
+npm run test:public  # girişsiz erişim, eski oturum temizliği ve yerel rekorlar
+npm run shot -- sarkac --theme light --scroll digest   # ekran görüntüsü
+```
+
+Yeni bir konu eklerken:
+
+1. `<slug>.html` sayfasını yaz (`<body class="app-page" data-page="<slug>">`,
+   `shared/theme.css` ve `shared/app.js` dahil).
+2. `index.html` içindeki `MENU` listesine ekle.
+3. `shared/digest/<slug>.js` defterini içerik rehberine göre yaz.
+4. `npm run check` ve `npm run build:sw` çalıştır.
+
+## Dağıtım
+
+Güncel yayın yolu GitHub Pages'in `gh-pages` dalıdır. GitHub Actions
+kullanılamadığı için aynı denetimleri yerelde yapan yardımcı kullanılır:
+
+```bash
+npm run deploy:check # denetler ve commit'lenmiş HEAD'den _site paketini oluşturur
+npm run deploy       # denetler, paketler ve gh-pages dalına yayınlar
+```
+
+Paketleme HEAD'den yapıldığı için yayınlanacak değişiklikler önce commit
+edilmelidir. Pages ayarı: **Deploy from a branch → gh-pages / (root)**.
+Her kodlama turunun sonunda denetim ve build sonrasında commit oluşturulur,
+`git push origin main` ve `npm run deploy` çalıştırılır; canlı sitenin yeni
+`sw.js` sürümünü sunduğu doğrulanır (kullanıcının 10 Kasım 2026 talimatı).
+Depodaki Actions workflow'u korunur; katı defter denetimi eksik defterler
+tamamlanmadan geçmez. Güncel kapsam ve devam sırası
+[`docs/DEVAM-PLANI.md`](docs/DEVAM-PLANI.md) içindedir. Fizikte konu–ön koşul–deney
+eşlemesi ve açık kalan kapsam [`docs/fizik-kapsam-haritasi.md`](docs/fizik-kapsam-haritasi.md) dosyasındadır.
+
+## Yerel kayıtlar
+
+Site kullanıcı adı veya şifre istemeden açılır. İlerleme, sınav sonuçları,
+tema tercihi ve oyun skorları yalnızca bu tarayıcıda tutulur; etkinlik kaydı
+ve Firebase bağlantısı kaldırılmıştır. Oyun rekorları cihazlar arasında
+paylaşılmaz. `bilgi.html` herkese açık Hakkında sayfasıdır.
+
+Eski hesap/şifre dosyası yayından kaldırıldı; geçmiş Git commit'leri ve
+önceden yazılmış uzak veriler bu değişiklikle silinmez. Eski Firebase örnek
+ayar dosyası yalnız tarihsel başvuru olarak durur, uygulama tarafından yüklenmez.
+Tarayıcı destekliyorsa hikâyeler Web Speech API ile Türkçe seslendirilir.
