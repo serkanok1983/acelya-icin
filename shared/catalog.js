@@ -52,6 +52,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "anlambilim-ve-edimbilim": {
+    "title": "Anlambilim ve Edimbilim: Söylenen, Kastedilen, Varsayılan",
+    "tagline": "“Bazı öğrenciler geçti” hepsinin geçmediğini söyler mi, yoksa yalnız ima mı eder? Anlamın katmanlarını sezgiyle değil, iptal ve olumsuzlama sınamalarıyla, küçük dünyalarda durum sayarak ayırmayı öğren.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "arkeoloji-ve-tarihleme": {
+    "title": "Arkeoloji ve Tarihleme: Geçmişin Sırası ve Yaşı",
+    "tagline": "Bir çukurun dolgusu kestiği tabakadan neden gençtir, bir radyokarbon yaşı neden tek bir yıl değil de birkaç aralık verir? Arkeoloji geçmişin önce sırasını, sonra yaşını bulur; yöntemler birbirini denetler.",
+    "field": "Tarih ve Toplum",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "aruz-ve-hece-olcusu": {
     "title": "Aruz ve Hece Ölçüsü: Şiirin İki Saati",
     "tagline": "Türk şiiri yüzyıllarca iki ayrı saatle ölçüldü: biri hecelerin ağırlığını tartar, öteki yalnızca sayar. Bir mısrayı kendin tart, kalıba yerleştir, ödünlerin nereye düştüğünü gör.",
@@ -143,6 +157,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "bellek-ve-ogrenme": {
+    "title": "Bellek ve Öğrenme: Unutmayı Ölçmek",
+    "tagline": "Bellek doğrudan görülmez; ne kadar sürede yeniden öğrendiğimizden, hangi sözcüğü geri çağırdığımızdan ve neyi yanlışlıkla \"hatırladığımızdan\" ölçülür. Ebbinghaus'un 1885 verisinden yanlış anılara.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "besin-agi": {
     "title": "Besin Ağı: Bir Lokmanın Yolculuğu",
     "tagline": "Bir baykuşun öğününü üreticilere kadar izle. Enerji bütçesini kur; üç aktarımın nasıl çarpıldığını ve bir yolun var olmasının neden hayatta kalma garantisi olmadığını keşfet.",
@@ -168,6 +189,13 @@ window.ACELYA_CATALOG = {
     "title": "Bilgisayar Mimarisi: Bir Saat Çevriminin İçi",
     "tagline": "Bir komut bitlerle başlar, saat çevrimleriyle biter. İkiye tümleyen ve kayan nokta, beş aşamalı boru hattı, önbellek ve Amdahl yasası: dört deneyde sayfanın saydığını kuramın söylediğiyle karşılaştır.",
     "field": "Bilgisayar Bilimi",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
+  "bilim-felsefesi": {
+    "title": "Bilim Felsefesi: Sınır, Sınama, Devrim ve Gerçeklik",
+    "tagline": "Aynı Newton yasaları 1846'da yeni bir gezegen buldurdu, 1859'da hayalet bir gezegen. Bilimi bilim yapan ne, başarısız bir öngörü neyi çürütür, devrimler nasıl olur? Yarışan yanıtları kendi elinle sına.",
+    "field": "Felsefe ve Mantık",
     "level": "Lise–Lisans",
     "minutes": 45
   },
@@ -254,6 +282,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "demografi-ve-nufus": {
+    "title": "Demografi: Nüfusu Ölçmek, Anlamak, Öngörmek",
+    "tagline": "Bir ülkenin nüfusu yalnız doğum, ölüm ve göçle değişir; zor olan bunları yaşa göre ölçmek. Toplam doğurganlığı elle topla, yaşam tablosu kur, demografik geçişi gerçek serilerle sına.",
+    "field": "Tarih ve Toplum",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "denklem-denklestirme": {
     "title": "Denklem Denkleştirme: Atom Sayımından Sıfır Uzayına",
@@ -941,6 +976,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "mimarlik-tarihi-ve-yapi": {
+    "title": "Mimarlık Tarihi ve Yapı: Taşı Ayakta Tutan Biçim",
+    "tagline": "Taş çekmeyi taşımaz; kemer, kubbe ve payanda bu yüzden var. İtki çizgisini taşın içinde tut, Pantheon'dan Selimiye'ye kubbeleri karşılaştır, altın oran iddialarını sına.",
+    "field": "Sanat ve Müzik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "mitoz-mayoz": {
     "title": "Mitoz ve Mayoz: Kopyalamak ve Karıştırmak",
     "tagline": "Vücudunda her gün milyarlarca hücre mitozla bölünüp kendini kopyalar; yalnız eşey hücrelerini yapan hücreler mayozla sayıyı yarıya indirir ve genleri karıştırır. Aynı makine, iki zıt amaç.",
@@ -1291,6 +1333,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "sozdizimi-ve-dilbilgisi": {
+    "title": "Sözdizimi ve Dilbilgisi: Sözcüğün ve Cümlenin Mimarisi",
+    "tagline": "Tek bir Türkçe sözcük on bir parçadan oluşabilir, bir cümle iki ayrı ağaca oturabilir. Biçimbirimleri böl, öbekleri sına, dünya dillerinin sözcük dizimini 1376 dillik veriyle karşılaştır.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "spektroskopi-beer-lambert": {
     "title": "Spektroskopi ve Beer–Lambert: Işığın Soğurulmasıyla Ölçmek",
     "tagline": "Bir çözeltinin içinden geçen ışığı saymak, içinde ne kadar madde olduğunu söyler. Beer–Lambert yasasını foton foton ölç, kalibrasyonla bilinmeyeni bul, renkten ve IR tepelerinden molekülü tanı.",
@@ -1309,6 +1358,13 @@ window.ACELYA_CATALOG = {
     "title": "Takımyıldız Haritası: Gökyüzünün Adres Defteri",
     "tagline": "Kutup Yıldızı'nın yüksekliği enlemini söyler, yıldız günü her gece 3 dk 56 s erken doğmayı açıklar, küresel trigonometri de bir yıldızın ne zaman nerede olacağını saniyesine kadar hesaplar.",
     "field": "Yer ve Uzay",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "takvimler-ve-zaman-olcumu": {
+    "title": "Takvimler: Gün, Ay ve Yılın Pazarlığı",
+    "tagline": "Gün, ay ve yıl birbirine tam bölünmez; her takvim bu artığı bir kuralla saklar. Kuralları kur, hatalarını ölç, bir belgedeki tarihi tarihçi gibi oku.",
+    "field": "Tarih ve Toplum",
     "level": "Lise–Lisans",
     "minutes": 35
   },

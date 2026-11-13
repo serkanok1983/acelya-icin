@@ -189,7 +189,7 @@ window.ACELYA_DIGEST["epistemoloji"] = {
   next: [
     { href: "mantik-ve-argumantasyon.html", title: "Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar", why: "Şüphecinin modus tollens'i ile Moore'un modus ponens'i aynı biçimin iki yönü: doğruluk tabloları, karşı modeller ve doğal çıkarımla geçerliliği kendin sına." },
     { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Kuzgun hesabının arkasındaki araçlar: tanı testinde taban oranı, önselden sonsala beta–binom güncellemesi ve ardışık güncelleme." },
-    { href: "bilimsel-yontem-olcme-ve-belirsizlik.html", title: "Bilimsel Yöntem, Ölçme ve Belirsizlik: Basamak, Yayılım, Hata ve Uydurma", why: "Tümevarımın laboratuvardaki yüzü: ölçüm belirsizliği, sistematik ve rastgele hata, verilere eğri uydurma ve artıklar." },
+    { href: "bilim-felsefesi.html", title: "Bilim Felsefesi: Sınır Çizme, Duhem–Quine, Kuhn, Lakatos, Gerçekçilik", why: "Bilgi kuramından bilimin kuramına: yanlışlanabilirlik, Duhem–Quine, Kuhn'un paradigmaları, Lakatos'un araştırma programları ve gerçekçilik tartışması." },
     { href: "felsefi-dusunce-deneyleri.html", title: "Felsefi Düşünce Deneyleri: Tramvay, Theseus, Çin Odası, Mary ve Peçe", why: "Gettier vakaları gibi sezgiyle çalışan başka deneyler; son sekmesi, sezgilerin felsefede kanıt sayılıp sayılamayacağını doğrudan tartışır." },
   ],
   sources: [

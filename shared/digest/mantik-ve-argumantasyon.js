@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["mantik-ve-argumantasyon"] = {
   ],
   next: [
     { href: "mantik-kapilari.html", title: "Mantık Kapıları Laboratuvarı", why: "Aynı ∧, ∨ ve ¬ bu kez elektrik devresinde: kapıları doğruluk tablolarıyla sına, De Morgan eşdeğerliklerini karşılaştır, bir toplayıcı kur." },
-    { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "Kendinden söz etmenin hesaplamadaki yüzü: köşegen tablosunda durma probleminin neden çözülemediğini gör." },
+    { href: "anlambilim-ve-edimbilim.html", title: "Anlambilim ve Edimbilim: Anlam İlişkileri, Frege, Kapsam, Grice, Söz Edimleri", why: "Mantığın doğal dildeki karşılığı: gerektirme ile sezdirimi ayırır, niceleyici kapsamını küçük dünyalarda sınar, önvarsayımın olumsuzlamadan nasıl sağ çıktığını görürsün." },
     { href: "epistemoloji.html", title: "Epistemoloji: Bilgi, Gettier, Şüphecilik, Gerekçe ve Tümevarım", why: "Geçerli çıkarımdan bilgiye: Gettier örneklerini yargıla, şüphecilik argümanının öncüllerini tek tek kabul ya da ret et." },
     { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Tümdengelimin bittiği yerde kanıt ağırlığı başlar: bir gözlemden sonra bir iddiaya inancını ne kadar değiştirmen gerektiğini hesapla." },
   ],

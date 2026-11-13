@@ -491,6 +491,25 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 
 ## 4. Yapılacaklar (sırayla)
 
+### 4.S Sıradaki: Öğrenme Yolları ve Önşart (13 Kasım; genişleme planı bütünüyle bittikten sonra)
+
+Sıra (kullanıcı 13 Kasım): önce yeni alanlar 3. grup (yakın konular), sonra üçüncü halka (teoloji, psikiyatri,
+bilinç, edebiyat ve sinema; `docs/YENI-ALANLAR-PLANI.md` ayrı kurallarıyla), genişleme planı tamamlanınca bu yapı.
+
+Kullanıcının isteği: "Bilim Atlası" (`bilim-atlasi.html`, ana sayfadaki `.atlas-promo` kartı) ve "Üniversite
+STEM Omurgası" başlıkları eskidi. İçlerindeki konular ilgili menü gruplarına (Fizik, Matematik vb.) **konu
+kaybı olmadan** dağıtılacak, sonra bu iki başlık uygulamadan kaldırılacak (sw.js, catalog, testler, iç bağlantılar,
+meta açıklama ve anahtar sözcükler dahil).
+
+Yerine iki ek bölüm gelecek. Bunlar mevcut "geniş liste, dilediğini seç, hemen oku" pratiğini bozmayacak; ana liste
+olduğu gibi kalacak, yeni bölümler isteğe bağlı rehber olacak:
+- **Öğrenme Yolları:** ilgi alanına göre dersleri sıraya koyar. Örneğin "Bilgisayar Mühendisi": CS müfredatı ve
+  ilgili dersler sırayla.
+- **Önşart:** bazı dersleri anlamak için gereken temel altyapı. Örnekler: uygulamalı matematik (aritmetik
+  hesaplamadan başlayarak), teorik matematik (teorem, kanıt, akıl yürütme), temel fizik.
+
+İlk adım: atlas ve omurganın içeriğini, gidecekleri menü gruplarıyla birlikte bir tabloya dökmek.
+
 ### 4.0 Yeni öncelik: temel fizik ve uygulamalı mekanik kapsamı (10 Kasım)
 
 Kullanıcı C grubu sürerken akışkanlar mekaniği, elektrostatik, basit
@@ -708,7 +727,9 @@ tablosu hataları). Öneri:
    matematik/istatistik ve biyolojide 9 yeni sayfa; (M) fizik ve kimyada 8 yeni sayfa; (N) disiplinlerarası 6 yeni sayfa ve biriken
    düzeltmeler. `docs/YENI-SAYFA-PLANI.md` tamamlandı. Ardından (O) mobil uyum ve tam sayfa kaydırma; (P)
    `docs/YENI-ALANLAR-PLANI.md` 1. grup: 8 sayfa, 6 yeni kategori; 13 Kasım (Q) üst çubuk çentik düzeltmesi; (R) 2. grup: 8 sayfa, İnsan Bedeni
-   kategorisi açıldı. **Sırada**: yeni alanlar 3. grup — kullanıcıyla kesinleştirilecek (öneriler planda). Bir sayfa yeniden kurulursa
+   kategorisi açıldı; (S) 3. grup, yakın konular: 8 sayfa (dilbilim ikiye bölündü, bellek, bilim felsefesi, arkeoloji,
+   demografi, takvimler, mimarlık). **Sırada**: 4. grup, üçüncü halka (teoloji, psikiyatri, bilinç, edebiyat ve sinema; sayfa
+   listesi kullanıcıya danışılarak), sonra 4.S Öğrenme Yolları ve Önşart. Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

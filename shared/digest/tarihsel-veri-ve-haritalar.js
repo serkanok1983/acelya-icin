@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["tarihsel-veri-ve-haritalar"] = {
   next: [
     { href: "bilim-tarihinden-deneyler.html", title: "Bilim Tarihinden Deneyler: Eratosthenes, Galileo, Kepler, Cavendish, Rømer", why: "Ünlü ölçümleri kendi verileriyle yeniden yap: kayıp kitaplar ve ikinci elden aktarımlarla gelen bilimsel iddiaları tartmanın başka bir yolu." },
     { href: "salgin-modelleri-sir.html", title: "Salgın Modelleri (SIR): R₀, Sürü Bağışıklığı, Rastlantı ve Ağlar", why: "Broad Street eğrisi kol sökülmeden neden düşüyordu? Hastalanabilecek kişiler azaldıkça bir salgının kendiliğinden döndüğünü modelle gör." },
-    { href: "nufus-ekolojisi.html", title: "Nüfus Ekolojisi: Lojistik Büyüme, Kaos, Leslie Matrisi ve Rekabet", why: "Nüfus tahminlerindeki büyüme hızlarının arkasındaki modeller: lojistik büyüme, yaş yapısı ve Leslie matrisi." },
+    { href: "demografi-ve-nufus.html", title: "Demografi: Doğurganlık, Yaşam Tablosu, Nüfus Piramidi ve Projeksiyon", why: "Tarihsel nüfus tahminlerinin bugünkü karşılığı: doğurganlık ve ölümlülüğün ölçülmesi, demografik geçiş ve istisnaları, koşullu nüfus senaryoları." },
     { href: "regresyon-ve-korelasyon.html", title: "Regresyon ve Korelasyon: En Küçük Kareler, Artıklar ve Nedensellik", why: "Ölümlerin pompanın çevresinde toplanması bir ilişkidir; ilişkiden nedenselliğe geçmenin istatistikteki koşullarını incele." },
   ],
   sources: [

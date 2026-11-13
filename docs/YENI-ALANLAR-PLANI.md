@@ -59,5 +59,20 @@ Nişanyan Sözlük, Our World in Data, ICS stratigrafi, Library of Congress, Pro
 | `epistemoloji` | Felsefe ve Mantık | bilgi tanımı ve Gettier, şüphecilik, temelcilik–bağdaşımcılık, tümevarım sorunu, Bayesçi epistemoloji |
 | `aruz-ve-hece-olcusu` | Dil ve Edebiyat | hece ağırlığı, aruz kalıpları ve taktiî, imale ve zihaf, hece ölçüsü ve durak; yalnız kamu malı şiir |
 
-Sonraki gruplar için öneriler (onayla genişler): üçüncü halka (teoloji, psikiyatri, bilinç, edebiyat ve sinema) ayrı
-kurallarla; dilbilim (sözdizimi, anlambilim), arkeoloji ve tarihleme, mimarlık tarihi, demografi.
+## 3. grup (8 sayfa) ✔ 13 Kasım (S) — kullanıcı "yakın konulardan devam, üçüncü halka en son" dedi
+
+| Sayfa | Kategori | Öz |
+|---|---|---|
+| `sozdizimi-ve-dilbilgisi` | Dil ve Edebiyat | öbek yapısı ve ağaçlar, Türkçenin eklemeli yapısı ve biçimbirim çözümlemesi, sözcük dizimi tipolojisi, yapısal belirsizlik |
+| `anlambilim-ve-edimbilim` | Dil ve Edebiyat | anlam ilişkileri, gönderge ve anlam (Frege), niceleyici kapsamı, Grice'ın ilkeleri ve sezdirim, söz edimleri, önvarsayım |
+| `arkeoloji-ve-tarihleme` | Tarih ve Toplum | stratigrafi ve Harris matrisi, radyokarbon ve kalibrasyon, dendrokronoloji, seriasyon; göreli ve mutlak tarih |
+| `demografi-ve-nufus` | Tarih ve Toplum | nüfus piramidi, yaşam tablosu ve yaşam beklentisi, doğurganlık hızları, demografik geçiş, nüfus projeksiyonu |
+| `mimarlik-tarihi-ve-yapi` | Sanat ve Müzik | kemer, tonoz ve kubbe; itki çizgisi ve asılı zincir, Pantheon, Ayasofya, Süleymaniye, Gotik; oran sistemleri |
+| `bellek-ve-ogrenme` | Zihin ve Davranış | Ebbinghaus unutma eğrisi, aralıklı tekrar, seri konum etkisi, çalışma belleği; okur üzerinde deney, hiçbir şey kaydedilmez |
+| `bilim-felsefesi` | Felsefe ve Mantık | sınır çizme sorunu, yanlışlanabilirlik, Duhem–Quine, Kuhn ve paradigmalar, Lakatos, bilimsel gerçekçilik tartışması |
+| `takvimler-ve-zaman-olcumu` | Tarih ve Toplum | Jülyen ve Gregoryen takvim, Hicrî ve Rumî takvim, Metonik döngü, artık yıl kuralları, tarih dönüştürme |
+
+## 4. grup: üçüncü halka (sıradaki; 3. grup yayımlanınca)
+
+Teoloji, psikiyatri, bilinç, edebiyat ve sinema; yukarıdaki ayrı kurallarla. Bu grupla genişleme planı tamamlanır;
+ardından `docs/DEVAM-PLANI.md` 4.S (Öğrenme Yolları ve Önşart, atlas ve omurganın kaldırılması) gelir.

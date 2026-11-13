@@ -209,7 +209,7 @@ window.ACELYA_DIGEST["nufus-ekolojisi"] = {
     { href: "av-avci-lotka-volterra.html", title: "Av–Avcı Modeli: Lotka–Volterra Döngüleri ve Ötesi", why: "Av ile avcının sonsuz döngüsü ve bu sayfadaki rekabet denklemlerinin yedi başlangıçlı faz portresi, ayrıçla birlikte \"Rekabet\" sekmesinde." },
     { href: "lineer-cebir-ve-ozdegerler.html", title: "Lineer Cebir ve Özdeğerler: Eleme, Alt Uzaylar ve Spektrum", why: "Leslie matrisinin baskın özdeğeri ve özvektörü neden büyüme hızı ve yaş dağılımıdır: özdeğer kuramının kendisi, n×n matrislerle." },
     { href: "salgin-modelleri-sir.html", title: "Salgın Modelleri (SIR): R₀, Sürü Bağışıklığı, Rastlantı ve Ağlar", why: "Aynı R₀ fikri bu kez bulaşmada: eşik, salgın tepesi ve deterministik modelin yanında stokastik sönme." },
-    { href: "lorenz-cekici.html", title: "Lorenz Çekicisi: Kaos ve Kelebek Etkisi", why: "Kuşak haritasındaki kaosun sürekli zamandaki karşılığı: üç diferansiyel denklem, garip çekici ve kelebek etkisi." },
+    { href: "demografi-ve-nufus.html", title: "Demografi: Doğurganlık, Yaşam Tablosu, Nüfus Piramidi ve Projeksiyon", why: "Hayvan nüfuslarından insan nüfuslarına: gerçek BM verisiyle doğurganlık hızı, yaşam tablosu, nüfus piramidi ve Leslie matrisinin akrabası kuşak–bileşen projeksiyonu." },
   ],
   sources: [
     { title: "Wikipedia · Logistic function", url: "https://en.wikipedia.org/wiki/Logistic_function", note: "Verhulst'ün 1838–1847 makaleleri, Quetelet ve \"logistique\" adı; McKendrick 1911 ile Pearl ve Reed 1920 yeniden keşifleri (İngilizce)." },

@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["perspektif-ve-simetri"] = {
     { href: "grup-teorisi.html", title: "Grup Teorisi: Simetrinin Cebiri", why: "Düzgün çokgenin döndürme ve yansımalarını birleştir, Cayley tablosunu ve alt grup kafesini kur: rozet gruplarının cebiri." },
     { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Döndürme, ayna ve gerilmeyi matrislerle yaz, determinantı alan çarpanı olarak ölç; izometrilerin ve anamorfozun afin dilinin lineer cebiri." },
     { href: "penrose-dosemesi.html", title: "Penrose Döşemesi Laboratuvarı", why: "Kafese sığmayan beşli simetrinin döşemesi: Robinson üçgenlerini altın oranla böl ve aperiyodikliğin nereden geldiğini gör." },
-    { href: "mercek-isinlari.html", title: "İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu", why: "Merkezden geçen ışının sapmaması, perspektifin x = d·X/Z benzer üçgenlerinin optikteki karşılığıdır." },
+    { href: "mimarlik-tarihi-ve-yapi.html", title: "Mimarlık Tarihi ve Yapı: Kemer, Kubbe, İtki Çizgisi ve Oran", why: "Çizimden yapıya: kemerin itki çizgisi, kubbenin halka kuvvetleri, Vitruvius'un modülleri ve altın oran iddialarına eleştirel bir bakış." },
   ],
   sources: [
     { title: "Gentili, Simonutti, Struppa · The Mathematics of Painting (arXiv:2210.13295)", url: "https://arxiv.org/abs/2210.13295", note: "Rönesans resminden projektif geometriye: Alberti'nin penceresi, costruzione legittima, uzaklık noktasının göz uzaklığına eşitliği; örnek resimler ve hesaplar (İngilizce)." },

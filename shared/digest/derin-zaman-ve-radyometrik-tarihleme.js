@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["derin-zaman-ve-radyometrik-tarihleme"] = {
     { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma: Rastlantıdan Doğan Yasa", why: "Saatlerin altındaki istatistik: tek çekirdeğin rastlantısal bozunması nasıl şaşmaz bir yarı ömre dönüşür." },
     { href: "levha-tektonigi.html", title: "Levha Tektoniği: Yayılan Sırtlar, Manyetik Şeritler, Sıcak Noktalar ve İzostazi", why: "Deniz tabanının yaşı ve manyetik şeritler: derin zamanı levhaların hızını ölçmek için kullan." },
     { href: "dogal-secilim.html", title: "Doğal Seçilim: Popülasyon Genetiği Laboratuvarı", why: "Darwin'in uzun zaman istediği süreç: seçilim, sürüklenme, göç ve mutasyonun alel sıklığını nasıl değiştirdiğini ölç." },
-    { href: "iklim-ve-sera-etkisi.html", title: "İklim ve Sera Etkisi: Enerji Dengesi, Zorlama ve Geri Beslemeler", why: "Yok oluşlara eşlik eden iklim sarsıntılarını anlamak için gereken enerji dengesi, zorlama ve geri besleme kavramları." },
+    { href: "arkeoloji-ve-tarihleme.html", title: "Arkeoloji ve Tarihleme: Stratigrafi, Radyokarbon, Ağaç Halkaları, Seriasyon", why: "Jeolojik zamandan insan geçmişine: radyokarbon kalibrasyonu gerçek IntCal20 eğrisiyle, ağaç halkası eşleştirme, stratigrafi ve seriasyon." },
   ],
   sources: [
     { title: "ICS · International Chronostratigraphic Chart v2026/06", url: "https://stratigraphy.org/ICSchart/ChronostratChart2026-06.pdf", note: "Uluslararası Stratigrafi Komisyonu'nun güncel zaman çizelgesi: devir, zaman, dönem ve çağ sınırları ile belirsizlikleri (PDF, İngilizce)." },

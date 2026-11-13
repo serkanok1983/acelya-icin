@@ -218,7 +218,7 @@ window.ACELYA_DIGEST["ay-evreleri"] = {
     { href: "takimyildiz-haritasi.html", title: "Takımyıldız Haritası: Gökyüzünün Koordinatları", why: "Yıldız zamanı ve mevsimler sekmesinde bir yıldızın her gün yaklaşık 4 dakika erken doğduğunu ölç: Ay'ın 50 dakika geç kalmasının karşıtı. Enlem ve dik açıklığın gökteki yolu nasıl değiştirdiğini de gösterir." },
     { href: "gunes-sistemi.html", title: "Güneş Sistemi Laboratuvarı", why: "Gökyüzünde gezegenler sekmesi bir gezegenin kavuşum dönemini ölçer ve NASA değeriyle karşılaştırır: aynı 1/S = 1/P − 1/Y bağıntısının gezegenlerdeki hâli." },
     { href: "kepler-yasalari.html", title: "Kepler Yasaları — Gezegen Yörüngeleri", why: "İkinci yasa sekmesinde eşit sürelerde taranan alanları ölç: gezegen günberide hızlanır. Eylül→Mart yarıyılının 178,84, Mart→Eylül'ün 186,41 gün sürmesinin nedeni budur." },
-    { href: "birim-cember.html", title: "Birim Çember: Sinüs, Kosinüs ve Dönmeler", why: "Açı θ kaydırıcısıyla cos θ'yı oku ve (1 + cos θ)/2'yi hesapla: faz açısı θ iken Ay diskinin aydınlık kesri tam olarak budur." },
+    { href: "takvimler-ve-zaman-olcumu.html", title: "Takvimler ve Zaman Ölçümü: Jülyen, Gregoryen, Hicrî, Rumî ve Tarih Çevirme", why: "Ay evrelerinden takvime: kavuşum ayı ile yılın uyuşmazlığı, Metonik döngü, Jülyen ve Gregoryen kurallar, Hicrî ve Rumî takvimler arasında tarih çevirme." },
   ],
   sources: [
     { title: "NASA Science · Tidal Locking", url: "https://science.nasa.gov/moon/tidal-locking/", note: "Ay neden hep aynı yüzünü gösterir, kilitlenme nasıl oluştu, Ay neden uzaklaşıyor (NASA hızı yuvarlak olarak yılda 4 cm verir)." },

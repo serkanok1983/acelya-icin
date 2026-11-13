@@ -1993,3 +1993,31 @@ Ayrıca: üst çubuk iPhone çentiği/ana ekran uygulamasında erişilebilir (sa
 tuvalindeki kesilen uzaklık etiketi düzeltildi.
 
 Koordinatör: menüde İnsan Bedeni kategorisi ve 7 sayfa diğer kategorilere; katalog; komşu defterlerden 10 bağlantı.
+
+## 13 Kasım 2026 — S: yeni alanlar, 3. grup (8 sayfa, yakın konular)
+
+Kullanıcı yakın konularla devam, üçüncü halka en son dedi. Hat aynı; kurucular koşut, her ajan geçici dosyalarını
+kendi `.shots/tmp-<rol>-<slug>/` klasöründe tuttu (çakışma olmadı). İzinli kaynaklara psychclassics, PLOS, USNO, TBMM
+arşivi, Resmî Gazete, BM nüfus, TÜİK, HMD, IntCal, Cambridge, UNESCO, WALS ve Leipzig (eva.mpg.de) eklendi.
+
+- ✔ `sozdizimi-ve-dilbilgisi`: biçimbirim ayırma ve Leipzig gösterimi, ek sırası, öbek sınamaları (öbek yapısı ile
+  bağımlılık yan yana), yapısal belirsizlik ağaçları, WALS 81A/95A ile Greenberg evrenselleri. Doğrulamada "altı dizimin
+  hepsi geçerli" iddiası belirli nesneyle sınırlandı (yalın nesne fiilin önünde).
+- ✔ `anlambilim-ve-edimbilim`: anlam ilişkileri, Frege, gerektirme/çelişki/karşıtlık, niceleyici kapsamı (4096 dünya),
+  Grice ve geri alınabilirlik, önvarsayım yansıması, söz edimleri. Doğrulamada yerine gelme koşulları Austin ve Searle'e
+  göre yeniden sınıflandı (boşa çıkma / kusur / kötüye kullanma); Horn 2004 → 1984.
+- ✔ `bellek-ve-ogrenme`: Ebbinghaus verisi ve Murre ile Dros 2015 tekrarı, dört model, serbest hatırlama, uzam, aralıklı
+  tekrar ve Leitner modeli, DRM. Hiçbir şey kaydedilmez. Leitner–her gün karşılaştırmasının tohuma bağlı olduğu yazıldı.
+- ✔ `bilim-felsefesi`: sınır çizme ölçütleri, Duhem–Quine (Neptün ve Vulkan), Kuhn, Lakatos, gerçekçilik ve taban oranı.
+  Popper'ın örnekleri onun yargısı olarak, itirazlarıyla; McLean v. Arkansas eklendi; telefonda SVG yazıları büyütüldü.
+- ✔ `arkeoloji-ve-tarihleme`: Harris matrisi, gerçek IntCal20 (CC BY 4.0; 7001 satır resmî dosyayla birebir), ağaç
+  halkası eşleştirme ve seriasyon (yapay veri, etiketli), TPQ/TAQ.
+- ✔ `demografi-ve-nufus`: WPP 2024 ve HMD 2025 verisiyle doğurganlık, yaşam tablosu, piramitler, demografik geçiş,
+  kuşak–bileşen projeksiyonu (koşullu senaryo). BM medyan yaşı sayfanın hesabından ~1 yaş düşük: yöntem farkı, sayfada açık.
+- ✔ `takvimler-ve-zaman-olcumu`: gök dönemleri ve Metonik döngü, artık yıl kuralları, Jülyen/Gregoryen/Hicrî (yalnız
+  çizelge)/Rumî çevirici ve JGN (USNO ile doğrulandı), 698 sayılı Kanun. 1917 tarihli 125 sayılı kanun birincil
+  kaynakta doğrulanamadı, çekinceyle.
+- ✔ `mimarlik-tarihi-ve-yapi`: itki çizgisi ve güvenli kuram (60 kemer taşı, en az kalınlık t/R 0,1075), kubbe zar
+  kuvvetleri, büyük kubbeler zaman çizelgesi, Vitruvius modülleri, altın oran tartışması, plan–kesit–görünüş.
+
+Koordinatör: menüye 8 sayfa; komşu defterlerden 10 bağlantı; katalog.

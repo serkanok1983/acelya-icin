@@ -173,34 +173,42 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `okyanus-ve-gelgitler` — Okyanus ve Gelgitler (sayfa başlığı: Okyanus ve Gelgitler: Gelgit Kuvveti, Deniz Suyu ve Dalgalar) · Lise–Lisans
 - `derin-zaman-ve-radyometrik-tarihleme` — Derin Zaman ve Radyometrik Tarihleme (sayfa başlığı: Derin Zaman ve Radyometrik Tarihleme: Kayaçların ve Yaşamın Yaşı) · Lise–Lisans
 
-## Dil ve Edebiyat (4)
+## Dil ve Edebiyat (6)
 
 - `turkcenin-ses-yapisi` — Türkçenin Ses Yapısı (sayfa başlığı: Türkçenin Ses Yapısı: Ünlü Uyumu, Ünsüz Değişimi ve Hece) · Lise–Lisans
 - `zipf-yasasi-ve-dil-istatistigi` — Zipf Yasası ve Dil İstatistiği (sayfa başlığı: Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni) · Lise–Lisans
 - `etimoloji-ve-dil-aileleri` — Etimoloji ve Dil Aileleri (sayfa başlığı: Etimoloji ve Dil Aileleri: Ses Denklikleri, Soy Ağaçları, Alıntılar) · Lise–Lisans
 - `aruz-ve-hece-olcusu` — Aruz ve Hece Ölçüsü (sayfa başlığı: Aruz ve Hece Ölçüsü: Türk Şiirinde Vezin ve Taktî) · Lise–Lisans
+- `sozdizimi-ve-dilbilgisi` — Sözdizimi ve Dilbilgisi (sayfa başlığı: Sözdizimi ve Dilbilgisi: Biçimbirim, Öbek, Ağaç ve Sözcük Dizimi) · Lise–Lisans
+- `anlambilim-ve-edimbilim` — Anlambilim ve Edimbilim (sayfa başlığı: Anlambilim ve Edimbilim: Anlam İlişkileri, Frege, Kapsam, Grice, Söz Edimleri) · Lise–Lisans
 
-## Zihin ve Davranış (2)
+## Zihin ve Davranış (3)
 
 - `algi-psikolojisi` — Algı Psikolojisi (sayfa başlığı: Algı Psikolojisi: Yanılsamalar, Eşikler, Sinyal Saptama ve Tepki Süresi) · Lise–Lisans
 - `karar-ve-bilissel-yanliliklar` — Karar ve Bilişsel Yanlılıklar (sayfa başlığı: Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?) · Lise–Lisans
+- `bellek-ve-ogrenme` — Bellek ve Öğrenme (sayfa başlığı: Bellek ve Öğrenme: Unutma Eğrisi, Seri Konum, Çalışma Belleği, Yanlış Anılar) · Lise–Lisans
 
-## Felsefe ve Mantık (3)
+## Felsefe ve Mantık (4)
 
 - `mantik-ve-argumantasyon` — Mantık ve Argümantasyon (sayfa başlığı: Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar) · Lise–Lisans
 - `epistemoloji` — Epistemoloji (sayfa başlığı: Epistemoloji: Bilgi, Gettier, Şüphecilik, Gerekçe ve Tümevarım) · Lise–Lisans
 - `felsefi-dusunce-deneyleri` — Felsefi Düşünce Deneyleri (sayfa başlığı: Felsefi Düşünce Deneyleri: Tramvay, Theseus, Çin Odası, Mary ve Peçe) · Lise–Lisans
+- `bilim-felsefesi` — Bilim Felsefesi (sayfa başlığı: Bilim Felsefesi: Sınır Çizme, Duhem–Quine, Kuhn, Lakatos, Gerçekçilik) · Lise–Lisans
 
-## Sanat ve Müzik (2)
+## Sanat ve Müzik (3)
 
 - `muzik-kurami-ve-akort` — Müzik Kuramı ve Akort (sayfa başlığı: Müzik Kuramı ve Akort: Harmonikler, Komalar ve Makam Perdeleri) · Lise–Lisans
 - `perspektif-ve-simetri` — Perspektif ve Simetri (sayfa başlığı: Perspektif ve Simetri: Kaçış Noktaları, Duvar Kâğıdı Grupları ve Girih) · Lise–Lisans
+- `mimarlik-tarihi-ve-yapi` — Mimarlık Tarihi ve Yapı (sayfa başlığı: Mimarlık Tarihi ve Yapı: Kemer, Kubbe, İtki Çizgisi ve Oran) · Lise–Lisans
 
-## Tarih ve Toplum (3)
+## Tarih ve Toplum (6)
 
 - `bilim-tarihinden-deneyler` — Bilim Tarihinden Deneyler (sayfa başlığı: Bilim Tarihinden Deneyler: Eratosthenes, Galileo, Kepler, Cavendish, Rømer) · Lise–Lisans
 - `tarihsel-veri-ve-haritalar` — Tarihsel Veri ve Haritalar (sayfa başlığı: Tarihsel Veri ve Haritalar: Minard, Snow, Nüfus Tahminleri ve Kaynak Eleştirisi) · Lise–Lisans
 - `sosyal-modeller-ve-aglar` — Sosyal Modeller ve Ağlar (sayfa başlığı: Sosyal Modeller ve Ağlar: Basit Kurallar, Şaşırtıcı Toplumlar) · Lise–Lisans
+- `arkeoloji-ve-tarihleme` — Arkeoloji ve Tarihleme (sayfa başlığı: Arkeoloji ve Tarihleme: Stratigrafi, Radyokarbon, Ağaç Halkaları, Seriasyon) · Lise–Lisans
+- `demografi-ve-nufus` — Demografi ve Nüfus (sayfa başlığı: Demografi: Doğurganlık, Yaşam Tablosu, Nüfus Piramidi ve Projeksiyon) · Lise–Lisans
+- `takvimler-ve-zaman-olcumu` — Takvimler ve Zaman Ölçümü (sayfa başlığı: Takvimler ve Zaman Ölçümü: Jülyen, Gregoryen, Hicrî, Rumî ve Tarih Çevirme) · Lise–Lisans
 
 ## İnsan Bedeni (1)
 

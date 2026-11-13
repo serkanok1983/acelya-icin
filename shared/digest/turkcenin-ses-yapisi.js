@@ -191,7 +191,7 @@ window.ACELYA_DIGEST["turkcenin-ses-yapisi"] = {
   ],
   next: [
     { href: "zipf-yasasi-ve-dil-istatistigi.html", title: "Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni", why: "Sesten sözcüğe: kamu malı Türkçe ve İngilizce metinlerde sözcük sıklıklarını say, Zipf ve Heaps yasalarını ölç ve rastgele yazan bir maymunla karşılaştır." },
-    { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata Teorisi", why: "Ek motoru bir kural makinesidir: DFA, NFA ve düzenli ifadelerle bir dizgiyi adım adım yargılayan makineleri kur; Türkçe biçim çözümlemesinin dayandığı sonlu durumlu düşüncenin temeli burada." },
+    { href: "sozdizimi-ve-dilbilgisi.html", title: "Sözdizimi ve Dilbilgisi: Biçimbirim, Öbek, Ağaç ve Sözcük Dizimi", why: "Seslerden yapıya: sözcükleri biçimbirimlere ayırır, eklerin sırasını sınar, öbek ağaçları kurarsın; ünlü uyumunun ürettiği ek biçimleri orada yeniden karşına çıkar." },
     { href: "etimoloji-ve-dil-aileleri.html", title: "Etimoloji ve Dil Aileleri: Ses Denklikleri, Soy Ağaçları, Alıntılar", why: "Ses kurallarının tarihine bak: düzenli ses denklikleriyle dil akrabalığını sına, alıntı sözcüklerin Türkçeye nasıl uyduğunu gör." },
     { href: "aruz-ve-hece-olcusu.html", title: "Aruz ve Hece Ölçüsü: Türk Şiirinde Vezin ve Taktî", why: "Hece yapısını şiire taşı: açık ve kapalı heceyi tart, bir dizeyi aruz kalıbına yerleştir, hece ölçüsünde durağı bul." },
   ],

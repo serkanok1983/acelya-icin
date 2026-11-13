@@ -204,7 +204,7 @@ window.ACELYA_DIGEST["algi-psikolojisi"] = {
     { href: "hipotez-testi-ve-guven-araligi.html", title: "Hipotez Testi ve Güven Aralığı: Örnekleme, p-Değeri, Hata Türleri ve Güç", why: "İsabet ve yanlış alarmın istatistikteki adları: güç ve I. tür hata. p-değeri ve hata türleri sekmesinde ölçüt kaydırmanın bedelini binlerce tekrarla gör." },
     { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "En iyi ölçütün neden sinyal olasılığına bağlı olduğunun kökü: önsel, olabilirlik oranı ve tanı testinde sonsal olasılık." },
     { href: "karar-ve-bilissel-yanliliklar.html", title: "Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?", why: "Algıdan yargıya: klasik karar problemlerini kendin yanıtla, beklenen fayda ve beklenti kuramını insanların gerçek seçimleriyle karşılaştır." },
-    { href: "renk-teorisi.html", title: "Renk: Kod, Işık ve Karışım", why: "Eşzamanlı karşıtlıktaki gri düzeylerinin ışık miktarına nasıl çevrildiği: bir renk kodu neden ışık miktarı değildir." },
+    { href: "bellek-ve-ogrenme.html", title: "Bellek ve Öğrenme: Unutma Eğrisi, Seri Konum, Çalışma Belleği, Yanlış Anılar", why: "Algıdan belleğe: Ebbinghaus'un unutma eğrisi, seri konum etkisi, rakam uzamı ve yanlış anılar; deneyler yine senin üzerinde, hiçbir şey kaydedilmeden." },
   ],
   sources: [
     { title: "OpenStax · Psychology 2e, 5.1 Sensation versus Perception", url: "https://openstax.org/books/psychology-2e/pages/5-1-sensation-versus-perception", note: "Mutlak eşik, fark eşiği, Weber yasası ve sinyal saptama kuramına giriş (İngilizce, açık ders kitabı)." },
