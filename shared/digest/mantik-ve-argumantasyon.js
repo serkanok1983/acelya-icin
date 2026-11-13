@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["mantik-ve-argumantasyon"] = {
   next: [
     { href: "mantik-kapilari.html", title: "Mantık Kapıları Laboratuvarı", why: "Aynı ∧, ∨ ve ¬ bu kez elektrik devresinde: kapıları doğruluk tablolarıyla sına, De Morgan eşdeğerliklerini karşılaştır, bir toplayıcı kur." },
     { href: "hesaplama-teorisi.html", title: "Hesaplama Teorisi: Turing Makineleri, Lambda Hesabı ve Çözülemezlik", why: "Kendinden söz etmenin hesaplamadaki yüzü: köşegen tablosunda durma probleminin neden çözülemediğini gör." },
-    { href: "kombinatorik-ve-sayma.html", title: "Kombinatorik ve Sayma: Seçimler, Güvercin Yuvası, İçerme–Dışlama ve Catalan", why: "Tablonun 2ⁿ satırı ve niceleyici dünyasının 2⁹ = 512 olasılığı birer sayma problemidir; seçimleri ve içerme–dışlamayı sistemli say." },
+    { href: "epistemoloji.html", title: "Epistemoloji: Bilgi, Gettier, Şüphecilik, Gerekçe ve Tümevarım", why: "Geçerli çıkarımdan bilgiye: Gettier örneklerini yargıla, şüphecilik argümanının öncüllerini tek tek kabul ya da ret et." },
     { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Tümdengelimin bittiği yerde kanıt ağırlığı başlar: bir gözlemden sonra bir iddiaya inancını ne kadar değiştirmen gerektiğini hesapla." },
   ],
   sources: [

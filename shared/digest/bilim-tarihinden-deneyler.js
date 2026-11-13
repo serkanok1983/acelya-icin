@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["bilim-tarihinden-deneyler"] = {
   next: [
     { href: "kepler-yasalari.html", title: "Kepler Yasaları — Gezegen Yörüngeleri", why: "Kepler'in Mars'tan zorla çıkardığı yasaları tersinden gör: Newton'un ters kare çekimini adım adım sayısal olarak çöz, çıkan yolda elipsi, eşit alanları ve T² ∝ a³'ü ölç." },
     { href: "serbest-dusme.html", title: "Serbest Düşme: Galileo'dan Limit Hıza", why: "Galileo'nun eğik düzlemle seyrelttiği hareketin kendisi: stroboskop izlerinden g'yi çıkar, hava direncini ve limit hızı ekle, Ay'daki tüy ile çekici yeniden gör." },
-    { href: "gunes-sistemi.html", title: "Güneş Sistemi Laboratuvarı", why: "Rømer'in Jüpiter'i ve Kepler'in Mars'ı NASA verisiyle: Güneş Sistemi'nin ölçeği ve Mars'ın karşı konum çevresinde gökte neden geri gittiği." },
+    { href: "tarihsel-veri-ve-haritalar.html", title: "Tarihsel Veri ve Haritalar: Minard, Snow, Nüfus Tahminleri ve Kaynak Eleştirisi", why: "Tarihi sayılarla okumak: Minard'ın 1812 haritasını kendi verisiyle denetle, nüfus tahminlerinin neden ayrıştığını gör." },
     { href: "bilimsel-yontem-olcme-ve-belirsizlik.html", title: "Bilimsel Yöntem, Ölçme ve Belirsizlik: Basamak, Yayılım, Hata ve Uydurma", why: "Bu sayfadaki her deneyin arkasındaki araçlar: ölçek basamağı, belirsizlik yayılımı, sistematik hata ve verilere doğru uydurma." },
   ],
   sources: [

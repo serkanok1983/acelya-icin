@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["salgin-modelleri-sir"] = {
     { href: "av-avci-lotka-volterra.html", title: "Av–Avcı Modeli: Lotka–Volterra Döngüleri ve Ötesi", why: "SIR'in yakın akrabası: iki türün etkileşim terimiyle yazılan doğrusal olmayan bir sistem, döngüleri ve korunan niceliğiyle." },
     { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa", why: "Faz portresi, doğrusal olmayan sistemlerde Jacobian ile kararlılık ve sayısal çözüm: SIRS'in sönümlü sarmalını ve RK4 adımını oradaki araçlarla oku." },
     { href: "cizge-teorisi.html", title: "Çizge Teorisi: Yapı, Değişmezler ve Teoremler", why: "Temas ağının dili: dereceler, ağaçlar ve bağlantılılık. Ağda R₀ formülündeki ⟨k²⟩ derece dizisinden gelir." },
-    { href: "rastgele-yuruyus.html", title: "Rastgele Yürüyüş: √N Yasası, Difüzyon ve Geri Dönüş", why: "Erken evrede enfekte sayısı her olayda ±1 adım atan bir yürüyüştür (yukarı olasılığı R₀/(R₀+1)); sönme olasılığı bu yanlı yürüyüşün sıfıra varma olasılığıdır. O sayfa yansız yürüyüşü, √N yasasını ve geri dönüşü ölçer." },
+    { href: "tarihsel-veri-ve-haritalar.html", title: "Tarihsel Veri ve Haritalar: Minard, Snow, Nüfus Tahminleri ve Kaynak Eleştirisi", why: "Modelden önceki veri: Snow'un 1854 kolera haritasını yeniden çiz, ölümleri en yakın tulumbaya göre say ve salgın eğrisini oku." },
   ],
   sources: [
     { title: "Wikipedia · Compartmental models in epidemiology", url: "https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology", note: "SIR, SEIR ve SIRS modelleri, Kermack ve McKendrick'in 1927 modeli, son büyüklük bağıntısı ve aşılama eşiği 1 − 1/R₀ (İngilizce)." },

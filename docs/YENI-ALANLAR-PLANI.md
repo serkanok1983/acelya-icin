@@ -46,6 +46,18 @@ Nişanyan Sözlük, Our World in Data, ICS stratigrafi, Library of Congress, Pro
 | `derin-zaman-ve-radyometrik-tarihleme` | Yer ve Çevre Bilimleri | jeolojik zaman ölçeği, izokron tarihleme, kitlesel yok oluşlar, fosil kaydının yanlılığı |
 | `bilim-tarihinden-deneyler` | Tarih ve Toplum | Eratosthenes, Galileo'nun eğik düzlemi, Kepler ve Mars verisi, Cavendish; tarihî deneyleri yeniden kurmak |
 
-Sonraki gruplar için öneriler (onayla genişler): anatomi ve fizyoloji (kas–kaldıraç, solunum, göz optiği), etimoloji ve
-dil aileleri, tarih verisi ve haritalar, Schelling ve sosyal ağ modelleri, perspektif ve simetri sanatı, felsefi düşünce
-deneyleri, bilgi kuramı (epistemoloji), aruz ve hece ölçüsü (kamu malı şiir).
+## 2. grup (8 sayfa) ✔ 13 Kasım (R) — kullanıcı "öneri listesinden devam" dedi
+
+| Sayfa | Kategori | Öz |
+|---|---|---|
+| `anatomi-ve-fizyoloji` | İnsan Bedeni (yeni menü kategorisi) | kas–iskelet kaldıraçları, solunum mekaniği ve akciğer hacimleri, gözün optiği ve kırma kusurları |
+| `etimoloji-ve-dil-aileleri` | Dil ve Edebiyat | dil aileleri, düzenli ses denklikleri ve karşılaştırmalı yöntem, Türkçenin alıntı katmanları, halk etimolojisi |
+| `tarihsel-veri-ve-haritalar` | Tarih ve Toplum | Minard'ın 1812 haritası, Snow'un kolera haritası, tarihsel nüfus tahminleri ve belirsizlikleri, kaynak eleştirisi |
+| `sosyal-modeller-ve-aglar` | Tarih ve Toplum | Schelling ayrışma modeli, Granovetter eşik modeli, küçük dünya ağları; model ile gerçeklik arasındaki mesafe |
+| `perspektif-ve-simetri` | Sanat ve Müzik | doğrusal perspektif ve kaçış noktaları, anamorfoz, şerit ve duvar kâğıdı simetri grupları, İslam geometrik desenleri |
+| `felsefi-dusunce-deneyleri` | Felsefe ve Mantık | tramvay, Theseus'un gemisi, Çin odası, Mary'nin odası, cehalet peçesi; sezgi ve argüman |
+| `epistemoloji` | Felsefe ve Mantık | bilgi tanımı ve Gettier, şüphecilik, temelcilik–bağdaşımcılık, tümevarım sorunu, Bayesçi epistemoloji |
+| `aruz-ve-hece-olcusu` | Dil ve Edebiyat | hece ağırlığı, aruz kalıpları ve taktiî, imale ve zihaf, hece ölçüsü ve durak; yalnız kamu malı şiir |
+
+Sonraki gruplar için öneriler (onayla genişler): üçüncü halka (teoloji, psikiyatri, bilinç, edebiyat ve sinema) ayrı
+kurallarla; dilbilim (sözdizimi, anlambilim), arkeoloji ve tarihleme, mimarlık tarihi, demografi.

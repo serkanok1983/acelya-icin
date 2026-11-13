@@ -707,9 +707,8 @@ tablosu hataları). Öneri:
    dersi taşındı ve "Yer ve Çevre Bilimleri" kategorisi 5 sayfayla açıldı. Aynı gün (L) 2. aşamanın ilk grubu:
    matematik/istatistik ve biyolojide 9 yeni sayfa; (M) fizik ve kimyada 8 yeni sayfa; (N) disiplinlerarası 6 yeni sayfa ve biriken
    düzeltmeler. `docs/YENI-SAYFA-PLANI.md` tamamlandı. Ardından (O) mobil uyum ve tam sayfa kaydırma; (P)
-   `docs/YENI-ALANLAR-PLANI.md` 1. grup: 8 sayfa, 6 yeni kategori. **Sırada**: yeni alanlar 2. grup (önerilen:
-   anatomi ve fizyoloji, etimoloji ve dil aileleri, tarih verisi ve haritalar, sosyal modeller, perspektif ve simetri,
-   felsefi düşünce deneyleri, epistemoloji, aruz ve hece ölçüsü) — kullanıcıyla kesinleştirilecek. Bir sayfa yeniden kurulursa
+   `docs/YENI-ALANLAR-PLANI.md` 1. grup: 8 sayfa, 6 yeni kategori; 13 Kasım (Q) üst çubuk çentik düzeltmesi; (R) 2. grup: 8 sayfa, İnsan Bedeni
+   kategorisi açıldı. **Sırada**: yeni alanlar 3. grup — kullanıcıyla kesinleştirilecek (öneriler planda). Bir sayfa yeniden kurulursa
    G hattı uygulanır ve ona bağlanan defterlerin başlık/gerekçeleri taranır.
 3. Her değişiklikten sonra ilgili defterin laboratuvar sayılarını yeniden
    hesapla; `node scripts/smoke.mjs --only <slug>` ve ekran görüntüsü.

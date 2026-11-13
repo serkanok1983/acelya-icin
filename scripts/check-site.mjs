@@ -36,7 +36,7 @@ const SOURCE_PREFIXES = [
   "https://tr.khanacademy.org/", "https://www.khanacademy.org/",
   "http://hyperphysics.phy-astr.gsu.edu/", "https://www.feynmanlectures.caltech.edu/",
   "https://mathworld.wolfram.com/", "https://www.3blue1brown.com/", "https://oeis.org/",
-  "https://plato.stanford.edu/", "https://iep.utm.edu/", "https://www.britannica.com/", "https://sozluk.gov.tr/", "https://www.nisanyansozluk.com/", "https://ourworldindata.org/", "https://stratigraphy.org/", "https://www.loc.gov/", "https://www.gutenberg.org/", "https://www.metmuseum.org/", "https://www.si.edu/", "https://www.nps.gov/", "https://www.tdk.gov.tr/",
+  "https://plato.stanford.edu/", "https://iep.utm.edu/", "https://www.britannica.com/", "https://sozluk.gov.tr/", "https://www.nisanyansozluk.com/", "https://ourworldindata.org/", "https://stratigraphy.org/", "https://www.loc.gov/", "https://www.gutenberg.org/", "https://www.metmuseum.org/", "https://www.si.edu/", "https://www.nps.gov/", "https://www.tdk.gov.tr/", "https://islamansiklopedisi.org.tr/",
   "https://www.nrel.gov/", "https://www.energy.gov/", "https://refractiveindex.info/", "https://www.ioffe.ru/SVA/NSM/", "http://www.ioffe.ru/SVA/NSM/", "https://janaf.nist.gov/",
   "https://goldbook.iupac.org/", "https://webbook.nist.gov/", "https://www.nist.gov/", "https://www.itl.nist.gov/div898/handbook/", "https://physics.nist.gov/", "https://www.bipm.org/",
   "https://www.ncbi.nlm.nih.gov/", "https://pubmed.ncbi.nlm.nih.gov/", "https://www.biointeractive.org/",

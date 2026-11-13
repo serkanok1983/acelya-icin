@@ -173,27 +173,38 @@ Ana menüdeki kategoriler ve sayfalar. `next` bağlantıları için slug'ları b
 - `okyanus-ve-gelgitler` — Okyanus ve Gelgitler (sayfa başlığı: Okyanus ve Gelgitler: Gelgit Kuvveti, Deniz Suyu ve Dalgalar) · Lise–Lisans
 - `derin-zaman-ve-radyometrik-tarihleme` — Derin Zaman ve Radyometrik Tarihleme (sayfa başlığı: Derin Zaman ve Radyometrik Tarihleme: Kayaçların ve Yaşamın Yaşı) · Lise–Lisans
 
-## Dil ve Edebiyat (2)
+## Dil ve Edebiyat (4)
 
 - `turkcenin-ses-yapisi` — Türkçenin Ses Yapısı (sayfa başlığı: Türkçenin Ses Yapısı: Ünlü Uyumu, Ünsüz Değişimi ve Hece) · Lise–Lisans
 - `zipf-yasasi-ve-dil-istatistigi` — Zipf Yasası ve Dil İstatistiği (sayfa başlığı: Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni) · Lise–Lisans
+- `etimoloji-ve-dil-aileleri` — Etimoloji ve Dil Aileleri (sayfa başlığı: Etimoloji ve Dil Aileleri: Ses Denklikleri, Soy Ağaçları, Alıntılar) · Lise–Lisans
+- `aruz-ve-hece-olcusu` — Aruz ve Hece Ölçüsü (sayfa başlığı: Aruz ve Hece Ölçüsü: Türk Şiirinde Vezin ve Taktî) · Lise–Lisans
 
 ## Zihin ve Davranış (2)
 
 - `algi-psikolojisi` — Algı Psikolojisi (sayfa başlığı: Algı Psikolojisi: Yanılsamalar, Eşikler, Sinyal Saptama ve Tepki Süresi) · Lise–Lisans
 - `karar-ve-bilissel-yanliliklar` — Karar ve Bilişsel Yanlılıklar (sayfa başlığı: Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?) · Lise–Lisans
 
-## Felsefe ve Mantık (1)
+## Felsefe ve Mantık (3)
 
 - `mantik-ve-argumantasyon` — Mantık ve Argümantasyon (sayfa başlığı: Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar) · Lise–Lisans
+- `epistemoloji` — Epistemoloji (sayfa başlığı: Epistemoloji: Bilgi, Gettier, Şüphecilik, Gerekçe ve Tümevarım) · Lise–Lisans
+- `felsefi-dusunce-deneyleri` — Felsefi Düşünce Deneyleri (sayfa başlığı: Felsefi Düşünce Deneyleri: Tramvay, Theseus, Çin Odası, Mary ve Peçe) · Lise–Lisans
 
-## Sanat ve Müzik (1)
+## Sanat ve Müzik (2)
 
 - `muzik-kurami-ve-akort` — Müzik Kuramı ve Akort (sayfa başlığı: Müzik Kuramı ve Akort: Harmonikler, Komalar ve Makam Perdeleri) · Lise–Lisans
+- `perspektif-ve-simetri` — Perspektif ve Simetri (sayfa başlığı: Perspektif ve Simetri: Kaçış Noktaları, Duvar Kâğıdı Grupları ve Girih) · Lise–Lisans
 
-## Tarih ve Toplum (1)
+## Tarih ve Toplum (3)
 
 - `bilim-tarihinden-deneyler` — Bilim Tarihinden Deneyler (sayfa başlığı: Bilim Tarihinden Deneyler: Eratosthenes, Galileo, Kepler, Cavendish, Rømer) · Lise–Lisans
+- `tarihsel-veri-ve-haritalar` — Tarihsel Veri ve Haritalar (sayfa başlığı: Tarihsel Veri ve Haritalar: Minard, Snow, Nüfus Tahminleri ve Kaynak Eleştirisi) · Lise–Lisans
+- `sosyal-modeller-ve-aglar` — Sosyal Modeller ve Ağlar (sayfa başlığı: Sosyal Modeller ve Ağlar: Basit Kurallar, Şaşırtıcı Toplumlar) · Lise–Lisans
+
+## İnsan Bedeni (1)
+
+- `anatomi-ve-fizyoloji` — Anatomi ve Fizyoloji (sayfa başlığı: Anatomi ve Fizyoloji: Kas Kaldıraçları, Solunum Mekaniği ve Gözün Optiği) · Lise–Lisans
 
 ## Disiplinler Arası (54)
 

@@ -1961,3 +1961,35 @@ Hat aynı (kurucu → ayrı yazar → bağımsız doğrulayıcı); her sayfa mob
   Cavendish kuvveti (1,74 × 10⁻⁷ N) kendi ölçüleriyle tutmuyor; sayfa 1,5 × 10⁻⁷ N kullanır.
 
 Koordinatör: menüde 5 yeni kategori (+ derin zaman Yer'e), katalog, meta; komşu defterlerden 12 yeni bağlantı.
+
+## 13 Kasım 2026 — R: yeni alanlar, 2. grup (8 sayfa, İnsan Bedeni menüye girdi) ve küçük düzeltmeler
+
+Kullanıcı öneri listesiyle devam dedi. Hat aynı (kurucu → ayrı yazar → bağımsız doğrulayıcı); sekiz kurucu koşut
+çalıştı. Ders: koşut ajanlar oturumun ortak karalama klasörünü paylaşıyor, biri ötekinin `kernel.js`'ini ezdi;
+bundan sonra her ajan geçici dosyalarını `.shots/tmp-<rol>-<slug>/` altında tutar ve bitince siler. TDV İslâm
+Ansiklopedisi izinli kaynaklara eklendi.
+
+- ✔ `anatomi-ve-fizyoloji` (İnsan Bedeni): dirsek ve baldır kaldıraçları (baldırda "ikinci sınıf" etiketi ile serbest
+  cisim çözümü ayrı ayrı), Hill eğrileri, spirogram ve FEV₁/FVC (0,70 ile LLN tartışması yansız), indirgenmiş göz,
+  yaşa göre uyum, gözlük ve lens. Tıbbi tavsiye yok; tipik değerler etiketli.
+- ✔ `etimoloji-ve-dil-aileleri`: ses denkliği sayacı ve rastlantı hesabı, aile ağacı, Türk izoglosları, TDK verisiyle
+  104 sözcüklük alıntı katmanı (canlı API ile hepsi doğrulandı), Dil Devrimi çiftleri, halk etimolojisi.
+- ✔ `aruz-ve-hece-olcusu`: hece ağırlığı, 14 kalıplı taktî motoru (imale, zihaf, med, vasl), durak; yalnız kamu malı
+  şiir. Doğrulamada Nef'î'nin ikinci mısraındaki uydurma zihaf yayımlı şerhle düzeltildi; Gökalp'e atfedilen
+  kaynaksız söz çıkarıldı.
+- ✔ `tarihsel-veri-ve-haritalar`: Minard verisinin iç tutarlılığı, Snow haritası (birim 100 m değil yaklaşık 54 m:
+  kolera paketindeki coğrafi koordinatlar ve Snow'un 250 yarda cümlesiyle iki yoldan doğrulandı), Tablo IX
+  basım hataları, nüfus tahminlerinin yayılımı, kaynak eleştirisi.
+- ✔ `sosyal-modeller-ve-aglar`: Schelling, Granovetter eşikleri (sonlu kalabalık ile sürekli model farkı), Watts–Strogatz,
+  Barabási–Albert ve Broido–Clauset, zayıf bağlar, Dunbar (tartışmalı).
+- ✔ `perspektif-ve-simetri`: kaçış noktaları ve K1·K2 değişmezi, uzaklık noktası, anamorfoz, şerit ve duvar kâğıdı
+  grupları (kaba kuvvet algılayıcı), Hankin yöntemi, girih ve Elhamra sayımı tartışması (Grünbaum 2006 tam metni).
+- ✔ `felsefi-dusunce-deneyleri`: tramvay (Awad 2020 verisi), Theseus, Parfit, Çin odası, Mary, cehalet peçesi (CRRA
+  kesinlik eşdeğeri), deneysel felsefe. Hiçbir yanıt saklanmaz.
+- ✔ `epistemoloji`: Gettier tablosu, şüphecilik üçlüsü, gerekçe zincirleri, kuzgun paradoksu ve Bayes, grue, tanıklık.
+
+Ayrıca: üst çubuk iPhone çentiği/ana ekran uygulamasında erişilebilir (safe-area; kullanıcı bildirdi, Q olarak ayrı yayımlandı);
+`okyanus-ve-gelgitler` ve `lineer-cebir-ve-ozdegerler` ondalık noktadan ondalık virgüle geçti (testleri de), gelgit
+tuvalindeki kesilen uzaklık etiketi düzeltildi.
+
+Koordinatör: menüde İnsan Bedeni kategorisi ve 7 sayfa diğer kategorilere; katalog; komşu defterlerden 10 bağlantı.

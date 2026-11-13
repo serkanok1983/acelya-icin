@@ -241,9 +241,9 @@ window.ACELYA_DIGEST["bayes-olasilik"] = {
   ],
   next: [
     {
-      href: "normal-dagilim.html",
-      title: "Normal Dağılım ve Merkezi Limit Teoremi",
-      why: "Wald aralığının ve z değerinin arkasındaki çan eğrisi: Galton tahtası, ortalamaların çana döndüğünü gösteren merkezi limit teoremi ve “Alanlar ve güven aralıkları” sekmesinde örneklem büyüklüğüyle daralan aralık.",
+      href: "epistemoloji.html",
+      title: "Epistemoloji: Bilgi, Gettier, Şüphecilik, Gerekçe ve Tümevarım",
+      why: "Bayes güncellemesinin felsefedeki yeri: kuzgun paradoksunu, grue bilmecesini ve eski kanıt sorununu kendi sayılarınla dene.",
     },
     { href: "karar-ve-bilissel-yanliliklar.html", title: "Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?", why: "İnsanlar Bayes'i nasıl uygular? Taban oranı yanılgısı, doğal sıklıkların etkisi, beklenti kuramı ve çerçeveleme; klasik sorulara kendin yanıt ver." },
     {

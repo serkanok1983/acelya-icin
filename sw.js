@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-3f5165fbd5";
+const VERSION = "acelya-12baf06d12";
 // --- end:version ---
 
 // --- generated:core ---
@@ -60,6 +60,8 @@ const PAGES = [
   "algoritmalar.html",
   "alternatif-akim.html",
   "altin-oran.html",
+  "anatomi-ve-fizyoloji.html",
+  "aruz-ve-hece-olcusu.html",
   "asal-rsa.html",
   "asit-baz-titrasyonu.html",
   "asteroids.html",
@@ -109,6 +111,9 @@ const PAGES = [
   "enigma-makinesi.html",
   "entropi-ve-istatistiksel-fizik.html",
   "enzim-kinetigi.html",
+  "epistemoloji.html",
+  "etimoloji-ve-dil-aileleri.html",
+  "felsefi-dusunce-deneyleri.html",
   "fibo+pascal.html",
   "fibo.html",
   "fonksiyon-grafigi.html",
@@ -205,6 +210,7 @@ const PAGES = [
   "pascal-ucgeni.html",
   "penrose-dosemesi.html",
   "periyodik-tablo.html",
+  "perspektif-ve-simetri.html",
   "ph-indikator.html",
   "pi-yaklasimi.html",
   "pisagor.html",
@@ -232,9 +238,11 @@ const PAGES = [
   "siralama-algoritmalari.html",
   "siralama-yarisi.html",
   "snake.html",
+  "sosyal-modeller-ve-aglar.html",
   "spektroskopi-beer-lambert.html",
   "statik.html",
   "takimyildiz-haritasi.html",
+  "tarihsel-veri-ve-haritalar.html",
   "tasarim-desenleri.html",
   "taylor-serisi.html",
   "tek-sayi-toplam3.html",
@@ -273,6 +281,8 @@ const DIGESTS = [
   "shared/digest/algoritmalar.js",
   "shared/digest/alternatif-akim.js",
   "shared/digest/altin-oran.js",
+  "shared/digest/anatomi-ve-fizyoloji.js",
+  "shared/digest/aruz-ve-hece-olcusu.js",
   "shared/digest/asal-rsa.js",
   "shared/digest/asit-baz-titrasyonu.js",
   "shared/digest/asteroids.js",
@@ -321,6 +331,9 @@ const DIGESTS = [
   "shared/digest/enigma-makinesi.js",
   "shared/digest/entropi-ve-istatistiksel-fizik.js",
   "shared/digest/enzim-kinetigi.js",
+  "shared/digest/epistemoloji.js",
+  "shared/digest/etimoloji-ve-dil-aileleri.js",
+  "shared/digest/felsefi-dusunce-deneyleri.js",
   "shared/digest/fibo+pascal.js",
   "shared/digest/fibo.js",
   "shared/digest/fonksiyon-grafigi.js",
@@ -417,6 +430,7 @@ const DIGESTS = [
   "shared/digest/pascal-ucgeni.js",
   "shared/digest/penrose-dosemesi.js",
   "shared/digest/periyodik-tablo.js",
+  "shared/digest/perspektif-ve-simetri.js",
   "shared/digest/ph-indikator.js",
   "shared/digest/pi-yaklasimi.js",
   "shared/digest/pisagor.js",
@@ -444,9 +458,11 @@ const DIGESTS = [
   "shared/digest/siralama-algoritmalari.js",
   "shared/digest/siralama-yarisi.js",
   "shared/digest/snake.js",
+  "shared/digest/sosyal-modeller-ve-aglar.js",
   "shared/digest/spektroskopi-beer-lambert.js",
   "shared/digest/statik.js",
   "shared/digest/takimyildiz-haritasi.js",
+  "shared/digest/tarihsel-veri-ve-haritalar.js",
   "shared/digest/tasarim-desenleri.js",
   "shared/digest/taylor-serisi.js",
   "shared/digest/tek-sayi-toplam3.js",

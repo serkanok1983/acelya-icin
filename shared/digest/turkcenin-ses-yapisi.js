@@ -192,8 +192,8 @@ window.ACELYA_DIGEST["turkcenin-ses-yapisi"] = {
   next: [
     { href: "zipf-yasasi-ve-dil-istatistigi.html", title: "Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni", why: "Sesten sözcüğe: kamu malı Türkçe ve İngilizce metinlerde sözcük sıklıklarını say, Zipf ve Heaps yasalarını ölç ve rastgele yazan bir maymunla karşılaştır." },
     { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata Teorisi", why: "Ek motoru bir kural makinesidir: DFA, NFA ve düzenli ifadelerle bir dizgiyi adım adım yargılayan makineleri kur; Türkçe biçim çözümlemesinin dayandığı sonlu durumlu düşüncenin temeli burada." },
-    { href: "mantik-ve-argumantasyon.html", title: "Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar", why: "Kural ve istisna bir akıl yürütme sorusudur: bir genellemeyi tek bir karşı örnek nasıl çürütür? Geçerliliği karşı model arayarak sına, yığın paradoksuna bak." },
-    { href: "bilgi-kurami-ve-sikistirma.html", title: "Bilgi Kuramı ve Sıkıştırma: Entropi, Huffman, LZ ve Kanal Kapasitesi", why: "Ünlü uyumu ekin ünlüsünü büyük ölçüde önceden kestirilebilir kılar; kestirilebilen ses az bilgi taşır. Shannon entropisiyle bir dizgide gerçekte kaç bit bilgi bulunduğunu ölç." },
+    { href: "etimoloji-ve-dil-aileleri.html", title: "Etimoloji ve Dil Aileleri: Ses Denklikleri, Soy Ağaçları, Alıntılar", why: "Ses kurallarının tarihine bak: düzenli ses denklikleriyle dil akrabalığını sına, alıntı sözcüklerin Türkçeye nasıl uyduğunu gör." },
+    { href: "aruz-ve-hece-olcusu.html", title: "Aruz ve Hece Ölçüsü: Türk Şiirinde Vezin ve Taktî", why: "Hece yapısını şiire taşı: açık ve kapalı heceyi tart, bir dizeyi aruz kalıbına yerleştir, hece ölçüsünde durağı bul." },
   ],
   sources: [
     { title: "TDK · Büyük Ünlü Uyumu", url: "https://www.tdk.gov.tr/icerik/yazim-kurallari/buyuk-unlu-uyumu/", note: "Kuralın TDK tanımı, uyuma aykırı yerli sözcükler (anne, elma, kardeş), uyuma girmeyen ekler (-gil, -ken, -leyin, -mtırak, -yor) ve ince ek alan alıntılar (saate, alkolü, hakikati)." },

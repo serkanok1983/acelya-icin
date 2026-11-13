@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["karar-ve-bilissel-yanliliklar"] = {
     { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Mamografi probleminin hesabı burada açılır: tanı testinde taban oranı, koşullu olasılık ve önselden sonsala ardışık güncelleme." },
     { href: "oyun-kurami.html", title: "Oyun Kuramı: Nash Dengesi, Minimaks ve İşbirliğinin Evrimi", why: "Tek kişilik kararlardan stratejik kararlara: senin en iyi seçimin rakibinin seçimine bağlı olunca akılcılık ne demektir?" },
     { href: "algi-psikolojisi.html", title: "Algı Psikolojisi: Yanılsamalar, Eşikler, Sinyal Saptama ve Tepki Süresi", why: "Yine denek sensin: yanılsamalar, Weber oranı ve sinyal saptamada ölçüt; yargıdaki yanlılığın algıdaki karşılıkları." },
-    { href: "hipotez-testi-ve-guven-araligi.html", title: "Hipotez Testi ve Güven Aralığı: Örnekleme, p-Değeri, Hata Türleri ve Güç", why: "Tekrar sınamalarını anlamanın aracı: p-değeri, hata türleri ve güç; küçük örneklemlerin neden şişkin etkiler bulduğu." },
+    { href: "felsefi-dusunce-deneyleri.html", title: "Felsefi Düşünce Deneyleri: Tramvay, Theseus, Çin Odası, Mary ve Peçe", why: "Sezgiler kanıt mı? Tramvay, Çin odası ve cehalet peçesinde kendi yanıtlarını ver, yayımlanmış verilerle ve itirazlarla karşılaştır." },
   ],
   sources: [
     { title: "Stanford Encyclopedia of Philosophy · Decision Theory", url: "https://plato.stanford.edu/entries/decision-theory/", note: "Von Neumann–Morgenstern (1944) temsil teoremi ve dört aksiyom, bağımsızlık ve Allais paradoksunun normatif tartışması (İngilizce)." },

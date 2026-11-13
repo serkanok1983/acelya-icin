@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["grup-teorisi"] = {
   next: [
     { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Döndürme ve yansımayı 2×2 matris olarak yaz; Bileşke ve ters sekmesinde çarpımın sırası sağdan sola okunur ve rs ≠ sr'nin sayısal karşılığı AB ≠ BA olur." },
     { href: "asal-rsa.html", title: "Asal Sayılar ve RSA: Elekten Şifreye", why: "Modüler aritmetik sekmesinde Euler fonksiyonu φ(n) ve hızlı üs alma; ℤₙ*'ta Lagrange'tan çıkan a^φ(n) ≡ 1 kuralı RSA anahtarının kalbinde çalışır." },
-    { href: "karmasik-sayilar.html", title: "Karmaşık Sayılar: Düzlemde Döndürme ve Büyütme", why: "Euler formülü ve kökler sekmesindeki birim kökler, n. kökleri çarpmayla dolaşan bir devirli gruptur: ℤₙ'nin düzlemdeki kılığı ve Dₙ'deki döndürmelerin karmaşık sayılarla yazılışı." },
+    { href: "perspektif-ve-simetri.html", title: "Perspektif ve Simetri: Kaçış Noktaları, Duvar Kâğıdı Grupları ve Girih", why: "Grupları desende gör: bir motiften 7 şerit ve 17 duvar kâğıdı grubunu kur, İslam geometrik desenlerinin simetrisini bul." },
     { href: "kristal-yapilar.html", title: "Kristal Yapılar: Birim Hücre, Paketleme ve X-Işını Kırınımı", why: "Her yapının 230 uzay grubundan hangisine ait olduğunu yazar: FCC Fm-3m (225), BCC Im-3m (229). Karonun simetri sayımının üç boyuttaki karşılığı." },
   ],
   sources: [

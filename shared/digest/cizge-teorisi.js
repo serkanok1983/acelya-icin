@@ -199,6 +199,11 @@ window.ACELYA_DIGEST["cizge-teorisi"] = {
     { href: "algoritmalar.html", title: "Algoritmalar: Adımları Say", why: "Bu sayfada olmayan yarı: BFS, DFS, Dijkstra ve Bellman–Ford aynı çizgede, kuyruk, yığın ve 'en ucuz önce' kuralıyla adım adım ve işlem sayılarıyla." },
     { href: "yol-bulma-algoritmalari.html", title: "Yol Bulma: Az Adım mı, Az Maliyet mi?", why: "Ağırlıklı bir ızgarada BFS, Dijkstra ve A*: en az adımlı yol ile en ucuz yolun neden ayrıldığını gör." },
     { href: "matris-donusumleri.html", title: "Matris Dönüşümleri: Düzlemi Dört Sayıyla Yeniden Çizmek", why: "Kirchhoff'un ağaç sayısı bir determinant; orada 2×2 bir matrisin determinantını alanın büyüme çarpanı olarak ölçersin." },
+    {
+      href: "sosyal-modeller-ve-aglar.html",
+      title: "Sosyal Modeller ve Ağlar: Basit Kurallar, Şaşırtıcı Toplumlar",
+      why: "Çizgeler toplumu modellediğinde: küçük dünya ağlarında kümelenme ve yol uzunluğunu, tercihli bağlanmada derece dağılımını ölç.",
+    },
   ],
   sources: [
     { title: "Wikipedia · Seven Bridges of Königsberg", url: "https://en.wikipedia.org/wiki/Seven_Bridges_of_K%C3%B6nigsberg", note: "Euler'in derece argümanı, 26 Ağustos 1735 sunumu ve 1741 baskısı, 5–3–3–3 köprü sayıları (İngilizce)." },

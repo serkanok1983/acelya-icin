@@ -228,9 +228,9 @@ window.ACELYA_DIGEST["kalp-dolasim"] = {
       why: "Arteriyol direncindeki dördüncü kuvvetin kaynağı: Hagen–Poiseuille yasasını ince borularda ölç, R ∝ 1/r⁴'ün nereden geldiğini gör.",
     },
     {
-      href: "elektronik-devre.html",
-      title: "Geçici Rejim: RC, RL ve RLC Devreleri",
-      why: "Windkessel'in elektrikteki ikizi: kondansatörün boşalması aynı τ = RC yasasına uyar; kare dalga girişi de kalbin kesik kesik atımına benzer.",
+      href: "anatomi-ve-fizyoloji.html",
+      title: "Anatomi ve Fizyoloji: Kas Kaldıraçları, Solunum Mekaniği ve Gözün Optiği",
+      why: "Dolaşımın yanındaki iki sistem: solunumun Boyle yasasıyla işleyişini, akciğer hacimlerini ve kasların kaldıraç düzenini sayılarla incele.",
     },
     {
       href: "enzim-kinetigi.html",

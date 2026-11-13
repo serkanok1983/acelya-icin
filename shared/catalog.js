@@ -45,6 +45,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "anatomi-ve-fizyoloji": {
+    "title": "Beden Bir Düzenek: Kaldıraç, Soluk ve Göz",
+    "tagline": "Kolun bir kaldıraç, göğsün bir şırınga, gözün bir mercek düzeneği olduğunu hesapla gör: biseps neden yükün yedi katını çeker, sığ soluk neden boşa gider, yaş neden kitabı uzaklaştırır?",
+    "field": "İnsan Bedeni",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "aruz-ve-hece-olcusu": {
+    "title": "Aruz ve Hece Ölçüsü: Şiirin İki Saati",
+    "tagline": "Türk şiiri yüzyıllarca iki ayrı saatle ölçüldü: biri hecelerin ağırlığını tartar, öteki yalnızca sayar. Bir mısrayı kendin tart, kalıba yerleştir, ödünlerin nereye düştüğünü gör.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 30
+  },
   "asal-rsa": {
     "title": "Asal Sayılar ve RSA: Elekten Şifreye",
     "tagline": "İki asalı çarpmak bir an sürer, çarpımdan asalları geri bulmak yıllar. Eratosthenes'in eleğinden Riemann'ın sorusuna, 561'in hilesinden RSA anahtarına uzanan yol bu asimetride saklı.",
@@ -380,6 +394,27 @@ window.ACELYA_CATALOG = {
     "field": "Biyoloji",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "epistemoloji": {
+    "title": "Epistemoloji: Bilmek, Şans ve Şüphe",
+    "tagline": "Doğru ve gerekçeli bir inanç bile bilgi olmayabilir. Gettier vakalarını yargıla, şüphecinin üç öncülünden birini bırak, gerekçe zincirini kur, beyaz ayakkabının kuzgunlar hakkında ne söylediğini Bayes kuralıyla ölç.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
+  "etimoloji-ve-dil-aileleri": {
+    "title": "Etimoloji ve Dil Aileleri: Benzerlik Değil Düzen",
+    "tagline": "İngilizce ten ile Latince decem akraba, day ile diēs değil. Dilbilimciler bunu benzerlikten değil, sözcükten sözcüğe yinelenen ses denkliklerinden bilir; rastlantının payını da hesaplayabilir.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "felsefi-dusunce-deneyleri": {
+    "title": "Felsefi Düşünce Deneyleri: Hayal Edilen Durum, Gerçek Sorun",
+    "tagline": "Bir tramvay, çürüyen bir gemi, Çince bilmeyen biri, siyah-beyaz bir odada büyüyen bir bilim insanı: hiçbiri bir laboratuvarda kurulmadı, ama her biri koca bir kuramı sınadı.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "fibo+pascal": {
     "title": "Fibonacci ve Pascal: Taşların Saydığı Özdeşlik",
@@ -1053,6 +1088,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "perspektif-ve-simetri": {
+    "title": "Perspektif ve Simetri: Ressamın Geometrisi",
+    "tagline": "Bir resimdeki iki kaçış noktası, ressamın gözünün tuvale ne kadar uzak durduğunu söyler. Bir duvar süslemesi ise yalnızca 17 simetri türünden birine sahip olabilir.",
+    "field": "Sanat ve Müzik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "ph-indikator": {
     "title": "pH ve İndikatörler: Su Dengesi, Logaritma ve Renk",
     "tagline": "Saf su 100 °C'de pH 6.13'tedir ama asidik değildir; asit eklenen su asla bazik olmaz; bir indikatörün rengi de tek bir dalga boyundan değil, bütün soğurma tayfından doğar.",
@@ -1242,6 +1284,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 30
   },
+  "sosyal-modeller-ve-aglar": {
+    "title": "Sosyal Modeller ve Ağlar: Basit Kurallar, Şaşırtıcı Toplumlar",
+    "tagline": "Komşularının üçte birinin kendine benzemesini isteyen ajanlar ayrışmış bir harita çizer; tek kişilik bir fark bir kalabalığı yatıştırır. Toplum modelleri neyi gösterir, neyi asla gösteremez?",
+    "field": "Tarih ve Toplum",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "spektroskopi-beer-lambert": {
     "title": "Spektroskopi ve Beer–Lambert: Işığın Soğurulmasıyla Ölçmek",
     "tagline": "Bir çözeltinin içinden geçen ışığı saymak, içinde ne kadar madde olduğunu söyler. Beer–Lambert yasasını foton foton ölç, kalibrasyonla bilinmeyeni bul, renkten ve IR tepelerinden molekülü tanı.",
@@ -1260,6 +1309,13 @@ window.ACELYA_CATALOG = {
     "title": "Takımyıldız Haritası: Gökyüzünün Adres Defteri",
     "tagline": "Kutup Yıldızı'nın yüksekliği enlemini söyler, yıldız günü her gece 3 dk 56 s erken doğmayı açıklar, küresel trigonometri de bir yıldızın ne zaman nerede olacağını saniyesine kadar hesaplar.",
     "field": "Yer ve Uzay",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "tarihsel-veri-ve-haritalar": {
+    "title": "Tarihsel Veri ve Haritalar: Sayılarla Tarih Okumak",
+    "tagline": "Bir ordunun eriyişi, bir kuyunun çevresindeki ölümler, iki bin yıllık nüfus tahminleri. Tarihçi sayıları da okur; ama her sayıya önce “bunu kim, neyi, neden saydı?” diye sorar.",
+    "field": "Tarih ve Toplum",
     "level": "Lise–Lisans",
     "minutes": 35
   },
