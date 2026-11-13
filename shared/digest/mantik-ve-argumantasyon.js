@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["mantik-ve-argumantasyon"] = {
     { href: "mantik-kapilari.html", title: "Mantık Kapıları Laboratuvarı", why: "Aynı ∧, ∨ ve ¬ bu kez elektrik devresinde: kapıları doğruluk tablolarıyla sına, De Morgan eşdeğerliklerini karşılaştır, bir toplayıcı kur." },
     { href: "anlambilim-ve-edimbilim.html", title: "Anlambilim ve Edimbilim: Anlam İlişkileri, Frege, Kapsam, Grice, Söz Edimleri", why: "Mantığın doğal dildeki karşılığı: gerektirme ile sezdirimi ayırır, niceleyici kapsamını küçük dünyalarda sınar, önvarsayımın olumsuzlamadan nasıl sağ çıktığını görürsün." },
     { href: "epistemoloji.html", title: "Epistemoloji: Bilgi, Gettier, Şüphecilik, Gerekçe ve Tümevarım", why: "Geçerli çıkarımdan bilgiye: Gettier örneklerini yargıla, şüphecilik argümanının öncüllerini tek tek kabul ya da ret et." },
-    { href: "bayes-olasilik.html", title: "Bayes ve Koşullu Olasılık Laboratuvarı", why: "Tümdengelimin bittiği yerde kanıt ağırlığı başlar: bir gözlemden sonra bir iddiaya inancını ne kadar değiştirmen gerektiğini hesapla." },
+    { href: "ispat-yontemleri.html", title: "İspat Yöntemleri: Doğrudan, Karşıt Ters, Çelişki ve Tümevarım", why: "Geçerli çıkarımdan matematik ispatına: karşıt ters, çelişki ve tümevarımla tam ispatlar kur, karıştırılmış adımları sırala ve hatalı ispatlardaki bozuk satırı bul." },
   ],
   sources: [
     { title: "Stanford Encyclopedia of Philosophy · Ancient Logic", url: "https://plato.stanford.edu/entries/logic-ancient/", note: "Aristoteles'in kıyas kuramı ve on dört geçerli kip, Eubulides'in paradoksları, Khrysippos'un beş kanıtlanamazı ve Stoacıların dışlayıcı “veya”sı, Philon'un ve Diodoros'un koşul tanımları (İngilizce)." },

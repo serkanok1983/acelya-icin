@@ -496,7 +496,8 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 **U1 tamam (13 Kasım):** menü on dengeli gruba ve ara başlıklara geçti; Bilim Atlası ve STEM Omurgası kaldırıldı
 (konuları gruplara, mekanik rotası Temel Fizik önşartına, STEM rotası yolların ileri basamaklarına dağıldı);
 `ogrenme-yollari.html`, `onsart.html`, `shared/yollar.js`, `scripts/check-yollar.mjs` (`npm run test:yollar`).
-**Sırada U2:** önşart matematik ve programlama (8 ders). Sonra U3–U5 (planda).
+**U2 tamam (13 Kasım):** önşart matematik ve programlama, 8 ders (kurucu → yazar → doğrulayıcı; ek kurallar
+`.shots/briefs/_onsart.md`). **Sırada U3:** önşart fen-dil ve hekim yolu (8 ders). Sonra U4–U5 (planda).
 
 İlk istek (kayıt için):
 

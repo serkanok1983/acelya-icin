@@ -66,6 +66,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "aritmetik-ve-sayilar": {
+    "title": "Aritmetik ve Sayılar: Kuralların Arkasındaki Neden",
+    "tagline": "Sayı doğrusundan √2'ye, işlem önceliğinden EBOB'a, kesirden yüzdeye: her kuralı önce bir modelde görün, sonra neden doğru olduğunu anlayın, en sonunda seviyeli alıştırmalarla kendinizi sınayın.",
+    "field": "Matematik",
+    "level": "Lise hazırlık",
+    "minutes": 40
+  },
   "arkeoloji-ve-tarihleme": {
     "title": "Arkeoloji ve Tarihleme: Geçmişin Sırası ve Yaşı",
     "tagline": "Bir çukurun dolgusu kestiği tabakadan neden gençtir, bir radyokarbon yaşı neden tek bir yıl değil de birkaç aralık verir? Arkeoloji geçmişin önce sırasını, sonra yaşını bulur; yöntemler birbirini denetler.",
@@ -240,6 +247,13 @@ window.ACELYA_CATALOG = {
     "field": "Oyun",
     "level": "Lise–Lisans",
     "minutes": 25
+  },
+  "cebirin-temelleri": {
+    "title": "Cebirin Temelleri: Bilinmeyene Ad Vermek",
+    "tagline": "İfade, denklem, eşitsizlik, iki bilinmeyenli sistem ve ikinci derece: her kuralı önce bir alan resminde, terazide ya da sayı doğrusunda görün, sonra neden doğru olduğunu anlayın.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 40
   },
   "celik-yapilar": {
     "title": "Çelik Yapılar: Kesit, Bağlantı ve Kararlılık",
@@ -542,6 +556,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "geometrinin-temelleri": {
+    "title": "Geometrinin Temelleri: Beş Kabulden Hacme",
+    "tagline": "Açılar, üçgenler, alan, benzerlik ve hacim: okul geometrisinin her formülü birkaç kabulden, kesip yeniden dizmekten ve ölçeklemekten çıkar. Sayfada her birini ölçüp nedenini görürsün.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 45
+  },
   "gezegen-savunmasi": {
     "title": "Gezegen Savunması: Newton'un Topuyla Yörünge",
     "tagline": "Mermin yere düşer, gezegenin arkasına dolanır ya da bir daha dönmez; hangisi olacağını enerji ile açısal momentum belirler. Newton'un dağ başındaki topunu ateşle, yörüngeyi ölç, asteroidi gezegenin öbür yüzünde yakala.",
@@ -681,6 +702,13 @@ window.ACELYA_CATALOG = {
     "field": "Toplum ve Ekonomi",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "ispat-yontemleri": {
+    "title": "İspat Yöntemleri: Örnekten Kesinliğe",
+    "tagline": "Doğrudan ispat, karşıt ters, çelişki, durumlara ayırma, varlık ve tümevarım: her yöntemi bir hesap tezgâhında sayılarla izleyin, karışık adımlardan ispat kurun, hatalı ispatın kopuk halkasını bulun.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 45
   },
   "julia-fraktali": {
     "title": "Julia: Aynı Kural, Ayrı Kaderler",
@@ -829,6 +857,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "kumeler-bagintilar-ve-fonksiyonlar": {
+    "title": "Kümeler, Bağıntılar ve Fonksiyonlar: Matematiğin Ortak Dili",
+    "tagline": "∅ ile {∅} neden farklıdır, simetrik ve geçişken bir bağıntı neden yansıyan olmayabilir, gerçek sayılar neden kesirlerden “daha çok”tur? Venn şemasını tara, okları çiz, köşegeni kendin kur.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
   "lazer-ve-uyarilmis-salim": {
     "title": "Lazer ve Uyarılmış Salım: Einstein Katsayılarından Rezonatöre",
     "tagline": "Einstein 1916–1917'de Planck yasasını tutarlı kılmak için ışığa bir terim ekledi: gelen foton, uyarılmış bir atomdan kendi kopyasını koparabiliyordu. Lazer, o terimin kırk yıl sonra bir aynalı kutuda büyütülmesidir.",
@@ -842,6 +877,13 @@ window.ACELYA_CATALOG = {
     "field": "Yer ve Çevre Bilimleri",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "limit-ve-sureklilik": {
+    "title": "Limit ve Süreklilik: İstediğin Kadar Yaklaşmak",
+    "tagline": "Limit, bir sayıya değip değmemekle değil, ona istediğin kadar yaklaşabilmekle ilgilidir. Bir hata payı seç, sayfa N'yi ya da δ'yı bulsun; bulamıyorsa nedenini görürsün.",
+    "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "lineer-cebir-ve-ozdegerler": {
     "title": "Lineer Cebir: Eleme, Alt Uzaylar ve Spektrum",
@@ -1207,6 +1249,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "programlamaya-giris": {
+    "title": "Programlamaya Giriş: Makineye Adım Adım Anlatmak",
+    "tagline": "Değişken, koşul, döngü, fonksiyon ve liste: Türkçe anahtar sözcüklü küçük bir dilde gerçek programlar yaz, çalıştır, satır satır izle ve gizli testlerle sına.",
+    "field": "Bilgisayar Bilimi",
+    "level": "Lise hazırlık",
+    "minutes": 60
+  },
   "psikiyatri-tarihi-ve-tani-sistemleri": {
     "title": "Psikiyatride Tanı: Bir Adın Tarihi ve İstatistiği",
     "tagline": "Edirne'deki dârüşşifâdan DSM-5-TR ve ICD-11'e: ruhsal bozukluklara verilen adlar nasıl kuruldu, iki hekim aynı ada ne sıklıkla varır ve seyrek bir durumda pozitif bir sonuç ne anlama gelir?",
@@ -1520,6 +1569,13 @@ window.ACELYA_CATALOG = {
     "tagline": "Ne kadar sipariş vermeli, süreç bozulduğunu nasıl anlamalı, işler neden kuyrukta bekler? Üç eski fabrika sorusunu türevle, normal dağılımla ve kuyruk kuramıyla ölçerek yanıtla.",
     "field": "Mühendislik",
     "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "us-ve-logaritma": {
+    "title": "Üs ve Logaritma: Çarparak Büyümenin Dili",
+    "tagline": "Her adımda aynı miktarı eklemek ile aynı oranla çarpmak arasındaki fark, üstel fonksiyonu ve onun tersi logaritmayı doğurur: faizden depreme, pH'den bilgisayarın sınırlarına.",
+    "field": "Matematik",
+    "level": "Lise",
     "minutes": 40
   },
   "uslup-istatistigi-ve-yazar-tanima": {

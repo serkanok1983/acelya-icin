@@ -2042,3 +2042,30 @@ kuralları tek tek PASS/FAIL raporladı.
 
 Koordinatör: menüye 8 sayfa ve iki kategori; izinli kaynaklara archive.org, Pew, WHO/ICD, APA, NIMH, PMC, Europe PMC,
 Vikikaynak, mevzuat.gov.tr, saglik.gov.tr; katalog.
+
+## 13 Kasım 2026 — U2: önşart matematik ve programlama (8 sayfa)
+
+Plan: `docs/OGRENME-YOLLARI-PLANI.md`; ek kurallar `.shots/briefs/_onsart.md` (küçük adımlarla kurulum, tohumlu alıştırma
+ve hoşgörülü cevap ayrıştırıcı, en az beş yaygın hata, "neden doğru" gerekçesi, "Bundan sonra" köprüsü, Türkçe terimler).
+Her sayfa kurucu → ayrı yazar → bağımsız doğrulayıcıdan geçti; doğrulayıcı puanları parantez içinde (önce → sonra).
+
+- `aritmetik-ve-sayilar` (7,5 → 8,5): sayı doğrusu, işlem önceliği, EBOB-EKOK, kesir modelleri, devirli ondalık,
+  oran ve yüzde. Doğrulayıcı sayıya gelen Türkçe ekleri okunuşa göre seçen `ek()` yardımcısını kurdu (0–1000, %1–%100,
+  basit kesirler test ediliyor); yüzdeler "−%4" düzeninde; 48 ÷ 2(9 + 3) iki okumasıyla gösteriliyor.
+- `cebirin-temelleri` (7,5 → 8,5): terazi modeli, alan özdeşlikleri, eşitsizlik, sistemler, tam kareye tamamlama,
+  sözel problemler. Kök sadeleştirme (√209/2), dikey doğrularda çökme ve Babil örneği için c aralığı düzeltildi.
+  Açık: yaş probleminde kaydırıcılar gerçek dışı yaş farkına izin veriyor (matematik doğru).
+- `us-ve-logaritma` (7,5 → 8,5): üs merdiveni, üstel büyüme ve 70 kuralı, e ve ln, logaritma, logaritmik ölçekler.
+  `UsLog.overtake` kayan nokta hatası ve "2 1/2" ayrıştırma hatası düzeltildi.
+- `geometrinin-temelleri` (7,5 → 8,5): paralellik ve açılar toplamı, eşlik/benzerlik (KKA sayımı), kesip dizerek alan,
+  dik üçgende oranlar, Cavalieri ve hacim. KKA hükmü duruma göre; "12²" artık 144 okunuyor.
+- `limit-ve-sureklilik` (8 → 8,5): ε–N, ε–δ (garantili δ), asimptot, belirsiz biçimler, süreklilik, ikiye bölme.
+  Alıştırma metinleri üreteç düzeyinde sadeleşti (8000 soruluk tarama testi).
+- `ispat-yontemleri` (7,5 → 9): niceleyiciler, koşullu önermenin dört biçimi (ders kitabı terimleri; sınav
+  kitaplarında farklı kullanım belirtildi), doğrudan/karşıt ters/çelişki/durum/varlık/tümevarım, karşı örnek kumu,
+  ispat kurma, dokuz hatalı ispat. Heegner–Rabinowitsch ve Miller–Rabin atıfları kaynakla düzeltildi.
+- `kumeler-bagintilar-ve-fonksiyonlar` (8 → 9): Venn boyama, De Morgan, kuvvet kümesi, bağıntı düzenleyici, Hasse,
+  fonksiyon düzenleyici, sayılabilirlik ve Cantor köşegeni. "İçerme–dışlama (içerme–dışarma)".
+- `programlamaya-giris` (8 → 9): Türkçe anahtar sözcüklü öğretim dili için kendi yorumlayıcısı (eval yok, adım/iş
+  sınırı), adım adım izleme, 14 gizli testli alıştırma, Python/JS çevirisi. Doğrulayıcı üstel süreli liste
+  karşılaştırmasını ve derin iç içe yapıda yığın taşmasını düzeltti.

@@ -100,4 +100,8 @@ hasta verisi.
 
 - U1 ✔ 13 Kasım: on grup ve ara başlıklar, atlas ve omurga kaldırıldı, iki rehber sayfası ve `npm run test:yollar`.
   Ders başına gerekçe yerine basamak başına bir cümle yazıldı (ders adı ve katalog özeti zaten görünüyor).
-- Sırada U2.
+- U2 ✔ 13 Kasım: aritmetik ve sayılar, cebirin temelleri, üstel fonksiyon ve logaritma, geometrinin temelleri, limit ve
+  süreklilik, ispat yöntemleri, kümeler-bağıntılar-fonksiyonlar, programlamaya giriş. Ek kurallar: `.shots/briefs/_onsart.md`.
+  Matematik 52, Bilgisayar 27 ders; 25 ders hazırlanıyor.
+- Sırada U3: mol ve stokiyometri, hücre biyolojisi, Türkçe dilbilgisinin temelleri, akademik yazma, bağışıklık ve
+  mikrobiyoloji, farmakokinetik, epidemiyoloji ve klinik araştırma, tıbbi görüntüleme fiziği.

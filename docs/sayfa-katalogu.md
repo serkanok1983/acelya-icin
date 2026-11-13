@@ -2,10 +2,11 @@
 
 Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden gruplandırma; plan: `docs/OGRENME-YOLLARI-PLANI.md`). `next` bağlantıları için slugları buradan seç. Öğrenme yolları ve önşart dizileri `shared/yollar.js` içinde.
 
-## Matematik (45)
+## Matematik (52)
 
 ### Sayılar ve Örüntüler
 
+- `aritmetik-ve-sayilar` — Aritmetik ve Sayılar (sayfa başlığı: Aritmetik ve Sayılar: Sayı Doğrusu, Kesir, Ondalık, Oran ve Yüzde) · Lise hazırlık
 - `tek-sayi-toplam3` — Tek Sayılardan Kareye (sayfa başlığı: Tek Sayılardan Kareye) · Lise–Lisans
 - `tek-sayi-toplam4` — Farklar ve Toplamlar (sayfa başlığı: Farklar ve Toplamlar: Ayrıktan Sürekliye) · Lise–Lisans
 - `tek-sayi-toplam5` — Tek Sayılar: Toplamdan Seriye (sayfa başlığı: Tek Sayılar: Toplamdan Seriye) · Lise–Lisans
@@ -20,6 +21,9 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 
 ### Cebir ve Geometri
 
+- `cebirin-temelleri` — Cebirin Temelleri (sayfa başlığı: Cebirin Temelleri: İfade, Denklem, Eşitsizlik ve İkinci Derece) · Lise
+- `us-ve-logaritma` — Üstel Fonksiyon ve Logaritma (sayfa başlığı: Üstel Fonksiyon ve Logaritma: Büyüme, Yarılanma ve Logaritmik Ölçek) · Lise
+- `geometrinin-temelleri` — Geometrinin Temelleri (sayfa başlığı: Geometrinin Temelleri: Açı, Üçgen, Alan, Benzerlik ve Hacim) · Lise
 - `fonksiyon-grafigi` — Fonksiyon Grafiği (sayfa başlığı: Fonksiyon Grafikleri: Dönüşüm, Aile ve Ters) · Lise–Lisans
 - `pisagor` — Pisagor Teoremi (sayfa başlığı: Pisagor Teoremi: Kanıtlar, Üçlüler ve Eğri Yüzey) · Lise–Lisans
 - `birim-cember` — Birim Çember (sayfa başlığı: Birim Çember: Sinüs, Kosinüs ve Dönmeler) · Lise–Lisans
@@ -31,6 +35,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 
 ### Analiz
 
+- `limit-ve-sureklilik` — Limit ve Süreklilik (sayfa başlığı: Limit ve Süreklilik: Yaklaşmak, ε–δ, Asimptot ve Ara Değer) · Lise–Lisans
 - `riemann-toplamlari` — Riemann Toplamları (sayfa başlığı: Riemann Toplamları ve Sayısal İntegral) · Lise–Lisans
 - `turev` — Türev (sayfa başlığı: Türev: Kesenden Teğete (Limit Laboratuvarı)) · Lise–Lisans
 - `integral` — İntegral (sayfa başlığı: İntegral: Birikim, Temel Teorem ve Uygulamalar) · Lise–Lisans
@@ -48,8 +53,10 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `hipotez-testi-ve-guven-araligi` — Hipotez Testi ve Güven Aralığı (sayfa başlığı: Hipotez Testi ve Güven Aralığı: Örnekleme, p-Değeri, Hata Türleri ve Güç) · Lisans
 - `regresyon-ve-korelasyon` — Regresyon ve Korelasyon (sayfa başlığı: Regresyon ve Korelasyon: En Küçük Kareler, Artıklar ve Nedensellik) · Lise–Lisans
 
-### Ayrık Matematik ve Cebirsel Yapılar
+### İspat, Kümeler ve Ayrık Matematik
 
+- `ispat-yontemleri` — İspat Yöntemleri (sayfa başlığı: İspat Yöntemleri: Doğrudan, Karşıt Ters, Çelişki ve Tümevarım) · Lise
+- `kumeler-bagintilar-ve-fonksiyonlar` — Kümeler, Bağıntılar ve Fonksiyonlar (sayfa başlığı: Kümeler, Bağıntılar ve Fonksiyonlar: Matematiğin Ortak Dili) · Lise–Lisans
 - `kombinatorik-ve-sayma` — Kombinatorik ve Sayma (sayfa başlığı: Kombinatorik ve Sayma: Seçimler, Güvercin Yuvası, İçerme–Dışlama ve Catalan) · Lise–Lisans
 - `cizge-teorisi` — Çizge Teorisi (sayfa başlığı: Çizge Teorisi: Yapı, Değişmezler ve Teoremler) · Lise–Lisans
 - `grup-teorisi` — Grup Teorisi (sayfa başlığı: Grup Teorisi: Simetrinin Cebiri) · Lisans
@@ -195,7 +202,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `av-avci-lotka-volterra` — Av–Avcı Modeli (sayfa başlığı: Av–Avcı Modeli: Lotka–Volterra Döngüleri ve Ötesi) · Lise–Lisans
 - `nufus-ekolojisi` — Nüfus Ekolojisi (sayfa başlığı: Nüfus Ekolojisi: Lojistik Büyüme, Kaos, Leslie Matrisi ve Rekabet) · Lisans
 
-## Bilgisayar Bilimi (26)
+## Bilgisayar Bilimi (27)
 
 ### Donanım ve Sistemler
 
@@ -207,8 +214,9 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `isletim-sistemleri-ve-linux` — İşletim Sistemleri ve Linux (sayfa başlığı: İşletim Sistemleri ve Linux Laboratuvarı) · Lise–Lisans
 - `internet-ve-ag-teknolojileri` — İnternet ve Ağ Teknolojileri (sayfa başlığı: İnternet ve Ağ Teknolojileri: Paket, Pencere, Önek, Ad) · Lise–Lisans
 
-### Algoritmalar ve Veri
+### Programlama, Algoritmalar ve Veri
 
+- `programlamaya-giris` — Programlamaya Giriş (sayfa başlığı: Programlamaya Giriş: Değişken, Koşul, Döngü, Fonksiyon ve Liste) · Lise hazırlık
 - `algoritmalar` — Algoritmalar (sayfa başlığı: Algoritmalar: Adımları Say) · Lise–Lisans
 - `siralama-algoritmalari` — Sıralama: Adım ve Kararlılık (sayfa başlığı: Sıralama: Adımlar ve Kararlılık) · Lise–Lisans
 - `siralama-yarisi` — Sıralama Yarışı: İş Sayacı (sayfa başlığı: Sıralama Yarışı: Aynı Girdi, Farklı İş) · Lise–Lisans
