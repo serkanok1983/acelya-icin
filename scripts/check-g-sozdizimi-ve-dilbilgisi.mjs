@@ -1,4 +1,4 @@
-// Sözdizimi ve dilbilgisi: çekirdeğin bağımsız denetimi.
+// Söz dizimi ve dil bilgisi: çekirdeğin bağımsız denetimi.
 // Başvurular sayfanın yollarını yinelemez: elle yazılmış bölmeler, baş dizileri ve bileşen kümeleri, Leipzig
 // listesinin ayrı bir kopyası, kaba kuvvet permütasyonlar ve WALS'tan elle aktarılmış sayılar.
 import fs from 'node:fs';
@@ -129,11 +129,11 @@ for(let r=0;r<400;r++){const ans={};K.RATE.forEach((_,i)=>{if(rnd()<0.7)ans[i]=1
  if(s.lowG!=null)eq(ans[s.lowG],Math.min(...g));if(s.highU!=null)eq(ans[s.highU],Math.max(...u));}
 
 /* sayfa metni */
-ok(/<title>Sözdizimi ve Dilbilgisi: [^<]{1,60}<\/title>/.test(html),'başlık');ok(html.match(/<title>([^<]*)<\/title>/)[1].length<=80,'başlık ≤ 80');
+ok(/<title>Söz Dizimi ve Dil Bilgisi: [^<]{1,60}<\/title>/.test(html),'başlık');ok(html.match(/<title>([^<]*)<\/title>/)[1].length<=80,'başlık ≤ 80');
 ok(!/[̀-ͯ]/.test(html.normalize('NFC')),'birleşik işaret yok');ok(!/<script[^>]+src="https?:/.test(html),'dış betik yok');
 ok(!/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(html),'emoji yok');
 for(const href of[...html.matchAll(/href="([a-z0-9-]+\.html)"/g)].map(m=>m[1]))ok(fs.existsSync(new URL(`../${href}`,import.meta.url)),'bağlantı '+href);
-console.log(`G sözdizimi: ${checks.toLocaleString('tr-TR')} bağımsız biçimbilim, ağaç, test, belirsizlik, WALS ve odak kontrolü PASS`);
+console.log(`G söz dizimi: ${checks.toLocaleString('tr-TR')} bağımsız biçimbilim, ağaç, test, belirsizlik, WALS ve odak kontrolü PASS`);
 
 if(process.argv.includes('--browser')){
   const {chromium}=await import('playwright');const {createServer}=await import('node:http');const {join,extname}=await import('node:path');const {fileURLToPath}=await import('node:url');const root=fileURLToPath(new URL('../',import.meta.url));
@@ -189,7 +189,7 @@ if(process.argv.includes('--browser')){
     await click('fcL-git');await click('fcL-git');eq(await page.locator('#fcL-git').isDisabled(),true);await has('fcFocus','—');await has('fcStatus','Yüklem başta');
     await click('dizimReset');await has('fcFocus','arabayla');eq(await page.locator('#sdND').isChecked(),true);await has('hdScore','0 / 0');await noflow('dizim');
     /* 5. sekme */
-    await click('tab-yargi');await has('ykAnswered','0 / 8');await click('ykR0-7');await click('ykR4-2');await click('ykR2-1');await has('ykMeanG','4,50');await has('ykMeanU','1,00');await has('ykGap','3,50');await has('ykRes2','dilbilgisi dışı');
+    await click('tab-yargi');await has('ykAnswered','0 / 8');await click('ykR0-7');await click('ykR4-2');await click('ykR2-1');await has('ykMeanG','4,50');await has('ykMeanU','1,00');await has('ykGap','3,50');await has('ykRes2','dil bilgisi dışı');
     await click('ykR7-3');await has('ykMeanU','2,00');await click('ykR6-4');await has('ykAnswered','5 / 8');await has('ykRes6','tartışmalı');
     await click('ykR3-7');await has('ykStatus','daha düşük ya da eşit');
     await click('yargiReset');await has('ykAnswered','0 / 8');await noflow('yargi');
@@ -207,6 +207,6 @@ if(process.argv.includes('--browser')){
       await noflow('sekme '+t);}
     assert.deepEqual(errors,[]);checks++;await page.close();
   }
-  console.log(`G sözdizimi: ${checks-before} tarayıcı kontrolü (390 açık / 1280 koyu; beş sekme, sıfırlamalar, klavye) PASS`);
+  console.log(`G söz dizimi: ${checks-before} tarayıcı kontrolü (390 açık / 1280 koyu; beş sekme, sıfırlamalar, klavye) PASS`);
   }finally{await browser?.close();await new Promise(r=>server.close(r));}
 }

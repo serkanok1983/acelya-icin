@@ -1,7 +1,7 @@
 window.ACELYA_DIGEST = window.ACELYA_DIGEST || {};
 window.ACELYA_DIGEST["grup-teorisi"] = {
   slug: "grup-teorisi",
-  title: "Grup Teorisi: Simetrinin Dilbilgisi",
+  title: "Grup Teorisi: Simetrinin Dil Bilgisi",
   field: "Matematik",
   level: "Lisans",
   minutes: 45,

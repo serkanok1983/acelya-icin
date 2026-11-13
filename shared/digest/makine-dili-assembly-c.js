@@ -181,7 +181,7 @@ window.ACELYA_DIGEST["makine-dili-assembly-c"] = {
   ],
   next: [
     { href: "bilgisayar-sistemleri-ve-mimarisi.html", title: "Bilgisayar Mimarisi Laboratuvarı", why: "Baytları yürüten makinenin içi: 8, 16 ve 32 bitte ikiye tümleyen, beş aşamalı boru hattı, önbellek ve başarım denklemi." },
-    { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "C ile assembly arasında burada boş bırakılan adımlar: tokenleştirici, sözdizimi ağacı ve derleme aşamaları." },
+    { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "C ile assembly arasında burada boş bırakılan adımlar: tokenleştirici, söz dizimi ağacı ve derleme aşamaları." },
     { href: "isaretciler-ve-bellek-yonetimi.html", title: "İşaretçiler ve Bellek Yönetimi", why: "Paneldeki (%rdi) parantezinin C'deki karşılığı: adresler, işaretçi aritmetiği, çağrı yığınının çerçeveleri ve bellek sızıntısı." },
     { href: "mantik-kapilari.html", title: "Mantık Kapıları Laboratuvarı", why: "Bir katman daha aşağı: 'Elde girişi' satırının altındaki tam toplayıcıyı kapılardan kur, dört bitlik toplamada taşımanın yürüyüşünü izle." },
   ],

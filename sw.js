@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-71349f0502";
+const VERSION = "acelya-5f76cb328a";
 // --- end:version ---
 
 // --- generated:core ---
@@ -53,6 +53,7 @@ const CORE = [
 
 // --- generated:pages ---
 const PAGES = [
+  "akademik-yazma-ve-kaynak-kullanimi.html",
   "akiskanlar-mekanigi.html",
   "algi-psikolojisi.html",
   "algoritma-karmasikligi.html",
@@ -73,6 +74,7 @@ const PAGES = [
   "atom-orbitalleri.html",
   "av-avci-lotka-volterra.html",
   "ay-evreleri.html",
+  "bagisiklik-ve-mikrobiyoloji.html",
   "barnsley-egreltiotu.html",
   "basinc.html",
   "basit-makineler.html",
@@ -120,8 +122,10 @@ const PAGES = [
   "enigma-makinesi.html",
   "entropi-ve-istatistiksel-fizik.html",
   "enzim-kinetigi.html",
+  "epidemiyoloji-ve-klinik-arastirma.html",
   "epistemoloji.html",
   "etimoloji-ve-dil-aileleri.html",
+  "farmakokinetik.html",
   "felsefi-dusunce-deneyleri.html",
   "fibo+pascal.html",
   "fibo.html",
@@ -145,6 +149,7 @@ const PAGES = [
   "hilbert-egrisi.html",
   "hipotez-testi-ve-guven-araligi.html",
   "homeostaz-ve-geri-besleme.html",
+  "hucre-biyolojisi.html",
   "ideal-gaz.html",
   "iklim-ve-sera-etkisi.html",
   "integral.html",
@@ -205,6 +210,7 @@ const PAGES = [
   "mikro-ekonomi-ve-uretim-faktorleri.html",
   "mimarlik-tarihi-ve-yapi.html",
   "mitoz-mayoz.html",
+  "mol-ve-stokiyometri.html",
   "molekul-sekli.html",
   "molekul.html",
   "momentum-itme-ve-carpismalar.html",
@@ -272,8 +278,10 @@ const PAGES = [
   "termodinamik.html",
   "termokimya-ve-hess-yasasi.html",
   "tetris.html",
+  "tibbi-goruntuleme-fizigi.html",
   "tork-denge.html",
   "turev.html",
+  "turkce-dilbilgisinin-temelleri.html",
   "turkcenin-ses-yapisi.html",
   "ucak-muhendisligi-ve-aerodinamik.html",
   "uluslararasi-iliskiler.html",
@@ -298,6 +306,7 @@ const PAGES = [
 
 // --- generated:digests ---
 const DIGESTS = [
+  "shared/digest/akademik-yazma-ve-kaynak-kullanimi.js",
   "shared/digest/akiskanlar-mekanigi.js",
   "shared/digest/algi-psikolojisi.js",
   "shared/digest/algoritma-karmasikligi.js",
@@ -318,6 +327,7 @@ const DIGESTS = [
   "shared/digest/atom-orbitalleri.js",
   "shared/digest/av-avci-lotka-volterra.js",
   "shared/digest/ay-evreleri.js",
+  "shared/digest/bagisiklik-ve-mikrobiyoloji.js",
   "shared/digest/barnsley-egreltiotu.js",
   "shared/digest/basinc.js",
   "shared/digest/basit-makineler.js",
@@ -364,8 +374,10 @@ const DIGESTS = [
   "shared/digest/enigma-makinesi.js",
   "shared/digest/entropi-ve-istatistiksel-fizik.js",
   "shared/digest/enzim-kinetigi.js",
+  "shared/digest/epidemiyoloji-ve-klinik-arastirma.js",
   "shared/digest/epistemoloji.js",
   "shared/digest/etimoloji-ve-dil-aileleri.js",
+  "shared/digest/farmakokinetik.js",
   "shared/digest/felsefi-dusunce-deneyleri.js",
   "shared/digest/fibo+pascal.js",
   "shared/digest/fibo.js",
@@ -389,6 +401,7 @@ const DIGESTS = [
   "shared/digest/hilbert-egrisi.js",
   "shared/digest/hipotez-testi-ve-guven-araligi.js",
   "shared/digest/homeostaz-ve-geri-besleme.js",
+  "shared/digest/hucre-biyolojisi.js",
   "shared/digest/ideal-gaz.js",
   "shared/digest/iklim-ve-sera-etkisi.js",
   "shared/digest/integral.js",
@@ -449,6 +462,7 @@ const DIGESTS = [
   "shared/digest/mikro-ekonomi-ve-uretim-faktorleri.js",
   "shared/digest/mimarlik-tarihi-ve-yapi.js",
   "shared/digest/mitoz-mayoz.js",
+  "shared/digest/mol-ve-stokiyometri.js",
   "shared/digest/molekul-sekli.js",
   "shared/digest/molekul.js",
   "shared/digest/momentum-itme-ve-carpismalar.js",
@@ -516,8 +530,10 @@ const DIGESTS = [
   "shared/digest/termodinamik.js",
   "shared/digest/termokimya-ve-hess-yasasi.js",
   "shared/digest/tetris.js",
+  "shared/digest/tibbi-goruntuleme-fizigi.js",
   "shared/digest/tork-denge.js",
   "shared/digest/turev.js",
+  "shared/digest/turkce-dilbilgisinin-temelleri.js",
   "shared/digest/turkcenin-ses-yapisi.js",
   "shared/digest/ucak-muhendisligi-ve-aerodinamik.js",
   "shared/digest/uluslararasi-iliskiler.js",

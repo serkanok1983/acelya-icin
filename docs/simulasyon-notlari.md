@@ -2069,3 +2069,30 @@ Her sayfa kurucu → ayrı yazar → bağımsız doğrulayıcıdan geçti; doğr
 - `programlamaya-giris` (8 → 9): Türkçe anahtar sözcüklü öğretim dili için kendi yorumlayıcısı (eval yok, adım/iş
   sınırı), adım adım izleme, 14 gizli testli alıştırma, Python/JS çevirisi. Doğrulayıcı üstel süreli liste
   karşılaştırmasını ve derin iç içe yapıda yığın taşmasını düzeltti.
+
+## 13 Kasım 2026 — U3: önşart fen-dil ve hekim yolu (8 sayfa)
+
+Ek kurallar: `.shots/briefs/_onsart.md` "U3 additions" (tıp: tanı/doz/tedavi önerisi yok, yapay veri etiketli, uydurma
+"İlaç A", kanıt sahte denge kurmadan, 112 notu; dil: TDK terimleri, kamu malı örnekler). Doğrulayıcı puanları (önce → sonra).
+
+- `mol-ve-stokiyometri` (7,5 → 8,5): tartarak sayma, Avogadro ve 2019 tanımı, formül çözümleyici, yanma analizi,
+  molekül düzeyinde sınırlayıcı bileşen, derişim ve STP. Tek tanede şanslı tahmin artık açıkça "şans" diye uyarılıyor.
+- `hucre-biyolojisi` (7 → 8,5): hücre haritası, ölçek ve Abbe sınırı, yüzey/hacim ve difüzyon süresi, ozmoz (artık denge
+  ya da patlamaya kadar sürer), Na⁺/K⁺ pompası, pulse-chase, endosimbiyoz kanıtları.
+- `turkce-dilbilgisinin-temelleri` (6 → 8): ek kurucu (126 türemiş sözcük TDK'de denetli), sözcük türleri, çekim
+  tabloları, öge çözümleme, de/da–ki–mi. TDK yazımı: "dil bilgisi", "söz dizimi" ve "öge" (yalnız bu sayfada; kullanıcı
+  13 Kasım'da sitenin geri kalanında "öğe" kalabilir dedi).
+- `akademik-yazma-ve-kaynak-kullanimi` (7 → 8,5): metin yapısı, kaynak değerlendirme (uydurma kaynaklar), kamu malı
+  metinlerle örtüşme ölçümü ("intihal dedektörü değildir"), APA 7 / Chicago 18 / İSNAD 2 biçimlendirici (APA ve
+  Chicago ikincil rehberlerle doğrulandı, sayfada belirtiliyor).
+- `bagisiklik-ve-mikrobiyoloji` (8 → 9): Semmelweis verisi (Loudon 2013), büyüme eğrisi, klon seçilimi (bellek
+  sönmesi modelde yok, belirtildi), sürü bağışıklığı ve dallanma süreci, Wakefield ve geri çekilme, MİK ve seçilim.
+- `farmakokinetik` (7 → 8,5): tek bölme, Bateman, tekrarlı doz, infüzyon, iki bölme, doyan atılım, veriden k ve V;
+  yalnız uydurma "İlaç A". Tekrarlı doz kesirlerinin zamanlaması düzeltildi.
+- `epidemiyoloji-ve-klinik-arastirma` (8 → 9): 2×2 ölçüleri ve aralıklar, tasarımlar ve meta-analiz, karıştırıcı ve
+  Simpson, randomizasyon, ITT/PP, güç ve anlamlılık süzgeci; araştırma etiği tarihi.
+- `tibbi-goruntuleme-fizigi` (8 → 9): röntgen spektrumu ve zayıflama, sayfa içinde süzgeçli geri izdüşüm, ultrason ve
+  Doppler, MR (Larmor, T1/T2, frekans kodlama), PET, kaynaklı dozlar ve LNT tartışması.
+
+Ayrıca: sitenin her yerinde "dilbilgisi/sözdizimi" → "dil bilgisi/söz dizimi" (TDK GTS'de bitişik biçim yok); komşu
+sayfa başlığı "Söz Dizimi ve Dil Bilgisi"; cebir sayfasında yaş problemine gerçekçilik denetimi.

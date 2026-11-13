@@ -103,5 +103,9 @@ hasta verisi.
 - U2 ✔ 13 Kasım: aritmetik ve sayılar, cebirin temelleri, üstel fonksiyon ve logaritma, geometrinin temelleri, limit ve
   süreklilik, ispat yöntemleri, kümeler-bağıntılar-fonksiyonlar, programlamaya giriş. Ek kurallar: `.shots/briefs/_onsart.md`.
   Matematik 52, Bilgisayar 27 ders; 25 ders hazırlanıyor.
-- Sırada U3: mol ve stokiyometri, hücre biyolojisi, Türkçe dilbilgisinin temelleri, akademik yazma, bağışıklık ve
-  mikrobiyoloji, farmakokinetik, epidemiyoloji ve klinik araştırma, tıbbi görüntüleme fiziği.
+- U3 ✔ 13 Kasım: mol ve stokiyometri, hücre biyolojisi, Türkçe dil bilgisinin temelleri, akademik yazma ve kaynak
+  kullanımı, bağışıklık ve mikrobiyoloji, farmakokinetik, epidemiyoloji ve klinik araştırma, tıbbi görüntüleme fiziği.
+  Tıp sayfaları `.shots/briefs/_onsart.md` "U3 additions" kurallarıyla (tanı/doz/tedavi önerisi yok, yapay veri etiketli,
+  "İlaç A", 112 notu). TDK yazımı: "dil bilgisi", "söz dizimi" sitenin her yerinde ayrı yazıldı. 17 ders hazırlanıyor.
+- Sırada U4: hukuka giriş, anayasa hukuku ve temel haklar, ceza hukukunun genel ilkeleri, borçlar ve sözleşme hukuku,
+  hukuk felsefesi, popülasyon genetiği, biyoinformatik ve dizi hizalama, gen mühendisliği.

@@ -191,7 +191,7 @@ window.ACELYA_DIGEST["anlambilim-ve-edimbilim"] = {
   ],
   next: [
     { href: "mantik-ve-argumantasyon.html", title: "Mantık ve Argümantasyon: Geçerlilik, Kanıt, Safsatalar ve Paradokslar", why: "Gerektirmenin mantıktaki karşılığı: doğruluk tabloları, karşı modelle geçersizliği gösterme ve “Her öğrenci bir kitap okudu” cümlesinin iki okunuşu." },
-    { href: "sozdizimi-ve-dilbilgisi.html", title: "Sözdizimi ve Dilbilgisi: Biçimbirim, Öbek, Ağaç ve Sözcük Dizimi", why: "Anlamın üzerine kurulduğu yapı: biçimbirimler, öbek ağaçları ve aynı sözcük dizisinin iki ağaçla iki anlam taşıdığı yapısal belirsizlik." },
+    { href: "sozdizimi-ve-dilbilgisi.html", title: "Söz Dizimi ve Dil Bilgisi: Biçimbirim, Öbek, Ağaç ve Sözcük Dizimi", why: "Anlamın üzerine kurulduğu yapı: biçimbirimler, öbek ağaçları ve aynı sözcük dizisinin iki ağaçla iki anlam taşıdığı yapısal belirsizlik." },
     { href: "felsefi-dusunce-deneyleri.html", title: "Felsefi Düşünce Deneyleri: Tramvay, Theseus, Çin Odası, Mary ve Peçe", why: "Çin odası sorusu: simgeleri kurallarla doğru işlemek, onların anlamını bilmek için yeter mi? Sözdizim ile anlam arasındaki sınırın felsefi sınaması." },
     { href: "etimoloji-ve-dil-aileleri.html", title: "Etimoloji ve Dil Aileleri: Ses Denklikleri, Soy Ağaçları, Alıntılar", why: "İki “çay”ın ayrı kökenlerinden dil ailelerine: soydaş sözcüğü alıntıdan ve rastlantı benzerliğinden ayıran karşılaştırmalı yöntem, Türkçenin alıntı katmanları ve halk etimolojisi." },
   ],

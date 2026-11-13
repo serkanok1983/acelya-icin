@@ -18,7 +18,7 @@ window.ACELYA_YOLLAR = {
     "programlamaya-giris": "Programlamaya Giriş: Değişken, Koşul, Döngü, Fonksiyon",
     "mol-ve-stokiyometri": "Mol ve Stokiyometri",
     "hucre-biyolojisi": "Hücre Biyolojisi: Zar, Organeller, Taşıma",
-    "turkce-dilbilgisinin-temelleri": "Türkçe Dilbilgisinin Temelleri: Sözcük Türleri ve Cümle Öğeleri",
+    "turkce-dilbilgisinin-temelleri": "Türkçe Dil Bilgisinin Temelleri: Sözcük Türleri ve Cümle Öğeleri",
     "akademik-yazma-ve-kaynak-kullanimi": "Akademik Yazma ve Kaynak Kullanımı",
     "bagisiklik-ve-mikrobiyoloji": "Bağışıklık ve Mikrobiyoloji",
     "farmakokinetik": "Farmakokinetik: İlaç Vücutta Nasıl Dağılır",
@@ -118,7 +118,7 @@ window.ACELYA_YOLLAR = {
     {
       id: "dil-ve-yazi",
       icon: "Aa",
-      title: "Dil ve Yazı: Dilbilgisi, Anlam, Argüman",
+      title: "Dil ve Yazı: Dil bilgisi, Anlam, Argüman",
       summary: "Türkçenin ses ve yapı kuralları, anlamın nasıl kurulduğu, sağlam bir argümanın ve kaynaklı bir metnin nasıl yazıldığı.",
       stages: [
         { title: "Türkçenin yapısı", note: "Ses kuralları, sözcük türleri, ekler ve cümle öğeleri.", items: ["turkcenin-ses-yapisi", "turkce-dilbilgisinin-temelleri", "sozdizimi-ve-dilbilgisi"] },

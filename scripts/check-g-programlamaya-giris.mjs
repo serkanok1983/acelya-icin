@@ -47,8 +47,8 @@ const SYN=[
  ['a = 1 && 2\n',1,'ve'],
  ['yzz(3)\n',1,'yaz'],
 ];
-for(const[src,line,txt]of SYN){const e=errOf(src);eq(e.kind,'sözdizimi',src);eq(e.line,line,src+' satırı');has(e.message,txt,src);}
-// Sözdizimi hatasında hiçbir satır çalışmaz.
+for(const[src,line,txt]of SYN){const e=errOf(src);eq(e.kind,'söz dizimi',src);eq(e.line,line,src+' satırı');has(e.message,txt,src);}
+// Söz dizimi hatasında hiçbir satır çalışmaz.
 {const r=K.run('yaz(1)\nyaz(2\n');eq(r.output.length,0);eq(r.steps,0);}
 // Türkçe karaktersiz yazımlar ve akıllı tırnaklar.
 eq(out('eger dogru ise\n  yaz(sayi("3,5") + 1)\ndegilse\n  yaz(0)\nson\n').join(),'4.5');
@@ -117,7 +117,7 @@ for(const src of['iken doğru\nson\n','i = 0\niken i < 10\n  x = 1\nson\n','n = 
 // Doğrulayıcı (13 Kasım): ortak alt listeli iç içe listelerde == üstel sürüyordu (sayfa donuyordu); derin iç içe geçme yakalanmamış RangeError atıyordu;
 // constructor/valueOf gibi adlar nesne prototipinden okunuyordu; yaz("a\nb") tek çıktı satırı sayılıyordu.
 {const t0=Date.now(),r=K.run('a = [1]\nb = [1]\nher i için aralık(0, 60)\n  a = [a, a]\n  b = [b, b]\nson\nyaz(a == b)\n');eq(r.error&&r.error.kind,'sınır','paylaşılan iç içe liste karşılaştırması durmalı');ok(Date.now()-t0<6000,'karşılaştırma sınırı süreli');}
-for(const src of['x = '+'('.repeat(5000)+'1'+')'.repeat(5000)+'\n','x = '+Array(20000).fill('1').join(' + ')+'\n','x = '+'-'.repeat(20000)+'1\n',Array(3000).fill('eğer doğru ise').join('\n')+'\n'+Array(3000).fill('son').join('\n')+'\n']){const r=K.run(src);eq(r.error&&r.error.kind,'sözdizimi','derin iç içe geçme temiz bir yazım hatası olmalı');has(r.error.message,'çok derin');ok(K.toPython(src).ok===false);}
+for(const src of['x = '+'('.repeat(5000)+'1'+')'.repeat(5000)+'\n','x = '+Array(20000).fill('1').join(' + ')+'\n','x = '+'-'.repeat(20000)+'1\n',Array(3000).fill('eğer doğru ise').join('\n')+'\n'+Array(3000).fill('son').join('\n')+'\n']){const r=K.run(src);eq(r.error&&r.error.kind,'söz dizimi','derin iç içe geçme temiz bir yazım hatası olmalı');has(r.error.message,'çok derin');ok(K.toPython(src).ok===false);}
 {const r=K.run('b = [1]\nher j için aralık(0, 20000)\n  b = [b]\nson\nyaz(metin(b))\n');eq(r.error&&r.error.kind,'sınır');has(r.error.message,'çok derinleşti');}
 eq(out('constructor = 5\ntoString = 2\nyaz(constructor + toString)\n').join(),'7');has(errOf('yaz(valueOf(1))\n').message,'“valueOf” adında bir fonksiyon yok');
 eq(out('yaz("c\\nd")\n').join('|'),'c|d','yaz satır sonunda iki satır yazar');

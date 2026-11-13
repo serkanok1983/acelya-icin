@@ -37,10 +37,10 @@ window.ACELYA_DIGEST["felsefi-dusunce-deneyleri"] = {
       formulaNote: "Özdeşlik geçişlidir. Sol ile Sağ bölünmeden sonra iki ayrı kişidir; öyleyse ikisinin birden “ben” olduğunu söylemek bu ilkeyle çatışır.",
     },
     {
-      heading: "Zihin: sözdizimi, anlam ve eksik bilgi",
+      heading: "Zihin: söz dizimi, anlam ve eksik bilgi",
       body:
         "Searle'ün Çin odası <strong>güçlü yapay zekâ</strong>yı hedef alır: uygun biçimde programlanmış bir bilgisayarın dili gerçekten anladığı görüşünü. Odadaki kişi kural kitabıyla kusursuz Çince yanıtlar üretir ama tek sözcük anlamaz; Searle'e göre bir programı çalıştırmak anlamaya yetmez. Sistem yanıtı anlayanın bütün sistem olduğunu, robot yanıtı simgelerin algılayıcılarla dünyaya bağlanması gerektiğini söyler; Searle ilkine kuralları ezberlemenin de anlamayı getirmeyeceğini, ikincisine algılayıcı verisinin yalnız yeni simgeler olduğunu söyleyerek karşılık verir. Jackson'ın Mary'si başka bir yerden yaklaşır: renkli görmeye ilişkin bütün fiziksel bilgiye sahip biri, odadan çıkıp ilk kez kırmızıyı gördüğünde yeni bir şey öğreniyorsa, bütün bilgi fiziksel değildir. Yanıtlar çeşitlidir: Lewis ve Nemirow'a göre Mary bir yetenek kazanır, Conee'ye göre tanışıklık, Loar'a göre eski bir olguyu yeni bir kavramla kavrar; Dennett ise senaryonun hayal edilebilirliğinden kuşku duyar.",
-      formula: "Programlar biçimseldir · zihinlerin içeriği vardır · sözdizimi anlam için yetmez ⊢ program tek başına zihin değildir",
+      formula: "Programlar biçimseldir · zihinlerin içeriği vardır · söz dizimi anlam için yetmez ⊢ program tek başına zihin değildir",
       formulaNote: "Searle'ün 1984'te <em>Minds, Brains and Science</em> kitabında verdiği üç öncüllü biçim. Tartışma büyük ölçüde üçüncü öncülün doğruluğu üzerinedir.",
     },
     {

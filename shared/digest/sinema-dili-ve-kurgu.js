@@ -6,7 +6,7 @@ window.ACELYA_DIGEST["sinema-dili-ve-kurgu"] = {
   level: "Lise–Lisans",
   minutes: 35,
   tagline:
-    "Saniyede yirmi dört durağan resim nasıl akan bir dünyaya dönüşür? Kare hızı, mercek, 180° kuralı ve montaj: sinemanın dilbilgisini kendi kameranla, kendi kesmelerinle dene.",
+    "Saniyede yirmi dört durağan resim nasıl akan bir dünyaya dönüşür? Kare hızı, mercek, 180° kuralı ve montaj: sinemanın dil bilgisini kendi kameranla, kendi kesmelerinle dene.",
   hook:
     "Western filmlerinde dörtnala giden arabanın tekerleri neden geriye döner? Kamera tekeri sürekli izlemez; saniyede yalnız yirmi dört kez bakar. Aradaki boşluğu senin görme sistemin doldurur ve bazen yanlış doldurur. Sinemanın bütün dili bu boşlukların üzerine kuruludur: karelerin, planların ve kesmelerin arasındaki boşlukların.",
   bigIdea:
@@ -155,7 +155,7 @@ window.ACELYA_DIGEST["sinema-dili-ve-kurgu"] = {
     heading: "Üniversiteye köprü",
     body: [
       "Bu sayfanın ilk iki sekmesi aslında mühendislik dersleridir. Geri dönen teker, <strong>Sinyaller ve Sistemler</strong> ile <strong>Sayısal Sinyal İşleme</strong> derslerinin Nyquist–Shannon örnekleme kuramına girer: kare hızı örnekleme frekansıdır, kollar arasındaki açı ise sinyalin periyodu. Netlik alanı ve görüş açısı <strong>Optik</strong> ve fotoğraf tekniği derslerinde ince mercek denkleminden türetilir. Plan süresi dağılımları ise bir <strong>istatistik</strong> problemidir: sağa çarpık dağılımlar, log-normal modeller, ortanca ile ortalamanın farkı.",
-      "Sinema ve televizyon bölümlerinde aynı konular başka bir dille, film dilbilgisi, kurgu kuramı ve film çözümlemesi olarak okunur. Orada Eisenstein, Pudovkin, Vertov ve Bazin birer okul olarak, Bordwell ve Carroll'un bilişselci film kuramı ise izleyicinin anlamı nasıl kurduğunu soran bir yaklaşım olarak karşına çıkar. <strong>Bilişsel psikoloji</strong> ve görsel algı dersleri görünür hareketi ve Kuleşov tipi bağlam etkilerini deneyle sınar; kurgu kurallarının ne kadarının algıdan, ne kadarının alışkanlıktan geldiği bugün de açık bir sorudur. Kamu malı hesabı ise <strong>fikrî mülkiyet hukuku</strong>nun en basit kapısıdır.",
+      "Sinema ve televizyon bölümlerinde aynı konular başka bir dille, film dil bilgisi, kurgu kuramı ve film çözümlemesi olarak okunur. Orada Eisenstein, Pudovkin, Vertov ve Bazin birer okul olarak, Bordwell ve Carroll'un bilişselci film kuramı ise izleyicinin anlamı nasıl kurduğunu soran bir yaklaşım olarak karşına çıkar. <strong>Bilişsel psikoloji</strong> ve görsel algı dersleri görünür hareketi ve Kuleşov tipi bağlam etkilerini deneyle sınar; kurgu kurallarının ne kadarının algıdan, ne kadarının alışkanlıktan geldiği bugün de açık bir sorudur. Kamu malı hesabı ise <strong>fikrî mülkiyet hukuku</strong>nun en basit kapısıdır.",
     ],
     topics: ["Örnekleme kuramı ve örtüşme", "İnce mercek optiği", "Görünür hareket algısı", "Süreklilik kurgusu", "Sovyet montaj kuramı", "Bazin ve gerçekçi kuram", "Plan süresi istatistiği", "Telif süreleri"],
   },

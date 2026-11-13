@@ -3,6 +3,13 @@
  * Ana sayfa kartları ve arama için Keşif Defteri özetleri.
  */
 window.ACELYA_CATALOG = {
+  "akademik-yazma-ve-kaynak-kullanimi": {
+    "title": "Akademik Yazma: İddia, Kanıt, Alıntı ve Atıf",
+    "tagline": "Akademik metin, izi sürülebilir bir yanıttır. Paragrafları sırala, kaynakları tart, açımlamanı kaynakla sözcük sözcük karşılaştır, aynı kaydı APA, Chicago ve İSNAD biçiminde yaz.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise",
+    "minutes": 35
+  },
   "akiskanlar-mekanigi": {
     "title": "Akışkanlar Mekaniği: Borudan Pompaya",
     "tagline": "Daralan boruyu, boşalan tankı ve viskoz akışı karşılaştır. Boru kayıplarını hesaba kat, pompanın çalışma debisini iki eğrinin kesişiminden bul; enerji bütçesini ve model sınırlarını denetle.",
@@ -142,6 +149,13 @@ window.ACELYA_CATALOG = {
     "field": "Yer ve Uzay",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "bagisiklik-ve-mikrobiyoloji": {
+    "title": "Bağışıklık ve Mikrobiyoloji: Mikroplar, Savunma, Aşı ve Direnç",
+    "tagline": "Bir bakteri kültürünün ikilenme süresini veriden ölç, bağışıklık belleğini kapatıp ne kaybettiğini gör, sürü bağışıklığı eşiğini hesapla ve direncin bir şişede nasıl seçildiğini izle.",
+    "field": "İnsan Bedeni",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "barnsley-egreltiotu": {
     "title": "Barnsley: Rastgele Seçimden Bir Yaprak",
@@ -465,6 +479,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "epidemiyoloji-ve-klinik-arastirma": {
+    "title": "Epidemiyoloji ve Klinik Araştırma: Sayarak Bilmek",
+    "tagline": "Tıp bir tedavinin işe yaradığını nasıl bilir? 2×2 tablo, risk ölçüleri, karıştırıcı, randomizasyon, güç ve küçük denemelerin abarttığı etkiler; yapay veriyle. Tanı ya da tedavi önerisi değildir.",
+    "field": "İnsan Bedeni",
+    "level": "Lise–Lisans",
+    "minutes": 50
+  },
   "epistemoloji": {
     "title": "Epistemoloji: Bilmek, Şans ve Şüphe",
     "tagline": "Doğru ve gerekçeli bir inanç bile bilgi olmayabilir. Gettier vakalarını yargıla, şüphecinin üç öncülünden birini bırak, gerekçe zincirini kur, beyaz ayakkabının kuzgunlar hakkında ne söylediğini Bayes kuralıyla ölç.",
@@ -478,6 +499,13 @@ window.ACELYA_CATALOG = {
     "field": "Dil ve Edebiyat",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "farmakokinetik": {
+    "title": "Farmakokinetik: Bir İlacın Vücuttaki Yolculuğu",
+    "tagline": "Uydurma bir ilaçla emilim, dağılım ve atılımın matematiği: yarılanma süresi, klerens, eğri altındaki alan, birikim, iki bölme ve doyan enzimler. Doz önerisi değildir; yalnız bilimi anlatır.",
+    "field": "İnsan Bedeni",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "felsefi-dusunce-deneyleri": {
     "title": "Felsefi Düşünce Deneyleri: Hayal Edilen Durum, Gerçek Sorun",
@@ -578,7 +606,7 @@ window.ACELYA_CATALOG = {
     "minutes": 40
   },
   "grup-teorisi": {
-    "title": "Grup Teorisi: Simetrinin Dilbilgisi",
+    "title": "Grup Teorisi: Simetrinin Dil Bilgisi",
     "tagline": "Bir kareyi döndürmek, kartları karıştırmak ve saat aritmetiği aynı dört kurala uyar. Grup teorisi bu kuralların bilimidir; Galois'nın 20 yaşında bıraktığı fikirlerden 15 bulmacasının yarısının neden çözülemediğine uzanır.",
     "field": "Matematik",
     "level": "Lisans",
@@ -639,6 +667,13 @@ window.ACELYA_CATALOG = {
     "field": "Biyoloji",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "hucre-biyolojisi": {
+    "title": "Hücre Biyolojisi: Zar, Organeller ve Boyutun Sınırı",
+    "tagline": "Hücreler neden bu kadar küçük, mikroskop neden 200 nm'de durur, alyuvar saf suda neden patlar? Organelleri tanı, sonra ölçeği, difüzyonu ve osmozu sayılarla kendin sına.",
+    "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 40
   },
   "ideal-gaz": {
     "title": "İdeal Gaz: Çarpışma Kaosundan Basit Bir Yasa",
@@ -1060,6 +1095,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "mol-ve-stokiyometri": {
+    "title": "Mol ve Stokiyometri: Atomları Tartarak Saymak",
+    "tagline": "Bir kavanoz vidayı saymadan saymaktan Avogadro sabitine, formülden molar kütleye, yakma analizinden formüle, sınırlayıcı bileşenden çözelti ve gaz hacmine: kimyanın sayma birimini adım adım kurun.",
+    "field": "Kimya",
+    "level": "Lise",
+    "minutes": 40
+  },
   "molekul-sekli": {
     "title": "Molekül Şekli: Elektron Çiftlerinin Yer Kavgası",
     "tagline": "Su neden bükük, karbondioksit neden dümdüz? Elektron bölgelerini bir kürede birbirini itmeye bırak, açıları ölç; sonra aynı modelin nerede tuttuğunu, nerede ıskaladığını deneyle karşılaştır.",
@@ -1384,7 +1426,7 @@ window.ACELYA_CATALOG = {
   },
   "sinema-dili-ve-kurgu": {
     "title": "Sinema Dili ve Kurgu: Kareden Montaja",
-    "tagline": "Saniyede yirmi dört durağan resim nasıl akan bir dünyaya dönüşür? Kare hızı, mercek, 180° kuralı ve montaj: sinemanın dilbilgisini kendi kameranla, kendi kesmelerinle dene.",
+    "tagline": "Saniyede yirmi dört durağan resim nasıl akan bir dünyaya dönüşür? Kare hızı, mercek, 180° kuralı ve montaj: sinemanın dil bilgisini kendi kameranla, kendi kesmelerinle dene.",
     "field": "Sinema",
     "level": "Lise–Lisans",
     "minutes": 35
@@ -1432,7 +1474,7 @@ window.ACELYA_CATALOG = {
     "minutes": 40
   },
   "sozdizimi-ve-dilbilgisi": {
-    "title": "Sözdizimi ve Dilbilgisi: Sözcüğün ve Cümlenin Mimarisi",
+    "title": "Söz Dizimi ve Dil Bilgisi: Sözcüğün ve Cümlenin Mimarisi",
     "tagline": "Tek bir Türkçe sözcük on bir parçadan oluşabilir, bir cümle iki ayrı ağaca oturabilir. Biçimbirimleri böl, öbekleri sına, dünya dillerinin sözcük dizimini 1376 dillik veriyle karşılaştır.",
     "field": "Dil ve Edebiyat",
     "level": "Lise–Lisans",
@@ -1529,6 +1571,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 30
   },
+  "tibbi-goruntuleme-fizigi": {
+    "title": "Tıbbi Görüntüleme Fiziği: Bedenin İçini Görmenin Beş Yolu",
+    "tagline": "Röntgen, BT, ultrason, MR ve PET'in fiziği: zayıflama yasası, geri izdüşüm, yankı zamanı, Larmor frekansı ve 511 keV'lik foton çiftleri. Her bölümde ölçülen ile kuram yan yana; tanı ya da tetkik önerisi yok.",
+    "field": "İnsan Bedeni",
+    "level": "Lise–Lisans",
+    "minutes": 50
+  },
   "tork-denge": {
     "title": "Tork ve Denge: Kaldıraçtan Kayan Merdivene",
     "tagline": "Bir kuvvetin döndürme etkisi, büyüklüğü kadar nereye bindiğine de bağlıdır. Kaldıracı dengele, tahtanın nerede devrildiğini bul, merdivenin hangi basamakta kaydığını ölç: hepsi iki denklemle, ΣF = 0 ve Στ = 0.",
@@ -1542,6 +1591,13 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "turkce-dilbilgisinin-temelleri": {
+    "title": "Türkçe Dil Bilgisinin Temelleri: Kök, Ek, Tür ve Öge",
+    "tagline": "“Görüşmeyecekmişiz” tek sözcüktür ama bir cümle kadar bilgi taşır. Kökü, ekleri, sözcük türlerini ve cümle ögelerini kendi elinle kurup sökerek Türkçenin nasıl işlediğini gör.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise",
+    "minutes": 35
   },
   "turkcenin-ses-yapisi": {
     "title": "Türkçenin Ses Yapısı: Kural, Ek ve İstisna",

@@ -28,7 +28,7 @@ window.ACELYA_DIGEST["derleyici-ve-yorumlayicilar"] = {
     },
     {
       heading: "Ağaçtan koda: anlam denetimi ve iki ara biçim",
-      body: "Gramere uyan her program anlamlı değildir. <strong>Anlam denetimi</strong> ağacı gezer ve sözdizimiyle anlatılamayan kuralları sınar. Sayfanın dilinde tek kural vardır: bir değişken, okunduğu noktaya varan <em>her yoldan</em> önce değer almış olmalıdır (kesin atama). Denetim koşulların değerine bakmaz; <code>if (1) { x = 1; } print x;</code> bu yüzden reddedilir. Gerçek dillerde aynı aşama türleri ve kapsamları da bir <strong>sembol tablosunda</strong> izler. Denetimden geçen ağaç iki ara biçime çevrilir. <strong>Üç adresli kodda</strong> her satırda en çok bir işleç ve üç ad bulunur; ara sonuçlar geçici adlarda durur: <code>t1 = 3 * 4</code>, <code>x = 2 + t1</code>. LLVM'in ara dili bu ailedendir; iyileştirmeler böyle bir katta yapılır, çünkü aynı dönüşüm bir kez yazılır, her dil ve her işlemci için geçerli olur. <strong>Yığın makinesi kodunda</strong> ad yoktur: ağaç 'önce çocuklar, sonra düğümün kendisi' sırasıyla düzleştirilir; her yaprak yığına bir değer koyar, her işleç tepedeki iki değeri alıp sonucu geri koyar. Java bytecode'u, .NET'in CIL'i ve CPython'un bytecode'u böyle yığın tabanlı ara biçimlerdir, üç adresli kod değil. Düzleştirme o kadar mekaniktir ki komut sayısı ağaca bakarak önceden söylenebilir.",
+      body: "Gramere uyan her program anlamlı değildir. <strong>Anlam denetimi</strong> ağacı gezer ve söz dizimiyle anlatılamayan kuralları sınar. Sayfanın dilinde tek kural vardır: bir değişken, okunduğu noktaya varan <em>her yoldan</em> önce değer almış olmalıdır (kesin atama). Denetim koşulların değerine bakmaz; <code>if (1) { x = 1; } print x;</code> bu yüzden reddedilir. Gerçek dillerde aynı aşama türleri ve kapsamları da bir <strong>sembol tablosunda</strong> izler. Denetimden geçen ağaç iki ara biçime çevrilir. <strong>Üç adresli kodda</strong> her satırda en çok bir işleç ve üç ad bulunur; ara sonuçlar geçici adlarda durur: <code>t1 = 3 * 4</code>, <code>x = 2 + t1</code>. LLVM'in ara dili bu ailedendir; iyileştirmeler böyle bir katta yapılır, çünkü aynı dönüşüm bir kez yazılır, her dil ve her işlemci için geçerli olur. <strong>Yığın makinesi kodunda</strong> ad yoktur: ağaç 'önce çocuklar, sonra düğümün kendisi' sırasıyla düzleştirilir; her yaprak yığına bir değer koyar, her işleç tepedeki iki değeri alıp sonucu geri koyar. Java bytecode'u, .NET'in CIL'i ve CPython'un bytecode'u böyle yığın tabanlı ara biçimlerdir, üç adresli kod değil. Düzleştirme o kadar mekaniktir ki komut sayısı ağaca bakarak önceden söylenebilir.",
       formula: "bytecode komutu = yaprak + işleç + atama + print + if + else'li if + 2 · while + 1",
       formulaNote: "Her yaprak bir PUSH ya da LOAD, her işleç bir komut, her atama bir STORE üretir; if bir JZ, else bir JMP, while bir JZ ile bir JMP ekler; sondaki 1, HALT'tır. Varsayılan örnekte 7 + 4 + 1 + 2 + 0 + 0 + 0 + 1 = 15. Bu komut kümesi ve onaltılık kodlaması sayfanın öğretim makinesine özgüdür; gerçek bir sanal makinenin biçimi değildir."
     },
@@ -52,7 +52,7 @@ window.ACELYA_DIGEST["derleyici-ve-yorumlayicilar"] = {
         title: "Lexer neyi tek parça sayar?",
         predict: "<strong>Hatalı: sözcük hataları</strong> örneğinde dört satır var: <code>x = 3 $ 4;</code>, <code>y = 1.2.3;</code>, <code>z = 10e5;</code>, <code>c = 'a';</code>. Lexer kaç hata bildirir? <code>1.2.3</code> bir hata mıdır, iki mi? Sonra şunu kestir: <code>&lt;=</code> yazarken araya bir boşluk kaçarsa bunu lexer mı yakalar, ayrıştırıcı mı?",
         do: "<strong>Hazır program</strong> menüsünden bu örneği seç ve <strong>01 · Sözcük çözümleme</strong> sekmesinde 'Sözcük hatası' kartını, token tablosunu ve yukarıdaki derleme hattını oku. Ardından kutudaki metni silip iki satır yaz: <code>sayı = 007;</code> ve altına <code>print sayı &lt;= 7;</code>. Son olarak <code>&lt;</code> ile <code>=</code> arasına bir boşluk koy.",
-        observe: "Beş hata çıkar: 1:7 ($), 2:5 (1.2.3 tek parça), 3:5 (10e5 tek parça), 4:5 ve 4:7 (iki tırnak ayrı ayrı). Derleme hattının ilk satırı kırmızıyla '5 hata' der, öbür dördü 'bekliyor'. İki satırlık programda '9 token' okunur, hata yoktur; tabloda 007'nin 'Değer' sütununda 7 yazar, <code>&lt;=</code> tek satırdır ve program 1 yazdırır. Boşluğu koyunca token sayısı 10 olur, sözcük hatası yine 0'dır; ama durum satırı 'Sözdizimi hatası (2:14)' der: 'Beklenen: sayı, ad ya da “(” · bulunan: “=”'.",
+        observe: "Beş hata çıkar: 1:7 ($), 2:5 (1.2.3 tek parça), 3:5 (10e5 tek parça), 4:5 ve 4:7 (iki tırnak ayrı ayrı). Derleme hattının ilk satırı kırmızıyla '5 hata' der, öbür dördü 'bekliyor'. İki satırlık programda '9 token' okunur, hata yoktur; tabloda 007'nin 'Değer' sütununda 7 yazar, <code>&lt;=</code> tek satırdır ve program 1 yazdırır. Boşluğu koyunca token sayısı 10 olur, sözcük hatası yine 0'dır; ama durum satırı 'Söz dizimi hatası (2:14)' der: 'Beklenen: sayı, ad ya da “(” · bulunan: “=”'.",
         explain: "Lexer her konumda en uzun parçayı alır; rakamdan hemen sonra harf ya da nokta gelirse bütün öbeği tek bir hatalı sayı sayar, böylece <code>10e5</code> sessizce bir sayı ile bir ada bölünmez. Tırnak dilin alfabesinde yoktur, o yüzden her biri ayrı hatadır. Lexer hatada durmaz, ama tek bir sözcük hatası bile ayrıştırmayı başlatmaz. Boşluklu <code>&lt; =</code> ise iki kusursuz tokendır: lexer sözcüklere bakar, sıralarına bakmaz; karşılaştırmadan sonra işlenen bekleyen ayrıştırıcı <code>=</code> görünce durur. <code>sayı</code> adının geçmesi bir tasarım kararıdır: ad kuralı bütün Unicode harflerine açıktır."
       },
       {
@@ -111,7 +111,7 @@ window.ACELYA_DIGEST["derleyici-ve-yorumlayicilar"] = {
     },
     {
       myth: "Parantezler ve noktalı virgüller ağaçta birer düğümdür.",
-      truth: "Ağaç yalnızca anlam taşıyan parçaları tutar: deyimler, işleçler, sayılar, adlar. Parantezin tek görevi ayrıştırıcıya hangi dalın hangisinin altına gireceğini söylemektir; iş bitince ağaçta iz bırakmaz. (a + b) * c ve a + b * c farklı ağaçlardır ama ikisinde de parantez düğümü yoktur; sayfadaki 'Parantez' örneğinde iki ifade de aynı sayıda düğümle çizilir. 'Soyut' sözdizimi ağacındaki 'soyut' tam bu silmeyi anlatır."
+      truth: "Ağaç yalnızca anlam taşıyan parçaları tutar: deyimler, işleçler, sayılar, adlar. Parantezin tek görevi ayrıştırıcıya hangi dalın hangisinin altına gireceğini söylemektir; iş bitince ağaçta iz bırakmaz. (a + b) * c ve a + b * c farklı ağaçlardır ama ikisinde de parantez düğümü yoktur; sayfadaki 'Parantez' örneğinde iki ifade de aynı sayıda düğümle çizilir. 'Soyut' söz dizimi ağacındaki 'soyut' tam bu silmeyi anlatır."
     },
     {
       myth: "Derleyici hata vermediyse program doğrudur.",
@@ -133,10 +133,10 @@ window.ACELYA_DIGEST["derleyici-ve-yorumlayicilar"] = {
     },
     {
       term: "Parser (ayrıştırıcı)",
-      definition: "Token dizisini dilin gramerine göre bir ağaca dönüştüren aşama; gramere uymayan diziye sözdizimi hatası verir."
+      definition: "Token dizisini dilin gramerine göre bir ağaca dönüştüren aşama; gramere uymayan diziye söz dizimi hatası verir."
     },
     {
-      term: "AST (soyut sözdizimi ağacı)",
+      term: "AST (soyut söz dizimi ağacı)",
       definition: "Programın yapısını tutan ağaç; deyimler ve işleçler iç düğüm, sayılar ve adlar yapraktır, parantez ve noktalama atılmıştır."
     },
     {

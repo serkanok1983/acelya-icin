@@ -1,7 +1,7 @@
 window.ACELYA_DIGEST = window.ACELYA_DIGEST || {};
 window.ACELYA_DIGEST["sozdizimi-ve-dilbilgisi"] = {
   slug: "sozdizimi-ve-dilbilgisi",
-  title: "Sözdizimi ve Dilbilgisi: Sözcüğün ve Cümlenin Mimarisi",
+  title: "Söz Dizimi ve Dil Bilgisi: Sözcüğün ve Cümlenin Mimarisi",
   field: "Dil ve Edebiyat",
   level: "Lise–Lisans",
   minutes: 35,
@@ -10,9 +10,9 @@ window.ACELYA_DIGEST["sozdizimi-ve-dilbilgisi"] = {
   hook:
     "“Avrupalılaştıramadıklarımızdanmışsınız” bir sözcük mü, bir cümle mi? İçinde on bir parça var ve hiçbiri rastgele sıralanmamış: aynı ekleri başka bir düzenle dizersen Türkçe olmaktan çıkar. Hiç kural ezberlemediğin hâlde bunu nereden biliyorsun?",
   bigIdea:
-    "Dil düz bir sözcük dizisi değil, iç içe geçmiş bir yapıdır: biçimbirimler sözcükte, sözcükler öbeklerde belli bir düzenle birleşir; dilbilgisi bu örtük düzeni betimlemeye çalışır ve onu nasıl çizeceğimiz konusunda birden çok kuram yarışır.",
+    "Dil düz bir sözcük dizisi değil, iç içe geçmiş bir yapıdır: biçimbirimler sözcükte, sözcükler öbeklerde belli bir düzenle birleşir; dil bilgisi bu örtük düzeni betimlemeye çalışır ve onu nasıl çizeceğimiz konusunda birden çok kuram yarışır.",
   story: [
-    "Sözcükler arasındaki bağımlılık fikri, kayda geçmiş en eski dilbilgileri kadar eskidir; Sanskritçenin dilbilgini Pāṇini'nin çalışması bunun erken bir örneği sayılır. Cümleyi iç içe öbeklere bölen bakış ise Antik Çağ'ın terim mantığından gelen bir ikiliğe dayanır: cümle bir özne ile bir yüklemdir. Bu ikinci bakışa itiraz eden en güçlü ses Fransız dilbilimci <strong>Lucien Tesnière</strong> oldu. Ona göre cümlenin merkezi eylemdir; özne de nesne gibi eyleme bağlanan bir ögedir. Başyapıtı <em>Éléments de syntaxe structurale</em>, 1954'teki ölümünden beş yıl sonra, 1959'da yayımlandı ve modern <strong>bağımlılık dilbilgisinin</strong> başlangıcı kabul edilir.",
+    "Sözcükler arasındaki bağımlılık fikri, kayda geçmiş en eski dilbilgileri kadar eskidir; Sanskritçenin dilbilgini Pāṇini'nin çalışması bunun erken bir örneği sayılır. Cümleyi iç içe öbeklere bölen bakış ise Antik Çağ'ın terim mantığından gelen bir ikiliğe dayanır: cümle bir özne ile bir yüklemdir. Bu ikinci bakışa itiraz eden en güçlü ses Fransız dilbilimci <strong>Lucien Tesnière</strong> oldu. Ona göre cümlenin merkezi eylemdir; özne de nesne gibi eyleme bağlanan bir ögedir. Başyapıtı <em>Éléments de syntaxe structurale</em>, 1954'teki ölümünden beş yıl sonra, 1959'da yayımlandı ve modern <strong>bağımlılık dil bilgisinin</strong> başlangıcı kabul edilir.",
     "İki yıl önce, 1957'de, Noam Chomsky <em>Syntactic Structures</em> kitabında dilbilimcilerin hâlâ tartıştığı bir cümle verdi: “Colorless green ideas sleep furiously” (Renksiz yeşil fikirler öfkeyle uyur). Cümle anlamsızdır ve büyük olasılıkla daha önce hiç söylenmemişti; aynı sözcüklerin ters dizilişi de öyle. Yine de İngilizce konuşan herkes birincisini kuruluşça düzgün, ikincisini bozuk bulur. Chomsky'nin çıkardığı sonuç şuydu: dilbilgisellik ne anlamla ne de istatistiksel olasılıkla aynı şeydir. Tartışma bitmedi: 2000'de Fernando Pereira gazete metinleriyle eğittiği basit bir istatistik modelde ters dizilişin yaklaşık 200 bin kat daha olasılıksız çıktığını gösterdi.",
     "Joseph Greenberg 1963'te başka bir yoldan gitti: çoğunlukla 30 dillik bir örneğe bakarak 45 <strong>evrensel</strong> önerdi. Kimi mutlak (“her zaman”), çoğu istatistikseldi (“rastlantıdan çok daha büyük bir sıklıkla”). Bugün bu eğilimler çok daha büyük verilerle sınanabiliyor: Matthew Dryer ile Martin Haspelmath'ın editörlüğünü yaptığı <strong>WALS</strong> (Dünya Dil Yapıları Atlası) çevrimiçi sürümü, özne, nesne ve yüklemin sırasını 1376 dil için tek tek kaydeder. Bu kadar çok dili karşılaştırmak ortak bir yazım da gerektirir: Bernard Comrie, Martin Haspelmath ve Balthasar Bickel'in <strong>Leipzig Açıklama Kuralları</strong> (Şubat 2008'de gözden geçirilmiş sürüm), dergilerdeki biçimbirim biçimbirim açıklama satırının on kuralını ve standart kısaltmalarını belirler.",
   ],
@@ -76,7 +76,7 @@ window.ACELYA_DIGEST["sozdizimi-ve-dilbilgisi"] = {
         predict: "“eski komşumuzun evinin kapısı” kaç farklı şey anlatabilir? “eski” hangi adlara bağlanabilir?",
         do: "Yapısal belirsizlik sekmesinde bu örneği seç. Her okumayı (eski yani önceki komşu, eski ev, eski kapı) okuyup altındaki düğmelerle bir ağaca eşle; köşeli ayraç yazımını durum satırında karşılaştır.",
         observe: "Üç okuma üç ayrı ağaçla birebir eşleşir; “Artık komşumuz olmayan birinin evinin kapısı” okuması “[[[eski komşumuzun] evinin] kapısı]” ağacına gider. Doğru eşlemelerde sayaç bu örnek için 3 / 3'e çıkar; dört örneğin toplamı 9 okumadır.",
-        explain: "Sözcüklerin hiçbiri belirsiz değildir; belirsizlik sıfatın hangi öbeğe bağlandığından doğar. Sözcük sırası aynı kalırken anlam farkını açıklayan tek şey gruplamadır: sözdiziminin yalnız sıra olmadığının en doğrudan kanıtı budur. Türkçede baş sonda olduğu için niteleyiciler önde birikir ve bu tür belirsizliğin başlıca kaynağı olur.",
+        explain: "Sözcüklerin hiçbiri belirsiz değildir; belirsizlik sıfatın hangi öbeğe bağlandığından doğar. Sözcük sırası aynı kalırken anlam farkını açıklayan tek şey gruplamadır: söz diziminin yalnız sıra olmadığının en doğrudan kanıtı budur. Türkçede baş sonda olduğu için niteleyiciler önde birikir ve bu tür belirsizliğin başlıca kaynağı olur.",
       },
       {
         title: "Payda değişince evrensel",
@@ -120,12 +120,12 @@ window.ACELYA_DIGEST["sozdizimi-ve-dilbilgisi"] = {
   },
   misconceptions: [
     {
-      myth: "Dilbilgisi, doğru yazmanın ve konuşmanın kurallarıdır.",
+      myth: "Dil bilgisi, doğru yazmanın ve konuşmanın kurallarıdır.",
       truth:
-        "Dilbilimde dilbilgisi buyurgan değil betimleyicidir: konuşurların zaten bildiği örtük düzeni anlatır. “*Evlerdemiz” kimseye öğretilmeden yanlış gelir; dilbilgisinin işi bu bilginin neden ve nasıl işlediğini açıklamaktır.",
+        "Dilbilimde dil bilgisi buyurgan değil betimleyicidir: konuşurların zaten bildiği örtük düzeni anlatır. “*Evlerdemiz” kimseye öğretilmeden yanlış gelir; dil bilgisinin işi bu bilginin neden ve nasıl işlediğini açıklamaktır.",
     },
     {
-      myth: "Anlamsız bir cümle dilbilgisi dışıdır.",
+      myth: "Anlamsız bir cümle dil bilgisi dışıdır.",
       truth:
         "“Renksiz yeşil fikirler öfkeyle uyur” anlamsızdır ama kuruluşu düzgündür; “Ben dün kitap okudun” ise anlaşılır ama kişi uyumu bozuktur. Alan nasıl bilir? sekmesinde “Renksiz yeşil fikirler” cümlesini puanlayınca sayfa, düşük puan verdiysen anlamı da yargılamış olabileceğini hatırlatır. Kabul edilebilirlik (dereceli yargı) ile dilbilgisellik (kuramsal kavram) aynı şey değildir.",
     },
@@ -147,16 +147,16 @@ window.ACELYA_DIGEST["sozdizimi-ve-dilbilgisi"] = {
     { term: "Eklemeli dil", definition: "Sözcükleri sınırı açık, her biri çoğunlukla tek anlam taşıyan eklerin art arda gelmesiyle kuran dil; Türkçe ve Fince gibi." },
     { term: "Öbek (bileşen)", definition: "Cümlede tek bir birim gibi davranan, başının türüne göre adlandırılan sözcük grubu; “yaşlı adam” bir ad öbeğidir." },
     { term: "Baş", definition: "Öbeğin türünü ve dağılımını belirleyen sözcük; “sabaha kadar” ilgeç öbeğinin başı “kadar”dır." },
-    { term: "Bağımlılık dilbilgisi", definition: "Her sözcüğü tek düğüm sayan ve sözcükleri baştan bağımlıya giden ilişkilerle bağlayan sözdizimi çerçevesi; köke çekimli eylemi koyar." },
+    { term: "Bağımlılık dil bilgisi", definition: "Her sözcüğü tek düğüm sayan ve sözcükleri baştan bağımlıya giden ilişkilerle bağlayan söz dizimi çerçevesi; köke çekimli eylemi koyar." },
     { term: "Yapısal belirsizlik", definition: "Aynı sözcük dizisinin farklı biçimlerde gruplanabilmesinden doğan, sözcük anlamlarından bağımsız çok anlamlılık." },
   ],
   bridge: {
     heading: "Üniversiteye köprü",
     body: [
-      "Dilbilim bölümlerinde bu sayfanın iki katı ayrı derslere ayrılır: <strong>Biçimbilim</strong> ve <strong>Sözdizimi</strong>. Biçimbilimde çözümleme yalnız sınır koymak değildir; sıfır biçimbirimler, kaynaşmış ekler ve yapım ile çekimi ayırmanın ölçütleri tartışılır. Sözdiziminde öbek testleri, baş kavramı ve ağaçlar bir kuram içinde kullanılır; öğrenci aynı veriyi birden çok çerçevede çizmeyi öğrenir. <strong>Dil Tipolojisi</strong> derslerinde WALS gibi veritabanlarıyla çalışılır ve dillerin bağımsız örnek olmadığı sorunu (aile ve bölge etkisi) örnekleme yöntemleriyle ele alınır.",
-      "Kuramsal tablo tek bir doğru üzerine kurulu değildir. Stanford Felsefe Ansiklopedisi'nin dilbilim felsefesi maddesi üç eğilim ayırır: gözlenen kullanımı ve derlemleri esas alan dışsalcılar; dili genel bilişsel ve toplumsal yetilerden doğmuş sayan işlevci ve kullanım temelli <strong>ortaya çıkışçılar</strong>; konuşur sezgilerinden doğuştan bir dil yetisinin evrensel ilkelerine ulaşmaya çalışan <strong>üretici</strong> özcüler. Madde, çoğu araştırmacının üçünden de bir şey aldığını not eder. Joan Bresnan ve arkadaşlarının derlem çalışmaları, sezgiyle “dilbilgisi dışı” sayılan bazı yapıların kullanımda geçtiğini ve tercih edilmeyen yapılar olarak modellenebildiğini gösterdi. Biçimsel tarafta öbek yapısı kuralları bağlamdan bağımsız dilbilgilerine, bağımlılık ağaçları da bilgisayarlı dilbilimdeki ayrıştırıcılara ve ağaç bankalarına bağlanır.",
+      "Dilbilim bölümlerinde bu sayfanın iki katı ayrı derslere ayrılır: <strong>Biçimbilim</strong> ve <strong>Söz dizimi</strong>. Biçimbilimde çözümleme yalnız sınır koymak değildir; sıfır biçimbirimler, kaynaşmış ekler ve yapım ile çekimi ayırmanın ölçütleri tartışılır. Söz diziminde öbek testleri, baş kavramı ve ağaçlar bir kuram içinde kullanılır; öğrenci aynı veriyi birden çok çerçevede çizmeyi öğrenir. <strong>Dil Tipolojisi</strong> derslerinde WALS gibi veritabanlarıyla çalışılır ve dillerin bağımsız örnek olmadığı sorunu (aile ve bölge etkisi) örnekleme yöntemleriyle ele alınır.",
+      "Kuramsal tablo tek bir doğru üzerine kurulu değildir. Stanford Felsefe Ansiklopedisi'nin dilbilim felsefesi maddesi üç eğilim ayırır: gözlenen kullanımı ve derlemleri esas alan dışsalcılar; dili genel bilişsel ve toplumsal yetilerden doğmuş sayan işlevci ve kullanım temelli <strong>ortaya çıkışçılar</strong>; konuşur sezgilerinden doğuştan bir dil yetisinin evrensel ilkelerine ulaşmaya çalışan <strong>üretici</strong> özcüler. Madde, çoğu araştırmacının üçünden de bir şey aldığını not eder. Joan Bresnan ve arkadaşlarının derlem çalışmaları, sezgiyle “dil bilgisi dışı” sayılan bazı yapıların kullanımda geçtiğini ve tercih edilmeyen yapılar olarak modellenebildiğini gösterdi. Biçimsel tarafta öbek yapısı kuralları bağlamdan bağımsız dilbilgilerine, bağımlılık ağaçları da bilgisayarlı dilbilimdeki ayrıştırıcılara ve ağaç bankalarına bağlanır.",
     ],
-    topics: ["Biçimbilim", "Sözdizimi kuramları", "Bağımlılık ayrıştırma", "Dil tipolojisi ve WALS", "Bilgi yapısı: konu ve odak", "Derlem dilbilimi", "Deneysel sözdizimi", "Bağlamdan bağımsız dilbilgileri"],
+    topics: ["Biçimbilim", "Söz dizimi kuramları", "Bağımlılık ayrıştırma", "Dil tipolojisi ve WALS", "Bilgi yapısı: konu ve odak", "Derlem dilbilimi", "Deneysel söz dizimi", "Bağlamdan bağımsız dilbilgileri"],
   },
   quiz: [
     {
@@ -176,7 +176,7 @@ window.ACELYA_DIGEST["sozdizimi-ve-dilbilgisi"] = {
         "Dizi bir öbektir, çünkü testlerin yarısından geçti",
         "Taşıma ve bağlama bu dizide aşırı geniştir: iki ayrı öbek birlikte de taşınıp bağlanabilir",
         "Yerine koyma testi Türkçede hiç çalışmaz",
-        "Bağımlılık dilbilgisi bu diziyi bileşen sayar",
+        "Bağımlılık dil bilgisi bu diziyi bileşen sayar",
       ],
       answer: 1,
       explanation: "Türkçede ögeler tek tek yer değiştirebildiği için iki komşu öbek birlikte de taşınabilir; bağlama da öbek olmayan dizileri geçirebilir. Testlerden geçmek öbekliği kanıtlamaz. İki çerçeve de bu diziyi bileşen saymaz; tek bir adıl ya da tek bir soru sözcüğü onu karşılayamaz.",

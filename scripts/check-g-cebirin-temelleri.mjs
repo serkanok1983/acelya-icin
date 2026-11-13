@@ -76,7 +76,7 @@ for(let L=1;L<=3;L++)for(const[type]of K.TYPES[L-1])for(let n=1;n<=150;n++){cons
   else if(/^sistem/.test(type)){const eqs=p.replace(/^[^:]*:\s*/,'').split(' ve ').map(e=>e.split(' = '));const fs=eqs.map(([l,r])=>{const s=l.replace(/−/g,'-').replace(/\s/g,'');const a=s.match(/([+-]?\d*)x/),b=s.match(/([+-]?\d*)y/);const v=t=>t===undefined?0:t===''||t==='+'?1:t==='-'?-1:Number(t);return[a?v(a[1]):0,b?v(b[1]):0,Number(r.replace(M,'-'))];});
     const T=ex.target;if(T.x)for(const[a,b,c]of fs)near(a*T.x.v+b*T.y.v,c,1e-9,p);else{const[[a1,b1,c1],[a2,b2,c2]]=fs;eq(a1*b2-a2*b1,0,p);const r=a2/a1;eq(Math.abs(c2-r*c1)<1e-9,!!T.inf,p);}}
   else if(type==='tamkare'){const f=toJs(p.replace(/^[^:]*:\s*/,'').split(' = ')[0]),g2=toJs(ex.answer);for(const x of[-3,0,2,5])near(f(x),g2(x),1e-9,p);ok(/\)²/.test(ex.answer));}
-  else if(type==='sozel1'){const nums=p.match(/\d+/g).map(Number);if(/annenin/.test(p)){const[Mo,C,k]=nums;near(Mo+ex.target.v,k*(C+ex.target.v),1e-9,p);ok(ex.target.v>0);}else{const[k,m,nn]=nums;near(k*ex.target.v+m,nn,1e-9,p);}}
+  else if(type==='sozel1'){const nums=p.match(/\d+/g).map(Number);if(/annenin/.test(p)){const[Mo,C,k]=nums;near(Mo+ex.target.v,k*(C+ex.target.v),1e-9,p);ok(ex.target.v>0);ok(Mo-C>=18,'yaş problemi: anne ile kız arasında en az 18 yaş — '+p);}else{const[k,m,nn]=nums;near(k*ex.target.v+m,nn,1e-9,p);}}
   else if(type==='sozel2'){const[d,A]=p.match(/\d+/g).map(Number);const x=ex.target.v;near(x*(x+d),A,1e-9,p);ok(x>0);}
   else assert.fail('denetlenmeyen tür '+type);}
 ok(seen.size>generated*0.6,'sorular yeterince çeşitli: '+seen.size+'/'+generated);
@@ -230,7 +230,7 @@ if(process.argv.includes('--browser')){
       // 06 · Problem
       await click('tab-problem');await has('wText','3 katının 7 fazlası 25');eq(await page.locator('#wSteps li').count(),0);await click('wNext');await click('wNext');eq(await page.locator('#wTr tr').count(),4);await click('wAll');eq(await page.locator('#wSteps li').count(),8);eq(await page.locator('#wNext').isDisabled(),true);
       await set('wAns','6');await click('wCheck');eq(await page.locator('#wFb').getAttribute('data-st'),'dogru');await set('wAns','5');await click('wCheck');eq(await page.locator('#wFb').getAttribute('data-st'),'yanlis');await set('wAns','?');await click('wCheck');eq(await page.locator('#wFb').getAttribute('data-st'),'gecersiz');
-      await set('wSel','yas');eq(await page.locator('#w3F').isVisible(),true);await has('wText','38');await click('wAll');await has('wSteps','t = 7');await set('w1',30);await set('w2',12);await click('wAll');await has('wSteps','negatif');
+      await set('wSel','yas');eq(await page.locator('#w3F').isVisible(),true);await has('wText','38');await click('wAll');await has('wSteps','t = 7');await set('w1',30);await set('w2',12);await click('wAll');await has('wSteps','negatif');await set('w1',25);await set('w2',14);await click('wAll');await has('wSteps','yaş fark var');
       await set('wSel','kumbara');eq(await page.locator('#w3F').isHidden(),true);eq(await page.locator('#w3').isDisabled(),true);await is('w3L','(kullanılmıyor)');await click('wAll');await has('wSteps','x = 8');await set('wAns','8 tane');await click('wCheck');eq(await page.locator('#wFb').getAttribute('data-st'),'dogru');
       await set('wSel','alan');await click('wAll');await has('wSteps','7 cm');await set('wSel','karisim');await click('wAll');await has('wSteps','v = 15 L');await set('wSel','hareket');await click('wAll');await has('wSteps','t = 3 saat');
       await click('problemReset');await has('wText','Bir sayının 3 katının');await fits();

@@ -158,13 +158,14 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `takimyildiz-haritasi` — Takımyıldız Haritası (sayfa başlığı: Takımyıldız Haritası: Gökyüzünün Koordinatları) · Lise–Lisans
 - `yildiz-yasam-dongusu` — Yıldız Yaşam Döngüsü (sayfa başlığı: Yıldız Yaşam Döngüsü (H-R Diyagramı)) · Lise–Lisans
 
-## Kimya (15)
+## Kimya (16)
 
 - `atom-orbitalleri` — Atom Orbitalleri (sayfa başlığı: Atom Orbitalleri: Hidrojen Benzeri Atomun Kesin Çözümü) · Lise–Lisans
 - `periyodik-tablo` — Periyodik Tablo (sayfa başlığı: Periyodik Tablo Laboratuvarı) · Lise–Lisans
 - `molekul` — Molekül (sayfa başlığı: Moleküller ve Kimyasal Bağlar Laboratuvarı) · Lise–Lisans
 - `molekul-sekli` — Molekül Şekli (sayfa başlığı: Molekül Şekli (VSEPR)) · Lise–Lisans
 - `kristal-yapilar` — Kristal Yapılar (sayfa başlığı: Kristal Yapılar: Birim Hücre, Paketleme ve X-Işını Kırınımı) · Lise–Lisans
+- `mol-ve-stokiyometri` — Mol ve Stokiyometri (sayfa başlığı: Mol ve Stokiyometri: Atomları Saymak, Tartmak ve Tepkimeye Sokmak) · Lise
 - `denklem-denklestirme` — Denklem Denkleştirme (sayfa başlığı: Kimyasal Denklem Denkleştirme: Atom Sayımı, Matris Yöntemi ve Stokiyometri) · Lise–Lisans
 - `termokimya-ve-hess-yasasi` — Termokimya ve Hess Yasası (sayfa başlığı: Termokimya ve Hess Yasası: Kalorimetre, Döngüler ve Bağlar) · Lise–Lisans
 - `kimyasal-kinetik` — Kimyasal Kinetik (sayfa başlığı: Kimyasal Kinetik Laboratuvarı) · Lise–Lisans
@@ -176,10 +177,11 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `spektroskopi-beer-lambert` — Spektroskopi ve Beer–Lambert (sayfa başlığı: Spektroskopi ve Beer–Lambert Yasası: Absorbans, Kalibrasyon, UV–Vis ve IR) · Lise–Lisans
 - `organik-kimya-ve-izomeri` — Organik Kimya ve İzomeri (sayfa başlığı: Organik Kimya ve İzomeri: Fonksiyonel Gruplar, İzomerler ve Kiralite) · Lise–Lisans
 
-## Yaşam ve Sağlık (15)
+## Yaşam ve Sağlık (20)
 
 ### Hücre ve Kalıtım
 
+- `hucre-biyolojisi` — Hücre Biyolojisi (sayfa başlığı: Hücre Biyolojisi: Zar, Organeller, Taşıma ve Boyutun Sınırı) · Lise
 - `dna-replikasyon` — DNA Replikasyonu (sayfa başlığı: DNA ve Replikasyon Laboratuvarı) · Lise–Lisans
 - `gen-ifadesi-ve-molekuler-biyoloji` — Gen İfadesi ve Moleküler Bilgi Akışı (sayfa başlığı: Gen İfadesi ve Moleküler Bilgi Akışı Laboratuvarı) · Lise–Lisans
 - `mitoz-mayoz` — Mitoz & Mayoz (sayfa başlığı: Mitoz ve Mayoz Laboratuvarı) · Lise–Lisans
@@ -193,7 +195,11 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `kalp-dolasim` — Kalp & Dolaşım (sayfa başlığı: Kalp ve Dolaşım: Basınç–Hacim Döngüsü, Windkessel ve Oksijen Taşıma) · Lise–Lisans
 - `sinir-hucresi-ve-aksiyon-potansiyeli` — Sinir Hücresi ve Aksiyon Potansiyeli (sayfa başlığı: Sinir Hücresi ve Aksiyon Potansiyeli: Nernst, Hodgkin–Huxley, Eşik ve İletim) · Lise–Lisans
 - `homeostaz-ve-geri-besleme` — Homeostaz ve Geri Besleme (sayfa başlığı: Homeostaz ve Geri Besleme: Döngü, Glukoz–İnsülin, Isı ve İki Durumluluk) · Lise–Lisans
+- `bagisiklik-ve-mikrobiyoloji` — Bağışıklık ve Mikrobiyoloji (sayfa başlığı: Bağışıklık ve Mikrobiyoloji: Mikroplar, Savunma, Aşı ve Direnç) · Lise–Lisans
 - `salgin-modelleri-sir` — Salgın Modelleri (SIR) (sayfa başlığı: Salgın Modelleri (SIR): R₀, Sürü Bağışıklığı, Rastlantı ve Ağlar) · Lise–Lisans
+- `epidemiyoloji-ve-klinik-arastirma` — Epidemiyoloji ve Klinik Araştırma (sayfa başlığı: Epidemiyoloji ve Klinik Araştırma: Risk, Karıştırıcı, Randomizasyon ve Kanıt) · Lise–Lisans
+- `farmakokinetik` — Farmakokinetik (sayfa başlığı: Farmakokinetik: Bir İlaç Vücutta Nasıl Dağılır ve Nasıl Atılır) · Lise–Lisans
+- `tibbi-goruntuleme-fizigi` — Tıbbi Görüntüleme Fiziği (sayfa başlığı: Tıbbi Görüntüleme Fiziği: Röntgen, BT, Ultrason, MR ve Nükleer Tıp)
 
 ### Ekoloji ve Evrim
 
@@ -311,18 +317,20 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `roma-hukuku` — Roma Hukuku (sayfa başlığı: Roma Hukuku) · Lise–Lisans
 - `uluslararasi-iliskiler` — Uluslararası İlişkiler (sayfa başlığı: Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri) · Lise–Lisans
 
-## Dil, Felsefe ve Sanat (18)
+## Dil, Felsefe ve Sanat (20)
 
 ### Dil ve Edebiyat
 
 - `turkcenin-ses-yapisi` — Türkçenin Ses Yapısı (sayfa başlığı: Türkçenin Ses Yapısı: Ünlü Uyumu, Ünsüz Değişimi ve Hece) · Lise–Lisans
-- `sozdizimi-ve-dilbilgisi` — Sözdizimi ve Dilbilgisi (sayfa başlığı: Sözdizimi ve Dilbilgisi: Biçimbirim, Öbek, Ağaç ve Sözcük Dizimi) · Lise–Lisans
+- `turkce-dilbilgisinin-temelleri` — Türkçe Dil Bilgisinin Temelleri (sayfa başlığı: Türkçe Dil Bilgisinin Temelleri: Sözcük Türleri, Ekler ve Cümle Ögeleri) · Lise
+- `sozdizimi-ve-dilbilgisi` — Söz Dizimi ve Dil Bilgisi (sayfa başlığı: Söz Dizimi ve Dil Bilgisi: Biçimbirim, Öbek, Ağaç ve Sözcük Dizimi) · Lise–Lisans
 - `anlambilim-ve-edimbilim` — Anlambilim ve Edimbilim (sayfa başlığı: Anlambilim ve Edimbilim: Anlam İlişkileri, Frege, Kapsam, Grice, Söz Edimleri) · Lise–Lisans
 - `etimoloji-ve-dil-aileleri` — Etimoloji ve Dil Aileleri (sayfa başlığı: Etimoloji ve Dil Aileleri: Ses Denklikleri, Soy Ağaçları, Alıntılar) · Lise–Lisans
 - `zipf-yasasi-ve-dil-istatistigi` — Zipf Yasası ve Dil İstatistiği (sayfa başlığı: Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni) · Lise–Lisans
 - `aruz-ve-hece-olcusu` — Aruz ve Hece Ölçüsü (sayfa başlığı: Aruz ve Hece Ölçüsü: Türk Şiirinde Vezin ve Taktî) · Lise–Lisans
 - `anlati-yapisi-ve-edebiyat-cozumlemesi` — Anlatı Yapısı ve Edebiyat Çözümlemesi (sayfa başlığı: Anlatı Yapısı: Aristoteles, Propp ve Genette ile Metin Çözümleme) · Lise–Lisans
 - `uslup-istatistigi-ve-yazar-tanima` — Üslup İstatistiği ve Yazar Tanıma (sayfa başlığı: Üslup İstatistiği ve Yazar Tanıma: Sözcük Sayarak Yazarı Bulmak) · Lise–Lisans
+- `akademik-yazma-ve-kaynak-kullanimi` — Akademik Yazma ve Kaynak Kullanımı (sayfa başlığı: Akademik Yazma ve Kaynak Kullanımı: İddia, Kanıt, Alıntı ve Atıf) · Lise
 
 ### Felsefe ve Din
 

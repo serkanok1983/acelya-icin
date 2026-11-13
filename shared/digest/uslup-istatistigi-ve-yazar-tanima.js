@@ -143,7 +143,7 @@ window.ACELYA_DIGEST["uslup-istatistigi-ve-yazar-tanima"] = {
   ],
   glossary: [
     { term: "Stilometri (üslup istatistiği)", definition: "Yazı üslubunun ölçülebilir özelliklerini (sözcük sıklıkları, uzunluklar, harf dizileri) sayıp karşılaştırarak yazar, dönem ya da tür hakkında çıkarım yapma yöntemi." },
-    { term: "İşlev sözcüğü", definition: "Anlamdan çok dilbilgisi işi gören, her metinde sık geçen sözcük: the, of, upon; Türkçede bir, ve, bu, gibi." },
+    { term: "İşlev sözcüğü", definition: "Anlamdan çok dil bilgisi işi gören, her metinde sık geçen sözcük: the, of, upon; Türkçede bir, ve, bu, gibi." },
     { term: "Göreli sıklık", definition: "Bir birimin sayısının metindeki toplam birim sayısına bölünmesi; uzunlukları farklı metinleri karşılaştırılabilir kılar." },
     { term: "Toplam değişim uzaklığı", definition: "İki olasılık dağılımının paylarındaki farkların yarı toplamı; 0 aynı, 1 hiç örtüşmeyen dağılım." },
     { term: "Olabilirlik oranı", definition: "Gözlenen verinin bir varsayım altında, öteki varsayım altındakine göre kaç kat daha olası olduğu; Bayes kuralında önsel bahsi sonsal bahse çeviren çarpan." },

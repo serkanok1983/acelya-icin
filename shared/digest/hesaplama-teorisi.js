@@ -207,7 +207,7 @@ window.ACELYA_DIGEST["hesaplama-teorisi"] = {
     { href: "bicimsel-diller-ve-otomata-teorisi.html", title: "Biçimsel Diller ve Otomata Teorisi", why: "Bu sayfanın alt katı: Chomsky hiyerarşisi, adım adım çalışan bir sonlu otomat ve regex deney alanı. Haritadaki 'çözülebilir' bölgenin DFA sorularının neden kolay olduğunu orada görürsün." },
     { href: "algoritma-karmasikligi.html", title: "Algoritma Karmaşıklığı ve Ölçeklenme: Sınıflar, NP ve Yaklaşık Çözümler", why: "Burada tek bir makinede ölçtüğün n² büyümesinin genel dili: O, Ω ve Θ gösterimi ile büyüme sınıflarının girdi büyüdükçe nasıl ayrıştığı." },
     { href: "yasam-oyunu.html", title: "Yaşam Oyunu", why: "İki kurallı bir hücre ızgarası Turing tamdır: 'bu desen sönecek mi' sorusu da bu yüzden genel olarak karar verilemez. Planörle başla." },
-    { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "Kuramın mühendisliğe döküldüğü yer: tokenleştirici, sözdizimi ağacı ve derleme aşamaları; program davranışı hakkındaki sorular Rice teoremi yüzünden orada hep temkinle yanıtlanır." },
+    { href: "derleyici-ve-yorumlayicilar.html", title: "Derleyici ve Yorumlayıcılar", why: "Kuramın mühendisliğe döküldüğü yer: tokenleştirici, söz dizimi ağacı ve derleme aşamaları; program davranışı hakkındaki sorular Rice teoremi yüzünden orada hep temkinle yanıtlanır." },
   ],
   sources: [
     { title: "Stanford Encyclopedia of Philosophy · The Church-Turing Thesis", url: "https://plato.stanford.edu/entries/church-turing/", note: "Tezin tarihi, Church, Turing ve Post'un 1936 çalışmaları, adın Kleene'den gelişi ve tezin kanıtlanıp kanıtlanamayacağı tartışması (İngilizce, titiz)." },

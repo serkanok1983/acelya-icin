@@ -20,7 +20,7 @@ ok(Object.isFrozen(K)&&Object.isFrozen(K.MISTAKES)&&Object.isFrozen(K.TOPICS));
    ifade := terim (± terim)* ; terim := tekli ((×|÷|yan yana) tekli)* ; tekli := −tekli | +tekli | üs ; üs := öğe (^ tekli)? */
 function refEval(src){const s=String(src).replace(/[\s  ]/g,'').replace(/[−–]/g,'-').replace(/[×·xX]/g,'*').replace(/[÷:]/g,'/')
   .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g,m=>'^'+[...m].map(c=>'⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(c)).join('')).replace(/[[{]/g,'(').replace(/[\]}]/g,')');let i=0;
-  const peek=()=>s[i],fail=()=>{throw new Error('ref sözdizimi '+src);};
+  const peek=()=>s[i],fail=()=>{throw new Error('ref söz dizimi '+src);};
   function atom(){if(peek()==='('){i++;const v=expr();if(s[i++]!==')')fail();return v;}const m=/^\d+(?:[.,]\d+)?/.exec(s.slice(i));if(!m)fail();i+=m[0].length;return Number(m[0].replace(',','.'));}
   function power(){const b=atom();if(peek()==='^'){i++;const e=unary();if(b===0&&e<=0)throw new Error('tanımsız');return b**e;}return b;}
   function unary(){if(peek()==='-'){i++;return -unary();}if(peek()==='+'){i++;return unary();}return power();}
