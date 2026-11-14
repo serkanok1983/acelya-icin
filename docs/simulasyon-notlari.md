@@ -2096,3 +2096,35 @@ Ek kurallar: `.shots/briefs/_onsart.md` "U3 additions" (tıp: tanı/doz/tedavi �
 
 Ayrıca: sitenin her yerinde "dilbilgisi/sözdizimi" → "dil bilgisi/söz dizimi" (TDK GTS'de bitişik biçim yok); komşu
 sayfa başlığı "Söz Dizimi ve Dil Bilgisi"; cebir sayfasında yaş problemine gerçekçilik denetimi.
+
+## 13–14 Kasım 2026 — U4: hukukçu ve genetik yolları (8 sayfa)
+
+Ek kurallar: `.shots/briefs/_onsart.md` "U4 additions" (hukuk: danışmanlık yok, mevzuat yalnız resmî metinden numara/madde/
+sürüm tarihiyle, ≤15 sözcük alıntı, "kurgusal olay" etiketi, sıkı siyasi yansızlık; genetik: diziler erişim numarasıyla,
+laboratuvar yöntemleri yalnız kavram düzeyinde, insan çeşitliliğinde sıralama ve belirlenimcilik yok). Mevzuat
+mevzuat.gov.tr'den 13 Kasım 2026 metinleriyle denetlendi. Doğrulayıcı puanları (önce → sonra).
+
+- `hukuka-giris` (7 → 8,5): hukuk kuralı ve dallar, kaynaklar ve TMK m. 1, normlar hiyerarşisi çözücüsü, "parka araç"
+  yorum laboratuvarı, ehliyet hesaplayıcı, yargı örgütü. Süre alıştırmaları cumartesinin durumuna bağlı olayları hiç
+  üretmez (resmî kaynakla doğrulanamadı; 2429 m. 3 hafta tatilini pazar sayar); "gerçek süre için kullanmayın" notu.
+- `anayasa-hukuku-ve-temel-haklar` (8 → 9): m. 175 değişiklik simülatörü (iade sonrası 360–399 oy metinde açık
+  değil), 1808–2017 zaman çizelgesi (değerlendirmesiz, referandum oranı yok), hükümet sistemleri, m. 13 ölçülülük
+  adımları, AYM bireysel başvuru ve AİHM karar ağacı. HSK m. 159 ve 6087 geçici m. 8, kadınlara seçme hakkının
+  1930/1933/1934 adımları kaynakla düzeltildi.
+- `ceza-hukukunun-genel-ilkeleri` (7 → 9): kanunilik, TCK m. 7 zaman aracı (160 durum bağımsız kodla), kast/taksir
+  ağacı, 12 kurgusal olay (tartışmalı adımlarda iki cevap), teşebbüs ve iştirak; ceza hesaplayıcısı bilerek yok.
+- `borclar-ve-sozlesme-hukuku` (7 → 8,5): öneri ve kabul zaman çizelgesi (29 105 rastgele senaryo bağımsız kodla),
+  şekil, irade bozuklukları, haksız fiil adımları, hukuk ve iktisat (güven oyunu). TBK m. 8/2: fiyatlı vitrin öneridir.
+- `hukuk-felsefesi` (7,5 → 8,5): okullar ve tezler, Hart–Fuller argüman haritası (Dung 1995 çerçevesi; kazanan yok),
+  Radbruch ve savaş sonrası davalar, zor davalar, adalet kuramları (sayfanın kendi modelleri), sivil itaatsizlik.
+- `populasyon-genetigi` (8 → 9): Hardy–Weinberg ve χ² (Ford 1971), Wright–Fisher sürüklenme, seçilim ve orak hücre,
+  ada modeli F_ST (≤ 1), insan çeşitliliği (Lewontin 1972 ve tartışma; NASEM 2023, NHGRI, ASHG).
+- `biyoinformatik-ve-dizi-hizalama` (7,5 → 9): genetik kod ve ORF (NM_000207.3 = UniProt P01308), nokta grafiği,
+  NW/SW (küçük örneklerde kaba kuvvetle), BLOSUM62 ve Gotoh, karıştırma testi, JC uzaklığı, UPGMA/NJ, bootstrap.
+- `gen-muhendisligi` (8 → 9): pUC19 (L09137.2) üzerinde sanal kesim ve jel, PCR ve Cq, primer T_m, dizileme ve kapsama,
+  CRISPR kılavuz bulucu ve onarım benzetimi, tarihli etik tartışmalar; ıslak laboratuvar yordamı yok. HDR kaydırıcısını etkisiz bırakan yinelenen
+  `rpHdr` id'si ve yanıtı çoğunlukla 0 çıkan kesim yeri alıştırması düzeltildi; sayfada yinelenen id olmadığı test ediliyor.
+
+Ayrıca: menüde "İnsan ve Toplum" grubuna "Hukuk" ara başlığı (Roma Hukuku oraya taşındı); roma-hukuku.html'de borçların
+dörtlü ayrımı Justinianus Institutiones 3.13'e düzeltildi (Gaius'ta ikili); check-site izinli kaynaklarına hukuk ve
+genetik alan adları eklendi.

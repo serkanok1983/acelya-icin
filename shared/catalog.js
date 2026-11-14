@@ -59,6 +59,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "anayasa-hukuku-ve-temel-haklar": {
+    "title": "Anayasa Hukuku: Değişiklik, Sınırlama, Ölçülülük",
+    "tagline": "Bir anayasa değişikliği 372 oyla mı yürürlüğe girer, 400 oyla mı? Bir hak hangi adımda sınırlanamaz hâle gelir? m. 175 yolunu yürüt, m. 13 testini kurgusal olaylara uygula, bir işin hangi mahkemeye gittiğini bul.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
   "anlambilim-ve-edimbilim": {
     "title": "Anlambilim ve Edimbilim: Söylenen, Kastedilen, Varsayılan",
     "tagline": "“Bazı öğrenciler geçti” hepsinin geçmediğini söyler mi, yoksa yalnız ima mı eder? Anlamın katmanlarını sezgiyle değil, iptal ve olumsuzlama sınamalarıyla, küçük dünyalarda durum sayarak ayırmayı öğren.",
@@ -255,6 +262,20 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "biyoinformatik-ve-dizi-hizalama": {
+    "title": "Biyoinformatik: Dizileri Hizalamak, Ağaç Kurmak",
+    "tagline": "Gerçek insülin ve globin dizilerinde gen ara, hizalama tablosunu göz göz doldur, bir benzerliğin şans eseri olup olmadığını karıştırarak ölç ve uzaklıklardan soy ağacı kur.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 55
+  },
+  "borclar-ve-sozlesme-hukuku": {
+    "title": "Borçlar ve Sözleşme Hukuku: Öneri, Kabul, Sorumluluk",
+    "tagline": "Mektupla giden bir öneri, yolda kalan bir kabul, kaçan bir köpek: sözleşmenin ne zaman kurulduğunu ve kimin zararı gidereceğini Türk Borçlar Kanunu'nun maddeleriyle adım adım çöz.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
   "breakout": {
     "title": "Breakout: Yansıyan Top, Kırılan Duvar",
     "tagline": "1976'da Pong'un tek kişilik hâli olarak doğdu; devresini Steve Wozniak dört gecede kurdu. Altında yansıma yasasının vektör hâli, kutu çarpışması ve ayrık zamanın tuzakları var.",
@@ -275,6 +296,13 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "ceza-hukukunun-genel-ilkeleri": {
+    "title": "Ceza Hukukunun Genel İlkeleri: Kanunsuz Suç Olmaz",
+    "tagline": "Devlet kimi, neden ve hangi koşulla cezalandırabilir? Kanunilik, lehe kanun, kast ile taksirin sınırı ve suçun basamakları; kurgusal olaylarla adım adım. Hukuki danışmanlık değildir.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 40
   },
   "cift-sarkac": {
     "title": "Çift Sarkaç: Belirlenimci ama Öngörülemez",
@@ -577,6 +605,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "gen-muhendisligi": {
+    "title": "Gen Mühendisliği: Kes, Çoğalt, Oku, Değiştir",
+    "tagline": "Gerçek pUC19 plazmitini bilgisayarda kes, PCR'ın eşik döngüsünden başlangıç miktarını geri hesapla, yapay bir kromatogramı oku ve bir dizide Cas9'un kesebileceği yerleri say.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 50
+  },
   "genetik-caprazlama": {
     "title": "Genetik Çaprazlama: Bezelyeden Gen Haritasına",
     "tagline": "Mendel'in 3 : 1'i bir kota değil, bir olasılıktır. Yavruları tek tek say ve ki-kareyle sına; X'e bağlı genleri soyağacında izle, bağlı genlerin ne sıklıkla ayrıldığından kromozom haritası çıkar.",
@@ -672,6 +707,20 @@ window.ACELYA_CATALOG = {
     "title": "Hücre Biyolojisi: Zar, Organeller ve Boyutun Sınırı",
     "tagline": "Hücreler neden bu kadar küçük, mikroskop neden 200 nm'de durur, alyuvar saf suda neden patlar? Organelleri tanı, sonra ölçeği, difüzyonu ve osmozu sayılarla kendin sına.",
     "field": "Biyoloji",
+    "level": "Lise",
+    "minutes": 40
+  },
+  "hukuk-felsefesi": {
+    "title": "Hukuk Felsefesi: Kötü Yasa da Yasa mıdır?",
+    "tagline": "Bir kuralı hukuk yapan nedir, adaletsiz bir yasaya uymak gerekir mi, adalet nedir? Okulları tezleriyle ve itirazlarıyla haritalandır, Hart–Fuller tartışmasını bir argüman ağında çalıştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 40
+  },
+  "hukuka-giris": {
+    "title": "Hukuka Giriş: Norm, Kaynak, Yorum",
+    "tagline": "Parka araçla girmek yasaksa ambulans girebilir mi? Hukuk kuralını ayır, kaynağını bul, çatışan iki normdan hangisinin uygulanacağını çöz ve bir kuralı dört yöntemle yorumla.",
+    "field": "Toplum ve Ekonomi",
     "level": "Lise",
     "minutes": 40
   },
@@ -1283,6 +1332,13 @@ window.ACELYA_CATALOG = {
     "field": "Oyun",
     "level": "Lise hazırlık",
     "minutes": 25
+  },
+  "populasyon-genetigi": {
+    "title": "Popülasyon Genetiği: Gen Havuzunun Matematiği",
+    "tagline": "Gerçek bir güve sayımını Hardy–Weinberg'e karşı sına, rastlantının bir aleli nasıl sabitlediğini yüzlerce popülasyonda ölç, seçilimin ve göçün hızını kuramla karşılaştır.",
+    "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 50
   },
   "programlama-paradigmalari": {
     "title": "Programlama Paradigmaları: Aynı İş, Farklı Kafalar",

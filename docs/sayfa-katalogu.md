@@ -1,6 +1,6 @@
 # Sayfa Kataloğu
 
-Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden gruplandırma; plan: `docs/OGRENME-YOLLARI-PLANI.md`). `next` bağlantıları için slugları buradan seç. Öğrenme yolları ve önşart dizileri `shared/yollar.js` içinde.
+Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalogu.mjs` üretir; plan: `docs/OGRENME-YOLLARI-PLANI.md`). `next` bağlantıları için slugları buradan seç; başlık hedefin `<title>`ıyla aynı olmalı. Öğrenme yolları ve önşart dizileri `shared/yollar.js` içinde.
 
 ## Matematik (52)
 
@@ -177,7 +177,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `spektroskopi-beer-lambert` — Spektroskopi ve Beer–Lambert (sayfa başlığı: Spektroskopi ve Beer–Lambert Yasası: Absorbans, Kalibrasyon, UV–Vis ve IR) · Lise–Lisans
 - `organik-kimya-ve-izomeri` — Organik Kimya ve İzomeri (sayfa başlığı: Organik Kimya ve İzomeri: Fonksiyonel Gruplar, İzomerler ve Kiralite) · Lise–Lisans
 
-## Yaşam ve Sağlık (20)
+## Yaşam ve Sağlık (23)
 
 ### Hücre ve Kalıtım
 
@@ -186,6 +186,9 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `gen-ifadesi-ve-molekuler-biyoloji` — Gen İfadesi ve Moleküler Bilgi Akışı (sayfa başlığı: Gen İfadesi ve Moleküler Bilgi Akışı Laboratuvarı) · Lise–Lisans
 - `mitoz-mayoz` — Mitoz & Mayoz (sayfa başlığı: Mitoz ve Mayoz Laboratuvarı) · Lise–Lisans
 - `genetik-caprazlama` — Genetik Çaprazlama (sayfa başlığı: Genetik Çaprazlama: Mendel Oranları, Ki-Kare ve Bağlı Genler) · Lise–Lisans
+- `populasyon-genetigi` — Popülasyon Genetiği (sayfa başlığı: Popülasyon Genetiği: Hardy–Weinberg, Sürüklenme, Seçilim ve Göç) · Lise–Lisans
+- `biyoinformatik-ve-dizi-hizalama` — Biyoinformatik ve Dizi Hizalama (sayfa başlığı: Biyoinformatik: Dizi Hizalama, Puanlama Matrisleri ve Soy Ağaçları) · Lise–Lisans
+- `gen-muhendisligi` — Gen Mühendisliği (sayfa başlığı: Gen Mühendisliği: Kesme, Yapıştırma, PCR ve CRISPR'ın Mantığı) · Lise–Lisans
 - `enzim-kinetigi` — Enzim Kinetiği (sayfa başlığı: Enzim Kinetiği Laboratuvarı) · Lise–Lisans
 - `fotosentez-solunum` — Fotosentez & Solunum (sayfa başlığı: Fotosentez ve Solunum Laboratuvarı: Enerji, Işık, Proton) · Lise–Lisans
 
@@ -199,7 +202,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `salgin-modelleri-sir` — Salgın Modelleri (SIR) (sayfa başlığı: Salgın Modelleri (SIR): R₀, Sürü Bağışıklığı, Rastlantı ve Ağlar) · Lise–Lisans
 - `epidemiyoloji-ve-klinik-arastirma` — Epidemiyoloji ve Klinik Araştırma (sayfa başlığı: Epidemiyoloji ve Klinik Araştırma: Risk, Karıştırıcı, Randomizasyon ve Kanıt) · Lise–Lisans
 - `farmakokinetik` — Farmakokinetik (sayfa başlığı: Farmakokinetik: Bir İlaç Vücutta Nasıl Dağılır ve Nasıl Atılır) · Lise–Lisans
-- `tibbi-goruntuleme-fizigi` — Tıbbi Görüntüleme Fiziği (sayfa başlığı: Tıbbi Görüntüleme Fiziği: Röntgen, BT, Ultrason, MR ve Nükleer Tıp)
+- `tibbi-goruntuleme-fizigi` — Tıbbi Görüntüleme Fiziği (sayfa başlığı: Tıbbi Görüntüleme Fiziği: Röntgen, BT, Ultrason, MR ve Nükleer Tıp) · Lise–Lisans
 
 ### Ekoloji ve Evrim
 
@@ -288,7 +291,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `yoneylem-arastirmasi` — Yöneylem Araştırması (sayfa başlığı: Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol) · Lise–Lisans
 - `uretim-planlama-ve-endustri-muhendisligi` — Üretim Planlama ve Endüstri Mühendisliği (sayfa başlığı: Üretim Planlama: Stok, Kalite ve Akış) · Lise–Lisans
 
-## İnsan ve Toplum (18)
+## İnsan ve Toplum (23)
 
 ### Zihin ve Davranış
 
@@ -308,14 +311,22 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (13 Kasım 2026 yeniden grupl
 - `demografi-ve-nufus` — Demografi ve Nüfus (sayfa başlığı: Demografi: Doğurganlık, Yaşam Tablosu, Nüfus Piramidi ve Projeksiyon) · Lise–Lisans
 - `sosyal-modeller-ve-aglar` — Sosyal Modeller ve Ağlar (sayfa başlığı: Sosyal Modeller ve Ağlar: Basit Kurallar, Şaşırtıcı Toplumlar) · Lise–Lisans
 
-### Ekonomi, Hukuk ve Siyaset
+### Ekonomi ve Siyaset
 
 - `mikro-ekonomi-ve-uretim-faktorleri` — Mikro Ekonomi ve Üretim Faktörleri (sayfa başlığı: Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma) · Lise–Lisans
 - `makro-ekonomi-ve-para-politikalari` — Makro Ekonomi ve Para Politikaları (sayfa başlığı: Makro Ekonomi: Çarpanlar, Para ve Büyüme Modelleri) · Lise–Lisans
 - `isletme-bilimi-ve-yonetim` — İşletme Bilimi ve Yönetim (sayfa başlığı: İşletme Bilimi: Başabaş, Yatırım, Mali Tablolar ve Karar) · Lise–Lisans
 - `oyun-kurami` — Oyun Kuramı (sayfa başlığı: Oyun Kuramı: Nash Dengesi, Minimaks ve İşbirliğinin Evrimi) · Lise–Lisans
-- `roma-hukuku` — Roma Hukuku (sayfa başlığı: Roma Hukuku) · Lise–Lisans
 - `uluslararasi-iliskiler` — Uluslararası İlişkiler (sayfa başlığı: Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri) · Lise–Lisans
+
+### Hukuk
+
+- `hukuka-giris` — Hukuka Giriş (sayfa başlığı: Hukuka Giriş: Norm, Kaynak, Normlar Hiyerarşisi ve Yorum) · Lise
+- `roma-hukuku` — Roma Hukuku (sayfa başlığı: Roma Hukuku) · Lise–Lisans
+- `anayasa-hukuku-ve-temel-haklar` — Anayasa Hukuku ve Temel Haklar (sayfa başlığı: Anayasa Hukuku ve Temel Haklar: Kuvvetler Ayrılığı, Sınırlama ve Ölçülülük) · Lise–Lisans
+- `ceza-hukukunun-genel-ilkeleri` — Ceza Hukukunun Genel İlkeleri (sayfa başlığı: Ceza Hukukunun Genel İlkeleri: Kanunilik, Suçun Unsurları, Kast ve Taksir) · Lise–Lisans
+- `borclar-ve-sozlesme-hukuku` — Borçlar ve Sözleşme Hukuku (sayfa başlığı: Borçlar ve Sözleşme Hukuku: Öneri, Kabul, İfa, Haksız Fiil ve Sorumluluk) · Lise–Lisans
+- `hukuk-felsefesi` — Hukuk Felsefesi (sayfa başlığı: Hukuk Felsefesi: Doğal Hukuk, Pozitivizm, Adalet ve Hukukun Otoritesi) · Lise–Lisans
 
 ## Dil, Felsefe ve Sanat (20)
 

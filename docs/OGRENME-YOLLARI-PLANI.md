@@ -107,5 +107,100 @@ hasta verisi.
   kullanımı, bağışıklık ve mikrobiyoloji, farmakokinetik, epidemiyoloji ve klinik araştırma, tıbbi görüntüleme fiziği.
   Tıp sayfaları `.shots/briefs/_onsart.md` "U3 additions" kurallarıyla (tanı/doz/tedavi önerisi yok, yapay veri etiketli,
   "İlaç A", 112 notu). TDK yazımı: "dil bilgisi", "söz dizimi" sitenin her yerinde ayrı yazıldı. 17 ders hazırlanıyor.
-- Sırada U4: hukuka giriş, anayasa hukuku ve temel haklar, ceza hukukunun genel ilkeleri, borçlar ve sözleşme hukuku,
-  hukuk felsefesi, popülasyon genetiği, biyoinformatik ve dizi hizalama, gen mühendisliği.
+- U4 ✔ 14 Kasım: hukuka-giris, anayasa-hukuku-ve-temel-haklar, ceza-hukukunun-genel-ilkeleri,
+  borclar-ve-sozlesme-hukuku, hukuk-felsefesi, populasyon-genetigi, biyoinformatik-ve-dizi-hizalama, gen-muhendisligi.
+  Menüde "İnsan ve Toplum" > "Hukuk" ara başlığı. 9 ders hazırlanıyor (U5). Devir notu: `docs/DEVIR-NOTU.md`.
+- **Sırada U5:** ısı transferi, zemin mekaniği, kuyruk kuramı ve benzetim, kalite kontrol, finans matematiği, yapı fiziği,
+  kent planlama, gelişim psikolojisi, sosyal psikoloji.
+- Sonra U6 (kullanıcı 13 Kasım'da onayladı): psikoloji kuramları ve ekolleri, üçüncü halka kurallarıyla
+  (`.shots/briefs/_ucuncu-halka.md`; tanı/tedavi önerisi yok, ekoller çatışan okullar olarak):
+  psikoloji ekolleri ve tarihi (yapısalcılık, işlevselcilik, psikanaliz, davranışçılık, Gestalt, hümanistik, bilişsel,
+  evrimsel, sinirbilimsel) · öğrenme kuramları (klasik/edimsel koşullanma, pekiştirme tarifeleri, sosyal öğrenme) ·
+  kişilik kuramları (psikodinamik, Büyük Beşli, sosyal-bilişsel, hümanistik; kalıtım–çevre, ikiz çalışmaları) ·
+  psikopatoloji modelleri ve psikoterapi ekolleri (biyopsikososyal, stres-yatkınlık; terapi kuramları ve kanıt
+  tartışmaları) · motivasyon ve duygu kuramları. Bu dersler `shared/yollar.js` psikolog (ve hekim "Zihin") yoluna eklenecek.
+
+## 5. Düşünce tarihi: kuramcılar ve ekoller (kullanıcı isteği, 13 Kasım 2026)
+
+Kullanıcı: "Freud, Adler, Jung, Lacan vb. tüm major fikirler olsun. Felsefe tarafını da böyle isterim (Kant, Hegel,
+Fichte, Nietzsche, Schopenhauer, Kierkegaard, Spinoza vb.). Sosyal bilimde de Locke, Haldun, Weber, Habermas, Marx, Smith,
+Keynes vb. Özetle haberdar olmamız gereken klasik/modern herkes olsun."
+
+Biçim önerisi: kişi başına değil, ekol/dönem başına bir sayfa (bir düşünür birden çok sayfada geçebilir). Her sayfada:
+her düşünürün temel soruları, ana kavramları, başlıca eserleri (tarihli), etkilediği/etkilendiği kişiler, en güçlü
+eleştiriler ve yanıtlar (SEP/IEP); etkileşim: kavram haritası, argüman haritası, zaman çizelgesi, "kim söyledi?",
+kamu malı metinlerden yakın okuma (yazar 1956'dan önce ölmüşse kısa alıntı; değilse yalnız açımlama). Yansızlık:
+hiçbir okul kazanan ilan edilmez. Ayrıca aranabilir bir **Düşünürler Dizini** sayfası: her düşünür → hangi sayfalarda.
+
+### U6 · Psikoloji ve psikanaliz (genişletildi, ~10 ders)
+Psikoloji ekolleri ve tarihi (Wundt, James, Gestalt) · Freud ve klasik psikanaliz · psikanalizden ayrılanlar
+(Adler, Jung, Rank, Reich) · ego psikolojisi ve nesne ilişkileri (Anna Freud, Klein, Winnicott, Bowlby, Erikson,
+Kohut) · Lacan ve yapısalcı psikanaliz; Fromm, Horney · davranışçılık ve öğrenme kuramları (Pavlov, Watson,
+Thorndike, Skinner, Bandura) · hümanistik ve varoluşçu psikoloji (Maslow, Rogers, Frankl, May) · bilişsel psikoloji
+ve bilişsel terapi (Piaget ve Vygotsky gelişim sayfasıyla bağlı; Beck, Ellis) · kişilik kuramları · psikopatoloji
+modelleri ve psikoterapi ekolleri · motivasyon ve duygu kuramları.
+
+### U7 · Felsefe tarihi (~12 ders)
+Sokrates öncesi · Platon · Aristoteles · Helenistik felsefe (Stoa, Epikür, şüphecilik) · Orta Çağ ve İslam felsefesi
+(Augustinus, Farabi, İbn Sina, Gazali, İbn Rüşd, Aquinas) · Rasyonalistler (Descartes, Spinoza, Leibniz) · Empiristler
+(Locke, Berkeley, Hume) · Kant · Alman idealizmi (Fichte, Schelling, Hegel) · 19. yüzyıl (Schopenhauer, Kierkegaard,
+Nietzsche, Mill) · fenomenoloji ve varoluşçuluk (Husserl, Heidegger, Sartre, Beauvoir, Camus) · analitik felsefe
+(Frege, Russell, Wittgenstein, Viyana Çevresi, Quine) · pragmatizm · yapısalcılık ve sonrası (Saussure, Lévi-Strauss,
+Foucault, Derrida, Deleuze).
+
+### U8 · Sosyal bilimler ve siyaset kuramı (~10 ders)
+Toplum sözleşmesi ve siyaset felsefesi (Machiavelli, Hobbes, Locke, Rousseau, Montesquieu) · İbn Haldun ve tarih
+felsefesi (Vico, Hegel, Spengler, Toynbee) · klasik iktisat (Smith, Ricardo, Malthus, Mill) · Marx ve Marksist gelenek
+· sosyolojinin kurucuları (Comte, Durkheim, Weber, Simmel, Tönnies) · neoklasik iktisat, Keynes ve karşıtları (Marshall,
+Keynes, Hayek, Friedman, Avusturya okulu, kurumsal iktisat) · Frankfurt Okulu ve Habermas · 20. yüzyıl sosyal kuramı
+(Parsons, Merton, Goffman, Bourdieu, Giddens, Luhmann) · antropoloji kuramları (Malinowski, Boas, Lévi-Strauss, Geertz)
+· modern siyaset kuramı (Arendt, Schmitt, Berlin, Rawls, Nozick, Taylor, MacIntyre, feminist kuram).
+
+Menü: düşünce tarihi sayfaları için gerekirse ayrı bir **Düşünce Tarihi** grubu (yaklaşık 30 sayfa), böylece "Dil,
+Felsefe ve Sanat" ile "İnsan ve Toplum" şişmez.
+
+## 6. Okuma ve izleme yetkinliği: edebiyat ve sinema ekolleri (kullanıcı isteği, 13 Kasım 2026)
+
+Kullanıcı: "300 ders de olur 500 ders de, bunu STEM diye sınırlandırmayalım. Okuyan okuyucu bir film izlediğinde, bir
+roman okuduğunda her detayı, her katmanı, her değişimi okuyabilmeli, farkındalığı artmalı, analiz yeteneği güçlenmeli.
+Bu bağlamda psikoloji ile beraber edebiyat ve sinema ekolleri de güçlendirilebilir. Anlatım, kurgu, karakter psikolojisi vb."
+
+Amaç: okura bir eseri katman katman okuma araçları vermek. Her sayfa çözümleme yaptırır: kamu malı metin ve filmlerde
+(yazar/yönetmen 1956'dan önce ölmüş, ABD için 1930 ve öncesi yayım) okur katmanları kendisi işaretler; telifli
+çağdaş eserler yalnız kendi sözlerimizle, görüntü ve uzun alıntı olmadan anılır. Psikoloji sayfalarıyla (U6) bağlanır:
+karakterin savunma mekanizmaları, arketipler, motivasyon, bağlanma örüntüleri kurgu karakterlerinde okunur.
+
+### U9 · Edebiyat kuramı ve çözümleme (~10 ders)
+Edebiyat akımları (klasisizm, romantizm, realizm, natüralizm, sembolizm, modernizm, postmodernizm; Türk edebiyatında
+Divan, Tanzimat, Servet-i Fünun, Millî Edebiyat, Garip, İkinci Yeni) · eleştiri kuramları I (Rus biçimciliği, Yeni
+Eleştiri, yapısalcılık ve göstergebilim: Saussure, Barthes) · eleştiri kuramları II (okur tepkisi/alımlama: Iser, Jauss;
+psikanalitik, Marksist, feminist, postkolonyal: Said; yapısöküm) · karakter ve karakter psikolojisi (düz/yuvarlak,
+karakter arkı, motivasyon, iç çatışma, arketipler ve kahramanın yolculuğu tartışmalı bir model olarak, güvenilmez
+anlatıcı) · anlatım teknikleri (bakış açısı, iç monolog, bilinç akışı, serbest dolaylı anlatım, zaman kurgusu —
+mevcut Anlatı Yapısı sayfasına bağlanır) · imge, sembol, alegori, ironi ve söz sanatları (retorik) · dram ve tiyatro
+(Aristoteles'ten Shakespeare, Ibsen, Çehov, Brecht'in epik tiyatrosu, absürt tiyatro) · türlerin poetikası (trajedi,
+komedi, roman, öykü, polisiye, bilimkurgu, fantastik: Todorov) · şiir çözümleme (imge, ses, ölçü; aruz sayfasına bağlı)
+· metinlerarasılık ve uyarlama (romandan filme).
+
+### U10 · Sinema kuramı, akımları ve film çözümleme (~9 ders)
+Sinema akımları (Sovyet montajı, Alman dışavurumculuğu, klasik Hollywood, İtalyan yeni gerçekçiliği, Fransız Yeni Dalgası,
+Japon sineması, Yeşilçam ve Türk sineması, Dogme, çağdaş) · film kuramları (biçimci: Eisenstein, Arnheim; gerçekçi:
+Bazin, Kracauer; auteur kuramı; göstergebilim: Metz; psikanalitik ve feminist: Mulvey; bilişsel: Bordwell) · senaryo ve
+dramaturji (üç perde ve alternatifleri, çatışma, karakter arkı, alt metin) · mizansen (kadraj, ışık, renk, set,
+kostüm) · kurgu ve zaman (mevcut Sinema Dili ve Kurgu sayfasının devamı: anlatı kurgusu, paralel kurgu, elips,
+geri dönüş) · ses ve film müziği (diegetik/diegetik olmayan, leitmotif) · oyunculuk yöntemleri (Stanislavski, Method,
+Brecht) · belgesel ve deneysel sinema · film çözümleme atölyesi (kamu malı filmler üzerinde sahne sahne okuma).
+
+Menü: U9 ve U10 için "Dil, Felsefe ve Sanat" grubu bölünebilir (ör. "Edebiyat ve Sinema" ayrı grup). Sıra:
+U4 bitir → U5 → U6 → U7 → U8 → U9 → U10. Kapsamda üst sınır yok; kullanıcı "500 ders de olur" dedi.
+
+## 7. U10'dan sonra: genel değerlendirme (kullanıcı isteği, 13 Kasım 2026)
+
+1. **İçerik zenginliği ve kalite denetimi, boşluk analizi.** Bütün sitenin alan alan haritası: hangi alanlar derin,
+   hangileri ince; yollarda ve önşartta eksik basamaklar; eski (U öncesi) sayfaların yeni sayfalarla kalite farkı
+   (doğrulayıcı puanları, defter derinliği, alıştırma ve hata kartı var mı); sayfalar arası bağlantı ağının kopuk
+   yerleri; çelişen ya da yinelenen içerik. Çıktı: önceliklendirilmiş boşluk listesi ve yeni tur önerileri.
+2. **UI/UX değerlendirmesi, son hâliyle.** Ana menü (grup sayısı, ara başlıklar, arama), Öğrenme Yolları ve Önşart
+   sayfaları, sayfa içi gezinme (sekmeler, uzun sayfalar), Keşif Defteri okunurluğu, telefon ve tablet deneyimi,
+   erişilebilirlik (klavye, ekran okuyucu, renk karşıtlığı), açık/koyu tema tutarlılığı, yükleme hızı ve sayfa
+   boyutları, sayfalar arası görsel tutarlılık. Çıktı: bulgular ve düzeltme turu planı.
