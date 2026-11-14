@@ -1,4 +1,4 @@
-# Devir notu — Açelya'nın Yeri (14 Kasım 2026)
+# Devir notu — Açelya'nın Yeri (15 Kasım 2026)
 
 Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek için yazıldı. Önce bunu, sonra
 `docs/OGRENME-YOLLARI-PLANI.md` dosyasını oku. Ayrıntı gerektikçe aşağıda adı geçen öteki belgelere in.
@@ -133,7 +133,15 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
 - **İzinli kaynak alan adları:** `scripts/check-site.mjs` içindeki `SOURCE_PREFIXES` (yalnız defterler için
   denetlenir). Yeni alanlar için gerekirse resmî/akademik alan adı ekle. `FIELDS` listesi defterlerin `field` değerleri.
 
-## 6. Durum (14 Kasım 2026)
+## 6. Durum (15 Kasım 2026, devir anı)
+
+- Son commit: `ee9fbc5` (U4) `main`'de ve uzakta; canlı `sw.js` sürümü `acelya-0a90f61dea`, U4 dosyalarının canlı
+  özetleri depoyla birebir (doğrulandı). Çalışma ağacı temiz; arka planda çalışan ajan ya da test yok.
+- Son tam test turu (15 Kasım): site 0 · yollar 1075 kontrol · test:g 159/159 · public/a7/f1/f2/c/d/e 0 · smoke 0 ·
+  mobil 360/768 ve kaydırma 0. Tam tur artık ~70 dakika sürüyor (test:g tek başına ~50 dk); arka planda çalıştır.
+- Bir sonraki iş: **U5** (aşağıda). İlk adım: `docs/ajan-sozlesmeleri/_onsart.md` sonuna "U5 additions" bölümü
+  (mühendislik hesapları, finans: yatırım tavsiyesi yok, kent planlama ve psikoloji için yansızlık/etik), gerekirse
+  `SOURCE_PREFIXES`'e alan adları, sonra dokuz kurucu.
 
 ### Tamamlanan turlar (hepsi yayında)
 - **U1** — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
