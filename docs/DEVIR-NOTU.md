@@ -11,7 +11,7 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (dal `main`).
 - **Canlı:** https://serkanok1983.github.io/acelya-icin (GitHub Pages, `gh-pages` dalı; GitHub Actions kullanılmıyor,
   yayın yerelden elle yapılır, bkz. §5).
-- **Boyut (14 Kasım, U4 sonrası):** 255 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
+- **Boyut (15 Kasım, U5 sonrası):** 264 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
   `onsart.html`. Menüde 10 grup.
 
 ## 2. Kullanıcının kalıcı kuralları (bağlayıcı; birebir sözleri)
@@ -135,13 +135,13 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
 
 ## 6. Durum (15 Kasım 2026, devir anı)
 
-- Son commit: `ee9fbc5` (U4) `main`'de ve uzakta; canlı `sw.js` sürümü `acelya-0a90f61dea`, U4 dosyalarının canlı
-  özetleri depoyla birebir (doğrulandı). Çalışma ağacı temiz; arka planda çalışan ajan ya da test yok.
-- Son tam test turu (15 Kasım): site 0 · yollar 1075 kontrol · test:g 159/159 · public/a7/f1/f2/c/d/e 0 · smoke 0 ·
-  mobil 360/768 ve kaydırma 0. Tam tur artık ~70 dakika sürüyor (test:g tek başına ~50 dk); arka planda çalıştır.
-- Bir sonraki iş: **U5** (aşağıda). İlk adım: `docs/ajan-sozlesmeleri/_onsart.md` sonuna "U5 additions" bölümü
-  (mühendislik hesapları, finans: yatırım tavsiyesi yok, kent planlama ve psikoloji için yansızlık/etik), gerekirse
-  `SOURCE_PREFIXES`'e alan adları, sonra dokuz kurucu.
+- U4 yayınından sonraki sürüm `acelya-0a90f61dea` idi. Güncel commit ve önbellek sürümü için `git log -1` ve
+  `sw.js` kullanılır. Canlı doğrulama adımları §5'te.
+- U4 sonundaki tam test turu (15 Kasım) site, yollar, test:g (159/159), public/a7/f1/f2/c/d/e, smoke ve
+  mobil denetimlerinden geçti. Bu tur yaklaşık 70 dakika sürmüştü.
+- U5 ile 264 dersin tamamı katalogda. U5 modelleri `scripts/check-g-u5.mjs --browser` ile sınanır.
+  Masaüstü ana sayfanın belge kaydırması `scripts/check-yollar.mjs --browser` kapsamındadır.
+- Bir sonraki iş: **U6** (aşağıda).
 
 ### Tamamlanan turlar (hepsi yayında)
 - **U1** — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
@@ -152,26 +152,25 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
 - **U4** — hukukçu ve genetik yolları (8 ders): hukuka-giris, anayasa-hukuku-ve-temel-haklar,
   ceza-hukukunun-genel-ilkeleri, borclar-ve-sozlesme-hukuku, hukuk-felsefesi, populasyon-genetigi,
   biyoinformatik-ve-dizi-hizalama, gen-muhendisligi. Menüde "İnsan ve Toplum" > yeni "Hukuk" ara başlığı.
+- **U5** — ısı transferi, zemin mekaniği, kuyruk kuramı ve benzetim, kalite kontrol, finans matematiği,
+  yapı fiziği, kent planlama, gelişim psikolojisi ve sosyal psikoloji. Planlanan bütün yol dersleri
+  bağlantıya dönüştü. Masaüstü ana sayfada iç kaydırma kaldırıldı.
 
-Tur ayrıntıları ve doğrulayıcı puanları: `docs/simulasyon-notlari.md` (13–14 Kasım bölümleri).
+Tur ayrıntıları `docs/simulasyon-notlari.md` belgesinde.
 
 ### Sıradaki işler (sırasıyla; ayrıntılı kapsam `docs/OGRENME-YOLLARI-PLANI.md` §3, §5, §6, §7)
-1. **U5** (9 ders, yollardaki son boşluklar): `isi-transferi`, `zemin-mekanigi`, `kuyruk-kurami-ve-benzetim`,
-   `kalite-kontrol-ve-istatistiksel-surec-kontrolu`, `finans-matematigi`, `yapi-fizigi`, `kent-planlama`,
-   `gelisim-psikolojisi`, `sosyal-psikoloji`. Slug'lar ve başlıklar `shared/yollar.js` `planned` içinde hazır.
-   U5 bitince yollarda "hazırlanıyor" ders kalmaz.
-2. **U6** — psikoloji ve psikanaliz (~10 ders; Freud, Adler, Jung, Rank, Reich; Anna Freud, Klein, Winnicott,
+1. **U6** — psikoloji ve psikanaliz (~10 ders; Freud, Adler, Jung, Rank, Reich; Anna Freud, Klein, Winnicott,
    Bowlby, Erikson, Kohut; Lacan, Fromm, Horney; davranışçılık; hümanistik/varoluşçu; bilişsel; kişilik;
    psikopatoloji ve psikoterapi ekolleri — tedavi önerisi yok, `_ucuncu-halka.md`; motivasyon ve duygu).
    Psikolog ve hekim yollarına eklenecek.
-3. **U7** — felsefe tarihi (~12 ders, Sokrates öncesinden yapısalcılık sonrasına).
-4. **U8** — sosyal bilimler ve siyaset kuramı (~10 ders).
+2. **U7** — felsefe tarihi (~12 ders, Sokrates öncesinden yapısalcılık sonrasına).
+3. **U8** — sosyal bilimler ve siyaset kuramı (~10 ders).
    U7–U8 için aranabilir **Düşünürler Dizini** sayfası ve gerekirse ayrı "Düşünce Tarihi" menü grubu.
-5. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
+4. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
    ve karakter psikolojisi, anlatım teknikleri, retorik, dram, türler, şiir, uyarlama.
-6. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
+5. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
    U9–U10 için "Edebiyat ve Sinema" grubu açılabilir.
-7. **Genel değerlendirme:** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
+6. **Genel değerlendirme:** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
    (`docs/OGRENME-YOLLARI-PLANI.md` §7).
 
 Her tur için önce, o turun özel kurallarını `docs/ajan-sozlesmeleri/_onsart.md` sonuna "U5 additions" gibi bir

@@ -199,7 +199,15 @@ if(process.argv.includes('--browser')){
       await set('rPreset','trap');await is('rReflV','Hayır');await has('rStatus','3 hiçbir elemanla ilişkili değil');await set('rGoal','st');await click('rGoalCheck');await has('rGoalMsg','Görev tamam');
       await set('rPreset','par');await has('rStatus','Denklik bağıntısı: sınıflar {1, 3}, {2, 4}');await set('rGoal','eq2');await click('rGoalCheck');await has('rGoalMsg','Görev tamam');
       await set('rPreset','empty');await click('rGoalCheck');await has('rGoalMsg','Henüz değil');await page.locator('#rMatrix button').nth(1).click();await has('rStatus','(1, 2)');await click('rCloS');await click('rCloT');await is('rTransV','Evet');await is('rSymV','Evet');await is('rReflV','Hayır');
-      {const b=await page.locator('#rSvg').boundingBox(),sx=b.width/320,sy=b.height/290;await page.mouse.click(b.x+160*sx,b.y+45*sy);await page.mouse.click(b.x+160*sx,b.y+45*sy);await has('rStatus','(1, 1)');}
+      {
+        const node=page.locator('#rSvg .kb-t').filter({hasText:/^1$/});
+        const loop=page.locator('#rMatrix button[aria-label^="(1, 1)"]');
+        eq(await loop.getAttribute('aria-pressed'),'true');
+        await node.click();await node.click();
+        eq(await loop.getAttribute('aria-pressed'),'false');
+        await node.click();await node.click();
+        eq(await loop.getAttribute('aria-pressed'),'true');
+      }
       await set('rN','5');eq(await page.locator('#rMatrix button').count(),25);await has('rCounts','33 554 432');
       await has('mStatus','192 ikilisi');await page.locator('#mGrid button',{hasText:/^7$/}).click();await has('mStatus','7 ∈ [1]');await set('mN',1);await has('mStatus','tek sınıf');eq(await page.locator('#mGrid button').count(),24);
       await is('hPairs','27');await is('hEdges','12');await is('hMin','1');await is('hMax','30');await set('hMode','mid');await is('hMin','2, 3, 5');await is('hMax','6, 10, 15');await has('hMinNote','en küçük öğe yok');

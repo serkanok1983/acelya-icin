@@ -22,8 +22,8 @@ gruplara toplar. Büyük gruplar içinde ara başlıklar (alt bölümler) vardı
 | Yaşam ve Sağlık | 15 | 23 | Hücre ve Kalıtım · Beden ve Sağlık · Ekoloji ve Evrim |
 | Bilgisayar Bilimi | 26 | 27 | Donanım ve Alt Düzey · Algoritmalar ve Veri · Kuram · Sistemler ve Ağlar · Yazılım · Yapay Zekâ ve Güvenlik |
 | Mühendislik | 22 | 26 | Yapı ve Malzeme · Makine ve Taşıt · Elektrik ve Kontrol · Endüstri ve Süreç |
-| İnsan ve Toplum | 18 | 27 | Zihin ve Davranış · Tarih ve Toplum · Ekonomi, Hukuk ve Siyaset |
-| Dil, Felsefe ve Sanat | 18 | 20 | Dil ve Edebiyat · Felsefe ve Din · Sanat ve Sinema |
+| İnsan ve Toplum | 18 | 26 | Zihin ve Davranış · Tarih ve Toplum · Ekonomi ve Siyaset · Hukuk |
+| Dil, Felsefe ve Sanat | 18 | 22 | Dil ve Edebiyat · Felsefe ve Din · Sanat ve Sinema · Mimarlık ve Kent |
 | Oyunlar | 13 | 13 | — |
 
 Bilim Atlası ve Üniversite STEM Omurgası kaldırılır; içerikleri kaybolmaz:
@@ -110,8 +110,10 @@ hasta verisi.
 - U4 ✔ 14 Kasım: hukuka-giris, anayasa-hukuku-ve-temel-haklar, ceza-hukukunun-genel-ilkeleri,
   borclar-ve-sozlesme-hukuku, hukuk-felsefesi, populasyon-genetigi, biyoinformatik-ve-dizi-hizalama, gen-muhendisligi.
   Menüde "İnsan ve Toplum" > "Hukuk" ara başlığı. 9 ders hazırlanıyor (U5). Devir notu: `docs/DEVIR-NOTU.md`.
-- **Sırada U5:** ısı transferi, zemin mekaniği, kuyruk kuramı ve benzetim, kalite kontrol, finans matematiği, yapı fiziği,
-  kent planlama, gelişim psikolojisi, sosyal psikoloji.
+- **U5, 15 Kasım:** ısı transferi, zemin mekaniği, kuyruk kuramı ve benzetim, kalite kontrol, finans matematiği, yapı fiziği,
+  kent planlama, gelişim psikolojisi ve sosyal psikoloji eklendi. Öğrenme yollarındaki dokuz boşluk kapandı. Menü 264
+  derse ulaştı. Perspektif, mimarlık tarihi, yapı fiziği ve kent planlama “Mimarlık ve Kent” ara başlığında toplandı.
+  Masaüstü ana sayfasında başlık ile ders listesi aynı belge içinde kayar.
 - Sonra U6 (kullanıcı 13 Kasım'da onayladı): psikoloji kuramları ve ekolleri, üçüncü halka kurallarıyla
   (`.shots/briefs/_ucuncu-halka.md`; tanı/tedavi önerisi yok, ekoller çatışan okullar olarak):
   psikoloji ekolleri ve tarihi (yapısalcılık, işlevselcilik, psikanaliz, davranışçılık, Gestalt, hümanistik, bilişsel,
@@ -192,7 +194,7 @@ geri dönüş) · ses ve film müziği (diegetik/diegetik olmayan, leitmotif) ·
 Brecht) · belgesel ve deneysel sinema · film çözümleme atölyesi (kamu malı filmler üzerinde sahne sahne okuma).
 
 Menü: U9 ve U10 için "Dil, Felsefe ve Sanat" grubu bölünebilir (ör. "Edebiyat ve Sinema" ayrı grup). Sıra:
-U4 bitir → U5 → U6 → U7 → U8 → U9 → U10. Kapsamda üst sınır yok; kullanıcı "500 ders de olur" dedi.
+U6 → U7 → U8 → U9 → U10. Kapsamda üst sınır yok; kullanıcı "500 ders de olur" dedi.
 
 ## 7. U10'dan sonra: genel değerlendirme (kullanıcı isteği, 13 Kasım 2026)
 

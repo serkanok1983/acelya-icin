@@ -2128,3 +2128,33 @@ mevzuat.gov.tr'den 13 Kasım 2026 metinleriyle denetlendi. Doğrulayıcı puanla
 Ayrıca: menüde "İnsan ve Toplum" grubuna "Hukuk" ara başlığı (Roma Hukuku oraya taşındı); roma-hukuku.html'de borçların
 dörtlü ayrımı Justinianus Institutiones 3.13'e düzeltildi (Gaius'ta ikili); check-site izinli kaynaklarına hukuk ve
 genetik alan adları eklendi.
+
+## 15 Kasım 2026 — U5: öğrenme yollarındaki dokuz boşluk
+
+| Ders | Etkinlik |
+|---|---|
+| Isı Transferi | Katmanlı duvarda sıcaklık profili ve açık yüzeyde taşınım ile net ışınım |
+| Zemin Mekaniği | Su tablası ve etkin gerilme, drenaj süresi ve oturma, şerit temelde ideal taşıma gücü |
+| Kuyruk Kuramı ve Benzetim | Tohumlu M/M/1 olay benzetimi ve durağan kuram karşılaştırması |
+| Kalite Kontrol ve İstatistiksel Süreç Kontrolü | Sabit kontrol limitleri, değiştirilebilir ürün toleransı ve başlangıç verisinden Cp/Cpk |
+| Finans Matematiği | Bileşik dönem, etkin faiz ve kurgusal nakit akışlarının net bugünkü değeri |
+| Yapı Fiziği | Cepheden ısı kaybı, noktasal aydınlatma, bölmede açıklıktan ses geçişi |
+| Kent Planlama ve Mekân Analizi | Kurgusal yaya ağı, en kısa yol ve süre eşiğine göre erişen nüfus |
+| Gelişim Psikolojisi | Yapay kesitsel ve boylamsal veride yaş, dönem ve kuşak |
+| Sosyal Psikoloji | Yapay uyma deneyi ve fırsatların dağılımına göre değişen yardım oranları |
+
+Her dersin Keşif Defteri, üç uygulanabilir deney ve kaynaklar içeriyor. Kaynak incelemesi ve sayısal doğrulama bu
+oturumda yapıldı. Çekirdek oranları, klavye, sınır değerleri, sıfırlama ve iki ekran boyutu
+`scripts/check-g-u5.mjs --browser` ile denetlenir. Öğretim değerleri ve yapay veri derslerin içinde etiketlendi.
+
+Menüde 10 grup ve 264 ders var. “Mimarlık ve Kent” ara başlığı Perspektif ve Simetri, Mimarlık Tarihi ve Yapı,
+Yapı Fiziği ve Kent Planlama'yı topluyor. Masaüstü menüsünün yükseklik sınırı ve iç kaydırma kutusu kaldırıldı.
+`scripts/check-yollar.mjs --browser` fare tekerleğiyle başlığın ekrandan çıkmasını ve End tuşuyla son karta erişimi sınar.
+
+Genel testte fosil etkinliğinin seçim uyarısı ve grup kuramındaki ilkel kök bilgisi yeniden çizimde kayboluyordu.
+İkisi de çizim güncellendiğinde korunur. Dairesel hareket testi ip kesildikten sonraki iki geçerli durumu kabul eder.
+İspat yöntemleri testi D = 61 için temel Pell çözümünü doğrudan tam sayı değerleriyle karşılaştırır.
+Bağıntı grafiği testi, geçişken kapanışın oluşturduğu halkayı hem silmeyi hem geri eklemeyi sınar.
+
+Son denetim: 159 mevcut ders testi, U5 için 334 kontrol ve öğrenme yolları için 1082 kontrol geçti.
+269 sayfada 360/768 piksel yerleşim ve dokunarak kaydırma taramaları sıfır sorun bildirdi.

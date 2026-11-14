@@ -100,3 +100,18 @@ mathematically correct (no circular argument, no false generalisation from examp
   procedures for pathogens or human germline editing); conceptual level only for lab methods.
 - Human population genetics: no ranking of groups, no genetic determinism claims; note the limits of "race" as a
   biological category per current scientific consensus with sources.
+
+## U5 ek kuralları — mühendislik, mimarlık, finans ve psikoloji
+
+- Birimleri girişte ve sonuçta göster. Öğretim değerlerini gerçek malzeme, ölçüm,
+  saha etüdü veya yönetmelik verisi gibi sunma. Mühendislikte sınır koşullarını
+  ve hangi süreçlerin model dışında kaldığını belirt. Taşıma gücü ile oturmayı,
+  kontrol limitleri ile şartname sınırlarını ayrı hesap ve yorumlarla göster.
+- Finans modellerinde dönem, oran, nakit akışı işareti ve ödeme zamanını açıkla.
+  Örnekleri kurgusal tut. Getiri tahmini, güncel piyasa verisi veya kişisel
+  yatırım tavsiyesi verme.
+- Kent planlamada ölçütü, ölçeği, varsayımları ve seçeneğin kimin erişimini nasıl
+  değiştirdiğini belirt. Kurgusal ağı ve nüfusu açıkça etiketle.
+- Psikolojide yapay sonuçları etiketle. Kuram, gözlem ve nedensel kanıtın
+  ağırlığını ayrı tartış. Etkinlikler kişilik puanı, tanı veya klinik yönlendirme
+  üretmez. Girilen yanıtı saklama veya gönderme.

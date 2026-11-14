@@ -255,19 +255,21 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `siber-guvenlik` — Siber Güvenlik ve Kriptografi (sayfa başlığı: Siber Güvenlik Laboratuvarı: Şifre, Özet ve Anahtar) · Lise–Lisans
 - `kuantum-hesaplama` — Kuantum Hesaplama (sayfa başlığı: Kuantum Hesaplama: Kübit, Dolanıklık, Deutsch–Jozsa ve Grover) · Lisans
 
-## Mühendislik (22)
+## Mühendislik (26)
 
 ### Yapı ve Malzeme
 
 - `statik` — Statik: Yükler ve Mesnetler (sayfa başlığı: Statik: Yük, Mesnet ve Denge) · Lise–Lisans
 - `mukavemet` — Mukavemet (sayfa başlığı: Mukavemet: Gerilme, Sehim ve Burkulma) · Lise–Lisans
 - `celik-yapilar` — Çelik Yapılar (sayfa başlığı: Çelik Yapılar: Kesit, Bağlantı ve Kararlılık) · Lise–Lisans
+- `zemin-mekanigi` — Zemin Mekaniği (sayfa başlığı: Zemin Mekaniği: Gerilme, Oturma, Taşıma Gücü) · Lise–Lisans
 - `metalurji-ve-malzeme-muhendisligi` — Metalurji ve Malzeme Mühendisliği (sayfa başlığı: Malzeme Bilimi: Faz Diyagramı, Çekme Deneyi ve Difüzyon) · Lise–Lisans
 - `maden-muhendisligi` — Maden Mühendisliği (sayfa başlığı: Maden Mühendisliği: Tenör, Açık Ocak ve Cevher Hazırlama) · Lise–Lisans
 
 ### Makine ve Taşıt
 
 - `makine-muhendisligi` — Makine Mühendisliği (sayfa başlığı: Makine Mühendisliği: Çevrim, Dişli, Titreşim ve Isı) · Lise–Lisans
+- `isi-transferi` — Isı Transferi (sayfa başlığı: Isı Transferi: İletim, Taşınım, Işınım) · Lise–Lisans
 - `hidrolik-sistemler` — Hidrolik Sistemler (sayfa başlığı: Hidrolik Sistemler: Debi, Yük ve Güç) · Lise–Lisans
 - `plc-hidrolik-pnomatik-cnc-cadcam` — PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM (sayfa başlığı: PLC, Hidrolik, Pnömatik, CNC ve CAD/CAM Sistemleri) · Lise–Lisans
 - `mekatronik-muhendisligi` — Mekatronik Mühendisliği (sayfa başlığı: Mekatronik Mühendisliği Laboratuvarı) · Lise–Lisans
@@ -290,8 +292,10 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `kimya-muhendisligi` — Kimya Mühendisliği (sayfa başlığı: Kimya Mühendisliği: Reaktör, Damıtma ve Isı Değiştirici) · Lisans
 - `yoneylem-arastirmasi` — Yöneylem Araştırması (sayfa başlığı: Yöneylem Araştırması: Doğrusal Programlama, Simpleks ve Kritik Yol) · Lise–Lisans
 - `uretim-planlama-ve-endustri-muhendisligi` — Üretim Planlama ve Endüstri Mühendisliği (sayfa başlığı: Üretim Planlama: Stok, Kalite ve Akış) · Lise–Lisans
+- `kuyruk-kurami-ve-benzetim` — Kuyruk Kuramı ve Benzetim (sayfa başlığı: Kuyruk Kuramı ve Benzetim) · Lise–Lisans
+- `kalite-kontrol-ve-istatistiksel-surec-kontrolu` — Kalite Kontrol ve İstatistiksel Süreç Kontrolü (sayfa başlığı: Kalite Kontrol ve İstatistiksel Süreç Kontrolü) · Lise–Lisans
 
-## İnsan ve Toplum (23)
+## İnsan ve Toplum (26)
 
 ### Zihin ve Davranış
 
@@ -301,6 +305,8 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `bilinc-kuramlari` — Bilinç Kuramları (sayfa başlığı: Bilinç: Zor Sorun, Maskeleme, Dikkat Kırpması, Kuramlar ve Cogitate) · Lise–Lisans
 - `psikometri-ve-olcme` — Psikometri ve Ölçme (sayfa başlığı: Psikometri: Güvenirlik, Geçerlik, Faktör Analizi, Madde Tepki Kuramı, Normlar) · Lise–Lisans
 - `psikiyatri-tarihi-ve-tani-sistemleri` — Psikiyatri Tarihi ve Tanı Sistemleri (sayfa başlığı: Psikiyatri Tarihi ve Tanı Sistemleri: Sınıflama, Güvenilirlik, Taban Oranı) · Lise–Lisans
+- `gelisim-psikolojisi` — Gelişim Psikolojisi (sayfa başlığı: Gelişim Psikolojisi) · Lise–Lisans
+- `sosyal-psikoloji` — Sosyal Psikoloji (sayfa başlığı: Sosyal Psikoloji) · Lise–Lisans
 
 ### Tarih ve Toplum
 
@@ -315,6 +321,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 
 - `mikro-ekonomi-ve-uretim-faktorleri` — Mikro Ekonomi ve Üretim Faktörleri (sayfa başlığı: Mikro Ekonomi: Piyasa Dengesi, Tüketici ve Firma) · Lise–Lisans
 - `makro-ekonomi-ve-para-politikalari` — Makro Ekonomi ve Para Politikaları (sayfa başlığı: Makro Ekonomi: Çarpanlar, Para ve Büyüme Modelleri) · Lise–Lisans
+- `finans-matematigi` — Finans Matematiği (sayfa başlığı: Finans Matematiği: Faiz, Bugünkü Değer ve Yatırım Kararı) · Lise–Lisans
 - `isletme-bilimi-ve-yonetim` — İşletme Bilimi ve Yönetim (sayfa başlığı: İşletme Bilimi: Başabaş, Yatırım, Mali Tablolar ve Karar) · Lise–Lisans
 - `oyun-kurami` — Oyun Kuramı (sayfa başlığı: Oyun Kuramı: Nash Dengesi, Minimaks ve İşbirliğinin Evrimi) · Lise–Lisans
 - `uluslararasi-iliskiler` — Uluslararası İlişkiler (sayfa başlığı: Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri) · Lise–Lisans
@@ -328,7 +335,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `borclar-ve-sozlesme-hukuku` — Borçlar ve Sözleşme Hukuku (sayfa başlığı: Borçlar ve Sözleşme Hukuku: Öneri, Kabul, İfa, Haksız Fiil ve Sorumluluk) · Lise–Lisans
 - `hukuk-felsefesi` — Hukuk Felsefesi (sayfa başlığı: Hukuk Felsefesi: Doğal Hukuk, Pozitivizm, Adalet ve Hukukun Otoritesi) · Lise–Lisans
 
-## Dil, Felsefe ve Sanat (20)
+## Dil, Felsefe ve Sanat (22)
 
 ### Dil ve Edebiyat
 
@@ -355,9 +362,14 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 ### Sanat ve Sinema
 
 - `muzik-kurami-ve-akort` — Müzik Kuramı ve Akort (sayfa başlığı: Müzik Kuramı ve Akort: Harmonikler, Komalar ve Makam Perdeleri) · Lise–Lisans
+- `sinema-dili-ve-kurgu` — Sinema Dili ve Kurgu (sayfa başlığı: Sinema Dili ve Kurgu: Kare Hızı, Kadraj, 180° Kuralı ve Montaj) · Lise–Lisans
+
+### Mimarlık ve Kent
+
 - `perspektif-ve-simetri` — Perspektif ve Simetri (sayfa başlığı: Perspektif ve Simetri: Kaçış Noktaları, Duvar Kâğıdı Grupları ve Girih) · Lise–Lisans
 - `mimarlik-tarihi-ve-yapi` — Mimarlık Tarihi ve Yapı (sayfa başlığı: Mimarlık Tarihi ve Yapı: Kemer, Kubbe, İtki Çizgisi ve Oran) · Lise–Lisans
-- `sinema-dili-ve-kurgu` — Sinema Dili ve Kurgu (sayfa başlığı: Sinema Dili ve Kurgu: Kare Hızı, Kadraj, 180° Kuralı ve Montaj) · Lise–Lisans
+- `yapi-fizigi` — Yapı Fiziği (sayfa başlığı: Yapı Fiziği: Isı, Işık ve Ses) · Lise–Lisans
+- `kent-planlama` — Kent Planlama ve Mekân Analizi (sayfa başlığı: Kent Planlama ve Mekân Analizi) · Lise–Lisans
 
 ## Oyunlar (13)
 

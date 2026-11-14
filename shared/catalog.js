@@ -556,6 +556,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "finans-matematigi": {
+    "title": "Faiz ve Paranın Zamanı",
+    "tagline": "Bileşik faiz, iskonto ve net bugünkü değerle farklı tarihlerdeki kurgusal ödemeleri karşılaştırın.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 22
+  },
   "fonksiyon-grafigi": {
     "title": "Fonksiyon Grafikleri: Bir Kuralın Portresi",
     "tagline": "x yerine x − 2 yazınca grafik neden sağa gider? Bir fonksiyonu ger, yansıt, kaydır; sıfırları ve tepeleri grafikte ölç, dönüşüm kuralıyla tahmin et; asimptotu, bileşkeyi ve tersi sına.",
@@ -590,6 +597,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "gelisim-psikolojisi": {
+    "title": "Yaş ve Kuşak Nasıl Ayrılır?",
+    "tagline": "Kesitsel ve boylamsal veriye geçiş yapın. Yapay bir ölçümde yaş, kuşak ve ölçüm koşulunun katkısını ayırın.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 21
   },
   "gemi-makineleri-isletme-muhendisligi": {
     "title": "Gemi Makineleri: Silindirden Pervaneye, Pervaneden Dengeye",
@@ -766,6 +780,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "isi-transferi": {
+    "title": "Isının İzlediği Yollar",
+    "tagline": "Katmanlı bir duvarda sıcaklığın nerede düştüğünü ve sıcak bir levhanın ısıyı nasıl yaydığını inceleyin.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 25
+  },
   "isik-sondurme": {
     "title": "Işık Söndürme: 1 + 1 = 0 Cebiri",
     "tagline": "Bir düğmeye iki kez basmak hiç basmamaktır. Bu tek kural, 25 ışıklı bulmacayı iki elemanlı bir sayı sisteminde 25 bilinmeyenli bir denklem takımına çevirir; çözümü deneme yanılma değil, lineer cebirdir.",
@@ -808,6 +829,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "kalite-kontrol-ve-istatistiksel-surec-kontrolu": {
+    "title": "Süreç Sinyali ve Ürün Şartnamesi",
+    "tagline": "Bir üretim dizisinde normal değişkenliği, ortalama kaymasını ve şartname dışına çıkmayı ayrı ayrı okuyun.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 24
+  },
   "kalp-dolasim": {
     "title": "Kalp ve Dolaşım: Pompa, Esnek Depo ve Oksijen",
     "tagline": "Kasılırken sertleşen bir odacık, her atımın bir kısmını depolayan esnek bir aort ve oksijeni basınca göre bırakan bir molekül. Basınç–hacim döngüsünü, windkessel'i ve Fick ilkesini ölç.",
@@ -842,6 +870,13 @@ window.ACELYA_CATALOG = {
     "field": "Din ve İnanç",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "kent-planlama": {
+    "title": "Bir Şehirde Kim Nereye Ulaşır?",
+    "tagline": "Kurgusal bir yaya ağında en kısa yolu bulun. Bir köprü eklemenin okula erişimi hangi mahallede iyileştirdiğini görün.",
+    "field": "Yer ve Çevre Bilimleri",
+    "level": "Lise–Lisans",
+    "minutes": 22
   },
   "kepler-yasalari": {
     "title": "Kepler Yasaları: Sekiz Yay Dakikalık İnat",
@@ -947,6 +982,13 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "kuyruk-kurami-ve-benzetim": {
+    "title": "Kuyruk Hangi Hızda Büyür?",
+    "tagline": "Tek hizmet noktasında beklemeyi olay benzetimiyle ölçün. Kapasiteye yaklaşınca durağan kuramın ne söylediğini karşılaştırın.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 24
   },
   "lazer-ve-uyarilmis-salim": {
     "title": "Lazer ve Uyarılmış Salım: Einstein Katsayılarından Rezonatöre",
@@ -1529,6 +1571,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "sosyal-psikoloji": {
+    "title": "Grup, Durum ve Davranış",
+    "tagline": "Yanıtın görünürlüğünü ve yardım fırsatının güçlüğünü değiştirin. Kurgusal iki çalışmayı karşılaştırın.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 22
+  },
   "sozdizimi-ve-dilbilgisi": {
     "title": "Söz Dizimi ve Dil Bilgisi: Sözcüğün ve Cümlenin Mimarisi",
     "tagline": "Tek bir Türkçe sözcük on bir parçadan oluşabilir, bir cümle iki ayrı ağaca oturabilir. Biçimbirimleri böl, öbekleri sına, dünya dillerinin sözcük dizimini 1376 dillik veriyle karşılaştır.",
@@ -1725,6 +1774,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 45
   },
+  "yapi-fizigi": {
+    "title": "Bir Binada Isı, Işık, Ses",
+    "tagline": "Bir cephede alanı, bir ışık kaynağında uzaklığı ve bir bölmede açıklığı değiştirip fiziksel konforu modelleyin.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 23
+  },
   "yari-iletkenler-ve-bant-yapisi": {
     "title": "Yarı İletkenler: Bantlar, Katkı ve p–n Eklemi",
     "tagline": "Silisyumu metalden de camdan da ayıran tek bir sayı var: bant aralığı. Bantların nasıl açıldığını, bir milyonda bir katkının neden her şeyi değiştirdiğini ve diyotun neden 0,6 V civarında açıldığını ölç.",
@@ -1780,6 +1836,13 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "zemin-mekanigi": {
+    "title": "Suyun ve Tanelerin Taşıdığı Yük",
+    "tagline": "Yeraltı suyunu, kilin drenaj yolunu ve temel genişliğini değiştirerek zeminin üç ayrı tepkisini hesaplayın.",
+    "field": "Mühendislik",
+    "level": "Lise–Lisans",
+    "minutes": 28
   },
   "zipf-yasasi-ve-dil-istatistigi": {
     "title": "Zipf Yasası: Sözcüklerin Sıklığı, Sırası ve Maymunun Metni",

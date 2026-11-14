@@ -498,7 +498,9 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 `ogrenme-yollari.html`, `onsart.html`, `shared/yollar.js`, `scripts/check-yollar.mjs` (`npm run test:yollar`).
 **U2 tamam (13 Kasım):** önşart matematik ve programlama, 8 ders (kurucu → yazar → doğrulayıcı; ek kurallar
 `.shots/briefs/_onsart.md`). **U3 tamam (13 Kasım):** önşart fen-dil ve hekim yolu, 8 ders. **U4 tamam (14 Kasım):** hukukçu ve genetik yolları,
-8 ders. **Sırada U5**, sonra U6–U10 ve genel değerlendirme (planda). Devir için: `docs/DEVIR-NOTU.md`.
+8 ders. **U5 tamam (15 Kasım):** 9 ders, 264 derslik menü, öğrenme yollarındaki son boşlukların kapanması ve
+masaüstü ana sayfada tam sayfa kaydırma. **Sırada U6**, sonra U7–U10 ve genel değerlendirme.
+Devir için `docs/DEVIR-NOTU.md`.
 
 İlk istek (kayıt için):
 

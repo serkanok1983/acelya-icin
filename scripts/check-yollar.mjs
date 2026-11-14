@@ -95,8 +95,22 @@ if (process.argv.includes("--browser")) {
 
       await page.goto(`${base}/index.html`);
       eq(await page.locator(".menu-section").count(), MENU.length, `${width}: ana sayfada ${MENU.length} bölüm`);
+      eq(await page.locator(".menu-card").count(), total, `${width}: ${total} ders kartı`);
       ok((await page.locator(".sub-head").count()) >= 15, `${width}: ara başlıklar görünüyor`);
       eq(await page.locator(".guide-card").count(), 2, `${width}: iki rehber kartı`);
+      if (width === 1280) {
+        await page.locator(".menu-card").first().hover();
+        await page.mouse.wheel(0, 900);
+        await page.waitForFunction(() => document.querySelector(".menu-header").getBoundingClientRect().bottom < 0);
+        eq(await page.locator("#menuBody").evaluate((el) => el.scrollTop), 0, "masaüstünde belge kayar");
+        await page.keyboard.press("End");
+        await page.locator(".menu-card").last().waitFor({ state: "visible" });
+        await page.waitForFunction(() => {
+          const last = document.querySelector(".menu-section:last-child .menu-card:last-child").getBoundingClientRect();
+          return last.top >= 0 && last.bottom <= innerHeight;
+        });
+        ok(await page.evaluate(() => scrollY > 1000), "masaüstünde son ders belge kaydırmasıyla erişilebilir");
+      }
       await page.fill("#searchInput", "türev");
       eq(await page.locator(".sub-head").count(), 0, `${width}: aramada ara başlık yok`);
       ok((await page.locator('.menu-card[href="turev.html"]').count()) === 1, `${width}: arama türevi buluyor`);
@@ -109,6 +123,8 @@ if (process.argv.includes("--browser")) {
 
       await page.goto(`${base}/ogrenme-yollari.html#hekim`);
       eq(await page.locator("details.yol").count(), D.yollar.length, `${width}: yollar çizildi`);
+      const plannedInPaths = D.yollar.flatMap((y) => y.stages.flatMap((s) => s.items)).filter((slug) => usedPlanned.has(slug));
+      eq(await page.locator(".is-planned").count(), plannedInPaths.length, `${width}: hazırlanıyor dersleri veriye uygun`);
       ok(await page.locator("details#hekim").evaluate((d) => d.open), `${width}: hekim yolu açık`);
       ok((await page.locator('#hekim a.yol-chip[href="onsart.html#temel-biyoloji"]').count()) === 1, `${width}: yoldan önşarta bağlantı`);
       const box = page.locator('#hekim input[data-done="anatomi-ve-fizyoloji"]');

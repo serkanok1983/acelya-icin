@@ -56,6 +56,8 @@ const SOURCE_PREFIXES = [
   "https://goldbook.iupac.org/", "https://webbook.nist.gov/", "https://www.nist.gov/", "https://www.itl.nist.gov/div898/handbook/", "https://physics.nist.gov/", "https://www.bipm.org/",
   "https://www.ncbi.nlm.nih.gov/", "https://pubmed.ncbi.nlm.nih.gov/", "https://pmc.ncbi.nlm.nih.gov/", "https://www.biointeractive.org/",
   "https://tubes.mit.edu/",
+  "https://web.mit.edu/", "https://www.fhwa.dot.gov/", "https://www.eia.gov/", "https://cie.co.at/",
+  "https://www.itf-oecd.org/", "https://unhabitat.org/",
   "https://math.bu.edu/", "https://dummit.cos.northeastern.edu/",
   "https://engineeringstatics.org/", "https://engcourses-uofa.ca/",
   "https://steelconstruction.info/", "https://www.enerpac.com/", "https://www.parker.com/",

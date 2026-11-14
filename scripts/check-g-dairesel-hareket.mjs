@@ -206,7 +206,7 @@ if (process.argv.includes("--browser")) {
       await range("uDt", 500); await waitHas("uAccFin", "5.7531"); await waitHas("uAccTh", "fark −4.11 %"); await has("uAccFinDiff", "−4.11 %");
       await page.locator("#uMode").selectOption("T"); ok(await page.locator("#uTField").isVisible(), "T alanı"); await has("uTOut", "3.1 s");
       await range("uR", 3); await range("uT", 0.5); await waitHas("uSpeedTh", "37.699"); // sınır: 2π·3/0.5
-      await page.click("#uCut"); await waitHas("uStatus", "İp kesildi", 4000); await page.waitForTimeout(400); await has("uOmegaTh", "ip kesik");
+      await page.click("#uCut"); await waitHas("uStatus", "kesildi", 4000); await has("uOmegaTh", "ip kesik");
       await page.click("#uReset"); await has("uVOut", "3.0 m/s"); await has("uROut", "1.5 m"); ok(await page.locator("#uVField").isVisible(), "v alanı geri");
       // klavye: Boşluk duraklatır, R sıfırlar (odak gövdedeyken)
       await page.locator("h1").click(); await page.keyboard.press("Space"); await has("uToggle", "Devam et"); await page.keyboard.press("r"); await has("uToggle", "Duraklat");

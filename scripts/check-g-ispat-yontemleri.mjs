@@ -66,7 +66,9 @@ const C=id=>K.CLAIMS.find(c=>c.id===id);
 throwsU(()=>K.search({expr:'n',prop:'asal',a:0,b:100000}));throwsU(()=>K.search({expr:'n',prop:'asal',a:5,b:4}));throwsU(()=>K.search({expr:'n',prop:'asal',a:0,b:1000001}));throwsU(()=>K.search({expr:'n',prop:'bolunur',d:'0',a:0,b:4}));throwsU(()=>K.search({expr:'n',prop:'xx',a:0,b:4}));
 // Pell: en küçük çözümü x² − 991y² = 1 ile doğrula; küçük D'ler için kaba tarama ile karşılaştır.
 {const p=K.pell(991);eq(p.y,12055735790331359447442538767n);eq(p.x*p.x-991n*p.y*p.y,1n);eq(p.x,379516400906811930638014896080n);}
-for(const D of[2,3,5,6,7,8,10,11,12,13,61]){const p=K.pell(D);let y=1n;while(!isSq(BigInt(D)*y*y+1n))y++;eq(p.y,y,'Pell '+D);}eq(K.pell(9),null);
+for(const D of[2,3,5,6,7,8,10,11,12,13]){const p=K.pell(D);let y=1n;while(!isSq(BigInt(D)*y*y+1n))y++;eq(p.y,y,'Pell '+D);}eq(K.pell(9),null);
+// D = 61 için yüz milyonlarca aday taramak yerine temel çözümün tam sayı tanığını karşılaştır.
+{const p=K.pell(61);eq(p.x,1766319049n);eq(p.y,226153980n);eq(p.x*p.x-61n*p.y*p.y,1n);}
 
 /* 4. Sayısal tanıklar */
 {const r=K.sqrt2Search(1000000);eq(r.zero,0);eq(r.minAbs,1);let p=1,q=1,d=-1;const ref=[];while(q<=1000000){ref.push({p,q,d});[p,q]=[p+2*q,p+q];d=-d;}eq(r.ones,ref);}
