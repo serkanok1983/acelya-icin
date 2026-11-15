@@ -114,7 +114,8 @@ if (process.argv.includes("--browser")) {
   const errors = [];
   try {
     for (const width of [1280, 375]) {
-      const ctx = await browser.newContext({ viewport: { width, height: 800 }, serviceWorkers: "block", reducedMotion: "reduce" });
+      const touch = width <= 600;
+      const ctx = await browser.newContext({ viewport: { width, height: 800 }, isMobile: touch, hasTouch: touch, serviceWorkers: "block", reducedMotion: "reduce" });
       const page = await ctx.newPage();
       page.on("pageerror", (e) => errors.push(e.message));
 
@@ -332,10 +333,28 @@ if (process.argv.includes("--browser")) {
       const firstDone = cinemaPath.locator('input[data-done="sinema-dili-ve-kurgu"]');
       await firstDone.check();
       eq(await nextFilm.getAttribute("href"), "sinemada-mizansen.html?yol=sinema-cozumleme", `${width}: işaretlenince sıradaki ders güncellenir`);
+      const firstFilm = cinemaPath.locator('a.yol-link[href="sinema-dili-ve-kurgu.html?yol=sinema-cozumleme"]');
+      const route = page.getByRole("navigation", { name: "Seçmeli yol" });
+      const pathReturn = route.getByRole("link", { name: "Sinema ve Film Çözümleme" });
+      const markDone = page.locator("#digestDoneBtn");
+      const activate = (control) => touch ? control.tap() : control.press("Enter");
+      await activate(firstFilm);
+      await lessonNav.getByRole("link", { name: "Keşif Defteri", exact: true }).waitFor();
+      await activate(lessonNav.getByRole("link", { name: "Keşif Defteri", exact: true }));
+      eq(await markDone.getAttribute("aria-pressed"), "true", `${width}: yolda tamamlanan ders defterde işaretli`);
+      await activate(markDone);
+      await activate(pathReturn);
+      ok(!(await firstDone.isChecked()), `${width}: defterde işaret kaldırılınca yol güncellenir`);
+      await activate(nextFilm);
+      await markDone.waitFor();
+      await activate(markDone);
+      eq(await markDone.getAttribute("aria-pressed"), "true", `${width}: defterde işaretleme çalışır`);
+      await page.goBack();
+      ok(await firstDone.isChecked(), `${width}: defterden tarayıcıyla dönünce yol ilerlemesi güncel`);
+      eq(await nextFilm.getAttribute("href"), "sinemada-mizansen.html?yol=sinema-cozumleme", `${width}: defterden dönüşte ikinci ders önerilir`);
       await firstDone.uncheck();
       eq(await nextFilm.getAttribute("href"), "sinema-dili-ve-kurgu.html?yol=sinema-cozumleme", `${width}: işaret kaldırılınca önceki ders önerilir`);
       await nextFilm.click();
-      const route = page.getByRole("navigation", { name: "Seçmeli yol" });
       await route.waitFor();
       eq(await route.getByRole("link", { name: /Önceki/ }).count(), 0, `${width}: ilk derste önceki yok`);
       await lessonNav.getByRole("link", { name: "Sıradaki ders · Sinemada Mizansen" }).click();
@@ -396,8 +415,36 @@ if (process.argv.includes("--browser")) {
     await page.goto(`${base}/ogrenme-yollari.html#mimar`);
     const b = page.locator('#mimar input[data-done="statik"]');
     await b.check();
-    ok(await page.locator('#mimar input[data-done="statik"]').isChecked(), "depolama kapalıyken işaret sekmede kalır");
+    ok(await b.isChecked(), "depolama kapalıyken yol işareti açık sayfada kalır");
+    await page.goto(`${base}/statik.html`);
+    const localDone = page.locator("#digestDoneBtn");
+    await localDone.click();
+    eq(await localDone.getAttribute("aria-pressed"), "true", "depolama kapalıyken defter işareti açık sayfada kalır");
     await ctx.close();
+
+    const legacy = await browser.newContext({ serviceWorkers: "block" });
+    const pathPage = await legacy.newPage();
+    pathPage.on("pageerror", (e) => errors.push(e.message));
+    await pathPage.goto(`${base}/ogrenme-yollari.html#sinema-cozumleme`);
+    await pathPage.evaluate(() => {
+      localStorage.setItem("acelya-yol-ilerleme-v1", JSON.stringify({ "sinemada-mizansen": true }));
+      localStorage.setItem("acelya-atlas-progress-v1", JSON.stringify({ "sinema-dili-ve-kurgu": { completedAt: "2026-11-14" } }));
+    });
+    await pathPage.reload();
+    const oldDigestCheck = pathPage.locator('#sinema-cozumleme input[data-done="sinema-dili-ve-kurgu"]');
+    const oldPathCheck = pathPage.locator('#sinema-cozumleme input[data-done="sinemada-mizansen"]');
+    ok(await oldDigestCheck.isChecked(), "eski defter işareti yol ilerlemesinde korunur");
+    ok(await oldPathCheck.isChecked(), "eski yol işareti korunur");
+    const lessonPage = await legacy.newPage();
+    lessonPage.on("pageerror", (e) => errors.push(e.message));
+    await lessonPage.goto(`${base}/sinema-dili-ve-kurgu.html`);
+    const migratedDone = lessonPage.locator("#digestDoneBtn");
+    await migratedDone.click();
+    await pathPage.waitForFunction(() => document.querySelector('#sinema-cozumleme input[data-done="sinema-dili-ve-kurgu"]')?.checked === false);
+    ok(await oldPathCheck.isChecked(), "başka sekmedeki değişiklik diğer dersin eski işaretini silmez");
+    await pathPage.reload();
+    ok(!(await oldDigestCheck.isChecked()), "yenilemede kaldırılmış eski işaret geri gelmez");
+    await legacy.close();
     eq(errors, [], "sayfa hatası yok");
   } finally {
     await browser.close();

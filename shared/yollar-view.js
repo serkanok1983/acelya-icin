@@ -2,48 +2,21 @@
  * Açelya — Öğrenme Yolları ve Önşart sayfalarının çizimi.
  * Veri: shared/yollar.js (ACELYA_YOLLAR), ders başlıkları: shared/catalog.js (ACELYA_CATALOG).
  * Sayfa türü: <body data-yol-mode="yollar|onsart">.
- * "Tamamlandı" işaretleri yalnız bu tarayıcıda tutulur; depolama kapalıysa sekme boyunca bellekte kalır.
+ * "Tamamlandı" işaretleri Keşif Defteri ile ortak ders ilerlemesinden okunur.
  */
 (function () {
   "use strict";
 
   const DATA = window.ACELYA_YOLLAR;
   const CATALOG = window.ACELYA_CATALOG || {};
+  const lessonProgress = window.AcelyaLessonProgress;
   const root = document.getElementById("yol-root");
   if (!DATA || !root) return;
 
   const mode = document.body.dataset.yolMode === "onsart" ? "onsart" : "yollar";
-  const KEY = "acelya-yol-ilerleme-v1";
-  const OLD_ATLAS_KEY = "acelya-atlas-progress-v1";
-  let memory = null;
 
   const esc = (v) =>
     String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-  function readProgress() {
-    if (memory) return { ...memory };
-    try {
-      let p = JSON.parse(localStorage.getItem(KEY) || "null");
-      if (!p || typeof p !== "object") {
-        // Kaldırılan Bilim Atlası'ndaki işaretler kaybolmasın.
-        const old = JSON.parse(localStorage.getItem(OLD_ATLAS_KEY) || "{}");
-        p = {};
-        if (old && typeof old === "object") for (const k of Object.keys(old)) if (old[k]) p[k] = true;
-      }
-      return p;
-    } catch (_) {
-      return {};
-    }
-  }
-
-  function writeProgress(p) {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(p));
-      memory = null;
-    } catch (_) {
-      memory = { ...p };
-    }
-  }
 
   const exists = (slug) => Object.prototype.hasOwnProperty.call(CATALOG, slug);
   const shortTitle = (t) => String(t).split(":")[0].trim();
@@ -58,7 +31,7 @@
       return `<li class="yol-item${done ? " is-done" : ""}">
         <span class="yol-n" aria-hidden="true">${n}</span>
         <a class="yol-link" href="${esc(href)}" title="${esc(info.title)}"><span class="yol-name">${esc(shortTitle(info.title))}</span><span class="yol-meta">${esc(meta)}</span></a>
-        <label class="yol-check"><input type="checkbox" data-done="${esc(slug)}" aria-label="${esc(`${shortTitle(info.title)} · Tamamlandı`)}"${done ? " checked" : ""}><span>Tamamlandı</span></label>
+        <label class="yol-check"><input type="checkbox" autocomplete="off" data-done="${esc(slug)}" aria-label="${esc(`${shortTitle(info.title)} · Tamamlandı`)}"${done ? " checked" : ""}><span>Tamamlandı</span></label>
       </li>`;
     }
     const title = DATA.planned[slug] || slug;
@@ -152,8 +125,7 @@
       tracks.map((t) => trackHtml(t, progress, openSet.has(t.id) ? t.id : null)).join("");
   }
 
-  function render() {
-    const progress = readProgress();
+  function render(progress = lessonProgress.read()) {
     const openId = decodeURIComponent(location.hash.slice(1));
     const openSet = new Set([...root.querySelectorAll("details.yol[open]")].map((d) => d.id));
     if (openId) openSet.add(openId);
@@ -172,18 +144,16 @@
   root.addEventListener("change", (e) => {
     const box = e.target.closest("input[data-done]");
     if (!box) return;
-    const p = readProgress();
-    if (box.checked) p[box.dataset.done] = true;
-    else delete p[box.dataset.done];
-    writeProgress(p);
     const slug = box.dataset.done;
     const trackId = box.closest("details.yol").id;
     const scrollY = window.scrollY;
-    render();
+    lessonProgress.set(slug, box.checked);
     const again = document.getElementById(trackId)?.querySelector(`input[data-done="${CSS.escape(slug)}"]`);
     if (again) again.focus({ preventScroll: true });
     window.scrollTo(0, scrollY);
   });
+
+  lessonProgress.subscribe(render);
 
   window.addEventListener("hashchange", () => {
     render();

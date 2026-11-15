@@ -2,6 +2,64 @@
  * Açelya — ortak kabuk: yıldızlar, ana sayfa, sesler ve keşif defterleri
  */
 
+// Öğrenme yolları ile Keşif Defteri aynı ders ilerlemesini kullanır.
+(function initLessonProgress() {
+  const KEY = "acelya-ders-ilerleme-v2";
+  const LEGACY_KEYS = ["acelya-yol-ilerleme-v1", "acelya-atlas-progress-v1"];
+  const CHANGE = "acelya-ders-ilerleme";
+  let memory;
+
+  function readStored(key) {
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      return data && typeof data === "object" && !Array.isArray(data) ? data : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function read() {
+    if (memory) return { ...memory };
+    const stored = readStored(KEY);
+    if (stored) return stored;
+    const legacy = LEGACY_KEYS.flatMap((key) => Object.entries(readStored(key) || {}));
+    return Object.fromEntries(legacy.filter(([, done]) => done).map(([slug]) => [slug, true]));
+  }
+
+  function set(slug, done) {
+    const progress = read();
+    if (done) progress[slug] = true;
+    else delete progress[slug];
+    try {
+      localStorage.setItem(KEY, JSON.stringify(progress));
+      memory = undefined;
+    } catch (_) {
+      memory = progress;
+    }
+    window.dispatchEvent(new Event(CHANGE));
+  }
+
+  function subscribe(sync) {
+    let previous = JSON.stringify(read());
+    function update() {
+      const progress = read();
+      const current = JSON.stringify(progress);
+      if (current === previous) return;
+      previous = current;
+      sync(progress);
+    }
+    window.addEventListener(CHANGE, update);
+    window.addEventListener("storage", (event) => {
+      if (event.key === KEY || event.key === null) update();
+    });
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) update();
+    });
+  }
+
+  window.AcelyaLessonProgress = { read, set, subscribe };
+})();
+
 /* Sesler — sayfa scriptlerinden önce kullanılabilir */
 /* —— Dokunmatik ekranda sayfa kaydırma koruması ——
    Sürüklemeli bir tuval `touch-action: none` ise, telefonda parmak tuvale

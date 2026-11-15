@@ -12,7 +12,6 @@
 (function () {
   "use strict";
 
-  const PROGRESS_KEY = "acelya-atlas-progress-v1";
   const QUIZ_KEY = "acelya-digest-quiz-v1";
   const ALLOWED_TAGS = new Set([
     "p", "strong", "em", "b", "i", "sup", "sub", "code", "kbd", "var", "br",
@@ -96,18 +95,6 @@
     } catch (_) {
       // Depolama kapalıysa ilerleme yalnızca bu oturumda kalır.
     }
-  }
-
-  function isComplete(slug) {
-    return Boolean(readJSON(PROGRESS_KEY, {})[slug]);
-  }
-
-  function setComplete(slug, complete) {
-    const progress = readJSON(PROGRESS_KEY, {});
-    if (complete) progress[slug] = { completedAt: new Date().toISOString() };
-    else delete progress[slug];
-    writeJSON(PROGRESS_KEY, progress);
-    window.dispatchEvent(new CustomEvent("acelya-atlas-progress", { detail: progress }));
   }
 
   /* ── Bölüm üreticileri ── */
@@ -415,18 +402,18 @@
   /* ── Etkileşimler ── */
   function bindDone(root, slug) {
     const btn = root.querySelector("#digestDoneBtn");
-    if (!btn) return;
-    const sync = () => {
-      const done = isComplete(slug);
+    const progress = window.AcelyaLessonProgress;
+    if (!btn || !progress) return;
+    const sync = (state) => {
+      const done = Boolean(state[slug]);
       btn.setAttribute("aria-pressed", String(done));
       btn.textContent = done ? "Tamamlandı" : "Bu konuyu tamamladım";
     };
     btn.addEventListener("click", () => {
-      setComplete(slug, !isComplete(slug));
-      sync();
+      progress.set(slug, !progress.read()[slug]);
     });
-    window.addEventListener("acelya-atlas-progress", sync);
-    sync();
+    progress.subscribe(sync);
+    sync(progress.read());
   }
 
   function bindListen(root, d) {
