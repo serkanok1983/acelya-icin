@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="tr" class="app-root">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sinyal İşleme ve Modülasyon: Örnekleme, FFT, AM–FM ve Süzgeçler</title>
+<meta name="description" content="Telefonundaki ses, radyodaki şarkı, kameradaki görüntü: hepsi önce sayılara dönüşür, sonra frekanslarına ayrılır, bir taşıyıcıya bindirilir ve gürültüden süzülür. Bu sayfa o zincirin her halkasını ölçerek gösterir.">
+<link rel="stylesheet" href="shared/theme.css">
+<script src="shared/app.js"></script>
+<style>
+.sg-tabs{display:flex;gap:8px;margin:26px 0 20px;flex-wrap:wrap}
+.sg-tabs button{flex:1 1 150px;padding:13px 8px;font:inherit;font-size:.86rem;min-height:44px}
+.sg-tabs [aria-selected=true]{border-color:var(--accent)!important;box-shadow:inset 0 -3px var(--accent)}
+.sg-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:20px;align-items:start;margin-bottom:22px}
+.sg-grid>div{min-width:0}
+.sg-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:20px;display:grid;gap:15px;min-width:0}
+.sg-panel h2,.sg-plate h2{font-size:1.02rem;margin:0}
+.sg-field{display:grid;gap:7px}
+.sg-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}
+.sg-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sg-field input,.sg-field select{width:100%;min-width:0;font:inherit;box-sizing:border-box}
+.sg-field select{padding:9px 10px}
+.sg-row{display:flex;gap:8px;flex-wrap:wrap}
+.sg-row button{padding:9px 12px;min-height:44px;font:inherit;font-size:.83rem}
+.sg-note{font-size:.84rem;line-height:1.75;margin:0}
+.sg-formula{padding:13px;background:var(--bg-input);border-radius:8px;line-height:1.9;font-size:.88rem;overflow-wrap:anywhere}
+.sg-plate{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.sg-plate h2{padding:13px 16px;border-bottom:1px solid var(--border)}
+body.app-page canvas.sg-canvas{display:block;width:100%;height:auto;aspect-ratio:2.1;border:0;border-radius:0}
+body.app-page canvas.sg-canvas.is-low{aspect-ratio:2.8}
+body.app-page canvas.sg-canvas.is-square{aspect-ratio:1.5}
+.sg-caption{padding:10px 16px;font-size:.77rem;line-height:1.65;color:var(--text-muted);margin:0}
+.sg-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.sg-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:12px;min-width:0}
+.sg-stat small{display:block;color:var(--text-muted);font-size:.76rem;line-height:1.55}
+.sg-stat strong{display:block;font-size:1.02rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:5px}
+.sg-stat.is-meas strong{color:var(--accent-warm)!important}
+.sg-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:13px 16px;font-size:.86rem;line-height:1.8;margin:0 0 14px}
+.sg-sub{font-size:.95rem;margin:18px 0 4px}
+.sg-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:9px;margin:12px 0 16px}
+.sg-table{width:100%;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums}
+.sg-table td,.sg-table th{padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+.sg-table th:first-child,.sg-table td:first-child{text-align:left}
+.sg-table thead th{background:var(--bg-input)}
+.sg-table caption{padding:10px 12px;text-align:left;line-height:1.6;color:var(--text-muted);caption-side:top}
+.sg-sources{margin-top:28px;font-size:.85rem;line-height:1.9}
+.sg-sources summary{cursor:pointer;color:var(--accent)}
+.sg-sources a{overflow-wrap:anywhere}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+@media(max-width:760px){
+ .sg-grid{grid-template-columns:1fr}
+ .sg-panel{padding:16px}
+ .sg-tabs button{font-size:.76rem;padding:11px 6px;flex-basis:40%}
+ .sg-stats{gap:6px}
+ .sg-stat{padding:9px 8px}
+ .sg-stat small{font-size:.7rem}
+ .sg-stat strong{font-size:.84rem}
+ body.app-page canvas.sg-canvas{aspect-ratio:1.4}
+ body.app-page canvas.sg-canvas.is-low{aspect-ratio:1.9}
+ body.app-page canvas.sg-canvas.is-square{aspect-ratio:1.15}
+ .sg-table{font-size:.74rem}
+ .sg-table td,.sg-table th{padding:7px 6px}
+}
+</style>
+</head>
+<body class="app-page" data-page="sinyal-isleme-ve-modulasyon">
+<main class="app-content">
+<h1>Sinyal İşleme ve Modülasyon</h1>
+<p class="hint">Bir dalgayı saniyede kaç kez ölçersen onu geri kurabilirsin? Örnekleri al, frekanslarına ayır, bir taşıyıcının üstüne bindir, gürültüden süz. Her sekmede ölçülen değer kuramın verdiğinin yanında durur.</p>
+
+<div class="sg-tabs" role="tablist" aria-label="Sinyal işleme deneyleri">
+<button type="button" class="app-btn-ghost" id="tab-samp" role="tab" aria-controls="panel-samp" aria-selected="true" tabindex="0">01 · Örnekleme ve Nyquist</button>
+<button type="button" class="app-btn-ghost" id="tab-dft" role="tab" aria-controls="panel-dft" aria-selected="false" tabindex="-1">02 · DFT ve FFT</button>
+<button type="button" class="app-btn-ghost" id="tab-mod" role="tab" aria-controls="panel-mod" aria-selected="false" tabindex="-1">03 · AM ve FM</button>
+<button type="button" class="app-btn-ghost" id="tab-filt" role="tab" aria-controls="panel-filt" aria-selected="false" tabindex="-1">04 · Sayısal süzgeçler</button>
+</div>
+
+<!-- ───────── 1 · Örnekleme ───────── -->
+<section id="panel-samp" role="tabpanel" aria-labelledby="tab-samp">
+<div class="sg-grid"><div>
+<div class="sg-plate"><h2>Sürekli dalga, örnekler ve sinc ile geri kurma</h2>
+<canvas class="sg-canvas" id="sampTime" role="img" aria-label="Kaydın ortasındaki bir saniye: sürekli kosinüs, örnek noktaları ve örneklerden sinc toplamıyla kurulan eğri"></canvas>
+<p class="sg-caption">İnce gri: gerçek sinyal x(t) = cos(2πft + 30°). Turuncu noktalar: fₛ hızında alınan örnekler. Turkuaz: örneklerden Whittaker–Shannon (sinc) toplamıyla kurulan eğri. Kayıt 8 s; çizilen bölüm ortadaki 1 saniyedir.</p></div>
+<div class="sg-plate"><h2>Örneklerin tayfı ve katlanma</h2>
+<canvas class="sg-canvas is-low" id="sampSpec" role="img" aria-label="Solda örneklenmiş verinin Hann pencereli DFT genliği, sağda gerçek frekansın görünen frekansa katlanma diyagramı"></canvas>
+<p class="sg-caption">Sol: örneklerin Hann pencereli DFT'si, 0 ile fₛ/2 arası. Sağ: katlanma diyagramı; yatay eksen gerçek frekans f, dikey eksen görünen frekans. Kesikli dikey çizgiler fₛ/2'nin katları; nokta, seçili f.</p></div>
+<div class="sg-stats" aria-live="polite">
+<div class="sg-stat"><small>Nyquist frekansı fₛ/2</small><strong id="sampNyq"></strong></div>
+<div class="sg-stat"><small>Kuram |f − k·fₛ|</small><strong id="sampAppTh"></strong></div>
+<div class="sg-stat is-meas"><small>Ölçülen görünen frekans (DFT)</small><strong id="sampAppMeas"></strong></div>
+<div class="sg-stat"><small>Fark</small><strong id="sampAppDiff"></strong></div>
+<div class="sg-stat is-meas"><small>Geri kurma hatası (RMS, orta 2 s)</small><strong id="sampRecErr"></strong></div>
+<div class="sg-stat"><small>Örnek sayısı N = fₛ·8 s</small><strong id="sampN"></strong></div>
+</div>
+<p class="sg-status" id="sampStatus" role="status"></p>
+<div class="sg-plate"><h2>Vagon tekerleği: kamera karelerinde dönüş</h2>
+<canvas class="sg-canvas is-low" id="sampWheel" role="img" aria-label="Solda gerçek dönen tek kollu tekerlek, sağda aynı tekerleğin yalnız kamera karelerinde görünen hâli; ikisi de on kat ağır çekim"></canvas>
+<p class="sg-caption">Tekerlek saniyede f tur döner; kamera saniyede fₛ kare çeker. İkisi de 10 kat ağır çekimde gösterilir. Gözümüz bir kareden ötekine en kısa açıyla geçen dönüşü görür.</p></div>
+<div class="sg-stats" aria-live="polite">
+<div class="sg-stat"><small>Kuram f − fₛ·yuvarla(f/fₛ)</small><strong id="sampWheelTh"></strong></div>
+<div class="sg-stat is-meas"><small>Ölçülen (kareler arası açı)</small><strong id="sampWheelMeas"></strong></div>
+<div class="sg-stat"><small>Görünen yön</small><strong id="sampWheelDir"></strong></div>
+</div>
+<h3 class="sg-sub">Nicemleme: b bitlik bir çözücü</h3>
+<div class="sg-plate"><h2>Basamaklar ve nicemleme hatası</h2>
+<canvas class="sg-canvas is-low" id="qCanvas" role="img" aria-label="Üstte bir periyot sinüs ve nicemlenmiş basamaklı hâli, altta basamak boyuna bölünmüş hata"></canvas>
+<p class="sg-caption">Üst: tam ölçek ±1 aralığında sinüs (gri) ve 2ᵇ düzeyli nicemlenmiş hâli (turuncu). Alt: hata e/Δ; −0,5 ile +0,5 arasında kalır.</p></div>
+<div class="sg-stats" aria-live="polite">
+<div class="sg-stat"><small>Basamak Δ = 2/2ᵇ</small><strong id="qDelta"></strong></div>
+<div class="sg-stat is-meas"><small>Ölçülen SQNR</small><strong id="qSqnrMeas"></strong></div>
+<div class="sg-stat"><small>Kuram 6,02b + 1,76 + A (dB)</small><strong id="qSqnrTh"></strong></div>
+<div class="sg-stat"><small>Fark</small><strong id="qSqnrDiff"></strong></div>
+<div class="sg-stat is-meas"><small>Ölçülen hata RMS / Δ</small><strong id="qNoiseMeas"></strong></div>
+<div class="sg-stat"><small>Kuram 1/√12</small><strong id="qNoiseTh"></strong></div>
+</div>
+<p class="sg-status" id="qStatus" role="status"></p>
+</div>
+<aside class="sg-panel" aria-label="Örnekleme ayarları"><h2>Sinyal ve örnekleyici</h2>
+<div class="sg-field"><label for="sampF"><span>Sinyal frekansı f</span> <output id="sampFOut"></output></label><input id="sampF" type="range" min="0.5" max="50" step="0.5" value="3"></div>
+<div class="sg-field"><label for="sampFs"><span>Örnekleme frekansı fₛ</span> <output id="sampFsOut"></output></label><input id="sampFs" type="range" min="5" max="60" step="1" value="20"></div>
+<div class="sg-row">
+<button type="button" class="app-btn-ghost" id="sampSafe">f = 3, fₛ = 20</button>
+<button type="button" class="app-btn-ghost" id="sampNyqBtn">f = fₛ/2</button>
+<button type="button" class="app-btn-ghost" id="sampAlias">f = 17 Hz: geri dönen tekerlek</button>
+<button type="button" class="app-btn-ghost" id="sampSync">f = fₛ: duran tekerlek</button>
+<button type="button" class="app-btn-ghost" id="sampPlus">f = 21 Hz: yavaş ileri</button>
+<button type="button" class="app-btn-ghost" id="sampPlay" aria-pressed="false">Tekerleği duraklat</button>
+</div>
+<div class="sg-field"><label for="qBits"><span>Bit sayısı b</span> <output id="qBitsOut"></output></label><input id="qBits" type="range" min="1" max="16" step="1" value="8"></div>
+<div class="sg-field"><label for="qAmp"><span>Sinüs genliği A (tam ölçeğe göre)</span> <output id="qAmpOut"></output></label><input id="qAmp" type="range" min="-40" max="0" step="1" value="0"></div>
+<div class="sg-row">
+<button type="button" class="app-btn-ghost" id="qCd">16 bit (CD)</button>
+<button type="button" class="app-btn-ghost" id="qThree">3 bit</button>
+<button type="button" class="app-btn-ghost" id="qQuiet">8 bit, −30 dB</button>
+<button type="button" class="app-btn-ghost" id="sampReset">Sekmeyi sıfırla</button>
+</div>
+<div class="sg-formula">f &lt; fₛ/2 ise: x(t) = Σ x[n]·sinc(fₛt − n)<br>görünen frekans = |f − k·fₛ|, k = yuvarla(f/fₛ)<br>SQNR ≈ 6,02·b + 1,76 dB (tam ölçek sinüs)</div>
+<p class="sg-note">Model: tek bir kosinüs, faz 30°, 8 s boyunca ideal anlık örnekleme (titreşimsiz saat, örnek tutma yok). Görünen frekans, örneklerin Hann pencereli DFT tepesinden ölçülür; tepe, çevresinde DTFT'nin altın oran aramasıyla inceltilir (sonsuz sıfır doldurmaya eşdeğer). Geri kurma yalnız 8 saniyelik örneklerle yapılır; sonsuz toplam yerine sonlu toplam kullanıldığından küçük bir hata kalır.</p>
+<p class="sg-note">Nicemleyici ±1 aralığında 2ᵇ düzeyli, düzeyleri basamak ortasında (orta yükselen) duran düzgün bir çözücüdür. SQNR, 65 536 örneklik bir sinüsün gücü ile nicemleme hatasının gücünün oranıdır; sinüsün evresi her örnekte altın oranla ilerler, bu yüzden basamaklar eşit sıklıkla taranır. Kısayollar: <kbd>Boşluk</kbd> tekerleği duraklatır, <kbd>R</kbd> etkin sekmeyi sıfırlar.</p>
+</aside></div>
+</section>
+
+<!-- ───────── 2 · DFT ve FFT ───────── -->
+<section id="panel-dft" role="tabpanel" aria-labelledby="tab-dft" hidden>
+<div class="sg-grid"><div>
+<div class="sg-plate"><h2>Genlik tayfı (dB)</h2>
+<canvas class="sg-canvas" id="dftSpec" role="img" aria-label="Seçili pencere ve sıfır doldurmayla hesaplanan genlik tayfı; DFT kutuları nokta, sıfır doldurmalı tayf çizgi"></canvas>
+<p class="sg-caption">Noktalar: N noktalı DFT'nin kutuları. Çizgi: sıfır doldurmalı (N·Z noktalı) tayf. Mor kesikli: gerçek f₁ ve f₂. 0 dB = genlik 1.</p></div>
+<div class="sg-plate"><h2>Kayıt ve pencere</h2>
+<canvas class="sg-canvas is-low" id="dftTime" role="img" aria-label="Pencerelenmiş N örneklik kayıt ve pencere zarfı"></canvas>
+<p class="sg-caption">Turuncu: pencereyle çarpılmış örnekler x[n]·w[n]. Turkuaz kesikli: pencere w[n]. Kayıt süresi N/fₛ.</p></div>
+<div class="sg-stats" aria-live="polite">
+<div class="sg-stat"><small>Çözünürlük Δf = fₛ/N</small><strong id="dftDf"></strong></div>
+<div class="sg-stat"><small>f₁ kutu cinsinden f₁/Δf</small><strong id="dftBins"></strong></div>
+<div class="sg-stat"><small>Kayıt süresi N/fₛ</small><strong id="dftDur"></strong></div>
+<div class="sg-stat is-meas"><small>Ölçülen tepe genliği (N noktalı)</small><strong id="dftPeakMeas"></strong></div>
+<div class="sg-stat"><small>Kuram |W(δ)|/W(0), tek ton</small><strong id="dftPeakTh"></strong></div>
+<div class="sg-stat"><small>Fark</small><strong id="dftPeakDiff"></strong></div>
+<div class="sg-stat is-meas"><small>Tepe frekansı (sıfır doldurmalı)</small><strong id="dftFpk"></strong></div>
+<div class="sg-stat"><small>Gerçek f₁'den fark</small><strong id="dftFpkErr"></strong></div>
+<div class="sg-stat"><small>Izgara aralığı fₛ/(N·Z)</small><strong id="dftGrid"></strong></div>
+<div class="sg-stat is-meas"><small>f₂'de ölçülen düzey</small><strong id="dftF2Lvl"></strong></div>
+<div class="sg-stat"><small>Gerçek a₂</small><strong id="dftF2Th"></strong></div>
+<div class="sg-stat is-meas"><small>f₂ ayrı bir tepe mi? (ince ızgara)</small><strong id="dftF2Sep"></strong></div>
+</div>
+<p class="sg-status" id="dftStatus" role="status"></p>
+<div class="sg-table-wrap" id="dftSqWrap" tabindex="0" role="region" aria-label="Kare dalganın harmonikleri" hidden><table class="sg-table"><caption>Kare dalga harmonikleri: dikdörtgen pencere, eş fazlı örnekleme. Kesin değer, örneklenmiş kare dalganın DFT'sidir.</caption><thead><tr><th scope="col">n</th><th scope="col">Ölçülen Aₙ</th><th scope="col">4/(πn)</th><th scope="col">Fark</th><th scope="col">4/(P·sin(πn/P))</th></tr></thead><tbody id="dftSqRows"></tbody></table></div>
+<h3 class="sg-sub">Kendi FFT'miz, doğrudan DFT'ye karşı</h3>
+<div class="sg-plate"><h2>Karmaşık çarpma sayısı</h2>
+<canvas class="sg-canvas is-low" id="dftOps" role="img" aria-label="Logaritmik eksende doğrudan DFT ve FFT için sayılan karmaşık çarpma sayısı, N'ye karşı"></canvas>
+<p class="sg-caption">Turuncu: doğrudan DFT (N²). Turkuaz: radix-2 FFT ((N/2)·log₂N kelebek). Sayılar algoritmaların içindeki sayaçlardan okunur; seçili N vurgulu.</p></div>
+<div class="sg-stats" aria-live="polite">
+<div class="sg-stat is-meas"><small>Sayılan çarpma: doğrudan DFT</small><strong id="dftOpsDft"></strong></div>
+<div class="sg-stat is-meas"><small>Sayılan çarpma: FFT</small><strong id="dftOpsFft"></strong></div>
+<div class="sg-stat"><small>Kuram N² ve (N/2)·log₂N</small><strong id="dftOpsTh"></strong></div>
+<div class="sg-stat is-meas"><small>Oran DFT/FFT</small><strong id="dftOpsRatio"></strong></div>
+<div class="sg-stat is-meas"><small>En büyük fark |FFT − DFT| / en büyük |X|</small><strong id="dftErr"></strong></div>
+<div class="sg-stat"><small>Süre DFT / FFT (bu tarayıcıda)</small><strong id="dftTimeMs"></strong></div>
+</div>
+</div>
+<aside class="sg-panel" aria-label="DFT ayarları"><h2>Kayıt, pencere, sinyal</h2>
+<div class="sg-field"><label for="dftSig">Sinyal</label><select id="dftSig"><option value="tones" selected>İki kosinüs: f₁ ve f₂ = f₁ + Δ</option><option value="square">Kare dalga (P örnek periyotlu)</option></select></div>
+<div class="sg-field"><label for="dftN">Kayıt uzunluğu N</label><select id="dftN"><option value="16">16</option><option value="32">32</option><option value="64">64</option><option value="128">128</option><option value="256" selected>256</option><option value="512">512</option><option value="1024">1024</option><option value="2048">2048</option><option value="4096">4096</option></select></div>
+<div class="sg-field"><label for="dftWin">Pencere</label><select id="dftWin"><option value="rect" selected>Dikdörtgen (pencere yok)</option><option value="hann">Hann</option></select></div>
+<div class="sg-field"><label for="dftPad">Sıfır doldurma katsayısı Z</label><select id="dftPad"><option value="1" selected>1 (yok)</option><option value="2">2</option><option value="4">4</option><option value="8">8</option><option value="16">16</option></select></div>
+<div class="sg-field" data-sig="tones"><label for="dftF1"><span>Birinci ton f₁</span> <output id="dftF1Out"></output></label><input id="dftF1" type="range" min="8" max="500" step="0.25" value="102"></div>
+<div class="sg-field" data-sig="tones"><label for="dftDelta"><span>İkinci tonun uzaklığı Δ</span> <output id="dftDeltaOut"></output></label><input id="dftDelta" type="range" min="0" max="64" step="0.25" value="16"></div>
+<div class="sg-field" data-sig="tones"><label for="dftA2">İkinci tonun genliği a₂</label><select id="dftA2"><option value="0">0 (ikinci ton yok)</option><option value="1">1 (eşit)</option><option value="0.01" selected>0,01 (−40 dB)</option></select></div>
+<div class="sg-field" data-sig="square" hidden><label for="dftP">Kare dalga periyodu P (örnek)</label><select id="dftP"><option value="8">8</option><option value="16">16</option><option value="32" selected>32</option><option value="64">64</option><option value="128">128</option></select></div>
+<div class="sg-row">
+<button type="button" class="app-btn-ghost" id="dftCenter">f₁ kutu ortasında</button>
+<button type="button" class="app-btn-ghost" id="dftHalf">f₁ iki kutu arasında</button>
+<button type="button" class="app-btn-ghost" id="dftHannBtn">Hann ile zayıf ton</button>
+<button type="button" class="app-btn-ghost" id="dftClose">Yarım kutu arayla iki ton</button>
+<button type="button" class="app-btn-ghost" id="dftSquare">Kare dalga</button>
+<button type="button" class="app-btn-ghost" id="dftReset">Sekmeyi sıfırla</button>
+</div>
+<div class="sg-formula">X[k] = Σ x[n]·w[n]·e<sup>−2πikn/N</sup><br>Δf = fₛ/N; tepe: Aₖ = 2|X[k]| / Σw<br>FFT: X = E + e<sup>−2πik/N</sup>·O (çift/tek yarılar)</div>
+<p class="sg-note">fₛ = 1024 Hz sabit bir öğretim değeridir; böylece Δf her N için 0,25 Hz'in katı olur ve kaydırıcıyla tam kutu frekanslarına ulaşılır. f₂ = f₁ + Δ, 0,7 rad evreyle eklenir. Genlik, pencerenin toplamıyla (Σw) normlanır: tam kutudaki tek ton 1 (0 dB) okunur. Kuram sütunu, negatif frekanstaki ayna ve ikinci ton hesaba katılmadan tek bir tonun pencere çekirdeğinden gelen değerdir; ölçülen değer o terimleri de içerir.</p>
+<p class="sg-note">Sıfır doldurma kaydın sonuna sıfır ekler: tayf daha sık noktalarda örneklenir, ama kayıt uzamaz. Ayırma gücü kayıt süresine (N/fₛ) bağlıdır. FFT ve doğrudan DFT bu sayfada yazılmıştır; FFT sayacı önemsiz çarpanlı kelebekleri de sayar.</p>
+</aside></div>
+</section>
+
+<!-- ───────── 3 · AM ve FM ───────── -->
+<section id="panel-mod" role="tabpanel" aria-labelledby="tab-mod" hidden>
+<div class="sg-grid"><div>
+<div class="sg-plate"><h2>Modüleli dalga</h2>
+<canvas class="sg-canvas is-low" id="modTime" role="img" aria-label="İki mesaj periyodu boyunca modüleli taşıyıcı; AM'de zarf, FM'de anlık frekans"></canvas>
+<p class="sg-caption" id="modTimeCap">Gri: modüleli taşıyıcı (çizim için taşıyıcı seyreltildi). Turkuaz: mesajın beklenen zarfı 1 + m·cos(2πfₘt).</p></div>
+<div class="sg-plate"><h2>Tayf: taşıyıcı ve yan bantlar</h2>
+<canvas class="sg-canvas" id="modSpec" role="img" aria-label="Taşıyıcı frekansı çevresinde ölçülen FFT genlik çizgileri ve kuramın verdiği değerler"></canvas>
+<p class="sg-caption" id="modSpecCap">Çubuklar: 16 384 noktalı FFT'den ölçülen genlikler. Halkalar: kuram. Yatay eksen taşıyıcıdan uzaklık, fₘ biriminde.</p></div>
+<div class="sg-stats" aria-live="polite" data-mode="am">
+<div class="sg-stat is-meas"><small>Ölçülen taşıyıcı genliği</small><strong id="amCar"></strong></div>
+<div class="sg-stat is-meas"><small>Ölçülen yan bantlar fₜ − fₘ / fₜ + fₘ</small><strong id="amSb"></strong></div>
+<div class="sg-stat"><small>Kuram: 1 ve m/2</small><strong id="amSbTh"></strong></div>
+<div class="sg-stat is-meas"><small>Yan bantlardaki güç payı (ölçülen)</small><strong id="amFrac"></strong></div>
+<div class="sg-stat"><small>Kuram m²/(2 + m²)</small><strong id="amFracTh"></strong></div>
+<div class="sg-stat"><small>Fark</small><strong id="amFracDiff"></strong></div>
+</div>
+<div class="sg-stats" aria-live="polite" data-mode="fm" hidden>
+<div class="sg-stat"><small>Frekans sapması Δf = β·fₘ</small><strong id="fmDev"></strong></div>
+<div class="sg-stat"><small>Carson bant genişliği 2(Δf + fₘ)</small><strong id="fmCarson"></strong></div>
+<div class="sg-stat is-meas"><small>Ölçülen bant genişliği (gücün 98 %'i)</small><strong id="fmB98"></strong></div>
+<div class="sg-stat"><small>Aynı bant, Bessel serisinden</small><strong id="fmB98Th"></strong></div>
+<div class="sg-stat is-meas"><small>Ölçülen taşıyıcı payı J₀²</small><strong id="fmJ0"></strong></div>
+<div class="sg-stat is-meas"><small>Çizgiler dışında kalan güç</small><strong id="fmResid"></strong></div>
+</div>
+<p class="sg-status" id="modStatus" role="status"></p>
+<div class="sg-table-wrap" id="fmTableWrap" tabindex="0" role="region" aria-label="FM yan bant genlikleri" hidden><table class="sg-table"><caption>Yan bant genlikleri: FFT'nin fₜ + n·fₘ kutusundan işaretiyle okunan değer ve bu sayfanın kendi Bessel serisi Jₙ(β).</caption><thead><tr><th scope="col">n</th><th scope="col">Ölçülen</th><th scope="col">Jₙ(β) serisi</th><th scope="col">Fark</th></tr></thead><tbody id="fmRows"></tbody></table></div>
+<div class="sg-plate"><h2 id="modAuxTitle">Demodülasyon: zarf ve eş evreli</h2>
+<canvas class="sg-canvas is-low" id="modAux" role="img" aria-label="AM'de zarf ve eş evreli demodülatör çıkışları, FM'de Bessel fonksiyonları ve seçili beta"></canvas>
+<p class="sg-caption" id="modAuxCap">Turuncu: zarf dedektörü (analitik sinyalin modülü). Turkuaz: eş evreli dedektör (yerel osilatörle çarpıp alçak geçiren süzgeç). Gri kesikli: gönderilen mesaj 1 + m·cos(2πfₘt).</p></div>
+<div class="sg-stats" aria-live="polite" data-mode="am">
+<div class="sg-stat is-meas"><small>Zarf: ölçülen mesaj genliği</small><strong id="amEnvA"></strong></div>
+<div class="sg-stat is-meas"><small>Zarf: bozulma (THD, 2.–5. harmonik)</small><strong id="amEnvThd"></strong></div>
+<div class="sg-stat"><small>Kuram (m ≤ 1): genlik m, THD 0</small><strong id="amEnvTh"></strong></div>
+<div class="sg-stat is-meas"><small>Eş evreli: ölçülen mesaj genliği</small><strong id="amCohA"></strong></div>
+<div class="sg-stat"><small>Kuram m·cos φ</small><strong id="amCohTh"></strong></div>
+<div class="sg-stat is-meas"><small>Eş evreli: bozulma (THD)</small><strong id="amCohThd"></strong></div>
+</div>
+</div>
+<aside class="sg-panel" aria-label="Modülasyon ayarları"><h2>Taşıyıcı ve mesaj</h2>
+<div class="sg-field"><label for="modType">Modülasyon</label><select id="modType"><option value="am" selected>AM: genlik modülasyonu</option><option value="fm">FM: frekans modülasyonu</option></select></div>
+<div class="sg-field"><label for="modFm"><span>Mesaj frekansı fₘ</span> <output id="modFmOut"></output></label><input id="modFm" type="range" min="20" max="200" step="10" value="100"></div>
+<div class="sg-field" data-mode="am"><label for="modM"><span>Modülasyon indisi m</span> <output id="modMOut"></output></label><input id="modM" type="range" min="0" max="1.5" step="0.01" value="0.5"></div>
+<div class="sg-field" data-mode="am"><label for="modPhi"><span>Yerel osilatör evre hatası φ</span> <output id="modPhiOut"></output></label><input id="modPhi" type="range" min="0" max="90" step="1" value="0"></div>
+<div class="sg-field" data-mode="fm" hidden><label for="modBeta"><span>Modülasyon indisi β</span> <output id="modBetaOut"></output></label><input id="modBeta" type="range" min="0" max="10" step="0.005" value="2"></div>
+<div class="sg-row">
+<button type="button" class="app-btn-ghost" id="modAm05">AM, m = 0,5</button>
+<button type="button" class="app-btn-ghost" id="modAm1">AM, m = 1</button>
+<button type="button" class="app-btn-ghost" id="modAm15">AM, m = 1,5: aşırı</button>
+<button type="button" class="app-btn-ghost" id="modFmNarrow">FM, β = 0,2</button>
+<button type="button" class="app-btn-ghost" id="modFmZero">FM, β = 2,405</button>
+<button type="button" class="app-btn-ghost" id="modFm5">FM, β = 5</button>
+<button type="button" class="app-btn-ghost" id="modReset">Sekmeyi sıfırla</button>
+</div>
+<div class="sg-formula">AM: s(t) = [1 + m·cos(2πfₘt)]·cos(2πfₜt)<br>FM: s(t) = cos(2πfₜt + β·sin(2πfₘt)) = Σ Jₙ(β)·cos(2π(fₜ + nfₘ)t)<br>Jₙ(β) = Σₖ (−1)ᵏ (β/2)<sup>2k+n</sup> / (k!·(k+n)!)</div>
+<p class="sg-note">Öğretim değerleri: taşıyıcı fₜ = 4000 Hz, örnekleme 16 384 Hz, kayıt 1 s (16 384 örnek). fₘ tam sayı Hz olduğundan her çizgi tam bir FFT kutusuna düşer; pencere gerekmez. Gerçek yayında taşıyıcı çok daha yüksektir (orta dalga AM yaklaşık 0,5–1,6 MHz, FM radyo yaklaşık 100 MHz); oranlar ve tayfın biçimi aynıdır.</p>
+<p class="sg-note">Zarf dedektörü burada ideal tutulur: analitik sinyalin modülü (Hilbert dönüşümü, FFT ile). Gerçek diyot dedektörü bunu yaklaşık yapar. Eş evreli dedektör taşıyıcının kopyasıyla çarpar, sonra 2000 Hz'in üstünü siler. THD, mesajın 2.–5. harmoniklerinin karekök toplam gücünün temel bileşene oranıdır.</p>
+</aside></div>
+</section>
+
+<!-- ───────── 4 · Süzgeçler ───────── -->
+<section id="panel-filt" role="tabpanel" aria-labelledby="tab-filt" hidden>
+<div class="sg-grid"><div>
+<div class="sg-plate"><h2>Frekans yanıtı: katsayılardan ve ölçülerek</h2>
+<canvas class="sg-canvas" id="fResp" role="img" aria-label="Üstte genlik yanıtı desibel, altta faz; çizgi katsayılardan hesaplanan, noktalar sinüs geçirilerek ölçülen"></canvas>
+<p class="sg-caption">Çizgi: H(e<sup>iω</sup>) katsayılardan. Turuncu noktalar: süzgeçten kosinüs geçirip geçici rejim söndükten sonra genlik ve evre ölçümü. Mor dikey çizgi: deneme frekansı. Alt bant: evre, derece.</p></div>
+<div class="sg-stats" aria-live="polite">
+<div class="sg-stat"><small>|H| katsayılardan (deneme frekansında)</small><strong id="fHth"></strong></div>
+<div class="sg-stat is-meas"><small>|H| sinüs geçirerek ölçülen</small><strong id="fHmeas"></strong></div>
+<div class="sg-stat"><small>Fark</small><strong id="fHdiff"></strong></div>
+<div class="sg-stat"><small>Evre katsayılardan</small><strong id="fPhTh"></strong></div>
+<div class="sg-stat is-meas"><small>Evre ölçülen</small><strong id="fPhMeas"></strong></div>
+<div class="sg-stat" id="f3Box"><small id="f3Label">−3 dB frekansı (katsayılardan)</small><strong id="f3db"></strong></div>
+</div>
+<p class="sg-status" id="fStatus" role="status"></p>
+<div class="sg-table-wrap" tabindex="0" role="region" aria-label="Ölçülen frekans yanıtı noktaları"><table class="sg-table"><caption>Ölçülen ve hesaplanan yanıt; her satırda süzgeçten ayrı bir kosinüs geçirildi.</caption><thead><tr><th scope="col">f / Hz</th><th scope="col">|H| hesap / dB</th><th scope="col">|H| ölçülen / dB</th><th scope="col">Evre hesap</th><th scope="col">Evre ölçülen</th></tr></thead><tbody id="fRows"></tbody></table></div>
+<div class="sg-plate"><h2>z düzlemi: kutuplar ve sıfırlar</h2>
+<canvas class="sg-canvas is-square" id="fZ" role="img" aria-label="z düzleminde birim çember, süzgecin kutupları çarpı, sıfırları halka"></canvas>
+<p class="sg-caption">Çarpı: kutup, halka: sıfır, yanındaki sayı katlılık. Bütün kutuplar birim çemberin içindeyse süzgeç kararlıdır. FIR süzgecin bütün kutupları başlangıç noktasındadır.</p></div>
+<div class="sg-stats" aria-live="polite">
+<div class="sg-stat"><small>En büyük kutup yarıçapı |p|</small><strong id="fPoleMax"></strong></div>
+<div class="sg-stat is-meas"><small>Dürtü yanıtının sönümünden ölçülen</small><strong id="fDecay"></strong></div>
+<div class="sg-stat"><small>Katsayı sayısı (b; a)</small><strong id="fCoef"></strong></div>
+</div>
+<div class="sg-plate"><h2>Gürültülü sinyali süzmek</h2>
+<canvas class="sg-canvas is-low" id="fTime" role="img" aria-label="Gürültülü giriş, süzgeç çıkışı ve temiz sinyal, geçici rejimden sonraki yarım saniye"></canvas>
+<p class="sg-caption">Gri: gürültülü giriş. Turkuaz: süzgeç çıkışı. Turuncu kesikli: temiz sinüsün süzgeçten geçmiş hâli (çıkıştaki sinyal kısmı). Geçici rejim sonrası yarım saniye.</p></div>
+<div class="sg-stats" aria-live="polite">
+<div class="sg-stat is-meas"><small>Girişte SNR (ölçülen)</small><strong id="fSnrIn"></strong></div>
+<div class="sg-stat"><small>Kuram 10·log(0,5/σ²)</small><strong id="fSnrInTh"></strong></div>
+<div class="sg-stat is-meas"><small>Çıkışta SNR (ölçülen)</small><strong id="fSnrOut"></strong></div>
+<div class="sg-stat is-meas"><small>SNR kazancı (ölçülen)</small><strong id="fGainMeas"></strong></div>
+<div class="sg-stat"><small>Kuram 10·log(|H(f₀)|² / Σh²)</small><strong id="fGainTh"></strong></div>
+<div class="sg-stat"><small>Fark</small><strong id="fGainDiff"></strong></div>
+</div>
+<p class="sg-status" id="fNoiseStatus" role="status"></p>
+</div>
+<aside class="sg-panel" aria-label="Süzgeç ayarları"><h2>Süzgeç tasarımı</h2>
+<div class="sg-field"><label for="fType">Süzgeç türü</label><select id="fType"><option value="ma">Hareketli ortalama (FIR)</option><option value="sinc" selected>Pencereli sinc alçak geçiren (FIR)</option><option value="iir1">Birinci derece IIR (üstel ortalama)</option><option value="biquad">İkinci derece IIR alçak geçiren (biquad)</option><option value="reson">Rezonatör: kutupları elle yerleştir</option></select></div>
+<div class="sg-field" data-ftype="ma"><label for="fMa"><span>Ortalama uzunluğu M</span> <output id="fMaOut"></output></label><input id="fMa" type="range" min="2" max="64" step="1" value="8"></div>
+<div class="sg-field" data-ftype="sinc"><label for="fTaps"><span>Katsayı sayısı (derece + 1)</span> <output id="fTapsOut"></output></label><input id="fTaps" type="range" min="5" max="201" step="2" value="51"></div>
+<div class="sg-field" data-ftype="sinc iir1 biquad reson"><label for="fFc"><span id="fFcLabel">Kesim frekansı fₖ</span> <output id="fFcOut"></output></label><input id="fFc" type="range" min="5" max="450" step="5" value="50"></div>
+<div class="sg-field" data-ftype="biquad"><label for="fQ"><span>Nitelik katsayısı Q</span> <output id="fQOut"></output></label><input id="fQ" type="range" min="0.5" max="10" step="0.01" value="0.71"></div>
+<div class="sg-field" data-ftype="reson"><label for="fR"><span>Kutup yarıçapı r</span> <output id="fROut"></output></label><input id="fR" type="range" min="0.8" max="1.02" step="0.005" value="0.95"></div>
+<div class="sg-field"><label for="fTest"><span>Deneme frekansı</span> <output id="fTestOut"></output></label><input id="fTest" type="range" min="1" max="499" step="1" value="30"></div>
+<div class="sg-field"><label for="fSig"><span>Temiz sinyal frekansı f₀</span> <output id="fSigOut"></output></label><input id="fSig" type="range" min="1" max="200" step="1" value="10"></div>
+<div class="sg-field"><label for="fSigma"><span>Gürültü σ (beyaz, Gauss)</span> <output id="fSigmaOut"></output></label><input id="fSigma" type="range" min="0.1" max="3" step="0.1" value="1"></div>
+<div class="sg-row">
+<button type="button" class="app-btn-ghost" id="fPresetMa">Hareketli ortalama, M = 8</button>
+<button type="button" class="app-btn-ghost" id="fPresetBiq">Biquad, Q = 5</button>
+<button type="button" class="app-btn-ghost" id="fPresetUnstable">Rezonatör, r = 1,01</button>
+<button type="button" class="app-btn-ghost" id="fSeed">Yeni gürültü (tohum 1)</button>
+<button type="button" class="app-btn-ghost" id="filtReset">Sekmeyi sıfırla</button>
+</div>
+<div class="sg-formula">y[n] = Σ bₖ·x[n−k] − Σ aₖ·y[n−k] (a₀ = 1)<br>H(e<sup>iω</sup>) = Σ bₖe<sup>−iωk</sup> / Σ aₖe<sup>−iωk</sup>, ω = 2πf/fₛ<br>beyaz gürültü için çıkış gücü = σ²·Σ h[n]²</div>
+<p class="sg-note">Öğretim değeri: fₛ = 1000 Hz. Pencereli sinc: ideal alçak geçirenin dürtü yanıtı Hamming penceresiyle kesilir ve DC kazancı 1'e normlanır; kesim frekansında kazanç yaklaşık −6 dB'dir. Birinci derece IIR: a = e<sup>−2πfₖ/fₛ</sup>. Biquad: R. Bristow-Johnson'ın alçak geçiren reçetesi. Rezonatör: kutuplar r·e<sup>±iθ</sup>, θ = 2πfₖ/fₛ; r &lt; 1 için tepe kazancı 1'e normlanır, r ≥ 1'de normlama yapılamaz, b₀ küçük bir sabittir.</p>
+<p class="sg-note">Ölçüm: kosinüs, geçici rejim 10⁻¹⁰ düzeyine sönene kadar süzgeçten geçirilir, son 2000 örneğe cos ve sin en küçük kareler uydurulur. Gürültü deneyi tohumlu (mulberry32 + Box–Muller), 8192 örnek; sinyal ve gürültü süzgeçten ayrı ayrı geçirilir (doğrusallık), böylece çıkıştaki ikisinin gücü ayrı ölçülür.</p>
+</aside></div>
+</section>
+
+<details class="sg-sources"><summary>Model sınırları, sayı biçimi ve kaynaklar</summary>
+<p>Bütün sinyaller hesapla üretilir; gerçek ölçüm, analog süzgeç, saat titreşimi ve kanal gürültüsü (dördüncü sekmedeki tohumlu gürültü dışında) yoktur. Frekanslar ve örnekleme hızları öğretim değerleridir. Sayılar Türkçe biçimdedir: ondalık virgül, eksi işareti "−", 10 000 ve üstünde dar boşlukla binlik ayırıcı. Desibel: güç oranları için 10·log₁₀, genlik oranları için 20·log₁₀.</p>
+<p>FFT, DFT, Bessel serisi, süzgeç tasarımı ve ölçümler bu sayfanın içindedir; dış kütüphane kullanılmaz. Hesap çekirdeği <code>window.SignalLab</code> olarak salt okunur açılır ve bağımsız bir test betiğiyle (Bessel integrali, kaba kuvvet DTFT, ayrı yazılmış süzgeç döngüsü) sınanır.</p>
+<ul>
+<li>A. V. Oppenheim, R. W. Schafer, <i>Discrete-Time Signal Processing</i> — örnekleme kuramı, DFT, FFT, süzgeç tasarımı (ders kitabı; sayfa bu kitaptaki standart bağıntıları kullanır).</li>
+<li>R. Bristow-Johnson, <i>Audio EQ Cookbook</i> — biquad alçak geçiren katsayıları.</li>
+<li>NIST Digital Library of Mathematical Functions, bölüm 10.2 ve 10.12 — Bessel serisi ve Jacobi–Anger açılımı.</li>
+</ul>
+</details>
+</main>
+
+<script>
+(() => {
+"use strict";
+/* KERNEL-BEGIN */
+const TAU = 2 * Math.PI;
+const SAMP = Object.freeze({ T: 8, phi: Math.PI / 6, qSamples: 65536 });
+const DFTC = Object.freeze({ fs: 1024, phase2: 0.7 });
+const MOD = Object.freeze({ fs: 16384, N: 16384, fc: 4000, lpf: 2000 });
+const FIL = Object.freeze({ fs: 1000, noiseLen: 8192, fitLen: 2000, grid: Object.freeze([10, 25, 50, 100, 150, 200, 300, 400, 490]) });
+function finite(...xs) { if (xs.some((x) => !Number.isFinite(x))) throw RangeError("Sonlu sayı gerekli"); }
+function isPow2(n) { return Number.isInteger(n) && n > 0 && (n & (n - 1)) === 0; }
+function nextPow2(n) { let p = 1; while (p < n) p <<= 1; return p; }
+
+/* Radix-2 Cooley–Tukey, yerinde, bit ters sıralı. Sayaç: her kelebek bir karmaşık çarpma. */
+function fft(reIn, imIn, inverse = false) {
+  const N = reIn.length; if (!isPow2(N)) throw RangeError("N ikinin kuvveti olmalı");
+  const re = Float64Array.from(reIn), im = imIn ? Float64Array.from(imIn) : new Float64Array(N);
+  for (let i = 1, j = 0; i < N; i++) { let bit = N >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+  let mults = 0; const sgn = inverse ? 1 : -1;
+  for (let len = 2; len <= N; len <<= 1) {
+    const half = len >> 1, ang = sgn * TAU / len;
+    for (let k = 0; k < half; k++) {
+      const wr = Math.cos(ang * k), wi = Math.sin(ang * k);
+      for (let i = k; i < N; i += len) { const j = i + half, tr = wr * re[j] - wi * im[j], ti = wr * im[j] + wi * re[j]; re[j] = re[i] - tr; im[j] = im[i] - ti; re[i] += tr; im[i] += ti; mults++; }
+    }
+  }
+  if (inverse) for (let i = 0; i < N; i++) { re[i] /= N; im[i] /= N; }
+  return { re, im, mults };
+}
+/* Doğrudan O(N²) DFT; dönüş çarpanları tablodan. */
+function dft(reIn, imIn) {
+  const N = reIn.length, c = new Float64Array(N), s = new Float64Array(N);
+  for (let k = 0; k < N; k++) { c[k] = Math.cos(TAU * k / N); s[k] = Math.sin(TAU * k / N); }
+  const re = new Float64Array(N), im = new Float64Array(N); let mults = 0;
+  for (let k = 0; k < N; k++) {
+    let sr = 0, si = 0, idx = 0;
+    for (let n = 0; n < N; n++) { const xr = reIn[n], xi = imIn ? imIn[n] : 0, wr = c[idx], wi = -s[idx]; sr += xr * wr - xi * wi; si += xr * wi + xi * wr; idx += k; if (idx >= N) idx -= N; mults++; }
+    re[k] = sr; im[k] = si;
+  }
+  return { re, im, mults };
+}
+function windowFn(kind, N) {
+  const w = new Float64Array(N);
+  for (let n = 0; n < N; n++) w[n] = kind === "hann" ? 0.5 - 0.5 * Math.cos(TAU * n / N) : kind === "hamming" ? (N === 1 ? 1 : 0.54 - 0.46 * Math.cos(TAU * n / (N - 1))) : 1;
+  return w;
+}
+/* Pencere çekirdeği |W(d)|/W(0), d kutu cinsinden (kapalı biçim: kaydırılmış Dirichlet çekirdekleri). */
+function kernelGain(kind, d, N) {
+  const R = (x) => { if (Math.abs(x) < 1e-12) return [N, 0]; const mag = Math.sin(Math.PI * x) / Math.sin(Math.PI * x / N), ph = -Math.PI * x * (N - 1) / N; return [mag * Math.cos(ph), mag * Math.sin(ph)]; };
+  if (kind === "hann") { const a = R(d), b = R(d - 1), c = R(d + 1); return Math.hypot(0.5 * a[0] - 0.25 * (b[0] + c[0]), 0.5 * a[1] - 0.25 * (b[1] + c[1])) / (0.5 * N); }
+  const a = R(d); return Math.hypot(a[0], a[1]) / N;
+}
+function oneSided(X, sumW) {
+  const N = X.re.length, A = new Float64Array(N / 2 + 1);
+  for (let k = 0; k <= N / 2; k++) A[k] = (k === 0 || k === N / 2 ? 1 : 2) * Math.hypot(X.re[k], X.im[k]) / sumW;
+  return A;
+}
+
+/* ── 1 · Örnekleme ── */
+function aliasFreq(f, fs) { finite(f, fs); if (fs <= 0) throw RangeError("fₛ > 0"); return Math.abs(f - fs * Math.round(f / fs)); }
+function aliasSigned(f, fs) { finite(f, fs); return f - fs * Math.round(f / fs); }
+function sampleSignal(f, fs) { const N = Math.round(fs * SAMP.T), x = new Float64Array(N); for (let n = 0; n < N; n++) x[n] = Math.cos(TAU * f * n / fs + SAMP.phi); return x; }
+function dtftMag(x, w, fs, f) { let sr = 0, si = 0; const step = -TAU * f / fs, cr = Math.cos(step), ci = Math.sin(step); let pr = 1, pi = 0; for (let n = 0; n < x.length; n++) { const v = x[n] * w[n]; sr += v * pr; si += v * pi; const t = pr * cr - pi * ci; pi = pr * ci + pi * cr; pr = t; if ((n & 63) === 63) { const a = step * (n + 1); pr = Math.cos(a); pi = Math.sin(a); } } return Math.hypot(sr, si); }
+function apparentMeasured(x, fs) {
+  const N = x.length, w = windowFn("hann", N), Z = nextPow2(8 * N), re = new Float64Array(Z);
+  for (let n = 0; n < N; n++) re[n] = x[n] * w[n];
+  const X = fft(re); let kmax = 0, best = -1;
+  for (let k = 0; k <= Z / 2; k++) { const m = Math.hypot(X.re[k], X.im[k]); if (m > best) { best = m; kmax = k; } }
+  let lo = Math.max(0, (kmax - 1) * fs / Z), hi = Math.min(fs / 2, (kmax + 1) * fs / Z);
+  const g = (Math.sqrt(5) - 1) / 2; let a = hi - g * (hi - lo), b = lo + g * (hi - lo), fa = dtftMag(x, w, fs, a), fb = dtftMag(x, w, fs, b);
+  for (let it = 0; it < 80 && hi - lo > 1e-10; it++) { if (fa < fb) { lo = a; a = b; fa = fb; b = lo + g * (hi - lo); fb = dtftMag(x, w, fs, b); } else { hi = b; b = a; fb = fa; a = hi - g * (hi - lo); fa = dtftMag(x, w, fs, a); } }
+  const fpk = (lo + hi) / 2, A = oneSided(X, w.reduce((s, v) => s + v, 0));
+  return { f: fpk, spectrum: A, Z };
+}
+/* Whittaker–Shannon: sin(π(fₛt − n)) = (−1)ⁿ sin(πfₛt) */
+function reconstruct(x, fs, t) {
+  const u0 = fs * t, n0 = Math.round(u0);
+  if (Math.abs(u0 - n0) < 1e-9 && n0 >= 0 && n0 < x.length) return x[n0];
+  const s = Math.sin(Math.PI * u0) / Math.PI; let sum = 0;
+  for (let n = 0; n < x.length; n++) sum += (n & 1 ? -x[n] : x[n]) / (u0 - n);
+  return s * sum;
+}
+function reconError(x, f, fs) {
+  const M = 1000, t0 = SAMP.T / 2 - 1; let e2 = 0;
+  for (let i = 0; i < M; i++) { const t = t0 + 2 * (i + 0.5) / M, d = reconstruct(x, fs, t) - Math.cos(TAU * f * t + SAMP.phi); e2 += d * d; }
+  return Math.sqrt(e2 / M);
+}
+function wheelMeasured(f, fs, frames = 64) {
+  let sum = 0;
+  for (let n = 0; n < frames; n++) { const a0 = (TAU * f * n / fs) % TAU, a1 = (TAU * f * (n + 1) / fs) % TAU; let d = a1 - a0; d -= TAU * Math.round(d / TAU); if (d <= -Math.PI + 1e-9) d += TAU; sum += d; }
+  return sum / frames * fs / TAU;
+}
+function samplingLab({ f, fs }) {
+  finite(f, fs); if (f <= 0 || fs <= 0) throw RangeError("Pozitif frekans gerekli");
+  const x = sampleSignal(f, fs), N = x.length, nyq = fs / 2, k = Math.round(f / fs), appTh = aliasFreq(f, fs);
+  const meas = apparentMeasured(x, fs), recErr = reconError(x, f, fs);
+  const ratio = f / nyq, onGrid = Math.abs(ratio - Math.round(ratio)) < 1e-9;
+  return { x, N, nyq, k, appTh, appMeas: meas.f, spectrum: meas.spectrum, Z: meas.Z, recErr, wheelTh: aliasSigned(f, fs), wheelMeas: wheelMeasured(f, fs), aliased: f > nyq + 1e-9, atNyq: Math.abs(f - nyq) < 1e-9, atNyqMultiple: onGrid, mirrorClose: !onGrid && (appTh < 2 / SAMP.T || nyq - appTh < 2 / SAMP.T) };
+}
+function quantize(x, b) { const D = 2 / 2 ** b, q = D * (Math.floor(x / D) + 0.5), qm = 1 - D / 2; return q > qm ? qm : q < -qm ? -qm : q; }
+function sqnrLab({ b, AdB }) {
+  finite(b, AdB); if (!Number.isInteger(b) || b < 1 || b > 24) throw RangeError("b 1…24");
+  const A = 10 ** (AdB / 20), D = 2 / 2 ** b, nu = (Math.sqrt(5) - 1) / 2, n = SAMP.qSamples; let ps = 0, pn = 0;
+  for (let i = 0; i < n; i++) { const x = A * Math.cos(TAU * nu * i + 0.3), e = quantize(x, b) - x; ps += x * x; pn += e * e; }
+  ps /= n; pn /= n;
+  return { delta: D, sqnrMeas: 10 * Math.log10(ps / pn), sqnrTh: 20 * Math.log10(2) * b + 10 * Math.log10(1.5) + AdB, noiseRel: Math.sqrt(pn) / D, noiseTh: 1 / Math.sqrt(12), stepsPerAmp: A / D };
+}
+
+/* ── 2 · DFT ve FFT ── */
+function dftSignal({ N, sig, f1, delta, a2, P }) {
+  const fs = DFTC.fs, x = new Float64Array(N);
+  if (sig === "square") { for (let n = 0; n < N; n++) x[n] = Math.sin(TAU * (n + 0.5) / P) >= 0 ? 1 : -1; }
+  else for (let n = 0; n < N; n++) x[n] = Math.cos(TAU * f1 * n / fs) + a2 * Math.cos(TAU * (f1 + delta) * n / fs + DFTC.phase2);
+  return x;
+}
+function dftLab({ N, sig = "tones", f1 = 102, delta = 16, a2 = 0.01, win = "rect", pad = 1, P = 32, compare = true }) {
+  finite(N, f1, delta, a2, pad, P); if (!isPow2(N) || N < 8) throw RangeError("N");
+  const fs = DFTC.fs, df = fs / N, x = dftSignal({ N, sig, f1, delta, a2, P }), w = windowFn(win, N), sumW = w.reduce((s, v) => s + v, 0), xw = x.map((v, i) => v * w[i]);
+  const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now()), X = fft(xw);
+  let reps = 0; const t0 = now(); while (reps < 400 && (reps < 3 || now() - t0 < 4)) { fft(xw); reps++; }
+  const out = { N, df, x, w, sumW, A: oneSided(X, sumW), opsFft: X.mults, opsFftTh: N / 2 * Math.log2(N), opsDftTh: N * N, fftMs: (now() - t0) / reps };
+  if (compare) { const t2 = now(); const D = dft(xw); out.dftMs = now() - t2; out.opsDft = D.mults; let e = 0, m = 0; for (let k = 0; k < N; k++) { e = Math.max(e, Math.hypot(X.re[k] - D.re[k], X.im[k] - D.im[k])); m = Math.max(m, Math.hypot(D.re[k], D.im[k])); } out.maxErr = e / m; }
+  const Z = Math.min(65536, N * pad), xp = new Float64Array(Z); xp.set(xw); const Ap = oneSided(fft(xp), sumW); out.Ap = Ap; out.Z = Z;
+  if (sig === "square") {
+    const ok = N >= P, rows = [];
+    if (ok) { const xr = dftSignal({ N, sig, P }), R = oneSided(fft(xr), N); for (let n = 1; n <= Math.min(11, P / 2 - 1); n++) { const k = n * N / P; rows.push({ n, meas: R[k], ideal: n % 2 ? 4 / (Math.PI * n) : 0, exact: n % 2 ? 4 / (P * Math.sin(Math.PI * n / P)) : 0 }); } }
+    out.square = { ok, rows, f0: fs / P };
+    return out;
+  }
+  const b1 = f1 / df, k0 = Math.round(b1); let kp = -1, best = -1, th = 0;
+  for (let k = Math.max(0, k0 - 1); k <= Math.min(N / 2, k0 + 1); k++) { if (out.A[k] > best) { best = out.A[k]; kp = k; } th = Math.max(th, kernelGain(win, b1 - k, N)); }
+  out.bins = b1; out.peakMeas = best; out.peakTh = th;
+  const argmaxIn = (arr, Zl, lo, hi) => { let jb = -1; for (let j = Math.max(0, Math.ceil(lo * Zl / fs)); j <= Math.min(Zl / 2, Math.floor(hi * Zl / fs)); j++) if (jb < 0 || arr[j] > arr[jb]) jb = j; return jb; };
+  const localIn = (arr, Zl, lo, hi) => { let jb = -1; for (let j = Math.max(1, Math.ceil(lo * Zl / fs)); j <= Math.min(Zl / 2 - 1, Math.floor(hi * Zl / fs)); j++) if (arr[j] > arr[j - 1] && arr[j] >= arr[j + 1] && (jb < 0 || arr[j] > arr[jb])) jb = j; return jb; };
+  out.fPeak = argmaxIn(Ap, Z, f1 - df, f1 + df) * fs / Z;
+  const f2 = f1 + delta; out.f2 = f2;
+  if (a2 > 0 && f2 < fs / 2 && delta > 0) {
+    const Zf = Math.min(65536, Math.max(4096, 16 * N)), fine = (amp2) => { const xs = dftSignal({ N, sig, f1, delta, a2: amp2, P }), b = new Float64Array(Zf); for (let n = 0; n < N; n++) b[n] = xs[n] * w[n]; return oneSided(fft(b), sumW); };
+    const Af = fine(a2), A0 = fine(0), j2 = Math.round(f2 * Z / fs), xs0 = dftSignal({ N, sig, f1, delta, a2: 0, P }), b0 = new Float64Array(Z); for (let n = 0; n < N; n++) b0[n] = xs0[n] * w[n];
+    out.f2Level = 20 * Math.log10(Math.max(Ap[j2], 1e-300)); out.f2Without = 20 * Math.log10(Math.max(oneSided(fft(b0), sumW)[j2], 1e-300));
+    const i1 = localIn(Af, Zf, f1 - df / 2, f1 + df / 2), i2 = localIn(Af, Zf, f2 - df / 2, f2 + df / 2);
+    let sep = false;
+    if (i1 > 0 && i2 > 0 && i1 !== i2) { let dip = Infinity; for (let i = Math.min(i1, i2); i <= Math.max(i1, i2); i++) dip = Math.min(dip, Af[i]); sep = dip <= Math.min(Af[i1], Af[i2]) * 10 ** (-3 / 20) && Af[i2] >= A0[i2] * 10 ** (3 / 20); }
+    out.f2Sep = sep;
+  } else { out.f2Level = null; out.f2Without = null; out.f2Sep = null; }
+  return out;
+}
+
+/* ── 3 · AM ve FM ── */
+function besselJ(n, x) {
+  finite(n, x); if (!Number.isInteger(n)) throw RangeError("n tam sayı");
+  if (n < 0) return (n % 2 ? -1 : 1) * besselJ(-n, x);
+  const h = x / 2; let term = 1; for (let i = 1; i <= n; i++) term *= h / i;
+  let sum = term;
+  for (let k = 1; k < 300; k++) { term *= -h * h / (k * (k + n)); sum += term; if (Math.abs(term) < 1e-17 * Math.max(1, Math.abs(sum)) && k > h) break; }
+  return sum;
+}
+function bins(x) { const X = fft(x), N = x.length; return { X, amp: (k) => 2 * Math.hypot(X.re[k], X.im[k]) / N, sre: (k) => 2 * X.re[k] / N }; }
+function analytic(x) { const N = x.length, X = fft(x); for (let k = 1; k < N / 2; k++) { X.re[k] *= 2; X.im[k] *= 2; } for (let k = N / 2 + 1; k < N; k++) { X.re[k] = 0; X.im[k] = 0; } return fft(X.re, X.im, true); }
+function lowpass(x, fcut, fs) { const N = x.length, X = fft(x), kc = Math.floor(fcut * N / fs); for (let k = kc + 1; k <= N - kc - 1; k++) { X.re[k] = 0; X.im[k] = 0; } return fft(X.re, X.im, true).re; }
+function messageHarmonics(y, fm) {
+  const N = y.length, B = bins(y), k1 = Math.round(fm * N / MOD.fs), H = [];
+  for (let h = 1; h <= 5; h++) H.push(B.amp(h * k1));
+  const a1 = H[0], thd = a1 > 1e-9 ? Math.sqrt(H.slice(1).reduce((s, v) => s + v * v, 0)) / a1 : null;
+  return { a1, thd, H };
+}
+function amLab({ m, fm, phiDeg = 0 }) {
+  finite(m, fm, phiDeg); if (m < 0 || fm <= 0) throw RangeError("AM parametresi");
+  const { fs, N, fc } = MOD, x = new Float64Array(N), c = new Float64Array(N); let p = 0;
+  for (let n = 0; n < N; n++) { const t = n / fs; c[n] = Math.cos(TAU * fc * t); x[n] = (1 + m * Math.cos(TAU * fm * t)) * c[n]; p += x[n] * x[n]; }
+  p /= N; const B = bins(x), kc = fc * N / fs, km = fm * N / fs, car = B.amp(kc), usb = B.amp(kc + km), lsb = B.amp(kc - km);
+  const z = analytic(x), env = new Float64Array(N); for (let n = 0; n < N; n++) env[n] = Math.hypot(z.re[n], z.im[n]);
+  const phi = phiDeg * Math.PI / 180, mix = new Float64Array(N); for (let n = 0; n < N; n++) mix[n] = 2 * x[n] * Math.cos(TAU * fc * n / fs + phi);
+  const coh = lowpass(mix, MOD.lpf, fs), He = messageHarmonics(env, fm), Hc = messageHarmonics(coh, fm);
+  return { x, env, coh, car, usb, lsb, ptot: p, frac: (usb * usb + lsb * lsb) / 2 / p, fracTh: m * m / (2 + m * m), envA: He.a1, envThd: m > 1e-9 ? He.thd : null, cohA: Hc.a1, cohTh: m * Math.cos(phi), cohThd: Hc.a1 > 1e-6 ? Hc.thd : null, B };
+}
+function fmLab({ beta, fm }) {
+  finite(beta, fm); if (beta < 0 || fm <= 0) throw RangeError("FM parametresi");
+  const { fs, N, fc } = MOD, x = new Float64Array(N); let p = 0;
+  for (let n = 0; n < N; n++) { const t = n / fs; x[n] = Math.cos(TAU * fc * t + beta * Math.sin(TAU * fm * t)); p += x[n] * x[n]; }
+  p /= N; const B = bins(x), kc = fc * N / fs, km = fm * N / fs, K = Math.min(Math.floor((fc - 1) / fm), 40);
+  const meas = [], series = []; for (let n = -K; n <= K; n++) { meas.push(B.sre(kc + n * km)); series.push(besselJ(n, beta)); }
+  const lines = (arr) => { let acc = arr[K] ** 2 / 2; if (acc >= 0.98 * 0.5) return 0; for (let q = 1; q <= K; q++) { acc += (arr[K + q] ** 2 + arr[K - q] ** 2) / 2; if (acc >= 0.98 * 0.5) return q; } return null; };
+  let inLines = 0; for (let i = 0; i < meas.length; i++) inLines += meas[i] ** 2 / 2;
+  const kM = lines(meas), kT = lines(series);
+  return { x, K, meas, series, ptot: p, b98: kM === null ? null : 2 * kM * fm, b98Th: kT === null ? null : 2 * kT * fm, k98: kM, carson: 2 * (beta + 1) * fm, dev: beta * fm, j0sq: meas[K] ** 2, resid: Math.max(0, 1 - inLines / p), B };
+}
+
+/* ── 4 · Süzgeçler ── */
+function design({ type, M = 8, taps = 51, fc = 50, Q = 0.71, r = 0.95 }) {
+  finite(M, taps, fc, Q, r); const fs = FIL.fs; if (fc <= 0 || fc >= fs / 2) throw RangeError("fₖ aralığı");
+  const zeros = [], poles = [];
+  if (type === "ma") { if (!Number.isInteger(M) || M < 1) throw RangeError("M"); for (let k = 1; k < M; k++) zeros.push([Math.cos(TAU * k / M), Math.sin(TAU * k / M)]); for (let k = 1; k < M; k++) poles.push([0, 0]); return { type, b: Array(M).fill(1 / M), a: [1], poles, zeros, fir: true, zerosKnown: true }; }
+  if (type === "sinc") {
+    if (!Number.isInteger(taps) || taps < 3 || taps % 2 === 0) throw RangeError("Tek sayıda katsayı");
+    const w = windowFn("hamming", taps), mid = (taps - 1) / 2, fcn = 2 * fc / fs, b = [];
+    for (let n = 0; n < taps; n++) { const u = fcn * (n - mid); b.push(fcn * (Math.abs(u) < 1e-12 ? 1 : Math.sin(Math.PI * u) / (Math.PI * u)) * w[n]); }
+    const s = b.reduce((a, v) => a + v, 0); for (let n = 0; n < taps; n++) { b[n] /= s; poles.push([0, 0]); } poles.pop();
+    return { type, b, a: [1], poles, zeros, fir: true, zerosKnown: false };
+  }
+  if (type === "iir1") { const a = Math.exp(-TAU * fc / fs); return { type, b: [1 - a], a: [1, -a], poles: [[a, 0]], zeros: [], fir: false, zerosKnown: true }; }
+  if (type === "biquad") {
+    if (Q <= 0) throw RangeError("Q > 0");
+    const w0 = TAU * fc / fs, cw = Math.cos(w0), al = Math.sin(w0) / (2 * Q), a0 = 1 + al;
+    const b = [(1 - cw) / 2 / a0, (1 - cw) / a0, (1 - cw) / 2 / a0], a = [1, -2 * cw / a0, (1 - al) / a0];
+    return { type, b, a, poles: quadRoots(a[1], a[2]), zeros: [[-1, 0], [-1, 0]], fir: false, zerosKnown: true };
+  }
+  if (type === "reson") {
+    if (r <= 0) throw RangeError("r > 0");
+    const th = TAU * fc / fs, g = Math.max(Math.abs(1 - r), 0.005) * Math.sqrt(1 - 2 * r * Math.cos(2 * th) + r * r);
+    return { type, b: [g], a: [1, -2 * r * Math.cos(th), r * r], poles: [[r * Math.cos(th), r * Math.sin(th)], [r * Math.cos(th), -r * Math.sin(th)]], zeros: [], fir: false, zerosKnown: true };
+  }
+  throw RangeError("Süzgeç türü");
+}
+function quadRoots(p, q) { const d = p * p - 4 * q; if (d >= 0) { const s = Math.sqrt(d); return [[(-p + s) / 2, 0], [(-p - s) / 2, 0]]; } const s = Math.sqrt(-d); return [[-p / 2, s / 2], [-p / 2, -s / 2]]; }
+function freqResp(b, a, f, fs = FIL.fs) {
+  const w = TAU * f / fs; let nr = 0, ni = 0, dr = 0, di = 0;
+  b.forEach((v, k) => { nr += v * Math.cos(w * k); ni -= v * Math.sin(w * k); });
+  a.forEach((v, k) => { dr += v * Math.cos(w * k); di -= v * Math.sin(w * k); });
+  const den = dr * dr + di * di, re = (nr * dr + ni * di) / den, im = (ni * dr - nr * di) / den;
+  return { re, im, mag: Math.hypot(re, im), phase: Math.atan2(im, re) };
+}
+function lfilter(b, a, x) {
+  const N = x.length, y = new Float64Array(N), nb = b.length, na = a.length;
+  for (let n = 0; n < N; n++) { let s = 0; for (let k = 0; k < nb && k <= n; k++) s += b[k] * x[n - k]; for (let k = 1; k < na && k <= n; k++) s -= a[k] * y[n - k]; y[n] = s; }
+  return y;
+}
+function maxPole(d) { return d.poles.reduce((m, p) => Math.max(m, Math.hypot(p[0], p[1])), 0); }
+function settleLen(d) {
+  if (d.fir) return d.b.length;
+  const r = maxPole(d); if (r >= 1 - 1e-9) return Infinity; if (r < 1e-6) return 10;
+  return Math.min(200000, Math.ceil(Math.log(1e-10) / Math.log(r)) + 10);
+}
+function measureSine(d, f, fs = FIL.fs) {
+  const L = settleLen(d); if (!Number.isFinite(L)) return null;
+  const n0 = L, N = n0 + FIL.fitLen, w = TAU * f / fs, x = new Float64Array(N); for (let n = 0; n < N; n++) x[n] = Math.cos(w * n);
+  const y = lfilter(d.b, d.a, x); let cc = 0, ss = 0, cs = 0, yc = 0, ys = 0;
+  for (let n = n0; n < N; n++) { const c = Math.cos(w * n), s = Math.sin(w * n); cc += c * c; ss += s * s; cs += c * s; yc += y[n] * c; ys += y[n] * s; }
+  const det = cc * ss - cs * cs, C = (yc * ss - ys * cs) / det, S = (ys * cc - yc * cs) / det;
+  return { mag: Math.hypot(C, S), phase: Math.atan2(-S, C), settle: L };
+}
+function impulse(d, L) { const x = new Float64Array(L); x[0] = 1; return lfilter(d.b, d.a, x); }
+function energySum(d) { if (d.fir) return d.b.reduce((s, v) => s + v * v, 0); const L = settleLen(d); if (!Number.isFinite(L)) return Infinity; return impulse(d, L + 50).reduce((s, v) => s + v * v, 0); }
+function decayMeasured(d, fc) {
+  if (d.fir) return null;
+  // Blok boyu yalnız ölçüm penceresidir: baskın kutbun açısından bir salınım periyodu bulunur, blok en az iki periyot sürer.
+  const dom = d.poles.reduce((m, p) => (Math.hypot(p[0], p[1]) > Math.hypot(m[0], m[1]) ? p : m), [0, 0]), ang = Math.abs(Math.atan2(dom[1], dom[0])), P = ang > 1e-6 && ang < Math.PI - 1e-6 ? TAU / ang : 1, B = Math.max(40, Math.ceil(2 * P));
+  for (let D = 6 * B; D >= B; D = Math.floor(D / 2)) {
+    const h = impulse(d, 2 * B + D), e = (s) => { let q = 0; for (let n = s; n < s + B; n++) q += h[n] * h[n]; return q; }, e1 = e(B), e2 = e(B + D);
+    if (e1 > 1e-250 && e2 > 1e-250 && Number.isFinite(e2)) return Math.pow(e2 / e1, 1 / (2 * D));
+  }
+  return 0;
+}
+function cutoff(d) {
+  const fs = FIL.fs, M = 4000, mags = []; for (let i = 0; i <= M; i++) mags.push(freqResp(d.b, d.a, fs / 2 * i / M).mag);
+  const at = (i) => fs / 2 * i / M, cross = (i, lvl) => at(i - 1) + (at(i) - at(i - 1)) * (mags[i - 1] - lvl) / (mags[i - 1] - mags[i]);
+  if (d.type === "reson") { let ip = 0; for (let i = 1; i <= M; i++) if (mags[i] > mags[ip]) ip = i; const lvl = mags[ip] / Math.SQRT2; let lo = null, hi = null; for (let i = ip; i >= 1; i--) if (mags[i - 1] < lvl) { lo = at(i - 1) + (at(i) - at(i - 1)) * (lvl - mags[i - 1]) / (mags[i] - mags[i - 1]); break; } for (let i = ip + 1; i <= M; i++) if (mags[i] < lvl) { hi = cross(i, lvl); break; } return { peak: at(ip), bw: lo !== null && hi !== null ? hi - lo : null }; }
+  const lvl = mags[0] / Math.SQRT2; for (let i = 1; i <= M; i++) if (mags[i] < lvl) return { f3: cross(i, lvl) };
+  return { f3: null };
+}
+function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function gaussian(seed, n) { const u = rng(seed), out = new Float64Array(n); for (let i = 0; i < n; i += 2) { const r = Math.sqrt(-2 * Math.log(1 - u())), a = TAU * u(); out[i] = r * Math.cos(a); if (i + 1 < n) out[i + 1] = r * Math.sin(a); } return out; }
+function noiseLab(d, { f0, sigma, seed }) {
+  finite(f0, sigma, seed); const L = settleLen(d); if (!Number.isFinite(L)) return null;
+  const fs = FIL.fs, n0 = Math.max(L, 50), N = n0 + FIL.noiseLen, s = new Float64Array(N), g = gaussian(seed, N), v = g.map((q) => sigma * q);
+  for (let n = 0; n < N; n++) s[n] = Math.sin(TAU * f0 * n / fs);
+  const ys = lfilter(d.b, d.a, s), yv = lfilter(d.b, d.a, v); let ps = 0, pv = 0, qs = 0, qv = 0;
+  for (let n = n0; n < N; n++) { ps += s[n] ** 2; pv += v[n] ** 2; qs += ys[n] ** 2; qv += yv[n] ** 2; }
+  const H = freqResp(d.b, d.a, f0).mag, E = energySum(d), inM = 10 * Math.log10(ps / pv), outM = 10 * Math.log10(qs / qv);
+  return { n0, s, v, ys, yv, snrIn: inM, snrInTh: 10 * Math.log10(0.5 / sigma ** 2), snrOut: outM, gain: outM - inM, gainTh: 10 * Math.log10(H * H / E), energy: E };
+}
+function filterLab(cfg) {
+  const d = design(cfg), fs = FIL.fs, th = freqResp(d.b, d.a, cfg.fTest), me = measureSine(d, cfg.fTest);
+  const grid = FIL.grid.map((f) => ({ f, th: freqResp(d.b, d.a, f), me: me ? measureSine(d, f) : null }));
+  return { d, th, me, grid, rmax: maxPole(d), decay: decayMeasured(d, cfg.fc), cut: cutoff(d), stable: d.fir || maxPole(d) < 1 - 1e-9, noise: noiseLab(d, cfg), settle: settleLen(d), fs };
+}
+
+Object.defineProperty(window, "SignalLab", { value: Object.freeze({ SAMP, DFTC, MOD, FIL, fft, dft, windowFn, kernelGain, aliasFreq, aliasSigned, sampleSignal, apparentMeasured, reconstruct, reconError, wheelMeasured, samplingLab, quantize, sqnrLab, dftSignal, dftLab, besselJ, amLab, fmLab, design, freqResp, lfilter, measureSine, settleLen, energySum, decayMeasured, cutoff, rng, gaussian, noiseLab, filterLab, maxPole }), writable: false, configurable: false });
+/* KERNEL-END */
+
+const K = window.SignalLab;
+/* ───────── Biçim yardımcıları (tek yuvarlama yolu) ───────── */
+const $ = (id) => document.getElementById(id), num = (id) => Number($(id).value), put = (id, t) => { $(id).textContent = t; };
+function fx(x, d) { if (x === null || x === undefined || !Number.isFinite(x)) return "—"; const r = Number(x.toFixed(d)); return (Object.is(r, -0) ? 0 : r).toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: Math.abs(r) >= 10000 }).replace(/\./g, " ").replace("-", "−"); }
+function sgn(x, d) { if (x === null || x === undefined || !Number.isFinite(x)) return "—"; const r = Number(x.toFixed(d)); return (r > 0 ? "+" : "") + fx(r, d); }
+const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+function sci(x, s = 2) { if (x === null || !Number.isFinite(x)) return "—"; if (x === 0) return "0"; let e = Math.floor(Math.log10(Math.abs(x))), m = Number((x / 10 ** e).toFixed(s - 1)); if (Math.abs(m) >= 10) { e += 1; m = Number((x / 10 ** e).toFixed(s - 1)); } if (e >= -2 && e <= 4) return fx(x, Math.max(0, s - 1 - e)); return fx(m, s - 1) + " × 10" + String(e).split("").map((c) => SUP[c]).join(""); }
+function pct(m, t, d = 2) { if (m === null || t === null || !Number.isFinite(m) || !Number.isFinite(t) || t === 0) return "—"; return sgn((m - t) / Math.abs(t) * 100, d) + " %"; }
+const hz = (x, d = 2) => fx(x, d) + " Hz", db = (x, d = 2) => fx(x, d) + " dB", deg = (rad, d = 1) => fx(rad * 180 / Math.PI, d) + "°";
+const intf = (n) => fx(n, 0);
+function wrapDeg(a) { let v = a % 360; if (v > 180) v -= 360; if (v <= -180) v += 360; return v; }
+
+/* ───────── Tuval yardımcıları ───────── */
+function surface(id) {
+  const c = $(id), r = c.getBoundingClientRect(); if (!r.width) return null;
+  const d = Math.min(devicePixelRatio || 1, 2); c.width = Math.round(r.width * d); c.height = Math.round(r.height * d);
+  const g = c.getContext("2d"); g.setTransform(d, 0, 0, d, 0, 0);
+  const light = document.documentElement.dataset.theme === "light";
+  const p = light ? { bg: "#f8f9fc", ink: "#1d2433", grid: "#d6dbe6", muted: "#5d6578", faint: "#9aa3b5", accent: "#0f7f78", warm: "#b4541c", violet: "#6d3fc4", red: "#b5363c" }
+    : { bg: "#0f1626", ink: "#e6ebf4", grid: "#2b3550", muted: "#9aa5bb", faint: "#5c6780", accent: "#5eead4", warm: "#f5a25c", violet: "#b39cff", red: "#ff8a90" };
+  g.fillStyle = p.bg; g.fillRect(0, 0, r.width, r.height); return { g, w: r.width, h: r.height, p, light };
+}
+function line(s, x, y, X, Y, col, width = 2, dash = []) { const g = s.g; g.strokeStyle = col; g.lineWidth = width; g.setLineDash(dash); g.beginPath(); g.moveTo(x, y); g.lineTo(X, Y); g.stroke(); g.setLineDash([]); }
+function text(s, t, x, y, col, align = "left", size = 11) { const g = s.g; g.font = size + "px Outfit, system-ui, sans-serif"; g.textAlign = align; g.fillStyle = col || s.p.ink; const tw = g.measureText(t).width; let xx = x; if (align === "center") xx = Math.max(tw / 2 + 3, Math.min(s.w - tw / 2 - 3, x)); else if (align === "left") xx = Math.max(3, Math.min(s.w - tw - 3, x)); else xx = Math.max(tw + 3, Math.min(s.w - 3, x)); g.fillText(t, xx, y); }
+function poly(s, pts, col, width = 1.6, dash = []) { const g = s.g; g.strokeStyle = col; g.lineWidth = width; g.setLineDash(dash); g.beginPath(); let on = false; for (const [x, y] of pts) { if (!Number.isFinite(y)) { on = false; continue; } if (on) g.lineTo(x, y); else { g.moveTo(x, y); on = true; } } g.stroke(); g.setLineDash([]); }
+function dot(s, x, y, r, col, fill = true) { const g = s.g; g.beginPath(); g.arc(x, y, r, 0, TAU); if (fill) { g.fillStyle = col; g.fill(); } else { g.strokeStyle = col; g.lineWidth = 1.5; g.stroke(); } }
+function frame(s, pad) { const g = s.g; g.strokeStyle = s.p.grid; g.lineWidth = 1; g.strokeRect(pad.l, pad.t, s.w - pad.l - pad.r, s.h - pad.t - pad.b); }
+function niceStep(range, target) { const raw = range / target, p = 10 ** Math.floor(Math.log10(raw)), m = raw / p; return (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p; }
+
+let active = "samp";
+
+/* ───────── 1 · Örnekleme ───────── */
+let samp = null, wheelTau = 0, wheelRun = true, wheelLast = 0;
+function updateSamp() {
+  const f = num("sampF"), fs = num("sampFs");
+  put("sampFOut", hz(f, 1)); put("sampFsOut", hz(fs, 0));
+  samp = K.samplingLab({ f, fs }); const r = samp;
+  put("sampNyq", hz(r.nyq, 1)); put("sampAppTh", hz(r.appTh, 3) + (r.k ? " (k = " + r.k + ")" : " (k = 0)")); put("sampAppMeas", hz(r.appMeas, 3)); put("sampAppDiff", sgn(r.appMeas - r.appTh, 4) + " Hz");
+  put("sampRecErr", fx(r.recErr, 3)); put("sampN", intf(r.N));
+  const half = Math.abs(Math.abs(r.wheelTh) - fs / 2) < 1e-9 && r.wheelTh !== 0;
+  put("sampWheelTh", half ? "±" + fx(Math.abs(r.wheelTh), 2) + " tur/s" : sgn(r.wheelTh, 2) + " tur/s"); put("sampWheelMeas", half ? "±" + fx(Math.abs(r.wheelMeas), 2) + " tur/s" : sgn(r.wheelMeas, 2) + " tur/s");
+  put("sampWheelDir", half ? "belirsiz (tam yarım tur)" : Math.abs(r.wheelMeas) < 1e-9 ? "duruyor" : r.wheelMeas > 0 ? "ileri" : "geri");
+  let st;
+  if (r.atNyq) st = "Tam Nyquist sınırı: f = fₛ/2. Örnekler (−1)ⁿ·cos 30° dizisi; genlik ile evre birbirinden ayrılamaz. Sinc toplamı aynı frekansta ama cos 30° = 0,866 genlikli bir dalga kurar, bu yüzden geri kurma hatası " + fx(r.recErr, 3) + ". Örnekleme kuramı f'nin fₛ/2'den kesin olarak küçük olmasını ister.";
+  else if (!r.aliased) st = "f = " + hz(f, 1) + ", Nyquist sınırının (" + hz(r.nyq, 1) + ") altında. Örnekler sinyali tek başına belirler; DFT tepesi gerçek frekansta. Geri kurma hatası " + fx(r.recErr, 3) + ": sonsuz toplam yerine 8 saniyelik örnekler kullanıldı, kayıt kenarlarında kesilen sinc kuyrukları ortada küçük bir iz bırakıyor.";
+  else if (r.appTh < 1e-9) st = "f, fₛ'nin tam katı (k = " + r.k + "): her kare dalgayı aynı evrede yakalar, örnekler sabit bir dizi olur. Görünen frekans 0; tekerlek duruyor görünür. Sinc toplamı sabit cos 30° değerini kurar.";
+  else st = "Örtüşme: f = " + hz(f, 1) + ", fₛ/2'nin üstünde. Örnekler, fₛ'nin k = " + r.k + " katından |f − k·fₛ| = " + hz(r.appTh, 2) + " uzaktaki kosinüsünkilerle aynı; DFT tepesi de oraya düşer. Sinc toplamı gerçek dalgayı değil o düşük frekanslı dalgayı kurar, bu yüzden hata " + fx(r.recErr, 3) + " kadar büyük. Örneklerden hangisinin gönderildiğini bilmenin yolu yok; çözüm, örneklemeden önce analog süzgeçle fₛ/2'nin üstünü kesmektir.";
+  if (r.mirrorClose) st += " Not: görünen frekans 0'a ya da fₛ/2'ye pencere ana lobundan (2/T = 0,25 Hz) daha yakın; ayna görüntüsü tepeyi kaydırabilir.";
+  put("sampStatus", st);
+  const b = num("qBits"), A = num("qAmp"); put("qBitsOut", b + " bit"); put("qAmpOut", (A < 0 ? "−" + Math.abs(A) : "0") + " dB");
+  const q = K.sqnrLab({ b, AdB: A });
+  put("qDelta", sci(q.delta, 3)); put("qSqnrMeas", db(q.sqnrMeas)); put("qSqnrTh", db(q.sqnrTh)); put("qSqnrDiff", sgn(q.sqnrMeas - q.sqnrTh, 2) + " dB"); put("qNoiseMeas", fx(q.noiseRel, 4)); put("qNoiseTh", fx(q.noiseTh, 4));
+  let qs;
+  if (q.stepsPerAmp < 4) qs = "Sinüsün genliği yalnız " + fx(q.stepsPerAmp, 1) + " basamak: hata artık sinyale bağlı ve düzgün dağılmıyor, 6,02b + 1,76 kuralı geçerli değil. Ölçülen ile kuram " + fx(Math.abs(q.sqnrMeas - q.sqnrTh), 1) + " dB ayrışıyor.";
+  else if (b <= 3) qs = b + " bit: yalnız " + 2 ** b + " düzey. Hata RMS'i Δ/√12'ye yakın ama dağılımı tam düzgün değil; kural yaklaşık tutuyor (fark " + fx(Math.abs(q.sqnrMeas - q.sqnrTh), 2) + " dB).";
+  else qs = "Her bit, hata gücünü dörtte birine indirir: SQNR bit başına 20·log₁₀2 = 6,02 dB artar. " + (A < 0 ? "Genlik tam ölçeğin " + Math.abs(A) + " dB altında: SQNR de o kadar düşer, kabaca " + fx(Math.abs(A) / 6.02, 1) + " bit boşa gider." : "Tam ölçek sinüs: 1,76 dB sinüsün gücünün (1/2) düzgün hatanın gücüne (Δ²/12) oranından gelir.");
+  const qd = q.sqnrMeas - q.sqnrTh; if (q.stepsPerAmp >= 4 && b > 3 && Math.abs(qd) >= 0.05) qs += " Ölçülen ile kural arasındaki " + sgn(qd, 2) + " dB fark gerçek: kural hatayı Δ genişliğinde düzgün ve sinyalden bağımsız varsayar; sinüs basamakları eşit sıklıkla taramadığından bu varsayım ancak yaklaşık tutar. Hata RMS'i " + fx(q.noiseRel, 4) + "·Δ, kuramın 0,2887·Δ'sına karşı.";
+  put("qStatus", qs);
+  drawSampTime(); drawSampSpec(); drawWheel(); drawQuant(b, A);
+}
+function drawSampTime() {
+  const s = surface("sampTime"); if (!s || !samp) return; const r = samp, f = num("sampF"), fs = num("sampFs");
+  const pad = { l: 34, r: 10, t: 14, b: 26 }, W = s.w - pad.l - pad.r, H = s.h - pad.t - pad.b, t0 = K.SAMP.T / 2 - 0.5, X = (t) => pad.l + (t - t0) * W, Y = (v) => pad.t + H / 2 - v / 1.25 * H / 2;
+  frame(s, pad); line(s, pad.l, Y(0), pad.l + W, Y(0), s.p.grid, 1);
+  for (const v of [-1, 1]) { line(s, pad.l, Y(v), pad.l + W, Y(v), s.p.grid, 1, [3, 4]); text(s, (v < 0 ? "−" : "") + "1", pad.l - 5, Y(v) + 4, s.p.muted, "right", 10); }
+  for (let i = 0; i <= 4; i++) { const t = t0 + i / 4; text(s, fx(t, 2), X(t), s.h - 8, s.p.muted, "center", 10); }
+  text(s, "t / s", pad.l + W - 4, pad.t + 12, s.p.muted, "right", 10);
+  const M = Math.min(1600, Math.max(400, Math.round(W * 2))), cont = [], rec = [];
+  for (let i = 0; i <= M; i++) { const t = t0 + i / M; cont.push([X(t), Y(Math.cos(TAU * f * t + K.SAMP.phi))]); }
+  const Mr = Math.min(600, Math.round(W)); for (let i = 0; i <= Mr; i++) { const t = t0 + i / Mr; rec.push([X(t), Y(K.reconstruct(r.x, fs, t))]); }
+  poly(s, cont, s.p.faint, 1); poly(s, rec, s.p.accent, 2.2);
+  const n1 = Math.ceil(t0 * fs), n2 = Math.floor((t0 + 1) * fs);
+  for (let n = n1; n <= n2; n++) { const x = X(n / fs), y = Y(r.x[n]); line(s, x, Y(0), x, y, s.p.warm, 1); dot(s, x, y, 3.2, s.p.warm); }
+}
+function drawSampSpec() {
+  const s = surface("sampSpec"); if (!s || !samp) return; const r = samp, fs = num("sampFs"), f = num("sampF");
+  const half = s.w * 0.5, pad = { l: 30, t: 22, b: 26 };
+  // Sol: tayf
+  const W1 = half - pad.l - 14, H = s.h - pad.t - pad.b, X1 = (q) => pad.l + q / (fs / 2) * W1, Y1 = (a) => pad.t + H - Math.min(1.05, a) / 1.05 * H;
+  s.g.strokeStyle = s.p.grid; s.g.lineWidth = 1; s.g.strokeRect(pad.l, pad.t, W1, H);
+  const A = r.spectrum, Z = r.Z, pts = []; for (let k = 0; k <= Z / 2; k++) pts.push([X1(k * fs / Z), Y1(A[k])]);
+  poly(s, pts, s.p.accent, 1.6); line(s, X1(r.appTh), pad.t, X1(r.appTh), pad.t + H, s.p.violet, 1.2, [4, 3]);
+  text(s, "0", pad.l, s.h - 8, s.p.muted, "center", 10); text(s, "fₛ/2 = " + fx(fs / 2, 1), pad.l + W1, s.h - 8, s.p.muted, "right", 10); text(s, "|X(f)|, Hann", pad.l + 4, pad.t - 7, s.p.muted, "left", 10.5);
+  // Sağ: katlanma diyagramı
+  const l2 = half + 26, W2 = s.w - l2 - 12, fmax = Math.max(50, f) * 1.04, X2 = (q) => l2 + q / fmax * W2, Y2 = (q) => pad.t + H - q / (fs / 2) * H;
+  s.g.strokeStyle = s.p.grid; s.g.lineWidth = 1; s.g.strokeRect(l2, pad.t, W2, H);
+  for (let m = 1; m * fs / 2 <= fmax; m++) line(s, X2(m * fs / 2), pad.t, X2(m * fs / 2), pad.t + H, s.p.grid, 1, [3, 4]);
+  const zz = []; for (let i = 0; i <= 600; i++) { const q = fmax * i / 600; zz.push([X2(q), Y2(K.aliasFreq(q, fs))]); }
+  poly(s, zz, s.p.muted, 1.4); dot(s, X2(f), Y2(r.appTh), 4.5, s.p.warm);
+  text(s, "0", l2, s.h - 8, s.p.muted, "center", 10); text(s, "f = " + fx(Math.round(fmax), 0) + " Hz", l2 + W2, s.h - 8, s.p.muted, "right", 10);
+  text(s, "görünen frekans", l2 + 4, pad.t - 7, s.p.muted, "left", 10.5);
+}
+function drawWheel() {
+  const s = surface("sampWheel"); if (!s) return; const f = num("sampF"), fs = num("sampFs");
+  const R = Math.min(s.h * 0.36, s.w * 0.17), cy = s.h * 0.5 + 4;
+  const draw = (cx, ang, label, col) => {
+    const g = s.g; g.strokeStyle = s.p.muted; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.stroke();
+    for (let k = 0; k < 8; k++) { const a = k * TAU / 8 + ang; line(s, cx, cy, cx + R * Math.cos(a), cy - R * Math.sin(a), s.p.grid, 1.4); }
+    line(s, cx, cy, cx + R * Math.cos(ang), cy - R * Math.sin(ang), col, 4); dot(s, cx + R * Math.cos(ang), cy - R * Math.sin(ang), 5, col); dot(s, cx, cy, 3, s.p.ink);
+    text(s, label, cx, s.h - 8, s.p.muted, "center", 10.5);
+  };
+  const angTrue = TAU * f * wheelTau, frameT = Math.floor(wheelTau * fs) / fs, angCam = TAU * f * frameT;
+  draw(s.w * 0.27, angTrue, "gerçek (ağır çekim ×1/10)", s.p.accent); draw(s.w * 0.73, angCam, "kamera kareleri", s.p.warm);
+  text(s, "t = " + fx(wheelTau, 2) + " s", 8, 16, s.p.muted, "left", 10.5);
+}
+function drawQuant(b, A) {
+  const s = surface("qCanvas"); if (!s) return; const amp = 10 ** (A / 20), pad = { l: 34, r: 10, t: 10, b: 10 }, W = s.w - pad.l - pad.r, H1 = (s.h - 20) * 0.62, H2 = (s.h - 20) * 0.3, top2 = pad.t + H1 + 10;
+  const X = (u) => pad.l + u * W, Y = (v) => pad.t + H1 / 2 - v * H1 / 2 * 0.95, Y2 = (e) => top2 + H2 / 2 - e * H2 * 0.9;
+  s.g.strokeStyle = s.p.grid; s.g.lineWidth = 1; s.g.strokeRect(pad.l, pad.t, W, H1); s.g.strokeRect(pad.l, top2, W, H2);
+  const D = 2 / 2 ** b; if (b <= 6) for (let k = -(2 ** (b - 1)); k <= 2 ** (b - 1); k++) line(s, pad.l, Y(k * D), pad.l + W, Y(k * D), s.p.grid, 0.6);
+  const M = 900, c = [], q = [], e = []; for (let i = 0; i <= M; i++) { const u = i / M, v = amp * Math.sin(TAU * u), qq = K.quantize(v, b); c.push([X(u), Y(v)]); q.push([X(u), Y(qq)]); e.push([X(u), Y2((qq - v) / D)]); }
+  poly(s, c, s.p.faint, 1.2); poly(s, q, s.p.warm, 1.6); poly(s, e, s.p.violet, 1.2);
+  text(s, "+1", pad.l - 5, Y(1) + 4, s.p.muted, "right", 10); text(s, "−1", pad.l - 5, Y(-1) + 4, s.p.muted, "right", 10); text(s, "e/Δ", pad.l - 5, Y2(0) + 4, s.p.muted, "right", 10);
+  text(s, "±0,5", pad.l + W - 4, top2 + 12, s.p.muted, "right", 10);
+}
+function wheelLoop(now) {
+  if (!wheelLast) wheelLast = now; const el = Math.min(0.05, (now - wheelLast) / 1000); wheelLast = now;
+  const paused = window.AcelyaPause?.isPaused?.();
+  if (active === "samp" && wheelRun && !paused && !document.hidden) { wheelTau += el / 10; if (wheelTau > 1e4) wheelTau = 0; drawWheel(); }
+  requestAnimationFrame(wheelLoop);
+}
+function setWheel(run) { wheelRun = run; put("sampPlay", run ? "Tekerleği duraklat" : "Tekerleği oynat"); $("sampPlay").setAttribute("aria-pressed", String(!run)); }
+
+/* ───────── 2 · DFT ───────── */
+let dftR = null;
+function updateDft() {
+  const sig = $("dftSig").value, N = num("dftN"), f1 = num("dftF1"), delta = num("dftDelta"), a2 = Number($("dftA2").value), win = $("dftWin").value, pad = num("dftPad"), P = num("dftP");
+  document.querySelectorAll("[data-sig]").forEach((e) => { e.hidden = e.dataset.sig !== sig; }); $("dftSqWrap").hidden = sig !== "square";
+  put("dftF1Out", hz(f1, 2)); put("dftDeltaOut", hz(delta, 2));
+  const r = dftR = K.dftLab({ N, sig, f1, delta, a2, win, pad, P }), fs = K.DFTC.fs;
+  put("dftDf", hz(r.df, 4)); put("dftDur", fx(N / fs * 1000, 2) + " ms"); put("dftGrid", hz(fs / r.Z, 4));
+  put("dftOpsDft", intf(r.opsDft)); put("dftOpsFft", intf(r.opsFft)); put("dftOpsTh", intf(r.opsDftTh) + " ve " + intf(r.opsFftTh)); put("dftOpsRatio", fx(r.opsDft / r.opsFft, 1)); put("dftErr", sci(r.maxErr, 2)); put("dftTimeMs", fx(r.dftMs, 1) + " / " + fx(r.fftMs, 3) + " ms");
+  let st;
+  if (sig === "square") {
+    ["dftBins", "dftPeakMeas", "dftPeakTh", "dftPeakDiff", "dftFpk", "dftFpkErr", "dftF2Lvl", "dftF2Th", "dftF2Sep"].forEach((id) => put(id, "—"));
+    const q = r.square;
+    if (!q.ok) { $("dftSqRows").innerHTML = '<tr><td colspan="5">N &lt; P: kayıt bir periyodu bile içermiyor.</td></tr>'; st = "Kayıt (" + N + " örnek) kare dalganın bir periyodundan (" + P + " örnek) kısa: harmonikler kutulara oturmaz, tablo boş."; }
+    else {
+      $("dftSqRows").innerHTML = q.rows.map((w) => "<tr><th scope=\"row\">" + w.n + "</th><td>" + fx(w.meas, 4) + "</td><td>" + fx(w.ideal, 4) + "</td><td>" + (w.ideal ? pct(w.meas, w.ideal, 2) : (w.meas < 1e-9 ? "0" : fx(w.meas, 4))) + "</td><td>" + fx(w.exact, 4) + "</td></tr>").join("");
+      const r1 = q.rows[0], last = q.rows.filter((w) => w.n % 2).pop();
+      st = "Kare dalga, temel frekans fₛ/P = " + hz(q.f0, 2) + ". Çift harmonikler sıfır, tek harmonikler 1/n ile azalır: A₁ = " + fx(r1.meas, 4) + " ≈ 4/π. n büyüdükçe ölçülen değer 4/(πn)'den uzaklaşır (n = " + last.n + "'de " + pct(last.meas, last.ideal, 1) + "): kare dalganın köşeleri sonsuz harmonik ister, fₛ/2'nin üstündekiler örneklemede geri katlanıp alttakilerin üstüne biner. Örneklenmiş dalganın kesin değeri 4/(P·sin(πn/P)) ile ölçülen aynı.";
+    }
+  } else {
+    put("dftBins", fx(r.bins, 3)); put("dftPeakMeas", fx(r.peakMeas, 4) + " (" + db(20 * Math.log10(r.peakMeas)) + ")"); put("dftPeakTh", fx(r.peakTh, 4)); put("dftPeakDiff", pct(r.peakMeas, r.peakTh, 2));
+    put("dftFpk", hz(r.fPeak, 3)); put("dftFpkErr", sgn(r.fPeak - f1, 3) + " Hz");
+    put("dftF2Lvl", r.f2Level === null ? "—" : db(r.f2Level, 1) + " (ton yokken " + db(r.f2Without, 1) + ")"); put("dftF2Th", a2 > 0 ? db(20 * Math.log10(a2), 1) : "yok"); put("dftF2Sep", r.f2Sep === null ? "—" : r.f2Sep ? "var" : "yok");
+    const frac = r.bins - Math.round(r.bins), wn = win === "hann" ? "Hann" : "dikdörtgen";
+    st = "Δf = fₛ/N = " + hz(r.df, 3) + "; f₁ = " + fx(r.bins, 2) + " kutu. ";
+    st += Math.abs(frac) < 1e-9 ? (Math.abs(r.peakMeas - r.peakTh) > 0.01 ? "f₁ tam bir kutunun üstünde; tek başına olsaydı tepe tam " + fx(r.peakTh, 4) + " okunurdu, ama ikinci tonun sızıntısı onu " + fx(r.peakMeas, 4) + " yapıyor." : "f₁ tam bir kutunun üstünde: tepe genliği tam okunur, " + wn + " pencerede komşu kutulara " + (win === "hann" ? "yalnız iki yan kutu (−6 dB) taşar." : "hiç sızıntı yok.")) : "f₁ kutuların arasında: enerji komşu kutulara sızar, tepe " + fx(r.peakMeas, 3) + " okunur (" + db(20 * Math.log10(r.peakMeas), 2) + "). ";
+    if (a2 > 0 && r.f2Level !== null) {
+      const dB2 = 20 * Math.log10(a2), gap = r.f2Level - dB2;
+      if (a2 < 1) st += r.f2Sep ? " Zayıf ton (" + db(dB2, 0) + ") ayrı bir tepe olarak görünüyor." : " Zayıf ton (" + db(dB2, 0) + ") görünmüyor: f₂'deki düzey " + db(r.f2Level, 1) + ", ikinci ton hiç yokken de " + db(r.f2Without, 1) + "; orayı güçlü tonun sızıntısı dolduruyor." + (win === "rect" ? " Hann penceresini dene." : "");
+      else st += r.f2Sep ? " İki eşit ton ayrı tepeler veriyor." : " İki eşit ton tek tepede birleşti: Δ = " + fx(delta / r.df, 2) + " kutu." + (pad > 1 ? " Sıfır doldurma eğriyi sıklaştırdı ama ayırmadı; ayırma için kayıt uzamalı (N büyümeli)." : "");
+    } else if (a2 > 0) st += " f₂, fₛ/2'nin üstünde ya da f₁ ile çakışıyor; ölçülmedi.";
+  }
+  put("dftStatus", (st + (r.opsDft ? " FFT, doğrudan DFT ile aynı sonucu (en büyük göreli fark " + sci(r.maxErr, 2) + ") " + fx(r.opsDft / r.opsFft, 1) + " kat daha az çarpmayla verdi." : "")).replace(/ {2,}/g, " "));
+  drawDftSpec(); drawDftTime(); drawDftOps();
+}
+function drawDftSpec() {
+  const s = surface("dftSpec"); if (!s || !dftR) return; const r = dftR, fs = K.DFTC.fs, sig = $("dftSig").value;
+  const pad = { l: 42, r: 10, t: 14, b: 26 }, W = s.w - pad.l - pad.r, H = s.h - pad.t - pad.b, floor = -100;
+  let f0 = 0, f1 = fs / 2; if (sig === "tones") { const c = num("dftF1") + num("dftDelta") / 2, span = Math.max(16 * r.df, num("dftDelta") * 3, 40); f0 = Math.max(0, c - span); f1 = Math.min(fs / 2, c + span); }
+  const X = (f) => pad.l + (f - f0) / (f1 - f0) * W, Y = (d) => pad.t + (Math.max(floor, Math.min(5, d)) - 5) / (floor - 5) * H, dB = (a) => 20 * Math.log10(Math.max(a, 1e-12));
+  frame(s, pad); for (let d = 0; d >= floor; d -= 20) { line(s, pad.l, Y(d), pad.l + W, Y(d), s.p.grid, 1, [2, 4]); text(s, fx(d, 0), pad.l - 5, Y(d) + 4, s.p.muted, "right", 10); }
+  const st = niceStep(f1 - f0, 6); for (let f = Math.ceil(f0 / st) * st; f <= f1 + 1e-9; f += st) text(s, fx(f, st < 1 ? 2 : 0), X(f), s.h - 8, s.p.muted, "center", 10);
+  text(s, "f / Hz", pad.l + W, pad.t - 3, s.p.muted, "right", 10); text(s, "dB", 4, pad.t + 8, s.p.muted, "left", 10);
+  if (sig === "tones") { line(s, X(num("dftF1")), pad.t, X(num("dftF1")), pad.t + H, s.p.violet, 1, [4, 3]); if (Number($("dftA2").value) > 0) line(s, X(r.f2), pad.t, X(r.f2), pad.t + H, s.p.violet, 1, [4, 3]); }
+  const pts = []; for (let j = 0; j <= r.Z / 2; j++) { const f = j * fs / r.Z; if (f < f0 - fs / r.Z || f > f1 + fs / r.Z) continue; pts.push([X(f), Y(dB(r.Ap[j]))]); }
+  s.g.save(); s.g.beginPath(); s.g.rect(pad.l, pad.t, W, H); s.g.clip(); poly(s, pts, s.p.accent, 1.5);
+  for (let k = 0; k <= r.N / 2; k++) { const f = k * r.df; if (f < f0 || f > f1) continue; const y = Y(dB(r.A[k])); line(s, X(f), pad.t + H, X(f), y, s.p.warm, 1); dot(s, X(f), y, 2.6, s.p.warm); }
+  s.g.restore();
+}
+function drawDftTime() {
+  const s = surface("dftTime"); if (!s || !dftR) return; const r = dftR, pad = { l: 30, r: 10, t: 10, b: 20 }, W = s.w - pad.l - pad.r, H = s.h - pad.t - pad.b;
+  const amax = Math.max(1e-9, ...r.x.map(Math.abs)) * 1.05, X = (n) => pad.l + n / (r.N - 1) * W, Y = (v) => pad.t + H / 2 - v / amax * H / 2;
+  frame(s, pad); line(s, pad.l, Y(0), pad.l + W, Y(0), s.p.grid, 1);
+  poly(s, Array.from(r.w, (v, n) => [X(n), Y(v)]), s.p.accent, 1.2, [5, 4]); poly(s, Array.from(r.w, (v, n) => [X(n), Y(-v)]), s.p.accent, 1.2, [5, 4]);
+  const pts = Array.from(r.x, (v, n) => [X(n), Y(v * r.w[n])]); poly(s, pts, s.p.warm, 1.2); if (r.N <= 128) pts.forEach(([x, y]) => dot(s, x, y, 2, s.p.warm));
+  text(s, "0", pad.l, s.h - 5, s.p.muted, "center", 10); text(s, "n = " + (r.N - 1), pad.l + W, s.h - 5, s.p.muted, "right", 10);
+}
+function drawDftOps() {
+  const s = surface("dftOps"); if (!s || !dftR) return; const pad = { l: 46, r: 10, t: 12, b: 26 }, W = s.w - pad.l - pad.r, H = s.h - pad.t - pad.b, Ns = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+  const lmax = Math.log10(4096 * 4096), X = (i) => pad.l + (i + 0.5) / Ns.length * W, Y = (v) => pad.t + H - Math.log10(Math.max(1, v)) / lmax * H, bw = W / Ns.length * 0.32;
+  frame(s, pad); for (let e = 0; e <= 7; e++) { line(s, pad.l, Y(10 ** e), pad.l + W, Y(10 ** e), s.p.grid, 1, [2, 4]); text(s, "10" + SUP[e], pad.l - 5, Y(10 ** e) + 4, s.p.muted, "right", 10); }
+  Ns.forEach((n, i) => { const sel = n === dftR.N, a = n * n, b = n / 2 * Math.log2(n); s.g.globalAlpha = sel ? 1 : 0.45; s.g.fillStyle = s.p.warm; s.g.fillRect(X(i) - bw, Y(a), bw, pad.t + H - Y(a)); s.g.fillStyle = s.p.accent; s.g.fillRect(X(i), Y(b), bw, pad.t + H - Y(b)); s.g.globalAlpha = 1; text(s, String(n), X(i), s.h - 8, sel ? s.p.ink : s.p.muted, "center", 10); });
+}
+
+/* ───────── 3 · AM / FM ───────── */
+let modR = null;
+function updateMod() {
+  const type = $("modType").value, fm = num("modFm"), m = num("modM"), phi = num("modPhi"), beta = num("modBeta");
+  document.querySelectorAll("#panel-mod [data-mode]").forEach((e) => { e.hidden = e.dataset.mode !== type; }); $("fmTableWrap").hidden = type !== "fm";
+  put("modFmOut", hz(fm, 0)); put("modMOut", fx(m, 2)); put("modPhiOut", fx(phi, 0) + "°"); put("modBetaOut", fx(beta, 3));
+  let st;
+  if (type === "am") {
+    const r = modR = { type, ...K.amLab({ m, fm, phiDeg: phi }) };
+    put("amCar", fx(r.car, 4)); put("amSb", fx(r.lsb, 4) + " / " + fx(r.usb, 4)); put("amSbTh", "1 ve " + fx(m / 2, 4)); put("amFrac", fx(r.frac * 100, 3) + " %"); put("amFracTh", fx(r.fracTh * 100, 3) + " %"); put("amFracDiff", m > 0 ? sgn((r.frac - r.fracTh) * 100, 4) + " puan" : "—");
+    put("amEnvA", fx(r.envA, 4)); put("amEnvThd", r.envThd === null ? "—" : fx(r.envThd * 100, 3) + " %"); put("amEnvTh", m <= 1 ? fx(m, 4) + "; 0 %" : "geçersiz (m > 1)");
+    put("amCohA", fx(r.cohA, 4)); put("amCohTh", fx(r.cohTh, 4)); put("amCohThd", r.cohThd === null ? "—" : fx(r.cohThd * 100, 3) + " %");
+    if (m === 0) st = "m = 0: modülasyon yok, tayfta yalnız taşıyıcı var. Yan bantlarda güç yok; demodülatörler sabit bir çıkış verir, mesaj olmadığından bozulma tanımsız.";
+    else if (m <= 1) st = "m = " + fx(m, 2) + ": taşıyıcının iki yanında, fₜ ± fₘ'de genliği m/2 olan iki yan bant. Bilgiyi taşıyan yan bantların toplam güçteki payı yalnız " + fx(r.frac * 100, 1) + " %; m = 1'de bile ancak üçte bir. Zarf mesajın kendisi olduğundan basit zarf dedektörü bozulmasız çalışır (THD " + fx(r.envThd * 100, 3) + " %).";
+    else st = "Aşırı modülasyon (m = " + fx(m, 2) + " > 1): 1 + m·cos negatife iniyor, zarf |1 + m·cos| olur ve kıvrılır. Tayf hâlâ üç çizgi; bilgi kaybolmadı. Zarf dedektörü bozuluyor (THD " + fx(r.envThd * 100, 2) + " %), eş evreli dedektör işareti koruyarak mesajı temiz çıkarıyor (THD " + fx(r.cohThd * 100, 3) + " %). Bedeli: alıcının taşıyıcının evresini bilmesi gerekir.";
+    if (phi > 0 && m > 0) st += " Yerel osilatör " + phi + "° kaymış: eş evreli çıkış cos φ = " + fx(Math.cos(phi * Math.PI / 180), 3) + " katına düşüyor" + (phi === 90 ? "; 90°'de mesaj tamamen kayboluyor." : ".");
+  } else {
+    const r = modR = { type, ...K.fmLab({ beta, fm }) };
+    put("fmDev", hz(r.dev, 1)); put("fmCarson", hz(r.carson, 0)); put("fmB98", r.b98 === null ? "—" : hz(r.b98, 0) + " (±" + r.k98 + " çizgi)"); put("fmB98Th", r.b98Th === null ? "—" : hz(r.b98Th, 0)); put("fmJ0", fx(r.j0sq * 100, 3) + " %"); put("fmResid", sci(r.resid, 2));
+    const rows = []; for (let n = 0; n <= Math.min(r.K, Math.max(4, Math.ceil(beta) + 3), 14); n++) rows.push("<tr><th scope=\"row\">" + n + "</th><td>" + fx(r.meas[r.K + n], 5) + "</td><td>" + fx(r.series[r.K + n], 5) + "</td><td>" + sci(r.meas[r.K + n] - r.series[r.K + n], 2) + "</td></tr>");
+    $("fmRows").innerHTML = rows.join("");
+    if (beta === 0) st = "β = 0: modülasyon yok, tek taşıyıcı çizgisi. J₀(0) = 1.";
+    else if (r.k98 === 0) st = "Çok dar bant FM (β = " + fx(beta, 2) + "): taşıyıcı tek başına gücün " + fx(r.j0sq * 100, 2) + " %'ini taşıyor, bu yüzden 98 % ölçütüyle bant genişliği 0 çıkıyor; yan bantlar (genlik ≈ β/2) yine de var. Carson kuralı en az 2fₘ = " + hz(2 * fm, 0) + " verir. Alt yan bant ters işaretli: J₋₁ = −J₁.";
+    else if (Math.abs(K.besselJ(0, beta)) < 0.005) st = "β = " + fx(beta, 3) + ": J₀(β) ≈ 0, taşıyıcı çizgisi neredeyse yok oldu (payı " + fx(r.j0sq * 100, 3) + " %). Bütün güç yan bantlarda; sinyalin toplam gücü yine de değişmedi, çünkü FM genliği sabittir. J₀'ın ilk sıfırı β ≈ 2,405'tedir.";
+    else if (beta < 0.3) st = "Dar bant FM (β = " + fx(beta, 2) + "): yalnız fₜ ± fₘ'de anlamlı iki yan bant, genlikleri ≈ β/2. AM'ye benzer, ama alt yan bant ters işaretli: J₋₁ = −J₁. Bant genişliği AM'ninki gibi ≈ 2fₘ.";
+    else st = "β = " + fx(beta, 2) + ": fₜ + n·fₘ çizgilerinin genliği Jₙ(β). FFT'den ölçülen değerler bu sayfanın Bessel serisiyle " + sci(Math.max(...r.meas.map((v, i) => Math.abs(v - r.series[i]))), 1) + " içinde aynı. Toplam gücün en az yüzde 98'i ±" + r.k98 + " çizgide: " + hz(r.b98, 0) + "; Carson kuralı " + hz(r.carson, 0) + " diyor (" + pct(r.carson, r.b98, 0) + ").";
+  }
+  put("modStatus", st);
+  put("modTimeCap", type === "am" ? "Gri: modüleli dalga. Turkuaz: beklenen zarf ±(1 + m·cos 2πfₘt). Çizim için taşıyıcı 4000 Hz yerine 20·fₘ'de gösterilir; tayf ve ölçümler gerçek 4000 Hz'liktir." : "Gri: FM dalgası (genlik sabit). Turkuaz: anlık frekans fₜ + Δf·cos(2πfₘt), sağ eksen. Çizim için taşıyıcı 4000 Hz yerine 20·fₘ'de gösterilir; ölçümler gerçek 4000 Hz'liktir.");
+  put("modAuxTitle", type === "am" ? "Demodülasyon: zarf ve eş evreli" : "Bessel fonksiyonları Jₙ(β)");
+  put("modAuxCap", type === "am" ? "Turuncu: zarf dedektörü (analitik sinyalin modülü). Turkuaz: eş evreli dedektör (yerel osilatörle çarpıp alçak geçiren süzgeç). Gri kesikli: gönderilen mesaj 1 + m·cos(2πfₘt)." : "J₀ (turkuaz), J₁ (turuncu), J₂ (mor), J₃ ve J₄ (gri), bu sayfanın serisinden. Dikey çizgi: seçili β; noktalar: o β'da FFT'den ölçülen genlikler.");
+  drawModTime(); drawModSpec(); drawModAux();
+}
+function drawModTime() {
+  const s = surface("modTime"); if (!s || !modR) return; const type = modR.type, m = num("modM"), beta = num("modBeta"), pad = { l: 34, r: type === "fm" ? 44 : 10, t: 10, b: 22 }, W = s.w - pad.l - pad.r, H = s.h - pad.t - pad.b;
+  const fcV = 20, Y = (v) => pad.t + H / 2 - v / (type === "am" ? Math.max(1, 1 + m) * 1.05 : 1.15) * H / 2, X = (u) => pad.l + u / 2 * W; // u: mesaj periyodu
+  frame(s, pad); line(s, pad.l, Y(0), pad.l + W, Y(0), s.p.grid, 1);
+  const M = Math.round(W * 3), pts = []; for (let i = 0; i <= M; i++) { const u = 2 * i / M; const v = type === "am" ? (1 + m * Math.cos(TAU * u)) * Math.cos(TAU * fcV * u) : Math.cos(TAU * fcV * u + beta * Math.sin(TAU * u)); pts.push([X(u), Y(v)]); }
+  poly(s, pts, s.p.faint, 1);
+  if (type === "am") { for (const sg of [1, -1]) { const e = []; for (let i = 0; i <= 400; i++) { const u = 2 * i / 400; e.push([X(u), Y(sg * (1 + m * Math.cos(TAU * u)))]); } poly(s, e, s.p.accent, 2); } }
+  else { const Yf = (q) => pad.t + H / 2 - q * H / 2 * 0.9, e = []; for (let i = 0; i <= 400; i++) { const u = 2 * i / 400; e.push([X(u), Yf(Math.cos(TAU * u))]); } poly(s, e, s.p.accent, 2); text(s, "fₜ + Δf", pad.l + W + 4, Yf(1) + 4, s.p.accent, "left", 10); text(s, "fₜ − Δf", pad.l + W + 4, Yf(-1) + 4, s.p.accent, "left", 10); }
+  text(s, "0", pad.l, s.h - 6, s.p.muted, "center", 10); text(s, "2/fₘ", pad.l + W, s.h - 6, s.p.muted, "right", 10);
+}
+function drawModSpec() {
+  const s = surface("modSpec"); if (!s || !modR) return; const r = modR, pad = { l: 40, r: 10, t: 14, b: 26 }, W = s.w - pad.l - pad.r, H = s.h - pad.t - pad.b;
+  const span = r.type === "am" ? 3 : Math.min(r.K, Math.max(4, Math.ceil(num("modBeta")) + 4)), X = (n) => pad.l + (n + span + 0.5) / (2 * span + 1) * W, top = r.type === "am" ? 1.05 : Math.max(0.3, ...r.meas.map(Math.abs)) * 1.15, Y = (a) => pad.t + H - a / top * H;
+  frame(s, pad); const st = niceStep(top, 4); for (let v = 0; v <= top + 1e-9; v += st) { line(s, pad.l, Y(v), pad.l + W, Y(v), s.p.grid, 1, [2, 4]); text(s, fx(v, st < 0.1 ? 2 : 1), pad.l - 5, Y(v) + 4, s.p.muted, "right", 10); }
+  const bw = Math.max(3, W / (2 * span + 1) * 0.35);
+  for (let n = -span; n <= span; n++) {
+    let me, th; if (r.type === "am") { me = n === 0 ? r.car : n === 1 ? r.usb : n === -1 ? r.lsb : r.B.amp((K.MOD.fc + n * num("modFm")) * K.MOD.N / K.MOD.fs); th = n === 0 ? 1 : Math.abs(n) === 1 ? num("modM") / 2 : 0; }
+    else { me = Math.abs(r.meas[r.K + n]); th = Math.abs(r.series[r.K + n]); }
+    s.g.fillStyle = n === 0 ? s.p.violet : s.p.warm; s.g.fillRect(X(n) - bw / 2, Y(me), bw, pad.t + H - Y(me)); dot(s, X(n), Y(th), 4.5, s.p.accent, false);
+    if (span <= 8 || n % 2 === 0) text(s, n === 0 ? "fₜ" : (n > 0 ? "+" : "−") + Math.abs(n), X(n), s.h - 8, s.p.muted, "center", 10);
+  }
+  if (r.type === "fm" && r.b98 !== null) { const k = r.k98; line(s, X(-k) - bw, pad.t + 4, X(k) + bw, pad.t + 4, s.p.accent, 2); text(s, "98 % güç", X(0), pad.t + 16, s.p.accent, "center", 10); const kc = r.carson / 2 / num("modFm"); if (kc <= span + 0.5) { line(s, X(-kc), pad.t, X(-kc), pad.t + H, s.p.red, 1, [4, 3]); line(s, X(kc), pad.t, X(kc), pad.t + H, s.p.red, 1, [4, 3]); text(s, "Carson", X(kc) + 3, pad.t + 30, s.p.red, "left", 10); } }
+  text(s, "genlik", pad.l + 4, pad.t + 12, s.p.muted, "left", 10);
+}
+function drawModAux() {
+  const s = surface("modAux"); if (!s || !modR) return; const r = modR, pad = { l: 34, r: 10, t: 10, b: 22 }, W = s.w - pad.l - pad.r, H = s.h - pad.t - pad.b;
+  frame(s, pad);
+  if (r.type === "am") {
+    const m = num("modM"), fm = num("modFm"), fs = K.MOD.fs, L = Math.round(2 * fs / fm), n0 = Math.round(fs / 2), lo = Math.min(0, 1 - m) - 0.1, hi = 1 + m + 0.1, X = (i) => pad.l + i / L * W, Y = (v) => pad.t + H - (v - lo) / (hi - lo) * H;
+    line(s, pad.l, Y(0), pad.l + W, Y(0), s.p.grid, 1); text(s, "0", pad.l - 5, Y(0) + 4, s.p.muted, "right", 10); text(s, fx(1 + m, 2), pad.l - 5, Y(1 + m) + 4, s.p.muted, "right", 10);
+    const step = Math.max(1, Math.floor(L / 600)), msg = [], env = [], coh = [];
+    for (let i = 0; i <= L; i += step) { msg.push([X(i), Y(1 + m * Math.cos(TAU * fm * (n0 + i) / fs))]); env.push([X(i), Y(r.env[n0 + i])]); coh.push([X(i), Y(r.coh[n0 + i])]); }
+    poly(s, msg, s.p.faint, 2, [5, 4]); poly(s, env, s.p.warm, 2); poly(s, coh, s.p.accent, 1.6);
+    text(s, "2/fₘ", pad.l + W, s.h - 6, s.p.muted, "right", 10);
+  } else {
+    const beta = num("modBeta"), X = (b) => pad.l + b / 10 * W, Y = (v) => pad.t + H / 2 - v / 1.05 * H / 2, cols = [s.p.accent, s.p.warm, s.p.violet, s.p.faint, s.p.faint];
+    line(s, pad.l, Y(0), pad.l + W, Y(0), s.p.grid, 1); text(s, "1", pad.l - 5, Y(1) + 4, s.p.muted, "right", 10); text(s, "−1", pad.l - 5, Y(-1) + 4, s.p.muted, "right", 10);
+    for (let n = 0; n <= 4; n++) { const pts = []; for (let i = 0; i <= 300; i++) { const b = 10 * i / 300; pts.push([X(b), Y(K.besselJ(n, b))]); } poly(s, pts, cols[n], n < 3 ? 1.8 : 1); }
+    line(s, X(beta), pad.t, X(beta), pad.t + H, s.p.red, 1.2, [4, 3]);
+    for (let n = 0; n <= Math.min(4, r.K); n++) dot(s, X(beta), Y(r.meas[r.K + n]), 3.5, cols[n]);
+    for (let b = 0; b <= 10; b += 2) text(s, String(b), X(b), s.h - 6, s.p.muted, "center", 10); text(s, "β", pad.l + W - 2, pad.t + H - 4, s.p.muted, "right", 11);
+  }
+}
+
+/* ───────── 4 · Süzgeçler ───────── */
+let filR = null, fSeedVal = 1;
+const TYPE_TEXT = { ma: "Hareketli ortalama", sinc: "Pencereli sinc", iir1: "Birinci derece IIR", biquad: "Biquad", reson: "Rezonatör" };
+function filtCfg() { return { type: $("fType").value, M: num("fMa"), taps: num("fTaps"), fc: num("fFc"), Q: num("fQ"), r: num("fR"), fTest: num("fTest"), f0: num("fSig"), sigma: num("fSigma"), seed: fSeedVal }; }
+function updateFilt() {
+  const c = filtCfg(); document.querySelectorAll("#panel-filt [data-ftype]").forEach((e) => { e.hidden = !e.dataset.ftype.split(" ").includes(c.type); });
+  put("fFcLabel", c.type === "reson" ? "Rezonans frekansı (kutup açısı)" : "Kesim frekansı fₖ");
+  put("fMaOut", String(c.M)); put("fTapsOut", c.taps + " (derece " + (c.taps - 1) + ")"); put("fFcOut", hz(c.fc, 0)); put("fQOut", fx(c.Q, 2)); put("fROut", fx(c.r, 3)); put("fTestOut", hz(c.fTest, 0)); put("fSigOut", hz(c.f0, 0)); put("fSigmaOut", fx(c.sigma, 1)); put("fSeed", "Yeni gürültü (tohum " + fSeedVal + ")");
+  const r = filR = K.filterLab(c), dBv = (m) => 20 * Math.log10(Math.max(m, 1e-15));
+  put("fHth", fx(r.th.mag, 4) + " (" + db(dBv(r.th.mag)) + ")"); put("fPhTh", deg(r.th.phase));
+  put("fHmeas", r.me ? fx(r.me.mag, 4) + " (" + db(dBv(r.me.mag)) + ")" : "—"); put("fPhMeas", r.me ? deg(r.me.phase) : "—"); put("fHdiff", r.me ? pct(r.me.mag, r.th.mag, 4) : "—");
+  if (c.type === "reson") { put("f3Label", "Tepe frekansı; −3 dB bant genişliği (≈ (1 − r)·fₛ/π)"); put("f3db", r.stable && r.cut.bw !== null ? hz(r.cut.peak, 1) + "; " + hz(r.cut.bw, 1) + " (≈ " + hz((1 - c.r) * 1000 / Math.PI, 1) + ")" : "—"); }
+  else { put("f3Label", "−3 dB frekansı (katsayılardan)"); put("f3db", r.cut.f3 === null ? "fₛ/2'ye kadar yok" : hz(r.cut.f3, 1)); }
+  put("fPoleMax", r.d.fir ? "0 (FIR)" : fx(r.rmax, 4)); put("fDecay", r.d.fir ? "dürtü " + r.d.b.length + " örnekte biter" : fx(r.decay, 4)); put("fCoef", r.d.b.length + "; " + r.d.a.length);
+  $("fRows").innerHTML = r.grid.map((g) => "<tr><th scope=\"row\">" + g.f + "</th><td>" + fx(dBv(g.th.mag), 2) + "</td><td>" + (g.me ? fx(dBv(g.me.mag), 2) : "—") + "</td><td>" + deg(g.th.phase) + "</td><td>" + (g.me ? deg(g.me.phase) : "—") + "</td></tr>").join("");
+  let st = TYPE_TEXT[c.type] + ". ";
+  if (c.type === "ma") st += "M = " + c.M + " örneğin ortalaması: yanıt sinc biçiminde, fₛ/M = " + hz(1000 / c.M, 1) + " ve katlarında tam sıfır (z düzleminde birim çember üstündeki halkalar). Kutupların hepsi başlangıçta, süzgeç her zaman kararlı. Yan loblar büyük: keskin bir alçak geçiren değildir.";
+  else if (c.type === "sinc") st += c.taps + " katsayı, gecikme (derece)/2 = " + (c.taps - 1) / 2 + " örnek (" + fx((c.taps - 1) / 2, 0) + " ms). Doğrusal evre: evre f ile düz bir çizgi gibi azalır, bütün frekanslar aynı gecikir. Katsayı arttıkça geçiş bandı daralır (yaklaşık 3,3·fₛ/katsayı = " + hz(3.3 * 1000 / c.taps, 1) + ").";
+  else if (c.type === "iir1") st += "Tek kutup a = e^(−2πfₖ/fₛ) = " + fx(r.rmax, 4) + ". Tek bir geri besleme katsayısıyla uzun bir ortalama gibi davranır; −3 dB frekansı tasarım değerinden (" + hz(c.fc, 0) + ") biraz sapar, çünkü bu eşleme zaman sabitini korur, kesimi değil.";
+  else if (c.type === "biquad") st += "İki kutup, iki sıfır (z = −1'de çift). Q = " + fx(c.Q, 2) + (c.Q > 0.75 ? ": kesimin yakınında bir tepe (rezonans) var; kutuplar birim çembere yaklaştı (|p| = " + fx(r.rmax, 3) + ")." : ": Q ≈ 1/√2 Butterworth yanıtı verir: geçiş bandında tepe yok, kesimde −3 dB.");
+  else st += "Kutuplar r·e^(±iθ), r = " + fx(c.r, 3) + ". ";
+  if (!r.stable) st += (r.rmax > 1 + 1e-9 ? " KARARSIZ: kutup birim çemberin dışında (|p| = " + fx(r.rmax, 3) + "). Dürtü yanıtı her örnekte " + fx(r.decay, 4) + " katına büyüyor; kalıcı durum olmadığından sinüs ölçümü ve SNR tanımsız. Katsayılardan hesaplanan H(e^iω) yine bir sayı verir, ama bu sayı hiçbir çıkışı betimlemez." : " SINIRDA: kutup tam birim çemberin üstünde; dürtü yanıtı sönmez, sonsuza dek salınır. Kalıcı durum ölçülemez.");
+  else if (c.type === "reson") st += "Sönüm: dürtü yanıtının zarfı her örnekte r katına iniyor; ölçülen " + fx(r.decay, 4) + ". r 1'e yaklaştıkça bant daralır ve geçici rejim uzar (" + intf(r.settle) + " örnek).";
+  else if (!r.d.fir) st += " Ölçülen sönüm " + fx(r.decay, 4) + ", en büyük kutup " + fx(r.rmax, 4) + ".";
+  put("fStatus", st.replace(/ {2,}/g, " "));
+  const nz = r.noise;
+  if (nz) { put("fSnrIn", db(nz.snrIn)); put("fSnrInTh", db(nz.snrInTh)); put("fSnrOut", db(nz.snrOut)); put("fGainMeas", sgn(nz.gain, 2) + " dB"); put("fGainTh", sgn(nz.gainTh, 2) + " dB"); put("fGainDiff", sgn(nz.gain - nz.gainTh, 2) + " dB");
+    const Hf0 = K.freqResp(r.d.b, r.d.a, c.f0).mag;
+    put("fNoiseStatus", "Beyaz gürültünün gücü bütün frekanslara eşit dağılır; süzgeç bunun Σh² = " + sci(nz.energy, 3) + " kadarını geçirir, f₀ = " + hz(c.f0, 0) + "'deki sinyali ise |H|² = " + fx(Hf0 * Hf0, 3) + " katıyla. Kazanç bu ikisinin oranıdır. Ölçülen değer tohuma bağlı olarak oynar (8192 örneklik tek bir gürültü kaydı); dar süzgeçte çıkıştaki bağımsız örnek sayısı azaldığından oynama büyür. Yeni gürültü düğmesiyle birkaç tohum dene: ortalama kurama oturur." + (Hf0 < 0.5 ? " Dikkat: f₀ geçiş bandının dışında, süzgeç sinyali de bastırıyor." : "")); }
+  else { ["fSnrIn", "fSnrOut", "fGainMeas", "fGainDiff"].forEach((id) => put(id, "—")); put("fSnrInTh", db(10 * Math.log10(0.5 / c.sigma ** 2))); put("fGainTh", "—"); put("fNoiseStatus", "Süzgeç kararlı değil: çıkış sınırsız büyür ya da sönmez, SNR tanımlı değil."); }
+  drawResp(); drawZ(); drawFTime();
+}
+function drawResp() {
+  const s = surface("fResp"); if (!s || !filR) return; const r = filR, c = filtCfg(), pad = { l: 42, r: 10, t: 12, b: 24 }, W = s.w - pad.l - pad.r, Ht = s.h - pad.t - pad.b, H1 = Ht * 0.64, H2 = Ht * 0.3, t2 = pad.t + H1 + Ht * 0.06;
+  const X = (f) => pad.l + f / 500 * W, lo = -80, hi = 10, Y = (d) => pad.t + (hi - Math.max(lo, Math.min(hi, d))) / (hi - lo) * H1, Yp = (a) => t2 + H2 / 2 - a / 180 * H2 / 2;
+  s.g.strokeStyle = s.p.grid; s.g.lineWidth = 1; s.g.strokeRect(pad.l, pad.t, W, H1); s.g.strokeRect(pad.l, t2, W, H2);
+  for (let d = 0; d >= lo; d -= 20) { line(s, pad.l, Y(d), pad.l + W, Y(d), s.p.grid, 1, [2, 4]); text(s, fx(d, 0), pad.l - 5, Y(d) + 4, s.p.muted, "right", 10); }
+  text(s, "dB", 4, pad.t + 10, s.p.muted, "left", 10); text(s, "±180°", pad.l - 5, t2 + 10, s.p.muted, "right", 9.5);
+  for (let f = 0; f <= 400; f += 100) text(s, String(f), X(f), s.h - 6, s.p.muted, "center", 10); text(s, "500 Hz", pad.l + W, s.h - 6, s.p.muted, "right", 10);
+  const M = Math.round(W), mag = [], ph = []; let prev = null;
+  for (let i = 0; i <= M; i++) { const f = 500 * i / M, h = K.freqResp(r.d.b, r.d.a, f), a = h.phase * 180 / Math.PI; mag.push([X(f), Y(20 * Math.log10(Math.max(h.mag, 1e-12)))]); if (prev !== null && Math.abs(a - prev) > 180) ph.push([X(f), NaN]); ph.push([X(f), Yp(a)]); prev = a; }
+  s.g.save(); s.g.beginPath(); s.g.rect(pad.l, pad.t, W, H1); s.g.clip(); poly(s, mag, s.p.accent, 2); s.g.restore(); poly(s, ph, s.p.accent, 1.3);
+  line(s, X(c.fTest), pad.t, X(c.fTest), t2 + H2, s.p.violet, 1, [4, 3]);
+  for (const g of [...r.grid, { f: c.fTest, me: r.me }]) if (g.me) { dot(s, X(g.f), Y(20 * Math.log10(Math.max(g.me.mag, 1e-12))), 3.5, s.p.warm); dot(s, X(g.f), Yp(g.me.phase * 180 / Math.PI), 3, s.p.warm); }
+}
+function drawZ() {
+  const s = surface("fZ"); if (!s || !filR) return; const r = filR, R = Math.min(s.w, s.h) * 0.36, cx = s.w / 2, cy = s.h / 2, Xz = (x) => cx + x * R, Yz = (y) => cy - y * R, g = s.g;
+  line(s, cx - R * 1.35, cy, cx + R * 1.35, cy, s.p.grid, 1); line(s, cx, cy - R * 1.3, cx, cy + R * 1.3, s.p.grid, 1);
+  g.strokeStyle = s.p.muted; g.lineWidth = 1.5; g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.stroke();
+  text(s, "Re", cx + R * 1.35, cy - 6, s.p.muted, "right", 10); text(s, "Im", cx + 6, cy - R * 1.22, s.p.muted, "left", 10); text(s, "1", Xz(1) + 4, cy + 13, s.p.muted, "left", 10);
+  const group = (pts) => { const out = []; for (const p of pts) { const q = out.find((o) => Math.hypot(o.p[0] - p[0], o.p[1] - p[1]) < 1e-6); if (q) q.n++; else out.push({ p, n: 1 }); } return out; };
+  const clampR = 1.3;
+  for (const { p, n } of group(r.d.zeros)) { const m = Math.hypot(...p), k = m > clampR ? clampR / m : 1; dot(s, Xz(p[0] * k), Yz(p[1] * k), 5, s.p.accent, false); if (n > 1) text(s, String(n), Xz(p[0] * k) + 7, Yz(p[1] * k) - 6, s.p.accent, "left", 10); }
+  for (const { p, n } of group(r.d.poles)) { const m = Math.hypot(...p), k = m > clampR ? clampR / m : 1, x = Xz(p[0] * k), y = Yz(p[1] * k), col = m >= 1 - 1e-9 ? s.p.red : s.p.warm; line(s, x - 5, y - 5, x + 5, y + 5, col, 2.2); line(s, x - 5, y + 5, x + 5, y - 5, col, 2.2); if (n > 1) text(s, String(n), x + 7, y + 14, col, "left", 10); }
+  if (!r.d.zerosKnown) text(s, "Sıfırlar çizilmedi (" + (r.d.b.length - 1) + " sıfır)", 8, s.h - 8, s.p.muted, "left", 10);
+}
+function drawFTime() {
+  const s = surface("fTime"); if (!s || !filR) return; const nz = filR.noise, pad = { l: 34, r: 10, t: 10, b: 22 }, W = s.w - pad.l - pad.r, H = s.h - pad.t - pad.b; frame(s, pad);
+  if (!nz) { text(s, "Kararsız süzgeç: çıkış tanımsız", s.w / 2, s.h / 2, s.p.red, "center", 12); return; }
+  const L = 500, n0 = nz.n0, amax = Math.max(2, ...Array.from(nz.v.subarray(n0, n0 + L), (v, i) => Math.abs(v + nz.s[n0 + i]))) * 1.05, X = (i) => pad.l + i / L * W, Y = (v) => pad.t + H / 2 - v / amax * H / 2;
+  const inp = [], out = [], cl = []; for (let i = 0; i < L; i++) { const n = n0 + i; inp.push([X(i), Y(nz.s[n] + nz.v[n])]); out.push([X(i), Y(nz.ys[n] + nz.yv[n])]); cl.push([X(i), Y(nz.ys[n])]); }
+  poly(s, inp, s.p.faint, 0.9); poly(s, out, s.p.accent, 2); poly(s, cl, s.p.warm, 1.5, [5, 4]);
+  text(s, "0,5 s", pad.l + W, s.h - 6, s.p.muted, "right", 10); text(s, fx(amax, 1), pad.l - 5, Y(amax) + 10, s.p.muted, "right", 10);
+}
+
+/* ───────── Sekmeler, sıfırlama, olaylar ───────── */
+const defaults = {
+  samp: { sampF: 3, sampFs: 20, qBits: 8, qAmp: 0 },
+  dft: { dftSig: "tones", dftN: "256", dftWin: "rect", dftPad: "1", dftF1: 102, dftDelta: 16, dftA2: "0.01", dftP: "32" },
+  mod: { modType: "am", modFm: 100, modM: 0.5, modPhi: 0, modBeta: 2 },
+  filt: { fType: "sinc", fMa: 8, fTaps: 51, fFc: 50, fQ: 0.71, fR: 0.95, fTest: 30, fSig: 10, fSigma: 1 },
+};
+const updaters = { samp: updateSamp, dft: updateDft, mod: updateMod, filt: updateFilt };
+let pending = false;
+function render() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; updaters[active](); }); }
+function renderNow() { updaters[active](); }
+function setValues(v) { Object.entries(v).forEach(([id, x]) => { $(id).value = x; }); renderNow(); }
+function reset(name) { if (name === "filt") fSeedVal = 1; if (name === "samp") { wheelTau = 0; setWheel(true); } setValues(defaults[name]); }
+const tabs = ["samp", "dft", "mod", "filt"];
+function tab(name) { active = name; tabs.forEach((t) => { $("panel-" + t).hidden = t !== name; $("tab-" + t).setAttribute("aria-selected", String(t === name)); $("tab-" + t).tabIndex = t === name ? 0 : -1; }); renderNow(); }
+tabs.forEach((t, i) => {
+  $("tab-" + t).addEventListener("click", () => tab(t));
+  $(t + "Reset").addEventListener("click", () => reset(t));
+  $("tab-" + t).addEventListener("keydown", (e) => { const j = e.key === "ArrowRight" ? (i + 1) % 4 : e.key === "ArrowLeft" ? (i + 3) % 4 : e.key === "Home" ? 0 : e.key === "End" ? 3 : null; if (j !== null) { e.preventDefault(); tab(tabs[j]); $("tab-" + tabs[j]).focus(); } });
+});
+for (const e of document.querySelectorAll("main input, main select")) e.addEventListener(e.tagName === "SELECT" ? "change" : "input", () => { if (e.id === "sampF" || e.id === "sampFs") wheelTau = 0; render(); });
+$("sampSafe").onclick = () => { wheelTau = 0; setValues({ sampF: 3, sampFs: 20 }); };
+$("sampNyqBtn").onclick = () => { wheelTau = 0; const fs = num("sampFs"); setValues({ sampF: fs / 2 <= 50 ? fs / 2 : 10, sampFs: fs / 2 <= 50 ? fs : 20 }); };
+$("sampAlias").onclick = () => { wheelTau = 0; setValues({ sampF: 17, sampFs: 20 }); };
+$("sampSync").onclick = () => { wheelTau = 0; setValues({ sampF: 20, sampFs: 20 }); };
+$("sampPlus").onclick = () => { wheelTau = 0; setValues({ sampF: 21, sampFs: 20 }); };
+$("sampPlay").onclick = () => setWheel(!wheelRun);
+$("qCd").onclick = () => setValues({ qBits: 16, qAmp: 0 });
+$("qThree").onclick = () => setValues({ qBits: 3, qAmp: 0 });
+$("qQuiet").onclick = () => setValues({ qBits: 8, qAmp: -30 });
+$("dftCenter").onclick = () => setValues({ dftSig: "tones", dftF1: 100 });
+$("dftHalf").onclick = () => setValues({ dftSig: "tones", dftF1: 102 });
+$("dftHannBtn").onclick = () => setValues({ dftSig: "tones", dftWin: "hann", dftA2: "0.01", dftDelta: 16 });
+$("dftClose").onclick = () => setValues({ dftSig: "tones", dftN: "256", dftWin: "rect", dftF1: 100, dftA2: "1", dftDelta: 2, dftPad: "16" });
+$("dftSquare").onclick = () => setValues({ dftSig: "square", dftN: "1024", dftWin: "rect", dftP: "32" });
+$("modAm05").onclick = () => setValues({ modType: "am", modM: 0.5, modPhi: 0 });
+$("modAm1").onclick = () => setValues({ modType: "am", modM: 1, modPhi: 0 });
+$("modAm15").onclick = () => setValues({ modType: "am", modM: 1.5, modPhi: 0 });
+$("modFmNarrow").onclick = () => setValues({ modType: "fm", modBeta: 0.2 });
+$("modFmZero").onclick = () => setValues({ modType: "fm", modBeta: 2.405 });
+$("modFm5").onclick = () => setValues({ modType: "fm", modBeta: 5 });
+$("fPresetMa").onclick = () => setValues({ fType: "ma", fMa: 8 });
+$("fPresetBiq").onclick = () => setValues({ fType: "biquad", fFc: 50, fQ: 5, fTest: 50 });
+$("fPresetUnstable").onclick = () => setValues({ fType: "reson", fFc: 50, fR: 1.01 });
+$("fSeed").onclick = () => { fSeedVal += 1; renderNow(); };
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input,select,button,a,textarea,summary") || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === "r" || e.key === "R") reset(active);
+  else if (e.code === "Space" && active === "samp") { e.preventDefault(); setWheel(!wheelRun); }
+});
+new ResizeObserver(render).observe(document.querySelector(".app-content"));
+new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+renderNow();
+requestAnimationFrame(wheelLoop);
+})();
+</script>
+</body>
+</html>

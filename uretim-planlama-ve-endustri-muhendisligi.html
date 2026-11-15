@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Üretim Planlama: Stok, Kalite ve Akış</title>
+  <meta name="description" content="Ekonomik sipariş miktarını bul ve maliyet eğrisinin ne kadar düz olduğunu gör; kontrol grafikleriyle bir kaymayı yakala; beş istasyonlu bir hatta darboğazı, kuyrukları ve Little yasasını ölç.">
+  <style>
+    .up-tabs { display: flex; gap: 8px; margin: 22px 0 18px; flex-wrap: wrap; }
+    .up-tabs button { flex: 1; padding: 13px 8px; font: inherit; font-size: 0.86rem; cursor: pointer; }
+    .up-tabs [aria-selected="true"] { border-color: var(--accent) !important; box-shadow: inset 0 -3px var(--accent); }
+    .up-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); gap: 18px; align-items: start; }
+    .up-grid > div, .up-grid > aside { min-width: 0; }
+    .up-stage { display: grid; gap: 12px; }
+    .up-plate { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .up-plate h2 { font-size: 0.98rem; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    body.app-page canvas.up-canvas { display: block; width: 100%; height: auto; aspect-ratio: 2.3; border: 0; border-radius: 0; background: rgba(8, 12, 22, 0.6); }
+    body.app-page canvas.up-canvas.is-short { aspect-ratio: 3; }
+    [data-theme="light"] body.app-page canvas.up-canvas { background: #f7f9fc; }
+    .up-caption { padding: 10px 16px; font-size: 0.78rem; line-height: 1.65; color: var(--text-muted); margin: 0; }
+    .up-key { display: inline-block; width: 18px; height: 3px; border-radius: 2px; vertical-align: middle; margin: 0 4px 2px 0; }
+    .up-panel { border: 1px solid var(--border); background: var(--bg-card); border-radius: 12px; padding: 16px 18px; display: grid; gap: 13px; }
+    .up-panel h2 { margin: 0; font-size: 1rem; }
+    .up-panel h3 { margin: 6px 0 0; font-size: 0.86rem; color: var(--accent); }
+    .up-field { display: grid; gap: 5px; }
+    .up-field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.85rem; font-weight: 600; }
+    .up-field output { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .up-field input[type="range"], .up-field select { width: 100%; min-width: 0; font: inherit; }
+    .up-field select { padding: 8px; }
+    .up-check { display: flex; gap: 8px; align-items: center; font-size: 0.85rem; }
+    .up-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .up-row button { padding: 9px 12px; min-height: 42px; font: inherit; font-size: 0.82rem; cursor: pointer; }
+    .up-note { font-size: 0.82rem; line-height: 1.65; margin: 0; }
+    .up-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 9px; }
+    .up-stat { border: 1px solid var(--border); background: var(--bg-card); border-radius: 10px; padding: 10px 12px; min-width: 0; display: grid; gap: 3px; align-content: start; }
+    .up-stat small { color: var(--text-muted); font-size: 0.75rem; line-height: 1.45; }
+    .up-stat strong { font-size: 1.05rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; color: var(--text) !important; }
+    .up-stat span { font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .up-stat.is-key strong { color: var(--accent-warm) !important; }
+    .up-status { border-left: 3px solid var(--accent); background: var(--bg-card); padding: 12px 15px; font-size: 0.86rem; line-height: 1.7; margin: 0; border-radius: 0 10px 10px 0; }
+    .up-sub { font-size: 0.9rem; margin: 6px 0 0; color: var(--accent); }
+    .up-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-card); }
+    .up-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+    .up-table th, .up-table td { padding: 7px 9px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .up-table th:first-child, .up-table td:first-child { text-align: left; }
+    .up-table thead th { background: var(--bg-input); font-weight: 600; }
+    .up-table tr:last-child td { border-bottom: 0; }
+    .up-table tr.is-current td { color: var(--accent-warm); font-weight: 700; }
+    .up-table caption { caption-side: top; padding: 9px 10px; text-align: left; font-size: 0.78rem; line-height: 1.5; color: var(--text-muted); }
+    .up-sources { margin-top: 26px; font-size: 0.84rem; line-height: 1.8; }
+    .up-sources summary { cursor: pointer; color: var(--accent); }
+    .up-sources a { overflow-wrap: anywhere; }
+    .ov { text-decoration-line: overline; }
+    [hidden] { display: none !important; }
+    @media (max-width: 760px) {
+      .up-grid { grid-template-columns: 1fr; }
+      .up-tabs button { font-size: 0.76rem; padding: 12px 6px; }
+      body.app-page canvas.up-canvas, body.app-page canvas.up-canvas.is-short { aspect-ratio: 1.45; }
+      .up-stats { grid-template-columns: 1fr 1fr; }
+      .up-stat strong { font-size: 0.98rem; }
+      .up-panel { padding: 14px; }
+      .up-table { font-size: 0.72rem; }
+      .up-table th, .up-table td { padding: 6px 5px; }
+      .up-table thead th { white-space: normal; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="uretim-planlama-ve-endustri-muhendisligi">
+
+<div class="app-content">
+  <h1>Üretim Planlama: Stok, Kalite ve Akış</h1>
+  <p class="hint">Bir fabrikanın üç eski sorusu: ne kadar sipariş vermeli, süreç bozulduğunu nasıl anlamalı, işler neden kuyrukta bekler? Her sekmede bir modeli kur, tohumlu bir benzetimle ölç ve ölçtüğünü formülün söylediğiyle yan yana koy.</p>
+
+  <div class="up-tabs" role="tablist" aria-label="Üretim planlama deneyleri">
+    <button type="button" class="app-btn-ghost" id="tab-eoq" role="tab" aria-controls="panel-eoq" aria-selected="true" tabindex="0">01 · Sipariş miktarı</button>
+    <button type="button" class="app-btn-ghost" id="tab-spc" role="tab" aria-controls="panel-spc" aria-selected="false" tabindex="-1">02 · Kontrol grafikleri</button>
+    <button type="button" class="app-btn-ghost" id="tab-flow" role="tab" aria-controls="panel-flow" aria-selected="false" tabindex="-1">03 · Akış ve darboğaz</button>
+  </div>
+
+  <!-- ═════════ 1. EOQ ═════════ -->
+  <section id="panel-eoq" role="tabpanel" aria-labelledby="tab-eoq">
+    <div class="up-grid">
+      <div class="up-stage">
+        <div class="up-plate">
+          <h2>Yıllık maliyet eğrileri</h2>
+          <canvas class="up-canvas" id="eoqCostCanvas" role="img" aria-label="Sipariş miktarına göre yıllık sipariş, elde tutma ve toplam maliyet eğrileri; seçilen Q ve en iyi Q* işaretli"></canvas>
+          <p class="up-caption"><i class="up-key" data-key="accent2"></i>sipariş maliyeti D·S/Q, <i class="up-key" data-key="accent"></i>elde tutma maliyeti H·Q/2, <i class="up-key" data-key="ink"></i>toplam. Sarı kesikli çizgi Q*, kırmızı çizgi seçtiğin Q. Toplam eğrinin dibi geniş bir çanaktır.</p>
+        </div>
+        <div class="up-stats" aria-live="polite">
+          <div class="up-stat is-key"><small>Ekonomik sipariş miktarı Q* = √(2DS/H)</small><strong id="eoqQstar">—</strong><span id="eoqQstarSub"></span></div>
+          <div class="up-stat"><small>Seçilen Q için yıllık maliyet</small><strong id="eoqCostQ">—</strong><span id="eoqCostQSub"></span></div>
+          <div class="up-stat"><small>En küçük maliyet √(2DSH)</small><strong id="eoqCostStar">—</strong><span id="eoqCostStarSub"></span></div>
+          <div class="up-stat is-key"><small>Q* yerine Q seçmenin bedeli</small><strong id="eoqPenalty">—</strong><span id="eoqPenaltySub"></span></div>
+          <div class="up-stat"><small>Çevrim süresi Q/D</small><strong id="eoqCycle">—</strong><span id="eoqCycleSub"></span></div>
+          <div class="up-stat"><small>Yeniden sipariş noktası d·L</small><strong id="eoqRop">—</strong><span id="eoqRopSub"></span></div>
+        </div>
+        <p class="up-status" id="eoqStatus" role="status"></p>
+        <div class="up-plate">
+          <h2>Stok düzeyi: testere dişi</h2>
+          <canvas class="up-canvas" id="eoqStockCanvas" role="img" aria-label="Zamana göre stok düzeyi: sabit talepli ideal testere dişi ve rastgele talepli benzetim izi, yeniden sipariş noktaları işaretli"></canvas>
+          <p class="up-caption"><i class="up-key" data-key="ink"></i>sabit talepli model (stok Q'dan sıfıra iner), <i class="up-key" data-key="accent"></i>rastgele talepli benzetim (net stok; sıfırın altı bekleyen sipariş demektir). Kesikli çizgiler yeniden sipariş düzeyleridir; iki çizginin farkı emniyet stokudur.</p>
+        </div>
+        <h2 class="up-sub">Talep rastgele olursa: emniyet stoku</h2>
+        <div class="up-stats" aria-live="polite">
+          <div class="up-stat"><small>Sipariş noktası R ve emniyet stoku</small><strong id="eoqR">—</strong><span id="eoqRSub"></span></div>
+          <div class="up-stat"><small>Çevrim başına stoksuz kalma olasılığı (kuram)</small><strong id="eoqPTheory">—</strong><span id="eoqPTheorySub"></span></div>
+          <div class="up-stat is-key"><small>Stoksuz kalan çevrim oranı (ölçülen)</small><strong id="eoqPMeasured">—</strong><span id="eoqPMeasuredSub"></span></div>
+          <div class="up-stat"><small>Ortalama net stok: ölçülen ve kuram</small><strong id="eoqNet">—</strong><span id="eoqNetSub"></span></div>
+          <div class="up-stat"><small>Raftan karşılanan talep oranı (ölçülen)</small><strong id="eoqFill">—</strong><span id="eoqFillSub"></span></div>
+        </div>
+      </div>
+
+      <aside class="up-panel" aria-label="Sipariş miktarı ayarları">
+        <h2>Bir ürün, bir depo</h2>
+        <div class="up-field"><label for="eoqD">Yıllık talep D <output id="eoqDOut"></output></label><input type="range" id="eoqD" min="500" max="20000" step="100" value="3600"></div>
+        <div class="up-field"><label for="eoqS">Sipariş başına sabit maliyet S <output id="eoqSOut"></output></label><input type="range" id="eoqS" min="10" max="1000" step="10" value="200"></div>
+        <div class="up-field"><label for="eoqH">Elde tutma maliyeti H <output id="eoqHOut"></output></label><input type="range" id="eoqH" min="0.5" max="20" step="0.5" value="4"></div>
+        <div class="up-field"><label for="eoqL">Tedarik süresi L <output id="eoqLOut"></output></label><input type="range" id="eoqL" min="1" max="30" step="1" value="7"></div>
+        <div class="up-field"><label for="eoqQ">Sipariş miktarı Q <output id="eoqQOut"></output></label><input type="range" id="eoqQ" min="50" max="3000" step="10" value="600"></div>
+        <div class="up-row">
+          <button type="button" id="eoqSetOpt">Q ≈ Q*</button>
+          <button type="button" id="eoqSetHalf">Q ≈ Q*/2</button>
+          <button type="button" id="eoqSetDouble">Q ≈ 2Q*</button>
+          <button type="button" id="eoqReset">Sıfırla</button>
+        </div>
+        <p class="up-note">Hazır düğmeler Q'yu kaydırıcının 10 adetlik adımına yuvarlar; kartlar yuvarlanmış değeri gösterir.</p>
+        <h3>Rastgele talep benzetimi</h3>
+        <div class="up-field"><label for="eoqService">Hedef çevrim hizmet düzeyi <output id="eoqServiceOut"></output></label>
+          <select id="eoqService">
+            <option value="0.5">%50 (emniyet stoku ≈ 0)</option>
+            <option value="0.8">%80</option>
+            <option value="0.9">%90</option>
+            <option value="0.95" selected>%95</option>
+            <option value="0.975">%97.5</option>
+            <option value="0.99">%99</option>
+            <option value="0.999">%99.9</option>
+          </select>
+        </div>
+        <div class="up-field"><label for="eoqSeed">Tohum <output id="eoqSeedOut"></output></label><input type="range" id="eoqSeed" min="1" max="100" step="1" value="1"></div>
+        <p class="up-note"><strong>Modelin sınırları.</strong> Q* formülü talebin sabit hızla aktığını, siparişin tek seferde geldiğini, miktar indirimi olmadığını ve stoksuz kalınmadığını varsayar; yıl 365 gündür. Benzetimde talep, yıllık ortalaması D olan bir Poisson sürecidir (adetler tek tek ve birbirinden bağımsız gelir), karşılanamayan talep bekletilir, stok sürekli izlenir. Emniyet stoku normal yaklaşımla z·√(d·L) alınır ve R tam sayıya yukarı yuvarlanır; kuram kartı o R için kesin Poisson olasılığını verir. Kısayol: <kbd>R</kbd> açık sekmeyi sıfırlar.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═════════ 2. SPC ═════════ -->
+  <section id="panel-spc" role="tabpanel" aria-labelledby="tab-spc" hidden>
+    <div class="up-grid">
+      <div class="up-stage">
+        <div class="up-plate">
+          <h2>Alt grup ortalamaları grafiği</h2>
+          <canvas class="up-canvas" id="spcXCanvas" role="img" aria-label="Elli alt grubun ortalamaları; merkez çizgisi, alt ve üst kontrol sınırları ve kural ihlali olan noktalar işaretli"></canvas>
+          <p class="up-caption">İlk 25 alt grup (Faz I) kontrol altındaki süreçten gelir; sınırlar yalnız onlardan hesaplanır. Kayma 26. alt grupta başlar (Faz II). Kırmızı halkalı noktalar bir kuralı çiğner; yanındaki rakam kural numarasıdır.</p>
+        </div>
+        <div class="up-plate">
+          <h2>Açıklık (R) grafiği</h2>
+          <canvas class="up-canvas is-short" id="spcRCanvas" role="img" aria-label="Elli alt grubun açıklıkları; merkez çizgisi ve kontrol sınırları"></canvas>
+          <p class="up-caption">Açıklık, alt gruptaki en büyük ve en küçük ölçümün farkıdır. Ortalama kayarsa bu grafik sessiz kalır; yayılım büyürse önce o bağırır.</p>
+        </div>
+        <div class="up-stats" aria-live="polite">
+          <div class="up-stat"><small>Genel ortalama ve ortalama açıklık (Faz I)</small><strong id="spcCenter">—</strong><span id="spcCenterSub"></span></div>
+          <div class="up-stat"><small>Ortalama grafiği sınırları: genel ortalama ± A₂·<span class="ov">R</span></small><strong id="spcXLimits">—</strong><span id="spcXLimitsSub"></span></div>
+          <div class="up-stat"><small>Açıklık grafiği sınırları: D₃·<span class="ov">R</span> ve D₄·<span class="ov">R</span></small><strong id="spcRLimits">—</strong><span id="spcRLimitsSub"></span></div>
+          <div class="up-stat"><small>σ tahmini <span class="ov">R</span>/d₂ ve gerçek σ₀</small><strong id="spcSigma">—</strong><span id="spcSigmaSub"></span></div>
+          <div class="up-stat is-key"><small>Faz II'de ilk sinyal</small><strong id="spcFirst">—</strong><span id="spcFirstSub"></span></div>
+          <div class="up-stat"><small>C<sub>p</sub>: Faz II tahmini ve gerçek</small><strong id="spcCp">—</strong><span id="spcCpSub"></span></div>
+          <div class="up-stat"><small>C<sub>pk</sub>: Faz II tahmini ve gerçek</small><strong id="spcCpk">—</strong><span id="spcCpkSub"></span></div>
+        </div>
+        <p class="up-status" id="spcStatus" role="status"></p>
+        <h2 class="up-sub">Sinyale kadar kaç alt grup? Ortalama koşu uzunluğu (ARL)</h2>
+        <div class="up-stats" aria-live="polite">
+          <div class="up-stat"><small>Alt grup başına sinyal olasılığı (kuram, yalnız kural 1)</small><strong id="spcP">—</strong><span id="spcPSub"></span></div>
+          <div class="up-stat"><small>ARL kuram</small><strong id="spcArlTheory">—</strong><span id="spcArlTheorySub"></span></div>
+          <div class="up-stat is-key"><small>ARL ölçülen</small><strong id="spcArlMeasured">—</strong><span id="spcArlMeasuredSub"></span></div>
+          <div class="up-stat"><small>Fark</small><strong id="spcArlDiff">—</strong><span id="spcArlDiffSub"></span></div>
+        </div>
+        <div class="up-table-wrap">
+          <table class="up-table" id="spcTable">
+            <caption>Kontrol grafiği sabitleri (3σ sınırları için). Seçili n satırı vurgulu. A₂ = 3/(d₂√n), D₃ = 1 − 3d₃/d₂ (eksi çıkarsa 0), D₄ = 1 + 3d₃/d₂.</caption>
+            <thead><tr><th scope="col">n</th><th scope="col">A₂</th><th scope="col">D₃</th><th scope="col">D₄</th><th scope="col">d₂</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="up-panel" aria-label="Kontrol grafiği ayarları">
+        <h2>Bir mil çapı süreci</h2>
+        <p class="up-note">Kontrol altındaki süreç: ortalama μ₀ = 20.000 mm, standart sapma σ₀ = 0.010 mm, normal dağılımlı ve bağımsız ölçümler.</p>
+        <div class="up-field"><label for="spcN">Alt grup büyüklüğü n <output id="spcNOut"></output></label><input type="range" id="spcN" min="2" max="10" step="1" value="5"></div>
+        <div class="up-field"><label for="spcShift">Ortalama kayması δ (σ₀ biriminde) <output id="spcShiftOut"></output></label><input type="range" id="spcShift" min="-3" max="3" step="0.25" value="0"></div>
+        <div class="up-field"><label for="spcK">Yayılım çarpanı k (σ = k·σ₀) <output id="spcKOut"></output></label><input type="range" id="spcK" min="0.5" max="3" step="0.1" value="1"></div>
+        <div class="up-field"><label for="spcLsl">Alt şartname sınırı <output id="spcLslOut"></output></label><input type="range" id="spcLsl" min="19.9" max="19.99" step="0.005" value="19.96"></div>
+        <div class="up-field"><label for="spcUsl">Üst şartname sınırı <output id="spcUslOut"></output></label><input type="range" id="spcUsl" min="20.01" max="20.1" step="0.005" value="20.04"></div>
+        <label class="up-check" for="spcRules"><input type="checkbox" id="spcRules"> Dizi kurallarını da uygula (Western Electric 2–4)</label>
+        <div class="up-field"><label for="spcSeed">Tohum <output id="spcSeedOut"></output></label><input type="range" id="spcSeed" min="1" max="100" step="1" value="1"></div>
+        <div class="up-row">
+          <button type="button" id="spcShiftOne">δ = 1</button>
+          <button type="button" id="spcSpread">k = 1.5</button>
+          <button type="button" id="spcReset">Sıfırla</button>
+        </div>
+        <p class="up-note"><strong>Kurallar.</strong> 1: bir nokta 3σ sınırının dışında. 2: art arda üç noktanın ikisi aynı yanda 2σ'nın ötesinde. 3: art arda beş noktanın dördü aynı yanda 1σ'nın ötesinde. 4: art arda sekiz nokta merkez çizgisinin aynı yanında. Buradaki σ, alt grup ortalamasının standart sapmasıdır.</p>
+        <p class="up-note"><strong>Modelin sınırları.</strong> Sabitler ve ARL formülü ölçümlerin normal dağıldığını ve birbirinden bağımsız olduğunu varsayar; ardışık ölçümler ilişkiliyse yanlış alarm sayısı değişir. ARL deneyi sınırları bilinen μ₀ ve σ₀'dan kurar ve 300 000 alt grup üretir; her sinyalden sonra sayaç sıfırlanır. Grafikteki sınırlar ise 25 alt gruptan tahmin edilir, bu yüzden tohumdan tohuma biraz oynar. Kuramsal ARL yalnız ortalama grafiğinin 1. kuralı içindir; açıklık grafiği hesaba katılmaz.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ═════════ 3. Akış ═════════ -->
+  <section id="panel-flow" role="tabpanel" aria-labelledby="tab-flow" hidden>
+    <div class="up-grid">
+      <div class="up-stage">
+        <div class="up-plate">
+          <h2>Hat: doluluk ve kuyruk</h2>
+          <canvas class="up-canvas" id="flowLineCanvas" role="img" aria-label="Seri üretim hattı şeması: her istasyonun doluluk oranı ve önündeki ortalama kuyruk"></canvas>
+          <p class="up-caption">Kutunun dolu kısmı istasyonun meşgul olduğu zaman oranıdır; üstündeki sütun ve sayı, önünde bekleyen ortalama iş sayısıdır. Sarı çerçeve darboğazı gösterir.</p>
+        </div>
+        <div class="up-stats" aria-live="polite">
+          <div class="up-stat is-key"><small>Çıktı hızı TH: ölçülen ve kuram</small><strong id="flowTH">—</strong><span id="flowTHSub"></span></div>
+          <div class="up-stat"><small>Hattaki iş (WIP): ölçülen ve kuram</small><strong id="flowWIP">—</strong><span id="flowWIPSub"></span></div>
+          <div class="up-stat"><small>Çevrim süresi CT: ölçülen ve kuram</small><strong id="flowCT">—</strong><span id="flowCTSub"></span></div>
+          <div class="up-stat is-key"><small>Little yasası: WIP ve TH × CT</small><strong id="flowLittle">—</strong><span id="flowLittleSub"></span></div>
+          <div class="up-stat"><small>Darboğaz ve kapasitesi</small><strong id="flowBn">—</strong><span id="flowBnSub"></span></div>
+          <div class="up-stat"><small>Ham işlem süresi T₀ ve CT/T₀</small><strong id="flowT0">—</strong><span id="flowT0Sub"></span></div>
+        </div>
+        <p class="up-status" id="flowStatus" role="status"></p>
+        <div class="up-table-wrap">
+          <table class="up-table" id="flowTable">
+            <caption>İstasyon istasyon: doluluk ve istasyondaki ortalama iş sayısı (bekleyen + işlenen), ölçülen ve kuram.</caption>
+            <thead><tr><th scope="col">İstasyon</th><th scope="col">t (dk)</th><th scope="col">Doluluk ölç.</th><th scope="col">Doluluk kuram</th><th scope="col">İş ölç.</th><th scope="col">İş kuram</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="up-plate">
+          <h2 id="flowCurveTitle">Karakteristik eğri</h2>
+          <canvas class="up-canvas" id="flowCurveCanvas" role="img" aria-label="Hattın karakteristik eğrisi: kuramsal eğri ve ölçülen çalışma noktası"></canvas>
+          <p class="up-caption" id="flowCurveCaption"></p>
+        </div>
+        <div class="up-plate">
+          <h2>Hattaki iş sayısı, zaman içinde</h2>
+          <canvas class="up-canvas is-short" id="flowTraceCanvas" role="img" aria-label="Benzetim boyunca hattaki iş sayısı; ısınma dönemi gölgeli"></canvas>
+          <p class="up-caption">Gölgeli bölüm ısınma dönemidir (ilk 10 000 iş); ölçümlere katılmaz. Yatay çizgi ölçüm penceresindeki zaman ortalamasıdır.</p>
+        </div>
+      </div>
+
+      <aside class="up-panel" aria-label="Akış ayarları">
+        <h2>Seri hat, her istasyonda tek makine</h2>
+        <div class="up-field"><label for="flowMode">İş salma kuralı <output id="flowModeOut"></output></label>
+          <select id="flowMode">
+            <option value="open" selected>Açık hat: rastgele (Poisson) gelişler</option>
+            <option value="conwip">CONWIP: hattaki iş sayısı sabit</option>
+          </select>
+        </div>
+        <div class="up-field" id="flowRateField"><label for="flowRate">Geliş hızı λ <output id="flowRateOut"></output></label><input type="range" id="flowRate" min="1" max="20" step="0.1" value="8"></div>
+        <div class="up-field" id="flowWipField" hidden><label for="flowWip">Hattaki iş sayısı W <output id="flowWipOut"></output></label><input type="range" id="flowWip" min="1" max="40" step="1" value="10"></div>
+        <div class="up-field"><label for="flowCount">İstasyon sayısı <output id="flowCountOut"></output></label><input type="range" id="flowCount" min="1" max="5" step="1" value="5"></div>
+        <div class="up-field" id="flowT1Field"><label for="flowT1">1. istasyon ortalama süresi <output id="flowT1Out"></output></label><input type="range" id="flowT1" min="1" max="10" step="0.1" value="4"></div>
+        <div class="up-field" id="flowT2Field"><label for="flowT2">2. istasyon ortalama süresi <output id="flowT2Out"></output></label><input type="range" id="flowT2" min="1" max="10" step="0.1" value="4.5"></div>
+        <div class="up-field" id="flowT3Field"><label for="flowT3">3. istasyon ortalama süresi <output id="flowT3Out"></output></label><input type="range" id="flowT3" min="1" max="10" step="0.1" value="6"></div>
+        <div class="up-field" id="flowT4Field"><label for="flowT4">4. istasyon ortalama süresi <output id="flowT4Out"></output></label><input type="range" id="flowT4" min="1" max="10" step="0.1" value="4.5"></div>
+        <div class="up-field" id="flowT5Field"><label for="flowT5">5. istasyon ortalama süresi <output id="flowT5Out"></output></label><input type="range" id="flowT5" min="1" max="10" step="0.1" value="4"></div>
+        <div class="up-field"><label for="flowDist">İşlem süresi değişkenliği <output id="flowDistOut"></output></label>
+          <select id="flowDist">
+            <option value="det">Sabit süre (değişkenlik yok)</option>
+            <option value="erlang4">Düşük (Erlang-4)</option>
+            <option value="exp" selected>Orta (üstel)</option>
+            <option value="h2">Yüksek (hiperüstel)</option>
+          </select>
+        </div>
+        <div class="up-field"><label for="flowSeed">Tohum <output id="flowSeedOut"></output></label><input type="range" id="flowSeed" min="1" max="100" step="1" value="1"></div>
+        <div class="up-row">
+          <button type="button" id="flowSingle">Tek istasyon (M/M/1)</button>
+          <button type="button" id="flowBalanced">Dengeli hat</button>
+          <button type="button" id="flowReset">Sıfırla</button>
+        </div>
+        <p class="up-note"><strong>Modelin sınırları.</strong> İşler tek tek, geliş sırasıyla işlenir; ara stok alanları sınırsızdır (tıkanma yok), makineler bozulmaz, hazırlık süresi yoktur. Her ayarda 110 000 iş benzetilir; ilk 10 000'i ısınma sayılıp atılır, ölçümler kalan 100 000 işin çıkışları arasındaki pencereden alınır. Kuram kartları kararlı durum içindir. Üstel sürelerde açık hat Jackson ağı, CONWIP ise kapalı ağdır ve formüller kesindir. Diğer dağılımlarda açık hattın 1. istasyonu Pollaczek–Khinchine ile kesin, sonrakiler Kingman yaklaşımıyla yaklaşık hesaplanır; kart bunu yazar. Yaklaşım kapasiteye yaklaştıkça zayıflar. Sabit sürelerde hattın toplamı yine kesin bilinir (darboğaz tek başınaymış gibi), yalnız istasyonlara paylaşımı yaklaşıktır. Doluluk 1'e yaklaşınca 100 000 iş de yetmez; durum satırı bunu haber verir.</p>
+      </aside>
+    </div>
+  </section>
+
+  <details class="up-sources">
+    <summary>Formüller ve kaynaklar</summary>
+    <p>Ekonomik sipariş miktarı: F. W. Harris, 1913. Toplam maliyet TC(Q) = D·S/Q + H·Q/2; en küçük değer Q* = √(2DS/H) noktasında √(2DSH) olur ve TC(Q)/TC(Q*) = (Q/Q* + Q*/Q)/2.</p>
+    <p>Kontrol grafikleri: W. A. Shewhart, 1920'ler; dizi kuralları Western Electric el kitabı, 1956. Sabitler normal dağılımlı n ölçümün açıklığının ortalaması d₂·σ ve standart sapması d₃·σ olmasından gelir. Tablo ve kurallar: <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc321.htm" rel="noopener">NIST/SEMATECH e-Handbook, 6.3.2.1</a> ve <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc32.htm" rel="noopener">6.3.2</a>. Dört kural birlikteyken kontrol altındaki ARL 91.75: Champ ve Woodall, Technometrics 29 (1987).</p>
+    <p>Kuyruklar: M/M/1 için L = ρ/(1 − ρ); M/G/1 için Pollaczek–Khinchine L<sub>q</sub> = ρ²(1 + c²)/(2(1 − ρ)); Little yasası L = λ·W (J. D. C. Little, 1961). Sabit süreli seri hatta toplam beklemenin darboğazın tek başına yarattığı beklemeye eşitliği: H. D. Friedman, Operations Research 13 (1965). CONWIP hattı için ortalama değer çözümlemesi ve en iyi durum eğrisi: Hopp ve Spearman, Factory Physics.</p>
+  </details>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  /* KERNEL-BEGIN */
+  const DAYS = 365;
+  // mulberry32: 32 bitlik tohumdan tekrarlanabilir düzgün sayılar
+  function makeRng(seed) {
+    let a = (Math.round(seed) >>> 0) || 1;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Marsaglia kutupsal yöntemi
+  function makeNormal(u) {
+    let spare = null;
+    return function () {
+      if (spare !== null) { const s = spare; spare = null; return s; }
+      let a, b, s;
+      do { a = 2 * u() - 1; b = 2 * u() - 1; s = a * a + b * b; } while (s >= 1 || s === 0);
+      const f = Math.sqrt(-2 * Math.log(s) / s);
+      spare = b * f;
+      return a * f;
+    };
+  }
+  // Φ(x): Marsaglia (2004) serisi, çift duyarlıkta
+  function normCdf(x) {
+    if (x < -8.3) return 0;
+    if (x > 8.3) return 1;
+    const q = x * x;
+    let s = x, t = x;
+    for (let i = 3; i < 800; i += 2) { t *= q / i; const s2 = s + t; if (s2 === s) break; s = s2; }
+    return 0.5 + s * Math.exp(-0.5 * q - 0.9189385332046727);
+  }
+  // Φ⁻¹(p): Acklam yaklaşımı + bir Halley adımı
+  function normInv(p) {
+    if (!(p > 0 && p < 1)) return p === 0 ? -Infinity : p === 1 ? Infinity : NaN;
+    const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+    const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+    const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+    const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+    let x;
+    if (p < 0.02425) { const q = Math.sqrt(-2 * Math.log(p)); x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    else if (p > 1 - 0.02425) { const q = Math.sqrt(-2 * Math.log(1 - p)); x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    else { const q = p - 0.5, r = q * q; x = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1); }
+    const e = normCdf(x) - p, uu = e * Math.sqrt(2 * Math.PI) * Math.exp(x * x / 2);
+    return x - uu / (1 + x * uu / 2);
+  }
+  function lgamma(x) {
+    const g = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+    x -= 1;
+    let s = g[0];
+    for (let i = 1; i < 9; i++) s += g[i] / (x + i);
+    const t = x + 7.5;
+    return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(s);
+  }
+  // P(X > k), X ~ Poisson(mu)
+  function poissonSf(k, mu) {
+    k = Math.floor(k);
+    if (k < 0) return 1;
+    if (mu <= 0) return 0;
+    const logPmf = (j) => -mu + j * Math.log(mu) - lgamma(j + 1);
+    if (k + 1 > mu) {
+      let term = Math.exp(logPmf(k + 1)), sum = 0;
+      for (let j = k + 1; j < k + 100000; j++) { sum += term; term *= mu / (j + 1); if (term < sum * 1e-17) break; }
+      return sum;
+    }
+    let term = Math.exp(logPmf(k)), sum = 0;
+    for (let j = k; j >= 0; j--) { sum += term; term *= j / mu; if (term < sum * 1e-17) break; }
+    return 1 - sum;
+  }
+
+  /* ── 1. Ekonomik sipariş miktarı ── */
+  function eoqCost(D, S, H, Q) {
+    const order = D * S / Q, hold = H * Q / 2;
+    return { order, hold, total: order + hold };
+  }
+  function eoq({ D, S, H, leadDays, Q }) {
+    const Qstar = Math.sqrt(2 * D * S / H), costStar = Math.sqrt(2 * D * S * H);
+    const c = eoqCost(D, S, H, Q), daily = D / DAYS, leadDemand = daily * leadDays;
+    const outstanding = Math.floor(leadDemand / Q + 1e-12);
+    return {
+      Qstar, costStar, order: c.order, hold: c.hold, total: c.total,
+      ratio: Q / Qstar, penalty: c.total / costStar - 1,
+      cycleDays: Q / D * DAYS, cycleStarDays: Qstar / D * DAYS, ordersPerYear: D / Q,
+      daily, leadDemand, outstanding, ropOnHand: leadDemand - outstanding * Q,
+    };
+  }
+  function reorderPoint({ D, leadDays, service }) {
+    const mu = D / DAYS * leadDays, z = normInv(service), ssNormal = z * Math.sqrt(mu);
+    const R = Math.max(0, Math.ceil(mu + ssNormal - 1e-9));
+    return { mu, z, ssNormal, R, ss: R - mu, pStockout: poissonSf(R, mu) };
+  }
+  // Sürekli izlenen (R, Q) politikası, Poisson talep, bekletilen siparişler
+  function inventorySim({ D, Q, leadDays, R, years, seed, traceDays = 0 }) {
+    const u = makeRng(seed), rate = D / DAYS, T = years * DAYS;
+    let t = 0, net = R + Q, ip = R + Q, head = 0;
+    const pend = [], trace = [];
+    let traceFrom = Infinity; // iz, 6. teslimattan (başlangıç geçişi bittikten) sonra başlar
+    let cycles = 0, stockouts = 0, areaNet = 0, areaOn = 0, demand = 0, short = 0, orders = 0;
+    const advance = (to) => { const dt = to - t; areaNet += net * dt; if (net > 0) areaOn += net * dt; t = to; };
+    for (;;) {
+      const tn = t - Math.log(1 - u()) / rate;
+      const until = Math.min(tn, T);
+      while (head < pend.length && pend[head] <= until) {
+        advance(pend[head++]);
+        cycles++;
+        if (net < 0) stockouts++;
+        if (traceDays > 0 && traceFrom === Infinity && cycles >= 6) traceFrom = t;
+        if (t >= traceFrom && t - traceFrom <= traceDays) trace.push([t - traceFrom, net], [t - traceFrom, net + Q]);
+        net += Q;
+      }
+      if (tn > T) { advance(T); break; }
+      advance(tn);
+      demand++;
+      if (net <= 0) short++;
+      net--; ip--;
+      if (t >= traceFrom && t - traceFrom <= traceDays) trace.push([t - traceFrom, net]);
+      if (ip <= R) { ip += Q; pend.push(t + leadDays); orders++; }
+    }
+    const p = cycles ? stockouts / cycles : NaN;
+    return {
+      years, cycles, stockouts, pStockout: p, se: cycles ? Math.sqrt(p * (1 - p) / cycles) : NaN,
+      meanNet: areaNet / T, meanOnHand: areaOn / T, demand, fillRate: demand ? 1 - short / demand : NaN,
+      ordersPerYear: orders / years, trace,
+    };
+  }
+
+  /* ── 2. İstatistiksel proses kontrol ── */
+  // n: [A2, D3, D4, d2] — A2, D3, D4: NIST/SEMATECH e-Handbook 6.3.2.1 tablosu; d2: açıklık dağılımının ortalaması (sayısal integralle doğrulandı)
+  const SPC_TABLE = Object.freeze({
+    2: [1.880, 0, 3.267, 1.128], 3: [1.023, 0, 2.575, 1.693], 4: [0.729, 0, 2.282, 2.059],
+    5: [0.577, 0, 2.115, 2.326], 6: [0.483, 0, 2.004, 2.534], 7: [0.419, 0.076, 1.924, 2.704],
+    8: [0.373, 0.136, 1.864, 2.847], 9: [0.337, 0.184, 1.816, 2.970], 10: [0.308, 0.223, 1.777, 3.078],
+  });
+  function spcConst(n) {
+    const r = SPC_TABLE[n];
+    if (!r) throw new Error("n 2 ile 10 arasında olmalı");
+    return { A2: r[0], D3: r[1], D4: r[2], d2: r[3] };
+  }
+  // z: merkezden uzaklık, ortalamanın standart sapması biriminde. Dönen değer çiğnenen kural (0: yok).
+  function makeDetector(runRules) {
+    const h = [];
+    return {
+      push(z) {
+        h.push(z);
+        if (h.length > 8) h.shift();
+        const a = Math.abs(z), m = h.length, s = z > 0 ? 1 : -1;
+        if (a > 3) return 1;
+        if (!runRules) return 0;
+        if (a > 2) { let c = 0; for (let i = Math.max(0, m - 3); i < m; i++) if (h[i] * s > 2) c++; if (c >= 2) return 2; }
+        if (a > 1) { let c = 0; for (let i = Math.max(0, m - 5); i < m; i++) if (h[i] * s > 1) c++; if (c >= 4) return 3; }
+        if (m >= 8 && z !== 0) { let all = true; for (let i = 0; i < m; i++) if (!(h[i] * s > 0)) { all = false; break; } if (all) return 4; }
+        return 0;
+      },
+      reset() { h.length = 0; },
+    };
+  }
+  function spcRun({ n, shift = 0, sigmaK = 1, mu0 = 20, sigma0 = 0.01, phase1 = 25, phase2 = 25, seed = 1, runRules = false }) {
+    const k = spcConst(n), z = makeNormal(makeRng(seed)), groups = [];
+    for (let i = 0; i < phase1 + phase2; i++) {
+      const second = i >= phase1, mu = second ? mu0 + shift * sigma0 : mu0, sd = second ? sigmaK * sigma0 : sigma0;
+      let sum = 0, lo = Infinity, hi = -Infinity;
+      for (let j = 0; j < n; j++) { const x = mu + sd * z(); sum += x; if (x < lo) lo = x; if (x > hi) hi = x; }
+      groups.push({ mean: sum / n, range: hi - lo });
+    }
+    const avg = (from, to, key) => { let s = 0; for (let i = from; i < to; i++) s += groups[i][key]; return s / (to - from); };
+    const xbb = avg(0, phase1, "mean"), rbar = avg(0, phase1, "range");
+    const x = { lcl: xbb - k.A2 * rbar, cl: xbb, ucl: xbb + k.A2 * rbar, sigma: k.A2 * rbar / 3 };
+    const r = { lcl: k.D3 * rbar, cl: rbar, ucl: k.D4 * rbar };
+    const det = makeDetector(runRules), flags = [];
+    let firstSignal = null;
+    groups.forEach((g, i) => {
+      const rule = det.push((g.mean - xbb) / x.sigma);
+      const rOut = g.range > r.ucl || (k.D3 > 0 && g.range < r.lcl);
+      if (rule) flags.push({ index: i, chart: "x", rule });
+      if (rOut) flags.push({ index: i, chart: "r", rule: 1 });
+      if ((rule || rOut) && i >= phase1 && firstSignal === null) firstSignal = { index: i, chart: rule ? "x" : "r", rule: rule || 1 };
+    });
+    const mean2 = avg(phase1, phase1 + phase2, "mean"), rbar2 = avg(phase1, phase1 + phase2, "range");
+    return { groups, phase1, phase2, constants: k, xbb, rbar, x, r, sigmaHat: rbar / k.d2, flags, firstSignal, mean2, rbar2, sigmaHat2: rbar2 / k.d2 };
+  }
+  function capability({ mean, sigma, lsl, usl }) {
+    return {
+      cp: (usl - lsl) / (6 * sigma), cpk: Math.min(usl - mean, mean - lsl) / (3 * sigma),
+      ppm: (normCdf((lsl - mean) / sigma) + normCdf((mean - usl) / sigma)) * 1e6,
+    };
+  }
+  // Bilinen μ₀, σ₀ ile kurulan 3σ ortalama grafiği, yalnız kural 1
+  function arlTheory({ n, shift = 0, sigmaK = 1 }) {
+    const d = shift * Math.sqrt(n);
+    const p = normCdf(-(3 - d) / sigmaK) + normCdf((-3 - d) / sigmaK);
+    return { p, arl: 1 / p };
+  }
+  function arlSim({ n, shift = 0, sigmaK = 1, runRules = false, budget = 300000, seed = 1 }) {
+    const z = makeNormal(makeRng(seed)), det = makeDetector(runRules), rootN = Math.sqrt(n);
+    let len = 0, runs = 0, sum = 0, sumSq = 0;
+    const byRule = [0, 0, 0, 0, 0];
+    for (let i = 0; i < budget; i++) {
+      let m = 0;
+      for (let j = 0; j < n; j++) m += z();
+      len++;
+      const rule = det.push((shift + sigmaK * m / n) * rootN);
+      if (rule) { runs++; sum += len; sumSq += len * len; byRule[rule]++; len = 0; det.reset(); }
+    }
+    const mean = runs ? sum / runs : NaN;
+    const sd = runs > 1 ? Math.sqrt(Math.max(0, (sumSq - runs * mean * mean) / (runs - 1))) : NaN;
+    return { budget, runs, mean, se: runs > 1 ? sd / Math.sqrt(runs) : NaN, byRule };
+  }
+
+  /* ── 3. Akış ve darboğaz ── */
+  const DIST_CV2 = Object.freeze({ det: 0, erlang4: 0.25, exp: 1, h2: 2.25 });
+  function makeSampler(dist, u) {
+    if (dist === "det") return (m) => m;
+    if (dist === "exp") return (m) => -m * Math.log(1 - u());
+    if (dist === "erlang4") return (m) => -(m / 4) * Math.log((1 - u()) * (1 - u()) * (1 - u()) * (1 - u()));
+    if (dist === "h2") {
+      const c2 = DIST_CV2.h2, p = 0.5 * (1 + Math.sqrt((c2 - 1) / (c2 + 1)));
+      return (m) => (u() < p ? -(m / (2 * p)) * Math.log(1 - u()) : -(m / (2 * (1 - p))) * Math.log(1 - u()));
+    }
+    throw new Error("bilinmeyen dağılım");
+  }
+  // Tek sunuculu M/M/1 kuyruğunun kararlı durum değerleri (ρ < 1)
+  function mm1(rho) {
+    if (!(rho >= 0 && rho < 1)) return null;
+    return { L: rho / (1 - rho), Lq: rho * rho / (1 - rho) };
+  }
+  // Kapalı ağ için ortalama değer çözümlemesi (üstel, tek sunuculu istasyonlar): kesin
+  function mva(times, W) {
+    const S = times.length;
+    let L = new Array(S).fill(0), th = 0, ct = times.slice();
+    for (let w = 1; w <= W; w++) {
+      ct = times.map((t, i) => t * (1 + L[i]));
+      th = w / ct.reduce((a, b) => a + b, 0);
+      L = ct.map((c) => th * c);
+    }
+    return { th, L, ct };
+  }
+  // times: dakika; ratePerHour: iş/saat. Dönen th iş/dakika.
+  function lineTheory({ times, mode, ratePerHour, wip, dist }) {
+    const S = times.length, c2 = DIST_CV2[dist], tmax = Math.max(...times), bottleneck = times.indexOf(tmax);
+    const T0 = times.reduce((a, b) => a + b, 0), rb = 1 / tmax;
+    const base = { mode, bottleneck, rb, T0, c2 };
+    if (mode === "open") {
+      const lam = ratePerHour / 60, rho = times.map((t) => lam * t), stable = rho.every((r) => r < 1);
+      if (!stable) {
+        // Doymuş istasyondan sonrası en çok o istasyonun kapasitesi kadar iş alır
+        let eff = lam;
+        const saturated = [], rhoEff = times.map((t) => { const r = eff * t; saturated.push(r >= 1); if (r >= 1) eff = 1 / t; return Math.min(1, r); });
+        return { ...base, stable, th: Math.min(lam, rb), rho: rhoEff, saturated, stations: null, wip: null, ct: null, exact: false };
+      }
+      let ca2 = 1;
+      const stations = rho.map((r, i) => {
+        const Lq = (ca2 + c2) / 2 * r * r / (1 - r), exact = dist === "exp" || i === 0;
+        ca2 = r * r * c2 + (1 - r * r) * ca2;
+        return { rho: r, Lq, L: Lq + r, exact };
+      });
+      let total = stations.reduce((a, s) => a + s.L, 0);
+      // Sabit süreli seri hat (Friedman 1965): toplam bekleme, darboğaz tek başınayken oluşan M/D/1 beklemesine eşittir.
+      // İstasyon satırları yaklaşık paylaşım olarak kalır; toplamları bu kesin değeri tutmaz.
+      const tandemDet = dist === "det" && S > 1, rbn = lam * tmax;
+      if (tandemDet) total = rho.reduce((a, r) => a + r, 0) + rbn * rbn / (2 * (1 - rbn));
+      return { ...base, stable, th: lam, rho, stations, wip: total, ct: total / lam, exact: dist === "exp" || S === 1 || tandemDet };
+    }
+    const m = mva(times, wip), best = Math.min(wip / T0, rb);
+    const out = { ...base, stable: true, wip, thExp: m.th, thBest: best };
+    if (dist === "exp") return { ...out, th: m.th, ct: wip / m.th, exact: true, rho: times.map((t) => m.th * t), stations: m.L.map((L, i) => ({ rho: m.th * times[i], L, exact: true })) };
+    if (dist === "det") return { ...out, th: best, ct: wip / best, exact: true, rho: times.map((t) => best * t), stations: null };
+    return { ...out, th: null, ct: null, exact: false, rho: null, stations: null };
+  }
+  // Seri hat, sınırsız ara stok, FIFO: D[s][j] = max(D[s−1][j], D[s][j−1]) + işlem süresi
+  function lineSim({ times, mode, ratePerHour, wip, dist, jobs = 100000, warm = 10000, seed = 1, samples = 320 }) {
+    const S = times.length, samp = times.map((_, s) => makeSampler(dist, makeRng(seed * 7919 + s + 1))), ua = makeRng(seed * 7919 + 97);
+    const A = [], B = times.map(() => []), Dp = times.map(() => []);
+    const lastIdx = warm + jobs - 1, last = S - 1, meanGap = 60 / ratePerHour;
+    let T1 = Infinity, clock = 0;
+    for (let j = 0; ; j++) {
+      let a;
+      if (mode === "open") { clock -= meanGap * Math.log(1 - ua()); a = clock; }
+      else a = j < wip ? 0 : Dp[last][j - wip];
+      if (a > T1 || (mode !== "open" && j - wip >= lastIdx)) break;
+      A.push(a);
+      let prev = a;
+      for (let s = 0; s < S; s++) {
+        const start = j > 0 && Dp[s][j - 1] > prev ? Dp[s][j - 1] : prev;
+        prev = start + samp[s](times[s]);
+        B[s].push(start); Dp[s].push(prev);
+      }
+      if (j === lastIdx) T1 = prev;
+    }
+    const T0 = Dp[last][warm - 1], span = T1 - T0, N = A.length;
+    const ov = (x, y) => { const lo = x > T0 ? x : T0, hi = y < T1 ? y : T1; return hi > lo ? hi - lo : 0; };
+    const wipS = new Array(S).fill(0), busyS = new Array(S).fill(0);
+    for (let j = 0; j < N; j++) {
+      if (Dp[last][j] <= T0) continue;
+      for (let s = 0; s < S; s++) {
+        const arr = s ? Dp[s - 1][j] : A[j], d = Dp[s][j];
+        if (d <= T0) continue;
+        wipS[s] += ov(arr, d); busyS[s] += ov(B[s][j], d);
+      }
+    }
+    const batches = 20, per = jobs / batches, bm = [];
+    let ctSum = 0;
+    for (let b = 0; b < batches; b++) {
+      let s = 0;
+      for (let j = warm + b * per; j < warm + (b + 1) * per; j++) s += Dp[last][j] - A[j];
+      bm.push(s / per); ctSum += s;
+    }
+    const ct = ctSum / jobs, ctVar = bm.reduce((a, v) => a + (v - ct) * (v - ct), 0) / (batches - 1);
+    // Ortalama, pencerenin ilk ve son yarısında: kararlı durumda ikisi yakın olmalı
+    const half = jobs / 2;
+    let h1 = 0, h2 = 0;
+    for (let j = warm; j < warm + half; j++) h1 += Dp[last][j] - A[j];
+    for (let j = warm + half; j <= lastIdx; j++) h2 += Dp[last][j] - A[j];
+    const trace = [];
+    let ia = 0, id = 0;
+    for (let i = 0; i < samples; i++) {
+      const t = T1 * i / samples;
+      while (ia < N && A[ia] <= t) ia++;
+      while (id < N && Dp[last][id] <= t) id++;
+      trace.push([t, ia - id]);
+    }
+    const th = jobs / span, wipTotal = wipS.reduce((a, b) => a + b, 0) / span;
+    return {
+      jobs, warm, T0, T1, span, th, wip: wipTotal, ct, ctSE: Math.sqrt(ctVar / batches), ctHalves: [h1 / half, h2 / half],
+      little: th * ct, stations: times.map((_, s) => ({ util: busyS[s] / span, wip: wipS[s] / span, queue: (wipS[s] - busyS[s]) / span })), trace,
+    };
+  }
+  /* KERNEL-END */
+
+  Object.defineProperty(window, "ProductionLab", {
+    value: Object.freeze({ makeRng, normCdf, normInv, poissonSf, eoq, eoqCost, reorderPoint, inventorySim, spcConst, spcRun, capability, arlTheory, arlSim, mm1, mva, lineTheory, lineSim }),
+    writable: false, configurable: false,
+  });
+
+  /* ═════════ Arayüz ═════════ */
+  const $ = (id) => document.getElementById(id);
+  // Tek yuvarlama yardımcısı: bütün kartlar, durum satırları ve çizimler bunu kullanır
+  function fx(v, d = 2) {
+    if (!Number.isFinite(v)) return "—";
+    const s = v.toFixed(d);
+    return Number(s) === 0 ? (0).toFixed(d) : s;
+  }
+  const grp = (v) => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const sci = (v) => { const [m, e] = v.toExponential(2).split("e"); return `${m} × 10${String(Number(e)).replace(/./g, (ch) => SUP[ch])}`; };
+  const pct = (v, d = 2) => (Number.isFinite(v) ? `%${fx(v * 100, d)}` : "—");
+  const signed = (v, d = 2) => (Number.isFinite(v) ? `${Number(fx(v, d)) > 0 ? "+" : ""}${fx(v, d)}` : "—");
+  const diffPct = (measured, theory, d = 2) => `${signed((measured / theory - 1) * 100, d)} %`;
+  const set = (id, text) => { $(id).textContent = text; };
+  const val = (id) => Number($(id).value);
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#b45309" : "#fbbf24",
+      danger: light ? "#dc2626" : "#f87171",
+      grid: light ? "rgba(0,0,0,0.09)" : "rgba(255,255,255,0.09)",
+      shade: light ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.06)",
+      fill: light ? "rgba(13,148,136,0.28)" : "rgba(94,234,212,0.25)",
+    };
+  }
+  function paintKeys() {
+    const t = theme();
+    document.querySelectorAll(".up-key").forEach((el) => { el.style.background = t[el.dataset.key]; });
+  }
+  function prep(c) {
+    const r = c.getBoundingClientRect();
+    if (r.width < 10) return null;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(r.width), h = Math.round(r.height);
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    const g = c.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    g.font = "11px Outfit, system-ui, sans-serif";
+    g.lineJoin = "round";
+    return { g, w, h, t: theme(), small: w < 480 };
+  }
+  function niceTicks(lo, hi, count) {
+    const raw = (hi - lo) / Math.max(1, count), mag = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / mag;
+    const step = (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * mag, out = [];
+    for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+    return { step, values: out, digits: Math.max(0, -Math.floor(Math.log10(step) + 1e-9)) };
+  }
+  // Eksenli çizim alanı: ızgara, etiketler; veri → piksel dönüşümlerini döndürür
+  function axes(p, { x0, x1, y0, y1, xLabel, yLabel, xTicks = 6, yTicks = 4, xFmt, yFmt }) {
+    const { g, w, h, t, small } = p;
+    const L = small ? 42 : 52, R = 12, T = 18, B = 34;
+    const X = (v) => L + (v - x0) / (x1 - x0) * (w - L - R), Y = (v) => h - B - (v - y0) / (y1 - y0) * (h - T - B);
+    const tx = niceTicks(x0, x1, small ? Math.min(xTicks, 4) : xTicks), ty = niceTicks(y0, y1, yTicks);
+    g.strokeStyle = t.grid; g.fillStyle = t.muted; g.lineWidth = 1;
+    g.textAlign = "center"; g.textBaseline = "top";
+    tx.values.forEach((v) => { g.beginPath(); g.moveTo(X(v), T); g.lineTo(X(v), h - B); g.stroke(); g.fillText(xFmt ? xFmt(v) : fx(v, tx.digits), X(v), h - B + 5); });
+    g.textAlign = "right"; g.textBaseline = "middle";
+    ty.values.forEach((v) => { g.beginPath(); g.moveTo(L, Y(v)); g.lineTo(w - R, Y(v)); g.stroke(); g.fillText(yFmt ? yFmt(v) : fx(v, ty.digits), L - 5, Y(v)); });
+    g.textAlign = "right"; g.textBaseline = "bottom";
+    if (xLabel) g.fillText(xLabel, w - R, h - 3);
+    g.textAlign = "left"; g.textBaseline = "top";
+    if (yLabel) g.fillText(yLabel, 4, 3);
+    return { X, Y, L, R, T, B };
+  }
+  function line(g, pts, colour, width = 2, dash) {
+    if (pts.length < 2) return;
+    g.save();
+    g.strokeStyle = colour; g.lineWidth = width;
+    if (dash) g.setLineDash(dash);
+    g.beginPath();
+    pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+    g.stroke();
+    g.restore();
+  }
+  function dot(g, x, y, r, colour, ring) {
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fillStyle = colour; g.fill();
+    if (ring) { g.beginPath(); g.arc(x, y, r + 3.5, 0, Math.PI * 2); g.strokeStyle = ring; g.lineWidth = 1.5; g.stroke(); }
+  }
+  function tag(g, text, x, y, colour, align = "left", base = "bottom") {
+    g.fillStyle = colour; g.textAlign = align; g.textBaseline = base; g.fillText(text, x, y);
+  }
+
+  /* ── Sekme 1 ── */
+  const EOQ_DEFAULT = { eoqD: 3600, eoqS: 200, eoqH: 4, eoqL: 7, eoqQ: 600, eoqService: "0.95", eoqSeed: 1 };
+  let eoqState = null;
+  function computeEoq() {
+    const c = { D: val("eoqD"), S: val("eoqS"), H: val("eoqH"), leadDays: val("eoqL"), Q: val("eoqQ") };
+    const service = val("eoqService"), seed = val("eoqSeed");
+    const r = eoq(c), rp = reorderPoint({ D: c.D, leadDays: c.leadDays, service });
+    const years = Math.max(50, Math.min(3000, Math.round(1.5e6 / c.D)));
+    const traceDays = 3.2 * r.cycleDays;
+    const sim = inventorySim({ D: c.D, Q: c.Q, leadDays: c.leadDays, R: rp.R, years, seed, traceDays });
+    eoqState = { c, r, rp, sim, service, traceDays };
+    set("eoqDOut", `${fx(c.D, 0)} adet/yıl`);
+    set("eoqSOut", `${fx(c.S, 0)} ₺`);
+    set("eoqHOut", `${fx(c.H, 1)} ₺/adet·yıl`);
+    set("eoqLOut", `${fx(c.leadDays, 0)} gün`);
+    set("eoqQOut", `${fx(c.Q, 0)} adet`);
+    set("eoqServiceOut", `z = ${fx(rp.z, 3)}`);
+    set("eoqSeedOut", fx(seed, 0));
+    set("eoqQstar", `${fx(r.Qstar, 1)} adet`);
+    set("eoqQstarSub", `Q/Q* = ${fx(r.ratio, 3)}`);
+    set("eoqCostQ", `${fx(r.total, 0)} ₺/yıl`);
+    set("eoqCostQSub", `sipariş ${fx(r.order, 0)} ₺ + elde tutma ${fx(r.hold, 0)} ₺`);
+    set("eoqCostStar", `${fx(r.costStar, 0)} ₺/yıl`);
+    set("eoqCostStarSub", `Q* noktasında iki kalem eşit: ${fx(r.costStar / 2, 0)} ₺`);
+    set("eoqPenalty", `${signed(r.penalty * 100, 2)} %`);
+    set("eoqPenaltySub", `(Q/Q* + Q*/Q)/2 = ${fx(1 + r.penalty, 4)}`);
+    set("eoqCycle", `${fx(r.cycleDays, 1)} gün`);
+    set("eoqCycleSub", `yılda ${fx(r.ordersPerYear, 2)} sipariş; Q* ile ${fx(r.cycleStarDays, 1)} gün`);
+    set("eoqRop", `${fx(r.leadDemand, 1)} adet`);
+    set("eoqRopSub", r.outstanding > 0
+      ? `yolda ${r.outstanding} sipariş varken eldeki stok ${fx(r.ropOnHand, 1)} adede inince`
+      : `günlük talep d = ${fx(r.daily, 2)} adet; talep sabitse stok bu düzeye inince sipariş ver. Rastgele talepte R = d·L + emniyet stoku`);
+    set("eoqR", `R = ${rp.R} adet`);
+    set("eoqRSub", `d·L + emniyet stoku = ${fx(rp.mu, 1)} + ${fx(rp.ss, 1)} adet (z·√(d·L) = ${fx(rp.ssNormal, 1)}; R tam sayıya yukarı yuvarlanır)`);
+    set("eoqPTheory", pct(rp.pStockout, 2));
+    set("eoqPTheorySub", `P(Poisson(${fx(rp.mu, 1)}) > ${rp.R}); hedef ${pct(1 - service, 1)}`);
+    set("eoqPMeasured", `${pct(sim.pStockout, 2)} ± ${fx(sim.se * 100, 2)}`);
+    set("eoqPMeasuredSub", `${sim.years} yıl, ${grp(sim.cycles)} çevrimin ${grp(sim.stockouts)} tanesi; ± bir standart hata`);
+    const netTheory = rp.R + (c.Q + 1) / 2 - rp.mu;
+    set("eoqNet", `${fx(sim.meanNet, 1)} ve ${fx(netTheory, 1)} adet`);
+    set("eoqNetSub", `kuram R + (Q + 1)/2 − d·L; fark ${diffPct(sim.meanNet, netTheory)}`);
+    set("eoqFill", pct(sim.fillRate, 3));
+    set("eoqFillSub", `${grp(sim.demand)} adetlik talebin bekletilmeden karşılanan payı`);
+    const bits = [];
+    bits.push(`Q = ${fx(c.Q, 0)} adet, Q* = ${fx(r.Qstar, 1)} adedin ${fx(r.ratio, 2)} katı: yıllık maliyet ${fx(r.total, 0)} ₺, en küçük değerden ${signed(r.penalty * 100, 2)} % fazla.`);
+    if (Math.abs(r.ratio - 1) < 0.02) bits.push("Çanağın dibindesin: sipariş ve elde tutma kalemleri neredeyse eşit.");
+    else if (r.ratio > 1) bits.push(`Fazla büyük parti: elde tutma (${fx(r.hold, 0)} ₺) sipariş maliyetini (${fx(r.order, 0)} ₺) geçiyor.`);
+    else bits.push(`Fazla küçük parti: sipariş maliyeti (${fx(r.order, 0)} ₺) elde tutmayı (${fx(r.hold, 0)} ₺) geçiyor.`);
+    if (r.outstanding > 0) bits.push(`Tedarik süresi çevrimden uzun (${fx(c.leadDays, 0)} gün > ${fx(r.cycleDays, 1)} gün): sipariş verilirken yolda ${r.outstanding} sipariş daha olur; sipariş noktası eldeki stokla yoldaki siparişlerin toplamına uygulanır.`);
+    const zScore = (sim.pStockout - rp.pStockout) / Math.sqrt(rp.pStockout * (1 - rp.pStockout) / sim.cycles);
+    bits.push(`Benzetimde stoksuz kalan çevrim oranı ${pct(sim.pStockout, 2)}, Poisson kuramı ${pct(rp.pStockout, 2)}: fark ${fx(Math.abs(zScore), 1)} standart hata.`);
+    set("eoqStatus", bits.join(" "));
+    drawEoq();
+  }
+  function drawEoq() {
+    if (!eoqState || $("panel-eoq").hidden) return;
+    const { c, r, rp, sim, traceDays } = eoqState;
+    let p = prep($("eoqCostCanvas"));
+    if (p) {
+      const { g, t } = p, x1 = Math.max(2.6 * r.Qstar, 1.15 * c.Q), y1 = Math.max(2.4 * r.costStar, 1.12 * r.total);
+      const a = axes(p, { x0: 0, x1, y0: 0, y1, xLabel: "Q (adet)", yLabel: "₺/yıl" });
+      const curve = (fn) => { const pts = []; for (let i = 1; i <= 240; i++) { const q = x1 * i / 240, v = fn(q); if (v <= y1) pts.push([a.X(q), a.Y(v)]); } return pts; };
+      line(g, curve((q) => c.D * c.S / q), t.accent2, 1.6);
+      line(g, curve((q) => c.H * q / 2), t.accent, 1.6);
+      line(g, curve((q) => c.D * c.S / q + c.H * q / 2), t.ink, 2.4);
+      line(g, [[a.X(r.Qstar), a.Y(0)], [a.X(r.Qstar), a.Y(y1)]], t.warm, 1.4, [5, 4]);
+      line(g, [[a.X(c.Q), a.Y(0)], [a.X(c.Q), a.Y(r.total)]], t.danger, 1.6);
+      dot(g, a.X(r.Qstar), a.Y(r.costStar), 4, t.warm);
+      dot(g, a.X(c.Q), a.Y(r.total), 4.5, t.danger);
+      tag(g, `Q* = ${fx(r.Qstar, 0)}`, a.X(r.Qstar) + 5, a.T + 2, t.warm, "left", "top");
+      const right = a.X(c.Q) < p.w - 110;
+      tag(g, `${fx(r.total, 0)} ₺`, a.X(c.Q) + (right ? 8 : -8), a.Y(r.total) - 6, t.danger, right ? "left" : "right");
+    }
+    p = prep($("eoqStockCanvas"));
+    if (p) {
+      const { g, t } = p, top = Math.max(c.Q, rp.R + c.Q) * 1.08;
+      let low = 0;
+      sim.trace.forEach((q) => { if (q[1] < low) low = q[1]; });
+      const a = axes(p, { x0: 0, x1: traceDays, y0: low * 1.15, y1: top, xLabel: "gün", yLabel: "adet" });
+      line(g, [[a.X(0), a.Y(0)], [a.X(traceDays), a.Y(0)]], t.muted, 1);
+      const saw = [];
+      for (let k = 0; k * r.cycleDays < traceDays; k++) {
+        const t0 = k * r.cycleDays, t1 = Math.min(traceDays, t0 + r.cycleDays);
+        saw.push([a.X(t0), a.Y(c.Q)], [a.X(t1), a.Y(c.Q - r.daily * (t1 - t0))]);
+      }
+      line(g, saw, t.ink, 1.8);
+      line(g, [[a.X(0), a.Y(r.ropOnHand)], [a.X(traceDays), a.Y(r.ropOnHand)]], t.ink, 1, [3, 4]);
+      const step = Math.max(1, Math.floor(sim.trace.length / 1500)), pts = [];
+      for (let i = 0; i < sim.trace.length; i += step) pts.push([a.X(sim.trace[i][0]), a.Y(sim.trace[i][1])]);
+      line(g, pts, t.accent, 1.3);
+      if (r.outstanding === 0) {
+        line(g, [[a.X(0), a.Y(rp.R)], [a.X(traceDays), a.Y(rp.R)]], t.warm, 1.2, [5, 4]);
+        tag(g, `R = ${rp.R}`, a.L + 4, a.Y(rp.R) - 3, t.warm, "left");
+      }
+      tag(g, `d·L = ${fx(r.ropOnHand, 0)}`, a.L + 4 + (r.outstanding === 0 ? 62 : 0), a.Y(r.ropOnHand) - 3, t.muted, "left");
+    }
+  }
+
+  /* ── Sekme 2 ── */
+  const SPC_DEFAULT = { spcN: 5, spcShift: 0, spcK: 1, spcLsl: 19.96, spcUsl: 20.04, spcSeed: 1 };
+  const MU0 = 20, SIGMA0 = 0.01, ARL_BUDGET = 300000, ARL_ALL_RULES = 91.75;
+  let spcState = null;
+  const ruleName = (f) => (f.chart === "r" ? "açıklık grafiğinde sınır dışı" : `ortalama grafiğinde kural ${f.rule}`);
+  function computeSpc() {
+    const n = val("spcN"), shift = val("spcShift"), sigmaK = val("spcK"), lsl = val("spcLsl"), usl = val("spcUsl"), seed = val("spcSeed"), runRules = $("spcRules").checked;
+    const run = spcRun({ n, shift, sigmaK, mu0: MU0, sigma0: SIGMA0, seed, runRules });
+    const capTrue = capability({ mean: MU0 + shift * SIGMA0, sigma: sigmaK * SIGMA0, lsl, usl });
+    const capEst = capability({ mean: run.mean2, sigma: run.sigmaHat2, lsl, usl });
+    const th = arlTheory({ n, shift, sigmaK }), sim = arlSim({ n, shift, sigmaK, runRules, budget: ARL_BUDGET, seed });
+    spcState = { n, shift, sigmaK, lsl, usl, run, runRules };
+    set("spcNOut", fx(n, 0));
+    set("spcShiftOut", `${signed(shift, 2)} σ₀ (${signed(shift * SIGMA0, 4)} mm)`);
+    set("spcKOut", `${fx(sigmaK, 1)} (σ = ${fx(sigmaK * SIGMA0, 3)} mm)`);
+    set("spcLslOut", `${fx(lsl, 3)} mm`);
+    set("spcUslOut", `${fx(usl, 3)} mm`);
+    set("spcSeedOut", fx(seed, 0));
+    set("spcCenter", `${fx(run.xbb, 4)} mm`);
+    set("spcCenterSub", `ortalama açıklık ${fx(run.rbar, 4)} mm`);
+    set("spcXLimits", `${fx(run.x.lcl, 4)} – ${fx(run.x.ucl, 4)} mm`);
+    set("spcXLimitsSub", `A₂ = ${fx(run.constants.A2, 3)}; bilinen değerlerle ${fx(MU0 - 3 * SIGMA0 / Math.sqrt(n), 4)} – ${fx(MU0 + 3 * SIGMA0 / Math.sqrt(n), 4)}`);
+    set("spcRLimits", `${fx(run.r.lcl, 4)} – ${fx(run.r.ucl, 4)} mm`);
+    set("spcRLimitsSub", `D₃ = ${fx(run.constants.D3, 3)}, D₄ = ${fx(run.constants.D4, 3)}`);
+    set("spcSigma", `${fx(run.sigmaHat, 4)} ve ${fx(SIGMA0, 4)} mm`);
+    set("spcSigmaSub", `d₂ = ${fx(run.constants.d2, 3)}; fark ${diffPct(run.sigmaHat, SIGMA0, 1)} (25 alt grup)`);
+    const fs = run.firstSignal, changed = shift !== 0 || sigmaK !== 1;
+    set("spcFirst", fs ? `${fs.index + 1}. alt grup` : "sinyal yok");
+    set("spcFirstSub", fs ? `${ruleName(fs)}; Faz II'nin ${fs.index - run.phase1 + 1}. alt grubu` : "Faz II'nin 25 alt grubunda hiçbir kural çiğnenmedi");
+    set("spcCp", `${fx(capEst.cp, 2)} ve ${fx(capTrue.cp, 2)}`);
+    set("spcCpSub", `(ÜŞS − AŞS)/(6σ); şartname dışı ${fx(capTrue.ppm, capTrue.ppm < 10 ? 2 : 0)} ppm (gerçek)`);
+    set("spcCpk", `${fx(capEst.cpk, 2)} ve ${fx(capTrue.cpk, 2)}`);
+    set("spcCpkSub", capTrue.cpk < 1 ? "1'in altında: yakın şartname sınırı ortalamaya 3σ'dan yakın" : "yakın şartname sınırına uzaklık / 3σ");
+    set("spcP", th.p >= 1e-4 ? pct(th.p, 3) : sci(th.p));
+    set("spcPSub", `Φ(−(3 − δ√n)/k) + Φ((−3 − δ√n)/k)`);
+    const hasTheory = !runRules, inControl = !changed;
+    const reference = hasTheory ? th.arl : inControl ? ARL_ALL_RULES : NaN;
+    const big = (v) => (v >= 1e6 ? sci(v) : fx(v, v < 10 ? 3 : v < 100 ? 2 : 1));
+    if (hasTheory) { set("spcArlTheory", big(th.arl)); set("spcArlTheorySub", "1/p (koşu uzunluğu geometrik dağılır)"); }
+    else if (inControl) { set("spcArlTheory", fx(ARL_ALL_RULES, 2)); set("spcArlTheorySub", `dört kural birlikte (Champ ve Woodall, 1987); yalnız kural 1 ile ${big(th.arl)}`); }
+    else { set("spcArlTheory", "kapalı formül yok"); set("spcArlTheorySub", `dizi kuralları açık; yalnız kural 1 ile ${big(th.arl)}`); }
+    const enough = sim.runs >= 30;
+    if (enough) {
+      set("spcArlMeasured", `${fx(sim.mean, sim.mean < 10 ? 3 : sim.mean < 100 ? 2 : 1)} ± ${fx(sim.se, sim.mean < 10 ? 3 : sim.mean < 100 ? 2 : 1)}`);
+      set("spcArlMeasuredSub", `${grp(sim.runs)} koşu, ${grp(ARL_BUDGET)} alt grup; ± bir standart hata` + (runRules ? `; kural 1/2/3/4: ${sim.byRule.slice(1).join("/")}` : ""));
+    } else {
+      set("spcArlMeasured", "ölçülemedi");
+      set("spcArlMeasuredSub", `${grp(ARL_BUDGET)} alt grupta yalnız ${sim.runs} sinyal; güvenilir bir ortalama için en az 30 gerekir`);
+    }
+    if (enough && Number.isFinite(reference)) { set("spcArlDiff", diffPct(sim.mean, reference)); set("spcArlDiffSub", `${fx(Math.abs(sim.mean - reference) / sim.se, 1)} standart hata`); }
+    else { set("spcArlDiff", "—"); set("spcArlDiffSub", enough ? "karşılaştırılacak kuramsal değer yok" : "ölçüm yok"); }
+    const phase1Flags = run.flags.filter((f) => f.index < run.phase1).length, bits = [];
+    if (!changed) bits.push("Süreç hiç değişmedi: Faz II'de görülen her sinyal yanlış alarmdır.");
+    else bits.push(`26. alt gruptan itibaren ${[shift !== 0 ? `ortalama ${signed(shift, 2)} σ₀ kaydı` : "", sigmaK !== 1 ? `yayılım ${fx(sigmaK, 1)} katına ${sigmaK > 1 ? "çıktı" : "indi"}` : ""].filter(Boolean).join(", ")}.`);
+    if (fs) bits.push(`İlk sinyal ${fs.index + 1}. alt grupta (${ruleName(fs)}), ${changed ? "değişiklikten" : "Faz II başından"} ${fs.index - run.phase1 + 1} alt grup sonra.`);
+    else bits.push(`Faz II'nin 25 alt grubunda sinyal yok${changed && hasTheory ? `; kuramsal ARL ${big(th.arl)} olduğundan bu ${th.arl > 25 ? "şaşırtıcı değil" : "pek olağan değil, tohumu değiştirip yeniden dene"}` : ""}.`);
+    if (phase1Flags) bits.push(`Faz I'de de ${phase1Flags} işaretli nokta var: kontrol altındaki süreç bile ara sıra sınır aşar.`);
+    if (usl - lsl < 6 * sigmaK * SIGMA0) bits.push("Şartname aralığı 6σ'dan dar: süreç tam ortalansa bile yeterlilik oranı 1'in altında kalır.");
+    set("spcStatus", bits.join(" "));
+    document.querySelectorAll("#spcTable tbody tr").forEach((tr) => tr.classList.toggle("is-current", Number(tr.dataset.n) === n));
+    drawSpc();
+  }
+  function buildSpcTable() {
+    $("spcTable").tBodies[0].innerHTML = Array.from({ length: 9 }, (_, i) => {
+      const n = i + 2, k = spcConst(n);
+      return `<tr data-n="${n}"><td>${n}</td><td>${fx(k.A2, 3)}</td><td>${fx(k.D3, 3)}</td><td>${fx(k.D4, 3)}</td><td>${fx(k.d2, 3)}</td></tr>`;
+    }).join("");
+  }
+  function drawControlChart(canvas, values, lim, flags, opts) {
+    const p = prep(canvas);
+    if (!p) return;
+    const { g, t } = p, run = spcState.run, N = values.length;
+    let lo = Math.min(lim.lcl, ...values), hi = Math.max(lim.ucl, ...values);
+    if (opts.lo !== undefined) lo = Math.min(lo, opts.lo);
+    const padY = (hi - lo) * 0.1;
+    const a = axes(p, { x0: 0, x1: N + 1, y0: opts.zero ? 0 : lo - padY, y1: hi + padY, xLabel: "alt grup", yLabel: "mm", yTicks: opts.zero ? 3 : 4, yFmt: (v) => fx(v, 3) });
+    g.fillStyle = t.shade;
+    g.fillRect(a.X(run.phase1 + 0.5), a.T, a.X(N + 1) - a.X(run.phase1 + 0.5), p.h - a.T - a.B);
+    tag(g, "Faz I", a.X(1), p.h - 3, t.muted, "left");
+    tag(g, "Faz II", a.X(run.phase1 + 1), p.h - 3, t.muted, "left");
+    const h = (v, colour, dash, w = 1.3) => line(g, [[a.X(0), a.Y(v)], [a.X(N + 1), a.Y(v)]], colour, w, dash);
+    if (opts.zones) [1, 2].forEach((m) => { h(lim.cl + m * lim.sigma, t.grid, [2, 4], 1); h(lim.cl - m * lim.sigma, t.grid, [2, 4], 1); });
+    h(lim.cl, t.accent, null, 1.3);
+    h(lim.ucl, t.warm, [6, 4]);
+    if (opts.showLcl) h(lim.lcl, t.warm, [6, 4]);
+    line(g, values.map((v, i) => [a.X(i + 1), a.Y(v)]), t.ink, 1.3);
+    const flagged = new Map();
+    flags.forEach((f) => { if (!flagged.has(f.index)) flagged.set(f.index, f.rule); });
+    values.forEach((v, i) => {
+      const bad = flagged.has(i);
+      dot(g, a.X(i + 1), a.Y(v), bad ? 3.6 : 2.6, bad ? t.danger : t.ink, bad ? t.danger : null);
+      if (bad && opts.numbers) tag(g, String(flagged.get(i)), a.X(i + 1), a.Y(v) - 9, t.danger, "center");
+    });
+    tag(g, "ÜKS", p.w - a.R - 2, a.Y(lim.ucl) - 2, t.warm, "right");
+    if (opts.showLcl) tag(g, "AKS", p.w - a.R - 2, a.Y(lim.lcl) + 2, t.warm, "right", "top");
+  }
+  function drawSpc() {
+    if (!spcState || $("panel-spc").hidden) return;
+    const run = spcState.run;
+    drawControlChart($("spcXCanvas"), run.groups.map((q) => q.mean), run.x, run.flags.filter((f) => f.chart === "x"), { zones: spcState.runRules, showLcl: true, numbers: true });
+    drawControlChart($("spcRCanvas"), run.groups.map((q) => q.range), run.r, run.flags.filter((f) => f.chart === "r"), { zero: true, showLcl: run.constants.D3 > 0, numbers: false });
+  }
+
+  /* ── Sekme 3 ── */
+  const FLOW_DEFAULT = { flowMode: "open", flowRate: 8, flowWip: 10, flowCount: 5, flowT1: 4, flowT2: 4.5, flowT3: 6, flowT4: 4.5, flowT5: 4, flowDist: "exp", flowSeed: 1 };
+  const DIST_LABEL = { det: "c² = 0", erlang4: "c² = 0.25", exp: "c² = 1", h2: "c² = 2.25" };
+  let flowState = null;
+  function computeFlow() {
+    const mode = $("flowMode").value, ratePerHour = val("flowRate"), wip = val("flowWip"), count = val("flowCount"), dist = $("flowDist").value, seed = val("flowSeed");
+    const times = [];
+    for (let i = 1; i <= 5; i++) {
+      $(`flowT${i}Field`).hidden = i > count;
+      set(`flowT${i}Out`, `${fx(val(`flowT${i}`), 1)} dk`);
+      if (i <= count) times.push(val(`flowT${i}`));
+    }
+    $("flowRateField").hidden = mode !== "open";
+    $("flowWipField").hidden = mode !== "conwip";
+    const cfg = { times, mode, ratePerHour, wip, dist, seed };
+    const th = lineTheory(cfg), sim = lineSim(cfg);
+    flowState = { cfg, th, sim };
+    set("flowModeOut", mode === "open" ? "itme" : "çekme");
+    set("flowRateOut", `${fx(ratePerHour, 1)} iş/saat`);
+    set("flowWipOut", `${fx(wip, 0)} iş`);
+    set("flowCountOut", fx(count, 0));
+    set("flowDistOut", DIST_LABEL[dist]);
+    set("flowSeedOut", fx(seed, 0));
+    const stable = th.stable, thHour = sim.th * 60, S = times.length;
+    const approx = th.exact ? "kesin" : "yaklaşık";
+    // TH
+    if (th.th !== null) { set("flowTH", `${fx(thHour, 2)} ve ${fx(th.th * 60, 2)} iş/saat`); set("flowTHSub", stable ? `fark ${diffPct(sim.th, th.th)}` + (mode === "open" ? " (kuram: giren çıkar, TH = λ)" : ` (${approx})`) : `λ kapasiteyi aşıyor: çıkan iş darboğaz hızında, fark ${diffPct(sim.th, th.th)}`); }
+    else { set("flowTH", `${fx(thHour, 2)} iş/saat`); set("flowTHSub", `kesin formül yok; üstel sürelerle ${fx(th.thExp * 60, 2)}, sabit sürelerle ${fx(th.thBest * 60, 2)} iş/saat`); }
+    // WIP ve CT
+    if (!stable) {
+      set("flowWIP", "tanımsız"); set("flowWIPSub", "kararlı durum yok: kuyruk benzetim boyunca büyüyor");
+      set("flowCT", "tanımsız"); set("flowCTSub", "sonraki her iş bir öncekinden daha uzun bekliyor");
+      set("flowLittle", "uygulanamaz"); set("flowLittleSub", "Little yasası kararlı durum ortalamaları içindir");
+    } else {
+      if (mode === "conwip") { set("flowWIP", `${fx(sim.wip, 2)} ve ${fx(wip, 0)} iş`); set("flowWIPSub", "CONWIP hattaki iş sayısını sabit tutar"); }
+      else { set("flowWIP", `${fx(sim.wip, 2)} ve ${fx(th.wip, 2)} iş`); set("flowWIPSub", `fark ${diffPct(sim.wip, th.wip)} (${approx})`); }
+      if (th.ct !== null) { set("flowCT", `${fx(sim.ct, 1)} ve ${fx(th.ct, 1)} dk`); set("flowCTSub", `ölçüm ± ${fx(sim.ctSE, 1)} dk; fark ${diffPct(sim.ct, th.ct)} (${approx})`); }
+      else { set("flowCT", `${fx(sim.ct, 1)} dk`); set("flowCTSub", `ölçüm ± ${fx(sim.ctSE, 1)} dk; kesin formül yok`); }
+      set("flowLittle", `${fx(sim.wip, 2)} ve ${fx(sim.little, 2)} iş`);
+      set("flowLittleSub", `TH × CT = ${fx(thHour, 2)} iş/saat × ${fx(sim.ct / 60, 3)} saat; fark ${diffPct(sim.wip, sim.little, 3)}`);
+    }
+    set("flowBn", S === 1 ? `tek istasyon` : `${th.bottleneck + 1}. istasyon`);
+    set("flowBnSub", `kapasite 1/t = ${fx(th.rb * 60, 2)} iş/saat (t = ${fx(times[th.bottleneck], 1)} dk)`);
+    set("flowT0", stable ? `${fx(th.T0, 1)} dk ve ${fx(sim.ct / th.T0, 2)} kat` : `${fx(th.T0, 1)} dk`);
+    set("flowT0Sub", stable ? `bir iş ömrünün ${pct(1 - th.T0 / sim.ct, 0)} kadarını bekleyerek geçiriyor` : "bekleme payı sürekli büyüyor");
+    $("flowTable").tBodies[0].innerHTML = times.map((tm, i) => {
+      const s = sim.stations[i], rho = th.rho ? th.rho[i] : null, st = th.stations ? th.stations[i] : null;
+      const sat = !stable && th.saturated[i];
+      const rhoText = rho === null ? "—" : sat ? "1 (doymuş)" : fx(rho, 3);
+      const lText = sat ? "tanımsız" : st ? `${fx(st.L, 2)}${st.exact ? "" : " (yakl.)"}` : "—";
+      return `<tr class="${i === th.bottleneck && S > 1 ? "is-current" : ""}"><td>${i + 1}</td><td>${fx(tm, 1)}</td><td>${fx(s.util, 3)}</td><td>${rhoText}</td><td>${sat ? "büyüyor" : fx(s.wip, 2)}</td><td>${lText}</td></tr>`;
+    }).join("");
+    const bits = [], bn = th.bottleneck, bnUtil = sim.stations[bn].util;
+    if (!stable) bits.push(`Geliş hızı (${fx(ratePerHour, 1)} iş/saat) darboğazın kapasitesini (${fx(th.rb * 60, 2)} iş/saat) aşıyor: kararlı durum yok. Çıktı ${fx(thHour, 2)} iş/saatte kalıyor, aradaki fark kuyruğa ekleniyor.`);
+    else {
+      bits.push(S === 1 ? `Tek istasyon: doluluk ${fx(bnUtil, 3)}, kapasite ${fx(th.rb * 60, 2)} iş/saat, çıktı ${fx(thHour, 2)} iş/saat.` : `Darboğaz ${bn + 1}. istasyon (kapasite ${fx(th.rb * 60, 2)} iş/saat, ölçülen doluluk ${fx(bnUtil, 3)}); çıktı ${fx(thHour, 2)} iş/saat.`);
+      const share = sim.stations[bn].wip / sim.wip;
+      if (S > 1) bits.push(`Hattaki ${fx(sim.wip, 2)} işin ${pct(share, 0)} kadarı darboğazda.`);
+      if (dist === "det" && mode === "open") bits.push("İşlem süreleri sabit; kuyruğu yalnız gelişlerin düzensizliği yaratıyor." + (S > 1 ? " Toplam için kuram kesindir: sabit süreli seri hat, işleri darboğaz tek başınaymış gibi bekletir. Tablodaki ‘yakl.’ değerler bu beklemenin istasyonlara yaklaşık paylaşımıdır; toplamları kartı tutmaz." : ""));
+      if (mode === "open" && !th.exact) bits.push(dist === "erlang4" ? "Kuram değerleri yaklaşıktır (Kingman): düşük değişkenlikte darboğaz kuyruğunu küçük gösterir ve doluluk 1'e yaklaştıkça fark büyür; orada ölçüme güven." : "Kuram değerleri yaklaşıktır (Kingman); doluluk 1'e yaklaştıkça yaklaşımın hatası büyür.");
+      if (dist === "det" && mode === "conwip") bits.push("Değişkenlik sıfır: çıktı W/T₀ ile darboğaz kapasitesinden küçük olanına eşit, beklemeyi yalnız darboğaz yaratır.");
+      if (mode === "conwip" && dist !== "det" && thHour < th.rb * 60 * 0.98) bits.push(`Değişkenlik yüzünden çıktı, darboğaz kapasitesinin ${pct(sim.th / th.rb, 1)} kadarı: darboğaz bile zaman zaman işsiz kalıyor.`);
+      const drift = Math.abs(sim.ctHalves[1] - sim.ctHalves[0]) / sim.ct, relSE = sim.ctSE / sim.ct;
+      const rhoMax = mode === "open" ? ratePerHour / 60 * times[bn] : 0;
+      const shortRun = rhoMax >= 0.95
+        ? `: doluluk 1'e çok yakın (ρ = ${fx(rhoMax, 2)}); kararlı duruma yaklaşmak için benzetim kısa, ölçüm kuramdan belirgin sapabilir (standart hata ortalamanın ${pct(relSE, 0)} kadarı)`
+        : drift > 0.1 || relSE > 0.05 ? `: ölçüm gürültülü (standart hata ortalamanın ${pct(relSE, 0)} kadarı); bu ayarda 100 000 iş kararlı ortalama için kısa kalıyor, tohumu değiştirip karşılaştır` : "";
+      bits.push(`Ölçüm penceresinin iki yarısında ortalama çevrim süresi ${fx(sim.ctHalves[0], 1)} ve ${fx(sim.ctHalves[1], 1)} dk${shortRun}.`);
+    }
+    set("flowStatus", bits.join(" "));
+    set("flowCurveTitle", mode === "open" ? "Çevrim süresi, geliş hızına göre" : "Çıktı hızı, hattaki iş sayısına göre");
+    set("flowCurveCaption", mode === "open"
+      ? `Eğri kuramsal çevrim süresidir${th.exact || !stable ? "" : " (yaklaşık)"}; yatay kesikli çizgi hiç beklemeden geçen sürenin T₀, düşey kesikli çizgi darboğaz kapasitesidir. Kırmızı nokta ölçülen çalışma noktası. Kapasiteye yaklaştıkça eğri dikleşir.`
+      : "Mor eğri üstel süreler için kesin çözüm, yeşil eğri değişkenliğin sıfır olduğu en iyi durum; yatay kesikli çizgi darboğaz kapasitesi. Kırmızı nokta ölçülen çalışma noktası.");
+    drawFlow();
+  }
+  function drawFlow() {
+    if (!flowState || $("panel-flow").hidden) return;
+    const { cfg, th, sim } = flowState, S = cfg.times.length, stable = th.stable;
+    let p = prep($("flowLineCanvas"));
+    if (p) {
+      const { g, w, h, t, small } = p, slot = (w - 20) / S, bw = Math.min(small ? 46 : 84, slot * 0.62), bh = Math.min(h * 0.34, 86);
+      const baseY = h - 30, boxTop = baseY - bh, qMaxH = boxTop - 44;
+      const qs = sim.stations.map((s, i) => (stable || !th.saturated[i] ? s.queue : NaN));
+      const qMax = Math.max(1, ...qs.filter(Number.isFinite));
+      for (let i = 0; i < S; i++) {
+        const cx = 10 + slot * (i + 0.5), x = cx - bw / 2, s = sim.stations[i], isBn = i === th.bottleneck && S > 1;
+        const ay = baseY - bh / 2, ax1 = x - 4;
+        line(g, [[i === 0 ? 4 : cx - slot + bw / 2 + 4, ay], [ax1, ay]], t.muted, 1.2);
+        g.fillStyle = t.muted; g.beginPath(); g.moveTo(ax1 + 3, ay); g.lineTo(ax1 - 4, ay - 4); g.lineTo(ax1 - 4, ay + 4); g.closePath(); g.fill();
+        g.fillStyle = t.fill;
+        const fh = bh * Math.min(1, s.util);
+        g.fillRect(x, baseY - fh, bw, fh);
+        g.strokeStyle = isBn ? t.warm : t.muted; g.lineWidth = isBn ? 2.4 : 1.3;
+        g.strokeRect(x, boxTop, bw, bh);
+        tag(g, `%${fx(s.util * 100, 0)}`, cx, baseY - bh / 2, t.ink, "center", "middle");
+        tag(g, `${fx(cfg.times[i], 1)} dk`, cx, baseY + 5, t.muted, "center", "top");
+        const q = qs[i], qw = Math.min(22, bw * 0.5);
+        if (Number.isFinite(q)) {
+          const qh = Math.max(1.5, qMaxH * q / qMax);
+          g.fillStyle = isBn ? t.warm : t.accent2;
+          g.fillRect(cx - qw / 2, boxTop - 8 - qh, qw, qh);
+          tag(g, fx(q, 2), cx, boxTop - 12 - qh, t.ink, "center");
+        } else {
+          g.fillStyle = t.danger;
+          g.fillRect(cx - qw / 2, boxTop - 8 - qMaxH, qw, qMaxH);
+          tag(g, "büyüyor", cx, boxTop - 12 - qMaxH, t.danger, "center");
+        }
+      }
+      const endX = 10 + slot * (S - 0.5) + bw / 2 + 4;
+      line(g, [[endX, baseY - bh / 2], [w - 6, baseY - bh / 2]], t.muted, 1.2);
+      tag(g, cfg.mode === "open" ? `giriş ${fx(cfg.ratePerHour, 1)} iş/saat` : `hatta ${cfg.wip} iş`, 6, 4, t.muted, "left", "top");
+      tag(g, `çıkış ${fx(sim.th * 60, 2)} iş/saat`, w - 6, 4, t.muted, "right", "top");
+    }
+    p = prep($("flowCurveCanvas"));
+    if (p) {
+      const { g, t } = p, rbH = th.rb * 60;
+      if (cfg.mode === "open") {
+        const x1 = Math.max(rbH * 1.08, Math.min(20, cfg.ratePerHour * 1.05)), yCap = Math.max(6 * th.T0, stable ? sim.ct * 1.25 : 0);
+        const a = axes(p, { x0: 0, x1, y0: 0, y1: yCap, xLabel: "λ (iş/saat)", yLabel: "CT (dk)" });
+        const pts = [];
+        for (let i = 1; i < 400; i++) {
+          const lam = rbH * i / 400, r = lineTheory({ ...cfg, ratePerHour: lam });
+          if (r.stable && r.ct <= yCap) pts.push([a.X(lam), a.Y(r.ct)]);
+        }
+        line(g, pts, t.accent2, 2);
+        line(g, [[a.X(0), a.Y(th.T0)], [a.X(x1), a.Y(th.T0)]], t.accent, 1.2, [5, 4]);
+        line(g, [[a.X(rbH), a.Y(0)], [a.X(rbH), a.Y(yCap)]], t.warm, 1.3, [5, 4]);
+        tag(g, `kapasite ${fx(rbH, 1)}`, a.X(rbH) - 4, a.Y(0) - 4, t.warm, "right");
+        tag(g, `T₀ = ${fx(th.T0, 1)} dk`, a.L + 5, a.Y(th.T0) - 3, t.accent);
+        if (stable) dot(g, a.X(cfg.ratePerHour), a.Y(sim.ct), 4.5, t.danger, t.danger);
+        else tag(g, "kararlı durum yok", a.L + 6, a.T + 4, t.danger, "left", "top");
+      } else {
+        const a = axes(p, { x0: 0, x1: 40, y0: 0, y1: rbH * 1.12, xLabel: "W (iş)", yLabel: "TH (iş/saat)", xTicks: 8 });
+        const best = [], expo = [];
+        for (let wv = 1; wv <= 40; wv++) {
+          best.push([a.X(wv), a.Y(Math.min(wv / th.T0, th.rb) * 60)]);
+          expo.push([a.X(wv), a.Y(mva(cfg.times, wv).th * 60)]);
+        }
+        line(g, [[a.X(0), a.Y(rbH)], [a.X(40), a.Y(rbH)]], t.warm, 1.3, [5, 4]);
+        line(g, [[a.X(0), a.Y(0)], ...best], t.accent, 1.8);
+        line(g, [[a.X(0), a.Y(0)], ...expo], t.accent2, 2);
+        tag(g, `kapasite ${fx(rbH, 1)}`, p.w - a.R - 3, a.Y(rbH) - 3, t.warm, "right");
+        dot(g, a.X(cfg.wip), a.Y(sim.th * 60), 4.5, t.danger, t.danger);
+      }
+    }
+    p = prep($("flowTraceCanvas"));
+    if (p) {
+      const { g, t } = p, hours = (v) => v / 60;
+      let top = 1;
+      sim.trace.forEach((q) => { if (q[1] > top) top = q[1]; });
+      const a = axes(p, { x0: 0, x1: hours(sim.T1), y0: 0, y1: top * 1.1, xLabel: "saat", yLabel: "hattaki iş", yTicks: 3, xFmt: (v) => fx(v, 0) });
+      g.fillStyle = t.shade;
+      g.fillRect(a.X(0), a.T, a.X(hours(sim.T0)) - a.X(0), p.h - a.T - a.B);
+      line(g, sim.trace.map((q) => [a.X(hours(q[0])), a.Y(q[1])]), t.accent, 1.2);
+      if (stable) {
+        line(g, [[a.X(hours(sim.T0)), a.Y(sim.wip)], [a.X(hours(sim.T1)), a.Y(sim.wip)]], t.warm, 1.4, [6, 4]);
+        tag(g, `ortalama ${fx(sim.wip, 2)}`, p.w - a.R - 3, a.T + 2, t.warm, "right", "top");
+      }
+    }
+  }
+
+  /* ── Ortak etkileşim ── */
+  const tabs = [
+    { key: "eoq", compute: computeEoq, draw: drawEoq, defaults: EOQ_DEFAULT },
+    { key: "spc", compute: computeSpc, draw: drawSpc, defaults: SPC_DEFAULT },
+    { key: "flow", compute: computeFlow, draw: drawFlow, defaults: FLOW_DEFAULT },
+  ];
+  const tabButtons = tabs.map((tb) => $(`tab-${tb.key}`));
+  let active = 0;
+  const computed = [false, false, false];
+  function selectTab(i, focus) {
+    active = i;
+    tabs.forEach((tb, k) => {
+      tabButtons[k].setAttribute("aria-selected", String(k === i));
+      tabButtons[k].tabIndex = k === i ? 0 : -1;
+      $(`panel-${tb.key}`).hidden = k !== i;
+    });
+    if (focus) tabButtons[i].focus();
+    if (!computed[i]) { computed[i] = true; tabs[i].compute(); } else tabs[i].draw();
+  }
+  tabButtons.forEach((b, i) => {
+    b.addEventListener("click", () => selectTab(i, false));
+    b.addEventListener("keydown", (e) => {
+      const n = tabs.length;
+      let to = null;
+      if (e.key === "ArrowRight") to = (i + 1) % n;
+      else if (e.key === "ArrowLeft") to = (i + n - 1) % n;
+      else if (e.key === "Home") to = 0;
+      else if (e.key === "End") to = n - 1;
+      if (to !== null) { e.preventDefault(); selectTab(to, true); }
+    });
+  });
+  function applyDefaults(i, extra) {
+    const d = { ...tabs[i].defaults, ...(extra || {}) };
+    Object.keys(d).forEach((id) => { $(id).value = d[id]; });
+    if (i === 1 && !extra) $("spcRules").checked = false;
+    tabs[i].compute();
+  }
+  tabs.forEach((tb, i) => {
+    Object.keys(tb.defaults).forEach((id) => $(id).addEventListener("input", () => tb.compute()));
+  });
+  $("spcRules").addEventListener("change", computeSpc);
+  const snapQ = (q) => Math.max(50, Math.min(3000, Math.round(q / 10) * 10));
+  const qStarNow = () => Math.sqrt(2 * val("eoqD") * val("eoqS") / val("eoqH"));
+  $("eoqSetOpt").addEventListener("click", () => { $("eoqQ").value = snapQ(qStarNow()); computeEoq(); });
+  $("eoqSetHalf").addEventListener("click", () => { $("eoqQ").value = snapQ(qStarNow() / 2); computeEoq(); });
+  $("eoqSetDouble").addEventListener("click", () => { $("eoqQ").value = snapQ(qStarNow() * 2); computeEoq(); });
+  $("eoqReset").addEventListener("click", () => applyDefaults(0));
+  $("spcShiftOne").addEventListener("click", () => { $("spcShift").value = 1; computeSpc(); });
+  $("spcSpread").addEventListener("click", () => { $("spcK").value = 1.5; computeSpc(); });
+  $("spcReset").addEventListener("click", () => applyDefaults(1));
+  $("flowSingle").addEventListener("click", () => applyDefaults(2, { flowCount: 1, flowT1: 6 }));
+  $("flowBalanced").addEventListener("click", () => applyDefaults(2, { flowT1: 5, flowT2: 5, flowT3: 5, flowT4: 5, flowT5: 5, flowMode: "conwip" }));
+  $("flowReset").addEventListener("click", () => applyDefaults(2));
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, select, textarea, button") || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "r" || e.key === "R") applyDefaults(active);
+  });
+  const redraw = () => { paintKeys(); tabs[active].draw(); };
+  new ResizeObserver(redraw).observe($("panel-eoq").parentElement);
+  new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  buildSpcTable();
+  paintKeys();
+  selectTab(0, false);
+})();
+</script>
+</body>
+</html>

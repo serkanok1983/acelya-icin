@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Fotoelektrik Olay: Planck Sabitini Ölç</title>
+  <meta name="description" content="Metalden kaçmanın bir bedeli var ve ışık onu tek tek fotonlarla öder. Birkaç renk, bir gerilim kaynağı ve bir doğruyla Planck sabitini ölç: Einstein'ı haklı çıkaran, ama ölçeni ikna edemeyen deney.">
+  <style>
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+    }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 8 / 5;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .chart-canvas.is-scrub { cursor: ew-resize; touch-action: pan-y; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); white-space: nowrap; }
+    .field label .lt { color: var(--text) !important; }
+    .field input[type="range"] { width: 100%; }
+    .field select { width: 100%; padding: 6px 8px; font: inherit; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.74rem; letter-spacing: 0.02em; }
+    .readout strong { font-size: 0.95rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: break-word; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .readout .ref { font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .app-content .status { min-height: 3em; color: var(--text) !important; }
+    kbd { padding: 0 4px; border: 1px solid var(--border); border-radius: 4px; font: inherit; font-size: 0.78rem; }
+    .budget-wrap { position: relative; padding-bottom: 16px; }
+    .budget { display: flex; height: 14px; border-radius: 999px; background: var(--bg-input); overflow: hidden; }
+    .budget b { display: block; height: 100%; width: 0; }
+    .budget .seg-phi { background: var(--accent-2); }
+    .budget .seg-k { background: var(--accent-warm); }
+    .budget .seg-short { background: var(--danger); }
+    .budget-mark { position: absolute; top: -3px; height: 20px; width: 2px; margin-left: -1px; background: var(--text); }
+    .budget-scale span { position: absolute; bottom: 0; font-size: 0.7rem; white-space: nowrap; transform: translateX(-50%); }
+    .budget-scale span:first-child { transform: none; }
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+      align-items: start;
+    }
+    .chart-card { margin: 0; display: grid; gap: 8px; min-width: 0; }
+    .fit-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 0.82rem; line-height: 1.45; }
+    .fit-list li { display: flex; gap: 8px; align-items: baseline; }
+    .swatch { flex: none; display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+    .m-Cs { background: #f472b6; }
+    .m-K { background: #a78bfa; }
+    .m-Na { background: #fbbf24; }
+    .m-Ca { background: #5eead4; }
+    .m-Zn { background: #60a5fa; }
+    .m-Pt { background: #f87171; }
+    .m-all { background: var(--text); }
+    [data-theme="light"] .m-Cs { background: #db2777; }
+    [data-theme="light"] .m-K { background: #7c3aed; }
+    [data-theme="light"] .m-Na { background: #b45309; }
+    [data-theme="light"] .m-Ca { background: #0f766e; }
+    [data-theme="light"] .m-Zn { background: #1d4ed8; }
+    [data-theme="light"] .m-Pt { background: #b91c1c; }
+    .notes { margin-top: 16px; }
+    .notes ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+    @media (max-width: 760px) {
+      .lab, .charts { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="fotoelektrik">
+
+<div class="app-content">
+  <h1>Fotoelektrik Olay: Planck Sabitini Ölç</h1>
+  <p class="hint">Işık katottan elektron koparır; anodu eksiye çekip (V &lt; 0) akımı durdur. Durdurma gerilimi V₀ = (hf − φ)/e: birkaç dalga boyunda V₀'ı kaydet, doğrunun eğimi h/e'yi verir.</p>
+
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="tubeCanvas" class="sim-canvas" width="900" height="600" role="img" aria-label="Fototüp şeması: ışık katoda düşer, kopan elektronlar anoda uçar ya da geciktirici alanda geri döner; ampermetre ve ayarlı gerilim kaynağı"></canvas>
+      <div class="readouts" aria-live="polite">
+        <div class="readout"><small>Dalga boyu λ</small><strong id="lambdaDisplay">—</strong></div>
+        <div class="readout"><small>Frekans f = c/λ</small><strong id="freqDisplay">—</strong></div>
+        <div class="readout"><small>Foton E = hf</small><strong id="photonDisplay">—</strong></div>
+        <div class="readout"><small>İş fonksiyonu φ</small><strong id="phiDisplay">—</strong></div>
+        <div class="readout"><small>K<sub>max</sub> = E − φ</small><strong id="kmaxDisplay">—</strong></div>
+        <div class="readout"><small>Eşik λ₀ = hc/φ</small><strong id="lambda0Display">—</strong></div>
+        <div class="readout is-highlight"><small>Akım I</small><strong id="currentDisplay">—</strong></div>
+        <div class="readout"><small>V₀ kuram = K<sub>max</sub>/e</small><strong id="v0TheoryDisplay">—</strong></div>
+        <div class="readout is-highlight"><small>V₀ ölçülen</small><strong id="v0MeasuredDisplay">—</strong></div>
+        <div class="readout"><small>Fark (V₀)</small><strong id="v0DiffDisplay">—</strong></div>
+      </div>
+      <div class="panel" aria-label="Foton enerjisinin paylaşımı">
+        <h2>Enerji bütçesi</h2>
+        <div class="budget-wrap" aria-hidden="true">
+          <div class="budget"><b id="budgetPhi" class="seg-phi"></b><b id="budgetK" class="seg-k"></b></div>
+          <i class="budget-mark" id="budgetMark"></i>
+          <div class="budget-scale"><span style="left:0">0</span><span style="left:47.62%">5 eV</span><span style="left:95.24%">10 eV</span></div>
+        </div>
+        <p class="note" id="budgetNote">—</p>
+      </div>
+    </div>
+
+    <div class="panel" aria-label="Kontroller">
+      <h2>Deney ayarları</h2>
+      <div class="field">
+        <label for="metalSelect">Katot metali <output id="metalOut">φ ≈ 2.36 eV</output></label>
+        <select id="metalSelect">
+          <option value="Cs">Sezyum (Cs) · φ ≈ 1.95 eV</option>
+          <option value="K">Potasyum (K) · φ ≈ 2.29 eV</option>
+          <option value="Na" selected>Sodyum (Na) · φ ≈ 2.36 eV</option>
+          <option value="Ca">Kalsiyum (Ca) · φ ≈ 2.87 eV</option>
+          <option value="Zn">Çinko (Zn) · φ ≈ 3.63 eV</option>
+          <option value="Pt">Platin (Pt) · φ ≈ 5.64 eV</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="lambdaRange">Dalga boyu λ <output id="lambdaOut">400.0 nm</output></label>
+        <input type="range" id="lambdaRange" min="120" max="700" step="0.1" value="400">
+      </div>
+      <div class="field">
+        <label for="lineSelect">Hazır çizgi (cıva lambası)</label>
+        <select id="lineSelect">
+          <option value="" selected>Serbest (kaydırıcı)</option>
+          <option value="579.1">Hg 579.1 nm · sarı</option>
+          <option value="546.1">Hg 546.1 nm · yeşil</option>
+          <option value="435.8">Hg 435.8 nm · mavi</option>
+          <option value="404.7">Hg 404.7 nm · mor</option>
+          <option value="365.0">Hg 365.0 nm · morötesi</option>
+          <option value="312.6">Hg 312.6 nm · morötesi</option>
+          <option value="253.7">Hg 253.7 nm · morötesi</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="intensityRange">Işık şiddeti (bağıl güç) <output id="intensityOut">50 %</output></label>
+        <input type="range" id="intensityRange" min="0" max="100" step="1" value="50">
+      </div>
+      <div class="field">
+        <label for="voltageRange"><span class="lt">Gerilim V = V<sub>anot</sub> − V<sub>katot</sub></span> <output id="voltageOut">0.00 V</output></label>
+        <input type="range" id="voltageRange" min="-5" max="5" step="0.01" value="0">
+      </div>
+      <div class="row">
+        <button type="button" id="sweepBtn">Otomatik tarama</button>
+        <button type="button" id="recordBtn">Ölçümü kaydet</button>
+        <button type="button" id="clearBtn">Temizle</button>
+      </div>
+      <div class="row">
+        <button type="button" id="toggleBtn" aria-pressed="false">Duraklat</button>
+        <button type="button" id="resetBtn">Sıfırla</button>
+      </div>
+      <p class="note status" id="statusLine" role="status">Hazır. Otomatik tarama V'yi +5 V'tan azaltır ve akımın sıfırlandığı gerilimi bulur; Ölçümü kaydet noktayı V₀–f grafiğine ekler.</p>
+      <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla, <kbd>T</kbd> tarama, <kbd>K</kbd> kaydet. I–V grafiğinde yatay sürükleyerek de V'yi ayarlayabilirsin. Temizle yalnız kayıtlı noktaları siler.</p>
+    </div>
+  </div>
+
+  <div class="charts">
+    <figure class="chart-card">
+      <canvas id="ivChart" class="chart-canvas is-scrub" width="800" height="500" role="img" aria-label="Akım–gerilim grafiği: ölçülen akım, gerilime karşı; kesikli çizgi kuramsal −V₀, üçgen ölçülen V₀"></canvas>
+      <figcaption class="note">Akım–gerilim (I–V) eğrisi. Soluk eğriler önceki ayarlar; kesikli dikey çizgi kuramsal −V₀, üçgen ölçülen V₀.</figcaption>
+    </figure>
+    <figure class="chart-card">
+      <canvas id="fitChart" class="chart-canvas" width="800" height="500" role="img" aria-label="Millikan grafiği: kayıtlı durdurma gerilimleri frekansa karşı, her metal için en küçük kareler doğrusu"></canvas>
+      <figcaption class="note">Millikan grafiği: V₀ = (h/e)·f − φ/e. Her metal ayrı renk ve şekil; doğrular en küçük kareler uydurması, kesikli kısımlar uzatma.</figcaption>
+      <div class="readouts" aria-live="polite">
+        <div class="readout is-highlight"><small id="hLabel">Ölçülen h</small><strong id="hMeasuredDisplay">—</strong><span class="ref" id="hErrDisplay">en az 2 nokta gerekli</span></div>
+        <div class="readout"><small>h (SI, tam)</small><strong>6.62607015×10⁻³⁴ J·s</strong></div>
+        <div class="readout"><small>Fark (h)</small><strong id="hDiffDisplay">—</strong></div>
+        <div class="readout"><small id="phiFitLabel">φ kesişimden</small><strong id="phiFitDisplay">—</strong><span class="ref" id="phiRefDisplay">—</span></div>
+        <div class="readout"><small id="f0FitLabel">Eşik f₀ uydurma</small><strong id="f0FitDisplay">—</strong><span class="ref" id="f0RefDisplay">—</span></div>
+      </div>
+      <ul class="fit-list" id="fitList" aria-live="polite"></ul>
+    </figure>
+  </div>
+
+  <div class="panel notes" aria-label="Model ve varsayımlar">
+    <h2>Model ve varsayımlar</h2>
+    <ul class="note">
+      <li>Einstein denklemi: E = hf = hc/λ, K<sub>max</sub> = E − φ, durdurma gerilimi V₀ = K<sub>max</sub>/e. Sabitler SI'daki tam değerler: h = 6.62607015×10⁻³⁴ J·s, e = 1.602176634×10⁻¹⁹ C, c = 299 792 458 m/s.</li>
+      <li>Enerji dağılımı (basitleştirme): kopan elektronun kinetik enerjisi 0 ile K<sub>max</sub> arasında düzgün dağılır. Geciktirici gerilimde yalnız K &gt; e|V| olanlar anoda varır; akım V = −V₀'a kadar doğrusal azalır, V ≤ −V₀ iken sıfırdır.</li>
+      <li>Toplama: elektronların %85'i yüzeye dik, %15'i 35° eğik çıkar. Eğik olanlar alan yokken anodun kenarını ıskalar; hızlandırıcı gerilim onları anoda büker. Bu yüzden V &gt; 0'da akım biraz artar ve V ≈ 1.5·V₀'da doyar.</li>
+      <li>Akım keyfî ölçekte: I<sub>doyum</sub> = 50 nA × (şiddet / 100 %) × (λ / 400 nm) × η. Şiddet ışık gücüdür; aynı güçte foton sayısı λ ile orantılıdır. η = K<sub>max</sub>² / (K<sub>max</sub>² + (1 eV)²): eşikte sıfırdan başlayan basit bir kuantum verimi varsayımı.</li>
+      <li>İş fonksiyonları yaklaşıktır: CRC Handbook of Chemistry and Physics tablosundaki çok kristalli yüzey değerleri. Gerçek değer yüzey temizliğine, oksit tabakasına ve kristal yüzüne göre birkaç onda bir eV değişir. Temas potansiyeli, karanlık akım ve anottan elektron salınımı ihmal edildi.</li>
+      <li>Ölçüm: tarama V'yi 0.01 V adımlarla azaltır; akımın ilk sıfır okunduğu adım ile bir önceki adımın ortası V₀ kabul edilir (± 0.005 V). Doğru, her metal için ağırlıklı en küçük kareler yöntemiyle uydurulur: eğim h/e, kesişim −φ/e.</li>
+      <li>Ağır çekim: ekranda 1 s = 10 ns, elektrotlar arası d = 1 cm. Elektronların ekran hızı √(2K/mₑ) ile orantılıdır; fotonlar görünsün diye yavaş çizilir.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── Model ── */
+  const H_PLANCK = 6.62607015e-34;   // J·s
+  const E_CHARGE = 1.602176634e-19;  // C
+  const C_LIGHT = 299792458;         // m/s
+  const M_E = 9.1093837e-31;         // kg
+  const HC_EV_NM = ((H_PLANCK * C_LIGHT) / E_CHARGE) * 1e9; // eV·nm
+  // İş fonksiyonları (eV): CRC Handbook of Chemistry and Physics, "Electron Work Function of the
+  // Elements" (Hölzl & Schulte 1979; Riviere 1969; Michaelson 1977), "polycr" satırları, PE yöntemi.
+  const METALS = [
+    { id: "Cs", name: "Sezyum", phi: 1.95 },
+    { id: "K", name: "Potasyum", phi: 2.29 },
+    { id: "Na", name: "Sodyum", phi: 2.36 },
+    { id: "Ca", name: "Kalsiyum", phi: 2.87 },
+    { id: "Zn", name: "Çinko", phi: 3.63 },
+    { id: "Pt", name: "Platin", phi: 5.64 },
+  ];
+  const V_MIN = -5, V_MAX = 5;
+  const NORMAL_SHARE = 0.85;
+  const OBLIQUE = (35 * Math.PI) / 180;
+  const PLATE_HALF = 0.5; // levha yarı yüksekliği, d biriminde
+  // Merkezden α açısıyla çıkan elektron, düzgün alanda anoda |Δy| ≤ r·d ile ancak K ≤ κ·eV iken
+  // varır: κ = r² / (4 sinα (sinα − r cosα)); r < tan α olduğundan V ≤ 0'da hiçbiri toplanmaz.
+  const KAPPA = (PLATE_HALF * PLATE_HALF) / (4 * Math.sin(OBLIQUE) * (Math.sin(OBLIQUE) - PLATE_HALF * Math.cos(OBLIQUE)));
+  const I_REF = 50;       // nA
+  const LAMBDA_REF = 400; // nm
+  const K_YIELD = 1;      // eV
+
+  function photonEnergy(lambdaNm) { return HC_EV_NM / lambdaNm; }
+  function frequency14(lambdaNm) { return C_LIGHT / (lambdaNm * 1e-9) / 1e14; }
+  function kMax(lambdaNm, phi) { return Math.max(0, photonEnergy(lambdaNm) - phi); }
+  function quantumYield(k) { return k > 0 ? (k * k) / (k * k + K_YIELD * K_YIELD) : 0; }
+  function saturationCurrent(lambdaNm, phi, intensity) {
+    return I_REF * (intensity / 100) * (lambdaNm / LAMBDA_REF) * quantumYield(kMax(lambdaNm, phi));
+  }
+  function collectedShare(V, v0) {
+    if (!(v0 > 0) || V <= -v0) return 0;
+    if (V <= 0) return NORMAL_SHARE * (1 + V / v0);
+    return NORMAL_SHARE + (1 - NORMAL_SHARE) * Math.min(1, (KAPPA * V) / v0);
+  }
+  function photoCurrent(V, lambdaNm, phi, intensity) {
+    return saturationCurrent(lambdaNm, phi, intensity) * collectedShare(V, kMax(lambdaNm, phi));
+  }
+  const gridV = (k) => (k - 500) / 100;
+  const gridIndex = (V) => Math.round(V * 100) + 500;
+  const GRID_N = 1001;
+  function fitLine(pts) {
+    let sw = 0, sx = 0, sy = 0, sxx = 0, sxy = 0;
+    for (const p of pts) {
+      const w = 1 / (p.s * p.s);
+      sw += w; sx += w * p.x; sy += w * p.y; sxx += w * p.x * p.x; sxy += w * p.x * p.y;
+    }
+    const det = sw * sxx - sx * sx;
+    if (pts.length < 2 || !(det > 1e-9 * sw * sxx)) return null;
+    return {
+      slope: (sw * sxy - sx * sy) / det,
+      intercept: (sxx * sy - sx * sxy) / det,
+      slopeErr: Math.sqrt(sw / det),
+      interceptErr: Math.sqrt(sxx / det),
+    };
+  }
+  function fitCommonSlope(groups) {
+    let num = 0, den = 0;
+    const means = groups.map((pts) => {
+      let sw = 0, sx = 0, sy = 0;
+      for (const p of pts) { const w = 1 / (p.s * p.s); sw += w; sx += w * p.x; sy += w * p.y; }
+      return { mx: sx / sw, my: sy / sw };
+    });
+    groups.forEach((pts, i) => {
+      for (const p of pts) {
+        const w = 1 / (p.s * p.s), dx = p.x - means[i].mx;
+        num += w * dx * (p.y - means[i].my);
+        den += w * dx * dx;
+      }
+    });
+    if (!(den > 1e-9)) return null;
+    const slope = num / den;
+    return { slope, slopeErr: 1 / Math.sqrt(den), intercepts: means.map((m) => m.my - slope * m.mx) };
+  }
+  const hFromSlope = (slope) => slope * 1e-14 * E_CHARGE;
+
+  /* ── Durum ── */
+  const $ = (id) => document.getElementById(id);
+  const canvas = $("tubeCanvas");
+  const ctx = canvas.getContext("2d");
+  const ivCanvas = $("ivChart");
+  const ivCtx = ivCanvas.getContext("2d");
+  const fitCanvas = $("fitChart");
+  const fitCtx = fitCanvas.getContext("2d");
+
+  const ui = {
+    metal: $("metalSelect"), metalOut: $("metalOut"),
+    lambda: $("lambdaRange"), lambdaOut: $("lambdaOut"), line: $("lineSelect"),
+    intensity: $("intensityRange"), intensityOut: $("intensityOut"),
+    voltage: $("voltageRange"), voltageOut: $("voltageOut"),
+    sweep: $("sweepBtn"), record: $("recordBtn"), clear: $("clearBtn"),
+    toggle: $("toggleBtn"), reset: $("resetBtn"), status: $("statusLine"),
+    lambdaDisplay: $("lambdaDisplay"), freqDisplay: $("freqDisplay"), photonDisplay: $("photonDisplay"),
+    phiDisplay: $("phiDisplay"), kmaxDisplay: $("kmaxDisplay"), lambda0Display: $("lambda0Display"),
+    currentDisplay: $("currentDisplay"), v0TheoryDisplay: $("v0TheoryDisplay"),
+    v0MeasuredDisplay: $("v0MeasuredDisplay"), v0DiffDisplay: $("v0DiffDisplay"),
+    budgetPhi: $("budgetPhi"), budgetK: $("budgetK"), budgetMark: $("budgetMark"), budgetNote: $("budgetNote"),
+    hLabel: $("hLabel"), hMeasured: $("hMeasuredDisplay"), hErr: $("hErrDisplay"), hDiff: $("hDiffDisplay"),
+    phiFitLabel: $("phiFitLabel"), phiFit: $("phiFitDisplay"), phiRef: $("phiRefDisplay"),
+    f0FitLabel: $("f0FitLabel"), f0Fit: $("f0FitDisplay"), f0Ref: $("f0RefDisplay"),
+    fitList: $("fitList"),
+  };
+
+  const DT = 1 / 240;
+  const SWEEP_RATE = 2.5;     // V/s
+  const TIME_SCALE = 1e-8;    // gerçek saniye / ekran saniyesi
+  const GAP_M = 0.01;         // m
+  const VEL_SCALE = (Math.sqrt((2 * E_CHARGE) / M_E) * TIME_SCALE) / GAP_M;          // (d/s) / √eV
+  const ACC_SCALE = ((E_CHARGE / M_E) * TIME_SCALE * TIME_SCALE) / (GAP_M * GAP_M);  // (d/s²) / V
+  const PHOTON_RATE = 30;     // foton/s (100 %, 400 nm)
+  const PHOTON_TRAVEL = 0.45; // s
+  const SPOT_HALF = 0.04;     // d
+  const ENV = { x0: -0.28, x1: 1.31, y: 0.78 };
+  const MAX_TRACES = 4;
+  const IV_PAD = { l: 50, r: 14, t: 22, b: 34 };
+
+  const state = {
+    metal: METALS[2],
+    lambda: 400,
+    intensity: 50,
+    V: 0,
+    running: true,
+    photons: [],
+    electrons: [],
+    flashes: [],
+    wirePhase: 0,
+    traces: [],
+    points: [],
+    fits: { per: [], common: null },
+    sweep: null,
+  };
+  let dpr = 1;
+  let lastFrame = 0;
+  let acc = 0;
+  let ivDirty = true;
+  let fitDirty = true;
+  let lastTheme = "";
+  let lastVoltageText = "";
+  let lastFitHtml = "";
+  let lastBudgetKey = "";
+
+  /* ── Biçim ── */
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  function sci(x, digits) {
+    if (!Number.isFinite(x) || x === 0) return "0";
+    let exp = Math.floor(Math.log10(Math.abs(x)));
+    if (Math.abs(Number((x / 10 ** exp).toFixed(digits))) >= 10) exp += 1;
+    const man = (x / 10 ** exp).toFixed(digits).replace("-", "−");
+    return `${man}×10${String(exp).split("").map((ch) => SUP[ch]).join("")}`;
+  }
+  function signed(v, d) {
+    const s = Math.abs(v).toFixed(d);
+    if (Number(s) === 0) return s;
+    return (v < 0 ? "−" : "+") + s;
+  }
+  const pct = (x) => `${signed(x, 2)} %`;
+  const f14Text = (f) => `${f.toFixed(3)}×10¹⁴ Hz`;
+  function fmtCurrent(I) {
+    if (!(I > 0)) return "0 nA";
+    const d = I >= 10 ? 1 : I >= 1 ? 2 : I >= 0.1 ? 3 : I >= 0.01 ? 4 : I >= 0.001 ? 5 : -1;
+    return d >= 0 ? `${I.toFixed(d)} nA` : `${sci(I, 2)} nA`;
+  }
+  function setText(el, text) {
+    if (el.textContent !== text) el.textContent = text;
+  }
+  const metalById = (id) => METALS.find((m) => m.id === id) || METALS[2];
+
+  /* ── Kontroller ── */
+  function readControls() {
+    state.metal = metalById(ui.metal.value);
+    state.lambda = Number(ui.lambda.value);
+    state.intensity = Number(ui.intensity.value);
+    ui.metalOut.textContent = `φ ≈ ${state.metal.phi.toFixed(2)} eV`;
+    ui.lambdaOut.textContent = `${state.lambda.toFixed(1)} nm`;
+    ui.intensityOut.textContent = `${state.intensity} %`;
+    syncVoltageUI();
+  }
+  function syncVoltageUI() {
+    const text = state.V.toFixed(2);
+    if (text === lastVoltageText) return;
+    lastVoltageText = text;
+    ui.voltage.value = text;
+    ui.voltageOut.textContent = `${signed(state.V, 2)} V`;
+  }
+  function setStatus(text) {
+    setText(ui.status, text);
+  }
+  const configKey = () => `${state.metal.id}|${state.lambda.toFixed(1)}|${state.intensity}`;
+  const findTrace = (key) => state.traces.find((tr) => tr.key === key) || null;
+  function ensureTrace() {
+    const key = configKey();
+    let tr = findTrace(key);
+    if (tr) {
+      state.traces.splice(state.traces.indexOf(tr), 1);
+    } else {
+      tr = { key, metalId: state.metal.id, lambda: state.lambda, intensity: state.intensity, I: new Float64Array(GRID_N).fill(NaN) };
+    }
+    state.traces.push(tr);
+    while (state.traces.length > MAX_TRACES) state.traces.shift();
+    return tr;
+  }
+  function sampleAt(k) {
+    const tr = ensureTrace();
+    const I = photoCurrent(gridV(k), state.lambda, state.metal.phi, state.intensity);
+    tr.I[k] = I;
+    ivDirty = true;
+    return I;
+  }
+  // Ölçülen V₀: akımın sıfır okunduğu en yüksek gerilim ile pozitif okunduğu en düşük gerilim arası.
+  function measurement() {
+    const tr = findTrace(configKey());
+    if (!tr) return null;
+    let zero = -Infinity, pos = Infinity, any = false;
+    for (let k = 0; k < GRID_N; k++) {
+      const I = tr.I[k];
+      if (Number.isNaN(I)) continue;
+      any = true;
+      const V = gridV(k);
+      if (I > 0) { if (V < pos) pos = V; } else if (V > zero) zero = V;
+    }
+    if (!any) return null;
+    if (pos === Infinity) return { kind: "none" };
+    if (zero === -Infinity) return { kind: "open", low: pos };
+    const u = (pos - zero) / 2;
+    return { kind: u <= 0.05 + 1e-9 ? "ok" : "coarse", v0: -(zero + pos) / 2, u, zero, pos };
+  }
+
+  function computeFits() {
+    const groups = new Map();
+    for (const p of state.points) {
+      if (!groups.has(p.metalId)) groups.set(p.metalId, []);
+      groups.get(p.metalId).push({ x: p.f, y: p.v0, s: Math.max(1e-6, p.u / Math.sqrt(3)) });
+    }
+    const per = [];
+    for (const metal of METALS) {
+      const pts = groups.get(metal.id);
+      if (pts) per.push({ metal, pts, fit: fitLine(pts) });
+    }
+    const common = per.length >= 2 ? fitCommonSlope(per.map((g) => g.pts)) : null;
+    state.fits = { per, common };
+    fitDirty = true;
+  }
+
+  function recordMeasurement(m) {
+    const f = frequency14(state.lambda);
+    const point = { metalId: state.metal.id, lambda: state.lambda, f, v0: m.v0, u: m.u };
+    const i = state.points.findIndex((p) => p.metalId === point.metalId && Math.abs(p.lambda - point.lambda) < 0.05);
+    if (i >= 0) state.points[i] = point;
+    else state.points.push(point);
+    if (state.points.length > 40) state.points.shift();
+    computeFits();
+    const n = state.points.filter((p) => p.metalId === point.metalId).length;
+    setStatus(`Kaydedildi: ${state.metal.id} · λ = ${state.lambda.toFixed(1)} nm · f = ${f14Text(f)} · V₀ = ${m.v0.toFixed(3)} V (${state.metal.id} için ${n} nokta).`);
+  }
+  function recordCurrent() {
+    const m = measurement();
+    const tr = findTrace(configKey());
+    if (m && m.kind === "ok") recordMeasurement(m);
+    else if (m && m.kind === "none" && !Number.isNaN(tr.I[GRID_N - 1])) {
+      setStatus("V = +5 V'ta bile akım yok (eşik altı ya da ışık kapalı): V₀ tanımsız, kayıt yapılmadı.");
+    } else startSweep(true);
+  }
+
+  /* ── Otomatik tarama ── */
+  function startSweep(record) {
+    if (state.intensity <= 0) {
+      setStatus("Işık şiddeti 0 %: katoda foton gelmiyor, ölçülecek akım yok.");
+      return;
+    }
+    state.sweep = { nextK: GRID_N - 1, foundK: null, stopV: V_MIN, record: Boolean(record), sawCurrent: false };
+    state.V = V_MAX;
+    syncVoltageUI();
+    ui.sweep.textContent = "Taramayı durdur";
+    setRunning(true);
+    setStatus(record ? "Taranıyor… V₀ bulununca nokta kaydedilecek." : "Taranıyor: V +5 V'tan aşağı iniyor…");
+  }
+  function cancelSweep(reason) {
+    if (!state.sweep) return;
+    state.sweep = null;
+    ui.sweep.textContent = "Otomatik tarama";
+    if (reason) setStatus(reason);
+  }
+  function sweepStep(dt) {
+    const sw = state.sweep;
+    state.V = Math.max(V_MIN, state.V - SWEEP_RATE * dt);
+    while (sw.nextK >= 0 && gridV(sw.nextK) >= state.V - 1e-9) {
+      const I = sampleAt(sw.nextK);
+      if (I > 0) sw.sawCurrent = true;
+      else if (sw.sawCurrent && sw.foundK === null) {
+        sw.foundK = sw.nextK;
+        sw.stopV = Math.max(V_MIN, gridV(sw.nextK) - 0.5);
+      }
+      sw.nextK--;
+    }
+    if (state.V <= sw.stopV + 1e-9 && (sw.foundK !== null || sw.nextK < 0)) finishSweep();
+  }
+  function finishSweep() {
+    const sw = state.sweep;
+    cancelSweep();
+    if (sw.foundK !== null) {
+      state.V = gridV(sw.foundK);
+      syncVoltageUI();
+      const m = measurement();
+      if (m && m.kind === "ok") {
+        if (sw.record) recordMeasurement(m);
+        else setStatus(`Tarama bitti: akım V = ${signed(state.V, 2)} V'ta sıfırlandı, V₀ = ${m.v0.toFixed(3)} ± ${m.u.toFixed(3)} V.`);
+      }
+    } else if (!sw.sawCurrent) {
+      state.V = 0;
+      syncVoltageUI();
+      setStatus("Hiçbir gerilimde akım yok: foton enerjisi iş fonksiyonundan küçük (eşik altı). Şiddeti artırmak bunu değiştirmez.");
+    } else {
+      setStatus("Akım −5 V'ta bile sürüyor: V₀ > 5 V, aralığın dışında. λ'yı büyüt ya da iş fonksiyonu büyük bir metal seç.");
+    }
+    ivDirty = true;
+  }
+
+  /* ── Fotonlar ve elektronlar ── */
+  function photonRate() {
+    return PHOTON_RATE * (state.intensity / 100) * (state.lambda / LAMBDA_REF);
+  }
+  function arrivePhoton(ph) {
+    const y = ph.o * SPOT_HALF;
+    const k = kMax(state.lambda, state.metal.phi);
+    if (k > 0 && Math.random() < quantumYield(k)) {
+      const K = k * Math.random();
+      const v = VEL_SCALE * Math.sqrt(K);
+      const oblique = Math.random() > NORMAL_SHARE;
+      const ang = oblique ? (Math.random() < 0.5 ? -OBLIQUE : OBLIQUE) : 0;
+      // κ eğik elektronların levha ortasından çıktığını varsayar
+      state.electrons.push({ x: 0, y: oblique ? 0 : y, vx: v * Math.cos(ang), vy: v * Math.sin(ang), age: 0, lost: false });
+      if (state.electrons.length > 320) state.electrons.shift();
+    } else {
+      addFlash(0, y, "photon");
+    }
+  }
+  function addFlash(x, y, kind) {
+    state.flashes.push({ x, y, kind, age: 0 });
+    if (state.flashes.length > 140) state.flashes.shift();
+  }
+  function stepParticles(dt) {
+    if (Math.random() < photonRate() * dt) state.photons.push({ s: 0, o: Math.random() * 2 - 1, phase: Math.random() * 6.28 });
+    for (let i = state.photons.length - 1; i >= 0; i--) {
+      const ph = state.photons[i];
+      ph.s += dt / PHOTON_TRAVEL;
+      if (ph.s >= 1) {
+        state.photons.splice(i, 1);
+        arrivePhoton(ph);
+      }
+    }
+    const aField = ACC_SCALE * state.V;
+    for (let i = state.electrons.length - 1; i >= 0; i--) {
+      const el = state.electrons[i];
+      const a = el.x >= 0 && el.x <= 1 ? aField : 0;
+      const px = el.x, py = el.y;
+      el.x += el.vx * dt + 0.5 * a * dt * dt;
+      el.vx += a * dt;
+      el.y += el.vy * dt;
+      el.age += dt;
+      if (!el.lost && el.x >= 1) {
+        const yc = py + ((el.y - py) * (1 - px)) / (el.x - px);
+        if (Math.abs(yc) <= PLATE_HALF) {
+          state.electrons.splice(i, 1);
+          addFlash(1, yc, "anode");
+          continue;
+        }
+        el.lost = true;
+      } else if (!el.lost && el.x <= 0 && el.vx < 0) {
+        if (Math.abs(el.y) <= PLATE_HALF) {
+          state.electrons.splice(i, 1);
+          addFlash(0, el.y, "cathode");
+          continue;
+        }
+        el.lost = true;
+      }
+      if (el.x < ENV.x0 || el.x > ENV.x1 || Math.abs(el.y) > ENV.y) {
+        state.electrons.splice(i, 1);
+        addFlash(Math.max(ENV.x0, Math.min(ENV.x1, el.x)), Math.max(-ENV.y, Math.min(ENV.y, el.y)), "glass");
+      } else if (el.age > 60) {
+        state.electrons.splice(i, 1);
+      }
+    }
+    for (let i = state.flashes.length - 1; i >= 0; i--) {
+      state.flashes[i].age += dt;
+      if (state.flashes[i].age > 0.3) state.flashes.splice(i, 1);
+    }
+  }
+  function step(dt) {
+    if (state.sweep) sweepStep(dt);
+    stepParticles(dt);
+    const I = photoCurrent(state.V, state.lambda, state.metal.phi, state.intensity);
+    const range = ammeterRange(saturationCurrent(state.lambda, state.metal.phi, state.intensity));
+    state.wirePhase += dt * (I > 0 ? 12 + 48 * Math.min(1, I / range) : 0);
+  }
+
+  /* ── Okumalar ── */
+  function updateReadouts() {
+    const lam = state.lambda, phi = state.metal.phi;
+    const E = photonEnergy(lam), k = kMax(lam, phi);
+    setText(ui.lambdaDisplay, `${lam.toFixed(1)} nm`);
+    setText(ui.freqDisplay, f14Text(frequency14(lam)));
+    setText(ui.photonDisplay, `${E.toFixed(3)} eV`);
+    setText(ui.phiDisplay, `≈ ${phi.toFixed(2)} eV`);
+    setText(ui.kmaxDisplay, k > 0 ? `${k.toFixed(3)} eV` : "0 (eşik altı)");
+    setText(ui.lambda0Display, `${(HC_EV_NM / phi).toFixed(1)} nm`);
+    setText(ui.currentDisplay, fmtCurrent(photoCurrent(state.V, lam, phi, state.intensity)));
+    setText(ui.v0TheoryDisplay, k > 0 ? `${k.toFixed(3)} V` : "tanımsız (eşik altı)");
+
+    const m = measurement();
+    let measured = "—", diff = "—";
+    if (m && m.kind === "ok") {
+      measured = `${m.v0.toFixed(3)} ± ${m.u.toFixed(3)} V`;
+      if (k > 0) diff = pct(((m.v0 - k) / k) * 100);
+    } else if (m && m.kind === "coarse") {
+      measured = `${(-m.pos).toFixed(2)} … ${(-m.zero).toFixed(2)} V`;
+      diff = "daha ince tara";
+    } else if (m && m.kind === "open") {
+      measured = m.low < 0 ? `> ${(-m.low).toFixed(2)} V` : "V'yi azalt";
+    } else if (m && m.kind === "none") {
+      measured = "akım yok";
+    }
+    setText(ui.v0MeasuredDisplay, measured);
+    setText(ui.v0DiffDisplay, diff);
+
+    const budgetKey = `${lam}|${phi}`;
+    if (budgetKey === lastBudgetKey) return;
+    lastBudgetKey = budgetKey;
+    const scale = 10.5;
+    const w = (e) => `${(Math.min(e, scale) / scale) * 100}%`;
+    if (k > 0) {
+      ui.budgetPhi.className = "seg-phi";
+      ui.budgetPhi.style.width = w(phi);
+      ui.budgetK.style.width = w(E - phi);
+      setText(ui.budgetNote, `E = ${E.toFixed(2)} eV = φ (${phi.toFixed(2)} eV, metalden kopma bedeli) + K_max (${k.toFixed(2)} eV, en hızlı elektronun kinetik enerjisi).`);
+    } else {
+      ui.budgetPhi.className = "seg-short";
+      ui.budgetPhi.style.width = w(E);
+      ui.budgetK.style.width = "0%";
+      setText(ui.budgetNote, `E = ${E.toFixed(2)} eV < φ = ${phi.toFixed(2)} eV: tek foton elektron koparamaz. Şiddet foton sayısını artırır, tek fotonun enerjisini değil.`);
+    }
+    ui.budgetMark.style.left = w(phi);
+  }
+
+  function renderFitPanel() {
+    const { per, common } = state.fits;
+    const sel = per.find((g) => g.metal.id === state.metal.id);
+    const id = state.metal.id;
+    setText(ui.hLabel, `Ölçülen h · ${id}`);
+    setText(ui.phiFitLabel, `φ kesişimden · ${id}`);
+    setText(ui.f0FitLabel, `Eşik f₀ uydurma · ${id}`);
+    const f0Theory = (state.metal.phi * E_CHARGE) / H_PLANCK / 1e14;
+    setText(ui.phiRef, `tablo ≈ ${state.metal.phi.toFixed(2)} eV`);
+    setText(ui.f0Ref, `kuram φ/h = ${f14Text(f0Theory)}`);
+    if (sel && sel.fit) {
+      const h = hFromSlope(sel.fit.slope);
+      setText(ui.hMeasured, `${sci(h, 3)} J·s`);
+      setText(ui.hErr, `belirsizlik ± ${((sel.fit.slopeErr / Math.abs(sel.fit.slope)) * 100).toFixed(2)} % · ${sel.pts.length} nokta`);
+      setText(ui.hDiff, pct(((h - H_PLANCK) / H_PLANCK) * 100));
+      setText(ui.phiFit, `${(-sel.fit.intercept).toFixed(3)} eV`);
+      setText(ui.f0Fit, f14Text(-sel.fit.intercept / sel.fit.slope));
+    } else {
+      const n = sel ? sel.pts.length : 0;
+      setText(ui.hMeasured, "—");
+      setText(ui.hErr, n === 1 ? `${id}: 1 nokta; ikinci bir λ kaydet` : `${id}: en az 2 nokta gerekli`);
+      setText(ui.hDiff, "—");
+      setText(ui.phiFit, "—");
+      setText(ui.f0Fit, "—");
+    }
+    const items = per.map((g) => {
+      const head = `<span class="swatch m-${g.metal.id}"></span><span><b>${g.metal.id}</b> · ${g.pts.length} nokta`;
+      if (!g.fit) return `<li>${head} · doğru için en az 2 farklı frekans gerekli</span></li>`;
+      const h = hFromSlope(g.fit.slope);
+      return `<li>${head} · h = ${sci(h, 3)} J·s (${pct(((h - H_PLANCK) / H_PLANCK) * 100)}) · φ = ${(-g.fit.intercept).toFixed(3)} eV · f₀ = ${f14Text(-g.fit.intercept / g.fit.slope)}</span></li>`;
+    });
+    if (common) {
+      const h = hFromSlope(common.slope);
+      const n = per.reduce((s, g) => s + g.pts.length, 0);
+      items.push(`<li><span class="swatch m-all"></span><span><b>Ortak eğim</b> (${per.length} metal, ${n} nokta, paralel doğrular) · h = ${sci(h, 3)} J·s (${pct(((h - H_PLANCK) / H_PLANCK) * 100)})</span></li>`);
+    }
+    if (!items.length) items.push("<li><span>Henüz kayıt yok. Bir dalga boyu seç ve Ölçümü kaydet'e bas.</span></li>");
+    const html = items.join("");
+    if (html !== lastFitHtml) {
+      lastFitHtml = html;
+      ui.fitList.innerHTML = html;
+    }
+  }
+
+  /* ── Çizim ── */
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [canvas, ivCanvas, fitCanvas]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      c.width = Math.round(rect.width * dpr);
+      c.height = Math.round(rect.height * dpr);
+    }
+    ivDirty = true;
+    fitDirty = true;
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+      axis: light ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.3)",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      danger: light ? "#dc2626" : "#f87171",
+      glass: light ? "rgba(40,70,120,0.45)" : "rgba(170,195,255,0.35)",
+      glassFill: light ? "rgba(120,150,200,0.07)" : "rgba(130,160,230,0.05)",
+      window: light ? "rgba(40,70,120,0.85)" : "rgba(200,220,255,0.75)",
+      metal: light ? "#7b8497" : "#a3adc2",
+      wire: light ? "#4b5568" : "#9aa5ba",
+      dial: light ? "#ffffff" : "#0c1322",
+      panelBg: light ? "rgba(247,249,252,0.88)" : "rgba(8,12,22,0.78)",
+    };
+  }
+  const METAL_COLORS = {
+    Cs: ["#f472b6", "#db2777"], K: ["#a78bfa", "#7c3aed"], Na: ["#fbbf24", "#b45309"],
+    Ca: ["#5eead4", "#0f766e"], Zn: ["#60a5fa", "#1d4ed8"], Pt: ["#f87171", "#b91c1c"],
+  };
+  const METAL_SHAPES = { Cs: "circle", K: "square", Na: "triangle", Ca: "diamond", Zn: "triangleDown", Pt: "cross" };
+  const metalColor = (id, t) => METAL_COLORS[id][t.light ? 1 : 0];
+
+  function waveColor(nm, light) {
+    if (nm < 380) return light ? "rgb(108, 92, 150)" : "rgb(178, 164, 214)";
+    let r = 0, g = 0, b = 0;
+    if (nm < 440) { r = (440 - nm) / 60; b = 1; }
+    else if (nm < 490) { g = (nm - 440) / 50; b = 1; }
+    else if (nm < 510) { g = 1; b = (510 - nm) / 20; }
+    else if (nm < 580) { r = (nm - 510) / 70; g = 1; }
+    else if (nm < 645) { r = 1; g = (645 - nm) / 65; }
+    else r = 1;
+    let f = 1;
+    if (nm < 420) f = 0.55 + (0.45 * (nm - 380)) / 40;
+    else if (nm > 680) f = 0.55 + (0.45 * (700 - nm)) / 20;
+    const k = light ? 0.72 : 1;
+    const ch = (c) => Math.round(255 * Math.pow(c * f, 0.8) * k);
+    return `rgb(${ch(r)}, ${ch(g)}, ${ch(b)})`;
+  }
+  function uvLabel(nm) {
+    if (nm < 200) return "vakum morötesi (görünmez)";
+    if (nm < 380) return "morötesi (görünmez)";
+    return "";
+  }
+
+  function stageGeom() {
+    const W = canvas.width, H = canvas.height;
+    const gap = 0.32 * W, xc = 0.13 * W, cy = 0.435 * H;
+    return {
+      W, H, gap, xc, cy, xa: xc + gap, half: PLATE_HALF * gap,
+      pt: Math.max(4 * dpr, 0.014 * W),
+      env: { x0: xc + ENV.x0 * gap, x1: xc + ENV.x1 * gap, y0: cy - ENV.y * gap, y1: cy + ENV.y * gap },
+      xm: 0.79 * W, R: 0.105 * W, yb: 0.93 * H, yBat: 0.765 * H,
+      p0: { x: 0.37 * W, y: -0.02 * H }, p1: { x: xc + 1, y: cy },
+    };
+  }
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+  function ammeterRange(Imax) {
+    if (!(Imax > 0)) return 1;
+    const ranges = [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100];
+    for (const r of ranges) if (Imax <= r) return r;
+    return 100;
+  }
+  const font = (px, weight) => `${weight || ""} ${px * dpr}px Outfit, system-ui, sans-serif`.trim();
+
+  function drawStage() {
+    const t = theme();
+    const g = stageGeom();
+    const c = ctx;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, g.W, g.H);
+    const lam = state.lambda, phi = state.metal.phi, k = kMax(lam, phi);
+    const I = photoCurrent(state.V, lam, phi, state.intensity);
+    const range = ammeterRange(saturationCurrent(lam, phi, state.intensity));
+    const ym = g.cy;
+
+    // Kablolar: anot → ampermetre → kaynak → katot (dış devrede elektron akış yönü)
+    const xw = g.xc - g.pt / 2;
+    const segs = [
+      [[g.xa + g.pt, ym], [g.xm - g.R, ym]],
+      [[g.xm, ym + g.R], [g.xm, g.yBat - 5 * dpr]],
+      [[g.xm, g.yBat + 5 * dpr], [g.xm, g.yb], [xw, g.yb], [xw, g.cy + g.half]],
+    ];
+    const strokeSegs = () => {
+      for (const s of segs) {
+        c.beginPath();
+        c.moveTo(s[0][0], s[0][1]);
+        for (let i = 1; i < s.length; i++) c.lineTo(s[i][0], s[i][1]);
+        c.stroke();
+      }
+    };
+    c.lineJoin = "round";
+    c.strokeStyle = t.wire;
+    c.lineWidth = 2 * dpr;
+    strokeSegs();
+    if (I > 0) {
+      c.save();
+      c.setLineDash([3 * dpr, 9 * dpr]);
+      c.lineDashOffset = -state.wirePhase * dpr;
+      c.strokeStyle = t.accent;
+      c.lineWidth = 2.4 * dpr;
+      strokeSegs();
+      c.restore();
+    }
+
+    // Cam tüp ve pencere
+    roundRect(c, g.env.x0, g.env.y0, g.env.x1 - g.env.x0, g.env.y1 - g.env.y0, 0.12 * g.gap);
+    c.fillStyle = t.glassFill;
+    c.fill();
+    c.strokeStyle = t.glass;
+    c.lineWidth = 1.6 * dpr;
+    c.stroke();
+    const tWin = (g.env.y0 - g.p0.y) / (g.p1.y - g.p0.y);
+    const xWin = g.p0.x + (g.p1.x - g.p0.x) * tWin;
+    c.strokeStyle = t.window;
+    c.lineWidth = 3.2 * dpr;
+    c.beginPath();
+    c.moveTo(xWin - 0.07 * g.gap, g.env.y0);
+    c.lineTo(xWin + 0.07 * g.gap, g.env.y0);
+    c.stroke();
+
+    // Işık demeti
+    const dx = g.p1.x - g.p0.x, dy = g.p1.y - g.p0.y, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+    const wIn = 0.06 * g.gap, wOut = SPOT_HALF * g.gap;
+    const wave = waveColor(lam, t.light);
+    if (state.intensity > 0) {
+      c.beginPath();
+      c.moveTo(g.p0.x + nx * wIn, g.p0.y + ny * wIn);
+      c.lineTo(g.p1.x + nx * wOut, g.p1.y + ny * wOut);
+      c.lineTo(g.p1.x - nx * wOut, g.p1.y - ny * wOut);
+      c.lineTo(g.p0.x - nx * wIn, g.p0.y - ny * wIn);
+      c.closePath();
+      c.globalAlpha = 0.07 + 0.13 * (state.intensity / 100);
+      c.fillStyle = wave;
+      c.fill();
+      c.globalAlpha = 1;
+      if (lam < 380) {
+        c.save();
+        c.setLineDash([4 * dpr, 4 * dpr]);
+        c.strokeStyle = wave;
+        c.lineWidth = 1 * dpr;
+        c.stroke();
+        c.restore();
+      }
+    }
+    // Fotonlar: dalga paketleri (dalga boyu ile ölçekli kıvrım)
+    const lw = (4 + lam / 50) * dpr, amp = 2.4 * dpr, pkt = 2.4 * lw;
+    c.strokeStyle = wave;
+    c.lineWidth = 1.7 * dpr;
+    c.beginPath();
+    for (const ph of state.photons) {
+      const w = wIn + (wOut - wIn) * ph.s;
+      const cx = g.p0.x + dx * ph.s + nx * ph.o * w, cyy = g.p0.y + dy * ph.s + ny * ph.o * w;
+      for (let j = 0; j <= 20; j++) {
+        const along = (j / 20 - 0.5) * pkt;
+        const a = amp * Math.sin((2 * Math.PI * along) / lw + ph.phase) * Math.sin((Math.PI * j) / 20);
+        const x = cx + ux * along + nx * a, y = cyy + uy * along + ny * a;
+        if (j === 0) c.moveTo(x, y);
+        else c.lineTo(x, y);
+      }
+    }
+    c.stroke();
+
+    // Levhalar
+    c.fillStyle = t.metal;
+    c.fillRect(g.xc - g.pt, g.cy - g.half, g.pt, 2 * g.half);
+    c.fillRect(g.xa, g.cy - g.half, g.pt, 2 * g.half);
+    c.fillStyle = metalColor(state.metal.id, t);
+    c.fillRect(g.xc - 2 * dpr, g.cy - g.half, 2 * dpr, 2 * g.half);
+
+    // Parlamalar
+    for (const f of state.flashes) {
+      const x = g.xc + f.x * g.gap, y = g.cy + f.y * g.gap;
+      const life = 1 - f.age / 0.3;
+      c.globalAlpha = Math.max(0, life) * 0.8;
+      c.strokeStyle = f.kind === "anode" ? t.accent : f.kind === "cathode" ? t.warm : f.kind === "photon" ? wave : t.muted;
+      c.lineWidth = 1.4 * dpr;
+      c.beginPath();
+      c.arc(x, y, (2 + 6 * (1 - life)) * dpr, 0, Math.PI * 2);
+      c.stroke();
+    }
+    c.globalAlpha = 1;
+
+    // Elektronlar: ileri giden turkuaz, geri dönen turuncu, ıskalayan gri
+    const r = 2.6 * dpr;
+    for (const [color, test] of [[t.accent, (e) => !e.lost && e.vx >= 0], [t.warm, (e) => !e.lost && e.vx < 0], [t.muted, (e) => e.lost]]) {
+      c.fillStyle = color;
+      c.beginPath();
+      for (const e of state.electrons) {
+        if (!test(e)) continue;
+        const x = g.xc + e.x * g.gap, y = g.cy + e.y * g.gap;
+        c.moveTo(x + r, y);
+        c.arc(x, y, r, 0, Math.PI * 2);
+      }
+      c.fill();
+    }
+
+    // Etiketler
+    c.textBaseline = "alphabetic";
+    c.font = font(11, 600);
+    c.fillStyle = t.ink;
+    c.textAlign = "left";
+    c.fillText(`λ = ${lam.toFixed(1)} nm`, g.p0.x + 10 * dpr, 13 * dpr);
+    const uv = uvLabel(lam);
+    if (uv) {
+      c.font = font(10, 600);
+      c.fillStyle = wave;
+      c.fillText(uv, g.p0.x + 10 * dpr, g.env.y0 + 13 * dpr);
+    }
+    c.font = font(10);
+    c.fillStyle = t.muted;
+    c.fillText("vakum", g.env.x0 + 8 * dpr, g.env.y0 + 14 * dpr);
+    c.font = font(11, 600);
+    c.fillStyle = t.ink;
+    c.fillText(`Katot · ${state.metal.id}`, g.xc + 4 * dpr, g.cy + g.half + 15 * dpr);
+    c.textAlign = "center";
+    c.fillText("Anot", g.xa + g.pt / 2, g.cy + g.half + 15 * dpr);
+    if (Math.abs(state.V) >= 0.005) {
+      c.font = font(13, 700);
+      const anodePlus = state.V > 0;
+      c.fillStyle = anodePlus ? t.danger : t.accent2;
+      c.fillText(anodePlus ? "+" : "−", g.xa + g.pt / 2, g.cy - g.half - 5 * dpr);
+      c.fillStyle = anodePlus ? t.accent2 : t.danger;
+      c.fillText(anodePlus ? "−" : "+", g.xc - g.pt / 2, g.cy - g.half - 5 * dpr);
+    }
+    if (state.intensity <= 0) {
+      c.font = font(11, 600);
+      c.fillStyle = t.muted;
+      c.fillText("ışık kapalı", g.xc + g.gap / 2, g.cy + 0.3 * g.gap);
+    } else if (k <= 0) {
+      c.font = font(11, 700);
+      c.fillStyle = t.danger;
+      c.fillText("eşik altı", g.xc + g.gap / 2, g.cy + 0.24 * g.gap);
+      c.fillText("E < φ: elektron yok", g.xc + g.gap / 2, g.cy + 0.24 * g.gap + 14 * dpr);
+    }
+    c.textAlign = "right";
+    c.font = font(10);
+    c.fillStyle = t.muted;
+    c.fillText("ağır çekim", g.W - 8 * dpr, 0.06 * g.H + 4 * dpr);
+    c.fillText("1 s = 10 ns · d = 1 cm", g.W - 8 * dpr, 0.06 * g.H + 17 * dpr);
+
+    // Ampermetre
+    c.fillStyle = t.dial;
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1.6 * dpr;
+    c.beginPath();
+    c.arc(g.xm, ym, g.R, 0, Math.PI * 2);
+    c.fill();
+    c.stroke();
+    const a0 = (200 * Math.PI) / 180, a1 = (340 * Math.PI) / 180;
+    const pivotY = ym + 0.12 * g.R;
+    c.strokeStyle = t.muted;
+    c.lineWidth = 1 * dpr;
+    c.beginPath();
+    c.arc(g.xm, pivotY, 0.78 * g.R, a0, a1);
+    c.stroke();
+    for (let i = 0; i <= 4; i++) {
+      const a = a0 + ((a1 - a0) * i) / 4;
+      c.beginPath();
+      c.moveTo(g.xm + Math.cos(a) * 0.7 * g.R, pivotY + Math.sin(a) * 0.7 * g.R);
+      c.lineTo(g.xm + Math.cos(a) * 0.78 * g.R, pivotY + Math.sin(a) * 0.78 * g.R);
+      c.stroke();
+    }
+    const frac = Math.min(1, I / range);
+    const an = a0 + (a1 - a0) * frac;
+    c.strokeStyle = t.danger;
+    c.lineWidth = 2 * dpr;
+    c.beginPath();
+    c.moveTo(g.xm, pivotY);
+    c.lineTo(g.xm + Math.cos(an) * 0.74 * g.R, pivotY + Math.sin(an) * 0.74 * g.R);
+    c.stroke();
+    c.fillStyle = t.ink;
+    c.beginPath();
+    c.arc(g.xm, pivotY, 2.6 * dpr, 0, Math.PI * 2);
+    c.fill();
+    c.textAlign = "center";
+    const fitFont = (text, px, weight, maxW) => {
+      c.font = font(px, weight);
+      const w = c.measureText(text).width;
+      if (w > maxW) c.font = font((px * maxW) / w, weight);
+    };
+    const reading = fmtCurrent(I);
+    fitFont(reading, 12, 700, 1.5 * g.R);
+    c.fillText(reading, g.xm, ym + 0.52 * g.R);
+    c.fillStyle = t.muted;
+    fitFont(`0–${range} nA`, 9, "", 1.05 * g.R);
+    c.fillText(`0–${range} nA`, g.xm, ym + 0.8 * g.R);
+    c.font = font(10, 600);
+    c.fillText("ampermetre", g.xm, ym - g.R - 6 * dpr);
+
+    // Ayarlı gerilim kaynağı (uzun çizgi + kutup)
+    const plusTop = state.V >= 0;
+    const yTop = g.yBat - 5 * dpr, yBot = g.yBat + 5 * dpr;
+    c.strokeStyle = t.ink;
+    c.lineWidth = 2 * dpr;
+    c.beginPath();
+    c.moveTo(g.xm - 12 * dpr, plusTop ? yTop : yBot);
+    c.lineTo(g.xm + 12 * dpr, plusTop ? yTop : yBot);
+    c.stroke();
+    c.lineWidth = 4.5 * dpr;
+    c.beginPath();
+    c.moveTo(g.xm - 6.5 * dpr, plusTop ? yBot : yTop);
+    c.lineTo(g.xm + 6.5 * dpr, plusTop ? yBot : yTop);
+    c.stroke();
+    c.lineWidth = 1.3 * dpr;
+    c.beginPath();
+    c.moveTo(g.xm - 13 * dpr, g.yBat + 12 * dpr);
+    c.lineTo(g.xm + 13 * dpr, g.yBat - 12 * dpr);
+    c.lineTo(g.xm + 8 * dpr, g.yBat - 11 * dpr);
+    c.moveTo(g.xm + 13 * dpr, g.yBat - 12 * dpr);
+    c.lineTo(g.xm + 12 * dpr, g.yBat - 7 * dpr);
+    c.stroke();
+    c.textAlign = "right";
+    c.font = font(11, 700);
+    c.fillStyle = t.ink;
+    c.fillText(`V = ${signed(state.V, 2)} V`, g.xm - 18 * dpr, g.yBat - 1 * dpr);
+    c.font = font(10);
+    c.fillStyle = state.V < -0.004 ? t.warm : state.V > 0.004 ? t.accent : t.muted;
+    c.fillText(state.V < -0.004 ? "geciktirici" : state.V > 0.004 ? "hızlandırıcı" : "alan yok", g.xm - 18 * dpr, g.yBat + 12 * dpr);
+  }
+
+  function niceTop(x) {
+    if (!(x > 0)) return 1;
+    const e = Math.floor(Math.log10(x)), b = 10 ** e;
+    for (const m of [1, 2, 2.5, 5, 10]) if (m * b >= x * 0.9999) return m * b;
+    return 10 * b;
+  }
+  function tickDecimals(step) {
+    let d = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+    if (Math.abs(step * 10 ** d - Math.round(step * 10 ** d)) > 1e-6) d += 1;
+    return d;
+  }
+
+  function drawIV() {
+    const c = ivCtx, W = ivCanvas.width, H = ivCanvas.height, t = theme();
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, W, H);
+    const padL = IV_PAD.l * dpr, padR = IV_PAD.r * dpr, padT = IV_PAD.t * dpr, padB = IV_PAD.b * dpr;
+    const pw = W - padL - padR, ph = H - padT - padB;
+    const lam = state.lambda, phi = state.metal.phi, k = kMax(lam, phi);
+    let maxI = saturationCurrent(lam, phi, state.intensity);
+    for (const tr of state.traces) for (let i = 0; i < GRID_N; i++) if (tr.I[i] > maxI) maxI = tr.I[i];
+    const top = niceTop(maxI * 1.06);
+    const xOf = (V) => padL + ((V - V_MIN) / (V_MAX - V_MIN)) * pw;
+    const yOf = (I) => padT + ph - (I / top) * ph;
+    const narrow = W / dpr < 420;
+
+    c.font = font(11);
+    c.lineWidth = 1 * dpr;
+    c.textBaseline = "alphabetic";
+    c.strokeStyle = t.grid;
+    c.fillStyle = t.muted;
+    c.textAlign = "center";
+    for (let V = V_MIN; V <= V_MAX; V++) {
+      const x = xOf(V);
+      c.beginPath();
+      c.moveTo(x, padT);
+      c.lineTo(x, padT + ph);
+      c.stroke();
+      if (!narrow || V % 2 === 0) c.fillText(signed(V, 0), x, padT + ph + 15 * dpr);
+    }
+    const stepI = top / 5, dec = tickDecimals(stepI);
+    c.textAlign = "right";
+    for (let i = 0; i <= 5; i++) {
+      const y = yOf(i * stepI);
+      c.beginPath();
+      c.moveTo(padL, y);
+      c.lineTo(padL + pw, y);
+      c.stroke();
+      c.fillText((i * stepI).toFixed(dec), padL - 6 * dpr, y + 4 * dpr);
+    }
+    c.strokeStyle = t.axis;
+    c.beginPath();
+    c.moveTo(xOf(0), padT);
+    c.lineTo(xOf(0), padT + ph);
+    c.moveTo(padL, yOf(0));
+    c.lineTo(padL + pw, yOf(0));
+    c.stroke();
+    c.textAlign = "left";
+    c.fillText("I (nA)", 6 * dpr, 14 * dpr);
+    c.textAlign = "right";
+    c.fillText("V (V) · sola: geciktirici, sağa: hızlandırıcı", padL + pw, H - 5 * dpr);
+
+    // Kuramsal −V₀
+    if (k > 0 && k <= 5) {
+      const x = xOf(-k);
+      c.save();
+      c.setLineDash([5 * dpr, 4 * dpr]);
+      c.strokeStyle = t.accent2;
+      c.lineWidth = 1.4 * dpr;
+      c.beginPath();
+      c.moveTo(x, padT);
+      c.lineTo(x, padT + ph);
+      c.stroke();
+      c.restore();
+      c.fillStyle = t.accent2;
+      const roomLeft = x - padL > c.measureText("−V₀ kuram").width + 10 * dpr;
+      c.textAlign = roomLeft ? "right" : "left";
+      c.fillText("−V₀ kuram", x + (roomLeft ? -5 : 5) * dpr, padT + ph * 0.55);
+    }
+
+    // Eğriler (eskiden yeniye)
+    const key = configKey();
+    let sampled = 0;
+    for (const tr of state.traces) {
+      const current = tr.key === key;
+      c.globalAlpha = current ? 1 : 0.38;
+      c.strokeStyle = metalColor(tr.metalId, t);
+      c.fillStyle = c.strokeStyle;
+      c.lineWidth = (current ? 2.2 : 1.6) * dpr;
+      c.beginPath();
+      let n = 0;
+      for (let i = 0; i < GRID_N; i++) {
+        const I = tr.I[i];
+        if (Number.isNaN(I)) continue;
+        const x = xOf(gridV(i)), y = yOf(I);
+        if (n === 0) c.moveTo(x, y);
+        else c.lineTo(x, y);
+        n++;
+      }
+      c.stroke();
+      if (n < 80) {
+        for (let i = 0; i < GRID_N; i++) {
+          if (Number.isNaN(tr.I[i])) continue;
+          c.beginPath();
+          c.arc(xOf(gridV(i)), yOf(tr.I[i]), 2.4 * dpr, 0, Math.PI * 2);
+          c.fill();
+        }
+      }
+      sampled += n;
+    }
+    c.globalAlpha = 1;
+
+    // Ölçülen V₀
+    const m = measurement();
+    if (m && m.kind === "ok") {
+      const x = xOf(-m.v0), y = yOf(0);
+      c.fillStyle = t.warm;
+      c.beginPath();
+      c.moveTo(x, y - 2 * dpr);
+      c.lineTo(x - 6 * dpr, y + 9 * dpr);
+      c.lineTo(x + 6 * dpr, y + 9 * dpr);
+      c.closePath();
+      c.fill();
+      c.font = font(11, 700);
+      const label = `V₀ = ${m.v0.toFixed(3)} V`;
+      const roomLeft = x - padL > c.measureText(label).width + 12 * dpr;
+      c.textAlign = roomLeft ? "right" : "left";
+      c.fillText(label, x + (roomLeft ? -8 : 8) * dpr, roomLeft ? y - 8 * dpr : y - 0.45 * ph);
+    }
+
+    // Çalışma noktası
+    const Inow = photoCurrent(state.V, lam, phi, state.intensity);
+    const xNow = xOf(state.V);
+    c.save();
+    c.setLineDash([2 * dpr, 4 * dpr]);
+    c.strokeStyle = t.muted;
+    c.lineWidth = 1 * dpr;
+    c.beginPath();
+    c.moveTo(xNow, padT);
+    c.lineTo(xNow, padT + ph);
+    c.stroke();
+    c.restore();
+    c.fillStyle = t.ink;
+    c.beginPath();
+    c.arc(xNow, yOf(Inow), 4 * dpr, 0, Math.PI * 2);
+    c.fill();
+
+    // Açıklama kutusu
+    c.font = font(10);
+    const lines = state.traces.slice().reverse().map((tr) => ({
+      text: `${tr.metalId} · ${tr.lambda.toFixed(1)} nm · ${tr.intensity} %`,
+      color: metalColor(tr.metalId, t), current: tr.key === key,
+    }));
+    if (lines.length) {
+      const lh = 13 * dpr;
+      const bw = Math.max(...lines.map((l) => c.measureText(l.text).width)) + 26 * dpr;
+      c.fillStyle = t.panelBg;
+      c.fillRect(padL + 6 * dpr, padT + 4 * dpr, bw, lines.length * lh + 6 * dpr);
+      lines.forEach((l, i) => {
+        const y = padT + 4 * dpr + (i + 1) * lh;
+        c.globalAlpha = l.current ? 1 : 0.55;
+        c.strokeStyle = l.color;
+        c.lineWidth = 2 * dpr;
+        c.beginPath();
+        c.moveTo(padL + 11 * dpr, y - 4 * dpr);
+        c.lineTo(padL + 23 * dpr, y - 4 * dpr);
+        c.stroke();
+        c.fillStyle = t.ink;
+        c.textAlign = "left";
+        c.fillText(l.text, padL + 27 * dpr, y);
+      });
+      c.globalAlpha = 1;
+    }
+    const hint = !sampled ? "V'yi değiştir ya da Otomatik tarama'ya bas" : state.intensity > 0 && k <= 0 ? "eşik altı: her gerilimde ve her şiddette I = 0" : "";
+    if (hint) {
+      c.textAlign = "center";
+      c.font = font(11);
+      const hw = c.measureText(hint).width / 2 + 6 * dpr, hy = padT + ph * 0.8;
+      c.fillStyle = t.panelBg;
+      c.fillRect(padL + pw / 2 - hw, hy - 13 * dpr, 2 * hw, 18 * dpr);
+      c.fillStyle = t.muted;
+      c.fillText(hint, padL + pw / 2, hy);
+    }
+  }
+
+  function drawMarker(c, shape, x, y, s, filled) {
+    c.beginPath();
+    if (shape === "circle") c.arc(x, y, s, 0, Math.PI * 2);
+    else if (shape === "square") c.rect(x - s * 0.85, y - s * 0.85, s * 1.7, s * 1.7);
+    else if (shape === "triangle") { c.moveTo(x, y - s * 1.1); c.lineTo(x + s, y + s * 0.75); c.lineTo(x - s, y + s * 0.75); c.closePath(); }
+    else if (shape === "triangleDown") { c.moveTo(x, y + s * 1.1); c.lineTo(x + s, y - s * 0.75); c.lineTo(x - s, y - s * 0.75); c.closePath(); }
+    else if (shape === "diamond") { c.moveTo(x, y - s * 1.2); c.lineTo(x + s, y); c.lineTo(x, y + s * 1.2); c.lineTo(x - s, y); c.closePath(); }
+    else { c.moveTo(x - s, y - s); c.lineTo(x + s, y + s); c.moveTo(x + s, y - s); c.lineTo(x - s, y + s); }
+    if (shape === "cross") { c.lineWidth = 2.2 * dpr; c.stroke(); return; }
+    if (filled) c.fill();
+    else { c.lineWidth = 1.6 * dpr; c.stroke(); }
+  }
+
+  function drawFit() {
+    const c = fitCtx, W = fitCanvas.width, H = fitCanvas.height, t = theme();
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, W, H);
+    const padL = 44 * dpr, padR = 14 * dpr, padT = 22 * dpr, padB = 34 * dpr;
+    const pw = W - padL - padR, ph = H - padT - padB;
+    const F_MAX = 26, Y_MIN = -6, Y_MAX = 6;
+    const xOf = (f) => padL + (f / F_MAX) * pw;
+    const yOf = (v) => padT + ((Y_MAX - v) / (Y_MAX - Y_MIN)) * ph;
+    c.font = font(11);
+    c.lineWidth = 1 * dpr;
+    c.strokeStyle = t.grid;
+    c.fillStyle = t.muted;
+    c.textBaseline = "alphabetic";
+    c.textAlign = "center";
+    for (let f = 0; f <= 25; f += 5) {
+      const x = xOf(f);
+      c.beginPath();
+      c.moveTo(x, padT);
+      c.lineTo(x, padT + ph);
+      c.stroke();
+      c.fillText(String(f), x, padT + ph + 15 * dpr);
+    }
+    c.textAlign = "right";
+    for (let v = Y_MIN; v <= Y_MAX; v += 2) {
+      const y = yOf(v);
+      c.beginPath();
+      c.moveTo(padL, y);
+      c.lineTo(padL + pw, y);
+      c.stroke();
+      c.fillText(signed(v, 0), padL - 6 * dpr, y + 4 * dpr);
+    }
+    c.strokeStyle = t.axis;
+    c.beginPath();
+    c.moveTo(padL, yOf(0));
+    c.lineTo(padL + pw, yOf(0));
+    c.moveTo(xOf(0), padT);
+    c.lineTo(xOf(0), padT + ph);
+    c.stroke();
+    c.textAlign = "left";
+    c.fillText("V₀ (V)", 6 * dpr, 14 * dpr);
+    c.textAlign = "right";
+    c.fillText("f (10¹⁴ Hz)", padL + pw, H - 5 * dpr);
+
+    const fNow = frequency14(state.lambda);
+    c.save();
+    c.setLineDash([2 * dpr, 4 * dpr]);
+    c.strokeStyle = t.muted;
+    c.beginPath();
+    c.moveTo(xOf(fNow), padT);
+    c.lineTo(xOf(fNow), padT + ph);
+    c.stroke();
+    c.restore();
+    c.textAlign = fNow < 20 ? "left" : "right";
+    c.fillText(`şimdiki f`, xOf(fNow) + (fNow < 20 ? 4 : -4) * dpr, padT + 12 * dpr);
+
+    c.save();
+    c.beginPath();
+    c.rect(padL, padT, pw, ph);
+    c.clip();
+    for (const gr of state.fits.per) {
+      if (!gr.fit) continue;
+      const col = metalColor(gr.metal.id, t);
+      const { slope, intercept } = gr.fit;
+      const fs = gr.pts.map((p) => p.x);
+      const fa = Math.min(...fs), fb = Math.max(...fs);
+      const line = (f0, f1, dash) => {
+        c.setLineDash(dash ? [5 * dpr, 4 * dpr] : []);
+        c.beginPath();
+        c.moveTo(xOf(f0), yOf(slope * f0 + intercept));
+        c.lineTo(xOf(f1), yOf(slope * f1 + intercept));
+        c.stroke();
+      };
+      c.strokeStyle = col;
+      c.lineWidth = 1.4 * dpr;
+      line(0, fa, true);
+      line(fb, F_MAX, true);
+      c.lineWidth = 2 * dpr;
+      line(fa, fb, false);
+      c.setLineDash([]);
+      if (gr.metal.id === state.metal.id) {
+        c.fillStyle = col;
+        c.beginPath();
+        c.arc(xOf(0), yOf(intercept), 3.5 * dpr, 0, Math.PI * 2);
+        c.fill();
+        const f0 = -intercept / slope;
+        c.beginPath();
+        c.arc(xOf(f0), yOf(0), 3.5 * dpr, 0, Math.PI * 2);
+        c.fill();
+        c.font = font(10, 700);
+        c.textAlign = "left";
+        c.fillText("−φ/e", xOf(0) + 6 * dpr, yOf(intercept) + 4 * dpr);
+        c.fillText("f₀", xOf(f0) + 5 * dpr, yOf(0) + 13 * dpr);
+      }
+    }
+    c.restore();
+
+    for (const p of state.points) {
+      c.fillStyle = metalColor(p.metalId, t);
+      c.strokeStyle = c.fillStyle;
+      drawMarker(c, METAL_SHAPES[p.metalId], xOf(p.f), yOf(p.v0), 4 * dpr, true);
+    }
+    const m = measurement();
+    if (m && m.kind === "ok") {
+      const recorded = state.points.some((p) => p.metalId === state.metal.id && Math.abs(p.lambda - state.lambda) < 0.05 && Math.abs(p.v0 - m.v0) < 1e-9);
+      if (!recorded) {
+        c.strokeStyle = metalColor(state.metal.id, t);
+        drawMarker(c, METAL_SHAPES[state.metal.id], xOf(fNow), yOf(m.v0), 5.5 * dpr, false);
+      }
+    }
+    if (!state.points.length) {
+      c.textAlign = "center";
+      c.font = font(11);
+      c.fillStyle = t.muted;
+      c.fillText("Ölçümü kaydet ile nokta ekle", padL + pw * 0.55, yOf(3));
+    }
+  }
+
+  /* ── Döngü ── */
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (state.running && !paused) {
+      acc += elapsed;
+      while (acc >= DT) {
+        step(DT);
+        acc -= DT;
+      }
+      if (state.sweep || ivDirty) syncVoltageUI();
+    }
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) {
+      lastTheme = th;
+      ivDirty = true;
+      fitDirty = true;
+    }
+    updateReadouts();
+    drawStage();
+    if (ivDirty) {
+      ivDirty = false;
+      drawIV();
+      fitDirty = true;
+    }
+    if (fitDirty) {
+      fitDirty = false;
+      drawFit();
+      renderFitPanel();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  function setRunning(run) {
+    state.running = run;
+    ui.toggle.textContent = run ? "Duraklat" : "Devam et";
+    ui.toggle.setAttribute("aria-pressed", String(!run));
+  }
+  function onConfigChange() {
+    readControls();
+    if (state.sweep) cancelSweep("Ayar değişti; tarama durduruldu.");
+    else setStatus("Yeni ayar: V₀'ı ölçmek için Otomatik tarama'ya bas ya da V'yi akım sıfırlanana kadar azalt.");
+    ivDirty = true;
+    fitDirty = true;
+  }
+  function setVoltageManual(V) {
+    cancelSweep("Tarama durduruldu; V elle ayarlanıyor.");
+    state.V = Math.max(V_MIN, Math.min(V_MAX, Math.round(V * 100) / 100));
+    syncVoltageUI();
+    sampleAt(gridIndex(state.V));
+  }
+  function resetLab() {
+    cancelSweep();
+    state.traces = [];
+    state.photons = [];
+    state.electrons = [];
+    state.flashes = [];
+    state.V = 0;
+    syncVoltageUI();
+    setRunning(true);
+    ivDirty = true;
+    setStatus("Sıfırlandı: I–V eğrileri silindi, V = 0. Kayıtlı V₀–f noktaları duruyor.");
+  }
+
+  ui.metal.addEventListener("input", onConfigChange);
+  ui.intensity.addEventListener("input", onConfigChange);
+  ui.lambda.addEventListener("input", () => {
+    ui.line.value = ui.line.querySelector(`option[value="${Number(ui.lambda.value).toFixed(1)}"]`) ? Number(ui.lambda.value).toFixed(1) : "";
+    onConfigChange();
+  });
+  ui.line.addEventListener("input", () => {
+    if (!ui.line.value) return;
+    ui.lambda.value = ui.line.value;
+    onConfigChange();
+  });
+  ui.voltage.addEventListener("input", () => setVoltageManual(Number(ui.voltage.value)));
+  ui.sweep.addEventListener("click", () => {
+    if (state.sweep) cancelSweep("Tarama durduruldu.");
+    else startSweep(false);
+  });
+  ui.record.addEventListener("click", recordCurrent);
+  ui.clear.addEventListener("click", () => {
+    state.points = [];
+    computeFits();
+    setStatus("Kayıtlı noktalar silindi.");
+  });
+  ui.toggle.addEventListener("click", () => setRunning(!state.running));
+  ui.reset.addEventListener("click", resetLab);
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, select, textarea, button") || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.code === "Space") { e.preventDefault(); setRunning(!state.running); }
+    else if (e.key === "r" || e.key === "R") resetLab();
+    else if (e.key === "t" || e.key === "T") ui.sweep.click();
+    else if (e.key === "k" || e.key === "K") recordCurrent();
+  });
+
+  let scrubbing = false;
+  function voltageAt(evt) {
+    const rect = ivCanvas.getBoundingClientRect();
+    const x = (evt.clientX - rect.left) / rect.width * ivCanvas.width;
+    const pw = ivCanvas.width - (IV_PAD.l + IV_PAD.r) * dpr;
+    return V_MIN + ((x - IV_PAD.l * dpr) / pw) * (V_MAX - V_MIN);
+  }
+  ivCanvas.addEventListener("pointerdown", (evt) => {
+    scrubbing = true;
+    ivCanvas.setPointerCapture(evt.pointerId);
+    setVoltageManual(voltageAt(evt));
+  });
+  ivCanvas.addEventListener("pointermove", (evt) => {
+    if (scrubbing) setVoltageManual(voltageAt(evt));
+  });
+  const endScrub = () => { scrubbing = false; };
+  ivCanvas.addEventListener("pointerup", endScrub);
+  ivCanvas.addEventListener("pointercancel", endScrub);
+
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  [canvas, ivCanvas, fitCanvas].forEach((c) => ro.observe(c));
+  readControls();
+  computeFits();
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

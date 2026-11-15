@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="tr" class="app-root">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Makine Dili → Assembly → C</title>
+<meta name="description" content="Her program sonunda bir bayt dizisine iner. Küçük bir öğretim işlemcisine assembly yaz, aynı işlevi C ve x86-64 baytlarıyla satır satır eşleştir; yığını ve bayrakları kendin say.">
+<link rel="stylesheet" href="shared/theme.css">
+<script src="shared/app.js"></script>
+<style>
+body.app-page main.app-content{max-width:1000px}
+.ml-tabs{display:flex;gap:8px;margin:26px 0 20px;flex-wrap:wrap}
+.ml-tabs button{flex:1 1 150px;padding:14px 8px;font:inherit;font-size:.86rem}
+.ml-tabs [aria-selected=true]{border-color:var(--accent)!important;box-shadow:inset 0 -3px var(--accent)}
+.ml-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(290px,1fr);gap:20px;align-items:start}
+.ml-grid>div,.ml-grid>aside{min-width:0;display:grid;gap:14px}
+.ml-panel,.ml-plate{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0}
+.ml-panel h2,.ml-plate h2{font-size:1.02rem;margin:0}
+.ml-plate h3{font-size:.9rem;margin:0;color:var(--text)}
+.ml-field{display:grid;gap:6px;min-width:0}
+.ml-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}
+.ml-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ml-field input,.ml-field select,.ml-field textarea{width:100%;min-width:0;font:inherit;box-sizing:border-box}
+.ml-field select,.ml-field input[type=text]{padding:9px}
+.ml-mono,.ml-field textarea,.ml-field input.ml-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.ml-field textarea{font-size:.8rem;line-height:1.5;padding:10px;resize:vertical;white-space:pre;overflow:auto;tab-size:8;min-height:300px}
+.ml-check{display:flex;gap:9px;align-items:center;font-size:.85rem}
+.ml-check input{width:18px;height:18px}
+.ml-row{display:flex;gap:8px;flex-wrap:wrap}
+.ml-row button{padding:9px 12px;min-height:44px;font:inherit;font-size:.82rem}
+.ml-row button:disabled{opacity:.45;cursor:not-allowed}
+.ml-note{font-size:.84rem;line-height:1.75;margin:0}
+.ml-note code,.ml-status code,.ml-list code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+.ml-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:12px 14px;font-size:.86rem;line-height:1.7;margin:0;overflow-wrap:anywhere}
+.ml-status.is-bad{border-left-color:var(--danger)}
+.ml-errors{margin:0;padding:10px 12px 10px 28px;font-size:.82rem;line-height:1.6;color:var(--danger);border:1px solid var(--danger);border-radius:8px}
+.ml-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}
+.ml-stat{border:1px solid var(--border);background:var(--bg-input);border-radius:9px;padding:10px;min-width:0}
+.ml-stat small{display:block;color:var(--text-muted);font-size:.74rem;line-height:1.45}
+.ml-stat strong{display:block;font-size:1rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:4px;color:var(--text)}
+.ml-stat.is-hi strong{color:var(--accent-warm)}
+.ml-scroll{overflow:auto;border:1px solid var(--border);border-radius:9px;max-height:420px}
+body.app-page table.ml-listing,body.app-page table.ml-bits,body.app-page table.ml-table{width:100%;margin:0;border-radius:0;box-shadow:none;overflow:visible}
+body.app-page table.ml-listing{border-collapse:collapse;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.76rem;line-height:1.5}
+body.app-page table.ml-listing th{position:sticky;top:0;background:var(--bg-deep)!important;border:0!important;text-align:left;font-weight:600;padding:6px 8px;font-family:var(--font);font-size:.72rem;color:var(--text-muted)!important;white-space:nowrap}
+body.app-page table.ml-listing td{padding:2px 8px;white-space:pre;vertical-align:top;text-align:left;border:0!important;background:transparent!important}
+body.app-page table.ml-listing td:nth-child(1),body.app-page table.ml-listing td:nth-child(2){color:var(--text-muted)!important}
+body.app-page table.ml-listing td:nth-child(3){color:var(--accent-2)!important}
+body.app-page table.ml-listing td:nth-child(4){width:100%}
+body.app-page table.ml-listing tr.is-map td{background:rgba(251,191,36,.22)!important}
+body.app-page table.ml-listing tr.is-pc td{background:rgba(94,234,212,.2)!important}
+[data-theme=light] body.app-page table.ml-listing tr.is-pc td{background:rgba(13,148,136,.16)!important}
+body.app-page table.ml-listing tr.is-pc td:first-child{box-shadow:inset 3px 0 var(--accent)}
+body.app-page table.ml-listing tbody tr[data-g]{cursor:pointer}
+.ml-regs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.ml-reg{border:1px solid var(--border);border-radius:8px;padding:6px 4px;text-align:center;background:var(--bg-input);min-width:0}
+.ml-reg small{display:block;font-size:.7rem;color:var(--text-muted)}
+.ml-reg b{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92rem;color:var(--text)}
+.ml-reg i{display:block;font-style:normal;font-size:max(11px,.68rem);color:var(--text-muted);font-variant-numeric:tabular-nums}
+.ml-reg.is-new{border-color:var(--accent-warm);box-shadow:inset 0 0 0 1px var(--accent-warm)}
+.ml-flags{display:flex;gap:6px;flex-wrap:wrap}
+.ml-flag{border:1px solid var(--border);border-radius:999px;padding:5px 11px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.82rem;background:var(--bg-input);color:var(--text)}
+.ml-flag.is-on{border-color:var(--accent);color:var(--accent);font-weight:700}
+.ml-mem{display:grid;grid-template-columns:1.6em repeat(16,minmax(0,1fr));gap:1px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:max(11px,.64rem);line-height:1.7;text-align:center}
+.ml-mem span{border-radius:3px;color:var(--text-muted);min-width:0}
+.ml-mem .h{color:var(--text-muted);font-size:max(11px,.6rem);opacity:.85}
+.ml-mem .c{background:var(--bg-input)}
+.ml-mem .c.is-code{color:var(--text)}
+.ml-mem .c.is-data{color:var(--accent-2);font-weight:700}
+.ml-mem .c.is-stack{color:var(--accent-warm);font-weight:700}
+.ml-mem .c.is-chg{background:rgba(251,191,36,.22)}
+.ml-mem .c.is-new{background:var(--accent-warm);color:#111}
+.ml-mem .c.is-pc{outline:2px solid var(--accent);outline-offset:-2px}
+.ml-mem .c.is-sp{outline:2px dashed var(--accent-warm);outline-offset:-2px}
+.ml-legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:.76rem;color:var(--text-muted);line-height:1.5}
+.ml-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px;border:1px solid var(--border)}
+body.app-page canvas.ml-canvas{display:block;width:100%;height:auto;aspect-ratio:3;border:0;border-radius:9px}
+body.app-page canvas.ml-square{aspect-ratio:1;max-width:460px;margin:0 auto}
+.ml-caption{font-size:.77rem;line-height:1.6;color:var(--text-muted);margin:0}
+.ml-cols{display:grid;grid-template-columns:minmax(0,44fr) minmax(0,40fr) minmax(0,37fr);gap:12px}
+.code-box{border:1px solid var(--border);border-radius:9px;overflow:hidden;min-width:0;display:flex;flex-direction:column}
+.code-box .cb-title{padding:8px 10px;font-size:.8rem;font-weight:700;border-bottom:1px solid var(--border);color:var(--text);background:var(--bg-input)}
+.code-box .cb-body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.69rem;padding:10px;line-height:1.75;white-space:pre;overflow-x:auto;background:var(--bg-input);color:var(--text);flex:1}
+.code-box .cb-body .keyword{color:var(--accent-2)}
+.code-box .cb-body .comment{color:var(--text-muted)}
+.code-box .cb-body .number{color:var(--accent-warm)}
+.code-box .cb-body .reg{color:var(--accent)}
+.code-box .cb-body .instr{color:var(--accent-2);font-weight:600}
+.code-box .cb-note{font-size:.74rem;line-height:1.55;color:var(--text-muted);padding:8px 10px;border-top:1px solid var(--border)}
+.cb-body .ml-ln{cursor:pointer;border-radius:3px}
+.cb-body .ml-ln.is-map{background:rgba(251,191,36,.28);box-shadow:-4px 0 0 rgba(251,191,36,.28),4px 0 0 rgba(251,191,36,.28)}
+.ml-list{margin:0;padding-left:20px;font-size:.84rem;line-height:1.75}
+.ml-stack{display:grid;gap:4px;max-height:360px;overflow:auto}
+.ml-cell{display:grid;grid-template-columns:3.2em 3.2em minmax(0,1fr);gap:8px;align-items:baseline;border:1px solid var(--border);border-left:4px solid var(--text-muted);border-radius:6px;padding:5px 8px;font-size:.78rem;background:var(--bg-input)}
+.ml-cell b,.ml-cell i{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-style:normal}
+.ml-cell i{color:var(--text-muted)}
+.ml-cell span{overflow-wrap:anywhere;line-height:1.45}
+.ml-cell.is-ret{border-left-color:var(--accent-warm)}
+.ml-cell.is-saved{border-left-color:var(--accent)}
+.ml-cell.is-local{border-left-color:var(--accent-2)}
+body.app-page table.ml-bits{border-collapse:collapse;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86rem}
+body.app-page table.ml-bits th{font-family:var(--font);font-weight:600;font-size:.74rem;color:var(--text-muted)!important;background:transparent!important;border:0!important;text-align:left;padding:4px 6px 4px 0;white-space:nowrap}
+body.app-page table.ml-bits td{text-align:center;padding:3px 2px;min-width:1.7em;border:0!important;background:transparent!important}
+body.app-page table.ml-bits td:last-child{text-align:left;padding-left:8px;font-size:.74rem;color:var(--text-muted)!important;white-space:nowrap}
+body.app-page table.ml-bits thead td{font-size:max(11px,.68rem);color:var(--text-muted)!important}
+body.app-page table.ml-bits td.is-one{color:var(--accent)!important;font-weight:700}
+body.app-page table.ml-bits td.is-carry{color:var(--accent-warm)!important;font-weight:700}
+body.app-page table.ml-bits tr.is-res td,body.app-page table.ml-bits tr.is-res th{border-top:2px solid var(--border-hover)!important}
+body.app-page table.ml-bits button.ml-bit.app-btn-ghost{width:100%;min-width:1.7em;min-height:36px;padding:0;font:inherit;border-radius:6px;border:1px solid var(--border-hover)!important;background:var(--bg-input)!important;color:var(--text-muted)!important;cursor:pointer}
+body.app-page table.ml-bits button.ml-bit.app-btn-ghost[aria-pressed=true]{background:var(--accent)!important;color:var(--btn-text)!important;border-color:var(--accent)!important;font-weight:700}
+body.app-page table.ml-bits button.ml-bit:disabled{opacity:.4;cursor:not-allowed}
+body.app-page table.ml-table{border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums}
+body.app-page table.ml-table td,body.app-page table.ml-table th{padding:7px 8px;text-align:left;border:0!important;border-bottom:1px solid var(--border)!important;vertical-align:top;background:transparent!important}
+body.app-page table.ml-table th{font-size:.74rem;color:var(--text-muted)!important;font-weight:600}
+body.app-page table.ml-table caption{caption-side:top;text-align:left;font-size:.8rem;line-height:1.6;color:var(--text-muted);padding-bottom:6px}
+body.app-page table.ml-table td.is-yes{color:var(--accent)!important;font-weight:700}
+.ml-table code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.ml-wrap{overflow-x:auto}
+details.ml-doc summary{cursor:pointer;color:var(--accent);font-size:.88rem}
+details.ml-doc>div{display:grid;gap:10px;margin-top:10px}
+[hidden]{display:none!important}
+@media(pointer:coarse){body.app-page table.ml-bits button.ml-bit.app-btn-ghost{min-width:32px;min-height:40px}}
+@media(max-width:900px){.ml-cols{grid-template-columns:1fr}.code-box .cb-body{font-size:.74rem}}
+@media(max-width:760px){
+ .ml-grid{grid-template-columns:1fr}
+ .ml-panel,.ml-plate{padding:12px}
+ .ml-tabs button{font-size:.78rem;padding:12px 6px;flex-basis:40%}
+ body.app-page canvas.ml-canvas{aspect-ratio:1.9}
+ .ml-mem{font-size:11px}
+ body.app-page table.ml-listing{font-size:.7rem}
+ body.app-page table.ml-listing td{padding:2px 5px}
+}
+</style>
+</head>
+<body class="app-page" data-page="makine-dili-assembly-c">
+<main class="app-content">
+<h1>Makine Dili, Assembly ve C Laboratuvarı</h1>
+<p class="hint">Küçük bir öğretim işlemcisine assembly yaz, her satırın hangi iki bayta dönüştüğünü gör ve komutları tek tek yürüt. Sonra aynı işlevin C, x86-64 assembly ve makine kodu hâllerini satır satır eşleştir; yığının ve bayrakların ne zaman, neden değiştiğini say.</p>
+
+<div class="ml-tabs" role="tablist" aria-label="Makine dili deneyleri">
+<button type="button" class="app-btn-ghost" id="tab-cpu" role="tab" aria-controls="panel-cpu" aria-selected="true" tabindex="0">01 · Küçük işlemci</button>
+<button type="button" class="app-btn-ghost" id="tab-c" role="tab" aria-controls="panel-c" aria-selected="false" tabindex="-1">02 · C'den makine koduna</button>
+<button type="button" class="app-btn-ghost" id="tab-stack" role="tab" aria-controls="panel-stack" aria-selected="false" tabindex="-1">03 · Yığın ve çağrı</button>
+<button type="button" class="app-btn-ghost" id="tab-alu" role="tab" aria-controls="panel-alu" aria-selected="false" tabindex="-1">04 · Bayraklar ve taşma</button>
+</div>
+
+<!-- ============================ 01 ============================ -->
+<section id="panel-cpu" role="tabpanel" aria-labelledby="tab-cpu">
+<div class="ml-grid">
+<div>
+ <div class="ml-plate">
+  <h2>Program (assembly kaynağı)</h2>
+  <div class="ml-field">
+   <label for="cpuSrc">Kaynak metin: her tuşta yeniden baytlara çevrilir ve makine başa döner</label>
+   <textarea id="cpuSrc" spellcheck="false" autocapitalize="off" autocomplete="off" rows="16"></textarea>
+  </div>
+  <ul class="ml-errors" id="cpuErrors" role="status" aria-live="polite" hidden></ul>
+  <div class="ml-row">
+   <button type="button" id="cpuStep">Tek adım</button>
+   <button type="button" id="cpuRun">Çalıştır</button>
+   <button type="button" id="cpuFinish">Sonuna kadar</button>
+   <button type="button" class="app-btn-ghost" id="cpuRestart">Baştan başlat</button>
+   <button type="button" class="app-btn-ghost" id="cpuReset">Sekmeyi sıfırla</button>
+  </div>
+  <p class="ml-status" id="cpuStatus" role="status" aria-live="polite"></p>
+ </div>
+ <div class="ml-plate">
+  <h2>Çeviricinin (assembler) çıktısı: adres, baytlar, kaynak</h2>
+  <div class="ml-scroll" id="cpuListWrap" tabindex="0" role="region" aria-label="Baytlara çevrilmiş program listesi">
+   <table class="ml-listing"><thead><tr><th scope="col">Satır</th><th scope="col">Adres</th><th scope="col">Baytlar</th><th scope="col">Kaynak</th></tr></thead><tbody id="cpuListing"></tbody></table>
+  </div>
+  <p class="ml-caption">Turkuaz satır, PC'nin gösterdiği sıradaki komuttur. Her komut tam iki bayttır; etiketler bayt üretmez, yalnızca bir adrese ad verir.</p>
+ </div>
+ <div class="ml-plate">
+  <h2>Program sayacının izi</h2>
+  <canvas class="ml-canvas" id="cpuTrace" role="img" aria-label="Yürütülen her komutun adresi: yatay eksen komut sırası, düşey eksen PC"></canvas>
+  <p class="ml-caption">Her nokta yürütülen bir komutun adresidir. Düz çıkan çizgi sırayla çalışan komutlar, geri düşen her diş bir geri atlamadır: döngüler testere dişi gibi görünür.</p>
+ </div>
+</div>
+<aside>
+ <div class="ml-panel">
+  <h2>Hazır programlar</h2>
+  <div class="ml-field"><label for="cpuPreset">Program</label>
+   <select id="cpuPreset">
+    <option value="sum">1'den n'ye toplam</option>
+    <option value="max">Dizinin en büyüğü (işaretli)</option>
+    <option value="mul">Tekrarlı toplamayla çarpma</option>
+    <option value="fact">CALL ile faktöriyel (özyineli)</option>
+   </select></div>
+  <div class="ml-field" id="cpuSumField"><label for="cpuSumN">n <output id="cpuSumNOut"></output></label><input type="range" id="cpuSumN" min="0" max="40" step="1" value="10"></div>
+  <div class="ml-field" id="cpuArrField" hidden><label for="cpuArr">Dizi (−128 … 127, en çok 16 sayı)</label><input type="text" class="ml-mono" id="cpuArr" value="12, 45, -7, 88, 23, 61, 90" inputmode="text" autocomplete="off" spellcheck="false"></div>
+  <div class="ml-field" id="cpuMulAField" hidden><label for="cpuMulA">a (toplanan) <output id="cpuMulAOut"></output></label><input type="range" id="cpuMulA" min="0" max="255" step="1" value="7"></div>
+  <div class="ml-field" id="cpuMulBField" hidden><label for="cpuMulB">b (tekrar sayısı) <output id="cpuMulBOut"></output></label><input type="range" id="cpuMulB" min="0" max="50" step="1" value="6"></div>
+  <div class="ml-field" id="cpuFactField" hidden><label for="cpuFactN">n <output id="cpuFactNOut"></output></label><input type="range" id="cpuFactN" min="0" max="8" step="1" value="5"></div>
+  <div class="ml-field"><label for="cpuSpeed">Hız <output id="cpuSpeedOut"></output></label><input type="range" id="cpuSpeed" min="1" max="100" step="1" value="10"></div>
+  <p class="ml-note">Kısayollar (yazı kutusu dışında): <kbd>Boşluk</kbd> çalıştır/duraklat, <kbd>R</kbd> sekmeyi sıfırla.</p>
+ </div>
+ <div class="ml-panel">
+  <h2>Ölçüm ve kuram</h2>
+  <div class="ml-stats" aria-live="polite">
+   <div class="ml-stat is-hi"><small>Yürütülen komut (sayılan)</small><strong id="cpuSteps"></strong></div>
+   <div class="ml-stat"><small id="cpuTheoryLab">Kapalı biçim</small><strong id="cpuTheory"></strong></div>
+   <div class="ml-stat"><small>Fark (sayılan − kuram)</small><strong id="cpuDiff"></strong></div>
+   <div class="ml-stat is-hi"><small>Sonuç (bellekte, <code>sonuç</code>)</small><strong id="cpuResult"></strong></div>
+   <div class="ml-stat"><small>Beklenen sonuç</small><strong id="cpuExpect"></strong></div>
+   <div class="ml-stat"><small>Program boyutu</small><strong id="cpuSize"></strong></div>
+  </div>
+ </div>
+ <div class="ml-panel">
+  <h2>Yazmaçlar ve bayraklar</h2>
+  <div class="ml-regs" id="cpuRegs" aria-live="off"></div>
+  <div class="ml-flags" id="cpuFlags"></div>
+  <p class="ml-caption">Her yazmaç 8 bit: üstte onaltılık, altta işaretsiz ve işaretli okunuşu. R7 aynı zamanda yığın göstergesidir (SP). Turuncu çerçeve son komutun yazdığı yazmaçtır.</p>
+ </div>
+</aside>
+</div>
+<div class="ml-plate" style="margin-top:14px">
+ <h2>Bellek: 256 bayt (0x00–0xFF)</h2>
+ <div class="ml-mem" id="cpuMem" role="group" aria-label="Bellek hücreleri, onaltılık"></div>
+ <div class="ml-legend"><span><i style="outline:2px solid var(--accent);outline-offset:-2px"></i>PC'nin gösterdiği iki bayt</span><span><i style="background:var(--accent-warm)"></i>son komutun yazdığı hücre</span><span><i style="background:rgba(251,191,36,.3)"></i>yüklemeden sonra değişmiş</span><span><i style="outline:2px dashed var(--accent-warm);outline-offset:-2px"></i>SP'nin gösterdiği boş hücre</span><span><b style="color:var(--accent-2)">mor</b> veri, <b style="color:var(--accent-warm)">turuncu</b> yığın</span></div>
+</div>
+<details class="ml-doc ml-plate" style="margin-top:14px" id="cpuDoc">
+ <summary>Komut kümesi ve kodlama (öğretim amaçlı kurgu işlemci)</summary>
+ <div>
+  <p class="ml-note">Bu işlemci gerçek bir yonga değildir; fikirleri en az ayrıntıyla göstermek için tasarlanmış bir <strong>öğretim makinesidir</strong>: sekiz adet 8 bitlik yazmaç (R0–R7; R7 = SP), 256 baytlık tek bir bellek (program, veri ve yığın aynı yerde), dört bayrak (Z, C, N, V). Her komut <strong>iki bayttır</strong>: 1. bayt = işlem kodu (üst 5 bit) ve hedef yazmaç (alt 3 bit); 2. bayt = kaynak yazmaç numarası, sabit ya da adres. Program 0x00 adresinden başlar; yığın 0xFF'ten aşağı doğru büyür (PUSH: hücreye yaz, SP'yi 1 azalt).</p>
+  <div class="ml-wrap"><table class="ml-table" id="cpuSpec"><caption>Örnek sütunundaki baytlar, bu sayfadaki çeviricinin (assembler) gerçek çıktısıdır.</caption><thead><tr><th scope="col">Komut</th><th scope="col">İşlem kodu</th><th scope="col">Örnek</th><th scope="col">Baytlar</th><th scope="col">Ne yapar</th></tr></thead><tbody></tbody></table></div>
+  <p class="ml-note">Yazım: sabitler <code>#</code> ile başlar (<code>#10</code>, <code>#0x0A</code>, <code>#0b1010</code>, <code>#-3</code>); bellek erişimi köşeli parantezle yazılır (<code>[n]</code> doğrudan adres, <code>[R2]</code> yazmaçtaki adres); etiketler <code>ad:</code> biçimindedir ve bir adres gereken her yerde kullanılabilir (<code>#dizi</code> etiketin adresini sabit olarak yükler); <code>.byte</code> veri baytı yerleştirir; <code>;</code> satır sonuna kadar açıklamadır. Bayraklar: toplama ve çıkarma dördünü de kurar; C çıkarmada <em>borç</em> anlamına gelir (A &lt; B, işaretsiz). AND, OR, XOR C ve V'yi sıfırlar. MOV, LOAD, STORE, PUSH, POP ve atlamalar bayraklara dokunmaz.</p>
+  <p class="ml-note"><strong>Sınırlar:</strong> kesme, giriş/çıkış, çarpma/bölme komutu ve bellek koruması yoktur; bütün sayılar 8 bittir ve 256'ya göre sarar. Gerçek işlemcilerde komut uzunluğu, yazmaç sayısı ve kodlama çok farklıdır; ikinci sekmedeki x86-64 örneğinde komutlar 1 ile 5 bayt arasında değişir.</p>
+ </div>
+</details>
+</section>
+
+<!-- ============================ 02 ============================ -->
+<section id="panel-c" role="tabpanel" aria-labelledby="tab-c" hidden>
+<div class="ml-plate">
+ <h2>Aynı Fonksiyon, Üç Seviye</h2>
+ <p class="ml-note">Bir sayı listesindeki en büyük değeri bulan fonksiyonun <strong>makine dili</strong> (onaltılık baytlar), <strong>x86-64 assembly</strong> ve <strong>C</strong> karşılaştırması. Mimari: x86-64, System V AMD64 çağrı düzeni. Bir satıra tıkla ya da aşağıdaki listeden bir adım seç: üç sütunda ve öğretim işlemcisi çevirisinde aynı işi yapan satırlar birlikte işaretlenir.</p>
+ <div class="ml-field"><label for="mapSel">Eşleştirilecek adım</label>
+  <select id="mapSel"></select></div>
+ <div class="ml-cols" id="mapCols">
+  <div class="code-box">
+   <div class="cb-title">Makine dili (x86-64, onaltılık)</div>
+   <div class="cb-body" id="colHex">31 C0          <span class="comment">; xor eax, eax</span>
+85 F6          <span class="comment">; test esi, esi</span>
+7E 17          <span class="comment">; jle .done</span>
+8B 07          <span class="comment">; mov eax, [rdi]</span>
+B9 01 00 00 00 <span class="comment">; mov ecx, 1</span>
+EB 0A          <span class="comment">; jmp .check</span>
+8B 14 8F       <span class="comment">; .loop: mov edx, [rdi+rcx*4]</span>
+39 D0          <span class="comment">; cmp eax, edx</span>
+0F 4C C2       <span class="comment">; cmovl eax, edx</span>
+FF C1          <span class="comment">; inc ecx</span>
+39 F1          <span class="comment">; .check: cmp ecx, esi</span>
+7C F2          <span class="comment">; jl .loop</span>
+C3             <span class="comment">; .done: ret</span></div>
+   <div class="cb-note">30 bayt, 13 komut (noktalı virgülden sonrası Intel yazımıyla açıklamadır). 7E 17, 7C F2 gibi dallanmalarda ikinci bayt, sonraki komuttan itibaren atlanacak bayt sayısıdır (F2 = −14).</div>
+  </div>
+  <div class="code-box">
+   <div class="cb-title">x86-64 assembly (AT&amp;T yazımı)</div>
+   <div class="cb-body" id="colAtt"><span class="keyword">max_value:</span>
+    <span class="instr">xorl</span>   <span class="reg">%eax</span>, <span class="reg">%eax</span>       <span class="comment"># dönüş = 0</span>
+    <span class="instr">testl</span>  <span class="reg">%esi</span>, <span class="reg">%esi</span>       <span class="comment"># len &lt;= 0 ?</span>
+    <span class="instr">jle</span>    .done            <span class="comment"># evetse 0 döndür</span>
+    <span class="instr">movl</span>   (<span class="reg">%rdi</span>), <span class="reg">%eax</span>     <span class="comment"># max = arr[0]</span>
+    <span class="instr">movl</span>   <span class="number">$1</span>, <span class="reg">%ecx</span>         <span class="comment"># i = 1</span>
+    <span class="instr">jmp</span>    .check
+<span class="keyword">.loop:</span>
+    <span class="instr">movl</span>   (<span class="reg">%rdi</span>,<span class="reg">%rcx</span>,4), <span class="reg">%edx</span> <span class="comment"># arr[i]</span>
+    <span class="instr">cmpl</span>   <span class="reg">%edx</span>, <span class="reg">%eax</span>       <span class="comment"># max - arr[i]</span>
+    <span class="instr">cmovll</span> <span class="reg">%edx</span>, <span class="reg">%eax</span>       <span class="comment"># max &lt; arr[i] ise</span>
+    <span class="instr">incl</span>   <span class="reg">%ecx</span>             <span class="comment"># i++</span>
+<span class="keyword">.check:</span>
+    <span class="instr">cmpl</span>   <span class="reg">%esi</span>, <span class="reg">%ecx</span>       <span class="comment"># i &lt; len ?</span>
+    <span class="instr">jl</span>     .loop
+<span class="keyword">.done:</span>
+    <span class="instr">ret</span>    </div>
+   <div class="cb-note">Sembolik adlar (max_value, .loop), yazmaç adları ve etiketler. Assembler bunu soldaki baytlara çevirir.</div>
+  </div>
+  <div class="code-box">
+   <div class="cb-title">C</div>
+   <div class="cb-body" id="colC"><span class="keyword">int</span> max_value(<span class="keyword">int</span> *arr, <span class="keyword">int</span> len) {
+    <span class="keyword">if</span> (len &lt;= <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;
+    <span class="keyword">int</span> max = arr[<span class="number">0</span>];
+    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) {
+        <span class="keyword">if</span> (arr[i] &gt; max)
+            max = arr[i];
+    }
+    <span class="keyword">return</span> max;
+}</div>
+   <div class="cb-note">Türler, yapısal bloklar (if, for) ve değişken adları. Hangi yazmacın ne taşıyacağına derleyici karar verir.</div>
+  </div>
+ </div>
+ <p class="ml-status" id="mapNote" role="status" aria-live="polite"></p>
+ <p class="ml-caption">Bu üç sütun bağımsız olarak doğrulanmıştır: AT&amp;T sütunu bir assembler’dan geçirildiğinde soldaki 30 baytı verir ve bu baytlar bayt düzeyinde bir emülatörde C işleviyle karşılaştırılmıştır. Sayfanın kalıcı testi aynı 30 baytı küçük bir x86 alt küme yorumlayıcısında yeniden yürütür.</p>
+</div>
+<div class="ml-grid" style="margin-top:14px">
+<div>
+ <div class="ml-plate">
+  <h2>Aynı işlev, öğretim işlemcisine elle çevrilmiş</h2>
+  <div class="ml-scroll" tabindex="0" role="region" aria-label="max_value işlevinin öğretim işlemcisi çevirisi">
+   <table class="ml-listing"><thead><tr><th scope="col">Satır</th><th scope="col">Adres</th><th scope="col">Baytlar</th><th scope="col">Kaynak</th></tr></thead><tbody id="c2Listing"></tbody></table>
+  </div>
+  <p class="ml-caption">Sözleşme (bu sayfaya özgü): R1 = dizinin adresi, R2 = uzunluk, sonuç R0. Fark edilecek iki şey: x86-64'teki ölçekli adresleme (<code>(%rdi,%rcx,4)</code>) burada MOV + ADD ile elle yapılır; koşullu taşıma (<code>cmovll</code>) yerine MOV'un üstünden JGE ile atlanır. Elemanlar burada 8 bit, C'deki <code>int</code> ise 32 bittir.</p>
+ </div>
+</div>
+<aside>
+ <div class="ml-panel">
+  <h2>Çeviriyi sına</h2>
+  <div class="ml-field"><label for="c2Arr">Dizi (−128 … 127, en çok 16 sayı)</label><input type="text" class="ml-mono" id="c2Arr" value="12, 45, -7, 88, 23, 61, 90" autocomplete="off" spellcheck="false"></div>
+  <div class="ml-row">
+   <button type="button" id="c2Open">Küçük işlemcide adım adım aç</button>
+   <button type="button" class="app-btn-ghost" id="c2Reset">Sekmeyi sıfırla</button>
+  </div>
+  <div class="ml-stats" aria-live="polite">
+   <div class="ml-stat is-hi"><small>Öğretim işlemcisinin sonucu (R0)</small><strong id="c2Result"></strong></div>
+   <div class="ml-stat"><small>Başvuru: C mantığıyla en büyük</small><strong id="c2Ref"></strong></div>
+   <div class="ml-stat is-hi"><small>Yürütülen komut (sayılan)</small><strong id="c2Steps"></strong></div>
+   <div class="ml-stat"><small id="c2TheoryLab">Kapalı biçim 8L + 6 + u</small><strong id="c2Theory"></strong></div>
+   <div class="ml-stat"><small>Fark</small><strong id="c2Diff"></strong></div>
+   <div class="ml-stat" style="grid-column:1/-1"><small>İşlevin boyutu</small><strong id="c2Bytes"></strong></div>
+  </div>
+  <p class="ml-status" id="c2Status" role="status" aria-live="polite"></p>
+ </div>
+</aside>
+</div>
+<div class="ml-plate" style="margin-top:14px">
+ <h2>İyileştirme düzeyleri neyi değiştirir?</h2>
+ <ul class="ml-list">
+  <li><strong>İyileştirme kapalıyken (ör. <code>-O0</code>):</strong> amaç hata ayıklamadır. Değişkenler çoğunlukla yığındaki yerlerinde tutulur; her C deyimi “bellekten yükle, işle, belleğe geri yaz” dizisine çevrilir. Kod uzundur ama kaynak satırlarıyla bire bir izlenir.</li>
+  <li><strong>Orta düzeyde (ör. <code>-O1</code>, <code>-O2</code>):</strong> değişkenler yazmaçlara alınır, gereksiz yükleme ve saklamalar silinir, döngü sınaması alta taşınabilir, kısa <code>if</code> gövdeleri dallanma yerine koşullu taşımaya çevrilebilir. Yukarıdaki listede <code>max</code>, <code>i</code> ve <code>arr[i]</code> hiç belleğe yazılmaz; bu, iyileştirilmiş kodun üslubudur.</li>
+  <li><strong>Daha saldırgan düzeyde (ör. <code>-O3</code>):</strong> döngü açma ve vektörleştirme (bir turda birkaç eleman) gibi dönüşümler denenir; kod çoğu zaman uzar, hız kazancı veriye ve işlemciye bağlıdır.</li>
+  <li><strong>Boyut için (ör. <code>-Os</code>):</strong> kodu büyüten dönüşümlerden kaçınılır.</li>
+ </ul>
+ <p class="ml-note">Hangi düzeyin tam olarak hangi komutları ürettiği derleyiciye, sürümüne ve hedef işlemciye göre değişir; bu yüzden burada düzey başına liste <strong>verilmiyor</strong>. Yukarıdaki 30 bayt, belirli bir derleyicinin çıktısı olarak değil, C işleviyle aynı sonucu verdiği doğrulanmış bir çeviri olarak sunulur. Kendi derleyicinin ne ürettiğini görmek için derleyiciyi assembly çıktısı verecek biçimde çalıştırmak gerekir. Bütün düzeylerde değişmeyen tek şey programın gözlenebilir davranışıdır; derleyici, C standardının tanımladığı davranışı koruduğu sürece komutları dilediği gibi seçer.</p>
+</div>
+</section>
+
+<!-- ============================ 03 ============================ -->
+<section id="panel-stack" role="tabpanel" aria-labelledby="tab-stack" hidden>
+<div class="ml-grid">
+<div>
+ <div class="ml-plate">
+  <h2>Yığın derinliği (bayt) ve komut sırası</h2>
+  <canvas class="ml-canvas" id="stChart" role="img" aria-label="Yığın derinliğinin yürütülen komut sayısına göre grafiği; kesikli çizgi kuramsal en büyük derinlik"></canvas>
+  <p class="ml-caption">Düz çizgi ölçülen derinlik (255 − SP), kesikli turuncu çizgi kuramın öngördüğü en büyük derinlik, kırmızı çizgi yığına kalan yerin sınırıdır (256 − program boyutu).</p>
+  <div class="ml-row">
+   <button type="button" id="stStep">Tek adım</button>
+   <button type="button" id="stRun">Çalıştır</button>
+   <button type="button" id="stFinish">Sonuna kadar</button>
+   <button type="button" class="app-btn-ghost" id="stReset">Sekmeyi sıfırla</button>
+  </div>
+  <p class="ml-status" id="stStatus" role="status" aria-live="polite"></p>
+ </div>
+ <div class="ml-plate">
+  <h2>Program</h2>
+  <div class="ml-scroll" id="stListWrap" tabindex="0" role="region" aria-label="Yığın deneyinin programı">
+   <table class="ml-listing"><thead><tr><th scope="col">Satır</th><th scope="col">Adres</th><th scope="col">Baytlar</th><th scope="col">Kaynak</th></tr></thead><tbody id="stListing"></tbody></table>
+  </div>
+ </div>
+</div>
+<aside>
+ <div class="ml-panel">
+  <h2>Deney ayarları</h2>
+  <div class="ml-field"><label for="stProg">Program</label>
+   <select id="stProg">
+    <option value="fact">Özyineli faktöriyel</option>
+    <option value="fib">Özyineli Fibonacci</option>
+    <option value="run">Taban durumu olmayan özyineleme</option>
+   </select></div>
+  <div class="ml-field" id="stNField"><label for="stN">n <output id="stNOut"></output></label><input type="range" id="stN" min="0" max="120" step="1" value="5"></div>
+  <label class="ml-check" for="stProtect"><input type="checkbox" id="stProtect" checked> Yığın koruması açık (programın üstüne yazmadan dur)</label>
+  <div class="ml-field"><label for="stSpeed">Hız <output id="stSpeedOut"></output></label><input type="range" id="stSpeed" min="1" max="100" step="1" value="10"></div>
+ </div>
+ <div class="ml-panel">
+  <h2>Ölçüm ve kuram</h2>
+  <div class="ml-stats" aria-live="polite">
+   <div class="ml-stat"><small>Anlık derinlik</small><strong id="stDepth"></strong></div>
+   <div class="ml-stat is-hi"><small>En büyük derinlik (ölçülen)</small><strong id="stMax"></strong></div>
+   <div class="ml-stat"><small id="stTheoryLab">Kuram</small><strong id="stTheory"></strong></div>
+   <div class="ml-stat"><small>Fark (ölçülen − kuram)</small><strong id="stDiff"></strong></div>
+   <div class="ml-stat is-hi"><small>CALL sayısı (sayılan)</small><strong id="stCalls"></strong></div>
+   <div class="ml-stat"><small id="stCallsLab">CALL sayısı (kuram)</small><strong id="stCallsT"></strong></div>
+   <div class="ml-stat is-hi"><small>Yürütülen komut (sayılan)</small><strong id="stSteps"></strong></div>
+   <div class="ml-stat"><small id="stStepsLab">Komut (kuram)</small><strong id="stStepsT"></strong></div>
+   <div class="ml-stat"><small>Yığın kapasitesi</small><strong id="stCap"></strong></div>
+   <div class="ml-stat"><small>Sonuç</small><strong id="stResult"></strong></div>
+  </div>
+ </div>
+ <div class="ml-panel">
+  <h2>Yığın (tepe en üstte)</h2>
+  <div class="ml-stack" id="stStack" tabindex="0" role="region" aria-label="Yığındaki hücreler"></div>
+  <div class="ml-legend"><span><i style="background:var(--accent-warm)"></i>dönüş adresi (CALL yazar)</span><span><i style="background:var(--accent)"></i>saklanan yazmaç</span><span><i style="background:var(--accent-2)"></i>yerel ara değer</span></div>
+ </div>
+</aside>
+</div>
+<div class="ml-plate" style="margin-top:14px">
+ <h2>Model ve sınırlar</h2>
+ <p class="ml-note">CALL, bir sonraki komutun adresini yığına yazar ve hedefe atlar; RET o adresi geri çekip PC'ye koyar. Bir işlev, sonradan gerek duyacağı bir yazmacı başka bir çağrı bozmasın diye PUSH ile saklar. Bu makinede her yığın hücresi 1 bayttır ve dönüş adresi de 1 bayttır; gerçek 64 bit işlemcilerde bir dönüş adresi 8 bayt tutar ve çağrı düzenleri yığının hizalanmasını da şart koşar. Burada yığın ile program aynı 256 baytı paylaşır: koruma açıkken makine, bir PUSH ya da CALL program görüntüsünün içine yazacaksa yazmadan durur (“yığın taşması”). Koruma kapalıyken yazar; sonrasında olanlar programın bozulmuş baytlarına bağlıdır ve artık yazdığın programın davranışı değildir. Gerçek işletim sistemleri yığının altına erişilemez bir bellek sayfası koyarak aynı hatayı yakalar.</p>
+</div>
+</section>
+
+<!-- ============================ 04 ============================ -->
+<section id="panel-alu" role="tabpanel" aria-labelledby="tab-alu" hidden>
+<div class="ml-grid">
+<div>
+ <div class="ml-plate">
+  <h2>8 bitlik işlem: bit satırları</h2>
+  <div class="ml-wrap"><table class="ml-bits" id="aluBits" aria-label="A, B ve sonucun bitleri"></table></div>
+  <p class="ml-caption">A ve B satırlarındaki kutulara basarak bitleri tek tek çevirebilirsin. “Elde girişi” satırı, her basamağa sağındaki basamaktan gelen eldeyi gösterir; toplayıcı sekiz tam toplayıcının zinciridir. Çıkarma, B'nin bütün bitleri çevrilip 1 eklenerek yapılır.</p>
+  <div class="ml-stats" aria-live="polite">
+   <div class="ml-stat is-hi"><small>Sonuç (8 bit)</small><strong id="aluRes"></strong></div>
+   <div class="ml-stat"><small>İşaretsiz okuyuşla gerçek sonuç</small><strong id="aluTrueU"></strong></div>
+   <div class="ml-stat"><small>İşaretli okuyuşla gerçek sonuç</small><strong id="aluTrueS"></strong></div>
+  </div>
+  <div class="ml-flags" id="aluFlags" aria-live="polite"></div>
+  <p class="ml-status" id="aluStatus" role="status" aria-live="polite"></p>
+ </div>
+ <div class="ml-plate">
+  <h2>CMP A, B'den sonra hangi atlama gerçekleşir?</h2>
+  <div class="ml-wrap"><table class="ml-table" id="aluJumps"><caption id="aluJumpCap"></caption><thead><tr><th scope="col">Atlama</th><th scope="col">Bayrak koşulu</th><th scope="col">Bayraklara göre</th><th scope="col">Anlamı</th><th scope="col">Sayılara göre</th></tr></thead><tbody></tbody></table></div>
+  <p class="ml-caption">Aynı CMP komutu iki ayrı soruyu yanıtlar: işaretsiz karşılaştırma C bayrağına, işaretli karşılaştırma N ile V'nin eşit olup olmadığına bakar. Programcı (ya da derleyici) sayının türüne göre doğru atlamayı seçmek zorundadır.</p>
+ </div>
+</div>
+<aside>
+ <div class="ml-panel">
+  <h2>İşlenenler</h2>
+  <div class="ml-field"><label for="aluOp">İşlem</label>
+   <select id="aluOp">
+    <option value="ADD">ADD · A + B</option>
+    <option value="SUB">SUB · A − B</option>
+    <option value="CMP">CMP · A − B (sonuç atılır)</option>
+    <option value="AND">AND · A ve B</option>
+    <option value="OR">OR · A veya B</option>
+    <option value="XOR">XOR · A ya da B (dışlayan)</option>
+    <option value="SHL">SHL · A'yı 1 bit sola kaydır</option>
+    <option value="SHR">SHR · A'yı 1 bit sağa kaydır</option>
+   </select></div>
+  <div class="ml-field"><label for="aluA">A <output id="aluAOut"></output></label><input type="range" id="aluA" min="0" max="255" step="1" value="127"></div>
+  <div class="ml-field"><label for="aluB">B <output id="aluBOut"></output></label><input type="range" id="aluB" min="0" max="255" step="1" value="1"></div>
+  <div class="ml-row" id="aluPresets">
+   <button type="button" class="app-btn-ghost" id="aluP1" data-op="ADD" data-a="127" data-b="1">127 + 1</button>
+   <button type="button" class="app-btn-ghost" id="aluP2" data-op="ADD" data-a="255" data-b="1">255 + 1</button>
+   <button type="button" class="app-btn-ghost" id="aluP3" data-op="ADD" data-a="128" data-b="128">128 + 128</button>
+   <button type="button" class="app-btn-ghost" id="aluP4" data-op="SUB" data-a="5" data-b="7">5 − 7</button>
+   <button type="button" class="app-btn-ghost" id="aluP5" data-op="SUB" data-a="128" data-b="1">128 − 1</button>
+   <button type="button" class="app-btn-ghost" id="aluP6" data-op="CMP" data-a="200" data-b="100">CMP 200, 100</button>
+  </div>
+  <div class="ml-row"><button type="button" class="app-btn-ghost" id="aluReset">Sekmeyi sıfırla</button></div>
+ </div>
+ <div class="ml-panel">
+  <h2>Bütün çiftler: 256 × 256</h2>
+  <canvas class="ml-canvas ml-square" id="aluMap" role="img" aria-label="Seçili işlem için 65.536 A, B çiftinin bayrak haritası; artı işareti seçili çift"></canvas>
+  <div class="ml-legend"><span><i id="lgN"></i>C = 0, V = 0</span><span><i id="lgC"></i>yalnız C</span><span><i id="lgV"></i>yalnız V</span><span><i id="lgB"></i>C ve V birlikte</span></div>
+  <div class="ml-stats" aria-live="polite">
+   <div class="ml-stat is-hi"><small>C = 1 olan çift (sayılan)</small><strong id="aluCntC"></strong></div>
+   <div class="ml-stat"><small>C = 1 (kapalı biçim)</small><strong id="aluThC"></strong></div>
+   <div class="ml-stat is-hi"><small>V = 1 olan çift (sayılan)</small><strong id="aluCntV"></strong></div>
+   <div class="ml-stat"><small>V = 1 (kapalı biçim)</small><strong id="aluThV"></strong></div>
+   <div class="ml-stat is-hi"><small>İkisi birlikte (sayılan)</small><strong id="aluCntB"></strong></div>
+   <div class="ml-stat"><small>İkisi birlikte (kapalı biçim)</small><strong id="aluThB"></strong></div>
+  </div>
+  <p class="ml-note" id="aluVerify" role="status"></p>
+ </div>
+</aside>
+</div>
+<div class="ml-plate" style="margin-top:14px">
+ <h2>Model ve sınırlar</h2>
+ <p class="ml-note">Aynı sekiz bit iki ayrı sayı olarak okunabilir: işaretsiz (0 … 255) ya da ikiye tümleyenle işaretli (−128 … 127). Toplayıcı bu ayrımı bilmez; yalnızca bitleri toplar. <strong>C (elde/borç)</strong> işaretsiz okuyuşta sonucun 8 bite sığmadığını, <strong>V (taşma)</strong> işaretli okuyuşta sığmadığını söyler; ikisi birbirinden bağımsızdır. V, en üst basamağa giren elde ile oradan çıkan eldenin farklı olmasıdır. Bu sayfada çıkarmada C “borç” demektir (x86 ailesindeki gibi); bazı işlemci aileleri aynı bayrağı ters anlamla kurar. Kaydırmalarda V bu makinede şöyle tanımlıdır: sola kaydırmada işaret biti değiştiyse 1, sağa kaydırmada eski işaret biti. Bayrak tanımları mimariden mimariye değişir; buradakiler öğretim makinesinin tanımlarıdır.</p>
+</div>
+</section>
+</main>
+
+<script>
+(()=>{
+/* KERNEL-BEGIN */
+const MachineLab=(()=>{
+'use strict';
+/* Öğretim işlemcisi: 8 yazmaç (R7 = SP), 256 bayt bellek, 2 baytlık sabit uzunlukta komutlar.
+   bayt0 = (işlem kodu << 3) | rd ; bayt1 = rs (alt 3 bit) | sabit | adres. */
+const SPEC=[[1,'HLT','',''],[2,'MOV','r,r','Rd ← Rs'],[3,'MOV','r,i','Rd ← sabit'],[4,'LOAD','r,d','Rd ← bellek[adres]'],[5,'LOAD','r,m','Rd ← bellek[Rs]'],
+ [6,'STORE','r,d','bellek[adres] ← Rd'],[7,'STORE','r,m','bellek[Rs] ← Rd'],[8,'ADD','r,r','Rd ← Rd + Rs'],[9,'ADD','r,i','Rd ← Rd + sabit'],
+ [10,'SUB','r,r','Rd ← Rd − Rs'],[11,'SUB','r,i','Rd ← Rd − sabit'],[12,'AND','r,r','Rd ← Rd ve Rs'],[13,'OR','r,r','Rd ← Rd veya Rs'],[14,'XOR','r,r','Rd ← Rd dışlayan-veya Rs'],
+ [15,'SHL','r','Rd bir bit sola'],[16,'SHR','r','Rd bir bit sağa'],[17,'CMP','r,r','Rd − Rs, yalnız bayraklar'],[18,'CMP','r,i','Rd − sabit, yalnız bayraklar'],
+ [19,'JMP','e','PC ← adres'],[20,'JZ','e','Z = 1 ise atla'],[21,'JNZ','e','Z = 0 ise atla'],[22,'JC','e','C = 1 ise atla'],[23,'JNC','e','C = 0 ise atla'],
+ [24,'JLT','e','N ≠ V ise atla (işaretli küçük)'],[25,'JGE','e','N = V ise atla (işaretli büyük-eşit)'],[26,'CALL','e','dönüş adresini yığına yaz, atla'],[27,'RET','','yığından adres çek, oraya dön'],
+ [28,'PUSH','r','bellek[SP] ← Rd, SP ← SP − 1'],[29,'POP','r','SP ← SP + 1, Rd ← bellek[SP]']];
+const BY=[];const FORMS=Object.create(null);
+for(const[code,name,form]of SPEC){BY[code]={code,name,form};(FORMS[name]=FORMS[name]||Object.create(null))[form]=code;}
+const USAGE={'':'işlenen almaz','r,r':'Rd, Rs','r,i':'Rd, #sabit','r,d':'Rd, [adres]','r,m':'Rd, [Rs]','r':'Rd','e':'adres ya da etiket'};
+const STEP_LIMIT=200000;
+
+/* ---------- ALU: sekiz tam toplayıcının zinciri ---------- */
+function adder(a,b,cin){let r=0,c=cin,cin7=0,chain=0;for(let i=0;i<8;i++){const x=(a>>i)&1,y=(b>>i)&1;if(i===7)cin7=c;r|=(x^y^c)<<i;c=(x&y)|(x&c)|(y&c);chain|=c<<i;}return{r,cout:c,cin7,chain};}
+function alu(op,a,b){a&=255;b&=255;let r,c=0,v=0,chain=null,bEff=b,cin=0;
+ switch(op){
+  case'ADD':{const t=adder(a,b,0);r=t.r;c=t.cout;v=t.cin7^t.cout;chain=t.chain;break;}
+  case'SUB':case'CMP':{bEff=(~b)&255;cin=1;const t=adder(a,bEff,1);r=t.r;c=t.cout^1;v=t.cin7^t.cout;chain=t.chain;break;}
+  case'AND':r=a&b;break;case'OR':r=a|b;break;case'XOR':r=a^b;break;
+  case'SHL':r=(a<<1)&255;c=a>>7;v=(r>>7)^c;break;
+  case'SHR':r=a>>1;c=a&1;v=a>>7;break;
+  default:throw new Error('Bilinmeyen işlem: '+op);}
+ return{r,z:r===0?1:0,c,n:r>>7,v,chain,bEff,cin};}
+const signed=x=>x>127?x-256:x;
+/* Başvuru tanımı: bit işlemleri yerine geniş tam sayı aritmetiği. */
+function wide(op,a,b){const sa=signed(a),sb=signed(b),out=s=>(s>127||s<-128)?1:0;let r,c=0,v=0;
+ const bitwise=f=>{let x=0;for(let i=0,p=1;i<8;i++,p*=2){const u=Math.floor(a/p)%2,w=Math.floor(b/p)%2;if(f(u,w))x+=p;}return x;};
+ switch(op){
+  case'ADD':{const u=a+b;r=u%256;c=u>255?1:0;v=out(sa+sb);break;}
+  case'SUB':case'CMP':{const u=a-b;r=((u%256)+256)%256;c=a<b?1:0;v=out(sa-sb);break;}
+  case'AND':r=bitwise((u,w)=>u+w===2);break;case'OR':r=bitwise((u,w)=>u+w>=1);break;case'XOR':r=bitwise((u,w)=>u+w===1);break;
+  case'SHL':{const u=a*2;r=u%256;c=u>255?1:0;v=out(sa*2);break;}
+  case'SHR':r=Math.floor(a/2);c=a%2;v=a>127?1:0;break;
+  default:throw new Error('Bilinmeyen işlem: '+op);}
+ return{r,z:r===0?1:0,c,n:r>127?1:0,v};}
+const ALU_OPS=['ADD','SUB','CMP','AND','OR','XOR','SHL','SHR'];
+const CONDS={JMP:()=>true,JZ:f=>f.z===1,JNZ:f=>f.z===0,JC:f=>f.c===1,JNC:f=>f.c===0,JLT:f=>f.n!==f.v,JGE:f=>f.n===f.v};
+function cond(name,f){const g=CONDS[name];if(!g)throw new Error('Bilinmeyen atlama: '+name);return g(f);}
+function flagCounts(op){let c=0,v=0,both=0;for(let a=0;a<256;a++)for(let b=0;b<256;b++){const t=alu(op,a,b);c+=t.c;v+=t.v;both+=t.c&t.v;}return{pairs:65536,c,v,both};}
+/* Kapalı biçimler (sayfada "kuram" sütunu). */
+function flagTheory(op){switch(op){
+ case'ADD':case'SUB':case'CMP':return{c:255*256/2,v:127*128/2+(128*128-127*128/2),both:128*128-127*128/2};
+ case'AND':case'OR':case'XOR':return{c:0,v:0,both:0};
+ case'SHL':case'SHR':return{c:128*256,v:128*256,both:64*256};
+ default:throw new Error('Bilinmeyen işlem: '+op);}}
+function verifyAlu(){const ops={};let bad=0;for(const op of ALU_OPS){let m=0;for(let a=0;a<256;a++)for(let b=0;b<256;b++){const x=alu(op,a,b),y=wide(op,a,b);if(x.r!==y.r||x.z!==y.z||x.c!==y.c||x.n!==y.n||x.v!==y.v)m++;}ops[op]=m;bad+=m;}
+ let jumps=0;for(let a=0;a<256;a++)for(let b=0;b<256;b++){const f=alu('CMP',a,b),sa=signed(a),sb=signed(b);
+  if(cond('JZ',f)!==(a===b)||cond('JNZ',f)!==(a!==b)||cond('JC',f)!==(a<b)||cond('JNC',f)!==(a>=b)||cond('JLT',f)!==(sa<sb)||cond('JGE',f)!==(sa>=sb))jumps++;}
+ return{pairs:65536,ops,mismatches:bad,jumpMismatches:jumps};}
+
+/* ---------- İki geçişli derleyici (assembler) ---------- */
+const IDENT=/^[\p{L}_][\p{L}\p{N}_]*$/u;
+function parseNum(s){if(/^-?\d+$/.test(s))return parseInt(s,10);if(/^0x[0-9a-f]+$/i.test(s))return parseInt(s.slice(2),16);if(/^0b[01]+$/i.test(s))return parseInt(s.slice(2),2);return null;}
+function regIndex(s){const u=s.toUpperCase();if(u==='SP')return 7;const k=/^R([0-7])$/.exec(u);return k?+k[1]:-1;}
+function classify(op){const r=regIndex(op);if(r>=0)return{t:'r',r};if(op[0]==='#')return{t:'i',e:op.slice(1).trim()};
+ const k=/^\[(.*)\]$/.exec(op);if(k){const inner=k[1].trim(),q=regIndex(inner);return q>=0?{t:'m',r:q}:{t:'d',e:inner};}return{t:'e',e:op};}
+function assemble(src){
+ const lines=String(src).replace(/\r/g,'').split('\n'),rows=[],errors=[],labels=new Map();let addr=0,overflowLine=0;
+ const err=(line,msg)=>errors.push({line,msg});
+ for(let i=0;i<lines.length;i++){
+  const raw=lines[i],sc=raw.indexOf(';'),comment=sc>=0?raw.slice(sc+1).trim():'';let code=(sc>=0?raw.slice(0,sc):raw).trim();
+  const row={line:i+1,addr:null,bytes:[],label:null,comment,src:raw,kind:'blank',text:''};rows.push(row);
+  const lm=/^([^\s:,\[\]#]+)\s*:\s*(.*)$/.exec(code);
+  if(lm){const name=lm[1];code=lm[2].trim();
+   if(!IDENT.test(name))err(i+1,'"'+name+'" geçerli bir etiket adı değil (harf ya da _ ile başlamalı; harf, rakam, _ içerebilir).');
+   else if(regIndex(name)>=0||FORMS[name.toUpperCase()]||name.toUpperCase()==='BYTE')err(i+1,'"'+name+'" bir komut ya da yazmaç adı; etiket olarak kullanılamaz.');
+   else if(labels.has(name))err(i+1,'"'+name+'" etiketi ikinci kez tanımlanıyor (ilki satır '+labels.get(name).line+').');
+   else{labels.set(name,{addr,line:i+1});row.label=name;row.addr=addr;row.kind='label';}}
+  if(code==='')continue;
+  const sp=code.search(/\s/),mn=(sp<0?code:code.slice(0,sp)).toUpperCase(),rest=sp<0?'':code.slice(sp).trim(),ops=rest===''?[]:rest.split(',').map(s=>s.trim());
+  row.text=code;
+  if(ops.some(o=>o==='')){err(i+1,'Virgülün bir yanında işlenen eksik.');continue;}
+  if(mn==='.BYTE'){if(!ops.length){err(i+1,'.byte en az bir değer ister.');continue;}row.kind='data';row.ops=ops;row.addr=addr;addr+=ops.length;}
+  else{const forms=FORMS[mn];
+   if(!forms){err(i+1,'Bilinmeyen komut "'+(sp<0?code:code.slice(0,sp))+'".');continue;}
+   const cls=ops.map(classify),sig=cls.map(c=>c.t).join(','),code2=forms[sig];
+   if(code2===undefined){err(i+1,mn+' için işlenenler uymuyor. Beklenen: '+Object.keys(forms).map(f=>(mn+' '+USAGE[f]).trim()).join(' ya da ')+'.');continue;}
+   row.kind='ins';row.code=code2;row.cls=cls;row.addr=addr;addr+=2;}
+  if(addr>256&&!overflowLine)overflowLine=i+1;
+ }
+ if(overflowLine)err(overflowLine,'Program 256 bayta sığmıyor (toplam '+addr+' bayt).');
+ const value=(e,line,what)=>{const n=parseNum(e);
+  if(n!==null){if(n<-128||n>255){err(line,what+' '+e+' 8 bite sığmıyor (−128 … 255).');return 0;}return n&255;}
+  if(IDENT.test(e)){if(labels.has(e))return labels.get(e).addr&255;err(line,'Tanımsız etiket "'+e+'".');return 0;}
+  err(line,'Anlaşılmayan değer "'+e+'".');return 0;};
+ const lineOfAddr={};
+ for(const row of rows){
+  if(row.kind==='data')row.bytes=row.ops.map(o=>value(o,row.line,'Değer'));
+  else if(row.kind==='ins'){const c=row.cls,form=BY[row.code].form;let rd=0,b1=0;
+   if(form==='r,r'){rd=c[0].r;b1=c[1].r;}else if(form==='r,i'){rd=c[0].r;b1=value(c[1].e,row.line,'Sabit');}
+   else if(form==='r,d'){rd=c[0].r;b1=value(c[1].e,row.line,'Adres');}else if(form==='r,m'){rd=c[0].r;b1=c[1].r;}
+   else if(form==='r'){rd=c[0].r;}else if(form==='e'){b1=value(c[0].e,row.line,'Adres');}
+   row.bytes=[(row.code<<3)|rd,b1];lineOfAddr[row.addr]=row.line;}
+  delete row.cls;delete row.ops;
+ }
+ errors.sort((x,y)=>x.line-y.line);
+ const ok=errors.length===0,bytes=[];if(ok)for(const row of rows)for(const b of row.bytes)bytes.push(b);
+ const lab={};for(const[k,v]of labels)lab[k]=v.addr;
+ return{ok,errors,rows,bytes,size:ok?bytes.length:addr,labels:lab,lineOfAddr,instructions:rows.filter(r=>r.kind==='ins').length};
+}
+function disasm(b0,b1){const d=BY[b0>>3];if(!d)return null;const rd='R'+(b0&7),rs='R'+(b1&7),h='0x'+b1.toString(16).toUpperCase().padStart(2,'0');
+ switch(d.form){case'':return d.name;case'r,r':return d.name+' '+rd+', '+rs;case'r,i':return d.name+' '+rd+', #'+b1;case'r,d':return d.name+' '+rd+', ['+h+']';
+  case'r,m':return d.name+' '+rd+', ['+rs+']';case'r':return d.name+' '+rd;default:return d.name+' '+h;}}
+
+/* ---------- Makine ---------- */
+function createMachine(bytes,opt){const n=Math.min(256,bytes.length);
+ const m={mem:new Uint8Array(256),reg:new Uint8Array(8),pc:0,z:0,c:0,n:0,v:0,halted:false,fault:null,steps:0,calls:0,depth:0,maxDepth:0,overwritten:0,
+  limit:n,protect:!opt||opt.protect!==false,tags:new Array(256).fill(null),changed:new Uint8Array(256),last:[],lastReg:0,lastPc:-1};
+ for(let i=0;i<n;i++)m.mem[i]=bytes[i]&255;m.reg[7]=255;return m;}
+function fail(m,kind,info){m.halted=true;m.fault={kind,pc:m.pc,info};return false;}
+function step(m){
+ if(m.halted)return false;
+ const pc=m.pc;m.last=[];m.lastReg=0;
+ if(pc>254)return fail(m,'pc',pc);
+ const b0=m.mem[pc],b1=m.mem[pc+1],code=b0>>3,rd=b0&7,rs=b1&7,d=BY[code],R=m.reg;
+ if(!d)return fail(m,'badop',b0);
+ let next=pc+2;
+ const setR=(i,v)=>{R[i]=v;m.lastReg|=1<<i;},wr=(a,v)=>{m.mem[a]=v;m.changed[a]=1;m.last.push(a);},fl=t=>{m.z=t.z;m.c=t.c;m.n=t.n;m.v=t.v;};
+ const push=(v,tag)=>{const sp=R[7];if(sp<m.limit){if(m.protect)return fail(m,'overflow',sp);m.overwritten++;}wr(sp,v);m.tags[sp]=tag;setR(7,(sp-1)&255);return true;};
+ const pop=()=>{if(R[7]===255){fail(m,'underflow',255);return-1;}const sp=R[7]+1;m.tags[sp]=null;setR(7,sp);return m.mem[sp];};
+ switch(code){
+  case 1:break;
+  case 2:setR(rd,R[rs]);break;
+  case 3:setR(rd,b1);break;
+  case 4:setR(rd,m.mem[b1]);break;
+  case 5:setR(rd,m.mem[R[rs]]);break;
+  case 6:wr(b1,R[rd]);break;
+  case 7:wr(R[rs],R[rd]);break;
+  case 8:case 10:case 12:case 13:case 14:{const t=alu(d.name,R[rd],R[rs]);setR(rd,t.r);fl(t);break;}
+  case 9:case 11:{const t=alu(d.name,R[rd],b1);setR(rd,t.r);fl(t);break;}
+  case 15:case 16:{const t=alu(d.name,R[rd],0);setR(rd,t.r);fl(t);break;}
+  case 17:fl(alu('CMP',R[rd],R[rs]));break;
+  case 18:fl(alu('CMP',R[rd],b1));break;
+  case 19:case 20:case 21:case 22:case 23:case 24:case 25:if(cond(d.name,m))next=b1;break;
+  case 26:if(!push(next&255,{k:'ret',from:pc}))return false;m.calls++;next=b1;break;
+  case 27:{const v=pop();if(v<0)return false;next=v;break;}
+  case 28:if(!push(R[rd],{k:'reg',r:rd,from:pc}))return false;break;
+  case 29:{const v=pop();if(v<0)return false;setR(rd,v);break;}
+ }
+ m.steps++;m.lastPc=pc;
+ if(code===1)m.halted=true;else m.pc=next;
+ m.depth=255-R[7];if(m.depth>m.maxDepth)m.maxDepth=m.depth;
+ return true;}
+function run(m,limit){let k=0;const lim=limit===undefined?STEP_LIMIT:limit;while(!m.halted&&k<lim){step(m);k++;}return k;}
+
+/* ---------- Hazır programlar ---------- */
+const L=(lab,ins,com)=>{let s=(lab?lab+': ':'').padEnd(9)+(ins||'');if(com)s=s.padEnd(30)+'; '+com;return s.replace(/\s+$/,'');};
+const J=a=>a.join('\n')+'\n';
+const programs={
+ sum:n=>J(['; 1 + 2 + ... + n toplamı',L('','MOV R0, #0','toplam = 0'),L('','LOAD R1, [n]','sayaç = n'),L('döngü','CMP R1, #0'),L('','JZ bitti','sayaç 0 ise çık'),
+  L('','ADD R0, R1','toplam += sayaç'),L('','SUB R1, #1','sayaç -= 1'),L('','JMP döngü'),L('bitti','STORE R0, [sonuç]'),L('','HLT'),L('n','.byte '+n),L('sonuç','.byte 0')]),
+ mul:(a,b)=>J(['; a × b: a sayısını b kez topla',L('','LOAD R1, [a]'),L('','LOAD R2, [b]','sayaç = b'),L('','MOV R0, #0','çarpım = 0'),L('döngü','CMP R2, #0'),L('','JZ bitti'),
+  L('','ADD R0, R1','çarpım += a'),L('','SUB R2, #1'),L('','JMP döngü'),L('bitti','STORE R0, [sonuç]'),L('','HLT'),L('a','.byte '+a),L('b','.byte '+b),L('sonuç','.byte 0')]),
+ max:arr=>J(['; int max_value(int *arr, int len): elle çeviri (8 bit, işaretli)',L('','MOV R1, #dizi','1. argüman: dizinin adresi'),L('','LOAD R2, [uzunluk]','2. argüman: uzunluk'),
+  L('','CALL max_value'),L('','STORE R0, [sonuç]'),L('','HLT'),
+  L('max_value','MOV R0, #0','dönüş = 0'),L('','CMP R2, #1','len - 1'),L('','JLT bitti','len <= 0 ise 0 döndür'),L('','LOAD R0, [R1]','max = arr[0]'),L('','MOV R3, #1','i = 1'),L('','JMP kontrol'),
+  L('döngü','MOV R4, R1'),L('','ADD R4, R3','arr[i] adresi'),L('','LOAD R5, [R4]','arr[i]'),L('','CMP R0, R5','max - arr[i]'),L('','JGE atla','max >= arr[i] ise geç'),L('','MOV R0, R5','max = arr[i]'),
+  L('atla','ADD R3, #1','i++'),L('kontrol','CMP R3, R2','i < len ?'),L('','JLT döngü'),L('bitti','RET'),
+  L('dizi','.byte '+(arr.length?arr.join(', '):'0'),arr.length?'':'boş dizi için yer tutucu'),L('uzunluk','.byte '+arr.length),L('sonuç','.byte 0')]),
+ fact:n=>J(['; n! : özyineli; çarpma tekrarlı toplamayla',L('','LOAD R1, [n]'),L('','CALL fakt'),L('','STORE R0, [sonuç]'),L('','HLT'),
+  '; fakt: R1 = n ile girilir, R0 = n! ile dönülür',L('fakt','CMP R1, #0'),L('','JNZ özyine'),L('','MOV R0, #1','0! = 1'),L('','RET'),
+  L('özyine','PUSH R1','saklanan yazmaç: n'),L('','SUB R1, #1'),L('','CALL fakt','R0 = (n-1)!'),L('','POP R1','n geri gelir'),L('','MOV R2, R0'),L('','CALL çarp','R0 = n × (n-1)!'),L('','RET'),
+  '; çarp: R0 = R1 × R2 (R2, R1 kez toplanır)',L('çarp','MOV R0, #0'),L('','MOV R3, R1'),L('çdöngü','CMP R3, #0'),L('','JZ çbitti'),L('','ADD R0, R2'),L('','SUB R3, #1'),L('','JMP çdöngü'),L('çbitti','RET'),
+  L('n','.byte '+n),L('sonuç','.byte 0')]),
+ fib:n=>J(['; fib(n) = fib(n-1) + fib(n-2), fib(0) = 0, fib(1) = 1',L('','LOAD R1, [n]'),L('','CALL fib'),L('','STORE R0, [sonuç]'),L('','HLT'),
+  '; fib: R1 = n ile girilir (korunur), R0 = fib(n) ile dönülür',L('fib','CMP R1, #2'),L('','JC taban','n < 2 ise fib(n) = n'),L('','PUSH R1','saklanan yazmaç: n'),L('','SUB R1, #1'),L('','CALL fib','R0 = fib(n-1)'),
+  L('','PUSH R0','yerel: fib(n-1) ara sonucu'),L('','SUB R1, #1'),L('','CALL fib','R0 = fib(n-2)'),L('','POP R2','fib(n-1) geri'),L('','ADD R0, R2'),L('','POP R1','n geri gelir'),L('','RET'),
+  L('taban','MOV R0, R1'),L('','RET'),L('n','.byte '+n),L('sonuç','.byte 0')]),
+ runaway:()=>J(['; taban durumu olmayan özyineleme: hiç dönmez',L('','CALL dal'),L('','HLT'),L('dal','PUSH R1','saklanan yazmaç: derinlik sayacı'),L('','ADD R1, #1'),L('','CALL dal','koşulsuz: kendini çağırır'),L('','POP R1'),L('','RET')])
+};
+const fibNum=k=>{let a=0,b=1;for(let i=0;i<k;i++){const t=a+b;a=b;b=t;}return a;};
+const theory={
+ sum:n=>({steps:5*n+6,exact:n*(n+1)/2,result:(n*(n+1)/2)%256}),
+ mul:(a,b)=>({steps:5*b+7,exact:a*b,result:(a*b)%256}),
+ max:arr=>{const len=arr.length;if(!len)return{steps:9,updates:0,result:0,signedResult:0};let best=arr[0],u=0;for(let i=1;i<len;i++)if(arr[i]>best){best=arr[i];u++;}return{steps:8*len+6+u,updates:u,result:best&255,signedResult:best};},
+ fact:n=>{let r=1;for(let i=2;i<=n;i++)r=(r*i)%256;return{steps:8+14*n+5*n*(n+1)/2,depth:2*n+1,calls:2*n+1,result:r};},
+ fib:n=>({steps:16*fibNum(n+1)-8,depth:n<2?1:2*n,calls:2*fibNum(n+1)-1,exact:fibNum(n),result:fibNum(n)%256}),
+ runaway:cap=>({depth:cap,calls:Math.ceil(cap/2),steps:cap+Math.floor(cap/2)})
+};
+const freeze=o=>{if(o&&(typeof o==='object'||typeof o==='function')&&!Object.isFrozen(o)){Object.freeze(o);for(const k of Object.getOwnPropertyNames(o))if(k!=='caller'&&k!=='callee'&&k!=='arguments')freeze(o[k]);}return o;};
+return freeze({SPEC,STEP_LIMIT,ALU_OPS,alu,wide,signed,cond,flagCounts,flagTheory,verifyAlu,assemble,disasm,createMachine,step,run,programs,theory,fibNum});
+})();
+/* KERNEL-END */
+if(typeof window!=='undefined')Object.defineProperty(window,'MachineLab',{value:MachineLab,writable:false,configurable:false});
+
+const K=MachineLab,$=id=>document.getElementById(id),put=(id,t)=>{$(id).textContent=t;};
+const fmt=n=>n===null||n===undefined||!Number.isFinite(n)?'—':n.toLocaleString('tr-TR');
+const hx=v=>v.toString(16).toUpperCase().padStart(2,'0'),h0=v=>'0x'+hx(v);
+const neg=n=>String(n).replace('-','−');
+const sgt=v=>neg(K.signed(v));
+const diffText=d=>d===0?'0':(d>0?'+':'−')+fmt(Math.abs(d));
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const inForm=e=>!!e.target.closest('input,select,button,a,textarea,summary,[contenteditable]');
+const TABS=['cpu','c','stack','alu'];let active='cpu';
+const SPEEDS=v=>v<=20?v:v<=60?20+(v-20)*2:100+(v-60)*10; /* 1…20, 22…100, 110…500 komut/s */
+function palette(){const light=document.documentElement.dataset.theme==='light';
+ return light?{bg:'#f7f9fc',ink:'#1a1d2e',grid:'#d5dbe6',muted:'#5a5f7a',accent:'#0d9488',warm:'#c2620a',red:'#dc2626',violet:'#7c3aed',none:'#e3e8f0'}
+  :{bg:'#0b111f',ink:'#e8ecf4',grid:'#27324a',muted:'#8b95a8',accent:'#5eead4',warm:'#fbbf24',red:'#f87171',violet:'#a78bfa',none:'#1b2438'};}
+function surface(id){const c=$(id),r=c.getBoundingClientRect();if(!r.width||!r.height)return null;const d=Math.min(devicePixelRatio||1,2);c.width=Math.round(r.width*d);c.height=Math.round(r.height*d);
+ const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);const p=palette();g.fillStyle=p.bg;g.fillRect(0,0,r.width,r.height);return{g,w:r.width,h:r.height,p};}
+function label(s,t,x,y,col,align,size){const g=s.g;g.font=(size||11)+'px Outfit, system-ui, sans-serif';g.textAlign=align||'left';g.textBaseline='alphabetic';g.fillStyle=col||s.p.muted;g.fillText(t,x,y);}
+/* Basamaklı zaman serisi: veri[i] = i. komuttan sonraki değer. */
+function drawSeries(id,data,o){const s=surface(id);if(!s)return;const{g,w,h,p}=s,L=38,R=10,T=14,B=24,pw=w-L-R,ph=h-T-B;
+ const yMax=Math.max(1,o.yMax||1),n=Math.max(1,data.length),X=i=>L+pw*i/Math.max(n,o.minX||1),Y=v=>T+ph*(1-v/yMax);
+ g.strokeStyle=p.grid;g.lineWidth=1;g.beginPath();for(let k=0;k<=4;k++){const y=T+ph*k/4;g.moveTo(L,y);g.lineTo(L+pw,y);}g.stroke();
+ for(let k=0;k<=4;k++)label(s,o.yFmt?o.yFmt(Math.round(yMax*(1-k/4))):fmt(Math.round(yMax*(1-k/4))),L-5,T+ph*k/4+4,p.muted,'right',10);
+ label(s,'0',L,h-8,p.muted,'left',10);label(s,fmt(Math.max(n,o.minX||1))+' komut',L+pw,h-8,p.muted,'right',10);label(s,o.yLabel||'',L+4,T+10,p.muted,'left',10);
+ for(const ln of o.lines||[]){if(ln.v===null||ln.v===undefined||ln.v>yMax)continue;g.strokeStyle=ln.red?p.red:p.warm;g.setLineDash(ln.red?[2,3]:[6,4]);g.lineWidth=1.5;g.beginPath();g.moveTo(L,Y(ln.v));g.lineTo(L+pw,Y(ln.v));g.stroke();g.setLineDash([]);
+  label(s,ln.t,L+pw-4,Y(ln.v)-4,ln.red?p.red:p.warm,'right',10);}
+ if(!data.length){label(s,o.empty||'Henüz komut yürütülmedi',L+pw/2,T+ph/2,p.muted,'center',12);return;}
+ g.strokeStyle=p.accent;g.lineWidth=1.6;g.beginPath();
+ if(n<=pw*2){g.moveTo(X(0),Y(o.start||0));for(let i=0;i<n;i++){if(o.stair){g.lineTo(X(i+1),Y(i?data[i-1]:(o.start||0)));}g.lineTo(X(i+1),Y(data[i]));}}
+ else{const cols=Math.floor(pw);for(let c=0;c<cols;c++){const a=Math.floor(c*n/cols),b=Math.max(a+1,Math.floor((c+1)*n/cols));let lo=Infinity,hi=-Infinity;for(let i=a;i<b;i++){if(data[i]<lo)lo=data[i];if(data[i]>hi)hi=data[i];}const x=L+c+.5;g.moveTo(x,Y(lo));g.lineTo(x,Y(hi)-.8);}}
+ g.stroke();
+ if(o.dots&&n<=pw/3){g.fillStyle=p.accent;for(let i=0;i<n;i++){g.beginPath();g.arc(X(i+1),Y(data[i]),2.2,0,7);g.fill();}}}
+
+function parseArr(text){const t=text.trim();if(t==='')return{ok:true,arr:[]};const parts=t.split(/[\s,;]+/).filter(Boolean),arr=[];
+ for(const q of parts){const s=q.replace('−','-');if(!/^-?\d+$/.test(s))return{ok:false,msg:'"'+q+'" bir tam sayı değil.'};const v=parseInt(s,10);if(v<-128||v>127)return{ok:false,msg:neg(v)+' 8 bitlik işaretli aralığın (−128 … 127) dışında.'};arr.push(v);}
+ if(arr.length>16)return{ok:false,msg:'En çok 16 sayı yazılabilir ('+arr.length+' yazıldı).'};return{ok:true,arr};}
+function listingHtml(asm,mapFn){return asm.rows.map(r=>{const g=mapFn?mapFn(r):null;return'<tr data-line="'+r.line+'"'+(r.kind==='ins'?' data-addr="'+r.addr+'"':'')+(g!==null&&g!==undefined?' data-g="'+g+'"':'')+'><td>'+r.line+'</td><td>'+(r.addr===null?'':hx(r.addr))+'</td><td>'+r.bytes.map(hx).join(' ')+'</td><td>'+esc(r.src)+'</td></tr>';}).join('');}
+function markPc(tbodyId,wrapId,m){const tb=$(tbodyId);let cur=null;for(const tr of tb.children){const on=!!m&&tr.dataset.addr!==undefined&&+tr.dataset.addr===m.pc&&!m.fault;tr.classList.toggle('is-pc',on);if(on)cur=tr;}
+ if(cur&&wrapId){const w=$(wrapId),top=cur.offsetTop,bot=top+cur.offsetHeight;if(top<w.scrollTop+30)w.scrollTop=Math.max(0,top-30);else if(bot>w.scrollTop+w.clientHeight)w.scrollTop=bot-w.clientHeight+6;}}
+function faultText(m){const f=m.fault;if(!f)return'';
+ if(f.kind==='badop')return'Geçersiz işlem kodu: PC = '+h0(f.pc)+' adresindeki '+h0(f.info)+' baytı bir komut değil. PC veriye, boş belleğe ya da bozulmuş koda girdi; makine durdu.';
+ if(f.kind==='overflow')return'Yığın taşması: sıradaki yazma '+h0(f.info)+' adresine, yani program görüntüsünün (0x00–'+h0(m.limit-1)+') içine düşecekti. Makine yazmadan durdu.';
+ if(f.kind==='underflow')return'Boş yığından çekme: SP = 0xFF iken POP ya da RET geldi; geri alınacak bir şey yok. Makine durdu.';
+ return'PC bellek sonuna dayandı ('+h0(Math.min(255,f.pc))+'); okunacak iki bayt kalmadı. Makine durdu.';}
+function nextText(m,asm){const line=asm.lineOfAddr[m.pc];const d=K.disasm(m.mem[m.pc],m.mem[Math.min(255,m.pc+1)]);return'PC = '+h0(m.pc)+(line?' (satır '+line+')':'')+', sıradaki komut: '+(d||'geçersiz bayt');}
+
+/* ===================== 01 · Küçük işlemci ===================== */
+const C={asm:null,m:null,canon:'',th:null,trace:[],running:false,acc:0,limit:false,built:false};
+function cpuPreset(){const k=$('cpuPreset').value;
+ if(k==='sum'){const n=+$('cpuSumN').value;return{src:K.programs.sum(n),th:K.theory.sum(n),lab:'Kapalı biçim 5n + 6',expect:t=>fmt(t.result)+(t.exact>255?' ('+fmt(t.exact)+' mod 256)':'')};}
+ if(k==='mul'){const a=+$('cpuMulA').value,b=+$('cpuMulB').value;return{src:K.programs.mul(a,b),th:K.theory.mul(a,b),lab:'Kapalı biçim 5b + 7',expect:t=>fmt(t.result)+(t.exact>255?' ('+fmt(t.exact)+' mod 256)':'')};}
+ if(k==='fact'){const n=+$('cpuFactN').value;return{src:K.programs.fact(n),th:K.theory.fact(n),lab:'Kapalı biçim 8 + 14n + 5n(n + 1)/2',expect:t=>fmt(t.result)+(n>5?' ('+n+'! mod 256)':'')};}
+ const p=parseArr($('cpuArr').value);if(!p.ok)return{src:null,msg:p.msg};
+ return{src:K.programs.max(p.arr),th:K.theory.max(p.arr),lab:'Kapalı biçim 8L + 6 + u',expect:t=>neg(t.signedResult)+(t.signedResult<0?' ('+h0(t.result)+')':'')};}
+function cpuLoad(){const k=$('cpuPreset').value;$('cpuSumField').hidden=k!=='sum';$('cpuArrField').hidden=k!=='max';$('cpuMulAField').hidden=$('cpuMulBField').hidden=k!=='mul';$('cpuFactField').hidden=k!=='fact';
+ put('cpuSumNOut',$('cpuSumN').value);put('cpuMulAOut',$('cpuMulA').value);put('cpuMulBOut',$('cpuMulB').value);put('cpuFactNOut',$('cpuFactN').value);
+ const p=cpuPreset();C.arrMsg=p.src===null?p.msg:null;if(p.src!==null){C.canon=p.src;C.preset=p;$('cpuSrc').value=p.src;}cpuAssemble();}
+function cpuAssemble(){C.asm=K.assemble($('cpuSrc').value);C.running=false;C.acc=0;C.limit=false;C.trace=[];C.m=C.asm.ok&&C.asm.bytes.length?K.createMachine(C.asm.bytes):null;
+ $('cpuListing').innerHTML=listingHtml(C.asm);const e=$('cpuErrors');e.hidden=C.asm.ok;e.innerHTML=C.asm.errors.map(x=>'<li>Satır '+x.line+': '+esc(x.msg)+'</li>').join('');cpuRender();}
+function cpuRestart(){if(C.asm&&C.asm.ok&&C.asm.bytes.length){C.m=K.createMachine(C.asm.bytes);C.trace=[];C.running=false;C.acc=0;C.limit=false;}cpuRender();}
+function cpuStepOnce(){const m=C.m;if(!m||m.halted||C.limit)return false;if(K.step(m))C.trace.push(m.lastPc);if(!m.halted&&m.steps>=K.STEP_LIMIT){C.limit=true;C.running=false;}if(m.halted)C.running=false;return true;}
+function buildMem(id){const el=$(id);let s='<span class="h"></span>';for(let c=0;c<16;c++)s+='<span class="h">'+c.toString(16).toUpperCase()+'</span>';
+ for(let r=0;r<16;r++){s+='<span class="h">'+r.toString(16).toUpperCase()+'0</span>';for(let c=0;c<16;c++)s+='<span class="c" title="adres '+h0(r*16+c)+'"></span>';}el.innerHTML=s;return[...el.querySelectorAll('.c')];}
+function buildRegs(){$('cpuRegs').innerHTML=Array.from({length:8},(_,i)=>'<div class="ml-reg" id="cpuReg'+i+'"><small>'+(i===7?'R7 · SP':'R'+i)+'</small><b></b><i></i></div>').join('');
+ $('cpuFlags').innerHTML='<span class="ml-flag" id="cpuPc"></span>'+['Z','C','N','V'].map(f=>'<span class="ml-flag" id="cpuF'+f+'"></span>').join('');}
+function cpuRender(){
+ if(!C.built){C.cells=buildMem('cpuMem');buildRegs();C.built=true;}
+ const m=C.m,asm=C.asm,ok=!!m,th=ok&&$('cpuSrc').value===C.canon&&!C.arrMsg?C.preset:null;
+ for(const id of['cpuStep','cpuRun','cpuFinish'])$(id).disabled=!ok||m.halted||C.limit;$('cpuRestart').disabled=!ok;
+ $('cpuRun').textContent=C.running?'Duraklat':'Çalıştır';
+ const sp=SPEEDS(+$('cpuSpeed').value);put('cpuSpeedOut',fmt(sp)+' komut/s');
+ for(let i=0;i<8;i++){const el=$('cpuReg'+i),v=ok?m.reg[i]:(i===7?255:0);el.children[1].textContent=hx(v);el.children[2].textContent=v+' · '+sgt(v);el.classList.toggle('is-new',ok&&!!(m.lastReg>>i&1));}
+ put('cpuPc','PC = '+(ok?h0(Math.min(255,m.pc)):'—'));for(const f of['Z','C','N','V']){const v=ok?m[f.toLowerCase()]:0,el=$('cpuF'+f);el.textContent=f+' = '+v;el.classList.toggle('is-on',v===1);}
+ const size=asm.ok?asm.size:0;
+ for(let a=0;a<256;a++){const el=C.cells[a],v=ok?m.mem[a]:0;el.textContent=hx(v);let cls='c';if(ok){const line=a<size;if(line)cls+=asmIsData(asm,a)?' is-data':' is-code';if(a>m.reg[7])cls+=' is-stack';if(m.changed[a])cls+=' is-chg';if(m.last.includes(a))cls+=' is-new';if(!m.fault&&(a===m.pc||a===m.pc+1))cls+=' is-pc';if(a===m.reg[7])cls+=' is-sp';}el.className=cls;}
+ markPc('cpuListing','cpuListWrap',m);
+ put('cpuSteps',ok?fmt(m.steps):'—');put('cpuSize',asm.ok?fmt(asm.size)+' bayt · '+fmt(asm.instructions)+' komut':'—');
+ put('cpuTheoryLab',th?th.lab:'Kapalı biçim');put('cpuTheory',th?fmt(th.th.steps):'—');
+ const done=ok&&m.halted&&!m.fault;
+ put('cpuDiff',th&&done?diffText(m.steps-th.th.steps):'—');
+ const ra=asm.ok?asm.labels['sonuç']:undefined;
+ put('cpuResult',done&&ra!==undefined?fmt(m.mem[ra])+' · '+h0(m.mem[ra])+(m.mem[ra]>127?' · işaretli '+sgt(m.mem[ra]):''):'—');
+ put('cpuExpect',th?th.expect(th.th):'—');
+ const st=$('cpuStatus');let t,bad=false;
+ if(C.arrMsg){t='Dizi okunamadı: '+C.arrMsg+' Program son geçerli diziyle duruyor.';bad=true;}
+ else if(!asm.ok){t='Program baytlara çevrilemedi: '+asm.errors.length+' hata. Hatalar düzeltilene kadar makine çalışmaz.';bad=true;}
+ else if(!ok)t='Program boş: en az bir komut yaz.';
+ else if(m.fault){t=faultText(m)+' Bu noktaya kadar '+fmt(m.steps)+' komut tamamlandı.';bad=true;}
+ else if(C.limit){t=fmt(K.STEP_LIMIT)+' komutta durmadı: program büyük olasılıkla sonsuz döngüde. Sınır, tarayıcıyı korumak için konmuştur.';bad=true;}
+ else if(m.halted){t='HLT ile durdu: '+fmt(m.steps)+' komut yürütüldü.'+(th?' Kapalı biçim '+fmt(th.th.steps)+' diyor; fark '+diffText(m.steps-th.th.steps)+'.':' Kaynak hazır programdan farklı olduğu için kapalı biçim tanımlı değil.')+(ra===undefined?' Kaynakta "sonuç" etiketi yok; sonuç kartı boş kalır.':'');}
+ else if(m.steps===0)t='Hazır: '+fmt(asm.size)+' bayt yüklendi. '+nextText(m,asm)+'.'+(th?'':' Kaynak hazır programdan farklı: kapalı biçim yalnız hazır programlar için tanımlı.');
+ else t=fmt(m.steps)+' komut yürütüldü. '+nextText(m,asm)+'.';
+ st.textContent=t;st.classList.toggle('is-bad',bad);
+ drawSeries('cpuTrace',C.trace,{yMax:Math.max(16,size),yLabel:'PC (adres)',yFmt:v=>hx(Math.min(255,v)),dots:true,minX:20,empty:ok?'Henüz komut yürütülmedi':'Program çevrilemedi'});
+}
+function asmIsData(asm,a){if(!asm._data){const d=new Uint8Array(256);for(const r of asm.rows)if(r.kind==='data')for(let i=0;i<r.bytes.length;i++)if(r.addr+i<256)d[r.addr+i]=1;asm._data=d;}return asm._data[a]===1;}
+function cpuDefaults(){$('cpuPreset').value='sum';$('cpuSumN').value=10;$('cpuArr').value='12, 45, -7, 88, 23, 61, 90';$('cpuMulA').value=7;$('cpuMulB').value=6;$('cpuFactN').value=5;$('cpuSpeed').value=10;cpuLoad();}
+function buildSpec(){const ex={'':'','r,r':' R2, R5','r,i':' R2, #9','r,d':' R2, [0x40]','r,m':' R2, [R5]','r':' R2','e':' 0x40'};
+ $('cpuSpec').tBodies[0].innerHTML=K.SPEC.map(([code,name,form,what])=>{const src=name+ex[form],a=K.assemble(src);return'<tr><td><code>'+esc((name+' '+({'':'','r,r':'Rd, Rs','r,i':'Rd, #sabit','r,d':'Rd, [adres]','r,m':'Rd, [Rs]','r':'Rd','e':'adres'})[form]).trim())+'</code></td><td><code>'+code.toString(2).padStart(5,'0')+'</code> ('+code+')</td><td><code>'+esc(src)+'</code></td><td><code>'+a.bytes.map(hx).join(' ')+'</code></td><td>'+esc(what||(name==='HLT'?'makineyi durdurur':''))+'</td></tr>';}).join('');}
+
+/* ===================== 02 · C'den makine koduna ===================== */
+const GROUPS=[
+ {t:'İşlev girişi ve argümanlar',hex:[],att:[0],c:[0],note:'System V AMD64 çağrı düzeninde ilk tam sayı ya da işaretçi argümanı %rdi (burada arr), ikincisi %esi (len) ile gelir; sonuç %eax ile döner. Etiket (max_value:) bayt üretmez, yalnızca ilk komutun adresine ad verir. Öğretim işlemcisinde aynı rolleri bu sayfanın kendi sözleşmesiyle R1, R2 ve R0 üstlenir.'},
+ {t:'len <= 0 ise 0 döndür',hex:[0,1,2],att:[1,2,3],c:[1],note:'xorl %eax, %eax dönüş değerini baştan 0 yapar. testl %esi, %esi len’i kendisiyle VE’ler: sonuç atılır, yalnız bayraklar kurulur. jle “küçük ya da eşit (işaretli)” ise .done’a atlar. Makine kodunda 7E 17: sonraki komuttan 0x17 = 23 bayt ileri, yani en sondaki C3 (ret) baytına.'},
+ {t:'max = arr[0]',hex:[3],att:[4],c:[2],note:'8B 07, yani movl (%rdi), %eax: %rdi’nin gösterdiği adresteki 4 baytı okuyup %eax’e koyar. C’deki max değişkeninin bellekte bir yeri yoktur; bütün ömrünü %eax yazmacında geçirir.'},
+ {t:'i = 1 ve döngü sınamasına atla',hex:[4,5],att:[5,6],c:[3],note:'B9 01 00 00 00: 1 sabiti dört bayt olarak, en düşük baytı önce yazılır (küçük uçlu sıra). Döngü sınaması altta durduğu için jmp .check (EB 0A: 10 bayt ileri) ilk turda doğrudan sınamaya gider.'},
+ {t:'arr[i] ile max’ı karşılaştır',hex:[6,7],att:[8,9],c:[4],note:'8B 14 8F, yani movl (%rdi,%rcx,4), %edx: adres = rdi + rcx × 4; int dört bayt olduğu için ölçek 4. cmpl %edx, %eax ise eax − edx’i hesaplar, sonucu atar, bayrakları bırakır. Öğretim işlemcisinde ölçekli adresleme yoktur: adres MOV ve ADD ile elle kurulur, sonra LOAD edilir.'},
+ {t:'arr[i] büyükse max = arr[i]',hex:[8],att:[10],c:[5],note:'cmovll “küçükse (işaretli) taşı” demektir: max < arr[i] ise %edx, %eax’e kopyalanır; dallanma yoktur. Öğretim işlemcisinde koşullu taşıma bulunmadığından aynı iş, JGE ile MOV’un üstünden atlanarak yapılır.'},
+ {t:'i++',hex:[9],att:[11],c:[3],note:'FF C1, yani incl %ecx: sayacı 1 artırır. C’de for satırının üçüncü parçasıdır; makine kodunda döngü gövdesinin son komutudur.'},
+ {t:'i < len ise döngüye dön',hex:[10,11],att:[12,13,14],c:[3],note:'cmpl %esi, %ecx ecx − esi’nin bayraklarını kurar; jl “küçükse (işaretli)” .loop’a döner. 7C F2: F2 işaretli okununca −14’tür, yani sonraki komuttan 14 bayt geri. C’de tek satır olan for, makine kodunda üç ayrı yere dağılmıştır: başlangıç, artırma ve sınama.'},
+ {t:'return max',hex:[12],att:[15,16],c:[7],note:'C3, yani ret: yığının tepesindeki dönüş adresini çekip oraya atlar. Sonuç zaten %eax’tedir. .done etiketi hem len <= 0 yolunun hem de biten döngünün ortak çıkışıdır.'}
+];
+const FN_GROUP=[1,1,1,2,3,3,4,4,4,4,5,5,6,7,7,8];
+const M2={group:1,asm:null,fnAddr:0};
+function wrapLines(id){const el=$(id),parts=el.innerHTML.split('\n');el.innerHTML=parts.map((p,i)=>'<span class="ml-ln" data-i="'+i+'">'+p+'</span>').join('\n');}
+function mapSelect(g){M2.group=g;$('mapSel').value=String(g);const G=GROUPS[g];
+ for(const[id,key]of[['colHex','hex'],['colAtt','att'],['colC','c']])for(const ln of $(id).querySelectorAll('.ml-ln'))ln.classList.toggle('is-map',G[key].includes(+ln.dataset.i));
+ let first=null;for(const tr of $('c2Listing').children){const on=tr.dataset.g===String(g);tr.classList.toggle('is-map',on);if(on&&!first)first=tr;}
+ if(first){const w=first.closest('.ml-scroll');if(first.offsetTop<w.scrollTop+30||first.offsetTop+first.offsetHeight>w.scrollTop+w.clientHeight)w.scrollTop=Math.max(0,first.offsetTop-40);}
+ put('mapNote',G.note);}
+function c2Run(){const p=parseArr($('c2Arr').value),st=$('c2Status');
+ const x86=$('colHex').textContent.split('\n').map(l=>l.split(';')[0].trim()).filter(Boolean),nb=x86.reduce((s,l)=>s+l.split(/\s+/).length,0);
+ if(!p.ok){for(const id of['c2Result','c2Ref','c2Steps','c2Theory','c2Diff'])put(id,'—');st.textContent='Dizi okunamadı: '+p.msg;st.classList.add('is-bad');return;}
+ const asm=K.assemble(K.programs.max(p.arr)),fn=asm.labels.max_value;M2.asm=asm;
+ let k=0;$('c2Listing').innerHTML=listingHtml(asm,r=>r.addr!==null&&r.addr>=fn&&r.addr<asm.labels.dizi?(r.kind==='ins'?FN_GROUP[k++]:0):null);
+ const m=K.createMachine(asm.bytes);K.run(m);const th=K.theory.max(p.arr),ref=p.arr.length?p.arr.reduce((a,b)=>b>a?b:a):0,got=K.signed(m.reg[0]),done=m.halted&&!m.fault;
+ put('c2Result',done?neg(got)+' · '+h0(m.reg[0]):'—');put('c2Ref',neg(ref));put('c2Steps',done?fmt(m.steps):'—');put('c2Theory',fmt(th.steps));put('c2Diff',done?diffText(m.steps-th.steps):'—');
+ const fnIns=asm.rows.filter(r=>r.kind==='ins'&&r.addr>=fn).length;put('c2Bytes','öğretim: '+fnIns+' komut, '+fnIns*2+' bayt · x86-64: '+x86.length+' komut, '+nb+' bayt');
+ const Ln=p.arr.length;
+ st.textContent=!done?'Öğretim makinesi beklenmedik biçimde durdu: '+faultText(m):Ln===0?'Boş dizi: len = 0 olduğu için işlev döngüye girmeden 0 döndürür; 9 komut yürütülür (ana program 5, işlev 4).'
+  :'L = '+Ln+' eleman, en büyük '+th.updates+' kez güncellendi (u = '+th.updates+'): 8 × '+Ln+' + 6 + '+th.updates+' = '+fmt(th.steps)+' komut. Makinenin bulduğu en büyük '+neg(got)+(got===ref?', başvuruyla aynı.':', başvurudan FARKLI.');
+ st.classList.toggle('is-bad',!done||got!==ref);mapSelect(M2.group);}
+function c2Defaults(){$('c2Arr').value='12, 45, -7, 88, 23, 61, 90';M2.group=1;c2Run();}
+
+/* ===================== 03 · Yığın ve çağrı ===================== */
+const S={asm:null,m:null,trace:[],running:false,acc:0,limit:false,hit:new Set()};
+const ST_N={fact:[0,120,5],fib:[0,13,6]};
+function stProgChanged(){const k=$('stProg').value,r=ST_N[k];$('stNField').hidden=!r;if(r){$('stN').min=r[0];$('stN').max=r[1];$('stN').value=r[2];}stLoad();}
+function stLoad(){const k=$('stProg').value,n=+$('stN').value;put('stNOut',String(n));
+ S.asm=K.assemble(k==='fact'?K.programs.fact(n):k==='fib'?K.programs.fib(n):K.programs.runaway());$('stListing').innerHTML=listingHtml(S.asm);stRestart();}
+function stRestart(){S.m=K.createMachine(S.asm.bytes,{protect:$('stProtect').checked});S.trace=[];S.hit=new Set();S.running=false;S.acc=0;S.limit=false;stRender();}
+function stStepOnce(){const m=S.m;if(m.halted||S.limit)return false;const sp0=m.reg[7];if(K.step(m)){S.trace.push(m.depth);if(sp0<m.limit&&m.reg[7]===((sp0-1)&255)&&m.last.includes(sp0))S.hit.add(sp0);}if(!m.halted&&m.steps>=K.STEP_LIMIT){S.limit=true;S.running=false;}if(m.halted)S.running=false;return true;}
+/* Yığının program görüntüsünde ezdiği AYRI hücreler: kaç tane, hangi aralık, kaçı komut baytı, hangi veri etiketleri. */
+function stOw(){const asm=S.asm,cells=[...S.hit].sort((a,b)=>a-b),k=cells.length;if(!k)return null;
+ return{k,code:cells.filter(a=>!asmIsData(asm,a)).length,range:k===1?h0(cells[0]):h0(cells[0])+'–'+h0(cells[k-1]),names:asm.rows.filter(r=>r.kind==='data'&&r.label&&S.hit.has(r.addr)).map(r=>r.label)};}
+function stTheory(){const k=$('stProg').value,n=+$('stN').value,cap=256-S.asm.size,prot=$('stProtect').checked;
+ if(k==='run'){const t=K.theory.runaway(cap);return prot?{depth:t.depth,dLab:'Kuram: kapasitenin tamamı',dTxt:fmt(t.depth),calls:t.calls,cLab:'CALL (kuram) ⌈kapasite/2⌉',steps:t.steps,sLab:'Komut (kuram) kapasite + ⌊kapasite/2⌋',over:true,cap}
+  :{depth:null,dLab:'Kuram',dTxt:'tanımsız (koruma kapalı)',calls:null,cLab:'CALL sayısı (kuram)',steps:null,sLab:'Komut (kuram)',over:true,cap};}
+ const t=k==='fact'?K.theory.fact(n):K.theory.fib(n),f=k==='fact'?'2n + 1':(n<2?'1 (n < 2)':'2n'),over=t.depth>cap;
+ if(over)return prot?{depth:cap,dLab:'Kuram: '+f+' = '+t.depth+' sığmaz',dTxt:fmt(cap)+' bayt (kapasite)',noUnit:true,calls:null,cLab:'CALL sayısı (kuram)',steps:null,sLab:'Komut (kuram)',over,cap,need:t.depth}
+  :{depth:null,dLab:'Kuram: '+f+' = '+t.depth+' sığmaz',dTxt:'tanımsız (koruma kapalı)',calls:null,cLab:'CALL sayısı (kuram)',steps:null,sLab:'Komut (kuram)',over,cap,need:t.depth};
+ return{depth:t.depth,dLab:'Kuram: '+f,dTxt:fmt(t.depth),calls:t.calls,cLab:k==='fact'?'CALL (kuram) 2n + 1':'CALL (kuram) 2·F(n+1) − 1',steps:t.steps,sLab:k==='fact'?'Komut (kuram) 8 + 14n + 5n(n+1)/2':'Komut (kuram) 16·F(n+1) − 8',over:false,cap,result:t.result,exact:t.exact};}
+function stRender(){const m=S.m,asm=S.asm,th=stTheory(),k=$('stProg').value,n=+$('stN').value;
+ for(const id of['stStep','stRun','stFinish'])$(id).disabled=m.halted||S.limit;$('stRun').textContent=S.running?'Duraklat':'Çalıştır';
+ put('stSpeedOut',fmt(SPEEDS(+$('stSpeed').value))+' komut/s');
+ markPc('stListing','stListWrap',m);
+ const ended=m.halted||S.limit;
+ put('stDepth',fmt(m.depth)+' bayt');put('stMax',fmt(m.maxDepth)+' bayt');put('stTheoryLab',th.dLab);put('stTheory',th.dTxt+(th.depth!==null&&!th.noUnit?' bayt':''));
+ put('stDiff',ended&&th.depth!==null?diffText(m.maxDepth-th.depth):'—');
+ put('stCalls',fmt(m.calls));put('stCallsLab',th.cLab);put('stCallsT',th.calls===null?'—':fmt(th.calls));
+ put('stSteps',fmt(m.steps));put('stStepsLab',th.sLab);put('stStepsT',th.steps===null?'—':fmt(th.steps));
+ put('stCap','256 − '+asm.size+' = '+fmt(th.cap)+' bayt');
+ const ra=asm.labels['sonuç'],done=m.halted&&!m.fault;
+ put('stResult',done&&ra!==undefined&&m.overwritten===0?fmt(m.mem[ra])+(th.result!==undefined?' (beklenen '+fmt(th.result)+(k==='fact'&&n>5?', '+n+'! mod 256':'')+')':''):'—');
+ /* yığın hücreleri */
+ const sp=m.reg[7],cells=[];const total=255-sp,show=Math.min(total,60);
+ for(let a=sp+1;a<=sp+show;a++){const v=m.mem[a],tag=m.tags[a];let cls='ml-cell',txt;
+  if(tag&&tag.k==='ret'){cls+=' is-ret';const tl=asm.lineOfAddr[v],fl=asm.lineOfAddr[tag.from];txt='dönüş adresi → '+h0(v)+(tl?' (satır '+tl+')':'')+(fl?' · CALL (satır '+fl+') yazdı':'');}
+  else if(tag&&tag.k==='reg'){const fl=asm.lineOfAddr[tag.from],row=fl?asm.rows[fl-1]:null,com=row?row.comment:'',local=/^yerel/.test(com);cls+=local?' is-local':' is-saved';txt=com?'R'+tag.r+' = '+v+' · '+com:'saklanan R'+tag.r+' = '+v;}
+  else txt='etiketsiz veri';
+  cells.push('<div class="'+cls+'"><b>'+hx(a)+'</b><i>'+hx(v)+'</i><span>'+esc(txt)+'</span></div>');}
+ $('stStack').innerHTML=total===0?'<p class="ml-caption">Yığın boş: SP = 0xFF.</p>':cells.join('')+(total>show?'<p class="ml-caption">… ve altında '+fmt(total-show)+' hücre daha (en eskiler).</p>':'');
+ const st=$('stStatus'),ow=stOw();let t,bad=false;
+ if(m.fault){bad=true;t=faultText(m)+' En büyük derinlik '+fmt(m.maxDepth)+' bayt; kapasite '+fmt(th.cap)+' bayt.'+(m.fault.kind==='overflow'&&th.need?' Bu n için gereken derinlik '+fmt(th.need)+' bayttı.':'')+(ow?' Koruma kapalıyken yığın, program görüntüsündeki '+fmt(ow.k)+' hücrenin ('+ow.range+') üstüne yazdı; makineyi durduran bu bozulmadır.':'');}
+ else if(S.limit){bad=true;t=fmt(K.STEP_LIMIT)+' komutta durmadı.'+(ow?' Yığın program görüntüsündeki '+fmt(ow.k)+' hücrenin ('+ow.range+') üstüne yazdı; program artık yazıldığı gibi çalışmıyor.':'');}
+ else if(m.halted){const dTxt='En büyük derinlik '+fmt(m.maxDepth)+' bayt'+(th.depth!==null?', kuram '+fmt(th.depth)+' bayt; fark '+diffText(m.maxDepth-th.depth)+'.':'.');
+  if(ow){bad=true;t='Yığın programın üstüne yazdı: program görüntüsündeki '+fmt(ow.k)+' hücre ('+ow.range+') ezildi. '
+   +(ow.code===0?'Ezilen '+(ow.k===1?'hücre komut değil, bir veri baytı':'hücreler komut değil, veri baytları')+' ('+ow.names.join(', ')+'); komutlar sağlam kaldığı için program yine de HLT’ye ulaştı.'
+    :'Bunların '+fmt(ow.code)+' tanesi komut baytı. Makine yine de bir HLT ile durdu'+(m.pc>=m.limit?'; ama bu, kaynaktaki HLT değil: PC = '+h0(m.pc)+' program görüntüsünün dışında, oradaki bayt yığına yazılmış bir değer.':'.'))
+   +' '+dTxt+' Sonuç güvenilir değil, kart boş bırakıldı.';}
+  else t='HLT ile durdu. '+dTxt;}
+ else if(m.steps===0)t='Hazır. '+(th.over?(th.depth!==null?'Bu ayarda yığının taşması beklenir: kapasite '+fmt(th.cap)+' bayt.':'Koruma kapalı ve yığın programa sığmayacak: sonuç öngörülemez, adım adım izle.'):'Kuram en büyük derinliği '+fmt(th.depth)+' bayt öngörüyor; kapasite '+fmt(th.cap)+' bayt.');
+ else t=fmt(m.steps)+' komut · derinlik '+fmt(m.depth)+' bayt · '+nextText(m,asm)+'.'+(ow?' Yığın program görüntüsüne girdi ('+fmt(ow.k)+' hücre).':'');
+ st.textContent=t;st.classList.toggle('is-bad',bad);
+ const yMax=Math.max(8,Math.ceil(Math.max(m.maxDepth,th.depth||0,th.need&&th.need<=260?th.need:0)*1.15));
+ drawSeries('stChart',S.trace,{yMax,yLabel:'derinlik (bayt)',stair:true,minX:20,lines:[{v:th.depth,t:'kuram '+(th.depth===null?'':fmt(th.depth))},{v:th.cap,t:'kapasite '+fmt(th.cap),red:true}]});
+}
+function stDefaults(){$('stProg').value='fact';$('stProtect').checked=true;$('stSpeed').value=10;stProgChanged();}
+
+/* ===================== 04 · Bayraklar ve taşma ===================== */
+const A={a:127,b:1,op:'ADD',maps:{},counts:{},verify:null};
+const OPSYM={ADD:'+',SUB:'−',CMP:'−',AND:'ve',OR:'veya',XOR:'⊕',SHL:'<< 1',SHR:'>> 1'};
+function buildBits(){let s='<thead><tr><th scope="col">bit</th>';for(let i=7;i>=0;i--)s+='<td>'+i+'</td>';s+='<td></td></tr></thead><tbody>';
+ const rowBtn=(n)=>{let r='<tr><th scope="row">'+n+'</th>';for(let i=7;i>=0;i--)r+='<td><button type="button" class="ml-bit app-btn-ghost" id="alu'+n+'b'+i+'" data-w="'+n+'" data-i="'+i+'" aria-pressed="false" aria-label="'+n+' sayısının '+i+'. biti">0</button></td>';return r+'<td id="alu'+n+'v"></td></tr>';};
+ const rowTxt=(id,name,cls)=>{let r='<tr id="'+id+'"'+(cls?' class="'+cls+'"':'')+'><th scope="row">'+name+'</th>';for(let i=7;i>=0;i--)r+='<td data-i="'+i+'"></td>';return r+'<td></td></tr>';};
+ s+=rowBtn('A')+rowBtn('B')+rowTxt('aluRowN','B’nin tümleyeni')+rowTxt('aluRowC','Elde girişi')+rowTxt('aluRowR','Sonuç','is-res')+'</tbody>';$('aluBits').innerHTML=s;}
+function aluMapImage(op,p){const key=op+'|'+p.bg;if(A.maps[key])return A.maps[key];const cv=document.createElement('canvas');cv.width=cv.height=256;const g=cv.getContext('2d'),im=g.createImageData(256,256);
+ const rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)],col=[rgb(p.none),rgb(p.warm),rgb(p.violet),rgb(p.red)];
+ for(let b=0;b<256;b++)for(let a=0;a<256;a++){const t=K.alu(op,a,b),c=col[t.c+2*t.v],o=(b*256+a)*4;im.data[o]=c[0];im.data[o+1]=c[1];im.data[o+2]=c[2];im.data[o+3]=255;}
+ g.putImageData(im,0,0);return A.maps[key]=cv;}
+function aluRender(){const{a,b,op}=A,t=K.alu(op,a,b),unary=op==='SHL'||op==='SHR',arith=op==='ADD'||op==='SUB'||op==='CMP',sub=op==='SUB'||op==='CMP',sa=K.signed(a),sb=K.signed(b);
+ $('aluOp').value=op;$('aluA').value=a;$('aluB').value=b;$('aluB').disabled=unary;
+ put('aluAOut',h0(a)+' · '+a+' · '+sgt(a));put('aluBOut',unary?'kullanılmıyor':h0(b)+' · '+b+' · '+sgt(b));
+ for(const[w,v]of[['A',a],['B',b]]){for(let i=0;i<8;i++){const el=$('alu'+w+'b'+i),on=v>>i&1;el.textContent=on;el.setAttribute('aria-pressed',on?'true':'false');el.disabled=w==='B'&&unary;}put('alu'+w+'v',w==='B'&&unary?'':h0(v));}
+ const fill=(id,val,cls,tail)=>{const tr=$(id);for(const td of tr.querySelectorAll('td[data-i]')){const bit=val===null?null:val>>(+td.dataset.i)&1;td.textContent=bit===null?'·':bit;td.className=bit?cls:'';}tr.lastElementChild.textContent=tail||'';};
+ $('aluRowN').hidden=!sub;if(sub)fill('aluRowN',t.bEff,'is-one',h0(t.bEff));
+ $('aluRowC').hidden=!arith;if(arith)fill('aluRowC',((t.chain<<1)|t.cin)&255,'is-carry','çıkan: '+(t.chain>>7&1));
+ fill('aluRowR',t.r,'is-one',h0(t.r));
+ put('aluRes',h0(t.r)+' · işaretsiz '+t.r+' · işaretli '+sgt(t.r));
+ let tu,ts,why;
+ if(arith){const u=sub?a-b:a+b,s=sub?sa-sb:sa+sb,sym=sub?' − ':' + ',par=x=>x<0?'('+neg(x)+')':String(x);
+  tu=a+sym+b+' = '+neg(u)+(u>=0&&u<=255?' · 0 … 255 içinde':' · 0 … 255 dışında');ts=par(sa)+sym+par(sb)+' = '+neg(s)+(s>=-128&&s<=127?' · −128 … 127 içinde':' · −128 … 127 dışında');
+  why=(t.c?(sub?'C = 1: işaretsiz okuyuşta A < B, çıkarma borç istedi; 8 bitlik sonuç gerçek farktan 256 fazla.':'C = 1: işaretsiz toplam 255’i aştı; 8 bitlik sonuç gerçek toplamdan 256 eksik.'):'C = 0: işaretsiz okuyuşta sonuç doğru.')+' '
+   +(t.v?'V = 1: işaretli okuyuşta gerçek sonuç −128 … 127 aralığına sığmıyor; 8 bitlik sonucun işareti yanlış.':'V = 0: işaretli okuyuşta sonuç doğru.')+(op==='CMP'?' CMP sonucu saklamaz, yalnız bayrakları bırakır.':'');}
+ else if(unary){tu=op==='SHL'?a+' × 2 = '+a*2+(a*2>255?' · 0 … 255 dışında':' · 0 … 255 içinde'):'⌊'+a+' / 2⌋ = '+(a>>1)+', kalan '+(a&1);
+  ts=op==='SHL'?neg(sa)+' × 2 = '+neg(sa*2)+(sa*2>127||sa*2<-128?' · −128 … 127 dışında':' · −128 … 127 içinde'):'işaretli '+neg(sa)+' için mantıksal kaydırma '+(sa<0?'işareti kaybettirir':'bölmeyle aynı');
+  why=op==='SHL'?'Sola kaydırma 2 ile çarpmadır: düşen üst bit C’ye gider (C = '+t.c+'), işaret biti değiştiyse V = 1 olur (V = '+t.v+').':'Sağa kaydırma işaretsiz sayıyı 2’ye böler: düşen alt bit C’ye gider (C = '+t.c+'); üste 0 girdiği için V eski işaret bitini tutar (V = '+t.v+').';}
+ else{tu='bit bit işlem: elde yok';ts='bit bit işlem: taşma yok';why='Mantık işlemleri her biti ötekilerden bağımsız hesaplar; elde zinciri çalışmaz, bu makinede C ve V sıfırlanır. Z ve N sonuca göre kurulur.';}
+ put('aluTrueU',tu);put('aluTrueS',ts);put('aluStatus',why);
+ $('aluFlags').innerHTML=[['Z','sonuç sıfır'],['C',sub?'borç':'elde'],['N','en üst bit'],['V','işaretli taşma']].map(([f,d])=>{const v=t[f.toLowerCase()];return'<span class="ml-flag'+(v?' is-on':'')+'" id="aluF'+f+'">'+f+' = '+v+' · '+d+'</span>';}).join('');
+ /* atlama tablosu */
+ const f=K.alu('CMP',a,b),rows=[['JZ','Z = 1','A = B',a===b],['JNZ','Z = 0','A ≠ B',a!==b],['JC','C = 1','A < B (işaretsiz)',a<b],['JNC','C = 0','A ≥ B (işaretsiz)',a>=b],['JLT','N ≠ V','A < B (işaretli)',sa<sb],['JGE','N = V','A ≥ B (işaretli)',sa>=sb]];
+ put('aluJumpCap','CMP sonrası bayraklar: Z = '+f.z+', C = '+f.c+', N = '+f.n+', V = '+f.v+'. İşaretsiz okuyuş: A = '+a+', B = '+b+'. İşaretli okuyuş: A = '+neg(sa)+', B = '+neg(sb)+'.');
+ $('aluJumps').tBodies[0].innerHTML=rows.map(([n,c,mean,truth])=>{const y=K.cond(n,f);return'<tr><td><code>'+n+'</code></td><td>'+c+'</td><td class="'+(y?'is-yes':'')+'">'+(y?'atlar':'atlamaz')+'</td><td>'+mean+'</td><td class="'+(truth?'is-yes':'')+'">'+(truth?'doğru':'yanlış')+(y===truth?'':' (UYUŞMUYOR)')+'</td></tr>';}).join('');
+ /* sayımlar */
+ const cnt=A.counts[op]||(A.counts[op]=K.flagCounts(op)),th=K.flagTheory(op);
+ put('aluCntC',fmt(cnt.c));put('aluThC',fmt(th.c));put('aluCntV',fmt(cnt.v));put('aluThV',fmt(th.v));put('aluCntB',fmt(cnt.both));put('aluThB',fmt(th.both));
+ const v=A.verify||(A.verify=K.verifyAlu());
+ put('aluVerify','Sayfa açılırken yapılan tam denetim: sekiz işlemin her biri için '+fmt(v.pairs)+' (A, B) çiftinin tamamında bit düzeyindeki toplayıcı, geniş tam sayı aritmetiğiyle aynı sonucu ve aynı dört bayrağı verdi (uyuşmayan: '+fmt(v.mismatches)+'). CMP sonrası altı atlama koşulu da '+fmt(v.pairs)+' çiftte gerçek karşılaştırmalarla aynı (uyuşmayan: '+fmt(v.jumpMismatches)+').');
+ aluDraw();}
+function aluDraw(){const s=surface('aluMap');if(!s)return;const{g,w,h,p}=s,L=30,T=8,size=Math.min(w-L-8,h-T-26),img=aluMapImage(A.op,p);
+ for(const[id,c]of[['lgN',p.none],['lgC',p.warm],['lgV',p.violet],['lgB',p.red]])$(id).style.background=c;
+ g.imageSmoothingEnabled=false;g.drawImage(img,L,T,size,size);
+ g.strokeStyle=p.muted;g.lineWidth=1;g.setLineDash([3,3]);g.beginPath();g.moveTo(L+size/2,T);g.lineTo(L+size/2,T+size);g.moveTo(L,T+size/2);g.lineTo(L+size,T+size/2);g.stroke();g.setLineDash([]);
+ g.strokeStyle=p.grid;g.strokeRect(L+.5,T+.5,size-1,size-1);
+ const x=L+(A.a+.5)*size/256,y=T+(A.b+.5)*size/256;g.strokeStyle=p.ink;g.lineWidth=1.5;g.beginPath();g.moveTo(x-9,y);g.lineTo(x+9,y);g.moveTo(x,y-9);g.lineTo(x,y+9);g.stroke();g.beginPath();g.arc(x,y,4,0,7);g.stroke();
+ label(s,'A = 0',L,T+size+13,p.muted,'left',10);label(s,'128',L+size/2,T+size+13,p.muted,'center',10);label(s,'255',L+size,T+size+13,p.muted,'right',10);
+ label(s,'A →',L+size*.25,T+size+24,p.muted,'center',10);
+ label(s,'0',L-4,T+9,p.muted,'right',10);label(s,'128',L-4,T+size/2+4,p.muted,'right',10);label(s,'255',L-4,T+size,p.muted,'right',10);label(s,'B ↓',L-4,T+size*.27,p.muted,'right',10);}
+function aluSet(op,a,b){A.op=op;A.a=a&255;A.b=b&255;aluRender();}
+
+/* ===================== Ortak: sekmeler, olaylar, döngü ===================== */
+function render(){if(active==='cpu')cpuRender();else if(active==='c')mapSelect(M2.group);else if(active==='stack')stRender();else aluRender();}
+function tab(t){active=t;C.running=false;S.running=false;for(const k of TABS){const on=k===t;$('tab-'+k).setAttribute('aria-selected',on?'true':'false');$('tab-'+k).tabIndex=on?0:-1;$('panel-'+k).hidden=!on;}render();}
+TABS.forEach((t,i)=>{$('tab-'+t).onclick=()=>tab(t);$('tab-'+t).onkeydown=e=>{const n=TABS.length,j=e.key==='ArrowRight'?(i+1)%n:e.key==='ArrowLeft'?(i+n-1)%n:e.key==='Home'?0:e.key==='End'?n-1:null;if(j!==null){e.preventDefault();tab(TABS[j]);$('tab-'+TABS[j]).focus();}};});
+function reset(t){if(t==='cpu')cpuDefaults();else if(t==='c')c2Defaults();else if(t==='stack')stDefaults();else aluSet('ADD',127,1);}
+
+$('cpuSrc').addEventListener('input',cpuAssemble);
+$('cpuPreset').addEventListener('change',cpuLoad);
+for(const id of['cpuSumN','cpuArr','cpuMulA','cpuMulB','cpuFactN'])$(id).addEventListener('input',cpuLoad);
+$('cpuSpeed').addEventListener('input',cpuRender);
+$('cpuStep').onclick=()=>{C.running=false;cpuStepOnce();cpuRender();};
+$('cpuRun').onclick=()=>{C.running=!C.running;C.acc=0;cpuRender();};
+$('cpuFinish').onclick=()=>{C.running=false;while(cpuStepOnce());cpuRender();};
+$('cpuRestart').onclick=cpuRestart;$('cpuReset').onclick=()=>reset('cpu');
+buildSpec();
+
+$('mapSel').innerHTML=GROUPS.map((g,i)=>'<option value="'+i+'">'+(i+1)+'. '+esc(g.t)+'</option>').join('');
+$('mapSel').addEventListener('change',()=>mapSelect(+$('mapSel').value));
+for(const[id,key]of[['colHex','hex'],['colAtt','att'],['colC','c']]){wrapLines(id);$(id).addEventListener('click',e=>{const ln=e.target.closest('.ml-ln');if(!ln)return;const i=+ln.dataset.i,hits=GROUPS.map((g,k)=>g[key].includes(i)?k:-1).filter(k=>k>=0);if(!hits.length)return;const at=hits.indexOf(M2.group);mapSelect(hits[(at+1)%hits.length]);});}
+$('c2Listing').addEventListener('click',e=>{const tr=e.target.closest('tr[data-g]');if(tr)mapSelect(+tr.dataset.g);});
+$('c2Arr').addEventListener('input',c2Run);$('c2Reset').onclick=()=>reset('c');
+$('c2Open').onclick=()=>{const p=parseArr($('c2Arr').value);if(!p.ok)return;$('cpuPreset').value='max';$('cpuArr').value=$('c2Arr').value;cpuLoad();tab('cpu');$('tab-cpu').focus();};
+
+$('stProg').addEventListener('change',stProgChanged);$('stN').addEventListener('input',stLoad);$('stProtect').addEventListener('change',stRestart);$('stSpeed').addEventListener('input',stRender);
+$('stStep').onclick=()=>{S.running=false;stStepOnce();stRender();};
+$('stRun').onclick=()=>{S.running=!S.running;S.acc=0;stRender();};
+$('stFinish').onclick=()=>{S.running=false;while(stStepOnce());stRender();};
+$('stReset').onclick=()=>reset('stack');
+
+buildBits();
+$('aluOp').addEventListener('change',()=>aluSet($('aluOp').value,A.a,A.b));
+$('aluA').addEventListener('input',()=>aluSet(A.op,+$('aluA').value,A.b));$('aluB').addEventListener('input',()=>aluSet(A.op,A.a,+$('aluB').value));
+$('aluBits').addEventListener('click',e=>{const b=e.target.closest('.ml-bit');if(!b||b.disabled)return;const m=1<<+b.dataset.i;if(b.dataset.w==='A')aluSet(A.op,A.a^m,A.b);else aluSet(A.op,A.a,A.b^m);});
+$('aluPresets').addEventListener('click',e=>{const b=e.target.closest('button');if(b)aluSet(b.dataset.op,+b.dataset.a,+b.dataset.b);});
+$('aluReset').onclick=()=>reset('alu');
+
+addEventListener('keydown',e=>{if(inForm(e)||e.ctrlKey||e.metaKey||e.altKey)return;
+ if(e.key===' '||e.code==='Space'){if(active==='cpu'&&!$('cpuRun').disabled){e.preventDefault();$('cpuRun').click();}else if(active==='stack'&&!$('stRun').disabled){e.preventDefault();$('stRun').click();}}
+ else if(e.key.toLowerCase()==='r')reset(active);});
+
+let lastTs=0;
+function frame(ts){const dt=Math.min(0.05,lastTs?(ts-lastTs)/1000:0);lastTs=ts;
+ if(active==='cpu'&&C.running){C.acc+=dt*SPEEDS(+$('cpuSpeed').value);let n=0;while(C.acc>=1&&C.running){C.acc-=1;cpuStepOnce();n++;}if(n)cpuRender();}
+ if(active==='stack'&&S.running){S.acc+=dt*SPEEDS(+$('stSpeed').value);let n=0;while(S.acc>=1&&S.running){S.acc-=1;stStepOnce();n++;}if(n)stRender();}
+ requestAnimationFrame(frame);}
+
+cpuDefaults();c2Defaults();stDefaults();
+new ResizeObserver(render).observe(document.querySelector('.app-content'));
+new MutationObserver(()=>{A.maps={};render();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+render();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

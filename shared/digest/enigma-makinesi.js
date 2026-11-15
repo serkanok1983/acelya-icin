@@ -1,0 +1,138 @@
+window.ACELYA_DIGEST = window.ACELYA_DIGEST || {};
+window.ACELYA_DIGEST["enigma-makinesi"] = {
+  slug: "enigma-makinesi",
+  title: "Enigma: Her Harften Önce Değişen Yol",
+  field: "Bilgisayar Bilimi",
+  level: "Lise–Lisans",
+  minutes: 32,
+  tagline: "Aynı A tuşu neden BDZGO üretir? Rotor adımını elektrik yolundan ayır; çift adımı, halka ayarını ve aynı başlangıçla çözmenin cebirini incele.",
+  hook: "Beş kez A yazıyorsun, karşılığında BDZGO çıkıyor. Ama aynı ayarlarla BDZGO yazınca AAAAA geri geliyor. Harf eşlemesi her tuşta değişirken bu geri dönüş nasıl mümkün?",
+  bigIdea: "Enigma her harften önce durumunu değiştirir ve o durumda kendi tersi olan bir harf eşlemesi uygular; bütün mesajı çözebilmek için aynı durum dizisini aynı başlangıçtan yeniden üretmek gerekir.",
+  story: [
+    "Radyo bir mesajı hızla uzağa taşır; fakat aynı yayını başka bir alıcı da dinleyebilir. Science Museum küratörü Elizabeth Bruton'ın anlattığı tarihçe, Enigma'nın 1923'te sivil kullanımla ortaya çıkışını bu haberleşme ihtiyacına bağlar. Sonraki askerî modeller, hareketli rotorları ve elektrik devrelerini kullanarak sabit bir harf değiştirmeden çok daha karmaşık bir yapı kurdu. Bu sayfa, Enigma I ailesindeki üç tek çentikli rotorun eğitim modelidir; bütün Enigma çeşitlerini temsil etmez.",
+    "Çözüm tek bir kişinin bir anda bulduğu sihirli anahtar değildi. Marian Rejewski, Jerzy Różycki ve Henryk Zygalski'nin Polonya'daki çalışmaları; Fransızların sağladığı gizli bilgiler ve matematiksel çözümleme birlikte ilerledi. Temmuz 1939'da Varşova yakınındaki toplantıda Polonyalılar yöntemlerini ve bulgularını Fransız ve İngiliz meslektaşlarıyla paylaştı. Bletchley Park'ta Alan Turing, Gordon Welchman ve geniş ekipler bu birikim üzerinde çalıştı.",
+    "Bir aygıtın doğru modelini kurmak da kaynakları dikkatle okumayı gerektirir. David Hamer'in mekanizma incelemesi, orta rotorun neden iki ardışık tuşta ilerleyebildiğini adım tablosuyla açıklar. Tony Sale'nin tek harflik örneği ise elektrik hesabında rotorların AAA'da durduğunu, gerçek tuşa basışın bundan önceki AAZ durumundan başlaması gerektiğini özellikle belirtir. Tek bir adımı yanlış yere koymak, bütün şifreli mesajı değiştirir.",
+  ],
+  core: [
+    {
+      heading: "Durum başka, harf başka",
+      body: "Bir <strong>durum makinesi</strong>, aynı girdiye bulunduğu duruma göre farklı cevap verebilir. Burada durum üç pencere harfini içerir; rotor türleri, halkalar, fişler ve yansıtıcı seçimi hesap boyunca sabittir. Her işlenen A–Z tuşu önce durum geçişi T'yi yaptırır, sonra yeni durumun eşlemesi F uygulanır. AAAAA örneğinin beş farklı çıktısı bu seçilmiş başlangıçta gözlenir; aynı harfin her tekrarında mutlaka daha önce görülmemiş bir çıktı çıkacağı anlamına gelmez.",
+      formula: "s<sub>t+1</sub> = T(s<sub>t</sub>)<br>c<sub>t</sub> = F<sub>s(t+1)</sub>(p<sub>t</sub>)",
+      formulaNote: "s rotor pencereleri, p giriş, c çıktı harfi. Sayfadaki küçük ASCII harfleri büyütülür; alfabe dışı simgeler korunur ve adım attırmaz. Bu son özellik ekran kolaylığıdır.",
+    },
+    {
+      heading: "Çift adım: iki tuşta iki hareket",
+      body: "Sağ rotor her tuşta ilerler. Sağ rotor devir harfindeyse orta rotor da ilerler; orta rotor kendi devir harfindeyse hem kendisi hem sol rotor ilerler. Kararlar aynı <em>tuş öncesi</em> pencerelerden alınır. Böylece sağ rotor orta rotoru devir harfine getirince, izleyen tuşta orta tekrar ilerleyebilir. <strong>Çift adım</strong>, tek tuşta iki basamak atlamak değil iki ardışık tuşta birer basamak atmaktır.",
+      formula: "Sağ: daima<br>Orta: sağ devirde VEYA orta devirde<br>Sol: orta devirde",
+      formulaNote: "I–V rotorlarının devir pencere harfleri Q, E, V, J, Z'dir. Halka ayarı bu pencere harflerini değiştirmez; çentik harf halkasına bağlıdır.",
+    },
+    {
+      heading: "Pencere ve halka aynı ayar değildir",
+      body: "Rotorun kablo bağlantısı bir permütasyon w olsun. Pencerede p, halkada r varsa giriş x önce p−r kadar rotorun iç koordinatına kayar; kablodan geçer, çıkış tekrar dış koordinata döner. İleri yol w, geri yol w⁻¹ kullanır. Pencere ile halkayı aynı miktarda değiştirirsen p−r korunur, dolayısıyla sabit durum eşlemesi değişmez. Fakat hareket sırasında devir kararı pencere harfine bağlıdır; bu sabit-durum eşitliği bütün mesajların eşitliğini garanti etmez.",
+      formula: "R<sub>p, r</sub>(x) ≡ w(x+p−r)−p+r (mod 26)",
+      formulaNote: "x, p, r için A=0,…, Z=25; hepsi boyutsuz indis. UI'da halka A=01 diye de etiketlenir; formülde A'nın indisi 0'dır.",
+    },
+    {
+      heading: "Aynı eşleme neden kendini geri alır?",
+      body: "Sabit durumda fiş tahtası ve rotorlar üzerinden yansıtıcıya gidiş P olsun. Dönüş yolu bunun tersi P⁻¹'dir. <strong>Yansıtıcı</strong> U harfleri karşılıklı çiftlere bağlar, yani U²=I. Bütün eşleme F=P⁻¹UP olduğundan iki uygulamada ortadaki PP⁻¹ ve ardından U² sadeleşir: F²=I. Böyle kendi tersi olan dönüşüme <strong>involüsyon</strong> denir. Üstelik U hiçbir harfi kendine bağlamaz: F(x)=x olsaydı U(P(x))=P(x) gerekirdi; bu mümkün değildir.",
+      formula: "F = P⁻¹UP<br>F² = P⁻¹U²P = I",
+      formulaNote: "Bileşkeler sağdan sola uygulanır; I burada birim eşleme, Rotor I adı değildir. Sabit noktasızlık bütün elektrik yolunun özelliğidir; tek bir rotorun ara harfi değiştirmemesi mümkündür.",
+    },
+    {
+      heading: "Bir mesajın tersi, başlangıçtan başlar",
+      body: "Aynı anahtar ayarlarıyla aynı başlangıca dönersen her harf yerinde aynı sₜ durumu tekrar oluşur; hareket kuralı girilen A–Z harfinin hangisi olduğuna bağlı değildir. Her konumdaki F kendi tersi olduğundan şifreli harf tekrar düz harfe döner. Son pencereden devam edersen farklı durum dizisi kullanmış olursun. Tersinirlik, saldırganın anahtarı bulamayacağını kanıtlamaz: belirli yapıların, muhtemel metin parçalarının ve işletim usullerinin açığa çıkardığı bilgiler ayrıca incelenir.",
+      formula: "F<sub>s(t)</sub>(F<sub>s(t)</sub>(x)) = x",
+      formulaNote: "Aynı s(t) koşulu esastır. Bu model voltaj, akım veya temas arızasını değil, ideal sayısal temas eşlemelerini ve belirli adım kuralını hesaplar.",
+    },
+  ],
+  lab: {
+    intro: "Mesaj ve yol, Çift adım, Duran rotorlar sekmelerinin ayarları birbirinden bağımsızdır. Her sekmenin kendi sıfırlama düğmesi var. Pencereler her yerde operatörün gördüğü sol→orta→sağ sırasındadır; hızlı rotor sağdadır. İlk sekme her yeniden hesapta seçili başlangıca döner, son konumdan sessizce devam etmez. Aşağıdaki sonuçlar I–II–III, UKW B ve fişsiz ayarlara aittir; belirtilen değişiklikler dışında varsayılanları koru.",
+    experiments: [
+      {
+        title: "Beş A ve doğru başlangıç",
+        predict: "Aynı tuşun beş tekrarı aynı beş çıktıyı mı verir? Çıktıyı aynı başlangıçla geri işlemek ne yapar?",
+        do: "Mesaj ve yol sekmesinde AAAAA referansı düğmesine bas. İzlenen tuş kaydırıcısını önce 1, sonra 5 yap; Mesajın adım tablosu ve tam harf izi bölümünü aç. Sonucu aynı başlangıçla geri işle düğmesine bas.",
+        observe: "AAAAA → BDZGO; 5 harf, son pencere AAF, aynı harfe dönüş 0/5. İlk tuş AAA→AAB hareketinden sonra A→B; beşinci tuş AAE→AAF hareketinden sonra A→O üretir. Geri işleme BDZGO→AAAAA verir ve yine AAF'de biter.",
+        explain: "İlk A, AAA elektrik durumunda işlenmez; önce AAB'ye geçilir. Şifreli metni çözmek için son AAF'yi başlangıç yapmak yerine AAA'yı korumak gerekir. Ayarlar ve durum dizisi aynı olunca her konumdaki karşılıklı eşleme tersini kendisi uygular.",
+      },
+      {
+        title: "Orta rotorun iki komşu adımı",
+        predict: "ADU başlangıcından üç tuş sonra hangi pencereyi beklersin? Sağ rotorun bir turu bitmeden orta rotor iki kez ilerleyebilir mi?",
+        do: "Çift adım sekmesinde Adımı sıfırla. Basılan tuş sayısını 0 yap, Bir tuş daha düğmesiyle üç kez ilerle. Halka ayarlarını AAA'dan BDF'ye değiştir ve adım tablosunu karşılaştır.",
+        observe: "ADU→ADV→AEW→BFX. İlk hareket yalnız sağ; ikincisi orta+sağ; üçüncüsü sol+orta+sağ. Sayaçlar sol 1, orta 2, sağ 3; ardışık orta hareketi çifti 1. Halka BDF olsa da aynı pencereler ve aynı sayaçlar çıkar.",
+        explain: "İkinci tuştan önce sağ III rotoru V'dedir; orta D→E olur. Üçüncüden önce orta II rotoru E'dedir; kendisi E→F ve sol A→B olur. Her rotor bir tuşta en fazla bir basamak ilerler. Halka elektrik yolunu değiştirir, çentiğin devir pencere harfini değiştirmez.",
+      },
+      {
+        title: "Rotorları durdur: G ile P bir çift",
+        predict: "G'yi P'ye götüren aynı sabit eşleme P'yi nereye götürür? 26 harf arasında kendine dönen bir harf var mı?",
+        do: "Duran rotorlar sekmesinde Duran rotorları sıfırla. Giriş harfi G iken yolu incele; sonra P seç. Tam 26 harf eşlemesini aç ve karşılıklı çiftleri oku.",
+        observe: "AAA pencere ve AAA halkada G→P; ikinci aynı eşleme G'yi geri verir. Giriş P seçilince P→G, ikinci eşleme P olur. Kendine eşlenen 0/26, toplam 13 çift vardır. G'nin ara yolu G→C→D→F→S→S→E→P'dir; tekrarlanan fiş/terminal durakları burada yazılmadı.",
+        explain: "Gidiş kablolarının tersinden dönülür ve yansıtıcı çiftleri karşılıklıdır. Yoldaki S→S tek rotor geçişidir; bütün makinenin hiçbir harfi kendine eşlememesiyle çelişmez. Bu sekmede adım yoktur; mesaj sekmesindeki gerçek ilk tuşla doğrudan karıştırma.",
+      },
+      {
+        title: "Halka değişince, pencere de değişmeli mi?",
+        predict: "Yalnız sağ halkayı A'dan B'ye çevirmek G'nin çıktısını değiştirir mi? Üç pencereyi ve üç halkayı birlikte BBB yapmak aynı sabit eşlemeyi geri verir mi?",
+        do: "Duran rotorları sıfırla ile G'ye dön. Yalnız sağ halka B düğmesine, ardından Pencere ve halka BBB düğmesine bas; seçili dönüşümü ve tam harf tablosunu karşılaştır.",
+        observe: "AAA/AAA için G→P; AAA/AAB için G→E; BBB/BBB için yeniden G→P. Son durumda yalnız G değil 26 harfin bütün sabit eşlemesi AAA/AAA ile aynıdır. Kendine eşlenen her durumda 0/26 kalır.",
+        explain: "Sağ p−r önce 0, yalnız halka değişince −1, ikisi BBB olunca tekrar 0 olur. Üç rotorun bütün göreli elektrik kaymaları korununca sabit P aynı kalır. Bu gözlem, farklı pencere devir zamanlarıyla ilerleyen uzun mesajların da aynı olacağını söylemez.",
+      },
+    ],
+  },
+  wow: [
+    { title: "Karmaşık yol, tam 13 çift", body: "Bu modelde sabit anahtar ve pencereler altında 26 harf 13 ayrık çifte bölünür. AAA/AAA durumunda bunlar AU, BE, CJ, DO, FT, GP, HZ, IW, KN, LS, MR, QV, XY'dir. Rotorları hareket ettirmek başka çiftlemelere geçmeyi sağlar; çiftlerin kendisi rastgele seçilmez." },
+    { title: "Beş rotordan üç yer: 60 düzen", body: "I–V arasından sol, orta ve sağa ayrı rotor seçmenin 5×4×3=60 yolu vardır. Bu yalnız rotor sırası sayımıdır; halka, pencere ve fiş ayarları dahil değildir. 60 sayısını bütün anahtar uzayı veya saldırı maliyeti diye okumak yanlış olur." },
+    { title: "On fişi sayarken sıra iki kez aldatır", body: "Tam 10 ayrık fiş çifti için 26! / (6!·2¹⁰·10!) = 150.738.274.937.250 farklı fiş eşlemesi vardır. 6 harf boşta kalır; her çiftin iki yazılışını ve 10 çiftin kendi aralarındaki sırasını bölmek gerekir. Bu kombinatorik sayı güvenlik garantisi değildir; sayfadaki 0–13 çift seçeneği de bütün tarihsel anahtarların 13 fiş kullandığı anlamına gelmez." },
+  ],
+  worked: {
+    title: "Bir harfi kablolardan geçir",
+    prompt: "I–II–III, UKW B, halka AAA, fiş yok. Rotorlar elektrik geçişi sırasında AAA'da sabitken G hangi lambayı yakar? Gidiş ve dönüş kablolarını ayrı izle; sonra gerçek mesaj sekmesinde hangi başlangıç penceresinin bu deneyi verdiğini bul. Harf indisleri boyutsuzdur; akım/gerilim hesabı yapılmaz.",
+    steps: [
+      "Gidiş sağdan sola: III, G→C; II, C→D; I, D→F. Halka ve pencere indisleri 0 olduğundan ek koordinat kaydırması yoktur.",
+      "UKW B, F'yi S'ye bağlar. Bu bir çiftin öteki ucudur; yansıtıcı aynı kontağa geri bağlamaz.",
+      "Dönüşte ters kablolamayı kullan: I⁻¹, S→S; II⁻¹, S→E; III⁻¹, E→P. Fiş yok, dolayısıyla sonuç P. Duran rotorlar tablosundaki G→P ile karşılaştır.",
+      "Aynı sabit eşleme P'ye uygulanırsa yol ters yönde izlenir ve G döner. Bunun bütün harfler için nedeni F²=P⁻¹U²P=I'dır; yalnız bir başarılı örneğe dayanmıyoruz.",
+      "Mesaj ve yol sekmesinde Mesajı sıfırla, yalnız sağ Pencere'yi Z yap: başlangıç AAZ. Giriş metni G olduğunda önce AAZ→AAA adımı, ardından G→P olur. Başlangıç AAA seçmek farklı, AAB elektrik durumu kullanır.",
+    ],
+    result: "Sabit AAA durumunda G↔P. Aynı elektrik deneyi gerçek tuş işleminde AAZ başlangıcından yapılır; adımı atlamak ile başlangıcı bir önceki duruma almak farklı uygulamalardır.",
+  },
+  misconceptions: [
+    { myth: "Enigma'da çözmek için rotorları geriye çevirmek gerekir.", truth: "Aynı ayar ve başlangıç kurulur, şifreli A–Z harfleri aynı ileri adım kuralıyla işlenir. Her karşılaşılan sabit eşleme kendi tersidir; mekanik adımı ters yürütmek gerekmez." },
+    { myth: "Çift adım, orta rotorun tek tuşta iki harf atlamasıdır.", truth: "Orta rotor iki ardışık tuşta birer basamak ilerleyebilir. ADU→ADV→AEW→BFX dizisinde D→E ve E→F ayrı tuşlardadır." },
+    { myth: "Hiçbir harf kendine dönüşmediği için şifre daha güvenlidir.", truth: "Bu zorunluluk aynı zamanda bilgi verir: düz metin parçasını belli konuma yerleştirme tahmininde herhangi bir A–Z harfi şifreli harfle aynıysa o yerleştirme elenir. Koşul tek başına doğru anahtarı buldurmaz. Ekranda aynen kalan noktalama bu A–Z iddiasının dışında tutulur." },
+    { myth: "Aynı pencere ve halka farkı bütün mesajları aynı yapar.", truth: "p−r eşitliği sabit elektrik eşlemesini korur. Adım mekanizması pencere çentiklerini izlediği için değişik başlangıçlar devirlere farklı anlarda ulaşabilir; hareketli mesajın eşitliği ayrıca sınanmalıdır." },
+  ],
+  glossary: [
+    { term: "Rotor", definition: "26 giriş ve çıkış temasını belirli bir permütasyonla bağlayan, dönünce dışarıdan görülen eşlemesi değişen parça." },
+    { term: "Pencere", definition: "Rotorun o andaki indeks halkası konumunu gösteren harf; bu sayfada sol→orta→sağ yazılır." },
+    { term: "Halka ayarı", definition: "Kablolama ile indeks halkası arasındaki göreli konumu belirleyen Ringstellung ayarı." },
+    { term: "Devir harfi", definition: "Tuş öncesi pencerede göründüğünde soldaki rotorun adımına yol açan çentik konumu harfi." },
+    { term: "Yansıtıcı (UKW)", definition: "26 teması 13 ayrık çifte bağlayıp yolu rotorların ters yönüne gönderen parça." },
+    { term: "Fiş tahtası", definition: "Seçili ayrık harf çiftlerini girişte ve dönüşte birbirleriyle değiştiren Steckerbrett." },
+    { term: "İnvolüsyon", definition: "İki kez uygulandığında birim eşlemeyi veren, kendi tersine eşit dönüşüm." },
+    { term: "Sabit nokta", definition: "Bir F dönüşümünde F(x)=x koşulunu sağlayan x; bu modelin bütün elektrik eşlemesinde bulunmaz." },
+  ],
+  bridge: {
+    heading: "Üniversiteye köprü",
+    body: [
+      "<strong>Soyut Cebir</strong>'de F=P⁻¹UP bir <strong>eşlenik dönüşüm</strong> örneğidir: U'nun çift yapısını P ile yeniden etiketlersin. Bu yüzden 13 çift ve sabit nokta yokluğu bütün rotor/fiş ayarlarında korunur. Bir tek rotorun ters kablosunu bulmak da permütasyon tersini hesaplamaktır: w(a)=b ise w⁻¹(b)=a. <strong>Kombinatorik</strong>'te tam k fişin sayımı 26!/[(26−2k)!·2ᵏ·k!] olur; sıralı seçimlerin hangi nedenlerle aynı fiziksel eşlemeye denk geldiğini açıklar.",
+      "<strong>Otomata Kuramı</strong>'nda elektriksel eşlemeyi ve durum geçişini ayrı tanımlarsın. F sabit durumda birebirdir; mekanik T ise burada değildir: I–II–III için AEA ve BFA başlangıçları bir tuş sonra aynı BFB'ye gider. <strong>Kriptografiye Giriş</strong> başka bir soru sorar: anahtarı bilmeyen gözlemci ne öğrenebilir? Aynı harfe dönüşün yasak olması, beklenen mesaj parçaları ve kullanım usulleri bu sorunun parçalarıdır. BDZGO sonucunu üretmek bir doğrulama örneğidir; bütün kurallar için ayrıca mekanizma, kablolar ve bağımsız örnekler sınanır.",
+    ],
+    topics: ["Permütasyon ve ters eşleme", "Eşleniklik ve çevrim yapısı", "Sonlu durum makineleri", "Kombinatorik sayma", "Bilinen düz metin ve ipucu", "Model doğrulama"],
+  },
+  quiz: [
+    { question: "I–II–III, halka AAA için tuş öncesi pencere AEW. Bir sonraki tuştan sonra hangisi olur?", options: ["AEX", "AFY", "BFX", "BEX"], answer: 2, explanation: "Orta II rotoru kendi E devir harfinde: sol ve orta ilerler. Sağ her durumda ilerler. Böylece A→B, E→F, W→X; sonuç BFX. Orta tek tuşta yalnız bir basamak ilerler." },
+    { question: "Sabit AAA/AAA ve BBB/BBB durumlarında 26 harfin eşlemeleri aynı. Buradan hangi sonuç çıkar?", options: ["Her uzunluktaki bütün hareketli mesajlar da aynı çıkar", "Sabit elektrik kaymaları p−r korunmuştur; hareketli mesaj ayrıca incelenmelidir", "Halka ayarı hiçbir durumda etkisiz değildir, dolayısıyla gözlem yanlıştır", "Başlangıç penceresi artık çözüme gerekmez"], answer: 1, explanation: "İki durumda üç rotorun p−r farkı 0'dır. Ancak pencere devir harfleri farklı anlarda görülebilir; duran elektrik eşlemesinden bütün mekanik zaman dizisinin eşitliği çıkmaz." },
+    { question: "Sabit bir durumda G→P gözleniyor. Aynı durumda P'ye uygulama ve G'nin kendine eşlenme olasılığı hakkında hangisi doğrudur?", options: ["P→G; bütün makinede G→G mümkün değildir", "P→P; rotorlar sabitken bütün harfler sabittir", "P'nin çıktısı rastgele seçilir", "G→G, fiş sayısı 13 olunca zorunludur"], answer: 0, explanation: "F²=I karşılıklılığı P→G'yi verir. F'nin sabit noktası olsaydı U'nun da olurdu; modeldeki B/C yansıtıcıları sabit noktasızdır. Bu sonuç ideal modelin bütün A–Z eşlemesi içindir." },
+  ],
+  next: [
+    { href: "sezar-sifre.html", title: "Sezar Şifresi", why: "Sabit tek kaydırmanın koruduğu frekans örüntüsünü, Enigma'nın durumla değişen eşlemesiyle karşılaştır." },
+    { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Giriş, çıktı, durum ve tersinirlik kavramlarını Boolean işlemlerinin doğruluk tablolarına taşı." },
+  ],
+  sources: [
+    { title: "Crypto Museum · Enigma explained", url: "https://www.cryptomuseum.com/crypto/enigma/working.htm", note: "Rotor adımı, halka/çentik bağı ve fiş tahtası. Modelin I–V/B/C kabloları aynı müzenin Enigma wiring tablosuyla doğrulandı; olası ayar sayısı güvenlik gücü yerine kullanılmadı." },
+    { title: "David H. Hamer · Double stepping", url: "https://www.cryptomuseum.com/people/hamer/files/double_stepping.pdf", note: "Özgün mekanizma incelemesi; Tablo 1 III–II–I sırasındaki ADO→…→BFU adımlarını verir. 'Çift', iki ayrı ardışık tuş anlamındadır." },
+    { title: "Tony Sale · A detailed working through", url: "https://www.codesandciphers.org.uk/enigma/example1.htm", note: "Sabit AAA elektrik durumunda G↔P, ara kablo yolu ve 13 çift. Son teknik not gerçek ilk tuş için AAZ başlangıcını ayırır." },
+    { title: "Science Museum · Breaking Enigma", url: "https://blog.sciencemuseum.org.uk/breaking-enigma-a-story-of-european-co-operation/", note: "Elizabeth Bruton'ın müze araştırması: Polonya, Fransa ve Britanya katkıları, Temmuz 1939 paylaşımı; tek kişilik başarı anlatısından ayrılır." },
+  ],
+  revision: "Kasım 2026",
+};

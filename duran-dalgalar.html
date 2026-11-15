@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Duran Dalgalar: Tel, Hava Sütunu ve Harmonikler</title>
+  <meta name="description" content="Bir tel ya da bir boru her frekansı çalamaz: dalga kendi yansımasıyla buluşur ve yalnızca uçlara sığan dalga boyları birikir. Gitarın notası, klarnetin pesliği ve tınının rengi bu kuraldan doğar.">
+  <style>
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, 1fr);
+      grid-template-areas: "stage stage" "main side";
+      gap: 14px 16px;
+      align-items: start;
+    }
+    .stage-wrap { grid-area: stage; display: grid; gap: 8px; min-width: 0; }
+    .main { grid-area: main; display: grid; gap: 12px; min-width: 0; }
+    .side { grid-area: side; display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 12 / 5;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: auto;
+    }
+    .lab[data-tab="harmonik"] .sim-canvas, .lab[data-sub="tup"] .sim-canvas { touch-action: none; }
+    .sim-canvas.is-grab { cursor: grab; }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 2 / 1;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .lab[data-tab="tel"] .chart-canvas { cursor: crosshair; touch-action: pan-y; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; }
+    .legend span { white-space: nowrap; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.band { height: 8px; border: 0; background: color-mix(in srgb, var(--accent) 30%, transparent); }
+    .legend i.k-str { border-top-color: var(--text); }
+    .legend i.k-acc { border-top-color: var(--accent); }
+    .legend i.k-ac2 { border-top-color: var(--accent-2); }
+    .legend i.k-warm { border-top-color: var(--accent-warm); }
+    .legend i.k-blue { border-top-color: #60a5fa; }
+    .legend i.k-pink { border-top-color: #f472b6; }
+    [data-theme="light"] .legend i.k-blue { border-top-color: #2563eb; }
+    [data-theme="light"] .legend i.k-pink { border-top-color: #db2777; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .row select { padding: 6px 8px; font: inherit; font-size: 0.84rem; }
+    .row input[inputmode="decimal"] { width: 6.5em; padding: 6px 8px; font: inherit; font-size: 0.84rem; }
+    .row .lt { font-size: 0.84rem; }
+    .app-content button:disabled { opacity: 0.45; cursor: not-allowed; filter: none !important; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; cursor: pointer; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts-wrap { display: grid; gap: 10px; min-width: 0; }
+    .group { display: grid; gap: 10px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.25; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .readout.wide { grid-column: 1 / -1; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.04em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.8rem; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 34%; }
+    .lab table.cmp tr.is-sel th, .lab table.cmp tr.is-sel td { color: var(--accent-warm) !important; }
+    .lab table.cmp tr.is-off td { opacity: 0.6; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "main"; gap: 12px; }
+      .sim-canvas { aspect-ratio: 3 / 2; }
+      .lab[data-sub="tup"] .sim-canvas { aspect-ratio: 1 / 1; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.78rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="duran-dalgalar">
+
+<div class="app-content">
+  <h1>Duran Dalgalar: Tel, Hava Sütunu ve Harmonikler</h1>
+  <p class="hint">Bir sekme seç. Telde titreştiricinin frekansını değiştirip rezonansı ara ve ölçülen düğüm aralığını λ/2 = v/(2f) ile karşılaştır; borularda harmonik dizisini incele, rezonans tüpüyle sesin hızını ölç; teli farklı noktalardan çekip hangi harmoniklerin kaybolduğunu gör. Telefonda çekme noktasına ya da su yüzeyine dokunup sürükle; boş yerde parmak sayfayı kaydırır.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney senaryoları">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-tel" data-tab="tel" aria-selected="true" aria-controls="labPanel">Titreşen tel</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-hava" data-tab="hava" aria-selected="false" aria-controls="labPanel" tabindex="-1">Hava sütunu</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-harmonik" data-tab="harmonik" aria-selected="false" aria-controls="labPanel" tabindex="-1">Harmonikler ve tını</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-tel" data-tab="tel">
+    <div class="stage-wrap">
+      <canvas id="stageCanvas" class="sim-canvas" width="1200" height="500" role="img" aria-label="Sahne"></canvas>
+      <p class="legend" data-for="tel">
+        <span><i class="k-str"></i>tel (stroboskopla yavaşlatılmış)</span>
+        <span><i class="band"></i>son periyottaki genlik zarfı</span>
+        <span><i class="k-blue dash"></i>sağa giden dalga</span>
+        <span><i class="k-pink dash"></i>sola giden (yansıyan) dalga</span>
+        <span><i class="k-warm"></i>ölçülen düğüm</span>
+      </p>
+      <p class="legend" data-for="hava" hidden>
+        <span><i class="k-acc"></i>yer değiştirme ξ</span>
+        <span><i class="k-warm"></i>basınç farkı Δp</span>
+        <span><i class="k-acc dash"></i>genlik zarfı</span>
+        <span><i class="k-ac2 dash"></i>etkin uç (uç düzeltmesi)</span>
+      </p>
+      <p class="legend" data-for="harmonik" hidden>
+        <span><i class="k-str"></i>telin anlık biçimi (mod toplamı)</span>
+        <span><i class="k-warm dash"></i>başlangıçtaki üçgen biçim</span>
+        <span><i class="k-acc"></i>ayrı harmonikler (isteğe bağlı)</span>
+      </p>
+    </div>
+
+    <div class="side">
+      <div class="panel" data-for="tel" role="group" aria-labelledby="ttlA">
+        <h2 id="ttlA">Tel ve titreştirici</h2>
+        <div class="field">
+          <label for="aPreset"><span class="lt">Hazır düzen</span><output id="aPresetOut" for="aPreset">f₁ = 25.00 Hz</output></label>
+          <select id="aPreset">
+            <option value="lab" selected>Laboratuvar teli · 100 Hz titreştirici</option>
+            <option value="gitar">Gitar teli · D'Addario PL010, mi (E4)</option>
+            <option value="ozel">Serbest</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="aL"><span class="lt">Tel uzunluğu L</span><output id="aLOut" for="aL">100.00 cm</output></label>
+          <input type="range" id="aL" min="0.3" max="2" step="0.0001" value="1">
+        </div>
+        <div class="field">
+          <label for="aT"><span class="lt">Gerilme kuvveti T</span><output id="aTOut" for="aT">2.50 N</output></label>
+          <input type="range" id="aT" min="0.5" max="150" step="0.01" value="2.5">
+        </div>
+        <div class="field">
+          <label for="aMu"><span class="lt">Çizgisel yoğunluk μ</span><output id="aMuOut" for="aMu">1.0000 g/m</output></label>
+          <input type="range" id="aMu" min="0.1" max="20" step="0.0001" value="1">
+        </div>
+        <div class="field">
+          <label for="aF"><span class="lt">Titreştirici frekansı f</span><output id="aFOut" for="aF">100.00 Hz</output></label>
+          <input type="range" id="aF" min="1" max="1000" step="0.01" value="100">
+        </div>
+        <div class="row" role="group" aria-label="Frekansı ince ayarla">
+          <label class="lt" for="aFNum">f (Hz)</label>
+          <input type="text" id="aFNum" value="100.00" inputmode="decimal" autocomplete="off" spellcheck="false">
+          <button type="button" class="app-btn-ghost" id="aFm">−0.1 Hz</button>
+          <button type="button" class="app-btn-ghost" id="aFp">+0.1 Hz</button>
+          <label class="lt" for="aN">Mod n</label>
+          <select id="aN">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option>
+            <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+          </select>
+          <button type="button" class="app-btn-ghost" id="aGo">fₙ'e ayarla</button>
+        </div>
+        <div class="field">
+          <label for="aA"><span class="lt">Titreştirici genliği a</span><output id="aAOut" for="aA">0.40 mm</output></label>
+          <input type="range" id="aA" min="0.05" max="2" step="0.05" value="0.4">
+        </div>
+        <div class="field">
+          <label for="aB"><span class="lt">Sönüm katsayısı β</span><output id="aBOut" for="aB">2.0 s⁻¹</output></label>
+          <input type="range" id="aB" min="0.5" max="20" step="0.5" value="2">
+        </div>
+        <label class="check" for="aWaves"><input type="checkbox" id="aWaves"> Teli oluşturan iki ilerleyen dalgayı da çiz</label>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aPause" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="aRestart">Teli durdur</button>
+          <button type="button" class="app-btn-ghost" id="aSweep" aria-pressed="false">Rezonans eğrisini tara</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Sıfırla</button>
+        </div>
+        <p class="note">Model: y<sub>tt</sub> + 2β y<sub>t</sub> = v² y<sub>xx</sub>, v = √(T/μ). Sol uç titreştiriciyle y(0, t) = a sin(2πft) biçiminde sürülür, sağ uç (makara) sabittir. Çözüm açık birdirbir (leapfrog) sonlu farklarla bulunur: en az 64 aralık, Courant sayısı vΔt/Δx = 1 (kararlılık sınırı; sönümsüz denklem için bu adım tam sonuç verir).</p>
+        <p class="note">Ölçüm: her periyotta her ızgara noktasının hareketine y = P cos 2πft + Q sin 2πft en küçük karelerle oturtulur; genlik √(P² + Q²) olur. Düğümler bu desenin işaret değiştirdiği yerlerdir. Geçiş e<sup>−βt</sup> ile söner; 7/β süre geçince değerler kararlı sayılır. Frekans, genlik ya da sönüm değişince ölçüm baştan başlar; L, T ya da μ değişince tel durgun başlar.</p>
+        <p class="note">Grafikte bir noktaya tıklayıp sürükleyerek de frekansı seçebilirsin. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="hava" role="group" aria-labelledby="ttlB" hidden>
+        <h2 id="ttlB">Boru ve hava</h2>
+        <div class="field">
+          <label for="bKind"><span class="lt">Düzen</span><output id="bKindOut" for="bKind">bütün harmonikler</output></label>
+          <select id="bKind">
+            <option value="acik" selected>Boru: iki ucu açık</option>
+            <option value="kapali">Boru: bir ucu kapalı</option>
+            <option value="tup">Rezonans tüpü: diyapazon ve su</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bTemp"><span class="lt">Hava sıcaklığı T</span><output id="bTempOut" for="bTemp">20 °C</output></label>
+          <input type="range" id="bTemp" min="-10" max="40" step="1" value="20">
+        </div>
+        <div class="field">
+          <label for="bR"><span class="lt">Borunun iç yarıçapı r</span><output id="bROut" for="bR">2.0 cm</output></label>
+          <input type="range" id="bR" min="0.5" max="5" step="0.1" value="2">
+        </div>
+        <div class="field" data-sub="boru">
+          <label for="bLen"><span class="lt">Boru uzunluğu L</span><output id="bLenOut" for="bLen">0.60 m</output></label>
+          <input type="range" id="bLen" min="0.1" max="2" step="0.01" value="0.6">
+        </div>
+        <div class="field" data-sub="boru">
+          <label for="bMode"><span class="lt">Gösterilen mod m</span><output id="bModeOut" for="bMode">m = 1 · 1. harmonik</output></label>
+          <input type="range" id="bMode" min="1" max="6" step="1" value="1">
+        </div>
+        <div class="field" data-sub="tup" hidden>
+          <label for="bFork"><span class="lt">Diyapazon</span><output id="bForkOut" for="bFork">512 Hz</output></label>
+          <select id="bFork">
+            <option value="256">256 Hz (do, C4)</option>
+            <option value="384">384 Hz (sol, G4)</option>
+            <option value="512" selected>512 Hz (do, C5)</option>
+          </select>
+        </div>
+        <div class="field" data-sub="tup" hidden>
+          <label for="bW"><span class="lt">Hava sütunu L (ağızdan suya)</span><output id="bWOut" for="bW">10.00 cm</output></label>
+          <input type="range" id="bW" min="0.02" max="1.08" step="0.0005" value="0.1">
+        </div>
+        <div class="row" data-sub="tup" hidden>
+          <button type="button" class="app-btn-ghost" id="bRec1">L₁ olarak kaydet</button>
+          <button type="button" class="app-btn-ghost" id="bRec2">L₂ olarak kaydet</button>
+          <button type="button" class="app-btn-ghost" id="bPeak">En yakın tepeye git</button>
+          <button type="button" class="app-btn-ghost" id="bClear">Kayıtları sil</button>
+        </div>
+        <label class="check" for="bTheory" data-sub="tup" hidden><input type="checkbox" id="bTheory"> Kuramsal yanıt eğrisini de çiz</label>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="bPause" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button>
+        </div>
+        <p class="note">Ses hızı kuru hava için v = 331.3√(1 + T/273.15) m/s (ideal gaz, v ∝ √T). Açık bir uçta basınç dışarıdaki hava basıncına eşit kalır (basınç düğümü, yer değiştirme karnı); kapalı uçta hava ilerleyemez (yer değiştirme düğümü, basınç karnı). Ses dalgası uçtan biraz dışarıda yansır: flanşsız açık uç başına ΔL ≈ 0.61 r eklenir (Levine ve Schwinger, ka ≪ 1).</p>
+        <p class="note" data-sub="boru">İki ucu açık boruda L<sub>etkin</sub> = L + 2ΔL ve f<sub>n</sub> = n v/(2L<sub>etkin</sub>), n = 1, 2, 3, …; bir ucu kapalı boruda L<sub>etkin</sub> = L + ΔL ve f = (2m − 1) v/(4L<sub>etkin</sub>): yalnız tek harmonikler. Çizimde yarıçap ölçekli değildir; parçacık yer değiştirmesi büyütülmüş, hareket ağır çekimdir.</p>
+        <p class="note" data-sub="tup" hidden>Deney: titreşen diyapazon suyla dolu tüpün ağzında tutulur, su yavaşça indirilir. Hava sütunu L<sub>etkin</sub> = L + e = λ/4, 3λ/4, … olduğunda ses belirgin biçimde yükselir. İlk iki rezonans konumu L₁ ve L₂ kaydedilince λ = 2(L₂ − L₁) uç düzeltmesinden bağımsız çıkar, v = fλ ve e = (L₂ − 3L₁)/2 ölçülür. Ses düzeyi modeli: ağızdaki yansıma |R| = e<sup>−(kr)²/2</sup>, duvar sönümü α ≈ 2.95·10⁻⁵ √f / r m⁻¹. Su yüzeyini sahnede sürükleyebilirsin.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="harmonik" role="group" aria-labelledby="ttlC" hidden>
+        <h2 id="ttlC">Çekilen tel</h2>
+        <div class="field">
+          <label for="cP"><span class="lt">Çekme noktası p = x<sub>ç</sub>/L</span><output id="cPOut" for="cP">p = 0.200 · L/5</output></label>
+          <input type="range" id="cP" min="1" max="119" step="1" value="24">
+        </div>
+        <div class="row" role="group" aria-label="Hazır çekme noktaları">
+          <button type="button" class="app-btn-ghost" data-pluck="60">L/2</button>
+          <button type="button" class="app-btn-ghost" data-pluck="40">L/3</button>
+          <button type="button" class="app-btn-ghost" data-pluck="30">L/4</button>
+          <button type="button" class="app-btn-ghost" data-pluck="24">L/5</button>
+          <button type="button" class="app-btn-ghost" data-pluck="12">L/10</button>
+        </div>
+        <div class="field">
+          <label for="cH"><span class="lt">Çekme yüksekliği h</span><output id="cHOut" for="cH">2.0 mm</output></label>
+          <input type="range" id="cH" min="0.5" max="5" step="0.1" value="2">
+        </div>
+        <label class="check" for="cModes"><input type="checkbox" id="cModes"> İlk 6 harmoniği ayrı ayrı çiz</label>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="cPlay">Sesi çal</button>
+          <button type="button" class="app-btn-ghost" id="cPause" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="cReset">Sıfırla</button>
+        </div>
+        <p class="note">Tel 1. sekmedeki gitar teliyle aynıdır (L = 64.77 cm, f₁ = 329.47 Hz). Tel x<sub>ç</sub> = pL noktasından h kadar çekilip bırakılır; başlangıç biçimi bir üçgendir. Mod genlikleri b<sub>n</sub> = 2h sin(nπp)/(n²π²p(1 − p)), hareket y(x, t) = Σ b<sub>n</sub> sin(nπx/L) cos(2πnf₁t) (ilk 60 mod, sönümsüz). Çekilen nokta n. modun bir düğümüne denk gelirse sin(nπp) = 0 olur ve o harmonik hiç uyarılmaz.</p>
+        <p class="note">"Sayısal" sütunu b<sub>n</sub> = (2/L)∫ y₀(x) sin(nπx/L) dx integralini çizilen biçimden 2400 aralıklı yamuk kuralıyla hesaplar. "Sesi çal" yalnız düğmeye basınca, sitenin ses ayarı açıksa çalar; her harmoniğin payı köprüye etkiyen kuvvetle orantılı alınır (n·b<sub>n</sub>), yüksek harmonikler daha hızlı söner. Çekme noktasını sahnede sürükleyebilirsin. Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla.</p>
+      </div>
+    </div>
+
+    <div class="main">
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="450" role="img" aria-label="Grafik"></canvas>
+      <div class="readouts-wrap" aria-live="polite">
+        <div class="group" data-for="tel">
+          <div class="cards">
+            <div class="readout"><small>Dalga hızı v = √(T/μ)</small><strong id="aV">—</strong></div>
+            <div class="readout"><small>Temel frekans f₁ = v/(2L)</small><strong id="aF1">—</strong></div>
+            <div class="readout"><small>Dalga boyu λ = v/f</small><strong id="aLam">—</strong></div>
+            <div class="readout is-highlight"><small>En yakın rezonans</small><strong id="aNear">—</strong></div>
+            <div class="readout wide"><small>Rezonans frekansları f<sub>n</sub> = n v/(2L)</small><strong id="aFn">—</strong></div>
+            <div class="readout"><small>Benzetim zamanı</small><strong id="aClock">—</strong></div>
+            <div class="readout"><small>Rezonans yarı genişliği β/(2π)</small><strong id="aHw">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Benzetilen telden ölçülen değerler ile kuramın karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (benzetim)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Kararlı genlik (en büyük)</th><td id="aAm">—</td><td id="aAt">—</td><td id="aAd" class="diff">—</td></tr>
+              <tr><th scope="row">Düğüm aralığı ile λ/2 = v/(2f)</th><td id="aDm">—</td><td id="aDt">—</td><td id="aDd" class="diff">—</td></tr>
+              <tr><th scope="row">İlmek sayısı L/(λ/2)</th><td id="aKm">—</td><td id="aKt">—</td><td id="aKd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Kuramsal genlik sürekli denklemin kararlı çözümünden gelir: Y(x) = a sin(k(L − x))/sin(kL), k² = (ω² − 2iβω)/v²; tablodaki değer |Y|'nin tel boyunca en büyüğüdür. Rezonansta (kL ≈ nπ) payda küçülür ve genlik a/sinh(βL/v) değerine çıkar.</p>
+          <p class="status" id="aStatus"></p>
+        </div>
+
+        <div class="group" data-for="hava" hidden>
+          <div class="cards" data-sub="boru">
+            <div class="readout"><small>Ses hızı v</small><strong id="bV">—</strong></div>
+            <div class="readout"><small>Uç düzeltmesi ΔL = 0.61 r</small><strong id="bE">—</strong></div>
+            <div class="readout"><small>Etkin uzunluk L<sub>etkin</sub></small><strong id="bLe">—</strong></div>
+            <div class="readout is-highlight"><small id="bFmLabel">Seçili mod</small><strong id="bFm">—</strong></div>
+            <div class="readout"><small>Seçili modun dalga boyu λ</small><strong id="bLam">—</strong></div>
+            <div class="readout"><small>kr (düzlem dalga için ≪ 1)</small><strong id="bKa">—</strong></div>
+          </div>
+          <table class="cmp" data-sub="boru">
+            <caption class="visually-hidden">Boru harmonikleri: uç düzeltmeli ve düzeltmesiz frekanslar</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Harmonik</th><th scope="col">Uç düzeltmeli (L<sub>etkin</sub>)</th><th scope="col">Düzeltmesiz (L)</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr data-m="1"><th scope="row" id="bH1n">—</th><td id="bH1a">—</td><td id="bH1b">—</td><td id="bH1d" class="diff">—</td></tr>
+              <tr data-m="2"><th scope="row" id="bH2n">—</th><td id="bH2a">—</td><td id="bH2b">—</td><td id="bH2d" class="diff">—</td></tr>
+              <tr data-m="3"><th scope="row" id="bH3n">—</th><td id="bH3a">—</td><td id="bH3b">—</td><td id="bH3d" class="diff">—</td></tr>
+              <tr data-m="4"><th scope="row" id="bH4n">—</th><td id="bH4a">—</td><td id="bH4b">—</td><td id="bH4d" class="diff">—</td></tr>
+              <tr data-m="5"><th scope="row" id="bH5n">—</th><td id="bH5a">—</td><td id="bH5b">—</td><td id="bH5d" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <div class="cards" data-sub="tup" hidden>
+            <div class="readout is-highlight"><small>Ses düzeyi (rezonans dışına göre)</small><strong id="bDb">—</strong></div>
+            <div class="readout"><small>Kuram: v = 331.3√(1 + T/273.15)</small><strong id="bV2">—</strong></div>
+            <div class="readout"><small>Kuram: λ = v/f</small><strong id="bLam2">—</strong></div>
+            <div class="readout"><small>Kuram: e = 0.61 r</small><strong id="bE2">—</strong></div>
+          </div>
+          <table class="cmp" data-sub="tup" hidden>
+            <caption class="visually-hidden">Rezonans tüpü: kaydedilen konumlardan ölçülen değerler ile kuramın karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen (kayıtlar)</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">1. rezonans L₁</th><td id="bL1m">—</td><td id="bL1t">—</td><td id="bL1d" class="diff">—</td></tr>
+              <tr><th scope="row">2. rezonans L₂</th><td id="bL2m">—</td><td id="bL2t">—</td><td id="bL2d" class="diff">—</td></tr>
+              <tr><th scope="row">λ = 2(L₂ − L₁)</th><td id="bLmm">—</td><td id="bLmt">—</td><td id="bLmd" class="diff">—</td></tr>
+              <tr><th scope="row">v = fλ</th><td id="bVm">—</td><td id="bVt">—</td><td id="bVd" class="diff">—</td></tr>
+              <tr><th scope="row">e = (L₂ − 3L₁)/2</th><td id="bEm">—</td><td id="bEt">—</td><td id="bEd" class="diff">—</td></tr>
+            </tbody>
+          </table>
+          <p class="status" id="bStatus"></p>
+        </div>
+
+        <div class="group" data-for="harmonik" hidden>
+          <div class="cards">
+            <div class="readout"><small>Çekme noktası (köprüden)</small><strong id="cPos">—</strong></div>
+            <div class="readout is-highlight"><small>Eksik harmonikler</small><strong id="cMiss">—</strong></div>
+            <div class="readout"><small>Temel frekans f₁</small><strong id="cF1">—</strong></div>
+            <div class="readout"><small>Enerjinin temel moddaki payı 2sin²(πp)/(π²p(1 − p))</small><strong id="cE1">—</strong></div>
+          </div>
+          <table class="cmp">
+            <caption class="visually-hidden">Harmonik genlikleri: formül ile sayısal izdüşümün karşılaştırması</caption>
+            <colgroup><col class="c-name"><col><col><col></colgroup>
+            <thead><tr><th scope="col">n · f<sub>n</sub></th><th scope="col">b<sub>n</sub> formül</th><th scope="col">b<sub>n</sub> sayısal</th><th scope="col">Fark</th></tr></thead>
+            <tbody id="cRows"></tbody>
+          </table>
+          <p class="status" id="cStatus"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  /* ── FİZİK (doğrulama betiği bu bloğu ayıklar) ── */
+  // >>> PHYS
+  const PHYS = (() => {
+    /* Birimler SI. Tel: y_tt + 2β y_t = v² y_xx, y(0, t) = a sin(2πft) (titreştirici), y(L, t) = 0 (makara).
+       Hava: v = 331.3·√(1 + T/273.15) m/s, kuru hava, ideal gaz (v ∝ √T_K).
+       Açık uç düzeltmesi 0.61 r: flanşsız boru, Levine ve Schwinger (1948) 0.6133 r, ka ≪ 1.
+       Ağızdaki yansıma |R| = exp(−(ka)²/2) (Levine–Schwinger düşük frekans yaklaşımı).
+       Duvar sönümü α ≈ 2.95·10⁻⁵ √f / r m⁻¹: Kirchhoff, 20 °C hava; Fletcher ve Rossing ≈ 3·10⁻⁵ √f / r.
+       Gitar teli: D'Addario PL010 (0.010″ düz çelik), birim ağırlık 0.00002215 lb/in = 0.3956 g/m;
+       25.5″ = 64.77 cm ölçekte E4 için 16.2 lb = 72.06 N (D'Addario gerilim tablosu, EXL110). */
+    const TAU = 2 * Math.PI;
+    const V0 = 331.3, T0K = 273.15, END = 0.61, WALL = 2.95e-5;
+    const N0 = 64;          // tel ızgarasının en az aralık sayısı
+    const SETTLE = 7;       // 7/β sonra geçişten e^{−7} ≈ %0.09 kalır
+    const GUITAR = { L: 0.6477, T: 72.06, mu: 0.3956 };
+    const TUBE_LEN = 1.1;   // m, rezonans tüpünün boyu
+
+    const soundSpeed = (Tc) => V0 * Math.sqrt(1 + Tc / T0K);
+    const waveSpeed = (T, muG) => Math.sqrt(T / (muG / 1000));
+    // Telde yarım dalga boyu başına en az 8 ızgara aralığı kalacak biçimde N = 64·k
+    function gridN(L, v, f) {
+      const half = (2 * L * f) / v;
+      return N0 * Math.min(8, Math.max(1, Math.ceil(half / 8)));
+    }
+    // Sönümlü denklemde karmaşık dalga sayısı: k² = (ω² − 2iβω)/v², Re k > 0
+    function kOf(f, v, beta) {
+      const w = TAU * f, re = w * w, im = -2 * beta * w, m = Math.hypot(re, im);
+      return { kr: Math.sqrt((m + re) / 2) / v, ki: -Math.sqrt(Math.max(0, (m - re) / 2)) / v };
+    }
+    const sin2 = (kr, ki, s) => { const p = Math.sin(kr * s), q = Math.sinh(ki * s); return p * p + q * q; };
+    // Kararlı çözüm Y(x) = a sin(k(L − x))/sin(kL): |Y|'nin tel üzerindeki en büyük değeri
+    function steadyAmp(f, v, L, beta, a) {
+      const { kr, ki } = kOf(f, v, beta);
+      const den = sin2(kr, ki, L);
+      let best = den;
+      const m = Math.floor((kr * L) / Math.PI - 0.5);
+      if (m >= 0) best = Math.max(best, sin2(kr, ki, ((m + 0.5) * Math.PI) / kr));
+      return a * Math.sqrt(best / den);
+    }
+    const ampAt = (x, f, v, L, beta, a) => { const k = kOf(f, v, beta); return a * Math.sqrt(sin2(k.kr, k.ki, L - x) / sin2(k.kr, k.ki, L)); };
+    const peakAmp = (v, L, beta, a) => a / Math.sinh((beta * L) / v);
+
+    /* Açık birdirbir (leapfrog), r = vΔt/Δx = 1:
+       (1 + βΔt) y_j^{n+1} = y_{j+1}^n + y_{j−1}^n − (1 − βΔt) y_j^{n−1} */
+    function createString(o) {
+      const N = o.N, dx = o.L / N, dt = dx / o.v, z = () => new Float64Array(N + 1);
+      return {
+        o, N, dx, dt, t: 0, ph: 0, y: z(), yp: z(), yn: z(), sc: z(), ss: z(), P: z(), Q: z(),
+        cc: 0, s2: 0, cs: 0, ns: 0, periods: 0, phi: 0, strobe: -1, snapY: z(), snapV: z(), snapPhi: 0, snapT: -1,
+      };
+    }
+    // Bir periyot boyunca y_j ≈ P_j cos θ + Q_j sin θ en küçük kareler uydurması
+    function finalize(S) {
+      const det = S.cc * S.s2 - S.cs * S.cs, tr = S.cc + S.s2;
+      if (S.ns >= 6 && det > 1e-6 * tr * tr) {
+        for (let j = 0; j <= S.N; j++) {
+          S.P[j] = (S.s2 * S.sc[j] - S.cs * S.ss[j]) / det;
+          S.Q[j] = (S.cc * S.ss[j] - S.cs * S.sc[j]) / det;
+        }
+        S.periods++;
+      }
+      S.sc.fill(0); S.ss.fill(0);
+      S.cc = S.s2 = S.cs = 0;
+      S.ns = 0;
+    }
+    function step(S) {
+      const o = S.o, N = S.N, b = o.beta * S.dt, c1 = 1 / (1 + b), c2 = 1 - b;
+      const y = S.y, yp = S.yp, yn = S.yn;
+      for (let j = 1; j < N; j++) yn[j] = (y[j + 1] + y[j - 1] - c2 * yp[j]) * c1;
+      const ph0 = S.ph;
+      S.ph += o.f * S.dt;
+      S.t += S.dt;
+      const ang = TAU * (S.ph - Math.floor(S.ph)), c = Math.cos(ang), s = Math.sin(ang);
+      yn[0] = o.a * s;
+      yn[N] = 0;
+      // φ = sağa giden bileşenin x = L'deki değeri: dφ/dt = −(v/2) y_x(L), y_x(L) ≈ (y_{N−2} − 4y_{N−1})/(2Δx);
+      // vΔt/Δx = 1. 10 periyotluk sızıntı, geçişten kalabilecek sabit kaymayı siler.
+      const phi0 = S.phi;
+      S.phi = (S.phi + 0.125 * (4 * (y[N - 1] + yn[N - 1]) - (y[N - 2] + yn[N - 2]))) * (1 - (o.f * S.dt) / 10);
+      if (S.strobe >= 0) {
+        const k1 = Math.floor(S.ph - S.strobe);
+        if (k1 !== Math.floor(ph0 - S.strobe)) {
+          // flaş anı t_n + αΔt: y^{n−1}, y^n, y^{n+1} üzerinden ikinci derece ara değer
+          const al = (k1 + S.strobe - ph0) / (S.ph - ph0), dt = S.dt;
+          for (let j = 0; j <= N; j++) {
+            const d1 = 0.5 * (yn[j] - yp[j]), d2 = yn[j] - 2 * y[j] + yp[j];
+            S.snapY[j] = y[j] + al * d1 + 0.5 * al * al * d2;
+            S.snapV[j] = (d1 + al * d2) / dt;
+          }
+          S.snapPhi = phi0 + al * (S.phi - phi0);
+          S.snapT = S.t - (1 - al) * dt;
+        }
+      }
+      if (Math.floor(S.ph) !== Math.floor(ph0)) finalize(S);
+      const sc = S.sc, ss = S.ss;
+      for (let j = 0; j <= N; j++) { sc[j] += yn[j] * c; ss[j] += yn[j] * s; }
+      S.cc += c * c; S.s2 += s * s; S.cs += c * s; S.ns++;
+      S.yp = y; S.y = yn; S.yn = yp;
+    }
+    // Son tam periyodun deseninden: en büyük genlik (parabolik ara değer), düğümler, düğüm aralığı
+    function analyze(S) {
+      const N = S.N, dx = S.dx, P = S.P, Q = S.Q, L = S.o.L;
+      let jm = 0, am = 0;
+      for (let j = 0; j <= N; j++) { const v = Math.hypot(P[j], Q[j]); if (v > am) { am = v; jm = j; } }
+      let Amax = am, xMax = jm * dx;
+      if (jm > 0 && jm < N) {
+        const a0 = Math.hypot(P[jm - 1], Q[jm - 1]), a2 = Math.hypot(P[jm + 1], Q[jm + 1]), den = a0 - 2 * am + a2;
+        if (den < 0) { const d = (0.5 * (a0 - a2)) / den; Amax = am - 0.25 * (a0 - a2) * d; xMax = (jm + d) * dx; }
+      }
+      const nodes = [];
+      if (am > 0) {
+        const pm = P[jm] / am, qm = Q[jm] / am;
+        let prev = P[0] * pm + Q[0] * qm;
+        for (let j = 1; j < N; j++) {
+          const cur = P[j] * pm + Q[j] * qm;
+          if ((prev < 0 && cur >= 0) || (prev > 0 && cur <= 0)) {
+            const x = (j - 1 + prev / (prev - cur)) * dx;
+            if (x > 0.25 * dx) nodes.push(x);
+          }
+          prev = cur;
+        }
+      }
+      nodes.sort((p, q) => q - p);
+      // x_m = L − m·d (sabit uç m = 0) doğrusuna en küçük kareler
+      let num = 0, dd = 0;
+      nodes.forEach((x, i) => { num += (i + 1) * (L - x); dd += (i + 1) * (i + 1); });
+      return { Amax, xMax, nodes, d: nodes.length ? num / dd : NaN };
+    }
+    // Tarama: duruştan başla, max(7/β, 3/f) bekle, sonraki iki tam periyodun sonuncusunu ölç
+    function sweepInit(o) { return { S: createString(o), tEnd: Math.max(SETTLE / o.beta, 3 / o.f), p0: -1, done: false, A: NaN }; }
+    function sweepAdvance(R, maxSteps) {
+      const S = R.S;
+      for (let i = 0; i < maxSteps; i++) {
+        step(S);
+        if (R.p0 < 0) { if (S.t >= R.tEnd) R.p0 = S.periods; }
+        else if (S.periods >= R.p0 + 2) { R.A = analyze(S).Amax; R.done = true; return true; }
+      }
+      return false;
+    }
+    // d'Alembert ayrıştırması y = F(x − vt) + G(x + vt): F' = (y_x − y_t/v)/2, F(L) = φ, G = y − F
+    function components(Y, V, phi, N, dx, v, F, G) {
+      F[N] = phi;
+      G[N] = Y[N] - phi;
+      for (let j = N - 1; j >= 0; j--) {
+        F[j] = F[j + 1] - 0.5 * (Y[j + 1] - Y[j]) + 0.25 * (dx / v) * (V[j] + V[j + 1]);
+        G[j] = Y[j] - F[j];
+      }
+    }
+
+    /* ── Hava sütunu ── */
+    function pipe(kind, L, r, Tc, count) {
+      const v = soundSpeed(Tc), e = END * r, open = kind === "acik";
+      const Le = open ? L + 2 * e : L + e;
+      const modes = [];
+      for (let m = 1; m <= count; m++) {
+        const n = open ? m : 2 * m - 1;
+        const f = open ? (n * v) / (2 * Le) : (n * v) / (4 * Le);
+        const f0 = open ? (n * v) / (2 * L) : (n * v) / (4 * L);
+        modes.push({ m, n, f, f0, lambda: v / f });
+      }
+      return { v, e, Le, modes };
+    }
+    // Rezonans tüpü: su yüzeyi katı uç (R = +1), ağız açık uç (R ≈ −|R| e^{−2ike}).
+    // Düzey = |1 + ρ e^{−iθ}|⁻², θ = 2k(L + e), ρ = |R| e^{−2αL}; rezonans dışındaki en düşük düzey 0 dB.
+    function tubeLevel(L, f, r, Tc) {
+      const v = soundSpeed(Tc), k = (TAU * f) / v, e = END * r;
+      const Rabs = Math.exp(-0.5 * (k * r) * (k * r));
+      const rho = Rabs * Math.exp(-2 * ((WALL * Math.sqrt(f)) / r) * L);
+      const den = 1 + 2 * rho * Math.cos(2 * k * (L + e)) + rho * rho;
+      return 10 * Math.log10(((1 + rho) * (1 + rho)) / den);
+    }
+    function tubeTheory(f, r, Tc) {
+      const v = soundSpeed(Tc), lam = v / f, e = END * r;
+      return { v, lam, e, L1: lam / 4 - e, L2: (3 * lam) / 4 - e, L3: (5 * lam) / 4 - e };
+    }
+
+    /* ── Çekilen tel ── */
+    const pluckB = (n, p, h) => (2 * h * Math.sin(n * Math.PI * p)) / (n * n * Math.PI * Math.PI * p * (1 - p));
+    const pluckShape = (u, p, h) => (u <= p ? (h * u) / p : (h * (1 - u)) / (1 - p));
+    function projectB(n, p, h, K) {
+      let s = 0;
+      for (let i = 0; i <= K; i++) {
+        const u = i / K, w = i === 0 || i === K ? 0.5 : 1;
+        s += w * pluckShape(u, p, h) * Math.sin(n * Math.PI * u);
+      }
+      return (2 * s) / K;
+    }
+    const fundamentalShare = (p) => (2 * Math.sin(Math.PI * p) ** 2) / (Math.PI * Math.PI * p * (1 - p));
+
+    return {
+      TAU, V0, T0K, END, WALL, N0, SETTLE, GUITAR, TUBE_LEN,
+      soundSpeed, waveSpeed, gridN, kOf, steadyAmp, ampAt, peakAmp,
+      createString, step, finalize, analyze, sweepInit, sweepAdvance, components,
+      pipe, tubeLevel, tubeTheory, pluckB, pluckShape, projectB, fundamentalShare,
+    };
+  })();
+  // <<< PHYS
+
+  /* ── Biçimlendirme: tek yuvarlama yardımcısı ── */
+  const MINUS = "−";
+  function fix(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
+  }
+  function sgn(x, d) {
+    const r = Number((x * (1 + 1e-12)).toFixed(d));
+    if (r === 0) return (0).toFixed(d);
+    return (r > 0 ? "+" : MINUS) + Math.abs(r).toFixed(d);
+  }
+  function diffPct(meas, theory) {
+    if (!Number.isFinite(meas) || !Number.isFinite(theory) || Math.abs(theory) < 1e-15) return "—";
+    return `${sgn(((meas - theory) / Math.abs(theory)) * 100, 2)} %`;
+  }
+  const SUB = "₀₁₂₃₄₅₆₇₈₉";
+  const subN = (n) => String(n).split("").map((c) => SUB[Number(c)]).join("");
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  function setRange(el, v) {
+    const min = Number(el.min), max = Number(el.max), step = Number(el.step);
+    const q = Math.round((Math.min(max, Math.max(min, v)) - min) / step) * step + min;
+    el.value = String(Number(q.toFixed(6)));
+  }
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+
+  /* ── Ortak çizim ── */
+  const stage = $("stageCanvas"), sg = stage.getContext("2d");
+  const chart = $("chartCanvas"), cg = chart.getContext("2d");
+  const labPanel = $("labPanel");
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const TAB_KEYS = tabs.map((t) => t.dataset.tab);
+  const S = { tab: "tel", paused: false };
+  let dirty = true, dpr = 1;
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", faint: "rgba(26,29,46,0.3)", grid: "rgba(0,0,0,0.07)", axis: "rgba(26,29,46,0.5)",
+      accent: "#0d9488", accent2: "#7c3aed", warm: "#d97706", pink: "#db2777", blue: "#2563eb", danger: "#dc2626",
+      band: "rgba(13,148,136,0.16)", water: "rgba(2,132,199,0.30)", waterEdge: "#0369a1", glass: "rgba(14,165,233,0.10)",
+      glassEdge: "rgba(3,105,161,0.7)", metal: "#64748b", metalDark: "#334155", tagBg: "rgba(255,255,255,0.92)", dot: "rgba(26,29,46,0.55)",
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", faint: "rgba(232,236,244,0.28)", grid: "rgba(255,255,255,0.07)", axis: "rgba(232,236,244,0.45)",
+      accent: "#5eead4", accent2: "#a78bfa", warm: "#fbbf24", pink: "#f472b6", blue: "#60a5fa", danger: "#f87171",
+      band: "rgba(94,234,212,0.16)", water: "rgba(56,189,248,0.30)", waterEdge: "#7dd3fc", glass: "rgba(125,211,252,0.08)",
+      glassEdge: "rgba(186,230,253,0.7)", metal: "#94a3b8", metalDark: "#cbd5e1", tagBg: "rgba(8,12,22,0.85)", dot: "rgba(232,236,244,0.6)",
+    };
+  }
+  const font = (px, w) => `${w ? w + " " : ""}${px * dpr}px Outfit, system-ui, sans-serif`;
+  function line(g, x1, y1, x2, y2) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+  function stroke(g, color, w, dash) {
+    g.strokeStyle = color;
+    g.lineWidth = w * dpr;
+    g.setLineDash(dash ? [dash[0] * dpr, dash[1] * dpr] : []);
+  }
+  function text(g, s, x, y, color, size, align, base, weight) {
+    g.font = font(size || 11, weight);
+    g.fillStyle = color;
+    g.textAlign = align || "left";
+    g.textBaseline = base || "middle";
+    g.fillText(s, x, y);
+  }
+  function tag(g, s, x, y, color, th, size, align) {
+    const sz = size || 11;
+    g.font = font(sz, "600");
+    const w = g.measureText(s).width + 10 * dpr, h = sz * dpr + 9 * dpr;
+    let bx = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    bx = Math.max(2 * dpr, Math.min(bx, g.canvas.width - w - 2 * dpr));
+    const by = Math.max(2 * dpr, Math.min(y - h / 2, g.canvas.height - h - 2 * dpr));
+    g.fillStyle = th.tagBg;
+    g.beginPath(); g.roundRect(bx, by, w, h, 5 * dpr); g.fill();
+    text(g, s, bx + 5 * dpr, by + h / 2 + 0.5 * dpr, color, sz, "left", "middle", "600");
+    return { x: bx, y: by, w, h };
+  }
+  function arrowHead(g, x, y, ang, size, color) {
+    const s = size * dpr;
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x - s * Math.cos(ang - 0.42), y - s * Math.sin(ang - 0.42));
+    g.lineTo(x - s * Math.cos(ang + 0.42), y - s * Math.sin(ang + 0.42));
+    g.closePath();
+    g.fill();
+  }
+  function dimension(g, xa, xb, y, label, color, th) {
+    stroke(g, color, 1.2);
+    line(g, xa, y, xb, y);
+    arrowHead(g, xa, y, Math.PI, 7, color);
+    arrowHead(g, xb, y, 0, 7, color);
+    tag(g, label, (xa + xb) / 2, y - 12 * dpr, color, th, 10);
+  }
+  // Noktalardan geçen yumuşak eğri (orta noktalara ikinci derece eğriler)
+  function smoothPath(g, xs, ys, n) {
+    g.beginPath();
+    g.moveTo(xs[0], ys[0]);
+    for (let i = 1; i < n - 1; i++) g.quadraticCurveTo(xs[i], ys[i], (xs[i] + xs[i + 1]) / 2, (ys[i] + ys[i + 1]) / 2);
+    g.lineTo(xs[n - 1], ys[n - 1]);
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  const tickText = (v, step) => fix(v, step >= 1 ? 0 : Math.min(3, Math.ceil(-Math.log10(step) - 1e-9)));
+  function chartFrame(g, th, o) {
+    const W = chart.width, H = chart.height, small = W < 520 * dpr;
+    const L = { W, H, l: (small ? 40 : 48) * dpr, r: 12 * dpr, t: 24 * dpr, b: 24 * dpr };
+    L.w = W - L.l - L.r;
+    L.h = H - L.t - L.b;
+    L.X = (v) => L.l + ((v - o.x0) / (o.x1 - o.x0)) * L.w;
+    L.Y = (v) => L.t + L.h - ((v - o.y0) / (o.y1 - o.y0)) * L.h;
+    L.iX = (px) => o.x0 + ((px - L.l) / L.w) * (o.x1 - o.x0);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.setLineDash([]);
+    g.lineWidth = 1 * dpr;
+    g.strokeStyle = th.grid;
+    g.font = font(10);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    if (o.xStep) {
+      for (let v = Math.ceil(o.x0 / o.xStep - 1e-9) * o.xStep; v <= o.x1 + 1e-9; v += o.xStep) {
+        const x = L.X(v);
+        line(g, x, L.t, x, L.t + L.h);
+        g.fillText(tickText(v, o.xStep), x, L.t + L.h + 5 * dpr);
+      }
+    }
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    if (o.yStep) {
+      for (let v = Math.ceil(o.y0 / o.yStep - 1e-9) * o.yStep; v <= o.y1 + 1e-9; v += o.yStep) {
+        const y = L.Y(v);
+        line(g, L.l, y, L.l + L.w, y);
+        g.fillText(tickText(v, o.yStep), L.l - 5 * dpr, y);
+      }
+    }
+    g.strokeStyle = th.axis;
+    g.lineWidth = 1.2 * dpr;
+    g.beginPath(); g.moveTo(L.l, L.t); g.lineTo(L.l, L.t + L.h); g.lineTo(L.l + L.w, L.t + L.h); g.stroke();
+    text(g, o.xLabel, L.l + L.w - 2 * dpr, L.t + L.h - 9 * dpr, th.muted, 10, "right", "middle", "600");
+    text(g, o.yLabel, 4 * dpr, 11 * dpr, th.muted, 10, "left", "middle", "600");
+    return L;
+  }
+  const clipRect = (g, x, y, w, h) => { g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); };
+  function canvasPoint(evt, c) {
+    const r = c.getBoundingClientRect();
+    return [((evt.clientX - r.left) / r.width) * c.width, ((evt.clientY - r.top) / r.height) * c.height];
+  }
+
+  /* ── (a) Titreşen tel ── */
+  const G_ACC = 9.81;
+  const STROBE_HZ = 0.4;    // stroboskopta görünen salınım frekansı (gerçek saniyede)
+  const A_PRESETS = {
+    lab: { L: 1, T: 2.5, mu: 1, f: 100, a: 0.4, beta: 2, n: 4 },
+    gitar: { L: PHYS.GUITAR.L, T: PHYS.GUITAR.T, mu: PHYS.GUITAR.mu, f: 329.47, a: 0.1, beta: 8, n: 1 },
+  };
+  const A = {
+    L: 1, T: 2.5, mu: 1, f: 100, a: 0.4, beta: 2, v: 50, waves: false,
+    sim: null, acc: 0, tChange: 0, pChange: 0, kappaEff: 1, strobeT: 0, curve: null, sweep: null, sweepPts: [], meas: null,
+    F: null, G: null, drag: false,
+    ui: {
+      preset: $("aPreset"), presetOut: $("aPresetOut"), L: $("aL"), LOut: $("aLOut"), T: $("aT"), TOut: $("aTOut"),
+      mu: $("aMu"), muOut: $("aMuOut"), f: $("aF"), fOut: $("aFOut"), a: $("aA"), aOut: $("aAOut"), b: $("aB"), bOut: $("aBOut"),
+      fNum: $("aFNum"), fm: $("aFm"), fp: $("aFp"), n: $("aN"), go: $("aGo"), waves: $("aWaves"), pause: $("aPause"), restart: $("aRestart"),
+      sweep: $("aSweep"), reset: $("aReset"),
+      v: $("aV"), f1: $("aF1"), lam: $("aLam"), near: $("aNear"), fn: $("aFn"), clock: $("aClock"), hw: $("aHw"),
+      Am: $("aAm"), At: $("aAt"), Ad: $("aAd"), Dm: $("aDm"), Dt: $("aDt"), Dd: $("aDd"), Km: $("aKm"), Kt: $("aKt"), Kd: $("aKd"),
+      status: $("aStatus"),
+    },
+  };
+  const f1A = () => A.v / (2 * A.L);
+  const kappaA = () => Math.min(4, 2 / A.beta);    // benzetim saniyesi / gerçek saniye
+  const fMaxA = () => Math.min(1000, 5.5 * f1A());
+
+  function newStringA() {
+    const N = PHYS.gridN(A.L, A.v, A.f);
+    A.sim = PHYS.createString({ L: A.L, v: A.v, beta: A.beta, a: A.a / 1000, f: A.f, N });
+    A.F = new Float64Array(N + 1);
+    A.G = new Float64Array(N + 1);
+    A.acc = 0;
+    A.tChange = 0;
+    A.pChange = 0;
+    A.meas = null;
+  }
+  function restartMeasureA() {
+    A.tChange = A.sim.t;
+    A.pChange = A.sim.periods;
+    A.meas = null;
+  }
+  function settledA() {
+    const S = A.sim;
+    return S.t - A.tChange >= Math.max(PHYS.SETTLE / A.beta, 3 / A.f) && S.periods - A.pChange >= 2;
+  }
+  function buildCurveA() {
+    const fMax = fMaxA(), f1 = f1A(), hw = A.beta / PHYS.TAU, pts = [];
+    for (let i = 1; i <= 700; i++) pts.push((fMax * i) / 700);
+    for (let n = 1; n * f1 <= fMax; n++) for (const k of [-4, -2, -1, -0.5, -0.25, 0, 0.25, 0.5, 1, 2, 4]) { const f = n * f1 + k * hw; if (f > 0 && f <= fMax) pts.push(f); }
+    pts.sort((p, q) => p - q);
+    A.curve = pts.map((f) => [f, PHYS.steadyAmp(f, A.v, A.L, A.beta, A.a / 1000) * 1000]);
+  }
+  function sweepFreqsA() {
+    const fMax = fMaxA(), f1 = f1A(), hw = A.beta / PHYS.TAU, fs = [];
+    for (let i = 1; i <= 48; i++) fs.push((fMax * i) / 48);
+    for (let n = 1; n * f1 <= fMax; n++) for (const k of [-3, -1.5, -0.75, -0.3, 0, 0.3, 0.75, 1.5, 3]) { const f = n * f1 + k * hw; if (f > 0.5 && f <= fMax) fs.push(f); }
+    return fs.sort((p, q) => p - q);
+  }
+  function setSweepButton() {
+    setText(A.ui.sweep, A.sweep ? "Taramayı durdur" : "Rezonans eğrisini tara");
+    A.ui.sweep.setAttribute("aria-pressed", String(Boolean(A.sweep)));
+  }
+  function cancelSweepA(clear) {
+    A.sweep = null;
+    if (clear) A.sweepPts = [];
+    setSweepButton();
+  }
+  function startSweepA() {
+    A.sweepPts = [];
+    A.sweep = { fs: sweepFreqsA(), i: 0, R: null };
+    setSweepButton();
+  }
+  function sweepWorkA(budgetMs) {
+    const sw = A.sweep, t0 = performance.now();
+    while (performance.now() - t0 < budgetMs) {
+      if (!sw.R) {
+        if (sw.i >= sw.fs.length) { A.sweep = null; setSweepButton(); return; }
+        const f = sw.fs[sw.i];
+        sw.R = PHYS.sweepInit({ L: A.L, v: A.v, beta: A.beta, a: A.a / 1000, f, N: PHYS.gridN(A.L, A.v, f) });
+      }
+      if (PHYS.sweepAdvance(sw.R, 400)) {
+        A.sweepPts.push([sw.fs[sw.i], sw.R.A * 1000]);
+        sw.R = null;
+        sw.i++;
+      }
+    }
+  }
+  function matchPresetA() {
+    for (const [k, p] of Object.entries(A_PRESETS)) {
+      if (Math.abs(p.L - A.L) < 1e-9 && Math.abs(p.T - A.T) < 1e-9 && Math.abs(p.mu - A.mu) < 1e-9 && Math.abs(p.a - A.a) < 1e-9 && Math.abs(p.beta - A.beta) < 1e-9) return k;
+    }
+    return "ozel";
+  }
+  // what: "string" (L, T, μ), "drive" (a, β), "freq" (f)
+  function syncA(what) {
+    const u = A.ui;
+    A.L = Number(u.L.value); A.T = Number(u.T.value); A.mu = Number(u.mu.value);
+    A.f = Number(u.f.value); A.a = Number(u.a.value); A.beta = Number(u.b.value);
+    A.waves = u.waves.checked;
+    A.v = PHYS.waveSpeed(A.T, A.mu);
+    setText(u.LOut, `${fix(A.L * 100, 2)} cm`);
+    setText(u.TOut, `${fix(A.T, 2)} N`);
+    setText(u.muOut, `${fix(A.mu, 4)} g/m`);
+    setText(u.fOut, `${fix(A.f, 2)} Hz`);
+    if (document.activeElement !== u.fNum) u.fNum.value = A.f.toFixed(2);
+    setText(u.aOut, `${fix(A.a, 2)} mm`);
+    setText(u.bOut, `${fix(A.beta, 1)} s⁻¹`);
+    if (what === "string" || what === "drive") u.preset.value = matchPresetA();
+    setText(u.presetOut, `f₁ = ${fix(f1A(), 2)} Hz`);
+    const N = PHYS.gridN(A.L, A.v, A.f);
+    if (what === "view" && A.sim) { dirty = true; return; }
+    if (!A.sim || what === "string" || what === "restart" || N !== A.sim.N) newStringA();
+    else {
+      const o = A.sim.o;
+      o.f = A.f; o.a = A.a / 1000; o.beta = A.beta;
+      restartMeasureA();
+    }
+    if (what !== "freq" && what !== "restart") { cancelSweepA(true); buildCurveA(); }
+    if (!A.curve) buildCurveA();
+    dirty = true;
+  }
+  function presetA(key) {
+    const p = A_PRESETS[key];
+    if (!p) return;
+    setRange(A.ui.L, p.L); setRange(A.ui.T, p.T); setRange(A.ui.mu, p.mu);
+    setRange(A.ui.f, p.f); setRange(A.ui.a, p.a); setRange(A.ui.b, p.beta);
+    A.ui.n.value = String(p.n);
+    A.ui.preset.value = key;
+    syncA("string");
+  }
+  function resetA() {
+    A.ui.waves.checked = false;
+    presetA("lab");
+  }
+
+  // Sahnedeki tel çerçevesi
+  function viewA() {
+    const W = stage.width, H = stage.height, small = W < 620 * dpr;
+    const x0 = (small ? 46 : 84) * dpr, x1 = W - (small ? 40 : 76) * dpr, yMid = H * 0.47;
+    const kx = (x1 - x0) / A.L;
+    const peak = PHYS.peakAmp(A.v, A.L, A.beta, A.a / 1000);
+    const ky = (H * 0.3) / peak;
+    return { W, H, x0, x1, yMid, kx, ky, small };
+  }
+  function drawA() {
+    const g = sg, th = theme(), V = viewA(), Sx = A.sim, N = Sx.N, dxp = Sx.dx * V.kx;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, V.W, V.H);
+    const yLim = V.H * 0.43;
+    const Yp = (y) => V.yMid - Math.max(-yLim, Math.min(yLim, y * V.ky));
+    // cetvel
+    const rulerY = V.H - 30 * dpr;
+    stroke(g, th.faint, 1);
+    line(g, V.x0, rulerY, V.x1, rulerY);
+    const stepM = niceStep(Math.max(0.01, (60 * dpr) / V.kx));
+    g.font = font(9.5);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (let x = 0; x <= A.L + 1e-9; x += stepM / 2) {
+      const px = V.x0 + x * V.kx, major = Math.abs(x / stepM - Math.round(x / stepM)) < 1e-6;
+      line(g, px, rulerY, px, rulerY + (major ? 6 : 3) * dpr);
+      if (major) g.fillText(fix(x * 100, 0), px, rulerY + 8 * dpr);
+    }
+    g.textAlign = "right";
+    g.fillText("cm", V.W - 6 * dpr, rulerY + 8 * dpr);
+    // denge çizgisi
+    stroke(g, th.faint, 1, [5, 5]);
+    line(g, V.x0, V.yMid, V.x1, V.yMid);
+    g.setLineDash([]);
+    // zarf (son tam periyot)
+    const haveP = Sx.periods > 0;
+    if (haveP) {
+      g.fillStyle = th.band;
+      g.beginPath();
+      for (let j = 0; j <= N; j++) g.lineTo(V.x0 + j * dxp, Yp(Math.hypot(Sx.P[j], Sx.Q[j])));
+      for (let j = N; j >= 0; j--) g.lineTo(V.x0 + j * dxp, Yp(-Math.hypot(Sx.P[j], Sx.Q[j])));
+      g.closePath();
+      g.fill();
+    }
+    // gösterilecek anlık biçim
+    const strobe = A.useStrobe && Sx.snapT >= 0;
+    const Y = strobe ? Sx.snapY : Sx.y;
+    const xs = A.xs && A.xs.length === N + 1 ? A.xs : (A.xs = new Float64Array(N + 1));
+    const ys = A.ys && A.ys.length === N + 1 ? A.ys : (A.ys = new Float64Array(N + 1));
+    for (let j = 0; j <= N; j++) xs[j] = V.x0 + j * dxp;
+    if (A.waves) {
+      let Vv = Sx.snapV, phi = Sx.snapPhi;
+      if (!strobe) {
+        // ikinci derece geri fark: S.y = y^n, S.yp = y^{n−1}, S.yn = y^{n−2} (dönüşümden sonra)
+        Vv = A.Vb && A.Vb.length === N + 1 ? A.Vb : (A.Vb = new Float64Array(N + 1));
+        for (let j = 0; j <= N; j++) Vv[j] = (3 * Sx.y[j] - 4 * Sx.yp[j] + Sx.yn[j]) / (2 * Sx.dt);
+        phi = Sx.phi;
+      }
+      PHYS.components(Y, Vv, phi, N, Sx.dx, A.v, A.F, A.G);
+      for (let j = 0; j <= N; j++) ys[j] = Yp(A.F[j]);
+      stroke(g, th.blue, 1.8, [7, 4]);
+      smoothPath(g, xs, ys, N + 1);
+      g.stroke();
+      for (let j = 0; j <= N; j++) ys[j] = Yp(A.G[j]);
+      stroke(g, th.pink, 1.8, [7, 4]);
+      smoothPath(g, xs, ys, N + 1);
+      g.stroke();
+      g.setLineDash([]);
+    }
+    for (let j = 0; j <= N; j++) ys[j] = Yp(Y[j]);
+    stroke(g, th.ink, 2.4);
+    smoothPath(g, xs, ys, N + 1);
+    g.stroke();
+    // titreştirici (sol)
+    const vibW = (V.small ? 30 : 52) * dpr, vibH = 54 * dpr;
+    g.fillStyle = th.metal;
+    g.beginPath(); g.roundRect(V.x0 - vibW - 10 * dpr, V.yMid - vibH / 2, vibW, vibH, 6 * dpr); g.fill();
+    stroke(g, th.metalDark, 2);
+    line(g, V.x0 - 10 * dpr, Yp(Y[0]), V.x0, Yp(Y[0]));
+    g.fillStyle = th.warm;
+    g.beginPath(); g.arc(V.x0, Yp(Y[0]), 4 * dpr, 0, Math.PI * 2); g.fill();
+    if (!V.small) text(g, "titreştirici", V.x0 - vibW / 2 - 10 * dpr, V.yMid + vibH / 2 + 10 * dpr, th.muted, 9.5, "center");
+    // makara ve asılı kütle (sağ)
+    const pr = 11 * dpr;
+    stroke(g, th.metal, 2);
+    g.beginPath(); g.arc(V.x1 + pr * 0.2, V.yMid + pr, pr, 0, Math.PI * 2); g.stroke();
+    stroke(g, th.ink, 1.6);
+    line(g, V.x1 + pr * 1.2, V.yMid + pr, V.x1 + pr * 1.2, V.H * 0.8);
+    g.fillStyle = th.metal;
+    g.fillRect(V.x1 + pr * 1.2 - 10 * dpr, V.H * 0.8, 20 * dpr, 16 * dpr);
+    const mass = A.T / G_ACC;
+    text(g, mass >= 1 ? `${fix(mass, 2)} kg` : `${fix(mass * 1000, 0)} g`, V.x1 + pr * 1.2 + 13 * dpr, V.H * 0.8 + 8 * dpr, th.muted, 9.5, "left");
+    // ölçülen düğümler
+    const settled = settledA();
+    if (settled && A.meas) {
+      for (const x of A.meas.nodes) {
+        const px = V.x0 + x * V.kx;
+        g.fillStyle = th.warm;
+        g.beginPath(); g.arc(px, V.yMid, 4.5 * dpr, 0, Math.PI * 2); g.fill();
+      }
+      g.fillStyle = th.warm;
+      g.beginPath(); g.arc(V.x1, V.yMid, 4.5 * dpr, 0, Math.PI * 2); g.fill();
+      if (A.meas.nodes.length) {
+        const xa = V.x0 + A.meas.nodes[0] * V.kx;
+        if (V.x1 - xa > 50 * dpr) dimension(g, xa, V.x1, rulerY - 12 * dpr, `düğüm aralığı ${fix(A.meas.d * 100, 2)} cm`, th.warm, th);
+      }
+    }
+    // bilgi
+    tag(g, `f = ${fix(A.f, 2)} Hz · v = ${fix(A.v, 2)} m/s · λ = ${fix((A.v / A.f) * 100, 1)} cm`, 8 * dpr, 16 * dpr, th.ink, th, V.small ? 9.5 : 11, "left");
+    const mag = V.ky / V.kx;
+    const mode = A.useStrobe ? "stroboskop" : "canlı";
+    tag(g, `düşey ölçek ×${mag >= 10 ? fix(mag, 0) : fix(mag, 1)} · ${mode} · zaman ×${fix(A.kappaEff, 2)}`, V.W - 8 * dpr, (V.small ? 38 : 16) * dpr, th.muted, th, V.small ? 9 : 10, "right");
+  }
+
+  function drawChartA() {
+    const g = cg, th = theme(), fMax = fMaxA(), f1 = f1A();
+    const peak = PHYS.peakAmp(A.v, A.L, A.beta, A.a / 1000) * 1000;
+    let yMax = peak;
+    for (const p of A.sweepPts) yMax = Math.max(yMax, p[1]);
+    yMax *= 1.12;
+    const L = chartFrame(g, th, { x0: 0, x1: fMax, y0: 0, y1: yMax, xStep: niceStep(fMax / 7), yStep: niceStep(yMax / 5), xLabel: "f (Hz)", yLabel: "kararlı genlik (mm)" });
+    A.chartL = L;
+    clipRect(g, L.l, L.t, L.w, L.h);
+    // fₙ işaretleri
+    for (let n = 1; n * f1 <= fMax; n++) {
+      const x = L.X(n * f1);
+      stroke(g, th.faint, 1, [3, 4]);
+      line(g, x, L.t, x, L.t + L.h);
+      g.setLineDash([]);
+      if (n <= 12) text(g, `f${subN(n)}`, x + 3 * dpr, L.t + 8 * dpr, th.muted, 10, "left");
+    }
+    // titreştirici genliği
+    stroke(g, th.faint, 1, [6, 4]);
+    line(g, L.l, L.Y(A.a), L.l + L.w, L.Y(A.a));
+    g.setLineDash([]);
+    // kuram eğrisi
+    stroke(g, th.accent2, 1.6);
+    g.beginPath();
+    g.moveTo(L.X(0), L.Y(A.a));
+    for (const [f, a] of A.curve) g.lineTo(L.X(f), L.Y(Math.min(a, yMax * 1.5)));
+    g.stroke();
+    // tarama noktaları
+    g.fillStyle = th.warm;
+    for (const [f, a] of A.sweepPts) { g.beginPath(); g.arc(L.X(f), L.Y(a), 3 * dpr, 0, Math.PI * 2); g.fill(); }
+    // şimdiki frekans
+    const xf = L.X(A.f);
+    stroke(g, th.accent, 1.5);
+    line(g, xf, L.t, xf, L.t + L.h);
+    if (settledA() && A.meas) {
+      stroke(g, th.accent, 2);
+      g.beginPath(); g.arc(xf, L.Y(A.meas.Amax * 1000), 5.5 * dpr, 0, Math.PI * 2); g.stroke();
+    }
+    g.restore();
+    text(g, `a = ${fix(A.a, 2)} mm`, L.l + L.w - 4 * dpr, L.Y(A.a) - 8 * dpr, th.muted, 9.5, "right");
+    let msg;
+    if (A.sweep) msg = `tarama: ${A.sweep.i}/${A.sweep.fs.length} nokta (aynı çözücü, her biri durgun başlar)`;
+    else if (A.sweepPts.length) msg = `noktalar: sonlu fark taraması (${A.sweepPts.length}) · çizgi: kuram`;
+    else msg = "çizgi: kuram · noktalar için \"Rezonans eğrisini tara\"";
+    tag(g, msg, L.l + 6 * dpr, L.t + 22 * dpr, A.sweep ? th.warm : th.muted, th, 9.5, "left");
+  }
+
+  function readoutsA() {
+    const u = A.ui, f1 = f1A(), S = A.sim, settled = settledA(), lam = A.v / A.f, hw = A.beta / PHYS.TAU;
+    setText(u.v, `${fix(A.v, 2)} m/s`);
+    setText(u.f1, `${fix(f1, 2)} Hz`);
+    setText(u.lam, `${fix(lam * 100, 2)} cm`);
+    setText(u.hw, `±${fix(hw, 2)} Hz`);
+    const list = [];
+    for (let n = 1; n <= 5; n++) list.push(fix(n * f1, 2));
+    setText(u.fn, `${list.join(" · ")} Hz`);
+    const nNear = Math.max(1, Math.round(A.f / f1));
+    setText(u.near, `n = ${nNear}: f${subN(nNear)} = ${fix(nNear * f1, 2)} Hz`);
+    setText(u.clock, `t = ${fix(S.t, 2)} s · ×${fix(A.kappaEff, 2)}`);
+    const Ath = PHYS.steadyAmp(A.f, A.v, A.L, A.beta, A.a / 1000);
+    setText(u.At, `${fix(Ath * 1000, 3)} mm`);
+    setText(u.Dt, `${fix((lam / 2) * 100, 2)} cm`);
+    const loopsTh = (2 * A.L) / lam;
+    setText(u.Kt, fix(loopsTh, 3));
+    const st = u.status;
+    let msg = "", warn = false, good = false;
+    const tSet = Math.max(PHYS.SETTLE / A.beta, 3 / A.f);
+    if (!settled) {
+      const prog = Math.min(99, Math.floor(((S.t - A.tChange) / tSet) * 100));
+      setText(u.Am, `ölçülüyor… %${prog}`);
+      setText(u.Ad, "—");
+      setText(u.Dm, "—"); setText(u.Dd, "—"); setText(u.Km, "—"); setText(u.Kd, "—");
+      msg = `Geçiş evresi: tel yeni ayara uyuyor. Başlangıçtaki salınımlar e<sup>−βt</sup> ile söner; kararlı genlik için ${fix(tSet, 2)} s benzetim zamanı bekleniyor (%${prog}).`;
+      if (A.paused()) msg += " Benzetim duraklatıldı.";
+    } else {
+      if (!A.meas || A.meas.periods !== S.periods) { A.meas = PHYS.analyze(S); A.meas.periods = S.periods; }
+      const m = A.meas;
+      setText(u.Am, `${fix(m.Amax * 1000, 3)} mm`);
+      setText(u.Ad, diffPct(m.Amax, Ath));
+      const hasNodes = Number.isFinite(m.d);
+      setText(u.Dm, hasNodes ? `${fix(m.d * 100, 2)} cm` : "iç düğüm yok");
+      setText(u.Dd, hasNodes ? diffPct(m.d, lam / 2) : "—");
+      setText(u.Km, hasNodes ? fix(A.L / m.d, 3) : "—");
+      setText(u.Kd, hasNodes ? diffPct(A.L / m.d, loopsTh) : "—");
+      const gain = m.Amax / (A.a / 1000);
+      const near = nNear * f1;
+      const resonant = Math.abs(A.f - near) <= hw;
+      if (resonant && !hasNodes) {
+        good = true;
+        msg = `Rezonans: f = ${fix(A.f, 2)} Hz, f${subN(nNear)} = ${fix(near, 2)} Hz değerinin yarı genişlik (±${fix(hw, 2)} Hz) aralığında. Tel tek ilmekle titreşiyor; yalnız iki uç düğüm olduğu için düğüm aralığı ölçülemez, λ/2 = ${fix((lam / 2) * 100, 2)} cm tel boyuna eşit. Genlik titreştiricinin ${fix(gain, 1)} katı.`;
+      } else if (!hasNodes) {
+        msg = `Telde iç düğüm yok: f = ${fix(A.f, 2)} Hz için λ/2 = ${fix((lam / 2) * 100, 1)} cm, tel boyundan (${fix(A.L * 100, 1)} cm) uzun ya da ona çok yakın. Düğüm aralığı tanımsız; tek düğüm makaradaki sabit uçtur. En büyük genlik titreştiricinin ${fix(gain, 1)} katı.`;
+      } else if (resonant) {
+        good = true;
+        msg = `Rezonans: f = ${fix(A.f, 2)} Hz, f${subN(nNear)} = ${fix(near, 2)} Hz değerinin yarı genişlik (±${fix(hw, 2)} Hz) aralığında. Tel ${nNear} ilmekle titreşiyor, ölçülen düğüm aralığı ${fix(m.d * 100, 2)} cm (λ/2 = ${fix((lam / 2) * 100, 2)} cm). Yansıyan dalga titreştiriciye aynı fazda döndüğü için genlik birikir: titreştiricinin ${fix(gain, 1)} katı.`;
+      } else {
+        const lo = Math.floor(A.f / f1), hi = lo + 1;
+        const where = lo >= 1 ? `f${subN(lo)} = ${fix(lo * f1, 2)} Hz ile f${subN(hi)} = ${fix(hi * f1, 2)} Hz arasında` : `f₁ = ${fix(f1, 2)} Hz değerinin altında`;
+        msg = `Rezonans dışı: f, ${where}. L/(λ/2) = ${fix(loopsTh, 3)} tam sayı değil; yansıyan dalgalar titreştiriciye farklı fazda döner ve birbirini büyük ölçüde söndürür. Düğümler yine λ/2 aralıklı (${fix(m.d * 100, 2)} cm), genlik yalnız titreştiricinin ${fix(gain, 1)} katı.`;
+      }
+      const slope = ((PHYS.TAU * A.f) / A.v) * m.Amax;
+      if (slope > 0.3) { warn = true; msg += ` Uyarı: telin en büyük eğimi ${fix(slope, 2)}; küçük genlik varsayımı (eğim ≪ 1) zayıflar, gerçek telde gerilim artar ve rezonans kayar.`; }
+    }
+    if (A.kappaEff < 0.98 * kappaA()) msg += ` Hesap yükü nedeniyle benzetim zamanı istenen hızın gerisinde (×${fix(A.kappaEff, 2)}).`;
+    if (matchPresetA() === "gitar") msg += ` Gitar teli: D'Addario PL010, 64.77 cm ölçek, T = 72.06 N (16.2 lb), μ = 0.3956 g/m → f₁ = ${fix(f1, 2)} Hz; mi (E4) 329.63 Hz, fark ${diffPct(f1, 329.63)}. Sönüm, eğrinin görünmesi için gerçek telinkinden büyük seçildi.`;
+    setHTML(st, msg);
+    st.classList.toggle("is-good", good);
+    st.classList.toggle("is-warn", warn);
+  }
+  A.paused = () => S.paused || Boolean(window.AcelyaPause?.isPaused?.());
+
+  function advanceA(el) {
+    const Sx = A.sim, want = kappaA();
+    A.acc += el * want;
+    let n = Math.floor(A.acc / Sx.dt);
+    const MAX = 6000;
+    if (n > MAX) { A.kappaEff = el > 0 ? (MAX * Sx.dt) / el : want; n = MAX; A.acc = 0; }
+    else { A.acc -= n * Sx.dt; A.kappaEff = want; }
+    A.useStrobe = A.f * A.kappaEff > 4;
+    A.strobeT = (A.strobeT + el * STROBE_HZ) % 1;
+    Sx.strobe = A.useStrobe ? A.strobeT : -1;
+    for (let i = 0; i < n; i++) PHYS.step(Sx);
+  }
+  function chartFreq(evt) {
+    if (!A.chartL) return;
+    const [px] = canvasPoint(evt, chart);
+    setRange(A.ui.f, Math.max(0.01, A.chartL.iX(px)));
+    syncA("freq");
+  }
+
+  /* ── (b) Hava sütunu ── */
+  const B = {
+    kind: "acik", Tc: 20, r: 0.02, L: 0.6, m: 1, fork: 512, w: 0.1, rec1: null, rec2: null, theory: false, visited: new Map(), t: 0, drag: false,
+    ui: {
+      kind: $("bKind"), kindOut: $("bKindOut"), temp: $("bTemp"), tempOut: $("bTempOut"), r: $("bR"), rOut: $("bROut"),
+      len: $("bLen"), lenOut: $("bLenOut"), mode: $("bMode"), modeOut: $("bModeOut"), fork: $("bFork"), forkOut: $("bForkOut"),
+      w: $("bW"), wOut: $("bWOut"), rec1: $("bRec1"), rec2: $("bRec2"), peak: $("bPeak"), clear: $("bClear"), theory: $("bTheory"),
+      pause: $("bPause"), reset: $("bReset"),
+      v: $("bV"), e: $("bE"), le: $("bLe"), fmLabel: $("bFmLabel"), fm: $("bFm"), lam: $("bLam"), ka: $("bKa"),
+      db: $("bDb"), v2: $("bV2"), lam2: $("bLam2"), e2: $("bE2"),
+      L1m: $("bL1m"), L1t: $("bL1t"), L1d: $("bL1d"), L2m: $("bL2m"), L2t: $("bL2t"), L2d: $("bL2d"),
+      Lmm: $("bLmm"), Lmt: $("bLmt"), Lmd: $("bLmd"), Vm: $("bVm"), Vt: $("bVt"), Vd: $("bVd"), Em: $("bEm"), Et: $("bEt"), Ed: $("bEd"),
+      status: $("bStatus"),
+    },
+  };
+  const W_MIN = 0.02, W_MAX = 1.08, W_STEP = 0.0005;
+  const levelB = (w) => PHYS.tubeLevel(w, B.fork, B.r, B.Tc);
+  function syncB(what) {
+    const u = B.ui;
+    const prev = [B.fork, B.r, B.Tc].join();
+    B.kind = u.kind.value; B.Tc = Number(u.temp.value); B.r = Number(u.r.value) / 100;
+    B.L = Number(u.len.value); B.m = Number(u.mode.value); B.fork = Number(u.fork.value); B.w = Number(u.w.value);
+    B.theory = u.theory.checked;
+    if (prev !== [B.fork, B.r, B.Tc].join()) { B.visited.clear(); B.rec1 = null; B.rec2 = null; }
+    const tube = B.kind === "tup";
+    labPanel.dataset.sub = tube ? "tup" : "boru";
+    document.querySelectorAll(".lab [data-sub]").forEach((el) => { el.hidden = (el.dataset.sub === "tup") !== tube; });
+    setText(u.kindOut, B.kind === "acik" ? "bütün harmonikler" : B.kind === "kapali" ? "yalnız tek harmonikler" : "λ/4, 3λ/4, …");
+    setText(u.tempOut, `${fix(B.Tc, 0)} °C`);
+    setText(u.rOut, `${fix(B.r * 100, 1)} cm`);
+    setText(u.lenOut, `${fix(B.L, 2)} m`);
+    const n = B.kind === "kapali" ? 2 * B.m - 1 : B.m;
+    setText(u.modeOut, `m = ${B.m} · ${n}. harmonik`);
+    setText(u.forkOut, `${B.fork} Hz`);
+    setText(u.wOut, `${fix(B.w * 100, 2)} cm`);
+    if (tube) B.visited.set(Math.round(B.w / W_STEP), [B.w, levelB(B.w)]);
+    if (what !== "level") B.curve = null;
+    ariaUpdate();
+    dirty = true;
+  }
+  function resetB() {
+    B.ui.kind.value = "acik"; B.ui.temp.value = "20"; B.ui.r.value = "2"; B.ui.len.value = "0.6"; B.ui.mode.value = "1";
+    B.ui.fork.value = "512"; B.ui.w.value = "0.1"; B.ui.theory.checked = false;
+    B.visited.clear(); B.rec1 = null; B.rec2 = null;
+    syncB("");
+  }
+  function recordB(which) {
+    const rec = { L: B.w, db: levelB(B.w) };
+    if (which === 1) B.rec1 = rec; else B.rec2 = rec;
+    dirty = true;
+  }
+  function nearestPeakB() {
+    let w = B.w;
+    const dir = levelB(Math.min(W_MAX, w + W_STEP)) >= levelB(Math.max(W_MIN, w - W_STEP)) ? 1 : -1;
+    while (w + dir * W_STEP >= W_MIN - 1e-9 && w + dir * W_STEP <= W_MAX + 1e-9 && levelB(w + dir * W_STEP) > levelB(w)) w += dir * W_STEP;
+    setRange(B.ui.w, w);
+    syncB("level");
+  }
+  // Rezonans tüpünün sahne düzeni
+  function viewTube() {
+    const W = stage.width, H = stage.height, small = W < 620 * dpr;
+    const top = H * 0.2, bot = H - 14 * dpr, ky = (bot - top) / PHYS.TUBE_LEN;
+    const cx = W * (small ? 0.34 : 0.3), tw = Math.max(28 * dpr, Math.min(64 * dpr, W * 0.07));
+    return { W, H, top, bot, ky, cx, tw, small, Y: (L) => top + L * ky, iY: (py) => (py - top) / ky };
+  }
+  function drawB() {
+    const g = sg, th = theme(), W = stage.width, H = stage.height;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (B.kind === "tup") drawTube(g, th); else drawPipe(g, th);
+  }
+  function drawPipe(g, th) {
+    const W = stage.width, H = stage.height, small = W < 620 * dpr;
+    const P = PHYS.pipe(B.kind, B.L, B.r, B.Tc, 6), md = P.modes[B.m - 1], open = B.kind === "acik";
+    const span = P.Le;
+    const x0 = (small ? 30 : 60) * dpr, x1 = W - (small ? 30 : 60) * dpr, kx = (x1 - x0) / span;
+    const xL = x0 + P.e * kx, xR = xL + B.L * kx;   // borunun gerçek uçları
+    const xEffL = x0, xEffR = open ? xR + P.e * kx : xR;
+    const k = (2 * Math.PI) / md.lambda;
+    const ph = Math.cos(2 * Math.PI * 0.5 * B.t);
+    // s: etkin sol uçtan uzaklık (açık–açık) ya da kapalı uçtan uzaklık (kapalı)
+    const xi = (x) => (open ? Math.cos(k * x) : Math.sin(k * (P.Le - x)));
+    const pr = (x) => (open ? Math.sin(k * x) : Math.cos(k * (P.Le - x)));
+    const bands = [[H * 0.1, H * 0.3], [H * 0.38, H * 0.62], [H * 0.7, H * 0.9]];
+    // boru gövdesi
+    const [tT, tB] = bands[1];
+    g.fillStyle = th.glass;
+    g.fillRect(xL, tT, xR - xL, tB - tT);
+    stroke(g, th.glassEdge, 2);
+    line(g, xL, tT, xR, tT);
+    line(g, xL, tB, xR, tB);
+    if (!open) { stroke(g, th.metalDark, 5); line(g, xR, tT - 2 * dpr, xR, tB + 2 * dpr); }
+    // etkin uçlar
+    stroke(g, th.accent2, 1.2, [4, 4]);
+    for (const x of open ? [xEffL, xEffR] : [xEffL]) line(g, x, bands[0][0] - 6 * dpr, x, bands[2][1] + 6 * dpr);
+    g.setLineDash([]);
+    // parçacıklar
+    const cols = Math.max(24, Math.round((xR - xL) / (9 * dpr))), rows = 5, sp = (xR - xL) / cols, amp = sp * 1.6;
+    g.fillStyle = th.dot;
+    for (let i = 0; i <= cols; i++) {
+      const xp = xL + i * sp, xm = (xp - x0) / kx, dxp = amp * xi(xm) * ph;
+      for (let r = 0; r < rows; r++) {
+        const yp = tT + ((r + 0.5) / rows) * (tB - tT);
+        g.beginPath(); g.arc(Math.max(xL, Math.min(xR, xp + dxp)), yp, 1.9 * dpr, 0, Math.PI * 2); g.fill();
+      }
+    }
+    // iki desen
+    const curves = [[bands[0], xi, th.accent, "yer değiştirme ξ"], [bands[2], pr, th.warm, "basınç farkı Δp"]];
+    for (const [[b0, b1], fn, col, lab] of curves) {
+      const mid = (b0 + b1) / 2, hh = (b1 - b0) * 0.45;
+      stroke(g, th.faint, 1);
+      line(g, xEffL, mid, xEffR, mid);
+      stroke(g, col, 1, [4, 4]);
+      for (const sgn1 of [1, -1]) {
+        g.beginPath();
+        for (let i = 0; i <= 200; i++) { const xm = (span * i) / 200; g.lineTo(x0 + xm * kx, mid - sgn1 * hh * Math.abs(fn(xm))); }
+        g.stroke();
+      }
+      g.setLineDash([]);
+      stroke(g, col, 2.2);
+      g.beginPath();
+      for (let i = 0; i <= 200; i++) { const xm = (span * i) / 200; g.lineTo(x0 + xm * kx, mid - hh * fn(xm) * ph); }
+      g.stroke();
+      text(g, lab, xEffL + 4 * dpr, b0 - 2 * dpr, col, 10, "left", "middle", "600");
+      // düğümler: |desen| < 1e-6 olan uçlar ve işaret değiştirdiği yerler
+      g.fillStyle = col;
+      const dotAt = (xn) => { g.beginPath(); g.arc(x0 + xn * kx, mid, 3.5 * dpr, 0, Math.PI * 2); g.fill(); };
+      if (Math.abs(fn(0)) < 1e-6) dotAt(0);
+      if (Math.abs(fn(span)) < 1e-6) dotAt(span);
+      for (let i = 0; i < 2000; i++) {
+        const xa = (span * i) / 2000, xb = (span * (i + 1)) / 2000, fa = fn(xa), fb = fn(xb);
+        if (Math.abs(fa) < 1e-6 || Math.abs(fb) < 1e-6) continue;
+        if (fa * fb < 0) dotAt(xa + (fa / (fa - fb)) * (xb - xa));
+      }
+    }
+    const endTxt = small ? 9 : 10;
+    text(g, "açık uç", xL, tB + 12 * dpr, th.muted, endTxt, "center");
+    text(g, open ? "açık uç" : "kapalı uç", xR, tB + 12 * dpr, th.muted, endTxt, "center");
+    dimension(g, xL, xR, bands[1][0] - 12 * dpr, `L = ${fix(B.L * 100, 1)} cm`, th.ink, th);
+    tag(g, `ΔL = ${fix(P.e * 100, 2)} cm`, xEffL + 4 * dpr, H - 10 * dpr, th.accent2, th, 9.5, "left");
+    const fTxt = `f = ${fix(md.f, 1)} Hz · λ = ${fix(md.lambda * 100, 1)} cm · ${md.n}. harmonik`;
+    tag(g, fTxt, W - 8 * dpr, H - 10 * dpr, th.ink, th, small ? 9.5 : 10.5, "right");
+  }
+  function drawTube(g, th) {
+    const V = viewTube(), tt = PHYS.tubeTheory(B.fork, B.r, B.Tc), db = levelB(B.w);
+    const xl = V.cx - V.tw / 2, xr = V.cx + V.tw / 2, yw = V.Y(B.w);
+    // cetvel (ağızdan aşağı cm)
+    stroke(g, th.faint, 1);
+    const xr0 = xl - 10 * dpr;
+    line(g, xr0, V.top, xr0, V.bot);
+    g.font = font(9);
+    g.fillStyle = th.muted;
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (let c = 0; c <= 110; c += 5) {
+      const y = V.Y(c / 100), major = c % 10 === 0;
+      line(g, xr0 - (major ? 7 : 4) * dpr, y, xr0, y);
+      if (major && (!V.small || c % 20 === 0)) g.fillText(String(c), xr0 - 9 * dpr, y);
+    }
+    text(g, "cm", xr0 - 9 * dpr, V.top - 12 * dpr, th.muted, 9, "right");
+    // su
+    g.fillStyle = th.water;
+    g.fillRect(xl, yw, V.tw, V.bot - yw);
+    stroke(g, th.waterEdge, 2);
+    line(g, xl, yw, xr, yw);
+    g.fillStyle = th.waterEdge;
+    g.beginPath(); g.arc(xr + 10 * dpr, yw, 6 * dpr, 0, Math.PI * 2); g.fill();
+    // hava sütunundaki duran dalga (yer değiştirme zarfı, düzeye göre ölçekli)
+    const k = (2 * Math.PI) / tt.lam, rel = Math.pow(10, (db - 32) / 20), amp = Math.min(1, rel) * V.tw * 0.45;
+    const ph = Math.cos(2 * Math.PI * 0.5 * B.t);
+    g.fillStyle = th.band;
+    g.beginPath();
+    for (let i = 0; i <= 80; i++) { const y = V.top + ((yw - V.top) * i) / 80, s = B.w - (y - V.top) / V.ky; g.lineTo(V.cx + amp * Math.abs(Math.sin(k * s)), y); }
+    for (let i = 80; i >= 0; i--) { const y = V.top + ((yw - V.top) * i) / 80, s = B.w - (y - V.top) / V.ky; g.lineTo(V.cx - amp * Math.abs(Math.sin(k * s)), y); }
+    g.closePath();
+    g.fill();
+    stroke(g, th.accent, 1.8);
+    g.beginPath();
+    for (let i = 0; i <= 80; i++) { const y = V.top + ((yw - V.top) * i) / 80, s = B.w - (y - V.top) / V.ky; g.lineTo(V.cx + amp * Math.sin(k * s) * ph, y); }
+    g.stroke();
+    // tüp
+    stroke(g, th.glassEdge, 2);
+    line(g, xl, V.top, xl, V.bot);
+    line(g, xr, V.top, xr, V.bot);
+    line(g, xl, V.bot, xr, V.bot);
+    // diyapazon
+    const fy = V.top - 14 * dpr, wob = 2.2 * dpr * Math.sin(2 * Math.PI * 3 * B.t) * Math.min(1, rel * 3 + 0.3);
+    stroke(g, th.metal, 4);
+    line(g, V.cx - 9 * dpr - wob, fy, V.cx - 9 * dpr - wob, fy - 44 * dpr);
+    line(g, V.cx + 9 * dpr + wob, fy, V.cx + 9 * dpr + wob, fy - 44 * dpr);
+    g.beginPath(); g.arc(V.cx, fy, 9 * dpr, 0, Math.PI); g.stroke();
+    line(g, V.cx, fy + 9 * dpr, V.cx, fy + 20 * dpr);
+    text(g, `${B.fork} Hz`, V.cx + 20 * dpr, fy - 30 * dpr, th.ink, 11, "left", "middle", "600");
+    // kayıtlar
+    for (const [rec, lab] of [[B.rec1, "L₁"], [B.rec2, "L₂"]]) {
+      if (!rec) continue;
+      const y = V.Y(rec.L);
+      stroke(g, th.warm, 1.5, [4, 3]);
+      line(g, xl - 4 * dpr, y, xr + 4 * dpr, y);
+      g.setLineDash([]);
+      tag(g, `${lab} = ${fix(rec.L * 100, 2)} cm`, xr + 22 * dpr, y, th.warm, th, 10, "left");
+    }
+    // ses düzeyi göstergesi
+    const mx = V.W * (V.small ? 0.82 : 0.68), mw = 18 * dpr, mt = V.top, mb = V.bot - 20 * dpr, dbMax = 40;
+    g.fillStyle = th.grid;
+    g.fillRect(mx, mt, mw, mb - mt);
+    const fillH = ((mb - mt) * Math.max(0, Math.min(dbMax, db))) / dbMax;
+    g.fillStyle = db > 20 ? th.warm : th.accent;
+    g.fillRect(mx, mb - fillH, mw, fillH);
+    stroke(g, th.axis, 1);
+    g.strokeRect(mx, mt, mw, mb - mt);
+    text(g, `${fix(db, 1)} dB`, mx + mw / 2, mb + 12 * dpr, th.ink, 11, "center", "middle", "600");
+    text(g, "ses", mx + mw / 2, mt - 10 * dpr, th.muted, 10, "center");
+    tag(g, `L = ${fix(B.w * 100, 2)} cm · v = ${fix(tt.v, 1)} m/s · T = ${fix(B.Tc, 0)} °C`, V.W - 8 * dpr, 14 * dpr, th.ink, th, V.small ? 9 : 10.5, "right");
+    if (!V.small) text(g, "boru çapı ölçekli değil", V.W - 10 * dpr, V.H - 12 * dpr, th.muted, 9.5, "right");
+  }
+  function drawChartB() {
+    const g = cg, th = theme();
+    if (B.kind === "tup") {
+      const L = chartFrame(g, th, { x0: 0, x1: 110, y0: 0, y1: 40, xStep: 10, yStep: 10, xLabel: "L (cm)", yLabel: "ses düzeyi (dB)" });
+      clipRect(g, L.l, L.t, L.w, L.h);
+      if (B.theory) {
+        if (!B.curve) { B.curve = []; for (let w = W_MIN; w <= W_MAX + 1e-9; w += W_STEP / 2) B.curve.push([w, levelB(w)]); }
+        stroke(g, th.accent2, 1.3);
+        g.beginPath();
+        for (const [w, d] of B.curve) g.lineTo(L.X(w * 100), L.Y(d));
+        g.stroke();
+      }
+      g.fillStyle = th.accent;
+      for (const [w, d] of B.visited.values()) { g.beginPath(); g.arc(L.X(w * 100), L.Y(d), 2.4 * dpr, 0, Math.PI * 2); g.fill(); }
+      for (const [rec, lab] of [[B.rec1, "L₁"], [B.rec2, "L₂"]]) {
+        if (!rec) continue;
+        stroke(g, th.warm, 1.4, [4, 3]);
+        line(g, L.X(rec.L * 100), L.t, L.X(rec.L * 100), L.t + L.h);
+        g.setLineDash([]);
+        text(g, lab, L.X(rec.L * 100) + 3 * dpr, L.t + 8 * dpr, th.warm, 10, "left", "middle", "600");
+      }
+      stroke(g, th.ink, 1.2);
+      line(g, L.X(B.w * 100), L.t, L.X(B.w * 100), L.t + L.h);
+      g.restore();
+      tag(g, B.theory ? "noktalar: denediğin konumlar · çizgi: kuramsal yanıt" : "noktalar: denediğin su düzeyleri", L.l + 6 * dpr, L.t + 22 * dpr, th.muted, th, 9.5, "left");
+      return;
+    }
+    const Po = PHYS.pipe("acik", B.L, B.r, B.Tc, 12), Pc = PHYS.pipe("kapali", B.L, B.r, B.Tc, 12);
+    const fMax = 6.5 * Po.modes[0].f;
+    const L = chartFrame(g, th, { x0: 0, x1: fMax, y0: 0, y1: 3, xStep: niceStep(fMax / 7), yStep: 0, xLabel: "f (Hz)", yLabel: "" });
+    const rowsY = [L.Y(2), L.Y(1)];
+    text(g, "iki ucu açık", L.l + 6 * dpr, rowsY[0] - 22 * dpr, th.muted, 10, "left", "middle", "600");
+    text(g, "bir ucu kapalı", L.l + 6 * dpr, rowsY[1] - 22 * dpr, th.muted, 10, "left", "middle", "600");
+    for (const [Pm, yr, isSel] of [[Po, rowsY[0], B.kind === "acik"], [Pc, rowsY[1], B.kind === "kapali"]]) {
+      stroke(g, th.faint, 1);
+      line(g, L.l, yr, L.l + L.w, yr);
+      for (const md of Pm.modes) {
+        if (md.f > fMax) break;
+        const x = L.X(md.f), sel = isSel && md.m === B.m;
+        stroke(g, th.faint, 1);
+        g.beginPath(); g.arc(L.X(md.f0), yr, 4 * dpr, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = sel ? th.warm : isSel ? th.accent : th.muted;
+        g.beginPath(); g.arc(x, yr, (sel ? 6.5 : 5) * dpr, 0, Math.PI * 2); g.fill();
+        text(g, String(md.n), x, yr + 15 * dpr, sel ? th.warm : th.muted, 10, "center", "middle", sel ? "700" : "500");
+      }
+    }
+    tag(g, "dolu: uç düzeltmeli · halka: L ile (düzeltmesiz) · sayı: harmonik numarası", L.l + 6 * dpr, L.t + L.h - 12 * dpr, th.muted, th, 9, "left");
+  }
+  function readoutsB() {
+    const u = B.ui, st = u.status;
+    let msg = "", warn = false, good = false;
+    if (B.kind !== "tup") {
+      const P = PHYS.pipe(B.kind, B.L, B.r, B.Tc, 6), md = P.modes[B.m - 1], open = B.kind === "acik";
+      setText(u.v, `${fix(P.v, 2)} m/s`);
+      setText(u.e, `${fix(P.e * 100, 2)} cm${open ? " (iki uçta)" : " (açık uçta)"}`);
+      setText(u.le, `${fix(P.Le * 100, 2)} cm`);
+      setText(u.fmLabel, `Seçili mod f${subN(md.n)}`);
+      setText(u.fm, `${fix(md.f, 2)} Hz`);
+      setText(u.lam, `${fix(md.lambda * 100, 2)} cm`);
+      const ka = ((2 * Math.PI * md.f) / P.v) * B.r;
+      setText(u.ka, fix(ka, 3));
+      for (let m = 1; m <= 5; m++) {
+        const x = P.modes[m - 1];
+        setText($(`bH${m}n`), `f${subN(x.n)} = ${x.n}·f₁`);
+        setText($(`bH${m}a`), `${fix(x.f, 2)} Hz`);
+        setText($(`bH${m}b`), `${fix(x.f0, 2)} Hz`);
+        setText($(`bH${m}d`), diffPct(x.f, x.f0));
+        $(`bH${m}n`).parentElement.classList.toggle("is-sel", m === B.m);
+      }
+      const f1 = P.modes[0];
+      if (open) msg = `İki ucu açık boru: iki uçta da yer değiştirme karnı ve basınç düğümü var, L<sub>etkin</sub> = nλ/2. Bütün harmonikler oluşur: f₁ = ${fix(f1.f, 2)} Hz, f₂ = ${fix(P.modes[1].f, 2)} Hz, f₃ = ${fix(P.modes[2].f, 2)} Hz, … Uç düzeltmesi frekansları ${diffPct(f1.f, f1.f0)} kaydırır.`;
+      else msg = `Bir ucu kapalı boru: kapalı uçta yer değiştirme düğümü (basınç karnı), açık uçta karın var, L<sub>etkin</sub> = (2m − 1)λ/4. Yalnız tek harmonikler oluşur: f₁ = ${fix(f1.f, 2)} Hz, f₃ = ${fix(P.modes[1].f, 2)} Hz, f₅ = ${fix(P.modes[2].f, 2)} Hz; aynı boydaki açık borunun temel frekansının yaklaşık yarısı. Uç düzeltmesi frekansları ${diffPct(f1.f, f1.f0)} kaydırır.`;
+      if (ka > 0.5) { warn = true; msg += ` Uyarı: kr = ${fix(ka, 2)} > 0.5; dalga boyu boru çapına göre kısa. Düzlem dalga varsayımı ve ΔL = 0.61 r formülü bu modda geçerliliğini yitirir.`; }
+      else if (B.r > B.L / 4) { warn = true; msg += " Uyarı: boru boyuna göre çok geniş; tek boyutlu model kaba kalır."; }
+    } else {
+      const tt = PHYS.tubeTheory(B.fork, B.r, B.Tc), db = levelB(B.w);
+      setText(u.db, `${fix(db, 1)} dB`);
+      setText(u.v2, `${fix(tt.v, 2)} m/s`);
+      setText(u.lam2, `${fix(tt.lam * 100, 2)} cm`);
+      setText(u.e2, `${fix(tt.e * 100, 2)} cm`);
+      const r1 = B.rec1, r2 = B.rec2;
+      setText(u.L1m, r1 ? `${fix(r1.L * 100, 2)} cm` : "—");
+      setText(u.L1t, `${fix(tt.L1 * 100, 2)} cm`);
+      setText(u.L1d, r1 ? diffPct(r1.L, tt.L1) : "—");
+      setText(u.L2m, r2 ? `${fix(r2.L * 100, 2)} cm` : "—");
+      setText(u.L2t, tt.L2 <= PHYS.TUBE_LEN ? `${fix(tt.L2 * 100, 2)} cm` : "tüpe sığmaz");
+      setText(u.L2d, r2 ? diffPct(r2.L, tt.L2) : "—");
+      setText(u.Lmt, `${fix(tt.lam * 100, 2)} cm`);
+      setText(u.Vt, `${fix(tt.v, 2)} m/s`);
+      setText(u.Et, `${fix(tt.e * 100, 2)} cm`);
+      const both = r1 && r2 && r2.L > r1.L;
+      const lamM = both ? 2 * (r2.L - r1.L) : NaN, vM = lamM * B.fork, eM = both ? (r2.L - 3 * r1.L) / 2 : NaN;
+      setText(u.Lmm, both ? `${fix(lamM * 100, 2)} cm` : "—");
+      setText(u.Lmd, both ? diffPct(lamM, tt.lam) : "—");
+      setText(u.Vm, both ? `${fix(vM, 2)} m/s` : "—");
+      setText(u.Vd, both ? diffPct(vM, tt.v) : "—");
+      setText(u.Em, both ? `${fix(eM * 100, 2)} cm` : "—");
+      setText(u.Ed, both ? diffPct(eM, tt.e) : "—");
+      if (tt.L2 > W_MAX) { warn = true; msg = `Bu sıcaklıkta ${B.fork} Hz için ikinci rezonans L₂ = ${fix(tt.L2 * 100, 1)} cm tüpe sığmaz (su en çok ${fix(W_MAX * 100, 0)} cm indirilebilir); yalnız L₁ ölçülebilir. Daha yüksek frekanslı diyapazon seç.`; }
+      else if (!r1 && !r2) msg = `Suyu yavaşça indir (kaydırıcı ya da sahnedeki tutamaç) ve ses düzeyini izle. Ses belirgin biçimde yükseldiği ilk konumu L₁, ikincisini L₂ olarak kaydet. Şu an ${fix(db, 1)} dB.`;
+      else if (!both) {
+        msg = r1 && r2 ? "L₂, L₁'den büyük olmalı: ikinci rezonans suyun daha aşağısındadır." : `Bir konum kaydedildi. Şimdi ${r1 ? "suyu indirmeyi sürdür ve ikinci yükselişi L₂ olarak" : "ilk yükselişi L₁ olarak"} kaydet.`;
+        if (r1 && r2) warn = true;
+      } else {
+        good = true;
+        msg = `λ = 2(L₂ − L₁) = 2(${fix(r2.L * 100, 2)} − ${fix(r1.L * 100, 2)}) cm = ${fix(lamM * 100, 2)} cm; uç düzeltmesi iki konumdan da aynı ölçüde çıktığı için farkta yok olur. v = fλ = ${B.fork} Hz × ${fix(lamM, 4)} m = ${fix(vM, 2)} m/s (kuram ${fix(tt.v, 2)} m/s). e = (L₂ − 3L₁)/2 = ${fix(eM * 100, 2)} cm (kuram 0.61 r = ${fix(tt.e * 100, 2)} cm).`;
+        const off = Math.abs(lamM / 2 - tt.lam / 2) / (tt.lam / 2);
+        if (off > 0.15) { warn = true; good = false; msg += " Uyarı: L₂ − L₁ yarım dalga boyundan çok farklı; kaydedilen konumlar ardışık iki rezonans değil gibi."; }
+      }
+      for (const [rec, lab] of [[r1, "L₁"], [r2, "L₂"]]) {
+        if (!rec) continue;
+        let w = rec.L, best = rec.db;
+        for (let i = -40; i <= 40; i++) best = Math.max(best, levelB(w + i * W_STEP));
+        if (best - rec.db > 3) { warn = true; good = false; msg += ` ${lab} kaydı tepeden ${fix(best - rec.db, 1)} dB aşağıda; tepeyi daha dikkatli ara.`; }
+      }
+      const ka = ((2 * Math.PI * B.fork) / tt.v) * B.r;
+      if (ka > 0.5) { warn = true; msg += ` Uyarı: kr = ${fix(ka, 2)} > 0.5; uç düzeltmesi formülü geçerliliğini yitirir.`; }
+    }
+    setHTML(st, msg);
+    st.classList.toggle("is-good", good);
+    st.classList.toggle("is-warn", warn);
+  }
+  function pointerB(sx, sy, start) {
+    if (B.kind !== "tup") return false;
+    const V = viewTube();
+    if (start) {
+      const yw = V.Y(B.w);
+      if (Math.abs(sy - yw) > 22 * dpr || sx < V.cx - V.tw - 20 * dpr || sx > V.cx + V.tw + 30 * dpr) return false;
+    }
+    setRange(B.ui.w, V.iY(sy));
+    syncB("level");
+    return true;
+  }
+
+  /* ── (c) Harmonikler ve tını ── */
+  const C_L = PHYS.GUITAR.L, C_F1 = PHYS.waveSpeed(PHYS.GUITAR.T, PHYS.GUITAR.mu) / (2 * PHYS.GUITAR.L);
+  const C_MODES = 60, C_ROWS = 8, C_BARS = 20, C_APP = 0.25;  // C_APP: görünen temel frekans (Hz)
+  const C = {
+    m: 24, h: 2, modes: false, t: 0, b: [], bNum: [], drag: false, master: null, sound: "",
+    ui: { p: $("cP"), pOut: $("cPOut"), h: $("cH"), hOut: $("cHOut"), modes: $("cModes"), play: $("cPlay"), pause: $("cPause"), reset: $("cReset"),
+      pos: $("cPos"), miss: $("cMiss"), f1: $("cF1"), e1: $("cE1"), rows: $("cRows"), status: $("cStatus") },
+  };
+  (function buildRows() {
+    let html = "";
+    for (let n = 1; n <= C_ROWS; n++) html += `<tr data-n="${n}"><th scope="row" id="cN${n}">—</th><td id="cB${n}t">—</td><td id="cB${n}m">—</td><td id="cB${n}d" class="diff">—</td></tr>`;
+    C.ui.rows.innerHTML = html;
+  })();
+  const pC = () => C.m / 120;
+  function fracLabel(m) {
+    const d = gcd(m, 120), a = m / d, b = 120 / d;
+    return a === 1 ? `L/${b}` : `${a}L/${b}`;
+  }
+  // sin(nπp) = 0 ⇔ n, 120/gcd(m, 120) sayısının katı
+  const missStep = () => 120 / gcd(C.m, 120);
+  function syncC() {
+    const u = C.ui;
+    C.m = Number(u.p.value); C.h = Number(u.h.value); C.modes = u.modes.checked;
+    const p = pC();
+    setText(u.pOut, `p = ${fix(p, 3)} · ${fracLabel(C.m)}`);
+    setText(u.hOut, `${fix(C.h, 1)} mm`);
+    C.b = []; C.bNum = [];
+    for (let n = 1; n <= Math.max(C_MODES, C_BARS); n++) C.b.push(PHYS.pluckB(n, p, C.h / 1000));
+    for (let n = 1; n <= C_BARS; n++) C.bNum.push(PHYS.projectB(n, p, C.h / 1000, 2400));
+    if (!C.sinT || C.sinT.cols !== C.cols()) buildSinTable();
+    dirty = true;
+  }
+  C.cols = () => 240;
+  function buildSinTable() {
+    const X = C.cols(), tab = new Float64Array(C_MODES * (X + 1));
+    for (let n = 1; n <= C_MODES; n++) for (let i = 0; i <= X; i++) tab[(n - 1) * (X + 1) + i] = Math.sin((n * Math.PI * i) / X);
+    C.sinT = tab;
+    C.sinT.cols = X;
+  }
+  function resetC() {
+    C.ui.p.value = "24"; C.ui.h.value = "2"; C.ui.modes.checked = false;
+    C.t = 0;
+    syncC();
+  }
+  function viewC() {
+    const W = stage.width, H = stage.height, small = W < 620 * dpr;
+    const x0 = (small ? 26 : 60) * dpr, x1 = W - (small ? 26 : 60) * dpr, yMid = H * 0.5, kx = (x1 - x0) / C_L;
+    const ky = (H * 0.32) / (C.h / 1000);
+    return { W, H, x0, x1, yMid, kx, ky, small };
+  }
+  function drawC() {
+    const g = sg, th = theme(), V = viewC(), X = C.cols(), p = pC(), h = C.h / 1000;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, V.W, V.H);
+    stroke(g, th.faint, 1, [5, 5]);
+    line(g, V.x0, V.yMid, V.x1, V.yMid);
+    g.setLineDash([]);
+    // köprü ve eşik
+    g.fillStyle = th.metal;
+    g.fillRect(V.x0 - 8 * dpr, V.yMid - 2 * dpr, 8 * dpr, 22 * dpr);
+    g.fillRect(V.x1, V.yMid - 2 * dpr, 8 * dpr, 22 * dpr);
+    text(g, "köprü", V.x0 - 4 * dpr, V.yMid + 30 * dpr, th.muted, 9.5, "center");
+    text(g, "eşik", V.x1 + 4 * dpr, V.yMid + 30 * dpr, th.muted, 9.5, "center");
+    // başlangıç üçgeni
+    const xp = V.x0 + p * C_L * V.kx;
+    stroke(g, th.warm, 1.4, [6, 4]);
+    g.beginPath(); g.moveTo(V.x0, V.yMid); g.lineTo(xp, V.yMid - h * V.ky); g.lineTo(V.x1, V.yMid); g.stroke();
+    g.setLineDash([]);
+    // mod toplamı
+    const ph = PHYS.TAU * C_F1 * C.t, cosn = new Float64Array(C_MODES);
+    for (let n = 1; n <= C_MODES; n++) cosn[n - 1] = Math.cos(n * ph);
+    const tab = C.sinT, ys = new Float64Array(X + 1);
+    for (let n = 0; n < C_MODES; n++) {
+      const c = C.b[n] * cosn[n];
+      if (c === 0) continue;
+      const off = n * (X + 1);
+      for (let i = 0; i <= X; i++) ys[i] += c * tab[off + i];
+    }
+    if (C.modes) {
+      const cols = [th.accent, th.accent2, th.blue, th.pink, th.warm, th.muted];
+      for (let n = 0; n < 6; n++) {
+        if (Math.abs(C.b[n]) < 1e-12 * h) continue;
+        stroke(g, cols[n], 1.1);
+        g.globalAlpha = 0.75;
+        g.beginPath();
+        for (let i = 0; i <= X; i++) g.lineTo(V.x0 + (i / X) * C_L * V.kx, V.yMid - C.b[n] * cosn[n] * tab[n * (X + 1) + i] * V.ky);
+        g.stroke();
+        g.globalAlpha = 1;
+      }
+    }
+    stroke(g, th.ink, 2.4);
+    g.beginPath();
+    for (let i = 0; i <= X; i++) g.lineTo(V.x0 + (i / X) * C_L * V.kx, V.yMid - ys[i] * V.ky);
+    g.stroke();
+    // çekme noktası tutamacı
+    g.fillStyle = th.tagBg;
+    g.beginPath(); g.arc(xp, V.yMid - h * V.ky, 7 * dpr, 0, Math.PI * 2); g.fill();
+    stroke(g, th.warm, 2);
+    g.stroke();
+    dimension(g, V.x0, xp, V.H - 20 * dpr, `${fix(p * C_L * 100, 2)} cm`, th.warm, th);
+    const tMs = C.t * 1000;
+    tag(g, `t = ${fix(tMs, 3)} ms · ağır çekim ×1/${fix(C_F1 / C_APP, 0)} · düşey ölçek ×${fix(V.ky / V.kx, 0)}`, 8 * dpr, 14 * dpr, th.muted, th, V.small ? 9 : 10.5, "left");
+    tag(g, `p = ${fix(p, 3)} (${fracLabel(C.m)})`, V.W - 8 * dpr, 14 * dpr, th.warm, th, V.small ? 9.5 : 11, "right");
+  }
+  function drawChartC() {
+    const g = cg, th = theme();
+    const bmax = Math.max(...C.b.slice(0, C_BARS).map(Math.abs));
+    const L = chartFrame(g, th, { x0: 0.4, x1: C_BARS + 0.6, y0: -60, y1: 0, xStep: 0, yStep: 10, xLabel: "harmonik n", yLabel: "|bₙ|, en büyüğe göre (dB)" });
+    const bw = (L.w / C_BARS) * 0.62, step = missStep();
+    for (let n = 1; n <= C_BARS; n++) {
+      const x = L.X(n), b = C.b[n - 1], bn = C.bNum[n - 1];
+      text(g, String(n), x, L.t + L.h + 11 * dpr, th.muted, 10, "center");
+      if (n % step === 0) {
+        stroke(g, th.danger, 1.6);
+        const y = L.t + L.h - 8 * dpr;
+        line(g, x - 5 * dpr, y - 5 * dpr, x + 5 * dpr, y + 5 * dpr);
+        line(g, x - 5 * dpr, y + 5 * dpr, x + 5 * dpr, y - 5 * dpr);
+        continue;
+      }
+      const db = Math.max(-60, 20 * Math.log10(Math.abs(b) / bmax));
+      g.fillStyle = n === 1 ? th.warm : th.accent;
+      g.fillRect(x - bw / 2, L.Y(db), bw, L.t + L.h - L.Y(db));
+      const dbn = Math.max(-60, 20 * Math.log10(Math.max(1e-30, Math.abs(bn)) / bmax));
+      g.fillStyle = th.ink;
+      g.beginPath(); g.arc(x, L.Y(dbn), 2.6 * dpr, 0, Math.PI * 2); g.fill();
+    }
+    tag(g, "sütun: formül · nokta: sayısal izdüşüm · ×: eksik harmonik", L.l + L.w - 4 * dpr, L.t + 10 * dpr, th.muted, th, 9, "right");
+  }
+  function readoutsC() {
+    const u = C.ui, p = pC(), step = missStep();
+    setText(u.pos, `${fix(p * C_L * 100, 2)} cm (${fracLabel(C.m)})`);
+    if (step <= 40) setText(u.miss, `n = ${[step, 2 * step, 3 * step].join(", ")}, …`);
+    else setText(u.miss, "ilk 40 harmonikte yok");
+    setText(u.f1, `${fix(C_F1, 2)} Hz`);
+    setText(u.e1, `%${fix(PHYS.fundamentalShare(p) * 100, 1)}`);
+    for (let n = 1; n <= C_ROWS; n++) {
+      const b = C.b[n - 1], bn = C.bNum[n - 1], missing = n % step === 0;
+      setText($(`cN${n}`), `${n} · ${fix(n * C_F1, 1)} Hz`);
+      setText($(`cB${n}t`), missing ? "0 (düğüm)" : `${fix(b * 1000, 4)} mm`);
+      setText($(`cB${n}m`), `${fix(bn * 1000, 4)} mm`);
+      setText($(`cB${n}d`), missing ? "—" : diffPct(bn, b));
+      $(`cN${n}`).parentElement.classList.toggle("is-off", missing);
+    }
+    let msg;
+    if (step <= 40) msg = `p = ${fix(p, 3)} (${fracLabel(C.m)}): ${step}., ${2 * step}., ${3 * step}. … harmonikler hiç yok. Çekilen nokta bu modların bir düğümüne denk gelir, sin(nπp) = 0 olur; bir modu düğümünden tutarak uyaramazsın.`;
+    else msg = `p = ${fix(p, 3)} (${fracLabel(C.m)}): sin(nπp) ilk 40 harmonikte sıfır olmuyor, bu yüzden eksik harmonik yok; ama düğüme yakın modlar zayıf kalır.`;
+    msg += ` Temel mod enerjinin %${fix(PHYS.fundamentalShare(p) * 100, 1)}'ini taşır; tel uca yaklaştıkça bu pay düşer, üst harmonikler güçlenir ve ses parlaklaşır.`;
+    const slope = C.h / 1000 / (Math.min(p, 1 - p) * C_L);
+    if (slope > 0.1) msg += ` Uyarı: çekme noktasında telin eğimi ${fix(slope, 2)}; küçük eğim varsayımı zayıflar.`;
+    if (C.sound) msg += ` ${C.sound}`;
+    setHTML(u.status, msg);
+  }
+  function pointerC(sx, sy, start) {
+    const V = viewC(), h = C.h / 1000, xp = V.x0 + pC() * C_L * V.kx;
+    if (start && (Math.hypot(sx - xp, sy - (V.yMid - h * V.ky)) > 24 * dpr && Math.abs(sy - V.yMid) > 28 * dpr)) return false;
+    setRange(C.ui.p, ((sx - V.x0) / (V.x1 - V.x0)) * 120);
+    C.t = 0;
+    syncC();
+    return true;
+  }
+  /* Ses: yalnız düğmeyle, sitenin sessiz ayarına uyarak */
+  let audioCtx = null;
+  function soundMuted() {
+    try { if (localStorage.getItem("acelya-sound-muted") === "1") return true; } catch (_) {}
+    return Boolean(window.AcelyaSounds?.isMuted?.());
+  }
+  function playC() {
+    if (soundMuted()) { C.sound = "Ses kapalı: sitenin ses düğmesinden açabilirsin."; dirty = true; return; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { C.sound = "Bu tarayıcı Web Audio desteklemiyor."; dirty = true; return; }
+    if (!audioCtx) audioCtx = new AC();
+    audioCtx.resume?.();
+    const t0 = audioCtx.currentTime + 0.03, dur = 2.6, p = pC();
+    const master = audioCtx.createGain();
+    master.gain.value = 1;
+    master.connect(audioCtx.destination);
+    C.master = master;
+    const parts = [];
+    let sum = 0;
+    for (let n = 1; n <= 40; n++) {
+      const fn = n * C_F1;
+      if (fn > 12000) break;
+      const amp = n * PHYS.pluckB(n, p, 1);
+      if (Math.abs(amp) < 1e-9) continue;
+      parts.push([fn, amp, n]);
+      sum += Math.abs(amp);
+    }
+    const scale = 0.28 / sum;
+    for (const [fn, amp, n] of parts) {
+      const o = audioCtx.createOscillator(), gn = audioCtx.createGain();
+      o.frequency.value = fn;
+      gn.gain.setValueAtTime(0, t0);
+      gn.gain.linearRampToValueAtTime(amp * scale, t0 + 0.004);
+      gn.gain.setTargetAtTime(0, t0 + 0.004, 0.9 / (1 + 0.3 * (n - 1)));
+      o.connect(gn).connect(master);
+      o.start(t0);
+      o.stop(t0 + dur);
+    }
+    C.sound = `Çalınıyor: ${parts.length} harmoniğin toplamı, f₁ = ${fix(C_F1, 2)} Hz.`;
+    dirty = true;
+  }
+  window.addEventListener("acelya-sound-change", (e) => {
+    if (e.detail?.muted && C.master) { try { C.master.gain.value = 0; } catch (_) {} }
+  });
+
+  /* ── Sekmeler ── */
+  const ARIA = {
+    tel: [
+      "Telin yandan görünüşü: solda titreştirici, sağda makara ve asılı kütle; telin anlık biçimi, son periyottaki genlik zarfı, ölçülen düğümler, düğüm aralığı ve santimetre cetveli; düşey yön büyütülmüştür; isteğe bağlı olarak sağa ve sola giden iki dalga",
+      "Rezonans eğrisi: kararlı genlik (mm) titreştirici frekansına (Hz) karşı; kuramsal eğri, sonlu fark tarama noktaları, rezonans frekansı işaretleri, titreştirici genliği ve şimdiki frekans",
+    ],
+    boru: [
+      "Boru: üstte yer değiştirme deseni, ortada hava parçacıklarının boyuna hareketi, altta basınç farkı deseni; düğümler, borunun uçları ve uç düzeltmesiyle etkin uçlar",
+      "Harmonik merdiveni: iki ucu açık ve bir ucu kapalı borunun rezonans frekansları, uç düzeltmeli ve düzeltmesiz; seçili mod işaretli",
+    ],
+    tup: [
+      "Rezonans tüpü: üstte diyapazon, tüpteki hava sütunu ve içindeki duran dalga, su yüzeyi ve tutamacı, santimetre cetveli, kaydedilen L₁ ve L₂, ses düzeyi göstergesi",
+      "Ses düzeyi (dB) hava sütunu uzunluğuna (cm) karşı: denenen su düzeyleri, kaydedilen L₁ ve L₂, şimdiki konum; isteğe bağlı kuramsal yanıt eğrisi",
+    ],
+    harmonik: [
+      "Çekilen gitar teli: köprü ve eşik arasında telin mod toplamıyla hesaplanan anlık biçimi, başlangıçtaki üçgen biçim, çekme noktası ve köprüye uzaklığı; isteğe bağlı ilk altı harmonik",
+      "Harmonik tayfı: 1'den 20'ye kadar her harmoniğin göreli genliği desibel olarak; formül sütunları, sayısal izdüşüm noktaları ve eksik harmonikler için çarpı işaretleri",
+    ],
+  };
+  function ariaUpdate() {
+    const key = S.tab === "hava" ? (B.kind === "tup" ? "tup" : "boru") : S.tab;
+    stage.setAttribute("aria-label", ARIA[key][0]);
+    chart.setAttribute("aria-label", ARIA[key][1]);
+  }
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = el.dataset.for !== key; });
+    if (key === "hava") syncB("");
+    else delete labPanel.dataset.sub;
+    ariaUpdate();
+    if (fromUser) { try { history.replaceState(null, "", `#${key}`); } catch (_) {} }
+    endDrag();
+    dirty = true;
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+
+  /* ── Döngü ── */
+  let lastFrame = 0, lastTheme = "", lastRead = 0;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const thName = document.documentElement.dataset.theme || "dark";
+    if (thName !== lastTheme) { lastTheme = thName; dirty = true; }
+    const running = !S.paused && !window.AcelyaPause?.isPaused?.();
+    if (S.tab === "tel") {
+      if (running) advanceA(elapsed);
+      if (A.sweep) sweepWorkA(9);
+      drawA();
+      drawChartA();
+      if (dirty || now - lastRead > 200) { readoutsA(); lastRead = now; }
+    } else if (S.tab === "hava") {
+      if (running) B.t += elapsed;
+      drawB();
+      if (dirty) { drawChartB(); readoutsB(); }
+    } else {
+      if (running) C.t += (elapsed * C_APP) / C_F1;
+      drawC();
+      if (dirty) { drawChartC(); readoutsC(); }
+    }
+    dirty = false;
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    dirty = true;
+  }
+
+  /* ── Etkileşim ── */
+  function setPaused(p) {
+    S.paused = p;
+    for (const b of [A.ui.pause, B.ui.pause, C.ui.pause]) {
+      setText(b, p ? "Devam et" : "Duraklat");
+      b.setAttribute("aria-pressed", String(p));
+    }
+    dirty = true;
+  }
+  function resetTab() {
+    if (S.tab === "tel") resetA();
+    else if (S.tab === "hava") resetB();
+    else resetC();
+  }
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button")) return;
+    if (e.code === "Space") { e.preventDefault(); setPaused(!S.paused); }
+    else if (e.key === "r" || e.key === "R") resetTab();
+  });
+
+  let drag = null;
+  function endDrag() {
+    if (!drag) return;
+    drag = null;
+    stage.classList.remove("is-dragging");
+  }
+  // Dokunmatik ekranda yalnız su yüzeyine ya da telin çekme noktasına değen parmak sürükler;
+  // tuvalin geri kalanında parmak sayfayı kaydırır.
+  function touchHit(sx, sy) {
+    if (S.tab === "hava" && B.kind === "tup") {
+      const V = viewTube();
+      return Math.abs(sy - V.Y(B.w)) <= 22 * dpr && sx >= V.cx - V.tw - 20 * dpr && sx <= V.cx + V.tw + 30 * dpr;
+    }
+    if (S.tab === "harmonik") {
+      const V = viewC();
+      return Math.hypot(sx - (V.x0 + pC() * C_L * V.kx), sy - (V.yMid - (C.h / 1000) * V.ky)) < 44 * dpr;
+    }
+    return false;
+  }
+  window.AcelyaTouch?.guard(stage, (cx, cy) => touchHit(...canvasPoint({ clientX: cx, clientY: cy }, stage)));
+  stage.addEventListener("pointerdown", (evt) => {
+    const [sx, sy] = canvasPoint(evt, stage);
+    const touch = evt.pointerType === "touch" && window.AcelyaTouch?.isCoarse();
+    if (touch && !touchHit(sx, sy)) return;
+    let ok = false;
+    if (S.tab === "hava") ok = pointerB(sx, sy, true);
+    else if (S.tab === "harmonik") ok = pointerC(sx, sy, !touch);
+    if (!ok) return;
+    drag = S.tab;
+    stage.setPointerCapture(evt.pointerId);
+    stage.classList.add("is-dragging");
+    evt.preventDefault();
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    const [sx, sy] = canvasPoint(evt, stage);
+    if (!drag) {
+      if (evt.pointerType === "mouse") {
+        let hit = false;
+        if (S.tab === "hava" && B.kind === "tup") { const V = viewTube(); hit = Math.abs(sy - V.Y(B.w)) < 22 * dpr && Math.abs(sx - V.cx) < V.tw + 30 * dpr; }
+        else if (S.tab === "harmonik") { const V = viewC(); hit = Math.abs(sy - V.yMid) < 28 * dpr || Math.hypot(sx - (V.x0 + pC() * C_L * V.kx), sy - (V.yMid - (C.h / 1000) * V.ky)) < 24 * dpr; }
+        stage.classList.toggle("is-grab", hit);
+      }
+      return;
+    }
+    if (drag === "hava") pointerB(sx, sy, false);
+    else if (drag === "harmonik") pointerC(sx, sy, false);
+  });
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+  stage.addEventListener("pointerleave", () => { if (!drag) stage.classList.remove("is-grab"); });
+  chart.addEventListener("pointerdown", (evt) => {
+    if (S.tab !== "tel") return;
+    A.drag = true;
+    chart.setPointerCapture(evt.pointerId);
+    chartFreq(evt);
+  });
+  chart.addEventListener("pointermove", (evt) => { if (A.drag && S.tab === "tel") chartFreq(evt); });
+  const endChart = () => { A.drag = false; };
+  chart.addEventListener("pointerup", endChart);
+  chart.addEventListener("pointercancel", endChart);
+
+  [A.ui.L, A.ui.T, A.ui.mu].forEach((el) => el.addEventListener("input", () => syncA("string")));
+  [A.ui.a, A.ui.b].forEach((el) => el.addEventListener("input", () => syncA("drive")));
+  A.ui.f.addEventListener("input", () => syncA("freq"));
+  A.ui.waves.addEventListener("change", () => syncA("view"));
+  A.ui.preset.addEventListener("change", () => { if (A.ui.preset.value !== "ozel") presetA(A.ui.preset.value); else syncA("view"); });
+  A.ui.fNum.addEventListener("change", () => {
+    const raw = A.ui.fNum.value.replace(",", ".").trim(), v = Number(raw);
+    if (raw !== "" && Number.isFinite(v)) { setRange(A.ui.f, v); syncA("freq"); }
+    A.ui.fNum.value = Number(A.ui.f.value).toFixed(2);
+  });
+  A.ui.fm.addEventListener("click", () => { setRange(A.ui.f, Number(A.ui.f.value) - 0.1); syncA("freq"); });
+  A.ui.fp.addEventListener("click", () => { setRange(A.ui.f, Number(A.ui.f.value) + 0.1); syncA("freq"); });
+  A.ui.go.addEventListener("click", () => { setRange(A.ui.f, Number(A.ui.n.value) * f1A()); syncA("freq"); });
+  A.ui.pause.addEventListener("click", () => setPaused(!S.paused));
+  A.ui.restart.addEventListener("click", () => syncA("restart"));
+  A.ui.sweep.addEventListener("click", () => { if (A.sweep) cancelSweepA(false); else startSweepA(); dirty = true; });
+  A.ui.reset.addEventListener("click", resetA);
+
+  [B.ui.temp, B.ui.r, B.ui.len, B.ui.mode].forEach((el) => el.addEventListener("input", () => syncB("")));
+  B.ui.w.addEventListener("input", () => syncB("level"));
+  [B.ui.kind, B.ui.fork, B.ui.theory].forEach((el) => el.addEventListener("change", () => syncB("")));
+  B.ui.rec1.addEventListener("click", () => recordB(1));
+  B.ui.rec2.addEventListener("click", () => recordB(2));
+  B.ui.clear.addEventListener("click", () => { B.rec1 = null; B.rec2 = null; B.visited.clear(); syncB("level"); });
+  B.ui.peak.addEventListener("click", nearestPeakB);
+  B.ui.pause.addEventListener("click", () => setPaused(!S.paused));
+  B.ui.reset.addEventListener("click", resetB);
+
+  [C.ui.p, C.ui.h].forEach((el) => el.addEventListener("input", () => { C.t = 0; syncC(); }));
+  C.ui.modes.addEventListener("change", syncC);
+  document.querySelectorAll("[data-pluck]").forEach((b) => b.addEventListener("click", () => { C.ui.p.value = b.dataset.pluck; C.t = 0; syncC(); }));
+  C.ui.play.addEventListener("click", playC);
+  C.ui.pause.addEventListener("click", () => setPaused(!S.paused));
+  C.ui.reset.addEventListener("click", resetC);
+
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Başlat ── */
+  presetA("lab");
+  syncB("");
+  syncC();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "tel", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Çift Sarkaç: Kaos ve Başlangıç Koşullarına Duyarlılık</title>
+  <meta name="description" content="İki çubuk, iki top, eksiksiz bilinen iki denklem; içinde hiç rastlantı yok. Yine de milyonda bir radyan farkla başlayan kopyalar 11 saniyede birbirinden kopar. Kaosu ölç, öngörünün neden bu kadar kısa kaldığını gör.">
+  <style>
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage, .side { display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: none;
+      cursor: grab;
+    }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas, .phase-canvas {
+      width: 100%;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .chart-canvas { aspect-ratio: 5 / 2; }
+    .phase-canvas { aspect-ratio: 2 / 1; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas,
+    [data-theme="light"] .phase-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .lab .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button, .row a { padding: 8px 14px; font: inherit; cursor: pointer; }
+    .row a { text-decoration: none; display: inline-flex; align-items: center; }
+    .presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .presets button { padding: 8px 10px; font-size: 0.84rem; line-height: 1.3; text-align: left; }
+    .presets button[aria-pressed="true"] { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .readouts { display: grid; gap: 10px; min-width: 0; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.84rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 6px 8px; text-align: right; overflow-wrap: anywhere; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; }
+    .lab table.cmp td.diff { color: var(--accent-warm) !important; }
+    .lab table.cmp col.c-name { width: 31%; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.3; letter-spacing: 0.02em; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .lab .status { margin: 0; font-size: 0.88rem; line-height: 1.5; color: var(--text) !important; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: 1fr; }
+      .chart-canvas { aspect-ratio: 2 / 1; }
+      .lab table.cmp { font-size: 0.8rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; }
+    }
+    @media (max-width: 420px) {
+      .presets { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="cift-sarkac">
+
+<div class="app-content">
+  <h1>Çift Sarkaç: Kaos ve Başlangıç Koşullarına Duyarlılık</h1>
+  <p class="hint">Kopyalar aynı denklemlerle sallanır, yalnızca θ₂ açıları Δ kadar farklı başlar. Aradaki uzaklık d üstel büyürse ln d doğru gibi yükselir; eğimi Lyapunov üsteli λ'dır. Topları sürükleyerek ya da kaydırıcılarla başlangıç açılarını seçebilirsin; telefonda topa dokunup sürükle, boş yerde parmak sayfayı kaydırır.</p>
+
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="stageCanvas" class="sim-canvas" width="900" height="900" role="img" aria-label="Çift sarkaç kopyaları: her kopyanın çubukları, topları ve alt topun sönerek kaybolan izi; sol üstte zaman ve kopyalar arası uzaklık"></canvas>
+      <canvas id="sepChart" class="chart-canvas" width="900" height="360" role="img" aria-label="Referans kopya ile komşu kopyalar arasındaki faz uzayı uzaklığının doğal logaritması ln d, zamana karşı; ayrılma eşiği, eğim uydurma doğrusu ve Benettin yöntemiyle hesaplanan λ doğrusu"></canvas>
+      <div class="readouts" aria-live="polite">
+        <table class="cmp">
+          <caption class="visually-hidden">Ölçülen ve kuramsal değerler</caption>
+          <colgroup><col class="c-name"><col><col><col></colgroup>
+          <thead><tr><th scope="col">Nicelik</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Toplam enerji E</th><td id="eMeas">—</td><td id="eTheo">—</td><td id="eDiff" class="diff">—</td></tr>
+            <tr><th scope="row">Ayrılma zamanı (d &gt; 0.1)</th><td id="sepMeas">—</td><td id="sepTheo">—</td><td id="sepDiff" class="diff">—</td></tr>
+            <tr><th scope="row">Periyot (θ₁ sıfır geçişleri)</th><td id="perMeas">—</td><td id="perTheo">—</td><td id="perDiff" class="diff">—</td></tr>
+          </tbody>
+        </table>
+        <p class="note" id="formulaNote">Kuram: E sönüm yokken sabittir (sönümle E₀ − W<sub>s</sub>). Öngörü ufku t* = ln(0.1/Δ)/λ, λ Benettin yöntemiyle: referans yörünge ve 10⁻⁸ uzaklıktaki gölgesi 200 s ileri hesaplanır, uzaklık her 0.1 s'de geri ölçeklenir. Bu kadar uzun bir sürede son basamaktaki yuvarlama farkları da büyüdüğünden değer tarayıcıdan tarayıcıya birkaç yüzde değişebilir. Periyot: en yakın normal modun T = 2π/Ω değeri; sönümle 2π/√(Ω² − b²/4).</p>
+        <div class="cards">
+          <div class="readout is-highlight"><small id="lyapBLabel">λ, Benettin (0–200 s)</small><strong id="lyapBOut">—</strong></div>
+          <div class="readout"><small id="lyapFitLabel">λ, ln d eğimi</small><strong id="lyapFitOut">—</strong></div>
+          <div class="readout"><small>Uzaklık d (kopya 1)</small><strong id="dOut">—</strong></div>
+          <div class="readout"><small id="mode1Label">1. mod T₁ = 2π/Ω₁</small><strong id="mode1Out">—</strong></div>
+          <div class="readout"><small id="mode2Label">2. mod T₂ = 2π/Ω₂</small><strong id="mode2Out">—</strong></div>
+          <div class="readout"><small>En büyük |E sapması|/E₀</small><strong id="driftOut">—</strong></div>
+          <div class="readout"><small>Açılar θ₁, θ₂</small><strong id="angOut">—</strong></div>
+          <div class="readout"><small>Açısal hızlar ω₁, ω₂</small><strong id="omgOut">—</strong></div>
+          <div class="readout"><small>RK4 adımı h</small><strong id="stepOut">—</strong></div>
+        </div>
+        <p class="note" id="copyTimes"></p>
+        <p class="status" id="statusOut"></p>
+      </div>
+      <canvas id="phaseCanvas" class="phase-canvas" width="900" height="450" role="img" aria-label="Solda θ₁–ω₁ faz portresi, sağda Poincaré kesiti: θ₁ sıfırdan artarak geçtiği anlarda kopyaların (θ₂, ω₂) noktaları"></canvas>
+    </div>
+
+    <div class="side">
+      <div class="panel" role="group" aria-labelledby="presetTitle">
+        <h2 id="presetTitle">Hazır başlangıçlar</h2>
+        <div class="presets">
+          <button type="button" class="app-btn-ghost" id="presetMode1" aria-pressed="false">Küçük açı: 1. normal mod</button>
+          <button type="button" class="app-btn-ghost" id="presetMode2" aria-pressed="false">Küçük açı: 2. normal mod</button>
+          <button type="button" class="app-btn-ghost" id="presetChaos" aria-pressed="true">Kaotik: 120° / −20°</button>
+          <button type="button" class="app-btn-ghost" id="presetHigh" aria-pressed="false">Yüksek enerji: 170° / 170°</button>
+        </div>
+        <p class="note" id="presetNote">Normal mod ön ayarları biçimi o anki kütle ve uzunluklardan hesaplar. Hepsi durgun başlar.</p>
+      </div>
+
+      <div class="panel" role="group" aria-labelledby="controlsTitle">
+        <h2 id="controlsTitle">Deney ayarları</h2>
+        <div class="field">
+          <label for="t1Range">Başlangıç açısı θ₁ <output id="t1Out" for="t1Range">120°</output></label>
+          <input type="range" id="t1Range" min="-180" max="180" step="1" value="120">
+        </div>
+        <div class="field">
+          <label for="t2Range">Başlangıç açısı θ₂ <output id="t2Out" for="t2Range">−20°</output></label>
+          <input type="range" id="t2Range" min="-180" max="180" step="1" value="-20">
+        </div>
+        <div class="field">
+          <label for="m1Range">Üst kütle m₁ <output id="m1Out" for="m1Range">1.0 kg</output></label>
+          <input type="range" id="m1Range" min="0.1" max="5" step="0.1" value="1">
+        </div>
+        <div class="field">
+          <label for="m2Range">Alt kütle m₂ <output id="m2Out" for="m2Range">1.0 kg</output></label>
+          <input type="range" id="m2Range" min="0.1" max="5" step="0.1" value="1">
+        </div>
+        <div class="field">
+          <label for="L1Range">Üst çubuk L₁ <output id="L1Out" for="L1Range">1.00 m</output></label>
+          <input type="range" id="L1Range" min="0.25" max="2" step="0.05" value="1">
+        </div>
+        <div class="field">
+          <label for="L2Range">Alt çubuk L₂ <output id="L2Out" for="L2Range">1.00 m</output></label>
+          <input type="range" id="L2Range" min="0.25" max="2" step="0.05" value="1">
+        </div>
+        <div class="field">
+          <label for="gravitySelect">Yerçekimi g <output id="gOut" for="gravitySelect">9.81 m/s²</output></label>
+          <select id="gravitySelect">
+            <option value="1.62">Ay · 1.62</option>
+            <option value="3.71">Mars · 3.71</option>
+            <option value="9.81" selected>Dünya · 9.81</option>
+            <option value="24.79">Jüpiter · 24.79</option>
+          </select>
+        </div>
+        <label class="check"><input type="checkbox" id="dampingCheck"> Sönüm (hava direnci) açık</label>
+        <div class="field" id="dampingField" hidden>
+          <label for="dampingRange">Sönüm katsayısı b <output id="bOut" for="dampingRange">0.05 /s</output></label>
+          <input type="range" id="dampingRange" min="0.01" max="0.5" step="0.01" value="0.05">
+        </div>
+        <div class="field">
+          <label for="copyRange">Kopya sayısı N <output id="nOut" for="copyRange">3</output></label>
+          <input type="range" id="copyRange" min="2" max="10" step="1" value="3">
+        </div>
+        <div class="field">
+          <label for="deltaRange">θ₂ farkı Δ <output id="deltaOut" for="deltaRange">1×10⁻⁶ rad</output></label>
+          <input type="range" id="deltaRange" min="0" max="24" step="1" value="9">
+        </div>
+        <label class="check"><input type="checkbox" id="trailCheck" checked> İzleri göster</label>
+        <div class="row">
+          <button type="button" id="toggleBtn" aria-pressed="false">Duraklat</button>
+          <button type="button" id="resetBtn">Sıfırla</button>
+          <a class="app-btn-ghost" href="sarkac.html">Tek sarkaca dön</a>
+        </div>
+        <p class="note">Model: noktasal kütleler, kütlesiz katı çubuklar, Lagrange denklemleri. Sayısal yöntem: RK4, sabit adım h = 0.5 ms (enerji yüksekse 0.5 ms/k). Sönüm: her topa F = −b·m·v, harcanan güç 2b·E<sub>k</sub>. Kopya k, θ₂ + kΔ ile başlar. d = √(Δθ₁² + Δθ₂² + (Δω₁² + Δω₂²)/ω₀²), ω₀ = √(2g/(L₁ + L₂)).</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> başlat/duraklat, <kbd>R</kbd> sıfırla. Bir topu sürüklerken hareket durur; bıraktığında o açılardan durgun başlar. Her ayar değişikliği koşuyu baştan başlatır.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── Fizik çekirdeği (DOM'a dokunmaz) ── */
+  const H0 = 1 / 2000;        // s, temel RK4 adımı
+  const TOL = 0.1;            // ayrılma eşiği: d > 0.1
+  const FIT_MAX = 0.01;       // ln d eğim uydurması d bu değere ulaşana dek
+  const SAMPLE_DT = 0.05;     // s, ln d örnekleme aralığı
+  const LYAP_T = 200;         // s, Benettin ileri hesap süresi
+  const LYAP_D0 = 1e-8;       // Benettin gölge yörünge uzaklığı
+  const LYAP_TAU = 0.1;       // s, yeniden ölçekleme aralığı
+  const TWO_PI = 2 * Math.PI;
+  const wrap = (a) => a - TWO_PI * Math.round(a / TWO_PI);
+
+  function makeParams(m1, m2, L1, L2, g, b) {
+    return { m1, m2, L1, L2, g, b, M: m1 + m2, w0: Math.sqrt((2 * g) / (L1 + L2)) };
+  }
+
+  // y = [θ₁, θ₂, ω₁, ω₂, W_s]; çıktı: türevler, son bileşen sönümün harcadığı güç 2b·E_k
+  function deriv(P, y, out) {
+    const t1 = y[0], t2 = y[1], w1 = y[2], w2 = y[3];
+    const s = Math.sin(t1 - t2), c = Math.cos(t1 - t2);
+    const den = P.m1 + P.m2 * s * s;
+    const f1 = -P.m2 * P.L2 * w2 * w2 * s - P.M * P.g * Math.sin(t1);
+    const f2 = P.L1 * w1 * w1 * s - P.g * Math.sin(t2);
+    out[0] = w1;
+    out[1] = w2;
+    out[2] = (f1 - P.m2 * c * f2) / (P.L1 * den) - P.b * w1;
+    out[3] = (P.M * f2 - c * f1) / (P.L2 * den) - P.b * w2;
+    out[4] = P.b ? P.b * (P.M * P.L1 * P.L1 * w1 * w1 + P.m2 * P.L2 * P.L2 * w2 * w2 + 2 * P.m2 * P.L1 * P.L2 * w1 * w2 * c) : 0;
+  }
+
+  const K1 = new Float64Array(5), K2 = new Float64Array(5), K3 = new Float64Array(5), K4 = new Float64Array(5), YT = new Float64Array(5);
+  function rk4(P, y, h) {
+    deriv(P, y, K1);
+    for (let i = 0; i < 5; i++) YT[i] = y[i] + 0.5 * h * K1[i];
+    deriv(P, YT, K2);
+    for (let i = 0; i < 5; i++) YT[i] = y[i] + 0.5 * h * K2[i];
+    deriv(P, YT, K3);
+    for (let i = 0; i < 5; i++) YT[i] = y[i] + h * K3[i];
+    deriv(P, YT, K4);
+    for (let i = 0; i < 5; i++) y[i] += (h / 6) * (K1[i] + 2 * K2[i] + 2 * K3[i] + K4[i]);
+  }
+
+  // Potansiyelin sıfırı: iki top da en altta
+  function energy(P, y) {
+    const c = Math.cos(y[0] - y[1]);
+    const K = 0.5 * P.M * P.L1 * P.L1 * y[2] * y[2] + 0.5 * P.m2 * P.L2 * P.L2 * y[3] * y[3] + P.m2 * P.L1 * P.L2 * y[2] * y[3] * c;
+    const V = P.M * P.g * P.L1 * (1 - Math.cos(y[0])) + P.m2 * P.g * P.L2 * (1 - Math.cos(y[1]));
+    return { K, V, E: K + V };
+  }
+
+  function dist(P, a, b) {
+    const d1 = wrap(a[0] - b[0]), d2 = wrap(a[1] - b[1]);
+    const e1 = (a[2] - b[2]) / P.w0, e2 = (a[3] - b[3]) / P.w0;
+    return Math.sqrt(d1 * d1 + d2 * d2 + e1 * e1 + e2 * e2);
+  }
+
+  // Küçük açı: m₁L₁L₂Ω⁴ − Mg(L₁ + L₂)Ω² + Mg² = 0, mod biçimi θ₂/θ₁ = Ω²L₁/(g − Ω²L₂)
+  function modes(P) {
+    const A = P.m1 * P.L1 * P.L2, B = P.M * P.g * (P.L1 + P.L2), C = P.M * P.g * P.g;
+    const q = Math.sqrt(B * B - 4 * A * C);
+    const W1 = (2 * C) / (B + q), W2 = (B + q) / (2 * A);
+    const shape = (W) => (W * P.L1) / (P.g - W * P.L2);
+    const per = (W) => { const wd = W - (P.b * P.b) / 4; return wd > 0 ? TWO_PI / Math.sqrt(wd) : Infinity; };
+    return { O1: Math.sqrt(W1), O2: Math.sqrt(W2), r1: shape(W1), r2: shape(W2), T1: per(W1), T2: per(W2) };
+  }
+
+  // Enerjinin izin verdiği en büyük açısal hızlar: |ω₁| ≤ √(2E/(m₁L₁²)), |ω₂| ≤ √(2EM/(m₁m₂L₂²))
+  function omegaBounds(P, E) {
+    return { w1: Math.sqrt((2 * E) / (P.m1 * P.L1 * P.L1)), w2: Math.sqrt((2 * E * P.M) / (P.m1 * P.m2 * P.L2 * P.L2)) };
+  }
+  function stepFor(P, Emax) {
+    const wb = omegaBounds(P, Emax);
+    const W = Math.max(Math.sqrt(P.g / Math.min(P.L1, P.L2)), wb.w1, wb.w2);
+    const k = Math.min(40, Math.max(1, Math.ceil((W * H0) / 0.01)));
+    return { k, h: H0 / k };
+  }
+
+  // Enerjinin erişebildiği bölge (asma noktası başlangıç, y yukarı, metre)
+  function reach(P, E) {
+    const R = P.L1 + P.L2;
+    const c1 = Math.min(2, E / (P.M * P.g * P.L1)), c2 = Math.min(2, E / (P.m2 * P.g * P.L2));
+    const sn = (c) => (c >= 1 ? 1 : Math.sqrt(c * (2 - c)));
+    const top = Math.max(0, -P.L1 + Math.min(2 * P.L1, E / (P.M * P.g)), -R + Math.min(2 * R, E / (P.m2 * P.g)));
+    return { X: Math.max(P.L1 * sn(c1) + P.L2 * sn(c2), 0.3 * R), top, bottom: -R, R };
+  }
+
+  function createRun(P, init, N, Delta) {
+    const ys = [];
+    for (let k = 0; k < N; k++) ys.push(Float64Array.of(init.t1, init.t2 + k * Delta, 0, 0, 0));
+    let Emax = 0;
+    for (const y of ys) Emax = Math.max(Emax, energy(P, y).E);
+    const st = stepFor(P, Emax);
+    const run = {
+      P, N, Delta, h: st.h, k: st.k, Emax, t: 0, n: 0, ys, E0: energy(P, ys[0]).E, drift: 0, maxDrift: 0,
+      tSep: new Array(N).fill(null), tFit: null, fit: { n: 0, st: 0, sl: 0, stt: 0, stl: 0, t1: 0 },
+      ups: [], poin: [], samples: [], sampleDt: SAMPLE_DT, nextSample: 0, dNow: N > 1 ? dist(P, ys[0], ys[1]) : 0,
+    };
+    for (let k = 1; k < N; k++) if (k * Delta >= TOL) run.tSep[k] = 0;
+    if (Delta >= FIT_MAX) run.tFit = 0;
+    record(run);
+    return run;
+  }
+
+  function record(run) {
+    const { P, ys } = run;
+    const e = energy(P, ys[0]);
+    run.drift = run.E0 > 1e-12 ? (e.E + ys[0][4] - run.E0) / run.E0 : 0;
+    run.maxDrift = Math.max(run.maxDrift, Math.abs(run.drift));
+    const row = [run.t];
+    for (let k = 1; k < run.N; k++) row.push(Math.log(Math.max(dist(P, ys[0], ys[k]), 1e-300)));
+    run.samples.push(row);
+    if (run.N > 1 && (run.tFit === null || run.t <= run.tFit)) {
+      const f = run.fit, l = row[1];
+      f.n++; f.st += run.t; f.sl += l; f.stt += run.t * run.t; f.stl += run.t * l; f.t1 = run.t;
+    }
+    run.nextSample += run.sampleDt;
+    if (run.samples.length > 2400) {
+      run.samples = run.samples.filter((_, i) => i % 2 === 0);
+      run.sampleDt *= 2;
+    }
+  }
+
+  function stepRun(run) {
+    const { P, ys, h } = run;
+    for (let k = 0; k < run.N; k++) {
+      const y = ys[k];
+      const a0 = wrap(y[0]), t2 = y[1], w2 = y[3];
+      rk4(P, y, h);
+      const a1 = wrap(y[0]);
+      if (a0 < 0 && a1 >= 0 && a1 - a0 < Math.PI) {
+        const f = -a0 / (a1 - a0);
+        if (k === 0) { run.ups.push(run.t + f * h); if (run.ups.length > 6) run.ups.shift(); }
+        run.poin.push(k, wrap(t2 + f * (y[1] - t2)), w2 + f * (y[3] - w2));
+      }
+    }
+    if (run.poin.length > 18000) run.poin.splice(0, run.poin.length - 15000);
+    run.t += h;
+    run.n++;
+    for (let k = 1; k < run.N; k++) {
+      if (run.tSep[k] !== null && (k > 1 || run.tFit !== null)) continue;
+      const d = dist(P, ys[0], ys[k]);
+      if (k === 1 && run.tFit === null && d >= FIT_MAX) run.tFit = run.t;
+      if (run.tSep[k] === null && d >= TOL) run.tSep[k] = run.t;
+    }
+    if (run.N > 1) run.dNow = dist(P, ys[0], ys[1]);
+    if (run.t >= run.nextSample - h / 2) record(run);
+  }
+
+  // ln d = a + λt en küçük kareler (t = 0 ile d = FIT_MAX arası)
+  function fitLine(run) {
+    const f = run.fit, den = f.n * f.stt - f.st * f.st;
+    if (f.n < 20 || !(den > 0) || f.t1 < 1) return null;
+    const lambda = (f.n * f.stl - f.st * f.sl) / den;
+    return { lambda, a: (f.sl - lambda * f.st) / f.n, t1: f.t1, closed: run.tFit !== null };
+  }
+
+  // Ölçülen periyot: θ₁'in artarak sıfırdan geçişleri arasındaki son ≤ 4 aralığın ortalaması
+  function measuredPeriod(run) {
+    const u = run.ups;
+    if (u.length < 2) return null;
+    const iv = [];
+    for (let i = Math.max(1, u.length - 4); i < u.length; i++) iv.push(u[i] - u[i - 1]);
+    const mean = iv.reduce((s, x) => s + x, 0) / iv.length;
+    return { T: mean, spread: (Math.max(...iv) - Math.min(...iv)) / mean, count: iv.length };
+  }
+
+  // Benettin: referans yörünge ve LYAP_D0 uzaklıktaki gölgesi; her LYAP_TAU'da uzaklık geri ölçeklenir
+  function createLyap(P, y0, h) {
+    const y = Float64Array.from(y0), z = Float64Array.from(y0);
+    z[1] += LYAP_D0;
+    const T = Math.min(LYAP_T, 8e5 * h);
+    const every = Math.max(1, Math.round(LYAP_TAU / h));
+    return { P, y, z, h, n: 0, nTotal: Math.round(T / h / every) * every, every, S: 0, T, done: false };
+  }
+  function advanceLyap(job, steps) {
+    const { P, y, z, h } = job;
+    const end = Math.min(job.nTotal, job.n + steps);
+    while (job.n < end) {
+      rk4(P, y, h);
+      rk4(P, z, h);
+      job.n++;
+      if (job.n % job.every === 0) {
+        const d = dist(P, y, z);
+        job.S += Math.log(d / LYAP_D0);
+        const f = LYAP_D0 / d;
+        for (let i = 0; i < 4; i++) z[i] = y[i] + (z[i] - y[i]) * f;
+      }
+    }
+    job.done = job.n >= job.nTotal;
+    return job;
+  }
+  const lyapValue = (job) => (job && job.n >= job.every ? job.S / (Math.floor(job.n / job.every) * job.every * job.h) : null);
+
+  /* ── Arayüz ── */
+  const $ = (id) => document.getElementById(id);
+  const ui = {
+    t1: $("t1Range"), t2: $("t2Range"), m1: $("m1Range"), m2: $("m2Range"), L1: $("L1Range"), L2: $("L2Range"),
+    g: $("gravitySelect"), dampCheck: $("dampingCheck"), dampField: $("dampingField"), b: $("dampingRange"),
+    n: $("copyRange"), delta: $("deltaRange"), trail: $("trailCheck"),
+    t1Out: $("t1Out"), t2Out: $("t2Out"), m1Out: $("m1Out"), m2Out: $("m2Out"), L1Out: $("L1Out"), L2Out: $("L2Out"),
+    gOut: $("gOut"), bOut: $("bOut"), nOut: $("nOut"), deltaOut: $("deltaOut"),
+    toggle: $("toggleBtn"), reset: $("resetBtn"),
+    presets: { mode1: $("presetMode1"), mode2: $("presetMode2"), chaos: $("presetChaos"), high: $("presetHigh") },
+    eMeas: $("eMeas"), eTheo: $("eTheo"), eDiff: $("eDiff"),
+    sepMeas: $("sepMeas"), sepTheo: $("sepTheo"), sepDiff: $("sepDiff"),
+    perMeas: $("perMeas"), perTheo: $("perTheo"), perDiff: $("perDiff"),
+    lyapBLabel: $("lyapBLabel"), lyapB: $("lyapBOut"), lyapFitLabel: $("lyapFitLabel"), lyapFit: $("lyapFitOut"),
+    d: $("dOut"), mode1Label: $("mode1Label"), mode1: $("mode1Out"), mode2Label: $("mode2Label"), mode2: $("mode2Out"),
+    drift: $("driftOut"), ang: $("angOut"), omg: $("omgOut"), step: $("stepOut"), copyTimes: $("copyTimes"), status: $("statusOut"),
+  };
+  const DELTAS = [];
+  for (let e = -9; e <= -1; e++) for (const m of [1, 2, 5]) if (m * 10 ** e <= 0.1 * 1.0001) DELTAS.push(+(m * 10 ** e).toPrecision(1));
+  const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+  const STEP_BUDGET = 30000;  // kare başına en çok RK4 adımı (tüm kopyalar)
+  const TRAIL_DT = 1 / 60, TRAIL_N = 150, PHASE_N = 480;
+
+  const init = { t1: 120 * D2R, t2: -20 * D2R };
+  let P = null, run = null, lyap = null, view = null, modeInfo = null;
+  let running = true, slowed = false, drag = null, preset = "chaos";
+  let trails = [], phases = [], nextTrail = 0, ranges = null;
+  let acc = 0, lastFrame = 0, lastUi = 0, dpr = 1;
+
+  /* ── Biçimlendirme ── */
+  const MINUS = "−";
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  function fix(x, d) {
+    const r = Number(x.toFixed(d));
+    return r === 0 ? (0).toFixed(d) : (r < 0 ? MINUS : "") + Math.abs(r).toFixed(d);
+  }
+  function sgn(x, d) {
+    const r = Number(x.toFixed(d));
+    return r === 0 ? (0).toFixed(d) : (r > 0 ? "+" : MINUS) + Math.abs(r).toFixed(d);
+  }
+  function sci(x, d = 2, plus = false) {
+    if (x === 0) return "0";
+    const [m, e] = Math.abs(x).toExponential(d - 1).split("e");
+    const sign = x < 0 ? MINUS : plus ? "+" : "";
+    return `${sign}${m}×10${String(+e).replace(/./g, (ch) => SUP[ch])}`;
+  }
+  const fmtDelta = (v) => sci(v, 1).replace(/^(\d)\.0×/, "$1×");
+  function fmtDeg(rad) {
+    const d = rad * R2D, r = Math.round(d);
+    return Math.abs(d - r) < 0.005 ? `${fix(r, 0)}°` : `${fix(d, 2)}°`;
+  }
+  const fmtS = (t, d = 2) => `${fix(t, d)} s`;
+  function fmtJ(E) {
+    const a = Math.abs(E);
+    return `${fix(E, a >= 100 ? 2 : a >= 1 ? 3 : a >= 0.01 ? 4 : 6)} J`;
+  }
+  function pct(meas, th) {
+    if (meas === null || th === null || !Number.isFinite(meas) || !Number.isFinite(th) || th === 0) return "—";
+    const d = ((meas - th) / Math.abs(th)) * 100;
+    return Math.abs(d) < 0.005 ? "0.00 %" : `${sgn(d, 2)} %`;
+  }
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+
+  /* ── Koşu yönetimi ── */
+  function readParams() {
+    const b = ui.dampCheck.checked ? Number(ui.b.value) : 0;
+    P = makeParams(Number(ui.m1.value), Number(ui.m2.value), Number(ui.L1.value), Number(ui.L2.value), Number(ui.g.value), b);
+    modeInfo = modes(P);
+    ui.dampField.hidden = !ui.dampCheck.checked;
+    setText(ui.m1Out, `${P.m1.toFixed(1)} kg`);
+    setText(ui.m2Out, `${P.m2.toFixed(1)} kg`);
+    setText(ui.L1Out, `${P.L1.toFixed(2)} m`);
+    setText(ui.L2Out, `${P.L2.toFixed(2)} m`);
+    setText(ui.gOut, `${P.g.toFixed(2)} m/s²`);
+    setText(ui.bOut, `${Number(ui.b.value).toFixed(2)} /s`);
+    setText(ui.nOut, String(Number(ui.n.value)));
+    setText(ui.deltaOut, `${fmtDelta(DELTAS[Number(ui.delta.value)])} rad`);
+  }
+  function showInit() {
+    setText(ui.t1Out, fmtDeg(init.t1));
+    setText(ui.t2Out, fmtDeg(init.t2));
+  }
+  function setPreset(name) {
+    preset = name;
+    for (const [k, btn] of Object.entries(ui.presets)) btn.setAttribute("aria-pressed", String(k === name));
+  }
+
+  function restart(keepView) {
+    readParams();
+    run = createRun(P, init, Number(ui.n.value), DELTAS[Number(ui.delta.value)]);
+    lyap = drag ? null : createLyap(P, run.ys[0], run.h);
+    if (!keepView || !view) view = reach(P, run.Emax);
+    trails = run.ys.map(() => ({ a: new Float32Array(2 * TRAIL_N), len: 0, head: 0 }));
+    phases = run.ys.map(() => ({ a: new Float32Array(2 * PHASE_N), len: 0, head: 0 }));
+    ranges = { t1: 0, w1: 0, t2: 0, w2: 0 };
+    nextTrail = 0;
+    acc = 0;
+    pushTrails();
+    updateReadouts(true);
+  }
+
+  function ringPush(r, x, y, n) {
+    r.a[2 * r.head] = x;
+    r.a[2 * r.head + 1] = y;
+    r.head = (r.head + 1) % n;
+    if (r.len < n) r.len++;
+  }
+  function pushTrails() {
+    const { P: Q, ys } = run;
+    ys.forEach((y, k) => {
+      const x1 = Q.L1 * Math.sin(y[0]), y1 = -Q.L1 * Math.cos(y[0]);
+      ringPush(trails[k], x1 + Q.L2 * Math.sin(y[1]), y1 - Q.L2 * Math.cos(y[1]), TRAIL_N);
+      const a = wrap(y[0]);
+      ringPush(phases[k], a, y[2], PHASE_N);
+      ranges.t1 = Math.max(ranges.t1, Math.abs(a));
+      ranges.w1 = Math.max(ranges.w1, Math.abs(y[2]));
+      ranges.t2 = Math.max(ranges.t2, Math.abs(wrap(y[1])));
+      ranges.w2 = Math.max(ranges.w2, Math.abs(y[3]));
+    });
+    nextTrail += TRAIL_DT;
+  }
+
+  /* ── Göstergeler ── */
+  function updateReadouts(force) {
+    const now = performance.now();
+    if (!force && now - lastUi < 150) return;
+    lastUi = now;
+    const r = run, y = r.ys[0], e = energy(r.P, y), damped = r.P.b > 0;
+    // Enerji
+    setText(ui.eMeas, fmtJ(e.E));
+    setText(ui.eTheo, fmtJ(r.E0 - y[4]));
+    setText(ui.eDiff, r.E0 > 1e-12 ? sci(r.drift, 2, true) : "—");
+    setText(ui.drift, r.E0 > 1e-12 ? sci(r.maxDrift, 2) : "—");
+    // Lyapunov ve ayrılma
+    const lam = lyapValue(lyap);
+    const lyapDone = lyap && lyap.done;
+    setText(ui.lyapBLabel, `λ, Benettin (0–${fix(lyap ? lyap.T : LYAP_T, 0)} s)`);
+    if (!lyap) setText(ui.lyapB, "—");
+    else if (!lyapDone) setText(ui.lyapB, `hesaplanıyor… ${Math.floor((100 * lyap.n) / lyap.nTotal)} %`);
+    else setText(ui.lyapB, `${fix(lam, 3)} 1/s`);
+    const fit = fitLine(r);
+    if (r.Delta >= FIT_MAX) {
+      setText(ui.lyapFitLabel, "λ, ln d eğimi");
+      setText(ui.lyapFit, "— (Δ ≥ 0.01)");
+    } else if (!fit) {
+      setText(ui.lyapFitLabel, "λ, ln d eğimi");
+      setText(ui.lyapFit, "ölçülüyor…");
+    } else {
+      setText(ui.lyapFitLabel, `λ, ln d eğimi (0–${fix(fit.t1, 1)} s${fit.closed ? "" : ", sürüyor"})`);
+      setText(ui.lyapFit, `${fix(fit.lambda, 3)} 1/s`);
+    }
+    setText(ui.d, r.N > 1 ? sci(r.dNow, 2) : "—");
+    const tStar = lyapDone && lam > 0 && r.Delta < TOL ? Math.log(TOL / r.Delta) / lam : null;
+    const ts = r.tSep[1];
+    setText(ui.sepMeas, ts !== null ? fmtS(ts) : `bekleniyor… (t = ${fix(r.t, 1)} s)`);
+    if (r.Delta >= TOL) setText(ui.sepTheo, "— (Δ ≥ 0.1)");
+    else if (!lyapDone) setText(ui.sepTheo, "hesaplanıyor…");
+    else if (lam < 0.05) setText(ui.sepTheo, "çok uzun (λ ≈ 0)");
+    else setText(ui.sepTheo, fmtS(tStar));
+    setText(ui.sepDiff, ts !== null && tStar !== null && lam >= 0.05 ? pct(ts, tStar) : "—");
+    // Periyot
+    const md = modeInfo;
+    setText(ui.mode1Label, `1. mod T₁ = 2π/Ω${damped ? "₁d" : "₁"} · θ₂/θ₁ = ${sgn(md.r1, 3)}`);
+    setText(ui.mode2Label, `2. mod T₂ = 2π/Ω${damped ? "₂d" : "₂"} · θ₂/θ₁ = ${sgn(md.r2, 3)}`);
+    setText(ui.mode1, Number.isFinite(md.T1) ? `${fix(md.T1, 4)} s` : "—");
+    setText(ui.mode2, Number.isFinite(md.T2) ? `${fix(md.T2, 4)} s` : "—");
+    const mp = measuredPeriod(r);
+    if (!mp) {
+      setText(ui.perMeas, "ölçülüyor…");
+      setText(ui.perTheo, "—");
+      setText(ui.perDiff, "—");
+    } else {
+      const near1 = Math.abs(mp.T - md.T1) <= Math.abs(mp.T - md.T2);
+      const Tth = near1 ? md.T1 : md.T2;
+      setText(ui.perMeas, `${fix(mp.T, 4)} s`);
+      setText(ui.perTheo, Number.isFinite(Tth) ? `${fix(Tth, 4)} s (${near1 ? 1 : 2}. mod)` : "—");
+      setText(ui.perDiff, mp.count < 3 ? "ölçülüyor…" : mp.spread > 0.02 ? "düzensiz" : pct(mp.T, Tth));
+    }
+    // Anlık durum
+    setText(ui.ang, `${fix(wrap(y[0]) * R2D, 1)}°, ${fix(wrap(y[1]) * R2D, 1)}°`);
+    setText(ui.omg, `${fix(y[2], 2)}, ${fix(y[3], 2)} rad/s`);
+    setText(ui.step, `${fix(r.h * 1000, r.k > 1 ? 4 : 3)} ms${r.k > 1 ? ` (0.5 ms/${r.k})` : ""}${slowed ? " · yavaşlatıldı" : ""}`);
+    const parts = [];
+    for (let k = 1; k < r.N; k++) parts.push(`${k} (${k === 1 ? "" : k}Δ): ${r.tSep[k] !== null ? fmtS(r.tSep[k]) : "—"}`);
+    setText(ui.copyTimes, `Kopyaların referanstan ayrılma zamanları: ${parts.join(" · ")}`);
+    let status;
+    if (r.N < 2) status = "";
+    else if (r.Delta >= TOL) status = "Δ ≥ 0.1: kopyalar baştan ayrı; ayrılma zamanı ölçülmez.";
+    else if (ts !== null) status = `Kopya 1, t = ${fmtS(ts)} anında referanstan ayrıldı: d, başlangıçtaki ${fmtDelta(r.Delta)} değerinden ${fmtDelta(TOL / r.Delta)} kat büyüyüp 0.1'i aştı. Bundan sonra iki yörünge arasında bağ kalmaz.`;
+    else if (r.t > 10 && fit && fit.lambda < 0.1) status = `t = ${fix(r.t, 0)} s: d = ${sci(r.dNow, 2)}, başlangıçtakinin ${fix(r.dNow / r.Delta, 1)} katı. ln d doğru gibi yükselmiyor: hareket düzenli, üstel ayrışma yok.`;
+    else status = `Kopyalar birlikte: d = ${sci(r.dNow, 2)} (başlangıçta ${fmtDelta(r.Delta)}).${lyapDone && lam >= 0.05 ? ` λ = ${fix(lam, 2)} 1/s ile d her ${fix(Math.LN2 / lam, 2)} s'de ortalama iki katına çıkar.` : ""}`;
+    setText(ui.status, status);
+  }
+
+  /* ── Çizim ── */
+  const stage = $("stageCanvas"), sctx = stage.getContext("2d");
+  const chart = $("sepChart"), cctx = chart.getContext("2d");
+  const phase = $("phaseCanvas"), pctx = phase.getContext("2d");
+  const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart, phase]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.08)", axis: "rgba(26,29,46,0.45)",
+      pivot: "#0d9488", pill: "rgba(255,255,255,0.85)", ring: "#ffffff", fitLine: "#1a1d2e", lyapLine: "#7c3aed", tol: "#b45309",
+      copies: ["#dc2626", "#0d9488", "#7c3aed", "#d97706", "#2563eb", "#db2777", "#16a34a", "#ea580c", "#0891b2", "#475569"],
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.08)", axis: "rgba(232,236,244,0.45)",
+      pivot: "#5eead4", pill: "rgba(8,12,22,0.72)", ring: "#0b1020", fitLine: "#e8ecf4", lyapLine: "#a78bfa", tol: "#fbbf24",
+      copies: ["#f87171", "#5eead4", "#a78bfa", "#fbbf24", "#60a5fa", "#f472b6", "#4ade80", "#fb923c", "#22d3ee", "#e2e8f0"],
+    };
+  }
+
+  function pill(g, x, y, w, h, t) {
+    g.fillStyle = t.pill;
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, 6 * dpr); else g.rect(x, y, w, h);
+    g.fill();
+  }
+
+  function stageXform() {
+    const W = stage.width, H = stage.height, v = view, pad = 0.07 * v.R + 0.06 * v.R;
+    const x0 = -v.X - pad, x1 = v.X + pad, y0 = v.bottom - pad, y1 = v.top + pad;
+    const s = Math.min(W / (x1 - x0), H / (y1 - y0));
+    const ox = W / 2 - (s * (x0 + x1)) / 2, oy = H / 2 + (s * (y0 + y1)) / 2;
+    return { s, ox, oy, X: (x) => ox + x * s, Y: (y) => oy - y * s };
+  }
+  const bobRadius = (m) => (6 + 5 * Math.cbrt(m)) * dpr;
+
+  function bobPositions(Q, y, T) {
+    const x1 = Q.L1 * Math.sin(y[0]), y1 = -Q.L1 * Math.cos(y[0]);
+    const x2 = x1 + Q.L2 * Math.sin(y[1]), y2 = y1 - Q.L2 * Math.cos(y[1]);
+    return [T.X(x1), T.Y(y1), T.X(x2), T.Y(y2)];
+  }
+
+  function drawStage() {
+    const W = stage.width, H = stage.height, t = theme(), g = sctx, r = run, Q = r.P;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const T = stageXform();
+    const ox = T.X(0), oy = T.Y(0);
+
+    // Erişilebilir daire ve düşey
+    g.save();
+    g.setLineDash([6 * dpr, 6 * dpr]);
+    g.strokeStyle = t.grid;
+    g.lineWidth = 1 * dpr;
+    g.beginPath();
+    g.arc(ox, oy, (Q.L1 + Q.L2) * T.s, 0, Math.PI * 2);
+    g.moveTo(ox, oy);
+    g.lineTo(ox, oy + (Q.L1 + Q.L2) * T.s);
+    g.stroke();
+    g.restore();
+    if (view.top <= 0.02 * view.R) {
+      g.fillStyle = t.grid;
+      g.fillRect(ox - 50 * dpr, oy - 6 * dpr, 100 * dpr, 6 * dpr);
+    }
+
+    // İzler: alt topun son 2.5 s'si, eskisi soluk
+    if (ui.trail.checked) {
+      g.lineWidth = 1.8 * dpr;
+      g.lineJoin = "round";
+      for (let k = r.N - 1; k >= 0; k--) {
+        const tr = trails[k];
+        if (tr.len < 2) continue;
+        g.strokeStyle = t.copies[k % 10];
+        const chunks = 6, per = Math.ceil(tr.len / chunks);
+        for (let c = 0; c < chunks; c++) {
+          const i0 = c * per, i1 = Math.min(tr.len - 1, (c + 1) * per);
+          if (i1 <= i0) continue;
+          g.globalAlpha = 0.08 + (0.62 * (c + 1)) / chunks;
+          g.beginPath();
+          for (let i = i0; i <= i1; i++) {
+            const j = (tr.head - tr.len + i + TRAIL_N) % TRAIL_N;
+            const px = T.X(tr.a[2 * j]), py = T.Y(tr.a[2 * j + 1]);
+            if (i === i0) g.moveTo(px, py); else g.lineTo(px, py);
+          }
+          g.stroke();
+        }
+      }
+      g.globalAlpha = 1;
+    }
+
+    // Kopyalar: referans en üstte
+    const r1 = bobRadius(Q.m1), r2 = bobRadius(Q.m2);
+    for (let k = r.N - 1; k >= 0; k--) {
+      const [x1, y1, x2, y2] = bobPositions(Q, r.ys[k], T);
+      const col = t.copies[k % 10];
+      g.globalAlpha = k === 0 ? 1 : 0.85;
+      g.strokeStyle = k === 0 ? t.ink : col;
+      g.lineWidth = (k === 0 ? 2.4 : 1.6) * dpr;
+      g.beginPath();
+      g.moveTo(ox, oy);
+      g.lineTo(x1, y1);
+      g.lineTo(x2, y2);
+      g.stroke();
+      g.fillStyle = col;
+      for (const [x, y, rad] of [[x1, y1, r1], [x2, y2, r2]]) {
+        g.beginPath();
+        g.arc(x, y, rad, 0, Math.PI * 2);
+        g.fill();
+        if (k === 0) { g.strokeStyle = t.ring; g.lineWidth = 1.5 * dpr; g.stroke(); }
+      }
+    }
+    g.globalAlpha = 1;
+    g.fillStyle = t.pivot;
+    g.beginPath();
+    g.arc(ox, oy, 4.5 * dpr, 0, Math.PI * 2);
+    g.fill();
+
+    // Göstergeler
+    g.font = font(12);
+    const l1 = `t = ${fix(r.t, 2)} s`, l2 = r.N > 1 ? `d₀₁ = ${sci(r.dNow, 2)}` : "";
+    const pw = Math.max(g.measureText(l1).width, g.measureText(l2).width) + 16 * dpr;
+    pill(g, 8 * dpr, 8 * dpr, pw, 40 * dpr, t);
+    g.textAlign = "left";
+    g.fillStyle = t.ink;
+    g.fillText(l1, 16 * dpr, 24 * dpr);
+    g.fillStyle = t.muted;
+    g.fillText(l2, 16 * dpr, 41 * dpr);
+
+    g.font = font(11);
+    const lw = 14 * dpr * r.N + g.measureText("kopya: θ₂ + kΔ").width + 22 * dpr;
+    pill(g, W - lw - 8 * dpr, 8 * dpr, lw, 24 * dpr, t);
+    let lx = W - lw + 2 * dpr;
+    for (let k = 0; k < r.N; k++) {
+      g.fillStyle = t.copies[k % 10];
+      g.beginPath();
+      g.arc(lx + 4 * dpr, 20 * dpr, 4 * dpr, 0, Math.PI * 2);
+      g.fill();
+      lx += 14 * dpr;
+    }
+    g.fillStyle = t.muted;
+    g.fillText("kopya: θ₂ + kΔ", lx + 4 * dpr, 24 * dpr);
+
+    const info = `m₁ = ${Q.m1.toFixed(1)} kg · m₂ = ${Q.m2.toFixed(1)} kg · L₁ = ${Q.L1.toFixed(2)} m · L₂ = ${Q.L2.toFixed(2)} m · g = ${Q.g.toFixed(2)} m/s²`;
+    g.font = font(W < 520 * dpr ? 10 : 11);
+    const iw = g.measureText(info).width + 14 * dpr;
+    pill(g, 8 * dpr, H - 28 * dpr, Math.min(iw, W - 16 * dpr), 20 * dpr, t);
+    g.fillStyle = t.muted;
+    g.fillText(info, 15 * dpr, H - 14 * dpr, W - 30 * dpr);
+    if (drag) {
+      g.font = font(12, 600);
+      g.fillStyle = t.ink;
+      g.textAlign = "center";
+      g.fillText(`θ₁ = ${fmtDeg(init.t1)} · θ₂ = ${fmtDeg(init.t2)}`, W / 2, H - 40 * dpr);
+    }
+  }
+
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+
+  function drawChart() {
+    const W = chart.width, H = chart.height, t = theme(), g = cctx, r = run;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const l = 40 * dpr, rr = 12 * dpr, top = 26 * dpr, b = 24 * dpr, w = W - l - rr, h = H - top - b;
+    if (w <= 0 || h <= 0 || r.N < 2) return;
+    const tMax = Math.max(20, Math.ceil((r.t + 0.5) / 10) * 10);
+    const yLo = Math.log(r.Delta) - 3, yHi = 2.5;
+    const X = (tt) => l + (tt / tMax) * w, Y = (v) => top + h - ((v - yLo) / (yHi - yLo)) * h;
+    g.font = font(10);
+    g.lineWidth = 1 * dpr;
+    g.strokeStyle = t.grid;
+    g.fillStyle = t.muted;
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    const ys = yHi - yLo > 12 ? 5 : 2;
+    for (let v = Math.ceil(yLo / ys) * ys; v <= yHi; v += ys) {
+      const y = Y(v);
+      g.beginPath(); g.moveTo(l, y); g.lineTo(l + w, y); g.stroke();
+      g.fillText(fix(v, 0), l - 5 * dpr, y);
+    }
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    const xs = niceStep(tMax / 6);
+    for (let v = 0; v <= tMax + 1e-9; v += xs) {
+      const x = X(v);
+      g.beginPath(); g.moveTo(x, top); g.lineTo(x, top + h); g.stroke();
+      g.fillText(`${fix(v, 0)} s`, x, top + h + 6 * dpr);
+    }
+    g.save();
+    g.beginPath();
+    g.rect(l, top, w, h);
+    g.clip();
+    // Eşik
+    g.setLineDash([3 * dpr, 4 * dpr]);
+    g.strokeStyle = t.tol;
+    g.lineWidth = 1.4 * dpr;
+    g.beginPath(); g.moveTo(l, Y(Math.log(TOL))); g.lineTo(l + w, Y(Math.log(TOL))); g.stroke();
+    // Benettin doğrusu ln Δ + λt
+    const lam = lyap && lyap.done ? lyapValue(lyap) : null;
+    if (lam !== null && lam > 0) {
+      g.setLineDash([7 * dpr, 5 * dpr]);
+      g.strokeStyle = t.lyapLine;
+      g.lineWidth = 1.6 * dpr;
+      const tEnd = Math.min(tMax, (yHi - Math.log(r.Delta)) / lam);
+      g.beginPath(); g.moveTo(X(0), Y(Math.log(r.Delta))); g.lineTo(X(tEnd), Y(Math.log(r.Delta) + lam * tEnd)); g.stroke();
+      const tStar = Math.log(TOL / r.Delta) / lam;
+      if (tStar < tMax && r.Delta < TOL) { g.beginPath(); g.moveTo(X(tStar), top); g.lineTo(X(tStar), top + h); g.stroke(); }
+    }
+    g.setLineDash([]);
+    // ln d eğrileri
+    const S = r.samples;
+    for (let k = r.N - 1; k >= 1; k--) {
+      g.strokeStyle = t.copies[k % 10];
+      g.globalAlpha = k === 1 ? 1 : 0.45;
+      g.lineWidth = (k === 1 ? 2 : 1.2) * dpr;
+      g.beginPath();
+      for (let i = 0; i < S.length; i++) {
+        const x = X(S[i][0]), y = Y(Math.max(yLo - 1, S[i][k]));
+        if (i) g.lineTo(x, y); else g.moveTo(x, y);
+      }
+      g.stroke();
+    }
+    g.globalAlpha = 1;
+    // Eğim uydurma doğrusu
+    const fit = fitLine(r);
+    if (fit && r.Delta < FIT_MAX) {
+      g.strokeStyle = t.fitLine;
+      g.lineWidth = 2.2 * dpr;
+      g.beginPath(); g.moveTo(X(0), Y(fit.a)); g.lineTo(X(fit.t1), Y(fit.a + fit.lambda * fit.t1)); g.stroke();
+    }
+    // Ölçülen ayrılma
+    if (r.tSep[1] !== null && r.tSep[1] > 0) {
+      g.strokeStyle = t.copies[1];
+      g.lineWidth = 1.5 * dpr;
+      g.beginPath(); g.moveTo(X(r.tSep[1]), top); g.lineTo(X(r.tSep[1]), top + h); g.stroke();
+    }
+    g.restore();
+    g.strokeStyle = t.axis;
+    g.lineWidth = 1.2 * dpr;
+    g.beginPath(); g.moveTo(l, top); g.lineTo(l, top + h); g.lineTo(l + w, top + h); g.stroke();
+    // Açıklama
+    g.font = font(W < 520 * dpr ? 10 : 11);
+    g.textBaseline = "alphabetic";
+    g.textAlign = "left";
+    const legend = [["ln d", t.copies[1]], ["eşik d = 0.1", t.tol], ["eğim uydurma", t.fitLine], ["ln Δ + λt (Benettin)", t.lyapLine]];
+    let lx = l;
+    for (const [text, col] of legend) {
+      g.fillStyle = col;
+      g.fillText(text, lx, 16 * dpr);
+      lx += g.measureText(text).width + 12 * dpr;
+    }
+  }
+
+  function drawPhase() {
+    const W = phase.width, H = phase.height, t = theme(), g = pctx, r = run;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const half = W / 2, small = W < 520 * dpr;
+    const pad = { l: (small ? 34 : 40) * dpr, r: 8 * dpr, t: 26 * dpr, b: 22 * dpr };
+    const deg = (a) => Math.min(180, Math.max(5, a * R2D * 1.12));
+    const omg = (v) => Math.max(0.2, v * 1.12);
+    const panels = [
+      { x0: 0, title: "Faz portresi θ₁–ω₁", tx: "θ₁", ty: "ω₁", xr: deg(ranges.t1), yr: omg(ranges.w1) },
+      { x0: half, title: "Poincaré: θ₁ = 0↑ anında (θ₂, ω₂)", tx: "θ₂", ty: "ω₂", xr: deg(ranges.t2), yr: omg(ranges.w2) },
+    ];
+    g.font = font(small ? 9 : 10);
+    for (const p of panels) {
+      const L = p.x0 + pad.l, w = half - pad.l - pad.r, h = H - pad.t - pad.b;
+      if (w <= 0 || h <= 0) continue;
+      p.X = (v) => L + ((v * R2D + p.xr) / (2 * p.xr)) * w;
+      p.Y = (v) => pad.t + h - ((v + p.yr) / (2 * p.yr)) * h;
+      p.box = [L, pad.t, w, h];
+      g.strokeStyle = t.grid;
+      g.lineWidth = 1 * dpr;
+      g.fillStyle = t.muted;
+      const xs = niceStep(p.xr / 2), ysx = niceStep(p.yr / 2);
+      g.textAlign = "center";
+      g.textBaseline = "top";
+      for (let v = -Math.floor(p.xr / xs) * xs; v <= p.xr + 1e-9; v += xs) {
+        const x = L + ((v + p.xr) / (2 * p.xr)) * w;
+        g.beginPath(); g.moveTo(x, pad.t); g.lineTo(x, pad.t + h); g.stroke();
+        g.fillText(`${fix(v, 0)}°`, x, pad.t + h + 5 * dpr);
+      }
+      g.textAlign = "right";
+      g.textBaseline = "middle";
+      for (let v = -Math.floor(p.yr / ysx) * ysx; v <= p.yr + 1e-9; v += ysx) {
+        const y = p.Y(v);
+        g.beginPath(); g.moveTo(L, y); g.lineTo(L + w, y); g.stroke();
+        g.fillText(fix(v, ysx < 1 ? 1 : 0), L - 4 * dpr, y);
+      }
+      g.textAlign = "left";
+      g.textBaseline = "alphabetic";
+      g.fillStyle = t.ink;
+      g.font = font(small ? 10 : 11, 600);
+      g.fillText(p.title, p.x0 + 6 * dpr, 15 * dpr, half - 12 * dpr);
+      g.font = font(small ? 9 : 10);
+      g.fillStyle = t.muted;
+      g.fillText(`${p.ty} (rad/s)`, L + 4 * dpr, pad.t + 12 * dpr);
+    }
+    // Faz portresi: her kopyanın son 8 s'si
+    const A = panels[0];
+    if (A.box) {
+      g.save();
+      g.beginPath(); g.rect(...A.box); g.clip();
+      for (let k = r.N - 1; k >= 0; k--) {
+        const ph = phases[k];
+        if (ph.len < 2) continue;
+        g.strokeStyle = t.copies[k % 10];
+        g.globalAlpha = k === 0 ? 0.95 : 0.55;
+        g.lineWidth = (k === 0 ? 1.6 : 1.1) * dpr;
+        g.beginPath();
+        let prev = null;
+        for (let i = 0; i < ph.len; i++) {
+          const j = (ph.head - ph.len + i + PHASE_N) % PHASE_N, a = ph.a[2 * j], wv = ph.a[2 * j + 1];
+          const x = A.X(a), y = A.Y(wv);
+          if (prev === null || Math.abs(a - prev) > Math.PI) g.moveTo(x, y); else g.lineTo(x, y);
+          prev = a;
+        }
+        g.stroke();
+      }
+      g.globalAlpha = 1;
+      for (let k = r.N - 1; k >= 0; k--) {
+        const y = r.ys[k];
+        g.fillStyle = t.copies[k % 10];
+        g.beginPath();
+        g.arc(A.X(wrap(y[0])), A.Y(y[2]), 3 * dpr, 0, Math.PI * 2);
+        g.fill();
+      }
+      g.restore();
+    }
+    // Poincaré kesiti
+    const B = panels[1];
+    if (B.box) {
+      g.save();
+      g.beginPath(); g.rect(...B.box); g.clip();
+      const pts = r.poin, sz = 2.2 * dpr;
+      for (let i = 0; i < pts.length; i += 3) {
+        g.fillStyle = t.copies[pts[i] % 10];
+        g.fillRect(B.X(pts[i + 1]) - sz / 2, B.Y(pts[i + 2]) - sz / 2, sz, sz);
+      }
+      g.restore();
+      g.fillStyle = t.muted;
+      g.textAlign = "right";
+      g.fillText(`${pts.length / 3} nokta`, W - 8 * dpr, pad.t + 12 * dpr);
+    }
+  }
+
+  /* ── Döngü ── */
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (running && !drag && !paused) {
+      acc += elapsed;
+      let n = Math.floor(acc / run.h);
+      const cap = Math.floor(STEP_BUDGET / run.N);
+      slowed = n > cap;
+      if (slowed) { n = cap; acc = 0; } else acc -= n * run.h;
+      for (let i = 0; i < n; i++) {
+        stepRun(run);
+        if (run.t >= nextTrail - run.h / 2) pushTrails();
+      }
+    }
+    if (lyap && !lyap.done && !paused) {
+      const t0 = performance.now();
+      do advanceLyap(lyap, 1000); while (!lyap.done && performance.now() - t0 < 5);
+    }
+    updateReadouts(false);
+    drawStage();
+    drawChart();
+    drawPhase();
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  function setRunning(v) {
+    running = v;
+    ui.toggle.textContent = v ? "Duraklat" : "Başlat";
+    ui.toggle.setAttribute("aria-pressed", String(!v));
+  }
+  function syncSliders() {
+    ui.t1.value = Math.round(wrap(init.t1) * R2D);
+    ui.t2.value = Math.round(wrap(init.t2) * R2D);
+    showInit();
+  }
+  function applyPreset(name) {
+    readParams();
+    const md = modes(P);
+    if (name === "mode1" || name === "mode2") {
+      const A = name === "mode1" ? 5 : 3, ratio = name === "mode1" ? md.r1 : md.r2;
+      const scale = Math.min(1, Math.SQRT2 / Math.abs(ratio));
+      init.t1 = A * scale * D2R;
+      init.t2 = A * scale * ratio * D2R;
+    } else if (name === "chaos") {
+      init.t1 = 120 * D2R; init.t2 = -20 * D2R;
+    } else {
+      init.t1 = 170 * D2R; init.t2 = 170 * D2R;
+    }
+    setPreset(name);
+    syncSliders();
+    restart(false);
+    setRunning(true);
+  }
+  ui.presets.mode1.addEventListener("click", () => applyPreset("mode1"));
+  ui.presets.mode2.addEventListener("click", () => applyPreset("mode2"));
+  ui.presets.chaos.addEventListener("click", () => applyPreset("chaos"));
+  ui.presets.high.addEventListener("click", () => applyPreset("high"));
+  ui.toggle.addEventListener("click", () => setRunning(!running));
+  ui.reset.addEventListener("click", () => { restart(false); setRunning(true); });
+  [ui.t1, ui.t2].forEach((el) => el.addEventListener("input", () => {
+    init.t1 = Number(ui.t1.value) * D2R;
+    init.t2 = Number(ui.t2.value) * D2R;
+    setPreset(null);
+    showInit();
+    restart(false);
+  }));
+  const onParam = () => (preset === "mode1" || preset === "mode2" ? applyPreset(preset) : restart(false));
+  [ui.m1, ui.m2, ui.L1, ui.L2, ui.b, ui.n, ui.delta].forEach((el) => el.addEventListener("input", onParam));
+  [ui.g, ui.dampCheck].forEach((el) => el.addEventListener("change", onParam));
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button, a")) return;
+    if (e.code === "Space") { e.preventDefault(); setRunning(!running); }
+    else if (e.key === "r" || e.key === "R") { restart(false); setRunning(true); }
+  });
+
+  function canvasPoint(evt) {
+    const rect = stage.getBoundingClientRect();
+    return [((evt.clientX - rect.left) / rect.width) * stage.width, ((evt.clientY - rect.top) / rect.height) * stage.height];
+  }
+  // Dokunmatik ekranda yalnız toplara değen parmak sarkacı tutar; başka yerde sayfa kayar.
+  window.AcelyaTouch?.guard(stage, (cx, cy) => {
+    const [px, py] = canvasPoint({ clientX: cx, clientY: cy });
+    const [x1, y1, x2, y2] = bobPositions(run.P, run.ys[0], stageXform());
+    return Math.min(Math.hypot(px - x1, py - y1), Math.hypot(px - x2, py - y2)) <= 44 * dpr;
+  });
+  stage.addEventListener("pointerdown", (evt) => {
+    const [px, py] = canvasPoint(evt), T = stageXform();
+    const [x1, y1, x2, y2] = bobPositions(run.P, run.ys[0], T);
+    const d1 = Math.hypot(px - x1, py - y1), d2 = Math.hypot(px - x2, py - y2), lim = 44 * dpr;
+    if (Math.min(d1, d2) > lim) return;
+    drag = { bob: d2 <= d1 ? 2 : 1, T, x1, y1 };
+    stage.classList.add("is-dragging");
+    stage.setPointerCapture(evt.pointerId);
+    moveDrag(px, py);
+  });
+  function moveDrag(px, py) {
+    const T = drag.T;
+    if (drag.bob === 1) {
+      init.t1 = Math.atan2(px - T.ox, py - T.oy);
+    } else {
+      const x1 = T.ox + run.P.L1 * Math.sin(init.t1) * T.s, y1 = T.oy + run.P.L1 * Math.cos(init.t1) * T.s;
+      init.t2 = Math.atan2(px - x1, py - y1);
+    }
+    setPreset(null);
+    syncSliders();
+    restart(true);
+  }
+  stage.addEventListener("pointermove", (evt) => {
+    if (!drag) return;
+    const [px, py] = canvasPoint(evt);
+    moveDrag(px, py);
+  });
+  const release = () => {
+    if (!drag) return;
+    drag = null;
+    stage.classList.remove("is-dragging");
+    restart(false);
+    setRunning(true);
+  };
+  stage.addEventListener("pointerup", release);
+  stage.addEventListener("pointercancel", release);
+
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  [stage, chart, phase].forEach((c) => ro.observe(c));
+  showInit();
+  restart(false);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

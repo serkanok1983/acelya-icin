@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>İdeal Gaz: Moleküllerden Basınca (Kinetik Teori)</title>
+  <meta name="description" content="Basınç, birim duvar yüzeyine saniyede yağan momentumdur; sıcaklık, ortalama hareket enerjisinin ölçüsü. Düz bir sert disk gazında PV = nRT'nin iki boyutlu hâlini, Maxwell–Boltzmann dağılımını ve ideallikten sapmayı ölç.">
+  <style>
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(270px, 1fr);
+      grid-template-areas: "stage panel" "hist panel" "rest panel";
+      gap: 12px 16px;
+      align-items: start;
+    }
+    .lab-stage { grid-area: stage; min-width: 0; }
+    .lab-hist { grid-area: hist; min-width: 0; }
+    .lab-rest { grid-area: rest; display: grid; gap: 12px; min-width: 0; }
+    .lab > .panel { grid-area: panel; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: pan-y;
+      cursor: crosshair;
+    }
+    .sim-canvas.near-piston { cursor: ew-resize; }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 5 / 2;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .chart-canvas.is-time { aspect-ratio: 2 / 1; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field input[type="range"]:disabled { opacity: 0.45; }
+    .field select { padding: 6px 8px; font: inherit; }
+    .field .sub { font-size: 0.74rem; color: var(--text-muted); }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.86rem; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.7rem; letter-spacing: 0.02em; }
+    .readout small .sym { text-transform: none; }
+    .readout strong { font-size: 1.05rem; font-variant-numeric: tabular-nums; color: var(--text) !important; }
+    .readout em { font-style: normal; font-size: 0.74rem; font-variant-numeric: tabular-nums; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .table-wrap { border-radius: 12px; margin: 10px 0; }
+    body.app-page table.meas { width: 100%; margin: 0; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+    body.app-page table.meas th,
+    body.app-page table.meas td { padding: 6px 8px; vertical-align: top; }
+    body.app-page table.meas thead th { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    body.app-page table.meas tbody th { background: var(--bg-card) !important; color: var(--text) !important; text-align: left; font-weight: 600; }
+    body.app-page table.meas tbody th small,
+    body.app-page table.meas td small { display: block; margin-top: 2px; font-size: 0.7rem; font-weight: 400; color: var(--text-muted); }
+    body.app-page table.meas td.th { color: var(--text-muted) !important; }
+    body.app-page table.meas td.diff { color: var(--accent-warm) !important; white-space: nowrap; }
+    .note { font-size: 0.8rem; line-height: 1.5; margin: 0; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "hist" "panel" "rest"; }
+    }
+    @media (max-width: 420px) {
+      body.app-page table.meas { font-size: 0.76rem; }
+      body.app-page table.meas th,
+      body.app-page table.meas td { padding: 5px 5px; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="ideal-gaz">
+
+<div class="app-content">
+  <h1>İdeal Gaz: Moleküllerden Basınca</h1>
+  <p class="hint">İki boyutlu kutudaki her disk argon benzeri bir atomdur; duvarlara ve birbirine esnek çarpar, basınç duvarlara aktarılan momentumdan ölçülür. Pistonu sağdan sürükle, sıcaklığı değiştir ve “Herkese aynı hız” düğmesiyle hız dağılımının birkaç çarpışmada Maxwell–Boltzmann biçimine dönüşünü izle.</p>
+
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="gasCanvas" class="sim-canvas" width="900" height="506" role="img" aria-label="İki boyutlu gaz kutusu: renkleri hızlarına göre değişen diskler, sağda sürüklenebilir piston"></canvas>
+    </div>
+
+    <div class="lab-hist">
+      <canvas id="speedChart" class="chart-canvas" width="900" height="360" role="img" aria-label="Anlık hız histogramı ve iki boyutlu Maxwell–Boltzmann dağılımı"></canvas>
+    </div>
+
+    <div class="panel" aria-label="Kontroller">
+      <h2>Deney ayarları</h2>
+      <div class="field">
+        <label for="gasSelect">Gaz (atom kütlesi) <output id="gasOut" for="gasSelect">39.95 u</output></label>
+        <select id="gasSelect">
+          <option value="He">Helyum · 4.00 u</option>
+          <option value="Ne">Neon · 20.18 u</option>
+          <option value="Ar" selected>Argon · 39.95 u</option>
+          <option value="Kr">Kripton · 83.80 u</option>
+          <option value="Xe">Ksenon · 131.29 u</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="nRange">Molekül sayısı N <output id="nOut" for="nRange">200</output></label>
+        <input type="range" id="nRange" min="20" max="400" step="10" value="200">
+      </div>
+      <div class="field">
+        <label for="dRange">Disk çapı d <output id="dOut" for="dRange">0.34 nm</output></label>
+        <input type="range" id="dRange" min="0.1" max="1.5" step="0.02" value="0.34">
+      </div>
+      <div class="field">
+        <label for="tRange">Termostat sıcaklığı T <output id="tOut" for="tRange">300 K</output></label>
+        <input type="range" id="tRange" min="50" max="1200" step="10" value="300">
+      </div>
+      <label class="check" for="thermoCheck"><input type="checkbox" id="thermoCheck" checked> Termostat açık (kapalıyken gaz yalıtılmış)</label>
+      <div class="row">
+        <button type="button" id="heatBtn">Isıt (enerji ×1.25)</button>
+        <button type="button" id="coolBtn">Soğut (enerji ×0.8)</button>
+      </div>
+      <div class="field">
+        <label for="wRange">Kutu genişliği W <output id="wOut" for="wRange">40.0 nm</output></label>
+        <input type="range" id="wRange" min="8" max="60" step="0.5" value="40">
+        <span class="sub" id="wNote">En dar kutu: 8.0 nm</span>
+      </div>
+      <div class="field">
+        <label for="uRange">Piston hızı <output id="uOut" for="uRange">25 m/s</output></label>
+        <input type="range" id="uRange" min="5" max="200" step="5" value="25">
+      </div>
+      <div class="field">
+        <label for="speedRange">Simülasyon hızı <output id="speedOut" for="speedRange">50 ps/s</output></label>
+        <input type="range" id="speedRange" min="5" max="200" step="5" value="50">
+      </div>
+      <label class="check" for="tracerCheck"><input type="checkbox" id="tracerCheck" checked> Bir molekülün yolunu çiz</label>
+      <div class="row">
+        <button type="button" id="sameBtn">Herkese aynı hız</button>
+        <button type="button" id="toggleBtn" aria-pressed="false">Duraklat</button>
+        <button type="button" id="resetBtn">Sıfırla</button>
+      </div>
+      <p class="note">Bu gaz iki boyutludur: hacim yerine alan A vardır, basınç birim uzunluğa düşen kuvvettir (1 mN/m = 10⁻³ N/m) ve ideal gaz yasası P·A = N·k<sub>B</sub>·T olur. İki serbestlik derecesi olduğundan molekül başına ortalama kinetik enerji k<sub>B</sub>·T’dir.</p>
+      <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat, <kbd>R</kbd> sıfırla. Kutuya dokunursan en yakın molekülün yolunu izlersin. N ya da d değişince moleküller yeniden yerleştirilir; gaz değişince konumlar korunur, hızlar aynı sıcaklığa göre ölçeklenir.</p>
+    </div>
+
+    <div class="lab-rest">
+      <canvas id="timeChart" class="chart-canvas is-time" width="900" height="450" role="img" aria-label="Basınç ve sıcaklığın zamanla değişimi"></canvas>
+      <div aria-live="polite">
+        <div class="readouts">
+          <div class="readout"><small>Molekül sayısı N</small><strong id="nCard">—</strong><em id="nDensity">—</em></div>
+          <div class="readout"><small>Alan A = W·H</small><strong id="aCard">—</strong><em id="whCard">—</em></div>
+          <div class="readout"><small>Doluluk <span class="sym">η</span></small><strong id="etaCard">—</strong><em id="etaInCard">—</em></div>
+          <div class="readout"><small>Ölçüm süresi</small><strong id="winCard">—</strong><em id="winNote">—</em></div>
+        </div>
+        <div class="table-wrap">
+          <table class="meas">
+            <caption class="visually-hidden">Ölçülen ve kuramsal değerler</caption>
+            <thead>
+              <tr><th scope="col">Büyüklük</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Fark</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Sıcaklık T<small id="tKind">kuram: termostat hedefi</small></th><td id="tMeas">—</td><td class="th" id="tTh">—</td><td class="diff" id="tDiff">—</td></tr>
+              <tr><th scope="row">Basınç P<small>kuram: ideal, N·k<sub>B</sub>·T/A</small></th><td id="pMeas">—</td><td class="th" id="pTh">—</td><td class="diff" id="pDiff">—</td></tr>
+              <tr><th scope="row">Z = P·A/(N·k<sub>B</sub>·T)<small>kuram: Henderson, iç bölge</small></th><td id="zMeas">—</td><td class="th" id="zTh">—</td><td class="diff" id="zDiff">—</td></tr>
+              <tr><th scope="row">Ortalama serbest yol λ<small>1/(2√2·n·d·g)</small></th><td id="lMeas">—</td><td class="th" id="lTh">—</td><td class="diff" id="lDiff">—</td></tr>
+              <tr><th scope="row">Çarpışmalar arası süre τ<small>λ/⟨v⟩</small></th><td id="tauMeas">—</td><td class="th" id="tauTh">—</td><td class="diff" id="tauDiff">—</td></tr>
+              <tr><th scope="row">En olası hız v<sub>p</sub><small>√(k<sub>B</sub>T/m)</small></th><td id="vpMeas">—</td><td class="th" id="vpTh">—</td><td class="diff" id="vpDiff">—</td></tr>
+              <tr><th scope="row">Ortalama hız ⟨v⟩<small>√(πk<sub>B</sub>T/2m)</small></th><td id="vmMeas">—</td><td class="th" id="vmTh">—</td><td class="diff" id="vmDiff">—</td></tr>
+              <tr><th scope="row">Kök ortalama kare hız v<sub>rms</sub><small>√(2k<sub>B</sub>T/m)</small></th><td id="vrMeas">—</td><td class="th" id="vrTh">—</td><td class="diff" id="vrDiff">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="readouts">
+          <div class="readout"><small>Piston işi W</small><strong id="workCard">—</strong></div>
+          <div class="readout"><small>Isı Q</small><strong id="heatCard">—</strong></div>
+          <div class="readout is-highlight"><small>İç enerji ΔU</small><strong id="duCard">—</strong><em id="lawCard">—</em></div>
+        </div>
+      </div>
+      <p class="note">Ölçüm, son ayar değişikliğinden beri birikir; piston hareket ederken yeniden başlar. Basınç, duvarların köşelerden 3d uzak kısımlarına aktarılan momentumdan ölçülür. Z kuramı Henderson hal denklemidir: Z = (1 + η²/8)/(1 − η)². Duvar dibinde moleküller katmanlaştığından kuram ve λ, τ ölçümleri duvarlardan 3d uzaktaki iç bölgenin yoğunluğuna dayanır. İki boyutta çarpışma kesiti σ = 2d bir uzunluktur, λ = 1/(√2·n·σ); yoğun gazda temas değeri g = (1 − 7η/16)/(1 − η)² ile bölünür. Termostat kapalıyken sıcaklık kuramı tersinir adyabattır: seyreltik gazda T·A ≈ sabit (γ = 2). Enerji defteri ΔU = W + Q’yu izler; sıfırlamada ve termostat değişince yeniden başlar.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ── Fizik çekirdeği ── */
+  // Birimler: uzunluk nm, zaman ps, kütle u. 1 u·nm²/ps² = 1.66054e-21 J, 1 nm/ps = 1000 m/s.
+  const KB = 0.00831446262;      // k_B = 1.380649e-23 J/K
+  const MN_PER_M = 1.66053907;   // 1 u/ps² = 1.66053907 mN/m
+  const NMAX = 400;
+  const K_PAIR = 0, K_LEFT = 1, K_PISTON = 2, K_BOTTOM = 3, K_TOP = 4;
+  const K_XP = 5, K_XM = 6, K_YP = 7, K_YM = 8, K_NONE = 9;
+
+  // Sert disk akışkanı: Henderson (1975) hal denklemi ve temas değeri g(d) = (Z − 1)/(2η)
+  function hendersonZ(eta) { const q = 1 - eta; return (1 + (eta * eta) / 8) / (q * q); }
+  function contactG(eta) { const q = 1 - eta; return (1 - (7 * eta) / 16) / (q * q); }
+  // Tersinir adyabat: dT/T = Z(η)·dη/η  →  ln T − F(η) sabit
+  function adiabatF(eta) { return Math.log(eta) - 0.875 * Math.log(1 - eta) + 1.125 / (1 - eta); }
+
+  function createGas(opt) {
+    const H = opt.H, W_MAX = opt.wMax, DT = opt.dt;
+    const rnd = opt.random || Math.random;
+    const BLOCK = 50, SHORT = 100, HBINS = 200, HUMAX = 5, RING = 4096, MAX_EVENTS = 400000;
+    const x = new Float64Array(NMAX), y = new Float64Array(NMAX);
+    const vx = new Float64Array(NMAX), vy = new Float64Array(NMAX), tl = new Float64Array(NMAX);
+    const cnt = new Int32Array(NMAX), cellOf = new Int32Array(NMAX), nxt = new Int32Array(NMAX), prv = new Int32Array(NMAX);
+    const evT = new Float64Array(NMAX), evK = new Uint8Array(NMAX), evJ = new Int32Array(NMAX);
+    const evC = new Int32Array(NMAX), evE = new Int32Array(NMAX);
+    const heap = new Int32Array(NMAX), hpos = new Int32Array(NMAX);
+    const shortJ = new Float64Array(SHORT), shortL = new Float64Array(SHORT);
+    const hist = new Float64Array(HBINS);
+    const ring = {
+      n: 0, size: RING,
+      t: new Float64Array(RING), P: new Float64Array(RING), Pid: new Float64Array(RING),
+      T: new Float64Array(RING), Tth: new Float64Array(RING),
+    };
+    let head = new Int32Array(1), ncx = 1, ncy = 1, csx = 1, csy = 1, d2 = 0;
+    let speedSum = 0, jTick = 0, cTick = 0, cInTick = 0, dTick = 0, wTick = 0, shortSumJ = 0, shortSumL = 0;
+    let win = null;
+
+    const g = {
+      x, y, vx, vy, tl, ring, H, W_MAX, DT,
+      N: 0, d: 0.34, m: 39.95, t: 0, ticks: 0,
+      xp0: 40, tp0: 0, u: 0, epoch: 0, wTarget: 40, uMax: 0.05,
+      thermostat: true, Tset: 300, tauT: 5, marginD: 3,
+      T: 300, Tref: 300, etaRef: 0.01,
+      tracer: 0, trail: [],
+      events: 0, pairs: 0, work: 0, heat: 0, overflow: false,
+    };
+
+    const pistonX = (t) => g.xp0 + g.u * (t - g.tp0);
+    // Basınç, duvarların köşelerden marginD·d uzak orta kısımlarında ölçülür (köşede dizilim farklıdır)
+    const onSide = (s, len) => s >= g.marginD * g.d && s <= len - g.marginD * g.d;
+    g.pistonX = pistonX;
+    g.width = () => pistonX(g.t);
+    g.area = () => pistonX(g.t) * H;
+    g.etaOf = (w) => (g.N * Math.PI * d2) / (4 * w * H);
+    g.eta = () => g.etaOf(pistonX(g.t));
+
+    /* Hücre listesi: hücre kenarı ≥ d, böylece çarpışacak çift komşu hücrelerdedir */
+    function setupGrid() {
+      const cs = Math.max(g.d * 1.02, Math.sqrt((1.6 * W_MAX * H) / Math.max(1, g.N)));
+      ncx = Math.max(1, Math.floor(W_MAX / cs));
+      ncy = Math.max(1, Math.floor(H / cs));
+      csx = W_MAX / ncx;
+      csy = H / ncy;
+      head = new Int32Array(ncx * ncy).fill(-1);
+    }
+    function cellIndex(px, py) {
+      let cx = Math.floor(px / csx), cy = Math.floor(py / csy);
+      cx = cx < 0 ? 0 : cx >= ncx ? ncx - 1 : cx;
+      cy = cy < 0 ? 0 : cy >= ncy ? ncy - 1 : cy;
+      return cy * ncx + cx;
+    }
+    function link(i, c) {
+      cellOf[i] = c;
+      prv[i] = -1;
+      nxt[i] = head[c];
+      if (head[c] >= 0) prv[head[c]] = i;
+      head[c] = i;
+    }
+    function unlink(i) {
+      if (prv[i] >= 0) nxt[prv[i]] = nxt[i];
+      else head[cellOf[i]] = nxt[i];
+      if (nxt[i] >= 0) prv[nxt[i]] = prv[i];
+    }
+
+    /* Olay kuyruğu: her molekülün en erken olayı, indeksli ikili yığında */
+    function heapUp(p) {
+      const i = heap[p], t = evT[i];
+      while (p > 0) {
+        const q = (p - 1) >> 1, k = heap[q];
+        if (evT[k] <= t) break;
+        heap[p] = k; hpos[k] = p; p = q;
+      }
+      heap[p] = i; hpos[i] = p;
+    }
+    function heapDown(p) {
+      const n = g.N, i = heap[p], t = evT[i];
+      for (;;) {
+        let c = 2 * p + 1;
+        if (c >= n) break;
+        if (c + 1 < n && evT[heap[c + 1]] < evT[heap[c]]) c++;
+        const k = heap[c];
+        if (evT[k] >= t) break;
+        heap[p] = k; hpos[k] = p; p = c;
+      }
+      heap[p] = i; hpos[i] = p;
+    }
+    function heapFix(i) { heapUp(hpos[i]); heapDown(hpos[i]); }
+    function heapBuild() {
+      for (let i = 0; i < g.N; i++) { heap[i] = i; hpos[i] = i; }
+      for (let p = (g.N >> 1) - 1; p >= 0; p--) heapDown(p);
+    }
+
+    function sync(i) {
+      const dt = g.t - tl[i];
+      if (dt !== 0) { x[i] += vx[i] * dt; y[i] += vy[i] * dt; tl[i] = g.t; }
+    }
+    function syncAll() {
+      const xp = pistonX(g.t);
+      for (let i = 0; i < g.N; i++) {
+        sync(i);
+        if (x[i] < 0) x[i] = 0; else if (x[i] > xp) x[i] = xp;
+        if (y[i] < 0) y[i] = 0; else if (y[i] > H) y[i] = H;
+      }
+    }
+
+    // Molekül i'nin (konumu g.t anına eşitlenmiş) bir sonraki olayı
+    function predict(i) {
+      const t0 = g.t, xi = x[i], yi = y[i], vxi = vx[i], vyi = vy[i];
+      let best = Infinity, kind = K_NONE, partner = -1, pc = 0;
+      if (vxi < 0) { const dt = xi > 0 ? -xi / vxi : 0; if (dt < best) { best = dt; kind = K_LEFT; } }
+      const rel = vxi - g.u;
+      if (rel > 0) {
+        const gap = pistonX(t0) - xi;
+        const dt = gap > 0 ? gap / rel : 0;
+        if (dt < best) { best = dt; kind = K_PISTON; }
+      }
+      if (vyi < 0) { const dt = yi > 0 ? -yi / vyi : 0; if (dt < best) { best = dt; kind = K_BOTTOM; } }
+      else if (vyi > 0) { const dt = yi < H ? (H - yi) / vyi : 0; if (dt < best) { best = dt; kind = K_TOP; } }
+      const c = cellOf[i], cx = c % ncx, cy = (c - cx) / ncx;
+      if (vxi > 0 && cx < ncx - 1) { const dt = Math.max(0, ((cx + 1) * csx - xi) / vxi); if (dt < best) { best = dt; kind = K_XP; } }
+      else if (vxi < 0 && cx > 0) { const dt = Math.max(0, (cx * csx - xi) / vxi); if (dt < best) { best = dt; kind = K_XM; } }
+      if (vyi > 0 && cy < ncy - 1) { const dt = Math.max(0, ((cy + 1) * csy - yi) / vyi); if (dt < best) { best = dt; kind = K_YP; } }
+      else if (vyi < 0 && cy > 0) { const dt = Math.max(0, (cy * csy - yi) / vyi); if (dt < best) { best = dt; kind = K_YM; } }
+      const y0 = cy > 0 ? cy - 1 : 0, y1 = cy < ncy - 1 ? cy + 1 : cy;
+      const x0 = cx > 0 ? cx - 1 : 0, x1 = cx < ncx - 1 ? cx + 1 : cx;
+      for (let ny = y0; ny <= y1; ny++) {
+        for (let nx = x0; nx <= x1; nx++) {
+          for (let j = head[ny * ncx + nx]; j >= 0; j = nxt[j]) {
+            if (j === i) continue;
+            const lag = t0 - tl[j];
+            const dx = x[j] + vx[j] * lag - xi, dy = y[j] + vy[j] * lag - yi;
+            const dvx = vx[j] - vxi, dvy = vy[j] - vyi;
+            const b = dx * dvx + dy * dvy;
+            if (b >= 0) continue;
+            const v2 = dvx * dvx + dvy * dvy;
+            const s2 = dx * dx + dy * dy - d2;
+            const disc = b * b - v2 * s2;
+            if (disc < 0) continue;
+            const dt = s2 > 0 ? s2 / (-b + Math.sqrt(disc)) : 0;
+            if (dt < best) { best = dt; kind = K_PAIR; partner = j; pc = cnt[j]; }
+          }
+        }
+      }
+      evT[i] = t0 + best;
+      evK[i] = kind;
+      evJ[i] = partner;
+      evC[i] = pc;
+      evE[i] = g.epoch;
+    }
+
+    function rebuildEvents() {
+      syncAll();
+      for (let i = 0; i < g.N; i++) predict(i);
+      heapBuild();
+    }
+
+    function markTrail() {
+      const i = g.tracer;
+      if (i >= g.N) return;
+      g.trail.push(x[i] + vx[i] * (g.t - tl[i]), y[i] + vy[i] * (g.t - tl[i]));
+      if (g.trail.length > 160) g.trail.splice(0, g.trail.length - 160);
+    }
+
+    const speedOf = (i) => Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i]);
+
+    function handle(i) {
+      const kind = evK[i];
+      sync(i);
+      if (kind === K_PAIR) {
+        const j = evJ[i];
+        if (cnt[j] !== evC[i]) { predict(i); heapFix(i); return; }
+        sync(j);
+        const dx = x[j] - x[i], dy = y[j] - y[i];
+        const dvx = vx[j] - vx[i], dvy = vy[j] - vy[i];
+        const b = dx * dvx + dy * dvy;
+        if (b < 0) {
+          // Eşit kütleler: merkezler doğrultusundaki hız bileşenleri yer değiştirir
+          speedSum -= speedOf(i) + speedOf(j);
+          const f = b / (dx * dx + dy * dy);
+          vx[i] += f * dx; vy[i] += f * dy;
+          vx[j] -= f * dx; vy[j] -= f * dy;
+          speedSum += speedOf(i) + speedOf(j);
+          cTick++;
+          g.pairs++;
+          const mg = g.marginD * g.d, cx = x[i] + 0.5 * dx, cy = y[i] + 0.5 * dy;
+          if (cx >= mg && cx <= pistonX(g.t) - mg && cy >= mg && cy <= H - mg) cInTick++;
+        }
+        cnt[i]++;
+        cnt[j]++;
+        if (i === g.tracer || j === g.tracer) markTrail();
+        predict(i); heapFix(i);
+        predict(j); heapFix(j);
+        return;
+      }
+      if (kind === K_PISTON && evE[i] !== g.epoch) { predict(i); heapFix(i); return; }
+      switch (kind) {
+        case K_LEFT:
+          if (onSide(y[i], H)) jTick += 2 * g.m * Math.abs(vx[i]);
+          vx[i] = Math.abs(vx[i]); x[i] = 0; cnt[i]++;
+          break;
+        case K_PISTON: {
+          const rel = vx[i] - g.u;
+          if (rel > 0) {
+            // Hareketli duvar: duvarın çerçevesinde yansıma, v' = 2u − v
+            const v0 = vx[i], s0 = speedOf(i);
+            vx[i] = 2 * g.u - v0;
+            if (onSide(y[i], H)) jTick += 2 * g.m * rel;
+            wTick += 0.5 * g.m * (vx[i] * vx[i] - v0 * v0);
+            speedSum += speedOf(i) - s0;
+          }
+          const xp = pistonX(g.t);
+          if (x[i] > xp) x[i] = xp;
+          cnt[i]++;
+          break;
+        }
+        case K_BOTTOM:
+          if (onSide(x[i], pistonX(g.t))) jTick += 2 * g.m * Math.abs(vy[i]);
+          vy[i] = Math.abs(vy[i]); y[i] = 0; cnt[i]++;
+          break;
+        case K_TOP:
+          if (onSide(x[i], pistonX(g.t))) jTick += 2 * g.m * Math.abs(vy[i]);
+          vy[i] = -Math.abs(vy[i]); y[i] = H; cnt[i]++;
+          break;
+        case K_XP: unlink(i); link(i, cellOf[i] + 1); break;
+        case K_XM: unlink(i); link(i, cellOf[i] - 1); break;
+        case K_YP: unlink(i); link(i, cellOf[i] + ncx); break;
+        case K_YM: unlink(i); link(i, cellOf[i] - ncx); break;
+        default: break;
+      }
+      if (kind <= K_TOP && i === g.tracer) markTrail();
+      predict(i); heapFix(i);
+    }
+
+    function runEvents(tStop) {
+      let n = 0;
+      while (g.N > 0) {
+        const i = heap[0], te = evT[i];
+        if (te > tStop) break;
+        if (te > g.t) { dTick += speedSum * (te - g.t); g.t = te; }
+        handle(i);
+        if (++n > MAX_EVENTS) { g.overflow = true; g.events += n; return false; }
+      }
+      if (tStop > g.t) { dTick += speedSum * (tStop - g.t); g.t = tStop; }
+      g.events += n;
+      return true;
+    }
+
+    /* Ölçüm penceresi: son sıfırlamadan bu yana birikir */
+    function resetWindow() {
+      win = {
+        time: 0, J: 0, Lam: 0, I: 0, aBox: 0, D: 0, C: 0, Tsum: 0, Tth: 0,
+        nIn: 0, aIn: 0, dIn: 0, cIn: 0,
+        vbar: 0, vbarTh: 0, vpTh: 0, vrms: 0, histN: 0,
+        bJ: 0, bI: 0, bTicks: 0, bn: 0, bMean: 0, bM2: 0,
+      };
+      hist.fill(0);
+    }
+    g.resetWindow = resetWindow;
+
+    function kineticSums() {
+      let v2 = 0, s = 0;
+      for (let i = 0; i < g.N; i++) { const q = vx[i] * vx[i] + vy[i] * vy[i]; v2 += q; s += Math.sqrt(q); }
+      return { v2, s };
+    }
+    g.currentT = () => (0.5 * g.m * kineticSums().v2) / (g.N * KB);
+    g.theoryT = () => (g.thermostat ? g.Tset : g.Tref * Math.exp(adiabatF(g.eta()) - adiabatF(g.etaRef)));
+
+    function tick() {
+      g.ticks++;
+      syncAll();
+      const N = g.N;
+      const ks = kineticSums();
+      speedSum = ks.s;
+      const T = (0.5 * g.m * ks.v2) / (N * KB);
+      g.T = T;
+      const xpEnd = pistonX(g.t), moving = g.u !== 0;
+      const xpMid = xpEnd - 0.5 * g.u * DT;
+      const mg = g.marginD * g.d;
+      const A = xpMid * H, L = 2 * (Math.max(0, xpMid - 2 * mg) + Math.max(0, H - 2 * mg));
+      const n = N / A, eta = (N * Math.PI * d2) / (4 * A);
+      const Pid = (N * KB * T) / A;
+      const I = Pid * L * DT;
+      const k = g.ticks % SHORT;
+      shortSumJ += jTick - shortJ[k];
+      shortSumL += L * DT - shortL[k];
+      shortJ[k] = jTick;
+      shortL[k] = L * DT;
+
+      if (moving) resetWindow();
+      const w = win;
+      const vp = Math.sqrt((KB * T) / g.m);
+      // İç bölge: duvarlardan marginD·d uzaktaki dikdörtgen (duvar dibindeki katmanlanma dışarıda kalır)
+      const ix1 = xpEnd - mg, iy1 = H - mg;
+      if (ix1 - mg > 2 * g.d && iy1 - mg > 2 * g.d) {
+        let nIn = 0, sIn = 0;
+        for (let i = 0; i < N; i++) {
+          if (x[i] >= mg && x[i] <= ix1 && y[i] >= mg && y[i] <= iy1) { nIn++; sIn += speedOf(i); }
+        }
+        w.nIn += nIn * DT; w.aIn += (ix1 - mg) * (iy1 - mg) * DT; w.dIn += sIn * DT; w.cIn += cInTick;
+      }
+      w.time += DT;
+      w.J += jTick; w.Lam += L * DT; w.I += I; w.aBox += A * DT;
+      w.D += dTick; w.C += cTick;
+      w.Tsum += T * DT;
+      w.vbar += (ks.s / N) * DT;
+      w.vbarTh += Math.sqrt(Math.PI / 2) * vp * DT;
+      w.vpTh += vp * DT;
+      w.vrms += Math.sqrt(ks.v2 / N) * DT;
+      if (vp > 0) {
+        const scale = HBINS / (HUMAX * vp);
+        for (let i = 0; i < N; i++) {
+          const b = Math.floor(speedOf(i) * scale);
+          if (b < HBINS) hist[b]++;
+        }
+        w.histN += N;
+      }
+      w.bJ += jTick; w.bI += I; w.bTicks++;
+      if (w.bTicks === BLOCK) {
+        const r = w.bJ / w.bI;
+        w.bn++;
+        const delta = r - w.bMean;
+        w.bMean += delta / w.bn;
+        w.bM2 += delta * (r - w.bMean);
+        w.bJ = 0; w.bI = 0; w.bTicks = 0;
+      }
+      if (g.thermostat) { g.Tref = T; g.etaRef = eta; }
+      const Tth = g.thermostat ? g.Tset : g.Tref * Math.exp(adiabatF(eta) - adiabatF(g.etaRef));
+      w.Tth += Tth * DT;
+
+      const ri = ring.n % RING;
+      ring.t[ri] = g.t;
+      ring.P[ri] = g.ticks >= 20 ? (shortSumJ / shortSumL) * MN_PER_M : NaN;
+      ring.Pid[ri] = Pid * MN_PER_M;
+      ring.T[ri] = T;
+      ring.Tth[ri] = Tth;
+      ring.n++;
+
+      g.work += wTick;
+      jTick = 0; cTick = 0; cInTick = 0; dTick = 0; wTick = 0;
+
+      let rebuild = false;
+      if (g.thermostat && T > 0) {
+        // Berendsen: T, τ_T zaman sabitiyle hedefe çekilir; ısı Q = ΔKE
+        const lam2 = Math.max(0.25, 1 + (DT / g.tauT) * (g.Tset / T - 1));
+        if (lam2 !== 1) {
+          const lam = Math.sqrt(lam2);
+          for (let i = 0; i < N; i++) { vx[i] *= lam; vy[i] *= lam; }
+          speedSum *= lam;
+          g.heat += 0.5 * g.m * ks.v2 * (lam2 - 1);
+          rebuild = true;
+        }
+      }
+      g.xp0 = xpEnd;
+      g.tp0 = g.t;
+      const gap = g.wTarget - xpEnd;
+      const uNew = Math.abs(gap) < 1e-9 ? 0 : Math.sign(gap) * Math.min(g.uMax, Math.abs(gap) / DT);
+      if (uNew !== g.u) { g.u = uNew; g.epoch++; rebuild = true; }
+      if (rebuild) rebuildEvents();
+    }
+
+    // Simülasyon zamanını dt kadar ilerletir; termostat, piston ve ölçüm DT adımlarında güncellenir.
+    g.advance = function (dt) {
+      const tEnd = g.t + dt;
+      for (;;) {
+        const tb = (g.ticks + 1) * DT;
+        if (tb <= tEnd) {
+          if (!runEvents(tb)) return false;
+          tick();
+        } else {
+          return runEvents(tEnd);
+        }
+      }
+    };
+
+    /* Başlangıç durumu */
+    function overlaps(px, py) {
+      const c = cellIndex(px, py), cx = c % ncx, cy = (c - cx) / ncx;
+      for (let ny = Math.max(0, cy - 1); ny <= Math.min(ncy - 1, cy + 1); ny++) {
+        for (let nx = Math.max(0, cx - 1); nx <= Math.min(ncx - 1, cx + 1); nx++) {
+          for (let j = head[ny * ncx + nx]; j >= 0; j = nxt[j]) {
+            const dx = x[j] - px, dy = y[j] - py;
+            if (dx * dx + dy * dy < d2 * 1.0001) return true;
+          }
+        }
+      }
+      return false;
+    }
+    // Üçgen örgü: yoğun gazda rastgele yerleştirme tıkanınca kullanılır
+    function latticeSites(a, W, out) {
+      const ry = (a * Math.sqrt(3)) / 2, rows = Math.floor(H / ry) + 1;
+      let n = 0;
+      for (let r = 0; r < rows; r++) {
+        const off = r % 2 ? a / 2 : 0;
+        const cols = W >= off ? Math.floor((W - off) / a) + 1 : 0;
+        for (let c = 0; c < cols; c++) { if (out) out.push(off + c * a, r * ry); n++; }
+      }
+      return n;
+    }
+    function lattice(W) {
+      head.fill(-1);
+      let lo = g.d, hi = Math.max(W, H);
+      for (let k = 0; k < 60; k++) { const mid = 0.5 * (lo + hi); if (latticeSites(mid, W, null) >= g.N) lo = mid; else hi = mid; }
+      const a = lo, sites = [];
+      latticeSites(a, W, sites);
+      const count = sites.length / 2;
+      for (let k = count - 1; k > 0; k--) {
+        const j = Math.floor(rnd() * (k + 1));
+        const tx = sites[2 * k], ty = sites[2 * k + 1];
+        sites[2 * k] = sites[2 * j]; sites[2 * k + 1] = sites[2 * j + 1];
+        sites[2 * j] = tx; sites[2 * j + 1] = ty;
+      }
+      const jit = 0.45 * (a - g.d);
+      for (let i = 0; i < g.N; i++) {
+        const ang = 2 * Math.PI * rnd(), rr = jit * rnd();
+        x[i] = Math.min(W, Math.max(0, sites[2 * i] + rr * Math.cos(ang)));
+        y[i] = Math.min(H, Math.max(0, sites[2 * i + 1] + rr * Math.sin(ang)));
+        link(i, cellIndex(x[i], y[i]));
+      }
+    }
+    function place(W) {
+      head.fill(-1);
+      for (let i = 0; i < g.N; i++) {
+        let ok = false;
+        for (let a = 0; a < 600 && !ok; a++) {
+          const px = rnd() * W, py = rnd() * H;
+          if (!overlaps(px, py)) { x[i] = px; y[i] = py; link(i, cellIndex(px, py)); ok = true; }
+        }
+        if (!ok) { lattice(W); return; }
+      }
+    }
+    function gauss() {
+      let u = 0;
+      while (u === 0) u = rnd();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rnd());
+    }
+
+    g.reset = function (p) {
+      g.N = Math.max(1, Math.min(NMAX, p.N));
+      g.d = p.d; d2 = p.d * p.d; g.m = p.m;
+      g.t = 0; g.ticks = 0; g.u = 0; g.epoch++;
+      g.xp0 = p.W; g.tp0 = 0; g.wTarget = p.W;
+      g.Tset = p.T;
+      g.overflow = false; g.events = 0; g.pairs = 0; g.work = 0; g.heat = 0;
+      setupGrid();
+      place(p.W);
+      const s = Math.sqrt((KB * p.T) / g.m);
+      let v2 = 0;
+      for (let i = 0; i < g.N; i++) {
+        vx[i] = s * gauss(); vy[i] = s * gauss();
+        v2 += vx[i] * vx[i] + vy[i] * vy[i];
+      }
+      const f = Math.sqrt((2 * g.N * KB * p.T) / (g.m * v2));
+      for (let i = 0; i < g.N; i++) { vx[i] *= f; vy[i] *= f; tl[i] = 0; cnt[i] = 0; }
+      speedSum = kineticSums().s;
+      for (let i = 0; i < g.N; i++) predict(i);
+      heapBuild();
+      shortJ.fill(0); shortL.fill(0); shortSumJ = 0; shortSumL = 0;
+      jTick = 0; cTick = 0; cInTick = 0; dTick = 0; wTick = 0;
+      ring.n = 0;
+      g.T = p.T; g.Tref = p.T; g.etaRef = g.eta();
+      g.tracer = Math.min(g.tracer, g.N - 1);
+      g.trail.length = 0;
+      markTrail();
+      resetWindow();
+    };
+
+    function afterVelocityChange() {
+      speedSum = kineticSums().s;
+      rebuildEvents();
+      g.T = g.currentT();
+      g.Tref = g.T;
+      g.etaRef = g.eta();
+      g.trail.length = 0;
+      markTrail();
+      resetWindow();
+    }
+    g.kinetic = () => 0.5 * g.m * kineticSums().v2;
+    g.scaleEnergy = function (factor) {
+      syncAll();
+      g.heat += g.kinetic() * (factor - 1);
+      const s = Math.sqrt(factor);
+      for (let i = 0; i < g.N; i++) { vx[i] *= s; vy[i] *= s; }
+      afterVelocityChange();
+    };
+    g.setMass = function (m) {
+      syncAll();
+      const s = Math.sqrt(g.m / m);
+      g.m = m;
+      for (let i = 0; i < g.N; i++) { vx[i] *= s; vy[i] *= s; }
+      afterVelocityChange();
+    };
+    g.sameSpeed = function () {
+      syncAll();
+      const v0 = Math.sqrt(kineticSums().v2 / g.N);
+      for (let i = 0; i < g.N; i++) {
+        const a = 2 * Math.PI * rnd();
+        vx[i] = v0 * Math.cos(a); vy[i] = v0 * Math.sin(a);
+      }
+      afterVelocityChange();
+    };
+    g.setThermostat = function (on) {
+      g.thermostat = on;
+      g.T = g.currentT();
+      g.Tref = g.T;
+      g.etaRef = g.eta();
+      resetWindow();
+    };
+    g.setTracer = function (i) {
+      g.tracer = i;
+      g.trail.length = 0;
+      markTrail();
+    };
+    g.speed = speedOf;
+
+    // Pencere ortalamaları (birimler: mN/m, K, nm, ps, nm/ps)
+    g.results = function () {
+      const w = win;
+      if (!w || w.time <= 0) return null;
+      const n = (g.N * w.time) / w.aBox;
+      const inner = w.aIn > 0 && w.nIn > 0;
+      const nIn = inner ? w.nIn / w.aIn : n;
+      const etaIn = (nIn * Math.PI * d2) / 4, gIn = contactG(etaIn);
+      const vpTh = w.vpTh / w.time;
+      const out = {
+        time: w.time,
+        P: (w.J / w.Lam) * MN_PER_M,
+        Pid: (w.I / w.Lam) * MN_PER_M,
+        Z: w.J / w.I,
+        eta: (n * Math.PI * d2) / 4,
+        etaIn,
+        // P = n_iç·k_B·T·Z_H(η_iç)  ⇒  P·A/(N·k_B·T) = (n_iç/n)·Z_H(η_iç)
+        ZH: (nIn / n) * hendersonZ(etaIn),
+        zErr: w.bn >= 4 ? Math.sqrt(w.bM2 / (w.bn - 1) / w.bn) : NaN,
+        T: w.Tsum / w.time,
+        Tth: w.Tth / w.time,
+        lam: inner ? (w.cIn > 0 ? w.dIn / (2 * w.cIn) : NaN) : w.C > 0 ? w.D / (2 * w.C) : NaN,
+        lamTh: 1 / (2 * Math.SQRT2 * nIn * g.d * gIn),
+        tau: inner ? (w.cIn > 0 ? w.nIn / (2 * w.cIn) : NaN) : w.C > 0 ? (g.N * w.time) / (2 * w.C) : NaN,
+        tauTh: 1 / (2 * nIn * g.d * gIn * Math.sqrt(Math.PI) * vpTh),
+        collisions: inner ? w.cIn : w.C,
+        vbar: w.vbar / w.time,
+        vbarTh: w.vbarTh / w.time,
+        vpTh,
+        vrms: w.vrms / w.time,
+        vp: NaN,
+      };
+      // Tepe noktası: ln f = a + p·ln u + c·u² eğrisi (ağırlıklı en küçük kareler); tepe u* = √(−p/2c)
+      if (w.histN > 20 * g.N) {
+        const bw = HUMAX / HBINS, S = new Float64Array(9), R = new Float64Array(3);
+        for (let b = 0; b < HBINS; b++) {
+          const h = hist[b], u = (b + 0.5) * bw;
+          if (h < 4 || u < 0.15 || u > 3.5) continue;
+          const f = [1, Math.log(u), u * u], z = Math.log(h);
+          for (let r = 0; r < 3; r++) {
+            R[r] += h * f[r] * z;
+            for (let c = 0; c < 3; c++) S[3 * r + c] += h * f[r] * f[c];
+          }
+        }
+        const det = (m) => m[0] * (m[4] * m[8] - m[5] * m[7]) - m[1] * (m[3] * m[8] - m[5] * m[6]) + m[2] * (m[3] * m[7] - m[4] * m[6]);
+        const D = det(S);
+        if (Math.abs(D) > 1e-300) {
+          const col = (k) => { const m = S.slice(); for (let r = 0; r < 3; r++) m[3 * r + k] = R[r]; return det(m) / D; };
+          const p = col(1), c = col(2);
+          if (p > 0 && c < 0) out.vp = Math.sqrt(-p / (2 * c)) * out.vpTh;
+        }
+      }
+      return out;
+    };
+
+    return g;
+  }
+  /* ── Arayüz ── */
+  const H_BOX = 30, W_MAX = 60, W_MIN = 8, D_MAX = 1.5, ETA_MAX = 0.5, TICK = 1, T_COLOR = 300;
+  const GASES = {
+    He: { m: 4.0026, name: "Helyum" },
+    Ne: { m: 20.18, name: "Neon" },
+    Ar: { m: 39.95, name: "Argon" },
+    Kr: { m: 83.798, name: "Kripton" },
+    Xe: { m: 131.29, name: "Ksenon" },
+  };
+  const ZJ = 1.66053907;          // 1 u·nm²/ps² = 1.66053907 zJ
+  const WIDTH_MB = Math.sqrt(4 / Math.PI - 1);
+  const HIST_BINS = 24;
+  const SPEED_DARK = ["#60a5fa", "#38bdf8", "#22d3ee", "#2dd4bf", "#4ade80", "#a3e635", "#facc15", "#fb923c", "#f87171", "#f472b6"];
+  const SPEED_LIGHT = ["#1d4ed8", "#0369a1", "#0e7490", "#0f766e", "#15803d", "#4d7c0f", "#a16207", "#c2410c", "#b91c1c", "#be185d"];
+
+  const $ = (id) => document.getElementById(id);
+  const stage = $("gasCanvas"), sctx = stage.getContext("2d");
+  const histC = $("speedChart"), hctx = histC.getContext("2d");
+  const timeC = $("timeChart"), tctx = timeC.getContext("2d");
+  const ui = {
+    gas: $("gasSelect"), n: $("nRange"), d: $("dRange"), T: $("tRange"), thermo: $("thermoCheck"),
+    w: $("wRange"), u: $("uRange"), speed: $("speedRange"), tracer: $("tracerCheck"),
+    gasOut: $("gasOut"), nOut: $("nOut"), dOut: $("dOut"), tOut: $("tOut"), wOut: $("wOut"),
+    uOut: $("uOut"), speedOut: $("speedOut"), wNote: $("wNote"),
+    heat: $("heatBtn"), cool: $("coolBtn"), same: $("sameBtn"), toggle: $("toggleBtn"), reset: $("resetBtn"),
+    nCard: $("nCard"), nDensity: $("nDensity"), aCard: $("aCard"), whCard: $("whCard"),
+    etaCard: $("etaCard"), etaInCard: $("etaInCard"), winCard: $("winCard"), winNote: $("winNote"),
+    tKind: $("tKind"),
+    workCard: $("workCard"), heatCard: $("heatCard"), duCard: $("duCard"), lawCard: $("lawCard"),
+  };
+  const cells = {};
+  ["tMeas", "tTh", "tDiff", "pMeas", "pTh", "pDiff", "zMeas", "zTh", "zDiff", "lMeas", "lTh", "lDiff",
+    "tauMeas", "tauTh", "tauDiff", "vpMeas", "vpTh", "vpDiff", "vmMeas", "vmTh", "vmDiff", "vrMeas", "vrTh", "vrDiff"]
+    .forEach((id) => { cells[id] = $(id); });
+
+  const gas = createGas({ H: H_BOX, wMax: W_MAX, dt: TICK });
+  const view = {
+    running: true, simSpeed: 50, dragging: false, dpr: 1, showTracer: true,
+    histMax: 0, vMax: 0, pMax: 0, tMax: 0,
+    ledger: { ke: 0, work: 0, heat: 0 },
+    bucket: new Int8Array(NMAX), counts: new Float64Array(HIST_BINS),
+  };
+
+  const gasMass = () => GASES[ui.gas.value].m;
+  // η ≤ 0.5 sınırını aşmayan en dar kutu (kaydırıcı adımına yukarı yuvarlanmış)
+  function wLimit() {
+    const N = Number(ui.n.value), d = Number(ui.d.value);
+    const raw = (N * Math.PI * d * d) / (4 * ETA_MAX * H_BOX);
+    return Math.min(W_MAX, Math.max(W_MIN, Math.ceil(raw * 2) / 2));
+  }
+  const clampW = (w) => Math.min(W_MAX, Math.max(wLimit(), w));
+
+  function readOutputs() {
+    ui.gasOut.textContent = `${gasMass().toFixed(2)} u`;
+    ui.nOut.textContent = ui.n.value;
+    ui.dOut.textContent = `${Number(ui.d.value).toFixed(2)} nm`;
+    ui.tOut.textContent = `${ui.T.value} K`;
+    ui.wOut.textContent = `${Number(ui.w.value).toFixed(1)} nm`;
+    ui.uOut.textContent = `${ui.u.value} m/s`;
+    ui.speedOut.textContent = `${ui.speed.value} ps/s`;
+    ui.T.disabled = !ui.thermo.checked;
+    const lim = wLimit();
+    ui.wNote.textContent = lim > W_MIN
+      ? `En dar kutu: ${lim.toFixed(1)} nm (doluluk η en çok ${ETA_MAX.toFixed(2)})`
+      : `En dar kutu: ${W_MIN.toFixed(1)} nm`;
+  }
+
+  function resetLedger() {
+    view.ledger = { ke: gas.kinetic(), work: gas.work, heat: gas.heat };
+  }
+
+  function fullReset() {
+    const W = clampW(Number(ui.w.value));
+    ui.w.value = String(W);
+    gas.reset({ N: Number(ui.n.value), d: Number(ui.d.value), m: gasMass(), T: Number(ui.T.value), W });
+    gas.uMax = Number(ui.u.value) / 1000;
+    gas.thermostat = ui.thermo.checked;
+    resetLedger();
+    view.histMax = 0;
+    view.vMax = 0;
+    view.pMax = 0;
+    view.tMax = 0;
+    readOutputs();
+    updateReadouts();
+  }
+
+  /* ── Okumalar ── */
+  const pctDiff = (a, b) => ((a - b) / b) * 100;
+  const fmtDiff = (p) => (Number.isFinite(p) ? `${p >= 0 ? "+" : ""}${p.toFixed(1)} %` : "—");
+  const fmtP = (v) => (v >= 10 ? v.toFixed(2) : v >= 1 ? v.toFixed(3) : v.toFixed(4));
+  const fmtLen = (v) => (v >= 10 ? v.toFixed(1) : v >= 1 ? v.toFixed(2) : v.toFixed(3));
+  const fmtE = (v) => (Math.abs(v) < 0.05 ? "0.0 zJ" : `${v > 0 ? "+" : "−"}${Math.abs(v) >= 100 ? Math.abs(v).toFixed(0) : Math.abs(v).toFixed(1)} zJ`);
+  function setRow(key, meas, th, diff, note) {
+    cells[`${key}Meas`].textContent = meas;
+    cells[`${key}Th`].textContent = th;
+    const cell = cells[`${key}Diff`];
+    cell.textContent = diff;
+    if (note) {
+      const s = document.createElement("small");
+      s.textContent = note;
+      cell.appendChild(s);
+    }
+  }
+
+  function updateReadouts() {
+    const r = gas.results();
+    const N = gas.N, W = gas.width(), A = W * H_BOX;
+    ui.nCard.textContent = String(N);
+    ui.nDensity.textContent = `n = ${(N / A).toFixed(3)} nm⁻²`;
+    ui.aCard.textContent = `${A.toFixed(0)} nm²`;
+    ui.whCard.textContent = `${W.toFixed(1)} nm × ${H_BOX} nm`;
+    ui.etaCard.textContent = `${(gas.eta() * 100).toFixed(2)} %`;
+    ui.etaInCard.textContent = r && r.time >= 50 ? `iç bölge ${(r.etaIn * 100).toFixed(2)} %` : "iç bölge —";
+    ui.winCard.textContent = r ? `${r.time.toFixed(0)} ps` : "—";
+    ui.winNote.textContent = gas.u !== 0 ? "piston hareket ediyor" : r ? `${r.collisions.toFixed(0)} çarpışma` : "—";
+    ui.tKind.textContent = gas.thermostat ? "kuram: termostat hedefi" : "kuram: tersinir adyabat";
+
+    const m = gas.m;
+    if (!r) {
+      ["t", "p", "z", "l", "tau", "vp", "vm", "vr"].forEach((k) => setRow(k, "—", "—", "—"));
+    } else {
+      setRow("t", `${r.T.toFixed(1)} K`, `${r.Tth.toFixed(1)} K`, fmtDiff(pctDiff(r.T, r.Tth)));
+      const wait = gas.u !== 0 ? "—" : "ölçülüyor";
+      // P ve Z, belirsizlikleri (50 ps'lik bloklardan) hesaplanabilince gösterilir
+      if (Number.isFinite(r.zErr)) {
+        const note = `±${((r.zErr / r.Z) * 100).toFixed(1)} %`;
+        setRow("p", `${fmtP(r.P)} mN/m`, `${fmtP(r.Pid)} mN/m`, fmtDiff(pctDiff(r.P, r.Pid)), note);
+        setRow("z", r.Z.toFixed(3), r.ZH.toFixed(3), fmtDiff(pctDiff(r.Z, r.ZH)), note);
+      } else {
+        setRow("p", "—", `${fmtP(r.Pid)} mN/m`, wait);
+        setRow("z", "—", r.ZH.toFixed(3), wait);
+      }
+      if (Number.isFinite(r.lam) && r.collisions >= 100) {
+        const note = `±${(100 / Math.sqrt(r.collisions)).toFixed(1)} %`;
+        setRow("l", `${fmtLen(r.lam)} nm`, `${fmtLen(r.lamTh)} nm`, fmtDiff(pctDiff(r.lam, r.lamTh)), note);
+        setRow("tau", `${r.tau.toFixed(1)} ps`, `${r.tauTh.toFixed(1)} ps`, fmtDiff(pctDiff(r.tau, r.tauTh)), note);
+      } else {
+        setRow("l", "—", `${fmtLen(r.lamTh)} nm`, wait);
+        setRow("tau", "—", `${r.tauTh.toFixed(1)} ps`, wait);
+      }
+      if (Number.isFinite(r.vp) && r.time >= 200) setRow("vp", `${(r.vp * 1000).toFixed(0)} m/s`, `${(r.vpTh * 1000).toFixed(0)} m/s`, fmtDiff(pctDiff(r.vp, r.vpTh)));
+      else setRow("vp", "—", `${(r.vpTh * 1000).toFixed(0)} m/s`, wait);
+      setRow("vm", `${(r.vbar * 1000).toFixed(0)} m/s`, `${(r.vbarTh * 1000).toFixed(0)} m/s`, fmtDiff(pctDiff(r.vbar, r.vbarTh)));
+      const vrTh = Math.sqrt((2 * KB * r.T) / m) * 1000;
+      setRow("vr", `${(r.vrms * 1000).toFixed(0)} m/s`, `${vrTh.toFixed(0)} m/s`, "tanım gereği", "T, ⟨v²⟩ ile tanımlı");
+    }
+
+    const L = view.ledger;
+    const work = (gas.work - L.work) * ZJ, heat = (gas.heat - L.heat) * ZJ, du = (gas.kinetic() - L.ke) * ZJ;
+    ui.workCard.textContent = fmtE(work);
+    ui.heatCard.textContent = fmtE(heat);
+    ui.duCard.textContent = fmtE(du);
+    ui.lawCard.textContent = `W + Q = ${fmtE(work + heat)}`;
+  }
+
+  /* ── Çizim ── */
+  function resize() {
+    view.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, histC, timeC]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      c.width = Math.round(rect.width * view.dpr);
+      c.height = Math.round(rect.height * view.dpr);
+    }
+  }
+
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+      light,
+      ink: light ? "#1a1d2e" : "#e8ecf4",
+      muted: light ? "#5a5f7a" : "#8b95a8",
+      grid: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)",
+      wall: light ? "#64748b" : "#94a3b8",
+      inside: light ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.03)",
+      accent: light ? "#0d9488" : "#5eead4",
+      accent2: light ? "#7c3aed" : "#a78bfa",
+      warm: light ? "#d97706" : "#fbbf24",
+      tracer: light ? "#1a1d2e" : "#ffffff",
+      bar: light ? 0.75 : 0.8,
+      speed: light ? SPEED_LIGHT : SPEED_DARK,
+    };
+  }
+  const font = (px, weight = "") => `${weight ? `${weight} ` : ""}${px * view.dpr}px Outfit, system-ui, sans-serif`;
+  // Metin dar tuvale sığmıyorsa yazı boyutu küçülür (en az 8 px)
+  function fitFont(c, text, maxW, px, weight = "") {
+    c.font = font(px, weight);
+    const w = c.measureText(text).width;
+    if (w > maxW) c.font = font(Math.max(8, (px * maxW) / w), weight);
+  }
+  const speedBucket = (v, vref) => Math.min(9, Math.floor(v / vref / 0.3));
+
+  function geom() {
+    const dpr = view.dpr, cw = stage.width, ch = stage.height;
+    const wall = 5 * dpr, padT = 22 * dpr, padB = 22 * dpr, padL = 8 * dpr, padR = 6 * dpr, rod = 40 * dpr;
+    const s = Math.min((cw - padL - padR - rod - 2 * wall) / (W_MAX + D_MAX), (ch - padT - padB - 2 * wall) / (H_BOX + D_MAX));
+    const boxH = (H_BOX + gas.d) * s;
+    const X0 = padL + wall;
+    const Y0 = padT + wall + ((H_BOX + D_MAX) * s - boxH) / 2;
+    return { s, X0, Y0, boxH, wall, cw, ch, cylEnd: X0 + (W_MAX + D_MAX) * s };
+  }
+
+  function drawStage() {
+    const c = sctx, t = theme(), G = geom(), dpr = view.dpr;
+    if (!G.cw) return;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, G.cw, G.ch);
+    const r = gas.d / 2, Wd = gas.width();
+    const face = G.X0 + (Wd + gas.d) * G.s;
+
+    c.fillStyle = t.inside;
+    c.fillRect(G.X0, G.Y0, face - G.X0, G.boxH);
+    c.fillStyle = t.wall;
+    c.fillRect(G.X0 - G.wall, G.Y0 - G.wall, G.wall, G.boxH + 2 * G.wall);
+    c.fillRect(G.X0 - G.wall, G.Y0 - G.wall, G.cylEnd - G.X0 + G.wall, G.wall);
+    c.fillRect(G.X0 - G.wall, G.Y0 + G.boxH, G.cylEnd - G.X0 + G.wall, G.wall);
+
+    // Piston: plaka, kol ve tutamak
+    const plate = 7 * dpr, midY = G.Y0 + G.boxH / 2;
+    c.fillStyle = view.dragging ? t.accent : t.wall;
+    c.fillRect(face, G.Y0, plate, G.boxH);
+    c.fillRect(face + plate, midY - 3 * dpr, 24 * dpr, 6 * dpr);
+    c.fillRect(face + plate + 22 * dpr, midY - 18 * dpr, 8 * dpr, 36 * dpr);
+    if (gas.u !== 0) {
+      const dir = Math.sign(gas.u), ax = face + plate + 12 * dpr, ay = G.Y0 + 14 * dpr;
+      c.strokeStyle = t.warm;
+      c.fillStyle = t.warm;
+      c.lineWidth = 2 * dpr;
+      c.beginPath();
+      c.moveTo(ax - 10 * dpr * dir, ay);
+      c.lineTo(ax + 10 * dpr * dir, ay);
+      c.stroke();
+      c.beginPath();
+      c.moveTo(ax + 14 * dpr * dir, ay);
+      c.lineTo(ax + 7 * dpr * dir, ay - 4 * dpr);
+      c.lineTo(ax + 7 * dpr * dir, ay + 4 * dpr);
+      c.closePath();
+      c.fill();
+    }
+
+    const N = gas.N, X = gas.x, Y = gas.y, VX = gas.vx, VY = gas.vy, TL = gas.tl, now = gas.t;
+    const px = (i) => G.X0 + (X[i] + VX[i] * (now - TL[i]) + r) * G.s;
+    const py = (i) => G.Y0 + (Y[i] + VY[i] * (now - TL[i]) + r) * G.s;
+
+    if (view.showTracer && gas.trail.length >= 2) {
+      const tr = gas.trail, k = gas.tracer;
+      const pts = tr.length / 2;
+      c.lineWidth = 1.5 * dpr;
+      c.strokeStyle = t.accent2;
+      let prevX = G.X0 + (tr[0] + r) * G.s, prevY = G.Y0 + (tr[1] + r) * G.s;
+      for (let q = 1; q <= pts; q++) {
+        const nx = q < pts ? G.X0 + (tr[2 * q] + r) * G.s : px(k);
+        const ny = q < pts ? G.Y0 + (tr[2 * q + 1] + r) * G.s : py(k);
+        c.globalAlpha = 0.15 + (0.8 * q) / pts;
+        c.beginPath();
+        c.moveTo(prevX, prevY);
+        c.lineTo(nx, ny);
+        c.stroke();
+        prevX = nx;
+        prevY = ny;
+      }
+      c.globalAlpha = 1;
+    }
+
+    const vref = Math.sqrt((KB * T_COLOR) / gas.m);
+    const bucket = view.bucket;
+    for (let i = 0; i < N; i++) bucket[i] = speedBucket(gas.speed(i), vref);
+    const rad = Math.max(r * G.s, 1.6 * dpr);
+    for (let b = 0; b < 10; b++) {
+      c.beginPath();
+      let any = false;
+      for (let i = 0; i < N; i++) {
+        if (bucket[i] !== b) continue;
+        const cx = px(i), cy = py(i);
+        c.moveTo(cx + rad, cy);
+        c.arc(cx, cy, rad, 0, Math.PI * 2);
+        any = true;
+      }
+      if (any) {
+        c.fillStyle = t.speed[b];
+        c.fill();
+      }
+    }
+    if (view.showTracer && gas.tracer < N) {
+      c.strokeStyle = t.tracer;
+      c.lineWidth = 1.5 * dpr;
+      c.beginPath();
+      c.arc(px(gas.tracer), py(gas.tracer), rad + 3 * dpr, 0, Math.PI * 2);
+      c.stroke();
+    }
+
+    c.font = font(11);
+    c.textBaseline = "middle";
+    c.fillStyle = t.muted;
+    const sw = 7 * dpr, legendW = 10 * sw;
+    const lx = G.cw - 8 * dpr - c.measureText("hızlı").width - 4 * dpr - legendW;
+    const slowW = c.measureText("yavaş").width;
+    c.textAlign = "right";
+    c.fillText("yavaş", lx - 4 * dpr, 11 * dpr);
+    const head = `t = ${now.toFixed(0)} ps · ${GASES[ui.gas.value].name} · N = ${N}`;
+    c.textAlign = "left";
+    fitFont(c, head, lx - slowW - 20 * dpr, 11);
+    c.fillText(head, 8 * dpr, 11 * dpr);
+    c.font = font(11);
+    for (let b = 0; b < 10; b++) {
+      c.fillStyle = t.speed[b];
+      c.fillRect(lx + b * sw, 7 * dpr, sw, 8 * dpr);
+    }
+    c.fillStyle = t.muted;
+    c.textAlign = "left";
+    c.fillText("hızlı", lx + legendW + 4 * dpr, 11 * dpr);
+    const by = G.ch - 11 * dpr;
+    c.fillText(`W = ${Wd.toFixed(1)} nm · A = ${(Wd * H_BOX).toFixed(0)} nm²`, 8 * dpr, by);
+    c.textAlign = "right";
+    if (gas.u !== 0) {
+      c.fillStyle = t.warm;
+      c.fillText(`piston → ${gas.wTarget.toFixed(1)} nm`, G.cw - 8 * dpr, by);
+    } else {
+      c.fillText("pistonu sürükle", G.cw - 8 * dpr, by);
+    }
+    if (!view.running) {
+      c.textAlign = "center";
+      c.font = font(15, "600");
+      c.fillStyle = t.ink;
+      c.fillText("Duraklatıldı", G.X0 + (Wd * G.s) / 2, G.Y0 + G.boxH / 2);
+    }
+  }
+
+  const NICE = [100, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 8000, 10000];
+  const niceCeil = (v) => NICE.find((n) => n >= v) || Math.ceil(v / 1000) * 1000;
+  function niceStep(span, target) {
+    const raw = span / target, p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const f = raw / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+  }
+
+  function drawHist() {
+    const c = hctx, t = theme(), dpr = view.dpr, W = histC.width, H = histC.height;
+    if (!W) return;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, W, H);
+    const padL = 36 * dpr, padR = 10 * dpr, padT = 30 * dpr, padB = 20 * dpr;
+    const N = gas.N, m = gas.m;
+    let s1 = 0, s2 = 0;
+    for (let i = 0; i < N; i++) { const v = gas.speed(i); s1 += v; s2 += v * v; }
+    const T = (0.5 * m * s2) / (N * KB);
+    const a = Math.sqrt((KB * T) / m) * 1000;
+    const need = 3.4 * a;
+    if (!view.vMax || need > view.vMax || need < 0.55 * view.vMax) view.vMax = niceCeil(need);
+    const vmax = view.vMax, dv = vmax / HIST_BINS, counts = view.counts;
+    counts.fill(0);
+    for (let i = 0; i < N; i++) {
+      const b = Math.floor((gas.speed(i) * 1000) / dv);
+      if (b < HIST_BINS) counts[b]++;
+    }
+    let maxCount = 0;
+    for (let b = 0; b < HIST_BINS; b++) maxCount = Math.max(maxCount, counts[b]);
+    const peak = (N * dv * Math.exp(-0.5)) / a;
+    const target = Math.max(maxCount, peak) * 1.15;
+    view.histMax = !view.histMax || target > view.histMax ? target : view.histMax + (target - view.histMax) * 0.04;
+    const ymax = view.histMax;
+    const x0 = padL, x1 = W - padR, y0 = H - padB, y1 = padT;
+    const xOf = (v) => x0 + (v / vmax) * (x1 - x0);
+    const yOf = (n) => y0 - (n / ymax) * (y0 - y1);
+
+    c.font = font(10);
+    c.lineWidth = 1 * dpr;
+    c.strokeStyle = t.grid;
+    c.fillStyle = t.muted;
+    c.textBaseline = "middle";
+    c.textAlign = "right";
+    const ys = niceStep(ymax, 3);
+    for (let q = 0; q <= ymax; q += ys) {
+      const yy = yOf(q);
+      c.beginPath(); c.moveTo(x0, yy); c.lineTo(x1, yy); c.stroke();
+      c.fillText(String(Math.round(q)), x0 - 5 * dpr, yy);
+    }
+    c.textBaseline = "top";
+    const xs = niceStep(vmax, 5);
+    for (let v = 0; v <= vmax + 1e-9; v += xs) {
+      const xx = xOf(v), last = v + xs > vmax + 1e-9;
+      c.beginPath(); c.moveTo(xx, y0); c.lineTo(xx, y0 + 4 * dpr); c.stroke();
+      c.textAlign = last ? "right" : "center";
+      c.fillText(last ? `${Math.round(v)} m/s` : String(Math.round(v)), last ? W - 2 * dpr : xx, y0 + 6 * dpr);
+    }
+
+    const vref = Math.sqrt((KB * T_COLOR) / m) * 1000;
+    const bw = xOf(dv) - xOf(0);
+    for (let b = 0; b < HIST_BINS; b++) {
+      if (!counts[b]) continue;
+      c.globalAlpha = t.bar;
+      c.fillStyle = t.speed[speedBucket((b + 0.5) * dv, vref)];
+      const yy = yOf(counts[b]);
+      c.fillRect(xOf(b * dv) + 0.5 * dpr, yy, bw - 1 * dpr, y0 - yy);
+    }
+    c.globalAlpha = 1;
+
+    c.strokeStyle = t.ink;
+    c.lineWidth = 2 * dpr;
+    c.beginPath();
+    for (let k = 0; k <= 160; k++) {
+      const v = (vmax * k) / 160;
+      const f = (v / (a * a)) * Math.exp((-v * v) / (2 * a * a));
+      const yy = yOf(N * f * dv);
+      if (k === 0) c.moveTo(xOf(v), yy); else c.lineTo(xOf(v), yy);
+    }
+    c.stroke();
+
+    const marks = [[a, "v", "p"], [a * Math.sqrt(Math.PI / 2), "⟨v⟩", ""], [a * Math.SQRT2, "v", "rms"]];
+    c.textAlign = "left";
+    c.textBaseline = "middle";
+    c.setLineDash([3 * dpr, 3 * dpr]);
+    marks.forEach(([v, base, sub], k) => {
+      const xx = xOf(v), yy = y1 + (4 + 12 * k) * dpr;
+      c.strokeStyle = t.accent2;
+      c.lineWidth = 1 * dpr;
+      c.beginPath(); c.moveTo(xx, y0); c.lineTo(xx, yy); c.stroke();
+      c.fillStyle = t.accent2;
+      c.font = font(10);
+      c.fillText(base, xx + 3 * dpr, yy);
+      if (sub) {
+        const bwid = c.measureText(base).width;
+        c.font = font(7.5);
+        c.fillText(sub, xx + 3 * dpr + bwid, yy + 3 * dpr);
+      }
+    });
+    c.setLineDash([]);
+
+    const mean = s1 / N, width = Math.sqrt(Math.max(0, s2 / N - mean * mean)) / mean;
+    c.textBaseline = "middle";
+    c.textAlign = "left";
+    c.fillStyle = t.muted;
+    const legend = "Çubuk: anlık molekül sayısı · çizgi: 2-B Maxwell–Boltzmann, N·f(v)·Δv";
+    fitFont(c, legend, W - 16 * dpr, 11);
+    c.fillText(legend, 8 * dpr, 10 * dpr);
+    c.font = font(11);
+    c.fillText(`T = ${T.toFixed(0)} K`, 8 * dpr, 23 * dpr);
+    const tw = c.measureText("T = 0000 K").width;
+    const wtxt = `dağılım genişliği σ/⟨v⟩ = ${width.toFixed(3)} (MB: ${WIDTH_MB.toFixed(3)})`;
+    c.textAlign = "right";
+    c.fillStyle = t.ink;
+    fitFont(c, wtxt, W - 24 * dpr - tw, 11);
+    c.fillText(wtxt, W - 8 * dpr, 23 * dpr);
+  }
+
+  function drawTime() {
+    const c = tctx, t = theme(), dpr = view.dpr, W = timeC.width, H = timeC.height;
+    if (!W) return;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, W, H);
+    const padL = 40 * dpr, padR = 10 * dpr, padB = 20 * dpr, head = 17 * dpr, gap = 6 * dpr;
+    const stripH = (H - padB - gap) / 2 - head;
+    const ring = gas.ring, total = ring.n, count = Math.min(total, ring.size);
+    const span = Math.min(4000, Math.max(200, 25 * view.simSpeed));
+    const tEnd = Math.max(gas.t, span), tStart = tEnd - span;
+    const x0 = padL, x1 = W - padR;
+    const xOf = (tt) => x0 + ((tt - tStart) / span) * (x1 - x0);
+    let first = total;
+    while (first > total - count && ring.t[(first - 1) % ring.size] >= tStart) first--;
+    const visible = total - first;
+    const step = Math.max(1, Math.floor(visible / Math.max(1, (x1 - x0) / dpr)));
+
+    let pTop = 0, tTop = 0;
+    for (let k = first; k < total; k += step) {
+      const q = k % ring.size;
+      if (ring.P[q] > pTop) pTop = ring.P[q];
+      if (ring.Pid[q] > pTop) pTop = ring.Pid[q];
+      if (ring.T[q] > tTop) tTop = ring.T[q];
+      if (ring.Tth[q] > tTop) tTop = ring.Tth[q];
+    }
+    const ease = (cur, want) => (!cur || want > cur ? want : cur + (want - cur) * 0.03);
+    view.pMax = ease(view.pMax, (pTop || 1) * 1.2);
+    view.tMax = ease(view.tMax, (tTop || 300) * 1.2);
+
+    const strips = [
+      { max: view.pMax, a: ring.P, b: ring.Pid, color: t.accent, label: "Basınç P (mN/m) · çizgi: son 100 ps · kesikli: ideal gaz N·k·T/A", digits: view.pMax < 3 ? 2 : 1 },
+      { max: view.tMax, a: ring.T, b: ring.Tth, color: t.warm, label: gas.thermostat ? "Sıcaklık T (K) · kesikli: termostat hedefi" : "Sıcaklık T (K) · kesikli: tersinir adyabat", digits: 0 },
+    ];
+    const line = (arr, yOf) => {
+      c.beginPath();
+      let pen = false;
+      for (let k = first; k < total; k += step) {
+        const q = k % ring.size, v = arr[q];
+        if (!Number.isFinite(v)) { pen = false; continue; }
+        const xx = xOf(ring.t[q]), yy = yOf(v);
+        if (pen) c.lineTo(xx, yy); else { c.moveTo(xx, yy); pen = true; }
+      }
+      c.stroke();
+    };
+    strips.forEach((S, idx) => {
+      const top = idx * (head + stripH + gap) + head;
+      const yOf = (v) => top + stripH - (v / S.max) * stripH;
+      c.textBaseline = "middle";
+      c.textAlign = "left";
+      c.fillStyle = t.muted;
+      fitFont(c, S.label, x1 - x0, 10.5);
+      c.fillText(S.label, x0, top - head / 2);
+      c.font = font(10);
+      c.strokeStyle = t.grid;
+      c.lineWidth = 1 * dpr;
+      c.textAlign = "right";
+      [0, 0.5, 1].forEach((f) => {
+        const v = S.max * f, yy = yOf(v);
+        c.beginPath(); c.moveTo(x0, yy); c.lineTo(x1, yy); c.stroke();
+        c.fillText(v.toFixed(S.digits), x0 - 4 * dpr, yy);
+      });
+      if (visible > 1) {
+        c.setLineDash([5 * dpr, 4 * dpr]);
+        c.strokeStyle = t.muted;
+        c.lineWidth = 1.5 * dpr;
+        line(S.b, yOf);
+        c.setLineDash([]);
+        c.strokeStyle = S.color;
+        c.lineWidth = 2 * dpr;
+        line(S.a, yOf);
+      }
+    });
+    c.font = font(10);
+    c.textBaseline = "top";
+    c.fillStyle = t.muted;
+    const xs = niceStep(span, 5);
+    for (let tt = Math.ceil(tStart / xs) * xs; tt <= tEnd + 1e-9; tt += xs) {
+      const label = `${Math.round(tt)} ps`, xx = xOf(tt), half = c.measureText(label).width / 2;
+      c.textAlign = xx + half > W - 2 * dpr ? "right" : "center";
+      c.fillText(label, c.textAlign === "right" ? W - 2 * dpr : xx, H - padB + 6 * dpr);
+    }
+  }
+
+  /* ── Döngü ── */
+  let lastFrame = 0, lastReadout = 0;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    if (view.running && !paused) {
+      // Kare süresi simülasyon zamanına çevrilir; çekirdek olayları tam sırayla işler, 1 ps'lik adımlarda ölçer.
+      const t0 = performance.now();
+      let budget = elapsed * view.simSpeed;
+      while (budget > 1e-9) {
+        const step = Math.min(budget, 2);
+        if (!gas.advance(step)) break;
+        budget -= step;
+        if (performance.now() - t0 > 12) break;
+      }
+      gas.overflow = false;
+    }
+    if (now - lastReadout > 250) {
+      lastReadout = now;
+      updateReadouts();
+    }
+    drawStage();
+    drawHist();
+    drawTime();
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  function setRunning(run) {
+    view.running = run;
+    ui.toggle.textContent = run ? "Duraklat" : "Devam et";
+    ui.toggle.setAttribute("aria-pressed", String(!run));
+  }
+  function heatBy(factor) {
+    const cur = gas.currentT();
+    let target;
+    if (ui.thermo.checked) {
+      target = Math.min(1200, Math.max(50, Math.round((gas.Tset * factor) / 10) * 10));
+      ui.T.value = String(target);
+      gas.Tset = target;
+    } else {
+      target = Math.min(3000, Math.max(20, cur * factor));
+    }
+    gas.scaleEnergy(target / cur);
+    readOutputs();
+    updateReadouts();
+  }
+
+  ui.gas.addEventListener("input", () => { gas.setMass(gasMass()); resetLedger(); view.vMax = 0; view.histMax = 0; readOutputs(); updateReadouts(); });
+  ui.n.addEventListener("input", fullReset);
+  ui.d.addEventListener("input", fullReset);
+  ui.T.addEventListener("input", () => { gas.Tset = Number(ui.T.value); gas.resetWindow(); readOutputs(); });
+  ui.thermo.addEventListener("change", () => { gas.setThermostat(ui.thermo.checked); resetLedger(); readOutputs(); updateReadouts(); });
+  ui.w.addEventListener("input", () => {
+    const W = clampW(Number(ui.w.value));
+    ui.w.value = String(W);
+    gas.wTarget = W;
+    gas.resetWindow();
+    readOutputs();
+  });
+  ui.u.addEventListener("input", () => { gas.uMax = Number(ui.u.value) / 1000; readOutputs(); });
+  ui.speed.addEventListener("input", () => { view.simSpeed = Number(ui.speed.value); readOutputs(); });
+  ui.tracer.addEventListener("change", () => { view.showTracer = ui.tracer.checked; });
+  ui.heat.addEventListener("click", () => heatBy(1.25));
+  ui.cool.addEventListener("click", () => heatBy(0.8));
+  ui.same.addEventListener("click", () => { gas.sameSpeed(); view.histMax = 0; updateReadouts(); });
+  ui.toggle.addEventListener("click", () => setRunning(!view.running));
+  ui.reset.addEventListener("click", () => { fullReset(); setRunning(true); });
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.matches("input, select, textarea, button")) return;
+    if (e.code === "Space") { e.preventDefault(); setRunning(!view.running); }
+    if (e.key === "r" || e.key === "R") { fullReset(); setRunning(true); }
+  });
+
+  function canvasPoint(evt) {
+    const rect = stage.getBoundingClientRect();
+    return {
+      x: ((evt.clientX - rect.left) / rect.width) * stage.width,
+      y: ((evt.clientY - rect.top) / rect.height) * stage.height,
+    };
+  }
+  const nearPiston = (pt) => {
+    const G = geom();
+    const face = G.X0 + (gas.width() + gas.d) * G.s;
+    return pt.x >= face - 14 * view.dpr && pt.y >= G.Y0 - G.wall && pt.y <= G.Y0 + G.boxH + G.wall;
+  };
+  function dragTo(pt) {
+    const G = geom();
+    const W = clampW(Math.round(((pt.x - G.X0) / G.s - gas.d) * 2) / 2);
+    ui.w.value = String(W);
+    gas.wTarget = W;
+    readOutputs();
+  }
+  stage.addEventListener("pointerdown", (evt) => {
+    const pt = canvasPoint(evt);
+    if (nearPiston(pt)) {
+      view.dragging = true;
+      stage.classList.add("is-dragging");
+      stage.setPointerCapture(evt.pointerId);
+      dragTo(pt);
+      return;
+    }
+    const G = geom(), r = gas.d / 2;
+    let best = -1, bestD = (18 * view.dpr) ** 2;
+    for (let i = 0; i < gas.N; i++) {
+      const lag = gas.t - gas.tl[i];
+      const dx = G.X0 + (gas.x[i] + gas.vx[i] * lag + r) * G.s - pt.x;
+      const dy = G.Y0 + (gas.y[i] + gas.vy[i] * lag + r) * G.s - pt.y;
+      if (dx * dx + dy * dy < bestD) { bestD = dx * dx + dy * dy; best = i; }
+    }
+    if (best >= 0) {
+      gas.setTracer(best);
+      ui.tracer.checked = true;
+      view.showTracer = true;
+    }
+  });
+  stage.addEventListener("pointermove", (evt) => {
+    const pt = canvasPoint(evt);
+    if (view.dragging) { dragTo(pt); return; }
+    stage.classList.toggle("near-piston", nearPiston(pt));
+  });
+  const release = () => {
+    if (!view.dragging) return;
+    view.dragging = false;
+    stage.classList.remove("is-dragging");
+  };
+  stage.addEventListener("pointerup", release);
+  stage.addEventListener("pointercancel", release);
+  stage.addEventListener("pointerleave", () => stage.classList.remove("near-piston"));
+
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  [stage, histC, timeC].forEach((c) => ro.observe(c));
+  view.simSpeed = Number(ui.speed.value);
+  view.showTracer = ui.tracer.checked;
+  resize();
+  fullReset();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

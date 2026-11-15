@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Özel Görelilik: Uzay-Zaman Diyagramı</title>
+  <meta name="description" content="Işık hızı herkes için aynıysa saatler, cetveller ve “şimdi” gözlemciye göre değişir. Bir Minkowski diyagramında ışık saatini, eşzamanlılığı, ikizleri ve hiç değişmeyen uzay-zaman aralığını kendin ölç.">
+  <style>
+    .lab [hidden] { display: none !important; }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(270px, 1fr);
+      grid-template-areas: "stage panel" "data panel";
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .lab-stage { grid-area: stage; display: grid; gap: 10px; min-width: 0; }
+    .lab-panel { grid-area: panel; display: grid; gap: 16px; min-width: 0; }
+    .lab-data { grid-area: data; display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: manipulation;
+    }
+    .sim-canvas.is-interactive { touch-action: none; cursor: crosshair; }
+    .sim-canvas.is-grab { cursor: grab; }
+    .sim-canvas.is-dragging { cursor: grabbing; }
+    .space-canvas, .chart-canvas {
+      width: 100%;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    .space-canvas { aspect-ratio: 5 / 2; min-height: 170px; }
+    .chart-canvas { aspect-ratio: 3 / 2; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .space-canvas, [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; }
+    .field label { display: flex; justify-content: space-between; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); white-space: nowrap; }
+    .field input[type="range"] { width: 100%; }
+    .field select, .field input[type="text"] { padding: 6px 8px; font: inherit; width: 100%; box-sizing: border-box; font-variant-numeric: tabular-nums; }
+    .field.inline { grid-template-columns: minmax(0, 1fr) 7.5rem; align-items: center; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button, .addform button { padding: 8px 12px; font: inherit; font-size: 0.86rem; cursor: pointer; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.86rem; }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+    }
+    .readout small { font-size: 0.74rem; letter-spacing: 0.01em; }
+    .readout strong { font-size: 1.05rem; font-variant-numeric: tabular-nums; color: var(--text) !important; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    body.app-page p.warn {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--danger);
+      color: var(--danger) !important;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; padding: 0; list-style: none; font-size: 0.76rem; }
+    .legend li { display: inline-flex; align-items: center; gap: 6px; }
+    .legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
+    .legend .sw-s { background: var(--text); }
+    .legend .sw-p { background: var(--accent); }
+    .legend .sw-light { background: repeating-linear-gradient(90deg, var(--accent-warm) 0 5px, transparent 5px 8px); }
+    .legend .sw-hyp { background: var(--accent-2); }
+    .legend .sw-ev { width: 9px; height: 9px; border-radius: 50%; background: #f472b6; }
+    [data-theme="light"] .legend .sw-ev { background: #db2777; }
+    body.app-page .lab table { width: 100%; margin: 0; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+    body.app-page .lab table th, body.app-page .lab table td { padding: 5px 6px; }
+    body.app-page .lab table td { white-space: nowrap; }
+    body.app-page .lab table td.lbl { text-align: left; white-space: normal; }
+    body.app-page .lab table tr.is-selected td { background: color-mix(in srgb, var(--accent-warm) 16%, var(--bg-card)) !important; }
+    .ev-name small { display: block; font-size: 0.68rem; line-height: 1.3; color: var(--text-muted); max-width: 11rem; }
+    .interval {
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .interval div + div { margin-top: 4px; }
+    .k-time { color: var(--accent); }
+    .k-space { color: var(--danger); }
+    .k-light { color: var(--accent-warm); }
+    .free-tools { display: grid; gap: 10px; }
+    .addform { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; align-items: end; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "panel" "data"; grid-template-rows: auto; }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="gorelilik-uzayzaman">
+
+<div class="app-content">
+  <h1>Özel Görelilik: Uzay-Zaman Diyagramı</h1>
+  <p class="hint">S çerçevesi durur, S′ çerçevesi β = v/c hızıyla x yönünde gider. Birimler c = 1 olacak biçimde seçildi: x ve ct ışık yılı (ı.y.), t yıl; ışık 45° doğrular üzerinde ilerler. Senaryo seç, β'yı değiştir ve ölçülen değerleri Lorentz dönüşümünün öngördüğü değerlerle karşılaştır.</p>
+
+  <div class="lab">
+    <div class="lab-stage">
+      <canvas id="diagramCanvas" class="sim-canvas" width="720" height="720" role="img" aria-label="Minkowski diyagramı: S ve S′ eksenleri, ışık konisi, kalibrasyon hiperbolleri ve olaylar"></canvas>
+      <ul class="legend" aria-hidden="true">
+        <li><i class="sw-s"></i>S eksenleri (ct, x)</li>
+        <li><i class="sw-p"></i>S′ eksenleri (ct′, x′)</li>
+        <li><i class="sw-light"></i>Işık konisi</li>
+        <li><i class="sw-hyp"></i>Hiperboller c²t² − x² = ±n²</li>
+        <li><i class="sw-ev"></i>Olay</li>
+      </ul>
+      <canvas id="spaceCanvas" class="space-canvas" width="720" height="288" role="img" aria-label="Gerçek uzay görünümü: senaryodaki cisimlerin S çerçevesinde o anki konumları"></canvas>
+      <p class="note" id="scenarioNote"></p>
+    </div>
+
+    <div class="lab-panel">
+      <div class="panel" aria-label="Kontroller">
+        <h2>Deney ayarları</h2>
+        <div class="field">
+          <label for="scenarioSelect">Senaryo</label>
+          <select id="scenarioSelect">
+            <option value="isik-saati" selected>Işık saati</option>
+            <option value="eszamanlilik">Eşzamanlılık</option>
+            <option value="uzunluk">Uzunluk kısalması</option>
+            <option value="ikizler">İkizler paradoksu</option>
+            <option value="serbest">Serbest</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="betaRange">S′ çerçevesinin hızı β = v/c <output id="betaOut">0.600 c</output></label>
+          <input type="range" id="betaRange" min="-0.95" max="0.95" step="0.001" value="0.6">
+        </div>
+        <div class="field inline">
+          <label for="betaNumber">β değerini yaz</label>
+          <input type="text" id="betaNumber" value="0.600" inputmode="decimal" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="row" role="group" aria-label="Hazır hızlar">
+          <button type="button" id="preset06" data-beta="0.6">0.6 c · γ = 1.25</button>
+          <button type="button" id="preset08" data-beta="0.8">0.8 c · γ = 5/3</button>
+          <button type="button" id="preset0866" data-beta="0.866">0.866 c · γ ≈ 2</button>
+        </div>
+        <p class="warn" id="warnBox" role="alert" hidden></p>
+        <div class="field">
+          <label for="rodRange">Çubuğun özuzunluğu L₀ <output id="rodOut">4.00 ı.y.</output></label>
+          <input type="range" id="rodRange" min="1" max="6" step="0.1" value="4">
+        </div>
+        <div class="field" id="dxField" hidden>
+          <label for="dxRange">Şimşekler arası uzaklık Δx (S) <output id="dxOut">6.00 ı.y.</output></label>
+          <input type="range" id="dxRange" min="2" max="8" step="0.1" value="6">
+        </div>
+        <div class="field" id="distanceField" hidden>
+          <label for="distanceRange">Yıldızın uzaklığı D (Dünya'ya göre) <output id="distanceOut">4.00 ı.y.</output></label>
+          <input type="range" id="distanceRange" min="1" max="10" step="0.1" value="4">
+        </div>
+        <label class="check" for="hyperCheck"><input type="checkbox" id="hyperCheck" checked> Kalibrasyon hiperbolleri</label>
+        <label class="check" for="gridCheck"><input type="checkbox" id="gridCheck"> S′ ızgarası</label>
+        <div id="timeControls" class="free-tools">
+          <div class="field">
+            <label for="timeRange">S zamanı t <output id="timeOut">0.00 yıl</output></label>
+            <input type="range" id="timeRange" min="0" max="8" step="0.01" value="0">
+          </div>
+          <div class="row">
+            <button type="button" id="playBtn">Duraklat</button>
+            <button type="button" id="resetBtn">Başa sar</button>
+          </div>
+        </div>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> oynat/duraklat, <kbd>R</kbd> başa sar, <kbd>←</kbd> <kbd>→</kbd> β'yı 0.01 değiştirir (<kbd>Shift</kbd> ile 0.1). Serbest kipte diyagrama tıklayınca olay eklenir, olaylar sürüklenir; ikizler kipinde dönüş olayı sürüklenir.</p>
+      </div>
+      <div class="panel">
+        <h2>Lorentz ve Doppler çarpanları</h2>
+        <canvas id="gammaChart" class="chart-canvas" width="480" height="320" role="img" aria-label="Lorentz çarpanı γ ile Doppler çarpanları k ve 1/k'nin β ile değişimi; o anki β işaretli"></canvas>
+      </div>
+    </div>
+
+    <div class="lab-data">
+      <div class="readouts" aria-live="polite">
+        <div class="readout"><small>β = v/c</small><strong id="betaDisplay">0.600</strong></div>
+        <div class="readout"><small>Hız v</small><strong id="speedDisplay">—</strong></div>
+        <div class="readout is-highlight"><small>Lorentz çarpanı γ = Δt/Δτ</small><strong id="gammaDisplay">1.250</strong></div>
+        <div class="readout"><small>Hızlılık φ = artanh β</small><strong id="rapidityDisplay">0.693</strong></div>
+        <div class="readout"><small>Saat hızı dτ/dt = 1/γ</small><strong id="rateDisplay">0.800</strong></div>
+        <div class="readout"><small>Kısalmış uzunluk L₀/γ</small><strong id="lengthDisplay">3.20 ı.y.</strong></div>
+        <div class="readout"><small>Doppler k (uzaklaşan)</small><strong id="dopplerDisplay">2.000</strong></div>
+      </div>
+      <div class="panel" aria-live="polite">
+        <h2>Ölçüm ve teori</h2>
+        <div class="table-wrap">
+          <table id="measureTable">
+            <thead><tr><th scope="col">Büyüklük</th><th scope="col">Ölçülen</th><th scope="col">Teori</th><th scope="col">Fark</th></tr></thead>
+            <tbody id="measureBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Olaylar ve aralık</h2>
+        <div class="table-wrap">
+          <table id="eventTable">
+            <thead><tr><th scope="col">Olay</th><th scope="col">ct</th><th scope="col">x</th><th scope="col">ct′</th><th scope="col">x′</th><th scope="col">Seç</th></tr></thead>
+            <tbody id="eventBody"></tbody>
+          </table>
+        </div>
+        <p class="note">Koordinatlar ışık yılı (ı.y.) cinsinden. S′ koordinatları Lorentz dönüşümünden: ct′ = γ(ct − βx), x′ = γ(x − βct).</p>
+        <div class="interval" id="intervalBox" aria-live="polite"></div>
+        <div id="freeTools" class="free-tools" hidden>
+          <div class="addform">
+            <div class="field"><label for="newCt">ct (ı.y.)</label><input type="text" id="newCt" value="3.0" inputmode="decimal" autocomplete="off" spellcheck="false"></div>
+            <div class="field"><label for="newX">x (ı.y.)</label><input type="text" id="newX" value="-2.0" inputmode="decimal" autocomplete="off" spellcheck="false"></div>
+            <button type="button" id="addEventBtn">Olay ekle</button>
+          </div>
+          <div class="row">
+            <button type="button" id="deleteEventBtn">Seçili olayı sil</button>
+            <button type="button" id="resetEventsBtn">Başlangıç olaylarına dön</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const diagram = $("diagramCanvas");
+  const dctx = diagram.getContext("2d");
+  const space = $("spaceCanvas");
+  const sctx = space.getContext("2d");
+  const chart = $("gammaChart");
+  const cctx = chart.getContext("2d");
+
+  const C_SI = 299792458;   // ışık hızı, m/s (SI tanımı gereği tam)
+  const T0 = 1;             // duran ışık saatinin tık periyodu (yıl)
+  const H_CLOCK = 0.5;      // ayna aralığı (ı.y.): T₀ = 2h/c
+  const BETA_MAX = 0.95;
+  const TWIN_MIN = 0.1;
+  const MAX_FREE = 10;
+  const DT = 1 / 240;       // sabit adım (s, gerçek zaman)
+  const MINUS = "\u2212";
+  const FONT = "Outfit, system-ui, sans-serif";
+
+  const NAMES = {
+    "isik-saati": "Işık saati",
+    eszamanlilik: "Eşzamanlılık",
+    uzunluk: "Uzunluk kısalması",
+    ikizler: "İkizler paradoksu",
+    serbest: "Serbest",
+  };
+  const NOTES = {
+    "isik-saati": "Her saatte ışık iki ayna arasında gidip gelir; bir gidiş-dönüş bir tıktır (aynalar 0.5 ı.y. aralıklı, T₀ = 1 yıl). S'de hareketli saatin ışığı çapraz ve daha uzun bir yol izler ama hızı yine c'dir; bu yüzden tıkları γ kat seyrek gelir. Diyagramda hareketli saatin tıkları ct′ ekseninin hiperbolleri kestiği yerlerdedir. Sarı çizgiler tıkların ışığının duran saate varışıdır (Doppler); kesikli turkuaz doğru S′'ye göre “şimdi”dir.",
+    eszamanlilik: "İki şimşek S'de aynı anda (ct = 0) ve S gözlemcisinden eşit uzaklıkta çakar; ışıkları ona birlikte ulaşır. Trenin ortasındaki S′ gözlemcisi de kendi çerçevesinde iki çakma noktasına eşit uzaklıktadır, ama önce gittiği yöndeki şimşeğin ışığını görür. Kesikli turkuaz doğrular S′'nün eşzamanlılık doğrularıdır: S′'ye göre çakmalar arasında γβΔx/c kadar zaman vardır.",
+    uzunluk: "Çubuk S′'de durur ve özuzunluğu L₀'dır; iki ucunun dünya çizgileri bir şerit oluşturur. S'de uzunluk ölçmek iki ucu aynı S anında işaretlemektir (yatay kesit): L = L₀/γ. Aynı şerit S′'nün eşzamanlılık doğrusuyla kesilince L₀ çıkar. Kısalma, eşzamanlılığın göreli olmasının sonucudur.",
+    ikizler: "Yolcu D uzaklıktaki yıldıza |β| hızıyla gider ve aynı hızla döner. Kırık dünya çizgisinin özzamanı Dünya'nın düz çizgisininkinden kısadır. Kesikli çizgiler yolcunun her yaşındaki eşzamanlılık doğrularıdır; dönüşte çerçeve değiştirdiği için yolcunun “Dünya'da şimdi” dediği an birden ileri sıçrar (kırmızı bölüm). Dönüş olayını (D) sürükleyerek D ve β'yı değiştir; ışık konisinin dışına çıkılamaz.",
+    serbest: "Diyagramda boş bir yere tıklayarak olay ekle, olayları sürükle; iki olay seçince aralıkları hesaplanır. β'yı değiştirirken koordinatlar değişir ama s² değişmez. Uzaysı ayrılmış iki olayın sırası belli bir β'da tersine döner; zamansı ayrılmış olanlarınki hiçbir çerçevede dönmez.",
+  };
+  const MSG = {
+    cone: "Işık konisinin dışına dünya çizgisi çizilemez: bu |β| ≥ 1, yani ışıktan hızlı yolculuk demek olurdu. Hız 0.95 c ile sınırlandı.",
+    over: "|β| ≥ 1 kabul edilmez: hiçbir cisim ışık hızına ulaşamaz, γ = 1/√(1 − β²) tanımsız olur. Önceki değer korundu.",
+    clamp: "|β| en fazla 0.95 seçilebilir; 0.95 kullanıldı.",
+    nan: "Geçerli bir sayı gir (ondalık ayırıcı nokta). Önceki değer korundu.",
+    twinMin: "İkizler senaryosunda |β| en az 0.10 olmalı; daha yavaş bir yolculuk diyagrama sığmaz.",
+    full: "En fazla 10 olay eklenebilir.",
+  };
+
+  const ui = {
+    scenario: $("scenarioSelect"),
+    betaRange: $("betaRange"),
+    betaOut: $("betaOut"),
+    betaNumber: $("betaNumber"),
+    rod: $("rodRange"),
+    rodOut: $("rodOut"),
+    dx: $("dxRange"),
+    dxOut: $("dxOut"),
+    dxField: $("dxField"),
+    dist: $("distanceRange"),
+    distOut: $("distanceOut"),
+    distField: $("distanceField"),
+    hyper: $("hyperCheck"),
+    grid: $("gridCheck"),
+    warn: $("warnBox"),
+    timeControls: $("timeControls"),
+    time: $("timeRange"),
+    timeOut: $("timeOut"),
+    play: $("playBtn"),
+    reset: $("resetBtn"),
+    note: $("scenarioNote"),
+    measureBody: $("measureBody"),
+    eventBody: $("eventBody"),
+    interval: $("intervalBox"),
+    freeTools: $("freeTools"),
+    newCt: $("newCt"),
+    newX: $("newX"),
+    add: $("addEventBtn"),
+    del: $("deleteEventBtn"),
+    resetEvents: $("resetEventsBtn"),
+    betaD: $("betaDisplay"),
+    speedD: $("speedDisplay"),
+    gammaD: $("gammaDisplay"),
+    rapD: $("rapidityDisplay"),
+    rateD: $("rateDisplay"),
+    lenD: $("lengthDisplay"),
+    dopD: $("dopplerDisplay"),
+  };
+
+  function defaultFree() {
+    return [
+      { key: "u1", tag: "A", ct: 1, x: 1 },
+      { key: "u2", tag: "B", ct: 2, x: 4 },
+      { key: "u3", tag: "C", ct: 4, x: 2 },
+    ];
+  }
+
+  const state = {
+    beta: 0.6,
+    scenario: "isik-saati",
+    L0: 4,
+    dx: 6,
+    D: 4,
+    hyper: true,
+    grid: false,
+    running: true,
+    sel: { "isik-saati": ["O", "H4"], eszamanlilik: ["A", "B"], uzunluk: ["U1", "U2"], ikizler: ["C", "D"], serbest: ["u1", "u2"] },
+    free: defaultFree(),
+    nextId: 4,
+    drag: null,
+    frozen: null,
+  };
+  const sim = { t: 0, rest: null, moving: null, restTicks: [], movTicks: [], ship: null, tau: 0, turn: null, arrival: null };
+  let dpr = 1;
+  let dirty = true;
+  let readoutsDirty = true;
+
+  /* ── Lorentz dönüşümü (c = 1) ── */
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const gammaOf = (b) => 1 / Math.sqrt(1 - b * b);
+  function toPrime(ct, x, b) {
+    const g = gammaOf(b);
+    return { ct: g * (ct - b * x), x: g * (x - b * ct) };
+  }
+  function fromPrime(ctp, xp, b) {
+    const g = gammaOf(b);
+    return { ct: g * (ctp + b * xp), x: g * (xp + b * ctp) };
+  }
+  // Uzaklaşan kaynak için alınan periyot / yayınlanan periyot
+  const doppler = (b) => Math.sqrt((1 + Math.abs(b)) / (1 - Math.abs(b)));
+  function classify(dct, dx) {
+    const s2 = dct * dct - dx * dx;
+    const scale = dct * dct + dx * dx;
+    if (scale < 1e-18) return { s2, kind: "same" };
+    const tol = 1e-9 * scale;
+    return { s2, kind: s2 > tol ? "time" : s2 < -tol ? "space" : "light" };
+  }
+
+  function fmt(v, d = 2) {
+    if (!Number.isFinite(v)) return "—";
+    const r = Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v;
+    return r.toFixed(d).replace("-", MINUS);
+  }
+  function diffText(meas, theo, unit) {
+    if (!Number.isFinite(meas) || !Number.isFinite(theo)) return "—";
+    if (Math.abs(theo) < 1e-9) return `${fmt(meas - theo, 3)} ${unit}`.trim();
+    const p = ((meas - theo) / Math.abs(theo)) * 100;
+    const r = Math.abs(p) < 0.005 ? 0 : p;
+    return `${r >= 0 ? "+" : MINUS}${Math.abs(r).toFixed(2)} %`;
+  }
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  /* ── Senaryolar ── */
+  function twin() {
+    const b = Math.abs(state.beta);
+    const s = state.beta < 0 ? -1 : 1;
+    const ok = b >= TWIN_MIN - 1e-9;
+    const g = gammaOf(b);
+    const D = state.D;
+    const T = ok ? (2 * D) / b : 0;
+    return { ok, b, s, g, D, T, tTurn: T / 2, xTurn: s * D, tau: T / g, tE1: T / 2 - b * D, tE2: T / 2 + b * D };
+  }
+
+  function span() {
+    switch (state.scenario) {
+      case "isik-saati":
+      case "uzunluk":
+        return { t0: 0, t1: 8, rate: 1 };
+      case "eszamanlilik":
+        return { t0: -1, t1: 8, rate: 1 };
+      case "ikizler": {
+        const tw = twin();
+        return tw.ok ? { t0: 0, t1: tw.T, rate: Math.max(1, tw.T / 10) } : { t0: 0, t1: 0, rate: 0 };
+      }
+      default:
+        return { t0: 0, t1: 0, rate: 0 };
+    }
+  }
+
+  function rodEvents() {
+    const b = state.beta, g = gammaOf(b);
+    const tc = clamp(sim.t, 0, 8);
+    const back = { ct: tc, x: b * tc };
+    const front = { ct: tc, x: b * tc + state.L0 / g };
+    const bp = toPrime(back.ct, back.x, b);
+    const frontP = fromPrime(bp.ct, state.L0, b);
+    return { tc, back, front, frontP };
+  }
+
+  function getEvents() {
+    const b = state.beta, g = gammaOf(b);
+    switch (state.scenario) {
+      case "isik-saati":
+        return [
+          { key: "O", tag: "O", name: "Başlangıç: iki saat yan yana", ct: 0, x: 0 },
+          { key: "D5", tag: "D5", name: "Duran saatin 5. tıkı", ct: 5 * T0, x: 0 },
+          { key: "H4", tag: "H4", name: "Hareketli saatin 4. tıkı", ct: 4 * g * T0, x: 4 * g * b * T0 },
+        ];
+      case "eszamanlilik": {
+        const d = state.dx / 2;
+        return [
+          { key: "A", tag: "A", name: "Şimşek A", ct: 0, x: -d },
+          { key: "B", tag: "B", name: "Şimşek B", ct: 0, x: d },
+          { key: "S", tag: "S", name: "S gözlemcisi iki ışığı birlikte görür", ct: d, x: 0 },
+          { key: "PB", tag: "S′B", name: "S′ gözlemcisi B'nin ışığını görür", ct: d / (1 + b), x: (b * d) / (1 + b) },
+          { key: "PA", tag: "S′A", name: "S′ gözlemcisi A'nın ışığını görür", ct: d / (1 - b), x: (b * d) / (1 - b) },
+        ];
+      }
+      case "uzunluk": {
+        const r = rodEvents();
+        return [
+          { key: "U1", tag: "U₁", name: "Arka uç (x′ = 0), şu anki S anında", ct: r.back.ct, x: r.back.x },
+          { key: "U2", tag: "U₂", name: "Ön uç, S'ye göre U₁ ile aynı anda", ct: r.front.ct, x: r.front.x },
+          { key: "U3", tag: "U₃", name: "Ön uç, S′'ye göre U₁ ile aynı anda", ct: r.frontP.ct, x: r.frontP.x },
+        ];
+      }
+      case "ikizler": {
+        const tw = twin();
+        if (!tw.ok) return [{ key: "C", tag: "Ç", name: "Ayrılış (Dünya)", ct: 0, x: 0 }];
+        return [
+          { key: "C", tag: "Ç", name: "Ayrılış (Dünya)", ct: 0, x: 0 },
+          { key: "D", tag: "D", name: "Dönüş (yıldızda)", ct: tw.tTurn, x: tw.xTurn, drag: "turn" },
+          { key: "V", tag: "V", name: "Varış (Dünya)", ct: tw.T, x: 0 },
+          { key: "E1", tag: "E₁", name: "Dünya: dönüşten hemen önce yolcuya göre eşzamanlı", ct: tw.tE1, x: 0 },
+          { key: "E2", tag: "E₂", name: "Dünya: dönüşten hemen sonra yolcuya göre eşzamanlı", ct: tw.tE2, x: 0 },
+        ];
+      }
+      default:
+        return state.free.map((e) => ({ key: e.key, tag: e.tag, name: `Olay ${e.tag}`, ct: e.ct, x: e.x, drag: "free" }));
+    }
+  }
+
+  function selection(events) {
+    const keys = state.sel[state.scenario] || [];
+    return keys.map((k) => events.find((e) => e.key === k)).filter(Boolean);
+  }
+  function select(key) {
+    const cur = state.sel[state.scenario] || [];
+    if (cur.includes(key)) return;
+    state.sel[state.scenario] = cur.concat(key).slice(-2);
+    dirty = readoutsDirty = true;
+  }
+  function unselect(key) {
+    state.sel[state.scenario] = (state.sel[state.scenario] || []).filter((k) => k !== key);
+    dirty = readoutsDirty = true;
+  }
+
+  /* ── Benzetim: sabit adımlı, olay güdümlü yansıma ── */
+  function resetSim() {
+    const sp = span();
+    const tw = twin();
+    sim.t = sp.t0;
+    sim.rest = { y: 0, vy: 1 };
+    // S'de ışığın hız büyüklüğü c = 1; yatay bileşen β olduğundan dikey bileşen √(1 − β²)
+    sim.moving = { y: 0, vy: Math.sqrt(1 - state.beta * state.beta) };
+    sim.restTicks = [];
+    sim.movTicks = [];
+    sim.ship = { x: 0, v: tw.ok ? tw.s * tw.b : 0, leg: tw.ok ? 1 : 0 };
+    sim.tau = 0;
+    sim.turn = null;
+    sim.arrival = null;
+  }
+
+  function advancePhoton(p, dt, t, ticks) {
+    let rem = dt;
+    while (rem > 1e-15) {
+      const target = p.vy > 0 ? H_CLOCK : 0;
+      const hit = (target - p.y) / p.vy;
+      if (hit > rem + 1e-9) {
+        p.y += p.vy * rem;
+        rem = 0;
+      } else {
+        const h = Math.max(0, hit);
+        t += h;
+        rem -= h;
+        p.y = target;
+        p.vy = -p.vy;
+        if (target === 0) ticks.push(t);
+      }
+    }
+  }
+
+  function advanceShip(dt, t) {
+    const tw = twin();
+    const sh = sim.ship;
+    let rem = dt;
+    while (rem > 1e-15 && sh.leg > 0) {
+      const target = sh.leg === 1 ? tw.xTurn : 0;
+      const hit = (target - sh.x) / sh.v;
+      const rate = Math.sqrt(1 - sh.v * sh.v); // dτ/dt = √(1 − v²/c²)
+      if (hit > rem + 1e-9) {
+        sh.x += sh.v * rem;
+        sim.tau += rem * rate;
+        rem = 0;
+      } else {
+        const h = Math.max(0, hit);
+        sim.tau += h * rate;
+        t += h;
+        rem -= h;
+        sh.x = target;
+        if (sh.leg === 1) {
+          sim.turn = { t, tau: sim.tau };
+          sh.v = -sh.v;
+          sh.leg = 2;
+        } else {
+          sim.arrival = { t, tau: sim.tau };
+          sh.v = 0;
+          sh.leg = 0;
+        }
+      }
+    }
+    if (rem > 0 && sh.leg === 0) sim.tau += rem;
+  }
+
+  function step(h) {
+    const sp = span();
+    const t0 = sim.t;
+    const t1 = Math.min(sp.t1, t0 + h);
+    if (t1 - t0 <= 1e-12) return false;
+    if (state.scenario === "isik-saati" && t1 > 0) {
+      const a = Math.max(0, t0);
+      advancePhoton(sim.rest, t1 - a, a, sim.restTicks);
+      advancePhoton(sim.moving, t1 - a, a, sim.movTicks);
+    } else if (state.scenario === "ikizler") {
+      advanceShip(t1 - t0, t0);
+    }
+    sim.t = t1;
+    return true;
+  }
+
+  // Zaman kaydırıcısı ve parametre değişiminde aynı sabit adımla baştan yeniden hesaplanır.
+  function setTime(target) {
+    const sp = span();
+    resetSim();
+    const goal = clamp(target, sp.t0, sp.t1);
+    const h = sp.rate * DT;
+    let guard = 0;
+    while (h > 0 && sim.t < goal - 1e-12 && guard++ < 100000) step(Math.min(h, goal - sim.t));
+    dirty = readoutsDirty = true;
+  }
+
+  /* ── Görünüm ── */
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light
+      ? {
+          light, ink: "#1a1d2e", muted: "#5a5f7a", accent: "#0d9488", accent2: "#7c3aed", warm: "#d97706",
+          danger: "#dc2626", event: "#db2777", earth: "#2563eb",
+          grid: "rgba(0,0,0,0.07)", gridStrong: "rgba(0,0,0,0.3)", primeGrid: "rgba(13,148,136,0.24)",
+          hyper: "rgba(124,58,237,0.4)", cone: "rgba(217,119,6,0.07)", strip: "rgba(13,148,136,0.14)",
+          labelBg: "rgba(247,249,252,0.9)",
+        }
+      : {
+          light, ink: "#e8ecf4", muted: "#8b95a8", accent: "#5eead4", accent2: "#a78bfa", warm: "#fbbf24",
+          danger: "#f87171", event: "#f472b6", earth: "#60a5fa",
+          grid: "rgba(255,255,255,0.07)", gridStrong: "rgba(255,255,255,0.3)", primeGrid: "rgba(94,234,212,0.2)",
+          hyper: "rgba(167,139,250,0.48)", cone: "rgba(251,191,36,0.06)", strip: "rgba(94,234,212,0.14)",
+          labelBg: "rgba(8,12,22,0.82)",
+        };
+  }
+
+  function niceStep(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const f = raw / p;
+    return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p;
+  }
+  const tickText = (v) => (Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : v.toFixed(1)).replace("-", MINUS);
+
+  // Senaryonun mutlaka görünmesi gereken bölge (ı.y.)
+  function viewBox() {
+    const b = state.beta, g = gammaOf(b);
+    switch (state.scenario) {
+      case "isik-saati":
+        return { ctMin: -0.6, ctMax: 8.6, xMin: Math.min(0, 8 * b) - 0.8, xMax: Math.max(0, 8 * b) + 0.8 };
+      case "eszamanlilik": {
+        const d = state.dx / 2;
+        return { ctMin: -3, ctMax: 8, xMin: -d - 1, xMax: d + 1 };
+      }
+      case "uzunluk": {
+        const L = state.L0 / g;
+        return { ctMin: -0.6, ctMax: 8.6, xMin: Math.min(0, 8 * b) - 0.6, xMax: Math.max(L, 8 * b + L) + 0.6 };
+      }
+      case "ikizler": {
+        const tw = twin();
+        const T = tw.ok ? tw.T : 10;
+        const xs = tw.s * state.D;
+        return { ctMin: -0.06 * T, ctMax: 1.12 * T, xMin: Math.min(0, xs) - 0.6, xMax: Math.max(0, xs) + 0.6 };
+      }
+      default:
+        return { ctMin: -5, ctMax: 5, xMin: -5, xMax: 5 };
+    }
+  }
+
+  // Eşit ölçekli eşleme: ışık doğruları ekranda tam 45°.
+  function mapping() {
+    if (state.frozen) return state.frozen;
+    const W = diagram.width, H = diagram.height;
+    const padL = 36 * dpr, padR = 10 * dpr, padT = 10 * dpr, padB = 26 * dpr;
+    const pw = Math.max(10, W - padL - padR), ph = Math.max(10, H - padT - padB);
+    const v = viewBox();
+    const scale = Math.min(pw / (v.xMax - v.xMin), ph / (v.ctMax - v.ctMin));
+    const xMin = (v.xMin + v.xMax) / 2 - pw / scale / 2;
+    const ctMin = (v.ctMin + v.ctMax) / 2 - ph / scale / 2;
+    const m = { padL, padR, padT, padB, pw, ph, scale, xMin, ctMin, xMax: xMin + pw / scale, ctMax: ctMin + ph / scale };
+    m.X = (x) => padL + (x - xMin) * scale;
+    m.Y = (ct) => padT + ph - (ct - ctMin) * scale;
+    m.step = niceStep((m.ctMax - m.ctMin) / 10);
+    return m;
+  }
+
+  function tag(c, text, x, y, color, th, align = "left", size = 11) {
+    c.font = `${size * dpr}px ${FONT}`;
+    c.textAlign = align;
+    c.textBaseline = "middle";
+    const w = c.measureText(text).width;
+    const x0 = align === "left" ? x : align === "right" ? x - w : x - w / 2;
+    c.fillStyle = th.labelBg;
+    c.fillRect(x0 - 3 * dpr, y - (size * 0.7 + 1) * dpr, w + 6 * dpr, (size * 1.4 + 2) * dpr);
+    c.fillStyle = color;
+    c.fillText(text, x, y);
+  }
+  // Metni [lo, hi] yatay aralığına sığdırarak yazar
+  function tagIn(c, text, x, y, color, th, lo, hi, size = 11) {
+    c.font = `${size * dpr}px ${FONT}`;
+    const w = c.measureText(text).width;
+    const x0 = clamp(x - w / 2, lo + 3 * dpr, Math.max(lo + 3 * dpr, hi - w - 3 * dpr));
+    tag(c, text, x0, y, color, th, "left", size);
+  }
+
+  function axisExit(m, dct, dx) {
+    const mc = (18 * dpr) / m.scale, mx = (24 * dpr) / m.scale;
+    let s = Infinity;
+    if (dct > 0) s = Math.min(s, (m.ctMax - mc) / dct);
+    if (dct < 0) s = Math.min(s, (m.ctMin + mc) / dct);
+    if (dx > 0) s = Math.min(s, (m.xMax - mx) / dx);
+    if (dx < 0) s = Math.min(s, (m.xMin + mx) / dx);
+    return s > 0 && Number.isFinite(s) ? { ct: s * dct, x: s * dx } : null;
+  }
+
+  const hyperCache = { key: "", path: null };
+  function hyperPath(m) {
+    const key = [m.xMin, m.ctMin, m.scale, m.step, m.pw, m.ph].map((v) => v.toFixed(5)).join("|");
+    if (hyperCache.key === key) return hyperCache.path;
+    const p = new Path2D();
+    const ext = Math.max(Math.abs(m.xMin), Math.abs(m.xMax), Math.abs(m.ctMin), Math.abs(m.ctMax));
+    const rMax = Math.max(Math.hypot(m.xMin, m.ctMin), Math.hypot(m.xMax, m.ctMin), Math.hypot(m.xMin, m.ctMax), Math.hypot(m.xMax, m.ctMax));
+    const N = 72;
+    for (let k = 1; k * m.step <= rMax && k <= 40; k++) {
+      const n = k * m.step;
+      const u = Math.asinh(ext / n) + 0.05;
+      for (const sg of [1, -1]) {
+        for (let i = 0; i <= N; i++) {
+          const uu = -u + (2 * u * i) / N;
+          const X = m.X(n * Math.sinh(uu)), Y = m.Y(sg * n * Math.cosh(uu)); // c²t² − x² = +n²
+          if (i) p.lineTo(X, Y); else p.moveTo(X, Y);
+        }
+        for (let i = 0; i <= N; i++) {
+          const uu = -u + (2 * u * i) / N;
+          const X = m.X(sg * n * Math.cosh(uu)), Y = m.Y(n * Math.sinh(uu)); // c²t² − x² = −n²
+          if (i) p.lineTo(X, Y); else p.moveTo(X, Y);
+        }
+      }
+    }
+    hyperCache.key = key;
+    hyperCache.path = p;
+    return p;
+  }
+
+  function drawPrimeGrid(c, m, b, th) {
+    const st = m.step;
+    const corners = [[m.ctMin, m.xMin], [m.ctMin, m.xMax], [m.ctMax, m.xMin], [m.ctMax, m.xMax]].map(([ct, x]) => toPrime(ct, x, b));
+    const cps = corners.map((p) => p.ct), xps = corners.map((p) => p.x);
+    const cLo = Math.min(...cps), cHi = Math.max(...cps), xLo = Math.min(...xps), xHi = Math.max(...xps);
+    c.strokeStyle = th.primeGrid;
+    c.lineWidth = 1 * dpr;
+    c.beginPath();
+    for (let k = Math.ceil(xLo / st), n = 0; k * st <= xHi && n < 120; k++, n++) {
+      const p1 = fromPrime(cLo - 1, k * st, b), p2 = fromPrime(cHi + 1, k * st, b);
+      c.moveTo(m.X(p1.x), m.Y(p1.ct));
+      c.lineTo(m.X(p2.x), m.Y(p2.ct));
+    }
+    for (let k = Math.ceil(cLo / st), n = 0; k * st <= cHi && n < 120; k++, n++) {
+      const p1 = fromPrime(k * st, xLo - 1, b), p2 = fromPrime(k * st, xHi + 1, b);
+      c.moveTo(m.X(p1.x), m.Y(p1.ct));
+      c.lineTo(m.X(p2.x), m.Y(p2.ct));
+    }
+    c.stroke();
+  }
+
+  function drawDiagram(th) {
+    const c = dctx, W = diagram.width, H = diagram.height, m = mapping();
+    const { X, Y } = m;
+    const st = m.step;
+    const b = state.beta, g = gammaOf(b);
+    const R = 3 * (Math.abs(m.xMin) + Math.abs(m.xMax) + Math.abs(m.ctMin) + Math.abs(m.ctMax));
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, W, H);
+    c.save();
+    c.beginPath();
+    c.rect(m.padL, m.padT, m.pw, m.ph);
+    c.clip();
+
+    // Işık konisinin içi: başlangıç olayına göre zamansı bölge
+    c.fillStyle = th.cone;
+    c.beginPath();
+    c.moveTo(X(0), Y(0)); c.lineTo(X(-R), Y(R)); c.lineTo(X(R), Y(R)); c.closePath();
+    c.moveTo(X(0), Y(0)); c.lineTo(X(-R), Y(-R)); c.lineTo(X(R), Y(-R)); c.closePath();
+    c.fill();
+
+    c.strokeStyle = th.grid;
+    c.lineWidth = 1 * dpr;
+    c.beginPath();
+    for (let k = Math.ceil(m.xMin / st); k * st <= m.xMax; k++) { const x = X(k * st); c.moveTo(x, m.padT); c.lineTo(x, m.padT + m.ph); }
+    for (let k = Math.ceil(m.ctMin / st); k * st <= m.ctMax; k++) { const y = Y(k * st); c.moveTo(m.padL, y); c.lineTo(m.padL + m.pw, y); }
+    c.stroke();
+
+    if (state.grid) drawPrimeGrid(c, m, b, th);
+    if (state.hyper) {
+      c.strokeStyle = th.hyper;
+      c.lineWidth = 1.2 * dpr;
+      c.stroke(hyperPath(m));
+    }
+
+    c.save();
+    c.setLineDash([7 * dpr, 5 * dpr]);
+    c.strokeStyle = th.warm;
+    c.lineWidth = 1.5 * dpr;
+    c.beginPath();
+    c.moveTo(X(-R), Y(-R)); c.lineTo(X(R), Y(R));
+    c.moveTo(X(-R), Y(R)); c.lineTo(X(R), Y(-R));
+    c.stroke();
+    c.restore();
+
+    c.strokeStyle = th.ink;
+    c.lineWidth = 1.4 * dpr;
+    c.beginPath();
+    c.moveTo(X(0), m.padT); c.lineTo(X(0), m.padT + m.ph);
+    c.moveTo(m.padL, Y(0)); c.lineTo(m.padL + m.pw, Y(0));
+    c.stroke();
+
+    // S′ eksenleri: ct′ ekseni x = βct (ct–x düzleminde eğim 1/β), x′ ekseni ct = βx
+    c.strokeStyle = th.accent;
+    c.lineWidth = 2 * dpr;
+    c.beginPath();
+    c.moveTo(X(-R * b), Y(-R)); c.lineTo(X(R * b), Y(R));
+    c.moveTo(X(-R), Y(-R * b)); c.lineTo(X(R), Y(R * b));
+    c.stroke();
+
+    // S′ birim işaretleri: (ct′, x′) = (n, 0) ve (0, n); hiperbollerin eksenleri kestiği noktalar
+    const spacing = st * g * Math.sqrt(1 + b * b) * m.scale;
+    const every = spacing >= 20 * dpr ? 1 : spacing >= 11 * dpr ? 2 : 0;
+    const kMax = Math.min(60, Math.ceil((1.5 * Math.max(Math.abs(m.xMin), Math.abs(m.xMax), Math.abs(m.ctMin), Math.abs(m.ctMax))) / st));
+    c.fillStyle = th.accent;
+    c.font = `${10 * dpr}px ${FONT}`;
+    c.textBaseline = "middle";
+    for (let k = -kMax; k <= kMax; k++) {
+      if (!k) continue;
+      const v = k * st;
+      const pts = [fromPrime(v, 0, b), fromPrime(0, v, b)];
+      pts.forEach((pt, axis) => {
+        const sx = X(pt.x), sy = Y(pt.ct);
+        if (sx < m.padL - 6 || sx > m.padL + m.pw + 6 || sy < m.padT - 6 || sy > m.padT + m.ph + 6) return;
+        c.beginPath();
+        c.arc(sx, sy, 2.6 * dpr, 0, Math.PI * 2);
+        c.fill();
+        if (!every || k % every) return;
+        if (axis === 0) {
+          c.textAlign = b >= 0 ? "left" : "right";
+          c.fillText(tickText(v), sx + (b >= 0 ? 7 : -7) * dpr, sy + 1 * dpr);
+        } else {
+          c.textAlign = "center";
+          c.fillText(tickText(v), sx, sy + (b >= 0 ? -10 : 10) * dpr);
+        }
+      });
+    }
+
+    drawScenarioDiagram(c, m, th);
+
+    const sp = span();
+    if (sp.rate > 0) {
+      const y = Y(sim.t);
+      c.save();
+      c.setLineDash([3 * dpr, 4 * dpr]);
+      c.strokeStyle = th.muted;
+      c.lineWidth = 1.2 * dpr;
+      c.beginPath();
+      c.moveTo(m.padL, y);
+      c.lineTo(m.padL + m.pw, y);
+      c.stroke();
+      c.restore();
+    }
+
+    const evs = getEvents();
+    const sel = selection(evs);
+    if (sel.length === 2) {
+      const [p, q] = sel;
+      const kind = classify(q.ct - p.ct, q.x - p.x).kind;
+      c.save();
+      c.setLineDash([2 * dpr, 4 * dpr]);
+      c.strokeStyle = kind === "time" ? th.accent : kind === "space" ? th.danger : th.warm;
+      c.lineWidth = 2.2 * dpr;
+      c.beginPath();
+      c.moveTo(X(p.x), Y(p.ct));
+      c.lineTo(X(q.x), Y(q.ct));
+      c.stroke();
+      c.restore();
+    }
+    for (const e of evs) {
+      const sx = X(e.x), sy = Y(e.ct);
+      if (sel.includes(e)) {
+        c.strokeStyle = th.warm;
+        c.lineWidth = 2.2 * dpr;
+        c.beginPath();
+        c.arc(sx, sy, 9 * dpr, 0, Math.PI * 2);
+        c.stroke();
+      }
+      c.fillStyle = th.event;
+      c.beginPath();
+      c.arc(sx, sy, (e.drag ? 6 : 5) * dpr, 0, Math.PI * 2);
+      c.fill();
+      const right = sx < m.padL + m.pw - 40 * dpr;
+      tag(c, e.tag, sx + (right ? 11 : -11) * dpr, sy - 11 * dpr, th.ink, th, right ? "left" : "right", 11);
+    }
+    if (sp.rate > 0) tag(c, `S'de şimdi: t = ${fmt(sim.t)} yıl`, m.padL + m.pw - 6 * dpr, Y(sim.t) - 10 * dpr, th.muted, th, "right", 10);
+    c.restore();
+
+    c.strokeStyle = th.grid;
+    c.lineWidth = 1 * dpr;
+    c.strokeRect(m.padL, m.padT, m.pw, m.ph);
+    c.fillStyle = th.muted;
+    c.font = `${10.5 * dpr}px ${FONT}`;
+    c.textAlign = "right";
+    c.textBaseline = "middle";
+    for (let k = Math.ceil(m.ctMin / st); k * st <= m.ctMax; k++) {
+      const y = Y(k * st);
+      if (y < m.padT + 6 * dpr || y > m.padT + m.ph - 3 * dpr) continue;
+      c.fillText(tickText(k * st), m.padL - 5 * dpr, y);
+    }
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    for (let k = Math.ceil(m.xMin / st); k * st <= m.xMax; k++) {
+      const x = X(k * st);
+      if (x < m.padL + 6 * dpr || x > m.padL + m.pw - 6 * dpr) continue;
+      c.fillText(tickText(k * st), x, m.padT + m.ph + 6 * dpr);
+    }
+
+    if (X(0) > m.padL && X(0) < m.padL + m.pw) tag(c, "ct (ı.y.)", X(0) + (b >= 0 ? -6 : 6) * dpr, m.padT + 12 * dpr, th.ink, th, b >= 0 ? "right" : "left", 11);
+    if (Y(0) > m.padT && Y(0) < m.padT + m.ph) tag(c, "x (ı.y.)", m.padL + m.pw - 6 * dpr, Y(0) + (b >= 0 ? 12 : -12) * dpr, th.ink, th, "right", 11);
+    const e1 = axisExit(m, 1, b), e2 = axisExit(m, b, 1);
+    if (e1) tagIn(c, "ct′", X(e1.x) + (b >= 0 ? 16 : -16) * dpr, Y(e1.ct) + 4 * dpr, th.accent, th, m.padL, m.padL + m.pw, 12);
+    if (e2) tagIn(c, "x′", X(e2.x), Y(e2.ct) + (b >= 0 ? -13 : 13) * dpr, th.accent, th, m.padL, m.padL + m.pw, 12);
+  }
+
+  function drawScenarioDiagram(c, m, th) {
+    const { X, Y } = m;
+    const b = state.beta, g = gammaOf(b), t = sim.t;
+    const seg = (x1, c1, x2, c2) => { c.beginPath(); c.moveTo(X(x1), Y(c1)); c.lineTo(X(x2), Y(c2)); c.stroke(); };
+    const dot = (x, ct, r, fill) => { c.fillStyle = fill; c.beginPath(); c.arc(X(x), Y(ct), r * dpr, 0, Math.PI * 2); c.fill(); };
+    const ring = (x, ct, r, stroke) => { c.strokeStyle = stroke; c.lineWidth = 1.8 * dpr; c.beginPath(); c.arc(X(x), Y(ct), r * dpr, 0, Math.PI * 2); c.stroke(); };
+    const lo = m.padL, hi = m.padL + m.pw;
+    switch (state.scenario) {
+      case "isik-saati": {
+        const tEnd = span().t1;
+        c.lineWidth = 3 * dpr;
+        c.strokeStyle = th.ink; seg(0, 0, 0, tEnd);
+        c.strokeStyle = th.accent; seg(0, 0, b * tEnd, tEnd);
+        c.strokeStyle = th.warm;
+        c.lineWidth = 1.2 * dpr;
+        for (let n = 1; n * g * T0 <= tEnd; n++) {
+          const te = n * g * T0, xe = b * te;
+          if (te > t + 1e-9) break;
+          const tt = Math.min(t, te + Math.abs(xe));
+          seg(xe, te, xe - Math.sign(xe) * (tt - te), tt);
+        }
+        for (let n = 1; n * T0 <= tEnd; n++) dot(0, n * T0, n * T0 <= t + 1e-9 ? 4 : 2.4, th.ink);
+        for (let n = 1; n * g * T0 <= tEnd; n++) dot(b * n * g * T0, n * g * T0, n * g * T0 <= t + 1e-9 ? 4.6 : 3, th.accent);
+        if (t > 0) {
+          c.save();
+          c.setLineDash([5 * dpr, 4 * dpr]);
+          c.strokeStyle = th.accent;
+          c.lineWidth = 1.2 * dpr;
+          seg(b * t - 60, t - 60 * b, b * t + 60, t + 60 * b);
+          c.restore();
+          ring(0, t / (g * g), 5, th.accent);
+        }
+        const sg = b >= 0 ? 1 : -1;
+        tag(c, "duran saat", X(0) + sg * 8 * dpr, Y(tEnd - 0.4), th.ink, th, sg > 0 ? "left" : "right", 10);
+        tag(c, "hareketli saat", X(b * (tEnd - 1.6)) - sg * 8 * dpr, Y(tEnd - 1.6), th.accent, th, sg > 0 ? "right" : "left", 10);
+        break;
+      }
+      case "eszamanlilik": {
+        const d = state.dx / 2;
+        c.lineWidth = 3 * dpr;
+        c.strokeStyle = th.ink; seg(0, m.ctMin, 0, m.ctMax);
+        c.strokeStyle = th.accent; seg(b * m.ctMin, m.ctMin, b * m.ctMax, m.ctMax);
+        c.save();
+        c.setLineDash([6 * dpr, 4 * dpr]);
+        c.lineWidth = 1.6 * dpr;
+        c.strokeStyle = th.accent;
+        for (const xs of [-d, d]) seg(xs - 60, -60 * b, xs + 60, 60 * b); // ct = β(x − x_s)
+        c.restore();
+        if (t > 0) {
+          c.strokeStyle = th.warm;
+          c.lineWidth = 1.6 * dpr;
+          for (const xs of [-d, d]) { seg(xs, 0, xs + t, t); seg(xs, 0, xs - t, t); }
+        }
+        for (const xs of [-d, d]) {
+          const p = fromPrime(toPrime(0, xs, b).ct, 0, b);
+          ring(p.x, p.ct, 5, th.accent);
+        }
+        const xr = m.xMax - 0.2;
+        const yA = Y(b * (xr + d)), yB = Y(b * (xr - d));
+        tag(c, "S′ için A ile eşzamanlı", hi - 6 * dpr, yA - 10 * dpr, th.accent, th, "right", 10);
+        if (Math.abs(yA - yB) > 22 * dpr) tag(c, "S′ için B ile eşzamanlı", hi - 6 * dpr, yB - 10 * dpr, th.accent, th, "right", 10);
+        tag(c, "S için eşzamanlı (ct = 0)", lo + 6 * dpr, Y(0) + (b >= 0 ? 24 : -24) * dpr, th.ink, th, "left", 10);
+        break;
+      }
+      case "uzunluk": {
+        const L = state.L0 / g, r = rodEvents();
+        const c0 = m.ctMin, c1 = m.ctMax;
+        c.fillStyle = th.strip;
+        c.beginPath();
+        c.moveTo(X(b * c0), Y(c0)); c.lineTo(X(b * c1), Y(c1)); c.lineTo(X(b * c1 + L), Y(c1)); c.lineTo(X(b * c0 + L), Y(c0));
+        c.closePath();
+        c.fill();
+        c.strokeStyle = th.accent;
+        c.lineWidth = 1.8 * dpr;
+        seg(b * c0, c0, b * c1, c1);
+        seg(b * c0 + L, c0, b * c1 + L, c1);
+        c.lineWidth = 4 * dpr;
+        c.strokeStyle = th.ink; seg(r.back.x, r.back.ct, r.front.x, r.front.ct);
+        c.strokeStyle = th.accent2; seg(r.back.x, r.back.ct, r.frontP.x, r.frontP.ct);
+        tagIn(c, `S: L = ${fmt(L)} ı.y.`, X((r.back.x + r.front.x) / 2), Y(r.tc) + 14 * dpr, th.ink, th, lo, hi, 11);
+        tagIn(c, `S′: L₀ = ${fmt(state.L0)} ı.y.`, X((r.back.x + r.frontP.x) / 2) - 30 * dpr, Y((r.back.ct + r.frontP.ct) / 2) - 16 * dpr, th.accent2, th, lo, hi, 11);
+        break;
+      }
+      case "ikizler": {
+        const tw = twin();
+        if (!tw.ok) {
+          tagIn(c, "İkizler için |β| ≥ 0.10 seç", (lo + hi) / 2, m.padT + m.ph / 2, th.danger, th, lo, hi, 13);
+          break;
+        }
+        const { T, tTurn, xTurn } = tw;
+        const bo = tw.s * tw.b;
+        c.save();
+        c.setLineDash([4 * dpr, 4 * dpr]);
+        c.strokeStyle = th.muted;
+        c.lineWidth = 1.2 * dpr;
+        seg(xTurn, m.ctMin, xTurn, m.ctMax);
+        c.restore();
+        const tauStep = tw.tau <= 30 ? 1 : niceStep(tw.tau / 15);
+        c.lineWidth = 1 * dpr;
+        for (let k = 1; k * tauStep < tw.tau - 1e-9; k++) {
+          const tau = k * tauStep, half = tw.tau / 2;
+          if (Math.abs(tau - half) < 1e-9) continue;
+          const out = tau < half;
+          const ev = out ? { ct: tw.g * tau, x: bo * tw.g * tau } : { ct: tTurn + tw.g * (tau - half), x: xTurn - bo * tw.g * (tau - half) };
+          const bf = out ? bo : -bo;
+          c.strokeStyle = out ? th.accent : th.accent2;
+          c.globalAlpha = 0.5;
+          seg(ev.x, ev.ct, 0, ev.ct - bf * ev.x);
+          c.globalAlpha = 1;
+          dot(ev.x, ev.ct, 3, out ? th.accent : th.accent2);
+        }
+        c.save();
+        c.setLineDash([6 * dpr, 4 * dpr]);
+        c.lineWidth = 1.8 * dpr;
+        c.strokeStyle = th.accent; seg(xTurn, tTurn, 0, tw.tE1);
+        c.strokeStyle = th.accent2; seg(xTurn, tTurn, 0, tw.tE2);
+        c.restore();
+        c.lineWidth = 3 * dpr;
+        c.strokeStyle = th.earth; seg(0, 0, 0, T);
+        c.strokeStyle = th.accent; seg(0, 0, xTurn, tTurn);
+        c.strokeStyle = th.accent2; seg(xTurn, tTurn, 0, T);
+        c.strokeStyle = th.danger;
+        c.lineWidth = 5 * dpr;
+        seg(0, tw.tE1, 0, tw.tE2);
+        if (sim.ship) {
+          dot(0, Math.min(sim.t, T), 4, th.earth);
+          dot(sim.ship.x, sim.t, 5.5, sim.ship.leg === 2 ? th.accent2 : th.accent);
+        }
+        const room = tw.s > 0 ? X(0) - lo : hi - X(0);
+        const side = room > 130 * dpr ? -tw.s : tw.s;
+        tag(c, `sıçrama ${fmt(tw.tE2 - tw.tE1)} yıl`, X(0) + side * 10 * dpr, Y((tw.tE1 + tw.tE2) / 2), th.danger, th, side > 0 ? "left" : "right", 11);
+        tag(c, "Dünya", X(0) + side * 10 * dpr, Y(0.9 * T), th.earth, th, side > 0 ? "left" : "right", 11);
+        tag(c, "yıldız", X(xTurn) + tw.s * 8 * dpr, Y(0.12 * T), th.muted, th, tw.s > 0 ? "left" : "right", 10);
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  /* ── Gerçek uzay şeridi: S'nin o anki "fotoğrafı", x ekseni diyagramla hizalı ── */
+  function drawSpace(th) {
+    if (space.hidden) return;
+    const W = space.width, H = space.height, c = sctx, m = mapping();
+    if (!W || !H) return;
+    const kx = W / diagram.width;
+    const X = (x) => (m.padL + (x - m.xMin) * m.scale) * kx;
+    const lo = m.padL * kx, hi = (m.padL + m.pw) * kx;
+    const yG = H - 30 * dpr;
+    const b = state.beta, g = gammaOf(b), t = sim.t;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, W, H);
+    c.strokeStyle = th.gridStrong;
+    c.lineWidth = 1 * dpr;
+    c.fillStyle = th.muted;
+    c.font = `${10 * dpr}px ${FONT}`;
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    c.beginPath();
+    c.moveTo(lo, yG);
+    c.lineTo(hi, yG);
+    for (let k = Math.ceil(m.xMin / m.step); k * m.step <= m.xMax; k++) {
+      const x = X(k * m.step);
+      c.moveTo(x, yG);
+      c.lineTo(x, yG + 5 * dpr);
+      if (x > lo + 6 * dpr && x < hi - 6 * dpr) c.fillText(tickText(k * m.step), x, yG + 8 * dpr);
+    }
+    c.stroke();
+    c.save();
+    c.beginPath();
+    c.rect(lo, 0, hi - lo, H);
+    c.clip();
+    const status = (text, row, color) => tag(c, text, lo + 4 * dpr, (13 + row * 17) * dpr, color || th.muted, th, "left", 10);
+    const circle = (x, y, r, fill) => { c.fillStyle = fill; c.beginPath(); c.arc(x, y, r * dpr, 0, Math.PI * 2); c.fill(); };
+
+    switch (state.scenario) {
+      case "isik-saati": {
+        const tt = Math.max(0, t);
+        const cH = clamp(H - 100 * dpr, 34 * dpr, H * 0.5);
+        const yb = yG - 8 * dpr, yt = yb - cH;
+        const Tm = g * T0;
+        c.strokeStyle = th.warm;
+        c.lineWidth = 1.4 * dpr;
+        c.globalAlpha = 0.55;
+        c.beginPath();
+        for (let i = 0; i <= 40; i++) {
+          const ti = tt - (i * Tm) / 40;
+          if (ti < 0) break;
+          const ph = (ti % Tm) / Tm;
+          const yy = ph < 0.5 ? 2 * ph : 2 * (1 - ph);
+          if (i) c.lineTo(X(b * ti), yb - yy * cH); else c.moveTo(X(b * ti), yb - yy * cH);
+        }
+        c.stroke();
+        c.globalAlpha = 1;
+        const clock = (xw, color, p, n, text, row) => {
+          const x = X(xw), w = 13 * dpr;
+          c.strokeStyle = color;
+          c.lineWidth = 3 * dpr;
+          c.beginPath();
+          c.moveTo(x - w, yb); c.lineTo(x + w, yb);
+          c.moveTo(x - w, yt); c.lineTo(x + w, yt);
+          c.stroke();
+          c.lineWidth = 1 * dpr;
+          c.globalAlpha = 0.35;
+          c.beginPath();
+          c.moveTo(x - w, yb); c.lineTo(x - w, yt);
+          c.moveTo(x + w, yb); c.lineTo(x + w, yt);
+          c.stroke();
+          c.globalAlpha = 1;
+          circle(x, yb - (p.y / H_CLOCK) * cH, 4.5, th.warm);
+          tagIn(c, `${text}: ${n} tık`, x, yt - (row ? 27 : 11) * dpr, color, th, lo, hi, 11);
+        };
+        clock(0, th.ink, sim.rest, sim.restTicks.length, "Duran", 0);
+        clock(b * tt, th.accent, sim.moving, sim.movTicks.length, "Hareketli", 1);
+        status(`S'de t = ${fmt(tt)} yıl · dikey ölçek büyütüldü`, 0);
+        break;
+      }
+      case "eszamanlilik": {
+        const d = state.dx / 2;
+        const yTop = yG - 50 * dpr, hTr = 26 * dpr;
+        const xa = X(b * t - d), xz = X(b * t + d);
+        c.fillStyle = th.strip;
+        c.fillRect(xa, yTop, xz - xa, hTr);
+        c.strokeStyle = th.accent;
+        c.lineWidth = 1.5 * dpr;
+        c.strokeRect(xa, yTop, xz - xa, hTr);
+        for (const [xs, name] of [[-d, "A"], [d, "B"]]) {
+          const x = X(xs);
+          c.fillStyle = th.event;
+          c.beginPath();
+          c.moveTo(x, yG - 8 * dpr); c.lineTo(x - 5 * dpr, yG); c.lineTo(x + 5 * dpr, yG);
+          c.closePath();
+          c.fill();
+          tag(c, name, x + 8 * dpr, yG - 9 * dpr, th.event, th, "left", 10);
+        }
+        if (t >= 0) {
+          c.strokeStyle = th.warm;
+          c.lineWidth = 2 * dpr;
+          c.beginPath();
+          for (const xs of [-d, d]) for (const dir of [-1, 1]) { const x = X(xs + dir * t); c.moveTo(x, yTop - 12 * dpr); c.lineTo(x, yG); }
+          c.stroke();
+          if (t < 0.35) {
+            c.globalAlpha = 1 - t / 0.35;
+            for (const xs of [-d, d]) circle(X(xs), yG - 30 * dpr, 6 + 30 * t, th.warm);
+            c.globalAlpha = 1;
+          }
+        }
+        const recS = d, recB = d / (1 + b), recA = d / (1 - b);
+        const pulse = (x, y, t0, color) => {
+          if (t < t0 || t > t0 + 0.6) return;
+          c.strokeStyle = color;
+          c.lineWidth = 2 * dpr;
+          c.beginPath();
+          c.arc(x, y, (8 + 14 * (t - t0)) * dpr, 0, Math.PI * 2);
+          c.stroke();
+        };
+        circle(X(0), yG - 9 * dpr, 5, th.ink);
+        tag(c, "S", X(0) - 9 * dpr, yG - 9 * dpr, th.ink, th, "right", 10);
+        circle(X(b * t), yTop + hTr / 2, 5, th.accent);
+        tag(c, "S′", X(b * t) + 9 * dpr, yTop + hTr / 2, th.accent, th, "left", 10);
+        pulse(X(0), yG - 9 * dpr, recS, th.ink);
+        pulse(X(b * t), yTop + hTr / 2, recB, th.accent);
+        pulse(X(b * t), yTop + hTr / 2, recA, th.accent);
+        status(t >= recS ? `S gözlemcisi A ile B'yi aynı anda gördü: t = ${fmt(recS)} yıl` : `S'de t = ${fmt(t)} yıl · ışıklar yolda`, 0, th.ink);
+        const seen = [[recB, "B"], [recA, "A"]].sort((p, q) => p[0] - q[0]).filter(([tr]) => t >= tr);
+        status(seen.length ? `S′ gözlemcisi: ${seen.map(([tr, n]) => `${n} (t = ${fmt(tr)} yıl)`).join(", sonra ")}` : "S′ gözlemcisi: henüz ışık gelmedi", 1, th.accent);
+        break;
+      }
+      case "uzunluk": {
+        const L = state.L0 / g, tc = clamp(t, 0, 8), xb = b * tc;
+        const yRod = yG - 22 * dpr, hRod = 12 * dpr, yGhost = yG - 62 * dpr;
+        c.save();
+        c.setLineDash([5 * dpr, 4 * dpr]);
+        c.strokeStyle = th.accent2;
+        c.lineWidth = 1.5 * dpr;
+        c.strokeRect(X(xb), yGhost, X(xb + state.L0) - X(xb), hRod);
+        c.restore();
+        c.fillStyle = th.accent;
+        c.fillRect(X(xb), yRod, X(xb + L) - X(xb), hRod);
+        tagIn(c, `L₀ = ${fmt(state.L0)} ı.y. (çubuğun kendi çerçevesinde)`, X(xb + state.L0 / 2), yGhost - 10 * dpr, th.accent2, th, lo, hi, 10);
+        tagIn(c, `S'de ölçülen L = L₀/γ = ${fmt(L)} ı.y.`, X(xb + L / 2), yRod - 11 * dpr, th.accent, th, lo, hi, 10);
+        status(`S'de t = ${fmt(tc)} yıl · çubuk ${fmt(b, 3)} c ile gidiyor`, 0);
+        break;
+      }
+      case "ikizler": {
+        const tw = twin();
+        if (!tw.ok) {
+          tagIn(c, "İkizler için |β| ≥ 0.10 seç", (lo + hi) / 2, H / 2, th.danger, th, lo, hi, 12);
+          break;
+        }
+        const yE = yG - 12 * dpr, yS = yG - 46 * dpr;
+        const xE = X(0), xS = X(tw.xTurn);
+        c.save();
+        c.setLineDash([3 * dpr, 4 * dpr]);
+        c.strokeStyle = th.muted;
+        c.lineWidth = 1 * dpr;
+        c.beginPath();
+        c.moveTo(xE, yS); c.lineTo(xS, yS);
+        c.stroke();
+        c.restore();
+        circle(xE, yE, 7, th.earth);
+        c.fillStyle = th.warm;
+        c.beginPath();
+        for (let i = 0; i < 10; i++) {
+          const r = (i % 2 ? 3.2 : 8) * dpr, a = -Math.PI / 2 + (i * Math.PI) / 5;
+          if (i) c.lineTo(xS + r * Math.cos(a), yE + r * Math.sin(a)); else c.moveTo(xS + r * Math.cos(a), yE + r * Math.sin(a));
+        }
+        c.closePath();
+        c.fill();
+        const sh = sim.ship;
+        const dir = sh.leg === 2 ? -tw.s : tw.s;
+        const sx = X(sh.x), col = sh.leg === 2 ? th.accent2 : th.accent;
+        c.fillStyle = col;
+        c.beginPath();
+        c.moveTo(sx + dir * 10 * dpr, yS); c.lineTo(sx - dir * 7 * dpr, yS - 6 * dpr); c.lineTo(sx - dir * 7 * dpr, yS + 6 * dpr);
+        c.closePath();
+        c.fill();
+        tag(c, `Dünya: ${fmt(clamp(t, 0, tw.T))} yıl`, xE - tw.s * 12 * dpr, yE, th.earth, th, tw.s > 0 ? "right" : "left", 10);
+        tag(c, `Yıldız (${fmt(tw.D)} ı.y.)`, xS + tw.s * 12 * dpr, yE, th.warm, th, tw.s > 0 ? "left" : "right", 10);
+        tagIn(c, `Yolcu: ${fmt(sim.tau)} yıl`, sx, yS - 17 * dpr, col, th, lo, hi, 10);
+        status(sim.arrival ? `Vardı: Dünya'da ${fmt(sim.arrival.t)} yıl, yolcu için ${fmt(sim.arrival.tau)} yıl geçti` : sh.leg === 2 ? "Dönüş yolu" : "Gidiş yolu", 0, th.ink);
+        break;
+      }
+      default:
+        break;
+    }
+    c.restore();
+  }
+
+  let chartKey = "";
+  function drawChart(th) {
+    const W = chart.width, H = chart.height, c = cctx;
+    if (!W || !H) return;
+    const key = `${state.beta}|${th.light}|${W}x${H}`;
+    if (key === chartKey) return;
+    chartKey = key;
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, W, H);
+    const pl = 28 * dpr, pr = 12 * dpr, pt = 26 * dpr, pb = 24 * dpr;
+    const pw = W - pl - pr, ph = H - pt - pb, YMAX = 6;
+    const X = (v) => pl + v * pw, Y = (v) => pt + ph - (v / YMAX) * ph;
+    c.font = `${10 * dpr}px ${FONT}`;
+    c.strokeStyle = th.grid;
+    c.lineWidth = 1 * dpr;
+    c.fillStyle = th.muted;
+    c.textAlign = "right";
+    c.textBaseline = "middle";
+    c.beginPath();
+    for (let v = 0; v <= YMAX; v++) {
+      c.moveTo(pl, Y(v)); c.lineTo(pl + pw, Y(v));
+      c.fillText(String(v), pl - 6 * dpr, Y(v));
+    }
+    c.stroke();
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    for (const v of [0, 0.2, 0.4, 0.6, 0.8, 1]) c.fillText(v.toFixed(1), X(v), pt + ph + 6 * dpr);
+    c.strokeStyle = th.gridStrong;
+    c.beginPath();
+    for (const v of [0.6, 0.8, 0.866]) { c.moveTo(X(v), pt + ph); c.lineTo(X(v), pt + ph - 6 * dpr); }
+    c.stroke();
+    c.save();
+    c.setLineDash([4 * dpr, 4 * dpr]);
+    c.beginPath();
+    c.moveTo(X(1), pt); c.lineTo(X(1), pt + ph);
+    c.stroke();
+    c.restore();
+    c.save();
+    c.beginPath();
+    c.rect(pl, pt, pw, ph);
+    c.clip();
+    const curve = (f, color) => {
+      c.strokeStyle = color;
+      c.lineWidth = 2 * dpr;
+      c.beginPath();
+      for (let i = 0; i <= 240; i++) {
+        const v = (0.9995 * i) / 240;
+        const y = Y(Math.min(f(v), YMAX + 1));
+        if (i) c.lineTo(X(v), y); else c.moveTo(X(v), y);
+      }
+      c.stroke();
+    };
+    curve(gammaOf, th.accent);
+    curve(doppler, th.warm);
+    curve((v) => 1 / doppler(v), th.accent2);
+    const ab = Math.abs(state.beta), g = gammaOf(ab), k = doppler(ab);
+    c.save();
+    c.setLineDash([3 * dpr, 3 * dpr]);
+    c.strokeStyle = th.muted;
+    c.beginPath();
+    c.moveTo(X(ab), pt); c.lineTo(X(ab), pt + ph);
+    c.stroke();
+    c.restore();
+    for (const [v, col] of [[g, th.accent], [k, th.warm], [1 / k, th.accent2]]) {
+      c.fillStyle = col;
+      c.beginPath();
+      c.arc(X(ab), Y(Math.min(v, YMAX)), 4 * dpr, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.restore();
+    const right = ab < 0.55;
+    const lx = X(ab) + (right ? 8 : -8) * dpr, al = right ? "left" : "right";
+    const yk = Y(Math.min(k, YMAX)), yg = Y(Math.min(g, YMAX));
+    tag(c, `k = ${fmt(k, 2)}`, lx, Math.abs(yk - yg) < 16 * dpr ? yk - 9 * dpr : yk, th.warm, th, al, 10);
+    tag(c, `γ = ${fmt(g, 2)}`, lx, Math.abs(yk - yg) < 16 * dpr ? yg + 9 * dpr : yg, th.accent, th, al, 10);
+    tag(c, `1/k = ${fmt(1 / k, 2)}`, lx, Y(1 / k) + 12 * dpr, th.accent2, th, al, 10);
+    let x = pl;
+    for (const [text, col] of [["γ", th.accent], ["k: uzaklaşan", th.warm], ["1/k: yaklaşan", th.accent2]]) {
+      tag(c, text, x, 12 * dpr, col, th, "left", 10);
+      x += c.measureText(text).width + 16 * dpr;
+    }
+    c.textAlign = "right";
+    c.textBaseline = "bottom";
+    c.fillStyle = th.muted;
+    c.fillText("|β|", pl + pw - 4 * dpr, pt + ph - 4 * dpr);
+  }
+
+  /* ── Okumalar ── */
+  const setText = (el, text) => { if (el.textContent !== text) el.textContent = text; };
+  const SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+  function speedText(v) {
+    if (!v) return "0 m/s";
+    const e = Math.floor(Math.log10(Math.abs(v)));
+    const exp = String(e).split("").map((ch) => (ch === "-" ? "⁻" : SUP[Number(ch)])).join("");
+    return `${fmt(v / Math.pow(10, e), 3)} × 10${exp} m/s`;
+  }
+  function updateFrame() {
+    const b = state.beta, g = gammaOf(b);
+    setText(ui.betaD, fmt(b, 3));
+    setText(ui.speedD, speedText(b * C_SI));
+    setText(ui.gammaD, fmt(g, 3));
+    setText(ui.rapD, fmt(Math.atanh(b), 3));
+    setText(ui.rateD, fmt(1 / g, 3));
+    setText(ui.lenD, `${fmt(state.L0 / g)} ı.y.`);
+    setText(ui.dopD, fmt(doppler(b), 3));
+  }
+
+  // Işık saatinin okuduğu süre: tamamlanan tıklar + ışığın o anki gidiş-dönüş kesri
+  function clockReading(p, n) {
+    const path = p.vy > 0 ? p.y : 2 * H_CLOCK - p.y;
+    return (n + path / (2 * H_CLOCK)) * T0;
+  }
+  // f(β) = 0 kökü, |β| < 1 aralığında ikiye bölme ile
+  function rootBeta(f) {
+    let lo = -0.999999, hi = 0.999999, flo = f(lo);
+    const fhi = f(hi);
+    if (Math.sign(flo) === Math.sign(fhi)) return NaN;
+    for (let i = 0; i < 80; i++) {
+      const mid = (lo + hi) / 2, fm = f(mid);
+      if (Math.sign(fm) === Math.sign(flo)) { lo = mid; flo = fm; } else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  function measureRows() {
+    const b = state.beta, g = gammaOf(b), t = sim.t;
+    const row = (label, meas, theo, diff) => ({ label, meas, theo, diff });
+    switch (state.scenario) {
+      case "isik-saati": {
+        const tt = Math.max(0, t);
+        const nR = sim.restTicks.length, nM = sim.movTicks.length;
+        const tauR = clockReading(sim.rest, nR), tauM = clockReading(sim.moving, nM);
+        const rows = [
+          row("Duran saatin okuduğu süre Δt", `${fmt(tauR)} yıl`, `${fmt(tt)} yıl`, diffText(tauR, tt, "yıl")),
+          row("Hareketli saatin okuduğu özzaman Δτ", `${fmt(tauM)} yıl`, `${fmt(tt / g)} yıl`, diffText(tauM, tt / g, "yıl")),
+          row("Tık sayısı: duran / hareketli", `${nR} / ${nM}`, `${Math.floor(tt / T0 + 1e-9)} / ${Math.floor(tt / (g * T0) + 1e-9)}`, "—"),
+        ];
+        const ratio = nM && nR ? sim.movTicks[nM - 1] / nM / (sim.restTicks[nR - 1] / nR) : NaN;
+        rows.push(row("Tık periyodu oranı T/T₀ = Δt/Δτ", fmt(ratio, 3), fmt(g, 3), diffText(ratio, g, "")));
+        const rec = sim.movTicks.map((tk) => tk + Math.abs(b * tk)).filter((r) => r <= tt + 1e-9);
+        const kM = rec.length ? rec[rec.length - 1] / (rec.length * T0) : NaN;
+        rows.push(row("Doppler k: alınan tık aralığı / T₀", fmt(kM, 3), fmt(doppler(b), 3), diffText(kM, doppler(b), "")));
+        return rows;
+      }
+      case "eszamanlilik": {
+        const d = state.dx / 2;
+        // x = x₀ + yön·ct ışını ile x = v·ct dünya çizgisinin kesişimi
+        const meet = (x0, dir, v) => x0 / (v - dir);
+        const sA = meet(-d, 1, 0), sB = meet(d, -1, 0);
+        const dtS = (sB - d) - (sA - d);
+        const pB = meet(d, -1, b), pA = meet(-d, 1, b);
+        const tauB = Math.sqrt(pB * pB - (b * pB) ** 2), tauA = Math.sqrt(pA * pA - (b * pA) ** 2);
+        const dtP = tauB - tauA; // S′ gözlemcisi kendi çerçevesinde orta noktada: yol farkı yok
+        const th = -g * b * state.dx;
+        const thB = d / (g * (1 + b)), thA = d / (g * (1 - b));
+        return [
+          row("S'de Δt = t_B − t_A (ışık sinyallerinden)", `${fmt(dtS)} yıl`, `${fmt(0)} yıl`, diffText(dtS, 0, "yıl")),
+          row("S′'de Δt′ = t′_B − t′_A (ışık sinyallerinden)", `${fmt(dtP)} yıl`, `${fmt(th)} yıl`, diffText(dtP, th, "yıl")),
+          row("B'nin ışığı S′ gözlemcisine (özzaman)", `${fmt(tauB)} yıl`, `${fmt(thB)} yıl`, diffText(tauB, thB, "yıl")),
+          row("A'nın ışığı S′ gözlemcisine (özzaman)", `${fmt(tauA)} yıl`, `${fmt(thA)} yıl`, diffText(tauA, thA, "yıl")),
+        ];
+      }
+      case "uzunluk": {
+        const r = rodEvents(), L = state.L0 / g;
+        const P0 = fromPrime(0, 0, b), P1 = fromPrime(1, 0, b), Q0 = fromPrime(0, state.L0, b), Q1 = fromPrime(1, state.L0, b);
+        const at = (A, B, ct) => A.x + ((ct - A.ct) * (B.x - A.x)) / (B.ct - A.ct);
+        const Ls = at(Q0, Q1, r.tc) - at(P0, P1, r.tc);
+        const s2 = (r.frontP.ct - r.back.ct) ** 2 - (r.frontP.x - r.back.x) ** 2;
+        const Lp = Math.sqrt(Math.max(0, -s2));
+        const dtp = toPrime(r.front.ct, r.front.x, b).ct - toPrime(r.back.ct, r.back.x, b).ct;
+        return [
+          row("S'de ölçülen uzunluk L (uçlar aynı S anında)", `${fmt(Ls)} ı.y.`, `${fmt(L)} ı.y.`, diffText(Ls, L, "ı.y.")),
+          row("S′'deki uzunluk √(−s²), uçlar S′'de eşzamanlı", `${fmt(Lp)} ı.y.`, `${fmt(state.L0)} ı.y.`, diffText(Lp, state.L0, "ı.y.")),
+          row("S'de eşzamanlı uçların S′ zaman farkı cΔt′", `${fmt(dtp)} ı.y.`, `${fmt(-b * state.L0)} ı.y.`, diffText(dtp, -b * state.L0, "ı.y.")),
+        ];
+      }
+      case "ikizler": {
+        const tw = twin();
+        if (!tw.ok) return [row("Yolculuk", "—", "|β| ≥ 0.10 gerekli", "—")];
+        const tt = clamp(t, 0, tw.T);
+        const e1 = toPrime(tw.tTurn, tw.xTurn, tw.s * tw.b).ct / tw.g;
+        const e2 = toPrime(tw.tTurn, tw.xTurn, -tw.s * tw.b).ct / tw.g;
+        const arr = sim.arrival;
+        return [
+          row("Dünya'da geçen süre (varışta)", arr ? `${fmt(arr.t)} yıl` : "yolda…", `${fmt(tw.T)} yıl`, arr ? diffText(arr.t, tw.T, "yıl") : "—"),
+          row("Yolcunun özzamanı (şimdiye kadar)", `${fmt(sim.tau)} yıl`, `${fmt(tt / tw.g)} yıl`, diffText(sim.tau, tt / tw.g, "yıl")),
+          row("Yolcunun toplam özzamanı", arr ? `${fmt(arr.tau)} yıl` : "yolda…", `${fmt(tw.tau)} yıl`, arr ? diffText(arr.tau, tw.tau, "yıl") : "—"),
+          row("Dönüşte Dünya saatinin sıçraması", `${fmt(e2 - e1)} yıl`, `${fmt(2 * tw.b * tw.D)} yıl`, diffText(e2 - e1, 2 * tw.b * tw.D, "yıl")),
+        ];
+      }
+      default: {
+        const sel = selection(getEvents());
+        if (sel.length < 2) return [row("İki olay seç", "—", "—", "—")];
+        const [p, q] = sel;
+        const P = toPrime(p.ct, p.x, b), Q = toPrime(q.ct, q.x, b);
+        const dct = q.ct - p.ct, dx = q.x - p.x, dctp = Q.ct - P.ct, dxp = Q.x - P.x;
+        const s2 = dct * dct - dx * dx, s2p = dctp * dctp - dxp * dxp;
+        const kind = classify(dct, dx).kind;
+        const rows = [row("Aralık s² (ölçülen: S′, teori: S)", `${fmt(s2p)} ı.y.²`, `${fmt(s2)} ı.y.²`, diffText(s2p, s2, "ı.y.²"))];
+        if (kind === "space") {
+          const r = rootBeta((v) => toPrime(q.ct, q.x, v).ct - toPrime(p.ct, p.x, v).ct);
+          rows.push(row("Sıranın döndüğü β* (sayısal kök)", fmt(r, 4), fmt(dct / dx, 4), diffText(r, dct / dx, "")));
+        } else if (kind === "time") {
+          const r = rootBeta((v) => toPrime(q.ct, q.x, v).x - toPrime(p.ct, p.x, v).x);
+          rows.push(row("Olayların aynı yerde olduğu β (sayısal kök)", fmt(r, 4), fmt(dx / dct, 4), diffText(r, dx / dct, "")));
+        } else {
+          rows.push(row(kind === "light" ? "Işıksı: sıra hiçbir çerçevede dönmez" : "Aynı olay", "—", "—", "—"));
+        }
+        return rows;
+      }
+    }
+  }
+
+  let lastMeasure = "";
+  function renderMeasure() {
+    const html = measureRows()
+      .map((r) => `<tr><td class="lbl">${esc(r.label)}</td><td>${esc(r.meas)}</td><td>${esc(r.theo)}</td><td>${esc(r.diff)}</td></tr>`)
+      .join("");
+    if (html !== lastMeasure) {
+      lastMeasure = html;
+      ui.measureBody.innerHTML = html;
+    }
+  }
+
+  let eventSig = "";
+  function updateEventTable(evs) {
+    const sig = `${state.scenario}:${evs.map((e) => e.key).join(",")}`;
+    if (sig !== eventSig) {
+      eventSig = sig;
+      ui.eventBody.innerHTML = evs
+        .map((e, i) => `<tr data-key="${esc(e.key)}"><td class="lbl ev-name"><strong>${esc(e.tag)}</strong><small>${esc(e.name)}</small></td><td data-c="ct"></td><td data-c="x"></td><td data-c="ctp"></td><td data-c="xp"></td><td><input type="checkbox" id="evsel-${i}" data-key="${esc(e.key)}"><label class="visually-hidden" for="evsel-${i}">${esc(e.tag)} olayını seç</label></td></tr>`)
+        .join("");
+    }
+    const keys = state.sel[state.scenario] || [];
+    const rows = ui.eventBody.rows;
+    evs.forEach((e, i) => {
+      const tr = rows[i];
+      if (!tr) return;
+      const p = toPrime(e.ct, e.x, state.beta);
+      setText(tr.cells[1], fmt(e.ct));
+      setText(tr.cells[2], fmt(e.x));
+      setText(tr.cells[3], fmt(p.ct));
+      setText(tr.cells[4], fmt(p.x));
+      const on = keys.includes(e.key);
+      const cb = tr.querySelector("input");
+      if (cb.checked !== on) cb.checked = on;
+      tr.classList.toggle("is-selected", on);
+    });
+  }
+
+  let lastInterval = "";
+  function updateInterval(evs) {
+    const sel = selection(evs);
+    let html;
+    if (sel.length < 2) {
+      html = "<div>Aralığı görmek için iki olay seç: tablodaki kutularla ya da diyagramda olaya tıklayarak.</div>";
+    } else {
+      const [p, q] = sel, b = state.beta;
+      const P = toPrime(p.ct, p.x, b), Q = toPrime(q.ct, q.x, b);
+      const dct = q.ct - p.ct, dx = q.x - p.x, dctp = Q.ct - P.ct, dxp = Q.x - P.x;
+      const { s2, kind } = classify(dct, dx);
+      const s2p = dctp * dctp - dxp * dxp;
+      const pn = esc(p.tag), qn = esc(q.tag);
+      const first = (v) => {
+        const d = dct - v * dx;
+        return Math.abs(d) < 1e-9 ? "eşzamanlı" : d > 0 ? `${pn} önce` : `${qn} önce`;
+      };
+      const names = { time: "zamansı", space: "uzaysı", light: "ışıksı", same: "aynı olay" };
+      const lines = [
+        `<div><strong>${pn} → ${qn}</strong> · S: cΔt = ${fmt(dct)} ı.y., Δx = ${fmt(dx)} ı.y. · S′: cΔt′ = ${fmt(dctp)} ı.y., Δx′ = ${fmt(dxp)} ı.y.</div>`,
+        `<div>s² = (cΔt)² − Δx² = ${fmt(s2)} ı.y.² · S′ koordinatlarıyla ${fmt(s2p)} ı.y.² → <strong class="k-${kind}">${names[kind]}</strong></div>`,
+      ];
+      if (kind === "time") {
+        lines.push(`<div>Özzaman √s²/c = ${fmt(Math.sqrt(s2))} yıl. Zamansı ayrılmış olayların sırası hiçbir çerçevede dönmez; iki olay β = Δx/(cΔt) = ${fmt(dx / dct, 3)} çerçevesinde aynı yerdedir.</div>`);
+      } else if (kind === "space") {
+        const bs = dct / dx;
+        const out = Math.abs(bs) > BETA_MAX ? " (kaydırıcının ±0.95 aralığı dışında)" : "";
+        lines.push(`<div>Özuzaklık √(−s²) = ${fmt(Math.sqrt(-s2))} ı.y. Sıra çerçeveye bağlı: β* = cΔt/Δx = ${fmt(bs, 3)}${out} çerçevesinde eşzamanlılar; β &lt; β* iken ${first(bs - 0.01)}, β &gt; β* iken ${first(bs + 0.01)}.</div>`);
+      } else if (kind === "light") {
+        lines.push("<div>Işıksı: iki olayı bir ışık sinyali bağlar; cΔt′ ile Δx′ aynı Doppler çarpanıyla ölçeklenir, sıra dönmez.</div>");
+      }
+      lines.push(`<div>Şu an (β = ${fmt(b, 3)}): S'de ${first(0)}, S′'de ${first(b)}.</div>`);
+      html = lines.join("");
+    }
+    if (html !== lastInterval) {
+      lastInterval = html;
+      ui.interval.innerHTML = html;
+    }
+  }
+
+  function updateReadouts() {
+    updateFrame();
+    const evs = getEvents();
+    renderMeasure();
+    updateEventTable(evs);
+    updateInterval(evs);
+    setText(ui.timeOut, `${fmt(sim.t)} yıl`);
+  }
+
+  /* ── Çizim ── */
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [diagram, space, chart]) {
+      const r = c.getBoundingClientRect();
+      if (!r.width) continue;
+      const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+      if (c.width !== w || c.height !== h) {
+        c.width = w;
+        c.height = h;
+      }
+    }
+    chartKey = "";
+    dirty = true;
+  }
+  function draw() {
+    const th = theme();
+    drawDiagram(th);
+    drawSpace(th);
+    drawChart(th);
+  }
+
+  /* ── Denetimler ── */
+  let warnTimer = 0;
+  function warn(text) {
+    ui.warn.textContent = text;
+    ui.warn.hidden = false;
+    clearTimeout(warnTimer);
+    warnTimer = setTimeout(() => { ui.warn.hidden = true; }, 7000);
+  }
+
+  function syncTimeUI() {
+    const sp = span();
+    ui.time.min = String(sp.t0);
+    ui.time.max = String(Math.max(sp.t1, sp.t0 + 0.01));
+    ui.time.value = String(sim.t);
+    setText(ui.timeOut, `${fmt(sim.t)} yıl`);
+  }
+
+  function setRunning(run) {
+    const sp = span();
+    if (run && sim.t >= sp.t1 - 1e-9) setTime(sp.t0);
+    state.running = run && sp.rate > 0;
+    const atEnd = sim.t >= sp.t1 - 1e-9;
+    ui.play.textContent = state.running ? "Duraklat" : atEnd ? "Baştan oynat" : "Oynat";
+    ui.play.setAttribute("aria-pressed", String(!state.running));
+    ui.play.disabled = sp.rate <= 0;
+    ui.reset.disabled = sp.rate <= 0;
+    dirty = readoutsDirty = true;
+  }
+
+  function paramsChanged() {
+    setTime(Math.min(sim.t, span().t1));
+    syncTimeUI();
+    if (state.scenario === "ikizler") setRunning(state.running);
+    if (state.scenario === "ikizler" && !twin().ok) warn(MSG.twinMin);
+  }
+
+  function setBeta(v, fromNumber) {
+    state.beta = clamp(Math.round(v * 1000) / 1000, -BETA_MAX, BETA_MAX);
+    ui.betaRange.value = String(state.beta);
+    if (!fromNumber || Number(ui.betaNumber.value) !== state.beta) ui.betaNumber.value = state.beta.toFixed(3);
+    ui.betaOut.textContent = `${fmt(state.beta, 3)} c`;
+    paramsChanged();
+  }
+
+  function applyScenarioUI() {
+    const s = state.scenario;
+    ui.dxField.hidden = s !== "eszamanlilik";
+    ui.distField.hidden = s !== "ikizler";
+    ui.timeControls.hidden = s === "serbest";
+    ui.freeTools.hidden = s !== "serbest";
+    space.hidden = s === "serbest";
+    diagram.classList.toggle("is-interactive", s === "serbest" || s === "ikizler");
+    ui.note.textContent = NOTES[s];
+    diagram.setAttribute("aria-label", `Minkowski diyagramı, ${NAMES[s]} senaryosu: S ve S′ eksenleri, ışık konisi, kalibrasyon hiperbolleri ve olaylar`);
+  }
+
+  ui.scenario.addEventListener("change", () => {
+    state.scenario = ui.scenario.value;
+    clearTimeout(warnTimer);
+    ui.warn.hidden = true;
+    applyScenarioUI();
+    resetSim();
+    syncTimeUI();
+    setRunning(span().rate > 0);
+    if (state.scenario === "ikizler" && !twin().ok) warn(MSG.twinMin);
+  });
+  ui.betaRange.addEventListener("input", () => setBeta(Number(ui.betaRange.value)));
+  ui.betaNumber.addEventListener("change", () => {
+    const v = parseNum(ui.betaNumber.value);
+    if (!Number.isFinite(v)) {
+      warn(MSG.nan);
+      ui.betaNumber.value = state.beta.toFixed(3);
+      return;
+    }
+    if (Math.abs(v) >= 1) {
+      warn(MSG.over);
+      ui.betaNumber.value = state.beta.toFixed(3);
+      return;
+    }
+    if (Math.abs(v) > BETA_MAX) warn(MSG.clamp);
+    setBeta(v, true);
+  });
+  for (const id of ["preset06", "preset08", "preset0866"]) {
+    const btn = $(id);
+    btn.addEventListener("click", () => setBeta(Number(btn.dataset.beta)));
+  }
+  ui.rod.addEventListener("input", () => {
+    state.L0 = Number(ui.rod.value);
+    ui.rodOut.textContent = `${fmt(state.L0)} ı.y.`;
+    dirty = readoutsDirty = true;
+  });
+  ui.dx.addEventListener("input", () => {
+    state.dx = Number(ui.dx.value);
+    ui.dxOut.textContent = `${fmt(state.dx)} ı.y.`;
+    dirty = readoutsDirty = true;
+  });
+  ui.dist.addEventListener("input", () => {
+    state.D = Number(ui.dist.value);
+    ui.distOut.textContent = `${fmt(state.D)} ı.y.`;
+    paramsChanged();
+  });
+  ui.hyper.addEventListener("change", () => { state.hyper = ui.hyper.checked; dirty = true; });
+  ui.grid.addEventListener("change", () => { state.grid = ui.grid.checked; dirty = true; });
+  ui.time.addEventListener("input", () => {
+    setRunning(false);
+    setTime(Number(ui.time.value));
+    setText(ui.timeOut, `${fmt(sim.t)} yıl`);
+  });
+  ui.play.addEventListener("click", () => setRunning(!state.running));
+  ui.reset.addEventListener("click", () => { setTime(span().t0); syncTimeUI(); setRunning(true); });
+
+  ui.eventBody.addEventListener("change", (evt) => {
+    const cb = evt.target;
+    if (!cb.matches("input[type=checkbox]")) return;
+    if (cb.checked) select(cb.dataset.key); else unselect(cb.dataset.key);
+  });
+
+  const snap = (v) => Math.round(v * 10) / 10;
+  function addFree(ct, x) {
+    const used = new Set(state.free.map((e) => e.tag));
+    const tagName = "ABCDEFGHIJKL".split("").find((ch) => !used.has(ch)) || "?";
+    const e = { key: `u${state.nextId++}`, tag: tagName, ct, x };
+    state.free.push(e);
+    dirty = readoutsDirty = true;
+    return e;
+  }
+  const parseNum = (s) => {
+    const t = String(s).trim().replace(",", ".").replace(MINUS, "-");
+    return t === "" ? NaN : Number(t);
+  };
+  ui.add.addEventListener("click", () => {
+    const ct = parseNum(ui.newCt.value), x = parseNum(ui.newX.value);
+    if (!Number.isFinite(ct) || !Number.isFinite(x) || Math.abs(ct) > 50 || Math.abs(x) > 50) {
+      warn("ct ve x için −50 ile 50 arasında sayı gir.");
+      return;
+    }
+    if (state.free.length >= MAX_FREE) { warn(MSG.full); return; }
+    select(addFree(snap(ct), snap(x)).key);
+  });
+  function deleteSelected() {
+    const keys = state.sel.serbest || [];
+    const key = keys[keys.length - 1];
+    if (!key) return;
+    state.free = state.free.filter((e) => e.key !== key);
+    unselect(key);
+  }
+  ui.del.addEventListener("click", deleteSelected);
+  ui.resetEvents.addEventListener("click", () => {
+    state.free = defaultFree();
+    state.nextId = 4;
+    state.sel.serbest = ["u1", "u2"];
+    dirty = readoutsDirty = true;
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, select, textarea, button") || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.code === "Space") {
+      if (span().rate > 0) { e.preventDefault(); setRunning(!state.running); }
+    } else if (e.key === "r" || e.key === "R") {
+      setTime(span().t0);
+      syncTimeUI();
+      setRunning(true);
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      e.preventDefault();
+      setBeta(state.beta + (e.shiftKey ? 0.1 : 0.01) * (e.key === "ArrowLeft" ? -1 : 1));
+    } else if ((e.key === "Delete" || e.key === "Backspace") && state.scenario === "serbest") {
+      e.preventDefault();
+      deleteSelected();
+    }
+  });
+
+  /* ── İşaretçi: olay ekle, seç, sürükle ── */
+  function canvasPoint(evt) {
+    const r = diagram.getBoundingClientRect();
+    return { px: ((evt.clientX - r.left) / r.width) * diagram.width, py: ((evt.clientY - r.top) / r.height) * diagram.height };
+  }
+  const toWorld = (m, px, py) => ({ x: m.xMin + (px - m.padL) / m.scale, ct: m.ctMin + (m.padT + m.ph - py) / m.scale });
+  function hitEvent(m, px, py) {
+    let best = null, bd = 16 * dpr;
+    for (const e of getEvents()) {
+      const d = Math.hypot(m.X(e.x) - px, m.Y(e.ct) - py);
+      if (d < bd) { bd = d; best = e; }
+    }
+    return best;
+  }
+  function dragTurn(w) {
+    const s = w.x < 0 ? -1 : 1;
+    const ax = Math.abs(w.x);
+    let b;
+    if (w.ct <= 0 || ax >= w.ct) {
+      warn(MSG.cone);
+      b = BETA_MAX;
+    } else {
+      b = ax / w.ct;
+      if (b > BETA_MAX) { warn(MSG.clamp); b = BETA_MAX; }
+    }
+    state.D = clamp(snap(ax), 1, 10);
+    ui.dist.value = String(state.D);
+    ui.distOut.textContent = `${fmt(state.D)} ı.y.`;
+    setBeta(s * Math.max(TWIN_MIN, b));
+  }
+  diagram.addEventListener("pointerdown", (evt) => {
+    const m = mapping();
+    const { px, py } = canvasPoint(evt);
+    if (px < m.padL || px > m.padL + m.pw || py < m.padT || py > m.padT + m.ph) return;
+    const hit = hitEvent(m, px, py);
+    let target = null;
+    if (hit) {
+      select(hit.key);
+      if (hit.drag) target = hit;
+    } else if (state.scenario === "serbest") {
+      if (state.free.length >= MAX_FREE) { warn(MSG.full); return; }
+      const w = toWorld(m, px, py);
+      const e = addFree(snap(w.ct), snap(w.x));
+      select(e.key);
+      target = { key: e.key, drag: "free" };
+    }
+    if (!target) return;
+    evt.preventDefault();
+    state.drag = { key: target.key, kind: target.drag };
+    state.frozen = m;
+    if (target.drag === "turn") setRunning(false);
+    diagram.setPointerCapture(evt.pointerId);
+    diagram.classList.add("is-dragging");
+  });
+  diagram.addEventListener("pointermove", (evt) => {
+    const m = mapping();
+    const { px, py } = canvasPoint(evt);
+    if (!state.drag) {
+      const hit = hitEvent(m, px, py);
+      diagram.classList.toggle("is-grab", Boolean(hit && hit.drag));
+      return;
+    }
+    const w = toWorld(m, px, py);
+    if (state.drag.kind === "free") {
+      const e = state.free.find((f) => f.key === state.drag.key);
+      if (e) {
+        e.ct = clamp(snap(w.ct), Math.ceil(m.ctMin * 10) / 10, Math.floor(m.ctMax * 10) / 10);
+        e.x = clamp(snap(w.x), Math.ceil(m.xMin * 10) / 10, Math.floor(m.xMax * 10) / 10);
+      }
+    } else if (state.drag.kind === "turn") {
+      dragTurn(w);
+    }
+    dirty = readoutsDirty = true;
+  });
+  const endDrag = () => {
+    if (!state.drag) return;
+    state.drag = null;
+    state.frozen = null;
+    diagram.classList.remove("is-dragging");
+    dirty = readoutsDirty = true;
+  };
+  diagram.addEventListener("pointerup", endDrag);
+  diagram.addEventListener("pointercancel", endDrag);
+
+  /* ── Döngü ── */
+  let lastFrame = 0, acc = 0, lastReadout = 0, lastTheme = "";
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    const sp = span();
+    if (state.running && !paused && sp.rate > 0) {
+      acc += elapsed;
+      while (acc >= DT) {
+        acc -= DT;
+        if (!step(sp.rate * DT)) {
+          acc = 0;
+          setRunning(false);
+          break;
+        }
+      }
+      ui.time.value = String(sim.t);
+      dirty = true;
+    } else {
+      acc = 0;
+    }
+    const th = document.documentElement.dataset.theme || "dark";
+    if (th !== lastTheme) {
+      lastTheme = th;
+      chartKey = "";
+      dirty = true;
+    }
+    if (dirty) {
+      draw();
+      dirty = false;
+    }
+    if (readoutsDirty || (state.running && now - lastReadout > 150)) {
+      updateReadouts();
+      lastReadout = now;
+      readoutsDirty = false;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  [diagram, space, chart].forEach((c) => ro.observe(c));
+  applyScenarioUI();
+  resize();
+  resetSim();
+  syncTimeUI();
+  setRunning(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  updateReadouts();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

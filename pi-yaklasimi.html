@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>π'yi Hesaplamak: Arşimet, Seriler ve Monte Carlo</title>
+  <meta name="description" content="Bir milyon rastgele nokta π'nin tipik olarak 2.8 basamağını verir. Chudnovsky serisinin tek terimi 13.2 basamak getirir. Dokuz yöntemi yarıştır; Arşimet'in sınırlarını ve kayan noktanın tuzağını ölç.">
+  <style>
+    body.app-page .app-content { max-width: 1100px; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(270px, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .lab[hidden] { display: none !important; }
+    .col { display: grid; gap: 12px; min-width: 0; }
+    .fig { margin: 0; display: grid; gap: 6px; min-width: 0; }
+    .fig figcaption { font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .sim-canvas, .chart-canvas { width: 100%; display: block; border-radius: 12px; touch-action: pan-y; }
+    .sim-canvas { aspect-ratio: 16 / 10; background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95)); }
+    .chart-canvas { aspect-ratio: 2 / 1; background: rgba(8, 12, 22, 0.75); }
+    #raceChart { aspect-ratio: 16 / 11; }
+    #polyStage { aspect-ratio: 16 / 9; }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 3px 14px; font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .legend li { display: inline-flex; align-items: center; gap: 6px; }
+    .sw { display: inline-block; flex: none; width: 16px; height: 0; border-top: 2.5px solid currentColor; }
+    .sw.dash { border-top-style: dashed; }
+    .sw.dot { width: 8px; height: 8px; border: 0; border-radius: 50%; background: currentColor; }
+    .sw.box { width: 12px; height: 10px; border: 1.5px solid currentColor; border-radius: 2px; background: color-mix(in srgb, currentColor 30%, transparent); }
+    .k-ink { color: var(--text); } .k-muted { color: var(--text-muted); } .k-acc { color: var(--accent); } .k-ac2 { color: var(--accent-2); } .k-warm { color: var(--accent-warm); } .k-bad { color: var(--danger); }
+    .k-leib { color: #f87171; } .k-avg { color: #fb923c; } .k-euler { color: #f472b6; } .k-nila { color: #fbbf24; } .k-wallis { color: #60a5fa; }
+    .k-machin { color: #a78bfa; } .k-chud { color: #5eead4; } .k-arch { color: #4ade80; } .k-mc { color: #e8ecf4; }
+    [data-theme="light"] .k-leib { color: #dc2626; } [data-theme="light"] .k-avg { color: #ea580c; } [data-theme="light"] .k-euler { color: #db2777; }
+    [data-theme="light"] .k-nila { color: #b45309; } [data-theme="light"] .k-wallis { color: #2563eb; } [data-theme="light"] .k-machin { color: #7c3aed; }
+    [data-theme="light"] .k-chud { color: #0d9488; } [data-theme="light"] .k-arch { color: #16a34a; } [data-theme="light"] .k-mc { color: #1a1d2e; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; }
+    .field input[type="range"] { width: 100%; min-width: 0; }
+    .field select, .field input[type="number"], .field input[type="text"] { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; min-width: 0; }
+    .combo { display: grid; grid-template-columns: minmax(0, 1fr) 6.2em; gap: 10px; align-items: center; }
+    .combo input[type="text"] { padding: 5px 6px; font-variant-numeric: tabular-nums; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .row button { padding: 7px 11px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .app-content button:disabled { opacity: 0.45; cursor: not-allowed; filter: none !important; }
+    .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 10px; border: 0; padding: 0; margin: 0; min-width: 0; }
+    .checks legend { padding: 0; margin-bottom: 6px; font-size: 0.86rem; font-weight: 600; color: var(--text); }
+    .check { display: flex; gap: 7px; align-items: center; font-size: 0.82rem; min-width: 0; }
+    .check input { margin: 0; flex: none; }
+    .check label { cursor: pointer; line-height: 1.3; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.3; }
+    .readout strong { font-size: 1.02rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout em { font-style: normal; font-size: 0.72rem; line-height: 1.35; color: var(--text-muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .readout.is-meas strong { color: var(--accent-warm) !important; }
+    .readout.is-theory strong { color: var(--accent-2) !important; }
+    .readout.wide { grid-column: 1 / -1; }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    .table-wrap { max-width: 100%; overflow-x: auto; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 5px 6px; text-align: right; overflow-wrap: anywhere; vertical-align: top; }
+    .lab table.cmp thead th { font-size: 0.7rem; letter-spacing: 0.02em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.78rem; }
+    .lab table.cmp tbody th i { display: inline-block; width: 10px; height: 0; margin-right: 6px; vertical-align: middle; border-top: 3px solid currentColor; }
+    .lab table.cmp td.meas { color: var(--accent-warm) !important; }
+    .lab table.cmp td.theory { color: var(--accent-2) !important; }
+    .lab table.cmp td small, .lab table.cmp th small { display: block; font-size: max(11px, 0.66rem); font-weight: 400; color: var(--text-muted); white-space: normal; }
+    .lab table.cmp col.c-name { width: 25%; }
+    .lab table.cmp col.c-val { width: 24%; }
+    .digits { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82rem; line-height: 1.55; overflow-wrap: anywhere; word-break: break-all; color: var(--text-muted); }
+    .digits .ok { color: var(--accent) !important; font-weight: 600; }
+    .digits .bad { color: var(--danger) !important; }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .col { display: contents; }
+      .o1 { order: 1; } .o2 { order: 2; } .o3 { order: 3; } .o4 { order: 4; } .o5 { order: 5; } .o6 { order: 6; } .o7 { order: 7; }
+      .sim-canvas { aspect-ratio: 1 / 1; }
+      #polyStage { aspect-ratio: 4 / 5; }
+      .chart-canvas { aspect-ratio: 4 / 3; }
+      #raceChart { aspect-ratio: 4 / 5; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.72rem; table-layout: auto; }
+      .lab table.cmp th, .lab table.cmp td { padding: 4px 4px; }
+      .lab table.cmp td .nw { white-space: nowrap; }
+      .lab table.cmp td, .lab table.cmp td small { overflow-wrap: normal; }
+      .lab table.cmp td:last-child { min-width: 3.6em; }
+      .lab table.cmp td:nth-child(2) { overflow-wrap: anywhere; }
+      .lab table.cmp tbody th { overflow-wrap: normal; }
+      .lab table.cmp tbody th small { overflow-wrap: anywhere; }
+      .checks { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="pi-yaklasimi">
+
+<div class="app-content">
+  <h1>π'yi Hesaplamak: Arşimet, Seriler ve Monte Carlo</h1>
+  <p class="hint">Bir sekme seç. Monte Carlo'da rastgele noktalar ve Buffon'un iğneleriyle π'yi ölç, hatayı kuramsal standart hatayla karşılaştır; Seriler ve yarış'ta dokuz yöntemin doğru basamaklarını aynı grafikte yarıştır; Arşimet çokgenleri'nde π'yi iki çokgen arasına sıkıştır ve kayan noktanın bir formülü nasıl bozduğunu ölç. Aynı tohum her zaman aynı sonucu verir.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney bölümleri">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-monte-carlo" data-tab="monte-carlo" aria-selected="true" aria-controls="panel-monte-carlo">Monte Carlo</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-seriler" data-tab="seriler" aria-selected="false" aria-controls="panel-seriler" tabindex="-1">Seriler ve yarış</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-arsimet" data-tab="arsimet" aria-selected="false" aria-controls="panel-arsimet" tabindex="-1">Arşimet çokgenleri</button>
+  </div>
+
+  <!-- ═══ (a) Monte Carlo ═══ -->
+  <section class="lab" id="panel-monte-carlo" role="tabpanel" aria-labelledby="tab-monte-carlo" data-tab="monte-carlo">
+    <div class="col">
+      <figure class="fig o1">
+        <canvas id="mcStage" class="sim-canvas" width="900" height="563" role="img" aria-label="Birim kare, çeyrek çember ve atılan noktalar"></canvas>
+        <ul class="legend" id="mcStageLegend" aria-label="Sahne açıklaması"></ul>
+      </figure>
+      <p class="status o2" id="mStatus" aria-live="polite"></p>
+      <div class="panel o4" role="group" aria-labelledby="ttlM3">
+        <h2 id="ttlM3">Ölçüm ve kuram</h2>
+        <div class="cards" aria-live="polite">
+          <div class="readout" aria-live="off"><small id="mNLabel">Atılan nokta N</small><strong id="mN">0</strong><em id="mNSub">—</em></div>
+          <div class="readout is-meas"><small id="mEstLabel">π tahmini 4·isabet/N (ölçülen)</small><strong id="mEst">—</strong><em id="mEstSub">—</em></div>
+          <div class="readout is-meas"><small>Hata: tahmin − π</small><strong id="mErr">—</strong><em id="mErrSub">—</em></div>
+          <div class="readout is-theory"><small id="mSELabel">Kuram: standart hata 4√(p(1 − p)/N)</small><strong id="mSE">—</strong><em id="mSESub">—</em></div>
+          <div class="readout"><small>Doğru basamak −log₁₀|hata|</small><strong id="mDig">—</strong><em id="mDigSub">—</em></div>
+          <div class="readout is-meas"><small id="mAltLabel">Aynı x'lerle ortalama değer yöntemi</small><strong id="mAlt">—</strong><em id="mAltSub">—</em></div>
+          <div class="readout is-meas wide"><small id="mVarLabel">Bir noktanın varyansı: isabet ve ortalama değer</small><strong id="mVar">—</strong><em id="mVarSub">—</em></div>
+          <div class="readout is-meas"><small id="mExtraLabel">Fazla varyans: y'nin rastgeleliği</small><strong id="mExtra">—</strong><em id="mExtraSub">—</em></div>
+          <div class="readout is-meas"><small id="mSlopeLabel">Log–log eğim, 16 koşu</small><strong id="mSlope">—</strong><em id="mSlopeSub">—</em></div>
+          <div class="readout is-meas"><small>16 koşunun kök ortalama kare hatası / kuram, N = 10⁶</small><strong id="mRms">—</strong><em id="mRmsSub">—</em></div>
+        </div>
+      </div>
+      <figure class="fig o5">
+        <canvas id="mcChart" class="chart-canvas" width="900" height="450" role="img" aria-label="Hata grafiği"></canvas>
+        <ul class="legend" id="mcChartLegend" aria-label="Grafik açıklaması"></ul>
+        <figcaption>Log–log hata grafiği: yatayda N, düşeyde |tahmin − π|. Hata 1/√N gibi küçülürse noktalar eğimi −1/2 olan bir doğru üzerine dizilir; 10 kat nokta yalnız √10 ≈ 3.2 kat küçük hata getirir.</figcaption>
+      </figure>
+    </div>
+    <div class="col">
+      <div class="panel o3" role="group" aria-labelledby="ttlM1">
+        <h2 id="ttlM1">Deney</h2>
+        <div class="field">
+          <label for="mExp"><span class="lt">Yöntem</span><output id="mExpOut" for="mExp">P = π/4</output></label>
+          <select id="mExp">
+            <option value="dart" selected>Çeyrek çembere nokta atışı (isabet)</option>
+            <option value="buffon">Buffon'un iğnesi (1777)</option>
+          </select>
+        </div>
+        <div class="field" id="mRatioField" hidden>
+          <label for="mRatio"><span class="lt">İğne boyu / çizgi aralığı ℓ/t</span><output id="mRatioOut" for="mRatio">ℓ/t = 1.00</output></label>
+          <div class="combo">
+            <input type="range" id="mRatio" min="0.05" max="1" step="0.01" value="1">
+            <input type="text" id="mRatioNum" value="1.00" inputmode="decimal" autocomplete="off" spellcheck="false">
+          </div>
+          <label for="mRatioNum" class="visually-hidden">İğne boyu / çizgi aralığı ℓ/t, sayı kutusu (0.05 ile 1 arası)</label>
+        </div>
+        <div class="row" id="mRatioPresets" role="group" aria-label="Hazır iğne boyları" hidden>
+          <button type="button" class="app-btn-ghost" data-ratio="1">ℓ = t</button>
+          <button type="button" class="app-btn-ghost" data-ratio="0.5">ℓ = t/2</button>
+        </div>
+        <p class="note" id="mExpNote"></p>
+      </div>
+      <div class="panel o3" role="group" aria-labelledby="ttlM2">
+        <h2 id="ttlM2">Sayım</h2>
+        <div class="field">
+          <label for="mRate"><span class="lt">Hız</span><output id="mRateOut" for="mRate">1000 nokta/s</output></label>
+          <input type="range" id="mRate" min="0" max="8" step="1" value="4">
+        </div>
+        <div class="field">
+          <label for="mSeed"><span class="lt">Tohum (rastgele sayı üreteci)</span></label>
+          <input type="number" id="mSeed" min="1" max="999999" step="1" value="1777" inputmode="numeric">
+        </div>
+        <div class="row">
+          <button type="button" id="mToggle" aria-pressed="false">Duraklat</button>
+          <button type="button" class="app-btn-ghost" id="mTo1000">1000 nokta</button>
+          <button type="button" class="app-btn-ghost" id="mTo1e6">10⁶ nokta</button>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="mRepeat">Aynı tohumla yeniden</button>
+          <button type="button" class="app-btn-ghost" id="mNewSeed">Yeni tohum</button>
+          <button type="button" class="app-btn-ghost" id="mReset">Sıfırla</button>
+        </div>
+        <p class="note">"1000 nokta" ve "10⁶ nokta" koşuyu hemen tam o sayıya getirir (gerekirse aynı tohumla baştan çeker). Nokta dizisi yalnız tohuma bağlıdır: hız sonucu değiştirmez; yöntem, ℓ/t ya da tohum değişince sayım ve 16 koşuluk topluluk baştan başlar.</p>
+        <p class="note">Kısayollar: <kbd>Boşluk</kbd> duraklat ya da sürdür, <kbd>R</kbd> bu sekmeyi varsayılanlara döndür (isabet, tohum 1777, 1000 nokta/s).</p>
+      </div>
+      <div class="panel o6" role="group" aria-labelledby="ttlM4">
+        <h2 id="ttlM4">Neden varyans farklı?</h2>
+        <p class="note">İsabet yöntemi noktanın eğrinin altında olup olmadığına bakar: h = 4 ya da 0, ortalaması π, varyansı 16p(1 − p) = 4π − π² ≈ 2.697. Ortalama değer yöntemi (Riemann toplamları sayfasındaki Monte Carlo) aynı x'te yüksekliğin kendisini kullanır: g = 4√(1 − x²), varyansı 16·2/3 − π² ≈ 0.797. Toplam varyans yasasına göre Var(h) = Var(E[h | x]) + E[Var(h | x)] = Var(g) + 16·E[f(1 − f)]; ikinci terim 4π − 32/3 ≈ 1.900, yalnız y'nin rastgeleliğinden gelir. Oran 2.697/0.797 ≈ 3.38: isabet yöntemi aynı doğruluk için yaklaşık 3.4 kat nokta ister.</p>
+        <p class="note">Standart hata hatanın standart sapmasıdır, her N'de geçerlidir; ±2 SE'nin yaklaşık %95 kapsaması ise normal yaklaşıma dayanır ve Np(1 − p) ≥ 10 ister. Eğim, 16 koşunun (tohum, tohum + 1, …, tohum + 15; her biri 10⁶ nokta) kök ortalama kare hatasına N = 100 … 10⁶ arasındaki 41 noktada (Buffon'da yalnız beklenen kesişme sayısı NP ≥ 50 olan N'lerde) en küçük karelerle oturtulur; ± değeri bir koşu dışarıda bırakılarak (jackknife) bulunur.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ (b) Seriler ve yarış ═══ -->
+  <section class="lab" id="panel-seriler" role="tabpanel" aria-labelledby="tab-seriler" data-tab="seriler" hidden>
+    <div class="col">
+      <figure class="fig o1">
+        <canvas id="raceChart" class="chart-canvas" width="900" height="620" role="img" aria-label="Doğru basamak yarışı"></canvas>
+        <ul class="legend" aria-label="Grafik açıklaması">
+          <li><span class="sw k-muted"></span><span>renkli çizgi: yöntemin ölçülen doğru basamağı (renkler aşağıdaki kutularda)</span></li>
+          <li><span class="sw dash k-mc"></span><span>Monte Carlo, kuram: −log₁₀(1.64/√N)</span></li>
+          <li><span class="sw dash k-warm"></span><span>çift duyarlığın sınırı (π'nin yarım ulp'si, 2.2·10⁻¹⁶)</span></li>
+          <li><span class="sw k-ink"></span><span>dikey çizgi: seçili adım N</span></li>
+        </ul>
+        <figcaption>Yatayda adım sayısı N (logaritmik): serilerde terim, Wallis'te çarpan, Machin'de her iki arctan serisinin terimi, Arşimet'te hesaplanan çokgen (N = 5: 96 kenar), Monte Carlo'da nokta. Düşeyde −log₁₀|yaklaşım − π|. Grafiğin üstünden çıkan yöntemler 32 basamağı aşmıştır.</figcaption>
+      </figure>
+      <p class="status o2" id="rStatus" aria-live="polite"></p>
+      <div class="panel o4" role="group" aria-labelledby="ttlR3">
+        <h2 id="ttlR3">Aynı adım sayısında bütün yöntemler</h2>
+        <div class="table-wrap">
+          <table class="cmp" aria-labelledby="ttlR3">
+            <colgroup><col class="c-name"><col class="c-val"><col><col><col></colgroup>
+            <thead><tr><th scope="col">Yöntem</th><th scope="col">Değer</th><th scope="col">Hata (ölçülen)</th><th scope="col">Kuram (öncü terim)</th><th scope="col">Doğru basamak</th></tr></thead>
+            <tbody id="rBody"></tbody>
+          </table>
+        </div>
+        <p class="note">Hata = yaklaşım − π. "Kuram" sütunu hatanın asimptotik öncü terimidir (Monte Carlo'da standart hata); altındaki oran ölçülen/kuram, Monte Carlo'da hatanın kaç standart hata olduğu. Seriler, çarpım ve çokgenler 60 basamaklı tamsayı aritmetiğiyle (BigInt) hesaplanır; π'nin kendisi aynı aritmetikle Machin formülünden 70 basamakla bulunur. 50 basamaktan ötesi yazılmaz: "≥ 50" hesap duyarlığının sınırıdır.</p>
+      </div>
+      <div class="panel o5" role="group" aria-labelledby="ttlR4">
+        <h2 id="ttlR4">Basamaklar</h2>
+        <div class="field">
+          <label for="rDigSel"><span class="lt">Yöntem</span><output id="rDigOut" for="rDigSel">—</output></label>
+          <select id="rDigSel"></select>
+        </div>
+        <p class="digits" id="rDigits" aria-live="polite"></p>
+        <p class="note">Yaklaşımın ilk 50 ondalığı (kesilerek). Turkuaz kısım π'nin ondalıklarıyla baştan itibaren birebir eşleşir, kırmızı rakam ilk ayrılan; sonrası yaklaşımın kendi rakamlarıdır. Eşleşen rakam sayısı −log₁₀|hata|'dan bir basamak kadar sapabilir.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel o3" role="group" aria-labelledby="ttlR1">
+        <h2 id="ttlR1">Adım ve yarış</h2>
+        <div class="field">
+          <label for="rN"><span class="lt">Adım sayısı N (logaritmik)</span><output id="rNOut" for="rN">N = 1000</output></label>
+          <div class="combo">
+            <input type="range" id="rN" min="0" max="6" step="0.025" value="3">
+            <input type="text" id="rNNum" value="1000" inputmode="numeric" autocomplete="off" spellcheck="false">
+          </div>
+          <label for="rNNum" class="visually-hidden">Adım sayısı N, sayı kutusu (1 ile 1 000 000 arası tam sayı)</label>
+        </div>
+        <div class="row" role="group" aria-label="Hazır adım sayıları">
+          <button type="button" class="app-btn-ghost" data-rn="5">N = 5</button>
+          <button type="button" class="app-btn-ghost" data-rn="100">N = 100</button>
+          <button type="button" class="app-btn-ghost" data-rn="1000">N = 1000</button>
+          <button type="button" class="app-btn-ghost" data-rn="1000000">N = 10⁶</button>
+        </div>
+        <div class="row">
+          <button type="button" id="rPlay" aria-pressed="false">Yarışı başlat</button>
+          <button type="button" class="app-btn-ghost" id="rReset">Sıfırla</button>
+        </div>
+        <div class="field">
+          <label for="rSeed"><span class="lt">Monte Carlo tohumu</span></label>
+          <input type="number" id="rSeed" min="1" max="999999" step="1" value="1777" inputmode="numeric">
+        </div>
+        <fieldset class="checks" id="rShow">
+          <legend>Grafikte göster</legend>
+        </fieldset>
+        <p class="note">Yarış N'yi 12 saniyede 1'den 10⁶'ya logaritmik hızla çıkarır; kaydırıcı 10'un 1/40'lık kuvvetlerine oturur, kutuya her tam sayı yazılabilir. Monte Carlo eğrisi, Monte Carlo sekmesindeki isabet yönteminin aynı tohumlu tek koşusudur. Kısayollar: <kbd>Boşluk</kbd> yarışı başlatır ya da durdurur, <kbd>R</kbd> bu sekmeyi sıfırlar (N = 1000, tohum 1777).</p>
+      </div>
+      <div class="panel o6" role="group" aria-labelledby="ttlR2">
+        <h2 id="ttlR2">Yöntemler</h2>
+        <p class="note"><strong>Leibniz</strong> (Madhava, 14. yy; Leibniz 1674): π = 4(1 − 1/3 + 1/5 − …), hata ≈ 1/N. <strong>Ortalama</strong>: iki ardışık kısmi toplamın ortalaması (N + 1 terim kullanır), hata ≈ 1/(2N²). <strong>Euler dönüşümü</strong> aynı serinin yeniden düzenlenmişidir: π = 2(1 + 1/3 + 1·2/(3·5) + 1·2·3/(3·5·7) + …), her terim yaklaşık yarıya iner. <strong>Nilakantha</strong> (15. yy): π = 3 + 4/(2·3·4) − 4/(4·5·6) + …, hata ≈ 1/(4N³). <strong>Wallis</strong> (1656): π = 2·(2·2)/(1·3)·(4·4)/(3·5)·…, hata ≈ −π/(4N). <strong>Machin</strong> (1706): π = 16 arctan(1/5) − 4 arctan(1/239), adım başına yaklaşık log₁₀ 25 = 1.40 basamak. <strong>Chudnovsky</strong> (1988): 1/π = 12 Σ (−1)ᵏ(6k)!(13591409 + 545140134k)/((3k)!(k!)³·640320<sup>3k+3/2</sup>), terim başına yaklaşık 14.18 basamak. <strong>Arşimet</strong>: iç çokgenin yarı çevresi, adım başına kenar sayısı iki katına çıkar. <strong>Monte Carlo</strong>: 4·isabet/N.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ (c) Arşimet çokgenleri ═══ -->
+  <section class="lab" id="panel-arsimet" role="tabpanel" aria-labelledby="tab-arsimet" data-tab="arsimet" hidden>
+    <div class="col">
+      <figure class="fig o1">
+        <canvas id="polyStage" class="sim-canvas" width="900" height="506" role="img" aria-label="Çember, iç ve dış çokgen"></canvas>
+        <ul class="legend" aria-label="Sahne açıklaması">
+          <li><span class="sw k-ink"></span><span>birim çember</span></li>
+          <li><span class="sw box k-acc"></span><span>iç çokgen (yarı çevresi b<sub>n</sub> &lt; π)</span></li>
+          <li><span class="sw k-warm"></span><span>dış çokgen (yarı çevresi a<sub>n</sub> &gt; π)</span></li>
+          <li><span class="sw dash k-muted"></span><span>büyütme penceresi: tepe noktası çevresi</span></li>
+        </ul>
+      </figure>
+      <p class="status o2" id="pStatus" aria-live="polite"></p>
+      <div class="panel o4" role="group" aria-labelledby="ttlP3">
+        <h2 id="ttlP3">Sınırlar: ölçülen ve kuram</h2>
+        <div class="cards" aria-live="polite">
+          <div class="readout"><small>Kenar sayısı n = 6·2ᵏ</small><strong id="pN">—</strong><em id="pNSub">—</em></div>
+          <div class="readout is-meas"><small>İç çokgen: yarı çevre b<sub>n</sub> (alt sınır)</small><strong id="pIn">—</strong><em id="pInSub">—</em></div>
+          <div class="readout is-meas"><small>Dış çokgen: yarı çevre a<sub>n</sub> (üst sınır)</small><strong id="pOut">—</strong><em id="pOutSub">—</em></div>
+          <div class="readout is-meas"><small>Snell–Huygens (2b<sub>n</sub> + a<sub>n</sub>)/3</small><strong id="pSH">—</strong><em id="pSHSub">—</em></div>
+          <div class="readout"><small>Aralık genişliği a<sub>n</sub> − b<sub>n</sub></small><strong id="pW">—</strong><em id="pWSub">—</em></div>
+          <div class="readout is-theory"><small>Arşimet'in kesirleri (96 kenar)</small><strong id="pArch">223/71 &lt; π &lt; 22/7</strong><em id="pArchSub">—</em></div>
+        </div>
+      </div>
+      <figure class="fig o5">
+        <canvas id="polyChart" class="chart-canvas" width="900" height="450" role="img" aria-label="Sınırların hatası"></canvas>
+        <ul class="legend" aria-label="Grafik açıklaması">
+          <li><span class="sw dot k-acc"></span><span>π − b<sub>n</sub> (ölçülen)</span></li>
+          <li><span class="sw dot k-warm"></span><span>a<sub>n</sub> − π (ölçülen)</span></li>
+          <li><span class="sw dot k-ac2"></span><span>Snell–Huygens hatası (ölçülen)</span></li>
+          <li><span class="sw dash k-muted"></span><span>kuram: π³/(6n²), π³/(3n²), π⁵/(20n⁴)</span></li>
+        </ul>
+        <figcaption>Yatayda ikileme sayısı k (n = 6·2ᵏ), düşeyde hata (logaritmik). Her ikileme b ve a'nın hatasını 4 kat (0.60 basamak), Snell–Huygens'inkini 16 kat (1.20 basamak) küçültür. Sınırlar 60 basamaklı tamsayı aritmetiğiyle hesaplanır; 10⁻⁵⁰'nin altı çizilmez.</figcaption>
+      </figure>
+      <figure class="fig o6">
+        <canvas id="fpChart" class="chart-canvas" width="900" height="450" role="img" aria-label="Kayan nokta deneyi"></canvas>
+        <ul class="legend" aria-label="Kayan nokta grafiği açıklaması">
+          <li><span class="sw k-bad"></span><span>saf formül s<sub>2n</sub> = √(2 − √(4 − s<sub>n</sub>²))</span></li>
+          <li><span class="sw k-acc"></span><span>kararlı formül s<sub>2n</sub> = s<sub>n</sub>/√(2 + √(4 − s<sub>n</sub>²))</span></li>
+          <li><span class="sw dash k-muted"></span><span>kesme hatası π³/(6n²)</span></li>
+          <li><span class="sw dash k-warm"></span><span>çift duyarlığın sınırı</span></li>
+        </ul>
+        <figcaption>Kayan nokta deneyi: aynı yarı çevre n·s<sub>n</sub>/2, iki eşdeğer formülle çift duyarlıkta (64 bit) hesaplanır. Düşeyde |yarı çevre − π|; hata π'ye ulaşınca saf formül sıfır üretmiştir.</figcaption>
+      </figure>
+      <div class="panel o7" role="group" aria-labelledby="ttlP4">
+        <h2 id="ttlP4">Kayan nokta: ölçülen</h2>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-meas"><small>Saf formül: yarı çevre (çift duyarlık)</small><strong id="pNaive">—</strong><em id="pNaiveSub">—</em></div>
+          <div class="readout is-meas"><small>Kararlı formül: yarı çevre (çift duyarlık)</small><strong id="pStable">—</strong><em id="pStableSub">—</em></div>
+          <div class="readout is-meas wide"><small>Yok etme: 2 − √(4 − s²) farkının bağıl hatası</small><strong id="pCancel">—</strong><em id="pCancelSub">—</em></div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="panel o3" role="group" aria-labelledby="ttlP1">
+        <h2 id="ttlP1">Çokgen</h2>
+        <div class="field">
+          <label for="pK"><span class="lt">İkileme sayısı k</span><output id="pKOut" for="pK">k = 4 · n = 96</output></label>
+          <div class="combo">
+            <input type="range" id="pK" min="0" max="40" step="1" value="4">
+            <input type="text" id="pKNum" value="4" inputmode="numeric" autocomplete="off" spellcheck="false">
+          </div>
+          <label for="pKNum" class="visually-hidden">İkileme sayısı k, sayı kutusu (0 ile 40 arası)</label>
+        </div>
+        <div class="field">
+          <label for="pZoom"><span class="lt">Büyütme penceresi</span><output id="pZoomOut" for="pZoom">otomatik</output></label>
+          <select id="pZoom">
+            <option value="auto" selected>Otomatik: aralık sığsın</option>
+            <option value="1">×1</option>
+            <option value="10">×10</option>
+            <option value="100">×100</option>
+            <option value="1000">×1000</option>
+            <option value="10000">×10⁴</option>
+            <option value="100000">×10⁵</option>
+            <option value="1000000">×10⁶</option>
+          </select>
+        </div>
+        <div class="row" role="group" aria-label="Hazır çokgenler">
+          <button type="button" class="app-btn-ghost" data-pk="0">Altıgen</button>
+          <button type="button" class="app-btn-ghost" data-pk="4">96 kenar (Arşimet)</button>
+          <button type="button" class="app-btn-ghost" data-pk="30">30 ikileme</button>
+          <button type="button" class="app-btn-ghost" id="pReset">Sıfırla</button>
+        </div>
+        <p class="note">Kısayol: <kbd>R</kbd> bu sekmeyi sıfırlar (k = 4, otomatik büyütme). Büyütme penceresi tepe noktasının çevresini gösterir: dış çokgenin köşesi, çember ve iç çokgenin kenarı orada en uzaktır.</p>
+      </div>
+      <div class="panel o7" role="group" aria-labelledby="ttlP2">
+        <h2 id="ttlP2">Yöntem</h2>
+        <p class="note">Birim çemberde iç n-genin yarı çevresi b<sub>n</sub> = n·sin(π/n), dış n-geninki a<sub>n</sub> = n·tan(π/n); her n için b<sub>n</sub> &lt; π &lt; a<sub>n</sub>. Seriye açınca b<sub>n</sub> = π − π³/(6n²) + π⁵/(120n⁴) − … ve a<sub>n</sub> = π + π³/(3n²) + 2π⁵/(15n⁴) + …; dış sınırın hatası iç sınırınkinin iki katıdır, bu yüzden (2b<sub>n</sub> + a<sub>n</sub>)/3 bileşiminde 1/n² terimleri birbirini götürür ve π + π⁵/(20n⁴) kalır (Snell 1621, Huygens 1654).</p>
+        <p class="note">Arşimet trigonometri kullanmadan, n'den 2n'ye bir ortalama zinciriyle geçti: a<sub>2n</sub> = 2a<sub>n</sub>b<sub>n</sub>/(a<sub>n</sub> + b<sub>n</sub>) (harmonik ortalama), b<sub>2n</sub> = √(a<sub>2n</sub>b<sub>n</sub>) (geometrik ortalama); başlangıç a₆ = 2√3, b₆ = 3. Sayfa bu zinciri 60 basamakla yürütür. 96 kenarda bulduğu 3 10/71 &lt; π &lt; 3 1/7, √3 için kullandığı 265/153 &lt; √3 &lt; 1351/780 kesirleri ve her adımda güvenli yöne yuvarlaması yüzünden gerçek sınırlardan biraz geniştir.</p>
+        <p class="note">Kayan nokta deneyinde kenar uzunluğu s (altıgende s = 1) doğrudan ikilenir. İki formül matematikte aynıdır: 2 − √(4 − s²) = s²/(2 + √(4 − s²)). Ama s küçükken √(4 − s²) 2'ye çok yakındır ve çıkarma ortak baş basamakları siler (yok etme); kararlı biçim çıkarma yapmaz.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* MATH-START — DOM'a dokunmayan saf hesap çekirdeği; doğrulama betiği bu bloğu node'da çalıştırır */
+  const PI = Math.PI, TAU = 2 * Math.PI, EPS = Number.EPSILON;
+  const PI_LO = 1.2246467991473532e-16; // π − Math.PI (Math.PI, π'nin 2⁻⁵¹ ızgarasındaki en yakın değeri)
+
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Tam sayıdan bağımsız sözde rastgele [0, 1): yalnız çizimde (iğnelerin tahtadaki yeri) kullanılır, ölçüme girmez
+  function hash01(seed, i, j) {
+    let t = (Math.imul(seed ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(i + 1, 0xc2b2ae35) ^ Math.imul(j + 7, 0x27d4eb2f)) >>> 0;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  // 1 … L arası bütün tam sayılar, sonra round(10^(k/per)); son değer nMax
+  function logGrid(per, nMax, L) {
+    const out = [];
+    for (let n = 1; n <= L; n++) out.push(n);
+    for (let k = 0; ; k++) {
+      const n = Math.round(Math.pow(10, k / per));
+      if (n > nMax) break;
+      if (!out.length || n > out[out.length - 1]) out.push(n);
+    }
+    if (out[out.length - 1] !== nMax) out.push(nMax);
+    return out;
+  }
+  const MC_MAX = 1000000;
+  const FINE = logGrid(40, MC_MAX, 40); // tek koşunun ve yarışın ızgarası
+  const EG = logGrid(10, MC_MAX, 1);    // topluluk ızgarası: on yılda 10 nokta
+
+  /* (a) Monte Carlo */
+  const P_DART = PI / 4;
+  const VAR_HIT = 16 * P_DART * (1 - P_DART); // 4π − π² ≈ 2.6968
+  const VAR_MV = 32 / 3 - PI * PI;            // 16·2/3 − π² ≈ 0.7971
+  const VAR_EXTRA = 4 * PI - 32 / 3;          // 16·E[f(1 − f)] ≈ 1.8997
+  const SIG_HIT = Math.sqrt(VAR_HIT), SIG_MV = Math.sqrt(VAR_MV);
+  const H_IN = (4 - PI) * (4 - PI), H_OUT = PI * PI; // (h − π)², h = 4 içeride, 0 dışarıda
+  const buffonP = (r) => (2 * r) / PI;
+  const varBuffon = (r) => (PI * PI * (1 - buffonP(r))) / buffonP(r); // π²(π/(2r) − 1), delta yöntemi
+
+  function newDart(seed) {
+    return {
+      kind: "dart", seed, a: seed >>> 0, N: 0, hits: 0, sf: 0,
+      a1: 0, a2: 0, b1: 0, b2: 0, c1: 0, c2: 0, gi: 0,
+      est: new Float64Array(FINE.length).fill(NaN), estMv: new Float64Array(FINE.length).fill(NaN),
+    };
+  }
+  // count nokta daha; sink(x, y, içeride) çizim için. x, y aynı mulberry32 akışının ardışık iki çıktısı.
+  function dartAdvance(run, count, sink) {
+    let a = run.a, N = run.N, hits = run.hits, sf = run.sf, gi = run.gi;
+    let a1 = run.a1, a2 = run.a2, b1 = run.b1, b2 = run.b2, c1 = run.c1, c2 = run.c2;
+    const lim = Math.min(count, MC_MAX - N);
+    for (let i = 0; i < lim; i++) {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      const x = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      a = (a + 0x6d2b79f5) >>> 0;
+      t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      const y = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      const inside = x * x + y * y <= 1;
+      if (inside) hits++;
+      const f = Math.sqrt(1 - x * x);
+      sf += f;
+      const dh = inside ? H_IN : H_OUT, e = 4 * f - PI, dg = e * e, D = dh - dg;
+      a1 += dh; a2 += dh * dh; b1 += dg; b2 += dg * dg; c1 += D; c2 += D * D;
+      N++;
+      if (sink) sink(x, y, inside, N);
+      if (N === FINE[gi]) { run.est[gi] = (4 * hits) / N; run.estMv[gi] = (4 * sf) / N; gi++; }
+    }
+    run.a = a; run.N = N; run.hits = hits; run.sf = sf; run.gi = gi;
+    run.a1 = a1; run.a2 = a2; run.b1 = b1; run.b2 = b2; run.c1 = c1; run.c2 = c2;
+    return lim;
+  }
+  function dartStats(run) {
+    const N = run.N;
+    if (!N) return null;
+    const p = run.hits / N, est = 4 * p, estMv = (4 * run.sf) / N, bes = N > 1 ? N / (N - 1) : NaN;
+    const m1 = run.a1 / N, n1 = run.b1 / N, d1 = run.c1 / N;
+    const vH = (m1 - (est - PI) ** 2) * bes, vG = (n1 - (estMv - PI) ** 2) * bes;
+    return {
+      N, hits: run.hits, p, est, err: est - PI, se: SIG_HIT / Math.sqrt(N), seHat: 4 * Math.sqrt((p * (1 - p)) / N),
+      estMv, errMv: estMv - PI, seMv: SIG_MV / Math.sqrt(N),
+      vH, vG, seVH: Math.sqrt(Math.max(0, run.a2 / N - m1 * m1) / N), seVG: Math.sqrt(Math.max(0, run.b2 / N - n1 * n1) / N),
+      extra: vH - vG, seExtra: Math.sqrt(Math.max(0, run.c2 / N - d1 * d1) / N), ratio: vH / vG,
+    };
+  }
+
+  function newBuffon(seed, r) {
+    return { kind: "buffon", seed, r, a: seed >>> 0, N: 0, H: 0, gi: 0, est: new Float64Array(FINE.length).fill(NaN) };
+  }
+  // t = 1: iğnenin ortası en yakın çizgiden y ∈ [0, 1/2] uzakta; açı θ ∈ [0, π/2], birim çeyrek daireden
+  // reddetme örneklemesiyle (u, v) yönü: sin θ = v/√(u² + v²). π hesaba girmez. Keser ⇔ y ≤ (ℓ/2)·sin θ.
+  function buffonAdvance(run, count, sink) {
+    let a = run.a, N = run.N, H = run.H, gi = run.gi;
+    const half = 0.5 * run.r, twoR = 2 * run.r;
+    const U = () => {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const lim = Math.min(count, MC_MAX - N);
+    for (let i = 0; i < lim; i++) {
+      const y = 0.5 * U();
+      let u, v, q;
+      do { u = U(); v = U(); q = u * u + v * v; } while (q > 1 || q === 0);
+      const rq = Math.sqrt(q), s = v / rq;
+      const cross = y <= half * s;
+      if (cross) H++;
+      N++;
+      if (sink) sink(y, u / rq, s, cross, N);
+      if (N === FINE[gi]) { run.est[gi] = H ? (twoR * N) / H : NaN; gi++; }
+    }
+    run.a = a; run.N = N; run.H = H; run.gi = gi;
+    return lim;
+  }
+  function buffonStats(run) {
+    const N = run.N;
+    if (!N) return null;
+    const P = buffonP(run.r), Ph = run.H / N, est = run.H ? (2 * run.r * N) / run.H : NaN;
+    return {
+      N, H: run.H, P, Ph, seP: Math.sqrt((P * (1 - P)) / N), est, err: est - PI,
+      se: PI * Math.sqrt((1 - P) / (N * P)), seHat: run.H ? est * Math.sqrt((1 - Ph) / (N * Ph)) : NaN,
+      vT: varBuffon(run.r), vHat: run.H ? (est * est * (1 - Ph)) / Ph : NaN, bias: (PI * (1 - P)) / (N * P),
+    };
+  }
+
+  // Topluluk: tohum + k (k = 0 … 15) koşuları, her biri 10⁶ örnek; EG noktalarında hata²
+  const ENS_K = 16;
+  function ensNew(kind, seed, r) {
+    return { kind, seed, r, k: 0, R: null, sq: new Float64Array(ENS_K * EG.length), sqMv: new Float64Array(ENS_K * EG.length), done: false };
+  }
+  function ensAdvance(E, budget) {
+    let used = 0;
+    while (!E.done && used < budget) {
+      if (!E.R) E.R = { a: (E.seed + E.k) >>> 0, N: 0, hits: 0, sf: 0, H: 0, j: 0 };
+      const R = E.R, base = E.k * EG.length, stop = Math.min(MC_MAX, R.N + (budget - used));
+      let a = R.a, N = R.N, j = R.j;
+      const U = () => {
+        a = (a + 0x6d2b79f5) >>> 0;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+      const start = N;
+      if (E.kind === "dart") {
+        let hits = R.hits, sf = R.sf;
+        while (N < stop) {
+          const x = U(), y = U();
+          if (x * x + y * y <= 1) hits++;
+          sf += Math.sqrt(1 - x * x);
+          N++;
+          if (N === EG[j]) {
+            const e = (4 * hits) / N - PI, m = (4 * sf) / N - PI;
+            E.sq[base + j] = e * e;
+            E.sqMv[base + j] = m * m;
+            j++;
+          }
+        }
+        R.hits = hits; R.sf = sf;
+      } else {
+        let H = R.H;
+        const half = 0.5 * E.r, twoR = 2 * E.r;
+        while (N < stop) {
+          const y = 0.5 * U();
+          let u, v, q;
+          do { u = U(); v = U(); q = u * u + v * v; } while (q > 1 || q === 0);
+          if (y <= (half * v) / Math.sqrt(q)) H++;
+          N++;
+          if (N === EG[j]) {
+            const e = H ? (twoR * N) / H - PI : Infinity;
+            E.sq[base + j] = e * e;
+            j++;
+          }
+        }
+        R.H = H;
+      }
+      R.a = a; R.N = N; R.j = j;
+      used += N - start;
+      if (N >= MC_MAX) {
+        E.k++;
+        E.R = null;
+        if (E.k >= ENS_K) E.done = true;
+      }
+    }
+    return used;
+  }
+  function ols(xs, ys) {
+    const n = xs.length;
+    let mx = 0, my = 0;
+    for (let i = 0; i < n; i++) { mx += xs[i]; my += ys[i]; }
+    mx /= n; my /= n;
+    let sxy = 0, sxx = 0;
+    for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; }
+    const slope = sxy / sxx;
+    return { slope, icpt: my - slope * mx };
+  }
+  // RMS(N) = √(ortalama hata²) koşular üzerinden; skip: dışarıda bırakılan koşu (jackknife)
+  function ensRms(E, j, mv, skip, runs) {
+    const arr = mv ? E.sqMv : E.sq;
+    let s = 0, c = 0;
+    for (let k = 0; k < runs; k++) { if (k === skip) continue; s += arr[k * EG.length + j]; c++; }
+    return c ? Math.sqrt(s / c) : NaN;
+  }
+  function ensFit(E, n0, mv) {
+    if (!E.done) return null;
+    const js = [];
+    for (let j = 0; j < EG.length; j++) if (EG[j] >= n0) js.push(j);
+    const fitSkip = (skip) => {
+      const xs = [], ys = [];
+      for (const j of js) {
+        const v = ensRms(E, j, mv, skip, ENS_K);
+        if (!(v > 0) || !Number.isFinite(v)) return null;
+        xs.push(Math.log10(EG[j]));
+        ys.push(Math.log10(v));
+      }
+      return ols(xs, ys);
+    };
+    const full = fitSkip(-1);
+    if (!full || js.length < 8) return null;
+    const ss = [];
+    for (let k = 0; k < ENS_K; k++) { const f = fitSkip(k); if (f) ss.push(f.slope); }
+    const m = ss.reduce((p, q) => p + q, 0) / ss.length;
+    const se = Math.sqrt(((ss.length - 1) / ss.length) * ss.reduce((p, q) => p + (q - m) ** 2, 0));
+    return { slope: full.slope, icpt: full.icpt, se, n0: EG[js[0]], n1: EG[js[js.length - 1]], count: js.length, rmsMax: ensRms(E, EG.length - 1, mv, -1, ENS_K) };
+  }
+
+  /* (b) Seriler: 60 basamaklı sabit noktalı tamsayı aritmetiği (değer·10⁶⁰) */
+  const DIG = 60, CAP = 50;
+  const SCALE = 10n ** 60n;
+  function isqrt(n) {
+    if (n < 2n) return n;
+    let x = 1n << BigInt(Math.ceil(n.toString(2).length / 2));
+    for (;;) {
+      const y = (x + n / x) >> 1n;
+      if (y >= x) return x;
+      x = y;
+    }
+  }
+  // π·10^digits, Machin: 16 arctan(1/5) − 4 arctan(1/239), 10 koruma basamağıyla
+  function machinFx(digits) {
+    const S = 10n ** BigInt(digits + 10);
+    const at = (x) => {
+      const x2 = x * x;
+      let p = S / x, sum = p, k = 1n, sign = -1n;
+      while (p > 0n) {
+        p /= x2;
+        sum += (sign * p) / (2n * k + 1n);
+        sign = -sign;
+        k++;
+      }
+      return sum;
+    };
+    return (16n * at(5n) - 4n * at(239n)) / 10n ** 10n;
+  }
+  const PI_FX = machinFx(DIG);
+  const SQRT10005 = isqrt(10005n * SCALE * SCALE);
+  const CHUD_X = 262537412640768000n; // 640320³
+  const absBig = (x) => (x < 0n ? -x : x);
+  function log10Big(x) {
+    const s = x.toString(), k = Math.min(16, s.length);
+    return Math.log10(Number(s.slice(0, k))) + (s.length - k);
+  }
+  const fxDigits = (v) => { const e = absBig(v - PI_FX); return e === 0n ? Infinity : DIG - log10Big(e); };
+  const fxErr = (v) => Number(v - PI_FX) / 1e60;
+  const fxNum = (v) => Number(v) / 1e60;
+  // Kesilerek dec ondalık (v ≥ 0)
+  function fxTrunc(v, dec) {
+    const s = (v / 10n ** BigInt(DIG - dec)).toString().padStart(dec + 1, "0");
+    return s.slice(0, s.length - dec) + "." + s.slice(s.length - dec);
+  }
+  // Yuvarlanarak dec ondalık (v ≥ 0)
+  function fxRound(v, dec) {
+    const q = 10n ** BigInt(DIG - dec);
+    const s = ((v + q / 2n) / q).toString().padStart(dec + 1, "0");
+    return s.slice(0, s.length - dec) + "." + s.slice(s.length - dec);
+  }
+  const FOUR = 4n * SCALE;
+  // Her yöntem: başlangıç durumu, bir adım ve durumun verdiği π yaklaşımı; st.n atılan adım sayısıdır
+  const SERIES = {
+    leib: { init: () => ({ n: 0, s: 0n }), step(st) { const t = FOUR / BigInt(2 * st.n + 1); st.s += st.n & 1 ? -t : t; st.n++; }, value: (st) => st.s },
+    avg: {
+      init: () => ({ n: 0, s: 0n }),
+      step(st) { const t = FOUR / BigInt(2 * st.n + 1); st.s += st.n & 1 ? -t : t; st.n++; },
+      value(st) { const t = FOUR / BigInt(2 * st.n + 1); return st.s + (st.n & 1 ? -t : t) / 2n; },
+    },
+    euler: { init: () => ({ n: 0, t: 2n * SCALE, s: 0n }), step(st) { st.s += st.t; st.n++; st.t = (st.t * BigInt(st.n)) / BigInt(2 * st.n + 1); }, value: (st) => st.s },
+    nila: {
+      init: () => ({ n: 0, s: 3n * SCALE }),
+      step(st) { const k = st.n + 1, t = FOUR / (BigInt(2 * k) * BigInt(2 * k + 1) * BigInt(2 * k + 2)); st.s += k & 1 ? t : -t; st.n = k; },
+      value: (st) => st.s,
+    },
+    wallis: { init: () => ({ n: 0, w: 2n * SCALE }), step(st) { const k = st.n + 1, q = 4 * k * k; st.w = (st.w * BigInt(q)) / BigInt(q - 1); st.n = k; }, value: (st) => st.w },
+    machin: {
+      init: () => ({ n: 0, s: 0n }),
+      step(st) { const d = BigInt(2 * st.n + 1), t = (16n * SCALE) / (d * 5n ** d) - (4n * SCALE) / (d * 239n ** d); st.s += st.n & 1 ? -t : t; st.n++; },
+      value: (st) => st.s,
+    },
+    chud: {
+      init: () => ({ n: 0, M: 1n, S: 0n }),
+      step(st) {
+        const k = st.n;
+        if (k > 0) {
+          const K = BigInt(k);
+          st.M = (st.M * (6n * K - 5n) * (6n * K - 4n) * (6n * K - 3n) * (6n * K - 2n) * (6n * K - 1n) * (6n * K)) / ((3n * K - 2n) * (3n * K - 1n) * (3n * K) * K * K * K);
+        }
+        const term = (st.M * (13591409n + 545140134n * BigInt(k)) * SCALE) / CHUD_X ** BigInt(k);
+        st.S += k & 1 ? -term : term;
+        st.n++;
+      },
+      value: (st) => (st.S ? (426880n * SQRT10005 * SCALE) / st.S : 0n),
+    },
+    // Arşimet: n = 1 altıgen; her adım kenar sayısını ikiye katlar (harmonik, sonra geometrik ortalama)
+    arch: {
+      init: () => ({ n: 1, a: isqrt(12n * SCALE * SCALE), b: 3n * SCALE }),
+      step(st) { st.a = (2n * st.a * st.b) / (st.a + st.b); st.b = isqrt(st.a * st.b); st.n++; },
+      value: (st) => st.b,
+    },
+  };
+  const FAST = new Set(["euler", "machin", "chud", "arch"]);
+  const RACE_KEYS = ["leib", "avg", "euler", "nila", "wallis", "machin", "chud", "arch"];
+  // Hatanın asimptotik öncü terimi (yaklaşım − π), N adımda
+  function seriesTheory(key, N, st) {
+    const sg = N % 2 ? 1 : -1;
+    switch (key) {
+      case "leib": return sg / N;
+      case "avg": return sg / (2 * N * (N + 1));
+      case "nila": return sg / (4 * (N + 0.5) * (N + 1) * (N + 1.5));
+      case "wallis": return -PI / (4 * N);
+      case "euler": {
+        let t = 1;
+        for (let n = 1; n <= N; n++) t = (t * n) / (2 * n + 1);
+        return (-2 * t * (2 * N + 3)) / (N + 2);
+      }
+      case "machin": { const d = 2 * N + 1; return (sg * 16 * Math.pow(5, -d) * 25) / (26 * d); }
+      case "chud": {
+        if (!st) return NaN;
+        const lt = log10Big(st.M) + Math.log10(13591409 + 545140134 * N) - N * Math.log10(262537412640768000) - Math.log10((426880 * Math.sqrt(10005)) / PI);
+        return (N % 2 ? -1 : 1) * PI * Math.pow(10, lt);
+      }
+      case "arch": { const n = 6 * Math.pow(2, N - 1); return -(PI ** 3) / (6 * n * n); }
+      default: return NaN;
+    }
+  }
+  // Chudnovsky öncü terimi için M_N gerekir: durum N adım sonrasındaysa M, M_{N−1}'dir; bir sonraki çarpanı ekle
+  function chudMNext(st) {
+    const K = BigInt(st.n);
+    if (st.n === 0) return 1n;
+    return (st.M * (6n * K - 5n) * (6n * K - 4n) * (6n * K - 3n) * (6n * K - 2n) * (6n * K - 1n) * (6n * K)) / ((3n * K - 2n) * (3n * K - 1n) * (3n * K) * K * K * K);
+  }
+
+  // Yarış izi: ızgara noktalarında doğru basamak ve hata, ara durumların kopyaları (kontrol noktaları)
+  function trackNew(key) {
+    return { key, st: SERIES[key].init(), gi: 0, dig: new Float64Array(FINE.length).fill(NaN), err: new Float64Array(FINE.length).fill(NaN), ck: new Array(FINE.length), sat: 0, done: false };
+  }
+  function trackAdvance(T, budget) {
+    const M = SERIES[T.key];
+    let used = 0;
+    while (!T.done && used < budget) {
+      const target = FINE[T.gi];
+      while (T.st.n < target && used < budget) { M.step(T.st); used++; }
+      if (T.st.n < target) break;
+      const v = M.value(T.st), d = fxDigits(v);
+      T.dig[T.gi] = d;
+      T.err[T.gi] = fxErr(v);
+      T.ck[T.gi] = { ...T.st };
+      T.gi++;
+      if (FAST.has(T.key) && d >= CAP + 3) { T.sat = FINE[T.gi - 1]; T.done = true; }
+      else if (T.gi >= FINE.length) T.done = true;
+      used++;
+    }
+    return used;
+  }
+  // Tam N'de değer: en yakın küçük kontrol noktasından ileri adım (en çok maxSteps)
+  function trackAt(T, N, maxSteps) {
+    if (T.sat && N >= T.sat) return { sat: true };
+    let base = null;
+    for (let i = T.gi - 1; i >= 0; i--) if (FINE[i] <= N) { base = T.ck[i]; break; }
+    if (T.st.n <= N && (!base || T.st.n > base.n)) base = T.st;
+    if (!base || N - base.n > maxSteps) return { pending: true, have: T.gi ? FINE[T.gi - 1] : 0 };
+    const st = { ...base }, M = SERIES[T.key];
+    while (st.n < N) M.step(st);
+    const v = M.value(st);
+    return { v, st, err: fxErr(v), dig: fxDigits(v) };
+  }
+  // Monte Carlo izi (isabet, aynı tohum): durum kopyaları ızgara noktalarında
+  function mcTrackNew(seed) { return { run: newDart(seed), ck: new Array(FINE.length), gi: 0, dig: new Float64Array(FINE.length).fill(NaN), done: false }; }
+  function mcTrackAdvance(T, budget) {
+    const r = T.run;
+    let used = 0;
+    while (!T.done && used < budget) {
+      const target = FINE[T.gi];
+      used += dartAdvance(r, Math.min(target - r.N, budget - used), null);
+      if (r.N < target) break;
+      const e = (4 * r.hits) / r.N - PI;
+      T.dig[T.gi] = -Math.log10(Math.abs(e));
+      T.ck[T.gi] = { a: r.a, N: r.N, hits: r.hits };
+      T.gi++;
+      if (T.gi >= FINE.length) T.done = true;
+    }
+    return used;
+  }
+  function mcTrackAt(T, N) {
+    let base = null;
+    for (let i = T.gi - 1; i >= 0; i--) if (FINE[i] <= N) { base = T.ck[i]; break; }
+    if (T.run.N <= N && (!base || T.run.N > base.N)) base = { a: T.run.a, N: T.run.N, hits: T.run.hits };
+    if (!base || N - base.N > 200000) return { pending: true };
+    const tmp = newDart(T.run.seed);
+    tmp.a = base.a; tmp.N = base.N; tmp.hits = base.hits; tmp.gi = FINE.length;
+    dartAdvance(tmp, N - base.N, null);
+    const est = (4 * tmp.hits) / N;
+    return { est, hits: tmp.hits, err: est - PI, se: SIG_HIT / Math.sqrt(N), dig: -Math.log10(Math.abs(est - PI)) };
+  }
+
+  /* (c) Arşimet: sınırlar 60 basamakla; kayan nokta deneyi çift duyarlıkla */
+  const K_MAX = 40;
+  function archTable(K) {
+    let a = isqrt(12n * SCALE * SCALE), b = 3n * SCALE;
+    const rows = [];
+    for (let k = 0; k <= K; k++) {
+      const n = 6 * Math.pow(2, k), sh = (2n * b + a) / 3n;
+      rows.push({
+        k, n, a, b, sh, w: a - b,
+        ea: fxErr(a), eb: fxErr(b), esh: fxErr(sh), da: fxDigits(a), db: fxDigits(b), dsh: fxDigits(sh),
+        thA: (PI ** 3) / (3 * n * n), thB: (PI ** 3) / (6 * n * n), thSH: (PI ** 5) / (20 * n ** 4),
+      });
+      a = (2n * a * b) / (a + b);
+      b = isqrt(a * b);
+    }
+    return rows;
+  }
+  // Hata kayan noktada tam: p ile Math.PI arasındaki fark (Sterbenz) + Math.PI'nin kendi hatası
+  const trueErr = (p) => (p === 0 ? -PI : p - PI - PI_LO);
+  function fpTable(K) {
+    let sN = 1, sS = 1;
+    const rows = [];
+    for (let k = 0; k <= K; k++) {
+      const n = 6 * Math.pow(2, k), pN = (n * sN) / 2, pS = (n * sS) / 2;
+      const r = Math.sqrt(4 - sS * sS), dNaive = 2 - r, dExact = (sS * sS) / (2 + r);
+      rows.push({
+        k, n, sN, sS, pN, pS, eN: trueErr(pN), eS: trueErr(pS),
+        s2: sS * sS, dNaive, dExact, rel: dExact > 0 ? Math.abs(dNaive - dExact) / dExact : NaN, relTh: EPS / dExact,
+      });
+      sN = Math.sqrt(2 - Math.sqrt(4 - sN * sN));
+      sS = sS / Math.sqrt(2 + Math.sqrt(4 - sS * sS));
+    }
+    return rows;
+  }
+  const PI_MATH = {
+    PI_LO, mulberry32, logGrid, FINE, EG, MC_MAX, VAR_HIT, VAR_MV, VAR_EXTRA, SIG_HIT, SIG_MV, buffonP, varBuffon,
+    newDart, dartAdvance, dartStats, newBuffon, buffonAdvance, buffonStats, ENS_K, ensNew, ensAdvance, ensFit, ensRms,
+    DIG, CAP, SCALE, isqrt, machinFx, PI_FX, fxDigits, fxErr, fxTrunc, fxRound, SERIES, RACE_KEYS, seriesTheory, chudMNext,
+    trackNew, trackAdvance, trackAt, mcTrackNew, mcTrackAdvance, mcTrackAt, archTable, fpTable, trueErr,
+  };
+  /* MATH-END */
+
+  /* ── Biçimleme: kartlar, çizelge ve durum satırı aynı yardımcıları kullanır ── */
+  const NB = "\u00a0", MINUS = "−";
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const minus = (s) => s.replace(/-/g, MINUS);
+  const supText = (k) => String(k).split("").map((c) => SUP[c] ?? c).join("");
+  const roundTo = (v, d) => Number(v.toFixed(d));
+  function fix(v, d) {
+    if (!Number.isFinite(v)) return "—";
+    const r = roundTo(v, d);
+    return minus((r === 0 ? 0 : r).toFixed(d));
+  }
+  function fixS(v, d) {
+    if (!Number.isFinite(v)) return "—";
+    const r = roundTo(v, d);
+    return r > 0 ? `+${r.toFixed(d)}` : r < 0 ? `${MINUS}${Math.abs(r).toFixed(d)}` : (0).toFixed(d);
+  }
+  // n anlamlı basamak; 10⁻³ ≤ |x| < 10⁶ dışında m·10ᵏ
+  function sig(v, n) {
+    if (!Number.isFinite(v)) return "—";
+    if (v === 0) return "0";
+    const a = Math.abs(v);
+    if (a >= 1e-3 && a < 1e6) {
+      const s = v.toPrecision(n);
+      if (!s.includes("e")) return minus(s);
+    }
+    const [m, e] = v.toExponential(n - 1).split("e");
+    return minus(m) + "·10" + supText(Number(e));
+  }
+  const sigS = (v, n) => (Number.isFinite(v) && v > 0 ? "+" : "") + sig(v, n);
+  const fmtInt = (n) => (Math.abs(n) >= 10000 ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NB) : String(n));
+  const zOf = (meas, th, se) => (se > 0 && Number.isFinite(meas) ? roundTo((meas - th) / se, 2) : NaN);
+  const verdict = (z) => (Math.abs(z) <= 2 ? "uyumlu" : Math.abs(z) <= 3 ? "sınırda" : "uyumsuz");
+  const digStr = (d) => (d === Infinity || d >= CAP ? `≥${NB}${CAP}` : !Number.isFinite(d) ? "—" : fix(Math.max(0, d), 1));
+
+  const $ = (id) => document.getElementById(id);
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, s) => { if (el.dataset.html !== s) { el.dataset.html = s; el.innerHTML = s; } };
+  function setStatus(el, html, kind) {
+    setHTML(el, html);
+    el.classList.toggle("is-good", kind === "good");
+    el.classList.toggle("is-warn", kind === "warn");
+  }
+
+  /* ── Tema: tuval CSS değişkenlerini çözemez, renkler burada ── */
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      key: "light", ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.08)", axis: "rgba(26,29,46,0.45)", accent: "#0d9488", accent2: "#7c3aed",
+      warm: "#d97706", danger: "#dc2626", halo: "rgba(247,249,252,0.92)", fillIn: "rgba(13,148,136,0.16)", board: "rgba(26,29,46,0.55)",
+      dotIn: [13, 148, 136], dotOut: [220, 38, 38],
+      m: { leib: "#dc2626", avg: "#ea580c", euler: "#db2777", nila: "#b45309", wallis: "#2563eb", machin: "#7c3aed", chud: "#0d9488", arch: "#16a34a", mc: "#1a1d2e" },
+    } : {
+      key: "dark", ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.08)", axis: "rgba(232,236,244,0.45)", accent: "#5eead4", accent2: "#a78bfa",
+      warm: "#fbbf24", danger: "#f87171", halo: "rgba(9,13,24,0.9)", fillIn: "rgba(94,234,212,0.13)", board: "rgba(232,236,244,0.5)",
+      dotIn: [94, 234, 212], dotOut: [248, 113, 113],
+      m: { leib: "#f87171", avg: "#fb923c", euler: "#f472b6", nila: "#fbbf24", wallis: "#60a5fa", machin: "#a78bfa", chud: "#5eead4", arch: "#4ade80", mc: "#e8ecf4" },
+    };
+  }
+
+  /* ── Tuval yardımcıları (CSS pikseli; dönüşüm dpr ile) ── */
+  let dpr = 1;
+  const FONT = (px, w) => `${w || 400} ${px}px Outfit, system-ui, sans-serif`;
+  function begin(cv) {
+    const c = cv.getContext("2d");
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, cv.width, cv.height);
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return [c, cv.width / dpr, cv.height / dpr];
+  }
+  function line(c, x0, y0, x1, y1) { c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); }
+  function label(c, s, x, y, color, t, o = {}) {
+    c.font = FONT(o.size || 11, o.weight);
+    c.textAlign = o.align || "left";
+    c.textBaseline = o.base || "alphabetic";
+    c.lineJoin = "round";
+    c.lineWidth = 3.5;
+    c.strokeStyle = t.halo;
+    c.strokeText(s, x, y);
+    c.fillStyle = color;
+    c.fillText(s, x, y);
+  }
+  const decLabel = (e) => (e === 0 ? "1" : e === 1 ? "10" : `10${supText(e)}`);
+  // Izgara: v = {x0, x1, y0, y1}; x her zaman log₁₀; y log ya da doğrusal
+  function axes(c, R, v, t, o) {
+    const X = (lx) => R.l + ((lx - v.x0) / (v.x1 - v.x0)) * R.w;
+    const Y = (ly) => R.t + ((v.y1 - ly) / (v.y1 - v.y0)) * R.h;
+    c.lineWidth = 1;
+    c.strokeStyle = t.grid;
+    c.beginPath();
+    const xs = o.xStep || 1;
+    for (let e = Math.ceil(v.x0 / xs) * xs; e <= v.x1 + 1e-9; e += xs) { const px = Math.round(X(e)) + 0.5; c.moveTo(px, R.t); c.lineTo(px, R.t + R.h); }
+    const ys = o.yStep || 1;
+    for (let e = Math.ceil(v.y0 / ys) * ys; e <= v.y1 + 1e-9; e += ys) { const py = Math.round(Y(e)) + 0.5; c.moveTo(R.l, py); c.lineTo(R.l + R.w, py); }
+    c.stroke();
+    c.strokeStyle = t.axis;
+    c.strokeRect(R.l + 0.5, R.t + 0.5, R.w - 1, R.h - 1);
+    c.font = FONT(10);
+    c.fillStyle = t.muted;
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    for (let e = Math.ceil(v.x0 / xs) * xs; e <= v.x1 + 1e-9; e += xs) c.fillText(o.xFmt ? o.xFmt(e) : decLabel(e), X(e), R.t + R.h + 4);
+    c.textAlign = "right";
+    c.textBaseline = "middle";
+    for (let e = Math.ceil(v.y0 / ys) * ys; e <= v.y1 + 1e-9; e += ys) c.fillText(o.yFmt ? o.yFmt(e) : decLabel(e), R.l - 5, Y(e));
+    if (o.yTitle) label(c, o.yTitle, R.l, R.t - 7, t.ink, t, { size: 11, weight: 600 });
+    if (o.xTitle) label(c, o.xTitle, R.l + R.w, R.t + R.h + 30, t.muted, t, { size: 10, align: "right" });
+    return { X, Y };
+  }
+  function polyline(c, pts) {
+    c.beginPath();
+    let pen = false;
+    for (const p of pts) {
+      if (!p) { pen = false; continue; }
+      if (pen) c.lineTo(p[0], p[1]); else { c.moveTo(p[0], p[1]); pen = true; }
+    }
+    c.stroke();
+  }
+  function dots(c, pts, r, fill, stroke) {
+    c.beginPath();
+    for (const p of pts) { if (!p) continue; c.moveTo(p[0] + r, p[1]); c.arc(p[0], p[1], r, 0, TAU); }
+    c.fillStyle = fill;
+    c.fill();
+    if (stroke) { c.strokeStyle = stroke; c.lineWidth = 1; c.stroke(); }
+  }
+
+  /* ═══ (a) Monte Carlo ═══ */
+  const RATES = [10, 30, 100, 300, 1000, 3000, 10000, 30000, 100000];
+  const DEF_M = { exp: "dart", r: 1, rate: 4, seed: 1777 };
+  const mUI = {};
+  ["mExp", "mExpOut", "mExpNote", "mRatioField", "mRatioPresets", "mRatio", "mRatioNum", "mRatioOut", "mRate", "mRateOut", "mSeed", "mToggle", "mTo1000", "mTo1e6", "mRepeat", "mNewSeed", "mReset",
+    "mStatus", "mNLabel", "mN", "mNSub", "mEstLabel", "mEst", "mEstSub", "mErr", "mErrSub", "mSELabel", "mSE", "mSESub", "mDig", "mDigSub", "mAltLabel", "mAlt", "mAltSub",
+    "mVarLabel", "mVar", "mVarSub", "mExtraLabel", "mExtra", "mExtraSub", "mSlopeLabel", "mSlope", "mSlopeSub", "mRms", "mRmsSub", "mcStageLegend", "mcChartLegend"].forEach((id) => { mUI[id] = $(id); });
+  const mcStage = $("mcStage"), mcChart = $("mcChart");
+  const M = { exp: "dart", r: 1, seed: 1777, rate: 1000, run: null, ens: null, want: true, running: true, acc: 0, dirty: true, stageDirty: true, layer: document.createElement("canvas"), img: null, imgDirty: false, layerKey: "", layerN: -1, needles: [], sinkFrom: 0, geom: null };
+  const NEEDLES = 240;
+
+  function readSeed(el) {
+    let v = Math.floor(Number(el.value));
+    if (!Number.isFinite(v) || v < 1) v = 1;
+    if (v > 999999) v = 999999;
+    el.value = String(v);
+    return v;
+  }
+  function newSeedFor(el) {
+    const old = readSeed(el);
+    let v = old;
+    while (v === old) v = 1 + Math.floor(Math.random() * 999999);
+    el.value = String(v);
+  }
+  const parseBox = (box) => Number(box.value.trim().replace(/\s/g, "").replace(",", ".").replace("−", "-"));
+
+  function syncMOutputs() {
+    M.exp = mUI.mExp.value;
+    const buf = M.exp === "buffon";
+    mUI.mRatioField.hidden = !buf;
+    mUI.mRatioPresets.hidden = !buf;
+    M.r = roundTo(Math.min(1, Math.max(0.05, parseBox(mUI.mRatioNum) || 1)), 2);
+    M.rate = RATES[Number(mUI.mRate.value)];
+    setText(mUI.mRatioOut, `ℓ/t = ${M.r.toFixed(2)} · P = ${fix(buffonP(M.r), 4)}`);
+    setText(mUI.mExpOut, buf ? "P(kesme) = 2ℓ/(πt)" : "P(isabet) = π/4");
+    setText(mUI.mRateOut, `${fmtInt(M.rate)} ${buf ? "iğne" : "nokta"}/s`);
+    setText(mUI.mTo1000, buf ? "1000 iğne" : "1000 nokta");
+    setText(mUI.mTo1e6, buf ? "10⁶ iğne" : "10⁶ nokta");
+    setHTML(mUI.mExpNote, buf
+      ? "Model: uzunluğu ℓ olan iğne, aralığı t olan paralel çizgilere rastgele düşer (ℓ ≤ t). Ortası en yakın çizgiden y ∈ [0, t/2], açısı θ ∈ [0, π/2] düzgün dağılır; keser ⇔ y ≤ (ℓ/2)·sin θ. P = (2/π)∫ (ℓ/t)·sin θ dθ = 2ℓ/(πt), tahmin π ≈ 2ℓN/(tH) (H: kesen iğne). Açı, birim çeyrek daireden reddetme örneklemesiyle seçilen (u, v) noktasının yönüdür; simülasyon π'yi hiç kullanmaz. Standart hata delta yöntemiyle π√((1 − P)/(NP)); oran tahmini hafifçe yanlıdır, göreli yan ≈ (1 − P)/(NP)."
+      : "Model: (x, y) birim karede düzgün; x² + y² ≤ 1 ise isabet. P = π/4, tahmin 4·isabet/N, standart hata 4√(p(1 − p)/N) = 1.642/√N. Aynı x'lerle ortalama değer tahmini 4·ortalama √(1 − x²), standart hatası √(16·2/3 − π²)/√N = 0.893/√N. x ve y, mulberry32 üretecinin (32 bit) ardışık iki çıktısıdır.");
+  }
+  function setMRunning(on) {
+    M.want = on;
+    const full = M.run.N >= MC_MAX;
+    M.running = on && !full;
+    setText(mUI.mToggle, full ? "Tamamlandı" : M.running ? "Duraklat" : M.run.N ? "Sürdür" : "Başlat");
+    mUI.mToggle.setAttribute("aria-pressed", String(!M.running));
+    mUI.mToggle.disabled = full;
+    mUI.mTo1e6.disabled = full;
+    M.dirty = true;
+  }
+  function newMRun() {
+    syncMOutputs();
+    M.seed = readSeed(mUI.mSeed);
+    M.ens = ensNew(M.exp, M.seed, M.r);
+    restartRun();
+    M.layerKey = "";
+    updateMLegend();
+    setMRunning(M.want);
+  }
+  function resetM() {
+    mUI.mExp.value = DEF_M.exp;
+    mUI.mRatio.value = String(DEF_M.r);
+    mUI.mRatioNum.value = DEF_M.r.toFixed(2);
+    mUI.mRate.value = String(DEF_M.rate);
+    mUI.mSeed.value = String(DEF_M.seed);
+    M.want = true;
+    newMRun();
+  }
+  // Nokta ve iğne çizimi: noktalar katmana doğrudan piksel olarak, iğneler halka tamponda (son 240)
+  function dartSink(x, y, inside) {
+    const g = M.geom;
+    if (!g || !M.img) return;
+    const S = g.side, d = g.dot, data = M.img.data;
+    const px = Math.min(S - d, Math.max(0, Math.floor(x * S - d / 2))), py = Math.min(S - d, Math.max(0, Math.floor((1 - y) * S - d / 2)));
+    const col = inside ? g.cin : g.cout;
+    for (let j = 0; j < d; j++) {
+      let idx = ((py + j) * S + px) * 4;
+      for (let i = 0; i < d; i++, idx += 4) {
+        data[idx] = col[0]; data[idx + 1] = col[1]; data[idx + 2] = col[2];
+        data[idx + 3] = Math.min(235, data[idx + 3] + 120);
+      }
+    }
+  }
+  function buffonSink(y, c, s, cross, N) {
+    if (N <= M.sinkFrom) return; // yalnız çizilecek son 240 iğne
+    const ln = Math.floor(hash01(M.seed, N, 0) * 5); // 0 … 4 numaralı çizgi
+    const side = ln === 0 ? 1 : ln === 4 ? -1 : hash01(M.seed, N, 1) < 0.5 ? -1 : 1;
+    const cx = hash01(M.seed, N, 2), dir = hash01(M.seed, N, 3) < 0.5 ? -1 : 1;
+    M.needles.push({ cx, cy: ln + side * y, ux: dir * c, uy: s, cross });
+    if (M.needles.length > 4 * NEEDLES) M.needles = M.needles.slice(-NEEDLES);
+  }
+  function mAdvance(count) {
+    let used;
+    if (M.exp === "dart") {
+      const paint = !!M.img && M.layerN === M.run.N;
+      used = dartAdvance(M.run, count, paint ? dartSink : null);
+      if (paint) { M.layerN = M.run.N; M.imgDirty = true; }
+    } else {
+      M.sinkFrom = Math.min(MC_MAX, M.run.N + count) - NEEDLES;
+      used = buffonAdvance(M.run, count, buffonSink);
+    }
+    if (used) { M.dirty = true; M.stageDirty = true; }
+    return used;
+  }
+  function restartRun() {
+    M.run = M.exp === "dart" ? newDart(M.seed) : newBuffon(M.seed, M.r);
+    M.acc = 0;
+    M.needles = [];
+    M.layerN = -1;
+    M.dirty = true;
+    M.stageDirty = true;
+  }
+  function mGoTo(target) {
+    if (M.run.N > target) restartRun();
+    mAdvance(target - M.run.N);
+    M.acc = 0;
+    setMRunning(target >= MC_MAX ? M.want : false);
+  }
+  function stepM(dt) {
+    if (!M.running || dt <= 0) return;
+    M.acc += dt * M.rate;
+    const k = Math.floor(M.acc);
+    M.acc -= k;
+    if (k > 0) mAdvance(k);
+    if (M.run.N >= MC_MAX) setMRunning(M.want);
+  }
+  function updateMLegend() {
+    const li = (cls, text) => `<li><span class="sw ${cls}" aria-hidden="true"></span><span>${text}</span></li>`;
+    if (M.exp === "dart") {
+      setHTML(mUI.mcStageLegend, [li("dot k-acc", "isabet: x² + y² ≤ 1"), li("dot k-bad", "ıska"), li("k-ink", "çeyrek çember, yarıçap 1")].join(""));
+      setHTML(mUI.mcChartLegend, [li("k-warm", "bu koşunun |hatası|"), li("dot k-acc", "16 koşunun kök ortalama kare hatası"), li("dash k-ac2", "kuram 1.642/√N"), li("dot k-muted", "ortalama değer, aynı noktalar: 16 koşu"), li("dash k-muted", "ortalama değer kuramı 0.893/√N")].join(""));
+    } else {
+      setHTML(mUI.mcStageLegend, [li("k-warm", "çizgiyi kesen iğne"), li("k-muted", "kesmeyen iğne"), li("k-ink", "paralel çizgiler, aralık t")].join(""));
+      setHTML(mUI.mcChartLegend, [li("k-warm", "bu koşunun |hatası|"), li("dot k-acc", "16 koşunun kök ortalama kare hatası"), li("dash k-ac2", "kuram π√((1 − P)/(NP))"), li("dash k-muted", "isabet yöntemi kuramı 1.642/√N")].join(""));
+    }
+  }
+
+  function ensSummary() {
+    const E = M.ens;
+    const n0 = M.exp === "dart" ? 100 : Math.max(100, Math.ceil(50 / buffonP(M.r)));
+    const fit = ensFit(E, n0, false), fitMv = M.exp === "dart" ? ensFit(E, n0, true) : null;
+    return { E, n0, fit, fitMv };
+  }
+
+  function readoutsM() {
+    const run = M.run, N = run.N, buf = M.exp === "buffon";
+    const st = buf ? buffonStats(run) : dartStats(run);
+    setText(mUI.mNLabel, buf ? "Atılan iğne N" : "Atılan nokta N");
+    setText(mUI.mN, fmtInt(N));
+    setText(mUI.mEstLabel, buf ? "π tahmini 2ℓN/(tH) (ölçülen)" : "π tahmini 4·isabet/N (ölçülen)");
+    setText(mUI.mSELabel, buf ? "Kuram: standart hata π√((1 − P)/(NP))" : "Kuram: standart hata 4√(p(1 − p)/N)");
+    setText(mUI.mAltLabel, buf ? "Kesme olasılığı H/N (ölçülen)" : "Aynı x'lerle ortalama değer yöntemi");
+    setText(mUI.mVarLabel, buf ? "Bir atışın π tahminine kattığı varyans: Buffon ve isabet" : "Bir noktanın varyansı: isabet ve ortalama değer");
+    setText(mUI.mExtraLabel, buf ? "Aynı doğruluk için gereken atış oranı" : "Fazla varyans: y'nin rastgeleliği");
+    const ens = ensSummary(), E = ens.E;
+    if (!st) {
+      setText(mUI.mNSub, `tohum ${M.seed} · başlamak için Başlat'a bas`);
+      for (const k of ["mEst", "mErr", "mSE", "mDig", "mAlt", "mVar", "mExtra"]) setText(mUI[k], "—");
+      for (const k of ["mEstSub", "mErrSub", "mSESub", "mDigSub", "mAltSub", "mVarSub", "mExtraSub"]) setText(mUI[k], "henüz nokta yok");
+    } else if (!buf) {
+      setText(mUI.mNSub, `içeride ${fmtInt(st.hits)} · dışarıda ${fmtInt(N - st.hits)} · tohum ${M.seed}`);
+      setText(mUI.mEst, fix(st.est, 6));
+      setText(mUI.mEstSub, `π = 3.141593 · isabet oranı ${fix(st.p, 6)}, kuram π/4 = ${fix(P_DART, 6)}`);
+      const z = zOf(st.est, PI, st.se);
+      setText(mUI.mErr, sigS(st.err, 3));
+      setText(mUI.mErrSub, `= ${fixS(z, 2)}${NB}SE (${verdict(z)})`);
+      setText(mUI.mSE, sig(st.se, 3));
+      setText(mUI.mSESub, `p = π/4: 1.642/√N · p yerine ölçülen isabet oranıyla ${sig(st.seHat, 3)}`);
+      setText(mUI.mDig, fix(-Math.log10(Math.abs(st.err)), 1));
+      setText(mUI.mDigSub, `kuram −log₁₀(SE) = ${fix(-Math.log10(st.se), 1)}: tek koşuda şansa bağlı`);
+      const zMv = zOf(st.estMv, PI, st.seMv);
+      setText(mUI.mAlt, fix(st.estMv, 6));
+      setText(mUI.mAltSub, `4·ortalama √(1 − x²) · hata ${sigS(st.errMv, 3)} = ${fixS(zMv, 2)}${NB}SE (SE = 0.893/√N = ${sig(st.seMv, 3)})`);
+      if (N >= 1000) {
+        const zh = zOf(st.vH, VAR_HIT, st.seVH), zg = zOf(st.vG, VAR_MV, st.seVG), zx = zOf(st.extra, VAR_EXTRA, st.seExtra);
+        setText(mUI.mVar, `${fix(st.vH, 3)} ve ${fix(st.vG, 3)} · oran ${fix(st.ratio, 2)}`);
+        setText(mUI.mVarSub, `kuram 16p(1 − p) = 4π − π² = ${fix(VAR_HIT, 3)} (${fixS(zh, 2)} SE) ve 16·2/3 − π² = ${fix(VAR_MV, 3)} (${fixS(zg, 2)} SE); kuramsal oran ${fix(VAR_HIT / VAR_MV, 3)}`);
+        setText(mUI.mExtra, fix(st.extra, 3));
+        setText(mUI.mExtraSub, `kuram 16·E[f(1 − f)] = 4π − 32/3 = ${fix(VAR_EXTRA, 3)} · fark ${fixS(zx, 2)}${NB}SE (SE = ${fix(st.seExtra, 3)})`);
+      } else {
+        setText(mUI.mVar, "—");
+        setText(mUI.mVarSub, `en az 1000 nokta gerekli: daha azında varyansların bağıl standart hatası %5'i aşar · kuram ${fix(VAR_HIT, 3)} ve ${fix(VAR_MV, 3)}, oran ${fix(VAR_HIT / VAR_MV, 3)}`);
+        setText(mUI.mExtra, "—");
+        setText(mUI.mExtraSub, `en az 1000 nokta gerekli · kuram 4π − 32/3 = ${fix(VAR_EXTRA, 3)}`);
+      }
+    } else {
+      setText(mUI.mNSub, `kesen H = ${fmtInt(st.H)} · ℓ/t = ${M.r.toFixed(2)} · tohum ${M.seed}`);
+      if (st.H) {
+        const z = zOf(st.est, PI, st.se);
+        setText(mUI.mEst, fix(st.est, 6));
+        setText(mUI.mEstSub, `π = 3.141593 · oran tahmininin yanı ≈ +${sig(st.bias, 2)}`);
+        setText(mUI.mErr, sigS(st.err, 3));
+        setText(mUI.mErrSub, `= ${fixS(z, 2)}${NB}SE (${verdict(z)})`);
+        setText(mUI.mDig, fix(-Math.log10(Math.abs(st.err)), 1));
+        setText(mUI.mDigSub, `kuram −log₁₀(SE) = ${fix(-Math.log10(st.se), 1)}: tek koşuda şansa bağlı`);
+      } else {
+        setText(mUI.mEst, "—");
+        setText(mUI.mEstSub, "henüz kesen iğne yok: tahmin tanımsız (H = 0)");
+        setText(mUI.mErr, "—");
+        setText(mUI.mErrSub, "—");
+        setText(mUI.mDig, "—");
+        setText(mUI.mDigSub, "—");
+      }
+      setText(mUI.mSE, sig(st.se, 3));
+      setText(mUI.mSESub, `P = 2ℓ/(πt) = ${fix(st.P, 4)}: ${fix(Math.sqrt(st.vT), 3)}/√N (delta yöntemi) · örneklemden ${sig(st.seHat, 3)}`);
+      const zP = zOf(st.Ph, st.P, st.seP);
+      setText(mUI.mAlt, fix(st.Ph, 5));
+      setText(mUI.mAltSub, `kuram 2ℓ/(πt) = ${fix(st.P, 5)} · fark ${fixS(zP, 2)}${NB}SE (SE = √(P(1 − P)/N) = ${sig(st.seP, 3)})`);
+      const ratio = st.vT / VAR_HIT;
+      setText(mUI.mVar, `${fix(st.vT, 3)} ve ${fix(VAR_HIT, 3)} (kuram)`);
+      setText(mUI.mVarSub, `Buffon π²(1 − P)/P = π²(πt/(2ℓ) − 1), isabet 4π − π²${N >= 1000 && st.H ? ` · bu koşudan ${fix(st.vHat, 3)}` : " · koşudan: en az 1000 atış gerekli"}`);
+      setText(mUI.mExtra, `${fix(ratio, 2)} kat`);
+      setText(mUI.mExtraSub, `Buffon varyansı / isabet varyansı: aynı standart hata için ${fix(ratio, 2)} kat atış gerekir`);
+    }
+    // Topluluk
+    const fit = ens.fit;
+    setText(mUI.mSlopeLabel, `Log–log eğim, ${ENS_K} koşu`);
+    if (!E.done) {
+      const frac = (E.k + (E.R ? E.R.N / MC_MAX : 0)) / ENS_K;
+      setText(mUI.mSlope, "ölçülüyor…");
+      setText(mUI.mSlopeSub, `${E.k}/${ENS_K} koşu tamam (%${fix(frac * 100, 0)}) · kuram −1/2`);
+      setText(mUI.mRms, "ölçülüyor…");
+      setText(mUI.mRmsSub, `her koşu 10⁶ ${buf ? "iğne" : "nokta"}, tohum ${M.seed} … ${M.seed + ENS_K - 1}`);
+    } else if (fit) {
+      const zs = zOf(fit.slope, -0.5, fit.se);
+      setText(mUI.mSlope, `${fix(fit.slope, 3)} ± ${fix(fit.se, 3)}`);
+      setText(mUI.mSlopeSub, `kuram −1/2 · fark ${fixS(zs, 2)}${NB}SE · N = ${fmtInt(fit.n0)} … 10⁶, ${fit.count} nokta` + (ens.fitMv ? ` · ortalama değer: ${fix(ens.fitMv.slope, 3)} ± ${fix(ens.fitMv.se, 3)}` : ""));
+      const th = buf ? Math.sqrt(varBuffon(M.r)) / 1000 : SIG_HIT / 1000;
+      const rel = fit.rmsMax / th, relSe = 1 / Math.sqrt(2 * ENS_K);
+      setText(mUI.mRms, fix(rel, 3));
+      setText(mUI.mRmsSub, `${sig(fit.rmsMax, 3)} / ${sig(th, 3)} · 16 koşudan bu oranın standart hatası ≈ 1/√(2·16) = ${fix(relSe, 2)}`);
+    } else {
+      setText(mUI.mSlope, "—");
+      setText(mUI.mSlopeSub, "uydurma için yeterli nokta yok");
+      setText(mUI.mRms, "—");
+      setText(mUI.mRmsSub, "—");
+    }
+    statusM(st, ens);
+    const label = buf
+      ? `Buffon tahtası: aralığı t olan ${5} yatay çizgi ve son ${Math.min(NEEDLES, N)} iğne; çizgiyi kesenler sarı, kesmeyenler gri. ℓ/t = ${M.r.toFixed(2)}, N = ${N}, kesen ${run.H}`
+      : `Birim kare ve çeyrek çember; atılan ${N} noktanın ${run.hits} tanesi çemberin içinde (turkuaz), kalanı dışında (kırmızı)`;
+    mcStage.setAttribute("aria-label", label);
+    mcChart.setAttribute("aria-label", `Log–log hata grafiği: yatayda N (1 … 10⁶), düşeyde |tahmin − π|; bu koşunun hatası (çizgi), ${ENS_K} koşunun kök ortalama kare hatası (noktalar), kuramsal standart hata (kesikli doğru)${buf ? ", isabet yönteminin kuramı" : ", ortalama değer yönteminin noktaları ve kuramı"}`);
+  }
+  function statusM(st, ens) {
+    const buf = M.exp === "buffon";
+    if (!st) { setStatus(mUI.mStatus, "Henüz nokta yok: Başlat'a ya da 1000 nokta düğmesine bas.", ""); return; }
+    const N = st.N;
+    let text, kind = "good";
+    if (!buf) {
+      const npq = N * P_DART * (1 - P_DART);
+      const z = zOf(st.est, PI, st.se);
+      text = `N = ${fmtInt(N)}: tahmin ${fix(st.est, 6)}, π'den ${sigS(st.err, 3)} = ${fixS(z, 2)} SE uzakta (${verdict(z)}).`;
+      if (npq < 10) { kind = "warn"; text += ` Np(1 − p) = ${fix(npq, 1)} < 10: hatanın dağılımı henüz normal değil, ±2 SE'nin %95 kapsaması burada geçerli sayılmaz; SE yine hatanın standart sapmasıdır.`; }
+      if (N >= 1000) text += ` Bir noktanın varyansı isabette ${fix(st.vH, 3)}, aynı x'lerle ortalama değerde ${fix(st.vG, 3)}: oran ${fix(st.ratio, 2)} (kuram ${fix(VAR_HIT / VAR_MV, 2)}). Aradaki fark (ölçülen ${fix(st.extra, 3)}, kuram 4π − 32/3 = ${fix(VAR_EXTRA, 3)}) y'den gelir: isabet yöntemi x'te bilinen yüksekliği yalnız "altında mı" sorusuna çevirir.`;
+    } else {
+      const nP = N * st.P;
+      if (!st.H) { setStatus(mUI.mStatus, `N = ${fmtInt(N)}: henüz kesen iğne yok, tahmin tanımsız. ℓ/t = ${M.r.toFixed(2)} için kesme olasılığı ${fix(st.P, 4)}.`, "warn"); return; }
+      const z = zOf(st.est, PI, st.se);
+      text = `N = ${fmtInt(N)}: ${fmtInt(st.H)} iğne kesti, tahmin ${fix(st.est, 6)}, π'den ${sigS(st.err, 3)} = ${fixS(z, 2)} SE uzakta (${verdict(z)}).`;
+      if (nP < 50) { kind = "warn"; text += ` Beklenen kesişme NP = ${fix(nP, 1)} < 50: tahmin 1/H ile orantılı olduğundan dağılımı çarpık, delta yönteminin SE'si ve ±2 SE kaba; yan ≈ π(1 − P)/(NP) = ${sig(st.bias, 2)}.`; }
+      text += ` Bir atışın varyansı π²(1 − P)/P = ${fix(st.vT, 3)}, isabet yönteminin ${fix(st.vT / VAR_HIT, 2)} katı${M.r < 1 ? "; ℓ kısaldıkça P küçülür ve varyans büyür, en iyisi ℓ = t" : ""}.`;
+    }
+    if (ens.E.done && ens.fit) text += ` ${ENS_K} koşunun eğimi ${fix(ens.fit.slope, 3)} ± ${fix(ens.fit.se, 3)} (kuram −0.5).`;
+    setStatus(mUI.mStatus, text, kind);
+  }
+
+  // Sahne düzeni
+  function mGeom(W, H) {
+    const pad = 14, side = Math.max(10, Math.min(H - 2 * pad - 14, W - 2 * pad));
+    const wide = W - side > 200;
+    const x0 = wide ? pad + 6 : (W - side) / 2, y0 = wide ? (H - side) / 2 : pad + 4;
+    return { x0, y0, side, wide };
+  }
+  function drawMcStage(t) {
+    const [c, W, H] = begin(mcStage);
+    if (!W) return;
+    if (M.exp === "dart") drawDart(c, W, H, t); else drawBuffon(c, W, H, t);
+  }
+  function drawDart(c, W, H, t) {
+    const g = mGeom(W, H), sidePx = Math.max(8, Math.round(g.side * dpr)), dot = Math.max(1, Math.round(1.6 * dpr));
+    const key = `${sidePx}|${dot}|${t.key}|${M.seed}`;
+    // Katman boyut, tema ya da koşu değişince aynı tohumla baştan çizilir (nokta dizisi tohumdan tekrar üretilir)
+    if (M.layerKey !== key || !M.img || M.layerN !== M.run.N) {
+      M.layer.width = sidePx;
+      M.layer.height = sidePx;
+      M.img = new ImageData(sidePx, sidePx);
+      M.geom = { side: sidePx, dot, cin: t.dotIn, cout: t.dotOut };
+      M.layerKey = key;
+      dartAdvance(newDart(M.seed), M.run.N, dartSink);
+      M.layerN = M.run.N;
+      M.imgDirty = true;
+    }
+    if (M.imgDirty) { M.layer.getContext("2d").putImageData(M.img, 0, 0); M.imgDirty = false; }
+    const X = (x) => g.x0 + x * g.side, Y = (y) => g.y0 + (1 - y) * g.side;
+    c.fillStyle = t.fillIn;
+    c.beginPath();
+    c.moveTo(X(0), Y(0));
+    c.arc(X(0), Y(0), g.side, -Math.PI / 2, 0);
+    c.closePath();
+    c.fill();
+    c.imageSmoothingEnabled = false;
+    c.drawImage(M.layer, g.x0, g.y0, g.side, g.side);
+    c.strokeStyle = t.axis;
+    c.lineWidth = 1;
+    c.strokeRect(g.x0 + 0.5, g.y0 + 0.5, g.side - 1, g.side - 1);
+    c.strokeStyle = t.ink;
+    c.lineWidth = 2;
+    c.beginPath();
+    c.arc(X(0), Y(0), g.side, -Math.PI / 2, 0);
+    c.stroke();
+    c.font = FONT(10);
+    c.fillStyle = t.muted;
+    c.textAlign = "center";
+    c.textBaseline = "top";
+    label(c, "1", X(1), Y(0) + 2, t.muted, t, { size: 10, align: "center", base: "top" });
+    label(c, "1", X(0) + 4, Y(1) + 2, t.muted, t, { size: 10, align: "left", base: "top" });
+    const st = dartStats(M.run), N = M.run.N;
+    const lines = [`N = ${fmtInt(N)}`, `isabet ${fmtInt(M.run.hits)}`, st ? `π ≈ ${fix(st.est, 5)}` : "π ≈ —", st ? `±${sig(st.se, 2)} (1 SE)` : ""];
+    if (g.wide) {
+      const tx = g.x0 + g.side + 22;
+      lines.forEach((s, i) => label(c, s, tx, g.y0 + 22 + i * 24, i === 2 ? t.warm : t.ink, t, { size: i === 2 ? 17 : 13, weight: i === 2 ? 600 : 400 }));
+      label(c, "4 × isabet / N", tx, g.y0 + 22 + 4 * 24 + 6, t.muted, t, { size: 11 });
+    } else {
+      label(c, `${lines[0]} · ${lines[2]}`, X(1) - 4, Y(1) + 16, t.warm, t, { size: 12, weight: 600, align: "right" });
+    }
+  }
+  function drawBuffon(c, W, H, t) {
+    const pad = 16, strips = 4, sp = (H - 2 * pad) / strips, len = M.r * sp;
+    const x0 = pad, x1 = W - pad;
+    c.strokeStyle = t.board;
+    c.lineWidth = 1.5;
+    for (let i = 0; i <= strips; i++) line(c, x0, pad + i * sp, x1, pad + i * sp);
+    c.lineCap = "round";
+    for (let pass = 0; pass < 2; pass++) {
+      c.beginPath();
+      for (const nd of M.needles) {
+        if (nd.cross !== (pass === 1)) continue;
+        const cx = x0 + nd.cx * (x1 - x0), cy = pad + nd.cy * sp;
+        const dx = 0.5 * len * nd.ux, dy = 0.5 * len * nd.uy;
+        c.moveTo(cx - dx, cy - dy);
+        c.lineTo(cx + dx, cy + dy);
+      }
+      c.strokeStyle = pass ? t.warm : t.muted;
+      c.lineWidth = pass ? 2 : 1.4;
+      c.stroke();
+    }
+    c.lineCap = "butt";
+    const st = buffonStats(M.run);
+    const txt = `N = ${fmtInt(M.run.N)} · kesen ${fmtInt(M.run.H)} · π ≈ ${st && st.H ? fix(st.est, 5) : "—"}`;
+    label(c, txt, x1 - 4, pad - 3, t.ink, t, { size: 12, weight: 600, align: "right" });
+    label(c, `t (çizgi aralığı) · ℓ = ${M.r.toFixed(2)}t`, x0 + 4, H - 4, t.muted, t, { size: 10 });
+  }
+
+  function drawMcChart(t) {
+    const [c, W, H] = begin(mcChart);
+    if (!W) return;
+    const R = { l: 46, t: 22, w: W - 58, h: H - 22 - 40 };
+    if (R.w < 40 || R.h < 40) return;
+    const buf = M.exp === "buffon", run = M.run;
+    const sigma = buf ? Math.sqrt(varBuffon(M.r)) : SIG_HIT;
+    const v = { x0: 0, x1: 6, y0: -5, y1: 1 };
+    const { X, Y } = axes(c, R, v, t, { yTitle: "|tahmin − π|", xTitle: buf ? "N (iğne sayısı)" : "N (nokta sayısı)" });
+    c.save();
+    c.beginPath();
+    c.rect(R.l, R.t, R.w, R.h);
+    c.clip();
+    c.setLineDash([6, 4]);
+    c.lineWidth = 1.6;
+    c.strokeStyle = t.muted;
+    const other = buf ? SIG_HIT : SIG_MV;
+    line(c, X(0), Y(Math.log10(other)), X(6), Y(Math.log10(other) - 3));
+    c.strokeStyle = t.accent2;
+    c.lineWidth = 2;
+    line(c, X(0), Y(Math.log10(sigma)), X(6), Y(Math.log10(sigma) - 3));
+    c.setLineDash([]);
+    // bu koşu
+    const pts = [];
+    for (let i = 0; i < run.gi; i++) {
+      const e = Math.abs(run.est[i] - PI);
+      pts.push(Number.isFinite(e) && e > 0 ? [X(Math.log10(FINE[i])), Y(Math.max(v.y0 - 1, Math.log10(e)))] : null);
+    }
+    if (run.N && run.N !== FINE[run.gi - 1]) {
+      const st = buf ? buffonStats(run) : dartStats(run), e = Math.abs(st.err);
+      if (Number.isFinite(e) && e > 0) pts.push([X(Math.log10(run.N)), Y(Math.max(v.y0 - 1, Math.log10(e)))]);
+    }
+    c.strokeStyle = t.warm;
+    c.lineWidth = 1.4;
+    polyline(c, pts);
+    // topluluk
+    const E = M.ens, runs = E.k;
+    if (runs >= 1) {
+      const p1 = [], p2 = [];
+      for (let j = 0; j < EG.length; j++) {
+        const r1 = ensRms(E, j, false, -1, runs);
+        if (r1 > 0 && Number.isFinite(r1)) p1.push([X(Math.log10(EG[j])), Y(Math.log10(r1))]);
+        if (!buf) { const r2 = ensRms(E, j, true, -1, runs); if (r2 > 0) p2.push([X(Math.log10(EG[j])), Y(Math.log10(r2))]); }
+      }
+      if (!buf) dots(c, p2, 2.4, t.muted);
+      dots(c, p1, 3, t.accent, t.halo);
+      const ens = ensSummary();
+      if (ens.fit) {
+        c.strokeStyle = t.accent;
+        c.lineWidth = 1.2;
+        const a = Math.log10(ens.fit.n0), b = 6;
+        line(c, X(a), Y(ens.fit.icpt + ens.fit.slope * a), X(b), Y(ens.fit.icpt + ens.fit.slope * b));
+      }
+    }
+    if (run.N) {
+      c.strokeStyle = t.ink;
+      c.lineWidth = 1;
+      c.globalAlpha = 0.5;
+      line(c, X(Math.log10(run.N)), R.t, X(Math.log10(run.N)), R.t + R.h);
+      c.globalAlpha = 1;
+    }
+    c.restore();
+    const ens = ensSummary();
+    const right = E.done && ens.fit ? `eğim ${fix(ens.fit.slope, 3)} ± ${fix(ens.fit.se, 3)}` : `topluluk ${E.k}/${ENS_K}`;
+    label(c, right, R.l + R.w, R.t - 7, t.accent, t, { size: 11, weight: 600, align: "right" });
+  }
+
+  /* ═══ (b) Seriler ve yarış ═══ */
+  const NAMES = {
+    leib: ["Leibniz", "1/N"], avg: ["Leibniz ortalaması", "1/(2N²)"], euler: ["Euler dönüşümü", "2⁻ᴺ: 0.30 basamak/adım"],
+    nila: ["Nilakantha", "1/(4N³)"], wallis: ["Wallis çarpımı", "π/(4N)"], machin: ["Machin (1706)", "25⁻ᴺ: 1.40 basamak/adım"],
+    chud: ["Chudnovsky (1988)", "14.18 basamak/terim"], arch: ["Arşimet, iç çokgen", "4⁻ᴺ: 0.60 basamak/adım"], mc: ["Monte Carlo (isabet)", "1.64/√N"],
+  };
+  const SHORT = { leib: "Leibniz", avg: "ortalama", euler: "Euler", nila: "Nilakantha", wallis: "Wallis", machin: "Machin", chud: "Chudnovsky", arch: "Arşimet", mc: "Monte Carlo" };
+  const ALL_KEYS = [...RACE_KEYS, "mc"];
+  const rUI = {};
+  ["rN", "rNNum", "rNOut", "rPlay", "rReset", "rSeed", "rShow", "rBody", "rStatus", "rDigSel", "rDigOut", "rDigits"].forEach((id) => { rUI[id] = $(id); });
+  const raceChart = $("raceChart");
+  const B = { N: 1000, tracks: null, mc: null, show: {}, race: false, logN: 3, dirty: true, rows: null, rowsN: -1 };
+  ALL_KEYS.forEach((k) => { B.show[k] = true; });
+  ALL_KEYS.forEach((k) => {
+    const id = `rShow-${k}`;
+    rUI.rShow.insertAdjacentHTML("beforeend", `<div class="check"><input type="checkbox" id="${id}" checked><label for="${id}" class="k-${k}">${NAMES[k][0]}</label></div>`);
+  });
+  RACE_KEYS.forEach((k) => rUI.rDigSel.add(new Option(NAMES[k][0], k)));
+  rUI.rDigSel.value = "leib";
+
+  function newTracks() {
+    B.tracks = {};
+    RACE_KEYS.forEach((k) => { B.tracks[k] = trackNew(k); });
+    newMcTrack();
+  }
+  function newMcTrack() {
+    B.mc = mcTrackNew(readSeed(rUI.rSeed));
+    B.rowsN = -1;
+    B.dirty = true;
+  }
+  const snapFine = (n) => {
+    let best = FINE[0];
+    for (const g of FINE) if (Math.abs(Math.log(g) - Math.log(n)) < Math.abs(Math.log(best) - Math.log(n))) best = g;
+    return best;
+  };
+  function setN(n, from) {
+    n = Math.max(1, Math.min(MC_MAX, Math.round(Number(n) || 1)));
+    if (from === "range") n = snapFine(n);
+    B.N = n;
+    if (from !== "range") rUI.rN.value = String(Math.log10(n));
+    if (from !== "box" || document.activeElement !== rUI.rNNum) rUI.rNNum.value = String(n);
+    setText(rUI.rNOut, `N = ${fmtInt(n)}`);
+    B.rowsN = -1;
+    B.dirty = true;
+  }
+  function setRace(on) {
+    B.race = on;
+    const done = B.logN >= 6 - 1e-9;
+    setText(rUI.rPlay, on ? "Duraklat" : B.logN > 0 && !done && B.started ? "Sürdür" : "Yarışı başlat");
+    rUI.rPlay.setAttribute("aria-pressed", String(on));
+  }
+  function toggleRace() {
+    if (B.race) { setRace(false); return; }
+    if (!B.started || B.logN >= 6 - 1e-9) { B.logN = 0; setN(1, "race"); }
+    B.started = true;
+    setRace(true);
+  }
+  function resetB() {
+    rUI.rSeed.value = "1777";
+    B.started = false;
+    B.logN = 3;
+    setRace(false);
+    newMcTrack();
+    setN(1000, "preset");
+    ALL_KEYS.forEach((k) => { B.show[k] = true; $(`rShow-${k}`).checked = true; });
+    rUI.rDigSel.value = "leib";
+  }
+  // Izgaradaki indeks (yarış durdurulmasın diye: o noktaya kadar hesaplandı mı?)
+  const fineIndex = (n) => { let i = 0; while (i < FINE.length - 1 && FINE[i + 1] <= n) i++; return i; };
+  function computedTo() {
+    let m = MC_MAX;
+    for (const k of RACE_KEYS) { const T = B.tracks[k]; if (!T.done) m = Math.min(m, T.gi ? FINE[T.gi - 1] : 0); }
+    if (!B.mc.done) m = Math.min(m, B.mc.gi ? FINE[B.mc.gi - 1] : 0);
+    return m;
+  }
+  // Yarış: log₁₀ N saniyede 0.5 artar; hesap geride kalırsa bekler. N, kartlar yenilenirken işlenir (commitRace).
+  function stepB(dt) {
+    if (!B.race || dt <= 0) return;
+    const next = Math.min(6, B.logN + dt * 0.5);
+    if (Math.round(Math.pow(10, next)) > computedTo()) return;
+    B.logN = next;
+    B.dirty = true;
+  }
+  function commitRace() {
+    if (!B.race) return;
+    const n = B.logN >= 6 - 1e-9 ? MC_MAX : snapFine(Math.round(Math.pow(10, B.logN)));
+    if (n !== B.N) setN(n, "race");
+    if (B.logN >= 6 - 1e-9) { B.logN = 6; setRace(false); }
+  }
+  function backgroundB(budgetMs) {
+    const t0 = performance.now();
+    let progressed = false;
+    for (;;) {
+      let any = false;
+      for (const k of RACE_KEYS) { const T = B.tracks[k]; if (!T.done) { trackAdvance(T, k === "wallis" ? 400 : 800); any = true; progressed = true; } }
+      if (!B.mc.done) { mcTrackAdvance(B.mc, 20000); any = true; progressed = true; }
+      if (!any || performance.now() - t0 > budgetMs) break;
+    }
+    if (progressed) B.dirty = true;
+  }
+  function rowsAt(N) {
+    if (B.rowsN === N && B.rows && !B.rows.some((r) => r.pending)) return B.rows;
+    const rows = RACE_KEYS.map((k) => {
+      const T = B.tracks[k], r = trackAt(T, N, 80000);
+      if (r.pending) return { key: k, pending: true };
+      if (r.sat) return { key: k, sat: true };
+      let th;
+      if (k === "chud") th = seriesTheory("chud", N, { M: chudMNext(r.st) });
+      else th = seriesTheory(k, N);
+      return { key: k, v: r.v, err: r.err, dig: r.dig, th };
+    });
+    const m = mcTrackAt(B.mc, N);
+    rows.push(m.pending ? { key: "mc", pending: true } : { key: "mc", est: m.est, err: m.err, dig: m.dig, th: m.se, hits: m.hits });
+    B.rows = rows;
+    B.rowsN = N;
+    return rows;
+  }
+  function errHTML(e) {
+    if (!Number.isFinite(e)) return "—";
+    if (Math.abs(e) < 1e-50) return `<span class="nw">&lt; 10⁻⁵⁰</span>`;
+    return `<span class="nw">${sigS(e, 3)}</span>`;
+  }
+  const narrowMq = window.matchMedia("(max-width: 760px)");
+  function readoutsB() {
+    const N = B.N, rows = rowsAt(N), vDec = narrowMq.matches ? 10 : 15;
+    const html = rows.map((r) => {
+      const nm = `<th scope="row"><i class="k-${r.key}"></i>${NAMES[r.key][0]}<small>hata ≈ ${NAMES[r.key][1]}</small></th>`;
+      if (r.pending) return `<tr>${nm}<td colspan="4">hesaplanıyor…</td></tr>`;
+      if (r.sat) return `<tr>${nm}<td>${fxRound(PI_FX, vDec)}<small>≥ ${CAP} basamağı π'ninki</small></td><td class="meas">${errHTML(0)}</td><td>—</td><td class="meas">≥${NB}${CAP}<small>hesap sınırı</small></td></tr>`;
+      if (r.key === "mc") {
+        const z = zOf(r.est, PI, r.th), small = N * P_DART * (1 - P_DART) < 10;
+        return `<tr>${nm}<td>${fix(r.est, 6)}<small>${fmtInt(r.hits)}/${fmtInt(N)} isabet</small></td><td class="meas">${errHTML(r.err)}</td><td class="theory"><span class="nw">±${sig(r.th, 3)}</span><small>${small ? "Np(1 − p) &lt; 10: hata henüz normal dağılmaz" : `${fixS(z, 2)} SE`}</small></td><td class="meas">${digStr(r.dig)}<small>kuram ${fix(Math.max(0, -Math.log10(r.th)), 1)}</small></td></tr>`;
+      }
+      const ratio = r.err / r.th;
+      const val = r.dig >= CAP ? fxTrunc(r.v, vDec) : fxRound(r.v, vDec);
+      return `<tr>${nm}<td>${val}</td><td class="meas">${errHTML(r.err)}</td><td class="theory">${errHTML(r.th)}<small>${Number.isFinite(ratio) && Math.abs(r.err) >= 1e-50 ? `oran ${fix(ratio, 4)}` : ""}</small></td><td class="meas">${digStr(r.dig)}</td></tr>`;
+    }).join("");
+    setHTML(rUI.rBody, html);
+    // Basamaklar
+    const key = rUI.rDigSel.value, row = rows.find((r) => r.key === key);
+    if (row && !row.pending) {
+      const ref = fxTrunc(PI_FX, CAP);
+      const s = row.sat ? ref : fxTrunc(row.v, CAP);
+      let k = 0;
+      while (k < s.length && s[k] === ref[k]) k++;
+      const dec = Math.max(0, k - 2);
+      const ok = s.slice(0, k), bad = s.slice(k, k + 1), rest = s.slice(k + 1);
+      setHTML(rUI.rDigits, `<span class="ok">${ok}</span>${bad ? `<span class="bad">${bad}</span>` : ""}${rest}`);
+      setText(rUI.rDigOut, row.sat ? `≥ ${CAP} ondalık eşleşir` : `${dec} ondalık eşleşir · N = ${fmtInt(N)}`);
+    } else {
+      setHTML(rUI.rDigits, "hesaplanıyor…");
+      setText(rUI.rDigOut, "—");
+    }
+    statusB(rows);
+    const shown = ALL_KEYS.filter((k) => B.show[k]).map((k) => NAMES[k][0]).join(", ");
+    raceChart.setAttribute("aria-label", `Doğru basamak yarışı: yatayda adım sayısı N (logaritmik, 1 … 10⁶), düşeyde −log₁₀|hata| (0 … 32). Gösterilen: ${shown}; Monte Carlo için kuramsal çizgi ve çift duyarlık sınırı; dikey çizgi N = ${N}`);
+  }
+  function statusB(rows) {
+    const N = B.N, by = Object.fromEntries(rows.map((r) => [r.key, r]));
+    const L = by.leib, C = by.mc;
+    if (!L || L.pending || !C || C.pending) { setStatus(rUI.rStatus, `N = ${fmtInt(N)}: hesaplanıyor…`, ""); return; }
+    let text = `N = ${fmtInt(N)}: Leibniz ${digStr(L.dig)} basamak (hata ${sigS(L.err, 3)} ≈ ${N % 2 ? "+" : "−"}1/N), Monte Carlo ${digStr(C.dig)} basamak (bu koşu; standart hatanın verdiği tipik değer ${fix(-Math.log10(C.th), 1)}).`;
+    text += ` 10 kat adım Leibniz'e 1, Monte Carlo'ya 0.5 basamak kazandırır: Monte Carlo daha yavaştır.`;
+    const fast = ["chud", "machin", "euler", "arch"].filter((k) => by[k] && (by[k].sat || by[k].dig >= CAP)).map((k) => SHORT[k]);
+    if (fast.length) text += ` ${fast.join(", ")} 50 basamaklık hesap sınırına ulaştı.`;
+    const ni = by.nila;
+    const kind = "good";
+    if (ni && !ni.pending && ni.dig > 15.65) text += ` Nilakantha ${digStr(ni.dig)} basamakta: çift duyarlıkla (≈ 15.6 basamak) hesaplansaydı bu fark görülemezdi; tablo 60 basamaklı tamsayı aritmetiği kullanır.`;
+    if (N < 10) text += " Küçük N'de öncü terim kaba bir yaklaşımdır; oran N büyüdükçe 1'e gider.";
+    setStatus(rUI.rStatus, text, kind);
+  }
+  function drawRace(t) {
+    const [c, W, H] = begin(raceChart);
+    if (!W) return;
+    const R = { l: 36, t: 22, w: W - 48, h: H - 22 - 42 };
+    if (R.w < 40 || R.h < 40) return;
+    const v = { x0: 0, x1: 6, y0: 0, y1: 32 };
+    const { X, Y } = axes(c, R, v, t, { yStep: 4, yFmt: (e) => String(e), yTitle: "doğru basamak −log₁₀|hata|", xTitle: "adım sayısı N" });
+    const lim = B.N;
+    c.save();
+    c.beginPath();
+    c.rect(R.l, R.t - 2, R.w, R.h + 2);
+    c.clip();
+    // çift duyarlık sınırı
+    c.setLineDash([6, 4]);
+    c.strokeStyle = t.warm;
+    c.lineWidth = 1.2;
+    const fl = -Math.log10(2.220446049250313e-16);
+    line(c, R.l, Y(fl), R.l + R.w, Y(fl));
+    if (B.show.mc) {
+      c.strokeStyle = t.m.mc;
+      c.lineWidth = 1.4;
+      line(c, X(0), Y(-Math.log10(SIG_HIT)), X(6), Y(-Math.log10(SIG_HIT) + 3));
+    }
+    c.setLineDash([]);
+    const exits = [];
+    const plot = (key, digArr, gi) => {
+      const pts = [];
+      let exited = null;
+      for (let i = 0; i < gi; i++) {
+        if (FINE[i] > lim) break;
+        const d = digArr[i];
+        if (!Number.isFinite(d) && d !== Infinity) { pts.push(null); continue; }
+        const dd = Math.max(0, Math.min(v.y1 + 1, d === Infinity ? 99 : d));
+        pts.push([X(Math.log10(FINE[i])), Y(dd)]);
+        if (d > v.y1) { exited = FINE[i]; break; }
+      }
+      c.strokeStyle = t.m[key];
+      c.lineWidth = key === "mc" ? 1.3 : 2.2;
+      polyline(c, pts);
+      if (exited) exits.push([key, exited]);
+    };
+    for (const k of RACE_KEYS) if (B.show[k]) { const T = B.tracks[k]; plot(k, T.dig, T.gi); }
+    if (B.show.mc) plot("mc", B.mc.dig, B.mc.gi);
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1;
+    c.globalAlpha = 0.6;
+    line(c, X(Math.log10(B.N)), R.t, X(Math.log10(B.N)), R.t + R.h);
+    c.globalAlpha = 1;
+    c.restore();
+    // grafikten çıkanlar: üst kenarda etiket
+    exits.sort((p, q) => p[1] - q[1]);
+    let lastX = -1e9, row = 0;
+    for (const [k, n] of exits) {
+      const x = X(Math.log10(n));
+      row = x - lastX < 70 ? row + 1 : 0;
+      lastX = x;
+      label(c, `↑ ${SHORT[k]}`, Math.min(R.l + R.w - 70, x + 4), R.t + 12 + row * 13, t.m[k], t, { size: 10, weight: 600 });
+    }
+    label(c, `N = ${fmtInt(B.N)}`, R.l + R.w, R.t - 7, t.ink, t, { size: 11, weight: 600, align: "right" });
+    label(c, "çift duyarlık", R.l + 4, Y(fl) - 4, t.warm, t, { size: 10 });
+  }
+
+  /* ═══ (c) Arşimet çokgenleri ═══ */
+  const ARCH = archTable(K_MAX), FP = fpTable(K_MAX);
+  const pUI = {};
+  ["pK", "pKNum", "pKOut", "pZoom", "pZoomOut", "pReset", "pStatus", "pN", "pNSub", "pIn", "pInSub", "pOut", "pOutSub", "pSH", "pSHSub", "pW", "pWSub", "pArch", "pArchSub",
+    "pNaive", "pNaiveSub", "pStable", "pStableSub", "pCancel", "pCancelSub"].forEach((id) => { pUI[id] = $(id); });
+  const polyStage = $("polyStage"), polyChart = $("polyChart"), fpChart = $("fpChart");
+  const P = { k: 4, zoom: "auto", dirty: true };
+  const FP_BEST = FP.reduce((b, r) => (Math.abs(r.eN) < Math.abs(b.eN) ? r : b), FP[0]);
+  const FP_ZERO = FP.find((r) => r.sN === 0);
+  function setK(k, from) {
+    k = Math.max(0, Math.min(K_MAX, Math.round(Number(k))));
+    if (!Number.isFinite(k)) k = P.k;
+    P.k = k;
+    if (from !== "range") pUI.pK.value = String(k);
+    if (from !== "box" || document.activeElement !== pUI.pKNum) pUI.pKNum.value = String(k);
+    setText(pUI.pKOut, `k = ${k} · n = ${fmtInt(6 * 2 ** k)}`);
+    P.dirty = true;
+  }
+  function resetP() {
+    pUI.pZoom.value = "auto";
+    P.zoom = "auto";
+    setK(4, "preset");
+  }
+  const errBig = (e) => (Math.abs(e) < 1e-50 ? "< 10⁻⁵⁰" : sig(e, 3));
+  // Sınırların ayrıldığı basamağı da gösterecek kadar ondalık (en az 8, en çok 40)
+  const decFor = (r) => Math.min(40, Math.max(8, Math.ceil(-Math.log10(fxNum(r.w))) + 3));
+  function readoutsP() {
+    const r = ARCH[P.k], f = FP[P.k], n = r.n, dc = Math.max(12, decFor(r));
+    setText(pUI.pN, fmtInt(n));
+    setText(pUI.pNSub, `merkez açı 360°/n = ${sig(360 / n, 4)}° · ${P.k} ikileme`);
+    setText(pUI.pIn, fxRound(r.b, dc));
+    setText(pUI.pInSub, `n·sin(π/n) · hata π − b = ${errBig(-r.eb)} · kuram π³/(6n²) = ${sig(r.thB, 3)} · oran ${fix(-r.eb / r.thB, 4)}`);
+    setText(pUI.pOut, fxRound(r.a, dc));
+    setText(pUI.pOutSub, `n·tan(π/n) · hata a − π = ${errBig(r.ea)} · kuram π³/(3n²) = ${sig(r.thA, 3)} · oran ${fix(r.ea / r.thA, 4)}`);
+    setText(pUI.pSH, fxRound(r.sh, dc));
+    setText(pUI.pSHSub, Math.abs(r.esh) < 1e-50 ? "hata < 10⁻⁵⁰ (hesap sınırı)" : `hata ${sigS(r.esh, 3)} · kuram π⁵/(20n⁴) = ${sig(r.thSH, 3)} · oran ${fix(r.esh / r.thSH, 4)}`);
+    const w = fxNum(r.w), wPrev = P.k ? fxNum(ARCH[P.k - 1].w) : NaN;
+    setText(pUI.pW, sig(w, 4));
+    setText(pUI.pWSub, `kuram π³/(2n²) = ${sig((PI ** 3) / (2 * n * n), 4)}${P.k ? ` · önceki n'ye göre ${fix(wPrev / w, 3)} kat dar` : ""}`);
+    const r96 = ARCH[4];
+    setText(pUI.pArchSub, `223/71 = 3.140845 < b₉₆ = ${fxRound(r96.b, 6)} < π < a₉₆ = ${fxRound(r96.a, 6)} < 22/7 = 3.142857`);
+    // kayan nokta
+    setText(pUI.pNaive, f.pN === 0 ? "0" : f.pN.toPrecision(16));
+    setText(pUI.pNaiveSub, f.sN === 0 ? `s = 0: √(4 − s²) tam 2 çıktı, yarı çevre sıfır (hata −π)` : `hata ${sigS(f.eN, 3)} · doğru basamak ${digStr(-Math.log10(Math.abs(f.eN)))}`);
+    setText(pUI.pStable, f.pS.toPrecision(16));
+    setText(pUI.pStableSub, `hata ${sigS(f.eS, 3)} · kesme kuramı −π³/(6n²) = ${sig(-(PI ** 3) / (6 * n * n), 3)}`);
+    setText(pUI.pCancel, Number.isFinite(f.rel) ? (f.rel === 0 ? "0 (tam)" : sig(f.rel, 2)) : "—");
+    setText(pUI.pCancelSub, `doğru s ile ölçülür · fark s²/(2 + √(4 − s²)) = ${sig(f.dExact, 3)} · ölçek ε/fark = ${sig(f.relTh, 2)} (ε = 2.2·10⁻¹⁶: 2'nin hemen altındaki kayan nokta sayılarının aralığı); iki sayının ${fix(Math.max(0, Math.log10(2 / f.dExact)), 1)} baş basamağı ortak`);
+    statusP(r, f);
+    polyStage.setAttribute("aria-label", `Birim çember, iç ve dış ${n} kenarlı çokgen${n > 400 ? " (çizim çözünürlüğünde çemberle çakışık)" : ""}; yanda tepe noktasının büyütülmüş görünümü: çember yayı, iç çokgenin kenarı ve dış çokgenin köşesi`);
+    polyChart.setAttribute("aria-label", `Sınırların hatası: yatayda ikileme sayısı k = 0 … 40, düşeyde logaritmik hata 10⁰ … 10⁻⁵⁰; π − b, a − π ve Snell–Huygens hatası (noktalar) ile kuramsal doğrular; seçili k = ${P.k}`);
+    fpChart.setAttribute("aria-label", `Kayan nokta deneyi: yatayda k = 0 … 40, düşeyde |yarı çevre − π| (10¹ … 10⁻¹⁸); saf formülün hatası önce azalır, k ≈ ${FP_BEST.k}'den sonra büyür ve π'ye çıkar; kararlı formül çift duyarlığın sınırında kalır; seçili k = ${P.k}`);
+  }
+  function statusP(r, f) {
+    const n = r.n, dc = decFor(r);
+    let text = `n = ${fmtInt(n)}: ${fxRound(r.b, dc)} < π < ${fxRound(r.a, dc)}, aralık ${sig(fxNum(r.w), 3)}.`;
+    if (P.k === 4) text += ` Arşimet'in 96-geni: 3 10/71 = 3.14085 ve 3 1/7 = 3.14286 bu sınırların biraz dışındadır, çünkü √3 için kesir kullandı ve her adımda güvenli yöne yuvarladı.`;
+    let kind = "good";
+    if (f.sN === 0) { kind = "warn"; text += ` Saf formül ${FP_ZERO.k}. ikilemeden beri tam sıfır veriyor: s² < 2ε olunca 4 − s² kayan noktada 4'e, √ 2'ye yuvarlanır ve fark sıfırlanır. Kararlı formül aynı adımda ${sigS(f.eS, 2)} hatayla π'yi tutar.`; }
+    else if (P.k > FP_BEST.k) { kind = "warn"; text += ` Saf formülün hatası ${sigS(f.eN, 2)}: en iyi değerine (${sig(Math.abs(FP_BEST.eN), 2)}) k = ${FP_BEST.k} olunca ulaştı, sonra büyüyor. Fark 2 − √(4 − s²) burada ${sig(f.dExact, 2)}; iki sayının ilk ${fix(Math.log10(2 / f.dExact), 1)} basamağı aynı olduğundan çıkarma bu kadar basamağı siler ve ölçülen bağıl hata ${sig(f.rel, 2)}.`; }
+    else text += ` Bu k'de iki formül de iyi: saf ${sigS(f.eN, 2)}, kararlı ${sigS(f.eS, 2)} (kesme hatası baskın).`;
+    setStatus(pUI.pStatus, text, kind);
+  }
+  function drawPolyStage(t) {
+    const [c, W, H] = begin(polyStage);
+    if (!W) return;
+    const n = 6 * 2 ** P.k, side = W >= H * 1.15;
+    const pad = 12;
+    let A, Z;
+    if (side) { const s = Math.min(H - 2 * pad, W * 0.56); A = { x: pad, y: (H - s) / 2, s }; Z = { x: A.x + s + 16, y: pad + 14, w: W - (A.x + s + 16) - pad, h: H - 2 * pad - 30 }; }
+    else { const s = Math.min(W - 2 * pad, H * 0.56); A = { x: (W - s) / 2, y: pad, s }; Z = { x: pad, y: A.y + s + 26, w: W - 2 * pad, h: H - (A.y + s + 26) - 30 }; }
+    const R = A.s * 0.42, cx = A.x + A.s / 2, cy = A.y + A.s / 2;
+    const off = Math.PI / 2 - Math.PI / n; // iç çokgenin bir kenarının ortası tepede
+    if (n <= 1536) {
+      c.beginPath();
+      for (let i = 0; i <= n; i++) { const a = off + (TAU * i) / n; const x = cx + R * Math.cos(a), y = cy - R * Math.sin(a); if (i) c.lineTo(x, y); else c.moveTo(x, y); }
+      c.fillStyle = t.fillIn;
+      c.fill();
+      c.strokeStyle = t.accent;
+      c.lineWidth = 1.6;
+      c.stroke();
+      const Rc = R / Math.cos(Math.PI / n);
+      c.beginPath();
+      for (let i = 0; i <= n; i++) { const a = Math.PI / 2 + (TAU * i) / n; const x = cx + Rc * Math.cos(a), y = cy - Rc * Math.sin(a); if (i) c.lineTo(x, y); else c.moveTo(x, y); }
+      c.strokeStyle = t.warm;
+      c.lineWidth = 1.6;
+      c.stroke();
+    }
+    c.beginPath();
+    c.arc(cx, cy, R, 0, TAU);
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1.2;
+    c.stroke();
+    label(c, `n = ${fmtInt(n)}`, A.x + 4, A.y + 14, t.ink, t, { size: 12, weight: 600 });
+    if (n > 384) label(c, "çokgenler çemberle çakışık görünür", A.x + 4, A.y + A.s - 4, t.muted, t, { size: 10 });
+    // büyütme
+    if (Z.w < 40 || Z.h < 40) return;
+    const h = Math.PI / n, gapLo = 2 * Math.sin(h / 2) ** 2, vTop = gapLo / Math.cos(h); // tepeden aşağı ve yukarı
+    let mag;
+    if (P.zoom === "auto") mag = (Z.h * 0.7) / ((gapLo + vTop) * R);
+    else mag = Number(P.zoom);
+    const ppu = R * mag; // birim başına piksel
+    const zx = Z.x + Z.w / 2;
+    const baseY = Z.y + Z.h * 0.15 + vTop * ppu; // tepe noktasının (çemberin) y'si
+    c.save();
+    c.beginPath();
+    c.rect(Z.x, Z.y, Z.w, Z.h);
+    c.clip();
+    const half = Z.w / 2 / ppu;
+    // çember: Y = −X²/(1 + √(1 − X²))
+    c.beginPath();
+    for (let i = 0; i <= 120; i++) {
+      const X = -half + (2 * half * i) / 120;
+      if (Math.abs(X) >= 1) continue;
+      const Yv = -(X * X) / (1 + Math.sqrt(1 - X * X));
+      const px = zx + X * ppu, py = baseY - Yv * ppu;
+      if (i) c.lineTo(px, py); else c.moveTo(px, py);
+    }
+    c.strokeStyle = t.ink;
+    c.lineWidth = 1.6;
+    c.stroke();
+    // Yerel koordinatlar (tepe noktası orijin, yukarı +): farklar yok etmesiz biçimde, 1 − cos u = 2 sin²(u/2)
+    const P_ = (X, Yv) => [zx + X * ppu, baseY - Yv * ppu];
+    const sh = Math.sin(h), s3 = Math.sin(3 * h);
+    // iç çokgen: köşeler 90° ± h ve 90° ± 3h açılarında
+    c.beginPath();
+    [[-s3, -2 * Math.sin(1.5 * h) ** 2], [-sh, -gapLo], [sh, -gapLo], [s3, -2 * Math.sin(1.5 * h) ** 2]].forEach(([X, Yv], i) => { const [px, py] = P_(X, Yv); if (i) c.lineTo(px, py); else c.moveTo(px, py); });
+    c.strokeStyle = t.accent;
+    c.lineWidth = 2;
+    c.stroke();
+    // dış çokgen: köşeler 90° ve 90° ± 2h açılarında, yarıçap 1/cos h
+    const xo = Math.sin(2 * h) / Math.cos(h), yo = (-2 * Math.sin(1.5 * h) * Math.sin(0.5 * h)) / Math.cos(h);
+    c.beginPath();
+    [[-xo, yo], [0, vTop], [xo, yo]].forEach(([X, Yv], i) => { const [px, py] = P_(X, Yv); if (i) c.lineTo(px, py); else c.moveTo(px, py); });
+    c.strokeStyle = t.warm;
+    c.lineWidth = 2;
+    c.stroke();
+    c.restore();
+    c.setLineDash([4, 4]);
+    c.strokeStyle = t.muted;
+    c.lineWidth = 1;
+    c.strokeRect(Z.x + 0.5, Z.y + 0.5, Z.w - 1, Z.h - 1);
+    c.setLineDash([]);
+    const magTxt = mag >= 1e4 || mag < 1 ? sig(mag, 2) : fmtInt(Math.round(mag));
+    label(c, `tepe noktası × ${magTxt}`, Z.x + 4, Z.y - 4, t.ink, t, { size: 11, weight: 600 });
+    label(c, `iç kenar ${sig(gapLo, 2)} aşağıda, dış köşe ${sig(vTop, 2)} yukarıda (yarıçap 1)`, Z.x + 4, Z.y + Z.h + 16, t.muted, t, { size: 10 });
+  }
+  function drawPolyChart(t) {
+    const [c, W, H] = begin(polyChart);
+    if (!W) return;
+    const R = { l: 46, t: 22, w: W - 58, h: H - 22 - 40 };
+    if (R.w < 40 || R.h < 40) return;
+    const v = { x0: 0, x1: K_MAX, y0: -50, y1: 0 };
+    const { X, Y } = axes(c, R, v, t, { xStep: 5, yStep: 10, xFmt: (k) => String(k), yTitle: "hata", xTitle: "ikileme sayısı k (n = 6·2ᵏ)" });
+    c.save();
+    c.beginPath();
+    c.rect(R.l, R.t, R.w, R.h);
+    c.clip();
+    c.setLineDash([5, 4]);
+    c.strokeStyle = t.muted;
+    c.lineWidth = 1.2;
+    for (const f of [(n) => (PI ** 3) / (6 * n * n), (n) => (PI ** 3) / (3 * n * n), (n) => (PI ** 5) / (20 * n ** 4)]) {
+      polyline(c, ARCH.map((r) => [X(r.k), Y(Math.log10(f(r.n)))]));
+    }
+    c.setLineDash([]);
+    const ser = (fn, col) => {
+      const pts = ARCH.map((r) => { const e = Math.abs(fn(r)); return e >= 1e-50 ? [X(r.k), Y(Math.log10(e))] : null; });
+      c.strokeStyle = col;
+      c.lineWidth = 1.2;
+      polyline(c, pts);
+      dots(c, pts, 2.6, col);
+    };
+    ser((r) => r.eb, t.accent);
+    ser((r) => r.ea, t.warm);
+    ser((r) => r.esh, t.accent2);
+    c.strokeStyle = t.ink;
+    c.globalAlpha = 0.6;
+    line(c, X(P.k), R.t, X(P.k), R.t + R.h);
+    c.globalAlpha = 1;
+    c.restore();
+    label(c, `k = ${P.k}`, R.l + R.w, R.t - 7, t.ink, t, { size: 11, weight: 600, align: "right" });
+  }
+  function drawFpChart(t) {
+    const [c, W, H] = begin(fpChart);
+    if (!W) return;
+    const R = { l: 46, t: 22, w: W - 58, h: H - 22 - 40 };
+    if (R.w < 40 || R.h < 40) return;
+    const v = { x0: 0, x1: K_MAX, y0: -18, y1: 1 };
+    const { X, Y } = axes(c, R, v, t, { xStep: 5, yStep: 3, xFmt: (k) => String(k), yTitle: "|yarı çevre − π|", xTitle: "ikileme sayısı k (n = 6·2ᵏ)" });
+    c.save();
+    c.beginPath();
+    c.rect(R.l, R.t, R.w, R.h);
+    c.clip();
+    c.setLineDash([5, 4]);
+    c.strokeStyle = t.muted;
+    c.lineWidth = 1.2;
+    polyline(c, FP.map((r) => [X(r.k), Y(Math.log10((PI ** 3) / (6 * r.n * r.n)))]));
+    c.strokeStyle = t.warm;
+    line(c, R.l, Y(Math.log10(2.220446049250313e-16)), R.l + R.w, Y(Math.log10(2.220446049250313e-16)));
+    c.setLineDash([]);
+    const ser = (key, col) => {
+      const pts = FP.map((r) => { const e = Math.abs(r[key]); return e > 0 ? [X(r.k), Y(Math.log10(e))] : null; });
+      c.strokeStyle = col;
+      c.lineWidth = 2;
+      polyline(c, pts);
+      dots(c, pts, 2.4, col);
+    };
+    ser("eS", t.accent);
+    ser("eN", t.danger);
+    c.strokeStyle = t.ink;
+    c.globalAlpha = 0.6;
+    line(c, X(P.k), R.t, X(P.k), R.t + R.h);
+    c.globalAlpha = 1;
+    c.restore();
+    label(c, `saf formülün en iyisi k = ${FP_BEST.k}: ${sig(Math.abs(FP_BEST.eN), 2)}`, R.l + R.w, R.t - 7, t.danger, t, { size: 11, weight: 600, align: "right" });
+  }
+
+  /* ── Sekmeler ── */
+  const TAB_KEYS = ["monte-carlo", "seriler", "arsimet"];
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const S = { tab: "monte-carlo" };
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((tb) => {
+      const on = tb.dataset.tab === key;
+      tb.setAttribute("aria-selected", String(on));
+      tb.tabIndex = on ? 0 : -1;
+      if (on && focus) tb.focus();
+    });
+    TAB_KEYS.forEach((k) => { $(`panel-${k}`).hidden = k !== key; });
+    if (key === "seriler" && !B.tracks) newTracks();
+    if (fromUser) { try { history.replaceState(null, "", `#${key}`); } catch (_) {} }
+    markDirty();
+    resize();
+  }
+  tabs.forEach((tb, i) => {
+    tb.addEventListener("click", () => selectTab(tb.dataset.tab, false, true));
+    tb.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Döngü ── */
+  function markDirty() { M.dirty = true; M.stageDirty = true; B.dirty = true; P.dirty = true; }
+  const CANVASES = [mcStage, mcChart, raceChart, polyStage, polyChart, fpChart];
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let changed = false;
+    for (const cv of CANVASES) {
+      const rect = cv.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; changed = true; }
+    }
+    if (changed) markDirty();
+  }
+  let lastFrame = 0, lastTheme = "", lastRead = 0;
+  function frame(now) {
+    if (!lastFrame) lastFrame = now;
+    const elapsed = Math.min(0.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    const paused = window.AcelyaPause?.isPaused?.();
+    const dt = paused ? 0 : elapsed;
+    const th = theme();
+    if (th.key !== lastTheme) { lastTheme = th.key; M.layerKey = ""; markDirty(); }
+    if (S.tab === "monte-carlo") {
+      stepM(dt);
+      if (!paused && !M.ens.done) { const t0 = performance.now(); while (!M.ens.done && performance.now() - t0 < 7) ensAdvance(M.ens, 60000); M.dirty = true; }
+      if (M.dirty && (now - lastRead > 120 || !M.running)) { readoutsM(); drawMcChart(th); lastRead = now; M.dirty = false; }
+      if (M.stageDirty) { drawMcStage(th); M.stageDirty = false; }
+    } else if (S.tab === "seriler") {
+      if (!paused) backgroundB(8);
+      stepB(dt);
+      if (B.dirty && (now - lastRead > 100 || !B.race)) { commitRace(); readoutsB(); drawRace(th); lastRead = now; B.dirty = false; }
+    } else if (P.dirty) {
+      readoutsP();
+      drawPolyStage(th);
+      drawPolyChart(th);
+      drawFpChart(th);
+      P.dirty = false;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── Etkileşim ── */
+  mUI.mExp.addEventListener("change", newMRun);
+  mUI.mRatio.addEventListener("input", () => { mUI.mRatioNum.value = Number(mUI.mRatio.value).toFixed(2); newMRun(); });
+  mUI.mRatioNum.addEventListener("change", () => {
+    let v = parseBox(mUI.mRatioNum);
+    if (mUI.mRatioNum.value.trim() === "" || !Number.isFinite(v)) v = Number(mUI.mRatio.value);
+    v = roundTo(Math.min(1, Math.max(0.05, v)), 2);
+    mUI.mRatioNum.value = v.toFixed(2);
+    mUI.mRatio.value = String(v);
+    newMRun();
+  });
+  document.querySelectorAll("[data-ratio]").forEach((b) => b.addEventListener("click", () => {
+    const v = Number(b.dataset.ratio);
+    mUI.mRatio.value = String(v);
+    mUI.mRatioNum.value = v.toFixed(2);
+    newMRun();
+  }));
+  mUI.mRate.addEventListener("input", () => { syncMOutputs(); M.dirty = true; });
+  mUI.mSeed.addEventListener("change", newMRun);
+  mUI.mToggle.addEventListener("click", () => setMRunning(!M.running));
+  mUI.mTo1000.addEventListener("click", () => mGoTo(1000));
+  mUI.mTo1e6.addEventListener("click", () => mGoTo(MC_MAX));
+  mUI.mRepeat.addEventListener("click", () => { restartRun(); setMRunning(true); });
+  mUI.mNewSeed.addEventListener("click", () => { newSeedFor(mUI.mSeed); newMRun(); });
+  mUI.mReset.addEventListener("click", resetM);
+
+  rUI.rN.addEventListener("input", () => { setRace(false); setN(Math.pow(10, Number(rUI.rN.value)), "range"); B.logN = Math.log10(B.N); });
+  rUI.rNNum.addEventListener("change", () => {
+    const v = parseBox(rUI.rNNum);
+    setRace(false);
+    if (!Number.isFinite(v)) { rUI.rNNum.value = String(B.N); return; }
+    setN(v, "box");
+    rUI.rNNum.value = String(B.N);
+    B.logN = Math.log10(B.N);
+  });
+  rUI.rNNum.addEventListener("keydown", (e) => { if (e.key === "Enter") rUI.rNNum.dispatchEvent(new Event("change")); });
+  document.querySelectorAll("[data-rn]").forEach((b) => b.addEventListener("click", () => { setRace(false); setN(Number(b.dataset.rn), "preset"); B.logN = Math.log10(B.N); }));
+  rUI.rPlay.addEventListener("click", toggleRace);
+  rUI.rReset.addEventListener("click", resetB);
+  rUI.rSeed.addEventListener("change", newMcTrack);
+  rUI.rDigSel.addEventListener("change", () => { B.dirty = true; });
+  ALL_KEYS.forEach((k) => $(`rShow-${k}`).addEventListener("change", (e) => { B.show[k] = e.target.checked; B.dirty = true; }));
+
+  pUI.pK.addEventListener("input", () => setK(pUI.pK.value, "range"));
+  pUI.pKNum.addEventListener("change", () => {
+    const v = parseBox(pUI.pKNum);
+    if (!Number.isFinite(v)) { pUI.pKNum.value = String(P.k); return; }
+    setK(v, "box");
+    pUI.pKNum.value = String(P.k);
+  });
+  pUI.pZoom.addEventListener("change", () => { P.zoom = pUI.pZoom.value; setText(pUI.pZoomOut, P.zoom === "auto" ? "otomatik" : pUI.pZoom.selectedOptions[0].textContent); P.dirty = true; });
+  document.querySelectorAll("[data-pk]").forEach((b) => b.addEventListener("click", () => setK(Number(b.dataset.pk), "preset")));
+  pUI.pReset.addEventListener("click", () => { resetP(); setText(pUI.pZoomOut, "otomatik"); });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target instanceof Element && e.target.matches("input, select, textarea, button, a, [contenteditable]")) return;
+    if (e.code === "Space") {
+      if (S.tab === "monte-carlo") { e.preventDefault(); setMRunning(!M.running); }
+      else if (S.tab === "seriler") { e.preventDefault(); toggleRace(); }
+    } else if (e.key === "r" || e.key === "R") {
+      if (S.tab === "monte-carlo") resetM();
+      else if (S.tab === "seriler") resetB();
+      else { resetP(); setText(pUI.pZoomOut, "otomatik"); }
+    }
+  });
+
+  /* ── Başlat ── */
+  resetM();
+  setK(4, "preset");
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "monte-carlo", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  CANVASES.forEach((cv) => ro.observe(cv));
+  resize();
+  requestAnimationFrame(frame);
+  window.__pi = { math: PI_MATH, M, B, P, rowsAt, readoutsM, readoutsB, readoutsP, setN, setK, mGoTo, selectTab };
+})();
+</script>
+</body>
+</html>

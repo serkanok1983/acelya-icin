@@ -1,0 +1,2642 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="shared/theme.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Asal Sayılar ve RSA: Elekten Şifreye</title>
+  <meta name="description" content="İki asalı çarpmak bir an sürer, çarpımdan asalları geri bulmak yıllar. Eratosthenes'in eleğinden Riemann'ın sorusuna, 561'in hilesinden RSA anahtarına uzanan yol bu asimetride saklı.">
+  <style>
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 14px; }
+    .app-content .tabs .tab {
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .app-content .tabs .tab:hover { color: var(--text); border-color: var(--border-hover); }
+    .app-content .tabs .tab[aria-selected="true"] {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+      background: color-mix(in srgb, var(--accent) 15%, var(--bg-card));
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+    .lab {
+      --spf-2: #60a5fa; --spf-3: #a78bfa; --spf-5: #5eead4; --spf-7: #f472b6;
+      --spf-11: #fb923c; --spf-13: #a3e635; --spf-17: #22d3ee; --spf-19: #f87171;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(270px, 1fr);
+      grid-template-areas: "stage side" "main side";
+      gap: 14px 16px;
+      align-items: start;
+    }
+    [data-theme="light"] .lab {
+      --spf-2: #2563eb; --spf-3: #7c3aed; --spf-5: #0d9488; --spf-7: #db2777;
+      --spf-11: #ea580c; --spf-13: #65a30d; --spf-17: #0891b2; --spf-19: #b91c1c;
+    }
+    .stage-wrap { grid-area: stage; display: grid; gap: 8px; min-width: 0; }
+    .main { grid-area: main; display: grid; gap: 12px; min-width: 0; }
+    .side { grid-area: side; display: grid; gap: 12px; min-width: 0; }
+    .sim-canvas {
+      width: 100%;
+      aspect-ratio: 6 / 5;
+      display: block;
+      background: linear-gradient(180deg, rgba(14, 20, 36, 0.9), rgba(8, 12, 22, 0.95));
+      border-radius: 12px;
+      touch-action: manipulation;
+    }
+    .lab[data-tab="mod"] .sim-canvas { cursor: pointer; }
+    .chart-canvas {
+      width: 100%;
+      aspect-ratio: 5 / 2;
+      display: block;
+      background: rgba(8, 12, 22, 0.75);
+      border-radius: 12px;
+    }
+    [data-theme="light"] .sim-canvas { background: linear-gradient(180deg, #f7f9fc, #e9eef6); }
+    [data-theme="light"] .chart-canvas { background: #f7f9fc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.76rem; line-height: 1.45; color: var(--text-muted); }
+    .legend span { white-space: nowrap; }
+    .legend span.long { white-space: normal; }
+    .legend i { display: inline-block; width: 18px; height: 0; margin-right: 5px; vertical-align: middle; border-top: 2.5px solid var(--text-muted); }
+    .legend i.dash { border-top-style: dashed; }
+    .legend i.k-acc { border-top-color: var(--accent); }
+    .legend i.k-acc2 { border-top-color: var(--accent-2); }
+    .legend i.k-warm { border-top-color: var(--accent-warm); }
+    .legend i.k-red { border-top-color: var(--danger); }
+    .legend i.k-ink { border-top-color: var(--text); }
+    .legend i.box { width: 11px; height: 11px; border: 0; border-radius: 3px; background: var(--text-muted); }
+    .legend i.box.k-warm { background: var(--accent-warm); }
+    .legend i.box.k-acc { background: var(--accent); }
+    .legend i.box.k-acc2 { background: var(--accent-2); }
+    .legend i.box.k-red { background: var(--danger); }
+    .legend i.box.k-grey { background: color-mix(in srgb, var(--text-muted) 45%, transparent); }
+    .legend i.box.k-none { background: transparent; border: 1px solid var(--border-hover); }
+    .legend i.ring { width: 9px; height: 9px; border: 2px solid var(--accent-warm); border-radius: 3px; }
+    .legend i.ring.k-ink { border-color: var(--text); }
+    .legend i.dot { width: 9px; height: 9px; border: 0; border-radius: 50%; background: var(--accent-warm); }
+    .legend i.dot.k-red { background: var(--danger); }
+    .legend b.spf { font-weight: 700; margin-right: 4px; }
+    .legend b.s2 { color: var(--spf-2); } .legend b.s3 { color: var(--spf-3); } .legend b.s5 { color: var(--spf-5); } .legend b.s7 { color: var(--spf-7); }
+    .legend b.s11 { color: var(--spf-11); } .legend b.s13 { color: var(--spf-13); } .legend b.s17 { color: var(--spf-17); } .legend b.s19 { color: var(--spf-19); }
+    .legend[hidden], .panel[hidden], .group[hidden] { display: none !important; }
+    .panel {
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    .app-content .panel h2 { margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent) !important; }
+    .app-content .panel h3 { margin: 4px 0 0; font-size: 0.86rem; font-weight: 700; color: var(--text) !important; }
+    .field { display: grid; gap: 4px; min-width: 0; }
+    .field label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 0.86rem; font-weight: 600; }
+    .field label .lt { color: var(--text) !important; }
+    .field label output { font-variant-numeric: tabular-nums; color: var(--accent); text-align: right; font-weight: 500; overflow-wrap: anywhere; }
+    .field input[type="range"] { width: 100%; min-width: 0; }
+    .field select { padding: 6px 8px; font: inherit; width: 100%; min-width: 0; }
+    .field input.txt { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; font-size: 0.88rem; font-variant-numeric: tabular-nums; min-width: 0; }
+    .num-row { display: grid; grid-template-columns: minmax(0, 1fr) 6.6em; gap: 10px; align-items: center; }
+    .num-row input.txt { padding: 5px 6px; font-size: 0.84rem; }
+    .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+    .presets button { padding: 6px 10px; font: inherit; font-size: 0.8rem; line-height: 1.3; cursor: pointer; }
+    .presets button[aria-pressed="true"] { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row button { padding: 8px 12px; font: inherit; font-size: 0.84rem; cursor: pointer; }
+    .row button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .row button[aria-pressed="true"] { border-color: var(--accent-warm); color: var(--text); }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 0.84rem; }
+    .note { font-size: 0.82rem; line-height: 1.5; margin: 0; }
+    .note.err { color: var(--danger) !important; }
+    .group { display: grid; gap: 10px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    .readout {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      display: grid;
+      gap: 2px;
+      align-content: start;
+      min-width: 0;
+    }
+    .readout small { font-size: 0.72rem; line-height: 1.3; }
+    .readout strong { font-size: 1rem; font-variant-numeric: tabular-nums; color: var(--text) !important; overflow-wrap: anywhere; }
+    .readout em { font-style: normal; font-size: 0.72rem; line-height: 1.4; color: var(--text-muted); overflow-wrap: anywhere; }
+    .readout.is-highlight strong { color: var(--accent-warm) !important; }
+    .readout.wide { grid-column: 1 / -1; }
+    .table-wrap { max-width: 100%; overflow-x: auto; }
+    .lab table.cmp { width: 100%; margin: 0; table-layout: fixed; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+    .lab table.cmp th, .lab table.cmp td { padding: 5px 7px; text-align: right; overflow-wrap: anywhere; vertical-align: top; }
+    .lab table.cmp thead th { font-size: 0.72rem; letter-spacing: 0.02em; }
+    .lab table.cmp thead th:first-child, .lab table.cmp tbody th { text-align: left; }
+    .lab table.cmp tbody th { background: var(--bg-card) !important; color: var(--text) !important; font-weight: 600; font-size: 0.78rem; }
+    .lab table.cmp td.meas { color: var(--accent-warm) !important; font-weight: 600; }
+    .lab table.cmp td small { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 400; }
+    .lab table.cmp td.left { text-align: left; }
+    .lab table.cmp tr.is-cur td, .lab table.cmp tr.is-cur th { box-shadow: inset 0 0 0 9999px color-mix(in srgb, var(--accent) 10%, transparent); }
+    .lab table.cmp caption { caption-side: top; text-align: left; font-size: 0.78rem; font-weight: 700; padding: 0 0 6px; color: var(--text); }
+    .lab .status {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text) !important;
+    }
+    .lab .status.is-good { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .lab .status.is-warn { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+    .lab ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; font-size: 0.82rem; line-height: 1.45; font-variant-numeric: tabular-nums; }
+    .lab ol.steps li { overflow-wrap: anywhere; color: var(--text-muted); }
+    .lab ol.steps li b { color: var(--text); font-weight: 600; }
+    .lab ol.steps li.bad b { color: var(--danger); }
+    @media (max-width: 760px) {
+      .lab { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "side" "main"; gap: 12px; }
+      .sim-canvas { aspect-ratio: 1 / 1; }
+      .chart-canvas { aspect-ratio: 4 / 3; }
+      .app-content .tabs .tab { font-size: 0.8rem; padding: 8px 6px; }
+      .lab table.cmp { font-size: 0.74rem; }
+      .lab table.cmp th, .lab table.cmp td { padding: 4px 5px; }
+    }
+    @media (max-width: 420px) {
+      .trio { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="asal-rsa">
+
+<div class="app-content">
+  <h1>Asal Sayılar ve RSA: Elekten Şifreye</h1>
+  <p class="hint">Bir sekme seç. Eratosthenes eleğini adım adım çalıştır ve 10⁷ sınırına kadar sayılan asalları asal sayı teoremiyle karşılaştır; Öklid algoritmasını, Euler teoremini ve hızlı üs almayı tabloda izle; iki asaldan RSA anahtarı kur, şifrele, imzala ve küçük bir anahtarı çarpanlarına ayırarak kır.</p>
+
+  <div class="tabs" role="tablist" aria-label="Deney bölümleri">
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-elek" data-tab="elek" aria-selected="true" aria-controls="labPanel">Asal elek ve dağılım</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-mod" data-tab="mod" aria-selected="false" aria-controls="labPanel" tabindex="-1">Modüler aritmetik</button>
+    <button type="button" class="tab app-btn-ghost" role="tab" id="tab-rsa" data-tab="rsa" aria-selected="false" aria-controls="labPanel" tabindex="-1">RSA</button>
+  </div>
+
+  <div class="lab" id="labPanel" role="tabpanel" aria-labelledby="tab-elek" data-tab="elek">
+    <div class="stage-wrap">
+      <canvas id="stageCanvas" class="sim-canvas" width="900" height="750" role="img" aria-label="Sahne"></canvas>
+      <p class="legend" data-for="elek">
+        <span><i class="box k-warm"></i>asal (kesin)</span>
+        <span><i class="ring"></i>şu anki asal p</span>
+        <span><i class="box k-none"></i>henüz karar yok</span>
+        <span><i class="ring k-ink"></i>p'nin p²'den küçük katları: zaten çizili</span>
+        <span class="long">bileşik, çizginin rengi en küçük asal çarpanı:
+          <b class="spf s2">2</b><b class="spf s3">3</b><b class="spf s5">5</b><b class="spf s7">7</b><b class="spf s11">11</b><b class="spf s13">13</b><b class="spf s17">17</b><b class="spf s19">19</b></span>
+      </p>
+      <p class="legend" data-for="mod" hidden>
+        <span><i class="box k-warm"></i>a<sup>k</sup> ≡ 1</span>
+        <span><i class="dot"></i>ilk 1: mertebe ord(a)</span>
+        <span><i class="box k-acc2"></i>k = φ(n) sütunu</span>
+        <span><i class="box k-grey"></i>ortak böleni olan a: hiç 1 olmaz</span>
+        <span><i class="ring k-ink"></i>seçili a</span>
+      </p>
+      <p class="legend" data-for="rsa" hidden>
+        <span><i class="box k-acc"></i>açık: n, e, c, s</span>
+        <span><i class="box k-red"></i>gizli: p, q, φ(n), d</span>
+        <span><i class="box k-warm"></i>mesaj m</span>
+        <span><i class="dot"></i>işlenen adım</span>
+      </p>
+      <canvas id="chartCanvas" class="chart-canvas" width="900" height="360" role="img" aria-label="Grafik"></canvas>
+      <p class="legend" id="aChartLegend" data-for="elek"></p>
+      <p class="legend" data-for="mod" hidden>
+        <span><i class="box k-grey"></i>gcd(a, n) &gt; 1</span>
+        <span><i class="box k-acc"></i>Fermat tanığı</span>
+        <span><i class="box k-acc2"></i>Fermat yalancısı, Miller–Rabin tanığı</span>
+        <span><i class="box k-red"></i>güçlü yalancı (Miller–Rabin de kanar)</span>
+        <span><i class="box k-warm"></i>n asal: her taban geçer</span>
+        <span><i class="ring k-ink"></i>sınanan rastgele taban</span>
+      </p>
+      <p class="legend" data-for="rsa" hidden>
+        <span><i class="dot"></i>Pollard rho, her anahtar</span>
+        <span><i class="box k-acc"></i>deneme bölmesi, her anahtar</span>
+        <span><i class="k-warm"></i>rho doğrusu</span>
+        <span><i class="dash k-acc2"></i>kuram: eğim 1/4 (√p)</span>
+        <span><i class="dash k-acc"></i>kuram: eğim 1/2 (p/2)</span>
+        <span><i class="dash k-red"></i>evrenin yaşı × 10⁹ işlem/s</span>
+      </p>
+    </div>
+
+    <div class="side">
+      <!-- (a) Elek -->
+      <div class="panel" data-for="elek" role="group" aria-labelledby="ttlA1">
+        <h2 id="ttlA1">Eratosthenes eleği</h2>
+        <div class="field">
+          <label for="aN"><span class="lt">Üst sınır N</span><output id="aNOut" for="aN">100</output></label>
+          <div class="num-row">
+            <input type="range" id="aN" min="10" max="400" step="1" value="100">
+            <input type="text" class="txt" id="aNNum" inputmode="numeric" autocomplete="off" spellcheck="false" value="100" aria-label="N değerini yaz (10–400)">
+          </div>
+        </div>
+        <div class="field">
+          <label for="aRate"><span class="lt">Hız</span><output id="aRateOut" for="aRate">10 çizme/s</output></label>
+          <select id="aRate">
+            <option value="2">2 çizme/s</option>
+            <option value="5">5 çizme/s</option>
+            <option value="10" selected>10 çizme/s</option>
+            <option value="25">25 çizme/s</option>
+            <option value="60">60 çizme/s</option>
+            <option value="200">200 çizme/s</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aStep">Bir adım</button>
+          <button type="button" class="app-btn-ghost" id="aRun" aria-pressed="false">Otomatik çalıştır</button>
+          <button type="button" class="app-btn-ghost" id="aRestart">Baştan başlat</button>
+          <button type="button" class="app-btn-ghost" id="aReset">Sıfırla</button>
+        </div>
+        <p class="note">Bir adım, sıradaki asalın bütün katlarını birden çizer; otomatik çalıştırma onları seçilen hızla tek tek çizer. Çizme p²'den başlar: p'nin daha küçük katları k·p (2 ≤ k &lt; p), k'nin p'den küçük bir asal çarpanı tarafından zaten çizilmiştir. Sıradaki işaretsiz sayının karesi N'yi aşınca durulur: N'ye kadar her bileşik sayının √N değerini aşmayan bir asal çarpanı vardır. Kısayollar: <kbd>Boşluk</kbd> otomatik çalıştır/durdur, <kbd>R</kbd> bu sekmeyi sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="elek" role="group" aria-labelledby="ttlA2">
+        <h2 id="ttlA2">Asal sayıların dağılımı</h2>
+        <div class="field">
+          <label for="aX"><span class="lt">Sınır x</span><output id="aXOut" for="aX">x = 1 000 000</output></label>
+          <div class="num-row">
+            <input type="range" id="aX" min="2" max="7" step="0.001" value="6">
+            <input type="text" class="txt" id="aXNum" inputmode="numeric" autocomplete="off" spellcheck="false" value="1000000" aria-label="x değerini yaz (100 – 10 000 000)">
+          </div>
+        </div>
+        <div class="presets" role="group" aria-label="Hazır x değerleri">
+          <button type="button" class="app-btn-ghost" data-x="1000">x = 10³</button>
+          <button type="button" class="app-btn-ghost" data-x="10000">10⁴</button>
+          <button type="button" class="app-btn-ghost" data-x="100000">10⁵</button>
+          <button type="button" class="app-btn-ghost" data-x="1000000">10⁶</button>
+          <button type="button" class="app-btn-ghost" data-x="10000000">10⁷</button>
+        </div>
+        <div class="field">
+          <label for="aView"><span class="lt">Grafik</span><output id="aViewOut" for="aView">göreli hata</output></label>
+          <select id="aView">
+            <option value="pi">π(x) merdiveni ve yaklaşımlar</option>
+            <option value="err" selected>Göreli hata, log ölçek</option>
+            <option value="gap">Ardışık asal farkları</option>
+            <option value="twin">İkiz asallar ve Hardy–Littlewood</option>
+          </select>
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="aDistReset">Sıfırla</button>
+        </div>
+        <p class="note">Kutuya tam sayı ya da 10^6 biçimi yazılabilir. Eleme sayfa açılınca arka planda, kare başına birkaç milisaniyelik dilimlerle çalışır: parçalı (65 536 tek sayılık dilimler), yalnız tek sayıları tutan bir Eratosthenes eleği.</p>
+      </div>
+
+      <!-- (b) Modüler aritmetik -->
+      <div class="panel" data-for="mod" role="group" aria-labelledby="ttlB1" hidden>
+        <h2 id="ttlB1">Euler teoremi ve kuvvetler</h2>
+        <div class="field">
+          <label for="bN"><span class="lt">Modül n</span><output id="bNOut" for="bN">15</output></label>
+          <div class="num-row">
+            <input type="range" id="bN" min="2" max="50" step="1" value="15">
+            <input type="text" class="txt" id="bNNum" inputmode="numeric" autocomplete="off" spellcheck="false" value="15" aria-label="n değerini yaz (2–50)">
+          </div>
+        </div>
+        <div class="field">
+          <label for="bA"><span class="lt">Taban a</span><output id="bAOut" for="bA">2</output></label>
+          <div class="num-row">
+            <input type="range" id="bA" min="1" max="14" step="1" value="2">
+            <input type="text" class="txt" id="bANum" inputmode="numeric" autocomplete="off" spellcheck="false" value="2" aria-label="a değerini yaz (1 ile n − 1 arası)">
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="bAll"> n ile ortak böleni olan a'ları da göster</label>
+        <div class="presets" role="group" aria-label="Hazır modüller">
+          <button type="button" class="app-btn-ghost" data-bn="5">n = 5</button>
+          <button type="button" class="app-btn-ghost" data-bn="10">n = 10</button>
+          <button type="button" class="app-btn-ghost" data-bn="15">n = 15</button>
+          <button type="button" class="app-btn-ghost" data-bn="21">n = 21</button>
+          <button type="button" class="app-btn-ghost" data-bn="24">n = 24</button>
+          <button type="button" class="app-btn-ghost" data-bn="47">n = 47</button>
+        </div>
+        <div class="row"><button type="button" class="app-btn-ghost" id="bReset">Sıfırla</button></div>
+        <p class="note">Tablonun bir satırına dokunmak a'yı seçer (kaydırıcı aynı işi görür). Satırlar n ile aralarında asal a'lardır, yani mod n çarpma grubunun öğeleri; sütunlar k = 1 … φ(n).</p>
+      </div>
+
+      <div class="panel" data-for="mod" role="group" aria-labelledby="ttlB2" hidden>
+        <h2 id="ttlB2">Fermat ve Miller–Rabin</h2>
+        <div class="field">
+          <label for="bT"><span class="lt">Sınanan sayı n</span></label>
+          <input type="text" class="txt" id="bT" inputmode="numeric" autocomplete="off" spellcheck="false" value="561">
+        </div>
+        <div class="presets" role="group" aria-label="Hazır sayılar">
+          <button type="button" class="app-btn-ghost" data-bt="561">561 = 3·11·17</button>
+          <button type="button" class="app-btn-ghost" data-bt="1105">1105</button>
+          <button type="button" class="app-btn-ghost" data-bt="2047">2047 = 23·89</button>
+          <button type="button" class="app-btn-ghost" data-bt="3215031751">3215031751</button>
+          <button type="button" class="app-btn-ghost" data-bt="997">997</button>
+          <button type="button" class="app-btn-ghost" data-bt="2^61-1">2⁶¹ − 1</button>
+        </div>
+        <div class="field">
+          <label for="bK"><span class="lt">Rastgele taban sayısı k</span><output id="bKOut" for="bK">5</output></label>
+          <input type="range" id="bK" min="1" max="20" step="1" value="5">
+        </div>
+        <div class="field">
+          <label for="bSeed"><span class="lt">Tohum (rastgele sayı üreteci)</span></label>
+          <input type="text" class="txt" id="bSeed" inputmode="numeric" autocomplete="off" spellcheck="false" value="1980">
+        </div>
+        <div class="row"><button type="button" class="app-btn-ghost" id="bTestReset">Sıfırla</button></div>
+        <p class="note">Tabanlar 2 ≤ a ≤ n − 2 aralığından tohumlu üreteçle (mulberry32) çekilir; aynı tohum aynı tabanları verir. Fermat ve Miller–Rabin aynı tabanlarla sınanır. Sayı 10^n − 1 ya da 2^61-1 biçiminde de yazılabilir (en çok 200 basamak).</p>
+      </div>
+
+      <!-- (c) RSA -->
+      <div class="panel" data-for="rsa" role="group" aria-labelledby="ttlC1" hidden>
+        <h2 id="ttlC1">Anahtar üretimi</h2>
+        <div class="pair">
+          <div class="field">
+            <label for="cP"><span class="lt">Asal p</span></label>
+            <input type="text" class="txt" id="cP" inputmode="numeric" autocomplete="off" spellcheck="false" value="">
+          </div>
+          <div class="field">
+            <label for="cQ"><span class="lt">Asal q</span></label>
+            <input type="text" class="txt" id="cQ" inputmode="numeric" autocomplete="off" spellcheck="false" value="">
+          </div>
+        </div>
+        <div class="field">
+          <label for="cBits"><span class="lt">Rastgele asalların bit uzunluğu</span><output id="cBitsOut" for="cBits">20 bit</output></label>
+          <input type="range" id="cBits" min="16" max="60" step="1" value="20">
+        </div>
+        <div class="field">
+          <label for="cSeed"><span class="lt">Anahtar tohumu</span></label>
+          <input type="text" class="txt" id="cSeed" inputmode="numeric" autocomplete="off" spellcheck="false" value="1977">
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="cRand">Rastgele asal</button>
+          <button type="button" class="app-btn-ghost" id="cBook">Ders kitabı örneği</button>
+        </div>
+        <div class="field">
+          <label for="cE"><span class="lt">Açık üs e</span><output id="cEOutLbl" for="cE">65537</output></label>
+          <input type="text" class="txt" id="cE" inputmode="numeric" autocomplete="off" spellcheck="false" value="65537">
+        </div>
+        <div class="presets" role="group" aria-label="Hazır açık üsler">
+          <button type="button" class="app-btn-ghost" data-e="3">e = 3</button>
+          <button type="button" class="app-btn-ghost" data-e="17">e = 17</button>
+          <button type="button" class="app-btn-ghost" data-e="65537">e = 65537</button>
+        </div>
+        <div class="field">
+          <label for="cM"><span class="lt">Mesaj m (sayı)</span></label>
+          <input type="text" class="txt" id="cM" inputmode="numeric" autocomplete="off" spellcheck="false" value="65">
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-primary" id="cRun">Şifrele / Çöz</button>
+          <button type="button" class="app-btn-ghost" id="cReset">Sıfırla</button>
+        </div>
+        <p class="note" id="cInputNote">Kutular değişince anahtar ve sonuçlar hemen yeniden hesaplanır; Şifrele / Çöz düğmesi adımları sahnede baştan oynatır. Rastgele asal, iki asalın en üstteki iki bitini 1 yapar (n tam 2b bit olur) ve adayları Miller–Rabin ile sınar. p ve q en çok 2⁶⁴ olabilir. Kısayollar: <kbd>Boşluk</kbd> Şifrele / Çöz, <kbd>R</kbd> bu sekmeyi sıfırla.</p>
+      </div>
+
+      <div class="panel" data-for="rsa" role="group" aria-labelledby="ttlC2" hidden>
+        <h2 id="ttlC2">Saldırı: n'yi çarpanlarına ayır</h2>
+        <div class="field">
+          <label for="cAtkSeed"><span class="lt">Saldırı tohumu (rho ve tarama)</span></label>
+          <input type="text" class="txt" id="cAtkSeed" inputmode="numeric" autocomplete="off" spellcheck="false" value="1">
+        </div>
+        <div class="row">
+          <button type="button" class="app-btn-ghost" id="cAttack">Çarpanlara ayır</button>
+          <button type="button" class="app-btn-ghost" id="cStop">Durdur</button>
+          <button type="button" class="app-btn-ghost" id="cSweep">Taramayı yeniden başlat</button>
+        </div>
+        <p class="note">Saldırgan yalnız n'yi bilir. Deneme bölmesi 2'yi ve sonra 3, 5, 7, … tek sayılarını sırayla dener (n &lt; 2⁵³ ise ölçülür). Pollard rho (Floyd), x ↦ x² + c (mod n) dizisinde kaplumbağa ve tavşanı yürütür, gcd(|x<sub>i</sub> − x<sub>2i</sub>|, n) &gt; 1 olunca durur; c ve x₀ tohumdan gelir, gcd 32 adımlık çarpımlarla toplu alınır ve ilk başarılı adım geri sarılarak tam olarak bulunur. n anahtarı değişince saldırı yeniden başlar (n en çok 68 bitse kendiliğinden). Grafikteki tarama, her boyda (16, 20, …, 64 bit) 8 rastgele anahtar kurar.</p>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- (a) -->
+      <div class="group" data-for="elek" aria-live="polite">
+        <div class="cards">
+          <div class="readout is-highlight"><small>Şu anki asal p</small><strong id="aP">—</strong><em id="aPSub"></em></div>
+          <div class="readout"><small>Çizmenin başladığı sayı p²</small><strong id="aP2">—</strong><em id="aP2Sub"></em></div>
+          <div class="readout"><small>Durma sınırı √N</small><strong id="aRoot">—</strong><em id="aRootSub"></em></div>
+          <div class="readout"><small>Çizme işlemi (ölçülen / kuram)</small><strong id="aOps">—</strong><em id="aOpsSub"></em></div>
+          <div class="readout"><small>Zaten çizili sayıyı yeniden çizme</small><strong id="aRed">—</strong><em id="aRedSub"></em></div>
+          <div class="readout"><small>Kesinleşen asallar</small><strong id="aCnt">—</strong><em id="aCntSub"></em></div>
+        </div>
+        <p class="status" id="aSieveStatus"></p>
+      </div>
+      <div class="group" data-for="elek" aria-live="polite">
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption>Asal sayma fonksiyonu π(x): ölçülen (eleme) ve kuram</caption>
+            <colgroup><col style="width: 16%"><col style="width: 20%"><col><col></colgroup>
+            <thead><tr><th scope="col">x</th><th scope="col">π(x) ölçülen</th><th scope="col">x/ln x (fark)</th><th scope="col">Li(x) (fark)</th></tr></thead>
+            <tbody id="aPiBody"></tbody>
+          </table>
+        </div>
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption>İkiz asal çiftleri π₂(x): (p, p + 2), p + 2 ≤ x</caption>
+            <colgroup><col style="width: 16%"><col style="width: 20%"><col><col></colgroup>
+            <thead><tr><th scope="col">x</th><th scope="col">π₂(x) ölçülen</th><th scope="col">2C₂∫₂ˣ dt/(ln t)² (fark)</th><th scope="col">2C₂x/(ln x)² (fark)</th></tr></thead>
+            <tbody id="aTwBody"></tbody>
+          </table>
+        </div>
+        <div class="cards">
+          <div class="readout is-highlight"><small>π(x), elemeyle sayılan</small><strong id="dPi">—</strong><em id="dPiSub"></em></div>
+          <div class="readout"><small>Asal sayı teoremi x/ln x</small><strong id="dPnt">—</strong><em id="dPntSub"></em></div>
+          <div class="readout"><small>Logaritmik integral Li(x)</small><strong id="dLi">—</strong><em id="dLiSub"></em></div>
+          <div class="readout"><small>En büyük ardışık fark (≤ x)</small><strong id="dGap">—</strong><em id="dGapSub"></em></div>
+          <div class="readout"><small>Ortalama fark, [0.9x, x] aralığı</small><strong id="dMean">—</strong><em id="dMeanSub"></em></div>
+          <div class="readout"><small>İkiz asal çiftleri π₂(x)</small><strong id="dTwin">—</strong><em id="dTwinSub"></em></div>
+          <div class="readout"><small>Eleme (bu cihazda)</small><strong id="dSieve">—</strong><em id="dSieveSub"></em></div>
+        </div>
+        <p class="status" id="aDistStatus"></p>
+        <p class="note">Kuram: asal sayı teoremi (Hadamard ve de la Vallée Poussin, 1896) π(x)/(x/ln x) → 1 der; Li(x) = ∫<sub>2</sub><sup>x</sup> dt/ln t çok daha iyi bir yaklaşımdır. Li, Ramanujan'ın li(x) = γ + ln ln x + √x Σ (−1)<sup>n−1</sup>(ln x)<sup>n</sup>/(n!·2<sup>n−1</sup>) Σ<sub>k≤(n−1)/2</sub> 1/(2k + 1) serisiyle hesaplanır ve li(2) = 1.04516 çıkarılır. Yerel yoğunluk 1/ln x olduğundan x yakınındaki asallar arası ortalama fark ln x'e yakındır; kart onu [0.9x, x] aralığında ölçer, kuram aralık boyu bölü beklenen asal sayısıdır: 0.1x/(Li(x) − Li(0.9x)). ± değeri farkların standart sapması bölü √(fark sayısı)'dır; farkları bağımsız sayan bu SE temkinlidir: 10⁴ ile 10⁷ arasında rastgele seçilen 400 x için z = (ölçülen − kuram)/SE değerlerinin standart sapması 0.38 çıktı (bağımsız olsalardı 1 olurdu), yani asal sayısı uzun bir aralıkta bağımsız farkların öngördüğünden daha az dalgalanır. İkiz asal tahmini Hardy ve Littlewood'un kanıtlanmamış sanısıdır: π₂(x) ≈ 2C₂∫<sub>2</sub><sup>x</sup> dt/(ln t)², C₂ = 0.6601618; sayfa bu integrali kısmi integralle Li(x) − x/ln x + 2/ln 2 olarak hesaplar, kaba biçim 2C₂x/(ln x)² yalnız karşılaştırma içindir. En büyük fark için (ln p)² Cramér'in sanısıdır, kanıt değildir.</p>
+      </div>
+
+      <!-- (b) -->
+      <div class="group" data-for="mod" aria-live="polite" hidden>
+        <div class="cards">
+          <div class="readout"><small>Euler fonksiyonu φ(n)</small><strong id="bPhi">—</strong><em id="bPhiSub"></em></div>
+          <div class="readout is-highlight"><small>Mertebe ord<sub>n</sub>(a), tablodan</small><strong id="bOrd">—</strong><em id="bOrdSub"></em></div>
+          <div class="readout"><small>Euler teoremi a<sup>φ(n)</sup> mod n</small><strong id="bEul">—</strong><em id="bEulSub"></em></div>
+          <div class="readout"><small>En büyük mertebe ve Carmichael λ(n)</small><strong id="bLam">—</strong><em id="bLamSub"></em></div>
+        </div>
+        <p class="status" id="bEulerStatus"></p>
+      </div>
+      <div class="group" data-for="mod" aria-live="polite" hidden>
+        <div class="cards">
+          <div class="readout"><small>Fermat sınaması, taban 2</small><strong id="bF2">—</strong><em id="bF2Sub"></em></div>
+          <div class="readout is-highlight"><small>Miller–Rabin, taban 2</small><strong id="bM2">—</strong><em id="bM2Sub"></em></div>
+          <div class="readout"><small>Fermat, k rastgele taban</small><strong id="bFk">—</strong><em id="bFkSub"></em></div>
+          <div class="readout is-highlight"><small>Miller–Rabin, k rastgele taban</small><strong id="bMk">—</strong><em id="bMkSub"></em></div>
+          <div class="readout"><small>Gerçek durum</small><strong id="bTruth">—</strong><em id="bTruthSub"></em></div>
+          <div class="readout"><small>Yalancı tabanlar, 1 ≤ a ≤ n − 1</small><strong id="bLiars">—</strong><em id="bLiarsSub"></em></div>
+        </div>
+        <p class="status" id="bTestStatus"></p>
+        <p class="note">Fermat: n asalsa her a için a<sup>n−1</sup> ≡ 1 (mod n). Carmichael sayıları (561 = 3·11·17 en küçüğüdür) n ile aralarında asal her tabanda bu eşitliği sağlar, bu yüzden Fermat sınaması onları ancak ortak bölenli bir tabana denk gelirse yakalar. Miller–Rabin n − 1 = 2<sup>s</sup>·d yazar ve a<sup>d</sup>, a<sup>2d</sup>, …, a<sup>2<sup>s</sup>d</sup> zincirine bakar: asal modülde 1'in karekökü yalnız ±1'dir; zincirde −1'den geçmeden 1'e varılırsa n kesinlikle bileşiktir. 9'dan büyük tek bileşik bir n için güçlü yalancı tabanların sayısı en çok φ(n)/4'tür (Monier ve Rabin, 1980; 9 istisnadır, 2 güçlü yalancısı vardır); k bağımsız taban hepsi birden yanılır olasılığı 4<sup>−k</sup>'den küçüktür. Kesin sonuç: n ≤ 10<sup>12</sup> ise deneme bölmesi, n &lt; 3.3·10<sup>24</sup> ise ilk 13 asal tabanla Miller–Rabin (bu sınırın altında yanılmadığı kanıtlıdır).</p>
+      </div>
+      <div class="panel" data-for="mod" role="group" aria-labelledby="ttlB3" hidden>
+        <h2 id="ttlB3">Öklid algoritması</h2>
+        <div class="pair">
+          <div class="field">
+            <label for="bEa"><span class="lt">Sayı a</span></label>
+            <input type="text" class="txt" id="bEa" inputmode="numeric" autocomplete="off" spellcheck="false" value="1071">
+          </div>
+          <div class="field">
+            <label for="bEb"><span class="lt">Sayı b</span></label>
+            <input type="text" class="txt" id="bEb" inputmode="numeric" autocomplete="off" spellcheck="false" value="462">
+          </div>
+        </div>
+        <div class="presets" role="group" aria-label="Hazır sayı çiftleri">
+          <button type="button" class="app-btn-ghost" data-eu="1071,462">1071 ve 462</button>
+          <button type="button" class="app-btn-ghost" data-eu="10946,6765">Fibonacci: 10946 ve 6765</button>
+          <button type="button" class="app-btn-ghost" data-eu="17,3120">17 ve 3120 (RSA'da d)</button>
+          <button type="button" class="app-btn-ghost" data-eu="65537,3120">65537 ve 3120</button>
+        </div>
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption>Bölme adımları ve her kalanın a·s + b·t gösterimi</caption>
+            <colgroup><col style="width: 10%"><col style="width: 40%"><col></colgroup>
+            <thead><tr><th scope="col">Adım</th><th scope="col">Bölme</th><th scope="col">Kalan = a·s + b·t</th></tr></thead>
+            <tbody id="bEuBody"></tbody>
+          </table>
+        </div>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-highlight"><small>gcd(a, b)</small><strong id="bGcd">—</strong><em id="bGcdSub"></em></div>
+          <div class="readout"><small>Bézout katsayıları s, t</small><strong id="bBez">—</strong><em id="bBezSub"></em></div>
+          <div class="readout"><small>Modüler ters a<sup>−1</sup> mod b</small><strong id="bInv">—</strong><em id="bInvSub"></em></div>
+          <div class="readout"><small>Bölme sayısı ve Lamé sınırı</small><strong id="bSteps">—</strong><em id="bStepsSub"></em></div>
+        </div>
+        <p class="note" id="bEuNote">Her satır a = q·b + r bölmesidir; sonra (a, b) yerine (b, r) gelir ve kalan 0 olunca son sıfırdan farklı kalan gcd'dir. Genişletilmiş algoritma her kalanı r = a·s + b·t biçiminde taşır; son satırın s ve t'si Bézout katsayılarıdır. gcd(a, b) = 1 ise a·s ≡ 1 (mod b), yani s mod b, a'nın tersidir. Lamé (1844): k bölme gerekiyorsa küçük sayı en az F<sub>k+1</sub> Fibonacci sayısıdır; en kötü durum ardışık Fibonacci sayılarıdır. Sayılar en çok 60 basamak olabilir.</p>
+      </div>
+      <div class="panel" data-for="mod" role="group" aria-labelledby="ttlB4" hidden>
+        <h2 id="ttlB4">Hızlı üs alma: tekrarlı kare alma</h2>
+        <div class="trio">
+          <div class="field">
+            <label for="bPa"><span class="lt">Taban a</span></label>
+            <input type="text" class="txt" id="bPa" inputmode="numeric" autocomplete="off" spellcheck="false" value="65">
+          </div>
+          <div class="field">
+            <label for="bPe"><span class="lt">Üs e</span></label>
+            <input type="text" class="txt" id="bPe" inputmode="numeric" autocomplete="off" spellcheck="false" value="17">
+          </div>
+          <div class="field">
+            <label for="bPn"><span class="lt">Modül n</span></label>
+            <input type="text" class="txt" id="bPn" inputmode="numeric" autocomplete="off" spellcheck="false" value="3233">
+          </div>
+        </div>
+        <div class="presets" role="group" aria-label="Hazır üs alma örnekleri">
+          <button type="button" class="app-btn-ghost" data-pw="65,17,3233">65¹⁷ mod 3233</button>
+          <button type="button" class="app-btn-ghost" data-pw="2790,2753,3233">2790²⁷⁵³ mod 3233</button>
+          <button type="button" class="app-btn-ghost" data-pw="2,560,561">2⁵⁶⁰ mod 561</button>
+          <button type="button" class="app-btn-ghost" data-pw="7,65537,1000003">7⁶⁵⁵³⁷ mod 1000003</button>
+        </div>
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption>e'nin ikili basamakları soldan sağa: her basamakta kare, basamak 1 ise bir çarpma daha</caption>
+            <colgroup><col style="width: 13%"><col style="width: 12%"><col style="width: 30%"><col></colgroup>
+            <thead><tr><th scope="col">Basamak</th><th scope="col">Bit</th><th scope="col">İşlem</th><th scope="col">Değer (mod n)</th></tr></thead>
+            <tbody id="bPwBody"></tbody>
+          </table>
+        </div>
+        <div class="cards" aria-live="polite">
+          <div class="readout is-highlight"><small>Sonuç a<sup>e</sup> mod n</small><strong id="bPwRes">—</strong><em id="bPwResSub"></em></div>
+          <div class="readout"><small>Çarpma sayısı (ölçülen / kuram)</small><strong id="bPwCnt">—</strong><em id="bPwCntSub"></em></div>
+          <div class="readout"><small>Saf yöntem: e − 1 çarpma</small><strong id="bPwNaive">—</strong><em id="bPwNaiveSub"></em></div>
+        </div>
+        <p class="note">Kuram: e'nin ikili uzunluğu L = ⌊log₂ e⌋ + 1 ve içindeki 1 sayısı w ise soldan sağa yöntem L − 1 kare ve w − 1 çarpma yapar: toplam ⌊log₂ e⌋ + w − 1, yani yaklaşık log₂ e + popcount(e). Her çarpmadan sonra mod alındığı için ara sonuçlar n'yi aşmaz. Sayılar BigInt ile tam hesaplanır; e en çok 2<sup>512</sup>, a ve n en çok 200 basamak olabilir.</p>
+      </div>
+
+      <!-- (c) -->
+      <div class="group" data-for="rsa" aria-live="polite" hidden>
+        <ol class="steps" id="cSteps"></ol>
+        <div class="cards">
+          <div class="readout"><small>Modül n = p·q (açık)</small><strong id="cN">—</strong><em id="cNSub"></em></div>
+          <div class="readout"><small>φ(n) = (p − 1)(q − 1) (gizli)</small><strong id="cPhi">—</strong><em id="cPhiSub"></em></div>
+          <div class="readout"><small>Açık üs e</small><strong id="cEOut">—</strong><em id="cESub"></em></div>
+          <div class="readout"><small>Gizli üs d = e<sup>−1</sup> mod φ(n)</small><strong id="cD">—</strong><em id="cDSub"></em></div>
+          <div class="readout is-highlight"><small>Şifreli metin c = m<sup>e</sup> mod n</small><strong id="cC">—</strong><em id="cCSub"></em></div>
+          <div class="readout is-highlight"><small>Çözülen c<sup>d</sup> mod n</small><strong id="cM2">—</strong><em id="cM2Sub"></em></div>
+          <div class="readout"><small>İmza s = m<sup>d</sup> mod n</small><strong id="cSig">—</strong><em id="cSigSub"></em></div>
+          <div class="readout"><small>Doğrulama s<sup>e</sup> mod n</small><strong id="cVer">—</strong><em id="cVerSub"></em></div>
+          <div class="readout wide"><small>Değiştirilebilirlik: c' = 2<sup>e</sup>·c mod n çözülünce</small><strong id="cMall">—</strong><em id="cMallSub"></em></div>
+        </div>
+        <p class="status" id="cKeyStatus"></p>
+        <p class="note"><b>Uyarı:</b> Bu, dolgusuz “ders kitabı RSA”sıdır ve güvenli değildir. Belirlenimcidir: aynı m her zaman aynı c'yi verir, saldırgan tahmin ettiği mesajları şifreleyip karşılaştırabilir. Değiştirilebilirdir: c'yi 2<sup>e</sup> ile çarpan biri, anahtarı bilmeden çözülen metni 2m yapar (kart bunu gösterir); küçük m ve küçük e ile m<sup>e</sup> &lt; n olursa c'nin sıradan e'inci kökü m'yi verir. Gerçek sistemler şifrelemede OAEP, imzada PSS dolgusu kullanır, iletinin kendisini değil özetini (hash) imzalar ve en az 2048 bitlik n seçer. Bir web sunucusunun sertifikası da böyle bir imzadır: sertifika makamı sunucunun açık anahtarını içeren belgenin özetini kendi gizli d'siyle imzalar, tarayıcı makamın (n, e) anahtarıyla s<sup>e</sup> mod n hesaplayıp doğrular. λ(n) = lcm(p − 1, q − 1) ile hesaplanan d de aynı işi görür (PKCS #1 bunu kullanır); gerçek yazılımlar çözmeyi Çin kalan teoremiyle mod p ve mod q'da ayrı ayrı yapar.</p>
+      </div>
+      <div class="group" data-for="rsa" aria-live="polite" hidden>
+        <div class="table-wrap">
+          <table class="cmp">
+            <caption>Bu anahtara saldırı: ölçülen işlem sayısı ve kuram</caption>
+            <colgroup><col style="width: 22%"><col><col><col style="width: 19%"></colgroup>
+            <thead><tr><th scope="col">Yöntem</th><th scope="col">Ölçülen</th><th scope="col">Kuram</th><th scope="col">Oran</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Deneme bölmesi</th><td id="cTrMeas" class="meas">—</td><td id="cTrTheo">—</td><td id="cTrRatio">—</td></tr>
+              <tr><th scope="row">Pollard rho</th><td id="cRhoMeas" class="meas">—</td><td id="cRhoTheo">—</td><td id="cRhoRatio">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cards">
+          <div class="readout is-highlight"><small>Bulunan çarpanlar</small><strong id="cFound">—</strong><em id="cFoundSub"></em></div>
+          <div class="readout"><small>Tarama: rho eğimi log₂(yineleme) / bit</small><strong id="cFit">—</strong><em id="cFitSub"></em></div>
+          <div class="readout"><small>Tarama: yineleme / √p ortalaması</small><strong id="cConst">—</strong><em id="cConstSub"></em></div>
+          <div class="readout wide"><small>2048 bitlik n için uzatma (ölçülmedi)</small><strong id="cExtra">—</strong><em id="cExtraSub"></em></div>
+        </div>
+        <p class="status" id="cAtkStatus"></p>
+        <p class="note">Kuram: deneme bölmesi en küçük asal çarpana kadar (p + 1)/2 bölme yapar; dengeli anahtarda p ≈ √n olduğundan bu yaklaşık √n/2'dir. Pollard rho'da dizi mod p'de doğum günü paradoksu yüzünden yaklaşık √p adımda kendini tekrar eder; dengeli anahtarda bu n<sup>1/4</sup> mertebesidir. İkisi de bit sayısında üsteldir: n'ye 4 bit eklemek rho işini 2 kat, deneme bölmesini 4 kat artırır. RSA'nın güvenliği bu “ileri kolay, geri zor” farkına dayanır: p·q'yu çarpmak anlıktır, n'den p'yi bulmak değildir; Diffie–Hellman aynı fikri ayrık logaritmayla kurar. Bilinen en iyi klasik yöntem, sayı cismi kalburu (GNFS), alt-üsteldir; 829 bitlik RSA-250 2020'de onunla, yaklaşık 2700 çekirdek-yılda ayrıştırıldı. 2048 bitlik bir modül bu yöntemle de bugün erişilemez; yeterince büyük, hata düzeltmeli bir kuantum bilgisayar ise Shor algoritmasıyla bu varsayımı ortadan kaldırırdı.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* MATH-START — saf hesap çekirdeği: DOM'a dokunmaz; doğrulama betiği bu bloğu node'da aynen çalıştırır */
+  const EULER_GAMMA = 0.5772156649015329;
+  const MERTENS_M = 0.2614972128476428;
+  const TWIN_C2 = 0.6601618158468696;
+  const BIG_LIMIT = 10000000;
+  const SEG = 65536;
+  const MR_DET_LIMIT = 3317044064679887385961981n;
+  const MR_DET_BASES = [2n, 3n, 5n, 7n, 11n, 13n, 17n, 19n, 23n, 29n, 31n, 37n, 41n];
+  const SMALL_P = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97];
+  const NUM_MUL_LIMIT = 94906265;
+
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const u32 = (rng) => Math.floor(rng() * 4294967296);
+
+  // li(x) = ∫₀ˣ dt/ln t (Cauchy esas değeri), Ramanujan serisi; x > 1
+  function li(x) {
+    const L = Math.log(x);
+    let sum = 0, term = 0, inner = 0;
+    for (let n = 1; n <= 500; n++) {
+      term = n === 1 ? L : (term * L) / (2 * n);
+      if (n & 1) inner += 1 / n;
+      const a = (n & 1 ? term : -term) * inner;
+      sum += a;
+      if (n > 2 * L && Math.abs(a) <= 1e-17 * Math.abs(sum)) break;
+    }
+    return EULER_GAMMA + Math.log(L) + Math.sqrt(x) * sum;
+  }
+  const LI2 = li(2);
+  const Li = (x) => li(x) - LI2;
+  const twinIntegral = (x) => Li(x) - x / Math.log(x) + 2 / Math.LN2;
+  const twinHL = (x) => 2 * TWIN_C2 * twinIntegral(x);
+  const twinHLsimple = (x) => (2 * TWIN_C2 * x) / (Math.log(x) * Math.log(x));
+  const rhBound = (x) => (Math.sqrt(x) * Math.log(x)) / (8 * Math.PI);
+
+  /* (a) Izgara eleği: gridTick bir çizme yapar */
+  function sieveTheory(N) {
+    const comp = new Uint8Array(N + 1), spfCount = {};
+    let pi = 0, ops = 0, naive = 0, stop = null, invSum = 0;
+    const used = [];
+    for (let i = 2; i <= N; i++) {
+      if (comp[i]) continue;
+      pi++;
+      if (i * i <= N) {
+        used.push(i);
+        invSum += 1 / i;
+        ops += Math.floor(N / i) - i + 1;
+        naive += Math.floor(N / i) - 1;
+        let fresh = 0;
+        for (let j = i * i; j <= N; j += i) { if (!comp[j]) fresh++; comp[j] = 1; }
+        spfCount[i] = fresh;
+      } else if (stop === null) stop = i;
+    }
+    const composites = N - 1 - pi;
+    return { N, pi, ops, naive, composites, redundant: ops - composites, used, stop, invSum, spfCount,
+      asym: N * (Math.log(Math.log(Math.sqrt(N))) + MERTENS_M) };
+  }
+  function createGrid(N) {
+    return { N, comp: new Uint8Array(N + 1), spf: new Uint8Array(N + 1), p: 2, m: 4, ops: 0, redundant: 0,
+      phase: N >= 4 ? "cross" : "done", used: [], stop: N >= 4 ? null : 2, last: 0, opsP: 0 };
+  }
+  function gridNextPrime(g) {
+    g.used.push(g.p);
+    let q = g.p + 1;
+    while (q <= g.N && g.comp[q]) q++;
+    if (q * q > g.N) { g.phase = "done"; g.stop = q; }
+    else { g.p = q; g.m = q * q; g.opsP = 0; }
+  }
+  function gridTick(g) {
+    if (g.phase !== "cross") return false;
+    const m = g.m;
+    if (g.comp[m]) g.redundant++;
+    else { g.comp[m] = 1; g.spf[m] = g.p; }
+    g.ops++;
+    g.opsP++;
+    g.last = m;
+    g.m += g.p;
+    if (g.m > g.N) gridNextPrime(g);
+    return true;
+  }
+  function gridStep(g) {
+    if (g.phase !== "cross") return;
+    const p = g.p;
+    while (g.phase === "cross" && g.p === p) gridTick(g);
+  }
+
+  /* (a) 10⁷ sınırına kadar parçalı, yalnız tek sayılı eleme */
+  function createBigSieve(limit) {
+    const root = Math.floor(Math.sqrt(limit));
+    const small = new Uint8Array(root + 1), base = [];
+    for (let i = 3; i <= root; i += 2) {
+      if (small[i]) continue;
+      base.push(i);
+      for (let j = i * i; j <= root; j += 2 * i) small[j] = 1;
+    }
+    const cap = Math.ceil((1.25506 * limit) / Math.log(limit)) + 16;
+    const S = { limit, base: Int32Array.from(base), next: new Int32Array(base.length), seg: new Uint8Array(SEG), lo: 3,
+      primes: new Int32Array(cap), count: 1, twins: [], recLo: [], recHi: [], maxGap: 0, last: 2, scanned: 2, done: limit < 3 };
+    S.primes[0] = 2;
+    for (let k = 0; k < base.length; k++) S.next[k] = base[k] * base[k];
+    return S;
+  }
+  function advanceBigSieve(S, maxSegs) {
+    for (let s = 0; s < maxSegs && !S.done; s++) {
+      const lo = S.lo;
+      let hi = lo + 2 * (SEG - 1);
+      if (hi > S.limit) hi = S.limit % 2 ? S.limit : S.limit - 1;
+      const len = ((hi - lo) >> 1) + 1, seg = S.seg, base = S.base, next = S.next;
+      seg.fill(0, 0, len);
+      for (let k = 0; k < base.length; k++) {
+        let m = next[k];
+        if (m > hi) { if (base[k] * base[k] > hi) break; continue; }
+        const step = 2 * base[k];
+        for (; m <= hi; m += step) seg[(m - lo) >> 1] = 1;
+        next[k] = m;
+      }
+      const primes = S.primes;
+      let last = S.last, count = S.count, maxGap = S.maxGap;
+      for (let i = 0; i < len; i++) {
+        if (seg[i]) continue;
+        const v = lo + 2 * i, gap = v - last;
+        if (gap === 2) S.twins.push(v);
+        if (gap > maxGap) { maxGap = gap; S.recLo.push(last); S.recHi.push(v); }
+        primes[count++] = v;
+        last = v;
+      }
+      S.last = last; S.count = count; S.maxGap = maxGap;
+      S.scanned = hi + 1;
+      S.lo = hi + 2;
+      if (S.lo > S.limit) { S.done = true; S.scanned = S.limit; }
+    }
+  }
+  function ub(arr, len, x) {
+    let lo = 0, hi = len;
+    while (lo < hi) { const mid = (lo + hi) >>> 1; if (arr[mid] <= x) lo = mid + 1; else hi = mid; }
+    return lo;
+  }
+  function distStats(S, x) {
+    const pi = ub(S.primes, S.count, x);
+    const twins = ub(S.twins, S.twins.length, x);
+    let r = -1;
+    while (r + 1 < S.recHi.length && S.recHi[r + 1] <= x) r++;
+    const lo = 0.9 * x, i0 = ub(S.primes, S.count, Math.ceil(lo) - 1), i1 = pi - 1, m = i1 - i0;
+    let mean = null, sd = null;
+    if (m >= 1) {
+      mean = (S.primes[i1] - S.primes[i0]) / m;
+      if (m >= 2) {
+        let ss = 0;
+        for (let i = i0; i < i1; i++) { const d = S.primes[i + 1] - S.primes[i] - mean; ss += d * d; }
+        sd = Math.sqrt(ss / (m - 1));
+      }
+    }
+    return {
+      x, pi, twins,
+      rec: r >= 0 ? { lo: S.recLo[r], hi: S.recHi[r], g: S.recHi[r] - S.recLo[r] } : null,
+      win: { lo, m, mean, sd, se: sd === null ? null : sd / Math.sqrt(m), theory: (x - lo) / (Li(x) - Li(lo)) },
+    };
+  }
+  function gapBins(S, nb) {
+    const lmin = Math.log(2), lmax = Math.log(S.limit), bins = [];
+    for (let k = 0; k < nb; k++) bins.push({ n: 0, sx: 0, sg: 0, max: 0 });
+    for (let i = 0; i + 1 < S.count; i++) {
+      const p = S.primes[i], g = S.primes[i + 1] - p;
+      let k = Math.floor(((Math.log(p) - lmin) / (lmax - lmin)) * nb);
+      if (k >= nb) k = nb - 1;
+      const b = bins[k];
+      b.n++; b.sx += p; b.sg += g; if (g > b.max) b.max = g;
+    }
+    return bins.filter((b) => b.n > 0).map((b) => ({ x: b.sx / b.n, mean: b.sg / b.n, max: b.max, n: b.n }));
+  }
+  function curveData(S, xmin, xmax, npts) {
+    const out = [], top = S.done ? S.limit : S.scanned;
+    for (let k = 0; k < npts; k++) {
+      const x = Math.exp(Math.log(xmin) + (k / (npts - 1)) * (Math.log(xmax) - Math.log(xmin)));
+      if (x > top) break;
+      out.push({ x, pi: ub(S.primes, S.count, x), tw: ub(S.twins, S.twins.length, x), pnt: x / Math.log(x), Li: Li(x), hl: twinHL(x), hls: twinHLsimple(x) });
+    }
+    return out;
+  }
+
+  /* (b) Öklid, Euler, kuvvetler, asallık sınamaları */
+  const babs = (x) => (x < 0n ? -x : x);
+  const bitLen = (n) => (n > 0n ? n.toString(2).length : 0);
+  function popcount(n) { let c = 0; for (const ch of n.toString(2)) if (ch === "1") c++; return c; }
+  function gcdBig(a, b) { a = babs(a); b = babs(b); while (b !== 0n) { const t = a % b; a = b; b = t; } return a; }
+  function extGcd(a, b) {
+    let r0 = a, r1 = b, s0 = 1n, s1 = 0n, t0 = 0n, t1 = 1n;
+    const rows = [];
+    while (r1 !== 0n) {
+      const q = r0 / r1, r2 = r0 - q * r1, s2 = s0 - q * s1, t2 = t0 - q * t1;
+      rows.push({ a: r0, b: r1, q, r: r2, s: s2, t: t2 });
+      r0 = r1; r1 = r2; s0 = s1; s1 = s2; t0 = t1; t1 = t2;
+    }
+    return { g: r0, s: s0, t: t0, rows };
+  }
+  function modInverse(a, m) {
+    if (m <= 1n) return null;
+    const r = extGcd(((a % m) + m) % m, m);
+    return r.g === 1n ? ((r.s % m) + m) % m : null;
+  }
+  function lameBound(b) {
+    let f1 = 1n, f2 = 1n, idx = 1;
+    while (f2 <= b) { const t = f1 + f2; f1 = f2; f2 = t; idx++; }
+    return idx - 1;
+  }
+  function gcdNum(a, b) { while (b) { const t = a % b; a = b; b = t; } return a; }
+  function factorNum(n) {
+    const f = [];
+    let m = n;
+    for (let p = 2; p * p <= m; p += p === 2 ? 1 : 2) {
+      if (m % p !== 0) continue;
+      let e = 0;
+      while (m % p === 0) { m /= p; e++; }
+      f.push([p, e]);
+    }
+    if (m > 1) f.push([m, 1]);
+    return f;
+  }
+  function phiOf(f) { let r = 1; for (const [p, e] of f) r *= (p - 1) * p ** (e - 1); return r; }
+  const lcmNum = (a, b) => (a / gcdNum(a, b)) * b;
+  function carmichaelOf(f) {
+    let l = 1;
+    for (const [p, e] of f) l = lcmNum(l, p === 2 ? (e === 1 ? 1 : e === 2 ? 2 : 2 ** (e - 2)) : (p - 1) * p ** (e - 1));
+    return l;
+  }
+  function powTable(n, all) {
+    const f = factorNum(n), phi = phiOf(f), rows = [];
+    for (let a = 1; a < n; a++) {
+      const unit = gcdNum(a, n) === 1;
+      if (!unit && !all) continue;
+      const vals = new Int32Array(phi);
+      let v = 1 % n, ord = 0;
+      for (let k = 1; k <= phi; k++) { v = (v * a) % n; vals[k - 1] = v; if (!ord && v === 1) ord = k; }
+      rows.push({ a, unit, vals, ord });
+    }
+    let maxOrd = 0;
+    for (const r of rows) if (r.unit && r.ord > maxOrd) maxOrd = r.ord;
+    return { n, f, phi, lam: carmichaelOf(f), rows, maxOrd };
+  }
+  function powmodNum(a, e, n) {
+    let r = 1 % n, b = a % n;
+    while (e > 0) {
+      if (e % 2 === 1) r = (r * b) % n;
+      e = Math.floor(e / 2);
+      if (e > 0) b = (b * b) % n;
+    }
+    return r;
+  }
+  function modPow(a, e, n) {
+    if (n === 1n) return 0n;
+    let r = 1n, b = ((a % n) + n) % n;
+    while (e > 0n) {
+      if (e & 1n) r = (r * b) % n;
+      e >>= 1n;
+      if (e > 0n) b = (b * b) % n;
+    }
+    return r;
+  }
+  function powSteps(a, e, n) {
+    const base = ((a % n) + n) % n;
+    if (e === 0n) return { result: 1n % n, steps: [], sq: 0, mu: 0, bits: "0" };
+    const bits = e.toString(2), steps = [{ i: 0, bit: 1, op: "start", value: base }];
+    let x = base, sq = 0, mu = 0;
+    for (let i = 1; i < bits.length; i++) {
+      x = (x * x) % n; sq++;
+      steps.push({ i, bit: bits[i] === "1" ? 1 : 0, op: "sq", value: x });
+      if (bits[i] === "1") { x = (x * base) % n; mu++; steps.push({ i, bit: 1, op: "mul", value: x }); }
+    }
+    return { result: x, steps, sq, mu, bits };
+  }
+  function mrDecompose(n) { let d = n - 1n, s = 0; while ((d & 1n) === 0n) { d >>= 1n; s++; } return { d, s }; }
+  function mrRound(n, a) {
+    const { d, s } = mrDecompose(n);
+    const chain = [modPow(a, d, n)];
+    for (let j = 1; j <= s; j++) chain.push((chain[j - 1] * chain[j - 1]) % n);
+    let passes = chain[0] === 1n;
+    for (let j = 0; j < s && !passes; j++) if (chain[j] === n - 1n) passes = true;
+    const k = chain.indexOf(1n);
+    const root = k > 0 && chain[k - 1] !== n - 1n ? chain[k - 1] : null;
+    return { a, d, s, chain, passes, fermat: chain[s] === 1n, root };
+  }
+  function mrPassNum(n, a, d, s) {
+    let x = powmodNum(a, d, n);
+    if (x === 1 || x === n - 1) return true;
+    for (let j = 1; j < s; j++) {
+      x = (x * x) % n;
+      if (x === n - 1) return true;
+      if (x === 1) return false;
+    }
+    return false;
+  }
+  // Kategori: 0 asalın tabanı, 1 ortak bölen, 2 Fermat tanığı, 3 Fermat yalancısı ama MR tanığı, 4 güçlü yalancı
+  function baseMap(n, prime) {
+    let d = n - 1, s = 0;
+    while (d % 2 === 0) { d /= 2; s++; }
+    const cat = new Uint8Array(n), cnt = [0, 0, 0, 0, 0];
+    for (let a = 1; a < n; a++) {
+      let c;
+      if (prime) c = 0;
+      else if (gcdNum(a, n) !== 1) c = 1;
+      else if (powmodNum(a, n - 1, n) !== 1) c = 2;
+      else c = mrPassNum(n, a, d, s) ? 4 : 3;
+      cat[a] = c;
+      cnt[c]++;
+    }
+    return { cat, cnt };
+  }
+  function randBits(rng, bits) {
+    let r = 0n, have = 0;
+    while (have < bits) { r = (r << 32n) | BigInt(u32(rng)); have += 32; }
+    return r >> BigInt(have - bits);
+  }
+  function randBelow(rng, n) {
+    if (n <= 1n) return 0n;
+    const b = bitLen(n - 1n);
+    for (;;) { const r = randBits(rng, b); if (r < n) return r; }
+  }
+  function isPrimeBig(n) {
+    if (n < 2n) return { prime: false, certain: true };
+    for (const p of SMALL_P) {
+      const P = BigInt(p);
+      if (n === P) return { prime: true, certain: true };
+      if (n % P === 0n) return { prime: false, certain: true, factor: P };
+    }
+    if (n < 9409n) return { prime: true, certain: true };
+    if (n < MR_DET_LIMIT) {
+      for (const a of MR_DET_BASES) if (!mrRound(n, a).passes) return { prime: false, certain: true };
+      return { prime: true, certain: true };
+    }
+    const rng = mulberry32(20260);
+    for (let k = 0; k < 40; k++) if (!mrRound(n, 2n + randBelow(rng, n - 3n)).passes) return { prime: false, certain: true };
+    return { prime: true, certain: false };
+  }
+  function trialFactorNum(n, maxD) {
+    const f = [];
+    let m = n, d = 2;
+    while (d * d <= m && d <= maxD) {
+      if (m % d === 0) { let e = 0; while (m % d === 0) { m /= d; e++; } f.push([d, e]); }
+      d = d === 2 ? 3 : d + 2;
+    }
+    if (m > 1) f.push([m, 1]);
+    return f;
+  }
+
+  /* (c) RSA ve saldırılar */
+  function randomPrime(rng, bits) {
+    const top = (1n << BigInt(bits - 1)) | (1n << BigInt(bits - 2)) | 1n;
+    let tries = 0;
+    for (;;) {
+      const x = randBits(rng, bits) | top;
+      tries++;
+      if (isPrimeBig(x).prime) return { p: x, tries };
+    }
+  }
+  function rsaSetup(p, q, e0) {
+    const n = p * q, p1 = p - 1n, q1 = q - 1n, phi = p1 * q1, lam = phi / gcdBig(p1, q1);
+    const g0 = gcdBig(e0, phi);
+    let e = e0;
+    if (g0 !== 1n) { e = e0 + 1n; while (gcdBig(e, phi) !== 1n) e += 1n; }
+    return { n, phi, lam, e, e0, g0, moved: e !== e0, d: modInverse(e, phi), dl: modInverse(e, lam) };
+  }
+  const RHO_BATCH = 32;
+  function rhoAttempt(J) {
+    J.attempts++;
+    J.c = 1n + randBelow(J.rng, J.n - 3n);
+    J.x = J.y = randBelow(J.rng, J.n);
+    J.q = 1n;
+    J.i = 0;
+  }
+  function createRho(n, rng, maxIter) {
+    const J = { n, rng, maxIter, c: 0n, x: 0n, y: 0n, q: 1n, i: 0, prevTotal: 0, attempts: 0, fails: 0, gcds: 0, done: false, factor: null, iters: 0, lastI: 0 };
+    rhoAttempt(J);
+    return J;
+  }
+  function advanceRho(J, budget) {
+    let used = 0;
+    const n = J.n;
+    while (used < budget && !J.done) {
+      const c = J.c;
+      let x = J.x, y = J.y, q = J.q, i = J.i;
+      const sx = x, sy = y, si = i;
+      for (let j = 0; j < RHO_BATCH; j++) {
+        x = (x * x + c) % n; y = (y * y + c) % n; y = (y * y + c) % n; i++;
+        q = (q * (x > y ? x - y : y - x)) % n;
+      }
+      used += RHO_BATCH;
+      J.gcds++;
+      if (gcdBig(q, n) === 1n) {
+        J.x = x; J.y = y; J.q = q; J.i = i;
+        if (J.prevTotal + i >= J.maxIter) { J.done = true; J.iters = J.prevTotal + i; }
+        continue;
+      }
+      x = sx; y = sy; i = si;
+      let g2 = 1n;
+      for (let j = 0; j < RHO_BATCH; j++) {
+        x = (x * x + c) % n; y = (y * y + c) % n; y = (y * y + c) % n; i++;
+        J.gcds++;
+        g2 = gcdBig(x > y ? x - y : y - x, n);
+        if (g2 !== 1n) break;
+      }
+      if (g2 !== 1n && g2 !== n) { J.done = true; J.factor = g2; J.lastI = i; J.iters = J.prevTotal + i; return used; }
+      J.fails++;
+      J.prevTotal += i;
+      if (J.prevTotal >= J.maxIter || J.attempts >= 24) { J.done = true; J.iters = J.prevTotal; return used; }
+      rhoAttempt(J);
+    }
+    return used;
+  }
+  function createTrial(n, maxCount) {
+    const N = Number(n);
+    let limit = Math.floor(Math.sqrt(N));
+    while (limit * limit > N) limit--;
+    while ((limit + 1) * (limit + 1) <= N) limit++;
+    return { N, d: 2, count: 0, limit, maxCount, done: false, factor: null, prime: false };
+  }
+  function advanceTrial(J, budget) {
+    const N = J.N;
+    let d = J.d, count = J.count;
+    for (let k = 0; k < budget; k++) {
+      if (d > J.limit) { J.done = true; J.prime = true; break; }
+      count++;
+      if (N % d === 0) { J.done = true; J.factor = d; break; }
+      d = d === 2 ? 3 : d + 2;
+      if (count >= J.maxCount) { J.done = true; break; }
+    }
+    J.d = d;
+    J.count = count;
+  }
+  const SWEEP_BITS = [16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
+  const SWEEP_K = 8, SWEEP_TRIAL_BITS = 44;
+  function createSweep(seed) { return { seed, rng: mulberry32(seed), si: 0, k: 0, job: null, cur: null, pts: [], done: false }; }
+  function advanceSweep(W, budget) {
+    let used = 0;
+    while (used < budget && !W.done) {
+      if (!W.job) {
+        const bits = SWEEP_BITS[W.si], h = bits / 2;
+        const P = randomPrime(W.rng, h).p;
+        let Q = randomPrime(W.rng, h).p;
+        while (Q === P) Q = randomPrime(W.rng, h).p;
+        const n = P * Q, pmin = P < Q ? P : Q;
+        let trial = null;
+        if (bits <= SWEEP_TRIAL_BITS) {
+          const T = createTrial(n, Infinity);
+          while (!T.done) advanceTrial(T, 1 << 20);
+          trial = T.count;
+          used += Math.ceil(T.count / 16);
+        }
+        W.cur = { bits, n, pmin: Number(pmin), trial };
+        W.job = createRho(n, W.rng, 1e8);
+      }
+      used += advanceRho(W.job, Math.max(RHO_BATCH, budget - used));
+      if (W.job.done) {
+        const J = W.job;
+        W.pts.push({ bits: W.cur.bits, pmin: W.cur.pmin, rho: J.lastI, total: J.iters, fails: J.fails, ok: J.factor !== null, trial: W.cur.trial });
+        W.job = null;
+        if (++W.k >= SWEEP_K) { W.k = 0; if (++W.si >= SWEEP_BITS.length) W.done = true; }
+      }
+    }
+    return used;
+  }
+  function ols(xs, ys) {
+    const n = xs.length;
+    if (n < 3) return null;
+    let mx = 0, my = 0;
+    for (let i = 0; i < n; i++) { mx += xs[i]; my += ys[i]; }
+    mx /= n; my /= n;
+    let sxx = 0, sxy = 0;
+    for (let i = 0; i < n; i++) { sxx += (xs[i] - mx) ** 2; sxy += (xs[i] - mx) * (ys[i] - my); }
+    const slope = sxy / sxx, icpt = my - slope * mx;
+    let sse = 0;
+    for (let i = 0; i < n; i++) sse += (ys[i] - icpt - slope * xs[i]) ** 2;
+    return { slope, icpt, se: Math.sqrt(sse / (n - 2) / sxx), n };
+  }
+  /* MATH-END */
+
+  /* ── Biçimlendirme: kartlar, tablolar ve durum satırları aynı yardımcıları kullanır ── */
+  const NB = "\u00a0", TS = "\u202f", MINUS = "−";
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  const sup = (k) => String(k).replace(/[-0-9]/g, (ch) => SUP[ch]);
+  const round = (v, d) => Number(v.toFixed(d));
+  function fix(v, d) {
+    if (!Number.isFinite(v)) return "—";
+    const r = round(v, d);
+    return (r === 0 ? 0 : r).toFixed(d).replace(/^-/, MINUS);
+  }
+  function sgn(v, d) {
+    if (!Number.isFinite(v)) return "—";
+    const r = round(v, d);
+    return r > 0 ? `+${r.toFixed(d)}` : r < 0 ? `${MINUS}${Math.abs(r).toFixed(d)}` : (0).toFixed(d);
+  }
+  const group3 = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, TS);
+  function fmtInt(n) {
+    const s = String(n), neg = s.startsWith("-"), body = neg ? s.slice(1) : s;
+    return (neg ? MINUS : "") + (body.length >= 5 ? group3(body) : body);
+  }
+  function fmtBig(n, maxDigits = 44) {
+    const neg = n < 0n, s = (neg ? -n : n).toString();
+    if (s.length > maxDigits) {
+      const k = Math.floor((maxDigits - 6) / 2);
+      return `${neg ? MINUS : ""}${s.slice(0, k)}…${s.slice(-k)} (${s.length} basamak)`;
+    }
+    return (neg ? MINUS : "") + (s.length >= 5 ? group3(s) : s);
+  }
+  function fmtReal(v, d) {
+    const s = fix(v, d), neg = s.startsWith(MINUS), body = neg ? s.slice(1) : s;
+    const [ip, fp] = body.split(".");
+    return (neg ? MINUS : "") + (ip.length >= 5 ? group3(ip) : ip) + (fp !== undefined ? `.${fp}` : "");
+  }
+  function sci(v, sig = 3) {
+    if (!Number.isFinite(v)) return "—";
+    if (v === 0) return "0";
+    let e = Math.floor(Math.log10(Math.abs(v))), m = v / 10 ** e;
+    if (Math.abs(round(m, sig - 1)) >= 10) { e += 1; m /= 10; }
+    return `${fix(m, sig - 1)}×10${sup(e)}`;
+  }
+  // log₁₀ ile verilen çok büyük sayılar (2048 bit uzatması için)
+  function sciLog10(l10, sig = 2) {
+    const e = Math.floor(l10), m = 10 ** (l10 - e);
+    return round(m, sig - 1) >= 10 ? `${fix(1, sig - 1)}×10${sup(e + 1)}` : `${fix(m, sig - 1)}×10${sup(e)}`;
+  }
+  const pctS = (v, d = 2) => `${sgn(v * 100, d)}${NB}%`;
+  const pow10Label = (x) => { const e = Math.round(Math.log10(x)); return Math.abs(x - 10 ** e) < 1e-6 * x ? `10${sup(e)}` : fmtInt(Math.round(x)); };
+  const fmtFactors = (f) => f.map(([p, e]) => (e > 1 ? `${fmtInt(p)}${sup(e)}` : fmtInt(p))).join("·");
+  const fmtMs = (ms) => (ms < 1 ? `${fix(ms, 2)}${NB}ms` : ms < 1000 ? `${fix(ms, ms < 10 ? 1 : 0)}${NB}ms` : `${fix(ms / 1000, 2)}${NB}s`);
+  function fmtDur(ms) {
+    const s = ms / 1000;
+    if (s < 60) return fmtMs(ms);
+    if (s < 3600) return `${fix(s / 60, 1)}${NB}dakika`;
+    if (s < 86400) return `${fix(s / 3600, 1)}${NB}saat`;
+    if (s < 3.15576e7) return `${fix(s / 86400, 1)}${NB}gün`;
+    return `${sci(s / 3.15576e7, 2)}${NB}yıl`;
+  }
+  const setText = (el, s) => { if (el.textContent !== s) el.textContent = s; };
+  const setHTML = (el, h) => { if (el.dataset.h !== h) { el.dataset.h = h; el.innerHTML = h; } };
+  function setStatus(el, text, kind) {
+    delete el.dataset.h;
+    setText(el, text);
+    el.classList.toggle("is-warn", kind === "warn");
+    el.classList.toggle("is-good", kind === "good");
+  }
+  function setStatusHTML(el, html, kind) {
+    setHTML(el, html);
+    el.classList.toggle("is-warn", kind === "warn");
+    el.classList.toggle("is-good", kind === "good");
+  }
+  // Tam sayı kutuları: rakamlar, aradaki boşluklar ya da a^b ± c biçimi (BigInt)
+  function parseBig(str, maxDigits = 200) {
+    const s = String(str).replace(/[\s\u00a0\u202f_]/g, "").replace(/−/g, "-");
+    let v = null;
+    if (/^\d+$/.test(s)) v = BigInt(s);
+    else {
+      const m = s.match(/^(\d+)\^(\d+)([+-]\d+)?$/);
+      if (m && Number(m[2]) <= 4096) { v = BigInt(m[1]) ** BigInt(m[2]); if (m[3]) v += BigInt(m[3]); }
+      const e = s.match(/^(\d+)e(\d+)$/i);
+      if (e && Number(e[2]) <= 300) v = BigInt(e[1]) * 10n ** BigInt(e[2]);
+    }
+    if (v === null || v < 0n || v.toString().length > maxDigits) return null;
+    return v;
+  }
+
+  /* ── Ortak durum ── */
+  const $ = (id) => document.getElementById(id);
+  const TAB_KEYS = ["elek", "mod", "rsa"];
+  const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+  const labPanel = $("labPanel");
+  const stage = $("stageCanvas"), sctx = stage.getContext("2d");
+  const chart = $("chartCanvas"), cctx = chart.getContext("2d");
+  let dpr = 1, lastFrame = 0, lastUi = 0, lastChart = 0, lastTheme = "";
+  const font = (px, w = 400) => `${w} ${px * dpr}px Outfit, system-ui, sans-serif`;
+  const S = { tab: "elek", dirty: true };
+  const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+
+  /* ── (a) Elek ve dağılım ── */
+  const A_DEF = { N: 100, rate: 10, x: 1000000, view: "err" };
+  const A = { N: A_DEF.N, rate: A_DEF.rate, x: A_DEF.x, view: A_DEF.view, grid: null, th: null, running: false, acc: 0,
+    big: createBigSieve(BIG_LIMIT), bigMs: 0, bins: null, curve: null, curveTop: 0, distKey: "" };
+  const ua = {};
+  ["aN", "aNNum", "aNOut", "aRate", "aRateOut", "aStep", "aRun", "aRestart", "aReset", "aX", "aXNum", "aXOut", "aView", "aViewOut", "aDistReset",
+    "aP", "aPSub", "aP2", "aP2Sub", "aRoot", "aRootSub", "aOps", "aOpsSub", "aRed", "aRedSub", "aCnt", "aCntSub", "aSieveStatus",
+    "aPiBody", "aTwBody", "dPi", "dPiSub", "dPnt", "dPntSub", "dLi", "dLiSub", "dGap", "dGapSub", "dMean", "dMeanSub", "dTwin", "dTwinSub",
+    "dSieve", "dSieveSub", "aDistStatus", "aChartLegend"].forEach((id) => { ua[id] = $(id); });
+  const VIEW_LABEL = { pi: "π(x) merdiveni", err: "göreli hata", gap: "ardışık farklar", twin: "ikiz asallar" };
+
+  function restartGrid() {
+    A.grid = createGrid(A.N);
+    A.th = sieveTheory(A.N);
+    A.acc = 0;
+    S.dirty = true;
+    readoutsSieve();
+  }
+  function setRunningA(on) {
+    A.running = on && A.grid.phase === "cross";
+    ua.aRun.setAttribute("aria-pressed", String(A.running));
+    setText(ua.aRun, A.running ? "Durdur" : "Otomatik çalıştır");
+  }
+  function syncSieveControls() {
+    ua.aN.value = String(A.N);
+    if (document.activeElement !== ua.aNNum) ua.aNNum.value = String(A.N);
+    setText(ua.aNOut, String(A.N));
+    ua.aN.setAttribute("aria-valuetext", `N = ${A.N}`);
+    ua.aRate.value = String(A.rate);
+    setText(ua.aRateOut, `${A.rate} çizme/s`);
+  }
+  function setN(N) {
+    A.N = Math.max(10, Math.min(400, Math.round(N)));
+    syncSieveControls();
+    restartGrid();
+    setRunningA(false);
+  }
+  function resetSieve() {
+    A.rate = A_DEF.rate;
+    setN(A_DEF.N);
+  }
+  function stepButtonsA() {
+    const done = A.grid.phase !== "cross";
+    ua.aStep.disabled = done;
+    ua.aRun.disabled = done;
+  }
+  function multiplesBelowSquare(p) {
+    if (p === 2) return "";
+    const ks = [];
+    for (let k = 2; k < p; k++) ks.push(k * p);
+    return ks.length <= 6 ? ks.join(", ") : `${ks.slice(0, 3).join(", ")}, …, ${ks[ks.length - 1]}`;
+  }
+  function readoutsSieve() {
+    const g = A.grid, th = A.th, N = A.N, root = Math.sqrt(N);
+    stepButtonsA();
+    let confirmed = 0;
+    for (let v = 2; v <= N; v++) if (!g.comp[v] && (g.phase !== "cross" || v < g.p * g.p)) confirmed++;
+    if (g.phase === "cross") {
+      const p = g.p;
+      setText(ua.aP, `p = ${p}`);
+      setText(ua.aPSub, `${p} sayısından küçük her asalın katları çizildi; ${p} çizilmemiş, öyleyse asal`);
+      setText(ua.aP2, `${p}² = ${p * p}`);
+      setText(ua.aP2Sub, p === 2 ? "2'nin 4'ten küçük katı yalnız kendisi" : `daha küçük katlar ${multiplesBelowSquare(p)} zaten çizili`);
+    } else {
+      setText(ua.aP, "bitti");
+      setText(ua.aPSub, `sıradaki işaretsiz sayı ${g.stop}`);
+      setText(ua.aP2, `${g.stop}² = ${g.stop * g.stop} > ${N}`);
+      setText(ua.aP2Sub, "bu karenin N'yi aşması elemeyi bitirir");
+    }
+    setText(ua.aRoot, `√${N} = ${fix(root, 2)}`);
+    setText(ua.aRootSub, `kullanılan asallar: ${th.used.join(", ")} (hepsi ≤ √N)`);
+    setText(ua.aOps, `${g.ops} / ${th.ops}`);
+    setText(ua.aOpsSub, `kuram Σ(⌊N/p⌋ − p + 1) = ${th.ops} · 2p'den başlasaydı Σ(⌊N/p⌋ − 1) = ${th.naive} · kaba kestirim N(ln ln √N + M) ≈ ${fix(th.asym, 0)}`);
+    setText(ua.aRed, `${g.redundant} / ${th.redundant}`);
+    setText(ua.aRedSub, `yeni çizilen bileşik ${g.ops - g.redundant} / ${th.composites}; bir bileşik, √N'yi aşmayan her asal böleni için bir kez çizilir`);
+    setText(ua.aCnt, g.phase === "cross" ? `${confirmed}` : `π(${N}) = ${th.pi}`);
+    setText(ua.aCntSub, g.phase === "cross"
+      ? `p² = ${g.p * g.p} altındaki işaretsiz sayılar şimdiden kesin asal; sonunda π(${N}) = ${th.pi}`
+      : `N/ln N = ${fix(N / Math.log(N), 1)} · Li(N) = ${fix(Li(N), 1)}`);
+    let msg;
+    if (g.phase === "cross") {
+      const p = g.p, fresh = th.spfCount[p] ?? 0, count = Math.floor(N / p) - p + 1;
+      msg = p === 2
+        ? `p = 2: 2 asal; çizme 2² = 4 ile başlar ve 2'şer ilerler: ${count} çizme, hepsi yeni. 3 de çizilmemiştir ve 3 < 4 olduğundan şimdiden kesin asaldır.${g.opsP ? ` Şu ana kadar ${g.opsP} / ${count} çizildi.` : ""}`
+        : `p = ${p}: ${multiplesBelowSquare(p)} sayıları zaten çizili, çünkü k < p için k·p'nin p'den küçük bir asal çarpanı vardır. Çizme ${p}² = ${p * p} ile başlar ve p adımla ${count} kez çizer; bunların ${fresh} tanesi yeni, ${count - fresh} tanesi daha önce çizilmiş. ${g.opsP ? `Şu ana kadar ${g.opsP} / ${count} çizildi.` : "Bir adım bu çizmelerin hepsini yapar."}`;
+    } else {
+      msg = `Bitti: sıradaki işaretsiz sayı ${g.stop} ve ${g.stop}² = ${g.stop * g.stop} > ${N}. N'ye kadar her bileşik sayının √N = ${fix(root, 2)} değerini aşmayan bir asal çarpanı olduğundan, işaretsiz kalan ${th.pi} sayının hepsi asaldır. ${th.ops} çizmenin ${th.redundant} tanesi zaten çizili bir sayıya düştü; 2p'den başlansaydı ${th.naive} çizme gerekirdi.`;
+    }
+    setStatus(ua.aSieveStatus, msg, g.phase === "cross" ? "" : "good");
+  }
+
+  // Dağılım
+  function syncDistControls() {
+    const v = Math.log10(A.x);
+    ua.aX.value = String(v);
+    if (document.activeElement !== ua.aXNum) ua.aXNum.value = String(A.x);
+    setText(ua.aXOut, `x = ${fmtInt(A.x)}`);
+    ua.aX.setAttribute("aria-valuetext", `x = ${fmtInt(A.x)}`);
+    ua.aView.value = A.view;
+    setText(ua.aViewOut, VIEW_LABEL[A.view]);
+    document.querySelectorAll("[data-x]").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.x) === A.x)));
+    chart.setAttribute("aria-label", ARIA.elek[1][A.view]);
+    renderChartLegendA();
+  }
+  function setX(x) {
+    A.x = Math.max(100, Math.min(BIG_LIMIT, Math.round(x)));
+    A.distKey = "";
+    syncDistControls();
+    readoutsDist(true);
+    S.dirty = true;
+  }
+  function resetDist() { A.view = A_DEF.view; setX(A_DEF.x); }
+  function renderChartLegendA() {
+    const L = {
+      pi: '<span><i class="k-warm"></i>π(x), elemeyle (basamaklı)</span><span><i class="k-acc2"></i>x/ln x</span><span><i class="dash k-acc"></i>Li(x)</span>',
+      err: '<span><i class="k-acc2"></i>|x/ln x − π(x)|/π(x)</span><span><i class="k-acc"></i>|Li(x) − π(x)|/π(x)</span><span><i class="dash k-red"></i>Riemann hipotezi varsa üst sınır √x·ln x/(8π), x ≥ 2657</span><span><i class="dash k-ink"></i>seçili x</span>',
+      gap: '<span><i class="dot"></i>kutudaki ortalama fark (kutu: noktalarının ortalaması)</span><span><i class="dot k-red"></i>rekor fark (öncekilerin hepsinden büyük)</span><span><i class="k-acc"></i>ln x</span><span><i class="dash k-acc2"></i>(ln x)², Cramér sanısı</span>',
+      twin: '<span><i class="k-acc"></i>2C₂∫dt/(ln t)², göreli fark</span><span><i class="k-acc2"></i>2C₂x/(ln x)², göreli fark</span><span><i class="dash k-ink"></i>sıfır ve seçili x</span>',
+    };
+    setHTML(ua.aChartLegend, L[A.view]);
+  }
+  function fillDistTables() {
+    const B = A.big;
+    const top = B.done ? B.limit : B.scanned;
+    let piRows = "", twRows = "";
+    for (let e = 3; e <= 7; e++) {
+      const x = 10 ** e, cur = x === A.x ? ' class="is-cur"' : "";
+      if (x > top) {
+        piRows += `<tr${cur}><th scope="row">10${sup(e)}</th><td class="meas">eleniyor…</td><td>${fmtReal(x / Math.log(x), 1)}</td><td>${fmtReal(Li(x), 1)}</td></tr>`;
+        twRows += `<tr${cur}><th scope="row">10${sup(e)}</th><td class="meas">eleniyor…</td><td>${fmtReal(twinHL(x), 1)}</td><td>${fmtReal(twinHLsimple(x), 1)}</td></tr>`;
+        continue;
+      }
+      const pi = ub(B.primes, B.count, x), tw = ub(B.twins, B.twins.length, x);
+      const a1 = x / Math.log(x), a2 = Li(x), h1 = twinHL(x), h2 = twinHLsimple(x);
+      piRows += `<tr${cur}><th scope="row">10${sup(e)}</th><td class="meas">${fmtInt(pi)}</td><td>${fmtReal(a1, 1)}<small>${pctS((a1 - pi) / pi)}</small></td><td>${fmtReal(a2, 1)}<small>${pctS((a2 - pi) / pi, 3)}</small></td></tr>`;
+      twRows += `<tr${cur}><th scope="row">10${sup(e)}</th><td class="meas">${fmtInt(tw)}</td><td>${fmtReal(h1, 1)}<small>${pctS((h1 - tw) / tw)}</small></td><td>${fmtReal(h2, 1)}<small>${pctS((h2 - tw) / tw)}</small></td></tr>`;
+    }
+    setHTML(ua.aPiBody, piRows);
+    setHTML(ua.aTwBody, twRows);
+  }
+  function readoutsDist(force) {
+    const B = A.big, x = A.x, top = B.done ? B.limit : B.scanned;
+    const key = `${x}|${B.done}|${Math.floor(top / 500000)}`;
+    if (!force && key === A.distKey) return;
+    A.distKey = key;
+    fillDistTables();
+    const a1 = x / Math.log(x), a2 = Li(x);
+    if (!B.done) {
+      setText(ua.dSieve, `${Math.floor((100 * top) / B.limit)} %`);
+      setText(ua.dSieveSub, `${fmtInt(top)} sayısına kadar elendi, ${fmtInt(B.count)} asal`);
+    } else {
+      setText(ua.dSieve, `${fmtInt(B.count)} asal · ${fmtMs(A.bigMs)}`);
+      setText(ua.dSieveSub, `10${sup(7)} sınırına kadar; süre bu cihazda ölçülen hesap süresidir (${Math.ceil(B.limit / (2 * SEG))} dilim)`);
+    }
+    if (x > top) {
+      ["dPi", "dGap", "dMean", "dTwin"].forEach((k) => setText(ua[k], "eleniyor…"));
+      ["dPiSub", "dGapSub", "dMeanSub", "dTwinSub"].forEach((k) => setText(ua[k], `eleme ${fmtInt(top)} sayısında`));
+      setText(ua.dPnt, fmtReal(a1, 1)); setText(ua.dPntSub, "π(x) bekleniyor");
+      setText(ua.dLi, fmtReal(a2, 1)); setText(ua.dLiSub, `li(x) = ${fmtReal(li(x), 1)}`);
+      setStatus(ua.aDistStatus, `Eleme sürüyor: ${fmtInt(top)} sayısına kadar tamam (${Math.floor((100 * top) / B.limit)} %). Kartlar eleme x'i geçince dolar.`, "");
+      return;
+    }
+    const D = distStats(B, x), pi = D.pi;
+    setText(ua.dPi, fmtInt(pi));
+    setText(ua.dPiSub, `x = ${fmtInt(x)} · ilk ${fmtInt(B.count)} asallık listeden`);
+    setText(ua.dPnt, fmtReal(a1, 1));
+    setText(ua.dPntSub, `π(x)'e göre fark ${pctS((a1 - pi) / pi)} · π(x)·ln x / x = ${fix((pi * Math.log(x)) / x, 4)}`);
+    setText(ua.dLi, fmtReal(a2, 1));
+    setText(ua.dLiSub, `fark ${pctS((a2 - pi) / pi, 3)} = ${sgn(a2 - pi, 1)} asal · li(x) = ${fmtReal(li(x), 1)}`);
+    if (D.rec) {
+      const L2 = Math.log(D.rec.lo) ** 2;
+      setText(ua.dGap, `${D.rec.g}`);
+      setText(ua.dGapSub, `${fmtInt(D.rec.lo)} ile ${fmtInt(D.rec.hi)} arası · (ln p)² = ${fix(L2, 1)}, oran g/(ln p)² = ${fix(D.rec.g / L2, 3)} · (ln x)² = ${fix(Math.log(x) ** 2, 1)}`);
+    }
+    const W = D.win;
+    if (W.m >= 30) {
+      const z = (W.mean - W.theory) / W.se;
+      setText(ua.dMean, `${fix(W.mean, 2)} ± ${fix(W.se, 2)}`);
+      setText(ua.dMeanSub, `${fmtInt(W.m)} fark · kuram 0.1x/(Li(x) − Li(0.9x)) = ${fix(W.theory, 2)}, fark ${sgn(z, 2)} SE · ln x = ${fix(Math.log(x), 2)}`);
+    } else {
+      setText(ua.dMean, "—");
+      setText(ua.dMeanSub, `aralıkta yalnız ${W.m} fark var; ortalama en az 30 farkla anlamlı olur (x ≳ 3000)`);
+    }
+    const h1 = twinHL(x), h2 = twinHLsimple(x), tw = D.twins;
+    setText(ua.dTwin, fmtInt(tw));
+    setText(ua.dTwinSub, `2C₂∫ = ${fmtReal(h1, 1)} (${tw ? pctS((h1 - tw) / tw) : "—"}) · 2C₂x/(ln x)² = ${fmtReal(h2, 1)} (${tw ? pctS((h2 - tw) / tw) : "—"})`);
+    const parts = [];
+    parts.push(`x = ${fmtInt(x)}: x/ln x asalları ${fix((100 * (pi - a1)) / pi, 2)} % eksik sayar, Li(x) ise ${fix((100 * (a2 - pi)) / pi, 3)} % ${a2 >= pi ? "fazla" : "eksik"}.`);
+    if (x >= 2657) parts.push(`Riemann hipotezi doğruysa |π(x) − Li(x)| < √x·ln x/(8π) = ${fix(rhBound(x), 1)} (Schoenfeld 1976); ölçülen fark ${fix(Math.abs(a2 - pi), 1)}.`);
+    if (W.m >= 30) {
+      const z = (W.mean - W.theory) / W.se;
+      parts.push(`[0.9x, x] aralığındaki ortalama fark ${fix(W.mean, 2)}, kuram ${fix(W.theory, 2)} (ln x = ${fix(Math.log(x), 2)}); fark ${sgn(z, 2)} SE, SE temkinli.`);
+    }
+    let kind = "good";
+    if (x < 10000) { parts.push("x küçük: Hardy–Littlewood tahmini asimptotiktir, x < 10⁴ için birkaç yüzdeden büyük sapma olağandır."); kind = "warn"; }
+    setStatus(ua.aDistStatus, parts.join(" "), kind);
+  }
+  function pumpBigSieve(budgetMs) {
+    const B = A.big;
+    if (B.done) return false;
+    const t0 = now();
+    do advanceBigSieve(B, 1); while (!B.done && now() - t0 < budgetMs);
+    A.bigMs += now() - t0;
+    if (B.done) { A.bins = gapBins(B, 44); A.curve = null; readoutsDist(true); }
+    return true;
+  }
+
+  /* ── (b) Modüler aritmetik ── */
+  const B_DEF = { n: 15, a: 2, all: false, t: "561", k: 5, seed: 1980, ea: "1071", eb: "462", pa: "65", pe: "17", pn: "3233" };
+  const Bm = { n: B_DEF.n, a: B_DEF.a, all: B_DEF.all, table: null, t: null, tStr: B_DEF.t, k: B_DEF.k, seed: B_DEF.seed, test: null, rowRects: null };
+  const ub_ = {};
+  ["bN", "bNNum", "bNOut", "bA", "bANum", "bAOut", "bAll", "bReset", "bT", "bK", "bKOut", "bSeed", "bTestReset",
+    "bPhi", "bPhiSub", "bOrd", "bOrdSub", "bEul", "bEulSub", "bLam", "bLamSub", "bEulerStatus",
+    "bF2", "bF2Sub", "bM2", "bM2Sub", "bFk", "bFkSub", "bMk", "bMkSub", "bTruth", "bTruthSub", "bLiars", "bLiarsSub", "bTestStatus",
+    "bEa", "bEb", "bEuBody", "bGcd", "bGcdSub", "bBez", "bBezSub", "bInv", "bInvSub", "bSteps", "bStepsSub",
+    "bPa", "bPe", "bPn", "bPwBody", "bPwRes", "bPwResSub", "bPwCnt", "bPwCntSub", "bPwNaive", "bPwNaiveSub"].forEach((id) => { ub_[id] = $(id); });
+
+  function syncEulerControls() {
+    ub_.bN.value = String(Bm.n);
+    if (document.activeElement !== ub_.bNNum) ub_.bNNum.value = String(Bm.n);
+    setText(ub_.bNOut, String(Bm.n));
+    ub_.bA.max = String(Math.max(1, Bm.n - 1));
+    ub_.bA.value = String(Bm.a);
+    if (document.activeElement !== ub_.bANum) ub_.bANum.value = String(Bm.a);
+    setText(ub_.bAOut, String(Bm.a));
+    ub_.bAll.checked = Bm.all;
+    document.querySelectorAll("[data-bn]").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.bn) === Bm.n)));
+  }
+  function setEuler(n, a, all) {
+    Bm.n = Math.max(2, Math.min(50, Math.round(n)));
+    Bm.all = all;
+    Bm.a = Math.max(1, Math.min(Bm.n - 1, Math.round(a)));
+    if (Bm.n === 2) Bm.a = 1;
+    Bm.table = powTable(Bm.n, Bm.all);
+    syncEulerControls();
+    readoutsEuler();
+    S.dirty = true;
+  }
+  function readoutsEuler() {
+    const T = Bm.table, n = T.n, a = Bm.a;
+    const fStr = T.f.length ? fmtFactors(T.f) : "1";
+    const phiForm = T.f.map(([p]) => `(1 − 1/${p})`).join("");
+    setText(ub_.bPhi, `φ(${n}) = ${T.phi}`);
+    setText(ub_.bPhiSub, T.f.length === 1 && T.f[0][1] === 1 ? `${n} asal: 1 … ${n - 1} sayılarının hepsi ${n} ile aralarında asal` : `${n} = ${fStr} → φ = ${n}·${phiForm} = ${T.phi}`);
+    const unit = gcdNum(a, n) === 1, row = T.rows.find((r) => r.a === a);
+    const valPhi = powmodNum(a, T.phi, n);
+    if (unit) {
+      const ord = row ? row.ord : 0;
+      setText(ub_.bOrd, `ord(${a}) = ${ord}`);
+      setText(ub_.bOrdSub, `${a}${sup(ord)} ≡ 1 (mod ${n}); ${ord}, φ(${n}) = ${T.phi} sayısını böler: ${T.phi} = ${ord}·${T.phi / ord} (Lagrange)`);
+      setText(ub_.bEul, `${a}${sup(T.phi)} ≡ ${valPhi} (mod ${n})`);
+      setHTML(ub_.bEulSub, `gcd(${a}, ${n}) = 1 olduğundan Euler teoremi a<sup>φ(n)</sup> ≡ 1 der; kuvvetler ${ord} adımda bir yinelenir`);
+    } else {
+      const g = gcdNum(a, n);
+      setText(ub_.bOrd, "yok");
+      setText(ub_.bOrdSub, `gcd(${a}, ${n}) = ${g} > 1: a·x ≡ 1 çözümsüz, kuvvetler hiç 1 olmaz`);
+      setText(ub_.bEul, `${a}${sup(T.phi)} ≡ ${valPhi} (mod ${n})`);
+      setHTML(ub_.bEulSub, "Euler teoremi yalnız gcd(a, n) = 1 için geçerli");
+    }
+    const lamParts = T.f.map(([p, e]) => `λ(${e > 1 ? `${p}${sup(e)}` : p}) = ${p === 2 ? (e === 1 ? 1 : e === 2 ? 2 : 2 ** (e - 2)) : (p - 1) * p ** (e - 1)}`).join(", ");
+    setText(ub_.bLam, `${T.maxOrd} · λ(${n}) = ${T.lam}`);
+    setText(ub_.bLamSub, `tablodaki en büyük mertebe ${T.maxOrd}; kuram λ = lcm(${lamParts || "—"}) = ${T.lam}${T.lam === T.phi ? " = φ(n): bir ilkel kök var, grup devirli" : ` < φ(n) = ${T.phi}: hiçbir öğenin mertebesi φ(n) değil, grup devirli değil`}`);
+    const nUnits = T.rows.filter((r) => r.unit).length;
+    const dist = {};
+    for (const r of T.rows) if (r.unit) dist[r.ord] = (dist[r.ord] || 0) + 1;
+    const distStr = Object.keys(dist).map(Number).sort((x, y) => x - y).map((o) => `${dist[o]} öğe ${o}`).join(", ");
+    setStatusHTML(ub_.bEulerStatus, `Mod ${n} çarpma grubunda ${nUnits} öğe var (φ(${n}) = ${T.phi}). Mertebeler: ${distStr}; hepsi ${T.phi} sayısını böler ve k = φ(n) sütunu baştan sona 1'dir: a<sup>φ(n)</sup> ≡ 1 (mod n), Euler teoremi. RSA bunu n = pq için kullanır: e·d ≡ 1 (mod φ(n)) ise (m<sup>e</sup>)<sup>d</sup> ≡ m (mod n).`, "good");
+  }
+
+  function parseSeed(str, def) {
+    const v = parseBig(str, 9);
+    return v === null ? def : Number(v % 4294967296n);
+  }
+  function runTest() {
+    const n = Bm.t, k = Bm.k;
+    const T = { n, k, ok: false };
+    Bm.test = T;
+    S.dirty = true;
+    if (n === null) {
+      ["bF2", "bM2", "bFk", "bMk", "bTruth", "bLiars"].forEach((id) => setText(ub_[id], "—"));
+      ["bF2Sub", "bM2Sub", "bFkSub", "bMkSub", "bTruthSub", "bLiarsSub"].forEach((id) => setText(ub_[id], ""));
+      setStatus(ub_.bTestStatus, "Sınanan sayı en çok 200 basamaklı bir doğal sayı olmalı (rakamlar ya da 2^61-1 biçimi).", "warn");
+      return;
+    }
+    // gerçek durum
+    let truth, truthSub, isPrime = null;
+    if (n < 2n) { truth = "ne asal ne bileşik"; truthSub = "asallık 2 ve üstü için tanımlı"; isPrime = false; }
+    else if (n <= 1000000000000n) {
+      const f = trialFactorNum(Number(n), 1e6);
+      isPrime = f.length === 1 && f[0][1] === 1;
+      truth = isPrime ? "asal" : `bileşik: ${fmtFactors(f)}`;
+      truthSub = "deneme bölmesiyle (n ≤ 10¹²), kesin";
+    } else {
+      const r = isPrimeBig(n);
+      isPrime = r.prime;
+      truth = r.prime ? "asal" : "bileşik";
+      truthSub = r.prime ? (r.certain ? "ilk 13 asal tabanla Miller–Rabin: bu sınırın altında kesin" : "40 tohumlu tabanla Miller–Rabin: yanılma olasılığı < 4⁻⁴⁰") : "bir Miller–Rabin tanığı bulundu: kesin bileşik";
+    }
+    T.prime = isPrime;
+    setText(ub_.bTruth, truth);
+    setText(ub_.bTruthSub, truthSub);
+    if (n < 5n || n % 2n === 0n) {
+      ["bF2", "bM2", "bFk", "bMk", "bLiars"].forEach((id) => setText(ub_[id], "—"));
+      ["bF2Sub", "bM2Sub", "bFkSub", "bMkSub", "bLiarsSub"].forEach((id) => setText(ub_[id], ""));
+      setStatus(ub_.bTestStatus, n % 2n === 0n && n > 2n ? "n çift: 2 böler. Miller–Rabin tek sayılar içindir; 5 veya daha büyük bir tek sayı yaz." : "Sınamalar 5 veya daha büyük tek sayılar içindir; 2 ve 3 asaldır.", "warn");
+      return;
+    }
+    T.ok = true;
+    const f2 = modPow(2n, n - 1n, n);
+    setText(ub_.bF2, f2 === 1n ? "geçti: “muhtemelen asal”" : "kaldı: bileşik");
+    setText(ub_.bF2Sub, `2ⁿ⁻¹ mod n = ${fmtBig(f2, 30)}${f2 === 1n && !isPrime ? " · yanlış: n bileşik, 2 bir Fermat yalancısı" : ""}`);
+    const m2 = mrRound(n, 2n);
+    const chainStr = m2.chain.slice(0, Math.min(m2.chain.length, 7)).map((v, j) => `2${j === 0 ? "ᵈ" : `^(2${sup(j)}d)`} ≡ ${fmtBig(v, 16)}`).join(", ");
+    setText(ub_.bM2, m2.passes ? "geçti: “muhtemelen asal”" : "kaldı: kesin bileşik");
+    let m2sub = `n − 1 = 2${sup(m2.s)}·${fmtBig(m2.d, 20)} · ${chainStr}${m2.chain.length > 7 ? ", …" : ""}`;
+    if (!m2.passes && m2.root !== null) {
+      const g = gcdBig(m2.root - 1n, n);
+      m2sub += ` · ${fmtBig(m2.root, 16)}² ≡ 1 ama ${fmtBig(m2.root, 16)} ≢ ±1: 1'in önemsiz olmayan karekökü${g > 1n && g < n ? `, gcd(${fmtBig(m2.root, 16)} − 1, n) = ${fmtBig(g, 16)} bir çarpan verir` : ""}`;
+    } else if (!m2.passes) m2sub += " · zincir 1'e hiç varmadı: Fermat da kalır";
+    else if (!isPrime) m2sub += " · 2 bu n için güçlü yalancı";
+    setText(ub_.bM2Sub, m2sub);
+    const rng = mulberry32(Bm.seed), bases = [];
+    for (let i = 0; i < k; i++) bases.push(2n + randBelow(rng, n - 3n));
+    T.bases = bases;
+    const fails = bases.map((a) => modPow(a, n - 1n, n) !== 1n);
+    const mr = bases.map((a) => mrRound(n, a));
+    const fRej = fails.filter(Boolean).length, mRej = mr.filter((r) => !r.passes).length;
+    const bStr = bases.slice(0, 8).map((a) => fmtBig(a, 14)).join(", ") + (bases.length > 8 ? ", …" : "");
+    setText(ub_.bFk, fRej ? `bileşik (${fRej}/${k} taban yakaladı)` : `“muhtemelen asal” (${k}/${k} geçti)`);
+    setText(ub_.bFkSub, `tabanlar: ${bStr}`);
+    setText(ub_.bMk, mRej ? `bileşik (${mRej}/${k} tanık)` : `“muhtemelen asal” (${k}/${k} geçti)`);
+    const liarBases = bases.filter((a, i) => mr[i].passes);
+    setText(ub_.bMkSub, mRej ? `ilk tanık a = ${fmtBig(bases[mr.findIndex((r) => !r.passes)], 16)}${!isPrime && liarBases.length ? ` · güçlü yalancı çıkan taban: ${liarBases.map((a) => fmtBig(a, 14)).join(", ")}` : ""}` : isPrime ? `n asal: hiçbir taban tanık olamaz · yanılma olasılığı bileşik olsaydı ≤ 4⁻${sup(k)}` : `bütün tabanlar güçlü yalancı çıktı (olasılık ≤ 4⁻${sup(k)})`);
+    // yalancı sayımı
+    const small = n <= 200000n;
+    T.map = null;
+    if (small) {
+      const nn = Number(n), M = baseMap(nn, isPrime);
+      T.map = M;
+      if (isPrime) {
+        setText(ub_.bLiars, `${nn - 1} / ${nn - 1}`);
+        setText(ub_.bLiarsSub, "n asal: her taban iki sınamayı da geçer; yalancı yok, hepsi doğruyu söylüyor");
+      } else {
+        const phi = M.cnt[2] + M.cnt[3] + M.cnt[4], fl = M.cnt[3] + M.cnt[4], sl = M.cnt[4];
+        setText(ub_.bLiars, `Fermat ${fl} · güçlü ${sl}`);
+        const bound = nn > 9 && nn % 2 === 1 ? `kuram güçlü yalancı ≤ φ(n)/4 = ${fix(phi / 4, phi % 4 ? 2 : 0)}` : "φ(n)/4 sınırı yalnız 9'dan büyük tek bileşik sayılar için geçerli";
+        setText(ub_.bLiarsSub, `n ile aralarında asal ${phi} tabanın ${fl} tanesi Fermat'ı, ${sl} tanesi Miller–Rabin'i kandırır (1 ve n − 1 dahil); ${bound}${fl === phi ? " · her aralarında asal taban Fermat yalancısı: Carmichael sayısı" : ""}`);
+      }
+    } else {
+      setText(ub_.bLiars, "sayılmadı");
+      setText(ub_.bLiarsSub, "bütün tabanların sayımı yalnız n ≤ 200 000 için yapılır");
+    }
+    let msg, kind;
+    if (isPrime) { msg = `n asal: iki sınama da her tabanda “muhtemelen asal” der ve doğrudur.`; kind = "good"; }
+    else if (f2 === 1n && !m2.passes) { msg = `n bileşik ama 2ⁿ⁻¹ ≡ 1 (mod n): Fermat sınaması taban 2'de kandı. Miller–Rabin aynı 2 tabanında zincirde −1'den geçmeden 1'e vardı, yani 1'in önemsiz olmayan bir karekökünü buldu ve n'nin bileşik olduğunu kanıtladı.`; kind = "good"; }
+    else if (f2 === 1n && m2.passes) { msg = `n bileşik ve 2 hem Fermat'ı hem Miller–Rabin'i kandırıyor (güçlü sahte asal). Rastgele tabanlar ${mRej ? "bunu yakaladı" : "da yakalayamadı"}: bu yüzden Miller–Rabin sabit değil rastgele tabanla kullanılır.`; kind = mRej ? "good" : "warn"; }
+    else { msg = "n bileşik: taban 2 iki sınamada da tanık."; kind = "good"; }
+    if (!isPrime && !mRej) kind = "warn";
+    setStatus(ub_.bTestStatus, msg, kind);
+  }
+
+  function readEuclid() {
+    const a = parseBig(ub_.bEa.value, 60), b = parseBig(ub_.bEb.value, 60);
+    document.querySelectorAll("[data-eu]").forEach((btn) => btn.setAttribute("aria-pressed", String(a !== null && b !== null && btn.dataset.eu === `${a},${b}`)));
+    if (a === null || b === null || (a === 0n && b === 0n)) {
+      setHTML(ub_.bEuBody, "");
+      ["bGcd", "bBez", "bInv", "bSteps"].forEach((id) => setText(ub_[id], "—"));
+      setText(ub_.bGcdSub, "a ve b en çok 60 basamaklı doğal sayılar olmalı, ikisi birden 0 olamaz");
+      ["bBezSub", "bInvSub", "bStepsSub"].forEach((id) => setText(ub_[id], ""));
+      return;
+    }
+    const R = extGcd(a, b);
+    let rows = "";
+    R.rows.forEach((r, i) => {
+      const last = r.r === 0n;
+      rows += `<tr><th scope="row">${i + 1}</th><td class="left">${fmtBig(r.a, 24)} = ${fmtBig(r.q, 16)}·${fmtBig(r.b, 24)} + ${fmtBig(r.r, 24)}</td><td class="left">${last ? "0: dur; gcd bir önceki kalan" : `${fmtBig(r.r, 24)} = a·(${fmtBig(r.s, 20)}) + b·(${fmtBig(r.t, 20)})`}</td></tr>`;
+    });
+    setHTML(ub_.bEuBody, rows || `<tr><th scope="row">—</th><td class="left" colspan="2">b = 0: gcd(a, 0) = a, bölme yok</td></tr>`);
+    setText(ub_.bGcd, fmtBig(R.g, 30));
+    setText(ub_.bGcdSub, `son sıfırdan farklı kalan · ${R.rows.length} bölme`);
+    setText(ub_.bBez, `s = ${fmtBig(R.s, 22)}, t = ${fmtBig(R.t, 22)}`);
+    setText(ub_.bBezSub, `a·s + b·t = ${fmtBig(a * R.s + b * R.t, 30)} = gcd ✓`);
+    if (b > 1n && R.g === 1n) {
+      const inv = ((R.s % b) + b) % b;
+      setText(ub_.bInv, fmtBig(inv, 30));
+      setText(ub_.bInvSub, `a·${fmtBig(inv, 18)} mod b = ${fmtBig((a * inv) % b, 10)} ✓ (s mod b)`);
+    } else {
+      setText(ub_.bInv, b <= 1n ? "—" : "yok");
+      setText(ub_.bInvSub, b <= 1n ? "b ≥ 2 olmalı" : `gcd(a, b) = ${fmtBig(R.g, 20)} ≠ 1: a·x ≡ 1 (mod b) çözümsüz`);
+    }
+    const lo = a < b ? a : b, swap = a < b && a > 0n ? 1 : 0;
+    const steps = R.rows.length, k = steps - swap;
+    if (lo > 0n) {
+      const bound = lameBound(lo);
+      let fa = 1n, fb = 1n;
+      for (let i = 2; i < bound + 2; i++) { const t = fa + fb; fa = fb; fb = t; }
+      setText(ub_.bSteps, `${steps} · sınır ${bound + swap}`);
+      setText(ub_.bStepsSub, `Lamé: k bölme için min(a, b) ≥ F(k + 1) gerekir; min = ${fmtBig(lo, 20)} < F(${bound + 2}) = ${fmtBig(fb, 20)}, öyleyse k ≤ ${bound}${swap ? " (+1: a < b olduğundan ilk bölme yalnız yer değiştirir)" : ""}${k === bound ? " · sınıra ulaşıldı: ardışık Fibonacci sayıları" : ""}`);
+    } else {
+      setText(ub_.bSteps, `${steps}`);
+      setText(ub_.bStepsSub, "sayılardan biri 0");
+    }
+  }
+  const SUB = { 0: "₀", 1: "₁", 2: "₂", 3: "₃", 4: "₄", 5: "₅", 6: "₆", 7: "₇", 8: "₈", 9: "₉" };
+  function sub(k) { return String(k).replace(/[0-9]/g, (c) => SUB[c]); }
+
+  function readPow() {
+    const a = parseBig(ub_.bPa.value, 200), e = parseBig(ub_.bPe.value, 160), n = parseBig(ub_.bPn.value, 200);
+    document.querySelectorAll("[data-pw]").forEach((btn) => btn.setAttribute("aria-pressed", String(a !== null && e !== null && n !== null && btn.dataset.pw === `${a},${e},${n}`)));
+    if (a === null || e === null || n === null || n < 1n || e > 1n << 512n) {
+      setHTML(ub_.bPwBody, "");
+      ["bPwRes", "bPwCnt", "bPwNaive"].forEach((id) => setText(ub_[id], "—"));
+      setText(ub_.bPwResSub, "a, e ve n doğal sayı olmalı; n ≥ 1, e ≤ 2⁵¹²");
+      ["bPwCntSub", "bPwNaiveSub"].forEach((id) => setText(ub_[id], ""));
+      return;
+    }
+    const P = powSteps(a, e, n);
+    let rows = "";
+    const list = P.steps;
+    const show = list.length <= 130 ? list.map((s, j) => j) : [...Array(60).keys(), -1, ...Array.from({ length: 10 }, (_, j) => list.length - 10 + j)];
+    for (const j of show) {
+      if (j === -1) { rows += `<tr><th scope="row">…</th><td>…</td><td class="left">${list.length - 70} satır gizli</td><td>…</td></tr>`; continue; }
+      const s = list[j];
+      const op = s.op === "start" ? "başlangıç: x = a mod n" : s.op === "sq" ? "kare: x ← x²" : "çarpma: x ← x·a";
+      rows += `<tr><th scope="row">${s.op === "mul" ? "" : s.i + 1}</th><td>${s.op === "mul" ? "" : s.bit}</td><td class="left">${op}</td><td>${fmtBig(s.value, 30)}</td></tr>`;
+    }
+    setHTML(ub_.bPwBody, rows || `<tr><th scope="row">—</th><td>—</td><td class="left">e = 0: sonuç 1 mod n</td><td>${fmtBig(P.result, 30)}</td></tr>`);
+    const L = e > 0n ? bitLen(e) : 0, w = e > 0n ? popcount(e) : 0, theo = e > 0n ? L - 1 + w - 1 : 0;
+    setText(ub_.bPwRes, fmtBig(P.result, 40));
+    const check = modPow(a, e, n);
+    setText(ub_.bPwResSub, `e = ${P.bits.length > 40 ? `${P.bits.length} bitlik sayı` : `${P.bits}₂`} · sağdan sola yöntemle aynı sonuç: ${check === P.result ? "✓" : "✗"}`);
+    setText(ub_.bPwCnt, `${P.sq + P.mu} / ${theo}`);
+    setText(ub_.bPwCntSub, `${P.sq} kare + ${P.mu} çarpma · kuram (L − 1) + (w − 1) = ⌊log₂ e⌋ + popcount(e) − 1, L = ${L}, w = ${w}`);
+    const naive = e > 0n ? e - 1n : 0n;
+    setText(ub_.bPwNaive, fmtBig(naive, 30));
+    setText(ub_.bPwNaiveSub, e > 1n ? `hızlı yöntem ${naive > 1000000n ? `yaklaşık ${sciLog10(Math.log10(Number(naive.toString().slice(0, 15))) + Math.max(0, naive.toString().length - 15), 2)}` : fix(Number(naive) / Math.max(1, P.sq + P.mu), 0)} kat daha az çarpma yapar` : "—");
+  }
+
+  /* ── (c) RSA ── */
+  const C_DEF = { bits: 20, seed: 1977, e: "65537", m: "65", atkSeed: 1 };
+  const C = { bits: C_DEF.bits, seed: C_DEF.seed, atkSeed: C_DEF.atkSeed, key: null, gen: null, anim: null, atk: null, sweep: null, sweepMs: 0, sweepFit: null };
+  const uc = {};
+  ["cP", "cQ", "cBits", "cBitsOut", "cSeed", "cRand", "cBook", "cE", "cEOutLbl", "cM", "cRun", "cReset", "cAtkSeed", "cAttack", "cStop", "cSweep",
+    "cSteps", "cN", "cNSub", "cPhi", "cPhiSub", "cEOut", "cESub", "cD", "cDSub", "cC", "cCSub", "cM2", "cM2Sub", "cSig", "cSigSub", "cVer", "cVerSub",
+    "cMall", "cMallSub", "cKeyStatus", "cTrMeas", "cTrTheo", "cTrRatio", "cRhoMeas", "cRhoTheo", "cRhoRatio", "cFound", "cFoundSub",
+    "cFit", "cFitSub", "cConst", "cConstSub", "cExtra", "cExtraSub", "cAtkStatus"].forEach((id) => { uc[id] = $(id); });
+  const MAX_PQ = 1n << 64n;
+
+  function genPrimes() {
+    const rng = mulberry32(C.seed);
+    const P = randomPrime(rng, C.bits);
+    let Q = randomPrime(rng, C.bits);
+    while (Q.p === P.p) Q = randomPrime(rng, C.bits);
+    C.gen = { p: P.p, q: Q.p, tp: P.tries, tq: Q.tries, bits: C.bits, seed: C.seed };
+    uc.cP.value = P.p.toString();
+    uc.cQ.value = Q.p.toString();
+  }
+  function syncRsaControls() {
+    uc.cBits.value = String(C.bits);
+    setText(uc.cBitsOut, `${C.bits} bit`);
+    uc.cBits.setAttribute("aria-valuetext", `${C.bits} bit`);
+    if (document.activeElement !== uc.cSeed) uc.cSeed.value = String(C.seed);
+    if (document.activeElement !== uc.cAtkSeed) uc.cAtkSeed.value = String(C.atkSeed);
+  }
+  function computeKey() {
+    const p = parseBig(uc.cP.value, 25), q = parseBig(uc.cQ.value, 25), e0 = parseBig(uc.cE.value, 160), m = parseBig(uc.cM.value, 80);
+    const K = { ok: false, p, q, e0, m, err: [] };
+    document.querySelectorAll("[data-e]").forEach((b) => b.setAttribute("aria-pressed", String(e0 !== null && b.dataset.e === e0.toString())));
+    setText(uc.cEOutLbl, e0 === null ? "—" : fmtBig(e0, 20));
+    if (p === null || q === null) K.err.push("p ve q doğal sayı olmalı (en çok 2⁶⁴).");
+    else {
+      if (p > MAX_PQ || q > MAX_PQ) K.err.push("p ve q en çok 2⁶⁴ olabilir.");
+      const ip = isPrimeBig(p), iq = isPrimeBig(q);
+      K.pPrime = ip.prime; K.qPrime = iq.prime;
+      if (!ip.prime) K.err.push(`p = ${fmtBig(p, 24)} asal değil${ip.factor ? ` (${ip.factor} böler)` : ""}.`);
+      if (!iq.prime) K.err.push(`q = ${fmtBig(q, 24)} asal değil${iq.factor ? ` (${iq.factor} böler)` : ""}.`);
+      if (ip.prime && iq.prime && (p === 2n || q === 2n)) K.err.push("p ve q tek asal olmalı: 2 olursa n çift olur ve çarpanı hemen görünür.");
+      if (ip.prime && iq.prime && p === q) K.err.push("p ve q farklı olmalı: n = p² ise √n hemen p'yi verir.");
+    }
+    if (e0 === null || e0 < 3n) K.err.push("e en az 3 olan bir doğal sayı olmalı.");
+    if (m === null) K.err.push("m bir doğal sayı olmalı.");
+    C.key = K;
+    if (K.err.length) return K;
+    const R = rsaSetup(p, q, e0);
+    Object.assign(K, R);
+    if (m >= R.n) { K.err.push(`m < n olmalı: m = ${fmtBig(m, 24)} ≥ n = ${fmtBig(R.n, 24)}. RSA sayıları mod n hesaplar; m ≥ n ise çözülen sayı m mod n olur, m değil.`); K.keyOnly = true; return K; }
+    K.ok = true;
+    K.enc = powSteps(m, R.e, R.n);
+    K.c = K.enc.result;
+    K.dec = powSteps(K.c, R.d, R.n);
+    K.m2 = K.dec.result;
+    K.sig = modPow(m, R.d, R.n);
+    K.ver = modPow(K.sig, R.e, R.n);
+    K.bad = modPow((K.sig + 1n) % R.n, R.e, R.n);
+    K.c2 = (modPow(2n, R.e, R.n) * K.c) % R.n;
+    K.m3 = modPow(K.c2, R.d, R.n);
+    return K;
+  }
+  function readoutsKey() {
+    const K = C.key;
+    const clear = () => {
+      ["cN", "cPhi", "cEOut", "cD", "cC", "cM2", "cSig", "cVer", "cMall"].forEach((id) => setText(uc[id], "—"));
+      ["cNSub", "cPhiSub", "cESub", "cDSub", "cCSub", "cM2Sub", "cSigSub", "cVerSub", "cMallSub"].forEach((id) => setText(uc[id], ""));
+    };
+    if (K.err.length && !K.keyOnly) {
+      clear();
+      setHTML(uc.cSteps, K.err.map((s) => `<li class="bad"><b>${s}</b></li>`).join(""));
+      setStatus(uc.cKeyStatus, K.err.join(" "), "warn");
+      return;
+    }
+    const n = K.n, nb = bitLen(n);
+    setText(uc.cN, fmtBig(n, 40));
+    setText(uc.cNSub, `${nb} bit · ${n.toString().length} basamak`);
+    setText(uc.cPhi, fmtBig(K.phi, 40));
+    setText(uc.cPhiSub, `λ(n) = lcm(p − 1, q − 1) = ${fmtBig(K.lam, 30)} (φ/λ = ${fmtBig(K.phi / K.lam, 12)})`);
+    setText(uc.cEOut, fmtBig(K.e, 30));
+    setText(uc.cESub, K.moved ? `gcd(${fmtBig(K.e0, 16)}, φ(n)) = ${fmtBig(K.g0, 16)} ≠ 1: sıradaki geçerli e = ${fmtBig(K.e, 16)} kullanıldı` : `gcd(e, φ(n)) = 1 ✓${K.e >= K.phi ? ` · e > φ(n): e mod φ(n) = ${fmtBig(K.e % K.phi, 16)} aynı anahtarı verir` : ""}`);
+    setText(uc.cD, fmtBig(K.d, 40));
+    setText(uc.cDSub, `e·d mod φ(n) = ${(K.e * K.d) % K.phi} ✓ · ${bitLen(K.d)} bit · λ ile d' = ${fmtBig(K.dl, 24)}`);
+    const steps = [];
+    steps.push(`<b>n = p·q</b> = ${fmtBig(K.p, 24)}·${fmtBig(K.q, 24)} = ${fmtBig(n, 40)} (${nb} bit)`);
+    steps.push(`<b>φ(n) = (p − 1)(q − 1)</b> = ${fmtBig(K.phi, 40)}`);
+    steps.push(`<b>e = ${fmtBig(K.e, 20)}</b>: gcd(e, φ(n)) = 1${K.moved ? ` (istenen ${fmtBig(K.e0, 20)} için gcd = ${fmtBig(K.g0, 16)}; sıradaki geçerli e alındı)` : ""}`);
+    steps.push(`<b>d = e<sup>−1</sup> mod φ(n)</b> = ${fmtBig(K.d, 40)} (genişletilmiş Öklid); açık anahtar (n, e), gizli anahtar d`);
+    if (K.keyOnly) {
+      steps.push(`<b class="bad">m &lt; n olmalı</b>: m = ${fmtBig(K.m, 30)} ≥ n`);
+      setHTML(uc.cSteps, steps.map((s, i) => `<li${i === 4 ? ' class="bad"' : ""}>${s}</li>`).join(""));
+      ["cC", "cM2", "cSig", "cVer", "cMall"].forEach((id) => setText(uc[id], "—"));
+      ["cCSub", "cM2Sub", "cSigSub", "cVerSub", "cMallSub"].forEach((id) => setText(uc[id], ""));
+      setStatus(uc.cKeyStatus, K.err.join(" "), "warn");
+      return;
+    }
+    steps.push(`<b>c = m<sup>e</sup> mod n</b> = ${fmtBig(K.m, 30)}<sup>${fmtBig(K.e, 12)}</sup> mod n = ${fmtBig(K.c, 40)} (${K.enc.sq} kare + ${K.enc.mu} çarpma)`);
+    steps.push(`<b>c<sup>d</sup> mod n</b> = ${fmtBig(K.m2, 40)} (${K.dec.sq} kare + ${K.dec.mu} çarpma) ${K.m2 === K.m ? "= m ✓" : "≠ m ✗"}`);
+    steps.push(`<b>İmza s = m<sup>d</sup> mod n</b> = ${fmtBig(K.sig, 40)}; herkes (n, e) ile s<sup>e</sup> mod n = ${fmtBig(K.ver, 40)} ${K.ver === K.m ? "= m ✓" : "≠ m ✗"} hesaplar`);
+    setHTML(uc.cSteps, steps.map((s) => `<li>${s}</li>`).join(""));
+    setText(uc.cC, fmtBig(K.c, 40));
+    setText(uc.cCSub, `${K.enc.sq} kare + ${K.enc.mu} çarpma = ⌊log₂ e⌋ + popcount(e) − 1 = ${bitLen(K.e) - 1 + popcount(K.e) - 1}`);
+    setText(uc.cM2, fmtBig(K.m2, 40));
+    setText(uc.cM2Sub, `${K.m2 === K.m ? "= m ✓" : "≠ m ✗"} · ${K.dec.sq + K.dec.mu} modüler çarpma (d ${bitLen(K.d)} bit)`);
+    setText(uc.cSig, fmtBig(K.sig, 40));
+    setText(uc.cSigSub, "yalnız d'yi bilen üretebilir");
+    setText(uc.cVer, `${fmtBig(K.ver, 40)} ${K.ver === K.m ? "= m ✓" : "≠ m ✗"}`);
+    setText(uc.cVerSub, `değiştirilmiş imza s + 1 ile ${fmtBig(K.bad, 30)} ${K.bad === K.m ? "= m (!)" : "≠ m: reddedilir"}`);
+    const twoM = (2n * K.m) % n;
+    setText(uc.cMall, `${fmtBig(K.m3, 40)} ${K.m3 === twoM ? "= 2m mod n" : "≠ 2m"}`);
+    setText(uc.cMallSub, `c' = ${fmtBig(K.c2, 40)}; saldırgan d'yi bilmeden çözülecek metni ikiye katladı (2m mod n = ${fmtBig(twoM, 30)})`);
+    const notes = [];
+    if (K.e >= K.phi && !K.moved) notes.push(`e = ${fmtBig(K.e, 20)} &gt; φ(n) = ${fmtBig(K.phi, 20)}: e ≡ ${fmtBig(K.e % K.phi, 20)} (mod φ(n)) olduğundan m<sup>e</sup> ≡ m<sup>${fmtBig(K.e % K.phi, 20)}</sup> (mod n) ve d aynıdır; gerçek anahtarlarda e çok daha küçük, n çok daha büyüktür (PKCS #1 e &lt; n ister).`);
+    if (K.moved) notes.push(`gcd(${fmtBig(K.e0, 16)}, φ(n)) = ${fmtBig(K.g0, 16)} ≠ 1, bu e için ters yoktur; sayfa sıradaki geçerli e = ${fmtBig(K.e, 16)} üssünü kullandı.`);
+    if (K.m === 0n || K.m === 1n || K.m === n - 1n) notes.push(`m = ${fmtBig(K.m, 20)} şifrelenince değişmez (0, 1 ve n − 1 her tek e için sabit noktadır).`);
+    else if (bitLen(K.m) * Number(K.e) <= nb + 1 && K.m ** K.e < n) notes.push(`m<sup>e</sup> &lt; n: mod alma hiç devreye girmedi, c'nin sıradan e'inci kökü m'yi verir. Dolgusuz küçük mesaj ve küçük e tehlikelidir.`);
+    if (gcdBig(K.m, n) > 1n && K.m !== 0n) notes.push(`gcd(m, n) = ${fmtBig(gcdBig(K.m, n), 20)} > 1: m, n'nin bir çarpanını içeriyor; çözme yine doğru (Çin kalan teoremi) ama bu m'yi gören n'yi çarpanlarına ayırır.`);
+    const ok = K.m2 === K.m && K.ver === K.m;
+    setStatusHTML(uc.cKeyStatus, `${ok ? "Çözme ve imza doğrulaması m'yi geri verdi: m<sup>ed</sup> ≡ m (mod n), çünkü e·d ≡ 1 (mod φ(n)) ve Euler teoremi (p ya da q m'yi bölse bile Çin kalan teoremiyle)." : "Beklenmeyen sonuç."} ${notes.join(" ")}`.trim(), notes.length ? "warn" : "good");
+  }
+  function onKeyChange(playAnim) {
+    computeKey();
+    readoutsKey();
+    startAttack(false);
+    if (playAnim && C.key.ok) C.anim = { t: 0 };
+    S.dirty = true;
+  }
+  function resetRsa() {
+    C.bits = C_DEF.bits; C.seed = C_DEF.seed; C.atkSeed = C_DEF.atkSeed;
+    uc.cE.value = C_DEF.e; uc.cM.value = C_DEF.m;
+    syncRsaControls();
+    genPrimes();
+    onKeyChange(true);
+    if (C.sweep && C.sweep.seed !== C.atkSeed) startSweep();
+  }
+  // Saldırı
+  const RHO_MAX = 3000000, TRIAL_MAX = 60000000;
+  function startAttack(manual) {
+    const K = C.key;
+    C.atk = null;
+    if (!K || !K.n) { readoutsAttack(); return; }
+    const n = K.n, nb = bitLen(n);
+    const A2 = { n, nb, manual, trial: null, rho: null, trMs: 0, rhoMs: 0, auto: nb <= 68 };
+    if (n <= 9007199254740991n) {
+      const lim = Math.floor(Math.sqrt(Number(n)));
+      if ((lim + 1) / 2 <= TRIAL_MAX || manual) A2.trial = createTrial(n, TRIAL_MAX);
+    }
+    if (A2.auto || manual) A2.rho = createRho(n, mulberry32(C.atkSeed), RHO_MAX);
+    C.atk = A2;
+    readoutsAttack();
+  }
+  function pumpAttack(budgetMs) {
+    const A2 = C.atk;
+    if (!A2) return false;
+    const t0 = now();
+    let busy = false;
+    if (A2.trial && !A2.trial.done) {
+      busy = true;
+      const t = now();
+      do advanceTrial(A2.trial, 200000); while (!A2.trial.done && now() - t0 < budgetMs * 0.5);
+      A2.trMs += now() - t;
+    }
+    if (A2.rho && !A2.rho.done) {
+      busy = true;
+      const t = now();
+      do advanceRho(A2.rho, 2048); while (!A2.rho.done && now() - t0 < budgetMs);
+      A2.rhoMs += now() - t;
+    }
+    return busy;
+  }
+  function readoutsAttack() {
+    const K = C.key, A2 = C.atk;
+    if (!A2) {
+      ["cTrMeas", "cTrTheo", "cTrRatio", "cRhoMeas", "cRhoTheo", "cRhoRatio", "cFound"].forEach((id) => setText(uc[id], "—"));
+      setText(uc.cFoundSub, "");
+      setStatus(uc.cAtkStatus, "Önce geçerli bir anahtar kur.", "warn");
+      return;
+    }
+    const p = K.p < K.q ? K.p : K.q, pN = Number(p), sqrtN = Math.sqrt(Number(K.n));
+    const trTheo = (pN + 1) / 2;
+    if (A2.trial) {
+      const T = A2.trial;
+      setText(uc.cTrMeas, T.done ? (T.factor ? `${fmtInt(T.count)} bölme · ${fmtMs(A2.trMs)}` : T.stopped ? `durduruldu: ${fmtInt(T.count)} bölme` : `bütçe doldu: ${fmtInt(T.count)} bölme`) : `${fmtInt(T.count)}… (sürüyor)`);
+    } else setText(uc.cTrMeas, K.n > 9007199254740991n ? "ölçülmedi: n > 2⁵³" : "ölçülmedi: bütçe aşılır");
+    setText(uc.cTrTheo, `(p + 1)/2 = ${trTheo < 1e15 ? fmtInt(Math.round(trTheo)) : sci(trTheo, 3)} · en çok √n/2 ≈ ${sci(sqrtN / 2, 3)}`);
+    setText(uc.cTrRatio, A2.trial && A2.trial.done && A2.trial.factor ? fix(A2.trial.count / trTheo, 3) : "—");
+    const rhoTheo = Math.sqrt(pN);
+    if (A2.rho) {
+      const J = A2.rho;
+      if (J.done && J.factor) setText(uc.cRhoMeas, `${fmtInt(J.iters)} yineleme · ${fmtMs(A2.rhoMs)}`);
+      else if (J.done) setText(uc.cRhoMeas, J.stopped ? `durduruldu: ${fmtInt(J.iters)} yineleme` : `${fmtInt(J.iters)} yinelemede bulunamadı`);
+      else setText(uc.cRhoMeas, `${fmtInt(J.prevTotal + J.i)}… (sürüyor)`);
+    } else setText(uc.cRhoMeas, "başlatılmadı: n > 68 bit; Çarpanlara ayır düğmesine bas");
+    setText(uc.cRhoTheo, `√p = ${rhoTheo < 1e9 ? fmtInt(Math.round(rhoTheo)) : sci(rhoTheo, 3)} · n^(1/4) = ${sci(Math.pow(Number(K.n), 0.25), 3)}`);
+    setText(uc.cRhoRatio, A2.rho && A2.rho.done && A2.rho.factor ? fix(A2.rho.iters / rhoTheo, 3) : "—");
+    const J = A2.rho, T = A2.trial;
+    const f = (J && J.factor) || (T && T.factor ? BigInt(T.factor) : null);
+    if (f) {
+      const g = f < K.n / f ? f : K.n / f;
+      setText(uc.cFound, `${fmtBig(g, 24)} · ${fmtBig(K.n / g, 24)}`);
+      setText(uc.cFoundSub, `saldırgan d'yi hemen hesaplar: e⁻¹ mod (p − 1)(q − 1) = ${fmtBig(modInverse(K.e, (g - 1n) * (K.n / g - 1n)), 30)} ${modInverse(K.e, (g - 1n) * (K.n / g - 1n)) === K.d ? "= d ✓" : ""}`);
+    } else {
+      setText(uc.cFound, "—");
+      setText(uc.cFoundSub, J && !J.done ? "aranıyor…" : "");
+    }
+    let msg = "", kind = "";
+    if (J && J.done && J.factor) {
+      msg = `${A2.nb} bitlik n, ${fmtMs(A2.rhoMs)} içinde ${fmtInt(J.iters)} rho yinelemesiyle (${fmtInt(3 * J.iters)} f hesaplaması, ${fmtInt(J.gcds)} gcd${J.fails ? `, ${J.fails} başarısız deneme` : ""}) çarpanlarına ayrıldı: yineleme/√p = ${fix(J.iters / rhoTheo, 2)}. Tek anahtarın sayısı çok dağılır (aynı n için tohumu değiştir); ortalama ve eğim grafikteki taramadan ölçülür.`;
+      if (T && T.done && T.factor) msg += ` Deneme bölmesi ${fmtInt(T.count)} bölme yaptı, rho'nun ${fix(T.count / J.iters, 0)} katı.`;
+      kind = "good";
+    } else if (J && J.done) { msg = J.stopped ? `Saldırı ${fmtInt(J.iters)} yinelemede durduruldu; beklenen ≈ √p = ${sci(rhoTheo, 2)} yineleme, yani bu hızla yaklaşık ${fmtDur((A2.rhoMs * rhoTheo) / Math.max(1, J.iters))}.` : `Rho bütçesi (${fmtInt(RHO_MAX)} yineleme) doldu; beklenen ≈ √p = ${sci(rhoTheo, 2)} yineleme, bu hızla yaklaşık ${fmtDur((A2.rhoMs * rhoTheo) / Math.max(1, J.iters))}.`; kind = "warn"; }
+    else if (J) msg = `Rho çalışıyor: ${fmtInt(J.prevTotal + J.i)} yineleme, beklenen ≈ √p = ${sci(rhoTheo, 2)}.`;
+    else { msg = `n = ${A2.nb} bit: rho kendiliğinden başlatılmadı (beklenen ≈ n^(1/4) = ${sci(Math.pow(Number(K.n), 0.25), 2)} yineleme). Çarpanlara ayır düğmesi ${fmtInt(RHO_MAX)} yinelemelik bütçeyle dener.`; kind = "warn"; }
+    setStatus(uc.cAtkStatus, msg, kind);
+  }
+  function startSweep() {
+    C.sweep = createSweep(C.atkSeed);
+    C.sweepMs = 0;
+    C.sweepFit = null;
+    S.dirty = true;
+    readoutsSweep();
+  }
+  function pumpSweep(budgetMs) {
+    const W = C.sweep;
+    if (!W || W.done) return false;
+    const t0 = now();
+    do advanceSweep(W, 4096); while (!W.done && now() - t0 < budgetMs);
+    C.sweepMs += now() - t0;
+    return true;
+  }
+  function sweepStats() {
+    const W = C.sweep;
+    if (!W) return null;
+    const pts = W.pts.filter((p) => p.ok);
+    const xs = pts.map((p) => p.bits), ys = pts.map((p) => Math.log2(p.total));
+    const fit = pts.length >= 24 && new Set(xs).size >= 4 ? ols(xs, ys) : null;
+    const ratios = pts.map((p) => p.total / Math.sqrt(p.pmin));
+    let mean = null, se = null;
+    if (ratios.length >= 24) {
+      mean = ratios.reduce((s, v) => s + v, 0) / ratios.length;
+      const sd = Math.sqrt(ratios.reduce((s, v) => s + (v - mean) ** 2, 0) / (ratios.length - 1));
+      se = sd / Math.sqrt(ratios.length);
+    }
+    const tp = W.pts.filter((p) => p.trial !== null);
+    const tfit = tp.length >= 24 ? ols(tp.map((p) => p.bits), tp.map((p) => Math.log2(p.trial))) : null;
+    return { pts, fit, mean, se, tfit, n: pts.length };
+  }
+  function readoutsSweep() {
+    const W = C.sweep, st = sweepStats();
+    if (!W || !st) {
+      setText(uc.cFit, "—"); setText(uc.cFitSub, "tarama RSA sekmesi açılınca başlar");
+      setText(uc.cConst, "—"); setText(uc.cConstSub, "");
+    } else {
+      const prog = `${W.pts.length}/${SWEEP_BITS.length * SWEEP_K} anahtar`;
+      if (st.fit) {
+        const z = (st.fit.slope - 0.25) / st.fit.se;
+        setText(uc.cFit, `${fix(st.fit.slope, 3)} ± ${fix(st.fit.se, 3)}`);
+        setText(uc.cFitSub, `kuram 1/4 = 0.250 (n^(1/4)) · fark ${sgn(z, 1)} SE · ${prog}${st.tfit ? ` · deneme bölmesi eğimi ${fix(st.tfit.slope, 3)} (kuram 1/2)` : ""}`);
+      } else { setText(uc.cFit, "—"); setText(uc.cFitSub, `${prog}: eğim için en az 24 anahtar ve 4 boy gerekir`); }
+      if (st.mean !== null) {
+        setText(uc.cConst, `${fix(st.mean, 3)} ± ${fix(st.se, 3)}`);
+        setText(uc.cConstSub, `${st.n} anahtar, p küçük çarpan · tek anahtarda oran çok dağılır (%90'ı 0.2 ile 1.5 arası); ${W.done ? `tarama ${fmtMs(C.sweepMs)} sürdü` : "tarama sürüyor"}`);
+      } else { setText(uc.cConst, "—"); setText(uc.cConstSub, `${prog}: ortalama için en az 24 anahtar gerekir`); }
+    }
+    // 2048 bit uzatması (ölçülmedi)
+    const k = st && st.mean !== null ? st.mean : 1;
+    const l10rho = Math.log10(k) + 512 * Math.log10(2), l10trial = 1023 * Math.log10(2);
+    const yearL = Math.log10(3.15576e7 * 1e9);
+    setText(uc.cExtra, `rho ≈ ${sciLog10(l10rho)} yineleme · deneme bölmesi ≈ ${sciLog10(l10trial)} bölme`);
+    setText(uc.cExtraSub, `p ≈ 2${sup(1024)} (dengeli 2048 bit): √p = 2${sup(512)}${st && st.mean !== null ? `, ölçülen sabit ${fix(k, 2)} ile` : ""}. Saniyede 10⁹ işlemle rho ${sciLog10(l10rho - yearL)} yıl, deneme bölmesi ${sciLog10(l10trial - yearL)} yıl sürer; evrenin yaşı 1.4×10¹⁰ yıl. Bu tarayıcıda BigInt işlemleri daha yavaştır ve 2048 bitte çok daha yavaşlar, yani gerçek süre bundan da uzundur.`);
+  }
+
+  /* ── Çizim ── */
+  function theme() {
+    const light = document.documentElement.dataset.theme === "light";
+    return light ? {
+      light, ink: "#1a1d2e", muted: "#5a5f7a", grid: "rgba(0,0,0,0.08)", axis: "rgba(26,29,46,0.45)", pill: "rgba(255,255,255,0.88)",
+      cell: "rgba(0,0,0,0.035)", cellLine: "rgba(0,0,0,0.14)", grey: "rgba(90,95,122,0.28)",
+      warm: "#d97706", warmSoft: "rgba(217,119,6,0.30)", acc: "#0d9488", accSoft: "rgba(13,148,136,0.22)", acc2: "#7c3aed", acc2Soft: "rgba(124,58,237,0.22)",
+      red: "#dc2626", redSoft: "rgba(220,38,38,0.22)", onWarm: "#ffffff",
+      spf: { 2: "#2563eb", 3: "#7c3aed", 5: "#0d9488", 7: "#db2777", 11: "#ea580c", 13: "#65a30d", 17: "#0891b2", 19: "#b91c1c" },
+    } : {
+      light, ink: "#e8ecf4", muted: "#8b95a8", grid: "rgba(255,255,255,0.08)", axis: "rgba(232,236,244,0.45)", pill: "rgba(8,12,22,0.75)",
+      cell: "rgba(255,255,255,0.04)", cellLine: "rgba(255,255,255,0.14)", grey: "rgba(139,149,168,0.30)",
+      warm: "#fbbf24", warmSoft: "rgba(251,191,36,0.30)", acc: "#5eead4", accSoft: "rgba(94,234,212,0.20)", acc2: "#a78bfa", acc2Soft: "rgba(167,139,250,0.26)",
+      red: "#f87171", redSoft: "rgba(248,113,113,0.26)", onWarm: "#1a1200",
+      spf: { 2: "#60a5fa", 3: "#a78bfa", 5: "#5eead4", 7: "#f472b6", 11: "#fb923c", 13: "#a3e635", 17: "#22d3ee", 19: "#f87171" },
+    };
+  }
+  function rr(g, x, y, w, h, r) {
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h);
+  }
+  function niceStep(x) {
+    const e = Math.pow(10, Math.floor(Math.log10(x))), f = x / e;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * e;
+  }
+  // Eksen çerçevesi: xr, yr = { min, max, log, ticks?, fmt? }
+  function frameAxes(g, th, box, xr, yr) {
+    const tx = (v) => (xr.log ? Math.log10(v) : v), ty = (v) => (yr.log ? Math.log10(v) : v);
+    const x0 = tx(xr.min), x1 = tx(xr.max), y0 = ty(yr.min), y1 = ty(yr.max);
+    const X = (v) => box.l + ((tx(v) - x0) / (x1 - x0)) * (box.r - box.l);
+    const Y = (v) => box.b - ((ty(v) - y0) / (y1 - y0)) * (box.b - box.t);
+    g.lineWidth = dpr;
+    g.font = font(10.5);
+    g.fillStyle = th.muted;
+    const xt = xr.ticks || (xr.log ? logTicks(xr.min, xr.max) : linTicks(xr.min, xr.max, 6));
+    const yt = yr.ticks || (yr.log ? logTicks(yr.min, yr.max) : linTicks(yr.min, yr.max, 5));
+    g.textAlign = "center";
+    g.textBaseline = "top";
+    for (const v of xt) {
+      const x = X(v);
+      g.strokeStyle = th.grid;
+      g.beginPath(); g.moveTo(x, box.t); g.lineTo(x, box.b); g.stroke();
+      g.fillText(xr.fmt ? xr.fmt(v) : String(v), x, box.b + 4 * dpr);
+    }
+    g.textAlign = "right";
+    g.textBaseline = "middle";
+    for (const v of yt) {
+      const y = Y(v);
+      g.strokeStyle = th.grid;
+      g.beginPath(); g.moveTo(box.l, y); g.lineTo(box.r, y); g.stroke();
+      g.fillText(yr.fmt ? yr.fmt(v) : String(v), box.l - 5 * dpr, y);
+    }
+    g.strokeStyle = th.axis;
+    g.beginPath(); g.moveTo(box.l, box.t); g.lineTo(box.l, box.b); g.lineTo(box.r, box.b); g.stroke();
+    return { X, Y };
+  }
+  function logTicks(a, b) { const out = []; for (let e = Math.ceil(Math.log10(a) - 1e-9); e <= Math.floor(Math.log10(b) + 1e-9); e++) out.push(10 ** e); return out; }
+  function linTicks(a, b, n) { const st = niceStep((b - a) / n), out = []; for (let v = Math.ceil(a / st) * st; v <= b + st * 1e-9; v += st) out.push(Math.abs(v) < st * 1e-9 ? 0 : v); return out; }
+  const tenLabel = (v) => `10${sup(Math.round(Math.log10(v)))}`;
+  function label(g, th, text, x, y, align = "left", color) {
+    g.font = font(11);
+    g.textAlign = align;
+    g.textBaseline = "alphabetic";
+    g.fillStyle = color || th.muted;
+    g.fillText(text, x, y);
+  }
+  // Uzun yazı sığmazsa kısa biçimini yazar
+  function fitLabel(g, th, long, short, x, y, maxW, align, color) {
+    g.font = font(11);
+    label(g, th, g.measureText(long).width <= maxW ? long : short, x, y, align, color);
+  }
+  function centerMsg(g, th, W, H, text) {
+    g.font = font(13);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(text, W / 2, H / 2);
+  }
+
+  // (a) sahne: elek ızgarası
+  function drawGrid(th) {
+    const g = sctx, W = stage.width, H = stage.height, G = A.grid, N = G.N;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const cols = N <= 100 ? 10 : 20, rows = Math.ceil(N / cols);
+    const top = 52 * dpr, pad = 10 * dpr;
+    const cell = Math.min((W - 2 * pad) / cols, (H - top - pad) / rows);
+    const ox = (W - cell * cols) / 2, oy = top;
+    const cross = G.phase === "cross", p = cross ? G.p : 0, p2 = p * p;
+    const gap = Math.max(1, Math.round(cell * 0.08));
+    const fs = cell * 0.4;
+    const showNum = cell >= 15 * dpr;
+    for (let v = 1; v <= N; v++) {
+      const i = v - 1, x = ox + (i % cols) * cell + gap / 2, y = oy + Math.floor(i / cols) * cell + gap / 2, s = cell - gap;
+      let fill = th.cell, txt = th.ink, stroke = null, lw = dpr;
+      const comp = G.comp[v] === 1;
+      if (v === 1) { fill = th.cell; txt = th.muted; }
+      else if (comp) { fill = th.cell; txt = th.muted; }
+      else if (cross && v === p) { fill = th.warmSoft; stroke = th.warm; lw = 3 * dpr; }
+      else if (!cross || v < p2) { fill = th.warm; txt = th.onWarm; }
+      g.fillStyle = fill;
+      rr(g, x, y, s, s, 4 * dpr);
+      g.fill();
+      if (!comp && v !== 1 && !(v === p) && cross && v >= p2) {
+        g.strokeStyle = th.cellLine; g.lineWidth = dpr; rr(g, x, y, s, s, 4 * dpr); g.stroke();
+      }
+      if (comp) {
+        const c = th.spf[G.spf[v]] || th.muted;
+        g.strokeStyle = c;
+        g.lineWidth = Math.max(1.5 * dpr, s * 0.07);
+        g.beginPath(); g.moveTo(x + s * 0.18, y + s * 0.82); g.lineTo(x + s * 0.82, y + s * 0.18); g.stroke();
+        if (cross && v % p === 0 && v < p2) {
+          g.strokeStyle = th.ink; g.lineWidth = 1.5 * dpr; rr(g, x + dpr, y + dpr, s - 2 * dpr, s - 2 * dpr, 4 * dpr); g.stroke();
+        }
+        if (v === G.last && cross && G.opsP > 0) {
+          g.strokeStyle = th.warm; g.lineWidth = 2.5 * dpr; rr(g, x, y, s, s, 4 * dpr); g.stroke();
+        }
+      }
+      if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw; rr(g, x + lw / 2, y + lw / 2, s - lw, s - lw, 4 * dpr); g.stroke(); }
+      if (showNum) {
+        g.font = font(fs / dpr, comp ? 400 : 600);
+        g.fillStyle = txt;
+        g.textAlign = "center";
+        g.textBaseline = "middle";
+        g.fillText(String(v), x + s / 2, y + s / 2 + dpr);
+      }
+    }
+    // başlık
+    g.textBaseline = "alphabetic";
+    const r = Math.sqrt(N);
+    const maxW = W - 2 * pad;
+    if (cross) {
+      fitLabel(g, th, `Asal p = ${p} · çizme p² = ${p2} sayısından başlar, p adımla`, `p = ${p} · çizme p² = ${p2} sayısından başlar`, pad, 20 * dpr, maxW, "left", th.ink);
+      fitLabel(g, th, `√N = ${fix(r, 2)}: sıradaki işaretsiz sayının karesi N'yi aşınca durulur · çizme ${G.ops} / ${A.th.ops}`, `√N = ${fix(r, 2)} · çizme ${G.ops} / ${A.th.ops}`, pad, 40 * dpr, maxW);
+    } else {
+      fitLabel(g, th, `Bitti: sıradaki işaretsiz sayı ${G.stop}, ${G.stop}² = ${G.stop * G.stop} > N = ${N}`, `Bitti: ${G.stop}² = ${G.stop * G.stop} > N = ${N}`, pad, 20 * dpr, maxW, "left", th.ink);
+      fitLabel(g, th, `kalan ${A.th.pi} işaretsiz sayının hepsi asal · ${A.th.ops} çizme, ${A.th.redundant} tanesi yeniden`, `${A.th.pi} asal · ${A.th.ops} çizme, ${A.th.redundant} yeniden`, pad, 40 * dpr, maxW);
+    }
+  }
+
+  // (a) grafik
+  function drawChartA(th) {
+    const g = cctx, W = chart.width, H = chart.height, B = A.big;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const top = B.done ? B.limit : B.scanned;
+    if (top < 1000) { centerMsg(g, th, W, H, "Eleme başlıyor…"); return; }
+    const box = { l: 52 * dpr, r: W - 14 * dpr, t: 24 * dpr, b: H - 26 * dpr };
+    if (A.view === "pi") drawPiView(g, th, box, top);
+    else if (A.view === "err") drawErrView(g, th, box, top);
+    else if (A.view === "gap") drawGapView(g, th, box, top);
+    else drawTwinView(g, th, box, top);
+    if (!B.done) label(g, th, `eleme ${Math.floor((100 * top) / B.limit)} % (${fmtInt(top)} sayısına kadar)`, box.r, 14 * dpr, "right", th.warm);
+  }
+  function drawPiView(g, th, box, top) {
+    const B = A.big, xmax = Math.min(A.x, top);
+    const ymax = Math.max(ub(B.primes, B.count, xmax), Li(Math.max(3, xmax))) * 1.06;
+    const ax = frameAxes(g, th, box, { min: 0, max: xmax, fmt: (v) => fmtShort(v) }, { min: 0, max: ymax, fmt: (v) => fmtShort(v) });
+    const cols = Math.max(2, Math.floor(box.r - box.l));
+    g.lineWidth = 1.6 * dpr;
+    g.strokeStyle = th.acc2;
+    g.beginPath();
+    let started = false;
+    for (let c = 0; c <= cols; c++) {
+      const t = (xmax * c) / cols;
+      if (t < 2) continue;
+      const x = ax.X(t), y = ax.Y(t / Math.log(t));
+      if (!started) { g.moveTo(x, y); started = true; } else g.lineTo(x, y);
+    }
+    g.stroke();
+    g.strokeStyle = th.warm;
+    g.lineWidth = 2.4 * dpr;
+    g.beginPath();
+    let prevY = ax.Y(0);
+    g.moveTo(ax.X(0), prevY);
+    for (let c = 1; c <= cols; c++) {
+      const t = (xmax * c) / cols, y = ax.Y(ub(B.primes, B.count, t));
+      const x = ax.X(t);
+      g.lineTo(x, prevY);
+      g.lineTo(x, y);
+      prevY = y;
+    }
+    g.stroke();
+    g.setLineDash([6 * dpr, 5 * dpr]);
+    g.strokeStyle = th.acc;
+    g.lineWidth = 1.6 * dpr;
+    g.beginPath();
+    started = false;
+    for (let c = 0; c <= cols; c++) {
+      const t = (xmax * c) / cols;
+      if (t < 2) continue;
+      const x = ax.X(t), y = ax.Y(Li(t));
+      if (!started) { g.moveTo(x, y); started = true; } else g.lineTo(x, y);
+    }
+    g.stroke();
+    g.setLineDash([]);
+    label(g, th, `π(x), 0 ≤ x ≤ ${fmtInt(Math.round(xmax))}`, box.l + 8 * dpr, box.t + 4 * dpr, "left", th.ink);
+  }
+  function fmtShort(v) {
+    if (v === 0) return "0";
+    const a = Math.abs(v);
+    if (a >= 1e6) return `${trimNum(v / 1e6)} mn`;
+    if (a >= 1e3) return `${trimNum(v / 1e3)} bin`;
+    return trimNum(v);
+  }
+  function trimNum(v) { const s = fix(v, 2); return s.includes(".") ? s.replace(/0+$/, "").replace(/\.$/, "") : s; }
+  function ensureCurve(top) {
+    if (A.curve && A.curveTop === top) return A.curve;
+    A.curve = curveData(A.big, 100, BIG_LIMIT, 320);
+    A.curveTop = top;
+    return A.curve;
+  }
+  function drawErrView(g, th, box, top) {
+    const pts = ensureCurve(top);
+    const ax = frameAxes(g, th, box, { min: 100, max: BIG_LIMIT, log: true, fmt: tenLabel },
+      { min: 0.01, max: 100, log: true, ticks: [0.01, 0.1, 1, 10, 100], fmt: (v) => `${v < 1 ? fix(v, v < 0.1 ? 2 : 1) : fix(v, 0)} %` });
+    const line = (fn, color, dash) => {
+      g.strokeStyle = color; g.lineWidth = 2 * dpr; g.setLineDash(dash || []);
+      g.beginPath();
+      let st = false;
+      for (const p of pts) {
+        const v = fn(p);
+        if (!(v > 0)) { st = false; continue; }
+        const y = ax.Y(Math.max(0.01, Math.min(100, v)));
+        if (!st) { g.moveTo(ax.X(p.x), y); st = true; } else g.lineTo(ax.X(p.x), y);
+      }
+      g.stroke();
+      g.setLineDash([]);
+    };
+    line((p) => (100 * Math.abs(p.pnt - p.pi)) / p.pi, th.acc2);
+    line((p) => (100 * Math.abs(p.Li - p.pi)) / p.pi, th.acc);
+    line((p) => (p.x >= 2657 ? (100 * rhBound(p.x)) / p.pi : NaN), th.red, [5 * dpr, 4 * dpr]);
+    selectedLine(g, th, ax, box, A.x, top);
+    label(g, th, "|yaklaşım − π(x)| / π(x)", box.l + 8 * dpr, box.t + 4 * dpr, "left", th.ink);
+  }
+  function selectedLine(g, th, ax, box, x, top) {
+    if (x > top) return;
+    const X = ax.X(x);
+    g.strokeStyle = th.ink; g.lineWidth = dpr; g.setLineDash([3 * dpr, 4 * dpr]);
+    g.beginPath(); g.moveTo(X, box.t); g.lineTo(X, box.b); g.stroke();
+    g.setLineDash([]);
+  }
+  function drawGapView(g, th, box, top) {
+    const B = A.big;
+    const ax = frameAxes(g, th, box, { min: 10, max: BIG_LIMIT, log: true, fmt: tenLabel },
+      { min: 1, max: 400, log: true, ticks: [1, 2, 5, 10, 20, 50, 100, 200], fmt: (v) => String(v) });
+    const curve = (fn, color, dash) => {
+      g.strokeStyle = color; g.lineWidth = 1.8 * dpr; g.setLineDash(dash || []);
+      g.beginPath();
+      for (let k = 0; k <= 120; k++) {
+        const x = 10 * Math.pow(BIG_LIMIT / 10, k / 120), y = ax.Y(Math.max(1, Math.min(400, fn(x))));
+        if (k === 0) g.moveTo(ax.X(x), y); else g.lineTo(ax.X(x), y);
+      }
+      g.stroke();
+      g.setLineDash([]);
+    };
+    curve((x) => Math.log(x), th.acc);
+    curve((x) => Math.log(x) ** 2, th.acc2, [6 * dpr, 4 * dpr]);
+    if (A.bins) {
+      g.fillStyle = th.warm;
+      for (const b of A.bins) {
+        if (b.x < 10) continue;
+        g.beginPath(); g.arc(ax.X(b.x), ax.Y(b.mean), 3.2 * dpr, 0, Math.PI * 2); g.fill();
+      }
+    }
+    g.fillStyle = th.red;
+    for (let k = 0; k < B.recHi.length; k++) {
+      const x = B.recLo[k], gp = B.recHi[k] - B.recLo[k];
+      if (x < 10 || x > top) continue;
+      const X = ax.X(x), Y = ax.Y(gp), s = 4 * dpr;
+      g.beginPath(); g.moveTo(X, Y - s); g.lineTo(X + s, Y); g.lineTo(X, Y + s); g.lineTo(X - s, Y); g.closePath(); g.fill();
+    }
+    selectedLine(g, th, ax, box, A.x, top);
+    label(g, th, "ardışık asal farkı g = pₙ₊₁ − pₙ, pₙ'ye karşı", box.l + 8 * dpr, box.t + 4 * dpr, "left", th.ink);
+    if (!A.bins) label(g, th, "kutu ortalamaları eleme bitince çizilir", box.r - 6 * dpr, box.b - 8 * dpr, "right");
+  }
+  function drawTwinView(g, th, box, top) {
+    const pts = ensureCurve(top).filter((p) => p.x >= 1000 && p.tw > 0);
+    let lo = -20, hi = 35;
+    for (const p of pts) {
+      const a = (100 * (p.hl - p.tw)) / p.tw, b = (100 * (p.hls - p.tw)) / p.tw;
+      lo = Math.min(lo, a, b); hi = Math.max(hi, a, b);
+    }
+    lo = Math.floor(lo / 5) * 5; hi = Math.ceil(hi / 5) * 5;
+    const ax = frameAxes(g, th, box, { min: 1000, max: BIG_LIMIT, log: true, fmt: tenLabel }, { min: lo, max: hi, fmt: (v) => `${fix(v, 0)} %` });
+    g.strokeStyle = th.ink; g.lineWidth = dpr; g.setLineDash([4 * dpr, 4 * dpr]);
+    g.beginPath(); g.moveTo(box.l, ax.Y(0)); g.lineTo(box.r, ax.Y(0)); g.stroke();
+    g.setLineDash([]);
+    const line = (fn, color) => {
+      g.strokeStyle = color; g.lineWidth = 2 * dpr;
+      g.beginPath();
+      pts.forEach((p, i) => { const y = ax.Y(fn(p)); if (i === 0) g.moveTo(ax.X(p.x), y); else g.lineTo(ax.X(p.x), y); });
+      g.stroke();
+    };
+    line((p) => (100 * (p.hl - p.tw)) / p.tw, th.acc);
+    line((p) => (100 * (p.hls - p.tw)) / p.tw, th.acc2);
+    if (A.x >= 1000) selectedLine(g, th, ax, box, A.x, top);
+    label(g, th, "(tahmin − π₂(x)) / π₂(x)", box.l + 8 * dpr, box.t + 4 * dpr, "left", th.ink);
+  }
+
+  // (b) sahne: kuvvet tablosu
+  function drawPowTable(th) {
+    const g = sctx, W = stage.width, H = stage.height, T = Bm.table;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const rows = T.rows, cols = T.phi;
+    const left = 34 * dpr, right = 50 * dpr, top = 46 * dpr, bottom = 12 * dpr;
+    const cell = Math.min((W - left - right) / cols, (H - top - bottom) / rows.length);
+    const gw = cell * cols, ox = left + (W - left - right - gw) / 2, oy = top;
+    const showNum = cell >= 17 * dpr;
+    const fs = Math.min(13 * dpr, cell * 0.42);
+    Bm.rowRects = { ox, oy, cell, rows: rows.map((r) => r.a), cols };
+    label(g, th, `aᵏ mod ${T.n}: satır a, sütun k = 1 … φ(${T.n}) = ${T.phi}`, 10 * dpr, 18 * dpr, "left", th.ink);
+    g.font = font(10);
+    g.fillStyle = th.muted;
+    g.textAlign = "center";
+    g.textBaseline = "alphabetic";
+    const every = cell >= 14 * dpr ? 1 : cell >= 7 * dpr ? 2 : 5;
+    for (let k = 1; k <= cols; k++) if (k === 1 || k === cols || k % every === 0) g.fillText(String(k), ox + (k - 0.5) * cell, oy - 5 * dpr);
+    label(g, th, "k →", ox - 6 * dpr, oy - 5 * dpr, "right");
+    rows.forEach((r, ri) => {
+      const y = oy + ri * cell;
+      for (let k = 1; k <= cols; k++) {
+        const v = r.vals[k - 1], x = ox + (k - 1) * cell, gp = Math.max(1, cell * 0.06);
+        g.fillStyle = !r.unit ? th.grey : v === 1 ? th.warm : th.cell;
+        g.fillRect(x + gp / 2, y + gp / 2, cell - gp, cell - gp);
+        if (showNum) {
+          g.font = font(fs / dpr, v === 1 ? 700 : 400);
+          g.fillStyle = v === 1 && r.unit ? th.onWarm : r.unit ? th.ink : th.muted;
+          g.textAlign = "center";
+          g.textBaseline = "middle";
+          g.fillText(String(v), x + cell / 2, y + cell / 2 + dpr);
+        }
+      }
+      if (r.ord) {
+        g.fillStyle = th.ink;
+        g.beginPath(); g.arc(ox + (r.ord - 0.5) * cell, y + cell * 0.82, Math.max(1.5 * dpr, cell * 0.09), 0, Math.PI * 2); g.fill();
+      }
+      g.font = font(Math.min(11, cell / dpr * 0.6), r.a === Bm.a ? 700 : 400);
+      g.fillStyle = r.a === Bm.a ? th.ink : th.muted;
+      g.textAlign = "right"; g.textBaseline = "middle";
+      if (cell >= 8 * dpr || r.a === Bm.a) g.fillText(String(r.a), ox - 5 * dpr, y + cell / 2);
+      g.textAlign = "left";
+      if (cell >= 8 * dpr || r.a === Bm.a) g.fillText(r.unit ? `${r.ord}` : "—", ox + gw + 6 * dpr, y + cell / 2);
+    });
+    label(g, th, "ord", ox + gw + 6 * dpr, oy - 5 * dpr, "left");
+    g.strokeStyle = th.acc2; g.lineWidth = 2.5 * dpr;
+    g.strokeRect(ox + (cols - 1) * cell, oy, cell, rows.length * cell);
+    const si = rows.findIndex((r) => r.a === Bm.a);
+    if (si >= 0) { g.strokeStyle = th.ink; g.lineWidth = 2 * dpr; g.strokeRect(ox - 1 * dpr, oy + si * cell, gw + 2 * dpr, cell); }
+  }
+  // (b) grafik: taban haritası
+  function drawBaseMap(th) {
+    const g = cctx, W = chart.width, H = chart.height, T = Bm.test;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (!T || !T.ok) { centerMsg(g, th, W, H, "Taban haritası: 5 veya daha büyük tek bir sayı yaz"); return; }
+    const colors = [th.warm, th.grey, th.acc, th.acc2, th.red];
+    const top = 24 * dpr, pad = 8 * dpr;
+    if (T.map && T.n <= 6001n) {
+      const cnt = Number(T.n) - 1;
+      const aw = W - 2 * pad, ah = H - top - pad;
+      let cols = Math.max(1, Math.ceil(Math.sqrt((cnt * aw) / ah)));
+      let rows = Math.ceil(cnt / cols);
+      while (rows * (aw / cols) > ah && cols < cnt) { cols++; rows = Math.ceil(cnt / cols); }
+      const cell = Math.min(aw / cols, ah / rows);
+      const ox = (W - cell * cols) / 2, gp = cell >= 6 * dpr ? Math.max(1, cell * 0.1) : 0;
+      for (let a = 1; a <= cnt; a++) {
+        const i = a - 1, x = ox + (i % cols) * cell, y = top + Math.floor(i / cols) * cell;
+        g.fillStyle = colors[T.map.cat[a]];
+        g.fillRect(x + gp / 2, y + gp / 2, cell - gp, cell - gp);
+      }
+      g.strokeStyle = th.ink; g.lineWidth = Math.max(1.5 * dpr, cell * 0.16);
+      for (const b of T.bases) {
+        const i = Number(b) - 1, x = ox + (i % cols) * cell, y = top + Math.floor(i / cols) * cell;
+        g.strokeRect(x, y, cell, cell);
+      }
+      const c = T.map.cnt;
+      label(g, th, T.prime ? `n = ${fmtBig(T.n, 20)} asal: ${cnt} tabanın hepsi geçer` : `n = ${fmtBig(T.n, 20)} · ortak bölen ${c[1]} · Fermat tanığı ${c[2]} · yalnız MR tanığı ${c[3]} · güçlü yalancı ${c[4]}`, pad, 16 * dpr, "left", th.ink);
+    } else {
+      label(g, th, `n = ${fmtBig(T.n, 28)}: taban haritası yalnız n ≤ 6001 için; sınanan ${T.bases.length} rastgele taban`, pad, 16 * dpr, "left", th.ink);
+      const k = T.bases.length, bw = Math.min(140 * dpr, (W - 2 * pad) / Math.min(k, 5) - 6 * dpr), bh = 34 * dpr;
+      const per = Math.max(1, Math.floor((W - 2 * pad) / (bw + 6 * dpr)));
+      T.bases.forEach((a, i) => {
+        const r = mrRound(T.n, a), fl = modPow(a, T.n - 1n, T.n) === 1n;
+        const cat = T.prime ? 0 : gcdBig(a, T.n) !== 1n ? 1 : !fl ? 2 : r.passes ? 4 : 3;
+        const x = pad + (i % per) * (bw + 6 * dpr), y = top + 6 * dpr + Math.floor(i / per) * (bh + 6 * dpr);
+        g.fillStyle = colors[cat];
+        rr(g, x, y, bw, bh, 6 * dpr); g.fill();
+        g.font = font(10.5, 600);
+        g.fillStyle = cat === 1 ? th.ink : th.light ? "#ffffff" : "#0b1020";
+        g.textAlign = "center"; g.textBaseline = "middle";
+        const s = a.toString();
+        g.fillText(s.length > 14 ? `${s.slice(0, 6)}…${s.slice(-5)}` : s, x + bw / 2, y + bh / 2);
+      });
+    }
+  }
+
+  // (c) sahne: RSA akışı
+  function drawRsa(th, dt) {
+    const g = sctx, W = stage.width, H = stage.height, K = C.key;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    if (!K || (K.err.length && !K.keyOnly)) { centerMsg(g, th, W, H, "Geçerli p, q, e ve m gir"); return; }
+    const narrow = W < 560 * dpr;
+    const maxD = narrow ? 16 : 26;
+    const short = (v) => { const s = v.toString(); return s.length > maxD ? `${s.slice(0, Math.floor(maxD / 2) - 1)}…${s.slice(-Math.floor(maxD / 2) + 1)}` : s; };
+    const pad = 12 * dpr, colW = (W - 3 * pad) / 2, bh = Math.min(54 * dpr, H / 9);
+    const box = (x, y, w, title, value, kind, lit) => {
+      const col = kind === "pub" ? th.acc : kind === "sec" ? th.red : th.warm;
+      g.fillStyle = kind === "pub" ? th.accSoft : kind === "sec" ? th.redSoft : th.warmSoft;
+      rr(g, x, y, w, bh, 8 * dpr); g.fill();
+      g.strokeStyle = col; g.lineWidth = (lit ? 3 : 1.5) * dpr;
+      rr(g, x, y, w, bh, 8 * dpr); g.stroke();
+      g.textAlign = "left"; g.textBaseline = "alphabetic";
+      g.font = font(narrow ? 10 : 11, 600); g.fillStyle = col;
+      g.fillText(title, x + 8 * dpr, y + 16 * dpr);
+      g.font = font(narrow ? 12 : 14, 600); g.fillStyle = th.ink;
+      g.fillText(value, x + 8 * dpr, y + bh - 12 * dpr);
+    };
+    const y1 = pad + 14 * dpr, y2 = y1 + bh + 10 * dpr, y3 = y2 + bh + 10 * dpr;
+    label(g, th, `RSA, ${bitLen(K.n)} bitlik n`, pad, pad + 2 * dpr, "left", th.ink);
+    box(pad, y1, colW, "p (gizli)", short(K.p), "sec");
+    box(2 * pad + colW, y1, colW, "q (gizli)", short(K.q), "sec");
+    box(pad, y2, colW, "n = p·q (açık)", short(K.n), "pub");
+    box(2 * pad + colW, y2, colW, "φ(n) = (p − 1)(q − 1) (gizli)", short(K.phi), "sec");
+    box(pad, y3, colW, "e (açık)", short(K.e), "pub");
+    box(2 * pad + colW, y3, colW, "d = e⁻¹ mod φ(n) (gizli)", short(K.d), "sec");
+    if (K.keyOnly) { label(g, th, "m < n olmalı: şifreleme yapılmadı", pad, y3 + bh + 30 * dpr, "left", th.red); return; }
+    // akışlar
+    const an = C.anim, T = an ? an.t : 99;
+    const laneY = [y3 + bh + 36 * dpr, y3 + 2 * bh + 64 * dpr];
+    const gapA = (narrow ? 40 : 56) * dpr, bw = (W - 2 * pad - 2 * gapA) / 3;
+    const xs = [pad, pad + bw + gapA, pad + 2 * (bw + gapA)];
+    const lanes = [
+      { title: "Şifreleme ve çözme", vals: [["m", short(K.m), "msg"], ["c = mᵉ mod n", short(K.c), "pub"], ["cᵈ mod n", short(K.m2), "msg"]], ops: ["e ile", "d ile"] },
+      { title: "İmza ve doğrulama", vals: [["m", short(K.m), "msg"], ["s = mᵈ mod n", short(K.sig), "pub"], ["sᵉ mod n", short(K.ver), "msg"]], ops: ["d ile", "e ile"] },
+    ];
+    lanes.forEach((L, li) => {
+      const y = laneY[li];
+      if (y + bh > H - 4 * dpr) return;
+      label(g, th, L.title, pad, y - 8 * dpr, "left", th.ink);
+      for (let j = 0; j < 3; j++) {
+        const phase = li * 2 + j;
+        const lit = T >= phase * 0.8 && T < phase * 0.8 + 0.8;
+        box(xs[j], y, bw, L.vals[j][0], L.vals[j][1], L.vals[j][2], lit);
+      }
+      for (let j = 0; j < 2; j++) {
+        const xa = xs[j] + bw + 4 * dpr, xb = xs[j + 1] - 4 * dpr, ym = y + bh / 2;
+        g.strokeStyle = th.muted; g.lineWidth = 1.5 * dpr;
+        g.beginPath(); g.moveTo(xa, ym); g.lineTo(xb, ym); g.stroke();
+        g.beginPath(); g.moveTo(xb, ym); g.lineTo(xb - 6 * dpr, ym - 4 * dpr); g.lineTo(xb - 6 * dpr, ym + 4 * dpr); g.closePath(); g.fillStyle = th.muted; g.fill();
+        g.font = font(9.5); g.fillStyle = th.muted; g.textAlign = "center"; g.textBaseline = "alphabetic";
+        g.fillText(L.ops[j], (xa + xb) / 2, ym - 7 * dpr);
+        const start = (li * 2 + j) * 0.8 + 0.4;
+        if (T >= start && T < start + 0.8) {
+          const u = (T - start) / 0.8, xt = xa + (xb - xa) * u;
+          g.fillStyle = th.warm;
+          g.beginPath(); g.arc(xt, ym, 5 * dpr, 0, Math.PI * 2); g.fill();
+        }
+      }
+      const okv = li === 0 ? K.m2 === K.m : K.ver === K.m;
+      label(g, th, okv ? "= m ✓" : "≠ m ✗", xs[2] + bw, y + bh + 14 * dpr, "right", okv ? th.acc : th.red);
+    });
+  }
+  // (c) grafik: saldırı maliyeti
+  function drawAttack(th) {
+    const g = cctx, W = chart.width, H = chart.height;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const W1 = W * 0.62;
+    const boxL = { l: 46 * dpr, r: W1 - 10 * dpr, t: 24 * dpr, b: H - 26 * dpr };
+    const boxR = { l: W1 + 40 * dpr, r: W - 12 * dpr, t: 24 * dpr, b: H - 26 * dpr };
+    const ax = frameAxes(g, th, boxL, { min: 14, max: 66, ticks: [16, 24, 32, 40, 48, 56, 64], fmt: (v) => `${v}` },
+      { min: 0, max: 34, ticks: [0, 8, 16, 24, 32], fmt: (v) => `2${sup(v)}` });
+    fitLabel(g, th, "ölçülen: işlem sayısı, n'nin bit uzunluğuna karşı", "ölçülen, n'nin bitine karşı", boxL.l + 4 * dpr, boxL.t - 8 * dpr, boxL.r - boxL.l, "left", th.ink);
+    const st = sweepStats();
+    // kuram çizgileri (ortalama p ≈ 2^(b/2) · 0.82 civarı yerine anahtarların kendi p'si kullanılır)
+    const W0 = C.sweep;
+    if (W0) {
+      const byBits = {};
+      for (const p of W0.pts) (byBits[p.bits] = byBits[p.bits] || []).push(p);
+      const theo = (fn, color) => {
+        const keys = Object.keys(byBits).map(Number).sort((a, b) => a - b);
+        if (keys.length < 2) return;
+        g.strokeStyle = color; g.lineWidth = 1.6 * dpr; g.setLineDash([6 * dpr, 4 * dpr]);
+        g.beginPath();
+        keys.forEach((b, i) => {
+          const arr = byBits[b], v = arr.reduce((s, p) => s + fn(p), 0) / arr.length;
+          const y = ax.Y(Math.min(34, v));
+          if (i === 0) g.moveTo(ax.X(b), y); else g.lineTo(ax.X(b), y);
+        });
+        g.stroke(); g.setLineDash([]);
+      };
+      theo((p) => 0.5 * Math.log2(p.pmin), th.acc2);
+      theo((p) => Math.log2((p.pmin + 1) / 2), th.acc);
+      for (const p of W0.pts) {
+        const jit = ((p.pmin % 7) - 3) * 0.18;
+        if (p.trial !== null) { g.fillStyle = th.acc; g.fillRect(ax.X(p.bits + jit) - 2.5 * dpr, ax.Y(Math.log2(p.trial)) - 2.5 * dpr, 5 * dpr, 5 * dpr); }
+        if (p.ok) { g.fillStyle = th.warm; g.beginPath(); g.arc(ax.X(p.bits + jit), ax.Y(Math.log2(Math.max(1, p.total))), 2.8 * dpr, 0, Math.PI * 2); g.fill(); }
+      }
+      if (st && st.fit) {
+        g.strokeStyle = th.warm; g.lineWidth = 2 * dpr;
+        g.beginPath(); g.moveTo(ax.X(16), ax.Y(st.fit.icpt + 16 * st.fit.slope)); g.lineTo(ax.X(64), ax.Y(st.fit.icpt + 64 * st.fit.slope)); g.stroke();
+      }
+      if (!W0.done) label(g, th, `tarama ${W0.pts.length}/${SWEEP_BITS.length * SWEEP_K}`, boxL.r - 4 * dpr, boxL.t + 12 * dpr, "right", th.warm);
+    }
+    // uzatma paneli
+    const ax2 = frameAxes(g, th, boxR, { min: 0, max: 2048, ticks: [0, 1024, 2048], fmt: (v) => `${v}` },
+      { min: 0, max: 1100, ticks: [0, 256, 512, 768, 1024], fmt: (v) => `2${sup(v)}` });
+    fitLabel(g, th, "uzatma (ölçülmedi)", "uzatma", boxR.l - 20 * dpr, boxR.t - 8 * dpr, boxR.r - boxR.l + 20 * dpr, "left", th.ink);
+    const ageL = Math.log2(4.35e17 * 1e9);
+    g.strokeStyle = th.red; g.lineWidth = 1.5 * dpr; g.setLineDash([5 * dpr, 4 * dpr]);
+    g.beginPath(); g.moveTo(boxR.l, ax2.Y(ageL)); g.lineTo(boxR.r, ax2.Y(ageL)); g.stroke();
+    g.setLineDash([6 * dpr, 4 * dpr]);
+    g.strokeStyle = th.acc; g.beginPath(); g.moveTo(ax2.X(0), ax2.Y(0)); g.lineTo(ax2.X(2048), ax2.Y(1023)); g.stroke();
+    g.strokeStyle = th.acc2; g.beginPath(); g.moveTo(ax2.X(0), ax2.Y(0)); g.lineTo(ax2.X(2048), ax2.Y(512)); g.stroke();
+    g.setLineDash([]);
+    g.fillStyle = th.ink;
+    g.beginPath(); g.arc(ax2.X(2048), ax2.Y(512), 3.5 * dpr, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(ax2.X(2048), ax2.Y(1023), 3.5 * dpr, 0, Math.PI * 2); g.fill();
+    label(g, th, "2⁸⁸", boxR.l + 4 * dpr, ax2.Y(ageL) - 4 * dpr, "left", th.red);
+  }
+
+  const ARIA = {
+    elek: ["Eratosthenes eleği ızgarası: 1'den N'ye kadar sayılar; kesinleşen asallar sarı dolgulu, bileşikler en küçük asal çarpanlarının rengiyle çapraz çizili, şu anki asal p halkalı, p'nin p²'den küçük katları çerçeveli; üstte p, p² ve √N",
+      { pi: "π(x) merdiveni: 0'dan seçili x'e kadar elemeyle sayılan asal sayısı (basamaklı), x/ln x ve Li(x) eğrileriyle",
+        err: "Göreli hata, iki eksen de logaritmik: |x/ln x − π(x)|/π(x) ve |Li(x) − π(x)|/π(x), x = 100'den 10⁷'ye; kesikli Riemann hipotezi üst sınırı ve seçili x çizgisi",
+        gap: "Ardışık asal farkları, iki eksen de logaritmik: logaritmik kutulardaki ortalama fark, rekor farklar, ln x ve (ln x)² eğrileri, seçili x çizgisi",
+        twin: "İkiz asal tahminlerinin göreli farkı, x = 1000'den 10⁷'ye: Hardy–Littlewood integral biçimi ve kaba biçim, sıfır çizgisi ve seçili x" }],
+    mod: ["Kuvvet tablosu: satırlar a, sütunlar k = 1 … φ(n); hücrelerde aᵏ mod n; 1'e eşit hücreler sarı, her satırın ilk 1'i noktalı, k = φ(n) sütunu mor çerçeveli, seçili satır çerçeveli, sağda her satırın mertebesi",
+      "Taban haritası: sınanan n için 1 ≤ a ≤ n − 1 tabanlarının her biri bir hücre; renk: ortak bölen, Fermat tanığı, yalnız Miller–Rabin tanığı ya da güçlü yalancı; sınanan rastgele tabanlar çerçeveli"],
+    rsa: ["RSA akışı: p, q, n, φ(n), e ve d kutuları değerleriyle; altta m'den c'ye şifreleme, c'den m'ye çözme, m'den s'ye imza ve s'den m'ye doğrulama; işlenen adım vurgulu",
+      "Saldırı maliyeti: solda tarama anahtarları için ölçülen deneme bölmesi ve Pollard rho işlem sayıları (log₂ ölçek) n'nin bit uzunluğuna karşı, rho doğrusu ve kuramsal eğimler; sağda 2048 bite uzatılmış kuram doğruları ve evrenin yaşı çizgisi"],
+  };
+
+  /* ── Sekmeler ── */
+  function selectTab(key, focus, fromUser) {
+    if (!TAB_KEYS.includes(key)) return;
+    S.tab = key;
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === key;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    labPanel.dataset.tab = key;
+    labPanel.setAttribute("aria-labelledby", `tab-${key}`);
+    document.querySelectorAll(".lab [data-for]").forEach((el) => { el.hidden = !el.dataset.for.split(" ").includes(key); });
+    stage.setAttribute("aria-label", ARIA[key][0]);
+    chart.setAttribute("aria-label", key === "elek" ? ARIA.elek[1][A.view] : ARIA[key][1]);
+    if (fromUser) { try { history.replaceState(null, "", `#${key}`); } catch (_) {} }
+    if (key === "rsa" && !C.sweep) startSweep();
+    resize();
+    S.dirty = true;
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => selectTab(t.dataset.tab, false, true));
+    t.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      selectTab(tabs[j].dataset.tab, true, true);
+    });
+  });
+
+  /* ── Döngü ── */
+  function frame(t) {
+    if (!lastFrame) lastFrame = t;
+    const elapsed = Math.min(0.05, (t - lastFrame) / 1000);
+    lastFrame = t;
+    const paused = window.AcelyaPause?.isPaused?.();
+    let changed = false;
+    if (!paused) {
+      if (S.tab === "elek" && A.running && A.grid.phase === "cross") {
+        A.acc += elapsed * A.rate;
+        let n = 0;
+        while (A.acc >= 1 && A.grid.phase === "cross") { gridTick(A.grid); A.acc -= 1; n++; }
+        if (n) { changed = true; readoutsSieve(); }
+        if (A.grid.phase !== "cross") setRunningA(false);
+      }
+      if (pumpBigSieve(6)) { changed = true; }
+      if (S.tab === "rsa") {
+        if (pumpAttack(8)) changed = true;
+        if (pumpSweep(8)) changed = true;
+        if (C.anim) { C.anim.t += elapsed; if (C.anim.t > 3.4) C.anim = null; changed = true; }
+      }
+    }
+    const th = theme(), tk = th.light ? "light" : "dark";
+    if (tk !== lastTheme) { lastTheme = tk; S.dirty = true; }
+    // Son değişiklik de mutlaka yazılsın: kartlar ve grafik en geç 160 ms sonra güncellenir
+    if (changed) { S.uiPending = true; S.chartPending = true; }
+    const uiDue = t - lastUi > 160;
+    if (uiDue && S.uiPending) {
+      lastUi = t;
+      S.uiPending = false;
+      if (S.tab === "elek") readoutsDist(false);
+      else if (S.tab === "rsa") { readoutsAttack(); readoutsSweep(); }
+    }
+    const chartDue = S.dirty || (S.chartPending && t - lastChart > 160);
+    if (changed || chartDue) {
+      if (S.tab === "elek") drawGrid(th);
+      else if (S.tab === "mod") drawPowTable(th);
+      else drawRsa(th, elapsed);
+    }
+    if (chartDue) {
+      lastChart = t;
+      S.chartPending = false;
+      if (S.tab === "elek") drawChartA(th);
+      else if (S.tab === "mod") drawBaseMap(th);
+      else drawAttack(th);
+    }
+    S.dirty = false;
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    for (const c of [stage, chart]) {
+      const rect = c.getBoundingClientRect();
+      if (!rect.width) continue;
+      const w = Math.round(rect.width * dpr), h = Math.round(rect.height * dpr);
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    }
+    S.dirty = true;
+  }
+
+  /* ── Etkileşim ── */
+  function bindIntBox(box, apply, get) {
+    box.addEventListener("change", () => {
+      const v = parseBig(box.value, 12);
+      if (v === null) { box.value = String(get()); return; }
+      apply(Number(v));
+      box.value = String(get());
+    });
+  }
+  // (a)
+  ua.aN.addEventListener("input", () => setN(Number(ua.aN.value)));
+  bindIntBox(ua.aNNum, setN, () => A.N);
+  ua.aRate.addEventListener("change", () => { A.rate = Number(ua.aRate.value); syncSieveControls(); });
+  ua.aStep.addEventListener("click", () => { setRunningA(false); gridStep(A.grid); readoutsSieve(); S.dirty = true; });
+  ua.aRun.addEventListener("click", () => setRunningA(!A.running));
+  ua.aRestart.addEventListener("click", () => { restartGrid(); setRunningA(false); });
+  ua.aReset.addEventListener("click", resetSieve);
+  ua.aX.addEventListener("input", () => setX(Math.pow(10, Number(ua.aX.value))));
+  bindIntBox(ua.aXNum, setX, () => A.x);
+  document.querySelectorAll("[data-x]").forEach((b) => b.addEventListener("click", () => setX(Number(b.dataset.x))));
+  ua.aView.addEventListener("change", () => { A.view = ua.aView.value; syncDistControls(); S.dirty = true; });
+  ua.aDistReset.addEventListener("click", resetDist);
+  // (b)
+  ub_.bN.addEventListener("input", () => setEuler(Number(ub_.bN.value), Bm.a, Bm.all));
+  bindIntBox(ub_.bNNum, (v) => setEuler(v, Bm.a, Bm.all), () => Bm.n);
+  ub_.bA.addEventListener("input", () => setEuler(Bm.n, Number(ub_.bA.value), Bm.all));
+  bindIntBox(ub_.bANum, (v) => setEuler(Bm.n, v, Bm.all), () => Bm.a);
+  ub_.bAll.addEventListener("change", () => setEuler(Bm.n, Bm.a, ub_.bAll.checked));
+  document.querySelectorAll("[data-bn]").forEach((b) => b.addEventListener("click", () => setEuler(Number(b.dataset.bn), 2, Bm.all)));
+  ub_.bReset.addEventListener("click", () => setEuler(B_DEF.n, B_DEF.a, B_DEF.all));
+  stage.addEventListener("click", (e) => {
+    if (S.tab !== "mod" || !Bm.rowRects) return;
+    const rect = stage.getBoundingClientRect(), R = Bm.rowRects;
+    const y = ((e.clientY - rect.top) / rect.height) * stage.height;
+    const ri = Math.floor((y - R.oy) / R.cell);
+    if (ri >= 0 && ri < R.rows.length) setEuler(Bm.n, R.rows[ri], Bm.all);
+  });
+  function setTest(str) {
+    Bm.tStr = str;
+    Bm.t = parseBig(str, 200);
+    ub_.bT.value = str;
+    document.querySelectorAll("[data-bt]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.bt === str.replace(/\s/g, ""))));
+    runTest();
+  }
+  ub_.bT.addEventListener("change", () => setTest(ub_.bT.value.trim()));
+  document.querySelectorAll("[data-bt]").forEach((b) => b.addEventListener("click", () => setTest(b.dataset.bt)));
+  ub_.bK.addEventListener("input", () => { Bm.k = Number(ub_.bK.value); setText(ub_.bKOut, String(Bm.k)); runTest(); });
+  ub_.bSeed.addEventListener("change", () => { Bm.seed = parseSeed(ub_.bSeed.value, Bm.seed); ub_.bSeed.value = String(Bm.seed); runTest(); });
+  ub_.bTestReset.addEventListener("click", () => {
+    Bm.k = B_DEF.k; Bm.seed = B_DEF.seed;
+    ub_.bK.value = String(Bm.k); setText(ub_.bKOut, String(Bm.k)); ub_.bSeed.value = String(Bm.seed);
+    setTest(B_DEF.t);
+  });
+  [ub_.bEa, ub_.bEb].forEach((el) => el.addEventListener("change", readEuclid));
+  document.querySelectorAll("[data-eu]").forEach((b) => b.addEventListener("click", () => { const [x, y] = b.dataset.eu.split(","); ub_.bEa.value = x; ub_.bEb.value = y; readEuclid(); }));
+  [ub_.bPa, ub_.bPe, ub_.bPn].forEach((el) => el.addEventListener("change", readPow));
+  document.querySelectorAll("[data-pw]").forEach((b) => b.addEventListener("click", () => { const [x, y, z] = b.dataset.pw.split(","); ub_.bPa.value = x; ub_.bPe.value = y; ub_.bPn.value = z; readPow(); }));
+  // (c)
+  [uc.cP, uc.cQ, uc.cE, uc.cM].forEach((el) => el.addEventListener("change", () => onKeyChange(false)));
+  uc.cBits.addEventListener("input", () => { C.bits = Number(uc.cBits.value); syncRsaControls(); });
+  uc.cSeed.addEventListener("change", () => { C.seed = parseSeed(uc.cSeed.value, C.seed); syncRsaControls(); });
+  uc.cRand.addEventListener("click", () => { C.seed = parseSeed(uc.cSeed.value, C.seed); syncRsaControls(); genPrimes(); onKeyChange(true); });
+  uc.cBook.addEventListener("click", () => { uc.cP.value = "61"; uc.cQ.value = "53"; uc.cE.value = "17"; uc.cM.value = "65"; C.gen = null; onKeyChange(true); });
+  document.querySelectorAll("[data-e]").forEach((b) => b.addEventListener("click", () => { uc.cE.value = b.dataset.e; onKeyChange(false); }));
+  uc.cRun.addEventListener("click", () => { onKeyChange(true); });
+  uc.cReset.addEventListener("click", resetRsa);
+  uc.cAtkSeed.addEventListener("change", () => { C.atkSeed = parseSeed(uc.cAtkSeed.value, C.atkSeed); syncRsaControls(); startAttack(false); startSweep(); });
+  uc.cAttack.addEventListener("click", () => { C.atkSeed = parseSeed(uc.cAtkSeed.value, C.atkSeed); syncRsaControls(); startAttack(true); });
+  uc.cStop.addEventListener("click", () => {
+    const A2 = C.atk;
+    if (A2) {
+      if (A2.trial && !A2.trial.done) { A2.trial.done = true; A2.trial.stopped = true; }
+      if (A2.rho && !A2.rho.done) { A2.rho.done = true; A2.rho.stopped = true; A2.rho.iters = A2.rho.prevTotal + A2.rho.i; }
+    }
+    readoutsAttack();
+  });
+  uc.cSweep.addEventListener("click", () => { C.atkSeed = parseSeed(uc.cAtkSeed.value, C.atkSeed); syncRsaControls(); startSweep(); });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.matches?.("input, select, textarea, button, a, [contenteditable]")) return;
+    if (e.code === "Space") {
+      if (S.tab === "elek") { e.preventDefault(); if (A.grid.phase === "cross") setRunningA(!A.running); }
+      else if (S.tab === "rsa") { e.preventDefault(); onKeyChange(true); }
+    } else if (e.key === "r" || e.key === "R") {
+      if (S.tab === "elek") { resetSieve(); resetDist(); }
+      else if (S.tab === "mod") {
+        setEuler(B_DEF.n, B_DEF.a, B_DEF.all);
+        ub_.bTestReset.click();
+        ub_.bEa.value = B_DEF.ea; ub_.bEb.value = B_DEF.eb; readEuclid();
+        ub_.bPa.value = B_DEF.pa; ub_.bPe.value = B_DEF.pe; ub_.bPn.value = B_DEF.pn; readPow();
+      } else resetRsa();
+    }
+  });
+  window.addEventListener("hashchange", () => {
+    const k = location.hash.slice(1);
+    if (!TAB_KEYS.includes(k)) return;
+    if (k !== S.tab) selectTab(k, false, false);
+    document.querySelector(".tabs").scrollIntoView({ block: "start" });
+  });
+
+  /* ── Başlat ── */
+  syncSieveControls();
+  restartGrid();
+  setRunningA(false);
+  syncDistControls();
+  readoutsDist(true);
+  setEuler(B_DEF.n, B_DEF.a, B_DEF.all);
+  setTest(B_DEF.t);
+  readEuclid();
+  readPow();
+  syncRsaControls();
+  genPrimes();
+  onKeyChange(false);
+  readoutsSweep();
+  const initialTab = location.hash.slice(1);
+  selectTab(TAB_KEYS.includes(initialTab) ? initialTab : "elek", false, false);
+  window.addEventListener("resize", resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  ro.observe(chart);
+  resize();
+  requestAnimationFrame(frame);
+  window.__asal = { A, Bm, C, S, selectTab, setN, setX, setEuler, setTest, gridStep, onKeyChange, startAttack, startSweep, sweepStats, distStats, li, Li, twinHL };
+})();
+</script>
+</body>
+</html>

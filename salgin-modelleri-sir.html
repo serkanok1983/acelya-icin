@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="tr" class="app-root">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Salgın Modelleri (SIR): R₀, Sürü Bağışıklığı, Rastlantı ve Ağlar</title>
+<meta name="description" content="Üç kutu, iki hız ve tek bir eşik: SIR modeli bir salgının ne zaman büyüdüğünü, neden zirveden sonra da sürdüğünü ve şansın onu nasıl söndürebildiğini hesaplatır.">
+<link rel="stylesheet" href="shared/theme.css">
+<script src="shared/app.js"></script>
+<style>
+.ep-tabs{display:flex;gap:8px;margin:26px 0 20px;flex-wrap:wrap}
+.ep-tabs button{flex:1 1 150px;padding:13px 8px;font:inherit;font-size:.86rem;min-height:44px}
+.ep-tabs [aria-selected=true]{border-color:var(--accent)!important;box-shadow:inset 0 -3px var(--accent)}
+.ep-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:20px;align-items:start}
+.ep-grid>div{min-width:0}
+.ep-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:20px;display:grid;gap:15px;min-width:0}
+.ep-panel h2,.ep-plate h2{font-size:1.02rem;margin:0}
+.ep-panel h3{font-size:.92rem;margin:6px 0 0}
+.ep-field{display:grid;gap:7px}
+.ep-field label{display:flex;justify-content:space-between;gap:8px;font-size:.85rem}
+.ep-field output{color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ep-field input,.ep-field select{width:100%;min-width:0;font:inherit;box-sizing:border-box}
+.ep-field select,.ep-field input[type=text]{padding:9px 10px}
+.ep-row{display:flex;gap:8px;flex-wrap:wrap}
+.ep-row button{padding:9px 12px;min-height:44px;font:inherit;font-size:.83rem}
+.ep-note{font-size:.84rem;line-height:1.75;margin:0}
+.ep-formula{padding:13px;background:var(--bg-input);border-radius:8px;line-height:1.9;font-size:.88rem;overflow-wrap:anywhere}
+.ep-plate{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.ep-plate h2{padding:13px 16px;border-bottom:1px solid var(--border)}
+body.app-page canvas.ep-canvas{display:block;width:100%;height:auto;aspect-ratio:2;border:0;border-radius:0;touch-action:manipulation}
+body.app-page canvas.ep-canvas.is-wide{aspect-ratio:2.4}
+.ep-caption{padding:10px 16px;font-size:.77rem;line-height:1.65;color:var(--text-muted);margin:0}
+.ep-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.ep-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:12px;min-width:0}
+.ep-stat small{display:block;color:var(--text-muted);font-size:.76rem;line-height:1.55}
+.ep-stat strong{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin-top:6px}
+.ep-stat em{display:block;font-style:normal;font-size:.76rem;color:var(--text-muted);margin-top:3px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;line-height:1.55}
+.ep-stat.is-key strong{color:var(--accent-warm)}
+.ep-status{border-left:3px solid var(--accent);background:var(--bg-card);padding:12px 16px;font-size:.86rem;line-height:1.8;margin:0 0 14px}
+.ep-assume{border:1px dashed var(--border);border-radius:9px;padding:10px 14px;font-size:.8rem;line-height:1.7;margin:0 0 14px;color:var(--text-muted)}
+.ep-assume strong{color:var(--text)}
+.ep-bottom{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+.ep-bottom h2{font-size:1.02rem}
+.ep-sources{margin-top:28px;font-size:.85rem;line-height:1.9}
+.ep-sources summary{cursor:pointer;color:var(--accent)}
+.ep-sources a{overflow-wrap:anywhere}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+[hidden]{display:none!important}
+@media(max-width:760px){
+ .ep-grid,.ep-bottom{grid-template-columns:1fr}
+ .ep-panel{padding:16px}
+ .ep-tabs button{font-size:.78rem;padding:11px 6px;flex-basis:40%}
+ .ep-stats{grid-template-columns:1fr 1fr}
+ .ep-stat strong{font-size:.98rem}
+ body.app-page canvas.ep-canvas{aspect-ratio:1.35}
+ body.app-page canvas.ep-canvas.is-wide{aspect-ratio:1.5}
+}
+</style>
+</head>
+<body class="app-page" data-page="salgin-modelleri-sir">
+<main class="app-content">
+<h1>Salgın Modelleri (SIR)</h1>
+<p class="hint">Bir topluluğu üç kutuya böl: duyarlı (S), enfekte (I), iyileşmiş ya da bağışık (R). İki hız, bulaşma β ve iyileşme γ, salgının bütün hikâyesini yazar. R₀ eşiğini, zirveyi, son büyüklüğü, aşılamanın eşiğini, rastlantının şansını ve temas ağının etkisini burada ölç; her kartta ölçülen değer kuramın yanında durur. Bu sayfa matematiksel bir modeldir, hiçbir hastalık için tahmin ya da sağlık önerisi değildir.</p>
+
+<div class="ep-tabs" role="tablist" aria-label="Salgın modeli deneyleri">
+<button type="button" class="app-btn-ghost" id="tab-sir" role="tab" aria-controls="panel-sir" aria-selected="true" tabindex="0">01 · SIR ve R₀</button>
+<button type="button" class="app-btn-ghost" id="tab-herd" role="tab" aria-controls="panel-herd" aria-selected="false" tabindex="-1">02 · Sürü bağışıklığı ve aşılama</button>
+<button type="button" class="app-btn-ghost" id="tab-stoch" role="tab" aria-controls="panel-stoch" aria-selected="false" tabindex="-1">03 · Stokastik SIR</button>
+<button type="button" class="app-btn-ghost" id="tab-ext" role="tab" aria-controls="panel-ext" aria-selected="false" tabindex="-1">04 · Genişletmeler</button>
+</div>
+
+<!-- ═══ 1 · SIR ve R₀ ═══ -->
+<section id="panel-sir" role="tabpanel" aria-labelledby="tab-sir">
+<p class="ep-assume"><strong>Varsayımlar:</strong> herkes herkesle eşit olasılıkla karşılaşır (homojen karışım); β ve γ salgın boyunca sabittir; doğum, ölüm ve göç yoktur; iyileşen bir daha hastalanmaz. Sayılar sürekli kabul edilir (deterministik model). Değerler öğretim değeridir, gerçek bir hastalığı anlatmaz.</p>
+<div class="ep-grid"><div>
+<div class="ep-plate"><h2>S, I ve R zamanla</h2><canvas class="ep-canvas is-wide" id="s1Chart" role="img" aria-label="Duyarlı, enfekte ve iyileşmiş sayısının zamana göre grafiği; dikey çizgi geçerli an, nokta ölçülen zirve"></canvas><p class="ep-caption">Mavi S (duyarlı), turuncu I (enfekte), yeşil R (iyileşmiş). Kesikli yatay çizgi kuramın verdiği zirve yüksekliği, ince dikey çizgi geçerli an. Eğriler dördüncü mertebe Runge–Kutta ile h = 0,05 gün adımla çözülür.</p></div>
+<div class="ep-plate"><h2>Etkin üreme sayısı R_t = R₀ · S/N</h2><canvas class="ep-canvas" id="s1Rt" role="img" aria-label="Etkin üreme sayısının zamana göre grafiği; 1 düzeyinde yatay çizgi ve zirve anında dikey çizgi"></canvas><p class="ep-caption">R_t, bir enfekte kişinin o anki duyarlı oranıyla kaç kişiye bulaştırdığıdır. Kesikli dikey çizgi I'nın ölçülen zirvesi: R_t tam orada 1'in altına iner, çünkü dI/dt = γ I (R_t − 1).</p></div>
+<div class="ep-stats" aria-live="polite">
+<div class="ep-stat"><small>Temel üreme sayısı R₀ = β/γ</small><strong id="s1R0"></strong><em id="s1R0e"></em></div>
+<div class="ep-stat is-key"><small>Ölçülen zirve I_max</small><strong id="s1Peak"></strong><em id="s1PeakE"></em></div>
+<div class="ep-stat is-key"><small>Ölçülen zirve anı</small><strong id="s1PeakT"></strong><em id="s1PeakTE"></em></div>
+<div class="ep-stat is-key"><small>Ölçülen son büyüklük (hiç enfekte olmuş oran)</small><strong id="s1Final"></strong><em id="s1FinalE"></em></div>
+<div class="ep-stat"><small>Erken büyüme hızı r (ölçülen)</small><strong id="s1Growth"></strong><em id="s1GrowthE"></em></div>
+<div class="ep-stat"><small>Geçerli an</small><strong id="s1Now"></strong><em id="s1NowE"></em></div>
+</div>
+<p class="ep-status" id="s1Status" role="status"></p>
+</div>
+<aside class="ep-panel"><h2>Model parametreleri</h2>
+<div class="ep-field"><label for="s1Beta">Bulaşma hızı β <output id="s1BetaOut"></output></label><input id="s1Beta" type="range" min="0.02" max="1.5" step="0.01" value="0.3"></div>
+<div class="ep-field"><label for="s1Gamma">İyileşme hızı γ <output id="s1GammaOut"></output></label><input id="s1Gamma" type="range" min="0.02" max="0.5" step="0.01" value="0.1"></div>
+<div class="ep-field"><label for="s1N">Nüfus N</label><select id="s1N"><option value="1000">1 000</option><option value="10000">10 000</option><option value="100000" selected>100 000</option><option value="1000000">1 000 000</option></select></div>
+<div class="ep-field"><label for="s1I0">Başlangıçta enfekte I₀ <output id="s1I0Out"></output></label><input id="s1I0" type="range" min="1" max="100" step="1" value="10"></div>
+<div class="ep-row"><button type="button" class="app-btn-ghost" id="s1P08">R₀ = 0,8</button><button type="button" class="app-btn-ghost" id="s1P1">R₀ = 1 (eşik)</button><button type="button" class="app-btn-ghost" id="s1P15">R₀ = 1,5</button><button type="button" class="app-btn-ghost" id="s1P3">R₀ = 3</button><button type="button" class="app-btn-ghost" id="s1P6">R₀ = 6</button></div>
+<div class="ep-field"><label for="s1Speed">Oynatma hızı</label><select id="s1Speed"><option value="10">10 gün / s</option><option value="30" selected>30 gün / s</option><option value="100">100 gün / s</option></select></div>
+<div class="ep-row"><button type="button" class="app-btn-ghost" id="s1Run" aria-pressed="false">Duraklat</button><button type="button" class="app-btn-ghost" id="s1Skip">Sona atla</button><button type="button" class="app-btn-ghost" id="s1Reset">Varsayılana dön</button></div>
+<div class="ep-formula">dS/dt = −β S I / N<br>dI/dt = β S I / N − γ I<br>dR/dt = γ I<br>son büyüklük: s∞ = s₀ · e^(−R₀ (1 − s∞)),  s₀ = S(0)/N<br>zirve: I_max/N = 1 − (1 + ln(R₀ s₀)) / R₀</div>
+<p class="ep-note">1/γ, bir kişinin ortalama bulaştırıcı kaldığı süredir; γ = 0,10 /gün ortalama 10 gün demektir. Son büyüklük denklemi ve zirve formülü kapalı biçimlerdir; sayfa onları benzetimden bağımsız olarak, ikiye bölme yöntemiyle çözer. Zirve formülündeki 1 aslında s₀ + i₀'dır; tohumlar dahil herkes başta S ya da I'dadır. Herhangi bir denetim değişince salgın t = 0'dan yeniden başlar.</p>
+</aside></div>
+</section>
+
+<!-- ═══ 2 · Sürü bağışıklığı ═══ -->
+<section id="panel-herd" role="tabpanel" aria-labelledby="tab-herd" hidden>
+<p class="ep-assume"><strong>Varsayımlar:</strong> 1. sekmedeki SIR modeli; N = 100 000, I₀ = 10, γ = 0,10 /gün. Bağışıklar salgın başlamadan önce (t = 0'da) rastgele seçilir; bağışıklık salgın boyunca sürer; aşılı ve aşısız insanlar aynı biçimde karışır. Aşı etkinliği bir model parametresidir, gerçek bir aşının değeri değildir.</p>
+<div class="ep-grid"><div>
+<div class="ep-plate"><h2>Salgın büyüklüğü ve bağışık oran</h2><canvas class="ep-canvas is-wide" id="s2Curve" role="img" aria-label="Başta bağışık olan oran p'ye göre salgında enfekte olanların oranı; kuram eğrisi, benzetim noktaları, eşik çizgileri ve geçerli p"></canvas><p class="ep-caption">Sürekli eğri: son büyüklük denkleminin kuramı. Daireler: aynı modelin RK4 benzetimi. Kesikli yeşil: yalnız eşiğe kadar enfekte olunsaydı (s_etkin(0) − 1/R₀). Mor dikey: kuram p_c, kırmızı: ölçülen p_c. Turuncu üçgen: geçerli p.</p></div>
+<div class="ep-plate"><h2>Geçerli p için salgın</h2><canvas class="ep-canvas" id="s2Time" role="img" aria-label="Seçilen bağışık oran için enfekte oranı ve etkin duyarlı oranın zamana göre grafiği; 1/R0 düzeyi kesikli"></canvas><p class="ep-caption">Turuncu: I/N (sol eksen, kendi ölçeğinde büyütülmüş). Mavi: etkin duyarlı oran s_etkin = (S_aşısız + (1 − e) S_aşılı)/N. Kesikli çizgi 1/R₀: s_etkin onu kestiğinde salgın zirve yapar, ama durmaz.</p></div>
+<div class="ep-stats" aria-live="polite">
+<div class="ep-stat"><small>Başlangıçta etkin R = R₀ · s_etkin(0)</small><strong id="s2Reff"></strong><em id="s2ReffE"></em></div>
+<div class="ep-stat is-key"><small>Sürü bağışıklığı eşiği p_c (ölçülen)</small><strong id="s2Pc"></strong><em id="s2PcE"></em></div>
+<div class="ep-stat is-key"><small>Ölçülen salgın büyüklüğü (N'nin oranı)</small><strong id="s2Attack"></strong><em id="s2AttackE"></em></div>
+<div class="ep-stat"><small>Zirvede etkin duyarlı oran</small><strong id="s2Speak"></strong><em id="s2SpeakE"></em></div>
+<div class="ep-stat"><small>Zirveye kadar enfekte olan</small><strong id="s2Before"></strong><em id="s2BeforeE"></em></div>
+<div class="ep-stat is-key"><small>Zirveden sonra enfekte olan (aşma)</small><strong id="s2After"></strong><em id="s2AfterE"></em></div>
+</div>
+<p class="ep-status" id="s2Status" role="status"></p>
+</div>
+<aside class="ep-panel"><h2>Bağışıklık</h2>
+<div class="ep-field"><label for="s2R0">Temel üreme sayısı R₀ <output id="s2R0Out"></output></label><input id="s2R0" type="range" min="1" max="8" step="0.1" value="3"></div>
+<div class="ep-field"><label for="s2P">Başta bağışıklanan oran p <output id="s2POut"></output></label><input id="s2P" type="range" min="0" max="0.99" step="0.01" value="0.5"></div>
+<div class="ep-field"><label for="s2Eff">Aşı etkinliği e <output id="s2EffOut"></output></label><input id="s2Eff" type="range" min="0.3" max="1" step="0.01" value="1"></div>
+<div class="ep-field"><label for="s2Model">Aşı modeli (hep ya da hiç: aşılıların e kesri tam bağışık; sızdıran: her aşılı kısmen korunur)</label><select id="s2Model"><option value="aon" selected>Hep ya da hiç</option><option value="leaky">Sızdıran (duyarlılık 1 − e)</option></select></div>
+<div class="ep-row"><button type="button" class="app-btn-ghost" id="s2None">Hiç bağışık yok</button><button type="button" class="app-btn-ghost" id="s2Below">p = 0,60 (eşik altı)</button><button type="button" class="app-btn-ghost" id="s2Above">p = 0,70 (eşik üstü)</button><button type="button" class="app-btn-ghost" id="s2Leaky">Sızdıran, e = 0,80</button><button type="button" class="app-btn-ghost" id="s2Reset">Varsayılana dön</button></div>
+<div class="ep-formula">R_etkin(0) = R₀ (1 − p e)  (iki modelde de)<br>p_c = (1 − 1/R₀) / e<br>son büyüklük: Λ = R₀ (i₀ + s_u(1 − e^−Λ) + s_a(1 − e^−(1−e)Λ)),  saldırı oranı = Λ/R₀</div>
+<p class="ep-note">Ölçülen eşik: p, 0'dan 1'e 0,01 adımla taranır; her p için salgın benzetilir ve ilk günde ln I'ya uydurulan eğim (büyüme hızı) ölçülür. Eğimin işaret değiştirdiği yer, iki ızgara noktası arasında doğrusal ara değerle bulunur. Aşma kuramı (1/R₀ − s∞) yalnız hep ya da hiç modelinde tek bir sayıdır; sızdıran modelde aşılı ve aşısız duyarlılar farklı hızla tükendiği için yalnız ölçülür.</p>
+</aside></div>
+</section>
+
+<!-- ═══ 3 · Stokastik SIR ═══ -->
+<section id="panel-stoch" role="tabpanel" aria-labelledby="tab-stoch" hidden>
+<p class="ep-assume"><strong>Varsayımlar:</strong> aynı SIR, ama tam sayılı kişilerle ve rastlantıyla: her an bir bulaşma (hızı β S I / N) ya da bir iyileşme (hızı γ I) olur; bulaştırıcılık süresi üstel dağılımlıdır. γ = 0,10 /gün. Koşular tohumlu bir üreteçle (mulberry32) çalışır: aynı tohum aynı sonucu verir.</p>
+<div class="ep-grid"><div>
+<div class="ep-plate"><h2>Son büyüklüklerin dağılımı</h2><canvas class="ep-canvas is-wide" id="s3Hist" role="img" aria-label="Koşuların son büyüklük histogramı; kesin dağılımın beklenen sayıları, deterministik son büyüklük ve küçük/büyük salgın sınırı"></canvas><p class="ep-caption">Çubuklar: Gillespie koşularının son büyüklüğü (N'nin oranı). Siyah çizgi: aynı modelin kesin dağılımından beklenen sayılar. Mor kesikli: deterministik son büyüklük. Kırmızı kesikli: küçük ve büyük salgın sınırı. Dikey eksen karekök ölçeklidir; tek koşulu da görmek için.</p></div>
+<div class="ep-plate"><h2>İlk 30 koşunun eğrisi</h2><canvas class="ep-canvas" id="s3Paths" role="img" aria-label="İlk otuz koşunun enfekte oranının zamana göre eğrileri ve deterministik eğri"></canvas><p class="ep-caption">İnce çizgiler: tek tek koşular (I/N). Kalın kesikli: deterministik SIR. Sönen koşular sıfırda kalır; büyüyenler deterministik eğriye benzer ama zamanda kayar, çünkü başlangıçtaki rastlantı salgını öne ya da geriye iter.</p></div>
+<div class="ep-stats" aria-live="polite">
+<div class="ep-stat"><small>Koşular</small><strong id="s3Prog"></strong><em id="s3ProgE"></em></div>
+<div class="ep-stat is-key"><small>Ölçülen erken sönme (küçük salgın) olasılığı</small><strong id="s3PMin"></strong><em id="s3PMinE"></em></div>
+<div class="ep-stat"><small>Kesin sonlu N değeri (Markov zinciri)</small><strong id="s3Exact"></strong><em id="s3ExactE"></em></div>
+<div class="ep-stat is-key"><small>Büyük salgınların ortalama son büyüklüğü</small><strong id="s3Major"></strong><em id="s3MajorE"></em></div>
+<div class="ep-stat"><small>Büyük salgınlarda standart sapma</small><strong id="s3Sd"></strong><em id="s3SdE"></em></div>
+<div class="ep-stat"><small>Küçük / büyük sınırı</small><strong id="s3Cut"></strong><em id="s3CutE"></em></div>
+</div>
+<p class="ep-status" id="s3Status" role="status"></p>
+</div>
+<aside class="ep-panel"><h2>Rastlantılı salgın</h2>
+<div class="ep-field"><label for="s3R0">R₀ <output id="s3R0Out"></output></label><input id="s3R0" type="range" min="0.5" max="5" step="0.1" value="2"></div>
+<div class="ep-field"><label for="s3N">Nüfus N</label><select id="s3N"><option value="50">50</option><option value="100">100</option><option value="200">200</option><option value="500">500</option><option value="1000" selected>1 000</option><option value="2000">2 000</option></select></div>
+<div class="ep-field"><label for="s3I0">Başlangıçta enfekte I₀ <output id="s3I0Out"></output></label><input id="s3I0" type="range" min="1" max="10" step="1" value="1"></div>
+<div class="ep-field"><label for="s3Runs">Koşu sayısı</label><select id="s3Runs"><option value="100">100</option><option value="250">250</option><option value="500" selected>500</option><option value="1000">1 000</option><option value="2000">2 000</option></select></div>
+<div class="ep-field"><label for="s3Seed">Tohum</label><input id="s3Seed" type="text" inputmode="numeric" value="1" autocomplete="off"></div>
+<div class="ep-row"><button type="button" class="app-btn-ghost" id="s3New">Yeni tohum</button><button type="button" class="app-btn-ghost" id="s3Small">Küçük köy: N = 50</button><button type="button" class="app-btn-ghost" id="s3Three">Üç tohum: I₀ = 3</button><button type="button" class="app-btn-ghost" id="s3Reset">Varsayılana dön</button></div>
+<div class="ep-formula">dallanma süreci (N → ∞): P(sönme) = (1/R₀)^I₀,  R₀ &gt; 1<br>R₀ &lt; 1: ortalama toplam büyüklük = I₀ / (1 − R₀)<br>kesin: (s, i) → (s − 1, i + 1) olasılığı R₀ s / (R₀ s + N)</div>
+<p class="ep-note">Küçük salgın: son büyüklüğü deterministik son büyüklüğün yarısını geçmeyen koşu. Dallanma kuramı salgının başında duyarlıların tükenmediğini varsayar, bu yüzden büyük N'de doğrudur. Karttaki "kesin" değer aynı Markov modelinin, sonlu N için, olayların sırasını sayan dinamik programlamayla bulunmuş olasılığıdır; benzetimden bağımsızdır.</p>
+</aside></div>
+</section>
+
+<!-- ═══ 4 · Genişletmeler ═══ -->
+<section id="panel-ext" role="tabpanel" aria-labelledby="tab-ext" hidden>
+<p class="ep-assume" id="s4Assume"></p>
+<div class="ep-grid"><div>
+<div class="ep-plate"><h2 id="s4ATitle"></h2><canvas class="ep-canvas is-wide" id="s4A" role="img" aria-label="Seçili genişletmenin birinci grafiği"></canvas><p class="ep-caption" id="s4ACap"></p></div>
+<div class="ep-plate"><h2 id="s4BTitle"></h2><canvas class="ep-canvas" id="s4B" role="img" aria-label="Seçili genişletmenin ikinci grafiği"></canvas><p class="ep-caption" id="s4BCap"></p></div>
+<div class="ep-stats" aria-live="polite">
+<div class="ep-stat"><small id="s4L1"></small><strong id="s4V1"></strong><em id="s4E1"></em></div>
+<div class="ep-stat is-key"><small id="s4L2"></small><strong id="s4V2"></strong><em id="s4E2"></em></div>
+<div class="ep-stat is-key"><small id="s4L3"></small><strong id="s4V3"></strong><em id="s4E3"></em></div>
+<div class="ep-stat"><small id="s4L4"></small><strong id="s4V4"></strong><em id="s4E4"></em></div>
+<div class="ep-stat is-key"><small id="s4L5"></small><strong id="s4V5"></strong><em id="s4E5"></em></div>
+<div class="ep-stat"><small id="s4L6"></small><strong id="s4V6"></strong><em id="s4E6"></em></div>
+</div>
+<p class="ep-status" id="s4Status" role="status"></p>
+</div>
+<aside class="ep-panel"><h2>Model</h2>
+<div class="ep-field"><label for="s4Model">Genişletme</label><select id="s4Model"><option value="seir" selected>SEIR: gizli (kuluçka) dönem</option><option value="sirs">SIRS: bağışıklık kaybı</option><option value="net">Temas ağı üzerinde SIR</option></select></div>
+<div class="ep-field" data-for="seir sirs"><label for="s4Beta">Bulaşma hızı β <output id="s4BetaOut"></output></label><input id="s4Beta" type="range" min="0.05" max="1" step="0.01" value="0.3"></div>
+<div class="ep-field"><label for="s4Gamma">İyileşme hızı γ <output id="s4GammaOut"></output></label><input id="s4Gamma" type="range" min="0.02" max="0.5" step="0.01" value="0.1"></div>
+<div class="ep-field" data-for="seir"><label for="s4Sigma">Gizli dönemden çıkış hızı σ <output id="s4SigmaOut"></output></label><input id="s4Sigma" type="range" min="0.05" max="2" step="0.01" value="0.2"></div>
+<div class="ep-field" data-for="sirs"><label for="s4Omega">Bağışıklık kaybı hızı ω <output id="s4OmegaOut"></output></label><input id="s4Omega" type="range" min="0.001" max="0.05" step="0.001" value="0.005"></div>
+<div class="ep-field" data-for="net"><label for="s4Kind">Derece dağılımı</label><select id="s4Kind"><option value="regular">Düzenli: herkesin k teması var</option><option value="poisson" selected>Poisson (Erdős–Rényi benzeri)</option><option value="geometric">Geometrik (geniş, ağır kuyruklu)</option></select></div>
+<div class="ep-field" data-for="net"><label for="s4Mean">Ortalama temas sayısı ⟨k⟩ <output id="s4MeanOut"></output></label><input id="s4Mean" type="range" min="2" max="8" step="1" value="4"></div>
+<div class="ep-field" data-for="net"><label for="s4Tau">Kenar başına bulaşma hızı τ <output id="s4TauOut"></output></label><input id="s4Tau" type="range" min="0.01" max="0.5" step="0.01" value="0.05"></div>
+<div class="ep-field" data-for="net"><label for="s4Nn">Düğüm sayısı</label><select id="s4Nn"><option value="1000">1 000</option><option value="2000" selected>2 000</option><option value="5000">5 000</option></select></div>
+<div class="ep-field" data-for="net"><label for="s4Runs">Koşu sayısı</label><select id="s4Runs"><option value="100">100</option><option value="200">200</option><option value="500" selected>500</option></select></div>
+<div class="ep-field" data-for="net"><label for="s4Seed">Tohum (ağı ve koşuları seçer)</label><input id="s4Seed" type="text" inputmode="numeric" value="1" autocomplete="off"></div>
+<div class="ep-row"><button type="button" class="app-btn-ghost" id="s4New" data-for="net">Yeni tohum</button><button type="button" class="app-btn-ghost" id="s4Reset">Varsayılana dön</button></div>
+<div class="ep-formula" id="s4Formula"></div>
+<p class="ep-note" id="s4Note"></p>
+</aside></div>
+<div class="ep-bottom"><article><h2>Model, kehanet değil</h2><p class="ep-note">Bu sayfadaki her sayı seçtiğin varsayımlardan hesaplanır. Gerçek salgınlarda insanlar eşit karışmaz; davranış, mevsim, yaş yapısı ve önlemler β'yı zamanla değiştirir; bağışıklık kısmi ya da geçici olabilir; R₀ hastalığın değil, hastalık ile bir topluluğun birlikte özelliğidir ve ölçümü belirsizdir. Burada hiçbir hastalık için tahmin, risk değerlendirmesi ya da sağlık önerisi yoktur; böyle sorular için sağlık otoritelerinin güncel kaynaklarına başvurulmalıdır.</p></article><article><h2>Komşu sayfalar</h2><p class="ep-note">SIR, iki türün etkileşimini anlatan <a href="av-avci-lotka-volterra.html">av–avcı modeli</a> ile aynı aileden doğrusal olmayan bir denklem sistemidir; denge kararlılığı ve sayısal çözüm için <a href="diferansiyel-denklemler.html">Diferansiyel Denklemler</a>, rastlantının toplam davranışı için <a href="rastgele-yuruyus.html">Rastgele Yürüyüş</a>, temas ağlarının yapısı için <a href="cizge-teorisi.html">Çizge Teorisi</a> sayfasına bak.</p></article></div>
+</section>
+
+<details class="ep-sources"><summary>Model sınırları, sayı biçimi ve kaynaklar</summary>
+<p>Sayılar ondalık virgülle yazılır; on binden büyük tam sayılarda binler dar boşlukla ayrılır; yüzdeler "12,3 %" biçimindedir; çok büyük ya da küçük sayılar a × 10ᵇ biçimindedir. Göreli farklar (ölçülen − kuram)/kuram olarak yüzdeyle verilir. Zaman birimi gündür; β, γ, σ, ω ve τ gün başına hızlardır. Bütün parametreler öğretim değerleridir. R tuşu, bir form denetiminde değilken etkin sekmeyi varsayılana döndürür; boşluk tuşu ilk sekmede oynatmayı duraklatır.</p>
+<ul>
+<li>Wikipedia, "Compartmental models in epidemiology" (12 Kasım 2026'da okundu): SIR modeli ve Kermack ile McKendrick'e (1927) dayanışı; son büyüklük bağıntısı s∞ = s₀ exp(−R₀(r∞ − r₀)); aşılama eşiği P* = 1 − 1/R₀; gizli dönemli SEIR modeli.</li>
+<li>W. O. Kermack ve A. G. McKendrick, "A contribution to the mathematical theory of epidemics", Proc. R. Soc. Lond. A 115, 700 (1927).</li>
+<li>M. E. J. Newman, "The spread of epidemic disease on networks", Phys. Rev. E 66, 016128 (2002), arXiv:cond-mat/0205009 (12 Kasım 2026'da okundu): ağ üzerinde SIR'in bağ süzülmesi olarak kesin çözümü; burada kullanılan u = G₁(1 − T + T u), z = 1 − G₀(1 − T + T u) ve R₀ = T (⟨k²⟩ − ⟨k⟩)/⟨k⟩.</li>
+<li>D. T. Gillespie, "Exact stochastic simulation of coupled chemical reactions", J. Phys. Chem. 81, 2340 (1977): benzetim algoritması. Dallanma süreci sönme olasılığı (1/R₀)^I₀, üstel bulaştırıcılık süresinde her vakanın bulaştırdığı sayının geometrik dağılımından gelir; sayfa bunu kesin sonlu N hesabıyla da sınar.</li>
+</ul></details>
+</main>
+<script>
+(() => {
+'use strict';
+/* KERNEL-BEGIN */
+function rng(seed) {
+  let a = (Number(seed) >>> 0) || 1;
+  return function () {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function finite(...xs) { if (xs.some((x) => !Number.isFinite(x))) throw new RangeError('Sonlu sayı gerekli'); }
+const expDraw = (r, rate) => -Math.log(1 - r()) / rate;
+
+/* ── Ortak: RK4 ile bölmeli modeller ── */
+// y: [Su, Sv, E, I, R]; Sv bağışıklığı kısmi (sızdıran aşı) aşılılar, E kuluçka (SEIR), ω bağışıklık kaybı (SIRS)
+function makeDeriv({ beta, gamma, N, sigma = null, omega = 0, leak = 0 }) {
+  return function (y, d) {
+    const lam = beta * y[3] / N, inf = lam * (y[0] + leak * y[1]);
+    d[0] = -lam * y[0] + omega * y[4];
+    d[1] = -leak * lam * y[1];
+    if (sigma === null) { d[2] = 0; d[3] = inf - gamma * y[3]; }
+    else { d[2] = inf - sigma * y[2]; d[3] = sigma * y[2] - gamma * y[3]; }
+    d[4] = gamma * y[3] - omega * y[4];
+  };
+}
+// Eşit adımlı RK4; I'nın zirvesi (parabolik ara değer) ve etkin üreme sayısının 1'i kestiği an (adım içinde doğrusal) ölçülür.
+function integrate(cfg) {
+  const { beta, gamma, N } = cfg;
+  finite(beta, gamma, N);
+  if (!(beta >= 0) || !(gamma > 0) || !(N > 0)) throw new RangeError('Model parametresi');
+  const dt = cfg.dt ?? 0.05, tMax = cfg.tMax ?? 5000, leak = cfg.leak ?? 0, stopFrac = cfg.stopFrac ?? 1e-9;
+  const f = makeDeriv({ beta, gamma, N, sigma: cfg.sigma ?? null, omega: cfg.omega ?? 0, leak });
+  const y = Float64Array.from(cfg.y0), n = 5, k1 = new Float64Array(n), k2 = new Float64Array(n), k3 = new Float64Array(n), k4 = new Float64Array(n), tmp = new Float64Array(n);
+  const every = Math.max(1, Math.round((cfg.sampleDt ?? dt) / dt));
+  const R0 = beta / gamma, eff = (v) => R0 * (v[0] + leak * v[1]) / N;
+  const out = { t: [0], S: [y[0] + y[1]], Se: [y[0] + leak * y[1]], E: [y[2]], I: [y[3]], R: [y[4]], peaks: [], rt1: null, done: false, dt };
+  let t = 0, steps = 0, I2 = y[3], I1 = y[3], effPrev = eff(y);
+  for (;;) {
+    f(y, k1); for (let j = 0; j < n; j++) tmp[j] = y[j] + 0.5 * dt * k1[j];
+    f(tmp, k2); for (let j = 0; j < n; j++) tmp[j] = y[j] + 0.5 * dt * k2[j];
+    f(tmp, k3); for (let j = 0; j < n; j++) tmp[j] = y[j] + dt * k3[j];
+    f(tmp, k4);
+    for (let j = 0; j < n; j++) y[j] += dt / 6 * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]);
+    t = (++steps) * dt;
+    const Inow = y[3];
+    if (steps >= 2 && I1 >= I2 && I1 > Inow) { // önceki örnek bir yerel en büyük
+      const den = I2 - 2 * I1 + Inow, off = den < 0 ? 0.5 * (I2 - Inow) / den : 0;
+      out.peaks.push({ t: t - dt + off * dt, I: I1 - 0.25 * (I2 - Inow) * off });
+    }
+    const effNow = eff(y);
+    if (out.rt1 === null && effPrev > 1 && effNow <= 1) out.rt1 = t - dt + (effPrev - 1) / (effPrev - effNow) * dt;
+    effPrev = effNow; I2 = I1; I1 = Inow;
+    if (steps % every === 0) { out.t.push(t); out.S.push(y[0] + y[1]); out.Se.push(y[0] + leak * y[1]); out.E.push(y[2]); out.I.push(y[3]); out.R.push(y[4]); }
+    if (cfg.until && cfg.until(t, y)) break;
+    if (!cfg.omega && t > 1 && (y[2] + y[3]) < stopFrac * N && effNow < 1) { out.done = true; break; }
+    if (t >= tMax - 1e-9) break;
+  }
+  out.y = Array.from(y); out.tEnd = t;
+  return out;
+}
+// Erken büyüme hızı: ln I'ya en küçük kareler doğrusu, [ta, tb] aralığındaki örneklerle
+function logSlope(ts, Is, ta, tb) {
+  let n = 0, sx = 0, sy = 0, sxx = 0, sxy = 0;
+  for (let k = 0; k < ts.length; k++) { const x = ts[k]; if (x < ta - 1e-12 || x > tb + 1e-12 || !(Is[k] > 0)) continue; const v = Math.log(Is[k]); n++; sx += x; sy += v; sxx += x * x; sxy += x * v; }
+  if (n < 3) return null;
+  return (n * sxy - sx * sy) / (n * sxx - sx * sx);
+}
+
+/* ── 1 · SIR ── */
+function sir({ beta, gamma, N, I0, dt = 0.05, tMax = 5000 }) {
+  finite(I0); if (!(I0 > 0) || I0 >= N) throw new RangeError('I0');
+  const run = integrate({ beta, gamma, N, dt, tMax, y0: [N - I0, 0, 0, I0, 0], sampleDt: dt });
+  const R0 = beta / gamma, s0 = (N - I0) / N;
+  const peak = run.peaks.length ? run.peaks[0] : null;
+  // erken büyüme: ilk 5 gün ya da I on katına çıkana dek
+  // erken büyüme: ilk 5 gün, I on katına çıkana ya da duyarlıların %1'i tükenene dek (en az dört adım)
+  const S0 = N - I0; let tb = 5;
+  for (let k = 0; k < run.t.length; k++) if (run.I[k] >= 10 * I0 || S0 - run.S[k] > 0.01 * S0) { tb = Math.min(5, run.t[k]); break; }
+  tb = Math.max(tb, 4 * dt);
+  const kb = Math.min(run.t.length - 1, Math.round(tb / dt)), depl = (S0 - run.S[kb]) / S0;
+  const r = logSlope(run.t, run.I, 0, tb);
+  return { run, R0, s0, peak, tRt1: run.rt1, rMeas: r, rWin: tb, rDepl: depl, rTh: beta * s0 - gamma, sEnd: run.y[0] / N, iEnd: run.y[3] / N, done: run.done };
+}
+// Son büyüklük denklemi s∞ = s0·exp(−R0(1 − s∞ − r0)); ikiye bölme ile, (0, s0) aralığındaki tek kök
+function finalSize(R0, s0 = 1, r0 = 0) {
+  finite(R0, s0, r0);
+  if (!(R0 > 0)) return { s: s0, z: 0 };
+  const g = (s) => s - s0 * Math.exp(-R0 * (1 - s - r0));
+  if (s0 + r0 >= 1 - 1e-15) { // tohum yok: R0 ≤ 1 iken yalnız s = s0 kökü
+    if (R0 <= 1) return { s: s0, z: 0 };
+    let lo = 0, hi = s0 * (1 - 1e-12) ; // R0 > 1: anlamlı kök s0'ın altında
+    if (g(hi) <= 0) return { s: s0, z: 0 };
+    for (let k = 0; k < 200; k++) { const m = 0.5 * (lo + hi); if (g(m) > 0) hi = m; else lo = m; }
+    const s = 0.5 * (lo + hi); return { s, z: s0 - s };
+  }
+  let lo = 0, hi = s0;
+  for (let k = 0; k < 200; k++) { const m = 0.5 * (lo + hi); if (g(m) > 0) hi = m; else lo = m; }
+  const s = 0.5 * (lo + hi);
+  return { s, z: 1 - r0 - s }; // z: hiç enfekte olmuş oran (tohumlar dahil)
+}
+// Zirve için korunan nicelik: I + S − (N/R0) ln S sabit; zirvede S = N/R0
+function peakTheory(R0, s0, i0) {
+  if (!(R0 * s0 > 1)) return null;
+  return i0 + s0 - (1 + Math.log(R0 * s0)) / R0;
+}
+
+/* ── 2 · Aşılama ── */
+// model 'aon': hep ya da hiç (aşılıların e kesri tam bağışık); 'leaky': sızdıran (her aşılı 1 − e oranında duyarlı)
+function vaccState({ p, e, model, N, I0 }) {
+  const rest = N - I0;
+  if (model === 'leaky') return { y0: [rest * (1 - p), rest * p, 0, I0, 0], leak: 1 - e };
+  return { y0: [rest * (1 - p * e), 0, 0, I0, rest * p * e], leak: 0 };
+}
+function vaccRun({ R0, gamma = 0.1, p, e, model, N = 100000, I0 = 10, dt = 0.05, tMax = 6000, sampleDt }) {
+  finite(R0, p, e);
+  const st = vaccState({ p, e, model, N, I0 });
+  const run = integrate({ beta: R0 * gamma, gamma, N, dt, tMax, y0: st.y0, leak: st.leak, sampleDt: sampleDt ?? dt });
+  const sEff0 = (st.y0[0] + st.leak * st.y0[1]) / N;
+  const newInf = (st.y0[0] + st.y0[1] - run.y[0] - run.y[1]) / N; // başlangıçtaki duyarlılardan enfekte olanlar
+  const peak = run.peaks.length ? run.peaks[0] : null;
+  let atPeak = null, effAtPeak = null;
+  if (peak) { // zirve anında S'yi örneklerden doğrusal ara değerle oku
+    const k = Math.min(run.t.length - 2, Math.floor(peak.t / run.t[1]));
+    const w = (peak.t - run.t[k]) / (run.t[k + 1] - run.t[k]);
+    atPeak = (1 - w) * run.S[k] + w * run.S[k + 1]; effAtPeak = (1 - w) * run.Se[k] + w * run.Se[k + 1];
+  }
+  const S0 = st.y0[0] + st.y0[1];
+  return { run, st, sEff0, newInf, attack: newInf + I0 / N, peak, rEff0: R0 * sEff0,
+    before: atPeak === null ? null : (S0 - atPeak) / N, after: atPeak === null ? null : (atPeak - run.y[0] - run.y[1]) / N, effAtPeak: effAtPeak === null ? null : effAtPeak / N };
+}
+function vaccGrowth({ R0, gamma = 0.1, p, e, model, N = 100000, I0 = 10, win = 1 }) {
+  const st = vaccState({ p, e, model, N, I0 });
+  const run = integrate({ beta: R0 * gamma, gamma, N, dt: 0.05, tMax: win, y0: st.y0, leak: st.leak, sampleDt: 0.05 });
+  return logSlope(run.t, run.I, 0, win);
+}
+// Ölçülen eşik: p ızgarasında (adım 0,01) ölçülen erken büyüme hızının işaret değiştirdiği yer, doğrusal ara değerle
+function measuredThreshold({ R0, gamma = 0.1, e, model, win = 1 }) {
+  let prev = null;
+  for (let k = 0; k <= 100; k++) {
+    const p = k / 100, r = vaccGrowth({ R0, gamma, p, e, model, win });
+    if (prev && prev.r > 0 && r <= 0) return { pc: prev.p + (p - prev.p) * prev.r / (prev.r - r), found: true };
+    if (k === 0 && r <= 0) return { pc: 0, found: true, none: true };
+    prev = { p, r };
+  }
+  return { pc: null, found: false };
+}
+// Kuram: Λ = R0 (i0 + su0 (1 − e^−Λ) + sv0 (1 − e^−(1−e)Λ)); saldırı oranı = Λ / R0
+function vaccFinal({ R0, p, e, model, i0 = 1e-4 }) {
+  finite(R0, p, e, i0);
+  const rest = 1 - i0, su0 = model === 'leaky' ? rest * (1 - p) : rest * (1 - p * e), sv0 = model === 'leaky' ? rest * p : 0, a = model === 'leaky' ? 1 - e : 0;
+  const g = (L) => R0 * (i0 + su0 * (1 - Math.exp(-L)) + sv0 * (1 - Math.exp(-a * L))) - L;
+  let lo = 0, hi = R0 * 1.000001 + 1e-9;
+  if (i0 === 0) { // tohumsuz sınır: sıfırdan büyük kök varsa onu al
+    const slope = R0 * (su0 + a * sv0);
+    if (slope <= 1) return { attack: 0, L: 0, sEffEnd: su0 + a * sv0 };
+    lo = 1e-12;
+  }
+  for (let k = 0; k < 200; k++) { const m = 0.5 * (lo + hi); if (g(m) > 0) lo = m; else hi = m; }
+  const L = 0.5 * (lo + hi);
+  return { attack: L / R0, L, suEnd: su0 * Math.exp(-L), svEnd: sv0 * Math.exp(-a * L), sEffEnd: su0 * Math.exp(-L) + a * sv0 * Math.exp(-a * L) };
+}
+
+/* ── 3 · Stokastik SIR (Gillespie) ── */
+function gillespie({ N, R0, gamma = 0.1, I0, r, keep = false }) {
+  let s = N - I0, i = I0, t = 0;
+  const path = keep ? [[0, i]] : null;
+  while (i > 0) {
+    const a1 = R0 * gamma * s * i / N, a = a1 + gamma * i;
+    t += expDraw(r, a);
+    if (r() * a < a1) { s--; i++; } else i--;
+    if (keep) path.push([t, i]);
+  }
+  return { final: N - s, t, path };
+}
+function ensemble({ N, R0, I0, runs, seed, gamma = 0.1, keepPaths = 30 }) {
+  finite(N, R0, I0, runs);
+  const r = rng(seed), finals = new Int32Array(runs), paths = [];
+  for (let k = 0; k < runs; k++) { const g = gillespie({ N, R0, gamma, I0, r, keep: k < keepPaths }); finals[k] = g.final; if (k < keepPaths) paths.push(g.path); }
+  return { finals, paths };
+}
+// Gömülü atlama zincirinin kesin son büyüklük dağılımı: (s, i) → (s − 1, i + 1) olasılığı R0 s / (R0 s + N)
+function exactFinal(N, R0, I0) {
+  const dist = new Float64Array(N + 1);
+  let cur = new Float64Array(N + 2), nxt = new Float64Array(N + 2);
+  cur[I0] = 1;
+  for (let s = N - I0; s >= 0; s--) {
+    nxt.fill(0);
+    const pInf = R0 * s / (R0 * s + N);
+    for (let i = N - s; i >= 1; i--) {
+      const m = cur[i]; if (m === 0) continue;
+      if (s > 0) nxt[i + 1] += m * pInf;
+      cur[i - 1] += m * (1 - pInf);
+    }
+    dist[N - s] = cur[0];
+    const tmp = cur; cur = nxt; nxt = tmp;
+  }
+  return dist;
+}
+function branchingExtinction(R0, I0) { return R0 > 1 ? Math.pow(1 / R0, I0) : 1; }
+function summarize(finals, N, cut) {
+  let nMin = 0, sum = 0, sum2 = 0, nMaj = 0;
+  for (const f of finals) { if (f <= cut) nMin++; else { nMaj++; sum += f / N; sum2 += (f / N) ** 2; } }
+  const n = finals.length, p = nMin / n, mean = nMaj ? sum / nMaj : null;
+  return { pMinor: p, se: Math.sqrt(p * (1 - p) / n), nMaj, nMin, mean, sd: nMaj > 1 ? Math.sqrt(Math.max(0, (sum2 - nMaj * mean * mean) / (nMaj - 1))) : null };
+}
+
+/* ── 4 · Genişletmeler ── */
+function seirGrowth(beta, gamma, sigma) { return 0.5 * (-(sigma + gamma) + Math.sqrt((sigma - gamma) ** 2 + 4 * sigma * beta)); }
+function sirsEquilibrium(beta, gamma, omega, N = 1) {
+  const R0 = beta / gamma; if (!(R0 > 1)) return null;
+  const S = N / R0, I = N * (1 - 1 / R0) * omega / (omega + gamma), R = N - S - I;
+  const tr = -(beta * I / N + omega), det = (gamma + omega) * beta * I / N, disc = det - tr * tr / 4;
+  return { S, I, R, decay: -tr / 2, omegaOsc: disc > 0 ? Math.sqrt(disc) : null, period: disc > 0 ? 2 * Math.PI / Math.sqrt(disc) : null };
+}
+// Ağ: yapılandırma modeli (öz döngüler ve çoklu kenarlar silinir)
+function poissonDraw(m, r) { const L = Math.exp(-m); let k = 0, p = 1; do { k++; p *= r(); } while (p > L); return k - 1; }
+function buildNetwork({ n, mean, kind, seed }) {
+  finite(n, mean);
+  const r = rng(seed), deg = new Int32Array(n);
+  for (let v = 0; v < n; v++) {
+    if (kind === 'regular') deg[v] = Math.round(mean);
+    else if (kind === 'poisson') deg[v] = poissonDraw(mean, r);
+    else { const q = 1 / (1 + mean); deg[v] = Math.floor(Math.log(1 - r()) / Math.log(1 - q)); }
+  }
+  let tot = 0; for (let v = 0; v < n; v++) tot += deg[v];
+  if (tot % 2) { deg[Math.floor(r() * n)]++; tot++; }
+  const stubs = new Int32Array(tot); let c = 0;
+  for (let v = 0; v < n; v++) for (let j = 0; j < deg[v]; j++) stubs[c++] = v;
+  for (let i = tot - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = stubs[i]; stubs[i] = stubs[j]; stubs[j] = t; }
+  const seen = new Set(), edges = [];
+  for (let i = 0; i < tot; i += 2) {
+    const a = stubs[i], b = stubs[i + 1]; if (a === b) continue;
+    const key = a < b ? a * n + b : b * n + a; if (seen.has(key)) continue;
+    seen.add(key); edges.push(a, b);
+  }
+  const d = new Int32Array(n); for (let i = 0; i < edges.length; i++) d[edges[i]]++;
+  const off = new Int32Array(n + 1); for (let v = 0; v < n; v++) off[v + 1] = off[v] + d[v];
+  const adj = new Int32Array(off[n]), fill = off.slice(0, n);
+  for (let i = 0; i < edges.length; i += 2) { const a = edges[i], b = edges[i + 1]; adj[fill[a]++] = b; adj[fill[b]++] = a; }
+  let k1 = 0, k2 = 0, kmax = 0; for (let v = 0; v < n; v++) { k1 += d[v]; k2 += d[v] * d[v]; kmax = Math.max(kmax, d[v]); }
+  const hist = new Array(kmax + 1).fill(0); for (let v = 0; v < n; v++) hist[d[v]]++;
+  return { n, off, adj, deg: d, k1: k1 / n, k2: k2 / n, kmax, hist, removed: tot / 2 - edges.length / 2 };
+}
+// Olay güdümlü Markov SIR: düğüm γ hızıyla iyileşir, her komşuya τ hızıyla bulaştırır (Kiss–Miller–Simon)
+function netEpidemic(G, tau, gamma, r, start) {
+  const n = G.n, state = new Uint8Array(n), gen = new Int32Array(n).fill(-1), kids = new Int32Array(n);
+  let tries = 0, blocked = 0; const tc = new Int32Array(n);
+  const heap = []; // [zaman, düğüm, bulaştıran]
+  const push = (x) => { heap.push(x); let i = heap.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, rr = l + 1; let m = i; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (rr < heap.length && heap[rr][0] < heap[m][0]) m = rr; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
+  push([0, start, -1]);
+  let total = 0;
+  while (heap.length) {
+    const [t, v, from] = pop();
+    if (state[v]) { if (from >= 0 && gen[from] === 1) blocked++; continue; }
+    state[v] = 1; total++; gen[v] = from < 0 ? 0 : gen[from] + 1; if (from >= 0) kids[from]++;
+    const rec = expDraw(r, gamma);
+    for (let j = G.off[v]; j < G.off[v + 1]; j++) { const u = G.adj[j]; if (u === from) continue; const tt = expDraw(r, tau); if (tt < rec) { if (gen[v] === 1) { tries++; tc[v]++; } push([t + tt, u, v]); } }
+  }
+  let g1 = 0, g1kids = 0, tries2 = 0; for (let v = 0; v < n; v++) if (gen[v] === 1) { g1++; g1kids += kids[v]; tries2 += tc[v] * tc[v]; }
+  return { final: total, g1, g1kids, tries, tries2, blocked };
+}
+// Oran kestiricisinin standart hatası koşu kümelerinden (aynı koşudaki birinci kuşak kişiler bağımsız sayılmaz)
+function ratioSe(num, den) {
+  const n = num.length; let sn = 0, sd = 0; for (let i = 0; i < n; i++) { sn += num[i]; sd += den[i]; }
+  if (n < 2 || !(sd > 0)) return null;
+  const R = sn / sd; let v = 0; for (let i = 0; i < n; i++) v += (num[i] - R * den[i]) ** 2;
+  return Math.sqrt(v / (n * (n - 1))) / (sd / n);
+}
+function netEnsemble({ G, tau, gamma, runs, seed }) {
+  const r = rng(seed * 7919 + 13), finals = new Int32Array(runs), T = new Float64Array(runs), D = new Float64Array(runs); let g1 = 0, g1kids = 0, tries = 0, blocked = 0;
+  for (let k = 0; k < runs; k++) { const e = netEpidemic(G, tau, gamma, r, Math.floor(r() * G.n)); finals[k] = e.final; g1 += e.g1; g1kids += e.g1kids; tries += e.tries; blocked += e.blocked; T[k] = e.tries; D[k] = e.g1; }
+  return { finals, g1, g1kids, tries, blocked, R0meas: g1 ? g1kids / g1 : null, R0pot: g1 ? tries / g1 : null, R0potSe: ratioSe(T, D) };
+}
+// Bağ süzülmesi kuramı (gerçekleşen derece dağılımı ile): u = G1(1 − T + T u), z = 1 − G0(1 − T + T u)
+function percolation(hist, T) {
+  const n = hist.reduce((a, b) => a + b, 0); let k1 = 0; hist.forEach((c, k) => { k1 += k * c; }); k1 /= n;
+  const G0 = (x) => hist.reduce((s, c, k) => s + c / n * x ** k, 0);
+  const G1 = (x) => hist.reduce((s, c, k) => s + (k ? c / n * k * x ** (k - 1) : 0), 0) / k1;
+  let u = 0; for (let it = 0; it < 20000; it++) { const nu = G1(1 - T + T * u); if (Math.abs(nu - u) < 1e-14) { u = nu; break; } u = nu; }
+  return { u, z: 1 - G0(1 - T + T * u) };
+}
+
+Object.defineProperty(window, 'EpiLab', { value: Object.freeze({ rng, integrate, logSlope, sir, finalSize, peakTheory, vaccState, vaccRun, vaccGrowth, measuredThreshold, vaccFinal, gillespie, ensemble, exactFinal, branchingExtinction, summarize, seirGrowth, sirsEquilibrium, buildNetwork, netEpidemic, ratioSe, netEnsemble, percolation }), writable: false, configurable: false });
+/* KERNEL-END */
+const K = window.EpiLab;
+const $ = (id) => document.getElementById(id);
+const put = (id, t) => { const e = $(id); if (e && e.textContent !== t) e.textContent = t; };
+
+/* ── Tek sayı biçimi: ondalık virgül, 10 000 ve üstünde dar boşlukla binler, "12,3 %", çok büyük/küçükte a × 10ᵇ ── */
+const SUP = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻' };
+const sup = (n) => String(n).split('').map((c) => SUP[c] || c).join('');
+function fmt(x, d = 2) {
+  if (x === null || x === undefined || !Number.isFinite(x)) return '—';
+  let v = Math.abs(x) < 0.5 * 10 ** -d ? 0 : x;
+  const neg = v < 0; v = Math.abs(v);
+  let [i, f] = v.toFixed(d).split('.');
+  if (i.length > 4) i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (neg ? '−' : '') + i + (f ? ',' + f : '');
+}
+function sci(x, d = 3) {
+  if (x === null || x === undefined || !Number.isFinite(x)) return '—';
+  if (x === 0) return '0';
+  const neg = x < 0; let a = Math.abs(x), e = Math.floor(Math.log10(a) + 1e-12), m = a / 10 ** e;
+  if (m >= 10 - 0.5 * 10 ** -(d - 1)) { m /= 10; e++; }
+  if (e >= -2 && e < 5) return (neg ? '−' : '') + fmt(a, Math.max(0, d - 1 - e));
+  return (neg ? '−' : '') + fmt(m, d - 1) + ' × 10' + sup(e);
+}
+const pc = (x, d = 2) => (x === null || x === undefined || !Number.isFinite(x) ? '—' : fmt(100 * x, d) + ' %');
+const sgn = (x, d) => { const t = fmt(x, d); return (x > 0 && /[1-9]/.test(t) ? '+' : '') + t; };
+const rel = (m, t) => (m === null || t === null || m === undefined || t === undefined || !(Math.abs(t) > 0) ? null : (m - t) / t);
+const relTxt = (m, t, d = 3) => { const r = rel(m, t); return r === null ? '—' : 'fark ' + sgn(100 * r, d) + ' %'; };
+const cnt = (x) => fmt(x, x >= 100 ? 0 : x >= 10 ? 1 : 2);
+const days = (t, d = 2) => fmt(t, d) + ' gün';
+function parseSeed(id) { const v = Math.floor(Number(String($(id).value).replace(',', '.'))); return Number.isFinite(v) && v >= 0 ? v : 1; }
+
+/* ── Tuval ── */
+function surface(id) {
+  const c = $(id), r = c.getBoundingClientRect();
+  if (!r.width) return null;
+  const d = Math.min(devicePixelRatio || 1, 2);
+  const W = Math.round(r.width * d), H = Math.round(r.height * d);
+  if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+  const g = c.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0);
+  const light = document.documentElement.dataset.theme === 'light';
+  const p = light
+    ? { light, bg: '#fafbf8', ink: '#1f3238', grid: '#d5dfdc', muted: '#5d6f73', accent: '#0f7a74', warm: '#a8501c', red: '#b5313a', violet: '#6b46c1', blue: '#2b5fb3', green: '#2f7d32', bar: 'rgba(43,95,179,0.45)' }
+    : { light, bg: '#0f1f27', ink: '#e3efec', grid: '#2c434a', muted: '#9cb2b5', accent: '#6fd6ca', warm: '#f2a865', red: '#ff8a91', violet: '#b9a2ff', blue: '#8fb8ff', green: '#8fd694', bar: 'rgba(143,184,255,0.45)' };
+  g.fillStyle = p.bg; g.fillRect(0, 0, r.width, r.height);
+  return { g, w: r.width, h: r.height, p };
+}
+function line(s, x, y, X, Y, col, width = 1.5, dash = []) { const g = s.g; g.strokeStyle = col; g.lineWidth = width; g.setLineDash(dash); g.beginPath(); g.moveTo(x, y); g.lineTo(X, Y); g.stroke(); g.setLineDash([]); }
+function text(s, t, x, y, col, align = 'left', size = 11) { const g = s.g; g.font = size + 'px Outfit, system-ui, sans-serif'; g.textAlign = align; g.fillStyle = col || s.p.ink; const tw = g.measureText(t).width; let xx = x; if (align === 'center') xx = Math.max(tw / 2 + 3, Math.min(s.w - tw / 2 - 3, x)); else if (align === 'left') xx = Math.max(3, Math.min(x, s.w - tw - 3)); else xx = Math.min(s.w - 3, Math.max(x, tw + 3)); g.fillText(t, xx, y); }
+function path(s, pts, col, width = 1.5, dash = []) { if (pts.length < 2) return; const g = s.g; g.strokeStyle = col; g.lineWidth = width; g.setLineDash(dash); g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); g.setLineDash([]); }
+function dot(s, x, y, r, col, fill = true) { const g = s.g; g.beginPath(); g.arc(x, y, r, 0, 2 * Math.PI); if (fill) { g.fillStyle = col; g.fill(); } else { g.strokeStyle = col; g.lineWidth = 1.5; g.stroke(); } }
+function tri(s, x, y, r, col) { const g = s.g; g.fillStyle = col; g.beginPath(); g.moveTo(x, y + r); g.lineTo(x - r * 0.9, y - r * 0.6); g.lineTo(x + r * 0.9, y - r * 0.6); g.closePath(); g.fill(); }
+function niceTicks(a, b, n) { const st = 10 ** Math.floor(Math.log10((b - a) / n)), m = (b - a) / n / st, step = st * (m > 5 ? 10 : m > 2 ? 5 : m > 1 ? 2 : 1); const out = []; for (let v = Math.ceil(a / step - 1e-9) * step; v <= b + 1e-9; v += step) out.push(Math.round(v / step) * step); return out; }
+function axes(s, o) {
+  const L = o.padL ?? 50, R = s.w - (o.padR ?? 14), T = o.padT ?? 18, B = s.h - (o.padB ?? 30);
+  const X = (v) => L + (v - o.x0) / (o.x1 - o.x0) * (R - L), Y = (v) => B - (v - o.y0) / (o.y1 - o.y0) * (B - T);
+  const xt = o.xticks || niceTicks(o.x0, o.x1, Math.max(3, Math.floor((R - L) / 70))), yt = o.yticks || niceTicks(o.y0, o.y1, Math.max(3, Math.floor((B - T) / 40)));
+  const dec = (arr) => { const st = arr.length > 1 ? Math.abs(arr[1] - arr[0]) : 1; return st >= 1 ? 0 : st >= 0.1 ? 1 : st >= 0.01 ? 2 : 3; };
+  const xd = dec(xt), yd = dec(yt);
+  xt.forEach((v) => { line(s, X(v), T, X(v), B, s.p.grid, 1); text(s, o.xfmt ? o.xfmt(v) : fmt(v, xd), X(v), B + 14, s.p.muted, 'center', 10); });
+  yt.forEach((v) => { line(s, L, Y(v), R, Y(v), s.p.grid, 1); text(s, o.yfmt ? o.yfmt(v) : fmt(v, yd), L - 5, Y(v) + 3, s.p.muted, 'right', 10); });
+  if (o.xlab) text(s, o.xlab, R, B + 26, s.p.muted, 'right', 10);
+  if (o.ylab) text(s, o.ylab, L + 4, T - 5, s.p.muted, 'left', 10);
+  return { X, Y, L, R, T, B };
+}
+// Uzun dizileri tuval genişliğine indir (her pikselde en küçük ve en büyük korunur)
+function thin(ts, ys, a, x1) {
+  const pts = []; const n = ts.length, stride = Math.max(1, Math.floor(n / (3 * (a.R - a.L))));
+  for (let k = 0; k < n; k += stride) { if (ts[k] > x1) { pts.push([a.X(x1), a.Y(ys[k])]); break; } pts.push([a.X(ts[k]), a.Y(ys[k])]); }
+  return pts;
+}
+
+/* ══════════ 1 · SIR ve R₀ ══════════ */
+const S1_DEF = { s1Beta: '0.3', s1Gamma: '0.1', s1N: '100000', s1I0: '10', s1Speed: '30' };
+const s1 = { res: null, cursor: 0, running: true, tPlot: 100, twin: null };
+function s1Cfg() { return { beta: +$('s1Beta').value, gamma: +$('s1Gamma').value, N: +$('s1N').value, I0: +$('s1I0').value }; }
+function s1Start() {
+  const c = s1Cfg();
+  put('s1BetaOut', fmt(c.beta, 2) + ' /gün'); put('s1GammaOut', fmt(c.gamma, 2) + ' /gün · ortalama ' + fmt(1 / c.gamma, 1) + ' gün'); put('s1I0Out', fmt(c.I0, 0) + ' kişi');
+  const res = K.sir(c), run = res.run;
+  s1.res = res; s1.cursor = 0;
+  s1.twin = res.peak ? K.sir({ ...c, dt: 0.025 }) : null; // h/2 ikizi: zirve ile R_t = 1 farkının adım hatası olduğunu göstermek için
+  const S0 = c.N - c.I0, Sinf = run.y[0];
+  let tp = run.tEnd;
+  if (res.done) for (let k = 0; k < run.t.length; k++) if (S0 - run.S[k] >= 0.995 * (S0 - Sinf) && run.I[k] < 0.02 * c.I0 + 0.02 * (res.peak ? res.peak.I : 0)) { tp = run.t[k]; break; }
+  s1.tPlot = Math.max(20, Math.min(run.tEnd, tp * 1.08));
+  s1.th = { final: K.finalSize(res.R0, res.s0), limit: K.finalSize(res.R0, 1), peak: K.peakTheory(res.R0, res.s0, c.I0 / c.N) };
+  s1Update(); s1Draw();
+}
+function s1At(t) { // geçerli andaki değerler (örnekler arasında doğrusal)
+  const run = s1.res.run, h = run.t[1] - run.t[0], k = Math.min(run.t.length - 2, Math.max(0, Math.floor(t / h))), w = Math.min(1, (t - run.t[k]) / h);
+  const v = (arr) => (1 - w) * arr[k] + w * arr[k + 1];
+  return { S: v(run.S), I: v(run.I), R: v(run.R) };
+}
+function s1Update() {
+  const c = s1Cfg(), res = s1.res, run = res.run, th = s1.th, N = c.N, t = s1.cursor, atEnd = t >= s1.tPlot - 1e-9;
+  put('s1R0', fmt(res.R0, 2)); put('s1R0e', 'başta etkin R₀ s₀ = ' + fmt(res.R0 * res.s0, 4) + ' (tohumlar duyarlı değildir)');
+  const pk = res.peak, seen = pk && t >= pk.t;
+  if (!pk) { put('s1Peak', 'zirve yok'); put('s1PeakE', 'R₀ s₀ ≤ 1: I baştan azalır; en büyük değer I₀ = ' + cnt(c.I0)); put('s1PeakT', 't = 0'); put('s1PeakTE', 'R_t baştan 1\'in altında'); }
+  else if (!seen) { put('s1Peak', 'zirve henüz gelmedi'); put('s1PeakE', 'kuram ' + cnt(th.peak * N) + ' kişi (' + pc(th.peak, 2) + ')'); put('s1PeakT', 'bekleniyor'); put('s1PeakTE', 'R_t şu an ' + fmt(res.R0 * s1At(t).S / N, 3)); }
+  else {
+    put('s1Peak', cnt(pk.I) + ' kişi (' + pc(pk.I / N, 2) + ')'); put('s1PeakE', 'kuram ' + cnt(th.peak * N) + ' · ' + relTxt(pk.I / N, th.peak, 5));
+    put('s1PeakT', days(pk.t, 2)); put('s1PeakTE', res.tRt1 === null ? '' : 'R_t = 1 anı ' + days(res.tRt1, 4) + ' · fark ' + sci(pk.t - res.tRt1, 2) + ' gün');
+  }
+  if (!res.done && atEnd) { put('s1Final', fmt(run.tEnd, 0) + ' günde bitmedi'); put('s1FinalE', 'şu ana dek ' + pc(1 - run.y[0] / N, 2) + ' · kuram ' + pc(th.final.z, 2)); }
+  else if (!atEnd) { put('s1Final', 'salgın sürüyor'); put('s1FinalE', 'şu ana dek ' + pc(1 - s1At(t).S / N, 2) + ' · kuram ' + pc(th.final.z, 3)); }
+  else { const z = 1 - run.y[0] / N; put('s1Final', pc(z, 3)); put('s1FinalE', 'kuram ' + pc(th.final.z, 3) + ' · ' + relTxt(z, th.final.z, 5) + ' · I₀ → 0 sınırı ' + pc(th.limit.z, 3)); }
+  if (res.rMeas === null) { put('s1Growth', '—'); put('s1GrowthE', ''); }
+  else if (res.rDepl > 0.02) { put('s1Growth', 'ölçülemez'); put('s1GrowthE', 'ilk ' + days(res.rWin, 2) + ' içinde duyarlıların ' + pc(res.rDepl, 1) + ' kadarı tükendi; üstel evre yok · kuram ' + sgn(res.rTh, 4)); }
+  else {
+    put('s1Growth', sgn(res.rMeas, 4) + ' /gün');
+    const dbl = res.rMeas > 1e-6 ? 'ikiye katlanma ' + days(Math.LN2 / res.rMeas, 2) : res.rMeas < -1e-6 ? 'yarılanma ' + days(Math.LN2 / -res.rMeas, 2) : '';
+    put('s1GrowthE', 'kuram γ(R₀ s₀ − 1) = ' + sgn(res.rTh, 4) + ' · ' + dbl);
+  }
+  const now = s1At(t);
+  put('s1Now', 't = ' + days(t, 1)); put('s1NowE', 'S ' + cnt(now.S) + ' · I ' + cnt(now.I) + ' · R ' + cnt(now.R) + ' · R_t ' + fmt(res.R0 * now.S / N, 3));
+  let st;
+  if (!pk) {
+    st = 'R₀ s₀ = ' + fmt(res.R0 * res.s0, 4) + ' ≤ 1: her enfekte kişi, yerine ortalama birden az yeni enfekte bırakıyor; I baştan azalır ve salgın büyümeden söner. ';
+    st += res.done ? 'Sonunda enfekte olmuş olanların oranı ' + pc(1 - run.y[0] / N, 4) + ' (tohumlar dahil; kuram ' + pc(th.final.z, 4) + '). Eşiğin altında son büyüklük I₀ ile orantılıdır; I₀ → 0 iken sıfıra gider.' : 'Sönme çok yavaş: ' + fmt(run.tEnd, 0) + ' günde bitmedi.';
+    if (Math.abs(res.R0 - 1) < 0.005) st = 'Tam eşik: R₀ = 1. Tohumlar duyarlı olmadığı için R₀ s₀ = ' + fmt(res.R0 * res.s0, 4) + ', yani 1\'in biraz altında: I büyümez, ama neredeyse hiç azalmaz da (yarılanma süresi binlerce gün). ' + (res.done ? '' : fmt(run.tEnd, 0) + ' günde salgın hâlâ bitmedi; şu ana dek enfekte olanların oranı ' + pc(1 - run.y[0] / N, 2) + '. ') + 'Eşikte salgının bu ağır sönüşüne kritik yavaşlama denir.';
+  } else if (!seen) st = 't = ' + days(t, 1) + ': R_t = ' + fmt(res.R0 * now.S / N, 3) + ' > 1, I büyüyor. Zirve R_t 1\'e indiğinde, yani duyarlı oran 1/R₀ değerine (' + pc(1 / res.R0, 2) + ') düştüğünde gelecek.';
+  else if (!atEnd) st = 'Zirve geçti (' + days(pk.t, 2) + '); R_t = ' + fmt(res.R0 * now.S / N, 3) + ' < 1, I azalıyor ama enfeksiyonlar sürüyor: şu ana dek enfekte olanların oranı ' + pc(1 - now.S / N, 1) + ', eşik ise ' + pc(1 - 1 / res.R0, 1) + '. "Sona atla" ile son büyüklüğü ölç.';
+  else {
+    const tw = s1.twin, d1 = pk.t - res.tRt1, d2 = tw && tw.peak && tw.tRt1 !== null ? tw.peak.t - tw.tRt1 : null;
+    st = 'Zirve ile R_t = 1 aynı an: ölçülen fark ' + sci(d1, 2) + ' gün (h = 0,05 gün); adım yarıya inince ' + sci(d2, 2) + ' gün, yani fark yalnız ara değer hatası. ';
+    if (res.done) {
+      const z = 1 - run.y[0] / N;
+      st += 'Son büyüklük ' + pc(z, 2) + '; R_t\'yi 1\'in altına indiren sürü bağışıklığı eşiği 1 − 1/R₀ = ' + pc(1 - 1 / res.R0, 2) + ' zirvede ulaşıldı, ama salgın zirveden sonra da sürdü; eşiğin üstündeki fazlalık (aşma) nüfusun ' + pc(z - (1 - 1 / res.R0), 2) + ' kadarı. ';
+      st += 'Nüfusun ' + pc(run.y[0] / N, 2) + ' kadarı hiç enfekte olmadan kaldı: salgın, duyarlılar bittiği için değil, bulaştıranlar azaldığı için söndü.';
+    } else st += 'Benzetim ' + fmt(run.tEnd, 0) + ' günde bitmedi: R₀ eşiğe çok yakın, salgın çok yavaş sönüyor.';
+    if (res.R0 > 20) st += ' R₀ = ' + fmt(res.R0, 1) + ' çok büyük: neredeyse herkes enfekte olur ve zirve birkaç günde gelir.';
+  }
+  put('s1Status', st);
+}
+function s1Draw() {
+  const res = s1.res; if (!res) return;
+  const run = res.run, c = s1Cfg(), N = c.N, tx = s1.tPlot, t = Math.min(s1.cursor, tx);
+  {
+    const s = surface('s1Chart'); if (!s) return;
+    const a = axes(s, { x0: 0, x1: tx, y0: 0, y1: 1, xlab: 'zaman / gün', ylab: 'nüfusun oranı', yticks: [0, 0.25, 0.5, 0.75, 1], yfmt: (v) => fmt(100 * v, 0) + ' %' });
+    const n = Math.min(run.t.length, Math.floor(t / (run.t[1] - run.t[0])) + 2), ts = run.t.slice(0, n);
+    const fr = (arr) => arr.slice(0, n).map((v) => v / N);
+    path(s, thin(ts, fr(run.S), a, t), s.p.blue, 2); path(s, thin(ts, fr(run.I), a, t), s.p.warm, 2.4); path(s, thin(ts, fr(run.R), a, t), s.p.green, 2);
+    if (s1.th.peak !== null) { line(s, a.L, a.Y(s1.th.peak), a.R, a.Y(s1.th.peak), s.p.warm, 1, [4, 4]); text(s, 'kuram I_max', a.R - 4, a.Y(s1.th.peak) - 4, s.p.warm, 'right', 10); }
+    if (res.peak && t >= res.peak.t) dot(s, a.X(res.peak.t), a.Y(res.peak.I / N), 4.5, s.p.red);
+    line(s, a.X(t), a.T, a.X(t), a.B, s.p.muted, 1);
+    text(s, 'S', a.L + 6, a.T + 12, s.p.blue, 'left', 11); text(s, 'I', a.L + 22, a.T + 12, s.p.warm, 'left', 11); text(s, 'R', a.L + 36, a.T + 12, s.p.green, 'left', 11);
+  }
+  {
+    const s = surface('s1Rt'); if (!s) return;
+    const top = Math.max(2, Math.ceil(res.R0 * res.s0 * 1.1));
+    const a = axes(s, { x0: 0, x1: tx, y0: 0, y1: top, xlab: 'zaman / gün', ylab: 'R_t' });
+    line(s, a.L, a.Y(1), a.R, a.Y(1), s.p.red, 1.2, [5, 4]); text(s, 'R_t = 1', a.R - 4, a.Y(1) - 4, s.p.red, 'right', 10);
+    const n = Math.min(run.t.length, Math.floor(t / (run.t[1] - run.t[0])) + 2);
+    path(s, thin(run.t.slice(0, n), run.S.slice(0, n).map((v) => res.R0 * v / N), a, t), s.p.accent, 2);
+    if (res.peak && t >= res.peak.t) { line(s, a.X(res.peak.t), a.T, a.X(res.peak.t), a.B, s.p.warm, 1.2, [3, 3]); text(s, 'zirve', a.X(res.peak.t) + 4, a.T + 10, s.p.warm, 'left', 10); }
+  }
+}
+
+/* ══════════ 2 · Sürü bağışıklığı ══════════ */
+const S2_DEF = { s2R0: '3', s2P: '0.5', s2Eff: '1', s2Model: 'aon' };
+const s2 = { curveKey: '', curve: null, thr: null, cur: null };
+const HERD = Object.freeze({ N: 100000, I0: 10, gamma: 0.1 });
+function s2Cfg() { return { R0: +$('s2R0').value, p: +$('s2P').value, e: +$('s2Eff').value, model: $('s2Model').value }; }
+function s2Update() {
+  const c = s2Cfg(), i0 = HERD.I0 / HERD.N;
+  put('s2R0Out', fmt(c.R0, 1)); put('s2POut', pc(c.p, 0)); put('s2EffOut', pc(c.e, 0));
+  const key = [c.R0, c.e, c.model].join('|');
+  if (key !== s2.curveKey) {
+    s2.curveKey = key;
+    s2.thr = K.measuredThreshold({ R0: c.R0, gamma: HERD.gamma, e: c.e, model: c.model }); s2.thrHalf = K.measuredThreshold({ R0: c.R0, gamma: HERD.gamma, e: c.e, model: c.model, win: 0.5 });
+    const th = [], me = [];
+    for (let k = 0; k <= 198; k++) { const p = k / 200; th.push([p, K.vaccFinal({ R0: c.R0, p, e: c.e, model: c.model, i0 }).attack]); }
+    for (let k = 0; k <= 19; k++) { const p = k / 20, v = K.vaccRun({ R0: c.R0, gamma: HERD.gamma, p, e: c.e, model: c.model, N: HERD.N, I0: HERD.I0, dt: 0.1, sampleDt: 1 }); me.push([p, v.attack]); }
+    s2.curve = { th, me };
+  }
+  const v = K.vaccRun({ R0: c.R0, gamma: HERD.gamma, p: c.p, e: c.e, model: c.model, N: HERD.N, I0: HERD.I0, sampleDt: 0.1 });
+  const fin = K.vaccFinal({ R0: c.R0, p: c.p, e: c.e, model: c.model, i0 });
+  s2.cur = v;
+  const pcTh = (1 - 1 / c.R0) / c.e, thr = s2.thr;
+  put('s2Reff', fmt(v.rEff0, 3)); put('s2ReffE', 's_etkin(0) = ' + pc(v.sEff0, 2) + ' · kuram R₀(1 − p e) = ' + fmt(c.R0 * (1 - c.p * c.e) * (1 - i0), 3));
+  if (pcTh > 1) { put('s2Pc', 'ulaşılamaz'); put('s2PcE', 'kuram (1 − 1/R₀)/e = ' + fmt(pcTh, 3) + ' > 1: bu etkinlikle herkes aşılansa bile R_etkin > 1'); }
+  else { put('s2Pc', thr.found ? pc(thr.pc, 3) : 'bulunamadı'); put('s2PcE', 'kuram (1 − 1/R₀)/e = ' + pc(pcTh, 3) + (thr.found && pcTh > 0 ? ' · ' + relTxt(thr.pc, pcTh, 3) : '')); }
+  put('s2Attack', pc(v.attack, 3)); put('s2AttackE', 'kuram ' + pc(fin.attack, 3) + ' · ' + relTxt(v.attack, fin.attack, 4) + (v.run.done ? '' : ' · benzetim bitmedi'));
+  const outbreak = v.rEff0 > 1 && v.peak;
+  if (!outbreak) {
+    put('s2Speak', 'zirve yok'); put('s2SpeakE', 'R_etkin(0) ≤ 1: I baştan azalır');
+    put('s2Before', '—'); put('s2BeforeE', 'salgın büyümüyor'); put('s2After', 'tanımsız'); put('s2AfterE', 'zirve olmadığı için aşma da yok');
+  } else {
+    put('s2Speak', pc(v.effAtPeak, 3)); put('s2SpeakE', 'kuram 1/R₀ = ' + pc(1 / c.R0, 3) + ' · ' + relTxt(v.effAtPeak, 1 / c.R0, 4));
+    put('s2Before', pc(v.before, 2));
+    if (c.model === 'aon') {
+      const bTh = (v.sEff0 - 1 / c.R0), aTh = 1 / c.R0 - fin.suEnd * (1 - i0) / (1 - i0);
+      put('s2BeforeE', 'kuram s_etkin(0) − 1/R₀ = ' + pc(bTh, 2) + ' · ' + relTxt(v.before, bTh, 3));
+      put('s2After', pc(v.after, 2)); put('s2AfterE', 'kuram 1/R₀ − s∞ = ' + pc(aTh, 2) + ' · ' + relTxt(v.after, aTh, 3));
+    } else {
+      put('s2BeforeE', 'sızdıran modelde kapalı biçim yok; yalnız ölçülür');
+      put('s2After', pc(v.after, 2)); put('s2AfterE', 'yalnız ölçülür; aşılı ve aşısız duyarlılar farklı hızla tükenir');
+    }
+  }
+  let st;
+  if (pcTh > 1) st = 'Etkinlik e = ' + pc(c.e, 0) + ' ile eşik (1 − 1/R₀)/e = ' + fmt(pcTh, 3) + ' birden büyük: herkes aşılansa bile R_etkin = R₀(1 − e) = ' + fmt(c.R0 * (1 - c.e), 2) + ' > 1 kalır. Bu modelde salgını yalnız bağışıklıkla önlemek mümkün değil; yine de her aşılı oran salgını küçültür (eğriye bak).';
+  else if (!outbreak) st = 'p = ' + pc(c.p, 0) + ' ≥ p_c: R_etkin(0) = ' + fmt(v.rEff0, 3) + ' ≤ 1. Tohumlar birkaç kişiye bulaştırır, sonra zincir söner; salgın büyüklüğü nüfusun ' + pc(v.attack, 3) + ' kadarı. Modelde bağışık olmayanlar da salgından korunur: sürü bağışıklığı, kişinin değil topluluğun özelliğidir.';
+  else {
+    st = 'p = ' + pc(c.p, 0) + ' eşiğin (' + pc(pcTh, 1) + ') altında: R_etkin(0) = ' + fmt(v.rEff0, 2) + ', salgın büyür. Zirvede etkin duyarlı oran 1/R₀\'a iner (ölçülen ' + pc(v.effAtPeak, 2) + '), ama o anda hâlâ ' + cnt(v.peak.I) + ' enfekte var; onların zincirleri zirveden sonra nüfusun ' + pc(v.after, 2) + ' kadarını daha enfekte eder. ';
+    st += 'Toplam ' + pc(v.attack, 2) + '; yalnız eşiğe kadar gidilseydi ' + pc(Math.max(0, v.before), 2) + ' olurdu. Modelde bu aşma yüzünden, salgının kendisinin bıraktığı bağışıklık eşiğin gerektirdiğinden fazla enfeksiyonla gelir.';
+    if (c.model === 'leaky') st += ' Sızdıran modelde aşılılar da enfekte olabilir ama daha yavaş; aynı p ve e ile başlangıç R_etkin\'i hep ya da hiç modeliyle aynıdır, son büyüklük ise farklıdır.';
+  }
+  if (thr.found && pcTh <= 1 && pcTh > 0) { const seedTh = (1 - 1 / (c.R0 * (1 - i0))) / c.e; const d1 = thr.pc - seedTh, d2 = s2.thrHalf.found ? s2.thrHalf.pc - seedTh : null; st += ' Ölçülen eşik ' + pc(thr.pc, 4) + ', kuramdan ' + sgn(100 * (thr.pc - pcTh), 4) + ' puan farklı. Tohumlar duyarlı sayılmadığı için tam eşik (1 − 1/(R₀(1 − i₀)))/e = ' + pc(seedTh, 4) + '; ölçülen bundan ' + sgn(100 * d1, 4) + ' puan ayrılıyor, eğim penceresi bir günden yarım güne inince ' + (d2 === null ? '—' : sgn(100 * d2, 4)) + ' puan: kalan fark, pencere içinde duyarlıların azalmasıyla pencere boyuna orantılıdır.'; }
+  put('s2Status', st);
+  s2Draw(pcTh, fin);
+}
+function s2Draw(pcTh, fin) {
+  const c = s2Cfg(), v = s2.cur, cv = s2.curve;
+  {
+    const s = surface('s2Curve'); if (!s) return;
+    const a = axes(s, { x0: 0, x1: 1, y0: 0, y1: 1, xlab: 'başta bağışıklanan oran p', ylab: 'salgında enfekte olan oran', xfmt: (x) => fmt(100 * x, 0) + ' %', yfmt: (y) => fmt(100 * y, 0) + ' %', yticks: [0, 0.25, 0.5, 0.75, 1] });
+    const thrOnly = []; for (let k = 0; k <= 200; k++) { const p = k / 200, se = c.model === 'aon' ? 1 - p * c.e : 1 - p * c.e; thrOnly.push([a.X(p), a.Y(Math.max(0, se - 1 / c.R0))]); }
+    path(s, thrOnly, s.p.green, 1.4, [6, 4]);
+    path(s, cv.th.map(([p, z]) => [a.X(p), a.Y(z)]), s.p.accent, 2.2);
+    cv.me.forEach(([p, z]) => dot(s, a.X(p), a.Y(z), 3.4, s.p.ink, false));
+    if (pcTh <= 1) { line(s, a.X(pcTh), a.T, a.X(pcTh), a.B, s.p.violet, 1.4, [4, 3]); text(s, 'p_c kuram', a.X(pcTh) + 4, a.T + 10, s.p.violet, 'left', 10); }
+    if (s2.thr.found) { line(s, a.X(s2.thr.pc), a.T + 14, a.X(s2.thr.pc), a.B, s.p.red, 1.2); text(s, 'ölçülen', a.X(s2.thr.pc) + 4, a.T + 24, s.p.red, 'left', 10); }
+    tri(s, a.X(c.p), a.Y(v.attack) - 8, 6, s.p.warm);
+  }
+  {
+    const s = surface('s2Time'); if (!s) return;
+    const run = v.run, N = HERD.N;
+    let tx = run.tEnd; if (v.peak) tx = Math.min(run.tEnd, v.peak.t * 2.6 + 20); else tx = Math.min(run.tEnd, 120);
+    const imax = Math.max(...run.I) / N, ytop = Math.max(1e-6, imax * 1.15);
+    const a = axes(s, { x0: 0, x1: tx, y0: 0, y1: 1, xlab: 'zaman / gün', ylab: 'oran', yticks: [0, 0.25, 0.5, 0.75, 1], yfmt: (y) => fmt(100 * y, 0) + ' %' });
+    line(s, a.L, a.Y(1 / c.R0), a.R, a.Y(1 / c.R0), s.p.violet, 1.2, [5, 4]); text(s, '1/R₀', a.R - 4, a.Y(1 / c.R0) - 4, s.p.violet, 'right', 10);
+    path(s, thin(run.t, run.Se.map((x) => x / N), a, tx), s.p.blue, 2);
+    path(s, thin(run.t, run.I.map((x) => x / N / ytop), a, tx), s.p.warm, 2.2);
+    text(s, 'I/N (en büyük ' + pc(imax, 2) + ' = tepe)', a.L + 6, a.T + 12, s.p.warm, 'left', 10);
+    text(s, 's_etkin', a.L + 6, a.T + 26, s.p.blue, 'left', 10);
+    if (v.peak) { line(s, a.X(v.peak.t), a.T, a.X(v.peak.t), a.B, s.p.warm, 1, [3, 3]); dot(s, a.X(v.peak.t), a.Y(v.effAtPeak), 4, s.p.red); }
+  }
+}
+
+/* ══════════ 3 · Stokastik SIR ══════════ */
+const S3_DEF = { s3R0: '2', s3N: '1000', s3I0: '1', s3Runs: '500', s3Seed: '1' };
+const s3 = { job: null };
+function s3Cfg() { return { R0: +$('s3R0').value, N: +$('s3N').value, I0: +$('s3I0').value, runs: +$('s3Runs').value, seed: parseSeed('s3Seed') }; }
+function s3Start() {
+  const c = s3Cfg();
+  put('s3R0Out', fmt(c.R0, 1)); put('s3I0Out', fmt(c.I0, 0) + ' kişi');
+  const zDet = K.finalSize(c.R0, (c.N - c.I0) / c.N).z, cut = c.R0 > 1 ? Math.floor(zDet * c.N / 2) : c.N;
+  const exact = K.exactFinal(c.N, c.R0, c.I0); let pEx = 0; for (let k = 0; k <= Math.min(cut, c.N); k++) pEx += exact[k];
+  const det = K.sir({ beta: c.R0 * 0.1, gamma: 0.1, N: c.N, I0: c.I0, dt: 0.1 });
+  s3.job = { c, r: K.rng(c.seed), k: 0, finals: new Int32Array(c.runs), paths: [], zDet, cut, exact, pEx, det };
+  s3Update();
+}
+function s3Step(budgetMs) {
+  const j = s3.job; if (!j || j.k >= j.c.runs) return false;
+  const t0 = performance.now();
+  while (j.k < j.c.runs && performance.now() - t0 < budgetMs) {
+    const g = K.gillespie({ N: j.c.N, R0: j.c.R0, gamma: 0.1, I0: j.c.I0, r: j.r, keep: j.k < 30 });
+    j.finals[j.k] = g.final; if (j.k < 30) j.paths.push(g.path); j.k++;
+  }
+  return true;
+}
+function s3Update() {
+  const j = s3.job, c = j.c, done = j.k >= c.runs, fin = j.finals.subarray(0, j.k);
+  put('s3Prog', fmt(j.k, 0) + ' / ' + fmt(c.runs, 0)); put('s3ProgE', done ? 'tamam · tohum ' + c.seed : 'çalışıyor…');
+  const sum = j.k ? K.summarize(fin, c.N, j.cut) : null, bt = K.branchingExtinction(c.R0, c.I0);
+  if (c.R0 <= 1) {
+    let mean = 0, m2 = 0; for (const f of fin) { mean += f; m2 += f * f; } mean = j.k ? mean / j.k : null;
+    const seM = j.k > 1 ? Math.sqrt(Math.max(0, m2 / j.k - mean * mean) / (j.k - 1)) : null;
+    const thMean = c.R0 < 1 ? c.I0 / (1 - c.R0) : null;
+    put('s3PMin', '100 % (R₀ ≤ 1)'); put('s3PMinE', 'dallanma kuramı: bütün zincirler söner');
+    put('s3Exact', 'büyük salgın yok'); put('s3ExactE', '');
+    put('s3Major', 'ortalama ' + (mean === null ? '—' : fmt(mean, 2) + (seM ? ' ± ' + fmt(seM, 2) : '')) + ' kişi'); put('s3MajorE', thMean === null ? 'R₀ = 1: dallanma kuramında ortalama sınırsız; burada N ile sınırlı' : 'dallanma kuramı I₀/(1 − R₀) = ' + fmt(thMean, 2) + (mean !== null ? ' · ' + relTxt(mean, thMean, 1) + (seM ? ' (' + fmt(Math.abs(mean - thMean) / seM, 1) + ' σ)' : '') : ''));
+    put('s3Sd', '—'); put('s3SdE', ''); put('s3Cut', 'yok'); put('s3CutE', 'R₀ ≤ 1 iken iki tepe oluşmaz');
+  } else {
+    put('s3PMin', sum ? pc(sum.pMinor, 1) + ' ± ' + fmt(100 * sum.se, 1) : '—');
+    put('s3PMinE', 'dallanma (1/R₀)^I₀ = ' + pc(bt, 2) + (sum && sum.se > 0 ? ' · fark ' + fmt(Math.abs(sum.pMinor - bt) / sum.se, 1) + ' σ' : ''));
+    put('s3Exact', pc(j.pEx, 2)); put('s3ExactE', 'P(son büyüklük ≤ ' + fmt(j.cut, 0) + '), N = ' + fmt(c.N, 0) + (sum && sum.se > 0 ? ' · ölçülenden ' + fmt(Math.abs(sum.pMinor - j.pEx) / sum.se, 1) + ' σ' : ''));
+    put('s3Major', sum && sum.mean !== null ? pc(sum.mean, 2) : 'büyük salgın yok'); put('s3MajorE', 'deterministik ' + pc(j.zDet, 2) + (sum && sum.mean !== null ? ' · ' + relTxt(sum.mean, j.zDet, 2) + ' · ' + sum.nMaj + ' koşu' : ''));
+    put('s3Sd', sum && sum.sd !== null ? pc(sum.sd, 2) : '—'); put('s3SdE', sum && sum.sd !== null ? '√N × sapma = ' + fmt(sum.sd * Math.sqrt(c.N), 3) + ' (büyük N\'de yaklaşık sabit; N\'yi değiştirerek sına)' : '');
+    put('s3Cut', fmt(j.cut, 0) + ' kişi'); put('s3CutE', 'deterministik son büyüklüğün yarısı');
+  }
+  let st;
+  if (!done) st = 'Koşular sürüyor: ' + j.k + ' / ' + c.runs + '.';
+  else if (c.R0 <= 1) st = 'R₀ = ' + fmt(c.R0, 1) + ' ≤ 1: her zincir eninde sonunda söner; büyük salgın olmaz. ' + (c.R0 < 1 ? 'Koşuların ortalama toplam büyüklüğü dallanma kuramının verdiği I₀/(1 − R₀) ile karşılaştırılır' + (c.R0 > 0.85 ? '; eşiğe yakın bu değer çok dağınıktır, tek tek koşular yüzlerce kişiye ulaşabilir.' : '.') : 'Tam eşikte (R₀ = 1) ortalama büyüklük sonsuz bir nüfusta sınırsızdır; burada yalnız N sınırlar, dağılımın kuyruğu çok uzundur.');
+  else {
+    st = c.runs + ' koşudan ' + sum.nMin + ' tanesi küçük kaldı: ölçülen erken sönme ' + pc(sum.pMinor, 1) + ' ± ' + fmt(100 * sum.se, 1) + ', dallanma kuramı ' + pc(bt, 2) + ', bu N için kesin değer ' + pc(j.pEx, 2) + '. ';
+    st += 'R₀ = ' + fmt(c.R0, 1) + ' olsa bile tek bir tohumun salgın başlatma şansı yalnız 1 − 1/R₀ = ' + pc(1 - 1 / c.R0, 0) + ': ilk vaka, bulaştırmadan iyileşebilir. ';
+    if (sum.mean !== null && c.R0 >= 1.3) st += 'Büyük salgınlar deterministik son büyüklüğün (' + pc(j.zDet, 1) + ') çevresinde ' + pc(sum.sd, 1) + ' sapmayla toplanır; dağılım iki tepelidir. ';
+    if (c.R0 < 1.3) st += 'R₀ eşiğe yakın: iki tepe birbirine karışıyor, küçük/büyük ayrımı ve dallanma kuramı burada kaba kalır. ';
+    if (c.N <= 100) st += 'N = ' + c.N + ' küçük: duyarlılar ilk kuşaklarda bile azaldığı için kesin değer dallanma kuramından ' + sgn(100 * (j.pEx - bt), 1) + ' puan ayrılıyor; büyük salgınların büyüklüğü de geniş yayılıyor.';
+  }
+  put('s3Status', st);
+  s3Draw();
+}
+function s3Draw() {
+  const j = s3.job; if (!j) return; const c = j.c;
+  {
+    const s = surface('s3Hist'); if (!s) return;
+    const nb = Math.min(50, c.N), counts = new Array(nb).fill(0), exp = new Array(nb).fill(0);
+    const bin = (f) => Math.min(nb - 1, Math.floor(f / c.N * nb));
+    for (let k = 0; k < j.k; k++) counts[bin(j.finals[k])]++;
+    for (let f = 0; f <= c.N; f++) exp[bin(f)] += j.exact[f] * j.k;
+    const top = Math.max(1, ...counts, ...exp), sq = Math.sqrt(top);
+    const yt = niceTicks(0, top, 4).filter((v) => v > 0);
+    const a = axes(s, { x0: 0, x1: 1, y0: 0, y1: sq, xlab: 'son büyüklük / N', ylab: 'koşu sayısı (karekök ölçek)', xfmt: (x) => fmt(100 * x, 0) + ' %', yticks: yt.map(Math.sqrt), yfmt: (y) => fmt(y * y, 0) });
+    const bw = (a.R - a.L) / nb;
+    counts.forEach((n, i) => { if (n) { s.g.fillStyle = s.p.bar; const y = a.Y(Math.sqrt(n)); s.g.fillRect(a.L + i * bw + 0.5, y, Math.max(1, bw - 1), a.B - y); } });
+    path(s, exp.map((e, i) => [a.L + (i + 0.5) * bw, a.Y(Math.sqrt(e))]), s.p.ink, 1.4);
+    if (c.R0 > 1) { line(s, a.X(j.zDet), a.T, a.X(j.zDet), a.B, s.p.violet, 1.4, [5, 4]); text(s, 'deterministik', a.X(j.zDet) - 4, a.T + 10, s.p.violet, 'right', 10); line(s, a.X(j.cut / c.N), a.T + 14, a.X(j.cut / c.N), a.B, s.p.red, 1.2, [3, 3]); text(s, 'sınır', a.X(j.cut / c.N) + 4, a.T + 24, s.p.red, 'left', 10); }
+  }
+  {
+    const s = surface('s3Paths'); if (!s) return;
+    const det = j.det, run = det.run;
+    let tx = 60; for (const p of j.paths) tx = Math.max(tx, p[p.length - 1][0]);
+    const dEnd = det.peak ? det.peak.t * 2.5 : 60; tx = Math.min(tx, Math.max(dEnd, 60) * 1.6);
+    let ymax = det.peak ? det.peak.I / c.N : c.I0 / c.N; for (const p of j.paths) for (const q of p) ymax = Math.max(ymax, q[1] / c.N);
+    const a = axes(s, { x0: 0, x1: tx, y0: 0, y1: ymax * 1.1, xlab: 'zaman / gün', ylab: 'I/N', yfmt: (y) => fmt(100 * y, 0) + ' %' });
+    j.paths.forEach((p) => { const stride = Math.max(1, Math.floor(p.length / 600)); const pts = []; for (let k = 0; k < p.length; k += stride) { if (p[k][0] > tx) break; pts.push([a.X(p[k][0]), a.Y(p[k][1] / c.N)]); } const lst = p[p.length - 1]; if (lst[0] <= tx) pts.push([a.X(lst[0]), a.Y(lst[1] / c.N)]); s.g.globalAlpha = 0.55; path(s, pts, s.p.accent, 1); s.g.globalAlpha = 1; });
+    path(s, thin(run.t, run.I.map((v) => v / c.N), a, tx), s.p.warm, 2.4, [6, 4]);
+  }
+}
+
+/* ══════════ 4 · Genişletmeler ══════════ */
+const S4_DEF = { s4Model: 'seir', s4Beta: '0.3', s4Gamma: '0.1', s4Sigma: '0.2', s4Omega: '0.005', s4Kind: 'poisson', s4Mean: '4', s4Tau: '0.05', s4Nn: '2000', s4Runs: '500', s4Seed: '1' };
+const s4 = { res: null, job: null };
+const EXT = Object.freeze({ N: 1e6, I0: 1 });
+const card = (i, l, v, e) => { put('s4L' + i, l); put('s4V' + i, v); put('s4E' + i, e); };
+function growthWindow(run) { let ta = null, tb = null; for (let k = 0; k < run.t.length; k++) { if (ta === null && run.I[k] >= 30 * EXT.I0) ta = run.t[k]; if (tb === null && run.I[k] >= 3000 * EXT.I0) { tb = run.t[k]; break; } } return ta === null || tb === null ? null : K.logSlope(run.t, run.I, ta, tb); }
+function s4Start() {
+  const m = $('s4Model').value, beta = +$('s4Beta').value, gamma = +$('s4Gamma').value, sigma = +$('s4Sigma').value, omega = +$('s4Omega').value, tau = +$('s4Tau').value;
+  put('s4BetaOut', fmt(beta, 2) + ' /gün'); put('s4GammaOut', fmt(gamma, 2) + ' /gün · ' + fmt(1 / gamma, 1) + ' gün'); put('s4SigmaOut', fmt(sigma, 2) + ' /gün · ' + fmt(1 / sigma, 1) + ' gün');
+  put('s4OmegaOut', fmt(omega, 3) + ' /gün · ' + fmt(1 / omega, 0) + ' gün'); put('s4MeanOut', fmt(+$('s4Mean').value, 0)); put('s4TauOut', fmt(tau, 2) + ' /gün');
+  document.querySelectorAll('#panel-ext [data-for]').forEach((el) => { el.hidden = !el.dataset.for.split(' ').includes(m); });
+  const N = EXT.N, y0 = [N - EXT.I0, 0, 0, EXT.I0, 0];
+  s4.job = null;
+  if (m === 'seir') {
+    const a = K.integrate({ beta, gamma, N, dt: 0.05, tMax: 20000, y0, sampleDt: 0.25 }), b = K.integrate({ beta, gamma, sigma, N, dt: 0.05, tMax: 20000, y0, sampleDt: 0.25 });
+    s4.res = { m, beta, gamma, sigma, a, b, rA: growthWindow(a), rB: growthWindow(b), fs: K.finalSize(beta / gamma, (N - EXT.I0) / N) };
+  } else if (m === 'sirs') {
+    const c = K.integrate({ beta, gamma, omega, N, dt: 0.1, tMax: 10000, y0, sampleDt: 1 });
+    const eq = K.sirsEquilibrium(beta, gamma, omega, N);
+    let per = null, dec = null;
+    if (eq) {
+      const q = c.peaks.slice(1).filter((p) => { const amp = (p.I - eq.I) / eq.I; return amp > 1e-7 && amp < 0.01; });
+      if (q.length >= 3) { per = (q[q.length - 1].t - q[0].t) / (q.length - 1); let s = 0; for (let k = 1; k < q.length; k++) s += Math.log((q[k - 1].I - eq.I) / (q[k].I - eq.I)) / (q[k].t - q[k - 1].t); dec = s / (q.length - 1); }
+    }
+    s4.res = { m, beta, gamma, omega, c, eq, per, dec, nPk: c.peaks.length };
+  } else {
+    const kind = $('s4Kind').value, mean = +$('s4Mean').value, n = +$('s4Nn').value, runs = +$('s4Runs').value, seed = parseSeed('s4Seed');
+    const G = K.buildNetwork({ n, mean, kind, seed }), T = tau / (tau + gamma), kap = G.k2 / G.k1 - 1;
+    const perc = K.percolation(G.hist, T), mf = tau * G.k1 / gamma, mfz = K.finalSize(mf, 1).z;
+    s4.res = { m, tau, gamma, G, T, kap, perc, mf, mfz, kind, runs, seed };
+    s4.job = { r: K.rng(seed * 7919 + 13), k: 0, finals: new Int32Array(runs), T: new Float64Array(runs), D: new Float64Array(runs), g1: 0, kids: 0, tries: 0, blocked: 0 };
+  }
+  s4Update();
+}
+function s4Step(budgetMs) {
+  const j = s4.job, R = s4.res; if (!j || j.k >= R.runs) return false;
+  const t0 = performance.now();
+  while (j.k < R.runs && performance.now() - t0 < budgetMs) {
+    const e = K.netEpidemic(R.G, R.tau, R.gamma, j.r, Math.floor(j.r() * R.G.n));
+    j.finals[j.k] = e.final; j.T[j.k] = e.tries; j.D[j.k] = e.g1; j.k++; j.g1 += e.g1; j.kids += e.g1kids; j.tries += e.tries; j.blocked += e.blocked;
+  }
+  return true;
+}
+function s4Update() {
+  const R = s4.res, m = R.m;
+  let st = '', assume, formula, note, aT, aC, bT, bC;
+  if (m === 'seir') {
+    const { a, b, fs } = R, N = EXT.N, zA = 1 - a.y[0] / N, zB = 1 - b.y[0] / N, R0 = R.beta / R.gamma, rTh = K.seirGrowth(R.beta, R.gamma, R.sigma);
+    assume = 'SEIR: enfekte olan önce E (gizli, henüz bulaştırmayan) kutusuna girer, ortalama 1/σ gün sonra bulaştırıcı olur. Homojen karışım, sabit parametreler, doğum ve ölüm yok; N = 1 000 000, I₀ = 1. Aynı β ve γ ile SIR yan yana çözülür.';
+    formula = 'dE/dt = β S I / N − σ E<br>dI/dt = σ E − γ I<br>R₀ = β/γ (gizli dönemde ölüm yokken σ\'ya bağlı değil)<br>r = [−(σ + γ) + √((σ − γ)² + 4σβ)] / 2';
+    note = 'Büyüme hızı, ln I\'ya I = 30 ile 3 000 arasında uydurulan eğimden ölçülür; bu aralıkta duyarlıların tükenmesi yüzde birin altındadır ve başlangıçtaki geçiş sönmüştür.';
+    aT = 'SIR ve SEIR: enfekte oranı'; aC = 'Turuncu: SIR, mavi: SEIR (I, bulaştırıcı olanlar); yeşil kesikli: SEIR\'de E (gizli dönemdekiler). Gizli dönem eğriyi geciktirir ve yayar.';
+    bT = 'Erken büyüme: log ölçek'; bC = 'log₁₀ I zamana göre; büyüme evresinde eğriler düz çizgidir ve iki yatay çizgi arasındaki eğim ölçülen r\'yi verir (eğim r/ln 10); SEIR\'in eğimi daha küçüktür ama sonunda aynı yere varır.';
+    const done = a.done && b.done;
+    card(1, 'Son büyüklük: SIR (ölçülen)', pc(zA, 4), 'kuram ' + pc(fs.z, 4) + ' · ' + relTxt(zA, fs.z, 5));
+    card(2, 'Son büyüklük: SEIR (ölçülen)', pc(zB, 4), 'SIR\'den ' + relTxt(zB, zA, 5) + (done ? '' : ' · benzetim bitmedi'));
+    card(3, 'Zirve anı: SIR · SEIR', a.peaks[0] && b.peaks[0] ? days(a.peaks[0].t, 1) + ' · ' + days(b.peaks[0].t, 1) : 'zirve yok', a.peaks[0] && b.peaks[0] ? 'gecikme ' + days(b.peaks[0].t - a.peaks[0].t, 1) : '');
+    card(4, 'Zirve I/N: SIR · SEIR', a.peaks[0] && b.peaks[0] ? pc(a.peaks[0].I / N, 2) + ' · ' + pc(b.peaks[0].I / N, 2) : '—', a.peaks[0] && b.peaks[0] ? 'oran ' + fmt(b.peaks[0].I / a.peaks[0].I, 3) : '');
+    card(5, 'Büyüme hızı r: SEIR (ölçülen)', R.rB === null ? '—' : sgn(R.rB, 4) + ' /gün', 'kuram ' + sgn(rTh, 4) + ' · ' + relTxt(R.rB, rTh, 2));
+    card(6, 'Büyüme hızı r: SIR (ölçülen)', R.rA === null ? '—' : sgn(R.rA, 4) + ' /gün', 'kuram β − γ = ' + sgn(R.beta - R.gamma, 4) + ' · ' + relTxt(R.rA, R.beta - R.gamma, 2));
+    if (R0 <= 1) st = 'R₀ = ' + fmt(R0, 2) + ' ≤ 1: iki model de büyümeden söner; gizli dönem bunu değiştirmez.';
+    else st = 'Gizli dönem ' + fmt(1 / R.sigma, 1) + ' gün: zirve ' + days(b.peaks[0].t - a.peaks[0].t, 1) + ' gecikiyor, zirve yüksekliği ' + pc(a.peaks[0].I / N, 1) + ' yerine ' + pc(b.peaks[0].I / N, 1) + ', büyüme hızı ' + fmt(R.rA, 3) + ' yerine ' + fmt(R.rB, 3) + ' /gün. Son büyüklükler ise ' + pc(zA, 3) + ' ve ' + pc(zB, 3) + ': göreli fark ' + sci(Math.abs(zB - zA) / zA, 2) + '. Neden? Her enfekte yine ortalama β/γ kişiye bulaştırır; gizli dönem yalnız bunun ne zaman olacağını değiştirir. Son büyüklük denklemi zamanı içermez.';
+  } else if (m === 'sirs') {
+    const { c, eq } = R, N = EXT.N, R0 = R.beta / R.gamma;
+    assume = 'SIRS: iyileşenlerin bağışıklığı ortalama 1/ω gün sürer, sonra yeniden duyarlı olurlar. Homojen karışım, sabit parametreler, doğum ve ölüm yok, mevsim etkisi yok; N = 1 000 000, I₀ = 1, 10 000 gün çözülür.';
+    formula = 'dS/dt = −β S I / N + ω R<br>dI/dt = β S I / N − γ I<br>dR/dt = γ I − ω R<br>denge: S* = N/R₀,  I* = N (1 − 1/R₀) ω / (ω + γ)<br>salınım: λ = −δ ± iΩ,  δ = (β I*/N + ω)/2,  Ω² = (γ + ω) β I*/N − δ²';
+    note = 'Periyot, dengeden göreli sapması %1\'in altına inmiş ardışık I zirvelerinin aralığından; sönüm hızı, ardışık zirve yüksekliklerinin (I − I*) oranının logaritmasından ölçülür. Kuram, dengede doğrusallaştırılmış sistemin özdeğerleridir.';
+    aT = 'SIRS: yerleşik (endemik) duruma yaklaşım'; aC = 'Mavi: S/N (sol eksen). Turuncu: I/N, kendi ölçeğinde (grafiğin tepesi, köşede yazan değerdir; ilk salgın kırpılır). Kesikli çizgiler denge değerleri S* = N/R₀ ve I*. İlk salgından sonra dalgalar sönerek dengeye oturur.';
+    bT = 'Faz düzlemi: S/N ile I/N'; bC = 'Yörünge sarmal çizerek dengeye (kırmızı nokta) iner. Sarmal, karmaşık özdeğerlerin işaretidir: sönümlü salınım.';
+    if (!eq) {
+      card(1, 'S/N (son)', pc(c.y[0] / N, 3), 'R₀ ≤ 1: yerleşik durum yok'); card(2, 'I/N (son)', sci(c.y[3] / N, 3), 'salgın söner'); card(3, 'Salınım periyodu', '—', ''); card(4, 'Sönüm hızı δ', '—', ''); card(5, 'R₀', fmt(R0, 2), ''); card(6, 'Zirve sayısı', fmt(R.nPk, 0), 'I baştan azalır');
+      st = 'R₀ = ' + fmt(R0, 2) + ' ≤ 1: bağışıklık kaybolsa da enfeksiyon kendini sürdüremez; I sıfıra gider ve herkes sonunda duyarlıdır.';
+    } else {
+      card(1, 'Son S/N (ölçülen)', pc(c.y[0] / N, 4), 'kuram S*/N = 1/R₀ = ' + pc(eq.S / N, 4) + ' · ' + relTxt(c.y[0], eq.S, 4));
+      card(2, 'Son I/N (ölçülen)', pc(c.y[3] / N, 4), 'kuram I*/N = ' + pc(eq.I / N, 4) + ' · ' + relTxt(c.y[3], eq.I, 4));
+      card(3, 'Salınım periyodu (ölçülen)', R.per === null ? 'ölçülemedi' : days(R.per, 1), eq.period === null ? 'kuram: salınım yok (gerçel özdeğerler)' : 'kuram 2π/Ω = ' + days(eq.period, 1) + (R.per === null ? '' : ' · ' + relTxt(R.per, eq.period, 2)));
+      card(4, 'Sönüm hızı δ (ölçülen)', R.dec === null ? '—' : fmt(R.dec, 5) + ' /gün', 'kuram ' + fmt(eq.decay, 5) + ' /gün' + (R.dec === null ? '' : ' · ' + relTxt(R.dec, eq.decay, 2)));
+      card(5, 'İlk salgının son büyüklüğü (bağışıklık kaybı olmasaydı)', pc(K.finalSize(R0, 1).z, 2), 'SIRS\'te enfeksiyon hiç bitmez');
+      card(6, 'Toplam zirve sayısı (10 000 günde)', fmt(R.nPk, 0), 'ilk salgın dahil, I\'nın bütün yerel en büyükleri');
+      st = 'Bağışıklık ortalama ' + fmt(1 / R.omega, 0) + ' gün sürünce enfeksiyon kalıcı olur: S, ω\'dan bağımsız tek bir değere, N/R₀ düzeyine oturur (ölçülen ' + pc(c.y[0] / N, 3) + '); bu, R_t = R₀ S/N = 1 koşulunun kendisidir. ';
+      st += 'I* = ' + pc(eq.I / N, 3) + ' ise ω\'ya bağlıdır: bağışıklık ne kadar çabuk kaybolursa o kadar çok kişi aynı anda enfektedir. ';
+      if (R.per !== null) st += 'Dengeye sönümlü dalgalarla varılıyor: ölçülen periyot ' + days(R.per, 1) + ', doğrusal kuram ' + days(eq.period, 1) + '.';
+      else st += 'Dalgalar ölçülemeyecek kadar hızlı sönüyor (en az üç zirve, dengeden %1\'den az sapmayla, gerekli).';
+    }
+  } else {
+    const { G, T, kap, perc, mf, mfz } = R, j = s4.job, done = j.k >= R.runs, n = G.n;
+    const cut = perc.z > 0.02 ? 0.5 * perc.z * n : Math.max(50, 0.05 * n);
+    let nMaj = 0, sum = 0; for (let k = 0; k < j.k; k++) if (j.finals[k] > cut) { nMaj++; sum += j.finals[k] / n; }
+    const r0n = T * kap, pot = j.g1 ? j.tries / j.g1 : null, se = j.k > 1 ? K.ratioSe(j.T.subarray(0, j.k), j.D.subarray(0, j.k)) : null, real = j.g1 ? j.kids / j.g1 : null;
+    assume = 'İdealleştirilmiş bir temas ağı: düğümler kişi, kenarlar sabit temaslar; ağ, seçilen derece dağılımıyla rastgele kurulur (yapılandırma modeli; öz döngüler ve çift kenarlar silinir). Bir enfekte, her komşusuna τ hızıyla bulaştırır ve γ hızıyla iyileşir (olay güdümlü kesin Markov benzetimi). Ağ zamanla değişmez; gerçek temas ağları kümelenmiş ve değişkendir.';
+    formula = 'kenar başına bulaşma olasılığı T = τ / (τ + γ)<br>ağda R₀ = T (⟨k²⟩ − ⟨k⟩) / ⟨k⟩<br>ortalama alan (homojen karışım): R₀ = τ ⟨k⟩ / γ<br>son büyüklük: u = G₁(1 − T + T u),  z = 1 − G₀(1 − T + T u)';
+    note = 'Ölçülen R₀: rastgele seçilen ilk vakanın bulaştırdığı birinci kuşak kişilerin her birinin kaç yeni kişiye bulaştırdığı. "Denenen" bulaşmalar hedefin durumuna bakmadan sayılır; "gerçekleşen" ise hedef o anda hâlâ duyarlıysa. Kuramlar ağın gerçekleşen derece dizisinden hesaplanır.';
+    aT = 'Koşuların son büyüklüğü'; aC = 'Çubuklar: koşuların son büyüklüğü (düğümlerin oranı). Mor kesikli: bağ süzülmesi kuramı, gri kesikli: ortalama alan SIR. Sıfır yakınındaki çubuk, erken sönen koşulardır.';
+    bT = 'Derece dağılımı'; bC = 'Her derecedeki düğüm sayısı. Ortalama aynı kalsa da dağılım genişledikçe ⟨k²⟩ büyür: çok temaslı birkaç kişi, bir enfeksiyonun bulduğu ilk komşular arasında aşırı temsil edilir.';
+    card(1, 'Gerçekleşen ⟨k⟩ · ⟨k²⟩', fmt(G.k1, 3) + ' · ' + fmt(G.k2, 2), 'ortalama fazla derece ⟨k²⟩/⟨k⟩ − 1 = ' + fmt(kap, 3));
+    card(2, 'Ağda R₀: denenen bulaşma (ölçülen)', pot === null ? (done ? 'birinci kuşak yok' : 'çalışıyor…') : fmt(pot, 3) + (se ? ' ± ' + fmt(se, 3) : ''), 'kuram T(⟨k²⟩ − ⟨k⟩)/⟨k⟩ = ' + fmt(r0n, 3) + (pot !== null ? ' · ' + relTxt(pot, r0n, 1) + (se ? ' (' + fmt(Math.abs(pot - r0n) / se, 1) + ' σ)' : '') : '') + ' · ' + fmt(j.g1, 0) + ' kişi');
+    card(3, 'Ağda R₀: gerçekleşen (ölçülen)', real === null ? '—' : fmt(real, 3), j.tries ? 'hedefi zaten enfekte olan: ' + pc(j.blocked / j.tries, 1) : '');
+    card(4, 'Ortalama alan R₀ = τ⟨k⟩/γ', fmt(mf, 3), 'aynı temas sayısıyla homojen karışım');
+    if (perc.z > 0.02) card(5, 'Büyük salgınların ortalama son büyüklüğü', nMaj ? pc(sum / nMaj, 2) : (done ? 'büyük salgın yok' : 'çalışıyor…'), 'süzülme kuramı ' + pc(perc.z, 2) + (nMaj ? ' · ' + relTxt(sum / nMaj, perc.z, 1) : '') + ' · ortalama alan ' + pc(mfz, 1));
+    else card(5, fmt(cut, 0) + ' düğümü aşan koşuların ortalaması', nMaj ? pc(sum / nMaj, 2) : (done ? 'yok' : 'çalışıyor…'), 'süzülme kuramı: büyük salgın yok (ağda R₀ eşiğin altında ya da eşikte) · ortalama alan ' + pc(mfz, 1));
+    card(6, perc.z > 0.02 ? 'Büyük salgın oranı (ölçülen)' : fmt(cut, 0) + ' düğümü aşan koşuların oranı', j.k ? pc(nMaj / j.k, 1) : '—', fmt(j.k, 0) + ' / ' + fmt(R.runs, 0) + ' koşu' + (done ? '' : ' · çalışıyor…'));
+    if (!done) st = 'Koşular sürüyor: ' + j.k + ' / ' + R.runs + '.';
+    else {
+      st = 'Aynı ortalama temas (⟨k⟩ = ' + fmt(G.k1, 2) + ') ile ortalama alan R₀ = ' + fmt(mf, 2) + ' verir, ağ ise ' + fmt(r0n, 2) + '. İki düzeltme var: bir kişi bir komşusuna en çok bir kez bulaştırabilir (τ/γ yerine T = ' + fmt(T, 3) + '), ve bir enfeksiyon bir kenardan geldiği için yeni vakalar ortalamadan çok temaslıdır (⟨k⟩ yerine ⟨k²⟩/⟨k⟩ − 1 = ' + fmt(kap, 2) + '). ';
+      if (pot !== null) st += 'Ölçülen denenen bulaşma ' + fmt(pot, 3) + ', gerçekleşen ' + fmt(real, 3) + ': aradaki fark, hedefin başka bir yoldan zaten enfekte olmasıdır (denemelerin ' + pc(j.blocked / j.tries, 1) + ' kadarı). Sonlu bir ağda bir kişiye birçok yoldan ulaşılır; bulaşma hızlandıkça bu yollar birinci kuşağın bulaştırıcı dönemi içinde işlemeye başlar. ';
+      if (pot !== null && se && Math.abs(pot - r0n) > 2 * se) st += 'Ölçülen ile kuram arasındaki fark ' + fmt(Math.abs(pot - r0n) / se, 1) + ' σ. İki σ\'dan büyük bir sapma ya rastlantıdır (yaklaşık yirmi tohumdan birinde) ya da sonlu ağın etkisidir: ilk vakanın çok temaslı komşularına başka yollardan da erken ulaşılırsa birinci kuşakta az temsil edilirler. "Yeni tohum" ve daha büyük düğüm sayısıyla hangisi olduğunu sına. ';
+      if (r0n <= 1) st += 'Ağda R₀ ≤ 1: büyük salgın beklenmez; ' + (mf > 1 ? 'ortalama alan modeli ise salgın öngörürdü.' : 'ortalama alan modeli de salgın öngörmez.');
+      else if (nMaj) st += 'Büyük salgınlarda enfekte olan düğümlerin oranı ' + pc(sum / nMaj, 1) + '; süzülme kuramı ' + pc(perc.z, 1) + '.';
+    }
+  }
+  $('s4Assume').innerHTML = '<strong>Varsayımlar:</strong> ' + assume; $('s4Formula').innerHTML = formula; put('s4Note', note); put('s4ATitle', aT); put('s4ACap', aC); put('s4BTitle', bT); put('s4BCap', bC);
+  put('s4Status', st);
+  s4Draw();
+}
+function s4Draw() {
+  const R = s4.res; if (!R) return;
+  const sA = surface('s4A'), sB = surface('s4B'); if (!sA || !sB) return;
+  if (R.m === 'seir') {
+    const { a, b } = R, N = EXT.N, tx = Math.max(60, (b.peaks[0] ? b.peaks[0].t : 100) * 2.2, (a.peaks[0] ? a.peaks[0].t : 0) * 2.2);
+    let ymax = 1e-9; [a, b].forEach((r) => { for (const v of r.I) ymax = Math.max(ymax, v / N); }); for (const v of b.E) ymax = Math.max(ymax, v / N);
+    const A = axes(sA, { x0: 0, x1: tx, y0: 0, y1: ymax * 1.1, xlab: 'zaman / gün', ylab: 'oran', yfmt: (y) => fmt(100 * y, 0) + ' %' });
+    path(sA, thin(a.t, a.I.map((v) => v / N), A, tx), sA.p.warm, 2.2); path(sA, thin(b.t, b.I.map((v) => v / N), A, tx), sA.p.blue, 2.2); path(sA, thin(b.t, b.E.map((v) => v / N), A, tx), sA.p.green, 1.4, [5, 4]);
+    text(sA, 'SIR', A.L + 6, A.T + 12, sA.p.warm, 'left', 11); text(sA, 'SEIR (I)', A.L + 40, A.T + 12, sA.p.blue, 'left', 11); text(sA, 'SEIR (E)', A.L + 110, A.T + 12, sA.p.green, 'left', 11);
+    const B = axes(sB, { x0: 0, x1: tx, y0: 0, y1: 6, xlab: 'zaman / gün', ylab: 'log₁₀ I', yticks: [0, 1, 2, 3, 4, 5, 6] });
+    path(sB, thin(a.t, a.I.map((v) => Math.log10(Math.max(1, v))), B, tx), sB.p.warm, 2); path(sB, thin(b.t, b.I.map((v) => Math.log10(Math.max(1, v))), B, tx), sB.p.blue, 2);
+    line(sB, B.L, B.Y(Math.log10(30)), B.R, B.Y(Math.log10(30)), sB.p.grid, 1, [2, 3]); line(sB, B.L, B.Y(Math.log10(3000)), B.R, B.Y(Math.log10(3000)), sB.p.grid, 1, [2, 3]);
+    text(sB, 'uydurma aralığı: I = 30 – 3 000', B.L + 6, B.T + 10, sB.p.muted, 'left', 10);
+  } else if (R.m === 'sirs') {
+    const { c, eq } = R, N = EXT.N, tx = eq ? Math.max(500, Math.min(10000, Math.ceil((7 / eq.decay + 300) / 500) * 500)) : 10000;
+    const iTop = eq ? Math.max(eq.I * 4, 1e-9) : Math.max(...c.I) / N * N; // I ölçeği
+    const A = axes(sA, { x0: 0, x1: tx, y0: 0, y1: 1, xlab: 'zaman / gün', ylab: 'S/N', yticks: [0, 0.25, 0.5, 0.75, 1], yfmt: (y) => fmt(100 * y, 0) + ' %' });
+    path(sA, thin(c.t, c.S.map((v) => v / N), A, tx), sA.p.blue, 2);
+    path(sA, thin(c.t, c.I.map((v) => Math.min(1, v / iTop)), A, tx), sA.p.warm, 1.6);
+    if (eq) { line(sA, A.L, A.Y(eq.S / N), A.R, A.Y(eq.S / N), sA.p.blue, 1, [5, 4]); line(sA, A.L, A.Y(eq.I / iTop), A.R, A.Y(eq.I / iTop), sA.p.warm, 1, [5, 4]); text(sA, 'I ölçeği: tepe = ' + pc(iTop / N, 1) + ' (ilk salgın kırpıldı)', A.R - 4, A.T + 10, sA.p.warm, 'right', 10); }
+    const ix = Math.max(...c.I) / N;
+    const B = axes(sB, { x0: 0, x1: 1, y0: 0, y1: ix * 1.1, xlab: 'S/N', ylab: 'I/N', xfmt: (x) => fmt(100 * x, 0) + ' %', yfmt: (y) => fmt(100 * y, 0) + ' %' });
+    const pts = []; for (let k = 0; k < c.t.length; k += 2) pts.push([B.X(c.S[k] / N), B.Y(c.I[k] / N)]);
+    path(sB, pts, sB.p.accent, 1.4);
+    if (eq) dot(sB, B.X(eq.S / N), B.Y(eq.I / N), 5, sB.p.red);
+  } else {
+    const { G, perc, mfz } = R, j = s4.job, n = G.n, nb = 40, counts = new Array(nb).fill(0);
+    for (let k = 0; k < j.k; k++) counts[Math.min(nb - 1, Math.floor(j.finals[k] / n * nb))]++;
+    const top = Math.max(1, ...counts), sq = Math.sqrt(top);
+    const A = axes(sA, { x0: 0, x1: 1, y0: 0, y1: sq, xlab: 'son büyüklük / düğüm sayısı', ylab: 'koşu (karekök ölçek)', xfmt: (x) => fmt(100 * x, 0) + ' %', yticks: niceTicks(0, top, 4).filter((v) => v > 0).map(Math.sqrt), yfmt: (y) => fmt(y * y, 0) });
+    const bw = (A.R - A.L) / nb;
+    counts.forEach((c, i) => { if (c) { sA.g.fillStyle = sA.p.bar; const y = A.Y(Math.sqrt(c)); sA.g.fillRect(A.L + i * bw + 0.5, y, Math.max(1, bw - 1), A.B - y); } });
+    line(sA, A.X(perc.z), A.T, A.X(perc.z), A.B, sA.p.violet, 1.6, [5, 4]); text(sA, 'süzülme', A.X(perc.z) - 4, A.T + 10, sA.p.violet, 'right', 10);
+    line(sA, A.X(mfz), A.T + 14, A.X(mfz), A.B, sA.p.muted, 1.4, [3, 3]); text(sA, 'ortalama alan', A.X(mfz) + 4, A.T + 24, sA.p.muted, 'left', 10);
+    const kx = Math.min(G.kmax, 40), hmax = Math.max(...G.hist);
+    const B = axes(sB, { x0: -0.5, x1: kx + 0.5, y0: 0, y1: hmax * 1.1, xlab: 'derece k (temas sayısı)', ylab: 'düğüm', xticks: niceTicks(0, kx, 6) });
+    const kw = (B.R - B.L) / (kx + 1);
+    G.hist.forEach((c, k) => { if (k <= kx && c) { sB.g.fillStyle = sB.p.bar; const y = B.Y(c); sB.g.fillRect(B.X(k) - kw * 0.42, y, kw * 0.84, B.B - y); } });
+    line(sB, B.X(G.k1), B.T, B.X(G.k1), B.B, sB.p.warm, 1.4, [4, 3]); text(sB, '⟨k⟩', B.X(G.k1) + 4, B.T + 10, sB.p.warm, 'left', 10);
+    if (G.kmax > kx) text(sB, 'en büyük derece ' + G.kmax + ' (eksen dışında)', B.R - 4, B.T + 10, sB.p.muted, 'right', 10);
+  }
+}
+
+/* ══════════ Sekmeler, döngü, klavye ══════════ */
+const TABS = ['sir', 'herd', 'stoch', 'ext'];
+let active = 'sir';
+function drawActive() { if (active === 'sir') s1Draw(); else if (active === 'herd') s2Update(); else if (active === 'stoch') s3Draw(); else s4Draw(); }
+function setTab(name) { active = name; TABS.forEach((t) => { $('panel-' + t).hidden = t !== name; $('tab-' + t).setAttribute('aria-selected', String(t === name)); $('tab-' + t).tabIndex = t === name ? 0 : -1; }); drawActive(); }
+TABS.forEach((t, i) => {
+  $('tab-' + t).addEventListener('click', () => setTab(t));
+  $('tab-' + t).addEventListener('keydown', (e) => { const j = e.key === 'ArrowRight' ? (i + 1) % 4 : e.key === 'ArrowLeft' ? (i + 3) % 4 : e.key === 'Home' ? 0 : e.key === 'End' ? 3 : null; if (j !== null) { e.preventDefault(); setTab(TABS[j]); $('tab-' + TABS[j]).focus(); } });
+});
+function setVals(v) { Object.entries(v).forEach(([id, x]) => { $(id).value = String(x); }); }
+
+function s1SetRunning(run) { s1.running = run; put('s1Run', run ? 'Duraklat' : 'Oynat'); $('s1Run').setAttribute('aria-pressed', String(!run)); }
+['s1Beta', 's1Gamma', 's1I0'].forEach((id) => $(id).addEventListener('input', s1Start));
+$('s1N').addEventListener('change', s1Start);
+$('s1Run').onclick = () => { if (!s1.running && s1.cursor >= s1.tPlot - 1e-9) s1.cursor = 0; s1SetRunning(!s1.running); };
+$('s1Skip').onclick = () => { s1.cursor = s1.tPlot; s1Update(); s1Draw(); };
+const s1Preset = (b) => { setVals({ s1Beta: b, s1Gamma: '0.1' }); s1Start(); s1SetRunning(true); };
+$('s1P08').onclick = () => s1Preset('0.08'); $('s1P1').onclick = () => s1Preset('0.1'); $('s1P15').onclick = () => s1Preset('0.15'); $('s1P3').onclick = () => s1Preset('0.3'); $('s1P6').onclick = () => s1Preset('0.6');
+function s1Reset() { setVals(S1_DEF); s1Start(); s1SetRunning(true); }
+$('s1Reset').onclick = s1Reset;
+
+['s2R0', 's2P', 's2Eff'].forEach((id) => $(id).addEventListener('input', s2Update));
+$('s2Model').addEventListener('change', s2Update);
+$('s2None').onclick = () => { setVals({ s2P: '0' }); s2Update(); };
+$('s2Below').onclick = () => { setVals({ s2P: '0.6' }); s2Update(); };
+$('s2Above').onclick = () => { setVals({ s2P: '0.7' }); s2Update(); };
+$('s2Leaky').onclick = () => { setVals({ s2Model: 'leaky', s2Eff: '0.8', s2P: '0.8' }); s2Update(); };
+function s2Reset() { setVals(S2_DEF); s2Update(); }
+$('s2Reset').onclick = s2Reset;
+
+['s3R0', 's3I0'].forEach((id) => $(id).addEventListener('input', s3Start));
+['s3N', 's3Runs', 's3Seed'].forEach((id) => $(id).addEventListener('change', s3Start));
+$('s3New').onclick = () => { $('s3Seed').value = String(parseSeed('s3Seed') + 1); s3Start(); };
+$('s3Small').onclick = () => { setVals({ s3N: '50' }); s3Start(); };
+$('s3Three').onclick = () => { setVals({ s3I0: '3' }); s3Start(); };
+function s3Reset() { setVals(S3_DEF); s3Start(); }
+$('s3Reset').onclick = s3Reset;
+
+['s4Beta', 's4Gamma', 's4Sigma', 's4Omega', 's4Mean', 's4Tau'].forEach((id) => $(id).addEventListener('input', s4Start));
+['s4Model', 's4Kind', 's4Nn', 's4Runs', 's4Seed'].forEach((id) => $(id).addEventListener('change', s4Start));
+$('s4New').onclick = () => { $('s4Seed').value = String(parseSeed('s4Seed') + 1); s4Start(); };
+function s4Reset() { const m = $('s4Model').value; setVals(S4_DEF); $('s4Model').value = m; s4Start(); }
+$('s4Reset').onclick = s4Reset;
+
+function resetActive() { if (active === 'sir') s1Reset(); else if (active === 'herd') s2Reset(); else if (active === 'stoch') s3Reset(); else s4Reset(); }
+document.addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input,select,button,a,textarea,summary')) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'r' || e.key === 'R') resetActive();
+  if (e.code === 'Space' && active === 'sir') { e.preventDefault(); $('s1Run').click(); }
+});
+
+let last = 0, uiTick = 0;
+function loop(now) {
+  const elapsed = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
+  const paused = window.AcelyaPause?.isPaused?.();
+  if (!paused && active === 'sir' && s1.running && s1.res && s1.cursor < s1.tPlot) {
+    s1.cursor = Math.min(s1.tPlot, s1.cursor + elapsed * +$('s1Speed').value);
+    s1Draw(); if (now - uiTick > 120 || s1.cursor >= s1.tPlot) { s1Update(); uiTick = now; }
+  }
+  if (!paused && s3.job && s3.job.k < s3.job.c.runs) { s3Step(12); if (active === 'stoch' || s3.job.k >= s3.job.c.runs) s3Update(); }
+  if (!paused && s4.job && s4.res && s4.res.m === 'net' && s4.job.k < s4.res.runs) { s4Step(12); s4Update(); }
+  requestAnimationFrame(loop);
+}
+let resizeQueued = false;
+new ResizeObserver(() => { if (resizeQueued) return; resizeQueued = true; requestAnimationFrame(() => { resizeQueued = false; drawActive(); }); }).observe(document.querySelector('.app-content'));
+new MutationObserver(drawActive).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+s1Start(); s2Update(); s3Start(); s4Start();
+setTab('sir');
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

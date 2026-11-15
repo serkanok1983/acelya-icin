@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html class="app-root" lang="tr">
+<head>
+  <meta charset="UTF-8">
+    <link rel="stylesheet" href="shared/theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="1972'de bir barın bozuk para kutusunu dolduran oyun, aslında saf geometri: hız vektörü, duvarda yansıma ve raketin ucundaki 60 derecelik sır. Bilgisayarı yenmenin formülü de burada.">
+  <title>Pong AI (Uzay Temalı)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background-color: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      min-height: 100dvh;
+    }
+    #starCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .hud {
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+      padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+      text-align: center;
+    }
+    .hud h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-weight: 600;
+    }
+    #score {
+      font-size: clamp(0.85rem, 3.5vw, 1.15rem);
+      opacity: 0.95;
+    }
+    .game-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      padding: 0 10px max(10px, env(safe-area-inset-bottom));
+    }
+    #pongCanvas {
+      display: block;
+      max-width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      touch-action: none;
+    }
+    .hint {
+      margin-top: 6px;
+      font-size: clamp(0.7rem, 2.8vw, 0.8rem);
+      opacity: 0.65;
+    }
+    #gameOverScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.55);
+    }
+    #gameOverScreen.is-open {
+      display: flex;
+    }
+    .game-over-card {
+      background: rgba(0, 0, 0, 0.88);
+      padding: 24px 28px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 90vw;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    button {
+      font-size: 18px;
+      padding: 10px 18px;
+      margin-top: 16px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    /* Telefona özel kısa not */
+    .touch-note { display: none; }
+    @media (pointer: coarse) { .touch-note { display: inline; } }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="pong">
+
+<canvas id="starCanvas" aria-hidden="true"></canvas>
+
+<header class="hud">
+  <h1>Pong AI 🌌</h1>
+  <div id="score">Sen: <span id="playerScore">0</span> | Bilgisayar: <span id="computerScore">0</span></div>
+  <div id="speed">Hız: <span id="speedValue">4.00</span> piksel/adım</div>
+  <p class="hint">Masaüstü: ↑ ↓ / Space &nbsp;·&nbsp; Mobil: parmağınızı oyun alanının sol yarısında yukarı/aşağı kaydırın<span class="touch-note"> · Sağ yarıda parmak sayfayı kaydırır</span></p>
+</header>
+
+<div class="game-stage">
+  <canvas id="pongCanvas" width="800" height="400" role="img" aria-label="Pong oyun alanı"></canvas>
+</div>
+
+<div id="gameOverScreen" role="dialog" aria-modal="true" aria-labelledby="gameOverMessage">
+  <div class="game-over-card">
+    <h2 id="gameOverMessage"></h2>
+    <button type="button" onclick="restartGame()">Tekrar Oyna</button>
+  </div>
+</div>
+
+<script>
+  const GAME_W = 800;
+  const GAME_H = 400;
+
+  const starCanvas = document.getElementById("starCanvas");
+  const starCtx = starCanvas.getContext("2d");
+
+  function syncStarCanvasSize() {
+    starCanvas.width = window.innerWidth;
+    starCanvas.height = window.innerHeight;
+    stars.forEach((star) => {
+      star.x = Math.min(star.x, starCanvas.width);
+      star.y = Math.min(star.y, starCanvas.height);
+    });
+  }
+
+  let stars = [];
+
+  function initStars() {
+    stars = [];
+    const n = Math.min(140, Math.floor((starCanvas.width * starCanvas.height) / 12000));
+    for (let i = 0; i < n; i++) {
+      stars.push({
+        x: Math.random() * starCanvas.width,
+        y: Math.random() * starCanvas.height,
+        size: Math.random() * 1.8 + 0.3,
+        speed: Math.random() * 1.2 + 0.4,
+      });
+    }
+  }
+
+  function animateStars() {
+    starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+    starCtx.fillStyle = "#fff";
+    stars.forEach((star) => {
+      starCtx.beginPath();
+      starCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      starCtx.fill();
+      star.y += star.speed;
+      if (star.y > starCanvas.height) star.y = 0;
+    });
+    requestAnimationFrame(animateStars);
+  }
+
+  syncStarCanvasSize();
+  initStars();
+  animateStars();
+
+  const canvas = document.getElementById("pongCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = GAME_W;
+  canvas.height = GAME_H;
+
+  let fx = { get() { return null; }, burst() {}, pop() {}, shake() {}, flash() {}, update() {}, draw() {} };
+  window.addEventListener("acelya-game-ready", () => {
+    if (window.AcelyaHooks) fx = AcelyaHooks.bindJuice(canvas);
+  });
+
+  function resizeGame() {
+    const hud = document.querySelector(".hud");
+    const hudBottom = hud.getBoundingClientRect().bottom;
+    const padX = 20;
+    const padY = 16;
+    const availW = window.innerWidth - padX;
+    const availH = Math.min(window.innerHeight - hudBottom - padY, window.AcelyaTouch?.isCoarse() ? window.innerHeight * 0.62 : Infinity); // telefonda altta kaydırma payı kalsın
+    const scale = Math.min(availW / GAME_W, availH / GAME_H) * 0.98;
+    const w = Math.max(280, GAME_W * scale);
+    const h = w * (GAME_H / GAME_W);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  }
+
+  window.addEventListener("resize", () => {
+    syncStarCanvasSize();
+    initStars();
+    resizeGame();
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", resizeGame);
+  }
+
+  resizeGame();
+
+  const paddleHeight = 80;
+  const paddleWidth = 10;
+
+  let playerY = GAME_H / 2 - paddleHeight / 2;
+  let computerY = GAME_H / 2 - paddleHeight / 2;
+  let ballX = GAME_W / 2;
+  let ballY = GAME_H / 2;
+  const baseBallSpeed = 4;
+  const maxBallSpeed = 10;
+  let ballDX = baseBallSpeed;
+  let ballDY = 0;
+  let paddleSpeed = 8;
+  let ballSpeed = baseBallSpeed;
+  let playerScore = 0;
+  let computerScore = 0;
+  const maxScore = 20;
+  let upPressed = false;
+  let downPressed = false;
+
+  function playHit() { window.AcelyaSounds?.hit(); }
+
+  let gameEnded = false;
+  let animationStarted = false;
+  let prevTotalScore = 0;
+  const speedValueEl = document.getElementById("speedValue");
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") {
+      upPressed = true;
+      e.preventDefault();
+    }
+    if (e.key === "ArrowDown") {
+      downPressed = true;
+      e.preventDefault();
+    }
+    if (e.code === "Space") {
+      e.preventDefault();
+      increaseBallSpeed(1.08);
+    }
+  });
+
+  document.addEventListener("keyup", (e) => {
+    if (e.key === "ArrowUp") upPressed = false;
+    if (e.key === "ArrowDown") downPressed = false;
+  });
+
+  function canvasCssToGameY(clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const t = (clientY - rect.top) / rect.height;
+    return t * GAME_H;
+  }
+
+  // Telefonda raketi oyun alanının sol yarısında (senin tarafında) parmakla sür; sağ yarıda parmak sayfayı kaydırır.
+  const onPlayerSide = (clientX) => {
+    const rect = canvas.getBoundingClientRect();
+    return clientX - rect.left < rect.width * 0.45;
+  };
+  window.AcelyaTouch?.guard(canvas, (x) => onPlayerSide(x));
+  const touchDrives = (e) => !window.AcelyaTouch?.isCoarse() || (e.touches.length && onPlayerSide(e.touches[0].clientX));
+  let touchDriving = false;
+
+  canvas.addEventListener(
+    "touchstart",
+    (e) => {
+      touchDriving = touchDrives(e);
+      if (!touchDriving) return;
+      e.preventDefault();
+      if (e.touches.length) {
+        const y = canvasCssToGameY(e.touches[0].clientY);
+        playerY = Math.max(0, Math.min(GAME_H - paddleHeight, y - paddleHeight / 2));
+      }
+    },
+    { passive: false }
+  );
+
+  canvas.addEventListener(
+    "touchmove",
+    (e) => {
+      if (!touchDriving) return;
+      e.preventDefault();
+      if (e.touches.length) {
+        const y = canvasCssToGameY(e.touches[0].clientY);
+        playerY = Math.max(0, Math.min(GAME_H - paddleHeight, y - paddleHeight / 2));
+      }
+    },
+    { passive: false }
+  );
+
+  function drawPaddle(x, y) {
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(x, y, paddleWidth, paddleHeight);
+  }
+
+  function drawBall() {
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+  }
+
+
+  function updateSpeedUi() {
+    speedValueEl.innerText = ballSpeed.toFixed(2);
+  }
+
+  function increaseBallSpeed(multiplier) {
+    if (gameEnded || ballSpeed >= maxBallSpeed) return;
+    const nextSpeed = Math.min(ballSpeed * multiplier, maxBallSpeed);
+    if (nextSpeed === ballSpeed) return;
+    const ratio = nextSpeed / ballSpeed;
+    ballSpeed = nextSpeed;
+    ballDX *= ratio;
+    ballDY *= ratio;
+    updateSpeedUi();
+  }
+
+  function update() {
+    if (gameEnded) return;
+
+    if (playerScore >= maxScore || computerScore >= maxScore) {
+      endGame();
+      return;
+    }
+
+    if (upPressed && playerY > 0) playerY -= paddleSpeed;
+    if (downPressed && playerY < GAME_H - paddleHeight) playerY += paddleSpeed;
+    playerY = Math.max(0, Math.min(GAME_H - paddleHeight, playerY));
+
+    if (computerY + paddleHeight / 2 < ballY - 20) computerY += paddleSpeed * 0.7;
+    else if (computerY + paddleHeight / 2 > ballY + 20) computerY -= paddleSpeed * 0.7;
+
+    computerY = Math.max(0, Math.min(GAME_H - paddleHeight, computerY));
+
+    ballX += ballDX;
+    ballY += ballDY;
+
+    if (ballY < 8) {
+      ballY = 8;
+      ballDY = Math.abs(ballDY);
+    } else if (ballY > GAME_H - 8) {
+      ballY = GAME_H - 8;
+      ballDY = -Math.abs(ballDY);
+    }
+
+    if (ballDX < 0 && ballX < paddleWidth + 8 && ballY > playerY && ballY < playerY + paddleHeight) {
+      reflectFromPaddle(playerY, 1);
+      ballX = paddleWidth + 8;
+      playHit();
+      fx.burst(ballX, ballY, "#5eead4", 10);
+      fx.shake(3);
+    }
+
+    if (ballDX > 0 && ballX > GAME_W - paddleWidth - 8 && ballY > computerY && ballY < computerY + paddleHeight) {
+      reflectFromPaddle(computerY, -1);
+      ballX = GAME_W - paddleWidth - 8;
+      playHit();
+      fx.burst(ballX, ballY, "#a78bfa", 8);
+    }
+
+    if (ballX < 0) {
+      computerScore++;
+      resetBall();
+    }
+    if (ballX > GAME_W) {
+      playerScore++;
+      resetBall();
+    }
+
+    document.getElementById("playerScore").innerText = playerScore;
+    document.getElementById("computerScore").innerText = computerScore;
+
+    const totalScore = playerScore + computerScore;
+    if (totalScore > prevTotalScore) {
+      prevTotalScore = totalScore;
+      if (totalScore > 0 && totalScore % 5 === 0) {
+        increaseBallSpeed(1.1);
+      }
+    }
+  }
+
+  function resetBall() {
+    ballX = GAME_W / 2;
+    ballY = GAME_H / 2;
+    const angle = (Math.random() - 0.5) * 0.9;
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    ballDX = direction * ballSpeed * Math.cos(angle);
+    ballDY = ballSpeed * Math.sin(angle);
+  }
+
+  function reflectFromPaddle(paddleY, direction) {
+    const relativeHit = Math.max(
+      -1,
+      Math.min(1, (ballY - (paddleY + paddleHeight / 2)) / (paddleHeight / 2)),
+    );
+    const angle = relativeHit * (Math.PI / 3);
+    ballDX = direction * ballSpeed * Math.cos(angle);
+    ballDY = ballSpeed * Math.sin(angle);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, GAME_W, GAME_H);
+    ctx.save();
+    fx.get()?.applyTransform(ctx);
+    drawPaddle(0, playerY);
+    drawPaddle(GAME_W - paddleWidth, computerY);
+    drawBall();
+    ctx.restore();
+    fx.update();
+    fx.draw(ctx, GAME_W, GAME_H);
+  }
+
+  let lastGameFrame = performance.now();
+  let gameAccumulator = 0;
+  const gameStep = 1000 / 60;
+  function gameLoop(now) {
+    let elapsed = now - lastGameFrame;
+    lastGameFrame = now;
+    if (elapsed > 100) elapsed = 0;
+    gameAccumulator += elapsed;
+    while (gameAccumulator >= gameStep) {
+      update();
+      gameAccumulator -= gameStep;
+    }
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  function endGame() {
+    gameEnded = true;
+    fx.shake(12);
+    fx.flash(0.22);
+    window.AcelyaHooks?.recordScore(playerScore);
+    const screen = document.getElementById("gameOverScreen");
+    screen.classList.add("is-open");
+    document.getElementById("gameOverMessage").innerText =
+      playerScore >= maxScore ? "🎉 Kazandın! 🎉" : "💀 Bilgisayar kazandı!";
+  }
+
+  function restartGame() {
+    playerScore = 0;
+    computerScore = 0;
+    upPressed = false;
+    downPressed = false;
+    prevTotalScore = 0;
+    ballSpeed = baseBallSpeed;
+    playerY = GAME_H / 2 - paddleHeight / 2;
+    computerY = GAME_H / 2 - paddleHeight / 2;
+    resetBall();
+    gameAccumulator = 0;
+    lastGameFrame = performance.now();
+    gameEnded = false;
+    document.getElementById("gameOverScreen").classList.remove("is-open");
+    document.getElementById("playerScore").innerText = "0";
+    document.getElementById("computerScore").innerText = "0";
+    updateSpeedUi();
+  }
+
+  updateSpeedUi();
+  resetBall();
+  if (!animationStarted) {
+    animationStarted = true;
+    requestAnimationFrame(gameLoop);
+  }
+</script></body>
+</html>
