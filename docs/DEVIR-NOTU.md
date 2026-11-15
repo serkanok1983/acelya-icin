@@ -11,7 +11,7 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (dal `main`).
 - **Canlı:** https://serkanok1983.github.io/acelya-icin (GitHub Pages, `gh-pages` dalı; GitHub Actions kullanılmıyor,
   yayın yerelden elle yapılır, bkz. §5).
-- **Boyut (15 Kasım, U5 sonrası):** 264 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
+- **Boyut (15 Kasım, U6 sonrası):** 275 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
   `onsart.html`. Menüde 10 grup.
 
 ## 2. Kullanıcının kalıcı kuralları (bağlayıcı; birebir sözleri)
@@ -141,7 +141,9 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   mobil denetimlerinden geçti. Bu tur yaklaşık 70 dakika sürmüştü.
 - U5 ile 264 dersin tamamı katalogda. U5 modelleri `scripts/check-g-u5.mjs --browser` ile sınanır.
   Masaüstü ana sayfanın belge kaydırması `scripts/check-yollar.mjs --browser` kapsamındadır.
-- Bir sonraki iş: **U6** (aşağıda).
+- U6 ile menü 275 derse ulaştı. Yeni sayfalar ve etkileşimler `scripts/check-g-u6.mjs --browser` ile sınanır.
+  Arama ve okunurluk regresyonları `scripts/check-yollar.mjs --browser` kapsamındadır.
+- Bir sonraki iş **U7**.
 
 ### Tamamlanan turlar (hepsi yayında)
 - **U1** — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
@@ -155,22 +157,21 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
 - **U5** — ısı transferi, zemin mekaniği, kuyruk kuramı ve benzetim, kalite kontrol, finans matematiği,
   yapı fiziği, kent planlama, gelişim psikolojisi ve sosyal psikoloji. Planlanan bütün yol dersleri
   bağlantıya dönüştü. Masaüstü ana sayfada iç kaydırma kaldırıldı.
+- **U6** — psikoloji ve psikanaliz üzerine 11 ders. Psikolog ve Hekim yolları güncellendi. Ana sayfa araması
+  Türkçe karakterleri eşdeğer sayar, sorgu sözcüklerinin tümünü arar ve sonuçları tüm kataloğa göre sıralar.
+  Gündüz rehber bağlantıları ve etkin ders kartı ile gece Keşif Defteri etiketi için kontrast güncellendi.
 
 Tur ayrıntıları `docs/simulasyon-notlari.md` belgesinde.
 
 ### Sıradaki işler (sırasıyla; ayrıntılı kapsam `docs/OGRENME-YOLLARI-PLANI.md` §3, §5, §6, §7)
-1. **U6** — psikoloji ve psikanaliz (~10 ders; Freud, Adler, Jung, Rank, Reich; Anna Freud, Klein, Winnicott,
-   Bowlby, Erikson, Kohut; Lacan, Fromm, Horney; davranışçılık; hümanistik/varoluşçu; bilişsel; kişilik;
-   psikopatoloji ve psikoterapi ekolleri — tedavi önerisi yok, `_ucuncu-halka.md`; motivasyon ve duygu).
-   Psikolog ve hekim yollarına eklenecek.
-2. **U7** — felsefe tarihi (~12 ders, Sokrates öncesinden yapısalcılık sonrasına).
-3. **U8** — sosyal bilimler ve siyaset kuramı (~10 ders).
+1. **U7** — felsefe tarihi (~12 ders, Sokrates öncesinden yapısalcılık sonrasına).
+2. **U8** — sosyal bilimler ve siyaset kuramı (~10 ders).
    U7–U8 için aranabilir **Düşünürler Dizini** sayfası ve gerekirse ayrı "Düşünce Tarihi" menü grubu.
-4. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
+3. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
    ve karakter psikolojisi, anlatım teknikleri, retorik, dram, türler, şiir, uyarlama.
-5. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
+4. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
    U9–U10 için "Edebiyat ve Sinema" grubu açılabilir.
-6. **Genel değerlendirme:** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
+5. **Genel değerlendirme:** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
    (`docs/OGRENME-YOLLARI-PLANI.md` §7).
 
 Her tur için önce, o turun özel kurallarını `docs/ajan-sozlesmeleri/_onsart.md` sonuna "U5 additions" gibi bir

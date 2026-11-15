@@ -499,7 +499,9 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 **U2 tamam (13 Kasım):** önşart matematik ve programlama, 8 ders (kurucu → yazar → doğrulayıcı; ek kurallar
 `.shots/briefs/_onsart.md`). **U3 tamam (13 Kasım):** önşart fen-dil ve hekim yolu, 8 ders. **U4 tamam (14 Kasım):** hukukçu ve genetik yolları,
 8 ders. **U5 tamam (15 Kasım):** 9 ders, 264 derslik menü, öğrenme yollarındaki son boşlukların kapanması ve
-masaüstü ana sayfada tam sayfa kaydırma. **Sırada U6**, sonra U7–U10 ve genel değerlendirme.
+masaüstü ana sayfada tam sayfa kaydırma. **U6 tamam (15 Kasım)** · Psikoloji ve psikanaliz için 11 ders,
+275 derslik menü, Psikolog ve Hekim yolları, ana sayfa araması ve kontrast düzeltmeleri.
+**Sırada U7**, sonra U8–U10 ve genel değerlendirme.
 Devir için `docs/DEVIR-NOTU.md`.
 
 İlk istek (kayıt için):

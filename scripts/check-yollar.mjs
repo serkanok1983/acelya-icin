@@ -13,6 +13,22 @@ let checks = 0;
 const ok = (v, m) => { assert.ok(v, m); checks++; };
 const eq = (a, b, m) => { assert.deepEqual(a, b, m); checks++; };
 
+async function contrast(text, backgroundSelector) {
+  return text.evaluate((el, selector) => {
+    const luminance = (color) => {
+      const channels = color.match(/[\d.]+/g).map(Number);
+      if (channels.length > 3 && channels[3] !== 1) throw new Error(`Saydam karşıtlık rengi: ${color}`);
+      return [0.2126, 0.7152, 0.0722].reduce((sum, weight, i) => {
+        const channel = channels[i] / 255;
+        return sum + weight * (channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+      }, 0);
+    };
+    const ink = luminance(getComputedStyle(el).color);
+    const ground = luminance(getComputedStyle(selector ? el.closest(selector) : el).backgroundColor);
+    return (Math.max(ink, ground) + 0.05) / (Math.min(ink, ground) + 0.05);
+  }, backgroundSelector);
+}
+
 const sandbox = { window: {} };
 vm.runInNewContext(readFileSync(path.join(root, "shared/catalog.js"), "utf8"), sandbox);
 vm.runInNewContext(readFileSync(path.join(root, "shared/yollar.js"), "utf8"), sandbox);
@@ -89,7 +105,7 @@ if (process.argv.includes("--browser")) {
   const errors = [];
   try {
     for (const width of [1280, 375]) {
-      const ctx = await browser.newContext({ viewport: { width, height: 800 }, serviceWorkers: "block" });
+      const ctx = await browser.newContext({ viewport: { width, height: 800 }, serviceWorkers: "block", reducedMotion: "reduce" });
       const page = await ctx.newPage();
       page.on("pageerror", (e) => errors.push(e.message));
 
@@ -114,6 +130,77 @@ if (process.argv.includes("--browser")) {
       await page.fill("#searchInput", "türev");
       eq(await page.locator(".sub-head").count(), 0, `${width}: aramada ara başlık yok`);
       ok((await page.locator('.menu-card[href="turev.html"]').count()) === 1, `${width}: arama türevi buluyor`);
+
+      const input = page.getByRole("searchbox", { name: "Ders ve oyun ara" });
+      const cards = page.locator(".menu-card");
+      for (const query of ["güneş sistemi", "GUNES   SISTEMI", "sistem güneş"]) {
+        await input.fill(query);
+        eq(await cards.first().getAttribute("href"), "gunes-sistemi.html", `${width}: "${query}" Güneş Sistemi’ni öne çıkarıyor`);
+        eq(await cards.filter({ hasText: "Aritmetik ve Sayılar" }).count(), 0, `${width}: alakasız matematik sonucu yok`);
+        ok((await page.getByRole("status").textContent()).endsWith(`${await cards.count()} sonuç`), `${width}: sonuç sayısı`);
+      }
+      for (const [query, href] of [["ISIK", "isik-sondurme.html"], ["fbo", "fibo.html"], ["2048", "oyun-2048.html"]]) {
+        await input.fill(query);
+        ok(await page.locator(`.menu-card[href="${href}"]`).count(), `${width}: "${query}" → ${href}`);
+      }
+      await input.fill("güneş sistemi");
+      const math = page.locator('#categoryTabs [data-cat="mat"]');
+      await math.focus();
+      await page.keyboard.press("Enter");
+      eq(await math.getAttribute("aria-pressed"), "true", `${width}: kategori klavyeyle seçildi`);
+      ok(await math.evaluate((el) => el === document.activeElement), `${width}: kategori odağı korunuyor`);
+      eq(await cards.count(), 0, `${width}: Matematik filtresinde Güneş Sistemi sonucu yok`);
+      ok((await page.getByRole("status").textContent()).includes("Matematik ·"), `${width}: arama kapsamı görünür`);
+      await page.getByRole("button", { name: "Tümü", exact: true }).click();
+      eq(await cards.first().getAttribute("href"), "gunes-sistemi.html", `${width}: filtre kaldırıldığında sorgu korunuyor`);
+      await input.fill("zzqj bulunmayan-konu");
+      eq(await cards.count(), 0, `${width}: karşılığı olmayan sorgu`);
+      ok(await page.locator(".empty-search").isVisible(), `${width}: sonuç yokken açıklama görünür`);
+      await input.press("Escape");
+      eq(await input.inputValue(), "", `${width}: Escape aramayı temizliyor`);
+      eq(await cards.count(), total, `${width}: temizlenince tam katalog`);
+      eq(await page.getByRole("status").textContent(), "", `${width}: temizlenince sonuç sayacı kalkıyor`);
+
+      await page.locator("#themeBtn").click();
+      eq(await page.locator("html").getAttribute("data-theme"), "light", `${width}: ana sayfa gündüz teması`);
+      const allFilter = page.getByRole("button", { name: "Tümü", exact: true });
+      await page.waitForFunction(() => {
+        const selected = document.querySelector('#categoryTabs [aria-pressed="true"]');
+        return getComputedStyle(selected).backgroundColor === "rgb(109, 40, 217)";
+      });
+      ok(await contrast(allFilter) >= 4.5, `${width}: gündüz etkin kategori okunuyor`);
+      for (const label of ["Yolunu seç", "Temeli kur"]) {
+        const ratio = await contrast(page.locator(".guide-card-cta").filter({ hasText: label }));
+        ok(ratio >= 4.5, `${width}: ${label} kontrastı ${ratio.toFixed(2)}:1`);
+      }
+      const highlighted = page.locator('.menu-card[href="tek-sayi-toplam4.html"]');
+      const checkCard = async (state) => {
+        await page.waitForFunction(() => {
+          const card = document.querySelector('.menu-card[href="tek-sayi-toplam4.html"]');
+          return getComputedStyle(card).backgroundColor === "rgb(231, 241, 238)";
+        });
+        for (const selector of [".menu-card-copy > span:first-child", ".menu-card-teaser", ".menu-card-meta"]) {
+          const ratio = await contrast(highlighted.locator(selector), ".menu-card");
+          ok(ratio >= 4.5, `${width}: gündüz kartı ${state}, ${selector} ${ratio.toFixed(2)}:1`);
+        }
+      };
+      await highlighted.hover();
+      await checkCard("fare üzerindeyken");
+      await page.mouse.move(0, 0);
+      const previous = page.locator('.menu-card[href="tek-sayi-toplam3.html"]');
+      await previous.focus();
+      await page.keyboard.press("Tab");
+      ok(await highlighted.evaluate((el) => el.matches(":focus-visible")), `${width}: ders kartında klavye odağı`);
+      await checkCard("klavye odağında");
+
+      await page.locator("#themeBtn").click();
+      await page.goto(`${base}/tek-sayi-toplam4.html`);
+      const idea = page.locator(".digest-idea-label");
+      await idea.waitFor();
+      ok((await page.locator("html").getAttribute("data-theme")) !== "light", `${width}: defter gece teması`);
+      await page.waitForFunction(() => [...document.styleSheets].some((sheet) => sheet.href?.endsWith("/shared/digest.css")));
+      const ratio = await contrast(idea);
+      ok(ratio >= 4.5, `${width}: Büyük Fikir kontrastı ${ratio.toFixed(2)}:1`);
 
       await page.goto(`${base}/onsart.html#temel-fizik`);
       eq(await page.locator("details.yol").count(), D.onsart.length, `${width}: önşart dizileri çizildi`);

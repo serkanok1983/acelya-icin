@@ -505,6 +505,8 @@
       pageId === "index" ||
       pageId === "bilgi" ||
       pageId === "404" ||
+      pageId === "ogrenme-yollari" ||
+      pageId === "onsart" ||
       body.classList.contains("atlas-experience") ||
       body.dataset.stemPage
     ) {

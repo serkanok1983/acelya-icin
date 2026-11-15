@@ -2158,3 +2158,29 @@ Bağıntı grafiği testi, geçişken kapanışın oluşturduğu halkayı hem si
 
 Son denetim: 159 mevcut ders testi, U5 için 334 kontrol ve öğrenme yolları için 1082 kontrol geçti.
 269 sayfada 360/768 piksel yerleşim ve dokunarak kaydırma taramaları sıfır sorun bildirdi.
+
+
+## 15 Kasım 2026 — U6 · Psikoloji ve psikanaliz
+
+| Ders | Etkinlik |
+|---|---|
+| Psikoloji Ekolleri ve Tarihi | Aynı ezgi tanıma örneğinde altı araştırma sorusu |
+| Freud ve Klasik Psikanaliz | Gecikme gözlemi, takvim kaydı ve klinik yorum |
+| Psikanalizden Ayrılanlar | Adler, Jung, Rank ve Reich’ın aynı kurgusal provaya soruları |
+| Ego Psikolojisi ve Nesne İlişkileri | Bir oyun gözleminde savunma, temsil, bağlanma ve gelişim düzeyleri |
+| Lacan, Fromm ve Horney | Kulüp toplantısında dil, kurum ve ilişkiler |
+| Davranışçılık ve Öğrenme Kuramları | Kapı oyunu ve tek ipucuyla eşleşme–sönme eğrisi |
+| Hümanistik ve Varoluşçu Psikoloji | Atölye kararında ihtiyaç, ilişki, anlam ve seçim |
+| Bilişsel Psikoloji ve Bilişsel Terapi | Sentetik Stroop sıraları ve kurgusal ABC kaydı |
+| Kişilik Kuramları ve Bireysel Farklar | Sentetik ikiz korelasyonlarıyla üç ACE bileşeni |
+| Psikopatoloji Modelleri ve Psikoterapi Ekolleri | Sentetik denemede kontrol grubu ve standartlaştırılmış fark |
+| Motivasyon ve Duygu Kuramları | Kurgusal sahne ve sentetik görev sürdürme oranları |
+
+Her derste karşılaştırmalı bir etkileşim ve Keşif Defteri bulunur. Beş derste ayrıca sayısal model vardır.
+`scripts/check-g-u6.mjs --browser` başlangıç ve sınır değerlerini, farklı seçenekleri, sıfırlamayı, defterlerin
+yüklenmesini ve Psikolog yolundaki bağlantıları denetler.
+
+Ana sayfa araması başlık, kısa ad, anahtar sözcük ve katalog verisini kullanır. Tam başlık eşleşmeleri ilk sıraya
+çıkar. Arama sonucu sayısı ve etkin kategori klavye ve ekran okuyucuyla erişilebilir. “güneş sistemi” ile Türkçe
+karakter kullanılmadan yazılan karşılıkları, filtreyi, sıfırlamayı ve bildirilen kontrast durumlarını
+`scripts/check-yollar.mjs --browser` sınar.

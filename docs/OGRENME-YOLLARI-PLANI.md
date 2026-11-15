@@ -114,13 +114,10 @@ hasta verisi.
   kent planlama, gelişim psikolojisi ve sosyal psikoloji eklendi. Öğrenme yollarındaki dokuz boşluk kapandı. Menü 264
   derse ulaştı. Perspektif, mimarlık tarihi, yapı fiziği ve kent planlama “Mimarlık ve Kent” ara başlığında toplandı.
   Masaüstü ana sayfasında başlık ile ders listesi aynı belge içinde kayar.
-- Sonra U6 (kullanıcı 13 Kasım'da onayladı): psikoloji kuramları ve ekolleri, üçüncü halka kurallarıyla
-  (`.shots/briefs/_ucuncu-halka.md`; tanı/tedavi önerisi yok, ekoller çatışan okullar olarak):
-  psikoloji ekolleri ve tarihi (yapısalcılık, işlevselcilik, psikanaliz, davranışçılık, Gestalt, hümanistik, bilişsel,
-  evrimsel, sinirbilimsel) · öğrenme kuramları (klasik/edimsel koşullanma, pekiştirme tarifeleri, sosyal öğrenme) ·
-  kişilik kuramları (psikodinamik, Büyük Beşli, sosyal-bilişsel, hümanistik; kalıtım–çevre, ikiz çalışmaları) ·
-  psikopatoloji modelleri ve psikoterapi ekolleri (biyopsikososyal, stres-yatkınlık; terapi kuramları ve kanıt
-  tartışmaları) · motivasyon ve duygu kuramları. Bu dersler `shared/yollar.js` psikolog (ve hekim "Zihin") yoluna eklenecek.
+- **U6, 15 Kasım** · Psikoloji ve psikanaliz için 11 ders eklendi. Menü 275 derse ulaştı ve
+  “Psikoloji Kuramları” ile “Psikanaliz ve Psikoterapi” ara başlıkları açıldı. Psikolog yolunda 11 yeni ders,
+  Hekim yolunda bilişsel psikoloji, motivasyon ve psikoterapi araştırmaları yer alıyor. Aynı turda ana sayfa
+  araması ve iki temadaki bildirilen kontrast sorunları düzeltildi.
 
 ## 5. Düşünce tarihi: kuramcılar ve ekoller (kullanıcı isteği, 13 Kasım 2026)
 
@@ -134,7 +131,7 @@ eleştiriler ve yanıtlar (SEP/IEP); etkileşim: kavram haritası, argüman hari
 kamu malı metinlerden yakın okuma (yazar 1956'dan önce ölmüşse kısa alıntı; değilse yalnız açımlama). Yansızlık:
 hiçbir okul kazanan ilan edilmez. Ayrıca aranabilir bir **Düşünürler Dizini** sayfası: her düşünür → hangi sayfalarda.
 
-### U6 · Psikoloji ve psikanaliz (genişletildi, ~10 ders)
+### U6 · Psikoloji ve psikanaliz (11 ders, tamamlandı)
 Psikoloji ekolleri ve tarihi (Wundt, James, Gestalt) · Freud ve klasik psikanaliz · psikanalizden ayrılanlar
 (Adler, Jung, Rank, Reich) · ego psikolojisi ve nesne ilişkileri (Anna Freud, Klein, Winnicott, Bowlby, Erikson,
 Kohut) · Lacan ve yapısalcı psikanaliz; Fromm, Horney · davranışçılık ve öğrenme kuramları (Pavlov, Watson,

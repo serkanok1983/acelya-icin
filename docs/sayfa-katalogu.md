@@ -295,7 +295,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `kuyruk-kurami-ve-benzetim` — Kuyruk Kuramı ve Benzetim (sayfa başlığı: Kuyruk Kuramı ve Benzetim) · Lise–Lisans
 - `kalite-kontrol-ve-istatistiksel-surec-kontrolu` — Kalite Kontrol ve İstatistiksel Süreç Kontrolü (sayfa başlığı: Kalite Kontrol ve İstatistiksel Süreç Kontrolü) · Lise–Lisans
 
-## İnsan ve Toplum (26)
+## İnsan ve Toplum (37)
 
 ### Zihin ve Davranış
 
@@ -307,6 +307,23 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `psikiyatri-tarihi-ve-tani-sistemleri` — Psikiyatri Tarihi ve Tanı Sistemleri (sayfa başlığı: Psikiyatri Tarihi ve Tanı Sistemleri: Sınıflama, Güvenilirlik, Taban Oranı) · Lise–Lisans
 - `gelisim-psikolojisi` — Gelişim Psikolojisi (sayfa başlığı: Gelişim Psikolojisi) · Lise–Lisans
 - `sosyal-psikoloji` — Sosyal Psikoloji (sayfa başlığı: Sosyal Psikoloji) · Lise–Lisans
+
+### Psikoloji Kuramları
+
+- `psikoloji-ekolleri-ve-tarihi` — Psikoloji Ekolleri ve Tarihi (sayfa başlığı: Psikoloji Ekolleri ve Tarihi) · Lise–Lisans
+- `davraniscilik-ve-ogrenme-kuramlari` — Davranışçılık ve Öğrenme Kuramları (sayfa başlığı: Davranışçılık ve Öğrenme Kuramları) · Lise–Lisans
+- `humanistik-ve-varoluscu-psikoloji` — Hümanistik ve Varoluşçu Psikoloji (sayfa başlığı: Hümanistik ve Varoluşçu Psikoloji) · Lise–Lisans
+- `bilissel-psikoloji-ve-terapi` — Bilişsel Psikoloji ve Bilişsel Terapi (sayfa başlığı: Bilişsel Psikoloji ve Bilişsel Terapi) · Lise–Lisans
+- `kisilik-kuramlari` — Kişilik Kuramları ve Bireysel Farklar (sayfa başlığı: Kişilik Kuramları ve Bireysel Farklar) · Lise–Lisans
+- `motivasyon-ve-duygu-kuramlari` — Motivasyon ve Duygu Kuramları (sayfa başlığı: Motivasyon ve Duygu Kuramları) · Lise–Lisans
+
+### Psikanaliz ve Psikoterapi
+
+- `freud-ve-klasik-psikanaliz` — Freud ve Klasik Psikanaliz (sayfa başlığı: Freud ve Klasik Psikanaliz) · Lise–Lisans
+- `psikanalizden-ayrilanlar` — Psikanalizden Ayrılanlar: Adler, Jung, Rank ve Reich (sayfa başlığı: Psikanalizden Ayrılanlar: Adler, Jung, Rank ve Reich) · Lise–Lisans
+- `ego-psikolojisi-ve-nesne-iliskileri` — Ego Psikolojisi ve Nesne İlişkileri (sayfa başlığı: Ego Psikolojisi ve Nesne İlişkileri) · Lise–Lisans
+- `lacan-fromm-ve-horney` — Lacan, Fromm ve Horney (sayfa başlığı: Lacan, Fromm ve Horney) · Lise–Lisans
+- `psikopatoloji-ve-psikoterapi-ekolleri` — Psikopatoloji Modelleri ve Psikoterapi Ekolleri (sayfa başlığı: Psikopatoloji Modelleri ve Psikoterapi Ekolleri) · Lise–Lisans
 
 ### Tarih ve Toplum
 

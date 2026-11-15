@@ -255,6 +255,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "bilissel-psikoloji-ve-terapi": {
+    "title": "Bilişsel Psikoloji ve Bilişsel Terapi",
+    "tagline": "Bir renk sözcüğü tepkiyi niçin geciktirebilir? Sentetik Stroop verisini çöz, sonra Beck ve Ellis’in olayla yorum arasına koyduğu ayrımı incele.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "birim-cember": {
     "title": "Birim Çember: Dönen Bir Noktanın Gölgeleri",
     "tagline": "Yarıçapı 1 olan çemberde her açı bir noktadır; kosinüs ve sinüs onun iki gölgesi. İki dönmeyi art arda yapmak toplama formüllerini verir; sinüs de küçük dönmeleri kaydırıp toplayarak hesaplanabilir.",
@@ -353,6 +360,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "davraniscilik-ve-ogrenme-kuramlari": {
+    "title": "Davranışçılık ve Öğrenme Kuramları",
+    "tagline": "Bir ses ne zaman ipucu, bir sonuç ne zaman pekiştireç olur? Pavlov, Watson, Thorndike, Skinner ve Bandura’yı kurgusal görevler ve bir öğrenme eğrisiyle karşılaştır.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "demografi-ve-nufus": {
     "title": "Demografi: Nüfusu Ölçmek, Anlamak, Öngörmek",
     "tagline": "Bir ülkenin nüfusu yalnız doğum, ölüm ve göçle değişir; zor olan bunları yaşa göre ölçmek. Toplam doğurganlığı elle topla, yaşam tablosu kur, demografik geçişi gerçek serilerle sına.",
@@ -427,6 +441,13 @@ window.ACELYA_CATALOG = {
     "title": "Duran Dalgalar: Tele ve Boruya Sığan Notalar",
     "tagline": "Bir tel ya da bir boru her frekansı çalamaz: dalga kendi yansımasıyla buluşur ve yalnızca uçlara sığan dalga boyları birikir. Gitarın notası, klarnetin pesliği ve tınının rengi bu kuraldan doğar.",
     "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "ego-psikolojisi-ve-nesne-iliskileri": {
+    "title": "Ego Psikolojisi ve Nesne İlişkileri",
+    "tagline": "Oyun, ayrılık ve yeniden buluşma aynı araştırma sorusuna mı açılır? Anna Freud, Klein, Winnicott, Bowlby, Erikson ve Kohut’un farklı düzeylerini karşılaştır.",
+    "field": "Zihin ve Davranış",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -598,6 +619,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "freud-ve-klasik-psikanaliz": {
+    "title": "Freud ve Klasik Psikanaliz",
+    "tagline": "Bir gecikmenin gözlemi ile ona yüklenen anlamı ayır. Freud’un bilinçdışı, savunma, aktarım ve yapısal model kavramlarını kurgusal konuşma üzerinden karşılaştır.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "gelisim-psikolojisi": {
     "title": "Yaş ve Kuşak Nasıl Ayrılır?",
     "tagline": "Kesitsel ve boylamsal veriye geçiş yapın. Yapay bir ölçümde yaş, kuşak ve ölçüm koşulunun katkısını ayırın.",
@@ -737,6 +765,13 @@ window.ACELYA_CATALOG = {
     "field": "Toplum ve Ekonomi",
     "level": "Lise",
     "minutes": 40
+  },
+  "humanistik-ve-varoluscu-psikoloji": {
+    "title": "Hümanistik ve Varoluşçu Psikoloji",
+    "tagline": "Bir karar sırasında ihtiyaç, ilişki, anlam ve sorumluluk neyi görünür kılar? Maslow, Rogers, Frankl ve May’in farklı sorularını bir atölye öyküsünde karşılaştır.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "ideal-gaz": {
     "title": "İdeal Gaz: Çarpışma Kaosundan Basit Bir Yasa",
@@ -913,6 +948,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "kisilik-kuramlari": {
+    "title": "Kişilik Kuramları ve Bireysel Farklar",
+    "tagline": "Bir özellik kategori mi, boyut mu? Beş Faktör yaklaşımını ve kişilik kuramlarının farklı sorularını karşılaştır, sentetik ikiz korelasyonlarının ne anlattığını hesapla.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "klasik-girisim": {
     "title": "Young'ın Çift Yarığı: Işığı Cetvelle Ölçmek",
     "tagline": "Bir iğne deliği, iki yarık ve bir cetvel: nanometrelik dalga boyu milimetrelik saçaklara dönüşür. Young'ın kart deneyinden bir yıldızın çapını ölçen aynalara uzanan Δy = λL/d'nin hikâyesi.",
@@ -989,6 +1031,13 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise–Lisans",
     "minutes": 24
+  },
+  "lacan-fromm-ve-horney": {
+    "title": "Lacan, Fromm ve Horney",
+    "tagline": "Bir kulüpte resmî üyelik, arkadaşların kabulü ve bağımsız karar arasındaki gerilimi üç farklı psikanaliz sonrası mercekle oku.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "lazer-ve-uyarilmis-salim": {
     "title": "Lazer ve Uyarılmış Salım: Einstein Katsayılarından Rezonatöre",
@@ -1214,6 +1263,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "motivasyon-ve-duygu-kuramlari": {
+    "title": "Motivasyon ve Duygu Kuramları",
+    "tagline": "Bir işi gönüllü sürdürmekle o işte heyecan duymak hangi süreçlere bağlı? Öz belirleme ve duygu kuramlarını sentetik grup verisiyle birlikte incele.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "mukavemet": {
     "title": "Mukavemet: Kuvvetten Şekil Değiştirmeye",
     "tagline": "Denge, dayanım ve rijitlik aynı soru değildir. Bir kesiti çevirip sehimi dört katına çıkar; ince bir kolonun düşük gerilmede neden kararsızlaşabildiğini sayılarla gör.",
@@ -1396,9 +1452,23 @@ window.ACELYA_CATALOG = {
     "level": "Lise hazırlık",
     "minutes": 60
   },
+  "psikanalizden-ayrilanlar": {
+    "title": "Psikanalizden Ayrılanlar: Adler, Jung, Rank ve Reich",
+    "tagline": "Kurgusal bir tiyatro provası üzerinden Adler’in toplumsal ilgisini, Jung’un simgelerini, Rank’ın ayrılma temasını ve Reich’ın karakter çözümlemesini karşılaştır.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "psikiyatri-tarihi-ve-tani-sistemleri": {
     "title": "Psikiyatride Tanı: Bir Adın Tarihi ve İstatistiği",
     "tagline": "Edirne'deki dârüşşifâdan DSM-5-TR ve ICD-11'e: ruhsal bozukluklara verilen adlar nasıl kuruldu, iki hekim aynı ada ne sıklıkla varır ve seyrek bir durumda pozitif bir sonuç ne anlama gelir?",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "psikoloji-ekolleri-ve-tarihi": {
+    "title": "Psikoloji Ekolleri ve Tarihi",
+    "tagline": "Bir melodiyi başka tondan çalınca onu nasıl tanırız? Aynı gözleme deneysel, işlevsel, Gestalt ve bilişsel sorular sorarak psikoloji ekollerinin nerede ayrıldığını gör.",
     "field": "Zihin ve Davranış",
     "level": "Lise–Lisans",
     "minutes": 35
@@ -1409,6 +1479,13 @@ window.ACELYA_CATALOG = {
     "field": "Zihin ve Davranış",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "psikopatoloji-ve-psikoterapi-ekolleri": {
+    "title": "Psikopatoloji Modelleri ve Psikoterapi Ekolleri",
+    "tagline": "Bir denemenin etkisi neyle karşılaştırıldığına bağlıdır. Ruhsal güçlüklerin açıklama modellerini, psikoterapi ekollerini ve sentetik bir klinik araştırmayı incele.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "radyoaktif-bozunma": {
     "title": "Radyoaktif Bozunma: Zar Atan Çekirdeklerin Saati",
