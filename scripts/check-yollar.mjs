@@ -199,6 +199,10 @@ if (process.argv.includes("--browser")) {
       await idea.waitFor();
       ok((await page.locator("html").getAttribute("data-theme")) !== "light", `${width}: defter gece teması`);
       await page.waitForFunction(() => [...document.styleSheets].some((sheet) => sheet.href?.endsWith("/shared/digest.css")));
+      eq(await idea.evaluate((el) => {
+        const style = getComputedStyle(el);
+        return [style.color, style.backgroundColor];
+      }), ["rgb(128, 242, 221)", "rgb(18, 53, 52)"], `${width}: Büyük Fikir gece renkleri`);
       const ratio = await contrast(idea);
       ok(ratio >= 4.5, `${width}: Büyük Fikir kontrastı ${ratio.toFixed(2)}:1`);
 

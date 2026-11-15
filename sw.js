@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-343d4212c3";
+const VERSION = "acelya-2f4005af86";
 // --- end:version ---
 
 // --- generated:core ---
@@ -36,6 +36,7 @@ const CORE = [
   "shared/leaderboard.js",
   "shared/lesson-lab.css",
   "shared/lesson-lab.js",
+  "shared/philosophy-history.css",
   "shared/psychology.css",
   "shared/theme.css",
   "shared/yollar-view.js",
@@ -61,12 +62,15 @@ const PAGES = [
   "algi-psikolojisi.html",
   "algoritma-karmasikligi.html",
   "algoritmalar.html",
+  "alman-idealizmi.html",
   "alternatif-akim.html",
   "altin-oran.html",
+  "analitik-felsefe.html",
   "anatomi-ve-fizyoloji.html",
   "anayasa-hukuku-ve-temel-haklar.html",
   "anlambilim-ve-edimbilim.html",
   "anlati-yapisi-ve-edebiyat-cozumlemesi.html",
+  "aristoteles-felsefesi.html",
   "aritmetik-ve-sayilar.html",
   "arkeoloji-ve-tarihleme.html",
   "aruz-ve-hece-olcusu.html",
@@ -120,6 +124,7 @@ const PAGES = [
   "dogal-secilim.html",
   "doppler-etkisi.html",
   "duran-dalgalar.html",
+  "dusunurler-dizini.html",
   "ego-psikolojisi-ve-nesne-iliskileri.html",
   "elektrik-devresi-simulasyonu.html",
   "elektrik-muhendisligi.html",
@@ -129,6 +134,7 @@ const PAGES = [
   "elektronik-devre.html",
   "elektronik-muhendisligi.html",
   "elektrostatik.html",
+  "empirist-felsefe.html",
   "enigma-makinesi.html",
   "entropi-ve-istatistiksel-fizik.html",
   "enzim-kinetigi.html",
@@ -137,6 +143,7 @@ const PAGES = [
   "etimoloji-ve-dil-aileleri.html",
   "farmakokinetik.html",
   "felsefi-dusunce-deneyleri.html",
+  "fenomenoloji-ve-varolusculuk.html",
   "fibo+pascal.html",
   "fibo.html",
   "finans-matematigi.html",
@@ -158,6 +165,7 @@ const PAGES = [
   "gunes-sistemi.html",
   "hanoi-kuleleri.html",
   "hareket-ve-grafikler.html",
+  "helenistik-felsefe.html",
   "hesaplama-teorisi.html",
   "hidrolik-sistemler.html",
   "hilbert-egrisi.html",
@@ -182,6 +190,7 @@ const PAGES = [
   "kaldirma-kuvveti.html",
   "kalite-kontrol-ve-istatistiksel-surec-kontrolu.html",
   "kalp-dolasim.html",
+  "kant-felsefesi.html",
   "kara-cisim-isimasi.html",
   "karar-ve-bilissel-yanliliklar.html",
   "karmasik-sayilar.html",
@@ -245,9 +254,11 @@ const PAGES = [
   "nufus-ekolojisi.html",
   "nukleer-fizik.html",
   "okyanus-ve-gelgitler.html",
+  "on-dokuzuncu-yuzyil-felsefesi.html",
   "optik-yansima-kirilma.html",
   "optimizasyon-ve-gradyan-inisi.html",
   "organik-kimya-ve-izomeri.html",
+  "orta-cag-ve-islam-felsefesi.html",
   "otomotiv-muhendisligi.html",
   "otonom-araclar-ve-iha.html",
   "oyun-2048.html",
@@ -259,9 +270,11 @@ const PAGES = [
   "ph-indikator.html",
   "pi-yaklasimi.html",
   "pisagor.html",
+  "platon-felsefesi.html",
   "plc-hidrolik-pnomatik-cnc-cadcam.html",
   "pong.html",
   "populasyon-genetigi.html",
+  "pragmatizm.html",
   "programlama-paradigmalari.html",
   "programlamaya-giris.html",
   "psikanalizden-ayrilanlar.html",
@@ -271,6 +284,7 @@ const PAGES = [
   "psikopatoloji-ve-psikoterapi-ekolleri.html",
   "radyoaktif-bozunma.html",
   "rastgele-yuruyus.html",
+  "rasyonalist-felsefe.html",
   "regresyon-ve-korelasyon.html",
   "renk-teorisi.html",
   "riemann-toplamlari.html",
@@ -291,6 +305,7 @@ const PAGES = [
   "siralama-algoritmalari.html",
   "siralama-yarisi.html",
   "snake.html",
+  "sokrates-oncesi-felsefe.html",
   "sosyal-modeller-ve-aglar.html",
   "sosyal-psikoloji.html",
   "sozdizimi-ve-dilbilgisi.html",
@@ -322,6 +337,7 @@ const PAGES = [
   "veri-yapilari.html",
   "veritabanlari.html",
   "yapi-fizigi.html",
+  "yapisalcilik-ve-sonrasi.html",
   "yari-iletkenler-ve-bant-yapisi.html",
   "yasam-oyunu.html",
   "yay-kutle.html",
@@ -342,12 +358,15 @@ const DIGESTS = [
   "shared/digest/algi-psikolojisi.js",
   "shared/digest/algoritma-karmasikligi.js",
   "shared/digest/algoritmalar.js",
+  "shared/digest/alman-idealizmi.js",
   "shared/digest/alternatif-akim.js",
   "shared/digest/altin-oran.js",
+  "shared/digest/analitik-felsefe.js",
   "shared/digest/anatomi-ve-fizyoloji.js",
   "shared/digest/anayasa-hukuku-ve-temel-haklar.js",
   "shared/digest/anlambilim-ve-edimbilim.js",
   "shared/digest/anlati-yapisi-ve-edebiyat-cozumlemesi.js",
+  "shared/digest/aristoteles-felsefesi.js",
   "shared/digest/aritmetik-ve-sayilar.js",
   "shared/digest/arkeoloji-ve-tarihleme.js",
   "shared/digest/aruz-ve-hece-olcusu.js",
@@ -400,6 +419,7 @@ const DIGESTS = [
   "shared/digest/dogal-secilim.js",
   "shared/digest/doppler-etkisi.js",
   "shared/digest/duran-dalgalar.js",
+  "shared/digest/dusunurler-dizini.js",
   "shared/digest/ego-psikolojisi-ve-nesne-iliskileri.js",
   "shared/digest/elektrik-devresi-simulasyonu.js",
   "shared/digest/elektrik-muhendisligi.js",
@@ -409,6 +429,7 @@ const DIGESTS = [
   "shared/digest/elektronik-devre.js",
   "shared/digest/elektronik-muhendisligi.js",
   "shared/digest/elektrostatik.js",
+  "shared/digest/empirist-felsefe.js",
   "shared/digest/enigma-makinesi.js",
   "shared/digest/entropi-ve-istatistiksel-fizik.js",
   "shared/digest/enzim-kinetigi.js",
@@ -417,6 +438,7 @@ const DIGESTS = [
   "shared/digest/etimoloji-ve-dil-aileleri.js",
   "shared/digest/farmakokinetik.js",
   "shared/digest/felsefi-dusunce-deneyleri.js",
+  "shared/digest/fenomenoloji-ve-varolusculuk.js",
   "shared/digest/fibo+pascal.js",
   "shared/digest/fibo.js",
   "shared/digest/finans-matematigi.js",
@@ -438,6 +460,7 @@ const DIGESTS = [
   "shared/digest/gunes-sistemi.js",
   "shared/digest/hanoi-kuleleri.js",
   "shared/digest/hareket-ve-grafikler.js",
+  "shared/digest/helenistik-felsefe.js",
   "shared/digest/hesaplama-teorisi.js",
   "shared/digest/hidrolik-sistemler.js",
   "shared/digest/hilbert-egrisi.js",
@@ -462,6 +485,7 @@ const DIGESTS = [
   "shared/digest/kaldirma-kuvveti.js",
   "shared/digest/kalite-kontrol-ve-istatistiksel-surec-kontrolu.js",
   "shared/digest/kalp-dolasim.js",
+  "shared/digest/kant-felsefesi.js",
   "shared/digest/kara-cisim-isimasi.js",
   "shared/digest/karar-ve-bilissel-yanliliklar.js",
   "shared/digest/karmasik-sayilar.js",
@@ -525,9 +549,11 @@ const DIGESTS = [
   "shared/digest/nufus-ekolojisi.js",
   "shared/digest/nukleer-fizik.js",
   "shared/digest/okyanus-ve-gelgitler.js",
+  "shared/digest/on-dokuzuncu-yuzyil-felsefesi.js",
   "shared/digest/optik-yansima-kirilma.js",
   "shared/digest/optimizasyon-ve-gradyan-inisi.js",
   "shared/digest/organik-kimya-ve-izomeri.js",
+  "shared/digest/orta-cag-ve-islam-felsefesi.js",
   "shared/digest/otomotiv-muhendisligi.js",
   "shared/digest/otonom-araclar-ve-iha.js",
   "shared/digest/oyun-2048.js",
@@ -539,9 +565,11 @@ const DIGESTS = [
   "shared/digest/ph-indikator.js",
   "shared/digest/pi-yaklasimi.js",
   "shared/digest/pisagor.js",
+  "shared/digest/platon-felsefesi.js",
   "shared/digest/plc-hidrolik-pnomatik-cnc-cadcam.js",
   "shared/digest/pong.js",
   "shared/digest/populasyon-genetigi.js",
+  "shared/digest/pragmatizm.js",
   "shared/digest/programlama-paradigmalari.js",
   "shared/digest/programlamaya-giris.js",
   "shared/digest/psikanalizden-ayrilanlar.js",
@@ -551,6 +579,7 @@ const DIGESTS = [
   "shared/digest/psikopatoloji-ve-psikoterapi-ekolleri.js",
   "shared/digest/radyoaktif-bozunma.js",
   "shared/digest/rastgele-yuruyus.js",
+  "shared/digest/rasyonalist-felsefe.js",
   "shared/digest/regresyon-ve-korelasyon.js",
   "shared/digest/renk-teorisi.js",
   "shared/digest/riemann-toplamlari.js",
@@ -571,6 +600,7 @@ const DIGESTS = [
   "shared/digest/siralama-algoritmalari.js",
   "shared/digest/siralama-yarisi.js",
   "shared/digest/snake.js",
+  "shared/digest/sokrates-oncesi-felsefe.js",
   "shared/digest/sosyal-modeller-ve-aglar.js",
   "shared/digest/sosyal-psikoloji.js",
   "shared/digest/sozdizimi-ve-dilbilgisi.js",
@@ -602,6 +632,7 @@ const DIGESTS = [
   "shared/digest/veri-yapilari.js",
   "shared/digest/veritabanlari.js",
   "shared/digest/yapi-fizigi.js",
+  "shared/digest/yapisalcilik-ve-sonrasi.js",
   "shared/digest/yari-iletkenler-ve-bant-yapisi.js",
   "shared/digest/yasam-oyunu.js",
   "shared/digest/yay-kutle.js",
@@ -671,6 +702,10 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.origin === self.location.origin) {
+    if (url.pathname === new URL("shared/digest.css", self.registration.scope).pathname) {
+      event.respondWith(networkFirst(request, { stylesheet: true }));
+      return;
+    }
     event.respondWith(staleWhileRevalidate(request, STATIC_CACHE));
     return;
   }
@@ -685,17 +720,20 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
-async function networkFirst(request) {
+async function networkFirst(request, { stylesheet = false } = {}) {
   const cache = await caches.open(STATIC_CACHE);
   try {
-    const response = await fetch(request);
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  } catch (_) {
-    const cached = (await cache.match(request)) || (await cache.match(request, { ignoreSearch: true }));
-    if (cached) return cached;
-    return new Response(OFFLINE_HTML, { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } });
-  }
+    const response = await fetch(request, stylesheet ? { cache: "no-cache" } : undefined);
+    if (response.ok) {
+      const save = cache.put(request, response.clone()).catch(() => {});
+      if (stylesheet) await save;
+    }
+    if (!stylesheet || response.ok) return response;
+  } catch (_) {}
+  const cached = (await cache.match(request)) || (await cache.match(request, { ignoreSearch: true }));
+  if (cached) return cached;
+  if (stylesheet) return new Response("", { status: 503, headers: { "Content-Type": "text/css; charset=utf-8" } });
+  return new Response(OFFLINE_HTML, { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
 
 async function staleWhileRevalidate(request, cacheName) {

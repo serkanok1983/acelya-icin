@@ -352,7 +352,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `borclar-ve-sozlesme-hukuku` — Borçlar ve Sözleşme Hukuku (sayfa başlığı: Borçlar ve Sözleşme Hukuku: Öneri, Kabul, İfa, Haksız Fiil ve Sorumluluk) · Lise–Lisans
 - `hukuk-felsefesi` — Hukuk Felsefesi (sayfa başlığı: Hukuk Felsefesi: Doğal Hukuk, Pozitivizm, Adalet ve Hukukun Otoritesi) · Lise–Lisans
 
-## Dil, Felsefe ve Sanat (22)
+## Dil, Felsefe ve Sanat (37)
 
 ### Dil ve Edebiyat
 
@@ -375,6 +375,39 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `bilim-felsefesi` — Bilim Felsefesi (sayfa başlığı: Bilim Felsefesi: Sınır Çizme, Duhem–Quine, Kuhn, Lakatos, Gerçekçilik) · Lise–Lisans
 - `karsilastirmali-dinler-tarihi` — Karşılaştırmalı Dinler Tarihi (sayfa başlığı: Karşılaştırmalı Dinler Tarihi: Tanımlar, Gelenekler, Kutsal Metinler, Sayılar) · Lise–Lisans
 - `din-felsefesi-ve-kelam` — Din Felsefesi ve Kelâm (sayfa başlığı: Din Felsefesi ve Kelâm: Tanrı Argümanları, Kötülük, İman ve Akıl) · Lise–Lisans
+
+### Felsefe Tarihi
+
+- `dusunurler-dizini` — Düşünürler Dizini (sayfa başlığı: Düşünürler Dizini) · Lise–Lisans
+
+### Antikçağ Felsefesi
+
+- `sokrates-oncesi-felsefe` — Sokrates Öncesi Felsefe (sayfa başlığı: Sokrates Öncesi Felsefe) · Lise–Lisans
+- `platon-felsefesi` — Platon: Formlar, Bilgi ve Adalet (sayfa başlığı: Platon: Formlar, Bilgi ve Adalet) · Lise–Lisans
+- `aristoteles-felsefesi` — Aristoteles: Neden, Değişim ve Erdem (sayfa başlığı: Aristoteles: Neden, Değişim ve Erdem) · Lise–Lisans
+- `helenistik-felsefe` — Helenistik Felsefe: Stoa, Epikür ve Şüphecilik (sayfa başlığı: Helenistik Felsefe: Stoa, Epikür ve Şüphecilik) · Lise–Lisans
+
+### Orta Çağ Felsefesi
+
+- `orta-cag-ve-islam-felsefesi` — Orta Çağ ve İslam Felsefesi (sayfa başlığı: Orta Çağ ve İslam Felsefesi) · Lise–Lisans
+
+### Erken Modern Felsefe
+
+- `rasyonalist-felsefe` — Rasyonalistler: Descartes, Spinoza ve Leibniz (sayfa başlığı: Rasyonalistler: Descartes, Spinoza ve Leibniz) · Lise–Lisans
+- `empirist-felsefe` — Empiristler: Locke, Berkeley ve Hume (sayfa başlığı: Empiristler: Locke, Berkeley ve Hume) · Lise–Lisans
+- `kant-felsefesi` — Kant: Deneyimin Koşulları ve Ödev (sayfa başlığı: Kant: Deneyimin Koşulları ve Ödev) · Lise–Lisans
+
+### 19. Yüzyıl Felsefesi
+
+- `alman-idealizmi` — Alman İdealizmi: Fichte, Schelling ve Hegel (sayfa başlığı: Alman İdealizmi: Fichte, Schelling ve Hegel) · Lise–Lisans
+- `on-dokuzuncu-yuzyil-felsefesi` — 19. Yüzyıl: Schopenhauer, Kierkegaard, Nietzsche ve Mill (sayfa başlığı: 19. Yüzyıl: Schopenhauer, Kierkegaard, Nietzsche ve Mill) · Lise–Lisans
+
+### Modern ve Çağdaş Felsefe
+
+- `fenomenoloji-ve-varolusculuk` — Fenomenoloji ve Varoluşçuluk (sayfa başlığı: Fenomenoloji ve Varoluşçuluk) · Lise–Lisans
+- `analitik-felsefe` — Analitik Felsefe: Dil, Mantık ve Kanıt (sayfa başlığı: Analitik Felsefe: Dil, Mantık ve Kanıt) · Lise–Lisans
+- `pragmatizm` — Pragmatizm: Peirce, James ve Dewey (sayfa başlığı: Pragmatizm: Peirce, James ve Dewey) · Lise–Lisans
+- `yapisalcilik-ve-sonrasi` — Yapısalcılık ve Sonrası (sayfa başlığı: Yapısalcılık ve Sonrası) · Lise–Lisans
 
 ### Sanat ve Sinema
 

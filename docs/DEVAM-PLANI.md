@@ -501,7 +501,9 @@ Komutlar: `npm run check`, `npm run build` (katalog + sw), `npm run smoke`,
 8 ders. **U5 tamam (15 Kasım):** 9 ders, 264 derslik menü, öğrenme yollarındaki son boşlukların kapanması ve
 masaüstü ana sayfada tam sayfa kaydırma. **U6 tamam (15 Kasım)** · Psikoloji ve psikanaliz için 11 ders,
 275 derslik menü, Psikolog ve Hekim yolları, ana sayfa araması ve kontrast düzeltmeleri.
-**Sırada U7**, sonra U8–U10 ve genel değerlendirme.
+**U7 tamam (15 Kasım)** · Felsefe tarihi üzerine 14 ders ve 56 kayıtlı Düşünürler Dizini.
+Menü 290 sayfaya ulaştı. “Büyük Fikir” etiketi gece modunda koyu zemin ve açık yazıyla güncellendi.
+**Sırada U8**, sonra U9–U10 ve genel değerlendirme.
 Devir için `docs/DEVIR-NOTU.md`.
 
 İlk istek (kayıt için):

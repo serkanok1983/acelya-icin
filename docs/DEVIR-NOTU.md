@@ -11,7 +11,7 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (dal `main`).
 - **Canlı:** https://serkanok1983.github.io/acelya-icin (GitHub Pages, `gh-pages` dalı; GitHub Actions kullanılmıyor,
   yayın yerelden elle yapılır, bkz. §5).
-- **Boyut (15 Kasım, U6 sonrası):** 275 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
+- **Boyut (15 Kasım, U7 sonrası):** 290 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
   `onsart.html`. Menüde 10 grup.
 
 ## 2. Kullanıcının kalıcı kuralları (bağlayıcı; birebir sözleri)
@@ -143,7 +143,9 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   Masaüstü ana sayfanın belge kaydırması `scripts/check-yollar.mjs --browser` kapsamındadır.
 - U6 ile menü 275 derse ulaştı. Yeni sayfalar ve etkileşimler `scripts/check-g-u6.mjs --browser` ile sınanır.
   Arama ve okunurluk regresyonları `scripts/check-yollar.mjs --browser` kapsamındadır.
-- Bir sonraki iş **U7**.
+- U7 ile 14 felsefe tarihi dersi ve 56 kişilik Düşünürler Dizini eklendi. Menü 290 kayıt içeriyor.
+  `scripts/check-g-u7.mjs --browser` argüman haritalarını, dizin aramasını ve Keşif Defteri’nin stil önbelleğini sınar.
+- Bir sonraki iş **U8**.
 
 ### Tamamlanan turlar (hepsi yayında)
 - **U1** — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
@@ -161,15 +163,19 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   Türkçe karakterleri eşdeğer sayar, sorgu sözcüklerinin tümünü arar ve sonuçları tüm kataloğa göre sıralar.
   Gündüz rehber bağlantıları ve etkin ders kartı ile gece Keşif Defteri etiketi için kontrast güncellendi.
 
+- **U7** — Antikçağ felsefesinden yapısalcılık sonrasına 14 ders. Dizin ad, kavram ve ders dönemine göre arar,
+  ilgili argüman haritasını açar. Gece modunda “Büyük Fikir” etiketi koyu zemin ve açık turkuaz yazıyla gösterilir.
+  Keşif Defteri stili çevrimiçiyken yeniden doğrulanır, bağlantı kesildiğinde önbellekten alınır.
+
 Tur ayrıntıları `docs/simulasyon-notlari.md` belgesinde.
 
 ### Sıradaki işler (sırasıyla; ayrıntılı kapsam `docs/OGRENME-YOLLARI-PLANI.md` §3, §5, §6, §7)
-1. **U7** — felsefe tarihi (~12 ders, Sokrates öncesinden yapısalcılık sonrasına).
-2. **U8** — sosyal bilimler ve siyaset kuramı (~10 ders).
-   U7–U8 için aranabilir **Düşünürler Dizini** sayfası ve gerekirse ayrı "Düşünce Tarihi" menü grubu.
-3. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
+1. **U8** — sosyal bilimler ve siyaset kuramı (~10 ders).
+   Düşünürler Dizini’ne ilgili yeni kayıtlar ve ders bağlantıları eklenir. Menü dengesi gerektirirse ayrı
+   “Düşünce Tarihi” grubu açılabilir.
+2. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
    ve karakter psikolojisi, anlatım teknikleri, retorik, dram, türler, şiir, uyarlama.
-4. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
+3. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
    U9–U10 için "Edebiyat ve Sinema" grubu açılabilir.
 5. **Genel değerlendirme:** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
    (`docs/OGRENME-YOLLARI-PLANI.md` §7).

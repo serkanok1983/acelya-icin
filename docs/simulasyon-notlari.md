@@ -2184,3 +2184,32 @@ Ana sayfa araması başlık, kısa ad, anahtar sözcük ve katalog verisini kull
 çıkar. Arama sonucu sayısı ve etkin kategori klavye ve ekran okuyucuyla erişilebilir. “güneş sistemi” ile Türkçe
 karakter kullanılmadan yazılan karşılıkları, filtreyi, sıfırlamayı ve bildirilen kontrast durumlarını
 `scripts/check-yollar.mjs --browser` sınar.
+
+
+## 15 Kasım 2026 — U7 · Felsefe tarihi
+
+| Ders | Argüman haritasında sınanan ayrım |
+|---|---|
+| Sokrates Öncesi Felsefe | Değişen bileşen, süren düzen ve yoktan oluş |
+| Platon | Form, gerekçeli bilgi, mağara ve adalet analojisi |
+| Aristoteles | Dört neden, olanak ve edimsellik, uygun orta |
+| Helenistik Felsefe | Seçim alanı, arzunun türü ve askıya alınan yargı |
+| Orta Çağ ve İslam Felsefesi | Öz ile var oluş, nedensel zorunluluk ve akıl ile yorum |
+| Rasyonalistler | Cogito, töz birliği ve yeter neden |
+| Empiristler | Duyum ve düşünüm, algının dayanağı ve tümevarım |
+| Kant | Yargı türleri, nesnel olay sırası ve maksim |
+| Alman İdealizmi | Benin etkinliği, doğanın üretkenliği ve tanınma |
+| 19. Yüzyıl | İsteme, bağlılık, değerlerin soykütüğü ve zarar ilkesi |
+| Fenomenoloji ve Varoluşçuluk | Deneyim kipi, alet ağı ve özgürlüğün koşulları |
+| Analitik Felsefe | Sunuş biçimi, teklik, dil oyunu ve bütüncül sınama |
+| Pragmatizm | Ölçülebilir fark, doğrulanma ve problemin kurulması |
+| Yapısalcılık ve Sonrası | Gösterge ilişkisi, anlatı dönüşümü, kayıt ve metin gerilimi |
+
+Her harita metin ve bağlamı, savı, gerekçeyi, itirazı ve olası yanıtı ayırır. “Düşünürler Dizini” 56 düşünürün
+adlarını, yaygın alternatif yazımlarını, ilgili kavramları ve ders dönemlerini arar. Bir bağlantı açıldığında
+argüman haritasındaki ilgili sav seçilir. Dizin ve 14 yeni dersin tamamına Keşif Defteri eklendi.
+
+`scripts/check-g-u7.mjs --browser` bu bağlantıların hedeflerini, klavyeyle açılan itirazları, sav değişikliği
+ve sıfırlama davranışını, dizin filtrelerini ve iki ekran boyutunu denetler. Aynı test eski bir Keşif Defteri stili
+önbelleğe konduğunda çevrimiçi açılışta güncel stilin geldiğini ve çevrimdışı erişimde güncel kopyanın kullanıldığını
+kontrol eder.

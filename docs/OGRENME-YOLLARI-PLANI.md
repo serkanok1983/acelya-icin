@@ -139,13 +139,16 @@ Thorndike, Skinner, Bandura) · hümanistik ve varoluşçu psikoloji (Maslow, Ro
 ve bilişsel terapi (Piaget ve Vygotsky gelişim sayfasıyla bağlı; Beck, Ellis) · kişilik kuramları · psikopatoloji
 modelleri ve psikoterapi ekolleri · motivasyon ve duygu kuramları.
 
-### U7 · Felsefe tarihi (~12 ders)
+### U7 · Felsefe tarihi (14 ders, tamamlandı)
 Sokrates öncesi · Platon · Aristoteles · Helenistik felsefe (Stoa, Epikür, şüphecilik) · Orta Çağ ve İslam felsefesi
 (Augustinus, Farabi, İbn Sina, Gazali, İbn Rüşd, Aquinas) · Rasyonalistler (Descartes, Spinoza, Leibniz) · Empiristler
 (Locke, Berkeley, Hume) · Kant · Alman idealizmi (Fichte, Schelling, Hegel) · 19. yüzyıl (Schopenhauer, Kierkegaard,
 Nietzsche, Mill) · fenomenoloji ve varoluşçuluk (Husserl, Heidegger, Sartre, Beauvoir, Camus) · analitik felsefe
 (Frege, Russell, Wittgenstein, Viyana Çevresi, Quine) · pragmatizm · yapısalcılık ve sonrası (Saussure, Lévi-Strauss,
 Foucault, Derrida, Deleuze).
+
+Dersler dönemlere göre “Dil, Felsefe ve Sanat” grubunda toplandı. Düşünürler Dizini bu derslerde ele alınan 56
+düşünürü ad, kavram ve dönem filtresiyle bulur. Kartlardan dersin ilgili savına gidilir.
 
 ### U8 · Sosyal bilimler ve siyaset kuramı (~10 ders)
 Toplum sözleşmesi ve siyaset felsefesi (Machiavelli, Hobbes, Locke, Rousseau, Montesquieu) · İbn Haldun ve tarih

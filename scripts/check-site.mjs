@@ -38,6 +38,7 @@ const SOURCE_PREFIXES = [
   "https://mathworld.wolfram.com/", "https://www.3blue1brown.com/", "https://oeis.org/",
   "https://plato.stanford.edu/", "https://iep.utm.edu/", "https://www.britannica.com/", "https://sozluk.gov.tr/", "https://www.nisanyansozluk.com/", "https://ourworldindata.org/", "https://stratigraphy.org/", "https://www.loc.gov/", "https://www.gutenberg.org/", "https://www.metmuseum.org/", "https://www.si.edu/", "https://www.nps.gov/", "https://www.tdk.gov.tr/", "https://islamansiklopedisi.org.tr/",
   "https://psychclassics.yorku.ca/",
+  "https://peirce.org/writings/", "https://fr.wikisource.org/wiki/Cours_de_linguistique_g%C3%A9n%C3%A9rale/", "https://www.jstor.org/stable/536768",
   "https://wwws.loc.gov/exhibits/freud/", "https://adler.school/archivo/adler/", "https://press.princeton.edu/books/",
   "https://findingaids.library.upenn.edu/records/", "https://wilhelmreichmuseum.org/about/research-and-publications/",
   "https://www.freud.org.uk/schools/resources/", "https://melanie-klein-trust.org.uk/theory/",

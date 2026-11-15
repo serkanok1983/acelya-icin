@@ -38,6 +38,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "alman-idealizmi": {
+    "title": "Alman İdealizmi: Fichte, Schelling ve Hegel",
+    "tagline": "Benin etkinliği, doğanın gelişimi ve karşılıklı tanınma nasıl açıklanır? Kant sonrasındaki üç sistemi kendi öncülleriyle karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "alternatif-akim": {
     "title": "Alternatif Akım: Fazörler, Rezonans ve Güç",
     "tagline": "Bobinde akım gerilimin gerisinde kalır, kondansatörde önüne geçer; doğru frekansta bu iki etki birbirini siler. Aynı zamanlama radyoyu istasyona ayarlar, 10 voltluk bir kaynaktan da 300 voltun üstünde gerilim çıkarır.",
@@ -51,6 +58,13 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "analitik-felsefe": {
+    "title": "Analitik Felsefe: Dil, Mantık ve Kanıt",
+    "tagline": "Aynı gönderim neden farklı bilgi verir? Bir betimleme, bir dil oyunu ve yanlış çıkan bir tahmin üzerinden analitik felsefenin yöntemlerini karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "anatomi-ve-fizyoloji": {
     "title": "Beden Bir Düzenek: Kaldıraç, Soluk ve Göz",
@@ -77,6 +91,13 @@ window.ACELYA_CATALOG = {
     "title": "Anlatı Yapısı: Bir Öyküyü Parçalarına Ayırmak",
     "tagline": "Bir öykünün ne anlattığı başka, nasıl anlattığı başka. Aristoteles, Freytag, Propp ve Genette'nin araçlarıyla Oidipus'u, iki masalı, Odysseia'yı ve Poe'nun anlatıcısını kendin çözümle; araçların nerede yetmediğini de gör.",
     "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "aristoteles-felsefesi": {
+    "title": "Aristoteles: Neden, Değişim ve Erdem",
+    "tagline": "Bir kabı açıklamak için kil, biçim, çömlekçi ve kullanım neyi söyler? Aristoteles’in dört nedenini, olanak ve erdem kavramlarıyla birlikte sına.",
+    "field": "Felsefe ve Mantık",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -444,6 +465,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "dusunurler-dizini": {
+    "title": "Düşünürler Dizini",
+    "tagline": "Felsefe tarihi derslerine bir düşünürün adı, kavramı veya dönemi üzerinden ulaş. Bağlantılar ilgili argüman haritasını açar.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 20
+  },
   "ego-psikolojisi-ve-nesne-iliskileri": {
     "title": "Ego Psikolojisi ve Nesne İlişkileri",
     "tagline": "Oyun, ayrılık ve yeniden buluşma aynı araştırma sorusuna mı açılır? Anna Freud, Klein, Winnicott, Bowlby, Erikson ve Kohut’un farklı düzeylerini karşılaştır.",
@@ -507,6 +535,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "empirist-felsefe": {
+    "title": "Empiristler: Locke, Berkeley ve Hume",
+    "tagline": "Bir rengin fikri, algıladığın masa ve yarına ilişkin beklentin nereden gelir? Üç empiristin deneyime verdiği farklı görevleri karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "enigma-makinesi": {
     "title": "Enigma: Her Harften Önce Değişen Yol",
     "tagline": "Aynı A tuşu neden BDZGO üretir? Rotor adımını elektrik yolundan ayır; çift adımı, halka ayarını ve aynı başlangıçla çözmenin cebirini incele.",
@@ -562,6 +597,13 @@ window.ACELYA_CATALOG = {
     "field": "Felsefe ve Mantık",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "fenomenoloji-ve-varolusculuk": {
+    "title": "Fenomenoloji ve Varoluşçuluk",
+    "tagline": "Bir aracın bozulması ve bir seçimin koşulları neyi görünür kılar? Husserl, Heidegger, Sartre, Beauvoir ve Camus’yü karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "fibo+pascal": {
     "title": "Fibonacci ve Pascal: Taşların Saydığı Özdeşlik",
@@ -707,6 +749,13 @@ window.ACELYA_CATALOG = {
     "title": "Hareket ve Grafikler: Eğim, Alan ve Gürültü",
     "tagline": "Bir eğrinin eğimi hızı, altındaki alan yer değiştirmeyi söyler. Bu iki okuma türev ile integralin ta kendisidir; gürültülü bir sensörde ise türev almanın neden tehlikeli olduğunu da gösterir.",
     "field": "Fizik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "helenistik-felsefe": {
+    "title": "Helenistik Felsefe: Stoa, Epikür ve Şüphecilik",
+    "tagline": "Kötü haber, korku ve belirsiz bir iddia karşısında iyi yaşamın ölçütü değişir mi? Stoacı, Epikürcü ve Pyrrhoncu yanıtları karşılaştır.",
+    "field": "Felsefe ve Mantık",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -875,6 +924,13 @@ window.ACELYA_CATALOG = {
     "title": "Kalp ve Dolaşım: Pompa, Esnek Depo ve Oksijen",
     "tagline": "Kasılırken sertleşen bir odacık, her atımın bir kısmını depolayan esnek bir aort ve oksijeni basınca göre bırakan bir molekül. Basınç–hacim döngüsünü, windkessel'i ve Fick ilkesini ölç.",
     "field": "Biyoloji",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "kant-felsefesi": {
+    "title": "Kant: Deneyimin Koşulları ve Ödev",
+    "tagline": "Bir olayın ardışıklığını nasıl deneyimleriz, bir davranış kuralını nasıl sınarız? Kant’ın bilgi ve ahlak sorularını üç örnekle ayır.",
+    "field": "Felsefe ve Mantık",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -1319,6 +1375,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "on-dokuzuncu-yuzyil-felsefesi": {
+    "title": "19. Yüzyıl: Schopenhauer, Kierkegaard, Nietzsche ve Mill",
+    "tagline": "Arzu, kişisel bağlılık, değerlerin soykütüğü ve zarar ilkesi aynı kararı nasıl farklı okur? Dört düşünürün sorularını karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "optik-yansima-kirilma": {
     "title": "Sınırdaki Işık: Snell'den Optik Fibere",
     "tagline": "Işık camın yüzeyinde yön değiştirir, bir kısmı geri döner, belli bir açıdan sonra hiç dışarı çıkamaz. İbn Sehl'in 984'teki oranından kıtaları bağlayan cam ipliklere, kırılma ve yansımanın fiziği.",
@@ -1339,6 +1402,13 @@ window.ACELYA_CATALOG = {
     "field": "Kimya",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "orta-cag-ve-islam-felsefesi": {
+    "title": "Orta Çağ ve İslam Felsefesi",
+    "tagline": "Bir şeyin var oluşu, bilginin güvencesi ve nedenin zorunluluğu nasıl tartışılır? Augustinus’tan Aquinas’a altı ayrı yaklaşımı karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 50
   },
   "otomotiv-muhendisligi": {
     "title": "Otomotiv Mühendisliği: Pistondan Tekerleğe, Tekerlekten Yola",
@@ -1417,6 +1487,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "platon-felsefesi": {
+    "title": "Platon: Formlar, Bilgi ve Adalet",
+    "tagline": "Çizilmiş bir kare, doğru bir tahmin ve mağaradaki gölge aynı tür bilgi mi verir? Platon’un diyaloglarında ölçütü ve gerekçeyi araştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "plc-hidrolik-pnomatik-cnc-cadcam": {
     "title": "Otomasyon: Beyin, Kas ve Dijital Köprü",
     "tagline": "Bir otomasyon hattının dört katmanı: tarama tarama karar veren merdiven programı, sıraya giren pnömatik silindirler, tezgâhın okuduğu G-kodu ve o kodu üreten takım yolu hesabı. Dördünü de çalıştır, ölç, kuramla kıyasla.",
@@ -1437,6 +1514,13 @@ window.ACELYA_CATALOG = {
     "field": "Biyoloji",
     "level": "Lise–Lisans",
     "minutes": 50
+  },
+  "pragmatizm": {
+    "title": "Pragmatizm: Peirce, James ve Dewey",
+    "tagline": "İki düşünce doğruysa uygulamada ne farklı olur? Peirce’ın ölçütünü, James’in doğruluk tartışmasını ve Dewey’nin araştırma anlayışını karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "programlama-paradigmalari": {
     "title": "Programlama Paradigmaları: Aynı İş, Farklı Kafalar",
@@ -1498,6 +1582,13 @@ window.ACELYA_CATALOG = {
     "title": "Rastgele Yürüyüş: Sarhoşun Yolu, Şansın Yasası",
     "tagline": "Her adımı yazı turayla seçilen bir yürüyüşçü N adımda yalnızca √N mertebesinde uzaklaşır. Mürekkebin yavaş yayılması, kumarbazın iflası ve uzayda kaybolan kuş aynı hesaptan çıkar.",
     "field": "Matematik",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "rasyonalist-felsefe": {
+    "title": "Rasyonalistler: Descartes, Spinoza ve Leibniz",
+    "tagline": "Şüpheye dayanıklı bir başlangıç, tek töz ve yeter neden nasıl savunulur? Üç rasyonalistin aynı kesinlik beklentisini nasıl ayırdığını incele.",
+    "field": "Felsefe ve Mantık",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -1640,6 +1731,13 @@ window.ACELYA_CATALOG = {
     "field": "Oyun",
     "level": "Lise–Lisans",
     "minutes": 30
+  },
+  "sokrates-oncesi-felsefe": {
+    "title": "Sokrates Öncesi Felsefe",
+    "tagline": "Değişen dünyayı neyle açıklarsın? Miletoslular, Herakleitos, Parmenides ve atomcuların gerekçelerini aynı gözlem çevresinde karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "sosyal-modeller-ve-aglar": {
     "title": "Sosyal Modeller ve Ağlar: Basit Kurallar, Şaşırtıcı Toplumlar",
@@ -1857,6 +1955,13 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise–Lisans",
     "minutes": 23
+  },
+  "yapisalcilik-ve-sonrasi": {
+    "title": "Yapısalcılık ve Sonrası",
+    "tagline": "Bir işaretin değeri nereden gelir ve kurallar zamanla neye dönüşür? Saussure, Lévi-Strauss, Foucault, Derrida ve Deleuze’ü karşılaştır.",
+    "field": "Felsefe ve Mantık",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "yari-iletkenler-ve-bant-yapisi": {
     "title": "Yarı İletkenler: Bantlar, Katkı ve p–n Eklemi",
