@@ -1,5 +1,10 @@
 # Öğrenme Yolları, Önşart ve yeni gruplandırma — proje planı (13 Kasım 2026)
 
+**15 Kasım 2026 kapanışı.** U1–U10 ve genel değerlendirmeden sonraki düzeltme turları tamamlandı.
+Katalogda 326 kayıt, 11 meslek yolu, üç seçmeli yol ve sekiz önşart dizisi var. Yol ve önşart dizilerindeki
+tüm basamaklar açılabiliyor. Son doğrulanan uygulama commit'i `de1b44a`, Pages yayını `a1944c9` ve service
+worker sürümü `acelya-b5c62b91e5`. [Canlı site](https://serkanok1983.github.io/acelya-icin/)
+
 Kullanıcının isteği (13 Kasım): "Önce işi planla, yapıyı kur, sonra optimum sıra ile icra et." Hedef meslekler
 (bilgisayar, elektrik-elektronik, genetik, endüstri mühendisi, hekim, mimar, hukukçu vb.) için öğrenme yolları;
 temel uygulamalı matematik, teorik matematik, temel fizik, kimya, dilbilgisi vb. için önşart dizileri; işin sonunda
@@ -13,18 +18,18 @@ rehberdir; hiçbir sayfa bir yola kilitlenmez.
 Menü grupları disiplin (defterdeki `field`) ile aynı şey değildir: `field` ince etiket olarak kalır, menü onu kaba
 gruplara toplar. Büyük gruplar içinde ara başlıklar (alt bölümler) vardır; arama yapılınca ara başlıklar gizlenir.
 
-| Grup | Şimdi (231) | Planın sonunda (264) | Ara başlıklar |
-|---|---|---|---|
-| Matematik | 45 | 52 | Sayılar ve Temeller · Cebir ve Geometri · Analiz · Olasılık ve İstatistik · Ayrık Matematik ve Yapılar · Fraktallar ve Kaos |
-| Fizik | 48 | 48 | Mekanik · Akışkanlar ve Isı · Dalgalar, Ses ve Işık · Elektrik ve Manyetizma · Modern Fizik |
-| Yer ve Uzay | 11 | 11 | — |
-| Kimya | 15 | 16 | — |
-| Yaşam ve Sağlık | 15 | 23 | Hücre ve Kalıtım · Beden ve Sağlık · Ekoloji ve Evrim |
-| Bilgisayar Bilimi | 26 | 27 | Donanım ve Alt Düzey · Algoritmalar ve Veri · Kuram · Sistemler ve Ağlar · Yazılım · Yapay Zekâ ve Güvenlik |
-| Mühendislik | 22 | 26 | Yapı ve Malzeme · Makine ve Taşıt · Elektrik ve Kontrol · Endüstri ve Süreç |
-| İnsan ve Toplum | 18 | 26 | Zihin ve Davranış · Tarih ve Toplum · Ekonomi ve Siyaset · Hukuk |
-| Dil, Felsefe ve Sanat | 18 | 22 | Dil ve Edebiyat · Felsefe ve Din · Sanat ve Sinema · Mimarlık ve Kent |
-| Oyunlar | 13 | 13 | — |
+| Grup | Başlangıç (231) | İlk planın hedefi (264) | Kapanış (326) | İlk plandaki ara başlıklar |
+|---|---|---|---|---|
+| Matematik | 45 | 52 | 53 | Sayılar ve Temeller · Cebir ve Geometri · Analiz · Olasılık ve İstatistik · Ayrık Matematik ve Yapılar · Fraktallar ve Kaos |
+| Fizik | 48 | 48 | 48 | Mekanik · Akışkanlar ve Isı · Dalgalar, Ses ve Işık · Elektrik ve Manyetizma · Modern Fizik |
+| Yer ve Uzay | 11 | 11 | 11 | — |
+| Kimya | 15 | 16 | 16 | — |
+| Yaşam ve Sağlık | 15 | 23 | 23 | Hücre ve Kalıtım · Beden ve Sağlık · Ekoloji ve Evrim |
+| Bilgisayar Bilimi | 26 | 27 | 27 | Donanım ve Alt Düzey · Algoritmalar ve Veri · Kuram · Sistemler ve Ağlar · Yazılım · Yapay Zekâ ve Güvenlik |
+| Mühendislik | 22 | 26 | 26 | Yapı ve Malzeme · Makine ve Taşıt · Elektrik ve Kontrol · Endüstri ve Süreç |
+| İnsan ve Toplum | 18 | 26 | 53 | Zihin ve Davranış · Tarih ve Toplum · Ekonomi ve Siyaset · Hukuk |
+| Dil, Felsefe ve Sanat | 18 | 22 | 56 | Dil ve Edebiyat · Felsefe ve Din · Sanat ve Sinema · Mimarlık ve Kent |
+| Oyunlar | 13 | 13 | 13 | — |
 
 Bilim Atlası ve Üniversite STEM Omurgası kaldırılır; içerikleri kaybolmaz:
 - Atlasın mekanik rotası (ölçme → vektörler → hareket → Newton → serbest düşme → iş-enerji → momentum → dairesel
@@ -76,7 +81,7 @@ Bilim Atlası ve Üniversite STEM Omurgası kaldırılır; içerikleri kaybolmaz
 | İktisatçı | mikro → makro → oyun kuramı → regresyon → hipotez → optimizasyon → yöneylem → demografi → işletme | finans matematiği |
 | Psikolog | algı → bellek → karar → bilinç → psikometri → psikiyatri tarihi → sinir hücresi → istatistik → bilim felsefesi | gelişim psikolojisi · sosyal psikoloji |
 
-Toplam yazılacak: 33 ders (önşart 12, yollar 21; finans matematiği iki yolda ortak).
+İlk plandaki 33 ders U2–U5'te tamamlandı. Bunların 12'si önşart, 21'i yol dersiydi. Finans Matematiği iki yolda ortak.
 
 ## 3. Turlar ve sıra
 
@@ -203,18 +208,22 @@ Yeni sayfalar ve Sinema Dili ve Kurgu, “Dil, Felsefe ve Sanat” grubundaki �
 Film Çözümleme Atölyesi, 1903 tarihli The Great Train Robbery ile 1910 tarihli Frankenstein’ın kamu malı
 ve ses izi bulunmayan arşiv kopyalarında 17 bölümü zaman damgası, gözlem ve soruyla açar.
 
-## 7. U10'dan sonra: genel değerlendirme (kullanıcı isteği, 13 Kasım 2026)
+## 7. U10 sonrası genel değerlendirme ve kapanış
 
-1. **İçerik zenginliği ve kalite denetimi, boşluk analizi.** Bütün sitenin alan alan haritası: hangi alanlar derin,
-   hangileri ince; yollarda ve önşartta eksik basamaklar; eski (U öncesi) sayfaların yeni sayfalarla kalite farkı
-   (doğrulayıcı puanları, defter derinliği, alıştırma ve hata kartı var mı); sayfalar arası bağlantı ağının kopuk
-   yerleri; çelişen ya da yinelenen içerik. Çıktı: önceliklendirilmiş boşluk listesi ve yeni tur önerileri.
-2. **UI/UX değerlendirmesi, son hâliyle.** Ana menü (grup sayısı, ara başlıklar, arama), Öğrenme Yolları ve Önşart
-   sayfaları, sayfa içi gezinme (sekmeler, uzun sayfalar), Keşif Defteri okunurluğu, telefon ve tablet deneyimi,
-   erişilebilirlik (klavye, ekran okuyucu, renk karşıtlığı), açık/koyu tema tutarlılığı, yükleme hızı ve sayfa
-   boyutları, sayfalar arası görsel tutarlılık. Çıktı: bulgular ve düzeltme turu planı.
+Genel değerlendirme önce içerik derinliğini, ders kalitesini ve öğrenme yolu boşluklarını ele aldı.
+Ardından ana sayfa, yol sayfaları ve ders içi gezinme incelendi. Bulgular yedi turda ele alındı.
 
-### İkinci düzeltme turunda seçmeli yollar
+| Tamamlanan tur | Commit | Uygulanan değişiklik |
+|---|---|---|
+| İlk düzeltmeler | `5050188` | Spirometri ve film kare hızı açıklamaları düzeltildi. Dersten geri dönüldüğünde arama sorgusu, kategori ve kaydırma korunuyor. Keşif Defteri bağlantısı klavye odağını defter başlığına taşıyor. |
+| Seçmeli yollar ve ortak istatistik | `9f10f06` | Üç seçmeli yol mevcut derslerden kuruldu. Veri ve Örnekleme, Olasılık ve İstatistik dizisinin ilk basamağı oldu. |
+| UI/UX | `b046d39` | Telefonda kategori seçicisi, boş sonuçta “Tüm kategorilerde ara” ve yol kartlarında görünür “Sıradaki ders” eklendi. |
+| Ders içi gezinme ve performans | `8287545` | Atölye, Keşif Defteri ve Sıradaki ders bağlantıları ortak konumdan açılıyor. PWA, kabuğu kurulumda ve ders kaynaklarını ziyaret sırasında önbelleğe alıyor. |
+| Ders kalitesi | `d9a147b` | Mini sınavlarda doğru cevap konumları çeşitlendirildi. Edebiyat, sinema ve psikolojide 18 deftere yeni örnekler üzerinden gerekçeli sorular eklendi. |
+| Kaynak denetimi | `f03d8ef` | 212 OpenStax adresi denetlendi. Üç bağlantı ilgili bölüme taşındı, bir bölüm etiketi düzeltildi. Yalnız Wikipedia'ya dayanan 30 deftere 31 birincil kaynak eklendi. |
+| Son doğrulama | `de1b44a` | Yol, önşart ve Keşif Defteri tamamlanma işaretleri aynı kayda bağlandı. Eski işaretler birleştiriliyor ve dersten dönüldüğünde yolun sıradaki basamağı güncelleniyor. |
+
+### Seçmeli yolların kapsamı
 
 Seçmeli yollar, bir konuyu baştan öğrenmek isteyenler için pedagojik bir sıra sunar. Her ders ana katalogdan
 ve aramadan doğrudan açılabilir. Yol seçimi, önşartlar ve tamamlanma durumu erişimi kısıtlamaz. Kullanıcı
@@ -226,3 +235,21 @@ olduğunu veya belirli bir düzeyde başladığını varsaymaksızın gereken ö
 - İktisatçı yolunda klasik iktisat, Marx ve neoklasik iktisat ile Keynes dersleri bir düşünce seçkisi oluşturur.
 - Veri ve Örnekleme, Olasılık ve İstatistik dizisinin ilk dersi. Psikolog, Hekim ve İktisatçı yollarının
   yöntem bölümleri aynı derse bağlanır.
+
+### Son doğrulama ve yayın
+
+- Statik denetim 331 sayfa ve 326 Keşif Defteri için 0 hata verdi. Katalog ve service worker üretim
+  kontrolleri, yol ve katalog denetimindeki 1483 kontrol, Keşif Defteri sınavları ve çevrimdışı PWA testi geçti.
+- Tam site tarayıcı testi 331 sayfada JavaScript veya konsol hatası, başarısız yerel istek ya da görünmeyen
+  Keşif Defteri bulmadı.
+- Canlıda 360 px dokunmatik Chromium emülasyonunda ve 1280 px masaüstünde arama ve dersten dönüş,
+  defter başlığına odaklanma, sınav geri bildirimi ve sinema yolundaki tamamlanma akışı geçti.
+  Dört değişen yayın dosyası uygulama commit'iyle eşleşti. [Canlı site](https://serkanok1983.github.io/acelya-icin/) ·
+  [Sinema ve Film Çözümleme yolu](https://serkanok1983.github.io/acelya-icin/ogrenme-yollari.html#sinema-cozumleme)
+
+### Açık bakım notları
+
+Statik denetimdeki 158 uyarının 156'sı OpenStax bölüm doğrulama hatırlatması. İki içerik uyarısı
+Anatomi ve Fizyoloji Defteri'ndeki uzun çözüm adımı ve Aruz ve Hece Ölçüsü Defteri'ndeki altı kaynakla ilgili.
+Fiziksel telefon ve tablet ile ekran okuyucu denetimi ayrı doğrulama kapsamı olarak açık.
+Komutlar ve bakım ayrıntıları devir notunda. [Devir Notu](DEVIR-NOTU.md#7-açık-bakım-notları)

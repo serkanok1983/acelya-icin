@@ -9,10 +9,10 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (`<slug>.html`, tek dosya, derleme adımı yok) ve altında bir **Keşif Defteri** (`shared/digest/<slug>.js`).
 - **Depo:** `/Users/serkanok/Development/HTML/acelya-icin` · uzak: `https://github.com/serkanok1983/acelya-icin.git`
   (dal `main`).
-- **Canlı:** https://serkanok1983.github.io/acelya-icin (GitHub Pages, `gh-pages` dalı; GitHub Actions kullanılmıyor,
-  yayın yerelden elle yapılır, bkz. §5).
-- **Boyut (15 Kasım, U10 sonrası):** 325 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
-  `onsart.html`. Menüde 10 grup.
+- **Canlı site** GitHub Pages'in `gh-pages` dalından sunulur. Son doğrulanan uygulama commit'i `de1b44a`,
+  yayın commit'i `a1944c9` ve service worker sürümü `acelya-b5c62b91e5`. Yayın adımları §5'te. [Açelya'nın Yeri](https://serkanok1983.github.io/acelya-icin/)
+- **Kapanış kapsamı** 331 HTML sayfası, 326 katalog kaydı ve Keşif Defteri, 10 kategori, 14 öğrenme yolu
+  (üçü seçmeli) ve sekiz önşart dizisi. Planlanan bütün yol dersleri açılabilir.
 
 ## 2. Kullanıcının kalıcı kuralları (bağlayıcı; birebir sözleri)
 
@@ -38,7 +38,8 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
    100 ders bir grupta 3 ders olması doğru olmaz… temel bir bölümlendirme yeterli."
 10. **Yazım kararları:** "dil bilgisi", "söz dizimi" her yerde ayrı yazılır (TDK). "öge" yalnız Türkçe Dil Bilgisi
     sayfasında; kullanıcı: "Sitenin geri kalanında 'öğe' olarak kalabilir."
-11. **Öğrenme Yolları/Önşart:** ana liste "geniş liste, dilediğini seç, hemen oku" olarak kalır; yollar isteğe bağlı rehber.
+11. **Öğrenme Yolları ve Önşart** isteğe bağlı rehberdir. Her ders ana katalogdan ve aramadan doğrudan açılır.
+    Okur istediği basamaktan başlayabilir. Yol metinleri yalnızca gereken önbilgiyi açıklar.
 
 Bu kuralların özeti ajanın kalıcı hafızasında da var:
 `~/.claude/projects/-Users-serkanok-Development-HTML-acelya-icin/memory/` (proje-vizyonu, yayin-onayi,
@@ -135,10 +136,10 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
 
 ## 6. Durum (15 Kasım 2026, devir anı)
 
-- U4 yayınından sonraki sürüm `acelya-0a90f61dea` idi. Güncel commit ve önbellek sürümü için `git log -1` ve
-  `sw.js` kullanılır. Canlı doğrulama adımları §5'te.
-- U4 sonundaki tam test turu (15 Kasım) site, yollar, test:g (159/159), public/a7/f1/f2/c/d/e, smoke ve
-  mobil denetimlerinden geçti. Bu tur yaklaşık 70 dakika sürmüştü.
+- U1–U10, genel değerlendirme ve ardından gelen yedi düzeltme ve doğrulama turu tamamlandı. 15 Kasım 2026'da
+  kapanış yayını canlıda doğrulandı. Uygulama sürümünü belirlemek için canlı `sw.js` ile yayın kaydını karşılaştır.
+- U4 yayını `acelya-0a90f61dea` sürümündeydi. 15 Kasım'daki tam test turu site, yollar, test:g (159/159),
+  public/a7/f1/f2/c/d/e, smoke ve mobil denetimlerinden geçti. Tur yaklaşık 70 dakika sürmüştü.
 - U5 ile 264 dersin tamamı katalogda. U5 modelleri `scripts/check-g-u5.mjs --browser` ile sınanır.
   Masaüstü ana sayfanın belge kaydırması `scripts/check-yollar.mjs --browser` kapsamındadır.
 - U6 ile menü 275 derse ulaştı. Yeni sayfalar ve etkileşimler `scripts/check-g-u6.mjs --browser` ile sınanır.
@@ -151,51 +152,74 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   `scripts/check-g-u9.mjs --browser` atölyeleri, dizini, aramayı, öğrenme yolunu ve Keşif Defterlerini sınar.
 - U10 ile dokuz sinema sayfası eklendi. Atölye iki arşiv filminde 17 bölümü çözümlemeye açar.
   `scripts/check-g-u10.mjs --browser` ders seçimlerini, oynatma hatası durumunu, arşiv bağlantılarını ve sesi sınar.
-- Sırada öğrenme yolları planının §7 bölümündeki genel değerlendirme var.
 
-### Tamamlanan turlar (hepsi yayında)
-- **U1** — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
+### Tamamlanan içerik turları
+
+- **U1** (`4058000`) — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
   `ogrenme-yollari.html`, `onsart.html`, `shared/yollar.{js,css}`, `shared/yollar-view.js`, `scripts/check-yollar.mjs`;
   oyunlarda telefonda duraklatma katmanı hatası düzeltildi (`shared/theme.css`).
-- **U2** — önşart matematik ve programlama (8 ders).
-- **U3** — önşart fen-dil ve hekim yolu (8 ders); TDK yazımı (dil bilgisi/söz dizimi) sitenin her yerinde.
-- **U4** — hukukçu ve genetik yolları (8 ders): hukuka-giris, anayasa-hukuku-ve-temel-haklar,
+- **U2** (`bca24be`) — önşart matematik ve programlama (8 ders).
+- **U3** (`a1d0c12`) — önşart fen-dil ve hekim yolu (8 ders); TDK yazımı (dil bilgisi/söz dizimi) sitenin her yerinde.
+- **U4** (`ee9fbc5`) — hukukçu ve genetik yolları (8 ders): hukuka-giris, anayasa-hukuku-ve-temel-haklar,
   ceza-hukukunun-genel-ilkeleri, borclar-ve-sozlesme-hukuku, hukuk-felsefesi, populasyon-genetigi,
   biyoinformatik-ve-dizi-hizalama, gen-muhendisligi. Menüde "İnsan ve Toplum" > yeni "Hukuk" ara başlığı.
-- **U5** — ısı transferi, zemin mekaniği, kuyruk kuramı ve benzetim, kalite kontrol, finans matematiği,
+- **U5** (`6a2a6f9`) — ısı transferi, zemin mekaniği, kuyruk kuramı ve benzetim, kalite kontrol, finans matematiği,
   yapı fiziği, kent planlama, gelişim psikolojisi ve sosyal psikoloji. Planlanan bütün yol dersleri
   bağlantıya dönüştü. Masaüstü ana sayfada iç kaydırma kaldırıldı.
-- **U6** — psikoloji ve psikanaliz üzerine 11 ders. Psikolog ve Hekim yolları güncellendi. Ana sayfa araması
+- **U6** (`3fadd87`) — psikoloji ve psikanaliz üzerine 11 ders. Psikolog ve Hekim yolları güncellendi. Ana sayfa araması
   Türkçe karakterleri eşdeğer sayar, sorgu sözcüklerinin tümünü arar ve sonuçları tüm kataloğa göre sıralar.
   Gündüz rehber bağlantıları ve etkin ders kartı ile gece Keşif Defteri etiketi için kontrast güncellendi.
 
-- **U7** — Antikçağ felsefesinden yapısalcılık sonrasına 14 ders. Dizin ad, kavram ve ders dönemine göre arar,
+- **U7** (`9c3eccb`) — Antikçağ felsefesinden yapısalcılık sonrasına 14 ders. Dizin ad, kavram ve ders dönemine göre arar,
   ilgili argüman haritasını açar. Gece modunda “Büyük Fikir” etiketi koyu zemin ve açık turkuaz yazıyla gösterilir.
   Keşif Defteri stili çevrimiçiyken yeniden doğrulanır, bağlantı kesildiğinde önbellekten alınır.
 
-- **U8** — toplum sözleşmesi, tarih felsefesi, iktisat düşüncesi, Marksist gelenek, klasik ve modern sosyal kuram,
+- **U8** (`9e3aa58`) — toplum sözleşmesi, tarih felsefesi, iktisat düşüncesi, Marksist gelenek, klasik ve modern sosyal kuram,
   Frankfurt Okulu, antropoloji ve modern siyaset kuramı. Yeni dersler “İnsan ve Toplum” grubunda. Dizin 48 yeni
   düşünür ile dört ortak düşünürün ek bağlantısını içerir.
 
-- **U9** — edebiyat akımları, iki eleştiri dersi, karakter, anlatım teknikleri, söz sanatları, tiyatro, tür, şiir
+- **U9** (`004c638`) — edebiyat akımları, iki eleştiri dersi, karakter, anlatım teknikleri, söz sanatları, tiyatro, tür, şiir
   ve uyarlama. Beş psikoloji dersi ve Psikoloji Ekolleri Dizini “İnsan ve Toplum” grubunda ve Psikolog yolunda.
 
-- **U10** — akımlar, kuramlar, dramaturji, mizansen, kurgu, ses, oyunculuk, belgesel ve deneysel sinema,
+- **U10** (`5165fe1`) — akımlar, kuramlar, dramaturji, mizansen, kurgu, ses, oyunculuk, belgesel ve deneysel sinema,
   arşiv filmleriyle çözümleme. Yeni sayfalar mevcut Sinema Dili ve Kurgu dersiyle aynı alt başlıktadır.
 
 Tur ayrıntıları `docs/simulasyon-notlari.md` belgesinde.
 
-### Sıradaki işler (sırasıyla; ayrıntılı kapsam `docs/OGRENME-YOLLARI-PLANI.md` §3, §5, §6, §7)
-1. **İçerik değerlendirmesi** — zenginlik, kalite ve boşluk analizi.
-2. **UI/UX değerlendirmesi** — dolaşım, erişilebilirlik, tema ve mobil kullanım (öğrenme yolları planı §7).
+### Genel değerlendirmeden sonra tamamlanan turlar
 
-Her tur için önce, o turun özel kurallarını `docs/ajan-sozlesmeleri/_onsart.md` sonuna "U5 additions" gibi bir
-bölüm olarak ekle (U3/U4 örneklerine bak), gerekirse `SOURCE_PREFIXES`'e alan adları ekle, sonra sekiz kurucuyu başlat.
+| Tur | Commit | Sonuç |
+|---|---|---|
+| İlk düzeltmeler | `5050188` | Spirometri ve film kare hızı açıklamaları kaynaklarla düzeltildi. Dersten dönünce arama, kategori ve kaydırma geri geliyor. Keşif Defteri açılınca odak başlığına geçiyor. |
+| Seçmeli yollar | `9f10f06` | Edebiyat, sinema ve düşünce tarihi için üç seçmeli yol kuruldu. Veri ve Örnekleme dersi ortak istatistik basamağı olarak eklendi. |
+| UI/UX | `b046d39` | Telefonda kategori seçicisi, boş sonuçta “Tüm kategorilerde ara” ve yol kartlarında “Sıradaki ders” eklendi. |
+| Ders gezinmesi ve PWA | `8287545` | Atölye, Keşif Defteri ve Sıradaki ders bağlantıları ortak konuma taşındı. PWA önce 17 kabuk dosyasını, ders kaynaklarını ziyarette önbelleğe alıyor. |
+| Ders kalitesi | `d9a147b` | Mini sınavlarda doğru seçeneğin konumu çeşitlendirildi. Edebiyat, sinema ve psikolojide 18 deftere yeni örneklerle gerekçeli sorular eklendi. |
+| Kaynak denetimi | `f03d8ef` | 212 OpenStax adresi kontrol edildi. Üç bağlantı ilgili bölüme yönlendirildi, bir bölüm etiketi düzeltildi. Yalnız Wikipedia kaynaklı 30 deftere 31 birincil kaynak eklendi. |
+| Son doğrulama | `de1b44a` | Öğrenme Yolları, Önşart ve Keşif Defteri ortak tamamlanma kaydını kullanıyor. İki eski kayıttaki işaretler birleştiriliyor. Geri dönünce onay kutusu ve sıradaki ders birlikte güncelleniyor. |
 
-## 7. Açık noktalar ve bilinen tuhaflıklar
+Yol kapsamı ve değerlendirme kararları planın kapanış bölümünde. [Öğrenme Yolları Planı §7](OGRENME-YOLLARI-PLANI.md#7-u10-sonrası-genel-değerlendirme-ve-kapanış)
 
-- Bilgisayarda iki gündür bekleyen bir `eza --icons` süreci var (kaynağı bu oturuma bağlanamadı; zararsız). Ajanların
-  takılı kalmaması için istemlerde `/bin/ls` kullanmalarını söylemek iyi olur.
+### Son doğrulama sonuçları
+
+- `node scripts/check-site.mjs --require-digests` 331 sayfa ve 326 defterde 0 hata, 158 uyarı bildirdi. Katalog
+  ve service worker üretim kontrolleri geçti. Uyarılar §7'de.
+- `node scripts/check-yollar.mjs --browser` 1483 kontrolden geçti. `node scripts/check-digest-quiz.mjs` ve
+  `node scripts/check-pwa.mjs` geçti. `node scripts/smoke.mjs --digest` 331 sayfada sıfır JavaScript ve konsol
+  hatası, sıfır başarısız yerel istek ve sıfır görünmeyen defter bildirdi.
+- Canlıda 360 px dokunmatik Chromium emülasyonunda ve 1280 px masaüstünde kategori filtresi, aramayı
+  genişletme, dersten aramaya dönüş, defter odağı ve sınav geri bildirimi doğrulandı. Sinema yolunda tamamlanma
+  işaretini ekleme ve kaldırma ile sıradaki dersin iki yönde güncellenmesi geçti.
+- Yayındaki dört değişen uygulama dosyası `de1b44a` ile birebir eşleşti. [Canlı site](https://serkanok1983.github.io/acelya-icin/) ·
+  [Sinema ve Film Çözümleme yolu](https://serkanok1983.github.io/acelya-icin/ogrenme-yollari.html#sinema-cozumleme)
+
+## 7. Açık bakım notları
+
+- Statik denetimde 156 OpenStax bölüm doğrulama hatırlatması var. Kaynak turunda bağlantılar açılarak kontrol edildi.
+  İki içerik uyarısı açık kaldı. Anatomi ve Fizyoloji Defteri'ndeki bir çözüm adımı 508 karakter. Aruz ve Hece Ölçüsü
+  Defteri altı kaynak içeriyor ve beş kaynak önerisini aşıyor.
+- Son tarayıcı turu mobil emülasyon, masaüstü ve klavye etkileşimlerini kapsadı. Fiziksel telefon ve tablet ile ekran
+  okuyucu denetimi ayrı doğrulama kapsamı olarak açık.
 - `scripts/check-g-hukuk-felsefesi.mjs --browser` bir kez açıklamasız düştü, sonraki koşularda geçti; tam turda
   düşerse yeniden koş, tekrar ederse incele.
 - Birçok yeni defterde 5 kaynak var; `docs/icerik-rehberi.md` 2–4 der ama check-site 5'e izin veriyor (bilinçli bırakıldı).
@@ -213,9 +237,10 @@ bölüm olarak ekle (U3/U4 örneklerine bak), gerekirse `SOURCE_PREFIXES`'e alan
 | `ogrenme-yollari.html`, `onsart.html`, `shared/yollar*.{js,css}` | Yollar ve önşart; veri `shared/yollar.js` |
 | `shared/digest/<slug>.js`, `shared/digest.js` | Keşif Defterleri ve çizicisi |
 | `shared/catalog.js`, `sw.js` | Üretilir (`npm run build`), elle düzenlenmez |
-| `shared/theme.css`, `shared/app.js` | Ortak kabuk, tema, üst çubuk, oyun duraklatma |
+| `shared/theme.css`, `shared/app.js` | Ortak kabuk, tema, ders içi gezinme, oyun duraklatma ve ortak ders ilerlemesi |
 | `scripts/check-site.mjs` | Site denetimi, `FIELDS`, `SOURCE_PREFIXES` |
-| `scripts/check-yollar.mjs` | Yollar ve menü dengesi testi |
+| `scripts/check-yollar.mjs` | Yollar, arama, defter odağı ve ortak ilerleme regresyonları |
+| `scripts/check-digest-quiz.mjs`, `scripts/check-pwa.mjs` | Keşif Defteri sınavı ve çevrimdışı kullanım denetimleri |
 | `scripts/check-g-*.mjs`, `check-g-all.mjs` | Sayfa başına kalıcı testler (`npm run test:g`) |
 | `scripts/deploy-manual.sh` | Yayın |
 | `docs/OGRENME-YOLLARI-PLANI.md` | Proje planı ve turlar (asıl yol haritası) |
