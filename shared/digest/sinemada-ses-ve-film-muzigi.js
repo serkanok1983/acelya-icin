@@ -164,6 +164,14 @@ window.ACELYA_DIGEST["sinemada-ses-ve-film-muzigi"] = {
       "explanation": "Motifin tanınması ve anlamlandırılması için tekrarlar ve bağlamları birlikte incelenir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Düdük önce geliyor",
+      "example": "Özgün iki plan. Koridorda yürüyen bir kişi görülürken bir düdük sesi başlar. Görüntü mutfağa kesildiğinde ocaktaki çaydanlık buhar çıkarır. Oyuncu ocağı kapatır ve düdük sesi durur.",
+      "prompt": "Ses ile görüntünün hangi sırayla değiştiğini tarif et. Düdüğün öykü dünyasına ait olduğu yorumunu hangi ayrıntı destekler? Mutfağı göstermeden kesilseydi kaynak hakkında ne açık kalırdı?",
+      "model": "Sonraki mekâna ait olabilecek ses koridor planında, görüntü kesmesinden önce başlar. Bu, bir J kesmeye örnektir. Çaydanlığın buharı ve ocağı kapatınca sesin durması, sesin mutfaktaki nesneye ait olduğunu destekler. Mutfak görüntüsü yoksa kaynağın hangi nesne ya da mekân olduğu açık kalır."
+    }
+  ],
   "next": [
     {
       "href": "sinemada-kurgu-ve-zaman.html",

@@ -160,6 +160,14 @@ window.ACELYA_DIGEST["sinemada-mizansen"] = {
       "explanation": "Renkler arasında görülebilen bağ açıkça belirtilir. Başka renk ve ton koşullarıyla karşılaştırılabilir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Işığı değişen masa",
+      "example": "Özgün sahne. Kamera ve oyuncular aynı yerde durur. İlk çekimde yandaki lamba masadaki zarfı ve iki yüzü aydınlatır. İkincide lamba yalnız zarfa çevrilir. Arka plandaki kapı iki çekimde de aynı konumdadır.",
+      "prompt": "Değişen mizansen kararını ve dikkati yöneltebileceği ayrıntıyı göster. «Zarf bir tehdit» yorumuna varmak için hangi ek eylemi veya ses bilgisini ararsın?",
+      "model": "Işığın yönü değişince zarf yüzlere göre daha görünür olur. Bu, zarfı izlenmeye değer bir nesne yapabilir. Tehdit yorumu için oyuncunun zarfı açarken irkilmesi ya da içerikte tehdit ifadesinin duyulması gibi bir dayanak gerekir. Aynı ışık vurgusu beklenen bir haberin önemini de kurabilir."
+    }
+  ],
   "next": [
     {
       "href": "sinema-dili-ve-kurgu.html",

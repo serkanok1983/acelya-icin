@@ -149,6 +149,14 @@ window.ACELYA_DIGEST["gelisim-psikolojisi"] = {
       "explanation": "Katılımcı kaybı performansla ilişkiliyse aynı kişiler hakkında genelleme değişebilir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Tablet hızı ve kuşak farkı",
+      "example": "Yapay gözlem. Aynı yıl, 20–25 ve 65–70 yaş aralığındaki iki gruba tablet üzerinde yeni bir sıralama görevi veriliyor. Genç grubun ortalaması daha hızlı. Tablet kullanım geçmişi ölçülmemiş.",
+      "prompt": "Yaş dışındaki bir açıklamayı göster. Kişi içindeki değişimi görmek için bir izleme tasarımı öner. Aynı göreve daha önce girmiş olmak sonuçları nasıl değiştirebilir?",
+      "model": "Tablet deneyimi yaş grupları arasında farklıysa hız farkına katkıda bulunabilir. Aynı kişileri belirli aralıklarla ölçüp tablet kullanımlarını da kaydetmek kişi içi değişimi görmeyi sağlar. Aynı görev tekrar edildiğinde öğrenme etkisi yaratabilir. Eşdeğer görev sürümleri ve izlemden ayrılan kişilerin incelenmesi yorumu iyileştirir."
+    }
+  ],
   "next": [
     {
       "href": "psikometri-ve-olcme.html",

@@ -48,6 +48,11 @@ Calculus, Chemistry 2e). Somut beklentiler:
 - **Sayfaya bağla.** Laboratuvar görevleri, sayfadaki gerçek kontrolleri
   adıyla kullanmalı (kaydırıcı, düğme, menü). Sayfada kontrol azsa ne
   gözlenebileceğini dürüstçe yaz; uydurma kontrol icat etme.
+- **Seçenekler kendi başına okunabilsin.** Gösterim sırası soru bazında
+  değişir. Bir seçeneği açıklarken ileri sürdüğü iddiayı kullan.
+- **Yeni örneğe uygula.** Gerekçeli soruda okura özgün bir metin, sahne
+  veya yapay vaka ver. Belirli bir ayrıntıya dayanmasını, ikinci bir açıklamayı
+  ya da yorumunun sınırını düşünmesini iste. Örnek gerekçeyi ayrı yaz.
 - **Türkçe, temiz, sıcak.** Kısa cümleler, etken çatı, gereksiz yabancı
   terim yok. Terimi ilk geçtiği yerde kalın yap ve bir cümlede açıkla.
   "Şimdi ... öğreneceğiz" gibi ders kitabı kalıpları yok. Emoji yok.
@@ -86,6 +91,7 @@ window.ACELYA_DIGEST["<slug>"] = {
   glossary: [{ term: "…", definition: "…" }],    // 5–8
   bridge: { heading: "Üniversiteye köprü", body: ["…", "…"], topics: ["…"] },
   quiz: [{ question: "…", options: ["…", "…", "…", "…"], answer: 2, explanation: "…" }],  // tam 3
+  reasoning: [{ title: "…", example: "…", prompt: "…", model: "…" }], // isteğe bağlı, 1–4 açık uçlu soru
   next: [{ href: "slug.html", title: "…", why: "…" }],   // 2–4; dosya var olmalı
   sources: [{ title: "…", url: "https://…", note: "…" }], // 2–4; izinli alan adlarından
   revision: "Ekim 2026",

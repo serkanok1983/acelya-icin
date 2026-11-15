@@ -149,6 +149,14 @@ window.ACELYA_DIGEST["sosyal-psikoloji"] = {
       "explanation": "Tabakaların oranı ve her gruptaki bileşim hangi etkinin toplama girdiğini gösterir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Yardım çağrısını kim gördü?",
+      "example": "Yapay deney. Bir grup, çevrimiçi odada yardım çağrısını yalnızca kendisinin gördüğünü okur. Diğer grup, çağrıyı kendisi dâhil sekiz kişinin gördüğünü okur. İki grupta da yanıt tuşu aynıdır. İkinci grupta daha az kişi yanıt verir.",
+      "prompt": "Sonucu sorumluluğun dağılmasıyla açıkla. Aynı sonucu verebilecek başka bir açıklama yaz ve onu sınamak için bir değişiklik öner.",
+      "model": "Sekiz kişinin de çağrıyı gördüğünü bilen biri, başka birinin yardım edeceğini düşünebilir. Ayrıca katılımcı, yanıtını başkalarının göreceğinden çekiniyor olabilir. İzleyici sayısını ve yanıtın gizli olup olmadığını ayrı ayrı değiştirerek bu açıklamaların öngörülerini karşılaştırabilirsin. Gruplara rastgele atama, koşul öncesi farkları azaltmaya yardım eder."
+    }
+  ],
   "next": [
     {
       "href": "gelisim-psikolojisi.html",

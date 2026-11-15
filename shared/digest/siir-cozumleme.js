@@ -160,6 +160,14 @@ window.ACELYA_DIGEST["siir-cozumleme"] = {
       "explanation": "Bir sözü tamamlayan öğe sonraki dizeye geçince dize ve cümle sınırları ayrılır."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Kilit sesinin izi",
+      "example": "Özgün iki dize. “Sığ suda su sesi”<br>“Kilit kuru bir klikle kapandı”",
+      "prompt": "Her dizede yinelenen bir ünsüzü sözcüklerle göster. İkinci dizede «klikle» sözcüğünü «usulca» ile değiştirince hangi duyusal etkinin zayıflayacağını gerekçelendir.",
+      "model": "«Sığ», «suda», «su» ve «sesi» sözcükleri s sesini yineler. İkinci dizede «kilit», «kuru», «klikle» ve «kapandı» k sesini yineler. «Klikle» kilidin sesini adlandırır ve iki k içerir. «Usulca» bu iki vurguyu kaldırıp hareketin yapılışına dikkat çeker. İlk dizede hangi etkinin duyulduğu okuma hızına ve kişinin vurgusuna da bağlıdır."
+    }
+  ],
   "next": [
     {
       "href": "aruz-ve-hece-olcusu.html",

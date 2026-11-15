@@ -211,7 +211,7 @@ window.ACELYA_DIGEST["kara-cisim-isimasi"] = {
       ],
       answer: 0,
       explanation:
-        "Oran (e<sup>x</sup> − 1)/x'tir, x = hc/λkT: 100 µm'de x = 0.025 ve oran 1.013, 300 nm'de x = 8.3 ve oran 488.5. Eş bölüşüm her moda kT verir; ama mod enerjiyi hν'lik basamaklarla alıyorsa ve hν kT'nin sekiz katıysa ilk basamağa çıkma olasılığı e⁻⁸ mertebesindedir. Son seçenek tersini söylüyor: parçacık yanı kısa dalga boyunda belirginleşir.",
+        "Oran (e<sup>x</sup> − 1)/x'tir, x = hc/λkT: 100 µm'de x = 0.025 ve oran 1.013, 300 nm'de x = 8.3 ve oran 488.5. Eş bölüşüm her moda kT verir; ama mod enerjiyi hν'lik basamaklarla alıyorsa ve hν kT'nin sekiz katıysa ilk basamağa çıkma olasılığı e⁻⁸ mertebesindedir. Parçacık yanı kısa dalga boyunda belirginleşir.",
     },
     {
       question: "Venüs Güneş'e Dünya'dan yakındır (0.723 au) ve metrekaresine neredeyse iki kat ışık düşer; yine de denge sıcaklığı (226.6 K) Dünya'nınkinden (255.1 K) düşüktür. Neden?",

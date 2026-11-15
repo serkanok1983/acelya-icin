@@ -149,6 +149,14 @@ window.ACELYA_DIGEST["psikoloji-ekolleri-ve-tarihi"] = {
       "explanation": "Wundt’un laboratuvarı, psikolojinin bağımsız deneysel bir alan olarak kurumlaşmasına katkı sağladı."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Noktaları hangi sırayla grupla?",
+      "example": "Yapay deney taslağı. Yakın noktalar farklı renkte, aynı renkteki noktalar birbirinden uzak. Bir gruba uzak ama aynı renkteki noktaları birlikte seçince puan veriliyor. Diğer grup aynı görselleri görüyor ve puan almıyor. Son denemede yeni bir dizilim puansız gösteriliyor.",
+      "prompt": "Gestalt’ın yakınlık ilkesiyle ve davranışçı pekiştirme kavramıyla birer öngörü kur. Yeni dizilimde hangi grup farkı pekiştirmenin katkısını sınamaya yarar?",
+      "model": "Yakınlık ilkesi, yakın noktaların aynı küme gibi görülmesini öngörür. Pekiştirme açısından puan alan grupta, yeni dizilimde de aynı renkli uzak noktaları birlikte seçme oranı daha yüksek olabilir. Renk benzerliği puansız grubu da etkileyebileceğinden, iki grubun aynı dizilime verdiği yanıtı karşılaştırmak puanın katkısını incelemeye yarar."
+    }
+  ],
   "next": [
     {
       "href": "davraniscilik-ve-ogrenme-kuramlari.html",

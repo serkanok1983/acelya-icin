@@ -156,6 +156,14 @@ window.ACELYA_DIGEST["edebiyat-elestirisi-okur-ve-toplum"] = {
       "explanation": "Tarihsel bağlam, sahnenin sömürgesel temsil düzeniyle bağını sınar."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Deftere adı yazılmayan kişi",
+      "example": "Özgün kısa metin. “Apartmanda her onarım için yönetim defterine bir usta adı yazılırdı. Her sabah merdiven başında su dolu bir kova dururdu. Defterin temizlik satırında yalnızca bir çizgi vardı.”",
+      "prompt": "Okurun doldurabileceği bir boşluğu göster. Ardından defterin hangi işi görünür kıldığını ve temizlikle ilgili bir toplumsal yorum için hangi ek ayrıntının gerektiğini söyle.",
+      "model": "Kovayı kimin bıraktığı ve temizlik için kimin çalıştığı açıklanmıyor. Okur sakinlerden birinin temizlik yaptığını ya da bir çalışanın adının kayda geçmediğini düşünebilir. Ustaların adının yazılmasıyla temizlik satırının boşluğu, işlerin farklı kayda geçirildiği yorumunu destekler. İşin ücretsiz yapıldığına karar vermek için ücret kaydı ya da konuşma gerekir."
+    }
+  ],
   "next": [
     {
       "href": "edebiyat-elestirisi-bicim-ve-gosterge.html",

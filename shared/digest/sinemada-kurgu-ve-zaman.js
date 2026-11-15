@@ -160,6 +160,14 @@ window.ACELYA_DIGEST["sinemada-kurgu-ve-zaman"] = {
       "explanation": "Eşzamanlılık yorumuna, ortak zaman ve olay ipuçları ayrıca destek verir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Köprü ve iskele",
+      "example": "Özgün kurgu taslağı. Kurye köprüde bisiklet sürer. Bir sonraki planda görevli iskele kapısını kapatmaya başlar. Kurye iskeleye varır ve kapı kapanmış hâlde görünür. İlk iki planda ortak bir zaman işareti yoktur.",
+      "prompt": "Hangi plan sırası eşzamanlı bir yarış izlenimi doğuruyor? Eşzamanlılığı güçlendirmek için iki mekânda algılanabilen bir olay öner. Mevcut kurguda açık kalan başka bir olay sırası yaz.",
+      "model": "Köprüdeki sürüşle kapanmaya başlayan kapının art arda gelmesi iki eylemi bir yarış gibi okutabilir. Her iki planda aynı tekneden gelen tek korna duyulursa, sesin aynı olaydan geldiği kurulmak koşuluyla eşzamanlılık güçlenir. Varış planı kapının o ana dek kapandığını gösterir. Görevlinin kapıyı kapatmaya sürüşten önce başlamış olması da mevcut çekimlerle bağdaşır."
+    }
+  ],
   "next": [
     {
       "href": "sinema-dili-ve-kurgu.html",

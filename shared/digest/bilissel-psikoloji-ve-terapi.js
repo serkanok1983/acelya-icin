@@ -149,6 +149,14 @@ window.ACELYA_DIGEST["bilissel-psikoloji-ve-terapi"] = {
       "explanation": "Nötr bir taban, uyumlu koşuldaki hızlanma ve uyumsuz koşuldaki yavaşlamayı ayrı ölçmeye yarar."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Aynı yönerge, başka sunum",
+      "example": "Yapay bellek görevi. Bir gruba bir serginin hazırlanması için altı yönerge üç başlık altında verilir. Diğer gruba farklı altı yönerge tek listede verilir. Beş dakika sonra başlıklı gruptakiler daha çok yönergeyi hatırlar.",
+      "prompt": "Sonuç bilgiyi kümelere ayırma fikriyle nasıl bağdaşır? Sunuş biçiminin etkisini ölçmek için bu karşılaştırmada neyi sabit tutarsın? Hangi sonuç daha güçlü dayanak olur?",
+      "model": "Başlıklar hatırlarken ipucu sağlayabilir ve birbiriyle ilişkili maddeleri birlikte çağırmayı kolaylaştırabilir. Listeler farklıysa maddelerin tanıdıklığı ve güçlüğü de sonucu açıklayabilir. Aynı maddeleri ve okuma süresini kullanıp yalnız başlıkları değiştir. Rastgele ayrılmış gruplarda üstünlük sürerse farkı sunuş biçimine bağlamak daha güçlü olur."
+    }
+  ],
   "next": [
     {
       "href": "gelisim-psikolojisi.html",

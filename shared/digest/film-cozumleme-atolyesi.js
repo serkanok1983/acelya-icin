@@ -153,6 +153,14 @@ window.ACELYA_DIGEST["film-cozumleme-atolyesi"] = {
       "explanation": "Nesnenin iki eylem bağlamındaki rolünü karşılaştırmak yorumu somutlaştırır."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Yırtılan bilet",
+      "example": "Özgün üç plan. 0:00’da yolcu, kapısı kapanan bir trene bakar. 0:04’te panoda «Son sefer 21.10» görülür. 0:07’de eller bir bileti ikiye yırtar. Son yakın planda yüz görünmez.",
+      "prompt": "İki gözlemi zaman damgalarıyla yaz. Biletin yırtılmasına ilişkin bir yorum öner. Yakın plandaki ellerin kime ait olduğu konusunda hangi ek görüntü yorumu güçlendirirdi?",
+      "model": "0:00’da kapı kapanırken yolcu trene bakar. 0:07’de eller bir bileti yırtar. Pano, yolcunun son treni kaçırmış olabileceği yorumunu destekler. Yırtılan bilet başka birine de ait olabilir. Yolcunun yüzünden aynı kesintisiz planda ellerine inen bir kadraj, iki eylemi aynı kişiye bağlamak için daha güçlü dayanak verirdi."
+    }
+  ],
   "next": [
     {
       "href": "film-kuramlari.html",

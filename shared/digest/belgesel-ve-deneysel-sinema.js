@@ -160,6 +160,14 @@ window.ACELYA_DIGEST["belgesel-ve-deneysel-sinema"] = {
       "explanation": "Eşleşen biçimler bir sıra ve ritim kurar. Tarihsel bir sayısal sav ayrı kanıt gerektirir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Arşiv görüntüsünün tarihi",
+      "example": "Özgün belgesel taslağı. Röportajda bir işçi 2022’de atölyenin kapandığını söylerken boş bir atölye görüntüsü verilir. Yapım notlarında bu görüntünün aynı binada 2018’de, pazar günü çekildiği yazıyor.",
+      "prompt": "Röportajın ve görüntünün desteklediği iddiaları ayrı yaz. İzleyicinin görüntüyü kapanışın doğrudan kaydı sanmasını önlemek için kurguya ne eklersin?",
+      "model": "Röportaj, işçinin kapanışı 2022’ye tarihlediği bir tanıklıktır. Görüntü, binanın 2018’de bir pazar günü boş göründüğünü gösterir. Görüntüyü «2018 · Arşiv görüntüsü» diye etiketlemek zamanı ayırır. Kapanış tarihini doğrulamak için 2022’ye ait kayıt veya başka tanıklık aranabilir."
+    }
+  ],
   "next": [
     {
       "href": "film-kuramlari.html",

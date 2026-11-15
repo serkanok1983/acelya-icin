@@ -177,6 +177,14 @@ window.ACELYA_DIGEST["anlati-yapisi-ve-edebiyat-cozumlemesi"] = {
       explanation: "Süre ile sıklık ayrı eksenlerdir. Yedi gecelik olay bir paragrafa sığdığı için anlatı zamanı öykü zamanından kısadır: özet. Yedi kez olan şey bir kez anlatıldığı için de yinelemelidir. Sayfanın 04 sekmesinde aynı ayrıntı süre kümesinde özet, sıklık kümesinde yinelemeli anahtarlıdır.",
     },
   ],
+  "reasoning": [
+    {
+      "title": "Masadaki saat",
+      "example": "Özgün kısa metin. “Deniz bozuk saati masaya bıraktı. Üç yaz önce aynı saati istasyonun bankında bulmuştu. O yaz her dönüşte kurmuş, saat her seferinde gece yarısı durmuştu. Kapı çalınca masaya döndü.”",
+      "prompt": "Anlatının olay sırasından ayrıldığı cümleyi göster. «Her dönüşte» ifadesini anlatım sıklığı açısından yorumla. Bu iki gözlem saatin niçin durduğunu söylüyor mu?",
+      "model": "İkinci cümle, masaya bırakma anından üç yaz önceki olaya döner. «Her dönüşte» ifadesi birden çok kurma ve durma olayını tek anlatımla toplar. Son cümle masadaki zamana geri getirir. Bu düzen saatin tekrar tekrar durduğunu gösterir. Durma sebebini ayırt etmek için saatin mekanizması ya da önceki bir olay hakkında ek bilgi gerekir."
+    }
+  ],
   next: [
     { href: "uslup-istatistigi-ve-yazar-tanima.html", title: "Üslup İstatistiği ve Yazar Tanıma: Sözcük Sayarak Yazarı Bulmak", why: "Metni saymanın başka bir yolu: Mendenhall'ın sözcük uzunluğu eğrileri, Federalist yazılarında Mosteller ile Wallace ve Burrows'un Delta yöntemiyle yazarı küçük sözcüklerden tanımak." },
     { href: "sinema-dili-ve-kurgu.html", title: "Sinema Dili ve Kurgu: Kare Hızı, Kadraj, 180° Kuralı ve Montaj", why: "Anlatı perdeye taşınınca: kamera kimin gözünden göreceğimizi seçer, bir kesme zamanın bir parçasını atlar; bir sahneyi kesip ortalama plan süresini ölçerek montajın ritmini dene." },

@@ -284,6 +284,14 @@ for (const slug of pages) {
       checkText(w(`quiz[${i}].explanation`), q.explanation, 30, 500);
     });
   }
+  if (d.reasoning !== undefined && checkArray(w("reasoning"), d.reasoning, 1, 4)) {
+    d.reasoning.forEach((item, i) => {
+      checkText(w(`reasoning[${i}].title`), item.title, 4, 80);
+      checkText(w(`reasoning[${i}].example`), item.example, 60, 650);
+      checkText(w(`reasoning[${i}].prompt`), item.prompt, 30, 400);
+      checkText(w(`reasoning[${i}].model`), item.model, 80, 800);
+    });
+  }
   if (checkArray(w("next"), d.next, 2, 4)) {
     d.next.forEach((n, i) => {
       if (!/^[a-z0-9+-]+\.html$/.test(n.href || "")) err(`${w(`next[${i}].href`)}: "${n.href}" biçimi yanlış`);

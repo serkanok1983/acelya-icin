@@ -160,6 +160,14 @@ window.ACELYA_DIGEST["metinlerarasilik-ve-uyarlama"] = {
       "explanation": "Sahnedeki hareket ve bunun kurguda ne zaman gösterildiği, seyircinin çıkarımına dayanak olabilir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Bir kararı görüntüye çevirmek",
+      "example": "Özgün uyarlama taslağı. Öyküde anlatıcı “Mektubu sakladım. Onun dönüp dönmeyeceğini öğrenmekten korkuyordum” der. Film taslağında kişi mektubu çekmeceye iter, koridorda ayak sesi duyunca elini çeker ve çekmeceyi kapatmaz.",
+      "prompt": "İç anlatımın taşıdığı bilgiden hangisi görüntü ve sesle destekleniyor? Oyuncunun hareketine dayanan iki olası gerekçe ver. Film korkuyu daha belirgin kılmak istese ne ekleyebilir?",
+      "model": "Mektubu çekmeceye itmek saklama niyetini, ayak sesiyle hareketin kesilmesi de tetikte olmayı düşündürür. Elini çekmesi geri dönecek kişiden çekinme veya mektubun görülmesinden kaygılanma olarak okunabilir. Koridorda duyulan kişinin kim olduğunu önceki bir sahnede kurmak ilk yorumu güçlendirir. Öznel gerekçenin filmde nasıl kurulacağı bu ek bağlama bağlıdır."
+    }
+  ],
   "next": [
     {
       "href": "anlatim-teknikleri.html",

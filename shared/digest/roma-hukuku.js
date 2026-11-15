@@ -164,7 +164,7 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
       question: "Atıf Kanunu'na (MS 426) göre bir davada Gaius ile Ulpianus bir yönde, Paulus ile Papinianus öbür yönde görüş bildirmiş; Modestinus'un konuyla ilgili bir görüşü yok. Mahkeme hangi görüşe uymak zorundadır?",
       options: ["Gaius ile Ulpianus'unkine, çünkü Ulpianus Digesta'da en çok alıntılanan hukukçudur", "Paulus ile Papinianus'unkine, çünkü eşitlikte Papinianus'un bulunduğu taraf üstün gelir", "Hiçbirine; çoğunluk oluşmadığı için yargıç serbesttir", "Davayı imparatora göndermek zorundadır"],
       answer: 1,
-      explanation: "Kanun bir algoritma gibi işler: önce çoğunluğa bak; eşitlik varsa Papinianus'un tarafı kazanır; Papinianus da susmuşsa yargıç serbest kalır. Burada oylar 2'ye 2 ve Papinianus görüş bildirmiş, o hâlde Paulus ile Papinianus'un görüşü uygulanır. İlk seçenekte bir tarih hatası da var: Digesta 426'da henüz yoktu. Hukuk tarihçisi Alan Watson bu kanunu, doğru görüşün 'kafa sayarak' arandığı bir düşüş anı sayar.",
+      explanation: "Kanun bir algoritma gibi işler: önce çoğunluğa bak; eşitlik varsa Papinianus'un tarafı kazanır; Papinianus da susmuşsa yargıç serbest kalır. Burada oylar 2'ye 2 ve Papinianus görüş bildirmiş, o hâlde Paulus ile Papinianus'un görüşü uygulanır. Digesta 426'da henüz yoktu, dolayısıyla eserdeki alıntı sayısı bu davaya dayanak olamaz. Hukuk tarihçisi Alan Watson bu kanunu, doğru görüşün 'kafa sayarak' arandığı bir düşüş anı sayar.",
     },
     {
       question: "Formula şöyle yazılmış: 'Numerius Negidius'un Aulus Agerius'a 10.000 sestertius vermesi gerektiği anlaşılırsa yargıç onu 10.000'e mahkûm etsin; anlaşılmazsa beraat ettirsin.' Duruşmada borcun 8.000 sestertius olduğu kanıtlanıyor. Klasik dönemde ne olur?",

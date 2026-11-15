@@ -160,6 +160,14 @@ window.ACELYA_DIGEST["film-kuramlari"] = {
       "explanation": "Görüntüde bir arada bulunan eylemler seyirciye mekânsal ilişkiyi değerlendirme alanı açabilir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Boş sepet ve dolu raf",
+      "example": "Özgün iki çekim önerisi. Birinde müşteri, boş sepet ve ürün dolu vitrin aynı kesintisiz geniş planda görünür. Diğerinde boş sepet yakın planından ürün dolu rafa kesilir. İkinci çekimde rafın hangi dükkânda olduğu görünmez.",
+      "prompt": "Aynı karşıtlığı Bazin’in mekânsal süreklilik vurgusu ve Eisenstein’ın montaj yaklaşımıyla yorumla. İkinci çekimden hangi mekân bilgisini çıkaramazsın?",
+      "model": "Bazin’in yaklaşımıyla ilk çekimde göz, sepetle vitrin arasındaki mekânsal ilişkiyi plan boyunca izleyebilir. Eisenstein’ın kurgusuyla ikinci çekimde boşluk ve bolluk karşı karşıya gelerek erişim üzerine bir yorum açar. Kesme, rafın müşterinin bulunduğu dükkâna ait olduğunu tek başına göstermez. İki biçim de kadraj ve süre kararlarıyla izleyicinin dikkatini yönlendirir."
+    }
+  ],
   "next": [
     {
       "href": "film-cozumleme-atolyesi.html",

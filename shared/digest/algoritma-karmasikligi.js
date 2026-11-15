@@ -175,7 +175,7 @@ window.ACELYA_DIGEST["algoritma-karmasikligi"] = {
         "X'in hiçbir polinom algoritması olmadığını kanıtlamak",
       ],
       answer: 1,
-      explanation: "İndirgemenin yönü bilinen zor problemden yeni probleme olmalıdır: 3-SAT'ı X'e çevirebiliyorsan X en az 3-SAT kadar zordur. X'i 3-SAT'a çevirmek yalnız X'in NP'de olduğunu gösterir. Ölçüm bir şey kanıtlamaz; son seçenek ise P ≠ NP'yi kanıtlamak olurdu.",
+      explanation: "İndirgemenin yönü bilinen zor problemden yeni probleme olmalıdır: 3-SAT'ı X'e çevirebiliyorsan X en az 3-SAT kadar zordur. X'i 3-SAT'a çevirmek yalnız X'in NP'de olduğunu gösterir. Kaba kuvvetin çalışma süresini ölçmek bu iddiayı kanıtlamaz. NP-tam bir problemin polinom zamanlı algoritması olamayacağını göstermek P ≠ NP'yi de çözmek olurdu.",
     },
     {
       question: "Maksimal eşleşme yöntemi bir çizgede 2|M| = 12 düğümlük bir köşe örtüsü verdi. En küçük örtü OPT hakkında kesin olarak ne söylenebilir?",

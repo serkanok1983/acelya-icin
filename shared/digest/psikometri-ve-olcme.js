@@ -179,6 +179,14 @@ window.ACELYA_DIGEST["psikometri-ve-olcme"] = {
       explanation: "Ortalama kişi eski normlarla 100 + 3·3 = 109 alır. Eşiği aşma payı 1 − Φ((130 − 109)/15) = 1 − Φ(1,4) ≈ %8,08 olur; güncel normlarla %2,28 idi, yani 3,55 kat. Eşikle karar verilen yerlerde normların yaşı bu yüzden önemlidir.",
     },
   ],
+  "reasoning": [
+    {
+      "title": "Tutarlı ölçüm, farklı beceri",
+      "example": "Yapay örnek. Bir çevrimiçi araştırma okuduğunu anlama ölçmek için 12 soruluk, süreli bir test kullanır. Testin iç tutarlılığı yüksektir. Klavyeyi az kullananlar, aynı metne sözlü verdikleri yanıtlar benzerken testte daha düşük puan alır.",
+      "prompt": "Yüksek iç tutarlılığın neyi gösterdiğini ve burada hangi geçerlik itirazının açık kaldığını söyle. İtirazı sınamak için iki uygulamayı nasıl karşılaştırırsın?",
+      "model": "İç tutarlılık maddelerin puanlarının birlikte değiştiğine ilişkin bilgi verir. Süreli klavye yanıtları okuduğunu anlamanın yanı sıra yazma hızını da yansıtıyor olabilir. Aynı metin ve benzer güçlükteki sorularla süreli klavye ve süre baskısı düşük alternatif biçimleri karşılaştırabilirsin. Uygulama sırasını dengelemek tekrar etkisini azaltır."
+    }
+  ],
   next: [
     { href: "regresyon-ve-korelasyon.html", title: "Regresyon ve Korelasyon: En Küçük Kareler, Artıklar ve Nedensellik", why: "Psikometrinin her katsayısının altında yatan korelasyon ve en küçük kareler; aykırı değerlerin ve kısıtlı aralığın bir r'yi nasıl oynattığı." },
     { href: "hipotez-testi-ve-guven-araligi.html", title: "Hipotez Testi ve Güven Aralığı: Örnekleme, p-Değeri, Hata Türleri ve Güç", why: "Örneklem α'sı ile kuramsal α arasındaki farkın kaynağı: örnekleme dağılımı, standart hata ve güven aralıkları." },

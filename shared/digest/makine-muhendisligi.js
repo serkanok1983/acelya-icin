@@ -164,7 +164,7 @@ window.ACELYA_DIGEST["makine-muhendisligi"] = {
       question: "İdeal (kayıpsız) bir Brayton çevriminde basınç oranı sabit tutulup türbin giriş sıcaklığı 1400 K'den 1800 K'e çıkarılıyor. Ne değişir?",
       options: ["Verim de net iş de artar", "Verim aynı kalır; net iş artar, geri iş oranı düşer", "Verim artar; net iş aynı kalır", "Hiçbiri değişmez; ideal çevrim sıcaklıktan bağımsızdır"],
       answer: 1,
-      explanation: "İdeal verim 1 − r_p^(−(k−1)/k)'dir, sıcaklık sadeleşir: sayfada iki durumda da 48,21 %. Alınan ısı ve iş birlikte büyür: net iş 397,4'ten 591,1 kJ/kg'a çıkar. Kompresör işi değişmediği için türbin işindeki payı küçülür (yüzde 41,4'ten yüzde 32,2'ye). Kompresör ve türbin kayıplı olduğunda sıcaklık verimi de yükseltir; ilk seçenek o durumun cevabıdır.",
+      explanation: "İdeal verim 1 − r_p^(−(k−1)/k)'dir, sıcaklık sadeleşir: sayfada iki durumda da 48,21 %. Alınan ısı ve iş birlikte büyür: net iş 397,4'ten 591,1 kJ/kg'a çıkar. Kompresör işi değişmediği için türbin işindeki payı küçülür (yüzde 41,4'ten yüzde 32,2'ye). Sayfanın kayıplı modelinde türbin giriş sıcaklığını artırmak verimi de yükseltebilir.",
     },
     {
       question: "Bir makinenin takozları daha yumuşak olanlarla değiştiriliyor ve makinenin kendi ağırlığı altındaki statik çökme 2,45 mm'den 9,8 mm'ye, yani dört katına çıkıyor. Zemin 20 Hz'te titriyorsa ne olur?",

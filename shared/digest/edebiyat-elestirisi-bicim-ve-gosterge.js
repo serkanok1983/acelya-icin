@@ -152,6 +152,14 @@ window.ACELYA_DIGEST["edebiyat-elestirisi-bicim-ve-gosterge"] = {
       "explanation": "Slogan, ses aygıtı ve açılışın birlikteliği kültürel bir kodu akla getirir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Sessizlik ilanı",
+      "example": "Özgün kısa metin. “Kütüphanenin kapısında «Burada herkes eşit susar» yazıyordu. Müdürün topuk sesleri gelince görevli bir çocuğa döndü ve parmağını dudaklarına götürdü.”",
+      "prompt": "Bir yakın okuma yap. İlanın hangi sözcüğüyle hangi eylem arasında gerilim var? Aynı davranış için ikinci bir okuma öner ve hangisini neyin güçlendireceğini söyle.",
+      "model": "«Herkes» sözcüğü kuralı genelleştiriyor. Duyulan ses müdürden gelirken uyarının çocuğa yönelmesi kuralın eşit işlediği vaadine gerilim katıyor. Görevli çocuğun biraz önce konuştuğunu duymuş da olabilir. Uyarının başka bir sahnede müdüre de uygulanıp uygulanmadığı bu iki okumayı tartmaya yarar."
+    }
+  ],
   "next": [
     {
       "href": "edebiyat-elestirisi-okur-ve-toplum.html",

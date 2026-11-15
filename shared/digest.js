@@ -248,6 +248,42 @@
       </section>`;
   }
 
+  function quizOptionOrder(slug, questionIndex, count) {
+    // Aynı soru tekrar açıldığında seçenekler yer değiştirmez.
+    let seed = 2166136261;
+    for (const char of `${slug}:${questionIndex}`) {
+      seed = Math.imul(seed ^ char.charCodeAt(0), 16777619);
+    }
+    const order = Array.from({ length: count }, (_, index) => index);
+    for (let i = count - 1; i > 0; i--) {
+      seed ^= seed << 13;
+      seed ^= seed >>> 17;
+      seed ^= seed << 5;
+      const j = (seed >>> 0) % (i + 1);
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    return order;
+  }
+
+  function renderReasoning(d) {
+    if (!d.reasoning?.length) return "";
+    const cases = d.reasoning.map((item) => `
+      <article class="digest-reasoning-case">
+        <h5>${esc(item.title)}</h5>
+        <p>${sanitize(item.example)}</p>
+        <p class="digest-reasoning-prompt"><strong>${sanitize(item.prompt)}</strong></p>
+        <details>
+          <summary>Örnek gerekçeyi göster</summary>
+          <p>${sanitize(item.model)}</p>
+        </details>
+      </article>`).join("");
+    return `
+      <div class="digest-reasoning" id="defter-gerekce">
+        <h4>${d.reasoning.length === 1 ? "Gerekçeli soru" : "Gerekçeli sorular"}</h4>
+        ${cases}
+      </div>`;
+  }
+
   function renderQuiz(d) {
     if (!d.quiz?.length) return "";
     const items = d.quiz
@@ -256,12 +292,12 @@
         <fieldset class="digest-q" data-q="${qi}" data-answer="${Number(q.answer)}">
           <legend><span aria-hidden="true">${qi + 1}.</span>${sanitize(q.question)}</legend>
           <div class="digest-options">
-            ${q.options
+            ${quizOptionOrder(d.slug || pageId, qi, q.options.length)
               .map(
-                (opt, oi) => `
+                (oi) => `
               <label class="digest-option" data-opt="${oi}">
                 <input type="radio" name="digest-${esc(pageId)}-q${qi}" value="${oi}">
-                <span>${sanitize(opt)}</span>
+                <span>${sanitize(q.options[oi])}</span>
               </label>`,
               )
               .join("")}
@@ -274,6 +310,7 @@
       <section class="digest-section" id="defter-sinav" aria-labelledby="defter-sinav-baslik">
         ${sectionHead("09", "Kendini sına", "Geri bildirimli")}
         <div class="digest-quiz">${items}</div>
+        ${renderReasoning(d)}
       </section>`;
   }
 

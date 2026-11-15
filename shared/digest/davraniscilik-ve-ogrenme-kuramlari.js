@@ -148,6 +148,14 @@ window.ACELYA_DIGEST["davraniscilik-ve-ogrenme-kuramlari"] = {
       "explanation": "İpucunun eski sonucu artık getirmemesi sönme düzenini tanımlar."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Sesi kesen tuş",
+      "example": "Yapay görev. Hafif bir uyarı sesi çalarken bir katılımcı kare tuşa basar ve ses durur. Sonraki denemelerde kareye basma sayısı artar. Başka bir koşulda ses aynı sürenin sonunda tuşa bakılmaksızın kendiliğinden susar.",
+      "prompt": "İlk koşulu olumsuz pekiştirme açısından gerekçelendir. İkinci koşuldaki hangi sonuç, davranış değişiminde tuş ile sesin kesilmesi arasındaki ilişkinin önemli olduğu yorumunu güçlendirir?",
+      "model": "Tuşa basmayı sesin kesilmesi izliyor ve basma davranışı artıyor. Bu örüntü olumsuz pekiştirmeyle uyumlu. Ses kendiliğinden sustuğunda basma sayısı artmazsa iki koşul arasındaki fark, sesin tuşa bağlı kesilmesinin rolünü destekler. Her iki koşulda aynı artış görülürse tuşu deneme ve alışma gibi başka açıklamalar düşünülür."
+    }
+  ],
   "next": [
     {
       "href": "bellek-ve-ogrenme.html",

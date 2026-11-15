@@ -156,6 +156,14 @@ window.ACELYA_DIGEST["edebiyat-akimlari"] = {
       "explanation": "Dergiler, eserler ve biçim tercihleri birlikte karşılaştırılabilir."
     }
   ],
+  "reasoning": [
+    {
+      "title": "Aynı kepengin iki anlatımı",
+      "example": "Özgün iki anlatım. A. “Kepenk altıda indi. Nöbet çizelgesine bakıp haftalık ücretinden kaç saat düşeceğini hesapladı.” B. “Kepenk indi. Ocaktaki mavi alev, sokağın son ışığı sönene dek cebinde yandı.”",
+      "prompt": "Hangi anlatım gerçekçi, hangisi simgesel bir okumaya daha çok dayanak veriyor? Her ikisinden bir ayrıntı göster. Tek bir pasajla bütün metin hakkında hangi hükmü ertelemelisin?",
+      "model": "A’daki nöbet çizelgesi ve ücret hesabı, olayın gündelik kurumlar içindeki sonuçlarını somutlaştırıyor. B’de bir alevin cebinde yanması, mavi alevi taşıdığı bir anının ya da duygunun işareti olarak okumaya elveriyor. Motif başka sahnelerde yinelenirse simgesel okuma güçlenebilir. İki cümle tek başına eserin bir edebiyat akımına aidiyetini belirlemez."
+    }
+  ],
   "next": [
     {
       "href": "edebiyat-elestirisi-bicim-ve-gosterge.html",
