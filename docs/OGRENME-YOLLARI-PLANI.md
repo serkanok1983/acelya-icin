@@ -173,7 +173,7 @@ Amaç: okura bir eseri katman katman okuma araçları vermek. Her sayfa çözüm
 çağdaş eserler yalnız kendi sözlerimizle, görüntü ve uzun alıntı olmadan anılır. Psikoloji sayfalarıyla (U6) bağlanır:
 karakterin savunma mekanizmaları, arketipler, motivasyon, bağlanma örüntüleri kurgu karakterlerinde okunur.
 
-### U9 · Edebiyat kuramı ve çözümleme (~10 ders)
+### U9 · Edebiyat kuramı ve çözümleme (10 ders, tamamlandı)
 Edebiyat akımları (klasisizm, romantizm, realizm, natüralizm, sembolizm, modernizm, postmodernizm; Türk edebiyatında
 Divan, Tanzimat, Servet-i Fünun, Millî Edebiyat, Garip, İkinci Yeni) · eleştiri kuramları I (Rus biçimciliği, Yeni
 Eleştiri, yapısalcılık ve göstergebilim: Saussure, Barthes) · eleştiri kuramları II (okur tepkisi/alımlama: Iser, Jauss;
@@ -184,6 +184,11 @@ mevcut Anlatı Yapısı sayfasına bağlanır) · imge, sembol, alegori, ironi v
 (Aristoteles'ten Shakespeare, Ibsen, Çehov, Brecht'in epik tiyatrosu, absürt tiyatro) · türlerin poetikası (trajedi,
 komedi, roman, öykü, polisiye, bilimkurgu, fantastik: Todorov) · şiir çözümleme (imge, ses, ölçü; aruz sayfasına bağlı)
 · metinlerarasılık ve uyarlama (romandan filme).
+
+U9 ile birlikte psikoloji kapsamı 5 dersle genişletildi. Gestalt ve algı, evrimsel psikoloji ve karşılaştırmalı
+yöntem, kültürel ve eleştirel psikoloji, ilişkisel psikanaliz ve zihinselleştirme, sistemik psikoloji ve aile
+yaklaşımları Psikolog öğrenme yoluna eklendi. Psikoloji Ekolleri Dizini 72 düşünür ve araştırmacıyı önceki ve
+yeni derslerle ilişkilendirir.
 
 ### U10 · Sinema kuramı, akımları ve film çözümleme (~9 ders)
 Sinema akımları (Sovyet montajı, Alman dışavurumculuğu, klasik Hollywood, İtalyan yeni gerçekçiliği, Fransız Yeni Dalgası,

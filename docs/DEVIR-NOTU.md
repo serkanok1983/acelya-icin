@@ -11,7 +11,7 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (dal `main`).
 - **Canlı:** https://serkanok1983.github.io/acelya-icin (GitHub Pages, `gh-pages` dalı; GitHub Actions kullanılmıyor,
   yayın yerelden elle yapılır, bkz. §5).
-- **Boyut (15 Kasım, U8 sonrası):** 300 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
+- **Boyut (15 Kasım, U9 sonrası):** 316 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
   `onsart.html`. Menüde 10 grup.
 
 ## 2. Kullanıcının kalıcı kuralları (bağlayıcı; birebir sözleri)
@@ -147,7 +147,9 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   `scripts/check-g-u7.mjs --browser` argüman haritalarını, dizin aramasını ve Keşif Defteri’nin stil önbelleğini sınar.
 - U8 ile 10 sosyal bilim ve siyaset kuramı dersi eklendi. Düşünürler Dizini 104 kişi ve 24 ders içeriyor.
   `scripts/check-g-u8.mjs --browser` yeni dersleri, üç iktisat modelini ve ortak düşünürlerin bağlantılarını sınar.
-- Bir sonraki iş **U9**.
+- U9 ile 10 edebiyat ve 5 psikoloji dersi, ayrıca 72 kişilik Psikoloji Ekolleri Dizini eklendi.
+  `scripts/check-g-u9.mjs --browser` atölyeleri, dizini, aramayı, öğrenme yolunu ve Keşif Defterlerini sınar.
+- Bir sonraki iş **U10**.
 
 ### Tamamlanan turlar (hepsi yayında)
 - **U1** — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
@@ -173,14 +175,15 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   Frankfurt Okulu, antropoloji ve modern siyaset kuramı. Yeni dersler “İnsan ve Toplum” grubunda. Dizin 48 yeni
   düşünür ile dört ortak düşünürün ek bağlantısını içerir.
 
+- **U9** — edebiyat akımları, iki eleştiri dersi, karakter, anlatım teknikleri, söz sanatları, tiyatro, tür, şiir
+  ve uyarlama. Beş psikoloji dersi ve Psikoloji Ekolleri Dizini “İnsan ve Toplum” grubunda ve Psikolog yolunda.
+
 Tur ayrıntıları `docs/simulasyon-notlari.md` belgesinde.
 
 ### Sıradaki işler (sırasıyla; ayrıntılı kapsam `docs/OGRENME-YOLLARI-PLANI.md` §3, §5, §6, §7)
-1. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
-   ve karakter psikolojisi, anlatım teknikleri, retorik, dram, türler, şiir, uyarlama.
-2. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
+1. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
    U9–U10 için "Edebiyat ve Sinema" grubu açılabilir.
-5. **Genel değerlendirme:** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
+2. **Genel değerlendirme.** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
    (`docs/OGRENME-YOLLARI-PLANI.md` §7).
 
 Her tur için önce, o turun özel kurallarını `docs/ajan-sozlesmeleri/_onsart.md` sonuna "U5 additions" gibi bir

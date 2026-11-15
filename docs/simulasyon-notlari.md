@@ -2237,3 +2237,18 @@ Dizine 48 yeni kişi ve dört ortak düşünür için yeni ders bağlantıları 
 `scripts/check-g-u8.mjs --browser` iki ekran boyutunda argüman haritalarını, üç iktisat modelindeki sınır değerlerini
 ve dizinden ilgili savın açılmasını denetler. U7 testi kendi derslerine giden 56 bağlantıyı ve önceki filtre
 sonuçlarını doğrulamayı sürdürür.
+
+## 15 Kasım 2026 — U9 · Edebiyat ve psikoloji
+
+Plandaki 10 edebiyat dersi, özgün kısa metinler üzerinde seçim ve yakın okuma yaptırır. Biçim ve gösterge dersi
+ile okur ve toplum dersi aynı meydan sahnesini kullanır. Diğer atölyelerde olayın akımlar, anlatım biçimleri,
+tiyatro, tür ve uyarlama arasında nasıl değiştiği, karakter ve şiir çözümlemeleriyle birlikte incelenir.
+Arşivdeki eserler kaynak olarak bağlantılandı. Atölye metinleri bu dersler için yazıldı.
+
+Beş psikoloji dersi tarihsel kavramı, ilgili gözlemi ve yorumun sınırını birlikte gösterir. Psikoloji Ekolleri
+Dizini 72 düşünür ve araştırmacıyı 18 derse bağlar. Ad, kavram ve yaklaşım ailesi birlikte aranabilir. Yeni
+derslere giden bağlantılar ilgili seçimi doğrudan açar. Gestalt dersinde aynı kontur üzerinden yüz ve vazo
+yorumlarını karşılaştıran bir çizim bulunur.
+
+`scripts/check-g-u9.mjs --browser` iki ekran boyutunda atölye seçimlerini, metin vurgularını, sıfırlamayı,
+dizin aramasını ve derin bağlantılarını, katalog aramasını ve Keşif Defterlerini denetler.

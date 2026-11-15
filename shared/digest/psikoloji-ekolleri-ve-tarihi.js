@@ -164,6 +164,11 @@ window.ACELYA_DIGEST["psikoloji-ekolleri-ve-tarihi"] = {
       "href": "freud-ve-klasik-psikanaliz.html",
       "title": "Freud ve Klasik Psikanaliz",
       "why": "Klinik yorumun tarihsel dayanaklarına bak"
+    },
+    {
+      "href": "psikoloji-ekolleri-dizini.html",
+      "title": "Psikoloji Ekolleri Dizini",
+      "why": "Düşünürleri, kavramları ve yaklaşımları derslere göre ara."
     }
   ],
   "sources": [

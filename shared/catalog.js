@@ -94,6 +94,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "anlatim-teknikleri": {
+    "title": "Anlatım Teknikleri ve Bakış Açısı",
+    "tagline": "Bakış açısını ve olay zamanını değiştir, iç monolog, bilinç akışı ve serbest dolaylı anlatım arasındaki izleri karşılaştır.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "antropoloji-kuramlari": {
     "title": "Antropoloji Kuramları ve Etnografik Yöntem",
     "tagline": "Bir töreni var olan işleviyle, geçmişiyle, anlatı yapısıyla veya ona verilen anlamla incele. Dört antropolojik yaklaşımı karşılaştır.",
@@ -465,6 +472,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "dram-ve-tiyatro": {
+    "title": "Dram ve Tiyatro",
+    "tagline": "Aynı kapı sahnesini tragedya, Shakespeare, Ibsen, Çehov, epik tiyatro ve absürt tiyatro kararlarıyla yeniden sahnele.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "duran-dalgalar": {
     "title": "Duran Dalgalar: Tele ve Boruya Sığan Notalar",
     "tagline": "Bir tel ya da bir boru her frekansı çalamaz: dalga kendi yansımasıyla buluşur ve yalnızca uçlara sığan dalga boyları birikir. Gitarın notası, klarnetin pesliği ve tınının rengi bu kuraldan doğar.",
@@ -478,6 +492,34 @@ window.ACELYA_CATALOG = {
     "field": "Felsefe ve Mantık",
     "level": "Lise–Lisans",
     "minutes": 20
+  },
+  "edebiyat-akimlari": {
+    "title": "Edebiyat Akımları",
+    "tagline": "Bir istasyon sahnesi değiştikçe yedi edebî akımın ve Türk edebiyatındaki altı oluşumun biçim, dil ve okurla ilişkisini izle.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 50
+  },
+  "edebiyat-elestirisi-bicim-ve-gosterge": {
+    "title": "Edebiyat Eleştirisi I · Biçim ve Gösterge",
+    "tagline": "Rus biçimciliği, Yeni Eleştiri, yapısalcılık ve göstergebilimle bir meydan sahnesinin farklı işleyişlerini karşılaştır.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "edebiyat-elestirisi-okur-ve-toplum": {
+    "title": "Edebiyat Eleştirisi II · Okur ve Toplum",
+    "tagline": "Okur tepkisi, alımlama, psikanalitik, Marksist, feminist, postkolonyal ve yapısökümcü okumaları tek sahnede dene.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "edebiyatta-imge-ve-soz-sanatlari": {
+    "title": "Edebiyatta İmge ve Söz Sanatları",
+    "tagline": "İmgeyi, sembolü, alegoriyi, ironiyi ve retorik yollarını aynı kıyı sahnesinin dilindeki küçük değişikliklerle karşılaştır.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "ego-psikolojisi-ve-nesne-iliskileri": {
     "title": "Ego Psikolojisi ve Nesne İlişkileri",
@@ -588,6 +630,13 @@ window.ACELYA_CATALOG = {
     "title": "Etimoloji ve Dil Aileleri: Benzerlik Değil Düzen",
     "tagline": "İngilizce ten ile Latince decem akraba, day ile diēs değil. Dilbilimciler bunu benzerlikten değil, sözcükten sözcüğe yinelenen ses denkliklerinden bilir; rastlantının payını da hesaplayabilir.",
     "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "evrimsel-psikoloji-ve-karsilastirmali-yontem": {
+    "title": "Evrimsel Psikoloji ve Karşılaştırmalı Yöntem",
+    "tagline": "Tinbergen’in dört sorusunu davranışa uygula. Uyum hipotezini yakın süreç, öğrenme ve tarihsel alternatiflerle karşılaştır.",
+    "field": "Zihin ve Davranış",
     "level": "Lise–Lisans",
     "minutes": 35
   },
@@ -724,6 +773,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise",
     "minutes": 45
   },
+  "gestalt-psikolojisi-ve-algi": {
+    "title": "Gestalt Psikolojisi ve Algı",
+    "tagline": "Noktaların aralığını, benzerliğini ve sınırını karşılaştır. Wertheimer, Koffka ve Köhler’in algısal örgütlenme programını araştır.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "gezegen-savunmasi": {
     "title": "Gezegen Savunması: Newton'un Topuyla Yörünge",
     "tagline": "Mermin yere düşer, gezegenin arkasına dolanır ya da bir daha dönmez; hangisi olacağını enerji ile açısal momentum belirler. Newton'un dağ başındaki topunu ateşle, yörüngeyi ölç, asteroidi gezegenin öbür yüzünde yakala.",
@@ -857,6 +913,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "iliskisel-psikanaliz-ve-zihinsellestirme": {
+    "title": "İlişkisel Psikanaliz ve Zihinselleştirme",
+    "tagline": "Sullivan, Mitchell, Benjamin ve Fonagy’nin ilişki, karşılıklı tanınma ve zihinsel durumlara ilişkin ayrı sorularını karşılaştır.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "integral": {
     "title": "İntegral: Birikimin Hesabı",
     "tagline": "Hızdan yolu, kuvvetten işi, eğriden hacmi veren tek fikir: birikim. Temel teoremi kendi elinle ölç, küreyi iki ayrı yoldan dilimle, sonsuza uzanan bir borunun hacminin neden π'yi aşamadığını gör.",
@@ -961,6 +1024,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 45
+  },
+  "karakter-ve-karakter-psikolojisi": {
+    "title": "Karakter ve Karakter Psikolojisi",
+    "tagline": "Bir kurmaca kişinin kararını düz ve yuvarlak karakter, iç çatışma, arketip ve anlatıcı güvenilirliği üzerinden çözümle.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "karar-ve-bilissel-yanliliklar": {
     "title": "Karar ve Bilişsel Yanlılıklar: İnsanlar Gerçekte Nasıl Seçer?",
@@ -1101,6 +1171,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 45
+  },
+  "kulturel-ve-elestirel-psikoloji": {
+    "title": "Kültürel ve Eleştirel Psikoloji",
+    "tagline": "Vygotsky, Luria, Cole, Fanon ve Martín-Baró ile görev, dil, kurum, tarih ve güç ilişkilerinin psikolojik açıklamaya etkisini karşılaştır.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "kumeler-bagintilar-ve-fonksiyonlar": {
     "title": "Kümeler, Bağıntılar ve Fonksiyonlar: Matematiğin Ortak Dili",
@@ -1304,6 +1381,13 @@ window.ACELYA_CATALOG = {
     "field": "Mühendislik",
     "level": "Lise–Lisans",
     "minutes": 40
+  },
+  "metinlerarasilik-ve-uyarlama": {
+    "title": "Metinlerarasılık ve Uyarlama",
+    "tagline": "Alıntı, gönderme, parodi ve anlatı aktarımını incele, bir roman sahnesinin görüntü ve sesle nasıl değiştiğini karşılaştır.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "mikro-ekonomi-ve-uretim-faktorleri": {
     "title": "Mikroekonomi: Kıtlık, Fiyat ve Seçim",
@@ -1599,6 +1683,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "psikoloji-ekolleri-dizini": {
+    "title": "Psikoloji Ekolleri Dizini",
+    "tagline": "Psikoloji ekolleri arasında düşünür, kavram ve yaklaşım ara. Her sonuçtan bir dersin açıklamasına veya ilgili atölye seçimine geç.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 20
+  },
   "psikoloji-ekolleri-ve-tarihi": {
     "title": "Psikoloji Ekolleri ve Tarihi",
     "tagline": "Bir melodiyi başka tondan çalınca onu nasıl tanırız? Aynı gözleme deneysel, işlevsel, Gestalt ve bilişsel sorular sorarak psikoloji ekollerinin nerede ayrıldığını gör.",
@@ -1739,6 +1830,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "siir-cozumleme": {
+    "title": "Şiir Çözümleme",
+    "tagline": "Özgün kısa dizelerde imgeyi, ünlü ve ünsüz tekrarını, durakları, hece sayısını ve uyağı ayrı ayrı işit ve yorumla.",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "sinema-dili-ve-kurgu": {
     "title": "Sinema Dili ve Kurgu: Kareden Montaja",
     "tagline": "Saniyede yirmi dört durağan resim nasıl akan bir dünyaya dönüşür? Kare hızı, mercek, 180° kuralı ve montaj: sinemanın dil bilgisini kendi kameranla, kendi kesmelerinle dene.",
@@ -1773,6 +1871,13 @@ window.ACELYA_CATALOG = {
     "field": "Bilgisayar Bilimi",
     "level": "Lise–Lisans",
     "minutes": 32
+  },
+  "sistemik-psikoloji-ve-aile-yaklasimlari": {
+    "title": "Sistemik Psikoloji ve Aile Yaklaşımları",
+    "tagline": "Bateson, Bowen, Minuchin ve Satir ile iletişim döngülerini, ilişki sınırlarını ve farklı gözlem düzeylerini karşılaştır.",
+    "field": "Zihin ve Davranış",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "snake": {
     "title": "Yılan: Izgarada Kuyruk ve Döngü",
@@ -1948,6 +2053,13 @@ window.ACELYA_CATALOG = {
     "field": "Dil ve Edebiyat",
     "level": "Lise–Lisans",
     "minutes": 30
+  },
+  "turlerin-poetikasi": {
+    "title": "Türlerin Poetikası",
+    "tagline": "Trajedi, komedi, roman, öykü, polisiye, bilimkurgu ve fantastik aynı kapı sesinden hangi okur beklentilerini kuruyor?",
+    "field": "Dil ve Edebiyat",
+    "level": "Lise–Lisans",
+    "minutes": 35
   },
   "ucak-muhendisligi-ve-aerodinamik": {
     "title": "Aerodinamik: Havayı Aşağı İten Kanat",
