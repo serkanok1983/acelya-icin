@@ -2173,6 +2173,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "veri-ve-ornekleme": {
+    "title": "Veri ve Örnekleme: Betimsel İstatistik",
+    "tagline": "Veri türlerini tanı, aynı evrenden farklı yöntemlerle örneklem çek ve dağılımı histogram, ortalama ve ortancayla özetle.",
+    "field": "Matematik",
+    "level": "Lise",
+    "minutes": 30
+  },
   "veri-yapilari": {
     "title": "Veri Yapıları: Doğru Rafı Seçmek",
     "tagline": "Aynı veriyi beş farklı rafa diz ve her işlemin bedelini say: kopyalanan eleman, izlenen işaretçi, yoklanan yuva, yapılan karşılaştırma. Sayacın yanında kuramın söylediği sayı durur.",

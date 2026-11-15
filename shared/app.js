@@ -612,6 +612,43 @@ window.AcelyaTouch = (function () {
     });
   }
 
+  function loadElectiveNavigation() {
+    const routeId = new URLSearchParams(location.search).get("yol");
+    const main = document.querySelector("main.app-content");
+    if (!routeId || !main) return;
+    loadScriptOnce("shared/yollar.js", () => {
+      const route = window.ACELYA_YOLLAR?.yollar.find((item) => item.elective && item.id === routeId);
+      if (!route) return;
+      const lessons = route.stages.flatMap((stage) => stage.items);
+      const position = lessons.indexOf(pageId);
+      if (position < 0) return;
+      loadScriptOnce("shared/catalog.js", () => {
+        const catalog = window.ACELYA_CATALOG;
+        const nav = document.createElement("nav");
+        nav.className = "app-route";
+        nav.setAttribute("aria-label", "Seçmeli yol");
+        const encodedRoute = encodeURIComponent(routeId);
+
+        const overview = document.createElement("p");
+        const routeLink = document.createElement("a");
+        routeLink.href = `ogrenme-yollari.html#${encodedRoute}`;
+        routeLink.textContent = route.title;
+        overview.append(routeLink, ` · ${position + 1} / ${lessons.length} ders`);
+        nav.append(overview);
+
+        for (const [slug, label] of [[lessons[position - 1], "Önceki"], [lessons[position + 1], "Sıradaki"]]) {
+          if (!slug || !catalog?.[slug]) continue;
+          const link = document.createElement("a");
+          link.className = "app-btn-ghost";
+          link.href = `${slug}.html?yol=${encodedRoute}`;
+          link.textContent = `${label} · ${catalog[slug].title.split(":")[0].trim()}`;
+          nav.append(link);
+        }
+        main.append(nav);
+      });
+    });
+  }
+
   function loadGameKit() {
     const s = document.createElement("script");
     s.src = "shared/game-kit.js";
@@ -643,6 +680,7 @@ window.AcelyaTouch = (function () {
     initStars();
     initTopbar();
     loadDigest();
+    loadElectiveNavigation();
     loadGameKit();
   }
 

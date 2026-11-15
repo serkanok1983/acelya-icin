@@ -220,3 +220,9 @@ Seçmeli yollar, bir konuyu baştan öğrenmek isteyenler için pedagojik bir s�
 ve aramadan doğrudan açılabilir. Yol seçimi, önşartlar ve tamamlanma durumu erişimi kısıtlamaz. Kullanıcı
 ister sırayı izler, ister bir konuyu merakından açıp okur. Yol ve kart metinleri kullanıcının öğrenci
 olduğunu veya belirli bir düzeyde başladığını varsaymaksızın gereken önbilgiyi açıklar.
+
+- Edebiyat ve Çözümleme, Sinema ve Film Çözümleme, Düşünce Tarihi ve Sosyal Kuram yolları mevcut dersleri sıralar.
+  Yoldan açılan derste önceki ve sıradaki basamaklara geçilebilir.
+- İktisatçı yolunda klasik iktisat, Marx ve neoklasik iktisat ile Keynes dersleri bir düşünce seçkisi oluşturur.
+- Veri ve Örnekleme, Olasılık ve İstatistik dizisinin ilk dersi. Psikolog, Hekim ve İktisatçı yollarının
+  yöntem bölümleri aynı derse bağlanır.

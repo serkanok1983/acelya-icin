@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="tr" class="app-root">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Veri ve Örnekleme: Betimsel İstatistik</title>
+  <meta name="description" content="Veri türlerini tanı, aynı evrenden farklı yöntemlerle örneklem çek ve dağılımı histogram, ortalama ve ortancayla özetle.">
+  <link rel="stylesheet" href="shared/theme.css">
+  <link rel="stylesheet" href="shared/lesson-lab.css">
+  <style>
+    .stat-histogram { display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
+    .stat-bin { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) 6.25rem; gap: 8px; align-items: center; }
+    .stat-bin-label, .stat-shares { font-size: .82rem; color: var(--text-muted); }
+    .stat-shares { text-align: right; }
+    .stat-bars { display: grid; gap: 3px; padding: 4px 0; }
+    .stat-rail { height: 8px; background: var(--bg-input); border-radius: 3px; overflow: hidden; }
+    .stat-bar { height: 100%; background: var(--accent); }
+    .stat-bar--sample { background: var(--text-muted); }
+    .stat-legend { display: flex; flex-wrap: wrap; column-gap: 14px; }
+    .stat-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .stat-legend i { width: .75rem; height: .55rem; border-radius: 2px; }
+    .stat-values { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  </style>
+  <script src="shared/app.js"></script>
+</head>
+<body class="app-page" data-page="veri-ve-ornekleme">
+  <main class="app-content lesson">
+    <header class="lesson-intro">
+      <h1>Veri ve Örnekleme</h1>
+      <p>Bir kentte ulaşım süresi ne kadar? Kime sorduğun ortalamayı değiştirebilir. Aynı yapay evrenden üç yöntemle örneklem seç, dağılımları karşılaştır ve bir uç değerin özeti nasıl değiştirdiğini gör.</p>
+    </header>
+    <nav class="lesson-nav" aria-label="Ders bölümleri">
+      <a href="#veri">Veri türleri</a>
+      <a href="#ornekleme">Örnekleme atölyesi</a>
+      <a href="#ozet">Veriyi özetle</a>
+      <a href="#sinama">Kendini sına</a>
+    </nav>
+
+    <section class="lesson-explanation" id="veri">
+      <h2>Önce neyi kaydettiğine bak</h2>
+      <p><strong>Gözlem birimi</strong>, bir verinin kime ya da neye ait olduğunu söyler. Burada bir satır, bir kişinin işe gidiş yolculuğunu anlatıyor. Mahalle <strong>kategorik</strong> bir değişkendir. Memnuniyet düzeyinin kategorileri sıralanabilir. Aktarma sayısı <strong>kesikli nicel</strong>, yolculuk süresi ise tam dakikaya yuvarlansa bile <strong>sürekli nicel</strong> bir değişkendir.</p>
+      <p>Mahalleleri 1 ve 2 diye kodlamak bu kodlara ölçü birimi kazandırmaz. Mahalle için frekans veya oran, süre içinse bir histogram ve dakika cinsinden bir özet kullanabilirsin.</p>
+    </section>
+
+    <section class="lesson-lab" id="ornekleme" aria-labelledby="ornekleme-baslik">
+      <h2 id="ornekleme-baslik">Aynı kentten üç örneklem</h2>
+      <p>Kurgusal kentteki 120 kişinin %70’i merkezde, %30’u çeperde. Merkezde ortalama süre 14, çeperde 32 dakika. Yöntemi değiştirince bu iki bölgenin örneklemdeki payına bak.</p>
+      <div class="lesson-workbench">
+        <form class="lesson-controls" id="orneklem-kontrolleri">
+          <div>
+            <label for="yontem">Örnekleme yöntemi</label>
+            <select id="yontem">
+              <option value="rastgele">Basit rastgele</option>
+              <option value="tabakali">Orantılı tabakalı</option>
+              <option value="kolayda">Kolayda · sadece merkez</option>
+            </select>
+          </div>
+          <div>
+            <label for="orneklem-n">Örneklem büyüklüğü</label>
+            <span data-setting id="n-gosterge" aria-hidden="true">20 kişi</span>
+            <input type="range" id="orneklem-n" min="10" max="80" step="10" value="20">
+          </div>
+          <button type="button" class="app-btn-ghost" id="yeni-orneklem">Yeni örneklem çek</button>
+        </form>
+        <div class="lesson-output">
+          <dl class="lesson-metrics">
+            <div><dt>Evren ortalaması</dt><dd id="evren-ort"></dd></div>
+            <div><dt>Örneklem ortalaması</dt><dd id="orneklem-ort"></dd></div>
+            <div><dt>Fark · örneklem eksi evren</dt><dd id="orneklem-fark"></dd></div>
+            <div><dt>Örneklemde çeper payı</dt><dd id="ceper-payi"></dd></div>
+          </dl>
+          <p id="orneklem-durum" role="status"></p>
+          <figure aria-hidden="true">
+            <div class="stat-histogram" id="histogram"></div>
+            <figcaption class="stat-legend">
+              <span><i class="stat-bar"></i>Evren</span>
+              <span><i class="stat-bar stat-bar--sample"></i>Örneklem</span>
+              <span>Çubuklar grup içindeki yüzdeyi gösterir.</span>
+            </figcaption>
+          </figure>
+          <details class="lesson-data">
+            <summary>Dağılımı tablo olarak aç</summary>
+            <table>
+              <caption>Her süre aralığına düşen kişi sayısı ve grup içindeki payı</caption>
+              <thead><tr><th scope="col">Süre (dk)</th><th scope="col">Evren</th><th scope="col">Örneklem</th></tr></thead>
+              <tbody id="histogram-tablo"></tbody>
+            </table>
+          </details>
+        </div>
+      </div>
+      <p class="lesson-limit">Her çekilişte bir kişi en fazla bir kez seçilir. “Yeni örneklem çek” sıradaki belirlenmiş çekilişe geçer. Bu atölyede evrenin tamamını biliyoruz. Saha araştırmasında örnekleme çerçevesi eksik olabilir veya seçilen kişiler yanıt vermeyebilir.</p>
+    </section>
+
+    <section class="lesson-explanation">
+      <h2>Yanlılık ve örnekleme değişkenliği</h2>
+      <p><strong>Evren</strong> hakkında konuşmak istediğin topluluk, <strong>örneklem</strong> ölçtüğün alt kümedir. <strong>Basit rastgele örneklemede</strong> aynı büyüklükteki her alt kümenin seçilme olasılığı eşittir. İki rastgele çekilişin ortalaması yine de farklı çıkabilir. Bu, örnekleme değişkenliğidir.</p>
+      <p><strong>Orantılı tabakalı örneklemede</strong> evreni örtüşmeyen gruplara ayırır, her gruptan evrendeki payına uygun sayıda kişiyi rastgele seçersin. <strong>Kolayda örneklemede</strong> ulaşabildiğin kişileri seçersin. Merkezden seçilenler çeperi hiç temsil etmediği için örneklem büyüse bile bu kapsama açığı sürer.</p>
+      <p>Kategorilerin sıklığını karşılaştırmak için ayrı çubuklar kullanılır. <strong>Histogram</strong> ise sayısal ölçeği komşu aralıklara böler. Burada aralıklar eşit genişlikte. 10 dakika, 0–&lt;10 aralığına değil 10–&lt;20 aralığına girer. Örneklem ile evrenin büyüklükleri farklı olduğundan çubuklar yüzde üzerinden karşılaştırılır.</p>
+    </section>
+
+    <section class="lesson-lab" id="ozet" aria-labelledby="ozet-baslik">
+      <h2 id="ozet-baslik">Bir yolculuk uzarsa</h2>
+      <p>Beş yolculuğun sonuncusu beklenmedik biçimde uzuyor. Ortalama, ortanca ve açıklığın ne yönde değişeceğini tahmin et, sonra süreyi artır.</p>
+      <div class="lesson-workbench">
+        <div class="lesson-controls">
+          <div>
+            <label for="son-sure">Son yolculuk (dk)</label>
+            <span data-setting id="sure-gosterge" aria-hidden="true">20 dk</span>
+            <input type="range" id="son-sure" min="20" max="90" step="5" value="20">
+          </div>
+        </div>
+        <div class="lesson-output">
+          <p class="stat-values" id="bes-sure"></p>
+          <dl class="lesson-metrics" aria-live="polite">
+            <div><dt>Ortalama</dt><dd id="ozet-ort"></dd></div>
+            <div><dt>Ortanca (medyan)</dt><dd id="ozet-medyan"></dd></div>
+            <div><dt>Açıklık</dt><dd id="ozet-aciklik"></dd></div>
+          </dl>
+        </div>
+      </div>
+      <p class="lesson-limit">Ortalama toplamın gözlem sayısına bölümüdür. Ortanca, sıralanmış listedeki ortadaki değerdir. Gözlem sayısı çiftse ortadaki ikisinin ortalaması alınır. Açıklık en büyük ve en küçük değerin farkıdır.</p>
+    </section>
+
+    <section class="lesson-explanation" id="sinama">
+      <h2>Kendini sına</h2>
+      <details class="lesson-question"><summary>Merkezde 80 kişiye sordum. Bu, kenti temsil eden rastgele 20 kişiye göre her zaman daha iyi mi?</summary><p>Hayır. Merkezden çekiliş daha az değişken olabilir, fakat çeper hiç kapsanmadığı için kent ortalamasını sistematik olarak düşük tahmin eder.</p></details>
+      <details class="lesson-question"><summary>Bir yolculuk süresini 20 dakikadan 90 dakikaya çıkarınca hangi özet aynı kalır?</summary><p>Ortanca 16 dakika kalır, çünkü sıralamadaki üçüncü gözlem değişmez. Ortalama 16’dan 30’a, açıklık 8’den 78’e çıkar.</p></details>
+      <details class="lesson-question"><summary>Bir işletmede bekleme süresi ve memnuniyet düzeyi ölçülüyor. Bunları nasıl gösterirsin?</summary><p>Bekleme süresini eşit aralıklı bir histogramla gösterebilirsin. Memnuniyet düzeyinde cevap kategorilerini sırayla yerleştirip her biri için ayrı çubuk kullanırsın.</p></details>
+    </section>
+
+    <section class="lesson-explanation">
+      <h2>Bundan sonra</h2>
+      <ul>
+        <li><a href="onsart.html#olasilik-istatistik">Olasılık ve İstatistik dizisi</a> ile olasılık ve çıkarıma ilerle.</li>
+        <li><a href="normal-dagilim.html">Normal Dağılım</a> dersinde dağılımın merkezi ve yayılımını karşılaştır.</li>
+        <li><a href="hipotez-testi-ve-guven-araligi.html">Hipotez Testi ve Güven Aralığı</a> ile örneklemden yapılan tahminin belirsizliğini incele.</li>
+      </ul>
+      <h2>Kaynaklar</h2>
+      <ul>
+        <li><a href="https://openstax.org/books/introductory-statistics-2e/pages/1-2-data-sampling-and-variation-in-data-and-sampling">OpenStax · Data, Sampling, and Variation in Data and Sampling</a></li>
+        <li><a href="https://openstax.org/books/introductory-statistics-2e/pages/2-5-measures-of-the-center-of-the-data">OpenStax · Measures of the Center of the Data</a></li>
+        <li><a href="https://online.stat.psu.edu/stat200/Lesson01">Penn State · Collecting Data</a></li>
+      </ul>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const byId = (id) => document.getElementById(id);
+      const format = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 1 });
+      const signed = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 1, signDisplay: "exceptZero" });
+      const percent = new Intl.NumberFormat("tr-TR", { style: "percent", maximumFractionDigits: 1 });
+      const minutes = (n) => format.format(n) + " dk";
+      const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
+
+      const district = (isOuter, times, copies) => Array.from({ length: copies }, () =>
+        times.map((time) => ({ time, isOuter })),
+      ).flat();
+      const center = district(false, [8, 10, 12, 14, 16, 18, 20], 12);
+      const outer = district(true, [22, 26, 30, 34, 38, 42], 6);
+      const population = [...center, ...outer];
+      const referenceMean = mean(population.map(({ time }) => time));
+      const method = byId("yontem");
+      const size = byId("orneklem-n");
+      const finalTime = byId("son-sure");
+      let draw = 1;
+
+      function randomFrom(seed) {
+        let state = seed;
+        return () => {
+          state = (state + 0x6D2B79F5) | 0;
+          let mixed = Math.imul(state ^ (state >>> 15), state | 1);
+          mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61);
+          return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function sample(records, count, random) {
+        const remaining = records.slice();
+        // Kısmi Fisher–Yates karıştırmasıyla geri koymadan seç.
+        for (let i = 0; i < count; i++) {
+          const chosen = i + Math.floor(random() * (remaining.length - i));
+          [remaining[i], remaining[chosen]] = [remaining[chosen], remaining[i]];
+        }
+        return remaining.slice(0, count);
+      }
+
+      const starts = [0, 10, 20, 30, 40];
+      const bucketCount = (records, from) =>
+        records.filter(({ time }) => time >= from && time < from + 10).length;
+      const populationCounts = starts.map((from) => bucketCount(population, from));
+
+      function renderSampling() {
+        const n = Number(size.value);
+        const random = randomFrom(draw);
+        const outerQuota = Math.round(n * outer.length / population.length);
+        let selected;
+        if (method.value === "tabakali") {
+          selected = [...sample(center, n - outerQuota, random), ...sample(outer, outerQuota, random)];
+        } else {
+          selected = sample(method.value === "kolayda" ? center : population, n, random);
+        }
+        const sampleMean = mean(selected.map(({ time }) => time));
+        const outerCount = selected.filter(({ isOuter }) => isOuter).length;
+        byId("n-gosterge").textContent = n + " kişi";
+        byId("orneklem-ort").textContent = minutes(sampleMean);
+        byId("orneklem-fark").textContent = signed.format(sampleMean - referenceMean) + " dk";
+        byId("ceper-payi").textContent = percent.format(outerCount / n);
+        byId("orneklem-durum").textContent =
+          `${draw}. çekilişte ${n - outerCount} merkez, ${outerCount} çeper kaydı. Örneklem ortalaması ${minutes(sampleMean)}.`;
+
+        const bars = [];
+        const rows = [];
+        for (const [i, from] of starts.entries()) {
+          const popCount = populationCounts[i];
+          const count = bucketCount(selected, from);
+          const popShare = popCount / population.length;
+          const sampleShare = count / n;
+          const label = `${from}–&lt;${from + 10}`;
+          bars.push(`<div class="stat-bin">
+            <span class="stat-bin-label">${label}</span>
+            <div class="stat-bars">
+              <div class="stat-rail"><div class="stat-bar" style="width:${100 * popShare}%"></div></div>
+              <div class="stat-rail"><div class="stat-bar stat-bar--sample" style="width:${100 * sampleShare}%"></div></div>
+            </div>
+            <span class="stat-shares">${percent.format(popShare)} / ${percent.format(sampleShare)}</span>
+          </div>`);
+          rows.push(`<tr><th scope="row">${label}</th><td>${popCount} · ${percent.format(popShare)}</td><td>${count} · ${percent.format(sampleShare)}</td></tr>`);
+        }
+        byId("histogram").innerHTML = bars.join("");
+        byId("histogram-tablo").innerHTML = rows.join("");
+      }
+
+      function renderSummary() {
+        const last = Number(finalTime.value);
+        const values = [12, 14, 16, 18, last];
+        byId("sure-gosterge").textContent = minutes(last);
+        byId("bes-sure").textContent = values.join(" · ") + " dk";
+        byId("ozet-ort").textContent = minutes(mean(values));
+        byId("ozet-medyan").textContent = minutes(values[2]);
+        byId("ozet-aciklik").textContent = minutes(last - values[0]);
+      }
+
+      byId("evren-ort").textContent = minutes(referenceMean);
+      byId("orneklem-kontrolleri").addEventListener("input", renderSampling);
+      byId("yeni-orneklem").addEventListener("click", () => {
+        draw++;
+        renderSampling();
+      });
+      finalTime.addEventListener("input", renderSummary);
+      window.addEventListener("pageshow", () => {
+        renderSampling();
+        renderSummary();
+      });
+      renderSampling();
+      renderSummary();
+    })();
+  </script>
+</body>
+</html>

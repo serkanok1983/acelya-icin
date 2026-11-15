@@ -42,6 +42,15 @@ eq(new Set(D.yollar.map((y) => y.id)).size, D.yollar.length, "yol kimlikleri tek
 ok(D.onsart.length >= 8 && D.yollar.length >= 11, "en az 8 önşart dizisi ve 11 yol");
 for (const id of ["uygulamali-matematik", "teorik-matematik", "temel-fizik", "temel-kimya", "dil-ve-yazi"]) ok(onsartIds.has(id), `önşart dizisi var: ${id}`);
 for (const id of ["bilgisayar-muhendisi", "elektrik-elektronik-muhendisi", "genetik-muhendisi", "endustri-muhendisi", "hekim", "mimar", "hukukcu"]) ok(D.yollar.some((y) => y.id === id), `yol var: ${id}`);
+const electiveIds = ["edebiyat-cozumleme", "sinema-cozumleme", "dusunce-tarihi"];
+eq(Array.from(D.yollar.filter((y) => y.elective), (y) => y.id), electiveIds, "seçmeli yollar ayrı ve üçü de tanımlı");
+const statistics = D.onsart.find((seq) => seq.id === "olasilik-istatistik");
+eq(statistics.stages[0].items[0], "veri-ve-ornekleme", "istatistik veri ve örneklemeyle başlıyor");
+for (const id of ["hekim", "iktisatci", "psikolog"]) {
+  const track = D.yollar.find((y) => y.id === id);
+  ok(track.onsart.includes(statistics.id) && track.stages.some((stage) => stage.items[0] === "veri-ve-ornekleme"),
+    `${id}: ortak istatistik basamağı önşart ve yol üzerinden açılır`);
+}
 const usedPlanned = new Set();
 for (const t of [...D.onsart, ...D.yollar]) {
   ok(t.title && t.summary && t.icon && t.stages.length >= 2, `${t.id}: başlık, özet, simge, en az iki basamak`);
@@ -115,6 +124,20 @@ if (process.argv.includes("--browser")) {
       ok((await page.locator(".sub-head").count()) >= 15, `${width}: ara başlıklar görünüyor`);
       eq(await page.locator(".guide-card").count(), 2, `${width}: iki rehber kartı`);
       if (width === 1280) {
+        const unfindable = await page.evaluate(() => {
+          const search = document.getElementById("searchInput");
+          const results = document.getElementById("menuBody");
+          const links = Array.from(results.querySelectorAll(".menu-card"), (card) => card.getAttribute("href"));
+          const missing = links.filter((href) => {
+            search.value = href.replace(/\.html$/, "");
+            search.dispatchEvent(new Event("input"));
+            return !results.querySelector(`a.menu-card[href="${CSS.escape(href)}"]`);
+          });
+          search.value = "";
+          search.dispatchEvent(new Event("input"));
+          return missing;
+        });
+        eq(unfindable, [], "katalogdaki her sayfa aramadan doğrudan açılır");
         await page.locator(".menu-card").first().hover();
         await page.mouse.wheel(0, 900);
         await page.waitForFunction(() => document.querySelector(".menu-header").getBoundingClientRect().bottom < 0);
@@ -261,6 +284,59 @@ if (process.argv.includes("--browser")) {
       ok(await page.locator('#psikolog input[data-done="anatomi-ve-fizyoloji"]').isChecked(), `${width}: aynı ders öteki yolda da işaretli`);
       const sw = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       ok(sw <= 1, `${width}: yatay taşma yok (${sw})`);
+
+      await page.goto(`${base}/ogrenme-yollari.html#sinema-cozumleme`);
+      const electiveGroup = page.getByRole("region", { name: "Seçmeli Yollar" });
+      eq(await electiveGroup.locator("details.yol").count(), electiveIds.length, `${width}: seçmeli yollar ayrı bölümde`);
+      const cinemaPath = electiveGroup.locator("#sinema-cozumleme");
+      ok(await cinemaPath.evaluate((detail) => detail.open), `${width}: seçmeli yol doğrudan açıldı`);
+      const firstFilm = cinemaPath.locator('a[href="sinema-dili-ve-kurgu.html?yol=sinema-cozumleme"]');
+      await firstFilm.click();
+      const route = page.getByRole("navigation", { name: "Seçmeli yol" });
+      await route.waitFor();
+      eq(await route.getByRole("link", { name: /Önceki/ }).count(), 0, `${width}: ilk derste önceki yok`);
+      await route.getByRole("link", { name: /Sıradaki · Sinemada Mizansen/ }).click();
+      await page.waitForURL("**/sinemada-mizansen.html?yol=sinema-cozumleme");
+      eq(await route.getByRole("link", { name: /Önceki · Sinema Dili ve Kurgu/ }).getAttribute("href"),
+        "sinema-dili-ve-kurgu.html?yol=sinema-cozumleme", `${width}: önceki derse dönüş`);
+      await route.getByRole("link", { name: "Sinema ve Film Çözümleme" }).click();
+      const finalFilm = cinemaPath.getByRole("link", { name: /Film Çözümleme Atölyesi/ });
+      await finalFilm.click();
+      await route.getByRole("link", { name: "Sinema ve Film Çözümleme" }).waitFor();
+      eq(await route.getByRole("link", { name: /Sıradaki/ }).count(), 0, `${width}: son basamak tamamlanma işareti olmadan açılır`);
+      await page.goto(`${base}/index.html`);
+      await input.fill("film cozumleme atolyesi");
+      await cards.filter({ hasText: "Film Çözümleme Atölyesi" }).click();
+      await page.waitForURL(`${base}/film-cozumleme-atolyesi.html`);
+      eq(await route.count(), 0, `${width}: aramadan ders doğrudan açılır`);
+
+      await page.goto(`${base}/onsart.html#olasilik-istatistik`);
+      const firstStats = page.locator("#olasilik-istatistik .yol-list a").first();
+      eq(await firstStats.getAttribute("href"), "veri-ve-ornekleme.html", `${width}: dizinin ilk basamağı`);
+      await firstStats.click();
+      const method = page.getByLabel("Örnekleme yöntemi");
+      eq(await page.locator("#evren-ort").textContent(), "19,4 dk", `${width}: ağırlıklı evren ortalaması`);
+      await method.selectOption("kolayda");
+      await page.getByLabel("Örneklem büyüklüğü").press("End");
+      ok((await page.locator("#orneklem-durum").textContent()).includes("80 merkez, 0 çeper"), `${width}: kolayda çekilişte kapsama açığı`);
+      await method.selectOption("tabakali");
+      ok((await page.locator("#orneklem-durum").textContent()).includes("56 merkez, 24 çeper"), `${width}: tabaka payları`);
+      await page.getByRole("button", { name: "Yeni örneklem çek" }).click();
+      ok((await page.locator("#orneklem-durum").textContent()).includes("2. çekilişte 56 merkez, 24 çeper"), `${width}: yeni çekilişte tabakalı pay sabit`);
+      await page.getByText("Dağılımı tablo olarak aç", { exact: true }).click();
+      const frequencies = await page.locator("#histogram-tablo tr").evaluateAll((rows) =>
+        rows.reduce((totals, row) => totals.map((sum, i) => sum + parseInt(row.cells[i + 1].textContent, 10)), [0, 0]));
+      eq(frequencies, [120, 80], `${width}: histogram evren ve örneklem sayıları`);
+      await page.getByLabel("Son yolculuk (dk)").press("End");
+      eq(await page.locator("#ozet-ort").textContent(), "30 dk", `${width}: uç değer ortalamayı değiştirir`);
+      eq(await page.locator("#ozet-medyan").textContent(), "16 dk", `${width}: ortanca sabit`);
+      eq(await page.locator("#ozet-aciklik").textContent(), "78 dk", `${width}: açıklık`);
+      ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `${width}: istatistik dersinde yatay taşma yok`);
+      await page.goto(`${base}/index.html`);
+      await input.fill("betimsel istatistik");
+      await cards.filter({ hasText: "Veri ve Örnekleme" }).click();
+      await page.waitForURL(`${base}/veri-ve-ornekleme.html`);
+      ok(await page.getByRole("heading", { name: "Veri ve Örnekleme", exact: true }).isVisible(), `${width}: istatistiğe aramadan doğrudan erişim`);
       await ctx.close();
     }
     // Depolama kapalıyken de çalışır.

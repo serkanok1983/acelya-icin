@@ -13,7 +13,7 @@
  */
 
 // --- generated:version ---
-const VERSION = "acelya-35ac86631b";
+const VERSION = "acelya-e2c0f649ab";
 // --- end:version ---
 
 // --- generated:core ---
@@ -374,6 +374,7 @@ const PAGES = [
   "uslup-istatistigi-ve-yazar-tanima.html",
   "uzay-kosucusu.html",
   "vektorler.html",
+  "veri-ve-ornekleme.html",
   "veri-yapilari.html",
   "veritabanlari.html",
   "yapi-fizigi.html",
@@ -704,6 +705,7 @@ const DIGESTS = [
   "shared/digest/uslup-istatistigi-ve-yazar-tanima.js",
   "shared/digest/uzay-kosucusu.js",
   "shared/digest/vektorler.js",
+  "shared/digest/veri-ve-ornekleme.js",
   "shared/digest/veri-yapilari.js",
   "shared/digest/veritabanlari.js",
   "shared/digest/yapi-fizigi.js",

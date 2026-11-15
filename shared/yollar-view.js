@@ -48,15 +48,16 @@
   const exists = (slug) => Object.prototype.hasOwnProperty.call(CATALOG, slug);
   const shortTitle = (t) => String(t).split(":")[0].trim();
 
-  function itemHtml(slug, n, progress) {
+  function itemHtml(slug, n, progress, electiveId) {
     if (exists(slug)) {
       const info = CATALOG[slug];
       const meta = [info.level, info.minutes ? `~${info.minutes} dk` : ""].filter(Boolean).join(" · ");
       const done = Boolean(progress[slug]);
+      const href = `${slug}.html${electiveId ? `?yol=${encodeURIComponent(electiveId)}` : ""}`;
       return `<li class="yol-item${done ? " is-done" : ""}">
         <span class="yol-n" aria-hidden="true">${n}</span>
-        <a class="yol-link" href="${esc(slug)}.html" title="${esc(info.title)}"><span class="yol-name">${esc(shortTitle(info.title))}</span><span class="yol-meta">${esc(meta)}</span></a>
-        <label class="yol-check"><input type="checkbox" data-done="${esc(slug)}"${done ? " checked" : ""}><span>Tamamlandı</span></label>
+        <a class="yol-link" href="${esc(href)}" title="${esc(info.title)}"><span class="yol-name">${esc(shortTitle(info.title))}</span><span class="yol-meta">${esc(meta)}</span></a>
+        <label class="yol-check"><input type="checkbox" data-done="${esc(slug)}" aria-label="${esc(`${shortTitle(info.title)} · Tamamlandı`)}"${done ? " checked" : ""}><span>Tamamlandı</span></label>
       </li>`;
     }
     const title = DATA.planned[slug] || slug;
@@ -92,7 +93,7 @@
         (s) => `<div class="yol-stage">
           <h3>${esc(s.title)}</h3>
           ${s.note ? `<p class="yol-note">${esc(s.note)}</p>` : ""}
-          <ol class="yol-list">${s.items.map((slug) => itemHtml(slug, ++n, progress)).join("")}</ol>
+          <ol class="yol-list">${s.items.map((slug) => itemHtml(slug, ++n, progress, track.elective ? track.id : "")).join("")}</ol>
         </div>`,
       )
       .join("");
@@ -104,13 +105,13 @@
         .filter(Boolean)
         .map((o) => `<a class="yol-chip" href="onsart.html#${esc(o.id)}">${esc(shortTitle(o.title))}</a>`)
         .join("");
-      pre = `<div class="yol-stage yol-stage--pre"><h3>Önşart</h3><p class="yol-note">Bu yola girmeden önce, eksik hissettiğin temeli buradan tamamla.</p><div class="yol-chips">${chips}</div></div>`;
+      pre = `<div class="yol-stage yol-stage--pre"><h3>Önerilen temel</h3><p class="yol-note">Gerek duyduğun konulara bu dizilerden dönebilirsin.</p><div class="yol-chips">${chips}</div></div>`;
     }
     let post = "";
     if (mode === "onsart") {
       const users = DATA.yollar.filter((y) => (y.onsart || []).includes(track.id));
       if (users.length)
-        post = `<div class="yol-stage yol-stage--pre"><h3>Bu temeli isteyen yollar</h3><div class="yol-chips">${users
+        post = `<div class="yol-stage yol-stage--pre"><h3>Bu temelden yararlanan yollar</h3><div class="yol-chips">${users
           .map((y) => `<a class="yol-chip" href="ogrenme-yollari.html#${esc(y.id)}">${esc(y.title)}</a>`)
           .join("")}</div></div>`;
     }
@@ -126,18 +127,29 @@
     </details>`;
   }
 
-  function render() {
-    const progress = readProgress();
-    const tracks = mode === "onsart" ? DATA.onsart : DATA.yollar;
-    const openId = decodeURIComponent(location.hash.slice(1));
-    const openSet = new Set([...root.querySelectorAll("details.yol[open]")].map((d) => d.id));
-    if (openId) openSet.add(openId);
+  function trackList(tracks, label, progress, openSet) {
     const jump = tracks
       .map((t) => `<a class="yol-chip" href="#${esc(t.id)}">${esc(t.icon)} ${esc(shortTitle(t.title))}</a>`)
       .join("");
-    root.innerHTML =
-      `<nav class="yol-jump" aria-label="${mode === "onsart" ? "Önşart dizileri" : "Öğrenme yolları"}">${jump}</nav>` +
+    return `<nav class="yol-jump" aria-label="${esc(label)}">${jump}</nav>` +
       tracks.map((t) => trackHtml(t, progress, openSet.has(t.id) ? t.id : null)).join("");
+  }
+
+  function render() {
+    const progress = readProgress();
+    const openId = decodeURIComponent(location.hash.slice(1));
+    const openSet = new Set([...root.querySelectorAll("details.yol[open]")].map((d) => d.id));
+    if (openId) openSet.add(openId);
+    if (mode === "onsart") {
+      root.innerHTML = trackList(DATA.onsart, "Önşart dizileri", progress, openSet);
+      return;
+    }
+    root.innerHTML = [
+      { id: "secmeli-yollar", label: "Seçmeli Yollar", tracks: DATA.yollar.filter((y) => y.elective) },
+      { id: "meslek-yollari", label: "Meslek Yolları", tracks: DATA.yollar.filter((y) => !y.elective) },
+    ].map(({ id, label, tracks }) =>
+      `<section class="yol-group" aria-labelledby="${id}"><h2 id="${id}">${label}</h2>${trackList(tracks, label, progress, openSet)}</section>`,
+    ).join("");
   }
 
   root.addEventListener("change", (e) => {
@@ -148,10 +160,10 @@
     else delete p[box.dataset.done];
     writeProgress(p);
     const slug = box.dataset.done;
+    const trackId = box.closest("details.yol").id;
     const scrollY = window.scrollY;
     render();
-    // Aynı ders birden çok yolda olabilir; odağı ilk eşine geri ver, sayfa yerinden oynamasın.
-    const again = root.querySelector(`input[data-done="${CSS.escape(slug)}"]`);
+    const again = document.getElementById(trackId)?.querySelector(`input[data-done="${CSS.escape(slug)}"]`);
     if (again) again.focus({ preventScroll: true });
     window.scrollTo(0, scrollY);
   });
