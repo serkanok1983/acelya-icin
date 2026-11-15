@@ -5,17 +5,17 @@ window.ACELYA_DIGEST["dusunurler-dizini"] = {
   "field": "Felsefe ve Mantık",
   "level": "Lise–Lisans",
   "minutes": 20,
-  "tagline": "Felsefe tarihi derslerine bir düşünürün adı, kavramı veya dönemi üzerinden ulaş. Bağlantılar ilgili argüman haritasını açar.",
+  "tagline": "Felsefe tarihi, iktisat, sosyal bilimler ve siyaset kuramında düşünürleri ad, kavram veya dönemle ara. İlgili dersin savına doğrudan git.",
   "hook": "İbn Sînâ’yı başka bir kitapta Avicenna adıyla görebilirsin. Bir metni bulmak ve ona yönelen düşünceyi anlamak için iki adı aynı iz üzerinden aramayı dene.",
   "bigIdea": "Dizin bir sorudan ilgili savı bulmaya yardım eder. Bir düşünürü anlamak için metin, gerekçe ve ona yönelen itiraz ayrı ayrı okunabilir.",
   "story": [
-    "Bir düşünür farklı alfabe ve yayın geleneklerinde başka adlarla yer alabilir. Dizin, aynı kişinin yaygın adlarını ilgili derse bağlar. Yazımda Türkçe karakterleri kullanabilir veya işaretsiz yazabilirsin. Bir kartın bağlantısı seni kişinin ele alındığı argüman haritasına götürür.",
-    "Dönem filtresi kişinin bütün yaşamını sınıflamak yerine, sitede konunun ele alındığı dersi gösterir. Kronoloji, metinlerin birbirini etkileyebileceği sırayı anlamaya yardım eder. Yöntem benzerliği tek başına doğrudan etkiyi ortaya koymaz. Bu ilişki için metin ve aktarım koşulları da incelenebilir."
+    "Bir düşünür farklı alfabe ve yayın geleneklerinde başka adlarla yer alabilir. Dizin yaygın adları aynı kişide toplar. Locke örneğinde bilgi ve siyasi rıza farklı derslerde ele alınır. Adı aradığında iki bağlantıyı da görürsün. Bir kavram yazdığında karta o kavramın işlendiği ders bağlantısı kalır.",
+    "Dönem filtresi ders bağlantısının tarihsel bağlamıyla çalışır. Örneğin İbn Haldun ve Toynbee aynı tarih felsefesi dersinde incelenir ve farklı dönemler altında bulunabilir. Kronoloji metinlerin sırasını verir. Etkiyi açıklamak için metni, aracılık eden kaynakları ve tarihsel koşulları birlikte incelemek gerekir."
   ],
   "core": [
     {
       "heading": "Adla başla",
-      "body": "Aramada bir kişinin soyadı, bilinen farklı yazımı veya kavramını kullanabilirsin. Örneğin Avicenna ve İbn Sînâ aynı kişiye ait kartı getirir. Dizin aramasında birden çok sözcük yazarsan hepsi o kartla ilişkili olmalıdır."
+      "body": "Aramada bir kişinin soyadı, bilinen farklı yazımı veya kavramını kullanabilirsin. Örneğin Avicenna ve İbn Sînâ aynı kişiye ait kartı getirir. Dizin aramasında birden çok sözcük yazarsan hepsi aynı ders bağlantısıyla ilişkili olmalıdır."
     },
     {
       "heading": "Dönemi daralt",
@@ -48,6 +48,13 @@ window.ACELYA_DIGEST["dusunurler-dizini"] = {
         "do": "Hume’u ara ve Empiristler bağlantısını aç. Sav veya yaklaşım alanına bak.",
         "observe": "Hume ve tümevarım seçili gelir. İtiraz ve olası yanıtı açarak savın sınırını görebilirsin.",
         "explain": "Dizin bir kişiden, ders içindeki tartışma ve gerekçeye geçiş sağlar."
+      },
+      {
+        "title": "Bir kişi, iki ders",
+        "predict": "Locke’un yönetim ve deneyim soruları aynı bağlantıyı mı açar?",
+        "do": "Önce Locke’u, ardından «locke rıza» sözcüklerini ara. Karttaki bağlantıları karşılaştır.",
+        "observe": "Ad tek başına iki dersi gösterir. Rıza eklendiğinde Toplum Sözleşmesi ve Siyaset Felsefesi kalır.",
+        "explain": "Dizin aynı kişiyi tek kartta gösterir ve hangi kavramın hangi derste işlendiğini ayırır."
       }
     ]
   },
@@ -154,6 +161,11 @@ window.ACELYA_DIGEST["dusunurler-dizini"] = {
       "href": "sokrates-oncesi-felsefe.html",
       "title": "Sokrates Öncesi Felsefe",
       "why": "Bir kaynak fragmanı ve sonraki yorum arasındaki farkla başla"
+    },
+    {
+      "href": "toplum-sozlesmesi-ve-siyaset-felsefesi.html",
+      "title": "Toplum Sözleşmesi ve Siyaset Felsefesi",
+      "why": "Locke’un rıza ve yetki sorununu başka sözleşme kuramlarıyla karşılaştır"
     },
     {
       "href": "analitik-felsefe.html",

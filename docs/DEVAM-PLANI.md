@@ -503,7 +503,8 @@ masaüstü ana sayfada tam sayfa kaydırma. **U6 tamam (15 Kasım)** · Psikoloj
 275 derslik menü, Psikolog ve Hekim yolları, ana sayfa araması ve kontrast düzeltmeleri.
 **U7 tamam (15 Kasım)** · Felsefe tarihi üzerine 14 ders ve 56 kayıtlı Düşünürler Dizini.
 Menü 290 sayfaya ulaştı. “Büyük Fikir” etiketi gece modunda koyu zemin ve açık yazıyla güncellendi.
-**Sırada U8**, sonra U9–U10 ve genel değerlendirme.
+**U8 tamam (15 Kasım)** · Sosyal bilimler ve siyaset kuramı için 10 ders, 300 derslik menü ve 104 düşünürlük dizin.
+**Sırada U9**, sonra U10 ve genel değerlendirme.
 Devir için `docs/DEVIR-NOTU.md`.
 
 İlk istek (kayıt için):

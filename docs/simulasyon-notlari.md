@@ -2213,3 +2213,27 @@ argüman haritasındaki ilgili sav seçilir. Dizin ve 14 yeni dersin tamamına K
 ve sıfırlama davranışını, dizin filtrelerini ve iki ekran boyutunu denetler. Aynı test eski bir Keşif Defteri stili
 önbelleğe konduğunda çevrimiçi açılışta güncel stilin geldiğini ve çevrimdışı erişimde güncel kopyanın kullanıldığını
 kontrol eder.
+
+
+## 15 Kasım 2026 — U8 · Sosyal bilimler ve siyaset kuramı
+
+| Ders | İncelenen örnek |
+|---|---|
+| Toplum Sözleşmesi ve Siyaset Felsefesi | Kurgusal su kurulunda yetki, rıza, güvenlik ve denetim |
+| İbn Haldun ve Tarih Felsefesi | Benzer baskıya farklı yanıt veren iki limanın kaydı |
+| Klasik İktisat | Kurgusal iki üreticide fırsat maliyeti ve değişim aralığı |
+| Marx ve Marksist Gelenek | Gerekli emek, artı emek ve iki farklı payda |
+| Sosyolojinin Kurucuları | Bir toplulukta kural, anlam, grup biçimi ve aidiyet |
+| Neoklasik İktisat, Keynes ve Karşıtları | Bir fiyat sinyali, işlem kuralları ve sabit fiyatlı harcama çarpanı |
+| Frankfurt Okulu ve Habermas | Yayın düzeni, duyuru, söz hakkı ve kamusal gerekçe |
+| 20. Yüzyıl Sosyal Kuramı | Aynı toplantıda rol, işlev, sunum, kaynak, eylem ve iletişim |
+| Antropoloji Kuramları ve Etnografik Yöntem | Bir törenin gözlemi, tarihsel izi, anlatı sürümü ve katılımcı yorumu |
+| Modern Siyaset Kuramı | Kamusal merkezde erişim, özgürlük, edinim ve adalet ölçütleri |
+
+Derslerin tamamında kaynaklar, sav ve itiraz haritaları, kendini sınama soruları ve Keşif Defteri var.
+Dizine 48 yeni kişi ve dört ortak düşünür için yeni ders bağlantıları eklendi. 104 kişi 24 derste toplam
+108 bağlantıyla gösterilir. Arama sözcükleri ve dönem filtresi birlikte aynı ders bağlantısına uygulanır.
+
+`scripts/check-g-u8.mjs --browser` iki ekran boyutunda argüman haritalarını, üç iktisat modelindeki sınır değerlerini
+ve dizinden ilgili savın açılmasını denetler. U7 testi kendi derslerine giden 56 bağlantıyı ve önceki filtre
+sonuçlarını doğrulamayı sürdürür.

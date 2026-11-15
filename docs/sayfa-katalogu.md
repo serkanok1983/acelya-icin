@@ -295,7 +295,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `kuyruk-kurami-ve-benzetim` — Kuyruk Kuramı ve Benzetim (sayfa başlığı: Kuyruk Kuramı ve Benzetim) · Lise–Lisans
 - `kalite-kontrol-ve-istatistiksel-surec-kontrolu` — Kalite Kontrol ve İstatistiksel Süreç Kontrolü (sayfa başlığı: Kalite Kontrol ve İstatistiksel Süreç Kontrolü) · Lise–Lisans
 
-## İnsan ve Toplum (37)
+## İnsan ve Toplum (47)
 
 ### Zihin ve Davranış
 
@@ -343,6 +343,25 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `oyun-kurami` — Oyun Kuramı (sayfa başlığı: Oyun Kuramı: Nash Dengesi, Minimaks ve İşbirliğinin Evrimi) · Lise–Lisans
 - `uluslararasi-iliskiler` — Uluslararası İlişkiler (sayfa başlığı: Uluslararası İlişkiler: İşbirliği, Güvenlik ve Güç Modelleri) · Lise–Lisans
 
+### Siyaset Kuramı
+
+- `toplum-sozlesmesi-ve-siyaset-felsefesi` — Toplum Sözleşmesi ve Siyaset Felsefesi (sayfa başlığı: Toplum Sözleşmesi ve Siyaset Felsefesi) · Lise–Lisans
+- `modern-siyaset-kurami` — Modern Siyaset Kuramı (sayfa başlığı: Modern Siyaset Kuramı) · Lise–Lisans
+
+### İktisat Düşüncesi
+
+- `klasik-iktisat` — Klasik İktisat: Üretim, Ticaret ve Bölüşüm (sayfa başlığı: Klasik İktisat: Üretim, Ticaret ve Bölüşüm) · Lise–Lisans
+- `marx-ve-marksist-gelenek` — Marx ve Marksist Gelenek (sayfa başlığı: Marx ve Marksist Gelenek) · Lise–Lisans
+- `neoklasik-iktisat-keynes-ve-karsitlari` — Neoklasik İktisat, Keynes ve Karşıtları (sayfa başlığı: Neoklasik İktisat, Keynes ve Karşıtları) · Lise–Lisans
+
+### Sosyal Kuram ve Antropoloji
+
+- `ibn-haldun-ve-tarih-felsefesi` — İbn Haldun ve Tarih Felsefesi (sayfa başlığı: İbn Haldun ve Tarih Felsefesi) · Lise–Lisans
+- `sosyolojinin-kuruculari` — Sosyolojinin Kurucuları (sayfa başlığı: Sosyolojinin Kurucuları) · Lise–Lisans
+- `frankfurt-okulu-ve-habermas` — Frankfurt Okulu ve Habermas (sayfa başlığı: Frankfurt Okulu ve Habermas) · Lise–Lisans
+- `yirminci-yuzyil-sosyal-kurami` — 20. Yüzyıl Sosyal Kuramı (sayfa başlığı: 20. Yüzyıl Sosyal Kuramı) · Lise–Lisans
+- `antropoloji-kuramlari` — Antropoloji Kuramları ve Etnografik Yöntem (sayfa başlığı: Antropoloji Kuramları ve Etnografik Yöntem) · Lise–Lisans
+
 ### Hukuk
 
 - `hukuka-giris` — Hukuka Giriş (sayfa başlığı: Hukuka Giriş: Norm, Kaynak, Normlar Hiyerarşisi ve Yorum) · Lise
@@ -376,7 +395,7 @@ Ana menüdeki gruplar, ara başlıklar ve sayfalar (`scripts/build-sayfa-katalog
 - `karsilastirmali-dinler-tarihi` — Karşılaştırmalı Dinler Tarihi (sayfa başlığı: Karşılaştırmalı Dinler Tarihi: Tanımlar, Gelenekler, Kutsal Metinler, Sayılar) · Lise–Lisans
 - `din-felsefesi-ve-kelam` — Din Felsefesi ve Kelâm (sayfa başlığı: Din Felsefesi ve Kelâm: Tanrı Argümanları, Kötülük, İman ve Akıl) · Lise–Lisans
 
-### Felsefe Tarihi
+### Düşünce Tarihi
 
 - `dusunurler-dizini` — Düşünürler Dizini (sayfa başlığı: Düşünürler Dizini) · Lise–Lisans
 

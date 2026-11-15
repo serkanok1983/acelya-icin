@@ -94,6 +94,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "antropoloji-kuramlari": {
+    "title": "Antropoloji Kuramları ve Etnografik Yöntem",
+    "tagline": "Bir töreni var olan işleviyle, geçmişiyle, anlatı yapısıyla veya ona verilen anlamla incele. Dört antropolojik yaklaşımı karşılaştır.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
   "aristoteles-felsefesi": {
     "title": "Aristoteles: Neden, Değişim ve Erdem",
     "tagline": "Bir kabı açıklamak için kil, biçim, çömlekçi ve kullanım neyi söyler? Aristoteles’in dört nedenini, olanak ve erdem kavramlarıyla birlikte sına.",
@@ -467,7 +474,7 @@ window.ACELYA_CATALOG = {
   },
   "dusunurler-dizini": {
     "title": "Düşünürler Dizini",
-    "tagline": "Felsefe tarihi derslerine bir düşünürün adı, kavramı veya dönemi üzerinden ulaş. Bağlantılar ilgili argüman haritasını açar.",
+    "tagline": "Felsefe tarihi, iktisat, sosyal bilimler ve siyaset kuramında düşünürleri ad, kavram veya dönemle ara. İlgili dersin savına doğrudan git.",
     "field": "Felsefe ve Mantık",
     "level": "Lise–Lisans",
     "minutes": 20
@@ -661,6 +668,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "frankfurt-okulu-ve-habermas": {
+    "title": "Frankfurt Okulu ve Habermas",
+    "tagline": "Bir yayın düzeni neyi görünür kılıyor ve kamusal karar nasıl sınanabiliyor? Eleştirel kuram ile iletişim ve kamusal alan tartışmasını karşılaştır.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
   "freud-ve-klasik-psikanaliz": {
     "title": "Freud ve Klasik Psikanaliz",
     "tagline": "Bir gecikmenin gözlemi ile ona yüklenen anlamı ayır. Freud’un bilinçdışı, savunma, aktarım ve yapısal model kavramlarını kurgusal konuşma üzerinden karşılaştır.",
@@ -821,6 +835,13 @@ window.ACELYA_CATALOG = {
     "field": "Zihin ve Davranış",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "ibn-haldun-ve-tarih-felsefesi": {
+    "title": "İbn Haldun ve Tarih Felsefesi",
+    "tagline": "Bir hanedan, bir kurum ve bir uygarlık aynı tarihsel birim midir? İbn Haldun, Vico, Hegel, Spengler ve Toynbee ile açıklama ölçeğini değiştir.",
+    "field": "Tarih ve Toplum",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "ideal-gaz": {
     "title": "İdeal Gaz: Çarpışma Kaosundan Basit Bir Yasa",
@@ -1017,6 +1038,13 @@ window.ACELYA_CATALOG = {
     "field": "Fizik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "klasik-iktisat": {
+    "title": "Klasik İktisat: Üretim, Ticaret ve Bölüşüm",
+    "tagline": "Üretkenlik ile fırsat maliyeti aynı şeyi mi ölçer? Smith, Ricardo, Malthus ve Mill’i okuyup iki üreticinin ticaret koşullarını hesapla.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "koch-kar-tanesi": {
     "title": "Koch Kar Tanesi: Alan ve Sınır",
@@ -1228,6 +1256,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "marx-ve-marksist-gelenek": {
+    "title": "Marx ve Marksist Gelenek",
+    "tagline": "Bir iş gününü, üretim ilişkilerini ve rızanın nasıl kurulduğunu farklı düzeylerde oku. Marx, Engels ve Gramsci’nin kavramlarını sına.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
   "matris-donusumleri": {
     "title": "Matris Dönüşümleri: Dört Sayıyla Düzlemi Yeniden Çizmek",
     "tagline": "Dört sayı düzlemi döndürür, gerer, aynalar ya da bir doğruya ezer. Determinantı alan olarak ölç, AB ile BA'yı karşılaştır, yalnızca uzayan okları tara, aynı özdeğerleri Markov zincirinde bul.",
@@ -1291,6 +1326,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "modern-siyaset-kurami": {
+    "title": "Modern Siyaset Kuramı",
+    "tagline": "Kamusal eylem, özgürlük, hak sahipliği ve bakım nasıl farklı adalet soruları doğurur? Dokuz düşünürün ölçütlerini bir örnek üzerinden sınamayı dene.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 55
+  },
   "mol-ve-stokiyometri": {
     "title": "Mol ve Stokiyometri: Atomları Tartarak Saymak",
     "tagline": "Bir kavanoz vidayı saymadan saymaktan Avogadro sabitine, formülden molar kütleye, yakma analizinden formüle, sınırlayıcı bileşenden çözelti ve gaz hacmine: kimyanın sayma birimini adım adım kurun.",
@@ -1339,6 +1381,13 @@ window.ACELYA_CATALOG = {
     "field": "Sanat ve Müzik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "neoklasik-iktisat-keynes-ve-karsitlari": {
+    "title": "Neoklasik İktisat, Keynes ve Karşıtları",
+    "tagline": "Fiyat, toplam harcama, dağınık bilgi ve kurumlar hangi sorulara yanıt verir? Yedi iktisadi yaklaşımı ve basit bir çarpanı incele.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 50
   },
   "newton-hareket-yasalari": {
     "title": "Newton Yasaları: Kuvvet, Kütle ve İvme",
@@ -1753,6 +1802,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 22
   },
+  "sosyolojinin-kuruculari": {
+    "title": "Sosyolojinin Kurucuları",
+    "tagline": "Bir okul kulübü neden aynı kuralları izler? Comte, Durkheim, Weber, Simmel ve Tönnies ile veri birimini ve açıklama düzeyini değiştir.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 45
+  },
   "sozdizimi-ve-dilbilgisi": {
     "title": "Söz Dizimi ve Dil Bilgisi: Sözcüğün ve Cümlenin Mimarisi",
     "tagline": "Tek bir Türkçe sözcük on bir parçadan oluşabilir, bir cümle iki ayrı ağaca oturabilir. Biçimbirimleri böl, öbekleri sına, dünya dillerinin sözcük dizimini 1376 dillik veriyle karşılaştır.",
@@ -1857,6 +1913,13 @@ window.ACELYA_CATALOG = {
     "field": "İnsan Bedeni",
     "level": "Lise–Lisans",
     "minutes": 50
+  },
+  "toplum-sozlesmesi-ve-siyaset-felsefesi": {
+    "title": "Toplum Sözleşmesi ve Siyaset Felsefesi",
+    "tagline": "Güvenlik, rıza, ortak yarar ve yetki sınırı aynı kurumu nasıl değiştirir? Machiavelli’den Montesquieu’ye beş siyasi gerekçeyi karşılaştır.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 45
   },
   "tork-denge": {
     "title": "Tork ve Denge: Kaldıraçtan Kayan Merdivene",
@@ -2004,6 +2067,13 @@ window.ACELYA_CATALOG = {
     "field": "Yer ve Uzay",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "yirminci-yuzyil-sosyal-kurami": {
+    "title": "20. Yüzyıl Sosyal Kuramı",
+    "tagline": "Aynı toplantı nasıl hem yüz yüze etkileşim hem kurum hem iletişim dizisi olabilir? Altı sosyal kuramcının gözlem birimlerini karşılaştır.",
+    "field": "Toplum ve Ekonomi",
+    "level": "Lise–Lisans",
+    "minutes": 50
   },
   "yol-bulma-algoritmalari": {
     "title": "Yol Bulma: En Kısa Neyin Kısası?",

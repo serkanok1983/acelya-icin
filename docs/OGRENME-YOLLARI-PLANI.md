@@ -150,7 +150,7 @@ Foucault, Derrida, Deleuze).
 Dersler dönemlere göre “Dil, Felsefe ve Sanat” grubunda toplandı. Düşünürler Dizini bu derslerde ele alınan 56
 düşünürü ad, kavram ve dönem filtresiyle bulur. Kartlardan dersin ilgili savına gidilir.
 
-### U8 · Sosyal bilimler ve siyaset kuramı (~10 ders)
+### U8 · Sosyal bilimler ve siyaset kuramı (10 ders, tamamlandı)
 Toplum sözleşmesi ve siyaset felsefesi (Machiavelli, Hobbes, Locke, Rousseau, Montesquieu) · İbn Haldun ve tarih
 felsefesi (Vico, Hegel, Spengler, Toynbee) · klasik iktisat (Smith, Ricardo, Malthus, Mill) · Marx ve Marksist gelenek
 · sosyolojinin kurucuları (Comte, Durkheim, Weber, Simmel, Tönnies) · neoklasik iktisat, Keynes ve karşıtları (Marshall,
@@ -158,8 +158,9 @@ Keynes, Hayek, Friedman, Avusturya okulu, kurumsal iktisat) · Frankfurt Okulu v
 (Parsons, Merton, Goffman, Bourdieu, Giddens, Luhmann) · antropoloji kuramları (Malinowski, Boas, Lévi-Strauss, Geertz)
 · modern siyaset kuramı (Arendt, Schmitt, Berlin, Rawls, Nozick, Taylor, MacIntyre, feminist kuram).
 
-Menü: düşünce tarihi sayfaları için gerekirse ayrı bir **Düşünce Tarihi** grubu (yaklaşık 30 sayfa), böylece "Dil,
-Felsefe ve Sanat" ile "İnsan ve Toplum" şişmez.
+Yeni dersler “İnsan ve Toplum” grubundaki “Siyaset Kuramı”, “İktisat Düşüncesi” ve “Sosyal Kuram ve
+Antropoloji” ara başlıklarında. Düşünürler Dizini 104 kişiyi 24 derse bağlar. Locke, Hegel, Mill ve Lévi-Strauss
+her biri tek kartta iki dersle yer alır. Menü 300 kayıt içerir.
 
 ## 6. Okuma ve izleme yetkinliği: edebiyat ve sinema ekolleri (kullanıcı isteği, 13 Kasım 2026)
 

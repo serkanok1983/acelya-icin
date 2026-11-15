@@ -11,7 +11,7 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (dal `main`).
 - **Canlı:** https://serkanok1983.github.io/acelya-icin (GitHub Pages, `gh-pages` dalı; GitHub Actions kullanılmıyor,
   yayın yerelden elle yapılır, bkz. §5).
-- **Boyut (15 Kasım, U7 sonrası):** 290 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
+- **Boyut (15 Kasım, U8 sonrası):** 300 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
   `onsart.html`. Menüde 10 grup.
 
 ## 2. Kullanıcının kalıcı kuralları (bağlayıcı; birebir sözleri)
@@ -145,7 +145,9 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   Arama ve okunurluk regresyonları `scripts/check-yollar.mjs --browser` kapsamındadır.
 - U7 ile 14 felsefe tarihi dersi ve 56 kişilik Düşünürler Dizini eklendi. Menü 290 kayıt içeriyor.
   `scripts/check-g-u7.mjs --browser` argüman haritalarını, dizin aramasını ve Keşif Defteri’nin stil önbelleğini sınar.
-- Bir sonraki iş **U8**.
+- U8 ile 10 sosyal bilim ve siyaset kuramı dersi eklendi. Düşünürler Dizini 104 kişi ve 24 ders içeriyor.
+  `scripts/check-g-u8.mjs --browser` yeni dersleri, üç iktisat modelini ve ortak düşünürlerin bağlantılarını sınar.
+- Bir sonraki iş **U9**.
 
 ### Tamamlanan turlar (hepsi yayında)
 - **U1** — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
@@ -167,15 +169,16 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   ilgili argüman haritasını açar. Gece modunda “Büyük Fikir” etiketi koyu zemin ve açık turkuaz yazıyla gösterilir.
   Keşif Defteri stili çevrimiçiyken yeniden doğrulanır, bağlantı kesildiğinde önbellekten alınır.
 
+- **U8** — toplum sözleşmesi, tarih felsefesi, iktisat düşüncesi, Marksist gelenek, klasik ve modern sosyal kuram,
+  Frankfurt Okulu, antropoloji ve modern siyaset kuramı. Yeni dersler “İnsan ve Toplum” grubunda. Dizin 48 yeni
+  düşünür ile dört ortak düşünürün ek bağlantısını içerir.
+
 Tur ayrıntıları `docs/simulasyon-notlari.md` belgesinde.
 
 ### Sıradaki işler (sırasıyla; ayrıntılı kapsam `docs/OGRENME-YOLLARI-PLANI.md` §3, §5, §6, §7)
-1. **U8** — sosyal bilimler ve siyaset kuramı (~10 ders).
-   Düşünürler Dizini’ne ilgili yeni kayıtlar ve ders bağlantıları eklenir. Menü dengesi gerektirirse ayrı
-   “Düşünce Tarihi” grubu açılabilir.
-2. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
+1. **U9** — edebiyat kuramı ve çözümleme (~10 ders): akımlar (Türk edebiyatı dahil), eleştiri kuramları, karakter
    ve karakter psikolojisi, anlatım teknikleri, retorik, dram, türler, şiir, uyarlama.
-3. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
+2. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
    U9–U10 için "Edebiyat ve Sinema" grubu açılabilir.
 5. **Genel değerlendirme:** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
    (`docs/OGRENME-YOLLARI-PLANI.md` §7).

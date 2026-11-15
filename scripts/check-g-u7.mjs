@@ -48,8 +48,10 @@ for (const slug of slugs) {
   }
 }
 const directory = readFileSync(resolve(root, "dusunurler-dizini.html"), "utf8");
-const connections = [...directory.matchAll(/href="([a-z-]+)\.html\?sav=([a-z-]+)#argumanlar"/gu)];
-eq(connections.length, 56, "56 düşünür bağlantısı");
+const connections = [...directory.matchAll(/href="([a-z-]+)\.html\?sav=([a-z-]+)#argumanlar"/gu)]
+  .filter(([, slug]) => optionsBySlug.has(slug));
+const directorySize = [...directory.matchAll(/class="history-person"/gu)].length;
+eq(connections.length, 56, "U7 derslerinin 56 düşünür bağlantısı korunuyor");
 for (const [, slug, key] of connections) {
   ok(optionsBySlug.get(slug)?.includes(key), `dizindeki bağlantı: ${slug} → ${key}`);
 }
@@ -128,7 +130,7 @@ if (process.argv.includes("--browser")) {
         const period = page.getByLabel("Dersin dönemi");
         const cards = page.locator(".history-person:visible");
         const headings = () => cards.locator("h2").allTextContents();
-        eq(await cards.count(), 56, `${width} bütün düşünürler başlangıçta görünür`);
+        eq(await cards.count(), directorySize, `${width} bütün düşünürler başlangıçta görünür`);
         for (const term of ["Avicenna", "İbn Sînâ", "IBN SINA"]) {
           await search.fill(term);
           eq(await headings(), ["İbn Sînâ"], `${width} farklı yazımla ${term}`);
@@ -142,7 +144,7 @@ if (process.argv.includes("--browser")) {
         eq(await cards.count(), 0, `${width} eşleşmeyen dönem`);
         ok((await page.locator("#dusunur-durum").textContent()).startsWith("Sonuç bulunamadı"), `${width} sonuç yok durumu`);
         await page.getByRole("button", { name: "Temizle" }).click();
-        await page.waitForFunction(() => document.querySelectorAll(".history-person:not([hidden])").length === 56);
+        await page.waitForFunction((size) => document.querySelectorAll(".history-person:not([hidden])").length === size, directorySize);
         eq(await search.inputValue(), "", `${width} temizle aramayı sıfırlar`);
         eq(await period.inputValue(), "", `${width} temizle dönemi sıfırlar`);
         await search.fill("Hume");
