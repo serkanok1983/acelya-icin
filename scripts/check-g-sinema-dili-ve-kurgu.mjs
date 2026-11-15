@@ -38,10 +38,13 @@ ok(!/body\s*\{[^}]*overflow\s*:\s*hidden/.test(html) && !/type="number"/.test(ht
 for (const l of ["perspektif-ve-simetri", "mercek-isinlari", "algi-psikolojisi", "anlati-yapisi-ve-edebiyat-cozumlemesi"]) ok(html.includes(`href="${l}.html"`), "komşu bağlantı " + l);
 for (const l of ["perspektif-ve-simetri", "mercek-isinlari", "algi-psikolojisi"]) ok(fs.existsSync(new URL(`../${l}.html`, import.meta.url)), "komşu sayfa var " + l);
 ok(/AcelyaTouch\?\.guard\(c, \(x, y\) => ctHitIdx/.test(html) && /AcelyaTouch\?\.guard\(c, \(x, y\) => edHit/.test(html), "sürüklenen tuvallerde dokunma koruması");
-// Dış bağlantılar yalnız izinli arşiv alanına ve yalnız kamu malı filmlere
+// Film bağlantıları yalnız izinli arşiv alanına ve yalnız kamu malı filmlere
 const ext = [...html.matchAll(/href="(https?:[^"]+)"/g)].map((m) => m[1]);
-ok(ext.length === 4 && ext.every((u) => u.startsWith("https://archive.org/details/")), "dış bağlantılar yalnız archive.org: " + ext.join(" "));
-ok(!/Potyomkin|Potemkin/.test(ext.join(" ")) && !/keaton|birth.?of.?a.?nation/i.test(ext.join(" ")), "korunan filmlere bağlantı yok");
+const fiaf = "https://www.fiafnet.org/pages/E-Resources/Digital-Statement-part-III.html";
+ok(ext.includes(fiaf), "gösterim hızı için FIAF kaynağı");
+const films = ext.filter((url) => url !== fiaf);
+ok(films.length === 4 && films.every((url) => url.startsWith("https://archive.org/details/")), "film bağlantıları yalnız archive.org: " + films.join(" "));
+ok(!/Potyomkin|Potemkin/.test(films.join(" ")) && !/keaton|birth.?of.?a.?nation/i.test(films.join(" ")), "korunan filmlere bağlantı yok");
 
 /* ── 1 · Kare hızı ── */
 {

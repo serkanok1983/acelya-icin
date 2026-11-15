@@ -339,7 +339,7 @@
             <span class="digest-mark">Keşif Defteri</span>
             ${meta.map((m) => `<span class="digest-sep" aria-hidden="true">·</span><span>${esc(m)}</span>`).join("")}
           </p>
-          <h2 id="kesif-defteri-baslik">${esc(d.title)}</h2>
+          <h2 id="kesif-defteri-baslik" tabindex="-1">${esc(d.title)}</h2>
           ${d.tagline ? `<p class="digest-tagline">${sanitize(d.tagline)}</p>` : ""}
           <div class="digest-tools">
             <button type="button" class="digest-btn digest-btn--done" id="digestDoneBtn" aria-pressed="false">Bu konuyu tamamladım</button>
@@ -447,7 +447,7 @@
     });
   }
 
-  function addTopbarButton() {
+  function addTopbarButton(section) {
     const actions = document.querySelector(".app-topbar-actions");
     if (!actions || document.getElementById("appDigestBtn")) return;
     const btn = document.createElement("button");
@@ -458,7 +458,9 @@
     btn.setAttribute("aria-label", "Keşif Defteri'ne git");
     btn.textContent = "📖";
     btn.addEventListener("click", () => {
-      document.getElementById("kesif-defteri")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      section.querySelector("#kesif-defteri-baslik").focus({ preventScroll: true });
+      const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+      section.scrollIntoView({ behavior, block: "start" });
     });
     actions.insertBefore(btn, actions.firstChild);
   }
@@ -484,7 +486,7 @@
     bindDone(section, d.slug || pageId);
     bindListen(section, d);
     bindQuiz(section, d.slug || pageId);
-    addTopbarButton();
+    addTopbarButton(section);
     ensureMeta(d);
     window.dispatchEvent(new CustomEvent("acelya-digest-ready", { detail: { slug: d.slug || pageId } }));
   }

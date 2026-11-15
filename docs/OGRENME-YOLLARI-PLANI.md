@@ -213,3 +213,10 @@ ve ses izi bulunmayan arşiv kopyalarında 17 bölümü zaman damgası, gözlem 
    sayfaları, sayfa içi gezinme (sekmeler, uzun sayfalar), Keşif Defteri okunurluğu, telefon ve tablet deneyimi,
    erişilebilirlik (klavye, ekran okuyucu, renk karşıtlığı), açık/koyu tema tutarlılığı, yükleme hızı ve sayfa
    boyutları, sayfalar arası görsel tutarlılık. Çıktı: bulgular ve düzeltme turu planı.
+
+### İkinci düzeltme turunda seçmeli yollar
+
+Seçmeli yollar, bir konuyu baştan öğrenmek isteyenler için pedagojik bir sıra sunar. Her ders ana katalogdan
+ve aramadan doğrudan açılabilir. Yol seçimi, önşartlar ve tamamlanma durumu erişimi kısıtlamaz. Kullanıcı
+ister sırayı izler, ister bir konuyu merakından açıp okur. Yol ve kart metinleri kullanıcının öğrenci
+olduğunu veya belirli bir düzeyde başladığını varsaymaksızın gereken önbilgiyi açıklar.

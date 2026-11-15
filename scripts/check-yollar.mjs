@@ -161,6 +161,37 @@ if (process.argv.includes("--browser")) {
       eq(await cards.count(), total, `${width}: temizlenince tam katalog`);
       eq(await page.getByRole("status").textContent(), "", `${width}: temizlenince sonuç sayacı kalkıyor`);
 
+      await input.pressSequentially("sinema");
+      const arts = page.locator('#categoryTabs [data-cat="beseri"]');
+      await arts.click();
+      const resultCount = await cards.count();
+      const film = cards.last();
+      await film.scrollIntoViewIfNeeded();
+      const filmHref = await film.getAttribute("href");
+      const resultScroll = await page.evaluate(() => window.scrollY);
+      if (width === 375) ok(resultScroll > 0, "telefon: arama listesi kaydırıldı");
+      await film.click();
+      await page.waitForURL(`${base}/${filmHref}`);
+      await page.goBack();
+      eq(await input.inputValue(), "sinema", `${width}: tarayıcı geri dönüşünde arama sorgusu`);
+      eq(await arts.getAttribute("aria-pressed"), "true", `${width}: geri dönüşte kategori`);
+      eq(await cards.count(), resultCount, `${width}: geri dönüşte aynı sonuçlar`);
+      const restoredScroll = await page.evaluate(() => window.scrollY);
+      ok(Math.abs(restoredScroll - resultScroll) <= 16, `${width}: arama listesinin kaydırma konumu`);
+      ok(await film.evaluate((card) => {
+        const { top, bottom } = card.getBoundingClientRect();
+        return top < window.innerHeight && bottom > 0;
+      }), `${width}: açılan kart dönüşte görünümde`);
+
+      await film.click();
+      await page.waitForURL(`${base}/${filmHref}`);
+      await page.getByRole("link", { name: "Ana sayfaya dön" }).click();
+      await page.waitForURL(`${base}/index.html`);
+      eq(await input.inputValue(), "sinema", `${width}: üst çubuktan dönüşte arama sorgusu`);
+      eq(await arts.getAttribute("aria-pressed"), "true", `${width}: üst çubuktan dönüşte kategori`);
+      await input.press("Escape");
+      await page.getByRole("button", { name: "Tümü", exact: true }).click();
+
       await page.locator("#themeBtn").click();
       eq(await page.locator("html").getAttribute("data-theme"), "light", `${width}: ana sayfa gündüz teması`);
       const allFilter = page.getByRole("button", { name: "Tümü", exact: true });
@@ -205,6 +236,11 @@ if (process.argv.includes("--browser")) {
       }), ["rgb(128, 242, 221)", "rgb(18, 53, 52)"], `${width}: Büyük Fikir gece renkleri`);
       const ratio = await contrast(idea);
       ok(ratio >= 4.5, `${width}: Büyük Fikir kontrastı ${ratio.toFixed(2)}:1`);
+      const digestButton = page.getByRole("button", { name: "Keşif Defteri'ne git" });
+      await digestButton.press("Enter");
+      eq(await page.evaluate(() => document.activeElement.id), "kesif-defteri-baslik", `${width}: defter başlığına odaklanıyor`);
+      await page.keyboard.press("Tab");
+      eq(await page.evaluate(() => document.activeElement.id), "digestDoneBtn", `${width}: Tab defterde ilerliyor`);
 
       await page.goto(`${base}/onsart.html#temel-fizik`);
       eq(await page.locator("details.yol").count(), D.onsart.length, `${width}: önşart dizileri çizildi`);

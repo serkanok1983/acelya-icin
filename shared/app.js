@@ -393,6 +393,20 @@ window.AcelyaTouch = (function () {
       </div>`;
     document.body.prepend(bar);
 
+    const home = bar.querySelector(".app-home");
+    if (document.referrer && history.length > 1) {
+      const referrer = new URL(document.referrer);
+      const catalogPath = new URL(".", home.href).pathname;
+      if (referrer.origin === location.origin &&
+          (referrer.pathname === catalogPath || referrer.pathname === new URL(home.href).pathname)) {
+        home.addEventListener("click", (event) => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          history.back();
+        });
+      }
+    }
+
     if (isGame) {
       document.getElementById("appPauseBtn").addEventListener("click", togglePause);
       document.getElementById("appSoundBtn").addEventListener("click", () => {

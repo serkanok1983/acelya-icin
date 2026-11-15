@@ -33,7 +33,7 @@ ok((html.match(/<p class="hint">/g) || []).length === 1, "tek hint");
 ok(html.includes("Tıbbi tavsiye değildir.") && html.includes("tanı koymaz"), "tıbbi uyarı");
 ok(html.includes("hiçbir şey kaydetmez") && html.includes("kaydetmez, göndermez"), "soluk sayımı hiçbir şey saklamıyor");
 for (const l of ["kalp-dolasim.html", "sinir-hucresi-ve-aksiyon-potansiyeli.html", "homeostaz-ve-geri-besleme.html", "basit-makineler.html", "tork-denge.html", "mercek-isinlari.html", "optik-yansima-kirilma.html", "ideal-gaz.html"]) ok(html.includes(`href="${l}"`) && fs.existsSync(new URL(`../${l}`, import.meta.url)), "komşu bağlantı " + l);
-for (const m of html.matchAll(/href="(https?:[^"]+)"/g)) ok(/^(https:\/\/openstax\.org\/|https:\/\/en\.wikipedia\.org\/wiki\/|http:\/\/hyperphysics\.phy-astr\.gsu\.edu\/)/.test(m[1]), "kaynak izinli alanda: " + m[1]);
+for (const m of html.matchAll(/href="(https?:[^"]+)"/g)) ok(/^(https:\/\/openstax\.org\/|https:\/\/en\.wikipedia\.org\/wiki\/|http:\/\/hyperphysics\.phy-astr\.gsu\.edu\/|https:\/\/pmc\.ncbi\.nlm\.nih\.gov\/articles\/)/.test(m[1]), "kaynak izinli alanda: " + m[1]);
 
 /* ── 1 · Kaldıraç ── */
 {

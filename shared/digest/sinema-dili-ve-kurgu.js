@@ -143,7 +143,7 @@ window.ACELYA_DIGEST["sinema-dili-ve-kurgu"] = {
   ],
   glossary: [
     { term: "Plan (çekim)", definition: "İki kesme arasında kesintisiz akan kareler dizisi; ölçeği çerçevenin insan bedenini nerede kestiğiyle adlandırılır." },
-    { term: "Kare hızı", definition: "Kameranın ya da projektörün saniyede çektiği veya gösterdiği kare sayısı; sesli filmin standardı 24 kare/s'dir." },
+    { term: "Kare hızı", definition: "Saniyede çekilen veya gösterilen kare sayısı. 24 kare/s sesli sinemada yerleşmiş bir gösterim hızıdır. Çekim ve gösterim hızları değişebilir." },
     { term: "Obtüratör açısı", definition: "Kamerada her kare süresinin ne kadarında filmin ışık aldığını gösteren açı; 180°, kare süresinin yarısı demektir." },
     { term: "Görünür hareket (beta, phi)", definition: "Ayrı konumlarda sırayla beliren durağan uyarıcıların hareket ediyor gibi algılanması; phi, nesnesiz saf hareket duygusudur." },
     { term: "Eylem çizgisi", definition: "Bir sahnedeki iki kişiden ya da hareket yönünden geçen hayalî çizgi; 180° kuralı kameraları onun tek yanında tutar." },

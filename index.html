@@ -1179,9 +1179,10 @@
       ];
 
       let activeCategory = "all";
-      let renderedQuery = "";
       const searchInput = document.getElementById("searchInput");
       const searchStatus = document.getElementById("searchStatus");
+      const categoryTabs = document.getElementById("categoryTabs");
+      history.scrollRestoration = "manual";
 
       const totalPages = MENU.reduce((n, c) => n + c.items.length, 0);
       document.getElementById("statsBar").innerHTML =
@@ -1202,7 +1203,6 @@
       }
 
       function renderTabs() {
-        const wrap = document.getElementById("categoryTabs");
         for (const { id, icon, title } of [{ id: "all", title: "Tümü" }, ...MENU]) {
           const button = document.createElement("button");
           button.type = "button";
@@ -1210,7 +1210,7 @@
           button.textContent = icon ? icon + " " + title : title;
           button.dataset.cat = id;
           button.addEventListener("click", () => setCategory(id));
-          wrap.appendChild(button);
+          categoryTabs.appendChild(button);
         }
       }
 
@@ -1295,7 +1295,6 @@
         const visibleCategories = category ? [category] : MENU;
         const rawQuery = searchInput.value.trim();
         const query = normalizeSearch(rawQuery);
-        renderedQuery = rawQuery;
 
         if (rawQuery) {
           const terms = query ? [...new Set(query.split(" "))] : [];
@@ -1360,8 +1359,30 @@
           renderMenu();
         }
       });
+      function rememberMenu() {
+        try {
+          history.replaceState({
+            ...history.state,
+            acelyaMenu: {
+              query: searchInput.value,
+              category: activeCategory,
+              scrollTop: window.scrollY,
+              tabsLeft: categoryTabs.scrollLeft,
+            },
+          }, "");
+        } catch (_) {}
+      }
+
+      window.addEventListener("pagehide", rememberMenu);
       window.addEventListener("pageshow", () => {
-        if (searchInput.value.trim() !== renderedQuery) renderMenu();
+        const menu = history.state?.acelyaMenu;
+        if (!menu) return;
+        if (searchInput.value !== menu.query || activeCategory !== menu.category) {
+          searchInput.value = menu.query;
+          setCategory(menu.category);
+        }
+        categoryTabs.scrollLeft = menu.tabsLeft;
+        window.scrollTo(0, menu.scrollTop);
       });
 
       function initMenu() {
@@ -1374,27 +1395,14 @@
           } catch (_) {}
         }
         renderTabs();
-        setCategory("all");
-        bindMenuNavigation();
+        const menu = history.state?.acelyaMenu;
+        if (menu) searchInput.value = menu.query;
+        setCategory(menu?.category ?? "all");
       }
 
-      function bindMenuNavigation() {
-        const body = document.getElementById("menuBody");
-        if (!body || body.dataset.trackBound) return;
-        body.dataset.trackBound = "1";
-        body.addEventListener("click", (e) => {
-          const a = e.target.closest("a[href]");
-          if (!a) return;
-          e.preventDefault();
-          a.style.transition = "transform 0.15s ease, opacity 0.2s ease";
-          a.style.transform = "scale(0.96)";
-          a.style.opacity = "0.6";
-          const href = a.getAttribute("href") || "";
-          setTimeout(() => {
-            location.href = href;
-          }, 120);
-        });
-      }
+      document.getElementById("menuBody").addEventListener("click", (event) => {
+        if (event.target.closest("a.menu-card")) rememberMenu();
+      });
 
       const starCanvas = document.getElementById("starCanvas");
       const starCtx = starCanvas.getContext("2d");

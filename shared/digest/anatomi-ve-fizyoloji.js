@@ -182,7 +182,7 @@ window.ACELYA_DIGEST["anatomi-ve-fizyoloji"] = {
       ],
       answer: 1,
       explanation:
-        "FEV₁ ilk saniyeye aittir ve değişmez (1,95 L). Ölçülen FVC ise 4,10 L'den 3,00 L'ye iner; payda küçülünce oran büyür. Hacmin % 95'i bu modelde 4,79 s'de çıkar; spirometride en az altı saniye üflenmesinin bir nedeni budur.",
+        "FEV₁ ilk saniyeye aittir ve değişmez (1,95 L). Ölçülen FVC ise 4,10 L'den 3,00 L'ye iner. Payda küçülünce oran büyür. Hacmin %95'i bu modelde 4,79 s'de çıkar. Klinik ölçümün kabulünde hacmin plato yapması gibi sonlanma ölçütleri değerlendirilir.",
     },
     {
       question: "Hofstetter'in ortalama formülüyle (18,5 − 0,30 · yaş) 50 yaşındaki, kırma kusuru olmayan bir göz 25 cm'deki bir kitabı net görebilir mi?",
@@ -207,6 +207,7 @@ window.ACELYA_DIGEST["anatomi-ve-fizyoloji"] = {
     { title: "OpenStax · College Physics 2e, 9.6 Forces and Torques in Muscles and Joints", url: "https://openstax.org/books/college-physics-2e/pages/9-6-forces-and-torques-in-muscles-and-joints", note: "Örnek 9.4: elde 4,00 kg, biseps 470 N (ağırlığın 7,38 katı), eklem kuvveti 407 N; mekanik kazancın birden küçük oluşu ve hız (İngilizce, açık ders kitabı)." },
     { title: "OpenStax · Anatomy and Physiology 2e, 22.3 The Process of Breathing", url: "https://openstax.org/books/anatomy-and-physiology-2e/pages/22-3-the-process-of-breathing", note: "Boyle yasası ve diyafram, akciğer hacimleri ve kapasiteleri, ölü boşluk, soluk sayısı (İngilizce)." },
     { title: "OpenStax · College Physics 2e, 26.2 Vision Correction", url: "https://openstax.org/books/college-physics-2e/pages/26-2-vision-correction", note: "Miyop ve hipermetrop gözlük hesapları (−3,51 D ve 3,24 D); sade göz modeli için aynı kitabın 26.1 bölümü (İngilizce)." },
+    { title: "Graham ve ark. · ATS/ERS Spirometri Standardı (2019)", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC6794117/", note: "FVC ölçümünde sonlanma, kabul edilebilirlik ve tekrarlanabilirlik ölçütleri (İngilizce)." },
     { title: "Wikipedia · Spirometer", url: "https://en.wikipedia.org/wiki/Spirometer", note: "Soluk ölçümünün tarihi: Borelli 1681, Kentish 1813, Hutchinson 1846 ve vital kapasite (İngilizce)." },
   ],
   revision: "Kasım 2026",
