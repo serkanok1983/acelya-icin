@@ -156,6 +156,19 @@ if (process.argv.includes("--browser")) {
 
       const input = page.getByRole("searchbox", { name: "Ders ve oyun ara" });
       const cards = page.locator(".menu-card");
+      const picker = page.getByRole("combobox", { name: "Kategori", exact: true });
+      const isMobile = width <= 600;
+      const categoryButton = (id) => page.locator(`#categoryTabs [data-cat="${id}"]`);
+      const pickCategory = (id) => isMobile ? picker.selectOption(id) : categoryButton(id).click();
+      const expectCategory = async (id, message) => {
+        if (isMobile) eq(await picker.inputValue(), id, message);
+        else eq(await categoryButton(id).getAttribute("aria-pressed"), "true", message);
+      };
+      if (isMobile) {
+        ok(await picker.isVisible(), `${width}: kategori seçicisi görünür`);
+        eq(await picker.locator("option").count(), MENU.length + 1, `${width}: tüm seçenekler seçicide`);
+        ok(!(await categoryButton("mat").isVisible()), `${width}: kategori düğmeleri seçicinin altında çoğalmıyor`);
+      }
       for (const query of ["güneş sistemi", "GUNES   SISTEMI", "sistem güneş"]) {
         await input.fill(query);
         eq(await cards.first().getAttribute("href"), "gunes-sistemi.html", `${width}: "${query}" Güneş Sistemi’ni öne çıkarıyor`);
@@ -167,26 +180,38 @@ if (process.argv.includes("--browser")) {
         ok(await page.locator(`.menu-card[href="${href}"]`).count(), `${width}: "${query}" → ${href}`);
       }
       await input.fill("güneş sistemi");
-      const math = page.locator('#categoryTabs [data-cat="mat"]');
-      await math.focus();
-      await page.keyboard.press("Enter");
-      eq(await math.getAttribute("aria-pressed"), "true", `${width}: kategori klavyeyle seçildi`);
-      ok(await math.evaluate((el) => el === document.activeElement), `${width}: kategori odağı korunuyor`);
+      if (isMobile) {
+        await picker.focus();
+        await pickCategory("mat");
+        ok(await picker.evaluate((el) => el === document.activeElement), `${width}: kategori odağı korunuyor`);
+      } else {
+        const math = categoryButton("mat");
+        await math.press("Enter");
+        ok(await math.evaluate((el) => el === document.activeElement), `${width}: kategori odağı korunuyor`);
+      }
+      await expectCategory("mat", `${width}: kategori seçildi`);
       eq(await cards.count(), 0, `${width}: Matematik filtresinde Güneş Sistemi sonucu yok`);
-      ok((await page.getByRole("status").textContent()).includes("Matematik ·"), `${width}: arama kapsamı görünür`);
-      await page.getByRole("button", { name: "Tümü", exact: true }).click();
+      const status = page.getByRole("status");
+      ok((await status.textContent()).includes("Matematik ·"), `${width}: arama kapsamı görünür`);
+      const broaden = page.getByRole("button", { name: "Tüm kategorilerde ara" });
+      ok(await broaden.isVisible(), `${width}: boş sonuçta arama genişletilebilir`);
+      ok(await contrast(broaden) >= 4.5, `${width}: gece arama düğmesi okunuyor`);
+      await broaden.press("Enter");
+      await expectCategory("all", `${width}: aramayı genişletince Tümü etkin`);
+      eq(await input.inputValue(), "güneş sistemi", `${width}: aramayı genişletince sorgu korunuyor`);
+      ok(await status.evaluate((el) => el === document.activeElement), `${width}: odak sonuç durumuna geçiyor`);
       eq(await cards.first().getAttribute("href"), "gunes-sistemi.html", `${width}: filtre kaldırıldığında sorgu korunuyor`);
       await input.fill("zzqj bulunmayan-konu");
       eq(await cards.count(), 0, `${width}: karşılığı olmayan sorgu`);
       ok(await page.locator(".empty-search").isVisible(), `${width}: sonuç yokken açıklama görünür`);
+      eq(await broaden.count(), 0, `${width}: arama zaten tüm kategorilerde`);
       await input.press("Escape");
       eq(await input.inputValue(), "", `${width}: Escape aramayı temizliyor`);
       eq(await cards.count(), total, `${width}: temizlenince tam katalog`);
       eq(await page.getByRole("status").textContent(), "", `${width}: temizlenince sonuç sayacı kalkıyor`);
 
       await input.pressSequentially("sinema");
-      const arts = page.locator('#categoryTabs [data-cat="beseri"]');
-      await arts.click();
+      await pickCategory("beseri");
       const resultCount = await cards.count();
       const film = cards.last();
       await film.scrollIntoViewIfNeeded();
@@ -197,7 +222,7 @@ if (process.argv.includes("--browser")) {
       await page.waitForURL(`${base}/${filmHref}`);
       await page.goBack();
       eq(await input.inputValue(), "sinema", `${width}: tarayıcı geri dönüşünde arama sorgusu`);
-      eq(await arts.getAttribute("aria-pressed"), "true", `${width}: geri dönüşte kategori`);
+      await expectCategory("beseri", `${width}: geri dönüşte kategori`);
       eq(await cards.count(), resultCount, `${width}: geri dönüşte aynı sonuçlar`);
       const restoredScroll = await page.evaluate(() => window.scrollY);
       ok(Math.abs(restoredScroll - resultScroll) <= 16, `${width}: arama listesinin kaydırma konumu`);
@@ -211,17 +236,19 @@ if (process.argv.includes("--browser")) {
       await page.getByRole("link", { name: "Ana sayfaya dön" }).click();
       await page.waitForURL(`${base}/index.html`);
       eq(await input.inputValue(), "sinema", `${width}: üst çubuktan dönüşte arama sorgusu`);
-      eq(await arts.getAttribute("aria-pressed"), "true", `${width}: üst çubuktan dönüşte kategori`);
+      await expectCategory("beseri", `${width}: üst çubuktan dönüşte kategori`);
       await input.press("Escape");
-      await page.getByRole("button", { name: "Tümü", exact: true }).click();
+      await pickCategory("all");
 
       await page.locator("#themeBtn").click();
       eq(await page.locator("html").getAttribute("data-theme"), "light", `${width}: ana sayfa gündüz teması`);
-      const allFilter = page.getByRole("button", { name: "Tümü", exact: true });
-      await page.waitForFunction(() => {
-        const selected = document.querySelector('#categoryTabs [aria-pressed="true"]');
-        return getComputedStyle(selected).backgroundColor === "rgb(109, 40, 217)";
-      });
+      const allFilter = isMobile ? picker : categoryButton("all");
+      if (!isMobile) {
+        await page.waitForFunction(() => {
+          const selected = document.querySelector('#categoryTabs [aria-pressed="true"]');
+          return getComputedStyle(selected).backgroundColor === "rgb(109, 40, 217)";
+        });
+      }
       ok(await contrast(allFilter) >= 4.5, `${width}: gündüz etkin kategori okunuyor`);
       for (const label of ["Yolunu seç", "Temeli kur"]) {
         const ratio = await contrast(page.locator(".guide-card-cta").filter({ hasText: label }));
@@ -285,13 +312,22 @@ if (process.argv.includes("--browser")) {
       const sw = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       ok(sw <= 1, `${width}: yatay taşma yok (${sw})`);
 
-      await page.goto(`${base}/ogrenme-yollari.html#sinema-cozumleme`);
+      await page.goto(`${base}/ogrenme-yollari.html#secmeli-yollar`);
       const electiveGroup = page.getByRole("region", { name: "Seçmeli Yollar" });
       eq(await electiveGroup.locator("details.yol").count(), electiveIds.length, `${width}: seçmeli yollar ayrı bölümde`);
       const cinemaPath = electiveGroup.locator("#sinema-cozumleme");
+      ok(await cinemaPath.getByText("Sıradaki ders · Sinema Dili ve Kurgu", { exact: true }).isVisible(), `${width}: kapalı kartta sıradaki ders`);
+      await electiveGroup.getByRole("link", { name: /Sinema ve Film Çözümleme/ }).click();
+      const nextFilm = cinemaPath.locator("a.yol-next");
+      await nextFilm.waitFor();
       ok(await cinemaPath.evaluate((detail) => detail.open), `${width}: seçmeli yol doğrudan açıldı`);
-      const firstFilm = cinemaPath.locator('a[href="sinema-dili-ve-kurgu.html?yol=sinema-cozumleme"]');
-      await firstFilm.click();
+      eq(await nextFilm.getAttribute("href"), "sinema-dili-ve-kurgu.html?yol=sinema-cozumleme", `${width}: sıradaki ilk ders`);
+      const firstDone = cinemaPath.locator('input[data-done="sinema-dili-ve-kurgu"]');
+      await firstDone.check();
+      eq(await nextFilm.getAttribute("href"), "sinemada-mizansen.html?yol=sinema-cozumleme", `${width}: işaretlenince sıradaki ders güncellenir`);
+      await firstDone.uncheck();
+      eq(await nextFilm.getAttribute("href"), "sinema-dili-ve-kurgu.html?yol=sinema-cozumleme", `${width}: işaret kaldırılınca önceki ders önerilir`);
+      await nextFilm.click();
       const route = page.getByRole("navigation", { name: "Seçmeli yol" });
       await route.waitFor();
       eq(await route.getByRole("link", { name: /Önceki/ }).count(), 0, `${width}: ilk derste önceki yok`);

@@ -311,6 +311,35 @@
         margin-top: 1rem;
       }
 
+      .category-picker {
+        display: none;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 0.65rem;
+        margin-top: 0.65rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .category-picker select {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0.35rem 0.65rem;
+        border: 1px solid var(--border-hover);
+        border-radius: var(--radius-sm);
+        background: var(--bg-deep);
+        color: var(--text);
+        color-scheme: dark;
+        font: inherit;
+        font-size: 1rem;
+      }
+
+      [data-theme="light"] .category-picker select {
+        color-scheme: light;
+      }
+
       .tab {
         padding: 0.4rem 0.85rem;
         font: inherit;
@@ -433,9 +462,30 @@
 
       .empty-search {
         text-align: center;
-        padding: 3rem 1rem;
+        padding: 1.2rem 1rem 1.6rem;
         color: var(--text-muted);
         font-size: 0.95rem;
+      }
+
+      .empty-search p {
+        margin: 0;
+      }
+
+      .empty-search-action {
+        margin-top: 0.75rem;
+        min-height: 44px;
+        padding: 0.5rem 0.9rem;
+        border: 0;
+        border-radius: var(--radius-sm);
+        color: var(--guide-cta-ink);
+        background: var(--guide-cta-bg);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .empty-search-action:hover {
+        filter: brightness(0.94);
       }
 
       .stats {
@@ -588,23 +638,12 @@
         outline-offset: 3px;
       }
 
-      /* Telefonda başlık kısa kalsın: kategoriler tek sıra yatay şerit,
-         tanıtım kutusu yalnız başlık ve düğme. */
       @media (max-width: 600px) {
         .category-tabs {
-          flex-wrap: nowrap;
-          overflow-x: auto;
-          scrollbar-width: none;
-          margin-inline: -4px;
-          padding: 2px 4px 6px;
-          -webkit-overflow-scrolling: touch;
-        }
-        .category-tabs::-webkit-scrollbar {
           display: none;
         }
-        .category-tabs .tab {
-          flex: none;
-          white-space: nowrap;
+        .category-picker {
+          display: grid;
         }
         .guide-card-copy > span {
           display: none;
@@ -748,9 +787,13 @@
             />
           </div>
           <div class="category-tabs" id="categoryTabs" role="group" aria-label="Kategori filtresi"></div>
+          <label class="category-picker" for="categorySelect">
+            <span>Kategori</span>
+            <select id="categorySelect" aria-controls="menuBody" autocomplete="off"></select>
+          </label>
         </header>
         <main class="menu-body">
-          <div class="search-status" id="searchStatus" role="status"></div>
+          <div class="search-status" id="searchStatus" role="status" tabindex="-1"></div>
           <div id="menuBody"></div>
         </main>
       </div>
@@ -1181,6 +1224,7 @@
       const searchInput = document.getElementById("searchInput");
       const searchStatus = document.getElementById("searchStatus");
       const categoryTabs = document.getElementById("categoryTabs");
+      const categorySelect = document.getElementById("categorySelect");
       history.scrollRestoration = "manual";
 
       const totalPages = MENU.reduce((n, c) => n + c.items.length, 0);
@@ -1201,27 +1245,32 @@
           .replace(/"/g, "&quot;");
       }
 
-      function renderTabs() {
+      function renderCategoryControls() {
         for (const { id, icon, title } of [{ id: "all", title: "Tümü" }, ...MENU]) {
+          const label = icon ? icon + " " + title : title;
           const button = document.createElement("button");
           button.type = "button";
           button.className = "tab";
-          button.textContent = icon ? icon + " " + title : title;
+          button.textContent = label;
           button.dataset.cat = id;
           button.addEventListener("click", () => setCategory(id));
           categoryTabs.appendChild(button);
+          categorySelect.add(new Option(label, id));
         }
       }
 
       function setCategory(id) {
         activeCategory = id;
-        for (const button of document.querySelectorAll("#categoryTabs button")) {
+        categorySelect.value = id;
+        for (const button of categoryTabs.children) {
           const selected = button.dataset.cat === id;
           button.classList.toggle("active", selected);
           button.setAttribute("aria-pressed", String(selected));
         }
         renderMenu();
       }
+
+      categorySelect.addEventListener("change", () => setCategory(categorySelect.value));
 
       function normalizeSearch(text) {
         return String(text ?? "").toLowerCase().normalize("NFD")
@@ -1307,11 +1356,23 @@
           if (results.length) {
             body.replaceChildren(renderCards(results));
           } else {
-            const empty = document.createElement("p");
+            const empty = document.createElement("div");
             empty.className = "empty-search";
-            empty.textContent = category
-              ? "Başka kategorilerde de aramak için Tümü’nü seçin."
-              : "Farklı bir sözcük veya daha kısa bir arama deneyin.";
+            if (category) {
+              const expand = document.createElement("button");
+              expand.type = "button";
+              expand.className = "empty-search-action";
+              expand.textContent = "Tüm kategorilerde ara";
+              expand.addEventListener("click", () => {
+                setCategory("all");
+                searchStatus.focus({ preventScroll: true });
+              });
+              empty.appendChild(expand);
+            } else {
+              const hint = document.createElement("p");
+              hint.textContent = "Farklı bir sözcük veya daha kısa bir arama deneyin.";
+              empty.appendChild(hint);
+            }
             body.replaceChildren(empty);
           }
           return;
@@ -1366,7 +1427,6 @@
               query: searchInput.value,
               category: activeCategory,
               scrollTop: window.scrollY,
-              tabsLeft: categoryTabs.scrollLeft,
             },
           }, "");
         } catch (_) {}
@@ -1380,7 +1440,6 @@
           searchInput.value = menu.query;
           setCategory(menu.category);
         }
-        categoryTabs.scrollLeft = menu.tabsLeft;
         window.scrollTo(0, menu.scrollTop);
       });
 
@@ -1393,7 +1452,7 @@
             }
           } catch (_) {}
         }
-        renderTabs();
+        renderCategoryControls();
         const menu = history.state?.acelyaMenu;
         if (menu) searchInput.value = menu.query;
         setCategory(menu?.category ?? "all");

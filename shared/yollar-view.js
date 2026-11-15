@@ -47,13 +47,14 @@
 
   const exists = (slug) => Object.prototype.hasOwnProperty.call(CATALOG, slug);
   const shortTitle = (t) => String(t).split(":")[0].trim();
+  const lessonHref = (slug, electiveId) => `${slug}.html${electiveId ? `?yol=${encodeURIComponent(electiveId)}` : ""}`;
 
   function itemHtml(slug, n, progress, electiveId) {
     if (exists(slug)) {
       const info = CATALOG[slug];
       const meta = [info.level, info.minutes ? `~${info.minutes} dk` : ""].filter(Boolean).join(" · ");
       const done = Boolean(progress[slug]);
-      const href = `${slug}.html${electiveId ? `?yol=${encodeURIComponent(electiveId)}` : ""}`;
+      const href = lessonHref(slug, electiveId);
       return `<li class="yol-item${done ? " is-done" : ""}">
         <span class="yol-n" aria-hidden="true">${n}</span>
         <a class="yol-link" href="${esc(href)}" title="${esc(info.title)}"><span class="yol-name">${esc(shortTitle(info.title))}</span><span class="yol-meta">${esc(meta)}</span></a>
@@ -72,7 +73,13 @@
     const ready = all.filter(exists);
     const done = ready.filter((s) => progress[s]);
     const minutes = ready.reduce((m, s) => m + (CATALOG[s].minutes || 0), 0);
-    return { total: all.length, ready: ready.length, done: done.length, hours: Math.round(minutes / 6) / 10 };
+    return {
+      total: all.length,
+      ready: ready.length,
+      done: done.length,
+      hours: Math.round(minutes / 6) / 10,
+      next: ready.find((slug) => !progress[slug]),
+    };
   }
 
   function fmtHours(h) {
@@ -83,6 +90,16 @@
     const st = stats(track, progress);
     const pct = st.ready ? Math.round((100 * st.done) / st.ready) : 0;
     const planned = st.total - st.ready;
+    const electiveId = track.elective ? track.id : "";
+    const nextTitle = st.next ? esc(shortTitle(CATALOG[st.next].title)) : "";
+    const nextStatus = planned ? "Hazır dersler tamamlandı." : "Bütün dersler tamamlandı.";
+    const nextPreview = st.next ? `Sıradaki ders · ${nextTitle}` : st.ready ? nextStatus : "";
+    const nextLink = st.next
+      ? `<a class="yol-next" href="${esc(lessonHref(st.next, electiveId))}">
+          <span class="yol-next-copy"><span>Sıradaki ders</span><strong>${nextTitle}</strong></span>
+          <span class="yol-next-arrow" aria-hidden="true">→</span>
+        </a>`
+      : st.ready ? `<p class="yol-next yol-next--done">${nextStatus}</p>` : "";
     const lines = [
       `${st.ready} ders hazır${planned ? `, ${planned} ders hazırlanıyor` : ""}`,
       `yaklaşık ${fmtHours(st.hours)} saat`,
@@ -93,7 +110,7 @@
         (s) => `<div class="yol-stage">
           <h3>${esc(s.title)}</h3>
           ${s.note ? `<p class="yol-note">${esc(s.note)}</p>` : ""}
-          <ol class="yol-list">${s.items.map((slug) => itemHtml(slug, ++n, progress, track.elective ? track.id : "")).join("")}</ol>
+          <ol class="yol-list">${s.items.map((slug) => itemHtml(slug, ++n, progress, electiveId)).join("")}</ol>
         </div>`,
       )
       .join("");
@@ -121,9 +138,10 @@
         <span class="yol-icon" aria-hidden="true">${esc(track.icon)}</span>
         <span class="yol-head"><span class="yol-title">${esc(track.title)}</span><span class="yol-sum">${esc(track.summary)}</span>
         <span class="yol-stats">${esc(lines.join(" · "))}</span>
-        <span class="yol-bar" role="img" aria-label="${st.done} / ${st.ready} ders tamamlandı"><span style="width:${pct}%"></span></span></span>
+        <span class="yol-bar" role="img" aria-label="${st.done} / ${st.ready} ders tamamlandı"><span style="width:${pct}%"></span></span>
+        ${nextPreview ? `<span class="yol-next-preview">${nextPreview}</span>` : ""}</span>
       </summary>
-      <div class="yol-body">${pre}${stages}${post}</div>
+      <div class="yol-body">${nextLink}${pre}${stages}${post}</div>
     </details>`;
   }
 
