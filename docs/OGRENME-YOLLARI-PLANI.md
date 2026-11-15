@@ -2,8 +2,8 @@
 
 **15 Kasım 2026 kapanışı.** U1–U10 ve genel değerlendirmeden sonraki düzeltme turları tamamlandı.
 Katalogda 326 kayıt, 11 meslek yolu, üç seçmeli yol ve sekiz önşart dizisi var. Yol ve önşart dizilerindeki
-tüm basamaklar açılabiliyor. Kapanışta doğrulanan uygulama commit'i `de1b44a`, Pages yayını `a1944c9` ve service
-worker sürümü `acelya-b5c62b91e5`. [Canlı site](https://serkanok1983.github.io/acelya-icin/)
+tüm basamaklar açılabiliyor. Erişilebilirlik turu sonrası doğrulanan uygulama commit'i `273b472`, Pages yayını
+`1c03b00` ve service worker sürümü `acelya-e11be4ae3c`. [Canlı site](https://serkanok1983.github.io/acelya-icin/)
 
 Kullanıcının isteği (13 Kasım): "Önce işi planla, yapıyı kur, sonra optimum sıra ile icra et." Hedef meslekler
 (bilgisayar, elektrik-elektronik, genetik, endüstri mühendisi, hekim, mimar, hukukçu vb.) için öğrenme yolları;
@@ -211,7 +211,8 @@ ve ses izi bulunmayan arşiv kopyalarında 17 bölümü zaman damgası, gözlem 
 ## 7. U10 sonrası genel değerlendirme ve kapanış
 
 Genel değerlendirme önce içerik derinliğini, ders kalitesini ve öğrenme yolu boşluklarını ele aldı.
-Ardından ana sayfa, yol sayfaları ve ders içi gezinme incelendi. Bulgular yedi turda ele alındı.
+Ardından ana sayfa, yol sayfaları ve ders içi gezinme incelendi. İlk bulgular yedi turda ele alındı.
+Erişilebilirlik turu, aramaya dönüşü ve bölüm kısayollarını ele aldı.
 
 | Tamamlanan tur | Commit | Uygulanan değişiklik |
 |---|---|---|
@@ -221,7 +222,8 @@ Ardından ana sayfa, yol sayfaları ve ders içi gezinme incelendi. Bulgular yed
 | Ders içi gezinme ve performans | `8287545` | Atölye, Keşif Defteri ve Sıradaki ders bağlantıları ortak konumdan açılıyor. PWA, kabuğu kurulumda ve ders kaynaklarını ziyaret sırasında önbelleğe alıyor. |
 | Ders kalitesi | `d9a147b` | Mini sınavlarda doğru cevap konumları çeşitlendirildi. Edebiyat, sinema ve psikolojide 18 deftere yeni örnekler üzerinden gerekçeli sorular eklendi. |
 | Kaynak denetimi | `f03d8ef` | 212 OpenStax adresi denetlendi. Üç bağlantı ilgili bölüme taşındı, bir bölüm etiketi düzeltildi. Yalnız Wikipedia'ya dayanan 30 deftere 31 birincil kaynak eklendi. |
-| Son doğrulama | `de1b44a` | Yol, önşart ve Keşif Defteri tamamlanma işaretleri aynı kayda bağlandı. Eski işaretler birleştiriliyor ve dersten dönüldüğünde yolun sıradaki basamağı güncelleniyor. |
+| Aşama kapanışındaki doğrulama | `de1b44a` | Yol, önşart ve Keşif Defteri tamamlanma işaretleri aynı kayda bağlandı. Eski işaretler birleştiriliyor ve dersten dönüldüğünde yolun sıradaki basamağı güncelleniyor. |
+| Erişilebilirlik | `273b472` | Arama alanı “Katalog” adıyla sunuluyor. Dersten aramaya dönünce odak açılan ders kartına geliyor. Yol ve önşart kısayolları odağı ilgili özete taşıyor. Keşif Defteri'nin 11 bölümü başlıklarıyla etiketlendi ve kısayollar odağı hedef bölüme taşıyor. |
 
 ### Seçmeli yolların kapsamı
 
@@ -236,7 +238,7 @@ olduğunu veya belirli bir düzeyde başladığını varsaymaksızın gereken ö
 - Veri ve Örnekleme, Olasılık ve İstatistik dizisinin ilk dersi. Psikolog, Hekim ve İktisatçı yollarının
   yöntem bölümleri aynı derse bağlanır.
 
-### Son doğrulama ve yayın
+### Aşama kapanışındaki doğrulama
 
 - Statik denetim 331 sayfa ve 326 Keşif Defteri için 0 hata verdi. Katalog ve service worker üretim
   kontrolleri, yol ve katalog denetimindeki 1483 kontrol, Keşif Defteri sınavları ve çevrimdışı PWA testi geçti.
@@ -247,10 +249,21 @@ olduğunu veya belirli bir düzeyde başladığını varsaymaksızın gereken ö
   Dört değişen yayın dosyası uygulama commit'iyle eşleşti. [Canlı site](https://serkanok1983.github.io/acelya-icin/) ·
   [Sinema ve Film Çözümleme yolu](https://serkanok1983.github.io/acelya-icin/ogrenme-yollari.html#sinema-cozumleme)
 
+### Erişilebilirlik turunun doğrulaması ve yayın
+
+- Statik denetim 331 sayfa ve 326 Keşif Defteri için 0 hata verdi. Yol ve katalog denetimindeki 1598 kontrol,
+  Keşif Defteri sınavı ve PWA testleri geçti. Tam site tarayıcı testinde 331 sayfa geçti.
+- Canlıda 390 ve 820 px genişlikte Chromium ve WebKit ile aramaya dönüş odağı, yol kısayolu ve Keşif Defteri
+  bölüm odağı doğrulandı. Defterin 11 bölümü erişilebilirlik ağacında başlıklarıyla görünüyor. Değişen beş
+  canlı dosya `273b472` ile eşleşti. [Canlı site](https://serkanok1983.github.io/acelya-icin/)
+- Kullanıcı geçen tarayıcı testleriyle yayına onay verdi. Fiziksel cihaz ve ekran okuyucu doğrulaması aşağıdaki
+  bakım kaydında açık.
+
 ### Açık bakım notları
 
 Kapanışta kaydedilen iki içerik uyarısı bakım turunda giderildi. Anatomi ve Fizyoloji Defteri'ndeki uzun
 çözüm adımı kısaltıldı. Aruz ve Hece Ölçüsü Defteri'ndeki boş kaynak öğesi kaldırıldı ve Kutadgu Bilig
 başvurusu TDV maddesiyle güncellendi. Statik denetimde 156 OpenStax bölüm doğrulama hatırlatması var.
-Fiziksel telefon ve tablet ile ekran okuyucu denetimi ayrı doğrulama kapsamı olarak açık.
+Fiziksel telefon ve tablette arama, öğrenme yolları ve Keşif Defteri akışları ile ekran okuyucuda odak ve
+duyuru sırası doğrulaması açık.
 Komutlar ve bakım ayrıntıları devir notunda. [Devir Notu](DEVIR-NOTU.md#7-açık-bakım-notları)

@@ -9,8 +9,8 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (`<slug>.html`, tek dosya, derleme adımı yok) ve altında bir **Keşif Defteri** (`shared/digest/<slug>.js`).
 - **Depo:** `/Users/serkanok/Development/HTML/acelya-icin` · uzak: `https://github.com/serkanok1983/acelya-icin.git`
   (dal `main`).
-- **Canlı site** GitHub Pages'in `gh-pages` dalından sunulur. Aşama kapanışında doğrulanan uygulama commit'i `de1b44a`,
-  yayın commit'i `a1944c9` ve service worker sürümü `acelya-b5c62b91e5`. Yayın adımları §5'te. [Açelya'nın Yeri](https://serkanok1983.github.io/acelya-icin/)
+- **Canlı site** GitHub Pages'in `gh-pages` dalından sunulur. Son doğrulanan uygulama commit'i `273b472`,
+  yayın commit'i `1c03b00` ve service worker sürümü `acelya-e11be4ae3c`. Yayın adımları §5'te. [Açelya'nın Yeri](https://serkanok1983.github.io/acelya-icin/)
 - **Kapanış kapsamı** 331 HTML sayfası, 326 katalog kaydı ve Keşif Defteri, 10 kategori, 14 öğrenme yolu
   (üçü seçmeli) ve sekiz önşart dizisi. Planlanan bütün yol dersleri açılabilir.
 
@@ -136,8 +136,8 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
 
 ## 6. Durum (15 Kasım 2026, devir anı)
 
-- U1–U10, genel değerlendirme ve ardından gelen yedi düzeltme ve doğrulama turu tamamlandı. 15 Kasım 2026'da
-  kapanış yayını canlıda doğrulandı. Uygulama sürümünü belirlemek için canlı `sw.js` ile yayın kaydını karşılaştır.
+- U1–U10, genel değerlendirme ve ardından gelen yedi düzeltme ve doğrulama turu tamamlandı. Erişilebilirlik
+  düzeltmeleri 15 Kasım 2026'da yayımlandı ve canlıda doğrulandı. Fiziksel cihaz ve ekran okuyucu doğrulaması §7'de açık.
 - U4 yayını `acelya-0a90f61dea` sürümündeydi. 15 Kasım'daki tam test turu site, yollar, test:g (159/159),
   public/a7/f1/f2/c/d/e, smoke ve mobil denetimlerinden geçti. Tur yaklaşık 70 dakika sürmüştü.
 - U5 ile 264 dersin tamamı katalogda. U5 modelleri `scripts/check-g-u5.mjs --browser` ile sınanır.
@@ -196,11 +196,12 @@ Tur ayrıntıları `docs/simulasyon-notlari.md` belgesinde.
 | Ders gezinmesi ve PWA | `8287545` | Atölye, Keşif Defteri ve Sıradaki ders bağlantıları ortak konuma taşındı. PWA önce 17 kabuk dosyasını, ders kaynaklarını ziyarette önbelleğe alıyor. |
 | Ders kalitesi | `d9a147b` | Mini sınavlarda doğru seçeneğin konumu çeşitlendirildi. Edebiyat, sinema ve psikolojide 18 deftere yeni örneklerle gerekçeli sorular eklendi. |
 | Kaynak denetimi | `f03d8ef` | 212 OpenStax adresi kontrol edildi. Üç bağlantı ilgili bölüme yönlendirildi, bir bölüm etiketi düzeltildi. Yalnız Wikipedia kaynaklı 30 deftere 31 birincil kaynak eklendi. |
-| Son doğrulama | `de1b44a` | Öğrenme Yolları, Önşart ve Keşif Defteri ortak tamamlanma kaydını kullanıyor. İki eski kayıttaki işaretler birleştiriliyor. Geri dönünce onay kutusu ve sıradaki ders birlikte güncelleniyor. |
+| Aşama kapanışındaki doğrulama | `de1b44a` | Öğrenme Yolları, Önşart ve Keşif Defteri ortak tamamlanma kaydını kullanıyor. İki eski kayıttaki işaretler birleştiriliyor. Geri dönünce onay kutusu ve sıradaki ders birlikte güncelleniyor. |
+| Erişilebilirlik | `273b472` | Arama alanı “Katalog” adıyla sunuluyor. Dersten dönünce açılan kart odağı geri alıyor. Yol ve önşart kısayolları odağı ilgili yolun özetine taşıyor. Keşif Defteri'nin 11 bölümü kendi başlığıyla etiketlendi ve kısayollar odağı hedef bölüme taşıyor. |
 
 Yol kapsamı ve değerlendirme kararları planın kapanış bölümünde. [Öğrenme Yolları Planı §7](OGRENME-YOLLARI-PLANI.md#7-u10-sonrası-genel-değerlendirme-ve-kapanış)
 
-### Son doğrulama sonuçları
+### Aşama kapanışındaki doğrulama
 
 - `node scripts/check-site.mjs --require-digests` 331 sayfa ve 326 defterde 0 hata, 158 uyarı bildirdi. Katalog
   ve service worker üretim kontrolleri geçti. Uyarılar §7'de.
@@ -213,14 +214,28 @@ Yol kapsamı ve değerlendirme kararları planın kapanış bölümünde. [Öğr
 - Yayındaki dört değişen uygulama dosyası `de1b44a` ile birebir eşleşti. [Canlı site](https://serkanok1983.github.io/acelya-icin/) ·
   [Sinema ve Film Çözümleme yolu](https://serkanok1983.github.io/acelya-icin/ogrenme-yollari.html#sinema-cozumleme)
 
+### Erişilebilirlik turunun doğrulaması
+
+- Statik denetim 331 sayfa ve 326 defterde 0 hata ve 156 OpenStax hatırlatması bildirdi. Katalog ve service worker
+  kontrolleri ile `node scripts/check-digest-quiz.mjs` ve `node scripts/check-pwa.mjs` geçti.
+- `node scripts/check-yollar.mjs --browser` 375 ve 820 px dokunmatik emülasyonda ve 1280 px masaüstünde
+  toplam 1598 kontrolden geçti. `node scripts/smoke.mjs --digest` 331 sayfada JavaScript veya konsol hatası,
+  başarısız yerel istek ya da görünmeyen Keşif Defteri bulmadı.
+- Canlıda 390 ve 820 px genişlikte Chromium ve WebKit ile aramadan dönünce Güneş Sistemi kartının odağı,
+  Sinema ve Film Çözümleme kısayolunun yol özetini odaklaması ve Keşif Defteri kısayolunun adlandırılmış
+  bölüme gitmesi doğrulandı. Defterin 11 bölümü erişilebilirlik ağacında başlıklarıyla görünüyor.
+- Kullanıcı, fiziksel doğrulama açıkken geçen tarayıcı testleriyle yayına onay verdi. Canlıda değişen beş
+  uygulama dosyası `273b472` ile eşleşti. [Canlı site](https://serkanok1983.github.io/acelya-icin/)
+
 ## 7. Açık bakım notları
 
 - Statik denetimde 156 OpenStax bölüm doğrulama hatırlatması var. Kaynak turunda bağlantılar açılarak kontrol edildi.
 - İki içerik uyarısı bakım turunda giderildi. Anatomi ve Fizyoloji Defteri'nin çözüm adımı 508 karakterden 406'ya
   indi. Aruz ve Hece Ölçüsü Defteri'nin kaynak listesi beş dolu kayıttan oluşuyor. Kutadgu Bilig'in ana bölümüyle
   sondaki iki parçanın ölçü ayrımı TDV maddesine göre açıklandı.
-- Son tarayıcı turu mobil emülasyon, masaüstü ve klavye etkileşimlerini kapsadı. Fiziksel telefon ve tablet ile ekran
-  okuyucu denetimi ayrı doğrulama kapsamı olarak açık.
+- Fiziksel telefon ve tablet doğrulaması ile ekran okuyucu oturumu açık. Cihazlar erişilebilir olduğunda
+  aramadan derse gidip dönme, öğrenme yolunda kısayol ve ilerleme, Keşif Defteri'nde bölüm ve sınav gezinmesi
+  dokunarak ve cihazın ekran okuyucusuyla doğrulanacak. Odak sırası ve duyurular bu kontrolde kaydedilecek.
 - `scripts/check-g-hukuk-felsefesi.mjs --browser` bir kez açıklamasız düştü, sonraki koşularda geçti; tam turda
   düşerse yeniden koş, tekrar ederse incele.
 - Birçok yeni defterde 5 kaynak var; `docs/icerik-rehberi.md` 2–4 der ama check-site 5'e izin veriyor (bilinçli bırakıldı).
