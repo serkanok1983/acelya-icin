@@ -291,11 +291,18 @@ if (process.argv.includes("--browser")) {
       eq(await page.evaluate(() => document.activeElement.id), "kesif-defteri-baslik", `${width}: defter başlığına odaklanıyor`);
       await page.keyboard.press("Tab");
       eq(await page.evaluate(() => document.activeElement.id), "digestDoneBtn", `${width}: Tab defterde ilerliyor`);
+      const lessonNav = page.getByRole("navigation", { name: "Ders içi gezinme" });
+      await lessonNav.getByRole("link", { name: "Atölye", exact: true }).press("Enter");
+      ok(await page.getByRole("tab", { selected: true }).evaluate((el) => el === document.activeElement), `${width}: atölye etkin sekmeye odaklanır`);
+      await lessonNav.getByRole("link", { name: "Keşif Defteri", exact: true }).press("Enter");
+      eq(await page.evaluate(() => document.activeElement.id), "kesif-defteri-baslik", `${width}: ortak defter bağlantısı başlığa odaklanır`);
+      const digestSuggestion = await page.locator("#defter-sonraki .digest-next a").first().getAttribute("href");
+      eq(await lessonNav.getByRole("link", { name: /^Sıradaki ders/ }).getAttribute("href"), digestSuggestion, `${width}: bağımsız derste defter önerisi`);
 
       await page.goto(`${base}/onsart.html#temel-fizik`);
       eq(await page.locator("details.yol").count(), D.onsart.length, `${width}: önşart dizileri çizildi`);
       ok(await page.locator("details#temel-fizik").evaluate((d) => d.open), `${width}: adresteki dizi açık`);
-      ok((await page.locator('#temel-fizik a[href="hareket-ve-grafikler.html"]').count()) === 1, `${width}: mekanik rotası Temel Fizik'te`);
+      ok((await page.locator('#temel-fizik .yol-list a[href="hareket-ve-grafikler.html?yol=temel-fizik"]').count()) === 1, `${width}: mekanik rotası Temel Fizik'te`);
       ok((await page.locator("#uygulamali-matematik .is-planned").count()) >= 1 || existsSync(path.join(root, "aritmetik-ve-sayilar.html")), `${width}: hazırlanıyor dersleri sönük`);
 
       await page.goto(`${base}/ogrenme-yollari.html#hekim`);
@@ -331,7 +338,7 @@ if (process.argv.includes("--browser")) {
       const route = page.getByRole("navigation", { name: "Seçmeli yol" });
       await route.waitFor();
       eq(await route.getByRole("link", { name: /Önceki/ }).count(), 0, `${width}: ilk derste önceki yok`);
-      await route.getByRole("link", { name: /Sıradaki · Sinemada Mizansen/ }).click();
+      await lessonNav.getByRole("link", { name: "Sıradaki ders · Sinemada Mizansen" }).click();
       await page.waitForURL("**/sinemada-mizansen.html?yol=sinema-cozumleme");
       eq(await route.getByRole("link", { name: /Önceki · Sinema Dili ve Kurgu/ }).getAttribute("href"),
         "sinema-dili-ve-kurgu.html?yol=sinema-cozumleme", `${width}: önceki derse dönüş`);
@@ -340,6 +347,7 @@ if (process.argv.includes("--browser")) {
       await finalFilm.click();
       await route.getByRole("link", { name: "Sinema ve Film Çözümleme" }).waitFor();
       eq(await route.getByRole("link", { name: /Sıradaki/ }).count(), 0, `${width}: son basamak tamamlanma işareti olmadan açılır`);
+      ok(!(await lessonNav.getByRole("link", { name: /^Sıradaki ders/ }).isVisible()), `${width}: son basamakta başka yola gidilmez`);
       await page.goto(`${base}/index.html`);
       await input.fill("film cozumleme atolyesi");
       await cards.filter({ hasText: "Film Çözümleme Atölyesi" }).click();
@@ -348,8 +356,13 @@ if (process.argv.includes("--browser")) {
 
       await page.goto(`${base}/onsart.html#olasilik-istatistik`);
       const firstStats = page.locator("#olasilik-istatistik .yol-list a").first();
-      eq(await firstStats.getAttribute("href"), "veri-ve-ornekleme.html", `${width}: dizinin ilk basamağı`);
+      eq(await firstStats.getAttribute("href"), "veri-ve-ornekleme.html?yol=olasilik-istatistik", `${width}: dizinin ilk basamağı`);
       await firstStats.click();
+      await page.getByRole("navigation", { name: "Önşart dizisi", exact: true }).waitFor();
+      eq(await lessonNav.getByRole("link", { name: /^Sıradaki ders/ }).getAttribute("href"),
+        "kombinatorik-ve-sayma.html?yol=olasilik-istatistik", `${width}: sıradaki önşart basamağı`);
+      await lessonNav.getByRole("link", { name: "Atölye", exact: true }).press("Enter");
+      eq(await page.evaluate(() => document.activeElement.id), "ornekleme-baslik", `${width}: atölye bölümünün başlığına odaklanır`);
       const method = page.getByLabel("Örnekleme yöntemi");
       eq(await page.locator("#evren-ort").textContent(), "19,4 dk", `${width}: ağırlıklı evren ortalaması`);
       await method.selectOption("kolayda");

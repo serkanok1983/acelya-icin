@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /**
- * sw.js içindeki önbellek listelerini ve sürüm adını diskten üretir.
- * Sürüm adı, listelenen dosyaların içerik özetinden türetilir; içerik değişince
- * tarayıcı yeni service worker'ı kurar ve eski önbelleği temizler.
+ * sw.js içindeki önbellek sürümünü ve kabuk listesini üretir.
+ * Sürüm adı sitenin dosyalarından ve worker kodundan türetilir.
  *
  * Kullanım: node scripts/build-sw.mjs [--check]   (--check: dosya güncel değilse çıkış kodu 1)
  */
@@ -26,21 +25,26 @@ const digests = existsSync(join(ROOT, "shared/digest")) ? list("shared/digest", 
 const media = ["hit.m4a", "explode.m4a", "laser.m4a", "thrust.m4a", "music-low.m4a", "music-high.m4a", "favicon-32.png", "favicon.svg", "apple-touch-icon.png", "manifest.json"].filter((f) => existsSync(join(ROOT, f)));
 
 const all = [...pages, ...shared, ...digests, ...media];
+const core = [
+  "index.html", "404.html", "ogrenme-yollari.html", "onsart.html",
+  "shared/app.js", "shared/catalog.js", "shared/digest.css", "shared/digest.js",
+  "shared/icons.js", "shared/theme.css", "shared/yollar-view.js", "shared/yollar.css", "shared/yollar.js",
+  "manifest.json", "favicon.svg", "favicon-32.png", "apple-touch-icon.png",
+];
+let src = readFileSync(SW, "utf8");
 const hash = createHash("sha1");
 for (const f of all) hash.update(f).update(readFileSync(join(ROOT, f)));
+hash.update(src.replace(/\/\/ --- generated:[\s\S]*?\/\/ --- end:\w+ ---\n/g, "")).update(core.join("\n"));
 const version = `acelya-${hash.digest("hex").slice(0, 10)}`;
 
 const fmt = (arr) => arr.map((f) => `  "${f}",`).join("\n");
-let src = readFileSync(SW, "utf8");
 const replaceBlock = (name, body) => {
   const re = new RegExp(`(// --- generated:${name} ---\\n)[\\s\\S]*?(\\n// --- end:${name} ---)`);
   if (!re.test(src)) throw new Error(`sw.js içinde ${name} işaretçisi yok`);
   src = src.replace(re, `$1${body}$2`);
 };
 replaceBlock("version", `const VERSION = "${version}";`);
-replaceBlock("core", `const CORE = [\n${fmt(["index.html", "404.html", "ogrenme-yollari.html", "onsart.html", ...shared, ...media])}\n];`);
-replaceBlock("pages", `const PAGES = [\n${fmt(pages.filter((p) => !["index.html", "404.html", "ogrenme-yollari.html", "onsart.html"].includes(p)))}\n];`);
-replaceBlock("digests", `const DIGESTS = [\n${fmt(digests)}\n];`);
+replaceBlock("core", `const CORE = [\n${fmt(core)}\n];`);
 
 const current = readFileSync(SW, "utf8");
 if (current === src) {
@@ -52,4 +56,4 @@ if (CHECK) {
   process.exit(1);
 }
 writeFileSync(SW, src);
-console.log(`sw.js yazıldı: ${version} · sayfa ${pages.length} · ortak ${shared.length} · defter ${digests.length}`);
+console.log(`sw.js yazıldı: ${version} · çekirdek ${core.length} dosya · sayfa ${pages.length} · defter ${digests.length}`);

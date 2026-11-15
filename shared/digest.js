@@ -457,12 +457,15 @@
     btn.title = "Keşif Defteri'ne git";
     btn.setAttribute("aria-label", "Keşif Defteri'ne git");
     btn.textContent = "📖";
-    btn.addEventListener("click", () => {
-      section.querySelector("#kesif-defteri-baslik").focus({ preventScroll: true });
-      const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-      section.scrollIntoView({ behavior, block: "start" });
-    });
+    btn.addEventListener("click", () => focusDigest(section));
     actions.insertBefore(btn, actions.firstChild);
+  }
+
+  function focusDigest(section = document.getElementById("kesif-defteri")) {
+    if (!section) return;
+    section.querySelector("#kesif-defteri-baslik").focus({ preventScroll: true });
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    section.scrollIntoView({ behavior, block: "start" });
   }
 
   function ensureMeta(d) {
@@ -488,7 +491,7 @@
     bindQuiz(section, d.slug || pageId);
     addTopbarButton(section);
     ensureMeta(d);
-    window.dispatchEvent(new CustomEvent("acelya-digest-ready", { detail: { slug: d.slug || pageId } }));
+    window.dispatchEvent(new CustomEvent("acelya-digest-ready", { detail: { slug: d.slug || pageId, next: d.next?.[0] } }));
   }
 
   function loadCss() {
@@ -535,5 +538,5 @@
     document.head.appendChild(script);
   }
 
-  window.AcelyaDigest = { init, mount, sanitize };
+  window.AcelyaDigest = { init, mount, sanitize, focus: focusDigest };
 })();

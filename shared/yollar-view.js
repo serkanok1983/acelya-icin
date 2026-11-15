@@ -47,14 +47,14 @@
 
   const exists = (slug) => Object.prototype.hasOwnProperty.call(CATALOG, slug);
   const shortTitle = (t) => String(t).split(":")[0].trim();
-  const lessonHref = (slug, electiveId) => `${slug}.html${electiveId ? `?yol=${encodeURIComponent(electiveId)}` : ""}`;
+  const lessonHref = (slug, trackId) => `${slug}.html?yol=${encodeURIComponent(trackId)}`;
 
-  function itemHtml(slug, n, progress, electiveId) {
+  function itemHtml(slug, n, progress, trackId) {
     if (exists(slug)) {
       const info = CATALOG[slug];
       const meta = [info.level, info.minutes ? `~${info.minutes} dk` : ""].filter(Boolean).join(" · ");
       const done = Boolean(progress[slug]);
-      const href = lessonHref(slug, electiveId);
+      const href = lessonHref(slug, trackId);
       return `<li class="yol-item${done ? " is-done" : ""}">
         <span class="yol-n" aria-hidden="true">${n}</span>
         <a class="yol-link" href="${esc(href)}" title="${esc(info.title)}"><span class="yol-name">${esc(shortTitle(info.title))}</span><span class="yol-meta">${esc(meta)}</span></a>
@@ -90,12 +90,11 @@
     const st = stats(track, progress);
     const pct = st.ready ? Math.round((100 * st.done) / st.ready) : 0;
     const planned = st.total - st.ready;
-    const electiveId = track.elective ? track.id : "";
     const nextTitle = st.next ? esc(shortTitle(CATALOG[st.next].title)) : "";
     const nextStatus = planned ? "Hazır dersler tamamlandı." : "Bütün dersler tamamlandı.";
     const nextPreview = st.next ? `Sıradaki ders · ${nextTitle}` : st.ready ? nextStatus : "";
     const nextLink = st.next
-      ? `<a class="yol-next" href="${esc(lessonHref(st.next, electiveId))}">
+      ? `<a class="yol-next" href="${esc(lessonHref(st.next, track.id))}">
           <span class="yol-next-copy"><span>Sıradaki ders</span><strong>${nextTitle}</strong></span>
           <span class="yol-next-arrow" aria-hidden="true">→</span>
         </a>`
@@ -110,7 +109,7 @@
         (s) => `<div class="yol-stage">
           <h3>${esc(s.title)}</h3>
           ${s.note ? `<p class="yol-note">${esc(s.note)}</p>` : ""}
-          <ol class="yol-list">${s.items.map((slug) => itemHtml(slug, ++n, progress, electiveId)).join("")}</ol>
+          <ol class="yol-list">${s.items.map((slug) => itemHtml(slug, ++n, progress, track.id)).join("")}</ol>
         </div>`,
       )
       .join("");

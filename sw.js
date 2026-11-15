@@ -1,19 +1,14 @@
 /**
  * Açelya'nın Yeri — Service Worker
  *
- * Strateji
- *  - CORE: kabuk dosyaları, kurulumda atomik olarak önbelleğe alınır (biri bile inmezse kurulum başarısız olur).
- *  - PAGES + DIGESTS: kurulumda "elden geldiğince" alınır; eksikler ilk ziyarette tamamlanır.
- *  - HTML gezinmeleri: ağ öncelikli, çevrimdışıysa önbellek, o da yoksa çevrimdışı sayfası.
- *  - Aynı kaynaklı statik dosyalar: önbellekten sun, arka planda yenile (stale-while-revalidate).
- *  - CDN kütüphaneleri (sürümlü URL'ler): önbellek öncelikli; Google Fonts CSS: stale-while-revalidate.
- *  - Firebase veritabanı trafiğine dokunulmaz.
- *
- * Listeler ve VERSION, `node scripts/build-sw.mjs` ile diskten üretilir; elle düzenleme.
+ * Kurulumda yalnızca çevrimdışı kabuk. Ziyaret edilen sayfa ve kaynakları
+ * istek geldikçe saklanır. Worker kurulurken açık olan dersin dosyaları,
+ * yükleme bittikten sonra küçük gruplar halinde yakalanır.
+ * Listeler ve VERSION, node scripts/build-sw.mjs ile üretilir.
  */
 
 // --- generated:version ---
-const VERSION = "acelya-359806ea50";
+const VERSION = "acelya-6714cc5930";
 // --- end:version ---
 
 // --- generated:core ---
@@ -24,819 +19,173 @@ const CORE = [
   "onsart.html",
   "shared/app.js",
   "shared/catalog.js",
-  "shared/chart-safe.js",
-  "shared/cinema-archive.js",
-  "shared/cinema-audio.js",
-  "shared/cinema-lab.js",
-  "shared/cinema.css",
   "shared/digest.css",
   "shared/digest.js",
-  "shared/game-hooks.js",
-  "shared/game-juice.js",
-  "shared/game-kit.js",
-  "shared/game-mobile.css",
-  "shared/game-mobile.js",
   "shared/icons.js",
-  "shared/leaderboard.js",
-  "shared/lesson-lab.css",
-  "shared/lesson-lab.js",
-  "shared/philosophy-history.css",
-  "shared/psychology.css",
-  "shared/reading-workshop.css",
-  "shared/reading-workshop.js",
   "shared/theme.css",
   "shared/yollar-view.js",
   "shared/yollar.css",
   "shared/yollar.js",
-  "hit.m4a",
-  "explode.m4a",
-  "laser.m4a",
-  "thrust.m4a",
-  "music-low.m4a",
-  "music-high.m4a",
-  "favicon-32.png",
-  "favicon.svg",
-  "apple-touch-icon.png",
   "manifest.json",
+  "favicon.svg",
+  "favicon-32.png",
+  "apple-touch-icon.png",
 ];
 // --- end:core ---
 
-// --- generated:pages ---
-const PAGES = [
-  "akademik-yazma-ve-kaynak-kullanimi.html",
-  "akiskanlar-mekanigi.html",
-  "algi-psikolojisi.html",
-  "algoritma-karmasikligi.html",
-  "algoritmalar.html",
-  "alman-idealizmi.html",
-  "alternatif-akim.html",
-  "altin-oran.html",
-  "analitik-felsefe.html",
-  "anatomi-ve-fizyoloji.html",
-  "anayasa-hukuku-ve-temel-haklar.html",
-  "anlambilim-ve-edimbilim.html",
-  "anlati-yapisi-ve-edebiyat-cozumlemesi.html",
-  "anlatim-teknikleri.html",
-  "antropoloji-kuramlari.html",
-  "aristoteles-felsefesi.html",
-  "aritmetik-ve-sayilar.html",
-  "arkeoloji-ve-tarihleme.html",
-  "aruz-ve-hece-olcusu.html",
-  "asal-rsa.html",
-  "asit-baz-titrasyonu.html",
-  "asteroids.html",
-  "atislar.html",
-  "atmosfer-ve-hava.html",
-  "atom-orbitalleri.html",
-  "av-avci-lotka-volterra.html",
-  "ay-evreleri.html",
-  "bagisiklik-ve-mikrobiyoloji.html",
-  "barnsley-egreltiotu.html",
-  "basinc.html",
-  "basit-makineler.html",
-  "bayes-olasilik.html",
-  "belgesel-ve-deneysel-sinema.html",
-  "bellek-ve-ogrenme.html",
-  "besin-agi.html",
-  "bicimsel-diller-ve-otomata-teorisi.html",
-  "bilgi-kurami-ve-sikistirma.html",
-  "bilgi.html",
-  "bilgisayar-sistemleri-ve-mimarisi.html",
-  "bilim-felsefesi.html",
-  "bilim-tarihinden-deneyler.html",
-  "bilimsel-yontem-olcme-ve-belirsizlik.html",
-  "bilinc-kuramlari.html",
-  "bilissel-psikoloji-ve-terapi.html",
-  "birim-cember.html",
-  "biyoinformatik-ve-dizi-hizalama.html",
-  "borclar-ve-sozlesme-hukuku.html",
-  "breakout.html",
-  "cebirin-temelleri.html",
-  "celik-yapilar.html",
-  "ceza-hukukunun-genel-ilkeleri.html",
-  "cift-sarkac.html",
-  "cizge-teorisi.html",
-  "cok-degiskenli-kalkulus.html",
-  "collatz.html",
-  "cozeltiler-ve-koligatif-ozellikler.html",
-  "dairesel-hareket.html",
-  "dalga-superpozisyonu.html",
-  "davraniscilik-ve-ogrenme-kuramlari.html",
-  "demografi-ve-nufus.html",
-  "denklem-denklestirme.html",
-  "depremler-ve-sismik-dalgalar.html",
-  "derin-zaman-ve-radyometrik-tarihleme.html",
-  "derleyici-ve-yorumlayicilar.html",
-  "diferansiyel-denklemler.html",
-  "din-felsefesi-ve-kelam.html",
-  "dna-replikasyon.html",
-  "dogal-secilim.html",
-  "doppler-etkisi.html",
-  "dram-ve-tiyatro.html",
-  "duran-dalgalar.html",
-  "dusunurler-dizini.html",
-  "edebiyat-akimlari.html",
-  "edebiyat-elestirisi-bicim-ve-gosterge.html",
-  "edebiyat-elestirisi-okur-ve-toplum.html",
-  "edebiyatta-imge-ve-soz-sanatlari.html",
-  "ego-psikolojisi-ve-nesne-iliskileri.html",
-  "elektrik-devresi-simulasyonu.html",
-  "elektrik-muhendisligi.html",
-  "elektrikli-araclar.html",
-  "elektrokimya.html",
-  "elektromanyetik-dalgalar-ve-polarizasyon.html",
-  "elektronik-devre.html",
-  "elektronik-muhendisligi.html",
-  "elektrostatik.html",
-  "empirist-felsefe.html",
-  "enigma-makinesi.html",
-  "entropi-ve-istatistiksel-fizik.html",
-  "enzim-kinetigi.html",
-  "epidemiyoloji-ve-klinik-arastirma.html",
-  "epistemoloji.html",
-  "etimoloji-ve-dil-aileleri.html",
-  "evrimsel-psikoloji-ve-karsilastirmali-yontem.html",
-  "farmakokinetik.html",
-  "felsefi-dusunce-deneyleri.html",
-  "fenomenoloji-ve-varolusculuk.html",
-  "fibo+pascal.html",
-  "fibo.html",
-  "film-cozumleme-atolyesi.html",
-  "film-kuramlari.html",
-  "finans-matematigi.html",
-  "fonksiyon-grafigi.html",
-  "formul-hafiza.html",
-  "fotoelektrik.html",
-  "fotosentez-solunum.html",
-  "fourier-ses.html",
-  "frankfurt-okulu-ve-habermas.html",
-  "freud-ve-klasik-psikanaliz.html",
-  "gelisim-psikolojisi.html",
-  "gemi-makineleri-isletme-muhendisligi.html",
-  "gen-ifadesi-ve-molekuler-biyoloji.html",
-  "gen-muhendisligi.html",
-  "genetik-caprazlama.html",
-  "geometrinin-temelleri.html",
-  "gestalt-psikolojisi-ve-algi.html",
-  "gezegen-savunmasi.html",
-  "gorelilik-uzayzaman.html",
-  "grup-teorisi.html",
-  "gunes-sistemi.html",
-  "hanoi-kuleleri.html",
-  "hareket-ve-grafikler.html",
-  "helenistik-felsefe.html",
-  "hesaplama-teorisi.html",
-  "hidrolik-sistemler.html",
-  "hilbert-egrisi.html",
-  "hipotez-testi-ve-guven-araligi.html",
-  "homeostaz-ve-geri-besleme.html",
-  "hucre-biyolojisi.html",
-  "hukuk-felsefesi.html",
-  "hukuka-giris.html",
-  "humanistik-ve-varoluscu-psikoloji.html",
-  "ibn-haldun-ve-tarih-felsefesi.html",
-  "ideal-gaz.html",
-  "iklim-ve-sera-etkisi.html",
-  "iliskisel-psikanaliz-ve-zihinsellestirme.html",
-  "integral.html",
-  "internet-ve-ag-teknolojileri.html",
-  "is-enerji.html",
-  "isaretciler-ve-bellek-yonetimi.html",
-  "isi-transferi.html",
-  "isik-sondurme.html",
-  "isletim-sistemleri-ve-linux.html",
-  "isletme-bilimi-ve-yonetim.html",
-  "ispat-yontemleri.html",
-  "julia-fraktali.html",
-  "kaldirma-kuvveti.html",
-  "kalite-kontrol-ve-istatistiksel-surec-kontrolu.html",
-  "kalp-dolasim.html",
-  "kant-felsefesi.html",
-  "kara-cisim-isimasi.html",
-  "karakter-ve-karakter-psikolojisi.html",
-  "karar-ve-bilissel-yanliliklar.html",
-  "karmasik-sayilar.html",
-  "karsilastirmali-dinler-tarihi.html",
-  "kent-planlama.html",
-  "kepler-yasalari.html",
-  "kimya-muhendisligi.html",
-  "kimyasal-denge-ve-gibbs-enerjisi.html",
-  "kimyasal-kinetik.html",
-  "kirinim-izgarasi.html",
-  "kisilik-kuramlari.html",
-  "klasik-girisim.html",
-  "klasik-iktisat.html",
-  "koch-kar-tanesi.html",
-  "kombinatorik-ve-sayma.html",
-  "konik-kesitler.html",
-  "kontrol-kurami.html",
-  "kristal-yapilar.html",
-  "kuantum-dalga.html",
-  "kuantum-hesaplama.html",
-  "kuantum-mekanigi.html",
-  "kulturel-ve-elestirel-psikoloji.html",
-  "kumeler-bagintilar-ve-fonksiyonlar.html",
-  "kuyruk-kurami-ve-benzetim.html",
-  "lacan-fromm-ve-horney.html",
-  "lazer-ve-uyarilmis-salim.html",
-  "levha-tektonigi.html",
-  "limit-ve-sureklilik.html",
-  "lineer-cebir-ve-ozdegerler.html",
-  "lissajous.html",
-  "lorentz-kuvveti.html",
-  "lorenz-cekici.html",
-  "lorenz-cekici2.html",
-  "maden-muhendisligi.html",
-  "makine-dili-assembly-c.html",
-  "makine-muhendisligi.html",
-  "makine-ogrenmesi-derin-ogrenme-llm.html",
-  "makro-ekonomi-ve-para-politikalari.html",
-  "mandelbrot+lorenz.html",
-  "mandelbrot-fraktali.html",
-  "mantik-devresi.html",
-  "mantik-kapilari.html",
-  "mantik-ve-argumantasyon.html",
-  "manyetik-alan.html",
-  "marx-ve-marksist-gelenek.html",
-  "matris-donusumleri.html",
-  "maxwell-denklemleri-ve-alanlar.html",
-  "mayin-tarlasi.html",
-  "mekatronik-muhendisligi.html",
-  "mercek-isinlari.html",
-  "metalurji-ve-malzeme-muhendisligi.html",
-  "metinlerarasilik-ve-uyarlama.html",
-  "mikro-ekonomi-ve-uretim-faktorleri.html",
-  "mimarlik-tarihi-ve-yapi.html",
-  "mitoz-mayoz.html",
-  "modern-siyaset-kurami.html",
-  "mol-ve-stokiyometri.html",
-  "molekul-sekli.html",
-  "molekul.html",
-  "momentum-itme-ve-carpismalar.html",
-  "motivasyon-ve-duygu-kuramlari.html",
-  "mukavemet.html",
-  "muzik-kurami-ve-akort.html",
-  "neoklasik-iktisat-keynes-ve-karsitlari.html",
-  "newton-hareket-yasalari.html",
-  "normal-dagilim.html",
-  "nufus-ekolojisi.html",
-  "nukleer-fizik.html",
-  "okyanus-ve-gelgitler.html",
-  "on-dokuzuncu-yuzyil-felsefesi.html",
-  "optik-yansima-kirilma.html",
-  "optimizasyon-ve-gradyan-inisi.html",
-  "organik-kimya-ve-izomeri.html",
-  "orta-cag-ve-islam-felsefesi.html",
-  "otomotiv-muhendisligi.html",
-  "otonom-araclar-ve-iha.html",
-  "oyun-2048.html",
-  "oyun-kurami.html",
-  "pascal-ucgeni.html",
-  "penrose-dosemesi.html",
-  "periyodik-tablo.html",
-  "perspektif-ve-simetri.html",
-  "ph-indikator.html",
-  "pi-yaklasimi.html",
-  "pisagor.html",
-  "platon-felsefesi.html",
-  "plc-hidrolik-pnomatik-cnc-cadcam.html",
-  "pong.html",
-  "populasyon-genetigi.html",
-  "pragmatizm.html",
-  "programlama-paradigmalari.html",
-  "programlamaya-giris.html",
-  "psikanalizden-ayrilanlar.html",
-  "psikiyatri-tarihi-ve-tani-sistemleri.html",
-  "psikoloji-ekolleri-dizini.html",
-  "psikoloji-ekolleri-ve-tarihi.html",
-  "psikometri-ve-olcme.html",
-  "psikopatoloji-ve-psikoterapi-ekolleri.html",
-  "radyoaktif-bozunma.html",
-  "rastgele-yuruyus.html",
-  "rasyonalist-felsefe.html",
-  "regresyon-ve-korelasyon.html",
-  "renk-teorisi.html",
-  "riemann-toplamlari.html",
-  "robotik-ve-kinematik.html",
-  "roma-hukuku.html",
-  "salgin-modelleri-sir.html",
-  "sarkac.html",
-  "sayisal-analiz.html",
-  "senaryo-ve-dramaturji.html",
-  "serbest-dusme.html",
-  "ses-sentezleyici.html",
-  "sezar-sifre.html",
-  "siber-guvenlik.html",
-  "sicim-teorisi.html",
-  "sierpinski-fraktali-peano-egrisi-altin-oran.html",
-  "siir-cozumleme.html",
-  "sinema-akimlari.html",
-  "sinema-dili-ve-kurgu.html",
-  "sinemada-kurgu-ve-zaman.html",
-  "sinemada-mizansen.html",
-  "sinemada-oyunculuk-yontemleri.html",
-  "sinemada-ses-ve-film-muzigi.html",
-  "sinir-hucresi-ve-aksiyon-potansiyeli.html",
-  "sinyal-isleme-ve-modulasyon.html",
-  "siralama-algoritmalari.html",
-  "siralama-yarisi.html",
-  "sistemik-psikoloji-ve-aile-yaklasimlari.html",
-  "snake.html",
-  "sokrates-oncesi-felsefe.html",
-  "sosyal-modeller-ve-aglar.html",
-  "sosyal-psikoloji.html",
-  "sosyolojinin-kuruculari.html",
-  "sozdizimi-ve-dilbilgisi.html",
-  "spektroskopi-beer-lambert.html",
-  "statik.html",
-  "takimyildiz-haritasi.html",
-  "takvimler-ve-zaman-olcumu.html",
-  "tarihsel-veri-ve-haritalar.html",
-  "tasarim-desenleri.html",
-  "taylor-serisi.html",
-  "tek-sayi-toplam3.html",
-  "tek-sayi-toplam4.html",
-  "tek-sayi-toplam5.html",
-  "termodinamik.html",
-  "termokimya-ve-hess-yasasi.html",
-  "tetris.html",
-  "tibbi-goruntuleme-fizigi.html",
-  "toplum-sozlesmesi-ve-siyaset-felsefesi.html",
-  "tork-denge.html",
-  "turev.html",
-  "turkce-dilbilgisinin-temelleri.html",
-  "turkcenin-ses-yapisi.html",
-  "turlerin-poetikasi.html",
-  "ucak-muhendisligi-ve-aerodinamik.html",
-  "uluslararasi-iliskiler.html",
-  "uretim-planlama-ve-endustri-muhendisligi.html",
-  "us-ve-logaritma.html",
-  "uslup-istatistigi-ve-yazar-tanima.html",
-  "uzay-kosucusu.html",
-  "vektorler.html",
-  "veri-ve-ornekleme.html",
-  "veri-yapilari.html",
-  "veritabanlari.html",
-  "yapi-fizigi.html",
-  "yapisalcilik-ve-sonrasi.html",
-  "yari-iletkenler-ve-bant-yapisi.html",
-  "yasam-oyunu.html",
-  "yay-kutle.html",
-  "yazilim-muhendisligi.html",
-  "yenilenebilir-enerji.html",
-  "yildiz-yasam-dongusu.html",
-  "yirminci-yuzyil-sosyal-kurami.html",
-  "yol-bulma-algoritmalari.html",
-  "yoneylem-arastirmasi.html",
-  "zemin-mekanigi.html",
-  "zipf-yasasi-ve-dil-istatistigi.html",
-];
-// --- end:pages ---
-
-// --- generated:digests ---
-const DIGESTS = [
-  "shared/digest/akademik-yazma-ve-kaynak-kullanimi.js",
-  "shared/digest/akiskanlar-mekanigi.js",
-  "shared/digest/algi-psikolojisi.js",
-  "shared/digest/algoritma-karmasikligi.js",
-  "shared/digest/algoritmalar.js",
-  "shared/digest/alman-idealizmi.js",
-  "shared/digest/alternatif-akim.js",
-  "shared/digest/altin-oran.js",
-  "shared/digest/analitik-felsefe.js",
-  "shared/digest/anatomi-ve-fizyoloji.js",
-  "shared/digest/anayasa-hukuku-ve-temel-haklar.js",
-  "shared/digest/anlambilim-ve-edimbilim.js",
-  "shared/digest/anlati-yapisi-ve-edebiyat-cozumlemesi.js",
-  "shared/digest/anlatim-teknikleri.js",
-  "shared/digest/antropoloji-kuramlari.js",
-  "shared/digest/aristoteles-felsefesi.js",
-  "shared/digest/aritmetik-ve-sayilar.js",
-  "shared/digest/arkeoloji-ve-tarihleme.js",
-  "shared/digest/aruz-ve-hece-olcusu.js",
-  "shared/digest/asal-rsa.js",
-  "shared/digest/asit-baz-titrasyonu.js",
-  "shared/digest/asteroids.js",
-  "shared/digest/atislar.js",
-  "shared/digest/atmosfer-ve-hava.js",
-  "shared/digest/atom-orbitalleri.js",
-  "shared/digest/av-avci-lotka-volterra.js",
-  "shared/digest/ay-evreleri.js",
-  "shared/digest/bagisiklik-ve-mikrobiyoloji.js",
-  "shared/digest/barnsley-egreltiotu.js",
-  "shared/digest/basinc.js",
-  "shared/digest/basit-makineler.js",
-  "shared/digest/bayes-olasilik.js",
-  "shared/digest/belgesel-ve-deneysel-sinema.js",
-  "shared/digest/bellek-ve-ogrenme.js",
-  "shared/digest/besin-agi.js",
-  "shared/digest/bicimsel-diller-ve-otomata-teorisi.js",
-  "shared/digest/bilgi-kurami-ve-sikistirma.js",
-  "shared/digest/bilgisayar-sistemleri-ve-mimarisi.js",
-  "shared/digest/bilim-felsefesi.js",
-  "shared/digest/bilim-tarihinden-deneyler.js",
-  "shared/digest/bilimsel-yontem-olcme-ve-belirsizlik.js",
-  "shared/digest/bilinc-kuramlari.js",
-  "shared/digest/bilissel-psikoloji-ve-terapi.js",
-  "shared/digest/birim-cember.js",
-  "shared/digest/biyoinformatik-ve-dizi-hizalama.js",
-  "shared/digest/borclar-ve-sozlesme-hukuku.js",
-  "shared/digest/breakout.js",
-  "shared/digest/cebirin-temelleri.js",
-  "shared/digest/celik-yapilar.js",
-  "shared/digest/ceza-hukukunun-genel-ilkeleri.js",
-  "shared/digest/cift-sarkac.js",
-  "shared/digest/cizge-teorisi.js",
-  "shared/digest/cok-degiskenli-kalkulus.js",
-  "shared/digest/collatz.js",
-  "shared/digest/cozeltiler-ve-koligatif-ozellikler.js",
-  "shared/digest/dairesel-hareket.js",
-  "shared/digest/dalga-superpozisyonu.js",
-  "shared/digest/davraniscilik-ve-ogrenme-kuramlari.js",
-  "shared/digest/demografi-ve-nufus.js",
-  "shared/digest/denklem-denklestirme.js",
-  "shared/digest/depremler-ve-sismik-dalgalar.js",
-  "shared/digest/derin-zaman-ve-radyometrik-tarihleme.js",
-  "shared/digest/derleyici-ve-yorumlayicilar.js",
-  "shared/digest/diferansiyel-denklemler.js",
-  "shared/digest/din-felsefesi-ve-kelam.js",
-  "shared/digest/dna-replikasyon.js",
-  "shared/digest/dogal-secilim.js",
-  "shared/digest/doppler-etkisi.js",
-  "shared/digest/dram-ve-tiyatro.js",
-  "shared/digest/duran-dalgalar.js",
-  "shared/digest/dusunurler-dizini.js",
-  "shared/digest/edebiyat-akimlari.js",
-  "shared/digest/edebiyat-elestirisi-bicim-ve-gosterge.js",
-  "shared/digest/edebiyat-elestirisi-okur-ve-toplum.js",
-  "shared/digest/edebiyatta-imge-ve-soz-sanatlari.js",
-  "shared/digest/ego-psikolojisi-ve-nesne-iliskileri.js",
-  "shared/digest/elektrik-devresi-simulasyonu.js",
-  "shared/digest/elektrik-muhendisligi.js",
-  "shared/digest/elektrikli-araclar.js",
-  "shared/digest/elektrokimya.js",
-  "shared/digest/elektromanyetik-dalgalar-ve-polarizasyon.js",
-  "shared/digest/elektronik-devre.js",
-  "shared/digest/elektronik-muhendisligi.js",
-  "shared/digest/elektrostatik.js",
-  "shared/digest/empirist-felsefe.js",
-  "shared/digest/enigma-makinesi.js",
-  "shared/digest/entropi-ve-istatistiksel-fizik.js",
-  "shared/digest/enzim-kinetigi.js",
-  "shared/digest/epidemiyoloji-ve-klinik-arastirma.js",
-  "shared/digest/epistemoloji.js",
-  "shared/digest/etimoloji-ve-dil-aileleri.js",
-  "shared/digest/evrimsel-psikoloji-ve-karsilastirmali-yontem.js",
-  "shared/digest/farmakokinetik.js",
-  "shared/digest/felsefi-dusunce-deneyleri.js",
-  "shared/digest/fenomenoloji-ve-varolusculuk.js",
-  "shared/digest/fibo+pascal.js",
-  "shared/digest/fibo.js",
-  "shared/digest/film-cozumleme-atolyesi.js",
-  "shared/digest/film-kuramlari.js",
-  "shared/digest/finans-matematigi.js",
-  "shared/digest/fonksiyon-grafigi.js",
-  "shared/digest/formul-hafiza.js",
-  "shared/digest/fotoelektrik.js",
-  "shared/digest/fotosentez-solunum.js",
-  "shared/digest/fourier-ses.js",
-  "shared/digest/frankfurt-okulu-ve-habermas.js",
-  "shared/digest/freud-ve-klasik-psikanaliz.js",
-  "shared/digest/gelisim-psikolojisi.js",
-  "shared/digest/gemi-makineleri-isletme-muhendisligi.js",
-  "shared/digest/gen-ifadesi-ve-molekuler-biyoloji.js",
-  "shared/digest/gen-muhendisligi.js",
-  "shared/digest/genetik-caprazlama.js",
-  "shared/digest/geometrinin-temelleri.js",
-  "shared/digest/gestalt-psikolojisi-ve-algi.js",
-  "shared/digest/gezegen-savunmasi.js",
-  "shared/digest/gorelilik-uzayzaman.js",
-  "shared/digest/grup-teorisi.js",
-  "shared/digest/gunes-sistemi.js",
-  "shared/digest/hanoi-kuleleri.js",
-  "shared/digest/hareket-ve-grafikler.js",
-  "shared/digest/helenistik-felsefe.js",
-  "shared/digest/hesaplama-teorisi.js",
-  "shared/digest/hidrolik-sistemler.js",
-  "shared/digest/hilbert-egrisi.js",
-  "shared/digest/hipotez-testi-ve-guven-araligi.js",
-  "shared/digest/homeostaz-ve-geri-besleme.js",
-  "shared/digest/hucre-biyolojisi.js",
-  "shared/digest/hukuk-felsefesi.js",
-  "shared/digest/hukuka-giris.js",
-  "shared/digest/humanistik-ve-varoluscu-psikoloji.js",
-  "shared/digest/ibn-haldun-ve-tarih-felsefesi.js",
-  "shared/digest/ideal-gaz.js",
-  "shared/digest/iklim-ve-sera-etkisi.js",
-  "shared/digest/iliskisel-psikanaliz-ve-zihinsellestirme.js",
-  "shared/digest/integral.js",
-  "shared/digest/internet-ve-ag-teknolojileri.js",
-  "shared/digest/is-enerji.js",
-  "shared/digest/isaretciler-ve-bellek-yonetimi.js",
-  "shared/digest/isi-transferi.js",
-  "shared/digest/isik-sondurme.js",
-  "shared/digest/isletim-sistemleri-ve-linux.js",
-  "shared/digest/isletme-bilimi-ve-yonetim.js",
-  "shared/digest/ispat-yontemleri.js",
-  "shared/digest/julia-fraktali.js",
-  "shared/digest/kaldirma-kuvveti.js",
-  "shared/digest/kalite-kontrol-ve-istatistiksel-surec-kontrolu.js",
-  "shared/digest/kalp-dolasim.js",
-  "shared/digest/kant-felsefesi.js",
-  "shared/digest/kara-cisim-isimasi.js",
-  "shared/digest/karakter-ve-karakter-psikolojisi.js",
-  "shared/digest/karar-ve-bilissel-yanliliklar.js",
-  "shared/digest/karmasik-sayilar.js",
-  "shared/digest/karsilastirmali-dinler-tarihi.js",
-  "shared/digest/kent-planlama.js",
-  "shared/digest/kepler-yasalari.js",
-  "shared/digest/kimya-muhendisligi.js",
-  "shared/digest/kimyasal-denge-ve-gibbs-enerjisi.js",
-  "shared/digest/kimyasal-kinetik.js",
-  "shared/digest/kirinim-izgarasi.js",
-  "shared/digest/kisilik-kuramlari.js",
-  "shared/digest/klasik-girisim.js",
-  "shared/digest/klasik-iktisat.js",
-  "shared/digest/koch-kar-tanesi.js",
-  "shared/digest/kombinatorik-ve-sayma.js",
-  "shared/digest/konik-kesitler.js",
-  "shared/digest/kontrol-kurami.js",
-  "shared/digest/kristal-yapilar.js",
-  "shared/digest/kuantum-dalga.js",
-  "shared/digest/kuantum-hesaplama.js",
-  "shared/digest/kuantum-mekanigi.js",
-  "shared/digest/kulturel-ve-elestirel-psikoloji.js",
-  "shared/digest/kumeler-bagintilar-ve-fonksiyonlar.js",
-  "shared/digest/kuyruk-kurami-ve-benzetim.js",
-  "shared/digest/lacan-fromm-ve-horney.js",
-  "shared/digest/lazer-ve-uyarilmis-salim.js",
-  "shared/digest/levha-tektonigi.js",
-  "shared/digest/limit-ve-sureklilik.js",
-  "shared/digest/lineer-cebir-ve-ozdegerler.js",
-  "shared/digest/lissajous.js",
-  "shared/digest/lorentz-kuvveti.js",
-  "shared/digest/lorenz-cekici.js",
-  "shared/digest/lorenz-cekici2.js",
-  "shared/digest/maden-muhendisligi.js",
-  "shared/digest/makine-dili-assembly-c.js",
-  "shared/digest/makine-muhendisligi.js",
-  "shared/digest/makine-ogrenmesi-derin-ogrenme-llm.js",
-  "shared/digest/makro-ekonomi-ve-para-politikalari.js",
-  "shared/digest/mandelbrot+lorenz.js",
-  "shared/digest/mandelbrot-fraktali.js",
-  "shared/digest/mantik-devresi.js",
-  "shared/digest/mantik-kapilari.js",
-  "shared/digest/mantik-ve-argumantasyon.js",
-  "shared/digest/manyetik-alan.js",
-  "shared/digest/marx-ve-marksist-gelenek.js",
-  "shared/digest/matris-donusumleri.js",
-  "shared/digest/maxwell-denklemleri-ve-alanlar.js",
-  "shared/digest/mayin-tarlasi.js",
-  "shared/digest/mekatronik-muhendisligi.js",
-  "shared/digest/mercek-isinlari.js",
-  "shared/digest/metalurji-ve-malzeme-muhendisligi.js",
-  "shared/digest/metinlerarasilik-ve-uyarlama.js",
-  "shared/digest/mikro-ekonomi-ve-uretim-faktorleri.js",
-  "shared/digest/mimarlik-tarihi-ve-yapi.js",
-  "shared/digest/mitoz-mayoz.js",
-  "shared/digest/modern-siyaset-kurami.js",
-  "shared/digest/mol-ve-stokiyometri.js",
-  "shared/digest/molekul-sekli.js",
-  "shared/digest/molekul.js",
-  "shared/digest/momentum-itme-ve-carpismalar.js",
-  "shared/digest/motivasyon-ve-duygu-kuramlari.js",
-  "shared/digest/mukavemet.js",
-  "shared/digest/muzik-kurami-ve-akort.js",
-  "shared/digest/neoklasik-iktisat-keynes-ve-karsitlari.js",
-  "shared/digest/newton-hareket-yasalari.js",
-  "shared/digest/normal-dagilim.js",
-  "shared/digest/nufus-ekolojisi.js",
-  "shared/digest/nukleer-fizik.js",
-  "shared/digest/okyanus-ve-gelgitler.js",
-  "shared/digest/on-dokuzuncu-yuzyil-felsefesi.js",
-  "shared/digest/optik-yansima-kirilma.js",
-  "shared/digest/optimizasyon-ve-gradyan-inisi.js",
-  "shared/digest/organik-kimya-ve-izomeri.js",
-  "shared/digest/orta-cag-ve-islam-felsefesi.js",
-  "shared/digest/otomotiv-muhendisligi.js",
-  "shared/digest/otonom-araclar-ve-iha.js",
-  "shared/digest/oyun-2048.js",
-  "shared/digest/oyun-kurami.js",
-  "shared/digest/pascal-ucgeni.js",
-  "shared/digest/penrose-dosemesi.js",
-  "shared/digest/periyodik-tablo.js",
-  "shared/digest/perspektif-ve-simetri.js",
-  "shared/digest/ph-indikator.js",
-  "shared/digest/pi-yaklasimi.js",
-  "shared/digest/pisagor.js",
-  "shared/digest/platon-felsefesi.js",
-  "shared/digest/plc-hidrolik-pnomatik-cnc-cadcam.js",
-  "shared/digest/pong.js",
-  "shared/digest/populasyon-genetigi.js",
-  "shared/digest/pragmatizm.js",
-  "shared/digest/programlama-paradigmalari.js",
-  "shared/digest/programlamaya-giris.js",
-  "shared/digest/psikanalizden-ayrilanlar.js",
-  "shared/digest/psikiyatri-tarihi-ve-tani-sistemleri.js",
-  "shared/digest/psikoloji-ekolleri-dizini.js",
-  "shared/digest/psikoloji-ekolleri-ve-tarihi.js",
-  "shared/digest/psikometri-ve-olcme.js",
-  "shared/digest/psikopatoloji-ve-psikoterapi-ekolleri.js",
-  "shared/digest/radyoaktif-bozunma.js",
-  "shared/digest/rastgele-yuruyus.js",
-  "shared/digest/rasyonalist-felsefe.js",
-  "shared/digest/regresyon-ve-korelasyon.js",
-  "shared/digest/renk-teorisi.js",
-  "shared/digest/riemann-toplamlari.js",
-  "shared/digest/robotik-ve-kinematik.js",
-  "shared/digest/roma-hukuku.js",
-  "shared/digest/salgin-modelleri-sir.js",
-  "shared/digest/sarkac.js",
-  "shared/digest/sayisal-analiz.js",
-  "shared/digest/senaryo-ve-dramaturji.js",
-  "shared/digest/serbest-dusme.js",
-  "shared/digest/ses-sentezleyici.js",
-  "shared/digest/sezar-sifre.js",
-  "shared/digest/siber-guvenlik.js",
-  "shared/digest/sicim-teorisi.js",
-  "shared/digest/sierpinski-fraktali-peano-egrisi-altin-oran.js",
-  "shared/digest/siir-cozumleme.js",
-  "shared/digest/sinema-akimlari.js",
-  "shared/digest/sinema-dili-ve-kurgu.js",
-  "shared/digest/sinemada-kurgu-ve-zaman.js",
-  "shared/digest/sinemada-mizansen.js",
-  "shared/digest/sinemada-oyunculuk-yontemleri.js",
-  "shared/digest/sinemada-ses-ve-film-muzigi.js",
-  "shared/digest/sinir-hucresi-ve-aksiyon-potansiyeli.js",
-  "shared/digest/sinyal-isleme-ve-modulasyon.js",
-  "shared/digest/siralama-algoritmalari.js",
-  "shared/digest/siralama-yarisi.js",
-  "shared/digest/sistemik-psikoloji-ve-aile-yaklasimlari.js",
-  "shared/digest/snake.js",
-  "shared/digest/sokrates-oncesi-felsefe.js",
-  "shared/digest/sosyal-modeller-ve-aglar.js",
-  "shared/digest/sosyal-psikoloji.js",
-  "shared/digest/sosyolojinin-kuruculari.js",
-  "shared/digest/sozdizimi-ve-dilbilgisi.js",
-  "shared/digest/spektroskopi-beer-lambert.js",
-  "shared/digest/statik.js",
-  "shared/digest/takimyildiz-haritasi.js",
-  "shared/digest/takvimler-ve-zaman-olcumu.js",
-  "shared/digest/tarihsel-veri-ve-haritalar.js",
-  "shared/digest/tasarim-desenleri.js",
-  "shared/digest/taylor-serisi.js",
-  "shared/digest/tek-sayi-toplam3.js",
-  "shared/digest/tek-sayi-toplam4.js",
-  "shared/digest/tek-sayi-toplam5.js",
-  "shared/digest/termodinamik.js",
-  "shared/digest/termokimya-ve-hess-yasasi.js",
-  "shared/digest/tetris.js",
-  "shared/digest/tibbi-goruntuleme-fizigi.js",
-  "shared/digest/toplum-sozlesmesi-ve-siyaset-felsefesi.js",
-  "shared/digest/tork-denge.js",
-  "shared/digest/turev.js",
-  "shared/digest/turkce-dilbilgisinin-temelleri.js",
-  "shared/digest/turkcenin-ses-yapisi.js",
-  "shared/digest/turlerin-poetikasi.js",
-  "shared/digest/ucak-muhendisligi-ve-aerodinamik.js",
-  "shared/digest/uluslararasi-iliskiler.js",
-  "shared/digest/uretim-planlama-ve-endustri-muhendisligi.js",
-  "shared/digest/us-ve-logaritma.js",
-  "shared/digest/uslup-istatistigi-ve-yazar-tanima.js",
-  "shared/digest/uzay-kosucusu.js",
-  "shared/digest/vektorler.js",
-  "shared/digest/veri-ve-ornekleme.js",
-  "shared/digest/veri-yapilari.js",
-  "shared/digest/veritabanlari.js",
-  "shared/digest/yapi-fizigi.js",
-  "shared/digest/yapisalcilik-ve-sonrasi.js",
-  "shared/digest/yari-iletkenler-ve-bant-yapisi.js",
-  "shared/digest/yasam-oyunu.js",
-  "shared/digest/yay-kutle.js",
-  "shared/digest/yazilim-muhendisligi.js",
-  "shared/digest/yenilenebilir-enerji.js",
-  "shared/digest/yildiz-yasam-dongusu.js",
-  "shared/digest/yirminci-yuzyil-sosyal-kurami.js",
-  "shared/digest/yol-bulma-algoritmalari.js",
-  "shared/digest/yoneylem-arastirmasi.js",
-  "shared/digest/zemin-mekanigi.js",
-  "shared/digest/zipf-yasasi-ve-dil-istatistigi.js",
-];
-// --- end:digests ---
-
-const STATIC_CACHE = `${VERSION}-static`;
-const RUNTIME_CACHE = `${VERSION}-runtime`;
+const SCOPE = new URL(self.registration.scope);
+const CACHE_PREFIX = "acelya:" + SCOPE.pathname + ":";
+const STATIC_CACHE = CACHE_PREFIX + VERSION + "-static";
+const VISITED_CACHE = CACHE_PREFIX + "visited";
+const RUNTIME_CACHE = CACHE_PREFIX + "runtime";
+const CORE_URLS = new Set(CORE.map((file) => new URL(file, SCOPE).href));
+const HOME = new URL("index.html", SCOPE).href;
+const DIGEST_CSS = new URL("shared/digest.css", SCOPE).pathname;
 const CDN_HOSTS = new Set(["cdn.jsdelivr.net", "cdnjs.cloudflare.com", "www.gstatic.com", "fonts.gstatic.com", "unpkg.com"]);
-const OFFLINE_HTML = `<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Çevrimdışı</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:Outfit,system-ui,sans-serif;background:#06080f;color:#e8ecf4;text-align:center;padding:24px}a{color:#5eead4}</style></head><body><div><h1>Şu an çevrimdışısın</h1><p>Bu sayfa daha önce açılmadığı için önbellekte yok. Bağlantı gelince yeniden dene.</p><p><a href="index.html">Ana sayfa</a></p></div></body></html>`;
+const OFFLINE_HTML = '<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Çevrimdışı</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;background:#06080f;color:#e8ecf4;text-align:center;padding:24px}a{color:#5eead4}</style></head><body><div><h1>Şu an çevrimdışısın</h1><p>Bu sayfa önbellekte yok. Bağlantı gelince yeniden dene.</p><a href="' + HOME + '">Ana sayfa</a></div></body></html>';
 
-async function precacheBestEffort(cache, urls) {
-  await Promise.allSettled(
-    urls.map(async (url) => {
-      try {
-        const res = await fetch(new Request(url, { cache: "reload" }));
-        if (res.ok) await cache.put(url, res);
-      } catch (_) {
-        // İlk ziyarette tamamlanır.
-      }
-    }),
-  );
+function inScope(url) {
+  return url.origin === SCOPE.origin && url.pathname.startsWith(SCOPE.pathname);
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    (async () => {
-      const cache = await caches.open(STATIC_CACHE);
-      await cache.addAll(CORE.map((url) => new Request(url, { cache: "reload" })));
-      await precacheBestEffort(cache, [...PAGES, ...DIGESTS]);
-      await self.skipWaiting();
-    })(),
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(STATIC_CACHE);
+    await cache.addAll(CORE.map((file) => new Request(new URL(file, SCOPE), { cache: "reload" })));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    (async () => {
-      const keys = await caches.keys();
-      await Promise.all(keys.filter((k) => !k.startsWith(VERSION)).map((k) => caches.delete(k)));
-      await self.clients.claim();
-    })(),
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    // Ziyaret verileri ve aynı origin'deki diğer uygulamaların önbellekleri kalır.
+    const oldShells = keys.filter((name) => name.startsWith(CACHE_PREFIX) && name.endsWith("-static") && name !== STATIC_CACHE);
+    await Promise.all(oldShells.map((name) => caches.delete(name)));
+    await self.clients.claim();
+  })());
 });
 
-self.addEventListener("message", (event) => {
-  if (event.data === "SKIP_WAITING") self.skipWaiting();
-});
+let legacyName;
+async function findLegacyCache() {
+  // Önceki sürüm tüm siteyi önceden alıyordu. O dosyalar çevrimdışı
+  // yedek olarak yerinde kalır, güncel önbelleğe topluca kopyalanmaz.
+  const names = (await caches.keys()).filter((name) => /^acelya-[0-9a-f]+-static$/.test(name));
+  for (const cacheName of names) {
+    if (await caches.match(HOME, { cacheName })) return cacheName;
+  }
+  return null;
+}
+
+async function cachedResponse(request, cacheName, navigation = false) {
+  const url = new URL(request.url);
+  const options = { ignoreSearch: inScope(url) };
+  const current = await caches.match(request, { cacheName, ...options });
+  if (current) return current;
+
+  if (navigation && url.pathname === SCOPE.pathname) {
+    const home = await caches.match(HOME, { cacheName: STATIC_CACHE });
+    if (home) return home;
+  }
+
+  const legacy = await (legacyName ??= findLegacyCache());
+  if (!legacy) return undefined;
+  const legacyCache = cacheName === RUNTIME_CACHE ? legacy.replace(/-static$/, "-runtime") : legacy;
+  return caches.match(request, { cacheName: legacyCache, ...options });
+}
+
+async function store(cacheName, request, response) {
+  try {
+    const cache = await caches.open(cacheName);
+    await cache.put(request, response);
+  } catch (_) {
+    // Depolama dolu olduğunda ağdaki yanıt kullanılabilir.
+  }
+}
+
+async function networkFirst(event, cacheName, { navigation = false, stylesheet = false } = {}) {
+  const { request } = event;
+  try {
+    const response = await fetch(request, stylesheet ? { cache: "no-cache" } : undefined);
+    const usable = response.ok || response.type === "opaque";
+    if (usable) event.waitUntil(store(cacheName, request, response.clone()));
+    if (!stylesheet || usable) return response;
+  } catch (_) {}
+
+  const cached = await cachedResponse(request, cacheName, navigation);
+  if (cached) return cached;
+  if (navigation) {
+    return new Response(OFFLINE_HTML, { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } });
+  }
+  return new Response("", { status: 503, headers: stylesheet ? { "Content-Type": "text/css; charset=utf-8" } : {} });
+}
+
+async function cacheFirst(event, cacheName) {
+  const { request } = event;
+  const cached = await caches.match(request, { cacheName });
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (response.ok || response.type === "opaque") event.waitUntil(store(cacheName, request, response.clone()));
+    return response;
+  } catch (_) {
+    return (await cachedResponse(request, cacheName)) || new Response("", { status: 503 });
+  }
+}
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
   const url = new URL(request.url);
 
-  if (url.hostname.endsWith("firebasedatabase.app") || url.hostname.endsWith("firebaseio.com")) return;
-
-  if (request.mode === "navigate" || request.headers.get("Accept")?.includes("text/html")) {
-    event.respondWith(networkFirst(request));
-    return;
-  }
-
-  if (url.origin === self.location.origin) {
-    if (url.pathname === new URL("shared/digest.css", self.registration.scope).pathname) {
-      event.respondWith(networkFirst(request, { stylesheet: true }));
-      return;
+  if (inScope(url)) {
+    const isCore = CORE_URLS.has(url.origin + url.pathname);
+    const navigation = request.mode === "navigate" || request.headers.get("Accept")?.includes("text/html");
+    if (navigation) {
+      event.respondWith(networkFirst(event, isCore ? STATIC_CACHE : VISITED_CACHE, { navigation: true }));
+    } else if (url.pathname === DIGEST_CSS) {
+      event.respondWith(networkFirst(event, STATIC_CACHE, { stylesheet: true }));
+    } else if (isCore) {
+      event.respondWith(cacheFirst(event, STATIC_CACHE));
+    } else {
+      event.respondWith(networkFirst(event, VISITED_CACHE));
     }
-    event.respondWith(staleWhileRevalidate(request, STATIC_CACHE));
-    return;
-  }
-
-  if (CDN_HOSTS.has(url.hostname)) {
-    event.respondWith(cacheFirst(request, RUNTIME_CACHE));
-    return;
-  }
-
-  if (url.hostname === "fonts.googleapis.com") {
-    event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
+  } else if (CDN_HOSTS.has(url.hostname)) {
+    event.respondWith(cacheFirst(event, RUNTIME_CACHE));
+  } else if (url.hostname === "fonts.googleapis.com") {
+    event.respondWith(networkFirst(event, RUNTIME_CACHE, { stylesheet: true }));
   }
 });
 
-async function networkFirst(request, { stylesheet = false } = {}) {
-  const cache = await caches.open(STATIC_CACHE);
-  try {
-    const response = await fetch(request, stylesheet ? { cache: "no-cache" } : undefined);
-    if (response.ok) {
-      const save = cache.put(request, response.clone()).catch(() => {});
-      if (stylesheet) await save;
+async function rememberVisit(page, resources) {
+  const visited = new Map([[page.href, VISITED_CACHE]]);
+  for (const resource of resources) {
+    if (typeof resource !== "string" || !URL.canParse(resource)) continue;
+    const url = new URL(resource);
+    const local = inScope(url) && /\.(?:css|js|json|svg|png|jpg|jpeg|webp|woff2?|m4a)$/i.test(url.pathname);
+    if (local && !CORE_URLS.has(url.href)) visited.set(url.href, VISITED_CACHE);
+    if (url.protocol === "https:" && (CDN_HOSTS.has(url.hostname) || url.hostname === "fonts.googleapis.com")) {
+      visited.set(url.href, RUNTIME_CACHE);
     }
-    if (!stylesheet || response.ok) return response;
-  } catch (_) {}
-  const cached = (await cache.match(request)) || (await cache.match(request, { ignoreSearch: true }));
-  if (cached) return cached;
-  if (stylesheet) return new Response("", { status: 503, headers: { "Content-Type": "text/css; charset=utf-8" } });
-  return new Response(OFFLINE_HTML, { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } });
-}
-
-async function staleWhileRevalidate(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-  const refresh = fetch(request)
-    .then((response) => {
-      if (response.ok) cache.put(request, response.clone());
-      return response;
-    })
-    .catch(() => null);
-  if (cached) return cached;
-  const fresh = await refresh;
-  return fresh || new Response("", { status: 503 });
-}
-
-async function cacheFirst(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-  if (cached) return cached;
-  try {
-    const response = await fetch(request);
-    if (response.ok || response.type === "opaque") cache.put(request, response.clone());
-    return response;
-  } catch (_) {
-    return new Response("", { status: 503 });
+  }
+  const entries = [...visited];
+  for (let i = 0; i < entries.length; i += 3) {
+    await Promise.allSettled(entries.slice(i, i + 3).map(async ([url, cacheName]) => {
+      if (await caches.match(url, { cacheName })) return;
+      const response = await fetch(url, { mode: cacheName === RUNTIME_CACHE ? "no-cors" : "same-origin" });
+      if (response.ok || response.type === "opaque") await store(cacheName, url, response);
+    }));
   }
 }
+
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") {
+    event.waitUntil(self.skipWaiting());
+    return;
+  }
+  if (event.data?.type !== "CACHE_VISIT" || !Array.isArray(event.data.resources) || !event.source?.url) return;
+  const page = new URL(event.source.url);
+  if (!inScope(page) || !/^[a-z0-9+_-]+\.html$/i.test(page.pathname.slice(SCOPE.pathname.length)) || CORE_URLS.has(page.href)) return;
+  page.hash = "";
+  event.waitUntil(rememberVisit(page, event.data.resources));
+});

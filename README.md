@@ -26,6 +26,10 @@ Ortak kabuk (`shared/app.js`, `shared/theme.css`) üst çubuğu, temayı,
 yıldız arka planını, PWA kaydını sağlar; sayfalar hesapsız açılır. Oyun sayfaları
 ayrıca skor tablosu, mobil kontroller ve ses katmanını yükler.
 
+PWA kurulurken yalnızca site kabuğu önbelleğe alınır. Dersler ve yükledikleri
+dosyalar ziyaretle saklanır. Daha önce önbelleğe alınmış dersler çevrimdışı
+açılabilir. Yeni kurulumda henüz ziyaret edilmemiş bir ders için bağlantı gerekir.
+
 ## Yapı
 
 ```

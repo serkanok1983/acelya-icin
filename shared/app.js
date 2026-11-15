@@ -368,7 +368,16 @@ window.AcelyaTouch = (function () {
     }
     // Service Worker
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").catch(function () {});
+      const firstVisit = !navigator.serviceWorker.controller;
+      navigator.serviceWorker.register("sw.js").then(() => {
+        if (!firstVisit) return;
+        const remember = () => navigator.serviceWorker.ready.then(({ active }) => {
+          const resources = performance.getEntriesByType("resource").map((entry) => entry.name);
+          active?.postMessage({ type: "CACHE_VISIT", resources });
+        });
+        if (document.readyState === "complete") remember();
+        else window.addEventListener("load", remember, { once: true });
+      }).catch(() => {});
     }
   }
 
@@ -595,7 +604,7 @@ window.AcelyaTouch = (function () {
     document.head.appendChild(s);
   }
 
-  function loadScriptOnce(src, onload) {
+  function loadScriptOnce(src, onload, onerror) {
     if (document.querySelector(`script[src="${src}"]`)) {
       onload();
       return;
@@ -603,6 +612,7 @@ window.AcelyaTouch = (function () {
     const s = document.createElement("script");
     s.src = src;
     s.onload = onload;
+    if (onerror) s.onerror = onerror;
     document.head.appendChild(s);
   }
 
@@ -612,40 +622,124 @@ window.AcelyaTouch = (function () {
     });
   }
 
-  function loadElectiveNavigation() {
-    const routeId = new URLSearchParams(location.search).get("yol");
-    const main = document.querySelector("main.app-content");
-    if (!routeId || !main) return;
+  function loadRouteNavigation(holder, routeId, updateNext) {
+    const useDigestSuggestion = () => updateNext(undefined);
     loadScriptOnce("shared/yollar.js", () => {
-      const route = window.ACELYA_YOLLAR?.yollar.find((item) => item.elective && item.id === routeId);
-      if (!route) return;
+      const data = window.ACELYA_YOLLAR;
+      const prerequisites = data?.onsart.find((item) => item.id === routeId);
+      const route = prerequisites || data?.yollar.find((item) => item.id === routeId);
+      if (!route) return useDigestSuggestion();
       const lessons = route.stages.flatMap((stage) => stage.items);
       const position = lessons.indexOf(pageId);
-      if (position < 0) return;
+      if (position < 0) return useDigestSuggestion();
       loadScriptOnce("shared/catalog.js", () => {
         const catalog = window.ACELYA_CATALOG;
         const nav = document.createElement("nav");
         nav.className = "app-route";
-        nav.setAttribute("aria-label", "Seçmeli yol");
+        nav.setAttribute("aria-label", prerequisites ? "Önşart dizisi" : route.elective ? "Seçmeli yol" : "Öğrenme yolu");
         const encodedRoute = encodeURIComponent(routeId);
 
         const overview = document.createElement("p");
         const routeLink = document.createElement("a");
-        routeLink.href = `ogrenme-yollari.html#${encodedRoute}`;
+        routeLink.href = `${prerequisites ? "onsart" : "ogrenme-yollari"}.html#${encodedRoute}`;
         routeLink.textContent = route.title;
         overview.append(routeLink, ` · ${position + 1} / ${lessons.length} ders`);
         nav.append(overview);
 
-        for (const [slug, label] of [[lessons[position - 1], "Önceki"], [lessons[position + 1], "Sıradaki"]]) {
-          if (!slug || !catalog?.[slug]) continue;
+        const neighbors = [
+          lessons.slice(0, position).reverse().find((slug) => catalog?.[slug]),
+          lessons.slice(position + 1).find((slug) => catalog?.[slug]),
+        ].map((slug) => slug ? { href: `${slug}.html?yol=${encodedRoute}`, title: catalog[slug].title.split(":")[0].trim() } : null);
+        for (const [i, lesson] of neighbors.entries()) {
+          if (!lesson) continue;
           const link = document.createElement("a");
           link.className = "app-btn-ghost";
-          link.href = `${slug}.html?yol=${encodedRoute}`;
-          link.textContent = `${label} · ${catalog[slug].title.split(":")[0].trim()}`;
+          link.href = lesson.href;
+          link.textContent = `${i === 0 ? "Önceki" : "Sıradaki"} · ${lesson.title}`;
           nav.append(link);
         }
-        main.append(nav);
+        updateNext(neighbors[1]);
+        const digest = holder === document.body && document.getElementById("kesif-defteri");
+        if (digest) digest.before(nav);
+        else holder.append(nav);
+      }, useDigestSuggestion);
+    }, useDigestSuggestion);
+  }
+
+  function initLessonNavigation() {
+    const skip = ["bilgi", "404", "ogrenme-yollari", "onsart"];
+    if (skip.includes(pageId) || GAME_IDS.has(pageId)) return;
+    const holder = document.querySelector("main, .app-content") || document.body;
+    const routeId = new URLSearchParams(location.search).get("yol");
+    const nav = document.createElement("nav");
+    nav.className = "app-lesson-nav";
+    nav.setAttribute("aria-label", "Ders içi gezinme");
+
+    function makeLink(label) {
+      const link = document.createElement("a");
+      link.textContent = label;
+      nav.append(link);
+      return link;
+    }
+
+    function onAnchor(link, focus) {
+      link.addEventListener("click", (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        focus();
       });
+    }
+
+    const workshop = holder.querySelector("[data-lesson-workshop], [role='tablist'], .lesson-lab, #atolye") ||
+      holder.querySelector("form, .controls, .control-panel, .panel, canvas:not(#starCanvas)");
+    if (workshop) {
+      if (!workshop.id) workshop.id = "ders-atolye";
+      workshop.classList.add("app-workshop-target");
+      const jump = makeLink("Atölye");
+      jump.href = "#" + workshop.id;
+      onAnchor(jump, () => {
+        const target = workshop.querySelector("[role='tab'][aria-selected='true'], h2, h3") || workshop;
+        if (target.tabIndex < 0 && !target.hasAttribute("tabindex")) target.tabIndex = -1;
+        target.focus({ preventScroll: true });
+        workshop.scrollIntoView({ block: "start" });
+      });
+    }
+
+    const digestLink = makeLink("Keşif Defteri");
+    digestLink.href = "#kesif-defteri";
+    digestLink.hidden = true;
+    onAnchor(digestLink, () => window.AcelyaDigest?.focus?.());
+    const nextLink = makeLink("Sıradaki ders");
+    nextLink.hidden = true;
+    let digestNext;
+    let routeNext = routeId ? null : undefined;
+    function refresh() {
+      const next = routeNext === undefined ? digestNext : routeNext;
+      nextLink.hidden = !next;
+      if (next) {
+        nextLink.href = next.href;
+        nextLink.setAttribute("aria-label", `Sıradaki ders · ${next.title}`);
+        nextLink.title = next.title;
+      }
+      nav.hidden = !workshop && digestLink.hidden && nextLink.hidden;
+    }
+    refresh();
+
+    const intro = holder.querySelector(":scope > .lesson-intro, :scope > h1");
+    if (intro) {
+      const after = intro.nextElementSibling?.matches("p.hint") ? intro.nextElementSibling : intro;
+      after.after(nav);
+    } else if (holder === document.body) document.querySelector(".app-topbar").after(nav);
+    else holder.prepend(nav);
+
+    window.addEventListener("acelya-digest-ready", (event) => {
+      digestLink.hidden = false;
+      digestNext = event.detail.next;
+      refresh();
+    }, { once: true });
+    if (routeId) loadRouteNavigation(holder, routeId, (next) => {
+      routeNext = next;
+      refresh();
     });
   }
 
@@ -679,9 +773,9 @@ window.AcelyaTouch = (function () {
     ensureFavicon();
     initStars();
     initTopbar();
+    initLessonNavigation();
     loadDigest();
-    loadElectiveNavigation();
-    loadGameKit();
+    if (GAME_IDS.has(pageId)) loadGameKit();
   }
 
   if (document.readyState === "loading") {
