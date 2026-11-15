@@ -186,6 +186,7 @@ window.ACELYA_DIGEST["muzik-kurami-ve-akort"] = {
     { href: "ses-sentezleyici.html", title: "Ses Sentezleyici: Zarf ve Tını", why: "Tınının zamanla değişen yanı: kazanç zarfı ve filtreyle bir notayı kur, Web Audio hesabını kuramla karşılaştır." },
   ],
   sources: [
+    { title: "William Sethares · Local Consonance and the Relationship Between Timbre and Scale (1993)", url: "https://minds.wisconsin.edu/bitstream/1793/9496/1/file_1.pdf", note: "Bir tınının kısmi sesleri değiştiğinde hangi aralıkların daha uyumlu duyulabileceğini modelleyen özgün çalışma (İngilizce)." },
     { title: "Wikipedia · Consonance and dissonance", url: "https://en.wikipedia.org/wiki/Consonance_and_dissonance", note: "Uyuşum kuramları: harmonikler arası vuru, kritik bant, Stumpf'un kaynaşması, Sethares ve kültürel aşinalık üzerine çalışmalar (İngilizce)." },
     { title: "Wikipedia · Equal temperament", url: "https://en.wikipedia.org/wiki/Equal_temperament", note: "Zhu Zaiyu (1584), Stevin, 12 eşit akortun hataları ve Batı'da baskınlaşması (İngilizce)." },
     { title: "Wikipedia · 53 equal temperament", url: "https://en.wikipedia.org/wiki/53_equal_temperament", note: "Jing Fang, Mercator, Holder ve Newton; 53 bölmede beşli ve üçlü hataları; Holder koması (İngilizce)." },

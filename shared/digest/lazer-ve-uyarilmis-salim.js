@@ -191,6 +191,7 @@ window.ACELYA_DIGEST["lazer-ve-uyarilmis-salim"] = {
     { href: "elektromanyetik-dalgalar-ve-polarizasyon.html", title: "Elektromanyetik Dalgalar ve Polarizasyon: Malus, Brewster, Dalga Plakaları", why: "Lazer ışığının bir başka özelliği olan kutuplanma: polarizörler, Brewster açısında yansımanın sönmesi ve dalga plakaları." },
   ],
   sources: [
+    { title: "Theodore H. Maiman · Stimulated Optical Radiation in Ruby (1960)", url: "https://www.nature.com/articles/187493a0", note: "Yakut lazerinde uyarılmış optik yayımın gözlendiğini bildiren özgün deney raporu (İngilizce)." },
     { title: "Wikipedia · Einstein coefficients", url: "https://en.wikipedia.org/wiki/Einstein_coefficients", note: "A ve B katsayıları, g₁B₁₂ = g₂B₂₁ ve A/B bağıntısı, Planck yasasının türetilişi; Einstein'ın 1916 ve 1917 makalelerinin künyeleri (İngilizce)." },
     { title: "Wikipedia · Laser", url: "https://en.wikipedia.org/wiki/Laser", note: "Tarihçe: Einstein 1917, Ladenburg 1928, Townes–Gordon–Zeiger maseri, Basov ve Prokhorov, Gould'un 1957 defteri, Schawlow–Townes 1958, Maiman 16 Mayıs 1960, ilk He–Ne lazeri ve 1964 Nobel Ödülü (İngilizce)." },
     { title: "Wikipedia · Maser", url: "https://en.wikipedia.org/wiki/Maser", note: "1953 Columbia amonyak maseri ve yaklaşık 24 GHz frekansı, Basov ile Prokhorov'un 1952 sunumu ve 1954 yayını (İngilizce)." },

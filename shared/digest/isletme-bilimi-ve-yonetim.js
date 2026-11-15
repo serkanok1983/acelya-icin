@@ -204,7 +204,7 @@ window.ACELYA_DIGEST["isletme-bilimi-ve-yonetim"] = {
   ],
   sources: [
     { title: "OpenStax · Principles of Accounting, Volume 2: Managerial Accounting, 3.2", url: "https://openstax.org/books/principles-managerial-accounting/pages/3-2-calculate-a-break-even-point-in-units-and-dollars", note: "Başabaş noktasının adet ve tutar olarak hesabı, hedef kâr için gereken satış; bir önceki alt bölüm (3.1) katkı payını tanımlar (İngilizce, açık ders kitabı)." },
-    { title: "OpenStax · Principles of Management, 3. bölüm girişi", url: "https://openstax.org/books/principles-management/pages/3-introduction", note: "Yönetim düşüncesinin tarihçesini anlatan bölümün girişi: Taylor'ın bilimsel yönetimi, Mayo ve insan ilişkileri hareketi (İngilizce, açık ders kitabı)." },
+    { title: "OpenStax · Principles of Management, 3. bölüm özeti", url: "https://openstax.org/books/principles-management/pages/3-summary-of-learning-outcomes", note: "Yönetim düşüncesinin tarihçesi. 3.4'te Taylor'ın bilimsel yönetiminin, 3.6'da Mayo ve insan ilişkileri hareketinin özeti (İngilizce)." },
     { title: "Wikipedia · Internal rate of return", url: "https://en.wikipedia.org/wiki/Internal_rate_of_return", note: "İç verim oranının tanımı, birden çok kök durumu ve NBD ile sıralama çatışması." },
     { title: "Wikipedia · Hawthorne effect", url: "https://en.wikipedia.org/wiki/Hawthorne_effect", note: "1924–1932 çalışmaları, Mayo'nun yorumu, terimin 1950'lerde ortaya çıkışı ve Levitt–List (2011) yeniden incelemesi: anlatı ve kanıt yan yana." },
   ],

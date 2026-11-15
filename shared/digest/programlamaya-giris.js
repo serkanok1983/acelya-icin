@@ -225,6 +225,11 @@ window.ACELYA_DIGEST["programlamaya-giris"] = {
   ],
   sources: [
     {
+      title: "Ada Lovelace · Analytical Engine, Not G (1843)",
+      url: "https://www.yorku.ca/pclassic/Lovelace/lovelace.htm",
+      note: "Özgün notların bir dökümü. Not G’de Bernoulli sayılarının hesabı için işlemlerin sırası ve makinenin ara değerleri nasıl saklayacağı tablolandırılır (İngilizce).",
+    },
+    {
       title: "Ada Lovelace",
       url: "https://en.wikipedia.org/wiki/Ada_Lovelace",
       note: "1843 çevirisi, A–G notları, G notundaki Bernoulli sayıları yöntemi ve “ilk program” unvanı üzerine tarihçilerin görüşleri.",

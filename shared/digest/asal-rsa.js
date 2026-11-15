@@ -213,6 +213,7 @@ window.ACELYA_DIGEST["asal-rsa"] = {
     { href: "kuantum-hesaplama.html", title: "Kuantum Hesaplama: Kübit, Dolanıklık, Deutsch–Jozsa ve Grover", why: "RSA'nın kuantum tehdidi nedir, ne değildir: kübitler, girişim ve Grover'ın karesel hızlanması; Shor'un neden büyük, hatasız makine gerektirdiği." },
   ],
   sources: [
+    { title: "Rivest, Shamir ve Adleman · A Method for Obtaining Digital Signatures and Public-Key Cryptosystems (1978)", url: "https://people.csail.mit.edu/rivest/pubs/RSA78.pdf", note: "RSA’nın özgün makalesi. İki asalın çarpımından türetilen anahtarlar, şifreleme ve dijital imza örnekleri (İngilizce)." },
     { title: "Vikipedi · Asal sayı", url: "https://tr.wikipedia.org/wiki/Asal_say%C4%B1", note: "Tanım, aritmetiğin temel teoremi, Öklid'in kanıtı ve Eratosthenes eleği (Türkçe)." },
     { title: "Wikipedia · Prime number theorem", url: "https://en.wikipedia.org/wiki/Prime_number_theorem", note: "x/ln x ve Li(x) yaklaşımları, Gauss ile Legendre'nin tahminleri, 1896 kanıtları ve Riemann hipotezinin hata payına etkisi (İngilizce)." },
     { title: "Wikipedia · Miller–Rabin primality test", url: "https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test", note: "Güçlü yalancılar, dörtte bir sınırı, Carmichael sayıları ve belirli taban kümeleriyle kesin sınama (İngilizce)." },

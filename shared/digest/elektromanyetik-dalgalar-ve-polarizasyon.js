@@ -192,6 +192,7 @@ window.ACELYA_DIGEST["elektromanyetik-dalgalar-ve-polarizasyon"] = {
     { href: "lazer-ve-uyarilmis-salim.html", title: "Lazer ve Uyarılmış Salım: Einstein Katsayılarından Rezonatöre", why: "Uyumlu ışığın kaynağı: Einstein katsayıları, nüfus terslenmesi, rezonatör eşiği ve kip kilitleme." },
   ],
   sources: [
+    { title: "David Brewster · Işığın yansımayla polarizasyonu (1815)", url: "https://makingscience.royalsociety.org/items/pt_9_9/paper-on-the-laws-which-regulate-the-polarisation-of-light-by-reflexion-from-transparent-bodies-by-david-brewster-in-a-letter-to-the-right-hon-sir-joseph-banks", note: "Royal Society arşivindeki özgün belge. Saydam yüzeylerde tam polarizasyon açısına ilişkin ölçümler ve kırılma indisiyle ilişki (İngilizce)." },
     { title: "Wikipedia · Polarization (waves)", url: "https://en.wikipedia.org/wiki/Polarization_(waves)", note: "Polarizasyon durumları, Jones vektörleri, polarizasyon derecesi, dönme yönünün uzlaşmaya bağlılığı ve Bartholin ile Malus'tan başlayan tarihçe (İngilizce)." },
     { title: "Wikipedia · Brewster's angle", url: "https://en.wikipedia.org/wiki/Brewster%27s_angle", note: "Malus'un 1808 gözlemi, Brewster'in 1815 bulgusu, cam ve su için açılar, polarize gözlükler ve fotoğraf süzgeçleri (İngilizce)." },
     { title: "Wikipedia · Fresnel equations", url: "https://en.wikipedia.org/wiki/Fresnel_equations", note: "s ve p yansıma ve geçirme katsayılarının sınır koşullarından türetilişi, işaret uzlaşmaları, tam iç yansıma ve Fresnel'in 1821 ile Ocak 1823 çalışmaları (İngilizce)." },

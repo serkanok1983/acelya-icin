@@ -188,7 +188,7 @@ window.ACELYA_DIGEST["maden-muhendisligi"] = {
   sources: [
     { title: "Wikipedia · Froth flotation", url: "https://en.wikipedia.org/wiki/Froth_flotation", note: "Flotasyonun ilkesi, kimyasalları ve Broken Hill'deki doğuşunun tarihi (İngilizce)." },
     { title: "Wikipedia · Gold cyanidation", url: "https://en.wikipedia.org/wiki/Gold_cyanidation", note: "Elsner denklemi, MacArthur–Forrest süreci (1887) ve siyanürün çevre yönetimi (İngilizce)." },
-    { title: "Wikipedia · Closure problem", url: "https://en.wikipedia.org/wiki/Closure_problem", note: "Açık ocağın blok modeli olarak kurulması; Lerchs ve Grossmann (1965) ile Picard'ın (1976) en büyük akışa indirgemesi (İngilizce)." },
+    { title: "Helmut Lerchs ve Ingo F. Grossmann · Optimum Design of Open-Pit Mines (1965)", url: "https://www.u-cursos.cl/ingenieria/2022/2/DPDIMINPM03/1/material_docente/bajar?bajar=1&id=5635245", note: "Birbirine bağlı blokların ekonomik değerinden hareketle açık ocak sınırını seçmek için çizge kullanan özgün makale (İngilizce)." },
     { title: "Wikipedia · Mill (grinding)", url: "https://en.wikipedia.org/wiki/Mill_(grinding)", note: "Rittinger, Kick ve Bond yasaları; bilyalı değirmen gücü için kullanılan 10·W_i katsayılı Bond bağıntısı ve birimleri: metrik ya da kısa ton başına kWh, boyutlar mikrometre (İngilizce)." },
     { title: "Wikipedia · Firedamp", url: "https://en.wikipedia.org/wiki/Firedamp", note: "Grizunun %4–16 arasında patlayıcı olduğu bilgisi, 1812 Felling faciası ve Davy lambası (İngilizce)." },
   ],

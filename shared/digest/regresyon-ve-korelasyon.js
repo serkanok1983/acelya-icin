@@ -187,7 +187,7 @@ window.ACELYA_DIGEST["regresyon-ve-korelasyon"] = {
   sources: [
     { title: "Wikipedia · Least squares", url: "https://en.wikipedia.org/wiki/Least_squares", note: "Yöntemin tarihi: Piazzi ve Ceres (1801), Gauss'un tahmini, Legendre 1805, Gauss 1809 ve öncelik tartışması (İngilizce)." },
     { title: "Wikipedia · Francis Galton", url: "https://en.wikipedia.org/wiki/Francis_Galton", note: "Bezelye deneyleri (1875–1877), 'reversion', 1886 regresyon makalesi, r harfi ve korelasyonun yeniden keşfi (İngilizce)." },
-    { title: "Wikipedia · Anscombe's quartet", url: "https://en.wikipedia.org/wiki/Anscombe%27s_quartet", note: "Dörtlünün 44 değeri, özet istatistikleri ve Anscombe'un 1973 makalesinin amacı; sayfa aynı değerleri kullanır (İngilizce)." },
+    { title: "Francis J. Anscombe · Graphs in Statistical Analysis (1973)", url: "https://www.sjsu.edu/faculty/gerstman/StatPrimer/anscombe1973.pdf", note: "Dört özgün veri kümesi, özet istatistikleri ve uydurulan doğru birbirine çok yakın olsa da grafiklerin farklı örüntüler gösterdiğini açıklar (İngilizce)." },
     { title: "Wikipedia · Theil–Sen estimator", url: "https://en.wikipedia.org/wiki/Theil%E2%80%93Sen_estimator", note: "Theil 1950 ve Sen 1968, çift eğimlerinin ortancası ve 29,3 %'lük kırılma noktası (İngilizce)." },
     { title: "Wikipedia · Simpson's paradox", url: "https://en.wikipedia.org/wiki/Simpson%27s_paradox", note: "Pearson 1899, Yule 1903, Simpson 1951 ve adı koyan Blyth 1972; grupların birleşince tersine dönen ilişkisi (İngilizce)." },
   ],

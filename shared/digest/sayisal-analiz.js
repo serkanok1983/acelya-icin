@@ -185,6 +185,7 @@ window.ACELYA_DIGEST["sayisal-analiz"] = {
     { href: "diferansiyel-denklemler.html", title: "Diferansiyel Denklemler ve Dinamik Sistemler: Yön Alanından Rezonansa", why: "Aynı mertebe fikri bu kez zaman adımında: Euler ile RK4'ün hata mertebeleri log–log grafikte ölçülür." },
   ],
   sources: [
+    { title: "William Kahan · Further Remarks on Reducing Truncation Errors (1965)", url: "https://www.convexoptimization.com/TOOLS/Kahan.pdf", note: "Toplama sırasında kaybolan düşük basamakları telafi ederek toplamın hatasını azaltmanın özgün açıklaması (İngilizce)." },
     { title: "Wikipedia · Newton's method", url: "https://en.wikipedia.org/wiki/Newton%27s_method", note: "Babil ve Heron, Newton'un 1669 De analysi'si (basım 1711), Raphson 1690, Simpson 1740; karesel yakınsamanın kanıtı ve x³ − 2x + 2 döngüsü (İngilizce)." },
     { title: "Wikipedia · Kahan summation algorithm", url: "https://en.wikipedia.org/wiki/Kahan_summation_algorithm", note: "Kahan 1965 (Communications of the ACM 8(1), s. 40), Babuška'nın 1969'daki bağımsız çalışması, ikili toplama ve hata büyümesi (İngilizce)." },
     { title: "Wikipedia · Gaussian quadrature", url: "https://en.wikipedia.org/wiki/Gaussian_quadrature", note: "Gauss'un 1815 tarihli Methodus nova'sı, Jacobi 1826; Legendre kökleri, ağırlıklar ve 2n − 1 kesinlik derecesi (İngilizce)." },

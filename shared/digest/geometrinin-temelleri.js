@@ -211,7 +211,7 @@ window.ACELYA_DIGEST["geometrinin-temelleri"] = {
     { href: "riemann-toplamlari.html", title: "Riemann Toplamları ve Sayısal İntegral", why: "Piramidin iç ve dış basamakları burada genel bir yönteme döner: alanı dikdörtgen, yamuk ve parabollerle ölçüp hatanın n ile nasıl küçüldüğünü görürsün." },
   ],
   sources: [
-    { title: "Euclid's Elements (Wikipedia)", url: "https://en.wikipedia.org/wiki/Euclid%27s_Elements", note: "MÖ 300 dolayı, 13 kitap, 1482 Venedik baskısı; XII. kitapta tüketme yöntemiyle piramit, koni ve silindir hacimleri." },
+    { title: "Öklid · Elemanlar, I. Kitap", url: "https://mathcs.clarku.edu/~djoyce/java/elements/bookI/bookI.html", note: "David E. Joyce’un İngilizce çevirisinde beşinci postulat, üçgenin açı toplamı (I.32) ve Pisagor bağıntısı (I.47)." },
     { title: "Parallel postulate (Wikipedia)", url: "https://en.wikipedia.org/wiki/Parallel_postulate", note: "Beşinci postulatı ispat girişimleri (Proklos, İbnü'l-Heysem, Hayyam, Tusi, Saccheri), Playfair 1795, Lobaçevski 1829, Bolyai 1831, Beltrami 1868." },
     { title: "Hilbert's third problem (Wikipedia)", url: "https://en.wikipedia.org/wiki/Hilbert%27s_third_problem", note: "1900'de sorulan problem, Dehn'in 1901 makalesi, küp ve düzgün dörtyüzlü, Bolyai–Gerwien teoremi, Gauss'un sınır süreci üzerine yakınması." },
     { title: "Cavalieri's principle (Wikipedia)", url: "https://en.wikipedia.org/wiki/Cavalieri%27s_principle", note: "Cavalieri'nin 1635 kitabı, Zu Chongzhi ve Zu Gengzhi, yarım küre = silindir − koni kesit karşılaştırması." },

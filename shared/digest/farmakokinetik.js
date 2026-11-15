@@ -247,6 +247,11 @@ window.ACELYA_DIGEST["farmakokinetik"] = {
   ],
   sources: [
     {
+      title: "FDA · Fizyolojiye Dayalı Farmakokinetik Analizler",
+      url: "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/physiologically-based-pharmacokinetic-analyses-format-and-content-guidance-industry",
+      note: "Kurumun yayımladığı kılavuz. Bir modelin varsayımlarının, parametrelerinin ve doğrulama sonuçlarının nasıl belgelenmesini istediğini gösterir (İngilizce).",
+    },
+    {
       title: "Pharmacokinetics (Wikipedia)",
       url: "https://en.wikipedia.org/wiki/Pharmacokinetics",
       note: "Sözcüğün kökeni (pharmakon, kinetikos), bölme modelleri ve doğrusal olmayan farmakokinetikte Michaelis–Menten kinetiği.",

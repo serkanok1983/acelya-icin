@@ -185,6 +185,7 @@ window.ACELYA_DIGEST["levha-tektonigi"] = {
     { href: "radyoaktif-bozunma.html", title: "Radyoaktif Bozunma: Rastlantıdan Doğan Yasa", why: "Kayaların yaşı radyoaktif saatlerle ölçülür: bozunmanın rastlantıdan doğan üstel yasasını ve yarı ömürle tarihlendirmeyi gör." },
   ],
   sources: [
+    { title: "Frederick Vine ve Drummond Matthews · Magnetic Anomalies Over Oceanic Ridges (1963)", url: "https://www.nature.com/articles/199947a0", note: "Okyanus ortası sırtlarındaki manyetik şeritleri taban yayılması ve kutupluluk terslenmeleriyle ilişkilendiren özgün makale (İngilizce)." },
     { title: "Wikipedia · Seafloor depth versus age", url: "https://en.wikipedia.org/wiki/Seafloor_depth_versus_age", note: "Yarı uzay ve plaka soğuma modelleri, 350√t ve 390√t uydurmaları, κ, α ve T₁ değerleri (İngilizce)." },
     { title: "Wikipedia · Vine–Matthews–Morley hypothesis", url: "https://en.wikipedia.org/wiki/Vine%E2%80%93Matthews%E2%80%93Morley_hypothesis", note: "1963 Nature makalesi, Morley'nin geri çevrilen mektupları ve simetrik anomali profilleri (İngilizce)." },
     { title: "Wikipedia · Hawaii hotspot", url: "https://en.wikipedia.org/wiki/Hawaii_hotspot", note: "Wilson'ın 1963 modeli, 47 Ma'daki büküm ve deniz dağı sondajlarından sıcak noktanın kayması (İngilizce)." },

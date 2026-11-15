@@ -186,6 +186,7 @@ window.ACELYA_DIGEST["roma-hukuku"] = {
     { href: "mantik-kapilari.html", title: "Mantık Kapıları", why: "Formula bir koşul cümlesi, exceptio da onun 'VE DEĞİL' kolu gibi düşünülebilir. VE ile DEĞİL kapılarının doğruluk tablolarını inceleyerek bu mantıksal benzetimi sorgula." },
   ],
   sources: [
+    { title: "Iustinianus · Institutiones (533)", url: "https://www.gutenberg.org/ebooks/5983", note: "J. B. Moyle’un İngilizce çevirisinde Roma hukukunun kaynakları, kişiler ve şeyler ile sözleşme ve haksız fiilden doğan borçlar." },
     { title: "Wikipedia · Roman law", url: "https://en.wikipedia.org/wiki/Roman_law", note: "Dönemler, kaynaklar, yargılama düzenleri ve resepsiyon için kapsamlı genel bakış (İngilizce)." },
     { title: "Wikipedia · Twelve Tables", url: "https://en.wikipedia.org/wiki/Twelve_Tables", note: "On İki Levha'nın tarihçesi ve korunan hükümleri: borç, ceza, mülkiyet (İngilizce)." },
     { title: "Wikipedia · Corpus Juris Civilis", url: "https://en.wikipedia.org/wiki/Corpus_Juris_Civilis", note: "Codex, Digesta, Institutiones ve Novellae; Tribonianus'un kurulları ve Bologna'daki yeniden keşif (İngilizce)." },

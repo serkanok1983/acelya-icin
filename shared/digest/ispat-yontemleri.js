@@ -168,7 +168,7 @@ window.ACELYA_DIGEST["ispat-yontemleri"] = {
     { href: "asal-rsa.html", title: "Asal Sayılar ve RSA: Elekten Şifreye", why: "Bu sayfadaki asal sayı iddiaları sayı kuramına bağlanır: Öklid algoritması, Euler teoremi, asallık sınamaları ve iki asaldan kurulan RSA." },
   ],
   sources: [
-    { title: "Euclid's theorem (Wikipedia)", url: "https://en.wikipedia.org/wiki/Euclid%27s_theorem", note: "Elemanlar IX.20; Öklid'in ispatının çelişki değil, doğrudan bir ispat olduğu." },
+    { title: "Öklid · Elemanlar, IX.20", url: "https://mathcs.clarku.edu/~djoyce/java/elements/bookIX/propIX20.html", note: "Her sonlu asal listesinin dışında yeni bir asal bulunduğunu gösteren özgün ispatın İngilizce çevirisi." },
     { title: "Mathematical induction (Wikipedia)", url: "https://en.wikipedia.org/wiki/Mathematical_induction", note: "Tarihçe: el-Kerecî, Maurolico (1575), Pascal (1665) ve 19. yüzyıldaki biçimsel kuruluş." },
     { title: "Hippasus (Wikipedia)", url: "https://en.wikipedia.org/wiki/Hippasus", note: "Boğulma anlatıları, Pappus ve Iamblichus'un birbirini tutmayan aktarımları; keşfin Hippasus'a bağlanmasının kanıtsızlığı." },
     { title: "Heegner number (Wikipedia)", url: "https://en.wikipedia.org/wiki/Heegner_number", note: "Rabinowitsch 1913: n² + n + p'nin asallığı ile sınıf sayısı 1 arasındaki bağ; Heegner 1952, Baker ve Stark 1966. Euler 1732 ve 641 için sayfanın kaynakçasındaki Fermat number maddesine bakın." },

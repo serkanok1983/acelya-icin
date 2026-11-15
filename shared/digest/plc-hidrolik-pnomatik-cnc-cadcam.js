@@ -186,6 +186,7 @@ window.ACELYA_DIGEST["plc-hidrolik-pnomatik-cnc-cadcam"] = {
     { href: "basinc.html", title: "Basınç: Hidrostatik, Pascal İlkesi ve Hidrolik", why: "F = p·A çarpımının kaynağı: Hidrolik kaldıraç sekmesinde kütleyi ve piston çaplarını seçip yükü vuruş vuruş kaldır; kuvvet kazancının yolla ödendiğini gör." },
   ],
   sources: [
+    { title: "Ivan E. Sutherland · Sketchpad (1963)", url: "https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-574.pdf", note: "Özgün tez metninin yayımlanmış kopyası. Etkileşimli çizim ve geometrik kısıtların bir CAD öncüsünde nasıl kullanıldığını gösterir (İngilizce)." },
     { title: "Wikipedia · Programmable logic controller", url: "https://en.wikipedia.org/wiki/Programmable_logic_controller", note: "GM Hydramatic'in 1968 şartnamesi, Modicon 084, tarama döngüsü ve IEC 61131-3 dilleri." },
     { title: "Wikipedia · History of numerical control", url: "https://en.wikipedia.org/wiki/History_of_numerical_control", note: "Parsons, MIT Servomekanizma Laboratuvarı, Hydro-Tel frezesinin Eylül 1952 gösterimi ve APT dili." },
     { title: "Wikipedia · G-code", url: "https://en.wikipedia.org/wiki/G-code", note: "G-kodunun RS-274 adıyla 1963'te standartlaşması ve ISO 6983; gerçek kontrolcüler arasında ayrıntıların değiştiği notuyla." },

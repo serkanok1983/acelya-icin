@@ -225,9 +225,9 @@ window.ACELYA_DIGEST["epidemiyoloji-ve-klinik-arastirma"] = {
   ],
   sources: [
     {
-      title: "Wikipedia: Randomized controlled trial",
-      url: "https://en.wikipedia.org/wiki/Randomized_controlled_trial",
-      note: "1948 MRC streptomisin denemesi ilk yayımlanmış RKÇ olarak ve Bradford Hill'in rolü; atamanın gizlenmesi yöntemleri; CONSORT 1996, 2001, 2010 (Nisan 2025'te CONSORT 2025 ile güncellendi).",
+      title: "Medical Research Council · Streptomycin Treatment of Pulmonary Tuberculosis (1948)",
+      url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC2091872/",
+      note: "Denemenin özgün raporu. Tedavi gruplarının rastgele sayılarla belirlenmesi ve atamanın kapalı zarflarla gizlenmesi (İngilizce).",
     },
     {
       title: "Wikipedia: Simpson's paradox",
@@ -245,9 +245,9 @@ window.ACELYA_DIGEST["epidemiyoloji-ve-klinik-arastirma"] = {
       note: "1932–1972; 399 frengili ve 201 kontrol; 1947 penisilin; Peter Buxtun ve 1972; 1974 National Research Act, 1979 Belmont Raporu, 1997 özür.",
     },
     {
-      title: "Wikipedia: Declaration of Helsinki",
-      url: "https://en.wikipedia.org/wiki/Declaration_of_Helsinki",
-      note: "Haziran 1964 kabul, Nürnberg Kodu'nun on ilkesine dayanması, son revizyon Ekim 2024. Nürnberg kararının tarihi (20 Ağustos 1947) için \"Nuremberg Code\" maddesi.",
+      title: "Dünya Tabipler Birliği · Helsinki Bildirgesi (2024)",
+      url: "https://www.wma.net/policies-post/wma-declaration-of-helsinki/",
+      note: "İnsan katılımcılarla yapılan tıbbi araştırmalarda aydınlatılmış onam, etik kurul incelemesi ve risk ile yararın değerlendirilmesi (İngilizce).",
     },
   ],
   revision: "Kasım 2026",

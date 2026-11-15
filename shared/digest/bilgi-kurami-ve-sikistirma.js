@@ -200,6 +200,7 @@ window.ACELYA_DIGEST["bilgi-kurami-ve-sikistirma"] = {
     { href: "zipf-yasasi-ve-dil-istatistigi.html", title: "Zipf Yasası ve Dil İstatistiği: Sıklık, Sıra, Heaps ve Maymun Metni", why: "Gerçek dilin istatistiği: sözcük sıklığı sırayla nasıl düşer, sözcük dağarcığı nasıl büyür ve rastgele yazan bir maymun da aynı eğriyi çizer mi?" },
   ],
   sources: [
+    { title: "Claude Shannon · A Mathematical Theory of Communication (1948)", url: "https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf", note: "Ayrık bir kaynağın entropisinin tanımı ve kayıpsız kodlamada ortalama uzunluğun sınırı (İngilizce)." },
     { title: "Wikipedia · History of information theory", url: "https://en.wikipedia.org/wiki/History_of_information_theory", note: "Nyquist 1924, Hartley 1928 ve log Sⁿ ölçüsü, Shannon'ın 1948 makalesi ve tanıttığı kavramlar (İngilizce)." },
     { title: "Wikipedia · Huffman coding", url: "https://en.wikipedia.org/wiki/Huffman_coding", note: "Algoritma, en iyilik ve Fano'nun dersindeki dönem ödevi hikâyesi; 1952 Proceedings of the IRE makalesi (İngilizce)." },
     { title: "Wikipedia · LZ77 and LZ78", url: "https://en.wikipedia.org/wiki/LZ77_and_LZ78", note: "Ziv ve Lempel'in 1977 ve 1978 makaleleri, sözlük yöntemlerinin işleyişi ve DEFLATE ile ilişkisi (İngilizce)." },

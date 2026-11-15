@@ -157,7 +157,7 @@ window.ACELYA_DIGEST["tek-sayi-toplam4"] = {
   sources: [
     { title: "Computer History Museum · The Engines", url: "https://www.computerhistory.org/babbage/engines/", note: "Babbage'ın 1821 başlangıcı, yalnız toplamaya dayanan fark makineleri, 1847–1849 No. 2 tasarımı ve yaşamında yalnız kısmi düzeneklerin tamamlanması." },
     { title: "A. F. Pixley · Topics in Discrete Mathematics", url: "https://math.hmc.edu/pixley/wp-content/uploads/sites/16/2019/10/Topics_in_Discrete_Math.pdf", note: "Harvey Mudd College ders notları; §3.1–3.2 sonlu farklar, polinom derece düşmesi, Newton enterpolasyonu ve toplam hesabı." },
-    { title: "OpenStax · Algebra and Trigonometry 2e, §13.4", url: "https://openstax.org/books/algebra-and-trigonometry-2e/pages/13-4-series-and-their-notations", note: "Sigma gösterimi, aritmetik toplamın ters sıra eşlemesiyle türetilmesi ve işaretli terimler." },
+    { title: "OpenStax · Algebra and Trigonometry 2e, §13.4 Series and Their Notations", url: "https://openstax.org/books/algebra-and-trigonometry-2e/pages/13-4-series-and-their-notations", note: "Sigma gösterimi ve aritmetik toplam formülünün terimleri ters sırada eşleyerek türetilmesi." },
     { title: "OpenStax · Calculus 1, §5.2 The Definite Integral", url: "https://openstax.org/books/calculus-volume-1/pages/5-2-the-definite-integral", note: "Riemann toplamının limiti, [0,2]'de x² örneği ve düzensiz bölüntüde en büyük aralığın küçülmesi gereği. Orta nokta hata formülü burada doğrudan toplamdan türetildi." },
   ],
   revision: "Kasım 2026",

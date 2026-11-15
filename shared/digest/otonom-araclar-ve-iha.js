@@ -214,6 +214,7 @@ window.ACELYA_DIGEST["otonom-araclar-ve-iha"] = {
     { href: "robotik-ve-kinematik.html", title: "Robotik ve Kinematik: Eklem Açılarından Uç Noktaya ve Geri", why: "Hareketin geometrisi: iki eklemli kolda ileri ve ters kinematik, Jacobian ile hız ve kuvvet, yörünge planlama ve engel denetimi." },
   ],
   sources: [
+    { title: "Rudolf E. Kálmán · A New Approach to Linear Filtering and Prediction Problems (1960)", url: "https://eceweb1.rutgers.edu/~gajic/pdffiles/519KalmanFiltering/kalman1960.pdf", note: "Dinamik model ve gürültülü ölçümlere dayanarak durum kestirimini güncelleyen özgün filtre makalesi (İngilizce)." },
     { title: "Wikipedia · PID controller", url: "https://en.wikipedia.org/wiki/PID_controller", note: "Minorsky'nin 1922 çalışmasından ayarlama yöntemlerine; üç terimin etkisi ve integral şişmesi (İngilizce)." },
     { title: "Wikipedia · Kalman filter", url: "https://en.wikipedia.org/wiki/Kalman_filter", note: "Öngörü ve düzeltme adımları, kazancın türetimi ve Apollo'daki kullanımı (İngilizce)." },
     { title: "Wikipedia · Routh–Hurwitz stability criterion", url: "https://en.wikipedia.org/wiki/Routh%E2%80%93Hurwitz_stability_criterion", note: "Üçüncü ve dördüncü derece çok terimliler için kökleri bulmadan kararlılık koşulları (İngilizce)." },

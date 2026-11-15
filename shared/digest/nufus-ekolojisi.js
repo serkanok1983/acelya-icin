@@ -212,6 +212,7 @@ window.ACELYA_DIGEST["nufus-ekolojisi"] = {
     { href: "demografi-ve-nufus.html", title: "Demografi: Doğurganlık, Yaşam Tablosu, Nüfus Piramidi ve Projeksiyon", why: "Hayvan nüfuslarından insan nüfuslarına: gerçek BM verisiyle doğurganlık hızı, yaşam tablosu, nüfus piramidi ve Leslie matrisinin akrabası kuşak–bileşen projeksiyonu." },
   ],
   sources: [
+    { title: "Patrick H. Leslie · On the Use of Matrices in Certain Population Mathematics (1945)", url: "https://www.math.utah.edu/~keener/classes/math5110/papers/leslie.pdf", note: "Yaş sınıflarına göre doğurganlık ve hayatta kalma oranlarının nüfus projeksiyonunda bir matrisle kullanıldığı özgün çalışma (İngilizce)." },
     { title: "Wikipedia · Logistic function", url: "https://en.wikipedia.org/wiki/Logistic_function", note: "Verhulst'ün 1838–1847 makaleleri, Quetelet ve \"logistique\" adı; McKendrick 1911 ile Pearl ve Reed 1920 yeniden keşifleri (İngilizce)." },
     { title: "Wikipedia · Logistic map", url: "https://en.wikipedia.org/wiki/Logistic_map", note: "May'in 1976 makalesi, r = 3 ve 1 + √6'daki ikilenmeler, ≈ 3,56995'te kaosun başlaması, r = 4'te λ = ln 2 ve Feigenbaum sabiti (İngilizce)." },
     { title: "Wikipedia · Leslie matrix", url: "https://en.wikipedia.org/wiki/Leslie_matrix", note: "Leslie 1945 (Biometrika 33, 183–212), baskın özdeğer, kararlı yaş dağılımı ve Euler–Lotka bağlantısı (İngilizce)." },

@@ -202,6 +202,7 @@ window.ACELYA_DIGEST["mayin-tarlasi"] = {
     { href: "isik-sondurme.html", title: "Işık Söndürme", why: "Yine ızgara, yine 0 ve 1; ama bu kez denklemler her zaman tam çözülür ve şansa yer yoktur." },
   ],
   sources: [
+    { title: "Richard Kaye · Minesweeper Is NP-Complete (2000)", url: "https://doi.org/10.1007/BF03025367", note: "Açık karelerdeki sayılarla tutarlı bir mayın yerleşimi olup olmadığına karar verme probleminin NP-tamlık ispatı (İngilizce)." },
     { title: "Wikipedia · Minesweeper (video game)", url: "https://en.wikipedia.org/wiki/Minesweeper_(video_game)", note: "Mined-Out ve öbür atalar, klasik düzeylerin ölçüleri, Kaye'nin NP-tamlık kanıtı ve Scott, Stege, van Rooij'un co-NP-tamlık sonucu (İngilizce)." },
     { title: "Wikipedia · Microsoft Minesweeper", url: "https://en.wikipedia.org/wiki/Microsoft_Minesweeper", note: "Curt Johnson ve Robert Donner, 1990 Entertainment Pack, Windows 3.1, 1999 kampanyası ve çiçekli sürümler (İngilizce)." },
     { title: "Wikipedia · P versus NP problem", url: "https://en.wikipedia.org/wiki/P_versus_NP_problem", note: "NP-tamlığın ne dediği, Cook–Levin teoremi ve Clay Enstitüsü'nün ödülü (İngilizce)." },

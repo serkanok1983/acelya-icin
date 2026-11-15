@@ -204,6 +204,7 @@ window.ACELYA_DIGEST["etimoloji-ve-dil-aileleri"] = {
     { href: "dogal-secilim.html", title: "Doğal Seçilim: Popülasyon Genetiği Laboratuvarı", why: "Dil ağaçlarının akrabası olan soy düşüncesi biyolojide: seçilim, sürüklenme, göç ve mutasyonun bir popülasyonu nasıl değiştirdiğini ölç." },
   ],
   sources: [
+    { title: "Karl Verner · Grimm Yasası’na Bir İstisna", url: "https://lrc.la.utexas.edu/books/reader/11-k-verner", note: "Verner’in özgün metninden İngilizce çeviri. Eski vurgunun yeri, Grimm yasasının görünürdeki bazı istisnalarını açıklar." },
     { title: "Wikipedia · Comparative method", url: "https://en.wikipedia.org/wiki/Comparative_method", note: "Düzenli denklik ilkesi, day–diēs rastlantısı, devil–diabolus alıntısı, Fince äiti; Jones 1786, Rask 1818, Brugmann ve Osthoff 1878, Schleicher 1861 (İngilizce)." },
     { title: "Wikipedia · Verner's law", url: "https://en.wikipedia.org/wiki/Verner%27s_law", note: "Yasanın koşulu, *faðēr ve *brōþēr ile pitā ve bhrātā örnekleri; 1875 mektubu ve 1877 yayını (İngilizce)." },
     { title: "Wikipedia · Altaic languages", url: "https://en.wikipedia.org/wiki/Altaic_languages", note: "Strahlenberg 1730'dan Ramstedt, Clauson, Doerfer, Starostin ve Robbeets 2021'e Altay ve Transavrasya önerileri ile bugünkü görüş dağılımı (İngilizce)." },

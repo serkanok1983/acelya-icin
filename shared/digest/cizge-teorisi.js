@@ -206,6 +206,7 @@ window.ACELYA_DIGEST["cizge-teorisi"] = {
     },
   ],
   sources: [
+    { title: "Leonhard Euler · Solutio problematis ad geometriam situs pertinentis", url: "https://scholarlycommons.pacific.edu/euler-works/53/", note: "Königsberg’in köprülerine ilişkin özgün makale ve arşivdeki İngilizce çeviri. Euler, bir kara parçasına bağlı köprülerin sayısının tek veya çift olmasını kullanarak geçiş olanağını tartışır." },
     { title: "Wikipedia · Seven Bridges of Königsberg", url: "https://en.wikipedia.org/wiki/Seven_Bridges_of_K%C3%B6nigsberg", note: "Euler'in derece argümanı, 26 Ağustos 1735 sunumu ve 1741 baskısı, 5–3–3–3 köprü sayıları (İngilizce)." },
     { title: "Wikipedia · Eulerian path", url: "https://en.wikipedia.org/wiki/Eulerian_path", note: "Euler devresi ve yolu koşulları, çoklu çizgeler, Hierholzer'in 1873 kanıtı ve algoritması (İngilizce)." },
     { title: "Wikipedia · Planar graph", url: "https://en.wikipedia.org/wiki/Planar_graph", note: "Euler formülü, E ≤ 3V − 6 ve E ≤ 2V − 4, Kuratowski ve Wagner teoremleri, dört renk teoremiyle bağı (İngilizce)." },

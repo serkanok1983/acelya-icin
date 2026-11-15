@@ -185,6 +185,7 @@ window.ACELYA_DIGEST["optimizasyon-ve-gradyan-inisi"] = {
     { href: "makine-ogrenmesi-derin-ogrenme-llm.html", title: "Makine Öğrenmesi: Gradyan İnişi, Sinir Ağları ve Dil Modelleri", why: "Gradyan inişini gerçek bir kayıp işlevinde, sinir ağı eğitiminde ve dil modellerinde iş başında gör." },
   ],
   sources: [
+    { title: "Herbert Robbins ve Sutton Monro · A Stochastic Approximation Method (1951)", url: "https://oa.ee.tsinghua.edu.cn/ouzhijian/pgm/pgm-pdf/Robbins%26Monro1951_a%20stochastic%20approximation%20method.pdf", note: "Gürültülü gözlemlerle adım adım bir köke yaklaşma yönteminin özgün kurulumu. Stokastik optimizasyonun tarihsel dayanaklarından (İngilizce)." },
     { title: "Wikipedia · Gradient descent", url: "https://en.wikipedia.org/wiki/Gradient_descent", note: "Cauchy 1847, Hadamard 1907 ve Curry 1944 tarihçesi; Nesterov'un dışbükey problemlerde O(1/k²) hızı (İngilizce)." },
     { title: "Wikipedia · Stochastic gradient descent", url: "https://en.wikipedia.org/wiki/Stochastic_gradient_descent", note: "Polyak'ın 1964 ağır top yöntemi, momentumun 1986'da geri yayılımla sinir ağlarına girişi ve Adam (İngilizce)." },
     { title: "Wikipedia · Linear programming", url: "https://en.wikipedia.org/wiki/Linear_programming", note: "Kantorovich, Dantzig ve simpleks, von Neumann ve dualite, Khachiyan, Karmarkar ve 70 kişilik atama örneği (İngilizce)." },

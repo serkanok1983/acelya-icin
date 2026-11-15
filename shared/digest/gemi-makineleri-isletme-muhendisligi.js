@@ -198,7 +198,7 @@ window.ACELYA_DIGEST["gemi-makineleri-isletme-muhendisligi"] = {
     { href: "tork-denge.html", title: "Tork ve Denge", why: "Doğrultucu moment bir kuvvet çiftidir; ağırlık merkezi ve moment kolu fikrinin en yalın hâli burada." },
   ],
   sources: [
-    { title: "Wikipedia · Diesel engine", url: "https://en.wikipedia.org/wiki/Diesel_engine", note: "Tarihçe: 1893 patenti ve ilk prototip, 17 Şubat 1897 deneyi (13,1 kW, 324 g/kWh, %26,2), 1903 Vandal ve Sarmat; büyük iki zamanlı makineler için %55'e varan verim (İngilizce)." },
+    { title: "Rudolf Diesel · Method of and Apparatus for Converting Heat into Work (1895)", url: "https://patents.google.com/patent/US542846A/en", note: "US542846A patent belgesinde Diesel’in sıkıştırmayla tutuşma ilkesini nasıl tarif ettiği görülebilir (İngilizce)." },
     { title: "Wikipedia · MS Selandia", url: "https://en.wikipedia.org/wiki/MS_Selandia", note: "Geminin yapımı, makineleri, bacasız tasarımı, Londra ziyareti ve “ilk” unvanındaki Vulcanus çekincesi (İngilizce)." },
     { title: "Wikipedia · Pierre Bouguer", url: "https://en.wikipedia.org/wiki/Pierre_Bouguer", note: "Bouguer'in yaşamı, 1727 ödülü, 1735 ölçüm seferi ve metasantrı açıkladığı 1746 tarihli Traité du navire (İngilizce)." },
     { title: "Wikipedia · Metacentric height", url: "https://en.wikipedia.org/wiki/Metacentric_height", note: "BM = I/V, KM = KB + BM, küçük açıda GZ = GM·sin φ; serbest yüzey etkisi ve sert–yumuşak gemi ayrımı (İngilizce)." },

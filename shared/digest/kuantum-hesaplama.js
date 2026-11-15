@@ -187,6 +187,7 @@ window.ACELYA_DIGEST["kuantum-hesaplama"] = {
     { href: "asal-rsa.html", title: "Asal Sayılar ve RSA: Elekten Şifreye", why: "Shor algoritmasının hedef aldığı şifre: iki asalı çarpmanın kolay, çarpımı ayırmanın zor olduğu asimetri." },
   ],
   sources: [
+    { title: "Cleve, Ekert, Macchiavello ve Mosca · Quantum Algorithms Revisited (1998)", url: "https://arxiv.org/abs/quant-ph/9708016", note: "Makalenin Deutsch–Jozsa algoritması bölümü, sabit ve dengeli fonksiyonları tek sorguyla ayıran kuantum devresini türetir (İngilizce)." },
     { title: "Wikipedia · Quantum computing", url: "https://en.wikipedia.org/wiki/Quantum_computing", note: "Kübit, girişim ve dekoherans; tarihçe: Benioff 1980, Manin ve Feynman, Deutsch 1985, Shor 1994, Grover 1996, 1998'de iki kübitlik ilk gösterim (İngilizce)." },
     { title: "Wikipedia · Deutsch–Jozsa algorithm", url: "https://en.wikipedia.org/wiki/Deutsch%E2%80%93Jozsa_algorithm", note: "Deutsch 1985, Deutsch–Jozsa 1992, Cleve ve arkadaşlarının 1998 iyileştirmesi; klasik en kötü durum 2ⁿ⁻¹ + 1 ve rastgele algoritmanın hata sınırı (İngilizce)." },
     { title: "Wikipedia · CHSH inequality", url: "https://en.wikipedia.org/wiki/CHSH_inequality", note: "Clauser, Horne, Shimony ve Holt 1969; klasik sınır 2 ve Tsirelson sınırı 2√2 (İngilizce)." },

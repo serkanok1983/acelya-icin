@@ -186,6 +186,7 @@ window.ACELYA_DIGEST["sinir-hucresi-ve-aksiyon-potansiyeli"] = {
     { href: "elektrik-devresi-simulasyonu.html", title: "DC Devre Laboratuvarı: Ohm ve Kirchhoff Yasaları", why: "Kablo modeli, bölmeler arası dirençlerden kurulmuş bir zincirdir; düğüm akımlarını Kirchhoff yasalarıyla burada çöz." },
   ],
   sources: [
+    { title: "Alan Hodgkin ve Andrew Huxley · A Quantitative Description of Membrane Current (1952)", url: "https://isn.ucsd.edu/courses/bggn260/reading/Hodgkin_Huxley_1952_jp.pdf", note: "Kalamarın dev aksonundan elde edilen verilere dayalı özgün model. Sodyum ve potasyum iletkenliklerinin gerilime ve zamana bağlı değişimi (İngilizce)." },
     { title: "Wikipedia · Hodgkin–Huxley model", url: "https://en.wikipedia.org/wiki/Hodgkin%E2%80%93Huxley_model", note: "Devre ve kapı denklemleri, gerilim kenetlemesiyle kurulan 1952 modeli, 1963 Nobel'i; akım çatallanma parametresi alınınca Hopf çatallanması ve bunun sonucu olan en düşük ateşleme frekansı (İngilizce)." },
     { title: "Wikipedia · Alan Hodgkin", url: "https://en.wikipedia.org/wiki/Alan_Hodgkin", note: "1939 Plymouth kaydı ve savaştan hemen önce Nature'a gönderilen not, Katz ile Na⁺ geçirgenliği çalışması, beş makalelik 1952 dizisi ve Huxley ile Eccles'le paylaşılan 1963 Nobel'i (İngilizce)." },
     { title: "Wikipedia · Saltatory conduction", url: "https://en.wikipedia.org/wiki/Saltatory_conduction", note: "Lillie'nin 1925 demir tel modeli, Tasaki 1939 ve Huxley ile Stämpfli 1949 doğrulamaları (İngilizce)." },

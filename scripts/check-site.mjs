@@ -137,6 +137,18 @@ const SOURCE_PREFIXES = [
   "https://plato.stanford.edu/entries/", "https://www.nobelprize.org/", "https://arxiv.org/abs/",
   "https://acikders.tuba.gov.tr/", "https://bilimgenc.tubitak.gov.tr/", "https://www.tubitak.gov.tr/",
   "https://www.un.org/", "https://data.worldbank.org/", "https://data-explorer.oecd.org/", "https://www.tcmb.gov.tr/", "https://www.imf.org/",
+  "https://people.csail.mit.edu/rivest/pubs/", "https://people.math.harvard.edu/~ctm/home/text/others/shannon/",
+  "https://scholarlycommons.pacific.edu/euler-works/", "https://makingscience.royalsociety.org/items/",
+  "https://www.wma.net/policies-post/wma-declaration-of-helsinki/", "https://lrc.la.utexas.edu/books/reader/",
+  "https://patents.google.com/patent/", "https://mathcs.clarku.edu/~djoyce/java/elements/",
+  "https://www.nature.com/articles/", "https://www.u-cursos.cl/ingenieria/2022/2/DPDIMINPM03/1/material_docente/",
+  "https://doi.org/10.1007/BF03025367",
+  "https://minds.wisconsin.edu/bitstream/1793/9496/", "https://oa.ee.tsinghua.edu.cn/ouzhijian/pgm/pgm-pdf/",
+  "https://eceweb1.rutgers.edu/~gajic/pdffiles/", "https://www.cl.cam.ac.uk/techreports/",
+  "https://www.yorku.ca/pclassic/Lovelace/", "https://www.sjsu.edu/faculty/gerstman/StatPrimer/",
+  "https://www.convexoptimization.com/TOOLS/Kahan.pdf", "https://isn.ucsd.edu/courses/bggn260/reading/",
+  "https://web.stanford.edu/class/cme324/classics/", "https://bowringj.people.charleston.edu/classes/csci%20362/docs/",
+  "https://www.nlr.gov/pv/cell-efficiency",
 ];
 
 const pages = readdirSync(ROOT).filter((f) => f.endsWith(".html")).map((f) => f.replace(/\.html$/, "")).sort();

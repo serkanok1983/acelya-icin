@@ -186,6 +186,7 @@ window.ACELYA_DIGEST["sinyal-isleme-ve-modulasyon"] = {
     { href: "karmasik-sayilar.html", title: "Karmaşık Sayılar: Düzlemde Döndürme ve Büyütme", why: "e^(iω) neden bir döndürmedir, kutup neden birim çemberle karşılaştırılır: z düzleminin geometrisi buradan gelir." },
   ],
   sources: [
+    { title: "James Cooley ve John Tukey · An Algorithm for the Machine Calculation of Complex Fourier Series (1965)", url: "https://web.stanford.edu/class/cme324/classics/cooley-tukey.pdf", note: "Ayrık Fourier dönüşümünü daha küçük dönüşümlere ayırarak hızlandıran özgün algoritma (İngilizce)." },
     { title: "Wikipedia · Nyquist–Shannon sampling theorem", url: "https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem", note: "Teoremin ifadesi, örtüşme ve tarihçe: Whittaker 1915, Nyquist 1928, Kotelnikov 1933, Shannon 1949 (İngilizce)." },
     { title: "Wikipedia · Cooley–Tukey FFT algorithm", url: "https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm", note: "Radix-2 FFT'nin işleyişi, Gauss'un 1805 civarındaki çalışması, 1965 makalesi ve nükleer deneme bağlamı (İngilizce)." },
     { title: "Wikipedia · Frequency modulation", url: "https://en.wikipedia.org/wiki/Frequency_modulation", note: "Bessel yan bantları, β ≈ 2,405'te taşıyıcı sıfırı, Carson kuralı ve Carson'ın 1922 makalesi (İngilizce)." },

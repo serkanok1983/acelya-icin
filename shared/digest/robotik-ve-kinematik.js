@@ -186,6 +186,7 @@ window.ACELYA_DIGEST["robotik-ve-kinematik"] = {
     { href: "kontrol-kurami.html", title: "Kontrol Kuramı: Transfer Fonksiyonu, Kök Yeri, Bode ve PID", why: "Planlanan yörüngeyi motora izletmek bir geri besleme problemidir: kutuplar, kararlılık payları ve PID ayarı." },
   ],
   sources: [
+    { title: "George C. Devol · Programmed Article Transfer (1961)", url: "https://patents.google.com/patent/US2988237A/en", note: "Unimate’ın öncülü olan programlanabilir endüstri robotunun özgün patent belgesi. Nesne aktarmada konumların nasıl kaydedilip tekrarlandığını açıklar (İngilizce)." },
     { title: "Wikipedia · Inverse kinematics", url: "https://en.wikipedia.org/wiki/Inverse_kinematics", note: "Analitik ve sayısal ters kinematik, Jacobian tersi ve sözde tersiyle yinelemeli çözüm (İngilizce)." },
     { title: "Wikipedia · Denavit–Hartenberg parameters", url: "https://en.wikipedia.org/wiki/Denavit%E2%80%93Hartenberg_parameters", note: "Her eklemi dört parametreyle tanımlayan 1955 gösterimi ve homojen matrislerle bileşke dönüşüm (İngilizce)." },
     { title: "Wikipedia · Unimate", url: "https://en.wikipedia.org/wiki/Unimate", note: "Devol'un “Programmed Article Transfer” patenti, Engelberger ve Unimation, 1961'de General Motors'ta ilk kurulum, ağırlık ve serbestlik derecesi (İngilizce)." },

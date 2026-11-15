@@ -186,6 +186,7 @@ window.ACELYA_DIGEST["yazilim-muhendisligi"] = {
     { href: "siber-guvenlik.html", title: "Siber Güvenlik Laboratuvarı: Şifre, Özet ve Anahtar", why: "Commit kimliklerini üreten özet işlevlerinin temeli: tek bitlik bir değişikliğin özetin yarısını nasıl çevirdiğini kendin ölçersin." },
   ],
   sources: [
+    { title: "Frederick P. Brooks · No Silver Bullet (1987)", url: "https://bowringj.people.charleston.edu/classes/csci%20362/docs/No%20Silver%20Bullet%20Essence%20and%20Accidents%20of%20Software%20Engineering.htm", note: "Brooks’un, yazılımın tasarımından doğan karmaşıklıkla araçların yarattığı ek güçlükleri ayırdığı özgün makale (İngilizce)." },
     { title: "Wikipedia · Software engineering", url: "https://en.wikipedia.org/wiki/Software_engineering", note: "Terimin 1965-1966'daki ilk kullanımları, 7-11 Ekim 1968 Garmisch konferansı ve yazılım krizi (İngilizce)." },
     { title: "Wikipedia · The Mythical Man-Month", url: "https://en.wikipedia.org/wiki/The_Mythical_Man-Month", note: "Brooks yasasının özgün cümlesi, OS/360 deneyimi ve n(n − 1)/2 iletişim yolu hesabı (İngilizce)." },
     { title: "Vikipedi · Git (yazılım)", url: "https://tr.wikipedia.org/wiki/Git_(yazılım)", note: "Git'in 2005'te BitKeeper'ın yerine doğuşu ve dağıtık sürüm kontrolünün tasarım hedefleri (Türkçe)." },
