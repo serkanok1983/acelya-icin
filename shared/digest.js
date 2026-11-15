@@ -98,11 +98,11 @@
   }
 
   /* ── Bölüm üreticileri ── */
-  function sectionHead(num, title, note) {
+  function sectionHead(id, num, title, note) {
     return `
       <div class="digest-section-head">
         <span class="digest-num" aria-hidden="true">${esc(num)}</span>
-        <h3>${esc(title)}</h3>
+        <h3 id="${esc(id)}-baslik">${esc(title)}</h3>
         ${note ? `<small>${sanitize(note)}</small>` : ""}
       </div>`;
   }
@@ -110,8 +110,8 @@
   function renderStory(d) {
     if (!d.story?.length) return "";
     return `
-      <section class="digest-section" id="defter-hikaye" aria-labelledby="defter-hikaye-baslik">
-        ${sectionHead("01", "Hikâye", "Nereden çıktı, neden önemli")}
+      <section class="digest-section" id="defter-hikaye" aria-labelledby="defter-hikaye-baslik" tabindex="-1">
+        ${sectionHead("defter-hikaye", "01", "Hikâye", "Nereden çıktı, neden önemli")}
         <div class="digest-story">${paragraphs(d.story)}</div>
       </section>`;
   }
@@ -136,8 +136,8 @@
       )
       .join("");
     return `
-      <section class="digest-section" id="defter-kavramlar" aria-labelledby="defter-kavramlar-baslik">
-        ${sectionHead("02", "Kavramlar", "Katman katman")}
+      <section class="digest-section" id="defter-kavramlar" aria-labelledby="defter-kavramlar-baslik" tabindex="-1">
+        ${sectionHead("defter-kavramlar", "02", "Kavramlar", "Katman katman")}
         <div class="digest-core">${cards}</div>
       </section>`;
   }
@@ -160,8 +160,8 @@
       )
       .join("");
     return `
-      <section class="digest-section" id="defter-laboratuvar" aria-labelledby="defter-laboratuvar-baslik">
-        ${sectionHead("03", "Simülasyonda dene", "Tahmin → Dene → Gözle → Açıkla")}
+      <section class="digest-section" id="defter-laboratuvar" aria-labelledby="defter-laboratuvar-baslik" tabindex="-1">
+        ${sectionHead("defter-laboratuvar", "03", "Simülasyonda dene", "Tahmin → Dene → Gözle → Açıkla")}
         ${d.lab.intro ? `<p class="digest-lab-intro">${sanitize(d.lab.intro)}</p>` : ""}
         <div class="digest-lab">${cards}</div>
       </section>`;
@@ -173,8 +173,8 @@
       .map((w) => `<article class="digest-card"><h4>${sanitize(w.title)}</h4><p>${sanitize(w.body)}</p></article>`)
       .join("");
     return `
-      <section class="digest-section" id="defter-vay" aria-labelledby="defter-vay-baslik">
-        ${sectionHead("04", "Vay dedirtenler", "Aklında kalacak üç şey")}
+      <section class="digest-section" id="defter-vay" aria-labelledby="defter-vay-baslik" tabindex="-1">
+        ${sectionHead("defter-vay", "04", "Vay dedirtenler", "Aklında kalacak üç şey")}
         <div class="digest-wow">${cards}</div>
       </section>`;
   }
@@ -183,8 +183,8 @@
     const w = d.worked;
     if (!w?.steps?.length) return "";
     return `
-      <section class="digest-section digest-worked" id="defter-ornek" aria-labelledby="defter-ornek-baslik">
-        ${sectionHead("05", "Çözümlü örnek", w.title || "")}
+      <section class="digest-section digest-worked" id="defter-ornek" aria-labelledby="defter-ornek-baslik" tabindex="-1">
+        ${sectionHead("defter-ornek", "05", "Çözümlü örnek", w.title || "")}
         <p class="digest-prompt">${sanitize(w.prompt)}</p>
         <ol class="digest-steps">${w.steps.map((s) => `<li>${sanitize(s)}</li>`).join("")}</ol>
         ${w.result ? `<p class="digest-result"><strong>Sonuç.</strong> ${sanitize(w.result)}</p>` : ""}
@@ -203,8 +203,8 @@
       )
       .join("");
     return `
-      <section class="digest-section" id="defter-yanilgilar" aria-labelledby="defter-yanilgilar-baslik">
-        ${sectionHead("06", "Yaygın yanılgılar", "Herkes bir kez düşer")}
+      <section class="digest-section" id="defter-yanilgilar" aria-labelledby="defter-yanilgilar-baslik" tabindex="-1">
+        ${sectionHead("defter-yanilgilar", "06", "Yaygın yanılgılar", "Herkes bir kez düşer")}
         <div class="digest-myths">${cards}</div>
       </section>`;
   }
@@ -215,8 +215,8 @@
       .map((g) => `<div><dt>${sanitize(g.term)}</dt><dd>${sanitize(g.definition)}</dd></div>`)
       .join("");
     return `
-      <section class="digest-section" id="defter-sozluk" aria-labelledby="defter-sozluk-baslik">
-        ${sectionHead("07", "Sözlük", "Kısa ve kesin")}
+      <section class="digest-section" id="defter-sozluk" aria-labelledby="defter-sozluk-baslik" tabindex="-1">
+        ${sectionHead("defter-sozluk", "07", "Sözlük", "Kısa ve kesin")}
         <dl class="digest-glossary">${items}</dl>
       </section>`;
   }
@@ -226,8 +226,8 @@
     if (!b?.body) return "";
     const topics = (b.topics || []).map((t) => `<li>${sanitize(t)}</li>`).join("");
     return `
-      <section class="digest-section" id="defter-kopru" aria-labelledby="defter-kopru-baslik">
-        ${sectionHead("08", b.heading || "Üniversiteye köprü", "Bu fikir nereye gidiyor")}
+      <section class="digest-section" id="defter-kopru" aria-labelledby="defter-kopru-baslik" tabindex="-1">
+        ${sectionHead("defter-kopru", "08", b.heading || "Üniversiteye köprü", "Bu fikir nereye gidiyor")}
         <div class="digest-bridge">
           ${paragraphs(b.body)}
           ${topics ? `<ul class="digest-bridge-topics">${topics}</ul>` : ""}
@@ -294,8 +294,8 @@
       )
       .join("");
     return `
-      <section class="digest-section" id="defter-sinav" aria-labelledby="defter-sinav-baslik">
-        ${sectionHead("09", "Kendini sına", "Geri bildirimli")}
+      <section class="digest-section" id="defter-sinav" aria-labelledby="defter-sinav-baslik" tabindex="-1">
+        ${sectionHead("defter-sinav", "09", "Kendini sına", "Geri bildirimli")}
         <div class="digest-quiz">${items}</div>
         ${renderReasoning(d)}
       </section>`;
@@ -313,8 +313,8 @@
       )
       .join("");
     return `
-      <section class="digest-section" id="defter-sonraki" aria-labelledby="defter-sonraki-baslik">
-        ${sectionHead("10", "Sonraki durak", "Merak buradan devam eder")}
+      <section class="digest-section" id="defter-sonraki" aria-labelledby="defter-sonraki-baslik" tabindex="-1">
+        ${sectionHead("defter-sonraki", "10", "Sonraki durak", "Merak buradan devam eder")}
         <div class="digest-next">${cards}</div>
       </section>`;
   }
@@ -331,8 +331,8 @@
       )
       .join("");
     return `
-      <section class="digest-section" id="defter-kaynaklar" aria-labelledby="defter-kaynaklar-baslik">
-        ${sectionHead("11", "Daha derine", "Güvenilir kaynaklar")}
+      <section class="digest-section" id="defter-kaynaklar" aria-labelledby="defter-kaynaklar-baslik" tabindex="-1">
+        ${sectionHead("defter-kaynaklar", "11", "Daha derine", "Güvenilir kaynaklar")}
         <ul class="digest-sources">${items}</ul>
       </section>`;
   }

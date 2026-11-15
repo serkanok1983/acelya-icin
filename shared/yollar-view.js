@@ -119,16 +119,14 @@
 
   function trackList(tracks, label, progress, openSet) {
     const jump = tracks
-      .map((t) => `<a class="yol-chip" href="#${esc(t.id)}">${esc(t.icon)} ${esc(shortTitle(t.title))}</a>`)
+      .map((t) => `<a class="yol-chip" href="#${esc(t.id)}"><span aria-hidden="true">${esc(t.icon)}</span> ${esc(shortTitle(t.title))}</a>`)
       .join("");
     return `<nav class="yol-jump" aria-label="${esc(label)}">${jump}</nav>` +
       tracks.map((t) => trackHtml(t, progress, openSet.has(t.id) ? t.id : null)).join("");
   }
 
   function render(progress = lessonProgress.read()) {
-    const openId = decodeURIComponent(location.hash.slice(1));
     const openSet = new Set([...root.querySelectorAll("details.yol[open]")].map((d) => d.id));
-    if (openId) openSet.add(openId);
     if (mode === "onsart") {
       root.innerHTML = trackList(DATA.onsart, "Önşart dizileri", progress, openSet);
       return;
@@ -137,7 +135,7 @@
       { id: "secmeli-yollar", label: "Seçmeli Yollar", tracks: DATA.yollar.filter((y) => y.elective) },
       { id: "meslek-yollari", label: "Meslek Yolları", tracks: DATA.yollar.filter((y) => !y.elective) },
     ].map(({ id, label, tracks }) =>
-      `<section class="yol-group" aria-labelledby="${id}"><h2 id="${id}">${label}</h2>${trackList(tracks, label, progress, openSet)}</section>`,
+      `<section class="yol-group" aria-labelledby="${id}"><h2 id="${id}" tabindex="-1">${label}</h2>${trackList(tracks, label, progress, openSet)}</section>`,
     ).join("");
   }
 
@@ -155,15 +153,32 @@
 
   lessonProgress.subscribe(render);
 
-  window.addEventListener("hashchange", () => {
-    render();
-    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-    if (el) el.scrollIntoView({ block: "start" });
+  function focusTrack() {
+    let id;
+    try {
+      id = decodeURIComponent(location.hash.slice(1));
+    } catch (_) {
+      return;
+    }
+    const target = document.getElementById(id);
+    if (!target || !root.contains(target)) return;
+    if (target.matches("details.yol")) {
+      target.open = true;
+      target.querySelector("summary").focus({ preventScroll: true });
+    } else {
+      target.focus({ preventScroll: true });
+    }
+    target.scrollIntoView({ block: "start" });
+  }
+
+  root.addEventListener("click", (event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (event.target.closest(".yol-jump a")?.hash !== location.hash) return;
+    event.preventDefault();
+    focusTrack();
   });
+  window.addEventListener("hashchange", focusTrack);
 
   render();
-  if (location.hash) {
-    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-    if (el) el.scrollIntoView({ block: "start" });
-  }
+  focusTrack();
 })();

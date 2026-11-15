@@ -113,9 +113,8 @@ if (process.argv.includes("--browser")) {
   const browser = await chromium.launch();
   const errors = [];
   try {
-    for (const width of [1280, 375]) {
-      const touch = width <= 600;
-      const ctx = await browser.newContext({ viewport: { width, height: 800 }, isMobile: touch, hasTouch: touch, serviceWorkers: "block", reducedMotion: "reduce" });
+    for (const [width, height, touch] of [[1280, 800, false], [375, 800, true], [820, 1180, true]]) {
+      const ctx = await browser.newContext({ viewport: { width, height }, isMobile: touch, hasTouch: touch, serviceWorkers: "block", reducedMotion: "reduce" });
       const page = await ctx.newPage();
       page.on("pageerror", (e) => errors.push(e.message));
 
@@ -155,7 +154,7 @@ if (process.argv.includes("--browser")) {
       eq(await page.locator(".sub-head").count(), 0, `${width}: aramada ara başlık yok`);
       ok((await page.locator('.menu-card[href="turev.html"]').count()) === 1, `${width}: arama türevi buluyor`);
 
-      const input = page.getByRole("searchbox", { name: "Ders ve oyun ara" });
+      const input = page.getByRole("search", { name: "Katalog" }).getByRole("searchbox", { name: "Ders ve oyun ara" });
       const cards = page.locator(".menu-card");
       const picker = page.getByRole("combobox", { name: "Kategori", exact: true });
       const isMobile = width <= 600;
@@ -223,6 +222,7 @@ if (process.argv.includes("--browser")) {
       await page.waitForURL(`${base}/${filmHref}`);
       await page.goBack();
       eq(await input.inputValue(), "sinema", `${width}: tarayıcı geri dönüşünde arama sorgusu`);
+      ok(await film.evaluate((card) => card === document.activeElement), `${width}: tarayıcı geri dönüşünde odak ders kartında`);
       await expectCategory("beseri", `${width}: geri dönüşte kategori`);
       eq(await cards.count(), resultCount, `${width}: geri dönüşte aynı sonuçlar`);
       const restoredScroll = await page.evaluate(() => window.scrollY);
@@ -237,6 +237,7 @@ if (process.argv.includes("--browser")) {
       await page.getByRole("link", { name: "Ana sayfaya dön" }).click();
       await page.waitForURL(`${base}/index.html`);
       eq(await input.inputValue(), "sinema", `${width}: üst çubuktan dönüşte arama sorgusu`);
+      ok(await film.evaluate((card) => card === document.activeElement), `${width}: üst çubuktan dönüşte odak ders kartında`);
       await expectCategory("beseri", `${width}: üst çubuktan dönüşte kategori`);
       await input.press("Escape");
       await pickCategory("all");
@@ -297,6 +298,9 @@ if (process.argv.includes("--browser")) {
       ok(await page.getByRole("tab", { selected: true }).evaluate((el) => el === document.activeElement), `${width}: atölye etkin sekmeye odaklanır`);
       await lessonNav.getByRole("link", { name: "Keşif Defteri", exact: true }).press("Enter");
       eq(await page.evaluate(() => document.activeElement.id), "kesif-defteri-baslik", `${width}: ortak defter bağlantısı başlığa odaklanır`);
+      const worked = page.getByRole("region", { name: "Çözümlü örnek", exact: true });
+      await page.locator(".digest-nav").getByRole("link", { name: "Örnek", exact: true }).press("Enter");
+      ok(await worked.evaluate((section) => section === document.activeElement), `${width}: defter kısayolu adlandırılmış bölümü odaklar`);
       const digestSuggestion = await page.locator("#defter-sonraki .digest-next a").first().getAttribute("href");
       eq(await lessonNav.getByRole("link", { name: /^Sıradaki ders/ }).getAttribute("href"), digestSuggestion, `${width}: bağımsız derste defter önerisi`);
 
@@ -325,10 +329,17 @@ if (process.argv.includes("--browser")) {
       eq(await electiveGroup.locator("details.yol").count(), electiveIds.length, `${width}: seçmeli yollar ayrı bölümde`);
       const cinemaPath = electiveGroup.locator("#sinema-cozumleme");
       ok(await cinemaPath.getByText("Sıradaki ders · Sinema Dili ve Kurgu", { exact: true }).isVisible(), `${width}: kapalı kartta sıradaki ders`);
-      await electiveGroup.getByRole("link", { name: /Sinema ve Film Çözümleme/ }).click();
+      const cinemaJump = electiveGroup.getByRole("link", { name: "Sinema ve Film Çözümleme", exact: true });
+      await cinemaJump.press("Enter");
       const nextFilm = cinemaPath.locator("a.yol-next");
       await nextFilm.waitFor();
       ok(await cinemaPath.evaluate((detail) => detail.open), `${width}: seçmeli yol doğrudan açıldı`);
+      const cinemaSummary = cinemaPath.locator("summary");
+      ok(await cinemaSummary.evaluate((summary) => summary === document.activeElement), `${width}: yol kısayolu açılan yolun özetine odaklanır`);
+      await cinemaSummary.press("Enter");
+      await cinemaJump.press("Enter");
+      await nextFilm.waitFor();
+      ok(await cinemaSummary.evaluate((summary) => summary === document.activeElement), `${width}: aynı kısayol kapatılan yolu yeniden açar`);
       eq(await nextFilm.getAttribute("href"), "sinema-dili-ve-kurgu.html?yol=sinema-cozumleme", `${width}: sıradaki ilk ders`);
       const firstDone = cinemaPath.locator('input[data-done="sinema-dili-ve-kurgu"]');
       await firstDone.check();
