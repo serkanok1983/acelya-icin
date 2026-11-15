@@ -2,7 +2,7 @@
 
 **15 Kasım 2026 kapanışı.** U1–U10 ve genel değerlendirmeden sonraki düzeltme turları tamamlandı.
 Katalogda 326 kayıt, 11 meslek yolu, üç seçmeli yol ve sekiz önşart dizisi var. Yol ve önşart dizilerindeki
-tüm basamaklar açılabiliyor. Son doğrulanan uygulama commit'i `de1b44a`, Pages yayını `a1944c9` ve service
+tüm basamaklar açılabiliyor. Kapanışta doğrulanan uygulama commit'i `de1b44a`, Pages yayını `a1944c9` ve service
 worker sürümü `acelya-b5c62b91e5`. [Canlı site](https://serkanok1983.github.io/acelya-icin/)
 
 Kullanıcının isteği (13 Kasım): "Önce işi planla, yapıyı kur, sonra optimum sıra ile icra et." Hedef meslekler
@@ -249,7 +249,8 @@ olduğunu veya belirli bir düzeyde başladığını varsaymaksızın gereken ö
 
 ### Açık bakım notları
 
-Statik denetimdeki 158 uyarının 156'sı OpenStax bölüm doğrulama hatırlatması. İki içerik uyarısı
-Anatomi ve Fizyoloji Defteri'ndeki uzun çözüm adımı ve Aruz ve Hece Ölçüsü Defteri'ndeki altı kaynakla ilgili.
+Kapanışta kaydedilen iki içerik uyarısı bakım turunda giderildi. Anatomi ve Fizyoloji Defteri'ndeki uzun
+çözüm adımı kısaltıldı. Aruz ve Hece Ölçüsü Defteri'ndeki boş kaynak öğesi kaldırıldı ve Kutadgu Bilig
+başvurusu TDV maddesiyle güncellendi. Statik denetimde 156 OpenStax bölüm doğrulama hatırlatması var.
 Fiziksel telefon ve tablet ile ekran okuyucu denetimi ayrı doğrulama kapsamı olarak açık.
 Komutlar ve bakım ayrıntıları devir notunda. [Devir Notu](DEVIR-NOTU.md#7-açık-bakım-notları)

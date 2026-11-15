@@ -9,7 +9,7 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (`<slug>.html`, tek dosya, derleme adımı yok) ve altında bir **Keşif Defteri** (`shared/digest/<slug>.js`).
 - **Depo:** `/Users/serkanok/Development/HTML/acelya-icin` · uzak: `https://github.com/serkanok1983/acelya-icin.git`
   (dal `main`).
-- **Canlı site** GitHub Pages'in `gh-pages` dalından sunulur. Son doğrulanan uygulama commit'i `de1b44a`,
+- **Canlı site** GitHub Pages'in `gh-pages` dalından sunulur. Aşama kapanışında doğrulanan uygulama commit'i `de1b44a`,
   yayın commit'i `a1944c9` ve service worker sürümü `acelya-b5c62b91e5`. Yayın adımları §5'te. [Açelya'nın Yeri](https://serkanok1983.github.io/acelya-icin/)
 - **Kapanış kapsamı** 331 HTML sayfası, 326 katalog kaydı ve Keşif Defteri, 10 kategori, 14 öğrenme yolu
   (üçü seçmeli) ve sekiz önşart dizisi. Planlanan bütün yol dersleri açılabilir.
@@ -216,8 +216,9 @@ Yol kapsamı ve değerlendirme kararları planın kapanış bölümünde. [Öğr
 ## 7. Açık bakım notları
 
 - Statik denetimde 156 OpenStax bölüm doğrulama hatırlatması var. Kaynak turunda bağlantılar açılarak kontrol edildi.
-  İki içerik uyarısı açık kaldı. Anatomi ve Fizyoloji Defteri'ndeki bir çözüm adımı 508 karakter. Aruz ve Hece Ölçüsü
-  Defteri altı kaynak içeriyor ve beş kaynak önerisini aşıyor.
+- İki içerik uyarısı bakım turunda giderildi. Anatomi ve Fizyoloji Defteri'nin çözüm adımı 508 karakterden 406'ya
+  indi. Aruz ve Hece Ölçüsü Defteri'nin kaynak listesi beş dolu kayıttan oluşuyor. Kutadgu Bilig'in ana bölümüyle
+  sondaki iki parçanın ölçü ayrımı TDV maddesine göre açıklandı.
 - Son tarayıcı turu mobil emülasyon, masaüstü ve klavye etkileşimlerini kapsadı. Fiziksel telefon ve tablet ile ekran
   okuyucu denetimi ayrı doğrulama kapsamı olarak açık.
 - `scripts/check-g-hukuk-felsefesi.mjs --browser` bir kez açıklamasız düştü, sonraki koşularda geçti; tam turda
