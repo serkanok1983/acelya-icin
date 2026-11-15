@@ -190,7 +190,7 @@ yöntem, kültürel ve eleştirel psikoloji, ilişkisel psikanaliz ve zihinselle
 yaklaşımları Psikolog öğrenme yoluna eklendi. Psikoloji Ekolleri Dizini 72 düşünür ve araştırmacıyı önceki ve
 yeni derslerle ilişkilendirir.
 
-### U10 · Sinema kuramı, akımları ve film çözümleme (~9 ders)
+### U10 · Sinema kuramı, akımları ve film çözümleme (9 ders, tamamlandı)
 Sinema akımları (Sovyet montajı, Alman dışavurumculuğu, klasik Hollywood, İtalyan yeni gerçekçiliği, Fransız Yeni Dalgası,
 Japon sineması, Yeşilçam ve Türk sineması, Dogme, çağdaş) · film kuramları (biçimci: Eisenstein, Arnheim; gerçekçi:
 Bazin, Kracauer; auteur kuramı; göstergebilim: Metz; psikanalitik ve feminist: Mulvey; bilişsel: Bordwell) · senaryo ve
@@ -199,8 +199,9 @@ kostüm) · kurgu ve zaman (mevcut Sinema Dili ve Kurgu sayfasının devamı: an
 geri dönüş) · ses ve film müziği (diegetik/diegetik olmayan, leitmotif) · oyunculuk yöntemleri (Stanislavski, Method,
 Brecht) · belgesel ve deneysel sinema · film çözümleme atölyesi (kamu malı filmler üzerinde sahne sahne okuma).
 
-Menü: U9 ve U10 için "Dil, Felsefe ve Sanat" grubu bölünebilir (ör. "Edebiyat ve Sinema" ayrı grup). Sıra:
-U6 → U7 → U8 → U9 → U10. Kapsamda üst sınır yok; kullanıcı "500 ders de olur" dedi.
+Yeni sayfalar ve Sinema Dili ve Kurgu, “Dil, Felsefe ve Sanat” grubundaki “Sinema” alt başlığında.
+Film Çözümleme Atölyesi, 1903 tarihli The Great Train Robbery ile 1910 tarihli Frankenstein’ın kamu malı
+ve ses izi bulunmayan arşiv kopyalarında 17 bölümü zaman damgası, gözlem ve soruyla açar.
 
 ## 7. U10'dan sonra: genel değerlendirme (kullanıcı isteği, 13 Kasım 2026)
 

@@ -227,6 +227,13 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 40
   },
+  "belgesel-ve-deneysel-sinema": {
+    "title": "Belgesel ve Deneysel Sinema",
+    "tagline": "Bir iskelenin nasıl anlatıldığına bakarak belgeselde gözlem, tanıklık, açıklama ve temsil etiğini, deneysel sinemada ritim ve biçimi incele.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "bellek-ve-ogrenme": {
     "title": "Bellek ve Öğrenme: Unutmayı Ölçmek",
     "tagline": "Bellek doğrudan görülmez; ne kadar sürede yeniden öğrendiğimizden, hangi sözcüğü geri çağırdığımızdan ve neyi yanlışlıkla \"hatırladığımızdan\" ölçülür. Ebbinghaus'un 1885 verisinden yanlış anılara.",
@@ -674,6 +681,20 @@ window.ACELYA_CATALOG = {
     "field": "Matematik",
     "level": "Lise–Lisans",
     "minutes": 35
+  },
+  "film-cozumleme-atolyesi": {
+    "title": "Film Çözümleme Atölyesi",
+    "tagline": "The Great Train Robbery ve Frankenstein’ın sessiz arşiv kopyalarını sahne sahne izle. Gözlemi, yorumu ve yorumun sınırını karşılaştır.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 55
+  },
+  "film-kuramlari": {
+    "title": "Film Kuramları",
+    "tagline": "Eisenstein, Arnheim, Bazin, Kracauer, auteur kuramı, Metz, Mulvey ve Bordwell ile aynı sahneye farklı açıklamalar getir.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 50
   },
   "finans-matematigi": {
     "title": "Faiz ve Paranın Zamanı",
@@ -1788,6 +1809,13 @@ window.ACELYA_CATALOG = {
     "level": "Lisans",
     "minutes": 40
   },
+  "senaryo-ve-dramaturji": {
+    "title": "Senaryo ve Dramaturji",
+    "tagline": "Üç perdeyi ve alternatif yapıları bir teslimat sahnesi üzerinde dene. Çatışma, karakter arkı ve alt metnin nasıl dramatik eyleme dönüştüğünü incele.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
   "serbest-dusme": {
     "title": "Serbest Düşme: Tüy, Çekiç ve Hava",
     "tagline": "Stroboskop izlerinden Galileo'nun tek sayılarını ve g'yi ölç; havada limit hızın kütleye nasıl bağlandığını gör; Ay'daki tüy ile çekici ve yuvarlanan bilyenin 5/7 çarpanını sına.",
@@ -1837,9 +1865,44 @@ window.ACELYA_CATALOG = {
     "level": "Lise–Lisans",
     "minutes": 35
   },
+  "sinema-akimlari": {
+    "title": "Sinema Akımları",
+    "tagline": "Sovyet montajından Yeni Dalga’ya, Yeşilçam’dan Dogme 95’e bir sahnenin biçim ve üretim kararlarını dokuz örnek üzerinden karşılaştır.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 50
+  },
   "sinema-dili-ve-kurgu": {
     "title": "Sinema Dili ve Kurgu: Kareden Montaja",
     "tagline": "Saniyede yirmi dört durağan resim nasıl akan bir dünyaya dönüşür? Kare hızı, mercek, 180° kuralı ve montaj: sinemanın dil bilgisini kendi kameranla, kendi kesmelerinle dene.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "sinemada-kurgu-ve-zaman": {
+    "title": "Sinemada Kurgu ve Zaman",
+    "tagline": "Kronolojik ve paralel kurguyu, geri dönüşü, elipsi, yinelemeyi ve süreyi aynı olayın alternatif plan sıraları üzerinde karşılaştır.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "sinemada-mizansen": {
+    "title": "Sinemada Mizansen",
+    "tagline": "Özgün bir mekân taslağında kadrajı, ışığı, renkleri, dekoru, kostümü ve oyuncunun konumunu değiştirerek dikkatin nasıl yöneldiğini izle.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "sinemada-oyunculuk-yontemleri": {
+    "title": "Sinemada Oyunculuk Yöntemleri",
+    "tagline": "Stanislavski, Method çevresi ve Brecht’in oyunculuk yaklaşımlarını aynı replikte dene. Kamera ölçeği ve çekim tekrarının etkisini izle.",
+    "field": "Sinema",
+    "level": "Lise–Lisans",
+    "minutes": 35
+  },
+  "sinemada-ses-ve-film-muzigi": {
+    "title": "Sinemada Ses ve Film Müziği",
+    "tagline": "Kısa ve özgün ses örnekleriyle öykü dünyası, kadraj dışı kaynak, ses köprüsü, motif ve izleyicinin duyma konumunu karşılaştır.",
     "field": "Sinema",
     "level": "Lise–Lisans",
     "minutes": 35

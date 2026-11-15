@@ -170,6 +170,11 @@ window.ACELYA_DIGEST["metinlerarasilik-ve-uyarlama"] = {
       "href": "sinema-dili-ve-kurgu.html",
       "title": "Sinema Dili ve Kurgu: Kare Hızı, Kadraj, 180° Kuralı ve Montaj",
       "why": "Kurgu ve işitsel bilginin görsel anlatıyı nasıl kurduğunu dene."
+    },
+    {
+      "href": "film-cozumleme-atolyesi.html",
+      "title": "Film Çözümleme Atölyesi",
+      "why": "1910 yapımı Frankenstein’da mektup, ara yazı, renk ve aynanın işini sahne sahne incele."
     }
   ],
   "sources": [

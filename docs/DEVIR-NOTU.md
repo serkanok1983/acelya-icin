@@ -11,7 +11,7 @@ Bu belge, projeyi başka bir ajana (ya da yeni bir oturuma) eksiksiz devretmek i
   (dal `main`).
 - **Canlı:** https://serkanok1983.github.io/acelya-icin (GitHub Pages, `gh-pages` dalı; GitHub Actions kullanılmıyor,
   yayın yerelden elle yapılır, bkz. §5).
-- **Boyut (15 Kasım, U9 sonrası):** 316 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
+- **Boyut (15 Kasım, U10 sonrası):** 325 konu sayfası + `index.html`, `bilgi.html`, `404.html`, `ogrenme-yollari.html`,
   `onsart.html`. Menüde 10 grup.
 
 ## 2. Kullanıcının kalıcı kuralları (bağlayıcı; birebir sözleri)
@@ -149,7 +149,9 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
   `scripts/check-g-u8.mjs --browser` yeni dersleri, üç iktisat modelini ve ortak düşünürlerin bağlantılarını sınar.
 - U9 ile 10 edebiyat ve 5 psikoloji dersi, ayrıca 72 kişilik Psikoloji Ekolleri Dizini eklendi.
   `scripts/check-g-u9.mjs --browser` atölyeleri, dizini, aramayı, öğrenme yolunu ve Keşif Defterlerini sınar.
-- Bir sonraki iş **U10**.
+- U10 ile dokuz sinema sayfası eklendi. Atölye iki arşiv filminde 17 bölümü çözümlemeye açar.
+  `scripts/check-g-u10.mjs --browser` ders seçimlerini, oynatma hatası durumunu, arşiv bağlantılarını ve sesi sınar.
+- Sırada öğrenme yolları planının §7 bölümündeki genel değerlendirme var.
 
 ### Tamamlanan turlar (hepsi yayında)
 - **U1** — on dengeli menü grubu ve ara başlıklar; Bilim Atlası ve STEM Omurgası kaldırıldı (konular dağıtıldı);
@@ -178,13 +180,14 @@ etkileşimsiz kabukta takılabilir: dizin listelemek için `/bin/ls` kullan. Tes
 - **U9** — edebiyat akımları, iki eleştiri dersi, karakter, anlatım teknikleri, söz sanatları, tiyatro, tür, şiir
   ve uyarlama. Beş psikoloji dersi ve Psikoloji Ekolleri Dizini “İnsan ve Toplum” grubunda ve Psikolog yolunda.
 
+- **U10** — akımlar, kuramlar, dramaturji, mizansen, kurgu, ses, oyunculuk, belgesel ve deneysel sinema,
+  arşiv filmleriyle çözümleme. Yeni sayfalar mevcut Sinema Dili ve Kurgu dersiyle aynı alt başlıktadır.
+
 Tur ayrıntıları `docs/simulasyon-notlari.md` belgesinde.
 
 ### Sıradaki işler (sırasıyla; ayrıntılı kapsam `docs/OGRENME-YOLLARI-PLANI.md` §3, §5, §6, §7)
-1. **U10** — sinema kuramı, akımları, senaryo, mizansen, kurgu, ses, oyunculuk, belgesel, film çözümleme atölyesi.
-   U9–U10 için "Edebiyat ve Sinema" grubu açılabilir.
-2. **Genel değerlendirme.** içerik zenginliği ve kalite denetimi + boşluk analizi; ardından UI/UX değerlendirmesi
-   (`docs/OGRENME-YOLLARI-PLANI.md` §7).
+1. **İçerik değerlendirmesi** — zenginlik, kalite ve boşluk analizi.
+2. **UI/UX değerlendirmesi** — dolaşım, erişilebilirlik, tema ve mobil kullanım (öğrenme yolları planı §7).
 
 Her tur için önce, o turun özel kurallarını `docs/ajan-sozlesmeleri/_onsart.md` sonuna "U5 additions" gibi bir
 bölüm olarak ekle (U3/U4 örneklerine bak), gerekirse `SOURCE_PREFIXES`'e alan adları ekle, sonra sekiz kurucuyu başlat.

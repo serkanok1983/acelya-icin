@@ -183,7 +183,7 @@ window.ACELYA_DIGEST["sinema-dili-ve-kurgu"] = {
     { href: "perspektif-ve-simetri.html", title: "Perspektif ve Simetri: Kaçış Noktaları, Duvar Kâğıdı Grupları ve Girih", why: "Kadrajın geometrisi: bir kutuyu çevirip kaçış noktalarını ölç, Alberti'nin döşemesini kur ve anamorfik bir resmi doğru açıdan gör." },
     { href: "mercek-isinlari.html", title: "İnce Mercekler: Işın Diyagramı ve Görüntü Oluşumu", why: "Odak uzaklığı, görüntü uzaklığı ve büyütme: netlik alanı formülünün dayandığı ince mercek denklemini ışın diyagramıyla gör." },
     { href: "algi-psikolojisi.html", title: "Algı Psikolojisi: Yanılsamalar, Eşikler, Sinyal Saptama ve Tepki Süresi", why: "İki ışık deneyinde ne gördüğünü ölçmenin yöntemi: eşiklerini, karar ölçütünü ve tepki süreni kendin ölç." },
-    { href: "anlati-yapisi-ve-edebiyat-cozumlemesi.html", title: "Anlatı Yapısı: Aristoteles, Propp ve Genette ile Metin Çözümleme", why: "Kurgu zamanı yeniden düzenler: kamu malı metinlerde olay sırasını, anlatıcıyı ve Propp'un işlevlerini çözümle." },
+    { href: "sinemada-kurgu-ve-zaman.html", title: "Sinemada Kurgu ve Zaman", why: "Kronolojik ve paralel dizimi, geri dönüşü ve elipsi aynı planlar üzerinde karşılaştır." },
   ],
   sources: [
     { title: "Wikipedia · Persistence of vision", url: "https://en.wikipedia.org/wiki/Persistence_of_vision", note: "D'Arcy 1768, Roget 1824, Plateau ve Stampfer, Carpenter 1868, Wertheimer 1912 ve Anderson ve Anderson'ın 1993 eleştirisi; kalıcılık ile phi tartışmasının özeti (İngilizce)." },

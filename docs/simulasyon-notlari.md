@@ -2252,3 +2252,18 @@ yorumlarını karşılaştıran bir çizim bulunur.
 
 `scripts/check-g-u9.mjs --browser` iki ekran boyutunda atölye seçimlerini, metin vurgularını, sıfırlamayı,
 dizin aramasını ve derin bağlantılarını, katalog aramasını ve Keşif Defterlerini denetler.
+
+## 15 Kasım 2026 — U10 · Sinema
+
+Sekiz kavram dersinde 53 etkileşimli seçim var. Akımlar ve film kuramları aynı konuyu farklı biçim kararları
+ve inceleme sorularıyla ele alır. Senaryo ve Dramaturji, Sinemada Mizansen, Sinemada Kurgu ve Zaman,
+Sinemada Ses ve Film Müziği, Sinemada Oyunculuk Yöntemleri ile Belgesel ve Deneysel Sinema özgün sahne
+taslakları kullanır. Mizansen için kadraj ve sahne düzeni çizimi, ses için düğmeyle başlatılan kısa sentezler var.
+
+Film Çözümleme Atölyesi’nde The Great Train Robbery (1903) ve Frankenstein (1910) 17 zaman aralığına
+ayrıldı. Zamanlar derste oynatılan Commons kopyalarına bağlı. VP9 kopyalarında ses akışı bulunmadığı
+`ffprobe` ile doğrulandı. Video, oynatma isteğinden sonra yüklenir. Arşiv kayıtları, kamu malı dayanakları,
+sahne soruları ve oynatma sorunu durumunda kopya bağlantısı aynı sayfada bulunur.
+
+`scripts/check-g-u10.mjs --browser` iki temada ders ve sahne seçeneklerini, sentezlenmiş sesi, açıklamaları,
+sahne bağlantılarını, video hatası durumunu ve katalog aramasını denetler.
